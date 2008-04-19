@@ -5,9 +5,6 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "ParabolaFit.h"
 #include <vector>
@@ -19,15 +16,8 @@ public:
   typedef TkRotation<double> Rotation;
   typedef Basic2DVector<double> PointXY;
 
-  ConformalMappingFit(const std::vector<PointXY> & hits, const edm::ParameterSet & cfg);
-  ConformalMappingFit(const std::vector<const TrackingRecHit* > &hits, 
-      const TrackingRegion & region,
-      const edm::EventSetup& es, const edm::ParameterSet &cfg);
-
-//  ConformalMappingFit(const std::vector<RecHit>& hits,
-//      const Rotation * rot = 0,
-//      const std::vector<TrajectoryStateOnSurface> * tsos = 0,
-//      bool useMultScatt = false, float pt = 1., float zVtx = 0.);
+  ConformalMappingFit( const std::vector<PointXY> & hits, const std::vector<float> & errRPhi2,
+      const Rotation * rotation = 0);
 
   ~ConformalMappingFit();
 
@@ -40,9 +30,10 @@ public:
 
   const Rotation * rotation() const { return theRotation; }
 
+  void fixImpactParmaeter(double ip) { theFit.fixParC(ip); }
+  void skipErrorCalculation() { theFit.skipErrorCalculationByDefault(); }
+
 private:
-  void init( const std::vector<PointXY> & hits, 
-      const std::vector<float> & errRPhi2, const Rotation * rot = 0);
   double phiRot() const;
   void findRot( const PointXY &);
 

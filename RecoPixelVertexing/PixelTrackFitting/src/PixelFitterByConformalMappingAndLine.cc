@@ -2,25 +2,35 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CommonTools/Statistics/interface/LinearFit.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
+
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+
 #include "ConformalMappingFit.h"
 #include "PixelTrackBuilder.h"
+#include "RZLine.h"
+
+#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
+#include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 
 using namespace std;
 
@@ -32,22 +42,20 @@ PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(
 { }
 
 PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine()
-{
-//  std::cout << " **** HERE PixelFitterByConformalMappingAndLine CTOR"<< std::endl;
-}
-
+{ }
 
 reco::Track* PixelFitterByConformalMappingAndLine::run(
     const edm::EventSetup& es,
     const std::vector<const TrackingRecHit * > & hits,
     const TrackingRegion & region) const
 {
-  int nhits = hits.size();
-  if (nhits < 3) return 0;
 
-  vector<float> z,r, errZ;
-  typedef ConformalMappingFit::PointXY PointXY;
-  vector<PointXY> xy;
+  int nhits = hits.size();
+
+  vector<GlobalPoint> points;
+  vector<GlobalError> errors;
+  vector<bool> isBarrel;
+  
 
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -55,58 +63,76 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   edm::ESHandle<MagneticField> field;
   es.get<IdealMagneticFieldRecord>().get(field);
 
-  for ( vector<const TrackingRecHit *>::const_iterator
-        ih = hits.begin();  ih != hits.end(); ih++) {
-    const GeomDet * det = tracker->idToDet( (**ih).geographicalId());
-    GlobalPoint p = det->surface().toGlobal( (**ih).localPosition());
-    xy.push_back( PointXY(p.x(), p.y()) );
-    z.push_back( p.z() );
-    r.push_back( p.perp());
+  edm::ESHandle<TransientTrackingRecHitBuilder> ttrhBuilder;
+  string ttrhBuilderName = theConfig.getParameter<std::string>("TTRHBuilder");
+  es.get<TransientRecHitRecord>().get( ttrhBuilderName, ttrhBuilder);
+
+  for (vector<const TrackingRecHit*>::const_iterator ih=hits.begin();  ih!=hits.end(); ih++) {
+    TransientTrackingRecHit::RecHitPointer recHit = ttrhBuilder->build(*ih);
+    points.push_back( recHit->globalPosition() );
+    errors.push_back( recHit->globalPositionError() );
+    isBarrel.push_back( recHit->detUnit()->type().isBarrel() );
   }
+
+//    if (useMultScatt) {
+//      MultipleScatteringParametrisation ms(hits[i].layer());
+//      float cotTheta = (p.z()-zVtx)/p.perp();
+//      err += sqr( ms( pt, cotTheta, PixelRecoPointRZ(0.,zVtx) ) );
+//    }
 
   //
   // simple fit to get pt, phi0 used for precise calcul.
   //
-  ConformalMappingFit parabola(hits, region, es, theConfig);
-  //ConformalMappingFit parabola(xy, theConfig);
-
-  //
-  // precalculate theta to correct errors:
-  //
-//  float simpleCot = ( z.back()-z.front() )/ (r.back() - r.front() );
-  for (int i=0; i< nhits; i++) {
-    errZ.push_back(0.01); // temporary
-// const GeomDet * det = tracker->idToDet( (*hits[i]).geographicalId());
-// GlobalError err = det->surface().toGlobal( (*hits[i]).localPositionError());
-//   GlobalError err = hits[i].globalPositionError();
-//   r[i] += PixelRecoUtilities::longitudinalBendingCorrection(r[i],simple.pT());
-//   if (hits[i].layer()->part() == barrel) {
-//     errZ.push_back( sqrt(err.czz()) );
-//   } else {
-//     errZ.push_back( sqrt( err.rerr(hits[i].globalPosition()) )*simpleCot );
-//   }
+  typedef ConformalMappingFit::PointXY PointXY;
+  vector<PointXY> xy; vector<float> errRPhi2;
+  for (int i=0; i < nhits; ++i) {
+    const GlobalPoint & point = points[i];
+    xy.push_back(PointXY( point.x()-region.origin().x(), point.y()-region.origin().y()));
+    float phiErr2 = errors[i].phierr(point);
+    errRPhi2.push_back( point.perp2()*phiErr2);
+  }
+  ConformalMappingFit parabola(xy, errRPhi2);
+  if (theConfig.exists("fixImpactParameter") || nhits < 3)
+      parabola.fixImpactParmaeter(theConfig.getParameter<double>("fixImpactParameter"));
+  else if (nhits < 3) {
+      parabola.fixImpactParmaeter(0.);
   }
 
-  //
-  // line fit (R-Z plane)
-  //
-  float cottheta, intercept, covss, covii, covsi;
-  LinearFit().fit( r,z, nhits, errZ, cottheta, intercept, covss, covii, covsi);
-
-//
-// parameters for track builder 
-//
   Measurement1D curv = parabola.curvature();
   float invPt = PixelRecoUtilities::inversePt( curv.value(), es);
   float valPt =  (invPt > 1.e-4) ? 1./invPt : 1.e4;
   float errPt =PixelRecoUtilities::inversePt(curv.error(), es) * sqr(valPt);
   Measurement1D pt (valPt,errPt);
-  cout << " reconstructed momentum: " << pt.value() << endl;
   Measurement1D phi = parabola.directionPhi();
   Measurement1D tip = parabola.impactParameter();
+
+  //
+  // precalculate theta to correct errors:
+  //
+  vector<float> r(nhits),z(nhits),errZ(nhits);
+  float simpleCot = ( points.back().z()-points.front().z() )/ (points.back().perp() - points.front().perp() );
+  for (int i=0; i< nhits; ++i) {
+    const GlobalPoint & point = points[i]; 
+    const GlobalError & error = errors[i];
+    r[i] = sqrt( sqr(point.x()-region.origin().x()) + sqr(point.y()-region.origin().y()) );
+    r[i] += pixelrecoutilities::LongitudinalBendingCorrection(pt.value(),es)(r[i]);
+    z[i] = point.z();  
+    errZ[i] =  (isBarrel[i]) ? sqrt(error.czz()) : sqrt( error.rerr(point) )*simpleCot;
+  }
+
+  //
+  // line fit (R-Z plane)
+  //
+  RZLine rzLine(r,z,errZ);
+  float      cottheta, intercept, covss, covii, covsi;
+  rzLine.fit(cottheta, intercept, covss, covii, covsi);
+  
+//
+// parameters for track builder 
+//
   Measurement1D zip(intercept, sqrt(covii));
   Measurement1D cotTheta(cottheta, sqrt(covss));  
-  float chi2 = parabola.chi2();
+  float chi2 = parabola.chi2() +  rzLine.chi2(cottheta, intercept);
   int charge = parabola.charge();
 
 

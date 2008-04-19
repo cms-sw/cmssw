@@ -12,6 +12,9 @@ public:
   RZLine( const std::vector<GlobalPoint> & points, 
           const std::vector<GlobalError> & errors, 
           const std::vector<bool> isBarrel);
+  RZLine( const std::vector<float> & aR, 
+          const std::vector<float> & aZ, 
+          const std::vector<float> & aErrZ);
 
   void fit(float & cotTheta, float & intercept, float &covss, float &covii, float &covsi) const; 
 
