@@ -69,10 +69,13 @@ void PixelTripletHLTGenerator::hitTriplets(
 //
     const TrackingRecHit * h1 = (*ip).inner();
     const TrackingRecHit * h2 = (*ip).outer();
-    GlobalPoint gp1 = tracker->idToDet( 
+    GlobalPoint gp1tmp = tracker->idToDet( 
         h1->geographicalId())->surface().toGlobal(h1->localPosition());
-    GlobalPoint gp2 = tracker->idToDet( 
+    GlobalPoint gp2tmp = tracker->idToDet( 
         h2->geographicalId())->surface().toGlobal(h2->localPosition());
+
+    GlobalPoint gp1(gp1tmp.x()-region.origin().x(), gp1tmp.y()-region.origin().y(), gp1tmp.z());
+    GlobalPoint gp2(gp2tmp.x()-region.origin().x(), gp2tmp.y()-region.origin().y(), gp2tmp.z());
 
     PixelRecoPointRZ point1(gp1.perp(), gp1.z());
     PixelRecoPointRZ point2(gp2.perp(), gp2.z());
@@ -129,11 +132,14 @@ void PixelTripletHLTGenerator::hitTriplets(
    
       while ( (th = thirdHits.getHit()) ) {
 
-        float p3_r = th->r();
-        float p3_z = th->z();
-        float p3_phi = th->phi();
- 
         const TransientTrackingRecHit::ConstRecHitPointer& hit = (*th);
+        GlobalPoint point(hit->globalPosition().x()-region.origin().x(),
+                          hit->globalPosition().y()-region.origin().y(),
+                          hit->globalPosition().z() ); 
+        float p3_r = point.perp();
+        float p3_z = point.z();
+        float p3_phi = point.phi();
+ 
         if (barrelLayer) {
           ThirdHitRZPrediction::Range allowedZ = predictionRZ(p3_r);
           correction.correctRZRange(allowedZ);
