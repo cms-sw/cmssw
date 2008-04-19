@@ -1,61 +1,52 @@
 #ifndef PhysicsTools_Utilities_Minus_h
 #define PhysicsTools_Utilities_Minus_h
 
-namespace funct {
-
+namespace function {
   template<typename A, unsigned int args = A::arguments>
-  struct MinusStruct { 
+  class Minus { 
+  public:
     static const unsigned int arguments = args;
   };
 
   template<typename A>
-  struct MinusStruct<A, 0> { 
+  class Minus<A, 0> { 
+  public:
     static const unsigned int arguments = 0;
-    MinusStruct() : _() { }
-    MinusStruct(const A & a) : _(a) { }
+    Minus(const A & a) : a_(a) { }
     double operator()() const {
-      return - _();
+      return - a_();
     }
-    operator double() const {
-      return - _();
-    }
-    A _; 
+  private:
+    A a_; 
   };
 
   template<typename A>
-  struct MinusStruct<A, 1> { 
+  class Minus<A, 1> { 
+  public:
     static const unsigned int arguments = 1;
-    MinusStruct() : _() { }
-    MinusStruct(const A & a) : _(a) { }
+    Minus(const A & a) : a_(a) { }
     double operator()(double x) const {
-      return - _(x);
+      return - a_(x);
     }
-    A _; 
+  private:
+    A a_; 
   };
 
   template<typename A>
-  struct MinusStruct<A, 2> { 
+  class Minus<A, 2> { 
+  public:
     static const unsigned int arguments = 2;
-    MinusStruct() : _() { }
-    MinusStruct(const A & a) : _(a) { }
+    Minus(const A & a) : a_(a) { }
     double operator()(double x, double y) const {
-      return - _(x, y);
+      return - a_(x, y);
     }
-    A _; 
+  private:
+    A a_; 
   };
-
-  template<typename A>
-  struct Minus {
-    typedef MinusStruct<A> type;
-    static type operate(const A& a) {
-      return type(a);
-    }
-  };
-
-  template<typename A>
-  inline typename Minus<A>::type operator-(const A& a) {
-    return Minus<A>::operate(a);
-  }
+}
+template<typename A>
+function::Minus<A> operator-(const A& a) {
+  return function::Minus<A>(a);
 }
 
 #endif

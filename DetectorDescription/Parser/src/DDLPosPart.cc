@@ -15,7 +15,9 @@
 
 // Parser parts
 #include "DDLPosPart.h"
+#include "DDLRotationAndReflection.h"
 #include "DDLElementRegistry.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -25,6 +27,7 @@
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <string>
 
 // Default constructor
 DDLPosPart::DDLPosPart()

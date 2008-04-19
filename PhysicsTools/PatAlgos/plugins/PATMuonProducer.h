@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.1.2.1 2008/04/03 13:34:22 gpetrucc Exp $
+// $Id: PATMuonProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.1.2.1 2008/04/03 13:34:22 gpetrucc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 */
 
 
@@ -26,8 +26,6 @@
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 #include <string>
 
@@ -60,6 +58,13 @@ namespace pat {
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   muonResoFile_;
+      bool          doIsoFromDeposit_;
+      bool          doTrkIso_;
+      bool          doCalIso_;
+      edm::InputTag trackIsoSrc_;
+      edm::InputTag ecalIsoSrc_;
+      edm::InputTag hcalIsoSrc_;
+      edm::InputTag hocalIsoSrc_;
       bool          addMuonID_;
       bool          addLRValues_;
       edm::InputTag tracksSrc_;
@@ -68,10 +73,6 @@ namespace pat {
       ObjectResolutionCalc * theResoCalc_;
       LeptonLRCalc         * theLeptonLRCalc_;
       GreaterByPt<Muon>      pTComparator_;
-
-      pat::helper::MultiIsolator isolator_; 
-      pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
-      std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
 
   };
 

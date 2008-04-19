@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.80 2008/03/01 17:48:13 wmtan Exp $
+$Id: PoolSource.cc,v 1.81 2008/03/19 19:42:00 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootInputFileSequence.h"
@@ -10,6 +10,8 @@ $Id: PoolSource.cc,v 1.80 2008/03/01 17:48:13 wmtan Exp $
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Common/interface/ClassFiller.h"
+
+#include "TTreeCache.h"
 
 #include <set>
 
@@ -31,8 +33,8 @@ namespace edm {
 
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
-    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog())),
-    secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1))),
+    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
+    secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1), false)),
     productIDsToReplace_() {
     ClassFiller();
     if (secondaryFileSequence_) {
@@ -62,6 +64,7 @@ namespace edm {
 
   void
   PoolSource::endJob() {
+    if (secondaryFileSequence_) secondaryFileSequence_->closeFile_();
     closeFile_();
   }
 
@@ -76,7 +79,6 @@ namespace edm {
   }
 
   void PoolSource::closeFile_() {
-    if (secondaryFileSequence_) secondaryFileSequence_->closeFile_();
     primaryFileSequence_->closeFile_();
   }
 

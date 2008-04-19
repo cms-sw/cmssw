@@ -7,12 +7,10 @@ source = cms.Source("FlatRandomEGunSource",
         MaxPhi = cms.untracked.double(3.14159265359),
         MinEta = cms.untracked.double(-5.0),
         MinE = cms.untracked.double(29.99),
-        MinPhi = cms.untracked.double(-3.14159265359), ## in radians
-
+        MinPhi = cms.untracked.double(-3.14159265359),
         MaxE = cms.untracked.double(30.01)
     ),
-    Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
-
+    Verbosity = cms.untracked.int32(0),
     psethack = cms.string('single pi E 30 HCAL'),
     AddAntiParticle = cms.untracked.bool(True),
     firstRun = cms.untracked.uint32(1)

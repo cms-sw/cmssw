@@ -1,11 +1,9 @@
-#define __STDC_LIMIT_MACROS 1
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cerrno>
 #include <unistd.h>
-#include <stdint.h>
 #include <time.h>
 
 static double realNanoSecs (void)
@@ -164,8 +162,8 @@ RFIOFile::open (const char *name,
   if ((newfd = rfio_open64 (lname.c_str(), openflags, perms)) == -1)
     throw cms::Exception("RFIOFile::open()")
       << "rfio_open(name='" << lname
-      << "', flags=0x" << std::hex << openflags
-      << ", permissions=0" << std::oct << perms << std::dec
+      << "', flags=" << openflags
+      << ", permissions=" << perms
       << ") => error '" << rfio_serror ()
       << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno << ")";
 
@@ -378,38 +376,35 @@ RFIOFile::resize (IOOffset /* size */)
     << "RFIOFile::resize(name='" << m_name << "') not implemented";
 }
 
-bool
-RFIOFile::prefetch (const IOPosBuffer *what, IOSize n)
+void          
+RFIOFile::preseek(const IOBuffer *offsets, IOSize buffers)
 {
+  std::vector<iovec> iov (buffers);
+  for (IOSize i = 0; i < buffers; ++i)
+  {
+    iov[i].iov_base = offsets[i].data();
+    iov[i].iov_len = offsets[i].size();
+  }
+
   if (rfioreadopt (RFIO_READOPT) != 1)
     throw cms::Exception("RFIOFile::preseek()")
-      << "RFIOFile::prefetch() called but RFIO_READOPT="
+      << "RFIOFile::preseek() called but RFIO_READOPT="
       << rfioreadopt (RFIO_READOPT) << " (must be 1)";
-
-  std::vector<iovec64> iov (n);
-  for (IOSize i = 0; i < n; ++i)
-  {
-    iov[i].iov_base = what[i].offset();
-    iov[i].iov_len = what[i].size();
-  }
 
   serrno = 0;
   int retry = 5;
   int result;
-  while ((result = rfio_preseek64(m_fd, &iov[0], n)) == -1)
+  while ((result = rfio_preseek64(m_fd, &iov[0], iov.size())) == -1)
   {
     if (--retry <= 0)
-    {
-      edm::LogError("RFIOFile::prefetch")
-        << "RFIOFile::prefetch(name='" << m_name << "') failed with error '"
+      throw cms::Exception("RFIOFile::preseek()")
+        << "RFIOFile::preseek(name='" << m_name << "') failed with error '"
 	<< rfio_serror() << "' (rfio_errno=" << rfio_errno
 	<< ", serrno=" << serrno << ")";
-      return false;
-    }
     else
     {
       edm::LogWarning("RFIOFileRetry")
-        << "RFIOFile::prefetch(name='" << m_name << "') failed at position "
+        << "RFIOFile::preseek(name='" << m_name << "') failed at position "
 	<< m_curpos << " with error '" << rfio_serror()
         << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno
         << "); retrying " << (retry+1) << " times";
@@ -417,6 +412,4 @@ RFIOFile::prefetch (const IOPosBuffer *what, IOSize n)
       sleep(5);
     }
   }
-
-  return true;
 }

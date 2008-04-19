@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.7 2007/09/14 08:31:57 fabiocos Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.6 2007/05/28 10:19:41 elmer Exp $
 /*
 ________________________________________________________________________
 
@@ -25,7 +25,6 @@ ________________________________________________________________________
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
@@ -47,7 +46,7 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
   phi_ =       p.getParameter<double>("Phi")*radian;
   fbetastar =  p.getParameter<double>("BetaStar")*cm;
   femittance = p.getParameter<double>("Emittance")*cm; // this is not the normalized emittance
-  fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light; // HepMC time units are mm
+  
  
   if (fSigmaZ <= 0) {
 	  throw cms::Exception("Configuration")
@@ -63,11 +62,8 @@ BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator()
     delete fRandom; 
 }
 
-
 //Hep3Vector* BetafuncEvtVtxGenerator::newVertex() {
-HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {
-
-	
+HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {	
 	double X,Y,Z;
 	
 	double tmp_sigz = fRandom->fire(0., fSigmaZ);
@@ -82,7 +78,7 @@ HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {
 	//if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
 	//fVertex->set(X, Y, Z);
 	if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
-	fVertex->set(X,Y,Z,fTimeOffset);
+	fVertex->set(X,Y,Z,0.);
 		
 	return fVertex;
 }

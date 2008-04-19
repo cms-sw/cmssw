@@ -80,11 +80,11 @@ PixelPortcardMap::PixelPortcardMap(std::string filename):
   std::ifstream in(filename.c_str());
 
   if (!in.good()){
-    std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\tCould not open: " << filename <<std::endl;
+    std::cout << "Could not open:"<<filename<<std::endl;
     assert(0);
   }
   else {
-    std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\tReading from: "   << filename <<std::endl;
+    std::cout << "Opened:"<<filename<<std::endl;
   }
   
   std::string dummy;

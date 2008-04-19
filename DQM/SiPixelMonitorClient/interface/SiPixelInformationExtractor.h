@@ -8,6 +8,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelQTestsParser.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -191,6 +192,7 @@ class SiPixelInformationExtractor {
   SiPixelConfigWriter   	       * configWriter_  ;
   SiPixelActionExecutor 	       * actionExecutor_;
   SiPixelLayoutParser                  * layoutParser_  ;
+  SiPixelQTestsParser                  * qtestsParser_  ;
 
   std::map<std::string, 
            std::vector< std::string> >  layoutMap;

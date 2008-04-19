@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -57,19 +57,14 @@ protected:
 private:
 
   void initialize();
-  void makeRatioHisto(MonitorElement *ratioME, string &nName, string &dName); 
-  void setMapPhLabel(MonitorElement *me);
-  void setMapThLabel(MonitorElement *me);
   TH1F * get1DHisto(string meName, DQMStore * dbi);
   TH2F * get2DHisto(string meName, DQMStore * dbi);
   TProfile2D * get2DProfile(string meName, DQMStore * dbi);
   TProfile * get1DProfile(string meName, DQMStore * dbi);
-  
   edm::ParameterSet parameters_;
+
   DQMStore* dbe_;  
   std::string monitorName_;
-  std::string input_dir_;
-  std::string output_dir_;
   int counterLS_;      ///counter
   int counterEvt_;     ///counter
   int prescaleLS_;     ///units of lumi sections
@@ -77,11 +72,6 @@ private:
 
   // -------- member data --------
 //  MonitorElement * clientHisto;
-  MonitorElement *dttpgphmapcorrf;
-  MonitorElement *dttpgphmap2ndf;
-  MonitorElement *dttpgphmapbxf[3];
-  MonitorElement *dttpgthmaphf;
-  MonitorElement *dttpgthmapbxf[3];
 
 };
 

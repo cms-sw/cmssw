@@ -3,7 +3,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include <cassert>
 
 using std::ostream;
 using std::endl;
@@ -15,7 +14,6 @@ const int L1GctJetFinalStage::MAX_JETS_OUT = 4;
 
 
 L1GctJetFinalStage::L1GctJetFinalStage(std::vector<L1GctWheelJetFpga*> wheelFpgas):
-  L1GctProcessor(),
   m_wheelFpgas(wheelFpgas),
   m_inputCentralJets(MAX_JETS_IN),
   m_inputForwardJets(MAX_JETS_IN),
@@ -70,40 +68,41 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga)
     {
       os << fpga.m_inputTauJets.at(i);
     } 
-  os << "No. of output central Jets " << fpga.m_centralJets.contents.size() << std::endl;
-  for(unsigned i=0; i < fpga.m_centralJets.contents.size(); i++)
+  os << "No. of output central Jets " << fpga.m_centralJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_centralJets.size(); i++)
     {
-      os << fpga.m_centralJets.contents.at(i);
+      os << fpga.m_centralJets.at(i);
     } 
-  os << "No. of output forward Jets " << fpga.m_forwardJets.contents.size() << std::endl;
-  for(unsigned i=0; i < fpga.m_forwardJets.contents.size(); i++)
+  os << "No. of output forward Jets " << fpga.m_forwardJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_forwardJets.size(); i++)
     {
-      os << fpga.m_forwardJets.contents.at(i);
+      os << fpga.m_forwardJets.at(i);
     } 
-  os << "No. of output tau Jets " << fpga.m_tauJets.contents.size() << std::endl;
-  for(unsigned i=0; i < fpga.m_tauJets.contents.size(); i++)
+  os << "No. of output tau Jets " << fpga.m_tauJets.size() << std::endl;
+  for(unsigned i=0; i < fpga.m_tauJets.size(); i++)
     {
-      os << fpga.m_tauJets.contents.at(i);
+      os << fpga.m_tauJets.at(i);
     } 
   os << endl;
   return os;
 }
 
-void L1GctJetFinalStage::resetProcessor() {
+void L1GctJetFinalStage::reset()
+{
   //Clear all jet data
   m_inputCentralJets.clear();
   m_inputForwardJets.clear();
   m_inputTauJets.clear();
+  m_centralJets.clear();
+  m_forwardJets.clear();
+  m_tauJets.clear();
   //Resize the vectors
   m_inputCentralJets.resize(MAX_JETS_IN);
   m_inputForwardJets.resize(MAX_JETS_IN);
   m_inputTauJets.resize(MAX_JETS_IN);
-}
-
-void L1GctJetFinalStage::resetPipelines() {
-  m_centralJets.reset(numOfBx());
-  m_forwardJets.reset(numOfBx());
-  m_tauJets.reset    (numOfBx());
+  m_centralJets.resize(MAX_JETS_OUT);
+  m_forwardJets.resize(MAX_JETS_OUT);
+  m_tauJets.resize(MAX_JETS_OUT);
 }
 
 void L1GctJetFinalStage::fetchInput()
@@ -123,15 +122,16 @@ void L1GctJetFinalStage::process()
   sort(m_inputForwardJets.begin(), m_inputForwardJets.end(), L1GctJetFinderBase::rankGreaterThan());
   sort(m_inputTauJets.begin(), m_inputTauJets.end(), L1GctJetFinderBase::rankGreaterThan());
 
-  //Copy data to output buffer
-  m_centralJets.store(m_inputCentralJets, bxRel());
-  m_forwardJets.store(m_inputForwardJets, bxRel());
-  m_tauJets.store    (m_inputTauJets,     bxRel());
+  for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
+  {
+    m_centralJets.at(iJet) = m_inputCentralJets.at(iJet);
+    m_forwardJets.at(iJet) = m_inputForwardJets.at(iJet);
+    m_tauJets.at(iJet) = m_inputTauJets.at(iJet);
+  }  
 }
 
 void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
 {
-  assert (jet.isCentral() && jet.bx() == bxAbs());
   if(i >= 0 && i < MAX_JETS_IN)
   {
     m_inputCentralJets.at(i) = jet;
@@ -146,7 +146,6 @@ void L1GctJetFinalStage::setInputCentralJet(int i, L1GctJetCand jet)
 
 void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
 {
-  assert (jet.isForward() && jet.bx() == bxAbs());
   if(i >= 0 && i < MAX_JETS_IN)
   {
     m_inputForwardJets.at(i) = jet;
@@ -161,7 +160,6 @@ void L1GctJetFinalStage::setInputForwardJet(int i, L1GctJetCand jet)
 
 void L1GctJetFinalStage::setInputTauJet(int i, L1GctJetCand jet)
 {
-  assert (jet.isTau() && jet.bx() == bxAbs());
   if(i >= 0 && i < MAX_JETS_IN)
   {
     m_inputTauJets.at(i) = jet;
@@ -178,7 +176,6 @@ void L1GctJetFinalStage::storeJets(JetVector& storageVector, JetVector jets, uns
 {
   for(unsigned short iJet = 0; iJet < L1GctWheelJetFpga::MAX_JETS_OUT; ++iJet)
   {
-    assert(jets.at(iJet).bx() == bxAbs());
     storageVector.at((iWheel*L1GctWheelJetFpga::MAX_JETS_OUT) + iJet) = jets.at(iJet);
   }
 }

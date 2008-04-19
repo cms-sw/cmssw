@@ -36,12 +36,9 @@ TreeTrainer::~TreeTrainer()
 	reset();
 }
 
-Calibration::MVAComputer *TreeTrainer::train(const std::string &trainFile,
-                                             double crossValidation)
+Calibration::MVAComputer *TreeTrainer::train(const std::string &trainFile)
 {
 	MVATrainer trainer(trainFile);
-	trainer.setMonitoring(true);
-	trainer.setCrossValidation(crossValidation);
 	train(&trainer);
 	return trainer.getCalibration();
 }

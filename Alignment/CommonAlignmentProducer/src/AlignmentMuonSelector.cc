@@ -109,13 +109,22 @@ AlignmentMuonSelector::basicCuts(const Muons& muons) const
     float pt=muonp->pt();
     float eta=muonp->eta();
     float phi=muonp->phi();
-    int nhitSA = muonp->standAloneMuon()->numberOfValidHits();  	// standAlone Muon
-    float chi2nSA = muonp->standAloneMuon()->normalizedChi2();  // standAlone Muon
-    int nhitGB = muonp->combinedMuon()->numberOfValidHits(); 		// global Muon
-    float chi2nGB = muonp->combinedMuon()->normalizedChi2();	// global Muon
-    int nhitTO = muonp->track()->numberOfValidHits(); 		// Tracker Only
-    float chi2nTO = muonp->track()->normalizedChi2();		// Tracker Only
 
+    int nhitSA=0;float chi2nSA=9999.;
+    if(muonp->isStandAloneMuon()){
+    nhitSA = muonp->standAloneMuon()->numberOfValidHits();// standAlone Muon
+    chi2nSA = muonp->standAloneMuon()->normalizedChi2();  // standAlone Muon
+    }
+    int nhitGB=0;float chi2nGB=9999.;
+    if(muonp->isGlobalMuon()){
+    nhitGB = muonp->combinedMuon()->numberOfValidHits();// global Muon
+    chi2nGB = muonp->combinedMuon()->normalizedChi2();	// global Muon
+    }
+	int nhitTO=0;float chi2nTO=9999.;
+    if(muonp->isTrackerMuon()){
+    nhitTO = muonp->track()->numberOfValidHits(); 	// Tracker Only
+    chi2nTO = muonp->track()->normalizedChi2();		// Tracker Only
+    }
     edm::LogInfo("AlignmentMuonSelector") << " pt,eta,phi,nhitSA,chi2nSA,nhitGB,chi2nGB,nhitTO,chi2nTO: "
       <<pt<<","<<eta<<","<<phi<<","<<nhitSA<< ","<<chi2nSA<<","<<nhitGB<< ","<<chi2nGB<<","<<nhitTO<< ","<<chi2nTO;
 

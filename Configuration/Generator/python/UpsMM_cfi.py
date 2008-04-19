@@ -1,11 +1,6 @@
-# The following comments couldn't be translated into the new config version:
-
-# This is a vector of ParameterSet names to be read, in this order
-
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PythiaSource",
-    #untracked int32 maxEvents = 10
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(0.141),
     pythiaHepMCVerbosity = cms.untracked.bool(False),

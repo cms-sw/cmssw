@@ -23,7 +23,7 @@ float SiTrackerMultiRecHit::weight(unsigned int i) const {
 bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
 				       SharedInputType what) const
 {
-  if(geographicalId() != other->geographicalId()&& what==all ) return false;
+  if(geographicalId() != other->geographicalId()) return false;
   vector<const TrackingRecHit*> otherhits=other->recHits();
   if(what==all){
     if(theHits.size()!=other->recHits().size())return false;
@@ -35,10 +35,10 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
 	  break;
 	}
       }
-      if(found==false){
-	return false;
-      }
-    }
+       if(found==false){
+	 return false;
+       }
+     }
     return true;
   }
   else{
@@ -48,9 +48,7 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
 	  if((hit)->sharesInput(*otherhit,some))return true;
 	}
       }
-      else{//otherwise it should be a simple rechit
-	if((hit)->sharesInput(other,some))return true;
-      } 
+      else return ((hit)->sharesInput(other,some)); //otherwise it should be a simple rechit
     }
     return false;
   }

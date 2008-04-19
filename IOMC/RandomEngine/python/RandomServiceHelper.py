@@ -13,8 +13,8 @@ class RandomNumberServiceHelper(object):
 
     Provide both user level and WM APIs.
 
-    Revision: "$Id: SchedulerCondorGAPI.py,v 1.2 2008/03/12 15:32:15 ewv Exp $"
-    Version   "$Revision: 1.2 $"
+    Revision: "$Id: RandomServiceHelper.py,v 1.1 2008/03/12 22:34:24 ewv Exp $"
+    Version   "$Revision: 1.1 $"
     Author:   Dave Evans
     Modified: Eric Vaandering
     """
@@ -54,7 +54,7 @@ class RandomNumberServiceHelper(object):
 
         """
         svcAttrs = [getattr(self._randService, item, None)
-                    for item in self._randService.parameters()
+                    for item in self._randService.parameters_()
                     if item not in self._lockedSeeds]
 
         #print svcAttrs

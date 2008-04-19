@@ -1,22 +1,14 @@
 #ifndef PixelHdwAddress_h
 #define PixelHdwAddress_h
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelHdwAddress.h
-*   \brief Store mfec, mfecchannel etc.
-*
-*   A longer explanation will be placed here later
-*/
+//
+// Store mfec, mfecchannel etc.
+//
 
 #include <iostream>
 #include <fstream>
 #include <string>
 
 namespace pos{
-/*! \class PixelHdwAddress PixelHdwAddress.h "interface/PixelHdwAddress.h"
-*   \brief Store mfec, mfecchannel etc.
-*
-*   A longer explanation will be placed here later
-*/
   class PixelHdwAddress {
 
   public:

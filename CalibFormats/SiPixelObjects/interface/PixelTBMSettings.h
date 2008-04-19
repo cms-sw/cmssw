@@ -1,12 +1,13 @@
 #ifndef PixelTBMSettings_h
 #define PixelTBMSettings_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelTBMSettings.h
-* \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*
-*/
+//
+// This class provide a base class for the
+// pixel ROC dac data for the pixel FEC configuration
+// This is a pure interface (abstract class) that
+// needs to have an implementation.
+//
+//
+//
 
 #include <vector>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
@@ -14,16 +15,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelTBMSettings PixelTBMSettings.h
-*  \brief This is the documentation about PixelTBMSettings...
-*
-*   A longer explanation will be placed here later
-*
-*/
   class PixelTBMSettings: public PixelConfigBase {
 
   public:
@@ -63,5 +54,4 @@ namespace pos{
 
   };
 }
-/* @} */
 #endif

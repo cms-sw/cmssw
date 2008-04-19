@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 17:51:21 EDT 2006
-// $Id: L1MuonParticle.cc,v 1.8 2007/10/16 05:01:53 wsun Exp $
+// $Id: L1MuonParticle.cc,v 1.7 2007/10/01 19:34:57 wsun Exp $
 //
 
 // system include files
@@ -36,11 +36,9 @@ L1MuonParticle::L1MuonParticle()
 L1MuonParticle::L1MuonParticle(
    Charge q,
    const LorentzVector& p4,
-   const L1MuGMTExtendedCand& aCand,
-   int bx )
+   const L1MuGMTExtendedCand& aCand )
   : LeafCandidate( q, p4 ),
-    cand_( aCand ),
-    bx_( bx )
+     cand_( aCand )
 {
    isolated_ = cand_.isol() ;
    mip_ = cand_.mip() ;
@@ -51,11 +49,9 @@ L1MuonParticle::L1MuonParticle(
 L1MuonParticle::L1MuonParticle(
    Charge q,
    const PolarLorentzVector& p4,
-   const L1MuGMTExtendedCand& aCand,
-   int bx )
+   const L1MuGMTExtendedCand& aCand )
   : LeafCandidate( q, p4 ),
-    cand_( aCand ),
-    bx_( bx )
+     cand_( aCand )
 {
    isolated_ = cand_.isol() ;
    mip_ = cand_.mip() ;
@@ -69,15 +65,13 @@ L1MuonParticle::L1MuonParticle( Charge q,
 				bool mip,
 				bool forward,
 				bool rpc,
-				unsigned int detector,
-				int bx )
+				unsigned int detector )
    : LeafCandidate( q, p4 ),
      isolated_( isolated ),
      mip_( mip ),
      forward_( forward ),
      rpc_( rpc ),
-     cand_( L1MuGMTExtendedCand() ),
-     bx_( bx )
+     cand_( L1MuGMTExtendedCand() )
 {
 }
 
@@ -87,15 +81,13 @@ L1MuonParticle::L1MuonParticle( Charge q,
 				bool mip,
 				bool forward,
 				bool rpc,
-				unsigned int detector,
-				int bx )
+				unsigned int detector )
    : LeafCandidate( q, p4 ),
      isolated_( isolated ),
      mip_( mip ),
      forward_( forward ),
      rpc_( rpc ),
-     cand_( L1MuGMTExtendedCand() ),
-     bx_( bx )
+     cand_( L1MuGMTExtendedCand() )
 {
 }
 

@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/02/24 17:08:48 $
-// $Revision: 1.48 $
+// $Date: 2008/04/14 21:17:52 $
+// $Revision: 1.53 $
 //
 
 #include <vector>
@@ -86,6 +86,7 @@ RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(c
   nFoundMin_      = conf_.getParameter<int>("nFoundMin");
   
   initialVertexErrorXY_  = conf_.getParameter<double>("InitialVertexErrorXY");
+  splitMatchedHits_  = conf_.getParameter<bool>("SplitMatchedHits");
 
   measurementTrackerName_ = conf_.getParameter<std::string>("MeasurementTrackerName");
   
@@ -556,7 +557,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           
           std::vector<Trajectory> freshStartv = theSmoother->trajectories(*i);
           
-          std::cout<<"Smoothing has returned " << freshStartv.size() <<" trajectory " << std::endl;
+          if(debug_) std::cout<<"Smoothing has returned " << freshStartv.size() <<" trajectory " << std::endl;
           if (!freshStartv.empty()){
              if(debug_)  std::cout<< "Smoothing of trajectory " <<i-CleanChunks.begin() << " has succeeded with " << freshStartv.begin()->measurements().size() << " hits and a chi2 of " << freshStartv.begin()->chiSquared() <<" for " << freshStartv.begin()->ndof() << " DOF.  Now add hits." <<std::endl;
           } else {
@@ -766,7 +767,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   delete theHitMatcher;
   delete theSmoother;
   
-  if (debug_) std::cout<< "Found " << output.size() << " track candidate(s)."<<std::endl;
+  if (debug_ || debugCosmics_) std::cout<< "Found " << output.size() << " track candidate(s)."<<std::endl;
 
 }
 
@@ -1441,230 +1442,221 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
   //==========NEW CODE ==========
   
   if(CosmicTrackMerging_) {
-     
-      //generate vector of *valid* trajectories -> traj
-     std::vector<Trajectory> traj = theTrajectories;
-     std::vector<int> trajUseageCounter;
-     for(int i=0; i<(int)traj.size(); ++i) {
-        trajUseageCounter.push_back(0);
-     }
-     
-     std::vector<Trajectory>::iterator it_end = traj.end();
-     for (std::vector<Trajectory>::iterator it = traj.begin(); it != it_end; it++) {
-        if(!it->isValid()) traj.erase(it);
-     }
-     
-     int t=0;
-     for (std::vector<Trajectory>::iterator it = traj.begin(); it != it_end; it++) {
-       std::cout << "Tajectory " << t << " is valid: " << it->isValid() << std::endl;
-       ++t;
-     }
-     
+    
+    //generate vector of *valid* trajectories -> traj
+    std::vector<Trajectory> traj;
 
-     if(debugCosmics_) std::cout << "==========ENTERING COSMIC MODE===========" << std::endl;
+    //keep track of trajectories which are used during merging
+    std::vector<bool> trajUsed;
 
-     //double nested looop to find trajectories that match in phi
-     int traj1Index = 0;
-     int traj2Index = 1;
+    for (std::vector<Trajectory>::iterator it = theTrajectories.begin(); it != theTrajectories.end(); ++it) {
+      if (it->isValid()) {
+	traj.push_back(*it);
+	trajUsed.push_back(false);
+      }
+    }
+    
+    if(debugCosmics_) {
+      std::cout << "==========ENTERING COSMIC MODE===========" << std::endl;
+      int t=0;
+      for (std::vector<Trajectory>::iterator it = traj.begin(); it != traj.end(); it++) {
+	std::cout << "Tajectory " << t << " is valid: " << it->isValid() << std::endl;
+	++t;
+      }
+    }
 
-     for (std::vector<Trajectory>::iterator it1 = traj.begin(); it1 != traj.end(); it1++) {
-        for (std::vector<Trajectory>::iterator it2 = traj.begin()+1; it2 != traj.end(); it2++) {
-           
-           bool useTrajectory1 = false;
-           bool useTrajectory2 = false;
-           
-           if (debugCosmics_) std::cout<< "Trajectory 1 has "<<it1->recHits().size()<<" hits with chi2=" << it1->chiSquared() << " and is valid"<<std::endl;
-           if (debugCosmics_) std::cout<< "Trajectory 2 has "<<it2->recHits().size()<<" hits with chi2=" << it2->chiSquared() << " and is valid"<<std::endl;           
+    //double nested looop to find trajectories that match in phi
+    for ( unsigned int i = 0; i < traj.size(); ++i) {
+    
+      for ( unsigned int j = i+1; j != traj.size(); ++j) {
+	
+	if (debugCosmics_) std::cout<< "Trajectory 1 has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid"<<std::endl;
+	if (debugCosmics_) std::cout<< "Trajectory 2 has "<<traj[j].recHits().size()<<" hits with chi2=" << traj[j].chiSquared() << " and is valid"<<std::endl;           
+	
+	TrajectoryMeasurement firstTraj1 = traj[i].firstMeasurement();
+	TrajectoryMeasurement firstTraj2 = traj[j].firstMeasurement();
+	TrajectoryStateOnSurface firstTraj1TSOS = firstTraj1.updatedState();
+	TrajectoryStateOnSurface firstTraj2TSOS = firstTraj2.updatedState();
+	
+	if(debugCosmics_) 
+	  std::cout << "phi1: " << firstTraj1TSOS.globalMomentum().phi() << " phi2: " << firstTraj2TSOS.globalMomentum().phi() << " --> delta_phi: " << firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi() << std::endl;
+	
+	//generate new trajectory if delta_phi<0.3
+	//use phi of momentum vector associated to *innermost* hit of trajectories
+	if( fabs(M_PI - fabs(firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi()))<0.3 ) {
+	  if(debugCosmics_) std::cout << "-->match successful" << std::endl;
+	} else {
+	  if(debugCosmics_) std::cout << "-->match not successful" << std::endl;
+	}
+	if( fabs(M_PI - fabs(firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi()))>0.3 ) continue;
+	
+	
+	//choose starting trajectory: use trajectory in lower hemisphere (with y<0) to start new combined trajectory
+	//use y position of outermost hit
+	TrajectoryMeasurement lastTraj1 = traj[i].lastMeasurement();
+	TrajectoryMeasurement lastTraj2 = traj[j].lastMeasurement();
+	TrajectoryStateOnSurface lastTraj1TSOS = lastTraj1.updatedState();
+	TrajectoryStateOnSurface lastTraj2TSOS = lastTraj2.updatedState();
+	
+	Trajectory *upperTrajectory, *lowerTrajectory;
+	
+	if(debugCosmics_) std::cout << "traj1 (position x/y/z): "<< lastTraj1TSOS.globalPosition().x() << "; "<< lastTraj1TSOS.globalPosition().y() << "; "<< lastTraj1TSOS.globalPosition().z() << "; "<<std::endl; 
+	if(debugCosmics_) std::cout << "traj2 (position x/y/z): "<< lastTraj2TSOS.globalPosition().x() << "; "<< lastTraj2TSOS.globalPosition().y() << "; "<< lastTraj2TSOS.globalPosition().z() << "; "<<std::endl; 
+	if(lastTraj1TSOS.globalPosition().y() > lastTraj2TSOS.globalPosition().y()) {
+	  if(debugCosmics_) 
+	    std::cout << "-->case A: "<< lastTraj1TSOS.globalPosition().y() << " > " << lastTraj2TSOS.globalPosition().y() << std::endl;
+	  
+	  upperTrajectory = &(traj[i]);
+	  lowerTrajectory = &(traj[j]);
 
-           TrajectoryMeasurement firstTraj1 = it1->firstMeasurement();
-           TrajectoryMeasurement firstTraj2 = it2->firstMeasurement();
-           TrajectoryStateOnSurface firstTraj1TSOS = firstTraj1.updatedState();
-           TrajectoryStateOnSurface firstTraj2TSOS = firstTraj2.updatedState();
+	} else {
+	  if(debugCosmics_) 
+	    std::cout << "-->case B: "<< lastTraj1TSOS.globalPosition().y() << " < " << lastTraj2TSOS.globalPosition().y() << std::endl;
 
-           if(debugCosmics_) 
-              std::cout << "phi1: " << firstTraj1TSOS.globalMomentum().phi() << " phi2: " << firstTraj2TSOS.globalMomentum().phi() << " --> delta_phi: " << firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi() << std::endl;
+	  upperTrajectory = &(traj[j]);
+	  lowerTrajectory = &(traj[i]);
 
-           //generate new trajectory if delta_phi<0.3
-           //use phi of momentum vector associated to *innermost* hit of trajectories
-           if( fabs(M_PI - fabs(firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi()))<0.3 ) {
-              if(debugCosmics_) std::cout << "-->match successful" << std::endl;
-           } else {
-              if(debugCosmics_) std::cout << "-->match not successful" << std::endl;
-           }
-           if( fabs(M_PI - fabs(firstTraj1TSOS.globalMomentum().phi()-firstTraj2TSOS.globalMomentum().phi()))>0.3 ) continue;
+	}
+	std::vector<Trajectory> freshStartUpperTrajectory = theSmoother->trajectories(*upperTrajectory);
+	std::vector<Trajectory> freshStartLowerTrajectory = theSmoother->trajectories(*lowerTrajectory);
+	
+	TrajectoryStateOnSurface NewFirstTsos = freshStartLowerTrajectory.begin()->lastMeasurement().updatedState();
+	TrajectoryStateOnSurface forwardTsos  = freshStartLowerTrajectory.begin()->firstMeasurement().forwardPredictedState();
+	TrajectoryStateOnSurface backwardTsos = freshStartLowerTrajectory.begin()->lastMeasurement().backwardPredictedState();
+	
+	Trajectory freshStartTrajectory = *freshStartLowerTrajectory.begin();
+	if(debugCosmics_) std::cout << "seed hit updatedState: " << NewFirstTsos.globalMomentum().x() << ", " << NewFirstTsos.globalMomentum().y() << ", " << NewFirstTsos.globalMomentum().z()  <<  std::endl;
+	if(debugCosmics_) std::cout << "seed hit updatedState (pos x/y/z): " << NewFirstTsos.globalPosition().x() << ", " << NewFirstTsos.globalPosition().y() << ", " << NewFirstTsos.globalPosition().z()  <<  std::endl;
+	if(debugCosmics_) std::cout << "seed hit forwardPredictedState: " << forwardTsos.globalMomentum().x() << ", " << forwardTsos.globalMomentum().y() << ", " << forwardTsos.globalMomentum().z()  <<  std::endl;
+	if(debugCosmics_) std::cout << "seed hit forwardPredictedState (pos x/y/z): " << forwardTsos.globalPosition().x() << ", " << forwardTsos.globalPosition().y() << ", " << forwardTsos.globalPosition().z()  <<  std::endl;
+	if(debugCosmics_) std::cout << "seed hit backwardPredictedState: " << backwardTsos.globalMomentum().x() << ", " << backwardTsos.globalMomentum().y() << ", " << backwardTsos.globalMomentum().z() <<  std::endl;
+	if(debugCosmics_) std::cout << "seed hit backwardPredictedState (pos x/y/z): " << backwardTsos.globalPosition().x() << ", " << backwardTsos.globalPosition().y() << ", " << backwardTsos.globalPosition().z() <<  std::endl;
+	
+	if(debugCosmics_) std::cout<<"#hits for lower trajectory: " << freshStartTrajectory.measurements().size() << std::endl;
+	
+	//loop over hits in upper trajectory and add them to lower trajectory
+	TransientTrackingRecHit::ConstRecHitContainer ttHits = upperTrajectory->recHits();
+	
+	if(debugCosmics_) std::cout << "loop over hits in upper trajectory..." << std::endl;
+	
+	bool addHitToFreshStartTrajectory = false;
+	for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
+	  
+	  if(debugCosmics_) std::cout << "-->hit position: " << (*rhit)->globalPosition().x() << ", " << (*rhit)->globalPosition().y() << ", "<< (*rhit)->globalPosition().z() << std::endl;
+	  
+	  TrajectoryStateOnSurface predTsos;
+	  TrajectoryStateOnSurface currTsos;
+	  TrajectoryMeasurement tm;
+	  
+	  TransientTrackingRecHit::ConstRecHitPointer rh = (*rhit);
+	  if( rh->isValid() ) { 
+	    if(debugCosmics_) std::cout << "-->hit is valid"<<std::endl;
+	    const GeomDet* det = trackerGeom->idToDet(rh->geographicalId());
+	    if( addHitToFreshStartTrajectory==false ) {
+	      //first hit from upper trajectory that is being added to lower trajectory requires usage of backwardPredictedState (of lower trajectory)
+	      currTsos = freshStartTrajectory.lastMeasurement().backwardPredictedState();
+	    } else {
+	      //remaining hits from upper trajectory that are being added to lower trajectory require usage of forwardPredictedState
+	      currTsos = freshStartTrajectory.lastMeasurement().forwardPredictedState();
+	    }
+	    
+	    if(debugCosmics_) std::cout << "current TSOS: " << currTsos.globalPosition().x() << ", " << currTsos.globalPosition().y() << ", " << currTsos.globalPosition().z() << ", " << std::endl;
+	    
+	    predTsos = theRevPropagator->propagate(currTsos, det->surface());
+	    
+	    if (!predTsos.isValid()) {
+	      if(debugCosmics_) std::cout<<"predTsos is not valid!" <<std::endl;
+	      continue;
+	    }
+	    GlobalVector propagationDistance = predTsos.globalPosition() - currTsos.globalPosition();
+	    if (propagationDistance.mag() > maxPropagationDistance) continue;
+	    
+	    if(debugCosmics_) std::cout << "predicted TSOS: " << predTsos.globalPosition().x() << ", " << predTsos.globalPosition().y() << ", " << predTsos.globalPosition().z() << ", " << std::endl;
+	    MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rh);
+	    if (!est.first) {
+	      if(debugCosmics_) std::cout<<"Failed to add one of the original hits on a low occupancy layer!!!!" << std::endl;
+	      continue;
+	    }
+	    
+	    currTsos = theUpdator->update(predTsos, *rh);
+	    if(debugCosmics_) std::cout << "current updated TSOS: " << currTsos.globalPosition().x() << ", " << currTsos.globalPosition().y() << ", " << currTsos.globalPosition().z() << ", " << std::endl;
+	    tm = TrajectoryMeasurement(predTsos, currTsos,&(*rh),est.second,theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()));
+	    freshStartTrajectory.push(tm,est.second);
+	    addHitToFreshStartTrajectory=true;
+	    
+	  }
+	  
+	  if(debugCosmics_) std::cout<<"#hits for new trajectory (his from upper trajectory added): " << freshStartTrajectory.measurements().size() << std::endl;
+	}
+	
+	//put final trajectory together
+	if(debugCosmics_) std::cout << "put final trajectory together..." << std::endl;
+	edm::OwnVector<TrackingRecHit> goodHits;
+	TransientTrackingRecHit::ConstRecHitContainer tttempHits = freshStartTrajectory.recHits();
+	
+	for (int k=tttempHits.size()-1; k>=0; k--) {
+	  if(debugCosmics_) std::cout << "-->good hit position: " << tttempHits[k]->globalPosition().x() << ", " << tttempHits[k]->globalPosition().y() << ", "<< tttempHits[k]->globalPosition().z() << std::endl;
+	  goodHits.push_back(tttempHits[k]->hit()->clone());
+	}
+	TrajectoryStateOnSurface firstState;
+	
+	// check if Trajectory from seed is on first hit of the cloud, if not, propagate
+	// exclude if first state on first hit is not valid
+	DetId FirstHitId = (*(freshStartTrajectory.recHits().end()-1))->geographicalId(); //was begin
+	
+	TrajectoryMeasurement maxYMeasurement = freshStartTrajectory.lastMeasurement();
+	const GeomDet* det = trackerGeom->idToDet(FirstHitId);
+	firstState = theAnalyticalPropagator->propagate(maxYMeasurement.updatedState(),det->surface());
+	if (firstState.isValid() == false) continue;    
+	PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
+	
+	//generate new trajectory seed
+	TrajectoryStateOnSurface firstTSOS = freshStartTrajectory.lastMeasurement().updatedState();
+	if(debugCosmics_) std::cout << "generate new trajectory seed with hit (x/y/z): " << firstTSOS.globalPosition().x() << ", " << firstTSOS.globalPosition().y() << ", " << firstTSOS.globalPosition().z() << ", " << std::endl;
+	TransientTrackingRecHit::ConstRecHitPointer rhit = freshStartTrajectory.lastMeasurement().recHit();
+	PTrajectoryStateOnDet* pFirstState = TrajectoryStateTransform().persistentState(NewFirstTsos,rhit->geographicalId().rawId());
+	edm::OwnVector<TrackingRecHit> newHits;
+	newHits.push_back(rhit->hit()->clone());
+	TrajectorySeed tmpseed = TrajectorySeed(*pFirstState,newHits,alongMomentum);
+	
+	theCollection.push_back(TrackCandidate(goodHits,freshStartTrajectory.seed(),*state));
+	delete state;
+	
+	//trajectory usage
+	trajUsed[i]=true;
+	trajUsed[j]=true;
+	
+      } //for loop trajectory2
+      
+    } //for loop trajectory1
 
+    //add all trajectories to the resulting vector if they have *not* been used by the trajectory merging algorithm
+    for ( unsigned int i = 0; i < traj.size(); ++i) {
+      
+      if (trajUsed[i]==true) continue;
 
-           //choose starting trajectory: use trajectory in lower hemisphere (with y<0) to start new combined trajectory
-           //use y position of outermost hit
-           TrajectoryMeasurement lastTraj1 = it1->lastMeasurement();
-           TrajectoryMeasurement lastTraj2 = it2->lastMeasurement();
-           TrajectoryStateOnSurface lastTraj1TSOS = lastTraj1.updatedState();
-           TrajectoryStateOnSurface lastTraj2TSOS = lastTraj2.updatedState();
-
-           Trajectory *upperTrajectory, *lowerTrajectory;
-
-           if(debugCosmics_) std::cout << "traj1 (position x/y/z): "<< lastTraj1TSOS.globalPosition().x() << "; "<< lastTraj1TSOS.globalPosition().y() << "; "<< lastTraj1TSOS.globalPosition().z() << "; "<<std::endl; 
-           if(debugCosmics_) std::cout << "traj2 (position x/y/z): "<< lastTraj2TSOS.globalPosition().x() << "; "<< lastTraj2TSOS.globalPosition().y() << "; "<< lastTraj2TSOS.globalPosition().z() << "; "<<std::endl; 
-           if( lastTraj1TSOS.globalPosition().y() > lastTraj2TSOS.globalPosition().y() ) {
-              if(debugCosmics_) std::cout << "-->case A: "<< lastTraj1TSOS.globalPosition().y() << " > " << lastTraj2TSOS.globalPosition().y() << std::endl;
-              upperTrajectory = &(*it1);
-              lowerTrajectory = &(*it2);
-              useTrajectory2 = true;
-           } else {
-              if(debugCosmics_) std::cout << "-->case B: "<< lastTraj1TSOS.globalPosition().y() << " < " << lastTraj2TSOS.globalPosition().y() << std::endl;
-              upperTrajectory = &(*it2);
-              lowerTrajectory = &(*it1);
-              useTrajectory1 = true;
-           }
-           std::vector<Trajectory> freshStartUpperTrajectory = theSmoother->trajectories(*upperTrajectory);
-           std::vector<Trajectory> freshStartLowerTrajectory = theSmoother->trajectories(*lowerTrajectory);
-
-           TrajectoryStateOnSurface NewFirstTsos = freshStartLowerTrajectory.begin()->lastMeasurement().updatedState();
-           TrajectoryStateOnSurface forwardTsos  = freshStartLowerTrajectory.begin()->firstMeasurement().forwardPredictedState();
-           TrajectoryStateOnSurface backwardTsos = freshStartLowerTrajectory.begin()->lastMeasurement().backwardPredictedState();
-
-           Trajectory freshStartTrajectory = *freshStartLowerTrajectory.begin();
-           if(debugCosmics_) std::cout << "seed hit updatedState: " << NewFirstTsos.globalMomentum().x() << ", " << NewFirstTsos.globalMomentum().y() << ", " << NewFirstTsos.globalMomentum().z()  <<  std::endl;
-           if(debugCosmics_) std::cout << "seed hit updatedState (pos x/y/z): " << NewFirstTsos.globalPosition().x() << ", " << NewFirstTsos.globalPosition().y() << ", " << NewFirstTsos.globalPosition().z()  <<  std::endl;
-           if(debugCosmics_) std::cout << "seed hit forwardPredictedState: " << forwardTsos.globalMomentum().x() << ", " << forwardTsos.globalMomentum().y() << ", " << forwardTsos.globalMomentum().z()  <<  std::endl;
-           if(debugCosmics_) std::cout << "seed hit forwardPredictedState (pos x/y/z): " << forwardTsos.globalPosition().x() << ", " << forwardTsos.globalPosition().y() << ", " << forwardTsos.globalPosition().z()  <<  std::endl;
-           if(debugCosmics_) std::cout << "seed hit backwardPredictedState: " << backwardTsos.globalMomentum().x() << ", " << backwardTsos.globalMomentum().y() << ", " << backwardTsos.globalMomentum().z() <<  std::endl;
-           if(debugCosmics_) std::cout << "seed hit backwardPredictedState (pos x/y/z): " << backwardTsos.globalPosition().x() << ", " << backwardTsos.globalPosition().y() << ", " << backwardTsos.globalPosition().z() <<  std::endl;
-
-           if(debugCosmics_) std::cout<<"#hits for lower trajectory: " << freshStartTrajectory.measurements().size() << std::endl;
-
-           //loop over hits in upper trajectory and add them to lower trajectory
-           TransientTrackingRecHit::ConstRecHitContainer ttHits = upperTrajectory->recHits();
-
-           if(debugCosmics_) std::cout << "loop over hits in upper trajectory..." << std::endl;
-
-           bool addHitToFreshStartTrajectory = false;
-           for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
-
-              if(debugCosmics_) std::cout << "-->hit position: " << (*rhit)->globalPosition().x() << ", " << (*rhit)->globalPosition().y() << ", "<< (*rhit)->globalPosition().z() << std::endl;
-
-              TrajectoryStateOnSurface predTsos;
-              TrajectoryStateOnSurface currTsos;
-              TrajectoryMeasurement tm;
-
-              TransientTrackingRecHit::ConstRecHitPointer rh = (*rhit);
-              if( rh->isValid() ) { 
-                 if(debugCosmics_) std::cout << "-->hit is valid"<<std::endl;
-                 const GeomDet* det = trackerGeom->idToDet(rh->geographicalId());
-                 if( addHitToFreshStartTrajectory==false ) {
-                    //first hit from upper trajectory that is being added to lower trajectory requires usage of backwardPredictedState (of lower trajectory)
-                    currTsos = freshStartTrajectory.lastMeasurement().backwardPredictedState();
-                 } else {
-                    //remaining hits from upper trajectory that are being added to lower trajectory require usage of forwardPredictedState
-                    currTsos = freshStartTrajectory.lastMeasurement().forwardPredictedState();
-                 }
-                 
-                 if(debugCosmics_) std::cout << "current TSOS: " << currTsos.globalPosition().x() << ", " << currTsos.globalPosition().y() << ", " << currTsos.globalPosition().z() << ", " << std::endl;
-                 
-                 predTsos = theRevPropagator->propagate(currTsos, det->surface());
-
-                 if (!predTsos.isValid()) {
-                    if(debugCosmics_) std::cout<<"predTsos is not valid!" <<std::endl;
-                    continue;
-                 }
-		 GlobalVector propagationDistance = predTsos.globalPosition() - currTsos.globalPosition();
-		 if (propagationDistance.mag() > maxPropagationDistance) continue;
-                 
-                 if(debugCosmics_) std::cout << "predicted TSOS: " << predTsos.globalPosition().x() << ", " << predTsos.globalPosition().y() << ", " << predTsos.globalPosition().z() << ", " << std::endl;
-                 MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rh);
-                 if (!est.first) {
-                    if(debugCosmics_) std::cout<<"Failed to add one of the original hits on a low occupancy layer!!!!" << std::endl;
-                    continue;
-                 }
-
-                 currTsos = theUpdator->update(predTsos, *rh);
-                 if(debugCosmics_) std::cout << "current updated TSOS: " << currTsos.globalPosition().x() << ", " << currTsos.globalPosition().y() << ", " << currTsos.globalPosition().z() << ", " << std::endl;
-                 tm = TrajectoryMeasurement(predTsos, currTsos,&(*rh),est.second,theMeasurementTracker->geometricSearchTracker()->detLayer(rh->geographicalId()));
-                 freshStartTrajectory.push(tm,est.second);
-                 addHitToFreshStartTrajectory=true;
-                 if( useTrajectory1==true ) useTrajectory2=true;
-                 if( useTrajectory2==true ) useTrajectory1=true;
-                 
-              }
-
-              if(debugCosmics_) std::cout<<"#hits for new trajectory (his from upper trajectory added): " << freshStartTrajectory.measurements().size() << std::endl;
-           }
-               
-           //put final trajectory together
-           if(debugCosmics_) std::cout << "put final trajectory together..." << std::endl;
-           edm::OwnVector<TrackingRecHit> goodHits;
-           TransientTrackingRecHit::ConstRecHitContainer tttempHits = freshStartTrajectory.recHits();
-
-           for (int i=tttempHits.size()-1; i>=0; i--) {
-              if(debugCosmics_) std::cout << "-->good hit position: " << tttempHits[i]->globalPosition().x() << ", " << tttempHits[i]->globalPosition().y() << ", "<< tttempHits[i]->globalPosition().z() << std::endl;
-              goodHits.push_back(tttempHits[i]->hit()->clone());
-           }
-           TrajectoryStateOnSurface firstState;
-
-           // check if Trajectory from seed is on first hit of the cloud, if not, propagate
-           // exclude if first state on first hit is not valid
-           DetId FirstHitId = (*(freshStartTrajectory.recHits().end()-1))->geographicalId(); //was begin
-
-           TrajectoryMeasurement maxYMeasurement = freshStartTrajectory.lastMeasurement();
-           const GeomDet* det = trackerGeom->idToDet(FirstHitId);
-           firstState = theAnalyticalPropagator->propagate(maxYMeasurement.updatedState(),det->surface());
-           if (firstState.isValid() == false) continue;    
-           PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
-
-           //generate new trajectory seed
-           TrajectoryStateOnSurface firstTSOS = freshStartTrajectory.lastMeasurement().updatedState();
-           if(debugCosmics_) std::cout << "generate new trajectory seed with hit (x/y/z): " << firstTSOS.globalPosition().x() << ", " << firstTSOS.globalPosition().y() << ", " << firstTSOS.globalPosition().z() << ", " << std::endl;
-           TransientTrackingRecHit::ConstRecHitPointer rhit = freshStartTrajectory.lastMeasurement().recHit();
-           PTrajectoryStateOnDet* pFirstState = TrajectoryStateTransform().persistentState(NewFirstTsos,rhit->geographicalId().rawId());
-           edm::OwnVector<TrackingRecHit> newHits;
-           newHits.push_back(rhit->hit()->clone());
-           TrajectorySeed tmpseed = TrajectorySeed(*pFirstState,newHits,alongMomentum);
-
-           theCollection.push_back(TrackCandidate(goodHits,freshStartTrajectory.seed(),*state));
-           //theCollection.push_back(TrackCandidate(goodHits));
-           delete state;
-
-           //trajectory has been used if at least x hits have been added...
-           if( useTrajectory1 ) trajUseageCounter[traj1Index]+=1;
-           if( useTrajectory2 ) trajUseageCounter[traj2Index]+=1;
-           ++traj1Index;
-           ++traj2Index;
-
-        } //for loop trajectory2
-     } //for loop trajectory1
-
-     //add all trajectories to the resulting vector if they have *not* been used by the trajectory merging algorithm
-     int trajAccessIndex=0;  
-     for (std::vector<Trajectory>::iterator it = traj.begin(); it != traj.end(); it++) {
-
-        //make sure that trajectory has not been used for merging
-        if( trajUseageCounter[trajAccessIndex]>0 ) {
-           if(debugCosmics_) std::cout << "Trajectory with index " << trajAccessIndex << " has already been used at least once during trajectory merging." << std::endl;
-           continue;
-        }
-
-        if (debugCosmics_) std::cout<< "Trajectory has "<<it->recHits().size()<<" hits with chi2=" << it->chiSquared() << " and is valid? "<<it->isValid()<<std::endl;
-        edm::OwnVector<TrackingRecHit> goodHits;
-        TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits();
-        for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
-           goodHits.push_back((*rhit)->hit()->clone());
-        }
-        TrajectoryStateOnSurface firstState;
-
-        // check if Trajectory from seed is on first hit of the cloud, if not, propagate
-        // exclude if first state on first hit is not valid
-        DetId FirstHitId = (*(it->recHits().begin()))->geographicalId();
-
-        // propagate back to first hit    
-        TrajectoryMeasurement firstMeasurement = it->measurements()[0];
-        const GeomDet* det = trackerGeom->idToDet(FirstHitId);
-        firstState = theAnalyticalPropagator->propagate(firstMeasurement.updatedState(), det->surface());	  
-        if (firstState.isValid()) {
-           PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
-           theCollection.push_back(TrackCandidate(goodHits,it->seed(),*state));
-           delete state;
-        }
-     }
+      if (debugCosmics_) std::cout<< "Trajectory (not merged) has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid? "<< traj[i].isValid()<<std::endl;
+      edm::OwnVector<TrackingRecHit> goodHits;
+      TransientTrackingRecHit::ConstRecHitContainer ttHits = traj[i].recHits();
+      for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
+	goodHits.push_back((*rhit)->hit()->clone());
+      }
+      TrajectoryStateOnSurface firstState;
+      
+      // check if Trajectory from seed is on first hit of the cloud, if not, propagate
+      // exclude if first state on first hit is not valid
+      DetId FirstHitId = (*(traj[i].recHits().begin()))->geographicalId();
+      
+      // propagate back to first hit    
+      TrajectoryMeasurement firstMeasurement = traj[i].measurements()[0];
+      const GeomDet* det = trackerGeom->idToDet(FirstHitId);
+      firstState = theAnalyticalPropagator->propagate(firstMeasurement.updatedState(), det->surface());	  
+      if (firstState.isValid()) {
+	PTrajectoryStateOnDet *state = theTransformer->persistentState(firstState,FirstHitId.rawId());
+	theCollection.push_back(TrackCandidate(goodHits,traj[i].seed(),*state));
+	delete state;
+      }
+    }
      
   } //if(CosmicTrackMerging_)
   
@@ -1675,7 +1667,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
         if (it->isValid()){
 
            edm::OwnVector<TrackingRecHit> goodHits;
-           TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits();
+           TransientTrackingRecHit::ConstRecHitContainer ttHits = it->recHits(splitMatchedHits_);
            for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
               goodHits.push_back((*rhit)->hit()->clone());
            }

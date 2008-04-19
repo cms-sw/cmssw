@@ -40,8 +40,11 @@ using namespace edm;
 PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet& ps) {
   // use configuration file to setup input/output collection names
   // Parameters to identify the hit collections
-  preshHitProducer_   = ps.getParameter<edm::InputTag>("preshRecHitProducer");
-  endcapSClusterProducer_   = ps.getParameter<edm::InputTag>("endcapSClusterProducer");
+  preshHitProducer_   = ps.getParameter<string>("preshRecHitProducer");
+  preshHitCollection_ = ps.getParameter<string>("preshRecHitCollection");
+
+  endcapSClusterCollection_ = ps.getParameter<std::string>("endcapSClusterCollection");
+  endcapSClusterProducer_   = ps.getParameter<std::string>("endcapSClusterProducer");
 
   PreshowerClusterShapeCollectionX_ = ps.getParameter<string>("PreshowerClusterShapeCollectionX");
   PreshowerClusterShapeCollectionY_ = ps.getParameter<string>("PreshowerClusterShapeCollectionY");
@@ -96,7 +99,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   CaloSubdetectorTopology * topology_p = &topology;
 
   // fetch the Preshower product (RecHits)
-  evt.getByLabel( preshHitProducer_, pRecHits);
+  evt.getByLabel( preshHitProducer_, preshHitCollection_, pRecHits);
   // pointer to the object in the product
   const EcalRecHitCollection* rechits = pRecHits.product(); 
   if ( debugL_pi0 == EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "PreshowerClusterShapeProducer: ### Total # of preshower RecHits: "
@@ -123,7 +126,7 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
 //  const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
 //  cout << " Photon Collection size : " << corrPhoCollection.size() << endl;
 
-  evt.getByLabel(endcapSClusterProducer_, pSuperClusters);
+  evt.getByLabel(endcapSClusterProducer_, endcapSClusterCollection_, pSuperClusters);
   const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
   if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout <<"### Total # Endcap Superclusters: " << SClusts->size() << endl;
   SuperClusterCollection::const_iterator it_s;

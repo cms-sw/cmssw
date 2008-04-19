@@ -6,7 +6,7 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include <boost/shared_ptr.hpp>
 
-namespace funct {
+namespace function {
   class ZLineShape {
   public:
     static const unsigned int arguments = 1;

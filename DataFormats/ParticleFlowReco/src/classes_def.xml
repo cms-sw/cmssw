@@ -44,13 +44,6 @@
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
 
-  <class name="reco::GsfPFRecTrack">
-    <field name="doPropagation_" transient="true"/>
-    <field name="color_" transient="true"/>
-  </class>
-  <class name="std::vector<reco::GsfPFRecTrack>"/>
-  <class name="edm::Wrapper<std::vector<reco::GsfPFRecTrack> >"/>
-
   <class name="reco::PFBrem"/>
   <class name="std::vector<reco::PFBrem>"/>
 
@@ -77,6 +70,10 @@
   </class>
 
 
+  <class name="reco::PFBlockElementTrackNuclear">
+    <field name="pfNuclInterRef_" transient="true"/>
+  </class>
+
   <class name="reco::PFBlockElementCluster"/> 
 
   <class name="reco::PFBlock"/>
@@ -86,10 +83,6 @@
   <class name="edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
   <class name="edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
   <class name="edm::RefVector<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> >"/>
-
- <class name="edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> >"/>
-  <class name="edm::RefVector<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> >"/>
-
   <class name="edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> >"/>
 
   <class name="reco::PFNuclearInteraction" />
@@ -98,16 +91,6 @@
   <class name="edm::Ref<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction, edm::refhelper::FindUsingAdvance<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction> >" />
   <class name="edm::RefProd<std::vector<reco::PFNuclearInteraction> >" />
   <class name="edm::RefVector<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction, edm::refhelper::FindUsingAdvance<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction> >" />
-
-  <class name="reco::PFConversion"/>
-  <class name="std::vector<reco::PFConversion>"/>
-  <class name="edm::Wrapper<std::vector<reco::PFConversion> >"/>
-  <class name="edm::Ref<std::vector<reco::PFConversion>,reco::PFConversion,edm::refhelper::FindUsingAdvance<std::vector<reco::PFConversion>,reco::PFConversion> >"/>
-  <class name="edm::RefProd<std::vector<reco::PFConversion> >"/>
-  <class name="edm::RefVector<std::vector<reco::PFConversion>,reco::PFConversion,edm::refhelper::FindUsingAdvance<std::vector<reco::PFConversion>,reco::PFConversion> >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > >"/>
-
-
 
 </selection>
 <exclusion>

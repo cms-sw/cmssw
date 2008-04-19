@@ -3,8 +3,6 @@
 
 #define USING_NEW_COLLATE_METHODS
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -45,8 +43,6 @@ class CommissioningHistograms {
   CommissioningHistograms(); // private constructor
 
   virtual ~CommissioningHistograms();
-
-  virtual void configure( const edm::ParameterSet&, const edm::EventSetup& ) { }
 
   // ---------- histogram container class ----------
   

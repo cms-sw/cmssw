@@ -23,18 +23,12 @@ class LMFRunIOV : public IIOV {
   LMFRunTag getLMFRunTag() const;
   void setRunIOV(RunIOV iov);
   RunIOV getRunIOV();
-
-  inline void setSubRunNumber(subrun_t subrun){m_subRunNum=subrun;}
-  inline run_t getSubRunNumber() const{return m_subRunNum;}
-  inline void setSubRunStart(Tm start){m_subRunStart=start;}
-  inline Tm getSubRunStart() const{return m_subRunStart;}
-  inline void setSubRunEnd(Tm end){m_subRunEnd=end;}
-  inline Tm getSubRunEnd() const{return m_subRunEnd;}
-  inline void setDBInsertionTime(Tm x){m_dbtime=x;}
-  inline Tm getDBInsertionTime() const{return m_dbtime;}
-  inline void setSubRunType(std::string x){m_subrun_type=x;}
-  inline std::string getSubRunType() const{return m_subrun_type;}
-
+  void setSubRunNumber(subrun_t subrun);
+  run_t getSubRunNumber() const;
+  void setSubRunStart(Tm start);
+  Tm getSubRunStart() const;
+  void setSubRunEnd(Tm end);
+  Tm getSubRunEnd() const;
   void setID(int id);
 
   // Methods from IUniqueDBObject
@@ -61,8 +55,6 @@ class LMFRunIOV : public IIOV {
   subrun_t m_subRunNum;
   Tm m_subRunStart;
   Tm m_subRunEnd;
-  Tm m_dbtime;
-  std::string m_subrun_type;
 
   int writeDB() throw(std::runtime_error);
   void fetchParentIDs(int* lmfRunTagID, int* runIOVID) throw(std::runtime_error);

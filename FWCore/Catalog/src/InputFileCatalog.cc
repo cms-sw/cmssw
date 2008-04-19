@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.cc,v 1.3 2008/01/31 02:49:18 wmtan Exp $
+// $Id: InputFileCatalog.cc,v 1.4 2008/03/14 03:46:02 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -52,16 +52,21 @@ namespace edm {
       } else {
         boost::trim(*lt);
 	if (!active()) {
-	  // For reading use the catalog specified in the site-local config file
-	  url() = Service<edm::SiteLocalConfig>()->dataCatalog();
-	  pool::URIParser parser(url());
-	  parser.parse();
+	  // Protect against handling the catalog twice.
+	  // There is only one catalog, so there is no need
+	  // to support multiple different catalogs.
+          if (catalog().nReadCatalogs() == 0) {
+	    // For reading use the catalog specified in the site-local config file
+	    url() = Service<edm::SiteLocalConfig>()->dataCatalog();
+	    pool::URIParser parser(url());
+	    parser.parse();
 
-	  catalog().addReadCatalog(parser.contactstring());
-	  catalog().connect();
+	    catalog().addReadCatalog(parser.contactstring());
+	    catalog().connect();
 
-          catalog().start();
-	  setActive();
+            catalog().start();
+	    setActive();
+	  }
         }
 	findFile(*it, *lt, noThrow);
       }

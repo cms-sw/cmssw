@@ -4,7 +4,7 @@
   <PoolContainer name="CalibHistograms_basic" >
    <Class table="CALIBHISTOGRAMS" id_columns="ID" name="CalibHistograms" mapping_version="basic" >
      <Container table="CALIBHISTOGRAMS_DATA" id_columns="ID_ID" name="m_data" position_column="POS" >
-       <Object name="value_type" >
+       <Object table="CALIBHISTOGRAMS_DATA" id_columns="POS ID_ID" name="value_type" >
          <Blob name="m_histo"/>
        </Object >
      </Container >

@@ -1,26 +1,11 @@
 /*
  * \file L1THCALTPGXAna.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.12 $
+ * $Date: 2008/02/13 17:50:14 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
  * $Log: L1THCALTPGXAna.cc,v $
- * Revision 1.12  2008/03/14 20:35:46  berryhil
- *
- *
- * stripped out obsolete parameter settings
- *
- * rpc tpg restored with correct dn access and dbe handling
- *
- * Revision 1.11  2008/03/12 17:24:24  berryhil
- *
- *
- * eliminated log files, truncated HCALTPGXana histo output
- *
- * Revision 1.10  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
  * Revision 1.9  2008/02/13 17:50:14  aurisano
  * bugfixes
  *
@@ -124,6 +109,7 @@ L1THCALTPGXAna::L1THCALTPGXAna(const ParameterSet& ps)
   //fake cut
   fakeCut_ = ps.getUntrackedParameter<double>("fakeCut",0.0);
 
+  logFile_.open("L1THCALTPGXAna.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -135,6 +121,9 @@ L1THCALTPGXAna::L1THCALTPGXAna(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     std::cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << std::endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -232,8 +221,6 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
       hcalTpgfgtimediff_ =
 	dbe->book1D("HcalFGtimediff", "Fine grain time diff", fgtdiffbins, fgtdiffmin, fgtdiffmax);
 
-
-      if (0){
       dbe->setCurrentFolder("L1T/L1THCALTPGXAna/EffByChannel");
       //efficiency histos for HBHE
       for (int i=0; i < 56; i++)
@@ -281,8 +268,6 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
               hcalEffDen_HF[i][j] = dbe->book1D(hname, htitle, effBins,effMinHF,effMaxHF);
 	    }
 	}
-      }
-
     }  
 }
 
@@ -290,7 +275,7 @@ void L1THCALTPGXAna::beginJob(const EventSetup& iSetup)
 void L1THCALTPGXAna::endJob(void)
 {
   if(verbose_) std::cout << "L1THCALTPGXAna: end job...." << std::endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1THCALTPGXAna") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -307,7 +292,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
     
   if (!hcalTpgs.isValid())
     {
-      edm::LogInfo("DataNotFound") << "can't find HCAL TPG's with label "
+      edm::LogInfo("L1THCALTPGXAna") << "can't find HCAL TPG's with label "
 				     << hcaltpgSource_.label() ;
       return;
     }
@@ -319,7 +304,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
    
   if (!hbhe_rec.isValid())
     {
-      edm::LogInfo("DataNotFound") << "can't find hbhe rec hits's with label "
+      edm::LogInfo("L1THCALTPGXAna") << "can't find hbhe rec hits's with label "
                                      << hbherecoSource_.label() ;
       return;
     }
@@ -329,7 +314,7 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
     
    if (!hf_rec.isValid())
     {
-      edm::LogInfo("DataNotFound") << "can't find hf rec hits's with label "
+      edm::LogInfo("L1THCALTPGXAna") << "can't find hf rec hits's with label "
                                      << hfrecoSource_.label() ;
       return;
     }
@@ -392,7 +377,6 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       if (TMath::Abs(ieta) >= 29) rec_e = rec_e/et2e;
 
-      if (0){
       //fill individual num. and den. of efficiency plots
       if (TMath::Abs(ieta) >= 29)
 	{
@@ -433,8 +417,6 @@ void L1THCALTPGXAna::analyze(const Event& iEvent, const EventSetup& iSetup)
 		}
 	    }
 	}
-      }
-
       //fill num. and denom. of efficiency plots
       if (TMath::Abs(ieta) <= 20)
 	{

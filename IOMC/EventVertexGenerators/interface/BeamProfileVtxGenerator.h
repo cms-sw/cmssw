@@ -7,7 +7,7 @@
  * Attention: Units are assumed to be cm and radian!
  * \author Sunanda Banerjee
  *
- * $Id: BeamProfileVtxGenerator.h,v 1.5 2007/11/02 21:40:33 sunanda Exp $
+ * $Id: BeamProfileVtxGenerator.h,v 1.4 2007/04/27 14:25:34 yumiceva Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -31,8 +31,7 @@ public:
   virtual TMatrixD* GetInvLorentzBoost() {
 	  return 0;
   }
-
-    
+  
   /// set resolution in X in cm
   void sigmaX(double s=1.0);
   /// set resolution in Y in cm
@@ -64,8 +63,7 @@ private:
   bool        fType,   ffile;
   int         nBinx,   nBiny;
   std::vector<double> fdistn;
-  CLHEP::HepRandom*   fRandom;
-  double fTimeOffset;
+  CLHEP::HepRandom*   fRandom;   
 };
 
 #endif

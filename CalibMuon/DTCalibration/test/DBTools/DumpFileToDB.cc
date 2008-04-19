@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:40:55 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/01/18 17:46:34 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -29,13 +29,10 @@ using namespace edm;
 using namespace std;
 
 DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
+  theCalibFile = new DTCalibrationMap(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
+  mapFileName = pset.getUntrackedParameter<string>("channelsMapFileName", "map.txt");
 
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
-
-  if(dbToDump != "ChannelsDB")
-    theCalibFile = new DTCalibrationMap(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
-
-  mapFileName = pset.getUntrackedParameter<ParameterSet>("calibFileConfig").getUntrackedParameter<string>("calibConstFileName", "dummy.txt");
 
   if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && 
      dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB")

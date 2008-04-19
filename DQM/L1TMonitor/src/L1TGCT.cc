@@ -1,26 +1,11 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.21 $
+ * $Date: 2008/02/20 18:59:29 $
+ * $Revision: 1.18 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
- * Revision 1.21  2008/03/14 20:35:46  berryhil
- *
- *
- * stripped out obsolete parameter settings
- *
- * rpc tpg restored with correct dn access and dbe handling
- *
- * Revision 1.20  2008/03/12 17:24:24  berryhil
- *
- *
- * eliminated log files, truncated HCALTPGXana histo output
- *
- * Revision 1.19  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
  * Revision 1.18  2008/02/20 18:59:29  tapper
  * Ported GCTMonitor histograms into L1TGCT
  *
@@ -123,6 +108,7 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   if (verbose_)
     std::cout << "L1TGCT: constructor...." << std::endl;
 
+  logFile_.open("L1TGCT.log");
 
   dbe = NULL;
   if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
@@ -134,6 +120,9 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   if (outputFile_.size() != 0) {
     std::cout << "L1T Monitoring histograms will be saved to "
 	      << outputFile_ << std::endl;
+  }
+  else {
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable =
@@ -262,7 +251,7 @@ void L1TGCT::endJob(void)
 {
   if (verbose_)
     std::cout << "L1TGCT: end job...." << std::endl;
-  edm::LogInfo("EndJob") << "analyzed " << nev_ << " events";
+  edm::LogInfo("L1TGCT") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe) {
     dbe->save(outputFile_);
@@ -303,37 +292,37 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctEnergySumsSource_, l1EtTotal);
    
   if (!l1CenJets.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1CenJets"
+    edm::LogInfo("L1TGCT") << " Could not find l1CenJets"
       ", label was " << gctCenJetsSource_ ;
     doJet = false;
   }
    
   if (!l1ForJets.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1ForJets"
+    edm::LogInfo("L1TGCT") << " Could not find l1ForJets"
       ", label was " << gctForJetsSource_ ;
     doJet = false;
   }
    
   if (!l1TauJets.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1TauJets"
+    edm::LogInfo("L1TGCT") << " Could not find l1TauJets"
       ", label was " << gctTauJetsSource_ ;
     doJet = false;
   }
    
   if (!l1EtMiss.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1EtMiss"
+    edm::LogInfo("L1TGCT") << " Could not find l1EtMiss"
       ", label was " << gctEnergySumsSource_ ;
     doJet = false;
   }
      
   if (!l1EtHad.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1EtHad"
+    edm::LogInfo("L1TGCT") << " Could not find l1EtHad"
       ", label was " << gctEnergySumsSource_ ;
     doJet = false;
   }
    
   if (!l1EtTotal.isValid())  {
-    edm::LogInfo("DataNotFound") << " Could not find l1EtTotal"
+    edm::LogInfo("L1TGCT") << " Could not find l1EtTotal"
       ", label was " << gctEnergySumsSource_ ;
     doJet = false;
   }
@@ -344,12 +333,12 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
   
   if (!l1IsoEm.isValid()) {
-    edm::LogInfo("DataNotFound") << " Could not find l1IsoEm "
+    edm::LogInfo("L1TGCT") << " Could not find l1IsoEm "
       " elements, label was " << gctIsoEmSource_ ;
     doEm = false;
   }
   if (!l1NonIsoEm.isValid()) {
-    edm::LogInfo("DataNotFound") << " Could not find l1NonIsoEm "
+    edm::LogInfo("L1TGCT") << " Could not find l1NonIsoEm "
       " elements, label was " << gctNonIsoEmSource_ ;
     doEm = false;
   }

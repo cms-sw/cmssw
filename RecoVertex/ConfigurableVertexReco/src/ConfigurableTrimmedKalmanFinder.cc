@@ -48,25 +48,18 @@ ConfigurableTrimmedKalmanFinder * ConfigurableTrimmedKalmanFinder::clone() const
 }
 
 vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
+    const std::vector < reco::TransientTrack > & t ) const
+{
+  return theRector->vertices ( t );
+}
+
+vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
     const std::vector < reco::TransientTrack > & t,
     const reco::BeamSpot & s ) const
 {
   return theRector->vertices ( t, s );
 }
 
-vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
-    const std::vector < reco::TransientTrack > & prims,
-    const std::vector < reco::TransientTrack > & secs,
-    const reco::BeamSpot & s ) const
-{
-  return theRector->vertices ( prims, secs, s );
-}
-
-vector < TransientVertex > ConfigurableTrimmedKalmanFinder::vertices ( 
-    const std::vector < reco::TransientTrack > & t ) const
-{
-  return theRector->vertices ( t );
-}
 
 edm::ParameterSet ConfigurableTrimmedKalmanFinder::defaults() const
 {

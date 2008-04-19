@@ -18,12 +18,17 @@
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 #include "DDLElementRegistry.h"
+#include "DDLLogicalPart.h"
 
 // DDCore dependencies
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
+#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 //#include <strstream>
+#include <string>
 
 // Default constructor
 DDLSolid::DDLSolid()

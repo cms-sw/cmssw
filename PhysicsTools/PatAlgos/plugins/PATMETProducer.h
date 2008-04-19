@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATMETProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATMETProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
 */
 
 
@@ -46,7 +46,7 @@ namespace pat {
       // configurables
       edm::InputTag metSrc_;
       bool          addGenMET_;
-      edm::InputTag genMETSrc_;
+      edm::InputTag genPartSrc_;
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   metResoFile_;

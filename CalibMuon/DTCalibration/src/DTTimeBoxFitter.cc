@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/18 15:40:15 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/05/15 14:45:19 $
+ *  $Revision: 1.5 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -16,14 +16,11 @@
 #include "TH1F.h"
 #include "TMath.h"
 #include "TF1.h"
-#include "TString.h"
 
 using namespace std;
 
-DTTimeBoxFitter::DTTimeBoxFitter(const TString& debugFileName) : hDebugFile(0),
-								 theVerbosityLevel(0) {
-  // Create a root file for debug output only if needed
-  if(debugFileName != "") hDebugFile = new TFile(debugFileName.Data(), "RECREATE");
+DTTimeBoxFitter::DTTimeBoxFitter() : theVerbosityLevel(0) {
+  hDebugFile = new TFile("DTTimeBoxFitter.root", "RECREATE");
   interactiveFit = false;
   rebin = 1;
 }
@@ -31,7 +28,7 @@ DTTimeBoxFitter::DTTimeBoxFitter(const TString& debugFileName) : hDebugFile(0),
 
 
 DTTimeBoxFitter::~DTTimeBoxFitter() {
-  if(hDebugFile != 0) hDebugFile->Close();
+  hDebugFile->Close();
 }
 
 
@@ -113,7 +110,7 @@ void DTTimeBoxFitter::getInteractiveFitSeeds(TH1F *hTBox, double& mean, double& 
   cout << "Inser the fit mean:" << endl;
   cin >> mean;
 
-  sigma = 10; //FIXME: estimate it!
+  sigma = 5; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 
@@ -149,7 +146,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   double binValue = (double)(xMax-xMin)/(double)nBins;
 
   // Compute a threshold for TimeBox discrimination
-  const double threshold = binValue*nEntries/(double)(tBoxWidth*3.);
+  const double threshold = binValue*nEntries/(double)(tBoxWidth*2.);
   if(theVerbosityLevel >= 2)
     cout << "   Threshold for logic time box is (# entries): " <<  threshold << endl;
     
@@ -161,7 +158,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     binValue = (double)(xMax-xMin)/(double)nBins;
   }
 
-  if(hDebugFile != 0) hDebugFile->cd();
+  hDebugFile->cd();
   TString hLName = TString(hTBox->GetName())+"L";
   TH1F hLTB(hLName.Data(), "Logic Time Box", nBins, xMin, xMax);
   // Loop over all time box bins and discriminate them accordigly to the threshold
@@ -169,7 +166,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     if(hTBox->GetBinContent(i) > threshold)
       hLTB.SetBinContent(i, 1);
   }
-  if(hDebugFile != 0) hLTB.Write();
+  hLTB.Write();
   
   // Look for the time box in the "logic histo" and save beginning and lenght of each plateau
   vector< pair<int, int> > startAndLenght;
@@ -220,7 +217,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   }
 
   mean = xMin + beginning*binValue;
-  sigma = 10; //FIXME: estimate it!
+  sigma = 5; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 

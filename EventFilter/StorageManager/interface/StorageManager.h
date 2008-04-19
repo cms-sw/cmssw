@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.23.2.1 2008/03/07 20:36:41 biery Exp $
+   $Id: StorageManager.h,v 1.25 2008/03/10 14:50:07 biery Exp $
 */
 
 #include <string>
@@ -118,6 +118,8 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerListWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void eventServerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMeventdataWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMconsumerWebPage
@@ -175,6 +177,7 @@ namespace stor {
     // added for Event Server
     std::vector<unsigned char> mybuffer_; //temporary buffer instead of using stack
     xdata::Double maxESEventRate_;  // hertz
+    xdata::Double maxESDataRate_;  // MB/sec
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;

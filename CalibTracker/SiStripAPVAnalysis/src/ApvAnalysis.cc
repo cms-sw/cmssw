@@ -1,4 +1,5 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysis.h"
+#include "CalibTracker/SiStripAPVAnalysis/interface/TkCommonMode.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/TkApvMask.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/TkNoiseCalculator.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/TkPedestalCalculator.h"

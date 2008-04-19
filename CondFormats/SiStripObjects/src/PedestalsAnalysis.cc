@@ -32,8 +32,7 @@ PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key )
     rawMax_(2,sistrip::invalid_), 
     rawMin_(2,sistrip::invalid_),
     hPeds_(0,""),
-    hNoise_(0,""),
-    legacy_(false)
+    hNoise_(0,"")
 {
   dead_[0].reserve(256); dead_[1].reserve(256); 
   noisy_[0].reserve(256); noisy_[1].reserve(256);
@@ -61,8 +60,7 @@ PedestalsAnalysis::PedestalsAnalysis()
     rawMax_(2,sistrip::invalid_), 
     rawMin_(2,sistrip::invalid_),
     hPeds_(0,""),
-    hNoise_(0,""),
-    legacy_(false)
+    hNoise_(0,"")
 {
   dead_[0].reserve(256); dead_[1].reserve(256); 
   noisy_[0].reserve(256); noisy_[1].reserve(256);
@@ -94,7 +92,6 @@ void PedestalsAnalysis::reset() {
   noisy_[1].reserve(256);
   hPeds_ = Histo(0,"");
   hNoise_ = Histo(0,"");
-  legacy_ = false;
 }
 
 // ----------------------------------------------------------------------------
@@ -123,22 +120,14 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
       continue;
     }
     
-    // Extract peds and noise histos (check for legacy names first!)
-    if ( title.extraInfo().find(sistrip::extrainfo::pedsAndRawNoise_) != std::string::npos ) {
+    // Extract peds and noise histos
+    if ( title.extraInfo().find(sistrip::pedsAndRawNoise_) != std::string::npos ) {
       hPeds_.first = *ihis;
       hPeds_.second = (*ihis)->GetName();
-      legacy_ = true;
-    } else if ( title.extraInfo().find(sistrip::extrainfo::pedsAndCmSubNoise_) != std::string::npos ) {
+    } else if ( title.extraInfo().find(sistrip::pedsAndCmSubNoise_) != std::string::npos ) {
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
-      legacy_ = true;
-    } else if ( title.extraInfo().find(sistrip::extrainfo::pedestals_) != std::string::npos ) {
-      hPeds_.first = *ihis;
-      hPeds_.second = (*ihis)->GetName();
-    } else if ( title.extraInfo().find(sistrip::extrainfo::noise_) != std::string::npos ) {
-      hNoise_.first = *ihis;
-      hNoise_.second = (*ihis)->GetName();
-    } else if ( title.extraInfo().find(sistrip::extrainfo::commonMode_) != std::string::npos ) {
+    } else if ( title.extraInfo().find(sistrip::commonMode_) != std::string::npos ) {
       //@@ something here for CM plots?
     } else { 
       addErrorCode(sistrip::unexpectedExtraInfo_);
@@ -287,17 +276,11 @@ void PedestalsAnalysis::summary( std::stringstream& ss ) const {
   SiStripFedKey fed_key( fedKey() );
   
   sistrip::RunType type = SiStripEnumsAndStrings::runType( myName() );
-
+  
   std::stringstream extra1,extra2,extra3;
-  if ( legacy_ ) {
-    extra1 << sistrip::extrainfo::pedsAndRawNoise_; 
-    extra2 << sistrip::extrainfo::pedsAndCmSubNoise_; 
-    extra3 << sistrip::extrainfo::commonMode_;
-  } else {
-    extra1 << sistrip::extrainfo::pedestals_; 
-    extra2 << sistrip::extrainfo::rawNoise_; 
-    extra3 << sistrip::extrainfo::commonMode_;
-  }
+  extra1 << sistrip::pedsAndRawNoise_; 
+  extra2 << sistrip::pedsAndCmSubNoise_; 
+  extra3 << sistrip::commonMode_;
   
   std::string title1 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					  type,

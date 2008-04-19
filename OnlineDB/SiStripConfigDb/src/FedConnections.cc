@@ -1,4 +1,6 @@
-// Last commit: $Id: $
+// Last commit: $Id: FedConnections.cc,v 1.11 2007/12/11 16:32:39 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedConnections.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <ostream>
@@ -12,55 +14,29 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
 
   connections_.clear();
 
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { return connections_; }
+  if ( !deviceFactory(__func__) ) { return connections_; }
   
   try {
-
 #ifdef USING_NEW_DATABASE_MODEL
-
-    if ( !dbParams_.usingDbCache_ ) { 
-
-      deviceFactory(__func__)->getConnectionDescriptions( dbParams_.partitions_.front(), 
-							  connections_,
-							  dbParams_.cabMajor_,
-							  dbParams_.cabMinor_,
-							  false ); //@@ do not get DISABLED connections
-
-    } else {
-
-#ifdef USING_DATABASE_CACHE
-      FedConnections* tmp = databaseCache(__func__)->getConnections();
-      if ( tmp ) { connections_ = *tmp; }
-      else {
-	edm::LogWarning(mlConfigDb_)
-	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " NULL pointer to FedConnections vector!";
-      }
-
-#endif
-
-    }
-      
+    deviceFactory(__func__)->getConnectionDescriptions( dbParams_.partition_, 
+							connections_,
+							dbParams_.cabMajor_,
+							dbParams_.cabMinor_,
+							false ); //@@ do not get DISABLED connections
 #else
-
     for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
       connections_.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
     }
-
 #endif
-
   } catch (...) { handleException( __func__ ); }
   
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Found " << connections_.size() 
-     << " FED connections"; 
+     << " Found " << connections_.size() << " FED connections"; 
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputModuleXml_ << " 'module.xml' file"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
-  else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
-  if ( connections_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
-  else { LogTrace(mlConfigDb_) << ss.str(); }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
+  if ( connections_.empty() ) { edm::LogWarning(mlConfigDb_) << ss; }
+  else { LogTrace(mlConfigDb_) << ss; }
   
   return connections_;
 
@@ -69,13 +45,6 @@ const SiStripConfigDb::FedConnections& SiStripConfigDb::getFedConnections() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
-
-  if ( dbParams_.usingDbCache_ ) {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]" 
-      << " Using database cache! No uploads allowed!"; 
-    return;
-  }
 
   if ( !deviceFactory(__func__) ) { return; }
   
@@ -93,7 +62,7 @@ void SiStripConfigDb::uploadFedConnections( bool new_major_version ) {
       
 #ifdef USING_NEW_DATABASE_MODEL
       deviceFactory(__func__)->setConnectionDescriptions( connections_,
-							  dbParams_.partitions_.front(), 
+							  dbParams_.partition_, 
 							  &(dbParams_.cabMajor_),
 							  &(dbParams_.cabMinor_),
 							  new_major_version );

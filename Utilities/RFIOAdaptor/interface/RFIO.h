@@ -10,17 +10,10 @@
 # define serrno (*C__serrno())
 # define rfio_errno (*C__rfio_errno())
 
+
 extern "C"
 {
-  // This is a RFIO-special structure like the "iovec" one
-  // in sys/uio.h, but this doesn't actually exist on the system.
-  struct iovec64
-  {
-    off64_t iov_base;
-    int     iov_len;
-  };
-
-  int     rfio_preseek64(int, struct iovec64 *, int);
+  int     rfio_preseek64(int, struct iovec *, int);
   int     rfio_open64(const char *filepath, int flags, int mode);
   int     rfio_close(int s);
   int     rfio_close64(int s) { return  rfio_close(s);}

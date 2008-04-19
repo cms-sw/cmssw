@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import os
 from ConfigParser import ConfigParser
 from copy import copy
 from optparse import OptionParser, Option, OptionValueError
@@ -43,8 +42,8 @@ class tagInventoryBuilder:
         """
         Class add entry in the tag inventory
         usage: %prog [options]
-        -f, --file=filename: configuration file. -t will not be considered together with the -f option. The connect parameter will be overwritten by option -c.
-        -c, --connect=connectstring: connection string to the tag DB. If -c, -f both given -c value will overwrite the connect parameter in the config file. 
+        -f, --file=filename: configuration file
+        -c, --connect=connectstring: connection string to the tag DB (required)
         -u, --user=user: user name
         -p, --password=password: password
         -P, --path=path: path to authentication.xml
@@ -64,8 +63,8 @@ class tagInventoryBuilder:
         Parse commandline
         """
         usage = "usage: \%prog [options] \n"
-        self.__parser.add_option("-f","--file",action="store",dest="filename",help="populate the inventory from the given file. -t will not be considered together with the -f option. The connect parameter will be overwritten by option -c.")
-        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB. If -c, -f both given -c value will overwrite the connect parameter in the config file.")
+        self.__parser.add_option("-f","--file",action="store",dest="filename",help="populate the inventory from the given file. -c,-t will not be considered together with the -f option")
+        self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the tag DB")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
@@ -75,13 +74,12 @@ class tagInventoryBuilder:
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
         self.__parser.set_defaults(password='')
-        self.__parser.set_defaults(authpath='.')
+        self.__parser.set_defaults(authpath='')
         self.__parser.set_defaults(tagdata=[])
         self.__parser.set_defaults(verbose=False)
         (options, args) = self.__parser.parse_args()
         if options.filename and options.connectstring:
-            print 'Warning: -c option ',options.connectstring, 'overwrites the connection string in ',options.filename
-            #raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
+            raise OptionValueError("option -%s and -%s are exclusive"%('f','c'))
         if len(self.__parser.values.authpath)!=0:
             self.__authpath=self.__parser.values.authpath
         else:
@@ -91,10 +89,7 @@ class tagInventoryBuilder:
         if self.__parser.values.filename!='':
             configparser=ConfigParser()
             configparser.read(self.__parser.values.filename)
-            if options.connectstring:
-                self.__connectstring=self.__parser.values.connectstring
-            else:
-                self.__connectstring=configparser.get("COMMON","connect")
+            self.__connectstring=configparser.get("COMMON","connect")
             data=stripws(configparser.get("TAGINVENTORY",'tagdata'))
             self.__tagcollection=converttagcollection(data)
             if self.__parser.values.verbose is True:
@@ -119,9 +114,6 @@ class tagInventoryBuilder:
         else:
             context.setVerbosityLevel( 'ERROR' )
         svc = coral.ConnectionService( context )
-        config=svc.configuration()
-        os.environ['CORAL_AUTH_PATH']=self.__authpath
-        config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
         session = svc.connect( self.__connectstring,accessMode = coral.access_Update )
         try:
             inv=tagInventory.tagInventory(session)

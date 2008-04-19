@@ -71,8 +71,6 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig)
   // register products
   produces<reco::PFSimParticleCollection>();
   
-  vertexGenerator_ = iConfig.getParameter<ParameterSet>
-    ( "VertexGenerator" );   
   particleFilter_ = iConfig.getParameter<ParameterSet>
     ( "ParticleFilter" );   
   

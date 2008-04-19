@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.44.2.1 2008/03/07 20:38:24 biery Exp $
+// $Id: StorageManager.cc,v 1.47 2008/04/16 16:16:08 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -52,6 +52,8 @@
 #include "xdata/InfoSpaceFactory.h"
 
 #include "boost/lexical_cast.hpp"
+#include "boost/algorithm/string/case_conv.hpp"
+#include "cgicc/Cgicc.h"
 
 namespace stor {
 extern bool getSMFC_exceptionStatus();
@@ -153,6 +155,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   xgi::bind(this,&StorageManager::consumerListWebPage,  "consumerList");
   xgi::bind(this,&StorageManager::DQMeventdataWebPage,  "getDQMeventdata");
   xgi::bind(this,&StorageManager::DQMconsumerWebPage,   "registerDQMConsumer");
+  xgi::bind(this,&StorageManager::eventServerWebPage,   "EventServerStats");
   receivedFrames_ = 0;
   pool_is_set_    = 0;
   pool_           = 0;
@@ -198,11 +201,13 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("exactFileSizeTest",  &exactFileSizeTest_);
 
   // added for Event Server
-  maxESEventRate_ = 1.0;  // hertz
+  maxESEventRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
-  activeConsumerTimeout_ = 300;  // seconds
+  maxESDataRate_ = 100.0;  // MB/sec
+  ispace->fireItemAvailable("maxESDataRate",&maxESDataRate_);
+  activeConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
-  idleConsumerTimeout_ = 600;  // seconds
+  idleConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
   consumerQueueSize_ = 5;
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
@@ -1148,6 +1153,9 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<hr/>"                                                 << endl;
   *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
        << "Streamer Output Status web page" << "</a>" << endl;
+  *out << "<hr/>"                                                 << endl;
+  *out << "<a href=\"" << url << "/" << urn << "/EventServerStats?update=on"
+       << "\">Event Server Statistics" << "</a>" << endl;
   /* --- leave these here to debug event server problems
   *out << "<a href=\"" << url << "/" << urn << "/geteventdata" << "\">" 
        << "Get an event via a web page" << "</a>" << endl;
@@ -1939,6 +1947,963 @@ void StorageManager::consumerListWebPage(xgi::Input *in, xgi::Output *out)
   out->write(buffer,strlen(buffer));
 }
 
+//////////////////// event server statistics web page //////////////////
+void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  // We should make the HTML header and the page banner common
+  std::string url =
+    getApplicationDescriptor()->getContextDescriptor()->getURL();
+  std::string urn = getApplicationDescriptor()->getURN();
+
+  // determine whether we're automatically updating the page
+  // --> if the SM is not enabled, assume that users want updating turned
+  // --> ON so that they don't A) think that is is ON (when it's not) and
+  // --> B) wait forever thinking that something is wrong.
+  bool autoUpdate = true;
+  if(fsm_.stateName()->toString() == "Enabled") {
+    cgicc::Cgicc cgiWrapper(in);
+    cgicc::const_form_iterator updateRef = cgiWrapper.getElement("update");
+    if (updateRef != cgiWrapper.getElements().end()) {
+      std::string updateString =
+        boost::algorithm::to_lower_copy(updateRef->getValue());
+      if (updateString == "off") {
+        autoUpdate = false;
+      }
+    }
+  }
+
+  *out << "<html>" << std::endl;
+  *out << "<head>" << std::endl;
+  if (autoUpdate) {
+    *out << "<meta http-equiv=\"refresh\" content=\"10\">" << std::endl;
+  }
+  *out << "<link type=\"text/css\" rel=\"stylesheet\"";
+  *out << " href=\"/" << urn << "/styles.css\"/>" << std::endl;
+  *out << "<title>" << getApplicationDescriptor()->getClassName()
+       << " Instance " << getApplicationDescriptor()->getInstance()
+       << "</title>" << std::endl;
+
+  *out << "<table border=\"1\" width=\"100%\">"                      << endl;
+  *out << "<tr>"                                                     << endl;
+  *out << "  <td align=\"left\">"                                    << endl;
+  *out << "    <img"                                                 << endl;
+  *out << "     align=\"middle\""                                    << endl;
+  *out << "     src=\"/evf/images/smicon.jpg\""                      << endl;
+  *out << "     alt=\"main\""                                        << endl;
+  *out << "     width=\"64\""                                        << endl;
+  *out << "     height=\"64\""                                       << endl;
+  *out << "     border=\"\"/>"                                       << endl;
+  *out << "    <b>"                                                  << endl;
+  *out << getApplicationDescriptor()->getClassName() << " Instance "
+       << getApplicationDescriptor()->getInstance();
+  *out << ", State is " << fsm_.stateName()->toString()              << endl;
+  *out << "    </b>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "  <td width=\"32\">"                                      << endl;
+  *out << "    <a href=\"/urn:xdaq-application:lid=3\">"             << endl;
+  *out << "      <img"                                               << endl;
+  *out << "       align=\"middle\""                                  << endl;
+  *out << "       src=\"/hyperdaq/images/HyperDAQ.jpg\""             << endl;
+  *out << "       alt=\"HyperDAQ\""                                  << endl;
+  *out << "       width=\"32\""                                      << endl;
+  *out << "       height=\"32\""                                     << endl;
+  *out << "       border=\"\"/>"                                     << endl;
+  *out << "    </a>"                                                 << endl;
+  *out << "  </td>"                                                  << endl;
+  *out << "</tr>"                                                    << endl;
+  if(fsm_.stateName()->value_ == "Failed")
+  {
+    *out << "<tr>"                                                   << endl;
+    *out << " <td>"                                                  << endl;
+    *out << "<textarea rows=" << 5 << " cols=60 scroll=yes";
+    *out << " readonly title=\"Reason For Failed\">"                 << endl;
+    *out << reasonForFailedState_                                    << endl;
+    *out << "</textarea>"                                            << endl;
+    *out << " </td>"                                                 << endl;
+    *out << "</tr>"                                                  << endl;
+  }
+  *out << "</table>"                                                 << endl;
+
+  if(fsm_.stateName()->toString() == "Enabled")
+  {
+    boost::shared_ptr<EventServer> eventServer;
+    if (jc_.get() != NULL)
+    {
+      eventServer = jc_->getEventServer();
+    }
+    if (eventServer.get() != NULL)
+    {
+      double now = ForeverCounter::getCurrentTime();
+      *out << "<table border=\"0\" width=\"100%\">" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
+      *out << "  </td>" << std::endl;
+      *out << "    &nbsp;" << std::endl;
+      *out << "  <td width=\"50%\" align=\"center\">" << std::endl;
+      *out << "    <font size=\"+2\"><b>Event Server Statistics</b></font>"
+           << std::endl;
+      *out << "    <br/>" << std::endl;
+      *out << "    Data rates are reported in MB/sec." << std::endl;
+      *out << "    <br/>" << std::endl;
+      *out << "    Maximum event rate to consumers is "
+           << eventServer->getMaxEventRate() << " Hz." << std::endl;
+      *out << "    <br/>" << std::endl;
+      *out << "    Maximum data rate to consumers is "
+           << eventServer->getMaxDataRate() << " MB/sec." << std::endl;
+      *out << "    <br/>" << std::endl;
+      *out << "    Maximum consumer queue size is " << consumerQueueSize_
+           << "." << std::endl;
+      *out << "  </td>" << std::endl;
+      *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
+      if (autoUpdate) {
+        *out << "    <a href=\"" << url << "/" << urn
+             << "/EventServerStats?update=off\">Turn updating OFF</a>"
+             << std::endl;
+      }
+      else {
+        *out << "    <a href=\"" << url << "/" << urn
+             << "/EventServerStats?update=on\">Turn updating ON</a>"
+             << std::endl;
+      }
+      *out << "    <br/><br/>" << std::endl;
+      *out << "    <a href=\"" << url << "/" << urn
+           << "\">Back to SM Status</a>"
+           << std::endl;
+      *out << "  </td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "</table>" << std::endl;
+
+      *out << "<h3>Event Server:</h3>" << std::endl;
+      *out << "<h4>Input Events:</h4>" << std::endl;
+      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <th>&nbsp;</th>" << std::endl;
+      *out << "  <th>Event Count</th>" << std::endl;
+      *out << "  <th>Event Rate</th>" << std::endl;
+      *out << "  <th>Data Rate</th>" << std::endl;
+      *out << "  <th>Duration (sec)</th>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Recent Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
+                                         EventServer::INPUT_STATS,
+                                         now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
+                                        EventServer::INPUT_STATS,
+                                        now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
+                                       EventServer::INPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDuration(EventServer::SHORT_TERM_STATS,
+                                       EventServer::INPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Full Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventCount(EventServer::LONG_TERM_STATS,
+                                         EventServer::INPUT_STATS,
+                                         now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventRate(EventServer::LONG_TERM_STATS,
+                                        EventServer::INPUT_STATS,
+                                        now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDataRate(EventServer::LONG_TERM_STATS,
+                                       EventServer::INPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDuration(EventServer::LONG_TERM_STATS,
+                                       EventServer::INPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "</table>" << std::endl;
+
+      *out << "<h4>Accepted Events:</h4>" << std::endl;
+      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <th>&nbsp;</th>" << std::endl;
+      *out << "  <th>Event Count</th>" << std::endl;
+      *out << "  <th>Event Rate</th>" << std::endl;
+      *out << "  <th>Data Rate</th>" << std::endl;
+      *out << "  <th>Duration (sec)</th>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Recent Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventCount(EventServer::SHORT_TERM_STATS,
+                                         EventServer::OUTPUT_STATS,
+                                         now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventRate(EventServer::SHORT_TERM_STATS,
+                                        EventServer::OUTPUT_STATS,
+                                        now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDataRate(EventServer::SHORT_TERM_STATS,
+                                       EventServer::OUTPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDuration(EventServer::SHORT_TERM_STATS,
+                                       EventServer::OUTPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Full Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventCount(EventServer::LONG_TERM_STATS,
+                                         EventServer::OUTPUT_STATS,
+                                         now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getEventRate(EventServer::LONG_TERM_STATS,
+                                        EventServer::OUTPUT_STATS,
+                                        now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDataRate(EventServer::LONG_TERM_STATS,
+                                       EventServer::OUTPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getDuration(EventServer::LONG_TERM_STATS,
+                                       EventServer::OUTPUT_STATS,
+                                       now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "</table>" << std::endl;
+
+      *out << "<h4>Timing:</h4>" << std::endl;
+      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <th>&nbsp;</th>" << std::endl;
+      *out << "  <th>CPU Time<br/>(sec)</th>" << std::endl;
+      *out << "  <th>CPU Time<br/>Percent</th>" << std::endl;
+      *out << "  <th>Real Time<br/>(sec)</th>" << std::endl;
+      *out << "  <th>Real Time<br/>Percent</th>" << std::endl;
+      *out << "  <th>Duration (sec)</th>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Recent Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getInternalTime(EventServer::SHORT_TERM_STATS,
+                                           EventServer::CPUTIME,
+                                           now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << 100 * eventServer->getTimeFraction(EventServer::SHORT_TERM_STATS,
+                                                 EventServer::CPUTIME,
+                                                 now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getInternalTime(EventServer::SHORT_TERM_STATS,
+                                           EventServer::REALTIME,
+                                           now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << 100 * eventServer->getTimeFraction(EventServer::SHORT_TERM_STATS,
+                                                 EventServer::REALTIME,
+                                                 now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getTotalTime(EventServer::SHORT_TERM_STATS,
+                                        EventServer::REALTIME,
+                                        now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Full Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getInternalTime(EventServer::LONG_TERM_STATS,
+                                           EventServer::CPUTIME,
+                                           now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << 100 * eventServer->getTimeFraction(EventServer::LONG_TERM_STATS,
+                                                 EventServer::CPUTIME,
+                                                 now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getInternalTime(EventServer::LONG_TERM_STATS,
+                                           EventServer::REALTIME,
+                                           now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << 100 * eventServer->getTimeFraction(EventServer::LONG_TERM_STATS,
+                                                 EventServer::REALTIME,
+                                                 now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << eventServer->getTotalTime(EventServer::LONG_TERM_STATS,
+                                        EventServer::REALTIME,
+                                        now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "</table>" << std::endl;
+
+      *out << "<h3>Consumers:</h3>" << std::endl;
+      std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+	eventServer->getConsumerTable();
+      if (consumerTable.size() == 0)
+      {
+        *out << "No consumers are currently registered with "
+             << "this Storage Manager instance.<br/>" << std::endl;
+      }
+      else
+      {
+        std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+          consumerIter;
+
+        // ************************************************************
+        // * Consumer summary table
+        // ************************************************************
+        *out << "<h4>Summary:</h4>" << std::endl;
+        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "  <th>ID</th>" << std::endl;
+        *out << "  <th>Name</th>" << std::endl;
+        *out << "  <th>State</th>" << std::endl;
+        *out << "  <th>Requested Rate</th>" << std::endl;
+        *out << "  <th>Trigger Request</th>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
+        {
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          *out << "<tr>" << std::endl;
+          *out << "  <td align=\"center\">" << consPtr->getConsumerId()
+               << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">";
+          if (consPtr->isProxyServer()) {
+            *out << "Proxy Server";
+          }
+          else {
+            *out << consPtr->getConsumerName();
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">";
+          if (consPtr->isDisconnected()) {
+            *out << "Disconnected";
+          }
+          else if (consPtr->isIdle()) {
+            *out << "Idle";
+          }
+          else {
+            *out << "Active";
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">"
+               << consPtr->getRateRequest()
+               << " Hz</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << InitMsgCollection::stringsToText(consPtr->getTriggerSelection(), 5)
+               << "</td>" << std::endl;
+
+          *out << "</tr>" << std::endl;
+        }
+        *out << "</table>" << std::endl;
+
+        // ************************************************************
+        // * Recent results for desired events
+        // ************************************************************
+        *out << "<h4>Acceptable Events, Recent Results:</h4>" << std::endl;
+        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "  <th>ID</th>" << std::endl;
+        *out << "  <th>Name</th>" << std::endl;
+        *out << "  <th>Event Count</th>" << std::endl;
+        *out << "  <th>Event Rate</th>" << std::endl;
+        *out << "  <th>Data Rate</th>" << std::endl;
+        *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
+        *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        double eventSum = 0.0;
+        double eventRateSum = 0.0;
+        double dataRateSum = 0.0;
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
+        {
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          if (consPtr->isDisconnected()) {continue;}
+
+          eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
+                                             ConsumerPipe::DESIRED_EVENTS,
+                                             now);
+          eventRateSum += consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
+                                                ConsumerPipe::DESIRED_EVENTS,
+                                                now);
+          dataRateSum += consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
+                                              ConsumerPipe::DESIRED_EVENTS,
+                                              now);
+
+          *out << "<tr>" << std::endl;
+          *out << "  <td align=\"center\">" << consPtr->getConsumerId()
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">";
+          if (consPtr->isProxyServer()) {
+            *out << "Proxy Server";
+          }
+          else {
+            *out << consPtr->getConsumerName();
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
+                                         ConsumerPipe::DESIRED_EVENTS,
+                                         now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
+                                        ConsumerPipe::DESIRED_EVENTS,
+                                        now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
+                                       ConsumerPipe::DESIRED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDuration(ConsumerPipe::SHORT_TERM,
+                                       ConsumerPipe::DESIRED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getAverageQueueSize(ConsumerPipe::SHORT_TERM,
+                                               ConsumerPipe::DESIRED_EVENTS,
+                                               now)
+               << "</td>" << std::endl;
+          *out << "</tr>" << std::endl;
+        }
+
+        // add a row with the totals
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">Totals</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        *out << "</table>" << std::endl;
+
+        // ************************************************************
+        // * Recent results for queued events
+        // ************************************************************
+        *out << "<h4>Queued Events, Recent Results:</h4>" << std::endl;
+        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "  <th>ID</th>" << std::endl;
+        *out << "  <th>Name</th>" << std::endl;
+        *out << "  <th>Event Count</th>" << std::endl;
+        *out << "  <th>Event Rate</th>" << std::endl;
+        *out << "  <th>Data Rate</th>" << std::endl;
+        *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
+        *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        eventSum = 0.0;
+        eventRateSum = 0.0;
+        dataRateSum = 0.0;
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
+        {
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          if (consPtr->isDisconnected()) {continue;}
+
+          eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
+                                             ConsumerPipe::QUEUED_EVENTS,
+                                             now);
+          eventRateSum += consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
+                                                ConsumerPipe::QUEUED_EVENTS,
+                                                now);
+          dataRateSum += consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
+                                              ConsumerPipe::QUEUED_EVENTS,
+                                              now);
+
+          *out << "<tr>" << std::endl;
+          *out << "  <td align=\"center\">" << consPtr->getConsumerId()
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">";
+          if (consPtr->isProxyServer()) {
+            *out << "Proxy Server";
+          }
+          else {
+            *out << consPtr->getConsumerName();
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
+                                         ConsumerPipe::QUEUED_EVENTS,
+                                         now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
+                                        ConsumerPipe::QUEUED_EVENTS,
+                                        now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
+                                       ConsumerPipe::QUEUED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDuration(ConsumerPipe::SHORT_TERM,
+                                       ConsumerPipe::QUEUED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getAverageQueueSize(ConsumerPipe::SHORT_TERM,
+                                               ConsumerPipe::QUEUED_EVENTS,
+                                               now)
+               << "</td>" << std::endl;
+          *out << "</tr>" << std::endl;
+        }
+
+        // add a row with the totals
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">Totals</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        *out << "</table>" << std::endl;
+
+        // ************************************************************
+        // * Recent results for served events
+        // ************************************************************
+        *out << "<h4>Served Events, Recent Results:</h4>" << std::endl;
+        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "  <th>ID</th>" << std::endl;
+        *out << "  <th>Name</th>" << std::endl;
+        *out << "  <th>Event Count</th>" << std::endl;
+        *out << "  <th>Event Rate</th>" << std::endl;
+        *out << "  <th>Data Rate</th>" << std::endl;
+        *out << "  <th>Duration (sec)</th>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        eventSum = 0.0;
+        eventRateSum = 0.0;
+        dataRateSum = 0.0;
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
+        {
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          if (consPtr->isDisconnected()) {continue;}
+
+          eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
+                                             ConsumerPipe::SERVED_EVENTS,
+                                             now);
+          eventRateSum += consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
+                                                ConsumerPipe::SERVED_EVENTS,
+                                                now);
+          dataRateSum += consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
+                                              ConsumerPipe::SERVED_EVENTS,
+                                              now);
+
+          *out << "<tr>" << std::endl;
+          *out << "  <td align=\"center\">" << consPtr->getConsumerId()
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">";
+          if (consPtr->isProxyServer()) {
+            *out << "Proxy Server";
+          }
+          else {
+            *out << consPtr->getConsumerName();
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
+                                         ConsumerPipe::SERVED_EVENTS,
+                                         now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
+                                        ConsumerPipe::SERVED_EVENTS,
+                                        now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
+                                       ConsumerPipe::SERVED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDuration(ConsumerPipe::SHORT_TERM,
+                                       ConsumerPipe::SERVED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "</tr>" << std::endl;
+        }
+
+        // add a row with the totals
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">Totals</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        *out << "</table>" << std::endl;
+
+        // ************************************************************
+        // * Full results for desired events
+        // ************************************************************
+        *out << "<h4>Acceptable Events, Full Results:</h4>" << std::endl;
+        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "  <th>ID</th>" << std::endl;
+        *out << "  <th>Name</th>" << std::endl;
+        *out << "  <th>Event Count</th>" << std::endl;
+        *out << "  <th>Event Rate</th>" << std::endl;
+        *out << "  <th>Data Rate</th>" << std::endl;
+        *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
+        *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        eventSum = 0.0;
+        eventRateSum = 0.0;
+        dataRateSum = 0.0;
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
+        {
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          if (consPtr->isDisconnected()) {continue;}
+
+          eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
+                                             ConsumerPipe::DESIRED_EVENTS,
+                                             now);
+          eventRateSum += consPtr->getEventRate(ConsumerPipe::LONG_TERM,
+                                                ConsumerPipe::DESIRED_EVENTS,
+                                                now);
+          dataRateSum += consPtr->getDataRate(ConsumerPipe::LONG_TERM,
+                                              ConsumerPipe::DESIRED_EVENTS,
+                                              now);
+
+          *out << "<tr>" << std::endl;
+          *out << "  <td align=\"center\">" << consPtr->getConsumerId()
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">";
+          if (consPtr->isProxyServer()) {
+            *out << "Proxy Server";
+          }
+          else {
+            *out << consPtr->getConsumerName();
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventCount(ConsumerPipe::LONG_TERM,
+                                         ConsumerPipe::DESIRED_EVENTS,
+                                         now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventRate(ConsumerPipe::LONG_TERM,
+                                        ConsumerPipe::DESIRED_EVENTS,
+                                        now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDataRate(ConsumerPipe::LONG_TERM,
+                                       ConsumerPipe::DESIRED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDuration(ConsumerPipe::LONG_TERM,
+                                       ConsumerPipe::DESIRED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getAverageQueueSize(ConsumerPipe::LONG_TERM,
+                                               ConsumerPipe::DESIRED_EVENTS,
+                                               now)
+               << "</td>" << std::endl;
+          *out << "</tr>" << std::endl;
+        }
+
+        // add a row with the totals
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">Totals</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        *out << "</table>" << std::endl;
+
+        // ************************************************************
+        // * Full results for queued events
+        // ************************************************************
+        *out << "<h4>Queued Events, Full Results:</h4>" << std::endl;
+        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "  <th>ID</th>" << std::endl;
+        *out << "  <th>Name</th>" << std::endl;
+        *out << "  <th>Event Count</th>" << std::endl;
+        *out << "  <th>Event Rate</th>" << std::endl;
+        *out << "  <th>Data Rate</th>" << std::endl;
+        *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
+        *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        eventSum = 0.0;
+        eventRateSum = 0.0;
+        dataRateSum = 0.0;
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
+        {
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          if (consPtr->isDisconnected()) {continue;}
+
+          eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
+                                             ConsumerPipe::QUEUED_EVENTS,
+                                             now);
+          eventRateSum += consPtr->getEventRate(ConsumerPipe::LONG_TERM,
+                                                ConsumerPipe::QUEUED_EVENTS,
+                                                now);
+          dataRateSum += consPtr->getDataRate(ConsumerPipe::LONG_TERM,
+                                              ConsumerPipe::QUEUED_EVENTS,
+                                              now);
+
+          *out << "<tr>" << std::endl;
+          *out << "  <td align=\"center\">" << consPtr->getConsumerId()
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">";
+          if (consPtr->isProxyServer()) {
+            *out << "Proxy Server";
+          }
+          else {
+            *out << consPtr->getConsumerName();
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventCount(ConsumerPipe::LONG_TERM,
+                                         ConsumerPipe::QUEUED_EVENTS,
+                                         now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventRate(ConsumerPipe::LONG_TERM,
+                                        ConsumerPipe::QUEUED_EVENTS,
+                                        now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDataRate(ConsumerPipe::LONG_TERM,
+                                       ConsumerPipe::QUEUED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDuration(ConsumerPipe::LONG_TERM,
+                                       ConsumerPipe::QUEUED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getAverageQueueSize(ConsumerPipe::LONG_TERM,
+                                               ConsumerPipe::QUEUED_EVENTS,
+                                               now)
+               << "</td>" << std::endl;
+          *out << "</tr>" << std::endl;
+        }
+
+        // add a row with the totals
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">Totals</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        *out << "</table>" << std::endl;
+
+        // ************************************************************
+        // * Full results for served events
+        // ************************************************************
+        *out << "<h4>Served Events, Full Results:</h4>" << std::endl;
+        *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "  <th>ID</th>" << std::endl;
+        *out << "  <th>Name</th>" << std::endl;
+        *out << "  <th>Event Count</th>" << std::endl;
+        *out << "  <th>Event Rate</th>" << std::endl;
+        *out << "  <th>Data Rate</th>" << std::endl;
+        *out << "  <th>Duration (sec)</th>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        eventSum = 0.0;
+        eventRateSum = 0.0;
+        dataRateSum = 0.0;
+        for (consumerIter = consumerTable.begin();
+             consumerIter != consumerTable.end();
+             consumerIter++)
+        {
+          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+          if (consPtr->isDisconnected ()) {continue;}
+
+          eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
+                                             ConsumerPipe::SERVED_EVENTS,
+                                             now);
+          eventRateSum += consPtr->getEventRate(ConsumerPipe::LONG_TERM,
+                                                ConsumerPipe::SERVED_EVENTS,
+                                                now);
+          dataRateSum += consPtr->getDataRate(ConsumerPipe::LONG_TERM,
+                                              ConsumerPipe::SERVED_EVENTS,
+                                              now);
+
+          *out << "<tr>" << std::endl;
+          *out << "  <td align=\"center\">" << consPtr->getConsumerId()
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">";
+          if (consPtr->isProxyServer()) {
+            *out << "Proxy Server";
+          }
+          else {
+            *out << consPtr->getConsumerName();
+          }
+          *out << "</td>" << std::endl;
+
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventCount(ConsumerPipe::LONG_TERM,
+                                         ConsumerPipe::SERVED_EVENTS,
+                                         now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getEventRate(ConsumerPipe::LONG_TERM,
+                                        ConsumerPipe::SERVED_EVENTS,
+                                        now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDataRate(ConsumerPipe::LONG_TERM,
+                                       ConsumerPipe::SERVED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "  <td align=\"center\">"
+               << consPtr->getDuration(ConsumerPipe::LONG_TERM,
+                                       ConsumerPipe::SERVED_EVENTS,
+                                       now)
+               << "</td>" << std::endl;
+          *out << "</tr>" << std::endl;
+        }
+
+        // add a row with the totals
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "  <td align=\"center\">Totals</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
+        *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+
+        *out << "</table>" << std::endl;
+      }
+    }
+    else
+    {
+      *out << "<br/>The system is unable to fetch the Event Server "
+           << "instance. This is a (very) unexpected error and could "
+           << "be caused by either the JobController or the Event "
+           << "Server not being properly initialized.<br/>" << std::endl;
+    }
+
+    if(jc_->getInitMsgCollection().get() != NULL &&
+       jc_->getInitMsgCollection()->size() > 0)
+    {
+      boost::shared_ptr<InitMsgCollection> initMsgCollection =
+        jc_->getInitMsgCollection();
+      *out << "<h3>HLT Trigger Paths:</h3>" << std::endl;
+      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+
+      {
+        InitMsgSharedPtr serializedProds = initMsgCollection->getLastElement();
+        InitMsgView initView(&(*serializedProds)[0]);
+        Strings triggerNameList;
+        initView.hltTriggerNames(triggerNameList);
+
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"left\" valign=\"top\">"
+             << "Full Trigger List</td>" << std::endl;
+        *out << "  <td align=\"left\" valign=\"top\">"
+             << InitMsgCollection::stringsToText(triggerNameList, 0)
+             << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+      }
+
+      for (int idx = 0; idx < initMsgCollection->size(); ++idx) {
+        InitMsgSharedPtr serializedProds = initMsgCollection->getElementAt(idx);
+        InitMsgView initView(&(*serializedProds)[0]);
+        Strings triggerSelectionList;
+        initView.hltTriggerSelections(triggerSelectionList);
+
+        *out << "<tr>" << std::endl;
+        *out << "  <td align=\"left\" valign=\"top\">"
+             << initView.outputModuleLabel()
+             << " Output Module</td>" << std::endl;
+        *out << "  <td align=\"left\" valign=\"top\">"
+             << InitMsgCollection::stringsToText(triggerSelectionList, 0)
+             << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+      }
+
+      *out << "</table>" << std::endl;
+    }
+  }
+  else
+  {
+    *out << "<br/>Event server statistics are only available when the "
+         << "Storage Manager is in the Enabled state.<br/>" << std::endl;
+  }
+
+  *out << "<br/><hr/>" << std::endl;
+  char timeString[64];
+  time_t now = time(0);
+  strftime(timeString, 60, "%d-%b-%Y %H:%M:%S %Z", localtime(&now));
+  *out << "Last updated: " << timeString << std::endl;;
+  *out << "</body>" << std::endl;
+  *out << "</html>" << std::endl;
+}
+
 ////////////////////////////// consumer registration web page ////////////////////////////
 void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
@@ -2001,13 +2966,17 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
     Strings modifiedRequest =
       eventServer->updateTriggerSelectionForStreams(selectionRequest);
 
+    // pull the rate request out of the consumer parameter set, too
+    double maxEventRequestRate =
+      requestParamSet.getUntrackedParameter<double>("maxEventRequestRate", 1.0);
+
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
-                               modifiedRequest, consumerHost,
-                               consumerQueueSize_));
+                               modifiedRequest, maxEventRequestRate,
+                               consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
     // over-ride pushmode if not set in StorageManager
     if((consumerPriority.compare("PushMode") == 0) && !pushMode_)
@@ -2285,6 +3254,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("lumiSectionTimeOut",   &lumiSectionTimeOut_);
   is->fireItemAvailable("exactFileSizeTest",    &exactFileSizeTest_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
+  is->fireItemAvailable("maxESDataRate",        &maxESDataRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
@@ -2334,6 +3304,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("lumiSectionTimeOut",   this);
   is->addItemRetrieveListener("exactFileSizeTest",    this);
   is->addItemRetrieveListener("maxESEventRate",       this);
+  is->addItemRetrieveListener("maxESDataRate",        this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
@@ -2534,6 +3505,8 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
 
     if (maxESEventRate_ < 0.0)
       maxESEventRate_ = 0.0;
+    if (maxESDataRate_ < 0.0)
+      maxESDataRate_ = 0.0;
     if (DQMmaxESEventRate_ < 0.0)
       DQMmaxESEventRate_ = 0.0;
     
@@ -2563,7 +3536,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setCompressionLevelDQM(compressionLevelDQM_);
       
       boost::shared_ptr<EventServer>
-	eventServer(new EventServer(maxESEventRate_));
+	eventServer(new EventServer(maxESEventRate_, maxESDataRate_));
       jc_->setEventServer(eventServer);
       boost::shared_ptr<DQMEventServer>
 	DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
@@ -2916,4 +3889,3 @@ extern "C" xdaq::Application
 	    << std::endl;
   return new stor::StorageManager(stub);
 }
-

@@ -11,6 +11,7 @@ if(&GetOptions(
                "--pack=s",\$package,
                "--clean",\$clean,
 	       "--vclean",\$vclean,
+	       "--detail",\$detail,
 	       "--update",\$localupdate,
                "--help",\$help,
               ) eq ""){print "ERROR: Wrong arguments.\n"; &usage_msg(); exit 1;}
@@ -21,6 +22,8 @@ else{$clean=0;}
 if (defined $vclean){$clean=2;}
 if (defined $localupdate){$localupdate=1;}
 else{$localupdate=0;}
+if (defined $detail){$detail=1;}
+else{$detail=0;}
 if((!defined $package) || ($package=~/^\s*$/)){$package="";}
 
 my $curdir=cwd();
@@ -77,6 +80,7 @@ if(!-d "${localtop}/${package}")
 {die "There is no such subsystem/package/directory \"$package\" available under \"${localtop}\". Please first checkout this package.";}
 my $scram=$SCRAMGenUtils::SCRAM_CMD;
 system("mkdir -p ${tmpdir}/config ${tmpdir}/log;$scram b -r echo_CXX ufast >/dev/null 2>&1");
+my $localbackup="${tmpdir}/inccopy/self/inc0";
 my $incmap=&copyExternalIncludes ($arch,$localtop,"${tmpdir}/inccopy");
 
 print ">> IncludeChecker temporary directory: ${tmpdir}\n";
@@ -96,6 +100,7 @@ if ($localupdate && (-d "${tmpdir}/includechecker/${src}"))
     if(!$msg){print "Cleaning up Include Checker comments from ${localtop}/${src}:\n";$msg=1;}
     print "  ${rf}\n";
     system("mv ${f} ${localtop}/${src}/${rf}");
+    if (-f "${localbackup}/${rf}"){system("cp -pf ${localtop}/${src}/${rf} ${localbackup}/${rf}");}
   }
 }
 system("rm -f ${tmp_dir}/chkquit");
@@ -129,7 +134,9 @@ sub processPack ()
     &updateMapping($configfile,$incmap);
   }
   print ">> Running \"includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local --skipheaders $xincargs\"\n";
+  print ">> Log file for the includechecker.pl processing: ${tmpdir}/log/${uniqpack}\n";
   system("${scriptdir}/includechecker.pl --config $configfile --tmpdir $tmpdir --keep --detail --recursive --local --skipheaders $xincargs 2>&1 > ${tmpdir}/log/${uniqpack}");
+  print ">> Done: includechecker.pl\n";
   if(-f "${tmp_dir}/chkquit"){return;}
   &processResult($cache);
   my $deps={};
@@ -177,7 +184,7 @@ sub processResult ()
   print "  Failed due to compilation:   ",scalar(@$failed),"\n";
   foreach my $f (@$failed){print "    $f\n";}
   print "  Skipped:                     ",scalar(@$skipped),"\n";
-  foreach my $f (@$skipped){print "    $f\n";}
+  if($detail){foreach my $f (@$skipped){print "    $f\n";}}
   print "  Successfully processed:      ",scalar(@$done),"\n";
 }
 
@@ -270,8 +277,11 @@ sub copyExternalIncludes ()
 	    my $inc="inc$c";
 	    $incdir{$d}{$t}="$inc";
 	    $c++;
-	    if (($t eq "self") && ($d eq "${release}/${src}") && (!-e "${des}/${t}/${inc}"))
-	    {system("mkdir -p ${des}/${t}; cd ${des}/${t}; ln -s ${release}/${src} ${inc}");}
+	    if (($t eq "self") && ($d eq "${release}/${src}"))
+	    {
+	      $localbackup="${des}/${t}/${inc}";
+	      &syncDirs("${release}/${src}","${des}/${t}/${inc}");
+	    }
 	  }
 	}
       }
@@ -301,7 +311,7 @@ sub copyExternalIncludes ()
         system("mkdir -p ${des}/${t}");
         if(!$link)
 	{
-	  print "  MSG: $d -> ${des}/${t}/${inc}\n";
+	  if($detail){print "  Copying: $d -> ${des}/${t}/${inc}\n";}
 	  system("cp -rL $d ${des}/${t}/${inc}");$link="../${t}/${inc}";
 	}
         else{system("cd ${des}/${t}; ln -s ${link} $inc");}
@@ -338,10 +348,28 @@ sub updateMapping ()
   system("mv ${file}.new $file");
 }
 
+sub syncDirs ()
+{
+  my $src=shift;
+  my $des=shift;
+  my $dref;
+  opendir($dref,$src) || die "Can not open directory for reading: $src";
+  if (!-d $des){system("mkdir -p $des");}
+  foreach my $p (readdir($dref))
+  {
+    if (($p eq ".") || ($p eq "..")){next;}
+    my $srcp="${src}/${p}";
+    my $desp="${des}/${p}";
+    if (-d $srcp){&syncDirs($srcp,$desp);}
+    elsif(!-e $desp){system("cp -p $srcp $desp");}
+  }
+  closedir($dref);
+}
+
 sub usage_msg ()
 {
   my $f=basename($0);
-  print "\nUsage: $f [--pack <pack>] [--update] [--clean] [--vclean] [--help]\n\n";
+  print "\nUsage: $f [--pack <pack>] [--update] [--clean] [--vclean] [--detail] [--help]\n\n";
 }
 
 sub help_msg ()
@@ -357,6 +385,7 @@ sub help_msg ()
 	" --vclean Same as clean but it also deletes the copy external includes.\n",
 	" --update To remove the include checker comments from the modified files\n",
 	"          in your src directory.\n",
+	" --detail For detail output messages.\n";
 	" --help   To print this help message.\n\n";
   print "It is a wrapper script to run includechecker. It automatically creates\n",
         "configuration and runs inlcudechecker. It can also clean the newly\n",
