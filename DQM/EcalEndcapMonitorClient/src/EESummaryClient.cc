@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/09 05:52:43 $
- * $Revision: 1.109 $
+ * $Date: 2008/04/16 07:30:13 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */
@@ -458,16 +458,23 @@ void EESummaryClient::setup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
   MonitorElement* me;
 
-  sprintf(histo, "errorSummaryXY_EEM");
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
+
+  for (int i = 1; i <= 18; i++) {
+    sprintf(histo, "Segment%02d_EcalEndcap", i);
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "errorSummaryXYM_EcalEndcap");
   me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 
-  sprintf(histo, "errorSummaryXY_EEP");
+  sprintf(histo, "errorSummaryXYP_EcalEndcap");
   me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
@@ -761,7 +768,7 @@ void EESummaryClient::analyze(void){
     EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
     EETriggerTowerClient* eetttc = dynamic_cast<EETriggerTowerClient*>(clients_[i]);
 
-    MonitorElement* me;
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
 //    MonitorElement *me_04, *me_05;
 
@@ -1166,9 +1173,16 @@ void EESummaryClient::analyze(void){
   } // loop on clients
 
   // The global-summary
-  // right now a summary of Integrity and PO
-  int nGlobalErrors = 0, nGlobalErrorsEEM = 0, nGlobalErrorsEEP = 0;
-  int nValidChannels = 0, nValidChannelsEEM = 0, nValidChannelsEEP = 0;
+  int nGlobalErrors = 0;
+  int nGlobalErrorsEE[18];
+  int nValidChannels = 0;
+  int nValidChannelsEE[18];
+
+  for (int i = 0; i < 18; i++) {
+    nGlobalErrorsEE[i] = 0;
+    nValidChannelsEE[i] = 0;
+  }
+
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
@@ -1206,11 +1220,15 @@ void EESummaryClient::analyze(void){
 
         if ( xval > -1 ) {
           ++nValidChannels;
-          ++nValidChannelsEEM;
+          for (int i = 1; i <= 9; i++) {
+            if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+          }
         }
         if ( xval == 0 ) {
           ++nGlobalErrors;
-          ++nGlobalErrorsEEM;
+          for (int i = 1; i <= 9; i++) {
+            if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+          }
         }
 
       }
@@ -1249,11 +1267,15 @@ void EESummaryClient::analyze(void){
 
         if ( xval > -1 ) {
           ++nValidChannels;
-          ++nValidChannelsEEP;
+          for (int i = 10; i <= 18; i++) {
+            if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+          }
         }
         if ( xval == 0 ) {
           ++nGlobalErrors;
-          ++nGlobalErrorsEEP;
+          for (int i = 10; i <= 18; i++) {
+            if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+          }
         }
 
       }
@@ -1261,32 +1283,29 @@ void EESummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = -1.0;
-  float errorSummaryEEM = -1.0;
-  float errorSummaryEEP = -1.0;
-
-  if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEEM != 0 )
-    errorSummaryEEM = 1.0 - float(nGlobalErrorsEEM)/float(nValidChannelsEEM);
-  if ( nValidChannelsEEP != 0 )
-    errorSummaryEEP = 1.0 - float(nGlobalErrorsEEP)/float(nValidChannelsEEP);
-
   MonitorElement* me;
 
+  float errorSummary = -1.0;
+  if ( nValidChannels != 0 )
+    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
   me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEEM);
+  char histo[200];
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEEP);
+  for (int i = 1; i <= 18; i++) {
+    float errorSummaryEE = -1.0;
+    if ( nValidChannelsEE[i-1] != 0 )
+      errorSummaryEE = 1.0 - float(nGlobalErrorsEE[i-1])/float(nValidChannelsEE[i-1]);
+    sprintf(histo, "Segment%02d_EcalEndcap", i);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
+    if (me) me->Fill(errorSummaryEE);
+  }
 
   MonitorElement* meside[2];
 
-  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEM");
-  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEP");
+  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYM_EcalEndcap");
+  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYP_EcalEndcap");
   if (meside[0] && meside[1]) {
 
     int nValidChannelsTT[2][20][20];
@@ -1295,9 +1314,9 @@ void EESummaryClient::analyze(void){
     for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
       for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
         for ( int iside = 0; iside < 2; iside++ ) {
-          nValidChannelsTT[iside][jxdcc][jydcc]=0;
-          nGlobalErrorsTT[iside][jxdcc][jydcc]=0;
-          nOutOfGeometryTT[iside][jxdcc][jydcc]=0;
+          nValidChannelsTT[iside][jxdcc][jydcc] = 0;
+          nGlobalErrorsTT[iside][jxdcc][jydcc] = 0;
+          nOutOfGeometryTT[iside][jxdcc][jydcc] = 0;
         }
       }
     }

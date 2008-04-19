@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/09 05:52:43 $
- * $Revision: 1.133 $
+ * $Date: 2008/04/16 07:30:12 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  *
 */
@@ -305,11 +305,18 @@ void EBSummaryClient::setup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
   MonitorElement* me;
 
-  sprintf(histo, "errorSummaryPhiEta_EB");
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
+
+  for (int i = 1; i <= 36; i++) {
+    sprintf(histo, "Segment%02d_EcalBarrel", i);
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "errorSummaryPhiEta_EcalBarrel");
   me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
   me->setAxisTitle("jphi", 1);
   me->setAxisTitle("jeta", 2);
@@ -495,7 +502,7 @@ void EBSummaryClient::analyze(void){
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
     EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
-    MonitorElement* me;
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     TH2F* h2;
@@ -1016,9 +1023,16 @@ void EBSummaryClient::analyze(void){
   } // loop on clients
 
   // The global-summary
-  // Integrity, PedestalOnline, Laser, TPG EmulError, Status Flags contribute
-  int nGlobalErrors = 0, nGlobalErrorsEBP = 0, nGlobalErrorsEBM = 0;
-  int nValidChannels = 0, nValidChannelsEBP = 0, nValidChannelsEBM = 0;
+  int nGlobalErrors = 0;
+  int nGlobalErrorsEB[36];
+  int nValidChannels = 0;
+  int nValidChannelsEB[36];
+
+  for (int i = 0; i < 36; i++) {
+    nGlobalErrorsEB[i] = 0;
+    nValidChannelsEB[i] = 0;
+  }
+
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
@@ -1056,13 +1070,19 @@ void EBSummaryClient::analyze(void){
 
         if ( xval > -1 ) {
           ++nValidChannels;
-          if ( iex <= 85 ) ++nValidChannelsEBM;
-          else ++nValidChannelsEBP;
+          if ( iex <= 85 ) {
+            ++nValidChannelsEB[(ipx-1)/20];
+          } else {
+            ++nValidChannelsEB[18+(ipx-1)/20];
+          }
         }
         if ( xval == 0 ) {
           ++nGlobalErrors;
-          if ( iex <= 85 ) ++nGlobalErrorsEBM;
-          else ++nGlobalErrorsEBP;
+          if ( iex <= 85 ) {
+            ++nGlobalErrorsEB[(ipx-1)/20];
+          } else {
+            ++nGlobalErrorsEB[18+(ipx-1)/20];
+          }
         }
 
       }
@@ -1070,37 +1090,34 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = -1.0;
-  float errorSummaryEBM = -1.0;
-  float errorSummaryEBP = -1.0;
-
-  if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEBM != 0 )
-    errorSummaryEBM = 1.0 - float(nGlobalErrorsEBM)/float(nValidChannelsEBM);
-  if ( nValidChannelsEBP != 0 )
-    errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
-
   MonitorElement* me;
 
+  float errorSummary = -1.0;
+  if ( nValidChannels != 0 )
+    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
   me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEBM);
+  char histo[200];
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEBP);
+  for (int i = 1; i <= 36; i++) {
+    float errorSummaryEB = -1.0;
+    if ( nValidChannelsEB[i-1] != 0 )
+      errorSummaryEB = 1.0 - float(nGlobalErrorsEB[i-1])/float(nValidChannelsEB[i-1]);
+    sprintf(histo, "Segment%02d_EcalBarrel", i);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
+    if (me) me->Fill(errorSummaryEB);
+  }
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryPhiEta_EB");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryPhiEta_EcalBarrel");
   if (me) {
 
     int nValidChannelsTT[72][34];
     int nGlobalErrorsTT[72][34];
     for ( int iettx = 0; iettx < 34; iettx++ ) {
       for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-        nValidChannelsTT[ipttx][iettx]=0;
-        nGlobalErrorsTT[ipttx][iettx]=0;
+        nValidChannelsTT[ipttx][iettx] = 0;
+        nGlobalErrorsTT[ipttx][iettx] = 0;
       }
     }
 
@@ -1112,8 +1129,10 @@ void EBSummaryClient::analyze(void){
 
         float xval = meGlobalSummary_->getBinContent( ipx, iex );
 
-        if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
-        if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
+        if ( xval > -1 ) {
+          if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
+          if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
+        }
 
       }
     }
