@@ -44,6 +44,8 @@
 
   <class name="SiPixelCalibConfiguration" class_version="0"/>
 
+  <class name="SiPixelDisabledModules" class_version="0"/>
+
   <class pattern="*pair*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>

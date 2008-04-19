@@ -50,3 +50,5 @@ namespace{
   
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelDisabledModules.h"
