@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.35 2008/03/01 00:38:06 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.36 2008/03/04 14:46:50 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -68,6 +68,7 @@ void SiStripMonitorCluster::beginJob(const edm::EventSetup& es){
    select_all_detectors = conf_.getParameter<bool>("SelectAllDetectors");
    reset_each_run = conf_.getParameter<bool>("ResetMEsEachRun");
    fill_signal_noise = conf_.getParameter<bool>("FillSignalNoiseHistos");
+   
    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowMechanicalStructureView = "<<show_mechanical_structure_view;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowReadoutView = "<<show_readout_view;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster|ConfigParams")<<"ShowControlView = "<<show_control_view;
@@ -111,7 +112,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
     SiStripFolderOrganizer folder_organizer;
     
     folder_organizer.setSiStripFolder();
-    charge_of_each_cluster = dqmStore_->book1D("ChargeOfEachCluster","ChargeOfEachCluster",500,-0.5,500.5);
 
     // loop over detectors and book MEs
     edm::LogInfo("SiStripTkDQM|SiStripMonitorCluster")<<"nr. of SelectedDetIds:  "<<SelectedDetIds.size();
@@ -127,27 +127,23 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
       modSingle.NumberOfClusters->setAxisTitle("number of clusters in one detector module");
       //ClusterPosition
       hid = hidmanager.createHistoId("ClusterPosition","det",*detid_iterator);
-      modSingle.ClusterPosition = dqmStore_->book1D(hid, hid, 24,0.,768.); dqmStore_->tag(modSingle.ClusterPosition, *detid_iterator); // 6 APVs -> 768 strips
+      modSingle.ClusterPosition = dqmStore_->book1D(hid, hid, 768,-0.5,767.5); dqmStore_->tag(modSingle.ClusterPosition, *detid_iterator); // 6 APVs -> 768 strips
       modSingle.ClusterPosition->setAxisTitle("cluster position [strip number +0.5]");
       //ClusterWidth
       hid = hidmanager.createHistoId("ClusterWidth","det",*detid_iterator);
-      modSingle.ClusterWidth = dqmStore_->book1D(hid, hid, 11,-0.5,10.5); dqmStore_->tag(modSingle.ClusterWidth, *detid_iterator);
+      modSingle.ClusterWidth = dqmStore_->book1D(hid, hid, 20,-0.5,19.5); dqmStore_->tag(modSingle.ClusterWidth, *detid_iterator);
       modSingle.ClusterWidth->setAxisTitle("cluster width [nr strips]");
       //ClusterCharge
       hid = hidmanager.createHistoId("ClusterCharge","det",*detid_iterator);
-      modSingle.ClusterCharge = dqmStore_->book1D(hid, hid, 31,-0.5,300.5); dqmStore_->tag(modSingle.ClusterCharge, *detid_iterator);
+      modSingle.ClusterCharge = dqmStore_->book1D(hid, hid, 100,0.,500.); dqmStore_->tag(modSingle.ClusterCharge, *detid_iterator);
       modSingle.ClusterCharge->setAxisTitle("cluster charge [ADC]");
       //ClusterNoise
       hid = hidmanager.createHistoId("ClusterNoise","det",*detid_iterator);
-      modSingle.ClusterNoise = dqmStore_->book1D(hid, hid, 80,0.,10.); dqmStore_->tag(modSingle.ClusterNoise, *detid_iterator);
+      modSingle.ClusterNoise = dqmStore_->book1D(hid, hid, 20,0.,10.); dqmStore_->tag(modSingle.ClusterNoise, *detid_iterator);
       modSingle.ClusterNoise->setAxisTitle("cluster noise");
-      //ClusterSignal
-      hid = hidmanager.createHistoId("ClusterSignal","det",*detid_iterator);
-      modSingle.ClusterSignal = dqmStore_->book1D(hid, hid, 100,0.,300.); dqmStore_->tag(modSingle.ClusterSignal, *detid_iterator);
-      modSingle.ClusterSignal->setAxisTitle("cluster signal");
       //ClusterSignalOverNoise
       hid = hidmanager.createHistoId("ClusterSignalOverNoise","det",*detid_iterator);
-      modSingle.ClusterSignalOverNoise = dqmStore_->book1D(hid, hid, 100,0.,50.); dqmStore_->tag(modSingle.ClusterSignalOverNoise, *detid_iterator);
+      modSingle.ClusterSignalOverNoise = dqmStore_->book1D(hid, hid, 60,0.,200.); dqmStore_->tag(modSingle.ClusterSignalOverNoise, *detid_iterator);
       modSingle.ClusterSignalOverNoise->setAxisTitle("ratio of signal to noise for each cluster");
       //ModuleLocalOccupancy
       hid = hidmanager.createHistoId("ModuleLocalOccupancy","det",*detid_iterator);
@@ -167,7 +163,8 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
+
+ using namespace edm;
   edm::ESHandle<SiStripNoises> noiseHandle;
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
 
@@ -183,17 +180,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edm::DetSetVector<SiStripCluster> > cluster_detsetvektor;
   iEvent.getByLabel(clusterProducer, cluster_detsetvektor);
-  // auxiliary histogram with charge of each cluster
-  for (edm::DetSetVector<SiStripCluster>::const_iterator icdetset=cluster_detsetvektor->begin();icdetset!=cluster_detsetvektor->end();icdetset++) {
-    for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = (icdetset->data).begin(); clusterIter!= (icdetset->data).end(); clusterIter++){
-      const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
-      short local_charge = 0;
-      for(std::vector<uint16_t>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
-        local_charge += *iampls;
-      }
-      charge_of_each_cluster->Fill(static_cast<float>(local_charge),1.);
-    }
-  }
   // loop over MEs. Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
   for (std::map<uint32_t, ModMEs>::const_iterator iterMEs = ClusterMEs.begin() ; iterMEs!=ClusterMEs.end() ; iterMEs++) {
     uint32_t detid = iterMEs->first;  ModMEs modSingle = iterMEs->second;
@@ -215,7 +201,6 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
     short total_clusterized_strips = 0;
     //
-    float clusterSignal = 0;
     float clusterNoise = 0.;
     float clusterNoise2 = 0;
     int nrnonzeroamplitudes = 0;
@@ -237,31 +222,32 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         (modSingle.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
       }
     
-
-      if( fill_signal_noise && (modSingle.ClusterSignalOverNoise || modSingle.ClusterSignal)){
+      if( fill_signal_noise && modSingle.ClusterSignalOverNoise){
 	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+	float clusterSignal = 0;
+        float noise;
         for(uint iamp=0; iamp<ampls.size(); iamp++){
           if(ampls[iamp]>0){ // nonzero amplitude
-            clusterSignal += ampls[iamp];
-            try{
-              if(!qualityHandle->IsStripBad(qualityRange, clusterIter->firstStrip()+iamp)){
-		clusterNoise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
-              }
+	    clusterSignal += ampls[iamp];
+	    try{
+	      if(!qualityHandle->IsStripBad(qualityRange, clusterIter->firstStrip()+iamp)){
+	        noise = noiseHandle->getNoise(clusterIter->firstStrip()+iamp,detNoiseRange)/gainHandle->getStripGain(clusterIter->firstStrip()+iamp, detGainRange);
+	      }
             }catch(cms::Exception& e){
               edm::LogError("SiStripTkDQM|SiStripMonitorCluster|DB")<<" cms::Exception:  detid="<<detid<<" firstStrip="<<clusterIter->firstStrip()<<" iamp="<<iamp<<e.what();
             }
-            clusterNoise2 += clusterNoise*clusterNoise;
+            clusterNoise2 += noise*noise;
             nrnonzeroamplitudes++;
           }
         }
-        if(modSingle.ClusterSignal) (modSingle.ClusterSignal)->Fill(clusterSignal,1.);
+        clusterNoise = sqrt(clusterNoise2/nrnonzeroamplitudes);
         if(modSingle.ClusterNoise) (modSingle.ClusterNoise)->Fill(clusterNoise,1.);
-        if(modSingle.ClusterSignalOverNoise) (modSingle.ClusterSignalOverNoise)->Fill(clusterSignal/sqrt(clusterNoise2/nrnonzeroamplitudes),1.);
+        if(modSingle.ClusterSignalOverNoise) (modSingle.ClusterSignalOverNoise)->Fill(clusterSignal/clusterNoise,1.);
       }
       
       //
       if(modSingle.ClusterCharge != NULL){ // charge of cluster
-	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+      	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
 	short local_charge = 0;
         for(std::vector<uint16_t>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
           local_charge += *iampls;
@@ -297,7 +283,6 @@ void SiStripMonitorCluster::endJob(void){
      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterPosition "<<(idet->second).ClusterPosition->getEntries()<<" "<<(idet->second).ClusterPosition->getMean()<<" "<<(idet->second).ClusterPosition->getRMS()<<std::endl;
      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterWidth "<<(idet->second).ClusterWidth->getEntries()<<" "<<(idet->second).ClusterWidth->getMean()<<" "<<(idet->second).ClusterWidth->getRMS()<<std::endl;
      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterCharge "<<(idet->second).ClusterCharge->getEntries()<<" "<<(idet->second).ClusterCharge->getMean()<<" "<<(idet->second).ClusterCharge->getRMS()<<std::endl;
-     monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignal "<<(idet->second).ClusterSignal->getEntries()<<" "<<(idet->second).ClusterSignal->getMean()<<" "<<(idet->second).ClusterSignal->getRMS()<<std::endl;
      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterNoise "<<(idet->second).ClusterNoise->getEntries()<<" "<<(idet->second).ClusterNoise->getMean()<<" "<<(idet->second).ClusterNoise->getRMS()<<std::endl;
      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ClusterSignalOverNoise "<<(idet->second).ClusterSignalOverNoise->getEntries()<<" "<<(idet->second).ClusterSignalOverNoise->getMean()<<" "<<(idet->second).ClusterSignalOverNoise->getRMS()<<std::endl;
      monitor_summary<<"SiStripTkDQM|SiStripMonitorCluster"<<"              +++ ModuleLocalOccupancy "<<(idet->second).ModuleLocalOccupancy->getEntries()<<" "<<(idet->second).ModuleLocalOccupancy->getMean()<<" "<<(idet->second).ModuleLocalOccupancy->getRMS()<<std::endl;
@@ -317,7 +302,6 @@ void SiStripMonitorCluster::ResetModuleMEs(uint32_t idet){
   mod_me.ClusterPosition->Reset();
   mod_me.ClusterWidth->Reset();
   mod_me.ClusterCharge->Reset();
-  mod_me.ClusterSignal->Reset();
   mod_me.ClusterNoise->Reset();
   mod_me.ClusterSignalOverNoise->Reset();
   mod_me.ModuleLocalOccupancy->Reset();
