@@ -170,6 +170,12 @@ parser.add_option("--filtername",
                    default="",
                    dest="filtername")
 
+parser.add_option("--oneoutput",
+                   help="use only one output module",
+                   action="store_true",
+                   default="False",
+                   dest="oneoutput")
+
 parser.add_option("--conditions",
                    help="What conditions to use. Default=FrontierConditions_GlobalTag,STARTUP::All",
                    default="FrontierConditions_GlobalTag,STARTUP::All",
@@ -461,6 +467,7 @@ dump_python='"""+python_config_filename+"""'
 dump_pickle='"""+str(options.dump_pickle)+"""'
 #Dump the dataset Name
 dump_dsetname_flag="""+str(options.dump_dsetname_flag)+"""
+oneoutput="""+str(options.oneoutput)+"""
 
 """
 

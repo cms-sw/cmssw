@@ -192,14 +192,21 @@ if output_flag:
             modName='pool'+k.label()[4:len(k.label())]
             pathName='outPath'+k.label()[4:len(k.label())]
             if ( hasattr(process,poUsing)):
-                poolOutT = cms.OutputModule("PoolOutputModule",getattr(process,poUsing),\
-                                            dataset = cms.untracked.PSet(filterName = cms.untracked.string(filterName),\
-                                                                         dataTier = cms.untracked.string('ALCARECO')),\
-                                            fileName = cms.untracked.string(rootName)
-                                            )
-                setattr(process,modName,poolOutT)
-                setattr(process,pathName,cms.EndPath(getattr(process,modName)))
-                process.schedule.append(getattr(process,pathName))
+                if not oneoutput:
+                    poolOutT = cms.OutputModule("PoolOutputModule",getattr(process,poUsing),\
+                                                dataset = cms.untracked.PSet(filterName = cms.untracked.string(filterName),\
+                                                                             dataTier = cms.untracked.string('ALCARECO')),\
+                                                fileName = cms.untracked.string(rootName)
+                                                )
+                    setattr(process,modName,poolOutT)
+                    setattr(process,pathName,cms.EndPath(getattr(process,modName)))
+                    process.schedule.append(getattr(process,pathName))
+                else:
+                    # add the alca outputs into the main output file 
+                    alcaOutput=getattr(process,poUsing).outputCommands
+                    for a in alcaOutput:
+                        if ( "drop" not in a ):
+                            process.out_step.outputCommands.append(a)
     if ( nALCA>0):        
         print 'Number of AlCaReco output streams added: '+str(nALCA)
 
