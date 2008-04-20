@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/09 14:38:23 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/16 16:25:30 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -80,8 +80,11 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
 
     // Test it is correct...
     if (!((*secBegin)->sameSurface((*(secEnd-1))->surface(outer),
-				   outer))) {
-      std::cout << "*** ERROR: Big mess while looking for sectors" << std::endl;
+				   outer, tolerance))) {
+      std::cout << "*** ERROR: Big mess while looking for sectors "
+		<< (*secBegin)->name << " " << (*secBegin)->copyno << " "
+		<< (*(secEnd-1))->name << " " << (*(secEnd-1))->copyno
+		<< std::endl;
     }
   }
 
