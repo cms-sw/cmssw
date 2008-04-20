@@ -37,11 +37,14 @@
  <class name="std::pair<unsigned int,bool>"/>
  <class name="std::pair<unsigned int,double>"/>
  <class name="std::pair<unsigned int,float>"/>
- <class name="std::pair<unsigned int, int>" />
+ <class name="std::pair<unsigned int,int>"/>
+ <class name="std::pair<unsigned int,std::vector<unsigned int> >"/>
  <class name="std::pair<unsigned int,unsigned int>"/>
  <class name="std::pair<unsigned int,unsigned long>"/>
  <class name="std::pair<unsigned long long,std::basic_string<char> >"/>
+ <class name="std::pair<unsigned long,std::vector<unsigned long> >"/>
  <class name="std::pair<unsigned long,unsigned long>"/>
+ <class name="std::pair<unsigned short,std::vector<unsigned short> >"/>
  <class name="std::pair<unsigned short,unsigned short>"/>
  <class name="std::random_access_iterator_tag"/>
  <class name="std::set<int>"/>

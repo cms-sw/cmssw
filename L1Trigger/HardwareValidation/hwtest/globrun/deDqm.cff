@@ -1,9 +1,12 @@
 #dqm services
-//include "DQMServices/Core/data/DQM.cfg"
-service = DQMStore {}
-#service = DQM {
-#    untracked string collectorHost = "localhost"
-#    untracked int32  collectorPort = 9090
-#    untracked double publishFrequency = 5
-#    untracked bool   debug = false
-#}
+service = ModuleWebRegistry{ }
+service = DaqMonitorROOTBackEnd{}
+service = LockService{untracked vstring labels = {"source"}}
+service = MonitorDaemon {
+    untracked   bool AutoInstantiate    = false
+    untracked  int32 reconnect_delay    = 5
+    untracked string DestinationAddress = "cmsdaquser0.cern.ch"
+    untracked  int32 SendPort           = 9090
+    untracked  int32 UpdateDelay        = 10000
+    untracked string NameAsSource       = "GlobalDQM"
+}

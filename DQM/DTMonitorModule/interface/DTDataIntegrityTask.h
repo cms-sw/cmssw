@@ -5,14 +5,15 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/04/03 09:33:01 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/01/28 14:35:31 $
+ *  $Revision: 1.13 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
  */
 
 #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
+
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -80,10 +81,8 @@ private:
 
   int neventsDDU;
   int neventsROS25;
-  float trigger_counter;
   std::string outputFile;
-  double rob_max[25],frequency;
-
+  double rob_max[25];
   
   //Event counter for the graphs VS time
   int myPrevEv;

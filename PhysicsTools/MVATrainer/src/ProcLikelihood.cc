@@ -9,8 +9,6 @@
 
 #include <xercesc/dom/DOM.hpp>
 
-#include <TH1.h>
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -447,54 +445,6 @@ void ProcLikelihood::trainEnd()
 
 	if (done)
 		trained = true;
-
-	if (done && monitoring) {
-		std::vector<SourceVariable*> inputs = getInputs().get();
-		if (categoryIdx >= 0)
-			inputs.erase(inputs.begin() + categoryIdx);
-
-		for(std::vector<SigBkg>::iterator iter = pdfs.begin();
-		    iter != pdfs.end(); iter++) {
-			unsigned int idx = iter - pdfs.begin();
-			unsigned int catIdx = idx % nCategories;
-			unsigned int varIdx = idx / nCategories;
-			SourceVariable *var = inputs[varIdx];
-			std::string name =
-				(const char*)var->getSource()->getName()
-				+ std::string("_")
-				+ (const char*)var->getName();
-			std::string title = name;
-			if (categoryIdx >= 0) {
-				name += Form("_CAT%d", catIdx);
-				title += Form(" (cat. %d)", catIdx);
-			}
-
-			unsigned int n = iter->signal.distr.size() - 1;
-			double min = iter->signal.range.min -
-			             0.5 * iter->signal.range.width() / n;
-			double max = iter->signal.range.max +
-			             0.5 * iter->signal.range.width() / n;
-			TH1F *histo = monitoring->book<TH1F>(name + "_sig",
-				(name + "_sig").c_str(),
-				(title + " signal").c_str(), n + 1, min, max);
-			for(unsigned int i = 0; i < n; i++)
-				histo->SetBinContent(
-					i + 1, iter->signal.distr[i]);
-
-			n = iter->background.distr.size() - 1;
-			min = iter->background.range.min -
-			      0.5 * iter->background.range.width() / n;
-			max = iter->background.range.max +
-			      0.5 * iter->background.range.width() / n;
-			histo = monitoring->book<TH1F>(name + "_bkg",
-				(name + "_bkg").c_str(),
-				(title + " background").c_str(),
-				n + 1, min, max);
-			for(unsigned int i = 0; i < n; i++)
-				histo->SetBinContent(
-					i + 1, iter->background.distr[i]);
-		}
-	}
 }
 
 static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)

@@ -18,7 +18,8 @@ class SiStripWebInterface
   enum SiStripActionType{NoAction=0, Summary=2, 
                          PlotSingleModuleHistos=5, PlotGlobalHistos=6,
                          PlotHistogramFromPath=7, PlotTkMapHistogram=8,
-                         PlotHistogramFromLayout=9};
+                         PlotHistogramFromLayout=9,
+                         CreatePlots=10};
 
   SiStripWebInterface(DQMStore* dqm_store);
  ~SiStripWebInterface();

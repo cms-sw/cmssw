@@ -12,7 +12,7 @@
 //
 
 EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet& iConfig) :
-  dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile",""))
+  dbFilenameEB_(iConfig.getUntrackedParameter<std::string>("DatabaseFileEB","")),dbFilenameEE_(iConfig.getUntrackedParameter<std::string>("DatabaseFileEE",""))
 {
   //the following line is needed to tell the framework what
   // data is being produced
@@ -47,13 +47,15 @@ std::auto_ptr<EcalTPGPedestals> EcalTrigPrimESProducer::producePedestals(const E
 {
   std::auto_ptr<EcalTPGPedestals> prod(new EcalTPGPedestals());
   parseTextFile() ;
-  std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-  for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
-    EcalTPGPedestal item ;
-    item.mean_x12 = (it->second)[0] ;
-    item.mean_x6  = (it->second)[3] ;
-    item.mean_x1  = (it->second)[6] ;
-    prod->setValue(it->first,item) ;
+  for (int subdet=0 ; subdet<2 ; subdet++) {
+    std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
+    for (it = mapXtal_[subdet].begin() ; it != mapXtal_[subdet].end() ; it++) {
+      EcalTPGPedestal item ;
+      item.mean_x12 = (it->second)[0] ;
+      item.mean_x6  = (it->second)[3] ;
+      item.mean_x1  = (it->second)[6] ;
+      prod->setValue(it->first,item) ;
+    }
   }
   return prod;
 }
@@ -62,16 +64,18 @@ std::auto_ptr<EcalTPGLinearizationConst> EcalTrigPrimESProducer::produceLineariz
 {
   std::auto_ptr<EcalTPGLinearizationConst> prod(new EcalTPGLinearizationConst());
   parseTextFile() ;
-  std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-  for (it = mapXtal_.begin() ; it != mapXtal_.end() ; it++) {
-    EcalTPGLinearizationConstant item ;
-    item.mult_x12 = (it->second)[1] ;
-    item.mult_x6  = (it->second)[4] ;
-    item.mult_x1  = (it->second)[7] ;
-    item.shift_x12 = (it->second)[2] ;
-    item.shift_x6  = (it->second)[5] ;
-    item.shift_x1  = (it->second)[8] ;
-    prod->setValue(it->first,item) ;
+  for (int subdet=0 ; subdet<2 ; subdet++) {
+   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
+    for (it = mapXtal_[subdet].begin() ; it != mapXtal_[subdet].end() ; it++) {
+      EcalTPGLinearizationConstant item ;
+      item.mult_x12 = (it->second)[1] ;
+      item.mult_x6  = (it->second)[4] ;
+      item.mult_x1  = (it->second)[7] ;
+      item.shift_x12 = (it->second)[2] ;
+      item.shift_x6  = (it->second)[5] ;
+      item.shift_x1  = (it->second)[8] ;
+      prod->setValue(it->first,item) ;
+    }
   }
   return prod;
 }
@@ -95,7 +99,7 @@ std::auto_ptr<EcalTPGFineGrainEBIdMap> EcalTrigPrimESProducer::produceFineGrainE
   parseTextFile() ;
   EcalTPGFineGrainConstEB fg ;
   std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-  for (it = mapFg_.begin() ; it != mapFg_.end() ; it++) {
+  for (it = mapFg_[0].begin() ; it != mapFg_[0].end() ; it++) {
     fg.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4]) ;
     prod->setValue(it->first,fg) ;
   }
@@ -132,12 +136,14 @@ std::auto_ptr<EcalTPGLutIdMap> EcalTrigPrimESProducer::produceLUT(const EcalTPGL
   std::auto_ptr<EcalTPGLutIdMap> prod(new EcalTPGLutIdMap());
   parseTextFile() ;
   EcalTPGLut lut ;
-  std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-  for (it = mapLut_.begin() ; it != mapLut_.end() ; it++) {
-    unsigned int lutArray[1024] ;
-    for (int i=0 ; i <1024 ; i++) lutArray[i] = (it->second)[i] ;
-    lut.setLut(lutArray) ;
-    prod->setValue(it->first,lut) ;
+  for (int subdet=0 ; subdet<2 ; subdet++) {
+    std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
+    for (it = mapLut_[subdet].begin() ; it != mapLut_[subdet].end() ; it++) {
+      unsigned int lutArray[1024] ;
+      for (int i=0 ; i <1024 ; i++) lutArray[i] = (it->second)[i] ;
+      lut.setLut(lutArray) ;
+      prod->setValue(it->first,lut) ;
+    }
   }
   return prod;
 }
@@ -147,14 +153,16 @@ std::auto_ptr<EcalTPGWeightIdMap> EcalTrigPrimESProducer::produceWeight(const Ec
   std::auto_ptr<EcalTPGWeightIdMap> prod(new EcalTPGWeightIdMap());
   parseTextFile() ;
   EcalTPGWeights weights ;
-  std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-  for (it = mapWeight_.begin() ; it != mapWeight_.end() ; it++) {
-    weights.setValues((it->second)[0], 
-		      (it->second)[1],
-		      (it->second)[2], 
-		      (it->second)[3],
-		      (it->second)[4]) ;
-    prod->setValue(it->first,weights) ;
+  for (int subdet=0 ; subdet<2 ; subdet++) {
+    std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
+    for (it = mapWeight_[subdet].begin() ; it != mapWeight_[subdet].end() ; it++) {
+      weights.setValues((it->second)[0], 
+		       (it->second)[1],
+		       (it->second)[2], 
+		       (it->second)[3],
+		       (it->second)[4]) ;
+      prod->setValue(it->first,weights) ;
+    }
   }
   return prod;
 }
@@ -200,17 +208,19 @@ std::auto_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(c
 {
   std::auto_ptr<EcalTPGPhysicsConst> prod(new EcalTPGPhysicsConst());
   parseTextFile() ;
-  std::map<uint32_t, std::vector<float> >::const_iterator it ;
-  for (it = mapPhys_.begin() ; it != mapPhys_.end() ; it++) {
-    EcalTPGPhysicsConst::Item item ;
-    item.EtSat = (it->second)[0] ;
-    item.ttf_threshold_Low = (it->second)[1] ;
-    item.ttf_threshold_High = (it->second)[2] ;
-    item.FG_lowThreshold = (it->second)[3] ;
-    item.FG_highThreshold = (it->second)[4] ;
-    item.FG_lowRatio = (it->second)[5] ;
-    item.FG_highRatio = (it->second)[6] ;
-    prod->setValue(it->first,item) ;
+  for (int subdet=0 ; subdet<2 ; subdet++) {
+    std::map<uint32_t, std::vector<float> >::const_iterator it ;
+    for (it = mapPhys_[subdet].begin() ; it != mapPhys_[subdet].end() ; it++) {
+      EcalTPGPhysicsConst::Item item ;
+      item.EtSat = (it->second)[0] ;
+      item.ttf_threshold_Low = (it->second)[1] ;
+      item.ttf_threshold_High = (it->second)[2] ;
+      item.FG_lowThreshold = (it->second)[3] ;
+      item.FG_highThreshold = (it->second)[4] ;
+      item.FG_lowRatio = (it->second)[5] ;
+      item.FG_highRatio = (it->second)[6] ;
+      prod->setValue(it->first,item) ;
+    }
   }
   return prod;
 }
@@ -218,107 +228,109 @@ std::auto_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(c
 
 void EcalTrigPrimESProducer::parseTextFile()
 {
-  if (mapXtal_.size() != 0) return ; // just parse the file once!
+  if (mapXtal_[0].size() != 0 && mapXtal_[1].size() != 0 ) return ; // just parse the file once!
 
   uint32_t id ;
   std::string dataCard ;
-  std::ifstream infile ; 
+  std::string filename ;
+  std::ifstream infile[2] ; 
   std::vector<unsigned int> param ;
   std::vector<float> paramF ;
   int NBstripparams[2] = {2, 4} ;
   unsigned int data ;
   float dataF ;
 
-  std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilename_;
-  edm::FileInPath fileInPath(filename);
-  infile.open(fileInPath.fullPath().c_str()) ;
+  for (int subdet=0 ; subdet<2 ; subdet++) {
 
-  if (infile.is_open()) {
-    while (!infile.eof()) {
+    filename="SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilenameEB_;
+    if (subdet == 1) filename="SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilenameEE_ ;
+    edm::FileInPath fileInPath(filename);
+    infile[subdet].open(fileInPath.fullPath().c_str()) ;
+    edm::LogInfo("EcalTPG") <<"Using database file "<<filename;
+    if (infile[subdet].is_open()) {
+      while (!infile[subdet].eof()) {
 
-      infile>>dataCard ;
+	infile[subdet]>>dataCard ;
 	
-      if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
-	infile>>id ;
-	paramF.clear() ;
-	for (int i=0 ; i <7 ; i++) {
-	  infile>>dataF ;
-	  paramF.push_back(dataF) ;
+	if (dataCard == "PHYSICS") {
+	  infile[subdet]>>std::dec>>id ;
+	  paramF.clear() ;
+	  for (int i=0 ; i <7 ; i++) {
+	    infile[subdet]>>dataF ;
+	    paramF.push_back(dataF) ;
+	  }
+	  mapPhys_[subdet][id] = paramF ;
 	}
-	mapPhys_[id] = paramF ;
-      }
 	
-      if (dataCard == "CRYSTAL") {
-	infile>>std::dec>>id ;
-	param.clear() ;
-	for (int i=0 ; i <9 ; i++) {
-	  infile>>std::hex>>data ;
-	  param.push_back(data) ;
+	if (dataCard == "CRYSTAL") {
+	  infile[subdet]>>std::dec>>id ;
+	  param.clear() ;
+	  for (int i=0 ; i <9 ; i++) {
+	    infile[subdet]>>std::hex>>data ;
+	    param.push_back(data) ;
+	  }
+	  mapXtal_[subdet][id] = param ;
 	}
-	mapXtal_[id] = param ;
-      }
 	
-      if (dataCard == "STRIP_EB") {
-	infile>>std::dec>>id ;
-	param.clear() ;
-	for (int i=0 ; i <NBstripparams[0] ; i++) {
-	  infile>>std::hex>>data ;
-	  param.push_back(data) ;
+	if (dataCard == "STRIP") {
+	  infile[subdet]>>std::dec>>id ;
+	  param.clear() ;
+	  for (int i=0 ; i <NBstripparams[subdet] ; i++) {
+	    infile[subdet]>>std::hex>>data ;
+	    param.push_back(data) ;
+	  }
+	  mapStrip_[subdet][id] = param ;
 	}
-	mapStrip_[0][id] = param ;
-      }
-
-      if (dataCard == "STRIP_EE") {
-	infile>>std::dec>>id ;
-	param.clear() ;
-	for (int i=0 ; i <NBstripparams[1] ; i++) {
-	  infile>>std::hex>>data ;
-	  param.push_back(data) ;
-	}
-	mapStrip_[1][id] = param ;
-      }
 	
-      if (dataCard == "TOWER_EB" || dataCard == "TOWER_EE") {
-	infile>>std::dec>>id ;
-	param.clear() ;
-	for (int i=0 ; i <2 ; i++) {
-	  infile>>std::hex>>data ;
-	  param.push_back(data) ;
+	if (dataCard == "TOWER") {
+	  infile[subdet]>>std::dec>>id ;
+	  param.clear() ;
+	  for (int i=0 ; i <2 ; i++) {
+	    infile[subdet]>>std::hex>>data ;
+	    param.push_back(data) ;
+	  }
+	  mapTower_[subdet][id] = param ;
 	}
-	if (dataCard == "TOWER_EB") mapTower_[0][id] = param ;
-	if (dataCard == "TOWER_EE") mapTower_[1][id] = param ;
-      }
-		
-      if (dataCard == "WEIGHT") {
-	infile>>std::hex>>id ;
-	param.clear() ;
-	for (int i=0 ; i <5 ; i++) {
-	  infile>>std::hex>>data ;
-	  param.push_back(data) ;
-	}
-	mapWeight_[id] = param ;
-      }
 	
-      if (dataCard == "FG") {
-	infile>>std::hex>>id ;
-	param.clear() ;
-	for (int i=0 ; i <5 ; i++) {
-	  infile>>std::hex>>data ;
+	if (dataCard == "SLIDING") {
+	  infile[subdet]>>std::dec>>id ;
+	  param.clear() ;
+	  infile[subdet]>>std::hex>>data ;
 	  param.push_back(data) ;
+	  mapSliding_[subdet][id] = param ;
 	}
-	mapFg_[id] = param ;
-      }
 	
-      if (dataCard == "LUT") {
-	infile>>std::hex>>id ;
-	param.clear() ;
-	for (int i=0 ; i <1024 ; i++) {
-	  infile>>std::hex>>data ;
-	  param.push_back(data) ;
+	if (dataCard == "WEIGHT") {
+	  infile[subdet]>>std::dec>>id ;
+	  param.clear() ;
+	  for (int i=0 ; i <5 ; i++) {
+	    infile[subdet]>>std::hex>>data ;
+	    param.push_back(data) ;
+	  }
+	mapWeight_[subdet][id] = param ;
 	}
-	mapLut_[id] = param ;
+	
+	if (dataCard == "FG") {
+	  infile[subdet]>>std::dec>>id ;
+	  param.clear() ;
+	  for (int i=0 ; i <5 ; i++) {
+	    infile[subdet]>>std::hex>>data ;
+	    param.push_back(data) ;
+	  }
+	  mapFg_[subdet][id] = param ;
+	}
+	
+	if (dataCard == "LUT") {
+	  infile[subdet]>>std::dec>>id ;
+	  param.clear() ;
+	  for (int i=0 ; i <1024 ; i++) {
+	    infile[subdet]>>std::hex>>data ;
+	    param.push_back(data) ;
+	  }
+	  mapLut_[subdet][id] = param ;
+	}
+	
       }
-
     }
   }
 }

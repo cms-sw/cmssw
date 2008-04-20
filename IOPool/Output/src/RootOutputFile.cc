@@ -1,4 +1,4 @@
-// $Id: RootOutputFile.cc,v 1.51 2008/03/05 05:55:31 wmtan Exp $
+// $Id: RootOutputFile.cc,v 1.52 2008/04/04 17:53:18 wmtan Exp $
 
 #include "RootOutputFile.h"
 #include "PoolOutputModule.h"
@@ -114,9 +114,9 @@ namespace edm {
       pRunAux_(0),
       pProductStatuses_(0),
       pHistory_(0),
-      eventTree_(filePtr_, InEvent, pEventAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
-      lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
-      runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel()),
+      eventTree_(filePtr_, InEvent, pEventAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       newFileAtEndOfRun_(false), 
       dataTypeReported_(false)  {

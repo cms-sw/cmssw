@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+// $Id: PATTauProducer.h,v 1.5 2008/03/05 14:56:50 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+  \version  $Id: PATTauProducer.h,v 1.5 2008/03/05 14:56:50 fronga Exp $
 */
 
 
@@ -23,8 +23,6 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
-
-#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 
@@ -63,10 +61,9 @@ namespace pat {
       LeptonLRCalc *         theLeptonLRCalc_;
       GreaterByPt<Tau>       pTTauComparator_;
 
-      pat::helper::MultiIsolator isolator_; 
-      pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
-      std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
   };
+
+
 }
 
 #endif

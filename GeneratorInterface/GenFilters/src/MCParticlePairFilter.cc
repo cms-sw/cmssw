@@ -129,19 +129,14 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	  double deltaR;
 	  //HepLorentzVector momentum1 = (*p)->momentum();
 	  //HepLorentzVector totmomentum;
-	  double tot_x= 0.;
-	  double tot_y= 0.;
-	  double tot_z= 0.;
-	  double tot_e= 0.;
-	  double invmass =0.;
-	  int charge1 = 0;
-	  int combcharge = 0;
+	  double tot_x=(*p)->momentum().px();
+	  double tot_y=(*p)->momentum().py();
+	  double tot_z=(*p)->momentum().pz();
+	  double tot_e=(*p)->momentum().e();
+	  double invmass;
+	  int charge1 = charge((*p)->pdg_id());
+	  int combcharge;
 	  while(!accepted && i<typeBpassed.size()) {
-	     tot_x=(*p)->momentum().px();
-	     tot_y=(*p)->momentum().py();
-	     tot_z=(*p)->momentum().pz();
-	     tot_e=(*p)->momentum().e();
-	     charge1 = charge((*p)->pdg_id());
 	    //totmomentum = momentum1 + typeBpassed[i]->momentum();
 	    //invmass = totmomentum.m();
 	    tot_x += typeBpassed[i]->momentum().px();
@@ -199,20 +194,15 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	  double deltaR;
 	  //HepLorentzVector momentum1 = (*p)->momentum();
 	  //HepLorentzVector totmomentum;
-	  double tot_x= 0.;
-	  double tot_y= 0.;
-	  double tot_z= 0.;
-	  double tot_e= 0.;
-	  double invmass =0.;
-	  int charge1 = 0;
-	  int combcharge = 0;
+	  double tot_x=(*p)->momentum().px();
+	  double tot_y=(*p)->momentum().py();
+	  double tot_z=(*p)->momentum().pz();
+	  double tot_e=(*p)->momentum().e();
+	  double invmass;
+	  int charge1 = charge((*p)->pdg_id());
+	  int combcharge;
 	  while(!accepted && i<typeApassed.size()) {
 	    if((*p) != typeApassed[i]) {
-	      tot_x=(*p)->momentum().px();
-	      tot_y=(*p)->momentum().py();
-	      tot_z=(*p)->momentum().pz();
-	      tot_e=(*p)->momentum().e();
-	      charge1 = charge((*p)->pdg_id());
 	      //totmomentum = momentum1 + typeApassed[i]->momentum();
 	      //invmass = totmomentum.m();
 	      tot_x += typeApassed[i]->momentum().px();

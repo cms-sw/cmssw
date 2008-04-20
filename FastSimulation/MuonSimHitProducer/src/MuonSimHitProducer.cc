@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.7 2007/11/15 17:24:25 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.8 2008/01/22 20:42:35 muzaffar Exp $
 //
 //
 
@@ -187,6 +187,12 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
                                     mySimTrack.momentum().y(),
                                     mySimTrack.momentum().z(),
                                     mySimTrack.momentum().t());
+
+    // Decaying hadrons are now in the list, and so are their muon daughter
+    // Ignore the hadrons here.
+    int pid = mySimTrack.type(); 
+    if ( abs(pid) != 13 ) continue;
+
     double t0 = 0;
     GlobalPoint initialPosition;
     int ivert = mySimTrack.vertIndex();
@@ -206,7 +212,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
 
     if ( debug_ ) {
       cout << " ===> MuonSimHitProducer::reconstruct() found SIMTRACK - pid = "
-           << mySimTrack.type() ;
+           << pid ;
       cout << " : pT = " << mySimP4.Pt()
            << ", eta = " << mySimP4.Eta()
            << ", phi = " << mySimP4.Phi() << endl;
@@ -352,7 +358,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
             LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
             LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
             double dtof = path.second*rbeta;
-            int pid = mySimTrack.type();
             int trkid = itrk;
             unsigned int id = wid.rawId();
 	    short unsigned int processType = 2;
@@ -393,7 +398,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
           LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
           LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
           double dtof = path.second*rbeta;
-          int pid = mySimTrack.type();
           int trkid = itrk;
           unsigned int id = lid.rawId();
 	  short unsigned int processType = 2;
@@ -435,11 +439,10 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
           LocalPoint entry = lpos - 0.5*thickness*lmom/pz;
           LocalPoint exit = lpos + 0.5*thickness*lmom/pz;
           double dtof = path.second*rbeta;
-          int pid = mySimTrack.type();
           int trkid = itrk;
           unsigned int id = rid.rawId();
 	  short unsigned int processType = 2;
-          PSimHit hit(entry,exit,lmom.mag(),
+	    PSimHit hit(entry,exit,lmom.mag(),
                       tof+dtof,eloss,pid,id,trkid,lmom.theta(),lmom.phi(),processType);
           theRPCHits.push_back(hit);
         }

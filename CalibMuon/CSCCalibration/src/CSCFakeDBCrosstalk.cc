@@ -7,7 +7,7 @@ CSCFakeDBCrosstalk::CSCFakeDBCrosstalk(const edm::ParameterSet& iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
-  cndbCrosstalk = boost::shared_ptr<CSCDBCrosstalk> ( prefillDBCrosstalk() );
+  cndbCrosstalk = prefillDBCrosstalk();
   setWhatProduced(this,&CSCFakeDBCrosstalk::produceDBCrosstalk);
   findingRecord<CSCDBCrosstalkRcd>();
 }
@@ -15,14 +15,24 @@ CSCFakeDBCrosstalk::CSCFakeDBCrosstalk(const edm::ParameterSet& iConfig)
 
 CSCFakeDBCrosstalk::~CSCFakeDBCrosstalk()
 {
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+  delete cndbCrosstalk;
 }
 
 
+//
+// member functions
+//
+
 // ------------ method called to produce the data  ------------
-CSCFakeDBCrosstalk::Pointer
+CSCFakeDBCrosstalk::ReturnType
 CSCFakeDBCrosstalk::produceDBCrosstalk(const CSCDBCrosstalkRcd& iRecord)
 {
-  return cndbCrosstalk;
+  //need a new object so to not be deleted at exit
+  CSCDBCrosstalk* mydata=new CSCDBCrosstalk( *cndbCrosstalk );
+  return mydata;
+
 }
 
  void CSCFakeDBCrosstalk::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

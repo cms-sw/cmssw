@@ -18,7 +18,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testParameter);
 void testParameter::checkAll() {
   double aVal = 123;
   std::string aName = "a";
-  funct::Parameter a(aName, aVal);
+  function::Parameter a(aName, aVal);
   CPPUNIT_ASSERT(a.name() == aName);
   CPPUNIT_ASSERT(a.value() == aVal);
   double av = a;
@@ -28,7 +28,7 @@ void testParameter::checkAll() {
   aVal = 234;
   a = aVal;
   CPPUNIT_ASSERT(a.value() == aVal);
-  funct::Parameter a1 = a;
+  function::Parameter a1 = a;
   CPPUNIT_ASSERT(a.value() == a1.value());
   CPPUNIT_ASSERT(a.name() == a1.name());
   a = 567;

@@ -6,7 +6,7 @@
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPEvent.cc"
 #include "EventFilter/CSCTFRawToDigi/src/CSCSPRecord.cc"
 #include "IORawData/CSCCommissioning/src/FileReaderDDU.cc"
-//g++ -o test test.cc -I../../../
+//g++ -o test test.cc -I../../../`
 
 int main(int argc, char *argv[]){
 	using namespace std;
@@ -37,26 +37,24 @@ int main(int argc, char *argv[]){
 		}
 
 		CSCTFEvent tfEvent, qwe;
-		if(nevents%1000==0) cout<<"Event: "<<nevents<<endl;
-///		cout<<" Unpack: "<<
-		tfEvent.unpack(event,index2);
-///		<<endl;
+		cout<<"Event: "<<nevents<<" Unpack: "<<
+		tfEvent.unpack(event,index2)
+		<<endl;
 
 		vector<CSCSPEvent> SPs = tfEvent.SPs();
-		for(int sp=0; sp<SPs.size(); sp++){
-///			cout<<" L1A="<<SPs[0].header().L1A()<<endl;
-			for(unsigned int tbin=0; tbin<SPs[sp].header().nTBINs(); tbin++){
-				vector<CSCSP_MEblock> lct = SPs[sp].record(tbin).LCTs();
-				if( lct.size() ){
-					cout<<"Event: "<<nevents<<" SP"<<sp<<" L1A="<<SPs[sp].header().L1A()<<endl;
-					cout<<" Endcap: "<<(SPs[sp].header().endcap()?2:1)<<" sector: "<<SPs[sp].header().sector();
-					cout<<"  tbin: "<<tbin<<"  nLCTs: "<<SPs[sp].record(tbin).LCTs().size()<<" (";//<<endl;
-				}
+		if( SPs.size() ){
+			cout<<" L1A="<<SPs[0].header().L1A()<<endl;
+			for(unsigned int tbin=0; tbin<SPs[0].header().nTBINs(); tbin++){
+				cout<<" Endcap: "<<(SPs[0].header().endcap()?2:1)<<" sector: "<<SPs[0].header().sector();
+				cout<<"  tbin: "<<tbin<<"  nLCTs: "<<SPs[0].record(tbin).LCTs().size()<<" (";//<<endl;
+				vector<CSCSP_MEblock> lct = SPs[0].record(tbin).LCTs();
 				for(std::vector<CSCSP_MEblock>::const_iterator i=lct.begin(); i!=lct.end(); i++){
-					cout<<" F"<<((i->spInput()-1)/3+1)<<"/CSC"<<i->csc()<<":{w="<<i->wireGroup()<<",s="<<i->strip()<<"} ";
+					cout<<" F"<<((i->spInput()-1)/3+1)<<"/CSC"<<i->csc();
 				}
-				if( lct.size() ) cout<<" )"<<endl;
+				cout<<" )"<<endl;
 			}
+		} else {
+			cout<<"Empty record"<<endl;
 		}
 		nevents++;
 	}

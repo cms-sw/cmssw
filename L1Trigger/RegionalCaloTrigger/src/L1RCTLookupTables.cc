@@ -59,12 +59,6 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
     {
       etIn7Bits = eGammaETCode(ecal, hcal, iAbsEta);
       etIn9Bits = jetMETETCode(ecal, hcal, iAbsEta);
-      /*
-      if (etIn7Bits > 0)
-	{
-	  std::cout << "etIn7Bits is " << etIn7Bits << std::endl;
-	}
-      */
     }
   unsigned long shiftEtIn9Bits = etIn9Bits<<8;
   unsigned long shiftHE_FGBit = hOeFGVetoBit(ecal, hcal, fgbit)<<7;

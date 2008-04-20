@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
+// $Id: PATElectronCleaner.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronCleaner.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -7,7 +7,6 @@
 #include "DataFormats/PatCandidates/interface/Flags.h"
 #include <vector>
 #include <memory>
-#include <sstream>
 
 using pat::PATElectronCleaner;
 
@@ -31,8 +30,6 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
   // start a new event
   helper_.newEvent(iEvent);
 
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
-
   // Get additional info from the event, if needed
   const reco::ClusterShape* clusterShape = 0;
   edm::Handle<reco::ElectronIDAssociationCollection> electronIDs;
@@ -49,26 +46,15 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
     // clone the electron so we can modify it (if we want)
     reco::PixelMatchGsfElectron ourElectron = srcElectron; 
 
-    // Add the electron to the working collection
-    size_t selIdx = helper_.addItem(idx, ourElectron);
-
-    // get the cluster shape for this electron selection
+    // perform the selection
     if ( selectionType_ == "custom" ) {
       const reco::ClusterShapeRef& shapeRef = getClusterShape_( &srcElectron, iEvent);
       clusterShape = &(*shapeRef);
     }
+    if ( selector_.filter(idx,helper_.source(),(*electronIDs),clusterShape) ) continue;
 
-    // apply selection and set bits accordingly
-    if ( selector_.filter(idx,helper_.source(),(*electronIDs),clusterShape) ) {
-        helper_.addMark(selIdx, pat::Flags::Selection::Bit0); // opaque, at the moment
-    }
-
-    // test for isolation and set the bit if needed
-    if (isolator_.enabled()) {
-        uint32_t isolationWord = isolator_.test( helper_.source(), idx );
-        helper_.addMark(selIdx, isolationWord);
-    }
-
+    // write the muon
+    helper_.addItem(idx, ourElectron); 
   }
 
   // remove ghosts, by marking them
@@ -78,7 +64,6 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
 
   // tell him that we're done. 
   helper_.done(); // he does event.put by itself
-  if (isolator_.enabled()) isolator_.endEvent();
 }
 
 
@@ -89,14 +74,13 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
  * NB triplicates also appear in the electron collection provided by egamma group, it is necessary to handle those correctly   
  */
 void PATElectronCleaner::removeDuplicates() {
-    // we must use 'accepted()', as we don't want to kill a good electron because it overlaps with the bad one.
-    MyCleanerHelper::FilteredCollection accepted = helper_.accepted(); 
-    std::auto_ptr< std::vector<size_t> > duplicates = duplicateRemover_.duplicatesToRemove(accepted);
+    std::auto_ptr< std::vector<size_t> > duplicates = 
+      duplicateRemover_.duplicatesToRemove(helper_.selected());
     for (std::vector<size_t>::const_iterator it = duplicates->begin(),
                                              ed = duplicates->end();
                                 it != ed;
                                 ++it) {
-        helper_.addMark(accepted.originalIndexOf(*it), pat::Flags::Core::Duplicate);
+        helper_.setMark(*it, helper_.mark(*it) | pat::Flags::Core::Duplicate);
     }
 }
 
@@ -130,12 +114,7 @@ PATElectronCleaner::getClusterShape_( const reco::GsfElectron* electron,
 }
 
 void PATElectronCleaner::endJob() { 
-    edm::LogVerbatim("PATLayer0Summary|PATElectronCleaner") << "PATElectronCleaner end job. \n" <<
-            "Input tag was " << electronSrc_.encode() <<
-            "\nIsolation information:\n" <<
-            isolator_.printSummary() <<
-            "\nCleaner summary information:\n" <<
-            helper_.printSummary();
+    edm::LogVerbatim("PATLayer0Summary|PATElectronCleaner") << "PATElectronCleaner end job. Input tag was " << electronSrc_.encode();
     helper_.endJob(); 
 }
 

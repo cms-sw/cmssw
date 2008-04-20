@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/03/31 16:23:06 $
- * $Revision: 1.13 $
+ * $Date: 2007/12/11 09:45:08 $
+ * $Revision: 1.12 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -218,9 +218,9 @@ DTCombinatorialPatternReco4D::reconstruct(){
   }
   // finally delete the candidates!
   for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
-       phi!=resultPhi.end(); ++phi) delete *phi;
+        phi!=resultPhi.end(); ++phi) delete *phi;
   for (vector<DTHitPairForFit*>::iterator phiPair = pairPhiOwned.begin();
-       phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
+        phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
   return result;
 }
 

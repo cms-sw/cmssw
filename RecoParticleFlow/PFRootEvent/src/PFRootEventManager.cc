@@ -42,7 +42,6 @@
 
 using namespace std;
 using namespace boost;
-using namespace reco;
 
 PFRootEventManager::PFRootEventManager() {}
 
@@ -165,10 +164,11 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("pfjet_benchmark", "deltaRMax", deltaRMax);
 
 
-          PFJetBenchmark_.setup( outjetfilename, 
-      			   pfjBenchmarkDebug,
-      			   PlotAgainstReco,
-     			   deltaRMax );
+    // COLIN:PFJetBenchmark does not compile in 2_0_X
+    //     PFJetBenchmark_.setup( outjetfilename, 
+    // 			   pfjBenchmarkDebug,
+    // 			   PlotAgainstReco,
+    // 			   deltaRMax );
   }
 
 
@@ -531,9 +531,16 @@ void PFRootEventManager::readOptions(const char* file,
   //   pfAlgoOther_.setAlgo( 1 );
 
 
+  bool pfAlgoDebug = false;
+  options_->GetOpt("particle_flow", "debug", pfAlgoDebug );  
+
+  pfAlgo_.setDebug( pfAlgoDebug );
+  //   pfAlgoOther_.setDebug( pfAlgoDebug );
+
+
   // jets options ---------------------------------
 
-  doJets_ = false;
+  doJets_ = true;
   options_->GetOpt("jets", "on/off", doJets_);
 
   jetsDebug_ = false;
@@ -584,7 +591,6 @@ void PFRootEventManager::readOptions(const char* file,
   jetMaker_.setRParam (rparam);
   jetMaker_.setDebug(jetsDebug_);
   jetMaker_.updateParameter();
-  cout <<"Opt: doJets? " << doJets_  <<endl; 
   cout <<"Opt: jetsDebug " << jetsDebug_  <<endl; 
   cout <<"Opt: algoType " << jetAlgoType_  <<endl; 
   cout <<"----------------------------------" << endl;
@@ -836,13 +842,13 @@ void PFRootEventManager::connect( const char* infilename ) {
   
   // GenParticlesCand   
   string genParticleCandBranchName;
-  genParticleforJetsBranch_ = 0;
-  options_->GetOpt("root","genParticleforJets_branch", 
+  genParticleBaseCandidatesBranch_ = 0;
+  options_->GetOpt("root","genParticleBaseCandidates_branch", 
 		   genParticleCandBranchName);
   if(!genParticleCandBranchName.empty() ){  
-    genParticleforJetsBranch_= 
+    genParticleBaseCandidatesBranch_= 
       tree_->GetBranch(genParticleCandBranchName.c_str()); 
-    if(!genParticleforJetsBranch_) {
+    if(!genParticleBaseCandidatesBranch_) {
       cerr<<"PFRootEventanager::ReadOptions : "
 	  <<"genParticleBaseCandidates_branch not found : "
           <<genParticleCandBranchName<< endl;
@@ -916,8 +922,8 @@ void PFRootEventManager::setAddresses() {
     MCTruthBranch_->SetAddress(&MCTruth_);
   }
   if( caloTowersBranch_ ) caloTowersBranch_->SetAddress(&caloTowers_);
-  if( genParticleforJetsBranch_ ) 
-    genParticleforJetsBranch_->SetAddress(&genParticleRef_);
+  if( genParticleBaseCandidatesBranch_ ) 
+    genParticleBaseCandidatesBranch_->SetAddress(&genParticleBaseCandidates_);
   if( caloTowerBaseCandidatesBranch_ ) {
     caloTowerBaseCandidatesBranch_->SetAddress(&caloTowerBaseCandidates_);
   }
@@ -1015,21 +1021,21 @@ bool PFRootEventManager::processEntry(int entry) {
 	if(doPFJetBenchmark_) { // start PFJet Benchmark
 
 	  
-	    	PFJetBenchmark_.process(pfJets_, genJets_);
-	    	double resPt = PFJetBenchmark_.resPtMax();
-	    	double resChargedHadEnergy = PFJetBenchmark_.resChargedHadEnergyMax();
-	    	double resNeutralHadEnergy = PFJetBenchmark_.resNeutralHadEnergyMax();
-	    	double resNeutralEmEnergy = PFJetBenchmark_.resNeutralEmEnergyMax();
+	  // 	PFJetBenchmark_.process(pfJets_, genJets_);
+	  // 	double resPt = PFJetBenchmark_.resPtMax();
+	  // 	double resChargedHadEnergy = PFJetBenchmark_.resChargedHadEnergyMax();
+	  // 	double resNeutralHadEnergy = PFJetBenchmark_.resNeutralHadEnergyMax();
+	  // 	double resNeutralEmEnergy = PFJetBenchmark_.resNeutralEmEnergyMax();
 	  
-  	if( verbosity_ == VERBOSE ){ //start debug print
+// 	if( verbosity_ == VERBOSE ){ //start debug print
 
-  	cout << " =====================PFJetBenchmark =================" << endl;
-  	cout<<"Resol Pt max "<<resPt
-  	    <<" resChargedHadEnergy Max " << resChargedHadEnergy
-  		<<" resNeutralHadEnergy Max " << resNeutralHadEnergy
-  	    << " resNeutralEmEnergy Max "<< resNeutralEmEnergy << endl;
-  	 } // end debug print
- //	 if (resNeutralEmEnergy>0.5) return true;
+// 	cout << " =====================PFJetBenchmark =================" << endl;
+// 	cout<<"Resol Pt max "<<resPt
+// 	    <<" resChargedHadEnergy Max " << resChargedHadEnergy
+// 		<<" resNeutralHadEnergy Max " << resNeutralHadEnergy
+// 	    << " resNeutralEmEnergy Max "<< resNeutralEmEnergy << endl;
+// 	 } // end debug print
+//	 if (resNeutralEmEnergy>0.5) return true;
 //	 else return false;
 	}// end PFJet Benchmark
   
@@ -1107,8 +1113,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(recTracksBranch_) {
     recTracksBranch_->GetEntry(entry);
   }
-  if(genParticleforJetsBranch_) {
-    genParticleforJetsBranch_->GetEntry(entry);
+  if(genParticleBaseCandidatesBranch_) {
+    genParticleBaseCandidatesBranch_->GetEntry(entry);
   }
   if(caloTowerBaseCandidatesBranch_) {
     caloTowerBaseCandidatesBranch_->GetEntry(entry);
@@ -1663,10 +1669,10 @@ void PFRootEventManager::particleFlow() {
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
 
-//   edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
-//                                                        edm::ProductID(5) );  
+  edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
+                                                       edm::ProductID(5) );  
   
-  pfAlgo_.reconstructParticles( *pfBlocks_.get() );
+  pfAlgo_.reconstructParticles( blockh );
   //   pfAlgoOther_.reconstructParticles( blockh );
   if( debug_) cout<< pfAlgo_<<endl;
   pfCandidates_ = pfAlgo_.transferCandidates();
@@ -1682,100 +1688,49 @@ void PFRootEventManager::particleFlow() {
 void PFRootEventManager::reconstructGenJets() {
 
   genJets_.clear();
-  genParticleBaseCandidates_.clear();
-  if (verbosity_ == VERBOSE || jetsDebug_) {
+  if (verbosity_ == VERBOSE ) {
     cout <<"start reconstruct GenJets"<<endl;
-	cout << " input gen particles for jet: all muons/neutrinos removed " << endl;
   }
-  // need to convert reco::GenParticleRefVector genParticleRef_ 
-  // into Candidate Collection input for reconstructFWLiteJets.
-  // Warning: the selection of gen particles to be used for jet
-  // has changed!!!
-  // in 1_6_9  all muons/neutrinos are removed
-  // for > 1_8_0  only muons/neutrinos coming from Bosons (pdg id from 23 to 39)
-  // are removed. For instance muons/neutrinos from  tau decays are kept.
-  // The motivation is: calo jet corrections should include corrections due
-  // to muons/neutrinos from heavy flavors (b or c) decays inside jets.
-  for(unsigned i=0; i<genParticleRef_.size(); i++) {
-  const reco::GenParticle mcpart = *(genParticleRef_[i]);
-	  // remove all muons/neutrinos for PFJet studies
-	  if (reco::isNeutrino (mcpart) || reco::isMuon (mcpart)) continue;
-	   if (jetsDebug_ ) {
-	   cout << "      #" << i << "  PDG code:" << mcpart.pdgId() 
-		    << " status " << mcpart.status()
-		    << ", p/pt/eta/phi: " << mcpart.p() << '/' << mcpart.pt() 
-		    << '/' << mcpart.eta() << '/' << mcpart.phi() << endl;
-	   }
-  genParticleBaseCandidates_.push_back(mcpart.clone() );
-  }
-  
-  // convert Candidate Collection to RefTobase  vector GenConstit
-  // Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-  reco::CandidateBaseRefVector Genconstit;
-
-  
-  for(unsigned i=0;i<genParticleRef_.size(); i++) {
-	  // conversion in two steps: cand->Ref->RefTobase
-	  // transient Ref:
-	  // edm::Ref <CandidateCollection> candRef(&genParticleBaseCandidates_, i); does not compile yet
-	  edm::Ref <CandidateCollection>
-	  candRef(const_cast<const CandidateCollection*>(&genParticleBaseCandidates_),i); 
-	  const CandidateBaseRef constit (candRef); 
-	  // conversion in one step does not compile?
-	  //      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-	  Genconstit.push_back(constit);
-	  
-  }
-  
   
 
   vector<ProtoJet> protoJets;
   reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
 
-    // Convert Protojets to GenJets
-  
-  // For each Protojet in turn
-  int ijet = 0;
   typedef vector <ProtoJet>::const_iterator IPJ;
   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-	  const ProtoJet& protojet = *ipj;
-	  const ProtoJet::Constituents& constituents = protojet.getTowerList();
-	  
-	  reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-	  GenJet::Specific specific;
-	  JetMaker::makeSpecific(constituents, &specific);
-	  // constructor without constituents
-	  GenJet newJet (protojet.p4(), vertex, specific);
-	  
-	  // last step is to copy the constituents into the jet (new jet definition since 18X)
-	  // namespace reco {
-	  //class Jet : public CompositeRefBaseCandidate {
-	  // public:
-	  //  typedef reco::CandidateBaseRefVector Constituents;
-	  
-	  ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-	  for (; constituent != constituents.end(); ++constituent) {
-		  // find index of this ProtoJet constituent in the overall collection PFconstit
-		  // see class IndexedCandidate in JetRecoTypes.h
-		  uint index = constituent->index();
-		  newJet.addDaughter(Genconstit[index]);
-	  }  // end loop on ProtoJet constituents
-		 // last step: copy ProtoJet Variables into Jet
-	  newJet.setJetArea(protojet.jetArea()); 
-	  newJet.setPileup(protojet.pileup());
-	  newJet.setNPasses(protojet.nPasses());
-	  ++ijet;
-	  if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-	  genJets_.push_back (newJet);
-	  
-	  } // end loop on protojets iterator IPJ
+  const ProtoJet& protojet = *ipj;
+  if (verbosity_ == VERBOSE ) { // Debug MDN1
+  const ProtoJet::Constituents& constituents = protojet.getTowerList();
+  unsigned nconstit = constituents.size();
+  cout << "Gen protojet PT " << protojet.pt() << " nb of constituents " << nconstit << endl;
+  ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+  int i =0;
+    for (; constituent != constituents.end(); ++constituent) {
+	  const Candidate* candidate = constituent->get ();
+	  ++i;
+	     cout << "      #" << i << " p/pt/eta/phi: " 
+	  << candidate->p() << '/' << candidate->pt() << '/' 
+	  << candidate->eta() << '/' << candidate->phi() 
+	  << std::endl; 
+   }
+  } // end Debug MDN1
+
+  //GenJet::Specific specific;
+  //JetMaker::makeSpecific(constituents, &specific);
+  //GenJet genj = GenJet(protojet.p4(), specific, constituents);
   
+//	genJets_.push_back(genj); 
+//	Jet newJet = genj.back());
+//	newJet.setJetArea(protojet.jetArea()); 
+//	newJet.setPileup(protojet.pileup());
+//	newJet.setNPasses(protojet.nPasses());
+  } 
 }
 
 void PFRootEventManager::reconstructCaloJets() {
 
   caloJets_.clear();
-  if (verbosity_ == VERBOSE || jetsDebug_ ) {
+  if (verbosity_ == VERBOSE ) {
     cout <<"start reconstruct CaloJets"<<endl;
   }
 
@@ -1797,85 +1752,34 @@ void PFRootEventManager::reconstructCaloJets() {
 
 void PFRootEventManager::reconstructPFJets() {
 
-	pfJets_.clear();
-    basePFCandidates_.clear();
-	/// basePFCandidates_ to be declared global in PFRootEventManager.h
-	//reco::CandidateCollection basePFCandidates_;
-    if (verbosity_ == VERBOSE || jetsDebug_) {
-		cout <<"start reconstruct PFJets"<<endl;
-	}
-	
-	// Copy PFCandidates into std::vector<Candidate> format
-	// as input for jet algorithms
-	// Warning:
-	// basePFCandidates_ Collection lifetime ==  pfJets_ Collection lifetime
-	// transform PFCandidates to Candidates
-	for(unsigned i=0; i<pfCandidates_->size(); i++) { 
-		basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );	  
-	}
-	
-	// Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-	reco::CandidateBaseRefVector PFconstit;
-		
-	// convert Candidate Collection to RefTobase  vector PFConstit
-	
-	for(unsigned i=0;i<pfCandidates_->size(); i++) {
-		// conversion in two steps: cand->Ref->RefTobase
-		// transient Ref:
-		// edm::Ref <CandidateCollection> candRef(&basePFCandidates_, i); does not compile yet
-		edm::Ref <CandidateCollection> 
-		candRef(const_cast<const CandidateCollection*>(&basePFCandidates_),i); 
-		const CandidateBaseRef constit (candRef);
-		// conversion in one step does not compile?
-		//      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-		PFconstit.push_back(constit);
-		
-	}
-	
-// Reconstruct ProtoJets from basePFCandidates_
+  pfJets_.clear();
 
-vector<ProtoJet> protoJets;
-reconstructFWLiteJets(basePFCandidates_, protoJets );
+  basePFCandidates_.clear();
+  /// basePFCandidates to be declared in PFRootEventManager.h
+  //reco::CandidateCollection basePFCandidates_;
+  if (verbosity_ == VERBOSE ) {
+    cout <<"start reconstruct PFJets"<<endl;
+  }
 
-// Convert Protojets to PFJets
+  // Copy PFCandidates into std::vector<Candidate> format
+  // as input for jet algorithms
+  // reco::CandidateCollection baseCandidates;
+  // Warning:
+  // basePFCandidates_ Collection lifetime ==  pfJets_ Collection lifetime
+  for(unsigned i=0; i<pfCandidates_->size(); i++) { 
+	basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );
+  }
+ 
+  vector<ProtoJet> protoJets;
+  reconstructFWLiteJets(basePFCandidates_, protoJets );
 
-// For each Protojet in turn
-int ijet = 0;
-typedef vector <ProtoJet>::const_iterator IPJ;
-for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-	const ProtoJet& protojet = *ipj;
-	const ProtoJet::Constituents& constituents = protojet.getTowerList();
-	
-	reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-	PFJet::Specific specific;
-	JetMaker::makeSpecific(constituents, &specific);
-	// constructor without constituents
-	PFJet newJet (protojet.p4(), vertex, specific);
-	
-	// last step is to copy the constituents into the jet (new jet definition since 18X)
-	// namespace reco {
-	//class Jet : public CompositeRefBaseCandidate {
-	// public:
-	//  typedef reco::CandidateBaseRefVector Constituents;
-	
-	ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-	for (; constituent != constituents.end(); ++constituent) {
-		// find index of this ProtoJet constituent in the overall collection PFconstit
-		// see class IndexedCandidate in JetRecoTypes.h
-		uint index = constituent->index();
-		newJet.addDaughter(PFconstit[index]);
-	}  // end loop on ProtoJet constituents
-	   // last step: copy ProtoJet Variables into Jet
-	newJet.setJetArea(protojet.jetArea()); 
-	newJet.setPileup(protojet.pileup());
-	newJet.setNPasses(protojet.nPasses());
-	++ijet;
-	if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-	pfJets_.push_back (newJet);
-	
-	} // end loop on protojets iterator IPJ
+//   typedef vector <ProtoJet>::const_iterator IPJ;
+//   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+//     reco::PFJet pfj = mjet.makePFJet(*ipj);
+// 	pfJets_.push_back(pfj);  
+//   } // loop on protojets IPJ
 
-	}
+}
 
 
 
@@ -1899,7 +1803,7 @@ void PFRootEventManager::reconstructFWLiteJets(const reco::CandidateCollection& 
   if((jetAlgoType_>3)||(jetAlgoType_<0)) {
     cout<<"Unknown Jet Algo ! " <<jetAlgoType_ << endl;
   }
-  //if (jetsDebug_) cout<<"Proto Jet Size " <<output.size()<<endl;
+  if (jetsDebug_) cout<<"Proto Jet Size " <<output.size()<<endl;
 
 }
 
@@ -2322,6 +2226,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
   }
   if(printPFCandidates_) {
     out<<"Particle Flow Candidates =================================="<<endl;
+    out<<pfAlgo_<<endl;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
       out<<i<<" " <<(*pfCandidates_)[i]<<endl;
     }    
@@ -2396,103 +2301,84 @@ PFRootEventManager::printGenParticles(std::ostream& out,
     // We have here a subset of particles only. 
     // To be filled according to the needs.
     switch(partId) {
-		case    1: { name = "d"; break; } 
-		case    2: { name = "u"; break; } 
-		case    3: { name = "s"; break; } 
-		case    4: { name = "c"; break; } 
-		case    5: { name = "b"; break; } 
-		case    6: { name = "t"; break; } 
-		case   -1: { name = "~d"; break; } 
-		case   -2: { name = "~u"; break; } 
-		case   -3: { name = "~s"; break; } 
-		case   -4: { name = "~c"; break; } 
-		case   -5: { name = "~b"; break; } 
-		case   -6: { name = "~t"; break; } 
-		case   11: { name = "e-"; break; }
-		case  -11: { name = "e+"; break; }
-		case   12: { name = "nu_e"; break; }
-		case  -12: { name = "~nu_e"; break; }
-		case   13: { name = "mu-"; break; }
-		case  -13: { name = "mu+"; break; }
-		case   14: { name = "nu_mu"; break; }
-		case  -14: { name = "~nu_mu"; break; }
-		case   15: { name = "tau-"; break; }
-		case  -15: { name = "tau+"; break; }
-		case   16: { name = "nu_tau"; break; }
-		case  -16: { name = "~nu_tau"; break; }
-		case   21: { name = "gluon"; break; }
-		case   22: { name = "gamma"; break; }
-		case   23: { name = "Z0"; break; }
-		case   24: { name = "W+"; break; }
-		case   25: { name = "H0"; break; }
-		case  -24: { name = "W-"; break; }
-		case  111: { name = "pi0"; break; }
-		case  113: { name = "rho0"; break; }
-		case  223: { name = "omega"; break; }
-		case  333: { name = "phi"; break; }
-		case  443: { name = "J/psi"; break; }
-		case  553: { name = "Upsilon"; break; }
-		case  130: { name = "K0L"; break; }
-		case  211: { name = "pi+"; break; }
-		case -211: { name = "pi-"; break; }
-		case  213: { name = "rho+"; break; }
-		case -213: { name = "rho-"; break; }
-		case  221: { name = "eta"; break; }
-		case  331: { name = "eta'"; break; }
-		case  441: { name = "etac"; break; }
-		case  551: { name = "etab"; break; }
-		case  310: { name = "K0S"; break; }
-		case  311: { name = "K0"; break; }
-		case -311: { name = "Kbar0"; break; }
-		case  321: { name = "K+"; break; }
-		case -321: { name = "K-"; break; }
-		case  411: { name = "D+"; break; }
-		case -411: { name = "D-"; break; }
-		case  421: { name = "D0"; break; }
-		case  431: { name = "Ds_+"; break; }
-		case -431: { name = "Ds_-"; break; }
-		case  511: { name = "B0"; break; }
-		case  521: { name = "B+"; break; }
-		case -521: { name = "B-"; break; }
-		case  531: { name = "Bs_0"; break; }
-		case  541: { name = "Bc_+"; break; }
-		case -541: { name = "Bc_+"; break; }
-		case  313: { name = "K*0"; break; }
-		case -313: { name = "K*bar0"; break; }
-		case  323: { name = "K*+"; break; }
-		case -323: { name = "K*-"; break; }
-		case  413: { name = "D*+"; break; }
-		case -413: { name = "D*-"; break; }
-		case  423: { name = "D*0"; break; }
-		case  513: { name = "B*0"; break; }
-		case  523: { name = "B*+"; break; }
-		case -523: { name = "B*-"; break; }
-		case  533: { name = "B*_s0"; break; }
-		case  543: { name = "B*_c+"; break; }
-		case -543: { name = "B*_c-"; break; }
-		case  1114: { name = "Delta-"; break; }
-		case -1114: { name = "Deltabar+"; break; }
-		case -2112: { name = "nbar0"; break; }
-		case  2112: { name = "n"; break; }
-		case  2114: { name = "Delta0"; break; }
-		case -2114: { name = "Deltabar0"; break; }
-		case  3122: { name = "Lambda0"; break; }
-		case -3122: { name = "Lambdabar0"; break; }
-		case  3112: { name = "Sigma-"; break; }
-		case -3112: { name = "Sigmabar+"; break; }
-		case  3212: { name = "Sigma0"; break; }
-		case -3212: { name = "Sigmabar0"; break; }
-		case  3214: { name = "Sigma*0"; break; }
-		case -3214: { name = "Sigma*bar0"; break; }
-		case  3222: { name = "Sigma+"; break; }
-		case -3222: { name = "Sigmabar-"; break; }
-		case  2212: { name = "p"; break; }
-		case -2212: { name = "~p"; break; }
-		case -2214: { name = "Delta-"; break; }
-		case  2214: { name = "Delta+"; break; }
-		case -2224: { name = "Deltabar--"; break; }
-		case  2224: { name = "Delta++"; break; }
-		default: { 
+    case    1: { name = "d"; break; } 
+    case    2: { name = "u"; break; } 
+    case    3: { name = "s"; break; } 
+    case    4: { name = "c"; break; } 
+    case    5: { name = "b"; break; } 
+    case    6: { name = "t"; break; } 
+    case   -1: { name = "~d"; break; } 
+    case   -2: { name = "~u"; break; } 
+    case   -3: { name = "~s"; break; } 
+    case   -4: { name = "~c"; break; } 
+    case   -5: { name = "~b"; break; } 
+    case   -6: { name = "~t"; break; } 
+    case   11: { name = "e-"; break; }
+    case  -11: { name = "e+"; break; }
+    case   12: { name = "nu_e"; break; }
+    case  -12: { name = "~nu_e"; break; }
+    case   13: { name = "mu-"; break; }
+    case  -13: { name = "mu+"; break; }
+    case   14: { name = "nu_mu"; break; }
+    case  -14: { name = "~nu_mu"; break; }
+    case   15: { name = "tau-"; break; }
+    case  -15: { name = "tau+"; break; }
+    case   16: { name = "nu_tau"; break; }
+    case  -16: { name = "~nu_tau"; break; }
+    case   21: { name = "gluon"; break; }
+    case   22: { name = "gamma"; break; }
+    case   23: { name = "Z0"; break; }
+    case   24: { name = "W+"; break; }
+    case   25: { name = "H0"; break; }
+    case  -24: { name = "W-"; break; }
+    case  111: { name = "pi0"; break; }
+    case  113: { name = "rho0"; break; }
+    case  223: { name = "omega"; break; }
+    case  333: { name = "phi"; break; }
+    case  443: { name = "J/psi"; break; }
+    case  553: { name = "Upsilon"; break; }
+    case  130: { name = "K0L"; break; }
+    case  211: { name = "pi+"; break; }
+    case -211: { name = "pi-"; break; }
+    case  221: { name = "eta"; break; }
+    case  331: { name = "eta'"; break; }
+    case  441: { name = "etac"; break; }
+    case  551: { name = "etab"; break; }
+    case -213: { name = "rho-"; break; }
+    case  310: { name = "K0S"; break; }
+    case  321: { name = "K+"; break; }
+    case -321: { name = "K-"; break; }
+    case  411: { name = "D+"; break; }
+    case -411: { name = "D-"; break; }
+    case  421: { name = "D0"; break; }
+    case  431: { name = "Ds_+"; break; }
+    case -431: { name = "Ds_-"; break; }
+    case  511: { name = "B0"; break; }
+    case  521: { name = "B+"; break; }
+    case -521: { name = "B-"; break; }
+    case  531: { name = "Bs_0"; break; }
+    case  541: { name = "Bc_+"; break; }
+    case -541: { name = "Bc_+"; break; }
+    case  313: { name = "K*0"; break; }
+    case  323: { name = "K*+"; break; }
+    case -323: { name = "K*-"; break; }
+    case  413: { name = "D*+"; break; }
+    case -413: { name = "D*-"; break; }
+    case  423: { name = "D*0"; break; }
+    case  513: { name = "B*0"; break; }
+    case  523: { name = "B*+"; break; }
+    case -523: { name = "B*-"; break; }
+    case  533: { name = "B*_s0"; break; }
+    case  543: { name = "B*_c+"; break; }
+    case -543: { name = "B*_c-"; break; }
+    case  2112: { name = "n"; break; }
+    case  3122: { name = "Lambda0"; break; }
+    case  3112: { name = "Sigma-"; break; }
+    case -3112: { name = "Sigma+"; break; }
+    case  3212: { name = "Sigma0"; break; }
+    case  2212: { name = "p"; break; }
+    case -2212: { name = "~p"; break; }
+    default: { 
       name = "unknown"; 
       cout << "Unknown code : " << partId << endl;
     }   

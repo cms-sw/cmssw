@@ -8,7 +8,10 @@
 #include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
@@ -20,6 +23,7 @@
 #include <ctype.h>
 
 // include Herwig stuff
+#include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/HerwigWrapper6_4.h"
 #include "HepMC/IO_HERWIG.h"
 #include "herwig.h"

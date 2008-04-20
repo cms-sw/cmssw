@@ -51,9 +51,9 @@ cmscond_list_iov -c sqlite_file:pop_test3.db -t Example_tag2
 
 
 echo "import"
-cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration
-cmscond_export_iov -s sqlite_file:pop_test2.db -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration
-cmscond_export_iov -s sqlite_file:pop_test3.db -i Example_tag2 -b 64 -e 89 -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration
+cmscond_export_iov -s sqlite_file:pop_test1.db -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration -n Pedestals
+cmscond_export_iov -s sqlite_file:pop_test2.db -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration -n Pedestals 
+cmscond_export_iov -s sqlite_file:pop_test3.db -i Example_tag2 -b 64 -e 89 -t Example_tag -d sqlite_file:pop_test.db -D CondFormatsCalibration -n  Pedestals
 
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag
 

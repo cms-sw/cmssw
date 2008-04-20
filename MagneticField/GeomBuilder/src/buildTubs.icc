@@ -28,10 +28,6 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
 				    Surface::RotationType(),
 				    rOut);
   
-
-  // The inner cylider may be degenreate. Not easy to have a null surface
-  // in the current implementation (surfaces[inner] is a RCP!)
-
   surfaces[inner] = new Cylinder(Surface::PositionType(0,0,center_.z()),
 				    Surface::RotationType(),
 				    rIn);

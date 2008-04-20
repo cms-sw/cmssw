@@ -64,8 +64,6 @@ class CSCHitFromStripOnly
   float makeCluster( int centerStrip );
 
   std::vector<int> theMaxima;
-  std::vector<int>  theConsecutiveStrips;//... with charge for a given maximum
-  std::vector<int> theClosestMaximum; // this is number of strips to the closest other maximum
 
   PulseHeightMap thePulseHeightMap;
   
@@ -89,10 +87,12 @@ class CSCHitFromStripOnly
   std::vector<int> theStrips;
   
   // The cuts for forming the strip hits are described in the data/.cfi file
+  bool debug;
   bool useCalib;
-  static const int theClusterSize = 3;
+  int theClusterSize;
   float theThresholdForAPeak;
   float theThresholdForCluster;
+  bool useCleanStripCollection;
   //bool isData;
 
   /// These are the gain correction weights and X-talks read in from database.

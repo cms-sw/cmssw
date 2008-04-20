@@ -2,6 +2,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
+<use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
@@ -13,6 +14,7 @@
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/Framework>
+  <use name=FWCore/ServiceRegistry>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/Utilities>
   <use name=DataFormats/Common>

@@ -190,8 +190,8 @@ HLTMuonDimuonL2Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if (ptLx1<min_PtMax_) continue;
                   if (ptLx2<min_PtMin_) continue;
             } else {
-                  if (ptLx1<min_PtMax_) continue;
-                  if (ptLx2<min_PtMin_) continue;
+                  if (ptLx2<min_PtMax_) continue;
+                  if (ptLx1<min_PtMin_) continue;
             }
 
             if (chargeOpt_<0) {

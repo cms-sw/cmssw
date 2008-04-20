@@ -1,6 +1,5 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=PhysicsTools/UtilAlgos>
-<use name=
 <export>
   <use name=DataFormats/HepMCCandidate>
   <use name=PhysicsTools/UtilAlgos>

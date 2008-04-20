@@ -13,7 +13,7 @@
 //
 // Original Author:  Phillip R. Dudero
 //         Created:  Tue Jan 16 21:11:37 CST 2007
-// $Id: HcalQLPlotAnal.cc,v 1.4 2007/05/22 18:50:30 dudero Exp $
+// $Id: HcalQLPlotAnal.cc,v 1.2 2007/02/22 15:44:12 dudero Exp $
 //
 //
 
@@ -100,73 +100,50 @@ void
 HcalQLPlotAnal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Step A/C: Get Inputs and process (repeatedly)
-  edm::Handle<HcalTBTriggerData> trig;
-  iEvent.getByLabel(hcalTrigLabel_,trig);
-  if (!trig.isValid()) {
+  try {
+    edm::Handle<HcalTBTriggerData> trig;
+    iEvent.getByLabel(hcalTrigLabel_,trig);
+    algo_->SetEventType(*trig);
+  } catch (std::exception& e) { // can't find it!
     edm::LogError("HcalQLPlotAnal::analyze") << "No Trigger Data found, skip event";
     return;
-  } else {
-    algo_->SetEventType(*trig);
   }
-  edm::Handle<HBHEDigiCollection> hbhedg;
-  iEvent.getByLabel(hcalDigiLabel_,hbhedg);
-  if (!hbhedg.isValid()) {
-    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HBHE Digis/RecHits not found";
-  } else {
+
+  try {
+    edm::Handle<HBHEDigiCollection> hbhedg;    iEvent.getByLabel(hcalDigiLabel_,hbhedg);
+    edm::Handle<HBHERecHitCollection> hbherh;  iEvent.getByLabel(hbheRHLabel_,hbherh);
     algo_->processDigi(*hbhedg);
-  }
-  edm::Handle<HBHERecHitCollection> hbherh;  
-  iEvent.getByLabel(hbheRHLabel_,hbherh);
-  if (!hbherh.isValid()) {
-    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HBHE Digis/RecHits not found";
-  } else {
     algo_->processRH(*hbherh,*hbhedg);
+  } catch (std::exception& e) { // can't find it!
+    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HBHE Digis/RecHits not found";
   }
 
-  edm::Handle<HODigiCollection> hodg; 
-  iEvent.getByLabel(hcalDigiLabel_,hodg);
-  if (!hodg.isValid()) {
-    // can't find it!
-    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HO Digis/RecHits not found";
-  } else {
+  try {
+    edm::Handle<HODigiCollection> hodg;    iEvent.getByLabel(hcalDigiLabel_,hodg);
+    edm::Handle<HORecHitCollection> horh;  iEvent.getByLabel(hoRHLabel_,horh);
     algo_->processDigi(*hodg);
-  }
-  edm::Handle<HORecHitCollection> horh;
-  iEvent.getByLabel(hoRHLabel_,horh);
-  if (!horh.isValid()) {
-    // can't find it!
-    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HO Digis/RecHits not found";
-  } else {
     algo_->processRH(*horh,*hodg);
+  } catch (std::exception& e) { // can't find it!
+    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HO Digis/RecHits not found";
   }
-  
-  edm::Handle<HFDigiCollection> hfdg;
-  iEvent.getByLabel(hcalDigiLabel_,hfdg);
 
-  if (!hfdg.isValid()) {
-    // can't find it!
-    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HF Digis/RecHits not found";
-  } else {
+  try {
+    edm::Handle<HFDigiCollection> hfdg;    iEvent.getByLabel(hcalDigiLabel_,hfdg);
+    edm::Handle<HFRecHitCollection> hfrh;  iEvent.getByLabel(hfRHLabel_,hfrh);
     algo_->processDigi(*hfdg);
-  }
-
-  edm::Handle<HFRecHitCollection> hfrh;
-  iEvent.getByLabel(hfRHLabel_,hfrh);
-  if (!hfrh.isValid()) {
-    // can't find it!
-    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HF Digis/RecHits not found";
-  } else {
     algo_->processRH(*hfrh,*hfdg);
+  } catch (std::exception& e) { // can't find it!
+    edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HF Digis/RecHits not found";
   }
 
   if (doCalib_) {
-    // No rechits as of yet...
-    edm::Handle<HcalCalibDigiCollection> calibdg;
-    iEvent.getByLabel(hcalDigiLabel_,calibdg);
-    if (!calibdg.isValid()) {
-      edm::LogWarning("HcalQLPlotAnal::analyze") << "Hcal Calib Digis not found";
-    } else {
+    try {
+      // No rechits as of yet...
+      edm::Handle<HcalCalibDigiCollection> calibdg;
+      iEvent.getByLabel(hcalDigiLabel_,calibdg);
       algo_->processDigi(*calibdg,calibFC2GeV_);
+    } catch (std::exception& e) { // can't find it!
+      edm::LogWarning("HcalQLPlotAnal::analyze") << "Hcal Calib Digis not found";
     }
   }
 

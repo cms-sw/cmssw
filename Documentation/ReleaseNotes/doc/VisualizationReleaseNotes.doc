@@ -3,14 +3,19 @@
 
 
 - General:
+  - Visualization packages in CMSSW_2_0_0 are on ASIS basis. Please,
+    consult with IGUANA twiki https://twiki.cern.ch/twiki/bin/view/CMS/IGUANA for additional packages.
 
 - Main changes and new features:
 
 - Major bug fixes:
 
 - Known issues:
+  - Due to the changes in FWCore "Rewind" will crash the event
+    display.
+
 
 <hr>
-Last updated: @DATE@ Ianna Osborne
+Last updated: 14 April 2008 Ianna Osborne
  
 */

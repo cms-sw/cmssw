@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2007/04/26 12:16:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/09 15:09:30 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -41,21 +41,28 @@ public:
   GlobalVector fieldInTesla(const GlobalPoint & gp) const;
 
   /// Find a volume
-  MagVolume * findVolume(const GlobalPoint & gp, double tolerance=0.) const;
+  MagVolume * findVolume(const GlobalPoint & gp) const;
 
   // FIXME: only for temporary tests, should be removed.
   const std::vector<MagVolume6Faces*> & barrelVolumes() const {return theBVolumes;}
   const std::vector<MagVolume6Faces*> & endcapVolumes() const {return theEVolumes;}
 
 private:
+//  friend class DDI::Singleton<MagGeometry>;
 
   friend class MagGeometryExerciser; // for debug purposes
 
   // Linear search (for debug purposes only)
   MagVolume * findVolume1(const GlobalPoint & gp, double tolerance=0.) const;
 
+  // Use hierarchical structure for the barrel with non-optimized R search
+  MagVolume * findVolume2(const GlobalPoint & gp, double tolerance=0.) const;
 
   bool inBarrel(const GlobalPoint& gp) const;
+
+  bool trackerField(const GlobalPoint& gp, GlobalVector& bxyz) const ;
+
+  void ffunkti(float u, float* ff) const;
 
   mutable MagVolume * lastVolume; // Cache last volume found
 
@@ -69,9 +76,10 @@ private:
   MagBinFinders::GeneralBinFinderInR<double>* theBarrelBinFinder;
   PeriodicBinFinderInPhi<float> * theEndcapBinFinder;
 
+  double tolerance;
   bool cacheLastVolume;
   bool timerOn;
-  bool v_85l;
+  bool useParametrizedTrackerField;
 };
 #endif
 

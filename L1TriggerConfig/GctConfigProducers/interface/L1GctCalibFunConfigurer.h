@@ -52,9 +52,6 @@ class L1GctCalibFunConfigurer {
   double m_htScaleLSB;
   double m_threshold;
 
-  /// Option to convert Et back to energy for special trigger configurations
-  bool m_convertToEnergy;
-
   /// the calibration function - converts jet Et to linear 
   std::vector< std::vector<double> > m_jetCalibFunc;
   std::vector< std::vector<double> > m_tauCalibFunc;
@@ -69,9 +66,6 @@ class L1GctCalibFunConfigurer {
   /// member functions to set up the piecewise cubic calibrations (if needed)
   void setPiecewiseCubicParams();
   void setPiecewiseCubicParamsForBin(std::vector<double>& paramsForBin);
-
-  /// Calculate Et-to-energy conversion factors for eta bins
-  std::vector<double> etToEnergyConversion() const;
 
 };
 

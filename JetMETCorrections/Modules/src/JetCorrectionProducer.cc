@@ -54,17 +54,19 @@ namespace cms {
     
     CaloJetCollection::const_iterator jet = jets->begin ();
     for (; jet != jets->end (); jet++) {
+      const Jet* referenceJet = &*jet;
       CaloJet correctedJet = *jet; //copy original jet
       if (mVerbose) {
 	std::cout << "JetCorrectionProducer::produce-> original jet: " << jet->print () << std::endl; 
       }
-      for (unsigned i = 0; i < mCorrectors.size(); i++) {
-	double scale = mCorrectors[i]->correction (correctedJet, fEvent, fSetup);
-	correctedJet.scaleEnergy (scale); // apply correction
+      for (unsigned i = 0; i < mCorrectors.size(); ++i) {
+	double scale = mCorrectors[i]->correction (*referenceJet, fEvent, fSetup);
 	if (mVerbose) {
 	  std::cout << "JetCorrectionProducer::produce-> Corrector # " << i 
 		    << ", correction factor: " << scale << std::endl;
 	}
+	correctedJet.scaleEnergy (scale); // apply correction
+	referenceJet = &correctedJet;
       }
       if (mVerbose) {
 	std::cout << "JetCorrectionProducer::produce-> corrected jet: " << correctedJet.print () << std::endl; 

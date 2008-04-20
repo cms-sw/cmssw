@@ -53,7 +53,7 @@ void PixelTripletHLTGenerator::hitTriplets(
   double curv = PixelRecoUtilities::curvature(1/region.ptMin(), es);
 
   static bool useFixedPreFiltering =  theConfig.getParameter<bool>("useFixedPreFiltering");
-  static float extraHitRZtolerance = theConfig.getParameter<double>("extraHitRZtolerance");
+  static float extraHitRZtolerance = theConfig.getParameter<double>("extraHitRPhitolerance");
   static float extraHitRPhitolerance = theConfig.getParameter<double>("extraHitRPhitolerance");
   static bool  useMScat = theConfig.getParameter<bool>("useMultScattering");
   static bool  useBend  = theConfig.getParameter<bool>("useBending");

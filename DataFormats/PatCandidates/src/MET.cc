@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.5 2008/01/26 20:19:45 gpetrucc Exp $
+// $Id: MET.cc,v 1.4 2008/01/22 21:58:15 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -29,13 +29,13 @@ MET::~MET() {
 
 
 /// return the generated MET from neutrinos
-const reco::GenMET * MET::genMET() const {
+const reco::Particle * MET::genMET() const {
   return (genMET_.size() > 0 ? &genMET_.front() : 0 );
 }
 
 
 /// method to set the generated MET
-void MET::setGenMET(const reco::GenMET & gm) {
+void MET::setGenMET(const reco::Particle & gm) {
   genMET_.clear();
   genMET_.push_back(gm);
 }
