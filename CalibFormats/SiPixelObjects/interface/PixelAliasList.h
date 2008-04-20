@@ -148,6 +148,15 @@ namespace pos{
       pixelConfigAliases_.push_back(anAlias);
     }
 
+    PixelConfigAlias* versionAliases(std::string aliasName){
+      for(unsigned int i=0;i<pixelConfigAliases_.size();i++){
+	if (pixelConfigAliases_[i].name()==aliasName){
+	  return &(pixelConfigAliases_[i]);
+	}
+      }
+      return 0;
+    }
+
     void insertVersionAlias(PixelVersionAlias& anAlias){
       for(unsigned int i=0;i<pixelVersionAliases_.size();i++){
 	if (pixelVersionAliases_[i].alias()==anAlias.alias()&&
@@ -182,8 +191,8 @@ namespace pos{
     std::vector<std::string> getVersionAliases(std::string path){
       std::vector<std::string> tmp;
       for(unsigned int i=0;i<pixelVersionAliases_.size();i++){
-	std::cout << "path alias:"<<pixelVersionAliases_[i].path()
-		  << pixelVersionAliases_[i].alias() << std::endl;
+	//std::cout << "path alias:"<<pixelVersionAliases_[i].path()
+	//	  << pixelVersionAliases_[i].alias() << std::endl;
 	if (pixelVersionAliases_[i].path()==path){
 	  tmp.push_back(pixelVersionAliases_[i].alias());
 	}

@@ -70,6 +70,19 @@ namespace pos{
       return getAlias().getVersionAliases(path);
     }
 
+    static bool getVersionAliases(std::string configAlias,
+				  unsigned int &key,
+				  std::vector<std::pair<std::string,std::string> > &versionAliases){
+      PixelConfigAlias* alias=getAlias().versionAliases(configAlias);
+      if (alias==0) {
+	return false;
+      }
+      key=alias->key();
+      versionAliases=alias->versionAliases();
+      return true;
+    }
+
+
     static std::map<std::string, unsigned int> getAliases_map(){
       PixelAliasList& aliases=getAlias();
       std::map<std::string, unsigned int> tmp;

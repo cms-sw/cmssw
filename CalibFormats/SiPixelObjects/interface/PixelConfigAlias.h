@@ -35,6 +35,11 @@ namespace pos{
   
     void setKey(unsigned int key) {key_=key;}
 
+    std::vector<std::pair<std::string,std::string> > versionAliases() {
+      return versionAliases_;
+    }
+
+
   private:
 
     std::string name_;
