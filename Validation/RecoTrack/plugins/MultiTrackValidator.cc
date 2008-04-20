@@ -245,7 +245,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 	TrackingParticleRef tp(TPCollectionHeff, i);
-	if( (! tpSelector(*tp)) || (tp->charge()==0)) continue;
+	if( (! tpSelector(*tp))) continue;
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
 	h_etaSIM[w]->Fill(tp->momentum().eta());

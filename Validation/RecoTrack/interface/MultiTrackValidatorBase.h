@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/03/25 14:50:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/20 00:37:20 $
+ *  $Revision: 1.7 $
  *  \author cerati
  */
 
@@ -54,7 +54,7 @@ class MultiTrackValidatorBase {
 	       pset.getParameter<double>("lipTP"),
 	       pset.getParameter<int>("minHitTP"),
 	       pset.getParameter<bool>("signalOnlyTP"),
-	       //pset.getParameter<bool>("chargedOnlyTP"),
+	       pset.getParameter<bool>("chargedOnlyTP"),
 	       pset.getParameter<std::vector<int> >("pdgIdTP")),
     
     min(pset.getParameter<double>("min")),
