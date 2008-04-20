@@ -225,7 +225,7 @@
 </LINK>
 
 <QTEST name="EB_Pedestal_PN_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -241,7 +241,7 @@
 </LINK>
 
 <QTEST name="EB_Pedestal_PN_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -272,24 +272,8 @@
         <TestName activate="true">EB_Laser_L1_Quality</TestName>
 </LINK>
 
-<QTEST name="EB_Laser_L4_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
-        <PARAM name="error">1.00</PARAM>
-        <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">100.0</PARAM>
-        <PARAM name="maxMean">49152.0</PARAM>
-        <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
-        <PARAM name="minEntries">100</PARAM>
-</QTEST>
-
-<LINK name="*EcalBarrel/EBLaserTask/Laser4/EBLT amplitude EB* L4*">
-        <TestName activate="true">EB_Laser_L4_Quality</TestName>
-</LINK>
-
 <QTEST name="EB_Laser_L1_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -305,7 +289,7 @@
 </LINK>
 
 <QTEST name="EB_Laser_L1_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -352,8 +336,24 @@
         <TestName activate="true">EB_Laser_L1_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
-<QTEST name="EB_Laser_L4_PN_Pedestal_G01_Quality">
+<QTEST name="EB_Laser_L4_Quality">
         <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="maxMean">49152.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/EBLT amplitude EB* L4*">
+        <TestName activate="true">EB_Laser_L4_Quality</TestName>
+</LINK>
+
+<QTEST name="EB_Laser_L4_PN_Pedestal_G01_Quality">
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -369,7 +369,7 @@
 </LINK>
 
 <QTEST name="EB_Laser_L4_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -465,7 +465,7 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -481,7 +481,7 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
