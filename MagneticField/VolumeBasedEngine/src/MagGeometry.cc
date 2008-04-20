@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/29 14:21:57 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/04/10 20:25:31 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -56,14 +56,6 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   //FIXME: PeriodicBinFinderInPhi gets *center* of first bin
   theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi()+Geom::pi()/12., 12);
 
-  // FIXME: Get these dimensions from the builder. 
-  // For this we can wait the next generation of tables, when the picture 
-  // may be more complicated
-  if (v_85l){
-    theZ1 = 634.49;
-  } else {
-    theZ1 = 633.29;
-  }
 }
 
 MagGeometry::~MagGeometry(){
@@ -113,6 +105,7 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
     }
     
     if (v!=0) {
+      lastVolume = v;
       GlobalVector bresult = v->fieldInTesla(gpSym);
       if (atMinusZ) return bresult;
       else return GlobalVector(-bresult.x(), -bresult.y(), bresult.z());
@@ -129,11 +122,7 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
       v = lastVolume;
     } else {
       // FIXME: endcap layers already built -> optimized search!!!
-      if (inBarrel(gp)) {
-	v = findVolume1(gp);
-      } else {
-	v = findVolume(gp);
-      }
+      v = findVolume(gp);
     }
     
     // If search fails, retry with increased tolerance
@@ -143,15 +132,18 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
       // which will not be present anymore once surfaces are matched.
       if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
       // FIXME: endcap layers already built -> optimized search!!!
-       if (inBarrel(gp)) {
-	 v = findVolume1(gp, 0.03);
-       } else {
-	 v = findVolume(gp, 0.03);
-       }
+      v = findVolume(gp, 0.03);
+    }
+    
+    // Last fallback for cases to be fixed
+    // FIXME to be removed!!
+    if (v==0) {
+      v = findVolume1(gp, 0.03);
     }
     
     if (v!=0) {
       // cout << "inside: " << ((MagVolume6Faces*) v)->name << endl;
+      lastVolume = v;
       return v->fieldInTesla(gp);
     }  
   }
@@ -239,13 +231,23 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
 
 
 bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
-  // FIXME! hardcoded boundary between barrel and endcaps!
-  float Z = gp.z();
+  float Z = fabs(gp.z());
   float R = gp.perp();
-  return (fabs(Z)< theZ1 || (R>308.755 && fabs(Z)<661.01));
+
+  // FIXME: Get these dimensions from the builder. 
+  // For this we can wait the next generation of tables, when the picture 
+  // may be more complicated
+  if (v_85l){
+    return (Z<634.49 || (R>308.755 && Z<661.01));
+  } else {
+    return (Z<350. ||
+	    (R>172.4 && Z<633.29) || 
+	    (R>308.755 && Z<661.01));
+  }
 }
 
 
-
-
+bool MagGeometry::isZSymmetric() const {
+  return v_85l;
+}
 
