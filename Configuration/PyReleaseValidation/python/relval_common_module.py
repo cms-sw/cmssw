@@ -208,8 +208,8 @@ def event_output(process, outfile_name, step, eventcontent, filtername, conditio
                            ("PoolOutputModule",
                             outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
                             fileName = cms.untracked.string(outfile_name),
-                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step)),
-                            filterName = cms.untracked.string(globalTagName),
+                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step),
+                            filterName = cms.untracked.string(globalTagName)),
                             SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
                             ) 
     else:
@@ -217,8 +217,8 @@ def event_output(process, outfile_name, step, eventcontent, filtername, conditio
                            ("PoolOutputModule",
                             outputCommands=getattr(content,eventcontent+'EventContent').outputCommands,
                             fileName = cms.untracked.string(outfile_name),
-                            filterName = cms.untracked.string(globalTagName),
-                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step))
+                            dataset = cms.untracked.PSet(dataTier =cms.untracked.string(step),
+                            filterName = cms.untracked.string(globalTagName))
                             ) 
     # if filtername given, put it into output module definition
     if filtername != "":
@@ -297,7 +297,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.13 $"),
+              (version=cms.untracked.string("$Revision: 1.14 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
