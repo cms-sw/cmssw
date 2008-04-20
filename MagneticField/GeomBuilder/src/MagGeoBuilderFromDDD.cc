@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/09 17:19:10 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/04/16 16:30:55 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -206,9 +206,15 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
     // v 85l: Barrel is everything up to |Z| = 661.0, excluding 
     // volume #7, centered at 6477.5
-    // v 1103l: same numbers work fine. #16 instead of #7, same coords
+    // v 1103l: same numbers work fine. #16 instead of #7, same coords;
+    // see comment below for V6,7
     // FIXME: misalignment?
-    if (fabs(Z)<647. || (R>350. && fabs(Z)<662.)) { // Barrel
+    if ((fabs(Z)<647. || (R>350. && fabs(Z)<662.)) &&
+	!(fabs(Z)>480 && R<172) // in 1103l we place V_6 and V_7 in the 
+	                        // endcaps to preserve nice layer structure
+	                        // in the barrel. This does not hurt in v85l
+	                        // where there is a single V1 
+	) { // Barrel
       if (debug) cout << " (Barrel)" <<endl;
       bVolumes.push_back(v);
       // Build the interpolator of the "master" volume (the one which is
@@ -258,9 +264,6 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   vector<bLayer> layers; // the barrel layers
   precomputed_value_sort(bVolumes.begin(), bVolumes.end(), ExtractRN());
 
-  //FIXME08
-  if (version!="grid_1103l_071212_3_8t") {
-
   // Find the layers (in R)
   const float resolution = 1.; // cm
   float rmin = bVolumes.front()->RN()-resolution;
@@ -297,8 +300,6 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   if (debug) cout << "Barrel: Found " << rClust.size() << " clusters in R, "
 		  << layers.size() << " layers " << endl << endl;
-  
-}
 
 
   //----------------------------------------------------------------------
