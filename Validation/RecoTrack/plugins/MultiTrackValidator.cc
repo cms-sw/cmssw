@@ -16,6 +16,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
+
 #include "TMath.h"
 #include <TF1.h>
 
@@ -213,17 +214,28 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ; 
       //continue;
       //}
-      
+      reco::RecoToSimCollection recSimColl;
+      reco::SimToRecoCollection simRecColl;
       //associate tracks
-      LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
-      reco::RecoToSimCollection recSimColl=associator[ww]->associateRecoToSim(trackCollection,
-									      TPCollectionHfake,
-									      &event);
-      LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
-      reco::SimToRecoCollection simRecColl=associator[ww]->associateSimToReco(trackCollection,
-									      TPCollectionHeff, 
-									      &event);
-
+      if(UseAssociators){
+	LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
+	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
+							TPCollectionHfake,
+							&event);
+	LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
+	simRecColl=associator[ww]->associateSimToReco(trackCollection,
+							TPCollectionHeff, 
+							&event);
+      }
+      else{
+	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
+	event.getByLabel(associatormap,simtorecoCollectionH);
+	simRecColl= *(simtorecoCollectionH.product()); 
+  
+	Handle<reco::RecoToSimCollection > recotosimCollectionH;
+	event.getByLabel(associatormap,recotosimCollectionH);
+	recSimColl= *(recotosimCollectionH.product()); 
+      }
       //
       //fill simulation histograms
       //compute number of tracks per eta interval
@@ -233,7 +245,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 	TrackingParticleRef tp(TPCollectionHeff, i);
-	if (tp->charge()==0) continue;
+	if( (! tpSelector(*tp)) || (tp->charge()==0)) continue;
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
 	h_etaSIM[w]->Fill(tp->momentum().eta());
