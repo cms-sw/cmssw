@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2008/04/10 20:25:58 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/17 17:45:43 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -43,6 +43,8 @@ public:
   /// Find a volume
   MagVolume * findVolume(const GlobalPoint & gp, double tolerance=0.) const;
 
+  bool isZSymmetric() const;
+
   // FIXME: only for temporary tests, should be removed.
   const std::vector<MagVolume6Faces*> & barrelVolumes() const {return theBVolumes;}
   const std::vector<MagVolume6Faces*> & endcapVolumes() const {return theEVolumes;}
@@ -68,8 +70,6 @@ private:
 
   MagBinFinders::GeneralBinFinderInR<double>* theBarrelBinFinder;
   PeriodicBinFinderInPhi<float> * theEndcapBinFinder;
-
-  double theZ1;
 
   bool cacheLastVolume;
   bool timerOn;

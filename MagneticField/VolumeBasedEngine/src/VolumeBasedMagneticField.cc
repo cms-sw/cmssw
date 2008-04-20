@@ -42,3 +42,6 @@ bool VolumeBasedMagneticField::isDefined(const GlobalPoint& gp) const {
 }
 
 
+bool VolumeBasedMagneticField::isZSymmetric() const {
+  return field->isZSymmetric();
+}

@@ -21,6 +21,8 @@ class VolumeBasedMagneticField : public MagneticField {
 
   bool isDefined(const GlobalPoint& gp) const;
 
+  bool isZSymmetric() const;
+
  private:
   MagGeometry* field;
   float maxR;
