@@ -1687,7 +1687,7 @@ DQMStore::createQTest(const std::string &algoname, const std::string &qtname)
   QAMap::iterator i = qalgos_.find(algoname);
   if (i == qalgos_.end())
     throw cms::Exception("DQMStore")
-      << "Cannot create a qualiy test using unknown algorithm '"
+      << "Cannot create a quality test using unknown algorithm '"
       << algoname << '\'';
 
   QCriterion *qc = i->second(qtname);
