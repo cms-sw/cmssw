@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
-#     A. Parenti, DESY Hamburg    17-Apr-2008
+#     A. Parenti, DESY Hamburg    20-Apr-2008
 #     $Revision: 1.1 $
 #     $Date: 2008/04/10 16:10:11 $
 #
@@ -37,6 +37,7 @@ for ($i=0; $i<@JOBID; ++$i) {
   $exceptionCaught = 0;
   $timeout = 0;
   $cfgerr = 0;
+  $emptyDatErr = 0;
 
   $remark = "";
 
@@ -105,6 +106,14 @@ for ($i=0; $i<@JOBID; ++$i) {
       }
     }
     close INFILE;
+
+    $milleOut = sprintf("$mssDir/milleBinary%03d.dat",$i+1);
+    $mOutSize = `nsls -l $milleOut | awk '{print \$5}'`;
+
+    # check that milleBinary file is not empty
+    if ( !($mOutSize>0) ) {
+      $emptyDatErr = 1;
+    }
 
     # additional checks for merging job
     if (@JOBDIR[$i] eq "jobm") {
@@ -202,6 +211,11 @@ for ($i=0; $i<@JOBID; ++$i) {
 	print "@JOBDIR[$i] @JOBID[$i] Exception caught in cmsrun\n";
 	$remark = "Exception caught";
 	$okStatus = "FAIL";
+    }
+    if ($emptyDatErr == 1) {
+      print "$milleOut file is empty\n";
+      $remark = "milleBinary???.dat empty";
+      $okStatus = "FAIL"; 
     }
 
     if ($pedeAbend eq 1) {
