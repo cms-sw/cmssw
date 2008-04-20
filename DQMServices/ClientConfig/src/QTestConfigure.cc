@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2008/02/21 03:26:45 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/02/22 23:52:24 $
+ *  $Revision: 1.12 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -219,7 +219,7 @@ void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::ma
 
         double minRMS=atof(params["minRMS"].c_str());
         double maxRMS=atof(params["maxRMS"].c_str());
-        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setMeanRange(minRMS, maxRMS);
+        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setRMSRange(minRMS, maxRMS);
 
         double toleranceMean=atof(params["toleranceMean"].c_str());
         if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
@@ -251,7 +251,7 @@ void QTestConfigure::EnableProfContentsInRangeTest(std::string testName, std::ma
 
         double minRMS=atof(params["minRMS"].c_str());
         double maxRMS=atof(params["maxRMS"].c_str());
-        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setMeanRange(minRMS, maxRMS);
+        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setRMSRange(minRMS, maxRMS);
 
         double toleranceMean=atof(params["toleranceMean"].c_str());
         if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
@@ -283,7 +283,7 @@ void QTestConfigure::EnableProf2DContentsInRangeTest(std::string testName, std::
 
         double minRMS=atof(params["minRMS"].c_str());
         double maxRMS=atof(params["maxRMS"].c_str());
-        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setMeanRange(minRMS, maxRMS);
+        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setRMSRange(minRMS, maxRMS);
 
         double toleranceMean=atof(params["toleranceMean"].c_str());
         if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
