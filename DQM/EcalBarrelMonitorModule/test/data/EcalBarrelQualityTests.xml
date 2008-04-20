@@ -8,7 +8,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -24,7 +24,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -40,7 +40,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -56,7 +56,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -72,7 +72,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -88,7 +88,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -104,7 +104,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -120,7 +120,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -136,7 +136,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -152,7 +152,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -168,7 +168,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -184,7 +184,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -200,7 +200,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.2</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -216,7 +216,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -232,7 +232,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -248,7 +248,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -280,7 +280,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -296,7 +296,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -360,7 +360,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -376,7 +376,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -472,7 +472,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -488,7 +488,7 @@
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -536,7 +536,7 @@
         <PARAM name="maxMean">7.2</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.5</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -552,7 +552,7 @@
         <PARAM name="maxMean">6.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
