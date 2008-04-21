@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefBaseCandidate.h,v 1.16 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: CompositeRefBaseCandidate.h,v 1.17 2007/12/10 12:16:40 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
@@ -62,9 +62,9 @@ namespace reco {
     CandidateBaseRef daughterRef( size_type i ) const { return dau[ i ]; }
 
   private:
-    /// const iterator implentation
+    /// const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implentation
+    /// iterator implementation
     typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
