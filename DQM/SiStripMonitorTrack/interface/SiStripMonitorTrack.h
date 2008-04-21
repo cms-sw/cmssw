@@ -24,6 +24,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 /* #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" */
 /* #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoFwd.h" */
@@ -134,7 +135,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   std::map<TString, ModMEs> ModMEsMap;
   std::map<TString, MonitorElement*> MEMap;
 
-  edm::Handle< edm::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
+  edm::Handle< edmNew::DetSetVector<SiStripCluster> >  dsv_SiStripCluster;
 
   edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
   edm::Handle<reco::TrackCollection > trackCollection;

@@ -561,14 +561,14 @@ void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
 {
 
   //Loop on Dets
-  edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
-  for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
-    uint32_t detid=DSViter->id;
+  // edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
+  for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin(); DSViter!=dsv_SiStripCluster->end();DSViter++){
+    uint32_t detid=DSViter->id();
     if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()) continue;
     //Loop on Clusters
-    LogDebug("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->data.size();
-    edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin();
-    for(; ClusIter!=DSViter->data.end(); ClusIter++) {
+    LogDebug("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->size();
+    edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
+    for(; ClusIter!=DSViter->end(); ClusIter++) {
       SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(detid,*ClusIter,es);
 	LogDebug("SiStripMonitorTrack") << "ClusIter " << &*ClusIter << "\t " 
 	                                << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin();
@@ -757,7 +757,7 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,TString name,fl
 //     for (std::vector<float>::const_iterator it=amplitudesL.begin();it<amplitudesL.end();++it) {
 //       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
 //     }
-    for (std::vector<uint16_t>::const_iterator it=cluster->getStripAmplitudes().begin();it<cluster->getStripAmplitudes().end();++it) {
+    for (std::vector<uint8_t>::const_iterator it=cluster->getStripAmplitudes().begin();it<cluster->getStripAmplitudes().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
 //     for (std::vector<float>::const_iterator it=amplitudesR.begin();it<amplitudesR.end();++it) {

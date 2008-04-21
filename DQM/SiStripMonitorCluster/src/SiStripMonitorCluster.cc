@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.36 2008/03/04 14:46:50 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.37 2008/04/19 20:13:07 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -22,7 +22,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
+#include "DataFormats/Common/interface/DetSetNew.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -178,13 +179,13 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   // retrieve producer name of input StripClusterCollection
   std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
   // get collection of DetSetVector of clusters from Event
-  edm::Handle< edm::DetSetVector<SiStripCluster> > cluster_detsetvektor;
+  edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
   iEvent.getByLabel(clusterProducer, cluster_detsetvektor);
   // loop over MEs. Mechanical structure view. No need for condition here. If map is empty, nothing should happen.
   for (std::map<uint32_t, ModMEs>::const_iterator iterMEs = ClusterMEs.begin() ; iterMEs!=ClusterMEs.end() ; iterMEs++) {
     uint32_t detid = iterMEs->first;  ModMEs modSingle = iterMEs->second;
     // get from DetSetVector the DetSet of clusters belonging to one detid - first make sure there exists clusters with this id
-    edm::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
+    edmNew::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
     if(isearch==cluster_detsetvektor->end()){
       if(modSingle.NumberOfClusters != NULL){
         (modSingle.NumberOfClusters)->Fill(0.,1.); // no clusters for this detector module, so fill histogram with 0
@@ -192,10 +193,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       continue; // no clusters for this detid => jump to next step of loop
     }
     //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
-    edm::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
+    edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
 
     if(modSingle.NumberOfClusters != NULL){ // nr. of clusters per module
-      (modSingle.NumberOfClusters)->Fill(static_cast<float>(cluster_detset.data.size()),1.);
+      (modSingle.NumberOfClusters)->Fill(static_cast<float>(cluster_detset.size()),1.);
     }
 
 
@@ -209,7 +210,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     SiStripApvGain::Range detGainRange =  gainHandle->getRange(detid); 
     SiStripQuality::Range qualityRange = qualityHandle->getRange(detid);
 
-    for(edm::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.data.begin(); clusterIter!= cluster_detset.data.end(); clusterIter++){
+    for(edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin(); clusterIter!= cluster_detset.end(); clusterIter++){
       
       if(modSingle.ClusterPosition != NULL){ // position of cluster
 	(modSingle.ClusterPosition)->Fill(clusterIter->barycenter(),1.);
