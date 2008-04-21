@@ -121,8 +121,9 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
 	    else if (gainId ==3) gainHuman =1;
 	    else                 gainHuman =-1;
 	    edm::LogError("EcalPedOffset")
-              << " TPedValues :  cannot find best DAC value for channel: " << (crystal+1)
-					      << " gain: " << gainHuman;
+              << " TPedValues :  cannot find best DAC value for channel: "
+              << endcapCrystalNumbers[crystal]
+	      << " gain: " << gainHuman;
 	  }
 	  
         } // loop over crystals
@@ -251,7 +252,8 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
               ((slope1<-29 || slope1>-18) && slope1<0) || 
               ((slope2<-29 || slope2>-18) && slope2<0))
           {
-            edm::LogError("EcalPedOffset") << "TPedValues : TGraph for channel:" << xtl+1 << 
+            edm::LogError("EcalPedOffset") << "TPedValues : TGraph for channel:" << 
+              endcapCrystalNumbers[xtl] << 
               " gain:" << gainHuman << " is not linear;" << "  slope of line1:" << 
               fitFunction.GetParameter(0) << " slope of line2:" << 
               fitFunction.GetParameter(2) << " reduced chi-squared:" << 
@@ -262,7 +264,8 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName,
           //  << " and front+1 is:" << asseX.front()+1;
           if((asseX.back()-asseX.front()+1)!=asseX.size())
             edm::LogError("EcalPedOffset") << "TPedValues : Pedestal average not found " <<
-              "for all DAC values scanned in channel:" << xtl+1 << " gain:" << gainHuman;
+              "for all DAC values scanned in channel:" << endcapCrystalNumbers[xtl]
+              << " gain:" << gainHuman;
         }
       } // loop over the gains
   }     // (loop over the crystals)
