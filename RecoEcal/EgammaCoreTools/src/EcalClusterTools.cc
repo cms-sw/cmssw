@@ -329,10 +329,11 @@ std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::get
 
 
 
-std::pair<float, float> EcalClusterTools::etaPhiLat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW, float w0 )
+std::vector<float> EcalClusterTools::lat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW, float w0 )
 {
         std::vector<EcalClusterTools::EcalClusterEnergyDeposition> energyDistribution = getEnergyDepTopology( cluster, recHits, geometry, logW, w0 );
 
+        std::vector<float> lat;
         double r, redmoment=0;
         double phiRedmoment = 0 ;
         double etaRedmoment = 0 ;
@@ -342,7 +343,10 @@ std::pair<float, float> EcalClusterTools::etaPhiLat( const reco::BasicCluster &c
         if (clusterSize<3) {
                 etaLat_ = 0.0 ; 
                 lat_ = 0.0;
-                return std::pair<float, float>(0., 0.); 
+                lat.push_back(0.);
+                lat.push_back(0.);
+                lat.push_back(0.);
+                return lat; 
         }
 
         n1=0; n2=1;
@@ -380,7 +384,10 @@ std::pair<float, float> EcalClusterTools::etaPhiLat( const reco::BasicCluster &c
         phiLat_ = phiRedmoment/(phiRedmoment+2.19*2.19*(e1+e2));
         etaLat_ = etaRedmoment/(etaRedmoment+2.19*2.19*(e1+e2));
 
-        return std::pair<float, float>( phiLat_, etaLat_);
+        lat.push_back(etaLat_);
+        lat.push_back(phiLat_);
+        lat.push_back(lat_);
+        return lat;
 }
 
 

@@ -46,7 +46,9 @@ class EcalClusterTools {
                 static std::vector<float> energyBasketFractionEta( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
                 static std::vector<float> energyBasketFractionPhi( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
 
-                std::pair<float, float> etaPhiLat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW = true, float w0 = 4.7 );
+                // return a vector v with v[0] = etaLat, v[1] = phiLat, v[2] = lat
+                std::vector<float> lat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW = true, float w0 = 4.7 );
+                // return a vector v with v[0] = covEtaEta, v[1] = covEtaPhi, v[2] = covPhiPhi
                 std::vector<float> covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloSubdetectorTopology *topology, const CaloSubdetectorGeometry* geometry, float w0 = 4.7);
                 
                 static double zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
