@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/24 17:50:27 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/12 16:53:57 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -147,6 +147,33 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    using namespace l1extra;
    using namespace trigger;
 
+   ///
+   /// get hold of filter objects
+   fobs_.clear();
+   iEvent.getMany(selector_,fobs_);
+   const size_type nfob(fobs_.size());
+   LogTrace("") << "Number of filter  objects found: " << nfob;
+   ///
+   /// check whether collection tags are recorded; if so, these are L3
+   /// collections to be packed up, and the corresponding filter is a L3
+   /// filter also to be packed up.
+   for (size_type ifob=0; ifob!=nfob; ++ifob) {
+     const vector<InputTag>& collectionTags(fobs_[ifob]->getCollectionTags());
+     if (collectionTags.size()>0) {
+       const string& label    (fobs_[ifob].provenance()->moduleLabel());
+       const string& instance (fobs_[ifob].provenance()->productInstanceName());
+       const string& process  (fobs_[ifob].provenance()->processName());
+
+       filterTags_.push_back(InputTag(label,instance,process));
+       collectionTags_.insert(collectionTags_.end(),collectionTags.begin(),collectionTags.end());
+     }
+   }
+   sort (collectionTags_.begin(),collectionTags_.end(),cmpTagsLE);
+   collectionTags_.resize(distance(collectionTags_.begin(),unique(collectionTags_.begin(),collectionTags_.end(),cmpTagsEQ)));
+   sort (filterTags_.begin(),filterTags_.end(),cmpTagsLE);
+   filterTags_.resize(distance(filterTags_.begin(),unique(filterTags_.begin(),filterTags_.end(),cmpTagsEQ)));
+   ///
+
    /// create trigger objects, fill triggerobjectcollection and offset map
    toc_.clear();
    offset_.clear();
@@ -167,11 +194,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    const size_type nto(toc_.size());
    LogDebug("") << "Number of physics objects found: " << nto;
 
-   /// get hold of filter objects
-   fobs_.clear();
-   iEvent.getMany(selector_,fobs_);
-   const size_type nfob(fobs_.size());
-   LogTrace("") << "Number of filter  objects found: " << nfob;
+   ///
    size_type nfo(0);
    nfo = fillMask(fobs_,filterTags_);
 
