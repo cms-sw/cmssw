@@ -18,10 +18,11 @@ from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 # The condDB setup
 from CondCore.DBCommon.CondDBSetup_cfi import *
-#Services from the CondDB (DevDB)
-#include "FastSimulation/Configuration/data/GlobalTag_DevDB.cfi" 
-#Services from the CondDB (Int)
-from FastSimulation.Configuration.GlobalTag_IntDB_cfi import *
+
+#Services from the CondDB
+#from FastSimulation.Configuration.GlobalTag_IntDB_cfi import *
+from FastSimulation.Configuration.GlobalTag_cfi import *
+
 hcal_db_producer = cms.ESProducer("HcalDbProducer",
     dump = cms.untracked.vstring(''),
     file = cms.untracked.string('')
