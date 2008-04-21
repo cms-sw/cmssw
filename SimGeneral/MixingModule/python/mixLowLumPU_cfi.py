@@ -20,7 +20,9 @@ mix = cms.EDFilter("MixingModule",
         ),
         seed = cms.int32(1234567),
         type = cms.string('poisson'),
-        fileNames = cms.untracked.vstring('/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/28A8801A-9BAC-DC11-8185-000423D992A4.root', '/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/68BFD683-9DAC-DC11-BFEC-000423D6B5C4.root', '/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/92F813F6-99AC-DC11-B88A-000423D993C0.root')
+        fileNames = cms.untracked.vstring('/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/28A8801A-9BAC-DC11-8185-000423D992A4.root', 
+            '/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/68BFD683-9DAC-DC11-BFEC-000423D6B5C4.root', 
+            '/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/92F813F6-99AC-DC11-B88A-000423D993C0.root')
     )
 )
 
