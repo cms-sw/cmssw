@@ -1,3 +1,9 @@
+2008-04-21  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-11-01
+	* Implemented transfer to t0 with independent daemon (daemon to be written seperately).
+	* General cleanup of code
+
 2008-04-17  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-11-00
