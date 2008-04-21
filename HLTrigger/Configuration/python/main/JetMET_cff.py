@@ -1,0 +1,41 @@
+import FWCore.ParameterSet.Config as cms
+
+from HLTrigger.Configuration.common.CaloTowers_cff import *
+from HLTrigger.Configuration.common.RecoJetMET_cff import *
+from HLTrigger.JetMET.l1seeds_fromGT_cff import *
+from HLTrigger.JetMET.JetMET_hlt_cff import *
+recoJetMETPath = cms.Sequence(doCalo+doHLTJetReco+doHLTMETReco+doHLTHTReco)
+recoJetRegional = cms.Sequence(doRegionalCaloForJets+doRegionalHLTJetReco)
+HLT1jet = cms.Path(JetMET1jet+cms.SequencePlaceholder("hltEnd"))
+HLT2jet = cms.Path(JetMET2jet+cms.SequencePlaceholder("hltEnd"))
+HLT3jet = cms.Path(JetMET3jet+cms.SequencePlaceholder("hltEnd"))
+HLT4jet = cms.Path(JetMET4jet+cms.SequencePlaceholder("hltEnd"))
+HLT1MET = cms.Path(JetMET1MET+cms.SequencePlaceholder("hltEnd"))
+HLT2jetAco = cms.Path(JetMET2jetAco+cms.SequencePlaceholder("hltEnd"))
+HLT1jet1METAco = cms.Path(JetMET1jet1METAco+cms.SequencePlaceholder("hltEnd"))
+HLT1jet1MET = cms.Path(JetMET1jet1MET+cms.SequencePlaceholder("hltEnd"))
+HLT2jet1MET = cms.Path(JetMET2jet1MET+cms.SequencePlaceholder("hltEnd"))
+HLT3jet1MET = cms.Path(JetMET3jet1MET+cms.SequencePlaceholder("hltEnd"))
+HLT4jet1MET = cms.Path(JetMET4jet1MET+cms.SequencePlaceholder("hltEnd"))
+HLT1MET1HT = cms.Path(JetMET1MET1HT+cms.SequencePlaceholder("hltEnd"))
+CandHLT1SumET = cms.Path(JetMET1SumET+cms.SequencePlaceholder("hltEnd"))
+HLT1jetPE1 = cms.Path(JetMET1jetPE1+cms.SequencePlaceholder("hltEnd"))
+HLT1jetPE3 = cms.Path(JetMET1jetPE3+cms.SequencePlaceholder("hltEnd"))
+HLT1jetPE5 = cms.Path(JetMET1jetPE5+cms.SequencePlaceholder("hltEnd"))
+HLT1jetPE7 = cms.Path(JetMET1jetPE7+cms.SequencePlaceholder("hltEnd"))
+HLT1METPre1 = cms.Path(JetMET1METPre1+cms.SequencePlaceholder("hltEnd"))
+HLT1METPre2 = cms.Path(JetMET1METPre2+cms.SequencePlaceholder("hltEnd"))
+HLT1METPre3 = cms.Path(JetMET1METPre3+cms.SequencePlaceholder("hltEnd"))
+HLT2jetAve30 = cms.Path(JetMETDiJetAve30+cms.SequencePlaceholder("hltEnd"))
+HLT2jetAve60 = cms.Path(JetMETDiJetAve60+cms.SequencePlaceholder("hltEnd"))
+HLT2jetAve110 = cms.Path(JetMETDiJetAve110+cms.SequencePlaceholder("hltEnd"))
+HLT2jetAve150 = cms.Path(JetMETDiJetAve150+cms.SequencePlaceholder("hltEnd"))
+HLT2jetAve200 = cms.Path(JetMETDiJetAve200+cms.SequencePlaceholder("hltEnd"))
+HLT2jetvbfMET = cms.Path(JetMET2jetvbfMET+cms.SequencePlaceholder("hltEnd"))
+HLTS2jet1METNV = cms.Path(JetMETNV+cms.SequencePlaceholder("hltEnd"))
+HLTS2jet1METAco = cms.Path(JetMETPhi2METaco+cms.SequencePlaceholder("hltEnd"))
+HLTSjet1MET1Aco = cms.Path(JetMETPhiJet1METaco+cms.SequencePlaceholder("hltEnd"))
+HLTSjet2MET1Aco = cms.Path(JetMETPhiJet2METaco+cms.SequencePlaceholder("hltEnd"))
+HLTS2jetMET1Aco = cms.Path(JetMETPhiJet1Jet2aco+cms.SequencePlaceholder("hltEnd"))
+HLTJetMETRapidityGap = cms.Path(JetMETRapGap+cms.SequencePlaceholder("hltEnd"))
+

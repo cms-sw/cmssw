@@ -1,0 +1,23 @@
+import FWCore.ParameterSet.Config as cms
+
+HLTElectronBL1Seed.L1MuonCollectionTag = 'l1ParamMuons'
+l1seedEJet.L1MuonCollectionTag = 'l1ParamMuons'
+hltLevel1GTSeedElectronTau.L1MuonCollectionTag = 'l1ParamMuons'
+MuBLevel1Seed.L1MuonCollectionTag = 'l1ParamMuons'
+MuJetsLevel1Seed.L1MuonCollectionTag = 'l1ParamMuons'
+MuNoIsoJetsLevel1Seed.L1MuonCollectionTag = 'l1ParamMuons'
+MuNoL2IsoJetsLevel1Seed.L1MuonCollectionTag = 'l1ParamMuons'
+hltLevel1GTSeedMuonTau.L1MuonCollectionTag = 'l1ParamMuons'
+hltEMuonLevel1Seed.L1MuonCollectionTag = 'l1ParamMuons'
+hltemuNonIsoLevel1Seed.L1MuonCollectionTag = 'l1ParamMuons'
+HLTElectronBL1Seed.L1GtObjectMapTag = 'gtDigis'
+l1seedEJet.L1GtObjectMapTag = 'gtDigis'
+hltLevel1GTSeedElectronTau.L1GtObjectMapTag = 'gtDigis'
+MuBLevel1Seed.L1GtObjectMapTag = 'gtDigis'
+MuJetsLevel1Seed.L1GtObjectMapTag = 'gtDigis'
+MuNoIsoJetsLevel1Seed.L1GtObjectMapTag = 'gtDigis'
+MuNoL2IsoJetsLevel1Seed.L1GtObjectMapTag = 'gtDigis'
+hltLevel1GTSeedMuonTau.L1GtObjectMapTag = 'gtDigis'
+hltEMuonLevel1Seed.L1GtObjectMapTag = 'gtDigis'
+hltemuNonIsoLevel1Seed.L1GtObjectMapTag = 'gtDigis'
+
