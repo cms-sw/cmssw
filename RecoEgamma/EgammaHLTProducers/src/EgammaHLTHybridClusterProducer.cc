@@ -30,8 +30,8 @@
 // Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"

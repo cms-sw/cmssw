@@ -12,7 +12,7 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilterRegional
  *
- * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.5 2007/12/07 14:41:33 ghezzi Exp $
+ * $Id: HLTEgammaL1MatchFilterRegional.cc,v 1.7 2007/12/09 13:31:41 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -22,8 +22,8 @@
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
