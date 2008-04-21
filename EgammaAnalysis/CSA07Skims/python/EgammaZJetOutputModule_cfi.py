@@ -8,7 +8,8 @@ AODSIMZJetEventContent = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('AODSIM')
     ),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('electronFilterPath', 'muonFilterPath')
+        SelectEvents = cms.vstring('electronFilterPath', 
+            'muonFilterPath')
     ),
     fileName = cms.untracked.string('ZJetFilteredAODSIM.root')
 )
@@ -20,7 +21,8 @@ RECOSIMZJetEventContent = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('RECOSIM')
     ),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('electronFilterZPath', 'muonFilterZPath')
+        SelectEvents = cms.vstring('electronFilterZPath', 
+            'muonFilterZPath')
     ),
     fileName = cms.untracked.string('ZJetFilteredRECOSIM.root')
 )
