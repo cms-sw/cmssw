@@ -5,11 +5,20 @@
 using namespace reco;
 
 Photon::Photon( const LorentzVector & p4, Point unconvPos,
-		const SuperClusterRef scl,   const ClusterShapeRef shp, 
-		double HoE, bool hasPixelSeed, const Point & vtx) : 
+		const SuperClusterRef scl,   
+		float HoE, 
+		float r9,
+		float r19,
+	        float e5x5,
+		bool hasPixelSeed, 
+		const Point & vtx) : 
     RecoCandidate( 0, p4, vtx, 22 ), unconvPosition_( unconvPos ),
-    superCluster_(scl), seedClusterShape_( shp ),
-    hadOverEm_(HoE), pixelSeed_( hasPixelSeed ) {}
+    superCluster_(scl), 
+    hadOverEm_(HoE), 
+    r9_(r9),
+    r19_(r19),
+    e5x5_(e5x5),
+    pixelSeed_( hasPixelSeed ) {}
 
 Photon::~Photon() { }
 
@@ -21,9 +30,6 @@ reco::SuperClusterRef Photon::superCluster() const {
   return superCluster_;
 }
 
-reco::ClusterShapeRef Photon::seedClusterShape() const {
-  return seedClusterShape_;
-}
 
 
 std::vector<reco::ConversionRef>  Photon::conversions() const { 
@@ -65,12 +71,3 @@ math::XYZPoint Photon::caloPosition() const {
     return superCluster()->position();
   }
 }
-
-bool Photon::isPhoton() const {
-  return true;
-}
-
-bool Photon::isConvertedPhoton() const {
-  return isConverted();
-}
-
