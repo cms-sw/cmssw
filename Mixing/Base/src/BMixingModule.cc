@@ -119,21 +119,24 @@ namespace edm {
     addSignals(e);
 
     // Read the PileUp 
-    std::vector<EventPrincipalVector> pileup[maxNbSources_];
-    bool doit[maxNbSources_];
-    for (unsigned int is=0;is< maxNbSources_;++is) doit[is]=false;
+    //    std::vector<EventPrincipalVector> pileup[maxNbSources_];
+    //    bool doit[maxNbSources_];
+    for (unsigned int is=0;is< maxNbSources_;++is) {
+      doit_[is]=false;
+      pileup_[is].clear();
+    }
 
     if ( input_)  {  
       if (playback_) {
 	getEventStartInfo(e,0);
-	input_->readPileUp(pileup[0],eventIDs_, fileSeqNrs_, nrEvents_);
+	input_->readPileUp(pileup_[0],eventIDs_, fileSeqNrs_, nrEvents_);
       } else {
-	input_->readPileUp(pileup[0],eventIDs_, fileSeqNrs_, nrEvents_); 
+	input_->readPileUp(pileup_[0],eventIDs_, fileSeqNrs_, nrEvents_); 
         setEventStartInfo(0);
       }
       if (input_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
-	doit[0]=true;
+	doit_[0]=true;
 // 	// start testprints
 //         std::cout<<"\n\n Got "<<pileup[0].size()<<" +++++++ EventPrincipalVectors "<<std::endl;
 //         for (unsigned int i=0;i<pileup[0].size();++i) {
@@ -150,79 +153,68 @@ namespace edm {
     if (cosmics_) {
       if (playback_) {
 	getEventStartInfo(e,1);
-	cosmics_->readPileUp(pileup[1],eventIDs_, fileSeqNrs_, nrEvents_); 
+	cosmics_->readPileUp(pileup_[1],eventIDs_, fileSeqNrs_, nrEvents_); 
       } else {
-	cosmics_->readPileUp(pileup[1],eventIDs_, fileSeqNrs_, nrEvents_); 
+	cosmics_->readPileUp(pileup_[1],eventIDs_, fileSeqNrs_, nrEvents_); 
 	setEventStartInfo(1);
       }
       if (cosmics_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
-	doit[1]=true;
+	doit_[1]=true;
       } 
     }
 
     if (beamHalo_p_) {
       if (playback_) {
 	getEventStartInfo(e,2);
-	beamHalo_p_->readPileUp(pileup[2],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_p_->readPileUp(pileup_[2],eventIDs_, fileSeqNrs_, nrEvents_);
       } else {
-	beamHalo_p_->readPileUp(pileup[2],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_p_->readPileUp(pileup_[2],eventIDs_, fileSeqNrs_, nrEvents_);
 	setEventStartInfo(2);
       }
       if (beamHalo_p_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
-	doit[2]=true;
+	doit_[2]=true;
       } 
     }
 
     if (beamHalo_m_) {
       if (playback_) {
 	getEventStartInfo(e,3);
-	beamHalo_m_->readPileUp(pileup[3],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_m_->readPileUp(pileup_[3],eventIDs_, fileSeqNrs_, nrEvents_);
       } else {
-	beamHalo_m_->readPileUp(pileup[3],eventIDs_, fileSeqNrs_, nrEvents_);
+	beamHalo_m_->readPileUp(pileup_[3],eventIDs_, fileSeqNrs_, nrEvents_);
 	setEventStartInfo(3);
       }
       if (beamHalo_m_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
-	doit[3]=true;
+	doit_[3]=true;
       }
     }
 
     if (fwdDet_) {
       if (playback_) {
 	getEventStartInfo(e,4);
-	fwdDet_->readPileUp(pileup[4],eventIDs_, fileSeqNrs_, nrEvents_);
+	fwdDet_->readPileUp(pileup_[4],eventIDs_, fileSeqNrs_, nrEvents_);
       } else {
-	fwdDet_->readPileUp(pileup[4],eventIDs_, fileSeqNrs_, nrEvents_);
+	fwdDet_->readPileUp(pileup_[4],eventIDs_, fileSeqNrs_, nrEvents_);
 	setEventStartInfo(4);
       }
 
       if (fwdDet_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding fwd detector source  to signal event "<<e.id();
-	doit[4]=true;
+	doit_[4]=true;
       }  
     }
 
-    // and merge it
-    // we have to loop over bunchcrossings first since added objects are all stored in one vector, 
-    // ordered by bunchcrossing
-    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
-      setBcrOffset();
-      for (unsigned int isource=0;isource<maxNbSources_;++isource) {
-        setSourceOffset(isource);
-	if (doit[isource])   {
-	  merge(bunchCrossing, (pileup[isource])[bunchCrossing-minBunch_]);
-	}	
-      }
-    }
+    doPileUp(e);
 
-    // Put output into event
+    // Put output into event (here only playback info)
     put(e);
   }
 
  
-  void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec) {
+  void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker) {
     //
     // main loop: loop over events and merge 
     //
@@ -232,7 +224,7 @@ namespace edm {
     for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
       Event e(**it, md_);
       LogDebug("MixingModule") <<" merging Event:  id " << e.id();
-      addPileups(bcr, &e, ++eventId_);
+      addPileups(bcr, &e, ++eventId_,worker);
     }// end main loop
   }
 } //edm
