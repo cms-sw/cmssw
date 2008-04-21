@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.18 2008/04/03 03:39:06 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.20 2008/04/21 14:18:13 wsun Exp $
 //
 //
 
@@ -26,8 +26,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
