@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/10 20:25:31 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/04/20 23:24:12 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -76,76 +76,34 @@ MagGeometry::~MagGeometry(){
 
 // Return field vector at the specified global point
 GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
+  MagVolume * v = 0;
 
   // Map version 85l is Z-symmetric; -> implement Z reflection
-  if (v_85l) { 
-    GlobalPoint gpSym = gp;
-    bool atMinusZ = true;
-    if (gpSym.z()>0.) {
-      atMinusZ = false;
-      gpSym=GlobalPoint(gp.x(), gp.y(), -gp.z()); 
-    }
-    
-    MagVolume * v = 0;
-
+  if (v_85l && gp.z()>0) { 
+    GlobalPoint gpSym(gp.x(), gp.y(), -gp.z());
     // Check volume cache
-    if (cacheLastVolume && lastVolume!=0 && lastVolume->inside(gpSym)){
+    if (lastVolume!=0 && lastVolume->inside(gpSym)){
       v = lastVolume;
     } else {
       v = findVolume(gpSym);
-    }
-    
-
-    if (v==0) {
-      // If search fails, retry with a 300 micron tolerance.
-      // This is a hack for thin gaps on air-iron boundaries,
-      // which will not be present anymore once surfaces are matched.
-      if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
-      v = findVolume(gpSym, 0.03);
-    }
-    
-    if (v!=0) {
       lastVolume = v;
+    }
+
+    if (v!=0) {
       GlobalVector bresult = v->fieldInTesla(gpSym);
-      if (atMinusZ) return bresult;
-      else return GlobalVector(-bresult.x(), -bresult.y(), bresult.z());
+      return GlobalVector(-bresult.x(), -bresult.y(), bresult.z());
     }
     
-
-    // Map versions 1103l is not Z symmetric; dumb volume search for the time being.
-  } else {
-    
-    MagVolume * v = 0;
-
-    // Check volume cache
-    if (cacheLastVolume && lastVolume!=0 && lastVolume->inside(gp)){
+  } else { // No reflection
+    if (lastVolume!=0 && lastVolume->inside(gp)){
       v = lastVolume;
     } else {
-      // FIXME: endcap layers already built -> optimized search!!!
       v = findVolume(gp);
+      if (cacheLastVolume) lastVolume = v;
     }
-    
-    // If search fails, retry with increased tolerance
-    if (v==0) {
-      // If search fails, retry with a 300 micron tolerance.
-      // This is a hack for thin gaps on air-iron boundaries,
-      // which will not be present anymore once surfaces are matched.
-      if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
-      // FIXME: endcap layers already built -> optimized search!!!
-      v = findVolume(gp, 0.03);
-    }
-    
-    // Last fallback for cases to be fixed
-    // FIXME to be removed!!
-    if (v==0) {
-      v = findVolume1(gp, 0.03);
-    }
-    
     if (v!=0) {
-      // cout << "inside: " << ((MagVolume6Faces*) v)->name << endl;
-      lastVolume = v;
       return v->fieldInTesla(gp);
-    }  
+    }
   }
   
   // Fall-back case: no volume found
@@ -223,6 +181,22 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
     if (verbose::debugOut) cout << "***In guessed esector "
 		    << (result==0? " failed " : " OK ") <<endl;
   }
+
+
+  if (result==0 && tolerance < 0.0001) {
+    // If search fails, retry with a 300 micron tolerance.
+    // This is a hack for thin gaps on air-iron boundaries,
+    // which will not be present anymore once surfaces are matched.
+    if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
+    result = findVolume(gp, 0.03);
+  }
+
+  // Last fallback for cases to be fixed in V1103l
+  // FIXME to be removed!!
+  if (result==0 && !v_85l) {
+    result = findVolume1(gp, 0.03);
+  }
+
 
   return result;
 }
