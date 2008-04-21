@@ -33,6 +33,7 @@ namespace {
     reco::CandidateRef r1;
     reco::CandidatePtr ptr1;
     reco::CandidateBaseRef r2;
+    reco::CompositeCandidateRefVector r3;
     std::vector<reco::CandidateBaseRef> rv2;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
     edm::reftobase::RefHolder<reco::CandidateRef> rh1;
@@ -42,6 +43,7 @@ namespace {
     edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector> rhcr2;
     edm::Wrapper<reco::CandidateRefVector> wrv1;
     edm::Wrapper<reco::CandidateBaseRefVector> wrv2;
+    edm::Wrapper<reco::CompositeCandidateRefVector> wrv3;
     reco::CandidateRefProd rp1;
     reco::CandidateBaseRefProd rp2;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
@@ -86,6 +88,5 @@ namespace {
     edm::reftobase::RefHolder<reco::NamedCompositeCandidateRef> hcc10;
     edm::reftobase::VectorHolder<reco::Candidate, reco::NamedCompositeCandidateRefVector> hcc11;
     edm::reftobase::RefVectorHolder<reco::NamedCompositeCandidateRefVector> hcc12;
-    
   }
 }
