@@ -1,5 +1,6 @@
 # The following comments couldn't be translated into the new config version:
 
+#FrontierDev/CMS_COND_CSC"
 #	{ string record = "CSCChamberMapRcd"
 #          string tag = "CSCChamberMap"},
 #	{ string record = "CSCCrateMapRcd"
@@ -12,20 +13,25 @@ cscConditions.connect = 'frontier://FrontierDev/CMS_COND_CSC'
 cscConditions.toGet = cms.VPSet(cms.PSet(
     record = cms.string('CSCDBGainsRcd'),
     tag = cms.string('CSCDBGains_mc')
-), cms.PSet(
-    record = cms.string('CSCDBNoiseMatrixRcd'),
-    tag = cms.string('CSCDBNoiseMatrix_mc')
-), cms.PSet(
-    record = cms.string('CSCDBCrosstalkRcd'),
-    tag = cms.string('CSCDBCrosstalk_mc')
-), cms.PSet(
-    record = cms.string('CSCDBPedestalsRcd'),
-    tag = cms.string('CSCDBPedestals_mc')
-), cms.PSet(
-    record = cms.string('CSCChamberIndexRcd'),
-    tag = cms.string('CSCChamberIndex')
-), cms.PSet(
-    record = cms.string('CSCDDUMapRcd'),
-    tag = cms.string('CSCDDUMap')
-))
+), 
+    cms.PSet(
+        record = cms.string('CSCDBNoiseMatrixRcd'),
+        tag = cms.string('CSCDBNoiseMatrix_mc')
+    ), 
+    cms.PSet(
+        record = cms.string('CSCDBCrosstalkRcd'),
+        tag = cms.string('CSCDBCrosstalk_mc')
+    ), 
+    cms.PSet(
+        record = cms.string('CSCDBPedestalsRcd'),
+        tag = cms.string('CSCDBPedestals_mc')
+    ), 
+    cms.PSet(
+        record = cms.string('CSCChamberIndexRcd'),
+        tag = cms.string('CSCChamberIndex')
+    ), 
+    cms.PSet(
+        record = cms.string('CSCDDUMapRcd'),
+        tag = cms.string('CSCDDUMap')
+    ))
 

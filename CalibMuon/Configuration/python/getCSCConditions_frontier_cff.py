@@ -8,17 +8,21 @@ cscConditions = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCGainsRcd'),
         tag = cms.string('CSCGains_ideal')
-    ), cms.PSet(
-        record = cms.string('CSCNoiseMatrixRcd'),
-        tag = cms.string('CSCNoiseMatrix_ideal')
-    ), cms.PSet(
-        record = cms.string('CSCcrosstalkRcd'),
-        tag = cms.string('CSCCrosstalk_ideal')
-    ), cms.PSet(
-        record = cms.string('CSCPedestalsRcd'),
-        tag = cms.string('CSCPedestals_ideal')
-    )),
-    connect = cms.string('frontier://FrontierDev/CMS_COND_CSC'),
+    ), 
+        cms.PSet(
+            record = cms.string('CSCNoiseMatrixRcd'),
+            tag = cms.string('CSCNoiseMatrix_ideal')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCcrosstalkRcd'),
+            tag = cms.string('CSCCrosstalk_ideal')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCPedestalsRcd'),
+            tag = cms.string('CSCPedestals_ideal')
+        )),
+    connect = cms.string('frontier://FrontierDev/CMS_COND_CSC'), ##FrontierDev/CMS_COND_CSC"
+
     siteLocalConfig = cms.untracked.bool(True)
 )
 

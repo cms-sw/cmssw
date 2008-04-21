@@ -4,7 +4,13 @@ import FWCore.ParameterSet.Config as cms
 hcal_db_producer = cms.ESProducer("HcalDbProducer")
 
 hcal_es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-    toGet = cms.untracked.vstring('Pedestals', 'PedestalWidths', 'Gains', 'GainWidths', 'QIEShape', 'QIEData', 'channelQuality')
+    toGet = cms.untracked.vstring('Pedestals', 
+        'PedestalWidths', 
+        'Gains', 
+        'GainWidths', 
+        'QIEShape', 
+        'QIEData', 
+        'channelQuality')
 )
 
 hcal_es_ascii = cms.ESSource("HcalTextCalibrations",

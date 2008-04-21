@@ -10,6 +10,9 @@ OutALCARECOEcalCalElectron = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOEcalCalElectron')
     ),
-    outputCommands = cms.untracked.vstring('drop  *', 'keep  *_electronFilter_*_*', 'keep  *_alCaIsolatedElectrons_*_*', 'keep edmTriggerResults_TriggerResults__HLT')
+    outputCommands = cms.untracked.vstring('drop  *', 
+        'keep  *_electronFilter_*_*', 
+        'keep  *_alCaIsolatedElectrons_*_*', 
+        'keep edmTriggerResults_TriggerResults__HLT')
 )
 

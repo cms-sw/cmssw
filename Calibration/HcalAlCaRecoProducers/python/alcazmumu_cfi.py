@@ -27,7 +27,8 @@ ALCARECOHcalCalZMuMu = cms.EDFilter("AlignmentMuonSelectorModule",
     # a) maxMassPair != minMassPair: the two highest pt muons with mass pair inside the given mass window
     # b) maxMassPair == minMassPair: the muon pair with mass pair closest to given mass value
     applyMassPairFilter = cms.bool(False),
-    src = cms.InputTag("muons"),
+    src = cms.InputTag("muons"), ## globalMuons
+
     # Global Muons
     nHitMinGB = cms.double(0.0),
     filter = cms.bool(True),

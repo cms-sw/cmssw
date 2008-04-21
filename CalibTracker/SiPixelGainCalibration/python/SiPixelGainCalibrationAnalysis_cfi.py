@@ -11,8 +11,6 @@
 # possiblity to save ALL gain curve histograms. Makes program slow and produces HUGE output files. 
 # !!!Use with care!!!!
 
-# parameter set from CondTools/SiPixel/ module SiPixelGalibrationService 
-
 # Database Record name...
 
 import FWCore.ParameterSet.Config as cms
@@ -26,6 +24,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 siPixelGainCalibrationAnalysis = cms.EDFilter("SiPixelGainCalibrationAnalysis",
+    # parameter set from CondTools/SiPixel/ module SiPixelGalibrationService 
     SiPixelGainCalibrationServiceParameters,
     saveFile = cms.untracked.bool(True),
     maxChi2InHist = cms.untracked.double(50.0),

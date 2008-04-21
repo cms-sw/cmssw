@@ -7,6 +7,7 @@ OutALCARECOHcalCalGammaJet = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalGammaJet')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep *_GammaJetProd_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_GammaJetProd_*_*')
 )
 

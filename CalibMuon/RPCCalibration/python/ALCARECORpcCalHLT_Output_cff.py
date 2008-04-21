@@ -4,6 +4,12 @@ OutALCARECORpcCalHLT = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECORpcCalHLT')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 'keep L1MuGMTCands_*_*_*', 'keep L1MuGMTReadoutCollection_*_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
+        'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
+        'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 
+        'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
+        'keep L1MuGMTCands_*_*_*', 
+        'keep L1MuGMTReadoutCollection_*_*_*')
 )
 

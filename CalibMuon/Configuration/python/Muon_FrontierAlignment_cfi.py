@@ -16,16 +16,19 @@ muonAlignment = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTAlignmentRcd'),
         tag = cms.string('DTIdealGeometry200_mc')
-    ), cms.PSet(
-        record = cms.string('DTAlignmentErrorRcd'),
-        tag = cms.string('DTIdealGeometryErrors200_mc')
-    ), cms.PSet(
-        record = cms.string('CSCAlignmentRcd'),
-        tag = cms.string('CSCIdealGeometry200_mc')
-    ), cms.PSet(
-        record = cms.string('CSCAlignmentErrorRcd'),
-        tag = cms.string('CSCIdealGeometryErrors200_mc')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('DTAlignmentErrorRcd'),
+            tag = cms.string('DTIdealGeometryErrors200_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCAlignmentRcd'),
+            tag = cms.string('CSCIdealGeometry200_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCAlignmentErrorRcd'),
+            tag = cms.string('CSCIdealGeometryErrors200_mc')
+        )),
     connect = cms.string('frontier://FrontierDev/CMS_COND_ALIGNMENT')
 )
 

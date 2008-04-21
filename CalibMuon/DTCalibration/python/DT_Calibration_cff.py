@@ -8,11 +8,13 @@ maps_frontier = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
         tag = cms.string('t0Fake_18X_Sept15')
-    ), cms.PSet(
-        record = cms.string('DTTtrigRcd'),
-        tag = cms.string('ttrig_18X_July6')
-    )),
-    connect = cms.string('frontier://FrontierDev/CMS_COND_DT'),
+    ), 
+        cms.PSet(
+            record = cms.string('DTTtrigRcd'),
+            tag = cms.string('ttrig_18X_July6')
+        )),
+    connect = cms.string('frontier://FrontierDev/CMS_COND_DT'), ##FrontierDev/CMS_COND_DT"
+
     authenticationMethod = cms.untracked.uint32(0)
 )
 

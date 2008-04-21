@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # output module 
 #  module alcastreamEcalPhiSymOutput = PoolOutputModule
 alcastreamEcalPhiSymOutput = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *', 'keep EcalRecHitsSorted__*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep EcalRecHitsSorted__*_*')
 )
 

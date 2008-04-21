@@ -15,26 +15,34 @@ es_pool = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('HcalPedestalsRcd'),
-        tag = cms.string('hcal_pedestals_fC_v3_mc')
-    ), cms.PSet(
-        record = cms.string('HcalPedestalWidthsRcd'),
-        tag = cms.string('hcal_widths_fC_v3_mc')
-    ), cms.PSet(
-        record = cms.string('HcalGainsRcd'),
-        tag = cms.string('hcal_gains_v2_physics_50_mc')
-    ), cms.PSet(
-        record = cms.string('HcalQIEDataRcd'),
-        tag = cms.string('qie_normalmode_v5_mc')
-    ), cms.PSet(
-        record = cms.string('HcalElectronicsMapRcd'),
-        tag = cms.string('official_emap_v5_080208_mc')
-    )),
-    connect = cms.string('frontier://FrontierDev/CMS_COND_HCAL'),
+        tag = cms.string('hcal_pedestals_fC_v4_mc')
+    ), 
+        cms.PSet(
+            record = cms.string('HcalPedestalWidthsRcd'),
+            tag = cms.string('hcal_widths_fC_v4_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalGainsRcd'),
+            tag = cms.string('hcal_gains_v2_physics_50_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalQIEDataRcd'),
+            tag = cms.string('qie_normalmode_v5_mc')
+        ), 
+        cms.PSet(
+            record = cms.string('HcalElectronicsMapRcd'),
+            tag = cms.string('official_emap_v5_080208_mc')
+        )),
+    connect = cms.string('frontier://FrontierDev/CMS_COND_HCAL'), ##FrontierDev/CMS_COND_HCAL"
+
     authenticationMethod = cms.untracked.uint32(0)
 )
 
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-    toGet = cms.untracked.vstring('GainWidths', 'ChannelQuality', 'ZSThresholds', 'RespCorrs')
+    toGet = cms.untracked.vstring('GainWidths', 
+        'ChannelQuality', 
+        'ZSThresholds', 
+        'RespCorrs')
 )
 
 

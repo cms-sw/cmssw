@@ -8,6 +8,9 @@ OutALCARECOHcalCalMinBias = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalMinBias')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep HBHERecHitsSorted_MinProd_*_*', 'keep HORecHitsSorted_MinProd_*_*', 'keep HFRecHitsSorted_MinProd_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep HBHERecHitsSorted_MinProd_*_*', 
+        'keep HORecHitsSorted_MinProd_*_*', 
+        'keep HFRecHitsSorted_MinProd_*_*')
 )
 

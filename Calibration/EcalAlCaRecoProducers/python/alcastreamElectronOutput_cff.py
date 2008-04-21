@@ -8,6 +8,9 @@ alcastreamElectronOutput = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathAlcastreamElectron')
     ),
-    outputCommands = cms.untracked.vstring('drop  *', 'keep  TrackCandidates_pixelMatchElectrons_*_*', 'keep  *_electronFilter_*_*', 'keep  *_alCaIsolatedElectrons_*_*')
+    outputCommands = cms.untracked.vstring('drop  *', 
+        'keep  TrackCandidates_pixelMatchElectrons_*_*', 
+        'keep  *_electronFilter_*_*', 
+        'keep  *_alCaIsolatedElectrons_*_*')
 )
 

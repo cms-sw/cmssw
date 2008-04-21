@@ -3,10 +3,10 @@ import FWCore.ParameterSet.Config as cms
 # output block for alcastream HCAL Isotrk
 # output module 
 #  module alcastreamHcalIsotrkOutput = PoolOutputModule
-OutALCARECOHcalCalIsoTrk = cms.PSet(
+OutALCARECOHcalCalIsoTrkNoHLT = cms.PSet(
     # use this in case of filter available
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrk')
+        SelectEvents = cms.vstring('pathALCARECOHcalCalIsoTrkNoHLT')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_IsoProd_*_*')

@@ -1,3 +1,6 @@
+# The following comments couldn't be translated into the new config version:
+
+#FrontierProd/CMS_COND_20X_DT"
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -9,8 +12,9 @@ maps_frontier.connect = 'frontier://FrontierProd/CMS_COND_20X_DT'
 maps_frontier.toGet = cms.VPSet(cms.PSet(
     record = cms.string('DTT0Rcd'),
     tag = cms.string('t0Fake_20X_Sept15_mc')
-), cms.PSet(
-    record = cms.string('DTTtrigRcd'),
-    tag = cms.string('ttrigFake_20X_July17_mc')
-))
+), 
+    cms.PSet(
+        record = cms.string('DTTtrigRcd'),
+        tag = cms.string('ttrigFake_20X_July17_mc')
+    ))
 

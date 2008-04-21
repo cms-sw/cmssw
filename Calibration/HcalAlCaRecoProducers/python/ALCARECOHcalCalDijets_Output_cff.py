@@ -8,6 +8,7 @@ OutALCARECOHcalCalDijets = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalDijets')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep *_DiJProd_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_DiJProd_*_*')
 )
 
