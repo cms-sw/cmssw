@@ -55,17 +55,17 @@ SiPixelFakeGainOfflineReader::analyze(const edm::Event& iEvent, const edm::Event
     int ncols = topol.ncolumns();   // cols in y
     
     for(int col_iter=0; col_iter<ncols; col_iter++) {
-       float gain  = SiPixelGainCalibrationOfflineService_.getGain(detid, col_iter);
-       g_iter->second->Fill( gain );
-       for(int row_iter=0; row_iter<nrows; row_iter++) {
-          nchannels++;
+      for(int row_iter=0; row_iter<nrows; row_iter++) {
+	nchannels++;
+	
+	float gain  = SiPixelGainCalibrationOfflineService_.getGain(detid, col_iter, row_iter);
+	g_iter->second->Fill( gain );
+	float ped  = SiPixelGainCalibrationOfflineService_.getPedestal(detid, col_iter, row_iter);
+	p_iter->second->Fill( ped );
 
-          float ped  = SiPixelGainCalibrationOfflineService_.getPedestal(detid, col_iter, row_iter);
-          p_iter->second->Fill( ped );
 
-
-          //std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
-
+	//std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
+	
       }
     }
   }

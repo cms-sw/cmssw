@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainForHLTESSource.cc,v 1.5 2008/01/22 19:15:07 muzaffar Exp $
+// $Id: SiPixelFakeGainForHLTESSource.cc,v 1.1 2008/02/11 15:23:39 friis Exp $
 //
 //
 
@@ -62,24 +62,34 @@ std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produ
      const std::pair<int, int> & detUnitDimensions = reader.getDetUnitDimensions(*detit);
 
      // Loop over columns and rows
+ 
      for(int i=0; i<detUnitDimensions.first; i++) {
        float totalGain  = 0.0;
        float totalPed   = 0.0; 
+       float totalEntries=0.0;
        for(int j=0; j<detUnitDimensions.second; j++) {
          //this innerloop is unnecessary but is left as an example in case someone wishes to provide gain/ped distributions etc
 	 nchannels++;
          totalGain      += 2.8;
          totalPed       += 28.2;
+	 totalEntries   ++;
+	 if((j+1)%80==0){
+	   float gain       = totalGain/totalEntries;
+	   float ped        = totalPed/totalEntries;
+	   
+	   obj->setData(ped,gain, theSiPixelGainCalibration);	 
+	   totalGain=0.;
+	   totalPed=0.;
+	   totalEntries=0.;
+	 }
        }
-       float gain       = totalGain/(float)detUnitDimensions.second;
-       float ped        = totalPed/(float)detUnitDimensions.second;
-       obj->setData(ped, gain , theSiPixelGainCalibration);	 
      }
 
      //std::cout << "detid " << (*detit) << std::endl;
 
      SiPixelGainCalibrationForHLT::Range range(theSiPixelGainCalibration.begin(),theSiPixelGainCalibration.end());
-     if( !obj->put(*detit,range) )
+     int nCols = detUnitDimensions.first;
+     if( !obj->put(*detit,range,nCols) )
        edm::LogError("SiPixelFakeGainForHLTESSource")<<"[SiPixelFakeGainForHLTESSource::produce] detid already exists"<<std::endl;
    }
 
@@ -93,8 +103,8 @@ std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produ
 }
 
 void SiPixelFakeGainForHLTESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, 
-						const edm::IOVSyncValue& iosv, 
-						edm::ValidityInterval& oValidity ) {
+						    const edm::IOVSyncValue& iosv, 
+						    edm::ValidityInterval& oValidity ) {
   edm::ValidityInterval infinity( iosv.beginOfTime(), iosv.endOfTime() );
   oValidity = infinity;  
 }
