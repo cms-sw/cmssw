@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Prepare the run script for this job.
 #  The main action is to embed the output directory
@@ -99,7 +99,7 @@ if ($nn <1) {
 }
 # $nn = ($body =~ s/cmsRun\s([A-Za-z0-9]+?\.cfg)/cmsRun $cfgName/g);
 # $nn = ($body =~ s/cmsRun +(.+)/cmsRun $cfgName/g);
-$nn = ($body =~ s/cmsRun +[a-zA-Z_0-9\-]+\.cfg/cmsRun $cfgName/g);
+$nn = ($body =~ s/cmsRun +[a-zA-Z_0-9\-]+\.cfg/cmsRun \$RUNDIR\/$cfgName/g);
 
 # here we insert prestager commands, a la
 # stager_get -M /castor/cern.ch/cms/store/mc/2007/5/9/Spring07-ZToMuMu-1532/0001/E665DFFD-99FF-DB11-8730-000E0C3F08AE.root
