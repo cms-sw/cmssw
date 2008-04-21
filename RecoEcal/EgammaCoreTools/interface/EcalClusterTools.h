@@ -26,6 +26,10 @@ class EcalClusterTools {
                 EcalClusterTools() {};
                 ~EcalClusterTools() {};
 
+                static float e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
+                static float e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
+                static float e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
+                static float e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
                 static float e2x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
                 static float e3x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
                 static float e3x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
@@ -37,16 +41,17 @@ class EcalClusterTools {
                 static float e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology );
                 static float eMax( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
                 static float e2nd( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
+                static std::pair<DetId, float> getMaximum( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits);
 
                 static std::vector<float> energyBasketFractionEta( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
                 static std::vector<float> energyBasketFractionPhi( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
 
-                std::pair<float, float> etaPhiLat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, float w0 = 0.1, bool logW = false );
-                std::vector<float> covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloSubdetectorTopology *topology, const CaloSubdetectorGeometry* geometry, float w0 = 0.1);
+                std::pair<float, float> etaPhiLat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW = true, float w0 = 4.7 );
+                std::vector<float> covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloSubdetectorTopology *topology, const CaloSubdetectorGeometry* geometry, float w0 = 4.7);
                 
-                static double zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, float w0, bool logW );
-                static double zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, float w0, bool logW );
-
+                static double zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
+                static double zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
+                static std::vector<DetId> matrixDetId( const CaloSubdetectorTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
         private:
                 struct EcalClusterEnergyDeposition
                 { 
@@ -60,8 +65,8 @@ class EcalClusterTools {
                 static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
                 static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
 
-                static std::vector<EcalClusterEnergyDeposition> getEnergyDepTopology( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, float w0 = 0.1, bool logW = true  );
-                static math::XYZVector meanClusterPosition( std::vector<DetId> v_id, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology *topology, const CaloSubdetectorGeometry *geometry );
+                static std::vector<EcalClusterEnergyDeposition> getEnergyDepTopology( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW, float w0 );
+                static math::XYZVector meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology *topology, const CaloSubdetectorGeometry *geometry );
 
                 static double f00(double r) { return 1; }
                 static double f11(double r) { return r; }
@@ -76,9 +81,9 @@ class EcalClusterTools {
                 static double f53(double r) { return 5.0*pow(r,5) - 4.0*pow(r,3); }
                 static double f55(double r) { return pow(r,5); }
 
-                static double absZernikeMoment( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, float w0, bool logW, int n, int m, double R0 = 6.6 );
-                static double fast_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, float w0, bool logW,int n, int m, double R0 );
-                static double calc_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, float w0, bool logW, int n, int m, double R0 );
+                static double absZernikeMoment( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, int n, int m, double R0, bool logW, float w0 );
+                static double fast_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, int n, int m, double R0, bool logW, float w0 );
+                static double calc_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, int n, int m, double R0, bool logW, float w0 );
 
                 static double factorial(int n) {
                         double res = 1.;
