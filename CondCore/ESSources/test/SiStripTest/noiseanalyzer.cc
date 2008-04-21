@@ -37,10 +37,10 @@ namespace edmtest
     // Context is not used.
     std::cout <<" I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
     std::cout <<" ---EVENT NUMBER "<<e.id().event() <<std::endl;
-    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("NoisesRcd"));
+    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("mySiStripNoisesRcd"));
     if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
       //record not found
-      std::cout <<"Record \"NoisesRcd"<<"\" does not exist "<<std::endl;
+      std::cout <<"Record \"mySiStripNoisesRcd"<<"\" does not exist "<<std::endl;
     }
     edm::ESHandle<mySiStripNoises> pNoises;
     std::cout<<"got eshandle"<<std::endl;
