@@ -24,7 +24,11 @@ process.ecal2006TBRecHit = cms.EDProducer("EcalRecHitProducer",
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('tbhits.root'),
-    outputCommands = cms.untracked.vstring('drop *', 'keep EcalRecHitsSorted_*_*_*', 'keep EcalTBHodoscopeRecInfo_*_*_*', 'keep EcalTBEventHeader_*_*_*', 'keep EcalTBTDCRecInfo_*_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep EcalRecHitsSorted_*_*_*', 
+        'keep EcalTBHodoscopeRecInfo_*_*_*', 
+        'keep EcalTBEventHeader_*_*_*', 
+        'keep EcalTBTDCRecInfo_*_*_*')
 )
 
 process.p = cms.Path(process.ecal2006TBRecHit)

@@ -18,7 +18,8 @@ sipixelcalib_essource = cms.ESSource("PoolDBESSource",
     ))
 )
 
-sipixelcalib_essource.connect = 'oracle://cms_orcoff_int2r/CMS_COND_TIF_PIXELS'
+sipixelcalib_essource.connect = 'oracle://cms_orcoff_int2r/CMS_COND_TIF_PIXELS' ##cms_orcoff_int2r/CMS_COND_TIF_PIXELS"
+
 sipixelcalib_essource.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 #   replace sipixelcalib_essource.connect = "frontier://FrontierDev/CMS_COND_PIXEL"
 #   replace sipixelcalib_essource.DBParameters.authenticationMethod = 0

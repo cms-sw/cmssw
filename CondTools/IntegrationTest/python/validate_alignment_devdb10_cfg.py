@@ -10,20 +10,25 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
         tag = cms.string('TrackerShortTermScenario')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('TrackerShortTermScenarioErrors')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TrackerLongTermScenario')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('TrackerLongTermScenarioErrors')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            tag = cms.string('TrackerShortTermScenarioErrors')
+        ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentRcd'),
+            tag = cms.string('TrackerLongTermScenario')
+        ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            tag = cms.string('TrackerLongTermScenarioErrors')
+        )),
     messagelevel = cms.untracked.uint32(2),
-    catalog = cms.untracked.string('relationalcatalog_oracle://devdb10/CMS_COND_GENERAL'),
+    catalog = cms.untracked.string('relationalcatalog_oracle://devdb10/CMS_COND_GENERAL'), ##devdb10/CMS_COND_GENERAL"
+
     timetype = cms.string('runnumber'),
-    connect = cms.string('oracle://devdb10/CMS_COND_ALIGNMENT'),
+    connect = cms.string('oracle://devdb10/CMS_COND_ALIGNMENT'), ##devdb10/CMS_COND_ALIGNMENT"
+
     authenticationMethod = cms.untracked.uint32(1)
 )
 
@@ -37,10 +42,11 @@ process.get = cms.EDFilter("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
         data = cms.vstring('Alignments')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        data = cms.vstring('AlignmentErrors')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            data = cms.vstring('AlignmentErrors')
+        )),
     verbose = cms.untracked.bool(True)
 )
 

@@ -53,7 +53,11 @@ process.VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *', 'drop PSimHits_g4SimHits_*_Sim', 'keep PCaloHits_g4SimHits_EcalHitsEB_Sim', 'keep PCaloHits_g4SimHits_CaloHitsTk_Sim', 'keep PCaloHits_g4SimHits_EcalTBH4BeamHits_Sim'),
+    outputCommands = cms.untracked.vstring('keep *', 
+        'drop PSimHits_g4SimHits_*_Sim', 
+        'keep PCaloHits_g4SimHits_EcalHitsEB_Sim', 
+        'keep PCaloHits_g4SimHits_CaloHitsTk_Sim', 
+        'keep PCaloHits_g4SimHits_EcalTBH4BeamHits_Sim'),
     fileName = cms.untracked.string('ECALH4TB_detsim_digi.root')
 )
 

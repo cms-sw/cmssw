@@ -13,7 +13,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('DEBUG')
     ),
     suppressDebug = cms.untracked.vstring(),
-    debugModules = cms.untracked.vstring('*'),
+    debugModules = cms.untracked.vstring('*'), ##@@ comment to suppress
+
     suppressInfo = cms.untracked.vstring()
 )
 

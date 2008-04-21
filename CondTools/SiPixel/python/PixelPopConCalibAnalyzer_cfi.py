@@ -31,7 +31,8 @@ PixelPopConCalibAnalyzer = cms.EDAnalyzer("PixelPopConCalibAnalyzer",
     record = cms.string('SiPixelCalibConfigurationRcd'),
     loggingOn = cms.untracked.bool(True),
     Source = cms.PSet(
-        connectString = cms.string('oracle://CMS_PXL_INT2R_LB/CMS_PXL_PRTTYPE_PIXEL_READER'),
+        connectString = cms.string('oracle://CMS_PXL_INT2R_LB/CMS_PXL_PRTTYPE_PIXEL_READER'), ##CMS_PXL_INT2R_LB/CMS_PXL_PRTTYPE_PIXEL_READER" 
+
         viewName = cms.string('CONF_KEY_PIXEL_CALIB_V'),
         CORAL_AUTH_PATH = cms.untracked.string('./CondTools/SiPixel/data'),
         # "since" IOV number. This is interpreted as a run number and

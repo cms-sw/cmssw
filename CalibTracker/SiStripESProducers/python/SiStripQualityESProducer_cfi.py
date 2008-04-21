@@ -5,13 +5,15 @@ SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
     ListOfRecordToMerge = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadModuleRcd'),
         tag = cms.string('SiStripBadModule_v1')
-    ), cms.PSet(
-        record = cms.string('SiStripBadFiberRcd'),
-        tag = cms.string('SiStripBadFiber_v1')
-    ), cms.PSet(
-        record = cms.string('SiStripBadChannelRcd'),
-        tag = cms.string('SiStripBadChannel_v1')
-    ))
+    ), 
+        cms.PSet(
+            record = cms.string('SiStripBadFiberRcd'),
+            tag = cms.string('SiStripBadFiber_v1')
+        ), 
+        cms.PSet(
+            record = cms.string('SiStripBadChannelRcd'),
+            tag = cms.string('SiStripBadChannel_v1')
+        ))
 )
 
 

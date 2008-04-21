@@ -11,19 +11,23 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCPedestalsRcd'),
         tag = cms.string('CSCPedestals_from_online')
-    ), cms.PSet(
-        record = cms.string('CSCGainsRcd'),
-        tag = cms.string('CSCGains_from_online')
-    ), cms.PSet(
-        record = cms.string('CSCNoiseMatrixRcd'),
-        tag = cms.string('CSCNoiseMatrix_from_online')
-    ), cms.PSet(
-        record = cms.string('CSCcrosstalkRcd'),
-        tag = cms.string('CSCcrosstalk_from_online')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('CSCGainsRcd'),
+            tag = cms.string('CSCGains_from_online')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCNoiseMatrixRcd'),
+            tag = cms.string('CSCNoiseMatrix_from_online')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCcrosstalkRcd'),
+            tag = cms.string('CSCcrosstalk_from_online')
+        )),
     messagelevel = cms.untracked.uint32(0),
     timetype = cms.string('runnumber'),
-    connect = cms.string('frontier://cms_conditions_data/CMS_COND_CSC'),
+    connect = cms.string('frontier://cms_conditions_data/CMS_COND_CSC'), ##cms_conditions_data/CMS_COND_CSC"
+
     authenticationMethod = cms.untracked.uint32(0)
 )
 
@@ -37,16 +41,19 @@ process.get = cms.EDFilter("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCPedestalsRcd'),
         data = cms.vstring('CSCPedestals')
-    ), cms.PSet(
-        record = cms.string('CSCGainsRcd'),
-        data = cms.vstring('CSCGains')
-    ), cms.PSet(
-        record = cms.string('CSCNoiseMatrixRcd'),
-        data = cms.vstring('CSCNoiseMatrix')
-    ), cms.PSet(
-        record = cms.string('CSCcrosstalkRcd'),
-        data = cms.vstring('CSCcrosstalk')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('CSCGainsRcd'),
+            data = cms.vstring('CSCGains')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCNoiseMatrixRcd'),
+            data = cms.vstring('CSCNoiseMatrix')
+        ), 
+        cms.PSet(
+            record = cms.string('CSCcrosstalkRcd'),
+            data = cms.vstring('CSCcrosstalk')
+        )),
     verbose = cms.untracked.bool(True)
 )
 

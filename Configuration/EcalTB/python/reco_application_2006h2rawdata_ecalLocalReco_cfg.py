@@ -23,7 +23,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('DDLParser', 'FwkJob', 'FwkReport'),
+    categories = cms.untracked.vstring('DDLParser', 
+        'FwkJob', 
+        'FwkReport'),
     destinations = cms.untracked.vstring('cout')
 )
 
@@ -49,7 +51,8 @@ process.ecalTBunpack = cms.EDFilter("EcalRawToDigi",
 )
 
 process.reco-pool-out = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *', 'drop FEDRawDataCollection_*_*_*'),
+    outputCommands = cms.untracked.vstring('keep *', 
+        'drop FEDRawDataCollection_*_*_*'),
     fileName = cms.untracked.string('h2.ecalReco.root')
 )
 

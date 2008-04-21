@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#	untracked vstring fileNames = {'rfio:/castor/cern.ch/cms/archive/ecal/h4tb.pool-cmssw-SM12/h4b.00015217.A.0.0.root'}
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("simpleAnalysis")
@@ -10,6 +6,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.source = cms.Source("PoolSource",
     maxEvents = cms.untracked.int32(500),
+    #	untracked vstring fileNames = {'rfio:/castor/cern.ch/cms/archive/ecal/h4tb.pool-cmssw-SM12/h4b.00015217.A.0.0.root'}
     fileNames = cms.untracked.vstring('file:hits.root')
 )
 

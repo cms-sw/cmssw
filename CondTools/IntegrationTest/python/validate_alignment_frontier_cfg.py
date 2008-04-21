@@ -20,13 +20,15 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
         tag = cms.string('TrackerIdealGeometry')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('TrackerIdealGeometryErrors')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            tag = cms.string('TrackerIdealGeometryErrors')
+        )),
     messagelevel = cms.untracked.uint32(0),
     timetype = cms.string('runnumber'),
-    connect = cms.string('frontier://cms_conditions_data/CMS_COND_ALIGNMENT'),
+    connect = cms.string('frontier://cms_conditions_data/CMS_COND_ALIGNMENT'), ##cms_conditions_data/CMS_COND_ALIGNMENT"
+
     authenticationMethod = cms.untracked.uint32(0)
 )
 
@@ -40,10 +42,11 @@ process.get = cms.EDFilter("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
         data = cms.vstring('Alignments')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        data = cms.vstring('AlignmentErrors')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            data = cms.vstring('AlignmentErrors')
+        )),
     verbose = cms.untracked.bool(True)
 )
 

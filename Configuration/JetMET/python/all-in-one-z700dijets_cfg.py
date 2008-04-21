@@ -53,7 +53,17 @@ process.myTimer = cms.EDFilter("Timer",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *', 'keep recoCaloJets_*_*_*', 'keep recoCaloMETs_*_*_*', 'keep recoGenJets_*_*_*', 'keep recoGenMETs_*_*_*', 'keep *_genParticlesAllStableNoNu_*_*', 'keep *_genParticlesAllStable_*_*', 'keep *_genParticlesForMET_*_*', 'keep *_genParticleCandidates_*_*', 'keep *_towerMaker_*_*', 'keep *_caloTowers_*_*'),
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep recoCaloJets_*_*_*', 
+        'keep recoCaloMETs_*_*_*', 
+        'keep recoGenJets_*_*_*', 
+        'keep recoGenMETs_*_*_*', 
+        'keep *_genParticlesAllStableNoNu_*_*', 
+        'keep *_genParticlesAllStable_*_*', 
+        'keep *_genParticlesForMET_*_*', 
+        'keep *_genParticleCandidates_*_*', 
+        'keep *_towerMaker_*_*', 
+        'keep *_caloTowers_*_*'),
     fileName = cms.untracked.string('calorimetry-gen-Zprime_Dijets_700.root')
 )
 

@@ -5,10 +5,11 @@ src1 = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalIntercalibConstantsRcd'),
         tag = cms.string('EcalIntercalibConstants')
-    ), cms.PSet(
-        record = cms.string('EcalADCToGeVConstantRcd'),
-        tag = cms.string('EcalADCToGeVConstant')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('EcalADCToGeVConstantRcd'),
+            tag = cms.string('EcalADCToGeVConstant')
+        )),
     messagelevel = cms.untracked.uint32(1),
     catalog = cms.untracked.string('file:/afs/cern.ch/cms/ECAL/testbeam/pedestal/2004/v2/PoolFileCatalog.xml'),
     timetype = cms.string('runnumber'),
@@ -20,10 +21,11 @@ getCalibrations = cms.EDFilter("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalIntercalibConstantsRcd'),
         data = cms.vstring('EcalIntercalibConstants')
-    ), cms.PSet(
-        record = cms.string('EcalADCToGeVConstantRcd'),
-        data = cms.vstring('EcalADCToGeVConstant')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('EcalADCToGeVConstantRcd'),
+            data = cms.vstring('EcalADCToGeVConstant')
+        )),
     verbose = cms.untracked.bool(True)
 )
 

@@ -7,14 +7,17 @@ ecalDBConditions = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('EcalPedestalsRcd'),
         tag = cms.string('EcalPedestals_online')
-    ), cms.PSet(
-        record = cms.string('EcalWeightXtalGroupsRcd'),
-        tag = cms.string('EcalWeightXtalGroups_preliminary')
-    ), cms.PSet(
-        record = cms.string('EcalTBWeightsRcd'),
-        tag = cms.string('EcalTBWeights_preliminary')
-    )),
-    connect = cms.string('frontier://Frontier/CMS_ECAL_H4_COND_2007'),
+    ), 
+        cms.PSet(
+            record = cms.string('EcalWeightXtalGroupsRcd'),
+            tag = cms.string('EcalWeightXtalGroups_preliminary')
+        ), 
+        cms.PSet(
+            record = cms.string('EcalTBWeightsRcd'),
+            tag = cms.string('EcalTBWeights_preliminary')
+        )),
+    connect = cms.string('frontier://Frontier/CMS_ECAL_H4_COND_2007'), ##Frontier/CMS_ECAL_H4_COND_2007" 
+
     siteLocalConfig = cms.untracked.bool(True)
 )
 

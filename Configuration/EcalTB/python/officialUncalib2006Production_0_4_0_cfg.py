@@ -27,7 +27,8 @@ process.source = cms.Source("PoolSource",
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('OUTPUTFILE.root'),
-    outputCommands = cms.untracked.vstring('keep *', 'drop FEDRawDataCollection_*_*_*')
+    outputCommands = cms.untracked.vstring('keep *', 
+        'drop FEDRawDataCollection_*_*_*')
 )
 
 process.p = cms.Path(process.getCond*process.ecalTBunpack*process.localReco2006_rawData)

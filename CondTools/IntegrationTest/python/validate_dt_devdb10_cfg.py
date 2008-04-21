@@ -10,17 +10,21 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
         tag = cms.string('MTCC_t0')
-    ), cms.PSet(
-        record = cms.string('DTTtrigRcd'),
-        tag = cms.string('MTCC_tTrig')
-    ), cms.PSet(
-        record = cms.string('DTReadOutMappingRcd'),
-        tag = cms.string('MTCC_map')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('DTTtrigRcd'),
+            tag = cms.string('MTCC_tTrig')
+        ), 
+        cms.PSet(
+            record = cms.string('DTReadOutMappingRcd'),
+            tag = cms.string('MTCC_map')
+        )),
     messagelevel = cms.untracked.uint32(2),
-    catalog = cms.untracked.string('relationalcatalog_oracle://devdb10/CMS_COND_GENERAL'),
+    catalog = cms.untracked.string('relationalcatalog_oracle://devdb10/CMS_COND_GENERAL'), ##devdb10/CMS_COND_GENERAL"
+
     timetype = cms.string('runnumber'),
-    connect = cms.string('oracle://devdb10/CMS_COND_DT'),
+    connect = cms.string('oracle://devdb10/CMS_COND_DT'), ##devdb10/CMS_COND_DT"
+
     authenticationMethod = cms.untracked.uint32(1)
 )
 
@@ -34,13 +38,15 @@ process.get = cms.EDFilter("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('DTT0Rcd'),
         data = cms.vstring('DTT0')
-    ), cms.PSet(
-        record = cms.string('DTTtrigRcd'),
-        data = cms.vstring('DTTtrig')
-    ), cms.PSet(
-        record = cms.string('DTReadOutMappingRcd'),
-        data = cms.vstring('DTReadOutMapping')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('DTTtrigRcd'),
+            data = cms.vstring('DTTtrig')
+        ), 
+        cms.PSet(
+            record = cms.string('DTReadOutMappingRcd'),
+            data = cms.vstring('DTReadOutMapping')
+        )),
     verbose = cms.untracked.bool(True)
 )
 

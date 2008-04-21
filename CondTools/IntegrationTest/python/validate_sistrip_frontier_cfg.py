@@ -10,17 +10,20 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripPedestalsRcd'),
         tag = cms.string('SiStripPedestals_v1')
-    ), cms.PSet(
-        record = cms.string('SiStripNoisesRcd'),
-        tag = cms.string('SiStripNoises_v1')
-    ), cms.PSet(
-        record = cms.string('SiStripFedCablingRcd'),
-        tag = cms.string('SiStripFedCabling_v1')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('SiStripNoisesRcd'),
+            tag = cms.string('SiStripNoises_v1')
+        ), 
+        cms.PSet(
+            record = cms.string('SiStripFedCablingRcd'),
+            tag = cms.string('SiStripFedCabling_v1')
+        )),
     loadBlobStreamer = cms.untracked.bool(True),
     messagelevel = cms.untracked.uint32(0),
     timetype = cms.string('runnumber'),
-    connect = cms.string('frontier://cms_conditions_data/CMS_COND_STRIP'),
+    connect = cms.string('frontier://cms_conditions_data/CMS_COND_STRIP'), ##cms_conditions_data/CMS_COND_STRIP"
+
     authenticationMethod = cms.untracked.uint32(1)
 )
 
@@ -34,13 +37,15 @@ process.get = cms.EDFilter("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripPedestalsRcd'),
         data = cms.vstring('SiStripPedNoise_MTCC_v1_p')
-    ), cms.PSet(
-        record = cms.string('SiStripNoisesRcd'),
-        data = cms.vstring('SiStripPedNoise_MTCC_v1_n')
-    ), cms.PSet(
-        record = cms.string('SiStripFedCablingRcd'),
-        data = cms.vstring('SiStripCabling_MTCC_v1')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('SiStripNoisesRcd'),
+            data = cms.vstring('SiStripPedNoise_MTCC_v1_n')
+        ), 
+        cms.PSet(
+            record = cms.string('SiStripFedCablingRcd'),
+            data = cms.vstring('SiStripCabling_MTCC_v1')
+        )),
     verbose = cms.untracked.bool(True)
 )
 
