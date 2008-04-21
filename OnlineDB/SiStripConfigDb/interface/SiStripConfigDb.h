@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.53 2008/04/11 13:27:33 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.54 2008/04/11 15:47:57 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -166,9 +166,6 @@ class SiStripConfigDb {
 
   /** Returns database connection parameters. */
   inline const SiStripDbParams& dbParams() const;
-
-  /** Returns database partition names. */
-  inline std::vector<std::string> partitionNames() const;
   
   /** Returns whether using database or xml files. */
   inline const bool& usingDb() const;
@@ -219,11 +216,20 @@ class SiStripConfigDb {
   
   // ---------- FED connections ----------
 
-  /** Fills local cache with connection descriptions from DB/xml. */
+  /** Return FED connections (downloaded from DB/xml to local cache). */
   FedConnections::range getFedConnections( std::string partition = "" );
+
+  /** Add FED connections to local cache. */
+  void addFedConnections( std::string partition, std::vector<FedConnection*>& );
   
-  /** Uploads FED-FEC connections to DB/xml. */
-  void uploadFedConnections( std::string partition, const std::vector<FedConnection*>& );
+  /** Uploads FED connections to DB/xml. */
+  void uploadFedConnections( std::string partition = "" );
+  
+  /** Clear local cache (just for given partition if specified). */
+  void clearFedConnections( std::string partition = "" );
+
+  /** Print local cache (just for given partition if specified). */
+  void printFedConnections( std::string partition = "" );
   
   // ---------- Commissioning analyses ---------- 
   
@@ -291,6 +297,12 @@ class SiStripConfigDb {
   
   /** Returns device identifier based on device type. */
   std::string deviceType( const enumDeviceType& device_type ) const;
+
+  /** */
+  void forceVersionsDefinedInCfg( SiStripDbParams::SiStripPartitions::iterator );
+
+  /** */
+  void versionsInferredFromRunNumber( SiStripDbParams::SiStripPartitions::iterator );
   
   // ---------- Database connection, partitions and versions ----------
 
@@ -346,9 +358,6 @@ class SiStripConfigDb {
 
 /** Returns database connection parameters. */
 const SiStripDbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
-
-/** Returns database partition names. */
-std::vector<std::string> SiStripConfigDb::partitionNames() const { return dbParams_.partitions( dbParams_.partitions() ); }
 
 /** Indicates whether DB (true) or XML files (false) are used. */
 const bool& SiStripConfigDb::usingDb() const { return dbParams_.usingDb_; }

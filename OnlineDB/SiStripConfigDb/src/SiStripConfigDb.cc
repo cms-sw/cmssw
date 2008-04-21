@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.55 2008/04/11 13:27:33 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.56 2008/04/14 05:44:34 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -261,10 +261,9 @@ void SiStripConfigDb::usingDatabase() {
        << " Setting \"partitions\" to \""
        << getenv( partition.c_str() )
        << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
-    if ( !dbParams_.partitions_.empty() && 
-	 dbParams_.partitions() != "" ) {
+    if ( !dbParams_.partitions().empty() ) {
       ss << " (Overwriting existing value of \""
-	 << dbParams_.partitions()
+	 << dbParams_.partitions( dbParams_.partitions() )
 	 << "\" read from .cfg file)";
     }
     LogTrace(mlConfigDb_) << ss.str() << std::endl;
@@ -281,12 +280,11 @@ void SiStripConfigDb::usingDatabase() {
       }
     }
 
-  } else if ( !dbParams_.partitions_.empty() && 
-	      dbParams_.partitions() != "" ) {
+  } else if ( !dbParams_.partitions().empty() ) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"partitions\" to \""
-       << dbParams_.partitions()
+       << dbParams_.partitions( dbParams_.partitions() )
        << "\" using 'PartitionName' configurables read from .cfg file";
     LogTrace(mlConfigDb_) << ss.str();
 
@@ -385,7 +383,7 @@ void SiStripConfigDb::usingDatabase() {
        << dbParams_.passwd_ << "@" 
        << dbParams_.path_ 
        << "' and partitions '" 
-       << dbParams_.partitions() << "'";
+       << dbParams_.partitions( dbParams_.partitions() ) << "'";
     handleException( __func__, ss.str() );
     return;
   }
@@ -401,7 +399,7 @@ void SiStripConfigDb::usingDatabase() {
        << dbParams_.passwd_ << "@" 
        << dbParams_.path_
        << "' and partitions '" 
-       << dbParams_.partitions() << "'";
+       << dbParams_.partitions( dbParams_.partitions() ) << "'";
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_)
@@ -412,7 +410,7 @@ void SiStripConfigDb::usingDatabase() {
       << dbParams_.passwd_ << "@" 
       << dbParams_.path_
       << "' and partitions '" 
-      << dbParams_.partitions() << "'";
+      << dbParams_.partitions( dbParams_.partitions() ) << "'";
     return; 
   }
   
@@ -428,222 +426,9 @@ void SiStripConfigDb::usingDatabase() {
   for ( ; ip != jp; ++ip ) {
     
     // Check if should use run number or force versions specified in .cfi
-    if ( ip->second.forceVersions_ ) { 
-
-      // Find state for current partition
-      tkStateVector states;
-#ifdef USING_NEW_DATABASE_MODEL
-      states = deviceFactory(__func__)->getCurrentStates(); 
-#else
-      states = *( deviceFactory(__func__)->getCurrentStates() ); 
-#endif
-      tkStateVector::const_iterator istate = states.begin();
-      tkStateVector::const_iterator jstate = states.end();
-      while ( istate != jstate ) {
-	if ( *istate && ip->second.partitionName_ == (*istate)->getPartitionName() ) { break; }
-	istate++;
-      }
-
-      // Set versions if state was found
-      if ( istate != states.end() ) {
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	if ( !ip->second.cabVersion_.first &&
-	     !ip->second.cabVersion_.second ) { 
-	  ip->second.cabVersion_.first = (*istate)->getConnectionVersionMajorId(); 
-	  ip->second.cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
-	}
-#endif
-	
-	if ( !ip->second.fecVersion_.first &&
-	     !ip->second.fecVersion_.second ) { 
-	  ip->second.fecVersion_.first = (*istate)->getFecVersionMajorId(); 
-	  ip->second.fecVersion_.second = (*istate)->getFecVersionMinorId(); 
-	}
-	if ( !ip->second.fedVersion_.first &&
-	     !ip->second.fedVersion_.second ) { 
-	  ip->second.fedVersion_.first = (*istate)->getFedVersionMajorId(); 
-	  ip->second.fedVersion_.second = (*istate)->getFedVersionMinorId(); 
-	}
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	if ( !ip->second.dcuVersion_.first &&
-	     !ip->second.dcuVersion_.second ) { 
-	  ip->second.dcuVersion_.first = (*istate)->getDcuInfoVersionMajorId(); 
-	  ip->second.dcuVersion_.second = (*istate)->getDcuInfoVersionMinorId(); 
-	}
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	/*
-	  if ( !ip->second.psuMajor_.first && 
-	  !ip->second.psuMajor_.second ) { 
-	  ip->second.psuMajor_ = (*istate)->getDcuPsuMapVersionMajorId();
-	  ip->second.psuMinor_ = (*istate)->getDcuPsuMapVersionMinorId(); 
-	  }
-	*/
-#endif
-	
-#ifdef USING_NEW_DATABASE_MODEL
-	/*
-	  if ( !dbParams_.calVersion_.first &&
-	  !dbParams_.calVersion_.second ) { 
-	  dbParams_.calVersion_.first = (*istate)->getAnalysisVersionMajorId(); 
-	  dbParams_.calVersion_.second = (*istate)->getAnalysisVersionMinorId(); 
-	  }
-	*/
-#endif
-	
-      } else {
-	std::stringstream ss;
-	edm::LogWarning(mlConfigDb_)
-	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " Unable to find \"current state\" for partition \""
-	  << ip->second.partitionName_ << "\"";
-      }
-      
-    } else {
-      
-      // Retrieve versioning from DB for given run number
-      TkRun* run = 0;    
-      if ( !ip->second.runNumber_ ) { run = deviceFactory(__func__)->getLastRun( ip->second.partitionName_ ); }
-      else { run = deviceFactory(__func__)->getRun( ip->second.partitionName_, ip->second.runNumber_ ); }
-      if ( run ) {
-      
-	if ( run->getRunNumber() ) {
-	
-	  if ( !ip->second.runNumber_ ) { ip->second.runNumber_ = run->getRunNumber(); }
-	
-	  if ( ip->second.runNumber_ == run->getRunNumber() ) {
-	  
-#ifdef USING_NEW_DATABASE_MODEL
-	    ip->second.cabVersion_.first = run->getConnectionVersionMajorId(); 
-	    ip->second.cabVersion_.second = run->getConnectionVersionMinorId(); 
-#endif
-	  
-	    ip->second.fecVersion_.first = run->getFecVersionMajorId(); 
-	    ip->second.fecVersion_.second = run->getFecVersionMinorId(); 
-	    ip->second.fedVersion_.first = run->getFedVersionMajorId(); 
-	    ip->second.fedVersion_.second = run->getFedVersionMinorId(); 
-	  
-#ifdef USING_NEW_DATABASE_MODEL
-	    ip->second.dcuVersion_.first = run->getDcuInfoVersionMajorId(); 
-	    ip->second.dcuVersion_.second = run->getDcuInfoVersionMinorId(); 
-#endif
-
-#ifdef USING_NEW_DATABASE_MODEL
-	    //@@ ip->second.psuMajor_ = run->getDcuPsuMapVersionMajorId(); 
-	    //@@ ip->second.psuMinor_ = run->getDcuPsuMapVersionMinorId(); 
-#endif
-
-#ifdef USING_NEW_DATABASE_MODEL
-	    //@@ dbParams_.calVersion_.first = run->getAnalysisVersionMajorId(); 
-	    //@@ dbParams_.calVersion_.second = run->getAnalysisVersionMinorId(); 
-#endif
-
-	    std::stringstream ss;
-	    LogTrace(mlConfigDb_)
-	      << "[SiStripConfigDb::" << __func__ << "]"
-	      << " Description versions overridden"
-	      << " using values retrieved for run number "
-	      << run->getRunNumber()
-	      << " for partition \"" << ip->second.partitionName_ << "\"";
-	
-	  } else {
-	    edm::LogWarning(mlConfigDb_)
-	      << "[SiStripConfigDb::" << __func__ << "]"
-	      << " Mismatch of run number requested (" 
-	      << ip->second.runNumber_
-	      << ") and received (" 
-	      << run->getRunNumber() << ")"
-	      << " to/from database for partition \"" 
-	      << ip->second.partitionName_ << "\"";
-	  }
-
-	} else {
-	  edm::LogWarning(mlConfigDb_)
-	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " NULL run number returned!"
-	    << " for partition \"" << ip->second.partitionName_ << "\"";
-	}
-
-	uint16_t type = run->getModeId( run->getMode() );
-	if      ( type ==  1 ) { ip->second.runType_ = sistrip::PHYSICS; }
-	else if ( type ==  2 ) { ip->second.runType_ = sistrip::PEDESTALS; }
-	else if ( type ==  3 ) { ip->second.runType_ = sistrip::CALIBRATION; }
-	else if ( type == 33 ) { ip->second.runType_ = sistrip::CALIBRATION_DECO; }
-	else if ( type ==  4 ) { ip->second.runType_ = sistrip::OPTO_SCAN; }
-	else if ( type ==  5 ) { ip->second.runType_ = sistrip::APV_TIMING; }
-	else if ( type ==  6 ) { ip->second.runType_ = sistrip::APV_LATENCY; }
-	else if ( type ==  7 ) { ip->second.runType_ = sistrip::FINE_DELAY_PLL; }
-	else if ( type ==  8 ) { ip->second.runType_ = sistrip::FINE_DELAY_TTC; }
-	else if ( type == 10 ) { ip->second.runType_ = sistrip::MULTI_MODE; }
-	else if ( type == 12 ) { ip->second.runType_ = sistrip::FED_TIMING; }
-	else if ( type == 13 ) { ip->second.runType_ = sistrip::FED_CABLING; }
-	else if ( type == 14 ) { ip->second.runType_ = sistrip::VPSP_SCAN; }
-	else if ( type == 15 ) { ip->second.runType_ = sistrip::DAQ_SCOPE_MODE; }
-	else if ( type == 16 ) { ip->second.runType_ = sistrip::QUITE_FAST_CABLING; }
-	else if ( type == 21 ) { ip->second.runType_ = sistrip::FAST_CABLING; }
-	else if ( type ==  0 ) { 
-	  ip->second.runType_ = sistrip::UNDEFINED_RUN_TYPE;
-	  edm::LogWarning(mlConfigDb_)
-	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " NULL run type returned!"
-	    << " for partition \"" << ip->second.partitionName_ << "\"";
-	} else { 
-	  ip->second.runType_ = sistrip::UNKNOWN_RUN_TYPE; 
-	  edm::LogWarning(mlConfigDb_)
-	    << "[SiStripConfigDb::" << __func__ << "]"
-	    << " UNKONWN run type (" << type<< ") returned!"
-	    << " for partition \"" << ip->second.partitionName_ << "\"";
-	}
-      
-      } else {
-	edm::LogError(mlConfigDb_)
-	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " NULL pointer to TkRun object!"
-	  << " Unable to retrieve versions for run number "
-	  << ip->second.runNumber_
-	  << ". Run number may not be consistent with partition \"" 
-	  << ip->second.partitionName_ << "\"!"; //@@ only using first here!!!
-      }
-
-    }
-  
-    // DCU-DetId 
-    try { 
-#ifdef USING_NEW_DATABASE_MODEL
-      deviceFactory(__func__)->addDetIdPartition( ip->second.partitionName_,
-						  ip->second.dcuVersion_.first, 
-						  ip->second.dcuVersion_.second );
-#else
-      deviceFactory(__func__)->addDetIdPartition( ip->second.partitionName_ );
-#endif
-    } catch (...) { 
-      std::stringstream ss;
-      ss << "Attempted to 'addDetIdPartition' for partition: " << ip->second.partitionName_;
-      handleException( __func__, ss.str() );
-    }
+    if ( ip->second.forceVersions_ ) { forceVersionsDefinedInCfg(ip); }
+    else { versionsInferredFromRunNumber(ip); }
     
-#ifndef USING_NEW_DATABASE_MODEL
-    // FED-FEC connections
-    try { 
-      deviceFactory(__func__)->createInputDBAccess();
-    } catch (...) { 
-      handleException( __func__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
-    }
-    
-    try {
-      deviceFactory(__func__)->setInputDBVersion( ip->second.partitionName_,
-						  ip->second.cabVersion_.first,
-						  ip->second.cabVersion_.second );
-    } catch (...) { 
-      std::stringstream ss;
-      ss << "Attempted to 'setInputDBVersion' for partition: " << ip->second.partitionName_;
-      handleException( __func__, ss.str() ); 
-    }
-#endif
-
   }    
 
 }
@@ -1023,9 +808,183 @@ bool SiStripConfigDb::checkFileExists( const std::string& path ) {
   return true;
 }
 
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::forceVersionsDefinedInCfg( SiStripDbParams::SiStripPartitions::iterator ip ) {
+
+  // Find state for current partition
+  tkStateVector states;
+#ifdef USING_NEW_DATABASE_MODEL
+  states = deviceFactory(__func__)->getCurrentStates(); 
+#else
+  states = *( deviceFactory(__func__)->getCurrentStates() ); 
+#endif
+  tkStateVector::const_iterator istate = states.begin();
+  tkStateVector::const_iterator jstate = states.end();
+  while ( istate != jstate ) {
+    if ( *istate && ip->second.partitionName_ == (*istate)->getPartitionName() ) { break; }
+    istate++;
+  }
+
+  // Set versions if state was found
+  if ( istate != states.end() ) {
+	
+#ifdef USING_NEW_DATABASE_MODEL
+    if ( !ip->second.cabVersion_.first &&
+	 !ip->second.cabVersion_.second ) { 
+      ip->second.cabVersion_.first = (*istate)->getConnectionVersionMajorId(); 
+      ip->second.cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
+    }
+#endif
+	
+    if ( !ip->second.fecVersion_.first &&
+	 !ip->second.fecVersion_.second ) { 
+      ip->second.fecVersion_.first = (*istate)->getFecVersionMajorId(); 
+      ip->second.fecVersion_.second = (*istate)->getFecVersionMinorId(); 
+    }
+    if ( !ip->second.fedVersion_.first &&
+	 !ip->second.fedVersion_.second ) { 
+      ip->second.fedVersion_.first = (*istate)->getFedVersionMajorId(); 
+      ip->second.fedVersion_.second = (*istate)->getFedVersionMinorId(); 
+    }
+	
+#ifdef USING_NEW_DATABASE_MODEL
+    if ( !ip->second.dcuVersion_.first &&
+	 !ip->second.dcuVersion_.second ) { 
+      ip->second.dcuVersion_.first = (*istate)->getDcuInfoVersionMajorId(); 
+      ip->second.dcuVersion_.second = (*istate)->getDcuInfoVersionMinorId(); 
+    }
+#endif
+	
+#ifdef USING_NEW_DATABASE_MODEL
+    /*
+      if ( !ip->second.psuMajor_.first && 
+      !ip->second.psuMajor_.second ) { 
+      ip->second.psuMajor_ = (*istate)->getDcuPsuMapVersionMajorId();
+      ip->second.psuMinor_ = (*istate)->getDcuPsuMapVersionMinorId(); 
+      }
+    */
+#endif
+	
+#ifdef USING_NEW_DATABASE_MODEL
+    /*
+      if ( !dbParams_.calVersion_.first &&
+      !dbParams_.calVersion_.second ) { 
+      dbParams_.calVersion_.first = (*istate)->getAnalysisVersionMajorId(); 
+      dbParams_.calVersion_.second = (*istate)->getAnalysisVersionMinorId(); 
+      }
+    */
+#endif
+	
+  } else {
+    std::stringstream ss;
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Unable to find \"current state\" for partition \""
+      << ip->second.partitionName_ << "\"";
+  }
+
+}
 
 
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::versionsInferredFromRunNumber( SiStripDbParams::SiStripPartitions::iterator ip ) {
+      
+  // Retrieve versioning from DB for given run number
+  TkRun* run = 0;    
+  if ( !ip->second.runNumber_ ) { run = deviceFactory(__func__)->getLastRun( ip->second.partitionName_ ); }
+  else { run = deviceFactory(__func__)->getRun( ip->second.partitionName_, ip->second.runNumber_ ); }
+  if ( run ) {
+      
+    if ( run->getRunNumber() ) {
+	
+      if ( !ip->second.runNumber_ ) { ip->second.runNumber_ = run->getRunNumber(); }
+	
+      if ( ip->second.runNumber_ == run->getRunNumber() ) {
+	  
+#ifdef USING_NEW_DATABASE_MODEL
+	ip->second.cabVersion_.first = run->getConnectionVersionMajorId(); 
+	ip->second.cabVersion_.second = run->getConnectionVersionMinorId(); 
+#endif
+	  
+	ip->second.fecVersion_.first = run->getFecVersionMajorId(); 
+	ip->second.fecVersion_.second = run->getFecVersionMinorId(); 
+	ip->second.fedVersion_.first = run->getFedVersionMajorId(); 
+	ip->second.fedVersion_.second = run->getFedVersionMinorId(); 
+	  
+#ifdef USING_NEW_DATABASE_MODEL
+	ip->second.dcuVersion_.first = run->getDcuInfoVersionMajorId(); 
+	ip->second.dcuVersion_.second = run->getDcuInfoVersionMinorId(); 
+#endif
 
+#ifdef USING_NEW_DATABASE_MODEL
+	//@@ ip->second.psuMajor_ = run->getDcuPsuMapVersionMajorId(); 
+	//@@ ip->second.psuMinor_ = run->getDcuPsuMapVersionMinorId(); 
+#endif
 
+#ifdef USING_NEW_DATABASE_MODEL
+	//@@ dbParams_.calVersion_.first = run->getAnalysisVersionMajorId(); 
+	//@@ dbParams_.calVersion_.second = run->getAnalysisVersionMinorId(); 
+#endif
+	
+      } else {
+	edm::LogWarning(mlConfigDb_)
+	  << "[SiStripConfigDb::" << __func__ << "]"
+	  << " Mismatch of run number requested (" 
+	  << ip->second.runNumber_
+	  << ") and received (" 
+	  << run->getRunNumber() << ")"
+	  << " to/from database for partition \"" 
+	  << ip->second.partitionName_ << "\"";
+      }
 
-  
+    } else {
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " NULL run number returned!"
+	<< " for partition \"" << ip->second.partitionName_ << "\"";
+    }
+
+    uint16_t type = run->getModeId( run->getMode() );
+    if      ( type ==  1 ) { ip->second.runType_ = sistrip::PHYSICS; }
+    else if ( type ==  2 ) { ip->second.runType_ = sistrip::PEDESTALS; }
+    else if ( type ==  3 ) { ip->second.runType_ = sistrip::CALIBRATION; }
+    else if ( type == 33 ) { ip->second.runType_ = sistrip::CALIBRATION_DECO; }
+    else if ( type ==  4 ) { ip->second.runType_ = sistrip::OPTO_SCAN; }
+    else if ( type ==  5 ) { ip->second.runType_ = sistrip::APV_TIMING; }
+    else if ( type ==  6 ) { ip->second.runType_ = sistrip::APV_LATENCY; }
+    else if ( type ==  7 ) { ip->second.runType_ = sistrip::FINE_DELAY_PLL; }
+    else if ( type ==  8 ) { ip->second.runType_ = sistrip::FINE_DELAY_TTC; }
+    else if ( type == 10 ) { ip->second.runType_ = sistrip::MULTI_MODE; }
+    else if ( type == 12 ) { ip->second.runType_ = sistrip::FED_TIMING; }
+    else if ( type == 13 ) { ip->second.runType_ = sistrip::FED_CABLING; }
+    else if ( type == 14 ) { ip->second.runType_ = sistrip::VPSP_SCAN; }
+    else if ( type == 15 ) { ip->second.runType_ = sistrip::DAQ_SCOPE_MODE; }
+    else if ( type == 16 ) { ip->second.runType_ = sistrip::QUITE_FAST_CABLING; }
+    else if ( type == 21 ) { ip->second.runType_ = sistrip::FAST_CABLING; }
+    else if ( type ==  0 ) { 
+      ip->second.runType_ = sistrip::UNDEFINED_RUN_TYPE;
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " NULL run type returned!"
+	<< " for partition \"" << ip->second.partitionName_ << "\"";
+    } else { 
+      ip->second.runType_ = sistrip::UNKNOWN_RUN_TYPE; 
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " UNKONWN run type (" << type<< ") returned!"
+	<< " for partition \"" << ip->second.partitionName_ << "\"";
+    }
+      
+  } else {
+    edm::LogError(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " NULL pointer to TkRun object!"
+      << " Unable to retrieve versions for run number "
+      << ip->second.runNumber_
+      << ". Run number may not be consistent with partition \"" 
+      << ip->second.partitionName_ << "\"!"; //@@ only using first here!!!
+  }
+
+}
