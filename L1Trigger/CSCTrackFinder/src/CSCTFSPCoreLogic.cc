@@ -1,13 +1,12 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFSPCoreLogic.h>
-#include <L1Trigger/CSCTrackFinder/src/SPvpp.h>
+#include <L1Trigger/CSCTrackFinder/src/vpp_generated.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
-#include <L1Trigger/CSCTrackFinder/src/spbits.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-SPvpp CSCTFSPCoreLogic::sp_;
+vpp_generated CSCTFSPCoreLogic::sp_;
 
 
 // takes a trigger container and loads the first n bx of data into io_
@@ -260,7 +259,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
   // run over enough clock cycles to get tracks from input stubs.
   for( io = io_.begin(); io != io_.end() && runme; io++)
     {
-      sp_.SP
+      sp_.wrap
 	(
 	 io->me1aVp, io->me1aQp, io->me1aEtap, io->me1aPhip, io->me1aCSCIdp,
 	 io->me1bVp, io->me1bQp, io->me1bEtap, io->me1bPhip, io->me1bCSCIdp,
@@ -286,11 +285,6 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 io->mb1bVp, io->mb1bQp, io->mb1bPhip,
 	 io->mb1cVp, io->mb1cQp, io->mb1cPhip,
 	 io->mb1dVp, io->mb1dQp, io->mb1dPhip,
-
-	 io->mb2aVp, io->mb2aQp, io->mb2aPhip,
-	 io->mb2bVp, io->mb2bQp, io->mb2bPhip,
-	 io->mb2cVp, io->mb2cQp, io->mb2cPhip,
-	 io->mb2dVp, io->mb2dQp, io->mb2dPhip,
 
 	 io->ptHp, io->signHp, io->modeMemHp, io->etaPTHp, io->FRHp, io->phiHp,
 	 io->ptMp, io->signMp, io->modeMemMp, io->etaPTMp, io->FRMp, io->phiMp,
@@ -422,21 +416,26 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
       LUTAddressH.delta_phi_23   = (io->ptHp >> 8) & 0xf;
       LUTAddressH.track_eta      = (io->etaPTHp>>1) & 0xf;
       LUTAddressH.track_mode     = io->modeMemHp & 0xf;
-      LUTAddressH.delta_phi_sign = (io->ptHp >> (BWPT-1)) & 0x1;
+//	Line Replaced due to removal of spbits.h, note that
+//	BWPT and MODE_ACC are now hard coded (13 and 15 respectively)
+//      LUTAddressH.delta_phi_sign = (io->ptHp >> (BWPT-1)) & 0x1;
+      LUTAddressH.delta_phi_sign = (io->ptHp >> (13-1)) & 0x1;
       LUTAddressH.track_fr       = io->FRHp & 0x1;
 
       LUTAddressM.delta_phi_12   = io->ptMp & 0xff;
       LUTAddressM.delta_phi_23   = (io->ptMp >> 8) & 0xf;
       LUTAddressM.track_eta      = (io->etaPTMp>>1) & 0xf;
       LUTAddressM.track_mode     = io->modeMemMp & 0xf;
-      LUTAddressM.delta_phi_sign = (io->ptMp >> (BWPT-1)) & 0x1;
+//      LUTAddressM.delta_phi_sign = (io->ptMp >> (BWPT-1)) & 0x1;
+      LUTAddressM.delta_phi_sign = (io->ptMp >> (13-1)) & 0x1;
       LUTAddressM.track_fr       = io->FRMp & 0x1;
 
       LUTAddressL.delta_phi_12   = io->ptLp & 0xff;
       LUTAddressL.delta_phi_23   = (io->ptLp >> 8) & 0xf;
       LUTAddressL.track_eta      = (io->etaPTLp>>1) & 0xf;
       LUTAddressL.track_mode     = io->modeMemLp & 0xf;
-      LUTAddressL.delta_phi_sign = (io->ptLp >> (BWPT-1)) & 0x1;
+//      LUTAddressL.delta_phi_sign = (io->ptLp >> (BWPT-1)) & 0x1;
+      LUTAddressL.delta_phi_sign = (io->ptLp >> (13-1)) & 0x1;
       LUTAddressL.track_fr       = io->FRLp & 0x1;
 
      // Core's input was loaded in a relative time window starting from BX=1(CSC)/0(DT)
@@ -454,7 +453,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkH.setBx((int)(bx)-shift);
 	  trkH.setStationIds(io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH);
 	  trkH.m_output_link = 1;
-	  if( LUTAddressH.track_mode==MODE_ACC ) trkH.setFineHaloPacked(1);
+	  if( LUTAddressH.track_mode==15 ) trkH.setFineHaloPacked(1);
 	  mytracks.push_back(trkH);
 	}
       if(LUTAddressM.track_mode)
@@ -466,7 +465,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkM.setBx((int)(bx)-shift);
 	  trkM.setStationIds(io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM);
 	  trkM.m_output_link = 2;
-	  if( LUTAddressM.track_mode==MODE_ACC ) trkM.setFineHaloPacked(1);
+	  if( LUTAddressM.track_mode==15 ) trkM.setFineHaloPacked(1);
 	  mytracks.push_back(trkM);
 	}
       if(LUTAddressL.track_mode)
@@ -478,7 +477,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	  trkL.setBx((int)(bx)-shift);
 	  trkL.setStationIds(io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL);
 	  trkL.m_output_link = 3;
-	  if( LUTAddressL.track_mode==MODE_ACC ) trkL.setFineHaloPacked(1);
+	  if( LUTAddressL.track_mode==15 ) trkL.setFineHaloPacked(1);
 	  mytracks.push_back(trkL);
 	}
       ++bx;

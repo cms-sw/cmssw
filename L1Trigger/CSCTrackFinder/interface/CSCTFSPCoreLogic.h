@@ -6,7 +6,7 @@
 #include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 
-class SPvpp;
+class vpp_generated;
 
 class CSCTFSPCoreLogic
 {
@@ -78,7 +78,7 @@ class CSCTFSPCoreLogic
   CSCTriggerContainer<csc::L1Track> tracks();
 
  private:
-  static SPvpp sp_;
+  static vpp_generated sp_;
   std::vector<SPio> io_;
   bool runme;
   CSCTriggerContainer<csc::L1Track> mytracks;
