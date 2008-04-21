@@ -1,4 +1,4 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.3 2008/04/11 13:27:33 bainbrid Exp $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.4 2008/04/14 05:44:33 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
@@ -22,6 +22,9 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
     
     // if physics run, return calibration constants 
     try { 
+
+      //@@ GET LATEST RUN NUMBER HERE!!!!
+
       analyses_ = deviceFactory(__func__)->getCalibrationData( dbParams_.partitions_.begin()->second.runNumber_, 
 							       dbParams_.partitions_.begin()->second.partitionName_, 
 							       analysis_type );
@@ -53,17 +56,19 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	runs = deviceFactory(__func__)->getAnalysisHistory( dbParams_.partitions_.begin()->second.partitionName_, 
 							    analysis_type );
       } catch (...) { handleException( __func__ ); }
-      Runs::const_iterator irun = runs.end();
 
       // then retrieve appropriate version from "history"
       uint32_t major = 0;
       uint32_t minor = 0;
       if ( !runs.empty() ) {
 	
-	if ( dbParams_.partitions_.begin()->second.runNumber_ == 0 ) { irun = --(runs.end()); } //@@ assumes map is sorted correctly!
+	Runs::const_iterator irun = runs.end();
+	if ( dbParams_.partitions_.begin()->second.runNumber_ == 0 ) { irun = --(runs.end()); } //@@ assumes map is sorted
 	else { irun = runs.find( dbParams_.partitions_.begin()->second.runNumber_ ); } 
-	  
+	
 	if ( irun != runs.end() ) {
+	  
+	  // Build temp vector of "versions"
 	  std::vector<uint16_t> vers;
 	  if ( !irun->second.empty() ) {
 	    Versions::const_iterator ivers = irun->second.begin();
@@ -72,18 +77,23 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	      vers.push_back( ivers->first * 1000000 + ivers->second );
 	    }
 	  }
+	  
+	  // Extract major / minor versions
 	  if ( dbParams_.partitions_.begin()->second.calVersion_.first == 0 && 
 	       dbParams_.partitions_.begin()->second.calVersion_.second == 0 ) { 
-	    //sort( vers.begin(), vers.end() ); //@@ necessary? already ordered?
+	    sort( vers.begin(), vers.end() ); 
 	    major = vers.back() / 1000000;
 	    minor = vers.back() % 1000000;
 	  } else {
-	    uint16_t key = dbParams_.partitions_.begin()->second.calVersion_.first * 1000000 + dbParams_.partitions_.begin()->second.calVersion_.second;
+	    uint16_t key = 
+	      dbParams_.partitions_.begin()->second.calVersion_.first * 1000000 + 
+	      dbParams_.partitions_.begin()->second.calVersion_.second;
 	    if ( find( vers.begin(), vers.end(), key ) != vers.end() ) {
 	      major = dbParams_.partitions_.begin()->second.calVersion_.first;
 	      minor = dbParams_.partitions_.begin()->second.calVersion_.second;
 	    }
 	  }
+
 	} else {
 	  edm::LogWarning(mlConfigDb_)
 	    << "[SiStripConfigDb::" << __func__ << "]"
@@ -97,7 +107,7 @@ const SiStripConfigDb::AnalysisDescriptions& SiStripConfigDb::getAnalysisDescrip
 	  << " History list is empty! No runs found!";
       }
 
-      // then retrieve analysis for given version
+      // Retrieve analysis for given versions
       if ( major && minor ) {
 
 	try { 
@@ -171,7 +181,7 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool use_as_calibrations_for_p
   if ( use_as_calibrations_for_physics && !allowCalibUpload_ ) {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
-      << " Attempting to upload calibration constants before uploading any hardware descriptions!"
+      << " Attempting to upload calibration constants without uploading any hardware descriptions!"
       << " Not allowed! Aborting upload!";
     return;
   } else { allowCalibUpload_ = false; }
