@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.38 2007/12/13 07:32:39 dmytro Exp $
+ * \version $Id: Muon.h,v 1.39 2008/01/22 09:50:55 bellan Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -101,6 +101,8 @@ namespace reco {
     static const unsigned int CaloMuon =  1<<4;
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
+    // override of method in base class reco::Candidate
+    bool isMuon() const { return true; }
     bool isGlobalMuon()     const { return type_ & GlobalMuon; }
     bool isTrackerMuon()    const { return type_ & TrackerMuon; }
     bool isStandAloneMuon() const { return type_ & StandAloneMuon; }
