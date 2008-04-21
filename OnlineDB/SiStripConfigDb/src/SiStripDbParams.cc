@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.1 2008/04/08 09:14:51 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.2 2008/04/11 13:27:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -87,7 +87,7 @@ void SiStripDbParams::setParams( const edm::ParameterSet& cfg ) {
   }
   
   // Ensure at least one "default" partition
-  if ( partitions_.empty() ) { partitions_["PrimaryPartition"] = SiStripPartition(); }
+  if ( partitions_.empty() ) { partitions_["DefaultPartition"] = SiStripPartition(); }
 
   // Set output XML files
   outputModuleXml_  = cfg.getUntrackedParameter<std::string>( "OutputModuleXml", "/tmp/module.xml" );
@@ -135,12 +135,23 @@ void SiStripDbParams::confdb( const std::string& user,
 
 // -----------------------------------------------------------------------------
 // 
-std::string SiStripDbParams::partitions() const {
-  std::stringstream ss;
+std::vector<std::string> SiStripDbParams::partitions() const {
+  std::vector<std::string> partitions;
   SiStripPartitions::const_iterator ii = partitions_.begin();
   SiStripPartitions::const_iterator jj = partitions_.end();
-  for ( ; ii != jj; ++ii ) { ii == partitions_.begin() ? ss << ii->second.partitionName_ : ss << ":" << ii->second.partitionName_; }
-  return ss.str();
+  for ( ; ii != jj; ++ii ) { 
+    if ( std::find( partitions.begin(), 
+		    partitions.end(), 
+		    ii->second.partitionName_ ) == partitions.end() ) {
+      if ( !ii->second.partitionName_.empty() ) { partitions.push_back( ii->second.partitionName_ ); }
+    } else {
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripConfigDb::" << __func__ << "]"
+	<< " Partition " << ii->second.partitionName_
+	<< " already found! Not adding to vector...";
+    }
+  }
+  return partitions;
 }
 
 // -----------------------------------------------------------------------------
@@ -150,8 +161,24 @@ std::vector<std::string> SiStripDbParams::partitions( std::string input ) const 
   std::vector<std::string> partitions;
   std::string delimiter = ":";
   std::string token;
-  while ( getline( ss, token, ':' ) ) { partitions.push_back(token); }
+  while ( getline( ss, token, ':' ) ) { if ( !token.empty() ) { partitions.push_back(token); } }
   return partitions;
+}
+
+// -----------------------------------------------------------------------------
+// 
+std::string SiStripDbParams::partitions( const std::vector<std::string>& partitions ) const {
+  std::stringstream ss;
+  std::vector<std::string>::const_iterator ii = partitions.begin();
+  std::vector<std::string>::const_iterator jj = partitions.end();
+  bool first = true;
+  for ( ; ii != jj; ++ii ) { 
+    if ( !ii->empty() ) { 
+      first ? ss << *ii : ss << ":" << *ii; 
+      first = false;
+    }
+  }
+  return ss.str();
 }
 
 // -----------------------------------------------------------------------------
@@ -172,7 +199,10 @@ void SiStripDbParams::print( std::stringstream& ss ) const {
     }
     
     ss << " Number of partitions       : " << partitions_.size();
-    if ( partitions_.empty() && usingDbCache_ ) { ss << " (Using database cache!)"; }
+    if ( partitions_.empty() ) { 
+      if ( !usingDbCache_ ) { ss << " (Empty!)"; }
+      else { ss << " (Using database cache!)"; }
+    }
     ss << std::endl;
     
     uint16_t cntr = 0;

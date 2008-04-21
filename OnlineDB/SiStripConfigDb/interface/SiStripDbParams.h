@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.2 2008/04/08 09:33:35 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.3 2008/04/11 13:27:33 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -42,10 +42,15 @@ class SiStripDbParams {
   void confdb( const std::string& user,
 	       const std::string& passwd,
 	       const std::string& path );
+
+  /** Extract (non-zero) partition names from partition objects. */
+  std::vector<std::string> partitions() const;
   
-  std::string partitions() const;
-  
+  /** Extract (non-zero) partition names from string. */
   std::vector<std::string> partitions( std::string ) const;
+  
+  /** Construct string from (non-zero) partition names. */
+  std::string partitions( const std::vector<std::string>& ) const;
 
   std::vector<std::string> inputModuleXmlFiles() const;
 
