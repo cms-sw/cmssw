@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.23 2008/04/08 16:39:15 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.24 2008/04/12 22:33:58 charlot Exp $
 //
 //
 
@@ -355,7 +355,8 @@ float PixelHitMatcher::getVertex(){
   return vertex_;
 }
 
-std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds,const GlobalPoint& xmeas,
+//std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds,const GlobalPoint& xmeas,
+std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedCollection *seeds,const GlobalPoint& xmeas,
 							     const GlobalPoint& vprim,
 							     float energy,
 							     float fcharge){
@@ -372,7 +373,8 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(edm::Handle<Traject
  
   for (unsigned int i=0;i<seeds->size();++i)
     {
-      TrajectorySeed::range r=(*seeds.product())[i].recHits();
+      //      TrajectorySeed::range r=(*seeds.product())[i].recHits();
+      TrajectorySeed::range r=(*seeds)[i].recHits();
  
       // first Hit
       TrajectorySeed::const_iterator it=r.first;
@@ -415,7 +417,8 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(edm::Handle<Traject
 	  std::pair<bool,double> est2;
  	  if (dynamic_cast<const BoundCylinder *>(&(geomdet2->surface()))) est2=meas2ndBLayer.estimate(tsos2,hitPos2);
  	  else est2=meas2ndFLayer.estimate(tsos2,hitPos2); 
-	  if (est2.first) result.push_back((*seeds.product())[i]);
+	  //	  if (est2.first) result.push_back((*seeds.product())[i]);
+	  if (est2.first) result.push_back((*seeds)[i]);
 	}
 
       } 

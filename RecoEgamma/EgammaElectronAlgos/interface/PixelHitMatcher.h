@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.17 2008/04/08 16:39:14 uberthon Exp $
+// $Id: PixelHitMatcher.h,v 1.18 2008/04/12 22:33:57 charlot Exp $
 //
 //
 
@@ -86,8 +86,9 @@ class PixelHitMatcher{
   std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > 
    compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, float energy, float charge);
   std::vector<TrajectorySeed> 
-   compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
-                   const GlobalPoint& vprim, float energy, float charge);
+    //   compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
+   compatibleSeeds(TrajectorySeedCollection *seeds, const GlobalPoint& xmeas,
+                    const GlobalPoint& vprim, float energy, float charge);
    
   std::vector<Hep3Vector> predicted1Hits();
   std::vector<Hep3Vector> predicted2Hits();

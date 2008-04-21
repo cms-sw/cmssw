@@ -13,8 +13,10 @@
  *
  ************************************************************/
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
-
+#include "DataFormats/EgammaReco/interface//ElectronPixelSeed.h"  
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"  
+//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -27,6 +29,8 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 
@@ -36,7 +40,7 @@ class PixelHitMatcher;
 class MeasurementTracker;
 class NavigationSchool;
 
-class ElectronPixelSeedGenerator: public ElectronSeedGenerator
+class ElectronPixelSeedGenerator
 {
  public:
 
@@ -49,7 +53,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   ~ElectronPixelSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
-  void run(edm::Event&, const edm::EventSetup& setup, const reco::SuperClusterRefVector &, reco::ElectronPixelSeedCollection&);
+  void run(edm::Event&, const edm::EventSetup& setup, const reco::SuperClusterRefVector &, TrajectorySeedCollection *seeds, reco::ElectronPixelSeedCollection&);
 
  private:
 
@@ -58,7 +62,7 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
 
   bool dynamicphiroad_;
   bool fromTrackerSeeds_;
-  edm::InputTag initialSeeds_;
+  //  edm::InputTag initialSeeds_;
   
   float lowPtThreshold_;
   float highPtThreshold_;
@@ -73,7 +77,8 @@ class ElectronPixelSeedGenerator: public ElectronSeedGenerator
   PixelHitMatcher *myMatchEle;
   PixelHitMatcher *myMatchPos;
 
-  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
+  //  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
+  TrajectorySeedCollection* theInitialSeedColl;
 
   edm::ESHandle<MagneticField>                theMagField;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;

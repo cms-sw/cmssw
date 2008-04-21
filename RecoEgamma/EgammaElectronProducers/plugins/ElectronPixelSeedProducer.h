@@ -26,7 +26,8 @@
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
   
-class  ElectronSeedGenerator;
+class  ElectronPixelSeedGenerator;
+class SeedFilter;
 
 class ElectronPixelSeedProducer : public edm::EDProducer
 {
@@ -42,15 +43,19 @@ class ElectronPixelSeedProducer : public edm::EDProducer
  private:
 
   void filterClusters(const edm::Handle<reco::SuperClusterCollection> &superClusters,HBHERecHitMetaCollection* mhbhe, reco::SuperClusterRefVector &sclRefs);
+  void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
   edm::InputTag superClusters_[2];
   edm::InputTag hcalRecHits_;
+  edm::InputTag initialSeeds_;
   
   const edm::ParameterSet conf_;
-  ElectronSeedGenerator *matcher_;
-  std::string algo_;
+  ElectronPixelSeedGenerator *matcher_;
+  SeedFilter * seedFilter_;
  
   const HBHERecHitCollection* hithbhe_;
+  //  edm::Handle<TrajectorySeedCollection> theInitialSeedColl;
+  TrajectorySeedCollection *theInitialSeedColl;
 
   //for the filter
   edm::ESHandle<CaloGeometry>       theCaloGeom;
@@ -61,6 +66,10 @@ class ElectronPixelSeedProducer : public edm::EDProducer
   double SCEtCut_;
 
   unsigned long long cacheID_;
+
+  bool fromTrackerSeeds_;
+  bool prefilteredSeeds_;
+
 };
   
 #endif

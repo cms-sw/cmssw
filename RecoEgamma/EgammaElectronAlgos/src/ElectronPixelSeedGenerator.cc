@@ -13,9 +13,10 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.50 2008/04/11 11:39:19 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.51 2008/04/12 22:33:58 charlot Exp $
 //
 //
+
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h" 
 
@@ -36,6 +37,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -46,7 +48,6 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -57,7 +58,7 @@
 ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &pset)
   :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
       fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
-      initialSeeds_(pset.getParameter<edm::InputTag>("initialSeeds")),
+      //      initialSeeds_(pset.getParameter<edm::InputTag>("initialSeeds")),
       lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
       highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
       sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
@@ -72,6 +73,7 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
       cacheIDMagField_(0),cacheIDGeom_(0),cacheIDNavSchool_(0),cacheIDCkfComp_(0)
 { 
      // Instantiate the pixel hit matchers
+
   myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"), 
 				    pset.getParameter<double>("ePhiMax1"),
 				    pset.getParameter<double>("PhiMin2"),
@@ -154,13 +156,15 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 }
 
-void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRefVector &sclRefs, reco::ElectronPixelSeedCollection & out){
+void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const reco::SuperClusterRefVector &sclRefs, TrajectorySeedCollection *seeds, reco::ElectronPixelSeedCollection & out){
+
+  theInitialSeedColl=seeds;
 
   theSetup= &setup; 
   NavigationSetter theSetter(*theNavigationSchool);
 
   // get initial TrajectorySeeds if necessary
-  if (fromTrackerSeeds_) e.getByLabel(initialSeeds_, theInitialSeedColl);
+  //  if (fromTrackerSeeds_) e.getByLabel(initialSeeds_, theInitialSeedColl);
  
   // get the beamspot from the Event:
   e.getByType(theBeamSpot);

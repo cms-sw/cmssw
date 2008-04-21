@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.17 2008/04/14 22:47:10 charlot Exp $
+// $Id: GsfElectronAlgo.cc,v 1.18 2008/04/15 21:30:16 charlot Exp $
 //
 //
 
@@ -80,7 +80,6 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
-//using namespace math; // conflicts with DataFormat/Math/interface/Point3D.h!!!!
 
 GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
                                                double maxEOverPBarrel, double maxEOverPEndcaps, 
@@ -110,9 +109,6 @@ GsfElectronAlgo::GsfElectronAlgo(const edm::ParameterSet& conf,
   barrelSuperClusters_ = conf.getParameter<edm::InputTag>("barrelSuperClusters");
   endcapSuperClusters_ = conf.getParameter<edm::InputTag>("endcapSuperClusters");
 
-  // get type of processing
-  processType_=1;
-  if (conf.getParameter<string>("ElectronType")=="GlobalGsfElectron") processType_=2;
 }
 
 GsfElectronAlgo::~GsfElectronAlgo() {
@@ -166,20 +162,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   std::vector<GsfElectron> tempEle;
   
   // create electrons 
-  if (processType_==1) process(tracksH,bsPosition,tempEle);
-  else {
-       edm::Handle<SuperClusterCollection> superClustersBarrelH; 
-       e.getByLabel(barrelSuperClusters_,superClustersBarrelH);
-  
-       edm::Handle<SuperClusterCollection> superClustersEndcapH; 
-       e.getByLabel(endcapSuperClusters_, superClustersEndcapH);
-
-  process(tracksH, 
-          superClustersBarrelH, 
-          superClustersEndcapH,   
-	  bsPosition,
-          tempEle);
-  }
+  process(tracksH,bsPosition,tempEle);
 
   std::ostringstream str;
 
@@ -482,131 +465,3 @@ void GsfElectronAlgo::resolveElectrons(std::vector<reco::GsfElectron> & tempEle,
 
 }
 
-void GsfElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH,
-                            edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
-                            edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
-			    const math::XYZPoint &bsPosition,
-                            GsfElectronCollection & outEle) {
-  
-  
-  if (tracksH->size() == 0) {
-    //std::cout << "Electron lost: no track found. " << std::endl;
-  } else {
-    //std::cout << "Number of tracks: " << tracksH->size() << std::endl;
-  }
-  
-  //std::cout << "SuperCluster: " << superClustersBarrelH->size() << "  " << 
-  //  superClustersEndcapH->size() << std::endl;	
-
-  reco::SuperClusterRefVector superClusters;
-
-  for(int z=0; z<2; ++z) {
-
-    superClusters.clear();
-    if (z == 0) {
-      for(reco::SuperClusterCollection::size_type i= 0; i<superClustersBarrelH->size(); ++i){
-        reco::SuperClusterRef cluster(superClustersBarrelH, i);
-        superClusters.push_back(cluster);
-      }
-      //std::cout << superClustersBarrelH->size() << std::endl;
-    }
-    
-    if (z == 1) {
-      for(reco::SuperClusterCollection::size_type i= 0; i<superClustersEndcapH->size(); ++i){
-        reco::SuperClusterRef cluster(superClustersEndcapH, i);
-        superClusters.push_back(cluster);
-      }
-      //std::cout << superClustersEndcapH->size() << std::endl;
-    }
-    
-    //================= loop over SuperClusters ===============
-
-    for(unsigned int i=0; i< superClusters.size(); ++i) {
-
-      //std::cout << "Start matching " << std::endl;	
-      reco::SuperClusterRef scRef = superClusters[i];
-      reco::SuperCluster theClus = (*scRef);
-      reco::GsfTrackRef trackRef = superClusterMatching(scRef, tracksH);
-      
-      if(trackRef.isNull()) {
-        //std::cout << "Electron lost: no supercluster match found: " << tracksH->size() << std::endl;
-        continue;
-      }
-      std::vector<DetId> vecId=theClus.seed()->getHitsByDetId();
-      subdet_ =vecId[0].subdetId();  
-
-    
-      // calculate Trajectory StatesOnSurface....
-      if (!calculateTSOS((*trackRef),theClus,bsPosition)) continue;
-
-      vtxMom_=computeMode(vtxTSOS_);
-      sclPos_=sclTSOS_.globalPosition();
-      if (preSelection(theClus)) {
-	// interface to be improved...
-	createElectron(scRef,trackRef,outEle);
-        //LogInfo("")<<"Constructed new electron with energy  "<< (*sclAss)[seed]->energy();
-      }
-    }  
-  }
-}
-
-const reco::GsfTrackRef
-GsfElectronAlgo::superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco::GsfTrackCollection> tracks) {
-
-  double minDr = 0.5;
-  double minDeop = 10.;
-  //reco::SuperClusterRef theClus = edm::Ref<SuperClusterCollection>();
-  reco::GsfTrackRef theTrack = edm::Ref<reco::GsfTrackCollection>();
-
-
-  for(reco::GsfTrackCollection::size_type i=0; i<tracks->size(); ++i){
-    reco::GsfTrackRef track(tracks, i);
-    math::XYZVector trackGlobalDir(track->momentum());   
-    math::XYZVector clusterGlobalDir(sc->x() - track->vx(), sc->y() - track->vy(), sc->z() - track->vz());
-    //math::XYZVector clusterGlobalPos(sc->x(), sc->y(), sc->z());
-    
-    double clusEt = sc->energy()*sin(clusterGlobalDir.theta());
-    double clusEstimatedCurvature = clusEt/0.3/4*100;  //4 tesla (temporary solution)
-    double DphiBending = sc->position().rho()/2./clusEstimatedCurvature; //ecal radius
-
-
-    double tmpDr = ROOT::Math::VectorUtil::DeltaR(clusterGlobalDir, trackGlobalDir);
-    if ( !(tmpDr < minDr) ) continue;
-
-    TrajectoryStateOnSurface innTSOS = mtsTransform_->innerStateOnSurface(*track, *(trackerHandle_.product()), theMagField.product());
-    GlobalVector innMom=computeMode(innTSOS);
-
-    TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(*track, *(trackerHandle_.product()), theMagField.product());
-    if (!outTSOS.isValid())   continue;
-
-    TrajectoryStateOnSurface seedTSOS = TransverseImpactPointExtrapolator(*geomPropFw_).extrapolate(outTSOS,GlobalPoint(sc->seed()->position().x(),sc->seed()->position().y(),sc->seed()->position().z()));
-    if (!seedTSOS.isValid()) seedTSOS=outTSOS;
-
-    GlobalVector seedMom=computeMode(seedTSOS);
-
-    double eOverPin  = sc->energy()/innMom.mag();
-    //    double eOverPout = sc->seed()->energy()/seedMom.mag();
- 
-    double Deta = fabs(clusterGlobalDir.eta() - trackGlobalDir.eta());
-    double dPhi = fabs(acos(cos(clusterGlobalDir.phi() - trackGlobalDir.phi())));
-    float dPhi1 = fabs(dPhi - DphiBending);
-    float dPhi2 = fabs(dPhi + DphiBending);
-
-    //    if( !(eOverPout>0.5) ) continue;
-    if( !(eOverPin<5) )  continue;
-    if( !(min(dPhi1,dPhi2) < 0.1) )  continue;
-    if( !(Deta < 0.02) ) continue;
-
-    //    cout << " in matchbox, dphi, deta: " << Dphi << " , " << Deta << endl;
-    //    cout << " in matchbox, E/Pin, out: " << eOverPin << " , " << eOverPout << endl;
-
-    if( fabs(eOverPin-1.) < minDeop){
-      minDeop = fabs(eOverPin-1.) ;
-      theTrack = track;
-    }
-  }
-
-  //cout << " in matchbox, minD(eop): " << minDeop << endl;
-  //std::cout << "returning null ref" << std::endl;
-  return theTrack;
-}

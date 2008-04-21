@@ -53,12 +53,6 @@ public:
   void process(edm::Handle<reco::GsfTrackCollection> tracksH,
 	       const math::XYZPoint &bs,
 	       reco::GsfElectronCollection & outEle);
-  void process(edm::Handle<reco::GsfTrackCollection> tracksH,
-	       edm::Handle<reco::SuperClusterCollection> superClustersBarrelH,
-	       edm::Handle<reco::SuperClusterCollection> superClustersEndcapH,
-	       const math::XYZPoint &bs,
-	       reco::GsfElectronCollection & outEle);
-  
   
   // preselection method
   bool preSelection(const reco::SuperCluster& clus);
@@ -75,8 +69,6 @@ public:
 
   // associations
   const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef);
-  const reco::GsfTrackRef
-    superClusterMatching(reco::SuperClusterRef sc, edm::Handle<reco::GsfTrackCollection> tracks);
 
   // intermediate calculations
   bool calculateTSOS(const reco::GsfTrack &t,const reco::SuperCluster & theClus, const math::XYZPoint & bs);
@@ -129,7 +121,6 @@ public:
   TrajectoryStateOnSurface seedTSOS_;
 
   HBHERecHitMetaCollection *mhbhe_;
-  unsigned int processType_;
 
   unsigned long long cacheIDGeom_;
   unsigned long long cacheIDTDGeom_;

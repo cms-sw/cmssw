@@ -8,7 +8,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
+#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"  
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -33,9 +34,6 @@ SubSeedGenerator::~SubSeedGenerator() {
   
 }
 
-
-void SubSeedGenerator::setupES(const edm::EventSetup& setup) {
-}
 
 void  SubSeedGenerator::run(edm::Event& e, const edm::EventSetup& setup, const edm::Handle<reco::SuperClusterCollection> &superClusters, reco::ElectronPixelSeedCollection & out){
   
