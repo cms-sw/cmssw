@@ -40,7 +40,8 @@ L1MuGMTParameters = cms.ESProducer("L1MuGMTParametersProducer",
     SortRankOffsetBrl = cms.uint32(10),
     MergeMethodSRKBrl = cms.string('takeDT'),
     MergeMethodMIPSpecialUseANDBrl = cms.bool(False),
-    SortRankOffsetFwd = cms.uint32(10)
+    SortRankOffsetFwd = cms.uint32(10),
+    VersionSortRankEtaQLUT = cms.uint32(2)
 )
 
 

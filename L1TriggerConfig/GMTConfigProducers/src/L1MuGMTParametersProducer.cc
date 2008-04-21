@@ -4,8 +4,8 @@
 //
 //   Description:  A class to produce the L1 GMT emulator Parameters record in the event setup
 //
-//   $Date: $
-//   $Revision: $
+//   $Date$
+//   $Revision$
 //
 //   Author :
 //   I. Mikulec
@@ -77,6 +77,7 @@ L1MuGMTParametersProducer::produceL1MuGMTParameters(const L1MuGMTParametersRcd& 
   gmtparams->setCDLConfigWordCSCDT(m_ps->getParameter<unsigned>("CDLConfigWordCSCDT"));
   gmtparams->setCDLConfigWordbRPCCSC(m_ps->getParameter<unsigned>("CDLConfigWordbRPCCSC"));
   gmtparams->setCDLConfigWordfRPCDT(m_ps->getParameter<unsigned>("CDLConfigWordfRPCDT"));
+  gmtparams->setVersionSortRankEtaQLUT(m_ps->getParameter<unsigned>("VersionSortRankEtaQLUT"));
 
   return gmtparams ;
 }

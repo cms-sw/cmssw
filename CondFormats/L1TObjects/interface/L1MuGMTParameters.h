@@ -6,8 +6,8 @@
  *                  
 */                  
 //
-//   $Date: $
-//   $Revision: $
+//   $Date$
+//   $Revision$
 //
 //
 //   Author :
@@ -145,6 +145,9 @@ public:
   void setCDLConfigWordfRPCDT(const unsigned CDLConfigWordfRPCDT) {m_CDLConfigWordfRPCDT = CDLConfigWordfRPCDT;}
   unsigned getCDLConfigWordfRPCDT() const {return m_CDLConfigWordfRPCDT;}
 
+  void setVersionSortRankEtaQLUT(const unsigned VersionSortRankEtaQLUT) {m_VersionSortRankEtaQLUT = VersionSortRankEtaQLUT;}
+  unsigned getVersionSortRankEtaQLUT() const {return m_VersionSortRankEtaQLUT;}
+
 private:
 
   double m_EtaWeight_barrel;
@@ -187,6 +190,7 @@ private:
   unsigned m_CDLConfigWordCSCDT;
   unsigned m_CDLConfigWordbRPCCSC;
   unsigned m_CDLConfigWordfRPCDT;
+  unsigned m_VersionSortRankEtaQLUT;
 
 };
 
