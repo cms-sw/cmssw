@@ -527,7 +527,14 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       int layer1 = layers[idx1];
       segPos[1] = seg[idx1]->globalPosition();      
  
+<<<<<<< MuonSeedCreator.cc
+      
+      //eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
+      // using the eta from outter layer because parameterization do so
+      eta = fabs(segPos[1].eta());
+=======
       eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
+>>>>>>> 1.7
 
       double dphi = segPos[0].phi() - segPos[1].phi();
       double temp_dphi = dphi;
