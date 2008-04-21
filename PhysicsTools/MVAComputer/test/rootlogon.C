@@ -1,6 +1,7 @@
 void rootlogon()
 {
-	gSystem->Load("libFWCoreFWLite");
+	gSystem->Load("libCintex");
 	gSystem->Load("libPhysicsToolsMVAComputer");
-	AutoLibraryLoader::enable();
+	gSystem->Load("libPhysicsToolsMVATrainer");
+	Cintex::Enable();
 }
