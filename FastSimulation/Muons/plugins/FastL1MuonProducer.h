@@ -16,6 +16,7 @@ class FML1EfficiencyHandler;
 class FML1PtSmearer;
 class L1MuGMTReadoutCollection;
 class L1MuTriggerScales;
+class L1MuTriggerPtScale;
 
 class RandomEngine;
 
@@ -73,6 +74,9 @@ class FastL1MuonProducer : public edm::EDProducer {
   
   // Regional Eta scales
   const L1MuTriggerScales* theMuScales;  
+
+  // Pt scale
+  const L1MuTriggerPtScale* theMuPtScale;  
 
   // ----------- counters ------------------------------
   int   nMuonTot , nL1MuonTot;

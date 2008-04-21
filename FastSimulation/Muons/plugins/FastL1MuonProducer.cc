@@ -13,7 +13,7 @@
 // Original Author:  Andrea Perrotta
 // Modifications: Patrick Janot.
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: FastL1MuonProducer.cc,v 1.3 2008/01/22 20:42:30 muzaffar Exp $
+// $Id: FastL1MuonProducer.cc,v 1.4 2008/04/10 17:38:44 pjanot Exp $
 //
 //
 
@@ -29,6 +29,8 @@
 // Regional eta scales...
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
 // Fast Simulation headers
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -173,13 +175,13 @@ void FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if ( phi < 0. ) phi = 2* M_PI + phi;
       unsigned etaIndex = theMuScales->getGMTEtaScale()->getPacked(eta);
       unsigned phiIndex = theMuScales->getPhiScale()->getPacked(phi);
-      unsigned pTIndex = theMuScales->getPtScale()->getPacked(pT);
+      unsigned pTIndex = theMuPtScale->getPtScale()->getPacked(pT);
       float etaValue = theMuScales->getGMTEtaScale()->getLowEdge(etaIndex);
       float phiValue = theMuScales->getPhiScale()->getLowEdge(phiIndex);
-      float pTValue = theMuScales->getPtScale()->getLowEdge(pTIndex) + 1e-6;
+      float pTValue = theMuPtScale->getPtScale()->getLowEdge(pTIndex) + 1e-6;
       float etaValue2 = theMuScales->getGMTEtaScale()->getLowEdge(etaIndex+1);
       float phiValue2 = theMuScales->getPhiScale()->getLowEdge(phiIndex+1);
-      float pTValue2 = theMuScales->getPtScale()->getLowEdge(pTIndex+1) + 1e-6;
+      float pTValue2 = theMuPtScale->getPtScale()->getLowEdge(pTIndex+1) + 1e-6;
      
       // Choose the closest index. (Not sure it is what is to be done)
       if ( fabs(etaValue2 - eta) < fabs(etaValue-eta) ) { 
@@ -403,6 +405,10 @@ void FastL1MuonProducer::beginJob(const edm::EventSetup& es)
   edm::ESHandle< L1MuTriggerScales > muScales ;
   es.get< L1MuTriggerScalesRcd >().get( muScales ) ;
   theMuScales = &(*muScales);
+
+  edm::ESHandle< L1MuTriggerPtScale > muPtScale ;
+  es.get< L1MuTriggerPtScaleRcd >().get( muPtScale ) ;
+  theMuPtScale = &(*muPtScale);
 
   // Initialize
   nMuonTot = 0;
