@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.7 2007/10/07 02:48:39 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.8 2007/10/08 11:22:09 saout Exp $
 //
 
 #include <vector>
@@ -101,6 +101,10 @@ class ProcLikelihood : public VarProcessor {
 	std::vector<SigBkg>	pdfs;
 	std::vector<double>	bias;
 	int			categoryIdx;
+	bool			logOutput;
+	bool			individual;
+	bool			neverUndefined;
+	bool			keepEmpty;
 	unsigned int		nCategories;
 };
 
@@ -126,6 +130,18 @@ ProcLikelihood::ProcLikelihood(const char *name,
 	categoryIdx(calib->categoryIdx),
 	nCategories(1)
 {
+	typedef PhysicsTools::Calibration::ProcLikelihood Calib;
+
+	logOutput = (categoryIdx & (1 << Calib::kLogOutput)) != 0;
+	individual = (categoryIdx & (1 << Calib::kLogOutput)) != 0;
+	neverUndefined =
+		(categoryIdx & (1 << Calib::kNeverUndefined)) != 0;
+	keepEmpty = (categoryIdx & (1 << Calib::kKeepEmpty)) != 0;
+
+	if (categoryIdx < 0)
+		categoryIdx |= (1 << (Calib::kCategoryMax + 1)) - 1;
+	else
+		categoryIdx &= ~((1 << (Calib::kCategoryMax + 1)) - 1);
 }
 
 void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
@@ -190,19 +206,60 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 				std::max(0.0, pdf->signal->eval(*value));
 			double backgroundProb =
 				std::max(0.0, pdf->background->eval(*value));
-			if (signalProb + backgroundProb < 1.0e-20)
+			if (!keepEmpty &&
+			    signalProb + backgroundProb < 1.0e-20)
 				continue;
 			vars++;
-			signal *= signalProb;
-			background *= backgroundProb;
+
+			if (individual) {
+				signalProb *= signal;
+				backgroundProb *= background;
+				if (logOutput) {
+					if (signalProb < 1.0e-9 &&
+					    backgroundProb < 1.0e-9) {
+						if (neverUndefined)
+							continue;
+						iter << 0.0;
+					} else if (signalProb < 1.0e-9)
+						iter << -99999.0;
+					else if (backgroundProb < 1.0e-9)
+						iter << +99999.0;
+					else
+						iter << (std::log(signalProb) -
+						         std::log(backgroundProb));
+				} else
+					iter << (signalProb /
+					         (signalProb + backgroundProb));
+			}
 		}
+
 		++pdf;
+		if (individual)
+			iter();
 	}
 
-	if (!vars || signal + background < std::exp(-7 * vars - 3))
-		iter();
-	else
-		iter(signal / (signal + background));
+	if (!individual) {
+		if (!vars || signal + background < std::exp(-7 * vars - 3)) {
+			if (neverUndefined)
+				iter(logOutput ? 0.0 : 0.5);
+			else
+				iter();
+		} else if (logOutput) {
+			if (signal < 1.0e-9 && background < 1.0e-9) {
+				if (neverUndefined)
+					iter(0.0);
+				else
+					iter();
+			}
+			else if (signal < 1.0e-9)
+				iter(-99999.0);
+			else if (background < 1.0e-9)
+				iter(+99999.0);
+			else
+				iter(std::log(signal) - std::log(background));
+		} else
+			iter(signal / (signal + background));
+	}
 }
 
 } // anonymous namespace

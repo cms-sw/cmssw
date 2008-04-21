@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.12 2007/10/08 03:02:46 saout Exp $
+// $Id: MVAComputer.h,v 1.13 2007/12/08 15:57:07 saout Exp $
 //
 
 #include <string>
@@ -110,6 +110,14 @@ class ProcLikelihood : public VarProcessor {
 		HistogramF		background;
 		HistogramF		signal;
 		bool			useSplines;
+	};
+
+	enum Flags {
+		kCategoryMax	= 19,
+		kLogOutput,
+		kIndividual,
+		kNeverUndefined,
+		kKeepEmpty
 	};
 
 	std::vector<SigBkg>		pdfs;

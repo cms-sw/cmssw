@@ -7,7 +7,8 @@
 namespace PhysicsTools {
 
 MVAComputerCache::MVAComputerCache() :
-	containerCacheId(), computerCacheId()
+	containerCacheId(Calibration::MVAComputerContainer::CacheId()),
+	computerCacheId(Calibration::MVAComputer::CacheId())
 {
 }
 

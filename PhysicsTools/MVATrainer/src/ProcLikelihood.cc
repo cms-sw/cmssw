@@ -74,6 +74,10 @@ class ProcLikelihood : public TrainProcessor {
 	std::vector<double>	bkgSum;
 	std::vector<double>	bias;
 	int			categoryIdx;
+	bool			logOutput;
+	bool			individual;
+	bool			neverUndefined;
+	bool			keepEmpty;
 	unsigned int		nCategories;
 	bool			doCategoryBias;
 	bool			doGivenBias;
@@ -87,6 +91,10 @@ ProcLikelihood::ProcLikelihood(const char *name, const AtomicId *id,
                                MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
 	categoryIdx(-1),
+	logOutput(false),
+	individual(false),
+	neverUndefined(true),
+	keepEmpty(false),
 	nCategories(1),
 	doCategoryBias(false),
 	doGivenBias(false),
@@ -112,8 +120,7 @@ void ProcLikelihood::configure(DOMElement *elem)
 
 		XMLSimpleStr nodeName(node->getNodeName());
 
-		if (std::strcmp(nodeName,
-		                "general") == 0) {
+		if (std::strcmp(nodeName, "general") == 0) {
 			if (!first)
 				throw cms::Exception("ProcLikelihood")
 					<< "Config tag general needs to come "
@@ -132,6 +139,14 @@ void ProcLikelihood::configure(DOMElement *elem)
 						elem, "category_bias", false);
 			doGlobalBias = XMLDocument::readAttribute<bool>(
 						elem, "global_bias", false);
+			logOutput = XMLDocument::readAttribute<bool>(
+						elem, "log", false);
+			individual = XMLDocument::readAttribute<bool>(
+						elem, "individual", false);
+			neverUndefined = !XMLDocument::readAttribute<bool>(
+						elem, "strict", false);
+			keepEmpty = !XMLDocument::readAttribute<bool>(
+						elem, "ignore_empty", true);
 
 			first = false;
 			continue;
@@ -253,6 +268,8 @@ void ProcLikelihood::configure(DOMElement *elem)
 
 Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 {
+	typedef Calibration::ProcLikelihood Calib;
+
 	Calibration::ProcLikelihood *calib = new Calibration::ProcLikelihood;
 
 	std::vector<unsigned int> pdfMap;
@@ -300,6 +317,10 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 	}
 
 	calib->categoryIdx = categoryIdx;
+	calib->categoryIdx |= (logOutput ? 1 : 0) << Calib::kLogOutput;
+	calib->categoryIdx |= (individual ? 1 : 0) << Calib::kIndividual;
+	calib->categoryIdx |= (neverUndefined ? 1 : 0) << Calib::kNeverUndefined;
+	calib->categoryIdx |= (keepEmpty ? 1 : 0) << Calib::kKeepEmpty;
 
 	if (doGlobalBias || doCategoryBias || doGivenBias) {
 		for(unsigned int i = 0; i < nCategories; i++) {

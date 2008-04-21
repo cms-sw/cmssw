@@ -37,16 +37,17 @@ static Double_t Max(Double_t a, Double_t b)
 
 class SelectMenu : public TGPopupMenu {
     public:
-	SelectMenu(TString what);
+	SelectMenu(TString what, int idx);
 
 	void HandleMenu(Int_t id);
 
     private:
 	TString	mode;
+	int	index;
 	TList	entries;
 };
 
-static void ShowMenu(TString what);
+static void ShowMenu(TString what, int idx = -1);
 
 static void SetStyle()
 {
@@ -100,8 +101,11 @@ void ViewMonitoring(TString fileName = "train_monitoring.root")
 	main->AddButton("ProcNormalize", "ShowMenu(\"ProcNormalize\")",
 	                "show normalizer PDF distributions", "button");
 
-	main->AddButton("ProcLikelihood", "ShowMenu(\"ProcLikelihood\")",
+	main->AddButton("ProcLikelihood (S, B)", "ShowMenu(\"ProcLikelihood\", 1)",
 	                "show likelihood ratio PDF distributions", "button");
+
+	main->AddButton("ProcLikelihood (S / (S+B))", "ShowMenu(\"ProcLikelihood\", 0)",
+	                "show likelihood ratio S/(S+B) distributions", "button");
 
 	main->AddButton("ProcMatrix", "ShowMenu(\"ProcMatrix\")",
 	                "show correlation matrix", "button");
@@ -112,7 +116,7 @@ void ViewMonitoring(TString fileName = "train_monitoring.root")
 void DrawInputs(TDirectory *dir);
 void DrawOutput(TDirectory *dir);
 void DrawProcNormalize(TDirectory *dir);
-void DrawProcLikelihood(TDirectory *dir);
+void DrawProcLikelihood(TDirectory *dir, int mode);
 void DrawProcMatrix(TDirectory *dir);
 
 void ShowOutput()
@@ -120,7 +124,7 @@ void ShowOutput()
 	DrawOutput((TDirectory*)file->Get("output"));
 }
 
-SelectMenu::SelectMenu(TString what) : mode(what)
+SelectMenu::SelectMenu(TString what, int idx) : mode(what), index(idx)
 {
 	AddLabel(what + " plots");
 	AddSeparator();
@@ -147,9 +151,9 @@ SelectMenu::SelectMenu(TString what) : mode(what)
 	Connect("Activated(Int_t)", "SelectMenu", this, "HandleMenu(Int_t)");
 }
 
-void ShowMenu(TString what)
+void ShowMenu(TString what, int idx)
 {
-	SelectMenu *menu = new SelectMenu(what);
+	SelectMenu *menu = new SelectMenu(what, idx);
 
 	Window_t dum1, dum2;
 	Int_t xroot, yroot, x, y;
@@ -179,7 +183,7 @@ void SelectMenu::HandleMenu(Int_t id)
 	else if (mode == "ProcNormalize")
 		DrawProcNormalize(dir);
 	else if (mode == "ProcLikelihood")
-		DrawProcLikelihood(dir);
+		DrawProcLikelihood(dir, index);
 	else if (mode == "ProcMatrix")
 		DrawProcMatrix(dir);
 }
@@ -389,9 +393,11 @@ void DrawOutput(TDirectory *dir)
 	Double_t x1 = sig->GetXaxis()->GetXmax();
 	Double_t x2 = sig->GetXaxis()->GetXmin();
 	FindRange(bkg, bin1, bin2, x1, x2);
+cout << x1 << " < " << x2 << endl;
 	FindRange(sig, bin1, bin2, x1, x2);
+cout << x1 << " < " << x2 << endl;
 
-	PadService pads(dir->GetName(), "discriminator & performance", 4);
+	PadService pads(dir->GetName(), "discriminator & performance", 5);
 
 	TVirtualPad *pad = pads.Next();
 
@@ -414,6 +420,7 @@ void DrawOutput(TDirectory *dir)
 	bkg_->SetLineWidth(2);
 	bkg_->SetFillStyle(3554);
 	bkg_->Draw();
+	sig_->GetXaxis()->SetRangeUser(x1, x2);
 	sig_->SetFillColor(0);
 	sig_->SetLineColor(4);
 	sig_->SetLineWidth(2);
@@ -493,7 +500,7 @@ void DrawOutput(TDirectory *dir)
 
 	TVirtualPad *pad = pads.Next();
 
-	TH1F *tmp = new TH1F(name + "_tmpI7",
+	TH1F *tmp = new TH1F(name + "_tmpO3",
 	                     "efficiency vs. purity", n, 0, 1);
 	tmp->SetBit(kCanDelete);
 
@@ -520,7 +527,7 @@ void DrawOutput(TDirectory *dir)
 	delete[] values[0];
 	delete[] values[1];
 
-	graph->SetName(name + "_tmpI8");
+	graph->SetName(name + "_tmpO4");
 	graph->SetBit(kCanDelete);
 	graph->SetLineColor(4);
 	graph->SetLineWidth(2);
@@ -531,7 +538,7 @@ void DrawOutput(TDirectory *dir)
 
 	TVirtualPad *pad = pads.Next();
 
-	tmp = new TH1F(name + "_tmpI8",
+	tmp = new TH1F(name + "_tmpO5",
 	               "signal efficiency vs. background rate", n, 0, 1);
 	tmp->SetBit(kCanDelete);
 
@@ -568,11 +575,26 @@ void DrawOutput(TDirectory *dir)
 	delete[] values[0];
 	delete[] values[1];
 
-	graph->SetName(name + "_tmpI8");
+	graph->SetName(name + "_tmpO6");
 	graph->SetBit(kCanDelete);
 	graph->SetLineColor(4);
 	graph->SetLineWidth(2);
 	graph->Draw("C");
+
+	pad = pads.Next();
+
+	TH1 *rel = (TH1*)sig->Clone(name + "_tmpO7");
+	rel->Add(bkg);
+	rel->Sumw2();
+	rel->Divide(sig, rel, 1.0, 1.0, "B");
+	rel->Rebin(8);
+	rel->Scale(0.125);
+	rel->SetLineColor(4);
+	rel->SetMarkerColor(4);
+	rel->SetLineWidth(2);
+	rel->SetStats(0);
+
+	rel->Draw();
 
 	pad->RedrawAxis();
 	Save(pad, dir, name + "_effsigbkg");
@@ -619,13 +641,14 @@ void DrawProcNormalize(TDirectory *dir)
 	}
 }
 
-void DrawProcLikelihood(TDirectory *dir)
+void DrawProcLikelihood(TDirectory *dir, int mode)
 {
 	TList *keys = dir->GetListOfKeys();
 	TString name = dir->GetName();
 	name = name(15, name.Length() - 15);
 
-	PadService pads(dir->GetName(), "\"" + name + "\" likelihood PDFs",
+	TString what = mode ? "likelihood PDFs" : "S / (S+B) distributions";
+	PadService pads(dir->GetName(), "\"" + name + "\" " + what,
 	                keys->GetSize() / 2);
 
 	TIter iter(keys);
@@ -646,12 +669,8 @@ void DrawProcLikelihood(TDirectory *dir)
 		TVirtualPad *pad = pads.Next();
 
 		bkg = (TH1*)bkg->Clone(name + "_tmpPL1");
-		bkg->SetNormFactor(bkg->Integral() / bkg->Integral("width"));
-
 		sig = (TH1*)sig->Clone(name + "_tmpPL12");
-		sig->SetNormFactor(sig->Integral() / sig->Integral("width"));
 
-		Double_t scale = (++idx == 1) ? 1.275 : 1.05;
 		Double_t x1 = Min(bkg->GetXaxis()->GetXmin(),
 		                  sig->GetXaxis()->GetXmin());
 		Double_t x2 = Max(bkg->GetXaxis()->GetXmax(),
@@ -659,42 +678,81 @@ void DrawProcLikelihood(TDirectory *dir)
 		Double_t incr = (x2 - x1) * 0.01;
 		x1 -= incr;
 		x2 += incr;
-		Double_t y = Max(bkg->GetMaximum() / bkg->Integral("width"),
-		                 sig->GetMaximum() / sig->Integral("width"));
-		TH1F *tmp = new TH1F(name + "_tmpPL3", name, 1, x1, x2);
-		tmp->SetBit(kCanDelete);
-		tmp->SetStats(0);
-		tmp->GetYaxis()->SetRangeUser(0.0, y * scale);
-		tmp->SetXTitle(name);
-		tmp->Draw();
-		bkg->SetFillColor(2);
-		bkg->SetLineColor(2);
-		bkg->SetLineWidth(0);
-		bkg->SetFillStyle(3554);
-		bkg->Draw("C same");
-		TH1 *bkg2 = (TH1*)bkg->Clone(name + "_tmpPL4");
-		bkg2->SetFillStyle(0);
-		bkg2->SetLineWidth(2);
-		bkg2->Draw("C same");
-		sig->SetFillColor(0);
-		sig->SetLineColor(4);
-		sig->SetLineWidth(2);
-		sig->SetFillStyle(1);
-		sig->Draw("C same");
 
-		if (idx == 1) {
-			TLegend *leg =
-				new TLegend(0.6 - pad->GetRightMargin(),
-				            1.0 - pad->GetTopMargin() - 0.15,
-				            1.0 - pad->GetRightMargin(),
-				            1.0 - pad->GetTopMargin());
-			leg->SetFillStyle(1);
-			leg->AddEntry(sig, "Signal", "F");
-			bkg->SetLineWidth(2);
-			leg->AddEntry(bkg, "Background", "F");
-			leg->SetBorderSize(1);
-			leg->SetMargin(0.3);
-			leg->Draw("same");
+		if (mode) {
+			bkg->SetNormFactor(bkg->Integral() /
+			                   bkg->Integral("width"));
+			sig->SetNormFactor(sig->Integral() /
+			                   sig->Integral("width"));
+
+			Double_t scale = (++idx == 1) ? 1.275 : 1.05;
+			Double_t y = Max(bkg->GetMaximum() /
+			                 bkg->Integral("width"),
+			                 sig->GetMaximum() /
+			                 sig->Integral("width"));
+			TH1F *tmp = new TH1F(name + "_tmpPL3", name, 1, x1, x2);
+			tmp->SetBit(kCanDelete);
+			tmp->SetStats(0);
+			tmp->GetYaxis()->SetRangeUser(0.0, y * scale);
+			tmp->SetXTitle(name);
+			tmp->Draw();
+			bkg->SetFillColor(2);
+			bkg->SetLineColor(2);
+			bkg->SetLineWidth(0);
+			bkg->SetFillStyle(3554);
+			bkg->Draw("C same");
+			TH1 *bkg2 = (TH1*)bkg->Clone(name + "_tmpPL4");
+			bkg2->SetFillStyle(0);
+			bkg2->SetLineWidth(2);
+			bkg2->Draw("C same");
+			sig->SetFillColor(0);
+			sig->SetLineColor(4);
+			sig->SetLineWidth(2);
+			sig->SetFillStyle(1);
+			sig->Draw("C same");
+
+			if (idx == 1) {
+				TLegend *leg =
+					new TLegend(0.6 - pad->GetRightMargin(),
+					            1.0 - pad->GetTopMargin() - 0.15,
+					            1.0 - pad->GetRightMargin(),
+					            1.0 - pad->GetTopMargin());
+				leg->SetFillStyle(1);
+				leg->AddEntry(sig, "Signal", "F");
+				bkg->SetLineWidth(2);
+				leg->AddEntry(bkg, "Background", "F");
+				leg->SetBorderSize(1);
+				leg->SetMargin(0.3);
+				leg->Draw("same");
+			}
+		} else {
+			bkg->Sumw2();
+			sig->Sumw2();
+			bkg->Add(sig);
+			sig->Divide(sig, bkg, 1, 1, "B");
+
+			Double_t scale = (++idx == 1) ? 1.16 : 1.05;
+
+			sig->SetStats(0);
+			sig->GetYaxis()->SetRangeUser(0.0, scale);
+			sig->SetXTitle(name);
+			sig->SetLineColor(4);
+			sig->SetMarkerColor(4);
+			sig->SetLineWidth(2);
+			sig->Draw();
+
+			if (idx == 1) {
+				TLegend *leg =
+					new TLegend(0.7 - pad->GetRightMargin(),
+					            1.0 - pad->GetTopMargin() - 0.07,
+					            1.0 - pad->GetRightMargin(),
+					            1.0 - pad->GetTopMargin());
+				leg->SetFillStyle(1);
+				leg->AddEntry(sig, "S / (S+B)", "F");
+				leg->SetBorderSize(1);
+				leg->SetMargin(0.3);
+				leg->Draw("same");
+			}
 		}
 
 		pad->RedrawAxis();

@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.5 2007/12/07 15:04:41 saout Exp $
+// $Id: MVAComputer.cc,v 1.6 2008/01/22 18:56:09 muzaffar Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -57,7 +57,7 @@ static MVAComputer::CacheId getNextMVAComputerCacheId()
 	static MVAComputer::CacheId nextCacheId = 0;
 
 	boost::mutex::scoped_lock scoped_lock(mutex);
-	return nextCacheId++;
+	return ++nextCacheId;
 }
 
 MVAComputer::MVAComputer() :
@@ -209,7 +209,7 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 static MVAComputerContainer::CacheId getNextMVAComputerContainerCacheId()
 {
 	static MVAComputerContainer::CacheId nextCacheId = 0;
-	return nextCacheId++;
+	return ++nextCacheId;
 }
 
 MVAComputerContainer::MVAComputerContainer() :
