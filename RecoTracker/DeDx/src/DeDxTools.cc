@@ -34,10 +34,10 @@ vector<RawHits> trajectoryRawHits(const Trajectory & trajectory)
          RawHits mono,stereo;
 	 mono.angleCosine = cosine; 
 	 stereo.angleCosine = cosine;
-         const std::vector<uint16_t> &  amplitudes = matchedHit->monoHit()->cluster()->amplitudes(); 
+         const std::vector<uint8_t> &  amplitudes = matchedHit->monoHit()->cluster()->amplitudes(); 
          mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
        
-         const std::vector<uint16_t> & amplitudesSt = matchedHit->stereoHit()->cluster()->amplitudes();
+         const std::vector<uint8_t> & amplitudesSt = matchedHit->stereoHit()->cluster()->amplitudes();
          stereo.charge = accumulate(amplitudesSt.begin(), amplitudesSt.end(), 0);
 	 
          mono.detId= matchedHit->monoHit()->geographicalId();
@@ -53,7 +53,7 @@ vector<RawHits> trajectoryRawHits(const Trajectory & trajectory)
          const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
          RawHits mono;
 	 mono.angleCosine = cosine; 
-         const std::vector<uint16_t> & amplitudes = singleHit->cluster()->amplitudes();
+         const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
          mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
          mono.detId= singleHit->geographicalId();
          hits.push_back(mono);
@@ -64,7 +64,7 @@ vector<RawHits> trajectoryRawHits(const Trajectory & trajectory)
          {
          RawHits mono;
 	 mono.angleCosine = cosine; 
-         const std::vector<uint16_t> & amplitudes = singleHit->cluster()->amplitudes();
+         const std::vector<uint8_t> & amplitudes = singleHit->cluster()->amplitudes();
          mono.charge = accumulate(amplitudes.begin(), amplitudes.end(), 0);
          mono.detId= singleHit->geographicalId();
          hits.push_back(mono);
