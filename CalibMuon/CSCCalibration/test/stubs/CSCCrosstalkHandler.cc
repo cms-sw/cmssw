@@ -27,6 +27,7 @@ void popcon::CSCDBCrosstalkImpl::getNewObjects() {
 
   //check whats already inside of database
   
+  int id=system("date");
   std::cerr<<"got offlineInfo"<<std::endl;
   std::cerr << tagInfo().name << " , last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;  	
@@ -38,7 +39,9 @@ void popcon::CSCDBCrosstalkImpl::getNewObjects() {
 
 
   
+  id=system("date");
   m_to_transfer.push_back(std::make_pair(cncrosstalk,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
+  id=system("date");
 }
