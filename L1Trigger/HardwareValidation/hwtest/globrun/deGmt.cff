@@ -2,6 +2,7 @@
 
 include "L1TriggerConfig/L1GtConfigProducers/data/L1GtConfig.cff"
 include "L1TriggerConfig/L1ScalesProducers/data/L1MuTriggerScalesConfig.cff"
+include "L1TriggerConfig/L1ScalesProducers/data/L1MuTriggerPtScaleConfig.cff"
 include "L1TriggerConfig/L1ScalesProducers/data/L1MuGMTScalesConfig.cff"
 include "L1TriggerConfig/GMTConfigProducers/data/L1MuGMTParametersConfig.cff"
 
