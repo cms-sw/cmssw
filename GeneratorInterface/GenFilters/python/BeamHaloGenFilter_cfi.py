@@ -18,13 +18,22 @@ BeamHaloGenFilter = cms.EDFilter("BHFilter",
     # Beam Halo muons are straight propagated 
     #           untracked bool InTK=true
     # The radii of the cylinders for propagation
-    radii = cms.vdouble(700.0, 638.0, 597.0, 536.0, 491.0, 462.0, 403.0, 385.0, 340.0, 329.0, 315.0, 200.0, 96.5, 61.0, 41.8, 34.2),
+    radii = cms.vdouble(700.0, 638.0, 597.0, 536.0, 491.0, 
+        462.0, 403.0, 385.0, 340.0, 329.0, 
+        315.0, 200.0, 96.5, 61.0, 41.8, 
+        34.2),
     # The corresponding values of the magnetic field
-    bfiel = cms.vdouble(-0.05, -1.78, -0.01, -1.75, -0.02, -1.86, -0.02, -1.99, -0.05, 1.0, 3.1, 4.16, 4.1, 4.07, 4.07, 4.07),
+    bfiel = cms.vdouble(-0.05, -1.78, -0.01, -1.75, -0.02, 
+        -1.86, -0.02, -1.99, -0.05, 1.0, 
+        3.1, 4.16, 4.1, 4.07, 4.07, 
+        4.07),
     # The overall reduction factor for the magnetic field
     factor = cms.double(1.0),
     # The zeds of the cylinders for propagation :
-    zeds = cms.vdouble(600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0, 600.0)
+    zeds = cms.vdouble(600.0, 600.0, 600.0, 600.0, 600.0, 
+        600.0, 600.0, 600.0, 600.0, 600.0, 
+        600.0, 600.0, 600.0, 600.0, 600.0, 
+        600.0)
 )
 
 

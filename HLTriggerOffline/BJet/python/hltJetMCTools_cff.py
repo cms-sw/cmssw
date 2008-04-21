@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # hlt jet mc tools
+# only run on events with L2 jets
+require_iterativeCone5CaloJets = cms.EDFilter("RequireModule",
+    requirement = cms.InputTag("iterativeCone5CaloJets","","HLT")
+)
+
 # see "PhysicsTools/JetMCAlgos/data/SelectPartons.cff"
 hltPartons = cms.EDFilter("PartonSelector",
     withLeptons = cms.bool(False)
@@ -28,5 +33,5 @@ hltIC5byValAlgo = cms.EDFilter("JetFlavourIdentifier",
     physicsDefinition = cms.bool(False)
 )
 
-hltJetMCTools = cms.Sequence(hltPartons*hltIC5byRef*hltIC5byValPhys+hltIC5byValAlgo)
+hltJetMCTools = cms.Sequence(require_iterativeCone5CaloJets*hltPartons*hltIC5byRef*hltIC5byValPhys+hltIC5byValAlgo)
 

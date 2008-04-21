@@ -19,25 +19,37 @@ import FWCore.ParameterSet.Config as cms
 jcSetup1 = cms.PSet(
     jetCountersNegativeWheel = cms.VPSet(cms.PSet(
         cutDescriptionList = cms.vstring('JC_minRank_1')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_1', 'JC_centralEta_6')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_11')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_11', 'JC_centralEta_6')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_19')
-    )),
+    ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_1', 
+                'JC_centralEta_6')
+        ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_11')
+        ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_11', 
+                'JC_centralEta_6')
+        ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_19')
+        )),
     jetCountersPositiveWheel = cms.VPSet(cms.PSet(
         cutDescriptionList = cms.vstring('JC_minRank_1')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_1', 'JC_centralEta_6')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_11')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_11', 'JC_centralEta_6')
-    ), cms.PSet(
-        cutDescriptionList = cms.vstring('JC_minRank_19')
-    ))
+    ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_1', 
+                'JC_centralEta_6')
+        ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_11')
+        ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_11', 
+                'JC_centralEta_6')
+        ), 
+        cms.PSet(
+            cutDescriptionList = cms.vstring('JC_minRank_19')
+        ))
 )
 

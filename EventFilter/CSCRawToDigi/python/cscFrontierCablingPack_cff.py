@@ -12,7 +12,8 @@ cscPackingCabling = cms.ESSource("PoolDBESSource",
         record = cms.string('CSCChamberMapRcd'),
         tag = cms.string('CSCChamberMap')
     )),
-    connect = cms.string('frontier://FrontierDev/CMS_COND_CSC')
+    connect = cms.string('frontier://FrontierDev/CMS_COND_CSC') ##FrontierDev/CMS_COND_CSC"
+
 )
 
 

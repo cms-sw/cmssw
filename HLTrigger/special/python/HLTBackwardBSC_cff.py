@@ -8,6 +8,6 @@ from HLTrigger.HLTcore.hltPrescaler_cfi import *
 prescaleHLTBackwardBSC = copy.deepcopy(hltPrescaler)
 hltBackwardBSC = cms.Sequence(level1seedHLTBackwardBSC+prescaleHLTBackwardBSC)
 level1seedHLTBackwardBSC.L1TechTriggerSeeding = True
-level1seedHLTBackwardBSC.L1SeedsLogicalExpression = "2"
+level1seedHLTBackwardBSC.L1SeedsLogicalExpression = '38 OR 39 OR 43'
 prescaleHLTBackwardBSC.prescaleFactor = 1
 

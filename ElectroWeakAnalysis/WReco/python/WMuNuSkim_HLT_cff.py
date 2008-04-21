@@ -9,7 +9,8 @@ WMuNuTrigReport = cms.EDFilter("HLTrigReport",
 )
 
 WMuNuSingleMuFilter = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('WMuNuFilterPath1muIso', 'WMuNuFilterPath1muNoIso'),
+    HLTPaths = cms.vstring('WMuNuFilterPath1muIso', 
+        'WMuNuFilterPath1muNoIso'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
     TriggerResultsTag = cms.InputTag("TriggerResults")

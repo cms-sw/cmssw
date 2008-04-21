@@ -11,13 +11,15 @@ trackerAlignment = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('GlobalPositionRcd'),
         tag = cms.string('IdealGeometry')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentRcd'),
-        tag = cms.string('TrackerIdealGeometry200')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('TrackerIdealGeometryErrors200')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentRcd'),
+            tag = cms.string('TrackerIdealGeometry200')
+        ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            tag = cms.string('TrackerIdealGeometryErrors200')
+        )),
     connect = cms.string('frontier://FrontierProd/CMS_COND_20X_ALIGNMENT')
 )
 

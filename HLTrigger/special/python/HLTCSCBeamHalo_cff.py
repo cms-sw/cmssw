@@ -7,7 +7,8 @@ import copy
 from HLTrigger.HLTcore.hltPrescaler_cfi import *
 prescaleHLTCSCBeamHalo = copy.deepcopy(hltPrescaler)
 hltCSCBeamHalo = cms.Sequence(level1seedHLTCSCBeamHalo+prescaleHLTCSCBeamHalo)
+#replace level1seedHLTCSCBeamHalo.L1SeedsLogicalExpression = "L1_SingleMuBeamHalo"
 level1seedHLTCSCBeamHalo.L1TechTriggerSeeding = True
-level1seedHLTCSCBeamHalo.L1SeedsLogicalExpression = "3"
+level1seedHLTCSCBeamHalo.L1SeedsLogicalExpression = 3
 prescaleHLTCSCBeamHalo.prescaleFactor = 1
 

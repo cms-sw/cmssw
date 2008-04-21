@@ -1,3 +1,8 @@
+# The following comments couldn't be translated into the new config version:
+
+#include "Configuration/JetMET/data/calorimetry-jetmet-gen.cff" 
+#replace genParticleCandidates.src="source" 
+
 import FWCore.ParameterSet.Config as cms
 
 #Particle data table, Magnetic Field, CMS geometry, Tracker geometry, Calo geometry
@@ -43,8 +48,16 @@ fsGsfElCandidates = copy.deepcopy(trackCandidateProducer)
 import copy
 from TrackingTools.GsfTracking.GsfElectronFit_cfi import *
 fsgsfPFtracks = copy.deepcopy(GsfGlobalElectronTest)
-from Configuration.JetMET.calorimetry_jetmet_gen_cff import *
-from Configuration.JetMET.calorimetry_jetmet_cff import *
+# Reco Jets and MET
+from RecoJets.Configuration.RecoJets_cff import *
+from RecoJets.Configuration.RecoPFJets_cff import *
+from RecoMET.Configuration.RecoMET_cff import *
+# Gen Jets
+from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
+from RecoJets.Configuration.GenJetParticles_cff import *
+from RecoJets.Configuration.RecoGenJets_cff import *
+from RecoMET.Configuration.GenMETParticles_cff import *
+from RecoMET.Configuration.RecoGenMET_cff import *
 # Muon simHit sequence 
 from FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi import *
 # Muon Digi sequence
@@ -83,6 +96,9 @@ from RecoBTag.Configuration.RecoBTag_cff import *
 from RecoTauTag.Configuration.RecoTauTag_cff import *
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 famosParticleFlowSequence = cms.Sequence(caloTowersPFRec+particleFlowCluster+elecpreid+fsGsfElCandidates+fsgsfPFtracks+pfTrackElec+particleFlowBlock+particleFlow)
+caloJetMet = cms.Sequence(recoJets+metreco)
+PFJetMet = cms.Sequence(recoPFJets)
+caloJetMetGen = cms.Sequence(genParticles+genJetParticles+recoGenJets+genMETParticles+recoGenMET)
 famosMuonSequence = cms.Sequence(muonDigi+muonlocalreco+MuonSeed+standAloneMuons+globalMuons)
 #replace muIsoDepositTk.ExtractorPSet = { using MIsoTrackExtractorGsBlock }
 famosMuonIdAndIsolationSequence = cms.Sequence(muonIdProducerSequence+sisCone5CaloJets+muIsolation)
@@ -92,7 +108,7 @@ famosBTaggingSequence = cms.Sequence(impactParameterTagInfos*jetBProbabilityBJet
 famosTauTaggingSequence = cms.Sequence(tautagging)
 famosPFTauTaggingSequence = cms.Sequence(PFTau)
 # The sole simulation sequence
-famosSimulationSequence = cms.Sequence(offlineBeamSpot+famosPileUp+famosSimHits+genParticleCandidates+MuonSimHits+mix)
+famosSimulationSequence = cms.Sequence(offlineBeamSpot+famosPileUp+famosSimHits+MuonSimHits+mix)
 # Famos pre-defined sequences
 famosWithTrackerHits = cms.Sequence(famosSimulationSequence+siTrackerGaussianSmearingRecHits)
 famosWithTrackerAndCaloHits = cms.Sequence(famosWithTrackerHits+caloRecHits)
@@ -103,7 +119,7 @@ famosWithCaloHits = cms.Sequence(famosSimulationSequence+caloRecHits)
 famosWithEcalClusters = cms.Sequence(famosWithCaloHits+ecalClusteringSequence)
 famosWithTracksAndCaloHits = cms.Sequence(famosWithTracks+caloRecHits)
 famosWithTracksAndEcalClusters = cms.Sequence(famosWithTracksAndCaloHits+ecalClusteringSequence)
-famosWithParticleFlow = cms.Sequence(famosWithTracksAndCaloHits+famosParticleFlowSequence)
+famosWithParticleFlow = cms.Sequence(famosWithTracksAndCaloHits+famosParticleFlowSequence+PFJetMet)
 famosWithCaloTowers = cms.Sequence(famosWithCaloHits+cms.SequencePlaceholder("towerMaker")+cms.SequencePlaceholder("caloTowers"))
 famosWithJets = cms.Sequence(famosWithCaloTowers+caloJetMetGen+caloJetMet)
 famosWithTracksAndCaloTowers = cms.Sequence(famosWithTracksAndCaloHits+cms.SequencePlaceholder("towerMaker")+cms.SequencePlaceholder("caloTowers"))
@@ -130,18 +146,18 @@ KFFittingSmoother.MinNumberOfHits = 3
 islandBasicClusters.barrelHitProducer = 'caloRecHits'
 islandBasicClusters.endcapHitProducer = 'caloRecHits'
 hybridSuperClusters.ecalhitproducer = 'caloRecHits'
-correctedHybridSuperClusters.recHitProducer = 'caloRecHits'
-correctedIslandBarrelSuperClusters.recHitProducer = 'caloRecHits'
-correctedIslandEndcapSuperClusters.recHitProducer = 'caloRecHits'
-correctedEndcapSuperClustersWithPreshower.preshRecHitProducer = 'caloRecHits'
-preshowerClusterShape.preshRecHitProducer = 'caloRecHits'
+correctedHybridSuperClusters.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEB")
+correctedIslandBarrelSuperClusters.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEB")
+correctedIslandEndcapSuperClusters.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEE")
+correctedEndcapSuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("caloRecHits","EcalRecHitsES")
+preshowerClusterShape.preshRecHitProducer = cms.InputTag("caloRecHits","EcalRecHitsES")
 dynamicHybridSuperClusters.ecalhitproducer = 'caloRecHits'
-correctedDynamicHybridSuperClusters.recHitProducer = 'caloRecHits'
+correctedDynamicHybridSuperClusters.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEB")
 fixedMatrixBasicClusters.barrelHitProducer = 'caloRecHits'
 fixedMatrixBasicClusters.endcapHitProducer = 'caloRecHits'
-fixedMatrixPreshowerClusterShape.preshRecHitProducer = 'caloRecHits'
-fixedMatrixSuperClustersWithPreshower.preshRecHitProducer = 'caloRecHits'
-correctedFixedMatrixSuperClustersWithPreshower.recHitProducer = 'caloRecHits'
+fixedMatrixPreshowerClusterShape.preshRecHitProducer = cms.InputTag("caloRecHits","EcalRecHitsES")
+fixedMatrixSuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("caloRecHits","EcalRecHitsES")
+correctedFixedMatrixSuperClustersWithPreshower.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEE")
 towerMakerPF.ecalInputs = cms.VInputTag(cms.InputTag("caloRecHits","EcalRecHitsEB"), cms.InputTag("caloRecHits","EcalRecHitsEE"))
 towerMakerPF.hbheInput = 'caloRecHits'
 towerMakerPF.hoInput = 'caloRecHits'
@@ -158,9 +174,13 @@ fsgsfPFtracks.src = 'fsGsfElCandidates'
 fsgsfPFtracks.TTRHBuilder = 'WithoutRefit'
 fsgsfPFtracks.TrajectoryInEvent = True
 pfTrackElec.GsfTrackModuleLabel = 'fsgsfPFtracks'
-genParticleCandidates.src = 'source'
+calotoweroptmaker.hbheInput = 'caloRecHits'
+calotoweroptmaker.hoInput = 'caloRecHits'
+calotoweroptmaker.hfInput = 'caloRecHits'
+calotoweroptmaker.ecalInputs = cms.VInputTag(cms.InputTag("caloRecHits","EcalRecHitsEB"), cms.InputTag("caloRecHits","EcalRecHitsEE"))
 genCandidatesForMET.verbose = False
-muonCSCDigis.strips.doCorrelatedNoise = False
+muonCSCDigis.strips.doCorrelatedNoise = False ## Saves a little bit of time
+
 GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
 GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.TrackerCollectionLabel = 'generalTracks'
@@ -181,6 +201,12 @@ calomuons.TrackAssociatorParameters.HBHERecHitCollectionLabel = 'caloRecHits'
 calomuons.TrackAssociatorParameters.HORecHitCollectionLabel = 'caloRecHits'
 pixelMatchGsfFit.src = 'electronGSGsfTrackCandidates'
 pixelMatchGsfFit.TTRHBuilder = 'WithoutRefit'
+# 
+# replace pixelMatchGsfElectrons.hbheModule = "caloRecHits"
+# replace pixelMatchGsfElectrons.hbheInstance = ""
+# replace pixelMatchGsfElectrons.SCLBarrelLabel = "electronGSPixelSeeds"
+# replace pixelMatchGsfElectrons.SCLEndcapLabel = "electronGSPixelSeeds"
+# 
 pixelMatchGsfElectrons.hcalRecHits = 'caloRecHits'
 pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronGSPixelSeeds")
 pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","electronGSPixelSeeds")

@@ -16,7 +16,12 @@ ZdcHardcodeGeometryEP = cms.ESProducer("ZdcHardcodeGeometryEP")
 CaloTowerHardcodeGeometryEP = cms.ESProducer("CaloTowerHardcodeGeometryEP")
 
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring('HCAL', 'ZDC', 'EcalBarrel', 'EcalEndcap', 'EcalPreshower', 'TOWER')
+    SelectedCalos = cms.vstring('HCAL', 
+        'ZDC', 
+        'EcalBarrel', 
+        'EcalEndcap', 
+        'EcalPreshower', 
+        'TOWER')
 )
 
 

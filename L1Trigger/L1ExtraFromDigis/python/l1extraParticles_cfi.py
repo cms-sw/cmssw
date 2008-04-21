@@ -12,7 +12,6 @@ l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
     tauJetSource = cms.InputTag("gctDigis","tauJets"),
     isolatedEmSource = cms.InputTag("gctDigis","isoEm"),
     etHadSource = cms.InputTag("gctDigis")
-    centralBxOnly = cms.bool(True),
 )
 
 

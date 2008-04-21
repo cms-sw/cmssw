@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pythiaDefault = cms.vstring('PMAS(5,1)=4.8 ! b quark mass', 'PMAS(6,1)=172.3 ! t quark mass')
+pythiaDefaultBlock = cms.PSet(
+    pythiaDefault = cms.vstring('PMAS(5,1)=4.8 ! b quark mass', 
+        'PMAS(6,1)=172.3 ! t quark mass')
+)
 

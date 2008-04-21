@@ -5,7 +5,11 @@ onejetEventContent = cms.PSet(
 )
 onejetEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('onejetHLTPath', 'onejetpe1HLTPath', 'onejetpe3HLTPath', 'onejetpe5HLTPath', 'onejetpe7HLTPath')
+        SelectEvents = cms.vstring('onejetHLTPath', 
+            'onejetpe1HLTPath', 
+            'onejetpe3HLTPath', 
+            'onejetpe5HLTPath', 
+            'onejetpe7HLTPath')
     )
 )
 

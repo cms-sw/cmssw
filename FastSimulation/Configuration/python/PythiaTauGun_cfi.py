@@ -1,9 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# This is a vector of ParameterSet names to be read, in this order
-
-# Tau jets only
-
 import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("PythiaSource",
@@ -19,7 +13,10 @@ source = cms.Source("PythiaSource",
     Etamax = cms.untracked.double(2.4),
     pythiaVerbosity = cms.untracked.bool(False),
     PythiaParameters = cms.PSet(
-        pythiaTauJets = cms.vstring('MDME(89,1)=0      ! no tau->electron', 'MDME(90,1)=0      ! no tau->muon'),
+        # Tau jets only
+        pythiaTauJets = cms.vstring('MDME(89,1)=0      ! no tau->electron', 
+            'MDME(90,1)=0      ! no tau->muon'),
+        # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaTauJets')
     )
 )

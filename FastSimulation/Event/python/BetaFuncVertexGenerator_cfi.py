@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-VertexGenerator = cms.PSet(
+myVertexGenerator = cms.PSet(
     # half-crossing beam angle
     Phi = cms.double(0.000142),
     BetaStar = cms.double(55.0),

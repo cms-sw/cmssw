@@ -129,8 +129,19 @@ HLTPrimaryDatasetsDefaults.outputCommands.append('drop *_*Digis_*_HLT')
 HLTPrimaryDatasetsDefaults.outputCommands.append('drop recoIsolatedTauTagInfos_*_*_*')
 pdTauFilter.HLTPaths = ['HLT1Tau', 'HLT1Tau1MET', 'HLT2TauPixel', 'HLTXMuonTau', 'HLTXElectronTau']
 pdPhotonFilter.HLTPaths = ['HLT1Photon', 'HLT1PhotonRelaxed', 'HLT2Photon', 'HLT2PhotonRelaxed', 'HLT2PhotonExclusive']
-pdMuonFilter.HLTPaths = ['HLT1MuonIso', 'HLT1MuonNonIso', 'HLT2MuonNonIso', 'HLT2MuonJPsi', 'HLT2MuonUpsilon', 'HLT2MuonZ', 'HLTNMuonNonIso', 'HLT2MuonSameSign', 'HLTBJPsiMuMu', 'HLTXMuonJets', 'HLTXElectronMuon', 'HLTXElectronMuonRelaxed', 'HLTXMuonTau']
-pdElectronFilter.HLTPaths = ['HLT1Electron', 'HLT1ElectronRelaxed', 'HLT2Electron', 'HLT2ElectronRelaxed', 'HLT1EMHighEt', 'HLT1EMVeryHighEt', 'HLTXElectron1Jet', 'HLTXElectron2Jet', 'HLTXElectron3Jet', 'HLTXElectron4Jet', 'HLTXElectronMuon', 'HLTXElectronMuonRelaxed', 'HLTXElectronTau', 'HLT2ElectronZCounter', 'HLT2ElectronExclusive']
-pdBJetFilter.HLTPaths = ['HLTB2JetMu', 'HLTB3JetMu', 'HLTB4JetMu', 'HLTBHTMu', 'HLTXMuonBJet', 'HLTXMuonBJetSoftMuon', 'HLTB1Jet', 'HLTB2Jet', 'HLTB3Jet', 'HLTB4Jet', 'HLTBHT', 'HLTXElectronBJet']
-pdJetMETFilter.HLTPaths = ['HLT1jet', 'HLT2jet', 'HLT3jet', 'HLT4jet', 'HLT1MET', 'HLT2jetAco', 'HLT1jet1METAco', 'HLT1jet1MET', 'HLT2jet1MET', 'HLT3jet1MET', 'HLT4jet1MET', 'HLT1MET1HT', 'HLT2jetvbfMET', 'HLTS2jet1METNV', 'HLTS2jet1METAco', 'HLTSjet1MET1Aco', 'HLTSjet2MET1Aco', 'HLTS2jetMET1Aco', 'HLTJetMETRapidityGap']
+pdMuonFilter.HLTPaths = ['HLT1MuonIso', 'HLT1MuonNonIso', 'HLT2MuonNonIso', 'HLT2MuonJPsi', 'HLT2MuonUpsilon', 
+    'HLT2MuonZ', 'HLTNMuonNonIso', 'HLT2MuonSameSign', 'HLTBJPsiMuMu', 'HLTXMuonJets', 
+    'HLTXElectronMuon', 'HLTXElectronMuonRelaxed', 'HLTXMuonTau']
+pdElectronFilter.HLTPaths = ['HLT1Electron', 'HLT1ElectronRelaxed', 'HLT2Electron', 'HLT2ElectronRelaxed', 'HLT1EMHighEt', 
+    'HLT1EMVeryHighEt', 'HLTXElectron1Jet', 'HLTXElectron2Jet', 'HLTXElectron3Jet', 'HLTXElectron4Jet', 
+    'HLTXElectronMuon', 'HLTXElectronMuonRelaxed', 'HLTXElectronTau', 'HLT2ElectronZCounter', 'HLT2ElectronExclusive']
+pdBJetFilter.HLTPaths = ['HLTB2JetMu', 'HLTB3JetMu', 'HLTB4JetMu', 'HLTBHTMu', 'HLTXMuonBJet', 
+    'HLTXMuonBJetSoftMuon', 'HLTB1Jet', 'HLTB2Jet', 'HLTB3Jet', 'HLTB4Jet', 
+    'HLTBHT', 'HLTXElectronBJet']
+pdJetMETFilter.HLTPaths = ['HLT1jet30', 'HLT1jet50', 'HLT1jet80', 'HLT1jet110', 'HLT1jet180', 
+    'HLT1jet250', 'HLT2jet', 'HLT3jet', 'HLT4jet', 'HLT1MET25', 
+    'HLT1MET35', 'HLT1MET50', 'HLT1MET65', 'HLT1MET75', 'HLT2jetAco', 
+    'HLT1jet1METAco', 'HLT1jet1MET', 'HLT2jet1MET', 'HLT3jet1MET', 'HLT4jet1MET', 
+    'HLT1MET1HT', 'HLT2jetvbfMET', 'HLTS2jet1METNV', 'HLTS2jet1METAco', 'HLTSjet1MET1Aco', 
+    'HLTSjet2MET1Aco', 'HLTS2jetMET1Aco', 'HLTJetMETRapidityGap']
 

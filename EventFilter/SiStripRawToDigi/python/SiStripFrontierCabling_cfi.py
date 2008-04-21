@@ -7,7 +7,8 @@ SiStripDBCabling = cms.ESSource("PoolDBESSource",
         record = cms.string('SiStripFedCablingRcd'),
         tag = cms.string('CSA07_SiStripFedCabling')
     )),
-    connect = cms.string('frontier://FrontierDev/CMS_COND_STRIP')
+    connect = cms.string('frontier://FrontierDev/CMS_COND_STRIP') ##FrontierDev/CMS_COND_STRIP"
+
 )
 
 

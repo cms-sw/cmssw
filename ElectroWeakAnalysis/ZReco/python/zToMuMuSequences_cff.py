@@ -20,7 +20,7 @@ from ElectroWeakAnalysis.ZReco.goodZToMuMuOneStandAloneMuonTrackMCMatch_cfi impo
 from ElectroWeakAnalysis.ZReco.goodZMCMatch_cfi import *
 goodMuonRecoForZToMuMu = cms.Sequence(goodMuons+goodTracks*goodStandAloneMuonTracks+goodMuonIsolations+goodTrackIsolations+goodStandAloneMuonTrackIsolations+muonIsolations)
 zToMuMuReco = cms.Sequence(goodZToMuMu+goodZToMuMuOneTrack+goodZToMuMuOneStandAloneMuonTrack)
-mcTruthForZToMuMu = cms.Sequence(cms.SequencePlaceholder("genParticles")+goodMuonMCMatch+goodZToMuMuMCMatch)
-mcTruthForZToMuMuOneTrack = cms.Sequence(cms.SequencePlaceholder("genParticles")+goodMuonMCMatch+goodTrackMCMatch+goodZToMuMuOneTrackMCMatch)
-mcTruthForZToMuMuOneStandAloneMuonTrack = cms.Sequence(cms.SequencePlaceholder("genParticles")+goodMuonMCMatch+goodStandAloneMuonTrackMCMatch+goodZToMuMuOneStandAloneMuonTrackMCMatch)
+mcTruthForZToMuMu = cms.Sequence(goodMuonMCMatch+goodZToMuMuMCMatch)
+mcTruthForZToMuMuOneTrack = cms.Sequence(goodMuonMCMatch+goodTrackMCMatch+goodZToMuMuOneTrackMCMatch)
+mcTruthForZToMuMuOneStandAloneMuonTrack = cms.Sequence(goodMuonMCMatch+goodStandAloneMuonTrackMCMatch+goodZToMuMuOneStandAloneMuonTrackMCMatch)
 

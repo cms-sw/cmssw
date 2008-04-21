@@ -4,11 +4,16 @@ import copy
 from FastSimulation.Tracking.TrajectorySeedProducer_cfi import *
 iterativeTrackingSeeds = copy.deepcopy(trajectorySeedProducer)
 iterativeTrackingSeeds.firstHitSubDetectorNumber = [1, 3, 2, 3, 3]
-iterativeTrackingSeeds.firstHitSubDetectors = [1, 1, 2, 6, 1, 3, 1, 2, 6, 1, 2, 6]
+iterativeTrackingSeeds.firstHitSubDetectors = [1, 1, 2, 6, 1, 
+    3, 1, 2, 6, 1, 
+    2, 6]
 iterativeTrackingSeeds.secondHitSubDetectorNumber = [2, 3, 3, 3, 3]
-iterativeTrackingSeeds.secondHitSubDetectors = [1, 2, 1, 2, 6, 1, 2, 3, 1, 2, 6, 1, 2, 6]
+iterativeTrackingSeeds.secondHitSubDetectors = [1, 2, 1, 2, 6, 
+    1, 2, 3, 1, 2, 
+    6, 1, 2, 6]
 iterativeTrackingSeeds.thirdHitSubDetectorNumber = [3, 0, 3, 0, 0]
-iterativeTrackingSeeds.thirdHitSubDetectors = [1, 2, 3, 1, 2, 3]
+iterativeTrackingSeeds.thirdHitSubDetectors = [1, 2, 3, 1, 2, 
+    3]
 iterativeTrackingSeeds.seedingAlgo = ['FirstMixedTriplets', 'FirstMixedPairs', 'SecondMixedTriplets', 'SecondMixedPairs', 'ThirdMixedPairs']
 iterativeTrackingSeeds.minRecHits = [5, 5, 3, 3, 3]
 iterativeTrackingSeeds.pTMin = [0.3, 0.3, 0.3, 0.3, 0.3]

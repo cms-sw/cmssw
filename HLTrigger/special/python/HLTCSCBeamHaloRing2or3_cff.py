@@ -14,7 +14,8 @@ filter23HLTCSCBeamHaloRing2or3 = cms.EDFilter("HLTCSCRing2or3Filter",
 )
 
 hltCSCBeamHaloRing2or3 = cms.Sequence(level1seedHLTCSCBeamHaloRing2or3+prescaleHLTCSCBeamHaloRing2or3+cms.SequencePlaceholder("muonCSCDigis")*cms.SequencePlaceholder("csc2DRecHits")*filter23HLTCSCBeamHaloRing2or3)
+#replace level1seedHLTCSCBeamHaloRing2or3.L1SeedsLogicalExpression = "L1_SingleMuBeamHalo"
 level1seedHLTCSCBeamHaloRing2or3.L1TechTriggerSeeding = True
-level1seedHLTCSCBeamHaloRing2or3.L1SeedsLogicalExpression = "3"
+level1seedHLTCSCBeamHaloRing2or3.L1SeedsLogicalExpression = 3
 prescaleHLTCSCBeamHaloRing2or3.prescaleFactor = 1
 

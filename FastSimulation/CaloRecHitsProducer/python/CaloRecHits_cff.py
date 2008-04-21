@@ -26,12 +26,13 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
         EErechitCollection = cms.string('EcalRecHitsEE'),
         ESrechitCollection = cms.string('EcalRecHitsES'),
         EBrechitCollection = cms.string('EcalRecHitsEB'),
-        doMiscalib = cms.bool(False),
+        doMiscalib = cms.bool(False), ## not for PS
+
         HCAL = cms.PSet(
-            NoiseHO = cms.double(0.18),
+            NoiseHO = cms.double(0.17),
             SaturationHB = cms.double(1500.0),
-            NoiseHB = cms.double(0.18),
-            NoiseHE = cms.double(0.2),
+            NoiseHB = cms.double(0.23),
+            NoiseHE = cms.double(0.31),
             Refactor = cms.double(1.0),
             NoiseHF = cms.double(0.0),
             SaturationHO = cms.double(14000.0),
@@ -50,7 +51,8 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
             Noise = cms.double(0.04),
             Refactor = cms.double(1.0)
         ),
-        doDigis = cms.bool(False)
+        doDigis = cms.bool(False) ## not for PS
+
     ),
     #the famous 0.97 factor..
     ContFact = cms.PSet(

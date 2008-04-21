@@ -87,15 +87,39 @@ from Configuration.EventContent.EventContent_cff import *
 #
 #Full Event content 
 FastSimCoreFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_famosPileUp_*_*', 'keep *_famosSimHits_*_*', 'keep edmHepMCProduct_source_*_*', 'keep edmGenInfoProduct_source_*_*', 'keep *_genParticles_*_*', 'keep *_genEventWeight_*_*', 'keep *_genEventScale_*_*', 'keep *_genEventProcID_*_*', 'keep *_genEventRunInfo_*_*', 'keep edmAlpgenInfoProduct_source_*_*')
+    outputCommands = cms.untracked.vstring('keep *_famosPileUp_*_*', 
+        'keep *_famosSimHits_*_*', 
+        'keep edmHepMCProduct_source_*_*', 
+        'keep edmGenInfoProduct_source_*_*', 
+        'keep *_genParticles_*_*', 
+        'keep *_genEventWeight_*_*', 
+        'keep *_genEventScale_*_*', 
+        'keep *_genEventProcID_*_*', 
+        'keep *_genEventRunInfo_*_*', 
+        'keep edmAlpgenInfoProduct_source_*_*')
 )
 #RECO content
 FastSimCoreRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_genParticles_*_*', 'keep *_genEventWeight_*_*', 'keep *_genEventScale_*_*', 'keep edmHepMCProduct_source_*_*', 'keep edmGenInfoProduct_source_*_*', 'keep SimTracks_famosSimHits_*_*', 'keep SimVertexs_famosSimHits_*_*', 'keep *_genEventProcID_*_*', 'keep *_genEventRunInfo_*_*', 'keep edmAlpgenInfoProduct_source_*_*')
+    outputCommands = cms.untracked.vstring('keep *_genParticles_*_*', 
+        'keep *_genEventWeight_*_*', 
+        'keep *_genEventScale_*_*', 
+        'keep edmHepMCProduct_source_*_*', 
+        'keep edmGenInfoProduct_source_*_*', 
+        'keep SimTracks_famosSimHits_*_*', 
+        'keep SimVertexs_famosSimHits_*_*', 
+        'keep *_genEventProcID_*_*', 
+        'keep *_genEventRunInfo_*_*', 
+        'keep edmAlpgenInfoProduct_source_*_*')
 )
 #AOD content
 FastSimCoreAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep edmGenInfoProduct_source_*_*', 'keep *_genParticles_*_*', 'keep *_genEventWeight_*_*', 'keep *_genEventScale_*_*', 'keep *_genEventProcID_*_*', 'keep *_genEventRunInfo_*_*', 'keep edmAlpgenInfoProduct_source_*_*')
+    outputCommands = cms.untracked.vstring('keep edmGenInfoProduct_source_*_*', 
+        'keep *_genParticles_*_*', 
+        'keep *_genEventWeight_*_*', 
+        'keep *_genEventScale_*_*', 
+        'keep *_genEventProcID_*_*', 
+        'keep *_genEventRunInfo_*_*', 
+        'keep edmAlpgenInfoProduct_source_*_*')
 )
 #
 # The Tracker RecHits are also different
@@ -117,11 +141,13 @@ FastSimRecoLocalTrackerAOD = cms.PSet(
 #
 #Full Event content 
 FastSimRecoLocalCaloFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_caloRecHits_*_*', 'keep *_hcalRecHits_*_*')
+    outputCommands = cms.untracked.vstring('keep *_caloRecHits_*_*', 
+        'keep *_hcalRecHits_*_*')
 )
 #RECO content
 FastSimRecoLocalCaloRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_caloRecHits_*_*', 'keep *_hcalRecHits_*_*')
+    outputCommands = cms.untracked.vstring('keep *_caloRecHits_*_*', 
+        'keep *_hcalRecHits_*_*')
 )
 #AOD content
 FastSimRecoLocalCaloAOD = cms.PSet(
@@ -147,15 +173,22 @@ FastSimRecoTrackerAOD = cms.PSet(
 #
 #Full Event content 
 FastSimParamMuonFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_paramMuons_*_*', 'keep l1extraL1MuonParticles_l1ParamMuons_*_*')
+    outputCommands = cms.untracked.vstring('keep *_paramMuons_*_*', 
+        'keep l1extraL1MuonParticles_l1ParamMuons_*_*')
 )
 #RECO content
 FastSimParamMuonRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_paramMuons_*_*', 'keep l1extraL1MuonParticles_l1ParamMuons_*_*')
+    outputCommands = cms.untracked.vstring('keep *_paramMuons_*_*', 
+        'keep l1extraL1MuonParticles_l1ParamMuons_*_*')
 )
 #AOD content
 FastSimParamMuonAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoMuons_paramMuons_*_*', 'keep *_muParamGlobalIsoDepositCtfTk_*_*', 'keep *_muParamGlobalIsoDepositCalByAssociatorTowers_*_*', 'keep *_muParamGlobalIsoDepositCalByAssociatorHits_*_*', 'keep *_muParamGlobalIsoDepositJets_*_*', 'keep l1extraL1MuonParticles_l1ParamMuons_*_*')
+    outputCommands = cms.untracked.vstring('keep recoMuons_paramMuons_*_*', 
+        'keep *_muParamGlobalIsoDepositCtfTk_*_*', 
+        'keep *_muParamGlobalIsoDepositCalByAssociatorTowers_*_*', 
+        'keep *_muParamGlobalIsoDepositCalByAssociatorHits_*_*', 
+        'keep *_muParamGlobalIsoDepositJets_*_*', 
+        'keep l1extraL1MuonParticles_l1ParamMuons_*_*')
 )
 FastSimParamMuonFEVT.outputCommands.extend(RecoMuonIsolationParamGlobal.outputCommands)
 FastSimParamMuonRECO.outputCommands.extend(RecoMuonIsolationParamGlobal.outputCommands)

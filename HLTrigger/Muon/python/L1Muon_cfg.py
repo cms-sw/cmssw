@@ -43,7 +43,8 @@ process.L1MuL1Filtered = cms.EDFilter("HLTMuonL1Filter",
 )
 
 process.OUTPUT = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *', 'keep *_*_*_PRODL1'),
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_*_*_PRODL1'),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pl1sel')
     ),

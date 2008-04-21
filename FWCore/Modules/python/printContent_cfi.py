@@ -1,9 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#data from which modules to print (all if empty)
-
-# which data from which module should we get without printing
-
 import FWCore.ParameterSet.Config as cms
 
 #print what data items are available in the Event
@@ -14,7 +8,9 @@ printContent = cms.EDAnalyzer("EventContentAnalyzer",
     verboseIndentation = cms.untracked.string('  '),
     #string used at the beginning of all output of this module
     indentation = cms.untracked.string('++'),
+    #data from which modules to print (all if empty)
     verboseForModuleLabels = cms.untracked.vstring(),
+    # which data from which module should we get without printing
     getDataForModuleLabels = cms.untracked.vstring(),
     #should we get data? (sets to 'true' if getDataFormModuleLabels has entries)
     getData = cms.untracked.bool(False)

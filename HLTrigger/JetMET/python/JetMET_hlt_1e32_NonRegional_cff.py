@@ -60,6 +60,9 @@ from HLTrigger.JetMET.hltJetVBFFilter_cfi import *
 #}
 hlt2jetvbf = copy.deepcopy(hltJetVBFFilter)
 import copy
+from HLTrigger.JetMET.hlt2jetGapFilter_cfi import *
+hlt2jetgap = copy.deepcopy(hlt2jetGapFilter)
+import copy
 from HLTrigger.HLTfilters.hlt1CaloJet_cfi import *
 # Triple jet triggers
 hlt3jet60 = copy.deepcopy(hlt1CaloJet)
@@ -171,6 +174,9 @@ pre2jet = copy.deepcopy(hltPrescaler)
 import copy
 from HLTrigger.HLTcore.hltPrescaler_cfi import *
 pre3jet = copy.deepcopy(hltPrescaler)
+import copy
+from HLTrigger.HLTcore.hltPrescaler_cfi import *
+pre2jetgap = copy.deepcopy(hltPrescaler)
 import copy
 from HLTrigger.HLTcore.hltPrescaler_cfi import *
 pre4jet = copy.deepcopy(hltPrescaler)
@@ -327,6 +333,7 @@ JetMET1jetPE3 = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePla
 JetMET1jetPE5 = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePlaceholder("l1s1jetPE5")+pre1jetPE5+cms.SequencePlaceholder("recoJetMETPath")+hlt1jet60)
 JetMET1jetPE7 = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePlaceholder("l1s1jetPE7")+pre1jetPE7+cms.SequencePlaceholder("recoJetMETPath")+hlt1jet30)
 JetMET2jet = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePlaceholder("l1s2jet")+pre2jet+cms.SequencePlaceholder("recoJetMETPath")+hlt2jet150)
+JetMET2jetgap = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePlaceholder("l1s2jetgap")+pre2jetgap+cms.SequencePlaceholder("recoJetMETPath")+hlt2jetgap)
 JetMET3jet = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePlaceholder("l1s3jet")+pre3jet+cms.SequencePlaceholder("recoJetMETPath")+hlt3jet85)
 JetMET4jet = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePlaceholder("l1s4jet")+pre4jet+cms.SequencePlaceholder("recoJetMETPath")+hlt4jet60)
 JetMET1MET = cms.Sequence(cms.SequencePlaceholder("hltBegin")+cms.SequencePlaceholder("l1s1MET")+pre1MET+cms.SequencePlaceholder("recoJetMETPath")+hlt1MET65)
@@ -378,6 +385,9 @@ hlt2jet350.MinN = 2
 hlt2jetvbf.inputTag = 'MCJetCorJetIcone5'
 hlt2jetvbf.minEt = 40.0
 hlt2jetvbf.minDeltaEta = 2.5
+hlt2jetgap.inputTag = 'MCJetCorJetIcone5'
+hlt2jetgap.minEt = 90.0
+hlt2jetgap.minEta = 1.9
 hlt3jet60.MinPt = 60.0
 hlt3jet60.MinN = 3
 hlt3jet75.MinPt = 75.0

@@ -19,21 +19,18 @@ from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 # The condDB setup
 from CondCore.DBCommon.CondDBSetup_cfi import *
 #Services from the CondDB (DevDB)
-#include "CalibMuon/Configuration/data/DT_FrontierConditions_DevDB.cff"
-#include "CalibMuon/Configuration/data/CSC_FrontierDBConditions_DevDB.cff"
-#include "RecoVertex/BeamSpotProducer/data/BeamSpotEarlyCollision_DevDB.cff"
-#include "RecoBTag/Configuration/data/RecoBTag_FrontierConditions_DevDB.cff"
-#include "RecoBTau/Configuration/data/RecoBTau_FrontierConditions_DevDB.cff"
-#include "FastSimulation/Configuration/data/Hcal_FrontierConditions_DevDB.cff"
-#include "FastSimulation/Configuration/data/Ecal_FrontierConditions_DevDB.cff"
-#include "FastSimulation/Configuration/data/Tracker_FrontierConditions_DevDB.cff" 
+#include "FastSimulation/Configuration/data/GlobalTag_DevDB.cfi" 
 #Services from the CondDB (Int)
-from CalibMuon.Configuration.DT_FrontierConditions_IntDB_cff import *
-from CalibMuon.Configuration.CSC_FrontierDBConditions_IntDB_cff import *
-from RecoVertex.BeamSpotProducer.BeamSpotEarlyCollision_IntDB_cff import *
-from RecoBTag.Configuration.RecoBTag_FrontierConditions_IntDB_cff import *
-from RecoBTau.Configuration.RecoBTau_FrontierConditions_IntDB_cff import *
-from FastSimulation.Configuration.Hcal_FrontierConditions_IntDB_cff import *
-from FastSimulation.Configuration.Ecal_FrontierConditions_IntDB_cff import *
-from FastSimulation.Configuration.Tracker_FrontierConditions_IntDB_cff import *
+from FastSimulation.Configuration.GlobalTag_IntDB_cfi import *
+hcal_db_producer = cms.ESProducer("HcalDbProducer",
+    dump = cms.untracked.vstring(''),
+    file = cms.untracked.string('')
+)
+
+es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
+    toGet = cms.untracked.vstring('GainWidths', 
+        'channelQuality', 
+        'ZSThresholds')
+)
+
 

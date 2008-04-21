@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tau = cms.EDAnalyzer("L1TauAnalyzer",
-    BosonPID = cms.int32(23),
+    BosonPID = cms.int32(23), ##(Z)
+
     # L1extra reading
     L1extraTauJetSource = cms.InputTag("l1extraParticles","Tau"),
     DoPFTauMatching = cms.bool(True),

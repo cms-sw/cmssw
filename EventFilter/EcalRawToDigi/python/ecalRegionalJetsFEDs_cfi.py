@@ -7,17 +7,19 @@ ecalRegionalJetsFEDs = cms.EDFilter("EcalRawToRecHitRoI",
         regionPhiMargin = cms.double(1.0),
         Ptmin = cms.double(50.0),
         regionEtaMargin = cms.double(1.0)
-    ), cms.PSet(
-        Source = cms.InputTag("l1extraParticles","Forward"),
-        regionPhiMargin = cms.double(1.0),
-        Ptmin = cms.double(50.0),
-        regionEtaMargin = cms.double(1.0)
-    ), cms.PSet(
-        Source = cms.InputTag("l1extraParticles","Tau"),
-        regionPhiMargin = cms.double(1.0),
-        Ptmin = cms.double(50.0),
-        regionEtaMargin = cms.double(1.0)
-    )),
+    ), 
+        cms.PSet(
+            Source = cms.InputTag("l1extraParticles","Forward"),
+            regionPhiMargin = cms.double(1.0),
+            Ptmin = cms.double(50.0),
+            regionEtaMargin = cms.double(1.0)
+        ), 
+        cms.PSet(
+            Source = cms.InputTag("l1extraParticles","Tau"),
+            regionPhiMargin = cms.double(1.0),
+            Ptmin = cms.double(50.0),
+            regionEtaMargin = cms.double(1.0)
+        )),
     type = cms.string('jet')
 )
 

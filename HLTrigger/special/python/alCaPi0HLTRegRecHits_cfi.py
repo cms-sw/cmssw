@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # AlCaPi0RecHits HLT filter
 alCaPi0RegRecHits = cms.EDFilter("HLTPi0RecHitsFilter",
     pi0BarrelHitCollection = cms.string('pi0EcalRecHitsEB'),
-    seleNRHMax = cms.int32(75),
+    seleNRHMax = cms.int32(1000),
     seleMinvMaxPi0 = cms.double(0.16),
     gammaCandPhiSize = cms.int32(21),
     clusPhiSize = cms.int32(3),

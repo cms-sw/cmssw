@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 TauMcInfoProducer = cms.EDFilter("HLTTauMcInfo",
     UsePFTauMatching = cms.bool(True),
     PFTauProducer = cms.InputTag("pfRecoTauProducer"),
-    BosonPID = cms.int32(23),
+    BosonPID = cms.int32(23), ##(Z)
+
     PFTauDiscriminator = cms.InputTag("pfRecoTauDiscriminationByIsolation"),
     PtMin = cms.double(10.0),
     GenParticles = cms.InputTag("source"),

@@ -12,7 +12,8 @@ cscPackingCabling = cms.ESSource("PoolDBESSource",
         record = cms.string('CSCChamberMapRcd'),
         tag = cms.string('CSCChamberMap')
     )),
-    connect = cms.string('oracle://orcon/CMS_COND_ON_170_CSC')
+    connect = cms.string('oracle://orcon/CMS_COND_ON_170_CSC') ##orcon/CMS_COND_ON_170_CSC"
+
 )
 
 

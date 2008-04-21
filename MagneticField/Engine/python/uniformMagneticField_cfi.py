@@ -9,7 +9,8 @@ idealMagneticFieldRecordSource = cms.ESSource("EmptyESSource",
 )
 
 UniformMagneticFieldESProducer = cms.ESProducer("UniformMagneticFieldESProducer",
-    ZFieldInTesla = cms.double(0.0)
+    ZFieldInTesla = cms.double(0.0),
+    label = cms.untracked.string('')
 )
 
 

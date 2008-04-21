@@ -1,7 +1,11 @@
 # The following comments couldn't be translated into the new config version:
 
+# pixel rechit for SC-pixel matching
+# strip rechit for the electron tracking
 #hltL1NonIsoSingleElectronEoverpFilter &
 
+#
+#
 # EgammaHLTRegionalPixelSeedGeneratorProducer
 
 import FWCore.ParameterSet.Config as cms

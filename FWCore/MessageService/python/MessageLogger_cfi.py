@@ -58,9 +58,17 @@ MessageLogger = cms.Service("MessageLogger",
         ),
         placeholder = cms.untracked.bool(True)
     ),
-    destinations = cms.untracked.vstring('warnings', 'errors', 'infos', 'debugs', 'cout', 'cerr'),
+    destinations = cms.untracked.vstring('warnings', 
+        'errors', 
+        'infos', 
+        'debugs', 
+        'cout', 
+        'cerr'),
     debugModules = cms.untracked.vstring(),
-    categories = cms.untracked.vstring('FwkJob', 'FwkReport', 'FwkSummary', 'Root_NoDictionary'),
+    categories = cms.untracked.vstring('FwkJob', 
+        'FwkReport', 
+        'FwkSummary', 
+        'Root_NoDictionary'),
     fwkJobReports = cms.untracked.vstring('FrameworkJobReport')
 )
 

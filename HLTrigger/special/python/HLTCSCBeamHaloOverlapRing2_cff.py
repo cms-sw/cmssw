@@ -17,7 +17,8 @@ overlapsHLTCSCBeamHaloOverlapRing2 = cms.EDFilter("HLTCSCOverlapFilter",
 )
 
 hltCSCBeamHaloOverlapRing2 = cms.Sequence(level1seedHLTCSCBeamHaloOverlapRing2+prescaleHLTCSCBeamHaloOverlapRing2+cms.SequencePlaceholder("muonCSCDigis")*cms.SequencePlaceholder("csc2DRecHits")*overlapsHLTCSCBeamHaloOverlapRing2)
+#replace level1seedHLTCSCBeamHaloOverlapRing2.L1SeedsLogicalExpression = "L1_SingleMuBeamHalo"
 level1seedHLTCSCBeamHaloOverlapRing2.L1TechTriggerSeeding = True
-level1seedHLTCSCBeamHaloOverlapRing2.L1SeedsLogicalExpression = "3"
+level1seedHLTCSCBeamHaloOverlapRing2.L1SeedsLogicalExpression = 3
 prescaleHLTCSCBeamHaloOverlapRing2.prescaleFactor = 1
 

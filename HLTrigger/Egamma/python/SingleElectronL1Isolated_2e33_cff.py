@@ -6,6 +6,7 @@
 
 # trackerlocalreco &              
 
+# strip rechit for the electron tracking
 #ckftracks & 
 
 # EgammaHLTRegionalPixelSeedGeneratorProducer

@@ -6,17 +6,10 @@ l1muscalesrcd = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-l1muptscalercd = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1MuTriggerPtScaleRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
-
 l1gmtscalesrcd = cms.ESSource("EmptyESSource",
     recordName = cms.string('L1MuGMTScalesRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
-
 
 

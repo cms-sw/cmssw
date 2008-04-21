@@ -5,7 +5,9 @@ photonjetsEventContent = cms.PSet(
 )
 photonjetsEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('singlePhotonHLTPath', 'singleRelaxedPhotonHLTPath', 'singlePhotonHLTPath12')
+        SelectEvents = cms.vstring('singlePhotonHLTPath', 
+            'singleRelaxedPhotonHLTPath', 
+            'singlePhotonHLTPath12')
     )
 )
 

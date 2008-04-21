@@ -17,10 +17,11 @@ hcalTBWriter = cms.EDFilter("HcalTBWriter",
     ChunkNames = cms.untracked.VPSet(cms.PSet(
         Number = cms.untracked.int32(1),
         Name = cms.untracked.string('HCAL_Trigger')
-    ), cms.PSet(
-        Number = cms.untracked.int32(20),
-        Name = cms.untracked.string('HCAL_DCC020')
-    ))
+    ), 
+        cms.PSet(
+            Number = cms.untracked.int32(20),
+            Name = cms.untracked.string('HCAL_DCC020')
+        ))
 )
 
 

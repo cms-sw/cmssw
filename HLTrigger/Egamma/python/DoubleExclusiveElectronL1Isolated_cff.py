@@ -2,6 +2,7 @@
 
 #                                      doL1T &
 
+#
 # EgammaHLTRegionalPixelSeedGeneratorProducer
 
 import FWCore.ParameterSet.Config as cms

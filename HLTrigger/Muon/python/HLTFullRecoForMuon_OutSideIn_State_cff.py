@@ -27,5 +27,5 @@ hltL3TrackCandidateFromL2.TrajectoryBuilder = 'muonCkfTrajectoryBuilder'
 hltL3TrackCandidateFromL2.trackCandidateAlso = True
 hltL3Muons.MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx")
 hltL3Muons.L3TrajBuilderParameters.l3SeedLabel = 'donotgetSEED'
-hltL3Muons.L3TrajBuilderParameters.tkTrajLabel = 'hltL3TrajectoryCandidateFromL2'
+hltL3Muons.L3TrajBuilderParameters.tkTrajLabel = 'hltL3TrackCandidateFromL2'
 
