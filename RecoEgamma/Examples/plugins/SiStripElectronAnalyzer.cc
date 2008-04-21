@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.4 2007/11/14 20:38:24 futyand Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.5 2008/04/10 15:36:17 uberthon Exp $
 //
 
 // system include files
@@ -964,7 +964,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	int StripCount = 0 ;
 	if(clust.isNonnull()) {
 	  //	  LogDebug("") << " barycenter " << clust->barycenter() ;
-	  const std::vector<uint16_t> amplitudes=clust->amplitudes(); 
+	  //	  const std::vector<uint16_t> amplitudes=clust->amplitudes(); 
+	  const std::vector<uint8_t> amplitudes=clust->amplitudes(); 
 	  for(size_t i = 0 ; i<amplitudes.size(); i++ ){
 	    Signal +=amplitudes[i] ;
 	    //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);
@@ -1078,7 +1079,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	int StripCount = 0 ;
 	if(clust.isNonnull()) {
 	  //	  LogDebug("") << " barycenter " << clust->barycenter() ;
-	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
+	  //	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
+	  const std::vector<uint8_t> amplitudes=clust->amplitudes();
 	  for(size_t i = 0 ; i<amplitudes.size(); i++ ){
 	    Signal +=amplitudes[i] ;
 	    //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);
