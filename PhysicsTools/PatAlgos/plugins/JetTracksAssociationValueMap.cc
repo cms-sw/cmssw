@@ -1,7 +1,10 @@
 #include "PhysicsTools/PatAlgos/plugins/AnythingToValueMap.h"
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "PhysicsTools/PatUtils/interface/SimpleJetTrackAssociator.h"
 #include "PhysicsTools/JetCharge/interface/JetCharge.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include <algorithm>
 

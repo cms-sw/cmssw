@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.8 2008/04/18 07:58:58 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.9 2008/04/18 09:35:44 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -22,6 +22,8 @@
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 //#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -95,8 +97,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(jetsSrc_, jets);
 
   // for jet flavour
-  edm::Handle<reco::CandMatchMap> JetPartonMap;
-  if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, JetPartonMap);
+  edm::Handle<reco::JetFlavourMatchingCollection> jetFlavMatch;
+  if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, jetFlavMatch);
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<edm::Association<reco::GenParticleCollection> > partonMatch;
@@ -154,15 +156,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // get the MC flavour information for this jet
     if (getJetMCFlavour_) {
-      for (reco::CandMatchMap::const_iterator f = JetPartonMap->begin(); f != JetPartonMap->end(); f++) {
-        const reco::Candidate * jetClone = f->key->masterClone().get();
-        // if (jetClone == &(*itJet) { // comparison by address doesn't work
-        // ugly matching!!! bah bah bah!!! but what else...?
-        if (fabs(jetClone->eta() - itJet->eta()) < 0.001 &&
-            fabs(jetClone->phi() - itJet->phi()) < 0.001) {
-          ajet.setPartonFlavour(f->val->pdgId());
-        }
-      }
+        ajet.setPartonFlavour( (*jetFlavMatch)[edm::RefToBase<reco::Jet>(jetRef)].getFlavour() );
     }
     // do the parton matching
     if (addGenPartonMatch_) {
