@@ -1,0 +1,25 @@
+<use name=FWCore/Framework>
+<use name=DataFormats/HcalRecHit>
+<use name=DataFormats/EgammaReco>
+<use name=CondFormats/PhysicsToolsObjects>
+<use name=CondFormats/EgammaObjects>
+<use name=CondFormats/DataRecord>
+<use name=Geometry/CaloGeometry>
+<use name=RecoCaloTools/MetaCollections>
+<use name=RecoEgamma/EgammaElectronAlgos>
+<use name=CondCore/DBOutputService>
+<use name=EgammaAnalysis/ElectronIDESSources>
+<export>
+  <lib name=RecoEgammaElectronIdentification>
+  <use name=FWCore/Framework>
+  <use name=DataFormats/HcalRecHit>
+  <use name=DataFormats/EgammaReco>
+  <use name=CondFormats/PhysicsToolsObjects>
+  <use name=CondFormats/EgammaObjects>
+  <use name=CondFormats/DataRecord>
+  <use name=Geometry/CaloGeometry>
+  <use name=RecoCaloTools/MetaCollections>
+  <use name=RecoEgamma/EgammaElectronAlgos>
+  <use name=CondCore/DBOutputService>
+  <use name=EgammaAnalysis/ElectronIDESSources>
+</export>

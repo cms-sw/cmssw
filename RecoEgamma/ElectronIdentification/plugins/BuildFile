@@ -1,0 +1,4 @@
+<use name=RecoEgamma/ElectronIdentification>
+<library file="*.cc" name=RecoEgammaElectronIdentificationPlugins>
+<flags EDM_PLUGIN=1>
+</library>
