@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     # to save the status of the last event (useful for crashes)
-    saveFileName = cms.untracked.string('RandomEngineState.log'),
+    saveFileName = cms.untracked.string(''),
     moduleSeeds = cms.PSet(
         g4SimHits = cms.untracked.uint32(11),
         ecalUnsuppressedDigis = cms.untracked.uint32(1234567),
