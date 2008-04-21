@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/04/15 18:01:00 $
+#     $Revision: 1.3 $
+#     $Date: 2008/04/17 16:38:47 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -67,9 +67,10 @@ if (@JOBSTATUS[$i] eq "FETCH"
     or @JOBSTATUS[$i] eq "OK" or @JOBSTATUS[$i] eq "TIMEL") {
  
 
-  @FILENAMES = ("treeFile_merge.root","histograms_merge.root","alignment_merge.log",
-		"alignment_merge.cfg","millepede.res",
-		"millepede.log","pede.dump","millepede.his", "alignments_MP.db");
+  @FILENAMES = ("treeFile_merge.root","histograms_merge.root","alignment_merge.cfg",
+		"alignment_merge.log","alignment_merge.log.gz",
+		"millepede.log","millepede.log.gz","millepede.res",
+		"millepede.his","pede.dump","alignments_MP.db");
 
   $dirPrefix = "jobData/@JOBDIR[$i]/";
 
@@ -84,7 +85,7 @@ if (@JOBSTATUS[$i] eq "FETCH"
       }
     }
     else {
-      print "$copyFile unreadable\n";
+      print "$copyFile unreadable or not existing\n";
     }
   }
 
