@@ -1,10 +1,7 @@
-# The following comments couldn't be translated into the new config version:
-
-# requested EBs 
-
 import FWCore.ParameterSet.Config as cms
 
 ecalDigiDisplay = cms.EDFilter("EcalDigiDisplay",
+    # requested EBs 
     requestedEbs = cms.untracked.vstring('none'),
     eeDigiCollection = cms.string('eeDigis'),
     # requested FEDs

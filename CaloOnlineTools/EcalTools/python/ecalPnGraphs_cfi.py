@@ -1,10 +1,7 @@
-# The following comments couldn't be translated into the new config version:
-
-# requested EBs 
-
 import FWCore.ParameterSet.Config as cms
 
 ecalPnGraphs = cms.EDFilter("EcalPnGraphs",
+    # requested EBs 
     requestedEbs = cms.untracked.vstring('none'),
     # length of the line centered on listPns containing the Pns you want to see
     # needs to be an odd number

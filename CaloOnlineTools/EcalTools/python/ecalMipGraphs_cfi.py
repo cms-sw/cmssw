@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# masked EBids
-
 import FWCore.ParameterSet.Config as cms
 
 ecalMipGraphs = cms.EDFilter("EcalMipGraphs",
@@ -11,6 +7,7 @@ ecalMipGraphs = cms.EDFilter("EcalMipGraphs",
     # parameter for the name of the output root file with TH1F
     fileName = cms.untracked.string('ecalMipGraphs-'),
     EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
+    # masked EBids
     maskedEBs = cms.untracked.vstring('-1'),
     # masked FEDs
     maskedFEDs = cms.untracked.vint32(-1),
