@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.21 2008/04/14 16:35:25 charlot Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.22 2008/04/21 09:50:47 uberthon Exp $
 //
 //
 
@@ -40,8 +40,7 @@
 
 using namespace reco;
  
-//ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) : initialSeeds_(iConfig.getParameter<edm::InputTag>("initialSeeds")),conf_(iConfig),cacheID_(0)
-ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) :conf_(iConfig),cacheID_(0),seedFilter_(0)
+ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iConfig) :conf_(iConfig),seedFilter_(0),cacheID_(0)
 {
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   initialSeeds_=pset.getParameter<edm::InputTag>("initialSeeds");
@@ -97,10 +96,8 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   // get initial TrajectorySeeds if necessary
   if (fromTrackerSeeds_) {
     if (!prefilteredSeeds_) {
-      //    theInitialSeedColl.clear();
       edm::Handle<TrajectorySeedCollection> hSeeds;
       e.getByLabel(initialSeeds_, hSeeds);
-      //    theInitialSeedColl = *(hSeeds.product());
       theInitialSeedColl = const_cast<TrajectorySeedCollection *> (hSeeds.product());
     }
     else theInitialSeedColl =new TrajectorySeedCollection;
@@ -159,19 +156,10 @@ void ElectronPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperClus
 void ElectronPixelSeedProducer::filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs)
 {
 
-for  (unsigned int i=0;i<sclRefs.size();++i) {
-    // Find the seeds
-   //FIXME?    recHits_.clear();
+  for  (unsigned int i=0;i<sclRefs.size();++i) {
+    seedFilter_->seeds(e, setup, sclRefs[i], theInitialSeedColl);
 
-
-    // get initial TrajectorySeeds
-   //    if ((fromTrackerSeeds_) && (preFilter_)) {
-  //      theInitialSeedColl.clear();
-      seedFilter_->seeds(e, setup, sclRefs[i], theInitialSeedColl);
-      //    }
-
-    std::cout << "Number fo Seeds: " << theInitialSeedColl->size() << std::endl;
-    //    seedsFromThisCluster(sclRefs[i], out);
+    LogDebug("ElectronPixelSeedProducer")<< "Number fo Seeds: " << theInitialSeedColl->size() ;
   }
  
 
