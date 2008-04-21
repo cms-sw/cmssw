@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.35 $
- *  $Date: 2008/03/25 16:15:57 $
+ *  $Revision: 1.36 $
+ *  $Date: 2008/03/27 17:46:40 $
  *  (last update by $Author: flucke $)
  */
 
@@ -450,12 +450,19 @@ bool MillePedeAlignmentAlgorithm::areEmptyParams(const std::vector<Alignable*> &
 //__________________________________________________________________________________________________
 unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
 {
+  unsigned int result = 0;
 
-  const std::string outFile(theDir + theConfig.getParameter<std::string>("treeFile"));
+  const std::string outFilePlain(theConfig.getParameter<std::string>("treeFile"));
+  if (outFilePlain.empty()) {
+    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO"
+                              << "treeFile parameter empty => skip writing for 'loop' " << loop;
+    return result;
+  }
+
+  const std::string outFile(theDir + outFilePlain);
 
   AlignmentIORoot aliIO;
   int ioerr = 0;
-  unsigned int result = 0;
   if (loop == 0) {
     aliIO.writeAlignableOriginalPositions(theAlignables, outFile.c_str(), loop, false, ioerr);
     if (ioerr) {
