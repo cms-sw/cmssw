@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapOccupancyTask = cms.EDFilter("EEOccupancyTask",
+    prefixME = cms.untracked.string('EcalEndcap'),
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
-    enableCleanup = cms.untracked.bool(True),
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    enableCleanup = cms.untracked.bool(False),
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker")
 )
 

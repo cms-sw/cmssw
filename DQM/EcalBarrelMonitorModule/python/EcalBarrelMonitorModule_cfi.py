@@ -2,15 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 ecalBarrelMonitorModule = cms.EDFilter("EcalBarrelMonitorModule",
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    verbose = cms.untracked.bool(False),
+    verbose = cms.untracked.bool(True),
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
-    EcalTBEventHeader = cms.InputTag("ecalEBunpacker"),
+    runNumber = cms.untracked.int32(0),
     enableEventDisplay = cms.untracked.bool(False),
     enableCleanup = cms.untracked.bool(False),
+    debug = cms.untracked.bool(False),
+    EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    runNumber = cms.untracked.int32(0),
     runType = cms.untracked.int32(-1),
-    EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives")
+    prefixME = cms.untracked.string('EcalBarrel')
 )
 
 

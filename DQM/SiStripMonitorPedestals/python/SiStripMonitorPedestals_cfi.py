@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 PedsMon = cms.EDFilter("SiStripMonitorPedestals",
     OutputMEsInRootFile = cms.bool(False),
-    RunTypeFlag = cms.string('AllPlots'),
+    StripQualityLabel = cms.string('test1'),
+    RunTypeFlag = cms.string('AllPlots'), ##Options : ConDBPlotsOnly , CalculatedPlotsOnly, AllPlots
+
     DigiProducer = cms.string('SiStripDigis'),
     PedestalsPSet = cms.PSet(
         MaskDeadCut = cms.double(0.7),

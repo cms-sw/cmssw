@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitorClient.L1TdeECALClient_cfi import *
 l1tdeEcalqTester = cms.EDFilter("QualityTester",
-    qtList = cms.untracked.string('deECALQualityTests.xml'),
+    #  untracked string qtList = "DQM/L1TMonitorClient/test/deECALQualityTests.xml"
+    qtList = cms.untracked.string('l1tdeECALQualityTests.xml'),
     QualityTestPrescaler = cms.untracked.int32(500),
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
