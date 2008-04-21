@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Oct 31 15:28:52 CET 2007
-// $Id: SiPixelCalibDigiProducer.cc,v 1.12 2008/02/19 13:49:06 fblekman Exp $
+// $Id: SiPixelCalibDigiProducer.cc,v 1.13 2008/02/25 21:10:32 fblekman Exp $
 //
 //
 
@@ -321,6 +321,8 @@ SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     clear();
   }
   iEvent.put(pOut);
+  if(includeErrors_)
+    iEvent.put(pErr);
 }
 //-----------------------------------------------
 //  method to check that the pixels are actually valid...
