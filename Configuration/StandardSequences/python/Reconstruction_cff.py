@@ -47,6 +47,7 @@ highlevelreco_woConv = cms.Sequence(vertexreco*recoJetAssociations*btagging*taut
 #
 # Default - change: remove  RS again
 reconstruction = cms.Sequence(localreco*globalreco*highlevelreco)
+reconstruction_withRS = cms.Sequence(localreco*globalreco_plusRS*highlevelreco)
 #other possibilities
 reconstruction_plusGSF = cms.Sequence(reconstruction*GsfGlobalElectronTestSequence)
 #
