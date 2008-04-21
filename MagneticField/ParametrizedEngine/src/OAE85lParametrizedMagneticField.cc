@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/29 11:33:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/21 16:27:01 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -77,7 +77,7 @@ bool OAE85lParametrizedMagneticField::trackerField(const GlobalPoint& gp, Global
  float z=xyz[2];
  float az = fabs(z);
  // if (r<1.2&&az<3.0) { // use the following to avoid mismatches due to numerical precision...
- if (isDefined(gp) {
+ if (isDefined(gp)) {
   float zainv=z*ainv;
   float rinv=(r>0.0) ? 1.0/r : 0.0;
   float u=hlova-zainv;
