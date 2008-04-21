@@ -361,6 +361,11 @@ void L1GlobalTriggerFDL::run(
 
             // BxInEvent
             m_gtFdlWord->setBxInEvent(iBxInEvent);
+            
+            // set event number since last L1 reset generated in FDL
+            m_gtFdlWord->setEventNr(
+                static_cast<boost::uint32_t>(iEvent.id().event()) );
+
 
             // algorithm trigger decision word
             m_gtFdlWord->setGtDecisionWord(algoDecisionWord);

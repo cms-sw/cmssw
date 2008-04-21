@@ -42,7 +42,7 @@ public:
     L1GtEnergySumCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtEnergySumCondition(L1GtCondition*, const L1GlobalTriggerPSB*);
+    L1GtEnergySumCondition(const L1GtCondition*, const L1GlobalTriggerPSB*);
 
     // copy constructor
     L1GtEnergySumCondition(const L1GtEnergySumCondition&);
@@ -56,10 +56,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    virtual const bool evaluateCondition() const;
+     const bool evaluateCondition() const;
 
     /// print condition
-    virtual void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const;
 
 public:
 

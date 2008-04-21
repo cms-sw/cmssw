@@ -268,6 +268,9 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_ifMuEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfMuEtaNumberBits());
         m_ifCaloEtaNumberBits = static_cast<int> (m_l1GtStablePar->gtIfCaloEtaNumberBits());
         
+        // (re)initialize L1GlobalTriggerGTL
+        m_gtGTL->init(m_nrL1Mu, m_numberPhysTriggers);
+
         // (re)initialize L1GlobalTriggerPSB
         m_gtPSB->init(m_nrL1NoIsoEG, m_nrL1IsoEG, 
                 m_nrL1CenJet, m_nrL1ForJet, m_nrL1TauJet,
@@ -588,7 +591,6 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     }
 
-
     // produce the L1GlobalTriggerReadoutRecord now, after we found how many
     // BxInEvent the record has and how many boards are active
     std::auto_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord(
@@ -772,7 +774,6 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         }
 
     }
-
 
     // loop over BxInEvent
     for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;

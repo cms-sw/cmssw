@@ -49,18 +49,13 @@ L1GtJetCountsCondition::L1GtJetCountsCondition() :
 }
 
 //     from base template condition (from event setup usually)
-L1GtJetCountsCondition::L1GtJetCountsCondition(L1GtCondition* jcTemplate,
+L1GtJetCountsCondition::L1GtJetCountsCondition(const L1GtCondition* jcTemplate,
     const L1GlobalTriggerPSB* ptrPSB, const int nrL1JetCounts) :
-    L1GtConditionEvaluation()
-
+    L1GtConditionEvaluation(),
+    m_gtJetCountsTemplate(static_cast<const L1GtJetCountsTemplate*>(jcTemplate)),
+    m_gtPSB(ptrPSB),
+    m_numberL1JetCounts(nrL1JetCounts)
 {
-
-    m_gtJetCountsTemplate = static_cast<L1GtJetCountsTemplate*>(jcTemplate);
-
-    m_gtPSB = ptrPSB;
-
-    /// maximum number of jet counts (from event setup)
-    m_numberL1JetCounts = nrL1JetCounts;
 
     // maximum number of objects received for the evaluation of the condition
     // energy sums are global quantities - one object per event 
@@ -134,9 +129,10 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     (*m_combinationsInCond).clear();
 
     // get the jet counts (event / condition)
-    L1GctJetCounts* jetCounts = m_gtPSB->getCandL1JetCounts();
+    const L1GctJetCounts* jetCounts = m_gtPSB->getCandL1JetCounts();
 
-    const L1GtJetCountsTemplate::ObjectParameter objPar = ( *(m_gtJetCountsTemplate->objectParameter()) )[iCondition];
+    const L1GtJetCountsTemplate::ObjectParameter objPar = 
+        ( *(m_gtJetCountsTemplate->objectParameter()) )[iCondition];
 
     unsigned int cIndex = objPar.countIndex;
 

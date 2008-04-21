@@ -55,20 +55,18 @@ L1GtCaloCondition::L1GtCaloCondition() :
 }
 
 //     from base template condition (from event setup usually)
-L1GtCaloCondition::L1GtCaloCondition(L1GtCondition* caloTemplate, const L1GlobalTriggerPSB* ptrPSB,
+L1GtCaloCondition::L1GtCaloCondition(const L1GtCondition* caloTemplate, const L1GlobalTriggerPSB* ptrPSB,
         const int nrL1NoIsoEG,
         const int nrL1IsoEG,
         const int nrL1CenJet,
         const int nrL1ForJet,
         const int nrL1TauJet,
         const int ifCaloEtaNumberBits) :
-    L1GtConditionEvaluation()
-
+    L1GtConditionEvaluation(),
+    m_gtCaloTemplate(static_cast<const L1GtCaloTemplate*>(caloTemplate)),
+    m_gtPSB(ptrPSB),
+    m_ifCaloEtaNumberBits(ifCaloEtaNumberBits)
 {
-
-    m_gtCaloTemplate = static_cast<L1GtCaloTemplate*>(caloTemplate);
-
-    m_gtPSB = ptrPSB;
 
     // maximum number of objects received for the evaluation of the condition
     // retrieved before from event setup
@@ -95,8 +93,6 @@ L1GtCaloCondition::L1GtCaloCondition(L1GtCondition* caloTemplate, const L1Global
             m_condMaxNumberObjects = 0;
             break;
     }
-
-    m_ifCaloEtaNumberBits = ifCaloEtaNumberBits;
 
 }
 
@@ -161,18 +157,53 @@ const bool L1GtCaloCondition::evaluateCondition() const {
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
+    //LogTrace("L1GtCaloCondition") << "  nObjInCond: " << nObjInCond
+    //    << std::endl;
 
     // the candidates
-    std::vector<L1GctCand*> candVec(m_condMaxNumberObjects);
-    std::vector<int> index(m_condMaxNumberObjects);
 
-    for (int i = 0; i < m_condMaxNumberObjects; ++i) {
-        candVec[i] = getCandidate(i);
+    // objectType() gives the type for nrObjects() only,
+    // but in a CondCalo all objects have the same type
+    // take type from the type of the first object
+    
+    const std::vector<const L1GctCand*>* candVec;
+
+    switch ((m_gtCaloTemplate->objectType())[0]) {
+        case NoIsoEG:
+            candVec = m_gtPSB->getCandL1NoIsoEG();
+            break;
+        case IsoEG:
+            candVec = m_gtPSB->getCandL1IsoEG();
+            break;
+        case CenJet:
+            candVec = m_gtPSB->getCandL1CenJet();
+            break;
+        case ForJet:
+            candVec = m_gtPSB->getCandL1ForJet();
+            break;
+        case TauJet:
+            candVec = m_gtPSB->getCandL1TauJet();
+            break;
+        default:
+            return false;
+            break;
+    }
+    
+    int numberObjects = candVec->size();
+    //LogTrace("L1GtCaloCondition") << "  numberObjects: " << numberObjects
+    //    << std::endl;
+    if (numberObjects < nObjInCond) {
+        return false;
+    }
+
+    std::vector<int> index(numberObjects);
+
+    for (int i = 0; i < numberObjects; ++i) {
         index[i] = i;
     }
 
     int jumpIndex = 1;
-    int jump = factorial(m_condMaxNumberObjects - nObjInCond);
+    int jump = factorial(numberObjects - nObjInCond);
 
     int totalLoops = 0;
     int passLoops = 0;
@@ -206,7 +237,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-            tmpResult &= checkObjectParameter(i, *(candVec)[index[i]]);
+            tmpResult &= checkObjectParameter(i, *(*candVec)[index[i]]);
             objectsInComb.push_back(index[i]);
 
         }
@@ -250,9 +281,9 @@ const bool L1GtCaloCondition::evaluateCondition() const {
             int scaleEta = 1 << (m_ifCaloEtaNumberBits - 1);
 
             for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = (candVec[index[i]]->etaIndex() & scaleEta)
+                signBit[i] = ((*candVec)[index[i]]->etaIndex() & scaleEta)
                     >>(m_ifCaloEtaNumberBits - 1);
-                signedEta[i] = (candVec[index[i]]->etaIndex() )%scaleEta;
+                signedEta[i] = ((*candVec)[index[i]]->etaIndex() )%scaleEta;
 
                 if (signBit[i] == 1) {
                     signedEta[i] = (-1)*signedEta[i];
@@ -271,11 +302,11 @@ const bool L1GtCaloCondition::evaluateCondition() const {
             // check candDeltaPhi
 
             // calculate absolute value of candDeltaPhi
-            if (candVec[index[0]]->phiIndex()> candVec[index[1]]->phiIndex()) {
-                candDeltaPhi = candVec[index[0]]->phiIndex() - candVec[index[1]]->phiIndex();
+            if ((*candVec)[index[0]]->phiIndex()> (*candVec)[index[1]]->phiIndex()) {
+                candDeltaPhi = (*candVec)[index[0]]->phiIndex() - (*candVec)[index[1]]->phiIndex();
             }
             else {
-                candDeltaPhi = candVec[index[1]]->phiIndex() - candVec[index[0]]->phiIndex();
+                candDeltaPhi = (*candVec)[index[1]]->phiIndex() - (*candVec)[index[0]]->phiIndex();
             }
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
@@ -314,7 +345,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
 }
 
 // load calo candidates
-L1GctCand* L1GtCaloCondition::getCandidate(const int indexCand) const {
+const L1GctCand* L1GtCaloCondition::getCandidate(const int indexCand) const {
 
     // objectType() gives the type for nrObjects() only,
     // but in a CondCalo all objects have the same type

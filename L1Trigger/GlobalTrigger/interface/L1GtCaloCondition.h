@@ -44,7 +44,7 @@ public:
     L1GtCaloCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtCaloCondition(L1GtCondition*, const L1GlobalTriggerPSB*,
+    L1GtCaloCondition(const L1GtCondition*, const L1GlobalTriggerPSB*,
             const int nrL1NoIsoEG,
             const int nrL1IsoEG,
             const int nrL1CenJet,
@@ -64,10 +64,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    virtual const bool evaluateCondition() const;
+     const bool evaluateCondition() const;
 
     /// print condition
-    virtual void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const;
 
 public:
 
@@ -79,7 +79,7 @@ public:
     void setGtCaloTemplate(const L1GtCaloTemplate*);
 
     ///   get / set the number of bits for eta of calorimeter objects
-    inline int gtIfCaloEtaNumberBits() const {
+    inline const int gtIfCaloEtaNumberBits() const {
         return m_ifCaloEtaNumberBits;
     }
 
@@ -98,7 +98,7 @@ private:
     void copy(const L1GtCaloCondition& cp);
 
     /// load calo candidates
-    virtual L1GctCand* getCandidate(const int indexCand) const;
+    const L1GctCand* getCandidate(const int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool

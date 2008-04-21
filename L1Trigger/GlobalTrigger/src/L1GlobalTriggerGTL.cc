@@ -19,27 +19,12 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 
 // system include files
-#include <vector>
 #include <ext/hash_map>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -64,30 +49,22 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
 //#include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
 
-#include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // forward declarations
 
 // constructor
 L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
-    m_candL1Mu(new std::vector<L1MuGMTCand*>(L1GlobalTriggerReadoutSetup::NumberL1Muons)) {
+    m_candL1Mu( new std::vector<const L1MuGMTCand*>) {
 
     m_gtlAlgorithmOR.reset();
     m_gtlDecisionWord.reset();
 
-    m_candL1Mu->reserve(L1GlobalTriggerReadoutSetup::NumberL1Muons);
-    
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
 }
@@ -96,65 +73,54 @@ L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
 L1GlobalTriggerGTL::~L1GlobalTriggerGTL() {
 
     reset();
-    m_candL1Mu->clear();
     delete m_candL1Mu;
 
 }
 
 // operations
+void L1GlobalTriggerGTL::init(const int nrL1Mu, const int numberPhysTriggers) {
+
+    m_candL1Mu->reserve(nrL1Mu);
+
+    // FIXME move from bitset to std::vector<bool> to be able to use 
+    // numberPhysTriggers from EventSetup
+    
+    //m_gtlAlgorithmOR.reserve(numberPhysTriggers);
+    //m_gtlAlgorithmOR.assign(numberPhysTriggers, false);
+
+    //m_gtlDecisionWord.reserve(numberPhysTriggers);
+    //m_gtlDecisionWord.assign(numberPhysTriggers, false);
+
+}
 
 // receive data from Global Muon Trigger
 void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
     const edm::InputTag& muGmtInputTag, const int iBxInEvent, const bool receiveMu,
     const int nrL1Mu) {
 
-    //
+    LogDebug("L1GlobalTriggerGTL")
+            << "\n**** L1GlobalTriggerGTL receiving muon data for BxInEvent = "
+            << iBxInEvent << "\n     from input tag " << muGmtInputTag << "\n"
+            << std::endl;
+
     reset();
 
-    //
+    // get data from Global Muon Trigger
     if (receiveMu) {
-
-        LogDebug("L1GlobalTriggerGTL")
-            << "**** L1GlobalTriggerGTL receiving muon data from input tag "
-            << muGmtInputTag << std::endl;
-
-        // get data from Global Muon Trigger
 
         edm::Handle<std::vector<L1MuGMTCand> > muonData;
         iEvent.getByLabel(muGmtInputTag, muonData);
 
-        for (int iMuon = 0; iMuon < nrL1Mu; iMuon++) {
+        std::vector< L1MuGMTCand>::const_iterator itMuon;
+        for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
+            if ((*itMuon).bx() == iBxInEvent) {
 
-            L1MuGMTCand muCand;
-            int nMuon = 0;
+                (*m_candL1Mu).push_back(&(*itMuon));
+                //LogTrace("L1GlobalTriggerGTL") << (*itMuon)
+                //        << std::endl;
 
-            std::vector< L1MuGMTCand>::const_iterator itMuon;
-            for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
-
-                // retrieving info for a given bx only
-                if ((*itMuon).bx() == iBxInEvent) {
-                    if (nMuon == iMuon) {
-                        muCand = (*itMuon);
-                        break;
-                    }
-                    nMuon++;
-                }
             }
 
-            (*m_candL1Mu)[iMuon] = new L1MuGMTCand( muCand );
-        }
-
-    }
-    else {
-
-        LogDebug("L1GlobalTriggerGTL") << "\n**** Global Muon input disabled!"
-            << "     All candidates empty." << "\n**** \n" << std::endl;
-
-        // set all muon candidates empty
-        for (int iMuon = 0; iMuon < nrL1Mu; iMuon++) {
-
-            MuonDataWord dataword = 0;
-            (*m_candL1Mu)[iMuon] = new L1MuGMTCand( dataword );
         }
 
     }
@@ -404,31 +370,29 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
 // clear GTL
 void L1GlobalTriggerGTL::reset() {
 
-    std::vector<L1MuGMTCand*>::iterator iter;
-    for (iter = m_candL1Mu->begin(); iter < m_candL1Mu->end(); iter++) {
-        if (*iter) {
-            delete (*iter);
-            *iter = 0;
-        }
-    }
+    m_candL1Mu->clear();
 
     m_gtlDecisionWord.reset();
-
     m_gtlAlgorithmOR.reset();
 
 }
 
 // print Global Muon Trigger data received by GTL
-void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
+void L1GlobalTriggerGTL::printGmtData(const int iBxInEvent) const {
 
-    LogTrace("L1GlobalTriggerGTL") << "\nMuon data received by GTL for BxInEvent = " << iBxInEvent
-        << std::endl;
+    LogTrace("L1GlobalTriggerGTL")
+            << "\nL1GlobalTrigger: GMT data received for BxInEvent = "
+            << iBxInEvent << std::endl;
 
-    for (std::vector<L1MuGMTCand*>::iterator iter = m_candL1Mu->begin(); iter < m_candL1Mu->end(); iter++) {
+    int nrL1Mu = m_candL1Mu->size();    
+    LogTrace("L1GlobalTriggerGTL")
+            << "Number of GMT muons = " << nrL1Mu << "\n" 
+            << std::endl;
 
-        LogTrace("L1GlobalTriggerGTL") << std::endl;
+    for (std::vector<const L1MuGMTCand*>::const_iterator iter =
+            m_candL1Mu->begin(); iter != m_candL1Mu->end(); iter++) {
 
-        (*iter)->print();
+        LogTrace("L1GlobalTriggerGTL") << *(*iter) << std::endl;
 
     }
 

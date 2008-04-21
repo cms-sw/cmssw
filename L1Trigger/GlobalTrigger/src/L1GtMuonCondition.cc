@@ -34,9 +34,6 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
-
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 
@@ -53,25 +50,16 @@ L1GtMuonCondition::L1GtMuonCondition() :
 }
 
 //     from base template condition (from event setup usually)
-L1GtMuonCondition::L1GtMuonCondition(L1GtCondition* muonTemplate, const L1GlobalTriggerGTL* ptrGTL,
-        const int nrL1Mu,
+L1GtMuonCondition::L1GtMuonCondition(const L1GtCondition* muonTemplate,
+        const L1GlobalTriggerGTL* ptrGTL, const int nrL1Mu,
         const int ifMuEtaNumberBits) :
-    L1GtConditionEvaluation()
-
+    L1GtConditionEvaluation(),
+    m_gtMuonTemplate(static_cast<const L1GtMuonTemplate*>(muonTemplate)),
+    m_gtGTL(ptrGTL),
+    m_ifMuEtaNumberBits(ifMuEtaNumberBits)
 {
 
-    m_gtMuonTemplate = static_cast<L1GtMuonTemplate*>(muonTemplate);
-
-    m_gtGTL = ptrGTL;
-
-    // maximum number of objects received for the evaluation of the condition
-    // retrieved from event setup
-
     m_condMaxNumberObjects = nrL1Mu;
-
-    // number of bits for eta of muon objects
-    m_ifMuEtaNumberBits = ifMuEtaNumberBits;
-
 }
 
 // copy constructor
@@ -135,16 +123,23 @@ const bool L1GtMuonCondition::evaluateCondition() const {
     int nObjInCond = m_gtMuonTemplate->nrObjects();
 
     // the candidates
-    std::vector<L1MuGMTCand*> candVec(m_condMaxNumberObjects);
-    std::vector<int> index(m_condMaxNumberObjects);
+    const std::vector<const L1MuGMTCand*>* candVec = m_gtGTL->getCandL1Mu();
+    
+    int numberObjects = candVec->size();
+    //LogTrace("L1GtCaloCondition") << "  numberObjects: " << numberObjects
+    //    << std::endl;
+    if (numberObjects < nObjInCond) {
+        return false;
+    }
 
-    for (int i = 0; i < m_condMaxNumberObjects; ++i) {
-        candVec[i] = getCandidate(i);
+    std::vector<int> index(numberObjects);
+
+    for (int i = 0; i < numberObjects; ++i) {
         index[i] = i;
     }
 
     int jumpIndex = 1;
-    int jump = factorial(m_condMaxNumberObjects - nObjInCond);
+    int jump = factorial(numberObjects - nObjInCond);
 
     int totalLoops = 0;
     int passLoops = 0;
@@ -178,7 +173,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-            tmpResult &= checkObjectParameter(i, *(candVec)[index[i]]);
+            tmpResult &= checkObjectParameter(i, *(*candVec)[index[i]]);
             objectsInComb.push_back(index[i]);
 
         }
@@ -193,7 +188,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 
         // get the correlation parameters (chargeCorrelation included here also)
         L1GtMuonTemplate::CorrelationParameter corrPar =
-            *(m_gtMuonTemplate->correlationParameter() );
+            *(m_gtMuonTemplate->correlationParameter());
 
         // charge_correlation consists of 3 relevant bits (D2, D1, D0)
         unsigned int chargeCorr = corrPar.chargeCorrelation;
@@ -203,7 +198,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 
             for (int i = 0; i < nObjInCond; i++) {
                 // check valid charge - skip if invalid charge
-                bool chargeValid = candVec[index[i]]->charge_valid();
+                bool chargeValid = (*candVec)[index[i]]->charge_valid();
                 tmpResult &= chargeValid;
 
                 if ( !chargeValid) {
@@ -218,8 +213,8 @@ const bool L1GtMuonCondition::evaluateCondition() const {
             if (nObjInCond == 1) { // one object condition
 
                 // D2..enable pos, D1..enable neg
-                if ( ! ( ( (chargeCorr & 4) != 0 && candVec[index[0]]->charge()> 0 )
-                    || ( (chargeCorr & 2) != 0 && candVec[index[0]]->charge() < 0 ) )) {
+                if ( ! ( ( (chargeCorr & 4) != 0 && (*candVec)[index[0]]->charge()> 0 )
+                    || ( (chargeCorr & 2) != 0 && (*candVec)[index[0]]->charge() < 0 ) )) {
 
                     continue;
                 }
@@ -230,7 +225,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
                 // find out if signs are equal
                 bool equalSigns = true;
                 for (int i = 0; i < nObjInCond-1; i++) {
-                    if (candVec[index[i]]->charge() != candVec[index[i+1]]->charge()) {
+                    if ((*candVec)[index[i]]->charge() != (*candVec)[index[i+1]]->charge()) {
                         equalSigns = false;
                         break;
                     }
@@ -252,7 +247,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
                     unsigned int posCount = 0;
 
                     for (int i = 0; i < nObjInCond; i++) {
-                        if (candVec[index[i]]->charge()> 0) {
+                        if ((*candVec)[index[i]]->charge()> 0) {
                             posCount++;
                         }
                     }
@@ -290,15 +285,15 @@ const bool L1GtMuonCondition::evaluateCondition() const {
             // check candDeltaEta
 
             // get eta index and the sign bit of the eta index (MSB is the sign)
-            //   signedEta[i] is the signed eta index of candVec[index[i]]
+            //   signedEta[i] is the signed eta index of (*candVec)[index[i]]
             int signedEta[ObjInWscComb];
             int signBit[ObjInWscComb] = { 0, 0 };
 
             int scaleEta = 1 << (m_ifMuEtaNumberBits - 1);
 
             for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = (candVec[index[i]]->etaIndex() & scaleEta)>>(m_ifMuEtaNumberBits - 1);
-                signedEta[i] = (candVec[index[i]]->etaIndex() )%scaleEta;
+                signBit[i] = ((*candVec)[index[i]]->etaIndex() & scaleEta)>>(m_ifMuEtaNumberBits - 1);
+                signedEta[i] = ((*candVec)[index[i]]->etaIndex() )%scaleEta;
 
                 if (signBit[i] == 1) {
                     signedEta[i] = (-1)*signedEta[i];
@@ -317,11 +312,11 @@ const bool L1GtMuonCondition::evaluateCondition() const {
             // check candDeltaPhi
 
             // calculate absolute value of candDeltaPhi
-            if (candVec[index[0]]->phiIndex()> candVec[index[1]]->phiIndex()) {
-                candDeltaPhi = candVec[index[0]]->phiIndex() - candVec[index[1]]->phiIndex();
+            if ((*candVec)[index[0]]->phiIndex()> (*candVec)[index[1]]->phiIndex()) {
+                candDeltaPhi = (*candVec)[index[0]]->phiIndex() - (*candVec)[index[1]]->phiIndex();
             }
             else {
-                candDeltaPhi = candVec[index[1]]->phiIndex() - candVec[index[0]]->phiIndex();
+                candDeltaPhi = (*candVec)[index[1]]->phiIndex() - (*candVec)[index[0]]->phiIndex();
             }
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
@@ -367,7 +362,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 }
 
 // load muon candidates
-L1MuGMTCand* L1GtMuonCondition::getCandidate(const int indexCand) const {
+const L1MuGMTCand* L1GtMuonCondition::getCandidate(const int indexCand) const {
 
     return (*(m_gtGTL->getCandL1Mu()))[indexCand];
 }
@@ -395,7 +390,8 @@ const bool L1GtMuonCondition::checkObjectParameter(const int iCondition, const L
         return false;
     }
 
-    const L1GtMuonTemplate::ObjectParameter objPar = ( *(m_gtMuonTemplate->objectParameter()) )[iCondition];
+    const L1GtMuonTemplate::ObjectParameter objPar = 
+        ( *(m_gtMuonTemplate->objectParameter()) )[iCondition];
 
     // using the logic table from GTL-9U-module.pdf
     // "Truth table for Isolation bit"

@@ -107,58 +107,58 @@ public:
     void reset();
 
     /// print Global Calorimeter Trigger data
-    void printGctObjectData() const;
+    void printGctObjectData(const int iBxInEvent) const;
 
     /// pointer to NoIsoEG data list
-    inline const std::vector<L1GctCand*>* getCandL1NoIsoEG() const
+    inline const std::vector<const L1GctCand*>* getCandL1NoIsoEG() const
     {
         return m_candL1NoIsoEG;
     }
 
     /// pointer to IsoEG data list
-    inline const std::vector<L1GctCand*>* getCandL1IsoEG() const
+    inline const std::vector<const L1GctCand*>* getCandL1IsoEG() const
     {
         return m_candL1IsoEG;
     }
 
     /// pointer to CenJet data list
-    inline const std::vector<L1GctCand*>* getCandL1CenJet() const
+    inline const std::vector<const L1GctCand*>* getCandL1CenJet() const
     {
         return m_candL1CenJet;
     }
 
     /// pointer to ForJet data list
-    inline const std::vector<L1GctCand*>* getCandL1ForJet() const
+    inline const std::vector<const L1GctCand*>* getCandL1ForJet() const
     {
         return m_candL1ForJet;
     }
 
     /// pointer to TauJet data list
-    inline const std::vector<L1GctCand*>* getCandL1TauJet() const
+    inline const std::vector<const L1GctCand*>* getCandL1TauJet() const
     {
         return m_candL1TauJet;
     }
 
     /// pointer to ETM data list
-    inline L1GctEtMiss* getCandL1ETM() const
+    inline const L1GctEtMiss* getCandL1ETM() const
     {
         return m_candETM;
     }
 
     /// pointer to ETT data list
-    inline L1GctEtTotal* getCandL1ETT() const
+    inline const L1GctEtTotal* getCandL1ETT() const
     {
         return m_candETT;
     }
 
     /// pointer to HTT data list
-    inline L1GctEtHad* getCandL1HTT() const
+    inline const L1GctEtHad* getCandL1HTT() const
     {
         return m_candHTT;
     }
 
     /// pointer to JetCounts data list
-    inline L1GctJetCounts* getCandL1JetCounts() const
+    inline const L1GctJetCounts* getCandL1JetCounts() const
     {
         return m_candJetCounts;
     }
@@ -171,17 +171,17 @@ public:
 
 private:
 
-    std::vector<L1GctCand*>* m_candL1NoIsoEG;
-    std::vector<L1GctCand*>* m_candL1IsoEG;
-    std::vector<L1GctCand*>* m_candL1CenJet;
-    std::vector<L1GctCand*>* m_candL1ForJet;
-    std::vector<L1GctCand*>* m_candL1TauJet;
+    std::vector<const L1GctCand*>* m_candL1NoIsoEG;
+    std::vector<const L1GctCand*>* m_candL1IsoEG;
+    std::vector<const L1GctCand*>* m_candL1CenJet;
+    std::vector<const L1GctCand*>* m_candL1ForJet;
+    std::vector<const L1GctCand*>* m_candL1TauJet;
 
-    L1GctEtMiss*  m_candETM;
-    L1GctEtTotal* m_candETT;
-    L1GctEtHad*   m_candHTT;
+    const L1GctEtMiss*  m_candETM;
+    const L1GctEtTotal* m_candETT;
+    const L1GctEtHad*   m_candHTT;
 
-    L1GctJetCounts* m_candJetCounts;
+    const L1GctJetCounts* m_candJetCounts;
     
     /// technical trigger bits 
     std::vector<bool> m_gtTechnicalTriggers;

@@ -47,15 +47,13 @@ L1GtEnergySumCondition::L1GtEnergySumCondition() :
 }
 
 //     from base template condition (from event setup usually)
-L1GtEnergySumCondition::L1GtEnergySumCondition(L1GtCondition* eSumTemplate,
+L1GtEnergySumCondition::L1GtEnergySumCondition(const L1GtCondition* eSumTemplate,
     const L1GlobalTriggerPSB* ptrPSB) :
-    L1GtConditionEvaluation()
+    L1GtConditionEvaluation(),
+    m_gtEnergySumTemplate(static_cast<const L1GtEnergySumTemplate*>(eSumTemplate)),
+    m_gtPSB(ptrPSB)
 
 {
-
-    m_gtEnergySumTemplate = static_cast<L1GtEnergySumTemplate*>(eSumTemplate);
-
-    m_gtPSB = ptrPSB;
 
     // maximum number of objects received for the evaluation of the condition
     // energy sums are global quantities - one object per event 
@@ -140,7 +138,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
 
     switch ((m_gtEnergySumTemplate->objectType())[0]) {
         case ETT: {
-            L1GctEtTotal* cand1 = m_gtPSB->getCandL1ETT();
+            const L1GctEtTotal* cand1 = m_gtPSB->getCandL1ETT();
 
             if (cand1 == 0) {
                 return false;
@@ -151,7 +149,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
             break;
         }
         case ETM: {
-            L1GctEtMiss* cand2 = m_gtPSB->getCandL1ETM();
+            const L1GctEtMiss* cand2 = m_gtPSB->getCandL1ETM();
 
             if (cand2 == 0) {
                 return false;
@@ -163,7 +161,7 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
             break;
         }
         case HTT: {
-            L1GctEtHad* cand3 = m_gtPSB->getCandL1HTT();
+            const L1GctEtHad* cand3 = m_gtPSB->getCandL1HTT();
 
             if (cand3 == 0) {
                 return false;
@@ -181,7 +179,8 @@ const bool L1GtEnergySumCondition::evaluateCondition() const {
         }
     }
 
-    const L1GtEnergySumTemplate::ObjectParameter objPar = ( *(m_gtEnergySumTemplate->objectParameter()) )[iCondition];
+    const L1GtEnergySumTemplate::ObjectParameter objPar = 
+        ( *(m_gtEnergySumTemplate->objectParameter()) )[iCondition];
 
     // check energy threshold
     if ( !checkThreshold(objPar.etThreshold, candEt,

@@ -42,7 +42,7 @@ public:
     L1GtJetCountsCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtJetCountsCondition(L1GtCondition*, const L1GlobalTriggerPSB*, const int nrL1JetCounts);
+    L1GtJetCountsCondition(const L1GtCondition*, const L1GlobalTriggerPSB*, const int nrL1JetCounts);
 
     // copy constructor
     L1GtJetCountsCondition(const L1GtJetCountsCondition&);
@@ -56,10 +56,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    virtual const bool evaluateCondition() const;
+     const bool evaluateCondition() const;
 
     /// print condition
-    virtual void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const;
 
 public:
 

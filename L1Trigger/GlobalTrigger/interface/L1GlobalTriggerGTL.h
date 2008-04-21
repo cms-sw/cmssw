@@ -25,11 +25,7 @@
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
@@ -49,16 +45,10 @@ class L1GlobalTriggerGTL
 public:
 
     // constructors
-    //L1GlobalTriggerGTL();
-
     L1GlobalTriggerGTL();
 
     // destructor
     virtual ~L1GlobalTriggerGTL();
-
-public:
-
-    typedef unsigned int MuonDataWord;
 
 public:
 
@@ -67,6 +57,10 @@ public:
         edm::Event&,
         const edm::InputTag&, const int iBxInEvent,
         const bool receiveMu, const int nrL1Mu);
+
+    
+    /// initialize the class (mainly reserve)
+    void init(const int nrL1Mu, const int numberPhysTriggers);
 
     /// run the GTL
     void run(edm::Event& iEvent, const edm::EventSetup& evSetup,
@@ -87,7 +81,7 @@ public:
     void reset();
 
     /// print received Muon dataWord
-    void printGmtData(int iBxInEvent) const;
+    void printGmtData(const int iBxInEvent) const;
 
     /// return decision
     inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>& getDecisionWord() const
@@ -102,7 +96,7 @@ public:
     }
 
     /// return global muon trigger candidate
-    inline const std::vector<L1MuGMTCand*>* getCandL1Mu() const
+    inline const std::vector<const L1MuGMTCand*>* getCandL1Mu() const
     {
         return m_candL1Mu;
     }
@@ -117,7 +111,7 @@ private:
 
 private:
 
-    std::vector<L1MuGMTCand*>* m_candL1Mu;
+    std::vector<const L1MuGMTCand*>* m_candL1Mu;
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;

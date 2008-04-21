@@ -44,7 +44,7 @@ public:
     L1GtMuonCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtMuonCondition(L1GtCondition*, const L1GlobalTriggerGTL*,
+    L1GtMuonCondition(const L1GtCondition*, const L1GlobalTriggerGTL*,
             const int nrL1Mu,
             const int ifMuEtaNumberBits);
 
@@ -60,10 +60,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    virtual const bool evaluateCondition() const;
+    const bool evaluateCondition() const;
 
     /// print condition
-    virtual void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const;
 
 public:
 
@@ -75,7 +75,7 @@ public:
     void setGtMuonTemplate(const L1GtMuonTemplate*);
     
     ///   get / set the number of bits for eta of muon objects
-    inline int gtIfMuEtaNumberBits() const {
+    inline const int gtIfMuEtaNumberBits() const {
         return m_ifMuEtaNumberBits;
     }
 
@@ -94,7 +94,7 @@ private:
     void copy(const L1GtMuonCondition& cp);
 
     /// load muon candidates
-    virtual L1MuGMTCand* getCandidate(const int indexCand) const;
+    const L1MuGMTCand* getCandidate(const int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool checkObjectParameter(const int iCondition,
