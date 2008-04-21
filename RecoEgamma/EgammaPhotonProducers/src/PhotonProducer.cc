@@ -8,6 +8,9 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
@@ -17,6 +20,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
+
 
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : 
@@ -29,10 +33,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
   scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
   scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
-  barrelClusterShapeMapProducer_   = conf_.getParameter<std::string>("barrelClusterShapeMapProducer");
-  barrelClusterShapeMapCollection_ = conf_.getParameter<std::string>("barrelClusterShapeMapCollection");
-  endcapClusterShapeMapProducer_   = conf_.getParameter<std::string>("endcapClusterShapeMapProducer");
-  endcapClusterShapeMapCollection_ = conf_.getParameter<std::string>("endcapClusterShapeMapCollection");
   barrelHitProducer_   = conf_.getParameter<std::string>("barrelHitProducer");
   endcapHitProducer_   = conf_.getParameter<std::string>("endcapHitProducer");
   barrelHitCollection_ = conf_.getParameter<std::string>("barrelHitCollection");
@@ -107,23 +107,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
   
-  // Get ClusterShape association maps
-  Handle<reco::BasicClusterShapeAssociationCollection> barrelClShpHandle;
-  theEvent.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_, barrelClShpHandle);
-  if (!barrelClShpHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelClusterShapeMapCollection_.c_str();
-    return; 
-  }
-  const reco::BasicClusterShapeAssociationCollection& barrelClShpMap = *barrelClShpHandle;
-
-
-  Handle<reco::BasicClusterShapeAssociationCollection> endcapClShpHandle;
-  theEvent.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
-  if (!endcapClShpHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapClusterShapeMapCollection_.c_str();
-    return;
-  }
-  const reco::BasicClusterShapeAssociationCollection& endcapClShpMap = *endcapClShpHandle;
 
   // Get EcalRecHits
   Handle<EcalRecHitCollection> barrelHitHandle;
@@ -148,6 +131,12 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   const CaloSubdetectorGeometry *barrelGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry *endcapGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *preshowerGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+
+
+  theEventSetup.get<CaloTopologyRecord>().get(theCaloTopo_);
+  const CaloSubdetectorTopology *barrelTopology = theCaloTopo_->getSubdetectorTopology(DetId::Ecal, EcalBarrel); 
+  const CaloSubdetectorTopology *endcapTopology = theCaloTopo_->getSubdetectorTopology(DetId::Ecal, EcalEndcap); 
+
 
   ///// Get the conversion collection
   validConversions_=true;
@@ -204,8 +193,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelClShpMap,barrelGeometry,preshowerGeometry,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapClShpMap,endcapGeometry,preshowerGeometry,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,barrelTopology,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,endcapTopology,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -216,9 +205,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
 void PhotonProducer::fillPhotonCollection(
 		   const edm::Handle<reco::SuperClusterCollection> & scHandle,
-		   const reco::BasicClusterShapeAssociationCollection& clshpMap,
 		   const CaloSubdetectorGeometry *geometry,
 		   const CaloSubdetectorGeometry *geometryES,
+		   const CaloSubdetectorTopology *topology,
 		   const EcalRecHitCollection *hits,
 		   HBHERecHitMetaCollection *mhbhe,
                    const edm::Handle<reco::ConversionCollection> & conversionHandle,
@@ -228,7 +217,7 @@ void PhotonProducer::fillPhotonCollection(
 
   reco::SuperClusterCollection scCollection = *(scHandle.product());
   reco::SuperClusterCollection::iterator aClus;
-  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
+  //  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
   reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
 
   reco::ConversionCollection conversionCollection;
@@ -253,15 +242,21 @@ void PhotonProducer::fillPhotonCollection(
     
     
     // get ClusterShapeRef
-    seedShpItr = clshpMap.find(aClus->seed());
-    assert(seedShpItr != clshpMap.end());
-    const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
+    //    seedShpItr = clshpMap.find(aClus->seed());
+    // assert(seedShpItr != clshpMap.end());
+    //const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
     
     // compute position of ECAL shower
-    double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
+    //double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
+    float e3x3=  clusterShape_.e3x3(  *(aClus->seed()), &(*hits), &(*topology)); 
+    float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
+    float eMax=clusterShape_.eMax(  *(aClus->seed()), &(*hits));
+    float r19=eMax/e3x3;
+    float e5x5=clusterShape_.e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
+
     math::XYZPoint caloPosition;
     if (r9>minR9_) {
       caloPosition = unconvPos;
@@ -284,7 +279,7 @@ void PhotonProducer::fillPhotonCollection(
     math::XYZVector momentum = direction.unit() * aClus->energy();
     double photonEnergy=0;
     if ( r9 > minR9_) {
-      photonEnergy=seedShapeRef->e5x5();
+      photonEnergy=e5x5;
     } else {
       photonEnergy=aClus->energy();
     }
@@ -293,7 +288,7 @@ void PhotonProducer::fillPhotonCollection(
    
 
     
-    reco::Photon newCandidate(p4, unconvPos, scRef, seedShapeRef, HoE, hasSeed, vtx);
+    reco::Photon newCandidate(p4, unconvPos, scRef, HoE, r9, r19, e5x5, hasSeed, vtx);
 
     if ( validConversions_) {
 	int icp=0;
