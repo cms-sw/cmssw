@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.19 2008/02/14 00:06:31 fedor Exp $
+// $Id: Jet.cc,v 1.20 2008/02/14 18:27:20 fedor Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -271,4 +271,8 @@ std::string Jet::print () const {
 
 void Jet::scaleEnergy (double fScale) {
   setP4 (p4() * fScale);
+}
+
+bool Jet::isJet() const {
+  return true;
 }

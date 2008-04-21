@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.24 2008/02/29 00:52:45 fedor Exp $
+ * \version   $Id: Jet.h,v 1.25 2008/04/18 21:58:34 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -96,6 +96,8 @@ namespace reco {
     virtual void setNPasses (int fPasses) {mPassNumber = fPasses;}
     ///  number of passes taken by algorithm
     virtual int nPasses () const {return mPassNumber;}
+
+    bool isJet() const;
     
   private:
     float mJetArea;
