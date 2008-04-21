@@ -27,8 +27,13 @@
 #include <stdexcept>
 #include <cstdlib>
 
+#include "Cintex/Cintex.h"
 
 int main( int argc, char** argv ){
+
+
+  ROOT::Cintex::Cintex::Enable();
+
   boost::program_options::options_description desc("options");
   boost::program_options::options_description visible("Usage: cmscond_export_iov [options] \n");
   visible.add_options()
