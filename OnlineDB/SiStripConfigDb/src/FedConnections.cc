@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.17 2008/04/14 05:44:33 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.18 2008/04/21 09:34:57 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -92,7 +92,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 
     } else { // Use database cache
 	
-#ifdef USING_DATABASE_CACHE
+#ifdef USING_NEW_DATABASE_MODEL
 	
       std::vector<FedConnection*>* tmp1 = databaseCache(__func__)->getConnections();
       
@@ -111,7 +111,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 	  << " NULL pointer to FedConnections vector!";
       }
     
-#endif // USING_DATABASE_CACHE
+#endif // USING_NEW_DATABASE_MODEL
       
     }
     

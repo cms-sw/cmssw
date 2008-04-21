@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.14 2008/03/28 15:31:15 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.15 2008/04/11 13:27:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,6 +9,21 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 // 
 const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
+  
+//     // DCU-DetId 
+//     try { 
+// #ifdef USING_NEW_DATABASE_MODEL
+//       deviceFactory(__func__)->addDetIdPartition( ip->second.partitionName_,
+// 						  ip->second.dcuVersion_.first, 
+// 						  ip->second.dcuVersion_.second );
+// #else
+//       deviceFactory(__func__)->addDetIdPartition( ip->second.partitionName_ );
+// #endif
+//     } catch (...) { 
+//       std::stringstream ss;
+//       ss << "Attempted to 'addDetIdPartition' for partition: " << ip->second.partitionName_;
+//       handleException( __func__, ss.str() );
+//     }
 
   dcuDetIdMap_.clear();
   
@@ -23,7 +38,7 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
       
     } else {
       
-#ifdef USING_DATABASE_CACHE
+#ifdef USING_NEW_DATABASE_MODEL
       DcuDetIdMap* tmp = databaseCache(__func__)->getInfos();
       if ( tmp ) { dcuDetIdMap_ = *tmp; } 
       else {
@@ -31,7 +46,6 @@ const SiStripConfigDb::DcuDetIdMap& SiStripConfigDb::getDcuDetIdMap() {
 	  << "[SiStripConfigDb::" << __func__ << "]"
 	  << " NULL pointer to Dcu-DetId map!";
       }
-
 #endif
       
     }

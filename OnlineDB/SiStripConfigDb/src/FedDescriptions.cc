@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.20 2008/04/11 13:27:33 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.21 2008/04/14 05:44:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -35,7 +35,7 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
 
     } else {
 
-#ifdef USING_DATABASE_CACHE
+#ifdef USING_NEW_DATABASE_MODEL
       FedDescriptions* tmp = databaseCache(__func__)->getFed9UDescriptions();
       if ( tmp ) { feds_ = *tmp; }
       else {

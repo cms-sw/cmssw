@@ -1,11 +1,10 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.54 2008/04/11 15:47:57 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.55 2008/04/21 09:31:34 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
 #define DATABASE // Needed by DeviceFactory API! Do not comment!
 //#define USING_NEW_DATABASE_MODEL
-//#define USING_DATABASE_CACHE
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,7 +24,7 @@
 #include <string>
 #include <map>
 
-#ifdef USING_DATABASE_CACHE
+#ifdef USING_NEW_DATABASE_MODEL
 #include "DbClient.h"
 #else
 class DbClient;

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.56 2008/04/14 05:44:34 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.57 2008/04/21 09:31:40 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -153,7 +153,7 @@ void SiStripConfigDb::closeDbConnection() {
   } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
   factory_ = 0; 
 
-#ifdef USING_DATABASE_CACHE
+#ifdef USING_NEW_DATABASE_MODEL
   try { 
     if ( dbCache_ ) { delete dbCache_; }
   } catch (...) { handleException( __func__, "Attempting to delete DbClient object..." ); }
@@ -456,7 +456,7 @@ void SiStripConfigDb::usingDatabaseCache() {
   }
   
   // Create database cache object
-#ifdef USING_DATABASE_CACHE
+#ifdef USING_NEW_DATABASE_MODEL
   try { 
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -493,7 +493,7 @@ void SiStripConfigDb::usingDatabaseCache() {
   }
   
   // Try retrieve descriptions from Database Client
-#ifdef USING_DATABASE_CACHE
+#ifdef USING_NEW_DATABASE_MODEL
   try { 
     databaseCache(__func__)->parse(); 
   } catch (...) { 
