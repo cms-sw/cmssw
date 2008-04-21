@@ -19,12 +19,14 @@
 
 // system include files
 #include <memory>
+#include <iomanip>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
@@ -37,17 +39,12 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerGTL.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFDL.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
-
 
 
 // constructor(s)
@@ -57,36 +54,35 @@ L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet)
     // input tag for GT DAQ record
     m_daqGtInputTag = parSet.getParameter<edm::InputTag>("DaqGtInputTag");
 
-    LogDebug("L1GtAnalyzer")
-    << "\nInput tag for GT DAQ record: "
-    << m_daqGtInputTag.label() << " \n"
-    << std::endl;
+    // input tag for GT lite record
+    m_l1GtRecordInputTag = parSet.getParameter<edm::InputTag>("L1GtRecordInputTag");;
 
     // input tag for GT object map collection
     m_gtObjectMapTag = parSet.getParameter<edm::InputTag>("GtObjectMapTag");
 
-    LogDebug("L1GtAnalyzer")
-    << "\nInput tag for GT object map collection: "
-    << m_gtObjectMapTag.label() << " \n"
-    << std::endl;
-
     // input tag for muon collection from GMT
     m_muGmtInputTag = parSet.getParameter<edm::InputTag>(
                           "GmtInputTag");
-
-    LogDebug("L1GtAnalyzer")
-    << "\nInput tag for muon collection from GMT: "
-    << m_muGmtInputTag.label() << " \n"
-    << std::endl;
 
     /// an algorithm and a condition in that algorithm to test the object maps
     m_algoName = parSet.getParameter<std::string>("AlgorithmName");
     m_condName = parSet.getParameter<std::string>("ConditionName");
 
     LogDebug("L1GtAnalyzer")
-    << "\nObject map example for algorithm: " << m_algoName
-    << " and condition" << m_condName << " \n"
+    << "\nL1 GT DAQ record:            "
+    << m_daqGtInputTag 
+    << "\nL1 GT lite record:           "
+    << m_l1GtRecordInputTag
+    << "\nL1 GT object map collection: "
+    << m_gtObjectMapTag
+    << "\nMuon collection from GMT:    "
+    << m_muGmtInputTag
+    << "\n\nObject map example for algorithm:       " 
+    << m_algoName << " and condition " << m_condName << " \n"
     << std::endl;
+
+
+
 
 }
 
@@ -98,7 +94,7 @@ L1GtAnalyzer::~L1GtAnalyzer()
 
 // analyze: decision and decision word
 //   bunch cross in event BxInEvent = 0 - L1Accept event
-void L1GtAnalyzer::analyzeDecision(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1GtAnalyzer::analyzeDecision(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
     LogDebug("L1GtAnalyzer")
@@ -148,14 +144,54 @@ void L1GtAnalyzer::analyzeDecision(const edm::Event& iEvent, const edm::EventSet
     edm::LogVerbatim("L1GtAnalyzer") << std::endl;
     for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {
         edm::LogVerbatim("L1GtAnalyzer")
-        << "Bit " << iBit <<  ": triger bit = " << gtDecisionWord[iBit] << std::endl;
+        << "Bit number " << std::right << std::setw(4) << iBit 
+        <<  ": result = " << gtDecisionWord[iBit] << std::endl;
     }
+    edm::LogVerbatim("L1GtAnalyzer") << std::endl;
 
 }
 
+// analyze: decision for a given algorithm via trigger menu
+void L1GtAnalyzer::analyzeDecisionPhysics(const edm::Event& iEvent,
+        const edm::EventSetup& evSetup) {
+
+    LogDebug("L1GtAnalyzer")
+    << "\n**** L1GtAnalyzer::analyzeDecisionPhysics L1GlobalTriggerRecord ****\n"
+    << std::endl;
+
+    edm::Handle<L1GlobalTriggerRecord> gtRecord;
+    iEvent.getByLabel(m_l1GtRecordInputTag, gtRecord);
+
+    if (!gtRecord.isValid()) {
+
+        edm::LogInfo("L1GtAnalyzer")
+                << "\nL1GlobalTriggerRecord for " << m_l1GtRecordInputTag
+                << " not found"
+                "\n  --> returning false by default!\n"
+                << std::endl;
+        
+        return;
+
+    }
+
+    const DecisionWord gtDecisionWord = gtRecord->decisionWord();
+
+    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
+    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu) ;
+    const L1GtTriggerMenu* m_l1GtMenu = l1GtMenu.product();
+
+    const bool algResult = m_l1GtMenu->gtAlgorithmResult(m_algoName,
+            gtDecisionWord);
+
+    edm::LogVerbatim("L1GtAnalyzer") << "\nResult for algorithm " << m_algoName
+            << ": " << algResult << "\n" << std::endl;
+
+}
+
+
 // analyze: test setting decision
 //   bunch cross in event BxInEvent = 0 - L1Accept event
-void L1GtAnalyzer::analyzeSetDecision(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1GtAnalyzer::analyzeSetDecision(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
     LogDebug("L1GtAnalyzer")
@@ -209,10 +245,11 @@ void L1GtAnalyzer::analyzeSetDecision(const edm::Event& iEvent, const edm::Event
 } // end snippet to test setting decision
 
 // test muon part in L1GlobalTriggerReadoutRecord
-void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
     LogDebug("L1GtAnalyzer")
-    << "\n**** L1GtAnalyzer::analyzeMuons test muon collection in L1GlobalTriggerReadoutRecord ****\n"
+    << "\n**** L1GtAnalyzer::analyzeMuons test muon collection in " 
+    << "L1GlobalTriggerReadoutRecord ****\n"
     << std::endl;
 
     // get L1GlobalTriggerReadoutRecord
@@ -244,7 +281,7 @@ void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup&
 }
 
 // analyze: object map record
-void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
     LogDebug("L1GtAnalyzer")
@@ -301,26 +338,25 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSe
 
 
 // analyze each event: event loop
-void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
-    using namespace edm;
-
-    LogDebug("L1GtAnalyzer") << "\n**** L1GtAnalyzer::analyze starting ****\n"
-    << std::endl;
 
     // analyze: decision and decision word
     //   bunch cross in event BxInEvent = 0 - L1Accept event
-    analyzeDecision(iEvent, iSetup);
-
+    analyzeDecision(iEvent, evSetup);
+    
+    // analyze: decision for a given algorithm via trigger menu
+    analyzeDecisionPhysics(iEvent, evSetup);
+    
     // analyze: test setting decision
     //   bunch cross in event BxInEvent = 0 - L1Accept event
-    analyzeSetDecision(iEvent, iSetup);
+    analyzeSetDecision(iEvent, evSetup);
 
     // test muon part in L1GlobalTriggerReadoutRecord
-    analyzeMuons(iEvent, iSetup);
+    analyzeMuons(iEvent, evSetup);
 
     // analyze: object map record
-    analyzeObjectMap(iEvent, iSetup);
+    analyzeObjectMap(iEvent, evSetup);
 
 }
 

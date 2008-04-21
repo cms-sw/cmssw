@@ -26,9 +26,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // class declaration
 
@@ -41,11 +43,14 @@ public:
 
 private:
 
-    virtual void beginJob(const edm::EventSetup&) ;
+    virtual void beginJob(const edm::EventSetup&);
 
     /// analyze: decision and decision word
     ///   bunch cross in event BxInEvent = 0 - L1Accept event
     virtual void analyzeDecision(const edm::Event&, const edm::EventSetup&);
+
+    /// analyze: decision for a given algorithm via trigger menu
+    void analyzeDecisionPhysics(const edm::Event&, const edm::EventSetup&);
 
     /// analyze: test setting decision
     ///   bunch cross in event BxInEvent = 0 - L1Accept event
@@ -61,15 +66,16 @@ private:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     /// end of job
-    virtual void endJob() ;
+    virtual void endJob();
 
 private:
-
-    static const edm::ParameterSet* m_pSet;
 
     /// input tags for GT DAQ record
     edm::InputTag m_daqGtInputTag;
 
+    /// input tags for GT lite record
+    edm::InputTag m_l1GtRecordInputTag;
+    
     /// input tags for GT object map collection
     edm::InputTag m_gtObjectMapTag;
 
