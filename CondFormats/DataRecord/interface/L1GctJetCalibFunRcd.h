@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Mar  1 15:04:16 CET 2007
-// $Id: L1GctJetCalibFunRcd.h,v 1.1 2007/03/16 13:51:29 heath Exp $
+// $Id: L1GctJetCalibFunRcd.h,v 1.2 2008/03/03 07:09:47 wsun Exp $
 //
 //#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 //
@@ -27,9 +27,10 @@
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 
-class L1GctJetCalibFunRcd : public edm::eventsetup::DependentRecordImplementation<L1GctJetCalibFunRcd, boost::mpl::vector<L1JetEtScaleRcd,L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+class L1GctJetCalibFunRcd : public edm::eventsetup::DependentRecordImplementation<L1GctJetCalibFunRcd, boost::mpl::vector<L1JetEtScaleRcd,L1TriggerKeyListRcd,L1TriggerKeyRcd,L1CaloGeometryRecord> > {};
 
 #endif
