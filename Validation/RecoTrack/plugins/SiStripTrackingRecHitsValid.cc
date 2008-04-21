@@ -1594,7 +1594,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    totcharge=0;
 	    clusiz = cluster->amplitudes().size();
 	    //	    cout<<"clusiz = "<<clusiz<<endl;
-	    const std::vector<uint16_t> amplitudes=cluster->amplitudes();
+	    const std::vector<uint8_t> amplitudes=cluster->amplitudes();
 	    for(size_t ia=0; ia<amplitudes.size();ia++){
 	      totcharge+=amplitudes[ia];
 	    }
@@ -1705,7 +1705,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      clusiz=0;
 	      totcharge=0;
 	      clusiz = cluster->amplitudes().size();
-	      const std::vector<uint16_t> amplitudes=cluster->amplitudes();
+	      const std::vector<uint8_t> amplitudes=cluster->amplitudes();
 	      for(size_t ia=0; ia<amplitudes.size();ia++){
 		totcharge+=amplitudes[ia];
 	      }
@@ -1820,7 +1820,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  totcharge=0;
 	  clusiz = cluster->amplitudes().size();
 	  //cout<<"cluster->firstStrip() = "<<cluster->firstStrip()<<endl;
-	  const std::vector<uint16_t> amplitudes=cluster->amplitudes();
+	  const std::vector<uint8_t> amplitudes=cluster->amplitudes();
 	  for(size_t ia=0; ia<amplitudes.size();ia++){
 	    totcharge+=amplitudes[ia];
 	  }
@@ -1990,7 +1990,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  clusiz=0;
 	  totcharge=0;
 	  clusiz = cluster->amplitudes().size();
-	  const std::vector<uint16_t> amplitudes=cluster->amplitudes();
+	  const std::vector<uint8_t> amplitudes=cluster->amplitudes();
 	  for(size_t ia=0; ia<amplitudes.size();ia++){
 	    totcharge+=amplitudes[ia];
 	  }
