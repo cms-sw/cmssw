@@ -15,7 +15,8 @@ from RecoTracker.FinalTrackSelectors.selectHighPurity_cfi import *
 generalTracks = copy.deepcopy(selectHighPurity)
 tracksWithQuality = cms.Sequence(withLooseQuality*withTightQuality*generalTracks)
 withLooseQuality.src = 'preFilterCmsTracks'
-withLooseQuality.keepAllTracks = False
+withLooseQuality.keepAllTracks = False ## we only keep hthose who pass the filter
+
 withLooseQuality.copyExtras = True
 withLooseQuality.copyTrajectories = True
 withTightQuality.src = 'withLooseQuality'

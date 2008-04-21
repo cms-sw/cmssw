@@ -2,12 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 pfTrackElec = cms.EDProducer("PFElecTkProducer",
     TrajInEvents = cms.bool(True),
+    GsfColList = cms.VInputTag(cms.InputTag("pixelMatchGsfFit")),
     Fitter = cms.string('GsfElectronFittingSmoother'),
-    GsfTrackCandidateModuleLabel = cms.string('gsfElCandidates'),
+    AddGSFTkColl = cms.bool(False),
     ModeMomentum = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
+    GsfTrackModuleLabel = cms.InputTag("gsfPFtracks"),
     Propagator = cms.string('fwdElectronPropagator'),
-    GsfTrackModuleLabel = cms.string('gsfPFtracks')
+    PFRecTrackLabel = cms.InputTag("elecpreid")
 )
 
 

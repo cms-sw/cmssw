@@ -32,22 +32,24 @@ roadSearchSeeds = cms.EDFilter("RoadSearchSeedFinder",
     rphiStripRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
     # maximal impact parameter cut on seeds in cm
     MaximalBarrelImpactParameter = cms.double(0.2),
-    # restrict RS cosmic reconstruction to events which have less than MaxNumberOfClusters
-    MaxNumberOfClusters = cms.uint32(300),
+    # enable/disable checking of the number of clusters per event
+    # (only used during cosmic tracking)
+    doClusterCheck = cms.bool(False),
     stereoStripRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
     # roads service label
     RoadsLabel = cms.string(''),
     ClusterCollectionLabel = cms.InputTag("siStripClusters"),
     # In the case of double sided sensors, return in addition to matched also stereo rechits which have not been matched
     OuterSeedRecHitAccessUseStereo = cms.bool(False),
+    # restrict track reconstruction to events which have less than MaxNumberOfCosmicClusters;
+    # doClusterCheck needs to be 'true' in order to have an effect
+    MaxNumberOfCosmicClusters = cms.uint32(300),
     # minimal transverse momentum of reconstructed tracks cut on seeds in GeV
     MinimalReconstructedTransverseMomentum = cms.double(1.5),
     # phi range in radians to restrict loop over detid's in rings
     PhiRangeForDetIdLookupInRings = cms.double(0.5),
     # seeding mode: STANDARD, STRAIGHT-LINE
     Mode = cms.string('STANDARD'),
-    # enable/disable cosmic tracking mode
-    CosmicTracking = cms.bool(False),
     MergeSeedsRadiusCut_A = cms.double(0.05),
     # TrackingRecHit access configuration for inner seed rings
     # access mode for TrackingTools/RoadSearchHitAccess, allowed values: "STANDARD",'RPHI'

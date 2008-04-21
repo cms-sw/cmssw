@@ -14,13 +14,16 @@ cscSegments = cms.EDProducer("CSCSegmentProducer",
     # std::vector<edm::ParameterSet>
     algo_psets = cms.VPSet(cms.PSet(
         CSCSegAlgoSK
-    ), cms.PSet(
-        CSCSegAlgoTC
-    ), cms.PSet(
-        CSCSegAlgoDF
-    ), cms.PSet(
-        CSCSegAlgoST
-    ))
+    ), 
+        cms.PSet(
+            CSCSegAlgoTC
+        ), 
+        cms.PSet(
+            CSCSegAlgoDF
+        ), 
+        cms.PSet(
+            CSCSegAlgoST
+        ))
 )
 
 

@@ -30,15 +30,16 @@ combinatorialcosmicseedfinderTIFTIB.OrderedHitsFactoryPSets = cms.VPSet(cms.PSet
     ),
     PropagationDirection = cms.string('alongMomentum'),
     NavigationDirection = cms.string('outsideIn')
-), cms.PSet(
-    ComponentName = cms.string('GenericPairGenerator'),
-    LayerPSet = cms.PSet(
-        layerInfo,
-        layerList = cms.vstring('TIB1+TIB2')
-    ),
-    PropagationDirection = cms.string('oppositeToMomentum'),
-    NavigationDirection = cms.string('insideOut')
-))
+), 
+    cms.PSet(
+        ComponentName = cms.string('GenericPairGenerator'),
+        LayerPSet = cms.PSet(
+            layerInfo,
+            layerList = cms.vstring('TIB1+TIB2')
+        ),
+        PropagationDirection = cms.string('oppositeToMomentum'),
+        NavigationDirection = cms.string('insideOut')
+    ))
 combinatorialcosmicseedfinderTIFTIB.SeedMomentum = 0.2
 combinatorialcosmicseedfinderTIFTIB.UpperScintillatorParameters.WidthInX = 50
 combinatorialcosmicseedfinderTIFTIB.UpperScintillatorParameters.LenghtInZ = 200

@@ -27,17 +27,30 @@ combinatorialcosmicseedfinderTIFTOBTEC.OrderedHitsFactoryPSets = cms.VPSet(cms.P
     ComponentName = cms.string('GenericTripletGenerator'),
     LayerPSet = cms.PSet(
         layerInfo,
-        layerList = cms.vstring('TOB4+TOB5+TOB6', 'TOB3+TOB5+TOB6', 'TOB3+TOB4+TOB5', 'TOB2+TOB4+TOB5', 'TOB3+TOB4+TOB6', 'TOB2+TOB4+TOB6')
+        layerList = cms.vstring('TOB4+TOB5+TOB6', 
+            'TOB3+TOB5+TOB6', 
+            'TOB3+TOB4+TOB5', 
+            'TOB2+TOB4+TOB5', 
+            'TOB3+TOB4+TOB6', 
+            'TOB2+TOB4+TOB6')
     ),
     PropagationDirection = cms.string('alongMomentum'),
     NavigationDirection = cms.string('outsideIn')
-), cms.PSet(
-    ComponentName = cms.string('GenericPairGenerator'),
-    LayerPSet = cms.PSet(
-        layerInfo,
-        layerList = cms.vstring('TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos', 'TEC7_pos+TEC8_pos', 'TEC8_pos+TEC9_pos')
-    ),
-    PropagationDirection = cms.string('alongMomentum'),
-    NavigationDirection = cms.string('outsideIn')
-))
+), 
+    cms.PSet(
+        ComponentName = cms.string('GenericPairGenerator'),
+        LayerPSet = cms.PSet(
+            layerInfo,
+            layerList = cms.vstring('TEC1_pos+TEC2_pos', 
+                'TEC2_pos+TEC3_pos', 
+                'TEC3_pos+TEC4_pos', 
+                'TEC4_pos+TEC5_pos', 
+                'TEC5_pos+TEC6_pos', 
+                'TEC6_pos+TEC7_pos', 
+                'TEC7_pos+TEC8_pos', 
+                'TEC8_pos+TEC9_pos')
+        ),
+        PropagationDirection = cms.string('alongMomentum'),
+        NavigationDirection = cms.string('outsideIn')
+    ))
 

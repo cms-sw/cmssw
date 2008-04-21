@@ -26,17 +26,24 @@ combinatorialcosmicseedfinderTIFTOB.OrderedHitsFactoryPSets = cms.VPSet(cms.PSet
     ComponentName = cms.string('GenericTripletGenerator'),
     LayerPSet = cms.PSet(
         layerInfo,
-        layerList = cms.vstring('TOB4+TOB5+TOB6', 'TOB3+TOB5+TOB6', 'TOB3+TOB4+TOB5', 'TOB2+TOB4+TOB5', 'TOB2+TOB4+TOB6')
+        layerList = cms.vstring('TOB4+TOB5+TOB6', 
+            'TOB3+TOB5+TOB6', 
+            'TOB3+TOB4+TOB5', 
+            'TOB2+TOB4+TOB5', 
+            'TOB2+TOB4+TOB6')
     ),
     PropagationDirection = cms.string('alongMomentum'),
     NavigationDirection = cms.string('outsideIn')
-), cms.PSet(
-    ComponentName = cms.string('GenericTripletGenerator'),
-    LayerPSet = cms.PSet(
-        layerInfo,
-        layerList = cms.vstring('TOB1+TOB2+TOB3', 'TOB1+TOB2+TOB4', 'TOB1+TOB2+TOB5')
-    ),
-    PropagationDirection = cms.string('oppositeToMomentum'),
-    NavigationDirection = cms.string('insideOut')
-))
+), 
+    cms.PSet(
+        ComponentName = cms.string('GenericTripletGenerator'),
+        LayerPSet = cms.PSet(
+            layerInfo,
+            layerList = cms.vstring('TOB1+TOB2+TOB3', 
+                'TOB1+TOB2+TOB4', 
+                'TOB1+TOB2+TOB5')
+        ),
+        PropagationDirection = cms.string('oppositeToMomentum'),
+        NavigationDirection = cms.string('insideOut')
+    ))
 

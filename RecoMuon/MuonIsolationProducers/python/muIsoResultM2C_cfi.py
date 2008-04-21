@@ -12,11 +12,13 @@ muIsoResultM2C = cms.EDProducer("MuIsoCandidateResultProducer",
     RemoveOtherVetos = cms.bool(True),
     InputMuIsoDeposits = cms.VPSet(cms.PSet(
         UnweightedInputTkDeps
-    ), cms.PSet(
-        UnweightedInputTowEcalDeps
-    ), cms.PSet(
-        UnweightedInputTowHcalDeps
-    )),
+    ), 
+        cms.PSet(
+            UnweightedInputTowEcalDeps
+        ), 
+        cms.PSet(
+            UnweightedInputTowHcalDeps
+        )),
     BeamlineOption = cms.string('BeamSpotFromEvent')
 )
 

@@ -1,13 +1,10 @@
-# The following comments couldn't be translated into the new config version:
-
-# The reconstruction algo and its parameter set
-
 import FWCore.ParameterSet.Config as cms
 
 # Module for 4D rechit building 
 # The block of the reconstruction algo
 from RecoLocalMuon.DTSegment.DTMeantimerPatternReco4DAlgo_ParamDrift_cfi import *
 dt4DSegments = cms.EDProducer("DTRecSegment4DProducer",
+    # The reconstruction algo and its parameter set
     DTMeantimerPatternReco4DAlgo_ParamDrift,
     # debug option
     debug = cms.untracked.bool(False),

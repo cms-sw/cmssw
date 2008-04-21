@@ -19,7 +19,8 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
     MatchingConeSizeFormula = cms.string('0.1'), ## **  
 
     TrackerIsolConeSize_min = cms.double(0.0),
-    GammaCand_minPt = cms.double(1.5),
+    GammaCand_minPt = cms.double(1.5), ##Increased from 1.0 to recover efficiency lost by Gamma Conversions    
+
     HCALSignalConeMetric = cms.string('DR'), ## *  
 
     ChargedHadrCandLeadChargedHadrCand_tksmaxDZ = cms.double(0.2),

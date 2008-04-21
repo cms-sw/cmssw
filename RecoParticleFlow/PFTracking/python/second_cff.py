@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+#HIT REMOVAL
+from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 import copy
 from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
 #TRACKER HITS
@@ -27,7 +29,6 @@ import copy
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
 #TRACKS
 secondWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
-#HIT REMOVAL
 secondClusters = cms.EDProducer("RemainingClusterProducer",
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     recTracks = cms.InputTag("firstvtxFilt"),
@@ -39,7 +40,11 @@ secondClusters = cms.EDProducer("RemainingClusterProducer",
 #SEEDS
 secondlayertriplets = cms.ESProducer("PixelLayerTripletsESProducer",
     ComponentName = cms.string('SecondLayerTriplets'),
-    layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg'),
+    layerList = cms.vstring('BPix1+BPix2+BPix3', 
+        'BPix1+BPix2+FPix1_pos', 
+        'BPix1+BPix2+FPix1_neg', 
+        'BPix1+FPix1_pos+FPix2_pos', 
+        'BPix1+FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
         useErrorsFromParam = cms.untracked.bool(True),
         hitErrorRPhi = cms.double(0.0027),
@@ -61,13 +66,7 @@ secondTriplets = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
         ComponentName = cms.string('StandardHitTripletGenerator'),
         SeedingLayers = cms.string('SecondLayerTriplets'),
         GeneratorPSet = cms.PSet(
-            useBending = cms.bool(True),
-            useFixedPreFiltering = cms.bool(False),
-            ComponentName = cms.string('PixelTripletHLTGenerator'),
-            extraHitRPhitolerance = cms.double(0.06),
-            useMultScattering = cms.bool(True),
-            phiPreFiltering = cms.double(0.3),
-            extraHitRZtolerance = cms.double(0.06)
+            PixelTripletHLTGenerator
         )
     ),
     SeedComparitorPSet = cms.PSet(

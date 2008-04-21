@@ -9,5 +9,5 @@ from RecoMET.METProducers.CaloMET_cfi import *
 from RecoMET.METProducers.HTMET_cfi import *
 from RecoMET.Configuration.CaloTowersOptForMET_cff import *
 #sequence metreco = {met, htMetIC5, htMetMC5}
-metreco = cms.Sequence(caloTowersMETOptRec*metOpt*met*metNoHF*metOptNoHF*htMetSC5*htMetSC7*htMetKT4*htMetKT6*htMetIC5)
+metreco = cms.Sequence(caloTowersMETOptRec+metOpt+met+metNoHF+metOptNoHF+htMetSC5+htMetSC7+htMetKT4+htMetKT6+htMetIC5)
 

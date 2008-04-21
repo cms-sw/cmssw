@@ -10,7 +10,17 @@ from TrackingTools.GeomPropagators.SmartPropagatorAnyOpposite_cfi import *
 from TrackingTools.GeomPropagators.SmartPropagatorAny_cfi import *
 MuonServiceProxy = cms.PSet(
     ServiceParameters = cms.PSet(
-        Propagators = cms.untracked.vstring('SteppingHelixPropagatorAny', 'SteppingHelixPropagatorAlong', 'SteppingHelixPropagatorOpposite', 'PropagatorWithMaterial', 'PropagatorWithMaterialOpposite', 'SmartPropagator', 'SmartPropagatorOpposite', 'SmartPropagatorAnyOpposite', 'SmartPropagatorAny', 'SmartPropagatorRK', 'SmartPropagatorAnyRK'),
+        Propagators = cms.untracked.vstring('SteppingHelixPropagatorAny', 
+            'SteppingHelixPropagatorAlong', 
+            'SteppingHelixPropagatorOpposite', 
+            'PropagatorWithMaterial', 
+            'PropagatorWithMaterialOpposite', 
+            'SmartPropagator', 
+            'SmartPropagatorOpposite', 
+            'SmartPropagatorAnyOpposite', 
+            'SmartPropagatorAny', 
+            'SmartPropagatorRK', 
+            'SmartPropagatorAnyRK'),
         RPCLayers = cms.bool(True),
         UseMuonNavigation = cms.untracked.bool(True)
     )

@@ -11,9 +11,13 @@ correctedHybridSuperClusters = cms.EDFilter("EgammaSCCorrectionMaker",
     VerbosityLevel = cms.string('ERROR'),
     # energy correction
     hyb_fCorrPset = cms.PSet(
-        brLinearThr = cms.double(12.0),
-        fBremVec = cms.vdouble(-0.01258, 0.03154, 0.9888, -0.0007973, 1.59),
-        fEtEtaVec = cms.vdouble(1.0, -0.8206, 3.16, 0.8637, 44.88, 2.292, 1.023, 8.0)
+        brLinearLowThr = cms.double(0.7),
+        fBremVec = cms.vdouble(-0.01217, 0.031, 0.9887, -0.0003776, 1.598),
+        brLinearHighThr = cms.double(8.0),
+        fEtEtaVec = cms.vdouble(1.001, -0.8654, 3.131, 0.0, 0.735, 
+            20.72, 1.169, 8.0, 1.023, -0.00181, 
+            0.0),
+        corrF = cms.vint32(1, 1, 0)
     ),
     recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )

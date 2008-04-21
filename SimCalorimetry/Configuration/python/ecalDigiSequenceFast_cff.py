@@ -19,5 +19,5 @@ from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
 from SimCalorimetry.EcalZeroSuppressionProducers.ecalPreshowerDigis_cfi import *
 ecalDigiSequenceFast = cms.Sequence(ecalUnsuppressedDigis*ecalTriggerPrimitiveDigis*ecalDigis*ecalPreshowerDigis)
 ecalUnsuppressedDigis.doFast = True
-ecalPreshowerDigis.ESNoiseSigma = 2.98576
+ecalPreshowerDigis.ESNoiseSigma = 2.98595
 

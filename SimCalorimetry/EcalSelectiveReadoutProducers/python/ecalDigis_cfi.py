@@ -33,7 +33,8 @@ ecalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     ecalDccZs1stSample = cms.int32(2),
     #DCC ZS FIR weights: weights are rounded in such way that in Hw
     #representation (weigth*1024 rounded to nearest integer) the sum is null:
-    dccNormalizedWeights = cms.vdouble(-0.374, -0.374, -0.3629, 0.2721, 0.4681, 0.3707),
+    dccNormalizedWeights = cms.vdouble(-0.374, -0.374, -0.3629, 0.2721, 0.4681, 
+        0.3707),
     # Instance name of output EE digis collection
     EESRPdigiCollection = cms.string('eeDigis'),
     #number of events whose TT and SR flags must be dumped (for debug purpose):

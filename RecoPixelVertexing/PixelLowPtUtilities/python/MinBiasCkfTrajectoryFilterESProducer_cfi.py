@@ -16,7 +16,8 @@ clusterShapeTrajectoryFilterESProducer = cms.ESProducer("ClusterShapeTrajectoryF
 # Composite
 minBiasTrajectoryFilterESProducer = cms.ESProducer("CompositeTrajectoryFilterESProducer",
     ComponentName = cms.string('MinBiasCkfTrajectoryFilter'),
-    filterNames = cms.vstring('ckfBaseTrajectoryFilterForMinBias', 'clusterShapeTrajectoryFilter')
+    filterNames = cms.vstring('ckfBaseTrajectoryFilterForMinBias', 
+        'clusterShapeTrajectoryFilter')
 )
 
 ckfBaseTrajectoryFilterForMinBias.ComponentName = 'ckfBaseTrajectoryFilterForMinBias'

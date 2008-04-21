@@ -15,7 +15,7 @@ from RecoTracker.RoadSearchSeedFinder.RoadSearchSeeds_cfi import *
 # RoadSearchSeedFinder
 roadSearchSeedsTIF = copy.deepcopy(roadSearchSeeds)
 roadSearchSeedsTIF.Mode = 'STRAIGHT-LINE'
-roadSearchSeedsTIF.CosmicTracking = True
+roadSearchSeedsP5.doClusterCheck = True
 roadSearchSeedsTIF.RoadsLabel = 'TIF'
 roadSearchSeedsTIF.InnerSeedRecHitAccessMode = 'STANDARD'
 roadSearchSeedsTIF.InnerSeedRecHitAccessUseRPhi = True

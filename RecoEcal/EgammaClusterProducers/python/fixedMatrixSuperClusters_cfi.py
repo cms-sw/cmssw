@@ -20,9 +20,13 @@ fixedMatrixSuperClusters = cms.EDProducer("FixedMatrixSuperClusterProducer",
     # for brem recovery
     bremRecoveryPset = cms.PSet(
         barrel = cms.PSet(
-            cryVec = cms.vint32(16, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3),
+            cryVec = cms.vint32(16, 13, 11, 10, 9, 
+                8, 7, 6, 5, 4, 
+                3),
             cryMin = cms.int32(2),
-            etVec = cms.vdouble(5.0, 10.0, 15.0, 20.0, 30.0, 40.0, 45.0, 55.0, 135.0, 195.0, 225.0)
+            etVec = cms.vdouble(5.0, 10.0, 15.0, 20.0, 30.0, 
+                40.0, 45.0, 55.0, 135.0, 195.0, 
+                225.0)
         ),
         endcap = cms.PSet(
             a = cms.double(47.85),

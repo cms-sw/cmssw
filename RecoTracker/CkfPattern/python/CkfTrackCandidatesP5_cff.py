@@ -9,6 +9,10 @@ from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
 # TrackerTrajectoryBuilders
 #include "RecoTracker/CkfPattern/data/CkfTrajectoryBuilderESProducerP5.cff"
 from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducerP5_cff import *
+# TrajectoryCleaning
+from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import *
+# Navigation School
+from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
 import copy
 from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
 # generate CTF track candidates ############

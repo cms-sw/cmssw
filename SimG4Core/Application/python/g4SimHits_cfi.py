@@ -44,8 +44,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
         MaxEtaCut = cms.double(5.5),
         HepMCProductLabel = cms.string('source'),
         MinEtaCut = cms.double(-5.5),
-        DecLenCut = cms.double(10.0) ## the minimum decay length in cm (!) for mother tracking
-
+        #Temporary fix we are investigating more in detail the inpact of this selection 
+        DecLenCut = cms.double(2.9)
     ),
     HcalTB02SD = cms.PSet(
         UseBirkLaw = cms.untracked.bool(False),
@@ -147,7 +147,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         PrintHits = cms.bool(False),
         ElectronicSigmaInNanoSeconds = cms.double(12.06),
         NeverAccumulate = cms.bool(False),
-        EnergyThresholdForPersistencyInGeV = cms.double(0.5),
+        EnergyThresholdForPersistencyInGeV = cms.double(0.2),
         EnergyThresholdForHistoryInGeV = cms.double(0.05)
     ),
     HcalTB06BeamSD = cms.PSet(
@@ -203,7 +203,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         common_heavy_suppression,
         TrackNeutrino = cms.bool(False),
         KillHeavy = cms.bool(False),
-        SavePrimaryDecayProductsAndConversions = cms.untracked.bool(False)
+        SavePrimaryDecayProductsAndConversions = cms.untracked.bool(True)
     ),
     CastorSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)

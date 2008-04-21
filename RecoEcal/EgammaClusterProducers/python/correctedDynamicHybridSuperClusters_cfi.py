@@ -11,9 +11,13 @@ correctedDynamicHybridSuperClusters = cms.EDFilter("EgammaSCCorrectionMaker",
     VerbosityLevel = cms.string('ERROR'),
     # energy correction
     dyn_fCorrPset = cms.PSet(
-        brLinearThr = cms.double(12.0),
+        brLinearLowThr = cms.double(0.0),
         fBremVec = cms.vdouble(-0.01762, 0.04224, 0.9793, 0.0008075, 1.774),
-        fEtEtaVec = cms.vdouble(0.9929, -0.01751, -4.636, 5.945, 737.9, 4.057, 1.023, 8.0)
+        brLinearHighThr = cms.double(12.0),
+        fEtEtaVec = cms.vdouble(0.9929, -0.01751, 0.0, -4.636, 5.945, 
+            737.9, 4.057, 8.0, 1.023, 0.0, 
+            0.0),
+        corrF = cms.vint32(1, 0, 0)
     ),
     recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )

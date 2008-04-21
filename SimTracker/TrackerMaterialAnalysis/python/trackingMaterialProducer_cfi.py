@@ -12,7 +12,8 @@ trackingMaterialProducer.UseMagneticField = False
 trackingMaterialProducer.Watchers = cms.VPSet(cms.PSet(
     TrackingMaterialProducer = cms.PSet(
         PrimaryTracksOnly = cms.bool(True),
-        SelectedVolumes = cms.vstring('BEAM', 'Tracker')
+        SelectedVolumes = cms.vstring('BEAM', 
+            'Tracker')
     ),
     type = cms.string('TrackingMaterialProducer')
 ))

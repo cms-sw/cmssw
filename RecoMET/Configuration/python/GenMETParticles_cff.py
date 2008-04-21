@@ -32,7 +32,21 @@ genCandidatesForMET = cms.EDFilter("GenJetParticleRefSelector",
     src = cms.InputTag("genParticles"),
     stableOnly = cms.bool(True),
     verbose = cms.untracked.bool(True),
-    excludeList = cms.vstring('nu_e', 'nu_mu', 'nu_tau', 'mu-', '~chi_10', '~nu_eR', '~nu_muR', '~nu_tauR', 'Graviton', '~Gravitino', 'nu_Re', 'nu_Rmu', 'nu_Rtau', 'nu*_e0', 'Graviton*')
+    excludeList = cms.vstring('nu_e', 
+        'nu_mu', 
+        'nu_tau', 
+        'mu-', 
+        '~chi_10', 
+        '~nu_eR', 
+        '~nu_muR', 
+        '~nu_tauR', 
+        'Graviton', 
+        '~Gravitino', 
+        'nu_Re', 
+        'nu_Rmu', 
+        'nu_Rtau', 
+        'nu*_e0', 
+        'Graviton*')
 )
 
 genMETParticles = cms.Sequence(genCandidatesForMET)

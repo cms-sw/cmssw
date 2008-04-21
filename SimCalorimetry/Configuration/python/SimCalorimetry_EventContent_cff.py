@@ -9,11 +9,16 @@ import FWCore.ParameterSet.Config as cms
 
 #Full Event content 
 SimCalorimetryFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep EBSrFlagsSorted_*_*_*', 'keep EESrFlagsSorted_*_*_*')
+    outputCommands = cms.untracked.vstring('keep EBSrFlagsSorted_ecalDigis_*_*', 
+        'keep EESrFlagsSorted_ecalDigis_*_*')
 )
 #Full Event content with DIGI
 SimCalorimetryFEVTDIGI = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_ecalDigis_*_*', 'keep *_ecalPreshowerDigis_*_*', 'keep *_ecalTriggerPrimitiveDigis_*_*', 'keep *_hcalDigis_*_*', 'keep *_hcalTriggerPrimitiveDigis_*_*')
+    outputCommands = cms.untracked.vstring('keep *_ecalDigis_*_*', 
+        'keep *_ecalPreshowerDigis_*_*', 
+        'keep *_ecalTriggerPrimitiveDigis_*_*', 
+        'keep *_hcalDigis_*_*', 
+        'keep *_hcalTriggerPrimitiveDigis_*_*')
 )
 #RECO content
 SimCalorimetryRECO = cms.PSet(

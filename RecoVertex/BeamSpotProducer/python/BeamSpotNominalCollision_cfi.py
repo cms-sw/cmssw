@@ -9,7 +9,8 @@ BeamSpotNominal = cms.ESSource("PoolDBESSource",
         record = cms.string('BeamSpotObjectsRcd'),
         tag = cms.string('NominalCollision')
     )),
-    connect = cms.string('frontier://FrontierDev/CMS_COND_BEAMSPOT')
+    connect = cms.string('frontier://FrontierDev/CMS_COND_BEAMSPOT') ##FrontierDev/CMS_COND_BEAMSPOT"
+
 )
 
 

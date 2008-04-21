@@ -6,19 +6,23 @@ siStripClusters = cms.EDFilter("SiStripClusterizer",
     DigiProducersList = cms.VPSet(cms.PSet(
         DigiLabel = cms.string('ZeroSuppressed'),
         DigiProducer = cms.string('siStripDigis')
-    ), cms.PSet(
-        DigiLabel = cms.string('VirginRaw'),
-        DigiProducer = cms.string('siStripZeroSuppression')
-    ), cms.PSet(
-        DigiLabel = cms.string('ProcessedRaw'),
-        DigiProducer = cms.string('siStripZeroSuppression')
-    ), cms.PSet(
-        DigiLabel = cms.string('ScopeMode'),
-        DigiProducer = cms.string('siStripZeroSuppression')
-    )),
+    ), 
+        cms.PSet(
+            DigiLabel = cms.string('VirginRaw'),
+            DigiProducer = cms.string('siStripZeroSuppression')
+        ), 
+        cms.PSet(
+            DigiLabel = cms.string('ProcessedRaw'),
+            DigiProducer = cms.string('siStripZeroSuppression')
+        ), 
+        cms.PSet(
+            DigiLabel = cms.string('ScopeMode'),
+            DigiProducer = cms.string('siStripZeroSuppression')
+        )),
     ClusterMode = cms.string('ThreeThresholdClusterizer'),
     SeedThreshold = cms.double(3.0),
-    SiStripQualityLabel = cms.string(''),
+    SiStripQualityLabel = cms.string(''), ##Use SiStripQualityLabel="NULL" to use self build empty SiStripQuality  
+
     ClusterThreshold = cms.double(5.0)
 )
 

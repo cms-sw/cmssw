@@ -6,8 +6,6 @@
 # Should be used in veto mode and kill dominant samples of other physics
 #
 
-# could be "HLT1Electron"
-# could be "HLT1Photon"
 import FWCore.ParameterSet.Config as cms
 
 singleJetTrigger = cms.EDFilter("QCDSingleJetFilter",

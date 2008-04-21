@@ -1,7 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 pixellesslayerpairs = cms.ESProducer("PixelLessLayerPairsESProducer",
-    layerList = cms.vstring('TIB1+TIB2', 'TIB1+TID1_pos', 'TIB1+TID2_pos', 'TIB1+TID1_neg', 'TIB1+TID2_neg', 'TID1_pos+TID2_pos', 'TID2_pos+TID3_pos', 'TID3_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 'TID1_neg+TID2_neg', 'TID2_neg+TID3_neg', 'TID3_neg+TEC2_neg', 'TEC2_neg+TEC3_neg'),
+    layerList = cms.vstring('TIB1+TIB2', 
+        'TIB1+TID1_pos', 
+        'TIB1+TID2_pos', 
+        'TIB1+TID1_neg', 
+        'TIB1+TID2_neg', 
+        'TID1_pos+TID2_pos', 
+        'TID2_pos+TID3_pos', 
+        'TID3_pos+TEC2_pos', 
+        'TEC2_pos+TEC3_pos', 
+        'TID1_neg+TID2_neg', 
+        'TID2_neg+TID3_neg', 
+        'TID3_neg+TEC2_neg', 
+        'TEC2_neg+TEC3_neg'),
     TID1 = cms.PSet(
         useSimpleRphiHitsCleaner = cms.untracked.bool(False),
         minRing = cms.int32(1),

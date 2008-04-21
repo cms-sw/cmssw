@@ -26,7 +26,11 @@ pixelLayerPairsModifiedESProducer = cms.ESProducer("PixelLayerPairsESProducer",
 # PixelLayerTripletsESProducer modified
 pixelLayerTripletsModifiedESProducer = cms.ESProducer("PixelLayerTripletsESProducer",
     ComponentName = cms.string('PixelLayerTripletsModified'),
-    layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg'),
+    layerList = cms.vstring('BPix1+BPix2+BPix3', 
+        'BPix1+BPix2+FPix1_pos', 
+        'BPix1+BPix2+FPix1_neg', 
+        'BPix1+FPix1_pos+FPix2_pos', 
+        'BPix1+FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
         useErrorsFromParam = cms.untracked.bool(True),
         hitErrorRPhi = cms.double(0.0027),

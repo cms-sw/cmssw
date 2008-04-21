@@ -6,6 +6,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 layerInfo = cms.PSet(
     TID = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
@@ -30,7 +31,14 @@ layerInfo = cms.PSet(
     )
 )
 combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
+    SeedMomentum = cms.double(15.0), ##initial momentum in GeV !!!set to a lower value for slice test data
+
     ErrorRescaling = cms.double(50.0),
+    RegionFactoryPSet = cms.PSet(
+        RegionPSetBlock,
+        ComponentName = cms.string('GlobalRegionProducer')
+    ),
+    Charges = cms.vint32(-1, 1),
     OrderedHitsFactoryPSets = cms.VPSet(cms.PSet(
         ComponentName = cms.string('BeamHaloPairGenerator'),
         maxTheta = cms.double(1.0),
@@ -38,37 +46,38 @@ combinatorialbeamhaloseedfinder = cms.EDFilter("CtfSpecialSeedGenerator",
         NavigationDirection = cms.string('outsideIn'),
         LayerPSet = cms.PSet(
             layerInfo,
-            layerList = cms.vstring('FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg', 'TID2_pos+TID3_pos', 'TID2_neg+TID3_neg', 'TEC7_pos+TEC8_pos', 'TEC8_pos+TEC9_pos', 'TEC7_neg+TEC8_neg', 'TEC8_neg+TEC9_neg')
+            layerList = cms.vstring('FPix1_pos+FPix2_pos', 
+                'FPix1_neg+FPix2_neg', 
+                'TID2_pos+TID3_pos', 
+                'TID2_neg+TID3_neg', 
+                'TEC7_pos+TEC8_pos', 
+                'TEC8_pos+TEC9_pos', 
+                'TEC7_neg+TEC8_neg', 
+                'TEC8_neg+TEC9_neg')
         )
-    ), cms.PSet(
-        ComponentName = cms.string('BeamHaloPairGenerator'),
-        maxTheta = cms.double(1.0),
-        PropagationDirection = cms.string('oppositeToMomentum'),
-        NavigationDirection = cms.string('outsideIn'),
-        LayerPSet = cms.PSet(
-            layerInfo,
-            layerList = cms.vstring('FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg', 'TID2_pos+TID3_pos', 'TID2_neg+TID3_neg', 'TEC7_pos+TEC8_pos', 'TEC8_pos+TEC9_pos', 'TEC7_neg+TEC8_neg', 'TEC8_neg+TEC9_neg')
-        )
-    )),
-    Charges = cms.vint32(-1, 1),
-    RegionFactoryPSet = cms.PSet(
-        ComponentName = cms.string('GlobalRegionProducer'),
-        RegionPSet = cms.PSet(
-            precise = cms.bool(True),
-            originHalfLength = cms.double(15.9),
-            originRadius = cms.double(0.2),
-            originYPos = cms.double(0.0),
-            ptMin = cms.double(0.9),
-            originXPos = cms.double(0.0),
-            originZPos = cms.double(0.0)
-        )
-    ),
+    ), 
+        cms.PSet(
+            ComponentName = cms.string('BeamHaloPairGenerator'),
+            maxTheta = cms.double(1.0),
+            PropagationDirection = cms.string('oppositeToMomentum'),
+            NavigationDirection = cms.string('outsideIn'),
+            LayerPSet = cms.PSet(
+                layerInfo,
+                layerList = cms.vstring('FPix1_pos+FPix2_pos', 
+                    'FPix1_neg+FPix2_neg', 
+                    'TID2_pos+TID3_pos', 
+                    'TID2_neg+TID3_neg', 
+                    'TEC7_pos+TEC8_pos', 
+                    'TEC8_pos+TEC9_pos', 
+                    'TEC7_neg+TEC8_neg', 
+                    'TEC8_neg+TEC9_neg')
+            )
+        )),
     UseScintillatorsConstraint = cms.bool(False),
     TTRHBuilder = cms.string('WithTrackAngle'),
     SeedsFromPositiveY = cms.bool(False),
+    doClusterCheck = cms.bool(False),
     CheckHitsAreOnDifferentLayers = cms.bool(False),
-    SeedMomentum = cms.double(15.0), ##initial momentum in GeV !!!set to a lower value for slice test data
-
     SetMomentum = cms.bool(True)
 )
 

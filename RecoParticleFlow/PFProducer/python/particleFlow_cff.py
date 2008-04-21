@@ -8,4 +8,3 @@ from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cfi import *
 
-

@@ -15,7 +15,8 @@ topLeptonTauMuTauEventSelection = cms.PSet(
 )
 topLeptonTauEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('topLeptonTauETauPath', 'topLeptonTauMuTauPath')
+        SelectEvents = cms.vstring('topLeptonTauETauPath', 
+            'topLeptonTauMuTauPath')
     )
 )
 

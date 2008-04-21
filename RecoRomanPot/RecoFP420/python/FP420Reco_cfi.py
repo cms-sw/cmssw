@@ -1,11 +1,8 @@
-# The following comments couldn't be translated into the new config version:
-
-#--------------------------------
-#--------------------------------
-
 import FWCore.ParameterSet.Config as cms
 
 FP420Reco = cms.EDFilter("ReconstructerFP420",
+    #--------------------------------
+    #--------------------------------
     ROUList = cms.vstring('FP420Track'),
     NumberFP420Detectors = cms.int32(3),
     Beam2 = cms.string('SimTransport/HectorProducer/data/LHCB2IR5_v6.500.tfs'),

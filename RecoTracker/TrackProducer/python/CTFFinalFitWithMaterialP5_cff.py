@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # magnetic field
-#include "Geometry/CMSCommonData/data/cmsMagneticFieldXML.cfi"
 from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 # cms geometry
 #include "Geometry/TrackerRecoData/data/trackerRecoGeometryXML.cfi"
@@ -14,16 +13,22 @@ from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer
 from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
-# KFTrajectoryFitterESProducer
+import copy
+from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
+# PropagatorWithMaterialESProducer
+RungeKuttaTrackerPropagator = copy.deepcopy(MaterialPropagator)
+import copy
 from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
-# KFTrajectorySmootherESProducer
+# KFTrajectoryFitterESProducer
+FitterRK = copy.deepcopy(KFTrajectoryFitter)
+import copy
 from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
+# KFTrajectorySmootherESProducer
+SmootherRK = copy.deepcopy(KFTrajectorySmoother)
 import copy
 from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
 # KFFittingSmootherESProducer
-#include "TrackingTools/TrackFitters/data/KFFittingSmootherESProducer.cfi"
-KFFittingSmootherP5 = copy.deepcopy(KFFittingSmoother)
-# PropagatorWithMaterialESProducer
+FittingSmootherRKP5 = copy.deepcopy(KFFittingSmoother)
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
 from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
@@ -38,8 +43,16 @@ import copy
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
 # TrackProducer
 ctfWithMaterialTracksP5 = copy.deepcopy(ctfWithMaterialTracks)
-KFFittingSmootherP5.ComponentName = 'KFFittingSmootherP5'
-KFFittingSmootherP5.MinNumberOfHits = 4
+RungeKuttaTrackerPropagator.ComponentName = 'RungeKuttaTrackerPropagator'
+RungeKuttaTrackerPropagator.useRungeKutta = True
+FitterRK.ComponentName = 'FitterRK'
+FitterRK.Propagator = 'RungeKuttaTrackerPropagator'
+SmootherRK.ComponentName = 'SmootherRK'
+SmootherRK.Propagator = 'RungeKuttaTrackerPropagator'
+FittingSmootherRKP5.ComponentName = 'FittingSmootherRKP5'
+FittingSmootherRKP5.Fitter = 'FitterRK'
+FittingSmootherRKP5.Smoother = 'SmootherRK'
+FittingSmootherRKP5.MinNumberOfHits = 4
 ctfWithMaterialTracksP5.src = 'ckfTrackCandidatesP5'
-ctfWithMaterialTracksP5.Fitter = 'KFFittingSmootherP5'
+ctfWithMaterialTracksP5.Fitter = 'FittingSmootherRKP5'
 

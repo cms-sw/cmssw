@@ -1,25 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoBTag.SecondaryVertex.trackSelection_cfi import *
+from RecoBTag.SecondaryVertex.trackPseudoSelection_cfi import *
 combinedSecondaryVertexCommon = cms.PSet(
+    trackPseudoSelectionBlock,
+    trackSelectionBlock,
     useTrackWeights = cms.bool(True),
     pseudoMultiplicityMin = cms.uint32(2),
     correctVertexMass = cms.bool(True),
-    trackPseudoSelection = cms.PSet(
-        totalHitsMin = cms.uint32(0),
-        jetDeltaRMax = cms.double(0.3),
-        qualityClass = cms.string('any'),
-        pixelHitsMin = cms.uint32(0),
-        sip3dSigMin = cms.double(-99999.9),
-        sip3dSigMax = cms.double(99999.9),
-        sip2dValMax = cms.double(99999.9),
-        ptMin = cms.double(0.0),
-        sip2dSigMax = cms.double(99999.9),
-        sip2dSigMin = cms.double(2.0),
-        sip3dValMax = cms.double(99999.9),
-        sip3dValMin = cms.double(-99999.9),
-        sip2dValMin = cms.double(-99999.9),
-        normChi2Max = cms.double(99999.9)
-    ),
     trackPairV0Filter = cms.PSet(
         k0sMassWindow = cms.double(0.03)
     ),
@@ -29,22 +17,6 @@ combinedSecondaryVertexCommon = cms.PSet(
         k0sMassWindow = cms.double(0.05)
     ),
     trackMultiplicityMin = cms.uint32(3),
-    trackSelection = cms.PSet(
-        totalHitsMin = cms.uint32(0),
-        jetDeltaRMax = cms.double(0.3),
-        qualityClass = cms.string('any'),
-        pixelHitsMin = cms.uint32(0),
-        sip3dSigMin = cms.double(-99999.9),
-        sip3dSigMax = cms.double(99999.9),
-        sip2dValMax = cms.double(99999.9),
-        ptMin = cms.double(0.0),
-        sip2dSigMax = cms.double(99999.9),
-        sip2dSigMin = cms.double(-99999.9),
-        sip3dValMax = cms.double(99999.9),
-        sip3dValMin = cms.double(-99999.9),
-        sip2dValMin = cms.double(-99999.9),
-        normChi2Max = cms.double(99999.9)
-    ),
     trackSort = cms.string('sip2dSig')
 )
 

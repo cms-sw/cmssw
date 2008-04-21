@@ -1,12 +1,9 @@
-# The following comments couldn't be translated into the new config version:
-
-#using QCDHLT1jetPE7EventContent
-
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.EventContent.EventContent_cff import *
 from QCDAnalysis.Skimming.QCDHLT1jetPE7EventContent_cff import *
 QCDHLT1jetPE7OutputModule = cms.OutputModule("PoolOutputModule",
+    #using QCDHLT1jetPE7EventContent
     QCDHLT1jetPE7EventSelection,
     AODSIMEventContent,
     dataset = cms.untracked.PSet(

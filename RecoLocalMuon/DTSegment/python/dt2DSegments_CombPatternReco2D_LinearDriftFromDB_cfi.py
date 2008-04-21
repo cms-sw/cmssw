@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# The reconstruction algo and its parameter set
-
 import FWCore.ParameterSet.Config as cms
 
 # Module for 2D rechit building 
@@ -9,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # The block of the reconstruction
 from RecoLocalMuon.DTSegment.DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_cfi import *
 dt2DSegments = cms.EDProducer("DTRecSegment2DProducer",
+    # The reconstruction algo and its parameter set
     DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB,
     # debuggin opt
     debug = cms.untracked.bool(False),

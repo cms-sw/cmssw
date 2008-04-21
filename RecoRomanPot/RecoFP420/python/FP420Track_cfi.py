@@ -1,14 +1,11 @@
-# The following comments couldn't be translated into the new config version:
-
-#--------------------------------
-#--------------------------------
-
 import FWCore.ParameterSet.Config as cms
 
 FP420Track = cms.EDFilter("TrackerizerFP420",
     z420 = cms.double(420000.0),
     NumberFP420Stations = cms.int32(3),
     chiCutX420 = cms.double(50.0),
+    #--------------------------------
+    #--------------------------------
     ROUList = cms.vstring('FP420Cluster'),
     NumberFP420Detectors = cms.int32(3),
     NumberFP420SPTypes = cms.int32(2),

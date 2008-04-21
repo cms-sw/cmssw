@@ -1,8 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#--------------------------------
-#--------------------------------
-
 import FWCore.ParameterSet.Config as cms
 
 FP420Digi = cms.EDFilter("DigitizerFP420",
@@ -11,6 +6,8 @@ FP420Digi = cms.EDFilter("DigitizerFP420",
     #--------------------------------
     #--------------------------------
     VerbosityLevel = cms.untracked.int32(0),
+    #--------------------------------
+    #--------------------------------
     ROUList = cms.vstring('FP420SI'),
     #--------------------------------
     #-----------------------------DigitizerFP420 

@@ -4,13 +4,15 @@ siStripZeroSuppression = cms.EDFilter("SiStripZeroSuppression",
     RawDigiProducersList = cms.VPSet(cms.PSet(
         RawDigiProducer = cms.string('SiStripDigis'),
         RawDigiLabel = cms.string('VirginRaw')
-    ), cms.PSet(
-        RawDigiProducer = cms.string('SiStripDigis'),
-        RawDigiLabel = cms.string('ProcessedRaw')
-    ), cms.PSet(
-        RawDigiProducer = cms.string('SiStripDigis'),
-        RawDigiLabel = cms.string('ScopeMode')
-    )),
+    ), 
+        cms.PSet(
+            RawDigiProducer = cms.string('SiStripDigis'),
+            RawDigiLabel = cms.string('ProcessedRaw')
+        ), 
+        cms.PSet(
+            RawDigiProducer = cms.string('SiStripDigis'),
+            RawDigiLabel = cms.string('ScopeMode')
+        )),
     FEDalgorithm = cms.uint32(4),
     ZeroSuppressionMode = cms.string('SiStripFedZeroSuppression'),
     CutToAvoidSignal = cms.double(3.0), ##

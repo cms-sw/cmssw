@@ -11,11 +11,13 @@ muIsoResultM2T = cms.EDProducer("MuIsoTrackResultProducer",
     RemoveOtherVetos = cms.bool(True),
     InputMuIsoDeposits = cms.VPSet(cms.PSet(
         UnweightedInputTkDeps
-    ), cms.PSet(
-        UnweightedInputTowEcalDeps
-    ), cms.PSet(
-        UnweightedInputTowHcalDeps
-    ))
+    ), 
+        cms.PSet(
+            UnweightedInputTowEcalDeps
+        ), 
+        cms.PSet(
+            UnweightedInputTowHcalDeps
+        ))
 )
 
 

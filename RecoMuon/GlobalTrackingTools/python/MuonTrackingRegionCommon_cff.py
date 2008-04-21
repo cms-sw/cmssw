@@ -7,21 +7,31 @@ MuonTrackingRegionCommon = cms.PSet(
         EtaR_UpperLimit_Par1 = cms.double(0.25),
         Eta_fixed = cms.double(0.2),
         beamSpot = cms.InputTag("offlineBeamSpot"),
-        Rescale_Dz = cms.double(3.0),
-        Eta_min = cms.double(0.013),
-        Rescale_phi = cms.double(3.0),
-        DeltaR = cms.double(0.2),
-        DeltaZ_Region = cms.double(15.9),
-        Rescale_eta = cms.double(3.0),
+        Rescale_Dz = cms.double(3.0), ## Delta Z from tracker
+
+        Eta_min = cms.double(0.05), ## Lower limit to the region eta
+
+        Rescale_phi = cms.double(3.0), ## Rescale Error in Phi
+
+        DeltaR = cms.double(0.2), ## geometrical constraint
+
+        DeltaZ_Region = cms.double(15.9), ## half interaction region
+
+        Rescale_eta = cms.double(3.0), ## Rescale Error in Eta
+
         PhiR_UpperLimit_Par2 = cms.double(0.2),
-        VertexCollection = cms.string('pixelVertices'),
+        vertexCollection = cms.InputTag("pixelVertices"),
         Phi_fixed = cms.double(0.2),
-        EscapePt = cms.double(1.5),
-        UseFixedRegion = cms.bool(False),
+        EscapePt = cms.double(1.5), ## Min pt to escape traker
+
+        UseFixedRegion = cms.bool(False), ## Use a fixed region size
+
         PhiR_UpperLimit_Par1 = cms.double(0.6),
         EtaR_UpperLimit_Par2 = cms.double(0.15),
-        Phi_min = cms.double(0.02),
-        UseVertex = cms.bool(False)
+        Phi_min = cms.double(0.05), ## Lower limit to the region phi
+
+        UseVertex = cms.bool(False) ## use reconstructed vertex instead of beamspot
+
     )
 )
 

@@ -32,13 +32,17 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 # Electron HLT Path
 susyHLTElectronPath = copy.deepcopy(hltHighLevel)
 susyHLTJetMETPath.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-susyHLTJetMETPath.HLTPaths = ['HLT1jet', 'HLT2jet', 'HLT3jet', 'HLT4jet', 'HLT2jet1MET', 'HLT1jet1MET', 'HLT1MET1HT', 'HLT2jetAco', 'HLT1jet1METAco', 'HLTS2jet1METNV', 'HLTS2jet1METAco', 'CandHLTSjet1MET1Aco', 'CandHLTSjet2MET1Aco', 'CandHLTS2jetAco']
+susyHLTJetMETPath.HLTPaths = ['HLT1jet', 'HLT2jet', 'HLT3jet', 'HLT4jet', 'HLT2jet1MET', 
+    'HLT1jet1MET', 'HLT1MET1HT', 'HLT2jetAco', 'HLT1jet1METAco', 'HLTS2jet1METNV', 
+    'HLTS2jet1METAco', 'CandHLTSjet1MET1Aco', 'CandHLTSjet2MET1Aco', 'CandHLTS2jetAco']
 susyHLTMETOnlyPath.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 susyHLTMETOnlyPath.HLTPaths = ['HLT1MET']
 susyHLTMuonPath.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-susyHLTMuonPath.HLTPaths = ['HLT1MuonIso', 'HLT2MuonIso', 'HLT2MuonNonIso', 'HLT2MuonSameSign', 'HLTXMuonJets', 'HLTXElectronMuon', 'HLTXElectronMuonRelaxed', 'CandHLT2MuonIso']
+susyHLTMuonPath.HLTPaths = ['HLT1MuonIso', 'HLT2MuonIso', 'HLT2MuonNonIso', 'HLT2MuonSameSign', 'HLTXMuonJets', 
+    'HLTXElectronMuon', 'HLTXElectronMuonRelaxed', 'CandHLT2MuonIso']
 susyHLTPhotonPath.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 susyHLTPhotonPath.HLTPaths = ['HLT1Photon', 'HLT1PhotonRelaxed', 'HLT2Photon', 'HLT2PhotonRelaxed']
 susyHLTElectronPath.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-susyHLTElectronPath.HLTPaths = ['HLT1Electron', 'HLT1ElectronRelaxed', 'HLT2Electron', 'HLT2ElectronRelaxed', 'HLT1EMHighEt', 'HLT1EMVeryHighEt', 'HLTXElectron1Jet', 'HLTXElectron2Jet']
+susyHLTElectronPath.HLTPaths = ['HLT1Electron', 'HLT1ElectronRelaxed', 'HLT2Electron', 'HLT2ElectronRelaxed', 'HLT1EMHighEt', 
+    'HLT1EMVeryHighEt', 'HLTXElectron1Jet', 'HLTXElectron2Jet']
 

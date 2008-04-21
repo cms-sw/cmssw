@@ -1,10 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# Parameters for the updator
-# this is the RecHit1D algo!!
-
-# this are the RecSegment2D algo parameters!
-
 import FWCore.ParameterSet.Config as cms
 
 # 
@@ -20,7 +13,10 @@ from RecoLocalMuon.DTRecHit.DTLinearDriftFromDBAlgo_cfi import *
 DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB = cms.PSet(
     Reco4DAlgoName = cms.string('DTCombinatorialPatternReco4D'),
     Reco4DAlgoConfig = cms.PSet(
+        # this are the RecSegment2D algo parameters!
         DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB,
+        # Parameters for the updator
+        # this is the RecHit1D algo!!
         DTLinearDriftFromDBAlgo,
         segmCleanerMode = cms.int32(1),
         nSharedHitsMax = cms.int32(2),

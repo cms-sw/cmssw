@@ -1,8 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# Parameters for the updator
-# this is the RecHit1D algo!!
-
 import FWCore.ParameterSet.Config as cms
 
 # 
@@ -15,6 +10,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoLocalMuon.DTRecHit.DTParametrizedDriftAlgo_cfi import *
 DTMeantimerPatternReco2DAlgo_ParamDrift = cms.PSet(
     Reco2DAlgoConfig = cms.PSet(
+        # Parameters for the updator
+        # this is the RecHit1D algo!!
         DTParametrizedDriftAlgo,
         segmCleanerMode = cms.int32(1),
         AlphaMaxPhi = cms.double(1.0),

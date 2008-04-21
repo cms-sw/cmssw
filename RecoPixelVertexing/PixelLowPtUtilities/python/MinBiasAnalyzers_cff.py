@@ -10,7 +10,8 @@ TransientTrackBuilderESProducer = cms.ESProducer("TransientTrackBuilderESProduce
 )
 
 plotEvent = cms.EDFilter("EventPlotter",
-    trackCollection = cms.vstring('globalPrimTracks', 'globalSecoTracks'),
+    trackCollection = cms.vstring('globalPrimTracks', 
+        'globalSecoTracks'),
     zipFiles = cms.bool(False)
 )
 

@@ -56,15 +56,26 @@ DF_ME1A = cms.PSet(
     dYclusBoxMax = cms.double(8.0)
 )
 CSCSegAlgoDF = cms.PSet(
-    chamber_types = cms.vstring('ME1/a', 'ME1/b', 'ME1/2', 'ME1/3', 'ME2/1', 'ME2/2', 'ME3/1', 'ME3/2', 'ME4/1'),
+    chamber_types = cms.vstring('ME1/a', 
+        'ME1/b', 
+        'ME1/2', 
+        'ME1/3', 
+        'ME2/1', 
+        'ME2/2', 
+        'ME3/1', 
+        'ME3/2', 
+        'ME4/1'),
     algo_name = cms.string('CSCSegAlgoDF'),
     algo_psets = cms.VPSet(cms.PSet(
         DF_ME1234_1
-    ), cms.PSet(
-        DF_ME1234_2
-    ), cms.PSet(
-        DF_ME1A
-    )),
-    parameters_per_chamber_type = cms.vint32(3, 1, 2, 2, 1, 2, 1, 2, 1)
+    ), 
+        cms.PSet(
+            DF_ME1234_2
+        ), 
+        cms.PSet(
+            DF_ME1A
+        )),
+    parameters_per_chamber_type = cms.vint32(3, 1, 2, 2, 1, 
+        2, 1, 2, 1)
 )
 

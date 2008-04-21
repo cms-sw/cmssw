@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from FastSimulation.Event.NoVertexGenerator_cfi import *
 particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
+    # necessary to access true particles 
+    NoVertexGeneratorBlock,
     # verbosity 
     verbose = cms.untracked.bool(False),
     # Tracking parameters
@@ -19,14 +22,11 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
         EMin = cms.double(0.0)
     ),
     TTRHBuilder = cms.string('WithTrackAngle'),
-    # input collections ----------------------------------------
-    # module label to find input sim tracks and sim vertices
-    sim = cms.InputTag("g4SimHits"),
     process_Particles = cms.untracked.bool(True),
     Propagator = cms.string('PropagatorWithMaterial'),
-    VertexGenerator = cms.PSet(
-        type = cms.string('None')
-    )
+    # input collections ----------------------------------------
+    # module label to find input sim tracks and sim vertices
+    sim = cms.InputTag("g4SimHits")
 )
 
 

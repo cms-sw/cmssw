@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates.cfi,v 1.16 2008/03/11 18:32:17 nancy Exp $
+#  $Id: conversionTrackCandidates.cfi,v 1.17 2008/04/15 14:37:56 nancy Exp $
 #
 # Tracker geometry #####################
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
@@ -26,7 +26,7 @@ from RecoEgamma.EgammaPhotonProducers.trajectoryBuilderForConversions_cfi import
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
     inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
-    maxHOverE = cms.double(0.2),
+    maxHOverE = cms.double(1.0),
     scHybridBarrelCollection = cms.string(''),
     hbheModule = cms.string('hbhereco'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),

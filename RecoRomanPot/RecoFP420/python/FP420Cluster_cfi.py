@@ -1,13 +1,10 @@
-# The following comments couldn't be translated into the new config version:
-
-#--------------------------------
-#--------------------------------
-
 import FWCore.ParameterSet.Config as cms
 
 FP420Cluster = cms.EDFilter("ClusterizerFP420",
     MaxVoidsFP420InCluster = cms.int32(1),
     NumberFP420Stations = cms.int32(3),
+    #--------------------------------
+    #--------------------------------
     ROUList = cms.vstring('FP420Digi'),
     #--------------------------------
     #-----------------------------ClusterizerFP420 

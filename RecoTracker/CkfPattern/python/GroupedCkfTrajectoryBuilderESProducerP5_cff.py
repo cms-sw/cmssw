@@ -28,7 +28,6 @@ import copy
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 # MeasurementTracker
 CTF_P5_MeasurementTracker = copy.deepcopy(MeasurementTracker)
-#replace CTF_P5_MeasurementTracker.pixelClusterProducer = ""
 # trajectory filtering
 from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
 import copy
@@ -43,6 +42,7 @@ from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
 #
 GroupedCkfTrajectoryBuilderP5 = copy.deepcopy(GroupedCkfTrajectoryBuilder)
 CTF_P5_MeasurementTracker.ComponentName = 'CTF_P5'
+CTF_P5_MeasurementTracker.pixelClusterProducer = ''
 ckfBaseTrajectoryFilterP5.ComponentName = 'ckfBaseTrajectoryFilterP5'
 GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5'
 GroupedCkfTrajectoryBuilderP5.ComponentName = 'GroupedCkfTrajectoryBuilderP5'

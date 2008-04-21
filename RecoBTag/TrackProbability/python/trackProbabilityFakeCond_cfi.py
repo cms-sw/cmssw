@@ -18,10 +18,11 @@ trackProbabilityFakeCond = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('BTagTrackProbability2DRcd'),
         tag = cms.string('probBTagPDF2D_tag_mc')
-    ), cms.PSet(
-        record = cms.string('BTagTrackProbability3DRcd'),
-        tag = cms.string('probBTagPDF3D_tag_mc')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('BTagTrackProbability3DRcd'),
+            tag = cms.string('probBTagPDF3D_tag_mc')
+        )),
     connect = cms.string('sqlite_fip:CondCore/SQLiteData/data/btagTrackProbability200.db')
 )
 

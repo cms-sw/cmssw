@@ -15,7 +15,8 @@ SiStripConfigDb = cms.Service("SiStripConfigDb",
     OutputDcuInfoXml = cms.untracked.string('/tmp/dcuinfo.xml'),
     CalibMajorVersion = cms.untracked.uint32(0),
     SharedMemory = cms.untracked.string(''),
-    MinorVersion = cms.untracked.uint32(0),
+    MinorVersion = cms.untracked.uint32(0), ##@@ cabling
+
     OutputFecXml = cms.untracked.string('/tmp/fec.xml'),
     FecMajorVersion = cms.untracked.uint32(0),
     CalibMinorVersion = cms.untracked.uint32(0),
@@ -29,7 +30,8 @@ SiStripConfigDb = cms.Service("SiStripConfigDb",
     Partition = cms.untracked.string(''),
     ConfDb = cms.untracked.string(''),
     UsingDbCache = cms.untracked.bool(False),
-    MajorVersion = cms.untracked.uint32(0),
+    MajorVersion = cms.untracked.uint32(0), ##@@ cabling
+
     InputFedXml = cms.untracked.vstring(''),
     InputFecXml = cms.untracked.vstring(''),
     InputModuleXml = cms.untracked.string('/afs/cern.ch/cms/cmt/onlinedev/data/examples/module.xml'),

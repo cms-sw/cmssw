@@ -6,11 +6,15 @@ from RecoLocalCalo.Configuration.ecalLocalReco_EventContent_cff import *
 #
 #FEVT
 RecoLocalCaloFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 'keep *_hfreco_*_*', 'keep *_horeco_*_*')
+    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 
+        'keep *_hfreco_*_*', 
+        'keep *_horeco_*_*')
 )
 #RECO content
 RecoLocalCaloRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 'keep *_hfreco_*_*', 'keep *_horeco_*_*')
+    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 
+        'keep *_hfreco_*_*', 
+        'keep *_horeco_*_*')
 )
 #AOD content
 RecoLocalCaloAOD = cms.PSet(

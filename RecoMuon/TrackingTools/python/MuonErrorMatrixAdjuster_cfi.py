@@ -1,8 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# use either one of the two following lines
-#string rootFileName = "errorMatrix_ScaleFactor.root"
-
 import FWCore.ParameterSet.Config as cms
 
 #values for correction
@@ -13,6 +8,8 @@ muonErrorMatrixAdjuster = cms.EDFilter("MuonErrorMatrixAdjuster",
     rescale = cms.bool(True),
     #this is the root file with the TProfile 3D in it of the track collection. Make sure it corresponds to the boolean above
     errorMatrix_pset = cms.PSet(
+        # use either one of the two following lines
+        #string rootFileName = "errorMatrix_ScaleFactor.root"
         MuonErrorMatrixValues,
         action = cms.string('use')
     ),

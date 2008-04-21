@@ -23,7 +23,7 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 # MeasurementTracker
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
+from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import *
 #
 from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi import *
 

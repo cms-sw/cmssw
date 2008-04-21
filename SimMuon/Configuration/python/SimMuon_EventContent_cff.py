@@ -8,11 +8,14 @@ import FWCore.ParameterSet.Config as cms
 
 #Full Event content 
 SimMuonFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep StripDigiSimLinkedmDetSetVector_muonCSCDigis_*_*', 'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_*_*')
+    outputCommands = cms.untracked.vstring('keep StripDigiSimLinkedmDetSetVector_muonCSCDigis_*_*', 
+        'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_muonCSCDigis_*_*')
 )
 #Full Event content with DIGI
 SimMuonFEVTDIGI = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_muonCSCDigis_*_*', 'keep *_muonDTDigis_*_*', 'keep *_muonRPCDigis_*_*')
+    outputCommands = cms.untracked.vstring('keep *_muonCSCDigis_*_*', 
+        'keep *_muonDTDigis_*_*', 
+        'keep *_muonRPCDigis_*_*')
 )
 #RECO content
 SimMuonRECO = cms.PSet(

@@ -18,11 +18,15 @@ pixelLowPtTracksWithZPos = cms.EDFilter("PixelTrackProducerWithZPos",
         RegionPSet = cms.PSet(
             precise = cms.bool(False),
             useChi2Cut = cms.bool(False),
-            originHalfLength = cms.double(15.9),
-            originRadius = cms.double(0.2),
-            ptMin = cms.double(0.075),
+            originHalfLength = cms.double(15.9), ## cm
+
+            originRadius = cms.double(0.2), ## cm
+
+            ptMin = cms.double(0.075), ## GeV/c
+
             useFoundVertices = cms.bool(False),
-            originZPos = cms.double(0.0)
+            originZPos = cms.double(0.0) ## cm
+
         )
     ),
     # Cleaner

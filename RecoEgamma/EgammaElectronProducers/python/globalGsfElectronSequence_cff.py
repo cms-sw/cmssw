@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: globalGsfElectronSequence.cff,v 1.3 2008/02/13 04:42:58 mangano Exp $
+# $Id: globalGsfElectronSequence.cff,v 1.6 2008/04/08 16:38:53 uberthon Exp $
 # create a sequence with all required modules and sources needed to make
 # modules to make seeds, tracks and electrons
 from RecoEgamma.EgammaElectronProducers.electronPixelSeeds_cff import *
@@ -41,12 +41,11 @@ from RecoEgamma.EgammaElectronProducers.globalGsfElectrons_cff import *
 globalGsfElectronSequence = cms.Sequence(electronPixelSeedsForGlobalGsfElectrons*egammaCkfTrackCandidatesForGlobalGsfElectrons*pixelMatchGsfFitForGlobalGsfElectrons*globalGsfElectrons)
 electronPixelSeedsForGlobalGsfElectrons.SeedAlgo = 'FilteredSeed'
 electronPixelSeedsForGlobalGsfElectrons.SeedConfiguration = cms.PSet(
-    initialSeedLabel = cms.string(''),
-    seedPt = cms.double(0.0),
     seedDPhi = cms.double(0.1),
-    initialSeedProducer = cms.string('globalMixedSeeds'),
-    seedDr = cms.double(0.3),
-    seedDEta = cms.double(0.025)
+    seedDEta = cms.double(0.025),
+    seedPt = cms.double(0.0),
+    initialSeeds = cms.InputTag("globalMixedSeeds"),
+    seedDr = cms.double(0.3)
 )
 TrajectoryBuilderForGlobalGsfElectrons.ComponentName = 'TrajectoryBuilderForGlobalGsfElectrons'
 TrajectoryBuilderForGlobalGsfElectrons.maxCand = 3

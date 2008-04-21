@@ -15,7 +15,8 @@ topFullyHadronicBJetsEventSelection = cms.PSet(
 )
 topFullyHadronicEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('topFullyHadronicJetsPath', 'topFullyHadronicBJetsPath')
+        SelectEvents = cms.vstring('topFullyHadronicJetsPath', 
+            'topFullyHadronicBJetsPath')
     )
 )
 

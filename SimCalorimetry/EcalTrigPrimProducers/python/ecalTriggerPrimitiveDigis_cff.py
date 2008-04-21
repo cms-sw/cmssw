@@ -5,8 +5,7 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # esmodule creating  records + corresponding empty essource
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFileEE = cms.untracked.string('TPG_EE.txt'),
-    DatabaseFileEB = cms.untracked.string('TPG_EB.txt')
+    DatabaseFile = cms.untracked.string('TPG.txt')
 )
 
 tpparams = cms.ESSource("EmptyESSource",

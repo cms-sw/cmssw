@@ -13,6 +13,8 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
+# module to make track seeds
+from RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff import *
 # seed module 
 from RecoEgamma.EgammaElectronProducers.electronPixelSeeds_cfi import *
 

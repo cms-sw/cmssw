@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for photons
-# $Id: photons.cfi,v 1.17 2008/02/26 11:22:29 nancy Exp $
+# $Id: photons.cfi,v 1.18 2008/04/15 14:37:47 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
@@ -28,7 +28,7 @@ photons = cms.EDProducer("PhotonProducer",
     posCalc_t0_endc = cms.double(6.3),
     barrelClusterShapeMapCollection = cms.string('hybridShapeAssoc'),
     minSCEt = cms.double(5.0),
-    maxHOverE = cms.double(0.2),
+    maxHOverE = cms.double(1.0),
     hOverEConeSize = cms.double(0.1),
     posCalc_x0 = cms.double(0.89),
     endcapHitCollection = cms.string('EcalRecHitsEE'),

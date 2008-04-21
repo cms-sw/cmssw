@@ -23,7 +23,9 @@ MIsoCaloExtractorByAssociatorTowersBlock = cms.PSet(
     DepositLabel = cms.untracked.string('Cal'),
     ComponentName = cms.string('CaloExtractorByAssociator'),
     DR_Veto_HO = cms.double(0.1),
-    DepositInstanceLabels = cms.vstring('ecal', 'hcal', 'ho')
+    DepositInstanceLabels = cms.vstring('ecal', 
+        'hcal', 
+        'ho')
 )
 MIsoCaloExtractorByAssociatorHitsBlock = cms.PSet(
     MIsoTrackAssociatorHits,
@@ -46,6 +48,8 @@ MIsoCaloExtractorByAssociatorHitsBlock = cms.PSet(
     DepositLabel = cms.untracked.string('Cal'),
     ComponentName = cms.string('CaloExtractorByAssociator'),
     DR_Veto_HO = cms.double(0.1),
-    DepositInstanceLabels = cms.vstring('ecal', 'hcal', 'ho')
+    DepositInstanceLabels = cms.vstring('ecal', 
+        'hcal', 
+        'ho')
 )
 

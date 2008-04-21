@@ -18,19 +18,20 @@ electronPixelSeedConfiguration = cms.PSet(
     ePhiMax1 = cms.double(0.075),
     DeltaPhi2 = cms.double(0.004),
     SizeWindowENeg = cms.double(0.675),
-    rMaxI = cms.double(0.2), ## intermediate region SC in EB and hits in PXF
+    rMaxI = cms.double(0.2), ## intermediate region SC in EB and 2nd hits in PXF
 
     PhiMax2 = cms.double(0.002),
-    hbheInstance = cms.string(''),
+    r2MaxF = cms.double(0.15),
     pPhiMin1 = cms.double(-0.075),
+    initialSeeds = cms.InputTag("globalMixedSeeds"),
     pPhiMax1 = cms.double(0.125),
-    # for filtering
-    hbheModule = cms.string('hbhereco'),
     SCEtCut = cms.double(5.0),
     z2MaxB = cms.double(0.09),
+    fromTrackerSeeds = cms.bool(False),
+    # for filtering
+    hcalRecHits = cms.InputTag("hbhereco"),
     z2MinB = cms.double(-0.09),
-    r2MaxF = cms.double(0.15),
-    rMinI = cms.double(-0.2) ## intermediate region SC in EB and hits in PXF
+    rMinI = cms.double(-0.2) ## intermediate region SC in EB and 2nd hits in PXF
 
 )
 
