@@ -37,6 +37,9 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   // valid FedIds for the tracker
   fedIdBoundaries_ = fedNum.getSiStripFEDIds();
   totalNumberOfFeds_ = fedIdBoundaries_.second - fedIdBoundaries_.first + 1;
+
+  // Whether we should use the cabling database
+  useCablingDb_ = iConfig.getUntrackedParameter<bool>("useCablingDatabase",false);
 }
 
 CnBAnalyzer::~CnBAnalyzer() {
@@ -96,7 +99,7 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     Fed9U::u32  size_u32 = 0;
     
     data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
-    size_u32 = static_cast<Fed9U::u32>( input.size() / 4 );
+    size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); // Number of words of 32 bits (=4*8) input.size() being the size of an unsigned char vector
     
     Fed9UEventAnalyzer myEventAnalyzer(fedIdBoundaries_, swapOn_);
     
@@ -104,8 +107,8 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     // non-corrupted tracker buffer
     if (myEventAnalyzer.Initialize(data_u32, size_u32)) {
       
-      LogInfo("FEDBuffer") << "FEDevent correctly initialized";
 #ifdef CNBANALYZER_DEBUG
+      LogInfo("FEDBuffer") << "FEDevent correctly initialized";
 #endif
       
       // The Fed9UErrorCondition structure may cointain all the relevant

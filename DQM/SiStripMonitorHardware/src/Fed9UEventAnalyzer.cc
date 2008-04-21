@@ -71,7 +71,26 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
       *(data_u32+i+1) = temp1;
     }
   }
-    
+
+#define DO_DUMP_BUFFERS
+#ifdef DO_DUMP_BUFFERS
+
+  //dumps a specified number of 32 bit words to the screen prior ot initalization			
+  std::cerr << "BUFFERD FED NUMBER " << std::dec << thisFedId_ << std::endl;
+	
+  for(int i = 0; i<int(size_u32/2.); i++)  { // prints out the specified number of 32 bit words
+    std::cerr << std::setiosflags(std::ios::right)
+	      << "64 Bit Word #  " 
+	      << std::dec << std::setfill(' ') << std::setw(4) 
+	      << i << " "
+	      << std::hex << std::setfill('0') << std::setw(8) 
+	      << (data_u32[2*i] & 0xFFFFFFFF) << " "
+	      << std::hex << std::setfill('0') << std::setw(8) 
+	      << (data_u32[(2*i + 1)] & 0xFFFFFFFF) << " "
+	      << std::endl;
+  }
+#endif
+  
   // The actual event initialization, catching its possible exceptions
   try{
     // Initialize the fedEvent with offset for slink
