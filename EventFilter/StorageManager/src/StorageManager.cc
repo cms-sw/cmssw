@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.48 2008/04/16 18:22:58 biery Exp $
+// $Id: StorageManager.cc,v 1.49 2008/04/18 14:40:28 loizides Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -56,8 +56,8 @@
 #include "cgicc/Cgicc.h"
 
 namespace stor {
-extern bool getSMFC_exceptionStatus();
-extern std::string getSMFC_reason4Exception();
+  extern bool getSMFC_exceptionStatus();
+  extern std::string getSMFC_reason4Exception();
 }
 
 using namespace edm;
@@ -121,10 +121,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("connectedFUs",  &connectedFUs_);
   ispace->fireItemAvailable("storedEvents",  &storedEvents_);
   ispace->fireItemAvailable("dqmRecords",    &dqmRecords_);
-  ispace->fireItemAvailable("closedFiles",&closedFiles_);
-  ispace->fireItemAvailable("fileList",&fileList_);
-  ispace->fireItemAvailable("eventsInFile",&eventsInFile_);
-  ispace->fireItemAvailable("fileSize",&fileSize_);
+  ispace->fireItemAvailable("closedFiles",   &closedFiles_);
+  ispace->fireItemAvailable("fileList",      &fileList_);
+  ispace->fireItemAvailable("eventsInFile",  &eventsInFile_);
+  ispace->fireItemAvailable("fileSize",      &fileSize_);
 
   // Bind specific messages to functions
   i2o::bind(this,
@@ -168,10 +168,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("archiveDQM",     &archiveDQM_);
   ispace->fireItemAvailable("purgeTimeDQM",   &purgeTimeDQM_);
   ispace->fireItemAvailable("readyTimeDQM",   &readyTimeDQM_);
-  ispace->fireItemAvailable("filePrefixDQM",  &filePrefixDQM_);
-  ispace->fireItemAvailable("useCompressionDQM",  &useCompressionDQM_);
-  ispace->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
-  ispace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
+  ispace->fireItemAvailable("filePrefixDQM",       &filePrefixDQM_);
+  ispace->fireItemAvailable("useCompressionDQM",   &useCompressionDQM_);
+  ispace->fireItemAvailable("compressionLevelDQM", &compressionLevelDQM_);
+  ispace->fireItemAvailable("nLogicalDisk",        &nLogicalDisk_);
 
   boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
   closeFileScript_    = smParameter_ -> closeFileScript();
@@ -266,8 +266,6 @@ StorageManager::ParameterGet(xoap::MessageReference message)
   connectedFUs_.value_ = smfusenders_.size();
   return Application::ParameterGet(message);
 }
-
-
 
 
 ////////// *** I2O frame call back functions /////////////////////////////////////////////
@@ -617,7 +615,6 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     }
 }
 
-
 void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
 {
   // get the memory pool pointer for statistics if not already set
@@ -800,6 +797,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
 			 hltClassName);
     }
 }
+
 //////////// ***  Performance //////////////////////////////////////////////////////////
 void StorageManager::addMeasurement(unsigned long size)
 {
@@ -911,10 +909,9 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<tr valign=\"top\">"                                      << endl;
   *out << "  <td>"                                                   << endl;
 
- //@@EM added some useful info
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\""	 << endl;
-  *out << " readonly title=\"Note: this figures updated every 30s !!!\">"<< endl;
-  *out << "<colgroup> <colgroup align=\"rigth\">"			 << endl;
+  *out << " readonly title=\"Note: this info updates every 30s !!!\">"<< endl;
+  *out << "<colgroup> <colgroup align=\"right\">"			 << endl;
     *out << "  <tr>"						 	 << endl;
     *out << "    <th colspan=2>"					 << endl;
     *out << "      " << "Storage Status"				 << endl;
@@ -974,9 +971,6 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
       }
     *out << "</table>" << endl;
-    //@@EM end added some useful info
-
-
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
@@ -1263,7 +1257,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "Number of FU Senders" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           *out << smfusenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
@@ -1289,7 +1283,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "FU Sender Class Name" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           char hltclass[MAX_I2O_SM_URLCHARS];
           copy(&(((*pos)->hltClassName_)->at(0)), 
                &(((*pos)->hltClassName_)->at(0)) + ((*pos)->hltClassName_)->size(),
@@ -1302,7 +1296,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "FU Sender Instance" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           *out << (*pos)->hltInstance_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
@@ -1310,7 +1304,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "FU Sender Local ID" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           *out << (*pos)->hltLocalId_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
@@ -1318,7 +1312,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "FU Sender Tid" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           *out << (*pos)->hltTid_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
@@ -1326,7 +1320,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "Product registry" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           if((*pos)->regAllReceived_) {
             *out << "All Received" << endl;
           } else {
@@ -1338,7 +1332,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td >" << endl;
           *out << "Product registry" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           if((*pos)->regCheckedOK_) {
             *out << "Checked OK" << endl;
           } else {
@@ -1347,7 +1341,7 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
-          *out << "<td >" << endl;
+          *out << "<td align=right>" << endl;
           *out << "Connection Status" << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
@@ -1546,18 +1540,20 @@ void StorageManager::streamerOutputWebPage(xgi::Input *in, xgi::Output *out)
       boost::mutex::scoped_lock sl(halt_lock_);
       if(jc_.use_count() != 0) {
         std::list<std::string>& files = jc_->get_filelist();
-        std::list<std::string>& currfiles = jc_->get_currfiles();
-
         if(files.size() > 0 )
           {
-            *out << "<P>#    name                             evt        size     " << endl;
-            for(list<string>::const_iterator it = files.begin();
-                it != files.end(); it++)
-              *out << "<P> " <<*it << endl;
+            if(files.size() > 249 )
+              *out << "<P>250 last files (most recent first):</P>\n" << endl;
+            else 
+              *out << "<P>Files (most recent first):</P>\n" << endl;
+            *out << "<pre># pathname nevts size" << endl;
+            int c=0;
+            for(list<string>::const_iterator it = files.end(); it != files.begin(); --it) {
+              *out <<*it << endl;
+              ++c;
+              if(c>249) break;
+            }
           }
-        for(list<string>::const_iterator it = currfiles.begin();
-            it != currfiles.end(); it++)
-          *out << "<P>CurrentFile = " <<*it << endl;
       }
     }
 
@@ -3334,7 +3330,8 @@ void StorageManager::actionPerformed(xdata::Event& e)
   } 
 }
 
-void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned long long &sz)
+void StorageManager::parseFileEntry(const std::string &in, std::string &out, 
+                                    unsigned int &nev, unsigned long long &sz) const
 {
   unsigned int no;
   stringstream pippo;
@@ -3342,7 +3339,7 @@ void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned i
   pippo >> no >> out >> nev >> sz;
 }
 
-std::string StorageManager::findStreamName(std::string &in)
+std::string StorageManager::findStreamName(const std::string &in) const
 {
   //cout << "in findStreamName with string " << in << endl;
   string::size_type t = in.find("storageManager");
@@ -3719,7 +3716,7 @@ void StorageManager::haltAction()
   }
 }
 
-void StorageManager::checkDirectoryOK(std::string path)
+void StorageManager::checkDirectoryOK(const std::string path) const
 {
   struct stat buf;
 
@@ -3740,7 +3737,6 @@ xoap::MessageReference StorageManager::fsmCallback(xoap::MessageReference msg)
 {
   return fsm_.commandCallback(msg);
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////

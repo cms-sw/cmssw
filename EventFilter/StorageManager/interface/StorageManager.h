@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.25 2008/03/10 14:50:07 biery Exp $
+   $Id: StorageManager.h,v 1.26 2008/04/16 16:14:52 biery Exp $
 */
 
 #include <string>
@@ -100,7 +100,7 @@ namespace stor {
     void stopAction();
     void haltAction();
 
-    void checkDirectoryOK(std::string dir);
+    void checkDirectoryOK(const std::string dir) const;
 
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
@@ -126,9 +126,9 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
 
-    void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned long long &sz);
+    void parseFileEntry(const std::string &in, std::string &out, unsigned int &nev, unsigned long long &sz) const;
 
-    std::string findStreamName(std::string &in);
+    std::string findStreamName(const std::string &in) const;
 	
     // *** state machine related
     evf::StateMachine fsm_;
@@ -231,9 +231,9 @@ namespace stor {
 
     // @@EM parameters monitored by workloop (not in flashlist just yet) 
     struct streammon{
-    int		nclosedfiles_;
-    int		nevents_;
-    int		totSizeInkBytes_;
+      int		nclosedfiles_;
+      int		nevents_;
+      int		totSizeInkBytes_;
     };
     typedef std::map<std::string,streammon> smap;
     typedef std::map<std::string,streammon>::iterator ismap;
@@ -247,6 +247,5 @@ namespace stor {
 
   }; 
 } 
-
 
 #endif
