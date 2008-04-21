@@ -2,8 +2,8 @@
 
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.icc"
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
 template class CaloGeometryLoader< EcalEndcapGeometry > ;
 
@@ -18,6 +18,15 @@ using namespace std;
 
 typedef CaloGeometryLoader< EcalEndcapGeometry > EcalEGL ;
 
+
+template <>
+unsigned int 
+EcalEGL::whichTransform( const DetId& id ) const
+{
+   const EEDetId eeid ( id ) ;
+   const int ix ( eeid.ix() ) ;
+   return ( ix/51 + ( eeid.zside()<0 ? 0 : 2 ) ) ;
+}
 
 template <>
 void 

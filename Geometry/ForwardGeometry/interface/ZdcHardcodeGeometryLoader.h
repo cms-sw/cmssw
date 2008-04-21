@@ -3,6 +3,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
 #include "Geometry/ForwardGeometry/interface/ZdcTopology.h"
+#include <boost/shared_ptr.hpp>
 
 class CaloCellGeometry;
 class CaloSubdetectorGeometry;
@@ -10,19 +11,22 @@ class HcalZDCDetId;
 
 /** \class ZdcHardcodeGeometryLoader
  *
- * $Date: 2007/08/28 18:10:10 $
- * $Revision: 1.1 $
+ * $Date: 2007/09/05 20:04:13 $
+ * $Revision: 1.2 $
  * \author E. Garcia - UIC
 */
 
 class ZdcHardcodeGeometryLoader {
 public:
+
+  typedef CaloSubdetectorGeometry* ReturnType ;
+
   ZdcHardcodeGeometryLoader();
   explicit ZdcHardcodeGeometryLoader(const ZdcTopology& ht);
-  virtual ~ZdcHardcodeGeometryLoader() {};
+  virtual ~ZdcHardcodeGeometryLoader() { delete theTopology ; }
   
-  virtual std::auto_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet);
-  std::auto_ptr<CaloSubdetectorGeometry> load();
+  virtual ReturnType load(DetId::Detector det, int subdet);
+  ReturnType load();
   
 private:
   void init();
@@ -30,9 +34,9 @@ private:
   const CaloCellGeometry * makeCell(const HcalZDCDetId & detId,
 				    CaloSubdetectorGeometry* geom) const;
 
-  ZdcTopology theTopology;
-
-
+  ZdcTopology*       theTopology;
+  const ZdcTopology* extTopology;
+      
   float theEMSectiondX;
   float theEMSectiondY;
   float theEMSectiondZ;

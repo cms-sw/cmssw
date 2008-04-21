@@ -12,7 +12,7 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: CaloTopologyBuilder.h,v 1.1 2006/03/30 14:48:47 meridian Exp $
+// $Id: CaloTopologyBuilder.h,v 1.1 2007/04/15 23:16:28 wmtan Exp $
 //
 //
 
@@ -26,22 +26,27 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 //
 // class decleration
 //
 
-class CaloTopologyBuilder : public edm::ESProducer {
+class CaloTopologyBuilder : public edm::ESProducer 
+{
    public:
-  CaloTopologyBuilder(const edm::ParameterSet&);
-  ~CaloTopologyBuilder();
+      CaloTopologyBuilder( const edm::ParameterSet& iP );
+      ~CaloTopologyBuilder() ;
 
-  typedef std::auto_ptr<CaloTopology> ReturnType;
+      typedef boost::shared_ptr< CaloTopology > ReturnType;
 
-  ReturnType produce(const CaloTopologyRecord&);
-private:
+      ReturnType produceCalo(  const CaloTopologyRecord&  );
+      ReturnType produceIdeal( const IdealGeometryRecord&  );
+
+   private:
       // ----------member data ---------------------------
+      
+      ReturnType m_caloTopology ;
 };
 

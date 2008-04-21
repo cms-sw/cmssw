@@ -12,41 +12,50 @@ class HcalDetId;
  *
  * \note The HE geometry is not currently correct.  The z positions must be corrected.
  *   
- * $Date: 2006/05/03 02:16:57 $
- * $Revision: 1.4 $
+ * $Date: 2007/09/07 22:05:51 $
+ * $Revision: 1.5 $
  * \author R. Wilkinson - Caltech
 */
-class HcalHardcodeGeometryLoader {
-public:
-  HcalHardcodeGeometryLoader();
-  explicit HcalHardcodeGeometryLoader(const HcalTopology& ht);
-  virtual ~HcalHardcodeGeometryLoader() {}
+class HcalHardcodeGeometryLoader 
+{
+   public:
+
+      typedef CaloSubdetectorGeometry* ReturnType ;
+
+      HcalHardcodeGeometryLoader();
+      explicit HcalHardcodeGeometryLoader(const HcalTopology& ht);
+      virtual ~HcalHardcodeGeometryLoader() { delete theTopology ; }
   
-  virtual std::auto_ptr<CaloSubdetectorGeometry> load(DetId::Detector det, int subdet);
+      ReturnType load(DetId::Detector det, int subdet);
   /// Load all of HCAL
-  std::auto_ptr<CaloSubdetectorGeometry> load();
+      ReturnType load();
   
-private:
-  void init();
-  /// helper functions to make all the ids and cells, and put them into the
-  /// vectors and mpas passed in.
-  void fill(HcalSubdetector subdet, int firstEtaRing, int lastEtaRing,
-	    CaloSubdetectorGeometry* cg);
+   private:
+      void init();
+      /// helper functions to make all the ids and cells, and put them into the
+      /// vectors and mpas passed in.
+
+      void fill( HcalSubdetector  subdet, 
+		 int              firstEtaRing, 
+		 int              lastEtaRing,
+		 ReturnType       cg              );
   
-  const CaloCellGeometry * makeCell(const HcalDetId & detId,CaloSubdetectorGeometry* geom) const;
+      const CaloCellGeometry * makeCell( const HcalDetId& detId,
+					 ReturnType       geom   ) const;
   
-  HcalTopology theTopology;
+      HcalTopology*       theTopology;
+      const HcalTopology* extTopology;
   
-  double theBarrelRadius;
-  double theOuterRadius;
-  double theHEZPos[4];
-  double theHFZPos[2];
+      double theBarrelRadius;
+      double theOuterRadius;
+      double theHEZPos[4];
+      double theHFZPos[2];
   
-  double theHBThickness;
-  double theHB15aThickness,theHB15bThickness;
-  double theHB16aThickness,theHB16bThickness;
-  double theHFThickness;
-  double theHOThickness;
+      double theHBThickness;
+      double theHB15aThickness,theHB15bThickness;
+      double theHB16aThickness,theHB16bThickness;
+      double theHFThickness;
+      double theHOThickness;
 };
 
 #endif

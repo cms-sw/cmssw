@@ -4,6 +4,10 @@
 #include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/EcalBarrelGeometryRecord.h"
+#include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include <vector>
@@ -11,6 +15,10 @@
 class EcalBarrelGeometry : public CaloSubdetectorGeometry 
 {
    public:
+
+      typedef IdealGeometryRecord      IdealRecord   ;
+      typedef EcalBarrelGeometryRecord AlignedRecord ;
+      typedef EBAlignmentRcd           AlignmentRecord ;
 
       typedef EZArrayFL<EEDetId> OrderedListOfEEDetId ; // like an stl vector: begin(), end(), [i]
 
@@ -51,6 +59,8 @@ class EcalBarrelGeometry : public CaloSubdetectorGeometry
       static std::string hitString() { return "EcalHitsEB" ; }
 
       static std::string producerName() { return "EcalBarrel" ; }
+
+      static unsigned int numberOfAlignments() { return 36 ; }
 
    private:
       /** number of crystals in eta direction */

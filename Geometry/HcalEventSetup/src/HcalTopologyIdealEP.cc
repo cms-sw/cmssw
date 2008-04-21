@@ -13,11 +13,11 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalTopologyIdealEP.cc,v 1.1.2.1 2007/05/08 20:39:50 mansj Exp $
+// $Id: HcalTopologyIdealEP.cc,v 1.2 2007/05/11 14:16:12 mansj Exp $
 //
 //
 
-#include "Geometry/HcalEventSetup/src/HcalTopologyIdealEP.h"
+#include "Geometry/HcalEventSetup/interface/HcalTopologyIdealEP.h"
 #include "Geometry/CaloTopology/interface/HcalTopologyRestrictionParser.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -58,7 +58,7 @@ HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
    using namespace edm::es;
    if (m_h2mode) edm::LogInfo("HCAL") << "Using H2 Topology";
 
-   std::auto_ptr<HcalTopology> myTopo(new HcalTopology(m_h2mode));
+   ReturnType myTopo(new HcalTopology(m_h2mode));
 
    HcalTopologyRestrictionParser parser(*myTopo);
    if (!m_restrictions.empty()) {

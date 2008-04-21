@@ -14,21 +14,22 @@ class HcalDetId;
  *
  * \note The Geometry as loaded from DDD
  *   
- * $Date: 2006/10/22 16:56:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/09/07 22:05:51 $
+ * $Revision: 1.2 $
  * \author S. Banerjee
 */
 
-class HcalDDDGeometryLoader : public CaloVGeometryLoader {
+class HcalDDDGeometryLoader // : public CaloVGeometryLoader {
+{
+   public:
 
-public:
-
-  explicit HcalDDDGeometryLoader(const DDCompactView & cpv);
-  virtual ~HcalDDDGeometryLoader();
+      explicit HcalDDDGeometryLoader(const DDCompactView & cpv);
+      virtual ~HcalDDDGeometryLoader();
   
-  virtual std::auto_ptr<CaloSubdetectorGeometry> load(DetId::Detector , int );
-  /// Load all of HCAL
-  std::auto_ptr<CaloSubdetectorGeometry> load();
+      typedef CaloSubdetectorGeometry* ReturnType ;
+      ReturnType load(DetId::Detector , int );
+      /// Load all of HCAL
+      ReturnType load();
   
 private:
 
@@ -38,9 +39,9 @@ private:
   /// vectors and mpas passed in.
   void fill(HcalSubdetector, HcalDDDGeometry*, CaloSubdetectorGeometry*);
   
-  const CaloCellGeometry * makeCell(const HcalDetId &, 
-				    HcalCellType::HcalCellType, double, 
-				    double, CaloSubdetectorGeometry* geom) const;
+  const CaloCellGeometry * makeCell( const HcalDetId &, 
+				     HcalCellType::HcalCellType, double, 
+				     double, CaloSubdetectorGeometry* geom) const;
   
   HcalNumberingFromDDD* numberingFromDDD;
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu Oct 20 11:35:27 CDT 2006
-// $Id: HcalDDDGeometryEP.cc,v 1.1 2006/10/22 17:02:17 sunanda Exp $
+// $Id: HcalDDDGeometryEP.cc,v 1.2 2008/01/22 21:35:42 muzaffar Exp $
 //
 //
 
@@ -31,16 +31,27 @@
 //
 // constructors and destructor
 //
-HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ) : loader_(0) {
+HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ) :
+   m_loader ( 0 ) ,
+   m_cpv    ( 0 ) ,
+   m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
+{
+   //the following line is needed to tell the framework what
+   // data is being produced
+   setWhatProduced( this,
+		    &HcalDDDGeometryEP::produceAligned,
+		    dependsOn( &HcalDDDGeometryEP::idealRecordCallBack ),
+		    "HCAL");
 
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this,"HCAL");
+   setWhatProduced( this,
+		    &HcalDDDGeometryEP::produceIdeal,
+		    edm::es::Label( "HCAL" ) );
 }
 
 
-HcalDDDGeometryEP::~HcalDDDGeometryEP() { 
-  if (loader_) delete loader_;
+HcalDDDGeometryEP::~HcalDDDGeometryEP() 
+{ 
+   delete m_loader ;
 }
 
 
@@ -50,19 +61,37 @@ HcalDDDGeometryEP::~HcalDDDGeometryEP() {
 
 // ------------ method called to produce the data  ------------
 HcalDDDGeometryEP::ReturnType
-HcalDDDGeometryEP::produce(const IdealGeometryRecord& iRecord) {
+HcalDDDGeometryEP::produceIdeal(const IdealGeometryRecord& iRecord)
+{
+   idealRecordCallBack( iRecord ) ;
 
-  //now do what ever other initialization is needed
-  if (loader_==0) {
-    edm::ESHandle<DDCompactView> pDD;
-    iRecord.get(pDD);
-    loader_= new HcalDDDGeometryLoader(*pDD); 
-    LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
-  }
+   assert( 0 == m_loader ) ;
+   m_loader = new HcalDDDGeometryLoader(*m_cpv); 
+   LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
 
-  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load());
+   ReturnType pC ( m_loader->load() ) ;
 
-  return pCaloSubdetectorGeometry ;
+   return pC ;
+}
+HcalDDDGeometryEP::ReturnType
+HcalDDDGeometryEP::produceAligned(const HcalGeometryRecord& iRecord)
+{
+   //now do what ever other initialization is needed
+   assert( 0 != m_cpv ) ;
+   if( 0 == m_loader ) m_loader = new HcalDDDGeometryLoader(*m_cpv); 
+   LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
+
+   ReturnType pC ( m_loader->load() ) ;
+
+   return pC ;
+}
+
+void
+HcalDDDGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord )
+{
+   edm::ESHandle< DDCompactView > pDD;
+   iRecord.get( pDD );
+   m_cpv = &(*pDD) ;
 }
 
 

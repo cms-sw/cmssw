@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.h,v 1.1 2007/04/15 23:16:28 wmtan Exp $
+// $Id: CaloGeometryBuilder.h,v 1.2 2007/11/15 17:13:26 fabiocos Exp $
 //
 //
 
@@ -28,23 +28,31 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 //
 // class decleration
 //
 
-class CaloGeometryBuilder : public edm::ESProducer {
+class CaloGeometryBuilder : public edm::ESProducer 
+{
    public:
-  CaloGeometryBuilder(const edm::ParameterSet&);
-  ~CaloGeometryBuilder();
 
-  typedef std::auto_ptr<CaloGeometry> ReturnType;
+      typedef boost::shared_ptr<CaloGeometry> ReturnType;
 
-  ReturnType produce(const IdealGeometryRecord&);
-private:
+      typedef edm::ESHandle<CaloSubdetectorGeometry> SubdType ;
+
+      CaloGeometryBuilder( const edm::ParameterSet& iConfig ) ;
+
+      virtual ~CaloGeometryBuilder() {} ;
+
+      ReturnType produceIdeal(   const IdealGeometryRecord& iRecord ) ;
+      ReturnType produceAligned( const CaloGeometryRecord&  iRecord ) ;
+
+   private:
       // ----------member data ---------------------------
-
-  std::vector<std::string> theCaloList;
+      
+      std::vector<std::string> theCaloList;
 };
 

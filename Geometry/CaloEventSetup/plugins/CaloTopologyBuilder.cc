@@ -7,13 +7,12 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
-CaloTopologyBuilder::CaloTopologyBuilder(const edm::ParameterSet& iConfig)
+CaloTopologyBuilder::CaloTopologyBuilder( const edm::ParameterSet& iConfig )
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this);
-
-   //now do what ever other initialization is needed
+   setWhatProduced( this, &CaloTopologyBuilder::produceIdeal );
+   setWhatProduced( this, &CaloTopologyBuilder::produceCalo  );
 }
 
 
@@ -28,23 +27,47 @@ CaloTopologyBuilder::~CaloTopologyBuilder()
 
 // ------------ method called to produce the data  ------------
 CaloTopologyBuilder::ReturnType
-CaloTopologyBuilder::produce(const CaloTopologyRecord& iRecord)
+CaloTopologyBuilder::produceCalo( const CaloTopologyRecord& iRecord )
 {
-  edm::ESHandle<CaloGeometry> theGeometry;
-  std::auto_ptr<CaloTopology> pCaloTopology(new CaloTopology());
-//  try 
-//    {
-      iRecord.getRecord<IdealGeometryRecord>().get( theGeometry );
-//    }
-//  catch (...) {
-//    edm::LogWarning("MissingInput") << "No CaloGeometry Found found";
-//  }
+   if( 0 == m_caloTopology.get() ) // ignore updates because cell list will not change!
+   {
+      edm::ESHandle<CaloGeometry>                  theGeometry   ;
+      iRecord.getRecord<CaloGeometryRecord>().get( theGeometry ) ;
 
-  //ECAL parts      
-  pCaloTopology->setSubdetTopology(DetId::Ecal,EcalBarrel,new EcalBarrelTopology(theGeometry));
-  pCaloTopology->setSubdetTopology(DetId::Ecal,EcalEndcap,new EcalEndcapTopology(theGeometry));
-  pCaloTopology->setSubdetTopology(DetId::Ecal,EcalPreshower,new EcalPreshowerTopology(theGeometry));
+      m_caloTopology = ReturnType( new CaloTopology ) ;
+      //ECAL parts      
+      m_caloTopology->setSubdetTopology( DetId::Ecal,
+					 EcalBarrel,
+					 new EcalBarrelTopology( theGeometry ) ) ;
+      m_caloTopology->setSubdetTopology( DetId::Ecal,
+					 EcalEndcap,
+					 new EcalEndcapTopology( theGeometry ) ) ;
+      m_caloTopology->setSubdetTopology( DetId::Ecal,
+					 EcalPreshower,
+					 new EcalPreshowerTopology(theGeometry));   
+   }
+   return m_caloTopology;
+}
 
-  return pCaloTopology;
+CaloTopologyBuilder::ReturnType
+CaloTopologyBuilder::produceIdeal( const IdealGeometryRecord& iRecord )
+{
+   edm::ESHandle<CaloGeometry> theGeometry   ;
+   iRecord.get(                theGeometry ) ;
 
+   ReturnType ct ( new CaloTopology ) ;
+
+   //ECAL parts      
+   ct->setSubdetTopology( DetId::Ecal,
+			  EcalBarrel,
+			  new EcalBarrelTopology( theGeometry ) ) ;
+
+   ct->setSubdetTopology( DetId::Ecal,
+			  EcalEndcap,
+			  new EcalEndcapTopology( theGeometry ) ) ;
+
+   ct->setSubdetTopology( DetId::Ecal,
+			  EcalPreshower,
+			  new EcalPreshowerTopology(theGeometry));   
+   return ct ;
 }

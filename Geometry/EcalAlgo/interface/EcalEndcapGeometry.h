@@ -4,6 +4,9 @@
 #include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/EcalEndcapGeometryRecord.h"
+#include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include <vector>
@@ -14,6 +17,10 @@ class TruncatedPyramid;
 class EcalEndcapGeometry : public CaloSubdetectorGeometry 
 {
    public:
+
+      typedef IdealGeometryRecord      IdealRecord   ;
+      typedef EcalEndcapGeometryRecord AlignedRecord ;
+      typedef EEAlignmentRcd           AlignmentRecord ;
 
       typedef EZArrayFL<EBDetId> OrderedListOfEBDetId ; // like an stl vector: begin(), end(), [i]
 
@@ -48,6 +55,8 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       static std::string hitString() { return "EcalHitsEE" ; }
 
       static std::string producerName() { return "EcalEndcap" ; }
+
+      static unsigned int numberOfAlignments() { return 4 ; }
 
    private:
 

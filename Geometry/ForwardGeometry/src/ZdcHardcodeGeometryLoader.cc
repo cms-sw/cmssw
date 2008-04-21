@@ -6,12 +6,17 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
-ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader() {
+ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader() :
+   theTopology ( new ZdcTopology ) ,
+   extTopology ( theTopology )
+{
   init();
 }
 
 ZdcHardcodeGeometryLoader::ZdcHardcodeGeometryLoader(const ZdcTopology& ht) : 
-  theTopology(ht) {
+   theTopology( 0   ) ,
+   extTopology( &ht ) 
+{
   init();
 }
 
@@ -27,36 +32,42 @@ void ZdcHardcodeGeometryLoader::init() {
   theHADSectiondZ = 139.2;
 }
 
-std::auto_ptr<CaloSubdetectorGeometry> ZdcHardcodeGeometryLoader::load(DetId::Detector det, int subdet){
-  std::auto_ptr<CaloSubdetectorGeometry> hg(new ZdcGeometry(&theTopology));
-  if(subdet == HcalZDCDetId::SubdetectorId){
-    fill(HcalZDCDetId::EM,hg.get());
-    fill(HcalZDCDetId::LUM,hg.get());
-    fill(HcalZDCDetId::HAD,hg.get());
-  }
-  return hg;
+ZdcHardcodeGeometryLoader::ReturnType 
+ZdcHardcodeGeometryLoader::load(DetId::Detector det, int subdet)
+{
+   ReturnType hg(new ZdcGeometry( extTopology ) );
+   if(subdet == HcalZDCDetId::SubdetectorId)
+   {
+      fill(HcalZDCDetId::EM  ,hg );
+      fill(HcalZDCDetId::LUM ,hg );
+      fill(HcalZDCDetId::HAD ,hg );
+   }
+   return hg;
 }
 
-std::auto_ptr<CaloSubdetectorGeometry> ZdcHardcodeGeometryLoader::load() {
-  std::auto_ptr<CaloSubdetectorGeometry> hg(new ZdcGeometry(&theTopology));
-  fill(HcalZDCDetId::EM,hg.get());
-  fill(HcalZDCDetId::LUM,hg.get());
-  fill(HcalZDCDetId::HAD,hg.get());
-  return hg;
+ZdcHardcodeGeometryLoader::ReturnType 
+ZdcHardcodeGeometryLoader::load() 
+{
+   ReturnType hg(new ZdcGeometry( extTopology ) );
+   fill(HcalZDCDetId::EM  ,hg );
+   fill(HcalZDCDetId::LUM ,hg );
+   fill(HcalZDCDetId::HAD ,hg );
+   return hg;
 }
 
-void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, CaloSubdetectorGeometry* geom) 
+void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section, 
+				      ReturnType            geom     ) 
 {
   // start by making the new HcalDetIds
   std::vector<HcalZDCDetId> zdcIds;
   HcalZDCDetId id;
-  int firstCell = theTopology.firstCell(section);
-  int lastCell = theTopology.lastCell(section);
+  int firstCell = extTopology->firstCell(section);
+  int lastCell = extTopology->lastCell(section);
   for(int idepth = firstCell; idepth <= lastCell; ++idepth) {
     id = HcalZDCDetId(section, true, idepth);
-    if(theTopology.valid(id)) zdcIds.push_back(id);
+    if(extTopology->valid(id)) zdcIds.push_back(id);
     id = HcalZDCDetId(section, false, idepth);
-    if(theTopology.valid(id)) zdcIds.push_back(id);
+    if(extTopology->valid(id)) zdcIds.push_back(id);
    }
   if( geom->cornersMgr() == 0 ) geom->allocateCorners( 1000 ) ;
   if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
@@ -74,9 +85,9 @@ void ZdcHardcodeGeometryLoader::fill(HcalZDCDetId::Section section, CaloSubdetec
 }
 
 const CaloCellGeometry*
-ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId & detId,
-				    CaloSubdetectorGeometry* geom) const {
-  
+ZdcHardcodeGeometryLoader::makeCell(const HcalZDCDetId& detId,
+				    ReturnType          geom) const 
+{
   float zside = detId.zside();
   HcalZDCDetId::Section section = detId.section();
   int channel = detId.depth();

@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
@@ -19,17 +20,25 @@
 // class decleration
 //
 
-class HcalHardcodeGeometryEP : public edm::ESProducer {
+class HcalHardcodeGeometryEP : public edm::ESProducer 
+{
    public:
       HcalHardcodeGeometryEP(const edm::ParameterSet&);
-      ~HcalHardcodeGeometryEP();
+      virtual ~HcalHardcodeGeometryEP();
 
-      typedef std::auto_ptr<CaloSubdetectorGeometry> ReturnType;
+      typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 
-      ReturnType produce(const IdealGeometryRecord&);
-private:
+      ReturnType produceIdeal(   const IdealGeometryRecord&);
+      ReturnType produceAligned( const HcalGeometryRecord& );
+
+      void       idealRecordCallBack( const IdealGeometryRecord& );
+
+   private:
       // ----------member data ---------------------------
-  HcalHardcodeGeometryLoader* loader_;
+
+      HcalHardcodeGeometryLoader* m_loader ;
+
+      bool m_applyAlignment ;
 };
 
 

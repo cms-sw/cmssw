@@ -10,7 +10,8 @@ HcalGeometry::HcalGeometry(const HcalTopology * topology)
 }
   
 
-HcalGeometry::~HcalGeometry() {
+HcalGeometry::~HcalGeometry() 
+{
 }
 
 

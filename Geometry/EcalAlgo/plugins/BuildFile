@@ -1,6 +1,5 @@
         <library file="*.cc" name=GeometryEcalAlgoPlugin>
         <flags EDM_PLUGIN=1>
-        </library>
 
         <use name=FWCore/PluginManager>
         <use name=FWCore/Framework>
@@ -9,4 +8,5 @@
         <use name=Geometry/CaloEventSetup>
         <use name=Geometry/EcalAlgo>
         <use name=DetectorDescription/Core>
+        </library>
 

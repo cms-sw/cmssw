@@ -3,8 +3,8 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.icc"
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
 template class CaloGeometryLoader< EcalPreshowerGeometry > ;
 
@@ -19,6 +19,15 @@ using namespace std;
 
 typedef CaloGeometryLoader< EcalPreshowerGeometry > EcalPGL ;
 
+
+template <>
+unsigned int 
+EcalPGL::whichTransform( const DetId& id )  const
+{
+   return 0 ;
+}
+
+
 template <>
 void 
 EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
@@ -27,7 +36,6 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
 		   const DetId&            id     )
 {
    if( geom->parMgr()     == 0 ) geom->allocatePar( 2, pv.size() ) ;
-
 
    std::vector<float> vv ;
    vv.reserve( pv.size() ) ;
@@ -49,7 +57,6 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*  geom ,
 
    geom->addCell( id, cell );
 }
-
 
 template <>
 void 

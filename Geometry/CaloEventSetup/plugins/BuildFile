@@ -1,12 +1,14 @@
 
  <library file="*.cc" name=GeometryCaloEventSetupPlugins>
   <flags EDM_PLUGIN=1>
+  <use name=FWCore/PluginManager> 
+  <use name=FWCore/Framework>
+  <use name=Geometry/Records>
+  <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloEventSetup> 
   <use name=Geometry/CaloTopology>
-  <use name=Geometry/CaloGeometry>
-  <use name=FWCore/Framework>
+  <use name=CondFormats/Alignment>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
-  <use name=Geometry/Records>
   <use name=zlib>
 </library>

@@ -23,7 +23,7 @@ class HcalTopologyIdealEP : public edm::ESProducer {
       HcalTopologyIdealEP(const edm::ParameterSet&);
       ~HcalTopologyIdealEP();
 
-      typedef std::auto_ptr<HcalTopology> ReturnType;
+      typedef boost::shared_ptr<HcalTopology> ReturnType;
 
       ReturnType produce(const IdealGeometryRecord&);
 private:

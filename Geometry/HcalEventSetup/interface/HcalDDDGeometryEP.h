@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometryLoader.h"
 
@@ -19,21 +19,29 @@
 // class decleration
 //
 
-class HcalDDDGeometryEP : public edm::ESProducer {
+class HcalDDDGeometryEP : public edm::ESProducer 
+{
+   public:
 
-public:
+      HcalDDDGeometryEP(const edm::ParameterSet&);
+      ~HcalDDDGeometryEP();
 
-  HcalDDDGeometryEP(const edm::ParameterSet&);
-  ~HcalDDDGeometryEP();
-
-  typedef std::auto_ptr<CaloSubdetectorGeometry> ReturnType;
+      typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
   
-  ReturnType produce(const IdealGeometryRecord&);
+      void idealRecordCallBack(const IdealGeometryRecord&);
+
+      ReturnType produceIdeal(const IdealGeometryRecord&);
+      ReturnType produceAligned(const HcalGeometryRecord&);
 
 private:
 
   // ----------member data ---------------------------
-  HcalDDDGeometryLoader* loader_;
+
+      HcalDDDGeometryLoader* m_loader ;
+
+      const DDCompactView* m_cpv ;
+
+      bool m_applyAlignment ;
 };
 
 #endif

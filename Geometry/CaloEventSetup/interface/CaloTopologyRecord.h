@@ -1,14 +1,8 @@
 #ifndef Geometry_CaloEventSetyp_CaloTopologyRecord
 #define Geometry_CaloEventSetyp_CaloTopologyRecord
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-#include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+//moved so just forward the new one under the old name
 
-#include "boost/mpl/vector.hpp"
-
-
-class CaloTopologyRecord : public edm::eventsetup::DependentRecordImplementation<CaloTopologyRecord,
-  boost::mpl::vector<IdealGeometryRecord> > {};
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 #endif 

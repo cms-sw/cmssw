@@ -1,6 +1,8 @@
 #ifndef GEOMETRY_ECALGEOMETRYLOADER_ICC
 #define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
 
+#include "CondFormats/Alignment/interface/AlignTransform.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -24,7 +26,6 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -51,20 +52,23 @@ CaloGeometryLoader<T>::CaloGeometryLoader()
 
 template <class T>
 typename CaloGeometryLoader<T>::PtrType
-CaloGeometryLoader<T>::load( const DDCompactView* cpv ) 
+CaloGeometryLoader<T>::load( const DDCompactView* cpv   ,
+			     const Alignments*    alignments  ) 
 {
    PtrType geom ( new T ) ;
 
    makeGeometry( cpv,
-		 dynamic_cast<T*>( geom.get() ) ) ;
-   
+		 dynamic_cast<T*>( geom.get() ),
+		 alignments ) ;
+
    return geom ;
 }
 
 template <class T>
 void 
 CaloGeometryLoader<T>::makeGeometry( const DDCompactView* cpv  ,
-				     T*                   geom  )
+				     T*                   geom ,
+				     const Alignments*    alignments )
 {
    DDFilteredView fv0 ( *cpv ) ;
    fv0.addFilter( m_filter ) ;
@@ -98,7 +102,22 @@ CaloGeometryLoader<T>::makeGeometry( const DDCompactView* cpv  ,
 
       const DetId id ( getDetIdForDDDNode( fv ) ) ;
 
-      fillGeom( geom, parameters, ht3d, id ) ;
+      const unsigned int which ( whichTransform( id ) ) ;
+
+      assert( 0 == alignments ||
+	      which < alignments->m_align.size() ) ;
+
+      const AlignTransform* at ( 0 == alignments ? 0 :
+				 &alignments->m_align[ which ] ) ;
+
+      assert( 0 == at || ( whichTransform( DetId( at->rawId() ) ) ==
+			   whichTransform( id ) ) ) ;
+
+      const HepTransform3D atr ( 0 == at ? ht3d : at->transform()*ht3d ) ;
+//				 HepTransform3D( at->rotation(), 
+//						 at->translation()  )*ht3d ) ;
+
+      fillGeom( geom, parameters, atr, id ) ;
    }
 
    assert( counter <= T::k_NumberOfCellsForCorners ) ;

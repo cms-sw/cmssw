@@ -6,6 +6,9 @@
 
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+
+#include "CondFormats/Alignment/interface/Alignments.h"
+
 #include "CLHEP/Geometry/Transform3D.h"
 #include <string>
 #include <vector>
@@ -25,29 +28,33 @@ class CaloGeometryLoader
 
       typedef std::vector< double > ParmVec ;
 
-      typedef std::auto_ptr< CaloSubdetectorGeometry > PtrType ;
+      typedef boost::shared_ptr< CaloSubdetectorGeometry > PtrType ;
 
       typedef CaloSubdetectorGeometry::ParVec    ParVec ;
       typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
 
       CaloGeometryLoader< T >() ;
 
-      ~CaloGeometryLoader< T >() {}
+      virtual ~CaloGeometryLoader< T >() {}
  
-      PtrType load( const DDCompactView* cpv ) ;  
+      PtrType load( const DDCompactView* cpv,
+		    const Alignments*    alignments = 0 ) ;  
 
    private:
 
-      void makeGeometry( const DDCompactView* cpv  , 
-			 T*                   geom   ) ;
+      unsigned int whichTransform( const DetId& id ) const ;
 
+      void makeGeometry( const DDCompactView* cpv  , 
+			 T*                   geom ,
+			 const Alignments*    alignments ) ;
+      
       void fillNamedParams( DDFilteredView fv,
 			    T*             geom ) ;
-
-      void fillGeom( T*                           geom ,
-		     const ParmVec&               pv ,
-		     const HepTransform3D&        tr ,
-		     const DetId&                 id     ) ;
+      
+      void fillGeom( T*                    geom ,
+		     const ParmVec&        pv ,
+		     const HepTransform3D& tr ,
+		     const DetId&          id    ) ;
 
       void extraStuff( T* geom ) ;
 

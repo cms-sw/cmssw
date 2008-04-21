@@ -3,11 +3,18 @@
 
 #include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/EcalPreshowerGeometryRecord.h"
+#include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 #include <vector>
 
 class EcalPreshowerGeometry : public CaloSubdetectorGeometry
 {
    public:
+
+      typedef IdealGeometryRecord         IdealRecord   ;
+      typedef EcalPreshowerGeometryRecord AlignedRecord ;
+      typedef ESAlignmentRcd              AlignmentRecord ;
 
       typedef EcalPreshowerNumberingScheme NumberingScheme ;
       typedef CaloSubdetectorGeometry::ParVec ParVec ;
@@ -40,6 +47,8 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       static std::string hitString() { return "EcalHitsES" ; }
 
       static std::string producerName() { return "EcalPreshower" ; }
+
+      static unsigned int numberOfAlignments() { return 1 ; }
 
    private:
 

@@ -57,28 +57,30 @@ void testClosestCell(const HcalDetId & detId, const CaloSubdetectorGeometry * ge
   }
 }
 
-void testClosestCells() {
-  HcalHardcodeGeometryLoader l;
-  std::auto_ptr<CaloSubdetectorGeometry> g = l .load();
-  // make sure each cel is its own closest cell
-  HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
-  HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
-  HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
-  HcalDetId endcapDet2(HcalEndcap, 29, 35, 1);
-  HcalDetId forwardDet1(HcalForward, 30, 71, 1);
-  HcalDetId forwardDet3(HcalForward, -40, 71, 1);
+void testClosestCells() 
+{
+   HcalHardcodeGeometryLoader l;
+   HcalHardcodeGeometryLoader::ReturnType g = l .load();
+   // make sure each cel is its own closest cell
+   HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
+   HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
+   HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
+   HcalDetId endcapDet2(HcalEndcap, 29, 35, 1);
+   HcalDetId forwardDet1(HcalForward, 30, 71, 1);
+   HcalDetId forwardDet3(HcalForward, -40, 71, 1);
 
-  testClosestCell(barrelDet, g.get());
-  testClosestCell(barrelDet2, g.get());
-  testClosestCell(endcapDet1, g.get());
-  testClosestCell(endcapDet2, g.get());
-  testClosestCell(forwardDet1, g.get());
-  testClosestCell(forwardDet3, g.get());
+   testClosestCell( barrelDet  , g );
+   testClosestCell( barrelDet2 , g );
+   testClosestCell( endcapDet1 , g );
+   testClosestCell( endcapDet2 , g );
+   testClosestCell( forwardDet1, g );
+   testClosestCell( forwardDet3, g );
 
-  std::vector<DetId> ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
-    testClosestCell(HcalDetId(*i), g.get());
-  }
+   std::vector<DetId> ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
+   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
+   {
+      testClosestCell( HcalDetId(*i), g );
+   }
 }
 
 
@@ -86,10 +88,10 @@ void testClosestCells() {
 int main() {
 
   HcalHardcodeGeometryLoader l;
-  std::auto_ptr<CaloSubdetectorGeometry> b=l.load(DetId::Hcal,HcalBarrel);
-  std::auto_ptr<CaloSubdetectorGeometry> e=l.load(DetId::Hcal,HcalEndcap);
-  std::auto_ptr<CaloSubdetectorGeometry> o=l.load(DetId::Hcal,HcalOuter);
-  std::auto_ptr<CaloSubdetectorGeometry> f=l.load(DetId::Hcal,HcalForward);
+  HcalHardcodeGeometryLoader::ReturnType b=l.load(DetId::Hcal,HcalBarrel);
+  HcalHardcodeGeometryLoader::ReturnType e=l.load(DetId::Hcal,HcalEndcap);
+  HcalHardcodeGeometryLoader::ReturnType o=l.load(DetId::Hcal,HcalOuter);
+  HcalHardcodeGeometryLoader::ReturnType f=l.load(DetId::Hcal,HcalForward);
 
   std::vector<DetId> ids=b->getValidDetIds(DetId::Hcal,HcalBarrel);
   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {

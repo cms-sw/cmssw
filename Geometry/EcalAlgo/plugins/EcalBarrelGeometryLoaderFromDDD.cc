@@ -2,8 +2,8 @@
 
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometryLoader.icc"
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
+#include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
 template class CaloGeometryLoader< EcalBarrelGeometry > ;
 
@@ -16,11 +16,18 @@ using namespace std;
 typedef CaloGeometryLoader< EcalBarrelGeometry > EcalBGL ;
 
 template <>
+unsigned int 
+EcalBGL::whichTransform( const DetId& id ) const
+{
+   return ( EBDetId( id ).ism() - 1 ) ;
+}
+
+template <>
 void 
 EcalBGL::fillGeom( EcalBarrelGeometry*     geom ,
 		   const EcalBGL::ParmVec& pv ,
 		   const HepTransform3D&   tr ,
-		   const DetId&            id     )
+		   const DetId&            id    )
 {
    CaloCellGeometry::CornersVec corners ( geom->cornersMgr() ) ;
    corners.resize() ;

@@ -13,24 +13,33 @@
 //
 // Original Author:  Edmundo Garcia
 //         Created:  Mon Aug  6 12:33:33 CDT 2007
-// $Id: ZdcHardcodeGeometryEP.cc,v 1.0 2007/08/06 14:16:12 ejgarcia Exp $
+// $Id: ZdcHardcodeGeometryEP.cc,v 1.1 2007/08/28 18:10:10 sunanda Exp $
 //
 #include "Geometry/ForwardGeometry/plugins/ZdcHardcodeGeometryEP.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP(const edm::ParameterSet& iConfig)
+ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP( const edm::ParameterSet& ps ) :
+   m_loader   (0),
+   m_topology () ,
+   m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this,"ZDC");
-   loader_=0;
+   setWhatProduced( this,
+		    &ZdcHardcodeGeometryEP::produceAligned,
+		    dependsOn( &ZdcHardcodeGeometryEP::idealRecordCallBack ),
+		    "ZDC");
+
+   setWhatProduced( this,
+		    &ZdcHardcodeGeometryEP::produceIdeal,
+		    edm::es::Label( "ZDC" ) );
 }
 
 
 ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP()
 { 
-  if (loader_) delete loader_;
+   delete m_loader ;
 }
 
 
@@ -39,23 +48,32 @@ ZdcHardcodeGeometryEP::~ZdcHardcodeGeometryEP()
 //
 
 // ------------ method called to produce the data  ------------
-ZdcHardcodeGeometryEP::ReturnType
-ZdcHardcodeGeometryEP::produce(const IdealGeometryRecord& iRecord)
-{
-  //using namespace edm::es;
-  if (loader_==0) {
-    edm::ESHandle<ZdcTopology> topo;
-    try {
-      iRecord.get(topo);
-      loader_=new ZdcHardcodeGeometryLoader(*topo); 
-    } catch (...) {
-      loader_=new ZdcHardcodeGeometryLoader();
-       edm::LogInfo("ZDC") << "Using default ZDC topology";
-         }
-        }
-   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
 
-   return pCaloSubdetectorGeometry ;
+void
+ZdcHardcodeGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord )
+{
+}
+
+ZdcHardcodeGeometryEP::ReturnType
+ZdcHardcodeGeometryEP::produceIdeal( const IdealGeometryRecord& iRecord )
+{
+   assert( !m_applyAlignment ) ;
+
+   ZdcHardcodeGeometryLoader loader ( m_topology ) ;
+
+   ReturnType ptr ( loader.load() ) ;
+   return ptr ;
+}
+
+ZdcHardcodeGeometryEP::ReturnType
+ZdcHardcodeGeometryEP::produceAligned( const ZDCGeometryRecord& iRecord )
+{
+//   ZdcHardcodeGeometryLoader loader ( m_topology ) ;
+   m_loader = new ZdcHardcodeGeometryLoader( m_topology ) ;
+
+   ReturnType ptr ( m_loader->load() ) ;
+
+   return ptr ;
 }
 
 
