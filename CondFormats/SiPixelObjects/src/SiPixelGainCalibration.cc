@@ -117,7 +117,7 @@ float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
-  if (s.ped & 0xFF == deadFlag_)
+  if ((s.ped & 0xFF) == deadFlag_)
      isDead = true;
   return decodePed(s.ped & 0xFF);  
 }
@@ -130,7 +130,7 @@ float SiPixelGainCalibration::getGain(const int& col, const int& row, const Rang
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
-  if (s.gain & 0xFF == deadFlag_)
+  if ((s.gain & 0xFF) == deadFlag_)
      isDead = true;
   return decodeGain(s.gain & 0xFF);
 }

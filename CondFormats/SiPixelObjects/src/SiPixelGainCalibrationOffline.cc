@@ -135,8 +135,8 @@ float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, cons
   unsigned int lengthOfColumnData = (range.second-range.first)/nCols;
   //determine what row averaged range we are in (i.e. ROC 1 or ROC 2)
   unsigned int lengthOfAveragedDataInEachColumn = numberOfRowsToAverageOver_ + 1;
-  unsigned int numberOfAveragedDataBlocksToSkip = row / lengthOfAveragedDataInEachColumn;
-  unsigned int offSetInCorrectDataBlock         = row % lengthOfAveragedDataInEachColumn;
+  unsigned int numberOfAveragedDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+  unsigned int offSetInCorrectDataBlock         = row % numberOfRowsToAverageOver_;
 
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*(lengthOfColumnData) + (numberOfAveragedDataBlocksToSkip * lengthOfAveragedDataInEachColumn) + offSetInCorrectDataBlock);
 
@@ -146,7 +146,7 @@ float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, cons
       << "[SiPixelGainCalibrationOffline::getPed] Pixel out of range: col " << col << " row " << row;
   }  
 
-  if (s.datum & 0xFF == deadFlag_)
+  if ((s.datum & 0xFF) == deadFlag_)
      isDead = true;
 
   return decodePed(s.datum & 0xFF);  
@@ -157,12 +157,12 @@ float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, con
   unsigned int lengthOfColumnData = (range.second-range.first)/nCols;
   //determine what row averaged range we are in (i.e. ROC 1 or ROC 2)
   unsigned int lengthOfAveragedDataInEachColumn = numberOfRowsToAverageOver_ + 1;
-  unsigned int numberOfAveragedDataBlocksToSkip = row / lengthOfAveragedDataInEachColumn;
+  unsigned int numberOfAveragedDataBlocksToSkip = row / numberOfRowsToAverageOver_;
 
   // gain average is stored in the last location of current row averaged column data block
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col)*(lengthOfColumnData) + ( (numberOfAveragedDataBlocksToSkip+1) * lengthOfAveragedDataInEachColumn) - 1);
 
-  if (s.datum & 0xFF == deadFlag_)
+  if ((s.datum & 0xFF) == deadFlag_)
      isDeadColumn = true;
 
   int maxRow = lengthOfColumnData - (lengthOfColumnData % numberOfRowsToAverageOver_) - 1;

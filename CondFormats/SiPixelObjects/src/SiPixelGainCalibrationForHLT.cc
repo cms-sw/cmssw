@@ -120,7 +120,7 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const
 
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
 
-  if (s.ped & 0xFF == deadFlag_)
+  if ((s.ped & 0xFF) == deadFlag_)
   {
      isDeadColumn = true;
   }
@@ -142,7 +142,7 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, cons
 
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
 
-  if (s.gain & 0xFF == deadFlag_)
+  if ((s.gain & 0xFF) == deadFlag_)
   {
      isDeadColumn = true;
   }
