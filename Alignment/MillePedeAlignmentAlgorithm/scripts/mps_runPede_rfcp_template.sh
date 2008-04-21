@@ -23,22 +23,30 @@ cd $HOME/scratch0/CMSSW_1_7_5
 eval `scramv1 runtime -sh`
 rehash
 
-cd $RUNDIR
+cd $BATCH_DIR
 echo Running directory changed to $(pwd).
-# symlink temporary binary file(s) into run directory
-ln -s $BATCH_DIR/milleBinaryISN.dat
 
-echo "rm -f" the following files
-#ls mille* pede* treeFile* histograms*
-#rm -f mille* pede* treeFile* histograms*
-ls treeFile_merge.root histograms_merge.root
-rm -f treeFile_merge.root histograms_merge.root
+# create link for treeFile(s) in mille job $RUNDIR's
+# (comment in case you a cfg not creating treeFiles...)
+ln -s $RUNDIR/../jobISN/treeFile.root treeFileISN.root
 
 # Execute. The cfg file name will be overwritten by MPS
 time cmsRun the.cfg
 
+# clean the link created above to avoid copying later (maybe uncomment, see above)
+rm  treeFileISN.root
+
+gzip -f *.log *.txt
+echo "\nDirectory content after running cmsRun and zipping log file:"
+ls -lh 
+# Copy everything you need to MPS directory of your job,
+# but you might want to copy less stuff to save disk space:
+cp -p *.log.gz *.txt.gz *.root millepede.*s $RUNDIR
+
 # Merge possible alignment monitor and millepede monitor hists...
 # ...and remove individual histogram files after merging to save space (if success):
+#NOTE: the names "histograms.root" and "millePedeMonitor.root" must match what is in
+#      the mps_template.cfg!
 hadd histograms_merge.root $RUNDIR/../job???/histograms.root
 if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/histograms.root
@@ -47,9 +55,5 @@ hadd millePedeMonitor_merge.root $RUNDIR/../job???/millePedeMonitor.root
 if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/millePedeMonitor.root
 fi
-
-# clean up disc and dangling link(s)
-rm $BATCH_DIR/milleBinaryISN.dat 
-rm milleBinaryISN.dat
 
 

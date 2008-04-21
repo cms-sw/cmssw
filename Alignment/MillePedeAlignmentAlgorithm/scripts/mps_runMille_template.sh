@@ -15,33 +15,27 @@ MSSDIRPOOL=
 BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
 
-# set up the CMS environment
+# set up the CMS environment (choose your release and working area):
 cd $HOME/scratch0/CMSSW_1_7_5
+echo Setting up $(pwd) as CMSSW environment. 
 eval `scramv1 runtime -sh`
 rehash
 
-cd $RUNDIR
-echo Running directory changed to $(pwd).
-rm -f alignment.log milleBinary.dat millePedeMonitor.root treeFile.root histograms.root LSFJOB STDOUT
-
-# create and symlink temporary binary file into run directory
-TMP_BINARY=$BATCH_DIR/milleBinaryISN.dat
-touch $TMP_BINARY
-ln -s $TMP_BINARY milleBinary.dat
-
-echo The running directory is $(pwd)
+cd $BATCH_DIR
+echo The running directory is $(pwd).
 # Execute. The cfg file name will be overwritten by MPS
 time cmsRun the.cfg
 
-# set castor pool for binary files in $MSSDIR area
+gzip -f *.log
+echo "\nDirectory content after running cmsRun and zipping log file:"
+ls -lh 
+# Copy everything you need to MPS directory of your job,
+# but you might want to copy less stuff to save disk space:
+cp -p *.log.gz *.root $RUNDIR
+
+# Copy MillePede binary file to Castor,
+# so first set castor pool for binary files in $MSSDIR area:
 export STAGE_SVCCLASS=$MSSDIRPOOL
-
-# copy MillePede binary file to Castor
 nsrm -f $MSSDIR/milleBinaryISN.dat
-echo 'rfcp $TMP_BINARY $MSSDIR/'
-rfcp $TMP_BINARY $MSSDIR/
-
-# clean up disc (=> Not really necessary, job directory will anyway vanish with job!...)
-rm $TMP_BINARY
-# clean up dangling link
-rm milleBinary.dat
+echo 'rfcp milleBinaryISN.dat $MSSDIR/'
+rfcp milleBinaryISN.dat $MSSDIR/
