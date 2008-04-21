@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.14 $
-#     $Date: 2008/03/25 16:15:57 $
+#     $Revision: 1.1 $
+#     $Date: 2008/04/10 16:10:12 $
 #
 #  Prepare the run script for the merge job.
 #  The main action is to embed the output directory
@@ -95,7 +95,7 @@ if ($nn <1) {
 }
 # $nn = ($body =~ s/cmsRun\s([A-Za-z0-9]+?\.cfg)/cmsRun $cfgName/g);
 # $nn = ($body =~ s/cmsRun +(.+)/cmsRun $cfgName/g);
-$nn = ($body =~ s/cmsRun +[a-zA-Z_0-9\-]+\.cfg/cmsRun $cfgName/g);
+$nn = ($body =~ s/cmsRun +[a-zA-Z_0-9\-]+\.cfg/cmsRun \$RUNDIR\/$cfgName/g);
 
 # now we have to expand lines that contain the ISN directive
 @LINES = split "\n",$body;
@@ -106,7 +106,7 @@ foreach $theLine (@LINES) {
     for ($i = 1; $i <= $nJobs; ++$i) {
       $newLine = $theLine;
       $isnRep = sprintf "%03d",$i;
-      $newLine =~ s/ISN/$isnRep/;
+      $newLine =~ s/ISN/$isnRep/g;
       if ($i != 1) { $newBlock = $newBlock . "\n"; }
       $newBlock = $newBlock . $newLine;
     }
