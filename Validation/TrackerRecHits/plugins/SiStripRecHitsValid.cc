@@ -419,7 +419,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int clusiz=0;
 	int totcharge=0;
 	clusiz = clust->amplitudes().size();
-	const std::vector<uint16_t> amplitudes=clust->amplitudes();
+	const std::vector<uint8_t> amplitudes=clust->amplitudes();
 	  for(size_t ia=0; ia<amplitudes.size();ia++){
 	    totcharge+=amplitudes[ia];
 	  }
@@ -495,7 +495,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	SiStripRecHit2D::ClusterRef clust=rechit.cluster();	int clusiz=0;
 	int totcharge=0;
 	clusiz = clust->amplitudes().size();
-	const std::vector<uint16_t> amplitudes=clust->amplitudes();
+	const std::vector<uint8_t> amplitudes=clust->amplitudes();
 	for(size_t ia=0; ia<amplitudes.size();ia++){
 	  totcharge+=amplitudes[ia];
 	}
