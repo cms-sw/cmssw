@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.19 2008/03/06 12:36:28 chiochia Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.20 2008/04/21 12:39:04 fblekman Exp $
 //
 //
 
@@ -194,14 +194,14 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
       for(size_t j=1; j<=nrows; j++) {
 	nchannels++;
 	int iglobalrow=0;
-	if(nrows>=nrowsrocsplit)
+	if(nrows>nrowsrocsplit)
 	  iglobalrow=1;
 	float ped = bookkeeper_[detid]["ped_2d"]->getBinContent(i,j);
 	float gain = bookkeeper_[detid]["gain_2d"]->getBinContent(i,j);
 	
-	//	std::cout << "looking at pixel row,col " << j << ","<<i << " gain,ped=" <<gain << "," << ped << std::endl;
-	// and fill and convert in the SiPixelGainCalibration object:
+	//	std::cout << "detid: "<< detid << ", looking at pixel row,col " << j << ","<<i << " gain,ped=" <<gain << "," << ped << std::endl;
 	if(ped==0 && gain==0){// dead pixel
+	  //	  std::cout << "dead!" << std::endl;
 	  theGainCalibrationDbInput_->setDeadPixel(theSiPixelGainCalibrationPerPixel);
 	  theGainCalibrationDbInputOffline_->setDeadPixel(theSiPixelGainCalibrationGainPerColPedPerPixel);
 	}
@@ -215,25 +215,21 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
 	  gainforthiscol[iglobalrow]+=gain;
 	  nusedrows[iglobalrow]++;
 	}
-      }
-      for(int ii=0; ii<2; ++ii){
-	if(nusedrows[ii]>0){
-	  pedforthiscol[ii]/=(float)nusedrows[ii];
-	  gainforthiscol[ii]/=(float)nusedrows[ii];
-	  if(nusedrows[ii]=0){// dead column!
-
+	if(j%nrowsrocsplit==nrowsrocsplit){  
+	  if(nusedrows[iglobalrow]>0){// good column
+	    pedforthiscol[iglobalrow]/=(float)nusedrows[iglobalrow];
+	    gainforthiscol[iglobalrow]/=(float)nusedrows[iglobalrow];
+	    //	    std::cout << "good column ave gain,ped " << gainforthiscol[iglobalrow] << "," <<  pedforthiscol[iglobalrow] << std::endl;
+	    theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol[iglobalrow],nrowsrocsplit,theSiPixelGainCalibrationGainPerColPedPerPixel);
+	    theGainCalibrationDbInputHLT_->setData(pedforthiscol[iglobalrow],gainforthiscol[iglobalrow],theSiPixelGainCalibrationPerColumn);
+	  }
+	  else if(nusedrows[iglobalrow]=0){// dead column!
+	    //	    std::cout << "dead column!" << std::endl;
 	    theGainCalibrationDbInputOffline_->setDeadColumn(nrowsrocsplit,theSiPixelGainCalibrationGainPerColPedPerPixel);
 	    theGainCalibrationDbInputHLT_->setDeadColumn(nrowsrocsplit,theSiPixelGainCalibrationPerColumn);
 	  }
-	  else{// good column
-	    theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol[ii],nrowsrocsplit,theSiPixelGainCalibrationGainPerColPedPerPixel);
-	    theGainCalibrationDbInputHLT_->setData(pedforthiscol[ii],gainforthiscol[ii],theSiPixelGainCalibrationPerColumn);
-	  }
 	}
       }
-     
-      //      std::cout << "filling objects..." << std::endl;
-	
     }
 
     //    std::cout << "setting range..." << std::endl;
