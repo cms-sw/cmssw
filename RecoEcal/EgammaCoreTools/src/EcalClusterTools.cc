@@ -42,7 +42,7 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
                 if ( it != recHits->end() ) {
                         return (*it).energy();
                 } else {
-                        // FIXME : throw exception !
+                        throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
                 }
         }
         return 0;
@@ -238,7 +238,8 @@ std::vector<float> EcalClusterTools::energyBasketFractionEta( const reco::BasicC
         float clusterEnergy = cluster.energy();
         std::vector<DetId> v_id = cluster.getHitsByDetId();
         if ( v_id[0].subdetId() != EcalBarrel ) {
-                // FIXME: throw exception
+                edm::LogWarning("EcalClusterTools::energyBasketFractionEta") << "Trying to get basket fraction for endcap basic-clusters. Basket fractions can be obtained ONLY for barrel basic-clusters. Returning empty vector.";
+                return basketFraction;
         }
         for ( size_t i = 0; i < v_id.size(); ++i ) {
                 basketFraction[ EBDetId(v_id[i]).im()-1 + EBDetId(v_id[i]).positiveZ()*EBDetId::kModulesPerSM ] = recHitEnergy( v_id[i], recHits ) / clusterEnergy;
@@ -255,7 +256,8 @@ std::vector<float> EcalClusterTools::energyBasketFractionPhi( const reco::BasicC
         float clusterEnergy = cluster.energy();
         std::vector<DetId> v_id = cluster.getHitsByDetId();
         if ( v_id[0].subdetId() != EcalBarrel ) {
-                // FIXME: throw exception
+                edm::LogWarning("EcalClusterTools::energyBasketFractionPhi") << "Trying to get basket fraction for endcap basic-clusters. Basket fractions can be obtained ONLY for barrel basic-clusters. Returning empty vector.";
+                return basketFraction;
         }
         for ( size_t i = 0; i < v_id.size(); ++i ) {
                 basketFraction[ (EBDetId(v_id[i]).iphi()-1)/EBDetId::kCrystalsInPhi + EBDetId(v_id[i]).positiveZ()*EBDetId::kTowersInPhi] = recHitEnergy( v_id[i], recHits ) / clusterEnergy;
