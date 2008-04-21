@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPhiProLUT
 //
 // 
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.3 $
+//   $Date: 2008/04/17 23:18:30 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -61,7 +61,7 @@ unsigned L1MuGMTLFPhiProLUT::TheLookupFunction (int idx, unsigned eta, unsigned 
   // INPUTS:  eta(4) pt(5) charge(1)
   // OUTPUTS: dphi(9) 
 
-  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+//  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
   const L1MuTriggerPtScale* theTriggerPtScale = L1MuGMTConfig::getTriggerPtScale();
 
   //  static bool doProjection = SimpleConfigurable<bool> (false, "L1GlobalMuonTrigger:PropagatePhi" );

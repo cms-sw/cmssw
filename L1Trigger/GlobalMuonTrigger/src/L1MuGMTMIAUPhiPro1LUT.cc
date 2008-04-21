@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUPhiPro1LUT
 //
 // 
-//   $Date: 2007/04/02 15:45:39 $
-//   $Revision: 1.5 $
+//   $Date: 2008/04/17 23:18:30 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -87,7 +87,7 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
   // INPUTS:  phi_fine(3) eta(4) pt(5) charge(1)
   // OUTPUTS: cphi_fine(1) cphi_ofs(3) 
 
-  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+//  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
   const L1MuTriggerPtScale* theTriggerPtScale = L1MuGMTConfig::getTriggerPtScale();
 
   int isRPC = idx % 2;
