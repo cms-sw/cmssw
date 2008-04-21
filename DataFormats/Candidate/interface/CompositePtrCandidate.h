@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositePtrCandidate.h,v 1.1 2007/10/29 15:49:19 llista Exp $
+ * \version $Id: CompositePtrCandidate.h,v 1.2 2007/12/10 12:16:40 llista Exp $
  *
  */
 
@@ -49,24 +49,20 @@ namespace reco {
     virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
+    /// number of mothers
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
     void addDaughter( const CandidatePtr & );    
-    /// add a daughter via a reference
-    void addMother( const CandidatePtr & );    
     /// clear daughter references
     void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
     CandidatePtr daughterPtr( size_type i ) const { return dau[ i ]; }
     /// references to daughtes
     const daughters & daughterPtrVector() const { return dau; }
-    /// set daughters product ID
-    void resetDaughters( const edm::ProductID & id ) { dau.clear(); }
-    /// number of mothers (zero or one in most of but not all the cases)
-    virtual size_t numberOfMothers() const;
     /// return pointer to mother
     virtual const Candidate * mother( size_t i = 0 ) const;
 
@@ -77,8 +73,6 @@ namespace reco {
     typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
-    /// collection of references to mothers
-    daughters mom;
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
   };
@@ -87,9 +81,6 @@ namespace reco {
     dau.push_back( cand ); 
   }
 
-  inline void CompositePtrCandidate::addMother( const CandidatePtr & cand ) { 
-    mom.push_back( cand ); 
-  }
 }
 
 #endif
