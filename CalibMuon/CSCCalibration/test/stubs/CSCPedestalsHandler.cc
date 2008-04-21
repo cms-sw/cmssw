@@ -12,13 +12,19 @@ popcon::CSCDBPedestalsImpl::~CSCDBPedestalsImpl(){}
 void popcon::CSCDBPedestalsImpl::getNewObjects()
 {
 
+  std::cout << "CSCPedestalsHandler - time before filling object:"<< std::endl;
+  int id=system("date");
   std::cout << "------- CSC src - > getNewObjects\n"<<m_name;
   
   // fill object from file
   CSCDBPedestals * cnpedestals = CSCPedestalsDBConditions::prefillDBPedestals();
   //std::cout << "pedestals size " << cnpedestals->pedestals.size() << std::endl;
 
+  std::cout << "CSCPedestalsHandler - time after filling object:"<< std::endl;
+  id=system("date");
+
   //check whats already inside of database
+
   std::cerr<<"got offlineInfo"<<std::endl;
   std::cerr << tagInfo().name << " , last object valid since " 
 	    << tagInfo().lastInterval.first << std::endl;
@@ -29,7 +35,10 @@ void popcon::CSCDBPedestalsImpl::getNewObjects()
   std::cout << "getNewObjects : enter till ? \n";
   
    
+  id=system("date");
   m_to_transfer.push_back(std::make_pair(cnpedestals,snc));
    
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
+  std::cout << "CSCPedestalsHandler - time before writing into DB:"<< std::endl;
+  id=system("date");
 }
