@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.15 2008/02/21 17:57:18 nancy Exp $ 
- **  $Date: 2008/02/21 17:57:18 $ 
- **  $Revision: 1.15 $
+ **  $Id: PhotonProducer.h,v 1.16 2008/03/03 20:38:00 nancy Exp $ 
+ **  $Date: 2008/03/03 20:38:00 $ 
+ **  $Revision: 1.16 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -26,6 +27,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -41,9 +43,9 @@ class PhotonProducer : public edm::EDProducer {
  private:
 
   void fillPhotonCollection(const edm::Handle<reco::SuperClusterCollection> & scHandle,
-			    const reco::BasicClusterShapeAssociationCollection& clshpMap,
 			    const CaloSubdetectorGeometry *geometry,
 			    const CaloSubdetectorGeometry *geometryES,
+                            const CaloSubdetectorTopology *topology,
 			    const EcalRecHitCollection *hits,
 			    HBHERecHitMetaCollection *mhbhe,
 			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
@@ -59,10 +61,6 @@ class PhotonProducer : public edm::EDProducer {
   std::string scIslandEndcapProducer_;
   std::string scHybridBarrelCollection_;
   std::string scIslandEndcapCollection_;
-  std::string barrelClusterShapeMapProducer_;
-  std::string barrelClusterShapeMapCollection_;
-  std::string endcapClusterShapeMapProducer_;
-  std::string endcapClusterShapeMapCollection_;
   std::string barrelHitProducer_;
   std::string endcapHitProducer_;
   std::string barrelHitCollection_;
@@ -85,8 +83,10 @@ class PhotonProducer : public edm::EDProducer {
   edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
+  EcalClusterTools clusterShape_;  
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
+  edm::ESHandle<CaloTopology> theCaloTopo_;
   HoECalculator  theHoverEcalc_;
 
 };
