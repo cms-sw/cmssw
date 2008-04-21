@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2007/12/19 16:36:17 $
-//   $Revision: 1.9 $
+//   $Date: 2008/04/17 23:18:30 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -132,6 +132,10 @@ void L1MuGMTConfig::setDefaults() {
   
   m_DoOvlRpcAnd = m_GMTParams->getDoOvlRpcAnd();
 
+  m_PropagatePhi = m_GMTParams->getPropagatePhi();
+  
+  m_VersionSortRankEtaQLUT = m_GMTParams->getVersionSortRankEtaQLUT();
+
   if ( Debug(1) ) {
     stringstream stdss;
     stdss
@@ -160,11 +164,11 @@ void L1MuGMTConfig::setDefaults() {
         << "L1 Global Muon Trigger : calorimeter trigger : " << m_CaloTrigger << endl
         << "L1 Global Muon Trigger : muon isolation cell size (eta) : " << m_IsolationCellSizeEta << endl
         << "L1 Global Muon Trigger : muon isolation cell size (phi) : " << m_IsolationCellSizePhi << endl
-        << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl;
+        << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl
+        << "L1 Global Muon Trigger : propagate phi to vertex : " << m_PropagatePhi << endl
+        << "L1 Global Muon Trigger : version of low quality assignment LUT : " << m_VersionSortRankEtaQLUT << endl;
     edm::LogVerbatim("GMT_Config_info") << stdss.str();
   }
-
-  m_PropagatePhi = m_GMTParams->getPropagatePhi();
 
   // create Registers
   m_RegCDLConfig = new L1MuGMTRegCDLConfig();
@@ -343,6 +347,7 @@ int   L1MuGMTConfig::m_IsolationCellSizePhi = 2;
 bool  L1MuGMTConfig::m_DoOvlRpcAnd = false;
 
 bool  L1MuGMTConfig::m_PropagatePhi = false;
+unsigned L1MuGMTConfig::m_VersionSortRankEtaQLUT = 2;
 
 L1MuGMTRegCDLConfig* L1MuGMTConfig::m_RegCDLConfig=0;
 L1MuGMTRegMMConfigPhi* L1MuGMTConfig::m_RegMMConfigPhi=0;

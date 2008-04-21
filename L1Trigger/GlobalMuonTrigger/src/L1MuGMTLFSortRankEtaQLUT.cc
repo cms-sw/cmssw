@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFSortRankEtaQLUT
 //
 // 
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.2 $
+//   $Date: 2007/04/02 15:45:39 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -35,6 +35,7 @@
 //-------------------
 
 void L1MuGMTLFSortRankEtaQLUT::InitParameters() {
+  m_version = L1MuGMTConfig::getVersionSortRankEtaQLUT();
 }
 
 //------------------------------------------------------------------------------------
@@ -92,7 +93,10 @@ unsigned L1MuGMTLFSortRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, uns
       //      if ( etaValue > 1.1 && etaValue < 1.2 ) 
       //vlq = 1; // disable in single and di-muon trigger
       //else 
-      vlq = 2; // disable in single-muon trigger only
+      
+      // use m_version to distinguish startup (v=2) and full geometry (v=1)
+      if ( m_version == 1 || 
+          (m_version == 2 && (etaValue<1.5 || etaValue>1.8)) ) vlq = 2; // disable in single-muon trigger only
     }
     if (q == 1) {
       if (etaValue > 1.2)
