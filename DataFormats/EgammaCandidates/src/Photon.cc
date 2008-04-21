@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.13 2007/12/10 20:59:34 futyand Exp $
+// $Id: Photon.cc,v 1.14 2008/03/03 20:34:38 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
@@ -65,3 +65,12 @@ math::XYZPoint Photon::caloPosition() const {
     return superCluster()->position();
   }
 }
+
+bool Photon::isPhoton() const {
+  return true;
+}
+
+bool Photon::isConvertedPhoton() const {
+  return isConverted();
+}
+

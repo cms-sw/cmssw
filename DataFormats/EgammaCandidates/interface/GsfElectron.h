@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: GsfElectron.h,v 1.5 2007/12/11 16:22:02 uberthon Exp $
+ * \version $Id: GsfElectron.h,v 1.6 2008/04/10 08:45:06 uberthon Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.6  2008/04/10 08:45:06  uberthon
+// remove ClusterShape from GsfElectron, remove obsolete classes PixelMatchElectron, PixelMatchGsfElectron
+//
 // Revision 1.5  2007/12/11 16:22:02  uberthon
 // remove annoying LogWarning
 //
@@ -158,6 +161,8 @@ class GsfElectron : public RecoCandidate {
   //! array of pointers to the related brem clusters
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
+
+  bool isElectron() const;
 
  private:
 
