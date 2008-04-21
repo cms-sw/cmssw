@@ -123,7 +123,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     //meDCCEventFormatError_->setBinLabel(9, "Event Size Internally Misdescribed", 2);
 
     type = "DCC Status Flags (Nonzero Error Counters)";
-    meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,9,0.5,9.5);
+    meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
     meDCCStatusFlags_->setAxisTitle("HCAL FED ID", 1);      
     meDCCStatusFlags_->setBinLabel(1, "Saw OFW", 2);
     meDCCStatusFlags_->setBinLabel(2, "Saw BSY", 2);
@@ -137,7 +137,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCStatusFlags_->setBinLabel(10, "TTCDoubErr", 2);
 
     type = "DCC Error and Warning";
-    meDCCErrorAndWarnConditions_ = m_dbe->book2D(type,type,32,699.5,731.5, 25,0.5,24.5);
+    meDCCErrorAndWarnConditions_ = m_dbe->book2D(type,type,32,699.5,731.5, 25,0.5,25.5);
     meDCCErrorAndWarnConditions_->setAxisTitle("HCAL FED ID", 1);      
     meDCCErrorAndWarnConditions_->setBinLabel(1, "Err Spgt 15", 2);
     meDCCErrorAndWarnConditions_->setBinLabel(2, "Err Spgt 14", 2);
