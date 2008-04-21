@@ -14,21 +14,21 @@ objects from OMDS to ORCON.
 //
 // Original Author:  Michael Eads
 //         Created:  8 Feb 2008
-// $Id$
+// $Id: PixelPopConCalibSourceHandler.h,v 1.1 2008/02/29 19:13:19 meads Exp $
 //
 //
 
 #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
+#include "CondTools/SiPixel/interface/PixelPopConSourceHandler.h"
 
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 
 // class definition
-class PixelPopConCalibSourceHandler : public popcon::PopConSourceHandler<SiPixelCalibConfiguration> {
+class PixelPopConCalibSourceHandler : public PixelPopConSourceHandler<SiPixelCalibConfiguration> {
   
  public:
   void getNewObjects();
