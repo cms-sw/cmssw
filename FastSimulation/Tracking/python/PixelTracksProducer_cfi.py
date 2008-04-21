@@ -15,7 +15,9 @@ pixelTracks = cms.EDProducer("PixelTracksProducer",
         chi2 = cms.double(1000.0),
         ComponentName = cms.string('PixelTrackFilterByKinematics'),
         ptMin = cms.double(0.0),
-        tipMax = cms.double(1.0)
+        tipMax = cms.double(1.0),
+        nSigmaInvPtTolerance = cms.double(0.0),
+	nSigmaTipMaxTolerance = cms.double(0.0)
     )
 )
 
