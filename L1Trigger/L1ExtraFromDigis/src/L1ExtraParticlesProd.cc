@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.17 2007/12/18 04:08:05 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.18 2008/04/03 03:39:06 wsun Exp $
 //
 //
 
@@ -42,6 +42,8 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// #include "FWCore/Utilities/interface/EDMException.h"
 
 //
 // class decleration
@@ -83,7 +85,9 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet& iConfig)
      etHadSource_( iConfig.getParameter< edm::InputTag >(
 	"etHadSource" ) ),
      etMissSource_( iConfig.getParameter< edm::InputTag >(
-	"etMissSource" ) )
+	"etMissSource" ) ),
+     centralBxOnly_( iConfig.getParameter< bool >(
+	"centralBxOnly" ) )
 {
    using namespace l1extra ;
 
@@ -94,7 +98,7 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet& iConfig)
    produces< L1JetParticleCollection >( "Forward" ) ;
    produces< L1JetParticleCollection >( "Tau" ) ;
    produces< L1MuonParticleCollection >() ;
-   produces< L1EtMissParticle >() ;
+   //   produces< L1EtMissParticle >() ;
    produces< L1EtMissParticleCollection >() ;
 
    //now do what ever other initialization is needed
@@ -138,8 +142,29 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       Handle< L1MuGMTReadoutCollection > hwMuCollection ;
       iEvent.getByLabel( muonSource_, hwMuCollection ) ;
 
-      vector< L1MuGMTExtendedCand > hwMuCands =
-	 hwMuCollection->getRecord().getGMTCands() ; // from default bx.
+      vector< L1MuGMTExtendedCand > hwMuCands ;
+
+      if( centralBxOnly_ )
+      {
+	 // Get GMT candidates from central bunch crossing only
+	 hwMuCands = hwMuCollection->getRecord().getGMTCands() ;
+      }
+      else
+      {
+	 // Get GMT candidates from all bunch crossings
+	 vector< L1MuGMTReadoutRecord > records = hwMuCollection->getRecords();
+	 vector< L1MuGMTReadoutRecord >::const_iterator rItr = records.begin();
+	 vector< L1MuGMTReadoutRecord >::const_iterator rEnd = records.end();
+
+	 for( ; rItr != rEnd ; ++rItr )
+	 {
+	    vector< L1MuGMTExtendedCand > tmpCands = rItr->getGMTCands() ;
+
+	    hwMuCands.insert( hwMuCands.end(),
+			      tmpCands.begin(),
+			      tmpCands.end() ) ;
+	 }
+      }
 
       auto_ptr< L1MuonParticleCollection > muColl(
 	 new L1MuonParticleCollection );
@@ -157,6 +182,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " phi " << muItr->phiIndex()
 // 	      << " iso " << muItr->isol()
 // 	      << " mip " << muItr->mip()
+// 	      << " bx " << muItr->bx()
 // 	      << endl ;
 
 	 if( !muItr->empty() )
@@ -164,24 +190,16 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    // keep x and y components non-zero and protect against roundoff.
 	    double pt =
 	      muPtScale->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
-	    //	      muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
+	    // muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) + 1.e-6 ;
+
+// 	    cout << "L1Extra pt " << pt << endl ;
 
 	    double eta =
 	       muScales->getGMTEtaScale()->getCenter( muItr->etaIndex() ) ;
-// 	    double tanThOver2 = exp( -eta ) ;
-// 	    double pz = pt * ( 1. - tanThOver2 * tanThOver2 ) /
-// 	       ( 2. * tanThOver2 ) ;
-// 	    double p  = pt * ( 1. + tanThOver2 * tanThOver2 ) /
-// 	       ( 2. * tanThOver2 ) ;
-// 	    double e = sqrt( p * p + muonMassGeV_ * muonMassGeV_ ) ;
 
 	    double phi =
 	       muScales->getPhiScale()->getLowEdge( muItr->phiIndex() ) ;
 
-// 	    math::XYZTLorentzVector p4( pt * cos( phi ),
-// 					pt * sin( phi ),
-// 					pz,
-// 					e ) ;
 	    math::PtEtaPhiMLorentzVector p4( pt,
 					     eta,
 					     phi,
@@ -190,7 +208,8 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    muColl->push_back(
 	       L1MuonParticle( muItr->charge(),
 			       p4,
-			       *muItr )
+			       *muItr,
+			       muItr->bx() )
  	       ) ;
 	 }
       }
@@ -225,6 +244,7 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	 new L1EmParticleCollection );
 
 //       cout << "HW iso EM" << endl ;
+
       L1GctEmCandCollection::const_iterator emItr = hwIsoEmCands->begin() ;
       L1GctEmCandCollection::const_iterator emEnd = hwIsoEmCands->end() ;
       for( int i = 0 ; emItr != emEnd ; ++emItr, ++i )
@@ -237,16 +257,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " sign " << emItr->etaSign()
 // 	      << " phi " << emItr->phiIndex()
 // 	      << " iso " << emItr->isolated()
+// 	      << " bx " << emItr->bx()
 // 	      << endl ;
 
-	 if( !emItr->empty() )
+	 if( !emItr->empty() &&
+	     ( !centralBxOnly_ || emItr->bx() == 0 ) )
 	 {
 	    double et = emScale->et( emItr->rank() ) ;
+
+// 	    cout << "L1Extra et " << et << endl ;
 
 	    isoEmColl->push_back(
 	       L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
 			     Ref< L1GctEmCandCollection >( hwIsoEmCands,
-							   i ) ) ) ;
+							   i ),
+			     emItr->bx() ) ) ;
 	 }
       }
 
@@ -274,16 +299,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " sign " << emItr->etaSign()
 // 	      << " phi " << emItr->phiIndex()
 // 	      << " iso " << emItr->isolated()
+// 	      << " bx " << emItr->bx()
 // 	      << endl ;
 
-	 if( !emItr->empty() )
+	 if( !emItr->empty() &&
+	     ( !centralBxOnly_ || emItr->bx() == 0 ) )
 	 {
 	    double et = emScale->et( emItr->rank() ) ;
+
+// 	    cout << "L1Extra et " << et << endl ;
 
 	    nonIsoEmColl->push_back(
 	       L1EmParticle( gctLorentzVector( et, *emItr, caloGeom, true ),
 			     Ref< L1GctEmCandCollection >( hwNonIsoEmCands,
-							   i ) ) );
+							   i ),
+			     emItr->bx() ) );
 	 }
       }
 
@@ -318,16 +348,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " cen " << jetItr->isCentral()
 // 	      << " for " << jetItr->isForward()
 // 	      << " tau " << jetItr->isTau()
+// 	      << " bx " << jetItr->bx()
 // 	      << endl ;
 
-	 if( !jetItr->empty() )
+	 if( !jetItr->empty() &&
+	     ( !centralBxOnly_ || jetItr->bx() == 0 ) )
 	 {
 	    double et = jetScale->et( jetItr->rank() ) ;
+
+// 	    cout << "L1Extra et " << et << endl ;
 
 	    cenJetColl->push_back(
 	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
 			      Ref< L1GctJetCandCollection >( hwCenJetCands,
-							     i ) ) ) ;
+							     i ),
+			      jetItr->bx() ) ) ;
 	 }
       }
 
@@ -357,16 +392,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " cen " << jetItr->isCentral()
 // 	      << " for " << jetItr->isForward()
 // 	      << " tau " << jetItr->isTau()
+// 	      << " bx " << jetItr->bx()
 // 	      << endl ;
 
-	 if( !jetItr->empty() )
+	 if( !jetItr->empty() &&
+	     ( !centralBxOnly_ || jetItr->bx() == 0 ) )
 	 {
 	    double et = jetScale->et( jetItr->rank() ) ;
+
+// 	    cout << "L1Extra et " << et << endl ;
 
 	    forJetColl->push_back(
 	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, false ),
 			      Ref< L1GctJetCandCollection >( hwForJetCands,
-							     i ) ) ) ;
+							     i ),
+			      jetItr->bx() ) ) ;
 	 }
       }
 
@@ -396,16 +436,21 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 // 	      << " cen " << jetItr->isCentral()
 // 	      << " for " << jetItr->isForward()
 // 	      << " tau " << jetItr->isTau()
+// 	      << " bx " << jetItr->bx()
 // 	      << endl ;
 
-	 if( !jetItr->empty() )
+	 if( !jetItr->empty() &&
+	     ( !centralBxOnly_ || jetItr->bx() == 0 ) )
 	 {
 	    double et = jetScale->et( jetItr->rank() ) ;
+
+// 	    cout << "L1Extra et " << et << endl ;
 
 	    tauJetColl->push_back(
 	       L1JetParticle( gctLorentzVector( et, *jetItr, caloGeom, true ),
 			      Ref< L1GctJetCandCollection >( hwTauJetCands,
-							     i ) ) ) ;
+							     i ),
+			      jetItr->bx() ) ) ;
 	 }
       }
 
@@ -417,70 +462,186 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
       ESHandle< L1GctJetEtCalibrationFunction > jetCalibFn ;
       iSetup.get< L1GctJetCalibFunRcd >().get( jetCalibFn ) ;
 
-      Handle< L1GctEtTotal > hwEtTot ;
-      iEvent.getByLabel( etTotSource_, hwEtTot ) ;
-
-      Handle< L1GctEtHad > hwEtHad ;
-      iEvent.getByLabel( etHadSource_, hwEtHad ) ;
-
-      Handle< L1GctEtMiss > hwEtMiss ;
-      iEvent.getByLabel( etMissSource_, hwEtMiss ) ;
-
       double etSumLSB = jetScale->linearLsb() ;
       double htSumLSB = jetCalibFn->getHtScaleLSB();
-//       double etSumLSB = 1. ;
 
-//       cout << "HW ET Sums " << endl
-// 	   << "MET: phi " << hwEtMiss->phi() << " et " << hwEtMiss->et()
-// 	   << " EtTot " << hwEtTot->et() << " EtHad " << hwEtHad->et()
-// 	   << endl ;
+      Handle< L1GctEtTotalCollection > hwEtTotColl ;
+      iEvent.getByLabel( etTotSource_, hwEtTotColl ) ;
 
-      // ET bin low edge
-      double etTot = ( hwEtTot->overFlow() ?
-		       ( double ) L1GctEtTotal::kEtTotalMaxValue :
-		       ( double ) hwEtTot->et() ) * etSumLSB + 1.e-6 ;
-      double etHad = ( hwEtHad->overFlow() ?
-		       ( double ) L1GctEtHad::kEtHadMaxValue :
-		       ( double ) hwEtHad->et() ) * htSumLSB + 1.e-6 ;
-      double etMiss = ( hwEtMiss->overFlow() ?
-			( double ) L1GctEtMiss::kEtMissMaxValue :
-			( double ) hwEtMiss->et() ) * etSumLSB + 1.e-6 ;
-      // keep x and y components non-zero and protect against roundoff.
+      Handle< L1GctEtHadCollection > hwEtHadColl ;
+      iEvent.getByLabel( etHadSource_, hwEtHadColl ) ;
 
-      double phi = caloGeom->etSumPhiBinCenter( hwEtMiss->phi() ) ;
+      Handle< L1GctEtMissCollection > hwEtMissColl ;
+      iEvent.getByLabel( etMissSource_, hwEtMissColl ) ;
 
-//       math::XYZTLorentzVector p4( etMiss * cos( phi ),
-// 				  etMiss * sin( phi ),
-// 				  0.,
-// 				  etMiss ) ;
-      math::PtEtaPhiMLorentzVector p4( etMiss,
-				       0.,
-				       phi,
-				       0. ) ;
+//       try
+//       {
+//          iEvent.getByLabel( etTotSource_, hwEtTotColl ) ;
+//          iEvent.getByLabel( etHadSource_, hwEtHadColl ) ;
+//          iEvent.getByLabel( etMissSource_, hwEtMissColl ) ;
+//       }
+//       catch( const edm::Exception& ex )
 
-//       auto_ptr< L1EtMissParticle > etMissParticle(
-// 	 new L1EtMissParticle( p4,
-// 			       etTot,
-// 			       etHad,
-// 			       RefProd< L1GctEtMiss >( hwEtMiss ),
-// 			       RefProd< L1GctEtTotal >( hwEtTot ),
-// 			       RefProd< L1GctEtHad >( hwEtHad )
-// 	    ) ) ;
+      if( !( hwEtTotColl.isValid() && hwEtHadColl.isValid() &&
+	     hwEtMissColl.isValid() ) )
+      {
+// 	 // Check for only one particular exception.
+// 	 if( ex.categoryCode() != edm::errors::ProductNotFound )
+// 	 {
+// 	    throw ex ;
+// 	 }
 
-//       OrphanHandle< L1EtMissParticle > etMissHandle =
-// 	iEvent.put( etMissParticle ) ;
+	 // For backwards compatibility with 20X and earlier.
+	 // If energy sum collections are not present, get the objects
+	 // themselves.
+
+	 Handle< L1GctEtTotal > hwEtTot ;
+	 iEvent.getByLabel( etTotSource_, hwEtTot ) ;
+
+	 Handle< L1GctEtHad > hwEtHad ;
+	 iEvent.getByLabel( etHadSource_, hwEtHad ) ;
+
+	 Handle< L1GctEtMiss > hwEtMiss ;
+	 iEvent.getByLabel( etMissSource_, hwEtMiss ) ;
+
+// 	 cout << "AAAA HW ET Sums " << endl
+// 	      << "MET: phi " << hwEtMiss->phi()
+// 	      << " et " << hwEtMiss->et()
+// 	      << " EtTot " << hwEtTot->et()
+// 	      << " EtHad " << hwEtHad->et()
+// 	      << " bx 0"
+// 	      << endl ;
+
+	 // ET bin low edge
+	 double etTot = ( hwEtTot->overFlow() ?
+			  ( double ) L1GctEtTotal::kEtTotalMaxValue :
+			  ( double ) hwEtTot->et() ) * etSumLSB + 1.e-6 ;
+	 double etHad = ( hwEtHad->overFlow() ?
+			  ( double ) L1GctEtHad::kEtHadMaxValue :
+			  ( double ) hwEtHad->et() ) * htSumLSB + 1.e-6 ;
+	 double etMiss = ( hwEtMiss->overFlow() ?
+			   ( double ) L1GctEtMiss::kEtMissMaxValue :
+			   ( double ) hwEtMiss->et() ) * etSumLSB + 1.e-6 ;
+	 // keep x and y components non-zero and protect against roundoff.
+
+	 double phi = caloGeom->etSumPhiBinCenter( hwEtMiss->phi() ) ;
+
+	 math::PtEtaPhiMLorentzVector p4( etMiss,
+					  0.,
+					  phi,
+					  0. ) ;
+
+	 auto_ptr< L1EtMissParticleCollection > etMissColl(
+	    new L1EtMissParticleCollection );
+
+	 etMissColl->push_back(
+	    L1EtMissParticle( p4,
+			      etTot,
+			      etHad ) ) ;
+
+	 iEvent.put( etMissColl ) ;
+	 return ; // don't put any other processing after energy sums block!!!
+      }
 
       auto_ptr< L1EtMissParticleCollection > etMissColl(
 	 new L1EtMissParticleCollection );
 
-      etMissColl->push_back(
-	 L1EtMissParticle( p4,
-			   etTot,
-			   etHad,
-			   RefProd< L1GctEtMiss >( hwEtMiss ),
-			   RefProd< L1GctEtTotal >( hwEtTot ),
-			   RefProd< L1GctEtHad >( hwEtHad )
-			   ) ) ;
+      // Collate energy sums by bx
+      L1GctEtTotalCollection::const_iterator hwEtTotItr =
+	 hwEtTotColl->begin() ;
+      L1GctEtTotalCollection::const_iterator hwEtTotEnd =
+	 hwEtTotColl->end() ;
+
+      int iTot = 0 ;
+      for( ; hwEtTotItr != hwEtTotEnd ; ++hwEtTotItr, ++iTot )
+      {
+	 int bx = hwEtTotItr->bx() ;
+
+	 if( !centralBxOnly_ || bx == 0 )
+	 {
+	    L1GctEtHadCollection::const_iterator hwEtHadItr =
+	       hwEtHadColl->begin() ;
+	    L1GctEtHadCollection::const_iterator hwEtHadEnd =
+	       hwEtHadColl->end() ;
+
+	    int iHad = 0 ;
+	    for( ; hwEtHadItr != hwEtHadEnd ; ++hwEtHadItr, ++iHad )
+	    {
+	       if( hwEtHadItr->bx() == bx )
+	       {
+		  break ;
+	       }
+	    }
+
+	    // If a L1GctEtHad with the right bx is not found, itr == end.
+	    if( hwEtHadItr != hwEtHadEnd )
+	    {
+	       L1GctEtMissCollection::const_iterator hwEtMissItr =
+		  hwEtMissColl->begin() ;
+	       L1GctEtMissCollection::const_iterator hwEtMissEnd =
+		  hwEtMissColl->end() ;
+
+	       int iMiss = 0 ;
+	       for( ; hwEtMissItr != hwEtMissEnd ; ++hwEtMissItr, ++iMiss )
+	       {
+		  if( hwEtMissItr->bx() == bx )
+		  {
+		     break ;
+		  }
+	       }
+
+	       // If a L1GctEtMiss with the right bx is not found, itr == end.
+	       if( hwEtMissItr != hwEtMissEnd )
+	       {
+		  // Construct L1EtMissParticle only if all three energy
+		  // sums are present.
+
+// 		  cout << "HW ET Sums " << endl
+// 		       << "MET: phi " << hwEtMissItr->phi()
+// 		       << " et " << hwEtMissItr->et()
+// 		       << " EtTot " << hwEtTotItr->et()
+// 		       << " EtHad " << hwEtHadItr->et()
+// 		       << " bx " << bx
+// 		       << endl ;
+
+		  // ET bin low edge
+		  double etTot =
+		     ( hwEtTotItr->overFlow() ?
+		       ( double ) L1GctEtTotal::kEtTotalMaxValue :
+		       ( double ) hwEtTotItr->et() ) * etSumLSB + 1.e-6 ;
+		  double etHad =
+		     ( hwEtHadItr->overFlow() ?
+		       ( double ) L1GctEtHad::kEtHadMaxValue :
+		       ( double ) hwEtHadItr->et() ) * htSumLSB + 1.e-6 ;
+		  double etMiss =
+		     ( hwEtMissItr->overFlow() ?
+		       ( double ) L1GctEtMiss::kEtMissMaxValue :
+		       ( double ) hwEtMissItr->et() ) * etSumLSB + 1.e-6 ;
+		  // keep x and y components non-zero and
+		  // protect against roundoff.
+
+		  double phi =
+		     caloGeom->etSumPhiBinCenter( hwEtMissItr->phi() ) ;
+
+		  math::PtEtaPhiMLorentzVector p4( etMiss,
+						   0.,
+						   phi,
+						   0. ) ;
+
+		  etMissColl->push_back(
+		     L1EtMissParticle(
+			p4,
+			etTot,
+			etHad,
+			Ref< L1GctEtMissCollection >( hwEtMissColl, iMiss ),
+			Ref< L1GctEtTotalCollection >( hwEtTotColl, iTot ),
+			Ref< L1GctEtHadCollection >( hwEtHadColl, iHad ),
+			bx
+			) ) ;
+	       }
+	    }
+	 }
+      }
 
       OrphanHandle< L1EtMissParticleCollection > etMissCollHandle =
 	 iEvent.put( etMissColl ) ;
