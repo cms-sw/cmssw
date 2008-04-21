@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetProducer.cc,v 1.1 2008/04/09 15:40:34 marafino Exp $
+ * $Id: HydjetProducer.cc,v 1.2 2008/04/11 08:49:31 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -132,7 +132,6 @@ void HydjetProducer::add_heavy_ion_rec(HepMC::GenEvent *evt)
   );
 
   evt->set_heavy_ion(*hi);
-
   delete hi;
 
 }
@@ -253,6 +252,7 @@ bool HydjetProducer::get_hard_particles(HepMC::GenEvent *evt, vector<SubEvent>& 
 	       prod_vertex = prods[i];
 	       prod_vertex->add_particle_in(mother);
 	       evt->add_vertex(prod_vertex);
+	       prods[i]=0; // mark to protect deletion
 	    }
 	    prod_vertex->add_particle_out(part);
 	 }

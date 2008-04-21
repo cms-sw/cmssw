@@ -3,7 +3,7 @@
  * Generates PYQUEN HepMC events
  *
  * Original Author: Camelia Mironov
- * $Id: PyquenProducer.cc,v 1.10 2008/01/24 15:35:07 yilmaz Exp $
+ * $Id: PyquenProducer.cc,v 1.1 2008/04/09 19:02:38 marafino Exp $
 */
 
 #include <iostream>
@@ -111,6 +111,7 @@ void PyquenProducer::add_heavy_ion_rec(HepMC::GenEvent *evt)
   );
 
   evt->set_heavy_ion(*hi);
+  delete hi;
 }
 
 
