@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/28 16:49:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/29 11:33:11 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -47,5 +47,5 @@ OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
 
 bool
 OAEParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  return (gp.perp()<110. && fabs(gp.z())<300.);
+  return (theParam->isDefined(gp.perp()*100., gp.z()*100.));
 }
