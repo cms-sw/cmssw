@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.37 2008/04/19 20:13:07 dutta Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.38 2008/04/21 16:59:17 maborgia Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -217,14 +217,14 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     
       if(modSingle.ClusterWidth != NULL){ // width of cluster, calculate yourself, no method for getting it
-	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+	const std::vector<uint8_t>& ampls = clusterIter->amplitudes();
         short local_size = ampls.size(); // width defined as nr. of strips that belong to cluster
         total_clusterized_strips = total_clusterized_strips + local_size; // add nr of strips of this cluster to total nr. of clusterized strips
         (modSingle.ClusterWidth)->Fill(static_cast<float>(local_size),1.);
       }
     
       if( fill_signal_noise && modSingle.ClusterSignalOverNoise){
-	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+	const std::vector<uint8_t>& ampls = clusterIter->amplitudes();
 	float clusterSignal = 0;
         float noise;
         for(uint iamp=0; iamp<ampls.size(); iamp++){
@@ -248,9 +248,9 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       
       //
       if(modSingle.ClusterCharge != NULL){ // charge of cluster
-      	const std::vector<uint16_t>& ampls = clusterIter->amplitudes();
+      	const std::vector<uint8_t>& ampls = clusterIter->amplitudes();
 	short local_charge = 0;
-        for(std::vector<uint16_t>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
+        for(std::vector<uint8_t>::const_iterator iampls = ampls.begin(); iampls<ampls.end(); iampls++){
           local_charge += *iampls;
         }
         (modSingle.ClusterCharge)->Fill(static_cast<float>(local_charge),1.);

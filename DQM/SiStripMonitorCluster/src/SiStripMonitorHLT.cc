@@ -82,7 +82,7 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
       for(vector<SiStripCluster>::const_iterator icluster = theclusters.begin(); icluster != theclusters.end(); icluster++){
         // calculate sum of amplitudes
         unsigned int amplclus=0;
-        for(vector<uint16_t>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
+        for(vector<uint8_t>::const_iterator ia=icluster->amplitudes().begin(); ia!=icluster->amplitudes().end(); ia++) {
           if ((*ia)>0) amplclus+=(*ia); // why should this be negative?
         }
         if(generalized_layer==31 || generalized_layer==32 || generalized_layer==33){ // you can also ask the detid here whether is TIB
