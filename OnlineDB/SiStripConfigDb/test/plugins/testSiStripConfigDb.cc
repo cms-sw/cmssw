@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.1 2008/03/26 09:13:11 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.2 2008/04/11 13:27:34 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -29,9 +29,9 @@ testSiStripConfigDb::testSiStripConfigDb( const edm::ParameterSet& pset )
      << " Parameters:" << std::endl 
      << "  Download           : " << download_ << std::endl 
      << "  Upload             : " << upload_ << std::endl 
+     << "  FedConnections     : " << conns_ << std::endl 
      << "  DeviceDescriptions : " << devices_ << std::endl 
      << "  FedDescriptions    : " << feds_ << std::endl 
-     << "  FedConnections     : " << conns_ << std::endl 
      << "  DcuDetIdMap        : " << dcus_;
   LogTrace(mlCabling_) << ss.str();
 }
@@ -97,6 +97,37 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
   // Downloads
   if ( download_ ) {
     
+    // Connections
+    if ( conns_ ) {
+
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( iter->second.partitionName_ );
+	db_->printFedConnections( iter->second.partitionName_ );
+	db_->clearFedConnections( iter->second.partitionName_ );
+	db_->printFedConnections( iter->second.partitionName_ );
+	std::stringstream ss;
+	ss << "[testSiStripConfigDb::" << __func__ << "]" 
+	   << " Downloaded " << conns.size()
+	   << " FED connections!";
+	if ( !conns.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
+	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+      }
+
+      SiStripConfigDb::FedConnections::range conns = db_->getFedConnections();
+      db_->printFedConnections();
+      db_->clearFedConnections();
+      db_->printFedConnections();
+      std::stringstream ss;
+      ss << "[testSiStripConfigDb::" << __func__ << "]" 
+	 << " Downloaded " << conns.size()
+	 << " FED connections!";
+      if ( !conns.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
+      else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+
+    }
+
     // Devices
     if ( devices_ ) {
       devices = db_->getDeviceDescriptions();
@@ -119,17 +150,6 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
     }
 
-    // Connections
-    if ( conns_ ) {
-      SiStripConfigDb::FedConnections::range conns = db_->getFedConnections();
-      std::stringstream ss;
-      ss << "[testSiStripConfigDb::" << __func__ << "]" 
-	 << " Downloaded " << conns.size()
-	 << " FED connections!";
-      if ( !conns.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
-      else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
-    }
-
     // DCU-DetId map
     if ( dcus_ ) {
       dcus = db_->getDcuDetIdMap();
@@ -145,7 +165,46 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 
   // Uploads
   if ( upload_ ) {
+
+    // Connections
+    if ( conns_ ) {
+
+      // Build temporary cache
+      SiStripConfigDb::FedConnections connections;
+      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( ii->second.partitionName_ );
+	if ( conns != connections.emptyRange() ) {
+	  std::vector<SiStripConfigDb::FedConnection*> tmp1( conns.begin(), conns.end() );
+	  std::vector<SiStripConfigDb::FedConnection*> tmp2;
+	  ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
+	  connections.loadNext( ii->second.partitionName_, tmp2 );
+	}
+      }
+      db_->printFedConnections();
+
+      // Clear cache, add new connections and upload
+      db_->clearFedConnections();
+      db_->printFedConnections();
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::FedConnections::range conns = connections.find( iter->second.partitionName_ );
+	std::vector<SiStripConfigDb::FedConnection*> temp( conns.begin(), conns.end() );
+	db_->addFedConnections( iter->second.partitionName_, temp );
+	db_->printFedConnections( iter->second.partitionName_ );
+	db_->uploadFedConnections( iter->second.partitionName_ );
+      }
+      db_->printFedConnections();
+      db_->uploadFedConnections();
+      db_->clearFedConnections();
+      db_->printFedConnections();
+      
+    }
+
   }
   
 }
+
 
