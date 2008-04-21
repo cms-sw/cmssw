@@ -242,33 +242,37 @@ static void printObject(const edm::Event& iEvent,
    printObject(className,*handle,iIndent,iIndentDelta);   
 }
 
-void RootErrorHandler( int level, bool die, const char* location, const char* message )
+void RootErrorHandler(int level, bool die, const char* location, const char* message)
 {
 // Translate ROOT severity level to MessageLogger severity level
 
-  edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info ;
+  edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info;
 
-  if      (level >= 5000)
-    { el_severity = edm::ELseverityLevel::ELsev_fatal ;
-    }
-  else if (level >= 4000)
-    { el_severity = edm::ELseverityLevel::ELsev_severe ;
-    }
-  else if (level >= 2000)
-    { el_severity = edm::ELseverityLevel::ELsev_error ;
-    }
-  else if (level >= 1000)
-    { el_severity = edm::ELseverityLevel::ELsev_warning ;
-    }
+  if (level >= 5000) {
+    el_severity = edm::ELseverityLevel::ELsev_fatal;
+    die = true;
+  }
+  else if (level >= 4000) {
+    el_severity = edm::ELseverityLevel::ELsev_severe;
+    die = true;
+  }
+  else if (level >= 2000) {
+    el_severity = edm::ELseverityLevel::ELsev_error;
+    die = true;
+  }
+  else if (level >= 1000) {
+    el_severity = edm::ELseverityLevel::ELsev_error;
+    die = true;
+  }
 
 // Adapt C-strings to std::strings
 // Arrange to report the error location as furnished by Root
 
-  std::string el_location = "@SUB=?" ;
-  if (location != 0) el_location = std::string("@SUB=")+std::string(location) ;
+  std::string el_location = "@SUB=?";
+  if (location != 0) el_location = std::string("@SUB=")+std::string(location);
 
-  std::string el_message  = "?" ;
-  if (message != 0)  el_message  = message ;
+  std::string el_message  = "?";
+  if (message != 0)  el_message  = message;
 
 // Try to create a meaningful id string using knowledge of ROOT error messages
 //
@@ -276,73 +280,83 @@ void RootErrorHandler( int level, bool die, const char* location, const char* me
 //      else "ROOT/ClassName" where ClassName is the error-declaring class
 //      else "ROOT"
 
-  std::string el_identifier = "ROOT" ;
+  std::string el_identifier = "ROOT";
 
-  std::string precursor("class ") ;
-  size_t index1 = el_message.find(precursor) ;
-  if (index1 != std::string::npos)
-    { size_t index2 = index1 + precursor.length() ;
-      size_t index3 = el_message.find_first_of(" :", index2) ;
-      if (index3 != std::string::npos)
-        { size_t substrlen = index3-index2 ;
-          el_identifier += "-" ;
-          el_identifier += el_message.substr(index2,substrlen) ;
-        }
+  std::string precursor("class ");
+  size_t index1 = el_message.find(precursor);
+  if (index1 != std::string::npos) {
+    size_t index2 = index1 + precursor.length();
+    size_t index3 = el_message.find_first_of(" :", index2);
+    if (index3 != std::string::npos) {
+      size_t substrlen = index3-index2;
+      el_identifier += "-";
+      el_identifier += el_message.substr(index2,substrlen);
     }
-  else
-    { index1 = el_location.find("::") ;
-      if (index1 != std::string::npos)
-        { el_identifier += "/" ;
-          el_identifier += el_location.substr(0, index1) ;
-        }
+  } else {
+    index1 = el_location.find("::");
+    if (index1 != std::string::npos) {
+      el_identifier += "/";
+      el_identifier += el_location.substr(0, index1);
     }
+  }
 
-// Intercept some Root messages and downgrade the severity
+// Intercept some messages and downgrade the severity
 
-  if (el_severity >= edm::ELseverityLevel::ELsev_error)
-    { if (el_message.find("dictionary") != std::string::npos)
-        { el_severity = edm::ELseverityLevel::ELsev_info ;
-        }
+    if (el_message.find("dictionary") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+      die = false;
     }
 
     if (el_message.find("already in TClassTable") != std::string::npos) {
       el_severity = edm::ELseverityLevel::ELsev_info;
+      die = false;
     }
 
-    if ((el_message.find("ShowMembers")    != std::string::npos)
-     && (el_message.find("TrackingRecHit") != std::string::npos)) {
+    if (el_message.find("matrix not positive definite") != std::string::npos) {
       el_severity = edm::ELseverityLevel::ELsev_info;
+      die = false;
+    }
+
+// Intercept some messages and upgrade the severity
+
+    if ((el_location.find("TBranchElement::Fill") != std::string::npos)
+     && (el_message.find("fill branch") != std::string::npos)
+     && (el_message.find("address") != std::string::npos)
+     && (el_message.find("not set") != std::string::npos)) {
+      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      die = true;
+    }
+
+    if ((el_message.find("Tree branches") != std::string::npos)
+     && (el_message.find("different numbers of entries") != std::string::npos)) {
+      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      die = true;
     }
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
-  if ( el_severity == edm::ELseverityLevel::ELsev_fatal )
-    {
-      edm::LogError("Root_Fatal") << el_location << el_message;
-    }
-  else if ( el_severity == edm::ELseverityLevel::ELsev_severe )
-    {
-      edm::LogError("Root_Severe") << el_location << el_message;
-    }
-  else if ( el_severity == edm::ELseverityLevel::ELsev_error )
-    { 
-      edm::LogError("Root_Error") << el_location << el_message;
-    }
-  else if ( el_severity == edm::ELseverityLevel::ELsev_warning )
-    {
-      edm::LogWarning("Root_Warning") << el_location << el_message ; 
-    }
-  else if ( el_severity == edm::ELseverityLevel::ELsev_info )
-    {
-      edm::LogInfo("Root_Information") << el_location << el_message ; 
-    }
+  if (el_severity == edm::ELseverityLevel::ELsev_fatal && !die) {
+    edm::LogError("Root_Fatal") << el_location << el_message;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_severe && !die) {
+    edm::LogError("Root_Severe") << el_location << el_message;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_error && !die) {
+    edm::LogError("Root_Error") << el_location << el_message;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_warning && !die) {
+    edm::LogWarning("Root_Warning") << el_location << el_message ;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_info && !die) {
+    edm::LogInfo("Root_Information") << el_location << el_message ;
+  }
 
 // Root has declared a fatal error.  Throw an EDMException.
 
    if (die) {
 // Throw an edm::Exception instead of just aborting
      std::ostringstream sstr;
-     sstr << "Fatal Root error " << el_message;
+     sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
      edm::Exception except(edm::errors::FatalRootError, sstr.str());
      throw except;
    }
