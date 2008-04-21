@@ -13,10 +13,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfo.h"
 #include "MixingModule.h"
-
-const int  edm::MixingModule::lowTrackTof = -36; 
-const int  edm::MixingModule::highTrackTof = 36; 
-const int  edm::MixingModule::limHighLowTof = 36; 
+#include "MixingWorker.h"
 
 
 using namespace std;
@@ -40,19 +37,52 @@ namespace edm
       sel_=new Selector( MatchAllSelector());
     }
 
-    // declare the product to produce
-    for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
-      produces<CrossingFrame<PSimHit> > (simHitSubdetectors_[ii]);
-    }
+    // create worker for selected objects
+    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),maxNbSources_,sel_));  
+    produces<CrossingFrame<SimTrack> >();
+
+    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),maxNbSources_,sel_)); 
+    produces<CrossingFrame<SimVertex> >();
+
+    workers_.push_back(new MixingWorker<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),maxNbSources_,sel_));  
+    produces<CrossingFrame<edm::HepMCProduct> >();
+
+    //FIXME: no need to keep selectors for the moment!
     for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
+      caloSelectors_.push_back(new Selector(*sel_ && ProductInstanceNameSelector(caloSubdetectors_[ii])));
+      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,caloSubdetectors_[ii],maxNbSources_,caloSelectors_[ii]));  
       produces<CrossingFrame<PCaloHit> > (caloSubdetectors_[ii]);
     }
-    produces<CrossingFrame<SimTrack> >();
-    produces<CrossingFrame<SimVertex> >();
-    produces<CrossingFrame<edm::HepMCProduct> >();
+    for (unsigned int ii=0;ii<nonTrackerPids_.size();ii++) {
+      simSelectors_.push_back(new Selector(*sel_ && ProductInstanceNameSelector(nonTrackerPids_[ii])));
+      workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,nonTrackerPids_[ii],maxNbSources_,simSelectors_[ii]));  
+      produces<CrossingFrame<PSimHit> > (nonTrackerPids_[ii]);
+    }
+    // we have to treat specially the tracker subdetectors
+    // in order to correctly treat the High/low Tof business
+    for (unsigned int ii=0;ii<trackerPids_.size();ii++) {
+
+      simSelectors_.push_back(new Selector(*sel_ && ProductInstanceNameSelector(trackerPids_[ii])));
+      workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,trackerPids_[ii],maxNbSources_,simSelectors_[simSelectors_.size()-1],true)); 
+      // here we have to give the opposite selector too (low for high, high for low)
+      Selector * simSelectorOpp;//FIXME: memleak
+      int slow=(trackerPids_[ii]).find("LowTof");//FIXME: to be done before when creating trackerPids
+      int iend=(trackerPids_[ii]).size();
+      if (slow>0) {
+ 	  std::string productInstanceNameOpp=trackerPids_[ii].substr(0,iend-6)+"HighTof";
+	  simSelectorOpp=new Selector(*sel_ && ProductInstanceNameSelector(productInstanceNameOpp));
+      }else{
+ 	  std::string productInstanceNameOpp=trackerPids_[ii].substr(0,iend-7)+"LowTof";
+	  simSelectorOpp=new Selector(*sel_ && ProductInstanceNameSelector(productInstanceNameOpp));
+      }
+      workers_[workers_.size()-1]->setOppositeSel(simSelectorOpp);
+      workers_[workers_.size()-1]->setCheckTof(ps.getUntrackedParameter<bool>("checktof",true));
     
-    //
-    produces<CrossingFramePlaybackInfo>();  //FIXME: dependent on existence of rndmstore?
+      produces<CrossingFrame<PSimHit> > (trackerPids_[ii]);
+    }
+
+    produces<CrossingFramePlaybackInfo>();
+
   }
 
   void MixingModule::getSubdetectorNames() {
@@ -69,19 +99,20 @@ namespace edm
 	LogInfo("Constructor") <<"Adding calo container "<<desc.productInstanceName_ <<" for mixing";
       }
       else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-	simHitSubdetectors_.push_back(desc.productInstanceName_);
+	//	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	nonTrackerPids_.push_back(desc.productInstanceName_);
         LogInfo("MixingModule") <<"Adding non tracker simhit container "<<desc.productInstanceName_ <<" for mixing";
       }
       else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-	simHitSubdetectors_.push_back(desc.productInstanceName_);
+	//	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	// here we store the tracker subdetector name  for low and high part
-	int slow=(desc.productInstanceName_).find("LowTof");
-	int iend=(desc.productInstanceName_).size();
-        if (slow>0) {
- 	  trackerHighLowPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
-	  LogInfo("MixingModule") <<"Adding tracker simhit container "<<desc.productInstanceName_.substr(0,iend-6) <<" for mixing";
-        }
+ 	  trackerPids_.push_back(desc.productInstanceName_);
+// 	int slow=(desc.productInstanceName_).find("LowTof");
+// 	int iend=(desc.productInstanceName_).size();
+//         if (slow>0) {
+//  	  trackerPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
+// 	  LogInfo("MixingModule") <<"Adding tracker simhit container "<<desc.productInstanceName_.substr(0,iend-6) <<" for mixing";
+//         }
       }
     }
   }
@@ -89,258 +120,72 @@ namespace edm
   }
 
   void MixingModule::createnewEDProduct() {
-    for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
-      cfSimHits_[simHitSubdetectors_[ii]]=new CrossingFrame<PSimHit>(minBunch_,maxBunch_,bunchSpace_,simHitSubdetectors_[ii],maxNbSources_);
-    }
-    for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
-      cfCaloHits_[caloSubdetectors_[ii]]=new CrossingFrame<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,caloSubdetectors_[ii],maxNbSources_);
-    }
-
-    cfTracks_=new CrossingFrame<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(" "),maxNbSources_);
-    cfVertices_=new CrossingFrame<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(" "),maxNbSources_);
-    cfHepMC_=new CrossingFrame<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(" "),maxNbSources_);
-
     //create playback info
     playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_,maxNbSources_); 
+
+    //and CrossingFrames
+   for (unsigned int ii=0;ii<workers_.size();ii++) 
+        workers_[ii]->createnewEDProduct();
   }
  
 
   // Virtual destructor needed.
   MixingModule::~MixingModule() { 
     delete sel_;
+    for (unsigned int ii=0;ii<workers_.size();ii++) 
+        delete workers_[ii];
   }  
 
   void MixingModule::addSignals(const edm::Event &e) { 
     // fill in signal part of CrossingFrame
 
     LogDebug("MixingModule")<<"===============> adding signals for "<<e.id();
-    std::map<std::string,CrossingFrame<PSimHit> * >::iterator it;
+    for (unsigned int ii=0;ii<workers_.size();ii++) 
+        workers_[ii]->addSignals(e);
 
-    // SimHits
-    std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
-    e.getMany((*sel_),resultsim);
-    int ss=resultsim.size();
+  }
 
-    for (int ii=0;ii<ss;ii++) {
-      edm::BranchDescription desc = resultsim[ii].provenance()->product();
-      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<", "<<resultsim[ii].product()->size()<<" signal Simhits to be added";
-      cfSimHits_[desc.productInstanceName_]->addSignals(resultsim[ii].product(),e.id());
-    }
+  void MixingModule::doPileUp(edm::Event &e)
+  {//     we first loop over workers
+    // in order not to keep all CrossingFrames in memory simultaneously
+    //
 
-    // CaloHits
-    std::map<std::string,CrossingFrame<PCaloHit> * >::iterator it2;
-
-    std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
-    e.getMany((*sel_),resultcalo);
-    int sc=resultcalo.size();
-
-    for (int ii=0;ii<sc;ii++) {
-      edm::BranchDescription desc = resultcalo[ii].provenance()->product();
-      LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<", "<<resultcalo[ii].product()->size()<<" signal Calohits to be added";
-      cfCaloHits_[desc.productInstanceName_]->addSignals(resultcalo[ii].product(),e.id());
-    }
-
-    //tracks and vertices
-    std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
-    e.getMany((*sel_),result_t);
-    int str=result_t.size();
-    if (str>1) LogWarning("MixingModule") << " Found "<<str<<" SimTrack collections in signal file, only first one will be stored!!!!!!";
-    if (str>0) {
-      edm::BranchDescription desc =result_t[0].provenance()->product();
-      LogDebug("MixingModule") <<" adding " << result_t[0].product()->size()<<" signal SimTracks";
-      cfTracks_->addSignals(result_t[0].product(),e.id());
-    }
-
-    std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
-    e.getMany((*sel_),result_v);
-    int sv=result_v.size();
-    if (sv>1) LogWarning("MixingModule") << " Found "<<sv<<" SimVertex collections in signal file, only first one will be stored!!!!!!";
-    if (sv>0) {
-      LogDebug("MixingModule") <<" adding " << result_v[0].product()->size()<<" signal Simvertices ";
-      cfVertices_->addSignals(result_v[0].product(),e.id());
-    }
-    
-    //HepMC - we are creating a dummy vector, to have the same storage (MixCollection!) + interfaces
-    std::vector<edm::Handle<edm::HepMCProduct> > result_mc;
-    e.getMany((*sel_),result_mc);
-    int smc=result_mc.size();
-    if (smc>1) LogWarning("MixingModule") << " Found "<<smc<<" HepMCProducte in signal file, only first one will be stored!!!!!!";
-    if (smc>0) {
-      LogDebug("MixingModule") <<" adding signal HepMCProduct";
-      std::vector<edm::HepMCProduct> vec;
-      vec.push_back(*(result_mc[0].product()));
-      cfHepMC_->addSignals(&vec,e.id());
+    for (unsigned int ii=0;ii<workers_.size();ii++) {
+      // we have to loop over bunchcrossings first since added objects are all stored in one vector, 
+      // ordered by bunchcrossing
+      for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+	workers_[ii]->setBcrOffset();
+	for (unsigned int isource=0;isource<maxNbSources_;++isource) {
+	  workers_[ii]->setSourceOffset(isource);
+	  if (doit_[isource])   {
+	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii);
+	  }	
+	}
+      }
+      workers_[ii]->put(e);
     }
   }
 
-  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr) {
+  void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr,unsigned int worker) {    // fill in pileup part of CrossingFrame
+
   
     LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
-    // SimHits
-    // we have to treat tracker/non tracker  containers separately, prepare a global map
-    // (all this due to the fact that we need to use getmany to avoid exceptions)
-    std::map<const std::string,const std::vector<PSimHit>* > simproducts;
-    std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
-    e->getMany((*sel_),resultsim);
-    int ss=resultsim.size();
-    for (int ii=0;ii<ss;ii++) {
-      edm::BranchDescription desc = resultsim[ii].provenance()->product();
-      simproducts.insert(std::map<const std::string,const std::vector<PSimHit>* >::value_type(desc.productInstanceName_, resultsim[ii].product()));
-    }
-
-    // Non-tracker treatment
-    for(std::vector <std::string>::iterator it = nonTrackerPids_.begin(); it != nonTrackerPids_.end(); ++it) {
-      const std::vector<PSimHit> * simhits = simproducts[(*it)];
-      if (simhits) {
-	if (simhits->size()) {
-	  cfSimHits_[(*it)]->addPileups(bcr,simhits,eventNr);
-	  LogDebug("MixingModule") <<"For "<<(*it)<<", "<<simhits->size()<<"  Simhits added";
-	}
-      }
-    }
-
-    // Tracker treatment
-    for(std::vector <std::string >::iterator itstr = trackerHighLowPids_.begin(); itstr != trackerHighLowPids_.end(); ++itstr) {
-      const std::string subdethigh=(*itstr)+"HighTof";
-      const std::string subdetlow=(*itstr)+"LowTof";
-
-      // do not read branches if clearly outside of tof bounds (and verification is asked for, default)
-      // add HighTof simhits to high and low signals
-      float tof = bcr*cfSimHits_[subdethigh]->getBunchSpace();
-      if ( !checktof_ || ((limHighLowTof +tof ) <= highTrackTof)) { 
-	const std::vector<PSimHit> * simhitshigh = simproducts[subdethigh];
-	if (simhitshigh) {
-          cfSimHits_[subdethigh]->addPileups(bcr,simhitshigh,eventNr,0,checktof_,true);
-	  cfSimHits_[subdetlow]->addPileups(bcr,simhitshigh,eventNr,0,checktof_,false);
-	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitshigh->size()<<" Hits added to high+low";
-	}
-      }
-
-      // add LowTof simhits to high and low signals
-      if (  !checktof_ || ((tof+limHighLowTof) >= lowTrackTof && tof <= highTrackTof)) {
-	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
-	if (simhitslow) {
-	  LogDebug("MixingModule") <<"For "<<subdethigh<<" + "<<subdetlow<<", "<<simhitslow->size()<<" Hits added to high+low";
-	  cfSimHits_[subdethigh]->addPileups(bcr,simhitslow,eventNr,0,checktof_,true);
-	  cfSimHits_[subdetlow]->addPileups(bcr,simhitslow,eventNr,0,checktof_,false);
-	}
-      }
-    }
-
-    // calo hits for all subdetectors
-    std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
-    e->getMany((*sel_),resultcalo);
-    int sc=resultcalo.size();
-    for (int ii=0;ii<sc;ii++) {
-      edm::BranchDescription desc = resultcalo[ii].provenance()->product();
-      if (resultcalo[ii].product()->size()) {
-	LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
-	cfCaloHits_[desc.productInstanceName_]->addPileups(bcr,resultcalo[ii].product(),eventNr);
-      }
-    }
-
-    //     //tracks and vertices
-    std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
-    e->getMany((*sel_),result_t);
-    int str=result_t.size();
-    if (str>1) LogWarning("MixingModule") <<"Too many SimTrack containers, should be only one!";
-    if (str>0) {
-      LogDebug("MixingModule") <<result_t[0].product()->size()<<"  Simtracks added, eventNr "<<eventNr;
-      if (result_t[0].isValid()) {
-	cfTracks_->addPileups(bcr,result_t[0].product(),eventNr,vertexoffset);
-      }
-      else  LogWarning("MixingModule") <<"Invalid simtracks!";
-    }
-
-    std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
-    e->getMany((*sel_),result_v);
-    int sv=result_v.size();
-    if (sv>1) LogWarning("MixingModule") <<"Too many SimVertex containers, should be only one!"; 
-    if (sv>0) {
-      LogDebug("MixingModule") <<result_v[0].product()->size()<<"  Simvertices added";
-      if (result_v[0].isValid()) {
-	cfVertices_->addPileups(bcr,result_v[0].product(),eventNr);
-      }
-      else  LogWarning("MixingModule") <<"Invalid simvertices!";
-      vertexoffset+=result_v[0].product()->size();
-    }
-
-    //HepMCProduct
-    //HepMC - we are creating a dummy vector, to have the same interfaces
-    std::vector<edm::Handle<edm::HepMCProduct> > result_mc;
-    e->getMany((*sel_),result_mc);
-    int smc=result_mc.size();
-    if (smc>1) LogWarning("MixingModule") <<"Too many HepMCProducts, should be only one!"; 
-    if (smc>0) {
-      LogDebug("MixingModule") <<"  HepMCProduct added";
-      std::vector<edm::HepMCProduct> vec;
-      vec.push_back(*(result_mc[0].product()));
-      cfHepMC_->addPileups(bcr,&vec,eventNr);
-    }
+        workers_[worker]->addPileups(bcr,e,eventNr,vertexoffset);
   }
-
-  void MixingModule::setBcrOffset() {
-    for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
-      cfSimHits_[simHitSubdetectors_[ii]]->setBcrOffset();
-    }
-    for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
-      cfCaloHits_[caloSubdetectors_[ii]]->setBcrOffset();
-    }
-    cfTracks_->setBcrOffset();
-    cfVertices_->setBcrOffset();
-    cfHepMC_->setBcrOffset();
-  }
-
   void MixingModule::setEventStartInfo(const unsigned int s) {
    playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
   }
 
-  void MixingModule::setSourceOffset(const unsigned int is) {
-    for (unsigned int ii=0;ii<simHitSubdetectors_.size();ii++) {
-      cfSimHits_[simHitSubdetectors_[ii]]->setSourceOffset(is);
-    }
-    for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
-      cfCaloHits_[caloSubdetectors_[ii]]->setSourceOffset(is);
-    }
-    cfTracks_->setSourceOffset(is);
-    cfVertices_->setSourceOffset(is);
-    cfHepMC_->setSourceOffset(is);
-  }
-
   void MixingModule::put(edm::Event &e) {
-    std::map<std::string,CrossingFrame<PSimHit> * >::iterator it;
-    for (it=cfSimHits_.begin();it!=cfSimHits_.end();it++) {
-      std::auto_ptr<CrossingFrame<PSimHit> > pOut((*it).second);
-      e.put(pOut,(*it).first);
-    }
-    std::map<std::string,CrossingFrame<PCaloHit> * >::iterator it2;
-    for (it2=cfCaloHits_.begin();it2!=cfCaloHits_.end();it2++) {
-      std::auto_ptr<CrossingFrame<PCaloHit> > pOut((*it2).second);
-      e.put(pOut,(*it2).first);
-    }
-    if (cfTracks_) {
-      e.put(std::auto_ptr<CrossingFrame<SimTrack> >(cfTracks_));
-    }
-    if (cfVertices_) {
-      std::auto_ptr<CrossingFrame<SimVertex> > pOut(cfVertices_);
-      e.put(pOut);
-    }
-    if (cfHepMC_) {
-      std::auto_ptr<CrossingFrame<edm::HepMCProduct> > pOut(cfHepMC_);
-      e.put(pOut);
-    }
-  
-    if (playbackInfo_) {
+
+   if (playbackInfo_) {
       std::auto_ptr<CrossingFramePlaybackInfo> pOut(playbackInfo_);
       e.put(pOut);
     }
   }
+  
   void MixingModule::getEventStartInfo(edm::Event & e, const unsigned int s) {
-    // read event start info from event
-    // and set it in BMixingModule
-    //    id_=EventID(0,0);
-    //    fileNr_=-1;
     if (playback_) {
  
       edm::Handle<CrossingFramePlaybackInfo>  playbackInfo_H;

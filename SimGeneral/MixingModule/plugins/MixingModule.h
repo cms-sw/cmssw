@@ -1,5 +1,5 @@
 #ifndef MixingModule_h
-#define SimMixingModule_h
+#define MixingModule_h
 
 /** \class MixingModule
  *
@@ -30,11 +30,13 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "MixingWorkerBase.h"
+
 #include <vector>
 #include <string>
 
 class CrossingFramePlaybackInfo;
-
+class MixingWorkerBase;
 namespace edm
 {
   class MixingModule : public BMixingModule
@@ -48,19 +50,13 @@ namespace edm
       virtual ~MixingModule();
 
       virtual void beginJob(edm::EventSetup const&iSetup);
-
-      // limits for tof to be considered for trackers
-      static const int lowTrackTof; //nsec
-      static const int highTrackTof;
-      static const int limHighLowTof;
  
     private:
       virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e); 
-      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId);
-      virtual void setBcrOffset();
-      virtual void setSourceOffset(const unsigned int s);
+      virtual void doPileUp(edm::Event &e);
+      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker);
       virtual void getSubdetectorNames();
       virtual void setEventStartInfo(const unsigned int s); // set in CF-s
       virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
@@ -70,20 +66,19 @@ namespace edm
       std::vector<std::string> caloSubdetectors_;
       // to distinguish simHitSubdetectors for tracker/non-tracker
       // this is necessary to know which ones have to be checked for ToF
-      std::vector<std::string> trackerHighLowPids_;
+      std::vector<std::string> trackerPids_;
       std::vector<std::string> nonTrackerPids_;
-
-      // in this map we put the CrossingFrame objects that were created per event
-      std::map<std::string,CrossingFrame<PSimHit> * > cfSimHits_;
-      std::map<std::string,CrossingFrame<PCaloHit> * > cfCaloHits_;
-      CrossingFrame<SimTrack> *cfTracks_;
-      CrossingFrame<SimVertex> *cfVertices_;
-      CrossingFrame<HepMCProduct> *cfHepMC_;
 
       CrossingFramePlaybackInfo *playbackInfo_;
 
       Selector * sel_;
       std::string label_;
+
+      std::vector<MixingWorkerBase *> workers_;
+      std::vector<MixingWorkerBase *> trackerWorkers_;
+      std::vector<Selector *> caloSelectors_;
+      std::vector<Selector *> simSelectors_;
+      std::vector<Selector *> simTrackerSelectors_;
 
     };
 }//edm
