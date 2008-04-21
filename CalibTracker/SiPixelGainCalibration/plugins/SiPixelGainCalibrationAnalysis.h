@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.12 2008/02/27 21:34:16 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.13 2008/03/03 10:25:29 chiochia Exp $
 //
 //
 
@@ -75,10 +75,11 @@ private:
 
   // flags
   bool reject_badpoints_;
-  bool savePixelHists_;
   bool reject_plateaupoints_;
   bool reject_single_entries_;
   double reject_badpoints_frac_;
+  bool bookBIGCalibPayload_;
+  bool savePixelHists_;
   double chi2Threshold_;
   double chi2ProbThreshold_;
   double maxGainInHist_;

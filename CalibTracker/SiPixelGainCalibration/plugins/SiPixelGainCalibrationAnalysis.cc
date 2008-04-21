@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.18 2008/02/27 21:34:16 fblekman Exp $
+// $Id: SiPixelGainCalibrationAnalysis.cc,v 1.19 2008/03/06 12:36:28 chiochia Exp $
 //
 //
 
@@ -37,6 +37,7 @@ SiPixelGainCalibrationAnalysis::SiPixelGainCalibrationAnalysis(const edm::Parame
   reject_plateaupoints_(iConfig.getUntrackedParameter<bool>("suppressPlateauInFit",true)),
   reject_single_entries_(iConfig.getUntrackedParameter<bool>("suppressPointsWithOneEntryOrLess",true)),
   reject_badpoints_frac_(iConfig.getUntrackedParameter<double>("suppressZeroAndPlateausInFitFrac",0)),
+  bookBIGCalibPayload_(iConfig.getUntrackedParameter<bool>("saveFullPayloads",false)),
   savePixelHists_(iConfig.getUntrackedParameter<bool>("savePixelLevelHists",false)),
   chi2Threshold_(iConfig.getUntrackedParameter<double>("minChi2NDFforHistSave",10)),
   chi2ProbThreshold_(iConfig.getUntrackedParameter<double>("minChi2ProbforHistSave",0.05)),
@@ -172,42 +173,66 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     edm::LogInfo("SiPixelGainCalibrationAnalysis") << "now creating database object for detid " << detid << std::endl;
     // Get the module sizes.
 
-    int nrows = bookkeeper_[detid]["gain_2d"]->getNbinsY();
-    int ncols = bookkeeper_[detid]["gain_2d"]->getNbinsX();   
-
+    size_t nrows = bookkeeper_[detid]["gain_2d"]->getNbinsY();
+    size_t ncols = bookkeeper_[detid]["gain_2d"]->getNbinsX();   
+    size_t nrowsrocsplit = theGainCalibrationDbInputHLT_->getNumberOfRowsToAverageOver();
+    if(theGainCalibrationDbInputOffline_->getNumberOfRowsToAverageOver()!=nrowsrocsplit)
+      throw  cms::Exception("GainCalibration Payload configuration error")
+	<< "[SiPixelGainCalibrationAnalysis::fillDatabase] ERROR the SiPixelGainCalibrationOffline and SiPixelGainCalibrationForHLT database payloads have different settings for the number of rows per roc: " << theGainCalibrationDbInputHLT_->getNumberOfRowsToAverageOver() << "(HLT), " << theGainCalibrationDbInputOffline_->getNumberOfRowsToAverageOver() << "(offline)";
     std::vector<char> theSiPixelGainCalibrationPerPixel;
     std::vector<char> theSiPixelGainCalibrationPerColumn;
     std::vector<char> theSiPixelGainCalibrationGainPerColPedPerPixel;
     
     // Loop over columns and rows of this DetID
     //    std::cout <<" now starting loop over pixels..." << std::endl;
-    for(int i=1; i<=ncols; i++) {
-      float pedforthiscol=0;
-      float gainforthiscol=0;
-      int nusedrows=0;
+    
+    for(size_t i=1; i<=ncols; i++) {
+      float pedforthiscol[2]={0,0};
+      float gainforthiscol[2]={0,0};
+      int nusedrows[2]={0,0};
       //      std::cout << "now lookign at col " << i << std::endl;
-      for(int j=1; j<=nrows; j++) {
+      for(size_t j=1; j<=nrows; j++) {
 	nchannels++;
+	int iglobalrow=0;
+	if(nrows>=nrowsrocsplit)
+	  iglobalrow=1;
 	float ped = bookkeeper_[detid]["ped_2d"]->getBinContent(i,j);
 	float gain = bookkeeper_[detid]["gain_2d"]->getBinContent(i,j);
 	
 	//	std::cout << "looking at pixel row,col " << j << ","<<i << " gain,ped=" <<gain << "," << ped << std::endl;
 	// and fill and convert in the SiPixelGainCalibration object:
-	theGainCalibrationDbInput_->setData(ped,gain,theSiPixelGainCalibrationPerPixel);
-	theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
+	if(ped==0 && gain==0){// dead pixel
+	  theGainCalibrationDbInput_->setDeadPixel(theSiPixelGainCalibrationPerPixel);
+	  theGainCalibrationDbInputOffline_->setDeadPixel(theSiPixelGainCalibrationGainPerColPedPerPixel);
+	}
+	else{// pixel not dead
+	  theGainCalibrationDbInput_->setData(ped,gain,theSiPixelGainCalibrationPerPixel);
+	  theGainCalibrationDbInputOffline_->setDataPedestal(ped, theSiPixelGainCalibrationGainPerColPedPerPixel);
+	
 	//	std::cout <<"done with database filling..." << std::endl;
 
-	pedforthiscol+=ped;
-	gainforthiscol+=gain;
-	nusedrows++;
+	  pedforthiscol[iglobalrow]+=ped;
+	  gainforthiscol[iglobalrow]+=gain;
+	  nusedrows[iglobalrow]++;
+	}
       }
-      if(nusedrows>0){
-	pedforthiscol/=nusedrows;
-	gainforthiscol/=nusedrows;
+      for(int ii=0; ii<2; ++ii){
+	if(nusedrows[ii]>0){
+	  pedforthiscol[ii]/=(float)nusedrows[ii];
+	  gainforthiscol[ii]/=(float)nusedrows[ii];
+	  if(nusedrows[ii]=0){// dead column!
+
+	    theGainCalibrationDbInputOffline_->setDeadColumn(nrowsrocsplit,theSiPixelGainCalibrationGainPerColPedPerPixel);
+	    theGainCalibrationDbInputHLT_->setDeadColumn(nrowsrocsplit,theSiPixelGainCalibrationPerColumn);
+	  }
+	  else{// good column
+	    theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol[ii],nrowsrocsplit,theSiPixelGainCalibrationGainPerColPedPerPixel);
+	    theGainCalibrationDbInputHLT_->setData(pedforthiscol[ii],gainforthiscol[ii],theSiPixelGainCalibrationPerColumn);
+	  }
+	}
       }
+     
       //      std::cout << "filling objects..." << std::endl;
-      theGainCalibrationDbInputOffline_->setDataGain(gainforthiscol,nrows,theSiPixelGainCalibrationGainPerColPedPerPixel);
-      theGainCalibrationDbInputHLT_->setData(pedforthiscol,gainforthiscol,theSiPixelGainCalibrationPerColumn);
 	
     }
 
@@ -218,11 +243,12 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     
     //    std::cout <<"putting things in db..." << std::endl;
     // now start creating the various database objects
-    if( !theGainCalibrationDbInput_->put(detid,range,ncols) )
-      edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Pixel-level calibration database"<<std::endl;
+    if( bookBIGCalibPayload_)
+      if( !theGainCalibrationDbInput_->put(detid,range,ncols) )
+	edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Pixel-level calibration database"<<std::endl;
     if( !theGainCalibrationDbInputOffline_->put(detid,offlinerange,ncols) )
       edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for Offline (gain per col, ped per pixel) calibration database"<<std::endl;
-    if(!theGainCalibrationDbInputHLT_->put(detid,hltrange) )
+    if(!theGainCalibrationDbInputHLT_->put(detid,hltrange, ncols) )
       edm::LogError("SiPixelGainCalibrationAnalysis")<<"warning: detid already exists for HLT (pedestal and gain per column) calibration database"<<std::endl;
   }
   
@@ -235,12 +261,12 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
     edm::LogError("db service unavailable");
     return;
     if( mydbservice->isNewTagRequest(recordName_) ){
-      
-      mydbservice->createNewIOV<SiPixelGainCalibration>(
-							theGainCalibrationDbInput_, 
-							mydbservice->beginOfTime(),
-							mydbservice->endOfTime(),
-							recordName_);
+      if( bookBIGCalibPayload_)
+	mydbservice->createNewIOV<SiPixelGainCalibration>(
+							  theGainCalibrationDbInput_, 
+							  mydbservice->beginOfTime(),
+							  mydbservice->endOfTime(),
+							  recordName_);
       
       mydbservice->createNewIOV<SiPixelGainCalibrationForHLT>(
 							   theGainCalibrationDbInputHLT_,
@@ -256,21 +282,21 @@ void SiPixelGainCalibrationAnalysis::fillDatabase(){
       
     } 
     else {
-      
-      mydbservice->appendSinceTime<SiPixelGainCalibration>(
-							   theGainCalibrationDbInput_, 
-							   mydbservice->currentTime(),
-							   recordName_);
+      if( bookBIGCalibPayload_)
+	mydbservice->appendSinceTime<SiPixelGainCalibration>(
+							     theGainCalibrationDbInput_, 
+							     mydbservice->currentTime(),
+							     recordName_);
       
       mydbservice->appendSinceTime<SiPixelGainCalibrationForHLT>(
-							   theGainCalibrationDbInputHLT_, 
-							   mydbservice->currentTime(),
-							   recordName_);
+								 theGainCalibrationDbInputHLT_, 
+								 mydbservice->currentTime(),
+								 recordName_);
       
       mydbservice->appendSinceTime<SiPixelGainCalibrationOffline>(
-							   theGainCalibrationDbInputOffline_, 
-							   mydbservice->currentTime(),
-							   recordName_);
+								  theGainCalibrationDbInputOffline_, 
+								  mydbservice->currentTime(),
+								  recordName_);
     }
     edm::LogInfo(" --- all OK");
   } 
