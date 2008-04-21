@@ -7,10 +7,11 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
         tag = cms.string('TibTidTecAllSurvey_v2')
-    ), cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
-        tag = cms.string('TibTidTecAllSurveyAPE_v2')
-    ))
+    ), 
+        cms.PSet(
+            record = cms.string('TrackerAlignmentErrorRcd'),
+            tag = cms.string('TibTidTecAllSurveyAPE_v2')
+        ))
 )
 
 #
@@ -18,6 +19,7 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
 # It assumes the standard geometry builder is used:
 # include "Geometry/TrackerGeometryBuilder/data/trackerGeometry.cfi"
 TrackerDigiGeometryESModule.applyAlignment = True
-CondDBCommon.connect = 'oracle://cms_orcoff_int2r/CMS_COND_ALIGNMENT'
+CondDBCommon.connect = 'oracle://cms_orcoff_int2r/CMS_COND_ALIGNMENT' ##cms_orcoff_int2r/CMS_COND_ALIGNMENT"
+
 CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 

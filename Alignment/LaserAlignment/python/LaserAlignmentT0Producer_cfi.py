@@ -17,19 +17,22 @@ laserAlignmentT0Producer = cms.EDProducer("LaserAlignmentT0Producer",
         DigiLabel = cms.string('ZeroSuppressed'),
         DigiType = cms.string('Processed'),
         DigiProducer = cms.string('SiStripDigis')
-    ), cms.PSet(
-        DigiLabel = cms.string('VirginRaw'),
-        DigiType = cms.string('Raw'),
-        DigiProducer = cms.string('SiStripDigis')
-    ), cms.PSet(
-        DigiLabel = cms.string('ProcessedRaw'),
-        DigiType = cms.string('Raw'),
-        DigiProducer = cms.string('SiStripDigis')
-    ), cms.PSet(
-        DigiLabel = cms.string('ScopeMode'),
-        DigiType = cms.string('Raw'),
-        DigiProducer = cms.string('SiStripDigis')
-    ))
+    ), 
+        cms.PSet(
+            DigiLabel = cms.string('VirginRaw'),
+            DigiType = cms.string('Raw'),
+            DigiProducer = cms.string('SiStripDigis')
+        ), 
+        cms.PSet(
+            DigiLabel = cms.string('ProcessedRaw'),
+            DigiType = cms.string('Raw'),
+            DigiProducer = cms.string('SiStripDigis')
+        ), 
+        cms.PSet(
+            DigiLabel = cms.string('ScopeMode'),
+            DigiType = cms.string('Raw'),
+            DigiProducer = cms.string('SiStripDigis')
+        ))
 )
 
 

@@ -7,17 +7,16 @@ import FWCore.ParameterSet.Config as cms
 #
 # this case: only rotations as misalignments
 #
+from Alignment.LaserAlignment.BeamProfileFitter_cff import *
+from Alignment.LaserAlignment.LaserAlignmentAlgorithm_cff import *
 LaserAlignmentShiftsAndRotations = cms.EDFilter("LaserAlignment",
+    # configuration of the AlignmentAlgorithm
+    LaserAlignmentAlgorithm,
+    # configuration of the BeamProfileFitter
+    BeamProfileFitterBlock,
     MinAdcCounts = cms.untracked.int32(0),
     SearchWindowPhiTIB = cms.untracked.double(0.05),
     NumberOfEventsForAllIntensities = cms.untracked.int32(1000),
-    BeamProfileFitter = cms.PSet(
-        ScaleHistogramBeforeFit = cms.untracked.bool(True),
-        ClearHistogramAfterFit = cms.untracked.bool(True),
-        BSAnglesSystematic = cms.untracked.double(0.0007),
-        CorrectBeamSplitterKink = cms.untracked.bool(True),
-        MinimalSignalHeight = cms.untracked.double(0.0)
-    ),
     UseBrunosAlignmentAlgorithm = cms.untracked.bool(False),
     saveHistograms = cms.untracked.bool(False),
     DoAlignmentAfterNEvents = cms.untracked.int32(25000),
@@ -30,14 +29,6 @@ LaserAlignmentShiftsAndRotations = cms.EDFilter("LaserAlignment",
     )),
     ROOTFileCompression = cms.untracked.int32(1),
     AlignPosTEC = cms.untracked.bool(False),
-    AlignmentAlgorithm = cms.PSet(
-        SecondFixedParameterTEC2TEC = cms.untracked.int32(3),
-        FirstFixedParameterTEC2TEC = cms.untracked.int32(2),
-        FirstFixedParameterNegTEC = cms.untracked.int32(2),
-        SecondFixedParameterNegTEC = cms.untracked.int32(3),
-        SecondFixedParameterPosTEC = cms.untracked.int32(3),
-        FirstFixedParameterPosTEC = cms.untracked.int32(2)
-    ),
     SearchWindowZTOB = cms.untracked.double(1.0),
     saveToDbase = cms.untracked.bool(False),
     DebugLevel = cms.untracked.int32(4),

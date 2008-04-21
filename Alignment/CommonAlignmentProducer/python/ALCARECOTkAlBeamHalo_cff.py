@@ -10,6 +10,8 @@ from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
 ALCARECOTkAlBeamHalo = copy.deepcopy(AlignmentTrackSelector)
 seqALCARECOTkAlBeamHalo = cms.Sequence(ALCARECOTkAlBeamHalo)
 ALCARECOTkAlBeamHalo.src = 'ctfWithMaterialTracksBeamHaloMuon'
+ALCARECOTkAlBeamHalo.filter = True ##do not store empty events
+
 ALCARECOTkAlBeamHalo.applyBasicCuts = True
 ALCARECOTkAlBeamHalo.ptMin = 0.0 ##GeV
 

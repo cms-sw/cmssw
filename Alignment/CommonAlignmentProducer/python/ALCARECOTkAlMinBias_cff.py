@@ -11,6 +11,8 @@ seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT+ALCARECOTkAlMinBias
 ALCARECOTkAlMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
 
 ALCARECOTkAlMinBiasHLT.HLTPaths = ['HLTMinBias', 'HLTMinBiasPixel']
+ALCARECOTkAlMinBias.filter = True ##do not store empty events	
+
 ALCARECOTkAlMinBias.applyBasicCuts = True
 ALCARECOTkAlMinBias.ptMin = 1.5 ##GeV
 

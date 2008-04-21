@@ -12,6 +12,8 @@ ALCARECOTkAlWMuNuHLT.andOr = True ## choose logical OR between Triggerbits
 
 ALCARECOTkAlWMuNuHLT.HLTPaths = ['HLT1MuonIso'] ##these need further studies
 
+ALCARECOTkAlWMuNu.filter = True ##do not store empty events
+
 ALCARECOTkAlWMuNu.applyBasicCuts = True
 ALCARECOTkAlWMuNu.ptMin = 20.0 ##GeV
 

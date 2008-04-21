@@ -39,7 +39,8 @@ SurveyInfoScenario = cms.PSet(
             dY = cms.double(-0.2)
         )
     ),
-    saveToDbase = cms.untracked.bool(False),
+    saveToDbase = cms.untracked.bool(False), ## This is actually the default
+
     # TOB
     TOBs = cms.PSet(
         dZ = cms.double(-0.14)
@@ -279,6 +280,7 @@ SurveyInfoScenario = cms.PSet(
     ),
     distribution = cms.string('fixed'),
     setError = cms.bool(False),
-    dumpAfter = cms.untracked.bool(False)
+    dumpAfter = cms.untracked.bool(False) ## This is actually the default
+
 )
 

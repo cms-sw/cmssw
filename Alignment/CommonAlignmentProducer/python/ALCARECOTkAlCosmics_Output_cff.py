@@ -1,8 +1,6 @@
 # The following comments couldn't be translated into the new config version:
 
 # for cosmics keep also clusters
-# Select as an OR of filters for both tracking algorithms: 
-
 import FWCore.ParameterSet.Config as cms
 
 # Author     : Gero Flucke
@@ -11,8 +9,11 @@ import FWCore.ParameterSet.Config as cms
 # AlCaReco for track based alignment using Cosmic muon events
 OutALCARECOTkAlCosmics = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOTkAlCosmicsCTF', 'pathALCARECOTkAlCosmicsCosmicTF')
+        SelectEvents = cms.vstring('pathALCARECOTkAlCosmicsCTF', 
+            'pathALCARECOTkAlCosmicsCosmicTF')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep *_ALCARECOTkAlCosmics*_*_*', 'keep Si*Cluster*_*_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_ALCARECOTkAlCosmics*_*_*', 
+        'keep Si*Cluster*_*_*_*')
 )
 

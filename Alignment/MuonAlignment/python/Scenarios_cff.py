@@ -10,12 +10,15 @@ import FWCore.ParameterSet.Config as cms
 # -----------------------------------------------------------------------
 # General settings common to all scenarios
 MuonMisalignmentScenarioSettings = cms.PSet(
-    dumpBefore = cms.untracked.bool(False),
-    saveToDbase = cms.untracked.bool(False),
+    dumpBefore = cms.untracked.bool(False), ## This is actually the default
+
+    saveToDbase = cms.untracked.bool(False), ## This is actually the default
+
     seed = cms.int32(1234567),
     distribution = cms.string('gaussian'),
     setError = cms.bool(True),
-    dumpAfter = cms.untracked.bool(False)
+    dumpAfter = cms.untracked.bool(False) ## This is actually the default
+
 )
 # -----------------------------------------------------------------------
 # Example scenario (dummy movements)

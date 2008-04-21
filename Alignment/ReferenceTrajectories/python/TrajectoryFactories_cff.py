@@ -35,12 +35,11 @@ ReferenceTrajectoryFactory = cms.PSet(
     ParticleMass = cms.double(0.10565836),
     TrajectoryFactoryName = cms.string('ReferenceTrajectoryFactory')
 )
-Bzero#
 #
 # ReferenceTrajectoryFactory
 #
 #
-ReferenceTrajectoryFactory = cms.PSet(
+BzeroReferenceTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase,
     ParticleMass = cms.double(0.10565836),
     TrajectoryFactoryName = cms.string('BzeroReferenceTrajectoryFactory'),
@@ -105,7 +104,8 @@ CombinedTrajectoryFactory = cms.PSet(
         VarXZ = cms.double(0.0),
         VarZZ = cms.double(1000.0)
     ),
-    TrajectoryFactoryNames = cms.vstring('TwoBodyDecayTrajectoryFactory', 'ReferenceTrajectoryFactory'),
+    TrajectoryFactoryNames = cms.vstring('TwoBodyDecayTrajectoryFactory', 
+        'ReferenceTrajectoryFactory'),
     UseRefittedState = cms.bool(True),
     ParticleMass = cms.double(0.10565836),
     EstimatorParameters = cms.PSet(

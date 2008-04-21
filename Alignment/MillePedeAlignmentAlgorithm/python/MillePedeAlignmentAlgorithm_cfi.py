@@ -1,8 +1,5 @@
 # The following comments couldn't be translated into the new config version:
 
-# Must be empty if mille runs, otherwise for merging (pede) jobs should be parallel with each
-# other. Then 'treeFile' is merged result and 'binaryFile' should be empty.
-
 # min. number of measurements (parameters with less will be skipped)
 # "chisqcut  20.0  4.5", # simple chi^2 cut for outliers OR ...
 # "outlierdownweighting 3", "dwfractioncut 0.1" #, # ... 3x Huber down weighting OR...
@@ -26,6 +23,8 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     ),
     monitorFile = cms.untracked.string('millePedeMonitor.root'), ## if empty: no monitoring...
 
+    # Must be empty if mille runs, otherwise for merging (pede) jobs should be parallel with each
+    # other. Then 'treeFile' is merged result and 'binaryFile' should be empty.
     mergeBinaryFiles = cms.vstring(),
     pedeReaderInput = cms.PSet(
         fileDir = cms.untracked.string('./'),
@@ -40,7 +39,10 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         # All this is determined from what is given as 
         # AlignmentProducer.ParameterBuilder.Selector, cf. Twiki page SWGuideMillepedeIIAlgorithm.
         Presigmas = cms.VPSet(),
-        options = cms.vstring('entries 50', 'outlierdownweighting 4', 'dwfractioncut 0.2', 'bandwidth 6'),
+        options = cms.vstring('entries 50', 
+            'outlierdownweighting 4', 
+            'dwfractioncut 0.2', 
+            'bandwidth 6'),
         steerFile = cms.string('pedeSteer'), ## beginning of steering file names
 
         pedeDump = cms.untracked.string('pede.dump'),

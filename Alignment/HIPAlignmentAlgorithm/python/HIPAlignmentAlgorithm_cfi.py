@@ -1,6 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# no survey constraint
 import FWCore.ParameterSet.Config as cms
 
 # parameters for HIPAlignmentAlgorithm
@@ -11,7 +8,8 @@ HIPAlignmentAlgorithm = cms.PSet(
     collectorNJobs = cms.int32(0),
     uvarFile = cms.string('IOUserVariables.root'),
     apeParam = cms.VPSet(cms.PSet(
-        function = cms.string('linear'),
+        function = cms.string('linear'), ## linear or exponential
+
         apeRPar = cms.vdouble(0.0, 0.0, 3.0),
         apeSPar = cms.vdouble(0.2, 0.0, 3.0),
         Selector = cms.PSet(
@@ -28,7 +26,8 @@ HIPAlignmentAlgorithm = cms.PSet(
     eventPrescale = cms.int32(20),
     outfile = cms.string('HIPAlignmentEvents.root'),
     maxAllowedHitPull = cms.double(-1.0),
-    surveyResiduals = cms.untracked.vstring(),
+    surveyResiduals = cms.untracked.vstring(), ## no survey constraint
+
     misalignedFile = cms.string('IOMisalignedPositions.root'),
     minimumNumberOfHits = cms.int32(50),
     verbosity = cms.bool(False),

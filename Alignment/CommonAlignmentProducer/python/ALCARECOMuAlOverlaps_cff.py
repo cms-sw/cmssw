@@ -16,6 +16,6 @@ ALCARECOMuAlOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
 )
 
 seqALCARECOMuAlOverlaps = cms.Sequence(ALCARECOMuAlOverlapsHLT+ALCARECOMuAlOverlapsMuonSelector*ALCARECOMuAlOverlaps)
-ALCARECOMuAlOverlapsHLT.HLTPaths = ['HLT1MuonIso', 'HLT1MuonNonIso']
+ALCARECOMuAlOverlapsHLT.HLTPaths = ['HLT1MuonPrescalePt3', 'HLT1MuonPrescalePt5', 'HLT1MuonIso', 'HLT1MuonNonIso']
 ALCARECOMuAlOverlapsMuonSelector.ptMin = 3.
 

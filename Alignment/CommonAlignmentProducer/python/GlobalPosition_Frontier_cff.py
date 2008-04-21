@@ -1,3 +1,6 @@
+# The following comments couldn't be translated into the new config version:
+
+#FrontierProd/CMS_COND_20X_ALIGNMENT"
 import FWCore.ParameterSet.Config as cms
 
 import copy

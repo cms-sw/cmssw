@@ -11,6 +11,8 @@ seqALCARECOTkAlJpsiMuMu = cms.Sequence(ALCARECOTkAlJpsiMuMuHLT+ALCARECOTkAlJpsiM
 ALCARECOTkAlJpsiMuMuHLT.andOr = True ## choose logical OR between Triggerbits
 
 ALCARECOTkAlJpsiMuMuHLT.HLTPaths = ['HLT2MuonJPsi', 'HLTBJPsiMuMu']
+ALCARECOTkAlJpsiMuMu.filter = True ##do not store empty events
+
 ALCARECOTkAlJpsiMuMu.applyBasicCuts = True
 ALCARECOTkAlJpsiMuMu.ptMin = 0.8 ##GeV
 

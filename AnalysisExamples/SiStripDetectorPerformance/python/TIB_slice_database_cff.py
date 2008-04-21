@@ -6,13 +6,15 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('SiStripPedestalsRcd'),
         tag = cms.string('SiStripPedNoise_TIBD_v1_p')
-    ), cms.PSet(
-        record = cms.string('SiStripNoisesRcd'),
-        tag = cms.string('SiStripPedNoise_TIBD_v1_n')
-    ), cms.PSet(
-        record = cms.string('SiStripFedCablingRcd'),
-        tag = cms.string('SiStripCabling_TIBD_v1')
-    )),
+    ), 
+        cms.PSet(
+            record = cms.string('SiStripNoisesRcd'),
+            tag = cms.string('SiStripPedNoise_TIBD_v1_n')
+        ), 
+        cms.PSet(
+            record = cms.string('SiStripFedCablingRcd'),
+            tag = cms.string('SiStripCabling_TIBD_v1')
+        )),
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
         loadBlobStreamer = cms.untracked.bool(True)

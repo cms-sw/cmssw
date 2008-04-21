@@ -5,6 +5,10 @@ OutALCARECOMuAlBeamHaloOverlaps = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOMuAlBeamHaloOverlaps')
     ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep *_ALCARECOMuAlBeamHaloOverlaps_*_*', 'keep *_muonCSCDigis_*_*', 'keep *_csc2DRecHits_*_*', 'keep *_cscSegments_*_*')
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_ALCARECOMuAlBeamHaloOverlaps_*_*', 
+        'keep *_muonCSCDigis_*_*', 
+        'keep *_csc2DRecHits_*_*', 
+        'keep *_cscSegments_*_*')
 )
 
