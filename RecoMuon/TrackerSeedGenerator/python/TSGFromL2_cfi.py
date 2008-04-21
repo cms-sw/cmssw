@@ -11,15 +11,12 @@ hltL3TrajectorySeedFromL2 = cms.EDFilter("TSGFromL2Muon",
     # to redefine do
     # replace hltL3TrajectorySeedFromL2.TSGFromPixelPairs.TTRHBuilder = ""
     TSGsBlock,
+    TrackerSeedCleanerCommon,
     #ServiceParameters
     MuonServiceProxy,
     tkSeedGenerator = cms.string('TSGFromCombinedHits'),
     UseTFileService = cms.untracked.bool(False),
     MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
-    #using TrackerSeedCleanerCommon
-    TrackerSeedCleaner = cms.PSet(
-
-    ),
     #this should not exist there !
     PtCut = cms.double(1.0)
 )
