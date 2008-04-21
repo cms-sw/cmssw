@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     $Revision: 1.2 $
+#     $Date: 2008/04/15 17:47:43 $
 #
 #  produce cfg file for merging run
 #
@@ -111,15 +111,12 @@ if ($nn != 1) {
   print "No MillePedeAlignmentAlgorithm.mode directive found, adding one to replace block\n";
 }
 
-# set output directory
-$nn = ($body =~ s/string fileDir \= \"\"/string fileDir \= \"$mergeDir\"/);
-if ($nn != 1) {
-  $replaceBlock = "$replaceBlock\n   replace MillePedeAlignmentAlgorithm.fileDir = \"$mergeDir\"";
-  print "No MillePedeAlignmentAlgorithm.fileDir directive found, adding one to replace block\n";
-  # EM: empty fileDir fix for CMSSW_175 
-#  $replaceBlock = "$replaceBlock\n   replace MillePedeAlignmentAlgorithm.fileDir = \"\"";
-#  print "No MillePedeAlignmentAlgorithm.fileDir directive found, adding empty one to replace block\n";
-}
+## set output directory: not any more to prevent too long file names for pede
+#$nn = ($body =~ s/string fileDir \= \"\"/string fileDir \= \"$mergeDir\"/);
+#if ($nn != 1) {
+#  $replaceBlock = "$replaceBlock\n   replace MillePedeAlignmentAlgorithm.fileDir = \"$mergeDir\"";
+#  print "No MillePedeAlignmentAlgorithm.fileDir directive found, adding one to replace block\n";
+#}
 
 # blank binary output file string
 $nn = ($body =~ s/binaryFile \= \".+?\"/binaryFile \= \"\"/);
