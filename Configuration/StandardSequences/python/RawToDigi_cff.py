@@ -19,6 +19,7 @@ from Geometry.RPCGeometry.rpcGeometry_cfi import *
 #-------------------------#
 #--- L1 Setup ---#
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
+from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
 from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
