@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <iostream>
 #include <utility>
 
 // Abstract base class provides common interface to different payload getters 
@@ -26,8 +27,10 @@ class SiPixelGainCalibrationServiceBase {
    public:
       SiPixelGainCalibrationServiceBase(){};
       virtual ~SiPixelGainCalibrationServiceBase(){};
-      virtual float getGain(const uint32_t& detID, const int& col, const int& row)=0;
-      virtual float getPedestal(const uint32_t& detID, const int& col, const int& row)=0;
+      virtual float getGain      ( const uint32_t& detID , const int& col , const int& row)=0;
+      virtual float getPedestal  ( const uint32_t& detID , const int& col , const int& row)=0;
+      virtual bool  isDead       ( const uint32_t& detID , const int& col , const int& row)=0;
+      virtual bool  isDeadColumn ( const uint32_t& detID , const int& col , const int& row)=0;
       virtual void  setESObjects(const edm::EventSetup& es )=0;
       virtual std::vector<uint32_t> getDetIds()=0;
 };
@@ -61,7 +64,7 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
   float   getPedestalByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn) ;
   float   getGainByColumn(const uint32_t& detID,const int& col, const int& row, bool& isDeadColumn) ;
 
-  void    throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row) const;
+  void    throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, double value) const;
 
  private:
 
@@ -235,11 +238,12 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
 }
 
 template<class thePayloadObject, class theDBRecordType>
-void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row) const
+void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, const double value = -1) const
 {
-   throw cms::Exception("SiPixelGainCalibration")
+   std::cout << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
+  /* throw cms::Exception("SiPixelGainCalibration") */
       << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead. For payload: " << payload << "  DETID: " 
-      << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data!";
+      << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
 }
 
 

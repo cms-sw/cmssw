@@ -126,14 +126,30 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 //  	   gain =  2.8;
 //  	   ped  = 28.2;
 
-           if (j >= 80)
-              gain += 3; //add an offset for testing
+           //if in the second row of rocs (i.e. a 2xN plaquette) add an offset (if desired) for testing
+           if (j >= 80) 
+           {
+              ped += secondRocRowPedOffset_;
+              gain += secondRocRowGainOffset_;
+
+              if (gain > maxgain)
+                 gain = maxgain;
+              else if (gain < mingain)
+                 gain = mingain;
+
+              if (ped > maxped)
+                 ped = maxped;
+              else if (ped < minped)
+                 ped = minped;
+           }
+
            totalGain    += gain;
 
            SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
            if ((j + 1)  % 80 == 0) // fill the column average after ever ROC!
            {
               float averageGain      = totalGain/static_cast<float>(80);
+              //std::cout << "Filling gain " << averageGain << " for col: " << i << " row: " << j << std::endl;
               SiPixelGainCalibration_->setDataGain( averageGain , 80, theSiPixelGainCalibration);
               totalGain = 0;
            }

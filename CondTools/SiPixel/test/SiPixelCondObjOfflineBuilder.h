@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineBuilder.h,v 1.7 2007/06/25 14:21:06 chiochia Exp $
+// $Id: SiPixelCondObjOfflineBuilder.h,v 1.1 2008/02/06 16:08:22 friis Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -54,6 +54,8 @@ private:
   double rmsPed_;
   double meanGain_;
   double rmsGain_;
+  double secondRocRowGainOffset_;
+  double secondRocRowPedOffset_;
   int numberOfModules_;
   bool fromFile_;
   std::string fileName_; 

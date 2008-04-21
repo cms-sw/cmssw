@@ -117,23 +117,34 @@ SiPixelCondObjForHLTBuilder::analyze(const edm::Event& iEvent, const edm::EventS
 	   }
 
 // 	   if(i==mycol && j==myrow) {
-	   //	     std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
 // 	   }
 
 // 	   gain =  2.8;
 // 	   ped  = 28.2;
 
-           if (j > 80) //TESTING
+           //if in the second row of rocs (i.e. a 2xN plaquette) add an offset (if desired) for testing
+           if (j >= 80) 
            {
-              ped -= 8;
-              gain += 5;
+              ped += secondRocRowPedOffset_;
+              gain += secondRocRowGainOffset_;
+
+              if (gain > maxgain)
+                 gain = maxgain;
+              else if (gain < mingain)
+                 gain = mingain;
+
+              if (ped > maxped)
+                 ped = maxped;
+              else if (ped < minped)
+                 ped = minped;
            }
 
            totalPed     += ped;
            totalGain    += gain;
 
-           if (j + 1 % 80 == 0) 
+           if ((j + 1) % 80 == 0)  
            {
+	      //std::cout << "Filling   Col "<<i<<" Row "<<j<<" Ped "<<totalPed<<" Gain "<<totalGain<<std::endl;
               float averagePed       = totalPed/static_cast<float>(80);
               float averageGain      = totalGain/static_cast<float>(80);
               //only fill by column after each roc

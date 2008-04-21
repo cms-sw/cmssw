@@ -21,7 +21,7 @@ float SiPixelGainCalibrationOfflineService::getPedestal( const uint32_t& detID,c
    bool isDead = false;
    float pedestalValue = this->getPedestalByPixel(detID, col, row, isDead);
    if (isDead)
-      this->throwExepctionForBadRead("Offline", detID, col, row);
+      this->throwExepctionForBadRead("Offline getPedestal()", detID, col, row, pedestalValue);
    return pedestalValue;
 }
 
@@ -30,7 +30,7 @@ float SiPixelGainCalibrationOfflineService::getGain( const uint32_t& detID,const
    bool isDead = false;
    float gainValue = this->getGainByColumn(detID, col, row, isDead);
    if (isDead)
-      this->throwExepctionForBadRead("Offline", detID, col, row);
+      this->throwExepctionForBadRead("Offline getGain()", detID, col, row, gainValue);
    return gainValue;
 }
 

@@ -24,6 +24,8 @@ SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) :
       rmsPed_(conf_.getParameter<double>("rmsPed")),
       meanGain_(conf_.getParameter<double>("meanGain")),
       rmsGain_(conf_.getParameter<double>("rmsGain")),
+      secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
+      secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
       fromFile_(conf_.getParameter<bool>("fromFile")),
       fileName_(conf_.getParameter<std::string>("fileName"))
@@ -114,6 +116,23 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	     else
 	       gain = meanGain_;
 	   }
+
+           //if in the second row of rocs (i.e. a 2xN plaquette) add an offset (if desired) for testing
+           if (j >= 80) 
+           {
+              ped += secondRocRowPedOffset_;
+              gain += secondRocRowGainOffset_;
+
+              if (gain > maxgain)
+                 gain = maxgain;
+              else if (gain < mingain)
+                 gain = mingain;
+
+              if (ped > maxped)
+                 ped = maxped;
+              else if (ped < minped)
+                 ped = minped;
+           }
 
 // 	   if(i==mycol && j==myrow) {
 	   //	     std::cout << "       Col "<<i<<" Row "<<j<<" Ped "<<ped<<" Gain "<<gain<<std::endl;

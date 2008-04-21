@@ -21,7 +21,7 @@ float SiPixelGainCalibrationForHLTService::getPedestal( const uint32_t& detID,co
    bool isDead = false;
    float pedestalValue = this->getPedestalByColumn(detID, col, row, isDead);
    if (isDead)
-      this->throwExepctionForBadRead("HLT", detID, col, row);
+      this->throwExepctionForBadRead("HLT getPedestal()", detID, col, row, pedestalValue);
    return pedestalValue;
 }
 
@@ -30,7 +30,7 @@ float SiPixelGainCalibrationForHLTService::getGain( const uint32_t& detID,const 
    bool isDead = false;
    float gainValue = this->getGainByColumn(detID, col, row, isDead);
    if (isDead)
-      this->throwExepctionForBadRead("HLT", detID, col, row);
+      this->throwExepctionForBadRead("HLT getGain()", detID, col, row, gainValue);
    return gainValue;
 }
 

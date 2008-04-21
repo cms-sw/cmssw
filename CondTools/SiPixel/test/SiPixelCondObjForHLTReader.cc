@@ -64,7 +64,6 @@ SiPixelCondObjForHLTReader::analyze(const edm::Event& iEvent, const edm::EventSe
           float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
           g_iter->second->Fill( gain );
        }
-       //std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
 
     }
   }
