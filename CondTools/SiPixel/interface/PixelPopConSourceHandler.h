@@ -17,10 +17,17 @@
 //
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
+#include <string>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 template <class T> 
 class PixelPopConSourceHandler : public popcon::PopConSourceHandler<T> {
 
+ public:
+  //PixelPopConSourceHandler(edm::ParameterSet const &) {;}
+
+  virtual void getNewObjects() {;}
+  virtual std::string id() const {return std::string("PixelPopConSourceHandler");}
 
 };
 
