@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.9 2008/04/21 08:53:03 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.10 2008/04/22 12:23:01 saout Exp $
 //
 
 #include <vector>
@@ -131,6 +131,9 @@ ProcLikelihood::ProcLikelihood(const char *name,
 	nCategories(1)
 {
 	typedef PhysicsTools::Calibration::ProcLikelihood Calib;
+
+	if (categoryIdx >> (Calib::kCategoryMax + 1) == -1)
+		categoryIdx &= ~(~((1U << (Calib::kCategoryMax + 2)) - 1) >> 1);
 
 	logOutput = (categoryIdx & (1 << Calib::kLogOutput)) != 0;
 	individual = (categoryIdx & (1 << Calib::kLogOutput)) != 0;
