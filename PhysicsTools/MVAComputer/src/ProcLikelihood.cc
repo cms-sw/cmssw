@@ -8,11 +8,11 @@
 //     A likelihood estimator variable processor. Reads in 0..n values for
 //     m variables and calculates the total signal/background likelihood
 //     using calibration PDFs for signal and background for each variable.
-//     The output variable is set to s/(s+b).
+//     The output variable is set to s/(s+b) (or log(s/b) for logOutput).
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.8 2007/10/08 11:22:09 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.9 2008/04/21 08:53:03 saout Exp $
 //
 
 #include <vector>
@@ -139,9 +139,9 @@ ProcLikelihood::ProcLikelihood(const char *name,
 	keepEmpty = (categoryIdx & (1 << Calib::kKeepEmpty)) != 0;
 
 	if (categoryIdx < 0)
-		categoryIdx |= (1 << (Calib::kCategoryMax + 1)) - 1;
+		categoryIdx |= ~(int)((1 << (Calib::kCategoryMax + 1)) - 1);
 	else
-		categoryIdx &= ~((1 << (Calib::kCategoryMax + 1)) - 1);
+		categoryIdx &= (1 << (Calib::kCategoryMax + 1)) - 1;
 }
 
 void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
@@ -165,7 +165,13 @@ void ProcLikelihood::configure(ConfIterator iter, unsigned int n)
 			iter++(Variable::FLAG_ALL);
 	}
 
-	iter << Variable::FLAG_OPTIONAL;
+	if (individual) {
+		for(unsigned int i = 0; i < pdfs.size(); i++)
+			iter << (neverUndefined ? Variable::FLAG_NONE
+			                        : Variable::FLAG_OPTIONAL);
+	} else
+		iter << (neverUndefined ? Variable::FLAG_NONE
+		                        : Variable::FLAG_OPTIONAL);
 }
 
 void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
@@ -206,7 +212,7 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 				std::max(0.0, pdf->signal->eval(*value));
 			double backgroundProb =
 				std::max(0.0, pdf->background->eval(*value));
-			if (!keepEmpty &&
+			if (!keepEmpty && !individual &&
 			    signalProb + backgroundProb < 1.0e-20)
 				continue;
 			vars++;
@@ -217,7 +223,7 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 				if (logOutput) {
 					if (signalProb < 1.0e-9 &&
 					    backgroundProb < 1.0e-9) {
-						if (neverUndefined)
+						if (!neverUndefined)
 							continue;
 						iter << 0.0;
 					} else if (signalProb < 1.0e-9)
@@ -230,6 +236,9 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 				} else
 					iter << (signalProb /
 					         (signalProb + backgroundProb));
+			} else {
+				signal *= signalProb;
+				background *= backgroundProb;
 			}
 		}
 

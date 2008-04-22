@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <map>
 
 #include <xercesc/dom/DOM.hpp>
 
@@ -316,7 +317,8 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 		calib->pdfs.push_back(pdf);
 	}
 
-	calib->categoryIdx = categoryIdx;
+	calib->categoryIdx = categoryIdx &
+			~(~((1U << (Calib::kCategoryMax + 2)) - 1) >> 1);
 	calib->categoryIdx |= (logOutput ? 1 : 0) << Calib::kLogOutput;
 	calib->categoryIdx |= (individual ? 1 : 0) << Calib::kIndividual;
 	calib->categoryIdx |= (neverUndefined ? 1 : 0) << Calib::kNeverUndefined;
@@ -529,6 +531,7 @@ static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 	pdf.range.min = XMLDocument::readAttribute<double>(elem, "lower");
 	pdf.range.max = XMLDocument::readAttribute<double>(elem, "upper");
 
+	pdf.distr.clear();
 	for(DOMNode *node = elem->getFirstChild();
 	    node; node = node->getNextSibling()) {
 		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
@@ -557,6 +560,14 @@ bool ProcLikelihood::load()
 		throw cms::Exception("ProcLikelihood")
 			<< "XML training data file has bad root node."
 			<< std::endl;
+
+	unsigned int version = XMLDocument::readAttribute<unsigned int>(
+							elem, "version", 1);
+
+	if (version < 1 || version > 2)
+		throw cms::Exception("ProcLikelihood")
+			<< "Unsupported version " << version
+			<< "in train file." << std::endl;
 
 	DOMNode *node;
 	for(node = elem->getFirstChild();
@@ -603,6 +614,21 @@ bool ProcLikelihood::load()
 		break;
 	}
 
+	typedef std::pair<AtomicId, AtomicId> Id;
+	std::map<Id, SigBkg*> pdfMap;
+
+	for(std::vector<SigBkg>::iterator iter = pdfs.begin();
+	    iter != pdfs.end(); ++iter) {
+		SigBkg *ptr = &*iter;
+		unsigned int i = iter - pdfs.begin();
+		if (categoryIdx >= 0 && (int)i >= categoryIdx)
+			i++;
+		const SourceVariable *var = getInputs().get()[i];
+		Id id(var->getSource()->getName(), var->getName());
+
+		pdfMap[id] = ptr;
+	}
+
 	std::vector<SigBkg>::iterator cur = pdfs.begin();
 
 	for(node = node->getNextSibling();
@@ -610,17 +636,35 @@ bool ProcLikelihood::load()
 		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
 			continue;
 
-		if (cur == pdfs.end())
-			throw cms::Exception("ProcLikelihood")
-				<< "Superfluous SigBkg in train data."
-				<< std::endl;
-
 		if (std::strcmp(XMLSimpleStr(node->getNodeName()),
 		                "sigbkg") != 0)
 			throw cms::Exception("ProcLikelihood")
 				<< "Expected sigbkg tag in train file."
 				<< std::endl;
 		elem = static_cast<DOMElement*>(node);
+
+		SigBkg *pdf = 0;
+		switch(version) {
+		    case 1:
+			if (cur == pdfs.end())
+				throw cms::Exception("ProcLikelihood")
+					<< "Superfluous SigBkg in train data."
+					<< std::endl;
+			pdf = &*cur++;
+			break;
+		    case 2: {
+			Id id(XMLDocument::readAttribute<std::string>(
+							elem, "source"),
+			      XMLDocument::readAttribute<std::string>(
+							elem, "name"));
+			std::map<Id, SigBkg*>::const_iterator pos =
+							pdfMap.find(id);
+			if (pos == pdfMap.end())
+				continue;
+			else
+				pdf = pos->second;
+		    }	break;
+		}
 
 		for(node = elem->getFirstChild();
 		    node && node->getNodeType() != DOMNode::ELEMENT_NODE;
@@ -644,23 +688,28 @@ bool ProcLikelihood::load()
 				<< "Superfluous tags in sigbkg train data."
 				<< std::endl;
 
-		SigBkg pdf;
+		xmlParsePDF(pdf->signal, elemSig);
+		xmlParsePDF(pdf->background, elemBkg);
 
-		xmlParsePDF(pdf.signal, elemSig);
-		xmlParsePDF(pdf.background, elemBkg);
+		pdf->iteration = ITER_DONE;
 
-		pdf.iteration = ITER_DONE;
-
-		*cur++ = pdf;
 		node = elem;
 	}
 
-	if (cur != pdfs.end())
+	if (version == 1 && cur != pdfs.end())
 		throw cms::Exception("ProcLikelihood")
 			<< "Missing SigBkg in train data." << std::endl;
 
 	iteration = ITER_DONE;
 	trained = true;
+	for(std::vector<SigBkg>::const_iterator iter = pdfs.begin();
+	    iter != pdfs.end(); ++iter) {
+		if (iter->iteration != ITER_DONE) {
+			trained = false;
+			break;
+		}
+	}
+
 	return true;
 }
 
@@ -687,6 +736,7 @@ void ProcLikelihood::save()
 {
 	XMLDocument xml(trainer->trainFileName(this, "xml"), true);
 	DOMDocument *doc = xml.createDocument("ProcLikelihood");
+	XMLDocument::writeAttribute(doc->getDocumentElement(), "version", 2);
 
 	DOMElement *elem = doc->createElement(XMLUniStr("categories"));
 	xml.getRootNode()->appendChild(elem);
@@ -701,6 +751,15 @@ void ProcLikelihood::save()
 	    iter != pdfs.end(); iter++) {
 		elem = doc->createElement(XMLUniStr("sigbkg"));
 		xml.getRootNode()->appendChild(elem);
+
+		unsigned int i = iter - pdfs.begin();
+		if (categoryIdx >= 0 && (int)i >= categoryIdx)
+			i++;
+		const SourceVariable *var = getInputs().get()[i];
+		XMLDocument::writeAttribute(elem, "source",
+				(const char*)var->getSource()->getName());
+		XMLDocument::writeAttribute(elem, "name",
+				(const char*)var->getName());
 
 		elem->appendChild(xmlStorePDF(doc, iter->signal));
 		elem->appendChild(xmlStorePDF(doc, iter->background));

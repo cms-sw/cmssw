@@ -393,9 +393,7 @@ void DrawOutput(TDirectory *dir)
 	Double_t x1 = sig->GetXaxis()->GetXmax();
 	Double_t x2 = sig->GetXaxis()->GetXmin();
 	FindRange(bkg, bin1, bin2, x1, x2);
-cout << x1 << " < " << x2 << endl;
 	FindRange(sig, bin1, bin2, x1, x2);
-cout << x1 << " < " << x2 << endl;
 
 	PadService pads(dir->GetName(), "discriminator & performance", 5);
 
@@ -500,7 +498,7 @@ cout << x1 << " < " << x2 << endl;
 
 	TVirtualPad *pad = pads.Next();
 
-	TH1F *tmp = new TH1F(name + "_tmpO3",
+	TH1F *tmp = new TH1F(name + "_tmpO6",
 	                     "efficiency vs. purity", n, 0, 1);
 	tmp->SetBit(kCanDelete);
 
@@ -527,7 +525,7 @@ cout << x1 << " < " << x2 << endl;
 	delete[] values[0];
 	delete[] values[1];
 
-	graph->SetName(name + "_tmpO4");
+	graph->SetName(name + "_tmpO7");
 	graph->SetBit(kCanDelete);
 	graph->SetLineColor(4);
 	graph->SetLineWidth(2);
@@ -538,7 +536,7 @@ cout << x1 << " < " << x2 << endl;
 
 	TVirtualPad *pad = pads.Next();
 
-	tmp = new TH1F(name + "_tmpO5",
+	tmp = new TH1F(name + "_tmpO8",
 	               "signal efficiency vs. background rate", n, 0, 1);
 	tmp->SetBit(kCanDelete);
 
@@ -575,7 +573,7 @@ cout << x1 << " < " << x2 << endl;
 	delete[] values[0];
 	delete[] values[1];
 
-	graph->SetName(name + "_tmpO6");
+	graph->SetName(name + "_tmpO9");
 	graph->SetBit(kCanDelete);
 	graph->SetLineColor(4);
 	graph->SetLineWidth(2);
@@ -583,7 +581,7 @@ cout << x1 << " < " << x2 << endl;
 
 	pad = pads.Next();
 
-	TH1 *rel = (TH1*)sig->Clone(name + "_tmpO7");
+	TH1 *rel = (TH1*)sig->Clone(name + "_tmpO10");
 	rel->Add(bkg);
 	rel->Sumw2();
 	rel->Divide(sig, rel, 1.0, 1.0, "B");

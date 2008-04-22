@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <map>
 
 #include <xercesc/dom/DOM.hpp>
 
@@ -286,6 +287,27 @@ bool ProcNormalize::load()
 			<< "XML training data file has bad root node."
 			<< std::endl;
 
+	unsigned int version = XMLDocument::readAttribute<unsigned int>(
+							elem, "version", 1);
+
+	if (version < 1 || version > 2)
+		throw cms::Exception("ProcNormalize")
+			<< "Unsupported version " << version
+			<< "in train file." << std::endl;
+
+	typedef std::pair<AtomicId, AtomicId> Id;
+	std::map<Id, PDF*> pdfMap;
+
+	for(std::vector<PDF>::iterator iter = pdfs.begin();
+	    iter != pdfs.end(); ++iter) {
+		PDF *ptr = &*iter;
+		unsigned int i = iter - pdfs.begin();
+		const SourceVariable *var = getInputs().get()[i];
+		Id id(var->getSource()->getName(), var->getName());
+
+		pdfMap[id] = ptr;
+	}
+
 	std::vector<PDF>::iterator cur = pdfs.begin();
 
 	for(DOMNode *node = elem->getFirstChild();
@@ -293,24 +315,41 @@ bool ProcNormalize::load()
 		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
 			continue;
 
-		if (cur == pdfs.end())
-			throw cms::Exception("ProcNormalize")
-				<< "Superfluous PDF in train data."
-				<< std::endl;
-
 		if (std::strcmp(XMLSimpleStr(node->getNodeName()), "pdf") != 0)
 			throw cms::Exception("ProcNormalize")
 				<< "Expected pdf tag in train file."
 				<< std::endl;
 		elem = static_cast<DOMElement*>(node);
 
-		PDF pdf;
+		PDF *pdf = 0;
+		switch(version) {
+		    case 1:
+			if (cur == pdfs.end())
+				throw cms::Exception("ProcNormalize")
+					<< "Superfluous PDF in train data."
+					<< std::endl;
+			pdf = &*cur++;
+			break;
+		    case 2: {
+			Id id(XMLDocument::readAttribute<std::string>(
+			      				elem, "source"),
+			      XMLDocument::readAttribute<std::string>(
+			      				elem, "name"));
+			std::map<Id, PDF*>::const_iterator pos =
+							pdfMap.find(id);
+			if (pos == pdfMap.end())
+				continue;
+			else
+				pdf = pos->second;
+		    }	break;
+		}
 
-		pdf.range.min =
+		pdf->range.min =
 			XMLDocument::readAttribute<double>(elem, "lower");
-		pdf.range.max =
+		pdf->range.max =
 			XMLDocument::readAttribute<double>(elem, "upper");
-		pdf.iteration = ITER_DONE;
+		pdf->iteration = ITER_DONE;
+		pdf->distr.clear();
 
 		for(DOMNode *subNode = elem->getFirstChild();
 		    subNode; subNode = subNode->getNextSibling()) {
@@ -325,18 +364,24 @@ bool ProcNormalize::load()
 
 			elem = static_cast<DOMElement*>(node);
 
-			pdf.distr.push_back(
+			pdf->distr.push_back(
 				XMLDocument::readContent<double>(subNode));
 		}
-
-		*cur++ = pdf;
 	}
 
-	if (cur != pdfs.end())
+	if (version == 1 && cur != pdfs.end())
 		throw cms::Exception("ProcNormalize")
 			<< "Missing PDF in train data." << std::endl;
 
 	trained = true;
+	for(std::vector<PDF>::const_iterator iter = pdfs.begin();
+	    iter != pdfs.end(); ++iter) {
+		if (iter->iteration != ITER_DONE) {
+			trained = false;
+			break;
+		}
+	}
+
 	return true;
 }
 
@@ -344,11 +389,19 @@ void ProcNormalize::save()
 {
 	XMLDocument xml(trainer->trainFileName(this, "xml"), true);
 	DOMDocument *doc = xml.createDocument("ProcNormalize");
+	XMLDocument::writeAttribute(doc->getDocumentElement(), "version", 2);
 
 	for(std::vector<PDF>::const_iterator iter = pdfs.begin();
 	    iter != pdfs.end(); iter++) {
 		DOMElement *elem = doc->createElement(XMLUniStr("pdf"));
 		xml.getRootNode()->appendChild(elem);
+
+		unsigned int i = iter - pdfs.begin();
+		const SourceVariable *var = getInputs().get()[i];
+		XMLDocument::writeAttribute(elem, "source",
+				(const char*)var->getSource()->getName());
+		XMLDocument::writeAttribute(elem, "name",
+				(const char*)var->getName());
 
 		XMLDocument::writeAttribute(elem, "lower", iter->range.min);
 		XMLDocument::writeAttribute(elem, "upper", iter->range.max);
