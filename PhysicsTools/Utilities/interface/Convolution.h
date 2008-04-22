@@ -38,14 +38,14 @@ namespace funct {
   template<typename A, typename B>
   struct Convolution {
     typedef ConvolutionStruct<A, B> type;
-    static type compose(const A& a, const B& b) {
-      return type(a, b);
+    static type compose(const A& a, const B& b, double min, double max, size_t steps) {
+      return type(a, b, min, max, steps);
     }
   };
 
   template<typename A, typename B>
-  inline typename funct::Convolution<A, B>::type conv(const A& a, const B& b) {
-    return funct::Convolution<A, B>::compose(a, b);
+  inline typename funct::Convolution<A, B>::type conv(const A& a, const B& b, double min, double max, size_t steps) {
+    return funct::Convolution<A, B>::compose(a, b, min, max, steps);
   }
 
 }

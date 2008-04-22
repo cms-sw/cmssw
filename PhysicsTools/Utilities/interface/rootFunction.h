@@ -201,6 +201,36 @@ namespace root {
   
   template<unsigned int args, typename F>
   typename helper::RootFunctionHelper<F, args>::root_function 
+    function(F& f, 
+	     const funct::Parameter & p0,
+	     const funct::Parameter & p1,
+	     const funct::Parameter & p2,
+	     const funct::Parameter & p3,
+	     const funct::Parameter & p4, 
+	     const funct::Parameter & p5, 
+	     const funct::Parameter & p6, 
+	     const funct::Parameter & p7, 
+	     const funct::Parameter & p8, 
+	     const funct::Parameter & p9, 
+	     const funct::Parameter & p10) {
+    typename helper::RootFunctionHelper<F, args>::root_function 
+      fun = helper::RootFunctionHelper<F, args>::fun(f);
+    helper::RootFunctionHelper<F, args>::addParameter(p0);
+    helper::RootFunctionHelper<F, args>::addParameter(p1);
+    helper::RootFunctionHelper<F, args>::addParameter(p2);
+    helper::RootFunctionHelper<F, args>::addParameter(p3);
+    helper::RootFunctionHelper<F, args>::addParameter(p4);
+    helper::RootFunctionHelper<F, args>::addParameter(p5);
+    helper::RootFunctionHelper<F, args>::addParameter(p6);
+    helper::RootFunctionHelper<F, args>::addParameter(p7);
+    helper::RootFunctionHelper<F, args>::addParameter(p8);
+    helper::RootFunctionHelper<F, args>::addParameter(p9);
+    helper::RootFunctionHelper<F, args>::addParameter(p10);
+    return fun;
+  }
+  
+  template<unsigned int args, typename F>
+  typename helper::RootFunctionHelper<F, args>::root_function 
     function(F& f, const std::vector<funct::Parameter> & pars) {
     typename helper::RootFunctionHelper<F, args>::root_function 
       fun = helper::RootFunctionHelper<F, args>::fun(f);
