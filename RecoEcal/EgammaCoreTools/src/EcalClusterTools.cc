@@ -45,7 +45,9 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
                 if ( it != recHits->end() ) {
                         return (*it).energy();
                 } else {
-                        throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
+                        //throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
+                        // the recHit is not in the collection (hopefully zero suppressed)
+                        return 0;
                 }
         }
         return 0;
@@ -84,7 +86,7 @@ std::vector<DetId> EcalClusterTools::matrixDetId( const CaloTopology* topology, 
                 for ( int j = iyMin; j <= iyMax; ++j ) {
                         cursor.home();
                         cursor.offsetBy( i, j );
-                        v.push_back( *cursor );
+                        if ( *cursor != DetId(0) ) v.push_back( *cursor );
                 }
         }
         return v;
@@ -206,7 +208,7 @@ float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const Eca
 float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
-        return matrixEnergy( cluster, recHits, topology, id, -2, -2, 0, 0 );
+        return matrixEnergy( cluster, recHits, topology, id, -2, 2, 0, 0 );
 }
 
 
@@ -245,7 +247,7 @@ std::vector<float> EcalClusterTools::energyBasketFractionEta( const reco::BasicC
                 return basketFraction;
         }
         for ( size_t i = 0; i < v_id.size(); ++i ) {
-                basketFraction[ EBDetId(v_id[i]).im()-1 + EBDetId(v_id[i]).positiveZ()*EBDetId::kModulesPerSM ] = recHitEnergy( v_id[i], recHits ) / clusterEnergy;
+                basketFraction[ EBDetId(v_id[i]).im()-1 + EBDetId(v_id[i]).positiveZ()*EBDetId::kModulesPerSM ] += recHitEnergy( v_id[i], recHits ) / clusterEnergy;
         }
         std::sort( basketFraction.rbegin(), basketFraction.rend() );
         return basketFraction;
@@ -263,7 +265,7 @@ std::vector<float> EcalClusterTools::energyBasketFractionPhi( const reco::BasicC
                 return basketFraction;
         }
         for ( size_t i = 0; i < v_id.size(); ++i ) {
-                basketFraction[ (EBDetId(v_id[i]).iphi()-1)/EBDetId::kCrystalsInPhi + EBDetId(v_id[i]).positiveZ()*EBDetId::kTowersInPhi] = recHitEnergy( v_id[i], recHits ) / clusterEnergy;
+                basketFraction[ (EBDetId(v_id[i]).iphi()-1)/EBDetId::kCrystalsInPhi + EBDetId(v_id[i]).positiveZ()*EBDetId::kTowersInPhi] += recHitEnergy( v_id[i], recHits ) / clusterEnergy;
         }
         std::sort( basketFraction.rbegin(), basketFraction.rend() );
         return basketFraction;
