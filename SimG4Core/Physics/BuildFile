@@ -1,5 +1,7 @@
 <export>
  <lib name=SimG4CorePhysics>
+ <use name=SimG4Core/Geometry>
+ <use name=sigcpp>
 </export>
 
 <use name=SimG4Core/Geometry>

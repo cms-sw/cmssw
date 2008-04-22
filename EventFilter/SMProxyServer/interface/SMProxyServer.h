@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.6 2007/10/14 14:40:03 hcheung Exp $
+   $Id: SMProxyServer.h,v 1.8 2008/04/16 16:17:59 biery Exp $
 */
 
 #include <string>
@@ -96,6 +96,8 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void eventServerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMeventdataWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMconsumerWebPage
@@ -143,6 +145,7 @@ namespace stor {
     xdata::String DQMconsumerName_;
 
     xdata::Double maxESEventRate_;  // hertz
+    xdata::Double maxESDataRate_;  // hertz
     xdata::Double maxEventRequestRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds

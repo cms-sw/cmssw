@@ -1,19 +1,22 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/04/03 18:19:58 $
- * $Revision: 1.38 $
+ * $Date: 2008/01/28 14:33:04 $
+ * $Revision: 1.34 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
 
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
 #include "EventFilter/DTRawToDigi/interface/DTControlData.h"
 #include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -21,12 +24,12 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <map>
 #include <vector>
 
 using namespace std;
 using namespace edm;
-int FirstRos=0,nevents=0,n,m;
-const unsigned long long max_bx = 59793997824ULL;
+int FirstRos=0,nevents=0;
 #include "ROSDebugUtility.h"
 
 DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::ActivityRegistry& reg) {
@@ -39,6 +42,9 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   neventsDDU = 0;
   neventsROS25 = 0;
+
+  //Root output file with histograms
+  outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
   parameters = ps;
 
@@ -112,6 +118,9 @@ void DTDataIntegrityTask::postEndJob(){
 
   if(doTimeHisto) TimeHistos("Event_word_vs_time");	
 	
+  if (parameters.getUntrackedParameter<bool>("writeHisto", true))
+    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
+
   dbe->rmdir("DT/DataIntegrity");
 
 }
@@ -318,6 +327,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     rosSHistos[histoType] ->setBinLabel(10,"ROS10",2);
     rosSHistos[histoType] ->setBinLabel(11,"ROS11",2);
     rosSHistos[histoType] ->setBinLabel(12,"ROS12",2);
+
   }
 
   if ( folder == "ROS" ) {
@@ -391,7 +401,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_Event_word_vs_time";
     string fullName = "DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;
     names.insert (pair<std::string,std::string> (histoType,string(fullName)));
-    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,1440,0,28800,100,0,3000);    
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,28800,0,28800,100,0,3000);    
     
     histoType = "ROB_mean";
     histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_ROB_mean";
@@ -399,14 +409,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     names.insert (pair<std::string,std::string> (histoType,string(fullName)));   
     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,25,0,25,100,0,100);
     
-    histoType = "Bunch_ID";
-    histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_Bunch_ID";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,4096,0,4095);
-
-    histoType = "Trigger_frequency";
-    histoName =  "FED" + dduID_s.str() + "_Trigger_frequency"; 
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,100,1,100);
-         }
+      }
 
   // ROB/TDC Histograms
   if ( folder == "ROB_O") {
@@ -480,6 +483,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   }
 
+
+
   // SC Histograms
   if ( folder == "SC" ) {
     // Same numbering for SC as for ROS
@@ -522,6 +527,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     ((rosHistos[histoType])[code.getSCID()]) ->setBinLabel(8,"Null",2);
     
   }
+
 }
 
 void DTDataIntegrityTask::TimeHistos(string histoType){  
@@ -681,8 +687,9 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(ROSDebug_BcntResCnt);
   }
 
+ 
+//	 Event words vs time
 
-   ///	 Event words vs time
  	
   ROSWords_t(ResetCount_unfolded,code.getROS(),ROSDebug_BcntResCnt,nevents);
 
@@ -695,52 +702,30 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
    }
   else {
      (rosHistos.find(histoType)->second).find(code.getROSID())->second->
-    		Fill((ResetCount_unfolded),data.getROSTrailer().EventWordCount());}  
-
-
+    		Fill((ResetCount_unfolded),data.getROSTrailer().EventWordCount());
+        }  
 	
-  /// Trigger frequency
-  
-  
- frequency = 0;
- ROS_L1A_Frequency(code.getROS(),ROSDebug_BcntResCnt,neventsROS25,frequency,trigger_counter);
-
-  histoType = "Trigger_frequency";
-   if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()){
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(frequency);
-        }
-   else {
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(frequency);
-        }
-
-		
-  /// ROB Group Header
+  /// ROB Group Header     
 
   for (vector<DTROBHeader>::const_iterator rob_it = data.getROBHeaders().begin();
-       rob_it != data.getROBHeaders().end(); rob_it++){
+       rob_it != data.getROBHeaders().end(); rob_it++) {
 
     code.setROB((*rob_it).first);
     DTROBHeaderWord robheader = (*rob_it).second;  
-
-    histoType = "Bunch_ID";
-    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
-    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(robheader.bunchID());
-    else (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(robheader.bunchID());
-	        
+   
     if (robheader.bunchID() != ROSDebug_BunchNumber) {
       //     fill ROS Summary plot
       rosSHistos.find("ROSSummary")->second->Fill(8,code.getROS());
       //     fill ROB Summary plot for that particular ROS
       histoType = "ROSError";
-      if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) //CB getROS->getROSID
+      if (rosHistos[histoType].find(code.getROS()) != rosHistos[histoType].end())
 	(rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
       else {
 	bookHistos( string("ROS"), code);
 	(rosHistos.find(histoType)->second).find(code.getROS())->second->Fill(8,robheader.robID());
-	 }
-	}
-       }
-
+      }
+    }
+  }
 
 /// ROB Trailer
 
@@ -748,6 +733,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
        robt_it != data.getROBTrailers().end(); robt_it++) {       
    
    histoType = "ROB_mean";
+
    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
        (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(code.getROB(),
       								(*robt_it).wordCount());
@@ -755,7 +741,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
        (rosHistos.find(histoType)->second).find(code.getROSID())->second->setAxisTitle("ROB wordcounts",2);
     }
    }
-   
+
+  
   /// TDC Data  
   for (vector<DTTDCData>::const_iterator tdc_it = data.getTDCData().begin();
        tdc_it != data.getTDCData().end(); tdc_it++) {

@@ -86,6 +86,12 @@ TFileAdaptor::TFileAdaptor (const TFileAdaptorParams& iparams)
 
   // set our own root plugins
   TPluginManager *mgr = gROOT->GetPluginManager();
+
+  // Load the ROOT plugins first so that we will overwrite them
+  // instead of them overwriting our plugins later
+  mgr->LoadHandlersFromPluginDirs("TFile");
+  mgr->LoadHandlersFromPluginDirs("TSystem");
+
   if (!native("file"))    addType (mgr, "^file:");
   if (!native("http"))    addType (mgr, "^http:");
   if (!native("ftp"))     addType (mgr, "^ftp:");

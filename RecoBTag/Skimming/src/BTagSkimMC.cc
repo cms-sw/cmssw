@@ -7,7 +7,7 @@
 using namespace edm;
 using namespace std;
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 using namespace reco;
 
 BTagSkimMC::BTagSkimMC( const ParameterSet & p ) :
@@ -56,8 +56,8 @@ bool BTagSkimMC::filter( Event& evt, const EventSetup& es )
   }  // ALPGEN
   else if(processID == 4) { // this is the number for external ALPGEN events
 
-    Handle<GenParticleCollection> genParticles;
-    evt.getByLabel( "genParticles", genParticles );
+    Handle<CandidateCollection> genParticles;
+    evt.getByLabel( "genParticleCandidates", genParticles );
 
     for( size_t i = 0; i < genParticles->size(); ++ i ) {
       const Candidate & p = (*genParticles)[ i ];

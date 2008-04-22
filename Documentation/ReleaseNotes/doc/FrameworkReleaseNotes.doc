@@ -2,13 +2,38 @@
 \page FrameworkReleaseNotes Framework Release Notes - CMSSW_2_0_x 
 
 - General:
-
+  - Developments needed to achieve the goals of CSA08 and the upcoming global runs.
 - Main changes and new features:
-  
+  - Reading events from 2 tiers which should significantly reduce the requirements for storage of FEVT data. 
+  - Support for handling a single run split across multiple files, including proper merging of run products that represent a part of the luminosity for a run when reading those files back.
+  - Event filtering tracking will be stored in the provenance system
+  - Support for a transient edm::Ref which will facilitate the work of the PAT group.
+  - Normalization of the EventMetaTree which will reduce the cost of the per event per object provenance information stored on EDM files.
+  - RN  generator service improvements
+  - Enhancements to the event selection configuration as requested by the EventFilter group.
+
+- Updates to Externals:
+  - Update from SCRAM  1.0.3 to 1.2.1  See Shahzad's slides: http://indico.cern.ch/getFile.py/access?contribId=90&sessionId=11&resId=2&materialId=slides&confId=28808
+  - cmake 2.4.2 -> 2.4.6
+  - coral 1_9_2 -> 1_9_5
+  - fastjet 2.1.0 -> 2.3.0
+  - frontier_client 2.7.6 -> 2.7.7
+  - gccxml 0.6.0 -> 0.7.0_20070615
+  - gdb 6.7 -> 6.7.1
+  - geant4 4.8.3p1 -> 4.9.1p1
+  - graphviz 1.9 -> 2.16.1
+  - gsl 1.8 -> 1.10
+  - hepmc 2.01.08 -> 2.01.10
+  - pool 2_6_3 -> 2_7_3
+  - root 5.14.00g -> 5.18.00a + cms patches
+  - seal 1_9_3 -> 1_9_4
+  - xdaq 3.11.00 -> 3.14.00
+
 - Major bug fixes:
 
 - Known issues:
+  - There are many known issues and critical bug fixes going into CMSSW_2_0_1 use of CMSSW_2_0_0 should be avoided.
   
 <hr>
-Last updated: @DATE@ Liz Sexton-Kennedy
+Last updated: 17 April 2008 Liz Sexton-Kennedy
 */

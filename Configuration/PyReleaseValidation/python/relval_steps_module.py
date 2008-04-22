@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import relval_common_module as common
+import relval_generation_module as generator
 
 import os
 import sys 
@@ -11,23 +12,6 @@ execfile("relval_parameters_module.py")
 # This just simplifies the use of the common.logger
 mod_id="["+os.path.basename(sys._getframe().f_code.co_filename)[:-3]+"]"
 
-# At top level and not in a function. To be fixed
-# The priority with wich the generators module is seeked for..
-generator_module_name="relval_generation_module.py"
-pyrelval_location=os.environ["CMSSW_BASE"]+"/src/Configuration/PyReleaseValidation/python/"+generator_module_name
-pyrelval_release_location=os.environ["CMSSW_RELEASE_BASE"]+"/src/Configuration/PyReleaseValidation/python/"+generator_module_name
-
-locations=(pyrelval_location,
-           pyrelval_release_location)
-        
-mod_location=""
-for location in locations:
-    if os.path.exists(location):
-        mod_location=location
-
-print 'mod_location %s' % mod_location
-execfile(mod_location)
-print generate
 
 #--------------------------------------------
 # Here the functions to add to the process the various steps are defined:
@@ -39,35 +23,47 @@ def gen(process,name,step,evt_type,energy,evtnumber):
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-
-    process.source=generate(step,evt_type,energy,evtnumber)
-    process.generation_step = cms.Path(getattr(process,name))
+    process=generator.generate(process,step,evt_type,energy,evtnumber)
+    
+    if ( name == 'pgen'):
+        process.generation_step = cms.Path(getattr(process,name))
+    else:
+        process.generation_step = cms.Path(getattr(process,'pgen')*getattr(process,name))
+        
     if not user_schedule:
         process.schedule.append(process.generation_step)
         
     common.log ('%s adding step ...'%func_id)
     return process
     
-def sim(process,name):
+def sim(process,name,genfilt):
     '''
     Enrich the schedule with simulation
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
 
-    process.simulation_step = cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.simulation_step = cms.Path(getattr(process,name))
+    else:
+        process.simulation_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+        
     if not user_schedule:
         process.schedule.append(process.simulation_step)  
     
     common.log ('%s adding step ...'%func_id)
     return process
    
-def digi(process,name):
+def digi(process,name,genfilt):
     '''
     Enrich the schedule with digitisation
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
-    
-    process.digitisation_step=cms.Path(getattr(process,name))
+
+    if ( genfilt==''):
+        process.digitisation_step=cms.Path(getattr(process,name))
+    else:
+        process.digitisation_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.digitisation_step)
     
@@ -75,14 +71,18 @@ def digi(process,name):
     
     return process            
        
-def reco(process,name):
+def reco(process,name,genfilt):
     '''
     Enrich the schedule with reconstruction
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
 #    process.reconstruction_step=cms.Path(process.reconstruction_woConv)
-    process.reconstruction_step=cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.reconstruction_step=cms.Path(getattr(process,name))
+    else:
+        process.reconstruction_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.reconstruction_step)     
 
@@ -90,13 +90,17 @@ def reco(process,name):
     
     return process            
 
-def l1_trigger(process,name):
+def l1_trigger(process,name,genfilt):
     '''
     Enrich the schedule with L1 trigger
     '''     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.L1_Emulation = cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.L1_Emulation = cms.Path(getattr(process,name))
+    else:
+        process.L1_Emulation = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.L1_Emulation)
 
@@ -104,13 +108,17 @@ def l1_trigger(process,name):
     
     return process            
     
-def postreco_gen(process,name):
+def postreco_gen(process,name,genfilt):
     '''
     Enrich the schedule with post-reconstruction generator
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.postreco_generator_step=cms.Path(process.getattr(process,name))
+    if ( genfilt==''):
+        process.postreco_generator_step=cms.Path(process.getattr(process,name))
+    else:
+        process.postreco_generator_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.postreco_generator_step)     
 
@@ -118,13 +126,17 @@ def postreco_gen(process,name):
     
     return process            
 
-def ana(process,name):
+def ana(process,name,genfilt):
     '''
     Enrich the schedule with analysis
     '''     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.analysis_step=cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.analysis_step=cms.Path(getattr(process,name))
+    else:
+        process.analysis_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.analysis_step)
 
@@ -132,13 +144,17 @@ def ana(process,name):
     
     return process            
 
-def digi2raw(process,name):
+def digi2raw(process,name,genfilt):
     '''
     Enrich the schedule with raw2digistep
     '''     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.digi2raw_step=cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.digi2raw_step=cms.Path(getattr(process,name))
+    else:
+        process.digi2raw_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.digi2raw_step)
     
@@ -146,13 +162,17 @@ def digi2raw(process,name):
     
     return process
 
-def raw2digi(process,name):
+def raw2digi(process,name,genfilt):
     '''
     Enrich the schedule with raw2digistep
     '''     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.raw2digi_step=cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.raw2digi_step=cms.Path(getattr(process,name))
+    else:
+        process.raw2digi_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.raw2digi_step)
     
@@ -160,20 +180,24 @@ def raw2digi(process,name):
     
     return process
 
-def validation(process,name):
+def validation(process,name,genfilt):
     '''
     Enrich the schedule with validation
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.validation_step=cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.validation_step=cms.Path(getattr(process,name))
+    else:
+        process.validation_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
         process.schedule.append(process.validation_step)
     
     common.log ('%s adding step ...'%func_id)
     return process            
 
-def hlt(process,name):
+def hlt(process,name,genfilt):
     '''
     Enrich the schedule with hlt
     '''
@@ -207,7 +231,7 @@ def hlt(process,name):
     theFile.close() 
 
     for path in sortedPaths:
-        if path.startswith("HLT") or path.startswith("CandHLT") of path.startswith("ALCa"):
+        if path.startswith("HLT") or path.startswith("CandHLT") or path.startswith("AlCa"):
             process.schedule.append(getattr(process,path)) 
             common.log ('%s path added  ...'%path)
 
@@ -218,6 +242,12 @@ def hlt(process,name):
     if ( len(endPaths)==1):
          process.hltEndPath=getattr(process,endPaths[0])
 
+    if ( genfilt!=''):
+        # unfortunately not every HLT paths uses the HLTBeginSequence. Only trust what you tested yourself... :-/
+        # process.HLTBeginSequence._seq = cms.Sequence(process.ProductionFilterSequence._seq*process.HLTBeginSequence._seq) 
+        for path in sortedPaths:
+            if path.startswith("HLT") or path.startswith("CandHLT") or path.startswith("AlCa"):
+                getattr(process,path)._seq = process.ProductionFilterSequence._seq*getattr(process,path)._seq
 #    for p  in process.paths_().itervalues():
 #        pname=p.label()
 #        if ( pname[0:3]=='HLT' or pname[0:7]=='CandHLT' ):
@@ -226,41 +256,55 @@ def hlt(process,name):
 
     return process
 
-def fastsim(process,name):
+def fastsim(process,name,genfilt):
     '''
     Enrich the schedule with fastsim
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.offlinedqm_step=cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.fastsim_step=cms.Path(getattr(process,name))
+    else:
+        process.fastsim_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
+
     if not user_schedule:
-        process.schedule.append(process.fastsim)
+        process.schedule.append(process.fastsim_step)
     
     common.log ('%s adding step ...'%func_id)
     
     return process            
 
-def alca(process,name):
+def alca(process,name,genfilt):
     '''
     Enrich the schedule with alcareco
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
 
-    for p  in process.paths_().itervalues():
-        pname=p.label()
-        if ( pname[0:12]=='pathALCARECO'):
-            process.schedule.append(getattr(process,pname))
-            common.log ('%s path added  ...'%pname)
+# if paths not specified, just take everything and hope...
+    if ( name ==''):
+        for p  in process.paths_().itervalues():
+            pname=p.label()
+            if ( pname[0:12]=='pathALCARECO'):
+                process.schedule.append(getattr(process,pname))
+                common.log ('%s path added  ...'%pname)
+    else:
+        paths=name.split('+')
+        for p in paths:
+            process.schedule.append(getattr(process,'pathALCARECO'+p))
+            common.log ('%s path added  ...'%p)
             
     return process
 
-def postreco(process,name):
+def postreco(process,name,genfilt):
     '''
     Enrich the schedule with postreco
     '''
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
-    process.postreco_step=cms.Path(getattr(process,name))
+    if ( genfilt==''):
+        process.postreco_step=cms.Path(getattr(process,name))
+    else:
+        process.postreco_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
     if not user_schedule:
         process.schedule.append(process.postreco_step)
     

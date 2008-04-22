@@ -47,7 +47,6 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 	assoc.replace(assoc.find("Track"),5,"");
       }
       dirName+=assoc;
-      std::replace(dirName.begin(), dirName.end(), ':', '_');
       dbe_->setCurrentFolder(dirName.c_str());
 
       setUpVectors();

@@ -1,12 +1,12 @@
 //
-// $Id: LeptonJetIsolationAngle.cc,v 1.2 2008/01/21 16:26:20 lowette Exp $
+// $Id: LeptonJetIsolationAngle.cc,v 1.1 2008/01/15 13:21:23 lowette Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonJetIsolationAngle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/UtilAlgos/interface/DeltaR.h"
 
 #include <vector>
 
@@ -58,12 +58,11 @@ float LeptonJetIsolationAngle::calculate(const HepLorentzVector & aLepton, const
   // determine the collections of jets, cleaned from electrons
   std::vector<reco::CaloJet> theJets;
   for (reco::CaloJetCollection::const_iterator itJet = jetColl.begin(); itJet != jetColl.end(); itJet++) {
-    float mindr2 = 9999.;
+    float mindr = 9999.;
     for (size_t ie = 0; ie < isoElectrons.size(); ie++) {
-      float dr2 = ::deltaR2(*itJet, isoElectrons[ie]);
-      if (dr2 < mindr2) mindr2 = dr2;
+      float dr = DeltaR<reco::Candidate>()(*itJet, isoElectrons[ie]);
+      if (dr < mindr) mindr = dr;
     }
-    float mindr = std::sqrt(mindr2);
     // yes, all cuts hardcoded buts, but it's a second-order effect
     if (itJet->et() > 15 && mindr > 0.3) theJets.push_back(reco::CaloJet(*itJet));
   }

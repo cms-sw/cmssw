@@ -13,12 +13,13 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.17 2008/03/04 11:00:34 gennai Exp $
+// $Id: TauTagVal.cc,v 1.16 2008/03/01 17:28:22 gennai Exp $
 //
 //
 // user include files
 
 #include "Validation/RecoTau/interface/TauTagVal.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 using namespace std;
@@ -40,7 +41,7 @@ TauTagVal::TauTagVal(const edm::ParameterSet& iConfig)
   minPtIsoRing_ = iConfig.getParameter<double>("MinimumTransverseMomentumInIsolationRing");
   nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
  
-  DQMStore* dbe = &*edm::Service<DQMStore>();
+ DQMStore* dbe = &*edm::Service<DQMStore>();
 
   if(dbe) {
 
@@ -159,7 +160,7 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
   numEvents_++;
-  double  matching_criteria=0.15;
+  double  matching_criteria;
   //  std::cout << "--------------------------------------------------------------"<<endl;
   //std::cout << " RunNumber: " << iEvent.id().run() << ", EventNumber: " << iEvent.id().event() << std:: endl;
   //std::cout << "Event number: " << ++numEvents_ << endl;
@@ -207,10 +208,9 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   for(; k!=jetCollection.end(); k++) {
     CaloJetsIterativeCone5++;
-  
   }
   cout<<"-------------------------------------------------------------------------"<<endl;
-  cout<<"CaloJetsIterativeCone5: "<<CaloJetsIterativeCone5<<endl<<endl;
+  cout<<"CaloJetsIterativeCone5: "<<CaloJetsIterativeCone5<<endl;
 
 
   // PFJets iterativeCone5PFJets---------------------------------------------------------------------------------------------
@@ -448,7 +448,6 @@ void TauTagVal::endJob(){
     cout<<setw(9)<<"--"<<endl;
 
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
-
 
 
   if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);

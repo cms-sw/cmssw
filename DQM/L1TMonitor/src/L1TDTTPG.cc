@@ -1,45 +1,11 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.19 $
+ * $Date: 2008/01/22 18:56:01 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTPG.cc,v $
- * Revision 1.19  2008/03/14 20:35:46  berryhil
- *
- *
- * stripped out obsolete parameter settings
- *
- * rpc tpg restored with correct dn access and dbe handling
- *
- * Revision 1.18  2008/03/12 17:24:24  berryhil
- *
- *
- * eliminated log files, truncated HCALTPGXana histo output
- *
- * Revision 1.17  2008/03/10 09:29:52  lorenzo
- * added MEs
- *
- * Revision 1.16  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
- * $Log: L1TDTTPG.cc,v $
- * Revision 1.19  2008/03/14 20:35:46  berryhil
- *
- *
- * stripped out obsolete parameter settings
- *
- * rpc tpg restored with correct dn access and dbe handling
- *
- * Revision 1.18  2008/03/12 17:24:24  berryhil
- *
- *
- * eliminated log files, truncated HCALTPGXana histo output
- *
- * Revision 1.17  2008/03/10 09:29:52  lorenzo
- * added MEs
- *
  * Revision 1.15  2008/01/22 18:56:01  muzaffar
  * include cleanup. Only for cc/cpp files
  *
@@ -74,7 +40,6 @@
  *
  */
 #include <iostream>
-#include <sstream>
 #include <fstream>
 #include <vector>
 
@@ -101,6 +66,7 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TDTTPG: constructor...." << endl;
 
+  logFile_.open("L1TDTTPG.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -108,10 +74,13 @@ L1TDTTPG::L1TDTTPG(const ParameterSet& ps)
       dbe = Service<DQMStore>().operator->();
       dbe->setVerbose(0);
     }
-  
+
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -139,6 +108,7 @@ void L1TDTTPG::beginJob(const EventSetup& c)
   // get hold of back-end interface
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
+
   if ( dbe ) {
     dbe->setCurrentFolder("L1T/L1TDTTPG");
     dbe->rmdir("L1T/L1TDTTPG");
@@ -150,158 +120,192 @@ void L1TDTTPG::beginJob(const EventSetup& c)
       dbe->setCurrentFolder("L1T/L1TDTTPG");
 
 
-      //hist1[0]
-      dttpgphbx[0] = dbe->book1D("BxEncoding_PHI",
-				 "Bunch encoding DTTF Phi",11,0,11);
-      //hist1[1]
-      dttpgphbx[1] = dbe->book1D("BxEncoding_OUT",
-				 "Bunch encoding DTTF Output",11,0,11);
+   //hist1[0]
+   dttpgphbx[0] = dbe->book1D("BxEncoding_PHI",
+                      "Bunch encoding DTTF Phi",11,0,11);
+   //hist1[1]
+   dttpgphbx[1] = dbe->book1D("BxEncoding_OUT",
+                      "Bunch encoding DTTF Output",11,0,11);
 
-      //hist1[2]
-      dttpgphbx[2] = dbe->book1D("NumberOfSegmentsPHI_BunchNeg1",
-				 "Number of segments for bunch -1 Dttf Phi",
-				 20,0,20);
-      //hist1[3]
-      dttpgphbx[3] = dbe->book1D("NumberOfSegmentsPHI_Bunch0",
-				 "Number of segments for bunch 0 Dttf Phi",
-				 20,0,20);
-      //hist1[4]
-      dttpgphbx[4] = dbe->book1D("NumberOfSegmentsPHI_Bunch1",
-				 "Number of segments for bunch 1 Dttf Phi",
-				 20,0,20);
 
-      //hist1[5]
-      dttpgphbx[5] = dbe->book1D("NumberOfSegmentsOUT_BunchNeg1",
-				 "Number of segments for bunch -1 Dttf Output",
-				 20,0,20);
-      //hist1[6] 
-      dttpgphbx[6] = dbe->book1D("NumberOfSegmentsOUT_Bunch0",
-				 "Number of segments for bunch 0 Dttf Output",
-				 20,0,20);
-      //hist1[7]
-      dttpgphbx[7] = dbe->book1D("NumberOfSegmentsOUT_Bunch1",
-				 "Number of segments for bunch 1 Dttf Output",
-				 20,0,20);
+   //hist1[2]
+   dttpgphbx[2] = dbe->book1D("NumberOfSegmentsPHI_BunchNeg1",
+                     "Number of segments for bunch -1 Dttf Phi",
+                     20,0,20);
+   //hist1[3]
+   dttpgphbx[3] = dbe->book1D("NumberOfSegmentsPHI_Bunch0",
+                     "Number of segments for bunch 0 Dttf Phi",
+                     20,0,20);
+   //hist1[4]
+   dttpgphbx[4] = dbe->book1D("NumberOfSegmentsPHI_Bunch1",
+                     "Number of segments for bunch 1 Dttf Phi",
+                     20,0,20);
 
-      for(int i=0;i<2;i++){
-	dttpgphbx[i]->setBinLabel(1,"None");
-	dttpgphbx[i]->setBinLabel(3,"Only bx=-1");
-	dttpgphbx[i]->setBinLabel(4,"Only bx= 0");
-	dttpgphbx[i]->setBinLabel(5,"Only bx=+1");
-	dttpgphbx[i]->setBinLabel(7,"Bx=-1,0");
-	dttpgphbx[i]->setBinLabel(8,"Bx=-1,1");
-	dttpgphbx[i]->setBinLabel(9,"Bx= 0,1");
-	dttpgphbx[i]->setBinLabel(11,"All bx");
-      }
+   //hist1[5]
+   dttpgphbx[5] = dbe->book1D("NumberOfSegmentsOUT_BunchNeg1",
+                     "Number of segments for bunch -1 Dttf Output",
+                     20,0,20);
+   //hist1[6] 
+   dttpgphbx[6] = dbe->book1D("NumberOfSegmentsOUT_Bunch0",
+                     "Number of segments for bunch 0 Dttf Output",
+                     20,0,20);
+   //hist1[7]
+   dttpgphbx[7] = dbe->book1D("NumberOfSegmentsOUT_Bunch1",
+                     "Number of segments for bunch 1 Dttf Output",
+                     20,0,20);
+
+
+   for(int i=0;i<2;i++){
+     dttpgphbx[i]->setBinLabel(1,"None");
+     dttpgphbx[i]->setBinLabel(3,"Only bx=-1");
+     dttpgphbx[i]->setBinLabel(4,"Only bx= 0");
+     dttpgphbx[i]->setBinLabel(5,"Only bx=+1");
+     dttpgphbx[i]->setBinLabel(7,"Bx=-1,0");
+     dttpgphbx[i]->setBinLabel(8,"Bx=-1,1");
+     dttpgphbx[i]->setBinLabel(9,"Bx= 0,1");
+     dttpgphbx[i]->setBinLabel(11,"All bx");
+   }
+
+
    
-      dttpgphbxcomp = dbe->book2D("BxEncoding_PHI_OUT",
-				  "Bunch encoding: DTTF Phi vs. Output",
-				  11,0,11,11,0,11);
-      dttpgphbxcomp->setAxisTitle("DTTF (output)",1);
-      dttpgphbxcomp->setAxisTitle("PHI-TF",2);
-      for(int i=1;i<=2;i++){
-	dttpgphbxcomp->setBinLabel(1,"None",i);
-	dttpgphbxcomp->setBinLabel(3,"Only bx=-1",i);
-	dttpgphbxcomp->setBinLabel(4,"Only bx= 0",i);
-	dttpgphbxcomp->setBinLabel(5,"Only bx=+1",i);
-	dttpgphbxcomp->setBinLabel(7,"Bx=-1,0",i);
-	dttpgphbxcomp->setBinLabel(8,"Bx=-1,1",i);
-	dttpgphbxcomp->setBinLabel(9,"Bx= 0,1",i);
-	dttpgphbxcomp->setBinLabel(11,"All bx",i);
-      }
+   dttpgphbxcomp = dbe->book2D("BxEncoding_PHI_OUT",
+                     "Bunch encoding: DTTF Phi vs. Output",
+                     11,0,11,11,0,11);
+   dttpgphbxcomp->setAxisTitle("DTTF (output)",1);
+   dttpgphbxcomp->setAxisTitle("PHI-TF",2);
+   for(int i=1;i<=2;i++){
+     dttpgphbxcomp->setBinLabel(1,"None",i);
+     dttpgphbxcomp->setBinLabel(3,"Only bx=-1",i);
+     dttpgphbxcomp->setBinLabel(4,"Only bx= 0",i);
+     dttpgphbxcomp->setBinLabel(5,"Only bx=+1",i);
+     dttpgphbxcomp->setBinLabel(7,"Bx=-1,0",i);
+     dttpgphbxcomp->setBinLabel(8,"Bx=-1,1",i);
+     dttpgphbxcomp->setBinLabel(9,"Bx= 0,1",i);
+     dttpgphbxcomp->setBinLabel(11,"All bx",i);
+   }
 
       dttpgphntrack = dbe->book1D("DT_TPG_phi_ntrack", 
 				  "DT TPG phi ntrack", 20, -0.5, 19.5 ) ;  
       dttpgthntrack = dbe->book1D("DT_TPG_theta_ntrack", 
 				  "DT TPG theta ntrack", 20, -0.5, 19.5 ) ;  
 
-      for (int ibx=0 ; ibx<=2; ibx++) {
-	
-	ostringstream bxnum;
-	bxnum << ibx-1;
-	string bxn;
-	if (ibx<2)
-	  bxn = bxnum.str();
-	else
-	  bxn = "+" + bxnum.str();
-	
-	// Phi
-	dttpgphwheel[ibx] = dbe->book1D("DT_TPG_phi_wheel_number_"+bxn, 
-					    "DT TPG phi wheel number "+bxn, 5, -2.5, 2.5 ) ;  
-	dttpgphsector[ibx] = dbe->book1D("DT_TPG_phi_sector_number_"+bxn, 
-					 "DT TPG phi sector number "+bxn, 12, -0.5, 11.5 );  
-	dttpgphstation[ibx] = dbe->book1D("DT_TPG_phi_station_number_"+bxn, 
-					  "DT TPG phi station number "+bxn, 5, 0.5, 4.5 ) ;
-// 	dttpgphphi[ibx] = dbe->book1D("DT_TPG_phi_"+bxn, 
-// 				      "DT TPG phi "+bxn, 100, -2100., 2100. ) ;  
-// 	dttpgphphiB[ibx] = dbe->book1D("DT_TPG_phiB_"+bxn, 
-// 				       "DT TPG phiB "+bxn, 100, -550., 550. ) ;  
-	dttpgphquality[ibx] = dbe->book1D("DT_TPG_phi_quality_"+bxn, 
-					  "DT TPG phi quality "+bxn, 8, -0.5, 7.5 ) ;  
-	dttpgphts2tag[ibx] = dbe->book1D("DT_TPG_phi_Ts2Tag_"+bxn, 
-					 "DT TPG phi Ts2Tag "+bxn, 2, -0.5, 1.5 ) ;  
-// 	dttpgphbxcnt[ibx] = dbe->book1D("DT_TPG_phi_BxCnt_"+bxn, 
-// 					"DT TPG phi BxCnt "+bxn, 10, -0.5, 9.5 ) ;  
-	dttpgphmapbx[ibx] = dbe->book2D("DT_TPG_phi_map_bx"+bxn,
-				      "Map of triggers per station (BX="+bxn+")",20,1,21,12,0,12);
-	setMapPhLabel(dttpgphmapbx[ibx]);
 
-	//Theta
-	dttpgthbx[ibx] = dbe->book1D("DT_TPG_theta_bx_"+bxn, 
-				     "DT TPG theta bx "+bxn, 50, -24.5, 24.5 ) ;  
-	dttpgthwheel[ibx] = dbe->book1D("DT_TPG_theta_wheel_number_"+bxn, 
-					"DT TPG theta wheel number "+bxn, 5, -2.5, 2.5 ) ;  
-	dttpgthsector[ibx] = dbe->book1D("DT_TPG_theta_sector_number_"+bxn, 
-					 "DT TPG theta sector number "+bxn, 12, -0.5, 11.5 ) ;  
-	dttpgthstation[ibx] = dbe->book1D("DT_TPG_theta_station_number_"+bxn, 
-					  "DT TPG theta station number "+bxn, 5, -0.5, 4.5 ) ;  
-	dttpgththeta[ibx] = dbe->book1D("DT_TPG_theta_"+bxn, 
-					"DT TPG theta "+bxn, 20, -0.5, 19.5 ) ;  
-	dttpgthquality[ibx] = dbe->book1D("DT_TPG_theta_quality_"+bxn, 
-					  "DT TPG theta quality "+bxn, 8, -0.5, 7.5 ) ;  
-	dttpgthmapbx[ibx] = dbe->book2D("DT_TPG_theta_map_bx_"+bxn,
-					"Map of triggers per station (BX="+bxn+")",15,1,16,12,0,12);
-	setMapThLabel(dttpgthmapbx[ibx]);
+      dttpgphwheel[0] = dbe->book1D("DT_TPG_phi_wheel_number_-1", 
+				 "DT TPG phi wheel number -1", 5, -2.5, 2.5 ) ;  
+      dttpgphsector[0] = dbe->book1D("DT_TPG_phi_sector_number_-1", 
+				     "DT TPG phi sector number -1", 12, -0.5, 11.5 );  
+      dttpgphstation[0] = dbe->book1D("DT_TPG_phi_station_number_-1", 
+				   "DT TPG phi station number -1", 5, 0.5, 4.5 ) ;
+      dttpgphphi[0] = dbe->book1D("DT_TPG_phi_-1", 
+			       "DT TPG phi -1", 100, -2100., 2100. ) ;  
+      dttpgphphiB[0] = dbe->book1D("DT_TPG_phiB_-1", 
+				"DT TPG phiB -1", 100, -550., 550. ) ;  
+      dttpgphquality[0] = dbe->book1D("DT_TPG_phi_quality_-1", 
+				   "DT TPG phi quality -1", 8, -0.5, 7.5 ) ;  
+      dttpgphts2tag[0] = dbe->book1D("DT_TPG_phi_Ts2Tag_-1", 
+				  "DT TPG phi Ts2Tag -1", 2, -0.5, 1.5 ) ;  
+      dttpgphbxcnt[0] = dbe->book1D("DT_TPG_phi_BxCnt_-1", 
+				 "DT TPG phi BxCnt -1", 10, -0.5, 9.5 ) ;  
 
-	// Phi output
-	dttf_p_phi[ibx] = dbe->book1D("dttf_p_phi_"+bxn, "dttf phi output #phi "+bxn, 256, 
-				      -0.5, 255.5);
-	dttf_p_qual[ibx] = dbe->book1D("dttf_p_qual_"+bxn, "dttf phi output qual "+bxn, 8, -0.5, 7.5);
-	dttf_p_q[ibx] = dbe->book1D("dttf_p_q_"+bxn, "dttf phi output q "+bxn, 2, -0.5, 1.5);
-	dttf_p_pt[ibx] = dbe->book1D("dttf_p_pt_"+bxn, "dttf phi output p_{t} "+bxn, 32, -0.5, 31.5);
-      
-      }
+      dttpgthbx[0] = dbe->book1D("DT_TPG_theta_bx_-1", 
+			      "DT TPG theta bx -1", 50, -24.5, 24.5 ) ;  
 
-      dttpgphmap = dbe->book2D("DT_TPG_phi_map",
-			       "Map of triggers per station",20,1,21,12,0,12);
-      dttpgphmapcorr = dbe->book2D("DT_TPG_phi_map_corr",
-				   "Map of correlated triggers per station",20,1,21,12,0,12);
-      dttpgphmap2nd = dbe->book2D("DT_TPG_phi_map_2nd",
-				  "Map of second tracks per station",20,1,21,12,0,12);
-      dttpgphbestmap = dbe->book2D("DT_TPG_phi_best_map",
-				   "Map of best triggers per station",20,1,21,12,0,12);
-      dttpgphbestmapcorr = dbe->book2D("DT_TPG_phi_best_map_corr",
-				       "Map of correlated best triggers per station",20,1,21,12,0,12);
-      setMapPhLabel(dttpgphmap);
-      setMapPhLabel(dttpgphmapcorr);
-      setMapPhLabel(dttpgphmap2nd);
-      setMapPhLabel(dttpgphbestmap);
-      setMapPhLabel(dttpgphbestmapcorr);
-      
+      dttpgthwheel[0] = dbe->book1D("DT_TPG_theta_wheel_number_-1", 
+				 "DT TPG theta wheel number -1", 5, -2.5, 2.5 ) ;  
+      dttpgthsector[0] = dbe->book1D("DT_TPG_theta_sector_number_-1", 
+				  "DT TPG theta sector number -1", 12, -0.5, 11.5 ) ;  
+      dttpgthstation[0] = dbe->book1D("DT_TPG_theta_station_number_-1", 
+				   "DT TPG theta station number -1", 5, -0.5, 4.5 ) ;  
+      dttpgththeta[0] = dbe->book1D("DT_TPG_theta_-1", 
+				 "DT TPG theta -1", 20, -0.5, 19.5 ) ;  
+      dttpgthquality[0] = dbe->book1D("DT_TPG_theta_quality_-1", 
+				   "DT TPG theta quality -1", 8, -0.5, 7.5 ) ;  
+      // Phi output
+      dttf_p_phi[0] = dbe->book1D("dttf_p_phi_-1", "dttf phi output #phi -1", 256, 
+			      -0.5, 255.5);
+      dttf_p_qual[0] = dbe->book1D("dttf_p_qual_-1", "dttf phi output qual -1", 8, -0.5, 7.5);
+      dttf_p_q[0] = dbe->book1D("dttf_p_q_-1", "dttf phi output q -1", 2, -0.5, 1.5);
+      dttf_p_pt[0] = dbe->book1D("dttf_p_pt_-1", "dttf phi output p_{t} -1", 32, -0.5, 31.5);
 
 
-      dttpgthmap = dbe->book2D("DT_TPG_theta_map",
-			       "Map of triggers per station",15,1,16,12,0,12);
-      dttpgthmaph = dbe->book2D("DT_TPG_theta_map_h",
-				"Map of H quality triggers per station",15,1,16,12,0,12);
-      dttpgthbestmap = dbe->book2D("DT_TPG_theta_best_map",
-				   "Map of besttriggers per station",15,1,16,12,0,12);
-      dttpgthbestmaph = dbe->book2D("DT_TPG_theta_best_map_h",
-				    "Map of H quality best triggers per station",15,1,16,12,0,12);
-      setMapThLabel(dttpgthmap);
-      setMapThLabel(dttpgthmaph);
-      setMapThLabel(dttpgthbestmap);
-      setMapThLabel(dttpgthbestmaph);
+
+
+      dttpgphwheel[1] = dbe->book1D("DT_TPG_phi_wheel_number_0", 
+				 "DT TPG phi wheel number 0", 5, -2.5, 2.5 ) ;  
+      dttpgphsector[1] = dbe->book1D("DT_TPG_phi_sector_number_0", 
+				     "DT TPG phi sector number 0", 12, -0.5, 11.5 );  
+      dttpgphstation[1] = dbe->book1D("DT_TPG_phi_station_number_0", 
+				   "DT TPG phi station number 0", 5, 0.5, 4.5 ) ;
+      dttpgphphi[1] = dbe->book1D("DT_TPG_phi_0", 
+			       "DT TPG phi 0", 100, -2100., 2100. ) ;  
+      dttpgphphiB[1] = dbe->book1D("DT_TPG_phiB_0", 
+				"DT TPG phiB 0", 100, -550., 550. ) ;  
+      dttpgphquality[1] = dbe->book1D("DT_TPG_phi_quality_0", 
+				   "DT TPG phi quality 0", 8, -0.5, 7.5 ) ;  
+      dttpgphts2tag[1] = dbe->book1D("DT_TPG_phi_Ts2Tag_0", 
+				  "DT TPG phi Ts2Tag 0", 2, -0.5, 1.5 ) ;  
+      dttpgphbxcnt[1] = dbe->book1D("DT_TPG_phi_BxCnt_0", 
+				 "DT TPG phi BxCnt 0", 10, -0.5, 9.5 ) ;  
+
+      dttpgthbx[1] = dbe->book1D("DT_TPG_theta_bx_0", 
+			      "DT TPG theta bx 0", 50, -24.5, 24.5 ) ;  
+      dttpgthwheel[1] = dbe->book1D("DT_TPG_theta_wheel_number_0", 
+				 "DT TPG theta wheel number 0", 5, -2.5, 2.5 ) ;  
+      dttpgthsector[1] = dbe->book1D("DT_TPG_theta_sector_number_0", 
+				  "DT TPG theta sector number 0", 12, -0.5, 11.5 ) ;  
+      dttpgthstation[1] = dbe->book1D("DT_TPG_theta_station_number_0", 
+				   "DT TPG theta station number 0", 5, -0.5, 4.5 ) ;  
+      dttpgththeta[1] = dbe->book1D("DT_TPG_theta_0", 
+				 "DT TPG theta 0", 20, -0.5, 19.5 ) ;  
+      dttpgthquality[1] = dbe->book1D("DT_TPG_theta_quality_0", 
+				   "DT TPG theta quality 0", 8, -0.5, 7.5 ) ;  
+      // Phi output
+      dttf_p_phi[1] = dbe->book1D("dttf_p_phi_0", "dttf phi output #phi 0", 256, 
+			      -0.5, 255.5);
+      dttf_p_qual[1] = dbe->book1D("dttf_p_qual_0", "dttf phi output qual 0", 8, -0.5, 7.5);
+      dttf_p_q[1] = dbe->book1D("dttf_p_q_0", "dttf phi output q 0", 2, -0.5, 1.5);
+      dttf_p_pt[1] = dbe->book1D("dttf_p_pt_0", "dttf phi output p_{t} 0", 32, -0.5, 31.5);
+    
+
+
+      dttpgphwheel[2] = dbe->book1D("DT_TPG_phi_wheel_number_+1", 
+				 "DT TPG phi wheel number +1", 5, -2.5, 2.5 ) ;  
+      dttpgphsector[2] = dbe->book1D("DT_TPG_phi_sector_number_+1", 
+				     "DT TPG phi sector number +1", 12, -0.5, 11.5 );  
+      dttpgphstation[2] = dbe->book1D("DT_TPG_phi_station_number_+1", 
+				   "DT TPG phi station number +1", 5, 0.5, 4.5 ) ;
+      dttpgphphi[2] = dbe->book1D("DT_TPG_phi_+1", 
+			       "DT TPG phi +1", 100, -2100., 2100. ) ;  
+      dttpgphphiB[2] = dbe->book1D("DT_TPG_phiB_+1", 
+				"DT TPG phiB +1", 100, -550., 550. ) ;  
+      dttpgphquality[2] = dbe->book1D("DT_TPG_phi_quality_+1", 
+				   "DT TPG phi quality +1", 8, -0.5, 7.5 ) ;  
+      dttpgphts2tag[2] = dbe->book1D("DT_TPG_phi_Ts2Tag_+1", 
+				  "DT TPG phi Ts2Tag +1", 2, -0.5, 1.5 ) ;  
+      dttpgphbxcnt[2] = dbe->book1D("DT_TPG_phi_BxCnt_+1", 
+				 "DT TPG phi BxCnt +1", 10, -0.5, 9.5 ) ;  
+
+      dttpgthbx[2] = dbe->book1D("DT_TPG_theta_bx_+1", 
+			      "DT TPG theta bx +1", 50, -24.5, 24.5 ) ;  
+
+      dttpgthwheel[2] = dbe->book1D("DT_TPG_theta_wheel_number_+1", 
+				 "DT TPG theta wheel number +1", 5, -2.5, 2.5 ) ;  
+      dttpgthsector[2] = dbe->book1D("DT_TPG_theta_sector_number_+1", 
+				  "DT TPG theta sector number +1", 12, -0.5, 11.5 ) ;  
+      dttpgthstation[2] = dbe->book1D("DT_TPG_theta_station_number_+1", 
+				   "DT TPG theta station number +1", 5, -0.5, 4.5 ) ;  
+      dttpgththeta[2] = dbe->book1D("DT_TPG_theta_+1", 
+				 "DT TPG theta +1", 20, -0.5, 19.5 ) ;  
+      dttpgthquality[2] = dbe->book1D("DT_TPG_theta_quality_+1", 
+				   "DT TPG theta quality +1", 8, -0.5, 7.5 ) ;  
+      // Phi output
+      dttf_p_phi[2] = dbe->book1D("dttf_p_phi_+1", "dttf phi output #phi +1", 256, 
+			      -0.5, 255.5);
+      dttf_p_qual[2] = dbe->book1D("dttf_p_qual_+1", "dttf phi output qual +1", 8, -0.5, 7.5);
+      dttf_p_q[2] = dbe->book1D("dttf_p_q_+1", "dttf phi output q +1", 2, -0.5, 1.5);
+      dttf_p_pt[2] = dbe->book1D("dttf_p_pt_+1", "dttf phi output p_{t} +1", 32, -0.5, 31.5);
+
+
 
 
     }  
@@ -311,7 +315,7 @@ void L1TDTTPG::beginJob(const EventSetup& c)
 void L1TDTTPG::endJob(void)
 {
   if(verbose_) cout << "L1TDTTPG: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TDTTPG") << "analyzed " << nev_ << " events"; 
 
   if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -328,7 +332,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
   
   if (!myL1MuDTChambPhContainer.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuDTChambPhContainer with label "
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambPhContainer with label "
 			     << dttpgSource_.label() ;
     return;
   }
@@ -339,9 +343,9 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
   
   if (!myL1MuDTChambThContainer.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuDTChambThContainer with label "
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambThContainer with label "
 			     << dttpgSource_.label() ;
-    edm::LogInfo("DataNotFound") << "if this fails try to add DATA to the process name." ;
+    edm::LogInfo("L1TDTTPG") << "if this fails try to add DATA to the process name." ;
 
     return;
   }
@@ -399,10 +403,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
    dttpgphbx[0]->Fill(bxCodePhi);
 
 
-   const L1MuDTChambPhDigi* bestPhQualMap[5][12][4];
-   memset(bestPhQualMap,0,240*sizeof(L1MuDTChambPhDigi*));
-
-   for( L1MuDTChambPhContainer::Phi_Container::const_iterator 
+ for( L1MuDTChambPhContainer::Phi_Container::const_iterator 
 	 DTPhDigiItr =  myPhContainer->begin() ;
        DTPhDigiItr != myPhContainer->end() ;
        ++DTPhDigiItr ) 
@@ -427,16 +428,16 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 	{
 	  cout << "DTTPG phi sector number " << DTPhDigiItr->scNum() << endl;
 	}
-//       dttpgphphi[bxindex]->Fill(DTPhDigiItr->phi());
-//       if (verbose_)
-// 	{
-// 	  cout << "DTTPG phi phi " << DTPhDigiItr->phi() << endl;
-// 	}
-//       dttpgphphiB[bxindex]->Fill(DTPhDigiItr->phiB());
-//       if (verbose_)
-// 	{
-// 	  cout << "DTTPG phi phiB " << DTPhDigiItr->phiB() << endl;
-// 	}
+      dttpgphphi[bxindex]->Fill(DTPhDigiItr->phi());
+      if (verbose_)
+	{
+	  cout << "DTTPG phi phi " << DTPhDigiItr->phi() << endl;
+	}
+      dttpgphphiB[bxindex]->Fill(DTPhDigiItr->phiB());
+      if (verbose_)
+	{
+	  cout << "DTTPG phi phiB " << DTPhDigiItr->phiB() << endl;
+	}
       dttpgphquality[bxindex]->Fill(DTPhDigiItr->code());
       if (verbose_)
 	{
@@ -447,47 +448,15 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 	{
 	  cout << "DTTPG phi ts2tag " << DTPhDigiItr->Ts2Tag() << endl;
 	}
-//       dttpgphbxcnt[bxindex]->Fill(DTPhDigiItr->BxCnt());
-//       if (verbose_)
-// 	{
-// 	  cout << "DTTPG phi bxcnt " << DTPhDigiItr->BxCnt() << endl;
-// 	}
-    
-      int ypos = DTPhDigiItr->scNum();
-      int xpos = DTPhDigiItr->stNum()+4*(DTPhDigiItr->whNum()+2);
-      dttpgphmap->Fill(xpos,ypos);
-      if (DTPhDigiItr->Ts2Tag())
-	dttpgphmap2nd->Fill(xpos,ypos);
-      dttpgphmapbx[bxindex]->Fill(xpos,ypos);
-      if (DTPhDigiItr->code()>3)
-	dttpgphmapcorr->Fill(xpos,ypos);
-
-      if (bestPhQualMap[DTPhDigiItr->whNum()+2][ DTPhDigiItr->scNum()][DTPhDigiItr->stNum()-1]==0 ||
-	  bestPhQualMap[DTPhDigiItr->whNum()+2][ DTPhDigiItr->scNum()][DTPhDigiItr->stNum()-1]->code()<DTPhDigiItr->code())
+      dttpgphbxcnt[bxindex]->Fill(DTPhDigiItr->BxCnt());
+      if (verbose_)
 	{
-	  bestPhQualMap[DTPhDigiItr->whNum()+2][ DTPhDigiItr->scNum()][DTPhDigiItr->stNum()-1]=&(*DTPhDigiItr);
+	  cout << "DTTPG phi bxcnt " << DTPhDigiItr->BxCnt() << endl;
 	}
-
     }
 
-   for (int iwh=0; iwh<5; iwh++){
-     for (int isec=0; isec<12; isec++){
-       for (int ist=0; ist<4; ist++){
-	 if (bestPhQualMap[iwh][isec][ist]){
-	   int xpos = iwh*4+ist+1;
-	   dttpgphbestmap->Fill(xpos,isec);
-	   if(bestPhQualMap[iwh][isec][ist]->code()>3)
-	     dttpgphbestmapcorr->Fill(xpos,isec);
-	 }
-       }
-     }
-   }
-
-
-   int bestThQualMap[5][12][3];
-   memset(bestThQualMap,0,180*sizeof(int));
-   //for( vector<L1MuDTChambThDigi>::const_iterator 
-   for( L1MuDTChambThContainer::The_Container::const_iterator 
+  //for( vector<L1MuDTChambThDigi>::const_iterator 
+  for( L1MuDTChambThContainer::The_Container::const_iterator 
 	 DTThDigiItr =  myThContainer->begin() ;
        DTThDigiItr != myThContainer->end() ;
        ++DTThDigiItr ) 
@@ -516,7 +485,6 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 	{
 	  cout << "DTTPG theta bx number " << DTThDigiItr->bxNum() << endl;
 	}
-      int thcode[7]= {0,0,0,0,0,0,0};
       for (int j = 0; j < 7; j++)
 	{
 	  dttpgththeta[bxindex]->Fill(DTThDigiItr->position(j));
@@ -524,46 +492,14 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
 	    {
 	      cout << "DTTPG theta position " << DTThDigiItr->position(j) << endl;
 	    }
-	  thcode[j]=DTThDigiItr->code(j);
-	  dttpgthquality[bxindex]->Fill(thcode[j]);
+	  dttpgthquality[bxindex]->Fill(DTThDigiItr->code(j));
 	  if (verbose_)
 	    {
 	      cout << "DTTPG theta quality " << DTThDigiItr->code(j) << endl;
 	    }
 	}
-      
-      int ypos = DTThDigiItr->scNum();
-      int xpos = DTThDigiItr->stNum()+4*(DTThDigiItr->whNum()+2);
-      int bestqual=0;
-      dttpgthmap->Fill(xpos,ypos);
-      dttpgthmapbx[bxindex]->Fill(xpos,ypos);
-      for (int pos = 0; pos < 7; pos++){
-	if (thcode[pos]>bestqual)
-	  bestqual=thcode[pos];
-	if(thcode[pos]==2)
-	  dttpgthmaph->Fill(xpos,ypos);
-      }
 
-      if (bestThQualMap[DTThDigiItr->whNum()+2][ DTThDigiItr->scNum()][DTThDigiItr->stNum()-1] < bestqual)
-	{
-	  bestThQualMap[DTThDigiItr->whNum()+2][ DTThDigiItr->scNum()][DTThDigiItr->stNum()-1]=bestqual;
-	}
     }
-
-   for (int iwh=0; iwh<5; iwh++){
-     for (int isec=0; isec<12; isec++){
-       for (int ist=0; ist<3; ist++){
-	 if (bestThQualMap[iwh][isec][ist]){
-	   int xpos = iwh*4+ist+1;
-	   dttpgthbestmap->Fill(xpos,isec);
-	   if(bestThQualMap[iwh][isec][ist]==2)
-	     dttpgthbestmaph->Fill(xpos,isec);
-	 }
-       }
-     }
-   }
-
-
   dttpgphntrack->Fill(ndttpgphtrack);
   if (verbose_)
     {
@@ -583,7 +519,7 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
     e.getByLabel(trInputTag,myL1MuDTTrackContainer);
 
   if (!myL1MuDTTrackContainer.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuDTTrackContainer with label "
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTTrackContainer with label "
                                << dttpgSource_.label() ;
     return;
   }
@@ -668,26 +604,4 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
     
 }
 
-void L1TDTTPG::setMapPhLabel(MonitorElement *me)
-{
 
-  me->setAxisTitle("DTTF Sector",2);
-      for(int i=0;i<5;i++){
-	ostringstream wheel;
-	wheel << i-2;
-	me->setBinLabel(1+i*4,"Wheel "+ wheel.str(),1);
-      }
-  
-}
-
-void L1TDTTPG::setMapThLabel(MonitorElement *me)
-{
-
-  me->setAxisTitle("DTTF Sector",2);
-      for(int i=0;i<5;i++){
-	ostringstream wheel;
-	wheel << i-2;
-	me->setBinLabel(1+i*3,"Wheel "+ wheel.str(),1);
-      }
-  
-}

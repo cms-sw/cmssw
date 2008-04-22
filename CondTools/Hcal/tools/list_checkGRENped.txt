@@ -6,21 +6,6 @@
 # Object = Gains/Pedestals/PedestalWidths
 #
 
-# pedestals for GRuMM
-
-# Pedestals CondTools/Hcal/tools/grmm-r3/peds_fC_with37893.txt   CondTools/Hcal/tools/grmm-r3/38148-peds_fC.txt    peds_fC_with38148.txt
-# Pedestals CondTools/Hcal/tools/peds_fC_with38148.txt           CondTools/Hcal/tools/grmm-r3/38341-peds_fC.txt    peds_fC_with38341.txt
-# Pedestals CondTools/Hcal/tools/peds_fC_with38341.txt           CondTools/Hcal/tools/grmm-r3/38426-peds_fC.txt    peds_fC_with38426.txt
-# PedestalWidths CondTools/Hcal/tools/grmm-r3/widths_fC_with37893.txt CondTools/Hcal/tools/grmm-r3/38148-widths_fC.txt  widths_fC_with38148.txt
-# PedestalWidths CondTools/Hcal/tools/widths_fC_with38148.txt         CondTools/Hcal/tools/grmm-r3/38341-widths_fC.txt  widths_fC_with38341.txt
-# PedestalWidths CondTools/Hcal/tools/widths_fC_with38341.txt         CondTools/Hcal/tools/grmm-r3/38426-widths_fC.txt  widths_fC_with38426.txt
-
-# Pedestals CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with37436.txt CondFormats/HcalObjects/data/test/pedsMinBias2.txt peds_fC_with37893.txt
-# PedestalWidths CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with37436.txt CondFormats/HcalObjects/data/test/widthsMinBias2.txt widths_fC_with37893.txt
-
-
-
-########################
 # new pedestals with qie v3 and v4
 # Pedestals      CondFormats/HcalObjects/data/GREN_peds_v2/gren_peds_v2_with30625.txt    CondFormats/HcalObjects/data/new/35666-peds_fC_withqiev3.txt    gren_peds_fC_v2_w35666.txt
 # Pedestals      CondFormats/HcalObjects/data/GREN_peds_v2/gren_peds_v2_with30625.txt    CondFormats/HcalObjects/data/new/35666-peds_fC.txt              gren_peds_fC_v2_w35666_qiev4.txt
@@ -29,6 +14,9 @@
 
 
 # GREN pedestals in ADC counts
+Pedestals   CondFormats/HcalObjects/data/hcal_pedestals_ADC_v1.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/gren_peds_ADC_v2_w30066.txt   test.txt
+
+
 # Pedestals   CondFormats/HcalObjects/data/hcal_pedestals_ADC_v1.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30066-peds_ADC.txt   gren_peds_ADC_v2_w30066.txt
 # Pedestals   CondTools/Hcal/tools/gren_peds_ADC_v2_w30066.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30097-peds_ADC.txt   gren_peds_ADC_v2_w30097.txt
 # Pedestals   CondTools/Hcal/tools/gren_peds_ADC_v2_w30097.txt   CondFormats/HcalObjects/data/GREN_peds_ADC_v2/30129-peds_ADC.txt   gren_peds_ADC_v2_w30129.txt

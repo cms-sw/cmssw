@@ -41,35 +41,12 @@
 CSCXonStrip_MatchGatti::CSCXonStrip_MatchGatti(const edm::ParameterSet& ps) :
    recoConditions_( 0 ){
 
+  debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
   xtalksOffset               = ps.getUntrackedParameter<double>("CSCStripxtalksOffset");
-  noise_level_ME1a                 = ps.getUntrackedParameter<double>("NoiseLevel_ME1a");
-  xt_asymmetry_ME1a                = ps.getUntrackedParameter<double>("XTasymmetry_ME1a");
-  const_syst_ME1a                   = ps.getUntrackedParameter<double>("ConstSyst_ME1a");
-  noise_level_ME1b                 = ps.getUntrackedParameter<double>("NoiseLevel_ME1b");
-  xt_asymmetry_ME1b                = ps.getUntrackedParameter<double>("XTasymmetry_ME1b");
-  const_syst_ME1b                   = ps.getUntrackedParameter<double>("ConstSyst_ME1b");
-  noise_level_ME12                 = ps.getUntrackedParameter<double>("NoiseLevel_ME12");
-  xt_asymmetry_ME12                = ps.getUntrackedParameter<double>("XTasymmetry_ME12");
-  const_syst_ME12                   = ps.getUntrackedParameter<double>("ConstSyst_ME12");
-  noise_level_ME13                 = ps.getUntrackedParameter<double>("NoiseLevel_ME13");
-  xt_asymmetry_ME13                = ps.getUntrackedParameter<double>("XTasymmetry_ME13");
-  const_syst_ME13                   = ps.getUntrackedParameter<double>("ConstSyst_ME13");
-  noise_level_ME21                 = ps.getUntrackedParameter<double>("NoiseLevel_ME21");
-  xt_asymmetry_ME21                = ps.getUntrackedParameter<double>("XTasymmetry_ME21");
-  const_syst_ME21                   = ps.getUntrackedParameter<double>("ConstSyst_ME21");
-  noise_level_ME22                 = ps.getUntrackedParameter<double>("NoiseLevel_ME22");
-  xt_asymmetry_ME22                = ps.getUntrackedParameter<double>("XTasymmetry_ME22");
-  const_syst_ME22                   = ps.getUntrackedParameter<double>("ConstSyst_ME22");
-  noise_level_ME31                 = ps.getUntrackedParameter<double>("NoiseLevel_ME31");
-  xt_asymmetry_ME31                = ps.getUntrackedParameter<double>("XTasymmetry_ME31");
-  const_syst_ME31                   = ps.getUntrackedParameter<double>("ConstSyst_ME31");
-  noise_level_ME32                 = ps.getUntrackedParameter<double>("NoiseLevel_ME32");
-  xt_asymmetry_ME32                = ps.getUntrackedParameter<double>("XTasymmetry_ME32");
-  const_syst_ME32                   = ps.getUntrackedParameter<double>("ConstSyst_ME32");
-  noise_level_ME41                 = ps.getUntrackedParameter<double>("NoiseLevel_ME41");
-  xt_asymmetry_ME41                = ps.getUntrackedParameter<double>("XTasymmetry_ME41");
-  const_syst_ME41                   = ps.getUntrackedParameter<double>("ConstSyst_ME41");
+  noise_level                 = ps.getUntrackedParameter<double>("NoiseLevel"); 
+  xt_asymmetry                = ps.getUntrackedParameter<double>("XTasymmetry"); 
+  const_syst                   = ps.getUntrackedParameter<double>("ConstSyst"); 
   peakTimeFinder_            = new CSCFindPeakTime();
   getCorrectionValues("StringCurrentlyNotUsed");
 }
@@ -209,95 +186,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   } 
   xWithinStrip = float(calculateXonStripPosition(stripWidth, ME1_1));
   xWithinChamber = xWithinChamber + (xWithinStrip * stripWidth);
-
-
-  //---- error estimation
-  int factorStripWidth = int( sqrt(stripWidth/0.38) );
-  int maxConsecutiveStrips = 8;
-  if(factorStripWidth){
-    maxConsecutiveStrips /=  factorStripWidth ;
-  }
-  std::map <std::string, int> chamberTypes;
-  chamberTypes["ME1/a"] = 1;
-  chamberTypes["ME1/b"] = 2;
-  chamberTypes["ME1/2"] = 3;
-  chamberTypes["ME1/3"] = 4;
-  chamberTypes["ME2/1"] = 5;
-  chamberTypes["ME2/2"] = 6;
-  chamberTypes["ME3/1"] = 7;
-  chamberTypes["ME3/2"] = 8;
-  chamberTypes["ME4/1"] = 9;
-  chamberTypes["ME4/2"] = 8;
-
-  switch(chamberTypes[specs_->chamberTypeName()]){
-    case 1:
-      noise_level  = noise_level_ME1a;
-      xt_asymmetry = xt_asymmetry_ME1a;
-      const_syst = const_syst_ME1a;
-      break;
-
-    case 2:
-      noise_level  = noise_level_ME1b;
-      xt_asymmetry = xt_asymmetry_ME1b;
-      const_syst = const_syst_ME1b;
-
-    case 3:
-      noise_level  = noise_level_ME12;
-      xt_asymmetry = xt_asymmetry_ME12;
-      const_syst = const_syst_ME12;
-      break;
-
-    case 4:
-      noise_level  = noise_level_ME13;
-      xt_asymmetry = xt_asymmetry_ME13;
-      const_syst = const_syst_ME13;
-      break;
-
-    case 5:
-      noise_level  = noise_level_ME21;
-      xt_asymmetry = xt_asymmetry_ME21;
-      const_syst = const_syst_ME21;
-      break;
-
-    case 6:
-      noise_level  = noise_level_ME22;
-      xt_asymmetry = xt_asymmetry_ME22;
-      const_syst = const_syst_ME22;
-      break;
-
-    case 7:
-      noise_level  = noise_level_ME31;
-      xt_asymmetry = xt_asymmetry_ME31;
-      const_syst = const_syst_ME31;
-      break;
-
-    case 8:
-      noise_level  = noise_level_ME32;
-      xt_asymmetry = xt_asymmetry_ME32;
-      const_syst = const_syst_ME32;
-      break;
-
-    case 9:
-      noise_level  = noise_level_ME41;
-      xt_asymmetry = xt_asymmetry_ME41;
-      const_syst = const_syst_ME41;
-      break;
-
-    default:
-      noise_level  = noise_level_ME22;
-      xt_asymmetry = xt_asymmetry_ME22;
-      const_syst = const_syst_ME22;
-
-  }
-  maxConsecutiveStrips++;
-  if(stripHit.numberOfConsecutiveStrips()<maxConsecutiveStrips &&
-     fabs(stripHit.closestMaximum())>maxConsecutiveStrips/2){
-    sigma =  float(calculateXonStripError(stripWidth, ME1_1));
-  }
-  else{ //---- too close maxima or too wide strip cluster
-    sigma = stripWidth/sqrt(12);
-  }
-
+  sigma =  float(calculateXonStripError(stripWidth, ME1_1));
   quality_flag = 1;
 }
 
@@ -385,7 +274,7 @@ void CSCXonStrip_MatchGatti::setupMatrix() {
     cross_talks_inv(3,3) = cross_talks(3,3) = xt_lr2[iTime];
     cross_talks_inv.invert(err);
     if (err != 0) {
-      LogTrace("CSCRecHit")<<" Failed to invert XTalks matrix. Inaccurate cross-talk correction..."<<"\n";
+      std::cout<<" Failed to invert XTalks matrix. Bad..."<<std::endl;
     }
     //---- "charge" is XT-corrected charge
     charge = chargeSignal[0][iTime]*cross_talks_inv(1,1) + chargeSignal[1][iTime]*cross_talks_inv(1,2) + 
@@ -464,10 +353,9 @@ double CSCXonStrip_MatchGatti::estimated2GattiCorrection(double x_estimated, flo
   int stripDown = int(10.*stripWidth) - min_SW; // 0 is at min strip width calculated
   int stripUp = stripDown + 1;
   if(stripUp>n_SW-1){
-    //---- to be checked...
-    //if(stripUp>n_SW){
-      //std::cout<<" Is strip width = "<<stripWidth<<" OK?" <<std::endl;
-    //}
+    if(stripUp>n_SW){
+      std::cout<<" Is strip width = "<<stripWidth<<" OK?" <<std::endl;
+    }
     stripUp = n_SW-1;
   }
 

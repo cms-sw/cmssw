@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTPG.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.10 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -22,6 +22,7 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TCSCTPG: constructor...." << endl;
 
+  logFile_.open("L1TCSCTPG.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -33,6 +34,9 @@ L1TCSCTPG::L1TCSCTPG(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -94,7 +98,7 @@ void L1TCSCTPG::beginJob(const EventSetup& c)
 void L1TCSCTPG::endJob(void)
 {
   if(verbose_) cout << "L1TCSCTPG: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TCSCTPG") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -109,9 +113,9 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 
   Handle<CSCCorrelatedLCTDigiCollection> pCSCTPGcorrlcts;
   e.getByLabel(csctpgSource_,pCSCTPGcorrlcts);
-    
+  
   if (!pCSCTPGcorrlcts.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find CSCCorrelatedLCTDigiCollection with label "
+    edm::LogInfo("L1CSCTPG") << "can't find CSCCorrelatedLCTDigiCollection with label "
 			       << csctpgSource_.label() ;
     return;
   }

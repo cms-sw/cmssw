@@ -1,5 +1,5 @@
 //
-// $Id: PATHLTProducer.cc,v 1.1.2.2 2008/03/14 14:17:23 lowette Exp $
+// $Id: PATHLTProducer.cc,v 1.2 2008/02/28 15:34:10 llista Exp $
 //
 
 
@@ -15,11 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 using namespace pat;
-using namespace edm;
-using namespace std;
-
 
 PATHLTProducer::PATHLTProducer( const ParameterSet& iConfig ) :
   // initialize

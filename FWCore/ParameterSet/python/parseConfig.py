@@ -171,7 +171,7 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
     """recursively go through the using blocks and return all the contained valued"""
     if using.value() in otherUsings:
         raise pp.ParseFatalException(using.s,using.loc,
-    "the using.value()led '"+using.value()+"' recursively uses itself"+
+    "the using.labelled '"+using.value()+"' recursively uses itself"+
     "\n from file "+using.file)
     allUsingLabels.add(using.value())
     values = []
@@ -180,7 +180,7 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
     otherUsings.add(using.value())
     if using.value() not in process:
         raise pp.ParseFatalException(using.s,using.loc,
-                "the using.value()led '"+using.value()+"' does not correspond to a known block or PSet"
+                "the using.labelled '"+using.value()+"' does not correspond to a known block or PSet"
                 +"\n from file "+using.file)
     d = process[using.value()].__dict__
     usingLabels=[]
@@ -227,7 +227,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
         if hasattr(item,plabel):
             using = usingForValues[index]
             raise pp.ParseFatalException(using.s,using.loc,
-                "the labelledled '"+using.value()+"' tried to add the label '"+
+                "the using labelled '"+using.value()+"' tried to add the label '"+
                 plabel+"' which already exists in this block"
                 +"\n from file "+using.file)
         setattr(item,plabel,param)
@@ -435,8 +435,7 @@ def _makeUsing(s,loc,toks):
     #TEMP:usings are hard, lets wait
     #raise pp.ParseFatalException(s,loc,"using not yet implemented")
     options = PrintOptions()
-    return ('using_'+toks[0][1],cms.UsingBlock(toks[0][1]))
-
+    return ('using_'+toks[0][1],cms.UsingBlock(toks[0][1], s, loc, _fileStack[-1]))
 
 class _IncludeNode(cms._ParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
@@ -1582,6 +1581,13 @@ def parseCffFile(fileName):
     finally:
         _fileStack.pop()
 
+def parseConfigString(aString):
+    """Read an old style config string and return a dictionary"""
+    t=onlyFragment.parseString(aString)
+    global _allUsingLabels
+    d=_finalizeProcessFragment(t,_allUsingLabels)
+    return _ConfigReturn(d)
+                    
 def dumpCfg(fileName):
     return cfgDumper.parseFile(_fileFactory(fileName))[0]
 

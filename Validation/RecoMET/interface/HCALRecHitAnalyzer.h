@@ -34,9 +34,9 @@ private:
   // Inputs from Configuration
   std::string outputFile_;
   std::string geometryFile_;
-  edm::InputTag hBHERecHitsLabel_;
-  edm::InputTag hFRecHitsLabel_;
-  edm::InputTag hORecHitsLabel_;
+  std::string hBHERecHitsLabel_;
+  std::string hFRecHitsLabel_;
+  std::string hORecHitsLabel_;
   bool debug_;
   bool dumpGeometry_;
 

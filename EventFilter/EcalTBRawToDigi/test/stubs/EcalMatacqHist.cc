@@ -1,9 +1,11 @@
 #include "EcalMatacqHist.h"
 
+#include "TH1D.h"
 #include "TProfile.h"
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <FWCore/Utilities/interface/Exception.h>
 

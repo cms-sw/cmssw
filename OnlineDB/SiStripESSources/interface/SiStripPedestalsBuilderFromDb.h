@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripPedestalsBuilderFromDb.h,v 1.2 2007/03/19 13:23:06 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripPedestalsBuilderFromDb.h,v 1.1 2006/12/22 12:20:35 bainbrid Exp $
+// Latest tag:  $Name: TIF_190307 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripPedestalsBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripPedestalsBuilderFromDb_H
@@ -8,7 +8,6 @@
 #include "CalibTracker/SiStripPedestals/interface/SiStripPedestalsESSource.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
@@ -44,7 +43,7 @@ class SiStripPedestalsBuilderFromDb : public SiStripPedestalsESSource {
   SiStripConfigDb* db_;
   
   /** Container for DB connection parameters. */
-  SiStripDbParams dbParams_;
+  SiStripConfigDb::DbParams dbParams_;
   
 };
 

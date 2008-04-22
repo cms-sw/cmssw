@@ -30,9 +30,7 @@ public:
                const float& sHitPos, 
                const int& tmax, 
                const ChannelContainer& strips, 
-               const StripHitADCContainer& s_adc,
-               const int& numberOfConsecutiveStrips,
-               const int& closestMaximum);
+               const StripHitADCContainer& s_adc );
 
   ~CSCStripHit();
 
@@ -54,11 +52,6 @@ public:
   /// the ADC counts for each of the strip within cluster
   const StripHitADCContainer& s_adc() const { return theStripHitADCs; }
 
-  /// Number of consecutive strips with charge
-  int numberOfConsecutiveStrips() const { return theConsecutiveStrips; }
-
-  /// Number of strips to the closest other maximum
-  int closestMaximum() const { return theClosestMaximum; }
 
   
 private:
@@ -67,8 +60,6 @@ private:
   int theStripHitTmax;
   ChannelContainer theStrips;
   StripHitADCContainer theStripHitADCs;  
-  int theConsecutiveStrips;
-  int theClosestMaximum;
 
 };
 

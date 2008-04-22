@@ -1,12 +1,14 @@
 #ifndef PixelTKFECConfig_h
 #define PixelTKFECConfig_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelTKFECConfig.h
-* \brief This class specifies which TKFEC boards are used and how they are addressed
-*
-*   A longer explanation will be placed here later
-*
-*/
+//
+// This class specifies which TKFEC boards
+// are used and how they are addressed
+// 
+// 
+// 
+//
+//
+//
 #include <iostream>
 #include <vector>
 #include <string>
@@ -14,16 +16,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTKFECParameters.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelTKFECConfig PixelTKFECConfig.h
-*  \brief This class specifies which TKFEC boards are used and how they are addressed
-*
-*   A longer explanation will be placed here later
-*
-*/
   class PixelTKFECConfig: public PixelConfigBase {
 
   public:
@@ -50,5 +42,4 @@ namespace pos{
     std::vector< PixelTKFECParameters > TKFECconfig_;
   };
 }
-/* @} */
 #endif

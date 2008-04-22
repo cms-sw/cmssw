@@ -9,7 +9,6 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
-#include "DataFormats/PatCandidates/interface/Hemisphere.h"
 
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 
@@ -41,7 +40,6 @@ namespace pat {
   typedef edm::Ref<std::vector<pat::Jet> >      JetRef;
   typedef edm::Ref<std::vector<pat::MET> >      METRef;
   typedef edm::Ref<std::vector<pat::Particle> > ParticleRef;
-  typedef edm::Ref<std::vector<pat::Hemisphere> > HemisphereRef;
 
   typedef edm::Ref<std::vector<pat::ElectronType> > ElectronTypeRef;
   typedef edm::Ref<std::vector<pat::MuonType> >     MuonTypeRef;
@@ -100,7 +98,6 @@ namespace {
     pat::Jet                                    jet;
     pat::MET                                    met;
     pat::Particle                               part;
-    pat::Hemisphere                             hemisphere;
     std::vector<pat::Electron>                  v_el;
     std::vector<pat::Muon>                      v_mu;
     std::vector<pat::Tau>                       v_tau;
@@ -108,7 +105,6 @@ namespace {
     std::vector<pat::Jet>                       v_jet;
     std::vector<pat::MET>                       v_met;
     std::vector<pat::Particle>                  v_part;
-    std::vector<pat::Hemisphere>                v_hemi;
     edm::Wrapper<std::vector<pat::Electron> >   w_v_el;
     edm::Wrapper<std::vector<pat::Muon> >       w_v_mu;
     edm::Wrapper<std::vector<pat::Tau> >        w_v_tau;
@@ -116,7 +112,6 @@ namespace {
     edm::Wrapper<std::vector<pat::Jet> >        w_v_jet;
     edm::Wrapper<std::vector<pat::MET> >        w_v_met;
     edm::Wrapper<std::vector<pat::Particle> >   w_v_part;
-    edm::Wrapper<std::vector<pat::Hemisphere> >   w_v_hemi;
     edm::Ref<std::vector<pat::Electron> >       r_el;
     edm::Ref<std::vector<pat::Muon> >           r_mu;
     edm::Ref<std::vector<pat::Tau> >            r_tau;
@@ -124,7 +119,6 @@ namespace {
     edm::Ref<std::vector<pat::Jet> >            r_jet;
     edm::Ref<std::vector<pat::MET> >            r_met;
     edm::Ref<std::vector<pat::Particle> >       r_part;
-    edm::Ref<std::vector<pat::Hemisphere> >     r_hemi;
 
     pat::JetCorrFactors jcf;
     std::vector<pat::JetCorrFactors> v_jcf;

@@ -3,29 +3,6 @@ Instructions for use of CMSSWPlotAll
 ------------------------------------
 
 ===============================================================================
-Release: 2.4.0
-===============================================================================
-
-P. Dudero (dudero@physics.umn.edu)
-K. Klapoetke (klapoetke@physics.umn.edu)
-
-Compatibility: CMSSW_1_4_X
-
-Changes
--------
-
-- New electronics-centric plotting capability; plots can be selected by
-  crate/slot/fiber/etc.
-- Calibration channels can be plotted by their electronics id's
-
-Setup and Running
------------------
-
-- Same as in the previous version. Note that the new "reco_setup.rc" has
-  an additional "DO_CALIB" variable, so you can control whether calibration
-  channels are reconstructed and plottable, or not.
-
-===============================================================================
 Release: 2.3.0
 ===============================================================================
 

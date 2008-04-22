@@ -5,7 +5,6 @@
 <use name=DataFormats/GsfTrackReco>
 <use name=PhysicsTools/Utilities>
 <use name=TrackingTools/TransientTrack>
-<use name=RecoMuon/MuonIdentification>
 <use name=root>
 <flags LDFLAGS="-lMLP">
 <export>
@@ -17,6 +16,5 @@
   <use name=DataFormats/GsfTrackReco>
   <use name=PhysicsTools/Utilities>
   <use name=TrackingTools/TransientTrack>
-  <use name=RecoMuon/MuonIdentification>
   <use name=root>
 </export>

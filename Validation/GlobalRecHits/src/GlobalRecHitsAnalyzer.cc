@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/13 21:20:31 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/27 20:23:03 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -129,7 +129,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= SiStripString[amend]+"  rechits";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehSiStripn[amend] = dbe->book1D(hname,htitle,20,0.,20.);
+      mehSiStripn[amend] = dbe->book1D(hname,htitle,200,0.,200.);
       mehSiStripn[amend]->setAxisTitle("Number of hits in "+
 				       SiStripString[amend],1);
       mehSiStripn[amend]->setAxisTitle("Count",2);
@@ -155,8 +155,8 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     //HCal
     //string hcharname, hchartitle;
     string HCalString[4]={"HB", "HE", "HF", "HO"};
-    float HCalnUpper[4]={3000.,3000.,3000.,2000.}; 
-    float HCalnLower[4]={2000.,2000.,2000.,1000.};
+    float HCalnUpper[4]={3000.,3000.,3000.,3000.}; 
+    float HCalnLower[4]={0.,0.,0.,0.};
     for(int j =0; j <4; ++j) {
       mehHcaln[j]=0;
       mehHcalRes[j]=0;
@@ -168,7 +168,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= HCalString[amend]+"  rechits";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehHcaln[amend] = dbe->book1D(hname,htitle, 500, HCalnLower[amend], 
+      mehHcaln[amend] = dbe->book1D(hname,htitle, 1000, HCalnLower[amend], 
 				    HCalnUpper[amend]);
       mehHcaln[amend]->setAxisTitle("Number of RecHits",1);
       mehHcaln[amend]->setAxisTitle("Count",2);
@@ -184,9 +184,9 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     
     //Ecal
     string ECalString[3] = {"EB","EE", "ES"}; 
-    int ECalnBins[3] = {700,100,50};
-    float ECalnUpper[3] = {20000., 62000., 300.};
-    float ECalnLower[3] = {6000., 60000., 100.};
+    int ECalnBins[3] = {1000,3000,150};
+    float ECalnUpper[3] = {20000., 62000., 3000.};
+    float ECalnLower[3] = {0., 0., 0.};
     int ECalResBins[3] = {200,200,200};
     float ECalResUpper[3] = {1., 0.3, .0002};
     float ECalResLower[3] = {-1., -0.3, -.0002};
@@ -231,7 +231,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
       hchartitle= SiPixelString[amend]+" rechits";
       sprintf(hname, hcharname.c_str());
       sprintf(htitle, hchartitle.c_str());
-      mehSiPixeln[amend] = dbe->book1D(hname,htitle,20,0.,20.);
+      mehSiPixeln[amend] = dbe->book1D(hname,htitle,200,0.,200.);
       mehSiPixeln[amend]->setAxisTitle("Number of hits in "+
 				       SiPixelString[amend],1);
       mehSiPixeln[amend]->setAxisTitle("Count",2);
@@ -269,17 +269,17 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
       sprintf(hname, n_List[amend].c_str());
       sprintf(htitle, hchartitle.c_str());
       if(amend==0) {
-	mehDtMuonn=dbe->book1D(hname,htitle,25, 0., 50.);
+	mehDtMuonn=dbe->book1D(hname,htitle,50, 0., 500.);
 	mehDtMuonn->setAxisTitle("Number of Rechits",1);
 	mehDtMuonn->setAxisTitle("Count",2);
       }
       if(amend==1) {
-	mehCSCn=dbe->book1D(hname,htitle,25, 0., 50.);
+	mehCSCn=dbe->book1D(hname,htitle,50, 0., 500.);
 	mehCSCn->setAxisTitle("Number of Rechits",1);
 	mehCSCn->setAxisTitle("Count",2);
       }
       if(amend==2){
-	mehRPCn=dbe->book1D(hname,htitle,25, 0., 50.);
+	mehRPCn=dbe->book1D(hname,htitle,50, 0., 500.);
 	mehRPCn->setAxisTitle("Number of Rechits",1);
 	mehRPCn->setAxisTitle("Count",2);
       }

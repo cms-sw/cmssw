@@ -25,6 +25,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 //#include <strstream>
+#include <string>
 
 // Default constructor
 DDLShapelessSolid::DDLShapelessSolid()

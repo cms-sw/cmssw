@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -26,9 +26,7 @@
 using namespace pat;
 
 
-PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) 
-{
+PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) {
 
   // general configurables
   electronSrc_      = iConfig.getParameter<edm::InputTag>( "electronSource" );
@@ -40,7 +38,11 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_        = iConfig.getParameter<bool>         ( "useNNResolutions" );
   electronResoFile_ = iConfig.getParameter<std::string>  ( "electronResoFile" );
-
+  // isolation configurables
+  addTrkIso_        = iConfig.getParameter<bool>         ( "addTrkIsolation" );
+  tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSource" );
+  addCalIso_        = iConfig.getParameter<bool>         ( "addCalIsolation" );
+  towerSrc_         = iConfig.getParameter<edm::InputTag>( "towerSource" );
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
   elecIDSrc_        = iConfig.getParameter<edm::InputTag>( "electronIDSource" );
@@ -48,28 +50,18 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   elecIDRobustSrc_  = iConfig.getParameter<edm::InputTag>( "electronIDRobustSource" );
   
   // likelihood ratio configurables
-  tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSource" );
   addLRValues_      = iConfig.getParameter<bool>         ( "addLRValues" );
   electronLRFile_   = iConfig.getParameter<std::string>  ( "electronLRFile" );
+  // configurables for isolation from egamma producer
+  addEgammaIso_     = iConfig.getParameter<bool>         ( "addEgammaIso");
+  egammaTkIsoSrc_   = iConfig.getParameter<edm::InputTag>( "egammaTkIsoSource");
+  egammaTkNumIsoSrc_= iConfig.getParameter<edm::InputTag>( "egammaTkNumIsoSource");
+  egammaEcalIsoSrc_ = iConfig.getParameter<edm::InputTag>( "egammaEcalIsoSource");
+  egammaHcalIsoSrc_ = iConfig.getParameter<edm::InputTag>( "egammaHcalIsoSource");
   
   // construct resolution calculator
   if(addResolutions_){
     theResoCalc_= new ObjectResolutionCalc(edm::FileInPath(electronResoFile_).fullPath(), useNNReso_);
-  }
-
-  if (iConfig.exists("isoDeposits")) {
-     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
-     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
-     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(ECalIso, depconf.getParameter<edm::InputTag>("ecal")));
-     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(HCalIso, depconf.getParameter<edm::InputTag>("hcal")));
-     if (depconf.exists("user")) {
-        std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
-        std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
-        int key = UserBaseIso;
-        for ( ; it != ed; ++it, ++key) {
-            isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
-        }
-     }
   }
 
   // produces vector of muons
@@ -89,12 +81,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::Handle<edm::View<ElectronType> > electrons;
   iEvent.getByLabel(electronSrc_, electrons);
 
-  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
-
-  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
-  for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-    iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
-  }
 
   // prepare the MC matching
   edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
@@ -102,6 +88,32 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     iEvent.getByLabel(genMatchSrc_, genMatch);
   }
 
+  // prepare isolation calculation
+  edm::Handle<edm::View<reco::Track> > tracks;
+  if (addTrkIso_) {
+    trkIsolation_= new TrackerIsolationPt();
+    iEvent.getByLabel(tracksSrc_, tracks);
+  }
+  edm::Handle<edm::ValueMap<float> > tkIso;
+  edm::Handle<edm::ValueMap<float> > tkNumIso;
+  edm::Handle<edm::ValueMap<float> > ecalIso;
+  edm::Handle<edm::ValueMap<float> > hcalIso;
+  if (addEgammaIso_) {
+    iEvent.getByLabel(egammaTkIsoSrc_,tkIso);
+    iEvent.getByLabel(egammaTkNumIsoSrc_,tkNumIso);
+    iEvent.getByLabel(egammaEcalIsoSrc_,ecalIso);
+    iEvent.getByLabel(egammaHcalIsoSrc_,hcalIso);
+  }
+  std::vector<CaloTower> towers;
+  if (addCalIso_) {
+    calIsolation_= new CaloIsolationEnergy();
+    edm::Handle<edm::View<CaloTower> > towersH;
+    iEvent.getByLabel(towerSrc_, towersH);
+    for (edm::View<CaloTower>::const_iterator itTower = towersH->begin(); itTower != towersH->end(); itTower++) {
+      towers.push_back(*itTower);
+    }
+  }
+  
   // prepare ID extraction
   edm::Handle<reco::ElectronIDAssociationCollection> elecIDs;
   if (addElecID_) iEvent.getByLabel(elecIDSrc_, elecIDs);
@@ -112,9 +124,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   if(addLRValues_) {
     theLeptonLRCalc_= new LeptonLRCalc(iSetup, edm::FileInPath(electronLRFile_).fullPath(), "", "");
   }
-
-  edm::Handle<edm::View<reco::Track> > tracks;
-  iEvent.getByLabel(tracksSrc_, tracks);
 
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
   for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
@@ -136,22 +145,18 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if(addResolutions_){
       (*theResoCalc_)(anElectron);
     }
-    
-    // Isolation
-    if (isolator_.enabled()) {
-        isolator_.fill(*electrons, idx, isolatorTmpStorage_);
-        typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
-        // better to loop backwards, so the vector is resized less times
-        for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
-            anElectron.setIsolation(it->first, it->second);
-        }
+    // do tracker isolation
+    if (addTrkIso_) {
+      anElectron.setTrackIso(trkIsolation_->calculate(anElectron, *tracks));
     }
-
-    for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
-        anElectron.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[elecsRef]);
+    // do calorimeter isolation
+    if (addCalIso_) {
+      anElectron.setCaloIso(calIsolation_->calculate(anElectron, towers));
     }
-
-
+    // add isolation from egamma producers
+    if (addEgammaIso_) {
+      setEgammaIso(anElectron, electrons, tkIso, tkNumIso, ecalIso, hcalIso, idx);
+    }
     // add electron ID info
     if (addElecID_) {
       anElectron.setLeptonID(electronID(electrons, elecIDs, idx));
@@ -176,9 +181,9 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   iEvent.put(ptr);
 
   // clean up
+  if (addTrkIso_) delete trkIsolation_;
+  if (addCalIso_) delete calIsolation_;
   if (addLRValues_) delete theLeptonLRCalc_;
-
-  if (isolator_.enabled()) isolator_.endEvent();
 
 }
 
@@ -196,6 +201,23 @@ double PATElectronProducer::electronID(const edm::Handle<edm::View<ElectronType>
   return id->cutBasedDecision();
 }
 
+
+//fill the Electron with the isolation quantities calculated by the egamma producers
+void PATElectronProducer::setEgammaIso(Electron & anElectron,
+                                    const edm::Handle<edm::View<ElectronType> > & electrons,
+                                    const edm::Handle<edm::ValueMap<float> > tkIso,
+                                    const edm::Handle<edm::ValueMap<float> > tkNumIso,
+                                    const edm::Handle<edm::ValueMap<float> > ecalIso,
+                                    const edm::Handle<edm::ValueMap<float> > hcalIso,
+                                    unsigned int idx) {
+  //find isolations for elec with index idx
+  edm::Ref<std::vector<ElectronType> > elecsRef = electrons->refAt(idx).castTo<edm::Ref<std::vector<ElectronType> > >();
+  reco::CandidateBaseRef candRef(elecsRef);
+  anElectron.setEgammaTkIso((*tkIso)[candRef]);
+  anElectron.setEgammaTkNumIso((int) (*tkNumIso)[candRef]);
+  anElectron.setEgammaEcalIso((*ecalIso)[candRef]);
+  anElectron.setEgammaHcalIso((*hcalIso)[candRef]);
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

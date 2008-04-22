@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri Dec  7 20:50 CET 2007
-// $Id: SiStripMonitorQuality.cc,v 1.2 2008/01/22 18:52:44 muzaffar Exp $
+// $Id: SiStripMonitorQuality.cc,v 1.3 2008/03/01 00:38:25 dutta Exp $
 //
 //
 
@@ -78,8 +78,8 @@ void SiStripMonitorQuality::analyze(edm::Event const& iEvent, edm::EventSetup co
   
   m_cacheID_ = cacheID;       
 
-  std::string data_lebel = conf_.getParameter<std::string>("dataLabel");
-  eSetup.get<SiStripQualityRcd>().get(data_lebel,stripQuality_);
+  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
+  eSetup.get<SiStripQualityRcd>().get(quality_label,stripQuality_);
   eSetup.get<SiStripDetCablingRcd>().get( detCabling_ );
   
   edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "<<

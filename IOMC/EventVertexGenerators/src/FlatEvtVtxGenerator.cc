@@ -1,5 +1,5 @@
 
-// $Id: FlatEvtVtxGenerator.cc,v 1.3 2007/03/22 02:28:46 yarba Exp $
+// $Id: FlatEvtVtxGenerator.cc,v 1.2 2006/11/07 19:38:47 wdd Exp $
 
 #include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -8,7 +8,6 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
@@ -24,8 +23,7 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p )
   fMaxX = p.getParameter<double>("MaxX")*cm;
   fMaxY = p.getParameter<double>("MaxY")*cm;
   fMaxZ = p.getParameter<double>("MaxZ")*cm;     
-  fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light;
-  
+
   if (fMinX > fMaxX) {
     throw cms::Exception("Configuration")
       << "Error in FlatEvtVtxGenerator: "
@@ -48,7 +46,6 @@ FlatEvtVtxGenerator::~FlatEvtVtxGenerator()
   delete fRandom; 
 }
 
-
 //Hep3Vector * FlatEvtVtxGenerator::newVertex() {
 HepMC::FourVector* FlatEvtVtxGenerator::newVertex() {
   double aX,aY,aZ;
@@ -59,7 +56,7 @@ HepMC::FourVector* FlatEvtVtxGenerator::newVertex() {
   //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
   //fVertex->set(aX,aY,aZ);
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set(aX,aY,aZ,fTimeOffset);
+  fVertex->set(aX,aY,aZ,0.);
 
   return fVertex;
 }

@@ -44,6 +44,7 @@ my $usage =
     "\t--paths <-p1[,-p2]>         (include all paths but the specified)\n" .
     "\t--sequences <s1[,s2]>       (include sequences, referenced or not!)\n" .
     "\t--modules <p1[,p2]>         (include modules, referenced or not!)\n" .
+    "\t--blocks <m1::p1[,p2][,m2]> (generate parameter blocks\n" .
     "\t--logfile <filename>        (specify alternative to default /dev/null)\n" .
     "\n";
 
@@ -78,7 +79,8 @@ my %options      = ('--format',1,
 		    '--services',1,
 		    '--paths',1,
 		    '--sequences',1,
-		    '--modules',1
+		    '--modules',1,
+		    '--blocks',1
 		    );
 
 

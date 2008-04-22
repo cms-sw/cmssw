@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalMIPRecHitFilter.cc,v 1.1 2008/03/26 15:07:19 haupt Exp $
+// $Id: EcalMIPRecHitFilter.cc,v 1.2 2008/03/28 02:09:05 haupt Exp $
 //
 //
 
@@ -57,7 +57,8 @@ class EcalMIPRecHitFilter : public HLTFilter {
       // ----------member data ---------------------------
 
   edm::InputTag EcalRecHitCollection_;
-  double minAmp_;
+  double minAmp1_;
+  double minAmp2_;
   double minSingleAmp_;
   std::vector<int> maskedList_;
   int side_;
@@ -70,8 +71,9 @@ class EcalMIPRecHitFilter : public HLTFilter {
 EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-  minSingleAmp_     = iConfig.getUntrackedParameter<double>("SingleAmpMin", 9);
-  minAmp_     = iConfig.getUntrackedParameter<double>("AmpMin", 6.5);
+  minSingleAmp_     = iConfig.getUntrackedParameter<double>("SingleAmpMin", 0.108);
+  minAmp1_     = iConfig.getUntrackedParameter<double>("AmpMinSeed", 0.063);
+  minAmp2_     = iConfig.getUntrackedParameter<double>("AmpMin2", 0.045); 
   maskedList_ = iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_); //this is using the ashed index
   EcalRecHitCollection_ = iConfig.getParameter<edm::InputTag>("EcalRecHitCollection");
   side_ = iConfig.getUntrackedParameter<int>("side", 3);  
@@ -141,12 +143,11 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
 
      //Check for more robust selection other than just single crystal cosmics
-     if (ampli_ >= minAmp_)
+     if (ampli_ >= minAmp1_)
        {
 	 //std::cout << " THIS AMPLITUDE WORKS " << ampli_ << std::endl;
 	  std::vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
-          double secondMin = 0.;
-	  double E9 = ampli_;
+          float secondMin = 0.;
           for(std::vector<DetId>::const_iterator detitr = neighbors.begin(); detitr != neighbors.end(); ++detitr)
 	    {
 	      EcalRecHitCollection::const_iterator thishit = recHits->find((*detitr));
@@ -155,24 +156,18 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
 		  continue;
 		}
-	      double thisamp = (*thishit).energy();
-              E9+=thisamp;
+	      float thisamp = (*thishit).energy();
+              //E9+=thisamp;
 	      if (thisamp > secondMin) secondMin = thisamp;
 	    }
-          double E2 = ampli_ + secondMin;
-          if (E2 > 2*minAmp_ ) 
+	  if (secondMin > ampli_) std::swap(ampli_,secondMin);
+          //double E2 = ampli_ + secondMin;
+          if (secondMin > minAmp2_ ) 
 	    {
 	       thereIsSignal = true;
 	       break;
-	    }
-	  if (E9 > 2*minAmp_ ) 
-	    {
-	       thereIsSignal = true;
-	       break;
-	    }
-
+	    }	 
        }
-     
    }
    //std::cout << " Ok is There one of THEM " << thereIsSignal << std::endl;
    return thereIsSignal;

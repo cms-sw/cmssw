@@ -10,8 +10,6 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,8 +21,6 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
-#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
@@ -80,24 +76,15 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
   iSetup.get<IdealGeometryRecord>().get(geoHandle);
   
   // get the ecalBarrel geometry
-  const CaloSubdetectorGeometry *ebtmp = 
+  const CaloSubdetectorGeometry *ecalBarrelGeometry = 
     geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   
-  const EcalBarrelGeometry* ecalBarrelGeometry = 
-    dynamic_cast< const EcalBarrelGeometry* > (ebtmp);
-  assert( ecalBarrelGeometry );
-
   // get the ecalBarrel topology
   EcalBarrelTopology ecalBarrelTopology(geoHandle);
-
-  // get the endcap geometry
-  const CaloSubdetectorGeometry *eetmp = 
-    geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-
-  const EcalEndcapGeometry* ecalEndcapGeometry = 
-    dynamic_cast< const EcalEndcapGeometry* > (eetmp);
-  assert( ecalEndcapGeometry );
   
+  // get the endcap geometry
+  const CaloSubdetectorGeometry *ecalEndcapGeometry = 
+    geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
 
   // get the endcap topology
   EcalEndcapTopology ecalEndcapTopology(geoHandle);
@@ -380,11 +367,10 @@ PFRecHitProducerECAL::findRecHitNeighboursECAL
 
 // Build the array of (max)8 neighbors
 void 
-PFRecHitProducerECAL::ecalNeighbArray(
-			      const EcalBarrelGeometry& barrelGeom,
-			      const CaloSubdetectorTopology& barrelTopo,
-			      const EcalEndcapGeometry& endcapGeom,
-			      const CaloSubdetectorTopology& endcapTopo ){
+PFRecHitProducerECAL::ecalNeighbArray(const CaloSubdetectorGeometry& barrelGeom,
+				   const CaloSubdetectorTopology& barrelTopo,
+				   const CaloSubdetectorGeometry& endcapGeom,
+				   const CaloSubdetectorTopology& endcapTopo ){
   
 
   static const CaloDirection orderedDir[8]={SOUTHWEST,
@@ -445,8 +431,7 @@ PFRecHitProducerECAL::ecalNeighbArray(
             {
               DetId testid=central;
               bool status=stdmove(testid,orderedDir[idir],
-				  barrelTopo, endcapTopo,
-				  barrelGeom, endcapGeom);
+				  barrelTopo, endcapTopo);
               if(status) neighboursEB_[hashedindex][idir]=testid;
             }
 
@@ -499,9 +484,7 @@ PFRecHitProducerECAL::ecalNeighbArray(
             {
               DetId testid=central;
               bool status=stdmove(testid,orderedDir[idir],
-				  barrelTopo, endcapTopo,
-				  barrelGeom, endcapGeom);
-
+				  barrelTopo, endcapTopo );
               if(status) neighboursEE_[hashedindex][idir]=testid;
             }
 
@@ -515,85 +498,36 @@ PFRecHitProducerECAL::ecalNeighbArray(
 
 bool 
 PFRecHitProducerECAL::stdsimplemove(DetId& cell, 
-				    const CaloDirection& dir,
-				    const CaloSubdetectorTopology& barrelTopo,
-				    const CaloSubdetectorTopology& endcapTopo,
-				    const EcalBarrelGeometry& barrelGeom,
-				    const EcalEndcapGeometry& endcapGeom ) 
+				  const CaloDirection& dir,
+				  const CaloSubdetectorTopology& barrelTopo,
+				  const CaloSubdetectorTopology& endcapTopo ) 
   const {
 
   std::vector<DetId> neighbours;
-
-  // BARREL CASE 
-  if(cell.subdetId()==EcalBarrel) {
-    EBDetId ebDetId = cell;
-
-    neighbours = barrelTopo.getNeighbours(ebDetId,dir);
-
-    // first try to move according to the standard navigation
-    if(neighbours.size()>0 && !neighbours[0].null()) {
+  if(cell.subdetId()==EcalBarrel)
+    neighbours = barrelTopo.getNeighbours(cell,dir);
+  else if(cell.subdetId()==EcalEndcap)
+    neighbours= endcapTopo.getNeighbours(cell,dir);
+  
+  if(neighbours.size()>0 && !neighbours[0].null())
+    {
       cell = neighbours[0];
       return true;
     }
-
-    // failed.
-
-//     // are we on the outer ring ?
-//     const int ietaAbs ( ebDetId.ietaAbs() ) ; // abs value of ieta
-//     if( EBDetId::MAX_IETA == ietaAbs ) {
-//       // get ee nbrs for for end of barrel crystals  
-
-//       // yes we are
-//       const EcalBarrelGeometry::OrderedListOfEEDetId& 
-// 	ol( * barrelGeom.getClosestEndcapCells( ebDetId ) ) ;
-      
-//       // take closest neighbour on the other side, that is in the barrel.
-//       cell = *(ol.begin() );
-//       return true;
-//     }   
-  }
-
-  // ENDCAP CASE 
-  else if(cell.subdetId()==EcalEndcap) {
-
-    EEDetId eeDetId = cell;
-
-    neighbours= endcapTopo.getNeighbours(eeDetId,dir);
-
-    if(neighbours.size()>0 && !neighbours[0].null()) {
-      cell = neighbours[0];
-      return true;
+  else 
+    {
+      cell = DetId(0);
+      return false;
     }
-
-    // failed.
-
-//     // are we on the outer ring ?
-//     const int iphi ( eeDetId.iPhiOuterRing() ) ;    
-//     if( iphi!= 0) {
-//       // yes we are
-//       const EcalEndcapGeometry::OrderedListOfEBDetId& 
-// 	ol( * endcapGeom.getClosestBarrelCells( eeDetId ) ) ;
-      
-//       // take closest neighbour on the other side, that is in the barrel.
-//       cell = *(ol.begin() );
-//       return true;
-//     }   
-  } 
-
-  // everything failed 
-  cell = DetId(0);
-  return false;
 }
 
 
 
 bool 
 PFRecHitProducerECAL::stdmove(DetId& cell, 
-			      const CaloDirection& dir,
-			      const CaloSubdetectorTopology& barrelTopo,
-			      const CaloSubdetectorTopology& endcapTopo,
-			      const EcalBarrelGeometry& barrelGeom,
-			      const EcalEndcapGeometry& endcapGeom  ) 
+			   const CaloDirection& dir,
+			   const CaloSubdetectorTopology& barrelTopo,
+			   const CaloSubdetectorTopology& endcapTopo ) 
   
   const {
 
@@ -601,19 +535,19 @@ PFRecHitProducerECAL::stdmove(DetId& cell,
   bool result; 
 
   if(dir==NORTH) {
-    result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+    result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
     return result;
   }
   else if(dir==SOUTH) {
-    result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+    result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
     return result;
   }
   else if(dir==EAST) {
-    result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+    result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
     return result;
   }
   else if(dir==WEST) {
-    result = stdsimplemove(cell,WEST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+    result = stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
     return result;
   }
 
@@ -621,56 +555,56 @@ PFRecHitProducerECAL::stdmove(DetId& cell,
   // One has to try both paths
   else if(dir==NORTHEAST)
     {
-      result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+      result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
       if(result)
-        return stdsimplemove(cell,EAST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+        return stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
       else
         {
-          result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+          result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
           if(result)
-            return stdsimplemove(cell,NORTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+            return stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
           else
             return false; 
         }
     }
   else if(dir==NORTHWEST)
     {
-      result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+      result = stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
       if(result)
-        return stdsimplemove(cell,WEST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+        return stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
       else
         {
-          result = stdsimplemove(cell,WEST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+          result = stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
           if(result)
-            return stdsimplemove(cell,NORTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+            return stdsimplemove(cell,NORTH, barrelTopo, endcapTopo );
           else
             return false; 
         }
     }
   else if(dir == SOUTHEAST)
     {
-      result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+      result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
       if(result)
-        return stdsimplemove(cell,EAST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+        return stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
       else
         {
-          result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+          result = stdsimplemove(cell,EAST, barrelTopo, endcapTopo );
           if(result)
-            return stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+            return stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
           else
             return false; 
         }
     }
   else if(dir == SOUTHWEST)
     {
-      result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+      result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
       if(result)
-        return stdsimplemove(cell,WEST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+        return stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
       else
         {
-          result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+          result = stdsimplemove(cell,SOUTH, barrelTopo, endcapTopo );
           if(result)
-            return stdsimplemove(cell,WEST, barrelTopo, endcapTopo, barrelGeom, endcapGeom );
+            return stdsimplemove(cell,WEST, barrelTopo, endcapTopo );
           else
             return false; 
         }

@@ -1,7 +1,7 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id: StreamService.h,v 1.5 2008/02/27 16:00:52 meschi Exp $
+// $Id: StreamService.h,v 1.6 2008/03/10 10:05:57 meschi Exp $
 
 // - handling output files per stream make the problem 1-dimensional 
 // - allows to use different file handling rules per stream
@@ -33,9 +33,6 @@
 
 namespace edm {
 
-  typedef std::vector <boost::shared_ptr<FileRecord> >                                          OutputSummary;
-  typedef std::vector <boost::shared_ptr<FileRecord> >::iterator                                OutputSummaryIterator;
-  typedef std::vector <boost::shared_ptr<FileRecord> >::reverse_iterator                        OutputSummaryReIterator;
   typedef std::map <boost::shared_ptr<FileRecord>, boost::shared_ptr<OutputService> >           OutputMap;
   typedef std::map <boost::shared_ptr<FileRecord>, boost::shared_ptr<OutputService> >::iterator OutputMapIterator;
 
@@ -43,7 +40,7 @@ namespace edm {
     {
     public:
       StreamService(ParameterSet const&, InitMsgView const&);
-      ~StreamService() {}
+      ~StreamService() { stop(); }
       
       bool   nextEvent(EventMsgView const&);
       void   stop();
@@ -68,22 +65,28 @@ namespace edm {
       boost::shared_ptr<OutputService>  getOutputService(EventMsgView const&);
       boost::shared_ptr<FileRecord>     generateFileRecord();  
 
-      void   saveInitMessage(InitMsgView const&);
-      void   initializeSelection(InitMsgView const&);
-      bool   acceptEvent(EventMsgView const&);
-      void   setStreamParameter();
-      void   closeTimedOutFiles();
-      double getCurrentTime();
-      bool   checkEvent(boost::shared_ptr<FileRecord>, EventMsgView const&);
-      bool   checkFileSystem();
-      void   handleLock(boost::shared_ptr<FileRecord>);
-      
-      //
+      void        saveInitMessage(InitMsgView const&);
+      void        initializeSelection(InitMsgView const&);
+      bool        acceptEvent(EventMsgView const&);
+      void        setStreamParameter();
+      void        closeTimedOutFiles();
+      double      getCurrentTime() const;
+      bool        checkEvent(boost::shared_ptr<FileRecord>, EventMsgView const&) const;
+      bool        checkFileSystem() const;
+      void        handleLock(boost::shared_ptr<FileRecord>);
+      void        fillOutputSummaryClosed(const boost::shared_ptr<FileRecord> &file);
+      void        renameNotifyFile();
+      void        setNotifyFile();
+      std::string createNotifyFile() const;
+
+      // variables
       ParameterSet                           parameterSet_;
       boost::shared_ptr<edm::EventSelector>  eventSelector_;
       OutputMap                              outputMap_;
-      OutputSummary                          outputSummary_;
+      std::map<std::string, int>             outputSummary_;
+      std::list<std::string>                 outputSummaryClosed_;
       std::string                            currentLockPath_;
+      std::string                            notifyFileName_;
 
       // set from event message
       int    runNumber_;
@@ -107,6 +110,8 @@ namespace edm {
       long long maxSize_;
       double highWaterMark_;
       double lumiSectionTimeOut_;
+
+      int ntotal_; //total number of files
 
       //@@EM added lock to handle access to file list by monitoring loop
       boost::mutex list_lock_;

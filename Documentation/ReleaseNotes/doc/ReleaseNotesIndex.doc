@@ -1,5 +1,5 @@
 /*!
-\page ReleaseNotes Release Notes for CMSSW_1_8_x
+\page ReleaseNotes Release Notes for CMSSW_2_0_x
 
 
 \htmlonly
@@ -34,7 +34,7 @@
   </td> </tr>
 <td>  \endhtmlonly \ref DQMReleaseNotes \htmlonly  </td> 
   <td class="contact">
-    <a href="mailto:">Andreas Meier</a>
+    <a href="mailto:">Andreas Meyer</a>
   </td> </tr>
 <td>  \endhtmlonly \ref CalAliReleaseNotes \htmlonly  </td>
    <td class="contact">
@@ -64,6 +64,6 @@
 
 
 <hr>
-Last updated: @DATE@ K. Lassila-Perini
+Last updated: 10 April 2008 K. Lassila-Perini
  
 */

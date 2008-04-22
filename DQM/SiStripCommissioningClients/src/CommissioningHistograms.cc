@@ -354,29 +354,25 @@ void CommissioningHistograms::copyCustomInformation( DQMStore* const bei,
 	  << " NULL pointer to MonitorElement!";
 	continue;
       }
-      // Search for calchan, isha or vfs
-      if((*ime)->kind()==MonitorElement::DQM_KIND_INT) {
-        std::string title = (*ime)->getName();
-        std::string::size_type pos = title.find("calchan");
-        if( pos == std::string::npos ) pos = title.find("isha");
-        if( pos == std::string::npos ) pos = title.find("vfs");
-        if( pos != std::string::npos ) {
-          int value = (*ime)->getIntValue();
-          if ( value>=0 ) {
-            edm::LogVerbatim(mlDqmClient_)
+      // Search for calchan
+      std::string title = (*ime)->getName();
+      std::string::size_type pos = title.find("calchan");
+      if ( pos != std::string::npos ) {
+	int value = (*ime)->getIntValue();
+	if ( value>=0 ) {
+	  edm::LogVerbatim(mlDqmClient_)
+	    << "[CommissioningHistograms::" << __func__ << "]"
+	    << " Found \"" << title.substr(pos,std::string::npos)
+	    << "\" with value \"" << value << "\"";
+	  if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) {
+	    bei->setCurrentFolder(client_dir);
+	    bei->bookInt( title.substr(pos,std::string::npos))->Fill(value);
+	    edm::LogVerbatim(mlDqmClient_)
 	      << "[CommissioningHistograms::" << __func__ << "]"
-	      << " Found \"" << title.substr(pos,std::string::npos)
-	      << "\" with value \"" << value << "\"";
-	    if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) {
-	      bei->setCurrentFolder(client_dir);
-	      bei->bookInt( title.substr(pos,std::string::npos))->Fill(value);
-	      edm::LogVerbatim(mlDqmClient_)
-	        << "[CommissioningHistograms::" << __func__ << "]"
-	        << " Booked \"" << title.substr(pos,std::string::npos)
-	        << "\" in directory \"" << client_dir << "\"";
-	    }
+	      << " Booked \"" << title.substr(pos,std::string::npos)
+	      << "\" in directory \"" << client_dir << "\"";
 	  }
-        }
+	}
       }
     }
     istr++;
@@ -842,9 +838,6 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& mo
   
   // Extract data to be histogrammed
   uint32_t xbins = factory()->init( mon, pres, view, dir, gran, data() );
-  
-  // Only create histograms if entries are found!
-  if ( !xbins ) { return; }
   
   // Create summary histogram (if it doesn't already exist)
   TH1* summary = 0;

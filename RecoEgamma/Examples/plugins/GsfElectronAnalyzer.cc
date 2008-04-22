@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronAnalyzer.cc,v 1.6 2008/03/15 14:41:40 charlot Exp $
+// $Id: GsfElectronAnalyzer.cc,v 1.5 2008/03/15 01:05:52 charlot Exp $
 //
 //
 
@@ -33,7 +33,6 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include <iostream>
 #include "TMath.h"
@@ -441,7 +440,6 @@ GsfElectronAnalyzer::endJob(){
   
   // mc  
   h_simEta->Write();
-  h_simZ->Write();
   h_simAbsEta->Write();
   h_simP->Write();
   h_simPt->Write();
@@ -470,7 +468,6 @@ GsfElectronAnalyzer::endJob(){
   h_ele_vertexEtaVsPhi->Write();
   h_ele_simAbsEta_matched->Write();
   h_ele_simEta_matched->Write();
-  h_ele_simZ_matched->Write();
   h_ele_vertexPhi->Write();
   h_ele_vertexX->Write();
   h_ele_vertexY ->Write();
@@ -672,9 +669,6 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       pAssSim = genPc->momentum();
 
       if (pAssSim.perp()> maxPt_ || fabs(pAssSim.eta())> maxAbsEta_) continue;
-//CC@@
-// select z
-//      if (fabs((*mcIter)->production_vertex()->position().z()/10.)>10.) continue;
       
       // suppress the endcaps
       //if (fabs(pAssSim.eta()) > 1.5) continue;
@@ -772,16 +766,7 @@ GsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         histSclEta_->Fill(sclRef->eta());
         histSclEtaVsPhi_->Fill(sclRef->phi(),sclRef->eta());
         histSclPhi_->Fill(sclRef->phi());
-	if (sclRef->getHitsByDetId()[0].subdetId() != sclRef->seed()->getHitsByDetId()[0].subdetId()) 
-	 std::cout << "SC mismatch barrel/endcap " << std::endl;
-        for (int i=0;i<sclRef->getHitsByDetId().size();i++) if ( sclRef->getHitsByDetId()[i].subdetId() !=  sclRef->getHitsByDetId()[0].subdetId())
-	 std::cout << "SC mismatch barrel/endcap " << std::endl;
-	         
-//	if (bestGsfElectron.classification()%100 >= 30 && bestGsfElectron.classification()%100 <= 34) {
-//	std::cout << "first SC Xtal energy is " << sclRef->getHitsByDetId()[0].energy() << std::endl;
-//        std::cout << "first seed cluster Xtal energy is " << sclRef->seed()->getHitsByDetId()[0].energy() << std::endl;
-//        }
-	 
+
 	// track related distributions
 	h_ele_foundHits     -> Fill( bestGsfElectron.gsfTrack()->numberOfValidHits() );
 	h_ele_foundHitsVsEta     -> Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );

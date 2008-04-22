@@ -9,8 +9,12 @@
 
 #include "EventFilter/SiStripChannelChargeFilter/interface/TECClusterFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 //#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 //#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 //#include "DataFormats/SiStripDetId/interface/TOBDetId.h"

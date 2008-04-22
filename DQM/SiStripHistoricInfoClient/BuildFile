@@ -9,16 +9,17 @@
 <use name=CalibTracker/SiStripConnectivity>
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/UI>
 <use name=DQMServices/XdaqCollector>
 <use name=DQMServices/WebComponents>
 <use name=oracle>
 <use name=xdaq>
 <use name=xerces-c>
-
-<flags EDM_PLUGIN=1>
-
+<flags SEAL_PLUGIN_NAME="DQMSiStripHistoricInfoClient">
 <export>
-  <lib name=DQMSiStripHistoricInfoClient>
+  <lib name=DQMSiStripHistoricClient>
   <use name=root>
   <use name=boost>
   <use name=CondFormats/SiStripObjects>
@@ -30,6 +31,9 @@
   <use name=CalibTracker/SiStripConnectivity>
   <use name=DQM/SiStripCommon>
   <use name=DQMServices/Core>
+  <use name=DQMServices/NodeROOT>
+  <use name=DQMServices/Daemon>
+  <use name=DQMServices/UI>
   <use name=DQMServices/Components>
   <use name=DQMServices/WebComponents>
   <use name=oracle>

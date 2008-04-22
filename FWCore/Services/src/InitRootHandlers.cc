@@ -18,21 +18,16 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 
   edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info;
 
-  if (level >= kFatal) {
-    el_severity = edm::ELseverityLevel::ELsev_fatal;
-    die = true;
+  if (level >= kFatal) { el_severity = edm::ELseverityLevel::ELsev_fatal;
   }
   else if (level >= kSysError) {
     el_severity = edm::ELseverityLevel::ELsev_severe;
-    die = true;
   }
   else if (level >= kError) {
     el_severity = edm::ELseverityLevel::ELsev_error;
-    die = true;
   }
   else if (level >= kWarning) {
-    el_severity = edm::ELseverityLevel::ELsev_error;
-    die = true;
+    el_severity = edm::ELseverityLevel::ELsev_warning;
   }
 
 // Adapt C-strings to std::strings
@@ -74,12 +69,10 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 
     if (el_message.find("dictionary") != std::string::npos) {
       el_severity = edm::ELseverityLevel::ELsev_info;
-      die = false;
     }
 
     if (el_message.find("already in TClassTable") != std::string::npos) {
       el_severity = edm::ELseverityLevel::ELsev_info;
-      die = false;
     }
 
 // Intercept some messages and upgrade the severity

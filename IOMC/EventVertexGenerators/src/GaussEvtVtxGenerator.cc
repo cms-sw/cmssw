@@ -1,5 +1,5 @@
 
-// $Id: GaussEvtVtxGenerator.cc,v 1.4 2007/09/14 08:31:57 fabiocos Exp $
+// $Id: GaussEvtVtxGenerator.cc,v 1.3 2007/03/22 02:28:46 yarba Exp $
 
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -8,7 +8,6 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
@@ -24,8 +23,7 @@ GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet & p )
   fSigmaX = p.getParameter<double>("SigmaX")*cm;
   fSigmaY = p.getParameter<double>("SigmaY")*cm;
   fSigmaZ = p.getParameter<double>("SigmaZ")*cm;
-  fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light;
-  
+
   if (fSigmaX < 0) {
     throw cms::Exception("Configuration")
       << "Error in GaussEvtVtxGenerator: "
@@ -48,7 +46,6 @@ GaussEvtVtxGenerator::~GaussEvtVtxGenerator()
   delete fRandom; 
 }
 
-
 //Hep3Vector* GaussEvtVtxGenerator::newVertex() {
 HepMC::FourVector* GaussEvtVtxGenerator::newVertex() {
   double X,Y,Z;
@@ -58,7 +55,7 @@ HepMC::FourVector* GaussEvtVtxGenerator::newVertex() {
 
   //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set( X, Y, Z, fTimeOffset ) ;
+  fVertex->set( X, Y, Z, 0. ) ;
 
   return fVertex;
 }

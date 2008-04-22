@@ -1,16 +1,20 @@
 // Test CSCDetId & CSCIndexer 13.11.2007 ptc
 
 //#include <memory>
+#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/MuonDetId/interface/CSCIndexer.h>
 #include <DataFormats/GeometryVector/interface/Pi.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
 #include <cmath>
 #include <iomanip> // for setw() etc.

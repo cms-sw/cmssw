@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.11 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  */
@@ -22,6 +22,7 @@ L1TDTTF::L1TDTTF(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TDTTF: constructor...." << endl;
 
+  logFile_.open("L1TDTTF.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -33,6 +34,9 @@ L1TDTTF::L1TDTTF(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -112,7 +116,7 @@ void L1TDTTF::beginJob(const EventSetup& c)
 void L1TDTTF::endJob(void)
 {
   if(verbose_) cout << "L1TDTTF: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TDTTF") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -129,7 +133,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
   e.getByLabel(dttfSource_,pCollection);
   
   if (!pCollection.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label "
+    edm::LogInfo("L1TDTTF") << "can't find L1MuGMTReadoutCollection with label "
 			       << dttfSource_.label() ;
     return;
   }

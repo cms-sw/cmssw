@@ -6,9 +6,6 @@
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
-<use name=DataFormats/HcalDetId>
-<use name=DataFormats/EcalDetId>
-<use name=Geometry/EcalAlgo>
 <use name=RecoParticleFlow/PFClusterAlgo>
 < flags EDM_PLUGIN=1 >
 <export>
