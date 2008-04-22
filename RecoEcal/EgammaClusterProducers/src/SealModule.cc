@@ -9,7 +9,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/RecHitFilter.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterShapeProducer.h"
-
+#include "RecoEcal/EgammaClusterProducers/interface/ReducedRecHitCollectionProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/FixedMatrixClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/FixedMatrixSuperClusterProducer.h"
 
