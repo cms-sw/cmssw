@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.32 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -222,9 +222,9 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
 
-      if ( xval <= 16. ) continue;
-
-      if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
+      if ( xval > 16. ) {
+        if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
+      }
 
     }
 

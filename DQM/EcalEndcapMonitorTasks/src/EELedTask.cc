@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.35 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -659,7 +659,9 @@ void EELedTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meAmplMap ) meAmplMap->Fill(xix, xiy, xval);
 
-      if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
+      if ( xval > 16. ) {
+        if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval);
+      }
 
       float wval = 0.;
 

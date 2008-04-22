@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.111 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  *
 */
@@ -947,7 +947,9 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      if ( xval > 12. ) {
+        if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      }
 
       float wval = 0.;
 

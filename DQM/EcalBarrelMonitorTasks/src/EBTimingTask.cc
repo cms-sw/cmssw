@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.39 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -221,9 +221,9 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
 
-      if ( xval <= 12. ) continue;
-
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      if ( xval > 12. ) {
+        if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      }
 
     }
 
