@@ -156,6 +156,10 @@ class PFRootEventManager {
   /// reset before next event
   void reset();
 
+  /// get name of genParticle
+  std::string getGenParticleName(int partId,std::string &latexStringName) const;
+  
+  			 
   /// parse option file
   /// if(reconnect), the rootfile will be reopened, and the tree reconnected
   void readOptions(const char* file, 
@@ -276,6 +280,7 @@ class PFRootEventManager {
   /// print the HepMC truth
   void printGenParticles(std::ostream& out = std::cout,
                          int maxNLines = -1) const;
+			 
   
   /*   /// is inside cut G?  */
   /*   bool   insideGCut(double eta, double phi) const; */

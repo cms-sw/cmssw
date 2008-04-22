@@ -11,11 +11,13 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 
+
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFSimParticle.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFGenParticle.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h"
 
 #include <TTree.h>
@@ -49,12 +51,6 @@ DisplayManager::DisplayManager(PFRootEventManager *em,
   maxEvents_= em_->tree_->GetEntries();  
   
   createCanvas();
-  
-  //Clusterlines don't work anymore 
-  //vectGClusterLines_.resize(NViews);
-  //vectClusLNb_.resize(NViews);
-  
-
 }
 //________________________________________________________
 DisplayManager::~DisplayManager()
@@ -123,6 +119,8 @@ void DisplayManager::readOptions( const char* optfile ) {
   trackPatternL_ = new TAttLine(trackAttributes_[0],trackAttributes_[1],1);
   trackPatternM_ = new TAttMarker(trackAttributes_[0],trackAttributes_[2],(double)trackAttributes_[3]/10);
   
+  genPartPattern_= new TAttMarker(kGreen-1,22,1.);
+  
   simPartPatternPhoton_ = new TAttMarker(4,3,.8);
   simPartPatternElec_   = new TAttMarker(4,5,.8);
   simPartPatternMuon_   = new TAttMarker(4,2,.8);
@@ -154,6 +152,11 @@ void DisplayManager::readOptions( const char* optfile ) {
 
   particlePtMin_ = -1;
   options_->GetOpt("display", "particles_ptmin", particlePtMin_);
+  
+  
+  drawGenParticles_=false;
+  genParticlePtMin_ = 0;
+  
   
   trackPtMin_ = -1;
   options_->GetOpt("display", "rectracks_ptmin", trackPtMin_);
@@ -807,6 +810,16 @@ void DisplayManager::displayAll(bool noRedraw)
           }
       }
       break;
+    case GENPARTICLEID:
+      {  
+        if (drawGenParticles_) 
+          if (p->second->getPt() > genParticlePtMin_) 
+	    if (view == EPH || view ==EPE) {
+              displayView_[view]->cd();
+              p->second->draw();
+	    }  
+      } 
+      break;	       
     default : std::cout<<"DisplayManager::displayAll()-- unknown object "<<std::endl;               
     }  //switch end
   }   //for end
@@ -1105,6 +1118,102 @@ double DisplayManager::getMaxEHcal() {
   }
   return maxERecHitHcal_;
 } 
+//________________________________________________________________________________________________
+void DisplayManager::loadGGenParticles()
+{
+  
+  const HepMC::GenEvent* myGenEvent = em_->MCTruth_.GetEvent();
+  if(!myGenEvent) return;
+  for ( HepMC::GenEvent::particle_const_iterator piter  = myGenEvent->particles_begin();
+                                                 piter != myGenEvent->particles_end(); 
+                                                 ++piter ) {
+      HepMC::GenParticle* p = *piter;
+      if ( !p->production_vertex() ) continue;
+      createGGenParticle(p);
+ } 
+}
+//____________________________________________________________________________
+void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
+{
+   // HepMC::GenParticle* p = *piter;
+   // if ( !p->production_vertex() ) return;
+    
+    int partId = p->pdg_id();
+    std::string name;
+    std::string latexStringName;
+
+    name = em_->getGenParticleName(partId,latexStringName);
+    int barcode = p->barcode();
+    int genPartId=(GENPARTICLEID<<shiftId_) | barcode;
+    
+    
+    int vertexId1 = 0;
+    vertexId1 = p->production_vertex()->barcode();
+    
+    math::XYZVector vertex1 (p->production_vertex()->position().x()/10.,
+                             p->production_vertex()->position().y()/10.,
+                             p->production_vertex()->position().z()/10.);
+			     
+    math::XYZTLorentzVector momentum1(p->momentum().px(),
+                                      p->momentum().py(),
+                                      p->momentum().pz(),
+                                      p->momentum().e());
+				      
+    double eta = momentum1.eta();
+    if ( eta > +10. ) eta = +10.;
+    if ( eta < -10. ) eta = -10.;
+    
+    double phi = momentum1.phi();
+    
+    double pt = momentum1.pt();
+    double e = momentum1.e();
+    
+//mother ?    
+    const HepMC::GenParticle* mother = 
+      *(p->production_vertex()->particles_in_const_begin());
+      
+    GPFGenParticle *gp; 
+
+    if ( mother ) {
+       int barcodeMother = mother->barcode();
+       math::XYZTLorentzVector momentumMother(mother->momentum().px(),
+                                      mother->momentum().py(),
+                                      mother->momentum().pz(),
+                                      mother->momentum().e());
+       double etaMother = momentumMother.eta();				      
+       if ( etaMother > +10. ) etaMother = +10.;
+       if ( etaMother < -10. ) etaMother = -10.;
+       double phiMother = momentumMother.phi();
+    
+       
+       double x[2],y[2];
+       x[0]=etaMother;x[1]=eta;
+       y[0]=phiMother;y[1]=phi;
+       
+       for (int view = 2; view< NViews; view++) {
+         gp   = new GPFGenParticle(this,             //do 2 constructors with 2 differents GPFBase constructors
+                                   view, genPartId,
+				   x, y,              //double *, double *
+				   e,pt,barcode,barcodeMother,
+				   genPartPattern_,
+				   latexStringName);
+	 graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
+       }
+    }
+    else {     //no Mother    
+      for (int view = 2; view< NViews; view++) {
+        gp   = new GPFGenParticle(this,
+                                   view, genPartId,
+				   eta, phi,                  //double double
+			           e,pt,barcode,
+				   genPartPattern_,
+				   latexStringName);
+        graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
+      }					      
+    }
+//    if (phi>1.) phi-=2.*TMATH::Pi();
+//    if (phi<-1.) phi+=2.*TMATH::Pi()
+}
 //____________________________________________________________________________  
 void DisplayManager::loadGClusters()
 {
@@ -1214,6 +1323,7 @@ void DisplayManager::loadGraphicObjects()
   loadGRecTracks();
   loadGSimParticles();
   loadGPFBlocks();
+  loadGGenParticles();
 }
 //________________________________________________________
 void DisplayManager::loadGRecHits()
@@ -1522,10 +1632,7 @@ void DisplayManager::reset()
   maxERecHitEcal_=-1;
   maxERecHitHcal_=-1;
   isGraphicLoaded_= false;
-  //for (int i=0;i<NViews;i++) {
-  //  vectGClusterLines_[i].clear();
-  //  vectClusLNb_[i].clear();
-  //}
+  
   std::multimap<int,GPFBase *>::iterator p;
   for (p=graphicMap_.begin();p!=graphicMap_.end();p++)
     delete p->second;
@@ -1558,89 +1665,18 @@ void DisplayManager::setNewAttrToSimParticles()
   simPartPatternM_.push_back(simPartPatternProton_);
   simPartPatternM_.push_back(simPartPatternNeutron_);
   simPartPatternM_.push_back(simPartPatternDefault_);
-}  
- //_________________________________________________________________________________
-// void DisplayManager::updateDisplay()
-// {
-//  for( unsigned i=0; i<displayView_.size(); i++) {
-//     if( gROOT->GetListOfCanvases()->FindObject(displayView_[i]) ) {
-//       displayView_[i]->Modified();
-//       displayView_[i]->Update();
-//     }  
-//   }
-// }
-//_____________________________________________________________________________________________________
-/*void DisplayManager::drawClusters(int viewType,double enmin)
-  {
-  int size=vectGClus_[viewType].size();
-  if (size) {
-  if (enmin == 0) {
-  int istart=0;
-  for (int i=0;i<size;i++) {
-  (vectGClus_[viewType])[i].Draw();
-  if (drawClusterL_ && (viewType == EPE || viewType == EPH)) {
-  drawClusterLines(i,viewType,istart);
-  }     
-  }
-  }
-  }
-  else {
-  int istart=0;
-  for (int i=0;i<size;i++) {
-  if ((vectGClus_[viewType])[i].getEnergy()>=enmin) {
-  (vectGClus_[viewType])[i].Draw();
-  if (drawClusterL_ && (viewType == EPE || viewType == EPH)) {
-  drawClusterLines(i,viewType,istart);
-  }     
-  }
-  }
-  }
-  }
-  //______________________________________________________________________________________________
-  void DisplayManager::drawClusterLines(int clusIndex,int viewType,int &istart)
-  {
-  int i;
-  for (i=istart;i<istart+(vectClusLNb_[viewType])[clusIndex];i++) 
-  (vectGClusterLines_[viewType])[i].Draw();
-  istart=i;
-  }
-*/
-//________________________________________________________________________________________
-/*void DisplayManager::createGClusterLines(const reco::PFCluster& cluster,int viewType)
-{
-  
-  int color = 2;
+} 
 
-  const math::XYZPoint& xyzPos = cluster.positionXYZ();
-  double eta = xyzPos.Eta(); 
-  double phi = xyzPos.Phi(); 
-  
-  const std::vector< reco::PFRecHitFraction >& rhfracs = 
-    cluster.recHitFractions();
-    
-
-  //   int color = cluster.type();
-
-  // draw a line from the cluster to each of the rechits
-  int nbhits=0;
- 
-  for(unsigned i=0; i<rhfracs.size(); i++) {
-
-    // rechit index 
-    // unsigned rhi = rhfracs[i].recHitIndex();
-
-    const reco::PFRecHit& rh = *(rhfracs[i].recHitRef());
-
-
-    double rheta = rh.positionXYZ().Eta();
-    double rhphi = rh.positionXYZ().Phi();
-    
-    TLine l(eta,phi,rheta,rhphi);
-    l.SetLineColor(color);
-    vectGClusterLines_[viewType].push_back(l);
-    ++nbhits;
-    
-  }
-  vectClusLNb_[viewType].push_back(nbhits);
+//_______________________________________________________________________________
+void DisplayManager::printGenParticleInfo(int barcode,int barcodeMother) 
+{ 
+  const HepMC::GenEvent* myGenEvent = em_->MCTruth_.GetEvent();
+  HepMC::GenParticle *p = myGenEvent->barcode_to_particle(barcode);
+  std::cout<<"particle with barcode "<<barcode<<std::flush<<std::endl;
+  p->print();
+  if (barcodeMother) { 
+     HepMC:: GenParticle *mother = myGenEvent->barcode_to_particle(barcodeMother);
+     std::cout<<"mother particle with barcode "<<barcodeMother<<std::flush<<std::endl;
+     mother->print();
+  }    
 }
-*/

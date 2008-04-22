@@ -4,7 +4,7 @@
 #include <TGClient.h>
 #include <TGButton.h>
 #include <TGButtonGroup.h>
-#include <TGSlider.h>
+#include <TGDoubleSlider.h>
 #include <TGNumberEntry.h>
 #include <TGFrame.h>
 #include <TGLabel.h>
@@ -39,9 +39,9 @@ class DialogFrame  : public TGMainFrame {
   TGCompositeFrame    *cmdFrame_;
     
 
-  TGCheckButton       *selectObject_[5];
+  TGCheckButton       *selectObject_[6];
   TGCheckButton       *printButton_[7];
-  TGHSlider           *thresholdS_[5];
+  TGDoubleHSlider     *thresholdS_[5];
   TGNumberEntryField  *threshEntry_[5];
   TGNumberEntryField  *maxLineEntry_; 
   TGNumberEntryField  *particleTypeEntry_; 
@@ -64,12 +64,11 @@ class DialogFrame  : public TGMainFrame {
   void closeCanvasAttr();   
   void createCmdFrame();
   void createCanvasAttr();
-  void doDisplayGenParticle();
   void doLookForGenParticle();
   void doNextEvent();
   void doPreviousEvent();
   void doModifyOptions(unsigned obj);
-  void doModifyPtThreshold(unsigned obj,long val);
+  void doModifyPtThreshold(unsigned obj,double val);
   void isPFBlockVisible();
   void doPrint();
   void doPrintGenParticles();

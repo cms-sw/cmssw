@@ -109,34 +109,39 @@ void DialogFrame::createCmdFrame()
   selectObject_[2] = new TGCheckButton(gr1,"Tracks");
   selectObject_[2]->SetState(display_->drawTracks_ ? kButtonDown :kButtonUp);
   selectObject_[2]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=2)");
-  selectObject_[3] = new TGCheckButton(gr1,"Particles");
+  selectObject_[3] = new TGCheckButton(gr1,"SimParticles");
   selectObject_[3]->SetState(display_->drawParticles_ ? kButtonDown :kButtonUp);
   selectObject_[3]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=3)");
-  selectObject_[4] = new TGCheckButton(gr1,"PFBlock visible");
-  selectObject_[4]->SetState(display_->drawPFBlocks_ ? kButtonDown :kButtonUp);
-  selectObject_[4]->Connect("Clicked()","DialogFrame",this,"isPFBlockVisible()");
+  selectObject_[4] = new TGCheckButton(gr1,"GenParticles");
+  selectObject_[4]->SetState(display_->drawGenParticles_ ? kButtonDown :kButtonUp);
+  selectObject_[4]->Connect("Clicked()","DialogFrame",this,"doModifyOptions(=4)");
+  selectObject_[5] = new TGCheckButton(gr1,"PFBlock visible");
+  selectObject_[5]->SetState(display_->drawPFBlocks_ ? kButtonDown :kButtonUp);
+  selectObject_[5]->Connect("Clicked()","DialogFrame",this,"isPFBlockVisible()");
 
   // create threshold fields
   TGNumberFormat::ELimit lim = TGNumberFormat::kNELLimitMinMax;  
-  for (int i=0;i<4;++i){
-    thresholdS_[i] = new TGHSlider(gr1,100,kSlider1,ENER+i);
+  for (int i=0;i<5;++i){
+    thresholdS_[i] = new TGDoubleHSlider(gr1,100,kDoubleScaleNo,ENER+i);
     thresholdS_[i]->Associate(this);
     thresholdS_[i]->SetRange(0,10);
    
     threshEntry_[i] = new TGNumberEntryField(gr1,EN+i,0);
     threshEntry_[i]->Associate(this);
     threshEntry_[i]->SetLimits(lim,0,10);
-    threshEntry_[i]->SetFormat((TGNumberFormat::EStyle)0);
+    threshEntry_[i]->SetFormat((TGNumberFormat::EStyle)2);
   }
-  thresholdS_[0]->SetPosition((long) display_->hitEnMin_);
-  thresholdS_[1]->SetPosition((long) display_->clusEnMin_);
-  thresholdS_[2]->SetPosition((long) display_->trackPtMin_);
-  thresholdS_[3]->SetPosition((long) display_->particlePtMin_);
+  thresholdS_[0]->SetPosition((float) display_->hitEnMin_,(float) display_->hitEnMin_);
+  thresholdS_[1]->SetPosition((float) display_->clusEnMin_,(float)display_->clusEnMin_);
+  thresholdS_[2]->SetPosition((float) display_->trackPtMin_,(float)display_->trackPtMin_);
+  thresholdS_[3]->SetPosition((float) display_->particlePtMin_,(float)display_->particlePtMin_);
+  thresholdS_[4]->SetPosition((float) display_->genParticlePtMin_,(float)display_->genParticlePtMin_);
+  
   
   int charw= threshEntry_[0]->GetCharWidth("O");
   int size=charw*4;
-  for (int i=0;i<4;++i) {
-    threshEntry_[i]->SetIntNumber(thresholdS_[i]->GetPosition());
+  for (int i=0;i<5;++i) {
+    threshEntry_[i]->SetNumber(thresholdS_[i]->GetMinPosition());
     threshEntry_[i]->Resize(size,threshEntry_[i]->GetDefaultHeight());
   }
   
@@ -149,12 +154,12 @@ void DialogFrame::createCmdFrame()
   label=new TGLabel(gr1," (Gev) ");  
   gr1->AddFrame(label,lo1);
   
-  for (int i=0;i<4;++i) {
+  for (int i=0;i<5;++i) {
     gr1->AddFrame(selectObject_[i],lo1);
     gr1->AddFrame(thresholdS_[i],lo1);
     gr1->AddFrame(threshEntry_[i],lo1);
   }
-  gr1->AddFrame(selectObject_[4],lo1);   // no thresh for clusterLines
+  gr1->AddFrame(selectObject_[5],lo1);   
   h1Frame1->AddFrame(gr1,lo1);
   
   //add options frame
@@ -280,11 +285,6 @@ void DialogFrame::CloseWindow()
   gApplication->Terminate(0);
 }
 //_________________________________________________________________________________
-void DialogFrame::doDisplayGenParticle()
-{
-  std::cout<<"DisplayGenParticle() not yet implemented"<<std::endl;
-}
-//_________________________________________________________________________________
 void DialogFrame::doLookForGenParticle()
 {
  int num = particleTypeEntry_->GetIntNumber();
@@ -308,8 +308,8 @@ void DialogFrame::doModifyOptions(unsigned objNb)
     display_->drawParticles_ = (selectObject_[3]->IsDown()) ?true :false;
     break;
   case 4:
-    display_->drawClusterL_ = (selectObject_[4]->IsDown()) ?true :false;
-    break;
+    display_->drawGenParticles_ = (selectObject_[4]->IsDown()) ?true :false;
+    break;    
   }
   display_->displayAll();    
 }
@@ -319,20 +319,23 @@ DialogFrame::~DialogFrame()
   mainFrame_->Cleanup();
 }
 //________________________________________________________________________________
-void DialogFrame::doModifyPtThreshold(unsigned objNb,long pt)
+void DialogFrame::doModifyPtThreshold(unsigned objNb,double pt)
 {
   switch(objNb) {
   case 0: 
-    display_->hitEnMin_=(double)pt;break;
+    display_->hitEnMin_= pt;break;
     break;
   case 1:
-    display_->clusEnMin_=(double)pt;break;
+    display_->clusEnMin_= pt;break;
     break;
   case 2:
-    display_->trackPtMin_=(double)pt;break;
+    display_->trackPtMin_= pt;break;
     break;
   case 3:
-    display_->particlePtMin_=(double)pt;break;
+    display_->particlePtMin_= pt;break;
+  case 4:
+    display_->genParticlePtMin_= pt;break;
+    
   default:break;
   }  
   display_->displayAll();
@@ -445,11 +448,11 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
     switch (GET_SUBMSG(msg)) {
     case kTE_ENTER:
       switch (parm1) {
-      case EN :case EN+1: case EN+2: case EN+3:
+      case EN :case EN+1: case EN+2: case EN+3: case EN+4:
         {
           //int eventNumber=evMan_->iEvent_;
-          long val=threshEntry_[parm1-EN]->GetIntNumber();
-          thresholdS_[parm1-EN]->SetPosition(val);
+          float val=threshEntry_[parm1-EN]->GetNumber();
+          thresholdS_[parm1-EN]->SetPosition(val,val);
           doModifyPtThreshold(parm1-EN,val);
           break;
         }
@@ -471,10 +474,11 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
     switch (GET_SUBMSG(msg)) {
     case kSL_POS:
       switch (parm1) {
-      case ENER: case ENER+1: case ENER+2: case ENER+3:
+      case ENER: case ENER+1: case ENER+2: case ENER+3: case ENER+4:
         {
           unsigned index=parm1-ENER;
-          threshEntry_[index]->SetIntNumber(parm2);
+          float val = thresholdS_[index]->GetMinPosition();
+          threshEntry_[index]->SetNumber(val);
           fClient->NeedRedraw(threshEntry_[index]);
           break;
         } 
@@ -483,10 +487,10 @@ Bool_t DialogFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
       break;  
     case kSL_RELEASE:
       switch (parm1) {
-      case ENER: case ENER+1: case ENER+2: case ENER+3:
+      case ENER: case ENER+1: case ENER+2: case ENER+3:case ENER+4:
         {
-          long val = thresholdS_[parm1-ENER]->GetPosition();
-          doModifyPtThreshold(parm1-ENER,val);
+          float val = thresholdS_[parm1-ENER]->GetMinPosition();
+          doModifyPtThreshold(parm1-ENER,(double)val);
           break;
         } 
       default:break;    

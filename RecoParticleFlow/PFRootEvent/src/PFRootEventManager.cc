@@ -2391,11 +2391,10 @@ PFRootEventManager::printGenParticles(std::ostream& out,
     HepMC::GenParticle* p = *piter;
     /* */
     int partId = p->pdg_id();
-    std::string name;
 
     // We have here a subset of particles only. 
     // To be filled according to the needs.
-    switch(partId) {
+    /*switch(partId) {
 		case    1: { name = "d"; break; } 
 		case    2: { name = "u"; break; } 
 		case    3: { name = "s"; break; } 
@@ -2497,6 +2496,9 @@ PFRootEventManager::printGenParticles(std::ostream& out,
       cout << "Unknown code : " << partId << endl;
     }   
     }
+    */
+    std::string latexString;
+    std::string name = getGenParticleName(partId,latexString);
 
     math::XYZTLorentzVector momentum1(p->momentum().px(),
                                       p->momentum().py(),
@@ -2752,4 +2754,117 @@ PFRootEventManager::readCMSSWJets() {
   for ( unsigned i = 0; i < caloJetsCMSSW_.size(); i++) {
      cout<<"Calo jet Et : " << caloJetsCMSSW_[i].et() << endl;
   }
+}
+//________________________________________________________________
+std::string PFRootEventManager::getGenParticleName(int partId, std::string &latexString) const
+{
+  std::string  name;
+  switch(partId) {
+ 	case    1: { name = "d";latexString="d"; break; } 
+	case    2: { name = "u";latexString="u";break; } 
+	case    3: { name = "s";latexString="s" ;break; } 
+	case    4: { name = "c";latexString="c" ; break; } 
+	case    5: { name = "b";latexString="b" ; break; } 
+	case    6: { name = "t";latexString="t" ; break; } 
+	case   -1: { name = "~d";latexString="#bar{d}" ; break; } 
+	case   -2: { name = "~u";latexString="#bar{u}" ; break; } 
+	case   -3: { name = "~s";latexString="#bar{s}" ; break; } 
+	case   -4: { name = "~c";latexString="#bar{c}" ; break; } 
+	case   -5: { name = "~b";latexString="#bar{b}" ; break; } 
+	case   -6: { name = "~t";latexString="#bar{t}" ; break; } 
+	case   11: { name = "e-";latexString=name ; break; }
+	case  -11: { name = "e+";latexString=name ; break; }
+	case   12: { name = "nu_e";latexString="#nu_{e}" ; break; }
+	case  -12: { name = "~nu_e";latexString="#bar{#nu}_{e}" ; break; }
+	case   13: { name = "mu-";latexString="#mu-" ; break; }
+	case  -13: { name = "mu+";latexString="#mu+" ; break; }
+	case   14: { name = "nu_mu";latexString="#nu_{mu}" ; break; }
+	case  -14: { name = "~nu_mu";latexString="#bar{#nu}_{#mu}"; break; }
+	case   15: { name = "tau-";latexString="#tau^{-}" ; break; }
+	case  -15: { name = "tau+";latexString="#tau^{+}" ; break; }
+	case   16: { name = "nu_tau";latexString="#nu_{#tau}" ; break; }
+	case  -16: { name = "~nu_tau";latexString="#bar{#nu}_{#tau}"; break; }
+	case   21: { name = "gluon";latexString= name; break; }
+	case   22: { name = "gamma";latexString= "#gamma"; break; }
+	case   23: { name = "Z0";latexString="Z^{0}" ; break; }
+	case   24: { name = "W+";latexString="W^{+}" ; break; }
+	case   25: { name = "H0";latexString=name ; break; }
+	case  -24: { name = "W-";latexString="W^{-}" ; break; }
+	case  111: { name = "pi0";latexString="#pi^{0}" ; break; }
+	case  113: { name = "rho0";latexString="#rho^{0}" ; break; }
+	case  223: { name = "omega";latexString="#omega" ; break; }
+	case  333: { name = "phi";latexString= "#phi"; break; }
+	case  443: { name = "J/psi";latexString="J/#psi" ; break; }
+	case  553: { name = "Upsilon";latexString="#Upsilon" ; break; }
+	case  130: { name = "K0L";latexString=name ; break; }
+	case  211: { name = "pi+";latexString="#pi^{+}" ; break; }
+	case -211: { name = "pi-";latexString="#pi^{-}" ; break; }
+	case  213: { name = "rho+";latexString="#rho^{+}" ; break; }
+	case -213: { name = "rho-";latexString="#rho^{-}" ; break; }
+	case  221: { name = "eta";latexString="#eta" ; break; }
+	case  331: { name = "eta'";latexString="#eta'" ; break; }
+	case  441: { name = "etac";latexString="#eta_{c}" ; break; }
+	case  551: { name = "etab";latexString= "#eta_{b}"; break; }
+	case  310: { name = "K0S";latexString=name ; break; }
+	case  311: { name = "K0";latexString="K^{0}" ; break; }
+	case -311: { name = "Kbar0";latexString="#bar{#Kappa}^{0}" ; break; }
+	case  321: { name = "K+";latexString= "K^{+}"; break; }
+	case -321: { name = "K-";latexString="K^{-}"; break; }
+	case  411: { name = "D+";latexString="D^{+}" ; break; }
+	case -411: { name = "D-";latexString="D^{-}"; break; }
+	case  421: { name = "D0";latexString=name ; break; }
+	case  431: { name = "Ds_+";latexString="Ds_{+}" ; break; }
+	case -431: { name = "Ds_-";latexString="Ds_{-}" ; break; }
+	case  511: { name = "B0";latexString= name; break; }
+	case  521: { name = "B+";latexString="B^{+}" ; break; }
+	case -521: { name = "B-";latexString="B^{-}" ; break; }
+	case  531: { name = "Bs_0";latexString="Bs_{0}" ; break; }
+	case  541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
+	case -541: { name = "Bc_+";latexString="Bc_{+}" ; break; }
+	case  313: { name = "K*0";latexString="K^{*0}" ; break; }
+	case -313: { name = "K*bar0";latexString="#bar{K}^{*0}" ; break; }
+	case  323: { name = "K*+";latexString="#K^{*+}"; break; }
+	case -323: { name = "K*-";latexString="#K^{*-}" ; break; }
+	case  413: { name = "D*+";latexString= "D^{*+}"; break; }
+	case -413: { name = "D*-";latexString= "D^{*-}" ; break; }
+	case  423: { name = "D*0";latexString="D^{*0}" ; break; }
+	case  513: { name = "B*0";latexString="B^{*0}" ; break; }
+	case  523: { name = "B*+";latexString="B^{*+}" ; break; }
+	case -523: { name = "B*-";latexString="B^{*-}" ; break; }
+	case  533: { name = "B*_s0";latexString="B^{*}_{s0}" ; break; }
+	case  543: { name = "B*_c+";latexString= "B^{*}_{c+}"; break; }
+	case -543: { name = "B*_c-";latexString= "B^{*}_{c-}"; break; }
+	case  1114: { name = "Delta-";latexString="#Delta^{-}" ; break; }
+	case -1114: { name = "Deltabar+";latexString="#bar{#Delta}^{+}" ; break; }
+	case -2112: { name = "nbar0";latexString="{bar}n^{0}" ; break; }
+	case  2112: { name = "n"; latexString=name ;break;}
+	case  2114: { name = "Delta0"; latexString="#Delta^{0}" ;break; }
+	case -2114: { name = "Deltabar0"; latexString="#bar{#Delta}^{0}" ;break; }
+	case  3122: { name = "Lambda0";latexString= "#Lambda^{0}"; break; }
+	case -3122: { name = "Lambdabar0";latexString="#bar{#Lambda}^{0}" ; break; }
+	case  3112: { name = "Sigma-"; latexString="#Sigma" ;break; }
+	case -3112: { name = "Sigmabar+"; latexString="#bar{#Sigma}^{+}" ;break; }
+	case  3212: { name = "Sigma0";latexString="#Sigma^{0}" ; break; }
+	case -3212: { name = "Sigmabar0";latexString="#bar{#Sigma}^{0}" ; break; }
+	case  3214: { name = "Sigma*0"; latexString="#Sigma^{*0}" ;break; }
+	case -3214: { name = "Sigma*bar0";latexString="#bar{#Sigma}^{*0}" ; break; }
+	case  3222: { name = "Sigma+"; latexString="#Sigma^{+}" ;break; }
+	case -3222: { name = "Sigmabar-"; latexString="#bar{#Sigma}^{-}";break; }
+	case  2212: { name = "p";latexString=name ; break; }
+	case -2212: { name = "~p";latexString="#bar{p}" ; break; }
+	case -2214: { name = "Delta-";latexString="#Delta^{-}" ; break; }
+	case  2214: { name = "Delta+";latexString="#Delta^{+}" ; break; }
+	case -2224: { name = "Deltabar--"; latexString="#bar{#Delta}^{--}" ;break; }
+	case  2224: { name = "Delta++"; latexString= "#Delta^{++}";break; }
+	default:
+	 {
+	   name = "unknown"; 
+           cout << "Unknown code : " << partId << endl;
+	   break;
+         } 
+		
+		  
+  }
+  return name;  
+
 }

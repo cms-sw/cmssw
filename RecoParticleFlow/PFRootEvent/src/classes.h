@@ -9,6 +9,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/DialogFrame.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/DisplayCommon.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFGenParticle.h"
 #include "RecoParticleFlow/PFRootEvent/interface/GPFBase.h"
  
  

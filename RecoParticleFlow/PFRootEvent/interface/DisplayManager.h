@@ -18,6 +18,7 @@ class GPFCluster;
 class GPFTrack;
 class GPFSimParticle;
 class GPFBase;
+class GPFGenParticle;
 
 class DisplayManager {
   
@@ -46,6 +47,7 @@ class DisplayManager {
   void updateDisplay();
   void unZoom();
   void printDisplay(const char* directory="" ) const;
+  void printGenParticleInfo(int barcode,int barcodeMother);
   void drawWithNewGraphicAttributes();
   void setNewAttrToSimParticles();
      
@@ -57,12 +59,14 @@ class DisplayManager {
   double hitEnMin_;
   double trackPtMin_;
   double particlePtMin_;
+  double genParticlePtMin_;
      
   bool drawHits_;
   bool drawTracks_;
   bool drawClus_;
   bool drawClusterL_;
   bool drawParticles_;
+  bool drawGenParticles_;
   bool drawPFBlocks_;
      
   //bool redrawWithoutHits_;
@@ -84,6 +88,8 @@ class DisplayManager {
   TAttMarker *trackPatternM_;
   TAttLine   *trackPatternL_;
   
+  TAttMarker *genPartPattern_;
+  
   TAttLine   *simPartPatternL_;
   TAttMarker *simPartPatternPhoton_;
   TAttMarker *simPartPatternElec_ ;
@@ -95,6 +101,7 @@ class DisplayManager {
   TAttMarker *simPartPatternDefault_;
   
   std::vector<TAttMarker *> simPartPatternM_;
+  
   
  private:
 
@@ -169,6 +176,9 @@ class DisplayManager {
                    const std::vector<reco::PFTrajectoryPoint>& points, 
                    int ident,double pt,double phi0, double sign, 
                    bool displayInitial,int markerIndex);
+		   
+//  void createGGenParticle(HepMC::GenEvent::particle_const_iterator p);		   
+  void createGGenParticle(HepMC::GenParticle* p);		   
 
   //void createGClusterLines(const reco::PFCluster& cluster,int viewType);                      
   void drawGObject(int ident,int color,bool toInitialColor);
@@ -185,10 +195,13 @@ class DisplayManager {
   void loadGSimParticles();
 
   void loadGPFBlocks();
+  
+  void loadGGenParticles();
      
   //void redraw();
   void rubOutGPFBlock();
 
+ 
   // methods
   double getMaxE(int layer) const;
   double getMaxEEcal();
