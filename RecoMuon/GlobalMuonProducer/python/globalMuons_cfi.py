@@ -8,7 +8,8 @@ globalMuons = cms.EDProducer("GlobalMuonProducer",
     MuonTrackLoaderForGLB,
     GLBTrajBuilderParameters = cms.PSet(
         GlobalTrajectoryBuilderCommon,
-        OutPropagator = cms.string('SmartPropagatorRK'),
+        TransformerOutPropagator = cms.string('SmartPropagatorAnyRK'),
+        MatcherOutPropagator = cms.string('SmartPropagatorRK'),
         KFFitter = cms.string('GlbMuKFFitter')
     ),
     TrackerCollectionLabel = cms.InputTag("generalTracks"),

@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/03/22 10:32:20 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/04/11 20:38:35 $
+ *  $Revision: 1.14 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -89,16 +89,17 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 						      par.getParameter<InputTag>("RPCRecSegmentLabel"));
   
   
-  string outPropagator = par.getParameter<string>("OutPropagator");
+  string MatcherOutPropagator = par.getParameter<string>("MatcherOutPropagator");
+  string TransformerOutPropagator = par.getParameter<string>("TransformerOutPropagator");
   
   ParameterSet trackMatcherPSet = par.getParameter<ParameterSet>("GlobalMuonTrackMatcher");
-  trackMatcherPSet.addParameter<string>("Propagator",outPropagator);
+  trackMatcherPSet.addParameter<string>("Propagator",MatcherOutPropagator);
   theTrackMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);
   
   theTrackerPropagatorName = par.getParameter<string>("TrackerPropagator");
 
   ParameterSet trackTransformerPSet = par.getParameter<ParameterSet>("TrackTransformer");
-  trackTransformerPSet.addParameter<string>("Propagator",outPropagator);
+  trackTransformerPSet.addParameter<string>("Propagator",TransformerOutPropagator);
   theTrackTransformer = new TrackTransformer(trackTransformerPSet);
 
   ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("MuonTrackingRegionBuilder");

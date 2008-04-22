@@ -35,4 +35,8 @@ L3MuKFFitter = cms.ESProducer("KFTrajectoryFitterESProducer",
     minHits = cms.int32(3)
 )
 
+KFFitterForRefitOutsideIn.Propagator = 'SmartPropagatorAny'
+KFSmootherForRefitOutsideIn.Propagator = 'SmartPropagator'
+KFFitterForRefitInsideOut.Propagator = 'SmartPropagatorAny'
+KFSmootherForRefitInsideOut.Propagator = 'SmartPropagatorAny'
 
