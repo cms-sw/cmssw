@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.cc,v 1.2 2008/03/11 10:37:30 scooper Exp $
+// $Id: EcalURecHitHists.cc,v 1.3 2008/04/10 18:18:08 scooper Exp $
 //
 //
 
@@ -35,7 +35,8 @@ using namespace std;
 // constructors and destructor
 //
 EcalURecHitHists::EcalURecHitHists(const edm::ParameterSet& iConfig) :
-  EcalUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection")),
+  EBUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EBUncalibratedRecHitCollection")),
+  EEUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EEUncalibratedRecHitCollection")),
   runNum_(-1),
   histRangeMax_ (iConfig.getUntrackedParameter<double>("histogramMaxRange",200.0)),
   histRangeMin_ (iConfig.getUntrackedParameter<double>("histogramMinRange",-10.0)),
@@ -90,28 +91,64 @@ void
 EcalURecHitHists::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   int ievt = iEvent.id().event();
-  Handle<EcalUncalibratedRecHitCollection> hits;
+  Handle<EcalUncalibratedRecHitCollection> EBhits;
+  Handle<EcalUncalibratedRecHitCollection> EEhits;
 
-  //TODO: improve try/catch behavior
-  try
-  {
-    iEvent.getByLabel(EcalUncalibratedRecHitCollection_, hits);
-    int neh = hits->size();
-    LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << neh;
-  }
-  catch ( exception& ex)
-  {
-    LogWarning("EcalURecHitHists") << EcalUncalibratedRecHitCollection_ << " not available";
-  }
+  iEvent.getByLabel(EBUncalibratedRecHitCollection_, EBhits);
+  LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << EBhits->size();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr)
+  iEvent.getByLabel(EEUncalibratedRecHitCollection_, EEhits);
+  LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << EEhits->size();
+
+  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr)
   {
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId ebDet = hit.id();
-    //TODO: make it work for endcap FEDs also
     int ic = ebDet.ic();
     int hashedIndex = ebDet.hashedIndex();
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(ebDet);
+    int FEDid = 600+elecId.dccId();
+    float ampli = hit.amplitude();
+
+    vector<int>::iterator result;
+    result = find(maskedFEDs_.begin(), maskedFEDs_.end(), FEDid);
+    if(result != maskedFEDs_.end())
+    {
+      LogWarning("EcalURecHitHists") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
+      continue;
+    }      
+
+    result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
+    if  (result != maskedChannels_.end())
+    {
+      LogWarning("EcalURecHitHists") << "skipping uncalRecHit for channel: " << ic << " with amplitude " << ampli ;
+      continue;
+    }      
+
+    // fill the proper hist
+    TH1F* uRecHist = FEDsAndHists_[FEDid];
+    TH1F* timingHist = FEDsAndTimingHists_[FEDid];
+    if(uRecHist==0)
+    {
+      initHists(FEDid);
+      uRecHist = FEDsAndHists_[FEDid];
+      timingHist = FEDsAndTimingHists_[FEDid];
+    }
+    
+    uRecHist->Fill(ampli);
+    allFedsHist_->Fill(ampli);
+    timingHist->Fill(hit.jitter());
+    allFedsTimingHist_->Fill(hit.jitter());
+  }
+  
+  // Again for the endcap
+  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EEhits->begin(); hitItr != EEhits->end(); ++hitItr)
+  {
+    EcalUncalibratedRecHit hit = (*hitItr);
+    EEDetId eeDet = hit.id();
+    int ic = eeDet.ic();
+    int hashedIndex = eeDet.hashedIndex();
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(eeDet);
     int FEDid = 600+elecId.dccId();
     float ampli = hit.amplitude();
 

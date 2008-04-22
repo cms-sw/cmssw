@@ -171,30 +171,13 @@ module ecalUncalibHit = ecalMaxSampleUncalibRecHit from "RecoLocalCalo/EcalRecPr
      replace ecalUncalibHit.EBdigiCollection = ecalEBunpacker:ebDigis
      replace ecalUncalibHit.EEdigiCollection = ecalEBunpacker:eeDigis
 
-    module ecalURecHitHists = EcalURecHitHists{
-
-      InputTag EcalUncalibratedRecHitCollection = ecalUncalibHit:EcalUncalibRecHitsEB
-      InputTag EBDigiCollection                   = ecalEBunpacker:ebDigis
-
-      # use hashed index to mask channels
-      # add a simple description of hashIndex (hhahhahhh...)
-      #untracked vint32 maskedChannels           = {${mcry}}
-
-      # masked FEDs
-      untracked vint32 maskedFEDs = {${mfed}}
-
-      # masked EBids
-      untracked vstring maskedEBs = {"${mieb}"}
-
-      # parameter to specify histogram maxmimum range
-      untracked double histogramMaxRange = $hist_max
-
-      # parameter to specify histogram minimum range
-      untracked double histogramMinRange = $hist_min
-
-      # parameter for the name of the output root file with TH1F
-      untracked string fileName =  '$data_file.$$.graph'
-    }
+include "CaloOnlineTools/EcalTools/data/ecalURecHitHists.cfi"
+     replace ecalURecHitHists.maskedChannels = {${mcry}}
+     replace ecalURecHitHists.maskedFEDs = {${mfed}}
+     replace ecalURecHitHists.maskedEBs = {"${mieb}"}
+     replace ecalURecHitHists.histogramMaxRange = $hist_max
+     replace ecalURecHitHists.histogramMinRange = $hist_min
+     replace ecalURecHitHists.fileName =  '$data_file.$$.graph'
 
     path p = {ecalEBunpacker, ecalUncalibHit, ecalURecHitHists}
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.h,v 1.2 2008/03/11 10:37:30 scooper Exp $
+// $Id: EcalURecHitHists.h,v 1.3 2008/04/10 18:18:08 scooper Exp $
 //
 //
 
@@ -68,7 +68,8 @@ class EcalURecHitHists : public edm::EDAnalyzer {
 
     // ----------member data ---------------------------
 
-  edm::InputTag EcalUncalibratedRecHitCollection_;
+  edm::InputTag EBUncalibratedRecHitCollection_;
+  edm::InputTag EEUncalibratedRecHitCollection_;
   int runNum_;
   double histRangeMax_, histRangeMin_;
   std::string fileName_;
