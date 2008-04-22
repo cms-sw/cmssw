@@ -3,10 +3,10 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date: 2007/10/18 09:41:07 $
-/// $Revision: 1.4 $
+/// $Date: 2007/12/04 23:23:47 $
+/// $Revision: 1.5 $
 ///
-/// $Author: fronga $
+/// $Author: ratnik $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <vector>
@@ -39,7 +39,7 @@ protected: // Methods
   
   /// Decode movements defined in given parameter set for given set of alignables tagged by given name
   void decodeMovements_( const edm::ParameterSet& pSet, std::vector<Alignable*> alignables,
-						 std::string levelName );
+			 std::string levelName );
 
   /// Apply movements given by parameter set to given alignable
   void applyMovements_( Alignable* alignable, const edm::ParameterSet& pSet );
@@ -49,7 +49,7 @@ protected: // Methods
 
   /// Propagate global parameters to sub-parameters
   void propagateParameters_( const edm::ParameterSet& pSet, const std::string& globalName,
-							 edm::ParameterSet& subSet ) const;
+			     edm::ParameterSet& subSet ) const;
 
   /// Get parameter set corresponding to given name (returns empty parameter set if does not exist)
   edm::ParameterSet getParameterSet_( const std::string& name, const edm::ParameterSet& pSet ) const;
