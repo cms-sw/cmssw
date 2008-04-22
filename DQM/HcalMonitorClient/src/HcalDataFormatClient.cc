@@ -483,7 +483,7 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/EvN Difference Between Ref HTR and DCC",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN Difference Between Ref HTR and DC",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Difference Between Ref HTR and DCC",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Firmware Version",process_.c_str());
