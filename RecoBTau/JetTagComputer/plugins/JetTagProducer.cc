@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.6 2007/10/24 15:50:43 fwyzard Exp $
+// $Id: JetTagProducer.cc,v 1.7 2007/11/23 16:07:50 saout Exp $
 //
 //
 
@@ -33,6 +33,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -53,15 +54,16 @@ using namespace edm;
 // constructors and destructor
 //
 JetTagProducer::JetTagProducer(const ParameterSet& iConfig) :
-  m_jetTagComputer(iConfig.getParameter<string>("jetTagComputer"))
+  m_jetTagComputer(iConfig.getParameter<string>("jetTagComputer")),
+  m_tagInfos(iConfig.getParameter< vector<InputTag> >("tagInfos"))
 {
-  vector<string> inputTags = iConfig.getParameterNamesForType<InputTag>();
-
-  for(vector<string>::const_iterator iter = inputTags.begin();
-      iter != inputTags.end(); iter++) {
-    InputTag inputTag = iConfig.getParameter<InputTag>(*iter);
-    m_tagInfoLabels[*iter] = inputTag;
-  }
+//  vector<string> inputTags = iConfig.getParameterNamesForType<InputTag>();
+//
+//  for(vector<string>::const_iterator iter = inputTags.begin();
+//      iter != inputTags.end(); iter++) {
+//    InputTag inputTag = iConfig.getParameter<InputTag>(*iter);
+//    m_tagInfoLabels[*iter] = inputTag;
+//  }
 
   produces<JetTagCollection>();
 }
@@ -88,15 +90,24 @@ JetTagProducer::beginJob(const edm::EventSetup& iSetup) {
   if (inputLabels.empty())
     inputLabels.push_back("tagInfo");
 
-  // collect all TagInfos from the ParameterSet that the JetTagComputer wants
-  for(vector<string>::const_iterator iter = inputLabels.begin();
-      iter != inputLabels.end(); iter++) {
-    map<string, InputTag>::const_iterator pos = m_tagInfoLabels.find(*iter);
-    if (pos == m_tagInfoLabels.end())
-      throw cms::Exception("InputTagMissing") << "JetTagProducer is missing "
-      			"a TagInfo InputTag \"" << *iter << "\"" << endl;
+//  // collect all TagInfos from the ParameterSet that the JetTagComputer wants
+//  for(vector<string>::const_iterator iter = inputLabels.begin();
+//      iter != inputLabels.end(); iter++) {
+//    map<string, InputTag>::const_iterator pos = m_tagInfoLabels.find(*iter);
+//    if (pos == m_tagInfoLabels.end())
+//      throw cms::Exception("InputTagMissing") << "JetTagProducer is missing "
+//      			"a TagInfo InputTag \"" << *iter << "\"" << endl;
+//
+//    m_tagInfos.push_back(pos->second);
+//  }
 
-    m_tagInfos.push_back(pos->second);
+  if (m_tagInfos.size() != inputLabels.size()) {
+    std::string message("VInputTag size mismatch - the following taginfo "
+                        "labels are needed:\n");
+    for(vector<string>::const_iterator iter = inputLabels.begin();
+        iter != inputLabels.end(); ++iter)
+      message += "\"" + *iter + "\"\n";
+    throw edm::Exception(errors::Configuration) << message;
   }
 }
 

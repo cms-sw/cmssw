@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 softElectronBJetTags = cms.EDProducer("JetTagProducer",
-    tagInfo = cms.InputTag("softElectronTagInfos"),
-    jetTagComputer = cms.string('softElectron')
+    jetTagComputer = cms.string('softElectron'),
+    tagInfos = cms.VInputTag(cms.InputTag("softElectronTagInfos"))
 )
 
 

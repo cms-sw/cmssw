@@ -24,7 +24,6 @@ class JetTagProducer : public edm::EDProducer {
 
 	const JetTagComputer			*m_computer;
 	std::string				m_jetTagComputer;
-	std::map<std::string, edm::InputTag>	m_tagInfoLabels;
 	std::vector<edm::InputTag>		m_tagInfos;
 };
 
