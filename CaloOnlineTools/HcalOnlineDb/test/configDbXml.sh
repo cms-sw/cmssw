@@ -188,7 +188,9 @@ lutMenu()
       echo $lut_temp_dir
       cp `find $lut_path -iname "*_[0-9]*.xml"` $lut_temp_dir/
       cp `find $lut_path -iname "*_checksums*.xml"` $lut_temp_dir/
-      a_lut_file=`find $lut_temp_dir/ -iname "*_[0-9]*.xml" | awk 'NR==1{print $1}'`
+#      a_lut_file=`find $lut_temp_dir/ -iname "*_[0-9]*.xml" | awk 'NR==1{print $1}'`
+      a_lut_file=`find $lut_temp_dir/ -iname "*_*[0-9].xml" | awk 'NR==1{print $1}'`
+      echo 'DEBUG: ' $a_lut_file
       source luts.sh $a_lut_file
       echo -n 'Cleaning temporary files... '
       rm -rf $lut_temp_dir
