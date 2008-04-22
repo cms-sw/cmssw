@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/08 17:09:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/09 14:16:15 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -71,6 +71,7 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
+   filterobject->addCollectionTag(inputTag_);
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
 

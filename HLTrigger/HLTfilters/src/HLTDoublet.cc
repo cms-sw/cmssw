@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/10 08:14:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/09 14:16:15 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -84,6 +84,8 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
+   filterobject->addCollectionTag(inputTag1_);
+   filterobject->addCollectionTag(inputTag2_);
    bool accept(false);
 
    // get hold of pre-filtered object collections

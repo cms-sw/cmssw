@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/08 17:09:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/09 14:16:15 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -63,7 +63,8 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
-     filterobject (new TriggerFilterObjectWithRefs(path(),module()));
+     filterObject (new TriggerFilterObjectWithRefs(path(),module()));
+   filterObject->addCollectionTag(inputTag_);
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
 
@@ -79,7 +80,7 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
      if (select_(*i)) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
-       filterobject->addObject(Tid,ref);
+       filterObject->addObject(Tid,ref);
      }
    }
 
@@ -87,7 +88,7 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    bool accept(n>=min_N_);
 
    // put filter object into the Event
-   iEvent.put(filterobject);
+   iEvent.put(filterObject);
 
    return accept;
 }

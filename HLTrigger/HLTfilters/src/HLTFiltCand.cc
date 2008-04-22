@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/12/09 11:29:53 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/01/09 14:16:15 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *
@@ -95,6 +95,15 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs> 
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
+   filterobject->addCollectionTag(photTag_);
+   filterobject->addCollectionTag(elecTag_);
+   filterobject->addCollectionTag(muonTag_);
+   filterobject->addCollectionTag(tausTag_);
+   filterobject->addCollectionTag(jetsTag_);
+   filterobject->addCollectionTag(metsTag_);
+   filterobject->addCollectionTag(httsTag_);
+   filterobject->addCollectionTag(trckTag_);
+   filterobject->addCollectionTag(ecalTag_);
 
 
    // Specific filter code

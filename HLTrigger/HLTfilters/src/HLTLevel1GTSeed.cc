@@ -159,6 +159,14 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // the filter object
     std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterObject (
         new trigger::TriggerFilterObjectWithRefs( path(), module() ) );
+    filterObject->addCollectionTag(edm::InputTag(m_l1MuonCollectionTag.label()) );
+    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Isolated") );
+    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "NonIsolated") );
+    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Central") );
+    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Forward") );
+    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Tau") );
+    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label()) );
+
 
     // get L1GlobalTriggerReadoutRecord and GT decision
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
@@ -865,8 +873,8 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
         CItAlgo itAlgo = algorithmMap.find((algOpTokenVector[i]).tokenName);
         if (itAlgo != algorithmMap.end()) {
 
-            int bitNr = (itAlgo->second).algoBitNumber();
-            int chipNr = (itAlgo->second).algoChipNumber();
+            int bitNr = (itAlgo->second)->algoBitNumber();
+            int chipNr = (itAlgo->second)->algoChipNumber();
             
             (algOpTokenVector[i]).tokenNumber = bitNr;
             
@@ -883,7 +891,7 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
                     (m_l1AlgoSeeds[jSeed]).tokenNumber = bitNr;
                     
                     const std::vector<L1GtLogicParser::TokenRPN>& aRpnVector = 
-                        (itAlgo->second).algoRpnVector();
+                        (itAlgo->second)->algoRpnVector();
                     size_t aRpnVectorSize = aRpnVector.size(); 
                     
                     m_l1AlgoSeedsRpn.push_back(&aRpnVector);
