@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.8 2008/02/14 20:37:29 drell Exp $
+// $Id: V0Fitter.h,v 1.9 2008/03/14 17:13:22 drell Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
-#include "DataFormats/V0Candidate/interface/V0Candidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -64,18 +64,18 @@ class V0Fitter {
   //reco::VertexCollection getLambdaBarCollection() const;
 
   // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
-  std::vector<reco::V0Candidate> getKshorts() const;
-  std::vector<reco::V0Candidate> getLambdas() const;
-  std::vector<reco::V0Candidate> getLambdaBars() const;
+  std::vector<reco::VertexCompositeCandidate> getKshorts() const;
+  std::vector<reco::VertexCompositeCandidate> getLambdas() const;
+  std::vector<reco::VertexCompositeCandidate> getLambdaBars() const;
 
  private:
-  // STL vector of V0Candidate that will be filled with V0Candidates by fitAll()
-  std::vector<reco::V0Candidate> theKshorts;
-  std::vector<reco::V0Candidate> theLambdas;
-  std::vector<reco::V0Candidate> theLambdaBars;
+  // STL vector of VertexCompositeCandidate that will be filled with VertexCompositeCandidates by fitAll()
+  std::vector<reco::VertexCompositeCandidate> theKshorts;
+  std::vector<reco::VertexCompositeCandidate> theLambdas;
+  std::vector<reco::VertexCompositeCandidate> theLambdaBars;
 
   // Vector used to temporarily hold candidates before cuts and selection
-  std::vector<reco::V0Candidate> preCutCands;
+  std::vector<reco::VertexCompositeCandidate> preCutCands;
 
   // Tracker geometry for discerning hit positions
   const TrackerGeometry* trackerGeom;
@@ -104,7 +104,7 @@ class V0Fitter {
   // Helper method that does the actual fitting using the KalmanVertexFitter
   void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  // Applies cuts to the V0Candidates after they are fitted/created.
+  // Applies cuts to the VertexCompositeCandidates after they are fitted/created.
   void applyPostFitCuts();
 
   // Stuff for debug file output.

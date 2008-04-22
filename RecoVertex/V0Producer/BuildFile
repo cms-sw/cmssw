@@ -3,7 +3,6 @@
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <use name=DataFormats/RecoCandidate>
-<use name=DataFormats/V0Candidate>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=Geometry/CommonDetUnit>
@@ -23,7 +22,6 @@
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
   <use name=DataFormats/RecoCandidate>
-  <use name=DataFormats/V0Candidate>
   <use name=Geometry/CommonDetUnit>
   <use name=Geometry/Records>
   <use name=Geometry/TrackerGeometryBuilder>

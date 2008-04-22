@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.19 2008/03/14 17:54:39 drell Exp $
+// $Id: V0Fitter.cc,v 1.20 2008/03/18 21:06:27 drell Exp $
 //
 //
 
@@ -268,7 +268,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       bool continue_ = true;
     
-      // If the vertex is valid, make a V0Candidate with it
+      // If the vertex is valid, make a VertexCompositeCandidate with it
       //  to be stored in the Event if the vertex Chi2 < 20
 
       if( !theRecoVertex.isValid() ) {
@@ -395,33 +395,26 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	using namespace reco;
 
 	// Create momentum 4-vectors for the 3 candidate types
-	Particle::LorentzVector kShortP4(totalP.x(), 
+	const Particle::LorentzVector kShortP4(totalP.x(), 
 					 totalP.y(), totalP.z(), 
 					 kShortETot);
-	Particle::LorentzVector lambdaP4(totalP.x(), 
+	const Particle::LorentzVector lambdaP4(totalP.x(), 
 					 totalP.y(), totalP.z(), 
 					 lambdaEtot);
-	Particle::LorentzVector lambdaBarP4(totalP.x(), 
+	const Particle::LorentzVector lambdaBarP4(totalP.x(), 
 					 totalP.y(), totalP.z(), 
 					 lambdaBarEtot);
 	Particle::Point vtx(theVtx.x(), theVtx.y(), theVtx.z());
+	const Vertex::CovarianceMatrix vtxCov(theVtx.covariance());
+	double vtxChi2(theVtx.chi2());
+	double vtxNdof(theVtx.ndof());
 
+	// Create the VertexCompositeCandidate object that will be stored in the Event
+	VertexCompositeCandidate theKshort(0, kShortP4, vtx, vtxCov, vtxChi2, vtxNdof);
+	VertexCompositeCandidate theLambda(0, lambdaP4, vtx, vtxCov, vtxChi2, vtxNdof);
+	VertexCompositeCandidate theLambdaBar(0, lambdaBarP4, vtx, vtxCov, vtxChi2, vtxNdof);
 
-	// Create the V0Candidate object that will be stored in the Event
-	V0Candidate theKshort(0, kShortP4, Particle::Point(0,0,0));
-	V0Candidate theLambda(0, lambdaP4, Particle::Point(0,0,0));
-	V0Candidate theLambdaBar(0, lambdaBarP4, Particle::Point(0,0,0));
-       
-	// The above lines are hardcoded for the origin.  Need to fix.
-
-	// Set the V0Candidates' vertex to the one we found above
-	//  (and loaded with track info)
-	theKshort.setVertex(theVtx);
-	theLambda.setVertex(theVtx);
-	theLambdaBar.setVertex(theVtx);
-
-
-	// Create daughter candidates for the V0Candidates
+	// Create daughter candidates for the VertexCompositeCandidates
 	RecoChargedCandidate 
 	  thePiPlusCand(1, Particle::LorentzVector(positiveP.x(), 
 						positiveP.y(), positiveP.z(),
@@ -448,7 +441,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	theAntiProtonCand.setTrack(negativeTrackRef);
 
 
-	// Store the daughter Candidates in the V0Candidates
+	// Store the daughter Candidates in the VertexCompositeCandidates
 	theKshort.addDaughter(thePiPlusCand);
 	theKshort.addDaughter(thePiMinusCand);
 
@@ -489,15 +482,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
 // Get methods
-std::vector<reco::V0Candidate> V0Fitter::getKshorts() const {
+std::vector<reco::VertexCompositeCandidate> V0Fitter::getKshorts() const {
   return theKshorts;
 }
 
-std::vector<reco::V0Candidate> V0Fitter::getLambdas() const {
+std::vector<reco::VertexCompositeCandidate> V0Fitter::getLambdas() const {
   return theLambdas;
 }
 
-std::vector<reco::V0Candidate> V0Fitter::getLambdaBars() const {
+std::vector<reco::VertexCompositeCandidate> V0Fitter::getLambdaBars() const {
   return theLambdaBars;
 }
 
@@ -509,7 +502,7 @@ void V0Fitter::applyPostFitCuts() {
   /*std::cout << "Starting post fit cuts with " << preCutCands.size()
     << " preCutCands" << std::endl;*/
   //std::cout << "!1" << std::endl;
-  for(std::vector<reco::V0Candidate>::iterator theIt = preCutCands.begin();
+  for(std::vector<reco::VertexCompositeCandidate>::iterator theIt = preCutCands.begin();
       theIt != preCutCands.end(); theIt++) {
     bool writeVee = false;
     double rVtxMag = sqrt( theIt->vertex().x()*theIt->vertex().x() +
@@ -519,12 +512,12 @@ void V0Fitter::applyPostFitCuts() {
     double x_ = theIt->vertex().x();
     double y_ = theIt->vertex().y();
     //double z_ = theIt->vertex().z();
-    double sig00 = theIt->vertex().covariance(0,0);
-    double sig11 = theIt->vertex().covariance(1,1);
-    //double sig22 = theIt->vertex().covariance(2,2);
-    double sig01 = theIt->vertex().covariance(0,1);
-    //double sig02 = theIt->vertex().covariance(0,2);
-    //double sig12 = theIt->vertex().covariance(1,2);
+    double sig00 = theIt->vertexCovariance(0,0);
+    double sig11 = theIt->vertexCovariance(1,1);
+    //double sig22 = theIt->vertexCovariance(2,2);
+    double sig01 = theIt->vertexCovariance(0,1);
+    //double sig02 = theIt->vertexCovariance(0,2);
+    //double sig12 = theIt->vertexCovariance(1,2);
 
     /*double sigmaRvtxMag =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_) + sig22*(z_*z_)
@@ -604,7 +597,7 @@ void V0Fitter::applyPostFitCuts() {
     }
 
 
-    if( theIt->vertex().chi2() < chi2Cut &&
+    if( theIt->vertexChi2() < chi2Cut &&
 	rVtxMag > rVtxCut &&
 	rVtxMag/sigmaRvtxMag > vtxSigCut &&
 	hitsOkay) {

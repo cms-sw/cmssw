@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.cc,v 1.2 2007/07/09 12:58:52 drell Exp $
+// $Id: V0Producer.cc,v 1.3 2008/02/04 21:54:58 drell Exp $
 //
 //
 
@@ -33,9 +33,9 @@ V0Producer::V0Producer(const edm::ParameterSet& iConfig) :
   //produces<reco::VertexCollection>("LambdaBar");
 
   // Trying this with Candidates instead of the simple reco::Vertex
-  produces< std::vector<reco::V0Candidate> >("Kshort");
-  produces< std::vector<reco::V0Candidate> >("Lambda");
-  produces< std::vector<reco::V0Candidate> >("LambdaBar");
+  produces< std::vector<reco::VertexCompositeCandidate> >("Kshort");
+  produces< std::vector<reco::VertexCompositeCandidate> >("Lambda");
+  produces< std::vector<reco::VertexCompositeCandidate> >("LambdaBar");
 
 }
 
@@ -65,14 +65,14 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    std::auto_ptr<reco::VertexCollection> L0BarOut(new
    reco::VertexCollection( theVees.getLambdaBarCollection() ));*/
 
-   std::auto_ptr< std::vector<reco::V0Candidate> > 
-     kShortCandidates( new std::vector<reco::V0Candidate>( 
+   std::auto_ptr< std::vector<reco::VertexCompositeCandidate> > 
+     kShortCandidates( new std::vector<reco::VertexCompositeCandidate>( 
 						       theVees.getKshorts()) );
-   std::auto_ptr< std::vector<reco::V0Candidate> >
-     lambdaCandidates( new std::vector<reco::V0Candidate>(
+   std::auto_ptr< std::vector<reco::VertexCompositeCandidate> >
+     lambdaCandidates( new std::vector<reco::VertexCompositeCandidate>(
 						       theVees.getLambdas()) );
-   std::auto_ptr< std::vector<reco::V0Candidate> >
-     lambdaBarCandidates( new std::vector<reco::V0Candidate>(
+   std::auto_ptr< std::vector<reco::VertexCompositeCandidate> >
+     lambdaBarCandidates( new std::vector<reco::VertexCompositeCandidate>(
 						    theVees.getLambdaBars()) );
 
    // Write the collections to the Event
