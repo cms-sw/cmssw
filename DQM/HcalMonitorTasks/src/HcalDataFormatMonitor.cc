@@ -54,11 +54,11 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meBadQualityDigis_->setAxisTitle("# of Bad Digis",1);
     meBadQualityDigis_->setAxisTitle("# of Events",2);
     type = "Num Unmapped Digis";
-    meUnmappedDigis_=  m_dbe->book1D(type,type,91000,-1,9099);
+    meUnmappedDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
     meUnmappedDigis_->setAxisTitle("# of Unmapped Digis",1);
     meUnmappedDigis_->setAxisTitle("# of Events",2);
     type = "Num Unmapped Trigger Primitive Digis";
-    meUnmappedTPDigis_=  m_dbe->book1D(type,type,91000,-1,9099);
+    meUnmappedTPDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
     meUnmappedTPDigis_->setAxisTitle("# of Unmapped Trigger Primitive Digis",1);
     meUnmappedTPDigis_->setAxisTitle("# of Events",2);
     type = "FED Error Map from Unpacker Report";
@@ -101,13 +101,21 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFibBCN_->setAxisTitle("BCN of Fib Orb Msg",1);
     // Firmware version
     type = "HTR Firmware Version";
-    meFWVersion_ = m_dbe->book2D(type,type ,256,-0.5,255.5,18,-0.5,17.5);
-    meFWVersion_->setAxisTitle("HTR Firmware Version",1);
-    meFWVersion_->setAxisTitle("Crate #",2);
+    //  Maybe change to Profile histo eventually
+    //meFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
+    meFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,40,70.5,110.5);
+    meFWVersion_->setAxisTitle("Crate #",1);
+    meFWVersion_->setAxisTitle("HTR Firmware Version",2);
+    // Profile histos not yet in client, so 2d plotted for now.
+    type = "Event Fragment Size for each FED";
+    meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,7000.0,"");
+    type = "Ev Frag Size 2d";
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,400,700.0,1100.0);
+
     // Examine conditions of the DCC Event Fragment
     type = "Number of Event Fragments by FED ID";
-    meFEDId_=m_dbe->book1D(type, type, 35, 729.5, 733.5);
-    meFEDId_->setAxisTitle("All possible values of HCAL FED ID",1);
+    meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5);
+    meFEDId_->setAxisTitle("HCAL FED ID",1);
 
     type = "Common Data Format violations";
     meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
@@ -392,6 +400,10 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
   int dccBCN = dccHeader->getBunchId();
   medccBCN_ -> Fill(dccBCN);
+  int EvFragLength = trailer.lenght();
+  meEvFragSize_ ->Fill(dccid, EvFragLength);
+  meEvFragSize2_ ->Fill(dccid, EvFragLength);
+
 
   //There should never be HCAL DCCs reporting a fed id outside [700:731]
   meFEDId_->Fill(dccid);
@@ -587,7 +599,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
     */  
 
     unsigned int htrFWVer = htr.getFirmwareRevision() & 0xFF;
-    meFWVersion_->Fill(htrFWVer,cratenum);
+    meFWVersion_->Fill(cratenum,htrFWVer);
 
     ///check that all HTRs have the same L1A number
     unsigned int refEvtNum = dccEvtNum;

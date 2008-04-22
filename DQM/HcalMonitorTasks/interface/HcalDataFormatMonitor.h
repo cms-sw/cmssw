@@ -10,8 +10,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/04/17 13:10:11 $
- * $Revision: 1.23 $
+ * $Date: 2008/04/22 15:48:08 $
+ * $Revision: 1.24 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -67,6 +67,9 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
    MonitorElement* meFibBCN_;
 
    MonitorElement* meFWVersion_;
+   MonitorElement* meEvFragSize_;
+   MonitorElement* meEvFragSize2_;
+
    MonitorElement* meErrWdCrate_;  //HTR error bits by crate
 
    // The following MEs map specific conditons from the EventFragment headers as specified in
