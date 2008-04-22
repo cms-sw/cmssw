@@ -22,7 +22,7 @@ standAloneMuons = cms.EDFilter("TracksToTrajectories",
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
         RefitDirection = cms.string('insideOut'),
         RefitRPCHits = cms.bool(True),
-        Propagator = cms.string('SmartPropagatorAny')
+        Propagator = cms.string('SmartPropagatorAnyRK')
     )
 )
 

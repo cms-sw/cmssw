@@ -16,7 +16,7 @@ Chi2EstimatorForRefit = cms.ESProducer("Chi2MeasurementEstimatorESProducer",
 KFFitterForRefitOutsideIn = cms.ESProducer("KFTrajectoryFitterESProducer",
     ComponentName = cms.string('KFFitterForRefitOutsideIn'),
     Estimator = cms.string('Chi2EstimatorForRefit'),
-    Propagator = cms.string('SmartPropagatorAnyOpposite'),
+    Propagator = cms.string('SmartPropagatorAnyRK'),
     Updator = cms.string('KFUpdator'),
     minHits = cms.int32(3)
 )
@@ -27,14 +27,14 @@ KFSmootherForRefitOutsideIn = cms.ESProducer("KFTrajectorySmootherESProducer",
     ComponentName = cms.string('KFSmootherForRefitOutsideIn'),
     Estimator = cms.string('Chi2EstimatorForRefit'),
     Updator = cms.string('KFUpdator'),
-    Propagator = cms.string('SmartPropagator')
+    Propagator = cms.string('SmartPropagatorRK')
 )
 
 #
 KFFitterForRefitInsideOut = cms.ESProducer("KFTrajectoryFitterESProducer",
     ComponentName = cms.string('KFFitterForRefitInsideOut'),
     Estimator = cms.string('Chi2EstimatorForRefit'),
-    Propagator = cms.string('SmartPropagatorAny'),
+    Propagator = cms.string('SmartPropagatorAnyRK'),
     Updator = cms.string('KFUpdator'),
     minHits = cms.int32(3)
 )
@@ -45,7 +45,7 @@ KFSmootherForRefitInsideOut = cms.ESProducer("KFTrajectorySmootherESProducer",
     ComponentName = cms.string('KFSmootherForRefitInsideOut'),
     Estimator = cms.string('Chi2EstimatorForRefit'),
     Updator = cms.string('KFUpdator'),
-    Propagator = cms.string('SmartPropagatorAnyOpposite')
+    Propagator = cms.string('SmartPropagatorAnyRK')
 )
 
 
