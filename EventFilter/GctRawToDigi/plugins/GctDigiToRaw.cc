@@ -107,13 +107,13 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gctInputLabelStr, "forJets", forJets);
   edm::Handle<L1GctJetCandCollection> tauJets;
   iEvent.getByLabel(gctInputLabelStr, "tauJets", tauJets);
-  edm::Handle<L1GctJetCounts> jetCounts;
+  edm::Handle<L1GctJetCountsCollection> jetCounts;
   iEvent.getByLabel(gctInputLabelStr, "", jetCounts);
-  edm::Handle<L1GctEtTotal> etTotal;
+  edm::Handle<L1GctEtTotalCollection> etTotal;
   iEvent.getByLabel(gctInputLabelStr, "", etTotal);
-  edm::Handle<L1GctEtHad> etHad;
+  edm::Handle<L1GctEtHadCollection> etHad;
   iEvent.getByLabel(gctInputLabelStr, "", etHad);
-  edm::Handle<L1GctEtMiss> etMiss;
+  edm::Handle<L1GctEtMissCollection> etMiss;
   iEvent.getByLabel(gctInputLabelStr, "", etMiss);
 
   // get RCT EM Cand digi

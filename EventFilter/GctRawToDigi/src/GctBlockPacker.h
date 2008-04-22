@@ -37,13 +37,13 @@ class GctBlockPacker
   /*! \param d must be pointing at the position where the Jet Output block header should be written! */
   void writeGctOutJetBlock(unsigned char * d, const L1GctJetCandCollection* cenJets,
                            const L1GctJetCandCollection* forJets, const L1GctJetCandCollection* tauJets, 
-                           const L1GctJetCounts* jetCounts);
+                           const L1GctJetCountsCollection* jetCounts);
   
   /// Writes GCT output EM and energy sums block into an unsigned char array, starting at the position pointed to by d.
   /*! \param d must be pointing at the position where the EM Output block header should be written! */
   void writeGctOutEmAndEnergyBlock(unsigned char * d, const L1GctEmCandCollection* iso,
-                                   const L1GctEmCandCollection* nonIso, const L1GctEtTotal* etTotal,
-                                   const L1GctEtHad* etHad, const L1GctEtMiss* etMiss);
+                                   const L1GctEmCandCollection* nonIso, const L1GctEtTotalCollection* etTotal,
+                                   const L1GctEtHadCollection* etHad, const L1GctEtMissCollection* etMiss);
 
   /// Writes the 4 RCT EM Candidate blocks.
   void writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm);

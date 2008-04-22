@@ -78,10 +78,10 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctJetCandCollection>("cenJets");
   produces<L1GctJetCandCollection>("forJets");
   produces<L1GctJetCandCollection>("tauJets");
-  produces<L1GctEtTotal>();
-  produces<L1GctEtHad>();
-  produces<L1GctEtMiss>();
-  produces<L1GctJetCounts>();
+  produces<L1GctEtTotalCollection>();
+  produces<L1GctEtHadCollection>();
+  produces<L1GctEtMissCollection>();
+  produces<L1GctJetCountsCollection>();
   produces<L1GctFibreCollection>();
 }
 
@@ -142,10 +142,10 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   std::auto_ptr<L1GctJetCandCollection> gctCenJets ( new L1GctJetCandCollection() ); gctCenJets->reserve(4);
   std::auto_ptr<L1GctJetCandCollection> gctForJets ( new L1GctJetCandCollection() ); gctForJets->reserve(4);
   std::auto_ptr<L1GctJetCandCollection> gctTauJets ( new L1GctJetCandCollection() ); gctTauJets->reserve(4);
-  std::auto_ptr<L1GctJetCounts> jetCounts( new L1GctJetCounts() );
-  std::auto_ptr<L1GctEtTotal> etTotResult( new L1GctEtTotal() );
-  std::auto_ptr<L1GctEtHad> etHadResult( new L1GctEtHad() );
-  std::auto_ptr<L1GctEtMiss> etMissResult( new L1GctEtMiss() );
+  std::auto_ptr<L1GctJetCountsCollection> jetCounts( new L1GctJetCountsCollection() );
+  std::auto_ptr<L1GctEtTotalCollection> etTotResult( new L1GctEtTotalCollection() );
+  std::auto_ptr<L1GctEtHadCollection> etHadResult( new L1GctEtHadCollection() );
+  std::auto_ptr<L1GctEtMissCollection> etMissResult( new L1GctEtMissCollection() );
 
   // Fibres
   std::auto_ptr<L1GctFibreCollection> gctFibres( new L1GctFibreCollection() );
@@ -162,10 +162,10 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     blockUnpacker_->setCentralJetCollection( gctCenJets.get() );
     blockUnpacker_->setForwardJetCollection( gctForJets.get() );
     blockUnpacker_->setTauJetCollection( gctTauJets.get() );
-    blockUnpacker_->setJetCounts( jetCounts.get() );
-    blockUnpacker_->setEtTotal( etTotResult.get() );
-    blockUnpacker_->setEtHad( etHadResult.get() );
-    blockUnpacker_->setEtMiss( etMissResult.get() );
+    blockUnpacker_->setJetCountsCollection( jetCounts.get() );
+    blockUnpacker_->setEtTotalCollection( etTotResult.get() );
+    blockUnpacker_->setEtHadCollection( etHadResult.get() );
+    blockUnpacker_->setEtMissCollection( etMissResult.get() );
   
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
 

@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.7 $
-* $Date: 2008/03/19 18:12:14 $
+* $Revision: 1.8 $
+* $Date: 2008/03/19 21:29:05 $
 */ 
 
 
@@ -63,11 +63,11 @@ public:
   void setTauJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(TAU_JETS) = coll; }
   void setForwardJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(FORWARD_JETS) = coll; }
   void setCentralJetCollection(L1GctJetCandCollection* coll) { gctJets_.at(CENTRAL_JETS) = coll; }
-  /// These objects will have the unpacked values assigned to them.
-  void setJetCounts(L1GctJetCounts* jetCounts) { gctJetCounts_ = jetCounts; }
-  void setEtTotal(L1GctEtTotal* etTotal) { gctEtTotal_ = etTotal; }
-  void setEtHad(L1GctEtHad* etHad) { gctEtHad_ = etHad; }
-  void setEtMiss(L1GctEtMiss* etMiss) { gctEtMiss_ = etMiss; }
+
+  void setJetCountsCollection(L1GctJetCountsCollection* jetCounts) { gctJetCounts_ = jetCounts; }
+  void setEtTotalCollection(L1GctEtTotalCollection* etTotal) { gctEtTotal_ = etTotal; }
+  void setEtHadCollection(L1GctEtHadCollection* etHad) { gctEtHad_ = etHad; }
+  void setEtMissCollection(L1GctEtMissCollection* etMiss) { gctEtMiss_ = etMiss; }
 
   /// Get digis from the block - will return true if it succeeds, false otherwise.
   virtual bool convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr) = 0;
@@ -103,10 +103,10 @@ protected:
   L1GctInternEmCandCollection* gctInternEm_;  ///< GCT internal EM Cands.  
   L1GctFibreCollection* gctFibres_;  ///< Fibre data.
   GctJetCandCollections gctJets_;  ///< Vector of pointers to the various jet candidate collections.
-  L1GctJetCounts* gctJetCounts_;  ///< Jet counts
-  L1GctEtTotal* gctEtTotal_;  ///< Total Et
-  L1GctEtHad* gctEtHad_;  /// Total Ht
-  L1GctEtMiss* gctEtMiss_;  /// Missing Et
+  L1GctJetCountsCollection* gctJetCounts_;  ///< Jet counts
+  L1GctEtTotalCollection* gctEtTotal_;  ///< Total Et
+  L1GctEtHadCollection* gctEtHad_;  /// Total Ht
+  L1GctEtMissCollection* gctEtMiss_;  /// Missing Et
 
 
   // PROTECTED METHODS

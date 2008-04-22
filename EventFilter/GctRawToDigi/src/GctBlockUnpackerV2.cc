@@ -245,13 +245,13 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
   // UNPACK ENERGY SUMS
   // NOTE: we are only unpacking one timesample of these currently!
 
-  *gctEtTotal_ = L1GctEtTotal(p16[0]);  // Et total (timesample 0).
-  *gctEtHad_ = L1GctEtHad(p16[1]);  // Et hadronic (timesample 0).
+  gctEtTotal_->push_back(L1GctEtTotal(p16[0]));  // Et total (timesample 0).
+  gctEtHad_->push_back(L1GctEtHad(p16[1]));  // Et hadronic (timesample 0).
 
   // 32-bit pointer for getting Missing Et.
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
 
-  *gctEtMiss_ = L1GctEtMiss(p32[nSamples]); // Et Miss (timesample 0).
+  gctEtMiss_->push_back(L1GctEtMiss(p32[nSamples])); // Et Miss (timesample 0).
 }
 
 void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeaderBase& hdr)
@@ -307,5 +307,5 @@ void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, co
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(p16);
 
   // nSamples below gives the offset to the second set of six jet counts in timesample 0.
-  *gctJetCounts_ = L1GctJetCounts(p32[0], p32[nSamples]);
+  gctJetCounts_->push_back(L1GctJetCounts(p32[0], p32[nSamples]));
 }

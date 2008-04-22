@@ -54,7 +54,7 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
                                          const L1GctJetCandCollection* cenJets,
                                          const L1GctJetCandCollection* forJets,
                                          const L1GctJetCandCollection* tauJets, 
-                                         const L1GctJetCounts* jetCounts)
+                                         const L1GctJetCountsCollection* jetCounts)
 {
   if(cenJets->size()<4 || forJets->size()<4 || tauJets->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
   {
@@ -100,17 +100,17 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   // re-interpret pointer to 32 bit.
   uint32_t * p32 = reinterpret_cast<uint32_t *>(d);
   
-  p32[0] = jetCounts->raw0();
-  p32[1] = jetCounts->raw1();  
+  p32[0] = jetCounts->at(0).raw0();
+  p32[1] = jetCounts->at(0).raw1();  
 }
 
 // Output EM Candidates and energy sums packing
 void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
                                                  const L1GctEmCandCollection* iso,
                                                  const L1GctEmCandCollection* nonIso,
-                                                 const L1GctEtTotal* etTotal,
-                                                 const L1GctEtHad* etHad,
-                                                 const L1GctEtMiss* etMiss)
+                                                 const L1GctEtTotalCollection* etTotal,
+                                                 const L1GctEtHadCollection* etHad,
+                                                 const L1GctEtMissCollection* etMiss)
 {
   if(iso->size()<4 || nonIso->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
   {
@@ -151,14 +151,14 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   }
   
   // NOW DO ENERGY SUMS
-  
+  // assumes these are all 1-object collections, ie. central BX only
   p16+=8;  // Move past EM cands
-  *p16 = etTotal->raw();  // Et Total - 16 bits.
+  *p16 = etTotal->at(0).raw();  // Et Total - 16 bits.
   p16++;
-  *p16 = etHad->raw();  // Et Hadronic - next 16 bits
+  *p16 = etHad->at(0).raw();  // Et Hadronic - next 16 bits
   p16++;
   uint32_t * p32 = reinterpret_cast<uint32_t *>(p16);  // For writing Missing Et (32-bit raw data)
-  *p32 = etMiss->raw();  // Et Miss on final 32 bits of block payload.
+  *p32 = etMiss->at(0).raw();  // Et Miss on final 32 bits of block payload.
 }
 
 void GctBlockPacker::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm)

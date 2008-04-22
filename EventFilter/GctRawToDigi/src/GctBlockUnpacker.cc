@@ -150,7 +150,7 @@ void GctBlockUnpacker::blockToGctJetCounts(const unsigned char * d, const GctBlo
 
   // The call to hdr.nSamples() in the below line gives the offset from the start of the block
   // payload for a 32-bit pointer to get to the second set of six jet counts in timesample 0.
-  *gctJetCounts_ = L1GctJetCounts(p[0], p[hdr.nSamples()]);
+  gctJetCounts_->push_back(L1GctJetCounts(p[0], p[hdr.nSamples()]));
 }
 
 // Output EM Candidates unpacking
@@ -206,11 +206,11 @@ void GctBlockUnpacker::blockToGctEnergySums(const unsigned char * d, const GctBl
   const uint16_t * p16 = reinterpret_cast<const uint16_t *>(d);  // For getting Et + Ht (16-bit raw data each)
   const uint32_t * p32 = reinterpret_cast<const uint32_t *>(d);  // For getting Missing Et (32-bit raw data)
   
-  *gctEtTotal_ = L1GctEtTotal(p16[0]);  // Et total (first 16 bits in block payload for timesample 0)
-  *gctEtHad_ = L1GctEtHad(p16[1]);  // Et hadronic (second 16 bits in block payload for timesample 0)
+  gctEtTotal_->push_back(L1GctEtTotal(p16[0]));  // Et total (first 16 bits in block payload for timesample 0)
+  gctEtHad_->push_back(L1GctEtHad(p16[1]));  // Et hadronic (second 16 bits in block payload for timesample 0)
   
   // The call to hdr.nSamples() in the below line gives the offset from the start of the block
   // payload for a 32-bit pointer to get to the missing Et data in timesample 0.
-  *gctEtMiss_ = L1GctEtMiss(p32[hdr.nSamples()]);    
+  gctEtMiss_->push_back(L1GctEtMiss(p32[hdr.nSamples()]));    
 }
 
