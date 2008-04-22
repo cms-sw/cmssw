@@ -89,7 +89,7 @@ RPCMonitorDigi::~RPCMonitorDigi(){
 void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
   
-  GlobalHistogramsFolder="RPC/RecHits/SummaryHistograms";
+  GlobalHistogramsFolder="RecHits/SummaryHistograms";
   dbe->setCurrentFolder(GlobalHistogramsFolder);  
   
   GlobalZYHitCoordinates = dbe->book2D("GlobalRecHitZYCoordinates", "Rec Hit Z-Y", 1000, -800, 800, 1000, -800, 800);

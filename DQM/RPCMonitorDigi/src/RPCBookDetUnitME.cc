@@ -37,7 +37,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
   }
   
   char  folder[220];
-  sprintf(folder,"RPC/RecHits/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
+  sprintf(folder,"RecHits/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),
 	  detId.ring(),detId.station(),detId.sector());
   
   dbe->setCurrentFolder(folder);
