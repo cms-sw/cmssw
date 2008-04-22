@@ -1,6 +1,6 @@
-#include "Geometry/HcalEventSetup/src/HcalHardcodeGeometryEP.h"
+#include "Geometry/HcalEventSetup/interface/HcalHardcodeGeometryEP.h"
 #include "Geometry/HcalEventSetup/src/CaloTowerHardcodeGeometryEP.h"
-#include "Geometry/HcalEventSetup/src/HcalTopologyIdealEP.h"
+#include "Geometry/HcalEventSetup/interface/HcalTopologyIdealEP.h"
 #include "Geometry/HcalEventSetup/interface/HcalDDDGeometryEP.h"
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(HcalHardcodeGeometryEP);
