@@ -375,7 +375,7 @@ void DialogFrame::doReProcessEvent()
 //_________________________________________________________________________________
 void DialogFrame::isPFBlockVisible()
 {
-  display_->enableDrawPFBlock((selectObject_[4]->IsDown()) ?true :false);
+  display_->enableDrawPFBlock((selectObject_[5]->IsDown()) ?true :false);
 }
 //_________________________________________________________________________________
 void DialogFrame::selectPrintOption(int opt)
