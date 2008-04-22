@@ -28,6 +28,12 @@ class HLTPMMassFilter : public HLTFilter {
       double upperMassCut_;
       int    nZcandcut_;           // number of Z candidates required
 
+      bool   store_;
+      bool   relaxed_;
+      edm::InputTag L1IsoCollTag_; 
+      edm::InputTag L1NonIsoCollTag_; 
+ 
+
 };
 
 #endif //HLTPMMassFilter_h

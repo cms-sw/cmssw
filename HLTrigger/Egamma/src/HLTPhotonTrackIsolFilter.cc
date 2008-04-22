@@ -1,6 +1,6 @@
 /** \class HLTPhotonTrackIsolFilter
  *
- * $Id: HLTPhotonTrackIsolFilter.cc,v 1.6 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTPhotonTrackIsolFilter.cc,v 1.7 2007/12/07 14:41:33 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -30,6 +30,10 @@ HLTPhotonTrackIsolFilter::HLTPhotonTrackIsolFilter(const edm::ParameterSet& iCon
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
+   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+
   //register your products
 produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -43,6 +47,9 @@ HLTPhotonTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 {
   using namespace trigger;
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+  if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
+  if( store_ && !doIsolated_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
+
   // Ref to Candidate object to be recorded in filter object
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
 

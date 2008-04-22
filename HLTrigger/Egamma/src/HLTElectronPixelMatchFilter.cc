@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.9 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.10 2007/12/07 14:41:33 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -43,6 +43,10 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 
   doIsolated_    = iConfig.getParameter<bool> ("doIsolated");
 
+   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -58,6 +62,8 @@ HLTElectronPixelMatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   // The filter object
   using namespace trigger;
     std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+    if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
+    if( store_ && !doIsolated_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
   // Ref to Candidate object to be recorded in filter object
    edm::Ref<reco::RecoEcalCandidateCollection> ref;
 

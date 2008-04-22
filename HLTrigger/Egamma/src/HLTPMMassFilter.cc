@@ -27,7 +27,12 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig)
   lowerMassCut_     = iConfig.getParameter<double> ("lowerMassCut");
   upperMassCut_     = iConfig.getParameter<double> ("upperMassCut");
   nZcandcut_           = iConfig.getParameter<int> ("nZcandcut");
-  
+
+  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+  relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+
    //register your products
     produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -48,7 +53,10 @@ HLTPMMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   using namespace trigger;
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+  if( store_ ){filterproduct->addCollectionTag(L1IsoCollTag_);}
+  if( store_ && relaxed_){filterproduct->addCollectionTag(L1NonIsoCollTag_);}
   // Ref to Candidate object to be recorded in filter object
+
   edm::Ref<reco::ElectronCollection> ref;
 
 

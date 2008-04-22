@@ -33,7 +33,9 @@ class HLTElectronPixelMatchFilter : public HLTFilter {
       int    ncandcut_;           // number of electrons required
       
       bool doIsolated_;
-
+      bool   store_;
+      edm::InputTag L1IsoCollTag_; 
+      edm::InputTag L1NonIsoCollTag_; 
 };
 
 #endif //HLTElectronPixelMatchFilter_h

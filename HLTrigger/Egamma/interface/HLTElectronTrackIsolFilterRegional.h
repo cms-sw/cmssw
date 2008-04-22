@@ -2,7 +2,7 @@
 #define HLTElectronTrackIsolFilterRegional_h
 
 /** \class HLTElectronTrackIsolFilterRegional
- * $Id: HLTElectronTrackIsolFilterRegional.h,v 1.1 2007/03/23 17:21:46 ghezzi Exp $
+ * $Id: HLTElectronTrackIsolFilterRegional.h,v 1.2 2007/04/02 17:14:13 mpieri Exp $
  *   
  *
  *  \author Monica Vazquez Acosta (CERN)
@@ -29,6 +29,10 @@ class HLTElectronTrackIsolFilterRegional : public HLTFilter {
       double pttrackisolcut_;   // pt of Tracks in cone around candidate
       int    ncandcut_;        // number of electrons required
       bool doIsolated_;
+
+      bool   store_;
+      edm::InputTag L1IsoCollTag_; 
+      edm::InputTag L1NonIsoCollTag_; 
 };
 
 #endif //HLTElectronTrackIsolFilterRegional_h
