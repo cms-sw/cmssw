@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Photon.cc,v 1.7 2008/04/03 19:08:49 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -11,7 +11,7 @@ using pat::Photon;
 /// default constructor
 Photon::Photon() :
     PATObject<PhotonType>(PhotonType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0, 0, 0), 
-				     reco::SuperClusterRef(), reco::ClusterShapeRef(), 0)),
+				     reco::SuperClusterRef(), 0.0, 0.0, 0.0, 0.0 )),
     embeddedSuperCluster_(false),
     photonID_(-1.0) 
 {
