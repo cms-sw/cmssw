@@ -27,23 +27,18 @@ class TrackCountingComputer : public JetTagComputer
      if (trackQualityType == "any" || 
 	 trackQualityType == "Any" || 
 	 trackQualityType == "ANY" ) m_useAllQualities = true;
+
+     uses("ipTagInfos");
   }
   
  
-  float discriminator(const reco::BaseTagInfo & ti) const 
+  float discriminator(const TagInfoHelper & ti) const 
    {
-    const reco::TrackIPTagInfo * tkip = dynamic_cast<const reco::TrackIPTagInfo *>(&ti);
-      if(tkip!=0)  {
-          std::multiset<float> significances = orderedSignificances(*tkip);
-          std::multiset<float>::reverse_iterator nth=significances.rbegin();
-          for(int i=0;i<m_nthTrack-1 && nth!=significances.rend();i++) nth++;  
-          if(nth!=significances.rend()) return *nth; else return -100.;
-        }
-        else 
-          {
-            //FIXME: report some error? 
-            return -100. ;   
-          }
+    const reco::TrackIPTagInfo & tkip = ti.get<reco::TrackIPTagInfo>();
+    std::multiset<float> significances = orderedSignificances(tkip);
+    std::multiset<float>::reverse_iterator nth=significances.rbegin();
+    for(int i=0;i<m_nthTrack-1 && nth!=significances.rend();i++) nth++;  
+     if(nth!=significances.rend()) return *nth; else return -100.;
    }
 
  protected:

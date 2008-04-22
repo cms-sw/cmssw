@@ -7,8 +7,8 @@
  *
  *   Implementation of muon b-tagging cutting on the lepton's transverse momentum relative to the jet axis
  *
- *   $Date: 2006/12/07 02:53:05 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/05/25 17:21:29 $
+ *   $Revision: 1.2 $
  *
  *   \author Andrea 'fwyzard' Bocci, Universita' di Firenze
  */
@@ -17,16 +17,16 @@ class LeptonTaggerByPt : public JetTagComputer {
 public:
 
   /// default ctor
-  LeptonTaggerByPt(void) { }
+  LeptonTaggerByPt(void) { uses("slTagInfos"); }
 
   /// explicit ctor 
-  explicit LeptonTaggerByPt( __attribute__((unused)) const edm::ParameterSet & configuration) { }
+  explicit LeptonTaggerByPt( __attribute__((unused)) const edm::ParameterSet & configuration) { uses("slTagInfos"); }
   
   /// dtor
   virtual ~LeptonTaggerByPt() { }
 
   /// b-tag a jet based on track-to-jet parameters in the extened info collection
-  virtual float discriminator(const reco::BaseTagInfo & tagInfo) const;
+  virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 };
 

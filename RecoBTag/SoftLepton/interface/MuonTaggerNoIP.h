@@ -8,8 +8,8 @@
  *
  *   Implementation of muon b-tagging using a softmax multilayer perceptron neural network
  *
- *   $Date: 2006/12/07 02:53:05 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/05/25 17:21:29 $
+ *   $Revision: 1.2 $
  *
  *   \author Andrea 'fwyzard' Bocci, Universita' di Firenze
  */
@@ -18,16 +18,16 @@ class MuonTaggerNoIP : public JetTagComputer {
 public:
 
   /// default ctor
-  MuonTaggerNoIP(void) : theNet() { }
+  MuonTaggerNoIP(void) : theNet() { uses("slTagInfos"); }
 
   /// explicit ctor
-  explicit MuonTaggerNoIP( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { }
+  explicit MuonTaggerNoIP( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { uses("slTagInfos"); }
 
   /// dtor
   virtual ~MuonTaggerNoIP() { }
 
   /// b-tag a jet based on track-to-jet parameters in the extened info collection
-  virtual float discriminator(const reco::BaseTagInfo & tagInfo) const;
+  virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 private:
 

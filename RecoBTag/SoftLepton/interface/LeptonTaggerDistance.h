@@ -7,8 +7,8 @@
  *
  *   Implementation of muon b-tagging returning 1 if a lepton is present in the jet, 0 otherwise
  *
- *   $Date: 2007/01/09 01:17:22 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/05/25 17:21:29 $
+ *   $Revision: 1.2 $
  *
  *   \author Andrea 'fwyzard' Bocci, Scuola Normale Superiore, Pisa
  */
@@ -17,18 +17,19 @@ class LeptonTaggerDistance : public JetTagComputer {
 public:
 
   /// default ctor
-  LeptonTaggerDistance(void) : m_maxDistance(0.5) { }
+  LeptonTaggerDistance(void) : m_maxDistance(0.5) { uses("slTagInfos"); }
 
   /// explicit ctor
   explicit LeptonTaggerDistance(const edm::ParameterSet & configuration) {
     m_maxDistance = configuration.getParameter<double>("distance");
+    uses("slTagInfos");
   }
 
   /// dtor
   virtual ~LeptonTaggerDistance() { }
 
   /// b-tag a jet based on track-to-jet pseudo-angular distance
-  virtual float discriminator(const reco::BaseTagInfo & tagInfo) const;
+  virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 private:
   

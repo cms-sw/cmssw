@@ -6,9 +6,9 @@
 
 /** \class ElectronTagger
  *
- *  $Id: ElectronTagger.h,v 1.1 2007/02/14 17:10:24 demine Exp $
- *  $Date: 2007/02/14 17:10:24 $
- *  $Revision: 1.1 $
+ *  $Id: ElectronTagger.h,v 1.2 2007/05/25 17:21:29 fwyzard Exp $
+ *  $Date: 2007/05/25 17:21:29 $
+ *  $Revision: 1.2 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -18,16 +18,16 @@ class ElectronTagger : public JetTagComputer {
 public:
 
   /// default ctor
-  ElectronTagger(void) : theNet() { }
+  ElectronTagger(void) : theNet() { uses("slTagInfos"); }
 
   /// explicit ctor 
-  explicit ElectronTagger( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { }
+  explicit ElectronTagger( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { uses("slTagInfos"); }
   
   /// dtor
   virtual ~ElectronTagger() { }
 
   /// b-tag a jet based on track-to-jet parameters in the extened info collection
-  virtual float discriminator(const reco::BaseTagInfo & tagInfo) const;
+  virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 private:
 

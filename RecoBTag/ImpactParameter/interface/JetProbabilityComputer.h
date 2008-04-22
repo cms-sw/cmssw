@@ -1,6 +1,7 @@
 #ifndef ImpactParameter_JetProbabilityComputer_h
 #define ImpactParameter_JetProbabilityComputer_h
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
@@ -30,52 +31,48 @@ class JetProbabilityComputer : public JetTagComputer
      if (trackQualityType == "any" || 
 	 trackQualityType == "Any" || 
 	 trackQualityType == "ANY" ) m_useAllQualities = true;
+
+     uses("ipTagInfos");
   }
  
-  float discriminator(const reco::BaseTagInfo & ti) const 
+  float discriminator(const TagInfoHelper & ti) const 
    {
-      const reco::TrackIPTagInfo * tkip = dynamic_cast<const reco::TrackIPTagInfo *>(&ti);
-      if(tkip!=0)  {
-          const edm::RefVector<reco::TrackCollection> & tracks(tkip->selectedTracks());
-          const std::vector<float> & allProbabilities((tkip->probabilities(m_ipType)));
-          const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip->impactParameterData()));
-    
-          if(tkip->primaryVertex().isNull()) return 0 ; 
-    
-          GlobalPoint pv(tkip->primaryVertex()->position().x(),tkip->primaryVertex()->position().y(),tkip->primaryVertex()->position().z());
+      const reco::TrackIPTagInfo & tkip = ti.get<reco::TrackIPTagInfo>();
 
+      const edm::RefVector<reco::TrackCollection> & tracks(tkip.selectedTracks());
+      const std::vector<float> & allProbabilities((tkip.probabilities(m_ipType)));
+      const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip.impactParameterData()));
+    
+      if (tkip.primaryVertex().isNull()) return 0 ; 
+    
+      GlobalPoint pv(tkip.primaryVertex()->position().x(),tkip.primaryVertex()->position().y(),tkip.primaryVertex()->position().z());
 
-          std::vector<float> probabilities;
-          int i=0;
-          for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
-           {
-           if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
-  		 (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
-           )
-            {
-              float p;
-              if(m_trackSign ==0 )
-              { 
-               if (*it >=0){p=*it/2.;}else{p=1.+*it/2.;}
-              }
-              else if(m_trackSign > 0)
-              {
-                if(*it >=0 ) p=*it; else continue; 
-              } else
-              {
-                if(*it <=0 ) p= -*it; else continue; 
-              } 
-              if(m_deltaR <= 0  || ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR )
-                probabilities.push_back(p);
-            }
-           }
-           return jetProbability(probabilities); 
-      }
-        else { 
-                 //FIXME: report an  error?
-                return 0;
-      }
+      std::vector<float> probabilities;
+      int i=0;
+      for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
+       {
+        if ( fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
+             (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
+             (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
+        )
+         {
+          float p;
+          if(m_trackSign ==0 )
+          { 
+           if (*it >=0){p=*it/2.;}else{p=1.+*it/2.;}
+          }
+          else if(m_trackSign > 0)
+          {
+            if(*it >=0 ) p=*it; else continue; 
+          } else
+          {
+           if(*it <=0 ) p= -*it; else continue; 
+          } 
+          if(m_deltaR <= 0  || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR )
+            probabilities.push_back(p);
+         }
+       }
+      return jetProbability(probabilities); 
    }
 
 double jetProbability( const std::vector<float> & v ) const

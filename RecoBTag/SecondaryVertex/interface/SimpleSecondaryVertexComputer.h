@@ -19,30 +19,28 @@ class SimpleSecondaryVertexComputer : public JetTagComputer {
 		use2d(!parameters.getParameter<bool>("use3d")),
 		useSig(parameters.getParameter<bool>("useSignificance")),
 		unBoost(parameters.getParameter<bool>("unBoost"))
-	{}
+	{ uses("svTagInfos"); }
 
-	float discriminator(const reco::BaseTagInfo &baseInfo) const
+	float discriminator(const TagInfoHelper &tagInfos) const
 	{
-		const reco::SecondaryVertexTagInfo *info =
-			dynamic_cast<const reco::SecondaryVertexTagInfo*>(&baseInfo);
-		if (!info)
-			return -1.0; // FIXME: report some error?
-		if (info->nVertices() == 0)
+		const reco::SecondaryVertexTagInfo &info =
+				tagInfos.get<reco::SecondaryVertexTagInfo>();
+		if (info.nVertices() == 0)
 			return -1.0;
 
 		double gamma;
 		if (unBoost) {
 			reco::TrackKinematics kinematics(
-						info->secondaryVertex(0));
+						info.secondaryVertex(0));
 			gamma = kinematics.vectorSum().Gamma();
 		} else
 			gamma = 1.0;
 
 		double value;
 		if (useSig)
-			value = info->flightDistance(0, use2d).significance();
+			value = info.flightDistance(0, use2d).significance();
 		else
-			value = info->flightDistance(0, use2d).value();
+			value = info.flightDistance(0, use2d).value();
 
 		value /= gamma;
 

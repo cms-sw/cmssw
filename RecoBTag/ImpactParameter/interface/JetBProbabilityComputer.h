@@ -33,57 +33,48 @@ class JetBProbabilityComputer : public JetTagComputer
 	 trackQualityType == "Any" || 
 	 trackQualityType == "ANY" ) m_useAllQualities = true;
 
+     uses("ipTagInfos");
   }
  
-  float discriminator(const reco::BaseTagInfo & ti) const 
+  float discriminator(const TagInfoHelper & ti) const 
    {
-      const reco::TrackIPTagInfo * tkip = dynamic_cast<const reco::TrackIPTagInfo *>(&ti);
-      if(tkip!=0)  {
-          const edm::RefVector<reco::TrackCollection> & tracks(tkip->selectedTracks());
-          const std::vector<float> & allProbabilities((tkip->probabilities(m_ipType)));
-          const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip->impactParameterData()));
+      const reco::TrackIPTagInfo & tkip = ti.get<reco::TrackIPTagInfo>();
+      const edm::RefVector<reco::TrackCollection> & tracks(tkip.selectedTracks());
+      const std::vector<float> & allProbabilities((tkip.probabilities(m_ipType)));
+      const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip.impactParameterData()));
 
-          if(tkip->primaryVertex().isNull()) return 0;
+      if(tkip.primaryVertex().isNull()) return 0;
 
-          GlobalPoint pv(tkip->primaryVertex()->position().x(),tkip->primaryVertex()->position().y(),tkip->primaryVertex()->position().z());
+      GlobalPoint pv(tkip.primaryVertex()->position().x(),tkip.primaryVertex()->position().y(),tkip.primaryVertex()->position().z());
 
-
-          std::vector<float> probabilities;
-          std::vector<float> probabilitiesB;
-          int i=0;
-          for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
-           {
-            if(   fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
-                 (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
-		 (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
-
-             )
-            {
+      std::vector<float> probabilities;
+      std::vector<float> probabilitiesB;
+      int i=0;
+      for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
+       {
+        if (fabs(impactParameters[i].distanceToJetAxis) < m_cutMaxDistToAxis  &&        // distance to JetAxis
+            (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
+            (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
+           )
+         {
     // Use only positive(or negative) tracks for B
-               
-               float p=fabs(*it);
-               if( m_deltaR < 0 || ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
-                 {
-                   if(m_trackSign>0 || *it >0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
+           float p=fabs(*it);
+           if( m_deltaR < 0 || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
+             {
+               if(m_trackSign>0 || *it >0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
 
-                   if(m_trackSign>0 && *it >=0){probabilitiesB.push_back(*it);} //Use only positive tracks for positive tagger
-                   if(m_trackSign<0 && *it <=0){probabilitiesB.push_back(- *it);} //Use only negative tracks for negative tagger 
-
-                 }
+               if(m_trackSign>0 && *it >=0){probabilitiesB.push_back(*it);} //Use only positive tracks for positive tagger
+               if(m_trackSign<0 && *it <=0){probabilitiesB.push_back(- *it);} //Use only negative tracks for negative tagger 
              }
-           }
+         }
+       }
 
-          float all = jetProbability(probabilities); 
-          std::sort(probabilitiesB.begin(), probabilitiesB.end());
-          if(probabilitiesB.size() > m_nbTracks )  probabilitiesB.resize(m_nbTracks);
-          float b = jetProbability(probabilitiesB);
+      float all = jetProbability(probabilities); 
+      std::sort(probabilitiesB.begin(), probabilitiesB.end());
+      if(probabilitiesB.size() > m_nbTracks )  probabilitiesB.resize(m_nbTracks);
+      float b = jetProbability(probabilitiesB);
         
-	  return -log(b)/4-log(all)/4; ///log(all);
-          }
-        else { 
-                 //FIXME: report an  error?
-                return 0;
-      }
+      return -log(b)/4-log(all)/4; ///log(all);
    }
 
 double jetProbability( const std::vector<float> & v ) const
