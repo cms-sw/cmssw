@@ -10,23 +10,26 @@ https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFastSimulation in the "Supported
 - General:
 
 - Main changes and new features:
-DQM migration. New tracker rechit smearing parameterization. 
-Use split hits for tracks. Implement generalTracks (+iterative tracking new
-steps). Implement new electron seeding (with TID+TEC, dynamic window, etc...).
-Add material in front of the HF. Improvement of the simulation of muons from 
-in-flight decays*
+  - DQM migration. 
+  - New tracker rechit smearing parameterization. 
+  - Use split hits for tracks. 
+  - Implement generalTracks (+iterative tracking new
+    steps). 
+  - Implement new electron seeding (with TID+TEC, dynamic window, etc...).
+  - Add material in front of the HF. 
+  - Improvement of the simulation of muons from in-flight decays*
 - Major bug fixes:
-The problem with some nuclear interactions giving too much energy in the final
-state has been fixed*
-A workaround against a problem when reprocessing some full sim samples from
-the genParticleCandidates has been implemented*
+  - The problem with some nuclear interactions giving too much energy in the final
+    state has been fixed*
+  - A workaround against a problem when reprocessing some full sim samples from
+    the genParticleCandidates has been implemented*
 
 - Known issues:
 
-* : the corresponding tags had not been included yet in 2_0_3. Please check the
+(* : the corresponding tags had not been included yet in 2_0_3. Please check the
 Fast Sim twiki page to check their availability in the other releases.
 
 <hr>
-Last updated: @DATE@ Florian Beaudette
+Last updated: 22 April 2008 Florian Beaudette
  
 */
