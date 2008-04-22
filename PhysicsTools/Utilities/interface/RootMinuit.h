@@ -79,6 +79,7 @@ namespace fit {
 	}
       }
       delete [] e;
+      setParamters();
     }
     void fixParameter(const std::string & name) {
       size_t i = parameterIndex(name);
@@ -108,6 +109,15 @@ namespace fit {
 	    << " range = [" << par.min << ", " << par.max << "]\n";
       }
     }
+    void setParamters() {
+      std::map<std::string, size_t>::const_iterator i = parIndices_.begin(), end = parIndices_.end();
+      double val, err;
+      for(; i != end; ++i) {
+	size_t index = i->second;
+	minuit_->GetParameter(index, val, err);
+	*pars_[index] = val;
+      }
+    }
     int numberOfParameters() { 
       init();
       return minuit_->GetNumPars();
@@ -127,6 +137,7 @@ namespace fit {
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
       double m = minValue();
       if(verbose_) minuit_->mnprin(3, m);
+      setParamters();
       return m;
     }
     double migrad() {
@@ -140,6 +151,7 @@ namespace fit {
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
       double m = minValue();
       if(verbose_) minuit_->mnprin(3, m);
+      setParamters();
       return m;
     }
     double minValue() {
