@@ -166,6 +166,14 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0xf89] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0xf8a] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0xf8b] = &GctBlockUnpackerV2::blockDoNothing;  // End of leafJet blocks.
+    blockUnpackFn_[0x306] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x307] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x386] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x387] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x706] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x707] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x786] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x787] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x0ff] = &GctBlockUnpackerV2::blockToRctCaloRegions;  // Our temp hack RCT calo block
   }
 }
