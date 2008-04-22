@@ -38,65 +38,12 @@ void AnalysisRootpleProducer::store(){
 
   AnalysisTree->Fill();
 
-  NumberMCParticles=0;
-  NumberTracks=0;
-  NumberInclusiveJet=0;
-  NumberChargedJet=0;
-  NumberTracksJet=0;
-  NumberCaloJet=0;
 }
 
 void AnalysisRootpleProducer::fillEventInfo(int e){
   EventKind = e;
 }
 
-void AnalysisRootpleProducer::fillMCParticles(float p, float pt, float eta, float phi){
-  MomentumMC[NumberMCParticles]=p;
-  TransverseMomentumMC[NumberMCParticles]=pt;
-  EtaMC[NumberMCParticles]=eta;
-  PhiMC[NumberMCParticles]=phi;
-  NumberMCParticles++;
-}
-
-void AnalysisRootpleProducer::fillTracks(float p, float pt, float eta, float phi){
-  MomentumTK[NumberTracks]=p;
-  TransverseMomentumTK[NumberTracks]=pt;
-  EtaTK[NumberTracks]=eta;
-  PhiTK[NumberTracks]=phi;
-  NumberTracks++;
-}
-
-void AnalysisRootpleProducer::fillInclusiveJet(float p, float pt, float eta, float phi){
-  MomentumIJ[NumberInclusiveJet]=p;
-  TransverseMomentumIJ[NumberInclusiveJet]=pt;
-  EtaIJ[NumberInclusiveJet]=eta;
-  PhiIJ[NumberInclusiveJet]=phi;
-  NumberInclusiveJet++;
-}
-
-void AnalysisRootpleProducer::fillChargedJet(float p, float pt, float eta, float phi){
-  MomentumCJ[NumberChargedJet]=p;
-  TransverseMomentumCJ[NumberChargedJet]=pt;
-  EtaCJ[NumberChargedJet]=eta;
-  PhiCJ[NumberChargedJet]=phi;
-  NumberChargedJet++;
-}
-
-void AnalysisRootpleProducer::fillTracksJet(float p, float pt, float eta, float phi){
-  MomentumTJ[NumberTracksJet]=p;
-  TransverseMomentumTJ[NumberTracksJet]=pt;
-  EtaTJ[NumberTracksJet]=eta;
-  PhiTJ[NumberTracksJet]=phi;
-  NumberTracksJet++;
-}
-
-void AnalysisRootpleProducer::fillCaloJet(float p, float pt, float eta, float phi){
-  MomentumEHJ[NumberCaloJet]=p;
-  TransverseMomentumEHJ[NumberCaloJet]=pt;
-  EtaEHJ[NumberCaloJet]=eta;
-  PhiEHJ[NumberCaloJet]=phi;
-  NumberCaloJet++;
-}
 
 AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
 {
@@ -118,12 +65,6 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
   //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
   piG = acos(-1.);
-  NumberMCParticles=0;
-  NumberTracks=0;
-  NumberInclusiveJet=0;
-  NumberChargedJet=0;
-  NumberTracksJet=0;
-  NumberCaloJet=0;
 }
 
 void AnalysisRootpleProducer::beginJob( const EventSetup& )
@@ -134,52 +75,6 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
 
   AnalysisTree->Branch("EventKind",&EventKind,"EventKind/I");
 
-  // store p, pt, eta, phi for particles and jets
-
-  // GenParticles at hadron level  
-  AnalysisTree->Branch("NumberMCParticles",&NumberMCParticles,"NumberMCParticles/I");
-  AnalysisTree->Branch("MomentumMC",MomentumMC,"MomentumMC[NumberMCParticles]/F");
-  AnalysisTree->Branch("TransverseMomentumMC",TransverseMomentumMC,"TransverseMomentumMC[NumberMCParticles]/F");
-  AnalysisTree->Branch("EtaMC",EtaMC,"EtaMC[NumberMCParticles]/F");
-  AnalysisTree->Branch("PhiMC",PhiMC,"PhiMC[NumberMCParticles]/F");
-  
-  // tracks
-  AnalysisTree->Branch("NumberTracks",&NumberTracks,"NumberTracks/I");
-  AnalysisTree->Branch("MomentumTK",MomentumTK,"MomentumTK[NumberTracks]/F");
-  AnalysisTree->Branch("TrasverseMomentumTK",TransverseMomentumTK,"TransverseMomentumTK[NumberTracks]/F");
-  AnalysisTree->Branch("EtaTK",EtaTK,"EtaTK[NumberTracks]/F");
-  AnalysisTree->Branch("PhiTK",PhiTK,"PhiTK[NumberTracks]/F");
-  
-  // GenJets
-  AnalysisTree->Branch("NumberInclusiveJet",&NumberInclusiveJet,"NumberInclusiveJet/I");
-  AnalysisTree->Branch("MomentumIJ",MomentumIJ,"MomentumIJ[NumberInclusiveJet]/F");
-  AnalysisTree->Branch("TrasverseMomentumIJ",TransverseMomentumIJ,"TransverseMomentumIJ[NumberInclusiveJet]/F");
-  AnalysisTree->Branch("EtaIJ",EtaIJ,"EtaIJ[NumberInclusiveJet]/F");
-  AnalysisTree->Branch("PhiIJ",PhiIJ,"PhiIJ[NumberInclusiveJet]/F");
-  
-  // jets from charged GenParticles
-  AnalysisTree->Branch("NumberChargedJet",&NumberChargedJet,"NumberChargedJet/I");
-  AnalysisTree->Branch("MomentumCJ",MomentumCJ,"MomentumCJ[NumberChargedJet]/F");
-  AnalysisTree->Branch("TrasverseMomentumCJ",TransverseMomentumCJ,"TransverseMomentumCJ[NumberChargedJet]/F");
-  AnalysisTree->Branch("EtaCJ",EtaCJ,"EtaCJ[NumberChargedJet]/F");
-  AnalysisTree->Branch("PhiCJ",PhiCJ,"PhiCJ[NumberChargedJet]/F");
-  
-  // jets from tracks
-  AnalysisTree->Branch("NumberTracksJet",&NumberTracksJet,"NumberTracksJet/I");
-  AnalysisTree->Branch("MomentumTJ",MomentumTJ,"MomentumTJ[NumberTracksJet]/F");
-  AnalysisTree->Branch("TrasverseMomentumTJ",TransverseMomentumTJ,"TransverseMomentumTJ[NumberTracksJet]/F");
-  AnalysisTree->Branch("EtaTJ",EtaTJ,"EtaTJ[NumberTracksJet]/F");
-  AnalysisTree->Branch("PhiTJ",PhiTJ,"PhiTJ[NumberTracksJet]/F");
-  
-  // jets from calorimeter towers
-  AnalysisTree->Branch("NumberCaloJet",&NumberCaloJet,"NumberCaloJet/I");
-  AnalysisTree->Branch("MomentumEHJ",MomentumEHJ,"MomentumEHJ[NumberCaloJet]/F");
-  AnalysisTree->Branch("TrasverseMomentumEHJ",TransverseMomentumEHJ,"TransverseMomentumEHJ[NumberCaloJet]/F");
-  AnalysisTree->Branch("EtaEHJ",EtaEHJ,"EtaEHJ[NumberCaloJet]/F");
-  AnalysisTree->Branch("PhiEHJ",PhiEHJ,"PhiEHJ[NumberCaloJet]/F");
-  
-
-  // alternative storage method:
   // save TClonesArrays of TLorentzVectors
   // i.e. store 4-vectors of particles and jets
 
@@ -281,7 +176,6 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       std::vector<GenJet>::const_iterator it(ChgGenJetContainer.begin()), itEnd(ChgGenJetContainer.end());
       for ( int iChargedJet(0); it != itEnd; ++it, ++iChargedJet)
 	{
-	  fillChargedJet(it->p(),it->pt(),it->eta(),it->phi());
 	  new((*ChargedJet)[iChargedJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
@@ -301,7 +195,6 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       std::vector<GenJet>::const_iterator it(GenJetContainer.begin()), itEnd(GenJetContainer.end());
       for ( int iInclusiveJet(0); it != itEnd; ++it, ++iInclusiveJet)
 	{
-	  fillInclusiveJet(it->p(),it->pt(),it->eta(),it->phi());
 	  new((*InclusiveJet)[iInclusiveJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
@@ -321,7 +214,6 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       std::vector<math::XYZTLorentzVector>::const_iterator it(GenPart.begin()), itEnd(GenPart.end());
       for( int iMonteCarlo(0); it != itEnd; ++it, ++iMonteCarlo )
 	{
-	  fillMCParticles(it->P(),it->Pt(),it->Eta(),it->Phi());
 	  new((*MonteCarlo)[iMonteCarlo]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
 	}
     }
@@ -359,7 +251,6 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
     std::vector<CaloJet>::const_iterator it(RecoCaloJetContainer.begin()), itEnd(RecoCaloJetContainer.end());
     for( int iCalorimeterJet(0); it != itEnd; ++it, ++iCalorimeterJet)
       {
-	fillCaloJet(it->p(),it->pt(),it->eta(),it->phi());
 	new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
       }
     }
@@ -376,7 +267,6 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       std::vector<BasicJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
       for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
 	{
-	  fillTracksJet(it->p(),it->pt(),it->eta(),it->phi());
 	  new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
 	}
     }
@@ -393,7 +283,6 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
       for(int iTracks(0); it != itEnd; ++it, ++iTracks)
 	{
-	  fillTracks(it->P(),it->Pt(),it->Eta(),it->Phi());
 	  new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
 	}
     }
