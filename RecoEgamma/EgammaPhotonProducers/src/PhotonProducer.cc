@@ -250,18 +250,18 @@ void PhotonProducer::fillPhotonCollection(
     math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
     
     // compute position of ECAL shower
-    //double r9 = seedShapeRef->e3x3()/(aClus->rawEnergy()+aClus->preshowerEnergy());
     float e3x3=  clusterShape_.e3x3(  *(aClus->seed()), &(*hits), &(*topology)); 
     float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
-    float eMax=clusterShape_.eMax(  *(aClus->seed()), &(*hits));
-    float r19=eMax/e3x3;
     float e5x5=clusterShape_.e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
 
     math::XYZPoint caloPosition;
+    double photonEnergy=0;
     if (r9>minR9_) {
       caloPosition = unconvPos;
+      photonEnergy=e5x5;
     } else {
       caloPosition = aClus->position();
+      photonEnergy=aClus->energy();
     }
     
     // does the SuperCluster have a matched pixel seed?
@@ -277,18 +277,11 @@ void PhotonProducer::fillPhotonCollection(
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
     math::XYZVector momentum = direction.unit() * aClus->energy();
-    double photonEnergy=0;
-    if ( r9 > minR9_) {
-      photonEnergy=e5x5;
-    } else {
-      photonEnergy=aClus->energy();
-    }
 
     const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
-   
 
     
-    reco::Photon newCandidate(p4, unconvPos, scRef, HoE, r9, r19, e5x5, hasSeed, vtx);
+    reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
 
     if ( validConversions_) {
 	int icp=0;
