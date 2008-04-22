@@ -36,7 +36,7 @@ class JetTagComputer {
 		}
 
 		template<class T>
-		const T &get(unsigned int index) const
+		const T &get(unsigned int index = 0) const
 		{
 			const reco::BaseTagInfo *info = &getBase(index);
 			const T *castInfo = dynamic_cast<const T*>(info);
@@ -72,6 +72,7 @@ class JetTagComputer {
 
     protected:
 	void uses(unsigned int id, const std::string &label);
+	void uses(const std::string &label) { uses(0, label); }
 
 	virtual float discriminator(const reco::BaseTagInfo&) const;
 	virtual float discriminator(const TagInfoHelper&) const;
