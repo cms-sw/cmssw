@@ -19,6 +19,7 @@ void HcalDataFormatClient::init(const ParameterSet& ps, DQMStore* dbe, string cl
   DCC_Evt_Fmt_ = NULL;
   CDF_Violation_ = NULL;
   DCC_Spigot_Err_ = NULL;
+  DCC_Status_Flags_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
@@ -33,6 +34,11 @@ void HcalDataFormatClient::init(const ParameterSet& ps, DQMStore* dbe, string cl
   EvtMap_ = NULL;
   ErrMapbyCrate_ = NULL;
   FWVerbyCrate_ = NULL;
+
+  InvHTRData_ = NULL; 
+  EvFragSize_ = NULL;
+  EvFragSize2_ = NULL;
+
   ErrCrate0_ = NULL;
   ErrCrate1_ = NULL;
   ErrCrate2_ = NULL;
@@ -51,7 +57,6 @@ void HcalDataFormatClient::init(const ParameterSet& ps, DQMStore* dbe, string cl
   ErrCrate15_ = NULL;
   ErrCrate16_ = NULL;
   ErrCrate17_ = NULL;
-  InvHTRData_ = NULL;
   
 }
 
@@ -105,6 +110,8 @@ void HcalDataFormatClient::cleanup(void) {
     if ( DCC_Evt_Fmt_) delete DCC_Evt_Fmt_;
     if ( DCC_Spigot_Err_) delete DCC_Spigot_Err_;
     if ( CDF_Violation_) delete CDF_Violation_;
+    if ( DCC_Status_Flags_) delete DCC_Status_Flags_;
+
     if ( badDigis_) delete badDigis_;
     if ( unmappedDigis_) delete unmappedDigis_;
     if ( unmappedTPDs_) delete unmappedTPDs_;
@@ -120,6 +127,11 @@ void HcalDataFormatClient::cleanup(void) {
    if (EvtMap_) delete EvtMap_;
    if (ErrMapbyCrate_) delete ErrMapbyCrate_;
    if (FWVerbyCrate_) delete FWVerbyCrate_;
+
+   if (EvFragSize_) delete EvFragSize_;
+   if (EvFragSize2_) delete EvFragSize2_;
+   if (InvHTRData_) delete InvHTRData_;
+
    if (ErrCrate0_) delete ErrCrate0_;
    if (ErrCrate1_) delete ErrCrate1_;
    if (ErrCrate2_) delete ErrCrate2_;
@@ -138,7 +150,6 @@ void HcalDataFormatClient::cleanup(void) {
    if (ErrCrate15_) delete ErrCrate15_;
    if (ErrCrate16_) delete ErrCrate16_;
    if (ErrCrate17_) delete ErrCrate17_;
-   if (InvHTRData_) delete InvHTRData_;
 
   }  
   for(int i=0; i<3; i++){
@@ -150,11 +161,11 @@ void HcalDataFormatClient::cleanup(void) {
   DCC_Evt_Fmt_ = NULL;
   CDF_Violation_ = NULL;
   DCC_Spigot_Err_ = NULL;
+  DCC_Status_Flags_ = NULL;
   badDigis_ = NULL;
   unmappedDigis_ = NULL;
   unmappedTPDs_ = NULL;
   fedErrMap_ = NULL;
-
 
   BCN_ = NULL;
   dccBCN_ = NULL;
@@ -167,6 +178,11 @@ void HcalDataFormatClient::cleanup(void) {
    EvtMap_ = NULL;
    ErrMapbyCrate_ = NULL;
    FWVerbyCrate_ = NULL;
+
+   EvFragSize_ = NULL;
+   EvFragSize2_ = NULL;
+   InvHTRData_ = NULL;
+
    ErrCrate0_ = NULL;
    ErrCrate1_ = NULL;
    ErrCrate2_ = NULL;
@@ -185,7 +201,6 @@ void HcalDataFormatClient::cleanup(void) {
    ErrCrate15_ = NULL;
    ErrCrate16_ = NULL;
    ErrCrate17_ = NULL;
-   InvHTRData_ = NULL;
 
   return;
 }
@@ -219,6 +234,9 @@ void HcalDataFormatClient::getHistograms(){
 
   sprintf(name,"DataFormatMonitor/Common Data Format violations");
   CDF_Violation_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/DCC Status Flags (Nonzero Error Counters)");
+  DCC_Status_Flags_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/Spigot Format Errors");
   spigotErrs_ = getHisto(name, process_, dbe_, debug_,cloneME_);
@@ -261,6 +279,12 @@ void HcalDataFormatClient::getHistograms(){
 
   sprintf(name,"DataFormatMonitor/Invalid HTR Data");
   InvHTRData_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/Event Fragment Size for each FED");
+  //EvFragSize__ = getProfile(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/Ev Frag Size 2d");
+  EvFragSize2_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/HTR Error Word by Crate");
   ErrMapbyCrate_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
@@ -459,13 +483,19 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/EvN Difference Between Ref HTR and DCC",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN Difference Between Ref HTR and DCC",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Difference Between Ref HTR and DC",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Firmware Version",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/Invalid HTR Data",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcal/DataFormatMonitor/Event Fragment Size for each FED",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcal/DataFormatMonitor/Ev Frag Size 2d",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word by Crate",process_.c_str());
@@ -594,12 +624,12 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 23, htmlFile,htmlDir);
-  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
+  histoHTML2(runNo,EvFragSize2_,"FED ","Ev Frag Size", 23, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
   histoHTML(runNo,dccBCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
-  histoHTML2(runNo,InvHTRData_,"Spigot #","DCC #", 23, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -612,7 +642,11 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   histoHTML2(runNo,DCC_Err_Warn_,"HCAL FED ID","", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-htmlFile << "<tr align=\"left\">" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,DCC_Status_Flags_,"HCAL FED ID","", 92, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,BCNMap_,"Slot #","Crate #", 92, htmlFile,htmlDir);
   histoHTML2(runNo,EvtMap_,"Slot #","Crate #", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
@@ -624,6 +658,7 @@ htmlFile << "<tr align=\"left\">" << endl;
  
   htmlFile << "<tr align=\"center\">" << endl;
   histoHTML(runNo,FibOrbMsgBCN_,"Fiber Orbit Message BCN","Events", 30, htmlFile,htmlDir);
+  histoHTML2(runNo,InvHTRData_,"Spigot #","DCC #", 23, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -638,7 +673,7 @@ htmlFile << "<tr align=\"left\">" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,fedErrMap_,"DCC Id","# Errors", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,FWVerbyCrate_,"Firmware Version","Crate #", 100, htmlFile,htmlDir);
+  histoHTML2(runNo,FWVerbyCrate_,"Crate #","Firmware Version", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -906,6 +941,12 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/Invalid HTR Data");
   InvHTRData_ = (TH2F*)infile->Get(name);
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Event Fragment Size for each FED");
+  EvFragSize_ = (TProfile*)infile->Get(name);
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Ev Frag Size 2d");
+  EvFragSize2_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word by Crate");
   ErrMapbyCrate_ = (TH2F*)infile->Get(name);
