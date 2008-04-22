@@ -38,6 +38,16 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   occThresh_ = ps.getUntrackedParameter<double>("TPOccThresh", 1.0);
   cout << "TrigPrim occupancy threshold set to " << occThresh_ << endl;
 
+  TPThresh_ = ps.getUntrackedParameter<double>("TPThreshold", 1.0);
+  cout << "TrigPrim threshold set to " << TPThresh_ << endl;
+
+  TPdigi_ = ps.getUntrackedParameter<int>("TPdigiTS", 1);
+  cout << "TP digi set to " << TPdigi_ << endl;
+
+  ADCdigi_ = ps.getUntrackedParameter<int>("ADCdigiTS", 3);
+  cout << "ADC dgisi set to " << ADCdigi_ << endl;
+
+
   ievt_=0;
   
   if ( m_dbe !=NULL ) {    
@@ -98,6 +108,9 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     TP_ADC_         = m_dbe->book1D("ADC spectrum positive TP","ADC spectrum positive TP",200,-0.5,199.5);
     TPOcc_          = m_dbe->book2D("TP Occupancy","TP Occupancy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     TPvsDigi_       = m_dbe->book2D("TP vs Digi","TP vs Digi",128,0,128,200,0,200);
+    TPvsDigi_->setAxisTitle("lin ADC digi",1);
+    TPvsDigi_->setAxisTitle("TP digi",2);
+
 
   }
 
@@ -126,9 +139,19 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
  float data[10];
   ClearEvent();
   try{
+         edm::Handle<HcalTrigPrimDigiCollection> Tr_hbhe;
+     
+
     int TPGsOverThreshold = 0;
-    for (HcalTrigPrimDigiCollection::const_iterator j=tpDigis.begin(); j!=tpDigis.end(); j++){
-      const HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
+    // for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); j++){
+    // HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+
+       for (HcalTrigPrimDigiCollection::const_iterator j=tpDigis.begin(); j!=tpDigis.end(); j++){
+    const HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
+
+// for(HcalTrigPrimDigiCollection::const_iterator j=Tr_hbhe->begin();j!=Tr_hbhe->end();j++){
+  //        HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
+
       // find corresponding rechit and digis
       HcalTrigTowerDetId tpid=digi.id();	
       HcalDetId did(HcalBarrel,tpid.ieta(),tpid.iphi(),1);
@@ -173,7 +196,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   ///////
    for (int i=0; i<digi.size(); i++) {
         data[i]=digi.sample(i).compressedEt();
-	if(digi.sample(i).compressedEt()>0){
+	if(digi.sample(i).compressedEt()>TPThresh_){
 	    tpSpectrum_[i]->Fill(digi.sample(i).compressedEt());
 	    tpSpectrumAll_->Fill(digi.sample(i).compressedEt());
 	    TPTiming_->Fill(i);
@@ -200,11 +223,21 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   }
     // Correlation plots...
   int eta,phi;
-  for(eta=-42;eta<=42;eta++) for(phi=1;phi<=72;phi++){
+  for(eta=-16;eta<=16;eta++) for(phi=1;phi<=72;phi++){
        for(int i=1;i<10;i++){
+        int j1=get_adc(eta,phi,1)[ADCdigi_];
+        float tmp11 = (TrigMonAdc2fc[j1]+0.5);
+        int j2=get_adc(eta,phi,1)[ADCdigi_+1];
+        float tmp21 = (TrigMonAdc2fc[j2]+0.5);
+        int j3=get_adc(eta,phi,2)[ADCdigi_];
+        float tmp12 = (TrigMonAdc2fc[j3]+0.5);
+        int j4=get_adc(eta,phi,1)[ADCdigi_+1];
+        float tmp22 = (TrigMonAdc2fc[j4]+0.5);
            if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
-	      if(get_tp(eta,phi,1)[i]>0){ 
-	        TPvsDigi_->Fill(get_adc(eta,phi,1)[i]+get_adc(eta,phi,1)[i-1],get_tp(eta,phi,1)[i]);
+	      if(get_tp(eta,phi,1)[TPdigi_]>TPThresh_){ 
+		//     TPvsDigi_->Fill(get_adc(eta,phi,1)[i]+get_adc(eta,phi,1)[i-1],get_tp(eta,phi,1)[i]);
+            TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
+
 		float Energy=0; for(int j=0;j<10;j++) Energy+=get_adc(eta,phi,1)[j]; 
 		TP_ADC_->Fill(Energy);	       	       
 	      }

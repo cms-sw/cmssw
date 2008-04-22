@@ -8,8 +8,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2007/11/20 00:34:19 $
-  * $Revision: 1.12 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.13 $
   * \author W. Fisher - FNAL
   */
   static const float LedMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
