@@ -53,7 +53,7 @@ ct2ct = cms.EDFilter("CaloTowersReCreator",
     EBGrid = cms.untracked.vdouble(2.0, 4.0, 5.0, 9.0, 20.0, 
         30.0, 50.0, 100.0, 300.0),
     # CaloTower 4-momentum reconstruction method and parameters
-    MomConstrMethod = cms.integer(0),
+    MomConstrMethod = cms.int32(0),
     MomEmDepth = cms.double(0),
     MomHadDepth = cms.double(0),
     MomTotDepth = cms.double(0)
