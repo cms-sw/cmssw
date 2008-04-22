@@ -41,7 +41,8 @@ HLTMuonL3TkPreFilter::HLTMuonL3TkPreFilter(const ParameterSet& iConfig) :
    max_Dr_    (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
-   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")) 
+   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
+   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",true)) 
 {
 
    LogDebug("HLTMuonL3TkPreFilter")
@@ -83,7 +84,7 @@ HLTMuonL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    // get hold of trks
    Handle<reco::TrackCollection> mutks;
    iEvent.getByLabel(l3TkTag_,mutks);
-
+   if(saveTag_)filterproduct->addCollectionTag(l3TkTag_);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<reco::TrackRef> > L2toL3s;
    uint n = 0;

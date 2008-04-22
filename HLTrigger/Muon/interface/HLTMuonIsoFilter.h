@@ -25,6 +25,7 @@ class HLTMuonIsoFilter : public HLTFilter {
       edm::InputTag isoTag_;  // input tag identifying isolation map
       
       int    min_N_;          // minimum number of muons to fire the trigger
+      bool saveTag_;            // should we save the input collection ?
 };
 
 #endif //HLTMuonIsoFilter_h

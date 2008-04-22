@@ -27,7 +27,8 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
    min_Pt_ (iConfig.getParameter<double> ("MinPt")),
    min_Quality_    (iConfig.getParameter<int> ("MinQuality")),
-   min_N_ (iConfig.getParameter<int> ("MinN"))
+   min_N_ (iConfig.getParameter<int> ("MinN")),
+   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
 {
 
    LogDebug("HLTMuonL1Filter")
@@ -75,6 +76,7 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n = 0;
    vector<L1MuonParticleRef> l1mu;
    mucands->getObjects(TriggerL1Mu,l1mu);
+   if(saveTag_)filterproduct->addCollectionTag(candTag_);
    for (unsigned int i=0; i<l1mu.size(); i++) {
       L1MuonParticleRef muon = L1MuonParticleRef(l1mu[i]);
 

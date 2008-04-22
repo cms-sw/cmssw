@@ -27,7 +27,8 @@
 HLTMuonIsoFilter::HLTMuonIsoFilter(const edm::ParameterSet& iConfig) :
    candTag_ (iConfig.getParameter< edm::InputTag > ("CandTag") ),
    isoTag_  (iConfig.getParameter< edm::InputTag > ("IsoTag" ) ),
-   min_N_   (iConfig.getParameter<int> ("MinN"))
+   min_N_   (iConfig.getParameter<int> ("MinN")),
+   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
 {
    LogDebug("HLTMuonIsoFilter") << " candTag : " << candTag_.encode()
       << "  IsoTag : " << isoTag_.encode()
@@ -67,6 +68,10 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // get hold of trks
    Handle<TriggerFilterObjectWithRefs> mucands;
+   if(saveTag_) {
+     filterproduct->addCollectionTag(candTag_);
+     filterproduct->addCollectionTag(isoTag_);
+   }
    iEvent.getByLabel (candTag_,mucands);
 
    Handle<edm::ValueMap<bool> > depMap;

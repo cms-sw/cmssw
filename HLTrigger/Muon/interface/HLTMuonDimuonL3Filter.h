@@ -46,6 +46,7 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       double min_PtBalance_;    // minimum Pt difference
       double max_PtBalance_;    // maximum Pt difference
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
+      bool saveTag_;            // should we save the input collection ?
 
 };
 

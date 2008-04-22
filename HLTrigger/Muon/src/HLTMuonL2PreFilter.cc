@@ -44,7 +44,8 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const ParameterSet& iConfig) :
    max_Dr_    (iConfig.getParameter<double> ("MaxDr")),
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
-   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")) 
+   nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
+   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
 {
 
    LogDebug("HLTMuonL2PreFilter")
@@ -87,6 +88,7 @@ HLTMuonL2PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
+   if(saveTag_)filterproduct->addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
    Handle<TriggerFilterObjectWithRefs> previousLevelCands;
    iEvent.getByLabel (previousCandTag_,previousLevelCands);

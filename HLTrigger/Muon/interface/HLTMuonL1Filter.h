@@ -40,6 +40,7 @@ class HLTMuonL1Filter : public HLTFilter {
       /// attention: try not to rely on quality codes in analysis: they may change again
       ///
       int min_N_;      // Minimum number of muons to pass the filter
+      bool saveTag_;            // should we save the input collection ?
 };
 
 #endif //HLTMuonL1Filter_h
