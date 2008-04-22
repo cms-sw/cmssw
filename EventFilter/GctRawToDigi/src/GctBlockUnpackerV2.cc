@@ -172,6 +172,8 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0x387] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x706] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x707] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x586] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x686] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x786] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x787] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x0ff] = &GctBlockUnpackerV2::blockToRctCaloRegions;  // Our temp hack RCT calo block
