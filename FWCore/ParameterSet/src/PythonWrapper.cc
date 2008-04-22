@@ -12,13 +12,12 @@ void pythonToCppException(const std::string& iType)
   handle<> hExc(allow_null(exc));
   handle<> hVal(allow_null(val));
   handle<> hTrace(allow_null(trace));
-  std::cout << "HTRACE ? " << hTrace << std::endl;
+ 
   if(hTrace) {
     object oTrace(hTrace);
     handle<> hStringTr(PyObject_Str(oTrace.ptr()));
     object stringTr(hStringTr);
 //std::cout << "PR TR " << stringTr <<  " DONE "<<  std::endl;
-PyErr_Print();
   }
 
   if(hVal && hExc) {
@@ -33,7 +32,6 @@ PyErr_Print();
     //PyErr_Print();
     throw cms::Exception(iType) <<"python encountered the error: "
                                 << PyString_AsString(stringExc.ptr())<<" "
-                                << " VAL " 
                                 << PyString_AsString(stringVal.ptr())<<"\n";
   } else {
     throw cms::Exception(iType)<<" unknown python problem occurred.\n";
