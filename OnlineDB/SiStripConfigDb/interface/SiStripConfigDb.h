@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.55 2008/04/21 09:31:34 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.56 2008/04/21 09:52:40 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -103,40 +103,34 @@ class SiStripConfigDb {
   friend class PopulateConfigDb;
   friend class testSiStripConfigDb;
 
-  // ---------- Typedefs and structs ----------
+  // ---------- Typedefs ----------
 
-  typedef deviceDescription DeviceDescription;
+#ifdef USING_NEW_DATABASE_MODEL
+  typedef ConnectionDescription FedConnection;
+#else
+  typedef FedChannelConnectionDescription FedConnection;
+#endif
+  typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
   
+  typedef deviceDescription DeviceDescription;
   typedef std::vector<DeviceDescription*> DeviceDescriptions;
 
   typedef Fed9U::Fed9UDescription FedDescription;
-  
   typedef std::vector<FedDescription*> FedDescriptions;
   
-#ifdef USING_NEW_DATABASE_MODEL
-
-  typedef ConnectionDescription FedConnection;
-
-  typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
-  
-#else
-  
-  class CommissioningAnalysisDescription;
-  
-  typedef FedChannelConnectionDescription FedConnection;
-
-#endif
-
-  typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
-  
-  typedef CommissioningAnalysisDescription AnalysisDescription;
-  
-  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
-  
   typedef TkDcuInfo DcuDetId; 
-  
   typedef Sgi::hash_map<unsigned long,DcuDetId*> DcuDetIdMap; //@@ Key is DCU id
-  
+
+#ifdef USING_NEW_DATABASE_MODEL
+  typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
+#else
+  class CommissioningAnalysisDescription;
+#endif
+  typedef CommissioningAnalysisDescription AnalysisDescription;
+  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
+
+  // ---------- Useful structs ----------
+
   /** Class that holds addresses that uniquely identify a hardware
       component within the control system. */
   class DeviceAddress { 
