@@ -24,6 +24,7 @@ void HcalDataFormatClient::init(const ParameterSet& ps, DQMStore* dbe, string cl
   unmappedTPDs_ = NULL;
   fedErrMap_ = NULL;
   BCN_ = NULL;
+  dccBCN_ = NULL;
   BCNCheck_ = NULL;
   EvtNCheck_ = NULL;
   FibOrbMsgBCN_ = NULL;
@@ -50,6 +51,7 @@ void HcalDataFormatClient::init(const ParameterSet& ps, DQMStore* dbe, string cl
   ErrCrate15_ = NULL;
   ErrCrate16_ = NULL;
   ErrCrate17_ = NULL;
+  InvHTRData_ = NULL;
   
 }
 
@@ -109,6 +111,7 @@ void HcalDataFormatClient::cleanup(void) {
     if ( fedErrMap_) delete fedErrMap_;
 
     if( BCN_) delete BCN_;
+    if( dccBCN_) delete dccBCN_;
     if( BCNCheck_) delete BCNCheck_;
     if( EvtNCheck_) delete EvtNCheck_;
     if( FibOrbMsgBCN_) delete FibOrbMsgBCN_;
@@ -135,6 +138,7 @@ void HcalDataFormatClient::cleanup(void) {
    if (ErrCrate15_) delete ErrCrate15_;
    if (ErrCrate16_) delete ErrCrate16_;
    if (ErrCrate17_) delete ErrCrate17_;
+   if (InvHTRData_) delete InvHTRData_;
 
   }  
   for(int i=0; i<3; i++){
@@ -153,6 +157,7 @@ void HcalDataFormatClient::cleanup(void) {
 
 
   BCN_ = NULL;
+  dccBCN_ = NULL;
 
   BCNCheck_ = NULL;
   EvtNCheck_ = NULL;
@@ -180,6 +185,7 @@ void HcalDataFormatClient::cleanup(void) {
    ErrCrate15_ = NULL;
    ErrCrate16_ = NULL;
    ErrCrate17_ = NULL;
+   InvHTRData_ = NULL;
 
   return;
 }
@@ -232,23 +238,29 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/BCN from HTRs");
   BCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/BCN Differences Among Spigots of a DCC");
+  sprintf(name,"DataFormatMonitor/BCN from DCCs");
+  dccBCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/BCN Difference Between Ref HTR and DCC");
   BCNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/EvN Differences Among Spigots of a DCC");
+  sprintf(name,"DataFormatMonitor/EvN Difference Between Ref HTR and DCC");
   EvtNCheck_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/BCN of Fiber Orbit Message");
   FibOrbMsgBCN_ = getHisto(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/EvtNum Not Consistent Within Spigots of a DCC");
+  sprintf(name,"DataFormatMonitor/EvN Inconsistent - HTR vs Ref HTR");
   EvtMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/BCN Not Consistent Within Spigots of DCC");
+  sprintf(name,"DataFormatMonitor/BCN Inconsistent - HTR vs Ref HTR");
   BCNMap_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/HTR Firmware Version");
   FWVerbyCrate_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
+
+  sprintf(name,"DataFormatMonitor/Invalid HTR Data");
+  InvHTRData_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/HTR Error Word by Crate");
   ErrMapbyCrate_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
@@ -432,22 +444,28 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/BCN from HTRs",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN Differences Among Spigots of a DCC",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN from DCCs",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/EvN Differences Among Spigots of a DCC",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Inconsistent - HTR vs Ref HTR",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcal/DataFormatMonitor/EvN Inconsistent - HTR vs Ref HTR",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/FibOrbMsgBCN",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/EvtNum Not Consistent Within Spigots of a DCC",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/EvN Difference Between Ref HTR and DCC",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/BCN Not Consistent Within Spigots of DCC",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/BCN Difference Between Ref HTR and DCC",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Firmware Version",process_.c_str());
+  resetME(name,dbe_);
+
+  sprintf(name,"%sHcal/DataFormatMonitor/Invalid HTR Data",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word by Crate",process_.c_str());
@@ -577,6 +595,11 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 23, htmlFile,htmlDir);
   histoHTML(runNo,BCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,dccBCN_,"Bunch Counter Number","Events", 23, htmlFile,htmlDir);
+  histoHTML2(runNo,InvHTRData_,"Spigot #","DCC #", 23, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -860,23 +883,29 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN from HTRs");
   BCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Differences Among Spigots of a DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN from DCCs");
+  dccBCN_ = (TH1F*)infile->Get(name);
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Difference Between Ref HTR and DCC");
   BCNCheck_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvN Differences Among Spigots of a DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvN Difference Between Ref HTR and DCC");
   EvtNCheck_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN of Fiber Orbit Message");
   FibOrbMsgBCN_ = (TH1F*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvtNum Not Consistent Within Spigots of a DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/EvN Inconsistent - HTR vs Ref HTR");
   EvtMap_ = (TH2F*)infile->Get(name);
   
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Not Consistent Within Spigots of DCC");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/BCN Inconsistent - HTR vs Ref HTR");
   BCNMap_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Firmware Version");
   FWVerbyCrate_ = (TH2F*)infile->Get(name);
+
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Invalid HTR Data");
+  InvHTRData_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word by Crate");
   ErrMapbyCrate_ = (TH2F*)infile->Get(name);
