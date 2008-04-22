@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
@@ -221,7 +221,7 @@ dumpEcalTrigTowerMapping::analyze( const edm::Event& iEvent, const edm::EventSet
    iSetup.get<IdealGeometryRecord>().get(eTTmap);     
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
 
    if (pass_==1) {
      build(*pG,*eTTmap,DetId::Ecal,EcalBarrel,"EBTTmapping.eps");

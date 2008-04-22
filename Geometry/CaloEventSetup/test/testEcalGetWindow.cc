@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -234,7 +234,7 @@ testEcalGetWindow::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
 
    if (pass_==1) {
      build(*pG,*theCaloTopology,DetId::Ecal,EcalBarrel,"EBGetWindowTest.eps");

@@ -31,7 +31,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -594,7 +594,7 @@ CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    using namespace edm;
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
    //
    // get the ecal & hcal geometry
    //
