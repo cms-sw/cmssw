@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.18 2008/04/21 09:34:57 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.19 2008/04/21 09:52:41 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -73,11 +73,12 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 	    connections_.loadNext( "", tmp );
 	    
 #endif // USING_NEW_DATABASE_MODEL
-	    
+
 	    // Some debug
+	    FedConnections::range conns = connections_.find( iter->second.partitionName_ );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
-	       << " Dowloaded " << tmp2.size() 
+	       << " Dowloaded " << conns.size() 
 	       << " FED connections to local cache for partition \""
 	       << iter->second.partitionName_ << "\"."
 	       << " (Cache holds connections for " 
@@ -187,7 +188,11 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     
     // Make local copy 
     std::vector<FedConnection*> tmp;
+#ifdef USING_NEW_DATABASE_MODEL
     ConnectionFactory::vectorCopyI( tmp, conns, true );
+#else
+    tmp = conns;
+#endif
     
     // Add to local cache
     connections_.loadNext( partition, tmp );
@@ -300,17 +305,28 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
   } else {
     
 #ifndef USING_NEW_DATABASE_MODEL
+
     ofstream out( dbParams_.outputModuleXml_.c_str() );
     out << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << endl
 	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
 	<< "<TrackerDescription>" << endl
 	<< "<FedChannelList>" << endl;
-    FedConnections::const_iterator ifed = connections_.begin();
-    FedConnections::const_iterator jfed = connections_.end();
-    for ( ; ifed != jfed; ++ifed ) { (*ifed)->toXML(out); out << endl; }
+    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
+    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    for ( ; iter != jter; ++iter ) {
+      if ( partition == "" || partition == iter->second.partitionName_ ) {
+	FedConnections::range range = connections_.find( iter->second.partitionName_ );
+	if ( range != connections_.emptyRange() ) {
+	  std::vector<FedConnection*>::const_iterator ifed = range.begin();
+	  std::vector<FedConnection*>::const_iterator jfed = range.end();
+	  for ( ; ifed != jfed; ++ifed ) { (*ifed)->toXML(out); out << endl; }
+	}
+      }
+    }
     out << "</FedChannelList>" << endl
 	<< "</TrackerDescription>" << endl;
     out.close();
+
 #endif
 
   }

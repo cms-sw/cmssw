@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.3 2008/04/21 09:35:57 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.4 2008/04/22 12:40:57 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -180,7 +180,11 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	if ( conns != connections.emptyRange() ) {
 	  std::vector<SiStripConfigDb::FedConnection*> tmp1( conns.begin(), conns.end() );
 	  std::vector<SiStripConfigDb::FedConnection*> tmp2;
+#ifdef USING_NEW_DATABASE_MODEL
 	  ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
+#else
+	  tmp2 = tmp1;
+#endif
 	  connections.loadNext( ii->second.partitionName_, tmp2 );
 	}
       }
