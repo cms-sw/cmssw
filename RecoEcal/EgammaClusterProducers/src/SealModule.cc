@@ -26,4 +26,4 @@ DEFINE_ANOTHER_FWK_MODULE(RecHitFilter);
 DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterShapeProducer);
 DEFINE_ANOTHER_FWK_MODULE(FixedMatrixClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(FixedMatrixSuperClusterProducer);
-
+DEFINE_ANOTHER_FWK_MODULE(ReducedRecHitCollectionProducer);
