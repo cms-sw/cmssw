@@ -24,6 +24,8 @@ SiPixelCondObjForHLTBuilder::SiPixelCondObjForHLTBuilder(const edm::ParameterSet
       rmsPed_(conf_.getParameter<double>("rmsPed")),
       meanGain_(conf_.getParameter<double>("meanGain")),
       rmsGain_(conf_.getParameter<double>("rmsGain")),
+      secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
+      secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
       fromFile_(conf_.getParameter<bool>("fromFile")),
       fileName_(conf_.getParameter<std::string>("fileName"))
