@@ -1,4 +1,4 @@
-// $Id: CompositeRefBaseCandidate.cc,v 1.6 2007/09/14 09:53:43 llista Exp $
+// $Id: CompositeRefBaseCandidate.cc,v 1.7 2007/09/21 14:13:05 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -45,6 +45,14 @@ size_t CompositeRefBaseCandidate::numberOfDaughters() const {
 
 size_t CompositeRefBaseCandidate::numberOfMothers() const { 
   return 0;
+}
+
+size_t CompositeRefBaseCandidate::numberOfSourceCandidateRefs() const { 
+  return dau.size(); 
+}
+
+CandidateBaseRef CompositeRefBaseCandidate::sourceCandidateRef( size_type i ) const {
+  return daughterRef(i);
 }
 
 bool CompositeRefBaseCandidate::overlap( const Candidate & c2 ) const {
