@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.11 2008/04/03 19:22:00 lowette Exp $
+// $Id: Jet.cc,v 1.12 2008/04/17 09:27:14 adamwo Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -191,10 +191,15 @@ Jet Jet::wCorrJet() const {
 }
 
 
+std::vector<std::pair<std::string, float> >  Jet::getPairDiscri() const {
+   return pairDiscriVector_;
+}
+
+
 /// get b discriminant from label name
 float Jet::bDiscriminator(std::string theLabel) const {
-  float discriminator = -10.;
-  if (theLabel == "" || theLabel == "default") theLabel = "trackCountingJetTags";
+  float discriminator = -1000.;
+  if (theLabel == "" || theLabel == "default") theLabel = "trackCountingHighEffBJetTags";
   for(unsigned int i=0; i!=pairDiscriVector_.size(); i++){
     if(pairDiscriVector_[i].first == theLabel){
       discriminator = pairDiscriVector_[i].second;
@@ -202,6 +207,8 @@ float Jet::bDiscriminator(std::string theLabel) const {
   }
   return discriminator;
 }
+
+
 
 
 /// get TagInfo ref IP

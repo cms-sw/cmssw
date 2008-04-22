@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.13 2008/04/04 18:22:08 srappocc Exp $
+// $Id: Jet.h,v 1.14 2008/04/17 09:27:14 adamwo Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.13 2008/04/04 18:22:08 srappocc Exp $
+  \version  $Id: Jet.h,v 1.14 2008/04/17 09:27:14 adamwo Exp $
 */
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -96,6 +96,8 @@ namespace pat {
       Jet wCorrJet() const;
       /// get b discriminant from label name
       float bDiscriminator(std::string theLabel) const;
+      /// get vector of paire labelname-disciValue
+      std::vector<std::pair<std::string, float> >  getPairDiscri() const;
       /// get JetTagRef for TrackIP
       const std::vector<reco::TrackIPTagInfoRef>  bTagIPTagInfoRef() const;
       /// get JetTagRef for electron SoftLepton

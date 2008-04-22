@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.9 2008/04/18 09:35:44 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.10 2008/04/21 10:31:05 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -117,9 +117,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(jetCorrFactorsSrc_, jetCorrs);
 
   // Get the vector of jet tags with b-tagging info
-  std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
+  //std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
+  std::vector<edm::Handle<JetTagCollection> > jetTags_testManyByType;
   if (addBTagInfo_) iEvent.getManyByType(jetTags_testManyByType);
-
+   
+   
+   
   edm::Handle<reco::SoftLeptonTagInfoCollection>         jetsInfoHandle_sle;
   edm::Handle<reco::SoftLeptonTagInfoCollection>         jetsInfoHandle_slm;
   edm::Handle<reco::TrackIPTagInfoCollection>            jetsInfoHandleTIP;
@@ -192,9 +195,9 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // add b-tag info if available & required
     if (addBTagInfo_) {
-      
+      //std::cout << "addBTagInfo true " << jetTags_testManyByType.size() << std::endl;
       for (size_t k=0; k<jetTags_testManyByType.size(); k++) {
-        edm::Handle<std::vector<reco::JetTag> > jetTags = jetTags_testManyByType[k];
+        edm::Handle<reco::JetTagCollection > jetTags = jetTags_testManyByType[k];
 
         //get label and module names
         std::string moduleLabel = (jetTags).provenance()->moduleLabel();
@@ -202,7 +205,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
           edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].first;
 	  
 	  if (jet_p.isNull()) {
-            /*std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; */
+            //std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; 
             continue;
           }
 	  if (::deltaR( *itJet, *jet_p ) < 0.00001) {
