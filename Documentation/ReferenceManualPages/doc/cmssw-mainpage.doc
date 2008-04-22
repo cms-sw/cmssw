@@ -1,24 +1,6 @@
 /** \mainpage
 
 \htmlonly
-<script type="text/javascript">
-<!--
-  function alternate() {
-    var i,t,row,table, tables;
-    tables = document.getElementsByTagName("table");
-    for( t = 0; t < tables.length; ++t ) {
-      table = tables[ t ];
-      if ( table.className == 'doctable' ) {
-        for(i = 1; (row = table.getElementsByTagName("tr")[i]); ++i)
-         if ( row.className != 'colgroup' )
-           if(i % 2 == 1) { row.className='odd'; }
-           else { row.className='even'; }
-      }
-    }
-  }
-  window.onload = alternate;
--->
-</script>
 \endhtmlonly
 
 \section release Release notes
