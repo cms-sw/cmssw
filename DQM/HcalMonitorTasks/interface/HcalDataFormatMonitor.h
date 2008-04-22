@@ -10,8 +10,8 @@
 
 /** \class Hcaldataformatmonitor
  *
- * $Date: 2008/03/01 00:39:58 $
- * $Revision: 1.21 $
+ * $Date: 2008/04/17 13:10:11 $
+ * $Revision: 1.23 $
  * \author W. Fisher - FNAL
  */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -28,6 +28,7 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
   void reset();
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
+  void labelHTRBits(MonitorElement* mePlot,unsigned int axisType);
 
  private: // Data accessors
    vector<int> fedUnpackList_;
@@ -58,7 +59,9 @@ class HcalDataFormatMonitor: public HcalBaseMonitor {
    MonitorElement* meEvtNumberSynch_;
    MonitorElement* meBCNSynch_;
    MonitorElement* meBCN_;
+   MonitorElement* medccBCN_;
 
+   MonitorElement* meInvHTRData_;
    MonitorElement* meBCNCheck_; // htr BCN compared to dcc BCN
    MonitorElement* meEvtNCheck_; // htr Evt # compared to dcc Evt #
    MonitorElement* meFibBCN_;
