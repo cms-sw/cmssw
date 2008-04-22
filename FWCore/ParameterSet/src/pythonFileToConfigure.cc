@@ -33,8 +33,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
                                                           main_namespace.ptr(),
                                                           main_namespace.ptr()))));
     } catch(error_already_set) {
-      ;
-      // edm::pythonToCppException("Configuration");
+      edm::pythonToCppException("Configuration");
     }
     try {
       std::string command("cms.findProcess(fileDict).dumpConfig()");
@@ -45,8 +44,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
       returnValue= extract<std::string>(result);
       
     }catch( error_already_set ) {
-      // edm::pythonToCppException("Configuration");
-      ;
+      edm::pythonToCppException("Configuration");
     }
   }catch(...) {
     Py_Finalize();

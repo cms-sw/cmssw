@@ -5,8 +5,8 @@
 #include <string>
 #include <boost/python.hpp>
 namespace edm {
-  // void
-  // pythonToCppException(const std::string& iType);
+void
+pythonToCppException(const std::string& iType);
 
 //  boost::python::list toPythonList(const std::vector<std::string> & v);
   // utility to translate from an STL vector of strings to

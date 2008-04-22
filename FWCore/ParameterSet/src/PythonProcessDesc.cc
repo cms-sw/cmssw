@@ -52,7 +52,7 @@ PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
                             main_namespace.ptr()));
   }
   catch( error_already_set ) {
-    // edm::pythonToCppException("Configuration");
+     edm::pythonToCppException("Configuration");
      Py_Finalize();
   }
 
