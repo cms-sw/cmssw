@@ -67,7 +67,12 @@ calotowermaker = cms.EDFilter("CaloTowersCreator",
     HBWeight = cms.double(1.0),
     HOGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy dependent weights and energy scale to be used
-    EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0)
+    EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
+    # CaloTower 4-momentum reconstruction method and parameters
+    MomConstrMethod = cms.int(0),
+    MomEmDepth = cms.double(0),
+    MomHadDepth = cms.double(0),
+    MomTotDepth = cms.double(0)
 )
 
 

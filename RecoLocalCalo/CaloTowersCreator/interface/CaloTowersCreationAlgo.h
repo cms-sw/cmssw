@@ -17,13 +17,14 @@ class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  
-  * $Date: 2007/03/31 18:38:51 $
-  * $Revision: 1.9 $
+  * $Date: 2008/04/14 06:30:41 $
+  * $Revision: 1.10 $
   * \author R. Wilkinson - Caltech
   */
 
 //
-// Modify MetaTower to save energy of rechits for use in tower 4-momentum assignment
+// Modify MetaTower to save energy of rechits for use in tower 4-momentum assignment,
+// added containers for timing assignment.
 // Anton Anastassov (Northwestern)
 //
 
@@ -87,12 +88,14 @@ public:
   void setHOEScale(double scale);
   void setHF1EScale(double scale);
   void setHF2EScale(double scale);
-
+/*
    // set momentum construction method and parameters
   void setMomConstrMethod(int methodId);
   void setMomEmDepth(double momEmDepth);
   void setMomHadDepth(double momHadDepth);
   void setMomTotDepth(double momTotDepth);
+*/
+
 
   // Add methods to get the seperate positions for ECAL/HCAL 
   // used in constructing the 4-vectors using new methods
@@ -111,6 +114,7 @@ private:
     double E, E_em, E_had, E_outer;
     // contains also energy of RecHit
     std::vector< std::pair<DetId, double> > metaConstituents;
+    double emSumTimeTimesE, hadSumTimeTimesE, emSumEForTime, hadSumEForTime; // Sum(Energy x Timing) : intermediate container
   };
 
   /// adds a single hit to the tower
@@ -161,6 +165,10 @@ private:
   double theMomEmDepth;
   double theMomHadDepth;
   double theMomTotDepth;
+
+ // compactify timing info
+  
+  int compactTime(float time);
 
   CaloTower convert(const CaloTowerDetId& id, const MetaTower& mt);
 

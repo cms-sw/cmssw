@@ -52,9 +52,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHOIsUsed(true),
    // (for momentum reconstruction algorithm)
    theMomConstrMethod(0),
-   theMomEmDepth(0),
-   theMomHadDepth(0),
-   theMomTotDepth(0)
+   theMomEmDepth(0.),
+   theMomHadDepth(0.),
+   theMomTotDepth(0.)
 {
 }
 
@@ -275,6 +275,11 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       tower29.E_had += e29;
       tower29.E += e29;
       tower29.metaConstituents.push_back(mc);
+
+      // store the energy in layer 3 also in E_outer
+      tower28.E_outer += e28;
+      tower29.E_outer += e29;
+
     }
   } else {
     CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
@@ -290,6 +295,9 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       if(det == DetId::Ecal) {
         tower.E_em += e;
         tower.E += e;
+        // have to add a check for the cases when ECAL puts status for recovered hits instead of time (not there yet)
+        tower.emSumTimeTimesE += ( e * recHit->time() );
+        tower.emSumEForTime   += e;  // see above
       }
       // HCAL
       else {
@@ -315,6 +323,12 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
           // HCAL situation normal
           tower.E_had += e;
           tower.E += e;
+
+          // store energy for depth 2 for towers 18-27
+          if (HcalDetId(detId).subdet()==HcalEndcap & HcalDetId(detId).depth()==2 &&
+            HcalDetId(detId).ietaAbs()>=18 && HcalDetId(detId).ietaAbs()<=27) {
+              tower.E_outer += e;
+          }
         }
       }
       std::pair<DetId,double> mc(detId,e);
@@ -359,18 +373,15 @@ void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
     }
     tower.E = tower.E_had+tower.E_em+tower.E_outer;
 
-    // this is to be complient with the new MetaTower setup
+    // this is to be compliant with the new MetaTower setup
     // used only for the default simple vector assignment
     std::pair<DetId, double> mc(detId, 0);
     tower.metaConstituents.push_back(mc);
-
   }
 }
 
-
-CaloTowersCreationAlgo::MetaTower::MetaTower() : E(0),E_em(0),E_had(0),E_outer(0) {
-}
-
+CaloTowersCreationAlgo::MetaTower::MetaTower() : 
+E(0),E_em(0),E_had(0),E_outer(0), emSumTimeTimesE(0), hadSumTimeTimesE(0), emSumEForTime(0), hadSumEForTime(0) { }
 
 
 CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTowerDetId & detId) {
@@ -388,15 +399,15 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
 
 CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& mt) {
 
-  // moved to respective method
-//  GlobalPoint p=theTowerGeometry->getGeometry(id)->getPosition();
-//  double pf=1.0/cosh(p.eta());
-
     double ecalThres=(id.ietaAbs()<=17)?(theEBSumThreshold):(theEESumThreshold);
     double E=mt.E;
     double E_em=mt.E_em;
     double E_had=mt.E_had;
     double E_outer=mt.E_outer;
+
+    float  ecalTime = (mt.emSumEForTime>0)?   mt.emSumTimeTimesE/mt.emSumEForTime  : -9999;
+    float  hcalTime = (mt.hadSumEForTime>0)?  mt.hadSumTimeTimesE/mt.hadSumEForTime : -9999;
+
     std::vector<std::pair<DetId,double> > metaContains=mt.metaConstituents;
 
     if (id.ietaAbs()<=29 && E_em<ecalThres) { // ignore EM threshold in HF
@@ -411,7 +422,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 
     if (id.ietaAbs()<=29 && E_had<theHcalThreshold) {
       E-=E_had;
-      // if (theHOIsUsed)  E-=E_outer; // not subtracted before, think it should be done
+      // if (theHOIsUsed && id.ietaAbs()<=17)  E-=E_outer; // not subtracted before, think it should be done
       E_had=0;
       E_outer=0;
       std::vector<std::pair<DetId,double> > metaContains_nohcal;
@@ -470,6 +481,10 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 //    CaloTower::LorentzVector lv = caloTowerMomentum(id, metaContains, E, E_em, E_had, E_outer);
 
     CaloTower retval(id, E_em, E_had, E_outer, -1, -1, towerP4, emPoint, hadPoint);
+
+    // set the timings
+    retval.setEcalTime(compactTime(ecalTime));
+    retval.setHcalTime(compactTime(hcalTime));
 
     std::vector<DetId> contains;
     for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
@@ -647,7 +662,7 @@ GlobalPoint CaloTowersCreationAlgo::hadSegmentShwrPos(DetId detId, float fracDep
 
 GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,double> >& metaContains,
                                                float fracDepth, double hadE) {
-
+                                                  
                                                   
   if (hadE<=0) return GlobalPoint(0,0,0);
 
@@ -664,7 +679,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(std::vector<std::pair<DetId,doubl
 
     GlobalPoint p = hadSegmentShwrPos(mc_it->first.det(), fracDepth);
 
-    // longitudinal segmantation: do not weight by energy,
+    // longitudinal segmentation: do not weight by energy,
     // get the geometrical position
     hadX += p.x();
     hadY += p.y();
@@ -699,3 +714,13 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double
 }
 
 
+int CaloTowersCreationAlgo::compactTime(float time) {
+
+  const float timeUnit = 0.01; // discretization (ns)
+  const int upperLimit = 32768;
+  int cT = int(time/timeUnit + upperLimit/2.0);
+  if (cT>upperLimit) cT = upperLimit;
+  else if (cT< -upperLimit) cT = -upperLimit;
+
+  return cT;
+}
