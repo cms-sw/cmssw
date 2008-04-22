@@ -155,6 +155,9 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      segPos = seg[last]->localPosition();
      /// get the Global direction
      GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+     /// count the energy loss - from parameterization
+     double ptRatio = 0.994 - (2.14/(ptmean -1)) + (3.46/((ptmean-1)*(ptmean-1)));
+     ptmean = ptmean*ptRatio ;
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
      /// Trasfer into local direction
@@ -213,7 +216,11 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      segPos = seg[last]->localPosition();
      GlobalVector mom = seg[last]->globalPosition()-GlobalPoint();
      /// get the Global direction
-     GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+     //GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+     GlobalVector polar(GlobalVector::Spherical(seg[last]->globalDirection().theta(),seg[last]->globalDirection().phi(),1.));
+     /// count the energy loss - from parameterization
+     double ptRatio = 1.0 - (2.808/(ptmean -1)) + (4.546/((ptmean-1)*(ptmean-1)));
+     ptmean = ptmean*ptRatio ;
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
      /// Trasfer into local direction
@@ -389,19 +396,11 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       // ME1/2,ME1/3 is inner-most
       if ( layer0 == 1 ) {
         // ME2 is outer-most
-        //if ( (layer1 == 2) && (eta > 1.6) ) {
-        //  pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
-        //  spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
-        //}
         if ( layer1 == 2 ) {
           pt  = ( -0.5474 + 0.8620*eta - 0.2794*eta*eta) / temp_dphi;
           spt = (  3.4666 - 4.3546*eta + 1.4666*eta*eta) * pt;
         }
         // ME3 is outer-most
-        //else if ( (layer1 == 3) && (eta > 1.6) ) {
-        //  pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
-        //  spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
-        //}
         else if ( layer1 == 3 ) {
           pt  = ( -0.6416 + 0.9726*eta - 0.2973*eta*eta) / temp_dphi; 
           spt = (  2.0256 - 2.0803*eta + 0.6333*eta*eta) * pt;
@@ -516,7 +515,6 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
   //segPos[0] = seg[0]->globalPosition();
   //float eta = fabs(segPos[0].eta());
 
-  // Want to look at every possible pairs
   // inner-most layer
   for ( unsigned idx0 = 0; idx0 < size-1; ++idx0 ) {
     layer0 = layers[idx0];
@@ -527,14 +525,10 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       int layer1 = layers[idx1];
       segPos[1] = seg[idx1]->globalPosition();      
  
-<<<<<<< MuonSeedCreator.cc
-      
-      //eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
-      // using the eta from outter layer because parameterization do so
-      eta = fabs(segPos[1].eta());
-=======
-      eta = fabs(segPos[0].eta());  // Eta is better determined from track closest from IP
->>>>>>> 1.7
+      // using eta from outer layer because parameterization do so ..
+      //eta = fabs(segPos[0].eta());  
+      eta = fabs(segPos[1].eta());  
+      if (layer1 == -4) eta = fabs(segPos[0].eta());
 
       double dphi = segPos[0].phi() - segPos[1].phi();
       double temp_dphi = dphi;
@@ -553,13 +547,17 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       if (layer0 == -1) {
         // MB2 is outer-most
         if (layer1 == -2) {
- 	  pt  = ( 0.1997 + 0.0569*eta - 0.0928*eta*eta) / temp_dphi;
-	  spt = ( 0.1195 - 0.0424*eta + 0.0838*eta*eta) * pt;
+ 	  pt  = ( 0.1998 + 0.0590*eta - 0.0963*eta*eta) / temp_dphi;
+	  spt = ( 0.1192 - 0.0655*eta + 0.0969*eta*eta) * pt;
+ 	  //pt  = ( 0.1942 + 0.0580*eta - 0.0891*eta*eta) / temp_dphi;
+	  //spt = ( 0.1396 - 0.1181*eta + 0.1371*eta*eta) * pt;
         }
         // MB3 is outer-most
         else if (layer1 == -3) {
-  	  pt  = ( 0.3419 + 0.0659*eta - 0.1345*eta*eta) / temp_dphi;
-	  spt = ( 0.1402 - 0.1069*eta + 0.1753*eta*eta) * pt;
+  	  pt  = ( 0.3391 + 0.0823*eta - 0.1500*eta*eta) / temp_dphi;
+	  spt = ( 0.1421 - 0.0630*eta + 0.0845*eta*eta) * pt;
+  	  //pt  = ( 0.3267 + 0.1095*eta - 0.1837*eta*eta) / temp_dphi;
+	  //spt = ( 0.1827 - 0.1804*eta + 0.2419*eta*eta) * pt;
         }
         // MB4 is outer-most
         else {
@@ -576,6 +574,8 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
         if ( layer1 == -3) {
   	  pt  = ( 0.1398 + 0.0286*eta - 0.0680*eta*eta) / temp_dphi;
 	  spt = ( 0.1908 - 0.0914*eta + 0.1851*eta*eta) * pt;
+  	  //pt  = ( 0.1325 + 0.3478*eta - 0.0572*eta*eta) / temp_dphi;
+	  //spt = ( 0.2377 - 0.0878*eta + 0.0810*eta*eta) * pt;
         }
         // MB4 is outer-most
         else {
@@ -896,7 +896,8 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
   } 
   // Compute weighted mean and error
 
-  thePt  = weightPtSum / sigmaSqr_sum;
+  //thePt  = weightPtSum / sigmaSqr_sum;
+  thePt  = 10.0;
   theSpt = sqrt( 1.0 / sigmaSqr_sum ) ;
   //std::cout<<" pt= "<<thePt<<" sPt= "<<theSpt<< std::endl;
   return;
