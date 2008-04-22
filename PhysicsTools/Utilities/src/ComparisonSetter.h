@@ -24,12 +24,12 @@ namespace reco {
 
     template<class CompT>
     struct ComparisonSetter {
-      ComparisonSetter( ComparisonStack & stack ) : stack_( stack ) { }
-      void operator()( const char ) const {
+      ComparisonSetter(ComparisonStack & stack) : stack_(stack) { }
+      void operator()(const char) const {
 #ifdef BOOST_SPIRIT_DEBUG 
 	BOOST_SPIRIT_DEBUG_OUT << "pushing comparison: " << cmp_out<CompT>::value << std::endl;
 #endif
-	stack_.push_back( boost::shared_ptr<ComparisonBase>( new Comparison<CompT>() ) );
+	stack_.push_back(boost::shared_ptr<ComparisonBase>(new Comparison<CompT>()));
       }
     private:
       ComparisonStack & stack_;

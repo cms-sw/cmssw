@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -68,7 +68,7 @@ namespace reco {
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, logical_factor, logical_term,
 	  cut, fun;
-	definition( const Grammar & self ) {
+	definition(const Grammar & self) {
 	  using namespace boost::spirit;
 	  using namespace std;
 
@@ -84,80 +84,80 @@ namespace reco {
 	  ComparisonSetter<not_equal_to<double> > not_equal_to_s(self.cmpStack);
 	  CombinerSetter and_s(kAnd, self.cmbStack), or_s(kOr, self.cmbStack), not_s(kNot, self.cmbStack);
 	  FunctionSetter 
-	    abs_s( kAbs, self.funStack ), acos_s( kAcos, self.funStack ), asin_s( kAsin, self.funStack ),
-	    atan_s( kAtan, self.funStack ), atan2_s( kAtan, self.funStack ), 
-	    chi2prob_s( kChi2Prob, self.funStack ), 
-            cos_s( kCos, self.funStack ), 
-	    cosh_s( kCosh, self.funStack ), exp_s( kExp, self.funStack ), log_s( kLog, self.funStack ), 
-	    log10_s( kLog10, self.funStack ), max_s( kMax, self.funStack ), min_s( kMin, self.funStack ),
-	    pow_s( kPow, self.funStack ), sin_s( kSin, self.funStack ), 
-	    sinh_s( kSinh, self.funStack ), sqrt_s( kSqrt, self.funStack ), tan_s( kTan, self.funStack ), 
-	    tanh_s( kTanh, self.funStack );
-	  TrinarySelectorSetter trinary_s( self.selStack, self.cmpStack, self.exprStack );
-	  BinarySelectorSetter binary_s( self.selStack, self.cmpStack, self.exprStack );
-	  CutSetter cut_s( * self.sel_, self.selStack, self.cmbStack );
-	  ExpressionSetter expr_s( * self.expr_, self.exprStack );
-	  ExpressionBinaryOperatorSetter<plus<double> > plus_s( self.exprStack );
-	  ExpressionBinaryOperatorSetter<minus<double> > minus_s( self.exprStack );
-	  ExpressionBinaryOperatorSetter<multiplies<double> > multiplies_s( self.exprStack );
-	  ExpressionBinaryOperatorSetter<divides<double> > divides_s( self.exprStack );
-	  ExpressionBinaryOperatorSetter<power_of<double> > power_of_s( self.exprStack );
-	  ExpressionUnaryOperatorSetter<negate<double> > negate_s( self.exprStack );
-	  ExpressionFunctionSetter fun_s( self.exprStack, self.funStack );
+	    abs_s(kAbs, self.funStack), acos_s(kAcos, self.funStack), asin_s(kAsin, self.funStack),
+	    atan_s(kAtan, self.funStack), atan2_s(kAtan, self.funStack), 
+	    chi2prob_s(kChi2Prob, self.funStack), 
+            cos_s(kCos, self.funStack), 
+	    cosh_s(kCosh, self.funStack), exp_s(kExp, self.funStack), log_s(kLog, self.funStack), 
+	    log10_s(kLog10, self.funStack), max_s(kMax, self.funStack), min_s(kMin, self.funStack),
+	    pow_s(kPow, self.funStack), sin_s(kSin, self.funStack), 
+	    sinh_s(kSinh, self.funStack), sqrt_s(kSqrt, self.funStack), tan_s(kTan, self.funStack), 
+	    tanh_s(kTanh, self.funStack);
+	  TrinarySelectorSetter trinary_s(self.selStack, self.cmpStack, self.exprStack);
+	  BinarySelectorSetter binary_s(self.selStack, self.cmpStack, self.exprStack);
+	  CutSetter cut_s(* self.sel_, self.selStack, self.cmbStack);
+	  ExpressionSetter expr_s(* self.expr_, self.exprStack);
+	  ExpressionBinaryOperatorSetter<plus<double> > plus_s(self.exprStack);
+	  ExpressionBinaryOperatorSetter<minus<double> > minus_s(self.exprStack);
+	  ExpressionBinaryOperatorSetter<multiplies<double> > multiplies_s(self.exprStack);
+	  ExpressionBinaryOperatorSetter<divides<double> > divides_s(self.exprStack);
+	  ExpressionBinaryOperatorSetter<power_of<double> > power_of_s(self.exprStack);
+	  ExpressionUnaryOperatorSetter<negate<double> > negate_s(self.exprStack);
+	  ExpressionFunctionSetter fun_s(self.exprStack, self.funStack);
 	  //	  Abort abort_s;
   
 	  number = 
 	    real_p [ number_s ];
 	  var = 
-	    ( alpha_p >> * alnum_p >> 
-	      ch_p('(') >> int_p [ int_s ] >> * ( ch_p(',') >> int_p [ int_s ] ) >> ch_p(')') ) [ method_s ] |
-	    ( alpha_p >> * alnum_p ) [ method_s ];
+	    (alpha_p >> * alnum_p >> 
+	      ch_p('(') >> int_p [ int_s ] >> * (ch_p(',') >> int_p [ int_s ]) >> ch_p(')')) [ method_s ] |
+	    (alpha_p >> * alnum_p) [ method_s ];
 	  method = 
-	    ( var >> * ( ( ch_p('.') >> var ) ) ) [ var_s ];
+	    (var >> * ((ch_p('.') >> var))) [ var_s ];
 	  function1 = 
-	    chseq_p( "abs" ) [ abs_s ] | chseq_p( "acos" ) [ acos_s ] | chseq_p( "asin" ) [ asin_s ] |
-	    chseq_p( "atan" ) [ atan_s ] | chseq_p( "cos" ) [ cos_s ] | chseq_p( "cosh" ) [ cosh_s ] |
-	    chseq_p( "exp" ) [ exp_s ] | chseq_p( "log" ) [ log_s ] | chseq_p( "log10" ) [ log10_s ] |
-	    chseq_p( "sin" ) [ sin_s ] | chseq_p( "sinh" ) [ sinh_s ] | chseq_p( "sqrt" ) [ sqrt_s ] |
-	    chseq_p( "tan" ) [ tan_s ] | chseq_p( "tanh" ) [ tanh_s ];
+	    chseq_p("abs") [ abs_s ] | chseq_p("acos") [ acos_s ] | chseq_p("asin") [ asin_s ] |
+	    chseq_p("atan") [ atan_s ] | chseq_p("cos") [ cos_s ] | chseq_p("cosh") [ cosh_s ] |
+	    chseq_p("exp") [ exp_s ] | chseq_p("log") [ log_s ] | chseq_p("log10") [ log10_s ] |
+	    chseq_p("sin") [ sin_s ] | chseq_p("sinh") [ sinh_s ] | chseq_p("sqrt") [ sqrt_s ] |
+	    chseq_p("tan") [ tan_s ] | chseq_p("tanh") [ tanh_s ];
 	  function2 = 
-	    chseq_p( "atan2" ) [ atan2_s ] | chseq_p( "chi2prob" ) [ chi2prob_s ] | chseq_p( "pow" ) [ pow_s ] |
-            chseq_p( "min" ) [ min_s ] | chseq_p( "max" ) [ max_s ];
+	    chseq_p("atan2") [ atan2_s ] | chseq_p("chi2prob") [ chi2prob_s ] | chseq_p("pow") [ pow_s ] |
+            chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ];
 	  expression = 
-	    term >> * ( ( '+' >> term ) [ plus_s ] |
-			( '-' >> term ) [ minus_s ] );
+	    term >> * (('+' >> term) [ plus_s ] |
+			('-' >> term) [ minus_s ]);
 	  term = 
-	    power >> * ( ( '*' >> power ) [ multiplies_s ] |
-			 ( '/' >> power ) [ divides_s ] );
+	    power >> * (('*' >> power) [ multiplies_s ] |
+			 ('/' >> power) [ divides_s ]);
 	  power = 
-	    factor >> * ( ( '^' >> factor ) [ power_of_s ] );
+	    factor >> * (('^' >> factor) [ power_of_s ]);
 	  factor = 
 	    number | 
-	    ( function1 >> ch_p( '(' ) >> expression >> ch_p( ')' ) ) [ fun_s ] |
-	    ( function2 >> ch_p( '(' ) >> expression >> ch_p( ',') >> expression >> ch_p( ')' ) ) [ fun_s ] |
+	    (function1 >> ch_p('(') >> expression >> ch_p(')')) [ fun_s ] |
+	    (function2 >> ch_p('(') >> expression >> ch_p(',') >> expression >> ch_p(')')) [ fun_s ] |
 	    method | 
 	    '(' >> expression >> ')' |   
-	    ( '-' >> factor ) [ negate_s ] |
-	    ( '+' >> factor );
+	    ('-' >> factor) [ negate_s ] |
+	    ('+' >> factor);
 	  comparison_op = 
-	    ( ch_p('<') >> ch_p('=') [ less_equal_s    ] ) | 
-	    ( ch_p('<')              [ less_s          ] ) | 
-	    ( ch_p('=')              [ equal_to_s      ] ) | 
-	    ( ch_p('>') >> ch_p('=') [ greater_equal_s ] ) | 
-	    ( ch_p('>')              [ greater_s       ] ) | 
-	    ( ch_p('!') >> ch_p('=') [ not_equal_to_s  ] );
+	    (ch_p('<') >> ch_p('=') [ less_equal_s    ]) | 
+	    (ch_p('<')              [ less_s          ]) | 
+	    (ch_p('=')              [ equal_to_s      ]) | 
+	    (ch_p('>') >> ch_p('=') [ greater_equal_s ]) | 
+	    (ch_p('>')              [ greater_s       ]) | 
+	    (ch_p('!') >> ch_p('=') [ not_equal_to_s  ]);
 	  binary_comp = 
 	    expression >> comparison_op >> expression;
 	  trinary_comp = 
 	    expression >> comparison_op >> expression >> comparison_op >> expression;
 	  logical_expression = 
-	    logical_term >> * ( ( ch_p('|') [ or_s ] >> logical_term ) );
+	    logical_term >> * ((ch_p('|') [ or_s ] >> logical_term));
 	  logical_term = 
-	    logical_factor >> * ( ( ch_p('&') [ and_s ] >> logical_factor ) );
+	    logical_factor >> * ((ch_p('&') [ and_s ] >> logical_factor));
 	  logical_factor =
-	    ( trinary_comp [ trinary_s ] | 
+	    (trinary_comp [ trinary_s ] | 
 	      binary_comp [ binary_s ] |
-	      ( ch_p('!') [ not_s ] >> logical_factor ) ) [ cut_s ] |
+	      (ch_p('!') [ not_s ] >> logical_factor)) [ cut_s ] |
 	    '(' >> logical_expression >> ')' |
 	    logical_expression;
 	  cut = logical_expression;
