@@ -184,14 +184,14 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename )
   return _lutset;
 }
 
-std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate )
+std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
 {
   //shared_ptr<LutXml> _xml( new LutXml() );
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
   LMap _lmap;
   _lmap . read( "HCALmapHBEF.txt", "HBEF" );
-  //  _lmap . read( "HCALmapHO.txt", "HO" );
+  _lmap . read( "HCALmapHO.txt", "HO" );
   map<int,LMapRow> & _map = _lmap.get_map();
   cout << "LMap contains " << _map . size() << " channels" << endl;
 
@@ -219,24 +219,25 @@ std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _
       }
     }
     if ( lut_index >= 0 ){
-      if ( _xml.count(row->second.crate) == 0 ){
+      if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
 	_xml.insert( pair<int,shared_ptr<LutXml> >(row->second.crate,shared_ptr<LutXml>(new LutXml())) );
+      }
+      else if ( _xml.count(0) == 0 ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->second.side*row->second.eta;
       _cfg.iphi = row->second.phi;
       _cfg.depth = row->second.depth;
       _cfg.crate = row->second.crate;
       _cfg.slot = row->second.htr;
-      if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 0;
-      else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 1;
+      if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 1;
+      else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 0;
       else cout << "Warning! fpga out of range..." << endl;
       _cfg.fiber = row->second.rm_fi;
       _cfg.fiberchan = row->second.fi_ch;
       if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
       else _cfg.lut_type = 2;
-      //_cfg.creationtag = "test_GR0T_v1.0";
       _cfg.creationtag = _tag;
-      //_cfg.creationstamp = "2008-04-14 03:15:47";      
       _cfg.creationstamp = get_time_stamp( time(0) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
@@ -244,7 +245,12 @@ std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _
 	_cfg.iphi*10000+_cfg.depth*1000+
 	(row->second.side>0)*100+row->second.eta;
       _cfg.lut = _set.lut[lut_index];
-      _xml[row->second.crate]->addLut( _cfg );  
+      if (split_by_crate ){
+	_xml[row->second.crate]->addLut( _cfg );  
+      }
+      else{
+	_xml[0]->addLut( _cfg );  
+      }
     }
   }
 
@@ -261,7 +267,12 @@ std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _
   for (map<int,shared_ptr<LutXml> >::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++){
     result = cr->second->getString();
     stringstream output_file_name;
-    output_file_name << _tag << "_" << cr->first << ".xml";
+    if ( split_by_crate ){
+      output_file_name << _tag << "_" << cr->first << ".xml";
+    }
+    else{
+      output_file_name << _tag << ".xml";
+    }
     cr->second->write( output_file_name.str().c_str() );
   }
 

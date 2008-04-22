@@ -65,13 +65,18 @@ int main( int argc, char **argv )
   //
   //===> command line options parser using boost  
   //
+  int crate;
   po::options_description general("General options");
   general.add_options()
     ("help", "produce help message")
     ("test", po::value<string>(), "print test string")
     ("test-lmap", po::value<string>(), "test logical map functionality")
     ("test-lut-manager", po::value<string>(), "test LUT functionality")
-    ("create-lut-xml", po::value<int>(), "create XML file(s) with LUTs")
+    ("tag-name", po::value<string>(), "tag name")
+    ("crate", po::value<int>(&crate)->default_value( -1 ), "crate number")
+    ("create-lut-xml", "create XML file(s) with LUTs, arg=crate number, default arg=-1 stands for all crates")
+    ("lut-master-file", po::value<string>(), "LUT ASCII master file name")
+    ("do-not-split-by-crate", "output LUTs as a single XML instead of making a separate file for each crate")
     ;
 
   try{
@@ -117,11 +122,23 @@ int main( int argc, char **argv )
     }
     
     if (vm.count("create-lut-xml")) {
-      cout << "Creating XML with LUTs for all channels..." << "\n";
-      int _cr = vm["create-lut-xml"].as<int>();
-      HcalLutManager manager;
-      manager . getLutXmlFromAsciiMaster( "inputLUTcoder.dat", "CR0T_2008_v1_fakeChecksum", _cr );
-      //manager . getLutXmlFromAsciiMaster( "inputLUTcoder.dat", "CR0T_2008_v1_test1", _cr );
+      while(1){
+	cout << "Creating XML with LUTs for all channels..." << "\n";
+	int _cr = vm["crate"].as<int>();
+	if (!vm.count("lut-master-file")){
+	  cout << "LUT master file name is not specified...exiting" << endl;
+	  break;
+	}
+	string _master_file = vm["lut-master-file"].as<string>();
+	if (!vm.count("tag-name")){
+	  cout << "tag name is not specified...exiting" << endl;
+	  break;
+	}
+	string _tag = vm["tag-name"].as<string>();
+	HcalLutManager manager;
+	manager . getLutXmlFromAsciiMaster( _master_file, _tag, _cr, !vm.count("do-not-split-by-crate") );
+	break;
+      }
       return 0;
     }
     

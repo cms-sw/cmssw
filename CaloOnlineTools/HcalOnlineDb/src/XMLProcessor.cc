@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 21 15:56:27 CEST 2007
-// $Id: XMLProcessor.cc,v 1.2 2008/03/13 20:44:15 kukartse Exp $
+// $Id: XMLProcessor.cc,v 1.3 2008/04/10 21:12:09 kukartse Exp $
 //
 
 // system include files
@@ -249,9 +249,9 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
   if (theSerializer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
     theSerializer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
     
-  XMLFormatTarget * myFormTarget = NULL;
-  XMLCh * _string = NULL;
-  if ( target == "stdout" )
+  XMLFormatTarget * myFormTarget = 0;
+  XMLCh * _string = 0;
+  if ( target == "stdout" || target == "string" )
     {
       myFormTarget = new StdOutFormatTarget();
     }
@@ -277,7 +277,7 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
     cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
-    return NULL;
+    return 0;
   }
   catch (const DOMException& toCatch) {
     char* message = XMLString::transcode(toCatch.msg);

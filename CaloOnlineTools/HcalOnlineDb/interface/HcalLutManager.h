@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <time>
 #include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -37,7 +36,7 @@ class HcalLutManager{
 
   void init( void );
   std::string & getLutXml( std::vector<unsigned int> & _lut );
-  std::string getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate );
+  std::string getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate = true );
   HcalLutSet getLutSetFromFile( string _filename );
 
   static int getInt( string number );
