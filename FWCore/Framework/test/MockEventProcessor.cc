@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.9 2008/04/08 18:13:36 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.10 2008/04/15 19:20:50 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -230,4 +230,6 @@ namespace edm {
   void MockEventProcessor::setExceptionMessageFiles(std::string& message) { }
   void MockEventProcessor::setExceptionMessageRuns(std::string& message) { }
   void MockEventProcessor::setExceptionMessageLumis(std::string& message) { }
+
+  bool MockEventProcessor::alreadyHandlingException() const { return false; }
 }

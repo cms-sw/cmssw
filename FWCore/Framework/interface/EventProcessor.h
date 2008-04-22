@@ -6,7 +6,7 @@
 EventProcessor: This defines the 'framework application' object. It is
 configured in the user's main() function, and is set running.
 
-$Id: EventProcessor.h,v 1.62 2008/04/08 18:13:35 wdd Exp $
+$Id: EventProcessor.h,v 1.63 2008/04/15 19:20:49 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -337,6 +337,8 @@ namespace edm {
     virtual void setExceptionMessageRuns(std::string& message);
     virtual void setExceptionMessageLumis(std::string& message);
 
+    virtual bool alreadyHandlingException() const;
+
   private:
     //------------------------------------------------------------------
     //
@@ -349,7 +351,7 @@ namespace edm {
 
                        
     StatusCode runCommon(bool onlineStateTransitions, int numberOfEventsToProcess);
-    void terminateMachine(bool afterException);
+    void terminateMachine();
 
     StatusCode doneAsync(event_processor::Msg m);
     
@@ -417,6 +419,8 @@ namespace edm {
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;
+    bool                                          alreadyHandlingException_;
+    bool                                          forceLooperToEnd_;
 
     friend class event_processor::StateSentry;
     friend class event_processor::PrePostSourceSignal;

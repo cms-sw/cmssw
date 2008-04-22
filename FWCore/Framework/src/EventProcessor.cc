@@ -445,7 +445,9 @@ namespace edm {
     fb_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false)
+    sourceActive_(false),
+    alreadyHandlingException_(false),
+    forceLooperToEnd_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -481,7 +483,9 @@ namespace edm {
     fb_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false)
+    sourceActive_(false),
+    alreadyHandlingException_(false),
+    forceLooperToEnd_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -517,7 +521,9 @@ namespace edm {
     fb_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false)
+    sourceActive_(false),
+    alreadyHandlingException_(false),
+    forceLooperToEnd_(false)
   {
     init(processDesc, token, legacy);
   }
@@ -619,7 +625,7 @@ namespace edm {
     // executable the solution to this problem is for the code using
     // the EventProcessor to explicitly call EndJob or use runToCompletion,
     // then the next line of code is never executed.
-    terminateMachine(false);
+    terminateMachine();
 
     try {
       changeState(mDtor);
@@ -812,7 +818,7 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);  
 
-    terminateMachine(false);
+    terminateMachine();
 
     if(looper_) {
        looper_->endOfJob();
@@ -1256,11 +1262,9 @@ namespace edm {
           if (edm::shutdown_flag) {
             changeState(mShutdownSignal);
             returnCode = epSignal;
+            forceLooperToEnd_ = true;
             machine_->process_event(statemachine::Stop());
-            // Two stops are needed if there is a looper running
-            if (!machine_->terminated()) {
-              machine_->process_event(statemachine::Stop());
-            }
+            forceLooperToEnd_ = false;
             break;
 	  }
         }
@@ -1302,9 +1306,55 @@ namespace edm {
       }  // End of loop over state machine events
     } // Try block 
 
+    // Some comments on exception handling related to the boost state machine:
+    //
+    // Some states used in the machine are special because they
+    // perform actions while the machine is being terminated, actions
+    // such as close files, call endRun, call endLumi etc ...  Each of these
+    // states has two functions that perform these actions.  The functions
+    // are almost identical.  The major difference is that one version
+    // catches all exceptions and the other lets exceptions pass through.
+    // The destructor catches them and the other function named "exit" lets
+    // them pass through.  On a normal termination, boost will always call
+    // "exit" and then the state destructor.  In our state classes, the
+    // the destructors do nothing if the exit function already took
+    // care of things.  Here's the interesting part.  When boost is
+    // handling an exception the "exit" function is not called (a boost
+    // feature).
+    //
+    // If an exception occurs while the boost machine is in control
+    // (which usually means inside a process_event call), then
+    // the boost state machine destroys its states and "terminates" itself.
+    // This already done before we hit the catch blocks below. In this case
+    // the call to terminateMachine below only destroys an already
+    // terminated state machine.  Because exit is not called, the state destructors
+    // handle cleaning up lumis, runs, and files.  The destructors swallow
+    // all exceptions and only pass through the exceptions messages which
+    // are tacked onto the original exception below.
+    // 
+    // If an exception occurs when the boost state machine is not
+    // in control (outside the process_event functions), then boost
+    // cannot destroy its own states.  The terminateMachine function
+    // below takes care of that.  The flag "alreadyHandlingException"
+    // is set true so that the state exit functions do nothing (and
+    // cannot throw more exceptions while handling the first).  Then the
+    // state destructors take care of this because exit did nothing.
+    //
+    // In both cases above, the EventProcessor::endOfLoop function is
+    // not called because it can throw exceptions.
+    //
+    // One tricky aspect of the state machine is that things which can
+    // throw should not be invoked by the state machine while another
+    // exception is being handled.
+    // Another tricky aspect is that it appears to be important to 
+    // terminate the state machine before invoking its destructor.
+    // We've seen crashes which are not understood when that is not
+    // done.  Maintainers of this code should be careful about this.
 
     catch (cms::Exception& e) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       e << "cms::Exception caught in EventProcessor and rethrown\n";
       e << exceptionMessageLumis_;
       e << exceptionMessageRuns_;
@@ -1312,7 +1362,9 @@ namespace edm {
       throw e;
     }
     catch (std::bad_alloc& e) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       throw cms::Exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cms::Exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
@@ -1321,7 +1373,9 @@ namespace edm {
         << exceptionMessageFiles_;
     }
     catch (std::exception& e) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       throw cms::Exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cms::Exception\n"
         << "Previous information:\n" << e.what() << "\n"
@@ -1330,7 +1384,9 @@ namespace edm {
         << exceptionMessageFiles_;
     }
     catch (...) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       throw cms::Exception("Unknown")
         << "The EventProcessor caught an unknown exception type and converted it to a cms::Exception\n"
         << exceptionMessageLumis_
@@ -1406,7 +1462,7 @@ namespace edm {
   bool EventProcessor::endOfLoop() {
     if (looper_) {
       EDLooper::Status status = looper_->doEndOfLoop(esp_->eventSetup());
-      if (status != EDLooper::kContinue) return true;
+      if (status != EDLooper::kContinue || forceLooperToEnd_) return true;
       else return false;
     }
     FDEBUG(1) << "\tendOfLoop\n";
@@ -1561,22 +1617,22 @@ namespace edm {
     exceptionMessageLumis_ = message;
   }
 
-  void EventProcessor::terminateMachine(bool afterException) {
+  bool EventProcessor::alreadyHandlingException() const {
+    return alreadyHandlingException_;
+  }
+
+  void EventProcessor::terminateMachine() {
     if (machine_.get() != 0) {
-      if (!afterException) {
-        if (!machine_->terminated()) {
-          machine_->process_event(statemachine::Stop());
-          // Two stops are needed if there is a looper running
-          if (!machine_->terminated()) {
-            machine_->process_event(statemachine::Stop());
-          }
-        }
+      if (!machine_->terminated()) {
+        forceLooperToEnd_ = true;
+        machine_->process_event(statemachine::Stop());
+        forceLooperToEnd_ = false;
+      }
+      else {
+        FDEBUG(1) << "EventProcess::terminateMachine  The state machine was already terminated \n";
       }
       if (machine_->terminated()) {
         FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
-      }
-      else {
-        FDEBUG(1) << "Intentionally destroying the state machine without normal termination\n";
       }
       machine_.reset();
     }
