@@ -7,6 +7,9 @@
 
 
 #include "CLHEP/Geometry/Transform3D.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 
@@ -50,10 +53,10 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
 
 
 
-float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
+float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
 {
         // fast version
-        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology );
+        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
         float energy = 0;
         for ( int i = ixMin; i <= ixMax; ++i ) {
                 for ( int j = iyMin; j <= iyMax; ++j ) {
@@ -73,9 +76,9 @@ float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const E
 
 
 
-std::vector<DetId> EcalClusterTools::matrixDetId( const CaloSubdetectorTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
+std::vector<DetId> EcalClusterTools::matrixDetId( const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
 {
-        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology );
+        CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
         std::vector<DetId> v;
         for ( int i = ixMin; i <= ixMax; ++i ) {
                 for ( int j = iyMin; j <= iyMax; ++j ) {
@@ -89,7 +92,7 @@ std::vector<DetId> EcalClusterTools::matrixDetId( const CaloSubdetectorTopology*
 
 
 
-float EcalClusterTools::e2x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e2x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         std::list<float> energies;
@@ -103,7 +106,7 @@ float EcalClusterTools::e2x2( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e3x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e3x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         std::list<float> energies;
@@ -117,7 +120,7 @@ float EcalClusterTools::e3x2( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e3x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e3x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, -1, 1, -1, 1 );
@@ -125,7 +128,7 @@ float EcalClusterTools::e3x3( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e4x4( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e4x4( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         std::list<float> energies;
@@ -139,7 +142,7 @@ float EcalClusterTools::e4x4( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e5x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, -2, 2, -2, 2 );
@@ -168,7 +171,7 @@ float EcalClusterTools::e2nd( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e2x5Right( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e2x5Right( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, 1, 2, -2, 2 );
@@ -176,7 +179,7 @@ float EcalClusterTools::e2x5Right( const reco::BasicCluster &cluster, const Ecal
 
 
 
-float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, -2, -1, -2, 2 );
@@ -184,7 +187,7 @@ float EcalClusterTools::e2x5Left( const reco::BasicCluster &cluster, const EcalR
 
 
 
-float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, -2, 2, 1, 2 );
@@ -192,7 +195,7 @@ float EcalClusterTools::e2x5Top( const reco::BasicCluster &cluster, const EcalRe
 
 
 
-float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, -2, -2, -2, -1 );
@@ -200,7 +203,7 @@ float EcalClusterTools::e2x5Bottom( const reco::BasicCluster &cluster, const Eca
 
 
 
-float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, -2, -2, 0, 0 );
@@ -208,7 +211,7 @@ float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, 0, 0, -2, 2 );
@@ -216,7 +219,7 @@ float EcalClusterTools::e5x1( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, -1, 1, 0, 0 );
@@ -224,7 +227,7 @@ float EcalClusterTools::e1x3( const reco::BasicCluster &cluster, const EcalRecHi
 
 
 
-float EcalClusterTools::e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology* topology )
+float EcalClusterTools::e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology )
 {
         DetId id = getMaximum( cluster.getHitsByDetId(), recHits ).first;
         return matrixEnergy( cluster, recHits, topology, id, 0, 0, -1, 1 );
@@ -268,7 +271,7 @@ std::vector<float> EcalClusterTools::energyBasketFractionPhi( const reco::BasicC
 
 
 
-std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::getEnergyDepTopology( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW, float w0 )
+std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::getEnergyDepTopology( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, bool logW, float w0 )
 {
         std::vector<EcalClusterTools::EcalClusterEnergyDeposition> energyDistribution;
         // init a map of the energy deposition centered on the
@@ -306,7 +309,7 @@ std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::get
                                 else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
                         }
                         DetId id_ = *posCurrent;
-                        const CaloCellGeometry *this_cell = geometry->getGeometry(id_);
+                        const CaloCellGeometry *this_cell = geometry->getSubdetectorGeometry(id_)->getGeometry(id_);
                         GlobalPoint cellPos = this_cell->getPosition();
                         CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
                         // Evaluate the distance from the cluster centroid
@@ -329,7 +332,7 @@ std::vector<EcalClusterTools::EcalClusterEnergyDeposition> EcalClusterTools::get
 
 
 
-std::vector<float> EcalClusterTools::lat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, bool logW, float w0 )
+std::vector<float> EcalClusterTools::lat( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, bool logW, float w0 )
 {
         std::vector<EcalClusterTools::EcalClusterEnergyDeposition> energyDistribution = getEnergyDepTopology( cluster, recHits, geometry, logW, w0 );
 
@@ -392,13 +395,13 @@ std::vector<float> EcalClusterTools::lat( const reco::BasicCluster &cluster, con
 
 
 
-math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorTopology *topology, const CaloSubdetectorGeometry *geometry )
+math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology *topology, const CaloGeometry *geometry )
 {
         // find mean energy position of a 5x5 cluster around the maximum
         math::XYZVector meanPosition(0.0, 0.0, 0.0);
         std::vector<DetId> v_id = matrixDetId( topology, getMaximum( cluster, recHits ).first, -2, 2, -2, 2 );
         for ( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
-                GlobalPoint positionGP = geometry->getGeometry( *it )->getPosition();
+                GlobalPoint positionGP = geometry->getSubdetectorGeometry( *it )->getGeometry( *it )->getPosition();
                 math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
                 meanPosition = meanPosition + recHitEnergy( *it, recHits ) * position;
         }
@@ -407,7 +410,7 @@ math::XYZVector EcalClusterTools::meanClusterPosition( const reco::BasicCluster 
 
 
 
-std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloSubdetectorTopology *topology, const CaloSubdetectorGeometry* geometry, float w0)
+std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &cluster, const EcalRecHitCollection* recHits, const CaloTopology *topology, const CaloGeometry* geometry, float w0)
 {
         float e_5x5 = e5x5( cluster, recHits, topology );
         float covEtaEta, covEtaPhi, covPhiPhi;
@@ -422,7 +425,8 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
                 double numeratorPhiPhi = 0;
                 double denominator     = 0;
 
-                CaloNavigator<DetId> cursor = CaloNavigator<DetId>( getMaximum( v_id, recHits ).first, topology );
+                DetId id = getMaximum( v_id, recHits ).first;
+                CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
                 for ( int i = -2; i <= 2; ++i ) {
                         for ( int j = -2; j <= 2; ++j ) {
                                 cursor.home();
@@ -431,7 +435,7 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
 
                                 if ( energy <= 0 ) continue;
 
-                                GlobalPoint position = geometry->getGeometry(*cursor)->getPosition();
+                                GlobalPoint position = geometry->getSubdetectorGeometry(*cursor)->getGeometry(*cursor)->getPosition();
 
                                 double dPhi = position.phi() - meanPosition.phi();
                                 if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
@@ -467,21 +471,21 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
 
 
 
-double EcalClusterTools::zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, double R0, bool logW, float w0 )
+double EcalClusterTools::zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0, bool logW, float w0 )
 {
         return absZernikeMoment( cluster, recHits, geometry, 2, 0, R0, logW, w0 );
 }
 
 
 
-double EcalClusterTools::zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, double R0, bool logW, float w0 )
+double EcalClusterTools::zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0, bool logW, float w0 )
 {
         return absZernikeMoment( cluster, recHits, geometry, 4, 2, R0, logW, w0 );
 }
 
 
 
-double EcalClusterTools::absZernikeMoment( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, int n, int m, double R0, bool logW, float w0 )
+double EcalClusterTools::absZernikeMoment( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, int n, int m, double R0, bool logW, float w0 )
 {
         // 1. Check if n,m are correctly
         if ((m>n) || ((n-m)%2 != 0) || (n<0) || (m<0)) return -1;
@@ -494,7 +498,7 @@ double EcalClusterTools::absZernikeMoment( const reco::BasicCluster &cluster, co
 }
 
 
-double EcalClusterTools::fast_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, int n, int m, double R0, bool logW, float w0 )
+double EcalClusterTools::fast_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, int n, int m, double R0, bool logW, float w0 )
 {
         double r,ph,e,Re=0,Im=0;
         double TotalEnergy = cluster.energy();
@@ -531,7 +535,7 @@ double EcalClusterTools::fast_AbsZernikeMoment(const reco::BasicCluster &cluster
 
 
 
-double EcalClusterTools::calc_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloSubdetectorGeometry *geometry, int n, int m, double R0, bool logW, float w0 )
+double EcalClusterTools::calc_AbsZernikeMoment(const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, int n, int m, double R0, bool logW, float w0 )
 {
         double r, ph, e, Re=0, Im=0, f_nm;
         double TotalEnergy = cluster.energy();
