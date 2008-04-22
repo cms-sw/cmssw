@@ -829,6 +829,7 @@ def user_pythia_ue_settings():
     
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     common.log(func_id+" Returning PythiaUE settings...")
-    
-    return common.include_files('Configuration/Generator/data/PythiaUESettings.cfi')[0].pythiaUESettings
+
+    #-ap: quick hack to avoid problems with new block:
+    return common.include_files('Configuration/Generator/data/PythiaUESettings.cfi')[0].pythiaUESettingsBlock.pythiaUESettings
             
