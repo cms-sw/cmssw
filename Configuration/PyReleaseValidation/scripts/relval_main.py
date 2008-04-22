@@ -168,10 +168,11 @@ if output_flag:
     outputDT=dataTier_dict[step]
     if ( dataTier!=''):
         outputDT=dataTier
-    process = common.event_output\
-        (process, outfile_name, outputDT,eventcontent,filtername, conditions)
-    if not user_schedule:
-        process.schedule.append(process.outpath)  
+    if ( not (eventcontent == 'none') ):    
+        process = common.event_output\
+                  (process, outfile_name, outputDT,eventcontent,filtername, conditions)
+        if not user_schedule:
+            process.schedule.append(process.outpath)  
     if ( rawfile_name!='' ):
         print 'Add raw file' + rawfile_name
         process = common.raw_output\
