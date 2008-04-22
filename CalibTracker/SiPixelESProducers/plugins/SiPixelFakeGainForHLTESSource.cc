@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainForHLTESSource.cc,v 1.1 2008/02/11 15:23:39 friis Exp $
+// $Id: SiPixelFakeGainForHLTESSource.cc,v 1.2 2008/04/21 19:46:03 fblekman Exp $
 //
 //
 
@@ -68,7 +68,6 @@ std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produ
        float totalPed   = 0.0; 
        float totalEntries=0.0;
        for(int j=0; j<detUnitDimensions.second; j++) {
-         //this innerloop is unnecessary but is left as an example in case someone wishes to provide gain/ped distributions etc
 	 nchannels++;
          totalGain      += 2.8;
          totalPed       += 28.2;

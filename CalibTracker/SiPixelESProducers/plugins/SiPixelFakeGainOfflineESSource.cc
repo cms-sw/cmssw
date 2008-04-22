@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Fri Apr 27 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainOfflineESSource.cc,v 1.5 2008/01/22 19:15:07 muzaffar Exp $
+// $Id: SiPixelFakeGainOfflineESSource.cc,v 1.1 2008/02/11 15:23:41 friis Exp $
 //
 //
 
@@ -63,20 +63,28 @@ std::auto_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::pro
 
      // Loop over columns and rows
      for(int i=0; i<detUnitDimensions.first; i++) {
-       float totalGain = 0.0;
+       float totalGain    = 0.0;
+       float totalEntries = 0.0;
        for(int j=0; j<detUnitDimensions.second; j++) {
 	 nchannels++;
          totalGain  += 2.8;
 	 float ped  = 28.2;	 
+         totalEntries += 1.0;
 	 obj->setDataPedestal(ped, theSiPixelGainCalibrationOffline);	 
+         if ((j + 1) % 80 == 0) //compute the gain average after each ROC
+         {
+            float gain = totalGain/totalEntries;
+            obj->setDataGain(gain, 80, theSiPixelGainCalibrationOffline);
+            totalGain    = 0;
+            totalEntries = 0.0;
+         }
        }
-       float gain = totalGain/(float)detUnitDimensions.second;
-       obj->setDataGain(gain, detUnitDimensions.second, theSiPixelGainCalibrationOffline);
      }
 
      //std::cout << "detid " << (*detit) << std::endl;
 
      SiPixelGainCalibrationOffline::Range range(theSiPixelGainCalibrationOffline.begin(),theSiPixelGainCalibrationOffline.end());
+     // the 80 in the line below represents the number of columns averaged over.  
      if( !obj->put(*detit,range,detUnitDimensions.first) )
        edm::LogError("SiPixelFakeGainOfflineESSource")<<"[SiPixelFakeGainOfflineESSource::produce] detid already exists"<<std::endl;
    }

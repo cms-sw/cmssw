@@ -8,8 +8,8 @@
 namespace cms{
 SiPixelFakeGainReader::SiPixelFakeGainReader(const edm::ParameterSet& conf): 
     conf_(conf),
-    filename_(conf.getParameter<std::string>("fileName")),
-    SiPixelGainCalibrationService_(conf)
+    SiPixelGainCalibrationService_(conf),
+    filename_(conf.getParameter<std::string>("fileName"))
 {
 }
 

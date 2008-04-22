@@ -8,8 +8,8 @@
 namespace cms{
 SiPixelFakeGainForHLTReader::SiPixelFakeGainForHLTReader(const edm::ParameterSet& conf): 
     conf_(conf),
-    filename_(conf.getParameter<std::string>("fileName")),
-    SiPixelGainCalibrationForHLTService_(conf)
+    SiPixelGainCalibrationForHLTService_(conf),
+    filename_(conf.getParameter<std::string>("fileName"))
 {
 }
 
@@ -55,11 +55,12 @@ SiPixelFakeGainForHLTReader::analyze(const edm::Event& iEvent, const edm::EventS
     int ncols = topol.ncolumns();   // cols in y
     
     for(int col_iter=0; col_iter<ncols; col_iter++) {
-      for(int row_iter=0; row_iter<nrows; row_iter+=80){
-	float ped  = SiPixelGainCalibrationForHLTService_.getPedestal(detid, col_iter, row_iter);
-	float gain  = SiPixelGainCalibrationForHLTService_.getGain(detid, col_iter, row_iter);
-       p_iter->second->Fill( ped );
-       g_iter->second->Fill( gain );
+      for(int row_iter=0; row_iter<nrows; row_iter++){
+         nchannels++;
+         float ped  = SiPixelGainCalibrationForHLTService_.getPedestal(detid, col_iter, row_iter);
+         float gain  = SiPixelGainCalibrationForHLTService_.getGain(detid, col_iter, row_iter);
+         p_iter->second->Fill( ped );
+         g_iter->second->Fill( gain );
       }
     }
   }
