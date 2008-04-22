@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2008/01/22 18:45:23 $
- * $Revision: 1.13 $
+ * $Date: 2008/03/01 00:39:52 $
+ * $Revision: 1.14 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
@@ -187,7 +187,8 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	    wheelHistos[3]->Fill((*ch_it)->id().sector()-1,(*ch_it)->id().wheel());
 	  }
 	}
-	edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
+	// FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+	// edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
       } 
     }
 

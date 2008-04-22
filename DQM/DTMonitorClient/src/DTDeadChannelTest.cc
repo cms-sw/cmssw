@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 18:45:23 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/03/01 00:39:51 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -193,7 +193,8 @@ void DTDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("deadChannel") << "Layer : "<<(*hOccDiff).first<<" Bad occupancy difference channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
       }
-      edm::LogWarning("deadChannel")<< "-------- Layer : "<<(*hOccDiff).first<<"  "<<theOccupancyDiffQReport->getMessage()<<" ------- "<<theOccupancyDiffQReport->getStatus(); 
+      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+      // edm::LogWarning("deadChannel")<< "-------- Layer : "<<(*hOccDiff).first<<"  "<<theOccupancyDiffQReport->getMessage()<<" ------- "<<theOccupancyDiffQReport->getStatus(); 
     }
   }
 

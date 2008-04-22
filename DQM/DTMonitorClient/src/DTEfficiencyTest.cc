@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 18:45:23 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/03/01 00:39:51 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -227,7 +227,8 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       }
       LayerBadCells[(*hEff).first].push_back(counter);
       LayerBadCells[(*hEff).first].push_back(muonGeom->layer((*hEff).first)->specificTopology().channels());
-      edm::LogWarning ("efficiency") << "-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus();
+      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+      // edm::LogWarning ("efficiency") << "-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus();
     }
   }
 
@@ -250,7 +251,8 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       }
       LayerUnassBadCells[(*hUnassEff).first].push_back(counter);
       LayerUnassBadCells[(*hUnassEff).first].push_back(double(muonGeom->layer((*hUnassEff).first)->specificTopology().channels()));
-      edm::LogWarning ("efficiency") << theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus();
+      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+      // edm::LogWarning ("efficiency") << theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus();
     }
   }
 
