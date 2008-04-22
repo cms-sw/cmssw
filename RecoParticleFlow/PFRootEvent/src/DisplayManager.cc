@@ -1135,8 +1135,6 @@ void DisplayManager::loadGGenParticles()
 //____________________________________________________________________________
 void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
 {
-   // HepMC::GenParticle* p = *piter;
-   // if ( !p->production_vertex() ) return;
     
     int partId = p->pdg_id();
     std::string name;
@@ -1191,12 +1189,12 @@ void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
        y[0]=phiMother;y[1]=phi;
        
        for (int view = 2; view< NViews; view++) {
-         gp   = new GPFGenParticle(this,             //do 2 constructors with 2 differents GPFBase constructors
+         gp   = new GPFGenParticle(this,             
                                    view, genPartId,
 				   x, y,              //double *, double *
 				   e,pt,barcode,barcodeMother,
-				   genPartPattern_,
-				   latexStringName);
+				   genPartPattern_, 
+				   name,latexStringName);
 	 graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
        }
     }
@@ -1207,12 +1205,10 @@ void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
 				   eta, phi,                  //double double
 			           e,pt,barcode,
 				   genPartPattern_,
-				   latexStringName);
+				   name, latexStringName);
         graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
       }					      
     }
-//    if (phi>1.) phi-=2.*TMATH::Pi();
-//    if (phi<-1.) phi+=2.*TMATH::Pi()
 }
 //____________________________________________________________________________  
 void DisplayManager::loadGClusters()
@@ -1668,11 +1664,11 @@ void DisplayManager::setNewAttrToSimParticles()
 } 
 
 //_______________________________________________________________________________
-void DisplayManager::printGenParticleInfo(int barcode,int barcodeMother) 
+void DisplayManager::printGenParticleInfo(std::string name,int barcode,int barcodeMother) 
 { 
   const HepMC::GenEvent* myGenEvent = em_->MCTruth_.GetEvent();
   HepMC::GenParticle *p = myGenEvent->barcode_to_particle(barcode);
-  std::cout<<"particle with barcode "<<barcode<<std::flush<<std::endl;
+  std::cout<<"genParticle "<<name<<" with barcode "<<barcode<<std::flush<<std::endl;
   p->print();
   if (barcodeMother) { 
      HepMC:: GenParticle *mother = myGenEvent->barcode_to_particle(barcodeMother);

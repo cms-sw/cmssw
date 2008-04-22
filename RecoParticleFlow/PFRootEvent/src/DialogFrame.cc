@@ -98,7 +98,7 @@ void DialogFrame::createCmdFrame()
   
   //create object selection buttons
   TGGroupFrame *gr1= new TGGroupFrame(h1Frame1,"Draw Selection",kVerticalFrame); 
-  gr1->SetLayoutManager(new TGMatrixLayout(gr1,6,3,5));
+  gr1->SetLayoutManager(new TGMatrixLayout(gr1,7,3,5));
   
   selectObject_[0] = new TGCheckButton(gr1,"Hits");
   selectObject_[0]->SetState(display_->drawHits_ ? kButtonDown :kButtonUp);

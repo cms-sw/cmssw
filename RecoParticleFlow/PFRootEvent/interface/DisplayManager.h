@@ -47,7 +47,7 @@ class DisplayManager {
   void updateDisplay();
   void unZoom();
   void printDisplay(const char* directory="" ) const;
-  void printGenParticleInfo(int barcode,int barcodeMother);
+  void printGenParticleInfo(std::string name, int barcode, int barcodeMother);
   void drawWithNewGraphicAttributes();
   void setNewAttrToSimParticles();
      

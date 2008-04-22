@@ -17,11 +17,11 @@ class GPFGenParticle : public GPFBase, public TMarker, public TLatex {
   public:
     GPFGenParticle(DisplayManager *dm, int view, int ident,
                    double eta, double phi, double en, double pt,int barcode,
-		   TAttMarker *attm, std::string name);
+		   TAttMarker *attm, std::string name,std::string latexName);
     GPFGenParticle(DisplayManager *dm, int view, int ident,
                    double *eta, double *phi, double en, double pt,
 		   int barcode, int barcodeMother,
-		   TAttMarker *attm, std::string name);
+		   TAttMarker *attm, std::string name,std::string latexName);
 		   
 		   
 		   
