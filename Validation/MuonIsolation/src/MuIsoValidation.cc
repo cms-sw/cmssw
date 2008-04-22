@@ -75,7 +75,8 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 
 
 	//-------Initialize counters----------------
-	nEvents = nMuons = 0;   
+	nEvents = 0;
+	nMuons = 0;   
 
 	InitStatics();
 
@@ -243,8 +244,8 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	//Fill historgams concerning muon isolation 
 	uint iMuon=0;
 	for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon ) {
-		++nMuons;
 		if (muon->combinedMuon().isNull()) continue;
+                ++nMuons;
 		reco::MuonRef muRef(muonsHandle,iMuon);
 		MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muRef];
 		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muRef];
