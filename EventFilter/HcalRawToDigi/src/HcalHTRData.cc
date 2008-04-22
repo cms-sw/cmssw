@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2007/02/19 23:38:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/25 15:38:36 $
+ *  $Revision: 1.7 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -318,6 +318,9 @@ unsigned int HcalHTRData::getPipelineLength() const {
 }
 unsigned int HcalHTRData::getFirmwareRevision() const {
   return (m_formatVersion==-1)?(0):((m_rawConst[6]&0x1FFF)+((m_rawConst[6]&0xE000)<<3));
+}
+int HcalHTRData::getFirmwareFlavor() const {
+  return (m_formatVersion<2)?(-1):((m_rawConst[7]>>8)&0xFF);
 }
 
 void HcalHTRData::getHistogramFibers(int& a, int& b) const {

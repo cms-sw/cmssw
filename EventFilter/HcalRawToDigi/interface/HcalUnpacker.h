@@ -8,6 +8,7 @@
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
+#include "DataFormats/HcalDigi/interface/HOTriggerPrimitiveDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalHistogramDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -25,6 +26,7 @@ public:
     std::vector<HcalCalibDataFrame>* calibCont;
     std::vector<ZDCDataFrame>* zdcCont;
     std::vector<HcalTriggerPrimitiveDigi>* tpCont;
+    std::vector<HOTriggerPrimitiveDigi>* tphoCont;
   };
 
   /// for normal data

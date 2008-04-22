@@ -37,6 +37,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   produces<HFDigiCollection>();
   produces<HODigiCollection>();
   produces<HcalTrigPrimDigiCollection>();
+  produces<HOTrigPrimDigiCollection>();
   produces<HcalUnpackerReport>();
   if (unpackCalib_)
     produces<HcalCalibDigiCollection>();
@@ -65,6 +66,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::vector<HcalTriggerPrimitiveDigi> htp;
   std::vector<HcalCalibDataFrame> hc;
   std::vector<ZDCDataFrame> zdc;
+  std::vector<HOTriggerPrimitiveDigi> hotp;
   std::auto_ptr<HcalUnpackerReport> report(new HcalUnpackerReport);
 
   HcalUnpacker::Collections colls;
@@ -72,6 +74,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   colls.hoCont=&ho;
   colls.hfCont=&hf;
   colls.tpCont=&htp;
+  colls.tphoCont=&hotp;
   colls.calibCont=&hc;
   colls.zdcCont=&zdc;
  
@@ -105,11 +108,13 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::auto_ptr<HFDigiCollection> hf_prod(new HFDigiCollection());
   std::auto_ptr<HODigiCollection> ho_prod(new HODigiCollection());
   std::auto_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
+  std::auto_ptr<HOTrigPrimDigiCollection> hotp_prod(new HOTrigPrimDigiCollection());  
 
   hbhe_prod->swap_contents(hbhe);
   hf_prod->swap_contents(hf);
   ho_prod->swap_contents(ho);
   htp_prod->swap_contents(htp);
+  hotp_prod->swap_contents(hotp);
 
   // Step C2: filter FEDs, if required
   if (filter_.active()) {
@@ -129,11 +134,13 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   ho_prod->sort();
   hf_prod->sort();
   htp_prod->sort();
+  hotp_prod->sort();
 
   e.put(hbhe_prod);
   e.put(ho_prod);
   e.put(hf_prod);
   e.put(htp_prod);
+  e.put(hotp_prod);
 
   /// calib
   if (unpackCalib_) {

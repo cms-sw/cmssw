@@ -34,6 +34,22 @@ static inline bool isTPGSOI(const HcalTriggerPrimitiveSample& s) {
   return (s.raw()&0x200)!=0;
 }
 
+
+struct HOUnrolledTP { // parts of an HO trigger primitive, unpacked
+  bool valid;
+  int ieta, iphi, samples, soi;
+  unsigned int databits;
+  HOUnrolledTP() {
+    valid=false;
+    ieta=0;
+    iphi=0;
+    samples=0;
+    soi=0;
+    databits=0;
+  }
+  void setbit(int i) { databits|=(1<<i); }    
+};
+
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 			  Collections& colls, HcalUnpackerReport& report) {
 
@@ -87,53 +103,101 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     bool valid=false;
 
     bool tpgSOIbitInUse=htr.getFormatVersion()>=3; // version 3 and later
+    bool isHOtpg=htr.getFormatVersion()>=3 && htr.getFirmwareFlavor()==0; // HO is flavor zero
     int npre=0;
     /*
       Unpack the trigger primitives
     */
-    for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
-      if (tp_work->raw()==0xFFFF) continue; // filler word
-      if (tp_work->slbAndChan()!=currFiberChan) { // start new set
-	npre=0;
-	currFiberChan=tp_work->slbAndChan();
-	// lookup the right channel
-	HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
-	DetId did=emap.lookupTrigger(eid);
-	if (did.null()) {
-	  report.countUnmappedTPDigi();
-	  if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
-	    edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
-	    unknownIdsTrig_.insert(eid);
-	  }
-	  valid=false;
-	  continue;
-	} else if (did==HcalTrigTowerDetId::Undefined || 
-		   (did.det()==DetId::Hcal && did.subdetId()==0)) {
-	  // known to be unmapped
-	  valid=false;
-	  continue;
-	}
-	HcalTrigTowerDetId id(did);
-	colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
-	// set the various bits
-	if (!tpgSOIbitInUse) colls.tpCont->back().setPresamples(nps);
-	// no hits recorded for current
-	ncurr=0;
-	valid=true;
-      }
-      // add the word (if within settings or recent firmware [recent firmware ignores startSample/endSample])
-      if (valid && ((tpgSOIbitInUse && ncurr<10) || (ncurr>=startSample_ && ncurr<=endSample_))) {
-	colls.tpCont->back().setSample(colls.tpCont->back().size(),*tp_work);
-	colls.tpCont->back().setSize(colls.tpCont->back().size()+1);
-      }
-      // set presamples,if SOI
-      if (valid && tpgSOIbitInUse && isTPGSOI(*tp_work)) {
-	colls.tpCont->back().setPresamples(ncurr);
-      }
-      ncurr++;
-      npre++;
-    }
+    if (isHOtpg) {
+      HOUnrolledTP unrolled[24];
+      ncurr=0;
+      for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
+	if (tp_work->raw()==0xFFFF) continue; // filler word
+	int sector=tp_work->slbChan();
+	if (sector>2) continue;
 
+	for (int ibit=0; ibit<8; ibit++) {
+	  int linear=sector*8+ibit; 
+	  if (ncurr==0) {
+	    int fiber=(linear/3)+1;
+	    int fc=(linear%3);
+	    // electronics id (use precision match for HO TP)
+	    HcalElectronicsId eid(fc,fiber,spigot,dccid);	
+	    eid.setHTR(htr_cr,htr_slot,htr_tb);
+	    DetId did=emap.lookup(eid);
+	    if (!did.null()) {
+	      if (did.det()==DetId::Hcal && ((HcalSubdetector)did.subdetId())==HcalOuter ) {
+		HcalDetId hid(did);
+		unrolled[linear].valid=true;
+		unrolled[linear].ieta=hid.ieta();
+		unrolled[linear].iphi=hid.iphi();
+	      }
+	    } else {
+	      report.countUnmappedTPDigi();
+	    }
+	  }
+	  if (unrolled[linear].valid) {
+	    if (isTPGSOI(*tp_work)) unrolled[linear].soi=unrolled[linear].samples;
+	    unrolled[linear].samples++;
+	    if (tp_work->raw()&(1<<ibit)) unrolled[linear].setbit(ncurr);
+	  }
+	}
+	if (sector==0x2) ncurr++; // finished a set of three
+      }
+      for (int i=0; i<24; i++) {
+	if (unrolled[i].valid) 
+	  colls.tphoCont->push_back(HOTriggerPrimitiveDigi(
+							   unrolled[i].ieta,
+							   unrolled[i].iphi,
+							   unrolled[i].samples,
+							   unrolled[i].soi,
+							   unrolled[i].databits));
+      }
+    } else {
+      for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
+	if (tp_work->raw()==0xFFFF) continue; // filler word
+	if (tp_work->slbAndChan()!=currFiberChan) { // start new set
+	  npre=0;
+	  currFiberChan=tp_work->slbAndChan();
+	  // lookup the right channel
+	  HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
+	  DetId did=emap.lookupTrigger(eid);
+	  if (did.null()) {
+	    report.countUnmappedTPDigi();
+	    if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
+	      edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
+	      unknownIdsTrig_.insert(eid);
+	    }
+	    valid=false;
+	    continue;
+	  } else if (did==HcalTrigTowerDetId::Undefined || 
+		     (did.det()==DetId::Hcal && did.subdetId()==0)) {
+	    // known to be unmapped
+	    valid=false;
+	    continue;
+	  }
+	  HcalTrigTowerDetId id(did);
+	  colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
+	  // set the various bits
+	  if (!tpgSOIbitInUse) colls.tpCont->back().setPresamples(nps);
+	  // no hits recorded for current
+	  ncurr=0;
+	  valid=true;
+	}      
+	// add the word (if within settings or recent firmware [recent firmware ignores startSample/endSample])
+	if (valid && ((tpgSOIbitInUse && ncurr<10) || (ncurr>=startSample_ && ncurr<=endSample_))) {
+	  colls.tpCont->back().setSample(colls.tpCont->back().size(),*tp_work);
+	  colls.tpCont->back().setSize(colls.tpCont->back().size()+1);
+	}
+	// set presamples,if SOI
+	if (valid && tpgSOIbitInUse && isTPGSOI(*tp_work)) {
+	  colls.tpCont->back().setPresamples(ncurr);
+	}
+	ncurr++;
+	npre++;
+      }
+    }
+  
 
     qie_begin=(HcalQIESample*)daq_first;
     qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
