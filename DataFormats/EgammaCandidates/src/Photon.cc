@@ -1,23 +1,18 @@
-// $Id: Photon.cc,v 1.14 2008/03/03 20:34:38 nancy Exp $
+// $Id: Photon.cc,v 1.16 2008/04/21 23:16:16 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
 
 using namespace reco;
 
-Photon::Photon( const LorentzVector & p4, Point unconvPos,
+Photon::Photon( const LorentzVector & p4, 
+		Point caloPos,
 		const SuperClusterRef scl,   
 		float HoE, 
-		float r9,
-		float r19,
-	        float e5x5,
 		bool hasPixelSeed, 
 		const Point & vtx) : 
-    RecoCandidate( 0, p4, vtx, 22 ), unconvPosition_( unconvPos ),
+    RecoCandidate( 0, p4, vtx, 22 ), caloPosition_( caloPos ),
     superCluster_(scl), 
     hadOverEm_(HoE), 
-    r9_(r9),
-    r19_(r19),
-    e5x5_(e5x5),
     pixelSeed_( hasPixelSeed ) {}
 
 Photon::~Photon() { }
@@ -64,10 +59,4 @@ void Photon::setVertex(const Point & vertex) {
   vertex_ = vertex;
 }
 
-math::XYZPoint Photon::caloPosition() const {
-  if (this->r9()>0.93) {
-    return unconvPosition_;
-  } else {
-    return superCluster()->position();
-  }
-}
+

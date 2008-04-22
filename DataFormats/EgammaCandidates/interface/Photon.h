@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.18 2008/03/03 20:34:30 nancy Exp $
+ * \version $Id: Photon.h,v 1.20 2008/04/21 23:16:03 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -20,12 +20,9 @@ namespace reco {
     /// default constructor
     Photon() : RecoCandidate() { }
     /// constructor from values
-    Photon( const LorentzVector & p4, Point unconvPos, 
+    Photon( const LorentzVector & p4, Point caloPos, 
 	    const SuperClusterRef scl, 
             float HoE,
-            float r9,
-	    float r19,
-            float e5x5,
 	    bool hasPixelSeed=false, const Point & vtx = Point( 0, 0, 0 ) );
     /// destructor
     virtual ~Photon();
@@ -35,23 +32,14 @@ namespace reco {
     virtual reco::SuperClusterRef superCluster() const;
     /// vector of references to  Conversion's
     std::vector<reco::ConversionRef> conversions() const ; 
-     /// set reference to SuperCluster
+    /// set reference to SuperCluster
     void setSuperCluster( const reco::SuperClusterRef & r ) { superCluster_ = r; }
     /// add  single ConversionRef to the vector of Refs
     void addConversion( const reco::ConversionRef & r ) { conversions_.push_back(r); }
-    //    void addConversion( const reco::ConvertedPhotonRef & r ) { conversions_.push_back(r); }
-       /// set primary event vertex used to define photon direction
+    /// set primary event vertex used to define photon direction
     void setVertex(const Point & vertex);
-    /// position in ECAL
-    math::XYZPoint caloPosition() const;
-    /// position of seed BasicCluster for shower depth of unconverted photon
-    math::XYZPoint unconvertedPosition() const { return unconvPosition_; }
-    /// ratio of E(3x3)/ESC
-    float r9() const { return r9_; }
-    /// ratio of Emax/E(3x3)
-    float r19() const { return  r19_;}
-    /// 5x5 energy
-    float e5x5() const { return e5x5_ ;}
+    /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon
+    math::XYZPoint caloPosition() const {return caloPosition_;}
     //! the hadronic over electromagnetic fraction
     float hadronicOverEm() const {return hadOverEm_;}
     /// Whether or not the SuperCluster has a matched pixel seed
@@ -63,7 +51,7 @@ namespace reco {
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
     /// position of seed BasicCluster for shower depth of unconverted photon
-    math::XYZPoint unconvPosition_;
+    math::XYZPoint caloPosition_;
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
     // vector of references to Conversions
@@ -71,9 +59,6 @@ namespace reco {
 
     float hadOverEm_;
     bool pixelSeed_;
-    float r9_;
-    float r19_;
-    float e5x5_;
 
   };
   
