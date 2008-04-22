@@ -13,19 +13,16 @@
 
 /** \class CaloTower
     
-$Date: 2007/07/31 15:19:57 $
-$Revision: 1.5 $
+$Date: 2008/04/14 06:16:22 $
+$Revision: 1.6 $
 \author J. Mans - Minnesota
 */
 
-//
 // Original author: J. Mans - Minnesota
-// Created: 2007/07/31 15:19:57
 //
 // Modified: Anton Anastassov (Northwestern)
-// Reason:   Make CaloTower inherit from LeafCandidate
-// 
-//
+//    Make CaloTower inherit from LeafCandidate,
+//    add new members and accessors.
 
 using namespace reco;
 
@@ -51,9 +48,14 @@ public:
       GlobalPoint emPosition, GlobalPoint hadPosition);
 
 
-  CaloTowerDetId id() const { return id_; }
+   // setters
   void addConstituent( DetId id ) { constituents_.push_back( id ); }
   void addConstituents( const std::vector<DetId>& ids );
+  void setEcalTime(int t) { ecalTime_ = t; };
+  void setHcalTime(int t) { hcalTime_ = t; };
+
+  // getters
+  CaloTowerDetId id() const { return id_; }
   size_t constituentsSize() const { return constituents_.size(); }
   DetId constituent( size_t i ) const { return constituents_[ i ]; }
 
@@ -70,12 +72,29 @@ public:
   int emLvl1() const { return emLvl1_; }
   int hadLv11() const { return hadLvl1_; }
 
+  double hadEnergyHeOuterLayer() { return (id_.ietaAbs()<=17)? 0 : outerE_; }
+  double hadEnergyHeInnerLayer() { return (id_.ietaAbs()<=17)? 0 : hadE_ - outerE_; }
+
+  float ecalTime() const { return float(ecalTime_) * 0.01; }
+  float hcalTime() const { return float(hcalTime_) * 0.01; }
+
+  int ieta() const { return id_.ieta(); }
+  int ietaAbs() const { return id_.ietaAbs(); }
+  int iphi() const { return id_.iphi(); }
+  int zside() const { return id_.zside(); }
+
+  int numCrystals(); 
+
 private:
   CaloTowerDetId id_;
  
    // positions of assumed EM and HAD shower positions
    GlobalPoint emPosition_;
    GlobalPoint hadPosition_;
+
+   // time
+   int ecalTime_;
+   int hcalTime_;
 
   Double32_t emE_, hadE_, outerE_;
 
