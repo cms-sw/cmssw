@@ -131,7 +131,9 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
     double etaT = cal->eta();
     //      double phiT = cal->eta();
     double en   = cal->energy();
-    Vector mom  = cal->momentum(); 
+
+    math::RhoEtaPhiVector mom(cal->et(), cal->eta(), cal->phi());
+			      //  Vector mom  = cal->momentum(); 
   
 
     // cell properties
