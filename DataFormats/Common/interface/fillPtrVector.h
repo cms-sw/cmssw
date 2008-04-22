@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id: fillPtrVector.h,v 1.1 2007/11/06 20:16:54 chrjones Exp $
+// $Id: fillPtrVector.h,v 1.2 2008/02/15 05:57:03 wmtan Exp $
 //
 
 // system include files
@@ -42,7 +42,6 @@ namespace edm {
       typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
-      using namespace std;
       
       oPtr.reserve(iIndicies.size());
       if(iToType == typeid(element_type)) {

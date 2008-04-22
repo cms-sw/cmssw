@@ -2,7 +2,7 @@
 #define DataFormats_Common_RefHolderBase_h
 /* \class edm::reftobase::Base
  *
- * $Id: RefHolderBase.h,v 1.8 2008/01/17 20:26:23 wmtan Exp $
+ * $Id: RefHolderBase.h,v 1.9 2008/03/02 17:26:04 gpetrucc Exp $
  *
  */
 #include "Reflex/Type.h"
@@ -11,7 +11,6 @@ namespace edm {
   class ProductID;
   class EDProductGetter;
   namespace reftobase {
-    using ROOT::Reflex::Type;
 
     class RefVectorHolderBase;
 
@@ -52,7 +51,7 @@ namespace edm {
       // and cast it to the type specified by toType, using Reflex.
       // Return 0 if the real type is not toType nor a subclass of
       // toType.
-      virtual void const* pointerToType(Type const& toType) const = 0;
+      virtual void const* pointerToType(ROOT::Reflex::Type const& toType) const = 0;
     };
 
     //------------------------------------------------------------------
@@ -67,7 +66,7 @@ namespace edm {
     T const*
     RefHolderBase::getPtr() const
     {
-      static Type s_type(Type::ByTypeInfo(typeid(T)));
+      static ROOT::Reflex::Type s_type(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
       return static_cast<T const*>(pointerToType(s_type));
     }
 

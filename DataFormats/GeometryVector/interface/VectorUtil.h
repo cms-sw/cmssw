@@ -10,10 +10,6 @@
 
 namespace Geom {
 
-  using ROOT::Math::VectorUtil::Phi_0_2pi;
-  using ROOT::Math::VectorUtil::Phi_mpi_pi;
-  
-
   /**
      Find aximutal Angle difference between two generic vectors ( v2.Phi() - v1.Phi() ) 
      The only requirements on the Vector classes is that they implement the Phi() method
@@ -32,9 +28,11 @@ namespace Geom {
     return dphi;
   }
   inline double deltaPhi(float phi1, float phi2) { 
+    using ROOT::Math::VectorUtil::Phi_mpi_pi;
     return deltaBarePhi(Phi_mpi_pi(phi2),Phi_mpi_pi(phi1));
   }
   inline double deltaPhi(double phi1, double phi2) { 
+    using ROOT::Math::VectorUtil::Phi_mpi_pi;
     return deltaBarePhi(Phi_mpi_pi(phi2),Phi_mpi_pi(phi1));
   }
   template <class Vector1, class Vector2> 

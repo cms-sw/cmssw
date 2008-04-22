@@ -7,11 +7,6 @@
 
 namespace edm {
   namespace reftobase {
-    // The following makes ROOT::Reflex::Type available as reftobase::Type,
-    // etc.
-    using ROOT::Reflex::Type;
-    using ROOT::Reflex::Object;
-
      //------------------------------------------------------------------
     // Class template RefHolder<REF>
     //------------------------------------------------------------------
@@ -45,7 +40,7 @@ namespace edm {
       virtual bool isAvailable() const { return ref_.isAvailable(); }
 
     private:
-      virtual void const* pointerToType(Type const& iToType) const;
+      virtual void const* pointerToType(ROOT::Reflex::Type const& iToType) const;
       REF ref_;
     };
 
@@ -154,18 +149,18 @@ namespace edm {
 
     template <class REF>
     void const* 
-    RefHolder<REF>::pointerToType(Type const& iToType) const 
+    RefHolder<REF>::pointerToType(ROOT::Reflex::Type const& iToType) const 
     {
       typedef typename REF::value_type contained_type;
-      static const Type s_type(Type::ByTypeInfo(typeid(contained_type)));
+      static const ROOT::Reflex::Type s_type(ROOT::Reflex::Type::ByTypeInfo(typeid(contained_type)));
     
       // The const_cast below is needed because
       // Object's constructor requires a pointer to
       // non-const void, although the implementation does not, of
       // course, modify the object to which the pointer points.
-      Object obj(s_type, const_cast<void*>(static_cast<const void*>(ref_.get())));
+      ROOT::Reflex::Object obj(s_type, const_cast<void*>(static_cast<const void*>(ref_.get())));
       if ( s_type == iToType ) return obj.Address();
-      Object cast = obj.CastObject(iToType);
+      ROOT::Reflex::Object cast = obj.CastObject(iToType);
       return cast.Address(); // returns void*, after pointer adjustment
     }
   } // namespace reftobase
