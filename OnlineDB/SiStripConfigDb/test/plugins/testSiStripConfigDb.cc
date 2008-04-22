@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.2 2008/04/11 13:27:34 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.3 2008/04/21 09:35:57 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -100,6 +100,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     // Connections
     if ( conns_ ) {
 
+      // iterate through partitions and get, print, clear, print
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
@@ -115,6 +116,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
       }
 
+      // get all partitions and print, clear, print
       SiStripConfigDb::FedConnections::range conns = db_->getFedConnections();
       db_->printFedConnections();
       db_->clearFedConnections();
@@ -169,7 +171,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     // Connections
     if ( conns_ ) {
 
-      // Build temporary cache
+      // build temporary cache and print, clear (local cache)
       SiStripConfigDb::FedConnections connections;
       SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
@@ -183,10 +185,9 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	}
       }
       db_->printFedConnections();
-
-      // Clear cache, add new connections and upload
       db_->clearFedConnections();
-      db_->printFedConnections();
+
+      // iterate through partitions and add, print and upload
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
@@ -196,6 +197,8 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	db_->printFedConnections( iter->second.partitionName_ );
 	db_->uploadFedConnections( iter->second.partitionName_ );
       }
+
+      // print all partitions and then upload, clear, print
       db_->printFedConnections();
       db_->uploadFedConnections();
       db_->clearFedConnections();
