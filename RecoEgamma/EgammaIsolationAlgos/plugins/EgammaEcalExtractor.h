@@ -40,6 +40,7 @@ namespace egammaisolation {
             EgammaEcalExtractor(const edm::ParameterSet& par) : 
                     etMin_(par.getParameter<double>("etMin")),
                     conesize_(par.getParameter<double>("extRadius")),
+	            scmatch_(par.getParameter<bool>("superClusterMatch")),
                     basicClusterTag_(par.getParameter<edm::InputTag>("basicClusters")),
                     superClusterTag_(par.getParameter<edm::InputTag>("superClusters")) { }
             
@@ -60,6 +61,8 @@ namespace egammaisolation {
             // Photon case
             double etMin_;
             double conesize_;
+	    bool scmatch_;  // true-> reject basic clusters matched to the superclsuter
+                            // false-> fill all basic clusters
             edm::InputTag basicClusterTag_;
             edm::InputTag superClusterTag_;
     };

@@ -73,7 +73,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
     if (ebc_bcet > etMin_ && ebc_bcalgo == 0) {
       if (ebc_bcchi2 < 30.) {
 	
-	if(MATCHEDSC){
+	if(MATCHEDSC || !scmatch_ ){  //skip selection if user wants to fill all superclusters
 	  bool inSuperCluster = false;
 
 	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
@@ -81,7 +81,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
 	  for(;theEclust != matchedsupercluster->clustersEnd(); ++theEclust) {
 	    if ((**theEclust) ==  (*cluster) ) inSuperCluster = true;
 	  }
-	  if (!inSuperCluster) {
+	  if (!inSuperCluster || !scmatch_ ) {  //skip selection if user wants to fill all superclusters
 	    newDelta=DeltaR(cluster->position(),position);
 	    if(newDelta < conesize_) {
               deposit.addDeposit( Direction(cluster->eta(), cluster->phi()), ebc_bcet);
