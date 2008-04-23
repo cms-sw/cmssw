@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.19 2008/04/21 09:52:41 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.20 2008/04/22 13:49:13 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -135,7 +135,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
   
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Found " << nc << " FED connections " << nc;
+     << " Found " << nc << " FED connections";
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputModuleXmlFiles().size() << " 'module.xml' file(s)"; }
   else { if ( !dbParams_.usingDbCache_ )  { ss << " in " << np << " database partition(s)"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
@@ -156,7 +156,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition string is empty,"
-       << " therefore cannot add connections to local cache!"; 
+       << " therefore cannot add FED connections to local cache!"; 
     edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
@@ -165,7 +165,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Vector of FED connections is empty,"
-       << " therefore cannot add connections to local cache!"; 
+       << " therefore cannot add FED connections to local cache!"; 
     edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
@@ -178,7 +178,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
        << "\" not found in partition list, "
-       << " therefore not adding new FED connections!";
+       << " therefore cannot add FED connections!";
     edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
@@ -203,7 +203,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
        << " Added " << conns.size() 
        << " FED connections to local cache for partition \""
        << partition << "\"."
-       << " (Cache holds connections for " 
+       << " (Cache holds FED connections for " 
        << connections_.size() << " partitions.)";
     LogTrace(mlConfigDb_) << ss.str();
     
@@ -212,7 +212,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
        << "\" already found in local cache, "
-       << " therefore not adding new FED connections!";
+       << " therefore cannot add new FED connections!";
     edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }

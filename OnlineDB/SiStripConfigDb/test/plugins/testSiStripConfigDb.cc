@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.4 2008/04/22 12:40:57 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.5 2008/04/22 13:49:26 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -48,6 +48,10 @@ testSiStripConfigDb::~testSiStripConfigDb() {
 // 
 void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 
+  
+  // -------------------- INITIALISATION --------------------
+
+
   // Access service
   db_ = edm::Service<SiStripConfigDb>().operator->();
 
@@ -94,7 +98,10 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
   SiStripConfigDb::FedConnections conns;
   SiStripConfigDb::DcuDetIdMap dcus;
 
-  // Downloads
+
+  // -------------------- DOWNLOADS --------------------
+
+
   if ( download_ ) {
     
     // Connections
@@ -132,13 +139,50 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 
     // Devices
     if ( devices_ ) {
-      devices = db_->getDeviceDescriptions();
+
+      // iterate through partitions and get, print, clear, print
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( iter->second.partitionName_ );
+	std::stringstream ss;
+	ss << "[testSiStripConfigDb::" << __func__ << "]" 
+	   << " Downloaded " << devs.size()
+	   << " device descriptions!";
+	SiStripConfigDb::DeviceDescriptionsRange apv = db_->getDeviceDescriptions( APV25, iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptionsRange mux = db_->getDeviceDescriptions( APVMUX, iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptionsRange dcu = db_->getDeviceDescriptions( DCU, iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptionsRange lld = db_->getDeviceDescriptions( LASERDRIVER, iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptionsRange doh = db_->getDeviceDescriptions( DOH, iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptionsRange pll = db_->getDeviceDescriptions( PLL, iter->second.partitionName_ );
+	if ( !devs.empty() ) { 
+	  ss << std::endl
+	     << " Number of APV descriptions : " << ( apv.second - apv.first ) << std::endl
+	     << " Number of MUX descriptions : " << ( mux.second - mux.first ) << std::endl
+	     << " Number of DCU descriptions : " << ( dcu.second - dcu.first ) << std::endl
+	     << " Number of LLD descriptions : " << ( lld.second - lld.first ) << std::endl
+	     << " Number of DOH descriptions : " << ( doh.second - doh.first ) << std::endl
+	     << " Number of PLL descriptions : " << ( pll.second - pll.first );
+	  edm::LogVerbatim("testSiStripConfigDb") << ss.str(); 
+	}
+	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+	db_->printDeviceDescriptions( iter->second.partitionName_ );
+	db_->clearDeviceDescriptions( iter->second.partitionName_ );
+	db_->printDeviceDescriptions( iter->second.partitionName_ );
+      }
+
+      // get all partitions and print, clear, print
+      SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions();
+      db_->printDeviceDescriptions();
+      db_->clearDeviceDescriptions();
+      db_->printDeviceDescriptions();
       std::stringstream ss;
       ss << "[testSiStripConfigDb::" << __func__ << "]" 
-	 << " Downloaded " << devices.size() 
+	 << " Downloaded " << devs.size()
 	 << " device descriptions!";
-      if ( !devices.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
+      if ( !devs.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
       else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+
     }
 
     // FEDs
@@ -165,7 +209,10 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     
   }
 
-  // Uploads
+  
+  // -------------------- UPLOADS --------------------
+  
+
   if ( upload_ ) {
 
     // Connections
@@ -207,6 +254,48 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       db_->uploadFedConnections();
       db_->clearFedConnections();
       db_->printFedConnections();
+      
+    }
+
+    // Devices
+    if ( devices_ ) {
+
+      // build temporary cache and print, clear (local cache)
+      SiStripConfigDb::DeviceDescriptions devices;
+      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( ii->second.partitionName_ );
+	if ( devs != devices.emptyRange() ) {
+	  std::vector<SiStripConfigDb::DeviceDescription*> tmp1( devs.begin(), devs.end() );
+	  std::vector<SiStripConfigDb::DeviceDescription*> tmp2;
+#ifdef USING_NEW_DATABASE_MODEL
+	  FecFactory::vectorCopyI( tmp2, tmp1, true );
+#else
+	  tmp2 = tmp1;
+#endif
+	  devices.loadNext( ii->second.partitionName_, tmp2 );
+	}
+      }
+      db_->printDeviceDescriptions();
+      db_->clearDeviceDescriptions();
+
+      // iterate through partitions and add, print and upload
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::DeviceDescriptions::range devs = devices.find( iter->second.partitionName_ );
+	std::vector<SiStripConfigDb::DeviceDescription*> temp( devs.begin(), devs.end() );
+	db_->addDeviceDescriptions( iter->second.partitionName_, temp );
+	db_->printDeviceDescriptions( iter->second.partitionName_ );
+	db_->uploadDeviceDescriptions( iter->second.partitionName_ );
+      }
+
+      // print all partitions and then upload, clear, print
+      db_->printDeviceDescriptions();
+      db_->uploadDeviceDescriptions();
+      db_->clearDeviceDescriptions();
+      db_->printDeviceDescriptions();
       
     }
 

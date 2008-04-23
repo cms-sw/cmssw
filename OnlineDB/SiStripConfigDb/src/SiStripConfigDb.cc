@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.57 2008/04/21 09:31:40 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.58 2008/04/21 09:52:41 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -25,9 +25,10 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   dbCache_(0), 
   dbParams_(),
   // Local cache
-  devices_(), 
-  feds_(), 
   connections_(), 
+  devices_(), 
+  typedDevices_(), 
+  feds_(), 
   dcuDetIdMap_(), 
   fedIds_(),
   // Misc
@@ -119,7 +120,8 @@ void SiStripConfigDb::openDbConnection() {
      << std::endl << dbParams_;
   edm::LogVerbatim(mlConfigDb_) << ss.str();
   
-  devices_.clear();
+  devices_ = DeviceDescriptions();
+  typedDevices_.clear();
   feds_.clear();
   connections_ = FedConnections();
   dcuDetIdMap_.clear();

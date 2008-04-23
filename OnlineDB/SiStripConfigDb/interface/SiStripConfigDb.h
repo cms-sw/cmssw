@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.56 2008/04/21 09:52:40 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.57 2008/04/22 12:41:33 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -113,7 +113,8 @@ class SiStripConfigDb {
   typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
   
   typedef deviceDescription DeviceDescription;
-  typedef std::vector<DeviceDescription*> DeviceDescriptions;
+  typedef edm::MapOfVectors<std::string,DeviceDescription*> DeviceDescriptions;
+  typedef std::pair< std::vector<DeviceDescription*>::iterator, std::vector<DeviceDescription*>::iterator > DeviceDescriptionsRange;
 
   typedef Fed9U::Fed9UDescription FedDescription;
   typedef std::vector<FedDescription*> FedDescriptions;
@@ -169,20 +170,44 @@ class SiStripConfigDb {
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DbClient* const databaseCache( std::string method_name = "" ) const;
   
-  // ---------- FEC / Front-End devices ---------- 
+  // ---------- FED connections ----------
 
-  /** Returns descriptions for given device type (which can be one
-      of the following: APV25, APVMUX, DCU, LASERDRIVER, PLL ). */
-  const DeviceDescriptions& getDeviceDescriptions( const enumDeviceType& );
+  /** Returns local cache (just for given partition if specified). */
+  FedConnections::range getFedConnections( std::string partition = "" );
+
+  /** Add to local cache (just for given partition if specified). */
+  void addFedConnections( std::string partition, std::vector<FedConnection*>& );
   
-  /** Fills local cache with all device descriptions from DB/xml. */
-  const DeviceDescriptions& getDeviceDescriptions(); 
+  /** Uploads to database (just for given partition if specified). */
+  void uploadFedConnections( std::string partition = "" );
   
-  /** Uploads all device descriptions in cache to DB/xml. */
-  void uploadDeviceDescriptions( bool new_major_version = true ); 
+  /** Clears local cache (just for given partition if specified). */
+  void clearFedConnections( std::string partition = "" );
+
+  /** Prints local cache (just for given partition if specified). */
+  void printFedConnections( std::string partition = "" );
   
-  /** Creates device descriptions based on FEC cabling. */
-  void createDeviceDescriptions( const SiStripFecCabling& );
+  // ---------- FEC / Front-End devices ---------- 
+  
+  /** Returns local cache (just for given partition if specified). */
+  DeviceDescriptions::range getDeviceDescriptions( std::string partition = "" ); 
+
+  /** Returns (pair of iterators to) descriptions of given type. */
+  /** (APV25, APVMUX, DCU, LASERDRIVER, PLL). */
+  DeviceDescriptionsRange getDeviceDescriptions( const enumDeviceType& type,
+						 std::string partition = "" );
+  
+  /** Adds to local cache (just for given partition if specified). */
+  void addDeviceDescriptions( std::string partition, std::vector<DeviceDescription*>& );
+  
+  /** Uploads to database (just for given partition if specified). */
+  void uploadDeviceDescriptions( std::string partition = "" ); 
+  
+  /** Clears local cache (just for given partition if specified). */
+  void clearDeviceDescriptions( std::string partition = "" ); 
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printDeviceDescriptions( std::string partition = "" ); 
   
   /** Extracts unique hardware address of device from description. */
   DeviceAddress deviceAddress( const deviceDescription& ); //@@ uses temp offsets!
@@ -206,23 +231,6 @@ class SiStripConfigDb {
   
   /** Enable/disable strip info within FED descriptions. */
   inline void usingStrips( bool );
-  
-  // ---------- FED connections ----------
-
-  /** Return FED connections (downloaded from DB/xml to local cache). */
-  FedConnections::range getFedConnections( std::string partition = "" );
-
-  /** Add FED connections to local cache. */
-  void addFedConnections( std::string partition, std::vector<FedConnection*>& );
-  
-  /** Uploads FED connections to DB/xml. */
-  void uploadFedConnections( std::string partition = "" );
-  
-  /** Clear local cache (just for given partition if specified). */
-  void clearFedConnections( std::string partition = "" );
-
-  /** Print local cache (just for given partition if specified). */
-  void printFedConnections( std::string partition = "" );
   
   // ---------- Commissioning analyses ---------- 
   
@@ -309,24 +317,27 @@ class SiStripConfigDb {
   SiStripDbParams dbParams_;
 
   // ---------- Local cache of vectors ----------
-  
-  /** Vector of descriptions for all FEC devices (including DCUs). */
-  DeviceDescriptions devices_;
-
-  /** Fed9U descriptions. */
-  FedDescriptions feds_;
 
   /** FED-FEC connection descriptions. */
   FedConnections connections_;
   
+  /** Device descriptions (including DCUs). */
+  DeviceDescriptions devices_;
+
+  /** Cache for devices of given type. */
+  std::vector<DeviceDescription*> typedDevices_;
+
+  /** Fed9U descriptions. */
+  FedDescriptions feds_;
+  
 #ifdef USING_NEW_DATABASE_MODEL
 
-  /** Vector of analysis descriptions for all commissioning runs. */
+  /** Analysis descriptions for given commissioning run. */
   AnalysisDescriptions analyses_;
 
 #endif
  
-  /** TkDcuInfo objects, containing DcuId-DetId map. */
+  /** DcuId-DetId map (map of TkDcuInfo objects). */
   DcuDetIdMap dcuDetIdMap_;
   
   /** FED ids. */ 
