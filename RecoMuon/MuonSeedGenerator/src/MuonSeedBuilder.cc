@@ -583,48 +583,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     usedCSClist3B[index] = true;
   }
 
-  // Loop over all possible ME2 segment to form seeds:
-  index = -1;
-  for (SegmentContainer::iterator it = CSClist3B.begin(); it != CSClist3B.end(); ++it ){
-
-    index++;
-
-    if (usedCSClist3B[index] == true) continue;
-    if ( int ((*it)->recHits().size()) < minCSCHitsPerSegment ) continue;  
-
-    double dof = static_cast<double>( (*it)->degreesOfFreedom() ) ;
-    if ( ((*it)->chi2()/dof) > 20000.0 ) continue;
-
-    // Global position of starting point for protoTrack
-    GlobalPoint gp = (*it)->globalPosition();
-
-    float eta_temp = gp.eta();
-    float phi_temp = gp.phi();
-
-    SegmentContainer protoTrack;
-    protoTrack.push_back(*it);
-
-    std::vector<int> layers;
-    layers.push_back(2);
-    
-    // Try adding segment from other stations
-    if (foundMatchingSegment(1, protoTrack, CSClist4B, usedCSClist4B, eta_temp, phi_temp)) layers.push_back(4);
-
-    unsigned nLayers = layers.size();
-
-    if ( nLayers < 2 ) continue;
-
-    TrajectorySeed thisSeed = muonSeedCreate_->createSeed(1, protoTrack, layers, badSeedLayer);
-
-    // Add the seeds to master collection
-    rawSeeds.push_back(thisSeed);
-    etaOfSeed.push_back(eta_temp);
-    phiOfSeed.push_back(phi_temp);
-    nSegOnSeed.push_back( nLayers );
-    // mark this segment as used
-    usedCSClist3B[index] = true;
-  }
-
 
   /* *********************************************************************************************************************
    * Form seeds from forward endcap
@@ -1330,7 +1288,7 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
 
     for (unsigned int j= 0; j<seeds.size(); j++){
  
-      if ( seedGrp[j]==i ) {
+        if ( seedGrp[j]!=i ) continue;
         
         grpleader++;
         if (grpleader==1 && seeds[j].nHits()<3 )  keep_all=true;
@@ -1352,7 +1310,6 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
         double relErr = fabs(sqrt(err_mx[0]) / pTSOD.parameters().signedInverseMomentum()) ; 
         //std::cout<<"     seeds "<<j<<" dRErr: "<<dRR<<"  pt= "<<seed_mt<<" dPt:"<<relErr <<" with "<<seeds[j].nHits()<<" segs "<<std::endl;
 
-        // this cut only apply for Endcap muon system 
 	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( grpSize[i] > 1 ) ) continue;
 
         if ( keep_all ) {
@@ -1381,7 +1338,6 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
           //----------------------------------------------------
         }
 
-      }  
     }
     //std::cout<<"best seeds = "<< bestseed <<std::endl;
     if ( bestseed > -1 ) {
