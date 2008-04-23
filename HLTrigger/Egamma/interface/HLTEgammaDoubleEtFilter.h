@@ -29,6 +29,10 @@ class HLTEgammaDoubleEtFilter : public HLTFilter {
   double etcut1_;           // Et threshold in GeV 
   double etcut2_;           // Et threshold in GeV 
   int    npaircut_;        // number of egammas required
+  bool   store_;
+  bool   relaxed_;
+  edm::InputTag L1IsoCollTag_; 
+  edm::InputTag L1NonIsoCollTag_; 
 };
 
 #endif //HLTEgammaDoubleEtFilter_h

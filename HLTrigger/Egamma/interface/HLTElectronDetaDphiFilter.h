@@ -2,7 +2,7 @@
 #define HLTElectronDetaDphiFilter_h
 
 /** \class HLTElectronDetaDphiFilter
- * $Id: HLTElectronDetaDphiFilter.h,v 1.2 2007/04/02 17:14:13 mpieri Exp $
+ * $Id: HLTElectronDetaDphiFilter.h,v 1.1 2008/03/03 12:51:38 ghezzi Exp $
  *   
  *
  *  \author Alessio Ghezzi (CERN & Milano-Bicocca)
@@ -29,7 +29,11 @@ class HLTElectronDetaDphiFilter : public HLTFilter {
       double DeltaPhicut_;   // Delta phi SC-track
 
       int    ncandcut_;        // number of electrons required
-
+      edm::InputTag BSProducer_;
+      bool   store_;
+      bool   relaxed_;
+      edm::InputTag L1IsoCollTag_; 
+      edm::InputTag L1NonIsoCollTag_; 
       //      bool doIsolated_;
 };
 
