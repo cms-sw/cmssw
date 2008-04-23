@@ -7,8 +7,8 @@
  * One instance is created for each DDVolume. The parameters of the 
  * boundary surfaces are calculated during construction.
  *
- *  $Date: 2008/03/29 14:32:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/16 16:28:42 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -65,11 +65,17 @@ public:
   static void printUniqueNames(handles::const_iterator begin,
 			       handles::const_iterator end);
 
-  /// Phi limits 
-  // FIXME: on median plane of the phi surface - not absolute (Should be
-  // changed). Used by: LessDPhiMax; bSector; bSlab::[min|max]Phi();
+
+  // Phi ranges: Used by: LessDPhiMax; bSector; bSlab::[min|max]Phi();
   // MagBSector, MagBRod
-  Geom::Phi<float> minPhi() const {return surface(SurfaceOrientation::phiminus).position().phi();}
+
+  /// Minimum value of phi covered by the volume
+  // FIXME: actually returns phi of the point on median plane of the -phi 
+  // surface, except for trapezoids where the absoulte min has been implemented
+  Geom::Phi<float> minPhi() const {return thePhiMin;}
+  /// Maximum value of phi covered by the volume
+  // FIXME: actually returns phi of the point on median plane of the +phi 
+  // surface
   Geom::Phi<float> maxPhi() const {return surface(SurfaceOrientation::phiplus).position().phi();}
 
   /// Z limits. 
@@ -135,6 +141,7 @@ private:
   // FIXME!
   double theRMin;
   double theRMax;
+  Geom::Phi<float> thePhiMin;
 
   // The refPlane is the "main plane" for the solid. It corresponds to the 
   // x,y plane in the DDD local frame, and defines a frame where the local

@@ -50,5 +50,5 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
   // Save volume boundaries
   theRMin = rIn;
   theRMax = rOut;
-
+  thePhiMin = surfaces[phiminus]->position().phi();
 }

@@ -1,8 +1,8 @@
 /*
  *  Compute parameters for a box 
  *
- *  $Date: 2008/03/29 14:28:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/16 16:26:34 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -121,4 +121,6 @@ void MagGeoBuilderFromDDD::volumeHandle::buildBox(const DDExpandedView &fv) {
   // Save volume boundaries
   theRMin = fabs(surfaces[inner]->toLocal(GlobalPoint(0,0,0)).z());
   theRMax = fabs(surfaces[outer]->toLocal(GlobalPoint(0,0,0)).z());
+  // FIXME: use phi of middle plane of phiminus surface. Is not the absolute phimin!
+  thePhiMin = surfaces[phiminus]->position().phi();
 }
