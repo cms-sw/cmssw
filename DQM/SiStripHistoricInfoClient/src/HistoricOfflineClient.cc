@@ -19,6 +19,7 @@ HistoricOfflineClient::~HistoricOfflineClient() {}
 
 //---- called each event
 void HistoricOfflineClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+ 
   if(firstEventInRun){
     firstEventInRun=false;
     pSummary_->setTimeValue(iEvent.time().value());
@@ -29,6 +30,7 @@ void HistoricOfflineClient::analyze(const edm::Event& iEvent, const edm::EventSe
 //---- called each BOR
 void HistoricOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   pSummary_ = new SiStripPerformanceSummary();
+  std::cout<<"HistoricOfflineClient::beginRun() nevents = "<<nevents<<std::endl;
   pSummary_->clear(); // just in case
   pSummary_->setRunNr(run.run());
   firstEventInRun=true;
@@ -84,15 +86,15 @@ void HistoricOfflineClient::fillSummaryObjects(const edm::Run& run) const {
      std::vector<MonitorElement*> locvec = imapmes->second;
 //     std::cout<<"HistoricOfflineClient::fillSummaryObjects() detailed. detid="<<local_detid<<" histos.size()="<<locvec.size()<<std::endl;
      for(std::vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
-       std::string MEName = (*imep)->getName();
-//       std::cout<<"HistoricOfflineClient::fillSummaryObjects() detailed. detid="<<local_detid<<" MEName="<<MEName<<std::endl;
-       if( MEName.find("ClusterWidth__") != std::string::npos){
+        std::string MEName = (*imep)->getName();
+      //std::cout<<"HistoricOfflineClient::fillSummaryObjects() //detailed. detid="<<local_detid<<" MEName="<<MEName<<std::endl;
+       if( MEName.find("ClusterWidth__") != std::string::npos){  //std::cout<<"ClusterWidth "<<(*imep)->getMean()<<std::endl;
          pSummary_->setClusterSize(local_detid, (*imep)->getMean(), (*imep)->getRMS());
        }
-       if( MEName.find("ClusterCharge__") != std::string::npos){
+       if( MEName.find("ClusterCharge__") != std::string::npos){ //std::cout<<"ClusterCharge "<<(*imep)->getMean()<<std::endl;
          pSummary_->setClusterCharge(local_detid, (*imep)->getMean(), (*imep)->getRMS());
        }
-       if( MEName.find("ModuleLocalOccupancy__") != std::string::npos){
+       if( MEName.find("ModuleLocalOccupancy__") != std::string::npos){ 
          pSummary_->setOccupancy(local_detid, (*imep)->getMean(), (*imep)->getRMS());
          float percover = CalculatePercentOver(*imep);
          if (percover>-198.) pSummary_->setPercentNoisyStrips(local_detid, CalculatePercentOver(*imep)); // set percentage only if sensible value
