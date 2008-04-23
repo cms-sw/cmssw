@@ -270,31 +270,8 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
       //container.push_back(seg[l]->hit()); 
   }
 
-
-  // At inner-most layer
-  if ( out_in ) {
-     TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-     return theSeed;
-  } else if ( expand ) {
-            TrajectorySeed theSeed(*seedTSOS,container,anyDirection);
-            return theSeed;
-  }else {
-     //if ( abs(layers[last]) < 2 ) {
-	    TrajectorySeed theSeed(*seedTSOS,container,alongMomentum);
-	    return theSeed;
-     //}
-     /*
-     // At outer-most layer
-     else if (abs(layers[last]) >= 3 ) {
-	    TrajectorySeed theSeed(*seedTSOS,container,oppositeToMomentum);
-	    return theSeed;
-     }
-     // In between
-     else {
-	    TrajectorySeed theSeed(*seedTSOS,container,anyDirection);
-	    return theSeed;
-     }*/
-  }
+  TrajectorySeed theSeed(*seedTSOS,container,alongMomentum);
+  return theSeed;
 
 }
 
