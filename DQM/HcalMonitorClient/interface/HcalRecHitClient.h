@@ -56,6 +56,10 @@ class HcalRecHitClient : public HcalBaseClient {
   TH1F* energyT_[4];
   TH1F* time_[4];
 
+  TH1F* hfshort_E_all;
+  //TH1F* hfshort_E_low;
+  TH1F* hfshort_T_all;
+
 };
 
 #endif
