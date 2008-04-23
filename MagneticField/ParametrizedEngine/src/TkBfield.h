@@ -1,7 +1,7 @@
 #ifndef ParametrizedEngine_TkBfield_h
 #define ParametrizedEngine_TkBfield_h
 
-/** \class TkBfield
+/** \class magfieldparam::TkBfield
  *
  *
  *    B-field in Tracker volume - based on the TOSCA computation version 1103l
@@ -13,8 +13,8 @@
  *
  *    Valid for r<1.15m and |z|<2.80m
  *
- *  $Date: 2008/04/01 08:32:41 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/21 16:49:05 $
+ *  $Revision: 1.3 $
  *  \author V.Karimaki 080228, 080407
  */
 

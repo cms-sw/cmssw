@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/21 16:27:01 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/21 16:44:50 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -21,13 +21,23 @@ OAE85lParametrizedMagneticField::OAE85lParametrizedMagneticField(float b0_,
   : b0(b0_),
     l(l_),
     a(a_)    
-{}
+{
+  init();
+}
 
 
 OAE85lParametrizedMagneticField::OAE85lParametrizedMagneticField(const edm::ParameterSet& parameters) {
   b0 =  parameters.getParameter<double>("b0");
   l = parameters.getParameter<double>("l");
   a = parameters.getParameter<double>("a");
+  init();
+}
+
+void OAE85lParametrizedMagneticField::init() {
+  ap2=4.0*a*a/(l*l);  
+  hb0=0.5*b0*sqrt(1.0+ap2);
+  hlova=1.0/sqrt(ap2);
+  ainv=2.0*hlova/l;
 }
 
 
@@ -63,10 +73,10 @@ bool OAE85lParametrizedMagneticField::trackerField(const GlobalPoint& gp, Global
 // b0=field at centre, l=solenoid length, a=radius (m) (phenomen. parameters) 
 
   // FIXME: beware of statics...
- static float ap2=4.0*a*a/(l*l);  
- static float hb0=0.5*b0*sqrt(1.0+ap2);
- static float hlova=1.0/sqrt(ap2);
- static float ainv=2.0*hlova/l;
+//  static float ap2=4.0*a*a/(l*l);  
+//  static float hb0=0.5*b0*sqrt(1.0+ap2);
+//  static float hlova=1.0/sqrt(ap2);
+//  static float ainv=2.0*hlova/l;
  float xyz[3];//, bxyz[3];
  // convert to m (CMSSW)
  xyz[0]=0.01*gp.x();

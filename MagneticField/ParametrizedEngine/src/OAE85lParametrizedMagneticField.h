@@ -7,8 +7,8 @@
  *  of the TOSCA field version 85l_030919 (4 T)
  *  valid in the region r<1.2 m and |z|<3.0 m 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/03/28 16:49:25 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -41,11 +41,17 @@ class OAE85lParametrizedMagneticField : public MagneticField {
 
   void ffunkti(float u, float* ff) const;
 
+  void init();
+
   //phenomen. parameters:
   // b0=field at centre, l=solenoid length, a=radius (m) 
   float b0;
   float l;
   float a;
-
+  // Derived parameters
+  float ap2;
+  float hb0;
+  float hlova;
+  float ainv;
 };
 #endif
