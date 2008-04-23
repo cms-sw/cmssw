@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:19:08 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -74,8 +74,8 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
   Geom::Phi<float> phimax = (*i).maxPhi();
   Geom::Phi<float> phimin = (*i).minPhi();
   for (++i; i!= slabs.end(); ++i) { 
-    if(fabs(phimax - (*i).maxPhi()) > 0.01 ||
-       fabs(phimin - (*i).minPhi()) > 0.01){
+    if(fabs(phimax - (*i).maxPhi()) > 0.001 ||
+       fabs(phimin - (*i).minPhi()) > 0.001){
       if (MagGeoBuilderFromDDD::debug) std::cout << "*** WARNING: slabs in this rod have different dphi!" <<std::endl;
     }
   }
