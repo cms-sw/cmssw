@@ -67,16 +67,24 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
   // Called whenever the alignments or alignment errors change
 
   if ( applyAlignment_ ) {
-    edm::ESHandle<Alignments> globalPositionRcd;
-    record.getRecord<GlobalPositionRcd>().get( globalPositionRcd );
+    // applyAlignment_ is scheduled for removal. 
+    // Ideal geometry obtained by using 'fake alignment' (with applyAlignment_ = true)
+    edm::ESHandle<Alignments> globalPosition;
+    record.getRecord<GlobalPositionRcd>().get( globalPosition );
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get( alignments );
     edm::ESHandle<AlignmentErrors> alignmentErrors;
     record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
-    GeometryAligner aligner;
-    aligner.applyAlignments<CSCGeometry>( &(*cscGeometry),
-					  &(*alignments), &(*alignmentErrors),
-	 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+    // Only apply alignment if values exist
+    if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
+      edm::LogWarning("Config") << "@SUB=CSCGeometryBuilder::produce"
+                                << "Empty Alignment(Error)s and global position, "
+                                << "so nothing to apply.";
+    } else {
+      GeometryAligner aligner;
+      aligner.applyAlignments<CSCGeometry>( &(*cscGeometry), &(*alignments), &(*alignmentErrors),
+	                    align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)) );
+    }
   }
 
   return cscGeometry;
