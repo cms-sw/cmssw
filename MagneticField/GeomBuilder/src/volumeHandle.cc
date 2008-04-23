@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/29 14:33:43 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/16 16:30:03 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -57,6 +57,12 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
   for (int i=0; i<6; ++i) {
     isAssigned[i] = false;
   }
+
+  
+  if (MagGeoBuilderFromDDD::debug) {  
+    cout.precision(7);
+  }
+  
 
   referencePlane(fv);
 
