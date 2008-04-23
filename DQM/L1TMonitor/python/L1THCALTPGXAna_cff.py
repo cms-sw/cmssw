@@ -4,6 +4,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from CondCore.DBCommon.CondDBSetup_cfi import *
 from EventFilter.HcalRawToDigi.HcalRawToDigi_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi import *

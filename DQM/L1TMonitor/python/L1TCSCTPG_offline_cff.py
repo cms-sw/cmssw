@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from CondCore.DBCommon.CondDBSetup_cfi import *
 from EventFilter.CSCRawToDigi.cscUnpacker_cfi import *
 from DQM.L1TMonitor.L1TCSCTPG_cfi import *
 cscConditions = cms.ESSource("PoolDBESSource",

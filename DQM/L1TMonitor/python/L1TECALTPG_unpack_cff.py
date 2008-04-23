@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from CondCore.DBCommon.CondDBSetup_cfi import *
 from CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi import *
 from EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi import *
 from EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi import *
