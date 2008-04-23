@@ -582,8 +582,6 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  std::stringstream threshval;
 	  threshval<<subdet+"Threshold"<<k;
 	  thresholdval.push_back(m_dbe->bookFloat(threshval.str().c_str()));
-	  //thresholdval[k]->setAxisTitle("Threshold value",1);
-	  //thresholdval[k]->setAxisTitle("dummy",2);
 	  thresholdval[k]->Fill(h.thresholds[k]);
 	}
 
