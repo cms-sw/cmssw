@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/20 23:24:12 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/04/21 17:08:38 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -190,13 +190,6 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
     if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
     result = findVolume(gp, 0.03);
   }
-
-  // Last fallback for cases to be fixed in V1103l
-  // FIXME to be removed!!
-  if (result==0 && !v_85l) {
-    result = findVolume1(gp, 0.03);
-  }
-
 
   return result;
 }
