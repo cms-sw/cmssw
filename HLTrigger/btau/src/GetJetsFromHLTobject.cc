@@ -1,9 +1,8 @@
-#include "HLTrigger/btau/interface/GetJetsFromHLTobject.h"
-
+#include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-#include "DataFormats/Common/interface/RefVector.h"
+#include "GetJetsFromHLTobject.h"
 
 GetJetsFromHLTobject::GetJetsFromHLTobject(const edm::ParameterSet& iConfig) :
   m_jets( iConfig.getParameter<edm::InputTag>("jets") )
@@ -12,11 +11,6 @@ GetJetsFromHLTobject::GetJetsFromHLTobject(const edm::ParameterSet& iConfig) :
 }
 
 
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 GetJetsFromHLTobject::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {

@@ -1,5 +1,3 @@
-#include "HLTrigger/btau/interface/HLTDisplacedmumuFilter.h"
-
 #include <iostream>
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,6 +21,8 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
+
+#include "HLTDisplacedmumuFilter.h"
 
 using namespace edm;
 using namespace reco;

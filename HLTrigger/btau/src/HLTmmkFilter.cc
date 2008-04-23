@@ -1,5 +1,3 @@
-#include "HLTrigger/btau/interface/HLTmmkFilter.h"
-
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -20,6 +18,8 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "PhysicsTools/Utilities/interface/deltaPhi.h"
+
+#include "HLTmmkFilter.h"
 
 using namespace edm;
 using namespace reco;

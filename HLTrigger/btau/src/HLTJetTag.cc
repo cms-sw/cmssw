@@ -4,8 +4,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2007/12/20 12:43:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/22 14:58:44 $
+ *  $Revision: 1.8 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -20,27 +20,7 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
-//
-// class declaration
-//
-
-class HLTJetTag : public HLTFilter
-{
-public:
-  explicit HLTJetTag(const edm::ParameterSet & config);
-  ~HLTJetTag();
-
-  virtual bool filter(edm::Event & event, const edm::EventSetup & setup);
-
-private:
-  edm::InputTag m_jetTag;       // module label of input JetTagCollection
-  double m_minTag, m_maxTag;    // tag descriminator cuts applied to each jet
-  int    m_minJets;             // min. number of jets required to be tagged
-  bool   m_saveTag;             // save the tagged jets in the TriggerEvent
-
-  std::string m_label;          // Label of this filter in configuration file.
-};
-
+#include "HLTJetTag.h"
 
 //
 // constructors and destructor

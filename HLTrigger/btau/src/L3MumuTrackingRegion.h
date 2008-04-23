@@ -1,6 +1,7 @@
 #ifndef HLTrigger_btau_L3MumuTrackingRegion_H 
 #define HLTrigger_btau_L3MumuTrackingRegion_H 
 
+#include "FWCore/Framework/interface/Event.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
