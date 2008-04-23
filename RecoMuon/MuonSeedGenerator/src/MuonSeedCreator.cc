@@ -896,8 +896,8 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
   } 
   // Compute weighted mean and error
 
-  //thePt  = weightPtSum / sigmaSqr_sum;
-  thePt  = 10.0;
+  thePt  = weightPtSum / sigmaSqr_sum;
+  //thePt  = 10.0;
   theSpt = sqrt( 1.0 / sigmaSqr_sum ) ;
   //std::cout<<" pt= "<<thePt<<" sPt= "<<theSpt<< std::endl;
   return;
