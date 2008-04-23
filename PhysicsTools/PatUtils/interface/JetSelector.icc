@@ -2,11 +2,10 @@
 #include "PhysicsTools/PatUtils/interface/JetSelector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-using pat::JetSelector;
 
 //______________________________________________________________________________
 template<typename JetType>
-JetSelector<JetType>::JetSelector( const pat::JetSelection& config ) :
+pat::JetSelector<JetType>::JetSelector( const pat::JetSelection& config ) :
   config_( config )
 {
 
@@ -23,7 +22,7 @@ JetSelector<JetType>::JetSelector( const pat::JetSelection& config ) :
 //______________________________________________________________________________
 template<typename JetType>
 const pat::ParticleStatus 
-JetSelector<JetType>::filter( const unsigned int&        index, 
+pat::JetSelector<JetType>::filter( const unsigned int&        index, 
                               const edm::View<JetType>& Jets,
                               const JetValueMap * JetMap
                           ) const
