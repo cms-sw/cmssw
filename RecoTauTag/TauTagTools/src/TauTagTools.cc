@@ -41,7 +41,7 @@ namespace TauTagTools{
   PFCandidateRefVector filteredPFChargedHadrCandsByNumTrkHits(PFCandidateRefVector theInitialPFCands, int ChargedHadrCand_tkminTrackerHitsn){
     PFCandidateRefVector filteredPFChargedHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h){
+      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
 	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
 
@@ -56,7 +56,7 @@ namespace TauTagTools{
   PFCandidateRefVector filteredPFChargedHadrCands(PFCandidateRefVector theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, Vertex pv){
     PFCandidateRefVector filteredPFChargedHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h){
+      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
 	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
 	
@@ -76,7 +76,7 @@ namespace TauTagTools{
     if(pv.isFake()) ChargedHadrCand_tktorefpointmaxDZ = 30.;
     PFCandidateRefVector filteredPFChargedHadrCands;
     for(PFCandidateRefVector::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h){
+      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
 	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
 	if (!PFChargedHadrCand_rectk)continue;
