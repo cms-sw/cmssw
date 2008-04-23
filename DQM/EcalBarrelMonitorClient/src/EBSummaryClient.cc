@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/16 07:30:12 $
- * $Revision: 1.134 $
+ * $Date: 2008/04/19 15:08:27 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  *
 */
@@ -509,13 +509,13 @@ void EBSummaryClient::analyze(void){
     TProfile2D* h2d;
 
     // fill the gain value priority map<id,priority>
-    std::map<float,float> priority;
-    priority.insert( make_pair(0,3) );
-    priority.insert( make_pair(1,1) );
-    priority.insert( make_pair(2,2) );
-    priority.insert( make_pair(3,2) );
-    priority.insert( make_pair(4,3) );
-    priority.insert( make_pair(5,1) );
+    map<float,float> priority;
+    priority.insert( pair<float,float>(0,3) );
+    priority.insert( pair<float,float>(1,1) );
+    priority.insert( pair<float,float>(2,2) );
+    priority.insert( pair<float,float>(3,2) );
+    priority.insert( pair<float,float>(4,3) );
+    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -638,14 +638,15 @@ void EBSummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -653,8 +654,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==3)  xval = brightColor;
-              else if(maskedVal.size()==3)  xval = darkColor;
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -692,14 +693,15 @@ void EBSummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -894,14 +896,14 @@ void EBSummaryClient::analyze(void){
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
 
-              std::vector<float>::const_iterator Val;
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -909,8 +911,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==2)  xval = brightColor;
-              else if(maskedVal.size()==2)  xval = darkColor;
+              if(unmaskedVal.size()==2) xval = brightColor;
+              else if(maskedVal.size()==2) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -946,14 +948,14 @@ void EBSummaryClient::analyze(void){
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
 
-              std::vector<float>::const_iterator Val;
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -961,8 +963,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==2)  xval = brightColor;
-              else if(maskedVal.size()==2)  xval = darkColor;
+              if(unmaskedVal.size()==2) xval = brightColor;
+              else if(maskedVal.size()==2) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -1891,9 +1893,9 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
 }
 
-void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
+void EBSummaryClient::writeMap( ofstream& hf, const char* mapname ) {
 
-  std::map<std::string, std::string> refhtml;
+  map<string, string> refhtml;
   refhtml["Integrity"] = "EBIntegrityClient.html";
   refhtml["Occupancy"] = "EBIntegrityClient.html";
   refhtml["StatusFlags"] = "EBStatusFlagsClient.html";
@@ -1911,7 +1913,7 @@ void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
   const int B0 =  35;
   const int B1 = 334;
 
-  hf << "<map name=\"" << mapname << "\">" << std::endl;
+  hf << "<map name=\"" << mapname << "\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     int i=(superModules_[sm]-1)/18;
     int j=(superModules_[sm]-1)%18;
@@ -1924,9 +1926,9 @@ void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
        << "#" << Numbers::sEB(superModules_[sm])
        << "\" coords=\"" << x0 << ", " << y0 << ", "
                          << x1 << ", " << y1 << "\">"
-       << std::endl;
+       << endl;
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
 }
 

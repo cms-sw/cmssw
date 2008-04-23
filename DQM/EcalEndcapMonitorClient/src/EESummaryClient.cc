@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/16 07:30:13 $
- * $Revision: 1.110 $
+ * $Date: 2008/04/19 15:08:28 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  *
 */
@@ -776,13 +776,13 @@ void EESummaryClient::analyze(void){
     TProfile2D* h2d;
 
     // fill the gain value priority map<id,priority>
-    std::map<float,float> priority;
-    priority.insert( make_pair(0,3) );
-    priority.insert( make_pair(1,1) );
-    priority.insert( make_pair(2,2) );
-    priority.insert( make_pair(3,2) );
-    priority.insert( make_pair(4,3) );
-    priority.insert( make_pair(5,1) );
+    map<float,float> priority;
+    priority.insert( pair<float,float>(0,3) );
+    priority.insert( pair<float,float>(1,1) );
+    priority.insert( pair<float,float>(2,2) );
+    priority.insert( pair<float,float>(3,2) );
+    priority.insert( pair<float,float>(4,3) );
+    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -905,14 +905,15 @@ void EESummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -920,8 +921,8 @@ void EESummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==3)  xval = brightColor;
-              else if(maskedVal.size()==3)  xval = darkColor;
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -952,14 +953,15 @@ void EESummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -2619,9 +2621,9 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
 }
 
-void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
+void EESummaryClient::writeMap( ofstream& hf, const char* mapname ) {
 
-  std::map<std::string, std::string> refhtml;
+  map<string, string> refhtml;
   refhtml["Integrity"] = "EEIntegrityClient.html";
   refhtml["Occupancy"] = "EEIntegrityClient.html";
   refhtml["StatusFlags"] = "EEStatusFlagsClient.html";
@@ -2643,7 +2645,7 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
   const int C0 = 34;
   const int C1 = 148;
 
-  hf << "<map name=\"" << mapname << "_0\">" << std::endl;
+  hf << "<map name=\"" << mapname << "_0\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     if( superModules_[sm] >= 1 && superModules_[sm] <= 9 ) {
       int i=superModules_[sm]-1;
@@ -2663,12 +2665,12 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
                            << x3 << ", " << y3 << "\">"
-         << std::endl;
+         << endl;
     }
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
-  hf << "<map name=\"" << mapname << "_1\">" << std::endl;
+  hf << "<map name=\"" << mapname << "_1\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     if( superModules_[sm] >= 10 && superModules_[sm] <= 18 ) {
       int i=superModules_[sm]-9-1;
@@ -2688,10 +2690,10 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
                            << x3 << ", " << y3 << "\">"
-         << std::endl;
+         << endl;
     }
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
 }
 
