@@ -36,7 +36,7 @@ EcalUncalibRecHitMaxSampleAlgo<C>::makeRecHit(const C& dataFrame, const double* 
 					      const EcalWeightSet::EcalWeightMatrix** weights,
 					      const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) {
 
-  amplitude_ = -99999999;
+  amplitude_ = std::numeric_limits<int16_t>::min();
   pedestal_  = 4095;
   jitter_    = -1;
   chi2_      = -1;
