@@ -10,8 +10,8 @@ class HcalHTRData;
  *  Interpretive class for an HcalDCCHeader
  *   
  *
- *  $Date: 2007/02/19 04:05:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/06 14:36:57 $
+ *  $Revision: 1.4 $
  *  \author J. Mans - UMD
  */
 
@@ -20,23 +20,6 @@ class HcalDCCHeader {
   static const int SPIGOT_COUNT;
 
   HcalDCCHeader();
-
-  /** printf the data headers. */
-  inline void printCDFheaders() const {
-    printf("%08x %08x \n", commondataformat1, commondataformat0);
-    if (thereIsASecondCDFHeaderWord()) {
-      printf("%08x %08x \n", commondataformat3, commondataformat2);
-    }
-  }
-  inline void printDCCheader() const {
-    printf("%08x %08x \n", dcch0, dcch1);
-  }
-  inline void printHTRsummaries() const {
-    for (int i=0; i<18; i++) {
-      printf("%08x ", spigotInfo[i]);
-      if ((i%2) ==0) printf("\n");
-    }
-  }
 
   /** Determine the expected total length of this packet in bytes*/
   unsigned int getTotalLengthBytes() const; 
@@ -65,24 +48,35 @@ class HcalDCCHeader {
   /** get the (undefined) 'Reserved' part of the second Slink64 CDF word */
   inline unsigned int getSlink64ReservedBits() const { return (  (commondataformat3>>4)&0x00FFFFFF ); }
   /** Get the Beginning Of Event bits.  If it's not the first or last CDF Slink64 word, the high 4 bits must be zero.*/
-  inline short BOEshouldBeZeroAlways() const { return ( (commondataformat2>>28) & 0x0F); }
+  inline short BOEshouldBeZeroAlways() const { return ( (commondataformat3>>28) & 0x0F); }
 
   //// The 64-bit DCC Header 
-  /** get the DCC Data Format Version. (0x02 in 2005) */
   inline short getDCCDataFormatVersion() const { return (dcch0 & 0xFF); }
-  /** get the undefined bits in the DCC header. Should never be changing. */
-  inline short getDCCHeaderSchmutz() const { return ( (dcch0>>8)&0x3F); }
+  inline int getAcceptTimeTTS() const { return ((dcch0>>8)& 0x0000000F); }
+  inline int getByte1Zeroes() const {  return ((dcch0>>12)& 0x00000003); }
+  inline int getHTRStatusBits () const { return ((dcch0>>14)& 0x00007FFF); }
+  inline int getByte3Zeroes() const {  return ((dcch0>>29)& 0x00000007); }
+  inline int getDCCStatus() const {return (dcch1 & 0x000003FF);}
+  inline int getByte567Zeroes() const {  return (dcch1 & 0xFF00FC00); }
+
   /** Get the value flagging a spigot's summary of error flags. */
   inline bool getSpigotErrorFlag(int nspigot) const { 
-    return (( dcch0>>(14+nspigot) )&0x0001);
-  }
-  /** get the high three zeros of the DCC header's low word. */
-  inline short getDCCHeaderZeros() const { return  ( (dcch0>>29)&0x007); }
-  /** Test the non-zero-ness of this type of DCC error. More informative labels coming soon. */
-  inline bool isThisDCCErrorCounterNonZero(unsigned int countnum) const {
-    return ( (dcch1>>countnum) & 0x00000001);
-  }
-  inline unsigned int getDCCErrorWord() const { return dcch1;}
+    return (( dcch0>>(14+nspigot) )&0x0001);  }
+
+  /** Get the status of these error counters in the DCC motherboard. **/
+  inline bool SawTTS_OFW()        const { return ((getDCCStatus()>>0) & 0x00000001);}
+  inline bool SawTTS_BSY()        const { return ((getDCCStatus()>>1) & 0x00000001);}
+  inline bool SawTTS_SYN()        const { return ((getDCCStatus()>>2) & 0x00000001);}
+  inline bool SawL1A_EvN_MxMx()   const { return ((getDCCStatus()>>3) & 0x00000001);}
+  inline bool SawL1A_BcN_MxMx()   const { return ((getDCCStatus()>>4) & 0x00000001);}
+  inline bool SawCT_EvN_MxMx()    const { return ((getDCCStatus()>>5) & 0x00000001);}
+  inline bool SawCT_BcN_MxMx()    const { return ((getDCCStatus()>>6) & 0x00000001);}
+  inline bool SawOrbitLengthErr() const { return ((getDCCStatus()>>7) & 0x00000001);}
+  inline bool SawTTC_SingErr()    const { return ((getDCCStatus()>>8) & 0x00000001);}
+  inline bool SawTTC_DoubErr()    const { return ((getDCCStatus()>>9) & 0x00000001);}
+
+  /** Get a given spigot summary from the DCC Header **/
+  inline int getSpigotSummary(int nspigot) const { return spigotInfo[nspigot]; }
 
   /** Load the given decoder with the pointer and length from this spigot */
   void getSpigotData(int nspigot, HcalHTRData& decodeTool) const;

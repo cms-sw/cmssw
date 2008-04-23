@@ -36,11 +36,12 @@ static inline bool isTPGSOI(const HcalTriggerPrimitiveSample& s) {
 
 
 struct HOUnrolledTP { // parts of an HO trigger primitive, unpacked
-  bool valid;
+  bool valid, checked;
   int ieta, iphi, samples, soi;
   unsigned int databits;
   HOUnrolledTP() {
     valid=false;
+    checked=false;
     ieta=0;
     iphi=0;
     samples=0;
@@ -110,7 +111,6 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     */
     if (isHOtpg) {
       HOUnrolledTP unrolled[24];
-      ncurr=0;
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
 	int sector=tp_work->slbChan();
@@ -118,7 +118,8 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 
 	for (int ibit=0; ibit<8; ibit++) {
 	  int linear=sector*8+ibit; 
-	  if (ncurr==0) {
+	  if (!unrolled[linear].checked) {
+	    unrolled[linear].checked=true;
 	    int fiber=(linear/3)+1;
 	    int fc=(linear%3);
 	    // electronics id (use precision match for HO TP)
@@ -128,6 +129,8 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	    if (!did.null()) {
 	      if (did.det()==DetId::Hcal && ((HcalSubdetector)did.subdetId())==HcalOuter ) {
 		HcalDetId hid(did);
+		std::cout << "TEST " << ibit << " " << sector << " " << linear << " " 
+			  << fiber << " " << fc << " " << eid << " " << hid << std::endl;
 		unrolled[linear].valid=true;
 		unrolled[linear].ieta=hid.ieta();
 		unrolled[linear].iphi=hid.iphi();
@@ -138,11 +141,10 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  }
 	  if (unrolled[linear].valid) {
 	    if (isTPGSOI(*tp_work)) unrolled[linear].soi=unrolled[linear].samples;
+	    if (tp_work->raw()&(1<<ibit)) unrolled[linear].setbit(unrolled[linear].samples);
 	    unrolled[linear].samples++;
-	    if (tp_work->raw()&(1<<ibit)) unrolled[linear].setbit(ncurr);
 	  }
 	}
-	if (sector==0x2) ncurr++; // finished a set of three
       }
       for (int i=0; i<24; i++) {
 	if (unrolled[i].valid) 
@@ -153,6 +155,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 							   unrolled[i].soi,
 							   unrolled[i].databits));
       }
+      std::cout << "Size: " << colls.tphoCont->size() << std::endl;
     } else {
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
