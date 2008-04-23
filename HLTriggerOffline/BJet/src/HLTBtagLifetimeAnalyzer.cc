@@ -100,12 +100,14 @@ private:
   std::vector<std::string>  m_mcLabels;         // MC truth match - labels
   std::vector<flavours_t>   m_mcFlavours;       // MC truth match - flavours selection
   double                    m_mcRadius;         // MC truth match - deltaR association radius
+  bool                      m_mcMatching;       // MC truth matching anabled/disabled
 
   // match to Offline reco
   edm::InputTag             m_offlineBJets;     // Offline match - jet association to discriminator
   std::vector<std::string>  m_offlineLabels;    // Offline match - labels
   std::vector<double>       m_offlineCuts;      // Offline match - discriminator cuts
   double                    m_offlineRadius;    // Offline match - deltaR association radius
+  bool                      m_offlineMatching;  // Offline matching anabled/disabled
 
   // compute efficiencies
   bool m_doStepEfficiencies;
@@ -145,10 +147,12 @@ HLTBtagLifetimeAnalyzer::HLTBtagLifetimeAnalyzer(const edm::ParameterSet & confi
   m_mcLabels(),
   m_mcFlavours(),
   m_mcRadius( config.getParameter<double>("mcRadius") ),
+  m_mcMatching( m_mcPartons.label() != "none" ),
   m_offlineBJets( config.getParameter<edm::InputTag>("offlineBJets") ),
   m_offlineLabels(),
   m_offlineCuts(),
   m_offlineRadius( config.getParameter<double>("offlineRadius") ),
+  m_offlineMatching( m_offlineBJets.label() != "none" ),
   m_doStepEfficiencies( config.getParameter<bool>("computeStepEfficiencies") ),
   m_doCumulativeEfficiencies( config.getParameter<bool>("computeCumulativeEfficiencies") ),
   m_jetMinEnergy(  0. ),    //   0 GeV
@@ -201,17 +205,17 @@ HLTBtagLifetimeAnalyzer::~HLTBtagLifetimeAnalyzer()
 
 void HLTBtagLifetimeAnalyzer::beginJob(const edm::EventSetup & setup) 
 {
-  m_jetPlots.resize( m_levels.size() );
-  m_mcPlots.resize( m_levels.size() );
-  m_offlinePlots.resize( m_levels.size() );
- 
   m_ratePlots.init( "Event", "Event", m_levels.size() );  
   m_vertexPlots.init( "PrimaryVertex", "Primary vertex", vertex1DBins, m_vertexMaxZ, m_vertexMaxR );
   
+  m_jetPlots.resize( m_levels.size() );
+  if (m_mcMatching)      m_mcPlots.resize( m_levels.size() );
+  if (m_offlineMatching) m_offlinePlots.resize( m_levels.size() );
+  
   for (unsigned int i = 0; i < m_levels.size(); ++i) {
-    m_jetPlots[i].init(     m_levels[i].m_name, m_levels[i].m_title,                                 jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
-    m_mcPlots[i].init(      m_levels[i].m_name, m_levels[i].m_title, m_mcFlavours,  m_mcLabels,      jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
-    m_offlinePlots[i].init( m_levels[i].m_name, m_levels[i].m_title, m_offlineCuts, m_offlineLabels, jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
+    m_jetPlots[i].init( m_levels[i].m_name, m_levels[i].m_title, jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
+    if (m_mcMatching)      m_mcPlots[i].init(      m_levels[i].m_name, m_levels[i].m_title, m_mcFlavours,  m_mcLabels,      jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
+    if (m_offlineMatching) m_offlinePlots[i].init( m_levels[i].m_name, m_levels[i].m_title, m_offlineCuts, m_offlineLabels, jetEnergyBins, m_jetMinEnergy, m_jetMaxEnergy, jetGeometryBins, m_jetMaxEta, m_levels[i].m_tracks.label() != "none" );
   }
 }
 
@@ -310,10 +314,13 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 
   // match to MC parton flavour - accessed on demand
   edm::Handle<reco::JetFlavourMatchingCollection> h_mcPartons;
-  
+  if (m_mcMatching)
+    event.getByLabel(m_mcPartons, h_mcPartons);
+
+  // match to Offline b-tagged jets - accessed on demand  
   edm::Handle<reco::JetTagCollection> h_offlineBJets;
-  event.getByLabel(m_offlineBJets, h_offlineBJets);
-  const reco::JetTagCollection & offlineBJets = * h_offlineBJets;
+  if (m_offlineMatching)
+    event.getByLabel(m_offlineBJets, h_offlineBJets);
 
   m_ratePlots.fill(0);
   for (unsigned int l = 0; l < m_levels.size(); ++l) {
@@ -342,27 +349,30 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
           const reco::Jet & jet = jets[j];
           
           // match to MC parton
-          if (not h_mcPartons.isValid())
-            event.getByLabel(m_mcPartons, h_mcPartons);
-          
-          int m = closestJet(jet, *h_mcPartons, m_mcRadius);
-          unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
+          unsigned int flavour = 0;
+          if (m_mcMatching) {
+            int m = closestJet(jet, *h_mcPartons, m_mcRadius);
+            flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
+          }
 
-          // match to offline reconstruted b jets
-          int o = closestJet(jet, offlineBJets, m_offlineRadius);
-          double discriminator = (o != -1) ? offlineBJets[o].second : -INFINITY;
+          // match to offline reconstruted b jets - only if they are available
+          double discriminator = -INFINITY;
+          if (m_offlineMatching) {
+            int o = closestJet(jet, *h_offlineBJets, m_offlineRadius);
+            discriminator = (o > 0 and (unsigned int) o < h_offlineBJets->size()) ? (*h_offlineBJets)[o].second : -INFINITY;
+          }
 
           if (not h_tracks.isValid()) {
             // no tracks, fill only the jets
             m_jetPlots[l].fill( jet );
-            m_mcPlots[l].fill( jet, flavour);
-            m_offlinePlots[l].fill( jet, discriminator );
+            if (m_mcMatching)      m_mcPlots[l].fill( jet, flavour);
+            if (m_offlineMatching) m_offlinePlots[l].fill( jet, discriminator );
           } else {
             // fill jets and tracks
             const reco::TrackRefVector & tracks = (*h_tracks)[jets.refAt(j)];
             m_jetPlots[l].fill( jet, tracks );
-            m_mcPlots[l].fill( jet, tracks, flavour);
-            m_offlinePlots[l].fill( jet, tracks, discriminator );
+            if (m_mcMatching)      m_mcPlots[l].fill( jet, tracks, flavour);
+            if (m_offlineMatching) m_offlinePlots[l].fill( jet, tracks, discriminator );
           }
         }
       }
@@ -416,32 +426,32 @@ void HLTBtagLifetimeAnalyzer::endJob()
   TFile * file = new TFile(m_outputFile.c_str(), "UPDATE");
   TDirectory * dir = file->mkdir( m_triggerPath.c_str(), (m_triggerPath + " HLT path").c_str() );
   if (dir) {
+    m_ratePlots.save(*dir);
+    m_vertexPlots.save(*dir);
+
     for (unsigned int i = 0; i < m_levels.size(); ++i) {
       m_jetPlots[i].save(*dir);
-      m_mcPlots[i].save(*dir);
-      m_offlinePlots[i].save(*dir);
+      if (m_mcMatching)      m_mcPlots[i].save(*dir);
+      if (m_offlineMatching) m_offlinePlots[i].save(*dir);
     }
     if ((m_doStepEfficiencies or m_doCumulativeEfficiencies) and m_levels.size() > 1) {
       // make second-wrt-first level efficiency plots
       m_jetPlots[1].efficiency( m_jetPlots[0] ).save(*dir);
-      m_mcPlots[1].efficiency( m_mcPlots[0] ).save(*dir);
-      m_offlinePlots[1].efficiency( m_offlinePlots[0] ).save(*dir);
+      if (m_mcMatching)      m_mcPlots[1].efficiency( m_mcPlots[0] ).save(*dir);
+      if (m_offlineMatching) m_offlinePlots[1].efficiency( m_offlinePlots[0] ).save(*dir);
     }
     if (m_doStepEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
       // make step-by-step efficiency plots
       m_jetPlots[i].efficiency( m_jetPlots[i-1] ).save(*dir);
-      m_mcPlots[i].efficiency( m_mcPlots[i-1] ).save(*dir);
-      m_offlinePlots[i].efficiency( m_offlinePlots[i-1] ).save(*dir);
+      if (m_mcMatching)      m_mcPlots[i].efficiency( m_mcPlots[i-1] ).save(*dir);
+      if (m_offlineMatching) m_offlinePlots[i].efficiency( m_offlinePlots[i-1] ).save(*dir);
     }
     if (m_doCumulativeEfficiencies) for (unsigned int i = 2; i < m_levels.size(); ++i) {
       // make cumulative efficiency plots
       m_jetPlots[i].efficiency( m_jetPlots[0] ).save(*dir);
-      m_mcPlots[i].efficiency( m_mcPlots[0] ).save(*dir);
-      m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*dir);
+      if (m_mcMatching)      m_mcPlots[i].efficiency( m_mcPlots[0] ).save(*dir);
+      if (m_offlineMatching) m_offlinePlots[i].efficiency( m_offlinePlots[0] ).save(*dir);
     }
-
-    m_ratePlots.save(*dir);
-    m_vertexPlots.save(*dir);
   }
 
   file->Write();
