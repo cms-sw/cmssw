@@ -28,14 +28,14 @@ bool HOTriggerPrimitiveDigi::data(int whichbit) const{
 /* Stream the formatted contents of the HOTriggerPrimitiveDigi. */
 std::ostream& operator<<(std::ostream& s, const HOTriggerPrimitiveDigi& HOtpd) {
   s << "(HO TP " << HOtpd.ieta() << ", " << HOtpd.iphi() << ",  ";
-  s << HOtpd.whichSampleTriggered() << "_of_" << HOtpd.nsamples() << " [";
+  //  s << HOtpd.whichSampleTriggered() << "_of_" << HOtpd.nsamples() << " [";
   for (int bit=0; bit<HOtpd.nsamples(); bit++) {
     if (HOtpd.data(bit)) s << "1";
     else s << "0";
     if (bit==HOtpd.whichSampleTriggered()) s<<"* ";
     else s << " ";
   }
-  s << "]";
+  s << " )";
   return s;
 }
 
