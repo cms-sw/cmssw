@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2008/03/29 10:12:13 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/04/09 16:46:11 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - CERN
  */
 
@@ -27,7 +27,6 @@
 #include "MagneticField/GeomBuilder/test/stubs/GlobalPointProvider.h"
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
-
 
 #include <iostream>
 #include <string>
@@ -99,6 +98,7 @@ class testMagneticField : public edm::EDAnalyzer {
   void validate(string filename, string type="xyz");
   void validateVsTOSCATable(string filename);
 
+  const MagVolume6Faces* findVolume(GlobalPoint& gp);
   const MagVolume6Faces* findMasterVolume(string volume);
 
  private:
@@ -121,7 +121,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
   for (int i = 0; i<npoints; ++i) {
     GlobalPoint gp = p.getPoint();
     GlobalVector f = field->inTesla(gp);
-    file << setprecision (9) << i << " "
+    file << setprecision (9) //<< i << " "
 	 << gp.x() << " " << gp.y() << " " << gp.z() << " "
 	 << f.x() << " " << f.y() << " " << f.z()  << endl;
   }
@@ -163,7 +163,13 @@ void testMagneticField::validate(string filename, string type) {
       ++fail;
       float delta = (newB-oldB).mag();
       if (delta > maxdelta) maxdelta = delta;
-      cout << " Discrepancy at: # " << count+1 << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
+      cout << " Discrepancy at: # " << count+1 << " " << gp
+	   << " R " << gp.perp() << " Phi " << gp.phi()
+	   << " delta : " << newB-oldB << " " << delta <<  endl;
+      
+      const MagVolume6Faces* vol = findVolume(gp);      
+      if (vol) cout << " volume: " << vol->name << " " << (int) vol->copyno ;
+      cout << " Old: " << oldB << " New: " << newB << endl;
     }
     count++;
   }
@@ -250,8 +256,24 @@ void testMagneticField::validateVsTOSCATable(string filename) {
 #define private public
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 
+const MagVolume6Faces* testMagneticField::findVolume(GlobalPoint& gp) {
+  const VolumeBasedMagneticField* vbffield = dynamic_cast<const VolumeBasedMagneticField*>(field);
+  if (vbffield) {
+    const MagGeometry* mg = vbffield->field;
+    GlobalPoint gpSym(gp);
+    if (vbffield->isZSymmetric() && gp.z()>0.) {
+      gpSym = GlobalPoint(gp.x(), gp.y(), -gp.z());
+    }
+    if (mg) return (dynamic_cast<const MagVolume6Faces*>(mg->findVolume(gp)));
+  }
+  return 0;
+}
+
+
 const MagVolume6Faces* testMagneticField::findMasterVolume(string volume) {
-  const MagGeometry* vbffield = (dynamic_cast<const VolumeBasedMagneticField*>(field))->field;;
+  const MagGeometry* vbffield = (dynamic_cast<const VolumeBasedMagneticField*>(field))->field;
+
+  if (vbffield==0) return 0;
 
   const vector<MagVolume6Faces*>& bvol = vbffield->barrelVolumes();
   for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
@@ -271,6 +293,7 @@ const MagVolume6Faces* testMagneticField::findMasterVolume(string volume) {
 
   return 0;
 }
+
 
  
 
