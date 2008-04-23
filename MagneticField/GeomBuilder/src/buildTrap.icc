@@ -1,8 +1,8 @@
 /*
  *  Compute parameters for a trapezoid 
  *
- *  $Date: 2008/03/29 14:28:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/16 16:28:03 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -111,8 +111,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   // Local Y axis of the faces at +-phi. The local X is = global Z.
   GlobalVector y_phiplus =   
     (refPlane->toGlobal(LocalVector((tan(alpha1)*y1-(x2-x1)/2.),y1,0.))).unit();
-  GlobalVector y_phiminus =
-    (refPlane->toGlobal(LocalVector((tan(alpha1)*y1+(x2-x1)/2.),y1,0.))).unit();
+  GlobalVector y_phiminusV = (refPlane->toGlobal(LocalVector((tan(alpha1)*y1+(x2-x1)/2.),y1,0.)));
+  GlobalVector y_phiminus = y_phiminusV.unit();
+
 
   if (MagGeoBuilderFromDDD::debug) {  
     cout << "y_phiplus " << y_phiplus << endl;
@@ -132,6 +133,20 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
   surfaces[phiplus]  = new Plane(pos_phiplus, rot_phiplus);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);
 
+  // Save volume boundaries
+  theRMin = fabs(surfaces[inner]->toLocal(GlobalPoint(0,0,0)).z());
+  theRMax = fabs(surfaces[outer]->toLocal(GlobalPoint(0,0,0)).z());
+
+  // Setting "absolute" phi boundary spots a problem in V85l
+  // e.g. vol 139 (origin: small inconsistency in volumes.txt)
+  // So let's keep phi at middle phi- plane...
+  //  FIXME: Remove this workaround once support for v85l is dropped. 
+  if (name.substr(0,3)=="V_Z") { 
+    thePhiMin = surfaces[phiminus]->position().phi();
+  } else {
+    thePhiMin = min((pos_phiminus+y_phiminusV).phi(), (pos_phiminus-y_phiminusV).phi());
+  }
+  
   if (MagGeoBuilderFromDDD::debug) {
     cout << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0.,0.,1.)) << endl
 	 << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0.,0.,1.)) << endl
@@ -141,10 +156,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTrap(const DDExpandedView &fv) {
 	 << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0.,0.,1.))
 	 << " phi " << surfaces[phiminus]->toGlobal(LocalVector(0.,0.,1.)).phi()
 	 << endl;  
-  }
-  
-  // Save volume boundaries
-  theRMin = fabs(surfaces[inner]->toLocal(GlobalPoint(0,0,0)).z());
-  theRMax = fabs(surfaces[outer]->toLocal(GlobalPoint(0,0,0)).z());
 
+    if (fabs(surfaces[phiminus]->position().phi() - thePhiMin)>1e-5) {
+      cout << " Trapez. phiMin = " << thePhiMin << endl;
+    }
+  }
 }
