@@ -7,23 +7,31 @@ use threads::shared;
 my $dir = $ENV{'CMSSW_BASE'} . "/src/PhysicsTools/PatAlgos/test";
 chdir $dir or die "Can't chdir to $dir.\n Check that CMSSW_BASE variable is set correcly, and that you have checked out PhysicsTools/PatAlgos.\n";
 
-my %done :shared = ();
-my $fake :shared = 0;
-if (grep(/^-(h|\?|-help)$/, @ARGV)) {
+my %done   :shared = ();
+my $fake   :shared = 0;
+my $repdef :shared = "";
+
+use Getopt::Long;
+my $help;
+GetOptions( 'h|?|help' => \$help, 
+            'n|dry-run' => \$fake,
+            'replace-defaults|rd=s' => \$repdef );
+if ($help) {
     my $name = `basename $0`; chomp $name;
     print "Usage: perl $name [-n|--dry-run] [cfgs]\n" .
-          "   -n or --dry-run: just read the output, don't run cmsRun\n".
+          "   -n or --dry-run:      just read the output, don't run cmsRun\n".
+          "   -h or --help:         print this help\n".
+          "   --replace-defaults X  turn on ReplaceDefaults for layer X (X can be 0, 1 or 01 for both)\n".
+          "                         they must already be in the CFG file, commented with # or // \n".
           "   If no cfgs are specified, it will use PATLayer[01]_from*_{fast,full}.cfg\n\n";
     exit(0);
 }
-
+if ($fake) {
+    print "=== NOT ACTUALLLY RUNNING cmsRun, JUST READING OUTPUT LOGS ===\n";
+}
 
 my @CFGs = @ARGV;
-if (grep(/^-(n|-dry-run)$/, @ARGV)) {
-    print "=== NOT ACTUALLLY RUNNING cmsRun, JUST READING OUTPUT LOGS ===\n";
-    $fake = 1;
-    @CFGs = grep($_ !~ /^-(n|-dry-run)$/, @ARGV);
-}
+
 if (@CFGs) {
     my @allCFGs = ();
     foreach my $cfg (@CFGs) { push @allCFGs, grep(/\.cfg$/, glob($cfg)); }
@@ -33,11 +41,39 @@ if (@CFGs) {
 }
 print "Will run " . scalar(@CFGs) . " config files: " . join(' ', @CFGs) . "\n\n";
 
-foreach my $cfg (@CFGs) { unless (-f $cfg) {  die "Config file $cfg does not exist in $dir\n"; } }
+foreach my $cfg (@CFGs) { 
+    unless (-f $cfg) {  die "Config file $cfg does not exist in $dir\n"; } 
+    repDef($cfg);
+}
+
+sub repDef {
+    my $f = shift;
+    open CFG, $f or die "Can't open cfg file '$f'\n";
+    my $text = join('',<CFG>); my $original = $text;
+    close CFG;
+    foreach my $l (0, 1) {
+        if ($repdef =~ /$l/) {
+            #print STDERR "Toggling ON  ReplaceDefaults for patLayer$l in $f \n";
+            $text =~ s!(?://\s*|\x23\s*)*(include\s+["']PhysicsTools/PatAlgos/test/patLayer${l}_ReplaceDefaults_\w+.cff.)!$1!g;
+            $text =~ s!(?://\s*|\x23\s*)*(include\s+["']PhysicsTools/PatAlgos/data/famos/patLayer${l}_FamosSetup.cff.)!\x23$1!g;
+        } else {
+            #print STDERR "Toggling OFF ReplaceDefaults for patLayer$l in $f \n";  # \x23 is the '#' sign
+            $text =~ s!(?://\s*|\x23\s*)*(include\s+["']PhysicsTools/PatAlgos/test/patLayer${l}_ReplaceDefaults_\w+.cff.)!\x23$1!g;
+            $text =~ s!(?://\s*|\x23\s*)*(include\s+["']PhysicsTools/PatAlgos/data/famos/patLayer${l}_FamosSetup.cff.)!$1!g;
+        }
+    }
+    if ($text ne $original) {
+        open CFG, "> $f" or die "Can't update cfg file '$f'\n";
+        print CFG $text;
+        close CFG;
+        #print "============== OLD ===================\n$original\n============== NEW ===================\n$text\n";
+    }
+}
 
 sub cmsRun {
     my ($f, $o) = ($_[0], $_[1]);
     unless ($fake) {
+        repDef($f);
         system("sh -c 'cmsRun --strict $f > $o 2>&1 '");
     } else {
         system("sh -c 'sleep ". int(rand(5)+2) ."'");
