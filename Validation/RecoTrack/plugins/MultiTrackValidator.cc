@@ -168,10 +168,12 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       j++;
     }
   }
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  for (unsigned int w=0;w<associators.size();w++) {
-    setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-    associator.push_back( theAssociator.product() );
+  if (UseAssociators) {
+    edm::ESHandle<TrackAssociatorBase> theAssociator;
+    for (unsigned int w=0;w<associators.size();w++) {
+      setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
+      associator.push_back( theAssociator.product() );
+    }
   }
 }
 
@@ -200,11 +202,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      edm::LogVerbatim("TrackValidator") << "Analyzing " 
-					 << label[www].process()<<":"
-					 << label[www].label()<<":"
-					 << label[www].instance()<<" with "
-					 << associators[ww].c_str() <<"\n";
       //
       //get collections from the event
       //
@@ -218,6 +215,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       reco::SimToRecoCollection simRecColl;
       //associate tracks
       if(UseAssociators){
+	edm::LogVerbatim("TrackValidator") << "Analyzing " 
+					   << label[www].process()<<":"
+					   << label[www].label()<<":"
+					   << label[www].instance()<<" with "
+					   << associators[ww].c_str() <<"\n";
+
 	LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
 	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
 							TPCollectionHfake,
@@ -228,6 +231,14 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 							&event);
       }
       else{
+	edm::LogVerbatim("TrackValidator") << "Analyzing " 
+					   << label[www].process()<<":"
+					   << label[www].label()<<":"
+					   << label[www].instance()<<" with "
+					   << associatormap.process()<<":"
+					   << associatormap.label()<<":"
+					   << associatormap.instance()<<"\n";
+
 	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
 	event.getByLabel(associatormap,simtorecoCollectionH);
 	simRecColl= *(simtorecoCollectionH.product()); 

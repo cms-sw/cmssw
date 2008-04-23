@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/04/20 00:37:20 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/20 23:44:58 $
+ *  $Revision: 1.8 $
  *  \author cerati
  */
 
@@ -70,6 +70,10 @@ class MultiTrackValidatorBase {
     useInvPt(pset.getParameter<bool>("useInvPt"))
     {
       dbe_ = edm::Service<DQMStore>().operator->();
+      if (!UseAssociators) {
+	associators.clear();
+	associators.push_back(associatormap.label());
+      }
     }
   
   /// Destructor
