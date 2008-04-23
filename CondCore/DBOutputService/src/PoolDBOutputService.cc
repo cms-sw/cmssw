@@ -201,7 +201,6 @@ cond::service::PoolDBOutputService::currentTime() const{
 
 void 
 cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& EventSetupRecordName, bool withlogging){
-
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIO not a new tag");
@@ -269,7 +268,6 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
 					 cond::Time_t time,
 					 const std::string& EventSetupRecordName,
 					 bool withlogging) {
-
   cond::service::serviceCallbackRecord& myrecord=this->lookUpRecord(EventSetupRecordName);
   if (!m_dbstarted) this->initDB();
   cond::PoolTransaction& pooldb=m_connection->poolTransaction();
@@ -295,11 +293,13 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
       m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx);
     }
   }catch(const std::exception& er){
-    if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
-    std::string destconnect=m_connection->connectStr();
-    cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
-    m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx,std::string(er.what()));
-    m_logdb->releaseWriteLock();
+    if(withlogging){
+      if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
+      std::string destconnect=m_connection->connectStr();
+      cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx,std::string(er.what()));
+      m_logdb->releaseWriteLock();
+    }
     throw cond::Exception("PoolDBOutputService::add "+std::string(er.what()));
   }
   if(withlogging){

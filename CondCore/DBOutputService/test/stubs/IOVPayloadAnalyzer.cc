@@ -20,7 +20,6 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
     return;
   }
   unsigned int irun=evt.id().run();
-  
   std::string tag=mydbservice->tag(m_record);
   std::cout<<"tag "<<tag<<std::endl;
   std::cout<<"run "<<irun<<std::endl;
@@ -36,15 +35,18 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
     //create 
     cond::Time_t firstSinceTime=mydbservice->beginOfTime();
     cond::Time_t firstTillTime=mydbservice->endOfTime();
+    std::cout<<"firstSinceTime "<<firstSinceTime<<std::endl;
+    std::cout<<"firstTillTime "<<firstTillTime<<std::endl;
     std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
-    mydbservice->createNewIOV<Pedestals>(myped,firstSinceTime,firstTillTime,m_record);
-    //std::cout<<"about to throw"<<std::endl;
+    mydbservice->createNewIOV<Pedestals>(myped,firstSinceTime,firstTillTime,m_record,false);
+    //    std::cout<<"about to throw"<<std::endl;
     //throw cond::Exception("throwme");
     //std::cout<<"thrown"<<std::endl;
   }else{
     //append 
+    std::cout<<"currentTime "<<mydbservice->currentTime()<<std::endl;
     if(mydbservice->currentTime()%5==0){
-      mydbservice->appendSinceTime<Pedestals>(myped,mydbservice->currentTime(),m_record);
+      mydbservice->appendSinceTime<Pedestals>(myped,mydbservice->currentTime(),m_record,false);
     }
   }
 }
