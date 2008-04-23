@@ -1,13 +1,6 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitSimAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "CLHEP/Units/PhysicalConstants.h"
-
 // ESRecHitSimAlgo author : Chia-Ming, Kuo
 
 ESRecHitSimAlgo::ESRecHitSimAlgo(int gain, int pedestal, double MIPADC, double MIPkeV) :
@@ -37,7 +30,7 @@ ESRecHitSimAlgo::ESRecHitSimAlgo(int gain, int pedestal, double MIPADC, double M
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : Gain "<<gain_<<" Weights : "<<pw[0]<<" "<<pw[1]<<" "<<pw[2];
 }
 
-double ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, bool corr) const {
+double ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi) const {
   
   float energy = 0;
   float adc[3];  
@@ -51,34 +44,20 @@ double ESRecHitSimAlgo::EvalAmplitude(const ESDataFrame& digi, bool corr) const 
 
   // convert to GeV
   energy /= 1000000.;
-
-  if (corr) {
-    DetId detId = digi.id();
-    
-    const CaloCellGeometry *this_cell = theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
-    double theta = this_cell->getPosition().theta();
-
-    return energy*fabs(cos(theta));
-  }
-  else {
-    return energy;
-  }
+  
+  return energy;
 }
 
-EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi, bool corr) const {
+EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
 
   float energy = 0;
-  float time = 0;
 
-  energy = EvalAmplitude(digi, corr);
+  energy = EvalAmplitude(digi);
 
   DetId detId = digi.id();
-  const CaloCellGeometry *this_cell = theGeometry->getSubdetectorGeometry(detId)->getGeometry(detId);
-  double distance = this_cell->getPosition().mag();
-  time = distance * cm / c_light; 
 
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
-  return EcalRecHit(digi.id(), energy, time); 
+  return EcalRecHit(digi.id(), energy, 0); 
 }
 

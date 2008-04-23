@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/ESRecHitSimAlgo.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 // ESRecHitProducer author : Chia-Ming, Kuo
 
@@ -21,11 +20,6 @@ class ESRecHitProducer : public edm::EDProducer {
   virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
  private:
-
-  void checkGeometry(const edm::EventSetup & es);
-  void updateGeometry();
-
-  const CaloGeometry * theGeometry;
 
   edm::InputTag digiCollection_; // secondary name given to collection of digis
   std::string rechitCollection_; // secondary name to be given to collection of hits
