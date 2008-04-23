@@ -38,6 +38,7 @@ void NoiseAnalyzer()
        for(int St=1; St<=4; St++){
 	 double counterSomehowNoisyCells=0;
 	 double counterNoisyCells=0;
+	 bool StationHasData=false;
 	 std::stringstream station; station << St;
 	 for(int SL=1; SL<=3; SL++){
 	   leg->Clear();
@@ -52,6 +53,7 @@ void NoiseAnalyzer()
 	     TString histoName="DigiOccupancy_W"+wheel.str()+"_St"+station.str()+"_Sec"+sector.str()+"_SL"+superlayer.str()+"_L"+layer.str();
 	     TH1F* h =((TH1F*) f1->Get(histoName));
 	     if(h){
+	       StationHasData=true;
 	       SLhasData=true;
 	       //overimpose the plot per SL
 	       c->cd();
@@ -92,10 +94,12 @@ void NoiseAnalyzer()
 	    }
 
 	 } // loop on SL
-	 summaryOutput<<" ------------ "<<endl;
-	 summaryOutput<<"MB"<<St<<"_W"<<W<<"_Sec"<<Sec<<endl;
-	 summaryOutput<<"# of somehow noisy cells: "<<counterSomehowNoisyCells<<endl;
-	 summaryOutput<<"# of noisy cells: "<<counterNoisyCells<<endl;
+	 if(StationHasData){
+	   summaryOutput<<" ------------ "<<endl;
+	   summaryOutput<<"MB"<<St<<"_W"<<W<<"_Sec"<<Sec<<endl;
+	   summaryOutput<<"# of somehow noisy cells: "<<counterSomehowNoisyCells<<endl;
+	   summaryOutput<<"# of noisy cells: "<<counterNoisyCells<<endl;
+	 }
 
        } // loop on stations
      } // loop on sectors
