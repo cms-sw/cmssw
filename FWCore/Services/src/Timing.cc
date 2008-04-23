@@ -6,8 +6,13 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.10 2007/06/14 21:03:39 wmtan Exp $
+// $Id: Timing.cc,v 1.11 2007/06/29 03:43:26 wmtan Exp $
 //
+// Change Log
+//
+// 1 - mf 4/22/08   Facilitate summary output to jub report and logs:
+//		    In Timing ctor, default for report_summary_ changed to true 
+//                  In postEndJob, add output to logger
 
 #include "FWCore/Services/interface/Timing.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -35,7 +40,7 @@ namespace edm {
 
     Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
       summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly",false)),
-      report_summary_(iPS.getUntrackedParameter<bool>("useJobReport",false)),
+      report_summary_(iPS.getUntrackedParameter<bool>("useJobReport",true)),
       max_event_time_(0.),
       min_event_time_(0.),
       total_event_count_(0)
@@ -75,7 +80,7 @@ namespace edm {
       double t = getTime() - curr_job_;
       double average_event_t = t / total_event_count_;
       //edm::LogInfo("TimeReport")
-      edm::LogAbsolute("TimeReport")
+      edm::LogAbsolute("TimeReport")				// Changelog 1
 	<< "TimeReport> Time report complete in "
 	<< t << " seconds"
 	<< "\n"
