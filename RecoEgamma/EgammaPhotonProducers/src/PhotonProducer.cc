@@ -8,8 +8,9 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -132,10 +133,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   const CaloSubdetectorGeometry *endcapGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *preshowerGeometry = theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
-
+  edm::ESHandle<CaloTopology> pTopology;
   theEventSetup.get<CaloTopologyRecord>().get(theCaloTopo_);
-  const CaloSubdetectorTopology *barrelTopology = theCaloTopo_->getSubdetectorTopology(DetId::Ecal, EcalBarrel); 
-  const CaloSubdetectorTopology *endcapTopology = theCaloTopo_->getSubdetectorTopology(DetId::Ecal, EcalEndcap); 
+  const CaloTopology *topology = theCaloTopo_.product();
 
 
   ///// Get the conversion collection
@@ -193,8 +193,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,barrelTopology,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,endcapTopology,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -207,7 +207,7 @@ void PhotonProducer::fillPhotonCollection(
 		   const edm::Handle<reco::SuperClusterCollection> & scHandle,
 		   const CaloSubdetectorGeometry *geometry,
 		   const CaloSubdetectorGeometry *geometryES,
-		   const CaloSubdetectorTopology *topology,
+		   const CaloTopology *topology,
 		   const EcalRecHitCollection *hits,
 		   HBHERecHitMetaCollection *mhbhe,
                    const edm::Handle<reco::ConversionCollection> & conversionHandle,
@@ -217,7 +217,6 @@ void PhotonProducer::fillPhotonCollection(
 
   reco::SuperClusterCollection scCollection = *(scHandle.product());
   reco::SuperClusterCollection::iterator aClus;
-  //  reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
   reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
 
   reco::ConversionCollection conversionCollection;
@@ -241,18 +240,14 @@ void PhotonProducer::fillPhotonCollection(
     if (HoE>=maxHOverE_)  continue;
     
     
-    // get ClusterShapeRef
-    //    seedShpItr = clshpMap.find(aClus->seed());
-    // assert(seedShpItr != clshpMap.end());
-    //const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos = posCalculator_.Calculate_Location(aClus->seed()->getHitsByDetId(),hits,geometry,geometryES);
     
     // compute position of ECAL shower
-    float e3x3=  clusterShape_.e3x3(  *(aClus->seed()), &(*hits), &(*topology)); 
+    float e3x3=   EcalClusterTools::e3x3(  *(aClus->seed()), &(*hits), &(*topology)); 
     float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
-    float e5x5=clusterShape_.e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
+    float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
 
     math::XYZPoint caloPosition;
     double photonEnergy=0;
