@@ -1,4 +1,7 @@
 #include "DataFormats/TauReco/interface/CaloTauTagInfo.h"
+using namespace std;
+using namespace edm;
+using namespace reco;
 
 CaloTauTagInfo* CaloTauTagInfo::clone()const{return new CaloTauTagInfo(*this);}
     

@@ -12,9 +12,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
 
 namespace reco{ 
   class BaseTauTagInfo {
@@ -23,10 +20,10 @@ namespace reco{
     virtual ~BaseTauTagInfo(){};
     
     // Tracks which are components of JetTracksAssociation object and which were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredTracks(.,...) function through RecoTauTag/RecoTauTag/ CaloRecoTauTagInfoProducer or PFRecoTauTagInfoProducer EDProducer
-    const TrackRefVector& Tracks()const;
+    const reco::TrackRefVector& Tracks()const;
     void setTracks(const TrackRefVector);
   protected:
-    TrackRefVector Tracks_;
+    reco::TrackRefVector Tracks_;
   };
 }
 

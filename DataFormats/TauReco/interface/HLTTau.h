@@ -13,7 +13,6 @@
 
 
 
-using namespace reco;
 
 namespace reco {
   class HLTTau {

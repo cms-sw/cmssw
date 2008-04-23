@@ -17,7 +17,6 @@
 
 #include <limits>
 
-using namespace reco;
 
 namespace reco {
   class PFTau : public BaseTau {

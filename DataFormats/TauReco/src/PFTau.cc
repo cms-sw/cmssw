@@ -1,4 +1,5 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
+using namespace reco;
 
 PFTau::PFTau(){
   PFCandidateRef pfLead;

@@ -15,9 +15,6 @@
 #include "DataFormats/TauReco/interface/PFTauTagInfoFwd.h"
 #include "DataFormats/TauReco/interface/BaseTauTagInfo.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
 
 namespace reco{ 
   class PFTauTagInfo : public BaseTauTagInfo {

@@ -15,9 +15,6 @@
 #include "DataFormats/TauReco/interface/BaseTauTagInfo.h"
 #include "DataFormats/TauReco/interface/CaloTauTagInfoFwd.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
 
 namespace reco{ 
   class CaloTauTagInfo : public BaseTauTagInfo {
@@ -30,15 +27,15 @@ namespace reco{
     const CaloJetRef& calojetRef()const;
     void setcalojetRef(const CaloJetRef);
 
-    const vector<pair<math::XYZPoint,float> > positionAndEnergyECALRecHits()const;
-    void setpositionAndEnergyECALRecHits(vector<pair<math::XYZPoint,float> >);
+    const std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits()const;
+    void setpositionAndEnergyECALRecHits(std::vector<std::pair<math::XYZPoint,float> >);
 
-    const vector<BasicClusterRef> neutralECALBasicClusters()const;
-    void setneutralECALBasicClusters(vector<BasicClusterRef>);
+    const std::vector<BasicClusterRef> neutralECALBasicClusters()const;
+    void setneutralECALBasicClusters(std::vector<BasicClusterRef>);
   private:
     CaloJetRef CaloJetRef_;
-    vector<pair<math::XYZPoint,float> > positionAndEnergyECALRecHits_;
-    vector<BasicClusterRef> neutralECALBasicClusters_;
+    std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits_;
+    std::vector<BasicClusterRef> neutralECALBasicClusters_;
   };
 }
 

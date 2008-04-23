@@ -1,5 +1,7 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 
+using namespace reco;
+
 CaloTau::CaloTau() {  
   maximumHCALhitEt_ = NAN;
   leadTracksignedSipt_=NAN;
@@ -51,7 +53,7 @@ void CaloTau::setisolationECALhitsEtSum(const float& x){isolationECALhitsEtSum_=
 float CaloTau::maximumHCALhitEt()const{return maximumHCALhitEt_;}
 void CaloTau::setmaximumHCALhitEt(const float& x){maximumHCALhitEt_=x;}
 
-bool CaloTau::overlap(const Candidate& theCand)const{
-  const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
+bool CaloTau::overlap(const reco::Candidate& theCand)const{
+  const reco::RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
   return (theRecoCand!=0 && (checkOverlap(track(),theRecoCand->track())));
 }

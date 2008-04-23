@@ -15,8 +15,6 @@
 
 #include <limits>
 
-using namespace reco;
-
 namespace reco {
   class CaloTau : public BaseTau {
   public:

@@ -14,7 +14,6 @@
 
 #include <limits>
 
-using namespace reco;
 
 namespace reco {
   class BaseTau : public RecoCandidate {
@@ -29,22 +28,22 @@ namespace reco {
     void setalternatLorentzVect(math::XYZTLorentzVector);
     
     // leading Track
-    const TrackRef& leadTrack()const;
+    const reco::TrackRef& leadTrack()const;
     void setleadTrack(const TrackRef&);
     
     // Tracks which passed quality cuts and are inside a tracker signal cone around leading Track 
-    const TrackRefVector& signalTracks()const;
+    const reco::TrackRefVector& signalTracks()const;
     void setsignalTracks(const TrackRefVector&);
  
     // Tracks which passed quality cuts and are inside a tracker isolation annulus around leading Track 
-    const TrackRefVector& isolationTracks()const;
+    const reco::TrackRefVector& isolationTracks()const;
     void setisolationTracks(const TrackRefVector&);  
   private:
     // check overlap with another candidate
     virtual bool overlap(const Candidate&)const;
     math::XYZTLorentzVector alternatLorentzVect_;
-    TrackRef leadTrack_;
-    TrackRefVector signalTracks_, isolationTracks_;
+    reco::TrackRef leadTrack_;
+    reco::TrackRefVector signalTracks_, isolationTracks_;
   };
 }
 #endif

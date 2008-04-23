@@ -1,4 +1,7 @@
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
+using namespace std;
+using namespace edm;
+using namespace reco;
 
 PFTauTagInfo* PFTauTagInfo::clone()const{return new PFTauTagInfo(*this);}
 
