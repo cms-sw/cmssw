@@ -25,7 +25,6 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips{
   bool peak;
   double clusterWidth;
   std::vector<double> signalCoupling; 
-  std::vector<double> coupling_costant;
   double geVperElectron;
 };
 
