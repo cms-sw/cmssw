@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -57,6 +58,92 @@ PixelBarrelName::PixelBarrelName(const DetId & id)
   theModule = abs(oldModule);
  
 }
+
+// constructor from name string
+PixelBarrelName::PixelBarrelName(std::string name) 
+  : PixelModuleName(true), thePart(mO), theLayer(0),
+    theModule(0), theLadder(0) {
+
+  // parse the name string
+  // first, check to make sure this is an BPix name, should start with "BPix_"
+  // also check to make sure the needed parts are present
+  if ( (name.substr(0, 5) != "BPix_") ||
+       (name.find("_B") == string::npos) || 
+       (name.find("_LYR") == string::npos) ||
+       (name.find("_LAD") == string::npos) || 
+       (name.find("_MOD") == string::npos) ) {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Bad name string in PixelBarrelName::PixelBarrelName(std::string): "
+      << name;
+    return;
+  }
+
+  // strip off ROC part if it's there
+  if (name.find("_ROC") != string::npos)
+    name = name.substr(0, name.find("_ROC"));
+
+  // find shell
+  string shellString = name.substr(name.find("_B")+2, name.find("_SEC")-name.find("_B")-2);
+  if (shellString == "mO") thePart = mO;
+  else if (shellString == "mI") thePart = mI;
+  else if (shellString == "pO") thePart = pO;
+  else if (shellString == "pI") thePart = pI;
+  else {
+    edm::LogError ("BadNameString|SiPixel")
+      << "Unable to determine shell in PixelBarrelName::PixelBarrelName(std::string): "
+      << name;
+  }
+
+  // find the layer
+  int theLayer = 0;
+  string layerString = name.substr(name.find("_LYR")+4, name.find("_LDR")-name.find("_LYR")-4);
+  cout << "layerString: " << layerString << endl;
+  if (layerString == "1") theLayer = 1;
+  else if (layerString == "2") theLayer = 2;
+  else if (layerString == "3") theLayer = 3;
+  else {
+    edm::LogError ("BadNameString|SiPixel")
+      << "Unable to determine layer in PixelBarrelName::PixelBarrelName(std::string): "
+      << name;
+  }
+
+  // find the ladder
+  string ladderString = name.substr(name.find("_LDR")+4, name.find("_MOD")-name.find("_LDR")-4);
+  if (ladderString == "1H") theLadder = 1;
+  else if (ladderString == "10H" && theLayer == 1) theLadder = 10;
+  else if (ladderString == "16H" && theLayer == 2) theLadder = 16;
+  else if (ladderString == "22H" && theLayer == 3) theLadder = 22;
+  else if (ladderString.substr(ladderString.size()-1, 1) == "F") {
+    int ladderNum = atoi(ladderString.substr(0, ladderString.size() -1).c_str());
+    if (theLayer == 1 && ladderNum > 1 && ladderNum < 10) theLadder = ladderNum;
+    else if (theLayer == 2 && ladderNum > 1 && ladderNum < 16) theLadder = ladderNum;
+    else if (theLayer == 3 && ladderNum > 1 && ladderNum < 22) theLadder = ladderNum;
+    else {
+      edm::LogError ("BadNameString|SiPixel")
+	<< "Unable to determine ladder in PixelBarrelName::PixelBarrelName(std::string): "
+	<< name;
+    }
+  } // full ladders
+  else {
+    edm::LogError ("BadNameString|SiPixel")
+      << "Unable to determine ladder in PixelBarrelName::PixelBarrelName(std::string): "
+      << name;
+  }
+
+  // find the module
+  string moduleString = name.substr(name.find("_MOD")+4, name.size()-name.find("_MOD")-4);
+  if (moduleString == "1") theModule = 1;
+  else if (moduleString == "2") theModule = 2;
+  else if (moduleString == "3") theModule = 3;
+  else if (moduleString == "4") theModule = 4;
+  else {
+    edm::LogError ("BadNameString|SiPixel")
+      << "Unable to determine module in PixelBarrelName::PixelBarrelName(std::string): "
+      << name;
+  }
+
+
+} // PixelBarrelName::PixelBarrelName(std::string name)
 
 int PixelBarrelName::sectorName() const
 {
@@ -139,6 +226,55 @@ string PixelBarrelName::name() const
 
    return stm.str();
 }
+
+// return the DetId
+PXBDetId PixelBarrelName::getDetId() {
+  
+  uint32_t layer = 0;
+  uint32_t ladder = 0;
+  uint32_t module = 0;
+
+  layer = layerName();
+  uint32_t tmpLadder = ladderName();
+  uint32_t tmpModule = moduleName();
+
+  // translate the ladder number from the naming convention to the cmssw convention
+  bool outer = false;
+  Shell shell = thePart;
+  outer = (shell == mO) || (shell == pO);
+  if (outer) {
+    if (layer == 1)
+      ladder = tmpLadder + 5;
+    else if (layer == 2)
+      ladder = tmpLadder + 8;
+    else if (layer == 3)
+      ladder = tmpLadder + 11;
+  } // outer
+  else { // inner
+    if (layer == 1) {
+      if (tmpLadder <= 5) ladder = 6 - tmpLadder;
+      else if (tmpLadder <= 10) ladder = 26 - tmpLadder;
+    } // layer 1
+    else if (layer == 2) {
+      if (tmpLadder <= 8) ladder = 9 - tmpLadder;
+      else if (tmpLadder <= 16) ladder = 41 - tmpLadder;
+    } // layer 2
+    else if (layer == 2) {
+      if (tmpLadder <= 11) ladder = 12 - tmpLadder;
+      else if (tmpLadder <= 22) ladder = 56 - tmpLadder;
+    } // layer 3
+  } // inner
+
+  // translate the module number from naming convention to cmssw convention
+  // numbering starts at positive z
+  if (shell == pO || shell == pI)
+    module = 5 - tmpModule;
+  else // negative z side
+    module = tmpModule + 4;
+
+  return PXBDetId(layer, ladder, module);
+
+} // PXBDetId PixelBarrelName::getDetId()
 
 std::ostream & operator<<( std::ostream& out, const PixelBarrelName::Shell& t)
 {

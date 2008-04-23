@@ -7,6 +7,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include <string>
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 class DetId; 
 
@@ -23,6 +24,9 @@ public:
     : PixelModuleName(true), 
       thePart(shell), theLayer(layer), theModule(module), theLadder(ladder) 
   { }
+
+  /// ctor from name string
+  PixelBarrelName(std::string name);
 
   virtual ~PixelBarrelName() { }
 
@@ -47,7 +51,10 @@ public:
   bool isHalfModule() const;
   
   /// module Type
-   virtual PixelModuleName::ModuleType  moduleType() const;
+  virtual PixelModuleName::ModuleType  moduleType() const;
+
+  /// return the DetId
+  PXBDetId getDetId();
 
   /// check equality of modules from datamemebers
   virtual bool operator== (const PixelModuleName &) const;

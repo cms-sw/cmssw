@@ -4,6 +4,8 @@
 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 PixelEndcapName::PixelEndcapName(const DetId & id)
@@ -34,6 +36,99 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
   thePannel = cmssw_numbering.panel();
   thePlaquette = cmssw_numbering.module();
 }
+
+// constructor from name string
+PixelEndcapName::PixelEndcapName(std::string name)
+  : PixelModuleName(false), thePart(mO), theDisk(0), 
+    theBlade(0), thePannel(0), thePlaquette(0) {
+
+  // parse the name string
+  // first, check to make sure this is an FPix name, should start with "FPix_"
+  // also check to make sure the needed parts are present
+  if ( (name.substr(0, 5) != "FPix_") ||
+       (name.find("_B") == string::npos) || 
+       (name.find("_D") == string::npos) ||
+       (name.find("_BLD") == string::npos) || 
+       (name.find("_PNL") == string::npos) ||
+       (name.find("_PLQ") == string::npos) ) {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Bad name string in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+    return;
+  }
+
+  // strip off ROC part if it's there
+  if (name.find("_ROC") != string::npos)
+    name = name.substr(0, name.find("_ROC"));
+
+  // get the half cylinder
+  string hcString = name.substr(name.find("_B")+2, name.find("_D")-name.find("_B")-2);
+  if (hcString == "mO") thePart = mO;
+  else if (hcString == "mI") thePart = mI;
+  else if (hcString == "pO") thePart = pO;
+  else if (hcString == "pI") thePart = pI;
+  else {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Unable to determine half cylinder in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+  }
+
+  // get the disk
+  string diskString = name.substr(name.find("_D")+2, name.find("_BLD")-name.find("_D")-2);
+  if (diskString == "1") theDisk = 1;
+  else if (diskString == "2") theDisk = 2;
+  else if (diskString == "3") theDisk = 3;
+  else {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Unable to determine disk number in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+  }
+
+  // get the blade
+  string bladeString = name.substr(name.find("_BLD")+4, name.find("_PNL")-name.find("_BLD")-4);
+  // since atoi() doesn't report errors, do it the long way
+  if (bladeString == "1") theBlade = 1;
+  else if (bladeString == "2") theBlade = 2;
+  else if (bladeString == "3") theBlade = 3;
+  else if (bladeString == "4") theBlade = 4;
+  else if (bladeString == "5") theBlade = 5;
+  else if (bladeString == "6") theBlade = 6;
+  else if (bladeString == "7") theBlade = 7;
+  else if (bladeString == "8") theBlade = 8;
+  else if (bladeString == "9") theBlade = 9;
+  else if (bladeString == "10") theBlade = 10;
+  else if (bladeString == "11") theBlade = 11;
+  else if (bladeString == "12") theBlade = 12;
+  else {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Unable to determine blade number in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+  }
+
+  // find the panel
+  string panelString = name.substr(name.find("_PNL")+4, name.find("_PLQ")-name.find("_PNL")-4);
+  if (panelString == "1") thePannel = 1;
+  else if (panelString == "2") thePannel = 2;
+  else {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Unable to determine panel number in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+  }
+
+  // find the plaquette
+  int thePlaquette = 0;
+  string plaquetteString = name.substr(name.find("_PLQ")+4, name.size()-name.find("_PLQ")-4);
+  if (plaquetteString == "1") thePlaquette = 1;
+  else if (plaquetteString == "2") thePlaquette = 2;
+  else if (plaquetteString == "3") thePlaquette = 3;
+  else if (plaquetteString == "4") thePlaquette = 4;
+  else {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Unable to determine plaquette number in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+  }
+
+} // PixelEndcapName::PixelEndcapName(std::string name)
 
 PixelModuleName::ModuleType  PixelEndcapName::moduleType() const
 {
@@ -85,3 +180,38 @@ std::ostream & operator<<( std::ostream& out, const PixelEndcapName::HalfCylinde
   return out;
 }
 
+// return the DetId
+PXFDetId PixelEndcapName::getDetId() {
+  
+  uint32_t side = 0;
+  uint32_t disk = 0;
+  uint32_t blade = 0;
+  uint32_t panel = 0;
+  uint32_t module = 0;
+
+  // figure out the side
+  HalfCylinder hc = halfCylinder();
+  if (hc == mO || hc == mI) side = 1;
+  else if (hc == pO || hc == pI) side = 2;
+  
+  // get disk/blade/panel/module numbers from PixelEndcapName object
+  disk = static_cast<uint32_t>(diskName());
+  uint32_t tmpBlade = static_cast<uint32_t>(bladeName());
+  panel = static_cast<uint32_t>(pannelName());
+  module = static_cast<uint32_t>(plaquetteName());
+
+  // convert blade numbering to cmssw convention
+  bool outer = false;
+  outer = (hc == mO) || (hc == pO);
+  if (outer) {
+    blade = tmpBlade + 6;
+  }
+  else { // inner
+    if (tmpBlade <= 6) blade = 7 - tmpBlade;
+    else if (tmpBlade <= 12) blade = 31 - tmpBlade;
+  }
+
+  // create and return the DetId
+  return PXFDetId(side, disk, blade, panel, module);
+
+} // PXFDetId PixelEndcapName::getDetId()

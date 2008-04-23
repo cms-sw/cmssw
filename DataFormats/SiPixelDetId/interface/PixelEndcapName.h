@@ -9,6 +9,7 @@
 
 #include <string>
 #include <iostream>
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 class DetId;
 
@@ -25,6 +26,9 @@ public:
     : PixelModuleName(false), 
       thePart(part), theDisk(disk), theBlade(blade), thePannel(pannel), thePlaquette(plaq)
   { }
+
+  /// ctor from name string
+  PixelEndcapName(std::string name);
 
   virtual ~PixelEndcapName() { }
 
@@ -47,6 +51,9 @@ public:
 
   /// module Type
    virtual PixelModuleName::ModuleType  moduleType() const;
+
+  /// return DetId
+  PXFDetId getDetId(); 
 
   /// check equality of modules from datamemebers
   virtual bool operator== (const PixelModuleName &) const;
