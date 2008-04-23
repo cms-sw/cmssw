@@ -567,7 +567,7 @@ namespace pos{
       //std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted base:"<<base<<std::endl;
       //std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted ext :"<<ext<<std::endl;
     
-      ostringstream s1;
+      std::ostringstream s1;
       s1 << version;
       std::string strversion=s1.str();
 
@@ -723,7 +723,7 @@ namespace pos{
       if (stat(directory.c_str(),&stbuf)!=0){
         
 	std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tThe path:"<<path<<" does not exist."<<std::endl;
-	std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tFull path:"<<directory<<endl;
+	std::cout << "[pos::PixelConfigFile::makeNewVersion()]\t\tFull path:"<<directory<<std::endl;
 	return -1;
       }
       directory+="/";
@@ -752,11 +752,11 @@ namespace pos{
 
     template <class T>
     static int put(std::vector<T*> objects, std::string path){
-      cout << "[pos::PixelConfigFile::put()]\t\t# of objects to write: "<< objects.size() << endl;
+      std::cout << "[pos::PixelConfigFile::put()]\t\t# of objects to write: "<< objects.size() << std::endl;
       std::string dir;
       int version=makeNewVersion(path,dir);
       for(unsigned int i=0;i<objects.size();i++){
-	cout << "[pos::PixelConfigFile::put()]\t\tWill write i="<<i<<" ptr: "<<objects[i]<<endl;
+	std::cout << "[pos::PixelConfigFile::put()]\t\tWill write i="<<i<<" ptr: "<<objects[i]<<std::endl;
 	objects[i]->writeASCII(dir);
       }
       return version;

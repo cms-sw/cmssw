@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 using namespace pos;
-
+using namespace std;
 
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {

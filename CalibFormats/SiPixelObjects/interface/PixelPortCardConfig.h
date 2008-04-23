@@ -12,7 +12,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 namespace pos{
-  using namespace std;
 
 /*!  \ingroup ConfigurationObjects "Configuration Objects"
 *    
@@ -69,7 +68,7 @@ namespace pos{
     unsigned int ccuAddress_;//CCU #
 
     unsigned int channelAddress_;//there are 8? channels on a CCU board
-    vector < pair<unsigned int, unsigned int> > device_;//the address on the portcard, and the value of it
+    std::vector < std::pair<unsigned int, unsigned int> > device_;//the address on the portcard, and the value of it
     unsigned int i2cSpeed_;//for the portcard, the slow i2c speed is 100kHz
   
     std::string type_; // fpix or bpix, used to determine setting names and addresses
