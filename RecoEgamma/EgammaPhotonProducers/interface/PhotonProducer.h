@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.16 2008/03/03 20:38:00 nancy Exp $ 
- **  $Date: 2008/03/03 20:38:00 $ 
- **  $Revision: 1.16 $
+ **  $Id: PhotonProducer.h,v 1.17 2008/04/21 23:22:55 nancy Exp $ 
+ **  $Date: 2008/04/21 23:22:55 $ 
+ **  $Revision: 1.17 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -45,7 +45,7 @@ class PhotonProducer : public edm::EDProducer {
   void fillPhotonCollection(const edm::Handle<reco::SuperClusterCollection> & scHandle,
 			    const CaloSubdetectorGeometry *geometry,
 			    const CaloSubdetectorGeometry *geometryES,
-                            const CaloSubdetectorTopology *topology,
+                            const CaloTopology *topology,
 			    const EcalRecHitCollection *hits,
 			    HBHERecHitMetaCollection *mhbhe,
 			    const edm::Handle<reco::ConversionCollection> & conversionHandle,
@@ -83,7 +83,7 @@ class PhotonProducer : public edm::EDProducer {
   edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
-  EcalClusterTools clusterShape_;  
+ 
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
