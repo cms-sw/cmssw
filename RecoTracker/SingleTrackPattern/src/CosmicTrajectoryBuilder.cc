@@ -293,9 +293,12 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	 }
 	 else  icosm2=Hits.size();
        }
-       LogDebug("CosmicTrackFinder")<<"Chi2 contribution for hit at "
-				    <<RHBuilder->build(Hits[ibestdet])->globalPosition()
-				    <<" is "<<chi2min;
+
+       if(chi2min<chi2cut) 
+	 LogDebug("CosmicTrackFinder")<<"Chi2 contribution for hit at "
+				      <<RHBuilder->build(Hits[ibestdet])->globalPosition()
+				      <<" is "<<chi2min;
+
        if(traj.foundHits()<3 &&(chi2min<chi2cut)){
 	 //check on the first hit after the seed
  	 GlobalVector ck=RHBuilder->build(Hits[ibestdet])->globalPosition()-
