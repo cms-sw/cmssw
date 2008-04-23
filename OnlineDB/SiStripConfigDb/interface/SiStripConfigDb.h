@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.57 2008/04/22 12:41:33 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.58 2008/04/23 12:17:48 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -54,6 +54,7 @@ class SiStripConfigDb {
   
  public:
 
+
   // ---------- Constructors, destructors ----------
 
   
@@ -66,7 +67,9 @@ class SiStripConfigDb {
   /** Default destructor. */
   ~SiStripConfigDb();
   
+
   // ---------- PROTECTED INTERFACE ----------
+
   
  protected:
   
@@ -103,7 +106,9 @@ class SiStripConfigDb {
   friend class PopulateConfigDb;
   friend class testSiStripConfigDb;
 
+
   // ---------- Typedefs ----------
+
 
 #ifdef USING_NEW_DATABASE_MODEL
   typedef ConnectionDescription FedConnection;
@@ -130,7 +135,9 @@ class SiStripConfigDb {
   typedef CommissioningAnalysisDescription AnalysisDescription;
   typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
 
+
   // ---------- Useful structs ----------
+
 
   /** Class that holds addresses that uniquely identify a hardware
       component within the control system. */
@@ -149,8 +156,10 @@ class SiStripConfigDb {
     uint16_t feUnit_;
     uint16_t feChan_;
   };
+
   
-  // ---------- Connection and local cache ----------
+  // ---------- Connection and useful methods ----------
+
   
   /** Establishes connection to DeviceFactory API. */
   void openDbConnection();
@@ -170,7 +179,15 @@ class SiStripConfigDb {
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DbClient* const databaseCache( std::string method_name = "" ) const;
   
+  /** Updates versions for specified partition. */
+  void useVersions( SiStripPartition& );
+  
+  /** Updates versions for specified partition and run. */
+  void useRunNumber( SiStripPartition& );
+  
+  
   // ---------- FED connections ----------
+
 
   /** Returns local cache (just for given partition if specified). */
   FedConnections::range getFedConnections( std::string partition = "" );
@@ -187,7 +204,9 @@ class SiStripConfigDb {
   /** Prints local cache (just for given partition if specified). */
   void printFedConnections( std::string partition = "" );
   
+
   // ---------- FEC / Front-End devices ---------- 
+
   
   /** Returns local cache (just for given partition if specified). */
   DeviceDescriptions::range getDeviceDescriptions( std::string partition = "" ); 
@@ -212,7 +231,9 @@ class SiStripConfigDb {
   /** Extracts unique hardware address of device from description. */
   DeviceAddress deviceAddress( const deviceDescription& ); //@@ uses temp offsets!
   
+
   // ---------- FED descriptions ----------
+
 
   /** Fills local cache with FED descriptions from DB/xml. */
   const FedDescriptions& getFedDescriptions();
@@ -232,7 +253,20 @@ class SiStripConfigDb {
   /** Enable/disable strip info within FED descriptions. */
   inline void usingStrips( bool );
   
+
+  // ---------- DCU-DetId info ----------
+
+
+  /** Returns the DcuId-DetId map. If the local cache is empty, it
+      retrieves the DcuId-DetId map from the DB/xml file. */
+  const DcuDetIdMap& getDcuDetIdMap();
+  
+  /** Uploads the contents of the local cache to DB/xml file. */
+  void uploadDcuDetIdMap();
+  
+
   // ---------- Commissioning analyses ---------- 
+
   
 #ifdef USING_NEW_DATABASE_MODEL
   
@@ -267,18 +301,12 @@ class SiStripConfigDb {
   
 #endif
   
-  // ---------- DCU-DetId info ----------
 
-  /** Returns the DcuId-DetId map. If the local cache is empty, it
-      retrieves the DcuId-DetId map from the DB/xml file. */
-  const DcuDetIdMap& getDcuDetIdMap();
-  
-  /** Uploads the contents of the local cache to DB/xml file. */
-  void uploadDcuDetIdMap();
-  
  private:
 
+
   // ---------- Private methods ----------
+
 
   /** */
   void usingDatabase();
@@ -299,14 +327,10 @@ class SiStripConfigDb {
   /** Returns device identifier based on device type. */
   std::string deviceType( const enumDeviceType& device_type ) const;
 
-  /** */
-  void forceVersionsDefinedInCfg( SiStripDbParams::SiStripPartitions::iterator );
-
-  /** */
-  void versionsInferredFromRunNumber( SiStripDbParams::SiStripPartitions::iterator );
   
   // ---------- Database connection, partitions and versions ----------
 
+  
   /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
 
@@ -316,7 +340,9 @@ class SiStripConfigDb {
   /** Instance of struct that holds all DB connection parameters. */
   SiStripDbParams dbParams_;
 
+
   // ---------- Local cache of vectors ----------
+
 
   /** FED-FEC connection descriptions. */
   FedConnections connections_;
@@ -343,7 +369,9 @@ class SiStripConfigDb {
   /** FED ids. */ 
   std::vector<uint16_t> fedIds_;
   
+
   // ---------- Miscellaneous ----------
+
   
   /** Switch to enable/disable transfer of strip information. */
   bool usingStrips_;
@@ -355,10 +383,13 @@ class SiStripConfigDb {
   static uint32_t cntr_;
 
   static bool allowCalibUpload_;
+
   
 };
 
+
 // ---------- Inline methods ----------
+
 
 /** Returns database connection parameters. */
 const SiStripDbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
@@ -371,5 +402,6 @@ const bool& SiStripConfigDb::usingStrips() const { return usingStrips_; }
 
 /** Switches on/off of upload/download for FED strip info. */
 void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
+
 
 #endif // OnlineDB_SiStripConfigDb_SiStripConfigDb_h
