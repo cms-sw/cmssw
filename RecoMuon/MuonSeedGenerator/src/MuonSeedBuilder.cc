@@ -541,7 +541,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     usedCSClist2B[index] = true;
   }
 
-<<<<<<< MuonSeedBuilder.cc
   // Loop over all possible ME3 segment to form seeds:
   index = -1;
   for (SegmentContainer::iterator it = CSClist3B.begin(); it != CSClist3B.end(); ++it ){
@@ -584,7 +583,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     usedCSClist3B[index] = true;
   }
 
-=======
   // Loop over all possible ME2 segment to form seeds:
   index = -1;
   for (SegmentContainer::iterator it = CSClist3B.begin(); it != CSClist3B.end(); ++it ){
@@ -627,7 +625,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
     usedCSClist3B[index] = true;
   }
 
->>>>>>> 1.7
 
   /* *********************************************************************************************************************
    * Form seeds from forward endcap
