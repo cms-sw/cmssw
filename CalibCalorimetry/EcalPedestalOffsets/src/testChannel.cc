@@ -1,8 +1,8 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2007/12/20 20:05:15 $
- * $Revision: 1.8 $
+ * $Date: 2008/01/22 19:08:11 $
+ * $Revision: 1.9 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -16,7 +16,7 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/testChannel.h"
 
 //! ctor
-testChannel::testChannel (const ParameterSet& paramSet) :
+testChannel::testChannel (const edm::ParameterSet& paramSet) :
   m_digiCollection (paramSet.getParameter<std::string> ("digiCollection")) ,
   m_digiProducer (paramSet.getParameter<std::string> ("digiProducer")) ,
   m_headerProducer (paramSet.getParameter<std::string> ("headerProducer")) ,
@@ -46,15 +46,15 @@ testChannel::~testChannel ()
 
 
 //! begin the job
-void testChannel::beginJob (EventSetup const& eventSetup)
+void testChannel::beginJob (edm::EventSetup const& eventSetup)
 {
    LogDebug ("testChannel") << "entering beginJob ..." ;
 }
 
 
 //! perform te analysis
-void testChannel::analyze (Event const& event, 
-                           EventSetup const& eventSetup) 
+void testChannel::analyze (edm::Event const& event, 
+                           edm::EventSetup const& eventSetup) 
 {
    LogDebug ("testChannel") << "entering analyze ..." ;
 
@@ -83,7 +83,7 @@ void testChannel::analyze (Event const& event,
 
    // get the digis
    // (one digi for each crystal)
-   Handle<EBDigiCollection> pDigis;
+   edm::Handle<EBDigiCollection> pDigis;
    event.getByLabel (m_digiProducer, pDigis) ;
    if(!pDigis.isValid())
    {
