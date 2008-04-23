@@ -26,6 +26,20 @@ class MixCollection {
   // false if at least one of the subdetectors was not found in registry
   bool inRegistry() const {return inRegistry_;}
 
+  // get object the index of which -in the whole collection- is known
+  const T & getObject(unsigned int ip) const { 
+    if (ip<0 || ip>=(unsigned int)size()) throw cms::Exception("BadIndex")<<"MixCollection::getObject called with an invalid index!";
+    int n=ip;
+    int iframe=0;
+    for (unsigned int ii=0;ii<crossingFrames_.size();++ii) {
+      iframe=ii;
+      int s=crossingFrames_[iframe]->getNrSignals()+crossingFrames_[iframe]->getNrPileups();
+      if (n<s) break;
+      n=n-s;
+    }
+    return crossingFrames_[iframe]->getObject(n);
+  }
+
   class MixItr;
   friend class MixItr;
 
@@ -56,7 +70,9 @@ class MixCollection {
       int bcr= myCF_->getBunchCrossing(internalCtr_);
       return bcr;
     }
+
     bool getTrigger() const {return trigger_;}
+
     int getSourceType() const {return (getTrigger() ? -1 : myCF_->getSourceType(internalCtr_));}
 
   private:

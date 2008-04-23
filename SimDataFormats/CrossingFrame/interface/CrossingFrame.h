@@ -67,9 +67,19 @@ class CrossingFrame
     return bcr==lastCrossing_ ? pileups_.size()-pileupOffsetsBcr_[lastCrossing_-firstCrossing_] :pileupOffsetsBcr_[bcr-firstCrossing_+1]- pileupOffsetsBcr_[bcr-firstCrossing_];} 
 
   // get object in pileup when position in the vector is known (for DigiSimLink typically)
-  const T& getObject(unsigned int ip) const { return pileups_[ip];}
 
-  // limits for tof to be considered for trackers
+  const T & getObject(unsigned int ip) const { 
+    if (ip<0 || ip>getNrSignals()+getNrPileups()) throw cms::Exception("BadIndex")<<"CrossingFrame::getObject called with an invalid index!";
+    if (ip<getNrSignals()) {
+      return signals_[ip];
+    }
+    else  {
+      return pileups_[ip-getNrSignals()];
+    }
+  }  
+
+
+// limits for tof to be considered for trackers
   static const int lowTrackTof; //nsec
   static const int highTrackTof;
   static const int minLowTof;
