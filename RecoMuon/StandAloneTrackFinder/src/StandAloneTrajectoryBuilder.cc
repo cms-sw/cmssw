@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2007/02/16 13:31:23 $
- *  $Revision: 1.38 $
+ *  $Date: 2007/04/27 14:55:16 $
+ *  $Revision: 1.39 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -15,9 +15,9 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
-#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonFilter.h"
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonBackwardFilter.h"
-#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonSmoother.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonRefitter.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -46,9 +46,9 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   theNavigationType = par.getParameter<string>("NavigationType");
   
   // The inward-outward fitter (starts from seed state)
-  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-  refitterPSet.addParameter<string>("NavigationType",theNavigationType);
-  theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
+  ParameterSet filterPSet = par.getParameter<ParameterSet>("FilterParameters");
+  filterPSet.addParameter<string>("NavigationType",theNavigationType);
+  theFilter = new StandAloneMuonFilter(filterPSet,theService);
 
   // Fit direction
   string seedPosition = par.getParameter<string>("SeedPosition");
@@ -56,8 +56,8 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   if (seedPosition == "in" ) theSeedPosition = recoMuon::in;
   else if (seedPosition == "out" ) theSeedPosition = recoMuon::out;
   else 
-    throw cms::Exception("StandAloneMuonRefitter constructor") 
-      <<"Wrong seed position chosen in StandAloneMuonRefitter::StandAloneMuonRefitter ParameterSet"
+    throw cms::Exception("StandAloneMuonFilter constructor") 
+      <<"Wrong seed position chosen in StandAloneMuonFilter::StandAloneMuonFilter ParameterSet"
       << "\n"
       << "Possible choices are:"
       << "\n"
@@ -67,31 +67,31 @@ StandAloneMuonTrajectoryBuilder::StandAloneMuonTrajectoryBuilder(const Parameter
   theSeedPropagatorName = par.getParameter<string>("SeedPropagator");
   
   // Disable/Enable the backward filter
-  doBackwardRefit = par.getParameter<bool>("DoBackwardRefit");
+  doBackwardFilter = par.getParameter<bool>("DoBackwardFilter");
   
-  // Disable/Enable the smoothing of the trajectory
-  doSmoothing = par.getParameter<bool>("DoSmoothing");
+  // Disable/Enable the refit of the trajectory
+  doRefit = par.getParameter<bool>("DoRefit");
    
-  if(doBackwardRefit){
-    // The outward-inward fitter (starts from theRefitter outermost state)
+  if(doBackwardFilter){
+    // The outward-inward fitter (starts from theFilter outermost state)
     ParameterSet bwFilterPSet = par.getParameter<ParameterSet>("BWFilterParameters");
     //  theBWFilter = new StandAloneMuonBackwardFilter(bwFilterPSet,theService); // FIXME
     bwFilterPSet.addParameter<string>("NavigationType",theNavigationType);
-    theBWFilter = new StandAloneMuonRefitter(bwFilterPSet,theService);
-
+    theBWFilter = new StandAloneMuonFilter(bwFilterPSet,theService);
+    
     theBWSeedType = bwFilterPSet.getParameter<string>("BWSeedType");
   }
 
-  if(doSmoothing){
+  if(doRefit){
     // The outward-inward fitter (starts from theBWFilter innermost state)
-    ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
-    theSmoother = new StandAloneMuonSmoother(smootherPSet,theService);
+    ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
+    theRefitter = new StandAloneMuonRefitter(refitterPSet,theService);
   }
 } 
 
 void StandAloneMuonTrajectoryBuilder::setEvent(const edm::Event& event){
-  theRefitter->setEvent(event);
-   if(doBackwardRefit) theBWFilter->setEvent(event);
+  theFilter->setEvent(event);
+   if(doBackwardFilter) theBWFilter->setEvent(event);
 }
 
 StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
@@ -99,9 +99,9 @@ StandAloneMuonTrajectoryBuilder::~StandAloneMuonTrajectoryBuilder(){
   LogTrace("Muon|RecoMuon|StandAloneMuonTrajectoryBuilder") 
     << "StandAloneMuonTrajectoryBuilder destructor called" << endl;
   
-  if(theRefitter) delete theRefitter;
-  if(doBackwardRefit && theBWFilter) delete theBWFilter;
-  if(doSmoothing && theSmoother) delete theSmoother;
+  if(theFilter) delete theFilter;
+  if(doBackwardFilter && theBWFilter) delete theBWFilter;
+  if(doRefit && theRefitter) delete theRefitter;
 }
 
 
@@ -123,40 +123,38 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   // refine the FTS given by the seed
 
   // the trajectory is filled in the refitter::refit
-  refitter()->refit(inputFromSeed.second,inputFromSeed.first,trajectoryFW);
+  filter()->refit(inputFromSeed.second,inputFromSeed.first,trajectoryFW);
 
   // Get the last TSOS
-  TrajectoryStateOnSurface tsosAfterRefit = refitter()->lastUpdatedTSOS();
+  TrajectoryStateOnSurface tsosAfterRefit = filter()->lastUpdatedTSOS();
 
-  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder REFITTER OUTPUT " << endl ;
+  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder filter output " << endl ;
   LogTrace(metname) << debug.dumpTSOS(tsosAfterRefit);
   
 
-  if( refitter()->layers().size() ) 
-    LogTrace(metname) << debug.dumpLayer( refitter()->lastDetLayer());
+  if( filter()->layers().size() ) 
+    LogTrace(metname) << debug.dumpLayer( filter()->lastDetLayer());
   else return trajectoryContainer; 
   
   LogTrace(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
-       << refitter()->getDTChamberUsed() << "/"
-       << refitter()->getCSCChamberUsed() << "/"
-       << refitter()->getRPCChamberUsed() <<endl;
+       << filter()->getDTChamberUsed() << "/"
+       << filter()->getCSCChamberUsed() << "/"
+       << filter()->getRPCChamberUsed() <<endl;
   LogTrace(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   
 
-  if(!doBackwardRefit){
+  if(!doBackwardFilter){ 
     LogTrace(metname) << "Only forward refit requested. Any backward refit will be performed!"<<endl;
     
-    if (  refitter()->getTotalChamberUsed() >= 2 && 
-	  ((refitter()->getDTChamberUsed() + refitter()->getCSCChamberUsed()) >0 ||
-	   refitter()->onlyRPC()) ){
+    if (filter()->goodState()){
 
-      // Smoothing
-      if (doSmoothing && !trajectoryFW.empty()){
-	pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryFW);
-	if (smoothingResult.first){
-	  trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
-	  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
-	  LogTrace(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
+      // ***** Refit of fwd step *****
+      if (doRefit && !trajectoryFW.empty()){
+	pair<bool,Trajectory> refitResult = refitter()->refit(trajectoryFW);
+	if (refitResult.first){
+	  trajectoryContainer.push_back(new Trajectory(refitResult.second));
+	  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder refit output " << endl ;
+	  LogTrace(metname) << debug.dumpTSOS(refitResult.second.lastMeasurement().updatedState());
 	}
 	else
 	  trajectoryContainer.push_back(new Trajectory(trajectoryFW));
@@ -169,15 +167,11 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     else LogTrace(metname)<< "Trajectory NOT saved. No enough number of tracking chamber used!" << endl;
     
     return trajectoryContainer;
-  }
+  } 
 
-  // FIXME put the possible choices: (factory???)
-  // fw_low-granularity + bw_high-granularity
-  // fw_high-granularity + smoother
-  // fw_low-granularity + bw_high-granularity + smoother (not yet sure...)
 
-  // BackwardFiltering
-
+  // ***** Backward filtering *****
+  
   TrajectorySeed seedForBW;
 
   if(theBWSeedType == "noSeed"){
@@ -191,8 +185,9 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     PTrajectoryStateOnDet *seedTSOS =
       tsTransform.persistentState( tsosAfterRefit, trajectoryFW.lastMeasurement().recHit()->geographicalId().rawId());
     
-    edm::OwnVector<TrackingRecHit> recHitsContainer; // FIXME!!
-    TrajectorySeed fwFit(*seedTSOS,recHitsContainer,alongMomentum);
+    edm::OwnVector<TrackingRecHit> recHitsContainer;
+    PropagationDirection seedDirection = (theSeedPosition == recoMuon::in) ?  oppositeToMomentum : alongMomentum;
+    TrajectorySeed fwFit(*seedTSOS,recHitsContainer,seedDirection);
 
     seedForBW = fwFit;
   }
@@ -206,12 +201,12 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   Trajectory trajectoryBW(seedForBW,bwDirection);
 
   // FIXME! under check!
-  bwfilter()->refit(tsosAfterRefit,refitter()->lastDetLayer(),trajectoryBW);
+  bwfilter()->refit(tsosAfterRefit,filter()->lastDetLayer(),trajectoryBW);
 
   // Get the last TSOS
   TrajectoryStateOnSurface tsosAfterBWRefit = bwfilter()->lastUpdatedTSOS();
 
-  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder BW FILTER OUTPUT " << endl ;
+  LogTrace(metname) << "StandAloneMuonTrajectoryBuilder BW filter output " << endl ;
   LogTrace(metname) << debug.dumpTSOS(tsosAfterBWRefit);
 
   LogTrace(metname) 
@@ -223,16 +218,14 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   
   // The trajectory is good if there are at least 2 chamber used in total and at
   // least 1 "tracking" (DT or CSC)
-  if (  bwfilter()->getTotalChamberUsed() >= 2 && 
-	((bwfilter()->getDTChamberUsed() + bwfilter()->getCSCChamberUsed()) >0 ||
-	 bwfilter()->onlyRPC()) ) {
+  if (bwfilter()->goodState()) {
     
-    if (doSmoothing && !trajectoryBW.empty()){
-      pair<bool,Trajectory> smoothingResult = smoother()->smooth(trajectoryBW);
-      if (smoothingResult.first){
-     	trajectoryContainer.push_back(new Trajectory(smoothingResult.second));
-	LogTrace(metname) << "StandAloneMuonTrajectoryBuilder SMOOTHER OUTPUT " << endl ;
-	LogTrace(metname) << debug.dumpTSOS(smoothingResult.second.lastMeasurement().updatedState());
+    if (doRefit && !trajectoryBW.empty()){
+      pair<bool,Trajectory> refitResult = refitter()->refit(trajectoryBW);
+      if (refitResult.first){
+     	trajectoryContainer.push_back(new Trajectory(refitResult.second));
+	LogTrace(metname) << "StandAloneMuonTrajectoryBuilder Refit output " << endl;
+	LogTrace(metname) << debug.dumpTSOS(refitResult.second.lastMeasurement().updatedState());
       }
       else
 	trajectoryContainer.push_back(new Trajectory(trajectoryBW));
@@ -246,9 +239,8 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   //if the trajectory is not saved, but at least two chamber are used in the
   //forward filtering, try to build a new trajectory starting from the old
   //trajectory w/o the latest measurement and a looser chi2 cut
-  else if ( refitter()->getTotalChamberUsed() >= 2 ) {
-    LogTrace(metname)<< "Trajectory NOT saved. Second Attempt." << endl
-		     << "FIRST MEASUREMENT KILLED" << endl; // FIXME: why???
+  else if ( filter()->getTotalChamberUsed() >= 2 ) {
+    LogTrace(metname)<< "Trajectory NOT saved. Second Attempt." << endl;
     // FIXME:
     // a better choice could be: identify the poorest one, exclude it, redo
     // the fw and bw filtering. Or maybe redo only the bw without the excluded
