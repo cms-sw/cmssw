@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/21 16:46:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/23 14:39:16 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane
  */
 
@@ -15,7 +15,7 @@
 using namespace std;
 using namespace magfieldparam;
 
-PolyFit2DParametrizedMagneticField::PolyFit2DParametrizedMagneticField(double bVal = 4.01242188708911) : 
+PolyFit2DParametrizedMagneticField::PolyFit2DParametrizedMagneticField(double bVal) : 
   theParam(new BFit())
 {
   theParam->SetField(bVal);
