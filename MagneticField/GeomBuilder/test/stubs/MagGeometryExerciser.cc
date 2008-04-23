@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/09 18:23:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/29 14:39:18 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -45,7 +45,7 @@ void MagGeometryExerciser::testFindVolume(int ntry){
     testFindVolume(GlobalPoint(0,0,0));
   }
 
-  GlobalPointProvider p;
+  GlobalPointProvider p(0.,900., -Geom::pi(), Geom::pi(), -1600, 1600);
 
   cout << "Random points:" << endl;
   int success = 0;
@@ -66,8 +66,9 @@ bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
 
   bool reportSuccess = false; // printouts for succeeding calls
 
-  // Note: uses the default tolerance.
-  MagVolume6Faces* vol = (MagVolume6Faces*) theGeometry->findVolume(gp);
+  float tolerance = 0.;
+  //  float tolerance = 0.03;  // Note: findVolume should handle tolerance himself.
+  MagVolume6Faces* vol = (MagVolume6Faces*) theGeometry->findVolume(gp, tolerance);
   bool ok = (vol!=0);
 
   if (reportSuccess || !ok) {
@@ -78,7 +79,6 @@ bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
 
   // If it fails, try with a linear search
   if (vol==0) {
-    float tolerance = 0.03;
     vol =  (MagVolume6Faces*) theGeometry->findVolume1(gp,tolerance);
     cout << "Was in volume: "
 	 << (vol !=0 ? vol->name : "none")
