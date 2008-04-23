@@ -121,7 +121,7 @@ CandIsolatorFromDeposits::CandIsolatorFromDeposits(const ParameterSet& par) {
     sources_.push_back(SingleDeposit(*it));
   }
   if (sources_.size() == 0) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
-  produces<CandViewDoubleAssociations>();
+  produces<CandDoubleMap>();
 }
 
 /// destructor
@@ -137,7 +137,6 @@ void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetu
   for (it = begin; it != end; ++it) it->open(event);
 
   const IsoDepositMap & map = begin->map();
-  typedef edm::ValueMap<double> CandDoubleMap;
 
   if (map.size()==0) { // !!???
         event.put(auto_ptr<CandDoubleMap>(new CandDoubleMap()));
