@@ -30,19 +30,16 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-using namespace std;
-using namespace edm;
-
 class CSCSegmentVisualise : public edm::EDAnalyzer {
  public:
 
   /// Constructor
-  explicit CSCSegmentVisualise(const ParameterSet& pset);
+  explicit CSCSegmentVisualise(const edm::ParameterSet& pset);
 
   /// Destructor
   virtual ~CSCSegmentVisualise();
 
-  void analyze(const Event& event, const EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
 
 private: 

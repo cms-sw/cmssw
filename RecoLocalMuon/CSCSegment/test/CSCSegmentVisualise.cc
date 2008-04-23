@@ -28,21 +28,17 @@
 
 #include "TFile.h"
 
-using namespace std;
-using namespace edm;
-
-
 // Constructor
-CSCSegmentVisualise::CSCSegmentVisualise(const ParameterSet& pset) {
+CSCSegmentVisualise::CSCSegmentVisualise(const edm::ParameterSet& pset) {
 
-  filename                  = pset.getUntrackedParameter<string>("RootFileName");	
+  filename                  = pset.getUntrackedParameter<std::string>("RootFileName");	
   minRechitChamber          = pset.getUntrackedParameter<int>("minRechitPerChamber");
   maxRechitChamber          = pset.getUntrackedParameter<int>("maxRechitPerChamber"); 
 
   file = new TFile(filename.c_str(), "RECREATE");
     	
-  if (file->IsOpen()) cout<<"file open!"<<endl;
-  else cout<<"*** Error in opening file ***"<<endl;
+  if (file->IsOpen()) std::cout<<"file open!"<< std::endl;
+  else std::cout<<"*** Error in opening file ***"<< std::endl;
    
   idxHisto = 0;
   ievt = 0;
@@ -72,7 +68,7 @@ CSCSegmentVisualise::~CSCSegmentVisualise() {
 
 
 // The real analysis
-void CSCSegmentVisualise::analyze(const Event& event, const EventSetup& eventSetup) {
+void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
 
    ievt++;
     
@@ -82,13 +78,13 @@ void CSCSegmentVisualise::analyze(const Event& event, const EventSetup& eventSet
     eventSetup.get<MuonGeometryRecord>().get(h);
     const CSCGeometry* geom_ = &*h;
     
-    Handle<PSimHitContainer> simHits; 
+    edm::Handle<edm::PSimHitContainer> simHits; 
     event.getByLabel("g4SimHits","MuonCSCHits",simHits);    
     
-    Handle<CSCRecHit2DCollection> recHits; 
+    edm::Handle<CSCRecHit2DCollection> recHits; 
     event.getByLabel("csc2DRecHits", recHits);   
     
-    Handle<CSCSegmentCollection> segments;
+    edm::Handle<CSCSegmentCollection> segments;
     event.getByLabel("cscSegments", segments);
     
 
@@ -221,7 +217,7 @@ void CSCSegmentVisualise::analyze(const Event& event, const EventSetup& eventSet
       CSCDetId idrec = (CSCDetId)(*rec_it).cscDetId();
       LocalPoint rhitlocal = (*rec_it).localPosition();  
 
-      for (PSimHitContainer::const_iterator sim_it = simHits->begin(); sim_it != simHits->end(); sim_it++) {
+      for (edm::PSimHitContainer::const_iterator sim_it = simHits->begin(); sim_it != simHits->end(); sim_it++) {
         CSCDetId idsim = (CSCDetId)(*sim_it).detUnitId();
 
         if (idrec.endcap()  == idsim.endcap() &&

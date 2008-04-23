@@ -1,7 +1,7 @@
 /** \file CSCSegmentReader.cc
  *
- *  $Date: 2008/01/24 02:28:19 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/01/30 03:41:52 $
+ *  $Revision: 1.20 $
  *  \author M. Sani
  *
  *  Modified by D. Fortin - UC Riverside
@@ -17,16 +17,13 @@
 #include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
 
-using namespace std;
-using namespace edm;
-
 
 // Constructor
-CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
+CSCSegmentReader::CSCSegmentReader(const edm::ParameterSet& pset) {
 
   simhit                    = 0;
   near_segment              = 0;
-  filename                  = pset.getUntrackedParameter<string>("RootFileName");	
+  filename                  = pset.getUntrackedParameter<std::string>("RootFileName");	
   minLayerWithRechitChamber = pset.getUntrackedParameter<int>("minLayerWithRechitPerChamber");
   minLayerWithSimhitChamber = pset.getUntrackedParameter<int>("minLayerWithSimhitPerChamber");
   maxNhits                  = pset.getUntrackedParameter<int>("maxNhits"); 
@@ -37,8 +34,8 @@ CSCSegmentReader::CSCSegmentReader(const ParameterSet& pset) {
 
   file = new TFile(filename.c_str(), "RECREATE");
     	
-  if (file->IsOpen()) cout<<"file open!"<<endl;
-  else cout<<"*** Error in opening file ***"<<endl;
+  if (file->IsOpen()) std::cout<<"file open!"<< std::endl;
+  else std::cout<<"*** Error in opening file ***"<< std::endl;
    
   hchi2    = new TH1F("h4", "chi2", 200, 0, 400);    
   hrechit  = new TH1I("h5", "nrechit", 6, 2, 8);  
@@ -71,44 +68,44 @@ CSCSegmentReader::~CSCSegmentReader() {
   heff2    = new TH1F("h2", "efficiency", segMap1.size()*2 + 2, 0, segMap1.size()*2 + 2); 
   heff3    = new TH1F("h3", "efficiency", segMap1.size()*2 + 2, 0, segMap1.size()*2 + 2); 
 
-  cout << "Raw reco efficiency for 6-hit simulated segment (nhits > 3)" << endl;        
-  for (map<string,int>::const_iterator it = segMap1.begin(); it != segMap1.end(); it++) {
+  std::cout << "Raw reco efficiency for 6-hit simulated segment (nhits > 3)" << std::endl;        
+  for (std::map<std::string,int>::const_iterator it = segMap1.begin(); it != segMap1.end(); it++) {
     ibin++;
     float eff = (float)it->second/(float)chaMap1[it->first]; 
     heff0->SetBinContent(ibin*2, eff);
     heff0->GetXaxis()->SetBinLabel(ibin*2, (it->first).c_str());
-    cout << it->first << ": " << it->second << " " << chaMap1[it->first] 
-         << "  "      << eff  << endl;
+    std::cout << it->first << ": " << it->second << " " << chaMap1[it->first] 
+         << "  "      << eff  << std::endl;
   }
   ibin = 0;
-  cout << "Raw reco efficiency for chamber with 6 layers with rechits (nhits > 3)" << endl;        
-  for (map<string,int>::const_iterator it = segMap2.begin(); it != segMap2.end(); it++) {
+  std::cout << "Raw reco efficiency for chamber with 6 layers with rechits (nhits > 3)" << std::endl;        
+  for (std::map<std::string,int>::const_iterator it = segMap2.begin(); it != segMap2.end(); it++) {
     ibin++;
     float eff = (float)it->second/(float)chaMap2[it->first]; 
     heff1->SetBinContent(ibin*2, eff);
     heff1->GetXaxis()->SetBinLabel(ibin*2, (it->first).c_str());
-    cout << it->first << ": " << it->second << " " << chaMap2[it->first] 
-         << "  "      << eff << endl;
+    std::cout << it->first << ": " << it->second << " " << chaMap2[it->first] 
+         << "  "      << eff << std::endl;
   }
   ibin = 0;
-  cout << "Reco efficiency for building 6-hit segment for 6-hit simulated segment" << endl;        
-  for (map<string,int>::const_iterator it = segMap3.begin(); it != segMap3.end(); it++) {
+  std::cout << "Reco efficiency for building 6-hit segment for 6-hit simulated segment" << std::endl;        
+  for (std::map<std::string,int>::const_iterator it = segMap3.begin(); it != segMap3.end(); it++) {
     ibin++;
     float eff = (float)it->second/(float)chaMap1[it->first]; 
     heff2->SetBinContent(ibin*2, eff);
     heff2->GetXaxis()->SetBinLabel(ibin*2, (it->first).c_str());
-    cout << it->first << ": " << it->second << " " << chaMap1[it->first] 
-         << "  "      << eff  << endl;
+    std::cout << it->first << ": " << it->second << " " << chaMap1[it->first] 
+         << "  "      << eff  << std::endl;
   }
   ibin = 0;
-  cout << "Reco efficiency for building 6-hit segment for chamber with 6 layers with rechits" << endl;        
-  for (map<string,int>::const_iterator it = segMap3.begin(); it != segMap3.end(); it++) {
+  std::cout << "Reco efficiency for building 6-hit segment for chamber with 6 layers with rechits" << std::endl;        
+  for (std::map<std::string,int>::const_iterator it = segMap3.begin(); it != segMap3.end(); it++) {
     ibin++;
     float eff = (float)it->second/(float)chaMap2[it->first]; 
     heff3->SetBinContent(ibin*2, eff);
     heff3->GetXaxis()->SetBinLabel(ibin*2, (it->first).c_str());
-    cout << it->first << ": " << it->second << " " << chaMap2[it->first] 
-         << "  "      << eff  << endl;
+    std::cout << it->first << ": " << it->second << " " << chaMap2[it->first] 
+         << "  "      << eff  << std::endl;
   }
 
   file->cd();
@@ -134,22 +131,22 @@ CSCSegmentReader::~CSCSegmentReader() {
 
 
 // The real analysis
-void CSCSegmentReader::analyze(const Event& event, const EventSetup& eventSetup) {
+void CSCSegmentReader::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
     
     edm::ESHandle<CSCGeometry> h;
     eventSetup.get<MuonGeometryRecord>().get(h);
     const CSCGeometry* geom = &*h;
     
-    Handle<SimTrackContainer> simTracks;
+    edm::Handle<edm::SimTrackContainer> simTracks;
     event.getByLabel("g4SimHits",simTracks);
     
-    Handle<PSimHitContainer> simHits; 
+    edm::Handle<edm::PSimHitContainer> simHits; 
     event.getByLabel("g4SimHits","MuonCSCHits",simHits);    
     
-    Handle<CSCRecHit2DCollection> recHits; 
+    edm::Handle<CSCRecHit2DCollection> recHits; 
     event.getByLabel("csc2DRecHits", recHits);   
     
-    Handle<CSCSegmentCollection> cscSegments;
+    edm::Handle<CSCSegmentCollection> cscSegments;
     event.getByLabel("cscSegments", cscSegments);
     
     simInfo(simTracks);
@@ -167,7 +164,7 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 
 
   std::vector<CSCDetId> cscChambers;
-  for (PSimHitContainer::const_iterator simIt = simHits->begin(); simIt != simHits->end(); simIt++) {
+  for (edm::PSimHitContainer::const_iterator simIt = simHits->begin(); simIt != simHits->end(); simIt++) {
 
 
     bool usedChamber = false;
@@ -204,7 +201,7 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
       int ith_layer = 0;
       int nLayerWithSimhitsInChamber = 0; 
 
-      for (PSimHitContainer::const_iterator it2 = simHits->begin(); it2 != simHits->end(); it2++) {        
+      for (edm::PSimHitContainer::const_iterator it2 = simHits->begin(); it2 != simHits->end(); it2++) {        
 
         if ( abs((*it2).particleType()) != 13 ) continue;
 
@@ -253,7 +250,7 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
         if ( nRecHitChamber < 3*minNhits ) continue;
       }
 
-      string s = chamber->specs()->chamberTypeName();
+      std::string s = chamber->specs()->chamberTypeName();
 
       chaMap1[s]++;                
 
@@ -303,9 +300,9 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 }
 
 
-void CSCSegmentReader::simInfo(const edm::Handle<SimTrackContainer> simTracks) {
+void CSCSegmentReader::simInfo(const edm::Handle<edm::SimTrackContainer> simTracks) {
 
-  for (SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
+  for (edm::SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
         
     if (abs((*it).type()) == 13) {
       hpt->Fill((*it).momentum().pt());
@@ -315,9 +312,9 @@ void CSCSegmentReader::simInfo(const edm::Handle<SimTrackContainer> simTracks) {
 }
   
   
-void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits, 
+void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHits, 
                                   const edm::Handle<CSCRecHit2DCollection> recHits, 
-                                  const Handle<CSCSegmentCollection> cscSegments, 
+                                  const edm::Handle<CSCSegmentCollection> cscSegments, 
                                   const CSCGeometry* geom) {
  
   int idx = -1;
@@ -406,7 +403,7 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
     double sim1Phi = 0.;
     double sim1Theta = 0.;
  
-    for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+    for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
 
       if ( abs((*ith).particleType()) != 13 ) continue;
         
@@ -454,7 +451,7 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
     counter = 0;
          
 
-    for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+    for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
         
       if ( abs((*ith).particleType()) != 13 ) continue;
 
@@ -513,8 +510,8 @@ void CSCSegmentReader::resolution(const Handle<PSimHitContainer> simHits,
 
 
 int CSCSegmentReader::bestMatch( CSCDetId id0,
-                                 const Handle<PSimHitContainer> simHits,
-                                 const Handle<CSCSegmentCollection> cscSegments,
+                                 const edm::Handle<edm::PSimHitContainer> simHits,
+                                 const edm::Handle<CSCSegmentCollection> cscSegments,
                                  const CSCGeometry* geom) {
 
   int bestIndex  = -1;
@@ -542,7 +539,7 @@ int CSCSegmentReader::bestMatch( CSCDetId id0,
   float sim1Z = 0.;
   int counter = 0;
 
-  for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+  for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
 
     if ( abs((*ith).particleType()) != 13 ) continue;
 
@@ -570,7 +567,7 @@ int CSCSegmentReader::bestMatch( CSCDetId id0,
   float sim2Z = 0.;
   counter = 0;
 
-  for (PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+  for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
 
     if ( abs((*ith).particleType()) != 13 ) continue;
 
