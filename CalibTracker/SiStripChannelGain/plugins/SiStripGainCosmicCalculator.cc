@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.5 2008/04/10 14:25:20 gpetrucc Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.6 2008/04/18 17:20:37 giordano Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -177,14 +177,15 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
       if(sistripsimplehit){
         ((TH1F*) HlistOtherHistos->FindObject("SiStripRecHitType"))->Fill(1.);
         const SiStripRecHit2D::ClusterRef & cluster=sistripsimplehit->cluster();
-        const std::vector<uint8_t>& ampls = cluster->amplitudes();
+//        const std::vector<uint8_t>& ampls = cluster->amplitudes();
+        const std::vector<uint16_t>& ampls = cluster->amplitudes();
         uint32_t thedetid  = cluster->geographicalId();
         double module_width = moduleWidth(thedetid, &iSetup);
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_cm"))->Fill(local_position.x());
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_normalized"))->Fill(local_position.x()/module_width);
         double module_thickness = moduleThickness(thedetid, &iSetup);
-        int ifirststrip= cluster->firstStrip();
-        int theapvpairid = int(float(ifirststrip)/256.);
+//        int ifirststrip= cluster->firstStrip();
+//        int theapvpairid = int(float(ifirststrip)/256.);
         TH1F* histopointer = (TH1F*) HlistAPVPairs->FindObject(Form("ChargeAPVPair_%i_%i,thedetid,theapvpairid"));
         if( histopointer ){
           short cCharge = 0;

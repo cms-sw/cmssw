@@ -1,15 +1,29 @@
+<use name=CalibTracker/SiStripCommon>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
+<use name=CommonTools/ConditionDBWriter>
 <use name=CondCore/DBOutputService>
-<use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/TrajectorySeed>
+<use name=CondFormats/SiStripObjects>
+<use name=DataFormats/DetId>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=CalibTracker/Records>
-<use name=CalibFormats/SiStripObjects>
+<use name=DataFormats/TrajectorySeed> 
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/CommonTopologies>
+<use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=CalibTracker/SiStripCommon>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=TrackingTools/PatternTools>
+<use name=rootcore>
+<use name=root>
 <library file="*.cc" name=CalibTrackerSiStripChannelGainPlugins>
 <flags EDM_PLUGIN=1>
 </library>
