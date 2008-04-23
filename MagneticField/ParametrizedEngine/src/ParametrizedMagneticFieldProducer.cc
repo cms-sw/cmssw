@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/03/28 16:49:25 $
+ *  $Revision: 1.2 $
  *  \author Massimiliano Chiorboli, updated NA 03/08
  */
 
@@ -9,6 +9,7 @@
 #include "MagneticField/ParametrizedEngine/interface/ParametrizedMagneticField.h"
 #include "MagneticField/ParametrizedEngine/src/OAEParametrizedMagneticField.h"
 #include "MagneticField/ParametrizedEngine/src/OAE85lParametrizedMagneticField.h"
+#include "MagneticField/ParametrizedEngine/src/PolyFit2DParametrizedMagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -45,9 +46,9 @@ ParametrizedMagneticFieldProducer::produce(const IdealMagneticFieldRecord& iReco
   } else if (version=="OAE_1103l_071212") {
     std::auto_ptr<MagneticField> result( new OAEParametrizedMagneticField(parameters));
     return result;
-  } else if (version=="MTCC2DPoly") {
+  } else if (version=="PolyFit2D") {
   // V. Maroussov polynomial fit to mapping data
-  // std::auto_ptr<MagneticField> result = new 2DPolyFitParametrizedMagneticField();
+    std::auto_ptr<MagneticField> result( new PolyFit2DParametrizedMagneticField(parameters));
   //  return result;
     return std::auto_ptr<MagneticField>(0);
   } else if (version=="OAE_85l_030919_t") {
