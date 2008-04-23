@@ -7,3 +7,6 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE( CaloTowersCreator );
 DEFINE_ANOTHER_FWK_MODULE( CaloTowersReCreator );
+// remove following line after Jet/Met move to using
+// exclusively CaloTowers
+DEFINE_ANOTHER_FWK_MODULE( CaloTowerCandidateCreator );
