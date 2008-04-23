@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from QCDAnalysis.Skimming.qcdJetFilterStreamMed_EventContent_cff import *
+from Configuration.EventContent.EventContent_cff import *
+
 qcdJetFilterStreamMedOutputModule = cms.OutputModule("PoolOutputModule",
     qcdJetFilterStreamMedEventSelection,
     AODSIMEventContent,
