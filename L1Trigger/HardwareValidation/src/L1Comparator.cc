@@ -875,16 +875,23 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
   match &= (data->gtFdlWord()           == emul->gtFdlWord()    );
   m_dumpFile << " gtFdlWord:" << match; 	        
   match &= (data->muCollectionRefProd() == emul->muCollectionRefProd());
-  m_dumpFile << " muCollectionRefProd:" << match; 
-  uint16_t dt_psb_bid=0, em_psb_bid=0;    
-  for(int idx=0; idx<(int)data_->gtPsbVector().size(); idx++)
+  m_dumpFile << " muCollectionRefProd:" << match << "\n"; 
+  boost::uint16_t dt_psb_bid=0, em_psb_bid=0;    
+  size_t npsbw = (data_->gtPsbVector().size()>emul_->gtPsbVector().size())?
+    emul_->gtPsbVector().size():data_->gtPsbVector().size();
+  for(int idx=0; idx<(int)npsbw; idx++) {
     if(data_->gtPsbVector().at(idx) != emul_->gtPsbVector().at(idx) ) {
       //match &= false;
       dt_psb_bid = data_->gtPsbVector().at(idx).boardId();
       em_psb_bid = emul_->gtPsbVector().at(idx).boardId();
       break;
     }
+  }
   match &= (data->gtPsbWord(dt_psb_bid) == emul->gtPsbWord(em_psb_bid) );
+  //if(!match) {
+  //  m_dumpFile << "  data"; data_->gtPsbWord(dt_psb_bid).print(m_dumpFile);
+  //  m_dumpFile << "\nemul"; emul_->gtPsbWord(em_psb_bid).print(m_dumpFile);
+  //}
   //problem: vector not accessible from handle (only reference non-const)
   //std::vector<L1GtPsbWord>& data_psbVec = data_->gtPsbVector();
   //std::vector<L1GtPsbWord>& emul_psbVec = emul_->gtPsbVector();
