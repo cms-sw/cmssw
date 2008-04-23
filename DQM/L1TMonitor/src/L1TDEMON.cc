@@ -361,7 +361,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       continue;
     assert(isComp[sid]);
 
-    int type   = it->type();
+    int type    = it->type();
     double phiv = it->x1();
     double etav = it->x2();
     double x3v  = it->x3();
@@ -486,17 +486,22 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   GltDEDigi gltdigimon = deRecord->getGlt();
   bool ddecbit = gltdigimon.globalDBit[0];
   bool edecbit = gltdigimon.globalDBit[1];
+
   std::vector<bool> edecbitv = gltdigimon.gltDecBits[0];
   std::vector<bool> ddecbitv = gltdigimon.gltDecBits[1];
   std::vector<bool> etchbitv = gltdigimon.gltTchBits[0];
   std::vector<bool> dtchbitv = gltdigimon.gltTchBits[1];
 
+  int gterrtype = (ddecbit==edecbit)?0:1;
+  errordist     ->Fill(gterrtype);
+  errortype[GLT]->Fill(gterrtype);
+  
   std::vector<bool> dedecbitv(2*w64,false), debitmaskv(2*w64,false), 
     gtbitmasked(2*w64,false);
   for(int i=0; i<2*w64; i++)
     gtbitmasked[i] = false; //no masking!
   for(int i=0; i<2*w64; i++) {
-    dedecbitv[i]=(ddecbitv[i]&&edecbitv[i]);
+    dedecbitv[i]=(ddecbitv[i]^edecbitv[i]);
     debitmaskv[i]=(dedecbitv[i]&& !gtbitmasked[i]);
     if(ddecbitv[i])  dword [GLT]->Fill(i,1);
     if(edecbitv[i])  eword [GLT]->Fill(i,1);
