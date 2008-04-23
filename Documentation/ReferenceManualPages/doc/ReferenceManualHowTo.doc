@@ -3,7 +3,6 @@
 
 - For creating the doxygen manual follow the recipe:<br />
 <a href="https://twiki.cern.ch/twiki/bin/view/CMS/HowToReleaseCMSSW#Creating_the_doxygen_reference_m">Creating Doxygen Reference Manuale</a><br />
-<a href="http://www.stack.nl/~dimitri/doxygen/config.html">Doxygen Configuration</a><br />
 - For a more comprehensive overview about doxygen:<br />
 <a href="http://www.stack.nl/~dimitri/doxygen/manual.html">Doxygen Manual</a><br />
 - For insights about the doxygen configuration and the relative doxyfile.conf.ini:<br />
