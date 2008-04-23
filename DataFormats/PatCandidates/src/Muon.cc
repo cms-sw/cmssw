@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.4 2008/01/26 20:19:45 gpetrucc Exp $
+// $Id: Muon.cc,v 1.5 2008/04/03 12:29:09 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -31,6 +31,18 @@ Muon::~Muon() {
 /// return the lepton ID discriminator
 float Muon::leptonID() const {
   return leptonID_;
+}
+
+
+/// return the muon segment compatibility -> meant for
+float Muon::segmentCompatibility() const {
+  return muonid::getSegmentCompatibility(*this);
+}
+
+
+/// return whether it is a good muon
+bool Muon::isGoodMuon(const MuonType & muon, muonid::SelectionType type) {
+  return muonid::isGoodMuon(*this);
 }
 
 
