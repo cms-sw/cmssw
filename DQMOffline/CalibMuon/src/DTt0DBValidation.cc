@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/08 14:15:40 $
+ *  $Date: 2008/04/18 12:29:24 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -81,11 +81,6 @@ void DTt0DBValidation::beginJob(const EventSetup& setup) {
   // Get the geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
-}
-
-
-void DTt0DBValidation::endJob() {
-
   // Loop over Ref DB entries
   for(DTT0::const_iterator tzero = tZeroRefMap->begin();
       tzero != tZeroRefMap->end(); tzero++) {
@@ -148,6 +143,28 @@ void DTt0DBValidation::endJob() {
 
     }
   } // Loop over the t0 map reference
+  
+  
+}
+
+
+void DTt0DBValidation::endJob() {
+
+  //check the histos
+  string testCriterionName = parameters.getUntrackedParameter<string>("t0TestName","t0DifferenceInRange"); 
+  for(map<DTLayerId, MonitorElement*>::const_iterator hDiff = t0DiffHistos.begin();
+      hDiff != t0DiffHistos.end();
+      hDiff++) {
+    const QReport * theDiffQReport = (*hDiff).second->getQReport(testCriterionName);
+    if(theDiffQReport) {
+      vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	cout << "layer:"<<(*hDiff).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
+      }
+      cout << "-------- layer: "<<(*hDiff).first<<"  "<<theDiffQReport->getMessage()<<" ------- "<<theDiffQReport->getStatus()<<endl; 
+    }
+  }
 
   // write the histos on a file
   dbe->save(outputFileName);
