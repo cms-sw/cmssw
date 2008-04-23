@@ -41,11 +41,6 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   selePtGammaOne_ = iConfig.getParameter<double> ("selePtGammaOne");  
   selePtGammaTwo_ = iConfig.getParameter<double> ("selePtGammaTwo");  
   selePtPi0_ = iConfig.getParameter<double> ("selePtPi0");  
-  seleS4S9GammaOne_ = iConfig.getParameter<double> ("seleS4S9GammaOne");  
-  seleS4S9GammaTwo_ = iConfig.getParameter<double> ("seleS4S9GammaTwo");  
-  selePi0Iso_ = iConfig.getParameter<double> ("selePi0Iso");  
-  selePi0BeltDR_ = iConfig.getParameter<double> ("selePi0BeltDR");  
-  selePi0BeltDeta_ = iConfig.getParameter<double> ("selePi0BeltDeta");  
   seleMinvMaxPi0_ = iConfig.getParameter<double> ("seleMinvMaxPi0");  
   seleMinvMinPi0_ = iConfig.getParameter<double> ("seleMinvMinPi0");  
   seleXtalMinEnergy_ = iConfig.getParameter<double> ("seleXtalMinEnergy");
@@ -144,7 +139,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float etClus[MAXCLUS];
   float etaClus[MAXCLUS];
   float phiClus[MAXCLUS];
-  float s4s9Clus[MAXCLUS];
   EBDetId max_hit[MAXCLUS];  
 
   nClus=0;
@@ -153,7 +147,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     etClus[i] = 0;
     etaClus[i] = 0;
     phiClus[i] = 0;
-    s4s9Clus[i] = 0;
     max_hit[i] = EBDetId(0);
   }
 
@@ -180,13 +173,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double simple_energy = 0; 
 	std::vector<DetId> clus_v;
 	clus_v.clear();
-        double extals3x3[3][3];
-
-        for(int i=0; i<3; i++){
-          for(int j=0; j<3; j++){
-            extals3x3[i][j] = 0;
-          }
-        }
     for (int icry=0;icry< clusEtaSize_*clusPhiSize_;icry++)
       {
 	
@@ -232,7 +218,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  clus_v.push_back(det);
 
 		  simple_energy = simple_energy + aHit->second.energy();
-		  extals3x3[row][column] = aHit->second.energy();
 		  
 		  //EBDetId sel_rh = aHit->second.detid();
 		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
@@ -258,28 +243,11 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	    //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<p0z_s<<endl;
     
-            float s4s9_1 = 0.;
-            float s4s9_max = -999.;
-            s4s9_1 = extals3x3[0][0] + extals3x3[0][1] + extals3x3[1][0] + extals3x3[1][1];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //cout<< " s4s9: 1 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-            s4s9_1 = extals3x3[0][1] + extals3x3[0][2] + extals3x3[1][1] + extals3x3[1][2];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //cout<< " s4s9: 2 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-            s4s9_1 = extals3x3[1][0] + extals3x3[1][1] + extals3x3[2][0] + extals3x3[2][1];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //cout<< " s4s9: 3 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-            s4s9_1 = extals3x3[1][1] + extals3x3[1][2] + extals3x3[2][1] + extals3x3[2][2];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //      cout<< " s4s9: 4 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-
-
 	    eClus[nClus] = simple_energy;
 	    etClus[nClus] = et_s;
 	    etaClus[nClus] = clus_pos.eta();
 	    phiClus[nClus] = clus_pos.phi();
 	    max_hit[nClus] = seed_id;
-            s4s9Clus[nClus] = s4s9_max/simple_energy;
 	    
 	    nClus++;
 	    if (nClus == MAXCLUS) return accept;
@@ -307,7 +275,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
           for(Int_t j=i+1 ; j<nClus ; j++)
             {
 
-              if( etClus[i]>selePtGammaOne_ && etClus[j]>selePtGammaTwo_ && s4s9Clus[i]>seleS4S9GammaOne_ && s4s9Clus[j]>seleS4S9GammaTwo_) 
+              if( etClus[i]>selePtGammaOne_ && etClus[j]>selePtGammaTwo_) 
 		{
                 
 		  float theta_0 = 2. * atan(exp(-etaClus[i]));
@@ -323,41 +291,17 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  //
                 
 		  float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
-
+		  //float dr_pi0 = sqrt ( (etaIslandBCEB[i]-etaIslandBCEB[j])*(etaIslandBCEB[i]-etaIslandBCEB[j]) + (phiIslandBCEB[i]-phiIslandBCEB[j])*(phiIslandBCEB[i]-phiIslandBCEB[j]) );
 		  if (pt_pi0 > selePtPi0_) 
 		    {
 		      float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
 		      if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) )
 			{
-
-			  math::XYZPoint pi0vect = math::XYZPoint((p0x+p1x), (p0y+p1y), (p0z+p1z));
-
 			  //cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
-
-                          float Iso = 0;
-                          for(Int_t k=0 ; k<nClus ; k++)
-                            {
-                              float dretaclpi0 = etaClus[k] - pi0vect.eta();
-                              float drclpi0 = sqrt( (etaClus[k] - pi0vect.eta())*(etaClus[k] - pi0vect.eta()) + (phiClus[k] - pi0vect.phi())*(phiClus[k] - pi0vect.phi()));
-                              //cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<(etaClus[k] - pi0vect.eta())<<" "<<(phiClus[k] - pi0vect.phi())<<endl;
-                              if( (i!=k) && (j!=k) && (drclpi0<selePi0BeltDR_) && (dretaclpi0<selePi0BeltDeta_) ) Iso = Iso + etClus[k];
-                            }
-
-                          //cout << "  After Iso: Iso, pt_pi0, Isovar "<< Iso<< " "<<pt_pi0<<" "<<(Iso/pt_pi0)<<endl;
-
-                          float Isovar = Iso/pt_pi0;
-
-                          if(Isovar<selePi0Iso_)
-                            {
-
-			      // cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,s4s9_i, s4s9_j, Iso, i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<s4s9Clus[i]<<" "<<s4s9Clus[j]<<" "<<Isovar<<" "<<i<<" "<<j<<" "<<endl;  
-
-
-			      sClus_1[npi0_s]=i;
-			      sClus_2[npi0_s]=j;
-			      npi0_s++;
-			      if(npi0_s == MAXPI0S) return accept;
-			    }
+			  sClus_1[npi0_s]=i;
+			  sClus_2[npi0_s]=j;
+			  npi0_s++;
+			  if(npi0_s == MAXPI0S) return accept;
 			}
 
 		    }
@@ -474,8 +418,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	} else {
 
 	  //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
-	  iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
-	  accept = true;
+	  if (pi0_collsize > 0 ) {
+	    iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+	    accept = true;
+	  }
 	}
   
       //timerName = category + "::storePi0RecHitsCollection";

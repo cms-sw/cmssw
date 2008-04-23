@@ -75,11 +75,6 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
  double selePtGammaOne_;
  double selePtGammaTwo_;
- double seleS4S9GammaOne_;
- double seleS4S9GammaTwo_;
- double selePi0BeltDR_;
- double selePi0BeltDeta_;
- double selePi0Iso_;
  double selePtPi0_;
  double seleMinvMaxPi0_;
  double seleMinvMinPi0_;
