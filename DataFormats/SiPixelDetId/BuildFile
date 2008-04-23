@@ -1,7 +1,9 @@
 <use name=DataFormats/DetId>
+<use name=FWCore/MessageLogger>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/DetId>
+  <use name=FWCore/MessageLogger>
   <lib name=DataFormatsSiPixelDetId>
 </export>
 
