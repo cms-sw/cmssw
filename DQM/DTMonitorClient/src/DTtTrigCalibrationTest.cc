@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2008/03/01 00:39:52 $
- * $Revision: 1.14 $
+ * $Date: 2008/04/22 16:49:18 $
+ * $Revision: 1.15 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
@@ -253,7 +253,7 @@ void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch, int wh) {
   dbe->setCurrentFolder("DT/Tests/DTtTrigCalibration/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
-    string histoName =  "t_TrigSummary_testFailedByAtLeast%BadSL";
+    string histoName =  "t_TrigSummary_testFailedByAtLeastBadSL";
     wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);

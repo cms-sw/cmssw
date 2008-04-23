@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/04/22 16:49:18 $
+ *  $Revision: 1.16 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -412,7 +412,7 @@ void DTEfficiencyTest::bookHistos(int wh) {
   dbe->setCurrentFolder("DT/Tests/DTEfficiency/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
-    string histoName =  "ESummary_testFailedByAtLeast%BadSL";
+    string histoName =  "ESummary_testFailedByAtLeastBadSL";
     wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
@@ -436,7 +436,7 @@ void DTEfficiencyTest::bookHistos(int wh) {
     wheelHistos[3]->setBinLabel(5,"Wheel+2",2);
   }
   if(wheelUnassHistos.find(3) == wheelUnassHistos.end()){
-    string histoName =  "UESummary_testFailedByAtLeast%BadSL";
+    string histoName =  "UESummary_testFailedByAtLeastBadSL";
     wheelUnassHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);
     wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);
