@@ -5,9 +5,6 @@
 #include<vector>
 #include<iostream>
 
-using namespace std;
-
-
 ///
 /// Container class for storing and easy access to global LAS data
 ///
@@ -47,12 +44,12 @@ class LASGlobalData {
 
  private:
   void Init( void );
-  vector<vector<vector<T> > > tecPlusData; // ring<beam<disk<T>>>
-  vector<vector<vector<T> > > tecMinusData; // ring<beam<disk<T>>>
-  vector<vector<T> > tecPlusATData; // beam<disk<T>>
-  vector<vector<T> > tecMinusATData; // beam<disk<T>>
-  vector<vector<T> > tibData; // beam<pos<T>>
-  vector<vector<T> > tobData; // beam<pos<T>>
+  std::vector<std::vector<std::vector<T> > > tecPlusData; // ring<beam<disk<T>>>
+  std::vector<std::vector<std::vector<T> > > tecMinusData; // ring<beam<disk<T>>>
+  std::vector<std::vector<T> > tecPlusATData; // beam<disk<T>>
+  std::vector<std::vector<T> > tecMinusATData; // beam<disk<T>>
+  std::vector<std::vector<T> > tibData; // beam<pos<T>>
+  std::vector<std::vector<T> > tobData; // beam<pos<T>>
 
 };
 

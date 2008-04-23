@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/02/20 09:50:54 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/03/03 09:43:31 $
+ *  $Revision: 1.12 $
  *  \author Maarten Thomas
  */
 
@@ -146,7 +146,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   LASGlobalData<LASModuleProfile> collectedDataProfiles;
 
   // 474 names for retrieving data from the branches
-  LASGlobalData<string> theProfileNames;
+  LASGlobalData<std::string> theProfileNames;
 
   // number of accepted profiles for each module
   LASGlobalData<int> numberOfAcceptedProfiles;

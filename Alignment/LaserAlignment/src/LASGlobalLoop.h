@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-using namespace std;
-
 ///
 /// helper class for looping over LASGlobalData objects
 /// (si-strip module loops). Use exactly as:

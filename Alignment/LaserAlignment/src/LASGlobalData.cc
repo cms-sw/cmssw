@@ -32,8 +32,8 @@ T& LASGlobalData<T>::GetTECEntry( int theDetector, int theRing, int theBeam, int
 	 ( theRing == 0 || theRing == 1 )         &&        // ring4 or ring6
 	 ( theBeam >= 0 && theBeam < 8 )          &&        // eight beams in a TEC
 	 ( theDisk >= 0 && theDisk < 9 )             ) ) {  // disk1..disk9
-    cerr << " [LASGlobalData::GetTECEntry] ** ERROR: illegal input coordinates:" << endl;
-    cerr << "   detector " << theDetector << ", ring " << theRing << ", beam " << theBeam << ", disk " << theDisk << "." << endl;
+    std::cerr << " [LASGlobalData::GetTECEntry] ** ERROR: illegal input coordinates:" << std::endl;
+    std::cerr << "   detector " << theDetector << ", ring " << theRing << ", beam " << theBeam << ", disk " << theDisk << "." << std::endl;
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
@@ -57,8 +57,8 @@ T& LASGlobalData<T>::GetTIBTOBEntry( int theDetector, int theBeam, int thePositi
   if( !( ( theDetector == 2 || theDetector == 3 ) &&        // TIB or TOB
 	 ( theBeam >= 0 && theBeam < 8 )          &&        // there are eight AT beams
 	 ( thePosition >= 0 && thePosition < 6 )     ) ) {  // z-pos -3 .. z-pos +3
-    cerr << " [LASGlobalData::GetTIBTOBEntry] ** ERROR: illegal coordinates:" << endl;
-    cerr << "   detector " << theDetector << ", beam " << theBeam << ", position " << thePosition << "." << endl;
+    std::cerr << " [LASGlobalData::GetTIBTOBEntry] ** ERROR: illegal coordinates:" << std::endl;
+    std::cerr << "   detector " << theDetector << ", beam " << theBeam << ", position " << thePosition << "." << std::endl;
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
@@ -82,8 +82,8 @@ T& LASGlobalData<T>::GetTEC2TECEntry( int theDetector, int theBeam, int theDisk 
   if( !( ( theDetector == 0 || theDetector == 1 ) &&        // TEC+ or TEC-
 	 ( theBeam >= 0 && theBeam < 8 )          &&        // eight AT beams in a TEC
 	 ( theDisk >= 0 && theDisk < 6 )     ) ) {          // disk1...disk5 are hit by AT
-    cerr << " [LASGlobalData::GetTEC2TECEntry] ** ERROR: illegal coordinates:" << endl;
-    cerr << "   detector " << theDetector << ", beam " << theBeam << ", disk " << theDisk << "." << endl;
+    std::cerr << " [LASGlobalData::GetTEC2TECEntry] ** ERROR: illegal coordinates:" << std::endl;
+    std::cerr << "   detector " << theDetector << ", beam " << theBeam << ", disk " << theDisk << "." << std::endl;
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
@@ -109,8 +109,8 @@ void LASGlobalData<T>::SetTECEntry( int theDetector, int theRing, int theBeam, i
 	 ( theRing == 0 || theRing == 1 )         &&        // ring4 or ring6
 	 ( theBeam >= 0 && theBeam < 8 )          &&        // eight beams in a TEC
 	 ( theDisk >= 0 && theDisk < 9 )             ) ) {  // disk1..disk9
-    cerr << " [LASGlobalData::SetTECEntry] ** ERROR: illegal coordinates:" << endl;
-    cerr << "   detector " << theDetector << ", ring " << theRing << ", beam " << theBeam << ", disk " << theDisk << "." << endl;
+    std::cerr << " [LASGlobalData::SetTECEntry] ** ERROR: illegal coordinates:" << std::endl;
+    std::cerr << "   detector " << theDetector << ", ring " << theRing << ", beam " << theBeam << ", disk " << theDisk << "." << std::endl;
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
@@ -135,8 +135,8 @@ void LASGlobalData<T>::SetTIBTOBEntry( int theDetector, int theBeam, int thePosi
   if( !( ( theDetector == 2 || theDetector == 3 ) &&        // TIB or TOB
 	 ( theBeam >= 0 && theBeam < 8 )          &&        // there are eight AT beams
 	 ( thePosition >= 0 && thePosition < 6 )     ) ) {  // pos-3..pos+3
-    cerr << " [LASGlobalData::SetTIBTOBEntry] ** ERROR: illegal coordinates:" << endl;
-    cerr << "   detector " << theDetector << ", beam " << theBeam << ", position " << thePosition << "." << endl;
+    std::cerr << " [LASGlobalData::SetTIBTOBEntry] ** ERROR: illegal coordinates:" << std::endl;
+    std::cerr << "   detector " << theDetector << ", beam " << theBeam << ", position " << thePosition << "." << std::endl;
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
@@ -161,8 +161,8 @@ void LASGlobalData<T>::SetTEC2TECEntry( int theDetector, int theBeam, int theDis
   if( !( ( theDetector == 0 || theDetector == 1 ) &&        // TEC+ or TEC-
 	 ( theBeam >= 0 && theBeam < 8 )          &&        // eight beams in a TEC
 	 ( theDisk >= 0 && theDisk < 6 )             ) ) {  // disk1..disk5 for TEC AT
-    cerr << " [LASGlobalData::SetTEC2TECEntry] ** ERROR: illegal coordinates:" << endl;
-    cerr << "   detector " << theDetector << ", beam " << theBeam << ", disk " << theDisk << "." << endl;
+    std::cerr << " [LASGlobalData::SetTEC2TECEntry] ** ERROR: illegal coordinates:" << std::endl;
+    std::cerr << "   detector " << theDetector << ", beam " << theBeam << ", disk " << theDisk << "." << std::endl;
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {

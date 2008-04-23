@@ -5,9 +5,6 @@
 #include <vector>
 
 
-using namespace std;
-
-
 class LASModuleProfile {
   ///
   /// container class for a LAS
@@ -39,7 +36,7 @@ class LASModuleProfile {
 
  private:
   void Init( void );
-  vector<double> data;
+  std::vector<double> data;
 
 };
 

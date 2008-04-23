@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/03/03 09:43:31 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/03/06 09:10:38 $
+ *  $Revision: 1.21 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -197,7 +197,7 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   // object used to build various strings for names and labels
-  stringstream nameBuilder;
+  std::stringstream nameBuilder;
 
   // loop variables for use with LASGlobalLoop object
   int det, ring, beam, disk, pos;
@@ -317,7 +317,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
   det = 0; ring = 0; beam = 0; disk = 0;
   do {
     
-    LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTECEntry( det, ring, beam, disk ) << "." << endl;
+    LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTECEntry( det, ring, beam, disk ) << "." << std::endl;
     // add current event's data and subtract pedestals
     if( judge.JudgeProfile( currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk ) ) ) {
       collectedDataProfiles.GetTECEntry( det, ring, beam, disk ) += currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk );
@@ -332,7 +332,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
   det = 2; beam = 0; pos = 0;
   do {
     
-    LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTIBTOBEntry( det, beam, pos ) << "." << endl;
+    LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTIBTOBEntry( det, beam, pos ) << "." << std::endl;
     
     // add current event's data and subtract pedestals
     if( judge.JudgeProfile( currentDataProfiles.GetTIBTOBEntry( det, beam, pos ) - pedestalProfiles.GetTIBTOBEntry( det, beam, pos ) ) ) {
@@ -348,7 +348,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
   det = 0; beam = 0; disk = 0;
   do {
     
-    LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTEC2TECEntry( det, beam, disk ) << "." << endl;
+    LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTEC2TECEntry( det, beam, disk ) << "." << std::endl;
     
     // add current event's data and subtract pedestals
     if( judge.JudgeProfile( currentDataProfiles.GetTEC2TECEntry( det, beam, disk ) - pedestalProfiles.GetTEC2TECEntry( det, beam, disk ) ) ) {
