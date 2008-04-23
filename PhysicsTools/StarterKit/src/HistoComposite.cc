@@ -91,14 +91,13 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
 
   // Now fill information for daughters
   for (unsigned int i = 0; i < cand->numberOfDaughters(); ++i ) {
-//     cout << "processing component " << i << endl;
+    cout << "-------------processing component " << i << endl;
     const reco::Candidate * c = cand->daughter(i);
     string role = roles[i];
 
-//     cout << "Role = " << roles[i] << endl;
-//     cout << "c = " << c << endl;
-//     cout << "pdgid = " << c->pdgId() << endl;
-//     cout << "pt = " << c->pt() << endl;
+    cout << "Role = " << roles[i] << endl;
+    cout << "pdgid = " << c->pdgId() << endl;
+    cout << "pt = " << c->pt() << endl;
 
 
     const Muon *       pcmuon  = dynamic_cast<const Muon*>( c );
@@ -111,7 +110,6 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
     const reco::NamedCompositeCandidate * pccomposite = dynamic_cast<const reco::NamedCompositeCandidate*>(c);
 
     // The pointers might be in shallow clones, so check for that too
-
     if ( c->hasMasterClone() ) {
       if ( pcmuon == 0 )       pcmuon  = dynamic_cast<const Muon*>( &*(c->masterClone()) );
       if ( pcelectron == 0 )   pcelectron = dynamic_cast<const Electron*>( &*(c->masterClone()) );
@@ -124,8 +122,25 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
     }
 
 
+    // The pointers might be in a ref, so check for that too
+    const MuonRef    * prmuon     = dynamic_cast<const MuonRef*>    ( c );
+    const ElectronRef* prelectron = dynamic_cast<const ElectronRef*>( c );
+    const TauRef     * prtau      = dynamic_cast<const TauRef*>     ( c );
+    const PhotonRef  * prphoton   = dynamic_cast<const PhotonRef*>  ( c );
+    const JetRef     * prjet      = dynamic_cast<const JetRef*>     ( c );
+    const METRef     * prmet      = dynamic_cast<const METRef*>     ( c );
+
+
+    if ( prmuon != 0 )       pcmuon     = &(*(prmuon->ref()));
+    if ( prelectron != 0 )   pcelectron = &(*(prelectron->ref()));
+    if ( prtau != 0 )        pctau      = &(*(prtau->ref()));
+    if ( prjet != 0 )        pcjet      = &(*(prjet->ref()));
+    if ( prmet != 0 )        pcmet      = &(*(prmet->ref()));
+    if ( prphoton != 0 )     pcphoton   = &(*(prphoton->ref()));
+
+
     if      ( pcmuon != 0 ) {
-//       cout << "Filling muon" << endl;
+       cout << "Filling muon" << endl;
       if ( histoMuon_.map.find( role ) == histoMuon_.map.end() ) {
 	histoMuon_.map[role] = new HistoMuon( dir_, role, role ) ;
       }
@@ -133,7 +148,7 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
     }
 
     if      ( pcelectron != 0 ) {
-//       cout << "Filling electron" << endl;
+       cout << "Filling electron" << endl;
       if ( histoElectron_.map.find( role ) == histoElectron_.map.end() ) {
 	histoElectron_.map[role] = new HistoElectron( dir_, role, role ) ;
       }
@@ -150,7 +165,7 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
 
 
     if      ( pcjet != 0 ) {
-//       cout << "Filling jet" << endl;
+       cout << "Filling jet" << endl;
       if ( histoJet_.map.find( role ) == histoJet_.map.end() ) {
 // 	cout << "Making histojet" << endl;
 	histoJet_.map[role] = new HistoJet( dir_, role, role ) ;
@@ -190,7 +205,7 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
 
 
     if      ( pccomposite != 0 ) {
-//       cout << "Filling composite with name " << pccomposite->name() << endl;
+       cout << "Filling composite with name " << pccomposite->name() << endl;
       if ( histoComposite_.map.find( role ) == histoComposite_.map.end() ) {
 	histoComposite_.map[role] = new HistoComposite( dir_, role, role ) ;
       }

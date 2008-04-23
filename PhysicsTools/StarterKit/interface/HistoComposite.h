@@ -44,6 +44,7 @@
 #include "PhysicsTools/StarterKit/interface/HistoTrack.h"
 #include "PhysicsTools/StarterKit/interface/HistoParticle.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateWithRef.h"
 
 // STL include files
 #include <string>
@@ -68,6 +69,14 @@ namespace pat {
   class HistoComposite : public HistoGroup<reco::NamedCompositeCandidate> {
 
    public:
+
+
+    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Muon> > >        MuonRef;
+    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Electron> > >    ElectronRef;
+    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Tau> > >         TauRef;
+    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Photon> > >      PhotonRef;
+    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Jet> > >         JetRef;
+    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::MET> > >         METRef;
     
     
     HistoComposite(std::string dir, std::string candTitle, std::string candName,

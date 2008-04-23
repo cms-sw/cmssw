@@ -45,6 +45,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
 
 // STL include files
 #include <string>
@@ -60,6 +61,7 @@ namespace pat {
   class HistoGroup {
 
   public:
+
     HistoGroup( std::string dir = "cand", std::string groupName = "Candidate", std::string groupLabel = "cand",
 		double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoGroup();
