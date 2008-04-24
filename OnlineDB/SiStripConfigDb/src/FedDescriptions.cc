@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.23 2008/04/24 16:02:34 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.24 2008/04/24 16:03:12 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -49,7 +49,11 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
 	    
 	    // Make local copy 
 	    std::vector<FedDescription*> tmp2;
+#ifdef USING_NEW_DATABASE_MODEL
 	    Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, tmp1 );
+#else
+	    tmp2 = tmp1;
+#endif
 	    
 	    // Add to cache
 	    feds_.loadNext( iter->second.partitionName_, tmp2 );

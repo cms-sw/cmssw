@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.60 2008/04/23 13:05:11 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.61 2008/04/24 16:02:34 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -29,7 +29,9 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   devices_(), 
   feds_(), 
   dcuDetIdMap_(), 
+#ifdef USING_NEW_DATABASE_MODEL
   analyses_(),
+#endif
   typedDevices_(), 
   fedIds_(),
   // Misc
@@ -179,9 +181,10 @@ void SiStripConfigDb::clearLocalCache() {
   clearFedConnections();
   clearDeviceDescriptions();
   clearFedDescriptions();
-  //clearDcuDetIdMap();
+  clearDcuDetIdMap();
+#ifdef USING_NEW_DATABASE_MODEL
   analyses_.clear();
-
+#endif
   typedDevices_.clear();
   fedIds_.clear();
 
