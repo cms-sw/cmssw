@@ -267,7 +267,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if (Tk[i].pt()<minPt_) GoodMatching=false;
       //ENDCAP
       //USE OF PRESHOWER 
-      if (fabs(Tk[i].eta())>1.6){
+      if (fabs(Tk[i].eta())>1.68){
         int iptbin =4*getBin(Tk[i].pt());
 	ps2En=0;ps1En=0;
 	ps2chi=100.; ps1chi=100.;
@@ -496,7 +496,7 @@ int GoodSeedProducer::getBin(float eta, float pt){
   int ie=0;
   int ip=0;
   if (fabs(eta)<1.2) ie=0;
-  else{ if (fabs(eta)<1.6) ie=1;
+  else{ if (fabs(eta)<1.68) ie=1;
     else ie=2;
   }
   if (pt<6) ip=0;
