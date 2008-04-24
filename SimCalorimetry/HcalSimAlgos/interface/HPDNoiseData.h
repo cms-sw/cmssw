@@ -5,7 +5,7 @@
 // Object to store correlated noise data for one HPD 
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseData.h,v 1.1 2008/01/16 02:12:37 fedor Exp $
+// $Id: HPDNoiseData.h,v 1.2 2008/01/16 20:49:09 fedor Exp $
 // --------------------------------------------------------
 
 #include "TObject.h"
@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseDataFrame.h"
-
+#include <vector>
 
 class HPDNoiseData {
  public:
