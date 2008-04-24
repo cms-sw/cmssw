@@ -358,7 +358,7 @@ if options.dump_python:
     python_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
-    python_config_filename=options.fileout.replace(',','_').replace('.','_')
+    python_config_filename=python_config_filename.replace(',','_').replace('.','_')
     if options.PU_flag:
         python_config_filename+="_PU"
     if options.analysis_flag:
@@ -370,13 +370,12 @@ if options.dump_cfg:
     cfg_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
-    cfg_config_filename=options.fileout.replace(',','_').replace('.','_')
+    cfg_config_filename=cfg_config_filename.replace(',','_').replace('.','_')
     if options.PU_flag:
         cfg_config_filename+="_PU"
     if options.analysis_flag:
         cfg_config_filename+="_ana"
     cfg_config_filename+=".cfg"
-    
 
 # Print the options to screen
 if not options.dump_dsetname_flag:

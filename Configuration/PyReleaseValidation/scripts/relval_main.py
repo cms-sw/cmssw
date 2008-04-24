@@ -220,10 +220,12 @@ if customisation_file!='':
         
     
 # print to screen the config file in the old language
+print dump_cfg
 if dump_cfg!='':
     cfg=open(dump_cfg,'w') 
     cfg.write(process.dumpConfig()) #this used to be dumpPython.. No idea why?
     cfg.close()
+    print 'the following exception is normal! You can ignore it'
     sys.exit() # no need to launch the FW
 
 # print to screen the config file in the python language
@@ -232,6 +234,7 @@ if dump_python!='':
     pycfg.write('import FWCore.ParameterSet.Config as cms \n')
     pycfg.write(process.dumpPython())
     pycfg.close()
+    print 'the following exception is normal! You can ignore it'
     sys.exit() # no need to launch the FW
 
 
