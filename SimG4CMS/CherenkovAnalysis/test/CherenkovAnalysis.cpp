@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frederic Ronga
 //         Created:  Wed Mar 12 17:39:55 CET 2008
-// $Id$
+// $Id: CherenkovAnalysis.cpp,v 1.1 2008/03/14 09:49:10 fronga Exp $
 //
 //
 
@@ -74,9 +74,9 @@ CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet& iConfig) :
     throw cms::Exception("BadConfig") << "TFileService unavailable: "
                                       << "please add it to config file";
 
-  hEnergy_ = tfile->make<TH1F>("hEnergy","Total energy deposit",
+  hEnergy_ = tfile->make<TH1F>("hEnergy","Total energy deposit [GeV]",
                                nBinsEnergy_,0,maxEnergy_);
-  hTimeStructure_ = tfile->make<TH1F>("hTimeStructure","Time structure",
+  hTimeStructure_ = tfile->make<TH1F>("hTimeStructure","Time structure [ns]",
                                       100,0,0.3);
 
 }
