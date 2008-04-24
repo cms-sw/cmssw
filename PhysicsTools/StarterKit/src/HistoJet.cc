@@ -57,7 +57,7 @@ void HistoJet::fill( const reco::ShallowCloneCandidate * pshallow, uint iJet )
     return;
   }
 
-  // First fill common 4-vector histograms from shallow clone	\
+  // First fill common 4-vector histograms from shallow clone
   HistoGroup<Jet>::fill( pshallow, iJet);
 
   // fill relevant jet histograms
