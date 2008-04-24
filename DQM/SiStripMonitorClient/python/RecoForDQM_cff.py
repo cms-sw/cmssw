@@ -12,8 +12,8 @@ from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
 # TrackInfo ####
 from AnalysisAlgos.TrackInfoProducer.TrackInfoProducer_cfi import *
 RecoModulesForSimData = cms.Sequence(siStripZeroSuppression*TrackRefitter*trackinfo)
-RecoModulesForTIFData = cms.Sequence(SiStripDigis*siStripZeroSuppression*siStripClusters)
-SiStripDigis.ProductLabel = 'source'
+RecoModulesForTIFData = cms.Sequence(siStripDigis*siStripZeroSuppression*siStripClusters)
+siStripDigis.ProductLabel = 'source'
 siStripClusters.SiStripQualityLabel = 'test1'
 TrackRefitter.TrajectoryInEvent = True
 trackinfo.cosmicTracks = 'TrackRefitter'

@@ -5,7 +5,7 @@ PedsMon = cms.EDFilter("SiStripMonitorPedestals",
     StripQualityLabel = cms.string('test1'),
     RunTypeFlag = cms.string('AllPlots'), ##Options : ConDBPlotsOnly , CalculatedPlotsOnly, AllPlots
 
-    DigiProducer = cms.string('SiStripDigis'),
+    DigiProducer = cms.string('siStripDigis'),
     PedestalsPSet = cms.PSet(
         MaskDeadCut = cms.double(0.7),
         MaskCalculationFlag = cms.int32(1),
