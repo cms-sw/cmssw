@@ -7,7 +7,7 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
     # add digi producers same way as Domenico in SiStripClusterizer
     DigiProducersList = cms.VPSet(cms.PSet(
         DigiLabel = cms.string('ZeroSuppressed'),
-        DigiProducer = cms.string('SiStripDigis')
+        DigiProducer = cms.string('siStripDigis')
     ), 
         cms.PSet(
             DigiLabel = cms.string('VirginRaw'),
@@ -30,5 +30,6 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
     ShowControlView = cms.bool(False),
     ShowReadoutView = cms.bool(False)
 )
+
 
 
