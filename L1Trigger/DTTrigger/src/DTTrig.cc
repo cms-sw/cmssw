@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 
@@ -57,6 +58,7 @@ DTTrig::DTTrig(const DTConfigManager *conf, const  edm::ParameterSet &params) : 
     std::cout << "DTTrig::DTTrig creating synchronizer" << std::endl;
   }
 
+  _digitag   = params.getParameter<edm::InputTag>("digiTag");
   _digi_sync = DTTTrigSyncFactory::get()->create(params.getParameter<std::string>("tTrigMode"),
 					      params.getParameter<edm::ParameterSet>("tTrigModeConfig"));
 }
