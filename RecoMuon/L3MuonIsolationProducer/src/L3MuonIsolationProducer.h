@@ -56,7 +56,7 @@ private:
   int theMaxNTracks;
 
   //! apply or not the maxN cut on top of the sumPt (or nominall eff) < cuts
-  bool theApplyCutsANDmaxNTracks;
+  bool theApplyCutsORmaxNTracks;
 
 };
 

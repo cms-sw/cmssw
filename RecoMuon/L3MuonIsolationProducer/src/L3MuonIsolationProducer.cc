@@ -145,7 +145,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     int count = sumAndCount.second;
 
     bool result = (value < cut.threshold); 
-    if (theApplyCutsANDmaxNTracks ) result &= count < theMaxNTracks;
+    if (theApplyCutsORmaxNTracks ) result |= count <= theMaxNTracks;
     LogTrace(metname)<<"deposit in cone: "<<value<<"with count "<<count<<" is isolated: "<<result;
 
     isos[iMu] = result;
