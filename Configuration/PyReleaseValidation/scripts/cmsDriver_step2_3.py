@@ -29,7 +29,7 @@ if ( len(sys.argv)>1):
     typeOfEv=sys.argv[1]
 if not ( typeOfEv in alcaDict3 ):
     print 'Usage; cmsDriver_step2_3.py <job type>'
-    print '  <job type>: RELVAL, MinBias, JetETXX, GammaJets, MuonPTXX, ZW, HCALNZS, HCLIST'
+    print '  <job type>: RELVAL, MinBias, JetETXX, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST'
     sys.exit()
 
 alca2=alcaDict2[typeOfEv]
