@@ -8,6 +8,7 @@
 <use name=DataFormats/PatCandidates>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/EgammaCandidates>
+<use name=PhysicsTools/CandUtils>
 <use name=rootrflx>
 <use name=root>
 
@@ -21,6 +22,7 @@
   <use name=DataFormats/PatCandidates>
   <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/EgammaCandidates>
+  <use name=PhysicsTools/CandUtils>
   <use name=root>
 
   <lib name=AnalysisDataFormatsTopObjects>

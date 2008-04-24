@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.23 2008/01/25 13:32:14 vadler Exp $
+// $Id: TtSemiEvtSolution.h,v 1.24 2008/02/15 12:10:47 rwolf Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -23,6 +23,9 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
+#include "DataFormats/Candidate/interface/CandidateWithRef.h"
+#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
+
 // FIXME: make the decay member an enumerable
 // FIXME: Can we generalize all the muon and electron to lepton?
 
@@ -36,6 +39,12 @@ class TtSemiEvtSolution {
   friend class TtSemiLRJetCombCalc;
   
  public:
+
+
+  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Jet> > >         JetCandRef;
+  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Electron> > >    ElectronCandRef;
+  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Muon> > >        MuonCandRef;
+  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::MET> > >         METCandRef;
   
   TtSemiEvtSolution();
   virtual ~TtSemiEvtSolution();
@@ -155,6 +164,15 @@ class TtSemiEvtSolution {
   double getLRJetCombObsVal(unsigned int) const;
   double getLRJetCombLRval() const { return lrJetCombLRval_; }
   double getLRJetCombProb() const { return lrJetCombProb_; }
+
+
+
+  //-------------------------------------------  
+  // get the various event hypotheses
+  //-------------------------------------------  
+  const reco::NamedCompositeCandidate & getRecoHyp() const { return recoHyp_; }
+  const reco::NamedCompositeCandidate & getFitHyp () const { return fitHyp_;  }
+  const reco::NamedCompositeCandidate & getMCHyp  () const { return mcHyp_;   }
   
  protected:         
 
@@ -233,7 +251,9 @@ class TtSemiEvtSolution {
   void setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval);
   void setLRSignalEvtLRval(double clr) {lrSignalEvtLRval_ = clr;};
   void setLRSignalEvtProb(double plr) {lrSignalEvtProb_ = plr;};
-  
+
+
+
  private:
 
   //-------------------------------------------    
@@ -246,6 +266,12 @@ class TtSemiEvtSolution {
   edm::Ref<std::vector<pat::MET> > neutrino_;
   std::vector<pat::Particle> fitHadb_, fitHadp_, fitHadq_;
   std::vector<pat::Particle> fitLepb_, fitLepl_, fitLepn_;
+
+  reco::NamedCompositeCandidate mcHyp_;
+  reco::NamedCompositeCandidate recoHyp_;
+  reco::NamedCompositeCandidate fitHyp_;
+
+  void setupHyp();
 
   std::string decay_;
   int jetCorrScheme_;
