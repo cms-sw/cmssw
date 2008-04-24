@@ -1,11 +1,11 @@
 2008-04-24  Marco Zanetti  <marco.zanetti@cern.ch>
 
-	* tag V00-06-11
+	* tag V00-06-12
 	* log directory added for the SM
 
 2008-04-17  Marco Zanetti  <marco.zanetti@cern.ch>
 
-	* tag V00-06-10
+	* tag V00-06-11
 	* DQMStore service added to fu configuration
 	* time-out between configuring and enabling for PB
 	* RBproperties: processKillerEnabled false
