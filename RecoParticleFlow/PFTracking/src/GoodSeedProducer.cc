@@ -231,18 +231,18 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  float etarec=meanShower.eta();
 	  float phirec=meanShower.phi();
 	  float tmp_ep=aClus->energy()/PTOB;
-          float tmp_phi=fabs(aClus->positionXYZ().phi()-phirec);
+          float tmp_phi=fabs(aClus->position().phi()-phirec);
 	  if (tmp_phi>TMath::TwoPi()) tmp_phi-= TMath::TwoPi();
 	  float tmp_dr=sqrt(pow(tmp_phi,2)+
-			    pow((aClus->positionXYZ().eta()-etarec),2));
+			    pow((aClus->position().eta()-etarec),2));
 	  
 	  if ((tmp_dr<dr)&&(tmp_ep>minEp_)&&(tmp_ep<maxEp_)){
 	    dr=tmp_dr;
-	    toteta=aClus->positionXYZ().eta()-etarec;
+	    toteta=aClus->position().eta()-etarec;
 	    totphi=tmp_phi;
 	    EP=tmp_ep;
 	    EE=aClus->energy();
-	    feta= aClus->positionXYZ().eta();
+	    feta= aClus->position().eta();
 	  }
 	}
       }
@@ -525,8 +525,8 @@ void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
       float chi1=100;
       vector<PFCluster>::const_iterator ips;
       for (ips=ps1Clus.begin(); ips!=ps1Clus.end();ips++){
-	float ax=((*ips).positionXYZ().x()-v1.x())/0.114;
-	float ay=((*ips).positionXYZ().y()-v1.y())/2.43;
+	float ax=((*ips).position().x()-v1.x())/0.114;
+	float ay=((*ips).position().y()-v1.y())/2.43;
 	float pschi= sqrt(ax*ax+ay*ay);
 	if (pschi<chi1){
 	  chi1=pschi;
@@ -547,8 +547,8 @@ void GoodSeedProducer::PSforTMVA(XYZTLorentzVector mom,XYZTLorentzVector pos ){
 	  float enPScl2=0;
 	  float chi2=100;
 	  for (ips=ps2Clus.begin(); ips!=ps2Clus.end();ips++){
-	    float ax=((*ips).positionXYZ().x()-v2.x())/1.88;
-	    float ay=((*ips).positionXYZ().y()-v2.y())/0.1449;
+	    float ax=((*ips).position().x()-v2.x())/1.88;
+	    float ay=((*ips).position().y()-v2.y())/0.1449;
 	    float pschi= sqrt(ax*ax+ay*ay);
 	    if (pschi<chi2){
 	      chi2=pschi;

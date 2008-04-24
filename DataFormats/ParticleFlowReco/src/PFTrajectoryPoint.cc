@@ -46,7 +46,7 @@ std::ostream& reco::operator<<(std::ostream& out,
                                const reco::PFTrajectoryPoint& trajPoint) {
   if(!out) return out;
   
-  const math::XYZPoint& posxyz = trajPoint.positionXYZ();
+  const math::XYZPoint& posxyz = trajPoint.position();
   
   out<<"Traj point id = "<<trajPoint.detId()
      <<", layer = "<<trajPoint.layer()

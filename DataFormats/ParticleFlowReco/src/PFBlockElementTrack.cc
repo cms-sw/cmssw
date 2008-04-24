@@ -39,8 +39,8 @@ void PFBlockElementTrack::Dump(ostream& out,
     // check if  reach ecal Shower max 
     if( atECAL.isValid() ) { 
       s = "  at ECAL shower max";  
-      tracketa = atECAL.positionXYZ().Eta();
-      trackphi = atECAL.positionXYZ().Phi();
+      tracketa = atECAL.position().Eta();
+      trackphi = atECAL.position().Phi();
     }
     
     out<<setprecision(0);

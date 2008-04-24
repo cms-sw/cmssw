@@ -15,7 +15,7 @@ void PFBlockElementCluster::Dump(ostream& out,
   // need to convert the math::XYZPoint data member of the PFCluster class=
   // to a displacement vector: 
   ROOT::Math::DisplacementVector3D< ROOT::Math::Cartesian3D<double> , ROOT::Math::DefaultCoordinateSystemTag > 
-    clusterPos( clusterRef_->positionXYZ().X(), clusterRef_->positionXYZ().Y(),clusterRef_->positionXYZ().Z() );
+    clusterPos( clusterRef_->position().X(), clusterRef_->position().Y(),clusterRef_->position().Z() );
 
   clusterPos = clusterPos.Unit();
   double E = clusterRef_->energy();
@@ -29,7 +29,7 @@ void PFBlockElementCluster::Dump(ostream& out,
   out << setw(4) <<", ET =" << setw(7) << ET;
   out << setw(4) <<", E ="  << setw(7) << E;
   out << " (eta,phi)= (";
-  out << clusterRef_->positionXYZ().Eta()<<",";
-  out << clusterRef_->positionXYZ().Phi()<<")";
+  out << clusterRef_->position().Eta()<<",";
+  out << clusterRef_->position().Phi()<<")";
   out << resetiosflags(ios::right|ios::fixed);
 }

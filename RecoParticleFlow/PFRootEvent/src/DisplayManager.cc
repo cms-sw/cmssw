@@ -256,8 +256,8 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
                                     int ident, 
                                     double phi0)
 {
-  double eta = cluster.positionXYZ().Eta();
-  double phi = cluster.positionXYZ().Phi();
+  double eta = cluster.position().Eta();
+  double phi = cluster.position().Phi();
   
 
   //   int type = cluster.type();
@@ -280,7 +280,7 @@ void DisplayManager::createGCluster(const reco::PFCluster& cluster,
   if ( cluster.layer()==PFLayer::PS1 || cluster.layer()==PFLayer::PS2 )
      clusType=1;  
 
-  const math::XYZPoint& xyzPos = cluster.positionXYZ();
+  const math::XYZPoint& xyzPos = cluster.position();
   GPFCluster *gc;
   
   for (int viewType=0;viewType<4;viewType++){
@@ -392,7 +392,7 @@ void DisplayManager::createGPart( const reco::PFSimParticle &ptc,
     for(unsigned i=0; i<points.size(); i++) {
       if( !points[i].isValid() ) continue;
         
-      const math::XYZPoint& xyzPos = points[i].positionXYZ();      
+      const math::XYZPoint& xyzPos = points[i].position();      
       double eta = xyzPos.Eta();
       double phi = xyzPos.Phi();
     
@@ -493,8 +493,8 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
           layer == PFLayer::HCAL_ENDCAP ) ) {
       continue;
     }
-    double rheta = rh.positionXYZ().Eta();
-    double rhphi = rh.positionXYZ().Phi();
+    double rheta = rh.position().Eta();
+    double rhphi = rh.position().Phi();
 
     double sign = 1.;
     if (cos(phi0 - rhphi) < 0.) sign = -1.;
@@ -552,7 +552,7 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
                 layer == PFLayer::HCAL_ENDCAP ) ) ) ) {
       
       
-        math::XYZPoint centreXYZrot = rh.positionXYZ();
+        math::XYZPoint centreXYZrot = rh.position();
 
         math::XYZPoint centertocorner(x[jc] - centreXYZrot.X(), 
                                       y[jc] - centreXYZrot.Y(),
@@ -690,7 +690,7 @@ void DisplayManager::createGTrack( reco::PFRecTrack &tr,
     for(unsigned i=0; i<points.size(); i++) {
       if( !points[i].isValid() ) continue;
       
-      const math::XYZPoint& xyzPos = points[i].positionXYZ();      
+      const math::XYZPoint& xyzPos = points[i].position();      
       double eta = xyzPos.Eta();
       double phi = xyzPos.Phi();
     
@@ -1432,7 +1432,7 @@ void DisplayManager::loadGSimParticles()
     double sign = 1.;
     
     const reco::PFTrajectoryPoint& tpFirst = ptc.trajectoryPoint(0);
-    if ( tpFirst.positionXYZ().X() < 0. )
+    if ( tpFirst.position().X() < 0. )
       sign = -1.;
 
     const std::vector<reco::PFTrajectoryPoint>& points = 
@@ -1517,8 +1517,8 @@ void DisplayManager::lookForMaxRecHit(bool ecal)
   double etagate = zoomFactor_ * etasize;
   double phigate = zoomFactor_ * phisize;
   
-  double eta =  maxrh->positionXYZ().Eta();
-  double phi =  maxrh->positionXYZ().Phi();
+  double eta =  maxrh->position().Eta();
+  double phi =  maxrh->position().Phi();
   
   if(displayHist_[EPE]) {
     displayHist_[EPE]->GetXaxis()->SetRangeUser(eta-etagate, eta+etagate);

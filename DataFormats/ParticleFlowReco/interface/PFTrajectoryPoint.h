@@ -85,7 +85,7 @@ namespace reco {
     }
 
     /// cartesian position (x, y, z)
-    const math::XYZPoint& positionXYZ() const { return posxyz_; }
+    const math::XYZPoint& position() const { return posxyz_; }
 
     /// trajectory position in (rho, eta, phi) base
     const REPPoint& positionREP() const { return posrep_; }

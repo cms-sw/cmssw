@@ -43,8 +43,8 @@ std::ostream& reco::operator<<(std::ostream& out,
       << ", type = " << track.algoType()
       << ", Pt = " << closestApproach.momentum().Pt() 
       << ", P = " << closestApproach.momentum().P() << std::endl
-      << "\tR0 = " << closestApproach.positionXYZ().Rho()
-      <<" Z0 = " << closestApproach.positionXYZ().Z() << std::endl
+      << "\tR0 = " << closestApproach.position().Rho()
+      <<" Z0 = " << closestApproach.position().Z() << std::endl
       << "\tnumber of tracker measurements = " 
       << track.nTrajectoryMeasurements() << std::endl
       <<"\tnumber of points total = "

@@ -11,12 +11,12 @@ PFRecHit::PFRecHit() :
   layer_(0),
   energy_(0.), 
   // seedState_(-1), 
-  posxyz_(math::XYZPoint(0.,0.,0.)),
+  position_(math::XYZPoint(0.,0.,0.)),
   posrep_(REPPoint(0.,0.,0.)) {
 
   cornersxyz_.reserve( nCorners_ );
   for(unsigned i=0; i<nCorners_; i++) { 
-    cornersxyz_.push_back( posxyz_ );    
+    cornersxyz_.push_back( position_ );    
   }
 
   cornersrep_.reserve( nCorners_ );
@@ -40,7 +40,7 @@ PFRecHit::PFRecHit(unsigned detId,
   layer_(layer),
   energy_(energy), 
   // seedState_(-1), 
-  posxyz_(position),
+  position_(position),
   posrep_( position.Rho(), position.Eta(), position.Phi() ),
   axisxyz_(axisxyz),
   cornersxyz_(cornersxyz) 
@@ -64,16 +64,16 @@ PFRecHit::PFRecHit(unsigned detId,
   layer_(layer),
   energy_(energy), 
   // seedState_(-1), 
-  posxyz_(posx, posy, posz),
-  posrep_( posxyz_.Rho(), 
-           posxyz_.Eta(), 
-           posxyz_.Phi() ),  
+  position_(posx, posy, posz),
+  posrep_( position_.Rho(), 
+           position_.Eta(), 
+           position_.Phi() ),  
   axisxyz_(axisx, axisy, axisz) {
   
 
   cornersxyz_.reserve( nCorners_ );
   for(unsigned i=0; i<nCorners_; i++) { 
-    cornersxyz_.push_back( posxyz_ );    
+    cornersxyz_.push_back( position_ );    
   } 
 
   cornersrep_.reserve( nCorners_ );
@@ -92,7 +92,7 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   layer_(other.layer_), 
   energy_(other.energy_), 
   // seedState_(other.seedState_),
-  posxyz_(other.posxyz_), 
+  position_(other.position_), 
   posrep_(other.posrep_),
   axisxyz_(other.axisxyz_),
   cornersxyz_(other.cornersxyz_),
@@ -112,7 +112,7 @@ PFRecHit::~PFRecHit()
 const PFRecHit::REPPoint& 
 PFRecHit::positionREP() const {
   //   if( posrep_ == REPPoint() ) {
-  //     posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() );
+  //     posrep_.SetCoordinates( position_.Rho(), position_.Eta(), position_.Phi() );
   //   }
   return posrep_;
 }
@@ -120,7 +120,7 @@ PFRecHit::positionREP() const {
 
 void 
 PFRecHit::calculatePositionREP() {
-  posrep_.SetCoordinates( posxyz_.Rho(),  posxyz_.Eta(),  posxyz_.Phi() );
+  posrep_.SetCoordinates( position_.Rho(),  position_.Eta(),  position_.Phi() );
   for ( unsigned i=0; i<nCorners_; ++i ) {
     cornersrep_[i].SetCoordinates(cornersxyz_[i].Rho(),cornersxyz_[i].Eta(),cornersxyz_[i].Phi() );
   }
@@ -283,7 +283,7 @@ ostream& reco::operator<<(ostream& out, const reco::PFRecHit& hit) {
   //   reco::PFRecHit& nshit = const_cast<reco::PFRecHit& >(hit);
   //   const reco::PFRecHit::REPPoint& posrep = nshit.positionREP();
   
-  const  math::XYZPoint& posxyz = hit.positionXYZ();
+  const  math::XYZPoint& posxyz = hit.position();
 
   out<<"hit id:"<<hit.detId()
      <<" l:"<<hit.layer()

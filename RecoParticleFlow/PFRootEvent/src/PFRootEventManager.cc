@@ -1474,8 +1474,8 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
   
   for(unsigned i=0; i<clusters.size(); i++) {
     EventColin::Cluster cluster;
-    cluster.eta = clusters[i].positionXYZ().Eta();
-    cluster.phi = clusters[i].positionXYZ().Phi();
+    cluster.eta = clusters[i].position().Eta();
+    cluster.phi = clusters[i].position().Phi();
     cluster.e = clusters[i].energy();
     cluster.layer = clusters[i].layer();
     cluster.type = 1;
@@ -1550,8 +1550,8 @@ PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollec
         = ptc.extrapolatedPoint( ecalEntrance );
         
       EventColin::Particle outptc;
-      outptc.eta = tpatecal.positionXYZ().Eta();
-      outptc.phi = tpatecal.positionXYZ().Phi();    
+      outptc.eta = tpatecal.position().Eta();
+      outptc.phi = tpatecal.position().Phi();    
       outptc.e = tpatecal.momentum().E();
       outptc.pdgCode = ptc.pdgCode();
     
@@ -2580,8 +2580,8 @@ void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
 
   if(!out) return;
   
-  double eta = rh.positionXYZ().Eta();
-  double phi = rh.positionXYZ().Phi();
+  double eta = rh.position().Eta();
+  double phi = rh.position().Phi();
 
   
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
@@ -2594,8 +2594,8 @@ void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
   
   if(!out) return;
 
-  double eta = cluster.positionXYZ().Eta();
-  double phi = cluster.positionXYZ().Phi();
+  double eta = cluster.position().Eta();
+  double phi = cluster.position().Phi();
 
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
   if( !cutg || cutg->IsInside( eta, phi ) ) 
@@ -2616,7 +2616,7 @@ bool PFRootEventManager::trackInsideGCut( const reco::PFTrack& track ) const {
   for( unsigned i=0; i<points.size(); i++) {
     if( ! points[i].isValid() ) continue;
     
-    const math::XYZPoint& pos = points[i].positionXYZ();
+    const math::XYZPoint& pos = points[i].position();
     if( cutg->IsInside( pos.Eta(), pos.Phi() ) ) return true;
   }
 
@@ -2637,8 +2637,8 @@ PFRootEventManager::fillRecHitMask( vector<bool>& mask,
   mask.reserve( rechits.size() );
   for(unsigned i=0; i<rechits.size(); i++) {
     
-    double eta = rechits[i].positionXYZ().Eta();
-    double phi = rechits[i].positionXYZ().Phi();
+    double eta = rechits[i].position().Eta();
+    double phi = rechits[i].position().Phi();
 
     if( cutg->IsInside( eta, phi ) )
       mask.push_back( true );
@@ -2659,8 +2659,8 @@ PFRootEventManager::fillClusterMask(vector<bool>& mask,
   mask.reserve( clusters.size() );
   for(unsigned i=0; i<clusters.size(); i++) {
     
-    double eta = clusters[i].positionXYZ().Eta();
-    double phi = clusters[i].positionXYZ().Phi();
+    double eta = clusters[i].position().Eta();
+    double phi = clusters[i].position().Phi();
 
     if( cutg->IsInside( eta, phi ) )
       mask.push_back( true );
@@ -2718,8 +2718,8 @@ PFRootEventManager::closestParticle( reco::PFTrajectoryPoint::LayerType layer,
     const reco::PFTrajectoryPoint& tp
       = ptc.extrapolatedPoint( layer );
 
-    peta = tp.positionXYZ().Eta();
-    pphi = tp.positionXYZ().Phi();
+    peta = tp.position().Eta();
+    pphi = tp.position().Phi();
     pe = tp.momentum().E();
 
     double deta = peta - eta;

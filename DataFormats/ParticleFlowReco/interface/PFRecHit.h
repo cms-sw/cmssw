@@ -112,7 +112,7 @@ namespace reco {
     // void youAreSeed(int seedstate=1) {seedState_ = seedstate;} 
 
     /// rechit cell centre x, y, z
-    const math::XYZPoint& positionXYZ() const { return posxyz_; }
+    const math::XYZPoint& position() const { return position_; }
 
     /// rechit cell centre rho, eta, phi. call calculatePositionREP before !
     const REPPoint& positionREP() const;
@@ -187,7 +187,7 @@ namespace reco {
     // int                 seedState_;
  
     /// rechit cell centre: x, y, z
-    math::XYZPoint      posxyz_;
+    math::XYZPoint      position_;
 
     /// rechit cell centre: rho, eta, phi (transient)
     REPPoint            posrep_;

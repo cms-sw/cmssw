@@ -1,6 +1,8 @@
 #ifndef DataFormats_ParticleFlowReco_PFCluster_h
 #define DataFormats_ParticleFlowReco_PFCluster_h
 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Rtypes.h" 
@@ -36,25 +38,24 @@ namespace reco {
      \author Colin Bernet
      \date   July 2006
   */
-  class PFCluster {
+  class PFCluster : public CaloCluster {
   public:
 
 
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
     /// default constructor
-    PFCluster();
-  
+    PFCluster() : layer_(0), color_(1) {}
 
     /// constructor
     PFCluster(int layer, double energy,
               double x, double y, double z );
 
     /// copy constructor
-    PFCluster(const PFCluster& other);
+    // PFCluster(const PFCluster& other);
 
     /// destructor
-    ~PFCluster();
+    // ~PFCluster() {}
 
     /// resets clusters parameters
     void reset();
@@ -72,15 +73,15 @@ namespace reco {
     /// cluster energy
     double        energy() const {return energy_;}
 
-    /// cluster position: cartesian
-    const math::XYZPoint& positionXYZ() const {return posxyz_;}
+/*     /// cluster position: cartesian */
+/*     const math::XYZPoint& position() const {return posxyz_;} */
 
     /// cluster position: rho, eta, phi
     const REPPoint&       positionREP() const {return posrep_;}
 
     /// calculates posrep_ once and for all
     void calculatePositionREP() {
-      posrep_.SetCoordinates( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ); 
+      posrep_.SetCoordinates( position_.Rho(), position_.Eta(), position_.Phi() ); 
     }
 
 
@@ -123,12 +124,6 @@ namespace reco {
 
     /// cluster layer, see PFClusterLayer.h
     int           layer_;          
-
-    /// cluster energy
-    double        energy_;
-
-    /// cluster position: cartesian
-    math::XYZPoint      posxyz_;
 
     /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;

@@ -14,56 +14,37 @@ double PFCluster::depthCorBp_ = 4.0;
 unsigned PFCluster::instanceCounter_ = 0;
 
 
-PFCluster::PFCluster() :
-  layer_(0),
-  energy_(0),
-  //   posCalcMode_(0),
-  //   posCalcP1_(0),
-  //   posCalcDepthCor_(false),
-  color_(1)
-{ 
-  instanceCounter_++;
-}
-
-
-
 PFCluster::PFCluster(int layer, double energy,
                      double x, double y, double z ) : 
+  CaloCluster( energy, math::XYZPoint(x,y,z) ),
   layer_(layer),
-  energy_(energy), 
-  posxyz_(x,y,z),
-  posrep_( posxyz_.Rho(), posxyz_.Eta(), posxyz_.Phi() ),
-  //   posCalcMode_(0),
-  //   posCalcP1_(0),
-  //   posCalcDepthCor_(false),
+  posrep_( position_.Rho(), position_.Eta(), position_.Phi() ),
   color_(2)
 {  
-  instanceCounter_++;
+//   instanceCounter_++;
 }
   
 
-PFCluster::PFCluster(const PFCluster& other) :
-  rechits_(other.rechits_),
-  layer_(other.layer_), 
-  energy_(other.energy_),
-  posxyz_(other.posxyz_),
-  posrep_(other.posrep_),
-  //   posCalcMode_(other.posCalcMode_),
-  //   posCalcP1_(other.posCalcP1_),
-  //   posCalcDepthCor_(other.posCalcDepthCor_),
-  color_(other.color_)
-{
-  instanceCounter_++;
-}
+// PFCluster::PFCluster(const PFCluster& other) :
+//   rechits_(other.rechits_),
+//   layer_(other.layer_), 
+//   posrep_(other.posrep_),
+//   //   posCalcMode_(other.posCalcMode_),
+//   //   posCalcP1_(other.posCalcP1_),
+//   //   posCalcDepthCor_(other.posCalcDepthCor_),
+//   color_(other.color_)
+// {
+//   instanceCounter_++;
+// }
 
-PFCluster::~PFCluster() {
-  instanceCounter_--;
-}
+// PFCluster::~PFCluster() {
+//   instanceCounter_--;
+// }
 
 void PFCluster::reset() {
   
   energy_ = 0;
-  posxyz_ *= 0;
+  position_ *= 0;
   posrep_ *= 0;
   
   rechits_.clear();
@@ -95,7 +76,7 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 //   posCalcDepthCor_ = depcor;
   
 
-//   posxyz_.SetXYZ(0,0,0);
+//   position_.SetXYZ(0,0,0);
 
 //   energy_ = 0;
 //   layer_ = 0;
@@ -215,7 +196,7 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
     
     
     
-//     const math::XYZPoint& rechitposxyz = rechit->positionXYZ();
+//     const math::XYZPoint& rechitposxyz = rechit->position();
     
 //     if( theRecHitEnergy > maxe ) {
 //       firstrechitposxyz = rechitposxyz;
@@ -248,7 +229,7 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 //   }  
 
 //   posrep_ = clusterpos;
-//   posxyz_ = clusterposxyz;
+//   position_ = clusterposxyz;
 
 
 //   // correction of the rechit position, 
@@ -337,7 +318,7 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
       
 //       double theRecHitEnergy = rechit->energy() * fraction;
 
-//       const math::XYZPoint&  rechitposxyz = rechit->positionXYZ();
+//       const math::XYZPoint&  rechitposxyz = rechit->position();
 
 //       // rechit axis not correct ! 
 //       math::XYZVector rechitaxis = rechit->getAxisXYZ();
@@ -397,7 +378,7 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 //       posrep_.SetCoordinates( clusterposxyzcor.Rho(), 
 //                            clusterposxyzcor.Eta(), 
 //                            clusterposxyzcor.Phi() );
-//       posxyz_  = clusterposxyzcor;
+//       position_  = clusterposxyzcor;
 //       clusterposxyz = clusterposxyzcor;
 //     }
 //   }
@@ -409,7 +390,7 @@ PFCluster& PFCluster::operator=(const PFCluster& other) {
   rechits_ = other.rechits_;
   layer_= other.layer_;
   energy_ = other.energy_;
-  posxyz_ = other.posxyz_;
+  position_ = other.position_;
   posrep_ = other.posrep_;
   color_ = other.color_;
 
@@ -493,8 +474,8 @@ std::ostream& reco::operator<<(std::ostream& out,
   
   if(!out) return out;
   
-  const math::XYZPoint&  posxyz = cluster.positionXYZ();
-  const PFCluster::REPPoint&  pos = cluster.positionREP();
+  const math::XYZPoint&  pos = cluster.position();
+  const PFCluster::REPPoint&  posrep = cluster.positionREP();
   const std::vector< reco::PFRecHitFraction >& fracs = 
     cluster.recHitFractions();
   
@@ -502,9 +483,9 @@ std::ostream& reco::operator<<(std::ostream& out,
      <<"\tlayer: "<<cluster.layer()
      <<"\tenergy: "<<cluster.energy()
      <<"\tXYZ: "
-     <<posxyz.X()<<","<<posxyz.Y()<<","<<posxyz.Z()<<" | "
+     <<pos.X()<<","<<pos.Y()<<","<<pos.Z()<<" | "
      <<"\tREP: "
-     <<pos.Rho()<<","<<pos.Eta()<<","<<pos.Phi()<<" | "
+     <<posrep.Rho()<<","<<posrep.Eta()<<","<<posrep.Phi()<<" | "
      <<fracs.size()<<" rechits: ";
   for(unsigned i=0; i<fracs.size(); i++) {
     out<<fracs[i]<<", ";

@@ -99,8 +99,8 @@ ostream& reco::operator<<(ostream& out,
   out<<"Track charge = "<<track.charge() 
      <<", Pt = "<<closestApproach.momentum().Pt() 
      <<", P = "<<closestApproach.momentum().P()<<endl
-     <<"\tR0 = "<<closestApproach.positionXYZ().Rho()
-     <<" Z0 = "<<closestApproach.positionXYZ().Z()<<endl
+     <<"\tR0 = "<<closestApproach.position().Rho()
+     <<" Z0 = "<<closestApproach.position().Z()<<endl
      <<"\tnumber of tracker measurements = " 
      <<track.nTrajectoryMeasurements()<<endl;
   for(unsigned i=0; i<track.trajectoryPoints_.size(); i++) 

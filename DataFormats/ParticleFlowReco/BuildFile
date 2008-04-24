@@ -3,6 +3,7 @@
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/CaloRecHit>
 <use name=FWCore/Utilities>
 <use name=DataFormats/VertexReco>
 <use name=rootmath>
