@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.5 2008/02/28 20:07:58 drell Exp $
+// $Id: V0Analyzer.cc,v 1.6 2008/03/14 17:13:23 drell Exp $
 //
 //
 
@@ -46,8 +46,9 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
-#include "DataFormats/V0Candidate/interface/V0Candidate.h"
+//#include "DataFormats/V0Candidate/interface/V0Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 //#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 //#include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -481,7 +482,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   using namespace edm;
   //Handle<reco::VertexCollection> theVtxHandle;
   Handle< std::vector<reco::Vertex> > theVtxHandle;
-  Handle< std::vector<reco::V0Candidate> > theCandHand;
+  //Handle< std::vector<reco::V0Candidate> > theCandHand;
+  Handle<reco::VertexCompositeCandidateCollection> theCandHand;
   Handle<SimTrackContainer> SimTk;
   Handle<SimVertexContainer> SimVtx;
   Handle<reco::TrackCollection> RecoTk;
@@ -505,7 +507,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   std::vector<reco::Track> theRecoTracks;
   std::vector<SimVertex> theSimVerts;
   std::vector<SimTrack> theSimTracks;
-  std::vector<reco::V0Candidate> theKshorts;
+  //std::vector<reco::V0Candidate> theKshorts;
+  std::vector<reco::VertexCompositeCandidate> theKshorts;
   theRecoTracks.insert( theRecoTracks.end(), RecoTk->begin(), RecoTk->end() );
   theSimVerts.insert( theSimVerts.end(), SimVtx->begin(), SimVtx->end() );
   theSimTracks.insert( theSimTracks.end(), SimTk->begin(), SimTk->end() );
@@ -620,11 +623,17 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 				    1.);
     }
     
-    reco::Vertex k0s = theKshorts[ksndx].vertex();
-    myKshortPtHisto->Fill(sqrt(theKshorts[ksndx].momentum().x() *
-			       theKshorts[ksndx].momentum().x() +
-			       theKshorts[ksndx].momentum().y() *
-			       theKshorts[ksndx].momentum().y()), 1.);
+    //reco::Vertex k0s = theKshorts[ksndx].vertex();
+    reco::Particle::Point k0s(theKshorts[ksndx].vx(),
+			      theKshorts[ksndx].vy(),
+			      theKshorts[ksndx].vz());
+
+    /*myKshortPtHisto->Fill(sqrt(theKshorts[ksndx].px() *
+			       theKshorts[ksndx].px() +
+			       theKshorts[ksndx].py() *
+			       theKshorts[ksndx].py()), 1.);*/
+    myKshortPtHisto->Fill(theKshorts[ksndx].pt(), 1.);
+
     if(theKshorts[ksndx].pdgId() == 310) {
       hasKshort = true;
     }
@@ -653,16 +662,22 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     double x_ = k0s.x();
     double y_ = k0s.y();
     double z_ = k0s.z();
-    double sig00 = k0s.covariance(0,0);
-    double sig11 = k0s.covariance(1,1);
-    double sig22 = k0s.covariance(2,2);
-    double sig01 = k0s.covariance(0,1);
-    double sig02 = k0s.covariance(0,2);
-    double sig12 = k0s.covariance(1,2);
+    //double sig00 = k0s.covariance(0,0);
+    //double sig11 = k0s.covariance(1,1);
+    //double sig22 = k0s.covariance(2,2);
+    //double sig01 = k0s.covariance(0,1);
+    //double sig02 = k0s.covariance(0,2);
+    //double sig12 = k0s.covariance(1,2);
+    double sig00 = theKshorts[ksndx].vertexCovariance(0,0);
+    double sig11 = theKshorts[ksndx].vertexCovariance(1,1);
+    double sig22 = theKshorts[ksndx].vertexCovariance(2,2);
+    double sig01 = theKshorts[ksndx].vertexCovariance(0,1);
+    double sig02 = theKshorts[ksndx].vertexCovariance(0,2);
+    double sig12 = theKshorts[ksndx].vertexCovariance(1,2);
 
     double vtxRSph = vtxPos.mag();
     double vtxR = vtxPos.perp();
-    double vtxChi2 = k0s.chi2();
+    double vtxChi2 = theKshorts[ksndx].vertexChi2();
     double vtxErrorSph =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_) + sig22*(z_*z_)
 	    + 2*(sig01*(x_*y_) + sig02*(x_*z_) + sig12*(y_*z_)) ) 
@@ -824,7 +839,10 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 
     //}
     
-    std::vector<reco::Track> theRefTracks = k0s.refittedTracks();
+    //    std::vector<reco::Track> theRefTracks = k0s.refittedTracks();
+    std::vector<reco::Track> theRefTracks;
+    theRefTracks.push_back(*theDaughterTracks[0]);
+    theRefTracks.push_back(*theDaughterTracks[1]);
     
     /*for (unsigned int ndx = 0; ndx < theRefTracks.size(); ndx++) {
 
