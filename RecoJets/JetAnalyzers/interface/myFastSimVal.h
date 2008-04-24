@@ -11,6 +11,8 @@
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+class TFile;
+
 class myFastSimVal : public edm::EDAnalyzer {
 public:
   myFastSimVal( const edm::ParameterSet & );
