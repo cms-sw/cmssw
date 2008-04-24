@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.26 2008/04/16 16:14:52 biery Exp $
+   $Id: StorageManager.h,v 1.27 2008/04/21 12:12:26 loizides Exp $
 */
 
 #include <string>
@@ -235,9 +235,12 @@ namespace stor {
       int		nevents_;
       int		totSizeInkBytes_;
     };
+
     typedef std::map<std::string,streammon> smap;
     typedef std::map<std::string,streammon>::iterator ismap;
-    smap	streams_;
+    smap	 streams_;
+
+    unsigned int lastEventSeen_; // report last seen event id
 
     enum
     {

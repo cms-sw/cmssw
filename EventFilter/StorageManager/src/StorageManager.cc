@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.49 2008/04/18 14:40:28 loizides Exp $
+// $Id: StorageManager.cc,v 1.50 2008/04/21 12:12:26 loizides Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -103,7 +103,8 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   storedEvents_(0), 
   dqmRecords_(0), 
   storedVolume_(0.),
-  progressMarker_(ProgressMarker::instance()->idle())
+  progressMarker_(ProgressMarker::instance()->idle()),
+  lastEventSeen_(0)
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -538,6 +539,9 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
 
+         //update last event seen
+         lastEventSeen_ = msg->eventID;
+
          int status = 
 	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
@@ -586,6 +590,10 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
                       << " From " << msg->hltURL
                       << " Different from Run Number from configuration = " << runNumber_);
     }
+
+    //update last event seen
+    lastEventSeen_ = msg->eventID;
+
     // for FU sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
@@ -933,6 +941,14 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << storedEvents_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Last Event ID" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << lastEventSeen_ << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=4>"                                       << endl;
     *out << "      " << "Streams"                                      << endl;
@@ -1341,10 +1357,10 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
-          *out << "<td align=right>" << endl;
+          *out << "<td>" << endl;
           *out << "Connection Status" << endl;
           *out << "</td>" << endl;
-          *out << "<td>" << endl;
+          *out << "<td align=right>" << endl;
           *out << (*pos)->connectStatus_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
@@ -3433,71 +3449,98 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     // is still specified in bytes (rather than MBytes).  (All we really
     // check is if the maxSize is unreasonably large after converting
     // it to bytes.)
-    try {
-      // create a parameter set from the configuration string
-      ProcessDesc pdesc(smConfigString_);
-      boost::shared_ptr<edm::ParameterSet> smPSet = pdesc.getProcessPSet();
+    //@@EM this is done on the xdaq parameter if it is set (i.e. if >0),
+    // otherwise on the cfg params
+    if(smParameter_ ->maxFileSize()>0) {
+      long long maxSize = 1048576 *
+         (long long) smParameter_ -> maxFileSize();
+      if (maxSize > 2E+13) {
+        std::string errorString =  "The maxSize parameter (file size) ";
+        errorString.append("from xdaq configuration is too large(");
+        try {
+          errorString.append(boost::lexical_cast<std::string>(maxSize));
+        }
+        catch (boost::bad_lexical_cast& blcExcpt) {
+          errorString.append("???");
+        }
+        errorString.append(" bytes). ");
+        errorString.append("Please check that this parameter is ");
+        errorString.append("specified as the number of MBytes, not bytes. ");
+        errorString.append("(The units for maxSize was changed from ");
+        errorString.append("bytes to MBytes, and it is possible that ");
+        errorString.append("your storage manager configuration ");
+        errorString.append("needs to be updated to reflect this.)");
+	
+        reasonForFailedState_ = errorString;
+        fsm_.fireFailed(reasonForFailedState_,this);
+        return false;
+      }
+    } else {
+      try {
+        // create a parameter set from the configuration string
+         ProcessDesc pdesc(smConfigString_);
+         boost::shared_ptr<edm::ParameterSet> smPSet = pdesc.getProcessPSet();
 
-      // loop over each end path
-      std::vector<std::string> allEndPaths = 
-          smPSet->getParameter<std::vector<std::string> >("@end_paths");
-      for(std::vector<std::string>::iterator endPathIter = allEndPaths.begin();
-          endPathIter != allEndPaths.end(); ++endPathIter) {
+         // loop over each end path
+         std::vector<std::string> allEndPaths = 
+            smPSet->getParameter<std::vector<std::string> >("@end_paths");
+         for(std::vector<std::string>::iterator endPathIter = allEndPaths.begin();
+             endPathIter != allEndPaths.end(); ++endPathIter) {
 
-        // loop over each element in the end path list (not sure why...)
-        std::vector<std::string> anEndPath =
-          smPSet->getParameter<std::vector<std::string> >((*endPathIter));
-        for(std::vector<std::string>::iterator ep2Iter = anEndPath.begin();
-            ep2Iter != anEndPath.end(); ++ep2Iter) {
+           // loop over each element in the end path list (not sure why...)
+            std::vector<std::string> anEndPath =
+               smPSet->getParameter<std::vector<std::string> >((*endPathIter));
+            for(std::vector<std::string>::iterator ep2Iter = anEndPath.begin();
+                ep2Iter != anEndPath.end(); ++ep2Iter) {
 
-          // fetch the end path parameter set
-          edm::ParameterSet endPathPSet =
-            smPSet->getParameter<edm::ParameterSet>((*ep2Iter));
-          if (! endPathPSet.empty()) {
-            std::string mod_type =
-              endPathPSet.getParameter<std::string> ("@module_type");
-            if (mod_type == "EventStreamFileWriter") {
+              // fetch the end path parameter set
+              edm::ParameterSet endPathPSet =
+                 smPSet->getParameter<edm::ParameterSet>((*ep2Iter));
+              if (! endPathPSet.empty()) {
+                std::string mod_type =
+                   endPathPSet.getParameter<std::string> ("@module_type");
+                if (mod_type == "EventStreamFileWriter") {
+                  // convert the maxSize parameter value from MB to bytes
+                  long long maxSize = 1048576 *
+                     (long long) endPathPSet.getParameter<int> ("maxSize");
 
-              // convert the maxSize parameter value from MB to bytes
-              long long maxSize = 1048576 *
-                (long long) endPathPSet.getParameter<int> ("maxSize");
+                  // test the maxSize value.  2E13 is somewhat arbitrary,
+                  // but ~18 TeraBytes seems larger than we would realistically
+                  // want, and it will catch stale (byte-based) values greater
+                  // than ~18 MBytes.)
+                  if (maxSize > 2E+13) {
+                    std::string streamLabel =  endPathPSet.getParameter<std::string> ("streamLabel");
+                    std::string errorString =  "The maxSize parameter (file size) ";
+                    errorString.append("for stream ");
+                    errorString.append(streamLabel);
+                    errorString.append(" is too large (");
+                    try {
+                      errorString.append(boost::lexical_cast<std::string>(maxSize));
+                    }
+                    catch (boost::bad_lexical_cast& blcExcpt) {
+                      errorString.append("???");
+                    }
+                    errorString.append(" bytes). ");
+                    errorString.append("Please check that this parameter is ");
+                    errorString.append("specified as the number of MBytes, not bytes. ");
+                    errorString.append("(The units for maxSize was changed from ");
+                    errorString.append("bytes to MBytes, and it is possible that ");
+                    errorString.append("your storage manager configuration file ");
+                    errorString.append("needs to be updated to reflect this.)");
 
-              // test the maxSize value.  2E13 is somewhat arbitrary,
-              // but ~18 TeraBytes seems larger than we would realistically
-              // want, and it will catch stale (byte-based) values greater
-              // than ~18 MBytes.)
-              if (maxSize > 2E+13) {
-                std::string streamLabel =  endPathPSet.getParameter<std::string> ("streamLabel");
-                std::string errorString =  "The maxSize parameter (file size) ";
-                errorString.append("for stream ");
-                errorString.append(streamLabel);
-                errorString.append(" is too large (");
-                try {
-                  errorString.append(boost::lexical_cast<std::string>(maxSize));
+                    reasonForFailedState_ = errorString;
+                    fsm_.fireFailed(reasonForFailedState_,this);
+                    return false;
+                  }
                 }
-                catch (boost::bad_lexical_cast& blcExcpt) {
-                  errorString.append("???");
-                }
-                errorString.append(" bytes). ");
-                errorString.append("Please check that this parameter is ");
-                errorString.append("specified as the number of MBytes, not bytes. ");
-                errorString.append("(The units for maxSize was changed from ");
-                errorString.append("bytes to MBytes, and it is possible that ");
-                errorString.append("your storage manager configuration file ");
-                errorString.append("needs to be updated to reflect this.)");
-
-                reasonForFailedState_ = errorString;
-                fsm_.fireFailed(reasonForFailedState_,this);
-                return false;
               }
             }
-          }
-        }
+         }
       }
-    }
-    catch (...) {
-      // since the maxSize test is just a convenience, we'll ignore
-      // exceptions and continue normally, for now.
+      catch (...) {
+        // since the maxSize test is just a convenience, we'll ignore
+        // exceptions and continue normally, for now.
+      }
     }
 
     if (maxESEventRate_ < 0.0)
