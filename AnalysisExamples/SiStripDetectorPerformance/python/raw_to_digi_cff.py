@@ -8,5 +8,5 @@ from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 # produce SiStripFecCabling and SiStripDetCabling out of SiStripFedCabling
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
-raw_to_digi = cms.Sequence(SiStripDigis*siStripZeroSuppression)
+raw_to_digi = cms.Sequence(siStripDigis*siStripZeroSuppression)
 

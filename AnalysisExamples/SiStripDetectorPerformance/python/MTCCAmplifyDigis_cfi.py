@@ -19,7 +19,7 @@ modMTCCAmplifyDigis = cms.EDFilter("MTCCAmplifyDigis",
         )
     ),
     oSiStripDigisProdInstName = cms.untracked.string(''),
-    oSiStripDigisLabel = cms.untracked.string('siStripDigis')
+    oSiStripDigisLabel = cms.untracked.string('simSiStripDigis')
 )
 
 

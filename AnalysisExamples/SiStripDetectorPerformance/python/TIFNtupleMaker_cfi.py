@@ -21,7 +21,7 @@ modTIFNtupleMaker = cms.EDFilter("TIFNtupleMaker",
     TTRHBuilder = cms.string('WithTrackAngle'),
     TrackInfoLabel = cms.InputTag("trackinfo","updatedState"),
     dCrossTalkErr = cms.untracked.double(0.1),
-    oSiStripDigisLabel = cms.untracked.string('SiStripDigis'),
+    oSiStripDigisLabel = cms.untracked.string('siStripDigis'),
     oSiStripDigisProdInstName = cms.untracked.string('ZeroSuppressed')
 )
 

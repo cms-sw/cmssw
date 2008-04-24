@@ -5,7 +5,7 @@ modCalcSiStripClusterXTalk = cms.EDFilter("CalcSiStripClusterXTalk",
     oProdInstName = cms.untracked.string('ZeroSuppressed'),
     oLabelSiStripCluster = cms.untracked.string('siStripClusters'),
     oOutputFileName = cms.untracked.string('CalcSiStripClusterXTalk_out.root'),
-    oLabelSiStripDigi = cms.untracked.string('SiStripDigis'),
+    oLabelSiStripDigi = cms.untracked.string('siStripDigis'),
     oLabelSiStripClusterInfo = cms.untracked.string('siStripClusterInfoProducer')
 )
 
