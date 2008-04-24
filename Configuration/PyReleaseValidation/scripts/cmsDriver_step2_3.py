@@ -54,9 +54,9 @@ command3=baseCommand+' step3_'+typeOfEv+' -s ' + steps3 + ' -n 1000 --filein fil
 
 if ( typeOfEv == 'RELVAL'):
     command2=command2+' --oneoutput'
-    command3=command3+' --oneoutput'
+    command3=command3+' --oneoutput --eventcontent FEVTSIM'
 else:
-    command3=command3+' --fileout none'
+    command3=command3+' --eventcontent none'
 
 os.system(command2)
 if ( not ( alca3=='')):
