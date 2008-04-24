@@ -36,10 +36,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
-        hcalDigis = cms.untracked.uint32(1234),
+        simHcalDigis = cms.untracked.uint32(1234),
         g4SimHits = cms.untracked.uint32(11),
         mix = cms.untracked.uint32(12345),
-        ecalUnsuppressedDigis = cms.untracked.uint32(1234),
+        simEcalUnsuppressedDigis = cms.untracked.uint32(1234),
         VtxSmeared = cms.untracked.uint32(98765432)
     ),
     sourceSeed = cms.untracked.uint32(123456789)

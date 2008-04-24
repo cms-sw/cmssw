@@ -32,9 +32,9 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
         g4SimHits = cms.untracked.uint32(9876),
-        ecalUnsuppressedDigis = cms.untracked.uint32(1234),
-        hcalUnsuppressedDigis = cms.untracked.uint32(1234),
-        hcalDigis = cms.untracked.uint32(1234),
+        simEcalUnsuppressedDigis = cms.untracked.uint32(1234),
+        simHcalUnsuppressedDigis = cms.untracked.uint32(1234),
+        simHcalDigis = cms.untracked.uint32(1234),
         VtxSmeared = cms.untracked.uint32(123456789)
     ),
     sourceSeed = cms.untracked.uint32(98765)
