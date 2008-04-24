@@ -9,6 +9,7 @@
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
+#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <list>
 #include <cassert>
@@ -248,8 +249,21 @@ CSCStripElectronicsSim::getKeyStrips(const std::vector<CSCComparatorDigi> & comp
 }
 
 
+std::list<int>
+CSCStripElectronicsSim::getKeyStripsFromMC() const
+{
+  // assumes the detector hit map is filled
+  std::list<int> result;
+  transform(theDetectorHitMap.begin(), theDetectorHitMap.end(), 
+            back_inserter(result), boost::bind(&DetectorHitMap::value_type::first,_1));
+  result.sort();
+  result.unique();
+  return result;
+}
+
+
 std::list<int> 
-CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips) const
+CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips, int window) const
 {
   std::list<int> result;
   std::list<int>::const_iterator keyStripItr = keyStrips.begin();
@@ -258,7 +272,7 @@ CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips) const
     for( ; keyStripItr != keyStrips.end(); ++keyStripItr)
     { 
       // pick the five strips around the comparator
-      for(int istrip = (*keyStripItr)-2; istrip <= (*keyStripItr)+2; ++istrip)
+      for(int istrip = (*keyStripItr)-window; istrip <= (*keyStripItr)+window; ++istrip)
       {
         if(istrip>0 && istrip<= nElements)
         {
@@ -279,13 +293,13 @@ CSCStripElectronicsSim::channelsToRead(const std::list<int> & keyStrips) const
       cfebsToRead.push_back(cfeb);
       int remainder = (readoutElement(*keyStripItr)-1)%16;
       // if we're within 3 strips of an edge, take neighboring CFEB, too
-      if(remainder <= 2 && cfeb != 0)
+      if(remainder < window && cfeb != 0)
       {
         cfebsToRead.push_back(cfeb-1);
       }
       // the 'readouElement' makes it so that ME1/1 has just one CFEB
       int maxCFEBs = readoutElement(nElements)/16 - 1;
-      if(remainder >= 13 && cfeb != maxCFEBs)
+      if(remainder >= 16-window && cfeb != maxCFEBs)
       {
         cfebsToRead.push_back(cfeb+1);
       }
@@ -333,8 +347,9 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
   double startTime = theTimingOffset 
                      - (sca_peak_bin-1) * sca_time_bin_size;
 
-  std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
-  std::list<int> stripsToDo = channelsToRead(keyStrips);
+  //std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
+  std::list<int> keyStrips = getKeyStripsFromMC();
+  std::list<int> stripsToDo = channelsToRead(keyStrips, 3);
   std::vector<CSCStripDigi> stripDigis;
   stripDigis.reserve(stripsToDo.size());
   for(std::list<int>::const_iterator stripItr = stripsToDo.begin();
@@ -438,7 +453,7 @@ void CSCStripElectronicsSim::selfTest() const
   keyStrips.push_back(readoutElement(19));
   keyStrips.push_back(readoutElement(30));
   keyStrips.push_back(readoutElement(32)); 
-  stripsRead = channelsToRead(keyStrips);
+  stripsRead = channelsToRead(keyStrips, 3);
   if(doSuppression_)
   {
     unsigned int expectedSize = isGanged ? 10 : 12;

@@ -60,10 +60,13 @@ private:
   std::list<int>
   getKeyStrips(const std::vector<CSCComparatorDigi> & comparators) const;
 
+  /// get ths strips that have detector hits
+  std::list<int>
+  getKeyStripsFromMC() const;
   /// finds what strips to read.  Will either take 5 strips around
   /// the keystrip, or the whole CFEB, based on doSuppression_
   std::list<int>
-  channelsToRead(const std::list<int> & keyStrips) const;
+  channelsToRead(const std::list<int> & keyStrips, int window) const;
 
   void addCrosstalk();
   void addCrosstalk(const CSCAnalogSignal & signal,
