@@ -25,7 +25,7 @@ int main()
 {
   // Read input from cin into configstring..
   std::string configstring;
-  edm::pset::read_from_cin(configstring);
+  edm::read_from_cin(configstring);
 
   // Now parse this configuration string, writing the Python format to
   // standard out.

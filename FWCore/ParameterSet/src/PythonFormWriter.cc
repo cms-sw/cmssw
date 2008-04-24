@@ -374,7 +374,7 @@ namespace edm
           // we should be inside a module stack now, so the first word
           // of the stack should be the top-level module name
           assert( moduleStack_.size() > 0);
-          std::vector<std::string> tokens = edm::pset::tokenize(moduleStack_.top(), ":");
+          std::vector<std::string> tokens = tokenize(moduleStack_.top(), ":");
           assert(!tokens.empty());
           modulesWithSecSources_.push_back(*(tokens.begin()));
 

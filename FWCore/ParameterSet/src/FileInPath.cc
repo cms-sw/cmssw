@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.21 2007/07/23 23:42:35 wmtan Exp $
+// $Id: FileInPath.cc,v 1.22 2008/01/22 15:35:59 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -352,7 +352,7 @@ namespace edm
 
     // Find the file, based on the value of path variable.
     typedef std::vector<std::string> stringvec_t;
-    stringvec_t  pathElements = edm::pset::tokenize(searchPath_, ":");
+    stringvec_t  pathElements = tokenize(searchPath_, ":");
     stringvec_t::const_iterator it =  pathElements.begin();
     stringvec_t::const_iterator end = pathElements.end();
     while (it != end) {

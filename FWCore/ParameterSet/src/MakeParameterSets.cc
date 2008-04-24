@@ -38,7 +38,7 @@ namespace edm
     }
     else
     {
-      std::string configString(edm::pset::read_whole_file(fileName));
+      std::string configString(read_whole_file(fileName));
       return boost::shared_ptr<ProcessDesc>(new ProcessDesc(configString));
     }
   }

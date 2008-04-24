@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.20 2007/10/11 06:37:14 wmtan Exp $
+// $Id: Entry.h,v 1.21 2008/03/12 19:55:47 wmtan Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -18,7 +18,7 @@
 #include <iosfwd>
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 //@@ not needed, but there might be trouble if we take it out
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"

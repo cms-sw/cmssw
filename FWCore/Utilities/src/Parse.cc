@@ -1,16 +1,13 @@
-#include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include <boost/tokenizer.hpp>
 #include <fstream>
 #include <iostream>
 
-// the parse() method comes from the yacc file, not here
 namespace edm {
-  namespace pset {
 
-    std::string  read_whole_file(std::string const& filename)
-    {
+    std::string  read_whole_file(std::string const& filename) {
       std::string result;
       std::ifstream input(filename.c_str());
       if (!input) {
@@ -27,35 +24,28 @@ namespace edm {
     }
 
 
-    void read_from_cin(std::string & output) 
-    {
+    void read_from_cin(std::string & output) {
       std::string line;
-      while (getline(std::cin, line))
-      {
+      while (getline(std::cin, line)) {
         output += line;
         output += '\n';
       }
     }
 
 
-    std::string withoutQuotes(const std::string& from)
-    {
+    std::string withoutQuotes(const std::string& from) {
       std::string result = from;
-      if(!result.empty())
-      {
+      if(!result.empty()) {
       // get rid of leading quotes
-        if(result[0] == '"' || result[0] == '\'')
-        {
+        if(result[0] == '"' || result[0] == '\'') {
           result.erase(0,1);
         }
       }
 
-      if(!result.empty())
-      {
+      if(!result.empty()) {
        // and trailing quotes
         int lastpos = result.size()-1;
-        if(result[lastpos] == '"' || result[lastpos] == '\'')
-        {
+        if(result[lastpos] == '"' || result[lastpos] == '\'') {
           result.erase(lastpos, 1);
         }
       }
@@ -64,8 +54,7 @@ namespace edm {
 
 
     std::vector<std::string> 
-    tokenize(const std::string & input, const std::string &separator) 
-    {
+    tokenize(const std::string & input, const std::string &separator) {
       typedef boost::char_separator<char>   separator_t;
       typedef boost::tokenizer<separator_t> tokenizer_t;
 
@@ -76,6 +65,5 @@ namespace edm {
       return result;
     }
 
-  }  // namespace pset
 } // namespace edm
 

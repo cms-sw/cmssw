@@ -5,7 +5,7 @@
 
 
 PythonParseTree::PythonParseTree(const std::string & filename)
-:  theTree(edm::pset::read_whole_file(filename))
+:  theTree(edm::read_whole_file(filename))
 {
 
   theTree.process();
