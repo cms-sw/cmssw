@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/23 16:30:13 $
+ * $Revision: 1.17 $
  * \author J. Berryhill
  *
  */
@@ -143,11 +143,21 @@ void L1TCSCTF::beginJob(const EventSetup& c)
   //  2) monitors sychronization on input links (4 errors types: SE/SM/BX/AF; ORed for all time bins, links, and SPs),
   //  3) reports FMM status (if in any SP FMM status != "Ready" - fill the last bin)
   csctferrors = dbe->book1D("CSCTF_errors","CSCTF Errors",6,0,6);
+  csctferrors->setAxisTitle("Error type",1);
+  csctferrors->setAxisTitle("Number of Errors",2);
+  csctferrors->setBinLabel(1,"Corruptions",1);
+  csctferrors->setBinLabel(2,"Synch. Err.",1);
+  csctferrors->setBinLabel(3,"Synch. Mod.",1);
+  csctferrors->setBinLabel(4,"BX mismatch",1);
+  csctferrors->setBinLabel(5,"Time alignment",1);
+  csctferrors->setBinLabel(6,"FMM != Ready",1);
   //  Occupancy histogram Eta x Y, where Y:
   //  1) Phi_packed of input LCTs from 1st, 2nd, 3rd, and 4th stations
   //  2) Phi_packed of output tracks
   //  (all 12 SPs - 360 degree coveradge)
   csctfoccupancies = dbe->book2D("CSCTF_occupancies","CSCTF Occupancies",100,0.8,2.5,1024,0,1.2);
+  csctfoccupancies->setAxisTitle("#eta",1);
+  csctfoccupancies->setAxisTitle("#phi x station x endcap + tracks (>1)",2);
   // KK_end
   }
 }
@@ -285,11 +295,11 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
      e.getByLabel(statusProducer.label(),statusProducer.instance(),status);
      bool integrity=status->first, se=false, sm=false, bx=false, af=false, fmm=false;
      for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin(); stat!=status->second.end(); stat++){
-        se |= stat->SEs();
-        sm |= stat->SMs();
-        bx |= stat->BXs();
-        af |= stat->AFs();
-        fmm|= stat->FMM();
+        se |= stat->SEs()&0xFFF;
+        sm |= stat->SMs()&0xFFF;
+        bx |= stat->BXs()&0xFFF;
+        af |= stat->AFs()&0xFFF;
+        fmm|= stat->FMM()!=8;
      }
      if(integrity) csctferrors->Fill(0.5);
      if(se)        csctferrors->Fill(1.5);
@@ -324,7 +334,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
               continue;
            }
            lclphidat lclPhi;
-		   try {
+           try {
              lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
            } catch(...) { bzero(&lclPhi,sizeof(lclPhi)); }
            gblphidat gblPhi;
@@ -336,16 +346,16 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
              gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
            } catch(...) { bzero(&gblEta,sizeof(gblEta)); }
            // SR LUT gives packed eta and phi values -> normilize them to 1 by scale them to 'max' and shift by 'min'
-           csctfoccupancies->Fill( gblEta.global_eta/127. * 1.6 + 0.8, (gblPhi.global_phi + ( sector + (endcap?0:6) )*4096 + station*4096*12) * 1./4*4096*12 );
-		}
-	 }
+           csctfoccupancies->Fill( gblEta.global_eta/127. * 1.5 + 0.9, (gblPhi.global_phi + ( sector + (endcap?0:6) )*4096 + station*4096*12) * 1./(4*4096*12) );
+        }
+     }
   }
 
   if( trackProducer.label() != "null" ){
      edm::Handle<L1CSCTrackCollection> tracks;
      e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
      for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++)
-        csctfoccupancies->Fill( trk->first.eta_packed()/32. * 1.6 + 0.8, trk->first.phi_packed()*0.2/32 + 1.);
+        csctfoccupancies->Fill( trk->first.eta_packed()/32. * 1.5 + 0.9, trk->first.phi_packed()*0.2/32. + 1.);
   }
   // KK_end    ///////////////////////////////////
 
