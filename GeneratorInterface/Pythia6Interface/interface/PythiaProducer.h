@@ -56,7 +56,13 @@ namespace edm
     void clear();
     
     HepMC::GenEvent  *evt;
-    
+
+    // for pyinit
+    std::string fFrame ;
+    std::string fBeam1;
+    std::string fBeam2;
+    double      fCOMEnergy;
+        
     /// Pythia PYLIST Verbosity flag
     unsigned int pythiaPylistVerbosity_;
     /// HepMC verbosity flag
@@ -77,7 +83,6 @@ namespace edm
     double ptmin, ptmax;
     double etamin, etamax;
     double phimin, phimax;
-    double comenergy;
     double emin, emax;
     double ymin, ymax;
     bool flatEnergy;

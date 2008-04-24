@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/10 22:16:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/18 20:39:36 $
+ *  $Revision: 1.3 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -127,13 +127,16 @@ HepMC::IO_HEPEVT conv2;
 
 PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   EDProducer(), evt(0), 
+  fFrame(pset.getParameter<string>("pythiaFrame")),
+  fBeam1(pset.getUntrackedParameter<string>("pythiaBeam1","p")),
+  fBeam2(pset.getUntrackedParameter<string>("pythiaBeam2","p")),
+  fCOMEnergy(pset.getParameter<double>("comEnergy")),
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   imposeProperTimes_ (pset.getUntrackedParameter<bool>("imposeProperTimes",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
-  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   useExternalGenerators_(false),
   useTauola_(false),
   useTauolaPolarization_(false),
@@ -280,13 +283,8 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
   call_pygive(sRandomSet.str());
 #endif
   
-  if(particleID) 
-    {
-      call_pyinit( "NONE", "p", "p", comenergy );
-    } else {
-      call_pyinit( "CMS", "p", "p", comenergy );
-    }
-
+  call_pyinit( fFrame.c_str(), fBeam1.c_str(), fBeam2.c_str(), fCOMEnergy );
+  
   // TAUOLA, etc.
   //
   useExternalGenerators_ = pset.getUntrackedParameter<bool>("UseExternalGenerators",false);
