@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.58 2008/04/23 12:17:48 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.59 2008/04/23 13:05:10 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -119,14 +119,15 @@ class SiStripConfigDb {
   
   typedef deviceDescription DeviceDescription;
   typedef edm::MapOfVectors<std::string,DeviceDescription*> DeviceDescriptions;
-  typedef std::pair< std::vector<DeviceDescription*>::iterator, std::vector<DeviceDescription*>::iterator > DeviceDescriptionsRange;
-
-  typedef Fed9U::Fed9UDescription FedDescription;
-  typedef std::vector<FedDescription*> FedDescriptions;
+  typedef std::pair< std::vector<DeviceDescription*>::const_iterator, std::vector<DeviceDescription*>::const_iterator > DeviceDescriptionsRange;
   
-  typedef TkDcuInfo DcuDetId; 
-  typedef Sgi::hash_map<unsigned long,DcuDetId*> DcuDetIdMap; //@@ Key is DCU id
-
+  typedef Fed9U::Fed9UDescription FedDescription;
+  typedef edm::MapOfVectors<std::string,FedDescription*> FedDescriptions;
+  typedef std::pair< std::vector<uint16_t>::const_iterator, std::vector<uint16_t>::const_iterator > FedIdsRange;
+  
+  typedef std::pair<uint32_t,TkDcuInfo*> DcuDetId; 
+  typedef edm::MapOfVectors<std::string,DcuDetId> DcuDetIdMap; 
+  
 #ifdef USING_NEW_DATABASE_MODEL
   typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
 #else
@@ -235,35 +236,49 @@ class SiStripConfigDb {
   // ---------- FED descriptions ----------
 
 
-  /** Fills local cache with FED descriptions from DB/xml. */
-  const FedDescriptions& getFedDescriptions();
+  /** Returns local cache (just for given partition if specified). */
+  FedDescriptions::range getFedDescriptions( std::string partition = "" ); 
+
+  /** Adds to local cache (just for given partition if specified). */
+  void addFedDescriptions( std::string partition, std::vector<FedDescription*>& );
   
-  /** Uploads FED descriptions to DB/xml. */
-  void uploadFedDescriptions( bool new_major_version = true );
+  /** Uploads to database (just for given partition if specified). */
+  void uploadFedDescriptions( std::string partition = "" ); 
   
-  /** Create "dummy" FED descriptions based on FED cabling. */
-  void createFedDescriptions( const SiStripFecCabling& );
+  /** Clears local cache (just for given partition if specified). */
+  void clearFedDescriptions( std::string partition = "" ); 
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printFedDescriptions( std::string partition = "" ); 
   
   /** Extracts FED ids from FED descriptions. */
-  const std::vector<uint16_t>& getFedIds();
+  FedIdsRange getFedIds( std::string partition = "" );
   
-  /** Indicates if strip info is enabled/disabled within FED descs. */
+  /** Strip-level info enabled/disabled within FED descriptions. */
   inline const bool& usingStrips() const;
   
-  /** Enable/disable strip info within FED descriptions. */
+  /** Enables/disables strip-level info within FED descriptions. */
   inline void usingStrips( bool );
   
 
   // ---------- DCU-DetId info ----------
 
 
-  /** Returns the DcuId-DetId map. If the local cache is empty, it
-      retrieves the DcuId-DetId map from the DB/xml file. */
-  const DcuDetIdMap& getDcuDetIdMap();
+  /** Returns local cache (just for given partition if specified). */
+  DcuDetIdMap::range getDcuDetIdMap( std::string partition = "" );
   
-  /** Uploads the contents of the local cache to DB/xml file. */
-  void uploadDcuDetIdMap();
+  /** Adds to local cache (just for given partition if specified). */
+  void addDcuDetIdMap( std::string partition, std::vector<DcuDetId>& );
   
+  /** Uploads to database (just for given partition if specified). */
+  void uploadDcuDetIdMap( std::string partition = "" );
+  
+  /** Clears local cache (just for given partition if specified). */
+  void clearDcuDetIdMap( std::string partition = "" );
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printDcuDetIdMap( std::string partition = "" );
+
 
   // ---------- Commissioning analyses ---------- 
 
@@ -309,6 +324,9 @@ class SiStripConfigDb {
 
 
   /** */
+  void clearLocalCache();
+
+  /** */
   void usingDatabase();
 
   /** */
@@ -326,6 +344,14 @@ class SiStripConfigDb {
   
   /** Returns device identifier based on device type. */
   std::string deviceType( const enumDeviceType& device_type ) const;
+  
+  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> HashMap;
+
+  void clone( const HashMap& in, std::vector<DcuDetId>& out ) const;
+
+  void clone( const std::vector<DcuDetId>& in, HashMap& out ) const;
+
+  void clone( const std::vector<DcuDetId>& in, std::vector<DcuDetId>& out ) const;
 
   
   // ---------- Database connection, partitions and versions ----------
@@ -350,11 +376,11 @@ class SiStripConfigDb {
   /** Device descriptions (including DCUs). */
   DeviceDescriptions devices_;
 
-  /** Cache for devices of given type. */
-  std::vector<DeviceDescription*> typedDevices_;
-
   /** Fed9U descriptions. */
   FedDescriptions feds_;
+ 
+  /** DcuId-DetId map (map of TkDcuInfo objects). */
+  DcuDetIdMap dcuDetIdMap_;
   
 #ifdef USING_NEW_DATABASE_MODEL
 
@@ -362,9 +388,9 @@ class SiStripConfigDb {
   AnalysisDescriptions analyses_;
 
 #endif
- 
-  /** DcuId-DetId map (map of TkDcuInfo objects). */
-  DcuDetIdMap dcuDetIdMap_;
+
+  /** Cache for devices of given type. */
+  std::vector<DeviceDescription*> typedDevices_;
   
   /** FED ids. */ 
   std::vector<uint16_t> fedIds_;

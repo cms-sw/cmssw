@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.22 2008/04/21 09:52:41 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.23 2008/04/23 12:17:48 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -50,10 +50,10 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
 	    devices_.loadNext( iter->second.partitionName_, tmp2 );
 
 	    // Some debug
-	    DeviceDescriptions::range conns = devices_.find( iter->second.partitionName_ );
+	    DeviceDescriptions::range range = devices_.find( iter->second.partitionName_ );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
-	       << " Dowloaded " << conns.size() 
+	       << " Dowloaded " << range.size() 
 	       << " device descriptions to local cache for partition \""
 	       << iter->second.partitionName_ << "\"."
 	       << " (Cache holds connections for " 
@@ -88,9 +88,9 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
       }
 
 #endif // USING_NEW_DATABASE_MODEL
-
+      
     }
-
+    
   } catch (...) { handleException( __func__ ); }
   
   // Create range object
@@ -111,7 +111,7 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Found " << nc << " device descriptions";
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXmlFiles().size() << " 'module.xml' file(s)"; }
+  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXmlFiles().size() << " 'fec.xml' file(s)"; }
   else { if ( !dbParams_.usingDbCache_ )  { ss << " in " << np << " database partition(s)"; } 
   else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }

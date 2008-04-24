@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.20 2008/04/22 13:49:13 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.21 2008/04/23 12:17:48 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,7 +32,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 	    
 #ifdef USING_NEW_DATABASE_MODEL
 	    
-	    // Retrieve conections
+	    // Retrieve connections
 	    std::vector<FedConnection*> tmp1;
 	    deviceFactory(__func__)->getConnectionDescriptions( iter->second.partitionName_, 
 								tmp1,
@@ -289,13 +289,13 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 	  }
 
 	} else {
-// 	  stringstream ss; 
-// 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
-// 	     << " Cannot find partition \"" << partition
-// 	     << "\" in cached partitions list: \""
-// 	     << dbParams_.partitions( dbParams_.partitions() ) 
-// 	     << "\", therefore aborting upload for this partition!";
-// 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
+	  // 	  stringstream ss; 
+	  // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
+	  // 	     << " Cannot find partition \"" << partition
+	  // 	     << "\" in cached partitions list: \""
+	  // 	     << dbParams_.partitions( dbParams_.partitions() ) 
+	  // 	     << "\", therefore aborting upload for this partition!";
+	  // 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
 	}
 
       }
@@ -462,15 +462,16 @@ void SiStripConfigDb::printFedConnections( std::string partition ) {
 	if ( !ifed->second.empty() ) { 
 	  uint16_t first = ifed->second.front();
 	  uint16_t last = ifed->second.front();
-	  std::vector<uint16_t>::const_iterator chan = ifed->second.begin();
-	  for ( ; chan != ifed->second.end(); chan++ ) { 
-	    if ( chan != ifed->second.begin() ) {
-	      if ( *chan != last+1 ) { 
+	  std::vector<uint16_t>::const_iterator ichan = ifed->second.begin();
+	  std::vector<uint16_t>::const_iterator jchan = ifed->second.end();
+	  for ( ; ichan != jchan; ++ichan ) { 
+	    if ( ichan != ifed->second.begin() ) {
+	      if ( *ichan != last+1 ) { 
 		ss << std::setw(2) << first << "->" << std::setw(2) << last << ", ";
-		if ( chan != ifed->second.end() ) { first = *(chan+1); }
+		if ( ichan != ifed->second.end() ) { first = *(ichan+1); }
 	      } 
 	    }
-	    last = *chan;
+	    last = *ichan;
 	  }
 	  if ( first != last ) { ss << std::setw(2) << first << "->" << std::setw(2) << last; }
 	  ss << std::endl;

@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.5 2008/04/22 13:49:26 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.6 2008/04/23 12:17:49 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -99,8 +99,188 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
   SiStripConfigDb::DcuDetIdMap dcus;
 
 
-  // -------------------- DOWNLOADS --------------------
+  // -------------------- UPLOADS (download, then upload) --------------------
+  
 
+  if ( upload_ ) {
+
+    // Connections
+    if ( conns_ ) {
+
+      // build temporary cache and print, clear (local cache)
+      db_->clearFedConnections();
+      SiStripConfigDb::FedConnections connections;
+      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( ii->second.partitionName_ );
+	if ( conns != connections.emptyRange() ) {
+	  std::vector<SiStripConfigDb::FedConnection*> tmp1( conns.begin(), conns.end() );
+	  std::vector<SiStripConfigDb::FedConnection*> tmp2;
+#ifdef USING_NEW_DATABASE_MODEL
+	  ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
+#else
+	  tmp2 = tmp1;
+#endif
+	  connections.loadNext( ii->second.partitionName_, tmp2 );
+	}
+      }
+      db_->printFedConnections();
+      db_->clearFedConnections();
+
+      // iterate through partitions and add, print and upload
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::FedConnections::range conns = connections.find( iter->second.partitionName_ );
+	std::vector<SiStripConfigDb::FedConnection*> temp( conns.begin(), conns.end() );
+	db_->addFedConnections( iter->second.partitionName_, temp );
+	db_->printFedConnections( iter->second.partitionName_ );
+	db_->uploadFedConnections( iter->second.partitionName_ );
+      }
+
+      // print all partitions and then upload, clear, print
+      db_->printFedConnections();
+      db_->uploadFedConnections();
+      db_->clearFedConnections();
+      db_->printFedConnections();
+      
+    }
+
+    // Devices
+    if ( devices_ ) {
+
+      // build temporary cache and print, clear (local cache)
+      db_->clearDeviceDescriptions();
+      SiStripConfigDb::DeviceDescriptions devices;
+      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( ii->second.partitionName_ );
+	if ( devs != devices.emptyRange() ) {
+	  std::vector<SiStripConfigDb::DeviceDescription*> tmp1( devs.begin(), devs.end() );
+	  std::vector<SiStripConfigDb::DeviceDescription*> tmp2;
+#ifdef USING_NEW_DATABASE_MODEL
+	  FecFactory::vectorCopyI( tmp2, tmp1, true );
+#else
+	  tmp2 = tmp1;
+#endif
+	  devices.loadNext( ii->second.partitionName_, tmp2 );
+	}
+      }
+      db_->printDeviceDescriptions();
+      db_->clearDeviceDescriptions();
+
+      // iterate through partitions and add, print and upload
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::DeviceDescriptions::range devs = devices.find( iter->second.partitionName_ );
+	std::vector<SiStripConfigDb::DeviceDescription*> temp( devs.begin(), devs.end() );
+	db_->addDeviceDescriptions( iter->second.partitionName_, temp );
+	db_->printDeviceDescriptions( iter->second.partitionName_ );
+	db_->uploadDeviceDescriptions( iter->second.partitionName_ );
+      }
+
+      // print all partitions and then upload, clear, print
+      db_->printDeviceDescriptions();
+      db_->uploadDeviceDescriptions();
+      db_->clearDeviceDescriptions();
+      db_->printDeviceDescriptions();
+      
+    }
+
+    // FEDs
+    if ( feds_ ) {
+
+      // build temporary cache and print, clear (local cache)
+      db_->clearFedDescriptions();
+      SiStripConfigDb::FedDescriptions feds;
+      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripConfigDb::FedDescriptions::range range = db_->getFedDescriptions( ii->second.partitionName_ );
+	if ( range != feds.emptyRange() ) {
+	  std::vector<SiStripConfigDb::FedDescription*> tmp1( range.begin(), range.end() );
+	  std::vector<SiStripConfigDb::FedDescription*> tmp2;
+#ifdef USING_NEW_DATABASE_MODEL
+	  Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, tmp1 );
+#else
+	  tmp2 = tmp1;
+#endif
+	  feds.loadNext( ii->second.partitionName_, tmp2 );
+	}
+      }
+      db_->printFedDescriptions();
+      db_->clearFedDescriptions();
+
+      // iterate through partitions and add, print and upload
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::FedDescriptions::range range = feds.find( iter->second.partitionName_ );
+	std::vector<SiStripConfigDb::FedDescription*> temp( range.begin(), range.end() );
+	db_->addFedDescriptions( iter->second.partitionName_, temp );
+	db_->printFedDescriptions( iter->second.partitionName_ );
+	db_->uploadFedDescriptions( iter->second.partitionName_ );
+      }
+      
+      // print all partitions and then upload, clear, print
+      db_->printFedDescriptions();
+      db_->uploadFedDescriptions();
+      db_->clearFedDescriptions();
+      db_->printFedDescriptions();
+      
+    }
+
+    // DCU-DetId
+    if ( dcus_ ) {
+
+      // build temporary cache and print, clear (local cache)
+      db_->clearDcuDetIdMap();
+      SiStripConfigDb::DcuDetIdMap feds;
+      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( ii->second.partitionName_ );
+	if ( range != feds.emptyRange() ) {
+	  std::vector<SiStripConfigDb::DcuDetId> tmp1( range.begin(), range.end() );
+	  std::vector<SiStripConfigDb::DcuDetId> tmp2;
+#ifdef USING_NEW_DATABASE_MODEL
+	  db_->clone( tmp1, tmp2 );
+#else
+	  tmp2 = tmp1;
+#endif
+	  feds.loadNext( ii->second.partitionName_, tmp2 );
+	}
+      }
+      db_->printDcuDetIdMap();
+      db_->clearDcuDetIdMap();
+
+      // iterate through partitions and add, print and upload
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::DcuDetIdMap::range range = feds.find( iter->second.partitionName_ );
+	std::vector<SiStripConfigDb::DcuDetId> temp( range.begin(), range.end() );
+	db_->addDcuDetIdMap( iter->second.partitionName_, temp );
+	db_->printDcuDetIdMap( iter->second.partitionName_ );
+	db_->uploadDcuDetIdMap( iter->second.partitionName_ );
+      }
+      
+      // print all partitions and then upload, clear, print
+      db_->printDcuDetIdMap();
+      db_->uploadDcuDetIdMap();
+      db_->clearDcuDetIdMap();
+      db_->printDcuDetIdMap();
+      
+    }
+
+  }
+  
+  
+  // -------------------- DOWNLOADS (just download) --------------------
+  
 
   if ( download_ ) {
     
@@ -108,6 +288,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     if ( conns_ ) {
 
       // iterate through partitions and get, print, clear, print
+      db_->clearFedConnections();
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
@@ -141,6 +322,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     if ( devices_ ) {
 
       // iterate through partitions and get, print, clear, print
+      db_->clearDeviceDescriptions();
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
@@ -187,120 +369,76 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 
     // FEDs
     if ( feds_ ) {
-      feds = db_->getFedDescriptions();
+      
+      // iterate through partitions and get, print, clear, print
+      db_->clearFedDescriptions();
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::FedDescriptions::range feds = db_->getFedDescriptions( iter->second.partitionName_ );
+	std::stringstream ss;
+	ss << "[testSiStripConfigDb::" << __func__ << "]" 
+	   << " Downloaded " << feds.size()
+	   << " FED descriptions!";
+	SiStripConfigDb::FedIdsRange ids = db_->getFedIds( iter->second.partitionName_ );
+	if ( !feds.empty() ) { 
+	  ss << std::endl << " Number of FED ids : " << ( ids.second - ids.first );
+	  edm::LogVerbatim("testSiStripConfigDb") << ss.str(); 
+	}
+	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+	db_->printFedDescriptions( iter->second.partitionName_ );
+	db_->clearFedDescriptions( iter->second.partitionName_ );
+	db_->printFedDescriptions( iter->second.partitionName_ );
+      }
+      
+      // get all partitions and print, clear, print
+      SiStripConfigDb::FedDescriptions::range feds = db_->getFedDescriptions();
+      db_->printFedDescriptions();
+      db_->clearFedDescriptions();
+      db_->printFedDescriptions();
       std::stringstream ss;
       ss << "[testSiStripConfigDb::" << __func__ << "]" 
-	 << " Downloaded " << feds.size() 
+	 << " Downloaded " << feds.size()
 	 << " FED descriptions!";
       if ( !feds.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
       else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+      
     }
 
-    // DCU-DetId map
+    // DCU-DetId 
     if ( dcus_ ) {
-      dcus = db_->getDcuDetIdMap();
+      
+      // iterate through partitions and get, print, clear, print
+      db_->clearDcuDetIdMap();
+      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
+      for ( ; iter != jter; ++iter ) {
+	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( iter->second.partitionName_ );
+	std::stringstream ss;
+	ss << "[testSiStripConfigDb::" << __func__ << "]" 
+	   << " Downloaded " << range.size()
+	   << " DCU-DetId map!";
+	if ( !range.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
+	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+	db_->printDcuDetIdMap( iter->second.partitionName_ );
+	db_->clearDcuDetIdMap( iter->second.partitionName_ );
+	db_->printDcuDetIdMap( iter->second.partitionName_ );
+      }
+      
+      // get all partitions and print, clear, print
+      SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap();
+      db_->printDcuDetIdMap();
+      db_->clearDcuDetIdMap();
+      db_->printDcuDetIdMap();
       std::stringstream ss;
       ss << "[testSiStripConfigDb::" << __func__ << "]" 
-	 << " Downloaded " << dcus.size() 
-	 << " entries in DCU-DetId map!";
-      if ( !dcus.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
+	 << " Downloaded " << range.size()
+	 << " DCU-DetId map!";
+      if ( !range.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
       else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
+      
     }
     
   }
-
-  
-  // -------------------- UPLOADS --------------------
-  
-
-  if ( upload_ ) {
-
-    // Connections
-    if ( conns_ ) {
-
-      // build temporary cache and print, clear (local cache)
-      SiStripConfigDb::FedConnections connections;
-      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
-      for ( ; ii != jj; ++ii ) {
-	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( ii->second.partitionName_ );
-	if ( conns != connections.emptyRange() ) {
-	  std::vector<SiStripConfigDb::FedConnection*> tmp1( conns.begin(), conns.end() );
-	  std::vector<SiStripConfigDb::FedConnection*> tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
-	  ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
-#else
-	  tmp2 = tmp1;
-#endif
-	  connections.loadNext( ii->second.partitionName_, tmp2 );
-	}
-      }
-      db_->printFedConnections();
-      db_->clearFedConnections();
-
-      // iterate through partitions and add, print and upload
-      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
-      for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::FedConnections::range conns = connections.find( iter->second.partitionName_ );
-	std::vector<SiStripConfigDb::FedConnection*> temp( conns.begin(), conns.end() );
-	db_->addFedConnections( iter->second.partitionName_, temp );
-	db_->printFedConnections( iter->second.partitionName_ );
-	db_->uploadFedConnections( iter->second.partitionName_ );
-      }
-
-      // print all partitions and then upload, clear, print
-      db_->printFedConnections();
-      db_->uploadFedConnections();
-      db_->clearFedConnections();
-      db_->printFedConnections();
-      
-    }
-
-    // Devices
-    if ( devices_ ) {
-
-      // build temporary cache and print, clear (local cache)
-      SiStripConfigDb::DeviceDescriptions devices;
-      SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
-      for ( ; ii != jj; ++ii ) {
-	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( ii->second.partitionName_ );
-	if ( devs != devices.emptyRange() ) {
-	  std::vector<SiStripConfigDb::DeviceDescription*> tmp1( devs.begin(), devs.end() );
-	  std::vector<SiStripConfigDb::DeviceDescription*> tmp2;
-#ifdef USING_NEW_DATABASE_MODEL
-	  FecFactory::vectorCopyI( tmp2, tmp1, true );
-#else
-	  tmp2 = tmp1;
-#endif
-	  devices.loadNext( ii->second.partitionName_, tmp2 );
-	}
-      }
-      db_->printDeviceDescriptions();
-      db_->clearDeviceDescriptions();
-
-      // iterate through partitions and add, print and upload
-      SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
-      for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::DeviceDescriptions::range devs = devices.find( iter->second.partitionName_ );
-	std::vector<SiStripConfigDb::DeviceDescription*> temp( devs.begin(), devs.end() );
-	db_->addDeviceDescriptions( iter->second.partitionName_, temp );
-	db_->printDeviceDescriptions( iter->second.partitionName_ );
-	db_->uploadDeviceDescriptions( iter->second.partitionName_ );
-      }
-
-      // print all partitions and then upload, clear, print
-      db_->printDeviceDescriptions();
-      db_->uploadDeviceDescriptions();
-      db_->clearDeviceDescriptions();
-      db_->printDeviceDescriptions();
-      
-    }
-
-  }
   
 }
-
-

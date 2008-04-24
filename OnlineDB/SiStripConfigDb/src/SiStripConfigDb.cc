@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.59 2008/04/23 12:17:48 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.60 2008/04/23 13:05:11 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -27,9 +27,10 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   // Local cache
   connections_(), 
   devices_(), 
-  typedDevices_(), 
   feds_(), 
   dcuDetIdMap_(), 
+  analyses_(),
+  typedDevices_(), 
   fedIds_(),
   // Misc
   usingStrips_(true),
@@ -119,13 +120,9 @@ void SiStripConfigDb::openDbConnection() {
      << " Database connection parameters: "
      << std::endl << dbParams_;
   edm::LogVerbatim(mlConfigDb_) << ss.str();
-  
-  devices_ = DeviceDescriptions();
-  typedDevices_.clear();
-  feds_.clear();
-  connections_ = FedConnections();
-  dcuDetIdMap_.clear();
-  fedIds_.clear();
+
+  // Clear local caches
+  clearLocalCache();
 
   LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
@@ -150,6 +147,9 @@ void SiStripConfigDb::closeDbConnection() {
   }
   openConnection_ = false;
   
+  // Clear local caches
+  clearLocalCache();
+  
   try { 
     if ( factory_ ) { delete factory_; }
   } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
@@ -166,6 +166,25 @@ void SiStripConfigDb::closeDbConnection() {
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Closed connection to database...";
   
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::clearLocalCache() {
+
+  LogTrace(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Clearing local caches...";
+
+  clearFedConnections();
+  clearDeviceDescriptions();
+  clearFedDescriptions();
+  //clearDcuDetIdMap();
+  analyses_.clear();
+
+  typedDevices_.clear();
+  fedIds_.clear();
+
 }
 
 // -----------------------------------------------------------------------------
@@ -835,7 +854,7 @@ void SiStripConfigDb::useVersions( SiStripPartition& ip ) {
       ip.cabVersion_.second = (*istate)->getConnectionVersionMinorId(); 
     }
 #endif
-	
+    
     if ( !ip.fecVersion_.first &&
 	 !ip.fecVersion_.second ) { 
       ip.fecVersion_.first = (*istate)->getFecVersionMajorId(); 
@@ -911,6 +930,7 @@ void SiStripConfigDb::useRunNumber( SiStripPartition& ip ) {
 	  
 	ip.fecVersion_.first = run->getFecVersionMajorId(); 
 	ip.fecVersion_.second = run->getFecVersionMinorId(); 
+
 	ip.fedVersion_.first = run->getFedVersionMajorId(); 
 	ip.fedVersion_.second = run->getFedVersionMinorId(); 
 	  

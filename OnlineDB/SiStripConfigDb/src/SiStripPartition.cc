@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.1 2008/04/11 13:27:33 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.2 2008/04/14 05:44:34 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -63,17 +63,18 @@ void SiStripPartition::setParams( const edm::ParameterSet& pset ) {
   runNumber_     = pset.getUntrackedParameter<unsigned int>( "RunNumber", 0 );
   forceVersions_ = pset.getUntrackedParameter<bool>( "ForceVersions", false );
 
-  cabVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "CablingVersion", std::vector<unsigned int>(2,0) ) );
-  fedVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "FedVersion", std::vector<unsigned int>(2,0) ) );
-  fecVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "FecVersion", std::vector<unsigned int>(2,0) ) );
-  dcuVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "DcuDetIdVersion", std::vector<unsigned int>(2,0) ) );
-  calVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "CalibVersion", std::vector<unsigned int>(2,0) ) );
+  std::vector<unsigned int> tmp1(2,0);
+  cabVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "CablingVersion", tmp1 ) );
+  fedVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "FedVersion", tmp1 ) );
+  fecVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "FecVersion", tmp1 ) );
+  dcuVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "DcuDetIdVersion", tmp1 ) );
+  calVersion_ = versions( pset.getUntrackedParameter< std::vector<unsigned int> >( "CalibVersion", tmp1 ) );
   
-  std::vector<std::string> tmp(1,"");
+  std::vector<std::string> tmp2(1,"");
   inputModuleXml_   = pset.getUntrackedParameter<std::string>( "InputModuleXml", "" );
   inputDcuInfoXml_  = pset.getUntrackedParameter<std::string>( "InputDcuInfoXml", "" ); 
-  inputFecXml_      = pset.getUntrackedParameter< std::vector<std::string> >( "InputFecXml", tmp ); 
-  inputFedXml_      = pset.getUntrackedParameter< std::vector<std::string> >( "InputFedXml", tmp );
+  inputFecXml_      = pset.getUntrackedParameter< std::vector<std::string> >( "InputFecXml", tmp2 ); 
+  inputFedXml_      = pset.getUntrackedParameter< std::vector<std::string> >( "InputFedXml", tmp2 );
 
 }
 
@@ -109,10 +110,10 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
     }
     
     ss << "  Cabling major/minor vers  : " << cabVersion_.first << "." << cabVersion_.second << std::endl
-       << "  FED major/minor vers      : " << fedVersion_.first << "." << fedVersion_.second << std::endl
        << "  FEC major/minor vers      : " << fecVersion_.first << "." << fecVersion_.second << std::endl
-       << "  Calibration maj/min vers  : " << calVersion_.first << "." << calVersion_.second << std::endl
-       << "  DCU-DetId maj/min vers    : " << dcuVersion_.first << "." << dcuVersion_.second << std::endl;
+       << "  FED major/minor vers      : " << fedVersion_.first << "." << fedVersion_.second << std::endl
+       << "  DCU-DetId maj/min vers    : " << dcuVersion_.first << "." << dcuVersion_.second << std::endl
+       << "  Calibration maj/min vers  : " << calVersion_.first << "." << calVersion_.second << std::endl;
     
   } else {
     
