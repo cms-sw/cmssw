@@ -575,6 +575,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	if (firsthbcap == -1) firsthbcap = digi.sample(0).capid();
 	int capdif = digi.sample(0).capid() - firsthbcap;
+	capdif = capdif%3 - capdif/3;
 	hbHists.CAPID_T0->Fill(capdif);
 	CAPID_T0->Fill(capdif);
 
@@ -639,6 +640,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	if (firsthecap == -1) firsthecap = digi.sample(0).capid();
 	int capdif = digi.sample(0).capid() - firsthecap;
+	capdif = capdif%3 - capdif/3;
 	heHists.CAPID_T0->Fill(capdif);
 	CAPID_T0->Fill(capdif);
 
@@ -723,6 +725,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       if (firsthocap == -1) firsthocap = digi.sample(0).capid();
       int capdif = digi.sample(0).capid() - firsthocap;
+      capdif = capdif%3 - capdif/3;
       hoHists.CAPID_T0->Fill(capdif);
       CAPID_T0->Fill(capdif);
       
@@ -800,6 +803,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       if (firsthfcap == -1) firsthfcap = digi.sample(0).capid();
       int capdif = digi.sample(0).capid() - firsthfcap;
+      capdif = capdif%3 - capdif/3;
       hfHists.CAPID_T0->Fill(capdif);
       CAPID_T0->Fill(capdif);
       
