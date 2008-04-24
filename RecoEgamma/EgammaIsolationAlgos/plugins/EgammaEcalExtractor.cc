@@ -76,10 +76,12 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event & ev, const edm::
 	if(MATCHEDSC || !scmatch_ ){  //skip selection if user wants to fill all superclusters
 	  bool inSuperCluster = false;
 
-	  reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
-	  // loop over the basic clusters of the matched supercluster
-	  for(;theEclust != matchedsupercluster->clustersEnd(); ++theEclust) {
+	  if( scmatch_ ){ // only try the matching if needed
+	    reco::basicCluster_iterator theEclust = matchedsupercluster->clustersBegin();
+	    // loop over the basic clusters of the matched supercluster
+	    for(;theEclust != matchedsupercluster->clustersEnd(); ++theEclust) {
 	    if ((**theEclust) ==  (*cluster) ) inSuperCluster = true;
+	    }
 	  }
 	  if (!inSuperCluster || !scmatch_ ) {  //skip selection if user wants to fill all superclusters
 	    newDelta=DeltaR(cluster->position(),position);
