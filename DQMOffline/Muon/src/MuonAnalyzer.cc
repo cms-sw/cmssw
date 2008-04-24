@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/16 19:49:42 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/04/24 13:12:15 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -57,7 +57,12 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
 
 }
 
-MuonAnalyzer::~MuonAnalyzer() { }
+MuonAnalyzer::~MuonAnalyzer() { 
+  
+  if(theMuEnergyAnalyzerFlag) delete theMuEnergyAnalyzer;
+  if(theSeedsAnalyzerFlag) delete theSeedsAnalyzer;
+  if(theMuonRecoAnalyzerFlag) delete theMuonRecoAnalyzer;
+}
 
 
 void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
