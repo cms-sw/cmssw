@@ -6,17 +6,22 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.11 2007/10/12 15:35:24 elmer Exp $
+// $Id: Memory.cc,v 1.12 2007/12/20 19:37:48 jbk Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/MallocOpts.h"
 
 #include <malloc.h>
 #include <sstream>
+#include <iostream>
 
 #ifdef __linux__
 #define LINUX 1
@@ -179,16 +184,18 @@ namespace edm {
              &SimpleMemoryCheck::postEventProcessing);
         iReg.watchPostModule(this,
              &SimpleMemoryCheck::postModule);
+        iReg.watchPostEndJob(this,
+             &SimpleMemoryCheck::postEndJob);
       } else { 
         iReg.watchPostProcessEvent(this,
              &SimpleMemoryCheck::postEventProcessing);
+        iReg.watchPostEndJob(this,
+             &SimpleMemoryCheck::postEndJob);
       }
       // The following are not currenty used/implemented below for either
       // of the print modes (but are left here for reference)
       //  iReg.watchPostBeginJob(this,
       //       &SimpleMemoryCheck::postBeginJob);
-      //  iReg.watchPostEndJob(this,
-      //       &SimpleMemoryCheck::postEndJob);
       //  iReg.watchPreProcessEvent(this,
       //       &SimpleMemoryCheck::preEventProcessing);
       //  iReg.watchPreModule(this,
@@ -264,7 +271,101 @@ namespace edm {
  
     void SimpleMemoryCheck::postEndJob() 
     {
-    }
+    edm::LogAbsolute("MemoryReport") 
+      << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes" 
+      << "\n"
+      << " Key events increasing vsize: \n" 
+      << eventL2_ << "\n"
+      << eventL1_ << "\n"
+      << eventM_  << "\n"
+      << eventR1_ << "\n"
+      << eventR2_ << "\n"
+      << eventT3_ << "\n"
+      << eventT2_ << "\n"
+      << eventT1_ ;
+
+      Service<JobReport> reportSvc;
+
+#define SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
+#ifdef  SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
+     std::map<std::string, double> reportData;
+
+      if (eventL2_.vsize > 0) 
+      	eventStatOutput("LargeVsizeIncreaseEventL2", eventL2_, reportData);
+      if (eventL1_.vsize > 0) 
+      	eventStatOutput("LargeVsizeIncreaseEventL1", eventL1_, reportData);
+      if (eventM_.vsize > 0) 
+      	eventStatOutput("LargestVsizeIncreaseEvent", eventM_,  reportData);
+      if (eventR1_.vsize > 0) 
+      	eventStatOutput("LargeVsizeIncreaseEventR1", eventR1_, reportData);
+      if (eventR2_.vsize > 0)
+      	eventStatOutput("LargeVsizeIncreaseEventR2", eventR2_, reportData);
+      if (eventT3_.vsize > 0) 
+      	eventStatOutput("ThirdLargestVsizeEventT3",  eventT3_, reportData);
+      if (eventT3_.vsize > 0) 
+      	eventStatOutput("SecondLargestVsizeEventT2", eventT2_, reportData);
+      if (eventT3_.vsize > 0)
+      	eventStatOutput("LargestVsizeEventT1",       eventT1_, reportData);
+      
+      struct mallinfo minfo = mallinfo();
+      reportData.insert(
+        std::make_pair("HEAP_ARENA_SIZE_BYTES", minfo.arena));  
+      reportData.insert(
+        std::make_pair("HEAP_ARENA_N_UNUSED_CHUNKS", minfo.ordblks));  
+      reportData.insert(
+        std::make_pair("HEAP_TOP_FREE_BYTES", minfo.keepcost));  
+      reportData.insert(
+        std::make_pair("HEAP_MAPPED_SIZE_BYTES", minfo.hblkhd));  
+      reportData.insert(
+        std::make_pair("HEAP_MAPPED_N_CHUNKS", minfo.hblks));  
+      reportData.insert(
+        std::make_pair("HEAP_USED_BYTES", minfo.uordblks));  
+      reportData.insert(
+        std::make_pair("HEAP_UNUSED_BYTES", minfo.fordblks));  
+	
+      reportSvc->reportMemoryInfo(reportData);
+#endif
+
+#ifdef SIMPLE_MEMORY_CHECK_DIFFERENT_XML_OUTPUT
+      std::vector<std::string> reportData;
+
+      if (eventL2_.vsize > 0) reportData.push_back(
+      	eventStatOutput("LargeVsizeIncreaseEventL2", eventL2_));
+      if (eventL1_.vsize > 0) reportData.push_back(
+      	eventStatOutput("LargeVsizeIncreaseEventL1", eventL1_));
+      if (eventM_.vsize > 0) reportData.push_back(
+      	eventStatOutput("LargestVsizeIncreaseEvent", eventM_));
+      if (eventR1_.vsize > 0) reportData.push_back(
+      	eventStatOutput("LargeVsizeIncreaseEventR1", eventR1_));
+      if (eventR2_.vsize > 0) reportData.push_back(
+      	eventStatOutput("LargeVsizeIncreaseEventR2", eventR2_));
+      if (eventT3_.vsize > 0) reportData.push_back(
+      	eventStatOutput("ThirdLargestVsizeEventT3", eventT3_));
+      if (eventT3_.vsize > 0) reportData.push_back(
+      	eventStatOutput("SecondLargestVsizeEventT2", eventT2_));
+      if (eventT3_.vsize > 0) reportData.push_back(
+      	eventStatOutput("LargestVsizeEventT1", eventT1_));
+      
+      struct mallinfo minfo = mallinfo();
+      reportData.push_back(
+        mallOutput("HEAP_ARENA_SIZE_BYTES", minfo.arena));  
+      reportData.push_back(
+        mallOutput("HEAP_ARENA_N_UNUSED_CHUNKS", minfo.ordblks));  
+      reportData.push_back(
+        mallOutput("HEAP_TOP_FREE_BYTES", minfo.keepcost));  
+      reportData.push_back(
+        mallOutput("HEAP_MAPPED_SIZE_BYTES", minfo.hblkhd));  
+      reportData.push_back(
+        mallOutput("HEAP_MAPPED_N_CHUNKS", minfo.hblks));  
+      reportData.push_back(
+        mallOutput("HEAP_USED_BYTES", minfo.uordblks));  
+      reportData.push_back(
+        mallOutput("HEAP_UNUSED_BYTES", minfo.fordblks));  
+	
+      reportSvc->reportMemoryInfo(reportData);
+      // This is a form of reportMemoryInfo taking s vector, not a map
+#endif
+    } // postEndJob
  
     void SimpleMemoryCheck::preEventProcessing(const edm::EventID& iID,
           				       const edm::Timestamp& iTime) 
@@ -275,9 +376,12 @@ namespace edm {
           					const EventSetup&) 
     {
       ++count_;
+      update();
+      updateEventStats( e.id() );
       if (oncePerEventMode) {
         // should probably use be Run:Event or count_ for the label and name
-        updateAndPrint("event", "", ""); 
+        updateMax();
+	andPrint("event", "", ""); 
       } 
     }
  
@@ -289,12 +393,61 @@ namespace edm {
     }
  
  
-    void SimpleMemoryCheck::updateAndPrint(const std::string& type, 
-                    const std::string& mdlabel, const std::string& mdname) 
+    void SimpleMemoryCheck::update() 
     {
       std::swap(current_,previous_);
       *current_ = fetch();
- 
+    }
+
+    void SimpleMemoryCheck::updateMax() 
+    {
+      if ((*current_ > max_) || oncePerEventMode)
+        {
+          if(count_ >= num_to_skip_) {
+          }
+          max_ = *current_;
+        }
+    }
+
+    void SimpleMemoryCheck::updateEventStats(edm::EventID const & e) {
+      if (count_ < num_to_skip_) return;
+      if (count_ == num_to_skip_) {
+	eventT1_.set(0, 0, e, this);
+	eventM_.set (0, 0, e, this);
+        return;
+      }
+      double vsize = current_->vsize;
+      double deltaVsize = vsize -  eventT1_.vsize;
+      if (vsize > eventT1_.vsize) {
+	double deltaRss = current_->rss - eventT1_.rss;
+        eventT3_ = eventT2_;
+        eventT2_ = eventT1_;
+	eventT1_.set(deltaVsize, deltaRss, e, this);
+      }
+      if (deltaVsize > eventM_.deltaVsize) {
+	double deltaRss = current_->rss - eventM_.rss;
+        if (eventL1_.deltaVsize >= eventR1_.deltaVsize) {
+	  eventL2_ = eventL1_; 
+	} else {
+	  eventL2_ = eventR1_; 
+        }
+	eventL1_ = eventM_;
+	eventM_.set(deltaVsize, deltaRss, e, this);
+	eventR1_ = SignificantEvent();
+	eventR2_ = SignificantEvent();
+      } else if (deltaVsize > eventR1_.deltaVsize) {
+	double deltaRss = current_->rss - eventM_.rss;
+        eventR2_ = eventR1_;
+	eventR1_.set(deltaVsize, deltaRss, e, this);
+      } else if (deltaVsize > eventR2_.deltaVsize) {
+	double deltaRss = current_->rss - eventR1_.rss;
+	eventR2_.set(deltaVsize, deltaRss, e, this);
+      }
+    }	// updateEventStats
+      
+    void SimpleMemoryCheck::andPrint(const std::string& type, 
+                    const std::string& mdlabel, const std::string& mdname) const
+    {
       if ((*current_ > max_) || oncePerEventMode)
         {
           if(count_ >= num_to_skip_) {
@@ -324,11 +477,87 @@ namespace edm {
               << "\n";
             }
           }
-          max_ = *current_;
         }
     }
 
+    void SimpleMemoryCheck::updateAndPrint(const std::string& type, 
+                    const std::string& mdlabel, const std::string& mdname) 
+    {
+      update();
+      updateMax();
+      andPrint(type, mdlabel, mdname);
+    }
 
-  }
-}
+#ifdef SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
+    void
+    SimpleMemoryCheck::eventStatOutput(std::string title, 
+    				       SignificantEvent const& e,
+				       std::map<std::string, double> &m) const
+    {
+      { std::ostringstream os;
+        os << title << "-a-COUNT";
+        m.insert(std::make_pair(os.str(), e.count)); }
+      { std::ostringstream os;
+        os << title << "-b-RUN";
+        m.insert(std::make_pair(os.str(), static_cast<double>
+						(e.event.run()) )); }
+      { std::ostringstream os;
+        os << title << "-c-EVENT";
+        m.insert(std::make_pair(os.str(), static_cast<double>
+						(e.event.event()) )); }
+      { std::ostringstream os;
+        os << title << "-d-VSIZE";
+        m.insert(std::make_pair(os.str(), e.vsize)); }
+      { std::ostringstream os;
+        os << title << "-e-DELTV";
+        m.insert(std::make_pair(os.str(), e.deltaVsize)); }
+      { std::ostringstream os;
+        os << title << "-f-RSS";
+        m.insert(std::make_pair(os.str(), e.rss)); }
+    } // eventStatOutput
+#endif
+
+ 
+#ifdef SIMPLE_MEMORY_CHECK_DIFFERENT_XML_OUTPUT
+    std::string 
+    SimpleMemoryCheck::eventStatOutput(std::string title, 
+    				       SignificantEvent const& e) const
+    {
+      std::ostringstream os;
+      os << "  <" << title << ">\n";
+      os << "    " << e.count << ": " << e.event;
+      os << " vsize " << e.vsize-e.deltaVsize << " + " << e.deltaVsize
+                                              << " = " << e.vsize;
+      os << "  rss: " << e.rss << "\n";					      
+      os << "  </" << title << ">\n";
+      return os.str();
+    } // eventStatOutput
+
+    std::string 
+    SimpleMemoryCheck::mallOutput(std::string title, size_t const& n) const {
+      std::ostringstream os;
+      os << "  <" << title << ">\n";
+      os << "    " << n << "\n";
+      os << "  </" << title << ">\n";
+      return os.str();
+    }
+#endif
+
+ 
+
+
+    std::ostream & 
+    operator<< (std::ostream & os, 
+    		SimpleMemoryCheck::SignificantEvent const & se) {
+      os << "[" << se.count << "] "
+         << se.event << "  vsize = " << se.vsize 
+	 << " deltaVsize = " << se.deltaVsize 
+         << " rss = " << se.rss << " delta " << se.deltaRss;
+      return os;
+    }
+      
+
+
+  } // end namespace service
+} // end namespace edm
 

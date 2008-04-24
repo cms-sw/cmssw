@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.22 2008/02/05 14:17:20 evansde Exp $
+// $Id: JobReport.h,v 1.23 2008/02/19 14:58:51 evansde Exp $
 //
 
 #include <cstddef>
@@ -356,6 +356,21 @@ namespace edm {
       /// summary about time taken for inclusion in the job report
       ///
       void reportTimingInfo(std::map<std::string, double> const & timingData);
+
+      ///
+      /// Report Memory statistics
+      /// Invoked by the Memory service to send an end of job 
+      /// summary about memory usage for inclusion in the job report
+      ///
+      void reportMemoryInfo(std::map<std::string, double> const& memoryData);
+
+      ///
+      /// Report Memory statistics
+      /// ALTERNATE FORM - USING THIS MAY NECESSITATE CHANGES IN PARSING XML!
+      /// Invoked by the Memory service to send an end of job 
+      /// summary about memory usage for inclusion in the job report
+      ///
+      void reportMemoryInfo(std::vector<std::string> const& memoryData);
 
       /// Report Storage Statistics
       void reportStorageStats(std::string const & data); 

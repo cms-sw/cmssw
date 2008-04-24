@@ -102,3 +102,15 @@ u25	Imposition of limits and thresholds of specific interest to user
 	requests:  Limits per-category on ERROR and WARNING messages.
 	---------- UnitTestClient_R
 	
+
+Non-regression-suite tests (not run via scramv1 b runtests):
+
+timing_t   Tests output of Timing service to JobReport
+	   (Inherently tough for regression testing as
+	   times will change and cannt be suppressed.)
+	   ** Run via cmsRun -e timing_t.cfg **
+	   Look for and look at FrameworkJobReport.xml
+	   and timing_t.log.
+	--------- UnitTestClient_A
+
+o1	JobReport output of Memory service

@@ -7,11 +7,12 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.3 2007/08/16 02:53:15 elmer Exp $
+// $Id: Memory.h,v 1.4 2007/10/12 15:35:24 elmer Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 namespace edm {
   class EventID;
@@ -64,6 +65,10 @@ namespace edm {
     private:
       procInfo fetch();
       double pageSize() const { return pg_size_; }
+      void update();
+      void updateMax();
+      void andPrint(const std::string& type,
+                const std::string& mdlabel, const std::string& mdname) const;
       void updateAndPrint(const std::string& type,
                         const std::string& mdlabel, const std::string& mdname);
 
@@ -83,7 +88,51 @@ namespace edm {
       bool oncePerEventMode;
       int count_;
 
-    };
+      // Event summary statistics 
+      struct SignificantEvent {
+        int count;
+	double vsize;
+	double deltaVsize;
+	double rss;
+	double deltaRss;
+	edm::EventID event;
+	SignificantEvent() : count(0), vsize(0), deltaVsize(0), 
+			     rss(0), deltaRss(0), event() {}
+	void set (double deltaV, double deltaR, 
+		  edm::EventID const & e, SimpleMemoryCheck *t)
+	{ count = t->count_;
+	  vsize = t->current_->vsize;
+	  deltaVsize = deltaV;
+	  rss = t->current_->rss;
+	  deltaRss = deltaR;
+	  event = e;
+	}
+      }; // SignificantEvent
+      friend class SignificantEvent;
+      friend std::ostream & operator<< (std::ostream & os, 
+    		SimpleMemoryCheck::SignificantEvent const & se); 
+      SignificantEvent eventM_;  
+      SignificantEvent eventL1_; 
+      SignificantEvent eventL2_; 
+      SignificantEvent eventR1_; 
+      SignificantEvent eventR2_; 
+      SignificantEvent eventT1_; 
+      SignificantEvent eventT2_; 
+      SignificantEvent eventT3_; 
+      void updateEventStats(edm::EventID const & e);
+      std::string eventStatOutput(std::string title, 
+      				  SignificantEvent const& e) const;
+      void eventStatOutput(std::string title, 
+    			   SignificantEvent const& e,
+			   std::map<std::string, double> &m) const;
+      std::string mallOutput(std::string title, size_t const& n) const;
+      
+    }; // SimpleMemoryCheck
+    
+    std::ostream & 
+    operator<< (std::ostream & os, 
+    		SimpleMemoryCheck::SignificantEvent const & se); 
+    
   }
 }
 
