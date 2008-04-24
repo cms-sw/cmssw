@@ -9,11 +9,9 @@ DEFINE_ANOTHER_FWK_MODULE(L1THcalClient);
 DEFINE_ANOTHER_FWK_MODULE(L1TDTTPGClient);
 #include <DQM/L1TMonitorClient/interface/L1TdeECALClient.h>
 DEFINE_ANOTHER_FWK_MODULE(L1TdeECALClient);
-<<<<<<< SealModule.cc
 #include "DQM/L1TMonitorClient/interface/L1TRPCTFClient.h"
 DEFINE_ANOTHER_FWK_MODULE(L1TRPCTFClient);
-=======
 #include <DQM/L1TMonitorClient/interface/L1TCSCTFClient.h>
 DEFINE_ANOTHER_FWK_MODULE(L1TCSCTFClient);
-
->>>>>>> 1.10
+#include <DQM/L1TMonitorClient/interface/L1TGMTClient.h>
+DEFINE_ANOTHER_FWK_MODULE(L1TGMTClient);
