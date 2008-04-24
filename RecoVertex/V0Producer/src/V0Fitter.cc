@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.20 2008/03/18 21:06:27 drell Exp $
+// $Id: V0Fitter.cc,v 1.21 2008/04/22 21:50:32 kaulmer Exp $
 //
 //
 
@@ -482,15 +482,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
 // Get methods
-std::vector<reco::VertexCompositeCandidate> V0Fitter::getKshorts() const {
+reco::VertexCompositeCandidateCollection V0Fitter::getKshorts() const {
   return theKshorts;
 }
 
-std::vector<reco::VertexCompositeCandidate> V0Fitter::getLambdas() const {
+reco::VertexCompositeCandidateCollection V0Fitter::getLambdas() const {
   return theLambdas;
 }
 
-std::vector<reco::VertexCompositeCandidate> V0Fitter::getLambdaBars() const {
+reco::VertexCompositeCandidateCollection V0Fitter::getLambdaBars() const {
   return theLambdaBars;
 }
 
@@ -502,7 +502,7 @@ void V0Fitter::applyPostFitCuts() {
   /*std::cout << "Starting post fit cuts with " << preCutCands.size()
     << " preCutCands" << std::endl;*/
   //std::cout << "!1" << std::endl;
-  for(std::vector<reco::VertexCompositeCandidate>::iterator theIt = preCutCands.begin();
+  for(reco::VertexCompositeCandidateCollection::iterator theIt = preCutCands.begin();
       theIt != preCutCands.end(); theIt++) {
     bool writeVee = false;
     double rVtxMag = sqrt( theIt->vertex().x()*theIt->vertex().x() +
@@ -557,22 +557,31 @@ void V0Fitter::applyPostFitCuts() {
     bool hitsOkay = true;
     //std::cout << "theVtxTrax.size = " << theVtxTrax.size() << std::endl;
     if( theVtxTrax.size() == 2 && doPostFitCuts) {
-      if( theVtxTrax[0]->recHitsSize() && theVtxTrax[1]->recHitsSize() ) {
+      if( theVtxTrax[0]->innerOk() ) {
+	reco::Vertex::Point tk1HitPosition = theVtxTrax[0]->innerPosition();
+	if( sqrt(tk1HitPosition.Perp2()) < (rVtxMag - sigmaRvtxMag*4.0) ) {
+	  hitsOkay = false;
+	}
+      }
+      if( theVtxTrax[1]->innerOk() && hitsOkay) {
+	reco::Vertex::Point tk2HitPosition = theVtxTrax[1]->innerPosition();
+	if( sqrt(tk2HitPosition.Perp2()) < (rVtxMag - sigmaRvtxMag*4.0) ) {
+	  hitsOkay = false;
+	}
+      }
+      /*if( theVtxTrax[0]->recHitsSize() && theVtxTrax[1]->recHitsSize() ) {
+
 	trackingRecHit_iterator tk1HitIt = theVtxTrax[0]->recHitsBegin();
 	trackingRecHit_iterator tk2HitIt = theVtxTrax[1]->recHitsBegin();
-	//std::cout << "!!4" << std::endl;
 
 	for( ; tk1HitIt < theVtxTrax[0]->recHitsEnd(); tk1HitIt++) {
 	  if( (*tk1HitIt)->isValid() && hitsOkay) {
-	    //std::cout << "!!5" << std::endl;
 	    const TrackingRecHit* tk1HitPtr = (*tk1HitIt).get();
 	    GlobalPoint tk1HitPosition
 	      = trackerGeom->idToDet(tk1HitPtr->
 				     geographicalId())->
 	      surface().toGlobal(tk1HitPtr->localPosition());
-	    //std::cout << "!!6" << std::endl;
-	    //std::cout << typeid(*tk1HitPtr).name();<--This is how
-	    //                               we can access the hit type.
+	    //std::cout << typeid(*tk1HitPtr).name();
 
 	    if( tk1HitPosition.perp() < (rVtxMag - 4.*sigmaRvtxMag) ) {
 	      hitsOkay = false;
@@ -593,7 +602,7 @@ void V0Fitter::applyPostFitCuts() {
 	    }
 	  }
 	}
-      }
+	}*/
     }
 
 

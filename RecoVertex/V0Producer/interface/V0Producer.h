@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.h,v 1.4 2008/02/04 21:54:57 drell Exp $
+// $Id: V0Producer.h,v 1.5 2008/04/22 21:50:31 kaulmer Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+//#include "DataFormats/V0Candidate/interface/V0Candidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 #include "RecoVertex/V0Producer/interface/V0Fitter.h"

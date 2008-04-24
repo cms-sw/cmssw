@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.9 2008/03/14 17:13:22 drell Exp $
+// $Id: V0Fitter.h,v 1.10 2008/04/22 21:50:31 kaulmer Exp $
 //
 //
 
@@ -64,18 +64,18 @@ class V0Fitter {
   //reco::VertexCollection getLambdaBarCollection() const;
 
   // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
-  std::vector<reco::VertexCompositeCandidate> getKshorts() const;
-  std::vector<reco::VertexCompositeCandidate> getLambdas() const;
-  std::vector<reco::VertexCompositeCandidate> getLambdaBars() const;
+  reco::VertexCompositeCandidateCollection getKshorts() const;
+  reco::VertexCompositeCandidateCollection getLambdas() const;
+  reco::VertexCompositeCandidateCollection getLambdaBars() const;
 
  private:
   // STL vector of VertexCompositeCandidate that will be filled with VertexCompositeCandidates by fitAll()
-  std::vector<reco::VertexCompositeCandidate> theKshorts;
-  std::vector<reco::VertexCompositeCandidate> theLambdas;
-  std::vector<reco::VertexCompositeCandidate> theLambdaBars;
+  reco::VertexCompositeCandidateCollection theKshorts;
+  reco::VertexCompositeCandidateCollection theLambdas;
+  reco::VertexCompositeCandidateCollection theLambdaBars;
 
   // Vector used to temporarily hold candidates before cuts and selection
-  std::vector<reco::VertexCompositeCandidate> preCutCands;
+  reco::VertexCompositeCandidateCollection preCutCands;
 
   // Tracker geometry for discerning hit positions
   const TrackerGeometry* trackerGeom;
