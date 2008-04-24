@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #include "SimMuon/CSCDigitizer/data/muonCSCConditions.cfi"
-muonCSCDigis = cms.EDProducer("CSCDigiProducer",
+simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     neutrons = cms.PSet(
         luminosity = cms.double(0.1),
         eventOccupancy = cms.vdouble(0.000709, 0.000782, 0.000162, 0.000162, 0.00238, 
@@ -60,5 +60,6 @@ muonCSCDigis = cms.EDProducer("CSCDigiProducer",
     ),
     stripConditions = cms.string('Database')
 )
+
 
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
+simEcalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     # ADC to GeV conversion factor used in ZS filter for EB
     ebDccAdcToGeV = cms.double(0.035),
     # Instance name of input EB digi collections
@@ -20,7 +20,7 @@ ecalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     # Neighbouring eta range, neighborhood: (2*deltaEta+1)*(2*deltaPhi+1)
     deltaPhi = cms.int32(1),
     # Label name of input ECAL trigger primitive collection
-    trigPrimProducer = cms.string('ecalTriggerPrimitiveDigis'),
+    trigPrimProducer = cms.string('simEcalTriggerPrimitiveDigis'),
     # ZS energy threshold in GeV to apply to low interest channels of endcap
     srpEndcapLowInterestChannelZS = cms.double(0.3),
     # Instance name of ECAL trigger primitive collection
@@ -44,7 +44,7 @@ ecalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     # Instance name of output EB digis collection
     EBSRPdigiCollection = cms.string('ebDigis'),
     # Label of input EB and EE digi collections
-    digiProducer = cms.string('ecalUnsuppressedDigis'),
+    digiProducer = cms.string('simEcalUnsuppressedDigis'),
     # Instance name of output EE SR flags collection
     EESrFlagCollection = cms.string('eeSrFlags'),
     #switch to run w/o trigger primitive. For debug use only
@@ -54,5 +54,6 @@ ecalDigis = cms.EDProducer("EcalSelectiveReadoutProducer",
     #for debug mode only:
     trigPrimBypassHTH = cms.double(1.0)
 )
+
 
 

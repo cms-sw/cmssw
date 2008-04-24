@@ -8,15 +8,15 @@ ecalSimRawData = cms.EDFilter("EcalSimRawData",
     EEdigiCollection = cms.string(''),
     EBdigiCollection = cms.string(''),
     tcpDigiCollection = cms.string('formatTCP'),
-    srProducer = cms.string('ecalDigis'),
+    srProducer = cms.string('simEcalDigis'),
     outputBaseName = cms.untracked.string('ecal'),
     tpVerbose = cms.untracked.bool(False),
-    trigPrimProducer = cms.string('ecalTriggerPrimitiveDigis'),
+    trigPrimProducer = cms.string('simEcalTriggerPrimitiveDigis'),
     xtalVerbose = cms.untracked.bool(False),
     srp2dccData = cms.untracked.bool(True),
     EESrFlagCollection = cms.string('eeSrFlags'),
     fe2tccData = cms.untracked.bool(True),
-    unsuppressedDigiProducer = cms.string('ecalUnsuppressedDigis'),
+    unsuppressedDigiProducer = cms.string('simEcalUnsuppressedDigis'),
     fe2dccData = cms.untracked.bool(True),
     EBSrFlagCollection = cms.string('ebSrFlags'),
     tccNum = cms.untracked.int32(-1),
@@ -24,5 +24,6 @@ ecalSimRawData = cms.EDFilter("EcalSimRawData",
     tccInDefaultVal = cms.untracked.int32(65535),
     trigPrimDigiCollection = cms.string('')
 )
+
 
 

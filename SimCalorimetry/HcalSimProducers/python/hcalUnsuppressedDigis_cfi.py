@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
-hcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
+simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
     hcalSimParameters,
     doNoise = cms.bool(True),
+    doHPDNoise = cms.bool(False),
     doTimeSlew = cms.bool(True)
 )
+
 
 

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalDigis = cms.EDProducer("HcalTBDigiProducer",
+simHcalDigis = cms.EDProducer("HcalTBDigiProducer",
     doPhotostatisticsTB = cms.untracked.bool(True),
     photomultiplierGainTBHO = cms.untracked.double(4000.0),
     tunePhaseShiftTB = cms.untracked.double(1.0),
@@ -23,5 +23,6 @@ hcalDigis = cms.EDProducer("HcalTBDigiProducer",
     syncPhaseTB = cms.untracked.bool(True),
     binOfMaximumTBHE = cms.untracked.int32(5)
 )
+
 
 

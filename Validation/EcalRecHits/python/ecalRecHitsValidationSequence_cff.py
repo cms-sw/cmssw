@@ -7,3 +7,4 @@ from Validation.EcalRecHits.ecalEndcapRecHitsValidation_cfi import *
 from Validation.EcalRecHits.ecalPreshowerRecHitsValidation_cfi import *
 ecalRecHitsValidationSequence = cms.Sequence(ecalRecHitsValidation*ecalBarrelRecHitsValidation*ecalEndcapRecHitsValidation*ecalPreshowerRecHitsValidation)
 
+

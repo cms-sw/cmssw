@@ -11,7 +11,7 @@ siStripClusters = cms.EDFilter("SiStripClusterizer",
     ChannelThreshold = cms.double(2.0),
     DigiProducersList = cms.VPSet(cms.PSet(
         DigiLabel = cms.string('ZeroSuppressed'),
-        DigiProducer = cms.string('SiStripDigis')
+        DigiProducer = cms.string('siStripDigis')
     ), 
         cms.PSet(
             DigiLabel = cms.string('VirginRaw'),
@@ -31,5 +31,6 @@ siStripClusters = cms.EDFilter("SiStripClusterizer",
 
     ClusterThreshold = cms.double(5.0)
 )
+
 
 

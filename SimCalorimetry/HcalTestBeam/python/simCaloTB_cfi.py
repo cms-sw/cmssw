@@ -9,3 +9,4 @@ simCaloTB = cms.EDProducer("EcalTBMCInfoProducer",
 
 doSimTB = cms.Sequence(simCaloTB)
 
+

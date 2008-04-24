@@ -81,3 +81,4 @@ process.ecalDigis.dumpFlags = 10
 process.ecalDigis.trigPrimBypass = False
 process.ecalDigis.writeSrFlags = True
 
+

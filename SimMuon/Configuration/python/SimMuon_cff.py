@@ -10,5 +10,6 @@ from SimMuon.DTDigitizer.muondtdigi_cfi import *
 # RPC digitizer
 # 
 from SimMuon.RPCDigitizer.muonrpcdigi_cfi import *
-muonDigi = cms.Sequence(muonCSCDigis+muonDTDigis+muonRPCDigis)
+muonDigi = cms.Sequence(cms.SequencePlaceholder("simMuonCSCDigis")+cms.SequencePlaceholder("simMuonDTDigis")+cms.SequencePlaceholder("simMuonRPCDigis"))
+
 

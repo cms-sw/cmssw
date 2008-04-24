@@ -12,3 +12,4 @@ ecalRecHitsValidation = cms.EDFilter("EcalRecHitsValidation",
 )
 
 
+

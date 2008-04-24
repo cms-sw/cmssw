@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 muondtdigianalyzer = cms.EDFilter("MuonDTDigis",
     # Label to retrieve Digis from the event
-    DigiLabel = cms.untracked.string('muonDTDigis'),
+    DigiLabel = cms.untracked.string('simMuonDTDigis'),
     # Label to retrieve SimHits from the event
     SimHitLabel = cms.untracked.string('g4SimHits'),
     # Name of the root file which will contain the histos
@@ -10,5 +10,6 @@ muondtdigianalyzer = cms.EDFilter("MuonDTDigis",
     # Switch on/off the verbosity
     verbose = cms.untracked.bool(True)
 )
+
 
 

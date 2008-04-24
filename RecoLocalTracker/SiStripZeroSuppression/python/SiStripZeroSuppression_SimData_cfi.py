@@ -2,15 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 siStripZeroSuppression = cms.EDFilter("SiStripZeroSuppression",
     RawDigiProducersList = cms.VPSet(cms.PSet(
-        RawDigiProducer = cms.string('siStripDigis'),
+        RawDigiProducer = cms.string('simSiStripDigis'),
         RawDigiLabel = cms.string('VirginRaw')
     ), 
         cms.PSet(
-            RawDigiProducer = cms.string('siStripDigis'),
+            RawDigiProducer = cms.string('simSiStripDigis'),
             RawDigiLabel = cms.string('ProcessedRaw')
         ), 
         cms.PSet(
-            RawDigiProducer = cms.string('siStripDigis'),
+            RawDigiProducer = cms.string('simSiStripDigis'),
             RawDigiLabel = cms.string('ScopeMode')
         )),
     FEDalgorithm = cms.uint32(4),
@@ -20,5 +20,6 @@ siStripZeroSuppression = cms.EDFilter("SiStripZeroSuppression",
     CommonModeNoiseSubtractionMode = cms.string('Median') ##Supported modes: Median, TT6, FastLinear
 
 )
+
 
 

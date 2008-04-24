@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-siStripDigis = cms.EDFilter("SiStripDigitizer",
+simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     TOFCutForPeak = cms.double(100.0),
     DeltaProductionCut = cms.double(0.120425),
     Temperature = cms.double(263.0),
@@ -54,5 +54,6 @@ siStripDigis = cms.EDFilter("SiStripDigitizer",
     CosmicDelayShift = cms.untracked.double(0.0),
     ChargeMobility = cms.double(480.0)
 )
+
 
 

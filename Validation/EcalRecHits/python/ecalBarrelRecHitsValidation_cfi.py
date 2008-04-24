@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelRecHitsValidation = cms.EDFilter("EcalBarrelRecHitsValidation",
-    EBdigiCollection = cms.InputTag("ecalDigis","ebDigis"),
+    EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis"),
     EBuncalibrechitCollection = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB"),
     verbose = cms.untracked.bool(True)
 )
+
 
 
