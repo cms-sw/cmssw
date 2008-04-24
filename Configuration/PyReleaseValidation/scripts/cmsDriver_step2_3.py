@@ -58,7 +58,7 @@ if ( typeOfEv == 'RELVAL'):
 else:
     command3=command3+' --fileout none'
 
-#os.system(command2)
+os.system(command2)
 if ( not ( alca3=='')):
     print command3
     os.system(command3)
