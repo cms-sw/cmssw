@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.22 2008/04/21 09:52:41 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.23 2008/04/24 16:02:34 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -238,38 +238,12 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 	if ( range != feds_.emptyRange() ) {
 	  
 	  std::vector<FedDescription*> feds( range.begin(), range.end() );
-// 	  std::vector<FedDescription*> feds; //@@ PATCH DUE TO BUG IN JONNY'S CODE
-// 	  for ( FedDescriptions::data_iterator ii = range.begin(); ii != range.end(); ++ii ) {
-// 	    if ( *ii ) { feds.push_back( (*ii)->clone() ); }
-// 	  }
-	  
-	  for ( std::vector<FedDescription*>::iterator ii = feds.begin(); ii != feds.end(); ++ii ) {
-	    if ( *ii ) {
-	      std::stringstream sss;
-	      sss << " BEFORE : "
-		  << " ptr: " << *ii
-		  << " SW id: " << (*ii)->getFedId()
-		  << " HW id: " << (*ii)->getFedHardwareId();
-	      LogTrace("TEST") << sss.str();
-	    }
-	  }
 	  
 	  deviceFactory(__func__)->setFed9UDescriptions( feds,
 							 iter->second.partitionName_,
 							 (uint16_t*)(&iter->second.fedVersion_.first), 
 							 (uint16_t*)(&iter->second.fedVersion_.second),
 							 1 ); // new major version
-
-	  for ( std::vector<FedDescription*>::iterator ii = feds.begin(); ii != feds.end(); ++ii ) {
-	    if ( *ii ) {
-	      std::stringstream sss;
-	      sss << " AFTER  : "
-		  << " ptr: " << *ii
-		  << " SW id: " << (*ii)->getFedId()
-		  << " HW id: " << (*ii)->getFedHardwareId();
-	      LogTrace("TEST") << sss.str();
-	    }
-	  }
 
 	  // Some debug
 	  std::stringstream ss;
