@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.14 2007/12/13 18:51:53 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.15 2008/03/14 04:24:37 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
     ("verbose,v","Verbose printout")
     ("decodeLFN,d", "Convert LFN to PFN")
     ("printBranchDetails,b","Call Print()sc for all branches")
+    ("tree,t", boost::program_options::value<std::string>(), "Select tree used with -P and -b options")
     ("allowRecovery","Allow root to auto-recover corrupted files") 
     ("events,e",boost::program_options::value<std::string>(), 
      "Show event ids for events within a range or set of ranges , e.g., 5-13,30,60-90 ")
@@ -193,14 +194,27 @@ int main(int argc, char* argv[]) {
 	if ( tfile != 0 ) tfile->ls();
       }
       
+      std::string selectedTree = vm.count("tree") ? vm["tree"].as<std::string>() :
+                                                    edm::poolNames::eventTreeName().c_str();
+
       // Print out each tree
       if ( vm.count("print") ) {
-	TTree *eventsTree=(TTree*)tfile->Get(edm::poolNames::eventTreeName().c_str());
-	edm::printBranchNames(eventsTree);
+        TTree *printTree=(TTree*)tfile->Get(selectedTree.c_str());
+        if (printTree == 0) {
+          std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
+          std::cout << "Exiting\n";
+          return 1;
+        }
+        edm::printBranchNames(printTree);
       }
       
       if ( vm.count("printBranchDetails") ) {
-	TTree *printTree=(TTree*)tfile->Get(edm::poolNames::eventTreeName().c_str());
+        TTree *printTree=(TTree*)tfile->Get(selectedTree.c_str());
+        if (printTree == 0) {
+          std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
+          std::cout << "Exiting\n";
+          return 1;
+        }
 	edm::longBranchPrint(printTree);
       }
       
