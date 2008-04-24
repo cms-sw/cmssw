@@ -1,5 +1,5 @@
 
-// $Id: ThingWithMergeProducer.cc,v 1.2 2008/02/08 17:35:51 wdd Exp $
+// $Id: ThingWithMergeProducer.cc,v 1.3 2008/02/14 15:55:55 wdd Exp $
 //
 // Puts some simple test objects in the event, run, and lumi
 // principals.  The values put into these objects are just
@@ -17,7 +17,7 @@
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edmtest {

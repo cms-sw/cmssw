@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-@example_track #include "FWCore/ParameterSet/interface/InputTag.h"
+@example_track #include "FWCore/Utilities/interface/InputTag.h"
 @example_track #include "DataFormats/TrackReco/interface/Track.h"
 @example_track #include "DataFormats/TrackReco/interface/TrackFwd.h"
 @example_histo #include "FWCore/ServiceRegistry/interface/Service.h"

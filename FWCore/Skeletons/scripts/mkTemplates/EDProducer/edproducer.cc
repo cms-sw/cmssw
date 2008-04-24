@@ -34,7 +34,7 @@
 @example_myparticle #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 @example_myparticle #include "DataFormats/Candidate/interface/Particle.h"
 @example_myparticle #include "FWCore/MessageLogger/interface/MessageLogger.h"
-@example_myparticle #include "FWCore/ParameterSet/interface/InputTag.h"
+@example_myparticle #include "FWCore/Utilities/interface/InputTag.h"
 
 //
 // class decleration

@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.2 2008/02/08 17:35:50 wdd Exp $
+// $Id: TestMergeResults.cc,v 1.3 2008/02/28 20:51:06 wmtan Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -18,7 +18,7 @@
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

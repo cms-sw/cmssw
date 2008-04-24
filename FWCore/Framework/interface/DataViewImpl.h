@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.36 2008/03/03 19:11:42 wmtan Exp $
+$Id: DataViewImpl.h,v 1.37 2008/03/31 21:13:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -110,7 +110,7 @@ $Id: DataViewImpl.h,v 1.36 2008/03/03 19:11:42 wmtan Exp $
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
 
