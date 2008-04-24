@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2008/04/24 08:55:14 $
- * $Revision: 1.18 $
+ * $Date: 2008/04/24 13:00:11 $
+ * $Revision: 1.19 $
  * \author J. Berryhill
  *
  */
@@ -157,7 +157,7 @@ void L1TCSCTF::beginJob(const EventSetup& c)
   //  (all 12 SPs - 360 degree coveradge)
   csctfoccupancies = dbe->book2D("CSCTF_occupancies","CSCTF Occupancies",100,0.8,2.5,1229,0,1.2);
   csctfoccupancies->setAxisTitle("#eta",1);
-  csctfoccupancies->setAxisTitle("#phi x station x endcap + tracks (>1)",2);
+  csctfoccupancies->setAxisTitle("#phi of LCTs x station x endcap & #phi of tracks",2);
   csctfoccupancies->setBinLabel(64,  "ME-1",2);
   csctfoccupancies->setBinLabel(192, "ME+1",2);
   csctfoccupancies->setBinLabel(320, "ME-2",2);
