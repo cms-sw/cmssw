@@ -13,7 +13,7 @@
 //
 // Original Author:  Tanja Rommerskirchen
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.cc,v 1.2 2008/04/07 17:39:22 adamwo Exp $
+// $Id: PATHemisphereProducer.cc,v 1.3 2008/04/08 09:02:18 trommers Exp $
 //
 //
 
@@ -33,6 +33,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 //User
 #include  "PhysicsTools/PatAlgos/plugins/PATHemisphereProducer.h"
 
@@ -176,10 +177,10 @@ PATHemisphereProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   vA1 = myHemi.getAxis1();
   vA2 = myHemi.getAxis2();
 
-  Particle::LorentzVector p1(vA1[0]*vA1[3],vA1[1]*vA1[3],vA1[2]*vA1[3],vA1[4]);
+  reco::Particle::LorentzVector p1(vA1[0]*vA1[3],vA1[1]*vA1[3],vA1[2]*vA1[3],vA1[4]);
   hemispheres->push_back(Hemisphere(p1));
 
-  Particle::LorentzVector p2(vA2[0]*vA2[3],vA2[1]*vA2[3],vA2[2]*vA2[3],vA2[4]);
+  reco::Particle::LorentzVector p2(vA2[0]*vA2[3],vA2[1]*vA2[3],vA2[2]*vA2[3],vA2[4]);
   hemispheres->push_back(Hemisphere(p2));
  
   //get information to which Hemisphere each object belongs
