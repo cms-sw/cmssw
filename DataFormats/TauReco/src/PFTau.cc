@@ -41,6 +41,8 @@ PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,v
 
 PFTau* PFTau::clone()const{return new PFTau(*this);}
 
+
+
 const PFTauTagInfoRef& PFTau::pfTauTagInfoRef()const{return PFTauTagInfoRef_;}
 void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) {PFTauTagInfoRef_=x;}
     
@@ -79,4 +81,35 @@ void PFTau::setmaximumHCALPFClusterEt(const float& x){maximumHCALPFClusterEt_=x;
 bool PFTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
   return (theRecoCand!=0 && (checkOverlap(track(),theRecoCand->track())));
+}
+namespace reco {
+std::ostream & operator<<(std::ostream& out, const PFTau& c)
+{
+    out << "Its constituents :"<<std::endl;
+    out<<"# Tracks "<<(c).pfTauTagInfoRef()->Tracks().size()<<std::endl;
+    out<<"# PF charged hadr. cand's "<<(c).pfTauTagInfoRef()->PFChargedHadrCands().size()<<std::endl;
+    out<<"# PF neutral hadr. cand's "<<(c).pfTauTagInfoRef()->PFNeutrHadrCands().size()<<std::endl;
+    out<<"# PF gamma cand's "<<(c).pfTauTagInfoRef()->PFGammaCands().size()<<std::endl;
+    out<<"in detail :"<<std::endl;
+
+    out<<"Pt of the PFTau "<<(c).pt()<<std::endl;
+    PFCandidateRef theLeadPFCand = (c).leadPFChargedHadrCand();
+    if(!theLeadPFCand){
+      out<<"No Lead PFCand "<<std::endl;
+    }else{
+      out<<"Lead PFCand Pt "<<(*theLeadPFCand).pt()<<std::endl;
+      out<<"Inner point position (x,y,z) of the PFTau ("<<(c).vx()<<","<<(c).vy()<<","<<(c).vz()<<")"<<std::endl;
+      out<<"Charge of the PFTau "<<(c).charge()<<std::endl;
+      out<<"Et of the highest Et HCAL PFCluster "<<(c).maximumHCALPFClusterEt()<<std::endl;
+      out<<"Number of SignalPFChargedHadrCands = "<<(c).signalPFChargedHadrCands().size()<<std::endl;
+      out<<"Number of SignalPFGammaCands = "<<(c).signalPFGammaCands().size()<<std::endl;
+      out<<"Number of IsolationPFChargedHadrCands = "<<(c).isolationPFChargedHadrCands().size()<<std::endl;
+      out<<"Number of IsolationPFGammaCands = "<<(c).isolationPFGammaCands().size()<<std::endl;
+      out<<"Sum of Pt of charged hadr. PFCandidates in isolation annulus around Lead PF = "<<(c).isolationPFChargedHadrCandsPtSum()<<std::endl;
+      out<<"Sum of Et of gamma PFCandidates in other isolation annulus around Lead PF = "<<(c).isolationPFGammaCandsEtSum()<<std::endl;
+
+    }
+    return out;
+
+  } 
 }

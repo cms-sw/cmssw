@@ -14,7 +14,7 @@
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
+#include <iostream>
 #include <limits>
 
 
@@ -66,7 +66,8 @@ namespace reco {
     // Et of the highest Et HCAL PFCluster  
     float maximumHCALPFClusterEt()const;
     void setmaximumHCALPFClusterEt(const float&);    
-  private:
+
+ private:
     // check overlap with another candidate
     virtual bool overlap(const Candidate&)const;
     PFTauTagInfoRef PFTauTagInfoRef_;
@@ -78,5 +79,8 @@ namespace reco {
     float isolationPFGammaCandsEtSum_;
     float maximumHCALPFClusterEt_;
   };
+
+std::ostream & operator<<(std::ostream& out, const PFTau& c); 
+
 }
 #endif
