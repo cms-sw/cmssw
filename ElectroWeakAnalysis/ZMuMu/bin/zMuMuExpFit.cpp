@@ -1,7 +1,6 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "PhysicsTools/Utilities/interface/ZLineShape.h"
 #include "PhysicsTools/Utilities/interface/Gaussian.h"
-#include "PhysicsTools/Utilities/interface/Numerical.h"
 #include "PhysicsTools/Utilities/interface/Exponential.h"
 #include "PhysicsTools/Utilities/interface/Polynomial.h"
 #include "PhysicsTools/Utilities/interface/Convolution.h"
@@ -49,30 +48,17 @@ int main(int ac, char *av[]) {
     typedef funct::Product<funct::Exponential, 
                            funct::Convolution<funct::ZLineShape, funct::Gaussian>::type >::type ZPeak;
     typedef funct::Product<funct::Parameter, ZPeak>::type ZMuMuSig;
-    typedef funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
-                           funct::Power<funct::Parameter, funct::Numerical<2> >::type >::type ZMuMuEfficiency;
-    typedef funct::Product<ZMuMuEfficiency, ZMuMuSig>::type ZMuMu;
-    
-    typedef funct::Product<funct::Numerical<2>, 
-                           funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
-                                          funct::Product<funct::Parameter, 
-                                                         funct::Difference<funct::Numerical<1>, funct::Parameter>::type 
-                                                         >::type 
-                                          >::type 
-                           >::type ZMuTkEfficiency;
-    typedef funct::Product<ZMuTkEfficiency, ZMuMuSig>::type ZMuTkSig;
+    typedef ZMuMuSig ZMuMu;
+    typedef ZMuMuSig ZMuTkSig;
     typedef funct::Product<funct::Parameter, 
                            funct::Product<funct::Exponential, funct::Polynomial<2> >::type >::type ZMuTkBkg;
     typedef funct::Sum<ZMuTkSig, ZMuTkBkg>::type ZMuTk;
-    
-    typedef ZMuTkEfficiency ZMuSaEfficiency;
-    typedef funct::Product<ZMuSaEfficiency, 
-                           funct::Product<funct::Parameter, funct::Gaussian>::type >::type ZMuSaSig;
+    typedef funct::Product<funct::Parameter, funct::Gaussian>::type ZMuSaSig;
     typedef funct::Parameter ZMuSaBkg;
     typedef funct::Sum<ZMuSaSig, ZMuSaBkg>::type ZMuSa;
     
     typedef fit::MultiHistoChiSquare<ZMuMu, ZMuTk, ZMuSa> ChiSquared;
-    fit::RootMinuitCommands<ChiSquared> commands("ElectroWeakAnalysis/ZMuMu/test/zMuMuFit.txt");
+    fit::RootMinuitCommands<ChiSquared> commands("ElectroWeakAnalysis/ZMuMu/test/zMuMuExpFit.txt");
     
     double fMin, fMax;
     string ext;
@@ -127,8 +113,8 @@ int main(int ac, char *av[]) {
 	cout << ">>> Input files loaded\n";
 	
 	const char * kYieldZMuMu = "YieldZMuMu";
-	const char * kEfficiencyTk = "EfficiencyTk";
-	const char * kEfficiencySa = "EfficiencySa";
+	const char * kYieldZMuTk = "YieldZMuTk";
+	const char * kYieldZMuSa = "YieldZMuSa";
 	const char * kYieldBkgZMuTk = "YieldBkgZMuTk"; 
 	const char * kYieldBkgZMuSa = "YieldBkgZMuSa"; 
 	const char * kLambdaZMuMu = "LambdaZMuMu";
@@ -154,8 +140,8 @@ int main(int ac, char *av[]) {
 	//funct::Parameter photonFactorZMuTk(kPhotonFactorZMuTk, commands.par(kPhotonFactorZMuTk)); 
 	//funct::Parameter interferenceFactorZMuTk(kInterferenceFactorZMuTk, commands.par(kInterferenceFactorZMuTk)); 
 	funct::Parameter yieldZMuMu(kYieldZMuMu, commands.par(kYieldZMuMu));
-	funct::Parameter efficiencyTk(kEfficiencyTk, commands.par(kEfficiencyTk)); 
-	funct::Parameter efficiencySa(kEfficiencySa, commands.par(kEfficiencySa)); 
+	funct::Parameter yieldZMuTk(kYieldZMuTk, commands.par(kYieldZMuTk)); 
+	funct::Parameter yieldZMuSa(kYieldZMuSa, commands.par(kYieldZMuSa)); 
 	funct::Parameter yieldBkgZMuTk(kYieldBkgZMuTk, commands.par(kYieldBkgZMuTk));
 	funct::Parameter yieldBkgZMuSa(kYieldBkgZMuSa, commands.par(kYieldBkgZMuSa));
 	funct::Parameter meanZMuMu(kMeanZMuMu, commands.par(kMeanZMuMu));
@@ -170,18 +156,11 @@ int main(int ac, char *av[]) {
 	              funct::conv(funct::ZLineShape(mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu), 
 			 	  funct::Gaussian(meanZMuMu, sigmaZMuMu), 
 				  -3*sigmaZMuMu.value(), 3*sigmaZMuMu.value(), 2000);
-	ZMuMuSig zMuMuSig = yieldZMuMu * zPeak; 
-	ZMuMuEfficiency zMuMuEfficiency = (efficiencyTk ^ funct::Numerical<2>(2)) * 
-	                                  (efficiencySa ^ funct::Numerical<2>(2)); 
-	ZMuMu zMuMu = zMuMuEfficiency * zMuMuSig;
+	ZMuMu zMuMu = yieldZMuMu * zPeak;
 	ZMuTkBkg zMuTkBkg = 
 	  yieldBkgZMuTk * (funct::Exponential(lambda) * funct::Polynomial<2>(a0, a1, a2));
-	ZMuTkEfficiency zMuTkEfficiency = funct::Numerical<2>(2) * 
-	  ((efficiencyTk ^ funct::Numerical<2>(2)) * (efficiencySa * (funct::Numerical<1>(1) - efficiencySa)));
-	ZMuTk zMuTk = zMuTkEfficiency * zMuMuSig + zMuTkBkg;
-	ZMuSaEfficiency zMuSaEfficiency = funct::Numerical<2>(2) * 
-	  ((efficiencySa ^ funct::Numerical<2>(2)) * (efficiencyTk * (funct::Numerical<1>(1) - efficiencyTk)));
-	ZMuSa zMuSa = zMuSaEfficiency * (yieldZMuMu * funct::Gaussian(mass, sigmaZMuSa)) + yieldBkgZMuSa;
+	ZMuTk zMuTk = yieldZMuTk * zPeak + zMuTkBkg;
+	ZMuSa zMuSa = yieldZMuSa * funct::Gaussian(mass, sigmaZMuSa) + yieldBkgZMuSa;
 	
 	ChiSquared chi2(zMuMu, histoZMuMu, 
 			zMuTk, histoZMuTk, 
@@ -190,8 +169,8 @@ int main(int ac, char *av[]) {
 	cout << "N. deg. of freedom: " << chi2.degreesOfFreedom() << endl;
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	commands.add(minuit, yieldZMuMu);
-	commands.add(minuit, efficiencyTk);
-	commands.add(minuit, efficiencySa);
+	commands.add(minuit, yieldZMuTk);
+	commands.add(minuit, yieldZMuSa);
 	commands.add(minuit, yieldBkgZMuTk);
 	commands.add(minuit, yieldBkgZMuSa);
 	commands.add(minuit, lambdaZMuMu);
@@ -222,16 +201,14 @@ int main(int ac, char *av[]) {
 	minuit.printFitResults();
 	string ZMuMuPlot = "ZMuMuFit" + plot_string;
 	root::plot<ZMuMu>(ZMuMuPlot.c_str(), *histoZMuMu, zMuMu, fMin, fMax, 
-			  efficiencyTk, efficiencySa, 
 			  yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
 			  meanZMuMu, sigmaZMuMu, 
 			  kRed, 2, kDashed, 10000, 
-			  "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
+			  "Z -> #mu #mu mass with isolation cut", "#mu #mu invariant mass (GeV/c^{2})", 
 			  "Events");
 	string ZMuTkPlot = "ZMuTkFit" + plot_string;
 	TF1 funZMuTk = root::tf1<ZMuTk>("ZMuTkFunction", zMuTk, fMin, fMax, 
-					efficiencyTk, efficiencySa, 
-					yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
+					yieldZMuTk, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
 					meanZMuMu, sigmaZMuMu, 
 					yieldBkgZMuTk, lambda, a0, a1, a2);
 	funZMuTk.SetLineColor(kRed);
@@ -244,7 +221,7 @@ int main(int ac, char *av[]) {
 	funZMuTkBkg.SetLineWidth(2);
 	funZMuTkBkg.SetLineStyle(kDashed);
 	funZMuTkBkg.SetNpx(10000);
-	histoZMuTk->SetTitle("Z -> #mu + (unmatched) track mass");
+	histoZMuTk->SetTitle("Z -> #mu + (unmatched) track mass with isolation cut");
 	histoZMuTk->SetXTitle("#mu + (unmatched) track invariant mass (GeV/c^{2})");
 	histoZMuTk->SetYTitle("Events");
 	TCanvas *canvas = new TCanvas("canvas");
@@ -257,10 +234,9 @@ int main(int ac, char *av[]) {
 	canvas->SaveAs(logZMuTkPlot.c_str());
 	string ZMuSaPlot = "ZMuSaFit" + plot_string;
 	root::plot<ZMuSa>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
-			  efficiencySa, efficiencyTk, 
-			  yieldZMuMu, mass, sigmaZMuSa, yieldBkgZMuSa, 
+			  yieldZMuSa, mass, sigmaZMuSa, yieldBkgZMuSa, 
 			  kRed, 2, kDashed, 10000, 
-			  "Z -> #mu + (unmatched) standalone mass", 
+			  "Z -> #mu + (unmatched) standalone mass with isolation cut", 
 			  "#mu + (unmatched) standalone invariant mass (GeV/c^{2})", 
 			  "Events");
       }
@@ -276,11 +252,4 @@ int main(int ac, char *av[]) {
   }
   return 0;
 }
-/*
-funct::Product<funct::Numerical<2>, 
-               funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
-                              funct::Product<funct::Parameter, funct::Difference<Numerical<1>, funct::Parameter>::type
-                                             >::type
-                             >::type 
-               >::type;
-*/
+
