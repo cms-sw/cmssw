@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.21 2008/04/22 21:50:32 kaulmer Exp $
+// $Id: V0Fitter.cc,v 1.22 2008/04/24 17:59:09 drell Exp $
 //
 //
 
@@ -258,6 +258,9 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       transTracks.push_back(*posTransTkPtr);
       transTracks.push_back(*negTransTkPtr);
 
+      //posTransTkPtr = negTransTkPtr = 0;
+      positiveIter = negativeIter = 0;
+
       // Create the vertex fitter object
       KalmanVertexFitter theFitter(useRefTrax == 0 ? false : true);
 
@@ -352,6 +355,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 	}
 
+	posTransTkPtr = negTransTkPtr = 0;
+
 	//  Just fixed this to make candidates for all 3 V0 particle types.
 	// 
 	//   We'll also need to make sure we're not writing candidates
@@ -410,9 +415,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	double vtxNdof(theVtx.ndof());
 
 	// Create the VertexCompositeCandidate object that will be stored in the Event
-	VertexCompositeCandidate theKshort(0, kShortP4, vtx, vtxCov, vtxChi2, vtxNdof);
-	VertexCompositeCandidate theLambda(0, lambdaP4, vtx, vtxCov, vtxChi2, vtxNdof);
-	VertexCompositeCandidate theLambdaBar(0, lambdaBarP4, vtx, vtxCov, vtxChi2, vtxNdof);
+	VertexCompositeCandidate 
+	  theKshort(0, kShortP4, vtx, vtxCov, vtxChi2, vtxNdof);
+	VertexCompositeCandidate 
+	  theLambda(0, lambdaP4, vtx, vtxCov, vtxChi2, vtxNdof);
+	VertexCompositeCandidate 
+	  theLambdaBar(0, lambdaBarP4, vtx, vtxCov, vtxChi2, vtxNdof);
 
 	// Create daughter candidates for the VertexCompositeCandidates
 	RecoChargedCandidate 
