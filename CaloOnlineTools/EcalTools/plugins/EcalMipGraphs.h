@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.3 2008/03/12 17:29:37 scooper Exp $
+// $Id: EcalMipGraphs.h,v 1.4 2008/04/10 18:18:08 scooper Exp $
 //
 //
 
@@ -70,11 +70,22 @@ class EcalMipGraphs : public edm::EDAnalyzer {
       std::string intToString(int num);
       void writeGraphs();
       void initHists(int);
+      void selectEBHits(edm::Handle<EcalUncalibratedRecHitCollection> EBhits,
+          int ievt, edm::ESHandle<CaloTopology> caloTopo);
+      void selectEEHits(edm::Handle<EcalUncalibratedRecHitCollection> EEhits,
+          int ievt, edm::ESHandle<CaloTopology> caloTopo);
+      void selectEBDigis(edm::Handle<EBDigiCollection> EBdigisHandle, int ievt,
+          std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_);
+      void selectEEDigis(edm::Handle<EEDigiCollection> EEdigisHandle, int ievt,
+          std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_);
+      
 
     // ----------member data ---------------------------
 
-  edm::InputTag EcalUncalibratedRecHitCollection_;
+  edm::InputTag EBUncalibratedRecHitCollection_;
+  edm::InputTag EEUncalibratedRecHitCollection_;
   edm::InputTag EBDigis_;
+  edm::InputTag EEDigis_;
   edm::InputTag headerProducer_;
 
   int runNum_;
@@ -83,7 +94,8 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   double threshold_;
   std::string fileName_;
 
-  std::set<EBDetId> listAllChannels;
+  std::set<EBDetId> listEBChannels;
+  std::set<EEDetId> listEEChannels;
     
   int abscissa[10];
   int ordinate[10];
@@ -103,4 +115,5 @@ class EcalMipGraphs : public edm::EDAnalyzer {
   const EcalElectronicsMapping* ecalElectronicsMap_;
  
   int naiveEvtNum_; 
+  int graphCount;
 };

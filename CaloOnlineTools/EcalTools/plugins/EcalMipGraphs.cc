@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.5 2008/03/12 18:36:12 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.6 2008/04/10 18:18:08 scooper Exp $
 //
 //
 
@@ -34,8 +34,10 @@ using namespace std;
 // constructors and destructor
 //
 EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
-  EcalUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection")),
+  EBUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollectionEB")),
+  EEUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollectionEE")),
   EBDigis_ (iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
+  EEDigis_ (iConfig.getParameter<edm::InputTag>("EEDigiCollection")),
   headerProducer_ (iConfig.getParameter<edm::InputTag> ("headerProducer")),
   runNum_(-1),
   side_ (iConfig.getUntrackedParameter<int>("side", 3)),
@@ -75,6 +77,7 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   
   for (int i=0; i<10; i++)        abscissa[i] = i;
   naiveEvtNum_ = 0;
+  graphCount = 0;
 
 }
 
@@ -107,8 +110,6 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   int ievt = iEvent.id().event();
-  int graphCount = 0;
-  
   naiveEvtNum_++;
 
   if(runNum_==-1)
@@ -121,135 +122,62 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   //We only want the 3x3's for this event...
-  listAllChannels.clear();
-  Handle<EcalUncalibratedRecHitCollection> hits;
-
+  listEBChannels.clear();
+  listEEChannels.clear();
+  Handle<EcalUncalibratedRecHitCollection> EBhits;
+  Handle<EcalUncalibratedRecHitCollection> EEhits;
   ESHandle<CaloTopology> caloTopo;
   iSetup.get<CaloTopologyRecord>().get(caloTopo);
+  iEvent.getByLabel(EBUncalibratedRecHitCollection_, EBhits);
+  iEvent.getByLabel(EEUncalibratedRecHitCollection_, EEhits);
+  LogDebug("EcalMipGraphs") << "event " << ievt << " EBhits collection size " << EBhits->size();
+  LogDebug("EcalMipGraphs") << "event " << ievt << " EEhits collection size " << EEhits->size();
+
+  selectEBHits(EBhits, ievt, caloTopo);
+  selectEEHits(EEhits, ievt, caloTopo);
   
-  //TODO: improve try/catch behavior
-  try
-  {
-    iEvent.getByLabel(EcalUncalibratedRecHitCollection_, hits);
-    int neh = hits->size();
-    LogDebug("EcalMipGraphs") << "event " << ievt << " hits collection size " << neh;
-  }
-  catch ( exception& ex)
-  {
-    LogWarning("EcalMipGraphs") << EcalUncalibratedRecHitCollection_ << " not available";
-  }
+  // Now, retrieve the crystal digi from the event
+  edm::Handle<EBDigiCollection> EBdigisHandle;
+  iEvent.getByLabel(EBDigis_, EBdigisHandle);
+  edm::Handle<EEDigiCollection> EEdigisHandle;
+  iEvent.getByLabel(EEDigis_, EEdigisHandle);
+  
+  selectEBDigis(EBdigisHandle, ievt, FEDsAndDCCHeaders_);
+  selectEEDigis(EEdigisHandle, ievt, FEDsAndDCCHeaders_);
+  
+  if(graphs.size()==0)
+    return;
+  
+  writeGraphs();
+}
 
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr)
-  {
-    EcalUncalibratedRecHit hit = (*hitItr);
-    int ic = 0;
-    int hashedIndex= 0;
-    //EEDetId eeDet;
-    //cout << "Subdetector field is: " << hit.id().subdetId() << endl;
-    EBDetId ebDet = hit.id();
-    //TODO: make it work for endcap FEDs also
-    //if(ebDet.isValid())
-    //{
-    ic = ebDet.ic();
-    hashedIndex = ebDet.hashedIndex();
-    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(ebDet);
-    //}
-    //else
-    //{
-    //  eeDet = hit.id();
-    //  if(!eeDet.isValid())
-    //  {
-    //    LogWarning("EcalMipGraphs") << "Unable to find hashedIndex for hit in event " << ievt_;
-    //    continue;
-    //  }
-    //  else
-    //  {
-    //    ic = eeDet.hashedIndex();
-    //    elecId = ecalElectronicsMap->getElectronicsId(eeDet);
-    //  }
-    //}
-    
-    int FEDid = 600+elecId.dccId();
-
-    float ampli = hit.amplitude();
-    float jitter = hit.jitter();
-
-    vector<int>::iterator result;
-    result = find(maskedFEDs_.begin(), maskedFEDs_.end(), FEDid);
-    if(result != maskedFEDs_.end())
-    {
-      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
-      continue;
-    }      
-
-    result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
-    if  (result != maskedChannels_.end())
-    {
-      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " in fed: " << FEDid << " with amplitude " << ampli ;
-      continue;
-    } 
-    
-    if(ampli > threshold_ && !givenSeedCry_)
-    {
-      // only produce output if no seed cry is given by user and amplitude makes cut
-      LogWarning("EcalMipGraphs") << "channel: " << ic <<  " in fed: " << FEDid <<  "  ampli: " << ampli << " jitter " << jitter
-        << " Event: " << ievt;
-    }
-    
-    if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
-    {
-      eventsAndSeedCrys_->Fill(naiveEvtNum_, ic, FEDid);
-      crysAndAmplitudesMap_[hashedIndex] = ampli;
-      vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
-      for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
-      {
-        listAllChannels.insert(*itr);
-      }
-    }
-    
-    TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(timingHist==0)
-    {
-      initHists(FEDid);
-      timingHist = FEDsAndTimingHists_[FEDid];
-    }
-    
-    timingHist->Fill(hit.jitter());
-    allFedsTimingHist_->Fill(hit.jitter());
-  }
-
-  // retrieving crystal digi from Event
-  edm::Handle<EBDigiCollection>  digis;
-  iEvent.getByLabel(EBDigis_, digis);
-
-  for(std::set<EBDetId>::const_iterator chnlItr = listAllChannels.begin(); chnlItr!= listAllChannels.end(); ++chnlItr)
+void EcalMipGraphs::selectEBDigis(edm::Handle<EBDigiCollection> EBdigisHandle, int ievt,
+    map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_)
+{
+  for(std::set<EBDetId>::const_iterator chnlItr = listEBChannels.begin(); chnlItr!= listEBChannels.end(); ++chnlItr)
   {
       //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
       //TODO: use find(), launching it twice over EB and EE collections
-
-    int ic = (*chnlItr).ic();
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(*chnlItr);
     int FEDid = 600+elecId.dccId();
+    int hashedIndex = chnlItr->hashedIndex();
+    int ic = chnlItr->ic();
     string sliceName = fedMap_->getSliceFromFed(FEDid);
-    int hashedIndex = (*chnlItr).hashedIndex();
-    EBDigiCollection::const_iterator digiItr = digis->begin();
-    
-    while(digiItr != digis->end() && ((*digiItr).id()!=*chnlItr))
+    EcalDigiCollection::const_iterator digiItr = EBdigisHandle->begin();
+    while(digiItr != EBdigisHandle->end() && ((*digiItr).id()!=*chnlItr))
     {
       ++digiItr;
     }
-    if(digiItr==digis->end())
+    if(digiItr==EBdigisHandle->end())
     {
       LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
         << " FED:" << FEDid << " evt:" << naiveEvtNum_;
       continue;
     }
-    
+  
     //EBDataFrame df = (*digis)[hashedIndex];
-    
     //cout << "the detId is: " << (*chnlItr).rawId() << endl;
     //cout << "the detId found: " << df.id().rawId() << endl;
-    
     
     int gainId = FEDsAndDCCHeaders_[FEDid].getMgpaGain();
     int gainHuman;
@@ -283,11 +211,184 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     graphs.push_back(oneGraph);
     graphCount++;
   }
+}
+
+void EcalMipGraphs::selectEEDigis(edm::Handle<EEDigiCollection> EEdigisHandle, int ievt,
+    map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_)
+{
+  for(std::set<EEDetId>::const_iterator chnlItr = listEEChannels.begin(); chnlItr!= listEEChannels.end(); ++chnlItr)
+  {
+      //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
+      //TODO: use find(), launching it twice over EB and EE collections
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(*chnlItr);
+    int FEDid = 600+elecId.dccId();
+    int hashedIndex = chnlItr->hashedIndex();
+    int ic = 10000*FEDid+100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
+    string sliceName = fedMap_->getSliceFromFed(FEDid);
+    EcalDigiCollection::const_iterator digiItr = EEdigisHandle->begin();
+    while(digiItr != EEdigisHandle->end() && ((*digiItr).id()!=*chnlItr))
+    {
+      ++digiItr;
+    }
+    if(digiItr==EEdigisHandle->end())
+    {
+      LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
+        << " FED:" << FEDid << " evt:" << naiveEvtNum_;
+      continue;
+    }
+    
+    //EBDataFrame df = (*digis)[hashedIndex];
+    //cout << "the detId is: " << (*chnlItr).rawId() << endl;
+    //cout << "the detId found: " << df.id().rawId() << endl;
+    
+    int gainId = FEDsAndDCCHeaders_[FEDid].getMgpaGain();
+    int gainHuman;
+    if      (gainId ==1) gainHuman =12;
+    else if (gainId ==2) gainHuman =6;
+    else if (gainId ==3) gainHuman =1;
+    else                 gainHuman =-1; 
+
+    int sample0GainId = EBDataFrame(*digiItr).sample(0).gainId();
+    for (int i=0; (unsigned int)i< (*digiItr).size() ; ++i ) {
+      EBDataFrame df(*digiItr); 
+      ordinate[i] = df.sample(i).adc(); // accounf for possible gain !=12?
+      if(df.sample(i).gainId()!=sample0GainId)
+        LogWarning("EcalMipGraphs") << "Gain switch detected in evt:" <<
+          naiveEvtNum_ << " sample:" << i << " ic:" << ic << " FED:" << FEDid;
+    }
+
+    TGraph oneGraph(10, abscissa,ordinate);
+    string name = "Graph_ev" + intToString(naiveEvtNum_) + "_ic" + intToString(ic)
+      + "_FED" + intToString(FEDid);
+    string gainString = (gainId==1) ? "Free" : intToString(gainHuman);
+    string title = "Event" + intToString(naiveEvtNum_) + "_lv1a" + intToString(ievt) +
+      "_ic" + intToString(ic) + "_" + sliceName + "_gain" + gainString;
+    map<int,float>::const_iterator itr;
+    itr = crysAndAmplitudesMap_.find(hashedIndex);
+    if(itr!=crysAndAmplitudesMap_.end())
+      title+="_Amp"+intToString((int)itr->second);
+    
+    oneGraph.SetTitle(title.c_str());
+    oneGraph.SetName(name.c_str());
+    graphs.push_back(oneGraph);
+    graphCount++;
+  }
+}
+
+void EcalMipGraphs::selectEBHits(Handle<EcalUncalibratedRecHitCollection> EBhits,
+    int ievt, ESHandle<CaloTopology> caloTopo)
+{
+  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr)
+  {
+    EcalUncalibratedRecHit hit = (*hitItr);
+    EBDetId det = hit.id();
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
+    int hashedIndex = det.hashedIndex();
+    int ic = det.ic();
+    int FEDid = 600+elecId.dccId();
+    float ampli = hit.amplitude();
+    float jitter = hit.jitter();
+
+    vector<int>::iterator result;
+    result = find(maskedFEDs_.begin(), maskedFEDs_.end(), FEDid);
+    if(result != maskedFEDs_.end())
+    {
+      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
+      continue;
+    }      
+    result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
+    if  (result != maskedChannels_.end())
+    {
+      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " in fed: " << FEDid << " with amplitude " << ampli ;
+      continue;
+    } 
+
+    if(ampli > threshold_ && !givenSeedCry_)
+    {
+      // only produce output if no seed cry is given by user and amplitude makes cut
+      LogWarning("EcalMipGraphs") << "channel: " << ic <<  " in fed: " << FEDid <<  "  ampli: " << ampli << " jitter " << jitter
+        << " Event: " << ievt;
+    }
+    
+    if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
+    {
+      eventsAndSeedCrys_->Fill(naiveEvtNum_, ic, FEDid);
+      crysAndAmplitudesMap_[hashedIndex] = ampli;
+      vector<DetId> neighbors = caloTopo->getWindow(det,side_,side_);
+      for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
+      {
+        listEBChannels.insert(*itr);
+      }
+    }
+    
+    TH1F* timingHist = FEDsAndTimingHists_[FEDid];
+    if(timingHist==0)
+    {
+      initHists(FEDid);
+      timingHist = FEDsAndTimingHists_[FEDid];
+    }
+    timingHist->Fill(hit.jitter());
+    allFedsTimingHist_->Fill(hit.jitter());
+  }
+}
+
+void EcalMipGraphs::selectEEHits(Handle<EcalUncalibratedRecHitCollection> EEhits,
+    int ievt, ESHandle<CaloTopology> caloTopo)
+{
+  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EEhits->begin(); hitItr != EEhits->end(); ++hitItr)
+  {
+    EcalUncalibratedRecHit hit = (*hitItr);
+    EEDetId det = hit.id();
+    EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
+    int hashedIndex = det.hashedIndex();
+    int FEDid = 600+elecId.dccId();
+    int ic = 10000*FEDid+100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
+    float ampli = hit.amplitude();
+    float jitter = hit.jitter();
+
+    vector<int>::iterator result;
+    result = find(maskedFEDs_.begin(), maskedFEDs_.end(), FEDid);
+    if(result != maskedFEDs_.end())
+    {
+      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for FED " << FEDid << " ; amplitude " << ampli;
+      continue;
+    }      
+    result = find(maskedChannels_.begin(), maskedChannels_.end(), hashedIndex);
+    if  (result != maskedChannels_.end())
+    {
+      LogWarning("EcalMipGraphs") << "skipping uncalRecHit for channel: " << ic << " in fed: " << FEDid << " with amplitude " << ampli ;
+      continue;
+    } 
+
+    if(ampli > threshold_ && !givenSeedCry_)
+    {
+      // only produce output if no seed cry is given by user and amplitude makes cut
+      LogWarning("EcalMipGraphs") << "channel: " << ic <<  " in fed: " << FEDid <<  "  ampli: " << ampli << " jitter " << jitter
+        << " Event: " << ievt;
+    }
+    
+    if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
+    {
+      eventsAndSeedCrys_->Fill(naiveEvtNum_, ic, FEDid);
+      crysAndAmplitudesMap_[hashedIndex] = ampli;
+      vector<DetId> neighbors = caloTopo->getWindow(det,side_,side_);
+      for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
+      {
+        listEEChannels.insert(*itr);
+      }
+    }
+    
+    TH1F* timingHist = FEDsAndTimingHists_[FEDid];
+    if(timingHist==0)
+    {
+      initHists(FEDid);
+      timingHist = FEDsAndTimingHists_[FEDid];
+    }
+    
+    timingHist->Fill(hit.jitter());
+    allFedsTimingHist_->Fill(hit.jitter());
+  }
   
-  if(graphs.size()==0)
-    return;
-  
-  writeGraphs();
 }
 
 void EcalMipGraphs::writeGraphs()
