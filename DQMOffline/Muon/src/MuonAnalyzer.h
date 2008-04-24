@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/03/28 15:21:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/02 12:19:40 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -59,6 +59,10 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   // Seed Label
   edm::InputTag theSeedsCollectionLabel;
   
+  bool theMuEnergyAnalyzerFlag;
+  bool theSeedsAnalyzerFlag;
+  bool theMuonRecoAnalyzerFlag;
+
   // the muon energy analyzer
   MuonEnergyDepositAnalyzer * theMuEnergyAnalyzer;
   // the seeds analyzer

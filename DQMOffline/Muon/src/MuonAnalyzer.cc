@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/02 12:19:33 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/16 19:49:42 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -41,12 +41,19 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   // Seeds Collection Label
   theSeedsCollectionLabel = parameters.getParameter<edm::InputTag>("seedsCollectionLabel");
   
+  theMuEnergyAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonEnergyAnalysis",true);
+  theSeedsAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonSeedAnalysis",true);
+  theMuonRecoAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonRecoAnalysis",true);
+
   // do the analysis on muon energy
-  theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
+  if(theMuEnergyAnalyzerFlag)
+    theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
   // do the analysis on seeds
-  theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"), theService);
+  if(theSeedsAnalyzerFlag)
+    theSeedsAnalyzer = new MuonSeedsAnalyzer(parameters.getParameter<ParameterSet>("seedsAnalysis"), theService);
   // do the analysis on muon energy
-  theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"), theService);
+  if(theMuonRecoAnalyzerFlag)
+    theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"), theService);
 
 }
 
@@ -61,9 +68,9 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
 
-  theMuEnergyAnalyzer->beginJob(iSetup, dbe);
-  theSeedsAnalyzer->beginJob(iSetup, dbe);
-  theMuonRecoAnalyzer->beginJob(iSetup, dbe);
+  if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer->beginJob(iSetup, dbe);
+  if(theSeedsAnalyzerFlag) theSeedsAnalyzer->beginJob(iSetup, dbe);
+  if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer->beginJob(iSetup, dbe);
 
 }
 
@@ -80,10 +87,14 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    if(muons.isValid()){
      for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
-       LogTrace(metname)<<"[MuonAnalyzer] Call to the muon energy analyzer";
-       theMuEnergyAnalyzer->analyze(iEvent, iSetup, *recoMu);
-       LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco analyzer";
-       theMuonRecoAnalyzer->analyze(iEvent, iSetup, *recoMu);
+       if(theMuEnergyAnalyzerFlag){
+	 LogTrace(metname)<<"[MuonAnalyzer] Call to the muon energy analyzer";
+	 theMuEnergyAnalyzer->analyze(iEvent, iSetup, *recoMu);
+       }
+       if(theMuonRecoAnalyzerFlag){
+	 LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco analyzer";
+	 theMuonRecoAnalyzer->analyze(iEvent, iSetup, *recoMu);
+       }
      }
    }
 
@@ -92,8 +103,10 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(theSeedsCollectionLabel, seeds);
    if(seeds.isValid()){
      for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed){
-       LogTrace(metname)<<"[MuonAnalyzer] Call to the seeds analyzer";
-       theSeedsAnalyzer->analyze(iEvent, iSetup, *seed);
+       if(theSeedsAnalyzerFlag){
+	 LogTrace(metname)<<"[MuonAnalyzer] Call to the seeds analyzer";
+	 theSeedsAnalyzer->analyze(iEvent, iSetup, *seed);
+       }
      }
    }
 
