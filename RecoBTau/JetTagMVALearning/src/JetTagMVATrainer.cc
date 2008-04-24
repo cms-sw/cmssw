@@ -160,6 +160,8 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 			<< "JetTagComputer is not a MVAJetTagComputer "
 			   "in JetTagMVATrainer" << std::endl;
 
+	computer->passEventSetup(es);
+
 	// finalize the JetTagMVALearning <-> JetTagComputer glue setup
 	if (!setupDone)
 		setup(*computer);
