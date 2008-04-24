@@ -6,8 +6,7 @@
 #Frontier/CMS_COND_STRIP"
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 # Tracker alignment
 #
 #include "CalibTracker/Configuration/data/TrackerAlignment/TrackerAlignment_Frontier_IntDB.cff"
@@ -17,30 +16,27 @@ from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
 #
 #Cabling
 #
-siStripFedCabling = copy.deepcopy(poolDBESSource)
-import copy
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
+siStripFedCabling = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 #
 #Gain
 #
-siStripApvGain = copy.deepcopy(poolDBESSource)
+siStripApvGain = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
 #
 #LA
 #
 from CalibTracker.Configuration.SiStripLorentzAngle.SiStripLorentzAngle_Fake_cff import *
-import copy
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 #
 #Noise
 #
-siStripNoise = copy.deepcopy(poolDBESSource)
-import copy
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
+siStripNoise = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 #
 #Pedestals
 #
-siStripPedestals = copy.deepcopy(poolDBESSource)
+siStripPedestals = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
 #
