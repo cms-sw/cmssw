@@ -562,3 +562,179 @@ void htmlErrors(int runNo, string htmlDir, string client, string process, DQMSto
   return;
 
 }
+
+
+
+// TProfile histogram-related stuff
+
+TProfile* getHistoTProfile(string name, string process, DQMStore* dbe_, bool verb, bool clone){
+  if(!dbe_) return NULL;
+  
+  char title[150];  
+  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
+  TProfile* out = NULL;
+
+  const MonitorElement* me = dbe_->get(title);
+  if (me){      
+    if ( verb ) cout << "Found '" << title << "'" << endl;
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",name.c_str());
+      out = dynamic_cast<TProfile*> (me->getTProfile()->Clone(histo));
+    } else {
+      out = me->getTProfile();
+    }
+  }
+
+  return out;
+}
+
+TProfile* getHistoTProfile(const MonitorElement* me, bool verb,bool clone){
+  TProfile* out = NULL;
+  
+  if ( me ) {      
+    if ( verb ) cout << "Found '" << me->getName() << "'" << endl;
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",((string)(me->getName())).c_str());
+      out = dynamic_cast<TProfile*> (me->getTProfile()->Clone(histo));
+    } else {
+      out = me->getTProfile();
+    }
+ }
+  return out;
+}
+
+string getIMGTProfile(int runNo,TProfile* hist, int size, string htmlDir, const char* xlab, const char* ylab, string opts){
+
+  if(hist==NULL) {
+    printf("getIMG:  This histo is NULL, %s, %s\n",xlab,ylab);
+    return "";
+  }
+
+  string name = hist->GetTitle();
+  cleanString(name);
+  char dest[512];
+  if(runNo>-1) sprintf(dest,"%s - Run %d",name.c_str(),runNo);
+  else sprintf(dest,"%s",name.c_str());
+  hist->SetTitle(dest);
+  string title = dest;
+
+  int xwid = 900; int ywid =540;
+  if(size==1){
+    title = title+"_tmb";
+    xwid = 600; ywid = 360;
+  }
+  TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
+
+  parseString(title);
+  string outName = title + ".gif";
+  string saveName = htmlDir + outName;
+  hist->SetXTitle(xlab);
+  hist->SetYTitle(ylab);
+  if (opts!="NONE")
+    hist->SetOption(opts.c_str());
+  hist->Draw();
+
+  can->SaveAs(saveName.c_str());  
+  delete can;
+
+  return outName;
+}
+
+void histoHTMLTProfile(int runNo, TProfile* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, string opts){
+  
+  if(hist!=NULL){    
+    string imgNameTMB = "";   
+    imgNameTMB = getIMGTProfile(runNo,hist,1,htmlDir,xlab,ylab,opts); 
+    string imgName = "";   
+    imgName = getIMGTProfile(runNo,hist,2,htmlDir,xlab,ylab,opts);  
+
+    if (imgName.size() != 0 )
+      htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  }
+  else htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  return;
+}
+
+
+// Get Histograms for TProfile2D
+
+TProfile2D* getHistoTProfile2D(string name, string process, DQMStore* dbe_, bool verb, bool clone){
+  if(!dbe_) return NULL;
+  
+  char title[150];  
+  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
+  TProfile2D* out = NULL;
+
+  const MonitorElement* me = dbe_->get(title);
+  if (me){      
+    if ( verb ) cout << "Found '" << title << "'" << endl;
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",name.c_str());
+      out = dynamic_cast<TProfile2D*> (me->getTProfile2D()->Clone(histo));
+    } else {
+      out = me->getTProfile2D();
+    }
+  }
+
+  return out;
+}
+
+TProfile2D* getHistoTProfile2D(const MonitorElement* me, bool verb,bool clone){
+  TProfile2D* out = NULL;
+  
+  if ( me ) {      
+    if ( verb ) cout << "Found '" << me->getName() << "'" << endl;
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",((string)(me->getName())).c_str());
+      out = dynamic_cast<TProfile2D*> (me->getTProfile2D()->Clone(histo));
+    } else {
+      out = me->getTProfile2D();
+    }
+ }
+  return out;
+}
+
+// Get histograms for TH3F
+TH3F* getHistoTH3F(string name, string process, DQMStore* dbe_, bool verb, bool clone){
+  if(!dbe_) return NULL;
+  
+  char title[150];  
+  sprintf(title, "%sHcal/%s",process.c_str(),name.c_str());
+  TH3F* out = NULL;
+
+  const MonitorElement* me = dbe_->get(title);
+  if (me){      
+    if ( verb ) cout << "Found '" << title << "'" << endl;
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",name.c_str());
+      out = dynamic_cast<TH3F*> (me->getTH3F()->Clone(histo));
+    } else {
+      out = me->getTH3F();
+    }
+  }
+
+  return out;
+}
+
+TH3F* getHistoTH3F(const MonitorElement* me, bool verb,bool clone){
+  TH3F* out = NULL;
+  
+  if ( me ) {      
+    if ( verb ) cout << "Found '" << me->getName() << "'" << endl;
+    if ( clone ) {
+      char histo[150];
+      sprintf(histo, "ME %s",((string)(me->getName())).c_str());
+      out = dynamic_cast<TH3F*> (me->getTH3F()->Clone(histo));
+    } else {
+      out = me->getTH3F();
+    }
+ }
+  return out;
+}
