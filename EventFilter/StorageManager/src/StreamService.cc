@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.6 2008/03/10 10:07:08 meschi Exp $
+// $Id: StreamService.cc,v 1.7 2008/04/21 12:15:03 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -299,7 +299,7 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
      fd->setFileCounter(it->second);
   }
 
-  if (numberOfFileSystems_ > 0 && numberOfFileSystems_ < 100)
+  if (numberOfFileSystems_ > 0)
     fd->fileSystem((runNumber_ + atoi(sourceId_.c_str()) + ntotal_) % numberOfFileSystems_); 
   
   fd->checkDirectories();
@@ -425,7 +425,9 @@ string StreamService::createNotifyFile() const
               << "-" << smp->smInstance() << "-"
               << setfill('0') << std::setw(4) << ptm->tm_year+1900
               << setfill('0') << std::setw(2) << ptm->tm_mon+1
-              << setfill('0') << std::setw(2) << ptm->tm_mday << "-"
+              << setfill('0') << std::setw(2) << ptm->tm_mday 
+              << setfill('0') << std::setw(2) << ptm->tm_hour
+              << "-"
               << setfill('0') << std::setw(2) << min;
   return notfilename.str();
 }
