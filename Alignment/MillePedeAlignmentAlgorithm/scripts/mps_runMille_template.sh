@@ -37,5 +37,5 @@ cp -p *.log.gz *.root $RUNDIR
 # so first set castor pool for binary files in $MSSDIR area:
 export STAGE_SVCCLASS=$MSSDIRPOOL
 nsrm -f $MSSDIR/milleBinaryISN.dat
-echo 'rfcp milleBinaryISN.dat $MSSDIR/'
+echo "rfcp milleBinaryISN.dat $MSSDIR/"
 rfcp milleBinaryISN.dat $MSSDIR/
