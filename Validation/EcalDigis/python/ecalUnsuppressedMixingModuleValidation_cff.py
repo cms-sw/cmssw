@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.EcalDigis.ecalMixingModuleValidation_cfi import *
-ecalMixingModuleValidation.EBdigiCollection = 'ecalUnsuppressedDigis'
-ecalMixingModuleValidation.EEdigiCollection = 'ecalUnsuppressedDigis'
-ecalMixingModuleValidation.ESdigiCollection = 'ecalUnsuppressedDigis'
+ecalMixingModuleValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
+ecalMixingModuleValidation.EEdigiCollection = 'simEcalUnsuppressedDigis'
+ecalMixingModuleValidation.ESdigiCollection = 'simEcalUnsuppressedDigis'
 

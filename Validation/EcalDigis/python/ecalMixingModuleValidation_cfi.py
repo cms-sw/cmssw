@@ -5,10 +5,10 @@ from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 ecalMixingModuleValidation = cms.EDFilter("EcalMixingModuleValidation",
     ecal_sim_parameter_map,
     es_electronics_sim,
-    EEdigiCollection = cms.InputTag("ecalDigis","eeDigis"),
+    EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis"),
     verbose = cms.untracked.bool(True),
-    EBdigiCollection = cms.InputTag("ecalDigis","ebDigis"),
-    ESdigiCollection = cms.InputTag("ecalPreshowerDigis"),
+    EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis"),
+    ESdigiCollection = cms.InputTag("simEcalPreshowerDigis"),
     moduleLabelMC = cms.string('source')
 )
 
