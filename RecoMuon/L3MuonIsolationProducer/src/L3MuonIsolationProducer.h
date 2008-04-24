@@ -51,6 +51,13 @@ private:
   //! better split this off into a filter
   double theTrackPt_Min;
 
+  //! max number of tracks to allow in the sum
+  //! count <= maxN
+  int theMaxNTracks;
+
+  //! apply or not the maxN cut on top of the sumPt (or nominall eff) < cuts
+  bool theApplyCutsANDmaxNTracks;
+
 };
 
 #endif

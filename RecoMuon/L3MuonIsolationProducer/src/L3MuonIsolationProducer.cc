@@ -87,6 +87,10 @@ void L3MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup)
       <<" theCuts not set!";
   }
   LogTrace("")<< theCuts.print();
+
+  // (kludge) additional cut on the number of tracks
+  theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
+  theApplyCutsANDmaxNTracks = cutsPSet.getParameter<bool>("applyCutsANDmaxNTracks");
 }
 
 void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
@@ -138,8 +142,11 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
     std::pair<double, int> sumAndCount = deposit.depositAndCountWithin(cut.conesize, vetos, theTrackPt_Min);
 
     double value = sumAndCount.first;
+    int count = sumAndCount.second;
+
     bool result = (value < cut.threshold); 
-    LogTrace(metname)<<"deposit in cone: "<<value<<" is isolated: "<<result;
+    if (theApplyCutsANDmaxNTracks ) result &= count < theMaxNTracks;
+    LogTrace(metname)<<"deposit in cone: "<<value<<"with count "<<count<<" is isolated: "<<result;
 
     isos[iMu] = result;
   }
