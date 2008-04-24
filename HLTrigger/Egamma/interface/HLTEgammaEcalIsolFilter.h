@@ -25,6 +25,8 @@ class HLTEgammaEcalIsolFilter : public HLTFilter {
       edm::InputTag isoTag_; // input tag identifying product contains ecal isolation map
       edm::InputTag nonIsoTag_; // input tag identifying product contains ecal isolation map
       double ecalisolcut_;   // Ecal isolation threshold in GeV 
+      double ecalFracCut_;
+      double ecalIsoloEt2_;
       int    ncandcut_;        // number of egammas required
       bool doIsolated_;
 };

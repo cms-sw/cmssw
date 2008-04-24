@@ -27,6 +27,7 @@ class HLTEgammaHcalIsolFilter : public HLTFilter {
       double hcalisolbarrelcut_;   // Hcal isolation threshold in GeV for barrel 
       double hcalisolendcapcut_;   // Hcal isolation threshold in GeV for endcap
       double HoverEcut_;       // Isolation threshold in H/E
+      double HoverEt2cut_;        // Isolation threshold in H/(E**2)
       int    ncandcut_;        // number of photons required
       bool doIsolated_;
 };

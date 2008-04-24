@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalIsolFilter
  *
- * $Id: HLTEgammaHcalIsolFilter.cc,v 1.8 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTEgammaHcalIsolFilter.cc,v 1.9 2007/12/07 14:41:33 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -32,6 +32,7 @@ HLTEgammaHcalIsolFilter::HLTEgammaHcalIsolFilter(const edm::ParameterSet& iConfi
   hcalisolbarrelcut_  = iConfig.getParameter<double> ("hcalisolbarrelcut");
   hcalisolendcapcut_  = iConfig.getParameter<double> ("hcalisolendcapcut");
   HoverEcut_          = iConfig.getParameter<double> ("HoverEcut");
+  HoverEt2cut_          = iConfig.getParameter<double> ("HoverEt2cut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
@@ -88,8 +89,10 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
      float vali = mapi->val;
      //std::cout<<"MARCO HLTEgammaHcalIsolFilter vali "<<vali<<" "<<std::endl;
      float HoE = mapi->val / ref->et();
+     float HoE2 = HoE / ref->et();
+
      if(fabs(ref->eta()) < 1.5){
-       if ( vali < hcalisolbarrelcut_ || HoE < HoverEcut_ ) {
+       if ( vali < hcalisolbarrelcut_ || HoE < HoverEcut_ || HoE2 < HoverEt2cut_ ) {
 	 n++;
 	 filterproduct->addObject(TriggerCluster, ref);
        }
@@ -98,7 +101,7 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
 	( fabs(ref->eta()) >= 1.5) && 
 	( fabs(ref->eta()) < 2.5)
 	){
-       if ( vali < hcalisolendcapcut_ || HoE < HoverEcut_) {
+       if ( vali < hcalisolendcapcut_ || HoE < HoverEcut_ || HoE2 < HoverEt2cut_ ) {
 	 n++;
 	 filterproduct->addObject(TriggerCluster, ref);
        }

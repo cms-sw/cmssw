@@ -1,6 +1,6 @@
 /** \class EgammaHLTEcalIsolFilter
  *
- * $Id: HLTEgammaEcalIsolFilter.cc,v 1.6 2007/12/07 09:32:56 ghezzi Exp $
+ * $Id: HLTEgammaEcalIsolFilter.cc,v 1.7 2007/12/07 14:41:33 ghezzi Exp $
  * 
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -28,6 +28,8 @@ HLTEgammaEcalIsolFilter::HLTEgammaEcalIsolFilter(const edm::ParameterSet& iConfi
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
   ecalisolcut_  = iConfig.getParameter<double> ("ecalisolcut");
+  ecalFracCut_ = iConfig.getParameter<double> ("ecalIsoOverEtCut");
+  ecalIsoloEt2_ = iConfig.getParameter<double> ("ecalIsoOverEt2Cut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
@@ -78,7 +80,9 @@ HLTEgammaEcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     float vali = mapi->val;
-    if ( vali < ecalisolcut_) {
+    float IsoOE= vali/ref->et();
+    float IsoOE2= IsoOE/ref->et();
+    if ( vali < ecalisolcut_ || IsoOE < ecalFracCut_ || IsoOE2 < ecalIsoloEt2_ ) {
       n++;
       filterproduct->addObject(TriggerCluster, ref);
     }
