@@ -66,11 +66,11 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
 
    if (endcapRecHitsTag_.encode() ==  barrelRecHitsTag_.encode()) {
          sameTag_ = true;
-   } else if (tryBoth_) {
-         edm::LogWarning("EgammaRecHitExtractor") << "If you have configured 'barrelRecHits' == 'endcapRecHits', so I'm switching 'tryBoth' to FALSE.";
-         tryBoth_ = false;
+	 if (tryBoth_) {
+	   edm::LogWarning("EgammaRecHitExtractor") << "If you have configured 'barrelRecHits' == 'endcapRecHits', so I'm switching 'tryBoth' to FALSE.";
+	   tryBoth_ = false;
+	 }
    }
-
 }
 
 EgammaRecHitExtractor::~EgammaRecHitExtractor() { }
