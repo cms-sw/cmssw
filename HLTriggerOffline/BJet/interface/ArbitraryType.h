@@ -1,3 +1,6 @@
+#ifndef DataFormats_Common_ArbitraryType
+#define DataFormats_Common_ArbitraryType
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -29,3 +32,5 @@ namespace edm {
   }
   
 }
+
+#endif // DataFormats_Common_ArbitraryType
