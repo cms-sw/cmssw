@@ -5,5 +5,5 @@ from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import *
 from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigis_cfi import *
 #  HCAL TPG
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
-hcalDigiSequence = cms.Sequence(hcalUnsuppressedDigis+hcalTriggerPrimitiveDigis+hcalDigis)
+hcalDigiSequence = cms.Sequence(simHcalUnsuppressedDigis+simHcalTriggerPrimitiveDigis+simHcalDigis)
 
