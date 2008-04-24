@@ -559,11 +559,11 @@ class _IncludeFromNode(_IncludeNode):
                                          +"\n from file "+_fileStack[-1])
         return expandedValues
     def dumpPythonAs(self, newLabel, options):
-        result = "import copy\n" +_IncludeNode.dumpPython(self, options) + "\n"
-        result += newLabel + " = copy.deepcopy("
+        result = "import "+self.pythonModuleName() +"\n"
+        result += newLabel + " = "
         if options.isCfg:
             result += "process."
-        result += self._fromLabel+")\n"
+        result += self.pythonModuleName() + '.' + self._fromLabel+".clone()\n"
         return result
 
 
