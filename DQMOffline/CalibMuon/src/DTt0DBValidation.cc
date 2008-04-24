@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/18 12:29:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/23 08:26:44 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -28,7 +28,6 @@
 // t0
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
-#include "CondFormats/DataRecord/interface/DTT0RefRcd.h"
 
 #include <stdio.h>
 #include <sstream>
@@ -69,7 +68,7 @@ void DTt0DBValidation::beginJob(const EventSetup& setup) {
   outputFileName = parameters.getUntrackedParameter<std::string>("OutputFileName");
 
   ESHandle<DTT0> t0_Ref;
-  setup.get<DTT0RefRcd>().get(labelDBRef, t0_Ref);
+  setup.get<DTT0Rcd>().get(labelDBRef, t0_Ref);
   tZeroRefMap = &*t0_Ref;
   LogTrace(metname)<<"[DTt0DBValidation] reference T0 version: " << t0_Ref->version();
 
