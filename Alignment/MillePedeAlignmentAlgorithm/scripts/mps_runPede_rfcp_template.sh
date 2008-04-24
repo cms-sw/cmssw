@@ -5,8 +5,8 @@
 # Adjustments might be needed for CMSSW environment.
 
 # these defaults will be overwritten by MPS
-RUNDIR=$HOME/scratch0/mpede-test/rundir
-MSSDIR=/castor/cern.ch/user/r/rmankel/ZMuMu
+RUNDIR=$HOME/scratch0/some/path
+MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
 
 # The batch job directory (will vanish after job end):
