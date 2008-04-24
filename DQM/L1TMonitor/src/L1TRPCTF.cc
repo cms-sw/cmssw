@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.12 $
+ * $Date: 2008/04/11 15:26:10 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  */
@@ -14,7 +14,8 @@ using namespace std;
 using namespace edm;
 
 L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
-  : rpctfSource_( ps.getParameter< InputTag >("rpctfSource") )
+  : rpctfSource_( ps.getParameter< InputTag >("rpctfSource") ),
+                  m_ntracks(0)
  {
 
   // verbosity switch
@@ -115,6 +116,14 @@ void L1TRPCTF::beginJob(const EventSetup& c)
                                 "RPCTF muons(eta,phipacked)",  
                                 100, -2.5, 2.5,
                                 144,  -0.5, 143.5);
+    
+    m_phipacked = dbe->book1D("RPCTF_phi_valuepacked", 
+                           "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
+
+    m_phipackednorm = dbe->book1D("RPCTF_phi_valuepacked_norm",
+                                   "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
+    
+        
   }  
 }
 
@@ -197,6 +206,7 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           m_qualVsEta->Fill(ECItr->etaValue(), ECItr->quality());
           
           m_muonsEtaPhi->Fill(ECItr->etaValue(), ECItr->phi_packed());
+          m_phipacked->Fill(ECItr->phi_packed());
           
         } // if !empty
       } // end candidates iteration
@@ -205,7 +215,34 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
   rpctfntrack->Fill(nrpctftrack);
   
+  m_ntracks += nrpctftrack;
+  
+  
   if (verbose_) cout << "\tRPCTFCand ntrack " << nrpctftrack << endl;
 	
+}
+
+// clear normalization values
+void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                                    const edm::EventSetup& context)
+{
+   m_ntracks = 0;
+                          
+}
+
+// Fill normalized histograms.  
+void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                        const edm::EventSetup& c)
+{
+   
+   float ntracks = m_ntracks; 
+   // todo check if m_phipackednorm and RPCTF_phi_valuepacked have same number of bins
+   if (ntracks > 0.5) {
+      for (int bin = 0; bin <= m_phipackednorm->getNbinsX(); ++bin) {
+         m_phipackednorm->setBinContent(bin, m_phipacked->getBinContent(bin)/ntracks);
+      }
+   }
+   
+   
 }
 
