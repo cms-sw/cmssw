@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/23 14:39:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/23 14:50:04 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane
  */
 
@@ -49,7 +49,9 @@ PolyFit2DParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
 
 bool
 PolyFit2DParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  // FIXME
+  double z = fabs(gp.z());
+  double r = gp.perp();
+  //"rectangle" |z|<3.5, r<1.9 _except_ the "corners" |z|+2.5*r>6.7, everything in meters
+  if (z>350. || r>190 || z+2.5*r>670.) return false;
   return true;
-  //  return (gp.perp() &&  gp.z()));
 }
