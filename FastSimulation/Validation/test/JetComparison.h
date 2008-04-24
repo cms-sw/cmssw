@@ -35,10 +35,6 @@
 #include <TH1.h>
 #include <TH2.h>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-using namespace reco;
 
 
 
@@ -52,7 +48,7 @@ class JetComparison : public edm::EDAnalyzer {
   double deltaR2(double eta0, double phi0, double eta, double phi);
  private:
   
-  string outputFile_;
+  std::string outputFile_;
 
 
 

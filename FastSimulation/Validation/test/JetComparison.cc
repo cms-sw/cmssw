@@ -1,6 +1,11 @@
 #include "FastSimulation/Validation/test/JetComparison.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
+using namespace cms;
+using namespace edm;
+using namespace std;
+using namespace reco;
+
 
 JetComparison::JetComparison(edm::ParameterSet const& conf)
 {
