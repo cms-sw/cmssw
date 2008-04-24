@@ -5,15 +5,15 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     saveFileName = cms.untracked.string(''),
     moduleSeeds = cms.PSet(
         g4SimHits = cms.untracked.uint32(11),
-        ecalUnsuppressedDigis = cms.untracked.uint32(1234567),
-        muonCSCDigis = cms.untracked.uint32(11223344),
+        simEcalUnsuppressedDigis = cms.untracked.uint32(1234567),
+        simMuonCSCDigis = cms.untracked.uint32(11223344),
         mix = cms.untracked.uint32(12345),
-        siPixelDigis = cms.untracked.uint32(1234567),
+        simSiPixelDigis = cms.untracked.uint32(1234567),
         VtxSmeared = cms.untracked.uint32(98765432),
-        hcalUnsuppressedDigis = cms.untracked.uint32(11223344),
-        muonDTDigis = cms.untracked.uint32(1234567),
-        siStripDigis = cms.untracked.uint32(1234567),
-        muonRPCDigis = cms.untracked.uint32(1234567)
+        simHcalUnsuppressedDigis = cms.untracked.uint32(11223344),
+        simMuonDTDigis = cms.untracked.uint32(1234567),
+        simSiStripDigis = cms.untracked.uint32(1234567),
+        simMuonRPCDigis = cms.untracked.uint32(1234567)
     ),
     # to restore the status of the last event, 
     # comment the line above and decomment the following one

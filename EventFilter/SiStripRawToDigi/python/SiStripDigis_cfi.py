@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripDigis = cms.EDFilter("SiStripRawToDigiModule",
+siStripDigis = cms.EDFilter("SiStripRawToDigiModule",
     ProductLabel = cms.untracked.string('rawDataCollector'),
     AppendedBytes = cms.untracked.int32(0),
     UseFedKey = cms.untracked.bool(False),

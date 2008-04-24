@@ -7,4 +7,3 @@ from EventFilter.SiStripRawToDigi.SiStripRawToClustersRoI_cfi import *
 # raw-to-clusters regions of interest module
 siStripClusters = copy.deepcopy(SiStripRoI)
 SiStripRawToClusters = cms.Sequence(SiStripRawToClustersFacility*siStripClusters)
-
