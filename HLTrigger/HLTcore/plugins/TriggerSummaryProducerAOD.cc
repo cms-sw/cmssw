@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/24 10:20:15 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/04/24 10:28:08 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -126,6 +126,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    collectionTags_.clear();
    vector<InputTag> collectionTags(0);
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
+     collectionTags.clear();
      fobs_[ifob]->getCollectionTags(collectionTags);
      if (collectionTags.size()>0) {
        const string& label    (fobs_[ifob].provenance()->moduleLabel());
