@@ -6,9 +6,9 @@
 
 /** \class ElectronTagger
  *
- *  $Id: ElectronTagger.h,v 1.2 2007/05/25 17:21:29 fwyzard Exp $
- *  $Date: 2007/05/25 17:21:29 $
- *  $Revision: 1.2 $
+ *  $Id: ElectronTagger.h,v 1.3 2008/04/22 12:55:51 saout Exp $
+ *  $Date: 2008/04/22 12:55:51 $
+ *  $Revision: 1.3 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -18,10 +18,10 @@ class ElectronTagger : public JetTagComputer {
 public:
 
   /// default ctor
-  ElectronTagger(void) : theNet() { uses("slTagInfos"); }
+  ElectronTagger(void) : theNet() { uses("seTagInfos"); }
 
   /// explicit ctor 
-  explicit ElectronTagger( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { uses("slTagInfos"); }
+  explicit ElectronTagger( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { uses("seTagInfos"); }
   
   /// dtor
   virtual ~ElectronTagger() { }
