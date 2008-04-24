@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.5 2008/03/10 14:50:08 biery Exp $
+// $Id: FileRecord.cc,v 1.6 2008/04/21 12:13:35 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -78,6 +78,9 @@ void FileRecord::writeToSummaryCatalog()
 //
 void FileRecord::notifyTier0()
 {
+  string ver(getReleaseVersion());
+  if(ver[0]=='"') ver=ver.substr(1,ver.length()-1);
+
   std::ostringstream oss;
   oss << "export SM_FILENAME="     << fileName() << fileCounterStr() << ".dat; " 
       << "export SM_FILECOUNTER="  << fileCounter_  << "; "                
@@ -94,8 +97,8 @@ void FileRecord::notifyTier0()
       << "export SM_STREAM="       << streamLabel_ << "; "
       << "export SM_INSTANCE="     << smParameter_->smInstance() << "; "
       << "export SM_SAFETY="       << smParameter_->initialSafetyLevel()  << "; "
-      << "export SM_APPVERSION="   << getReleaseVersion() << "; "
-      << "export SM_APPNAME=StorageManager; "
+      << "export SM_APPVERSION="   << ver << "; "
+      << "export SM_APPNAME=CMSSW; "
       << "export SM_TYPE=streamer; "
       << "export SM_CHECKSUM=0\n";
 
@@ -128,7 +131,7 @@ void FileRecord::updateDatabase()
       << " --INSTANCE "     << smParameter_->smInstance()        
       << " --SAFETY "       << smParameter_->initialSafetyLevel()
       << " --APP_VERSION "  << getReleaseVersion()
-      << " --APP_NAME StorageManager"
+      << " --APP_NAME CMSSW"
       << " --TYPE streamer"               
       << " --CHECKSUM 0\n";
 
@@ -161,7 +164,7 @@ void FileRecord::insertFileInDatabase()
       << " --INSTANCE "     << smParameter_->smInstance()        
       << " --SAFETY "       << smParameter_->initialSafetyLevel()
       << " --APP_VERSION "  << getReleaseVersion()
-      << " --APP_NAME StorageManager"
+      << " --APP_NAME CMSSW"
       << " --TYPE streamer"               
       << " --CHECKSUM 0\n";
 
