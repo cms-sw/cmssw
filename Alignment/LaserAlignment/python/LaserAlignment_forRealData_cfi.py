@@ -25,7 +25,7 @@ LaserAlignment = cms.EDFilter("LaserAlignment",
     # list of digi producers
     DigiProducersList = cms.VPSet(cms.PSet(
         DigiLabel = cms.string('ZeroSuppressed'),
-        DigiProducer = cms.string('SiStripDigis')
+        DigiProducer = cms.string('siStripDigis')
     ), 
         cms.PSet(
             DigiLabel = cms.string('VirginRaw'),
