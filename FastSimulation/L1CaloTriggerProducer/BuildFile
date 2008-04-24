@@ -20,3 +20,4 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/HcalDigi>
 
+<use name=DataFormats/GeometryVector>

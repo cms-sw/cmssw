@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.35 2008/01/12 00:13:40 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.36 2008/01/12 00:46:17 chinhan Exp $
 //
 
 // No BitInfos for release versions
@@ -719,17 +719,25 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 	  m_Regions[i].BitInfo.ecal[j] = emEt;
 	  m_Regions[i].BitInfo.hcal[j] = hadEt;
 	  //ms */
-	  math::RhoEtaPhiVector lvec(et,eta,phi);
-	
+	  //math::RhoEtaPhiVector lvec(et,eta,phi);
+	  math::PtEtaPhiMLorentzVector lvec(et,eta,phi,0.);
+
 	  CaloTowerDetId towerDetId;  
 	  if (emEtV[i][j]>0) 
 	    towerDetId = CaloTowerDetId(emiEtaV[i][j],emiPhiV[i][j]); 
 	  else
 	    towerDetId = CaloTowerDetId(hiEtaV[i][j],hiPhiV[i][j]); 
 	  
+	  /*
 	  CaloTower t = CaloTower(towerDetId, lvec, 
 				  emEt, hadEt, 
 				  0., 0, 0);
+	  */
+	  // New Dataformat in 2_1_X
+	  GlobalPoint emPosition,hadPosition;
+	  double theta = 2.*atan(exp(-eta));
+	  CaloTower t = CaloTower(towerDetId,emEt/sin(theta),hadEt/sin(theta),
+				  0.,0,0,lvec,emPosition,hadPosition);
     
 	  //m_Regions[i].FillTower_Scaled(t,j,false);
 	  m_Regions[i].FillTower_Scaled(t,j,true);

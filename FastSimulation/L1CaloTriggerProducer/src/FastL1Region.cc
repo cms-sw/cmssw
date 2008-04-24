@@ -13,12 +13,13 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.18 2007/10/19 04:50:31 smaruyam Exp $
+// $Id: FastL1Region.cc,v 1.19 2008/01/09 21:43:49 chinhan Exp $
 //
 
 // No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 FastL1Region::FastL1Region() 
 {
@@ -321,7 +322,11 @@ FastL1Region::FillTower(const CaloTower& t, int& tid)
   //if ( hade<HThres) hadet = 0.;
  
   //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  //Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  // New Dataformat in 2_1_X
+  GlobalPoint emPosition,hadPosition;
+  double theta = 2.*atan(exp(-t.eta()));
+  Towers[tid] = CaloTower(t.id(),emet/sin(theta),hadet/sin(theta),t.outerEt(),0,0,t.p4(),emPosition,hadPosition);
 }
 
 
@@ -388,8 +393,12 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc)
   */
 
   //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,0.,0,0);
-  
+  //Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,0.,0,0);
+  // New Dataformat in 2_1_X
+  GlobalPoint emPosition,hadPosition;
+  double theta = 2.*atan(exp(-t.eta()));
+  Towers[tid] = CaloTower(t.id(),emet/sin(theta),hadet/sin(theta),t.outerEt(),0,0,t.p4(),emPosition,hadPosition);
+
 }
 
 void 
