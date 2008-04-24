@@ -1681,199 +1681,199 @@ void PFRootEventManager::particleFlow() {
 
 void PFRootEventManager::reconstructGenJets() {
 
-  genJets_.clear();
-  genParticleBaseCandidates_.clear();
-  if (verbosity_ == VERBOSE || jetsDebug_) {
-    cout <<"start reconstruct GenJets"<<endl;
-	cout << " input gen particles for jet: all muons/neutrinos removed " << endl;
-  }
-  // need to convert reco::GenParticleRefVector genParticleRef_ 
-  // into Candidate Collection input for reconstructFWLiteJets.
-  // Warning: the selection of gen particles to be used for jet
-  // has changed!!!
-  // in 1_6_9  all muons/neutrinos are removed
-  // for > 1_8_0  only muons/neutrinos coming from Bosons (pdg id from 23 to 39)
-  // are removed. For instance muons/neutrinos from  tau decays are kept.
-  // The motivation is: calo jet corrections should include corrections due
-  // to muons/neutrinos from heavy flavors (b or c) decays inside jets.
-  for(unsigned i=0; i<genParticleRef_.size(); i++) {
-  const reco::GenParticle mcpart = *(genParticleRef_[i]);
-	  // remove all muons/neutrinos for PFJet studies
-	  if (reco::isNeutrino (mcpart) || reco::isMuon (mcpart)) continue;
-	   if (jetsDebug_ ) {
-	   cout << "      #" << i << "  PDG code:" << mcpart.pdgId() 
-		    << " status " << mcpart.status()
-		    << ", p/pt/eta/phi: " << mcpart.p() << '/' << mcpart.pt() 
-		    << '/' << mcpart.eta() << '/' << mcpart.phi() << endl;
-	   }
-  genParticleBaseCandidates_.push_back(mcpart.clone() );
-  }
+//   genJets_.clear();
+//   genParticleBaseCandidates_.clear();
+//   if (verbosity_ == VERBOSE || jetsDebug_) {
+//     cout <<"start reconstruct GenJets"<<endl;
+// 	cout << " input gen particles for jet: all muons/neutrinos removed " << endl;
+//   }
+//   // need to convert reco::GenParticleRefVector genParticleRef_ 
+//   // into Candidate Collection input for reconstructFWLiteJets.
+//   // Warning: the selection of gen particles to be used for jet
+//   // has changed!!!
+//   // in 1_6_9  all muons/neutrinos are removed
+//   // for > 1_8_0  only muons/neutrinos coming from Bosons (pdg id from 23 to 39)
+//   // are removed. For instance muons/neutrinos from  tau decays are kept.
+//   // The motivation is: calo jet corrections should include corrections due
+//   // to muons/neutrinos from heavy flavors (b or c) decays inside jets.
+//   for(unsigned i=0; i<genParticleRef_.size(); i++) {
+//   const reco::GenParticle mcpart = *(genParticleRef_[i]);
+// 	  // remove all muons/neutrinos for PFJet studies
+// 	  if (reco::isNeutrino (mcpart) || reco::isMuon (mcpart)) continue;
+// 	   if (jetsDebug_ ) {
+// 	   cout << "      #" << i << "  PDG code:" << mcpart.pdgId() 
+// 		    << " status " << mcpart.status()
+// 		    << ", p/pt/eta/phi: " << mcpart.p() << '/' << mcpart.pt() 
+// 		    << '/' << mcpart.eta() << '/' << mcpart.phi() << endl;
+// 	   }
+//   genParticleBaseCandidates_.push_back(mcpart.clone() );
+//   }
   
-  // convert Candidate Collection to RefTobase  vector GenConstit
-  // Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-  reco::CandidateBaseRefVector Genconstit;
+//   // convert Candidate Collection to RefTobase  vector GenConstit
+//   // Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
+//   reco::CandidateBaseRefVector Genconstit;
 
   
-  for(unsigned i=0;i<genParticleRef_.size(); i++) {
-	  // conversion in two steps: cand->Ref->RefTobase
-	  // transient Ref:
-	  // edm::Ref <CandidateCollection> candRef(&genParticleBaseCandidates_, i); does not compile yet
-	  edm::Ref <CandidateCollection>
-	  candRef(const_cast<const CandidateCollection*>(&genParticleBaseCandidates_),i); 
-	  const CandidateBaseRef constit (candRef); 
-	  // conversion in one step does not compile?
-	  //      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-	  Genconstit.push_back(constit);
+//   for(unsigned i=0;i<genParticleRef_.size(); i++) {
+// 	  // conversion in two steps: cand->Ref->RefTobase
+// 	  // transient Ref:
+// 	  // edm::Ref <CandidateCollection> candRef(&genParticleBaseCandidates_, i); does not compile yet
+// 	  edm::Ref <CandidateCollection>
+// 	  candRef(const_cast<const CandidateCollection*>(&genParticleBaseCandidates_),i); 
+// 	  const CandidateBaseRef constit (candRef); 
+// 	  // conversion in one step does not compile?
+// 	  //      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
+// 	  Genconstit.push_back(constit);
 	  
-  }
+//   }
   
   
 
-  vector<ProtoJet> protoJets;
-  reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
+//   vector<ProtoJet> protoJets;
+//   reconstructFWLiteJets(genParticleBaseCandidates_, protoJets );
 
-    // Convert Protojets to GenJets
+//     // Convert Protojets to GenJets
   
-  // For each Protojet in turn
-  int ijet = 0;
-  typedef vector <ProtoJet>::const_iterator IPJ;
-  for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-	  const ProtoJet& protojet = *ipj;
-	  const ProtoJet::Constituents& constituents = protojet.getTowerList();
+//   // For each Protojet in turn
+//   int ijet = 0;
+//   typedef vector <ProtoJet>::const_iterator IPJ;
+//   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+// 	  const ProtoJet& protojet = *ipj;
+// 	  const ProtoJet::Constituents& constituents = protojet.getTowerList();
 	  
-	  reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-	  GenJet::Specific specific;
-	  JetMaker::makeSpecific(constituents, &specific);
-	  // constructor without constituents
-	  GenJet newJet (protojet.p4(), vertex, specific);
+// 	  reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+// 	  GenJet::Specific specific;
+// 	  JetMaker::makeSpecific(constituents, &specific);
+// 	  // constructor without constituents
+// 	  GenJet newJet (protojet.p4(), vertex, specific);
 	  
-	  // last step is to copy the constituents into the jet (new jet definition since 18X)
-	  // namespace reco {
-	  //class Jet : public CompositeRefBaseCandidate {
-	  // public:
-	  //  typedef reco::CandidateBaseRefVector Constituents;
+// 	  // last step is to copy the constituents into the jet (new jet definition since 18X)
+// 	  // namespace reco {
+// 	  //class Jet : public CompositeRefBaseCandidate {
+// 	  // public:
+// 	  //  typedef reco::CandidateBaseRefVector Constituents;
 	  
-	  ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-	  for (; constituent != constituents.end(); ++constituent) {
-		  // find index of this ProtoJet constituent in the overall collection PFconstit
-		  // see class IndexedCandidate in JetRecoTypes.h
-		  uint index = constituent->index();
-		  newJet.addDaughter(Genconstit[index]);
-	  }  // end loop on ProtoJet constituents
-		 // last step: copy ProtoJet Variables into Jet
-	  newJet.setJetArea(protojet.jetArea()); 
-	  newJet.setPileup(protojet.pileup());
-	  newJet.setNPasses(protojet.nPasses());
-	  ++ijet;
-	  if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-	  genJets_.push_back (newJet);
+// 	  ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+// 	  for (; constituent != constituents.end(); ++constituent) {
+// 		  // find index of this ProtoJet constituent in the overall collection PFconstit
+// 		  // see class IndexedCandidate in JetRecoTypes.h
+// 		  uint index = constituent->index();
+// 		  newJet.addDaughter(Genconstit[index]);
+// 	  }  // end loop on ProtoJet constituents
+// 		 // last step: copy ProtoJet Variables into Jet
+// 	  newJet.setJetArea(protojet.jetArea()); 
+// 	  newJet.setPileup(protojet.pileup());
+// 	  newJet.setNPasses(protojet.nPasses());
+// 	  ++ijet;
+// 	  if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
+// 	  genJets_.push_back (newJet);
 	  
-	  } // end loop on protojets iterator IPJ
+// 	  } // end loop on protojets iterator IPJ
   
 }
 
 void PFRootEventManager::reconstructCaloJets() {
 
-  caloJets_.clear();
-  if (verbosity_ == VERBOSE || jetsDebug_ ) {
-    cout <<"start reconstruct CaloJets"<<endl;
-  }
+//   caloJets_.clear();
+//   if (verbosity_ == VERBOSE || jetsDebug_ ) {
+//     cout <<"start reconstruct CaloJets"<<endl;
+//   }
 
-  //   reco::CandidateCollection baseCandidates;
-  //   for(unsigned i=0; i<caloTowers_.size(); i++) {
-  //     baseCandidates.push_back( caloTowers_[i].clone() );
-  //   }
+//   //   reco::CandidateCollection baseCandidates;
+//   //   for(unsigned i=0; i<caloTowers_.size(); i++) {
+//   //     baseCandidates.push_back( caloTowers_[i].clone() );
+//   //   }
  
-  reconstructFWLiteJets(caloTowerBaseCandidates_, caloJets_ );
+//   reconstructFWLiteJets(caloTowerBaseCandidates_, caloJets_ );
 
-  //COLIN: geometry needed to make a calo jet from a proto jet !!
-  //   JetMaker mjet;
-  //   typedef vector <ProtoJet>::const_iterator IPJ;
-  //   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-  //     caloJets_.push_back(mjet.makeCaloJet(*ipj));  
-  //   } 
+//   //COLIN: geometry needed to make a calo jet from a proto jet !!
+//   //   JetMaker mjet;
+//   //   typedef vector <ProtoJet>::const_iterator IPJ;
+//   //   for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+//   //     caloJets_.push_back(mjet.makeCaloJet(*ipj));  
+//   //   } 
 }
 
 
 void PFRootEventManager::reconstructPFJets() {
 
-	pfJets_.clear();
-    basePFCandidates_.clear();
-	/// basePFCandidates_ to be declared global in PFRootEventManager.h
-	//reco::CandidateCollection basePFCandidates_;
-    if (verbosity_ == VERBOSE || jetsDebug_) {
-		cout <<"start reconstruct PFJets"<<endl;
-	}
+// 	pfJets_.clear();
+//     basePFCandidates_.clear();
+// 	/// basePFCandidates_ to be declared global in PFRootEventManager.h
+// 	//reco::CandidateCollection basePFCandidates_;
+//     if (verbosity_ == VERBOSE || jetsDebug_) {
+// 		cout <<"start reconstruct PFJets"<<endl;
+// 	}
 	
-	// Copy PFCandidates into std::vector<Candidate> format
-	// as input for jet algorithms
-	// Warning:
-	// basePFCandidates_ Collection lifetime ==  pfJets_ Collection lifetime
-	// transform PFCandidates to Candidates
-	for(unsigned i=0; i<pfCandidates_->size(); i++) { 
-		basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );	  
-	}
+// 	// Copy PFCandidates into std::vector<Candidate> format
+// 	// as input for jet algorithms
+// 	// Warning:
+// 	// basePFCandidates_ Collection lifetime ==  pfJets_ Collection lifetime
+// 	// transform PFCandidates to Candidates
+// 	for(unsigned i=0; i<pfCandidates_->size(); i++) { 
+// 		basePFCandidates_.push_back( (*pfCandidates_)[i].clone() );	  
+// 	}
 	
-	// Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
-	reco::CandidateBaseRefVector PFconstit;
+// 	// Jet constituents are stored as CandidateBaseRef(see CandidateFwd.h)
+// 	reco::CandidateBaseRefVector PFconstit;
 		
-	// convert Candidate Collection to RefTobase  vector PFConstit
+// 	// convert Candidate Collection to RefTobase  vector PFConstit
 	
-	for(unsigned i=0;i<pfCandidates_->size(); i++) {
-		// conversion in two steps: cand->Ref->RefTobase
-		// transient Ref:
-		// edm::Ref <CandidateCollection> candRef(&basePFCandidates_, i); does not compile yet
-		edm::Ref <CandidateCollection> 
-		candRef(const_cast<const CandidateCollection*>(&basePFCandidates_),i); 
-		const CandidateBaseRef constit (candRef);
-		// conversion in one step does not compile?
-		//      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
-		PFconstit.push_back(constit);
+// 	for(unsigned i=0;i<pfCandidates_->size(); i++) {
+// 		// conversion in two steps: cand->Ref->RefTobase
+// 		// transient Ref:
+// 		// edm::Ref <CandidateCollection> candRef(&basePFCandidates_, i); does not compile yet
+// 		edm::Ref <CandidateCollection> 
+// 		candRef(const_cast<const CandidateCollection*>(&basePFCandidates_),i); 
+// 		const CandidateBaseRef constit (candRef);
+// 		// conversion in one step does not compile?
+// 		//      edm::RefToBase <CandidateCollection> constit(pfCandh, i); 
+// 		PFconstit.push_back(constit);
 		
-	}
+// 	}
 	
-// Reconstruct ProtoJets from basePFCandidates_
+// // Reconstruct ProtoJets from basePFCandidates_
 
-vector<ProtoJet> protoJets;
-reconstructFWLiteJets(basePFCandidates_, protoJets );
+// vector<ProtoJet> protoJets;
+// reconstructFWLiteJets(basePFCandidates_, protoJets );
 
-// Convert Protojets to PFJets
+// // Convert Protojets to PFJets
 
-// For each Protojet in turn
-int ijet = 0;
-typedef vector <ProtoJet>::const_iterator IPJ;
-for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
-	const ProtoJet& protojet = *ipj;
-	const ProtoJet::Constituents& constituents = protojet.getTowerList();
+// // For each Protojet in turn
+// int ijet = 0;
+// typedef vector <ProtoJet>::const_iterator IPJ;
+// for  (IPJ ipj = protoJets.begin(); ipj != protoJets.end (); ipj++) {
+// 	const ProtoJet& protojet = *ipj;
+// 	const ProtoJet::Constituents& constituents = protojet.getTowerList();
 	
-	reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
-	PFJet::Specific specific;
-	JetMaker::makeSpecific(constituents, &specific);
-	// constructor without constituents
-	PFJet newJet (protojet.p4(), vertex, specific);
+// 	reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
+// 	PFJet::Specific specific;
+// 	JetMaker::makeSpecific(constituents, &specific);
+// 	// constructor without constituents
+// 	PFJet newJet (protojet.p4(), vertex, specific);
 	
-	// last step is to copy the constituents into the jet (new jet definition since 18X)
-	// namespace reco {
-	//class Jet : public CompositeRefBaseCandidate {
-	// public:
-	//  typedef reco::CandidateBaseRefVector Constituents;
+// 	// last step is to copy the constituents into the jet (new jet definition since 18X)
+// 	// namespace reco {
+// 	//class Jet : public CompositeRefBaseCandidate {
+// 	// public:
+// 	//  typedef reco::CandidateBaseRefVector Constituents;
 	
-	ProtoJet::Constituents::const_iterator constituent = constituents.begin();
-	for (; constituent != constituents.end(); ++constituent) {
-		// find index of this ProtoJet constituent in the overall collection PFconstit
-		// see class IndexedCandidate in JetRecoTypes.h
-		uint index = constituent->index();
-		newJet.addDaughter(PFconstit[index]);
-	}  // end loop on ProtoJet constituents
-	   // last step: copy ProtoJet Variables into Jet
-	newJet.setJetArea(protojet.jetArea()); 
-	newJet.setPileup(protojet.pileup());
-	newJet.setNPasses(protojet.nPasses());
-	++ijet;
-	if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
-	pfJets_.push_back (newJet);
+// 	ProtoJet::Constituents::const_iterator constituent = constituents.begin();
+// 	for (; constituent != constituents.end(); ++constituent) {
+// 		// find index of this ProtoJet constituent in the overall collection PFconstit
+// 		// see class IndexedCandidate in JetRecoTypes.h
+// 		uint index = constituent->index();
+// 		newJet.addDaughter(PFconstit[index]);
+// 	}  // end loop on ProtoJet constituents
+// 	   // last step: copy ProtoJet Variables into Jet
+// 	newJet.setJetArea(protojet.jetArea()); 
+// 	newJet.setPileup(protojet.pileup());
+// 	newJet.setNPasses(protojet.nPasses());
+// 	++ijet;
+// 	if (jetsDebug_ )cout<<ijet<<newJet.print()<<endl;
+// 	pfJets_.push_back (newJet);
 	
-	} // end loop on protojets iterator IPJ
+// 	} // end loop on protojets iterator IPJ
 
 	}
 
