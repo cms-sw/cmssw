@@ -547,6 +547,38 @@ static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 	}
 }
 
+namespace {
+	struct Id {
+		AtomicId	source;
+		AtomicId	name;
+		unsigned int	category;
+
+		inline Id(AtomicId source, AtomicId name,
+		          unsigned int category) :
+			source(source), name(name), category(category) {}
+
+		inline bool operator == (const Id &other) const
+		{
+			return source == other.source &&
+			       name == other.name &&
+			       category == other.category;
+		}
+
+		inline bool operator < (const Id &other) const
+		{
+			if (source < other.source)
+				return true;
+			if (!(source == other.source))
+				return false;
+			if (name < other.name)
+				return true;
+			if (!(name == other.name))
+				return false;
+			return category < other.category;
+		}
+	};
+}
+
 bool ProcLikelihood::load()
 {
 	std::string filename = trainer->trainFileName(this, "xml");
@@ -614,17 +646,18 @@ bool ProcLikelihood::load()
 		break;
 	}
 
-	typedef std::pair<AtomicId, AtomicId> Id;
 	std::map<Id, SigBkg*> pdfMap;
 
 	for(std::vector<SigBkg>::iterator iter = pdfs.begin();
 	    iter != pdfs.end(); ++iter) {
 		SigBkg *ptr = &*iter;
-		unsigned int i = iter - pdfs.begin();
-		if (categoryIdx >= 0 && (int)i >= categoryIdx)
-			i++;
-		const SourceVariable *var = getInputs().get()[i];
-		Id id(var->getSource()->getName(), var->getName());
+		unsigned int idx = iter - pdfs.begin();
+		unsigned int catIdx = idx % nCategories;
+		unsigned int varIdx = idx / nCategories;
+		if (categoryIdx >= 0 && (int)varIdx >= categoryIdx)
+			varIdx++;
+		const SourceVariable *var = getInputs().get()[varIdx];
+		Id id(var->getSource()->getName(), var->getName(), catIdx);
 
 		pdfMap[id] = ptr;
 	}
@@ -656,7 +689,9 @@ bool ProcLikelihood::load()
 			Id id(XMLDocument::readAttribute<std::string>(
 							elem, "source"),
 			      XMLDocument::readAttribute<std::string>(
-							elem, "name"));
+							elem, "name"),
+			      XMLDocument::readAttribute<unsigned int>(
+                                                        elem, "category", 0));
 			std::map<Id, SigBkg*>::const_iterator pos =
 							pdfMap.find(id);
 			if (pos == pdfMap.end())
@@ -752,14 +787,18 @@ void ProcLikelihood::save()
 		elem = doc->createElement(XMLUniStr("sigbkg"));
 		xml.getRootNode()->appendChild(elem);
 
-		unsigned int i = iter - pdfs.begin();
-		if (categoryIdx >= 0 && (int)i >= categoryIdx)
-			i++;
-		const SourceVariable *var = getInputs().get()[i];
+		unsigned int idx = iter - pdfs.begin();
+		unsigned int catIdx = idx % nCategories;
+		unsigned int varIdx = idx / nCategories;
+		if (categoryIdx >= 0 && (int)varIdx >= categoryIdx)
+			varIdx++;
+		const SourceVariable *var = getInputs().get()[varIdx];
 		XMLDocument::writeAttribute(elem, "source",
 				(const char*)var->getSource()->getName());
 		XMLDocument::writeAttribute(elem, "name",
 				(const char*)var->getName());
+		if (categoryIdx >= 0)
+			XMLDocument::writeAttribute(elem, "category", catIdx);
 
 		elem->appendChild(xmlStorePDF(doc, iter->signal));
 		elem->appendChild(xmlStorePDF(doc, iter->background));

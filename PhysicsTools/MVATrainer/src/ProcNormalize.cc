@@ -76,13 +76,17 @@ class ProcNormalize : public TrainProcessor {
 	};
 
 	std::vector<PDF>	pdfs;
+	int			categoryIdx;
+	unsigned int		nCategories;
 };
 
 static ProcNormalize::Registry registry("ProcNormalize");
 
 ProcNormalize::ProcNormalize(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer)
+	TrainProcessor(name, id, trainer),
+	categoryIdx(-1),
+	nCategories(1)
 {
 }
 
@@ -92,12 +96,44 @@ ProcNormalize::~ProcNormalize()
 
 void ProcNormalize::configure(DOMElement *elem)
 {
+	int i = 0;
 	for(DOMNode *node = elem->getFirstChild();
 	    node; node = node->getNextSibling()) {
 		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
 			continue;
 
-		if (std::strcmp(XMLSimpleStr(node->getNodeName()), "pdf") != 0)
+		DOMElement *elem = static_cast<DOMElement*>(node);
+
+		XMLSimpleStr nodeName(node->getNodeName());
+
+		if (std::strcmp(nodeName, "category") != 0) {
+			i++;
+			continue;
+		}
+
+		if (categoryIdx >= 0)
+			throw cms::Exception("ProcNormalize")
+				<< "More than one category variable given."
+				<< std::endl;
+
+
+		unsigned int count = XMLDocument::readAttribute<unsigned int>(
+								elem, "count");
+
+		categoryIdx = i;
+		nCategories = count;
+	}
+
+	for(DOMNode *node = elem->getFirstChild();
+	    node; node = node->getNextSibling()) {
+		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
+			continue;
+
+		XMLSimpleStr nodeName(node->getNodeName());
+		if (std::strcmp(nodeName, "category") == 0)
+			continue;
+
+		if (std::strcmp(nodeName, "pdf") != 0)
 			throw cms::Exception("ProcNormalize")
 				<< "Expected pdf tag in config section."
 				<< std::endl;
@@ -131,21 +167,35 @@ void ProcNormalize::configure(DOMElement *elem)
 		} else
 			pdf.iteration = ITER_EMPTY;
 
-		pdfs.push_back(pdf);
+		for(unsigned int i = 0; i < nCategories; i++)
+			pdfs.push_back(pdf);
 	}
 
-	if (pdfs.size() != getInputs().size())
+	unsigned int nInputs = getInputs().size();
+	if (categoryIdx >= 0)
+		nInputs--;
+
+	if (pdfs.size() != nInputs * nCategories)
 		throw cms::Exception("ProcNormalize")
-			<< "Got " << pdfs.size() << " pdf configs for "
-			<< getInputs().size() << " input varibles."
-			<< std::endl;
+			<< "Got " << (pdfs.size() / nCategories)
+			<< " pdf configs for " << nInputs
+			<< " input varibles." << std::endl;
 }
 
 Calibration::VarProcessor *ProcNormalize::getCalibration() const
 {
 	Calibration::ProcNormalize *calib = new Calibration::ProcNormalize;
-	std::copy(pdfs.begin(), pdfs.end(), std::back_inserter(calib->distr));
-	calib->categoryIdx = -1;
+
+	std::vector<unsigned int> pdfMap;
+	for(unsigned int i = 0; i < nCategories; i++)
+		for(unsigned int j = i; j < pdfs.size(); j += nCategories)
+			pdfMap.push_back(j);
+
+	for(unsigned int i = 0; i < pdfs.size(); i++)
+		calib->distr.push_back(pdfs[pdfMap[i]]);
+
+	calib->categoryIdx = categoryIdx;
+
 	return calib;
 }
 
@@ -156,8 +206,18 @@ void ProcNormalize::trainBegin()
 void ProcNormalize::trainData(const std::vector<double> *values,
                               bool target, double weight)
 {
-	for(std::vector<PDF>::iterator iter = pdfs.begin();
-	    iter != pdfs.end(); iter++, values++) {
+	int category = 0;
+	if (categoryIdx >= 0)
+		category = (int)values[categoryIdx].front();
+	if (category < 0 || category >= (int)nCategories)
+		return;
+
+	int i = 0;
+        for(std::vector<PDF>::iterator iter = pdfs.begin() + category;
+            iter < pdfs.end(); iter += nCategories, values++) {
+		if (i++ == categoryIdx)
+			values++;
+
 		switch(iter->iteration) {
 		    case ITER_EMPTY:
 			for(std::vector<double>::const_iterator value =
@@ -253,24 +313,68 @@ void ProcNormalize::trainEnd()
 
 	if (done && monitoring) {
 		std::vector<SourceVariable*> inputs = getInputs().get();
+		if (categoryIdx >= 0)
+			inputs.erase(inputs.begin() + categoryIdx);
+
 		for(std::vector<PDF>::iterator iter = pdfs.begin();
 		    iter != pdfs.end(); iter++) {
-			SourceVariable *var = inputs[iter - pdfs.begin()];
+			unsigned int idx = iter - pdfs.begin();
+			unsigned int catIdx = idx % nCategories;
+			unsigned int varIdx = idx / nCategories;
+			SourceVariable *var = inputs[varIdx];
 			std::string name =
 				(const char*)var->getSource()->getName()
 				+ std::string("_")
 				+ (const char*)var->getName();
+			std::string title = name;
+			if (categoryIdx >= 0) {
+				name += Form("_CAT%d", catIdx);
+				title += Form(" (cat. %d)", catIdx);
+			}
+
 			unsigned int n = iter->distr.size() - 1;
 			double min = iter->range.min -
 			             0.5 * iter->range.width() / n;
 			double max = iter->range.max +
 			             0.5 * iter->range.width() / n;
 			TH1F *histo = monitoring->book<TH1F>(name + "_pdf",
-				name.c_str(), name.c_str(), n + 1, min, max);
+				name.c_str(), title.c_str(), n + 1, min, max);
 			for(unsigned int i = 0; i < n; i++)
 				histo->SetBinContent(i + 1, iter->distr[i]);
 		}
 	}
+}
+
+namespace {
+	struct Id {
+		AtomicId	source;
+		AtomicId	name;
+		unsigned int	category;
+
+		inline Id(AtomicId source, AtomicId name,
+		          unsigned int category) :
+			source(source), name(name), category(category) {}
+
+		inline bool operator == (const Id &other) const
+		{
+			return source == other.source &&
+			       name == other.name &&
+			       category == other.category;
+		}
+
+		inline bool operator < (const Id &other) const
+		{
+			if (source < other.source)
+				return true;
+			if (!(source == other.source))
+				return false;
+			if (name < other.name)
+				return true;
+			if (!(name == other.name))
+				return false;
+			return category < other.category;
+		}
+	};
 }
 
 bool ProcNormalize::load()
@@ -295,15 +399,18 @@ bool ProcNormalize::load()
 			<< "Unsupported version " << version
 			<< "in train file." << std::endl;
 
-	typedef std::pair<AtomicId, AtomicId> Id;
 	std::map<Id, PDF*> pdfMap;
 
 	for(std::vector<PDF>::iterator iter = pdfs.begin();
 	    iter != pdfs.end(); ++iter) {
 		PDF *ptr = &*iter;
-		unsigned int i = iter - pdfs.begin();
-		const SourceVariable *var = getInputs().get()[i];
-		Id id(var->getSource()->getName(), var->getName());
+		unsigned int idx = iter - pdfs.begin();
+		unsigned int catIdx = idx % nCategories;
+		unsigned int varIdx = idx / nCategories;
+		if (categoryIdx >= 0 && (int)varIdx >= categoryIdx)
+			varIdx++;
+		const SourceVariable *var = getInputs().get()[varIdx];
+		Id id(var->getSource()->getName(), var->getName(), catIdx);
 
 		pdfMap[id] = ptr;
 	}
@@ -334,7 +441,9 @@ bool ProcNormalize::load()
 			Id id(XMLDocument::readAttribute<std::string>(
 			      				elem, "source"),
 			      XMLDocument::readAttribute<std::string>(
-			      				elem, "name"));
+			      				elem, "name"),
+			      XMLDocument::readAttribute<unsigned int>(
+                                                        elem, "category", 0));
 			std::map<Id, PDF*>::const_iterator pos =
 							pdfMap.find(id);
 			if (pos == pdfMap.end())
@@ -396,12 +505,18 @@ void ProcNormalize::save()
 		DOMElement *elem = doc->createElement(XMLUniStr("pdf"));
 		xml.getRootNode()->appendChild(elem);
 
-		unsigned int i = iter - pdfs.begin();
-		const SourceVariable *var = getInputs().get()[i];
+		unsigned int idx = iter - pdfs.begin();
+		unsigned int catIdx = idx % nCategories;
+		unsigned int varIdx = idx / nCategories;
+		if (categoryIdx >= 0 && (int)varIdx >= categoryIdx)
+			varIdx++;
+		const SourceVariable *var = getInputs().get()[varIdx];
 		XMLDocument::writeAttribute(elem, "source",
 				(const char*)var->getSource()->getName());
 		XMLDocument::writeAttribute(elem, "name",
 				(const char*)var->getName());
+		if (categoryIdx >= 0)
+			XMLDocument::writeAttribute(elem, "category", catIdx);
 
 		XMLDocument::writeAttribute(elem, "lower", iter->range.min);
 		XMLDocument::writeAttribute(elem, "upper", iter->range.max);
