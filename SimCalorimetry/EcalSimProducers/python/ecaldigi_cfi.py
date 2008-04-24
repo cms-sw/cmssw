@@ -4,7 +4,7 @@ from SimCalorimetry.EcalSimProducers.ecalSimParameterMap_cff import *
 from SimCalorimetry.EcalSimProducers.ecalElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
-ecalUnsuppressedDigis = cms.EDProducer("EcalDigiProducer",
+simEcalUnsuppressedDigis = cms.EDProducer("EcalDigiProducer",
     ecal_electronics_sim,
     ecal_sim_parameter_map,
     ecal_notCont_sim,
