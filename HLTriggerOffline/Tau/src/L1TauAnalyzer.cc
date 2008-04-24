@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.cc,v 1.1 2008/02/25 22:01:05 chinhan Exp $
+// $Id: L1TauAnalyzer.cc,v 1.2 2008/03/03 00:36:08 chinhan Exp $
 //
 //
 
@@ -26,17 +26,17 @@
 L1TauAnalyzer::L1TauAnalyzer(const edm::ParameterSet& iConfig)
 
 {
-  _GenParticleSource = iConfig.getParameter<InputTag>("GenParticleSource");
-  _PFTauSource = iConfig.getParameter<InputTag>("PFTauSource");
-  _PFTauDiscriminatorSource = iConfig.getParameter<InputTag>("PFTauDiscriminatorSource");
+  _GenParticleSource = iConfig.getParameter<edm::InputTag>("GenParticleSource");
+  _PFTauSource = iConfig.getParameter<edm::InputTag>("PFTauSource");
+  _PFTauDiscriminatorSource = iConfig.getParameter<edm::InputTag>("PFTauDiscriminatorSource");
 
-  _L1extraTauJetSource = iConfig.getParameter<InputTag>("L1extraTauJetSource");
-  _L1extraCenJetSource = iConfig.getParameter<InputTag>("L1extraCenJetSource");
-  _L1extraForJetSource = iConfig.getParameter<InputTag>("L1extraForJetSource");
-  _L1extraMuonSource = iConfig.getParameter<InputTag>("L1extraMuonSource");
-  _L1extraMETSource = iConfig.getParameter<InputTag>("L1extraMETSource");
-  _L1extraNonIsoEgammaSource = iConfig.getParameter<InputTag>("L1extraNonIsoEgammaSource");
-  _L1extraIsoEgammaSource = iConfig.getParameter<InputTag>("L1extraIsoEgammaSource");
+  _L1extraTauJetSource = iConfig.getParameter<edm::InputTag>("L1extraTauJetSource");
+  _L1extraCenJetSource = iConfig.getParameter<edm::InputTag>("L1extraCenJetSource");
+  _L1extraForJetSource = iConfig.getParameter<edm::InputTag>("L1extraForJetSource");
+  _L1extraMuonSource = iConfig.getParameter<edm::InputTag>("L1extraMuonSource");
+  _L1extraMETSource = iConfig.getParameter<edm::InputTag>("L1extraMETSource");
+  _L1extraNonIsoEgammaSource = iConfig.getParameter<edm::InputTag>("L1extraNonIsoEgammaSource");
+  _L1extraIsoEgammaSource = iConfig.getParameter<edm::InputTag>("L1extraIsoEgammaSource");
 
   _DoMCMatching = iConfig.getParameter<bool>("DoMCMatching");
   _DoPFTauMatching = iConfig.getParameter<bool>("DoPFTauMatching");
@@ -55,8 +55,8 @@ L1TauAnalyzer::L1TauAnalyzer(const edm::ParameterSet& iConfig)
   _MuTauThresholds = iConfig.getParameter< std::vector<double> >("MuTauThresholds");
   _IsoEgTauThresholds = iConfig.getParameter< std::vector<double> >("IsoEgTauThresholds");
 
-  _L1GtReadoutRecord = iConfig.getParameter<InputTag>("L1GtReadoutRecord");
-  _L1GtObjectMap = iConfig.getParameter<InputTag>("L1GtObjectMap");
+  _L1GtReadoutRecord = iConfig.getParameter<edm::InputTag>("L1GtReadoutRecord");
+  _L1GtObjectMap = iConfig.getParameter<edm::InputTag>("L1GtObjectMap");
   
   _L1SingleTauName = iConfig.getParameter<std::string>("L1SingleTauName");
   _L1DoubleTauName = iConfig.getParameter<std::string>("L1DoubleTauName");
