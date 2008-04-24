@@ -1,8 +1,12 @@
+# The following comments couldn't be translated into the new config version:
+
+#FrontierDev/CMS_COND_STRIP"
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
-siStripApvGain = copy.deepcopy(poolDBESSource)
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+siStripApvGain = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
+#replace siStripApvGain.DBParameters.authenticationPath="/afs/cern.ch/cms/DB/conddb"
+#replace siStripApvGain.DBParameters.messageLevel=2
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
 siStripApvGain.connect = 'frontier://FrontierDev/CMS_COND_STRIP'
 siStripApvGain.toGet = cms.VPSet(cms.PSet(

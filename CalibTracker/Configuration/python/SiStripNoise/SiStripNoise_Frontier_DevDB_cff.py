@@ -1,8 +1,10 @@
+# The following comments couldn't be translated into the new config version:
+
+#FrontierDev/CMS_COND_STRIP"
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from CalibTracker.Configuration.Common.PoolDBESSource_cfi import *
-siStripNoise = copy.deepcopy(poolDBESSource)
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+siStripNoise = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone()
 siStripNoise.connect = 'frontier://FrontierDev/CMS_COND_STRIP'
 siStripNoise.toGet = cms.VPSet(cms.PSet(
     record = cms.string('SiStripNoisesRcd'),
