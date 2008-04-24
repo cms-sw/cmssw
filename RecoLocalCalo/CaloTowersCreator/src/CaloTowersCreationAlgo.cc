@@ -338,9 +338,10 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 }
 
 
-// this method is not compatible with the new format 
-// for now make a quick compatibility "fix" : WILL NOT WORK CORRECTLY with anything 
+// This method is not flexible enough for the new CaloTower format. 
+// For now make a quick compatibility "fix" : WILL NOT WORK CORRECTLY with anything 
 // except the default simple p4 assignment!!!
+// Must be rewritten for full functionality.
 void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
   double threshold, weight;
 
@@ -378,6 +379,14 @@ void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
     std::pair<DetId, double> mc(detId, 0);
     tower.metaConstituents.push_back(mc);
   }
+
+  // preserve time inforamtion
+  tower.emSumTimeTimesE  = ct->ecalTime();
+  tower.hadSumTimeTimesE = ct->hcalTime();
+  tower.emSumEForTime = 1.0;
+  tower.hadSumEForTime = 1.0;
+  
+
 }
 
 CaloTowersCreationAlgo::MetaTower::MetaTower() : 
