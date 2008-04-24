@@ -32,6 +32,8 @@
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 
+#include "FWCore/Framework/interface/Selector.h"
+
 #include <vector>
 #include <memory>
 
@@ -57,14 +59,16 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   caliJetResoFile_         = iConfig.getParameter<std::string>  	      ( "caliJetResoFile" );
   caliBJetResoFile_        = iConfig.getParameter<std::string>  	      ( "caliBJetResoFile" );
   addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
-  tagModuleLabelPostfix_   = iConfig.getParameter<std::string>  	      ( "tagModuleLabelPostfix" ); 
-  addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
+  addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
+  discriminatorModule_     = iConfig.getParameter<edm::InputTag>              ( "discriminatorModule" );
   addTagInfoRefs_          = iConfig.getParameter<bool> 		      ( "addTagInfoRefs" );
-  tagModuleLabelsToKeep_   = iConfig.getParameter<std::vector<std::string> >  ( "tagModuleLabelsToKeep" );
+  tagInfoModule_           = iConfig.getParameter<edm::InputTag>              ( "tagInfoModule" );
+#ifdef PATJet_OldTagInfo
   ipTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "ipTagInfoLabelName" );
   softETagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softETagInfoLabelName" );
   softMTagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softMTagInfoLabelName" );
   svTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "svTagInfoLabelName" );
+#endif
   addAssociatedTracks_     = iConfig.getParameter<bool> 		      ( "addAssociatedTracks" ); 
   trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
   addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
@@ -74,6 +78,24 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   if (addResolutions_) {
     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliJetResoFile_).fullPath(), useNNReso_);
     theBResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliBJetResoFile_).fullPath(), useNNReso_);
+  }
+
+  std::vector<std::string> discriminatorNames = iConfig.getParameter<std::vector<std::string> >("discriminatorNames");
+  if (discriminatorNames.empty()) { 
+    addDiscriminators_ = false; // there's no point to read all discriminators and save none ;-)
+  } else if (std::find(discriminatorNames.begin(), discriminatorNames.end(), "*") == discriminatorNames.end()) {
+    discriminatorNames_.insert(discriminatorNames.begin(), discriminatorNames.end());
+  } else {
+    // we just leave the set empty, and catch everything we can
+  }
+
+  std::vector<std::string> tagInfoNames = iConfig.getParameter<std::vector<std::string> >("tagInfoNames");
+  if (tagInfoNames.empty()) { 
+    addTagInfoRefs_ = false; // there's no point to read all tagInfos and save none ;-)
+  } else if (std::find(tagInfoNames.begin(), tagInfoNames.end(), "*") == tagInfoNames.end()) {
+    tagInfoNames_.insert(tagInfoNames.begin(), tagInfoNames.end());
+  } else {
+    // we just leave the set empty, and catch everything we can
   }
 
 
@@ -117,28 +139,32 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(jetCorrFactorsSrc_, jetCorrs);
 
   // Get the vector of jet tags with b-tagging info
-  //std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
-  std::vector<edm::Handle<reco::JetTagCollection> > jetTags_testManyByType;
-  if (addBTagInfo_) iEvent.getManyByType(jetTags_testManyByType);
-   
-   
-   
-  edm::Handle<reco::SoftLeptonTagInfoCollection>         jetsInfoHandle_sle;
-  edm::Handle<reco::SoftLeptonTagInfoCollection>         jetsInfoHandle_slm;
-  edm::Handle<reco::TrackIPTagInfoCollection>            jetsInfoHandleTIP;
-  edm::Handle<reco::SecondaryVertexTagInfoCollection>    jetsInfoHandleSV;
-
-  // Define the handles for the specific algorithms
-  edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
-  edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
-  edm::Handle<reco::TrackCountingTagInfoCollection> jetsInfoHandleTC;
-
+  std::vector<edm::Handle<edm::ValueMap<float> > > jetDiscriminators;
+  if (addBTagInfo_ && addDiscriminators_) {
+    if (discriminatorModule_.process().empty()) {
+        edm::ModuleLabelSelector selector(discriminatorModule_.label());
+        iEvent.getMany(selector, jetDiscriminators);
+    } else {
+        edm::Selector selector(edm::ModuleLabelSelector(discriminatorModule_.label()) && edm::ProcessNameSelector(discriminatorModule_.process()));
+        iEvent.getMany(selector, jetDiscriminators);
+    }
+  }
+  std::vector<edm::Handle<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > > jetTagInfos;
+  if (addBTagInfo_ && addTagInfoRefs_) {
+    if (tagInfoModule_.process().empty()) {
+        edm::ModuleLabelSelector selector(tagInfoModule_.label());
+        iEvent.getMany(selector, jetTagInfos);
+    } else {
+        edm::Selector selector(edm::ModuleLabelSelector(tagInfoModule_.label()) && edm::ProcessNameSelector(tagInfoModule_.process()));
+        iEvent.getMany(selector, jetTagInfos);
+    }
+  }
+ 
   // tracks Jet Track Association
   edm::Handle<edm::ValueMap<reco::TrackRefVector> > hTrackAss;
   if (addAssociatedTracks_) iEvent.getByLabel(trackAssociation_, hTrackAss);
   edm::Handle<edm::ValueMap<float> > hJetChargeAss;
   if (addJetCharge_) iEvent.getByLabel(jetCharge_, hJetChargeAss);
-
 
   // loop over jets
   std::vector<Jet> * patJets = new std::vector<Jet>(); 
@@ -195,76 +221,34 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // add b-tag info if available & required
     if (addBTagInfo_) {
-      //std::cout << "addBTagInfo true " << jetTags_testManyByType.size() << std::endl;
-      for (size_t k=0; k<jetTags_testManyByType.size(); k++) {
-        edm::Handle<reco::JetTagCollection > jetTags = jetTags_testManyByType[k];
-
-        //get label and module names
-        std::string moduleLabel = (jetTags).provenance()->moduleLabel();
-	for (size_t t = 0; t < jetTags->size(); t++) {
-          edm::RefToBase<reco::Jet> jet_p = (*jetTags)[t].first;
-	  
-	  if (jet_p.isNull()) {
-            //std::cout << "-----------> JetTag::jet() returned null reference" << std::endl; 
-            continue;
-          }
-	  if (::deltaR( *itJet, *jet_p ) < 0.00001) {
-	    //look only at the tagger present in tagModuleLabelsToKeep_
-	    for (unsigned int i = 0; i < tagModuleLabelsToKeep_.size(); ++i) {
-	      if (moduleLabel == tagModuleLabelsToKeep_[i] + tagModuleLabelPostfix_) {  
-		//********store discriminators*********
-		if (addDiscriminators_) {
-		  std::pair<std::string, float> pairDiscri;
-		  pairDiscri.first = tagModuleLabelsToKeep_[i];
-		  pairDiscri.second = ((*jetTags)[t]).second;
-		  ajet.addBDiscriminatorPair(pairDiscri);
-		  continue;
-		}
-		//********store TagInfo*********
-		
-	      }
-	    }
-	    /*
-	      impactParameterTagInfos, ( jetBProbabilityBJetTags & jetProbabilityBJetTags & trackCountingHighPurBJetTags & trackCountingHighEffBJetTags & impactParameterMVABJetTags ) ,
-	      secondaryVertexTagInfos, ( simpleSecondaryVertexBJetTags & combinedSecondaryVertexBJetTags & combinedSecondaryVertexMVABJetTags )     ) &
-	      ( btagSoftElectrons, softElectronTagInfos, softElectronBJetTags ) &
-	      ( softMuonTagInfos, ( softMuonBJetTags & softMuonNoIPBJetTags ) ) 
-	    */
-	    if (addTagInfoRefs_) {
-	      //add TagInfo for IP based taggers
-	      for(unsigned int k=0; k<ipTagInfoLabel_.size(); k++){
-		iEvent.getByLabel(ipTagInfoLabel_[k],jetsInfoHandleTIP);
-		reco::TrackIPTagInfoCollection::const_iterator it = jetsInfoHandleTIP->begin();
-		ajet.addBTagIPTagInfoRef( reco::TrackIPTagInfoRef(  jetsInfoHandleTIP, it+t - jetsInfoHandleTIP->begin()) );
-	      }
-	      //add TagInfo for soft leptons tagger
-	      for(unsigned int k=0; k<softETagInfoLabel_.size(); k++){
-		iEvent.getByLabel(softETagInfoLabel_[k],jetsInfoHandle_sle);
-		reco::SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_sle->begin();
-		ajet.addBTagSoftLeptonERef(  reco::SoftLeptonTagInfoRef( jetsInfoHandle_sle,  it+t  - jetsInfoHandle_sle->begin() )  );
-	      }
-
-	      //add TagInfo for soft leptons tagger
-	      for(unsigned int k=0; k<softMTagInfoLabel_.size(); k++){
-		iEvent.getByLabel(softMTagInfoLabel_[k],jetsInfoHandle_slm);
-		reco::SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_slm->begin();
-		ajet.addBTagSoftLeptonMRef(  reco::SoftLeptonTagInfoRef( jetsInfoHandle_slm,  it+t  - jetsInfoHandle_slm->begin() )  );
-	      } 
-              //add TagInfo for Secondary Vertex taggers
-	      for(unsigned int k=0; k<svTagInfoLabel_.size(); k++){
-		iEvent.getByLabel(svTagInfoLabel_[k],jetsInfoHandleSV);
-		reco::SecondaryVertexTagInfoCollection::const_iterator it = jetsInfoHandleSV->begin();
-		ajet.addBTagSecondaryVertexTagInfoRef( reco::SecondaryVertexTagInfoRef(jetsInfoHandleSV,it+t  - jetsInfoHandleSV->begin()) );
-	      }
-	      
-	    }
-	  }
-	}
-      }
-      
+        if (addDiscriminators_) {
+            for (size_t k=0; k<jetDiscriminators.size(); ++k) {
+                const edm::Handle<edm::ValueMap<float> > & jetDiscHandle = jetDiscriminators[k];
+                const std::string & label = jetDiscHandle.provenance()->productInstanceName();
+                if ( discriminatorNames_.empty() || 
+                        (discriminatorNames_.find(label) != discriminatorNames_.end()) ) {
+                    if (jetDiscHandle->contains(jetRef.id())) {
+                        std::pair<std::string,float> pairDiscri(label, (*jetDiscHandle)[jetRef]);
+                        ajet.addBDiscriminatorPair(pairDiscri);
+                    }
+                }
+            }
+        }    
+        if (addTagInfoRefs_) {
+            for (size_t k=0; k<jetTagInfos.size(); ++k) {
+                const edm::Handle<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > & jetTagInfoHandle = jetTagInfos[k];
+                const std::string & label = jetTagInfoHandle.provenance()->productInstanceName();
+                if ( tagInfoNames_.empty() || 
+                        (tagInfoNames_.find(label) != tagInfoNames_.end()) ) {
+                    if (jetTagInfoHandle->contains(jetRef.id())) {
+                        ajet.addTagInfo(label, (*jetTagInfoHandle)[jetRef]);
+                    }
+                }
+            }
+        }    
     }
     
-    if (addAssociatedTracks_) ajet.associatedTracks_ = (*hTrackAss)[jetRef];
+    if (addAssociatedTracks_) ajet.setAssociatedTracks( (*hTrackAss)[jetRef] );
 
     if (addJetCharge_)        ajet.setJetCharge( (*hJetChargeAss)[jetRef] );
 

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.3 2008/04/03 19:33:42 lowette Exp $
+// $Id: PATJetProducer.h,v 1.4 2008/04/17 23:43:41 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.3 2008/04/03 19:33:42 lowette Exp $
+  \version  $Id: PATJetProducer.h,v 1.4 2008/04/17 23:43:41 gpetrucc Exp $
 */
 
 
@@ -68,18 +68,15 @@ namespace pat {
       std::string              caliBJetResoFile_;
 
       bool                     addBTagInfo_;
-      std::string              tagModuleLabelPostfix_; 
       bool                     addDiscriminators_; 
-      std::vector<std::string> tagModuleLabelsToKeep_;
-      std::vector<std::string> tagInfoModuleLabelsToKeep_;
-      std::vector<edm::InputTag> ipTagInfoLabel_;
-      std::vector<edm::InputTag> softETagInfoLabel_;
-      std::vector<edm::InputTag> softMTagInfoLabel_;
-      std::vector<edm::InputTag> svTagInfoLabel_;
+      edm::InputTag            discriminatorModule_;
+      std::set<std::string>    discriminatorNames_;
+      bool                     addTagInfoRefs_; 
+      edm::InputTag            tagInfoModule_;
+      std::set<std::string>    tagInfoNames_;
       bool                     addAssociatedTracks_;
       edm::InputTag            trackAssociation_;
       bool                     addJetCharge_;
-      bool                     addTagInfoRefs_;
       edm::InputTag            jetCharge_;
       // tools
       ObjectResolutionCalc             * theResoCalc_;

@@ -20,9 +20,21 @@ typedef ValueMapSkimmer<pat::JetCorrFactors>            JetCorrFactorsValueMapSk
 typedef ManyValueMapsSkimmer<float>  CandManyValueMapsSkimmerFloat;
 typedef ManyValueMapsSkimmer<reco::IsoDeposit>  CandManyValueMapsSkimmerIsoDeposits;
 
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/Common/interface/Ptr.h"
+
+typedef ManyValueMapsSkimmer<edm::Ptr<reco::BaseTagInfo> > CandManyValueMapsSkimmerTagInfo;
+//typedef ManyValueMapsSkimmer<reco::TrackIPTagInfo> CandManyValueMapsSkimmerTrackIPTagInfo;
+//typedef ManyValueMapsSkimmer<reco::SoftLeptonTagInfo> CandManyValueMapsSkimmerSoftLeptonTagInfo;
+//typedef ManyValueMapsSkimmer<reco::SecondaryVertexTagInfo> CandManyValueMapsSkimmerSecondaryVertexTagInfo;
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(CandValueMapSkimmerDouble);
+//DEFINE_FWK_MODULE(CandValueMapSkimmerDouble);
 DEFINE_FWK_MODULE(CandValueMapSkimmerFloat);
 DEFINE_FWK_MODULE(CandManyValueMapsSkimmerFloat);
 DEFINE_FWK_MODULE(CandManyValueMapsSkimmerIsoDeposits);
@@ -31,5 +43,8 @@ DEFINE_FWK_MODULE(CandManyValueMapsSkimmerIsoDeposits);
 //DEFINE_FWK_MODULE(CandValueMapSkimmerInt2Float);
 //DEFINE_FWK_MODULE(CandRefValueMapSkimmer);
 
-//DEFINE_FWK_MODULE(JetTagRefValueMapSkimmer);
 DEFINE_FWK_MODULE(JetCorrFactorsValueMapSkimmer);
+DEFINE_FWK_MODULE(CandManyValueMapsSkimmerTagInfo);
+//DEFINE_FWK_MODULE(CandManyValueMapsSkimmerTrackIPTagInfo);
+//DEFINE_FWK_MODULE(CandManyValueMapsSkimmerSoftLeptonTagInfo);
+//DEFINE_FWK_MODULE(CandManyValueMapsSkimmerSecondaryVertexTagInfo);
