@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.12 2008/04/17 09:27:14 adamwo Exp $
+// $Id: Jet.cc,v 1.13 2008/04/22 14:09:09 jandrea Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -191,15 +191,15 @@ Jet Jet::wCorrJet() const {
 }
 
 
-std::vector<std::pair<std::string, float> >  Jet::getPairDiscri() const {
+const std::vector<std::pair<std::string, float> > & Jet::getPairDiscri() const {
    return pairDiscriVector_;
 }
 
 
 /// get b discriminant from label name
-float Jet::bDiscriminator(std::string theLabel) const {
+float Jet::bDiscriminator(const std::string & aLabel) const {
   float discriminator = -1000.;
-  if (theLabel == "" || theLabel == "default") theLabel = "trackCountingHighEffBJetTags";
+  const std::string & theLabel = ((aLabel == "" || aLabel == "default")) ? "trackCountingHighEffBJetTags" : aLabel;
   for(unsigned int i=0; i!=pairDiscriVector_.size(); i++){
     if(pairDiscriVector_[i].first == theLabel){
       discriminator = pairDiscriVector_[i].second;
@@ -209,31 +209,74 @@ float Jet::bDiscriminator(std::string theLabel) const {
 }
 
 
-
+#ifdef PATJet_OldTagInfo
 
 /// get TagInfo ref IP
-const std::vector<reco::TrackIPTagInfoRef> Jet::bTagIPTagInfoRef() const {
-  return bTagIPTagInfoRef_;
+reco::TrackIPTagInfoRef Jet::bTagIPTagInfoRef() const {
+  return bTagIPTagInfoRef_.empty() ? reco::TrackIPTagInfoRef() : bTagIPTagInfoRef_[0];
 }
 
 
 /// get TagInfo ref soft letpon electron   
-const std::vector<reco::SoftLeptonTagInfoRef> Jet::bTagSoftLeptonERef() const {
-  return bTagSoftLeptonERef_;
+reco::SoftLeptonTagInfoRef Jet::bTagSoftLeptonERef() const {
+  return bTagSoftLeptonERef_.empty() ? reco::SoftLeptonTagInfoRef() : bTagSoftLeptonERef_[0];
 }
 
 
 /// get TagInfo ref soft letpon muon   
-const std::vector<reco::SoftLeptonTagInfoRef> Jet::bTagSoftLeptonMRef() const {
-  return bTagSoftLeptonMRef_;
+reco::SoftLeptonTagInfoRef Jet::bTagSoftLeptonMRef() const {
+  return bTagSoftLeptonMRef_.empty() ? reco::SoftLeptonTagInfoRef() : bTagSoftLeptonMRef_[0];
 }
 
 
 /// get TagInfo ref SV  
-const std::vector<reco::SecondaryVertexTagInfoRef> Jet::bTagSecondaryVertexTagInfoRef() const {
-  return bTagSecondaryVertexTagInfoRef_;
+reco::SecondaryVertexTagInfoRef Jet::bTagSecondaryVertexTagInfoRef() const {
+  return bTagSecondaryVertexTagInfoRef_.empty() ? reco::SecondaryVertexTagInfoRef() : bTagSecondaryVertexTagInfoRef_[0];
 }
 
+#else
+
+const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
+    std::vector<std::string>::const_iterator it = std::find(tagInfoLabels_.begin(), tagInfoLabels_.end(), label);
+    if (it != tagInfoLabels_.end()) {
+        return tagInfos_[it - tagInfoLabels_.begin()].get();
+    }
+    return 0;
+}
+template<typename T> 
+const T *  Jet::tagInfoByType() const {
+    for (size_t i = 0, n = tagInfos_.size(); i < n; ++i) {
+        if (tagInfos_[i].isAvailable() && (typeid(*tagInfos_[i]) == typeid(T)) )
+             return static_cast<const T *>(tagInfos_[i].get());
+    }
+    return 0;
+}
+const reco::TrackIPTagInfo * 
+Jet::tagInfoTrackIP(const std::string &label) const {
+    return (label.empty() ? tagInfoByType<reco::TrackIPTagInfo>() 
+                          : dynamic_cast<const reco::TrackIPTagInfo *>(tagInfo(label)) );
+}
+const reco::SoftLeptonTagInfo * 
+Jet::tagInfoSoftLepton(const std::string &label) const {
+    return (label.empty() ? tagInfoByType<reco::SoftLeptonTagInfo>()
+                          : dynamic_cast<const reco::SoftLeptonTagInfo *>(tagInfo(label)) );
+}
+const reco::SecondaryVertexTagInfo * 
+Jet::tagInfoSecondaryVertex(const std::string &label) const {
+    return (label.empty() ? tagInfoByType<reco::SecondaryVertexTagInfo>()
+                          : dynamic_cast<const reco::SecondaryVertexTagInfo *>(tagInfo(label)) );
+}
+void
+Jet::addTagInfo(const std::string &label, const edm::Ptr<reco::BaseTagInfo> &info) {
+    std::string::size_type idx = label.find("TagInfos");
+    if (idx == std::string::npos) {
+        tagInfoLabels_.push_back(label);
+    } else {
+        tagInfoLabels_.push_back(label.substr(0,idx));
+    }
+    tagInfos_.push_back(info);
+}
+#endif
 
 /// get the value of the i'th jet cleaning variable
 float Jet::lrPhysicsJetVar(unsigned int i) const {
@@ -270,6 +313,10 @@ const reco::TrackRefVector & Jet::associatedTracks() const {
   return associatedTracks_;
 }
 
+/// method to set the vector of refs to the tracks associated to this jet
+void Jet::setAssociatedTracks(const reco::TrackRefVector &tracks) {
+    associatedTracks_ = tracks;
+}
 
 /// method to store the CaloJet constituents internally
 void Jet::setCaloTowers(const std::vector<CaloTowerRef> & caloTowers) {
@@ -330,6 +377,7 @@ void Jet::addBDiscriminatorPair(std::pair<std::string, float> & thePair) {
   pairDiscriVector_.push_back(thePair);
 }
 
+#ifdef PATJet_OldTagInfo
 
 /// method to add tag ref IP taggers
 void Jet::addBTagIPTagInfoRef(const reco::TrackIPTagInfoRef & tagRef) {
@@ -354,6 +402,7 @@ void Jet::addBTagSecondaryVertexTagInfoRef(const reco::SecondaryVertexTagInfoRef
   bTagSecondaryVertexTagInfoRef_.push_back(tagRef);
 }
 
+#endif
 
 /// method to set all jet cleaning variable + LR pairs
 void Jet::setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec) {

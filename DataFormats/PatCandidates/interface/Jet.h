@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.14 2008/04/17 09:27:14 adamwo Exp $
+// $Id: Jet.h,v 1.15 2008/04/22 14:09:08 jandrea Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,8 +13,9 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.14 2008/04/17 09:27:14 adamwo Exp $
+  \version  $Id: Jet.h,v 1.15 2008/04/22 14:09:08 jandrea Exp $
 */
+
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -35,6 +36,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 
+#include "DataFormats/Common/interface/Ptr.h"
 
 namespace pat {
 
@@ -95,18 +97,29 @@ namespace pat {
       /// return the jet calibrated with weights assuming W decay
       Jet wCorrJet() const;
       /// get b discriminant from label name
-      float bDiscriminator(std::string theLabel) const;
+      float bDiscriminator(const std::string &theLabel) const;
+
       /// get vector of paire labelname-disciValue
-      std::vector<std::pair<std::string, float> >  getPairDiscri() const;
+      const std::vector<std::pair<std::string, float> > & getPairDiscri() const;
+
+#ifdef PATJet_OldTagInfo
       /// get JetTagRef for TrackIP
-      const std::vector<reco::TrackIPTagInfoRef>  bTagIPTagInfoRef() const;
+      reco::TrackIPTagInfoRef  bTagIPTagInfoRef() const;
       /// get JetTagRef for electron SoftLepton
-      const std::vector<reco::SoftLeptonTagInfoRef> bTagSoftLeptonERef() const;
+      reco::SoftLeptonTagInfoRef bTagSoftLeptonERef() const;
       /// get JetTagRef for muon SoftLepton
-      const std::vector<reco::SoftLeptonTagInfoRef> bTagSoftLeptonMRef() const;
+      reco::SoftLeptonTagInfoRef bTagSoftLeptonMRef() const;
       /// get JetTagRef for SecondaryVertex
-      const std::vector<reco::SecondaryVertexTagInfoRef> bTagSecondaryVertexTagInfoRef() const;
+      reco::SecondaryVertexTagInfoRef bTagSecondaryVertexTagInfoRef() const;
       /// get the value of the i'th jet cleaning variable
+#else
+      const reco::BaseTagInfo            * tagInfo(const std::string &label) const;
+      const reco::TrackIPTagInfo         * tagInfoTrackIP(const std::string &label="") const;
+      const reco::SoftLeptonTagInfo      * tagInfoSoftLepton(const std::string &label="") const;
+      const reco::SecondaryVertexTagInfo * tagInfoSecondaryVertex(const std::string &label="") const;
+      void  addTagInfo(const std::string &label, 
+                       const edm::Ptr<reco::BaseTagInfo> &info) ;
+#endif
       float lrPhysicsJetVar(unsigned int i) const;
       /// get the likelihood ratio corresponding to the i'th jet cleaning variable
       float lrPhysicsJetVal(unsigned int i) const;
@@ -135,6 +148,7 @@ namespace pat {
       void setBResolutions(float bResEt_, float bResEta_, float bResPhi_, float bResA_, float bResB_, float bResC_, float bResD_, float bResTheta_);
       /// method to add a algolabel-discriminator pair
       void addBDiscriminatorPair(std::pair<std::string, float> & thePair);
+#ifdef PATJet_OldTagInfo
       /// method to add a TrackIP TagInfoRef
       void addBTagIPTagInfoRef(const reco::TrackIPTagInfoRef & tagRef);
       /// method to add an electron SoftLepton TagInfoRef
@@ -144,6 +158,7 @@ namespace pat {
       /// method to add a SecondaryVertex TagInfoRef
       void addBTagSecondaryVertexTagInfoRef(const reco::SecondaryVertexTagInfoRef & tagRef);
       /// method to set all jet cleaning variable + LR pairs
+#endif
       void setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec);
       /// method to set the combined jet cleaning likelihood ratio value
       void setLRPhysicsJetLRval(float clr);
@@ -156,9 +171,8 @@ namespace pat {
     /// auxiliary method to convert a string to a correction type
     static CorrectionType correctionType (const std::string& name);
 
-    public:
-
-      reco::TrackRefVector associatedTracks_;
+    /// method to set the vector of refs to the tracks associated to this jet
+    void setAssociatedTracks(const reco::TrackRefVector &tracks);
 
     protected:
 
@@ -181,12 +195,22 @@ namespace pat {
       std::vector<std::pair<float, float> > lrPhysicsJetVarVal_;
       float lrPhysicsJetLRval_;
       float lrPhysicsJetProb_;
+      // track association
+      reco::TrackRefVector associatedTracks_;
       // jet charge members
       float jetCharge_;
+#ifdef PATJet_OldTagInfo
       std::vector<reco::TrackIPTagInfoRef>         bTagIPTagInfoRef_;
       std::vector<reco::SoftLeptonTagInfoRef>      bTagSoftLeptonERef_;
       std::vector<reco::SoftLeptonTagInfoRef>      bTagSoftLeptonMRef_;
       std::vector<reco::SecondaryVertexTagInfoRef> bTagSecondaryVertexTagInfoRef_;
+#else
+      std::vector<std::string>          tagInfoLabels_;
+      // edm::OwnVector<reco::BaseTagInfo> tagInfos_;  // no, no clone() method :-(
+      std::vector<edm::Ptr<reco::BaseTagInfo> > tagInfos_; // cheaper to store than RefToBase
+                                                           // not exposed to the user in any case
+      template<typename T> const T * tagInfoByType() const ; 
+#endif
 
     static const std::string correctionNames_[NrOfCorrections];
   };

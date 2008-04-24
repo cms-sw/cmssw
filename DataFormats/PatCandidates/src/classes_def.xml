@@ -147,5 +147,10 @@
   <class name="std::vector<reco::TrackRefVector>" />
   <class name="edm::ValueMap<reco::TrackRefVector>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
+
+  <class name="edm::Ptr<reco::BaseTagInfo>" />
+  <class name="std::vector<edm::Ptr<reco::BaseTagInfo> >" />
+  <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" />
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" />
 </lcgdict>
 
