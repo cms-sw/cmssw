@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/12/16 07:34:34 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/12/16 13:57:09 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -181,7 +181,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 
     if ( !predTsos.isValid() ) {
       LogTrace(category_)<< "Error: predTsos is still invalid forward fit.";
-      //return vector<Trajectory>();
+      return vector<Trajectory>();
     } else if ( (**ihit).isValid() ) {
       // update
       TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
