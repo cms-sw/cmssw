@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.34 2008/04/11 12:00:24 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.35 2008/04/14 22:35:41 rwolf Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -172,6 +172,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
                 //std::cout<<"JetCombLRval = "<<asol.getLRJetCombLRval()<<"  JetCombProb = "<<asol.getLRJetCombProb()<<std::endl;
 
                 // fill solution to vector
+		asol.setupHyp();
                 evtsols->push_back(asol);
               } 
             }
