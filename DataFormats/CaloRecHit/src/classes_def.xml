@@ -1,3 +1,4 @@
 <lcgdict>
   <class name="CaloRecHit"/>
+  <class name="reco::CaloCluster"/>
 </lcgdict>

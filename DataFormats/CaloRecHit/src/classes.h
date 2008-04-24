@@ -1,2 +1,3 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-#include <boost/cstdint.hpp> 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+/* #include <boost/cstdint.hpp>  */
