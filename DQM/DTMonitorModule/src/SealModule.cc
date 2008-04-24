@@ -10,6 +10,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTTestPulsesTask);
 #include <DQM/DTMonitorModule/src/DTSegmentAnalysisTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTSegmentAnalysisTask);
 
+#include <DQM/DTMonitorModule/src/DTSegmentsTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTSegmentsTask);
+
 #include <DQM/DTMonitorModule/src/DTResolutionAnalysisTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTResolutionAnalysisTask);
 
