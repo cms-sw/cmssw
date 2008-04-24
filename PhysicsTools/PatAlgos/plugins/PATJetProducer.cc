@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.10 2008/04/21 10:31:05 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.11 2008/04/22 14:09:10 jandrea Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -118,7 +118,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // Get the vector of jet tags with b-tagging info
   //std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
-  std::vector<edm::Handle<JetTagCollection> > jetTags_testManyByType;
+  std::vector<edm::Handle<reco::JetTagCollection> > jetTags_testManyByType;
   if (addBTagInfo_) iEvent.getManyByType(jetTags_testManyByType);
    
    
@@ -234,27 +234,27 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	      //add TagInfo for IP based taggers
 	      for(unsigned int k=0; k<ipTagInfoLabel_.size(); k++){
 		iEvent.getByLabel(ipTagInfoLabel_[k],jetsInfoHandleTIP);
-		TrackIPTagInfoCollection::const_iterator it = jetsInfoHandleTIP->begin();
-		ajet.addBTagIPTagInfoRef( TrackIPTagInfoRef(  jetsInfoHandleTIP, it+t - jetsInfoHandleTIP->begin()) );
+		reco::TrackIPTagInfoCollection::const_iterator it = jetsInfoHandleTIP->begin();
+		ajet.addBTagIPTagInfoRef( reco::TrackIPTagInfoRef(  jetsInfoHandleTIP, it+t - jetsInfoHandleTIP->begin()) );
 	      }
 	      //add TagInfo for soft leptons tagger
 	      for(unsigned int k=0; k<softETagInfoLabel_.size(); k++){
 		iEvent.getByLabel(softETagInfoLabel_[k],jetsInfoHandle_sle);
-		SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_sle->begin();
-		ajet.addBTagSoftLeptonERef(  SoftLeptonTagInfoRef( jetsInfoHandle_sle,  it+t  - jetsInfoHandle_sle->begin() )  );
+		reco::SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_sle->begin();
+		ajet.addBTagSoftLeptonERef(  reco::SoftLeptonTagInfoRef( jetsInfoHandle_sle,  it+t  - jetsInfoHandle_sle->begin() )  );
 	      }
 
 	      //add TagInfo for soft leptons tagger
 	      for(unsigned int k=0; k<softMTagInfoLabel_.size(); k++){
 		iEvent.getByLabel(softMTagInfoLabel_[k],jetsInfoHandle_slm);
-		SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_slm->begin();
-		ajet.addBTagSoftLeptonMRef(  SoftLeptonTagInfoRef( jetsInfoHandle_slm,  it+t  - jetsInfoHandle_slm->begin() )  );
+		reco::SoftLeptonTagInfoCollection::const_iterator it = jetsInfoHandle_slm->begin();
+		ajet.addBTagSoftLeptonMRef(  reco::SoftLeptonTagInfoRef( jetsInfoHandle_slm,  it+t  - jetsInfoHandle_slm->begin() )  );
 	      } 
               //add TagInfo for Secondary Vertex taggers
 	      for(unsigned int k=0; k<svTagInfoLabel_.size(); k++){
 		iEvent.getByLabel(svTagInfoLabel_[k],jetsInfoHandleSV);
-		SecondaryVertexTagInfoCollection::const_iterator it = jetsInfoHandleSV->begin();
-		ajet.addBTagSecondaryVertexTagInfoRef( SecondaryVertexTagInfoRef(jetsInfoHandleSV,it+t  - jetsInfoHandleSV->begin()) );
+		reco::SecondaryVertexTagInfoCollection::const_iterator it = jetsInfoHandleSV->begin();
+		ajet.addBTagSecondaryVertexTagInfoRef( reco::SecondaryVertexTagInfoRef(jetsInfoHandleSV,it+t  - jetsInfoHandleSV->begin()) );
 	      }
 	      
 	    }

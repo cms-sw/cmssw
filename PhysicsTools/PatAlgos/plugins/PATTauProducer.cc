@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.2 2008/03/06 16:00:00 delaer Exp $
+// $Id: PATTauProducer.cc,v 1.3 2008/04/17 22:51:56 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -57,7 +57,7 @@ PATTauProducer::~PATTauProducer() {
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
   std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
 
-  edm::Handle<View<TauType> > anyTaus;
+  edm::Handle<edm::View<TauType> > anyTaus;
   try {
     iEvent.getByLabel(tauSrc_, anyTaus);
   } catch (const edm::Exception &e) {
@@ -82,28 +82,28 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         float ECALenergy=0.;
         float HCALenergy=0.;
         float leadEnergy=0.;
-        std::list<const PFBlockElement*> elements;
-        PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
+        std::list<const reco::PFBlockElement*> elements;
+        reco::PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
         for(int i=0;i<(int)myPFCands.size();i++){
-          const PFCandidate::ElementsInBlocks& eib = myPFCands[i]->elementsInBlocks();
-          for(PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
+          const reco::PFCandidate::ElementsInBlocks& eib = myPFCands[i]->elementsInBlocks();
+          for(reco::PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
                                                             iPFBlockElement!=eib.end();++iPFBlockElement) {
             elements.push_back(&(iPFBlockElement->first->elements()[iPFBlockElement->second]));
           }
         }
         elements.sort();
         elements.unique();
-        const PFCandidate::ElementsInBlocks& eib = thePFTau->leadPFChargedHadrCand()->elementsInBlocks();
-        for(PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
+        const reco::PFCandidate::ElementsInBlocks& eib = thePFTau->leadPFChargedHadrCand()->elementsInBlocks();
+        for(reco::PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
                                                           iPFBlockElement!=eib.end();++iPFBlockElement) {
-          if((iPFBlockElement->first->elements()[iPFBlockElement->second].type()==PFBlockElement::HCAL)||
-             (iPFBlockElement->first->elements()[iPFBlockElement->second].type()==PFBlockElement::ECAL)  )
+          if((iPFBlockElement->first->elements()[iPFBlockElement->second].type()==reco::PFBlockElement::HCAL)||
+             (iPFBlockElement->first->elements()[iPFBlockElement->second].type()==reco::PFBlockElement::ECAL)  )
             leadEnergy += iPFBlockElement->first->elements()[iPFBlockElement->second].clusterRef()->energy();
         }
-        for(std::list<const PFBlockElement*>::const_iterator ielements = elements.begin();ielements!=elements.end();++ielements) {
-          if((*ielements)->type()==PFBlockElement::HCAL)
+        for(std::list<const reco::PFBlockElement*>::const_iterator ielements = elements.begin();ielements!=elements.end();++ielements) {
+          if((*ielements)->type()==reco::PFBlockElement::HCAL)
             HCALenergy += (*ielements)->clusterRef()->energy();
-          else if((*ielements)->type()==PFBlockElement::ECAL)
+          else if((*ielements)->type()==reco::PFBlockElement::ECAL)
             ECALenergy += (*ielements)->clusterRef()->energy();
         }
 	aTau.setEmEnergyFraction(ECALenergy/(ECALenergy+HCALenergy));
