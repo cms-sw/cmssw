@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2008/04/23 16:30:13 $
- * $Revision: 1.17 $
+ * $Date: 2008/04/24 08:55:14 $
+ * $Revision: 1.18 $
  * \author J. Berryhill
  *
  */
@@ -149,15 +149,24 @@ void L1TCSCTF::beginJob(const EventSetup& c)
   csctferrors->setBinLabel(2,"Synch. Err.",1);
   csctferrors->setBinLabel(3,"Synch. Mod.",1);
   csctferrors->setBinLabel(4,"BX mismatch",1);
-  csctferrors->setBinLabel(5,"Time alignment",1);
+  csctferrors->setBinLabel(5,"Time misalign.",1);
   csctferrors->setBinLabel(6,"FMM != Ready",1);
   //  Occupancy histogram Eta x Y, where Y:
   //  1) Phi_packed of input LCTs from 1st, 2nd, 3rd, and 4th stations
   //  2) Phi_packed of output tracks
   //  (all 12 SPs - 360 degree coveradge)
-  csctfoccupancies = dbe->book2D("CSCTF_occupancies","CSCTF Occupancies",100,0.8,2.5,1024,0,1.2);
+  csctfoccupancies = dbe->book2D("CSCTF_occupancies","CSCTF Occupancies",100,0.8,2.5,1229,0,1.2);
   csctfoccupancies->setAxisTitle("#eta",1);
   csctfoccupancies->setAxisTitle("#phi x station x endcap + tracks (>1)",2);
+  csctfoccupancies->setBinLabel(64,  "ME-1",2);
+  csctfoccupancies->setBinLabel(192, "ME+1",2);
+  csctfoccupancies->setBinLabel(320, "ME-2",2);
+  csctfoccupancies->setBinLabel(448, "ME+2",2);
+  csctfoccupancies->setBinLabel(576, "ME-3",2);
+  csctfoccupancies->setBinLabel(704, "ME+3",2);
+  csctfoccupancies->setBinLabel(832, "ME-4",2);
+  csctfoccupancies->setBinLabel(960, "ME+4",2);
+  csctfoccupancies->setBinLabel(1088,"Tracks",2);
   // KK_end
   }
 }
