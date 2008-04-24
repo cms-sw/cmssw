@@ -380,6 +380,9 @@ void createH2ContentTest(DQMStore* dbe, vector<string>& params){
   QCriterion* qc = dbe->getQCriterion(params[1]);
   MonitorElement* me =  dbe->get(params[0]);
   if(me!=NULL && qc == NULL){
+    /*  Time to get with 
+  DQMServices/Core V03-00-12-qtest
+  DQMServices/ClientConfig V03-00-04-qtest
     qc = dbe->createQTest(ContentsTH2FWithinRange::getAlgoName(),params[1]);
     // Contents within a mean value     
     ContentsTH2FWithinRangeROOT* me_qc = dynamic_cast<ContentsTH2FWithinRangeROOT*> (qc);
@@ -387,6 +390,7 @@ void createH2ContentTest(DQMStore* dbe, vector<string>& params){
     me_qc->setRMSRange(0,1e-10);
     // link it to the monitor element
     dbe->useQTest(params[0], params[1]);
+    */
   }
   
   return;
@@ -405,6 +409,9 @@ void createH2CompTest(DQMStore* dbe, vector<string>& params, TH2F* ref){
     if(qr) return;
     printf("\n\nThe ME doesn't have the QC!!\n\n");
     qc = dbe->createQTest("Comp2RefEqualH2",params[1]);
+    /*  Time to get with 
+  DQMServices/Core V03-00-12-qtest
+  DQMServices/ClientConfig V03-00-04-qtest
     // Contents within a mean value     
     Comp2RefEqualH2ROOT* me_qc = dynamic_cast<Comp2RefEqualH2ROOT*> (qc);
     //set reference histogram
@@ -412,6 +419,7 @@ void createH2CompTest(DQMStore* dbe, vector<string>& params, TH2F* ref){
     // link it to the monitor element
     printf("\n\nGonna run it...\n\n");
     dbe->useQTest(params[0], params[1]);
+    */
   }
   else printf("\n\nAlready had the QC or didn't have the ME!\n\n");
 
