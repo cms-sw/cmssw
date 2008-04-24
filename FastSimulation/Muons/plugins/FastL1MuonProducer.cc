@@ -13,7 +13,6 @@
 // Original Author:  Andrea Perrotta
 // Modifications: Patrick Janot.
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: FastL1MuonProducer.cc,v 1.4 2008/04/10 17:38:44 pjanot Exp $
 //
 //
 
@@ -58,8 +57,6 @@
 //#include "DataFormats/MuonReco/interface/Muon.h"
 //#include "DataFormats/Common/interface/OrphanHandle.h"
 
-// Root
-#include <TRandom3.h>
 #include <map>
 
 // constants, enums and typedefs
@@ -93,14 +90,7 @@ FastL1MuonProducer::FastL1MuonProducer(const edm::ParameterSet& iConfig)
       "or remove the module that requires it.";
   }
 
-  bool useTRandom = iConfig.getParameter<bool>("UseTRandomEngine");
-  if ( !useTRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
+  random = new RandomEngine(&(*rng));
 
 }
 
@@ -112,7 +102,6 @@ FastL1MuonProducer::~FastL1MuonProducer()
   // (e.g. close files, deallocate resources etc.)
   
   if ( random ) { 
-    if ( random->theRootEngine() ) delete random->theRootEngine();
     delete random;
   }
 }

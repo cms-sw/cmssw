@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.13 2008/01/22 11:58:04 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.14.2.1 2008/04/24 10:37:55 pjanot Exp $
 //
 //
 
@@ -66,9 +66,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-// Root
-#include <TRandom3.h>
-
 // constants, enums and typedefs
 typedef std::vector<L1MuGMTCand> L1MuonCollection;
 
@@ -105,14 +102,7 @@ ParamL3MuonProducer::ParamL3MuonProducer(const edm::ParameterSet& iConfig)
       "or remove the module that requires it.";
   }
 
-  bool useTRandom = iConfig.getParameter<bool>("UseTRandomEngine");
-  if ( !useTRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
+  random = new RandomEngine(&(*rng));
 
 }
 
@@ -124,7 +114,6 @@ ParamL3MuonProducer::~ParamL3MuonProducer()
   // (e.g. close files, deallocate resources etc.)
   
   if ( random ) { 
-    if ( random->theRootEngine() ) delete random->theRootEngine();
     delete random;
   }
 }

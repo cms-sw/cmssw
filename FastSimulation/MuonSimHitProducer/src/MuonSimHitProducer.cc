@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.8 2008/01/22 20:42:35 muzaffar Exp $
+// $Id: MuonSimHitProducer.cc,v 1.9.2.1 2008/04/24 10:27:49 pjanot Exp $
 //
 //
 
@@ -67,9 +67,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-// Root
-#include <TRandom3.h>
-
 ////////////////////// Now find detector IDs:
 
 // #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
@@ -109,16 +106,8 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
       "or remove the module that requires it.";
   }
 
-  bool useTRandom = iConfig.getParameter<bool>("UseTRandomEngine");
-  if ( !useTRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
-
   random = new RandomEngine(&(*rng));
+
 }
 
 // ---- method called once each job just before starting event loop ----
@@ -152,7 +141,6 @@ MuonSimHitProducer::~MuonSimHitProducer()
   // (e.g. close files, deallocate resources etc.)
   
   if ( random ) { 
-    if ( random->theRootEngine() ) delete random->theRootEngine();
     delete random;
   }
 }
