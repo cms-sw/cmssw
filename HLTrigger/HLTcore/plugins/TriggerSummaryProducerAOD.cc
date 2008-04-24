@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/12 16:53:57 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/21 16:48:04 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -61,8 +61,8 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   pn_(ps.getParameter<std::string>("processName")),
   selector_(edm::ProcessNameSelector(pn_)),
   tns_(),
-  collectionTags_(ps.getParameter<std::vector<edm::InputTag> >("collections")),
-  filterTags_(ps.getParameter<std::vector<edm::InputTag> >("filters")),
+  collectionTags_(),
+  filterTags_(),
   toc_(),
   offset_(),
   fobs_(),
@@ -87,43 +87,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
     }
     selector_=edm::ProcessNameSelector(pn_);
   }
-
   LogDebug("") << "Using process name: '" << pn_ <<"'";
-  //  std::cout    << "Using process name: '" << pn_ <<"'" << std::endl;
-
-  sort (collectionTags_.begin(),collectionTags_.end(),cmpTagsLE);
-  const trigger::size_type nc0(collectionTags_.size());
-  LogTrace("") << "Number of collections requested " << nc0;
-  //  std::cout    << "Number of collections requested " << nc0 << std::endl;
-  for (trigger::size_type i=0; i!=nc0; ++i) {
-    LogTrace("") << i << " " << collectionTags_[i].encode();
-    //    std::cout    << i << " " << collectionTags_[i].encode() << std::endl;
-  }
-  collectionTags_.resize(distance(collectionTags_.begin(),unique(collectionTags_.begin(),collectionTags_.end(),cmpTagsEQ)));
-  const trigger::size_type nc1(collectionTags_.size());
-  LogTrace("") << "Number of unique collections requested " << nc1;
-  std::cout    << "Number of unique collections requested " << nc1 << std::endl;
-  for (trigger::size_type i=0; i!=nc1; ++i) {
-    LogTrace("") << i << " " << collectionTags_[i].encode();
-    std::cout    << i << " " << collectionTags_[i].encode() << std::endl;
-  }
-
-  sort (filterTags_.begin(),filterTags_.end(),cmpTagsLE);
-  const trigger::size_type nf0(filterTags_.size());
-  LogTrace("") << "Number of filters requested " << nf0;
-  //  std::cout    << "Number of filters requested " << nf0 << std::endl;
-  for (trigger::size_type i=0; i!=nf0; ++i) {
-    LogTrace("") << i << " " << filterTags_[i].encode();
-    //    std::cout    << i << " " << filterTags_[i].encode() << std::endl;
-  }
-  filterTags_.resize(distance(filterTags_.begin(),unique(filterTags_.begin(),filterTags_.end(),cmpTagsEQ)));
-  const trigger::size_type nf1(filterTags_.size());
-  LogTrace("") << "Number of unique filters requested " << nf1;
-  std::cout    << "Number of unique filters requested " << nf1 << std::endl;
-  for (trigger::size_type i=0; i!=nf1; ++i) {
-    LogTrace("") << i << " " << filterTags_[i].encode();
-    std::cout    << i << " " << filterTags_[i].encode() << std::endl;
-  }
 
   produces<trigger::TriggerEvent>();
 
@@ -154,9 +118,12 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    const size_type nfob(fobs_.size());
    LogTrace("") << "Number of filter  objects found: " << nfob;
    ///
-   /// check whether collection tags are recorded; if so, these are L3
-   /// collections to be packed up, and the corresponding filter is a L3
-   /// filter also to be packed up.
+   /// check whether collection tags are recorded in filterobjects; if
+   /// so, these are L3 collections to be packed up, and the
+   /// corresponding filter is a L3 filter also to be packed up.
+   /// Record those L3 filters and L3 collections.
+   filterTags_.clear();
+   collectionTags_.clear();
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
      const vector<InputTag>& collectionTags(fobs_[ifob]->getCollectionTags());
      if (collectionTags.size()>0) {
@@ -168,12 +135,50 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        collectionTags_.insert(collectionTags_.end(),collectionTags.begin(),collectionTags.end());
      }
    }
-   sort (collectionTags_.begin(),collectionTags_.end(),cmpTagsLE);
-   collectionTags_.resize(distance(collectionTags_.begin(),unique(collectionTags_.begin(),collectionTags_.end(),cmpTagsEQ)));
-   sort (filterTags_.begin(),filterTags_.end(),cmpTagsLE);
-   filterTags_.resize(distance(filterTags_.begin(),unique(filterTags_.begin(),filterTags_.end(),cmpTagsEQ)));
-   ///
 
+   ///
+   /// sort list of L3 collections and make entries unique
+   sort (collectionTags_.begin(),collectionTags_.end(),cmpTagsLE);
+   const trigger::size_type nc0(collectionTags_.size());
+   LogTrace("") << "Number of collections requested " << nc0;
+   std::cout    << "Number of collections requested " << nc0 << std::endl;
+   for (trigger::size_type i=0; i!=nc0; ++i) {
+     LogTrace("") << i << " " << collectionTags_[i].encode();
+     //    std::cout    << i << " " << collectionTags_[i].encode() << std::endl;
+   }
+   collectionTags_.resize(distance(collectionTags_.begin(),unique(collectionTags_.begin(),collectionTags_.end(),cmpTagsEQ)));
+   const trigger::size_type nc1(collectionTags_.size());
+   LogTrace("") << "Number of unique collections requested " << nc1;
+   std::cout    << "Number of unique collections requested " << nc1 << std::endl;
+   for (trigger::size_type i=0; i!=nc1; ++i) {
+     LogTrace("") << i << " " << collectionTags_[i].encode();
+     std::cout    << i << " " << collectionTags_[i].encode() << std::endl;
+   }
+
+   ///
+   /// sort list of L3 filters and make entries unique
+   sort (filterTags_.begin(),filterTags_.end(),cmpTagsLE);
+   const trigger::size_type nf0(filterTags_.size());
+   LogTrace("") << "Number of filters requested " << nf0;
+   std::cout    << "Number of filters requested " << nf0 << std::endl;
+   for (trigger::size_type i=0; i!=nf0; ++i) {
+     LogTrace("") << i << " " << filterTags_[i].encode();
+     //    std::cout    << i << " " << filterTags_[i].encode() << std::endl;
+   }
+   filterTags_.resize(distance(filterTags_.begin(),unique(filterTags_.begin(),filterTags_.end(),cmpTagsEQ)));
+   const trigger::size_type nf1(filterTags_.size());
+   LogTrace("") << "Number of unique filters requested " << nf1;
+   std::cout    << "Number of unique filters requested " << nf1 << std::endl;
+   for (trigger::size_type i=0; i!=nf1; ++i) {
+     LogTrace("") << i << " " << filterTags_[i].encode();
+     std::cout    << i << " " << filterTags_[i].encode() << std::endl;
+   }
+   assert(nf0==nf1);
+
+   ///
+   /// Now the processing:
+   /// first trigger objects from L3 collections, then L3 filter objects
+   ///
    /// create trigger objects, fill triggerobjectcollection and offset map
    toc_.clear();
    offset_.clear();
@@ -185,23 +190,24 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjects<                    CaloMETCollection>(iEvent);
    fillTriggerObjects<                        METCollection>(iEvent);
    fillTriggerObjects<IsolatedPixelTrackCandidateCollection>(iEvent);
-
-   fillTriggerObjects<    L1EmParticleCollection>(iEvent);
-   fillTriggerObjects<  L1MuonParticleCollection>(iEvent);
-   fillTriggerObjects<   L1JetParticleCollection>(iEvent);
-   fillTriggerObjects<L1EtMissParticleCollection>(iEvent);
-
+   ///
+   fillTriggerObjects<               L1EmParticleCollection>(iEvent);
+   fillTriggerObjects<             L1MuonParticleCollection>(iEvent);
+   fillTriggerObjects<              L1JetParticleCollection>(iEvent);
+   fillTriggerObjects<           L1EtMissParticleCollection>(iEvent);
+   ///
    const size_type nto(toc_.size());
    LogDebug("") << "Number of physics objects found: " << nto;
 
    ///
+   /// find number of L3 filters and create mask
    size_type nfo(0);
    nfo = fillMask(fobs_,filterTags_);
+   assert(nfo==filterTags_.size());
 
-
+   ///
    /// construct single AOD product, reserving capacity
    auto_ptr<TriggerEvent> product(new TriggerEvent(pn_,nto,nfo));
-
 
    /// fill trigger object collection
    product->addObjects(toc_);
