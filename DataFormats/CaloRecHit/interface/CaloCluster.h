@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.6 2007/08/02 14:25:31 futyand Exp $
+ * \version $Id: CaloCluster.h,v 1.1 2008/04/24 16:53:56 cbern Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -46,10 +46,6 @@ namespace reco {
     /// comparison <= operator
     bool operator < (const CaloCluster& rhs) const { return (energy_< rhs.energy_); }
 
-    /// vector of used hits
-    /// Myst be implemented in  all derived classes
-    /*     virtual std::vector<DetId> getHitsByDetId() const = 0; */
-
     /// x coordinate of cluster centroid
     double x() const { return position_.x(); }
 
@@ -65,13 +61,17 @@ namespace reco {
     /// azimuthal angle of cluster centroid
     double phi() const { return position_.phi(); }
 
-  private:
+
+  protected:
 
     /// cluster energy
     double              energy_;
 
     /// cluster centroid position
-    math::XYZPoint   position_;
+    math::XYZPoint      position_;
+
+    /// detector information
+    unsigned            detectorInfo_;
   };
 
 }
