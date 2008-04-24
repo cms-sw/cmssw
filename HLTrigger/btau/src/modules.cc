@@ -5,14 +5,14 @@
 #include "L3MumuTrackingRegion.h"
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, L3MumuTrackingRegion, "L3MumuTrackingRegion");
 
-#include "HLTrigger/btau/interface/HLTJetTag.h"
+#include "HLTJetTag.h"
 DEFINE_FWK_MODULE(HLTJetTag);
 
-#include "HLTrigger/btau/interface/HLTDisplacedmumuFilter.h"
+#include "HLTDisplacedmumuFilter.h"
 DEFINE_FWK_MODULE(HLTDisplacedmumuFilter);
 
-#include "HLTrigger/btau/interface/HLTmmkFilter.h"
+#include "HLTmmkFilter.h"
 DEFINE_FWK_MODULE(HLTmmkFilter);
 
-#include "HLTrigger/btau/interface/GetJetsFromHLTobject.h"
+#include "GetJetsFromHLTobject.h"
 DEFINE_FWK_MODULE(GetJetsFromHLTobject);
