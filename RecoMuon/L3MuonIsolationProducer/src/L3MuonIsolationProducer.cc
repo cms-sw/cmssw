@@ -90,7 +90,7 @@ void L3MuonIsolationProducer::beginJob(const edm::EventSetup& iSetup)
 
   // (kludge) additional cut on the number of tracks
   theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
-  theApplyCutsANDmaxNTracks = cutsPSet.getParameter<bool>("applyCutsANDmaxNTracks");
+  theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
 }
 
 void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
