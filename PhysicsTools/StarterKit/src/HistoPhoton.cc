@@ -42,6 +42,30 @@ void HistoPhoton::fill( const Photon * photon, uint iE )
 }
 
 
+
+void HistoPhoton::fill( const reco::ShallowCloneCandidate * pshallow, uint iE )
+{
+
+
+  // Get the underlying object that the shallow clone represents
+  const pat::Photon * photon = dynamic_cast<const pat::Photon*>(pshallow);
+
+  if ( photon == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a photon" << endl;
+    return;
+  }
+
+  // First fill common 4-vector histograms
+  HistoGroup<Photon>::fill( pshallow, iE );
+
+  // fill relevant photon histograms
+  h_trackIso_       ->fill( photon->trackIso(), iE );
+  h_caloIso_        ->fill( photon->caloIso(), iE );
+  h_photonID_       ->fill( photon->photonID(), iE );
+
+}
+
+
 void HistoPhoton::fillCollection( const std::vector<Photon> & coll ) 
 {
 

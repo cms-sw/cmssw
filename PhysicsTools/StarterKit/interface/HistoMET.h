@@ -55,8 +55,15 @@ namespace pat {
 	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMET();
 
-    virtual void fill( const MET * met, uint iPart = 1 );
-    virtual void fill( const MET & met, uint iPart = 1 ) { fill(&met, iPart); }
+    // fill a plain ol' met:
+    virtual void fill( const MET *met, uint iPart = 1 );
+    virtual void fill( const MET &met, uint iPart = 1 ) { fill(&met, iPart); }
+
+    // fill a met that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the met itself
+    virtual void fill( const reco::ShallowCloneCandidate *met, uint iPart = 1 );
+    virtual void fill( const reco::ShallowCloneCandidate &met, uint iPart = 1 )
+    { fill(&met, iPart); }
 
     virtual void fillCollection( const std::vector<MET> & coll );
 

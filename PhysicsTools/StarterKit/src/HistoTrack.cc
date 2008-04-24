@@ -47,6 +47,32 @@ void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk )
 }
 
 
+void HistoTrack::fill( const reco::ShallowCloneCandidate * pshallow, uint iTrk )
+{
+
+
+  // Get the underlying object that the shallow clone represents
+  const reco::RecoChargedCandidate * track = dynamic_cast<const reco::RecoChargedCandidate*>(pshallow);
+
+  if ( track == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a track" << endl;
+    return;
+  }
+
+  
+
+  // First fill common 4-vector histograms from shallow clone
+
+  HistoGroup<reco::RecoChargedCandidate>::fill( pshallow, iTrk);
+
+  // fill relevant track histograms
+  h_dxy_->fill( track->track()->dxy(), iTrk );
+  h_dz_->fill( track->track()->dsz(), iTrk );
+  h_nValid_->fill( track->track()->numberOfValidHits(), iTrk);
+  h_nLost_->fill( track->track()->numberOfLostHits(), iTrk);
+}
+
+
 void HistoTrack::fillCollection( const std::vector<RecoChargedCandidate> & coll ) 
 {
  

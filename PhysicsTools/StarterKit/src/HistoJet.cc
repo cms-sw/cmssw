@@ -1,6 +1,10 @@
 #include "PhysicsTools/StarterKit/interface/HistoJet.h"
 
+
+#include <iostream>
+
 using pat::HistoJet;
+using namespace std;
 
 // Constructor:
 
@@ -33,6 +37,28 @@ void HistoJet::fill( const Jet * jet, uint iJet )
 
   // First fill common 4-vector histograms
   HistoGroup<Jet>::fill( jet, iJet );
+
+  // fill relevant jet histograms
+  h_jetFlavour_     ->fill( jet->partonFlavour(), iJet );
+  h_BDiscriminant_  ->fill( jet->bDiscriminator("trackCountingHighPurJetTags"), iJet );
+  h_jetCharge_      ->fill( jet->jetCharge(), iJet );
+  h_nTrk_           ->fill( jet->associatedTracks().size(), iJet );
+
+}
+
+void HistoJet::fill( const reco::ShallowCloneCandidate * pshallow, uint iJet )
+{
+
+  // Get the underlying object that the shallow clone represents
+  const pat::Jet * jet = dynamic_cast<const pat::Jet*>(pshallow);
+
+  if ( jet == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a jet" << endl;
+    return;
+  }
+
+  // First fill common 4-vector histograms from shallow clone	\
+  HistoGroup<Jet>::fill( pshallow, iJet);
 
   // fill relevant jet histograms
   h_jetFlavour_     ->fill( jet->partonFlavour(), iJet );

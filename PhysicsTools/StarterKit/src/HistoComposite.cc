@@ -91,15 +91,15 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
 
   // Now fill information for daughters
   for (unsigned int i = 0; i < cand->numberOfDaughters(); ++i ) {
-    cout << "-------------processing component " << i << endl;
+//     cout << "-------------processing component " << i << endl;
     const reco::Candidate * c = cand->daughter(i);
     string role = roles[i];
 
-    cout << "Role = " << roles[i] << endl;
-    cout << "pdgid = " << c->pdgId() << endl;
-    cout << "pt = " << c->pt() << endl;
+//     cout << "Role = " << roles[i] << endl;
+//     cout << "pdgid = " << c->pdgId() << endl;
+//     cout << "pt = " << c->pt() << endl;
 
-
+    // Figure out what the candidate is based on type
     const Muon *       pcmuon  = dynamic_cast<const Muon*>( c );
     const Electron *   pcelectron = dynamic_cast<const Electron*>( c );
     const Tau *        pctau = dynamic_cast<const Tau*>( c );
@@ -110,17 +110,8 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
     const reco::NamedCompositeCandidate * pccomposite = dynamic_cast<const reco::NamedCompositeCandidate*>(c);
 
     // The pointers might be in shallow clones, so check for that too
-    if ( c->hasMasterClone() ) {
-      if ( pcmuon == 0 )       pcmuon  = dynamic_cast<const Muon*>( &*(c->masterClone()) );
-      if ( pcelectron == 0 )   pcelectron = dynamic_cast<const Electron*>( &*(c->masterClone()) );
-      if ( pctau == 0 )        pctau = dynamic_cast<const Tau*>( &*(c->masterClone()) );
-      if ( pcjet == 0 )        pcjet = dynamic_cast<const Jet*>( &*(c->masterClone()) );
-      if ( pcmet == 0 )        pcmet = dynamic_cast<const MET*>( &*(c->masterClone()) );
-      if ( pcphoton == 0 )     pcphoton = dynamic_cast<const Photon *>( &*(c->masterClone()) );
-      if ( pctrack == 0 )      pctrack = dynamic_cast<const reco::RecoChargedCandidate*>( &*(c->masterClone()) );
-      if ( pccomposite == 0 )  pccomposite = dynamic_cast<const reco::NamedCompositeCandidate*>( &*(c->masterClone()) );
-    }
-
+    const reco::ShallowCloneCandidate * pshallow = dynamic_cast<const reco::ShallowCloneCandidate *>(c);
+    if ( pccomposite == 0 && c->hasMasterClone() )  pccomposite = dynamic_cast<const reco::NamedCompositeCandidate*>( &*(c->masterClone()) );
 
     // The pointers might be in a ref, so check for that too
     const MuonRef    * prmuon     = dynamic_cast<const MuonRef*>    ( c );
@@ -129,8 +120,8 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
     const PhotonRef  * prphoton   = dynamic_cast<const PhotonRef*>  ( c );
     const JetRef     * prjet      = dynamic_cast<const JetRef*>     ( c );
     const METRef     * prmet      = dynamic_cast<const METRef*>     ( c );
-
-
+    // Pick out the ref's kinematics and ignore the candidate's kinematics 
+    // (why are they not the same???)
     if ( prmuon != 0 )       pcmuon     = &(*(prmuon->ref()));
     if ( prelectron != 0 )   pcelectron = &(*(prelectron->ref()));
     if ( prtau != 0 )        pctau      = &(*(prtau->ref()));
@@ -138,79 +129,170 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
     if ( prmet != 0 )        pcmet      = &(*(prmet->ref()));
     if ( prphoton != 0 )     pcphoton   = &(*(prphoton->ref()));
 
-
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a muon
+    // ------------------------------------------------------
     if      ( pcmuon != 0 ) {
-       cout << "Filling muon" << endl;
+//        cout << "Filling muon" << endl;
+       // Here is where we do not yet have a histogram for this role
       if ( histoMuon_.map.find( role ) == histoMuon_.map.end() ) {
 	histoMuon_.map[role] = new HistoMuon( dir_, role, role ) ;
       }
-      histoMuon_.map[role]    ->fill( pcmuon );
+      // Here is if the candidate is a shallow clone, we need to
+      // fill kinematic information from the shallow clone and 
+      // detector information from the base object
+      if ( c->hasMasterClone() ) {
+	histoMuon_.map[role]    ->fill( pshallow );
+      }
+      // Here is if the candidate is a straightforward pointer
+      else {
+	histoMuon_.map[role]    ->fill( pcmuon );
+      }
     }
 
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a electron
+    // ------------------------------------------------------
     if      ( pcelectron != 0 ) {
-       cout << "Filling electron" << endl;
+//        cout << "Filling electron" << endl;
+       // Here is where we do not yet have a histogram for this role
       if ( histoElectron_.map.find( role ) == histoElectron_.map.end() ) {
 	histoElectron_.map[role] = new HistoElectron( dir_, role, role ) ;
       }
-      histoElectron_.map[role]    ->fill( pcelectron );
+      // Here is if the candidate is a shallow clone, we need to
+      // fill kinematic information from the shallow clone and 
+      // detector information from the base object
+      if ( c->hasMasterClone() ) {
+	histoElectron_.map[role]    ->fill( pshallow );
+      }
+      // Here is if the candidate is a straightforward pointer
+      else {
+	histoElectron_.map[role]    ->fill( pcelectron );
+      }
     }
 
+
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a tau
+    // ------------------------------------------------------
     if      ( pctau != 0 ) {
-//       cout << "Filling tau" << endl;
+//        cout << "Filling tau" << endl;
+       // Here is where we do not yet have a histogram for this role
       if ( histoTau_.map.find( role ) == histoTau_.map.end() ) {
 	histoTau_.map[role] = new HistoTau( dir_, role, role ) ;
       }
-      histoTau_.map[role]    ->fill( pctau );
-    }
-
-
-    if      ( pcjet != 0 ) {
-       cout << "Filling jet" << endl;
-      if ( histoJet_.map.find( role ) == histoJet_.map.end() ) {
-// 	cout << "Making histojet" << endl;
-	histoJet_.map[role] = new HistoJet( dir_, role, role ) ;
-// 	cout << "done" << endl;
+      // Here is if the candidate is a shallow clone, we need to
+      // fill kinematic information from the shallow clone and 
+      // detector information from the base object
+      if ( c->hasMasterClone() ) {
+	histoTau_.map[role]    ->fill( pshallow );
       }
-//       cout << "About to fill histojet" << endl;
-      histoJet_.map[role]    ->fill( pcjet );
-//       cout << "done" << endl;
+      // Here is if the candidate is a straightforward pointer
+      else {
+	histoTau_.map[role]    ->fill( pctau );
+      }
     }
 
 
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a jet
+    // ------------------------------------------------------
+    if      ( pcjet != 0 ) {
+//        cout << "Filling jet" << endl;
+       // Here is where we do not yet have a histogram for this role
+      if ( histoJet_.map.find( role ) == histoJet_.map.end() ) {
+	histoJet_.map[role] = new HistoJet( dir_, role, role ) ;
+      }
+      // Here is if the candidate is a shallow clone, we need to
+      // fill kinematic information from the shallow clone and 
+      // detector information from the base object
+      if ( c->hasMasterClone() ) {
+	histoJet_.map[role]    ->fill( pshallow );
+      }
+      // Here is if the candidate is a straightforward pointer
+      else {
+	histoJet_.map[role]    ->fill( pcjet );
+      }
+    }
+
+
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a met
+    // ------------------------------------------------------
     if      ( pcmet != 0 ) {
-//       cout << "Filling MET" << endl;
+//        cout << "Filling met" << endl;
+       // Here is where we do not yet have a histogram for this role
       if ( histoMET_.map.find( role ) == histoMET_.map.end() ) {
 	histoMET_.map[role] = new HistoMET( dir_, role, role ) ;
       }
-      histoMET_.map[role]    ->fill( pcmet );
+      // Here is if the candidate is a shallow clone, we need to
+      // fill kinematic information from the shallow clone and 
+      // detector information from the base object
+      if ( c->hasMasterClone() ) {
+	histoMET_.map[role]    ->fill( pshallow );
+      }
+      // Here is if the candidate is a straightforward pointer
+      else {
+	histoMET_.map[role]    ->fill( pcmet );
+      }
     }
 
 
+
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a photon
+    // ------------------------------------------------------
     if      ( pcphoton != 0 ) {
-//       cout << "Filling photon" << endl;
+//        cout << "Filling photon" << endl;
+       // Here is where we do not yet have a histogram for this role
       if ( histoPhoton_.map.find( role ) == histoPhoton_.map.end() ) {
 	histoPhoton_.map[role] = new HistoPhoton( dir_, role, role ) ;
       }
-      histoPhoton_.map[role]    ->fill( pcphoton );
+      // Here is if the candidate is a shallow clone, we need to
+      // fill kinematic information from the shallow clone and 
+      // detector information from the base object
+      if ( c->hasMasterClone() ) {
+	histoPhoton_.map[role]    ->fill( pshallow );
+      }
+      // Here is if the candidate is a straightforward pointer
+      else {
+	histoPhoton_.map[role]    ->fill( pcphoton );
+      }
     }
 
-
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a track
+    // ------------------------------------------------------
     if      ( pctrack != 0 ) {
-//       cout << "Filling track" << endl;
+//        cout << "Filling track" << endl;
+       // Here is where we do not yet have a histogram for this role
       if ( histoTrack_.map.find( role ) == histoTrack_.map.end() ) {
 	histoTrack_.map[role] = new HistoTrack( dir_, role, role ) ;
       }
-      histoTrack_.map[role]    ->fill( pctrack );
+      // Here is if the candidate is a shallow clone, we need to
+      // fill kinematic information from the shallow clone and 
+      // detector information from the base object
+      if ( c->hasMasterClone() ) {
+	histoTrack_.map[role]    ->fill( pshallow );
+      }
+      // Here is if the candidate is a straightforward pointer
+      else {
+	histoTrack_.map[role]    ->fill( pctrack );
+      }
     }
 
-
+    // ------------------------------------------------------
+    // Fill histograms if the candidate is a composite
+    // ------------------------------------------------------
     if      ( pccomposite != 0 ) {
-       cout << "Filling composite with name " << pccomposite->name() << endl;
+//        cout << "Filling composite" << endl;
+       // Here is where we do not yet have a histogram for this role
       if ( histoComposite_.map.find( role ) == histoComposite_.map.end() ) {
 	histoComposite_.map[role] = new HistoComposite( dir_, role, role ) ;
       }
       histoComposite_.map[role]    ->fill( pccomposite );
     }
+
 
   }
 }

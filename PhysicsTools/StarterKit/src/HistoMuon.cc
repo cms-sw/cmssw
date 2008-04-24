@@ -43,7 +43,7 @@ HistoMuon::HistoMuon(std::string dir, std::string group,std::string pre,
 }
 
 
-
+// fill a plain ol' muon
 void HistoMuon::fill( const Muon *muon, uint iMu )
 {
 
@@ -52,6 +52,50 @@ void HistoMuon::fill( const Muon *muon, uint iMu )
   HistoGroup<Muon>::fill( muon, iMu);
 
   // fill relevant muon histograms
+  h_trackIso_->fill( muon->trackIso(), iMu );
+  h_caloIso_ ->fill( muon->caloIso() , iMu );
+  h_leptonID_->fill( muon->leptonID(), iMu );
+
+  const reco::Muon* recoMuon = muon->originalObject();
+  h_nChambers_->fill( recoMuon->numberOfChambers(), iMu );
+
+// For CMSSW 1_6_x
+
+  h_calCompat_->fill( recoMuon->getCaloCompatibility(), iMu );
+  h_type_->fill( recoMuon->getType(), iMu );
+  reco::MuonEnergy muEnergy = recoMuon->getCalEnergy();
+
+// For CMSSW 2_0_x
+
+//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
+//   h_type_->fill( recoMuon->type(), iMu );
+//   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
+
+  h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu );
+
+}
+
+
+// fill a muon that is a shallow clone, and take kinematics from 
+// shallow clone but detector plots from the muon itself
+void HistoMuon::fill( const reco::ShallowCloneCandidate *pshallow, uint iMu )
+{
+
+  // Get the underlying object that the shallow clone represents
+  const pat::Muon * muon = dynamic_cast<const pat::Muon*>(pshallow);
+
+  if ( muon == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a muon" << endl;
+    return;
+  }
+
+  
+
+  // First fill common 4-vector histograms from shallow clone
+
+  HistoGroup<Muon>::fill( pshallow, iMu);
+
+  // fill relevant muon histograms from muon
   h_trackIso_->fill( muon->trackIso(), iMu );
   h_caloIso_ ->fill( muon->caloIso() , iMu );
   h_leptonID_->fill( muon->leptonID(), iMu );

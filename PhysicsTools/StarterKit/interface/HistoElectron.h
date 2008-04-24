@@ -55,8 +55,15 @@ namespace pat {
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoElectron();
 
-    virtual void fill( const Electron * electron, uint iPart = 1 );
-    virtual void fill( const Electron & electron, uint iPart = 1 ) { fill(&electron, iPart); }
+    // fill a plain ol' electron:
+    virtual void fill( const Electron *electron, uint iPart = 1 );
+    virtual void fill( const Electron &electron, uint iPart = 1 ) { fill(&electron, iPart); }
+
+    // fill a electron that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the electron itself
+    virtual void fill( const reco::ShallowCloneCandidate *electron, uint iPart = 1 );
+    virtual void fill( const reco::ShallowCloneCandidate &electron, uint iPart = 1 )
+    { fill(&electron, iPart); }
 
     virtual void fillCollection( const std::vector<Electron> & coll );
 

@@ -55,8 +55,16 @@ namespace pat {
 	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoJet();
 
-    virtual void fill( const Jet * jet, uint iPart = 1 );
-    virtual void fill( const Jet & jet, uint iPart = 1 ) { fill(&jet, iPart); }
+
+    // fill a plain ol' jet:
+    virtual void fill( const Jet *jet, uint iPart = 1 );
+    virtual void fill( const Jet &jet, uint iPart = 1 ) { fill(&jet, iPart); }
+
+    // fill a jet that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the jet itself
+    virtual void fill( const reco::ShallowCloneCandidate *jet, uint iPart = 1 );
+    virtual void fill( const reco::ShallowCloneCandidate &jet, uint iPart = 1 )
+    { fill(&jet, iPart); }
 
     virtual void fillCollection( const std::vector<Jet> & coll );
 

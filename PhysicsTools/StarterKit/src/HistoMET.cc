@@ -1,9 +1,12 @@
 #include "PhysicsTools/StarterKit/interface/HistoMET.h"
 #include "PhysicsTools/StarterKit/interface/PhysVarHisto.h"
 
+#include <iostream>
 
 using pat::HistoMET;
 using pat::MET;
+
+using namespace std;
 
 // Constructor:
 
@@ -60,6 +63,42 @@ void HistoMET::fill( const MET * met, uint iPart)
 
   // First fill common 4-vector histograms
   HistoGroup<MET>::fill( met, iPart );
+
+  // fill relevant MET histograms
+  h_sumEt_              ->fill( met->sumEt()               , iPart );
+  h_mEtSig_             ->fill( met->mEtSig()              , iPart );
+  h_eLongitudinal_      ->fill( met->e_longitudinal()      , iPart );
+  h_maxEtInEmTowers_    ->fill( met->maxEtInEmTowers()     , iPart );     
+  h_maxEtInHadTowers_   ->fill( met->maxEtInHadTowers()    , iPart );    
+  h_etFractionHadronic_ ->fill( met->etFractionHadronic () , iPart ); 
+  h_emEtFraction_       ->fill( met->emEtFraction()        , iPart );        
+  h_hadEtInHB_          ->fill( met->hadEtInHB()           , iPart );           
+  h_hadEtInHO_          ->fill( met->hadEtInHO()           , iPart );           
+  h_hadEtInHE_          ->fill( met->hadEtInHE()           , iPart );           
+  h_hadEtInHF_          ->fill( met->hadEtInHF()           , iPart );           
+  h_emEtInEB_           ->fill( met->emEtInEB()            , iPart );            
+  h_emEtInEE_           ->fill( met->emEtInEE()            , iPart );            
+  h_emEtInHF_           ->fill( met->emEtInHF()            , iPart );            
+
+}
+
+
+void HistoMET::fill( const reco::ShallowCloneCandidate * pshallow, uint iPart)
+{
+
+  // Get the underlying object that the shallow clone represents
+  const pat::MET * met = dynamic_cast<const pat::MET*>(pshallow);
+
+  if ( met == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a met" << endl;
+    return;
+  }
+
+  
+
+  // First fill common 4-vector histograms from shallow clone
+
+  HistoGroup<MET>::fill( pshallow, iPart);
 
   // fill relevant MET histograms
   h_sumEt_              ->fill( met->sumEt()               , iPart );

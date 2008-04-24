@@ -54,8 +54,16 @@ namespace pat {
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoPhoton();
 
-    virtual void fill( const Photon * photon, uint iPart = 1 );
-    virtual void fill( const Photon & photon, uint iPart = 1 ) { fill(&photon, iPart); }
+
+    // fill a plain ol' photon:
+    virtual void fill( const Photon *photon, uint iPart = 1 );
+    virtual void fill( const Photon &photon, uint iPart = 1 ) { fill(&photon, iPart); }
+
+    // fill a photon that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the photon itself
+    virtual void fill( const reco::ShallowCloneCandidate *photon, uint iPart = 1 );
+    virtual void fill( const reco::ShallowCloneCandidate &photon, uint iPart = 1 )
+    { fill(&photon, iPart); }
 
     virtual void fillCollection( const std::vector<Photon> & coll );
 

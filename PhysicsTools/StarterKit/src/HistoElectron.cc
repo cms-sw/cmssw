@@ -42,6 +42,29 @@ void HistoElectron::fill( const Electron * electron, uint iE )
 }
 
 
+void HistoElectron::fill( const reco::ShallowCloneCandidate * pshallow, uint iE )
+{
+
+  // Get the underlying object that the shallow clone represents
+  const pat::Electron * electron = dynamic_cast<const pat::Electron*>(pshallow);
+
+  if ( electron == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a electron" << endl;
+    return;
+  }
+
+
+  // First fill common 4-vector histograms
+  HistoGroup<Electron>::fill( pshallow, iE );
+
+  // fill relevant electron histograms
+  h_trackIso_       ->fill( electron->trackIso(), iE );
+  h_caloIso_        ->fill( electron->caloIso(), iE );
+  h_leptonID_       ->fill( electron->leptonID(), iE );
+
+}
+
+
 void HistoElectron::fillCollection( const std::vector<Electron> & coll ) 
 {
  

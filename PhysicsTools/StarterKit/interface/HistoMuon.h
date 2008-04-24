@@ -57,8 +57,15 @@ namespace pat {
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMuon() { } ;
 
+    // fill a plain ol' muon:
     virtual void fill( const Muon *muon, uint iPart = 1 );
     virtual void fill( const Muon &muon, uint iPart = 1 ) { fill(&muon, iPart); }
+
+    // fill a muon that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the muon itself
+    virtual void fill( const reco::ShallowCloneCandidate *muon, uint iPart = 1 );
+    virtual void fill( const reco::ShallowCloneCandidate &muon, uint iPart = 1 )
+    { fill(&muon, iPart); }
 
     virtual void fillCollection( const std::vector<Muon> & coll );
 

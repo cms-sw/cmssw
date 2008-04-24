@@ -57,9 +57,16 @@ namespace pat {
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoTau() { } ;
 
+
+    // fill a plain ol' tau:
     virtual void fill( const Tau *tau, uint iPart = 1 );
     virtual void fill( const Tau &tau, uint iPart = 1 ) { fill(&tau, iPart); }
 
+    // fill a tau that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the tau itself
+    virtual void fill( const reco::ShallowCloneCandidate *tau, uint iPart = 1 );
+    virtual void fill( const reco::ShallowCloneCandidate &tau, uint iPart = 1 )
+    { fill(&tau, iPart); }
 
     virtual void fillCollection( const std::vector<Tau> & coll );
 

@@ -45,7 +45,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
+#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 
 // STL include files
 #include <string>
@@ -69,6 +69,11 @@ namespace pat {
     //!  Fill all histograms for one Physics Object
     virtual void fill( const PHYS_OBJECT     * obj, uint imulti = 1, double weight = 1.0);
     virtual void fill( const PHYS_OBJECT     & obj, uint imulti = 1, double weight = 1.0)
+    { fill( &obj, imulti, weight ); } // call the one above
+
+    //!  Fill all histograms for one Physics Object
+    virtual void fill( const reco::ShallowCloneCandidate     * obj, uint imulti = 1, double weight = 1.0);
+    virtual void fill( const reco::ShallowCloneCandidate     & obj, uint imulti = 1, double weight = 1.0)
     { fill( &obj, imulti, weight ); } // call the one above
 
     //!  Fill all histograms for *all* Phys Objects sitting in a collection!
@@ -226,6 +231,34 @@ namespace pat {
   void
   HistoGroup<PHYS_OBJECT>::
   fill( const PHYS_OBJECT     * obj, uint imulti, double weight)
+  {
+    if ( verboseLevel_ > 10) {
+      std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::fill: imulti = " << imulti
+		<< std::endl;
+    }
+    h_pt_  ->fill( obj->p4().pt()  , imulti, weight );
+    h_eta_ ->fill( obj->p4().eta() , imulti, weight );
+    h_phi_ ->fill( obj->p4().phi() , imulti, weight );
+    h_mass_->fill( obj->p4().mass(), imulti, weight );
+
+    //--- Now fill the user-defined histograms
+    typename std::vector< HistoGroup<PHYS_OBJECT> * >::const_iterator
+      hg    = histoGroups_.begin(),
+      hgend = histoGroups_.end();
+    for ( ; hg != hgend; ++hg ) {
+      (*hg)->fill( obj, imulti, weight );
+    }
+  }
+
+  //------------------------------------------------------------------------
+  //!  Fill the reco::Cand basic histograms: pt, eta, phi.
+  //!  This is done for shallow clones
+  //------------------------------------------------------------------------
+  template <class PHYS_OBJECT>
+  inline
+  void
+  HistoGroup<PHYS_OBJECT>::
+  fill( const reco::ShallowCloneCandidate    * obj, uint imulti, double weight)
   {
     if ( verboseLevel_ > 10) {
       std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::fill: imulti = " << imulti

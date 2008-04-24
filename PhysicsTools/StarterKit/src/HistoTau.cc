@@ -78,12 +78,66 @@ void HistoTau::fill( const Tau *tau, uint iTau )
   h_eOverP_ ->fill( tau->eOverP() , iTau );
 }
 
+void HistoTau::fill( const reco::ShallowCloneCandidate * pshallow, uint iTau )
+{
+
+  // Get the underlying object that the shallow clone represents
+  const pat::Tau * tau = dynamic_cast<const pat::Tau*>(pshallow);
+
+  if ( tau == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a tau" << endl;
+    return;
+  }
+
+
+  // First fill common 4-vector histograms from shallow clone
+  HistoGroup<Tau>::fill( pshallow, iTau);
+
+  // fill relevant tau histograms
+
+  const double M_PION = 0.13957018;
+  
+  const reco::Track & trk = *( tau->leadTrack() );
+  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4;
+  p4.SetPt( trk.pt() );
+  p4.SetEta( trk.eta() );
+  p4.SetPhi( trk.phi() );
+  p4.SetM( M_PION );
+  reco::Particle::LorentzVector p4_2( p4.x(), p4.y(), p4.z(), p4.t() );
+  reco::RecoChargedCandidate trk_p4( trk.charge(), p4_2 );
+  histoLeadingTrack_->fill( &trk_p4 );
+  
+  for ( unsigned int isignal = 0; isignal < tau->signalTracks().size(); isignal++ ) {
+    const reco::Track & trk = *( tau->signalTracks().at(isignal) );
+    ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4;
+    p4.SetPt( trk.pt() );
+    p4.SetEta( trk.eta() );
+    p4.SetPhi( trk.phi() );
+    p4.SetM( M_PION );
+    reco::Particle::LorentzVector p4_2( p4.x(), p4.y(), p4.z(), p4.t() );
+    reco::RecoChargedCandidate trk_p4( trk.charge(), p4_2 );
+    histoSignalTrack_->fill( &trk_p4, isignal );
+  }
+  for ( unsigned int iisolation = 0; iisolation < tau->isolationTracks().size(); iisolation++ ) {
+    const reco::Track & trk = *( tau->isolationTracks().at(iisolation) );
+    ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4;
+    p4.SetPt( trk.pt() );
+    p4.SetEta( trk.eta() );
+    p4.SetPhi( trk.phi() );
+    p4.SetM( M_PION );
+    reco::Particle::LorentzVector p4_2( p4.x(), p4.y(), p4.z(), p4.t() );
+    reco::RecoChargedCandidate trk_p4( trk.charge(), p4_2 );
+    histoIsolationTrack_->fill( &trk_p4, iisolation );
+  }
+
+  h_emEnergyFraction_->fill( tau->emEnergyFraction(), iTau );
+  h_eOverP_ ->fill( tau->eOverP() , iTau );
+}
+
 
 void HistoTau::fillCollection( const std::vector<Tau> & coll ) 
 {
 
-  HistoGroup<Tau>::fillCollection( coll );
- 
   h_size_->fill( coll.size() );     //! Save the size of the collection.
 
   std::vector<Tau>::const_iterator
