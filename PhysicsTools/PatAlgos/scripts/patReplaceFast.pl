@@ -18,7 +18,14 @@ my %replaces;
 open(IN,$replaceFile) or die "Couldn't open $replaceFile: $!";
 while( <IN> ) {
   if ( /replace\s+(\S+)(\s*=.*)[#|\/\/]?/ ) {
-    $replaces{$1} = $2;
+    my $key   = $1;
+    my $value = $2;
+    # Check for multi-line value
+    while ( &countBraces($value) > 0 ) {
+      my $line = <IN>;
+      $value .= $line;
+    }
+    $replaces{$key} = $value;
   }
 }
 close(IN);
@@ -26,14 +33,6 @@ close(IN);
 # Open temporary file
 my $temp = $cfgFile.".tmp";
 open(TEMP,">$temp") or die "Couldn't open $temp: $!";
-
-# Print header
-print TEMP <<HEADER
-############################
-# Fast simulation replaces #
-############################
-HEADER
-;
 
 # Scan cfgfile and replace
 open(CFG,$cfgFile) or die "Couldn't open $cfgFile: $!";
@@ -58,9 +57,36 @@ close(CFG);
 
 
 # Add missing items at the end of file (things that are only replaced in FastSim)
+# Print header
+print TEMP <<HEADER
+############################
+# Fast simulation replaces #
+############################
+HEADER
+;
 foreach my $replace ( keys %replaces ) {
   next if ( !$replaces{$replace} );
   print TEMP "replace ".$replace.$replaces{$replace}."\n";
 }
 close(TEMP) or die "Couldn't close $temp: $!";
 rename($temp,$cfgFile);
+
+
+#______________________________________________________________________
+# Count number of braces
+# Opening adds one, closing removes one
+sub countBraces {
+
+  my $string = shift;
+  my $nBraces = 0;
+  my $char = "";
+
+  while ( length($string)>0 ) {
+    $char = chop($string);
+    ++$nBraces if ( $char =~ /\{/ );
+    --$nBraces if ( $char =~ /\}/ );
+  }
+
+  return $nBraces;
+
+}
