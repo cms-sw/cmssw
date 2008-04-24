@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2007/05/28 23:01:33 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/09/13 19:59:52 $
+ *  $Revision: 1.27 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -26,6 +26,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -99,72 +100,12 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
   // measurement layer
   const DetLayer* detLayer=measurement->layer();
 
-  // The KFUpdator takes TransientTrackingRecHits as arg.
-  TransientTrackingRecHit::ConstRecHitContainer recHitsForFit;
- 
   // this are the 4D segment for the CSC/DT and a point for the RPC 
   TransientTrackingRecHit::ConstRecHitPointer muonRecHit = measurement->recHit();
  
-  switch(theGranularity){
-  case 0:
-    {
-      // Asking for 4D segments for the CSC/DT and a point for the RPC
-      recHitsForFit.push_back( muonRecHit );
-      break;
-    }
-  case 1:
-    {
-      if (detLayer->subDetector()==GeomDetEnumerators::DT ||
-	  detLayer->subDetector()==GeomDetEnumerators::CSC) 
-	// measurement->recHit() returns a 4D segment, then
-	// DT case: asking for 2D segments.
-	// CSC case: asking for 2D points.
-	recHitsForFit = muonRecHit->transientHits();
-      
-      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || 
-	      detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
-	recHitsForFit.push_back( muonRecHit);   
-      
-      break;
-    }
-    
-  case 2:
-    {
-      if (detLayer->subDetector()==GeomDetEnumerators::DT ) {
-
-	// Asking for 2D segments. measurement->recHit() returns a 4D segment
-	TransientTrackingRecHit::ConstRecHitContainer segments2D = muonRecHit->transientHits();
-	
-	// loop over segment
-	for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator segment = segments2D.begin(); 
-	     segment != segments2D.end();++segment ){
-
-	  // asking for 1D Rec Hit
-	  TransientTrackingRecHit::ConstRecHitContainer rechit1D = (**segment).transientHits();
-	  
-	  // load them into the recHitsForFit container
-	  copy(rechit1D.begin(),rechit1D.end(),back_inserter(recHitsForFit));
-	}
-      }
-
-      else if(detLayer->subDetector()==GeomDetEnumerators::RPCBarrel || 
-	      detLayer->subDetector()==GeomDetEnumerators::RPCEndcap)
-	recHitsForFit.push_back(muonRecHit);
-      
-      else if(detLayer->subDetector()==GeomDetEnumerators::CSC)	
-	// Asking for 2D points. measurement->recHit() returns a 4D segment
-	recHitsForFit = (*muonRecHit).transientHits();
-      
-      break;
-    }
-    
-  default:
-    {
-      throw cms::Exception(metname) <<"Wrong granularity chosen!"
-				    <<"it will be set to 0";
-      break;
-    }
-  }
+  // The KFUpdator takes TransientTrackingRecHits as arg.
+  TransientTrackingRecHit::ConstRecHitContainer recHitsForFit =
+  MuonTransientTrackingRecHitBreaker::breakInSubRecHits(muonRecHit,theGranularity);
 
   // sort the container in agreement with the porpagation direction
   sort(recHitsForFit,detLayer);
