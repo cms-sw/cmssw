@@ -276,11 +276,4 @@ int main(int ac, char *av[]) {
   }
   return 0;
 }
-/*
-funct::Product<funct::Numerical<2>, 
-               funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
-                              funct::Product<funct::Parameter, funct::Difference<Numerical<1>, funct::Parameter>::type
-                                             >::type
-                             >::type 
-               >::type;
-*/
+
