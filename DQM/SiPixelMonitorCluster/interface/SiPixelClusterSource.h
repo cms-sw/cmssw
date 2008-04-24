@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.4 2007/04/20 21:46:39 andrewdc Exp $
+// $Id: SiPixelClusterSource.h,v 1.5 2008/03/01 20:19:47 lat Exp $
 //
 
 #include <memory>
@@ -30,7 +30,7 @@
 
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -46,12 +46,13 @@
 
 #include <boost/cstdint.hpp>
 
+
  class SiPixelClusterSource : public edm::EDAnalyzer {
     public:
        explicit SiPixelClusterSource(const edm::ParameterSet& conf);
        ~SiPixelClusterSource();
 
-       typedef edm::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
+       typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob(edm::EventSetup const&) ;

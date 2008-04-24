@@ -15,14 +15,15 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.3 2007/04/16 21:35:43 andrewdc Exp $
+// $Id: SiPixelClusterModule.h,v 1.4 2007/04/20 21:46:39 andrewdc Exp $
 //
 //
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/cstdint.hpp>
+
 
 class SiPixelClusterModule {        
 
@@ -37,12 +38,12 @@ class SiPixelClusterModule {
   /// Destructor
   ~SiPixelClusterModule();
 
-  typedef edm::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
+  typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
   void book(const edm::ParameterSet& iConfig);
   /// Fill histograms
-  void fill(const edm::DetSetVector<SiPixelCluster> & input);
+  void fill(const edmNew::DetSetVector<SiPixelCluster> & input);
   
  private:
 

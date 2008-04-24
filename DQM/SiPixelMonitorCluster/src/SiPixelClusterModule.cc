@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.10 2008/01/22 19:03:14 muzaffar Exp $
+// $Id: SiPixelClusterModule.cc,v 1.11 2008/03/01 20:19:48 lat Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
@@ -119,17 +119,17 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig) {
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) {
+void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input) {
   
-  edm::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
+  edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
   
   if( isearch != input.end() ) {  // Not at empty iterator
     
     unsigned int numberOfClusters = 0;
     
     // Look at clusters now
-    edm::DetSet<SiPixelCluster>::const_iterator  di;
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+    edmNew::DetSet<SiPixelCluster>::const_iterator  di;
+    for(di = isearch->begin(); di != isearch->end(); di++) {
       numberOfClusters++;
       float charge = 0.001*(di->charge()); // total charge of cluster
       float x = di->x();                   // barycenter x position

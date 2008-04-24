@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.5 2008/01/22 19:03:18 muzaffar Exp $
+// $Id: SiPixelClusterSource.cc,v 1.6 2008/03/01 20:19:48 lat Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterSource.h"
@@ -82,7 +82,7 @@ SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   eventNo++;
 
   // get input data
-  edm::Handle< edm::DetSetVector<SiPixelCluster> >  input;
+  edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  input;
   iEvent.getByLabel( src_, input );
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
