@@ -13,8 +13,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/05 14:24:02 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/04/21 16:48:03 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -59,13 +59,13 @@ namespace trigger
     int path() const {return path_;}
     int module() const {return module_;}
     /// tags
-    const std::vector<edm::InputTag> getCollectionTags() const {
-      const size_type n(collectionTags_.size());
-      std::vector<edm::InputTag> tags(n);
-      for (size_type i=0; i!=n; ++i) {
+    void getCollectionTags(std::vector<edm::InputTag>& tags) const {
+      const trigger::size_type n(collectionTags_.size());
+      tags.resize(n);
+      for (trigger::size_type i=0; i!=n; ++i) {
 	tags[i]=edm::InputTag(collectionTags_[i]);
       }
-      return tags;
+      return;
     }
     void addCollectionTag(const edm::InputTag& collectionTag){
       collectionTags_.push_back(collectionTag.encode());

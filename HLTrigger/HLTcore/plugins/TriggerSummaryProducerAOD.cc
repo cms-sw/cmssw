@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/21 16:48:04 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/04/24 10:07:04 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -124,8 +124,9 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    /// Record those L3 filters and L3 collections.
    filterTags_.clear();
    collectionTags_.clear();
+   vector<InputTag> collectionTags();
    for (size_type ifob=0; ifob!=nfob; ++ifob) {
-     const vector<InputTag>& collectionTags(fobs_[ifob]->getCollectionTags());
+     fobs_[ifob]->getCollectionTags(collectionTags);
      if (collectionTags.size()>0) {
        const string& label    (fobs_[ifob].provenance()->moduleLabel());
        const string& instance (fobs_[ifob].provenance()->productInstanceName());
