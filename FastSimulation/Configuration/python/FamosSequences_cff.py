@@ -179,8 +179,7 @@ calotoweroptmaker.hoInput = 'caloRecHits'
 calotoweroptmaker.hfInput = 'caloRecHits'
 calotoweroptmaker.ecalInputs = cms.VInputTag(cms.InputTag("caloRecHits","EcalRecHitsEB"), cms.InputTag("caloRecHits","EcalRecHitsEE"))
 genCandidatesForMET.verbose = False
-muonCSCDigis.strips.doCorrelatedNoise = False ## Saves a little bit of time
-
+simMuonCSCDigis.strips.doCorrelatedNoise = False
 GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
 GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.TrackerCollectionLabel = 'generalTracks'
