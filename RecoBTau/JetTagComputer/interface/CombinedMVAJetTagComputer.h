@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,7 +17,16 @@ class CombinedMVAJetTagComputer : public GenericMVAJetTagComputer {
 	CombinedMVAJetTagComputer(const edm::ParameterSet &parameters);
 	virtual ~CombinedMVAJetTagComputer();
 
-	virtual void setEventSetup(const edm::EventSetup &es) const;
+	virtual void setEventSetup(const edm::EventSetup &es) const
+	{
+		setEventSetup(es, false);
+		GenericMVAJetTagComputer::setEventSetup(es);
+	}
+
+	virtual void passEventSetup(const edm::EventSetup &es) const
+	{
+		setEventSetup(es, true);
+	}
 
 	virtual reco::TaggingVariableList
 	taggingVariables(const TagInfoHelper &info) const;
@@ -30,6 +40,8 @@ class CombinedMVAJetTagComputer : public GenericMVAJetTagComputer {
 		const JetTagComputer	*computer;
 		std::vector<int>	indices;
 	};
+
+	void setEventSetup(const edm::EventSetup &es, bool pass) const;
 
 	mutable std::vector<Computer>	computers;
 };

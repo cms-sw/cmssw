@@ -25,6 +25,9 @@ class GenericMVAJetTagComputer : public JetTagComputer {
 	virtual reco::TaggingVariableList
 	taggingVariables(const TagInfoHelper &info) const;
 
+	// for passing through an EventSetup when training
+	virtual void passEventSetup(const edm::EventSetup &es) const {}
+
     private:
 	std::auto_ptr<TagInfoMVACategorySelector>	categorySelector;
 	mutable GenericMVAComputerCache			computerCache;
