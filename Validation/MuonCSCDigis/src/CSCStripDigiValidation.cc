@@ -38,6 +38,7 @@ CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe,
 CSCStripDigiValidation::~CSCStripDigiValidation() {
   std::cout << "RATIO for strips 4 to 5 : " << theRatio4to5Plot->getMean() << std::endl;
   std::cout << "RATIO for strips 6 to 5 : " << theRatio6to5Plot->getMean() << std::endl;
+  std::cout << "NDIGIS per event : " << theNDigisPerEventPlot->getMean() << std::endl;
 }
 
 
