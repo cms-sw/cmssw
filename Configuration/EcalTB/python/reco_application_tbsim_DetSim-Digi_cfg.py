@@ -1,3 +1,4 @@
+Making SimG4CMS/EcalTestBeam/test/python
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Sim")
@@ -26,8 +27,8 @@ process.maxEvents = cms.untracked.PSet(
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     moduleSeeds = cms.PSet(
         g4SimHits = cms.untracked.uint32(9876),
+        simEcalUnsuppressedDigis = cms.untracked.uint32(54321),
         SimEcalTBG4Object = cms.untracked.uint32(5432),
-        ecalUnsuppressedDigis = cms.untracked.uint32(54321),
         VtxSmeared = cms.untracked.uint32(12345)
     ),
     sourceSeed = cms.untracked.uint32(98765)
@@ -63,7 +64,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.doSimHits = cms.Sequence(process.VtxSmeared*process.g4SimHits)
 process.doSimTB = cms.Sequence(process.SimEcalTBG4Object*process.SimEcalTBHodoscope*process.SimEcalEventHeader)
-process.doEcalDigis = cms.Sequence(process.mix*process.ecalUnsuppressedDigis)
+process.doEcalDigis = cms.Sequence(process.mix*process.simEcalUnsuppressedDigis)
 process.p1 = cms.Path(process.doSimHits*process.doSimTB*process.doEcalDigis)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
@@ -73,4 +74,5 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     trigEvents = cms.untracked.int32(5)
 ))
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
+
 

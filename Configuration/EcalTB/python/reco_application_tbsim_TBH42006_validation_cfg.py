@@ -51,12 +51,13 @@ process.ecalUnsuppressedDigisValidationSequence = cms.Sequence(process.ecalDigis
 process.ecalUnsuppressedRecHitsValidationSequence = cms.Sequence(process.ecalRecHitsValidation*process.ecalBarrelRecHitsValidation)
 process.p1 = cms.Path(process.ecalSimHitsValidationSequence*process.ecalUnsuppressedDigisValidationSequence*process.ecalUnsuppressedRecHitsValidationSequence)
 process.CaloGeometryBuilder.SelectedCalos = ['EcalBarrel']
-process.ecalDigisValidation.EBdigiCollection = 'ecalUnsuppressedDigis'
-process.ecalDigisValidation.EEdigiCollection = 'ecalUnsuppressedDigis'
-process.ecalDigisValidation.ESdigiCollection = 'ecalUnsuppressedDigis'
-process.ecalBarrelDigisValidation.EBdigiCollection = 'ecalUnsuppressedDigis'
+process.ecalDigisValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
+process.ecalDigisValidation.EEdigiCollection = 'simEcalUnsuppressedDigis'
+process.ecalDigisValidation.ESdigiCollection = 'simEcalUnsuppressedDigis'
+process.ecalBarrelDigisValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
 process.ecalRecHitsValidation.EBrechitCollection = cms.InputTag("ecalTBSimRecHit","EcalRecHitsEB")
 process.ecalRecHitsValidation.EBuncalibrechitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit","EcalUncalibRecHitsEB")
-process.ecalBarrelRecHitsValidation.EBdigiCollection = 'ecalUnsuppressedDigis'
+process.ecalBarrelRecHitsValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
 process.ecalBarrelRecHitsValidation.EBuncalibrechitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit","EcalUncalibRecHitsEB")
+
 
