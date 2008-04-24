@@ -104,7 +104,7 @@ print "make directories ...\n";
 `mkdir $SMout/open`   if (! -e "$SMout/open");
 `mkdir $SMout/closed` if (! -e "$SMout/closed");
 `mkdir $SMout/mbox`   if (! -e "$SMout/mbox");
-
+`mkdir $SMout/log`    if (! -e "$SMout/log");
 
 #
 # make cfg files
