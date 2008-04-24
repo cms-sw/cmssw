@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frederic Ronga
 //         Created:  Wed Mar 12 17:39:55 CET 2008
-// $Id: CherenkovAnalysis.cpp,v 1.1 2008/03/14 09:49:10 fronga Exp $
+// $Id: CherenkovAnalysis.cpp,v 1.2 2008/04/24 07:37:37 fronga Exp $
 //
 //
 
@@ -97,7 +97,7 @@ CherenkovAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   for ( ; it != itend; ++it ) {
     totalEnergy += (*it).energy();
     hTimeStructure_->Fill( (*it).time(), (*it).energy() ); // Time weighted by energy...
-    edm::LogInfo("CherenkovAnalysis") << "Time = " << (*it).time() << std::endl;
+//     edm::LogInfo("CherenkovAnalysis") << "Time = " << (*it).time() << std::endl;
   }
   
   edm::LogInfo("CherenkovAnalysis") << "Total energy = " << totalEnergy;
