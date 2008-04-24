@@ -69,7 +69,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   // Initialize Bthe stable particle decay engine 
   if ( decays.getParameter<bool>("ActivateDecays") ) { 
     int seed = (int) ( 900000000. * random->flatShoot() );
-    double comE = decays.getUntrackedParameter("comEnergy",14000.);
+    double comE = decays.getParameter<double>("comEnergy");
     myDecayEngine = new Pythia6Decays(seed,comE);
     distCut = decays.getParameter<double>("DistCut");
   }
