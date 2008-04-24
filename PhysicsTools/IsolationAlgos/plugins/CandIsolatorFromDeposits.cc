@@ -58,7 +58,8 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
       static boost::regex threshold("Threshold\\((\\d+\\.\\d+)\\)"), 
 	cone("ConeVeto\\((\\d+\\.\\d+)\\)"),
 	angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
-	angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)");
+	angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
+	rectangularEtaPhiVeto("RectangularEtaPhiVeto\\(([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+)\\)");
       boost::cmatch match;
       if (regex_match(it->c_str(), match, threshold)) {
 	vetos_.push_back(new ThresholdVeto(toNumber(match[1].first)));
@@ -68,6 +69,10 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
 	vetos_.push_back(new AngleCone(reco::isodeposit::Direction(), toNumber(match[1].first)));
       } else if (regex_match(it->c_str(), match, angleVeto)) {
 	vetos_.push_back(new AngleConeVeto(reco::isodeposit::Direction(), toNumber(match[1].first)));
+      } else if (regex_match(it->c_str(), match, rectangularEtaPhiVeto)) {
+	vetos_.push_back(new RectangularEtaPhiVeto(reco::isodeposit::Direction(), 
+											   toNumber(match[1].first), toNumber(match[2].first), 
+											   toNumber(match[3].first), toNumber(match[4].first)));
       } else {
 	throw cms::Exception("Not Implemented") << "Veto " << it->c_str() << " not implemented yet...";
       }
