@@ -225,13 +225,13 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   int eta,phi;
   for(eta=-16;eta<=16;eta++) for(phi=1;phi<=72;phi++){
        for(int i=1;i<10;i++){
-        int j1=get_adc(eta,phi,1)[ADCdigi_];
+	 int j1=(int)get_adc(eta,phi,1)[ADCdigi_];
         float tmp11 = (TrigMonAdc2fc[j1]+0.5);
-        int j2=get_adc(eta,phi,1)[ADCdigi_+1];
+        int j2=(int)get_adc(eta,phi,1)[ADCdigi_+1];
         float tmp21 = (TrigMonAdc2fc[j2]+0.5);
-        int j3=get_adc(eta,phi,2)[ADCdigi_];
+        int j3=(int)get_adc(eta,phi,2)[ADCdigi_];
         float tmp12 = (TrigMonAdc2fc[j3]+0.5);
-        int j4=get_adc(eta,phi,1)[ADCdigi_+1];
+        int j4=(int)get_adc(eta,phi,1)[ADCdigi_+1];
         float tmp22 = (TrigMonAdc2fc[j4]+0.5);
            if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
 	      if(get_tp(eta,phi,1)[TPdigi_]>TPThresh_){ 
