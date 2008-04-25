@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/03/16 23:13:49 $ 
- ** $Revision: 1.10 $
+ ** $Date: 2008/04/01 17:20:16 $ 
+ ** $Revision: 1.11 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -35,6 +35,7 @@ SimplePhotonAnalyzer::SimplePhotonAnalyzer( const edm::ParameterSet& ps )
   mcProducer_ = ps.getParameter<std::string>("mcProducer");
   //mcCollection_ = ps.getParameter<std::string>("mcCollection");
   vertexProducer_ = ps.getParameter<std::string>("primaryVertexProducer");
+  sample_ = ps.getParameter<int>("sample");
  
 
 }
@@ -54,35 +55,62 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
 //========================================================================
 
   edm::Service<TFileService> fs;
+ 
+  float hiE=0;
+  float loE=0;
+  float hiEt=0;
+  float loEt=0;
+  float dPhi=0;
+  float loRes=0;
+  float hiRes=0;
+  if ( sample_ ==1 ) {
+    loE=0.;
+    hiE=50.;
+    loEt=0.;
+    hiEt=15.;
+    dPhi=0.2;
+    loRes=0.;
+    hiRes=1.2;
+  } else if ( sample_ ==2 ) {
+    loE=0.;
+    hiE=200.;
+    loEt=0.;
+    hiEt=50.;
+    dPhi=0.05;
+    loRes=0.7;
+    hiRes=1.2;
+  } 
 
-  h1_scEt_ = fs->make<TH1F>("scEt"," SC Et ",100,0.,30.);
-  h1_scE_ = fs->make<TH1F>("scE"," SC Energy ",100,0.,30.);
+
+
   h1_scEta_ = fs->make<TH1F>("scEta"," SC Eta ",40,-3., 3.);
   h1_scPhi_ = fs->make<TH1F>("scPhi"," SC Phi ",40,-3.14, 3.14);
   h1_deltaEtaSC_ = fs->make<TH1F>("deltaEtaSC"," SC Eta minus Generated photon Eta  ",100,-0.02, 0.02);
-  h1_deltaPhiSC_ = fs->make<TH1F>("deltaPhiSC"," SC Phi minus Generated photon Phi ",100,-0.2, 0.2);
+  h1_deltaPhiSC_ = fs->make<TH1F>("deltaPhiSC"," SC Phi minus Generated photon Phi ",100,-dPhi, dPhi);
+  h1_deltaEta_ = fs->make<TH1F>("deltaEta"," Reco photon Eta minus Generated photon Eta  ",100,-0.2, 0.2);
+  h1_deltaPhi_ = fs->make<TH1F>("deltaPhi","Reco photon Phi minus Generated photon Phi ",100,-dPhi, dPhi);
+  h1_pho_Eta_ = fs->make<TH1F>("phoEta","Photon  Eta ",40,-3., 3.);
+  h1_pho_Phi_ = fs->make<TH1F>("phoPhi","Photon  Phi ",40,-3.14, 3.14);
 
-  //
+
+  h1_scEt_ = fs->make<TH1F>("scEt"," SC Et ",100,0.,hiEt);
+  h1_scE_ = fs->make<TH1F>("scE"," SC Energy ",100,0.,hiE);
+  h1_pho_E_ = fs->make<TH1F>("phoE","Photon Energy ",100,0.,hiE);
   
-  h1_e5x5_unconvBarrel_ = fs->make<TH1F>("e5x5_unconvBarrelOverEtrue"," Photon rec/true energy if R9>0.93 Barrel ",100,0., 1.2);
-  h1_e5x5_unconvEndcap_ = fs->make<TH1F>("e5x5_unconvEndcapOverEtrue"," Photon rec/true energy if R9>0.93 Endcap ",100,0., 1.2);
-
-  h1_ePho_convBarrel_ = fs->make<TH1F>("ePho_convBarrelOverEtrue"," Photon rec/true energy if R9<=0.93 Barrel ",100,0., 1.2);
-  h1_ePho_convEndcap_ = fs->make<TH1F>("ePho_convEndcapOverEtrue"," Photon rec/true energy if R9<=0.93 Endcap ",100,0., 1.2);
+  h1_e5x5_unconvBarrel_ = fs->make<TH1F>("e5x5_unconvBarrelOverEtrue"," Photon rec/true energy if R9>0.93 Barrel ",100,loRes, hiRes);
+  h1_e5x5_unconvEndcap_ = fs->make<TH1F>("e5x5_unconvEndcapOverEtrue"," Photon rec/true energy if R9>0.93 Endcap ",100,loRes, hiRes);
+  h1_ePho_convBarrel_ = fs->make<TH1F>("ePho_convBarrelOverEtrue"," Photon rec/true energy if R9<=0.93 Barrel ",100,loRes, hiRes);
+  h1_ePho_convEndcap_ = fs->make<TH1F>("ePho_convEndcapOverEtrue"," Photon rec/true energy if R9<=0.93 Endcap ",100,loRes, hiRes);
 
 
  //
-  h1_recEoverTrueEBarrel_ = fs->make<TH1F>("recEoverTrueEBarrel"," Reco photon Energy over Generated photon Energy: Barrel ",100,0., 1.2);
-  h1_recEoverTrueEEndcap_ = fs->make<TH1F>("recEoverTrueEEndcap"," Reco photon Energy over Generated photon Energy: Endcap ",100,0., 1.2);
-  h1_recESCoverTrueEBarrel_ = fs->make<TH1F>("recESCoverTrueEBarrel"," Reco SC Energy over Generated photon Energy: Barrel ",100,0., 1.2);
-  h1_recESCoverTrueEEndcap_ = fs->make<TH1F>("recESCoverTrueEEndcap"," Reco SC Energy over Generated photon Energy: Endcap ",100,0., 1.2);
+  h1_recEoverTrueEBarrel_ = fs->make<TH1F>("recEoverTrueEBarrel"," Reco photon Energy over Generated photon Energy: Barrel ",100,loRes, hiRes);
+  h1_recEoverTrueEEndcap_ = fs->make<TH1F>("recEoverTrueEEndcap"," Reco photon Energy over Generated photon Energy: Endcap ",100,loRes, hiRes);
+  h1_recESCoverTrueEBarrel_ = fs->make<TH1F>("recESCoverTrueEBarrel"," Reco SC Energy over Generated photon Energy: Barrel ",100,loRes, hiRes);
+  h1_recESCoverTrueEEndcap_ = fs->make<TH1F>("recESCoverTrueEEndcap"," Reco SC Energy over Generated photon Energy: Endcap ",100,loRes, hiRes);
 
-  h1_deltaEta_ = fs->make<TH1F>("deltaEta"," Reco photon Eta minus Generated photon Eta  ",100,-0.2, 0.2);
-  h1_deltaPhi_ = fs->make<TH1F>("deltaPhi","Reco photon Phi minus Generated photon Phi ",100,-0.2, 0.2);
   //
-  h1_pho_E_ = fs->make<TH1F>("phoE","Photon Energy ",100,0., 30.);
-  h1_pho_Eta_ = fs->make<TH1F>("phoEta","Photon  Eta ",40,-3., 3.);
-  h1_pho_Phi_ = fs->make<TH1F>("phoPhi","Photon  Phi ",40,-3.14, 3.14);
+
   h1_pho_R9Barrel_ = fs->make<TH1F>("phoR9Barrel","Photon  3x3 energy / SuperCluster energy : Barrel ",100,0.,1.2);
   h1_pho_R9Endcap_ = fs->make<TH1F>("phoR9Endcap","Photon  3x3 energy / SuperCluster energy : Endcap ",100,0.,1.2);
 
@@ -202,7 +230,8 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
 
 	  if ( localPhotons[iMatch].r9() > 0.93 ) 
-	    h1_e5x5_unconvBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	    //	    h1_e5x5_unconvBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	    h1_e5x5_unconvBarrel_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
 	  else
 	    h1_ePho_convBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
 
@@ -213,7 +242,8 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
 
 	  if ( localPhotons[iMatch].r9() > 0.93 ) 
-            h1_e5x5_unconvEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	    //            h1_e5x5_unconvEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+            h1_e5x5_unconvEndcap_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
           else
 	    h1_ePho_convEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
 
