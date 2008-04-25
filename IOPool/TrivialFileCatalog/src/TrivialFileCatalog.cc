@@ -67,10 +67,9 @@ pool::TrivialFileCatalog::~TrivialFileCatalog ()
 }
 
 void
-pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode, 
-				     ProtocolRules &rules)
+pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode, bool direct) 
 {
-    if (! ruleNode)
+    if (!ruleNode)
     {
 	throw FCTransactionException
 	    ("TrivialFileCatalog::connect",
@@ -86,31 +85,46 @@ pool::TrivialFileCatalog::parseRule (DOMNode *ruleNode,
 	     ":Malformed trivial catalog"); 		
     }
 	    
-    std::string protocol 
-	= _toString (ruleElement->getAttribute (_toDOMS ("protocol")));	    
-    std::string destinationMatchRegexp
-	= _toString (ruleElement->getAttribute (_toDOMS ("destination-match")));
+    this->addRule (_toString (ruleElement->getAttribute (_toDOMS ("protocol"))),
+                   _toString (ruleElement->getAttribute (_toDOMS ("destination-match"))),
+                   _toString (ruleElement->getAttribute (_toDOMS ("path-match"))),
+                   _toString (ruleElement->getAttribute (_toDOMS ("result"))),
+                   _toString (ruleElement->getAttribute (_toDOMS ("chain"))), direct);
+}
 
-    if (destinationMatchRegexp.empty ())
-	destinationMatchRegexp = ".*";
+void
+pool::TrivialFileCatalog::addRule (const std::string &protocol,
+                                   const std::string &destinationMatchRegexp,
+                                   const std::string &pathMatchRegexp,
+                                   const std::string &result,
+                                   const std::string &chain, 
+                                   bool direct, bool back)
+{
+    std::string _destMatchRegexp = ".*";
+    if (!destinationMatchRegexp.empty ()) 
+    _destMatchRegexp = destinationMatchRegexp; 
 
-    std::string pathMatchRegexp 
-	= _toString (ruleElement->getAttribute (_toDOMS ("path-match")));
-    std::string result 
-	= _toString (ruleElement->getAttribute (_toDOMS ("result")));
-    std::string chain 
-	= _toString (ruleElement->getAttribute (_toDOMS ("chain")));
-    					    
     Rule rule;
     rule.pathMatch.setPattern (pathMatchRegexp);
     rule.pathMatch.compile ();
-    rule.destinationMatch.setPattern (destinationMatchRegexp);
-    rule.destinationMatch.compile ();    
+    rule.destinationMatch.setPattern (_destMatchRegexp);
+    rule.destinationMatch.compile ();
     rule.result = result;
     rule.chain = chain;
-    rules[protocol].push_back (rule);    
+    if (direct) {
+        if (back) {
+            m_directRules[protocol].push_back (rule);
+        } else {
+            m_directRules[protocol].push_front (rule);
+        }
+    } else {
+        if (back) {
+            m_inverseRules[protocol].push_back (rule);
+        } else {
+            m_inverseRules[protocol].push_front (rule);
+        }
+    }
 }
-
 
 void
 pool::TrivialFileCatalog::connect ()
@@ -219,7 +233,7 @@ pool::TrivialFileCatalog::connect ()
 
 	    for (unsigned int i=0; i<ruleTagsNum; i++) {
 		DOMNode* ruleNode =	rules->item(i);
-		parseRule (ruleNode, m_directRules);
+		parseRule (ruleNode, true);
 	    }
 	}
 	/*Then we handle the pfn-to-lfn bit*/
@@ -230,7 +244,7 @@ pool::TrivialFileCatalog::connect ()
 	
 	    for (unsigned int i=0; i<ruleTagsNum; i++){
 		DOMNode* ruleNode =	rules->item(i);
-		parseRule (ruleNode, m_inverseRules);
+		parseRule (ruleNode, false);
 	    }	    
 	}
 	
