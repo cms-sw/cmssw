@@ -12,6 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "EventFilter/ESDigiToRaw/interface/ESDataFormatter.h"
 
@@ -56,7 +57,7 @@ class ESDigiToRaw : public edm::EDProducer {
     
   std::string label_;
   std::string instanceName_;
-  std::string lookup_;
+  edm::FileInPath lookup_;
   bool   debug_;
   int formatMajor_; 
   int formatMinor_; 

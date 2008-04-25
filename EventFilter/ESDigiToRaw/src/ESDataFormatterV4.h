@@ -13,7 +13,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "EventFilter/ESDigiToRaw/interface/ESDataFormatter.h"
 
 class ESDigiToRaw;
@@ -39,12 +39,13 @@ class ESDataFormatterV4 : public ESDataFormatter {
 
   private :    
 
-  std::string lookup_;
+  edm::FileInPath lookup_;
   int fedId_[2][2][40][40];   
   int kchipId_[2][2][40][40];   
   int paceId_[2][2][40][40];   
   int bundleId_[2][2][40][40];   
   int fiberId_[2][2][40][40];   
+  int optoId_[2][2][40][40];
 
   protected :
 

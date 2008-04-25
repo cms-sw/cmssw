@@ -1,5 +1,3 @@
-
-
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -7,11 +5,9 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-
 #include "EventFilter/ESDigiToRaw/interface/ESDigiToRaw.h"
 #include "EventFilter/ESDigiToRaw/src/ESDataFormatterV1_1.h"
 #include "EventFilter/ESDigiToRaw/src/ESDataFormatterV4.h"
-
 
 using namespace std;
 using namespace edm;
@@ -24,7 +20,7 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
   formatMajor_ = ps.getUntrackedParameter<int>("formatMajor",1);
   formatMinor_ = ps.getUntrackedParameter<int>("formatMinor",1);
-  lookup_ = ps.getUntrackedParameter<string>("LookupTable");
+  lookup_ = ps.getUntrackedParameter<FileInPath>("LookupTable");
 
   counter_ = 0;
   kchip_ec_ = 0; 
@@ -47,14 +43,14 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
   // read in look-up table
   int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber;
   ifstream file;
-  file.open(lookup_.c_str());
+  file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
     for (int i=0; i<4288; ++i) {
       file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber;
       fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
     }
   } else {
-    cout<<"Look up table file can not be found in "<<lookup_.c_str()<<endl;
+    cout<<"Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
   }
 
 }

@@ -1,4 +1,4 @@
-
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "EventFilter/Utilities/interface/FEDHeader.h"
@@ -95,7 +95,7 @@ const int ESDataFormatterV4::sOHEAD     = 28;
 ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps) 
   : ESDataFormatter(ps) {
 
-  lookup_ = ps.getUntrackedParameter<string>("LookupTable");
+  lookup_ = ps.getUntrackedParameter<FileInPath>("LookupTable");
 
   // initialize look-up table
   for (int i=0; i<2; ++i)
@@ -107,12 +107,75 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
           paceId_[i][j][k][m] = -1;
           bundleId_[i][j][k][m] = -1;
           fiberId_[i][j][k][m] = -1;
+	  optoId_[i][j][k][m] = -1;
 	}
+
+  Int_t opto[56][3] = {
+    { 1,  2,  3},
+    { 4,  5,  0},
+    { 6,  7,  0},
+    { 8,  9, 13},
+    { 0,  0,  0},
+    {10, 11, 12},
+    { 0,  0,  0},
+    {14, 15, 16},
+    {17, 18,  0},
+    {19, 20,  0},
+    { 0,  0,  0},
+    {21, 22, 26},
+    {23, 24, 25},
+    { 0,  0,  0},
+
+    { 1,  2,  6},
+    { 3,  4,  5},
+    { 0,  0,  0},
+    { 7,  8,  9},
+    {10, 11,  0},
+    {12, 13,  0},
+    { 0,  0,  0},
+    {14, 15, 19},
+    {16, 17, 18},
+    { 0,  0,  0},
+    {20, 21, 22},
+    {23, 24,  0},
+    {25, 26,  0},
+    { 0,  0,  0},
+
+    {27, 28, 29},
+    {30, 31,  0},
+    {32, 33,  0},
+    {34, 35, 39},
+    { 0,  0,  0},
+    {36, 37, 38},
+    { 0,  0,  0},
+    {40, 41, 42},
+    {43, 44,  0},
+    {45, 46,  0},
+    { 0,  0,  0},
+    {47, 48, 52},
+    {49, 50, 51},
+    { 0,  0,  0},
+
+    {27, 28, 32},
+    {29, 30, 31},
+    { 0,  0,  0},
+    {33, 34, 35},
+    {36, 37,  0},
+    {38, 39,  0},
+    { 0,  0,  0},
+    {40, 41, 45},
+    {42, 43, 44},
+    { 0,  0,  0},
+    {46, 47, 48},
+    {49, 50,  0},
+    {51, 52,  0},
+    { 0,  0,  0},
+  };
 
   // read in look-up table
   int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber;
   ifstream file;
-  file.open(lookup_.c_str());
+  file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
     for (int i=0; i<4288; ++i) {
       file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber;
@@ -121,9 +184,17 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
       paceId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = pace;
       bundleId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = bundle;
       fiberId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fiber;
+
+      for (int m=0; m<56; ++m) 
+	for (int n=0; n<3; ++n) {
+	  if (opto[fed-1][n] == bundle) {
+	    optoId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = n;
+	  }
+	}
+
     }
   } else {
-    cout<<"Look up table file can not be found in "<<lookup_.c_str()<<endl;
+    cout<<"Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
   }
 
 }
