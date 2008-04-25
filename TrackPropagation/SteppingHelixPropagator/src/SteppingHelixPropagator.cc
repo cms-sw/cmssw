@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/02/12 17:20:58 $
- *  $Revision: 1.49 $
+ *  $Date: 2008/04/23 02:59:17 $
+ *  $Revision: 1.50 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.49 2008/02/12 17:20:58 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.50 2008/04/23 02:59:17 slava77 Exp $
 //
 //
 
@@ -600,12 +600,17 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.radPath_ = 0;
 
   GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), -fabs(svCurrent.r3.z()));
+  GlobalPoint gPointNorZ(svCurrent.r3.x(), svCurrent.r3.y(), svCurrent.r3.z());
 
   GlobalVector bf;
   // = field_->inTesla(gPoint);
   if (useMagVolumes_){
     if (vbField_ ){
-      svCurrent.magVol = vbField_->findVolume(gPointNegZ);
+      if (vbField_->isZSymmetric()){
+	svCurrent.magVol = vbField_->findVolume(gPointNegZ);
+      } else {
+	svCurrent.magVol = vbField_->findVolume(gPointNorZ);
+      }
       if (useIsYokeFlag_){
 	double curRad = svCurrent.r3.perp();
 	if (curRad > 380 && curRad < 850 && fabs(svCurrent.r3.z()) < 667){
@@ -624,8 +629,12 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   }
   
   if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
-    bf = svCurrent.magVol->inTesla(gPointNegZ);
-    if (r3.z() > 0){
+    if (vbField_->isZSymmetric()){
+      bf = svCurrent.magVol->inTesla(gPointNegZ);
+    } else {
+      bf = svCurrent.magVol->inTesla(gPointNorZ);
+    }
+    if (r3.z() > 0 && vbField_->isZSymmetric() ){
       svCurrent.bf.set(-bf.x(), -bf.y(), bf.z());
     } else {
       svCurrent.bf.set(bf.x(), bf.y(), bf.z());
@@ -681,12 +690,17 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   svNext.radPath_ = svPrevious.radPath() + dX0;
 
   GlobalPoint gPointNegZ(svNext.r3.x(), svNext.r3.y(), -fabs(svNext.r3.z()));
+  GlobalPoint gPointNorZ(svNext.r3.x(), svNext.r3.y(), svNext.r3.z());
 
   GlobalVector bf; 
 
   if (useMagVolumes_){
     if (vbField_ != 0){
-      svNext.magVol = vbField_->findVolume(gPointNegZ);
+       if (vbField_->isZSymmetric()){
+	 svNext.magVol = vbField_->findVolume(gPointNegZ);
+       } else {
+	 svNext.magVol = vbField_->findVolume(gPointNorZ);
+       }
       if (useIsYokeFlag_){
 	double curRad = svNext.r3.perp();
 	if (curRad > 380 && curRad < 850 && fabs(svNext.r3.z()) < 667){
@@ -705,8 +719,12 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   }
 
   if (useMagVolumes_ && svNext.magVol != 0 && ! useInTeslaFromMagField_){
-    bf = svNext.magVol->inTesla(gPointNegZ);
-    if (svNext.r3.z() > 0){
+    if (vbField_->isZSymmetric()){
+      bf = svNext.magVol->inTesla(gPointNegZ);
+    } else {
+      bf = svNext.magVol->inTesla(gPointNorZ);
+    }
+    if (svNext.r3.z() > 0  && vbField_->isZSymmetric() ){
       svNext.bf.set(-bf.x(), -bf.y(), bf.z());
     } else {
       svNext.bf.set(bf.x(), bf.y(), bf.z());
@@ -828,8 +846,12 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     // = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
     if (useMagVolumes_ && svCurrent.magVol != 0 && ! useInTeslaFromMagField_){
       // this negative-z business will break at some point
-      bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
-      if (drVec.z() > 0){
+      if (vbField_->isZSymmetric()){
+	bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
+      } else {
+	bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
+      }
+      if (drVec.z() > 0 && vbField_->isZSymmetric()){
 	bf.set(-bfGV.x(), -bfGV.y(), bfGV.z());
       } else {
 	bf.set(bfGV.x(), bfGV.y(), bfGV.z());
@@ -1585,7 +1607,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       // = cPlane->toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
       GlobalVector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz());
       
-      if (sv.r3.z() < 0){
+      if (sv.r3.z() < 0 || !vbField_->isZSymmetric() ){
 	pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = rPlane.z();
 	pars[3] = nPlane.x(); pars[4] = nPlane.y(); pars[5] = nPlane.z();
       } else {
@@ -1609,7 +1631,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 			 <<" angle of "<<cCone->openingAngle()
 			 <<std::endl;
       }
-      if (sv.r3.z() < 0){
+      if (sv.r3.z() < 0 || !vbField_->isZSymmetric()){
 	pars[0] = cCone->vertex().x(); pars[1] = cCone->vertex().y(); 
 	pars[2] = cCone->vertex().z();
 	pars[3] = cCone->openingAngle();
@@ -1689,7 +1711,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 		       <<" for iFace "<<iFDest<<std::endl;
     }
     GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
-    if ( cVol->inside(gPointEstNegZ) ){
+    GlobalPoint gPointEstNorZ(gPointEst.x(), gPointEst.y(), gPointEst.z() );
+    if (  (vbField_->isZSymmetric() && cVol->inside(gPointEstNegZ))
+	  || ( !vbField_->isZSymmetric() && cVol->inside(gPointEstNorZ) )  ){
       if (debug_){
 	LogTrace(metname)<<"The point is inside the volume"<<std::endl;
       }
@@ -1721,7 +1745,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 			 <<" for iFace "<<iDistMin<<" at distance "<<lDist*sign<<std::endl;
       }
       GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
-      if (cVol->inside(gPointEstNegZ) ){
+      GlobalPoint gPointEstNorZ(gPointEst.x(), gPointEst.y(), gPointEst.z() );
+      if (  (vbField_->isZSymmetric() && cVol->inside(gPointEstNegZ))
+	  || ( !vbField_->isZSymmetric() && cVol->inside(gPointEstNorZ) ) ){
 	if (debug_){
 	  LogTrace(metname)<<"The point is inside the volume"<<std::endl;
 	}
