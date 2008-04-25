@@ -42,11 +42,11 @@ private:
      TFile*      hOutputFile ;
      TTree * myTree;
      int NumRecoJetsCaloTower, NumRecoJetsCorrected, NumRecoJetsRecHit, NumGenJets, NumRecoJetsJetPlusTrack;
-     float JetRecoEtCaloTower[10],JetRecoEtaCaloTower[10],JetRecoPhiCaloTower[10];
-     float JetRecoEtCorrected[10],JetRecoEtCorrectedZS[10],JetRecoEtaCorrected[10],JetRecoPhiCorrected[10];
-     float JetRecoGenRecType[10],JetRecoGenPartonType[10];
-     float JetRecoEtRecHit[10],EcalEmpty[10],HcalEmpty[10];
-     float JetRecoEtJetPlusTrack[10],JetRecoEtaJetPlusTrack[10],JetRecoPhiJetPlusTrack[10];
+     float JetRecoEtCaloTower[100],JetRecoEtaCaloTower[100],JetRecoPhiCaloTower[100];
+     float JetRecoEtCorrected[100],JetRecoEtCorrectedZS[100],JetRecoEtaCorrected[100],JetRecoPhiCorrected[100];
+     float JetRecoGenRecType[100],JetRecoGenPartonType[100];
+     float JetRecoEtRecHit[100],EcalEmpty[100],HcalEmpty[100];
+     float JetRecoEtJetPlusTrack[100],JetRecoEtaJetPlusTrack[100],JetRecoPhiJetPlusTrack[100];
      float JetGenEt[10],JetGenEta[10],JetGenPhi[10],JetGenCode[10];
      int Code[4000],Charge[4000],NumPart,NumRecoTrack;
      float partpx[4000],partpy[4000],partpz[4000],parte[4000],partm[4000];

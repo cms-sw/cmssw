@@ -33,7 +33,7 @@ public:
   
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
-  void setParameters(double, double, int );
+  void setParameters( std::string fDataFile );
   
   /// if correction needs event information
   virtual bool eventRequired () const {return true;}
@@ -42,8 +42,14 @@ private:
   edm::InputTag m_JetTracksAtVertex;
   edm::InputTag m_JetTracksAtCalo;
   int theResponseAlgo;
-
+  bool theAddOutOfConeTracks;
+  
   SingleParticleJetResponse * theSingle;
+  int netabin,nptbin;
+  std::vector<double> etabin;
+  std::vector<double> ptbin;
+  std::vector<double> trkeff;
+  std::string theNonEfficiencyFile;
 
 };
 
