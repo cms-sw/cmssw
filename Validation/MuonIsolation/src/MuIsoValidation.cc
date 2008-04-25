@@ -65,6 +65,8 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 {
 
 	rootfilename = iConfig.getUntrackedParameter<string>("rootfilename");
+        requireCombinedMuon = iConfig.getUntrackedParameter<bool>("requireCombinedMuon");
+	dirName = iConfig.getParameter<std::string>("@module_label");
 
 	//--------Initialize tags-------
 	Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
@@ -76,7 +78,8 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 
 	//-------Initialize counters----------------
 	nEvents = 0;
-	nMuons = 0;   
+	nIncMuons = 0;   
+	nCombinedMuons = 0;
 
 	InitStatics();
 
@@ -101,6 +104,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
 	h_2D.resize(NUM_VARS, vector<MonitorElement*>     (NUM_VARS));
 	p_2D.resize(NUM_VARS, vector<MonitorElement*>(NUM_VARS));
 
+	dbe->cd();
 }
 
 //
@@ -243,19 +247,24 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	//Fill historgams concerning muon isolation 
 	uint iMuon=0;
+        dbe->setCurrentFolder(dirName.c_str());
 	for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon ) {
-		if (muon->combinedMuon().isNull()) continue;
-                ++nMuons;
-		reco::MuonRef muRef(muonsHandle,iMuon);
-		MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muRef];
-		MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muRef];
-		MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muRef];
-		MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muRef];
-
-		RecordData(muon,tkDep,ecalDep,hcalDep,hoDep);
-		FillHistos();
+	  ++nIncMuons;
+	  if (requireCombinedMuon) {
+	    if (muon->combinedMuon().isNull()) continue;
+	  }
+	  ++nCombinedMuons;
+	  reco::MuonRef muRef(muonsHandle,iMuon);
+	  MuIsoDepRef& tkDep  = ( *tkIsoHandle)[muRef];
+	  MuIsoDepRef& ecalDep = (*ecalIsoHandle)[muRef];
+	  MuIsoDepRef& hcalDep = (*hcalIsoHandle)[muRef];
+	  MuIsoDepRef& hoDep   = (  *hoIsoHandle)[muRef];
+	  
+	  RecordData(muon,tkDep,ecalDep,hcalDep,hoDep);
+	  FillHistos();
 	}
-   
+	dbe->cd();
+
 }
 
 //---------------Record data for a signle muon's data---------------------
@@ -274,7 +283,7 @@ void MuIsoValidation::RecordData(MuonIterator muon,
   theData[6] = hcalDep.depositAndCountWithin(0.3).second;
   theData[7] = hoDep.depositAndCountWithin(0.3).second;
   
-  theData[8] = muon->combinedMuon()->pt();
+  theData[8] = muon->pt();
   // make sure nTracks != 0 before filling this one
   if (theData[4] != 0) theData[9] = (double)theData[0] / (double)theData[4];
   else theData[9] = -99;
@@ -290,7 +299,10 @@ MuIsoValidation::beginJob(const edm::EventSetup&)
 	edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 		<< "Lets get started! " 
 		<< "\n\n#########################################\n";
+	dbe->setCurrentFolder(dirName.c_str());
 	InitHistos();
+        dbe->cd();
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -299,7 +311,7 @@ MuIsoValidation::endJob() {
 
 	edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 		<< "Total Number of Events: " << nEvents
-		<< "\nTotal Number of Muons: " << nMuons
+		<< "\nTotal Number of Muons: " << nIncMuons
 		<< "\n\n#########################################\n"
 		<< "\nInitializing Histograms...\n";
 
@@ -435,8 +447,14 @@ void MuIsoValidation::NormalizeHistos() {
       cd_plots[var]->setBinContent(n, cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n-1)); //Integrate.
     }
     //----normalize------
-    GetTH1FromMonitorElement(h_1D[var])->Scale(1./nMuons);
-    GetTH1FromMonitorElement(cd_plots[var])->Scale(1./nMuons);    
+    if (requireCombinedMuon) {
+      GetTH1FromMonitorElement(h_1D[var])->Scale(1./nCombinedMuons);
+      GetTH1FromMonitorElement(cd_plots[var])->Scale(1./nCombinedMuons);
+    }
+    else {
+      GetTH1FromMonitorElement(h_1D[var])->Scale(1./nIncMuons);
+      GetTH1FromMonitorElement(cd_plots[var])->Scale(1./nIncMuons);
+    }
   }
 }
 

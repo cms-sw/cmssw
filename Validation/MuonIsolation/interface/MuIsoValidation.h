@@ -94,6 +94,8 @@ private:
   
   //root file name
   std::string rootfilename;
+  // Directories within the rootfile
+  std::string dirName;
 
   //Histogram parameters
   static const int NUM_VARS = 11;
@@ -102,6 +104,7 @@ private:
   int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
   int NUM_LOG_BINS;
   double LOG_BINNING_RATIO;
+  bool requireCombinedMuon;
   
   std::string title_sam;
   std::string title_cone;
@@ -131,7 +134,8 @@ private:
   
   //Counters
   int nEvents;
-  int nMuons;
+  int nIncMuons;
+  int nCombinedMuons;
   
   //enums for monitorElement
   enum {NOAXIS,XAXIS,YAXIS,ZAXIS};
