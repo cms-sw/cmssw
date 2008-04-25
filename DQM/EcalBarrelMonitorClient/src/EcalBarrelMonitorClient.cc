@@ -700,8 +700,10 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   h_ = 0;
 
   status_  = "unknown";
+
   run_     = -1;
   evt_     = -1;
+
   runType_ = -1;
   evtType_ = -1;
 
@@ -881,8 +883,10 @@ void EcalBarrelMonitorClient::endRun(void) {
   this->cleanup();
 
   status_  = "unknown";
+
   run_     = -1;
   evt_     = -1;
+
   runType_ = -1;
   evtType_ = -1;
 

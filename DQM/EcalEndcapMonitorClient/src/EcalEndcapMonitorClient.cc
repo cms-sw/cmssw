@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/25 12:04:47 $
- * $Revision: 1.176 $
+ * $Date: 2008/04/25 12:25:52 $
+ * $Revision: 1.177 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -729,8 +729,10 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   h_ = 0;
 
   status_  = "unknown";
+
   run_     = -1;
   evt_     = -1;
+
   runType_ = -1;
   evtType_ = -1;
 
@@ -910,8 +912,10 @@ void EcalEndcapMonitorClient::endRun(void) {
   this->cleanup();
 
   status_  = "unknown";
+
   run_     = -1;
   evt_     = -1;
+
   runType_ = -1;
   evtType_ = -1;
 
