@@ -51,6 +51,7 @@ class L1TDEMON : public edm::EDAnalyzer {
   // counters
   int nEvt_;
   int deSysCount[DEnsys];
+  int nEvtWithSys[DEnsys];
 
   // root output file name
   std::string histFile_;
