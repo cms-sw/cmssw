@@ -1,4 +1,4 @@
-#include "EventFilter/ESDigiToRaw/interface/ESDigiToRawTB.h"
+
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -7,9 +7,14 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-ESDigiToRawTB::ESDigiToRawTB(const edm::ParameterSet& ps)
-{
+#include "EventFilter/ESDigiToRaw/interface/ESDigiToRawTB.h"
+#include "EventFilter/ESDigiToRaw/src/ESDataFormatterTB.h"
 
+using namespace std;
+using namespace edm;
+
+ESDigiToRawTB::ESDigiToRawTB(const edm::ParameterSet& ps) : ESDataFormatter_(0) 
+{ 
   label_ = ps.getParameter<string>("Label");
   instanceName_ = ps.getParameter<string>("InstanceES");
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
@@ -18,12 +23,12 @@ ESDigiToRawTB::ESDigiToRawTB(const edm::ParameterSet& ps)
 
   produces<FEDRawDataCollection>();
 
-  ESDataFormatter_ = new ESDataFormatter(ps);
+  ESDataFormatter_ = new ESDataFormatterTB(ps);
 
 }
 
 ESDigiToRawTB::~ESDigiToRawTB() {
-  delete ESDataFormatter_;
+  if (ESDataFormatter_) delete ESDataFormatter_;
 }
 
 void ESDigiToRawTB::beginJob(const edm::EventSetup& es) {
@@ -47,7 +52,7 @@ void ESDigiToRawTB::produce(edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<ESDigiCollection> digis;
   ev.getByLabel(label_, instanceName_, digis);
 
-  ESDataFormatter::Digis Digis;
+  ESDataFormatterTB::Digis Digis;
   Digis.clear();
 
   int dccId = 0;
@@ -74,7 +79,7 @@ void ESDigiToRawTB::produce(edm::Event& ev, const edm::EventSetup& es) {
   int nFED = 0;
   for (int fId=ESFEDIds.first; fId<=ESFEDIds.second; ++fId) {
     if (nFED == 0) {
-      FEDRawData *rawData = ESDataFormatter_->DigiToRawTB(fId, Digis);
+      FEDRawData *rawData = ESDataFormatter_->DigiToRaw(fId, Digis);
       FEDRawData& fedRawData = productRawData->FEDData(fId); 
       fedRawData = *rawData;
       if (debug_) cout<<"FED : "<<fId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;

@@ -1,4 +1,4 @@
-#include "EventFilter/ESDigiToRaw/interface/ESDigiToRaw.h"
+
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -7,23 +7,39 @@
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps)
-{
 
+#include "EventFilter/ESDigiToRaw/interface/ESDigiToRaw.h"
+#include "EventFilter/ESDigiToRaw/src/ESDataFormatterV1_1.h"
+#include "EventFilter/ESDigiToRaw/src/ESDataFormatterV4.h"
+
+
+using namespace std;
+using namespace edm;
+
+ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
+{
+  
   label_ = ps.getParameter<string>("Label");
   instanceName_ = ps.getParameter<string>("InstanceES");
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
+  formatMajor_ = ps.getUntrackedParameter<int>("formatMajor",1);
+  formatMinor_ = ps.getUntrackedParameter<int>("formatMinor",1);
 
   counter_ = 0;
+  kchip_ec_ = 0; 
+  kchip_bc_ = 0; 
 
   produces<FEDRawDataCollection>();
 
-  ESDataFormatter_ = new ESDataFormatter(ps);
+  if (formatMajor_==4 && formatMinor_==0) 
+    ESDataFormatter_ = new ESDataFormatterV4(ps);
+  else 
+    ESDataFormatter_ = new ESDataFormatterV1_1(ps);
 
 }
 
 ESDigiToRaw::~ESDigiToRaw() {
-  delete ESDataFormatter_;
+  if (ESDataFormatter_) delete ESDataFormatter_;
 }
 
 void ESDigiToRaw::beginJob(const edm::EventSetup& es) {
@@ -32,16 +48,21 @@ void ESDigiToRaw::beginJob(const edm::EventSetup& es) {
 void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
 
   run_number_ = ev.id().run();
-  orbit_number_ = counter_ / BXMAX;
-  bx_ = (counter_ % BXMAX);
+  orbit_number_ = counter_ / LHC_BX_RANGE;
+  bx_ = (counter_ % LHC_BX_RANGE);
+   
   //lv1_ = counter_;
   lv1_ = ev.id().event();
+  kchip_ec_ = (lv1_ % KCHIP_EC_RANGE); 
+  kchip_bc_ = (counter_ % KCHIP_BC_RANGE);
   counter_++;
 
   ESDataFormatter_->setRunNumber(run_number_);
   ESDataFormatter_->setOrbitNumber(orbit_number_);
   ESDataFormatter_->setBX(bx_);
   ESDataFormatter_->setLV1(lv1_);
+  ESDataFormatter_->setKchipBC(kchip_bc_);
+  ESDataFormatter_->setKchipEC(kchip_ec_);
 
   pair<int,int> ESFEDIds = FEDNumbering::getPreShowerFEDIds();
 

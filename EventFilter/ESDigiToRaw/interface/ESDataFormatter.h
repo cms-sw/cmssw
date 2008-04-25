@@ -13,61 +13,56 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using namespace std;
-using namespace edm;
-
-class ESDigiToRaw;
-
 class ESDataFormatter {
   
   public :
     
-  typedef vector<ESDataFrame> DetDigis;
-  typedef map<int, DetDigis> Digis;
+  typedef std::vector<ESDataFrame> DetDigis;
+  typedef std::map<int, DetDigis> Digis;
 
-  typedef unsigned char Word8;
-  typedef unsigned short Word16;
-  typedef unsigned int Word32;
-  typedef long long Word64;  
+  typedef uint8_t  Word8;
+  typedef uint16_t Word16;
+  typedef uint32_t Word32;
+  typedef uint64_t Word64;
 
-  ESDataFormatter(const ParameterSet& ps);
-  ~ESDataFormatter();
+  ESDataFormatter(const edm::ParameterSet& ps) : 
+    pset_(ps), run_number_(0), orbit_number_(0), bx_(0), lv1_(0), trgtype_(0),
+    kchip_bc_(0), kchip_ec_(0) { 
+    debug_ = pset_.getUntrackedParameter<bool>("debugMode", false);
+    printInHex_ = pset_.getUntrackedParameter<bool>("printInHex", false);
+  };
+  virtual ~ESDataFormatter() {};
 
-  FEDRawData * DigiToRaw(int fedId, const Digis & digis);
-  FEDRawData * DigiToRawTB(int fedId, const Digis & digis);
+  virtual FEDRawData * DigiToRaw(int fedId, const Digis & digis) = 0;
 
-  void setRunNumber(int i) {run_number_ = i;};
-  void setOrbitNumber(int i) {orbit_number_ = i;};
-  void setBX(int i) {bx_ = i;};
-  void setLV1(int i) {lv1_ = i;};
-  void setTriggerType(int i) {trgtype_ = i;};
+  virtual void setRunNumber(int i) {run_number_ = i;};
+  virtual void setOrbitNumber(int i) {orbit_number_ = i;};
+  virtual void setBX(int i) {bx_ = i;};
+  virtual void setLV1(int i) {lv1_ = i;};
+  virtual void setTriggerType(int i) {trgtype_ = i;};
+  virtual void setKchipBC(int i) {kchip_bc_ = i;};
+  virtual void setKchipEC(int i) {kchip_ec_ = i;};
 
-  private :    
+  protected :    
     
-  const ParameterSet pset_;
+  const edm::ParameterSet pset_;
 
   int run_number_;
   int orbit_number_;
   int bx_;
   int lv1_;
   int trgtype_;
+  int kchip_bc_; 
+  int kchip_ec_;
 
   bool debug_;
+  bool printInHex_; 
 
-  string print(const Word64 & word) const;
-  string print(const Word16 & word) const;
+  int formatMajor_; 
+  int formatMinor_;
 
-  protected :
-
-  static const int bDHEAD, bDH, bDEL, bDERR, bDRUN, bDRUNTYPE, bDTRGTYPE, bDCOMFLAG, bDORBIT;
-  static const int bDVMINOR, bDVMAJOR, bDCH, bDOPTO;  
-  static const int sDHEAD, sDH, sDEL, sDERR, sDRUN, sDRUNTYPE, sDTRGTYPE, sDCOMFLAG, sDORBIT;
-  static const int sDVMINOR, sDVMAJOR, sDCH, sDOPTO;  
-  static const int bKEC, bKFLAG2, bKBC, bKFLAG1, bKET, bKCRC, bKCE, bKID, bFIBER, bKHEAD1, bKHEAD2;
-  static const int sKEC, sKFLAG2, sKBC, sKFLAG1, sKET, sKCRC, sKCE, sKID, sFIBER, sKHEAD1, sKHEAD2;
-  static const int bHEAD,  bE1, bE0, bSTRIP, bPACE, bADC2, bADC1, bADC0;
-  static const int sHEAD,  sE1, sE0, sSTRIP, sPACE, sADC2, sADC1, sADC0;
-
+  std::string print(const Word64 & word) const;
+  std::string print(const Word16 & word) const;
 
 };
 
