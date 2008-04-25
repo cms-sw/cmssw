@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.4 2008/04/25 14:49:05 loizides Exp $
+# $Id: injectIntoDB.pl,v 1.5 2008/04/25 15:40:05 loizides Exp $
 
 use strict;
 use DBI;
@@ -36,10 +36,9 @@ sub inject($)
         "HOSTNAME,DATASET,PRODUCER,STREAM,STATUS,TYPE,SAFETY,NEVENTS,FILESIZE,CHECKSUM) " .
         "VALUES ($runnumber,$lumisection,$instance,$count,'$starttime','$stoptime'," .
         "'$filename','$pathname','$hostname','$dataset','$producer','$stream','$status'," .
-        "$type,$safety,$nevents,$filesize,$checksum)";
+        "'$type',$safety,$nevents,$filesize,$checksum)";
 
     if (defined $dbh) { 
-        my $rows = 1;
         my $rows = $dbh->do($SQL) or 
             die $dbh->errstr;
         return $rows-1;
@@ -68,7 +67,6 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     my $reader = "CMS_STOMGR_W";
     $dbh = DBI->connect($dbi,$reader,"qwerty") or 
         die "Error: Connection to Oracle failed: $DBI::errstr\n";
-    print "dfadfadfa\n";
 }
 
 my $line;
