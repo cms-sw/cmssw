@@ -178,15 +178,6 @@ for ($i=0;$i<10;$i++)
 	   "memcheck_valgrind"=>"Memcheck_Valgrind",
 	   "None"=>"None"
 	   );
-#Hash for --filein option:
-%FileIn=(
-	 "GEN,SIM"=>"",
-	 "DIGI"=>"--filein file:",
-	 "RECO"=>"",
-	 "L1"=>"--filein file:",
-	 "DIGI2RAW"=>"--filein file:",
-	 "HLT"=>"--filein file:"
-	 );
 #Hash to switch from keyword to .cfi use of cmsDriver.py:
 %KeywordToCfi=(
 	       #For now use existing:
@@ -240,26 +231,22 @@ foreach (@Candle)
 	    }
 	    else
 	    {
-		#$OutputFileOption="";
+		#Adding a fileout option too to avoid dependence on future convention changes in cmsDriver.py:
+		$OutputFileOption="--fileout=$FileName{$candle}"."_"."$step".".root";
 		$OutputStep=$step;
-		#if ($step eq "GEN,SIM") #Hack since we use SIM and not GEN,SIM extension (to facilitate DIGI)
-		#{
-		#    $OutputFileOption="--fileout=$FileName{$candle}"."_SIM.root";
-		#    $OutputStep="SIM";
-		#}
 
-		#Hack above overruled: now we use --filein (have to for L1, DIGI2RAW, HLT) so no more change output filenames
-		if (($step eq "GEN,SIM") ||($step eq "RECO"))
+		#Use --filein (have to for L1, DIGI2RAW, HLT) to add robustness
+		if ($step eq "GEN,SIM") #there is no input file for GEN,SIM!
 		{
-		    $InputFile="";
+		    $InputFileOption="";
 		}
 		else
 		{
-		    $InputFile="$FileName{$candle}"."_"."$Step[$stepIndex-1]".".root ";
+		    $InputFileOption="--filein file:$FileName{$candle}"."_"."$Step[$stepIndex-1]".".root ";
 		}
 		#Adding .cfi to use new method of using cmsDriver.py
 		#$Command="$cmsDriver $candle -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile --customise=$SimPython{$step} ";
-		$Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile --customise=$SimPython{$step} ";
+		$Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=$step $InputFileOption $OutputFileOption --customise=$SimPython{$step} ";
 	    }
 	    print SIMCANDLES "$Command @@@ $Profiler{$_} @@@ $FileName{$candle}_"."$OutputStep"."_"."$_"."\n";
 	}
@@ -276,12 +263,10 @@ foreach (@Candle)
     if ($candle eq "QCD -e 80_120")
     {
 	#First run the DIGI with PILEUP (using the MixingModule.py)
+	#Hardcode stuff for this special step
 	print SIMCANDLES "#$FileName{$candle}\n";
 	print SIMCANDLES "#DIGI PILE-UP STEP\n";
 	print "DIGI PILEUP\n";
-	#Very messy solution for now:
-	#Setting the stepIndex variable to 1, i.e. DIGI step
-	$stepIndex=1;
 	foreach (@Profile)
 	{
 	    if ($_ eq "EdmSize")
@@ -290,11 +275,11 @@ foreach (@Candle)
 	    }
 	    else
 	    {
-		$InputFile="$FileName{$candle}"."_"."$Step[$stepIndex-1]".".root ";
+		$InputFileOption="--filein file:$FileName{$candle}"."_GEN,SIM.root ";
 		$OutputFileOption="--fileout=$FileName{$candle}"."_DIGI_PILEUP.root";
 		#Adding .cfi to use new method of using cmsDriver.py
 		#$Command="$cmsDriver $candle -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile --customise=$SimPython{$step} ";
-		$Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=DIGI $FileIn{$step}$InputFile $OutputFileOption --PU --customise=Configuration/PyReleaseValidation/MixingModule.py ";
+		$Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=DIGI $InputFileOption $OutputFileOption --PU --customise=Configuration/PyReleaseValidation/MixingModule.py ";
 	    }
 	    print SIMCANDLES "$Command @@@ $Profiler{$_} @@@ $FileName{$candle}_DIGI_PILEUP_"."$_"."\n";
 	}
@@ -326,11 +311,11 @@ foreach (@Candle)
 		}
 		else
 		{
-		    $InputFile="$FileName{$candle}"."_"."$Step[$stepIndex-1]"."_PILEUP".".root ";
+		    $InputFileOption="$FileName{$candle}"."_"."$Step[$stepIndex-1]"."_PILEUP".".root ";
 		    $OutputFileOption="--fileout=$FileName{$candle}"."_"."$step"."_PILEUP.root";
 		    #Adding .cfi to use new method of using cmsDriver.py
 		    #$Command="$cmsDriver $candle -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile --customise=$SimPython{$step} ";
-		    $Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile $OutputFileOption --customise=$SimPython{$step} ";
+		    $Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=$step $InputFileOption $OutputFileOption --customise=$SimPython{$step} ";
 		}
 		print SIMCANDLES "$Command @@@ $Profiler{$_} @@@ $FileName{$candle}_"."$OutputStep"."_"."$_"."\n";
 	    }
