@@ -1,10 +1,13 @@
-#<use name=FWCore/Framework>
+<use name=FWCore/Framework>
+<use name=FWCore/FWLite>
 #<use name=FWCore/ParameterSet>
 <use name=DataFormats/ParticleFlowReco>
 <use name=root>
+<use name=rootcore>
+<use name=rootinteractive>
 <export>
   <lib name=RecoParticleFlowPFClusterTools>
-#  <use name=FWCore/Framework>
+  <use name=FWCore/Framework>
 #  <use name=FWCore/ParameterSet>
 #  <use name=DataFormats/ParticleFlowReco>
 </export>
