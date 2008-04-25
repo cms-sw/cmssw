@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.2 2008/04/25 13:18:42 loizides Exp $
+# $Id: injectIntoDB.pl,v 1.3 2008/04/25 13:56:44 loizides Exp $
 
 use strict;
 use DBI;
@@ -8,7 +8,7 @@ use Getopt::Long;
 # injection subroutine
 sub inject()
 {
-    use vars qw($ddb $dbh);
+    use vars qw($dbh);
 
     my $filename=$ENV{'SM_FILENAME'};
     my $count=$ENV{'SM_FILECOUNTER'};
@@ -38,7 +38,7 @@ sub inject()
         "'$filename','$pathname','$hostname','$dataset','$producer','$stream','$status'," .
         "$type,$safety,$nevents,$filesize,$checksum)";
 
-    if (!defined $ddb) { 
+    if (defined $ddh) { 
         my $rows = $dbh->do($SQL) or 
             die $dbh->errstr;
         return $rows-1;
@@ -55,9 +55,8 @@ my $outfile=">$ARGV[1]";
 $ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
 
 # connect to DB
-my $ddb=$ENV{'SM_DONTACCESSDB'};
 my $dbh; #my DB handle
-if (!defined $ddb) { 
+if (!defined $ENV{'SM_DONTACCESSDB'}) { 
     my $dbi    = "DBI:Oracle:cms_rcms";
     my $reader = "CMS_STOMGR_W";
     $dbh    = DBI->connect($dbi,$reader,"qwerty") or 
@@ -100,7 +99,7 @@ close INDATA;
 close OUTDATA;
 
 # Disconnect from DB
-if (defined $ddb) { 
+if (defined $ddh) { 
     $dbh->disconnect or 
         warn "Warning: Disconnection from Oracle failed: $DBI::errstr\n";
 }
