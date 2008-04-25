@@ -10,7 +10,7 @@
 //
 // Author:      Zhen Xie
 //
-#include <map>
+#include <set>
 #include <string>
 #include "CondCore/DBCommon/interface/TagMetadata.h"
 namespace cond{
@@ -25,7 +25,7 @@ namespace cond{
        given global tag return the basic tag collection. The global tag has the format TreeName::NodeName
     */
     void getTagCollection( const std::string& globaltag,
-			   std::map< std::string, cond::TagMetadata >& result);
+			   std::set<cond::TagMetadata>& result);
   private:
     /// parse global tag string returns result in pair <treename,nodename>
     std::pair<std::string,std::string> parseglobaltag(const std::string& globaltag);

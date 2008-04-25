@@ -144,7 +144,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	m.labelname="";
       }
       m.recordname = itToGet->getParameter<std::string>("record");
-      tagName = itToGet->getParameter<std::string>("tag");
+      m.tag=itToGet->getParameter<std::string>("tag");
+      //tagName = itToGet->getParameter<std::string>("tag");
       std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(m.recordname);
       if(itFound == m_recordToTypes.end()){
 	throw cond::Exception("NoRecord")<<" The record \""<<m.recordname<<"\" is not known by the PoolDBESSource";
@@ -167,7 +168,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	findingRecordWithKey( recordKey );
 	usingRecordWithKey( recordKey );
       }    
-      m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
+      m_tagCollection.insert(m);
       //std::cout<<"tag collection size "<<m_tagCollection.size()<<std::endl;
     }
   }else{
@@ -178,35 +179,35 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     coraldb.start(true);
     this->fillTagCollectionFromDB(coraldb, globaltag);
     coraldb.commit();
-    std::map< std::string, cond::TagMetadata >::iterator it;
-    std::map< std::string, cond::TagMetadata >::iterator itBeg=m_tagCollection.begin();
-    std::map< std::string, cond::TagMetadata >::iterator itEnd=m_tagCollection.end();
+    std::set<cond::TagMetadata>::iterator it;
+    std::set<cond::TagMetadata>::iterator itBeg=m_tagCollection.begin();
+    std::set<cond::TagMetadata>::iterator itEnd=m_tagCollection.end();
     for(it=itBeg; it!=itEnd; ++it){
-      conHandler.registerConnection(it->second.pfn,*m_session,0);
+      conHandler.registerConnection(it->pfn,*m_session,0);
     }
     conHandler.connect(m_session);
     for(it=itBeg;it!=itEnd;++it){
       //std::cout<<"recordname "<<it->second.recordname<<std::endl;
       //std::cout<<"objectname "<<it->second.objectname<<std::endl;
       //std::cout<<"labelname "<<it->second.labelname<<std::endl;
-      std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(it->second.recordname);
+      std::multimap<std::string, std::string>::iterator itFound=m_recordToTypes.find(it->recordname);
       if(itFound == m_recordToTypes.end()){
-      throw cond::Exception("NoRecord")<<" The record \""<<it->second.recordname<<"\" is not known by the PoolDBESSource";
+      throw cond::Exception("NoRecord")<<" The record \""<<it->recordname<<"\" is not known by the PoolDBESSource";
       }
-      std::string datumName = it->second.recordname+"@"+it->second.objectname+"@"+it->second.labelname;
+      std::string datumName = it->recordname+"@"+it->objectname+"@"+it->labelname;
       //std::cout<<"datumName "<<datumName<<std::endl;
       m_datumToToken.insert( make_pair(datumName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
-      cond::Connection* c=conHandler.getConnection(it->second.pfn); 
-      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(it->second.recordname, it->second.objectname), c, pos));
-      edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->second.recordname ) );
+      cond::Connection* c=conHandler.getConnection(it->pfn); 
+      boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(it->recordname, it->objectname), c, pos));
+      edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
 	//record not found
-	throw cond::Exception("NoRecord")<<"The record \""<< it->second.recordname <<"\" does not exist ";
+	throw cond::Exception("NoRecord")<<"The record \""<< it->recordname <<"\" does not exist ";
       }
-      if( lastRecordName != it->second.recordname ) {
-	lastRecordName = it->second.recordname;
+      if( lastRecordName != it->recordname ) {
+	lastRecordName = it->recordname;
 	findingRecordWithKey( recordKey );
 	usingRecordWithKey( recordKey );
       }    
@@ -365,17 +366,17 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 
 void 
 PoolDBESSource::fillRecordToIOVInfo(){
-  std::map< std::string, cond::TagMetadata >::iterator it;
-  std::map< std::string, cond::TagMetadata >::iterator itbeg=m_tagCollection.begin();
-  std::map< std::string, cond::TagMetadata >::iterator itend=m_tagCollection.end();
+  std::set< cond::TagMetadata >::iterator it;
+  std::set< cond::TagMetadata >::iterator itbeg=m_tagCollection.begin();
+  std::set< cond::TagMetadata >::iterator itend=m_tagCollection.end();
   for( it=itbeg;it!=itend;++it ){
-    std::string recordname=it->second.recordname;
-    std::string objectname=it->second.objectname;
+    std::string recordname=it->recordname;
+    std::string objectname=it->objectname;
     std::string proxyname=buildName(recordname,objectname);
     cond::IOVInfo iovInfo;
-    iovInfo.tag=it->first;
-    iovInfo.pfn=it->second.pfn;
-    iovInfo.label=it->second.labelname;
+    iovInfo.tag=it->tag;
+    iovInfo.pfn=it->pfn;
+    iovInfo.label=it->labelname;
     
     cond::Connection* connection=conHandler.getConnection(iovInfo.pfn);
     cond::CoralTransaction& coraldb=connection->coralTransaction();

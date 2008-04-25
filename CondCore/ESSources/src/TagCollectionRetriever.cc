@@ -13,14 +13,14 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 //#include <iostream>
 cond::TagCollectionRetriever::TagCollectionRetriever( cond::CoralTransaction& coraldb ):m_coraldb(&coraldb){
 }
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
 void 
 cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
-						std::map< std::string, 
-						cond::TagMetadata >& result){
+						std::set<cond::TagMetadata >& result){
   coral::ITable& tagInventorytable=m_coraldb->nominalSchema().tableHandle(cond::TagDBNames::tagInventoryTable());
   coral::IQuery* query=m_coraldb->nominalSchema().newQuery();
   std::pair<std::string,std::string> treenodepair=parseglobaltag(globaltag);
@@ -86,11 +86,14 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
       const coral::AttributeList& row = cursor2.currentRow();
       cond::TagMetadata tagmetadata;
       std::string tagname=row["tagname"].data<std::string>();
+      tagmetadata.tag=tagname;
       tagmetadata.pfn=row["pfn"].data<std::string>();
       tagmetadata.recordname=row["recordname"].data<std::string>();
       tagmetadata.objectname=row["objectname"].data<std::string>();
       tagmetadata.labelname=row["labelname"].data<std::string>();
-      result.insert( std::make_pair<std::string, cond::TagMetadata>(tagname,tagmetadata) );
+      if(! result.insert(tagmetadata).second ){
+	throw cond::Exception("cond::TagCollectionRetriever::getTagCollection tag "+tagname+" from "+tagmetadata.pfn+" already exist, cannot insert in the tag collection ");
+      }
     }
     cursor2.close();
     delete leaftagquery;
