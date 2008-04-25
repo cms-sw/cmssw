@@ -84,8 +84,13 @@ for ($i=0; $i<@JOBID; ++$i) {
     }
     close INFILE;
 
-    # if there is an alignment.log file, check it as well
+    # if there is an alignment.log[.gz] file, check it as well
     $eazeLog = "jobData/@JOBDIR[$i]/alignment.log";
+    $logZipped = "no";
+    if (-r $eazeLog.".gz") {
+      system "gunzip ".$eazeLog.".gz";
+      $logZipped = "true";
+    }
     # open the input file
     open INFILE,"$eazeLog";
     # scan records in input file
@@ -106,6 +111,9 @@ for ($i=0; $i<@JOBID; ++$i) {
       }
     }
     close INFILE;
+    if ($logZipped eq "true") {
+      system "gzip $eazeLog";
+    }
 
     $milleOut = sprintf("$mssDir/milleBinary%03d.dat",$i+1);
     $mOutSize = `nsls -l $milleOut | awk '{print \$5}'`;
@@ -117,9 +125,13 @@ for ($i=0; $i<@JOBID; ++$i) {
 
     # additional checks for merging job
     if (@JOBDIR[$i] eq "jobm") {
-        # if there is an alignment_merge.log file, check it as well
+        # if there is an alignment_merge.log[.gz] file, check it as well
 	$eazeLog = "jobData/@JOBDIR[$i]/alignment_merge.log";
-	
+        $logZipped = "no";
+        if (-r $eazeLog.".gz") {
+          system "gunzip ".$eazeLog.".gz";
+          $logZipped = "true";
+        }
 	if (-r $eazeLog) {
 	    # open the input file
 	    open INFILE,"$eazeLog";
@@ -140,9 +152,14 @@ for ($i=0; $i<@JOBID; ++$i) {
 		}
 	    }
 	    close INFILE;
+	} else {
+	    print "mps_check.pl cannot find $eazeLog to test";
+	}
+	if ($logZipped eq "true") {
+	    system "gzip $eazeLog";
 	}
 
-	# if there is an alignment_merge.log file, check it as well
+	# if there is a pede.dump file, check it as well
 	$eazeLog = "jobData/@JOBDIR[$i]/pede.dump";
 	if (-r $eazeLog) {
 	    # open the input file
