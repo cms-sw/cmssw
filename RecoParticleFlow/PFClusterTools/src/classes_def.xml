@@ -1,0 +1,17 @@
+
+<lcgdict>
+  <class name="minimiser::TreeUtility"/>
+  <class name="minimiser::Calibrator"/>
+  <class name="minimiser::DetectorElement"/>    
+  <class name="minimiser::LinearCalibrator"/>     
+  <class name="minimiser::SpaceManager"/> 
+  <class name="minimiser::Deposition"/>
+  <class name="minimiser::MinimiserException"/> 
+  <class name="minimiser::ParticleDeposit"/>
+  <class name="minimiser::SpaceVoxel"/>
+  <class name="SingleParticleWrapper"/>
+  <class name="std::vector<minimiser::DetectorElement*>"/>
+  <class name="std::vector<minimiser::ParticleDeposit*>"/>
+
+ </lcgdict>
+
