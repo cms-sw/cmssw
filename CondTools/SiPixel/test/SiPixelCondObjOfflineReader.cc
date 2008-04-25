@@ -18,6 +18,7 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 {
   unsigned int nmodules = 0;
   uint32_t nchannels = 0;
+  uint32_t ndead=0;
   fFile->cd();
   
   // Get the Geometry
@@ -45,7 +46,6 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 
     std::map<uint32_t,TH1F*>::iterator p_iter =  _TH1F_Pedestals_m.find(detid);
     std::map<uint32_t,TH1F*>::iterator g_iter =  _TH1F_Gains_m.find(detid);
-    
     const GeomDetUnit      * geoUnit = tkgeom->idToDetUnit( detIdObject );
     const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
     const PixelTopology & topol = pixDet->specificTopology();       
@@ -53,17 +53,28 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
     // Get the module sizes.
     int nrows = topol.nrows();      // rows in x
     int ncols = topol.ncolumns();   // cols in y
-
+    float nchannelspermod=0;
     for(int col_iter=0; col_iter<ncols; col_iter++) {
        for(int row_iter=0; row_iter<nrows; row_iter++) {
-          nchannels++;
-          float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
-          g_iter->second->Fill( gain );
-          float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
-          p_iter->second->Fill( ped );
+	 nchannelspermod++;
+	 nchannels++;
+	 
+	 if(SiPixelGainCalibrationService_.isDead(detid,col_iter,row_iter)){
+	    //	    std::cout << "found dead pixel " << detid << " " <<col_iter << "," << row_iter << std::endl;
+	   ndead++;
+	   _deadfrac_m[detid]++;
+	   continue;
+	 }
+	 float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
+	 g_iter->second->Fill( gain );
+	 float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
+	 p_iter->second->Fill( ped );
+	 
        }
        //std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
     }
+    _deadfrac_m[detid]/=nchannelspermod;
+   
   }
   
   edm::LogInfo("SiPixelCondObjOfflineReader") <<"[SiPixelCondObjOfflineReader::analyze] ---> PIXEL Modules  " << nmodules  << std::endl;
@@ -72,7 +83,8 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
   fFile->cd();
   _TH1F_Gains_sum = new TH1F("Summary_Gain","Gain Summary", vdetId_.size()+1,0,vdetId_.size()+1);
   _TH1F_Pedestals_sum = new TH1F("Summary_Pedestal","Pedestal Summary", vdetId_.size()+1,0,vdetId_.size()+1);
- 
+  _TH1F_Dead_sum = new TH1F("Summary_dead","Dead pixel fraction (0=dead, 1=alive)",vdetId_.size()+1,0,vdetId_.size()+1);
+  _TH1F_Dead_all = new TH1F("DeadAll","Dead pixel fraction (0=dead, 1=alive)",50,0.,conf_.getUntrackedParameter<double>("maxRangeDeadPixHist",0.001));
   // Loop over DetId's
   int ibin=1;
   for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
@@ -82,6 +94,10 @@ SiPixelCondObjOfflineReader::analyze(const edm::Event& iEvent, const edm::EventS
 
     std::map<uint32_t,TH1F*>::iterator p_iter =  _TH1F_Pedestals_m.find(detid);
     std::map<uint32_t,TH1F*>::iterator g_iter =  _TH1F_Gains_m.find(detid);
+    
+    float nentries = p_iter->second->GetEntries();
+    _TH1F_Dead_sum->SetBinContent(ibin,_deadfrac_m[detid]);
+    _TH1F_Dead_all->Fill(_deadfrac_m[detid]);
     _TH1F_Gains_sum->SetBinContent(ibin,g_iter->second->GetMean());
     _TH1F_Gains_sum->SetBinError(ibin,g_iter->second->GetRMS());
     _TH1F_Pedestals_sum->SetBinContent(ibin,p_iter->second->GetMean());
@@ -135,13 +151,14 @@ SiPixelCondObjOfflineReader::beginJob(const edm::EventSetup& iSetup)
       edm::LogError("SiPixelCondObjOfflineDisplay")<<"[SiPixelCondObjOfflineReader::beginJob] the detID "<<detid<<" doesn't seem to belong to Tracker"<<std::endl; 
       continue;
     }     
-    // Book histograms
+    // Book histograms and other bookkeeping
     sprintf(name,"Pedestals_%d",detid);
     fFile->cd();fFile->cd("Pedestals");
     _TH1F_Pedestals_m[detid] = new TH1F(name,name,50,0.,50.);    
     sprintf(name,"Gains_%d",detid);
     fFile->cd();fFile->cd("Gains");
     _TH1F_Gains_m[detid] = new TH1F(name,name,100,0.,10.);    
+    _deadfrac_m[detid]=0.;
   }
   
 }

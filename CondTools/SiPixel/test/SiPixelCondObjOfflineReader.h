@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineReader.h,v 1.1 2008/02/06 16:08:23 friis Exp $
+// $Id: SiPixelCondObjOfflineReader.h,v 1.2 2008/03/25 22:11:55 fblekman Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -56,8 +56,12 @@ private:
 
   std::map< uint32_t, TH1F* >  _TH1F_Pedestals_m;
   std::map< uint32_t, TH1F* >  _TH1F_Gains_m;
+  std::map< uint32_t, double >  _deadfrac_m;
+
+  TH1F *_TH1F_Dead_sum;
   TH1F *_TH1F_Gains_sum;
-  TH1F *_TH1F_Pedestals_sum;
+  TH1F *_TH1F_Pedestals_sum; 
+  TH1F *_TH1F_Dead_all;
   TH1F *_TH1F_Gains_all;
   TH1F *_TH1F_Pedestals_all;
   

@@ -12,6 +12,7 @@
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandFlat.h"
 
 namespace cms{
 SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterSet& iConfig) :
@@ -24,6 +25,7 @@ SiPixelCondObjOfflineBuilder::SiPixelCondObjOfflineBuilder(const edm::ParameterS
       rmsPed_(conf_.getParameter<double>("rmsPed")),
       meanGain_(conf_.getParameter<double>("meanGain")),
       rmsGain_(conf_.getParameter<double>("rmsGain")),
+      deadFraction_(conf_.getParameter<double>("deadFraction")),
       secondRocRowGainOffset_(conf_.getParameter<double>("secondRocRowGainOffset")),
       secondRocRowPedOffset_(conf_.getParameter<double>("secondRocRowPedOffset")),
       numberOfModules_(conf_.getParameter<int>("numberOfModules")),
@@ -76,6 +78,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
        int ncols = topol.ncolumns();   // cols in y
        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
+       
        PixelIndices pIndexConverter( ncols , nrows );
 
        std::vector<char> theSiPixelGainCalibration;
@@ -85,7 +88,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
          float totalGain = 0.0;
 	 for(int j=0; j<nrows; j++) {
 	   nchannels++;
-	   
+	   bool isDead=false;
 	   float ped = 0.0, gain = 0.0;
 
 	   if( fromFile_ ) {
@@ -103,6 +106,16 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 
 	   } 
 	   else{
+	     if(deadFraction_>0){
+	       double val= RandFlat::shoot();
+	       
+	       if( val < deadFraction_){
+		 isDead=true;
+		 //		 std::cout << "dead pixel " << detid << " " << i << "," << j << " " << val << std::endl;
+		 
+	       }
+	     }
+
 	     if(rmsPed_>0) {
 	       ped  = RandGauss::shoot( meanPed_  , rmsPed_  );
 	       while(ped<minped || ped>maxped)
@@ -147,7 +160,12 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
 
            totalGain    += gain;
 
-           SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
+	   if(!isDead){
+	     SiPixelGainCalibration_->setDataPedestal( ped , theSiPixelGainCalibration);
+	   }
+	   else // dead pixel
+	     //	     std::cout << "filling pixel as dead for detid " << detid <<", col " << i << ", row" << j <<  std::endl;
+	     SiPixelGainCalibration_->setDeadPixel(theSiPixelGainCalibration);
            if ((j + 1)  % 80 == 0) // fill the column average after ever ROC!
            {
               float averageGain      = totalGain/static_cast<float>(80);
