@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.1 2008/04/24 16:53:56 cbern Exp $
+ * \version $Id: CaloCluster.h,v 1.2 2008/04/24 17:46:15 cbern Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -35,16 +35,24 @@ namespace reco {
     const math::XYZPoint & position() const { return position_; }
 
     /// comparison >= operator
-    bool operator >=(const CaloCluster& rhs) const { return (energy_>=rhs.energy_); }
+    bool operator >=(const CaloCluster& rhs) const { 
+      return (energy_>=rhs.energy_); 
+    }
 
     /// comparison > operator
-    bool operator > (const CaloCluster& rhs) const { return (energy_> rhs.energy_); }
+    bool operator > (const CaloCluster& rhs) const { 
+      return (energy_> rhs.energy_); 
+    }
 
     /// comparison <= operator
-    bool operator <=(const CaloCluster& rhs) const { return (energy_<=rhs.energy_); }
+    bool operator <=(const CaloCluster& rhs) const { 
+      return (energy_<=rhs.energy_); 
+    }
 
     /// comparison <= operator
-    bool operator < (const CaloCluster& rhs) const { return (energy_< rhs.energy_); }
+    bool operator < (const CaloCluster& rhs) const { 
+      return (energy_< rhs.energy_); 
+    }
 
     /// x coordinate of cluster centroid
     double x() const { return position_.x(); }
@@ -61,6 +69,23 @@ namespace reco {
     /// azimuthal angle of cluster centroid
     double phi() const { return position_.phi(); }
 
+    enum Detectors {
+      DET_ECAL_BARREL,
+      DET_ECAL_ENDCAP,
+      DET_PS1,
+      DET_PS2,
+      DET_HCAL_BARREL,
+      DET_HCAL_ENDCAP,
+      DET_HF,
+      DET_HO
+    };
+    
+    /// tells the cluster that it is in a given detector
+    void setDetector(Detectors theDetector, bool value);
+	
+    /// return true if the cluster is in a given detector
+    bool detector(Detectors theDetector) const;
+
 
   protected:
 
@@ -70,8 +95,9 @@ namespace reco {
     /// cluster centroid position
     math::XYZPoint      position_;
 
-    /// detector information
-    unsigned            detectorInfo_;
+    /// bitmask for detector information
+    unsigned            detectors_;
+
   };
 
 }
