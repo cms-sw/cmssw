@@ -107,7 +107,6 @@ void CSCValHists::bookHists(){
       hStripPedME32 = new TH1F("hStripPedME32","Pedestal Noise Distribution Chamber ME32 ",50,-25.,25.);
       hStripPedME41 = new TH1F("hStripPedME41","Pedestal Noise Distribution Chamber ME41 ",50,-25.,25.);
       hStripPedME42 = new TH1F("hStripPedME42","Pedestal Noise Distribution Chamber ME42 ",50,-25.,25.);
-      hPedvsStrip = new TH2F("hPedvsStrip","Pedestal Noise Distribution",4000000,1000000.,5000000.,50,-25.,25.);
 
 
       // efficiency
@@ -357,7 +356,6 @@ void CSCValHists::writeHists(TFile* theFile, bool isSimulation){
       hStripPedME32->Write();
       hStripPedME41->Write();
       hStripPedME42->Write();
-      hPedvsStrip->Write();
       theFile->cd();
 
       // recHits
@@ -640,7 +638,6 @@ void CSCValHists::fillStripHistos(int strip, int codeN, int codeB,
 void CSCValHists::fillNoiseHistos(float ADC, int  globalStrip, int kStation, int kRing){
 
 	hStripPed->Fill(ADC);
-	hPedvsStrip->Fill(globalStrip,ADC);
 	if (kStation == 1 && kRing == 1 ) {
 	  hStripPedME11->Fill(ADC);
 	}

@@ -176,7 +176,6 @@ class CSCValHists{
   TH1F *hStripPedME32; 
   TH1F *hStripPedME41; 
   TH1F *hStripPedME42; 
-  TH2F *hPedvsStrip;
 
   TH1F *hRHCodeBroad;
   TH1F *hRHCodeNarrow1;
