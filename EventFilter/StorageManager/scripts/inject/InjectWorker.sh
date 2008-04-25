@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id:$
+# $Id: InjectWorker.sh,v 1.1 2008/04/24 16:30:09 loizides Exp $
 #
 #  ./InjectWorker.sh directory/file scripts [logdir errordir]
 #
@@ -15,7 +15,7 @@ function getLogFileName()
 {
     local hname=`hostname | cut -d. -f1`
     local dname=`date "+%Y%m%d"`
-    echo "$dname-$hname-$$.log"
+    echo "$dname-$hname-iw-$$.log"
 }
 
 # test for IW_LOGDIR
@@ -24,7 +24,7 @@ if test -n "$3"; then
 else
     IW_LOGDIR=$SM_IWLOGDIR
 fi
-if test -z "$LOGDIR"; then
+if test -z "$IW_LOGDIR"; then
     IW_LOGDIR=/tmp
 fi
 IW_LOGFILE=$IW_LOGDIR/`getLogFileName`
