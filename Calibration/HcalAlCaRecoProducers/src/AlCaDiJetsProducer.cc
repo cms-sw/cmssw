@@ -71,10 +71,17 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<edm::InputTag>::const_iterator ic;
     for (ic=mInputCalo_.begin(); ic!=mInputCalo_.end(); ic++) {
 //     cout<<" Read jet collection "<<endl;
-     try {
+
+//     try {
 
           edm::Handle<CaloJetCollection> jets;                        //Define Inputs
           iEvent.getByLabel(*ic, jets);                            //Get Inputs
+
+   if(!jets.isValid()){
+     LogDebug("") << "AlCaDiJetsProducer: Error! can't get CaloJets product!" << std::endl;
+     return ;
+   }
+
 
           CaloJet fJet1n,fJet2n,fJet3n;
 //          cout<<" Number of jets "<<jets->size()<<endl;
@@ -126,12 +133,13 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              result->push_back (fJet1n);
              result->push_back (fJet2n);
              if(jets->size()>2) {fJet3n = (*jets)[2];result->push_back (fJet3n);}
-       }
-        catch (cms::Exception& e) { // can't find it!
-            if (!allowMissingInputs_) {
-	      throw e;
-	    }  
-       }
+//       }
+//        catch (cms::Exception& e) { // can't find it!
+//            if (!allowMissingInputs_) {
+//	      throw e;
+//	    }  
+//       }
+
    } // Jet collection
 
 //   cout<<" Read track collection for accepted events "<<result->size()<<endl;
@@ -146,9 +154,15 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 //   cout<<" Eta of jets "<<fJet1.eta()<<" "<<fJet2.eta()<<" "<<fJet1.phi()<<" "<<fJet2.phi()<<endl; 
 // Track Collection 
-   try{
+//   try{
    edm::Handle<reco::TrackCollection> trackCollection;
    iEvent.getByLabel(m_inputTrackLabel,trackCollection);
+   if(!trackCollection.isValid()){
+     LogDebug("") << "AlCaDiJetsProducer: Error! can't get trackCollection product!" << std::endl;
+     return ;
+   }
+
+
    const reco::TrackCollection tC = *(trackCollection.product());
 //   cout<<" Number of tracks "<<tC.size()<<endl; 
    //Create empty output collections
@@ -169,21 +183,26 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
          outputTColl->push_back(*track);
       } 
-   }
-       }
-        catch (cms::Exception& e) { // can't find it!
-            if (!allowMissingInputs_) throw e;
-       }
+   } // track cycle
+
+//       }
+//        catch (cms::Exception& e) { // can't find it!
+//            if (!allowMissingInputs_) throw e;
+//       }
 
   // Put Ecal and Hcal RecHits around jet axis
 
     std::vector<edm::InputTag>::const_iterator i;
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
 //   cout<<" Read ECAL collection "<<endl;
-    try {
+//    try {
 
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(*i,ec);
+   if(!ec.isValid()){
+     LogDebug("") << "AlCaDiJetsProducer: Error! can't get ECAL product!" << std::endl;
+     return ;
+   }
 
        for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
                                                 recHit != (*ec).end(); ++recHit)
@@ -203,17 +222,24 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
            if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsEcalRecHitCollection->push_back(*recHit);
 
-       }
+       }  // Ecal rechit cycle
 
-    } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-    }
-    }
+//    } catch (cms::Exception& e) { // can't find it!
+//    if (!allowMissingInputs_) throw e;
+//    }
+
+    } // Ecal label cycle
+
 //    cout<<" Size of ECAL minicollection "<<miniDiJetsEcalRecHitCollection->size()<<endl;
    
-  try {
+//  try {
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel(hbheInput_,hbhe);
+   if(!hbhe.isValid()){
+     LogDebug("") << "AlCaDiJetsProducer: Error! can't get hbhe product!" << std::endl;
+     return ;
+   }
+
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
 //  cout<<" Size of HBHE collection "<<Hithbhe.size()<<endl;
    
@@ -232,16 +258,22 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            double dr2 = sqrt(deta*deta+dphi*dphi);
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHBHERecHitCollection->push_back(*hbheItr);
-        }
-    } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) {cout<<"No HBHE collection "<<endl; throw e;}
-    }
+        } // HBHE cycle
+
+//    } catch (cms::Exception& e) { // can't find it!
+//    if (!allowMissingInputs_) {cout<<"No HBHE collection "<<endl; throw e;}
+//    }
 
 //   std::cout<<" Size of mini HCAL collection "<<miniDiJetsHBHERecHitCollection->size()<<std::endl;
 
-  try{  
+//  try{  
    edm::Handle<HORecHitCollection> ho;
    iEvent.getByLabel(hoInput_,ho);
+   if(!ho.isValid()){
+     LogDebug("") << "AlCaDiJetsProducer: Error! can't get HO product!" << std::endl;
+     return ;
+   }
+
    const HORecHitCollection Hitho = *(ho.product());
 //   cout<<" Size of HO collection "<<Hitho.size()<<endl;
   for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
@@ -263,14 +295,21 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHORecHitCollection->push_back(*hoItr);
-        }
-    } catch (cms::Exception& e) { // can't find it!
-        if (!allowMissingInputs_) {cout<<" No HO collection "<<endl; throw e;}
-    }
+        } // HO cycle
+
+//    } catch (cms::Exception& e) { // can't find it!
+//        if (!allowMissingInputs_) {cout<<" No HO collection "<<endl; throw e;}
+//    }
 //  cout<<" Size of mini HO collection "<<miniDiJetsHORecHitCollection->size()<<endl;
-  try {
+//  try {
   edm::Handle<HFRecHitCollection> hf;
   iEvent.getByLabel(hfInput_,hf);
+   if(!hf.isValid()){
+     LogDebug("") << "AlCaDiJetsProducer: Error! can't get HF product!" << std::endl;
+     return ;
+   }
+
+
   const HFRecHitCollection Hithf = *(hf.product());
 //  cout<<" Size of HF collection "<<Hithf.size()<<endl;
   for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
@@ -288,10 +327,11 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            double dr2 = sqrt(deta*deta+dphi*dphi);
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHFRecHitCollection->push_back(*hfItr);
-      }
-    } catch (cms::Exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-    }
+      } // HF cycle
+
+//    } catch (cms::Exception& e) { // can't find it!
+//    if (!allowMissingInputs_) throw e;
+//    }
 //  cout<<" Size of mini HF collection "<<miniDiJetsHFRecHitCollection->size()<<endl;
 
   //Put selected information in the event
@@ -312,5 +352,5 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
 //    cout<<" Point 5 "<<endl;
 
-}
-}
+} // Method
+} // namespace

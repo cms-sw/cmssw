@@ -460,7 +460,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // process rechits
   Handle< EcalRecHitCollection >   pRecHits;
 
-  try {
+//  try {
     iEvent.getByLabel("ecalPreshowerRecHit",
 		      "EcalRecHitsES",
 		      pRecHits);
@@ -476,17 +476,17 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       
       outputPSEColl->push_back( *i );
             
-    }
+    } // PS rechits
     
     
-  }
-  catch ( cms::Exception& ex ) {
+//  }
+//  catch ( cms::Exception& ex ) {
 //    edm::LogError("PFClusterProducer") 
-      cout <<"Error! can't get the preshower rechits. module: "
-      << "ecalRecHit"
-      <<", product instance: "<< "EcalRecHitsES"
-      <<endl;
-  }      
+//      cout <<"Error! can't get the preshower rechits. module: "
+//      << "ecalRecHit"
+//      <<", product instance: "<< "EcalRecHitsES"
+//      <<endl;
+//  }      
       
     }
 

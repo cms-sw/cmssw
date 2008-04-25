@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.9 2008/04/09 23:13:28 dlange Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.10 2008/04/10 02:54:45 dlange Exp $
 //
 //
 
@@ -351,11 +351,15 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<reco::TrackCollection> cosmicmuon;
   bool isMuon = true;
-  try {
+//  try {
     //GM09/10/07 for CSA07 sample 
     iEvent.getByLabel(muonTags_, cosmicmuon);
+   if(!cosmicmuon.isValid()){
+     LogDebug("") << "AlCaHOProducer: Error! can't get muontag product!" << std::endl;
+     return ;
+   }
 
-  } catch ( cms::Exception &iEvent ) { isMuon = false; } 
+//  } catch ( cms::Exception &iEvent ) { isMuon = false; } 
 
   if (isMuon && cosmicmuon->size()>0) { 
 
@@ -440,9 +444,15 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       Handle<CaloTowerCollection> calotower;
       bool isCaloTower = true;
 
-      try {
+//      try {
 	iEvent.getByLabel("towerMaker",calotower);
-      } catch ( cms::Exception &iEvent ) { isCaloTower = false; } 
+   if(!calotower.isValid()){
+     LogDebug("") << "AlCaHOProducer: Error! can't get calotower product!" << std::endl;
+     return ;
+   }
+
+//      } catch ( cms::Exception &iEvent ) { isCaloTower = false; }
+ 
       if (isCaloTower) {
 	for (CaloTowerCollection::const_iterator calt = calotower->begin();
 	     calt !=calotower->end(); calt++) {
@@ -650,8 +660,14 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         // cout<<" Start to take HBHE info "<<endl;
 	  if (m_digiInput) {
 	    edm::Handle<HBHEDigiCollection> hbhe; iEvent.getByLabel(hbheLabel_,hbhe);
+
+   if(!hbhe.isValid()){
+     LogDebug("") << "AlCaHOProducer: Error! can't get hbhe product!" << std::endl;
+     return ;
+   }
+
 	    
-	    try{
+//	    try{
 	      if(!(*hbhe).size()) throw (int)(*hbhe).size();
 	      
 	      for (HBHEDigiCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
@@ -699,16 +715,20 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if (3*(deta+1)+dphi+1<9)  tmpHOCalib.hbhesig[3*(deta+1)+dphi+1] = signal;
 		}
 	      }
-	    }
-	    
-	    catch (int i ) {
-	      //    m_logFile << "Event with " << i<<" HBHE Digis passed." << std::endl;
-	    } 
+//	    }
+//	    catch (int i ) {
+//	      //    m_logFile << "Event with " << i<<" HBHE Digis passed." << std::endl;
+//	    }
+ 
 	  } else {
 	    
 	    edm::Handle<HBHERecHitCollection> hbhe; iEvent.getByLabel(hbheLabel_,hbhe);
-	    
-	    try{
+  if(!hbhe.isValid()){
+     LogDebug("") << "AlCaHOProducer: Error! can't get hbhe product!" << std::endl;
+     return ;
+   }
+ 
+	  //  try{
 	      if(!(*hbhe).size()) throw (int)(*hbhe).size();
 	      
 	      for (HBHERecHitCollection::const_iterator j=(*hbhe).begin(); j!=(*hbhe).end(); j++){
@@ -734,11 +754,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 		if (3*(deta+1)+dphi+1<9)  tmpHOCalib.hbhesig[3*(deta+1)+dphi+1] = signal;
 	      }
-	    }
-	  
-	    catch (int i ) {
+//	    }
+	   // catch (int i ) {
 	      //    m_logFile << "Event with " << i<<" HBHE Rechit passed." << std::endl;
-	    }  
+	   // }  
 
 	  } //else m_digilevel
 
@@ -748,8 +767,12 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if (m_digiInput) {
         edm::Handle<HODigiCollection> ho;     iEvent.getByLabel(hoLabel_,ho);
+   if(!ho.isValid()){
+     LogDebug("") << "AlCaHOProducer: Error! can't get hodigi product!" << std::endl;
+     return ;
+   }
 
-	try{
+//	try{
 	  if(!(*ho).size()) throw (int)(*ho).size();
 	  
 	  for (HODigiCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
@@ -903,18 +926,22 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	    }
 	  }
-	} 
-	catch (int i ) {
+//	} 
+//	catch (int i ) {
 	  //    m_logFile << "Event with " << i<<" HO Digis passed." << std::endl;
-	}
+//	}
 
       } else {
 
        // cout<< "start to read HO rechit collection "<<endl;
 
 	edm::Handle<HORecHitCollection> ho;    iEvent.getByLabel(hoLabel_,ho);
+   if(!ho.isValid()){
+     LogDebug("") << "AlCaHOProducer: Error! can't get horechi product!" << std::endl;
+     return ;
+   }
 	
-	try{
+//	try{
 	  if(!(*ho).size()) throw (int)(*ho).size();
 	  
 	  for (HORecHitCollection::const_iterator j=(*ho).begin(); j!=(*ho).end(); j++){
@@ -991,10 +1018,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	    }
 	  }
-	} 
-	catch (int i ) {
+//	} 
+//	catch (int i ) {
 	  //    m_logFile << "Event with " << i<<" HO RecHit passed." << std::endl;
-	}
+//	}
 	}
 	
 	hostore->push_back(tmpHOCalib);	
@@ -1038,16 +1065,12 @@ AlCaHOCalibProducer::beginJob(const edm::EventSetup& iSetup)
 {
   Nevents = 0;
 
-  //  iSetup.get<HcalDbRecord>().get(conditions_);
     edm::ESHandle<MagneticField> bField;
     iSetup.get<IdealMagneticFieldRecord>().get(bField);
     stepProp  = new SteppingHelixPropagator(&*bField,anyDirection);
     stepProp->setMaterialMode(false);
     stepProp->applyRadX0Correction(true);
 
-  //  edm::ESHandle<CaloGeometry>PG;
-  //  EventSetup.get<IdealGeometryRecord>().get(pG);
-  //  geo = pG.product();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

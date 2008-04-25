@@ -97,16 +97,9 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(nameProd_ == "hoCalibProducer")
   {
      edm::Handle<HOCalibVariableCollection> ho;
-     try {
      iEvent.getByLabel(nameProd_,hoInput_, ho);
      const HOCalibVariableCollection Hitho = *(ho.product());
      std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
-     }         
-        catch (cms::Exception& e) { // can't find it!
-            if (!allowMissingInputs_) {
-              throw e;
-            }
-     }
   }
   
    if(nameProd_ == "ALCARECOMuAlZMuMu" )
