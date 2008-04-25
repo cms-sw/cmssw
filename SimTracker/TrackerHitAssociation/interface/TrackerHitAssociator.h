@@ -90,11 +90,19 @@ class TrackerHitAssociator {
   typedef std::vector<std::string> vstring;
   vstring trackerContainers;
 
+  //ADDED NOW AS A PRIVATE MEMBER
+  edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
+  MixCollection<PSimHit>  TrackerHits;
+
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   //vector with the trackIds
   //  std::vector<unsigned int> simtrackid; 
   std::vector<SimHitIdpr> simtrackid; 
+  //vector with the simhits
+  std::vector<int> simhitCFPos;
+  std::vector<PSimHit> simhitassoc;
   
   bool doPixel_, doStrip_, doTrackAssoc_;
   
