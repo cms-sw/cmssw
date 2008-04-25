@@ -29,4 +29,9 @@
 </LINK>
 
 
+<LINK name="*NumberOfDigi*">
+	<TestName activate="true">MultiplicityInRange</TestName>
+</LINK>
+
+
 </TESTSCONFIGURATION>
