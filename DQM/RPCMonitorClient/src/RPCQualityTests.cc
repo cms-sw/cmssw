@@ -13,7 +13,7 @@
 //
 // Original Author:  Anna Cimmino
 //         Created:  Wed Mar  5 20:43:10 CET 2008
-// $Id$
+// $Id: RPCQualityTests.cc,v 1.1 2008/04/25 14:32:40 cimmino Exp $
 //
 //
 
@@ -60,7 +60,7 @@ RPCQualityTests::RPCQualityTests(const ParameterSet& iConfig)
 
   //get qtest list  
   qtestList_.push_back("DeadChannelTest");
-  //  qtestList_.push_back("MultiplicityTest");
+  qtestList_.push_back("MultiplicityTest");
   qtestList_= parameters_.getUntrackedParameter<std::vector<std::string> >("QualityTestList",qtestList_);
   
 
