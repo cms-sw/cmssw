@@ -167,6 +167,31 @@ void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
   muonRef_ = ref;
 }
 
+void PFCandidate::setConversionRef(const reco::ConversionRef& ref) {
+
+  if( particleId_ != gamma ) {
+    string err;
+    err += "PFCandidate::setConversionRef: this is not a (converted) photon ! particleId_=";
+    char num[4];
+    sprintf( num, "%d", particleId_);
+    err += num;
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+  else if(  !flag( GAMMA_TO_GAMMACONV ) ) {
+    string err;
+    err += "PFCandidate::setConversionRef: particule flag is not GAMMA_TO_GAMMACONV";
+
+    throw cms::Exception("InconsistentReference",
+                         err.c_str() );
+  }
+
+  conversionRef_ = ref;
+}
+
+
+
 void PFCandidate::setNuclearRef(const reco::NuclearInteractionRef& ref) {
 
   if( particleId_ != h ) {
@@ -232,6 +257,8 @@ ostream& reco::operator<<(ostream& out,
      <<c.phi();
   if( c.flag( PFCandidate::T_FROM_NUCLINT ) ) out<<", T_FROM_NUCL" << endl;
   else if( c.flag( PFCandidate::T_TO_NUCLINT ) ) out<<", T_TO_NUCL" << endl;
+  else if( c.flag( PFCandidate::T_FROM_GAMMACONV ) ) out<<", T_FROM_GAMMACONV" << endl;
+  else if( c.flag( PFCandidate::GAMMA_TO_GAMMACONV ) ) out<<", GAMMA_TO_GAMMACONV" << endl;
   
   out<<", blocks/iele: ";
   

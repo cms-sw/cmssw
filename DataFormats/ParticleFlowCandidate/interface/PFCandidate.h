@@ -18,6 +18,7 @@
 // necessary ?
 // #include "DataFormats/VertexReco/interface/NuclearInteraction.h"
 #include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
 namespace reco {
   /**\class PFCandidate
@@ -112,6 +113,12 @@ namespace reco {
     /// otherwise, return a null reference
     reco::NuclearInteractionRef nuclearRef() const { return nuclearRef_; }
 
+    /// set ref to original reco conversion
+    void    setConversionRef(const reco::ConversionRef& ref);
+
+    /// return a reference to the original conversion
+    reco::ConversionRef conversionRef() const { return conversionRef_; }
+
     /// set corrected Ecal energy 
     void    setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
 
@@ -155,7 +162,8 @@ namespace reco {
       T_TO_NUCLINT,
       T_FROM_NUCLINT,
       T_FROM_V0,
-      T_FROM_GAMMACONV
+      T_FROM_GAMMACONV,
+      GAMMA_TO_GAMMACONV
     };
     
     /// set a given flag
@@ -261,6 +269,8 @@ namespace reco {
     reco::MuonRef  muonRef_;
 
     reco::NuclearInteractionRef nuclearRef_;
+
+    reco::ConversionRef conversionRef_;
     
     /// corrected ECAL energy
     float        ecalEnergy_;
