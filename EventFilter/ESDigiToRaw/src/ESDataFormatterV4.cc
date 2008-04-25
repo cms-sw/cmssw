@@ -110,7 +110,7 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
 	  optoId_[i][j][k][m] = -1;
 	}
 
-  int opto[56][3] = {
+  int opto1[28][3] = {
     { 1,  2,  3},
     { 4,  5,  0},
     { 6,  7,  0},
@@ -126,6 +126,24 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
     {23, 24, 25},
     { 0,  0,  0},
 
+    {27, 28, 29},
+    {30, 31,  0},
+    {32, 33,  0},
+    {34, 35, 39},
+    { 0,  0,  0},
+    {36, 37, 38},
+    { 0,  0,  0},
+    {40, 41, 42},
+    {43, 44,  0},
+    {45, 46,  0},
+    { 0,  0,  0},
+    {47, 48, 52},
+    {49, 50, 51},
+    { 0,  0,  0}
+
+  };
+
+  int opto2[28][3] = {
     { 1,  2,  6},
     { 3,  4,  5},
     { 0,  0,  0},
@@ -141,21 +159,6 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
     {25, 26,  0},
     { 0,  0,  0},
 
-    {27, 28, 29},
-    {30, 31,  0},
-    {32, 33,  0},
-    {34, 35, 39},
-    { 0,  0,  0},
-    {36, 37, 38},
-    { 0,  0,  0},
-    {40, 41, 42},
-    {43, 44,  0},
-    {45, 46,  0},
-    { 0,  0,  0},
-    {47, 48, 52},
-    {49, 50, 51},
-    { 0,  0,  0},
-
     {27, 28, 32},
     {29, 30, 31},
     { 0,  0,  0},
@@ -169,7 +172,7 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
     {46, 47, 48},
     {49, 50,  0},
     {51, 52,  0},
-    { 0,  0,  0},
+    { 0,  0,  0}
   };
 
   // read in look-up table
@@ -187,8 +190,12 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
 
       for (int m=0; m<56; ++m) 
 	for (int n=0; n<3; ++n) {
-	  if (opto[fed-1][n] == bundle) {
-	    optoId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = n;
+	  if (ip == 1) {
+	    if (opto1[fed-1][n] == bundle) 
+	      optoId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = n;
+	  } else if (ip == 2) {
+	    if (opto2[fed-1][n] == bundle) 
+	      optoId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = n;
 	  }
 	}
 
