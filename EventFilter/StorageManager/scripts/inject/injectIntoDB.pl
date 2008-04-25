@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.1 2008/04/24 16:30:09 loizides Exp $
+# $Id: injectIntoDB.pl,v 1.2 2008/04/25 13:18:42 loizides Exp $
 
 use strict;
 use DBI;
@@ -39,12 +39,13 @@ sub inject()
         "$type,$safety,$nevents,$filesize,$checksum)";
 
     if (!defined $ddb) { 
-        print "$SQL\n";
-        return 0;
+        my $rows = $dbh->do($SQL) or 
+            die $dbh->errstr;
+        return $rows-1;
     }
-    my $rows = $dbh->do($SQL) or 
-        die $dbh->errstr;
-    return $rows-1;
+
+    print "$SQL\n";
+    return 0;
 }
 
 my $infile="$ARGV[0]";
