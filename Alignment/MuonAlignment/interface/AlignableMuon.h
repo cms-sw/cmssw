@@ -4,8 +4,8 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2008/04/04 15:54:15 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/04/15 09:21:23 $
+ *  $Revision: 1.20 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -55,6 +55,7 @@ public:
   virtual Alignable* mother() { return 0; }
 
   // Methods to return specific of components
+  std::vector<Alignable*> DTLayers();
   std::vector<Alignable*> DTSuperLayers();
   std::vector<Alignable*> DTChambers();
   std::vector<Alignable*> DTStations();

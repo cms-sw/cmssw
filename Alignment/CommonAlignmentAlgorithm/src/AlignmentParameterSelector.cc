@@ -1,8 +1,8 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2008/02/14 12:54:44 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/02/15 09:50:23 $
+ *  $Revision: 1.15 $
  *  (last update by $Author: pivarski $)
  */
 
@@ -223,7 +223,8 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
 					<< "Configuration requires access to AlignableMuon"
 					<< " which is not initialized";
     }
-    else if (name == "MuonDTSuperLayers")  add(theMuon->DTSuperLayers(), paramSel);
+    else if (name == "MuonDTLayers")             add(theMuon->DTLayers(), paramSel);
+    else if (name == "MuonDTSuperLayers")        add(theMuon->DTSuperLayers(), paramSel);
     else if (name == "MuonDTChambers")  	 add(theMuon->DTChambers(), paramSel);
     else if (name == "MuonDTStations")  	 add(theMuon->DTStations(), paramSel);
     else if (name == "MuonDTWheels")    	 add(theMuon->DTWheels(), paramSel);

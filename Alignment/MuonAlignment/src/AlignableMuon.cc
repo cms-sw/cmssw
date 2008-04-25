@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/02/14 12:54:54 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/04/15 09:21:23 $
+ *  $Revision: 1.20 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -263,6 +263,25 @@ void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
   theMuonComponents.insert(  theMuonComponents.end(), theCSCEndcaps.begin(), theCSCEndcaps.end() );    
 
     
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableMuon::DTLayers()
+{
+  std::vector<Alignable*> result;
+
+  std::vector<Alignable*> chambers = DTChambers();
+  for (std::vector<Alignable*>::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
+     std::vector<Alignable*> superlayers = (*chamberIter)->components();
+     for (std::vector<Alignable*>::const_iterator superlayerIter = superlayers.begin();  superlayerIter != superlayers.end();  ++superlayerIter) {
+	std::vector<Alignable*> layers = (*superlayerIter)->components();
+	for (std::vector<Alignable*>::const_iterator layerIter = layers.begin();  layerIter != layers.end();  ++layerIter) {
+	   result.push_back(*layerIter);
+	}
+     }
+  }
+
+  return result;
 }
 
 //--------------------------------------------------------------------------------------------------
