@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/08 18:13:12 $
- * $Revision: 1.415 $
+ * $Date: 2008/04/24 13:29:42 $
+ * $Revision: 1.416 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -809,8 +809,6 @@ void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 
 void EcalBarrelMonitorClient::endJob(void) {
 
-  // check last event
-
   if ( ! end_run_ ) {
 
     if ( verbose_ ) {
@@ -909,7 +907,6 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
       if ( begin_run_ && ! end_run_ ) {
 
         forced_status_ = false;
-        this->analyze();
         this->endRun();
 
       }
