@@ -114,7 +114,8 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     meId = os.str();
     meTitle = meId;
     meMap[meId] = dbe->book1D(meId, meTitle, 10, 0.5, 10.5);
-    
+
+
   }
   
   if (dqmsuperexpert) {
@@ -141,6 +142,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     meId = os.str();
     meTitle = meId;
     meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
+
     
   }
     

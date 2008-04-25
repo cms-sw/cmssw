@@ -27,6 +27,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
+using namespace edm;
 
 RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   
@@ -102,9 +103,35 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
 
-  
-  dbe->showDirStructure();
+  SameBxDigisMe_ = dbe->book1D("SameBXDigis", "Digis with same bx", 20, 0, 20);
+
 }
+
+
+void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
+  //Mes are reset at every new run. Thez are saved at the end of each run
+
+  //Reset all Histograms
+  for (map<uint32_t, map<string,MonitorElement*> >::const_iterator meItr = meCollection.begin();
+       meItr!= meCollection.end(); meItr++){
+    for (map<string,MonitorElement*>::const_iterator Itr = (*meItr).second.begin();
+	 Itr!= (*meItr).second.end(); Itr++){
+      (*Itr).second->Reset();
+    }
+  }
+  
+
+  //Reset All Global histos
+  GlobalZYHitCoordinates->Reset();
+  GlobalZXHitCoordinates->Reset();
+  GlobalZPhiHitCoordinates->Reset();
+  ClusterSize_for_Barrel->Reset();
+  ClusterSize_for_EndcapForward ->Reset();
+  ClusterSize_for_EndcapBackward->Reset();
+  ClusterSize_for_BarrelandEndcaps->Reset(); 
+  SameBxDigisMe_->Reset();
+}
+
 
 void RPCMonitorDigi::endJob(void)
 {
@@ -150,8 +177,11 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByType(rpcHits);
   
+  map<int, int> bxMap;
+
   
   RPCDigiCollection::DigiRangeIterator collectionItr;
+  //Loop on digi collection
   for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
     
     
@@ -215,6 +245,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
       int strip= (*digiItr).strip();
       strips.push_back(strip);
       int bx=(*digiItr).bx();
+
       bool bxExists = false;
       //std::cout <<"==> strip = "<<strip<<" bx = "<<bx<<std::endl;
       for(std::vector<int>::iterator existingBX= bxs.begin();
@@ -228,6 +259,12 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
       
       ++numberOfDigi;
       
+
+      //adding new histo C.Carrillo & A. Cimmino
+      map<int,int>::const_iterator bxItr = bxMap.find((*digiItr).bx());
+      if (bxItr == bxMap.end()|| bxMap.size()==0 )bxMap[(*digiItr).bx()]=1;
+      else bxMap[(*digiItr).bx()]++;
+
       if(dqmexpert || dqmsuperexpert) {
 	
 	os.str("");
@@ -651,9 +688,20 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 meMap[meId]->Fill(numberOfHits);
        }
      }
-    
+   
+  
+
   }/// loop on RPC Det Unit
   
+
+  //adding new histo C.Carrillo & A. Cimmino
+  for (map<int, int>::const_iterator myItr= bxMap.begin(); 
+       myItr!=bxMap.end(); myItr++){
+    SameBxDigisMe_ ->Fill((*myItr).second);
+  
+}
+
+
   
   if(dqmexpert || dqmsuperexpert) {
     std::map<uint32_t, bool >::iterator mapItrCheck;
