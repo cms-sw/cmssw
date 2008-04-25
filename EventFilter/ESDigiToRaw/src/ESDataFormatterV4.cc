@@ -110,7 +110,7 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
 	  optoId_[i][j][k][m] = -1;
 	}
 
-  Int_t opto[56][3] = {
+  int opto[56][3] = {
     { 1,  2,  3},
     { 4,  5,  0},
     { 6,  7,  0},
@@ -209,6 +209,7 @@ FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, const Digis & digis) {
   Word64 word;
   int numberOfStrips = 0 ; 
 
+  int kchip, pace;
   map<int, vector<Word64> > map_data;
   vector<Word64> words;
   map_data.clear();
@@ -225,34 +226,9 @@ FEDRawData * ESDataFormatterV4::DigiToRaw(int fedId, const Digis & digis) {
 
       for (int is=0; is<dataframe.size(); ++is) ts[is] = dataframe.sample(is).adc();
 
-      //  calculate fake kchip and pace id 
-      int kchip = -1;
-      int pace = -1;
-      int ix = -1;
-      int iy = -1;
-      
-      ix = detId.six() % 2;
-      iy = detId.siy() % 2;
-      if (ix == 1 && iy == 1)
-	pace = 0;
-      else if (ix == 0 && iy == 1)
-	pace = 1;
-      else if (ix == 1 && iy == 0) 
-	pace = 2;
-      else if (ix == 0 && iy == 0)
-	pace = 3;
-      
-      ix = (1 + detId.six()) / 2;
-      iy = (1 + detId.siy()) / 2;  
-      if (detId.zside() == 1 && detId.plane() == 1) 
-	kchip = ix + (iy-1)*20 - 1;
-      else if (detId.zside() == 1 && detId.plane() == 2) 
-	kchip = ix + (iy-1)*20 + 399;
-      else if (detId.zside() == -1 && detId.plane() == 1) 
-	kchip = ix + (iy-1)*20 + 799;
-      else if (detId.zside() == -1 && detId.plane() == 2) 
-	kchip = ix + (iy-1)*20 + 1199;
-      
+      kchip = kchipId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
+      pace  = paceId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1];
+
       if (debug_) cout<<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()<<" "<<detId.strip()<<" ("<<kchip<<","<<pace<<") "<<ts[2]<<" "<<ts[1]<<" "<<ts[0]<<endl;
 
       word1 = (ts[1] << sADC1) | (ts[0] << sADC0);
