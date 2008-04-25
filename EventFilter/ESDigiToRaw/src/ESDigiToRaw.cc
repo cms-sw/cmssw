@@ -24,6 +24,7 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
   formatMajor_ = ps.getUntrackedParameter<int>("formatMajor",1);
   formatMinor_ = ps.getUntrackedParameter<int>("formatMinor",1);
+  lookup_ = ps.getUntrackedParameter<string>("LookupTable");
 
   counter_ = 0;
   kchip_ec_ = 0; 
@@ -35,6 +36,26 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
     ESDataFormatter_ = new ESDataFormatterV4(ps);
   else 
     ESDataFormatter_ = new ESDataFormatterV1_1(ps);
+
+  // initialize look-up table
+  for (int i=0; i<2; ++i)
+    for (int j=0; j<2; ++j)
+      for (int k=0 ;k<40; ++k)
+        for (int m=0; m<40; m++)
+          fedId_[i][j][k][m] = -1;
+
+  // read in look-up table
+  int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber;
+  ifstream file;
+  file.open(lookup_.c_str());
+  if( file.is_open() ) {
+    for (int i=0; i<4288; ++i) {
+      file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber;
+      fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
+    }
+  } else {
+    cout<<"Look up table file can not be found in "<<lookup_.c_str()<<endl;
+  }
 
 }
 
@@ -69,6 +90,7 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<ESDigiCollection> digis;
   ev.getByLabel(label_, instanceName_, digis);
 
+  int ifed;
   ESDataFormatter::Digis Digis;
   Digis.clear();
 
@@ -77,55 +99,10 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
     const ESDataFrame& df = *it;
     const ESDetId& detId = it->id();
 
-    // Fake DCC-fed map, for the time being
-    int dccId = 0;
-    if (detId.zside() == 1) {
-      if (detId.plane() == 1) {
-	if (detId.six()<=20 && detId.siy()<=20) {
-	  dccId = 0;
-	} else if (detId.six()>=20 && detId.siy()<=20) {
-	  dccId = 1;
-	} else if (detId.six()<=20 && detId.siy()>=20) {
-	  dccId = 2;
-	} else if (detId.six()>=20 && detId.siy()>=20) {
-	  dccId = 3;
-	}
-      } else if (detId.plane() == 2) {
-	if (detId.six()<=20 && detId.siy()<=20) {
-	  dccId = 4;
-	} else if (detId.six()>=20 && detId.siy()<=20) {
-	  dccId = 5;
-	} else if (detId.six()<=20 && detId.siy()>=20) {
-	  dccId = 6;
-	} else if (detId.six()>=20 && detId.siy()>=20) {
-	  dccId = 7;
-	}
-      }
-    } else if (detId.zside() == -1) {
-      if (detId.plane() == 1) {
-	if (detId.six()<=20 && detId.siy()<=20) {
-	  dccId = 8;
-	} else if (detId.six()>=20 && detId.siy()<=20) {
-	  dccId = 9;
-	} else if (detId.six()<=20 && detId.siy()>=20) {
-	  dccId = 10;
-	} else if (detId.six()>=20 && detId.siy()>=20) {
-	  dccId = 11;
-	}
-      } else if (detId.plane() == 2) {
-	if (detId.six()<=20 && detId.siy()<=20) {
-	  dccId = 12;
-	} else if (detId.six()>=20 && detId.siy()<=20) {
-	  dccId = 13;
-	} else if (detId.six()<=20 && detId.siy()>=20) {
-	  dccId = 14;
-	} else if (detId.six()>=20 && detId.siy()>=20) {
-	  dccId = 15;
-	}
-      }
-    }
+    ifed = fedId_[(3-detId.zside())/2-1][detId.plane()-1][detId.six()-1][detId.siy()-1] - 1;
+    if (ifed < 0) continue;
 
-    int fedId = ESFEDIds.first + dccId;
+    int fedId = ESFEDIds.first + ifed;
 
     Digis[fedId].push_back(df);
   }

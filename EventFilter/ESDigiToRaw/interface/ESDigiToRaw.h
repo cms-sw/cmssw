@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -51,9 +52,11 @@ class ESDigiToRaw : public edm::EDProducer {
   int lv1_;
   int kchip_ec_; 
   int kchip_bc_; 
+  int fedId_[2][2][40][40];
     
   std::string label_;
   std::string instanceName_;
+  std::string lookup_;
   bool   debug_;
   int formatMajor_; 
   int formatMinor_; 

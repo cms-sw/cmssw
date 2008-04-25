@@ -6,6 +6,7 @@
 #include <bitset>
 #include <sstream>
 #include <map>
+#include <fstream>
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
@@ -36,10 +37,14 @@ class ESDataFormatterV4 : public ESDataFormatter {
   FEDRawData * DigiToRaw(int fedId, const Digis & digis);
 
 
-
-
   private :    
-    
+
+  std::string lookup_;
+  int fedId_[2][2][40][40];   
+  int kchipId_[2][2][40][40];   
+  int paceId_[2][2][40][40];   
+  int bundleId_[2][2][40][40];   
+  int fiberId_[2][2][40][40];   
 
   protected :
 

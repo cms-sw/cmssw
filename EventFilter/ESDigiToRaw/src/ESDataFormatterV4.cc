@@ -95,6 +95,37 @@ const int ESDataFormatterV4::sOHEAD     = 28;
 ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps) 
   : ESDataFormatter(ps) {
 
+  lookup_ = ps.getUntrackedParameter<string>("LookupTable");
+
+  // initialize look-up table
+  for (int i=0; i<2; ++i)
+    for (int j=0; j<2; ++j)
+      for (int k=0 ;k<40; ++k)
+        for (int m=0; m<40; m++) {
+          fedId_[i][j][k][m] = -1;
+	  kchipId_[i][j][k][m] = -1;
+          paceId_[i][j][k][m] = -1;
+          bundleId_[i][j][k][m] = -1;
+          fiberId_[i][j][k][m] = -1;
+	}
+
+  // read in look-up table
+  int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber;
+  ifstream file;
+  file.open(lookup_.c_str());
+  if( file.is_open() ) {
+    for (int i=0; i<4288; ++i) {
+      file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber;
+      fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
+      kchipId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = kchip;
+      paceId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = pace;
+      bundleId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = bundle;
+      fiberId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fiber;
+    }
+  } else {
+    cout<<"Look up table file can not be found in "<<lookup_.c_str()<<endl;
+  }
+
 }
 
 ESDataFormatterV4::~ESDataFormatterV4() {
