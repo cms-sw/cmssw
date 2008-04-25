@@ -13,12 +13,13 @@
 // system include files
 #include <string>
 #include <map>
-#include <vector>
+#include <set>
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "CondCore/DBCommon/interface/TagMetadata.h"
 #include "CondCore/DBCommon/interface/Time.h"
+#include <boost/functional/hash.hpp>
 namespace edm{
   class ParameterSet;
 }
@@ -32,7 +33,23 @@ namespace cond{
     std::string label;
     std::string pfn;
     cond::TimeType timetype;
+    std::size_t hashvalue()const{
+      boost::hash<std::string> hasher;
+      std::size_t result=hasher(token+label+pfn);
+      return result;
+    }
+    bool  operator == (const IOVInfo& toCompare ) const {
+      if(this->hashvalue()==toCompare.hashvalue()&&this->timetype==toCompare.timetype) return true;
+     return false;
+    }
+    bool operator != (const IOVInfo& toCompare ) const {
+      return !(*this==toCompare);
+    }
+    bool operator<(const IOVInfo& toCompare ) const {
+      return this->hashvalue()<toCompare.hashvalue();
+    }
   };
+
 }
 class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
 		       public edm::EventSetupRecordIntervalFinder{
@@ -50,7 +67,7 @@ class PoolDBESSource : public edm::eventsetup::DataProxyProvider,
   // ----------member data ---------------------------
   typedef std::multimap< std::string, std::string > RecordToTypes;
   RecordToTypes m_recordToTypes; 
-  typedef std::map< std::string, std::vector<cond::IOVInfo> > ProxyToIOVInfo;
+  typedef std::map< std::string, std::set<cond::IOVInfo> > ProxyToIOVInfo;
   ProxyToIOVInfo m_proxyToIOVInfo;
   typedef std::map< std::string, cond::TagMetadata > TagCollection;
   TagCollection m_tagCollection;

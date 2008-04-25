@@ -168,6 +168,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	usingRecordWithKey( recordKey );
       }    
       m_tagCollection.insert(std::make_pair<std::string,cond::TagMetadata>(tagName,m));
+      //std::cout<<"tag collection size "<<m_tagCollection.size()<<std::endl;
     }
   }else{
     std::string globaltag=iConfig.getUntrackedParameter<std::string>("globaltag");
@@ -254,10 +255,10 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
     oInterval = edm::ValidityInterval::invalidInterval();
     return;
   }
-  std::string leadingTag=pos->second.front().tag;
-  std::string leadingToken=pos->second.front().token;
-  std::string leadingLable=pos->second.front().label;
-  cond::TimeType timetype=pos->second.front().timetype;
+  std::string leadingTag=pos->second.begin()->tag;
+  std::string leadingToken=pos->second.begin()->token;
+  std::string leadingLable=pos->second.begin()->label;
+  cond::TimeType timetype=pos->second.begin()->timetype;
   //std::cout<<"leading tag "<<leadingTag<<std::endl;
   //std::cout<<"leading token "<<leadingToken<<std::endl;
   cond::Time_t abtime;
@@ -266,7 +267,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }else{
     abtime=(cond::Time_t)iTime.eventID().run();
   }
-  cond::Connection* c=conHandler.getConnection(pos->second.front().pfn);
+  cond::Connection* c=conHandler.getConnection(pos->second.begin()->pfn);
   //std::cout<<"leading pfn "<< pos->second.front().pfn <<std::endl;
   cond::PoolTransaction& pooldb=c->poolTransaction();
   cond::IOVService iovservice(pooldb);  
@@ -293,7 +294,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   m_datumToToken[datumName]=payloadToken;  
   pooldb.commit();
 
-  std::vector<cond::IOVInfo>::iterator itProxy;
+  std::set<cond::IOVInfo>::iterator itProxy;
   for(itProxy=pos->second.begin(); itProxy!=pos->second.end(); ++itProxy){
     if( (itProxy->label) != leadingLable){
       std::string datumName=recordname+"@"+objectname+"@"+itProxy->label;
@@ -315,7 +316,6 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
   //For each data type in this Record, create the proxy by dynamically loading it
   //loop over types in the same record
   std::string recordname=iRecordKey.name();
-  //std::cout<<"recordname "<<recordname<<std::endl;
   std::string objectname("");
   std::string proxyname("");
   std::pair< RecordToTypes::iterator,RecordToTypes::iterator > typeItrs = m_recordToTypes.equal_range( recordname );
@@ -337,7 +337,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
       //continue;
       throw cond::Exception(std::string("proxy ")+proxyname+"not found");
     }    
-    for( std::vector<cond::IOVInfo>::iterator it=pProxyToIOVInfo->second.begin();it!=pProxyToIOVInfo->second.end(); ++it ){
+    for( std::set<cond::IOVInfo>::iterator it=pProxyToIOVInfo->second.begin();it!=pProxyToIOVInfo->second.end(); ++it ){
       //edm::eventsetup::IdTags iid( it->label.c_str() );
       std::string datumName=recordname+"@"+objectname+"@"+(it->label);
       std::map<std::string,std::string>::iterator pDatumToToken=m_datumToToken.find(datumName);
@@ -365,7 +365,6 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 
 void 
 PoolDBESSource::fillRecordToIOVInfo(){
-  //std::cout<<"PoolDBESSource::fillRecordToIOVInfo"<<std::endl;
   std::map< std::string, cond::TagMetadata >::iterator it;
   std::map< std::string, cond::TagMetadata >::iterator itbeg=m_tagCollection.begin();
   std::map< std::string, cond::TagMetadata >::iterator itend=m_tagCollection.end();
@@ -377,7 +376,7 @@ PoolDBESSource::fillRecordToIOVInfo(){
     iovInfo.tag=it->first;
     iovInfo.pfn=it->second.pfn;
     iovInfo.label=it->second.labelname;
-    //iovInfo.timetype=it->second.timetype;
+    
     cond::Connection* connection=conHandler.getConnection(iovInfo.pfn);
     cond::CoralTransaction& coraldb=connection->coralTransaction();
     cond::MetaData metadata(coraldb);
@@ -390,14 +389,17 @@ PoolDBESSource::fillRecordToIOVInfo(){
     if( iovInfo.token.empty() ){
       throw cond::Exception("PoolDBESSource::fillrecordToIOVInfo: tag "+iovInfo.tag+std::string(" has empty iov token meaning requested tag or data do not exist") );
     }
-    
-    std::map<std::string,std::vector<cond::IOVInfo> >::iterator pos=m_proxyToIOVInfo.find(proxyname);
+    std::map<std::string,std::set<cond::IOVInfo> >::iterator pos=m_proxyToIOVInfo.find(proxyname);
     if( pos!= m_proxyToIOVInfo.end() ){
-      pos->second.push_back(iovInfo);
+      //unclean tag rename protection. Ignore if same iovInfo found again  
+      if( ! pos->second.insert(iovInfo).second ){
+	std::set<cond::IOVInfo>::iterator t  = pos->second.find(iovInfo);
+	edm::LogWarning("PoolDBESSource")<<"Warning: ignore registering data proxy for tag "<<iovInfo.tag<<" since it contains identical information as tag "<<t->tag <<" : "<<"iovtoken "<<t->token<<" provenance "<<t->pfn<<" label "<<t->label;
+      }
     }else{
-      std::vector<cond::IOVInfo> infos;
-      infos.push_back(iovInfo);
-      m_proxyToIOVInfo.insert(std::make_pair<std::string,std::vector<cond::IOVInfo> >(proxyname,infos));
+      std::set<cond::IOVInfo> infos;
+      infos.insert(iovInfo);
+      m_proxyToIOVInfo.insert(std::make_pair<std::string,std::set<cond::IOVInfo> >(proxyname,infos));
     }
   }
 }
