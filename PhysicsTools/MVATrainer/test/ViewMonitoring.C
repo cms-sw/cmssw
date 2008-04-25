@@ -726,6 +726,9 @@ void DrawProcLikelihood(TDirectory *dir, int mode)
 		} else {
 			bkg->Sumw2();
 			sig->Sumw2();
+			bkg->Scale(1.0 / bkg->Integral());
+			sig->Scale(1.0 / sig->Integral());
+
 			bkg->Add(sig);
 			sig->Divide(sig, bkg, 1, 1, "B");
 
