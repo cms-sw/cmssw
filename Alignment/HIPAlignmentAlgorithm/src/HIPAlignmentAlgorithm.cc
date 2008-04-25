@@ -113,43 +113,45 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   theAPEParameters.clear();
 
   // get APE parameters
-  AlignmentParameterSelector selector(tracker, muon);
-  for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
-     std::vector<Alignable*> alignables;
+  if (!theApplyAPE) {
+     AlignmentParameterSelector selector(tracker, muon);
+     for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
+	std::vector<Alignable*> alignables;
 
-     selector.clear();
-     edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
-     std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
-     if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) {
-	alignables = theAlignables;
-     }
-     else {
-	selector.addSelections(selectorPSet);
-	alignables = selector.selectedAlignables();
-     }
+	selector.clear();
+	edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
+	std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
+	if (alignParams.size() == 1  &&  alignParams[0] == std::string("selected")) {
+	   alignables = theAlignables;
+	}
+	else {
+	   selector.addSelections(selectorPSet);
+	   alignables = selector.selectedAlignables();
+	}
 
-     std::vector<double> apeSPar = setiter->getParameter<std::vector<double> >("apeSPar");
-     std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
-     std::string function = setiter->getParameter<std::string>("function");
+	std::vector<double> apeSPar = setiter->getParameter<std::vector<double> >("apeSPar");
+	std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
+	std::string function = setiter->getParameter<std::string>("function");
 
-     if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
-	throw cms::Exception("BadConfig") << "apeSPar and apeRPar must have 3 values each" << std::endl;
+	if (apeSPar.size() != 3  ||  apeRPar.size() != 3)
+	   throw cms::Exception("BadConfig") << "apeSPar and apeRPar must have 3 values each" << std::endl;
 
-     for (std::vector<double>::const_iterator i = apeRPar.begin();  i != apeRPar.end();  ++i) {
-	apeSPar.push_back(*i);
-     }
+	for (std::vector<double>::const_iterator i = apeRPar.begin();  i != apeRPar.end();  ++i) {
+	   apeSPar.push_back(*i);
+	}
 
-     if (function == std::string("linear")) {
-	apeSPar.push_back(0.); // c.f. note in calcAPE
-     }
-     else if (function == std::string("exponential")) {
-	apeSPar.push_back(1.); // c.f. note in calcAPE
-     }
-     else {
-	throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
-     }
+	if (function == std::string("linear")) {
+	   apeSPar.push_back(0.); // c.f. note in calcAPE
+	}
+	else if (function == std::string("exponential")) {
+	   apeSPar.push_back(1.); // c.f. note in calcAPE
+	}
+	else {
+	   throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
+	}
 
-     theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
+	theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
+     }
   }
 }
 
