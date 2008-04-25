@@ -11,7 +11,7 @@ dtTriggerPrimitiveDigis = cms.EDProducer("DTTrigProd",
         tTrig = cms.double(500.0)
     ),
     # DT digis input tag
-    digiTag = cms.InputTag("simMuonDTDigis"),
+    digiTag = cms.InputTag("muonDTDigis"),
     # Synchronizer related stuff
     tTrigMode = cms.string('DTTTrigSyncTOFCorr'),
     # Convert output into DTTF sector numbering: 
