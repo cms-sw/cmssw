@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: InputFileCatalog.cc,v 1.4 2008/03/14 03:46:02 wmtan Exp $
+// $Id: InputFileCatalog.cc,v 1.5 2008/04/16 16:20:33 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -56,13 +56,21 @@ namespace edm {
 	  // There is only one catalog, so there is no need
 	  // to support multiple different catalogs.
           if (catalog().nReadCatalogs() == 0) {
+	    // Add the override catalog, if specified in the pset.
+	    std::string overriderUrl = pset.getUntrackedParameter<std::string>("overrideCatalog", std::string());
+           if (!overriderUrl.empty ())
+	    {  
+              pool::URIParser overriderParser(overriderUrl); 
+              overriderParser.parse();
+              catalog().addReadCatalog(overriderParser.contactstring());
+	    }
 	    // For reading use the catalog specified in the site-local config file
 	    url() = Service<edm::SiteLocalConfig>()->dataCatalog();
 	    pool::URIParser parser(url());
 	    parser.parse();
 
-	    catalog().addReadCatalog(parser.contactstring());
-	    catalog().connect();
+           catalog().addReadCatalog(parser.contactstring());
+           catalog().connect();
 
             catalog().start();
 	    setActive();
