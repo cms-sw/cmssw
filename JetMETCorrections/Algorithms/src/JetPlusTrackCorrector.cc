@@ -15,19 +15,19 @@ using namespace std;
 
 JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 {
-             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::start "<<std::endl;
+//             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::start "<<std::endl;
 			  m_JetTracksAtVertex = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtVertex");
 			  m_JetTracksAtCalo = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtCalo");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
 //  Efficiency and separation of out/in cone tracks
                           theNonEfficiencyFile = iConfig.getParameter<std::string>("NonEfficiencyFile");
 			  theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
-             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::add all parameters "<<theResponseAlgo<<std::endl;			  
+  //           std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::add all parameters "<<theResponseAlgo<<std::endl;			  
              std::string file="JetMETCorrections/Configuration/data/"+theNonEfficiencyFile+".txt";
              edm::FileInPath f1(file);
 			  
 			  setParameters(f1.fullPath());
-             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::read file "<<theResponseAlgo<<std::endl;			  
+    //         std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::read file "<<theResponseAlgo<<std::endl;			  
 			  theSingle = new SingleParticleJetResponse();
 			  
 }
@@ -39,7 +39,7 @@ JetPlusTrackCorrector::~JetPlusTrackCorrector()
 
 void JetPlusTrackCorrector::setParameters(std::string fDataFile)
 { 
-  std::cout<<" JetPlusTrackCorrector::setParameters "<<std::endl;
+  //std::cout<<" JetPlusTrackCorrector::setParameters "<<std::endl;
   netabin = 0;
   nptbin = 0;
     
@@ -54,20 +54,20 @@ void JetPlusTrackCorrector::setParameters(std::string fDataFile)
     int ieta, ipt;
     linestream>>ieta>>ipt>>eta>>pt>>eff;
     
-    cout <<" ieta = " << ieta <<" ipt = " << ipt <<" eta = " << eta <<" pt = " << pt <<" eff = " << eff << endl;
+    //cout <<" ieta = " << ieta <<" ipt = " << ipt <<" eta = " << eta <<" pt = " << pt <<" eff = " << eff << endl;
     if(ieta != ietaold)
       {
 	etabin.push_back(eta);
 	ietaold = ieta;
 	netabin = ieta+1;
-	cout <<"   netabin = " << netabin <<" eta = " << eta << endl; 
+//	cout <<"   netabin = " << netabin <<" eta = " << eta << endl; 
       }
     
     if(ietaold == 0) 
       {
 	ptbin.push_back(pt); 
 	nptbin = ipt+1;
-	cout <<"   nptbin = " << nptbin <<" pt = " << pt << endl; 
+//	cout <<"   nptbin = " << nptbin <<" pt = " << pt << endl; 
       }
 
     trkeff.push_back(eff);
