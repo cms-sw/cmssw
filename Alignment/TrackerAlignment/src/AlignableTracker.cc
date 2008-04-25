@@ -12,6 +12,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableBuilder.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -57,30 +58,35 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
    
     const unsigned int subdetId = dets[i]->geographicalId().subdetId();//don't check det()==Tracker
     if (subdetId == PixelSubdetector::PixelBarrel || subdetId == PixelSubdetector::PixelEndcap) {
-      // Treat all pixel dets in same way with one AlignableDet(Unit???).
-      alis.push_back(new AlignableDet(dets[i])); // Change to AlignableDetUnit? Cf. below.
+      // Treat all pixel dets in same way with one AlignableDetUnit.
+      if (dets[i]->components().size()) { // GeomDetUnit does not have any components!
+        throw cms::Exception("LogicError") 
+          << "[AlignableTracker] Pixel GeomDet (subdetector " << subdetId << ") with " 
+          << dets[i]->components().size() << "components.\n";
+      }
+      alis.push_back(new AlignableDetUnit(dets[i]->geographicalId().rawId(), dets[i]->surface()));
     } else if (subdetId == SiStripDetId::TIB || subdetId == SiStripDetId::TID
 	       || subdetId == SiStripDetId::TOB || subdetId == SiStripDetId::TEC) {
       // In strip we have:
-      // 1) 'Pure' 1D-modules like TOB layers 3-6 (not glued): AlignableDet(Unit???)
+      // 1) 'Pure' 1D-modules like TOB layers 3-6 (not glued): AlignableDetUnit
       // 2) Composite 2D-modules like TOB layers 1&2 (not glued): AlignableDet
       // 3) The two 1D-components of case 2 (glued): AlignableDetUnit that is constructed
       //      inside AlignableDet-constructor of 'mother', only need to add to alignableLists_
       const SiStripDetId detId(dets[i]->geographicalId());
-      if (!detId.glued()) {
-	// GF: Instantiate AlignableDetUnit in case of no components? Less 'new' and uglyness.
-	//     But: Interference with names in misalignment scenarios!
-	alis.push_back(new AlignableDet(dets[i]));
-	const align::Alignables detUnits(alis.back()->components());
-	if (detUnits.size() > 1) {// FIXME if direct AlignableDetUnit for 1D strip layers?
+      if (!detId.glued()) { // 2D- or 'pure' 1D-module
+        if (dets[i]->components().size()) { // 2D-module
+          alis.push_back(new AlignableDet(dets[i])); // components constructed within
+          const align::Alignables detUnits(alis.back()->components());
 	  // Ensure pointer existence and make list available via moduleName appended with "Unit"
 	  if (!aliUnits) {
 	    aliUnits = &alignableLists_.get(moduleName + "Unit");
 	    aliUnits->reserve(576); // ugly hardcode to save some memory due to vector doubling
 	  }
 	  aliUnits->insert(aliUnits->end(), detUnits.begin(), detUnits.end()); // only 2...
-	}
-      }
+	} else { // no components: pure 1D-module
+          alis.push_back(new AlignableDetUnit(dets[i]->geographicalId().rawId(), dets[i]->surface()));
+        }
+      } // no else: glued components of AlignableDet constructed within AlignableDet, see above
     } else {
       throw cms::Exception("LogicError") 
 	<< "[AlignableTracker] GeomDet of unknown subdetector.";
