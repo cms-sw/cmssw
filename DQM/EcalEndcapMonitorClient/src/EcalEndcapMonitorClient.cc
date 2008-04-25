@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.173 $
+ * $Date: 2008/04/08 18:13:12 $
+ * $Revision: 1.174 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -860,6 +860,7 @@ void EcalEndcapMonitorClient::endJob(void) {
       }
 
       forced_status_ = true;
+      this->analyze();
       this->endRun();
 
     }
@@ -937,6 +938,7 @@ void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
       if ( begin_run_ && ! end_run_ ) {
 
         forced_status_ = false;
+        this->analyze();
         this->endRun();
 
       }
