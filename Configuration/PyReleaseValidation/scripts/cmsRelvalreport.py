@@ -279,6 +279,8 @@ class Profile:
             return self._profile_SimpleMem_Parser()
         elif self.profiler=='':
             return self._profile_None()
+        elif self.profiler=='None': #adding this for the case of candle ASCII file non-profiling commands
+            return self._profile_None()
         else:
             raise('No %s profiler found!' %self.profiler)
     #------------------------------------------------------------------
