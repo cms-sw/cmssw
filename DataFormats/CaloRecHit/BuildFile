@@ -1,7 +1,9 @@
 <use name=DataFormats/DetId>
+<use name=DataFormats/Common>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/DetId>
+  <use name=DataFormats/Common>
   <lib name=DataFormatsCaloRecHit>
 </export>
 
