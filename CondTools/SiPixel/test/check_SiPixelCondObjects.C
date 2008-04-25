@@ -75,12 +75,61 @@ void do_check(TString filename_official, TString filename_test,TString sampletyp
     std::cout << "Histogram Summary_Pedestal does not exist in file " << filename_test << std::endl;
     return;
   }
+  // check for dead pixel histos:
+  bool deadhists_exist=true;
+  bool deadhists_ref_exist=true;
+  
+  TH1F *dead2_off = (TH1F*)file_official->Get("Summary_dead");
+  TH1F *dead1_off = (TH1F*)file_official->Get("DeadAll");
+  if(!dead1_off || !dead2_off){
+    std::cout << "Histogram Summary_Dead/DeadAll does not exist in file " << filename_official << std::endl;
+    deadhists_exist=false;
+    deadhists_ref_exist=false;
+  }
+  else{
+    TString newname5 = dead1_off->GetName();
+    newname5+="official";
+    TString newname6 = dead2_off->GetName();
+    newname6+="official";
     
+    dead1_off->SetName(newname5);
+    dead1_off->SetTitle("Comparison dead fraction all modules "+sampletype);
+    dead2_off->SetName(newname6);
+    dead2_off->SetTitle("Comparison dead fraction per module "+sampletype);
+    dead2_off->GetXaxis()->SetTitle("arbitrary module number");
+    dead2_off->GetYaxis()->SetTitle("pedestal");
+  }
+  
+  TH1F *dead2_test = (TH1F*)file_test->Get("Summary_dead");
+  TH1F *dead1_test = (TH1F*)file_test->Get("DeadAll");
+  if(!dead1_test || !dead2_test){
+    std::cout << "Histogram Summary_Dead/DeadAll does not exist in file " << filename_test << std::endl;
+    deadhists_exist=false;
+  }
+  else{
+    TString newname5 = dead1_off->GetName();
+    newname5+="official";
+    TString newname6 = dead2_off->GetName();
+    newname6+="official";
+    
+    dead1_off->SetName(newname5);
+    dead1_off->SetTitle("Comparison dead fraction all modules "+sampletype);
+    dead2_off->SetName(newname6);
+    dead2_off->SetTitle("Comparison dead fraction per module "+sampletype);
+    dead2_off->GetXaxis()->SetTitle("arbitrary module number");
+    dead2_off->GetYaxis()->SetTitle("pedestal");
+  }
+  
+  
+   
   std::cout << "\n\n******\n" << sampletype << " comparison of the following files:" << std::endl;
   std::cout << "* reference:   " << filename_official << std::endl;
   std::cout << "* test:        " << filename_test << std::endl;
   TCanvas *cv= new TCanvas("comparison"+sampletype,"comparison"+sampletype);
-  cv->Divide(2,2);
+  if(deadhists_exist)
+    cv->Divide(2,3);
+  else
+    cv->Divide(2,2);
   cv->cd(1);
   double res1 = make_plot(gain1_off,gain1_test);
   std::cout << "match of " << gain1_off->GetTitle()<<" histograms: " << res1 << std::endl;
@@ -92,6 +141,21 @@ void do_check(TString filename_official, TString filename_test,TString sampletyp
   std::cout << "match of "<< pedestal1_off->GetTitle() << " histograms: " << res3 << std::endl;
   cv->cd(4);
   double res4 = make_plot(pedestal2_off,pedestal2_test);
+  double res5=1;
+  double res6=1;
+  if(deadhists_ref_exist){
+    cv->cd(5);
+    if(deadhists_exist)
+      res5=make_plot(dead1_off,dead1_test);
+    else
+      dead1_off->Draw();
+    cv->cd(6);
+    if(deadhists_exist)
+      res6=make_plot(dead2_off,dead2_test);
+    else
+      dead2_off->Draw();
+  }
+ 
   std::cout << "match of "<< pedestal1_off->GetTitle() << " histograms: " << res4 << std::endl;
   double compatbg = res1*res2*res3*res4;
   std::cout << "TOTAL compatibility: " << compatbg << " (1=completely identical, 0=not compatible at all)" << std::endl; 
