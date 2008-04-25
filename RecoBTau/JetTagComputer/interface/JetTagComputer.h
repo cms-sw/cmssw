@@ -62,7 +62,6 @@ class JetTagComputer {
 		m_setupDone(false) {}
 
 	virtual void setEventSetup(const edm::EventSetup&) const {}
-	virtual void trainEventSetup(const edm::EventSetup&) const {}
 
 	float operator () (const reco::BaseTagInfo& info) const;
 	inline float operator () (const TagInfoHelper &helper) const
