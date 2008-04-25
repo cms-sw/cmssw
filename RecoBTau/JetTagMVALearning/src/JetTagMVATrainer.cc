@@ -7,6 +7,7 @@
 #include <map>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -45,6 +46,7 @@ JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 	maxEta(params.getParameter<double>("maximumPseudoRapidity")),
 	setupDone(false),
 	jetTagComputer(params.getParameter<std::string>("jetTagComputer")),
+	tagInfos(params.getParameter< std::vector<edm::InputTag> >("tagInfos")),
 	signalFlavours(params.getParameter<std::vector<int> >("signalFlavours")),
 	ignoreFlavours(params.getParameter<std::vector<int> >("ignoreFlavours"))
 {
@@ -66,14 +68,6 @@ JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 
 	computerCache = std::auto_ptr<GenericMVAComputerCache>(
 			new GenericMVAComputerCache(calibrationLabels));
-
-	std::vector<std::string> inputTags =
-			params.getParameterNamesForType<edm::InputTag>();
-
-	for(std::vector<std::string>::const_iterator iter = inputTags.begin();
-	    iter != inputTags.end(); iter++)
-		tagInfoLabels[*iter] =
-				params.getParameter<edm::InputTag>(*iter);
 }
 
 JetTagMVATrainer::~JetTagMVATrainer()
@@ -87,16 +81,13 @@ void JetTagMVATrainer::setup(const JetTagComputer &computer)
 	if (inputLabels.empty())
 		inputLabels.push_back("tagInfo");
 
-	for(std::vector<std::string>::const_iterator iter = inputLabels.begin();
-	    iter != inputLabels.end(); iter++) {
-		std::map<std::string, edm::InputTag>::const_iterator pos =
-						tagInfoLabels.find(*iter);
-		if (pos == tagInfoLabels.end())
-			throw cms::Exception("InputTagMissing")
-				<< "JetTagMVATrainer is missing a TagInfo "
-				   "InputTag \"" << *iter << "\"" << std::endl;
-
-		tagInfos.push_back(pos->second);
+	if (tagInfos.size() != inputLabels.size()) {
+		std::string message("VInputTag size mismatch - the following "
+		                    "taginfo labels are needed:\n");
+		for(std::vector<std::string>::const_iterator iter =
+			inputLabels.begin(); iter != inputLabels.end(); ++iter)
+			message += "\"" + *iter + "\"\n";
+		throw edm::Exception(edm::errors::Configuration) << message;
 	}
 
 	setupDone = true;
@@ -203,8 +194,12 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 
 		JetInfoMap::iterator pos =
 			jetInfos.find(edm::RefToBase<Jet>(iter->first));
-		if (pos != jetInfos.end())
-			pos->second.flavour = iter->second.getFlavour();
+		if (pos != jetInfos.end()) {
+			int flavour = iter->second.getFlavour();
+			flavour = std::abs(flavour);
+			if (flavour < 100)
+				pos->second.flavour = flavour;
+		}
 	}
 
 	// cached array containing MVAComputer value list

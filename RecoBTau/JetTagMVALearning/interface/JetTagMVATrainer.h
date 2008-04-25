@@ -4,7 +4,6 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <map>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -46,7 +45,6 @@ class JetTagMVATrainer : public edm::EDAnalyzer {
 	bool						setupDone;
 	std::string					jetTagComputer;
 
-	std::map<std::string, edm::InputTag>		tagInfoLabels;
 	std::vector<edm::InputTag>			tagInfos;
 
 	std::vector<int>				signalFlavours;
