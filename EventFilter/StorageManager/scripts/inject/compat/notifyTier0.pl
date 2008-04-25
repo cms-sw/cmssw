@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: notifyTier0.pl,v 1.4 2008/04/01 09:02:42 loizides Exp $
+# $Id: notifyTier0.pl,v 1.1 2008/04/24 16:30:09 loizides Exp $
 ################################################################################
 
 use strict;
@@ -88,7 +88,7 @@ if (!-d "$outdir") {
 my $dstr = getdatestr();
 my $outfile = ">> $outdir" . $hostname . "-" . $instance . "-" . $dstr . ".work_in_progress";
 open LOG, $outfile;
-print LOG "export SM_FILENAME=$filename; export SM_FILECOUNTER=$count; export SM_NEVENTS=;export SM_FILESIZE=$filesize; export SM_STARTTIME=$starttime; export SM_STOPTIME=$stoptime; export SM_STATUS=$status; export SM_RUNNUMBER=$runnumber; export SM_LUMISECTION=$lumisection; export SM_PATHNAME=$pathname; export SM_HOSTNAME=$hostname; export SM_DATASET=$dataset; export SM_STREAM=$stream; export SM_INSTANCE=$instance; export SM_SAFETY=$safety; export SM_APPVERSION=$cmsver; export SM_APPNAME=CMSSW; export SM_TYPE=streamer; export SM_CHECKSUM=0\n";
+print LOG "export SM_FILENAME=$filename; export SM_FILECOUNTER=$count; export SM_NEVENTS=nevents; export SM_FILESIZE=$filesize; export SM_STARTTIME=$starttime; export SM_STOPTIME=$stoptime; export SM_STATUS=$status; export SM_RUNNUMBER=$runnumber; export SM_LUMISECTION=$lumisection; export SM_PATHNAME=$pathname; export SM_HOSTNAME=$hostname; export SM_DATASET=$dataset; export SM_STREAM=$stream; export SM_INSTANCE=$instance; export SM_SAFETY=$safety; export SM_APPVERSION=$cmsver; export SM_APPNAME=CMSSW; export SM_TYPE=streamer; export SM_CHECKSUM=0\n";
 
 close LOG;
 

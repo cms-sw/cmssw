@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: insertFile.pl,v 1.8 2008/04/01 10:59:53 loizides Exp $
+# $Id: closeFile.pl,v 1.1 2008/04/24 16:30:09 loizides Exp $
 ################################################################################
 
 use strict;
@@ -89,7 +89,10 @@ if(length $cmsver <= 0) {
     $cmsver = "CMSSW_1_7_1";
 }
 
-my $outdir = $pathname . "/../../log/";
+my $outdir = $pathname . "/../../../global/log/";
+if($pathname =~ m/emulator/) {
+    $outdir = $pathname . "/../../../emulator/log/";
+}
 if (!-d "$outdir") {
     $outdir = $pathname . "/../log/";
     if (!-d "$outdir") {
