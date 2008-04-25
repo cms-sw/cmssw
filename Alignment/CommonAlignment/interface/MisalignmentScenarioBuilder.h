@@ -3,10 +3,10 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date: 2007/12/04 23:23:47 $
-/// $Revision: 1.5 $
+/// $Date: 2008/04/22 22:56:22 $
+/// $Revision: 1.6 $
 ///
-/// $Author: ratnik $
+/// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <vector>
@@ -51,8 +51,16 @@ protected: // Methods
   void propagateParameters_( const edm::ParameterSet& pSet, const std::string& globalName,
 			     edm::ParameterSet& subSet ) const;
 
-  /// Get parameter set corresponding to given name (returns empty parameter set if does not exist)
+  /// Get parameter set corresponding to given name from pSet
+  /// returns empty parameter set if does not exist)
   edm::ParameterSet getParameterSet_( const std::string& name, const edm::ParameterSet& pSet ) const;
+
+  /// Get parameter set corresponding to given levelName and iComponent from pSet,
+  /// any parameter set name like <levelName><m>, <levelName><m>_<n>, <levelName><m>_<n>_<o> etc.
+  /// is accepted for iComponent == m, n or o. (returns empty parameter set if does not exist).
+  edm::ParameterSet getParameterSet_( const std::string& levelName, int iComponent, 
+				      const edm::ParameterSet& pSet ) const;
+
 
   /// Check if given parameter exists in parameter set
   bool hasParameter_( const std::string& name, const edm::ParameterSet& pSet ) const;

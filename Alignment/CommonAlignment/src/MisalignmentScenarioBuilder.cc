@@ -1,14 +1,15 @@
 /// \file
 ///
-/// $Date: 2007/12/04 23:23:48 $
-/// $Revision: 1.6 $
+/// $Date: 2008/04/22 22:56:22 $
+/// $Revision: 1.7 $
 ///
-/// $Author: ratnik $
+/// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <stdlib.h>
 
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
@@ -65,7 +66,7 @@ void MisalignmentScenarioBuilder::decodeMovements_( const edm::ParameterSet& pSe
     // Check for special parameters -> merge with global
     name.str("");
     name << levelName << iComponent;
-    edm::ParameterSet localParameters = this->getParameterSet_( name.str(), pSet );
+    edm::ParameterSet localParameters = this->getParameterSet_( levelName, iComponent, pSet );
     LogDebug("PrintParameters") << indent_ << " ** " << name.str() << ": found "
                                 << localParameters.getParameterNames().size() 
                                 << " local parameters"  << std::endl;
@@ -191,7 +192,64 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::stri
   return result;
 }
 
+//__________________________________________________________________________________________________
+// Get parameter set corresponding to given level name and number.
+// Return empty parameter set if does not exist.
+edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::string& levelName, int iComponent, 
+                                                                 const edm::ParameterSet& pSet ) const
+{
+  edm::ParameterSet result;
+  unsigned int nFittingPsets = 0;
 
+  // Get list of parameter set names and look for requested one
+  std::vector<std::string> pNames = pSet.getParameterNames();
+  for (std::vector<std::string>::iterator iter = pNames.begin(); iter != pNames.end(); ++iter) {
+    if (iter->find(levelName) != 0) continue; // parameter not starting with levelName
+
+    const std::string numberString(*iter, levelName.size());
+    //    if (numberString.empty() || numberString == "s") { // "s" only left means we have e.g. 'TOBs' 
+    if (numberString.empty()) { // check on "s" not needed, see below
+      continue;  // nothing left in levelName to be iComponent...
+    }
+    // now look for numbers (separated by '_', tolerating '__' or ending with '_')
+    unsigned int lastPos = 0;
+    unsigned int pos     = numberString.find_first_of('_', lastPos);
+    while (std::string::npos != pos || std::string::npos != lastPos) {
+      const std::string digit(numberString.substr(lastPos, pos - lastPos));
+
+      bool isDigit = !digit.empty();
+      for (std::string::const_iterator dIt = digit.begin(); dIt != digit.end(); ++dIt) {
+        if (!isdigit(*dIt)) isDigit = false; // check all 'letters' to be a digit
+      }
+      if (!isDigit) {
+        if (lastPos != 0) { // do not throw if e.g. after 'TOB' ('Det') you find only 's' (Unit<n>)
+          throw cms::Exception("BadConfig") << "[MisalignmentScenarioBuilder::getParameterSet_] "
+                                            << "Expect only numbers, separated by '_' after " 
+                                            << levelName << " in " << *iter << std::endl;
+        }
+        break;
+      }
+
+      if (atoi(digit.c_str()) == iComponent) {
+        ++nFittingPsets;
+        LogDebug("getParameterSet_") << indent_ << "found " << *iter << " matching "
+                                     << levelName << iComponent;
+        result = pSet.getParameter<edm::ParameterSet>(*iter);
+        break;
+      }
+      lastPos = numberString.find_first_not_of('_', pos);
+      pos     = numberString.find_first_of('_', lastPos);
+    }
+  } // end loop on names of parameters in pSet
+  
+  if (nFittingPsets > 1) {
+    throw cms::Exception("BadConfig") << "[MisalignmentScenarioBuilder::getParameterSet_] "
+                                      << "Found " << nFittingPsets << " PSet for " 
+                                      << levelName << " " << iComponent << "." << std::endl;
+  }
+
+  return result;
+}
 
 //__________________________________________________________________________________________________
 bool MisalignmentScenarioBuilder::hasParameter_( const std::string& name,
