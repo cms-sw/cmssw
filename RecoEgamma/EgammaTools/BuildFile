@@ -1,15 +1,18 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/EgammaCandidates>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
 <use name=RecoCaloTools/MetaCollections>
 <use name=clhep>
 <use name=root>
+<flags LDFLAGS="-lTMVA">
 <export>
   <use name=FWCore/Framework>
   <use name=DataFormats/HcalRecHit>
   <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/EgammaCandidates>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloEventSetup>
   <use name=RecoCaloTools/MetaCollections>
