@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.3 2008/04/11 13:27:33 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.4 2008/04/21 09:32:08 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -35,7 +35,7 @@ class SiStripDbParams {
 
   void reset(); 
   
-  void setParams( const edm::ParameterSet& );
+  void pset( const edm::ParameterSet& );
   
   void confdb( const std::string& );
   

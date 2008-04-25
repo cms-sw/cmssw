@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.2 2008/04/11 13:27:33 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.3 2008/04/21 09:32:21 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -53,7 +53,7 @@ void SiStripDbParams::reset() {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripDbParams::setParams( const edm::ParameterSet& cfg ) {
+void SiStripDbParams::pset( const edm::ParameterSet& cfg ) {
 
   // "Common" configurables
   usingDb_      = cfg.getUntrackedParameter<bool>( "UsingDb", false ); 
@@ -74,14 +74,14 @@ void SiStripDbParams::setParams( const edm::ParameterSet& cfg ) {
   for ( ; iname != jname; ++iname ) {
     edm::ParameterSet pset = psets.getUntrackedParameter<edm::ParameterSet>( *iname );
     SiStripPartition tmp;
-    tmp.setParams( pset );
-    SiStripPartitions::iterator iter = partitions_.find( tmp.partitionName_ ); 
-    if ( iter == partitions_.end() ) { partitions_[tmp.partitionName_] = tmp; }
+    tmp.pset( pset );
+    SiStripPartitions::iterator iter = partitions_.find( tmp.partitionName() ); 
+    if ( iter == partitions_.end() ) { partitions_[tmp.partitionName()] = tmp; }
     else {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
 	<< " Found PSet called \"" << *iname 
-	<< "\" that contains a partition name \"" << tmp.partitionName_ 
+	<< "\" that contains a partition name \"" << tmp.partitionName() 
 	<< "\" that already exists! Ignoring...";
     }
   }
@@ -142,12 +142,12 @@ std::vector<std::string> SiStripDbParams::partitions() const {
   for ( ; ii != jj; ++ii ) { 
     if ( std::find( partitions.begin(), 
 		    partitions.end(), 
-		    ii->second.partitionName_ ) == partitions.end() ) {
-      if ( !ii->second.partitionName_.empty() ) { partitions.push_back( ii->second.partitionName_ ); }
+		    ii->second.partitionName() ) == partitions.end() ) {
+      if ( !ii->second.partitionName().empty() ) { partitions.push_back( ii->second.partitionName() ); }
     } else {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Partition " << ii->second.partitionName_
+	<< " Partition " << ii->second.partitionName()
 	<< " already found! Not adding to vector...";
     }
   }
@@ -238,7 +238,7 @@ std::vector<std::string> SiStripDbParams::inputModuleXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();
   SiStripPartitions::const_iterator jj = partitions_.end();
-  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputModuleXml_ ); }
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputModuleXml() ); }
   return files;
 }
 
@@ -246,7 +246,7 @@ std::vector<std::string> SiStripDbParams::inputDcuInfoXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();
   SiStripPartitions::const_iterator jj = partitions_.end();
-  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputDcuInfoXml_ ); }
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputDcuInfoXml() ); }
   return files;
 }
 
@@ -254,7 +254,7 @@ std::vector<std::string> SiStripDbParams::inputFecXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();
   SiStripPartitions::const_iterator jj = partitions_.end();
-  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFecXml_.begin(), ii->second.inputFecXml_.end() ); }
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFecXml().begin(), ii->second.inputFecXml().end() ); }
   return files;
 }
 
@@ -262,6 +262,6 @@ std::vector<std::string> SiStripDbParams::inputFedXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();
   SiStripPartitions::const_iterator jj = partitions_.end();
-  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFedXml_.begin(), ii->second.inputFedXml_.end() ); }
+  for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFedXml().begin(), ii->second.inputFedXml().end() ); }
   return files;
 }

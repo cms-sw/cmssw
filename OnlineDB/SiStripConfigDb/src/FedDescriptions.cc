@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.24 2008/04/24 16:03:12 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.25 2008/04/24 16:10:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -26,24 +26,24 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions_.end();
       for ( ; iter != jter; ++iter ) {
 	
-	if ( partition == "" || partition == iter->second.partitionName_ ) {
+	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
-	  FedDescriptions::range range = feds_.find( iter->second.partitionName_ );
+	  FedDescriptions::range range = feds_.find( iter->second.partitionName() );
 	  if ( range == feds_.emptyRange() ) {
 
 	    // Extract versions
 	    deviceFactory(__func__)->setUsingStrips( usingStrips_ );
-	    int16_t major = iter->second.fedVersion_.first; 
-	    int16_t minor = iter->second.fedVersion_.second; 
-	    if ( iter->second.fedVersion_.first == 0 && 
-		 iter->second.fedVersion_.second == 0 ) {
+	    int16_t major = iter->second.fedVersion().first; 
+	    int16_t minor = iter->second.fedVersion().second; 
+	    if ( iter->second.fedVersion().first == 0 && 
+		 iter->second.fedVersion().second == 0 ) {
 	      major = -1; //@@ "current state" for fed factory!
 	      minor = -1; //@@ "current state" for fed factory!
 	    }
 
 	    // Retrive FED descriptions
 	    std::vector<FedDescription*> tmp1;
-	    tmp1 = *( deviceFactory(__func__)->getFed9UDescriptions( iter->second.partitionName_, 
+	    tmp1 = *( deviceFactory(__func__)->getFed9UDescriptions( iter->second.partitionName(), 
 								     major, 
 								     minor ) );
 	    
@@ -56,17 +56,17 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
 #endif
 	    
 	    // Add to cache
-	    feds_.loadNext( iter->second.partitionName_, tmp2 );
+	    feds_.loadNext( iter->second.partitionName(), tmp2 );
 
 	    // Some debug
-	    FedDescriptions::range feds = feds_.find( iter->second.partitionName_ );
+	    FedDescriptions::range feds = feds_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Downloaded " << feds.size() 
 	       << " FED descriptions to local cache for partition \""
-	       << iter->second.partitionName_ << "\" and version " 
-	       << iter->second.fedVersion_.first << "." 
-	       << iter->second.fedVersion_.second << std::endl;
+	       << iter->second.partitionName() << "\" and version " 
+	       << iter->second.fedVersion().first << "." 
+	       << iter->second.fedVersion().second << std::endl;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Cache holds connections for " 
 	       << feds_.size() << " partitions.";
@@ -114,8 +114,8 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
     np = 1;
     nc = feds.size();
   } else { 
-    feds = FedDescriptions::range( feds_.find( dbParams_.partitions_.begin()->second.partitionName_ ).begin(),
-				   feds_.find( dbParams_.partitions_.rbegin()->second.partitionName_ ).end() );
+    feds = FedDescriptions::range( feds_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
+				   feds_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
     np = feds_.size();
     nc = feds.size();
   }
@@ -159,7 +159,7 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
 
   SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
   SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
-  for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName_ ) { break; } }
+  for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
   if ( iter == dbParams_.partitions_.end() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -189,9 +189,9 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Added " << feds.size() 
        << " FED descriptions to local cache for partition \""
-       << iter->second.partitionName_ << "\" and version " 
-       << iter->second.fedVersion_.first << "." 
-       << iter->second.fedVersion_.second << std::endl;
+       << iter->second.partitionName() << "\" and version " 
+       << iter->second.fedVersion().first << "." 
+       << iter->second.fedVersion().second << std::endl;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Cache holds FED descriptions for " 
        << feds_.size() << " partitions.";
@@ -236,17 +236,17 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
     for ( ; iter != jter; ++iter ) {
       
-      if ( partition == "" || partition == iter->second.partitionName_ ) {
+      if ( partition == "" || partition == iter->second.partitionName() ) {
 	
-	FedDescriptions::range range = feds_.find( iter->second.partitionName_ );
+	FedDescriptions::range range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
 	  
 	  std::vector<FedDescription*> feds( range.begin(), range.end() );
 	  
 	  deviceFactory(__func__)->setFed9UDescriptions( feds,
-							 iter->second.partitionName_,
-							 (uint16_t*)(&iter->second.fedVersion_.first), 
-							 (uint16_t*)(&iter->second.fedVersion_.second),
+							 iter->second.partitionName(),
+							 (uint16_t*)(&iter->second.fedVersion().first), 
+							 (uint16_t*)(&iter->second.fedVersion().second),
 							 1 ); // new major version
 
 	  // Some debug
@@ -254,16 +254,16 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 	  ss << "[SiStripConfigDb::" << __func__ << "]"
 	     << " Uploaded " << feds.size() 
 	     << " FED descriptions to DB/xml for partition \""
-	     << iter->second.partitionName_ << "\" and version " 
-	     << iter->second.fedVersion_.first << "." 
-	     << iter->second.fedVersion_.second << ".";
+	     << iter->second.partitionName() << "\" and version " 
+	     << iter->second.fedVersion().first << "." 
+	     << iter->second.fedVersion().second << ".";
 	  LogTrace(mlConfigDb_) << ss.str();
 	  
 	} else {
 	  stringstream ss; 
 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
 	     << " Vector of FED descriptions is empty for partition \"" 
-	     << iter->second.partitionName_
+	     << iter->second.partitionName()
 	     << "\", therefore aborting upload for this partition!";
 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
 	  continue; 
@@ -306,18 +306,18 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
     SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
     for ( ; iter != jter; ++iter ) {
-      if ( partition != iter->second.partitionName_ ) {
-	FedDescriptions::range range = feds_.find( iter->second.partitionName_ );
+      if ( partition != iter->second.partitionName() ) {
+	FedDescriptions::range range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
 	  temporary_cache.loadNext( partition, std::vector<FedDescription*>( range.begin(), range.end() ) );
 	}
       } else {
-	FedDescriptions::range range = feds_.find( iter->second.partitionName_ );
+	FedDescriptions::range range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
 	  LogTrace(mlConfigDb_) 
 	    << "[SiStripConfigDb::" << __func__ << "]"
 	    << " Deleting FED descriptions for partition \""
-	    << iter->second.partitionName_
+	    << iter->second.partitionName()
 	    << "\" from local cache...";
 	}
       }
@@ -327,13 +327,13 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   // Delete objects in local cache for specified partition (or all if not specified) 
   FedDescriptions::range feds;
   if ( partition == "" ) { 
-    feds = FedDescriptions::range( feds_.find( dbParams_.partitions_.begin()->second.partitionName_ ).begin(),
-				   feds_.find( dbParams_.partitions_.rbegin()->second.partitionName_ ).end() );
+    feds = FedDescriptions::range( feds_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
+				   feds_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
   } else {
     SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
     SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
-    for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName_ ) { break; } }
-    feds = feds_.find( iter->second.partitionName_ );
+    for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
+    feds = feds_.find( iter->second.partitionName() );
   }
   
   if ( feds != feds_.emptyRange() ) {

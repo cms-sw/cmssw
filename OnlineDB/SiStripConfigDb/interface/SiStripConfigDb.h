@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.59 2008/04/23 13:05:10 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.60 2008/04/24 16:02:33 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -103,7 +103,7 @@ class SiStripConfigDb {
   friend class CalibrationHistosUsingDb;
 
   // Utility and tests
-  friend class PopulateConfigDb;
+  friend class SiStripPartition;
   friend class testSiStripConfigDb;
 
 
@@ -176,15 +176,9 @@ class SiStripConfigDb {
   
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DeviceFactory* const deviceFactory( std::string method_name = "" ) const;
-
+  
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DbClient* const databaseCache( std::string method_name = "" ) const;
-  
-  /** Updates versions for specified partition. */
-  void useVersions( SiStripPartition& );
-  
-  /** Updates versions for specified partition and run. */
-  void useRunNumber( SiStripPartition& );
   
   
   // ---------- FED connections ----------

@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.6 2008/04/23 12:17:49 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.7 2008/04/24 16:02:35 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -113,7 +113,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
       for ( ; ii != jj; ++ii ) {
-	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( ii->second.partitionName_ );
+	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( ii->second.partitionName() );
 	if ( conns != connections.emptyRange() ) {
 	  std::vector<SiStripConfigDb::FedConnection*> tmp1( conns.begin(), conns.end() );
 	  std::vector<SiStripConfigDb::FedConnection*> tmp2;
@@ -122,7 +122,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 #else
 	  tmp2 = tmp1;
 #endif
-	  connections.loadNext( ii->second.partitionName_, tmp2 );
+	  connections.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
       db_->printFedConnections();
@@ -132,11 +132,11 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::FedConnections::range conns = connections.find( iter->second.partitionName_ );
+	SiStripConfigDb::FedConnections::range conns = connections.find( iter->second.partitionName() );
 	std::vector<SiStripConfigDb::FedConnection*> temp( conns.begin(), conns.end() );
-	db_->addFedConnections( iter->second.partitionName_, temp );
-	db_->printFedConnections( iter->second.partitionName_ );
-	db_->uploadFedConnections( iter->second.partitionName_ );
+	db_->addFedConnections( iter->second.partitionName(), temp );
+	db_->printFedConnections( iter->second.partitionName() );
+	db_->uploadFedConnections( iter->second.partitionName() );
       }
 
       // print all partitions and then upload, clear, print
@@ -156,7 +156,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
       for ( ; ii != jj; ++ii ) {
-	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( ii->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( ii->second.partitionName() );
 	if ( devs != devices.emptyRange() ) {
 	  std::vector<SiStripConfigDb::DeviceDescription*> tmp1( devs.begin(), devs.end() );
 	  std::vector<SiStripConfigDb::DeviceDescription*> tmp2;
@@ -165,7 +165,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 #else
 	  tmp2 = tmp1;
 #endif
-	  devices.loadNext( ii->second.partitionName_, tmp2 );
+	  devices.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
       db_->printDeviceDescriptions();
@@ -175,11 +175,11 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::DeviceDescriptions::range devs = devices.find( iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptions::range devs = devices.find( iter->second.partitionName() );
 	std::vector<SiStripConfigDb::DeviceDescription*> temp( devs.begin(), devs.end() );
-	db_->addDeviceDescriptions( iter->second.partitionName_, temp );
-	db_->printDeviceDescriptions( iter->second.partitionName_ );
-	db_->uploadDeviceDescriptions( iter->second.partitionName_ );
+	db_->addDeviceDescriptions( iter->second.partitionName(), temp );
+	db_->printDeviceDescriptions( iter->second.partitionName() );
+	db_->uploadDeviceDescriptions( iter->second.partitionName() );
       }
 
       // print all partitions and then upload, clear, print
@@ -199,7 +199,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
       for ( ; ii != jj; ++ii ) {
-	SiStripConfigDb::FedDescriptions::range range = db_->getFedDescriptions( ii->second.partitionName_ );
+	SiStripConfigDb::FedDescriptions::range range = db_->getFedDescriptions( ii->second.partitionName() );
 	if ( range != feds.emptyRange() ) {
 	  std::vector<SiStripConfigDb::FedDescription*> tmp1( range.begin(), range.end() );
 	  std::vector<SiStripConfigDb::FedDescription*> tmp2;
@@ -208,7 +208,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 #else
 	  tmp2 = tmp1;
 #endif
-	  feds.loadNext( ii->second.partitionName_, tmp2 );
+	  feds.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
       db_->printFedDescriptions();
@@ -218,11 +218,11 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::FedDescriptions::range range = feds.find( iter->second.partitionName_ );
+	SiStripConfigDb::FedDescriptions::range range = feds.find( iter->second.partitionName() );
 	std::vector<SiStripConfigDb::FedDescription*> temp( range.begin(), range.end() );
-	db_->addFedDescriptions( iter->second.partitionName_, temp );
-	db_->printFedDescriptions( iter->second.partitionName_ );
-	db_->uploadFedDescriptions( iter->second.partitionName_ );
+	db_->addFedDescriptions( iter->second.partitionName(), temp );
+	db_->printFedDescriptions( iter->second.partitionName() );
+	db_->uploadFedDescriptions( iter->second.partitionName() );
       }
       
       // print all partitions and then upload, clear, print
@@ -242,7 +242,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions_.end();
       for ( ; ii != jj; ++ii ) {
-	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( ii->second.partitionName_ );
+	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( ii->second.partitionName() );
 	if ( range != feds.emptyRange() ) {
 	  std::vector<SiStripConfigDb::DcuDetId> tmp1( range.begin(), range.end() );
 	  std::vector<SiStripConfigDb::DcuDetId> tmp2;
@@ -251,7 +251,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 #else
 	  tmp2 = tmp1;
 #endif
-	  feds.loadNext( ii->second.partitionName_, tmp2 );
+	  feds.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
       db_->printDcuDetIdMap();
@@ -261,11 +261,11 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::DcuDetIdMap::range range = feds.find( iter->second.partitionName_ );
+	SiStripConfigDb::DcuDetIdMap::range range = feds.find( iter->second.partitionName() );
 	std::vector<SiStripConfigDb::DcuDetId> temp( range.begin(), range.end() );
-	db_->addDcuDetIdMap( iter->second.partitionName_, temp );
-	db_->printDcuDetIdMap( iter->second.partitionName_ );
-	db_->uploadDcuDetIdMap( iter->second.partitionName_ );
+	db_->addDcuDetIdMap( iter->second.partitionName(), temp );
+	db_->printDcuDetIdMap( iter->second.partitionName() );
+	db_->uploadDcuDetIdMap( iter->second.partitionName() );
       }
       
       // print all partitions and then upload, clear, print
@@ -292,10 +292,10 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( iter->second.partitionName_ );
-	db_->printFedConnections( iter->second.partitionName_ );
-	db_->clearFedConnections( iter->second.partitionName_ );
-	db_->printFedConnections( iter->second.partitionName_ );
+	SiStripConfigDb::FedConnections::range conns = db_->getFedConnections( iter->second.partitionName() );
+	db_->printFedConnections( iter->second.partitionName() );
+	db_->clearFedConnections( iter->second.partitionName() );
+	db_->printFedConnections( iter->second.partitionName() );
 	std::stringstream ss;
 	ss << "[testSiStripConfigDb::" << __func__ << "]" 
 	   << " Downloaded " << conns.size()
@@ -326,17 +326,17 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptions::range devs = db_->getDeviceDescriptions( iter->second.partitionName() );
 	std::stringstream ss;
 	ss << "[testSiStripConfigDb::" << __func__ << "]" 
 	   << " Downloaded " << devs.size()
 	   << " device descriptions!";
-	SiStripConfigDb::DeviceDescriptionsRange apv = db_->getDeviceDescriptions( APV25, iter->second.partitionName_ );
-	SiStripConfigDb::DeviceDescriptionsRange mux = db_->getDeviceDescriptions( APVMUX, iter->second.partitionName_ );
-	SiStripConfigDb::DeviceDescriptionsRange dcu = db_->getDeviceDescriptions( DCU, iter->second.partitionName_ );
-	SiStripConfigDb::DeviceDescriptionsRange lld = db_->getDeviceDescriptions( LASERDRIVER, iter->second.partitionName_ );
-	SiStripConfigDb::DeviceDescriptionsRange doh = db_->getDeviceDescriptions( DOH, iter->second.partitionName_ );
-	SiStripConfigDb::DeviceDescriptionsRange pll = db_->getDeviceDescriptions( PLL, iter->second.partitionName_ );
+	SiStripConfigDb::DeviceDescriptionsRange apv = db_->getDeviceDescriptions( APV25, iter->second.partitionName() );
+	SiStripConfigDb::DeviceDescriptionsRange mux = db_->getDeviceDescriptions( APVMUX, iter->second.partitionName() );
+	SiStripConfigDb::DeviceDescriptionsRange dcu = db_->getDeviceDescriptions( DCU, iter->second.partitionName() );
+	SiStripConfigDb::DeviceDescriptionsRange lld = db_->getDeviceDescriptions( LASERDRIVER, iter->second.partitionName() );
+	SiStripConfigDb::DeviceDescriptionsRange doh = db_->getDeviceDescriptions( DOH, iter->second.partitionName() );
+	SiStripConfigDb::DeviceDescriptionsRange pll = db_->getDeviceDescriptions( PLL, iter->second.partitionName() );
 	if ( !devs.empty() ) { 
 	  ss << std::endl
 	     << " Number of APV descriptions : " << ( apv.second - apv.first ) << std::endl
@@ -348,9 +348,9 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	  edm::LogVerbatim("testSiStripConfigDb") << ss.str(); 
 	}
 	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
-	db_->printDeviceDescriptions( iter->second.partitionName_ );
-	db_->clearDeviceDescriptions( iter->second.partitionName_ );
-	db_->printDeviceDescriptions( iter->second.partitionName_ );
+	db_->printDeviceDescriptions( iter->second.partitionName() );
+	db_->clearDeviceDescriptions( iter->second.partitionName() );
+	db_->printDeviceDescriptions( iter->second.partitionName() );
       }
 
       // get all partitions and print, clear, print
@@ -375,20 +375,20 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::FedDescriptions::range feds = db_->getFedDescriptions( iter->second.partitionName_ );
+	SiStripConfigDb::FedDescriptions::range feds = db_->getFedDescriptions( iter->second.partitionName() );
 	std::stringstream ss;
 	ss << "[testSiStripConfigDb::" << __func__ << "]" 
 	   << " Downloaded " << feds.size()
 	   << " FED descriptions!";
-	SiStripConfigDb::FedIdsRange ids = db_->getFedIds( iter->second.partitionName_ );
+	SiStripConfigDb::FedIdsRange ids = db_->getFedIds( iter->second.partitionName() );
 	if ( !feds.empty() ) { 
 	  ss << std::endl << " Number of FED ids : " << ( ids.second - ids.first );
 	  edm::LogVerbatim("testSiStripConfigDb") << ss.str(); 
 	}
 	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
-	db_->printFedDescriptions( iter->second.partitionName_ );
-	db_->clearFedDescriptions( iter->second.partitionName_ );
-	db_->printFedDescriptions( iter->second.partitionName_ );
+	db_->printFedDescriptions( iter->second.partitionName() );
+	db_->clearFedDescriptions( iter->second.partitionName() );
+	db_->printFedDescriptions( iter->second.partitionName() );
       }
       
       // get all partitions and print, clear, print
@@ -413,16 +413,16 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions_.begin();
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions_.end();
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( iter->second.partitionName_ );
+	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( iter->second.partitionName() );
 	std::stringstream ss;
 	ss << "[testSiStripConfigDb::" << __func__ << "]" 
 	   << " Downloaded " << range.size()
 	   << " DCU-DetId map!";
 	if ( !range.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
 	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
-	db_->printDcuDetIdMap( iter->second.partitionName_ );
-	db_->clearDcuDetIdMap( iter->second.partitionName_ );
-	db_->printDcuDetIdMap( iter->second.partitionName_ );
+	db_->printDcuDetIdMap( iter->second.partitionName() );
+	db_->clearDcuDetIdMap( iter->second.partitionName() );
+	db_->printDcuDetIdMap( iter->second.partitionName() );
       }
       
       // get all partitions and print, clear, print

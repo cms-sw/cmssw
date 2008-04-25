@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.23 2008/04/23 12:17:48 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.24 2008/04/24 16:02:34 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -25,17 +25,17 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions_.end();
       for ( ; iter != jter; ++iter ) {
 	
-	if ( partition == "" || partition == iter->second.partitionName_ ) {
+	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
-	  DeviceDescriptions::range range = devices_.find( iter->second.partitionName_ );
+	  DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
 	  if ( range == devices_.emptyRange() ) {
 	    
 	    // Retrieve conections
 	    std::vector<DeviceDescription*> tmp1;
-	    deviceFactory(__func__)->getFecDeviceDescriptions( iter->second.partitionName_, 
+	    deviceFactory(__func__)->getFecDeviceDescriptions( iter->second.partitionName(), 
 							       tmp1,
-							       iter->second.fecVersion_.first,
-							       iter->second.fecVersion_.second,
+							       iter->second.fecVersion().first,
+							       iter->second.fecVersion().second,
 							       false ); //@@ do not get DISABLED connections
 	    
 	    // Make local copy 
@@ -47,15 +47,15 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
 #endif
 
 	    // Add to cache
-	    devices_.loadNext( iter->second.partitionName_, tmp2 );
+	    devices_.loadNext( iter->second.partitionName(), tmp2 );
 
 	    // Some debug
-	    DeviceDescriptions::range range = devices_.find( iter->second.partitionName_ );
+	    DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Dowloaded " << range.size() 
 	       << " device descriptions to local cache for partition \""
-	       << iter->second.partitionName_ << "\"."
+	       << iter->second.partitionName() << "\"."
 	       << " (Cache holds connections for " 
 	       << devices_.size() << " partitions.)";
 	    LogTrace(mlConfigDb_) << ss.str();
@@ -102,8 +102,8 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
     np = 1;
     nc = devs.size();
   } else { 
-    devs = DeviceDescriptions::range( devices_.find( dbParams_.partitions_.begin()->second.partitionName_ ).begin(),
-				      devices_.find( dbParams_.partitions_.rbegin()->second.partitionName_ ).end() );
+    devs = DeviceDescriptions::range( devices_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
+				      devices_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
     np = devices_.size();
     nc = devs.size();
   }
@@ -180,7 +180,7 @@ void SiStripConfigDb::addDeviceDescriptions( std::string partition, std::vector<
 
   SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
   SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
-  for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName_ ) { break; } }
+  for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
   if ( iter == dbParams_.partitions_.end() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -254,17 +254,17 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
     for ( ; iter != jter; ++iter ) {
       
-      if ( partition == "" || partition == iter->second.partitionName_ ) {
+      if ( partition == "" || partition == iter->second.partitionName() ) {
 	
-	DeviceDescriptions::range range = devices_.find( iter->second.partitionName_ );
+	DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
 	if ( range != devices_.emptyRange() ) {
 	  
 	  std::vector<DeviceDescription*> devs( range.begin(), range.end() );
 	  
 	  deviceFactory(__func__)->setFecDeviceDescriptions( devs,
-							     iter->second.partitionName_,
-							     &(iter->second.fecVersion_.first),
-							     &(iter->second.fecVersion_.second),
+							     iter->second.partitionName(),
+							     &(iter->second.fecVersion().first),
+							     &(iter->second.fecVersion().second),
 							     true ); // new major version
 
 	  // Some debug
@@ -272,14 +272,14 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
 	  ss << "[SiStripConfigDb::" << __func__ << "]"
 	     << " Uploaded " << devs.size() 
 	     << " device descriptions to DB/xml for partition \""
-	     << iter->second.partitionName_ << "\".";
+	     << iter->second.partitionName() << "\".";
 	  LogTrace(mlConfigDb_) << ss.str();
 	  
 	} else {
 	  stringstream ss; 
 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
 	     << " Vector of device descriptions is empty for partition \"" 
-	     << iter->second.partitionName_
+	     << iter->second.partitionName()
 	     << "\", therefore aborting upload for this partition!";
 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
 	  continue; 
@@ -323,14 +323,14 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
     SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
     for ( ; iter != jter; ++iter ) {
-      if ( partition != iter->second.partitionName_ ) {
-	DeviceDescriptions::range range = devices_.find( iter->second.partitionName_ );
+      if ( partition != iter->second.partitionName() ) {
+	DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
 	if ( range != devices_.emptyRange() ) {
 	  temporary_cache.loadNext( partition, std::vector<DeviceDescription*>( range.begin(), range.end() ) );
 	} else {
 	  // 	  stringstream ss; 
 	  // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
-	  // 	     << " Cannot find partition \"" << iter->second.partitionName_
+	  // 	     << " Cannot find partition \"" << iter->second.partitionName()
 	  // 	     << "\" in local cache!";
 	  // 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
 	}
@@ -341,13 +341,13 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   // Delete objects in local cache for specified partition (or all if not specified) 
   DeviceDescriptions::range devs;
   if ( partition == "" ) { 
-    devs = DeviceDescriptions::range( devices_.find( dbParams_.partitions_.begin()->second.partitionName_ ).begin(),
-				   devices_.find( dbParams_.partitions_.rbegin()->second.partitionName_ ).end() );
+    devs = DeviceDescriptions::range( devices_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
+				   devices_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
   } else {
     SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
     SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
-    for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName_ ) { break; } }
-    devs = devices_.find( iter->second.partitionName_ );
+    for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
+    devs = devices_.find( iter->second.partitionName() );
   }
   
   if ( devs != devices_.emptyRange() ) {
