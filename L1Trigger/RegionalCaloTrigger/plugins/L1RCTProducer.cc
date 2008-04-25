@@ -35,6 +35,8 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   useHcal(conf.getParameter<bool>("useHcal")),
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
   hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
+  ecalESLabel(conf.getParameter<std::string>("ecalESLabel")),
+  hcalESLabel(conf.getParameter<std::string>("hcalESLabel")),
   preSamples(conf.getParameter<unsigned>("preSamples")),
   postSamples(conf.getParameter<unsigned>("postSamples"))
 {
@@ -64,10 +66,10 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters* r = rctParameters.product();
   edm::ESHandle<CaloTPGTranscoder> transcoder;
-  eventSetup.get<CaloTPGRecord>().get(transcoder);
+  eventSetup.get<CaloTPGRecord>().get(hcalESLabel, transcoder);
   const CaloTPGTranscoder* t = transcoder.product();
   edm::ESHandle<L1CaloEtScale> emScale;
-  eventSetup.get<L1EmEtScaleRcd>().get(emScale);
+  eventSetup.get<L1EmEtScaleRcd>().get(ecalESLabel, emScale);
   const L1CaloEtScale* s = emScale.product();
 
   EcalTPGScale* e = new EcalTPGScale();
