@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: InjectWorker.sh,v 1.1 2008/04/24 16:30:09 loizides Exp $
+# $Id: InjectWorker.sh,v 1.2 2008/04/25 13:19:00 loizides Exp $
 #
 #  ./InjectWorker.sh directory/file scripts [logdir errordir]
 #
@@ -10,6 +10,13 @@
 #  $SM_IWLOGDIR for logdir
 #  $SM_IWIW_ERRORDIR for errordir
 #
+
+function exit_on_trap()
+{
+    echo -n "Stoping $0 at " >> $IW_LOGFILE
+    echo `date` >> $IW_LOGFILE
+    exit 0;
+}
 
 function getLogFileName()
 {
@@ -28,7 +35,11 @@ if test -z "$IW_LOGDIR"; then
     IW_LOGDIR=/tmp
 fi
 IW_LOGFILE=$IW_LOGDIR/`getLogFileName`
-echo "Starting $0 with PID $$ ..." >> $IW_LOGFILE
+echo -n "Starting $0 with PID $$ at " >> $IW_LOGFILE
+echo `date` >> $IW_LOGFILE
+
+# set craceful exit
+trap exit_on_trap 1 2 9 15
 
 # test for IW_INPUT
 if test -n "$1"; then
@@ -97,7 +108,7 @@ while test 1 -gt 0; do
 
         if test -z "$IFILE"; then
             sleep $IW_SLEEPTIME
-            if test $COUNTER -gt 250; then
+            if test $COUNTER -gt 1000; then
                 echo "Info $0: Still alive at `date`" >> $IW_LOGFILE
                 COUNTER=0
             fi
@@ -151,8 +162,11 @@ while test 1 -gt 0; do
         fi
     fi
 
+    echo -n "Info $0: Finished file $IFILE at " >> $IW_LOGFILE
+    echo `date` >> $IW_LOGFILE
+
     #reset signals
-    trap 1 2 9 15
+    trap exit_on_trap 1 2 9 15
 
     if test "$IW_DIRMODE" = "0"; then
         break;
