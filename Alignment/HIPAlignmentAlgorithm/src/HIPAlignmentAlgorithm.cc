@@ -113,7 +113,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   theAPEParameters.clear();
 
   // get APE parameters
-  if (!theApplyAPE) {
+  if (theApplyAPE) {
      AlignmentParameterSelector selector(tracker, muon);
      for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();  setiter != theAPEParameterSet.end();  ++setiter) {
 	std::vector<Alignable*> alignables;
