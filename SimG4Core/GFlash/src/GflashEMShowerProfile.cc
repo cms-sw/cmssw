@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.2 2008/02/18 22:00:53, syjun, dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.3 2008/02/29 23:40:56 syjun Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -19,6 +19,7 @@
 
 GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope)
 {
+  theHelix = new GflashTrajectory;
   theHisto = GflashHistogram::instance();
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -34,6 +35,7 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope)
 
 GflashEMShowerProfile::~GflashEMShowerProfile()
 {
+  delete theHelix;
   delete theRandGauss;
 }
 
@@ -63,10 +65,11 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   // implementing magnetic field effects
   const G4double bField = 4.0; // in Tesla
   double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
-  GflashTrajectory helix(showerMomentum,showerStartingPosition,charge,bField);
+  //  GflashTrajectory helix(showerMomentum,showerStartingPosition,charge,bField);
+  theHelix->initializeTrajectory(showerMomentum,showerStartingPosition,charge,bField);
 
   //path Length from the origin to the shower starting point in cm
-  G4double pathLength0 = helix.getPathLengthAtRhoEquals(showerStartingPosition.getRho());
+  G4double pathLength0 = theHelix->getPathLengthAtRhoEquals(showerStartingPosition.getRho());
   G4double pathLength = pathLength0; // this will grow along the shower development
 
 
@@ -116,6 +119,9 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   G4double p1=2.623 -0.00094*Z;
   G4double p2=0.401 +0.00187*Z;
   G4double p3=1.313 -0.0686*logEinc;
+
+  //@@@ dwjang, intial tuning by comparing 20GeV TB data
+  p1 = 2.47;
  
   // preparation of longitudinal integration
   G4double stepLengthLeft = fastTrack.GetEnvelopeSolid()->DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),
@@ -245,7 +251,7 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
       // trajectoryPoint give a spot an imaginary point along the shower development
       GflashTrajectoryPoint trajectoryPoint;
-      helix.getGflashTrajectoryPoint(trajectoryPoint,pathLength+incrementPath);
+      theHelix->getGflashTrajectoryPoint(trajectoryPoint,pathLength+incrementPath);
 
       // actual spot position by adding a radial vector to a trajectoryPoint
       G4ThreeVector SpotPosition = trajectoryPoint.getPosition() +
@@ -258,14 +264,13 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 
       // for histogramming      
       G4double zInX0_spot = std::abs(pathLength+incrementPath - pathLength0)/radLength;
-      G4double signedR = std::cos(azimuthalAngle) > 0.0 ? SpotPosition.r() : -SpotPosition.r();
 
       if(theHisto->getStoreFlag()) {
 	theHisto->rxry->Fill(rShower*std::cos(azimuthalAngle)/rMoliere,rShower*std::sin(azimuthalAngle)/rMoliere);
 	theHisto->dx->Fill(rShower*std::cos(azimuthalAngle)/rMoliere);
 	theHisto->xdz->Fill(zInX0-0.5,rShower*std::cos(azimuthalAngle)/rMoliere);
 	theHisto->dndz_spot->Fill(zInX0_spot);
-	theHisto->rzSpots->Fill(SpotPosition.z(),signedR);
+	theHisto->rzSpots->Fill(SpotPosition.z(),SpotPosition.r());
 	theHisto->rArm->Fill(rShower/rMoliere);
       }
 

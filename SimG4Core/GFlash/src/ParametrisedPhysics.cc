@@ -16,8 +16,10 @@ ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterS
   G4VPhysicsConstructor(name), theParSet(p) {}
 
 ParametrisedPhysics::~ParametrisedPhysics() {
-  if(theEMShowerModel)     delete theEMShowerModel;
-  if(theHadronShowerModel) delete theHadronShowerModel;
+  if(theParSet.getParameter<bool>("GflashEMShowerModel") && theEMShowerModel) 
+    delete theEMShowerModel;
+  if(theParSet.getParameter<bool>("GflashHadronShowerModel") && theHadronShowerModel) 
+    delete theHadronShowerModel;
 }
 
 void ParametrisedPhysics::ConstructParticle() 
@@ -40,7 +42,6 @@ void ParametrisedPhysics::ConstructParticle()
 
 void ParametrisedPhysics::ConstructProcess() {
 
-  std::cout << " ParametrisedPhysics: adding the FastSimulationManagerProcess " << std::endl;
   G4FastSimulationManagerProcess * theFastSimulationManagerProcess = new G4FastSimulationManagerProcess();
   theParticleIterator->reset();
   while ((*theParticleIterator)()) {
@@ -49,7 +50,13 @@ void ParametrisedPhysics::ConstructProcess() {
     pmanager->AddProcess(theFastSimulationManagerProcess, -1, -1, 1);
   }
 
-  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld");
+  // GflashEnvelop definition as GflashRegion which includes EcalRegion & HcalRegion
+  G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("GflashRegion");
+  if(aRegion == 0){
+    std::cout << "GflashRegion is not defined !!!" << std::endl;
+    std::cout << "This means that GFlash will not be turned on." << std::endl;
+    std::cout << "Take a look at cmsGflashGeometryXML.cfi if it includes gflashCaloProdCuts.xml." << std::endl;
+  }
 
   //Electromagnetic Shower Model
   if(theParSet.getParameter<bool>("GflashEMShowerModel")) {
@@ -60,6 +67,4 @@ void ParametrisedPhysics::ConstructProcess() {
   if(theParSet.getParameter<bool>("GflashHadronShowerModel")) {
     theHadronShowerModel = new GflashHadronShowerModel("GflashHadronShowerModel",aRegion);
   }
-
-
 }

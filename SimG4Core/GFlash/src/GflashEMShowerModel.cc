@@ -47,16 +47,6 @@ G4bool GflashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleTyp
 // -----------------------------------------------------------------------------------
 G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 
-  // Here we switch region from the default to GflashRegion and associate it to G4FastSimulationManger.
-  // The perfect place to do this is in CaloModel.cc but GflashRegion is not defined there.
-  // So this is a temporary solution. We will make an elegant way later...
-
-  static G4Region* gflashRegion = 0;
-  if(gflashRegion == 0){
-    gflashRegion = G4RegionStore::GetInstance()->GetRegion("GflashRegion");
-    gflashRegion->SetFastSimulationManager(G4RegionStore::GetInstance()->GetRegion("DefaultRegionForTheWorld")->GetFastSimulationManager());
-  }
-
   // Mininum energy cutoff to parameterize
   if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < 1.0*GeV) return false;
   if(excludeDetectorRegion(fastTrack)) return false;
@@ -104,8 +94,8 @@ void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastSte
 
   for( ; spotIter != spotIterEnd; spotIter++){
 
-    // to make a different time for each fake step. (+1.0 is arbitrary)
-    timeGlobal += 1.0;
+    // to make a different time for each fake step. (0.03 nsec is corresponding to 1cm step size)
+    timeGlobal += 0.0001*nanosecond;
 
     // fill equivalent changes to a (fake) step associated with a spot 
 

@@ -11,8 +11,9 @@ class GflashTrajectory
 public:
 
   GflashTrajectory();
-  GflashTrajectory(const HepVector3D &, const HepPoint3D &, double q, double Field);
   ~GflashTrajectory();
+
+  void initializeTrajectory(const HepVector3D &, const HepPoint3D &, double q, double Field);
 
   void setCotTheta(double cotTheta);
   void setCurvature(double curvature);

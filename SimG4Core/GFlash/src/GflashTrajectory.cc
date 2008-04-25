@@ -17,7 +17,9 @@ GflashTrajectory::GflashTrajectory()
   //detault constructor
 }
 
-GflashTrajectory::GflashTrajectory(const HepVector3D & MomentumGev, const HepPoint3D  & PositionCm,
+//GflashTrajectory::GflashTrajectory(const HepVector3D & MomentumGev, const HepPoint3D  & PositionCm,
+//	     double q, double BFieldTesla) 
+void GflashTrajectory::initializeTrajectory(const HepVector3D & MomentumGev, const HepPoint3D  & PositionCm,
 	     double q, double BFieldTesla) 
  {
   double CotTheta = 0.0 ;

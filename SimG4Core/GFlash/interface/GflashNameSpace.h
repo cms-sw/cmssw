@@ -5,8 +5,6 @@
 
 namespace Gflash {
 
-  //   enum
-
   enum CalorimeterNumber {
     kNULL,
     kESPM,              // ECAL Barrel - ESPM
@@ -24,14 +22,19 @@ namespace Gflash {
     "HE"
   };
 
-  const G4double Zmin[kNumberCalorimeter] = {0.0,0.000,304.5,0.000,391.95};
-  const G4double Zmax[kNumberCalorimeter] = {0.0,317.0,390.0,433.2,554.10};
-  const G4double Rmin[kNumberCalorimeter] = {0.0,123.8, 31.6,177.5,31.6};
-  const G4double Rmax[kNumberCalorimeter] = {0.0,175.0,171.1,287.7,263.90};
-  const G4double EtaMin[kNumberCalorimeter] = {0.00,0.00,1.57,0.00,1.57};
-  const G4double EtaMax[kNumberCalorimeter] = {0.00,1.30,3.00,1.30,3.00};
+  //                                                 EB     EE     HB     HE
+  const G4double Zmin[kNumberCalorimeter]   = {0.0, 0.000, 304.5, 0.000, 391.95};
+  const G4double Zmax[kNumberCalorimeter]   = {0.0, 317.0, 390.0, 433.2, 554.10};
+  const G4double Rmin[kNumberCalorimeter]   = {0.0, 123.8,  31.6, 177.5,  31.6};
+  const G4double Rmax[kNumberCalorimeter]   = {0.0, 175.0, 171.1, 287.7, 263.9};
+  const G4double EtaMin[kNumberCalorimeter] = {0.0, 0.000, 1.570, 0.000, 1.570};
+  const G4double EtaMax[kNumberCalorimeter] = {0.0, 1.300, 3.000, 1.300, 3.000};
     
   //constants needed for GflashHadronShowerProfile
+
+  //@@@approximately ScaleSensitive = 0.2 and need fine tune later
+  //temporarily we set it 1.0 for the energy shape studies
+  const G4double ScaleSensitive = 1.0;
 
   // number of sub-detectors (calorimeters)  
   const G4int NDET = 4; 

@@ -60,12 +60,67 @@ class GflashHistogram : public TObject {
   TH1F*     rshower;
   TH1F*     lateralx;
   TH1F*     lateraly;
-
-  TH1F*     gfhlong;
-  TH1F*     gfhsll;
-  TH1F*     gfhssp;
-  TH1F*     gfheinc;
   TH2F*     gfhlongProfile;
+
+  // histograms for Watcher
+
+  TH1F*     g4vertexTrack;
+  TH2F*     g4stepCharge;
+  TH1F*     g4nSecondary;
+  TH1F*     g4pidSecondary;
+  TH1F*     g4energySecondary;
+  TH1F*     g4energyPi0;
+  TH1F*     g4energyElectron;
+  TH1F*     g4energyPhoton;
+
+  TH1F*     g4totalEnergySecPi0;
+  TH1F*     g4totalEnergySecElectron;
+  TH1F*     g4totalEnergySecPhoton;
+
+  TH1F*     g4energyEM;
+  TH1F*     g4energyHad;
+  TH1F*     g4energyTotal;
+  TH1F*     g4energyEMMip;
+  TH1F*     g4energyHadMip;
+  TH1F*     g4energyMip;
+  TH2F*     g4energyEMvsHad;
+
+  TH1F*     g4energySensitiveEM;
+  TH1F*     g4energySensitiveHad;
+  TH1F*     g4energySensitiveTotal;
+  TH1F*     g4energyHybridTotal;
+  TH1F*     g4energySensitiveEMMip;
+  TH2F*     g4energySensitiveEMvsHad;
+
+  TH2F*     g4energyEMProfile;
+  TH2F*     g4energyHadProfile;
+  TH2F*     g4energyTotalProfile;
+  TH2F*     g4energyHybridProfile;
+
+  TH1F*     g4ssp;
+  TH1F*     g4energy;
+  TH1F*     g4energyLoss;
+  TH1F*     g4momentum;
+  TH1F*     g4charge;
+
+  TH2F*     g4rshower;
+  TH2F*     g4rshowerR1;
+  TH2F*     g4rshowerR2;
+  TH2F*     g4rshowerR3;
+  TH2F*     g4lateralXY;
+  TH2F*     g4lateralRZ;
+  TH2F*     g4spotXY;
+  TH2F*     g4spotRZ;
+  TH2F*     g4spotRZ0;
+  TH2F*     g4trajectoryXY;
+  TH2F*     g4trajectoryRZ;
+
+  TH1F*     g4stepRho;
+  TH1F*     g4trajectoryPhi0;
+
+  TH2F*     g4longProfile;
+  TH2F*     g4longDetector;
+  TH2F*     g4longSensitive;
 
  private:
 
