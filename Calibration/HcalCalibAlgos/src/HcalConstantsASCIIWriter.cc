@@ -34,8 +34,8 @@ namespace cms{
 HcalConstantsASCIIWriter::HcalConstantsASCIIWriter(const edm::ParameterSet& iConfig)
 {
   // get name of output file with histogramms
-  file_input="/Calibration/HcalCalibAlgos/data/"+iConfig.getParameter <std::string> ("tagName1")+".txt";
-  
+  file_input="/Calibration/HcalCalibAlgos/data/"+iConfig.getParameter <std::string> ("fileInput")+".txt";
+  file_output="/Calibration/HcalCalibAlgos/data/"+iConfig.getParameter <std::string> ("fileOutput")+".txt"; 
 }
 
 HcalConstantsASCIIWriter::~HcalConstantsASCIIWriter()
@@ -48,10 +48,10 @@ HcalConstantsASCIIWriter::~HcalConstantsASCIIWriter()
 
 void HcalConstantsASCIIWriter::beginJob( const edm::EventSetup& iSetup)
 {
+    edm::FileInPath f1(file_output);
+    string fDataFile = f1.fullPath();
 
-  std::string ccc = "hcal_new.dat";
-
-  myout_hcal = new ofstream(ccc.c_str());
+  myout_hcal = new ofstream(fDataFile.c_str());
   if(!myout_hcal) cout << " Output file not open!!! "<<endl;
     
 }
@@ -108,7 +108,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
       istringstream linestream(line);
       double par;
       int type;
-      linestream>>mydet>>mysubd>>depth>>ieta>>iphi>>coradd;
+      linestream>>mysubd>>depth>>ieta>>iphi>>coradd;
         HcalDetId  hid(HcalSubdetector(mysubd),ieta,iphi,depth);
         corrnew[hid] =  coradd; 
     } 

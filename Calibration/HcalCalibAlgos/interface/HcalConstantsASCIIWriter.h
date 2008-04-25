@@ -1,5 +1,5 @@
-#ifndef PhysicsToolsAnalysisAnalyzerMinBias_h
-#define PhysicsToolsAnalysisAnalyzerMinBias_h
+#ifndef HcalConstantsASCIIWriter_h
+#define HcalConstantsASCIIWriter_h
 
 // system include files
 #include <memory>
@@ -64,7 +64,7 @@ class HcalConstantsASCIIWriter : public edm::EDAnalyzer {
        
    std::ofstream *myout_hcal;
    std::string file_input;
-      
+   std::string file_output;      
 };
 }
 #endif
