@@ -6,8 +6,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/12/06 01:46:42 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/02/27 17:31:04 $
+ *  $Revision: 1.1 $
  *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
  */
 
@@ -27,9 +27,6 @@ namespace edm {
 
 class TH1F;
 class TH2F;
-
-using namespace std;
-using namespace edm;
 
 class MuonAlignmentAnalyzer: public edm::EDAnalyzer {
 public:
@@ -179,7 +176,7 @@ private:
 
   std::vector<long> detectorCollection;  
 
-  ESHandle<MagneticField> theMGField;
+  edm::ESHandle<MagneticField> theMGField;
 
   Propagator * thePropagator;
 
