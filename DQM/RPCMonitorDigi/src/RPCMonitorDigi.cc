@@ -23,7 +23,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
-
 ///Log messages
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -89,7 +88,7 @@ RPCMonitorDigi::~RPCMonitorDigi(){
 void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
   
-  GlobalHistogramsFolder="RecHits/SummaryHistograms";
+  GlobalHistogramsFolder="RPC/RecHits/SummaryHistograms";
   dbe->setCurrentFolder(GlobalHistogramsFolder);  
   
   GlobalZYHitCoordinates = dbe->book2D("GlobalRecHitZYCoordinates", "Rec Hit Z-Y", 1000, -800, 800, 1000, -800, 800);
