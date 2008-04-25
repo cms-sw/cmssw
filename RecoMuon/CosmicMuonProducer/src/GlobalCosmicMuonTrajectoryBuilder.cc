@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/05/31 18:48:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/12/16 13:56:15 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -118,19 +118,9 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 //  stable_sort(hits.begin(), hits.end(), DecreasingGlobalY());
   sortHits(hits, muRecHits, tkRecHits);
 
-  LogTrace(metname) << "Used RecHits After sort: "<<hits.size();
-  for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
-      LogTrace(metname) << "invalid RecHit";
-      continue;
-    }
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    LogTrace(metname)
-    << "global (" << pos.x()<<", " << pos.y()<<", " << pos.z()<<") "
-    << "local: (" << (*ir)->localPosition().x()<<", " << (*ir)->localPosition().y()<<", " << (*ir)->localPosition().z()<<") "
-    << "  dimension = " << (*ir)->dimension()
-    << "  id " << (*ir)->det()->geographicalId().rawId();
-  }
+  LogTrace(metname) << "Used RecHits after sort: "<<hits.size();
+  LogTrace(metname)<<utilities()->print(hits);
+  LogTrace(metname) << "== End of Used RecHits == ";
 
   TrajectoryStateTransform tsTrans;
 
@@ -157,6 +147,8 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   TrajectorySeed seed;
   vector<Trajectory> refitted = theSmoother->trajectories(seed,hits,firstState);
 
+  if ( refitted.empty() ) refitted = theSmoother->fit(seed,hits,firstState); //FIXME
+
   if (refitted.empty()) {
      LogTrace(metname)<<"refit fail";
      return result;
@@ -166,14 +158,16 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   std::vector<TrajectoryMeasurement> mytms = myTraj->measurements(); 
   LogTrace(metname)<<"measurements in final trajectory "<<mytms.size();
+  LogTrace(metname) <<"Orignally there are "<<tkTrack->found()<<" tk rhs and "<<muTrack->found()<<" mu rhs.";
+
   if ( mytms.size() <= tkTrack->found() ) {
-     LogTrace(metname)<<"too little measurements. skip... ";
+     LogTrace(metname)<<"insufficient measurements. skip... ";
      return result;
   }
 
   MuonCandidate* myCand = new MuonCandidate(myTraj,muTrack,tkTrack);
   result.push_back(myCand);
-
+  LogTrace(metname)<<"final global cosmic muon: ";
   for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin();
        itm != mytms.end(); ++itm ) {
        LogTrace(metname)<<"updated pos "<<itm->updatedState().globalPosition()
