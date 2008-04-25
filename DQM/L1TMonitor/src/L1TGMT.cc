@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/18 13:41:10 $
+ * $Revision: 1.16 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -215,6 +215,13 @@ void L1TGMT::beginJob(const EventSetup& c)
       subs_candlumi[i] = dbe->book1D(hname.data(),htitle.data(), 250, 0., 250.);
       subs_candlumi[i]->setAxisTitle("luminosity segment number",1);
     }
+    
+    regional_triggers = dbe->book1D("Regional_trigger","Muon trigger contribution", 4, 0., 4.);
+    regional_triggers->setAxisTitle("regional trigger",1);
+    regional_triggers->setBinLabel(1,"DTTF",1);
+    regional_triggers->setBinLabel(2,"RPCb",1);
+    regional_triggers->setBinLabel(3,"CSCTF",1);
+    regional_triggers->setBinLabel(4,"RPCf",1);
     
     bx_number = dbe->book1D("Bx_Number","Bx number ROP chip", 3564, 0., 3564.);
     bx_number->setAxisTitle("bx number",1);
@@ -465,6 +472,11 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
     n_rpcb_vs_dttf ->Fill(float(nSUBS[DTTF]),float(nSUBS[RPCb]));
     n_rpcf_vs_csctf->Fill(float(nSUBS[CSCTF]),float(nSUBS[RPCf]));
     n_csctf_vs_dttf->Fill(float(nSUBS[DTTF]),float(nSUBS[CSCTF]));
+    
+    regional_triggers->Fill(-1.); // fill underflow for normalization
+    for(int i=0; i<4; i++) {
+      if(nSUBS[i]) regional_triggers->Fill(float(i));
+    }
     
     // fill only if previous event corresponds to previous trigger
     if( (Ev - evnum_old_) == 1 && bxnum_old_ > -1 ) {

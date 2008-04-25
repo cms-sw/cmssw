@@ -4,8 +4,8 @@
 /*
  * \file L1TGMT.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.5 $
+ * $Date: 2008/04/18 13:41:10 $
+ * $Revision: 1.6 $
  * \author J. Berryhill, I. Mikulec
  *
 */
@@ -76,6 +76,8 @@ private:
   MonitorElement* subs_etaqty[5];
   MonitorElement* subs_bits[5];
   MonitorElement* subs_candlumi[5];
+  
+  MonitorElement* regional_triggers;
   
   MonitorElement* bx_number;
   MonitorElement* dbx_chip;
