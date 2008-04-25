@@ -4,9 +4,9 @@
 /*
  * \file L1TGT.h
  *
- * $Date: 2007/05/24 06:59:21 $
- * $Revision: 1.4 $
- * \author J. Berryhill
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.5 $
+ * \author J. Berryhill, I. Mikulec
  *
 */
 
@@ -27,12 +27,6 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 #include <iostream>
 #include <fstream>
@@ -63,25 +57,47 @@ void beginJob(const edm::EventSetup& c);
 void endJob(void);
 
 private:
+  
+  bool isActive(int word, int bit);
+  // Active boards DAQ record bit number:
+  // 0 FDL 
+  // 1 PSB_0 9 Techn.Triggers for FDL
+  // 2 PSB_1 13 Calo data for GTL
+  // 3 PSB_2 14 Calo data for GTL
+  // 4 PSB_3 15 Calo data for GTL
+  // 5 PSB_4 19 M/Q bits for GMT
+  // 6 PSB_5 20 M/Q bits for GMT
+  // 7 PSB_6 21 M/Q bits for GMT
+  // 8 GMT
+  enum activeDAQ { FDL=0, PSB9, PSB13, PSB14, PSB15, PSB19, PSB20, PSB21, GMT };
+  // Active boards EVM record bit number:
+  // 0 TCS 
+  // 1 FDL 
+  enum activeEVM { TCS, FDLEVM };
+  
   // ----------member data ---------------------------
   DQMStore * dbe;
 
-  MonitorElement* gttriggerdword;
-  MonitorElement* gttriggerdbits;
-  MonitorElement* gttriggerdbitscorr;
-  MonitorElement* gtfdlbx;
-  MonitorElement* gtfdlevent;
-  MonitorElement* gtfdllocalbx;
-  MonitorElement* gtfdlbxinevent;
-  MonitorElement* gtfdlsize;
+  MonitorElement* algo_bits;
+  MonitorElement* algo_bits_corr;
+  MonitorElement* tt_bits;
+  MonitorElement* tt_bits_corr;
+  MonitorElement* algo_tt_bits_corr;
+  MonitorElement* algo_bits_lumi;
+  MonitorElement* tt_bits_lumi;
+  MonitorElement* event_type;
+ 
+  MonitorElement* event_number;
+  MonitorElement* event_lumi;
+  MonitorElement* trigger_number;
+  MonitorElement* trigger_lumi;
+  MonitorElement* evnum_trignum_lumi;
+  MonitorElement* orbit_lumi;
+  MonitorElement* setupversion_lumi; 
 
-  MonitorElement* gtfeboardId;
-  MonitorElement* gtferecordlength;
-  MonitorElement* gtfebx;
-  MonitorElement* gtfesetupversion; 
-  MonitorElement* gtfeactiveboards; 
-  MonitorElement* gtfetotaltrigger;
-  MonitorElement* gtfesize;
+  MonitorElement* gtfe_bx;
+  MonitorElement* dbx_module;
+  
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
@@ -89,6 +105,7 @@ private:
   bool monitorDaemon_;
   ofstream logFile_;
   edm::InputTag gtSource_;
+  edm::InputTag gtEvmSource_;
 };
 
 #endif
