@@ -1,6 +1,6 @@
 /** \class HLTElectronDetaDphiFilter
  *
- * $Id: HLTElectronDetaDphiFilter.cc,v 1.2 2008/03/03 16:34:30 ghezzi Exp $ 
+ * $Id: HLTElectronDetaDphiFilter.cc,v 1.3 2008/04/23 15:30:44 ghezzi Exp $ 
  *
  *  \author Alessio Ghezzi (Milano-Bicocca & CERN)
  *
@@ -26,6 +26,9 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
+
+#include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
+
 //
 // constructors and destructor
 //
@@ -85,11 +88,23 @@ HLTElectronDetaDphiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     
     math::XYZPoint SCcorrPosition(theClus->x()-BSPosition.x(), theClus->y()-BSPosition.y() , theClus->z()-eleref->track()->vz() );
     float deltaeta = SCcorrPosition.eta()-eleref->track()->eta();
-    
-    float deltaphi=fabs(trackMom.phi()-SCcorrPosition.phi());
-    //FIX ME needs to be corrected for the curvature
-    if(deltaphi>6.283185308) deltaphi-=6.283185308;
-    if(deltaphi>3.141592654) deltaphi=6.283185308-deltaphi;
+
+    ECALPositionCalculator posCalc;
+    const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),eleref->track()->vz());
+
+    float phi1= posCalc.ecalPhi(trackMom,vertex,1);
+    float phi2= posCalc.ecalPhi(trackMom,vertex,-1);
+
+    float deltaphi1=fabs( phi1 - theClus->position().phi() );
+    if(deltaphi1>6.283185308) deltaphi1 -= 6.283185308;
+    if(deltaphi1>3.141592654) deltaphi1 = 6.283185308-deltaphi1;
+
+    float deltaphi2=fabs( phi2 - theClus->position().phi() );
+    if(deltaphi2>6.283185308) deltaphi2 -= 6.283185308;
+    if(deltaphi2>3.141592654) deltaphi2 = 6.283185308-deltaphi2;
+
+    float deltaphi = deltaphi1;
+    if(deltaphi2<deltaphi1){ deltaphi = deltaphi2;}
 
     if( fabs(deltaeta) < DeltaEtacut_  &&   deltaphi < DeltaPhicut_ ){
       n++;

@@ -13,4 +13,5 @@
 <use name=HLTrigger/HLTcore>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=RecoEgamma/EgammaTools>
 <flags EDM_PLUGIN=1>
