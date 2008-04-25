@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/02/20 19:24:24 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/01 00:40:00 $
+ * $Revision: 1.10 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.9 2008/02/20 19:24:24 tapper Exp $
+ * $Id: L1TGCT.h,v 1.10 2008/03/01 00:40:00 lat Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.10  2008/03/01 00:40:00  lat
+ * DQM core migration.
+ *
  * Revision 1.9  2008/02/20 19:24:24  tapper
  * Removed noisy include.
  *
@@ -100,6 +103,10 @@ void endJob(void);
 private:
   // ----------member data ---------------------------
   DQMStore * dbe;
+
+  // Summary stuff
+  MonitorElement* l1GctSummIsoEmRankEtaPhi_;
+  MonitorElement* l1GctSummNonIsoEmRankEtaPhi_;
 
   // GCT stuff
   MonitorElement* l1GctCenJetsEtEtaPhi_; 

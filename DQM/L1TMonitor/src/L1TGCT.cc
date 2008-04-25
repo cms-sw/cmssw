@@ -1,11 +1,16 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.21 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.22 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.22  2008/03/20 19:38:25  berryhil
+ *
+ *
+ * organized message logger
+ *
  * Revision 1.21  2008/03/14 20:35:46  berryhil
  *
  *
@@ -168,6 +173,16 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 
 
   if (dbe) {
+
+    dbe->setCurrentFolder("L1T/L1TGCT/EventInfo/errorSummarySegments");
+
+    l1GctSummIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM RANK", 
+                                            PHIBINS, PHIMIN, PHIMAX, 		    
+                                            ETABINS, ETAMIN, ETAMAX);
+    l1GctSummNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM RANK",
+                                               PHIBINS, PHIMIN, PHIMAX, 
+                                               ETABINS, ETAMIN, ETAMAX);    
+
     dbe->setCurrentFolder("L1T/L1TGCT");
 
     // GCT hardware quantities for experts
@@ -435,6 +450,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 		<< l1IsoEm->size() << std::endl;
     }
     for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
+      l1GctSummIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
       l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
       l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta());
       l1GctIsoEmRank_->Fill(ie->rank());
@@ -465,6 +481,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 		<< l1NonIsoEm->size() << std::endl;
     }
     for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
+      l1GctSummNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
       l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
       l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta());
       l1GctNonIsoEmRank_->Fill(ne->rank());
