@@ -168,7 +168,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
 	findingRecordWithKey( recordKey );
 	usingRecordWithKey( recordKey );
       }    
-      m_tagCollection.insert(m);
+      if(! m_tagCollection.insert(m).second ){
+	throw cond::Exception("PoolDBESSource::PoolDBESSource: "+m.tag+" from "+m.pfn+" already exist, cannot insert in the tag collection ");
+      }
       //std::cout<<"tag collection size "<<m_tagCollection.size()<<std::endl;
     }
   }else{
