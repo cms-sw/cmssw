@@ -1,13 +1,15 @@
 #!/usr/bin/perl -w
-# $Id:$
+# $Id: injectIntoDB.pl,v 1.1 2008/04/24 16:30:09 loizides Exp $
 
 use strict;
-#use DBI;
+use DBI;
 use Getopt::Long;
 
 # injection subroutine
 sub inject()
 {
+    use vars qw($ddb $dbh);
+
     my $filename=$ENV{'SM_FILENAME'};
     my $count=$ENV{'SM_FILECOUNTER'};
     my $nevents=$ENV{'SM_NEVENTS'};;
@@ -36,8 +38,13 @@ sub inject()
         "'$filename','$pathname','$hostname','$dataset','$producer','$stream','$status'," .
         "$type,$safety,$nevents,$filesize,$checksum)";
 
-    print "$SQL\n";
-    return 0;
+    if (!defined $ddb) { 
+        print "$SQL\n";
+        return 0;
+    }
+    my $rows = $dbh->do($SQL) or 
+        die $dbh->errstr;
+    return $rows-1;
 }
 
 my $infile="$ARGV[0]";
@@ -47,10 +54,15 @@ my $outfile=">$ARGV[1]";
 $ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
 
 # connect to DB
-#my $dbi    = "DBI:Oracle:cms_rcms";
-#my $reader = "CMS_STOMGR_W";
-#my $dbh    = DBI->connect($dbi,$reader,"qwerty") or 
-#    die "Error: Connection to Oracle failed: $DBI::errstr\n";
+my $ddb=$ENV{'SM_DONTACCESSDB'};
+my $dbh; #my DB handle
+if (!defined $ddb) { 
+    my $dbi    = "DBI:Oracle:cms_rcms";
+    my $reader = "CMS_STOMGR_W";
+    $dbh    = DBI->connect($dbi,$reader,"qwerty") or 
+        die "Error: Connection to Oracle failed: $DBI::errstr\n";
+    print "dfadfadfa\n";
+}
 
 my $line;
 my $lnum = 1;
@@ -75,6 +87,10 @@ while( $line = <INDATA> ){
     my $ret=inject();
     if ($ret == 0) {
         print OUTDATA "$line\n";
+        my $cmd=$ENV{'SM_HOOKSCRIPT'};
+        if (defined $cmd) {
+            system($cmd);
+        }
     }
     $lnum++;
 }
@@ -83,23 +99,7 @@ close INDATA;
 close OUTDATA;
 
 # Disconnect from DB
-#$dbh->disconnect or 
-#    warn "Warning: Disconnection from Oracle failed: $DBI::errstr\n";
-
-
-
-# copy first file of a run to look area 
-#if ( $lumisection == 1 && $count < 1 )
-#{
-#    my $COPYCOMMAND = "if test -n \"`mount | grep lookarea | grep cmsmon`\"; then test -e /lookarea && cp $pathname/$filename /lookarea && chmod a+r /lookarea/$filename; fi &"; 
-#   system($COPYCOMMAND);
-#   if ( $dolog == 1 )
-#   {
-#       my $dstr = getdatestr();
-#       my $ltime = localtime(time);
-#       my $outfile = ">> /nfshome0/smdev/logs/" . $dstr . "-" . $hostname . ".log";
-#       open LOG, $outfile;
-#       print LOG scalar localtime(time),": closeFile.pl ",$COPYCOMMAND,"\n";
-#       close LOG;
-#   }
-#}
+if (defined $ddb) { 
+    $dbh->disconnect or 
+        warn "Warning: Disconnection from Oracle failed: $DBI::errstr\n";
+}
