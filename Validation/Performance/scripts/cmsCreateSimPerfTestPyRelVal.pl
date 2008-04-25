@@ -67,9 +67,12 @@ else
 $Taskset="taskset -c 1";
 
 #Setting the path for the commands (and cpu core affinity for some):
-$cmsDriver="$Taskset $BASE_PYRELVAL/scripts/cmsDriver.py";
-$cmsSimPyRelVal="$Taskset $BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
-$cmsRelvalreport="$Taskset $BASE_PYRELVAL/scripts/cmsRelvalreport.py";
+#$cmsDriver="$Taskset $BASE_PYRELVAL/scripts/cmsDriver.py";
+$cmsDriver="$Taskset cmsDriver.py";
+#$cmsSimPyRelVal="$Taskset $BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
+$cmsSimPyRelVal="$Taskset cmsSimPyRelVal.pl";
+#$cmsRelvalreport="$Taskset $BASE_PYRELVAL/scripts/cmsRelvalreport.py";
+$cmsRelvalreport="$Taskset cmsRelvalreport.py";
 $cmsScimarkLaunch="$BASE_PERFORMANCE/scripts/cmsScimarkLaunch.csh";
 $cmsScimarkParser="$BASE_PERFORMANCE/scripts/cmsScimarkParser.py";
 $cmsScimarkStop="$BASE_PERFORMANCE/scripts/cmsScimarkStop.pl";
@@ -193,11 +196,11 @@ cd ..\n";
 if ($ValgrindNumOfEvts>0)
 {
     print "Launching the Valgrind tests with $ValgrindNumOfEvts events each\n";
-#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts QCD_80_120 event (DIGI, RECO, DIGI PILEUP, RECO PILEUP only)
+#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts QCD_80_120 event (everything but GEN,SIM)
     print "mkdir QCD_80_120_Valgrind
 cd QCD_80_120_Valgrind
-cp -pR ../QCD_80_120_IgProf/QCD_80_120_SIM.root .
-$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
+cp -pR ../QCD_80_120_IgProf/QCD_80_120_GEN,SIM.root .
+$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
 mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
 $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log
 cd ..\n";
@@ -206,20 +209,19 @@ cd ..\n";
 	   "mkdir QCD_80_120_Valgrind;
            cd QCD_80_120_Valgrind;
            #Copying over the SIM.root file from the IgProf profiling directory to avoid re-running it
-           cp -pR ../QCD_80_120_IgProf/QCD_80_120_SIM.root .;
-           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
+           cp -pR ../QCD_80_120_IgProf/QCD_80_120_GEN,SIM.root .;
+           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
            mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
            $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log;
            cd .."
 	  );
 
-#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts SingleMuMinus event (SIM only)
+#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts SingleMuMinus event (GEN,SIM only)
     print "mkdir SingleMuMinusPt10_Valgrind
 cd SingleMuMinusPt10_Valgrind
 $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;
-grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
-grep -v RECO tmp \>tmp1
-mv tmp1 SimulationCandles_"."$CMSSW_VERSION".".txt
+grep \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt >tmp
+mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
 $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log\n
 cd ..\n";
 
@@ -227,9 +229,8 @@ cd ..\n";
 	   "mkdir SingleMuMinusPt10_Valgrind;
            cd SingleMuMinusPt10_Valgrind;
            $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;
-           grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp;
-           grep -v RECO tmp \>tmp1; 
-           mv tmp1 SimulationCandles_"."$CMSSW_VERSION".".txt;
+           grep \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp;
+           mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
            $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log;
            cd .."
 	  );
