@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.50 2008/04/21 12:12:26 loizides Exp $
+// $Id: StorageManager.cc,v 1.51 2008/04/24 10:48:50 loizides Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -54,6 +54,8 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string/case_conv.hpp"
 #include "cgicc/Cgicc.h"
+
+#include <sys/statfs.h>
 
 namespace stor {
   extern bool getSMFC_exceptionStatus();
@@ -932,7 +934,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td align=right>" << endl;
           *out << runNumber_ << endl;
           *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
+        *out << "</tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
           *out << "Events Received" << endl;
@@ -940,7 +942,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "<td align=right>" << endl;
           *out << storedEvents_ << endl;
           *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
+        *out << "</tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
           *out << "Last Event ID" << endl;
@@ -949,6 +951,52 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << lastEventSeen_ << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
+        for(int i=0;i<=(int)nLogicalDisk_;i++) {
+           string path(filePath_);
+           if(nLogicalDisk_>0) {
+              std::ostringstream oss;
+              oss << "/" << setfill('0') << std::setw(2) << i; 
+              path += oss.str();
+           }
+           struct statfs64 buf;
+           int retVal = statfs64(path.c_str(), &buf);
+           double btotal = 0;
+           double bfree = 0;
+           unsigned int used = 0;
+           if(retVal==0) {
+              unsigned int blksize = buf.f_bsize;
+              btotal = buf.f_blocks * blksize / 1024 / 1024 /1024;
+              bfree  = buf.f_bavail  * blksize / 1024 / 1024 /1024;
+              used   = (int)(100 * (1. - bfree / btotal)); 
+           }
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Disk " << i << " usage " << endl;
+          *out << "</td>" << endl;
+          if(used>89)
+             *out << "<td align=right bgcolor=\"#EF5A10\">" << endl;
+          else 
+             *out << "<td align=right>" << endl;
+          *out << used << "% (" << btotal-bfree << " of " << btotal << " GB)" << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "# CopyWorker" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << system("exit `ps ax | grep CopyWorker | grep -v grep | wc -l`") << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "# InjectWorker" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << system("exit `ps ax | grep InjectWorker | grep -v grep | wc -l`") << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
+        }
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=4>"                                       << endl;
     *out << "      " << "Streams"                                      << endl;
@@ -967,7 +1015,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
 	*out << "<td align=right>" << endl;
 	*out << "size (kB)" << endl;
 	*out << "</td>" << endl;
-        *out << "  </tr>" << endl;
+        *out << "</tr>" << endl;
 
     for(ismap it = streams_.begin(); it != streams_.end(); it++)
       {
@@ -3822,9 +3870,6 @@ void StorageManager::sendDiscardMessage(unsigned int    fuID,
 
 void StorageManager::startMonitoringWorkLoop() throw (evf::Exception)
 {
-  //  struct timezone timezone;
-  //  gettimeofday(&monStartTime_,&timezone);
-  
   try {
     wlMonitoring_=
       toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Monitoring",
@@ -3848,8 +3893,6 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
     edm::LogError("StorageManager") << "Fatal BURP in FragmentCollector thread detected! \n"
        << stor::getSMFC_reason4Exception();
 
-    //    LOG4CPLUS_ERROR(getApplicationLogger(),"Fatal problem in FragmentCollector thread detected! "
-    //		   << stor::getSMFC_reason4Exception());
     reasonForFailedState_ = stor::getSMFC_reason4Exception();
     fsm_.fireFailed(reasonForFailedState_,this);
     return false; // stop monitoring workloop after going to failed state
@@ -3869,9 +3912,6 @@ bool StorageManager::monitoring(toolbox::task::WorkLoop* wl)
       std::list<std::string>& files = jc_->get_filelist();
 
       if(files.size()==0){is->unlock(); return true;}
-  //struct timeval  monEndTime;
-  //struct timezone timezone;
-  //      gettimeofday(&monEndTime,&timezone);
       if(streams_.size()==0) {
 	for(list<string>::const_iterator it = files.begin();
 	    it != files.end(); it++)
