@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.7 2008/04/21 12:15:03 loizides Exp $
+// $Id: StreamService.cc,v 1.8 2008/04/24 16:27:50 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -459,7 +459,8 @@ void StreamService::renameNotifyFile()
     int st = stat(osf2.str().c_str(), &sb);
     if (st == 0) {
        time_t rawtime = time(0);
-       osf2.clear();
+       //osf2.clear(); // this just clears the error state flags
+       osf2.str("");
        osf2 << notfile 
             << "-scat-" 
             << (int) rawtime
