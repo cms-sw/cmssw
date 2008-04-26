@@ -35,7 +35,8 @@ DataManager::DataManager (const std::string & connect,
       }
     else
       {
-	session->configuration().setAuthenticationMethod(cond::Env);
+	//	session->configuration().setAuthenticationMethod(cond::Env);
+	session->configuration().setAuthenticationMethod(cond::XML);
 	session->configuration().connectionConfiguration()
 	  ->enableConnectionSharing ();
 	session->configuration().connectionConfiguration()
