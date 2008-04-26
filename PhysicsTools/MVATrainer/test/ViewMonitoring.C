@@ -591,7 +591,8 @@ void DrawOutput(TDirectory *dir)
 	rel->SetMarkerColor(4);
 	rel->SetLineWidth(2);
 	rel->SetStats(0);
-	rel->SetXTitle("discriminator cut");
+	rel->SetTitle("discriminator signal probability");
+	rel->SetXTitle("discriminator");
 	rel->SetYTitle("S / (S+B)");
 
 	rel->Draw();
