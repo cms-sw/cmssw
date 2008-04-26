@@ -188,7 +188,7 @@ if output_flag:
                 content=common.include_files("Configuration/EventContent/data/AlCaRecoOutput.cff")[0]
                 process.extend(content)
             poUsing='Out'+k.label()[4:len(k.label())]
-            filterName=k.label()[4:len(k.label())]
+            filterName=k.label()[12:len(k.label())]
             rootName='file:'+filterName+'.root'
             modName='pool'+k.label()[4:len(k.label())]
             pathName='outPath'+k.label()[4:len(k.label())]

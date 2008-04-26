@@ -11,7 +11,12 @@ alcaDict2={'MinBias':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+
            'ZW':'SiPixelLorentzAngle+SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
            'HCALNZS':'',
            'HCALIST':'',
-           'RELVAL':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM'
+           'RELVAL':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
+           'TrackerHaloMuon':'',
+           'TrackerCosBON':'',
+           'TrackerLaser':'',
+           'TrackerCosBOFF':'',
+           'HaloMuon':''
            }
 
 alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalMinBias+HcalCalHO+MuAlOverlaps+DQM',
@@ -21,7 +26,12 @@ alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+Ec
            'ZW':'TkAlZMuMu+TkAlMuonIsolated+EcalCalElectron+HcalCalHO+MuAlOverlaps+DQM',
            'HCALNZS':'HcalCalMinBias+DQM',
            'HCALIST':'HcalCalIsoTrkNoHLT+DQM',
-           'RELVAL':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+TkAlMinBias+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalMinBias+HcalCalIsoTrkNoHLT+HcalCalHO+MuAlOverlaps+DQM'
+           'RELVAL':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+TkAlMinBias+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalMinBias+HcalCalIsoTrkNoHLT+HcalCalHO+MuAlOverlaps+DQM',
+           'TrackerHaloMuon':'TkAlBeamHalo',
+           'TrackerCosBON':'TkAlCosmics',
+           'TrackerCosBOFF':'TkAlCosmics',
+           'TrackerLaser':'TkAlLAS',
+           'HaloMuon':'MuAlBeamHalo+MulBeamHaloOverlaps'
            }
 
 typeOfEv=''
@@ -29,14 +39,14 @@ if ( len(sys.argv)>1):
     typeOfEv=sys.argv[1]
 if not ( typeOfEv in alcaDict3 ):
     print 'Usage; cmsDriver_step2_3.py <job type>'
-    print '  <job type>: RELVAL, MinBias, JetETXX, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST'
+    print '  <job type>: RELVAL, MinBias, JetETXX, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST, TrackerHaloMuon, TrackerCosBON, TrackerCosBOFF, TrackerLaser, HaloMuon  '
     sys.exit()
 
 alca2=alcaDict2[typeOfEv]
 alca3=alcaDict3[typeOfEv]
 
 baseCommand='cmsDriver.py'
-conditions='FrontierConditions_GlobalTag,STARTUP_V1::All'
+conditions='FrontierConditions_GlobalTag,STARTUP_V2::All'
 eventcontent='RECOSIM'
 steps2='RAW2DIGI,RECO,POSTRECO'
 if ( not (alca2=='')):
