@@ -24,7 +24,7 @@ void AlignmentMonitorSurvey::book()
 
   double par[6]; // survey residual
 
-  TTree* tree = bookTree("/iterN/", "survey", "");
+  TTree* tree = directory("/iterN/")->make<TTree>("survey", "");
 
   tree->Branch("id"   , &id   , "id/i");
   tree->Branch("level", &level, "level/I");

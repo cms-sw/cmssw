@@ -409,7 +409,7 @@ void AlignmentMonitorMuonHIP::book() {
    //////////////////////////////////////////////////////////////////////
 
    if (m_book_before) {
-      m_before = bookTree("/iterN/", "before", "positions before iteration");
+      m_before = directory("/iterN/")->make<TTree>("before", "positions before iteration");
       m_before->Branch("rawid", &m_before_rawid, "rawid/I");
       m_before->Branch("level", &m_before_level, "level/I");
       m_before->Branch("x", &m_before_x, "x/F");
@@ -424,7 +424,7 @@ void AlignmentMonitorMuonHIP::book() {
    }
 
    if (m_book_after) {
-      m_after = bookTree("/iterN/", "after", "positions after iteration");
+      m_after = directory("/iterN/")->make<TTree>("after", "positions before iteration");
       m_after->Branch("rawid", &m_after_rawid, "rawid/I");
       m_after->Branch("level", &m_after_level, "level/I");
       m_after->Branch("x", &m_after_x, "x/F");

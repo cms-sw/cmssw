@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:07 CDT 2007
-// $Id: AlignmentMonitorBase.cc,v 1.5 2007/12/04 23:29:27 ratnik Exp $
+// $Id: AlignmentMonitorBase.cc,v 1.6 2008/04/26 01:45:39 pivarski Exp $
 //
 
 // system include files
@@ -140,10 +140,6 @@ TProfile *AlignmentMonitorBase::bookProfile(std::string dir, std::string name, s
    else {
       return directory(dir)->make<TProfile>(name.c_str(), title.c_str(), nchX, lowX, highX, lowY, highY, option);
    }
-}
-
-TTree *AlignmentMonitorBase::bookTree(std::string dir, std::string name, std::string title) {
-   return directory(dir)->make<TTree>(name.c_str(), title.c_str());
 }
 
 //

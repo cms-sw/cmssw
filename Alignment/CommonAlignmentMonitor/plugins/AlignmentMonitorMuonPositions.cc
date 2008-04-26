@@ -97,7 +97,7 @@ AlignmentMonitorMuonPositions::AlignmentMonitorMuonPositions(const edm::Paramete
 
 void AlignmentMonitorMuonPositions::book() {
    if (iteration() == 1) {
-      m_wheels = bookTree("/start/", "wheels", "wheel positions after iteration");
+      m_wheels = directory("/start/")->make<TTree>("wheels", "wheel positions after iteration");
       m_wheels->Branch("id", &m_wheel_id, "id/I");
       m_wheels->Branch("x", &m_wheel_x, "x/F");
       m_wheels->Branch("y", &m_wheel_y, "y/F");
@@ -106,7 +106,7 @@ void AlignmentMonitorMuonPositions::book() {
       m_wheels->Branch("phiy", &m_wheel_phiy, "phiy/F");
       m_wheels->Branch("phiz", &m_wheel_phiz, "phiz/F");
 
-      m_dtchambers = bookTree("/start/", "dtchambers", "dtchamber positions after iteration");
+      m_dtchambers = directory("/start/")->make<TTree>("dtchambers", "dtchamber positions after iteration");
       m_dtchambers->Branch("id", &m_dtchamber_id, "id/I");
       m_dtchambers->Branch("rawid", &m_dtchamber_rawid, "rawid/I");
       m_dtchambers->Branch("wheel", &m_dtchamber_wheel, "wheel/I");
@@ -117,7 +117,7 @@ void AlignmentMonitorMuonPositions::book() {
       m_dtchambers->Branch("phiy", &m_dtchamber_phiy, "phiy/F");
       m_dtchambers->Branch("phiz", &m_dtchamber_phiz, "phiz/F");
 
-      m_rings = bookTree("/start/", "rings", "ring positions after iteration");
+      m_rings = directory("/start/")->make<TTree>("rings", "ring positions after iteration");
       m_rings->Branch("id", &m_ring_id, "id/I");
       m_rings->Branch("x", &m_ring_x, "x/F");
       m_rings->Branch("y", &m_ring_y, "y/F");
@@ -126,7 +126,7 @@ void AlignmentMonitorMuonPositions::book() {
       m_rings->Branch("phiy", &m_ring_phiy, "phiy/F");
       m_rings->Branch("phiz", &m_ring_phiz, "phiz/F");
 
-      m_cscchambers = bookTree("/start/", "cscchambers", "cscchamber positions after iteration");
+      m_cscchambers = directory("/start/")->make<TTree>("cscchambers", "cscchamber positions after iteration");
       m_cscchambers->Branch("id", &m_cscchamber_id, "id/I");
       m_cscchambers->Branch("rawid", &m_cscchamber_rawid, "rawid/I");
       m_cscchambers->Branch("ring", &m_cscchamber_ring, "ring/I");
@@ -140,7 +140,7 @@ void AlignmentMonitorMuonPositions::book() {
       fill();
    }
 
-   m_wheels = bookTree("/iterN/", "wheels", "wheel positions after iteration");
+   m_wheels = directory("/iterN/")->make<TTree>("wheels", "wheel positions after iteration");
    m_wheels->Branch("id", &m_wheel_id, "id/I");
    m_wheels->Branch("x", &m_wheel_x, "x/F");
    m_wheels->Branch("y", &m_wheel_y, "y/F");
@@ -149,7 +149,7 @@ void AlignmentMonitorMuonPositions::book() {
    m_wheels->Branch("phiy", &m_wheel_phiy, "phiy/F");
    m_wheels->Branch("phiz", &m_wheel_phiz, "phiz/F");
 
-   m_dtchambers = bookTree("/iterN/", "dtchambers", "dtchamber positions after iteration");
+   m_dtchambers = directory("/iterN/")->make<TTree>("dtchambers", "dtchamber positions after iteration");
    m_dtchambers->Branch("id", &m_dtchamber_id, "id/I");
    m_dtchambers->Branch("rawid", &m_dtchamber_rawid, "rawid/I");
    m_dtchambers->Branch("wheel", &m_dtchamber_wheel, "wheel/I");
@@ -160,7 +160,7 @@ void AlignmentMonitorMuonPositions::book() {
    m_dtchambers->Branch("phiy", &m_dtchamber_phiy, "phiy/F");
    m_dtchambers->Branch("phiz", &m_dtchamber_phiz, "phiz/F");
 
-   m_rings = bookTree("/iterN/", "rings", "ring positions after iteration");
+   m_rings = directory("/iterN/")->make<TTree>("rings", "ring positions after iteration");
    m_rings->Branch("id", &m_ring_id, "id/I");
    m_rings->Branch("x", &m_ring_x, "x/F");
    m_rings->Branch("y", &m_ring_y, "y/F");
@@ -169,7 +169,7 @@ void AlignmentMonitorMuonPositions::book() {
    m_rings->Branch("phiy", &m_ring_phiy, "phiy/F");
    m_rings->Branch("phiz", &m_ring_phiz, "phiz/F");
 
-   m_cscchambers = bookTree("/iterN/", "cscchambers", "cscchamber positions after iteration");
+   m_cscchambers = directory("/iterN/")->make<TTree>("cscchambers", "cscchamber positions after iteration");
    m_cscchambers->Branch("id", &m_cscchamber_id, "id/I");
    m_cscchambers->Branch("rawid", &m_cscchamber_rawid, "rawid/I");
    m_cscchambers->Branch("ring", &m_cscchamber_ring, "ring/I");

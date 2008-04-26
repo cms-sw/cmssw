@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.4 2007/12/04 23:29:26 ratnik Exp $
+// $Id: AlignmentMonitorBase.h,v 1.5 2008/04/26 01:45:38 pivarski Exp $
 //
 
 // system include files
@@ -81,8 +81,8 @@ class AlignmentMonitorBase {
       /// collector (parallel-processing) job)
       TH1F *book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX);
       TProfile *bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., char *option="s");
-      TTree *bookTree(std::string dir, std::string name, std::string title);
-
+      TFileDirectory *directory(std::string dir);
+      
       int                     iteration()    { return m_iteration; };
       AlignableTracker        *pTracker()    { return mp_tracker; };
       AlignableMuon           *pMuon()       { return mp_muon; };
@@ -93,8 +93,6 @@ class AlignmentMonitorBase {
       AlignmentMonitorBase(const AlignmentMonitorBase&); // stop default
       const AlignmentMonitorBase& operator=(const AlignmentMonitorBase&); // stop default
 
-      TFileDirectory *directory(std::string dir);
-      
       // ---------- member data --------------------------------
 
       int m_iteration;
