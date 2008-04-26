@@ -30,8 +30,8 @@
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
-#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
+#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
