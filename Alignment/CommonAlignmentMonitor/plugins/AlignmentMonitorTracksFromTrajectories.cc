@@ -117,28 +117,28 @@ AlignmentMonitorTracksFromTrajectories::AlignmentMonitorTracksFromTrajectories(c
 //////////////////////////////////////////////////////////////////////
 
 void AlignmentMonitorTracksFromTrajectories::book() {
-   m_diMuon_Z = (TH1F*)(add("/iterN/", new TH1F("diMuon_Z", "Di-muon mass (GeV)", 200, 90. - 50., 90. + 50.)));
-   m_diMuon_Zforward = (TH1F*)(add("/iterN/", new TH1F("diMuon_Zforward", "Di-muon mass (GeV) eta > 1.4", 200, 90. - 50., 90. + 50.)));
-   m_diMuon_Zbarrel = (TH1F*)(add("/iterN/", new TH1F("diMuon_Zbarrel", "Di-muon mass (GeV) -1.4 < eta < 1.4", 200, 90. - 50., 90. + 50.)));
-   m_diMuon_Zbackward = (TH1F*)(add("/iterN/", new TH1F("diMuon_Zbackward", "Di-muon mass (GeV) eta < -1.4", 200, 90. - 50., 90. + 50.)));
-   m_diMuon_Ups = (TH1F*)(add("/iterN/", new TH1F("diMuon_Ups", "Di-muon mass (GeV)", 200, 9. - 3., 9. + 3.)));
-   m_diMuon_Jpsi = (TH1F*)(add("/iterN/", new TH1F("diMuon_Jpsi", "Di-muon mass (GeV)", 200, 3. - 1., 3. + 1.)));
-   m_diMuon_log = (TH1F*)(add("/iterN/", new TH1F("diMuon_log", "Di-muon mass (log GeV)", 300, 0, 3)));
-   m_chi2_100 = (TH1F*)(add("/iterN/", new TH1F("m_chi2_100", "Track chi^2", 100, 0, 100)));
-   m_chi2_10000 = (TH1F*)(add("/iterN/", new TH1F("m_chi2_10000", "Track chi^2", 100, 0, 10000)));
-   m_chi2_1000000 = (TH1F*)(add("/iterN/", new TH1F("m_chi2_1000000", "Track chi^2", 100, 1, 1000000)));
-   m_chi2_log = (TH1F*)(add("/iterN/", new TH1F("m_chi2_log", "Log track chi^2", 100, -3, 7)));
-   m_chi2DOF_5 = (TH1F*)(add("/iterN/", new TH1F("m_chi2DOF_5", "Track chi^2/nDOF", 100, 0, 5)));
-   m_chi2DOF_100 = (TH1F*)(add("/iterN/", new TH1F("m_chi2DOF_100", "Track chi^2/nDOF", 100, 0, 100)));
-   m_chi2DOF_1000 = (TH1F*)(add("/iterN/", new TH1F("m_chi2DOF_1000", "Track chi^2/nDOF", 100, 0, 1000)));
-   m_chi2DOF_log = (TH1F*)(add("/iterN/", new TH1F("m_chi2DOF_log", "Log track chi^2/nDOF", 100, -3, 7)));
-   m_chi2_improvement = (TH1F*)(add("/iterN/", new TH1F("m_chi2_improvement", "Track-by-track chi^2/original chi^2", 100, 0., 10.)));
-   m_chi2DOF_improvement = (TH1F*)(add("/iterN/", new TH1F("m_chi2DOF_improvement", "Track-by-track (chi^2/DOF)/(original chi^2/original DOF)", 100, 0., 10.)));
+   m_diMuon_Z = book1D("/iterN/", "diMuon_Z", "Di-muon mass (GeV)", 200, 90. - 50., 90. + 50.);
+   m_diMuon_Zforward = book1D("/iterN/", "diMuon_Zforward", "Di-muon mass (GeV) eta > 1.4", 200, 90. - 50., 90. + 50.);
+   m_diMuon_Zbarrel = book1D("/iterN/", "diMuon_Zbarrel", "Di-muon mass (GeV) -1.4 < eta < 1.4", 200, 90. - 50., 90. + 50.);
+   m_diMuon_Zbackward = book1D("/iterN/", "diMuon_Zbackward", "Di-muon mass (GeV) eta < -1.4", 200, 90. - 50., 90. + 50.);
+   m_diMuon_Ups = book1D("/iterN/", "diMuon_Ups", "Di-muon mass (GeV)", 200, 9. - 3., 9. + 3.);
+   m_diMuon_Jpsi = book1D("/iterN/", "diMuon_Jpsi", "Di-muon mass (GeV)", 200, 3. - 1., 3. + 1.);
+   m_diMuon_log = book1D("/iterN/", "diMuon_log", "Di-muon mass (log GeV)", 300, 0, 3);
+   m_chi2_100 = book1D("/iterN/", "m_chi2_100", "Track chi^2", 100, 0, 100);
+   m_chi2_10000 = book1D("/iterN/", "m_chi2_10000", "Track chi^2", 100, 0, 10000);
+   m_chi2_1000000 = book1D("/iterN/", "m_chi2_1000000", "Track chi^2", 100, 1, 1000000);
+   m_chi2_log = book1D("/iterN/", "m_chi2_log", "Log track chi^2", 100, -3, 7);
+   m_chi2DOF_5 = book1D("/iterN/", "m_chi2DOF_5", "Track chi^2/nDOF", 100, 0, 5);
+   m_chi2DOF_100 = book1D("/iterN/", "m_chi2DOF_100", "Track chi^2/nDOF", 100, 0, 100);
+   m_chi2DOF_1000 = book1D("/iterN/", "m_chi2DOF_1000", "Track chi^2/nDOF", 100, 0, 1000);
+   m_chi2DOF_log = book1D("/iterN/", "m_chi2DOF_log", "Log track chi^2/nDOF", 100, -3, 7);
+   m_chi2_improvement = book1D("/iterN/", "m_chi2_improvement", "Track-by-track chi^2/original chi^2", 100, 0., 10.);
+   m_chi2DOF_improvement = book1D("/iterN/", "m_chi2DOF_improvement", "Track-by-track (chi^2/DOF)/(original chi^2/original DOF)", 100, 0., 10.);
    for (int i = 0;  i < 36;  i++) {
       char name[100], title[100];
       sprintf(name, "m_pt_phi%d", i);
       sprintf(title, "Track pt (GeV) in phi bin %d/36", i);
-      m_pt[i] = (TH1F*)(add("/iterN/", new TH1F(name, title, 100, 0, 100)));
+      m_pt[i] = book1D("/iterN/", name, title, 100, 0, 100);
    }
 }
 

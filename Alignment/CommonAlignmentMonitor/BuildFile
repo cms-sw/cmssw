@@ -9,6 +9,8 @@
 <use name=FWCore/MessageLogger>
 <use name=TrackingTools/PatternTools>
 <use name=root>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
 <export>
   <use name=Alignment/CommonAlignment>
   <use name=Alignment/CommonAlignmentAlgorithm>

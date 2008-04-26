@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.3 2007/07/09 12:35:17 pivarski Exp $
+// $Id: AlignmentMonitorBase.h,v 1.4 2007/12/04 23:29:26 ratnik Exp $
 //
 
 // system include files
@@ -29,11 +29,10 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include <stdio.h>
-#include <map>
-#include <string>
-
 // user include files
+#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+#include "TH1F.h"
+#include "TProfile.h"
 #include "TTree.h"
 
 // forward declarations
@@ -44,14 +43,13 @@ class AlignmentMonitorBase {
       typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
 
       /// Constructor
-      AlignmentMonitorBase(const edm::ParameterSet &cfg);
+      AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name = "INVALID");
       
       /// Destructor
       virtual ~AlignmentMonitorBase() {}
 
       /// Called at beginning of job: don't reimplement
-      void beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon,
-		      AlignmentParameterStore *pStore);
+      void beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon, AlignmentParameterStore *pStore);
 
       /// Called at beginning of loop: don't reimplement
       void startingNewLoop();
@@ -81,7 +79,9 @@ class AlignmentMonitorBase {
       /// Use this every time you book a histogram (so that
       /// AlignmentMonitorBase can find your histograms in a
       /// collector (parallel-processing) job)
-      TObject *add(std::string dir, TObject *obj);
+      TH1F *book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX);
+      TProfile *bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., char *option="s");
+      TTree *bookTree(std::string dir, std::string name, std::string title);
 
       int                     iteration()    { return m_iteration; };
       AlignableTracker        *pTracker()    { return mp_tracker; };
@@ -93,11 +93,8 @@ class AlignmentMonitorBase {
       AlignmentMonitorBase(const AlignmentMonitorBase&); // stop default
       const AlignmentMonitorBase& operator=(const AlignmentMonitorBase&); // stop default
 
-      TDirectory *getDirectoryFromMap(const std::string path, const bool isIter);
-      int iterationNumber(const std::string &path);
-      void collectAllHists(const TDirectory *dir, std::map<std::string, std::vector<TH1*> > &allHists, int &highestIter);
-      void collect();
-
+      TFileDirectory *directory(std::string dir);
+      
       // ---------- member data --------------------------------
 
       int m_iteration;
@@ -106,16 +103,7 @@ class AlignmentMonitorBase {
       AlignmentParameterStore  *mp_store;
       AlignableNavigator       *mp_navigator;
 
-      std::string m_outpath, m_outfile;
-      bool m_collectorActive;
-      int m_collectorNJobs;
-      std::string m_collectorPath;
-      bool m_collectorDone;
-
-      TFile *mp_file;
-      TDirectory *mp_iterDir;
-
-      std::vector<TObject*> m_inSlashDir, m_inIterDir;
+      std::map<std::vector<std::string>, TFileDirectory*> m_baseDirMap, m_iterDirMap;
 };
 
 

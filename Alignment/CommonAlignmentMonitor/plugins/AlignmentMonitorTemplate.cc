@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.1 2007/07/19 21:03:13 pivarski Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.2 2007/12/04 23:29:26 ratnik Exp $
 //
 
 // system include files
@@ -52,12 +52,12 @@ class AlignmentMonitorTemplate: public AlignmentMonitorBase {
 //
 
 void AlignmentMonitorTemplate::book() {
-   m_hist = (TH1F*)(add("/", new TH1F("hist", "hist", 10, 0.5, 10.5)));      // there's only one of these per job
-   m_ihist = (TH1F*)(add("/iterN/", new TH1F("ihist", "ihist", 10, 0, 1)));  // there's a new one of these for each iteration
+   m_hist = book1D("/", "hist", "hist", 10, 0.5, 10.5);      // there's only one of these per job
+   m_ihist = book1D("/iterN/", "ihist", "ihist", 10, 0, 1);  // there's a new one of these for each iteration
    // "/iterN/" is a special directory name, in which the "N" gets replaced by the current iteration number.
 
-   m_otherdir = (TH1F*)(add("/otherdir/", new TH1F("hist", "this is a histogram in another directory", 10, 0.5, 10.5)));
-   m_otherdir2 = (TH1F*)(add("/iterN/otherdir/", new TH1F("hist", "here's one in another directory inside the iterN directories", 10, 0.5, 10.5)));
+   m_otherdir = book1D("/otherdir/", "hist", "this is a histogram in another directory", 10, 0.5, 10.5);
+   m_otherdir2 = book1D("/iterN/otherdir/", "hist", "here's one in another directory inside the iterN directories", 10, 0.5, 10.5);
 
    // This is a procedure that makes one histogram for each selected alignable, and puts them in the iterN directory.
    // This is not a constant-time lookup.  If you need something faster, see AlignmentMonitorMuonHIP, which has a
@@ -68,7 +68,7 @@ void AlignmentMonitorTemplate::book() {
       sprintf(name,  "xresid%d", (*it)->geomDetId().rawId());
       sprintf(title, "x track-hit for DetId %d", (*it)->geomDetId().rawId());
 
-      m_residuals[*it] = (TH1F*)(add("/iterN/", new TH1F(name, title, 100, -5., 5.)));
+      m_residuals[*it] = book1D("/iterN/", name, title, 100, -5., 5.);
    }
 
    // Important: you create TObject pointers with the "new" operator, but YOU don't delete them.  They're deleted by the

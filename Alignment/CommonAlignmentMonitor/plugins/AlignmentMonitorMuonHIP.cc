@@ -134,7 +134,7 @@ class AlignmentMonitorMuonHIP: public AlignmentMonitorBase {
 // }
 
 AlignmentMonitorMuonHIP::AlignmentMonitorMuonHIP(const edm::ParameterSet& cfg)
-   : AlignmentMonitorBase(cfg)
+   : AlignmentMonitorBase(cfg, "AlignmentMonitorMuonHIP")
    , m_params(cfg.getParameter<edm::ParameterSet>("params"))
    , m_book(cfg.getParameter<edm::ParameterSet>("book"))
    , m_createPythonGeometry(cfg.getParameter<bool>("createPythonGeometry"))
@@ -362,32 +362,32 @@ void AlignmentMonitorMuonHIP::book() {
    sprintf(dir, "/iterN/");
    sprintf(name, "xresid");
    sprintf(title, "x residual for iteration %d", iteration());
-   m_xresid[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high)));
+   m_xresid[0] = book1D(dir, name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high);
 
    sprintf(dir, "/iterN/");
    sprintf(name, "xresidwide");
    sprintf(title, "x residual for iteration %d", iteration());
-   m_xresidwide[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high)));
+   m_xresidwide[0] = book1D(dir, name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high);
 
    sprintf(dir, "/iterN/");
    sprintf(name, "yresid");
    sprintf(title, "y residual for iteration %d", iteration());
-   m_yresid[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high)));
+   m_yresid[0] = book1D(dir, name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high);
 
    sprintf(dir, "/iterN/");
    sprintf(name, "wxresid");
    sprintf(title, "Weighted x residual for iteration %d", iteration());
-   m_wxresid[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high)));
+   m_wxresid[0] = book1D(dir, name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high);
 
    sprintf(dir, "/iterN/");
    sprintf(name, "wxresidwide");
    sprintf(title, "Weighted x residual for iteration %d", iteration());
-   m_wxresidwide[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high)));
+   m_wxresidwide[0] = book1D(dir, name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high);
 
    sprintf(dir, "/iterN/");
    sprintf(name, "wyresid");
    sprintf(title, "Weighted y residual for iteration %d", iteration());
-   m_wyresid[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high)));
+   m_wyresid[0] = book1D(dir, name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high);
 
    m_wxresid_vsx[0] = NULL;
    m_wxresid_vsy[0] = NULL;
@@ -397,19 +397,19 @@ void AlignmentMonitorMuonHIP::book() {
    sprintf(dir, "/iterN/");
    sprintf(name, "xpull");
    sprintf(title, "x pull distribution for iteration %d", iteration());
-   m_xpull[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xpull_low, m_params_xpull_high)));
+   m_xpull[0] = book1D(dir, name, title, m_params_bins, m_params_xpull_low, m_params_xpull_high);
 
    sprintf(dir, "/iterN/");
    sprintf(name, "ypull");
    sprintf(title, "y pull distribution for iteration %d", iteration());
-   m_ypull[0] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_ypull_low, m_params_ypull_high)));
+   m_ypull[0] = book1D(dir, name, title, m_params_bins, m_params_ypull_low, m_params_ypull_high);
 
    //////////////////////////////////////////////////////////////////////
    // Finally, book the alignable-wise ntuple and fill "before"
    //////////////////////////////////////////////////////////////////////
 
    if (m_book_before) {
-      m_before = (TTree*)(add("/iterN/", new TTree("before", "positions before iteration")));
+      m_before = bookTree("/iterN/", "before", "positions before iteration");
       m_before->Branch("rawid", &m_before_rawid, "rawid/I");
       m_before->Branch("level", &m_before_level, "level/I");
       m_before->Branch("x", &m_before_x, "x/F");
@@ -424,7 +424,7 @@ void AlignmentMonitorMuonHIP::book() {
    }
 
    if (m_book_after) {
-      m_after = (TTree*)(add("/iterN/", new TTree("after", "positions after iteration")));
+      m_after = bookTree("/iterN/", "after", "positions after iteration");
       m_after->Branch("rawid", &m_after_rawid, "rawid/I");
       m_after->Branch("level", &m_after_level, "level/I");
       m_after->Branch("x", &m_after_x, "x/F");
@@ -516,7 +516,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/nhits_vsiter_%s/", level);
       sprintf(name, "nhits_vsiter_%s_%d", level, rawid);
       sprintf(title, "Number of hits on %s %d vs iteration", level, rawid);
-      m_nhits_vsiter[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high)));
+      m_nhits_vsiter[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
       m_nhits_vsiter[index] = NULL;
@@ -526,7 +526,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/conv_x_%s/", level);
       sprintf(name, "conv_x_%s_%d", level, rawid);
       sprintf(title, "Convergence in x of %s %d vs iteration", level, rawid);
-      m_conv_x[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high)));
+      m_conv_x[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
       m_conv_x[index] = NULL;
@@ -536,7 +536,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/conv_y_%s/", level);
       sprintf(name, "conv_y_%s_%d", level, rawid);
       sprintf(title, "Convergence in y of %s %d vs iteration", level, rawid);
-      m_conv_y[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high)));
+      m_conv_y[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
       m_conv_y[index] = NULL;
@@ -546,7 +546,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/conv_z_%s/", level);
       sprintf(name, "conv_z_%s_%d", level, rawid);
       sprintf(title, "Convergence in z of %s %d vs iteration", level, rawid);
-      m_conv_z[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high)));
+      m_conv_z[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
       m_conv_z[index] = NULL;
@@ -556,7 +556,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/conv_phix_%s/", level);
       sprintf(name, "conv_phix_%s_%d", level, rawid);
       sprintf(title, "Convergence in phix of %s %d vs iteration", level, rawid);
-      m_conv_phix[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high)));
+      m_conv_phix[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
       m_conv_phix[index] = NULL;
@@ -566,7 +566,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/conv_phiy_%s/", level);
       sprintf(name, "conv_phiy_%s_%d", level, rawid);
       sprintf(title, "Convergence in phiy of %s %d vs iteration", level, rawid);
-      m_conv_phiy[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high)));
+      m_conv_phiy[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
       m_conv_phiy[index] = NULL;
@@ -576,7 +576,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/conv_phiz_%s/", level);
       sprintf(name, "conv_phiz_%s_%d", level, rawid);
       sprintf(title, "Convergence in phiz of %s %d vs iteration", level, rawid);
-      m_conv_phiz[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high)));
+      m_conv_phiz[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
       m_conv_phiz[index] = NULL;
@@ -586,7 +586,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/xresid_%s/", level);
       sprintf(name, "xresid_%s_%d", level, rawid);
       sprintf(title, "x residual on %s %d for iteration %d", level, rawid, iteration());
-      m_xresid[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high)));
+      m_xresid[index] = book1D(dir, name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high);
    }
    else {
       m_xresid[index] = NULL;
@@ -596,7 +596,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/xresidwide_%s/", level);
       sprintf(name, "xresidwide_%s_%d", level, rawid);
       sprintf(title, "x residual on %s %d for iteration %d", level, rawid, iteration());
-      m_xresidwide[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high)));
+      m_xresidwide[index] = book1D(dir, name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
       m_xresidwide[index] = NULL;
@@ -606,7 +606,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/yresid_%s/", level);
       sprintf(name, "yresid_%s_%d", level, rawid);
       sprintf(title, "y residual on %s %d for iteration %d", level, rawid, iteration());
-      m_yresid[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high)));
+      m_yresid[index] = book1D(dir, name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high);
    }
    else {
       m_yresid[index] = NULL;
@@ -616,7 +616,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/wxresid_%s/", level);
       sprintf(name, "wxresid_%s_%d", level, rawid);
       sprintf(title, "Weighted x residual on %s %d for iteration %d", level, rawid, iteration());
-      m_wxresid[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high)));
+      m_wxresid[index] = book1D(dir, name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high);
    }
    else {
       m_wxresid[index] = NULL;
@@ -626,7 +626,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/wxresidwide_%s/", level);
       sprintf(name, "wxresidwide_%s_%d", level, rawid);
       sprintf(title, "Weighted x residual on %s %d for iteration %d", level, rawid, iteration());
-      m_wxresidwide[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high)));
+      m_wxresidwide[index] = book1D(dir, name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
       m_wxresidwide[index] = NULL;
@@ -636,7 +636,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/wyresid_%s/", level);
       sprintf(name, "wyresid_%s_%d", level, rawid);
       sprintf(title, "Weighted y residual on %s %d for iteration %d", level, rawid, iteration());
-      m_wyresid[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high)));
+      m_wyresid[index] = book1D(dir, name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high);
    }
    else {
       m_wyresid[index] = NULL;
@@ -646,7 +646,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/wxresid_vsx_%s/", level);
       sprintf(name, "wxresid_vsx_%s_%d", level, rawid);
       sprintf(title, "Weighted x residual vs track's x on %s %d for iteration %d", level, rawid, iteration());
-      m_wxresid_vsx[index] = TProfilePtr(add(dir, new TProfile(name, title, m_params_bins, (dt? m_params_xDT_low: m_params_xCSC_low), (dt? m_params_xDT_high: m_params_xCSC_high), m_params_xresidwide_low, m_params_xresidwide_high)));
+      m_wxresid_vsx[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_xDT_low: m_params_xCSC_low), (dt? m_params_xDT_high: m_params_xCSC_high), 1, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
       m_wxresid_vsx[index] = NULL;
@@ -656,7 +656,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/wxresid_vsy_%s/", level);
       sprintf(name, "wxresid_vsy_%s_%d", level, rawid);
       sprintf(title, "Weighted x residual vs track's y on %s %d for iteration %d", level, rawid, iteration());
-      m_wxresid_vsy[index] = TProfilePtr(add(dir, new TProfile(name, title, m_params_bins, (dt? m_params_yDT_low: m_params_yCSC_low), (dt? m_params_yDT_high: m_params_yCSC_high), m_params_xresidwide_low, m_params_xresidwide_high)));
+      m_wxresid_vsy[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_yDT_low: m_params_yCSC_low), (dt? m_params_yDT_high: m_params_yCSC_high), 1, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
       m_wxresid_vsy[index] = NULL;
@@ -666,7 +666,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/wyresid_vsx_%s/", level);
       sprintf(name, "wyresid_vsx_%s_%d", level, rawid);
       sprintf(title, "Weighted y residual vs track's x on %s %d for iteration %d", level, rawid, iteration());
-      m_wyresid_vsx[index] = TProfilePtr(add(dir, new TProfile(name, title, m_params_bins, (dt? m_params_xDT_low: m_params_xCSC_low), (dt? m_params_xDT_high: m_params_xCSC_high), m_params_yresid_low, m_params_yresid_high)));
+      m_wyresid_vsx[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_xDT_low: m_params_xCSC_low), (dt? m_params_xDT_high: m_params_xCSC_high), 1, m_params_yresid_low, m_params_yresid_high);
    }
    else {
       m_wyresid_vsx[index] = NULL;
@@ -676,7 +676,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/wyresid_vsy_%s/", level);
       sprintf(name, "wyresid_vsy_%s_%d", level, rawid);
       sprintf(title, "Weighted y residual vs track's y on %s %d for iteration %d", level, rawid, iteration());
-      m_wyresid_vsy[index] = TProfilePtr(add(dir, new TProfile(name, title, m_params_bins, (dt? m_params_yDT_low: m_params_yCSC_low), (dt? m_params_yDT_high: m_params_yCSC_high), m_params_yresid_low, m_params_yresid_high)));
+      m_wyresid_vsy[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_yDT_low: m_params_yCSC_low), (dt? m_params_yDT_high: m_params_yCSC_high), 1, m_params_yresid_low, m_params_yresid_high);
    }
    else {
       m_wyresid_vsy[index] = NULL;
@@ -686,7 +686,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/xpull_%s/", level);
       sprintf(name, "xpull_%s_%d", level, rawid);
       sprintf(title, "x pull distribution on %s %d for iteration %d", level, rawid, iteration());
-      m_xpull[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_xpull_low, m_params_xpull_high)));
+      m_xpull[index] = book1D(dir, name, title, m_params_bins, m_params_xpull_low, m_params_xpull_high);
    }
    else {
       m_xpull[index] = NULL;
@@ -696,7 +696,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
       sprintf(dir, "/iterN/ypull_%s/", level);
       sprintf(name, "ypull_%s_%d", level, rawid);
       sprintf(title, "y pull distribution on %s %d for iteration %d", level, rawid, iteration());
-      m_ypull[index] = TH1FPtr(add(dir, new TH1F(name, title, m_params_bins, m_params_ypull_low, m_params_ypull_high)));
+      m_ypull[index] = book1D(dir, name, title, m_params_bins, m_params_ypull_low, m_params_ypull_high);
    }
    else {
       m_ypull[index] = NULL;
