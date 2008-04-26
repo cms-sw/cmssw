@@ -15,7 +15,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseGenerator.h"
 using namespace std;
 
 
@@ -35,7 +34,6 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theCoderFactory(0),
   theElectronicsSim(0),
   theHitCorrection(0),
-  theHPDNoiseGenerator(0),
   theHBHEDigitizer(0),
   theHODigitizer(0),
   theHFDigitizer(0),
@@ -72,12 +70,6 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theHFDigitizer = new HFDigitizer(theHFResponse, theElectronicsSim, doNoise);
   theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theElectronicsSim, doNoise);
 
-  bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
-  if(doHPDNoise) {
-    theHPDNoiseGenerator = new HPDNoiseGenerator(theParameterMap); 
-    theHBHEDigitizer->setNoiseSignalGenerator(theHPDNoiseGenerator);
-  }
-
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -112,7 +104,6 @@ HcalDigiProducer::~HcalDigiProducer() {
   delete theAmplifier;
   delete theCoderFactory;
   delete theHitCorrection;
-  delete theHPDNoiseGenerator;
 }
 
 
@@ -156,6 +147,7 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   if(doZDC) {
     //theZDCDigitizer->run(*colzdc, *zdcResult);
   }
+
   edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
   edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
   edm::LogInfo("HcalDigiProducer") << "HCAL HF digis   : " << hfResult->size();

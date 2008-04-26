@@ -22,7 +22,7 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
         ),
         EnableRPCMeasurement = cms.untracked.bool(False),
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-        BuildTraversingMuon = cms.untracked.bool(True),
+        BuildTraversingMuon = cms.untracked.bool(False),
         EnableDTMeasurement = cms.untracked.bool(True),
         MuonSmootherParameters = cms.PSet(
             PropagatorAlong = cms.string('SteppingHelixPropagatorAlong'),

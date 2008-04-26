@@ -26,9 +26,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -39,7 +36,7 @@
 #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
-#include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
+// #include "RecoParticleFlow/Benchmark/interface/PFJetBenchmark.h"
 
 #include "RecoParticleFlow/PFRootEvent/interface/FWLiteJetProducer.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
@@ -284,15 +281,15 @@ class PFRootEventManager {
   bool trackInsideGCut( const reco::PFTrack& track ) const;
   
   /// rechit mask set to true for rechits inside TCutG
-  void fillRecHitMask( std::vector<bool>& mask, 
+  void fillRecHitMask( vector<bool>& mask, 
                        const reco::PFRecHitCollection& rechits ) const;
                        
   /// cluster mask set to true for rechits inside TCutG
-  void fillClusterMask( std::vector<bool>& mask, 
+  void fillClusterMask( vector<bool>& mask, 
                         const reco::PFClusterCollection& clusters ) const;
 
   /// track mask set to true for rechits inside TCutG
-  void fillTrackMask( std::vector<bool>& mask, 
+  void fillTrackMask( vector<bool>& mask, 
                       const reco::PFRecTrackCollection& tracks ) const;
                        
   /// find the closest PFSimParticle to a point (eta,phi) in a given detector
@@ -381,7 +378,7 @@ class PFRootEventManager {
   TBranch*   MCTruthBranch_;          
 
   /// Gen Particles base Candidates branch
-  TBranch*   genParticleforJetsBranch_;
+  TBranch*   genParticleBaseCandidatesBranch_;
 
   /// Calo Tower base Candidates branch
   TBranch*   caloTowerBaseCandidatesBranch_;
@@ -438,15 +435,11 @@ class PFRootEventManager {
   /// reconstructed pfCandidates 
   std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
   
-  /// has to be global to have a lifetime = lifetime of PFJets
+  /// has to be global to print out pfjets constituents
   reco::CandidateCollection basePFCandidates_;
 
-  /// gen particle base candidates (input for gen jets new since 1_8_0)
-  reco::GenParticleRefVector genParticleRef_;
-  
-  /// gen particle base candidates (input for gen jets new since 1_8_0)
+  /// gen particle base candidates (input for gen jets)
   reco::CandidateCollection genParticleBaseCandidates_;
-
 
   /// calo tower base candidates (input for calo jets)
   reco::CandidateCollection caloTowerBaseCandidates_;
@@ -467,7 +460,7 @@ class PFRootEventManager {
   reco::GenJetCollection genJetsCMSSW_;
 
   /// calo Jets
-  std::vector<reco::CaloJet> caloJetsCMSSW_;
+  std::vector<CaloJet> caloJetsCMSSW_;
   /// input file
   TFile*     file_; 
 
@@ -500,7 +493,7 @@ class PFRootEventManager {
   PFAlgo          pfAlgo_;
 
   /// PFJet Benchmark
-  PFJetBenchmark PFJetBenchmark_;
+  // PFJetBenchmark PFJetBenchmark_;
 
   /// native jet algorithm 
   /// \todo make concrete

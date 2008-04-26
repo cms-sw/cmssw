@@ -1,33 +1,13 @@
 /*
  * \file L1TECALTPG.cc
  *
- * $Date: 2008/03/18 20:31:20 $
- * $Revision: 1.12 $
+ * $Date: 2007/12/21 17:41:20 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  * - initial version stolen from GCTMonnitor (thanks!) (wittich 02/07)
  *
  * $Log: L1TECALTPG.cc,v $
- * Revision 1.12  2008/03/18 20:31:20  berryhil
- *
- *
- * update of ecal tpg dqm
- *
- * Revision 1.11  2008/03/14 20:35:46  berryhil
- *
- *
- * stripped out obsolete parameter settings
- *
- * rpc tpg restored with correct dn access and dbe handling
- *
- * Revision 1.10  2008/03/12 17:24:24  berryhil
- *
- *
- * eliminated log files, truncated HCALTPGXana histo output
- *
- * Revision 1.9  2008/03/01 00:40:00  lat
- * DQM core migration.
- *
  * Revision 1.8  2007/12/21 17:41:20  berryhil
  *
  *
@@ -94,12 +74,10 @@ L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
   // verbosity switch
   verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
 
-  // ecal endcap switch
-  enableEE_ = ps.getUntrackedParameter < bool > ("enableEE", false);
-
   if (verbose_)
     std::cout << "L1TECALTPG: constructor...." << std::endl;
 
+  logFile_.open("L1TECALTPG.log");
 
   dbe = NULL;
   if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {
@@ -112,6 +90,9 @@ L1TECALTPG::L1TECALTPG(const ParameterSet & ps):
   if (outputFile_.size() != 0) {
     std::cout << "L1T Monitoring histograms will be saved to " 
 	      << outputFile_ << std::endl;
+  }
+  else {
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable =
@@ -177,7 +158,7 @@ void L1TECALTPG::endJob(void)
 {
   if (verbose_)
     std::cout << "L1TECALTPG: end job...." << std::endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events";
+  LogInfo("L1TECALTPG") << "analyzed " << nev_ << " events";
 
   if (outputFile_.size() != 0 && dbe)
     dbe->save(outputFile_);
@@ -195,19 +176,18 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
   // Get the ECAL TPGs
   edm::Handle < EcalTrigPrimDigiCollection > eeTP;
   edm::Handle < EcalTrigPrimDigiCollection > ebTP;
-  //  e.getByType(ebTP);
   e.getByLabel(ecaltpgSourceB_,ebTP);
   e.getByLabel(ecaltpgSourceE_,eeTP);
-  
-  if (!eeTP.isValid() && enableEE_) 
+
+  if (!eeTP.isValid()) 
   {
-    edm::LogInfo("DataNotFound") << "can't find EcalTrigPrimCollection with "
+    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
       " endcap label " << ecaltpgSourceE_.label() ;
     return;
   }  
   if (!ebTP.isValid()) 
   {
-    edm::LogInfo("DataNotFound") << "can't find EcalTrigPrimCollection with "
+    edm::LogInfo("L1TECALTPG") << "can't find EcalTrigPrimCollection with "
       " barrel label " << ecaltpgSourceB_.label() ;
     return;
   }
@@ -217,7 +197,6 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
     std::cout << "L1TECALTPG: barrel size is " << ebTP->size() << std::endl;
     std::cout << "L1TECALTPG: endcap size is " << eeTP->size() << std::endl;
   }
-  
   for (EcalTrigPrimDigiCollection::const_iterator iebTP = ebTP->begin();
        iebTP != ebTP->end(); iebTP++) {
     if ( verbose_ ) {
@@ -231,8 +210,6 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
     ecalTpRankB_->Fill(iebTP->compressedEt());
 
   }
-  
-  if (enableEE_){
   // endcap
   for (EcalTrigPrimDigiCollection::const_iterator ieeTP = eeTP->begin();
        ieeTP != eeTP->end(); ieeTP++) {
@@ -247,6 +224,6 @@ void L1TECALTPG::analyze(const Event & e, const EventSetup & c)
     ecalTpRankE_->Fill(ieeTP->compressedEt());
 
   }
-  }
+
 
 }

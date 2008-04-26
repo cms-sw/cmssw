@@ -3,7 +3,7 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "boost/shared_ptr.hpp"
 
-namespace funct {
+namespace function {
   template<unsigned int n>
   class Polynomial { 
   public:
@@ -102,9 +102,6 @@ namespace funct {
     static const unsigned int arguments = 1;
     Polynomial(const boost::shared_ptr<double> * c) : 
       c0_(*c), poly_(c + 1) {
-    }
-    Polynomial(const Parameter * c) :
-      c0_(c->ptr()), poly_(c + 1) {
     }
     Polynomial(const double * c) : 
       c0_(new double(*c)), poly_(c + 1) {

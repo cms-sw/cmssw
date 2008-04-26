@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.11 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -38,7 +38,7 @@ EEStatusFlagsTask::EEStatusFlagsTask(const ParameterSet& ps){
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 

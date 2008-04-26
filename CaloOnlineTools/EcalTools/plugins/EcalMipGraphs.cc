@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.4 2008/03/12 17:29:36 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.11 2007/12/19 14:32:12 franzoni Exp $
 //
 //
 
@@ -36,7 +36,6 @@ using namespace std;
 EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   EcalUncalibratedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection")),
   EBDigis_ (iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
-  headerProducer_ (iConfig.getParameter<edm::InputTag> ("headerProducer")),
   runNum_(-1),
   side_ (iConfig.getUntrackedParameter<int>("side", 3)),
   givenSeedCry_ (iConfig.getUntrackedParameter<int>("seedCry",0)),
@@ -53,12 +52,8 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
   defaultMaskedEBs.push_back("none");
   maskedEBs_ =  iConfig.getUntrackedParameter<vector<string> >("maskedEBs",defaultMaskedEBs);
   
-  fedMap_ = new EcalFedMap();
+  fedMap = new EcalFedMap();
 
-  string title1 = "Jitter for all FEDs";
-  string name1 = "JitterAllFEDs";
-  allFedsTimingHist_ = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
-  
   // load up the maskedFED list with the proper FEDids
   if(maskedFEDs_[0]==-1)
   {
@@ -68,14 +63,13 @@ EcalMipGraphs::EcalMipGraphs(const edm::ParameterSet& iConfig) :
       maskedFEDs_.clear();
       for(vector<string>::const_iterator ebItr = maskedEBs_.begin(); ebItr != maskedEBs_.end(); ++ebItr)
       {
-        maskedFEDs_.push_back(fedMap_->getFedFromSlice(*ebItr));
+        maskedFEDs_.push_back(fedMap->getFedFromSlice(*ebItr));
       }
     }
   }
   
   for (int i=0; i<10; i++)        abscissa[i] = i;
-  naiveEvtNum_ = 0;
-
+  eventsAndSeedCrys_ = new TNtuple("eventsSeedCrys","Events and Seed Crys Mapping","LV1A:ic:fed");
 }
 
 
@@ -92,34 +86,8 @@ EcalMipGraphs::~EcalMipGraphs()
 void
 EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  // get the headers
-  // (one header for each supermodule)
-  edm::Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel(headerProducer_, DCCHeaders);
-  map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_;
-
-  for (EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();
-		  headerItr != DCCHeaders->end (); 
-		  ++headerItr) 
-  {
-    FEDsAndDCCHeaders_[headerItr->id()+600] = *headerItr;
-  }
-
   int ievt = iEvent.id().event();
   int graphCount = 0;
-  
-  naiveEvtNum_++;
-
-  if(runNum_==-1)
-  {
-    runNum_ = iEvent.id().run();
-    fileName_+=intToString(runNum_);
-    fileName_+=".graph.root";
-    file_ = TFile::Open(fileName_.c_str(),"RECREATE");
-    eventsAndSeedCrys_ = new TNtuple("eventsSeedCrys","Events and Seed Crys Mapping","LV1A:ic:fed");
-  }
-
   //We only want the 3x3's for this event...
   listAllChannels.clear();
   auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
@@ -199,24 +167,13 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if(hashedIndex == givenSeedCry_ || (!givenSeedCry_ && ampli > threshold_))
     {
-      eventsAndSeedCrys_->Fill(naiveEvtNum_, ic, FEDid);
-      crysAndAmplitudesMap_[hashedIndex] = ampli;
+      eventsAndSeedCrys_->Fill(ievt, ic, FEDid);
       vector<DetId> neighbors = caloTopo->getWindow(ebDet,side_,side_);
       for(vector<DetId>::const_iterator itr = neighbors.begin(); itr != neighbors.end(); ++itr)
       {
         listAllChannels.insert(*itr);
       }
     }
-    
-    TH1F* timingHist = FEDsAndTimingHists_[FEDid];
-    if(timingHist==0)
-    {
-      initHists(FEDid);
-      timingHist = FEDsAndTimingHists_[FEDid];
-    }
-    
-    timingHist->Fill(hit.jitter());
-    allFedsTimingHist_->Fill(hit.jitter());
   }
 
   // retrieving crystal digi from Event
@@ -228,56 +185,34 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //find digi we need  -- can't get find() to work; need DataFrame(DetId det) to work? 
       //TODO: use find(), launching it twice over EB and EE collections
 
-    int ic = (*chnlItr).ic();
-    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(*chnlItr);
-    int FEDid = 600+elecId.dccId();
-    string sliceName = fedMap_->getSliceFromFed(FEDid);
-    int hashedIndex = (*chnlItr).hashedIndex();
     EBDigiCollection::const_iterator digiItr = digis->begin();
-    
     while(digiItr != digis->end() && ((*digiItr).id()!=*chnlItr))
     {
       ++digiItr;
     }
     if(digiItr==digis->end())
-    {
-      LogWarning("EcalMipGraphs") << "Cannot find digi for ic:" << ic
-        << " FED:" << FEDid << " evt:" << naiveEvtNum_;
       continue;
-    }
-    
+
+    int ic = (*chnlItr).ic();
+    EcalElectronicsId elecId = ecalElectronicsMap->getElectronicsId(*chnlItr);
+    int FEDid = 600+elecId.dccId();
+    string sliceName = fedMap->getSliceFromFed(FEDid);
+    //int hashedIndex = (*chnlItr).hashedIndex();
     //EBDataFrame df = (*digis)[hashedIndex];
     
     //cout << "the detId is: " << (*chnlItr).rawId() << endl;
     //cout << "the detId found: " << df.id().rawId() << endl;
     
-    
-    int gainId = FEDsAndDCCHeaders_[FEDid].getMgpaGain();
-    int gainHuman;
-    if      (gainId ==1) gainHuman =12;
-    else if (gainId ==2) gainHuman =6;
-    else if (gainId ==3) gainHuman =1;
-    else                 gainHuman =-1; 
-
-    int sample0GainId = EBDataFrame(*digiItr).sample(0).gainId();
     for (int i=0; (unsigned int)i< (*digiItr).size() ; ++i ) {
       EBDataFrame df(*digiItr); 
-      ordinate[i] = df.sample(i).adc(); // accounf for possible gain !=12?
-      if(df.sample(i).gainId()!=sample0GainId)
-        LogWarning("EcalMipGraphs") << "Gain switch detected in evt:" <<
-          naiveEvtNum_ << " sample:" << i << " ic:" << ic << " FED:" << FEDid;
+      ordinate[i] = df.sample(i).adc();
     }
 
     TGraph oneGraph(10, abscissa,ordinate);
-    string name = "Graph_ev" + intToString(naiveEvtNum_) + "_ic" + intToString(ic)
+    string name = "Graph_ev" + intToString(ievt) + "_ic" + intToString(ic)
       + "_FED" + intToString(FEDid);
-    string gainString = (gainId==1) ? "Free" : intToString(gainHuman);
-    string title = "Event" + intToString(naiveEvtNum_) + "_lv1a" + intToString(ievt) +
-      "_ic" + intToString(ic) + "_" + sliceName + "_gain" + gainString;
-    map<int,float>::const_iterator itr;
-    itr = crysAndAmplitudesMap_.find(hashedIndex);
-    if(itr!=crysAndAmplitudesMap_.end())
-      title+="_Amp"+intToString((int)itr->second);
+    string title = "Event" + intToString(ievt) + "_ic" + intToString(ic)
+      + "_" + sliceName;
     
     oneGraph.SetTitle(title.c_str());
     oneGraph.SetName(name.c_str());
@@ -285,6 +220,14 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     graphCount++;
   }
   
+  if(runNum_==-1)
+  {
+    runNum_ = iEvent.id().run();
+    fileName_+=intToString(runNum_);
+    fileName_+=".graph.root";
+    file = TFile::Open(fileName_.c_str(),"RECREATE");
+  }
+
   if(graphs.size()==0)
     return;
   
@@ -294,7 +237,7 @@ EcalMipGraphs::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void EcalMipGraphs::writeGraphs()
 {
   int graphCount = 0;
-  file_->cd();
+  file->cd();
   std::vector<TGraph>::iterator gr_it;
   for (gr_it = graphs.begin(); gr_it !=  graphs.end(); gr_it++ )
   {
@@ -311,19 +254,6 @@ void EcalMipGraphs::writeGraphs()
   
 
 
-// insert the hist map into the map keyed by FED number
-void EcalMipGraphs::initHists(int FED)
-{
-  using namespace std;
-  
-  string title1 = "Jitter for ";
-  title1.append(fedMap_->getSliceFromFed(FED));
-  string name1 = "JitterFED";
-  name1.append(intToString(FED));
-  TH1F* timingHist = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
-  FEDsAndTimingHists_[FED] = timingHist;
-  FEDsAndTimingHists_[FED]->SetDirectory(0);
-}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -337,19 +267,7 @@ EcalMipGraphs::endJob()
 {
   writeGraphs();
   eventsAndSeedCrys_->Write();
-  for(map<int,TH1F*>::const_iterator itr = FEDsAndTimingHists_.begin();
-      itr != FEDsAndTimingHists_.end(); ++itr)
-  {
-    TH1F* hist = itr->second;
-    if(hist!=0)
-      hist->Write();
-    else
-    {
-      cerr << "EcalMipGraphs: Error: This shouldn't happen!" << endl;
-    }
-  }
-  allFedsTimingHist_->Write();
-  file_->Close();
+  file->Close();
   std::string channels;
   for(std::vector<int>::const_iterator itr = maskedChannels_.begin();
       itr != maskedChannels_.end(); ++itr)

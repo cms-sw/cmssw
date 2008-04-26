@@ -1,4 +1,4 @@
-// $Id: Candidate.cc,v 1.12 2007/09/21 14:13:05 llista Exp $
+// $Id: Candidate.cc,v 1.13 2007/11/21 12:58:42 llista Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
@@ -36,3 +36,21 @@ void Candidate::fillVertexCovariance(CovarianceMatrix & err) const {
   throw edm::Exception(edm::errors::UnimplementedFeature) 
     << "reco::Candidate does not implement vertex covariant matrix.\n";
 }
+
+bool Candidate::isElectron() const { return false; }
+ 
+bool Candidate::isMuon() const { return false; }
+
+bool Candidate::isGlobalMuon() const { return false; }
+
+bool Candidate::isStandAloneMuon() const { return false; }
+
+bool Candidate::isTrackerMuon() const { return false; }
+
+bool Candidate::isCaloMuon() const { return false; }
+
+bool Candidate::isPhoton() const { return false; }
+
+bool Candidate::isConvertedPhoton() const { return false; }
+
+bool Candidate::isJet() const { return false; }

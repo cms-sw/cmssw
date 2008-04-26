@@ -62,14 +62,16 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::vector<int> getRange(int subdet, int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ;
 
   // ----------member data ---------------------------
-  std::string dbFilename_;
-  std::map<uint32_t, std::vector<uint32_t> > mapXtal_ ;
+  std::string dbFilenameEB_;
+  std::string dbFilenameEE_;
+  std::map<uint32_t, std::vector<uint32_t> > mapXtal_[2] ;
   std::map<uint32_t, std::vector<uint32_t> > mapStrip_[2] ;
   std::map<uint32_t, std::vector<uint32_t> > mapTower_[2] ;
-  std::map<uint32_t, std::vector<uint32_t> > mapWeight_ ;
-  std::map<uint32_t, std::vector<uint32_t> > mapFg_ ;
-  std::map<uint32_t, std::vector<uint32_t> > mapLut_ ;
-  std::map<uint32_t, std::vector<float> > mapPhys_ ;
+  std::map<uint32_t, std::vector<uint32_t> > mapSliding_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapWeight_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapFg_[2] ;
+  std::map<uint32_t, std::vector<uint32_t> > mapLut_[2] ;
+  std::map<uint32_t, std::vector<float> > mapPhys_[2] ;
 
 };
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.14 2008/03/08 17:23:39 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.12 2008/03/04 16:07:08 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -10,8 +10,6 @@
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
-#include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
-#include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
@@ -60,7 +58,7 @@ SiStripCommissioningOfflineDbClient::~SiStripCommissioningOfflineDbClient() {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet& pset, const edm::EventSetup& setup) {
+void SiStripCommissioningOfflineDbClient::createHistos() {
 
   // Check pointer
   if ( histos_ ) {
@@ -112,8 +110,6 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
   else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::PEDESTALS )    { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::PEDS_ONLY )    { histos_ = new PedsOnlyHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::NOISE )        { histos_ = new NoiseHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::APV_LATENCY )  { histos_ = new LatencyHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::FINE_DELAY )   { histos_ = new FineDelayHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::CALIBRATION ||
@@ -134,8 +130,8 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
       << " Unknown run type!";
     return;
   }
-  histos_->configure(pset,setup);
 
+  // 
   CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
   if ( tmp ) { 
     tmp->doUploadConf( uploadConf_ ); 

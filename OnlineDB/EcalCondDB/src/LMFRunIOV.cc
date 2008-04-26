@@ -19,8 +19,6 @@ LMFRunIOV::LMFRunIOV()
   m_subRunNum = 0;
   m_subRunStart = Tm();
   m_subRunEnd = Tm();
-  m_dbtime = Tm();
-  m_subrun_type="";
 }
 
 
@@ -66,6 +64,56 @@ void LMFRunIOV::setRunIOV(RunIOV iov)
 
 
 
+void LMFRunIOV::setSubRunNumber(subrun_t subrun)
+{
+  if (subrun != m_subRunNum) {
+    m_ID = 0;
+    m_subRunNum = subrun;
+  }
+}
+
+
+
+run_t LMFRunIOV::getSubRunNumber() const
+{
+  return m_subRunNum;
+}
+
+
+
+void LMFRunIOV::setSubRunStart(Tm start)
+{
+  if (start != m_subRunStart) {
+    m_ID = 0;
+    m_subRunStart = start;
+  }
+}
+
+
+
+Tm LMFRunIOV::getSubRunStart() const
+{
+  return m_subRunStart;
+}
+
+
+
+void LMFRunIOV::setSubRunEnd(Tm end)
+{
+  if (end != m_subRunEnd) {
+    m_ID = 0;
+    m_subRunEnd = end;
+  }
+}
+
+
+
+Tm LMFRunIOV::getSubRunEnd() const
+{
+  return m_subRunEnd;
+}
+
+
 
 int LMFRunIOV::fetchID()
   throw(runtime_error)
@@ -93,7 +141,7 @@ int LMFRunIOV::fetchID()
 
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT lmf_iov_id FROM lmf_run_iov "
+    stmt->setSQL("SELECT iov_id FROM lmf_run_iov "
 		 "WHERE tag_id = :1 AND "
 		 "run_iov_id   = :2 AND "
 		 "subrun_num   = :3 AND "
@@ -132,7 +180,7 @@ void LMFRunIOV::setByID(int id)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, subrun_type, db_timestamp FROM lmf_run_iov WHERE lmf_iov_id = :1");
+     stmt->setSQL("SELECT tag_id, run_iov_id, subrun_num, subrun_start, subrun_end FROM lmf_run_iov WHERE iov_id = :1");
      stmt->setInt(1, id);
      
      ResultSet* rset = stmt->executeQuery();
@@ -142,12 +190,9 @@ void LMFRunIOV::setByID(int id)
        m_subRunNum = rset->getInt(3);
        Date startDate = rset->getDate(4);
        Date endDate = rset->getDate(5);
-       m_subrun_type = rset->getString(6);
-       Date dbtime = rset->getDate(7);
 	 
        m_subRunStart = dh.dateToTm( startDate );
        m_subRunEnd = dh.dateToTm( endDate );
-       m_dbtime = dh.dateToTm(dbtime  );
 
        m_lmfRunTag.setConnection(m_env, m_conn);
        m_lmfRunTag.setByID(lmfRunTagID);
@@ -200,14 +245,13 @@ int LMFRunIOV::writeDB()
   try {
     Statement* stmt = m_conn->createStatement();
     
-    stmt->setSQL("INSERT INTO lmf_run_iov (lmf_iov_id, tag_id, run_iov_id, subrun_num, subrun_start, subrun_end, subrun_type) "
-		 "VALUES (lmf_run_iov_sq.NextVal, :1, :2, :3, :4, :5, :6)");
+    stmt->setSQL("INSERT INTO lmf_run_iov (iov_id, tag_id, run_iov_id, subrun_num, subrun_start, subrun_end) "
+		 "VALUES (lmf_run_iov_sq.NextVal, :1, :2, :3, :4, :5)");
     stmt->setInt(1, lmfRunTagID);
     stmt->setInt(2, runIOVID);
     stmt->setInt(3, m_subRunNum);
     stmt->setDate(4, dh.tmToDate(m_subRunStart));
     stmt->setDate(5, dh.tmToDate(m_subRunEnd));
-    stmt->setString(6, m_subrun_type);
 
     stmt->executeUpdate();
 
@@ -269,7 +313,7 @@ void LMFRunIOV::setByRun(LMFRunTag* lmftag, RunIOV* runiov, subrun_t subrun)
   try {
     Statement* stmt = m_conn->createStatement();
 
-    stmt->setSQL("SELECT lmf_iov_id, subrun_start, subrun_end FROM lmf_run_iov "
+    stmt->setSQL("SELECT iov_id, subrun_start, subrun_end FROM lmf_run_iov "
 		 "WHERE tag_id = :1 AND run_iov_id = :2 AND subrun_num = :3");
     stmt->setInt(1, lmfTagID);
     stmt->setInt(2, runIOVID);

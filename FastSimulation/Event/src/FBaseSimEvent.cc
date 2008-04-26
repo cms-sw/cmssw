@@ -560,10 +560,14 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   int offset = nTracks();
 
   // Skip the incoming protons
+  nGenParticles = 0;
   unsigned int ip = 0;
   if ( nParticles > 1 && 
        myGenParticles[0].pdgId() == 2212 &&
-       myGenParticles[1].pdgId() == 2212 ) ip = 2;
+       myGenParticles[1].pdgId() == 2212 ) { 
+    ip = 2;
+    nGenParticles = 2;
+  }
 
   // Primary vertex (already smeared by the SmearedVtx module)
   XYZTLorentzVector primaryVertex (myGenParticles[ip].vx(),
@@ -590,19 +594,24 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   // Loop on the particles of the generated event
   for ( ; ip<nParticles; ++ip ) { 
     
+    // nGenParticles = ip;
+    
+    nGenParticles++;
     const reco::GenParticle& p = myGenParticles[ip];
 
     // Keep only: 
     // 1) Stable particles
-    bool testStable = p.status()==1;
+    bool testStable = p.status()%1000==1;
 
     // 2) or particles with stable daughters
     bool testDaugh = false;
     unsigned int nDaughters = p.numberOfDaughters();
-    if ( !testStable && nDaughters ) {  
+    if ( !testStable  && 
+	 //	 p.status() == 2 && 
+	 nDaughters ) {  
       for ( unsigned iDaughter=0; iDaughter<nDaughters; ++iDaughter ) {
 	const reco::Candidate* daughter = p.daughter(iDaughter);
-	if ( daughter->status()==1 ) {
+	if ( daughter->status()%1000==1 ) {
 	  testDaugh=true;
 	  break;
 	}
@@ -632,7 +641,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
       part.setID(p.pdgId());
 
       // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nTracks()-offset);
+      int theTrack = addSimTrack(&part,originVertex, nGenParts()-offset);
 
       // It there an end vertex ?
       if ( !nDaughters ) continue; 

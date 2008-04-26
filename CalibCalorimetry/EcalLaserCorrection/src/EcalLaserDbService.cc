@@ -4,7 +4,13 @@
 
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

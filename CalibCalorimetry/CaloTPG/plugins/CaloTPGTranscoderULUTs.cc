@@ -13,20 +13,23 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: CaloTPGTranscoderULUTs.cc,v 1.1 2007/04/23 17:10:13 tulika Exp $
+// $Id: CaloTPGTranscoderULUTs.cc,v 1.3 2006/12/21 03:18:43 dasu Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include "boost/shared_ptr.hpp"
 
 // user include files
 
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"

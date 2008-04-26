@@ -1,18 +1,10 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="mySiStripNoises_basic" >
-   <Class table="SISTRIPNOISES" id_columns="IOV_VALUE_ID" name="mySiStripNoises" mapping_version="basic" >
-     <Container table="DETREGISTRYINDEX" id_columns="IOV_VALUE_ID" name="indexes" position_column="POS" >
-       <Object table="DETREGISTRYINDEX" id_columns="POS IOV_VALUE_ID" name="value_type" >
-         <Primitive column="INDEXES_VALUE_TYPE_DETID" name="detid" />
-         <Primitive column="INDEXES_VALUE_TYPE_IBEGIN" name="ibegin" />
-         <Primitive column="INDEXES_VALUE_TYPE_IEND" name="iend" />
-       </Object >
-     </Container >
-     <Container table="BLOBNOISES_DATA" id_columns="IOV_VALUE_ID" name="v_noises" position_column="POS" >
-       <Primitive column="NOISESVALUE" name="value_type" />
-     </Container >
+  <PoolContainer name="mySiStripNoisesRcd" >
+   <Class table="MYSISTRIPNOISES" id_columns="IOV_VALUE_ID" name="mySiStripNoises" mapping_version="mySiStripNoises_basic" > 
+    <Blob column="DETREGISTRYINDEX_NOISE" name="indexes"/>
+    <Blob column="NOISEDATA" name="v_noises"/>
    </Class >
   </PoolContainer >
  </PoolDatabase >

@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.8 2008/04/04 16:11:03 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.9 2008/04/08 18:13:36 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -172,11 +172,11 @@ namespace edm {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::smBeginRun(int run) {
+  void MockEventProcessor::beginRun(int run) {
     output_ << "\tbeginRun " << run << "\n";
   }
 
-  void MockEventProcessor::smEndRun(int run) {
+  void MockEventProcessor::endRun(int run) {
     output_ << "\tendRun " << run << "\n";
   }
 

@@ -1,9 +1,0 @@
-<use name=DataFormats/FEDRawData>
-<use name=FWCore/MessageLogger>
-<use name=TkOnlineSw>
-
-<export>
- <lib name=DQMSiStripMonitorHardware>
- <use name=TkOnlineSw>
-</export>
-

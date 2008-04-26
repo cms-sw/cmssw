@@ -1,4 +1,6 @@
 #include <memory>
+#include <vector>
+#include <iostream>
 #include <list>
 
 // #include "DataFormats/Common/interface/Handle.h"
@@ -6,8 +8,10 @@
 #include "EventFilter/EcalDigiToRaw/interface/TowerBlockFormatter.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 using namespace std;
 

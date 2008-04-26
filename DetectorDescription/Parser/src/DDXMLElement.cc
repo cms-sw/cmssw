@@ -16,8 +16,12 @@
 
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
+#include <string>
 #include <algorithm>
+#include <map>
+#include <vector>
 #include <iostream>
 #include <sstream>
 

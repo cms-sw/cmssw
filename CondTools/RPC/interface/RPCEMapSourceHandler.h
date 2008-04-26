@@ -45,7 +45,7 @@ namespace popcon
     void ConnectOnlineDB(string host, string sid, string user, string pass, int port);
     void DisconnectOnlineDB();
     void readEMap();
-    int Compare2EMaps(Ref map1, RPCEMap* map2);
+    int Compare2EMaps(const RPCEMap* map1, RPCEMap* map2);
 
 		private:
     RPCEMap * eMap;
@@ -58,6 +58,8 @@ namespace popcon
     std::string m_user;
     std::string m_pass;
     int m_port;
+//    const edm::Event& event; 	 
+//    const edm::EventSetup& esetup;
 
   // utilities
     string IntToString(int num)

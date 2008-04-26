@@ -1,25 +1,22 @@
 #ifndef PixelMaskAllPixels_h
 #define PixelMaskAllPixels_h
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelMaskAllPixels..h
-*   \brief This clss implements..
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class provide a base class for the
+// pixel mask data for the pixel FEC configuration
+// This is a pure interface (abstract class) that
+// needs to have an implementation.
+//
+// All applications should just use this 
+// interface and not care about the specific
+// implementation
+//
+//
 #include <vector>
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelMaskAllPixels PixelMaskAllPixels.h
-*  \brief This is the documentation about PixelMaskAllPixels...
-*
-*/
   class PixelMaskAllPixels: public PixelMaskBase {
 
   public:
@@ -42,5 +39,4 @@ namespace pos{
  
   };
 }
-/* @} */
 #endif

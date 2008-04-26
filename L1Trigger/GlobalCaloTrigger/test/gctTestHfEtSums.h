@@ -33,19 +33,19 @@ public:
   void reset();
 
   /// Read the input jet data from the jetfinders (after GCT processing).
-  void fillExpectedHfSums(const std::vector<RegionsVector>& inputRegions);
+  void fillExpectedHfSums(const RegionsVector& inputRegions);
 
   /// Check the Ht summing algorithms
-  bool checkHfEtSums(const L1GlobalCaloTrigger* gct, const int numOfBx) const;
+  bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
 private:
 
-  std::vector<unsigned> m_expectedRing0EtSumPositiveEta;
-  std::vector<unsigned> m_expectedRing0EtSumNegativeEta;
-  std::vector<unsigned> m_expectedRing1EtSumPositiveEta;
-  std::vector<unsigned> m_expectedRing1EtSumNegativeEta;
-  std::vector<unsigned> m_expectedTowerCountPositiveEta;
-  std::vector<unsigned> m_expectedTowerCountNegativeEta;
+  unsigned m_expectedRing0EtSumPositiveEta;
+  unsigned m_expectedRing0EtSumNegativeEta;
+  unsigned m_expectedRing1EtSumPositiveEta;
+  unsigned m_expectedRing1EtSumNegativeEta;
+  unsigned m_expectedTowerCountPositiveEta;
+  unsigned m_expectedTowerCountNegativeEta;
 
 };
 

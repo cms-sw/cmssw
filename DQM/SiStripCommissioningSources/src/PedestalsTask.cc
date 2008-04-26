@@ -13,7 +13,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 PedestalsTask::PedestalsTask( DQMStore* dqm,
-				    const FedChannelConnection& conn ) :
+			      const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "PedestalsTask" ),
   peds_(),
   cm_()
@@ -43,7 +43,7 @@ void PedestalsTask::book() {
   nbins = 256;
   
   // Pedestals histogram
-  extra_info = sistrip::extrainfo::pedestals_; 
+  extra_info = sistrip::pedsAndRawNoise_; 
   peds_[0].isProfile_ = true;
   
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
@@ -63,7 +63,7 @@ void PedestalsTask::book() {
   peds_[0].vSumOfSquares_.resize(nbins,0);
 
   // Noise histogram
-  extra_info = sistrip::extrainfo::noise_; 
+  extra_info = sistrip::pedsAndCmSubNoise_; 
   peds_[1].isProfile_ = true;
   
   title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
@@ -93,7 +93,7 @@ void PedestalsTask::book() {
 			       fedKey(),
 			       sistrip::APV, 
 			       connection().i2cAddr(iapv),
-			       sistrip::extrainfo::commonMode_ ).title();
+			       sistrip::commonMode_ ).title();
     
     cm_[iapv].histo_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
     cm_[iapv].isProfile_ = false;
@@ -108,7 +108,7 @@ void PedestalsTask::book() {
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::fill( const SiStripEventSummary& summary,
-			     const edm::DetSet<SiStripRawDigi>& digis ) {
+			  const edm::DetSet<SiStripRawDigi>& digis ) {
   
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
     edm::LogWarning(mlDqmSource_)

@@ -2,64 +2,60 @@
 #define PhysicsTools_Utilities_Product_h
 #include <boost/static_assert.hpp>
 
-namespace funct {
+namespace function {
   template<typename A, typename B, unsigned int args = A::arguments>
-  struct ProductStruct { 
+  class Product { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = args;
   };
 
   template<typename A, typename B>
-  struct ProductStruct<A, B, 0> { 
+  class Product<A, B, 0> { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 0;
-    ProductStruct(const A & a, const B & b) : _1(a), _2(b) { }
+    Product(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()() const {
-      return _1() * _2();
+      return a_() * b_();
     }
-    operator double() const {
-      return _1() * _2();
-    }
-    A _1; 
-    B _2;
+  private:
+    A a_; 
+    B b_;
   };
 
   template<typename A, typename B>
-  struct ProductStruct<A, B, 1> { 
+  class Product<A, B, 1> { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 1;
-    ProductStruct(const A & a, const B & b) : _1(a), _2(b) { }
+    Product(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x) const {
-      return _1(x) * _2(x);
+      return a_(x) * b_(x);
     }
-    A _1; 
-    B _2;
+  private:
+    A a_; 
+    B b_;
   };
 
   template<typename A, typename B>
-  struct ProductStruct<A, B, 2> { 
+  class Product<A, B, 2> { 
+  public:
     BOOST_STATIC_ASSERT(A::arguments == B::arguments);
     static const unsigned int arguments = 2;
-    ProductStruct(const A & a, const B & b) : _1(a), _2(b) { }
+    Product(const A & a, const B & b) : a_(a), b_(b) { }
     double operator()(double x, double y) const {
-      return _1(x, y) * _2(x, y);
+      return a_(x, y) * b_(x, y);
     }
-    A _1; 
-    B _2;
+  private:
+    A a_; 
+    B b_;
   };
+}
 
-  template<typename A, typename B>
-  struct Product {
-    typedef ProductStruct<A, B> type;
-    static type combine(const A& a, const B& b) { 
-      return type(a, b);
-    }
-  };
-
-  template<typename A, typename B>
-  inline typename Product<A, B>::type operator*(const A& a, const B& b) {
-    return Product<A, B>::combine(a, b);
-  }
+template<typename A, typename B>
+function::Product<A, B> operator*(const A& a, const B& b) {
+  return function::Product<A, B>(a, b);
 }
 
 #endif

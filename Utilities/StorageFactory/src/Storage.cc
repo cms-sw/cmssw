@@ -1,5 +1,4 @@
 #include "Utilities/StorageFactory/interface/Storage.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 
 Storage::Storage (void)
@@ -27,26 +26,6 @@ Storage::read (void *into, IOSize n, IOOffset pos)
   return n;
 }
 
-IOSize
-Storage::readv (IOPosBuffer *into, IOSize n)
-{
-  IOSize total = 0;
-  for (IOSize i = 0; i < n; ++i)
-  {
-    try
-    {
-      total += read(into[i].data(), into[i].size(), into[i].offset());
-    }
-    catch (cms::Exception &)
-    {
-      if (! total)
-	throw;
-      break;
-    }
-  }
-  return total;
-}
-
 //////////////////////////////////////////////////////////////////////
 IOSize
 Storage::write (IOBuffer from, IOOffset pos)
@@ -65,26 +44,6 @@ Storage::write (const void *from, IOSize n, IOOffset pos)
   n = write (from, n);
   position (here);
   return n;
-}
-
-IOSize
-Storage::writev (const IOPosBuffer *from, IOSize n)
-{
-  IOSize total = 0;
-  for (IOSize i = 0; i < n; ++i)
-  {
-    try
-    {
-      total += write(from[i].data(), from[i].size(), from[i].offset());
-    }
-    catch (cms::Exception &)
-    {
-      if (! total)
-	throw;
-      break;
-    }
-  }
-  return total;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -109,12 +68,12 @@ Storage::size (void) const
 
 void
 Storage::rewind (void)
-{ position(0); }
+{ position (0); }
 
 //////////////////////////////////////////////////////////////////////
-bool
-Storage::prefetch (const IOPosBuffer * /* what */, IOSize /* n */)
-{ return false; }
+void
+Storage::preseek (const IOBuffer * /* offsets */, IOSize /* buffers */)
+{}
 
 //////////////////////////////////////////////////////////////////////
 void

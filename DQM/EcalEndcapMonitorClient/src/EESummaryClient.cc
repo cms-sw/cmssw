@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.106 $
+ * $Date: 2008/04/09 05:52:43 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  *
 */
@@ -982,7 +982,7 @@ void EESummaryClient::analyze(void){
 
           if ( eecc ) {
 
-            h2d = eecc->h01_[ism-1];
+            h2d = eecc->h02_[ism-1];
 
             if ( h2d ) {
 
@@ -1227,12 +1227,12 @@ void EESummaryClient::analyze(void){
 
         // turn each dark color to bright green
         // for laser turn also yellow into bright green
-        if(val_in>2) val_in=1;
-        if(val_po>2) val_po=1;
+        if(val_in> 2) val_in=1;
+        if(val_po> 2) val_po=1;
         if(val_ls>=2) val_ls=1;
-        if(val_tm>2)  val_tm=1;
-        if(val_sf>2)  val_sf=1;
-        if(val_ee>2)  val_ee=1;
+        if(val_tm>=2) val_tm=1;
+        if(val_sf> 2) val_sf=1;
+        if(val_ee> 2) val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1242,7 +1242,7 @@ void EESummaryClient::analyze(void){
         if(val_in==-1) xval=-1;
         else if(val_in == 0) xval=0;
         else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
@@ -1431,7 +1431,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   labelGrid2.SetMaximum(+9.01);
 
   string imgNameMapI[2], imgNameMapO[2];
-  string imgNameMapDF[2];
+  string imgNameMapSF[2];
   string imgNameMapPO[2];
   string imgNameMapLL1[2], imgNameMapLL1_PN[2];
   string imgNameMapLD[2], imgNameMapLD_PN[2];
@@ -1603,7 +1603,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   }
 
-  imgNameMapDF[0] = "";
+  imgNameMapSF[0] = "";
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meStatusFlags_[0] );
@@ -1613,8 +1613,8 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     meName = obj2f->GetName();
 
     replace(meName.begin(), meName.end(), ' ', '_');
-    imgNameMapDF[0] = meName + ".png";
-    imgName = htmlDir + imgNameMapDF[0];
+    imgNameMapSF[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapSF[0];
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -1640,7 +1640,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   }
 
-  imgNameMapDF[1] = "";
+  imgNameMapSF[1] = "";
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meStatusFlags_[1] );
@@ -1650,8 +1650,8 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     meName = obj2f->GetName();
 
     replace(meName.begin(), meName.end(), ' ', '_');
-    imgNameMapDF[1] = meName + ".png";
-    imgName = htmlDir + imgNameMapDF[1];
+    imgNameMapSF[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapSF[1];
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -2461,12 +2461,12 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapDF[0].size() != 0 || imgNameMapDF[1].size() != 0 ) {
+  if ( imgNameMapSF[0].size() != 0 || imgNameMapSF[1].size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    if ( imgNameMapDF[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapDF[0] << "\" usemap=\"#StatusFlags_0\" border=0></td>" << endl;
-    if ( imgNameMapDF[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapDF[1] << "\" usemap=\"#StatusFlags_1\" border=0></td>" << endl;
+    if ( imgNameMapSF[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapSF[0] << "\" usemap=\"#StatusFlags_0\" border=0></td>" << endl;
+    if ( imgNameMapSF[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapSF[1] << "\" usemap=\"#StatusFlags_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2577,7 +2577,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   if ( imgNameMapI[0].size() != 0 || imgNameMapI[1].size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO[0].size() != 0 || imgNameMapO[1].size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
-  if ( imgNameMapDF[0].size() != 0 || imgNameMapDF[1].size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
+  if ( imgNameMapSF[0].size() != 0 || imgNameMapSF[1].size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
   if ( imgNameMapPO[0].size() != 0 || imgNameMapPO[1].size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
   if ( imgNameMapLL1[0].size() != 0 || imgNameMapLL1[1].size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
   if ( imgNameMapLD[0].size() != 0 || imgNameMapLD[1].size() != 0 ) this->writeMap( htmlFile, "Led" );

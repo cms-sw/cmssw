@@ -57,6 +57,7 @@ private:
   std::vector<MonitorElement*> h7;
   std::vector<MonitorElement*> h8;
   std::vector<MonitorElement*> h9;
+  std::vector<MonitorElement*> h10;
   std::vector<MonitorElement*> htmp;
   std::vector<MonitorElement*> totalCharge;
 
@@ -107,6 +108,7 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h7(2,static_cast<MonitorElement*>(0)),
   h8(2,static_cast<MonitorElement*>(0)),
   h9(2,static_cast<MonitorElement*>(0)),
+  h10(2,static_cast<MonitorElement*>(0)),
   htmp(2,static_cast<MonitorElement*>(0)),
   totalCharge(2,static_cast<MonitorElement*>(0)),
   tmpRadius(2,static_cast<double>(0.)),
@@ -190,6 +192,8 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p) :
   h8[1] = dbe->book1D("DeltaMFast4", "Fast DetlaE",2000,-10.,40.);
   h9[0] = dbe->book1D("DeltaMFull3", "Full DeltaE 3 daugh",2000,-10.,40.);
   h9[1] = dbe->book1D("DeltaMFast3", "Fast DetlaE 3 daugh",2000,-10.,40.);
+  h10[0] = dbe->book1D("EafterFull", "E(after)/E(before) full",200,0.,4.);
+  h10[1] = dbe->book1D("EafterFast", "E(after)/E(before) fast",200,0.,4.);
   /*
   h6[0] = dbe->book2D("radioFullRem1", "Full Tracker radiography", 1000, 0.,320.,1000,0., 150. );
   h6[1] = dbe->book2D("radioFastRem1", "Fast Tracker radiography", 1000, 0.,320.,1000,0., 150. );
@@ -680,7 +684,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   /* */
   
   //mySimEvent[0]->print();
-  XYZTLorentzVector theProtonMomentum(0.,0.,0.,0.986);
+  XYZTLorentzVector theProtonMomentum(0.,0.,0.,0.939);
 
   // Save the object number count for a new NUevent
   if ( saveNU ) { 
@@ -806,8 +810,6 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       XYZTLorentzVector theBoost = thePion.momentum()+theProtonMomentum;
       double ecm = theBoost.mag();
       theBoost /=  theBoost.e();
-      RawParticle theTotal(XYZTLorentzVector(0.,0.,0.,0.));
-
       if ( ievt == 0 && saveNU && totalNEvt < maxNU) {
 	NUEvent::NUInteraction interaction;
 	interaction.first = nuEvent->nParticles();
@@ -816,17 +818,34 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	++totalNU;
       }
 
+      // A few checks
       double qTot = 0.;
+      double eBefore = thePion.momentum().E();
+      double eAfter = 0.;
+      XYZTLorentzVector theTotal(0.,0.,0.,0.);
+
+      // Rotation to bring the collision axis around z
+      XYZVector zAxis(0.,0.,1.);
+      XYZVector rotationAxis = (theBoost.Vect().Cross(zAxis)).Unit();
+      double rotationAngle = std::acos(theBoost.Vect().Unit().Z());
+      RawParticle::Rotation rotation(rotationAxis,rotationAngle);
+
       for(int idaugh=firstDaughter;idaugh<=lastDaughter;++idaugh) {
 
-	// Boost the tracks
+	// The track
 	const FSimTrack& myDaugh = mySimEvent[ievt]->track(idaugh);
 	qTot += myDaugh.charge();
 	//	std::cout << "Daughter " << idaugh << " " << myDaugh << std::endl;
         RawParticle theMom(myDaugh.momentum());
-	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
-	theTotal += theMom;
+	eAfter += theMom.E();
 
+	// Boost the track
+	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
+	theTotal = theTotal + theMom.momentum();
+
+	// Rotate ->  along the Z axis
+	theMom.rotate(rotation);
+	
  	// Save the fully simulated tracks
 	if ( ievt == 0 && saveNU && totalNEvt <= maxNU) { 
 	  NUEvent::NUParticle particle;
@@ -841,11 +860,11 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       }
 
-
       // Save some histograms
       h3[ievt]->Fill(ecm);
       h4[ievt]->Fill(theTotal.mag()/ecm);
       h5[ievt]->Fill(sqrt(theTotal.Vect().mag2()));
+      h10[ievt]->Fill(eAfter/eBefore);
 
       // Total charge of daughters
       totalCharge[ievt]->Fill(qTot);

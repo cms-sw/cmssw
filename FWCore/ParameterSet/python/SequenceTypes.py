@@ -180,7 +180,7 @@ class _SequenceNegation(_Sequenceable):
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
     def fillNamesList(self, l, processDict):
-        l.append(self.__str__())
+        self.__operand.fillNamesList(l, processDict)
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
     def resolve(self, processDict):

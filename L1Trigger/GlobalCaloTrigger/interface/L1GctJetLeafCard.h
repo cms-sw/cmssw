@@ -60,19 +60,13 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
 
   /// clear internal buffers
-  void reset();
+  virtual void reset();
 
   /// set the input buffers
   virtual void fetchInput();
  
   /// process the data and set outputs
   virtual void process();
-
-  /// define the bunch crossing range to process
-  void setBxRange(const int firstBx, const int numberOfBx);
-
-  /// partially clear buffers
-  void setNextBx(const int bx);
 
   /// get pointers to associated jetfinders
   L1GctJetFinderBase* getJetFinderA() const { return m_jetFinderA; }
@@ -96,29 +90,7 @@ public:
 
   hfTowerSumsType getOutputHfSums() const { return m_hfSums; }
    
-  /// Bunch crossing history acces methods
-  /// get the Ex output history
-  std::vector< etComponentType > getAllOutputEx() const { return m_exSumPipe.contents; }
-   
-  /// get the Ey output history
-  std::vector< etComponentType > getAllOutputEy() const { return m_eySumPipe.contents; }
-    
-  /// get the Et output history
-  std::vector< etTotalType > getAllOutputEt() const { return m_etSumPipe.contents; }
-  std::vector< etHadType >   getAllOutputHt() const { return m_htSumPipe.contents; }
-
-  std::vector< hfTowerSumsType > getAllOutputHfSums() const { return m_hfSumsPipe.contents; }
-   
- protected:
-
-  /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
-
-  /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
-
- private:
+private:
 
   // Leaf card ID
   int m_id;
@@ -141,13 +113,6 @@ public:
   etHadType   m_htSum;
 
   hfTowerSumsType m_hfSums;
-
-  // stored copies of output data
-  Pipeline<etComponentType> m_exSumPipe;
-  Pipeline<etComponentType> m_eySumPipe;
-  Pipeline<etTotalType>     m_etSumPipe;
-  Pipeline<etHadType>       m_htSumPipe;
-  Pipeline<hfTowerSumsType> m_hfSumsPipe;
 
   // PRIVATE MEMBER FUNCTIONS
   // Given a strip Et sum, perform rotations by sine and cosine

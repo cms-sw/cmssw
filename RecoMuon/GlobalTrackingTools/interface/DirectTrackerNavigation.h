@@ -1,50 +1,41 @@
-#ifndef RecoMuon_GlobalTrackingTools_DirectTrackerNavigation_H
-#define RecoMuon_GlobalTrackingTools_DirectTrackerNavigation_H
+#ifndef RecoMuon_DirectTrackerNavigation_H
+#define RecoMuon_DirectTrackerNavigation_H
 
 /** \file DirectTrackerNavigation
  *
- *  Find all DetLayers compatible with a given 
- *  Free Trajectory State by checking the eta range
+ *  find out compatible DetLayers with a given FTS 
+ *  by checking eta region
  *
- *
- *  $Date: 2007/08/20 20:53:17 $
- *  $Revision: 1.1 $
- *
+ *  $Date: 2007/08/16 15:20:57 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
-class DetLayer;
-class BarrelDetLayer;
-class ForwardDetLayer;
-class FreeTrajectoryState;
-
-//              ---------------------
-//              -- Class Interface --
-//              ---------------------
 
 class DirectTrackerNavigation {
 
   public:
 
-    /// constructor
-    DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>&, 
-                            bool outOnly = true);
+    /* Constructor */ 
+    DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>&, bool outOnly = true);
 
-    /// destructor 
-    virtual ~DirectTrackerNavigation() {}
-
-    /// clone
     DirectTrackerNavigation* clone() const {
       return new DirectTrackerNavigation(*this);
     }
 
-    /// find compatible layers for a given trajectory state
+    /* Destructor */ 
+    ~DirectTrackerNavigation() {}
+
     std::vector<const DetLayer*> 
-      compatibleLayers(const FreeTrajectoryState& fts, 
-                       PropagationDirection timeDirection) const;
+      compatibleLayers( const FreeTrajectoryState& fts, 
+                        PropagationDirection timeDirection) const;
 
   private:
 
@@ -66,21 +57,19 @@ class DirectTrackerNavigation {
 
     void inOutBPx(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    bool checkCompatible(const FreeTrajectoryState&, const BarrelDetLayer*) const;
+    bool checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer*) const;
 
-    bool checkCompatible(const FreeTrajectoryState&, const ForwardDetLayer*) const;
+    bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;
 
-    bool outward(const FreeTrajectoryState&) const;
+    bool outward(const FreeTrajectoryState& fts) const;
 
     float calculateEta(float r, float z) const;
 
-  private:
+    float epsilon_;
 
     edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
 
     bool theOutLayerOnlyFlag;
-
-    float theEpsilon;
 
 };
 #endif

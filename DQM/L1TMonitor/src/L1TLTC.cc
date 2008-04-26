@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.8 $
+ * $Date: 2007/12/21 17:41:21 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -21,6 +21,7 @@ L1TLTC::L1TLTC(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TLTC: constructor...." << endl;
 
+  logFile_.open("L1TLTC.log");
 
   dbe = NULL;
   if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
@@ -32,6 +33,9 @@ L1TLTC::L1TLTC(const ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
   }
 
   bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
@@ -87,7 +91,7 @@ void L1TLTC::beginJob(const EventSetup& c)
 void L1TLTC::endJob(void)
 {
   if(verbose_) cout << "L1TLTC: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
+  LogInfo("L1TLTC") << "analyzed " << nev_ << " events"; 
 
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
@@ -102,7 +106,7 @@ void L1TLTC::analyze(const Event& e, const EventSetup& c)
   e.getByType(digis);
   
   if (!digis.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find LTCDigiCollection ";
+    edm::LogInfo("L1TLTC") << "can't find LTCDigiCollection ";
     return;
   }
 

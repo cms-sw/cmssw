@@ -55,7 +55,6 @@ public:
   typedef std::vector<L1GctRegion>  RegionsVector;
   typedef std::vector<L1GctJet>     RawJetVector;
   typedef std::vector<L1GctJetCand> JetVector;
-  typedef Pipeline<L1GctJet>        RawJetPipeline;
   typedef L1GctUnsignedInt<L1GctEtTotal::kEtTotalNBits> etTotalType;
   typedef L1GctUnsignedInt<  L1GctEtHad::kEtHadNBits  > etHadType;
 
@@ -116,6 +115,9 @@ public:
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
 
+  /// clear internal buffers
+  virtual void reset();
+
   /// get input data from sources; to be filled in by derived jetFinders
   virtual void fetchInput() = 0;
 
@@ -138,7 +140,7 @@ public:
   RegionsVector getKeptProtoJets() const { return m_keptProtoJets; }
 
   /// get output jets in raw format
-  RawJetVector getRawJets() const { return m_outputJetsPipe.contents; } 
+  RawJetVector getRawJets() const { return m_outputJets; } 
 
   /// Return pointer to calibration LUT
   const L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
@@ -158,15 +160,6 @@ public:
       return ( x.rank() > y.rank() ) ;
     }
   };
-
- protected:
-
-  /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
-
-  /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects();
 
  protected:
 
@@ -249,9 +242,6 @@ public:
   static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
-
-  /// Output jets "pipeline memory" for checking
-  RawJetPipeline m_outputJetsPipe;
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);

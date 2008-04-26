@@ -109,7 +109,7 @@ private:
 	bool checkCrcCFEB;
 	unsigned long CFEB_CRC;
 
-	bool  modeDDUonly;
+        bool  modeDDUonly;
 	short sourceID;
 
 	//int headerDAV_Active; // Obsolete since 16.09.05
@@ -117,11 +117,6 @@ private:
 	// data blocks:
 	std::map<short,const unsigned short*>                  dduBuffers; // < DDUsourceID, pointer >
 	std::map<short,std::map<short,const unsigned short*> > dmbBuffers; // < DDUsourceID, < DMBid, pointer > >
-	std::map<short,unsigned long>                  dduOffsets; // < DDUsourceID, pointer_offset >
-	std::map<short,std::map<short,unsigned long> > dmbOffsets; // < DDUsourceID, < DMBid, pointer_offset > >
-	std::map<short,unsigned long>                  dduSize; // < DDUsourceID, block_size >
-	std::map<short,std::map<short,unsigned long> > dmbSize; // < DDUsourceID, < DMBid, block_size > >
-	const unsigned short *buffer_start;
 
 public:
 	OStream& output1(void){ return cout; }
@@ -182,12 +177,6 @@ public:
 
 	std::map<short,const unsigned short*>                  DDU_block(void) const { return dduBuffers; }
 	std::map<short,std::map<short,const unsigned short*> > DMB_block(void) const { return dmbBuffers; }
-
-	std::map<short,unsigned long>                  DDU_ptrOffsets(void) const { return dduOffsets; }
-	std::map<short,std::map<short,unsigned long> > DMB_ptrOffsets(void) const { return dmbOffsets; }
-
-	std::map<short,unsigned long>                  DDU_size(void) const { return dduSize; }
-	std::map<short,std::map<short,unsigned long> > DMB_size(void) const { return dmbSize; }
 
 	CSCDCCExaminer(void);
 	~CSCDCCExaminer(void){}

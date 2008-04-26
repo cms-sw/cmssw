@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/28 15:21:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/02 12:19:33 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -71,28 +71,30 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
 void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   LogTrace(metname)<<"[MuonAnalyzer] Analysis of event # ";
-
+  
   theService->update(iSetup);
 
    // Take the STA muon container
    edm::Handle<reco::MuonCollection> muons;
    iEvent.getByLabel(theSTACollectionLabel,muons);
 
-   for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
-     LogTrace(metname)<<"[MuonAnalyzer] Call to the muon energy analyzer";
-     theMuEnergyAnalyzer->analyze(iEvent, iSetup, *recoMu);
-     LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco analyzer";
-     theMuonRecoAnalyzer->analyze(iEvent, iSetup, *recoMu);
+   if(muons.isValid()){
+     for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu!=muons->end(); ++recoMu){
+       LogTrace(metname)<<"[MuonAnalyzer] Call to the muon energy analyzer";
+       theMuEnergyAnalyzer->analyze(iEvent, iSetup, *recoMu);
+       LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco analyzer";
+       theMuonRecoAnalyzer->analyze(iEvent, iSetup, *recoMu);
+     }
    }
-
 
    // Take the seeds container
    edm::Handle<TrajectorySeedCollection> seeds;
    iEvent.getByLabel(theSeedsCollectionLabel, seeds);
-
-   for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed){
-     LogTrace(metname)<<"[MuonAnalyzer] Call to the seeds analyzer";
-     theSeedsAnalyzer->analyze(iEvent, iSetup, *seed);
+   if(seeds.isValid()){
+     for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed){
+       LogTrace(metname)<<"[MuonAnalyzer] Call to the seeds analyzer";
+       theSeedsAnalyzer->analyze(iEvent, iSetup, *seed);
+     }
    }
 
 }

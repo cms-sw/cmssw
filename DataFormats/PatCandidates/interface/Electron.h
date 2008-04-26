@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
+// $Id: Electron.h,v 1.6 2008/02/11 15:20:48 llista Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
+  \version  $Id: Electron.h,v 1.6 2008/02/11 15:20:48 llista Exp $
 */
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -37,17 +37,34 @@ namespace pat {
       Electron(const edm::RefToBase<ElectronType> & anElectronRef);
       virtual ~Electron();
 
-      virtual Electron * clone() const { return new Electron(*this); }
+      float trackIso() const;
+      float caloIso() const;
       float leptonID() const;
       float electronIDRobust() const;
+      float egammaTkIso() const;
+      int   egammaTkNumIso() const;
+      float egammaEcalIso() const;
+      float egammaHcalIso() const;
 
+      void setTrackIso(float trackIso);
+      void setCaloIso(float caloIso);
       void setLeptonID(float id);
       void setElectronIDRobust(float id);
+      void setEgammaTkIso(float tkIso);
+      void setEgammaTkNumIso(int tkNumIso);
+      void setEgammaEcalIso(float ecalIso);
+      void setEgammaHcalIso(float hcalIso);
 
     protected:
 
+      float trackIso_;
+      float caloIso_;
       float leptonID_;
       float electronIDRobust_;
+      float egammaTkIso_;
+      int   egammaTkNumIso_;
+      float egammaEcalIso_;
+      float egammaHcalIso_;
 
   };
 
