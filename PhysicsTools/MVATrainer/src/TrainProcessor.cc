@@ -1,3 +1,4 @@
+#include <limits>
 #include <string>
 
 #include <TH1.h>
@@ -49,8 +50,8 @@ void TrainProcessor::doTrainBegin()
 				(const char*)var->getSource()->getName()
 				+ std::string("_")
 				+ (const char*)var->getName();
+
 			SigBkg pair;
-			pair.sameBinning = !monitoring;
 			pair.entries[0] = pair.entries[1] = 0;
 			pair.histo[0] = monModule->book<TH1F>(name + "_bkg",
 				(name + "_bkg").c_str(),
@@ -58,6 +59,19 @@ void TrainProcessor::doTrainBegin()
 			pair.histo[1] = monModule->book<TH1F>(name + "_sig",
 				(name + "_sig").c_str(),
 				(name + " signal").c_str(), nBins, 0, 0);
+			pair.underflow[0] = pair.underflow[1] = 0.0;
+			pair.overflow[0] = pair.overflow[1] = 0.0;
+
+			if (monitoring) {
+				pair.sameBinning = false;
+				pair.min = -std::numeric_limits<double>::infinity();
+				pair.max = +std::numeric_limits<double>::infinity();
+			} else {
+				pair.sameBinning = true;
+				pair.min = -99999.0;
+				pair.max = +99999.0;
+			}
+
 			monHistos.push_back(pair);
 		}
 	}
@@ -77,8 +91,17 @@ void TrainProcessor::doTrainData(const std::vector<double> *values,
 			for(std::vector<double>::const_iterator value =
 				vals.begin(); value != vals.end(); ++value) {
 
-				iter->histo[target]->Fill(*value, weight);
 				iter->entries[target]++;
+
+				if (*value <= iter->min) {
+					iter->underflow[target] += weight;
+					continue;
+				} else if (*value >= iter->max) {
+					iter->overflow[target] += weight;
+					continue;
+				}
+
+				iter->histo[target]->Fill(*value, weight);
 
 				if (iter->sameBinning)
 					iter->histo[!target]->Fill(*value, 0);
@@ -100,9 +123,15 @@ void TrainProcessor::doTrainEnd()
 		for(std::vector<SigBkg>::const_iterator iter =
 			monHistos.begin(); iter != monHistos.end(); ++iter) {
 
-			if (iter->sameBinning) {
-				iter->histo[0]->SetEntries(iter->entries[0]);
-				iter->histo[1]->SetEntries(iter->entries[1]);
+			for(unsigned int i = 0; i < 2; i++) {
+				Int_t oBin = iter->histo[i]->GetNbinsX() + 1;
+				iter->histo[i]->SetBinContent(0,
+					iter->histo[i]->GetBinContent(0) +
+					iter->underflow[i]);
+				iter->histo[i]->SetBinContent(oBin,
+					iter->histo[i]->GetBinContent(oBin) +
+					iter->overflow[i]);
+				iter->histo[i]->SetEntries(iter->entries[i]);
 			}
 		}
 

@@ -82,7 +82,11 @@ class TrainProcessor : public Source,
     private:
 	struct SigBkg {
 		bool		sameBinning;
+		double		min;
+		double		max;
 		unsigned long	entries[2];
+		double		underflow[2];
+		double		overflow[2];
 		TH1F		*histo[2];
 	};
 		
