@@ -2,6 +2,21 @@
 
 import sys
 import os
+import optparse
+
+usage=\
+"""%prog <job_type> [options].
+<job type>: RELVAL, MinBias, JetETXX, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST, TrackerHaloMuon, TrackerCosBON, TrackerCosBOFF, TrackerLaser, HaloMuon  '
+"""
+
+parser = optparse.OptionParser(usage)
+
+parser.add_option("--globaltag",
+                   help="Name of global conditions to use",
+                   default="STARTUP_V2",
+                   dest="gt")
+
+(options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
 
 alcaDict2={'MinBias':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
@@ -35,18 +50,17 @@ alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+Ec
            }
 
 typeOfEv=''
-if ( len(sys.argv)>1):
-    typeOfEv=sys.argv[1]
+if ( len(args)>0):
+    typeOfEv=args[0]
 if not ( typeOfEv in alcaDict3 ):
-    print 'Usage; cmsDriver_step2_3.py <job type>'
-    print '  <job type>: RELVAL, MinBias, JetETXX, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST, TrackerHaloMuon, TrackerCosBON, TrackerCosBOFF, TrackerLaser, HaloMuon  '
+    print usage
     sys.exit()
 
 alca2=alcaDict2[typeOfEv]
 alca3=alcaDict3[typeOfEv]
 
 baseCommand='cmsDriver.py'
-conditions='FrontierConditions_GlobalTag,STARTUP_V2::All'
+conditions='FrontierConditions_GlobalTag,'+options.gt+'::All'
 eventcontent='RECOSIM'
 steps2='RAW2DIGI,RECO,POSTRECO'
 if ( not (alca2=='')):
@@ -55,8 +69,8 @@ if ( not (alca2=='')):
 steps3='ALCA:'+alca3
 
 extracom=''
-if ( len(sys.argv)>2):
-    for i in sys.argv[2:]:
+if ( len(args)>1):
+    for i in args[1:]:
         extracom=extracom+' '+i
 
 command2=baseCommand+' step2_'+typeOfEv+' -s ' + steps2 + ' -n 1000 --filein file:raw.root --eventcontent ' + eventcontent + ' --conditions '+conditions+extracom+' --dump_cfg'
