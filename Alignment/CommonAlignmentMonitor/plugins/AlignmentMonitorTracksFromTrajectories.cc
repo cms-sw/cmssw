@@ -95,7 +95,7 @@ class AlignmentMonitorTracksFromTrajectories: public AlignmentMonitorBase {
 // }
 
 AlignmentMonitorTracksFromTrajectories::AlignmentMonitorTracksFromTrajectories(const edm::ParameterSet& cfg)
-   : AlignmentMonitorBase(cfg)
+   : AlignmentMonitorBase(cfg, "AlignmentMonitorTracksFromTrajectories")
    , m_vertexConstraint(cfg.getParameter<bool>("vertexConstraint"))
 {
    if (m_vertexConstraint) {

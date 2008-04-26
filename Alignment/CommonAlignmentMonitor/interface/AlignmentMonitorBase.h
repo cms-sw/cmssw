@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.5 2008/04/26 01:45:38 pivarski Exp $
+// $Id: AlignmentMonitorBase.h,v 1.6 2008/04/26 03:09:31 pivarski Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ class AlignmentMonitorBase {
       typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
 
       /// Constructor
-      AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name = "INVALID");
+      AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name);
       
       /// Destructor
       virtual ~AlignmentMonitorBase() {}

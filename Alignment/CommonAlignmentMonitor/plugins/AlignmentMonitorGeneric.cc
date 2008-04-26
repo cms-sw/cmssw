@@ -8,7 +8,7 @@
 #include <TString.h>
 
 AlignmentMonitorGeneric::AlignmentMonitorGeneric(const edm::ParameterSet& cfg):
-  AlignmentMonitorBase(cfg)
+  AlignmentMonitorBase(cfg, "AlignmentMonitorGeneric")
 {
 }
 

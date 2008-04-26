@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.2 2007/12/04 23:29:26 ratnik Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.3 2008/04/26 01:45:39 pivarski Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 
 class AlignmentMonitorTemplate: public AlignmentMonitorBase {
    public:
-      AlignmentMonitorTemplate(const edm::ParameterSet& cfg): AlignmentMonitorBase(cfg) { };
+      AlignmentMonitorTemplate(const edm::ParameterSet& cfg): AlignmentMonitorBase(cfg, "AlignmentMonitorTemplate") { };
       ~AlignmentMonitorTemplate() {};
 
       void book();

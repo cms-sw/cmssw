@@ -83,7 +83,7 @@ class AlignmentMonitorMuonPositions: public AlignmentMonitorBase {
 // }
 
 AlignmentMonitorMuonPositions::AlignmentMonitorMuonPositions(const edm::ParameterSet& cfg)
-   : AlignmentMonitorBase(cfg)
+   : AlignmentMonitorBase(cfg, "AlignmentMonitorMuonPositions")
 {
 }
 

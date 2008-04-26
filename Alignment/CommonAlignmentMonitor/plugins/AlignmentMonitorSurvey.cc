@@ -5,7 +5,7 @@
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorSurvey.h"
 
 AlignmentMonitorSurvey::AlignmentMonitorSurvey(const edm::ParameterSet& cfg)
-  :AlignmentMonitorBase(cfg)
+  :AlignmentMonitorBase(cfg, "AlignmentMonitorSurvey")
 {
   static AlignableObjectId dummy;
 
