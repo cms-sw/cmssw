@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.5 2008/04/25 15:40:05 loizides Exp $
+# $Id: injectIntoDB.pl,v 1.6 2008/04/25 16:44:13 loizides Exp $
 
 use strict;
 use DBI;
@@ -38,16 +38,26 @@ sub inject($)
         "'$filename','$pathname','$hostname','$dataset','$producer','$stream','$status'," .
         "'$type',$safety,$nevents,$filesize,$checksum)";
 
-    if (defined $dbh) { 
-        my $rows = $dbh->do($SQL) or 
-            die $dbh->errstr;
-        return $rows-1;
+    if (!defined $dbh) { 
+        print "$SQL\n";
+        return 0;
     }
 
-    print "$SQL\n";
-    return 0;
+    my $rows = $dbh->do($SQL) or 
+        die $dbh->errstr;
+
+    if ($rows==1) {
+        my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
+        if (!defined $notscript) {
+            notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
+        }
+        my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber --LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum > /dev/null 2>&1";
+        system($TIERZERO);
+    }
+    return $rows-1;
 }
 
+# main starts here
 if (!defined $ARGV[0]) {
     die "Syntax: ./injectIntoDB.pl infile outfile";
 }
