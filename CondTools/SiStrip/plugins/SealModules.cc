@@ -3,6 +3,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();
+#include "CondTools/SiStrip/plugins/SiStripThresholdBuilder.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdBuilder);
+
+#include "CondTools/SiStrip/plugins/SiStripThresholdReader.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripThresholdReader);
+
 
 #include "CondTools/SiStrip/plugins/SiStripPedestalsBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripPedestalsBuilder);
