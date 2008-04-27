@@ -106,11 +106,15 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
 
-    std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
-    recHitsEB_map->insert(map_entry);
-
     double energy = itb->energy();
-    if (energy > clusSeedThr_) seeds.push_back(*itb);
+
+    if (energy > seleXtalMinEnergy_)
+      {
+	std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
+	recHitsEB_map->insert(map_entry);
+
+	if (energy > clusSeedThr_) seeds.push_back(*itb);
+      }
   }
 
   //timerName = category + "::readEBRecHitsCollection";
