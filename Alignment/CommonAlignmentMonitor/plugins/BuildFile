@@ -47,3 +47,56 @@
  <use name=RecoMuon/TrackingTools>
  <flags EDM_PLUGIN=1>
 </library>
+
+<library name="AlignmentMonitorAsAnalyzer" file="AlignmentMonitorAsAnalyzer.cc">
+ <use name=FWCore/Framework>
+ <use name=FWCore/PluginManager>
+ <use name=FWCore/ParameterSet>
+ <use name=Alignment/CommonAlignment>
+ <use name=Alignment/CommonAlignmentAlgorithm>
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=Alignment/MuonAlignment>
+ <use name=Alignment/TrackerAlignment>
+ <use name=CondFormats/AlignmentRecord>
+ <use name=CondFormats/Alignment>
+ <use name=DataFormats/TrackReco>
+ <use name=FWCore/Framework>
+ <use name=FWCore/MessageLogger>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/PluginManager>
+ <use name=FWCore/ServiceRegistry>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/CSCGeometryBuilder>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/DTGeometryBuilder>
+ <use name=Geometry/MuonNumbering>
+ <use name=Geometry/Records>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=Geometry/TrackingGeometryAligner>
+ <use name=PhysicsTools/UtilAlgos>
+ <use name=TrackingTools/PatternTools>
+ <use name=root>
+ <flags EDM_PLUGIN=1>
+</library>
+
+<library name="TrackerToMuonPropagator" file="TrackerToMuonPropagator.cc">
+ <use name=FWCore/Framework>
+ <use name=FWCore/PluginManager>
+ <use name=FWCore/ParameterSet>
+ <use name=TrackingTools/PatternTools>
+ <use name=DataFormats/TrackReco>
+ <use name=TrackingTools/GeomPropagators>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/CSCGeometry>
+ <use name=DataFormats/MuonDetId>
+ <use name=TrackingTools/Records>
+ <use name=Geometry/Records>
+ <use name=MagneticField/Engine>
+ <use name=MagneticField/Records>
+ <use name=DataFormats/TrackingRecHit>
+ <use name=RecoMuon/TransientTrackingRecHit>
+ <use name=TrackingTools/TrajectoryState>
+ <use name=Geometry/CommonDetUnit>
+ <flags EDM_PLUGIN=1>
+</library>
