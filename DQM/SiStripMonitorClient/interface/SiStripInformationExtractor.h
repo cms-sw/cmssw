@@ -51,6 +51,8 @@ class SiStripInformationExtractor {
   void readLayoutNames(std::multimap<std::string, std::string>& req_map, xgi::Output * out);
 
   void readQTestSummary(DQMStore* dqm_store, std::string type, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out);
+
+  void readReadOutHistoTree(DQMStore* dqm_store, xgi::Output * out);
   
   void createImages(DQMStore* dqm_store);
   void getIMGCImage(const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
@@ -71,6 +73,8 @@ class SiStripInformationExtractor {
 	      std::string item_name);
   void printSummaryHistoList(DQMStore* dqm_store, std::ostringstream& str_val);
   void printAlarmList(DQMStore * dqm_store, std::ostringstream& str_val);
+  void printReadOutHistoList(DQMStore * dqm_store, std::ostringstream& str_val);
+
   void selectImage(std::string& name, int status);
   void selectImage(std::string& name, std::vector<QReport*> & reports);
   void selectColor(std::string& col, int status);

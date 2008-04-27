@@ -118,7 +118,10 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Content-type","application/xhtml+xml");
     *out << html_out.str();
   }
-    
+  else if (requestID == "ReadoutHistoList") {
+    theActionFlag = NoAction;
+    infoExtractor_->readReadOutHistoTree(dqmStore_, out);
+  }     
   performAction();
 }
 //

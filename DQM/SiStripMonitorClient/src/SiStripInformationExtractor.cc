@@ -774,3 +774,61 @@ void SiStripInformationExtractor::setPlainHeader(xgi::Output * out) {
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
 
 }
+//
+// read the Structure And ReadoutHistogram List
+//
+void SiStripInformationExtractor::readReadOutHistoTree(DQMStore* dqm_store, xgi::Output * out) {
+  ostringstream sumtree;
+  string dname = "SiStrip/ReadoutView";
+  if (dqm_store->dirExists(dname)) {    
+    dqm_store->cd(dname);
+    sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    printReadOutHistoList(dqm_store,sumtree);
+    sumtree <<"</ul>" << endl;   
+  } else {
+    sumtree << " Desired Directory :  " << endl;
+    sumtree <<       dname              << endl;
+    sumtree <<  " does not exist !!!! " << endl;
+  }
+  cout << sumtree.str() << endl;
+  setPlainHeader(out);
+  *out << sumtree.str();
+   dqm_store->cd();
+}
+//
+// --  Fill Summary Histo List
+// 
+void SiStripInformationExtractor::printReadOutHistoList(DQMStore * dqm_store, ostringstream& str_val){
+  static string indent_str = "";
+
+  string currDir = dqm_store->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  str_val << "<li><a href=\"#\" id=\"" 
+          << currDir << "\">" << dname << "</a>" << endl;
+  vector<MonitorElement *> meVec = dqm_store->getContents(currDir);
+  vector<string> subDirVec = dqm_store->getSubdirs();
+  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
+    str_val << "</li> "<< endl;    
+    return;
+  }
+  str_val << "<ul>" << endl;      
+  for (vector<MonitorElement *>::const_iterator it = meVec.begin();
+         it != meVec.end(); it++) {
+    MonitorElement* me = (*it);
+    if (!me) continue;
+    string name = (*it)->getName();
+      str_val << "<li class=\"dhtmlgoodies_sheet.gif\">"
+              << " <a href=\"javascript:RequestHistos.DrawSingleHisto('"
+              << currDir 
+              << "')\">" << name 
+              << "</a></li>" << endl;
+  }
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    dqm_store->cd(*ic);
+    printReadOutHistoList(dqm_store, str_val);
+    dqm_store->goUp();
+  }
+  str_val << "</ul> "<< endl;  
+  str_val << "</li> "<< endl;  
+}

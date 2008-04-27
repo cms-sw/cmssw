@@ -438,3 +438,38 @@ RequestHistos.FillTextStatus = function(transport)
 //      alert ("Error detail: " + err.message); 
     }
 }
+//
+// -- Request Readout Tree
+//
+RequestHistos.RequestReadoutHistoList = function()
+{
+  var queryString;
+  var url      = WebLib.getApplicationURLWithLID();
+  queryString  = "RequestID=ReadoutHistoList";
+  url         += queryString; 
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillReadOutHistoList
+ 			       });
+  CommonActions.ShowProgress("visible", "Readout Histogram Tree");
+}
+//
+// -- Fill the summary tree in the list area
+//
+RequestHistos.FillReadOutHistoList = function(transport) 
+{
+    CommonActions.ShowProgress("hidden");
+    try {
+      var text = transport.responseText;
+      var obj  = $('readout_list');
+      if (obj != null) {
+        obj.innerHTML = text;
+        initTree();
+      }       
+    }
+    catch (err) {
+    // alert ("[RequestHistos.FillReadOutHistoList] Error detail: " + err.message); 
+    }
+}
