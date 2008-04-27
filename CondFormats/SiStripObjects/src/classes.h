@@ -2,6 +2,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
@@ -33,15 +34,18 @@ namespace {
   std::vector<int>::const_iterator tmp13a;
   std::vector<uint32_t>::const_iterator tmp16;
   std::vector<uint32_t>::iterator tmp17;
-
   std::vector< SiStripBadStrip::DetRegistry >::iterator tmp14;
   std::vector< SiStripBadStrip::DetRegistry >::const_iterator tmp15;
 
   std::vector<float>::iterator tmp18;
   std::vector<float>::const_iterator tmp19;
-
   std::vector< SiStripPerformanceSummary::DetSummary >::iterator tmp20;
   std::vector< SiStripPerformanceSummary::DetSummary >::const_iterator tmp21;
+
+  std::vector<char>::iterator tmp22;
+  std::vector<char>::const_iterator tmp23;
+  std::vector< SiStripThreshold::DetRegistry >::iterator tmp24;
+  std::vector< SiStripThreshold::DetRegistry >::const_iterator tmp25;
 
 }  
   

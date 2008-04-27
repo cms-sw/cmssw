@@ -14,6 +14,10 @@
   <class name="SiStripNoises::DetRegistry"/>
   <class name="std::vector<SiStripNoises::DetRegistry>"/>
 
+  <class name="SiStripThreshold" class_version="0"/>
+  <class name="SiStripThreshold::DetRegistry"/>
+  <class name="std::vector<SiStripThreshold::DetRegistry>"/>
+
   <class name="SiStripApvGain" class_version="0"/>
 
   <class name="SiStripLorentzAngle" class_version="0"/>
