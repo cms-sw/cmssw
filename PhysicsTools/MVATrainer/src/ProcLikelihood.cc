@@ -289,7 +289,10 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 		                                     iter->signal.range);
 		double factor = std::accumulate(iter->signal.distr.begin(),
 			                        iter->signal.distr.end(), 0.0);
-		factor = 1.0 / factor;
+		if (factor < 1e-20)
+			factor = 1.0;
+		else
+			factor = 1.0 / factor;
 		std::vector<double> values(iter->signal.distr.size() + 2);
 		std::transform(iter->signal.distr.begin(),
 		               iter->signal.distr.end(),
@@ -304,7 +307,10 @@ Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 			                        iter->background.range.max);
 		factor = std::accumulate(iter->background.distr.begin(),
 		                         iter->background.distr.end(), 0.0);
-		factor = 1.0 / factor;
+		if (factor < 1e-20)
+			factor = 1.0;
+		else
+			factor = 1.0 / factor;
 		std::transform(iter->background.distr.begin(),
 		               iter->background.distr.end(),
 		               values.begin() + 1,
