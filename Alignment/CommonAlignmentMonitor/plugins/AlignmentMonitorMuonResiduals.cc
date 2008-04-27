@@ -46,6 +46,8 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
       std::map<int, double> m_y1;
       std::map<int, double> m_y2;
 
+      TH1F *m_sumnx, *m_sumx1, *m_sumx2, *m_sumny, *m_sumy1, *m_sumy2, *m_xsummary, *m_ysummary;
+
       TH1F *m_xresid, *m_xresid_mb, *m_xresid_me,
 	 *m_xresid_mb1, *m_xresid_mb2, *m_xresid_mb3, *m_xresid_mb4,
 	 *m_xresid_minus2, *m_xresid_minus1, *m_xresid_zero, *m_xresid_plus1, *m_xresid_plus2,
@@ -169,6 +171,15 @@ void AlignmentMonitorMuonResiduals::book() {
       m_y2[id] = 0;
    }
 
+   m_sumnx = book1D("/iterN/", "nx", "sum of x hit weights (1/mm^{2})", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_sumx1 = book1D("/iterN/", "x1", "weighted sum of x residuals (1/mm)", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_sumx2 = book1D("/iterN/", "x2", "weighted sum of x residuals-squared (unitless)", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_sumny = book1D("/iterN/", "ny", "sum of y hit weights (1/mm^{2})", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_sumy1 = book1D("/iterN/", "y1", "weighted sum of y residuals (1/mm)", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_sumy2 = book1D("/iterN/", "y2", "weighted sum of y residuals-squared (unitless)", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_xsummary = book1D("/iterN/", "xsummary", "summary of x means and errors (mm vertical axis)", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_ysummary = book1D("/iterN/", "ysummary", "summary of y means and errors (mm vertical axis)", chambers.size(), 0.5, chambers.size() + 0.5);
+
    m_xresid = book1D("/iterN/", "xresid", "x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mb = book1D("/iterN/mb/", "xresid_mb", "barrel x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_me = book1D("/iterN/me/", "xresid_me", "endcap x residual (mm)", xresid_bins, xresid_low, xresid_high);
@@ -206,79 +217,79 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xresid_me32 = book1D("/iterN/me32/", "xresid_me32", "ME3/2 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_me41 = book1D("/iterN/me41/", "xresid_me41", "ME4/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
 
-   m_xmean = book1D("/iterN/", "xmean", "mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mb = book1D("/iterN/mb/", "xmean_mb", "barrel mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me = book1D("/iterN/me/", "xmean_me", "endcap mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mb1 = book1D("/iterN/mb1/", "xmean_mb1", "MB station 1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mb2 = book1D("/iterN/mb2/", "xmean_mb2", "MB station 2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mb3 = book1D("/iterN/mb3/", "xmean_mb3", "MB station 3 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mb4 = book1D("/iterN/mb4/", "xmean_mb4", "MB station 4 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_minus2 = book1D("/iterN/minus2/", "xmean_minus2", "MB wheel -2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_minus1 = book1D("/iterN/minus1/", "xmean_minus1", "MB wheel -1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_zero = book1D("/iterN/zero/", "xmean_zero", "MB wheel 0 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_plus1 = book1D("/iterN/plus1/", "xmean_plus1", "MB wheel +1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_plus2 = book1D("/iterN/plus2/", "xmean_plus2", "MB wheel +2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep11 = book1D("/iterN/mep11/", "xmean_mep11", "ME+1/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep12 = book1D("/iterN/mep12/", "xmean_mep12", "ME+1/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep13 = book1D("/iterN/mep13/", "xmean_mep13", "ME+1/3 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep21 = book1D("/iterN/mep21/", "xmean_mep21", "ME+2/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep22 = book1D("/iterN/mep22/", "xmean_mep22", "ME+2/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep31 = book1D("/iterN/mep31/", "xmean_mep31", "ME+3/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep32 = book1D("/iterN/mep32/", "xmean_mep32", "ME+3/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mep41 = book1D("/iterN/mep41/", "xmean_mep41", "ME+4/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem11 = book1D("/iterN/mem11/", "xmean_mem11", "ME-1/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem12 = book1D("/iterN/mem12/", "xmean_mem12", "ME-1/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem13 = book1D("/iterN/mem13/", "xmean_mem13", "ME-1/3 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem21 = book1D("/iterN/mem21/", "xmean_mem21", "ME-2/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem22 = book1D("/iterN/mem22/", "xmean_mem22", "ME-2/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem31 = book1D("/iterN/mem31/", "xmean_mem31", "ME-3/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem32 = book1D("/iterN/mem32/", "xmean_mem32", "ME-3/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_mem41 = book1D("/iterN/mem41/", "xmean_mem41", "ME-4/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me11 = book1D("/iterN/me11/", "xmean_me11", "ME1/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me12 = book1D("/iterN/me12/", "xmean_me12", "ME1/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me13 = book1D("/iterN/me13/", "xmean_me13", "ME1/3 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me21 = book1D("/iterN/me21/", "xmean_me21", "ME2/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me22 = book1D("/iterN/me22/", "xmean_me22", "ME2/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me31 = book1D("/iterN/me31/", "xmean_me31", "ME3/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me32 = book1D("/iterN/me32/", "xmean_me32", "ME3/2 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
-   m_xmean_me41 = book1D("/iterN/me41/", "xmean_me41", "ME4/1 mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean = book1D("/iterN/", "xmean", "weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mb = book1D("/iterN/mb/", "xmean_mb", "barrel weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me = book1D("/iterN/me/", "xmean_me", "endcap weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mb1 = book1D("/iterN/mb1/", "xmean_mb1", "MB station 1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mb2 = book1D("/iterN/mb2/", "xmean_mb2", "MB station 2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mb3 = book1D("/iterN/mb3/", "xmean_mb3", "MB station 3 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mb4 = book1D("/iterN/mb4/", "xmean_mb4", "MB station 4 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_minus2 = book1D("/iterN/minus2/", "xmean_minus2", "MB wheel -2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_minus1 = book1D("/iterN/minus1/", "xmean_minus1", "MB wheel -1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_zero = book1D("/iterN/zero/", "xmean_zero", "MB wheel 0 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_plus1 = book1D("/iterN/plus1/", "xmean_plus1", "MB wheel +1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_plus2 = book1D("/iterN/plus2/", "xmean_plus2", "MB wheel +2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep11 = book1D("/iterN/mep11/", "xmean_mep11", "ME+1/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep12 = book1D("/iterN/mep12/", "xmean_mep12", "ME+1/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep13 = book1D("/iterN/mep13/", "xmean_mep13", "ME+1/3 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep21 = book1D("/iterN/mep21/", "xmean_mep21", "ME+2/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep22 = book1D("/iterN/mep22/", "xmean_mep22", "ME+2/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep31 = book1D("/iterN/mep31/", "xmean_mep31", "ME+3/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep32 = book1D("/iterN/mep32/", "xmean_mep32", "ME+3/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep41 = book1D("/iterN/mep41/", "xmean_mep41", "ME+4/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem11 = book1D("/iterN/mem11/", "xmean_mem11", "ME-1/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem12 = book1D("/iterN/mem12/", "xmean_mem12", "ME-1/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem13 = book1D("/iterN/mem13/", "xmean_mem13", "ME-1/3 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem21 = book1D("/iterN/mem21/", "xmean_mem21", "ME-2/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem22 = book1D("/iterN/mem22/", "xmean_mem22", "ME-2/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem31 = book1D("/iterN/mem31/", "xmean_mem31", "ME-3/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem32 = book1D("/iterN/mem32/", "xmean_mem32", "ME-3/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem41 = book1D("/iterN/mem41/", "xmean_mem41", "ME-4/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me11 = book1D("/iterN/me11/", "xmean_me11", "ME1/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me12 = book1D("/iterN/me12/", "xmean_me12", "ME1/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me13 = book1D("/iterN/me13/", "xmean_me13", "ME1/3 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me21 = book1D("/iterN/me21/", "xmean_me21", "ME2/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me22 = book1D("/iterN/me22/", "xmean_me22", "ME2/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me31 = book1D("/iterN/me31/", "xmean_me31", "ME3/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me32 = book1D("/iterN/me32/", "xmean_me32", "ME3/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me41 = book1D("/iterN/me41/", "xmean_me41", "ME4/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
 
-   m_xstdev = book1D("/iterN/", "xstdev", "stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mb = book1D("/iterN/mb/", "xstdev_mb", "barrel stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me = book1D("/iterN/me/", "xstdev_me", "endcap stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mb1 = book1D("/iterN/mb1/", "xstdev_mb1", "MB station 1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mb2 = book1D("/iterN/mb2/", "xstdev_mb2", "MB station 2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mb3 = book1D("/iterN/mb3/", "xstdev_mb3", "MB station 3 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mb4 = book1D("/iterN/mb4/", "xstdev_mb4", "MB station 4 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_minus2 = book1D("/iterN/minus2/", "xstdev_minus2", "MB wheel -2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_minus1 = book1D("/iterN/minus1/", "xstdev_minus1", "MB wheel -1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_zero = book1D("/iterN/zero/", "xstdev_zero", "MB wheel 0 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_plus1 = book1D("/iterN/plus1/", "xstdev_plus1", "MB wheel +1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_plus2 = book1D("/iterN/plus2/", "xstdev_plus2", "MB wheel +2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep11 = book1D("/iterN/mep11/", "xstdev_mep11", "ME+1/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep12 = book1D("/iterN/mep12/", "xstdev_mep12", "ME+1/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep13 = book1D("/iterN/mep13/", "xstdev_mep13", "ME+1/3 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep21 = book1D("/iterN/mep21/", "xstdev_mep21", "ME+2/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep22 = book1D("/iterN/mep22/", "xstdev_mep22", "ME+2/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep31 = book1D("/iterN/mep31/", "xstdev_mep31", "ME+3/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep32 = book1D("/iterN/mep32/", "xstdev_mep32", "ME+3/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mep41 = book1D("/iterN/mep41/", "xstdev_mep41", "ME+4/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem11 = book1D("/iterN/mem11/", "xstdev_mem11", "ME-1/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem12 = book1D("/iterN/mem12/", "xstdev_mem12", "ME-1/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem13 = book1D("/iterN/mem13/", "xstdev_mem13", "ME-1/3 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem21 = book1D("/iterN/mem21/", "xstdev_mem21", "ME-2/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem22 = book1D("/iterN/mem22/", "xstdev_mem22", "ME-2/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem31 = book1D("/iterN/mem31/", "xstdev_mem31", "ME-3/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem32 = book1D("/iterN/mem32/", "xstdev_mem32", "ME-3/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_mem41 = book1D("/iterN/mem41/", "xstdev_mem41", "ME-4/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me11 = book1D("/iterN/me11/", "xstdev_me11", "ME1/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me12 = book1D("/iterN/me12/", "xstdev_me12", "ME1/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me13 = book1D("/iterN/me13/", "xstdev_me13", "ME1/3 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me21 = book1D("/iterN/me21/", "xstdev_me21", "ME2/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me22 = book1D("/iterN/me22/", "xstdev_me22", "ME2/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me31 = book1D("/iterN/me31/", "xstdev_me31", "ME3/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me32 = book1D("/iterN/me32/", "xstdev_me32", "ME3/2 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
-   m_xstdev_me41 = book1D("/iterN/me41/", "xstdev_me41", "ME4/1 stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev = book1D("/iterN/", "xstdev", "weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mb = book1D("/iterN/mb/", "xstdev_mb", "barrel weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me = book1D("/iterN/me/", "xstdev_me", "endcap weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mb1 = book1D("/iterN/mb1/", "xstdev_mb1", "MB station 1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mb2 = book1D("/iterN/mb2/", "xstdev_mb2", "MB station 2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mb3 = book1D("/iterN/mb3/", "xstdev_mb3", "MB station 3 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mb4 = book1D("/iterN/mb4/", "xstdev_mb4", "MB station 4 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_minus2 = book1D("/iterN/minus2/", "xstdev_minus2", "MB wheel -2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_minus1 = book1D("/iterN/minus1/", "xstdev_minus1", "MB wheel -1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_zero = book1D("/iterN/zero/", "xstdev_zero", "MB wheel 0 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_plus1 = book1D("/iterN/plus1/", "xstdev_plus1", "MB wheel +1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_plus2 = book1D("/iterN/plus2/", "xstdev_plus2", "MB wheel +2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep11 = book1D("/iterN/mep11/", "xstdev_mep11", "ME+1/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep12 = book1D("/iterN/mep12/", "xstdev_mep12", "ME+1/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep13 = book1D("/iterN/mep13/", "xstdev_mep13", "ME+1/3 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep21 = book1D("/iterN/mep21/", "xstdev_mep21", "ME+2/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep22 = book1D("/iterN/mep22/", "xstdev_mep22", "ME+2/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep31 = book1D("/iterN/mep31/", "xstdev_mep31", "ME+3/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep32 = book1D("/iterN/mep32/", "xstdev_mep32", "ME+3/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep41 = book1D("/iterN/mep41/", "xstdev_mep41", "ME+4/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem11 = book1D("/iterN/mem11/", "xstdev_mem11", "ME-1/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem12 = book1D("/iterN/mem12/", "xstdev_mem12", "ME-1/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem13 = book1D("/iterN/mem13/", "xstdev_mem13", "ME-1/3 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem21 = book1D("/iterN/mem21/", "xstdev_mem21", "ME-2/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem22 = book1D("/iterN/mem22/", "xstdev_mem22", "ME-2/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem31 = book1D("/iterN/mem31/", "xstdev_mem31", "ME-3/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem32 = book1D("/iterN/mem32/", "xstdev_mem32", "ME-3/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem41 = book1D("/iterN/mem41/", "xstdev_mem41", "ME-4/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me11 = book1D("/iterN/me11/", "xstdev_me11", "ME1/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me12 = book1D("/iterN/me12/", "xstdev_me12", "ME1/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me13 = book1D("/iterN/me13/", "xstdev_me13", "ME1/3 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me21 = book1D("/iterN/me21/", "xstdev_me21", "ME2/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me22 = book1D("/iterN/me22/", "xstdev_me22", "ME2/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me31 = book1D("/iterN/me31/", "xstdev_me31", "ME3/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me32 = book1D("/iterN/me32/", "xstdev_me32", "ME3/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me41 = book1D("/iterN/me41/", "xstdev_me41", "ME4/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
 
    m_yresid = book1D("/iterN/", "yresid", "y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mb = book1D("/iterN/mb/", "yresid_mb", "barrel y residual (mm)", yresid_bins, yresid_low, yresid_high);
@@ -317,79 +328,79 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yresid_me32 = book1D("/iterN/me32/", "yresid_me32", "ME3/2 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_me41 = book1D("/iterN/me41/", "yresid_me41", "ME4/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
 
-   m_ymean = book1D("/iterN/", "ymean", "mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mb = book1D("/iterN/mb/", "ymean_mb", "barrel mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me = book1D("/iterN/me/", "ymean_me", "endcap mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mb1 = book1D("/iterN/mb1/", "ymean_mb1", "MB station 1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mb2 = book1D("/iterN/mb2/", "ymean_mb2", "MB station 2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mb3 = book1D("/iterN/mb3/", "ymean_mb3", "MB station 3 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mb4 = book1D("/iterN/mb4/", "ymean_mb4", "MB station 4 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_minus2 = book1D("/iterN/minus2/", "ymean_minus2", "MB wheel -2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_minus1 = book1D("/iterN/minus1/", "ymean_minus1", "MB wheel -1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_zero = book1D("/iterN/zero/", "ymean_zero", "MB wheel 0 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_plus1 = book1D("/iterN/plus1/", "ymean_plus1", "MB wheel +1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_plus2 = book1D("/iterN/plus2/", "ymean_plus2", "MB wheel +2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep11 = book1D("/iterN/mep11/", "ymean_mep11", "ME+1/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep12 = book1D("/iterN/mep12/", "ymean_mep12", "ME+1/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep13 = book1D("/iterN/mep13/", "ymean_mep13", "ME+1/3 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep21 = book1D("/iterN/mep21/", "ymean_mep21", "ME+2/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep22 = book1D("/iterN/mep22/", "ymean_mep22", "ME+2/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep31 = book1D("/iterN/mep31/", "ymean_mep31", "ME+3/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep32 = book1D("/iterN/mep32/", "ymean_mep32", "ME+3/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mep41 = book1D("/iterN/mep41/", "ymean_mep41", "ME+4/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem11 = book1D("/iterN/mem11/", "ymean_mem11", "ME-1/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem12 = book1D("/iterN/mem12/", "ymean_mem12", "ME-1/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem13 = book1D("/iterN/mem13/", "ymean_mem13", "ME-1/3 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem21 = book1D("/iterN/mem21/", "ymean_mem21", "ME-2/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem22 = book1D("/iterN/mem22/", "ymean_mem22", "ME-2/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem31 = book1D("/iterN/mem31/", "ymean_mem31", "ME-3/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem32 = book1D("/iterN/mem32/", "ymean_mem32", "ME-3/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_mem41 = book1D("/iterN/mem41/", "ymean_mem41", "ME-4/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me11 = book1D("/iterN/me11/", "ymean_me11", "ME1/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me12 = book1D("/iterN/me12/", "ymean_me12", "ME1/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me13 = book1D("/iterN/me13/", "ymean_me13", "ME1/3 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me21 = book1D("/iterN/me21/", "ymean_me21", "ME2/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me22 = book1D("/iterN/me22/", "ymean_me22", "ME2/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me31 = book1D("/iterN/me31/", "ymean_me31", "ME3/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me32 = book1D("/iterN/me32/", "ymean_me32", "ME3/2 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
-   m_ymean_me41 = book1D("/iterN/me41/", "ymean_me41", "ME4/1 mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean = book1D("/iterN/", "ymean", "weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mb = book1D("/iterN/mb/", "ymean_mb", "barrel weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me = book1D("/iterN/me/", "ymean_me", "endcap weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mb1 = book1D("/iterN/mb1/", "ymean_mb1", "MB station 1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mb2 = book1D("/iterN/mb2/", "ymean_mb2", "MB station 2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mb3 = book1D("/iterN/mb3/", "ymean_mb3", "MB station 3 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mb4 = book1D("/iterN/mb4/", "ymean_mb4", "MB station 4 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_minus2 = book1D("/iterN/minus2/", "ymean_minus2", "MB wheel -2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_minus1 = book1D("/iterN/minus1/", "ymean_minus1", "MB wheel -1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_zero = book1D("/iterN/zero/", "ymean_zero", "MB wheel 0 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_plus1 = book1D("/iterN/plus1/", "ymean_plus1", "MB wheel +1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_plus2 = book1D("/iterN/plus2/", "ymean_plus2", "MB wheel +2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep11 = book1D("/iterN/mep11/", "ymean_mep11", "ME+1/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep12 = book1D("/iterN/mep12/", "ymean_mep12", "ME+1/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep13 = book1D("/iterN/mep13/", "ymean_mep13", "ME+1/3 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep21 = book1D("/iterN/mep21/", "ymean_mep21", "ME+2/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep22 = book1D("/iterN/mep22/", "ymean_mep22", "ME+2/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep31 = book1D("/iterN/mep31/", "ymean_mep31", "ME+3/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep32 = book1D("/iterN/mep32/", "ymean_mep32", "ME+3/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep41 = book1D("/iterN/mep41/", "ymean_mep41", "ME+4/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem11 = book1D("/iterN/mem11/", "ymean_mem11", "ME-1/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem12 = book1D("/iterN/mem12/", "ymean_mem12", "ME-1/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem13 = book1D("/iterN/mem13/", "ymean_mem13", "ME-1/3 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem21 = book1D("/iterN/mem21/", "ymean_mem21", "ME-2/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem22 = book1D("/iterN/mem22/", "ymean_mem22", "ME-2/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem31 = book1D("/iterN/mem31/", "ymean_mem31", "ME-3/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem32 = book1D("/iterN/mem32/", "ymean_mem32", "ME-3/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem41 = book1D("/iterN/mem41/", "ymean_mem41", "ME-4/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me11 = book1D("/iterN/me11/", "ymean_me11", "ME1/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me12 = book1D("/iterN/me12/", "ymean_me12", "ME1/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me13 = book1D("/iterN/me13/", "ymean_me13", "ME1/3 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me21 = book1D("/iterN/me21/", "ymean_me21", "ME2/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me22 = book1D("/iterN/me22/", "ymean_me22", "ME2/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me31 = book1D("/iterN/me31/", "ymean_me31", "ME3/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me32 = book1D("/iterN/me32/", "ymean_me32", "ME3/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me41 = book1D("/iterN/me41/", "ymean_me41", "ME4/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
 
-   m_ystdev = book1D("/iterN/", "ystdev", "stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mb = book1D("/iterN/mb/", "ystdev_mb", "barrel stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me = book1D("/iterN/me/", "ystdev_me", "endcap stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mb1 = book1D("/iterN/mb1/", "ystdev_mb1", "MB station 1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mb2 = book1D("/iterN/mb2/", "ystdev_mb2", "MB station 2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mb3 = book1D("/iterN/mb3/", "ystdev_mb3", "MB station 3 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mb4 = book1D("/iterN/mb4/", "ystdev_mb4", "MB station 4 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_minus2 = book1D("/iterN/minus2/", "ystdev_minus2", "MB wheel -2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_minus1 = book1D("/iterN/minus1/", "ystdev_minus1", "MB wheel -1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_zero = book1D("/iterN/zero/", "ystdev_zero", "MB wheel 0 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_plus1 = book1D("/iterN/plus1/", "ystdev_plus1", "MB wheel +1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_plus2 = book1D("/iterN/plus2/", "ystdev_plus2", "MB wheel +2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep11 = book1D("/iterN/mep11/", "ystdev_mep11", "ME+1/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep12 = book1D("/iterN/mep12/", "ystdev_mep12", "ME+1/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep13 = book1D("/iterN/mep13/", "ystdev_mep13", "ME+1/3 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep21 = book1D("/iterN/mep21/", "ystdev_mep21", "ME+2/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep22 = book1D("/iterN/mep22/", "ystdev_mep22", "ME+2/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep31 = book1D("/iterN/mep31/", "ystdev_mep31", "ME+3/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep32 = book1D("/iterN/mep32/", "ystdev_mep32", "ME+3/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mep41 = book1D("/iterN/mep41/", "ystdev_mep41", "ME+4/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem11 = book1D("/iterN/mem11/", "ystdev_mem11", "ME-1/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem12 = book1D("/iterN/mem12/", "ystdev_mem12", "ME-1/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem13 = book1D("/iterN/mem13/", "ystdev_mem13", "ME-1/3 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem21 = book1D("/iterN/mem21/", "ystdev_mem21", "ME-2/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem22 = book1D("/iterN/mem22/", "ystdev_mem22", "ME-2/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem31 = book1D("/iterN/mem31/", "ystdev_mem31", "ME-3/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem32 = book1D("/iterN/mem32/", "ystdev_mem32", "ME-3/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_mem41 = book1D("/iterN/mem41/", "ystdev_mem41", "ME-4/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me11 = book1D("/iterN/me11/", "ystdev_me11", "ME1/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me12 = book1D("/iterN/me12/", "ystdev_me12", "ME1/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me13 = book1D("/iterN/me13/", "ystdev_me13", "ME1/3 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me21 = book1D("/iterN/me21/", "ystdev_me21", "ME2/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me22 = book1D("/iterN/me22/", "ystdev_me22", "ME2/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me31 = book1D("/iterN/me31/", "ystdev_me31", "ME3/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me32 = book1D("/iterN/me32/", "ystdev_me32", "ME3/2 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
-   m_ystdev_me41 = book1D("/iterN/me41/", "ystdev_me41", "ME4/1 stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev = book1D("/iterN/", "ystdev", "weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mb = book1D("/iterN/mb/", "ystdev_mb", "barrel weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me = book1D("/iterN/me/", "ystdev_me", "endcap weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mb1 = book1D("/iterN/mb1/", "ystdev_mb1", "MB station 1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mb2 = book1D("/iterN/mb2/", "ystdev_mb2", "MB station 2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mb3 = book1D("/iterN/mb3/", "ystdev_mb3", "MB station 3 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mb4 = book1D("/iterN/mb4/", "ystdev_mb4", "MB station 4 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_minus2 = book1D("/iterN/minus2/", "ystdev_minus2", "MB wheel -2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_minus1 = book1D("/iterN/minus1/", "ystdev_minus1", "MB wheel -1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_zero = book1D("/iterN/zero/", "ystdev_zero", "MB wheel 0 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_plus1 = book1D("/iterN/plus1/", "ystdev_plus1", "MB wheel +1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_plus2 = book1D("/iterN/plus2/", "ystdev_plus2", "MB wheel +2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep11 = book1D("/iterN/mep11/", "ystdev_mep11", "ME+1/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep12 = book1D("/iterN/mep12/", "ystdev_mep12", "ME+1/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep13 = book1D("/iterN/mep13/", "ystdev_mep13", "ME+1/3 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep21 = book1D("/iterN/mep21/", "ystdev_mep21", "ME+2/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep22 = book1D("/iterN/mep22/", "ystdev_mep22", "ME+2/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep31 = book1D("/iterN/mep31/", "ystdev_mep31", "ME+3/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep32 = book1D("/iterN/mep32/", "ystdev_mep32", "ME+3/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep41 = book1D("/iterN/mep41/", "ystdev_mep41", "ME+4/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem11 = book1D("/iterN/mem11/", "ystdev_mem11", "ME-1/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem12 = book1D("/iterN/mem12/", "ystdev_mem12", "ME-1/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem13 = book1D("/iterN/mem13/", "ystdev_mem13", "ME-1/3 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem21 = book1D("/iterN/mem21/", "ystdev_mem21", "ME-2/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem22 = book1D("/iterN/mem22/", "ystdev_mem22", "ME-2/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem31 = book1D("/iterN/mem31/", "ystdev_mem31", "ME-3/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem32 = book1D("/iterN/mem32/", "ystdev_mem32", "ME-3/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem41 = book1D("/iterN/mem41/", "ystdev_mem41", "ME-4/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me11 = book1D("/iterN/me11/", "ystdev_me11", "ME1/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me12 = book1D("/iterN/me12/", "ystdev_me12", "ME1/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me13 = book1D("/iterN/me13/", "ystdev_me13", "ME1/3 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me21 = book1D("/iterN/me21/", "ystdev_me21", "ME2/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me22 = book1D("/iterN/me22/", "ystdev_me22", "ME2/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me31 = book1D("/iterN/me31/", "ystdev_me31", "ME3/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me32 = book1D("/iterN/me32/", "ystdev_me32", "ME3/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me41 = book1D("/iterN/me41/", "ystdev_me41", "ME4/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
 
 }
 
@@ -420,7 +431,7 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 // 	    double xpos = trackPos.x();
 // 	    double ypos = trackPos.y();
 
-	    if (id.subdetId() == MuonSubdetId::DT) {
+	    if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
 	       if (fabs(hit->surface()->toGlobal(LocalVector(0,1,0)).z()) < 0.1) {
                   // local y != global z: it's a middle (y-measuring) superlayer
 		  y_residual = x_residual;
@@ -531,7 +542,7 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	       }
 	    } // end if DT
 
-	    else {
+	    else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
 	       m_xresid->Fill(x_residual, 1./x_reserr2);
 	       m_yresid->Fill(y_residual, 1./y_reserr2);
 
@@ -629,12 +640,43 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
    std::vector<Alignable*> tmp2 = pMuon()->CSCChambers();
    for (std::vector<Alignable*>::const_iterator iter = tmp2.begin();  iter != tmp2.end();  ++iter) chambers.push_back(*iter);
 
+   int index = 0;
    for (std::vector<Alignable*>::const_iterator chamber = chambers.begin();  chamber != chambers.end();  ++chamber) {
       int id = (*chamber)->geomDetId().rawId();
+
+      index++;
+      m_sumnx->SetBinContent(index, m_nx[id]);
+      m_sumx1->SetBinContent(index, m_x1[id]);
+      m_sumx2->SetBinContent(index, m_x2[id]);
+      m_sumny->SetBinContent(index, m_ny[id]);
+      m_sumy1->SetBinContent(index, m_y1[id]);
+      m_sumy2->SetBinContent(index, m_y2[id]);
+
+      std::ostringstream name;
+      if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
+	 DTChamberId dtId((*chamber)->geomDetId());
+	 name << "MB" << dtId.wheel() << "/" << dtId.station() << " (" << dtId.sector() << ")";
+      }
+      else {
+	 CSCDetId cscId((*chamber)->geomDetId());
+	 name << "ME" << (cscId.endcap() == 1? "+": "-") << cscId.station() << "/" << cscId.ring() << " (" << cscId.chamber() << ")";
+      }
+      m_sumnx->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_sumx1->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_sumx2->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_sumny->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_sumy1->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_sumy2->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_xsummary->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_ysummary->GetXaxis()->SetBinLabel(index, name.str().c_str());
 
       if (m_nx[id] > 0.) {
 	 double xmean = m_x1[id] / m_nx[id];
 	 double xstdev = sqrt(m_x2[id] / m_nx[id] - (m_x1[id] / m_nx[id]) * (m_x1[id] / m_nx[id]));
+	 double xmeanerr = xstdev / sqrt(m_nx[id]);
+
+	 m_xsummary->SetBinContent(index, xmean);
+	 m_xsummary->SetBinError(index, xmeanerr);
 
 	 m_xmean->Fill(xmean);  m_xstdev->Fill(xstdev);
 	 if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
@@ -744,6 +786,10 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
       if (m_ny[id] > 0.) {
 	 double ymean = m_y1[id] / m_ny[id];
 	 double ystdev = sqrt(m_y2[id] / m_ny[id] - (m_y1[id] / m_ny[id]) * (m_y1[id] / m_ny[id]));
+	 double ymeanerr = ystdev / sqrt(m_ny[id]);
+
+	 m_ysummary->SetBinContent(index, ymean);
+	 m_ysummary->SetBinError(index, ymeanerr);
 
 	 m_ymean->Fill(ymean);  m_ystdev->Fill(ystdev);
 	 if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
