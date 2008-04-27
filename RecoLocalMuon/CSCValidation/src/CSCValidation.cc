@@ -5,7 +5,7 @@
  *  Andy Kubik
  *  Northwestern University
  */
-#include "RecoLocalMuon/CSCValidation/interface/CSCValidation.h"
+#include "RecoLocalMuon/CSCValidation/src/CSCValidation.h"
 
 using namespace std;
 using namespace edm;
@@ -27,18 +27,15 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
   theFile->cd();
 
-  // Create sub-directories for digis/rechits/segments
-  theFile->mkdir("Digis");
-  theFile->mkdir("recHits");
-  theFile->mkdir("Segments");
-  theFile->mkdir("Calib");
-  theFile->mkdir("PedestalNoise");
-  theFile->cd();
-
   // Create object of class CSCValidationHistos to manage histograms
   histos = new CSCValHists();
-  // book histos
-  histos->bookHists();
+
+  // book histos Eff histos
+  hSSTE = new TH1F("hSSTE","hSSTE",20,0,20);
+  hRHSTE = new TH1F("hRHSTE","hRHSTE",20,0,20);
+  hSEff = new TH1F("hSEff","Segment Efficiency",10,0.5,10.5);
+  hRHEff = new TH1F("hRHEff","recHit Efficiency",10,0.5,10.5);
+
   // setup trees to hold global position data for rechits and segments
   histos->setupTrees();
 
@@ -50,12 +47,22 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
 //////////////////
 CSCValidation::~CSCValidation(){
 
-  // wirte histos to the specified file
-  histos->writeHists(theFile, isSimulation);
+  // produce final efficiency histograms
+  histoEfficiency(hRHSTE,hRHEff);
+  histoEfficiency(hSSTE,hSEff);
+
+  // write histos to the specified file
+  histos->writeHists(theFile);
+  histos->writeTrees(theFile);
+  theFile->cd();
+  theFile->cd("recHits");
+  hRHEff->Write();
+  theFile->cd();
+  theFile->cd("Segments");
+  hSEff->Write();
+  theFile->Close();
 
 }
-
-
 
 ////////////////
 //  Analysis  //
@@ -121,28 +128,27 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
     for (int i = 0; i < 400; i++){
       int bin = i+1;
-      float gain =  pGains->gains[i].gain_slope;
-      float xsl  =  pCrosstalk->crosstalk[i].xtalk_slope_left;
-      float xsr  =  pCrosstalk->crosstalk[i].xtalk_slope_right;
-      float xil  =  pCrosstalk->crosstalk[i].xtalk_intercept_left;
-      float xir  =  pCrosstalk->crosstalk[i].xtalk_intercept_right;
-      float pedp =  pPedestals->pedestals[i].ped;
-      float pedr =  pPedestals->pedestals[i].rms;
-      float n33  =  pNoiseMatrix->matrix[i].elem33;
-      float n34  =  pNoiseMatrix->matrix[i].elem34;
-      float n35  =  pNoiseMatrix->matrix[i].elem35;
-      float n44  =  pNoiseMatrix->matrix[i].elem44;
-      float n45  =  pNoiseMatrix->matrix[i].elem45;
-      float n46  =  pNoiseMatrix->matrix[i].elem46;
-      float n55  =  pNoiseMatrix->matrix[i].elem55;
-      float n56  =  pNoiseMatrix->matrix[i].elem56;
-      float n57  =  pNoiseMatrix->matrix[i].elem57;
-      float n66  =  pNoiseMatrix->matrix[i].elem66;
-      float n67  =  pNoiseMatrix->matrix[i].elem67;
-      float n77  =  pNoiseMatrix->matrix[i].elem77;
-      // fill histo
-      histos->fillCalibHistos(gain, xsl, xsr, xil, xir, pedp, pedr, n33, n34, n35, n44, n45,
-                              n46, n55, n56, n57, n66, n67, n77, bin);
+      histos->fillCalibHist(pGains->gains[i].gain_slope,"hCalibGainsS","Gains Slope",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_slope_left,"hCalibXtalkSL","Xtalk Slope Left",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_slope_right,"hCalibXtalkSR","Xtalk Slope Right",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_intercept_left,"hCalibXtalkIL","Xtalk Intercept Left",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pCrosstalk->crosstalk[i].xtalk_intercept_right,"hCalibXtalkIR","Xtalk Intercept Right",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pPedestals->pedestals[i].ped,"hCalibPedsP","Peds",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pPedestals->pedestals[i].rms,"hCalibPedsR","Peds RMS",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem33,"hCalibNoise33","Noise Matrix 33",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem34,"hCalibNoise34","Noise Matrix 34",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem35,"hCalibNoise35","Noise Matrix 35",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem44,"hCalibNoise44","Noise Matrix 44",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem45,"hCalibNoise45","Noise Matrix 45",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem46,"hCalibNoise46","Noise Matrix 46",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem55,"hCalibNoise55","Noise Matrix 55",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem56,"hCalibNoise56","Noise Matrix 56",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem57,"hCalibNoise57","Noise Matrix 57",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem66,"hCalibNoise66","Noise Matrix 66",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem67,"hCalibNoise67","Noise Matrix 67",400,0,400,bin,"Calib");
+      histos->fillCalibHist(pNoiseMatrix->matrix[i].elem77,"hCalibNoise77","Noise Matrix 77",400,0,400,bin,"Calib");
+
+ 
     }
 
   } // end calib
@@ -207,8 +213,18 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
       int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
       // fill wire histos
-      histos->fillWireHistos(myWire, myTBin, kCodeNarrow, kCodeBroad,
-                             kEndcap, kStation, kRing, kChamber, kLayer);
+      //histos->fillWireHistos(myWire, myTBin, kCodeNarrow, kCodeBroad,
+      //                       kEndcap, kStation, kRing, kChamber, kLayer);
+      histos->fill1DHist(myWire,"hWireAll","all wire group numbers",121,-0.5,120.5,"Digis");
+      histos->fill1DHistByType(myWire,"hWireWire","Wiregroup Number",id,113,-0.5,112.5,"Digis");
+      histos->fill1DHistByType(kLayer,"hWireLayer","Wires Fired per Layer",id,8,-0.5,7.5,"Digis");
+      histos->fill1DHistByType(myTBin,"hWireTBinAll","Wire TimeBin Fired",id,21,-0.5,20.5,"Digis");
+      if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow1","narrow scope wire code station 1",801,-400.5,400.5,"Digis");
+      if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow2","narrow scope wire code station 2",801,-400.5,400.5,"Digis");
+      if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow3","narrow scope wire code station 3",801,-400.5,400.5,"Digis");
+      if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow4","narrow scope wire code station 4",801,-400.5,400.5,"Digis");
+      histos->fill1DHist(kCodeBroad,"hWireCodeBroad","broad scope code for wires",33,-16.5,16.5,"Digis");
+      
       wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;      
     }
   } // end wire loop
@@ -245,12 +261,20 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
         int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
         int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
         // fill strip histos
-        histos->fillStripHistos(myStrip, kCodeNarrow, kCodeBroad,
-                                kEndcap, kStation, kRing, kChamber, kLayer);
+        histos->fill1DHist(myStrip,"hStripAll","all strip numbers",81,-0.5,80.5,"Digis");
+        histos->fill1DHistByType(myStrip,"hStripStrip","Strip Number",id,81,-0.5,80.5,"Digis");
+        histos->fill1DHistByType(kLayer,"hStripLayer","Strips Fired per Layer",id,8,-0.5,7.5,"Digis");
+        if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow1","narrow scope strip code station 1",801,-400.5,400.5,"Digis");
+        if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow2","narrow scope strip code station 2",801,-400.5,400.5,"Digis");
+        if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow3","narrow scope strip code station 3",801,-400.5,400.5,"Digis");
+        if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow4","narrow scope strip code station 4",801,-400.5,400.5,"Digis");
+        histos->fill1DHist(kCodeBroad,"hStripCodeBroad","broad scope code for strips",33,-16.5,16.5,"Digis");
+        // stripfired = true
         stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
       }
     }
   } // end strip loop
+
 
   //=======================================================
   //
@@ -286,11 +310,12 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       if (TotalADC > threshold) { thisStripFired = true;}
       if (!thisStripFired){
 	float ADC = thisSignal - thisPedestal;
-        histos->fillNoiseHistos(ADC, globalStrip, kStation, kRing);
+        histos->fill1DHist(ADC,"hStripPed","Pedestal Noise Distribution",50,-25.,25.,"PedestalNoise");
+        histos->fill1DHistByType(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
+        //histos->fill2DHist(globalStrip,ADC,"hPedvsStrip","Pedestal Noise Distribution",4000000,1000000.,5000000.,50,-25.,25.,"PedestalNoise");
       }
     }
   }
-
 
 
 
@@ -421,11 +446,22 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
 
     // Fill some histograms
-    histos->fillRechitHistos(kCodeNarrow, kCodeBroad, xreco, yreco, grecx, grecy,
-                             rHSumQ, rHratioQ, rHtime, simHitXres,
-                             kEndcap, kStation, kRing, kChamber, kLayer);
+    histos->fill1DHist(kCodeBroad,"hRHCodeBroad","broad scope code for recHits",33,-16.5,16.5,"recHits");
+    if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5,"recHits");
+    if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5,"recHits");
+    if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"recHits");
+    if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"recHits");
+    histos->fill1DHistByType(kLayer,"hRHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"recHits");
+    histos->fill1DHistByType(xreco,"hRHX","Local X of recHit",idrec,160,-80.,80.,"recHits");
+    histos->fill1DHistByType(yreco,"hRHY","Local Y of recHit",idrec,60,-180.,180.,"recHits");
+    histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"recHits");
+    histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"recHits");
+    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
+    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"recHits");
+    histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"recHits");
 
   } //end rechit loop
+
 
   // ==============================================
   //
@@ -541,24 +577,40 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
 
     // Fill histos
-    histos->fillSegmentHistos(kCodeNarrow, kCodeBroad, nhits, theta, globX, globY,
-                              residual, chisqProb, globTheta, globPhi,
-                              kEndcap, kStation, kRing, kChamber);
+    histos->fill1DHist(kCodeBroad,"hSCodeBroad","broad scope code for segmentss",33,-16.5,16.5,"Segments");
+    if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow1","narrow scope segment code station 1",801,-400.5,400.5,"Segments");
+    if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow2","narrow scope segment code station 2",801,-400.5,400.5,"Segments");
+    if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow3","narrow scope segment code station 3",801,-400.5,400.5,"Segments");
+    if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow4","narrow scope segment code station 4",801,-400.5,400.5,"Segments");
+    histos->fill2DHistByStation(globX,globY,"hSGlobal","Segment Global Positions",id,400,-800.,800.,400,-800.,800.,"Segments");
+    histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"Segments");
+    histos->fill1DHistByType(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"Segments");
+    histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"recHits");
+    histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
+    histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta",64,0,1.6,"Segments");
+    histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi",128,-3.2,3.2,"Segments");
 
 
   } // end segment loop
-
+  
   // Fill # per even histos (how many stips/wires/rechits/segments per event)
-  histos->fillEventHistos(nWireGroupsTotal,nStripsFired,nRecHits,nSegments);
+  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","total number of wire groups",101,-0.5,100.5,"Digis");
+  histos->fill1DHist(nStripsFired,"hStripNFired","total number of fired strips",301,-0.5,300.5,"Digis");
+  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",50,0,50,"recHits");
+  histos->fill1DHist(nSegments,"hSnSegments","number of segments per event",11,-0.5,10.5,"Segments");
 
   // Fill occupancy plots
   histos->fillOccupancyHistos(wireo,stripo,rechito,segmento);
 
-
   // do Efficiency
   doEfficiencies(recHits, cscSegments);
 
+  // do gasgains
+  doGasGain(*wires,*strips,*recHits);
+
+
 }
+
 
 //-------------------------------------------------------------------------------------
 // Fits a straight line to a set of 5 points with errors.  Functions assumes 6 points
@@ -612,6 +664,8 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
 
   float ADC[8];
   float timing = 0;
+  float peakADC = 0;
+  int peakTime = 0;
 
   // Loop over strip digis responsible for this recHit and sum charge
   CSCStripDigiCollection::DigiRangeIterator sIt;
@@ -630,6 +684,10 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
           for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
             diff = (float)myADCVals[iCount]-thisPedestal;
             ADC[iCount] = diff;
+            if (diff > peakADC){
+              peakADC = diff;
+              peakTime = iCount;
+            }
           }
         }
       }
@@ -637,6 +695,13 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
     }
 
   }
+
+  float normADC;
+  for (int i = 0; i < 7; i++){
+    normADC = ADC[i]/ADC[peakTime];
+    histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"Digis");
+  }
+
 
   timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
   return timing;
@@ -671,7 +736,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
   for (CSCRecHit2DCollection::const_iterator recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
     //CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
     CSCDetId  idrec = (CSCDetId)(*recIt).cscDetId();
-    AllRecHits[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()][idrec.layer() -1] = true;
+    AllRecHits[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber() -1][idrec.layer() -1] = true;
 
   }
    
@@ -681,7 +746,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
     //if(AllSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()]){
     //MultiSegments[idrec.endcap() -1][idrec.station() -1][idrec.ring() -1][idrec.chamber()] = true;
     //}
-    AllSegments[idseg.endcap() -1][idseg.station() -1][idseg.ring() -1][idseg.chamber()] = true;
+    AllSegments[idseg.endcap() -1][idseg.station() -1][idseg.ring() -1][idseg.chamber() -1] = true;
   }
 
   
@@ -702,19 +767,19 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
             //if(!(MultiSegments[iE][iS][iR][iC])){
             if(AllSegments[iE][iS][iR][iC]){
               //---- Efficient segment evenents
-              histos->fillEfficiencyHistos(bin,1);
+              hSSTE->AddBinContent(bin);
             }
             //---- All segment events (normalization)
-            histos->fillEfficiencyHistos(bin+10,1);
+            hSSTE->AddBinContent(10+bin);
             //}
           }
           if(AllSegments[iE][iS][iR][iC]){
             if(NumberOfLayers==6){
               //---- Efficient rechit events
-              histos->fillEfficiencyHistos(bin,2);
+              hRHSTE->AddBinContent(bin);;
             }
             //---- All rechit events (normalization)
-            histos->fillEfficiencyHistos(bin+10,2);
+            hRHSTE->AddBinContent(10+bin);;
           }
         }
       }
@@ -731,8 +796,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
 // Author: P. Jindal
 //---------------------------------------------------------------------------------------
 
-float CSCValidation::getSignal(const CSCStripDigiCollection&
- stripdigis, CSCDetId idCS, int centerStrip){
+float CSCValidation::getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idCS, int centerStrip){
 
   float SigADC[5];
   float TotalADC = 0;
@@ -792,6 +856,470 @@ float CSCValidation::getSignal(const CSCStripDigiCollection&
   }
   return TotalADC;
 }
+
+void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff){
+  //---- Efficiency with binomial error
+  float Efficiency = 0.;
+  float EffError = 0.;
+  if(fabs(Norm)>0.000000001){
+    Efficiency = bin/Norm;
+    if(bin<Norm){
+      EffError = sqrt( (1.-Efficiency)*Efficiency/Norm );
+    }
+  }
+  eff[0] = Efficiency;
+  eff[1] = EffError;
+}
+
+void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
+  std::vector<float> eff(2);
+  int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
+  std::vector<float> bins(Nbins);
+  std::vector<float> Efficiency(Nbins);
+  std::vector<float> EffError(Nbins);
+  float Num = 1;
+  float Den = 1;
+  for (int i=0;i<10;i++){
+    Num = readHisto->GetBinContent(i+1);
+    Den = readHisto->GetBinContent(i+11);
+    getEfficiency(Num, Den, eff);
+    Efficiency[i] = eff[0];
+    EffError[i] = eff[1];
+    writeHisto->SetBinContent(i+1, Efficiency[i]);
+    writeHisto->SetBinError(i+1, EffError[i]);
+  }
+}
+
+//---------------------------------------------------------------------------
+// Module for looking at gas gains
+// Author N. Terentiev
+//---------------------------------------------------------------------------
+void CSCValidation::bookForId(int casenmb, const int& idint,
+                         const std::string& idstring ) {
+  std::ostringstream ss;
+    
+  switch (casenmb) {
+  
+  case 6001:
+  ss <<"gas_gain_wires_strips_rechits_present";
+  mh_gas_gain_wires_strips_rechits_present[idint]=new TH1F(ss.str().c_str(),"",16, 0.0, 16.0);
+  mh_gas_gain_wires_strips_rechits_present[idint]->GetXaxis()->SetTitle("Bit 1-Wire, 2-Strip, 3-RecHit");
+  mh_gas_gain_wires_strips_rechits_present[idint]->GetYaxis()->SetTitle("Entries");
+  mh_gas_gain_wires_strips_rechits_present[idint]->SetFillColor(4);
+  ss.str(""); // clear
+  break;
+ 
+  case 6002:
+  ss <<"gas_gain_wires_per_layer";
+  mh_gas_gain_wires_per_layer[idint]=new TH1F(ss.str().c_str(),"",32,0.0,32.0);
+  mh_gas_gain_wires_per_layer[idint]->GetXaxis()->SetTitle("Wire multiplicity per CSC layer"); 
+  mh_gas_gain_wires_per_layer[idint]->GetYaxis()->SetTitle("Entries");
+  mh_gas_gain_wires_per_layer[idint]->SetFillColor(4);
+  ss.str(""); // clear
+  break;
+
+  case 6003:
+  ss <<"gas_gain_rechits_per_layer";
+  mh_gas_gain_rechits_per_layer[idint]=new TH1F(ss.str().c_str(),"",32,0.0,32.0);
+  mh_gas_gain_rechits_per_layer[idint]->GetXaxis()->SetTitle("Rechit multiplicity per CSC layer");  
+  mh_gas_gain_rechits_per_layer[idint]->GetYaxis()->SetTitle("Entries");
+  mh_gas_gain_rechits_per_layer[idint]->SetFillColor(4);
+  ss.str(""); // clear
+  break;
+
+  case 6004:
+  ss <<idint<<"_gas_gain_rechit_adc_3_3_sum_location";
+  mh_gas_gain_rechit_adc_3_3_sum_location[idint]=new TH2F(ss.str().c_str(),"",30,1.0,31.0,50,0.0,2000.0);  
+  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->GetXaxis()->SetTitle("Location=(layer-1)*nsegm+segm");
+  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->GetYaxis()->SetTitle("Rechit 3X3 ADC sum");
+  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->SetFillColor(4);
+  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->SetOption("BOX");
+  ss.str(""); // clear
+  break;
+
+  case 6011:
+  ss <<idint<<"_gas_gain_mean";
+  mh_gas_gain_mean[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,30,1.0,31.0);
+  mh_gas_gain_mean[idint]->GetXaxis()->SetTitle("CSC");   
+  mh_gas_gain_mean[idint]->GetYaxis()->SetTitle("Location=(layer-1)*nsegm+segm");
+  mh_gas_gain_mean[idint]->SetFillColor(4);
+  mh_gas_gain_mean[idint]->SetOption("BOX");
+  ss.str(""); // clear
+  break;
+
+  case 6012:
+  ss <<idint<<"_gas_gain_entries";
+  mh_gas_gain_entries[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,30,1.0,31.0);
+  mh_gas_gain_entries[idint]->GetXaxis()->SetTitle("CSC");
+  mh_gas_gain_entries[idint]->GetYaxis()->SetTitle("Location=(layer-1)*nsegm+segm");
+  mh_gas_gain_entries[idint]->SetFillColor(4);
+  mh_gas_gain_entries[idint]->SetOption("BOX");
+  ss.str(""); // clear
+  break;
+
+  default:  std::cout<<"CSCValHists::bookForId:  No booked hist for case nmb "
+                     <<casenmb<<std::endl;
+  }
+}
+
+// Fill 1D histograms for gas gain
+void CSCValidation::hf1ForId(std::map<int, TH1*>& mp, 
+                             std::vector<TH1*>& th1, 
+                             int flag, const int& id, float& x, float w) {
+  std::map<int,TH1*>::iterator h;
+  h=mp.find(id);
+  if (h==mp.end()) {
+     bookForId(flag,id,"");
+     h=mp.find(id);
+     th1.push_back(h->second);
+     int nentries=0;
+     for(Int_t i=1;i<=h->second->GetNbinsX();i++) {
+        int m=h->second->GetEntries();
+        nentries=nentries+m;
+     }
+     if(nentries>0)
+       std::cout<<"Hist "<<flag<<" "<<id<<" not empty when booking"<<std::endl;
+ }
+  h->second->Fill(x,w);
+}
+
+// Fill 2D histograms for gas gain
+void CSCValidation::hf2ForId(std::map<int, TH2*>& mp, 
+                             std::vector<TH2*>& th2,
+                        int flag, const int& id, float& x, float& y,  float w) {
+  std::map<int,TH2*>::iterator h;
+  h=mp.find(id);
+  if (h==mp.end()) {
+     bookForId(flag,id,"");
+     h=mp.find(id);
+     th2.push_back(h->second);
+     int nentries=0;
+     for(Int_t i=1;i<=h->second->GetNbinsX();i++)
+        for(Int_t j=1;j<=h->second->GetNbinsY();j++) {
+           int m=h->second->GetEntries();
+        nentries=nentries+m;
+       }
+     if(nentries>0)
+       std::cout<<"Hist "<<flag<<" "<<id<<" not empty when booking"<<std::endl;
+ }
+  h->second->Fill(x,y,w);
+}
+
+void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn, 
+                              const CSCStripDigiCollection&   strpcltn,
+                              const CSCRecHit2DCollection& rechitcltn) {
+     float x,adcsum;
+     int channel,mult,wire,strip,layer,idlayer,idchamber,wire_strip_rechit_present;
+     CSCIndexer indexer;
+     std::map<int,int>::iterator intIt;
+
+     m_single_wire_layer.clear();
+     m_nmbrechit_layer.clear();
+     m_rechit_adc_3_3_sum.clear();
+     m_rechit_strip.clear();
+     m_csc_type.clear();
+
+  if(nEventsAnalyzed==1) {
+
+  m_mean_adc_3_3_sum.clear();
+  m_nmb_adc_3_3_sum.clear();
+  m_index_csc.clear();
+
+  // HV segments, their # and location in terms of wire groups
+
+  m_wire_hvsegm.clear();
+  std::map<int,std::vector<int> >::iterator intvecIt;
+  //                    ME1a ME1b ME1/2 ME1/3 ME2/1 ME2/2 ME3/1 ME3/2 ME4/1 ME4/2 
+  int csctype[10]=     {1,   2,   3,    4,    5,    6,    7,    8,    9,    10};
+  int hvsegm_layer[10]={1,   1,   3,    3,    3,    5,    3,    5,    3,    5};
+  int id;
+  nmbhvsegm.clear();
+  for(int i=0;i<10;i++) nmbhvsegm.push_back(hvsegm_layer[i]);
+  // For ME1/1a
+  std::vector<int> zer_1_1a(49,0);
+  id=csctype[0];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_1a;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=48;wire++)  intvecIt->second[wire]=1;  // Segment 1
+
+  // For ME1/1b
+  std::vector<int> zer_1_1b(49,0);
+  id=csctype[1];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_1b;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=48;wire++)  intvecIt->second[wire]=1;  // Segment 1
+ 
+  // For ME1/2
+  std::vector<int> zer_1_2(65,0);
+  id=csctype[2];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_2;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=24;wire++)  intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=25;wire<=48;wire++) intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=49;wire<=64;wire++) intvecIt->second[wire]=3;  // Segment 3
+ 
+  // For ME1/3
+  std::vector<int> zer_1_3(33,0);
+  id=csctype[3];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_1_3;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=12;wire++)  intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=13;wire<=22;wire++) intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=23;wire<=32;wire++) intvecIt->second[wire]=3;  // Segment 3
+ 
+  // For ME2/1
+  std::vector<int> zer_2_1(113,0);
+  id=csctype[4];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_2_1;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=44;wire++)   intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=45;wire<=80;wire++)  intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=81;wire<=112;wire++) intvecIt->second[wire]=3;  // Segment 3
+ 
+  // For ME2/2
+  std::vector<int> zer_2_2(65,0);
+  id=csctype[5];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_2_2;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=16;wire++)  intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=17;wire<=28;wire++) intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=29;wire<=40;wire++) intvecIt->second[wire]=3;  // Segment 3
+  for(int wire=41;wire<=52;wire++) intvecIt->second[wire]=4;  // Segment 4
+  for(int wire=53;wire<=64;wire++) intvecIt->second[wire]=5;  // Segment 5
+
+  // For ME3/1
+  std::vector<int> zer_3_1(97,0);
+  id=csctype[6];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_3_1;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=32;wire++)  intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=33;wire<=64;wire++) intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=65;wire<=96;wire++) intvecIt->second[wire]=3;  // Segment 3
+ 
+  // For ME3/2
+  std::vector<int> zer_3_2(65,0);
+  id=csctype[7];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_3_2;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=16;wire++)  intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=17;wire<=28;wire++) intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=29;wire<=40;wire++) intvecIt->second[wire]=3;  // Segment 3
+  for(int wire=41;wire<=52;wire++) intvecIt->second[wire]=4;  // Segment 4
+  for(int wire=53;wire<=64;wire++) intvecIt->second[wire]=5;  // Segment 5
+
+  // For ME4/1
+  std::vector<int> zer_4_1(97,0);
+  id=csctype[8];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_4_1;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=32;wire++)  intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=33;wire<=64;wire++) intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=65;wire<=96;wire++) intvecIt->second[wire]=3;  // Segment 3
+
+  // For ME4/2
+  std::vector<int> zer_4_2(65,0);
+  id=csctype[9];
+  if(m_wire_hvsegm.find(id) == m_wire_hvsegm.end()) m_wire_hvsegm[id]=zer_4_2;
+  intvecIt=m_wire_hvsegm.find(id);
+  for(int wire=1;wire<=16;wire++)  intvecIt->second[wire]=1;  // Segment 1
+  for(int wire=17;wire<=28;wire++) intvecIt->second[wire]=2;  // Segment 2
+  for(int wire=29;wire<=40;wire++) intvecIt->second[wire]=3;  // Segment 3
+  for(int wire=41;wire<=52;wire++) intvecIt->second[wire]=4;  // Segment 4
+  for(int wire=53;wire<=64;wire++) intvecIt->second[wire]=5;  // Segment 5
+
+  } // end of if(nEventsAnalyzed==1)
+
+
+     // do wires, strips and rechits present?
+     wire_strip_rechit_present=0;
+     if(wirecltn.begin() != wirecltn.end())  
+       wire_strip_rechit_present= wire_strip_rechit_present+1;
+     if(strpcltn.begin() != strpcltn.end())    
+       wire_strip_rechit_present= wire_strip_rechit_present+2;
+     if(rechitcltn.begin() != rechitcltn.end())
+       wire_strip_rechit_present= wire_strip_rechit_present+4;
+
+     x=wire_strip_rechit_present;
+     
+  hf1ForId(mh_gas_gain_wires_strips_rechits_present,th1_gas_gain,6001,0,x,1.0); 
+
+     if(wire_strip_rechit_present==7) {
+
+       // cycle on wire collection for all CSC to select single wire hit layers
+       CSCWireDigiCollection::DigiRangeIterator wiredetUnitIt;
+ 
+       for(wiredetUnitIt=wirecltn.begin();wiredetUnitIt!=wirecltn.end();
+          ++wiredetUnitIt) {
+          const CSCDetId id = (*wiredetUnitIt).first;
+          idlayer=indexer.dbIndex(id, channel);
+
+          // looping in the layer of given CSC
+          mult=0; wire=0; 
+          const CSCWireDigiCollection::Range& range = (*wiredetUnitIt).second;
+          for(CSCWireDigiCollection::const_iterator digiIt =
+             range.first; digiIt!=range.second; ++digiIt){
+             wire=(*digiIt).getWireGroup();
+             mult++;
+          }     // end of digis loop in layer
+
+          x=mult;
+          hf1ForId(mh_gas_gain_wires_per_layer,th1_gas_gain,6002,0,x,1.0);
+
+          // select layers with single wire hit
+          if(mult==1) {
+            if(m_single_wire_layer.find(idlayer) == m_single_wire_layer.end())
+              m_single_wire_layer[idlayer]=wire;
+          }
+       }   // end of cycle on detUnit
+
+       // The first pass thru rechit collection to count # rechits per layer
+       CSCRecHit2DCollection::const_iterator recIt;
+       for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
+          CSCDetId id = (CSCDetId)(*recIt).cscDetId();
+          idlayer=indexer.dbIndex(id, channel);
+          if(m_single_wire_layer.find(idlayer) != m_single_wire_layer.end()) {
+            if(m_nmbrechit_layer.find(idlayer) == m_nmbrechit_layer.end())
+              m_nmbrechit_layer[idlayer]=0;
+              m_nmbrechit_layer[idlayer]=m_nmbrechit_layer[idlayer]+1;
+          }
+       } // end of the first pass thru rechit collection
+
+       for(intIt=m_nmbrechit_layer.begin();intIt!=m_nmbrechit_layer.end();++intIt) {
+          x=(*intIt).second;
+          hf1ForId(mh_gas_gain_rechits_per_layer,th1_gas_gain,6003,0,x,1.0);
+       }
+
+       // The second pass thru rechit collection, selecting single rechit/layer
+       CSCRecHit2D::ADCContainer m_adc;
+       CSCRecHit2D::ChannelContainer m_strip;
+       for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
+          CSCDetId id = (CSCDetId)(*recIt).cscDetId();
+          idlayer=indexer.dbIndex(id, channel);
+          idchamber=idlayer/10;
+          // select layer with single rechit
+          if(m_nmbrechit_layer.find(idlayer) != m_nmbrechit_layer.end() &&
+            m_nmbrechit_layer[idlayer]==1 )  {          
+
+            // getting strips comprising rechit
+            m_strip=(CSCRecHit2D::ChannelContainer)(*recIt).channels(); 
+            if(m_strip.size()==3 &&  
+               m_rechit_strip.find(idlayer) == m_rechit_strip.end()) {        
+
+              m_rechit_strip[idlayer]=m_strip[1]; //take central from 3 strips
+              // save chamber type
+              if(m_csc_type.find(idchamber) == m_csc_type.end())
+                m_csc_type[idchamber]=histos->tempChamberType(id.station(),id.ring());
+              // save chamber index
+              if(id.station() != 1 && id.ring() !=4) 
+                if(m_index_csc.find(idchamber) == m_index_csc.end())
+                   m_index_csc[idchamber]=indexer.chamberIndex(id);
+
+              // get 3X3 ADC Sum
+              m_adc=(CSCRecHit2D::ADCContainer)(*recIt).adcs();
+              std::vector<float> adc_left,adc_center,adc_right;
+              int binmx=0;
+              float adcmax=0.0;
+              unsigned k=0;
+ 
+              for(int i=0;i<3;i++) 
+                 for(int j=0;j<4;j++){
+                    if(m_adc[k]>adcmax) {adcmax=m_adc[k]; binmx=j;}
+                    if(i==0) adc_left.push_back(m_adc[k]);
+                    if(i==1) adc_center.push_back(m_adc[k]);
+                    if(i==2) adc_right.push_back(m_adc[k]);
+                    k=k+1;
+                 }
+        
+              if(m_rechit_adc_3_3_sum.find(idlayer)==m_rechit_adc_3_3_sum.end()) {
+                m_rechit_adc_3_3_sum[idlayer]=0.0;
+                for(int j=binmx-1;j<=binmx+1;j++) {
+                   m_rechit_adc_3_3_sum[idlayer]=m_rechit_adc_3_3_sum[idlayer]
+                                                +adc_left[j]
+                                                +adc_center[j]
+                                                +adc_right[j];
+                }
+              }  // end of if (m_rechit_adc_3_3_sum.find(idlayer)==
+            } // end of if if(m_strip.size()==3
+          } // end of if if(m_nmbrechit_layer.find(idlayer) !=
+       } // end of the second pass thru CSCRecHit2DCollection
+
+       // Add 3X3 ADC Sum to corresponding location of gas gain
+       // calculating average at the same time
+       if(m_rechit_adc_3_3_sum.size() > 0) {
+         std::map<int,float>::iterator floatIt;
+         for(floatIt=m_rechit_adc_3_3_sum.begin();floatIt!=
+m_rechit_adc_3_3_sum.end();++floatIt) {          
+            idlayer=(*floatIt).first;
+            if(m_single_wire_layer.find(idlayer) !=m_single_wire_layer.end() &&
+               m_rechit_strip.find(idlayer) != m_rechit_strip.end()) {
+               adcsum=(*floatIt).second;
+               if(adcsum>0.0 && adcsum<2000.0) {
+                 idchamber=idlayer/10;
+                 layer=idlayer-idchamber*10;
+                 wire= m_single_wire_layer[idlayer];
+                 strip= m_rechit_strip[idlayer];
+
+                 int chambertype=m_csc_type[idchamber];
+                 int hvsgmtnmb=m_wire_hvsegm[chambertype][wire];
+                 int nmbofhvsegm=nmbhvsegm[chambertype-1];
+                 int location= (layer-1)*nmbofhvsegm+hvsgmtnmb;
+                 int idlocation=idchamber*100+location;
+                 float x=location;
+                 hf2ForId(mh_gas_gain_rechit_adc_3_3_sum_location,th2_gas_gain,6004,idchamber,x,adcsum,1.0);                 
+/*
+ std::cout<<"idchamber layer wire strip chambertype hvsgmtnmb nmbofhvsegm location idlocation  "<<std::endl;  
+std::cout<<idchamber<<" "<<layer<<" "<< wire<<" "<<strip<<" "<< chambertype<<" "<< 
+hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< location<<" "<< idlocation<<std::endl;
+*/
+                 if(m_nmb_adc_3_3_sum.find(idlocation)==m_nmb_adc_3_3_sum.end())
+                   m_nmb_adc_3_3_sum[idlocation]=0.0;
+                 m_nmb_adc_3_3_sum[idlocation]=m_nmb_adc_3_3_sum[idlocation]+1.0;
+                 float entries= m_nmb_adc_3_3_sum[idlocation];
+                 if(m_mean_adc_3_3_sum.find(idlocation)==m_mean_adc_3_3_sum.end())
+                   m_mean_adc_3_3_sum[idlocation]=0.0;
+                 float adc_prev=m_mean_adc_3_3_sum[idlocation];
+                 m_mean_adc_3_3_sum[idlocation]=
+                 ((entries-1.0)*adc_prev+adcsum)/entries;
+               } // end if(adcsum>0.0 && adcsum<2000.0)
+//....................              
+            } // end of if(m_single_wire_layer.find(idlayer) !=
+         } // end of for(floatIt=m_rechit_adc_3_3_sum.begin()
+       }
+     }   // end of if wire and strip present 
+}
+
+void CSCValidation::endJob() {
+
+     std::cout<<"Events in "<<nEventsAnalyzed<<std::endl;
+
+     // filling mean gas gain hists
+     if(m_mean_adc_3_3_sum.size()>0) {
+       std::map<int,float>::iterator floatIt;
+       for(floatIt=m_mean_adc_3_3_sum.begin();floatIt!=m_mean_adc_3_3_sum.end();++floatIt) {
+            int idlocation=(*floatIt).first;
+            int idchamber=idlocation/100;
+            float y=idlocation-idchamber*100;
+            float wmean=(*floatIt).second;
+            float wentr=m_nmb_adc_3_3_sum[idlocation];
+            int endcap=idchamber/10000;
+            int station=idchamber/1000-endcap*10;
+            int idint=idchamber/100;
+            int csc=idchamber/100; csc=idchamber-csc*100; float x=csc;
+            hf2ForId(mh_gas_gain_mean,th2_gas_gain,6011,idint,x,y,wmean);
+            hf2ForId(mh_gas_gain_entries,th2_gas_gain,6012,idint,x,y,wentr);
+       }
+     }     
+     // writing gas gain hists to folder GasGain
+     theFile->cd();
+     theFile->mkdir("GasGain");
+     theFile->cd("GasGain");
+     if(th1_gas_gain.size() > 0) 
+       for(unsigned int i=0;i<th1_gas_gain.size();i++) th1_gas_gain[i]->Write();
+     if(th2_gas_gain.size() > 0) 
+       for(unsigned int i=0;i<th2_gas_gain.size();i++) th2_gas_gain[i]->Write();
+
+}
+
 
 DEFINE_FWK_MODULE(CSCValidation);
 

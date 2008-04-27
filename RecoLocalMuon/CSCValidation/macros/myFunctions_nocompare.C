@@ -19,30 +19,34 @@ TFile* OpenFiles(std::string path, int datatype){
 
 void Compare1DPlots1(std::string histoname, TFile* f1, TFile* f2, std::string histotitle, std::string savename){
 
-  TH1F *h1  = (TH1F*)f1->Get(histoname.c_str());
-  TH1F *h2  = (TH1F*)f2->Get(histoname.c_str());
+  TH1F *h1 = (TH1F*)f1->Get(histoname.c_str());
 
   TCanvas *c = new TCanvas("c","my canvas",1);
-  gStyle->SetHistFillColor(92);
-  gStyle->SetFrameFillColor(4000);
-  gStyle->SetTitleW(0.3);
-  gStyle->SetTitleH(0.07);
-  gPad->SetFillColor(4000);
-  c->SetFillStyle(4000);
-  gStyle->SetOptStat(10);
-  h1->UseCurrentStyle();
 
-  h1->SetTitle(histotitle.c_str());
-  h1->GetXaxis()->SetLabelSize(0.04);
-  h1->GetYaxis()->SetLabelSize(0.04);
-  h1->GetXaxis()->SetTitleOffset(0.7);
-  h1->GetXaxis()->SetTitleSize(0.06);
-  h1->GetXaxis()->SetNdivisions(208,kTRUE);
+  if (h1){
+    gStyle->SetHistFillColor(92);
+    gStyle->SetFrameFillColor(4000);
+    gStyle->SetTitleW(0.3);
+    gStyle->SetTitleH(0.07);
+    gPad->SetFillColor(4000);
+    c->SetFillStyle(4000);
+    gStyle->SetOptStat(10);
+    h1->UseCurrentStyle();
 
-  h1->Draw();
+    h1->SetTitle(histotitle.c_str());
+    h1->GetXaxis()->SetLabelSize(0.04);
+    h1->GetYaxis()->SetLabelSize(0.04);
+    h1->GetXaxis()->SetTitleOffset(0.7);
+    h1->GetXaxis()->SetTitleSize(0.06);
+    h1->GetXaxis()->SetNdivisions(208,kTRUE);
 
-  c->Update();
-  c->Print(savename.c_str());
+    h1->Draw();
+
+  }
+
+    c->Update();
+    c->Print(savename.c_str());
+
 
 }
 
@@ -50,51 +54,45 @@ void Compare1DPlots2(std::string histoname1, std::string histoname2, TFile* f1, 
 
   // This macro compares two sets of CSCLocalValidn histograms.
   //
-  TH1F *a1  = (TH1F*)f1->Get(histoname1.c_str());
-  TH1F *b1  = (TH1F*)f1->Get(histoname2.c_str());
+  TH1F *a1 = (TH1F*)f1->Get(histoname1.c_str());
 
-  TH1F *a2  = (TH1F*)f2->Get(histoname1.c_str());
-  TH1F *b2  = (TH1F*)f2->Get(histoname2.c_str());
-
+  TH1F *b1 = (TH1F*)f1->Get(histoname2.c_str());
 
   TCanvas *c = new TCanvas("c","my canvas",1);
-  gStyle->SetHistFillColor(92);
-  gStyle->SetFrameFillColor(4000);
-  gStyle->SetTitleW(0.4);
-  gStyle->SetTitleH(0.09);
-  gPad->SetFillColor(4000);
-  c->SetFillStyle(4000);
-  gStyle->SetOptStat(10);
-  a1->UseCurrentStyle();
-  a2->UseCurrentStyle();
-  a2->SetFillColor(52);
-
-
-  a1->SetTitle(t1.c_str());
-  a1->GetXaxis()->SetLabelSize(0.06);
-  a1->GetYaxis()->SetLabelSize(0.06);
-  a1->GetXaxis()->SetTitleOffset(0.7);
-  a1->GetXaxis()->SetTitleSize(0.06);
-  a1->GetXaxis()->SetNdivisions(208,kTRUE);
-
-  gStyle->SetHistFillColor(72);
-  b1->UseCurrentStyle();
-  b2->UseCurrentStyle();
-  b2->SetFillColor(52);
-
-  b1->SetTitle(t2.c_str());
-  b1->GetXaxis()->SetLabelSize(0.06);
-  b1->GetYaxis()->SetLabelSize(0.06);
-  b1->GetXaxis()->SetTitleOffset(0.7);
-  b1->GetXaxis()->SetTitleSize(0.06);
-  b1->GetXaxis()->SetNdivisions(508,kTRUE);
-
-
   c->Divide(1,2);
-  c->cd(1);
-  a1->Draw();
-  c->cd(2);
-  b1->Draw();
+
+  if (a1){
+    c->cd(1);
+    gStyle->SetHistFillColor(92);
+    gStyle->SetFrameFillColor(4000);
+    gStyle->SetTitleW(0.4);
+    gStyle->SetTitleH(0.09);
+    gPad->SetFillColor(4000);
+    c->SetFillStyle(4000);
+    gStyle->SetOptStat(10);
+    a1->UseCurrentStyle();
+    a1->SetTitle(t1.c_str());
+    a1->GetXaxis()->SetLabelSize(0.06);
+    a1->GetYaxis()->SetLabelSize(0.06);
+    a1->GetXaxis()->SetTitleOffset(0.7);
+    a1->GetXaxis()->SetTitleSize(0.06);
+    a1->GetXaxis()->SetNdivisions(208,kTRUE);
+    a1->Draw();
+  }
+
+  if (b1){
+    gStyle->SetHistFillColor(72);
+    b1->UseCurrentStyle();
+
+    b1->SetTitle(t2.c_str());
+    b1->GetXaxis()->SetLabelSize(0.06);
+    b1->GetYaxis()->SetLabelSize(0.06);
+    b1->GetXaxis()->SetTitleOffset(0.7);
+    b1->GetXaxis()->SetTitleSize(0.06);
+    b1->GetXaxis()->SetNdivisions(508,kTRUE);
+    c->cd(2);
+    b1->Draw();
+  }
 
   c->Update();
   c->Print(savename.c_str());
@@ -115,14 +113,14 @@ void Draw2DTempPlot(std::string histo, TFile* f1, std::string savename){
   plot->GetYaxis()->SetBinLabel(4,"ME- 3/1");
   plot->GetYaxis()->SetBinLabel(5,"ME- 2/2");
   plot->GetYaxis()->SetBinLabel(6,"ME- 2/1");
-  plot->GetYaxis()->SetBinLabel(7,"ME- 1/1a");
-  plot->GetYaxis()->SetBinLabel(8,"ME- 1/3");
-  plot->GetYaxis()->SetBinLabel(9,"ME- 1/2");
-  plot->GetYaxis()->SetBinLabel(10,"ME- 1/1b");
-  plot->GetYaxis()->SetBinLabel(11,"ME+ 1/1b");
-  plot->GetYaxis()->SetBinLabel(12,"ME+ 1/2");
-  plot->GetYaxis()->SetBinLabel(13,"ME+ 1/3");
-  plot->GetYaxis()->SetBinLabel(14,"ME+ 1/1a");
+  plot->GetYaxis()->SetBinLabel(10,"ME- 1/1a");
+  plot->GetYaxis()->SetBinLabel(7,"ME- 1/3");
+  plot->GetYaxis()->SetBinLabel(8,"ME- 1/2");
+  plot->GetYaxis()->SetBinLabel(9,"ME- 1/1b");
+  plot->GetYaxis()->SetBinLabel(12,"ME+ 1/1b");
+  plot->GetYaxis()->SetBinLabel(13,"ME+ 1/2");
+  plot->GetYaxis()->SetBinLabel(14,"ME+ 1/3");
+  plot->GetYaxis()->SetBinLabel(11,"ME+ 1/1a");
   plot->GetYaxis()->SetBinLabel(15,"ME+ 2/1");
   plot->GetYaxis()->SetBinLabel(16,"ME+ 2/2");
   plot->GetYaxis()->SetBinLabel(17,"ME+ 3/1");
@@ -273,10 +271,10 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
 
 
   if (station == 1){
-    TVector3 p1(97.5,15.55,0);
-    TVector3 p2(97.5,-15.55,0);
-    TVector3 p3(265.5,-30.65,0);
-    TVector3 p4(265.5,30.65,0);
+    TVector3 p1(101,9.361,0);
+    TVector3 p2(101,-9.361,0);
+    TVector3 p3(260,-22.353,0);
+    TVector3 p4(260,22.353,0);
 
     TLine *line1; 
     TLine *line2;
@@ -309,10 +307,10 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
 
     }
 
-    TVector3 q1(279.7,37.0,0);
-    TVector3 q2(279.7,-37.0,0);
-    TVector3 q3(459.7,-53.9,0);
-    TVector3 q4(459.7,53.9,0);
+    TVector3 q1(281.49,25.5,0);
+    TVector3 q2(281.49,-25.5,0);
+    TVector3 q3(455.99,-41.87,0);
+    TVector3 q4(455.99,41.87,0);
 
     for (int i = 0; i < 36; i++){
  
@@ -341,10 +339,10 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
 
     }
 
-    TVector3 r1(490.15,42.95,0);
-    TVector3 r2(490.15,-42.95,0);
-    TVector3 r3(680.15,-59.6,0);
-    TVector3 r4(680.15,59.6,0);
+    TVector3 r1(511.99,31.7,0);
+    TVector3 r2(511.99,-31.7,0);
+    TVector3 r3(676.15,-46.05,0);
+    TVector3 r4(676.15,46.05.6,0);
 
     for (int i = 0; i < 36; i++){
 
@@ -376,10 +374,11 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
 
 
   if (station == 2){
-    TVector3 p1(139.45,37.55,0);
-    TVector3 p2(139.45,-37.55,0);
-    TVector3 p3(345.95,-76.7,0);
-    TVector3 p4(345.59,76.7,0);
+
+    TVector3 p1(146.9,27.0,0);
+    TVector3 p2(146.9,-27.0,0);
+    TVector3 p3(336.56,-62.855,0);
+    TVector3 p4(336.56,62.855,0);
 
     p1.Rotate(pi/36,x);
     p2.Rotate(pi/36,x);
@@ -417,10 +416,10 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
 
     }
 
-    TVector3 q1(357.25,44.75,0);
-    TVector3 q2(357.25,-44.75,0);
-    TVector3 q3(695.25,-76.5,0);
-    TVector3 q4(695.25,76.5,0);
+    TVector3 q1(364.02,33.23,0);
+    TVector3 q2(364.02,-33.23,0);
+    TVector3 q3(687.08,-63.575,0);
+    TVector3 q4(687.08,63.575,0);
 
     for (int i = 0; i < 36; i++){
 
@@ -451,11 +450,11 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
   }
 
   if (station == 3){
-    TVector3 p1(160.45,41.75,0);
-    TVector3 p2(160.45,-41.75,0);
-    TVector3 p3(344.95,-76.7,0);
-    TVector3 p4(344.95,76.7,0);
 
+    TVector3 p1(166.89,30.7,0);
+    TVector3 p2(166.89,-30.7,0);
+    TVector3 p3(336.59,-62.855,0);
+    TVector3 p4(336.59,62.855,0);
 
     p1.Rotate(pi/36,x);
     p2.Rotate(pi/36,x);
@@ -493,10 +492,10 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
 
     }
 
-    TVector3 q1(357.25,44.75,0);
-    TVector3 q2(357.25,-44.75,0);
-    TVector3 q3(695.25,-76.5,0);
-    TVector3 q4(695.25,76.5,0);
+    TVector3 q1(364.02,33.23,0);
+    TVector3 q2(364.02,-33.23,0);
+    TVector3 q3(687.08,-63.575,0);
+    TVector3 q4(687.08,63.575,0);
 
     for (int i = 0; i < 36; i++){
 
@@ -527,10 +526,11 @@ void GlobalrHPosfromTree(std::string graphname, TFile* f1, TFile* f2, int statio
   }
 
   if (station == 4){
-    TVector3 p1(179.4,45.15,0);
-    TVector3 p2(179.4,-45.15,0);
-    TVector3 p3(34.59,-76.7,0);
-    TVector3 p4(34.59,76.7,0);
+
+    TVector3 p1(186.99,34.505.15,0);
+    TVector3 p2(186.99,-34.505,0);
+    TVector3 p3(336.41,-62.825,0);
+    TVector3 p4(336.41,62.825,0);
 
     p1.Rotate(pi/36,x);
     p2.Rotate(pi/36,x);
@@ -661,10 +661,11 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
   int lc2 = 1;
 
   if (station == 1){
-    TVector3 p1(97.5,15.55,0);
-    TVector3 p2(97.5,-15.55,0);
-    TVector3 p3(265.5,-30.65,0);
-    TVector3 p4(265.5,30.65,0);
+
+    TVector3 p1(101,9.361,0);
+    TVector3 p2(101,-9.361,0);
+    TVector3 p3(260,-22.353,0);
+    TVector3 p4(260,22.353,0);
 
     TLine *line1; 
     TLine *line2;
@@ -697,10 +698,10 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
 
     }
 
-    TVector3 q1(279.7,37.0,0);
-    TVector3 q2(279.7,-37.0,0);
-    TVector3 q3(459.7,-53.9,0);
-    TVector3 q4(459.7,53.9,0);
+    TVector3 q1(281.49,25.5,0);
+    TVector3 q2(281.49,-25.5,0);
+    TVector3 q3(455.99,-41.87,0);
+    TVector3 q4(455.99,41.87,0);
 
     for (int i = 0; i < 36; i++){
 
@@ -728,10 +729,10 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
 
     }
 
-    TVector3 r1(490.15,42.95,0);
-    TVector3 r2(490.15,-42.95,0);
-    TVector3 r3(680.15,-59.6,0);
-    TVector3 r4(680.15,59.6,0);
+    TVector3 r1(511.99,31.7,0);
+    TVector3 r2(511.99,-31.7,0);
+    TVector3 r3(676.15,-46.05,0);
+    TVector3 r4(676.15,46.05.6,0);
 
     for (int i = 0; i < 36; i++){
 
@@ -763,10 +764,11 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
 
 
   if (station == 2){
-    TVector3 p1(139.45,37.55,0);
-    TVector3 p2(139.45,-37.55,0);
-    TVector3 p3(345.95,-76.7,0);
-    TVector3 p4(345.59,76.7,0);
+
+    TVector3 p1(146.9,27.0,0);
+    TVector3 p2(146.9,-27.0,0);
+    TVector3 p3(336.56,-62.855,0);
+    TVector3 p4(336.56,62.855,0);
 
     p1.Rotate(pi/36,x);
     p2.Rotate(pi/36,x);
@@ -804,10 +806,10 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
 
     }
 
-    TVector3 q1(357.25,44.75,0);
-    TVector3 q2(357.25,-44.75,0);
-    TVector3 q3(695.25,-76.5,0);
-    TVector3 q4(695.25,76.5,0);
+    TVector3 q1(364.02,33.23,0);
+    TVector3 q2(364.02,-33.23,0);
+    TVector3 q3(687.08,-63.575,0);
+    TVector3 q4(687.08,63.575,0);
 
     for (int i = 0; i < 36; i++){
 
@@ -839,10 +841,11 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
   }
 
   if (station == 3){
-    TVector3 p1(160.45,41.75,0);
-    TVector3 p2(160.45,-41.75,0);
-    TVector3 p3(344.95,-76.7,0);
-    TVector3 p4(344.95,76.7,0);
+
+    TVector3 p1(166.89,30.7,0);
+    TVector3 p2(166.89,-30.7,0);
+    TVector3 p3(336.59,-62.855,0);
+    TVector3 p4(336.59,62.855,0);
 
     p1.Rotate(pi/36,x);
     p2.Rotate(pi/36,x);
@@ -880,10 +883,10 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
 
     }
 
-    TVector3 q1(357.25,44.75,0);
-    TVector3 q2(357.25,-44.75,0);
-    TVector3 q3(695.25,-76.5,0);
-    TVector3 q4(695.25,76.5,0);
+    TVector3 q1(364.02,33.23,0);
+    TVector3 q2(364.02,-33.23,0);
+    TVector3 q3(687.08,-63.575,0);
+    TVector3 q4(687.08,63.575,0);
 
     for (int i = 0; i < 36; i++){
 
@@ -914,10 +917,11 @@ void GlobalsegPosfromTree(std::string graphname, TFile* f1, TFile* f2, int stati
   }
 
   if (station == 4){
-    TVector3 p1(179.4,45.15,0);
-    TVector3 p2(179.4,-45.15,0);
-    TVector3 p3(34.59,-76.7,0);
-    TVector3 p4(34.59,76.7,0);
+
+    TVector3 p1(186.99,34.505.15,0);
+    TVector3 p2(186.99,-34.505,0);
+    TVector3 p3(336.41,-62.825,0);
+    TVector3 p4(336.41,62.825,0);
 
     p1.Rotate(pi/36,x);
     p2.Rotate(pi/36,x);
