@@ -150,8 +150,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		std::vector<std::size_t> indices =
 				iterJets->sortedIndexes(sortCriterium);
 
-		const TrackRefVector &trackRefs =
-					iterJets->sortedTracks(indices);
+		TrackRefVector trackRefs = iterJets->sortedTracks(indices);
 
 		const std::vector<TrackIPTagInfo::TrackIPData> &ipData =
 					iterJets->impactParameterData();
