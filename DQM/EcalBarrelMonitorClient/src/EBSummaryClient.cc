@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/19 15:08:27 $
- * $Revision: 1.135 $
+ * $Date: 2008/04/23 18:20:36 $
+ * $Revision: 1.136 $
  * \author G. Della Ricca
  *
 */
@@ -1071,19 +1071,17 @@ void EBSummaryClient::analyze(void){
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
           if ( iex <= 85 ) {
-            ++nValidChannelsEB[(ipx-1)/20];
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsEB[(ipx-1)/20];
           } else {
-            ++nValidChannelsEB[18+(ipx-1)/20];
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsEB[18+(ipx-1)/20];
           }
-        }
-        if ( xval == 0 ) {
-          ++nGlobalErrors;
+          if ( xval == 0 ) ++nGlobalErrors;
           if ( iex <= 85 ) {
-            ++nGlobalErrorsEB[(ipx-1)/20];
+            if ( xval == 0 ) ++nGlobalErrorsEB[(ipx-1)/20];
           } else {
-            ++nGlobalErrorsEB[18+(ipx-1)/20];
+            if ( xval == 0 ) ++nGlobalErrorsEB[18+(ipx-1)/20];
           }
         }
 
@@ -1132,8 +1130,8 @@ void EBSummaryClient::analyze(void){
         float xval = meGlobalSummary_->getBinContent( ipx, iex );
 
         if ( xval > -1 ) {
-          if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
-          if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
+          if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[ipttx-1][iettx-1];
+          if ( xval == 0 ) ++nGlobalErrorsTT[ipttx-1][iettx-1];
         }
 
       }

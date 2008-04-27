@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/19 15:08:28 $
- * $Revision: 1.111 $
+ * $Date: 2008/04/23 18:20:37 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  *
 */
@@ -1221,15 +1221,19 @@ void EESummaryClient::analyze(void){
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
           for (int i = 1; i <= 9; i++) {
-            if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            if ( xval != 2 && xval != 5 ) 
+              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            }
           }
         }
         if ( xval == 0 ) {
-          ++nGlobalErrors;
+          if ( xval == 0 ) ++nGlobalErrors;
           for (int i = 1; i <= 9; i++) {
-            if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            if ( xval == 0 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            }
           }
         }
 
@@ -1268,15 +1272,19 @@ void EESummaryClient::analyze(void){
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
           for (int i = 10; i <= 18; i++) {
-            if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            if ( xval != 2 && xval != 5 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            }
           }
         }
         if ( xval == 0 ) {
-          ++nGlobalErrors;
+          if ( xval == 0 ) ++nGlobalErrors;
           for (int i = 10; i <= 18; i++) {
-            if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            if ( xval == 0 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            }
           }
         }
 
@@ -1333,8 +1341,8 @@ void EESummaryClient::analyze(void){
           float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
 
           if ( xval > -1 ) {
-            if ( xval != 2 && xval != 5 ) nValidChannelsTT[iside][jxdcc-1][jydcc-1]++;
-            if ( xval == 0 ) nGlobalErrorsTT[iside][jxdcc-1][jydcc-1]++;
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[iside][jxdcc-1][jydcc-1];
+            if ( xval == 0 ) ++nGlobalErrorsTT[iside][jxdcc-1][jydcc-1];
           } else {
             nOutOfGeometryTT[iside][jxdcc-1][jydcc-1]++;
           }
