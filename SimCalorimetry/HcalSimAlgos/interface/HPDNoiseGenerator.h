@@ -2,6 +2,7 @@
 #define HcalSimAlgos_HPDNoiseGenerator_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
+#include <vector>
 class HcalSimParameterMap;
 
 class HPDNoiseGenerator : public CaloVNoiseSignalGenerator
