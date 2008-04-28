@@ -1,13 +1,13 @@
 #!/bin/bash
-#$Id: mkstore.sh,v 1.2 2008/04/01 16:52:57 loizides Exp $
+#$Id: mkstore.sh,v 1.3 2008/04/28 13:34:22 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
-    source /etc/profile.d/sm_env.sh;
+    source /etc/profile.d/sm_env.sh
 fi
 
 dummymode=$1
 if test -n "$dummymode"; then
-    dummymode=1;
+    dummymode=1
 fi
 
 store=/store
@@ -28,7 +28,7 @@ done
 
 if test "$dummymode" = "1"; then
     for i in emulator global; do
-        cd scripts
+        cd $store/$i/scripts
         touch dummy.pl
         chmod 755 dummy.pl
         for k in  insertFile.pl notifyTier0.pl closeFile.pl; do
@@ -36,17 +36,14 @@ if test "$dummymode" = "1"; then
         done
     done
 else
-    cd $store/emulator/scripts
-    ln -s ~smpro/scripts/emulatorOnly.pl dummy.pl
-    for k in  insertFile.pl notifyTier0.pl closeFile.pl; do
-        ln -fs dummy.pl $k;
+    for i in emulator global; do
+        cd $store/$i/scripts
+        touch dummy.pl
+        chmod 755 dummy.pl
+        ln -s ~smpro/scripts/insertFile.pl insertFile.pl 
+        ln -s ~smpro/scripts/closeFile.pl closeFile.pl 
+        ln -s ~smpro/scripts/notifyTier0.pl notifyTier0.pl 
     done
-    cd $store/global/scripts
-    touch dummy.pl
-    chmod 755 dummy.pl
-    ln -s ~smpro/scripts/insertFile.pl insertFile.pl 
-    ln -s ~smpro/scripts/closeFile.pl closeFile.pl 
-    ln -s ~smpro/scripts/notifyTier0.pl notifyTier0.pl 
 fi
 
 set counter=0
