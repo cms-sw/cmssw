@@ -16,6 +16,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimMuon/MCTruth/interface/DTHitAssociator.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
+#include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
 
 class MuonAssociatorByHits {
   
@@ -29,7 +30,7 @@ class MuonAssociatorByHits {
   reco::RecoToSimCollection associateRecoToSim(edm::RefToBaseVector<reco::Track>&,
 					       edm::RefVector<TrackingParticleCollection>&,
 					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
-
+  
   /// Association Sim To Reco with Collections
   reco::SimToRecoCollection associateSimToReco(edm::RefToBaseVector<reco::Track>&,
 					       edm::RefVector<TrackingParticleCollection>&,
@@ -37,47 +38,44 @@ class MuonAssociatorByHits {
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH, 
-						       edm::Handle<TrackingParticleCollection>& tPCH, 
-						       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const {
+					       edm::Handle<TrackingParticleCollection>& tPCH, 
+					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const {
     edm::RefToBaseVector<reco::Track> tc(tCH);
     for (unsigned int j=0; j<tCH->size();j++)
       tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
-
+    
     edm::RefVector<TrackingParticleCollection> tpc(tPCH.id());
     for (unsigned int j=0; j<tPCH->size();j++)
       tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
-
+    
     return associateRecoToSim(tc,tpc,event,setup);
   }
   
   /// compare reco to sim the handle of reco::Track and TrackingParticle collections
   reco::SimToRecoCollection associateSimToReco(edm::Handle<edm::View<reco::Track> >& tCH, 
-						       edm::Handle<TrackingParticleCollection>& tPCH,
-						       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const {
+					       edm::Handle<TrackingParticleCollection>& tPCH,
+					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const {
     edm::RefToBaseVector<reco::Track> tc(tCH);
     for (unsigned int j=0; j<tCH->size();j++)
       tc.push_back(edm::RefToBase<reco::Track>(tCH,j));
-
+    
     edm::RefVector<TrackingParticleCollection> tpc(tPCH.id());
     for (unsigned int j=0; j<tPCH->size();j++)
       tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
-
+    
     return associateSimToReco(tc,tpc,event,setup);
   }  
   
   template<typename iter>
-    void getMatchedIds(std::vector<SimHitIdpr>&,std::vector<SimHitIdpr>&, 
-		       int&,int&,int&,int&,int&,
-		       int&,int&,int&,int&,int&,
-		       iter,
-		       iter,
-		       TrackerHitAssociator*,
-		       DTHitAssociator &,
-		       MuonTruth &) const;
+    void getMatchedIds(std::vector<SimHitIdpr>& tracker_matchedIds, std::vector<SimHitIdpr>& muon_matchedIds, 
+		       int& n_valid_hits,int& n_tracker_valid_hits,int& n_dt_valid_hits,int& n_csc_valid_hits,int& n_rpc_valid_hits,
+		       int& n_matched_hits,int& n_tracker_matched_hits,int& n_dt_matched_hits,int& n_csc_matched_hits,int& n_rpc_matched_hits,
+		       iter begin, iter end,
+		       TrackerHitAssociator* trackertruth, 
+		       DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth) const;
   
-  int getShared(std::vector<SimHitIdpr>&, 
-		std::vector<SimHitIdpr>&,
-		TrackingParticleCollection::const_iterator) const;
+  int getShared(std::vector<SimHitIdpr>& matchedIds, std::vector<SimHitIdpr>& idcachev,
+		TrackingParticleCollection::const_iterator trpart) const;
   
  private:
   const bool AbsoluteNumberOfHits;

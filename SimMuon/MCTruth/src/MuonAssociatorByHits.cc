@@ -1,5 +1,4 @@
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -17,31 +16,6 @@
 
 using namespace reco;
 using namespace std;
-
-// ----------------------------------------------------------------------------------------------------------------
-std::vector<SimHitIdpr> CSCassociateHitId(MuonTruth & csctruth, const TrackingRecHit & hit) {
-
-  //  LogTrace("MuonAssociatorByHits")<<"CSCassociateHitId";
-  vector<SimHitIdpr> simtrackids;  
-  simtrackids.clear();
-  const TrackingRecHit * hitp = &hit;
-  const CSCRecHit2D * cscrechit = dynamic_cast<const CSCRecHit2D *>(hitp);
-  
-  if (cscrechit) {
-    //    LogTrace("MuonAssociatorByHits")<<"cscrechit : "<<*cscrechit;
-    csctruth.analyze(*cscrechit);
-    vector<const PSimHit *> matchedSimHits = csctruth.simHits();
-    //    LogTrace("MuonAssociatorByHits")<<"matchedSimHits.size() = "<<matchedSimHits.size();
-    for(vector<const PSimHit *>::const_iterator hIT=matchedSimHits.begin(); hIT != matchedSimHits.end(); hIT++) {
-      SimHitIdpr currentId((*hIT)->trackId(), (*hIT)->eventId());
-      simtrackids.push_back(currentId);
-    }
-  } else {
-    edm::LogWarning("MuonAssociatorByHits")<<"WARNING in CSCassociateHitId, null dynamic_cast !";
-  }
-  return simtrackids;
-}
-// ----------------------------------------------------------------------------------------------------------------
 
 MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf) :  
   AbsoluteNumberOfHits(conf.getParameter<bool>("AbsoluteNumberOfHits")),
@@ -80,12 +54,14 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   RecoToSimCollection  outputCollection;
 
   // Tracker hit association  
-  TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
+  TrackerHitAssociator * trackertruth = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   // CSC hit association
   MuonTruth csctruth;
   csctruth.eventSetup(*e);
   // DT hit association
-  DTHitAssociator dtassociate(*e,*setup,conf_);
+  DTHitAssociator dttruth(*e,*setup,conf_);
+  // RPC hit association
+  RPCHitAssociator rpctruth(*e,*setup,conf_);
 
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
   
@@ -185,7 +161,7 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 					   n_valid_hits, n_tracker_valid_hits, n_dt_valid_hits, n_csc_valid_hits, n_rpc_valid_hits,
 					   n_matched_hits, n_tracker_matched_hits, n_dt_matched_hits, n_csc_matched_hits, n_rpc_matched_hits,
 					   (*track)->recHitsBegin(), (*track)->recHitsEnd(), 
-					   associate, dtassociate, csctruth);
+					   trackertruth, dttruth, csctruth, rpctruth);
 
     n_matching_simhits = tracker_matchedIds.size() + muon_matchedIds.size(); 
     n_muon_valid_hits = n_dt_valid_hits + n_csc_valid_hits + n_rpc_valid_hits;
@@ -235,7 +211,7 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	else if(n_tracker_valid_hits!=0) tracker_quality = (static_cast<double>(tracker_nshared)/static_cast<double>(n_tracker_valid_hits));
 	else tracker_quality = 0;
 
-	int n_muon_hits = n_dt_valid_hits + n_csc_valid_hits; // TEMP Fix (waiting for RPC)
+	int n_muon_hits = n_dt_valid_hits + n_csc_valid_hits + n_rpc_valid_hits;
 	if (AbsoluteNumberOfHits) muon_quality = static_cast<double>(muon_nshared);
 	else if(n_muon_hits!=0) muon_quality = (static_cast<double>(muon_nshared)/static_cast<double>(n_muon_hits));
 	else muon_quality = 0;
@@ -290,7 +266,7 @@ MuonAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   if (!tC.size()) 
     edm::LogVerbatim("MuonAssociatorByHits")<<"0 reconstructed tracks (-->> 0 associated !)";
 
-  delete associate;
+  delete trackertruth;
   outputCollection.post_insert();
   return outputCollection;
 }
@@ -314,12 +290,14 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
   SimToRecoCollection  outputCollection;
 
   // Tracker hit association  
-  TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
+  TrackerHitAssociator * trackertruth = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   // CSC hit association
   MuonTruth csctruth;
   csctruth.eventSetup(*e);
   // DT hit association
-  DTHitAssociator dtassociate(*e,*setup,conf_);  
+  DTHitAssociator dttruth(*e,*setup,conf_);  
+  // RPC hit association
+  RPCHitAssociator rpctruth(*e,*setup,conf_);
   
   const TrackingParticleCollection tPC   = *(TPCollectionH.product());
 
@@ -352,7 +330,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 					   n_valid_hits, n_tracker_valid_hits, n_dt_valid_hits, n_csc_valid_hits, n_rpc_valid_hits,
 					   n_matched_hits, n_tracker_matched_hits, n_dt_matched_hits, n_csc_matched_hits, n_rpc_matched_hits,
 					   (*track)->recHitsBegin(), (*track)->recHitsEnd(), 
-					   associate, dtassociate, csctruth);
+					   trackertruth, dttruth, csctruth, rpctruth);
 
     n_matching_simhits = tracker_matchedIds.size() + muon_matchedIds.size(); 
     n_muon_valid_hits = n_dt_valid_hits + n_csc_valid_hits + n_rpc_valid_hits;
@@ -387,8 +365,8 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	
       int tpindex =0;
       for (TrackingParticleCollection::const_iterator trpart = tPC.begin(); trpart != tPC.end(); ++trpart, ++tpindex) {
-	LogTrace("MuonAssociatorByHits") << "NEW TrackingParticle "<<tpindex;
-	LogTrace("MuonAssociatorByHits") << "number of simhits for this TP: "  << trpart->trackPSimHit().size();
+	//	LogTrace("MuonAssociatorByHits") << "NEW TrackingParticle "<<tpindex;
+	//	LogTrace("MuonAssociatorByHits") << "number of simhits for this TP: "  << trpart->trackPSimHit().size();
 	tracker_idcachev.clear();
 	muon_idcachev.clear();
 
@@ -402,11 +380,11 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	muon_nshared = getShared(muon_matchedIds, muon_idcachev, trpart);
         global_nshared = tracker_nshared + muon_nshared;
 
-	LogTrace("MuonAssociatorByHits") << "recounting of Tracker simhits";
+	//	LogTrace("MuonAssociatorByHits") << "recounting of Tracker simhits";
 	for(std::vector<PSimHit>::const_iterator TPhit = trpart->pSimHit_begin(); TPhit != trpart->pSimHit_end(); TPhit++) {
           DetId dId = DetId(TPhit->detUnitId());
 	  DetId::Detector detector = dId.det();
-	  LogTrace("MuonAssociatorByHits") << "detector = "<<dId.det()<<endl;
+	  //	  LogTrace("MuonAssociatorByHits") << "detector = "<<dId.det()<<endl;
 	  
 	  if (detector == DetId::Tracker) {
 	    n_tracker_simhits++;
@@ -419,15 +397,15 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	    if (subdetId==SiStripDetId::TIB||subdetId==SiStripDetId::TOB||
 		subdetId==SiStripDetId::TID||subdetId==SiStripDetId::TEC)
 	      stripDetId= new SiStripDetId(dId);
-	    LogTrace("MuonAssociatorByHits") << "consider hit SUBDET = " << subdetId
-					<< " layer = " << LayerFromDetid(dId) 
-					<< " id = " << dId.rawId();
+	    //	    LogTrace("MuonAssociatorByHits") << "consider hit SUBDET = " << subdetId
+	    //			<< " layer = " << LayerFromDetid(dId) 
+	    //			<< " id = " << dId.rawId();
 	    bool newhit = true;
 	    for(std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++) {
 	      DetId dIdOK = DetId(TPhitOK->detUnitId());
-	      LogTrace("MuonAssociatorByHits") << "\t\tcompare with SUBDET = " << dIdOK.subdetId()
-					  << " layer = " << LayerFromDetid(dIdOK)
-					  << " id = " << dIdOK.rawId();
+	      //	      LogTrace("MuonAssociatorByHits") << "\t\tcompare with SUBDET = " << dIdOK.subdetId()
+	      //			  << " layer = " << LayerFromDetid(dIdOK)
+	      //			  << " id = " << dIdOK.rawId();
 	      //no grouped, no splitting
 	      if (!UseGrouped && !UseSplitting)
 		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
@@ -449,14 +427,14 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 		newhit = true;
 	    }
 	    if (newhit) {
-	      LogTrace("MuonAssociatorByHits") << "\t\tok";
+	      //	      LogTrace("MuonAssociatorByHits") << "\t\tok";
 	      tphits.push_back(*TPhit);
 	    }
-	    else LogTrace("MuonAssociatorByHits") << "\t\tno";
+	    //	    else LogTrace("MuonAssociatorByHits") << "\t\tno";
 	    delete stripDetId;
 	  }
 	  else if (detector == DetId::Muon) {
-	    LogTrace("MuonAssociatorByHits") << "\t\tok";
+	    //	    LogTrace("MuonAssociatorByHits") << "\t\tok";
 	    n_muon_simhits++;
 	  }
 	}
@@ -479,7 +457,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	  tracker_quality = static_cast<double>(tracker_nshared)/static_cast<double>(n_tracker_valid_hits);
 	else tracker_quality = 0;
 	
-	int n_muon_hits = n_dt_valid_hits + n_csc_valid_hits; // TEMP Fix (waiting for RPC)
+	int n_muon_hits = n_dt_valid_hits + n_csc_valid_hits + n_rpc_valid_hits;
 	if (AbsoluteNumberOfHits) muon_quality = static_cast<double>(muon_nshared);
 	else if(SimToRecoDenominator == "sim" && n_muon_simhits!=0) 
 	  muon_quality = static_cast<double>(muon_nshared)/static_cast<double>(n_muon_simhits);
@@ -556,7 +534,7 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
     }
   }
   
-  delete associate;
+  delete trackertruth;
   outputCollection.post_insert();
   return outputCollection;
 }
@@ -605,15 +583,16 @@ int MuonAssociatorByHits::LayerFromDetid(const DetId& detId ) const
 
 template<typename iter>
 void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matchedIds,std::vector<SimHitIdpr>& muon_matchedIds,
-					  int& n_valid_hits, int& n_tracker_valid_hits, 
-					  int& n_dt_valid_hits, int& n_csc_valid_hits, int& n_rpc_valid_hits,
-					  int& n_matched_hits, int& n_tracker_matched_hits, 
-					  int& n_dt_matched_hits, int& n_csc_matched_hits, int& n_rpc_matched_hits,
-					  iter begin,
-					  iter end,
-					  TrackerHitAssociator* associate, 
-					  DTHitAssociator & dtassociate,
-					  MuonTruth & csctruth) const {
+					 int& n_valid_hits, int& n_tracker_valid_hits, 
+					 int& n_dt_valid_hits, int& n_csc_valid_hits, int& n_rpc_valid_hits,
+					 int& n_matched_hits, int& n_tracker_matched_hits, 
+					 int& n_dt_matched_hits, int& n_csc_matched_hits, int& n_rpc_matched_hits,
+					 iter begin,
+					 iter end,
+					 TrackerHitAssociator* trackertruth, 
+					 DTHitAssociator & dttruth,
+					 MuonTruth & csctruth,
+					 RPCHitAssociator & rpctruth) const {
     tracker_matchedIds.clear();
     muon_matchedIds.clear();
 
@@ -646,7 +625,7 @@ void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matche
 
 	  n_tracker_valid_hits++;
 	  SimTrackIds.clear();	  
-	  SimTrackIds = associate->associateHitId(*getHitPtr(it));
+	  SimTrackIds = trackertruth->associateHitId(*getHitPtr(it));
 
 	  if(!SimTrackIds.empty()) {
 	    n_tracker_matched_hits++;
@@ -667,7 +646,7 @@ void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matche
 	    
 	    n_dt_valid_hits++;
 	    SimTrackIds.clear();
-	    SimTrackIds = dtassociate.associateHitId(*getHitPtr(it));  
+	    SimTrackIds = dttruth.associateHitId(*getHitPtr(it));  
 	    
 	    if (!SimTrackIds.empty()) {
 	      n_dt_matched_hits++;
@@ -684,6 +663,12 @@ void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matche
 	      const DTRecHit1D * dtrechit = dynamic_cast<const DTRecHit1D *>(&(*getHitPtr(it)));
 	      DTWireId wireid = dtrechit->wireId();
 	      edm::LogVerbatim("MuonAssociatorByHits") << " DTWireId :" <<wireid;
+
+	      std::vector<const PSimHit *> dtSimHits = dttruth.associateHit(*getHitPtr(it));
+	      edm::LogVerbatim("MuonAssociatorByHits") << " associated PSimHit's : size = "<<dtSimHits.size();
+	      for (unsigned int j=0; j<dtSimHits.size(); j++) {
+		edm::LogVerbatim("MuonAssociatorByHits") << "index = " <<j<< ", PSimHit = "<< *(dtSimHits[j]);
+	      }
 	    }
 	  }
 	  
@@ -693,7 +678,7 @@ void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matche
 
 	    n_csc_valid_hits++;
 	    SimTrackIds.clear();
-	    SimTrackIds = CSCassociateHitId(csctruth,*getHitPtr(it));
+	    SimTrackIds = csctruth.associateHitId(*getHitPtr(it));  
 	    
 	    if (!SimTrackIds.empty()) {
 	      n_csc_matched_hits++;
@@ -710,9 +695,23 @@ void MuonAssociatorByHits::getMatchedIds(std::vector<SimHitIdpr>& tracker_matche
 	  
 	  else if (subdet == MuonSubdetId::RPC) {
 	    edm::LogVerbatim("MuonAssociatorByHits") 
-	      <<"TrackingRecHit "<<iloop<<" -Muon RPC- detID = "<<detid;
+	      <<"TrackingRecHit "<<iloop<<" -Muon RPC- detID = "<<detid<<" matched to SimTrack";
 
 	    n_rpc_valid_hits++;
+	    SimTrackIds.clear();
+	    SimTrackIds = rpctruth.associateRecHit(*getHitPtr(it));  
+	    
+	    if (!SimTrackIds.empty()) {
+	      n_rpc_matched_hits++;
+	      n_matched_hits++;
+	      for(unsigned int j=0; j<SimTrackIds.size(); j++) {
+		edm::LogVerbatim("MuonAssociatorByHits")
+		  <<" Id:" << SimTrackIds[j].first 
+		  << "/Evt:(" << SimTrackIds[j].second.event()<<","
+		  << SimTrackIds[j].second.bunchCrossing()<<") ";
+		muon_matchedIds.push_back(SimTrackIds[j]);
+	      }
+	    } 
 	  }
  	  
 	} else edm::LogVerbatim("MuonAssociatorByHits")
