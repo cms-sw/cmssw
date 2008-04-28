@@ -116,7 +116,6 @@ PixelEndcapName::PixelEndcapName(std::string name)
   }
 
   // find the plaquette
-  int thePlaquette = 0;
   string plaquetteString = name.substr(name.find("_PLQ")+4, name.size()-name.find("_PLQ")-4);
   if (plaquetteString == "1") thePlaquette = 1;
   else if (plaquetteString == "2") thePlaquette = 2;
