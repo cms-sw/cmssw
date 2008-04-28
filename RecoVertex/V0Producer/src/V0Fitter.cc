@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.22 2008/04/24 17:59:09 drell Exp $
+// $Id: V0Fitter.cc,v 1.23 2008/04/24 23:26:24 drell Exp $
 //
 //
 
@@ -490,15 +490,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
 // Get methods
-reco::VertexCompositeCandidateCollection V0Fitter::getKshorts() const {
+const reco::VertexCompositeCandidateCollection& V0Fitter::getKshorts() const {
   return theKshorts;
 }
 
-reco::VertexCompositeCandidateCollection V0Fitter::getLambdas() const {
+const reco::VertexCompositeCandidateCollection& V0Fitter::getLambdas() const {
   return theLambdas;
 }
 
-reco::VertexCompositeCandidateCollection V0Fitter::getLambdaBars() const {
+const reco::VertexCompositeCandidateCollection& V0Fitter::getLambdaBars() const {
   return theLambdaBars;
 }
 

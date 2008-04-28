@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.h,v 1.10 2008/04/22 21:50:31 kaulmer Exp $
+// $Id: V0Fitter.h,v 1.11 2008/04/24 17:59:08 drell Exp $
 //
 //
 
@@ -64,9 +64,9 @@ class V0Fitter {
   //reco::VertexCollection getLambdaBarCollection() const;
 
   // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
-  reco::VertexCompositeCandidateCollection getKshorts() const;
-  reco::VertexCompositeCandidateCollection getLambdas() const;
-  reco::VertexCompositeCandidateCollection getLambdaBars() const;
+  const reco::VertexCompositeCandidateCollection& getKshorts() const;
+  const reco::VertexCompositeCandidateCollection& getLambdas() const;
+  const reco::VertexCompositeCandidateCollection& getLambdaBars() const;
 
  private:
   // STL vector of VertexCompositeCandidate that will be filled with VertexCompositeCandidates by fitAll()

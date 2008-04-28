@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.6 2008/03/14 17:13:23 drell Exp $
+// $Id: V0Analyzer.cc,v 1.7 2008/04/24 20:47:58 drell Exp $
 //
 //
 
@@ -68,6 +68,9 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+
 #include "TH1.h"
 #include "TH2.h"
 #include "TFile.h"
@@ -95,7 +98,7 @@ class V0Analyzer : public edm::EDAnalyzer {
   std::string HistoFileName;
   std::string V0CollectionName;
 
-  TFile* theHistoFile;
+  //TFile* theHistoFile;
   TH1D* myKshortMassHisto;
   TH1D* myDecayRadiusHisto;
   TH1D* myRefitKshortMassHisto;
@@ -175,7 +178,7 @@ V0Analyzer::V0Analyzer(const edm::ParameterSet& iConfig):
 						 std::string("Kshort"))) {
 
    //now do what ever initialization is needed
-  theHistoFile = 0;
+  //theHistoFile = 0;
 
   numDiff1 = numDiff2 = 0;
 }
@@ -200,7 +203,9 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
 
   using std::string;
 
-  theHistoFile = new TFile(HistoFileName.c_str(), "RECREATE");
+  edm::Service<TFileService> fs;
+  //theHistoFile = new TFile(HistoFileName.c_str(), "RECREATE");
+  //theHistoFile->Open();
 
   string algo(algoLabel);
   string vernum("175");
@@ -345,120 +350,120 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
 			       string(" Sim Track Pairs m_{#pi #pi}"));
   string simTkMpipiHistoLabelShort(vernum + string("simTkMpipi"));
 
-  simTkMpipiHisto = new TH1D(simTkMpipiHistoLabelShort.c_str(),
+  simTkMpipiHisto = fs->make<TH1D>(simTkMpipiHistoLabelShort.c_str(),
 			     simTkMpipiHistoLabelLong.c_str(),
 			     100, 0., 2.);
 
 
 
-  step1massHisto = new TH1D(s1massHistoLabelShort.c_str(),
+  step1massHisto = fs->make<TH1D>(s1massHistoLabelShort.c_str(),
 			    s1massHistoLabelLong.c_str(),
 			    100, 0., 2.);
-  step2massHisto = new TH1D(s2massHistoLabelShort.c_str(),
+  step2massHisto = fs->make<TH1D>(s2massHistoLabelShort.c_str(),
 			    s2massHistoLabelLong.c_str(),
 			    100, 0., 2.);
-  step3massHisto = new TH1D(s3massHistoLabelShort.c_str(),
+  step3massHisto = fs->make<TH1D>(s3massHistoLabelShort.c_str(),
 			    s3massHistoLabelLong.c_str(),
 			    100, 0., 2.);
-  step4massHisto = new TH1D(s4massHistoLabelShort.c_str(),
+  step4massHisto = fs->make<TH1D>(s4massHistoLabelShort.c_str(),
 			    s4massHistoLabelLong.c_str(),
 			    100, 0., 2.);
 
-  vertexChi2Histo = new TH1D(vertexChi2HistoLabelShort.c_str(),
+  vertexChi2Histo = fs->make<TH1D>(vertexChi2HistoLabelShort.c_str(),
 			     vertexChi2HistoLabelLong.c_str(),
 			     100, 0., 20.);
-  rVtxHisto1 = new TH1D(rVtxHistoLabelShort.c_str(),
+  rVtxHisto1 = fs->make<TH1D>(rVtxHistoLabelShort.c_str(),
 		       rVtxHistoLabelLong.c_str(),
 		       100, 0., 50.);
-  vtxSigHisto1 = new TH1D(vtxSigHistoLabelShort.c_str(),
+  vtxSigHisto1 = fs->make<TH1D>(vtxSigHistoLabelShort.c_str(),
 			 vtxSigHistoLabelLong.c_str(),
 			 100, 0., 100.);
-  rVtxHisto2 = new TH1D(rVtxHistoLabel2Short.c_str(),
+  rVtxHisto2 = fs->make<TH1D>(rVtxHistoLabel2Short.c_str(),
 		       rVtxHistoLabel2Long.c_str(),
 		       100, 0., 50.);
-  vtxSigHisto2 = new TH1D(vtxSigHistoLabel2Short.c_str(),
+  vtxSigHisto2 = fs->make<TH1D>(vtxSigHistoLabel2Short.c_str(),
 			 vtxSigHistoLabel2Long.c_str(),
 			 100, 0., 100.);
-  k0sPtHisto = new TH1D(k0sPtHistoLabelShort.c_str(),
+  k0sPtHisto = fs->make<TH1D>(k0sPtHistoLabelShort.c_str(),
 		       k0sPtHistoLabelLong.c_str(),
 		       100, 0., 20.);
 
-  rErrorHisto = new TH1D(rErrorHistoLabelShort.c_str(),
+  rErrorHisto = fs->make<TH1D>(rErrorHistoLabelShort.c_str(),
 			 rErrorHistoLabelLong.c_str(),
 			 1000, 0., 1.);
-  tkPtHisto = new TH1D(tkPtHistoLabelShort.c_str(),
+  tkPtHisto = fs->make<TH1D>(tkPtHistoLabelShort.c_str(),
 		       tkPtHistoLabelLong.c_str(),
 		       100, 0., 20.);
-  tkChi2Histo = new TH1D(tkChi2HistoLabelShort.c_str(),
+  tkChi2Histo = fs->make<TH1D>(tkChi2HistoLabelShort.c_str(),
 			 tkChi2HistoLabelLong.c_str(),
 			 100, 0., 20.);
-  sqrtTkChi2Histo = new TH1D(sqrtTkChi2HistoLabelShort.c_str(),
+  sqrtTkChi2Histo = fs->make<TH1D>(sqrtTkChi2HistoLabelShort.c_str(),
 			 sqrtTkChi2HistoLabelLong.c_str(),
 			 100, 0., 20.);
-  tkEtaHisto = new TH1D(tkEtaHistoLabelShort.c_str(),
+  tkEtaHisto = fs->make<TH1D>(tkEtaHistoLabelShort.c_str(),
 			tkEtaHistoLabelLong.c_str(),
 			100, -2.5, 2.5);
-  kShortEtaHisto = new TH1D(kShortEtaHistoLabelShort.c_str(),
+  kShortEtaHisto = fs->make<TH1D>(kShortEtaHistoLabelShort.c_str(),
 			    kShortEtaHistoLabelLong.c_str(),
 			    100, -2.5, 2.5);
-  numHitsHisto = new TH1D(numHitsHistoLabelShort.c_str(),
+  numHitsHisto = fs->make<TH1D>(numHitsHistoLabelShort.c_str(),
 			  numHitsHistoLabelLong.c_str(),
 			  20, 0., 20.);
 
 
-  myKshortMassHisto = new TH1D(massHistoLabelShort.c_str(), 
+  myKshortMassHisto = fs->make<TH1D>(massHistoLabelShort.c_str(), 
 			       massHistoLabelLong.c_str(),
 			       100, 0.3, 0.7);
-  myDecayRadiusHisto = new TH1D(decRadHistoLabelShort.c_str(), 
+  myDecayRadiusHisto = fs->make<TH1D>(decRadHistoLabelShort.c_str(), 
 				decRadHistoLabelLong.c_str(),
 				100, 0., 40.);
-  myRefitKshortMassHisto = new TH1D((refit+massHistoLabelShort).c_str(), 
+  myRefitKshortMassHisto = fs->make<TH1D>((refit+massHistoLabelShort).c_str(), 
 				    (refit+massHistoLabelLong).c_str(),
 				    100, 0.3, 0.7);
-  myRefitDecayRadiusHisto = new TH1D((refit+decRadHistoLabelShort).c_str(), 
+  myRefitDecayRadiusHisto = fs->make<TH1D>((refit+decRadHistoLabelShort).c_str(), 
 				     (refit+decRadHistoLabelLong).c_str(),
 				     100, 0., 40.);
-  myNativeParticleMassHisto = new TH1D((native+massHistoLabelShort).c_str(),
+  myNativeParticleMassHisto = fs->make<TH1D>((native+massHistoLabelShort).c_str(),
 				       (refit+massHistoLabelLong).c_str(),
 				       300, 0.3, 1.8);
-  myEtaEfficiencyHisto = new TH1D(etaEffHistoLabelShort.c_str(),
+  myEtaEfficiencyHisto = fs->make<TH1D>(etaEffHistoLabelShort.c_str(),
 				  etaEffHistoLabelLong.c_str(),
 				  40, -2.5, 2.5);
-  mySimEtaHisto = new TH1D(simEtaHistoLabelShort.c_str(),
+  mySimEtaHisto = fs->make<TH1D>(simEtaHistoLabelShort.c_str(),
 			   simEtaHistoLabelLong.c_str(),
 			   40, -2.5, 2.5);
-  myRhoEfficiencyHisto = new TH1D(rhoEffHistoLabelShort.c_str(),
+  myRhoEfficiencyHisto = fs->make<TH1D>(rhoEffHistoLabelShort.c_str(),
 				  rhoEffHistoLabelLong.c_str(),
 				  60, 0., 60.);
-  myRhoEfficiencyHisto2 = new TH1D(rhoEffHistoLabel2Short.c_str(),
+  myRhoEfficiencyHisto2 = fs->make<TH1D>(rhoEffHistoLabel2Short.c_str(),
 				  rhoEffHistoLabel2Long.c_str(),
 				  60, 0., 60.);
-  myRhoEfficiencyHisto3 = new TH1D(rhoEffHistoLabel3Short.c_str(),
+  myRhoEfficiencyHisto3 = fs->make<TH1D>(rhoEffHistoLabel3Short.c_str(),
 				  rhoEffHistoLabel3Long.c_str(),
 				  60, 0., 60.);
-  myRhoEfficiencyHisto4 = new TH1D(rhoEffHistoLabel4Short.c_str(),
+  myRhoEfficiencyHisto4 = fs->make<TH1D>(rhoEffHistoLabel4Short.c_str(),
 				  rhoEffHistoLabel4Long.c_str(),
 				  60, 0., 60.);
-  mySimRhoHisto = new TH1D(simRhoHistoLabelShort.c_str(),
+  mySimRhoHisto = fs->make<TH1D>(simRhoHistoLabelShort.c_str(),
 			   simRhoHistoLabelLong.c_str(),
 			   60, 0., 60.);
-  myKshortPtHisto = new TH1D(kShortPtHistoLabelShort.c_str(),
+  myKshortPtHisto = fs->make<TH1D>(kShortPtHistoLabelShort.c_str(),
 			    kShortPtHistoLabelLong.c_str(),
 			    100, 0., 100.);
-  myImpactParameterHisto = new TH1D(impactParamHistoLabelShort.c_str(),
+  myImpactParameterHisto = fs->make<TH1D>(impactParamHistoLabelShort.c_str(),
 				    impactParamHistoLabelLong.c_str(),
 				    100, 0., 10.);
-  myImpactParameterHisto2 = new TH1D(impactParamHisto2LabelShort.c_str(),
+  myImpactParameterHisto2 = fs->make<TH1D>(impactParamHisto2LabelShort.c_str(),
 				    impactParamHisto2LabelLong.c_str(),
 				    100, 0., 10.);
-  myNumSimKshortsHisto = new TH1D(numSimKshortsHistoLabelShort.c_str(),
+  myNumSimKshortsHisto = fs->make<TH1D>(numSimKshortsHistoLabelShort.c_str(),
 				  numSimKshortsHistoLabelLong.c_str(),
 				  100, 0., 100.);
-  myNumRecoKshortsHisto = new TH1D(numRecoKshortsHistoLabelShort.c_str(),
+  myNumRecoKshortsHisto = fs->make<TH1D>(numRecoKshortsHistoLabelShort.c_str(),
 				   numRecoKshortsHistoLabelLong.c_str(),
 				   100, 0., 100.);
   myInnermostHitDistanceHisto = 
-    new TH1D(innermostHitDistanceHistoLabelShort.c_str(),
+    fs->make<TH1D>(innermostHitDistanceHistoLabelShort.c_str(),
 	     innermostHitDistanceHistoLabelLong.c_str(),
 	     100, 0., 10.);
 
@@ -955,6 +960,8 @@ void V0Analyzer::endJob() {
   myRhoEfficiencyHisto2->Divide(mySimRhoHisto);
   myRhoEfficiencyHisto3->Divide(mySimRhoHisto);
   myRhoEfficiencyHisto4->Divide(mySimRhoHisto);
+
+  /*theHistoFile->cd();
   
   myKshortMassHisto->Write();
   myDecayRadiusHisto->Write();
@@ -1004,7 +1011,7 @@ void V0Analyzer::endJob() {
   theHistoFile->Write();
   theHistoFile->Close();
   delete theHistoFile;
-  theHistoFile=0;
+  theHistoFile=0;*/
   endJcount++;
   std::cout << "ENDJCOUNT: " << endJcount << std::endl;
 

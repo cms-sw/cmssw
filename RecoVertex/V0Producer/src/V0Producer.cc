@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Producer.cc,v 1.4 2008/04/22 21:50:32 kaulmer Exp $
+// $Id: V0Producer.cc,v 1.5 2008/04/24 17:59:09 drell Exp $
 //
 //
 
@@ -66,14 +66,26 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    reco::VertexCollection( theVees.getLambdaBarCollection() ));*/
 
    std::auto_ptr< reco::VertexCompositeCandidateCollection > 
-     kShortCandidates( new reco::VertexCompositeCandidateCollection( 
-						       theVees.getKshorts()) );
+     kShortCandidates( new reco::VertexCompositeCandidateCollection );
+   kShortCandidates->reserve( theVees.getKshorts().size() ); 
+								    //		       theVees.getKshorts()) );
    std::auto_ptr< reco::VertexCompositeCandidateCollection >
-     lambdaCandidates( new reco::VertexCompositeCandidateCollection(
-						       theVees.getLambdas()) );
+   lambdaCandidates( new reco::VertexCompositeCandidateCollection );
+   lambdaCandidates->reserve( theVees.getLambdas().size() );
+								    //		       theVees.getLambdas()) );
    std::auto_ptr< reco::VertexCompositeCandidateCollection >
-     lambdaBarCandidates( new reco::VertexCompositeCandidateCollection(
-						    theVees.getLambdaBars()) );
+   lambdaBarCandidates( new reco::VertexCompositeCandidateCollection );
+   lambdaBarCandidates->reserve( theVees.getLambdaBars().size() );
+								       //			    theVees.getLambdaBars()) );
+   std::copy( theVees.getKshorts().begin(),
+	      theVees.getKshorts().end(),
+	      std::back_inserter(*kShortCandidates) );
+   std::copy( theVees.getLambdas().begin(),
+	      theVees.getLambdas().end(),
+	      std::back_inserter(*lambdaCandidates) );
+   std::copy( theVees.getLambdaBars().begin(),
+	      theVees.getLambdaBars().end(),
+	      std::back_inserter(*lambdaBarCandidates) );
 
    // Write the collections to the Event
    //iEvent.put( k0sOut, std::string("Kshort") );
