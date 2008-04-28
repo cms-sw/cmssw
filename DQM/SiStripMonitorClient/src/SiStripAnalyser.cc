@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/03/24 23:56:38 $
- * $Revision: 1.28 $
+ * $Date: 2008/04/13 14:59:07 $
+ * $Revision: 1.29 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -86,8 +86,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
-
-
+  globalStatusFilling_   = ps.getUntrackedParameter<int>("GlobalStatusFilling", true);
   // get back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -193,7 +192,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
-  fillGlobalStatus();
+  if (globalStatusFilling_) fillGlobalStatus();
 }
 
 //

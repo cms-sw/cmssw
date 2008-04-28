@@ -439,37 +439,40 @@ RequestHistos.FillTextStatus = function(transport)
     }
 }
 //
-// -- Request Readout Tree
+// -- Request Readout/Control Tree
 //
-RequestHistos.RequestReadoutHistoList = function()
+RequestHistos.RequestNonGeomeHistoList = function()
 {
   var queryString;
   var url      = WebLib.getApplicationURLWithLID();
-  queryString  = "RequestID=ReadoutHistoList";
+  queryString  = "RequestID=NonGeomHistoList";
+  var obj      = $('type_tag');
+  var fname    = obj.options[obj.selectedIndex].value;
+  queryString += '&FolderName='+fname;
   url         += queryString; 
   var retVal = new Ajax.Request(url,
                                {           
                   		method: 'get',	  
  			        parameters: '', 
- 			        onSuccess: RequestHistos.FillReadOutHistoList
+ 			        onSuccess: RequestHistos.FillNonGeomHistoList
  			       });
-  CommonActions.ShowProgress("visible", "Readout Histogram Tree");
+  CommonActions.ShowProgress("visible", "Readout/Control Tree");
 }
 //
-// -- Fill the summary tree in the list area
+// -- Fill the readout/control tree in the list area
 //
-RequestHistos.FillReadOutHistoList = function(transport) 
+RequestHistos.FillNonGeomHistoList = function(transport) 
 {
     CommonActions.ShowProgress("hidden");
     try {
       var text = transport.responseText;
-      var obj  = $('readout_list');
+      var obj  = $('non_geo_hlist');
       if (obj != null) {
         obj.innerHTML = text;
         initTree();
       }       
     }
     catch (err) {
-    // alert ("[RequestHistos.FillReadOutHistoList] Error detail: " + err.message); 
+    // alert ("[RequestHistos.FillNonGeometricHistoList] Error detail: " + err.message); 
     }
 }

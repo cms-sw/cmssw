@@ -775,15 +775,15 @@ void SiStripInformationExtractor::setPlainHeader(xgi::Output * out) {
 
 }
 //
-// read the Structure And ReadoutHistogram List
+// read the Structure And Readout/Control Histogram List
 //
-void SiStripInformationExtractor::readReadOutHistoTree(DQMStore* dqm_store, xgi::Output * out) {
+void SiStripInformationExtractor::readNonGeomHistoTree(DQMStore* dqm_store, string& fld_name, xgi::Output * out) {
   ostringstream sumtree;
-  string dname = "SiStrip/ReadoutView";
+  string dname = "SiStrip/" + fld_name;
   if (dqm_store->dirExists(dname)) {    
     dqm_store->cd(dname);
     sumtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
-    printReadOutHistoList(dqm_store,sumtree);
+    printNonGeomHistoList(dqm_store,sumtree);
     sumtree <<"</ul>" << endl;   
   } else {
     sumtree << " Desired Directory :  " << endl;
@@ -796,9 +796,9 @@ void SiStripInformationExtractor::readReadOutHistoTree(DQMStore* dqm_store, xgi:
    dqm_store->cd();
 }
 //
-// --  Fill Summary Histo List
+// --  Fill Readout/Control Histo List
 // 
-void SiStripInformationExtractor::printReadOutHistoList(DQMStore * dqm_store, ostringstream& str_val){
+void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, ostringstream& str_val){
   static string indent_str = "";
 
   string currDir = dqm_store->pwd();
@@ -826,7 +826,7 @@ void SiStripInformationExtractor::printReadOutHistoList(DQMStore * dqm_store, os
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     dqm_store->cd(*ic);
-    printReadOutHistoList(dqm_store, str_val);
+    printNonGeomHistoList(dqm_store, str_val);
     dqm_store->goUp();
   }
   str_val << "</ul> "<< endl;  

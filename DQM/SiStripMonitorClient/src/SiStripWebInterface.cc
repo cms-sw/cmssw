@@ -118,9 +118,10 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Content-type","application/xhtml+xml");
     *out << html_out.str();
   }
-  else if (requestID == "ReadoutHistoList") {
+  else if (requestID == "NonGeomHistoList") {
     theActionFlag = NoAction;
-    infoExtractor_->readReadOutHistoTree(dqmStore_, out);
+    std::string fname = get_from_multimap(requestMap_, "FolderName");
+    infoExtractor_->readNonGeomHistoTree(dqmStore_, fname, out);
   }     
   performAction();
 }
