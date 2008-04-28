@@ -318,11 +318,20 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
             tower.E_had += 2. * e;
           }
           tower.E += e;
+
+	  // put the timing only in HCAL
+	  tower.hadSumTimeTimesE += ( e * recHit->time() );
+	  tower.hadSumEForTime   += e;
         }
         else {
           // HCAL situation normal
           tower.E_had += e;
           tower.E += e;
+
+	  // time info
+          tower.hadSumTimeTimesE += ( e * recHit->time() );
+          tower.hadSumEForTime   += e;
+
 
           // store energy for depth 2 for towers 18-27
           if (HcalDetId(detId).subdet()==HcalEndcap & HcalDetId(detId).depth()==2 &&
@@ -726,10 +735,10 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(std::vector<std::pair<DetId,double
 int CaloTowersCreationAlgo::compactTime(float time) {
 
   const float timeUnit = 0.01; // discretization (ns)
-  const int upperLimit = 32768;
-  int cT = int(time/timeUnit + upperLimit/2.0);
-  if (cT>upperLimit) cT = upperLimit;
-  else if (cT< -upperLimit) cT = -upperLimit;
 
-  return cT;
+  if (time>  300.0) return  30000;
+  if (time< -300.0) return -30000;
+
+  return int(time/timeUnit + 0.5);
+
 }
