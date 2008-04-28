@@ -22,8 +22,6 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
 
   algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
 
-  theGeometry = 0;
-
   produces<ESDigiCollection>(ESZSdigiCollection_);
 }
 
@@ -34,8 +32,6 @@ ESZeroSuppressionProducer::~ESZeroSuppressionProducer()
 
 void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
 {
-  checkGeometry(eventSetup);
-
   edm::Handle<ESDigiCollection> ESDigis;
 
   bool fullESDigis = true;
@@ -56,25 +52,4 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
   
   event.put(ESZSDigis, ESZSdigiCollection_);  
 }
-
-void ESZeroSuppressionProducer::checkGeometry(const edm::EventSetup & eventSetup)
-{
-  // TODO find a way to avoid doing this every event
-  edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
-   
-  const CaloGeometry *pGeometry = &*hGeometry;
-   
-  // see if we need to update
-  if(pGeometry != theGeometry) {
-    theGeometry = pGeometry;
-    updateGeometry();
-  }
-}
- 
-void ESZeroSuppressionProducer::updateGeometry()
-{
-  algo_->setGeometry(theGeometry);
-}
-
 
