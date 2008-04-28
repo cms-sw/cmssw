@@ -11,7 +11,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Mon Mar 12 16:36:35 CET 2007
-// $Id: L1GctTest.h,v 1.3 2008/03/28 15:29:37 heath Exp $
+// $Id: L1GctTest.h,v 1.4 2008/04/15 10:35:42 heath Exp $
 //
 //
 
@@ -63,9 +63,6 @@ private:
   std::string theInputDataFileName;
   std::string theReferenceDataFileName;
   std::string theEnergySumsDataFileName;
-
-  int m_firstBx;
-  int m_lastBx;
 
   unsigned m_eventNo;
   bool m_allGood;
