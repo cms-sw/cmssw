@@ -1,5 +1,9 @@
 #!/bin/bash
-#$Id:$
+#$Id: mkvol.sh,v 1.1 2008/04/01 16:47:12 loizides Exp $
+
+if test -e "/etc/profile.d/sm_env.sh"; then 
+    source /etc/profile.d/sm_env.sh;
+fi
 
 id=$1
 sb=$2
@@ -14,6 +18,9 @@ fi
 dpath=/dev/mapper/`/sbin/multipath -l | grep -i $id | cut -d" " -f1`
 mlabel=sata`printf "%02d" $sb`a`printf "%02d" $ar`v`printf "%02d" $vol`
 mpoint=/store/$mlabel
+if test -n "$SM_STORE"; then
+    mpoint=/$SM_STORE/$mlabel
+fi
 
 echo "Info: Volume name $id"
 echo "Info: SataBeast number $sb"
