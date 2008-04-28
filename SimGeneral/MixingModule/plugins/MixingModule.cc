@@ -22,100 +22,159 @@ namespace edm
 {
 
   // Constructor 
-  MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
-							    label_(ps.getParameter<std::string>("Label"))
+  MixingModule::MixingModule(const edm::ParameterSet& ps_mix) : BMixingModule(ps_mix),labelPlayback_(ps_mix.getParameter<std::string>("LabelPlayback"))
 
   {
-    // get the subdetector names
-    this->getSubdetectorNames();
-
-    // create input selector
-    if (label_.size()>0){
-      sel_=new Selector( ModuleLabelSelector(label_));
+    if (labelPlayback_.size()>0){
+      sel_=new Selector( ModuleLabelSelector(labelPlayback_));
     }
     else {
       sel_=new Selector( MatchAllSelector());
     }
 
-    // create worker for selected objects
-    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),maxNbSources_,sel_));  
-    produces<CrossingFrame<SimTrack> >();
+    ParameterSet ps=ps_mix.getParameter<ParameterSet>("mixObjects");
+    std::vector<std::string> names = ps.getParameterNames();
+    for (std::vector<string>::iterator it=names.begin();it!= names.end();++it)
+      {
+	  ParameterSet pset=ps.getParameter<ParameterSet>((*it));
+          if (!pset.exists("type"))  continue; //to allow replacement by empty pset
+	  std::string object = pset.getParameter<std::string>("type");
+	  std::vector<InputTag>  tags=pset.getParameter<std::vector<InputTag> >("input");
+	
+	  //SimTracks
+          if (object=="SimTrack") {
+            InputTag tag;
+	    if (tags.size()>0) tag=tags[0];
+            std::string label=createLabel(object,std::string(""),tag);
+            Selector * sel=createSelector(tag);
+	    workers_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,sel));  
+	    produces<CrossingFrame<SimTrack> >(label);
+	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
 
-    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),maxNbSources_,sel_)); 
-    produces<CrossingFrame<SimVertex> >();
+          }else if (object=="SimVertex") {
+            InputTag tag;
+	    if (tags.size()>0) tag=tags[0];
+            std::string label=createLabel(object,std::string(""),tag);
+            Selector * sel=createSelector(tag);
+	    workers_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,sel));  
+	    produces<CrossingFrame<SimVertex> >(label);
+	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
+          }else if (object=="HepMCProduct") {
+            InputTag tag;
+	    if (tags.size()>0) tag=tags[0];
+            std::string label=createLabel(object,std::string(""),tag);
+            Selector * sel=createSelector(tag);
+	    workers_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,maxNbSources_,sel));  
+	    produces<CrossingFrame<HepMCProduct> >(label);
+	    LogInfo("MixingModule") <<"Will mix"<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+          }else if (object=="PCaloHit") {
+            std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
+	    for (unsigned int ii=0;ii<subdets.size();ii++) {
+	      InputTag tag;
+	      if (tags.size()==1) tag=tags[0];
+              else if(tags.size()>1) tag=tags[ii]; //FIXME: verify sizes
+	      std::string label=createLabel(object,subdets[ii],tag);
+	      Selector * sel=createSelector(tag);
+	      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,sel));  
+	      produces<CrossingFrame<PCaloHit> > (label);
+	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	    }
 
-    workers_.push_back(new MixingWorker<edm::HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),maxNbSources_,sel_));  
-    produces<CrossingFrame<edm::HepMCProduct> >();
+          }else if (object=="PSimHit") {
+	    std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
+	    for (unsigned int ii=0;ii<subdets.size();ii++) {
+	      InputTag tag;
+	      if (tags.size()==1) tag=tags[0];
+              else if(tags.size()>1) tag=tags[ii]; //FIXME: verify sizes
+	      std::string label=createLabel(object,subdets[ii],tag);
+	      Selector * sel=createSelector(tag);
+	      if ((subdets[ii].find("HighTof")==std::string::npos) && (subdets[ii].find("LowTof")==std::string::npos)) {
+		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,sel));  
+		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	      }else {
+		workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,maxNbSources_,sel,true));  
+		// here we have to give the opposite selector too (low for high, high for low)
+		Selector * simSelectorOpp;
+		int slow=(subdets[ii]).find("LowTof");//FIXME: to be done before when creating trackerPids
+		int iend=(subdets[ii]).size();
+		std::string productInstanceNameOpp;
+		if (slow>0) {
+		  productInstanceNameOpp=subdets[ii].substr(0,iend-6)+"HighTof";
+		}else{
+		  productInstanceNameOpp=subdets[ii].substr(0,iend-7)+"LowTof";
+		}
+		simSelectorOpp=new Selector(ModuleLabelSelector(tag.label()) && ProductInstanceNameSelector(productInstanceNameOpp));
+		workers_[workers_.size()-1]->setOppositeSel(simSelectorOpp);
+		workers_[workers_.size()-1]->setCheckTof(ps.getUntrackedParameter<bool>("checktof",true));
+		LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	      }
+	      produces<CrossingFrame<PSimHit> > (label);
+	    }
 
-    //FIXME: no need to keep selectors for the moment!
-    for (unsigned int ii=0;ii<caloSubdetectors_.size();ii++) {
-      caloSelectors_.push_back(new Selector(*sel_ && ProductInstanceNameSelector(caloSubdetectors_[ii])));
-      workers_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,caloSubdetectors_[ii],maxNbSources_,caloSelectors_[ii]));  
-      produces<CrossingFrame<PCaloHit> > (caloSubdetectors_[ii]);
-    }
-    for (unsigned int ii=0;ii<nonTrackerPids_.size();ii++) {
-      simSelectors_.push_back(new Selector(*sel_ && ProductInstanceNameSelector(nonTrackerPids_[ii])));
-      workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,nonTrackerPids_[ii],maxNbSources_,simSelectors_[ii]));  
-      produces<CrossingFrame<PSimHit> > (nonTrackerPids_[ii]);
-    }
-    // we have to treat specially the tracker subdetectors
-    // in order to correctly treat the High/low Tof business
-    for (unsigned int ii=0;ii<trackerPids_.size();ii++) {
-
-      simSelectors_.push_back(new Selector(*sel_ && ProductInstanceNameSelector(trackerPids_[ii])));
-      workers_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,trackerPids_[ii],maxNbSources_,simSelectors_[simSelectors_.size()-1],true)); 
-      // here we have to give the opposite selector too (low for high, high for low)
-      Selector * simSelectorOpp;//FIXME: memleak
-      int slow=(trackerPids_[ii]).find("LowTof");//FIXME: to be done before when creating trackerPids
-      int iend=(trackerPids_[ii]).size();
-      if (slow>0) {
- 	  std::string productInstanceNameOpp=trackerPids_[ii].substr(0,iend-6)+"HighTof";
-	  simSelectorOpp=new Selector(*sel_ && ProductInstanceNameSelector(productInstanceNameOpp));
-      }else{
- 	  std::string productInstanceNameOpp=trackerPids_[ii].substr(0,iend-7)+"LowTof";
-	  simSelectorOpp=new Selector(*sel_ && ProductInstanceNameSelector(productInstanceNameOpp));
+	  }else LogWarning("MixingModule") <<"You have asked to mix an unknown type of object("<<object<<").\n If you want to include it in mixing, please contact the authors of the MixingModule!";
       }
-      workers_[workers_.size()-1]->setOppositeSel(simSelectorOpp);
-      workers_[workers_.size()-1]->setCheckTof(ps.getUntrackedParameter<bool>("checktof",true));
-    
-      produces<CrossingFrame<PSimHit> > (trackerPids_[ii]);
-    }
-
+  
     produces<CrossingFramePlaybackInfo>();
-
   }
+ 
+  std::string MixingModule::createLabel(std::string object, std::string subdet, InputTag &tag) {
+    std::string label;
+    //Creating the label with modulename+productinstancename
+    // easy if all fields given by input tag.
+    // If not the case, try to find the info in productregistry.
+    // A warning is issued if not found, the label will then be=subdet (thats all we have...).
 
-  void MixingModule::getSubdetectorNames() {
-    // get subdetector names
-    edm::Service<edm::ConstProductRegistry> reg;
-    // Loop over provenance of products in registry.
-    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-	 it != reg->productList().end(); ++it) {
-      // See FWCore/Framework/interface/BranchDescription.h
-      // BranchDescription contains all the information for the product.
-      edm::BranchDescription desc = it->second;
-      if (!desc.friendlyClassName_.compare(0,9,"PCaloHits")) {
-	caloSubdetectors_.push_back(desc.productInstanceName_);
-	LogInfo("Constructor") <<"Adding calo container "<<desc.productInstanceName_ <<" for mixing";
+    //here all fields are given by input tag
+    if (tag.label()!=std::string("") && tag.instance()!=std::string("")) {//FIXME: verify subdet
+      label=tag.label()+"+"+tag.instance();
+    }else {
+      // here we have to extract the fields from product registry
+      edm::Service<edm::ConstProductRegistry> reg;
+      // Loop over provenance of products in registry.
+      std::string lookfor;
+      if (object=="HepMCProduct") lookfor=object;//exception for HepMCProduct
+      else  lookfor="std::vector<"+object+">";
+      bool found=false;
+      for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
+	   it != reg->productList().end(); ++it) {
+	// See FWCore/Framework/interface/BranchDescription.h
+	// BranchDescription contains all the information for the product.
+	edm::BranchDescription desc = it->second;
+	if (desc.className()==lookfor) {
+	  if (subdet=="") {
+	    label=desc.moduleLabel();
+	    found=true;
+            break; 
+	  }else {
+	    if (desc.productInstanceName()==subdet) {
+	      label=desc.moduleLabel()+desc.productInstanceName();
+	      found=true;
+              break;
+	    }
+	  }
+	}
       }
-      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-	//	simHitSubdetectors_.push_back(desc.productInstanceName_);
-	nonTrackerPids_.push_back(desc.productInstanceName_);
-        LogInfo("MixingModule") <<"Adding non tracker simhit container "<<desc.productInstanceName_ <<" for mixing";
-      }
-      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-	//	simHitSubdetectors_.push_back(desc.productInstanceName_);
-	// here we store the tracker subdetector name  for low and high part
- 	  trackerPids_.push_back(desc.productInstanceName_);
-// 	int slow=(desc.productInstanceName_).find("LowTof");
-// 	int iend=(desc.productInstanceName_).size();
-//         if (slow>0) {
-//  	  trackerPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
-// 	  LogInfo("MixingModule") <<"Adding tracker simhit container "<<desc.productInstanceName_.substr(0,iend-6) <<" for mixing";
-//         }
+      if (!found) {
+	LogWarning("MixingModule")<<"Could not find in registry: "<<object<<" with subdet= "<<subdet<<".\nWill be considered for mixing nevertheless!";
+	label=subdet;
       }
     }
+    return label;
   }
+
+  Selector * MixingModule::createSelector(InputTag &tag){
+    //FIXME: how to distinguish in input tags between ="" and any?
+    Selector *sel=0;
+    if (tag.label()=="") {
+      if (tag.instance()=="")  sel = new Selector(MatchAllSelector());
+      else sel = new Selector(ProductInstanceNameSelector(tag.instance()));
+    } else {
+      if (tag.instance()=="") sel =new Selector(ModuleLabelSelector(tag.label()));
+      else sel =new Selector(ModuleLabelSelector(tag.label()) && ProductInstanceNameSelector(tag.instance()));
+    }
+    return sel;
+  }
+
   void MixingModule::beginJob(edm::EventSetup const&iSetup) {
   }
 
@@ -124,24 +183,25 @@ namespace edm
     playbackInfo_=new CrossingFramePlaybackInfo(minBunch_,maxBunch_,maxNbSources_); 
 
     //and CrossingFrames
-   for (unsigned int ii=0;ii<workers_.size();ii++) 
-        workers_[ii]->createnewEDProduct();
+    for (unsigned int ii=0;ii<workers_.size();ii++) 
+      workers_[ii]->createnewEDProduct();
   }
  
 
   // Virtual destructor needed.
   MixingModule::~MixingModule() { 
-    delete sel_;
     for (unsigned int ii=0;ii<workers_.size();ii++) 
-        delete workers_[ii];
+      delete workers_[ii];
   }  
 
   void MixingModule::addSignals(const edm::Event &e) { 
     // fill in signal part of CrossingFrame
 
     LogDebug("MixingModule")<<"===============> adding signals for "<<e.id();
-    for (unsigned int ii=0;ii<workers_.size();ii++) 
-        workers_[ii]->addSignals(e);
+    for (unsigned int ii=0;ii<workers_.size();ii++){ 
+      printf ("calling addsignals for worker %d\n",ii);fflush(stdout);
+      workers_[ii]->addSignals(e);
+    }
 
   }
 
@@ -171,15 +231,15 @@ namespace edm
   
     LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
-        workers_[worker]->addPileups(bcr,e,eventNr,vertexoffset);
+    workers_[worker]->addPileups(bcr,e,eventNr,vertexoffset);
   }
   void MixingModule::setEventStartInfo(const unsigned int s) {
-   playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
+    playbackInfo_->setEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s); 
   }
 
   void MixingModule::put(edm::Event &e) {
 
-   if (playbackInfo_) {
+    if (playbackInfo_) {
       std::auto_ptr<CrossingFramePlaybackInfo> pOut(playbackInfo_);
       e.put(pOut);
     }
@@ -189,7 +249,7 @@ namespace edm
     if (playback_) {
  
       edm::Handle<CrossingFramePlaybackInfo>  playbackInfo_H;
-      bool got=e.get((*sel_), playbackInfo_H);
+      bool got=e.get((*sel_), playbackInfo_H); 
       if (got) {
 	playbackInfo_H->getEventStartInfo(eventIDs_,fileSeqNrs_,nrEvents_,s);
       }else{

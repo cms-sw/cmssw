@@ -36,7 +36,7 @@
 
 namespace edm
 {
-class MixingModule;
+  class MixingModule;
 
   class MixingWorkerBase 
     {
@@ -48,44 +48,43 @@ class MixingModule;
 	maxBunch_(3),
 	bunchSpace_(75),
 	subdet_(std::string(" ")),
-	maxNbSources_(5) {;}
+	label_(std::string(" ")),
+	maxNbSources_(5),
+ 	isTracker_(false)
+	{
+	  sel_ =0;
+	}
   
       /*Normal constructor*/ 
-      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, unsigned int maxNbSources, Selector *sel,bool isTracker);
+      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,Selector *sel,bool isTracker);
 
       /**Default destructor*/
       virtual ~MixingWorkerBase();
-
-      //      virtual void beginJob(edm::EventSetup const&iSetup);
-      //      virtual void produce(edm::Event& e1, const edm::EventSetup& s)=0;
- 
       virtual void put(edm::Event &e) =0;
-      //      virtual void createnewEDProduct(int minBunch,int maxBunch, int bunchSpace_,std::string,int maxNbSources)=0; 
       virtual void createnewEDProduct()=0; 
-      //      void merge(const int bcr, const EventPrincipalVector& vec) ;
- 
-	virtual void addSignals(const edm::Event &e) =0;
-	virtual void addPileups(const int bcr, edm::Event*,unsigned int EventNr,int &vertexOffset=0)=0;
-	virtual void setBcrOffset()=0;
-	virtual void setSourceOffset(const unsigned int s)=0;
-        virtual void setOppositeSel(Selector *opp) {opp_=opp;}
-        virtual void setCheckTof(bool checktof) {checktof_=checktof;}
+      virtual void addSignals(const edm::Event &e) =0;
+      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventNr,int &vertexOffset=0)=0;
+      virtual void setBcrOffset()=0;
+      virtual void setSourceOffset(const unsigned int s)=0;
+      virtual void setOppositeSel(Selector *opp) {opp_=opp;}
+      virtual void setCheckTof(bool checktof) {checktof_=checktof;}
    
-      protected:
-	int const minBunch_;
-	int const maxBunch_;
-	int const bunchSpace_;
-	std::string const subdet_;
-	unsigned int const maxNbSources_;
-	Selector *sel_;
-        bool isTracker_;
-        bool checktof_;
-        Selector * opp_;
+    protected:
+      int const minBunch_;
+      int const maxBunch_;
+      int const bunchSpace_;
+      std::string const subdet_;
+      std::string const label_;
+      unsigned int const maxNbSources_;
+      Selector *sel_;
+      bool isTracker_;
+      bool checktof_;
+      Selector *opp_;
 
     private:
-       unsigned int eventNr_;
+      unsigned int eventNr_;
 
-      };
-    }//edm
+    };
+}//edm
 
 #endif

@@ -18,6 +18,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/Selector.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -52,33 +53,31 @@ namespace edm
       virtual void beginJob(edm::EventSetup const&iSetup);
  
     private:
+      virtual std::string createLabel(std::string object, std::string subdet,InputTag &tag);
+      virtual Selector *createSelector(InputTag &tag);
       virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e); 
       virtual void doPileUp(edm::Event &e);
       virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker);
-      virtual void getSubdetectorNames();
+      //      virtual void getSubdetectorNames();
       virtual void setEventStartInfo(const unsigned int s); // set in CF-s
       virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
 
       // internally used information : subdetectors present in input
-      std::vector<std::string> simHitSubdetectors_;
-      std::vector<std::string> caloSubdetectors_;
-      // to distinguish simHitSubdetectors for tracker/non-tracker
-      // this is necessary to know which ones have to be checked for ToF
-      std::vector<std::string> trackerPids_;
-      std::vector<std::string> nonTrackerPids_;
+/*       std::vector<std::string> simHitSubdetectors_; */
+/*       std::vector<std::string> caloSubdetectors_; */
+/*       // to distinguish simHitSubdetectors for tracker/non-tracker */
+/*       // this is necessary to know which ones have to be checked for ToF */
+/*       std::vector<std::string> trackerPids_; */
+/*       std::vector<std::string> nonTrackerPids_; */
 
+      std::string labelPlayback_;
       CrossingFramePlaybackInfo *playbackInfo_;
 
       Selector * sel_;
-      std::string label_;
 
       std::vector<MixingWorkerBase *> workers_;
-      std::vector<MixingWorkerBase *> trackerWorkers_;
-      std::vector<Selector *> caloSelectors_;
-      std::vector<Selector *> simSelectors_;
-      std::vector<Selector *> simTrackerSelectors_;
 
     };
 }//edm

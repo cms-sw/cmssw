@@ -34,17 +34,13 @@ namespace edm
       explicit MixingWorker() {;}
 
       /*Normal constructor*/ 
-      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,int maxNbSources,Selector *sel, bool isTracker=false):
-	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,maxNbSources, sel,isTracker)
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, int maxNbSources,Selector *sel, bool isTracker=false):
+	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,maxNbSources, sel,isTracker)
 	{
 
           trackerHigh_=false;
-          if (isTracker) {
-          int res = subdet.find("HighTof");
-	    if (res>0) {
-	      trackerHigh_=true;
-	    } 
-	  }
+          if (isTracker) 
+	      if (subdet.find("HighTof")!=std::string::npos) 		trackerHigh_=true;
 	}
 
       /**Default destructor*/
@@ -53,16 +49,16 @@ namespace edm
     public:
 
       virtual void put(edm::Event &e) {
-	std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
-	e.put(pOut,subdet_);
+        std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
+	e.put(pOut,label_);
       }
 
       virtual void createnewEDProduct(){
-	crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
+        crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);//FIXME: subdet not needed in CF
       }
 
       virtual void addSignals(const edm::Event &e){
-	// default version
+      // default version
 	std::vector<edm::Handle<std::vector<T> > > result_t;
 	e.getMany((*sel_),result_t);
 	int str=result_t.size();

@@ -19,22 +19,24 @@ namespace edm
 
   // Constructor 
   //FIXME: subdet here?
-  MixingWorkerBase::MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, unsigned int maxNbSources, Selector *sel, bool isTracker) :
+  MixingWorkerBase::MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string &label, unsigned int maxNbSources, Selector* sel, bool isTracker) :
 	  minBunch_(minBunch),
 	  maxBunch_(maxBunch),
 	  bunchSpace_(bunchSpace),
 	  subdet_(subdet),
+	  label_(label),
 	  maxNbSources_(maxNbSources),
 	  sel_(sel),
 	  isTracker_(isTracker)
   {
    checktof_=true;
-   opp_=0;
-
+   opp_ =0;
   }
 
   // Virtual destructor needed.
   MixingWorkerBase::~MixingWorkerBase() { 
+    delete sel_;
+    delete opp_;
   }  
 
 }//edm
