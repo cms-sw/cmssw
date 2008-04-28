@@ -35,14 +35,15 @@ namespace GenPart2 {
   // For sorting
   bool 
   greaterEt( const HepMC::GenParticle& a, const HepMC::GenParticle& b ) {
-    return (a.momentum().et()>b.momentum().et());
+    return (a.momentum().rho()>b.momentum().rho());
   }
 }
 
+ const float PI = 3.14159265358979323846;
 
  float  BinsEt [3]    = {100.,0.,200. };
  float  BinsEta[3]    = {100.,-3.,3. };
- float  BinsPhi[3]    = {100, -TMath::Pi(), TMath::Pi()};
+ float  BinsPhi[3]    = {100, -PI, PI};
  float  BinsMass[3]   = {100, 0, 200 };
  float  BinsDr[3]     = {100, 0, 0.5};
  float  BinsNtrk[3]   = {20, 0, 20};
@@ -753,7 +754,7 @@ void L25TauAnalyzer::MakeLevel25Analysis( const edm::Event& iEvent, const edm::E
 		  j != mcTau.getStableHadronicDaughters().end(); j++ ) {
 	      // Fill histograms for matched tau decay products
 	      double dRtrk_out = -999;
-	      int matchedTrackIndex = recoTrackDrMatch( j->momentum(), taus[icandMatched], dRtrk_out, 0.02 );
+	      int matchedTrackIndex = recoTrackDrMatch( convertTo(j->momentum()), taus[icandMatched], dRtrk_out, 0.02 );
 
 	      // does it match to a real tau track, and a particle flow tau?
 	      if ( matchedTrackIndex >= 0 ) {
@@ -1311,14 +1312,14 @@ void L25TauAnalyzer::getGenObjects(const edm::Event& iEvent, const edm::EventSet
 	      if ( dec_pdg_id == 11 ) {
 		TauDecay = 1;
 		// Set visible tau momentum to electron momentum
-		_GenTaus.at(_GenTaus.size()-1).setVisibleP4((*genTauDecayProduct)->momentum());
+		_GenTaus.at(_GenTaus.size()-1).setVisibleP4(convertTo((*genTauDecayProduct)->momentum()));
 		_GenTauElecs.push_back(**genTauDecayProduct);
 	      }
 	      // Muon
 	      if ( dec_pdg_id == 13 ) {
 		TauDecay = 2;
 		// Set visible tau momentum to muon momentum
-		_GenTaus.at(_GenTaus.size()-1).setVisibleP4((*genTauDecayProduct)->momentum());
+		_GenTaus.at(_GenTaus.size()-1).setVisibleP4(convertTo((*genTauDecayProduct)->momentum()));
 		_GenTauMuons.push_back(**genTauDecayProduct);
 	      }
 	      
@@ -1342,7 +1343,7 @@ void L25TauAnalyzer::getGenObjects(const edm::Event& iEvent, const edm::EventSet
 		
 		// Set visible hadronic tau momentum
 		if (TauNu != NULL && TauDecay == 3) {
-		  _GenTaus.at(_GenTaus.size()-1).calcVisibleP4(TauNu->momentum());
+		  _GenTaus.at(_GenTaus.size()-1).calcVisibleP4(convertTo(TauNu->momentum()));
 		  /*
 		  if (std::abs(_GenTaus.at(_GenTaus.size()-1).getVisibleP4().et() + TauNu->momentum().et()
 			       - _GenTaus.at(_GenTaus.size()-1).momentum().et()) > 0.5 ) {
@@ -1503,3 +1504,6 @@ MCTauCand * L25TauAnalyzer::getMatchedTauCand( const LV & p4, double dRcut )
   }
   return ret;
 }
+
+CLHEP::HepLorentzVector L25TauAnalyzer::convertTo( const HepMC::FourVector& v )
+{ return CLHEP::HepLorentzVector( v.x(), v.y(), v.z(), v.t() ); }

@@ -1,7 +1,8 @@
 #ifndef L1TauAnalyzer_MCTauCand_h
 #define L1TauAnalyzer_MCTauCand_h
 
-#include "CLHEP/HepMC/GenParticle.h"
+//#include "CLHEP/HepMC/GenParticle.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "HepMC/SimpleVector.h"
 

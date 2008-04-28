@@ -23,6 +23,9 @@
 <use name=FWCore/ServiceRegistry>
 <use name=PhysicsTools/UtilAlgos>
 <use name=SimDataFormats/HepMCProduct>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=TrackingTools/Records>
 <use name=clhep>
 <use name=hepmc>
 <use name=rootcore>

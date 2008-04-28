@@ -11,9 +11,9 @@
 
 // HEP library include files
 #include <Math/GenVector/VectorUtil.h>
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
-#include "CLHEP/HepMC/GenParticle.h"
+//#include "CLHEP/HepMC/GenEvent.h"
+//#include "CLHEP/HepMC/GenVertex.h"
+//#include "CLHEP/HepMC/GenParticle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "HLTriggerOffline/Tau/interface/MCTauCand.h"
 
@@ -233,6 +233,8 @@ class L25TauAnalyzer : public edm::EDAnalyzer {
 
 
   MatchElement match(const reco::Jet& jet,const LVColl& McInfo);
+
+  CLHEP::HepLorentzVector convertTo( const HepMC::FourVector& v );
 };
 
 #endif
