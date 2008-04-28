@@ -76,6 +76,7 @@ class CSCSectorReceiverLUT
   edm::FileInPath mb_gbl_phi_file;
   edm::FileInPath me_gbl_eta_file;
   bool LUTsFromFile; // readLUTs from file or generate on the fly
+  bool useMiniLUTs;  // if useMiniLUTs is set to true, the code will generate LUTs using the CSCSectorReceiverMiniLUTs class -- BJ
   bool isBinary;     // if readLUTs is set to true, are the LUT files binary or ascii format
 
   bool isTMB07;       // use the TMB 2007 patterns or the older set of parameters
