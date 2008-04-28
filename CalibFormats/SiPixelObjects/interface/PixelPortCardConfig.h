@@ -33,6 +33,9 @@ namespace pos{
 
     void writeASCII(std::string dir="") const;
   
+    const std::string& getPortCardName() const { return portcardname_; }
+    void setPortCardName(std::string newName) { portcardname_ = newName; }
+    
     unsigned int getdevicesize() const;
     std::string  getTKFECID() const;
     unsigned int getringAddress() const;
