@@ -40,7 +40,8 @@ public:
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
 
-  enum { etComponentSize=L1GctEtMiss::kEtMissNBits+2 };
+  // Use the same number of bits as the firmware (range -131072 to 131071)
+  enum { etComponentSize=18 };
   typedef L1GctTwosComplement<etComponentSize> etComponentType;
 
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
@@ -152,10 +153,11 @@ public:
   // PRIVATE MEMBER FUNCTIONS
   // Given a strip Et sum, perform rotations by sine and cosine
   // factors to find the corresponding Ex and Ey
-  etComponentType exComponent(const etTotalType etStrip, const unsigned jphi) const;
-  etComponentType eyComponent(const etTotalType etStrip, const unsigned jphi) const;
+  etComponentType exComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
+  etComponentType eyComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
   // Here is where the rotations are actually done
-  etComponentType rotateEtValue(const etTotalType etStrip, const unsigned fact) const;
+  etComponentType etValueForJetFinder(const etTotalType etStrip0, const unsigned fact0,
+                                      const etTotalType etStrip1, const unsigned fact1) const;
 
 };
 

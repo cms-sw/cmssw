@@ -6,9 +6,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
-#include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctMet.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
 
 
@@ -39,8 +37,9 @@ public:
   
         typedef L1GctUnsignedInt< L1GctEtTotal::kEtTotalNBits   > etTotalType;
         typedef L1GctUnsignedInt<   L1GctEtHad::kEtHadNBits     > etHadType;
-        typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
-        typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
+        typedef L1GctMet::etMissType     etMissType;
+        typedef L1GctMet::etMissPhiType  etMissPhiType;
+        typedef L1GctMet::etmiss_vec     etmiss_vec;
         typedef L1GctJetLeafCard::etComponentType etComponentType;
 
         /// Number of jet counter per wheel
@@ -136,6 +135,9 @@ public:
 	L1GctWheelJetFpga* m_plusWheelJetFpga;
 	L1GctWheelJetFpga* m_minusWheelJetFpga;
 
+	// Missing Et
+	L1GctMet m_metComponents;
+
 	// input data
 	etComponentType m_exValPlusWheel;
 	etComponentType m_eyValPlusWheel;
@@ -173,15 +175,8 @@ public:
 	std::vector<unsigned> jetCountValues(const int bx) const;
 
         // PRIVATE MEMBER FUNCTION
-	// the Etmiss algorithm
-        struct etmiss_vec {
-	  etMissType    mag;
-	  etMissPhiType phi;
-	};
-        etmiss_vec calculate_etmiss_vec (const etComponentType ex, const etComponentType ey) const ;
-	
-       // Function to use the jet count bits for Hf Et sums
-       void packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector); 
+        // Function to use the jet count bits for Hf Et sums
+        void packHfTowerSumsIntoJetCountBits(std::vector<L1GctJetCount<5> >& jcVector); 
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctGlobalEnergyAlgos& fpga);
