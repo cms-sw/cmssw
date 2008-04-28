@@ -177,8 +177,23 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "emean_vs_ieta_HFdepth2" );
       emean_vs_ieta_HFdepth2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10.,2000. );
 
-
-
+      sprintf  (histo, "emean_sequential1D_HB1" );
+      emean_seqHB1 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "emean_sequential1D_HB2" );
+      emean_seqHB2 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "emean_sequential1D_HE1" );
+      emean_seqHE1 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "emean_sequential1D_HE2" );
+      emean_seqHE2 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "emean_sequential1D_HE3" );
+      emean_seqHE3 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "emean_sequential1D_HO" );
+      emean_seqHO  = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "emean_sequential1D_HF1" );
+      emean_seqHF1 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+      sprintf  (histo, "emean_sequential1D_HF2" );
+      emean_seqHF2 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+ 
       sprintf  (histo, "occupancy_map_HBdepth1" );
       occupancy_map_HBdepth1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       sprintf  (histo, "occupancy_map_HBdepth2" );
@@ -213,6 +228,23 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "occupancy_vs_ieta_HFdepth2" );
       occupancy_vs_ieta_HFdepth2 = dbe_->book1D(histo, histo, 82, -41., 41.);
       
+      sprintf  (histo, "occ_sequential1D_HB1" );
+      occupancy_seqHB1 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "occ_sequential1D_HB2" );
+      occupancy_seqHB2 = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "occ_sequential1D_HE1" );
+      occupancy_seqHE1 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "occ_sequential1D_HE2" );
+      occupancy_seqHE2 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "occ_sequential1D_HE3" );
+      occupancy_seqHE3 = dbe_->book1D(histo, histo,4400, -2200., 2200.);
+      sprintf  (histo, "occ_sequential1D_HO" );
+      occupancy_seqHO  = dbe_->book1D(histo, histo,2400, -1200., 1200.);
+      sprintf  (histo, "occ_sequential1D_HF1" );
+      occupancy_seqHF1 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+      sprintf  (histo, "occ_sequential1D_HF2" );
+      occupancy_seqHF2 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
+ 
       
       sprintf  (histo, "profile_z1" );
       profile_z1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
@@ -600,7 +632,9 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
     float sumphi_hb1, sumphi_hb2, sumphi_he1, sumphi_he2, sumphi_he3,
       sumphi_ho, sumphi_hf1, sumphi_hf2;
 
-    if(nx != 82)  std::cout << "*** problem with binning " << std::endl;
+    if(nx != 82 || ny != 72) 
+      std::cout << "*** problem with binning " << std::endl;
+
     float phi_factor;  
 
     for (int i = 1; i <= nx; i++) {
@@ -613,25 +647,40 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
       sumphi_hf1 = 0.;
       sumphi_hf2 = 0.;
       for (int j = 1; j <= ny; j++) {
+
+	int index = (i-42) * ny + j-1;
+
+	// emean
 	cnorm = emap_HBdepth1->getBinContent(i,j) / fev;
         emap_HBdepth1->setBinContent(i,j,cnorm);
+        emean_seqHB1->Fill(double(index),cnorm);
 	cnorm = emap_HBdepth2->getBinContent(i,j) / fev; 
         emap_HBdepth2->setBinContent(i,j,cnorm);
+        emean_seqHB2->Fill(double(index),cnorm);
 	cnorm = emap_HEdepth1->getBinContent(i,j) / fev;
         emap_HEdepth1->setBinContent(i,j,cnorm);
+        emean_seqHE1->Fill(double(index),cnorm);
 	cnorm = emap_HEdepth2->getBinContent(i,j) / fev;
         emap_HEdepth2->setBinContent(i,j,cnorm);
+        emean_seqHE2->Fill(double(index),cnorm);
 	cnorm = emap_HEdepth3->getBinContent(i,j) / fev;
         emap_HEdepth3->setBinContent(i,j,cnorm);
+        emean_seqHE3->Fill(double(index),cnorm);
 	cnorm = emap_HO->getBinContent(i,j) / fev;
         emap_HO->setBinContent(i,j,cnorm);
+        emean_seqHO->Fill(double(index),cnorm);
 	cnorm = emap_HFdepth1->getBinContent(i,j) / fev;
         emap_HFdepth1->setBinContent(i,j,cnorm);
+        emean_seqHF1->Fill(double(index),cnorm);
 	cnorm = emap_HFdepth2->getBinContent(i,j) / fev;
         emap_HFdepth2->setBinContent(i,j,cnorm);
+        emean_seqHF2->Fill(double(index),cnorm);
+
+	// occupancies
 
 	cnorm = occupancy_map_HBdepth1->getBinContent(i,j) / fev;   
 	occupancy_map_HBdepth1->setBinContent(i,j,cnorm);
+	occupancy_seqHB1->Fill(double(index),cnorm);
 
 	/*
 	std::cout << "*** occupancy depth1  i j = " << i << " " << j 
@@ -641,18 +690,25 @@ HcalRecHitsValidation::~HcalRecHitsValidation() {
 	*/
 	cnorm = occupancy_map_HBdepth2->getBinContent(i,j) / fev;   
 	occupancy_map_HBdepth2->setBinContent(i,j,cnorm);
+	occupancy_seqHB2->Fill(double(index),cnorm);
 	cnorm = occupancy_map_HEdepth1->getBinContent(i,j) / fev;   
 	occupancy_map_HEdepth1->setBinContent(i,j,cnorm);
+	occupancy_seqHE1->Fill(double(index),cnorm);
 	cnorm = occupancy_map_HEdepth2->getBinContent(i,j) / fev;   
 	occupancy_map_HEdepth2->setBinContent(i,j,cnorm);
+	occupancy_seqHE2->Fill(double(index),cnorm);
 	cnorm = occupancy_map_HEdepth3->getBinContent(i,j) / fev;   
 	occupancy_map_HEdepth3->setBinContent(i,j,cnorm);
+	occupancy_seqHE3->Fill(double(index),cnorm);
 	cnorm = occupancy_map_HO->getBinContent(i,j) / fev;   
 	occupancy_map_HO->setBinContent(i,j,cnorm);
+	occupancy_seqHO->Fill(double(index),cnorm);
 	cnorm = occupancy_map_HFdepth1->getBinContent(i,j) / fev;   
 	occupancy_map_HFdepth1->setBinContent(i,j,cnorm);
+	occupancy_seqHF1->Fill(double(index),cnorm);
 	cnorm = occupancy_map_HFdepth2->getBinContent(i,j) / fev;   
 	occupancy_map_HFdepth2->setBinContent(i,j,cnorm);
+	occupancy_seqHF2->Fill(double(index),cnorm);
      
         sumphi_hb1 += occupancy_map_HBdepth1->getBinContent(i,j);
         sumphi_hb2 += occupancy_map_HBdepth2->getBinContent(i,j);
