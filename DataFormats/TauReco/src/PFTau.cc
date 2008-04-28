@@ -78,6 +78,26 @@ void PFTau::setisolationPFGammaCandsEtSum(const float& x){isolationPFGammaCandsE
 float PFTau::maximumHCALPFClusterEt()const{return maximumHCALPFClusterEt_;}
 void PFTau::setmaximumHCALPFClusterEt(const float& x){maximumHCALPFClusterEt_=x;}
 
+float PFTau::emFraction() const {return emFraction_;}
+float PFTau::hcalTotOverPLead() const {return hcalTotOverPLead_;}
+float PFTau::hcalMaxOverPLead() const {return hcalMaxOverPLead_;}
+float PFTau::hcal3x3OverPLead() const {return hcal3x3OverPLead_;}
+float PFTau::ecalStripSumEOverPLead() const {return ecalStripSumEOverPLead_;}
+float PFTau::bremsRecoveryEOverPLead() const {return bremsRecoveryEOverPLead_;}
+reco::TrackRef PFTau::electronPreIDTrack() const {return electronPreIDTrack_;}
+float PFTau::electronPreIDOutput() const {return electronPreIDOutput_;}
+bool PFTau::electronPreIDDecision() const {return electronPreIDDecision_;}
+
+void PFTau::setemFraction(const float& x) {emFraction_ = x;}
+void PFTau::sethcalTotOverPLead(const float& x) {hcalTotOverPLead_ = x;}
+void PFTau::sethcalMaxOverPLead(const float& x) {hcalMaxOverPLead_ = x;}
+void PFTau::sethcal3x3OverPLead(const float& x) {hcal3x3OverPLead_ = x;}
+void PFTau::setecalStripSumEOverPLead(const float& x) {ecalStripSumEOverPLead_ = x;}
+void PFTau::setbremsRecoveryEOverPLead(const float& x) {bremsRecoveryEOverPLead_ = x;}
+void PFTau::setelectronPreIDTrack(const reco::TrackRef& x) {electronPreIDTrack_ = x;}
+void PFTau::setelectronPreIDOutput(const float& x) {electronPreIDOutput_ = x;}
+void PFTau::setelectronPreIDDecision(const bool& x) {electronPreIDDecision_ = x;}
+
 bool PFTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
   return (theRecoCand!=0 && (checkOverlap(track(),theRecoCand->track())));

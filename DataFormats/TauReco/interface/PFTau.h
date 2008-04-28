@@ -67,6 +67,27 @@ namespace reco {
     float maximumHCALPFClusterEt()const;
     void setmaximumHCALPFClusterEt(const float&);    
 
+    float emFraction() const; // Ecal/Hcal Cluster Energy 
+    float hcalTotOverPLead() const; // total Hcal Cluster E / leadPFChargedHadron P
+    float hcalMaxOverPLead() const; // max. Hcal Cluster E / leadPFChargedHadron P
+    float hcal3x3OverPLead() const; // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
+    float ecalStripSumEOverPLead() const; // Simple BremsRecovery Sum E / leadPFChargedHadron P
+    float bremsRecoveryEOverPLead() const; // BremsRecovery Sum E / leadPFChargedHadron P
+    reco::TrackRef electronPreIDTrack() const; // Ref to KF track from Electron PreID
+    float electronPreIDOutput() const; // BDT output from Electron PreID
+    bool electronPreIDDecision() const; // Decision from Electron PreID
+
+    void setemFraction(const float&);
+    void sethcalTotOverPLead(const float&);
+    void sethcalMaxOverPLead(const float&);
+    void sethcal3x3OverPLead(const float&);
+    void setecalStripSumEOverPLead(const float&);
+    void setbremsRecoveryEOverPLead(const float&);
+    void setelectronPreIDTrack(const reco::TrackRef&);
+    void setelectronPreIDOutput(const float&);
+    void setelectronPreIDDecision(const bool&);
+
+    
  private:
     // check overlap with another candidate
     virtual bool overlap(const Candidate&)const;
@@ -78,6 +99,17 @@ namespace reco {
     float isolationPFChargedHadrCandsPtSum_;
     float isolationPFGammaCandsEtSum_;
     float maximumHCALPFClusterEt_;
+    
+    float emFraction_;
+    float hcalTotOverPLead_;
+    float hcalMaxOverPLead_;
+    float hcal3x3OverPLead_;
+    float ecalStripSumEOverPLead_;
+    float bremsRecoveryEOverPLead_;
+    reco::TrackRef electronPreIDTrack_;
+    float electronPreIDOutput_;
+    bool electronPreIDDecision_;
+
   };
 
 std::ostream & operator<<(std::ostream& out, const PFTau& c); 
