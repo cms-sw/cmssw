@@ -1,0 +1,8 @@
+<library file="*.cc" name=DQMCSCMonitorModulePlugins>
+	<use name=DQM/CSCMonitorModule>
+	<flags EDM_PLUGIN=1>
+	<use name=FWCore/MessageLogger>
+	<use name=FWCore/Framework>
+	<use name=DQMServices/Core>
+	<use name=DQMServices/ClientConfig>
+</library>
