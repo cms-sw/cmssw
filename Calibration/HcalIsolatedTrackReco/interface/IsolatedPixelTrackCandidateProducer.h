@@ -39,7 +39,6 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   edm::InputTag hltGTseedlabel_;
   edm::InputTag l1eTauJetsSource_;
   edm::InputTag pixelTracksSource_;
-  edm::InputTag l1GtObjectMapSource_;
   edm::InputTag ecalFilterLabel_;
   edm::ParameterSet parameters;
 
