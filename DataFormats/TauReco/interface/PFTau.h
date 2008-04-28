@@ -94,6 +94,13 @@ namespace reco {
     //end of Electron rejection
 // For Muon Rejection
     bool    hasMuonReference()const; // check if muon ref exists
+    float   caloComp()const;
+    float   segComp()const;
+    bool    muonDecision()const;
+    void setCaloComp(const float&);
+    void setSegComp(const float&);
+    void setMuonDecision(const bool&);
+//
     
  private:
     // check overlap with another candidate
@@ -117,7 +124,9 @@ namespace reco {
     float electronPreIDOutput_;
     bool electronPreIDDecision_;
 
-
+    float caloComp_;
+    float segComp_;
+    bool muonDecision_;
   };
 
 std::ostream & operator<<(std::ostream& out, const PFTau& c); 

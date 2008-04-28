@@ -29,6 +29,10 @@ bremsRecoveryEOverPLead_ = NAN;
 electronPreIDTrack_ = tmp;
 electronPreIDOutput_ = NAN;
 electronPreIDDecision_= NAN;
+
+caloComp_ = NAN;
+segComp_ = NAN;
+muonDecision_ = NAN;
 }
 
 PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx){
@@ -60,6 +64,9 @@ electronPreIDTrack_ = tmp;
 electronPreIDOutput_ = NAN;
 electronPreIDDecision_= NAN;
 
+caloComp_ = NAN;
+segComp_ = NAN;
+muonDecision_ = NAN;
 }
 
 PFTau* PFTau::clone()const{return new PFTau(*this);}
@@ -131,7 +138,13 @@ else if( muonRef.isNonnull() ) return  true;
 return false;
 }
 
-
+float PFTau::caloComp() const {return caloComp_;}
+float PFTau::segComp() const {return segComp_;}
+bool  PFTau::muonDecision() const {return muonDecision_;}
+void PFTau::setCaloComp(const float& x) {caloComp_ = x;}
+void PFTau::setSegComp (const float& x) {segComp_  = x;}
+void PFTau::setMuonDecision(const bool& x) {muonDecision_ = x;}
+//
 
 bool PFTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
