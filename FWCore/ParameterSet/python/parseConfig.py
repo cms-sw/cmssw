@@ -310,8 +310,15 @@ def _makeLabeledVInputTag(s,loc,toks):
     if len(toks[0])==4:
         tracked = False
         del toks[0][0]
+
     values = list(iter(toks[0][2]))
-    items = [cms.InputTag(*x) for x in values]
+    items = []
+    for x in values:
+        if isinstance(x, str):
+            items.append(cms.InputTag(x))
+        else:
+            items.append(cms.InputTag(*x))
+    #items = [cms.InputTag(*x) for x in values]
     p = cms.VInputTag(*items)
     if not tracked:
         cms.untracked(p)
@@ -630,7 +637,7 @@ inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
 
 vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
                              +_scopeBegin
-                               +pp.Group(pp.Optional(pp.delimitedList(inputTagFormat)))
+                               +pp.Group(pp.Optional(pp.delimitedList(anyInputTag)))
                              +_scopeEnd
                           ).setParseAction(_makeLabeledVInputTag)
 
@@ -1776,6 +1783,11 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VInputTag)
             self.assertEqual(d['blah'],[cms.InputTag('abc'),cms.InputTag('def')])
+            t=onlyParameters.parseString("VInputTag blah = {'abc', def}")
+            d=dict(iter(t))
+            self.assertEqual(type(d['blah']),cms.VInputTag)
+            self.assertEqual(d['blah'],[cms.InputTag('abc'),cms.InputTag('def')])
+
 
             t=onlyParameters.parseString("EventID eid= 1:2")
             d=dict(iter(t))
