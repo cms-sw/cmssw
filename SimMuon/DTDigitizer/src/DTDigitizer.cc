@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/25 10:36:02 $
- *  $Revision: 1.32 $
+ *  $Date: 2008/03/07 17:54:04 $
+ *  $Revision: 1.33 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -528,7 +528,7 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       // Add association between THIS digi and the corresponding SimTrack
       unsigned int SimTrackId = (*hit).first->trackId();
       EncodedEventId evId = (*hit).first->eventId();
-      DTDigiSimLink digisimLink(wireN, digiN, SimTrackId, evId);
+      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId);
 
       if(debug) {
 	cout<<endl<<"---- DTDigitizer ----"<<endl;
@@ -554,7 +554,7 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       int wireN = wireId.wire();
       unsigned int SimTrackId = (*hit).first->trackId();
       EncodedEventId evId = (*hit).first->eventId();
-      DTDigiSimLink digisimLink(wireN, digiN, SimTrackId, evId);
+      DTDigiSimLink digisimLink(wireN, digiN, time, SimTrackId, evId);
       DTLayerId layerID = wireId.layerId(); 
       outputLinks.insertDigi(layerID, digisimLink);
 
