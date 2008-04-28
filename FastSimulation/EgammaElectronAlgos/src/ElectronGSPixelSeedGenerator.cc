@@ -36,6 +36,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
@@ -130,13 +131,15 @@ void ElectronGSPixelSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 }
 
-void  ElectronGSPixelSeedGenerator::run(
-  edm::Event& e, 
-  // const edm::Handle<reco::SuperClusterCollection>& clusters,  
-  const reco::SuperClusterRefVector &sclRefs,
-  const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits,
-  const edm::SimTrackContainer* theSimTracks,
-  reco::ElectronPixelSeedCollection & out) {
+void  ElectronGSPixelSeedGenerator::run(edm::Event& e, 
+				      const reco::SuperClusterRefVector &sclRefs, 
+				      const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits,
+				      const edm::SimTrackContainer* theSimTracks,
+				      TrajectorySeedCollection *seeds, 
+				      reco::ElectronPixelSeedCollection & out){
+
+  // Take the seed collection.
+  theInitialSeedColl=seeds;
 
   // Get the beam spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -156,71 +159,111 @@ void  ElectronGSPixelSeedGenerator::run(
 
   // No seeding attempted if no hits !
   if(theGSRecHits->size() == 0) return;    
-
-  // The vector of simTrack Id's carrying GSRecHits
-  const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
-
-  // Loop over the simTrack carrying GSRecHits
-  for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
-
-    unsigned simTrackId = theSimTrackIds[tkId];
-    const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
-
-    SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
-    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-    SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
-    SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
-
-    // Request a minimum pT for the sim track
-    if ( theSimTrack.momentum().perp2() < pTMin2 ) continue;
-
-    // Request a minimum number of RecHits (total and in the pixel detector)
-    unsigned numberOfRecHits = 0;
+  
+  if ( !fromTrackerSeeds_ ) {
     
-    // The vector of rechits for seeding
-
-    // Now save a collection of Pixel +TEC +TID hits for seeding electrons
-    std::vector<unsigned> layerHit(6,static_cast<unsigned>(0));
-    // const SiTrackerGSMatchedRecHit2D *hit;
-    TrackerRecHit currentHit;
-    std::vector<TrackerRecHit> theHits;
-    for ( iterRecHit = theRecHitRangeIteratorBegin; 
-	  iterRecHit != theRecHitRangeIteratorEnd; 
-	  ++iterRecHit) { 
-      ++numberOfRecHits;
+    // The vector of simTrack Id's carrying GSRecHits
+    const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
+    
+    // Loop over the simTrack carrying GSRecHits
+    for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
       
-      currentHit = TrackerRecHit(&(*iterRecHit),theTrackerGeometry);
-      if ( ( currentHit.subDetId() <= 2 ) ||  // Pixel Hits
-	   ( searchInTIDTEC && (  // Add TID/TEC (optional)
-	   ( currentHit.subDetId() == 3 && 
-	     currentHit.ringNumber() < 3 && 
-	     currentHit.layerNumber() < 3 ) || // TID first two rings, first two layers
-	   ( currentHit.subDetId() == 6 && 
-	     currentHit.ringNumber() < 3 && 
-	     currentHit.layerNumber() < 3 ) ) ) ) { // TEC first two rings, first two layers
+      unsigned simTrackId = theSimTrackIds[tkId];
+      const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
+      
+      // Request a minimum pT for the sim track
+      if ( theSimTrack.momentum().perp2() < pTMin2 ) continue;
+      
+      // Request a minimum number of RecHits (total and in the pixel detector)
+      unsigned numberOfRecHits = 0;
+      
+      // The vector of rechits for seeding
+      
+      // 1) Cluster-pixel match seeding:
+      //    Save a collection of Pixel +TEC +TID hits for seeding electrons
+      std::vector<unsigned> layerHit(6,static_cast<unsigned>(0));
+      // const SiTrackerGSMatchedRecHit2D *hit;
+      TrackerRecHit currentHit;
+      std::vector<TrackerRecHit> theHits;
+      TrajectorySeed theTrackerSeed;
+      
+      SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
+      SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+      SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+      SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
+      SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
+      
+      for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	    iterRecHit != theRecHitRangeIteratorEnd; 
+	    ++iterRecHit) { 
+	++numberOfRecHits;
+	
+	currentHit = TrackerRecHit(&(*iterRecHit),theTrackerGeometry);
+	if ( ( currentHit.subDetId() <= 2 ) ||  // Pixel Hits
+	     // Add TID/TEC (optional)
+	     ( searchInTIDTEC && 
+	       ( ( currentHit.subDetId() == 3 && 
+		   currentHit.ringNumber() < 3 && 
+		   currentHit.layerNumber() < 3 ) || // TID first two rings, first two layers
+		 ( currentHit.subDetId() == 6 && 
+		   currentHit.ringNumber() < 3 && 
+		   currentHit.layerNumber() < 3 ) ) ) ) // TEC first two rings, first two layers
+	  theHits.push_back(currentHit);
+      }
+
+      // At least 3 hits
+      if ( numberOfRecHits < 3 ) continue;
+      
+      // At least 2 pixel hits
+      if ( theHits.size() < 2 ) continue;
+      
+      // Loop over clusters 
+      
+      unsigned csize = sclRefs.size();
+      for  (unsigned int i=0;i<csize;++i) {
+	
+	// Find the pixel seeds (actually only the best one is returned)
+	LogDebug ("run") << "new cluster, calling addAseedFromThisCluster";
+	addASeedToThisCluster(sclRefs[i],theHits,theTrackerSeed,myPixelSeeds[i]);
+	
+      }
+    
+    }
+  // 2) Check if the seed is in the a-priori seed collection
+  } else { 
+
+    // Loop over the tracker seed
+    for (unsigned int i=0;i<seeds->size();++i) {
+      
+      TrackerRecHit currentHit;
+      std::vector<TrackerRecHit> theHits;
+      const TrajectorySeed& theTrackerSeed = (*seeds)[i];
+      TrajectorySeed::range theSeedRange=theTrackerSeed.recHits();
+      TrajectorySeed::const_iterator theSeedRangeIteratorBegin = theSeedRange.first;
+      TrajectorySeed::const_iterator theSeedRangeIteratorEnd   = theSeedRange.second;
+      TrajectorySeed::const_iterator theSeedItr = theSeedRangeIteratorBegin;
+      
+      for ( ; theSeedItr != theSeedRangeIteratorEnd; ++theSeedItr ) { 
+	const SiTrackerGSMatchedRecHit2D * theSeedingRecHit = 
+	  (const SiTrackerGSMatchedRecHit2D*) (&(*theSeedItr));
+	currentHit = TrackerRecHit(theSeedingRecHit,theTrackerGeometry);
 	theHits.push_back(currentHit);
       }
-    }    
-
-    // At least 3 hits
-    if ( numberOfRecHits < 3 ) continue;
-
-    // At least 2 pixel hits
-    if ( theHits.size() < 2 ) continue;
-    
-    // Loop over clusters 
-
-    unsigned csize = sclRefs.size();
-    for  (unsigned int i=0;i<csize;++i) {
       
-      // Find the pixel seeds (actually only the best one is returned)
-      LogDebug ("run") << "new cluster, calling addAseedFromThisCluster";
-      addASeedToThisCluster(sclRefs[i],theHits,myPixelSeeds[i]);
-      
+      // Loop over clusters     
+      unsigned csize = sclRefs.size();
+      for  (unsigned int i=0;i<csize;++i) {
+	
+	// Find the pixel seeds (actually only the best one is returned)
+	LogDebug ("run") << "new cluster, calling addAseedFromThisCluster";
+	addASeedToThisCluster(sclRefs[i],theHits,theTrackerSeed,myPixelSeeds[i]);
+	
+      } 
+      // End loop over clusters
     }
-
+    // End loop over seeds
   }
+  // end else
 
   // Back to the expected collection
  
@@ -238,13 +281,15 @@ void  ElectronGSPixelSeedGenerator::run(
   LogDebug ("run") <<"Nr of superclusters: "<<sclRefs.size()
 		   <<", no. of ElectronPixelSeeds found  = " << out.size();
   
-}
+  }
 
-void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
-  edm::Ref<reco::SuperClusterCollection> seedCluster, 
-  std::vector<TrackerRecHit>& theHits,
-  std::vector<reco::ElectronPixelSeed>& result)
+void 
+ElectronGSPixelSeedGenerator::addASeedToThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster, 
+						    std::vector<TrackerRecHit>& theHits,
+						    const TrajectorySeed& theTrackerSeed,
+						    std::vector<reco::ElectronPixelSeed>& result)
 {
+
   float clusterEnergy = seedCluster->energy();
   GlobalPoint clusterPos(seedCluster->position().x(),
 			 seedCluster->position().y(), 
@@ -284,28 +329,42 @@ void ElectronGSPixelSeedGenerator::addASeedToThisCluster(
   // Find the best pixel pair compatible with the cluster
   std::vector<std::pair<ConstRecHitPointer,ConstRecHitPointer> > compatPixelHits = 
     myGSPixelMatcher->compatibleHits(clusterPos, vertexPos, clusterEnergy, theHits);
-
+    
   // The corresponding origin vertex
   double vertexZ = myGSPixelMatcher->getVertex();
   GlobalPoint theVertex(BSPosition_.x(),BSPosition_.y(),vertexZ); 
- 
+  
   // Create the Electron pixel seed.
   if (!compatPixelHits.empty() ) {
     LogDebug("") << "[ElectronGSPixelSeedGenerator::seedsFromThisCluster] " 
 		 << " electron compatible hits found ";
-    std::vector<std::pair<ConstRecHitPointer,ConstRecHitPointer> >::iterator v;
-    for (v = compatPixelHits.begin(); v != compatPixelHits.end(); ++v ) {
-       
-      bool valid = prepareElTrackSeed(v->first,v->second, theVertex);
-      if (valid) {
-        reco::ElectronPixelSeed s= reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir);
-        result.push_back(s);
-	delete pts_;
-	pts_=0;
-      }
+    
+    // Pixel-matching case: create the seed from scratch
+    if (!fromTrackerSeeds_) {
+      
+      std::vector<std::pair<ConstRecHitPointer,ConstRecHitPointer> >::iterator v;
+      for (v = compatPixelHits.begin(); v != compatPixelHits.end(); ++v ) {
+	
+	bool valid = prepareElTrackSeed(v->first,v->second, theVertex);
+	if (valid) {
+	  reco::ElectronPixelSeed s= reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir);
+	  result.push_back(s);
+	  delete pts_;
+	  pts_=0;
+	}
+      }  
+      
+    // Here we take instead the seed from a-priori seed collection
+    } else {
+
+      reco::ElectronPixelSeed seed(seedCluster,theTrackerSeed);
+      result.push_back(seed);
+
     }
-  }  
-  
+
+  }
+
+ 
   // And return !
   return ;
 

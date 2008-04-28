@@ -18,7 +18,8 @@
 // user include files
 #include "FastSimulation/EgammaElectronAlgos/plugins/ElectronGSPixelSeedProducer.h"
 #include "FastSimulation/EgammaElectronAlgos/interface/ElectronGSPixelSeedGenerator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/SubSeedGenerator.h"
+//UB changed
+#include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,21 +45,22 @@
 ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet& iConfig)
 {
 
-  algo = iConfig.getParameter<std::string>("SeedAlgo");
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   SCEtCut_=iConfig.getParameter<double>("SCEtCut");
   maxHOverE_=iConfig.getParameter<double>("maxHOverE");
+  fromTrackerSeeds_=pset.getParameter<bool>("fromTrackerSeeds");
+  prefilteredSeeds_=pset.getParameter<bool>("preFilteredSeeds");
+  initialSeeds_=pset.getParameter<edm::InputTag>("initialSeeds");
 
-  if (algo=="FilteredSeed") 
-    matcher_= new SubSeedGenerator(pset);
-  else
-    matcher_ = new ElectronGSPixelSeedGenerator(pset,
-						iConfig.getParameter<double>("pTMin"),
-						iConfig.getParameter<edm::InputTag>("beamSpot"));
+  matcher_ = new ElectronGSPixelSeedGenerator(pset,
+					      iConfig.getParameter<double>("pTMin"),
+					      iConfig.getParameter<edm::InputTag>("beamSpot"));
 					      
+  if (prefilteredSeeds_) seedFilter_ = new SeedFilter(pset);
+
  //  get labels from config'
-  clusters_[0]=iConfig.getParameter<edm::InputTag>("superClusterBarrel");
-  clusters_[1]=iConfig.getParameter<edm::InputTag>("superClusterEndcap");
+  clusters_[0]=iConfig.getParameter<edm::InputTag>("barrelSuperClusters"); 
+  clusters_[1]=iConfig.getParameter<edm::InputTag>("endcapSuperClusters");
   simTracks_=iConfig.getParameter<edm::InputTag>("simTracks");
   trackerHits_=iConfig.getParameter<edm::InputTag>("trackerHits");
   hcalRecHits_= iConfig.getParameter<edm::InputTag>("hcalRecHits");
@@ -74,11 +76,11 @@ ElectronGSPixelSeedProducer::~ElectronGSPixelSeedProducer()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
       delete matcher_;
+      delete seedFilter_;
 }
 
 void ElectronGSPixelSeedProducer::beginJob(edm::EventSetup const&iSetup) 
 {
-
   // Get the calo geometry
   edm::ESHandle<CaloGeometry> theCaloGeom;
   iSetup.get<IdealGeometryRecord>().get(theCaloGeom);
@@ -95,6 +97,26 @@ void ElectronGSPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
   LogDebug("entering");
   LogDebug("")  <<"[ElectronGSPixelSeedProducer::produce] entering " ;
 
+  // get initial TrajectorySeeds if necessary
+  if (fromTrackerSeeds_) {
+
+    if (!prefilteredSeeds_) {
+      
+      edm::Handle<TrajectorySeedCollection> hSeeds;
+      e.getByLabel(initialSeeds_, hSeeds);
+      theInitialSeedColl = const_cast<TrajectorySeedCollection *> (hSeeds.product());
+
+    } else { 
+
+      theInitialSeedColl =new TrajectorySeedCollection;
+
+    }
+  } else { 
+
+    theInitialSeedColl=0;// not needed in this case
+
+  }
+  
   std::auto_ptr<reco::ElectronPixelSeedCollection> pSeeds;
   reco::ElectronPixelSeedCollection *seeds= new reco::ElectronPixelSeedCollection;
 
@@ -120,21 +142,20 @@ void ElectronGSPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
     // invoke algorithm
     edm::Handle<reco::SuperClusterCollection> clusters;
     e.getByLabel(clusters_[i],clusters);
-    // matcher_->run(e,clusters,theGSRecHits,theSimTracks,*seeds);
-  
-    if (algo=="") {
-      reco::SuperClusterRefVector clusterRefs;
-      filterClusters(clusters,mhbhe,clusterRefs);
-      ElectronGSPixelSeedGenerator* theMatcher = (ElectronGSPixelSeedGenerator*)matcher_;
-      theMatcher->run(e,clusterRefs,theGSRecHits,theSimTracks,*seeds);
-    } else { 
-      matcher_->run(e,iSetup,clusters,*seeds);
-    }
+    reco::SuperClusterRefVector clusterRefs;
+    filterClusters(clusters,mhbhe,clusterRefs);
+    if ((fromTrackerSeeds_) && (prefilteredSeeds_)) filterSeeds(e,iSetup,clusterRefs);
+    matcher_->run(e,clusterRefs,theGSRecHits,theSimTracks,theInitialSeedColl,*seeds);
 
   }
 
+  // Save event content
   pSeeds=  std::auto_ptr<reco::ElectronPixelSeedCollection>(seeds);
   e.put(pSeeds);
+
+  // Clean memory
+  delete mhbhe;
+  if (fromTrackerSeeds_ && prefilteredSeeds_) delete theInitialSeedColl;
 }
 
 
@@ -163,5 +184,18 @@ ElectronGSPixelSeedProducer::filterClusters(const edm::Handle<reco::SuperCluster
   }
 
   LogDebug("ElectronPixelSeedProducer")  <<"Filtered out "<<sclRefs.size() <<" superclusters from "<<superClusters->size() ;
+
+}
+
+//UB added
+void ElectronGSPixelSeedProducer::filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs)
+{
+
+  for  (unsigned int i=0;i<sclRefs.size();++i) {
+    seedFilter_->seeds(e, setup, sclRefs[i], theInitialSeedColl);
+
+    LogDebug("ElectronPixelSeedProducer")<< "Number of Seeds: " << theInitialSeedColl->size() ;
+  }
+ 
 
 }

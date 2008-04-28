@@ -5,6 +5,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/TrajectorySeedCollection>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FastSimulation/ParticlePropagator>

@@ -11,10 +11,13 @@
   
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
   
-class  ElectronGSPixelSeedGenerator;
+class ElectronGSPixelSeedGenerator;
+class SeedFilter;
 
 namespace edm { 
   class EventSetup;
@@ -22,10 +25,10 @@ namespace edm {
   class ParameterSet;
 }
 
-class ElectronSeedGenerator;
  
 class ElectronGSPixelSeedProducer : public edm::EDProducer
 {
+
  public:
   
   explicit ElectronGSPixelSeedProducer(const edm::ParameterSet& conf);
@@ -41,16 +44,26 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
 		      HBHERecHitMetaCollection* mhbhe, 
 		      reco::SuperClusterRefVector& sclRefs);
 
+  //UB added
+  void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
  private:
+  // Input Tags
   edm::InputTag clusters_[2];
   edm::InputTag simTracks_;
   edm::InputTag trackerHits_;
   edm::InputTag hcalRecHits_;
-  std::string algo;
+  edm::InputTag initialSeeds_;
 
   // Pixel Seed generator
-  ElectronSeedGenerator *matcher_;
+  ElectronGSPixelSeedGenerator *matcher_;
+
+  // Seed filter
+  SeedFilter * seedFilter_;
+
+  // A few collections (seeds and hcal hits)
+  const HBHERecHitCollection* hithbhe_;
+  TrajectorySeedCollection *theInitialSeedColl;
 
   // H/E filtering
   HoECalculator calc_;
@@ -59,7 +72,10 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
   double maxHOverE_; 
   double SCEtCut_;
 
-  };
+  bool fromTrackerSeeds_;
+  bool prefilteredSeeds_;
+  
+};
   
 #endif
  

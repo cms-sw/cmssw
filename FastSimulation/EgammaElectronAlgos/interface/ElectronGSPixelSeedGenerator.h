@@ -10,12 +10,17 @@
  * \author Patrick Janot
  *
  ************************************************************/
-
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
+//UB added
+#include "DataFormats/EgammaReco/interface//ElectronPixelSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"  
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+//UB added
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
+
 #include "DataFormats/Math/interface/Point3D.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
@@ -39,8 +44,11 @@ class PropagatorWithMaterial;
 class KFUpdator;
 class GSPixelHitMatcher;
 class TrackerRecHit;
+class TrajectorySeed;
 
-class ElectronGSPixelSeedGenerator : public ElectronSeedGenerator
+//UB changed
+//class ElectronGSPixelSeedGenerator : public ElectronSeedGenerator
+class ElectronGSPixelSeedGenerator 
 {
 public:
 
@@ -63,18 +71,26 @@ public:
 
   void setupES(const edm::EventSetup& setup);
 
-  void run(edm::Event&, 
-	   // const edm::Handle<reco::SuperClusterCollection>& clusters,  
-	   const reco::SuperClusterRefVector &sclRefs,
-	   const SiTrackerGSMatchedRecHit2DCollection*,
-	   const edm::SimTrackContainer*,
-	   reco::ElectronPixelSeedCollection&);
+  //UB changed
+/*  void run(edm::Event&,  */
+/* 	   // const edm::Handle<reco::SuperClusterCollection>& clusters,   */
+/* 	   const reco::SuperClusterRefVector &sclRefs, */
+/* 	   const SiTrackerGSMatchedRecHit2DCollection*, */
+/* 	   const edm::SimTrackContainer*, */
+/* 	   reco::ElectronPixelSeedCollection&); */
+  void  run(edm::Event& e, 
+	    const reco::SuperClusterRefVector &sclRefs, 
+	    const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits,
+	    const edm::SimTrackContainer* theSimTracks,
+	    TrajectorySeedCollection *seeds, 
+	    reco::ElectronPixelSeedCollection & out);
 
  private:
 
   void addASeedToThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
 			     std::vector<TrackerRecHit>& theHits,
-			     std::vector<reco::ElectronPixelSeed>&);
+			     const TrajectorySeed& theTrackerSeed,
+			     std::vector<reco::ElectronPixelSeed>& result);
 
   bool prepareElTrackSeed(ConstRecHitPointer outerhit,
 			  ConstRecHitPointer innerhit, 
@@ -95,6 +111,10 @@ public:
   math::XYZPoint BSPosition_;  
 
   GSPixelHitMatcher *myGSPixelMatcher;
+
+  //UB added
+  TrajectorySeedCollection* theInitialSeedColl;
+  bool fromTrackerSeeds_;
 
   const MagneticField* theMagField;
   const MagneticFieldMap* theMagneticFieldMap;
