@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: InjectWorker.sh,v 1.2 2008/04/25 13:19:00 loizides Exp $
+# $Id: InjectWorker.sh,v 1.3 2008/04/25 16:41:47 loizides Exp $
 #
 #  ./InjectWorker.sh directory/file scripts [logdir errordir]
 #
@@ -8,12 +8,12 @@
 #  $SM_IWINPUT for directory/file
 #  $SW_IWSCRIPT for script
 #  $SM_IWLOGDIR for logdir
-#  $SM_IWIW_ERRORDIR for errordir
+#  $SM_IWERRORDIR for errordir
 #
 
 function exit_on_trap()
 {
-    echo -n "Stoping $0 at " >> $IW_LOGFILE
+    echo -n "Stopping $0 with PID $$ at " >> $IW_LOGFILE
     echo `date` >> $IW_LOGFILE
     exit 0;
 }
@@ -22,7 +22,11 @@ function getLogFileName()
 {
     local hname=`hostname | cut -d. -f1`
     local dname=`date "+%Y%m%d"`
-    echo "$dname-$hname-iw-$$.log"
+    if test -n "$SMIW_RUNNUM"; then
+	echo "$dname-$hname-iw-${SMIW_RUNNUM}.log"
+    else
+	echo "$dname-$hname-iw-$$.log"
+    fi
 }
 
 # test for IW_LOGDIR
@@ -79,7 +83,7 @@ fi
 if test -n "$4"; then
     IW_ERRORDIR=$4
 else
-    IW_ERRORDIR=$SM_IWIW_ERRORDIR
+    IW_ERRORDIR=$SM_IWERRORDIR
 fi
 if test -n "$IW_ERRORDIR"; then
     if ! test -d "$IW_ERRORDIR"; then
@@ -92,7 +96,7 @@ if test -n "$IW_ERRORDIR"; then
     fi
 fi
 
-IW_SLEEPTIME=5
+IW_SLEEPTIME=15
 #IW_PROCESSFILE=true
 
 COUNTER=0
@@ -121,6 +125,9 @@ while test 1 -gt 0; do
 
     #ignore common signals
     trap '' 1 2 9 15
+
+    #set log file in case date changed 
+    IW_LOGFILE=$IW_LOGDIR/`getLogFileName`
 
     echo -n "Info $0: Working on file $IFILE at " >> $IW_LOGFILE
     echo `date` >> $IW_LOGFILE
