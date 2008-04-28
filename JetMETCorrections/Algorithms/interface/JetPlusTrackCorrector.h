@@ -33,7 +33,7 @@ public:
   
   virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
-  void setParameters( std::string fDataFile );
+  void setParameters( std::string fDataFile, std::string fDataFile );
   
   /// if correction needs event information
   virtual bool eventRequired () const {return true;}
@@ -49,7 +49,9 @@ private:
   std::vector<double> etabin;
   std::vector<double> ptbin;
   std::vector<double> trkeff;
+  std::vector<double> trkeff_resp;
   std::string theNonEfficiencyFile;
+  std::string theNonEfficiencyFileResp;
 
 };
 

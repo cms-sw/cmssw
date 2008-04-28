@@ -15,19 +15,28 @@ using namespace std;
 
 JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 {
-//             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::start "<<std::endl;
+  //           std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::constructor start "<<std::endl;
 			  m_JetTracksAtVertex = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtVertex");
+    //         std::cout<<" Point 1 "<<std::endl;
 			  m_JetTracksAtCalo = iConfig.getParameter<edm::InputTag>("JetTrackCollectionAtCalo");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
+      //       std::cout<<" Read the first set of parameters "<<std::endl;
 //  Efficiency and separation of out/in cone tracks
                           theNonEfficiencyFile = iConfig.getParameter<std::string>("NonEfficiencyFile");
+                          theNonEfficiencyFileResp = iConfig.getParameter<std::string>("NonEfficiencyFileResp");
+        //     std::cout<<" Read the second set of parameters "<<std::endl;
+//  Out of cone tracks are added 
 			  theAddOutOfConeTracks = iConfig.getParameter<bool>("AddOutOfConeTracks");
-  //           std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::add all parameters "<<theResponseAlgo<<std::endl;			  
-             std::string file="JetMETCorrections/Configuration/data/"+theNonEfficiencyFile+".txt";
-             edm::FileInPath f1(file);
-			  
-			  setParameters(f1.fullPath());
-    //         std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::read file "<<theResponseAlgo<<std::endl;			  
+             std::cout<<" JetPlusTrackCorrector::JetPlusTrackCorrector::response algo "<<theResponseAlgo<<std::endl;			  
+             std::string file1="JetMETCorrections/Configuration/data/"+theNonEfficiencyFile+".txt";
+             std::string file2="JetMETCorrections/Configuration/data/"+theNonEfficiencyFileResp+".txt";
+
+             std::cout<< " Try to open files "<<std::endl;
+
+             edm::FileInPath f1(file1);
+             edm::FileInPath f2(file2);
+          //   std::cout<< " Before the set of parameters "<<std::endl;			  
+			  setParameters(f1.fullPath(),f2.fullPath());
 			  theSingle = new SingleParticleJetResponse();
 			  
 }
@@ -37,14 +46,15 @@ JetPlusTrackCorrector::~JetPlusTrackCorrector()
 //    cout<<" JetPlusTrack destructor "<<endl;
 }
 
-void JetPlusTrackCorrector::setParameters(std::string fDataFile)
+void JetPlusTrackCorrector::setParameters(std::string fDataFile1,std::string fDataFile2)
 { 
-  //std::cout<<" JetPlusTrackCorrector::setParameters "<<std::endl;
+  bool debug=false;
+  if(debug) std::cout<<" JetPlusTrackCorrector::setParameters "<<std::endl;
   netabin = 0;
   nptbin = 0;
     
   // Read nonefficiency map
-  std::ifstream in( fDataFile.c_str() );
+  std::ifstream in( fDataFile1.c_str() );
   string line;
   int ietaold = -1; 
   while( std::getline( in, line)){
@@ -54,26 +64,39 @@ void JetPlusTrackCorrector::setParameters(std::string fDataFile)
     int ieta, ipt;
     linestream>>ieta>>ipt>>eta>>pt>>eff;
     
-    //cout <<" ieta = " << ieta <<" ipt = " << ipt <<" eta = " << eta <<" pt = " << pt <<" eff = " << eff << endl;
+    if(debug) cout <<" ieta = " << ieta <<" ipt = " << ipt <<" eta = " << eta <<" pt = " << pt <<" eff = " << eff << endl;
     if(ieta != ietaold)
       {
 	etabin.push_back(eta);
 	ietaold = ieta;
 	netabin = ieta+1;
-//	cout <<"   netabin = " << netabin <<" eta = " << eta << endl; 
+	if(debug) cout <<"   netabin = " << netabin <<" eta = " << eta << endl; 
       }
     
     if(ietaold == 0) 
       {
 	ptbin.push_back(pt); 
 	nptbin = ipt+1;
-//	cout <<"   nptbin = " << nptbin <<" pt = " << pt << endl; 
+	if(debug) cout <<"   nptbin = " << nptbin <<" pt = " << pt << endl; 
       }
 
     trkeff.push_back(eff);
   }
 
-  cout <<" ====> netabin = " << netabin <<" nptbin = " << nptbin << " Efficiency vector size "<<trkeff.size()<< endl;
+  if(debug) cout <<" ====> netabin = " << netabin <<" nptbin = " << nptbin << " Efficiency vector size "<<trkeff.size()<< endl;
+  // Read response suppression for the track interacted in Tracker
+  std::ifstream in2( fDataFile2.c_str() );
+  int ii=0;
+  while( std::getline( in2, line)){
+   istringstream linestream(line);
+   double eta,eff;
+   int ieta;
+   ii++;
+   linestream>>ieta>>eta>>eff;
+   if(debug) cout <<" ieta = " <<ii<<" "<< ieta <<" "<<eta<<" "<<eff<<endl;
+   trkeff_resp.push_back(eff);  
+  }
+  
   // ==========================================    
    
 }
@@ -260,13 +283,13 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
             // ?? assumption. to be OK for ECAL+HCAL response
             double ee = 0.;
             vector<double> resp=theSingle->response(emean_incone[k],ee,theResponseAlgo);
-            corrinef = corrinef + netracks_incone[k]*((1.-trkeff[k])/trkeff[k])*(emean_incone[k] - resp.front() - resp.back());
-            // corrinef = corrinef + netracks_incone[k]*((1.-trkeff[k])/trkeff[k])*emean_incone[k];
-            if(debug) cout <<" k eta/pt index = " << k
+            corrinef = corrinef + netracks_incone[k]*((1.-trkeff[k])/trkeff[k])*(emean_incone[k] - trkeff_resp[etatr]*(resp.front() + resp.back()));
+             cout <<" k eta/pt index = " << k
                  <<" trkeff[k] = " << trkeff[k]
                  <<" netracks_incone[k] = " <<  netracks_incone[k]
                  <<" emean_incone[k] = " << emean_incone[k]
                  <<" resp = " << resp.front() + resp.back()
+                 <<" resp_suppr = "<<trkeff_resp[etatr]  
                  <<" corrinef = " << corrinef << endl;
           }
         }
