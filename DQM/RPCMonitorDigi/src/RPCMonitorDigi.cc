@@ -34,6 +34,9 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   foundHitsInChamber.clear();
   nameInLog = pset.getUntrackedParameter<std::string>("moduleLogName", "RPC_DQM");
   saveRootFile  = pset.getUntrackedParameter<bool>("DigiDQMSaveRootFile", false); 
+
+  mergeRuns_  = pset.getUntrackedParameter<bool>("MergeDifferentRuns", false); 
+
   saveRootFileEventsInterval  = pset.getUntrackedParameter<int>("DigiEventsInterval", 10000);
   
   RootFileName  = pset.getUntrackedParameter<std::string>("RootFileNameDigi", "RPCMonitor.root"); 
@@ -109,6 +112,9 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
 
 
 void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
+  //if mergeRuns_==true skip reset
+  if (mergeRuns_) return;
+
   //Mes are reset at every new run. Thez are saved at the end of each run
 
   //Reset all Histograms
