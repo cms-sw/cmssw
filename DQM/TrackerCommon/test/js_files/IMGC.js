@@ -989,6 +989,15 @@ IMGC.processImageURLs = function (ajax)
   IMGC.BASE_IMAGE_HEIGHT  = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
   IMGC.THUMB_IMAGE_WIDTH  = IMGC.BASE_IMAGE_WIDTH  / IMGC.IMAGES_PER_ROW;
   IMGC.THUMB_IMAGE_HEIGHT = IMGC.BASE_IMAGE_HEIGHT / IMGC.IMAGES_PER_COL;
+
+  date = new Date() ; // This is extremely important: adding a date to the QUERY_STRING of the
+                     // URL, forces the browser to reload the picture even if the Plot, Folder
+		     // and canvas size are the same (e.g. by clicking twice the same plot)
+		     // The reload is forced because the browser is faked to think that the
+		     // URL is ALWAYS different from an already existing one.
+		     // This was rather tricky... (Dario)
+  date = date.toString() ;
+  date = date.replace(/\s+/g,"_") ;
  
   var theFolder = imageURLs[0] ;
   var tempURLs   = new Array() ;
@@ -996,7 +1005,8 @@ IMGC.processImageURLs = function (ajax)
   for( var i=1; i<imageURLs.length-1; i++)
   {
    var fullPath = theFolder + "/" + imageURLs[i] ;
-   tempURLs[i-1] = url + "RequestID=GetIMGCImage&Path=" + fullPath;
+   tempURLs[i-1] = url + "RequestID=GetIMGCImage&Path=" + fullPath 
+                       + "&Date=" + date;
    tempTitles[i-1] =theFolder + "|" + imageURLs[i]  
   }
 
