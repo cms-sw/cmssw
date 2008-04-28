@@ -16,7 +16,7 @@ void Calibrator::addParticleDeposit(ParticleDeposit* pd) {
 }
 
 std::map<DetectorElement*, double> Calibrator::getCalibrationCoefficients() throw(
-		MinimiserException&) {
+		PFToolsException&) {
 
 	std::cout << __PRETTY_FUNCTION__
 			<< ": Not implemented in default Calibrator class!\n";

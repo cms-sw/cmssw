@@ -16,7 +16,5 @@ template <class T> std::string toString(const std::pair<T, T>& aT) {
 }
 
 
-
-
 #endif /*TOSTR_H */
 

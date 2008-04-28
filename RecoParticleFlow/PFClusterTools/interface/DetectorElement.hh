@@ -15,13 +15,21 @@
 //#endif
 
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/MinimiserException.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.hh"
 
 #include "TH2F.h"
 #include "TH1F.h"
 
 namespace pftools {
+/**
+ \class DetectorElement 
+ \brief Represents an energy-measuring region of our detector.
+ 
+ The Calibrator class will make a calibration constant for each DetectorElement passed to it.
 
+ \author Jamie Ballin
+ \date   April 2008
+ */
 class DetectorElement {
 public:
 	
@@ -50,7 +58,7 @@ public:
 	/*
 	 * Set the calibration of this detector element. Must be > 0.
 	 */
-	void setCalib(double calib) throw(MinimiserException&);
+	void setCalib(double calib) throw(PFToolsException&);
 	
 
 	//friend std::ostream& operator<<(std::ostream& s, const DetectorElement& de);

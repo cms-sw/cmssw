@@ -24,7 +24,7 @@ void SpaceManager::clear() {
 void SpaceManager::createCalibrators(const Calibrator& toClone,
 		const double etaSeg, const double phiSeg, const double energySeg) {
 	std::cout << __PRETTY_FUNCTION__ << ": this method has not yet been implemented!\n";
-	MinimiserException me("Unimplemented method! Sorry!");
+	PFToolsException me("Unimplemented method! Sorry!");
 	throw me;
 
 }
@@ -33,11 +33,11 @@ void SpaceManager::createCalibrators(const Calibrator& toClone,
 		const unsigned nEta, const double etaMin, const double etaMax,
 		const unsigned nPhi, const double phiMin, const double phiMax,
 		const unsigned nEnergy, const double energyMin, const double energyMax) throw(
-		MinimiserException&) {
+		PFToolsException&) {
 	clear();
 
 	if (nEta == 0|| nPhi ==0|| nEnergy == 0) {
-		MinimiserException
+		PFToolsException
 				me("Can't create calibrators with zero values for nEta, nPhi or nEnergy!");
 		throw me;
 	}

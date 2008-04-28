@@ -67,7 +67,7 @@ double ParticleDeposit::getRecEnergy() const {
 }
 
 double ParticleDeposit::getEnergyResolution() const {
-	assert(getRecEnergy() / myTruthEnergy > 0.0);
+	assert(!(getRecEnergy() / myTruthEnergy < 0.0));
 	return fabs((getRecEnergy() - myTruthEnergy) / sqrt(myTruthEnergy));
 }
 

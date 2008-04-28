@@ -11,11 +11,19 @@
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 
 #include <iostream>
+
+/**
+ \class ParticleDeposit 
+ \brief An object that encapsualtes energy depositions (real, MC or otherwise) made by  particle in N DetectorElement objects.
+
+ \author Jamie Ballin
+ \date   April 2008
+ */
 namespace pftools {
 class ParticleDeposit {
 public:
 
-	ParticleDeposit(double truthEnergy = -1.0, double eta = 0 , double phi = 0);
+	ParticleDeposit(double truthEnergy = -1.0, double eta = 0, double phi = 0);
 	virtual ~ParticleDeposit();
 
 	void addRecDeposition(Deposition rec);
@@ -48,11 +56,11 @@ public:
 	inline unsigned getId() const {
 		return myId;
 	}
-	
+
 	inline double getEta() const {
 		return myEta;
 	}
-	
+
 	inline double getPhi() const {
 		return myPhi;
 	}
@@ -69,12 +77,12 @@ private:
 	double myTruthEnergy;
 	double myEta;
 	double myPhi;
-	
+
 	/*
 	 * For general ROOT dictionary building happiness!
 	 */
 	std::vector<ParticleDeposit*> pdps_;
-//	std::vector<ParticleDeposit> pds_;
+	//	std::vector<ParticleDeposit> pds_;
 };
 }
 

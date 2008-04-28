@@ -51,11 +51,10 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 	TTree* tree = (TTree*) file.Get("CaloData2");
 	tree->ls();
 	if (tree == 0) {
-		MinimiserException me("Couldn't open tree!");
+		PFToolsException me("Couldn't open tree!");
 		throw me;
 	}
 	std::cout << "Opened Tree CaloData2...\n";
-	
 
 	std::cout << "Assigning branch: \n";
 	TBranch* spwBr = tree->GetBranch("SingleParticleWrapper");
@@ -95,7 +94,7 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 
 }
 void TreeUtility::recreateFromRootFile(TFile& f) {
-	
+
 	DetectorElement* ecal = new DetectorElement(ECAL, 1.0);
 	DetectorElement* hcal = new DetectorElement(HCAL, 1.0);
 	std::vector<DetectorElement*> elements;
@@ -104,7 +103,7 @@ void TreeUtility::recreateFromRootFile(TFile& f) {
 	std::cout << "Made detector elements...\n";
 	std::cout << "Recreating from root file...\n";
 	std::vector<ParticleDeposit*> particles;
-	recreateFromRootFile(f,elements,particles);
+	recreateFromRootFile(f, elements, particles);
 	std::cout << "Finished.\n";
 }
 

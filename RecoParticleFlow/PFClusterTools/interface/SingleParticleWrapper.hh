@@ -4,6 +4,15 @@
 #include <boost/shared_ptr.hpp>
 
 namespace pftools {
+/**
+ \class SingleParticleWrapper 
+ \brief Wraps essential single particle calibration data ready for export to a Root file.
+ 
+ Note that a Reflex dictionary must be produced for this class, for the Root branching mechanisms to work.
+
+ \author Jamie Ballin
+ \date   April 2008
+ */
 class SingleParticleWrapper
 {
 public:

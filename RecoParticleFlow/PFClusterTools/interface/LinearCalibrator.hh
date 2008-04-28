@@ -6,16 +6,18 @@
 #include "TMatrixD.h"
 #include "TVectorD.h"
 
-/*
- * LinearCalibrator Class
+/**
+ * \class LinearCalibrator Class
  * 
- * This class implements the simple "linear" calibration for the "a,b,c" coefficients.
+ * \brief This class implements the simple "linear" calibration for the "a,b,c" coefficients.
  * It extends Calibrator.
  * 
  * Calibrations are given i.t.o,
  * 		E_calib = a + b * det_1 + c * det_2 + ...
  * 
- * doOffset is set to true by default: this 'a' term accounts for threshold effects.
+ * 
+ \author Jamie Ballin
+ \date   April 2008
  */
 namespace pftools {
 class LinearCalibrator : public Calibrator {
@@ -24,7 +26,7 @@ public:
 	virtual ~LinearCalibrator();
 
 	virtual std::map<DetectorElement*, double>
-			getCalibrationCoefficients() throw(MinimiserException&);
+			getCalibrationCoefficients() throw(PFToolsException&);
 
 	/*
 	 * Note: covariant return type w.r.t. Calibrator class: the overloading has changed 
@@ -35,7 +37,7 @@ public:
 	LinearCalibrator* create() const;
 
 protected:
-	
+
 	LinearCalibrator(const LinearCalibrator& lc);
 	/*
 	 * Converts the particle deposits into a useful matrix formulation.

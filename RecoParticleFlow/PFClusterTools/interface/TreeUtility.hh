@@ -4,7 +4,18 @@
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
 #include "TFile.h"
 #include <vector>
+
 namespace pftools {
+/**
+ * 
+ * \class TreeUtility 
+\brief Utility class to create particles and detector elements from a Root file
+
+\todo Remove recreateFromRootFile(TFile& file) as this is only useful for testing purposes!
+
+\author Jamie Ballin
+\date   April 2008
+*/
 class TreeUtility {
 public:
 	TreeUtility();

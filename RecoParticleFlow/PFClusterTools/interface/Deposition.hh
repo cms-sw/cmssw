@@ -3,18 +3,16 @@
 #include <iostream>
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 
-/*
- * Deposition class
- * 		Jamie Ballin - April 2008
- * 		Imperial College, London
- * 		jamie.ballin@cern.ch
+namespace pftools {
+/**
+ * \class Deposition
  * 
- * This class holds an arbitrary energy deposition, specified in terms of angular 
+ * \brief This class holds an arbitrary energy deposition, specified in terms of angular 
  * position, energy, depth (optional) and detector element type.
  * 
+ * \author Jamie Balin
+ * \date April 2008
  * */
-
-namespace pftools {
 class Deposition {
 public:
 

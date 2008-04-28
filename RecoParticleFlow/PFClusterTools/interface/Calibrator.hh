@@ -3,10 +3,19 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.hh"
 #include <map>
 #include <vector>
 
 namespace pftools {
+
+/**
+\class Calibrator 
+\brief Abstract base class for Particle Flow calibration algorithms
+
+\author Jamie Ballin
+\date   April 2008
+*/
 class Calibrator {
 public:
 	Calibrator();
@@ -21,7 +30,7 @@ public:
 	 * from all particle depositions stored within.
 	 */
 	virtual std::map<DetectorElement*, double> getCalibrationCoefficients() throw(
-			MinimiserException&);
+			PFToolsException&);
 
 	virtual DetectorElement* getOffsetElement();
 	

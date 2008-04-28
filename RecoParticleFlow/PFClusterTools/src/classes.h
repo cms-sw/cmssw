@@ -7,7 +7,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/ToString.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Deposition.hh"  
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.hh"  
-#include "RecoParticleFlow/PFClusterTools/interface/MinimiserException.hh"  
+#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.hh"  
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"  
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"    
 #include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.hh"

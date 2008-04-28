@@ -6,6 +6,13 @@
 #include <vector>
 
 namespace pftools {
+/**
+ \class SpaceManager 
+ \brief A tool to associate SpaceVoxels with Calibrator objects
+
+ \author Jamie Ballin
+ \date   April 2008
+ */
 class SpaceManager {
 public:
 	SpaceManager();
@@ -26,7 +33,7 @@ public:
 	void createCalibrators(const Calibrator& toClone, const unsigned nEta,
 			const double etaMin, const double etaMax, const unsigned nPhi,
 			const double phiMin, const double phiMax, const unsigned nEnergy,
-			const double energyMin, const double energyMax) throw(MinimiserException&);
+			const double energyMin, const double energyMax) throw(PFToolsException&);
 
 	std::map<SpaceVoxel*, Calibrator*>* getCalibrators() {
 		std::map<SpaceVoxel*, Calibrator*>* ptr = &myAddressBook;

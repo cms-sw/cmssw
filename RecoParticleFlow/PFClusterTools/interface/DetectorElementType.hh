@@ -2,15 +2,20 @@
 #define DETECTORELEMENTTYPE_HH_
 
 
-/*
+namespace pftools {
+/**
+ * \class DetectorElementType
+ * \brief Enumerates possible DetectorElement objects.
+ * 
  * Possible detector elements:
  * 		ECAL
  * 		HCAL
  * 		PRESHOWER
  * 		OFFSET
+ * 
+ * \author Jamie Ballin
+ * \date April 2008
  */
-
-namespace pftools {
 enum DetectorElementType {
 	ECAL = 0, HCAL = 1, PRESHOWER = 2, OFFSET = 3
 };

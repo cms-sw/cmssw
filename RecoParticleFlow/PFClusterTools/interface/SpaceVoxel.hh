@@ -3,9 +3,11 @@
 #include <iostream>
 namespace pftools {
 
-/*
- * SpaceVoxel.hh
- * \brief A multi-dimensional volume element to subdivide the detector into different calibration regions.
+/**\class SpaceVoxel 
+ \brief A multi-dimensional volume element to subdivide the detector into different calibration regions.
+
+ \author Jamie Ballin
+ \date   April 2008
  */
 class SpaceVoxel {
 public:
@@ -19,20 +21,22 @@ public:
 	 */
 	SpaceVoxel(double etaBegin = 0, double etaEnd = 0, double phiBegin = 0,
 			double phiEnd = 0, double energyBegin = 0, double energyEnd = 0);
-	
+
 	virtual ~SpaceVoxel();
-	
-	virtual bool contains(const double& eta, const double& phi, const double& energy) const;
-	
+
+	virtual bool contains(const double& eta, const double& phi,
+			const double& energy) const;
+
 	virtual bool containsEta(const double& eta) const;
-	
+
 	virtual bool containsPhi(const double& phi) const;
-	
+
 	virtual bool containsEnergy(const double& energy) const;
-	
+
 	void print(std::ostream& s) const;
-	
-	friend std::ostream& operator<<(std::ostream& s, const pftools::SpaceVoxel& sv);
+
+	friend std::ostream& operator<<(std::ostream& s,
+			const pftools::SpaceVoxel& sv);
 
 private:
 	double myEtaMin;
@@ -43,7 +47,6 @@ private:
 	double myEnergyMax;
 
 };
-
 
 }
 #endif /*SPACEVOXEL_HH_*/

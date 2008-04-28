@@ -59,12 +59,12 @@ LinearCalibrator* LinearCalibrator::create() const {
 }
 
 std::map<DetectorElement*, double> LinearCalibrator::getCalibrationCoefficients() throw(
-		MinimiserException&) {
+		PFToolsException&) {
 	std::cout << __PRETTY_FUNCTION__
 			<< ": determining linear calibration coefficients...\n";
 			if(!hasParticles()) {
 				//I have no particles to calibrate to - throw exception.
-				MinimiserException me("Calibrator has no particles for calibration!");
+				PFToolsException me("Calibrator has no particles for calibration!");
 				throw me;
 			}
 	std::cout << "\tGetting eij matrix...\n";
@@ -109,7 +109,7 @@ std::map<DetectorElement*, double> LinearCalibrator::getCalibrationCoefficients(
 		//particle->addTruthDeposition(dOffset);
 		std::cout << "\tDid you forget to add a dummy offset deposition to each particle?\n";
 		std::cout << "\tThrowing an exception!"<< std::endl;
-		MinimiserException
+		PFToolsException
 				me("TDecompLU did not converge successfully when finding calibrations. Did you forget to add a dummy offset deposition to each particle?");
 		throw me;
 	}

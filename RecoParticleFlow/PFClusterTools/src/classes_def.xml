@@ -6,7 +6,7 @@
   <class name="pftools::LinearCalibrator"/>     
   <class name="pftools::SpaceManager"/> 
   <class name="pftools::Deposition"/>
-  <class name="pftools::MinimiserException"/> 
+  <class name="pftools::PFToolsException"/> 
   <class name="pftools::ParticleDeposit"/>
   <class name="pftools::SpaceVoxel"/>
   <class name="pftools::SingleParticleWrapper"/>
