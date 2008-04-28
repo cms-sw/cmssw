@@ -195,71 +195,85 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
       int eyPlusSum = 0;
       unsigned etPlusSum = 0;
 
+      unsigned etm0=0, etm1=0, etp0=0, etp1=0;
+
       for (unsigned col=0; col<6; col++) {
 
 	unsigned strip = (22-rctStrip)%18 + 36*bx;
-	unsigned etm = etStripSums.at(strip);
-	int exm = etComponent(etm, ((2*strip+9)%36) );
-	int eym = etComponent(etm, (( 2*strip )%36) );
-
-	exMinusSm += exm;
-	eyMinusSm += eym;
+	unsigned etm = etStripSums.at(strip)    % 4096;
+	unsigned etp = etStripSums.at(strip+18) % 4096;
 	etMinusSm += etm; 
-
-	unsigned etp = etStripSums.at(strip+18);
-	int exp = etComponent(etp, ((2*strip+9)%36) );
-	int eyp = etComponent(etp, (( 2*strip )%36) );
-
-	exPlusSum += exp;
-	eyPlusSum += eyp;
 	etPlusSum += etp; 
 
+	if (col%2 == 0) {
+	  etm0 = etm;
+	  etp0 = etp;
+	} else {
+	  etm1 = etm;
+	  etp1 = etp;
+
+	  int exm = etComponent(etm0, ((2*strip+11)%36) ,
+				etm1, ((2*strip+9 )%36) );
+	  int eym = etComponent(etm0, ((2*strip+2 )%36) ,
+				etm1, (( 2*strip  )%36) );
+
+	  int exp = etComponent(etp0, ((2*strip+11)%36) ,
+				etp1, ((2*strip+9 )%36) );
+	  int eyp = etComponent(etp0, ((2*strip+2 )%36) ,
+				etp1, (( 2*strip  )%36) );
+
+	  exMinusSm += exm;
+	  eyMinusSm += eym;
+
+	  exPlusSum += exp;
+	  eyPlusSum += eyp;
+	}
 	rctStrip++;
       }
       // Check overflow for each leaf card
-      if (exMinusSm<-8192) { exMinusSm += 16384; exMinusOvrFlow = true; }
-      if (exMinusSm>=8192) { exMinusSm -= 16384; exMinusOvrFlow = true; }
-      if (eyMinusSm<-8192) { eyMinusSm += 16384; eyMinusOvrFlow = true; }
-      if (eyMinusSm>=8192) { eyMinusSm -= 16384; eyMinusOvrFlow = true; }
-      if (etMinusSm>=4096) { etMinusSm -= 4096; etMinusOvrFlow = true; }
+      if (exMinusSm<-65535) { exMinusSm += 131072; exMinusOvrFlow = true; }
+      if (exMinusSm>=65535) { exMinusSm -= 131072; exMinusOvrFlow = true; }
+      if (eyMinusSm<-65535) { eyMinusSm += 131072; eyMinusOvrFlow = true; }
+      if (eyMinusSm>=65535) { eyMinusSm -= 131072; eyMinusOvrFlow = true; }
+      if (etMinusSm>=4096)  { etMinusSm -= 4096; etMinusOvrFlow = true; }
       exMinusVl += exMinusSm;
       eyMinusVl += eyMinusSm;
       etMinusVl += etMinusSm;
-      if (exPlusSum<-8192) { exPlusSum += 16384; exPlusOverFlow = true; }
-      if (exPlusSum>=8192) { exPlusSum -= 16384; exPlusOverFlow = true; }
-      if (eyPlusSum<-8192) { eyPlusSum += 16384; eyPlusOverFlow = true; }
-      if (eyPlusSum>=8192) { eyPlusSum -= 16384; eyPlusOverFlow = true; }
-      if (etPlusSum>=4096) { etPlusSum -= 4096; etPlusOverFlow = true; }
+      if (exPlusSum<-65535) { exPlusSum += 131072; exPlusOverFlow = true; }
+      if (exPlusSum>=65535) { exPlusSum -= 131072; exPlusOverFlow = true; }
+      if (eyPlusSum<-65535) { eyPlusSum += 131072; eyPlusOverFlow = true; }
+      if (eyPlusSum>=65535) { eyPlusSum -= 131072; eyPlusOverFlow = true; }
+      if (etPlusSum>=4096)  { etPlusSum -= 4096; etPlusOverFlow = true; }
       exPlusVal += exPlusSum;
       eyPlusVal += eyPlusSum;
       etPlusVal += etPlusSum;
     }
     // Check overflow for the overall sums
-    if (exMinusVl<-8192) { exMinusVl += 16384; exMinusOvrFlow = true; }
-    if (exMinusVl>=8192) { exMinusVl -= 16384; exMinusOvrFlow = true; }
-    if (eyMinusVl<-8192) { eyMinusVl += 16384; eyMinusOvrFlow = true; }
-    if (eyMinusVl>=8192) { eyMinusVl -= 16384; eyMinusOvrFlow = true; }
-    if (etMinusVl>=4096) { etMinusVl -= 4096; etMinusOvrFlow = true; }
+    if (exMinusVl<-65535) { exMinusVl += 131072; exMinusOvrFlow = true; }
+    if (exMinusVl>=65535) { exMinusVl -= 131072; exMinusOvrFlow = true; }
+    if (eyMinusVl<-65535) { eyMinusVl += 131072; eyMinusOvrFlow = true; }
+    if (eyMinusVl>=65535) { eyMinusVl -= 131072; eyMinusOvrFlow = true; }
+    while (etMinusVl>=4096)  { etMinusVl -= 4096; etMinusOvrFlow = true; }
 
-    if (exPlusVal<-8192) { exPlusVal += 16384; exPlusOverFlow = true; }
-    if (exPlusVal>=8192) { exPlusVal -= 16384; exPlusOverFlow = true; }
-    if (eyPlusVal<-8192) { eyPlusVal += 16384; eyPlusOverFlow = true; }
-    if (eyPlusVal>=8192) { eyPlusVal -= 16384; eyPlusOverFlow = true; }
-    if (etPlusVal>=4096) { etPlusVal -= 4096; etPlusOverFlow = true; }
+    if (exPlusVal<-65535) { exPlusVal += 131072; exPlusOverFlow = true; }
+    if (exPlusVal>=65535) { exPlusVal -= 131072; exPlusOverFlow = true; }
+    if (eyPlusVal<-65535) { eyPlusVal += 131072; eyPlusOverFlow = true; }
+    if (eyPlusVal>=65535) { eyPlusVal -= 131072; eyPlusOverFlow = true; }
+    while (etPlusVal>=4096)  { etPlusVal -= 4096; etPlusOverFlow = true; }
 
     int exTotal = exMinusVl + exPlusVal;
     int eyTotal = eyMinusVl + eyPlusVal;
-    unsigned etTotal = (etMinusVl + etPlusVal) & 0xfff;
+    unsigned etTotal = etMinusVl + etPlusVal;
 
     bool exTotalOvrFlow = exMinusOvrFlow || exPlusOverFlow;
     bool eyTotalOvrFlow = eyMinusOvrFlow || eyPlusOverFlow;
     bool etTotalOvrFlow = etMinusOvrFlow || etPlusOverFlow;
 
-    if (exTotal<-8192) { exTotal += 16384; exTotalOvrFlow = true; }
-    if (exTotal>=8192) { exTotal -= 16384; exTotalOvrFlow = true; }
-    if (eyTotal<-8192) { eyTotal += 16384; eyTotalOvrFlow = true; }
-    if (eyTotal>=8192) { eyTotal -= 16384; eyTotalOvrFlow = true; }
-    if (etTotal>=4096) { etTotal -= 4096; etTotalOvrFlow = true; }
+    if (exTotal<-65535) { exTotal += 131072; exTotalOvrFlow = true; }
+    if (exTotal>=65535) { exTotal -= 131072; exTotalOvrFlow = true; }
+    if (eyTotal<-65535) { eyTotal += 131072; eyTotalOvrFlow = true; }
+    if (eyTotal>=65535) { eyTotal -= 131072; eyTotalOvrFlow = true; }
+    if (etTotal>=4096)  { etTotal -= 4096; etTotalOvrFlow = true; }
 
     etmiss_vec etResult = trueMissingEt(-exTotal/2, -eyTotal/2);
 
@@ -306,13 +320,40 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
 
     etDiff = (unsigned) abs((long int) etResult.mag - (long int) myGlobalEnergy->getEtMissColl().at(bx).value());
     phDiff = (unsigned) abs((long int) etResult.phi - (long int) myGlobalEnergy->getEtMissPhiColl().at(bx).value());
-    if (etDiff>2000) {etDiff=4096-etDiff;}
+    if (etDiff>2000) {etDiff=4096-etDiff; etMissOverFlow=true;}
     if (phDiff>60)   {phDiff=72-phDiff;}
     //
     etMargin = (etMissOverFlow ? 40 : max((etResult.mag/100), (unsigned) 1) + 2);
     if (etResult.mag==0) { phMargin = 72; } else { phMargin = (30/etResult.mag) + 1; }
     if ((etDiff > etMargin) || (phDiff > phMargin)) {cout << "Algo etMiss diff "
-							  << etDiff << " phi diff " << phDiff << endl; testPass = false; }
+							  << etDiff << " phi diff " << phDiff << endl; testPass = false; 
+    cout << " exTotal " << exTotal << " eyTotal " << eyTotal << endl;
+    cout << "etMiss mag " << etResult.mag << " phi " << etResult.phi << "; from Gct mag " 
+	 << myGlobalEnergy->getEtMissColl().at(bx).value()
+	 << " phi " << myGlobalEnergy->getEtMissPhiColl().at(bx).value() << endl;
+    cout << "ex Minus " << exMinusVl << (exMinusOvrFlow ? " overflow " : "  " )
+									      << " from Gct " << myGlobalEnergy->getInputExVlMinusWheel().at(bx) <<endl;
+    cout << "ex Plus " << exPlusVal  << (exPlusOverFlow ? " overflow " : "  " )
+									      << " from Gct " << myGlobalEnergy->getInputExValPlusWheel().at(bx) <<endl; 
+    cout << "ey Minus " << eyMinusVl << (eyMinusOvrFlow ? " overflow " : "  " )
+									      << " from Gct " << myGlobalEnergy->getInputEyVlMinusWheel().at(bx) <<endl; 
+    cout << "ey Plus " << eyPlusVal  << (eyPlusOverFlow ? " overflow " : "  " )
+									      << " from Gct " << myGlobalEnergy->getInputEyValPlusWheel().at(bx) <<endl;
+    rctStrip = 0;
+    for (unsigned i=0; i<gct->getJetLeafCards().size(); i++) {
+      cout << "Leaf card " << i << " ex "
+	   << gct->getJetLeafCards().at(i)->getAllOutputEx().at(bx) << " ey "
+	   << gct->getJetLeafCards().at(i)->getAllOutputEy().at(bx) << endl;
+      cout << "strip sums ";
+      for (unsigned col=0; col<6; col++) {
+
+	unsigned strip = (22-rctStrip)%18 + 36*bx;
+	cout << " s " << strip << " e " << etStripSums.at(strip);
+	rctStrip++;
+      }
+      cout << endl;
+    }
+    }
 
     if (etMissOverFlow != myGlobalEnergy->getEtMissColl().at(bx).overFlow()) {
       cout << "etMiss overFlow " << (etMissOverFlow ? "expected but not found in Gct" :
@@ -413,41 +454,63 @@ L1CaloRegion gctTestEnergyAlgos::nextRegionFromFile(const unsigned ieta, const u
 //
 // Function definitions for energy sum checking
 //=========================================================================
-int gctTestEnergyAlgos::etComponent(const unsigned Emag, const unsigned fact) const {
+int gctTestEnergyAlgos::etComponent(const unsigned Emag0, const unsigned fact0,
+                                    const unsigned Emag1, const unsigned fact1) const {
   // Copy the Ex, Ey conversion from the hardware emulation
-  const unsigned sinFact[10] = {0, 89, 175, 256, 329, 392, 443, 481, 504, 512};
+  const unsigned sinFact[10] = {0, 2845, 5603, 8192, 10531, 12550, 14188, 15395, 16134, 16383};
   unsigned myFact;
-  bool negativeResult;
-  int result;
-  switch (fact/9) {
-  case 0:
-    myFact = sinFact[fact];
-    negativeResult = false;
-    break;
-  case 1:
-    myFact = sinFact[(18-fact)];
-    negativeResult = false;
-    break;
-  case 2:
-    myFact = sinFact[(fact-18)];
-    negativeResult = true;
-    break;
-  case 3:
-    myFact = sinFact[(36-fact)];
-    negativeResult = true;
-    break;
-  default:
-    cout << "Invalid factor " << fact << endl;
-    return 0;
+  bool neg0=false, neg1=false, negativeResult;
+  int res0=0, res1=0, result;
+  unsigned Emag, fact;
+
+  for (int i=0; i<2; i++) {
+    if (i==0) { Emag = Emag0; fact = fact0; }
+    else { Emag = Emag1; fact = fact1; }
+
+    switch (fact/9) {
+    case 0:
+      myFact = sinFact[fact];
+      negativeResult = false;
+      break;
+    case 1:
+      myFact = sinFact[(18-fact)];
+      negativeResult = false;
+      break;
+    case 2:
+      myFact = sinFact[(fact-18)];
+      negativeResult = true;
+      break;
+    case 3:
+      myFact = sinFact[(36-fact)];
+      negativeResult = true;
+      break;
+    default:
+      cout << "Invalid factor " << fact << endl;
+      return 0;
+    }
+    result = static_cast<int>(Emag*myFact);
+    if (i==0) { res0 = result; neg0 = negativeResult; }
+    else { res1 = result; neg1 = negativeResult; }
   }
-  result = static_cast<int>(Emag*myFact);
-  // Divide by 256 using bit-shift; but emulate
+  if ( neg0==neg1 ) {
+    result = res0 + res1;
+    negativeResult = neg0;
+  } else {
+    if ( res0>=res1 ) {
+      result = res0 - res1;
+      negativeResult = neg0;
+    } else {
+      result = res1 - res0;
+      negativeResult = neg1;
+    }
+  }
+  // Divide by 8192 using bit-shift; but emulate
   // twos-complement arithmetic for negative numbers
   if ( negativeResult ) {
-    result = (1<<24)-result;
-    result = (result+0x80)>>8;
-    result = result-(1<<16);
-  } else { result = (result+0x80)>>8; }
+    result = (1<<28)-result;
+    result = (result+0x1000)>>13;
+    result = result-(1<<15);
+  } else { result = (result+0x1000)>>13; }
   return result;
 }
 

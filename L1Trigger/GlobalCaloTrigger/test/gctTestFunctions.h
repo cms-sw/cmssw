@@ -75,7 +75,7 @@ public:
   bool checkHfEtSums(const L1GlobalCaloTrigger* gct) const;
 
   /// Analyse calculation of energy sums in firmware
-  void checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const;
+  bool checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const;
 
 private:
 

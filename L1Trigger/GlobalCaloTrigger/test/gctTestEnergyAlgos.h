@@ -53,8 +53,9 @@ private:
 
   //
   // FUNCTION PROTOTYPES FOR ENERGY SUM CHECKING
-  /// Integer calculation of Ex or Ey from magnitude for a given phi bin
-  int etComponent(const unsigned Emag, const unsigned fact) const;
+  /// Integer calculation of Ex or Ey from magnitude for a given pair of phi bins
+  int etComponent(const unsigned Emag0, const unsigned fact0,
+                  const unsigned Emag1, const unsigned fact1) const;
   /// Calculate et vector from ex and ey, using floating arithmetic and conversion back to integer
   etmiss_vec trueMissingEt(const int ex, const int ey) const;
   //=========================================================================

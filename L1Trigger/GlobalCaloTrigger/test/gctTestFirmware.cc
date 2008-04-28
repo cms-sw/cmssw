@@ -154,7 +154,10 @@ L1GctJet gctTestFirmware::nextJetFromFile (const unsigned jf, const int bx)
 }
 
 /// Analyse calculation of energy sums in firmware
-void gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) {
+bool gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName, const int numOfBx) {
+
+  bool testPass = true;
+
   //Open the file
   if (!esumsFromFirmwareInputFile.is_open()) {
     esumsFromFirmwareInputFile.open(fileName.c_str(), std::ios::in);
@@ -162,58 +165,84 @@ void gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct
 
   //Error message and abandon ship if we can't read the file
   if(!esumsFromFirmwareInputFile.good())
-  {
-    throw cms::Exception("fileReadError")
-    << " in gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger*, const std::string &)\n"
-    << "Couldn't read data from file " << fileName << "!";
-  }
+    {
+      throw cms::Exception("fileReadError")
+	<< " in gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger*, const std::string &)\n"
+	<< "Couldn't read data from file " << fileName << "!";
+    }
 
   //Loop reading events from the file (one event per line)
-  unsigned evno;
-  unsigned etGct, htGct, magGct, phiGct;
-  unsigned etEmv, htEmv, magEmv, phiEmv;
-  int exGct, eyGct;
-  unsigned magTest, phiTest;
+  for (int bx=0; bx<numOfBx; bx++) {
+    unsigned evno;
+    unsigned etGct, htGct, magGct, phiGct;
+    unsigned etEmv, htEmv, magEmv, phiEmv;
+    int exGct, eyGct;
+    unsigned magTest, phiTest;
 
-  esumsFromFirmwareInputFile >> evno;
-  // Values output from the GCT firmware
-  esumsFromFirmwareInputFile >> etGct;
-  esumsFromFirmwareInputFile >> htGct;
-  esumsFromFirmwareInputFile >> magGct;
-  esumsFromFirmwareInputFile >> phiGct;
-  // Values output from "procedural VHDL" emulator 
-  esumsFromFirmwareInputFile >> etEmv;
-  esumsFromFirmwareInputFile >> htEmv;
-  esumsFromFirmwareInputFile >> magEmv;
-  esumsFromFirmwareInputFile >> phiEmv;
-  // Values of ex, ey components input
-  esumsFromFirmwareInputFile >> exGct;
-  esumsFromFirmwareInputFile >> eyGct;
-  // Values of missing Et from VHDL "algorithm-under-test"
-  esumsFromFirmwareInputFile >> magTest;
-  esumsFromFirmwareInputFile >> phiTest;
+    esumsFromFirmwareInputFile >> evno;
+    // Values output from the GCT firmware
+    esumsFromFirmwareInputFile >> etGct;
+    esumsFromFirmwareInputFile >> htGct;
+    esumsFromFirmwareInputFile >> magGct;
+    esumsFromFirmwareInputFile >> phiGct;
+    // Values output from "procedural VHDL" emulator 
+    esumsFromFirmwareInputFile >> etEmv;
+    esumsFromFirmwareInputFile >> htEmv;
+    esumsFromFirmwareInputFile >> magEmv;
+    esumsFromFirmwareInputFile >> phiEmv;
+    // Values of ex, ey components input
+    esumsFromFirmwareInputFile >> exGct;
+    esumsFromFirmwareInputFile >> eyGct;
+    // Values of missing Et from VHDL "algorithm-under-test"
+    esumsFromFirmwareInputFile >> magTest;
+    esumsFromFirmwareInputFile >> phiTest;
 
-  cout << "et from firmware " << etGct << " from emulator " << gct->getEtSum().value()
-       << ( etGct==etEmv ? ", vhdl OK" : ", vhdl mismatch" ) << endl;
-  cout << "ht from firmware " << htGct << " from emulator " << gct->getEtHad().value()
-       << ( htGct==htEmv ? ", vhdl OK" : ", vhdl mismatch" ) << endl;
+    // Check total Et calculation
+    if ( etGct!=etEmv ) {
+      cout << "Reading firmware values from file, et from Gct vhdl " << etGct
+	   << " from procedural VHDL " << etEmv << endl;
+      testPass = false;
+    }
+    if ( etGct!=gct->getEtSumCollection().at(bx).et() ) {
+      cout << "Checking firmware values from file, et from Gct " << etGct
+	   << " from CMSSW "
+	   << gct->getEtSumCollection().at(bx).et() << endl;
+      testPass = false;
+    }
 
-  int exPlus  = gct->getEnergyFinalStage()->getInputExValPlusWheel().value();
-  int eyPlus  = gct->getEnergyFinalStage()->getInputEyValPlusWheel().value();
-  int exMinus = gct->getEnergyFinalStage()->getInputExVlMinusWheel().value();
-  int eyMinus = gct->getEnergyFinalStage()->getInputEyVlMinusWheel().value();
+    // Ignore ht check against emulator since it depends on the jet calibration
+    // Just check the two firmware values against each other
+    if ( htGct!=htEmv ) {
+      cout << "Reading firmware values from file, ht from Gct vhdl " << htGct
+	   << " from procedural VHDL " << htEmv << endl;
+      testPass = false;
+    }
 
-  int exEmu = exPlus + exMinus;
-  int eyEmu = eyPlus + eyMinus;
+    int exPlus  = gct->getEnergyFinalStage()->getInputExValPlusWheel().at(bx).value();
+    int eyPlus  = gct->getEnergyFinalStage()->getInputEyValPlusWheel().at(bx).value();
+    int exMinus = gct->getEnergyFinalStage()->getInputExVlMinusWheel().at(bx).value();
+    int eyMinus = gct->getEnergyFinalStage()->getInputEyVlMinusWheel().at(bx).value();
 
-  cout << "ex from firmware " << exGct << " from emulator " << exEmu << endl;
-  cout << "ey from firmware " << eyGct << " from emulator " << eyEmu << endl;
+    int exEmu = exPlus + exMinus;
+    int eyEmu = eyPlus + eyMinus;
+    if ( exGct!=exEmu || eyGct!=eyEmu ) {
+      cout << "Checking firmware values from file, met components from Gct vhdl "
+	   << exGct << " and " << eyGct
+	   << "; from CMSSW " << exEmu << " and " << eyEmu << endl;
+      testPass = false;
+    }
 
-  float r = ((float) magTest)/((float) gct->getEtMiss().value());
-  int dif = phiTest - (gct->getEtMissPhi().value());
-  cout << "Met from firmware " << magTest << " from emulator " << gct->getEtMiss().value()
-       << " ratio " << r << endl;
-  cout << "phi from firmware " << phiTest << " from emulator " << gct->getEtMissPhi().value()
-       << " difference " << dif << endl;
+    if (magTest!=gct->getEtMissCollection().at(bx).et() || phiTest!=gct->getEtMissCollection().at(bx).phi()) {
+      cout << "Checking met calculation, components from vhdl "
+	   << exGct << " and " << eyGct << ", result mag " << magTest << " phi " << phiTest << endl;
+      cout << "Components from CMSSW " << exEmu << " and " << eyEmu
+	   << ", result mag " << gct->getEtMissCollection().at(bx).et()
+	   << " phi " << gct->getEtMissCollection().at(bx).phi() << endl;
+      testPass = false;
+    }
+
+  }
+
+  return testPass;
 }
 

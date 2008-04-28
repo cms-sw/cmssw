@@ -19,9 +19,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
-using std::cout;
-using std::endl;
-
 //
 // constants, enums and typedefs
 //
@@ -88,16 +85,13 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   std::cout << "Hello from gctTest::analyze()" << std::endl;
-  bool endOfFile=false;
+   bool endOfFile=false;
 
-  configureGct(iSetup);
-   std::cout << "Done configure" << std::endl;
+   configureGct(iSetup);
 
    // Initialise the gct
    m_gct->reset();
    m_tester->reset();
-   std::cout << "Done reset" << std::endl;
 
    for (int bx=m_firstBx; bx<=m_lastBx; bx++) {
      // Load data into the gct according to the tests to be carried out
@@ -111,11 +105,9 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        m_tester->loadNextEvent(m_gct, theInputDataFileName, endOfFile, bx);
        if (endOfFile) break; }
    }
-   std::cout << "Done load events" << std::endl;
 
    // Run the gct emulator on the input data
    m_gct->process();
-   std::cout << "Done process events" << std::endl;
 
    bool passAllTests = true;
 
@@ -124,31 +116,24 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      m_tester->fillElectronData(m_gct);
      passAllTests &= m_tester->checkElectrons(m_gct);
    }
-   std::cout << "Done check electrons" << std::endl;
 
    if (theFirmwareTestIsEnabled && !endOfFile) {
      m_tester->fillJetsFromFirmware(theReferenceDataFileName);
      passAllTests &= m_tester->checkJetFinder(m_gct);
-     m_tester->checkEnergySumsFromFirmware(m_gct, theEnergySumsDataFileName);
+     passAllTests &= m_tester->checkEnergySumsFromFirmware(m_gct, theEnergySumsDataFileName);
    }
-   std::cout << "Done check jet finder" << std::endl;
 
    if (theEnergyAlgosTestIsEnabled || (theFirmwareTestIsEnabled && !endOfFile)) {
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
-     std::cout << "Done check energy sums" << std::endl;
      passAllTests &= m_tester->checkHtSums(m_gct);
-     std::cout << "Done check ht sums" << std::endl;
      passAllTests &= m_tester->checkJetCounts(m_gct);
-     std::cout << "Done check jet counts" << std::endl;
      passAllTests &= m_tester->checkHfEtSums(m_gct);
-     std::cout << "Done check hf et sums" << std::endl;
    }
-   std::cout << "Done check events" << std::endl;
 
    m_eventNo++;
    if (theFirmwareTestIsEnabled && endOfFile) {
-     std::cout << "Reached the end of input file after " << m_eventNo << " events\n";
+     edm::LogInfo("L1GctTest") << "Reached the end of input file after " << m_eventNo << " events\n";
    }
    theFirmwareTestIsEnabled &= !endOfFile;
 
@@ -156,11 +141,10 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    m_allGood &= passAllTests;
    if (passAllTests)
    {
-      //std::cout << "All tests passed for this event!" << std::endl;
+      //edm::LogInfo("L1GctTest") << "All tests passed for this event!" << std::endl;
    } else {
       throw cms::Exception("L1GctTestError") << "\ntest failed\n\n";
    }
-   std::cout << "Done this event" << std::endl;
 }
 
 
@@ -175,9 +159,9 @@ L1GctTest::beginJob(const edm::EventSetup& c)
 void 
 L1GctTest::endJob() {
   if (m_allGood) {
-    std::cout << "\n\n=== All tests passed Ok! ===\n\n" << std::endl;
+    edm::LogInfo("L1GctTest") << "\n\n=== All tests passed Ok! ===\n\n" << std::endl;
   } else {
-    std::cout << "\n\n=== Tests unsuccessful, exiting after "
+    edm::LogInfo("L1GctTest") << "\n\n=== Tests unsuccessful, exiting after "
               << m_eventNo << " events ===\n\n" << std::endl;
   }
 }
@@ -201,8 +185,8 @@ L1GctTest::configureGct(const edm::EventSetup& c)
 
   if (calibFun.product() == 0) {
     throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << endl
-      << "Cannot continue without this function" << endl;
+      << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl
+      << "Cannot continue without this function" << std::endl;
   }
 
   m_gct->setJetFinderParams(jfPars.product());

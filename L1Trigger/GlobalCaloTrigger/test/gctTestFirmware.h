@@ -38,7 +38,7 @@ public:
   bool checkJetFinder(const L1GlobalCaloTrigger* gct) const;
 
   /// Analyse calculation of energy sums in firmware
-  void checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName);
+  bool checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName, const int numOfBx);
 
 private:
 

@@ -8,8 +8,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
-#include <iostream>
-
 //=================================================================================================================
 //
 /// Constructor and destructor
@@ -57,12 +55,10 @@ void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpl
 
 void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx)
 {
-  std::cout << "loading next event, bx is " << bx << ", endOfFile is" << (endOfFile ? " set" : " not yet set") << std::endl;
   bxRangeUpdate(bx);
   std::vector<L1CaloRegion> temp = theEnergyAlgosTester->loadEvent(gct, fileName, endOfFile, bx);
   if (endOfFile) {
     reset();
-    std::cout << "On return, endOfFile is now set!" << std::endl;
   } else {
     m_inputRegions.at(bx-m_bxStart) = temp;
   }
@@ -186,7 +182,7 @@ bool gctTestFunctions::checkHfEtSums(const L1GlobalCaloTrigger* gct) const
 //=================================================================================================================
 //
 /// Analyse calculation of energy sums in firmware
-void gctTestFunctions::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const
+bool gctTestFunctions::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct, const std::string &fileName) const
 {
-  theFirmwareTester->checkEnergySumsFromFirmware(gct, fileName);
+  return theFirmwareTester->checkEnergySumsFromFirmware(gct, fileName, m_numOfBx);
 }
