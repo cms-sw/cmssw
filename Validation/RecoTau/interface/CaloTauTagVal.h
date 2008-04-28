@@ -36,7 +36,6 @@
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 //#include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 

@@ -13,25 +13,29 @@
 //
 // Original Author:  Ricardo Vasquez
 //         Created:  Thu Feb 28 10:35:28 CST 2008
-// $Id: CaloTauTagVal.cc,v 1.2 2008/03/18 22:38:05 vasquez Exp $
+// $Id: CaloTauTagVal.cc,v 1.3 2008/03/30 12:47:26 vasquez Exp $
 //
 //
 
 // user include files
 #include "Validation/RecoTau/interface/CaloTauTagVal.h"
 
+using namespace edm;
+using namespace reco;
+using namespace std;
+
 CaloTauTagVal::CaloTauTagVal(const edm::ParameterSet& iConfig)
 
 {
   outputhistograms_ = iConfig.getParameter<string>("OutPutHistograms");
   //  jetEMTagSrc_ = iConfig.getParameter<InputTag>("JetEMTagProd");
-  genJetSrc_ = iConfig.getParameter<InputTag>("GenJetProd");  
-  ExtensionName_ = iConfig.getParameter<InputTag>("ExtensionName");
-  outPutFile_ = iConfig.getParameter<string>("OutPutFile"); 
-  dataType_ = iConfig.getParameter<string>("DataType");
-  CaloTauProducer_ = iConfig.getParameter<string>("CaloTauProducer");
-  CaloTauDiscriminatorByIsolationProducer_ = iConfig.getParameter<string>("CaloTauDiscriminatorByIsolationProducer");
-  //  CaloTauDiscriminatorAgainstElectronProducer_ = iConfig.getParameter<string>("CaloTauDiscriminatorAgainstElectronProducer");
+  genJetSrc_ = iConfig.getParameter<edm::InputTag>("GenJetProd");  
+  ExtensionName_ = iConfig.getParameter<edm::InputTag>("ExtensionName");
+  outPutFile_ = iConfig.getParameter<std::string>("OutPutFile"); 
+  dataType_ = iConfig.getParameter<std::string>("DataType");
+  CaloTauProducer_ = iConfig.getParameter<std::string>("CaloTauProducer");
+  CaloTauDiscriminatorByIsolationProducer_ = iConfig.getParameter<std::string>("CaloTauDiscriminatorByIsolationProducer");
+  //  CaloTauDiscriminatorAgainstElectronProducer_ = iConfig.getParameter<std::string>("CaloTauDiscriminatorAgainstElectronProducer");
 
   DQMStore* dbe = &*edm::Service<DQMStore>();
 
@@ -99,11 +103,11 @@ CaloTauTagVal::CaloTauTagVal(const edm::ParameterSet& iConfig)
     nEMIsolated_signalTracks_          =dbe->book1D("EMIsolated_signalTracks","EMIsolated_signalTracks", 15, -0.5, 14.5);    
     
     tversion = edm::getReleaseVersion();
-    cout<<endl<<"-----------------------*******************************Version: " << tversion<<endl;  
+    std::cout<<std::endl<<"-----------------------*******************************Version: " << tversion<<std::endl;  
   }
 
   if (outPutFile_.empty ()) {
-    LogInfo("OutputInfo") << " TauJet histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " TauJet histograms will NOT be saved";
   } else {
     int sizeofstring = outPutFile_.size();
     if (sizeofstring > 5);
@@ -115,8 +119,8 @@ CaloTauTagVal::CaloTauTagVal(const edm::ParameterSet& iConfig)
     outPutFile_.append("_"+ outputhistograms_ + "_");
     outPutFile_.append(dataType_+".root");
 
-    cout<<endl<< outPutFile_<<endl;
-    LogInfo("OutputInfo") << " TauJethistograms will be saved to file:" << outPutFile_;
+    std::cout<< std::endl<< outPutFile_<<std::endl;
+    edm::LogInfo("OutputInfo") << " TauJethistograms will be saved to file:" << outPutFile_;
   }
 
   //---- book-keeping information ---
@@ -136,14 +140,14 @@ void CaloTauTagVal::beginJob()
 void
 CaloTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  using namespace reco;
-  using namespace std;
+  //  using namespace edm;
+  //  using namespace reco;
+  // using namespace std;
   numEvents_++;
   double matching_criteria=0.15;
 
 
-  Handle<HepMCProduct> evt;
+  edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByLabel("source", evt);
 
   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
@@ -153,7 +157,7 @@ CaloTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel( genJetSrc_, genJets ) ;
 
   // Get a TLorentzVector with the Visible Taus at Generator level (the momentum of the neutrino is substracted
-  vector<TLorentzVector> TauJetsMC;
+  std::vector<TLorentzVector> TauJetsMC;
   if(dataType_ == "CALOTAU"){
     TauJetsMC=getVectorOfVisibleTauJets(myGenEvent);
     matching_criteria=0.15;
@@ -164,17 +168,17 @@ CaloTauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     matching_criteria=0.30;
   }
   
-  Handle<CaloTauCollection> theCaloTauHandle;
+  edm::Handle<CaloTauCollection> theCaloTauHandle;
   iEvent.getByLabel(CaloTauProducer_,theCaloTauHandle);
 
-  Handle<CaloTauDiscriminatorByIsolation> theCaloTauDiscriminatorByIsolation;
+  edm::Handle<CaloTauDiscriminatorByIsolation> theCaloTauDiscriminatorByIsolation;
   iEvent.getByLabel(CaloTauDiscriminatorByIsolationProducer_,theCaloTauDiscriminatorByIsolation);
 
   //  Handle<CaloTauDiscriminatorAgainstElectron> theCaloTauDiscriminatorAgainstElectron;
   // iEvent.getByLabel(CaloTauDiscriminatorAgainstElectronProducer_,theCaloTauDiscriminatorAgainstElectron);
 
-  cout<<"***"<<endl;
-  cout<<"Found "<<theCaloTauHandle->size()<<" had. tau-jet candidates"<<endl;
+  std::cout<<"***"<<std::endl;
+  std::cout<<"Found "<<theCaloTauHandle->size()<<" had. tau-jet candidates"<<std::endl;
   int i_CaloTau=0;
   int numTrueCaloTausCand=0;
 
@@ -278,7 +282,7 @@ std::vector<TLorentzVector> CaloTauTagVal::getVectorOfVisibleTauJets(HepMC::GenE
 	  TLorentzVector TauDecayProduct(0.0,0.0,0.0,0.);   // Neutrino momentum from the Tau decay at GenLevel
 	  TLorentzVector TauJetMC(0.0,0.0,0.0,0.); 
 
-	  vector<HepMC::GenParticle*> TauDaught;
+	  std::vector<HepMC::GenParticle*> TauDaught;
 	  //  TauDaught=Daughters((*p));
 	  TauDaught=getGenStableDecayProducts(*p);
           TauDecVtx = (*p)->end_vertex();
@@ -293,11 +297,11 @@ std::vector<TLorentzVector> CaloTauTagVal::getVectorOfVisibleTauJets(HepMC::GenE
 	      int numOtherParticles = 0;
 	      TString output7="";
 	      // Loop over Tau Daughter particles and store the Tau neutrino momentum for future use
-	      for(vector<HepMC::GenParticle*>::const_iterator pit=TauDaught.begin();pit!=TauDaught.end();++pit) 
+	      for(std::vector<HepMC::GenParticle*>::const_iterator pit=TauDaught.begin();pit!=TauDaught.end();++pit) 
 		{
 		  int pdg_id = abs((*pit)->pdg_id());
 		  output7+=" PDG_ID = ";
-		  stringstream out;
+		  std::stringstream out;
 		  out<<pdg_id;
 		  output7+=out.str();
 		  if (pdg_id == 11) numElectrons++;
@@ -454,9 +458,9 @@ std::vector<HepMC::GenParticle*> CaloTauTagVal::getGenStableDecayProducts(const 
 
 
 //Get a list of Gen Jets
-std::vector<TLorentzVector> CaloTauTagVal::getVectorOfGenJets(Handle< GenJetCollection >& genJets ) {
-int jjj=0;
-  vector<TLorentzVector> GenJets;
+std::vector<TLorentzVector> CaloTauTagVal::getVectorOfGenJets(edm::Handle< GenJetCollection >& genJets ) {
+  int jjj=0;
+  std::vector<TLorentzVector> GenJets;
   GenJets.clear();
   GenJetCollection::const_iterator jetItr = genJets->begin();
   if(jetItr != genJets->end() )
