@@ -11,5 +11,3 @@
 #  <use name=FWCore/ParameterSet>
 #  <use name=DataFormats/ParticleFlowReco>
 </export>
-
-

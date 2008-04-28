@@ -48,13 +48,13 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 	std::cout << "\t"<< *ecal << "\n";
 	std::cout << "\t"<< *hcal << "\n";
 	file.ls();
-	TTree* tree = (TTree*) file.Get("CaloData2");
+	TTree* tree = (TTree*) file.Get("CaloData");
 	tree->ls();
 	if (tree == 0) {
 		PFToolsException me("Couldn't open tree!");
 		throw me;
 	}
-	std::cout << "Opened Tree CaloData2...\n";
+	std::cout << "Opened Tree CaloData...\n";
 
 	std::cout << "Assigning branch: \n";
 	TBranch* spwBr = tree->GetBranch("SingleParticleWrapper");
