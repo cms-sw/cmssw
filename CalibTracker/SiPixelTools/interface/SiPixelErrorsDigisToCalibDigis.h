@@ -18,13 +18,15 @@ Description: Create monitorElements for the Errors in created in the reduction o
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
-
 
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
