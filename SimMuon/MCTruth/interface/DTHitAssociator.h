@@ -18,28 +18,27 @@
 #include <map>
 #include <string>
 
-typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
-
 class DTHitAssociator {
 
  public:
+  typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
+  typedef std::pair<PSimHit,bool> PSimHit_withFlag;
+  typedef std::map<DTWireId, std::vector<PSimHit_withFlag> > SimHitMap;
+  typedef std::map<DTWireId, std::vector<DTRecHit1DPair> > RecHitMap;
+  typedef std::map<DTWireId, std::vector<DTDigi> > DigiMap;
+  typedef std::map<DTWireId, std::vector<DTDigiSimLink> > LinksMap;
+
   DTHitAssociator(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&); 
   virtual ~DTHitAssociator(){}
 
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & hit);
-  std::vector<SimHitIdpr> associateRecHit(const DTRecHit1D * dtrechit);
+  std::vector<SimHitIdpr> associateDTHitId(const DTRecHit1D * dtrechit);
+  
+  std::vector<const PSimHit *> associateHit(const TrackingRecHit & hit);
 
-  typedef std::pair<PSimHit,bool> PSimHit_withFlag;
-  typedef std::map<DTWireId, std::vector<PSimHit_withFlag> > SimHitMap;
   SimHitMap mapOfSimHit;
-
-  typedef std::map<DTWireId, std::vector<DTRecHit1DPair> > RecHitMap;
   RecHitMap mapOfRecHit;
-
-  typedef std::map<DTWireId, std::vector<DTDigi> > DigiMap;
   DigiMap mapOfDigi;
-
-  typedef std::map<DTWireId, std::vector<DTDigiSimLink> > LinksMap;
   LinksMap mapOfLinks;
 
  private:
@@ -47,15 +46,9 @@ class DTHitAssociator {
   bool crossingframe;
   bool links_exist;
   bool associatorByWire;
-
-  typedef std::vector<std::string> vstring;
-  vstring trackerSimHitContainers,muonSimHitContainers;
   
-  edm::Handle<DTDigiSimLinkCollection> digisimlinks;
-  std::vector<SimHitIdpr> simtrackids; 
-
   bool SimHitOK(const edm::ESHandle<DTGeometry> &, const PSimHit &);
- 
+
 };
 
 #endif
