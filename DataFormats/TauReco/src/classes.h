@@ -9,6 +9,7 @@
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
@@ -88,6 +89,18 @@ namespace {
     
     std::pair<reco::PFTauRef, int>                              pftd_p;
     std::vector<std::pair<reco::PFTauRef, int> >                pftd_v;    
+
+
+    reco::PFTauDiscriminatorBase                     pftdiscr_b;         
+    reco::PFTauDiscriminator                         pftdiscr_o;     
+    reco::PFTauDiscriminatorRef                      pftdiscr_r;     
+    reco::PFTauDiscriminatorRefProd                  pftdiscr_rp;     
+    reco::PFTauDiscriminatorRefVector                pftdiscr_rv;     
+    edm::Wrapper<reco::PFTauDiscriminator>           pftdiscr_w;     
+    
+    std::pair<reco::PFTauRef, float>                              pftdiscr_p;
+    std::vector<std::pair<reco::PFTauRef, float> >                pftdiscr_v;    
+
 
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;
