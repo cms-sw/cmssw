@@ -103,20 +103,26 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
-  //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
+  //cout<< " Unpacked EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
+
+    int ipositive = 0;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
 
     double energy = itb->energy();
 
-    if (energy > seleXtalMinEnergy_)
-      {
+    if (energy > seleXtalMinEnergy_) 
+     {
 	std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
 	recHitsEB_map->insert(map_entry);
-
+	
 	if (energy > clusSeedThr_) seeds.push_back(*itb);
-      }
+
+	ipositive++;
+     }
   }
 
+
+  //cout<< " Unpacked positive EB RecHits #: "<<ipositive<<endl;
   //timerName = category + "::readEBRecHitsCollection";
   //timers.push(timerName);
 
@@ -150,6 +156,9 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float phiClus[MAXCLUS];
   float s4s9Clus[MAXCLUS];
   EBDetId max_hit[MAXCLUS];  
+  int goodIsoClus[MAXCLUS];
+
+  vector<vector<DetId> > detids_in_clusters;
 
   nClus=0;
   for(int i=0; i<MAXCLUS; i++){
@@ -157,9 +166,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     etClus[i] = 0;
     etaClus[i] = 0;
     phiClus[i] = 0;
+    goodIsoClus[i] = 0;
     s4s9Clus[i] = 0;
     max_hit[i] = EBDetId(0);
   }
+
+ 
 
   // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
@@ -185,6 +197,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	std::vector<DetId> clus_v;
 	clus_v.clear();
         double extals3x3[3][3];
+
 
         for(int i=0; i<3; i++){
           for(int j=0; j<3; j++){
@@ -238,8 +251,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  simple_energy = simple_energy + aHit->second.energy();
 		  extals3x3[row][column] = aHit->second.energy();
 		  
-		  //EBDetId sel_rh = aHit->second.detid();
-		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
+		  EBDetId sel_rh = aHit->second.detid();
+		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : E,z,ieta,iphi "<<aHit->second.energy()<<" "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
 		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
 		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
 		  
@@ -254,10 +267,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
     //cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
 
+    detids_in_clusters.push_back(clus_v);
+
 	    float theta_s = 2. * atan(exp(-clus_pos.eta()));
 	    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
 	    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
-	    //	    float p0z_s = simple_energy * cos(theta_s);
+	    float p0z_s = simple_energy * cos(theta_s);
 	    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
 
 	    //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<p0z_s<<endl;
@@ -277,7 +292,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
             //      cout<< " s4s9: 4 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
 
-
+	    //cout<< "       Simple Clustering: s4s9 : "<<(s4s9_max/simple_energy)<<endl;
 	    eClus[nClus] = simple_energy;
 	    etClus[nClus] = et_s;
 	    etaClus[nClus] = clus_pos.eta();
@@ -294,15 +309,28 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //timers.pop_and_push(timerName);
 
 
+  /*
+  int iclusters = detids_in_clusters.size();
+  cout<< "  detids_in_clusters size: "<<iclusters<<endl;
+  for(int i=0 ; i<iclusters ; i++)
+    {
+      int iclusize = detids_in_clusters[i].size();
+      cout<< "   detids_in_clusters: cluster #, cluster size "<<i<<" "<<iclusize<<endl;
+      for (int j = 0 ; j<iclusize ; j++)
+	{
+	  std::map<DetId, EcalRecHit>::iterator aHit;
+	  aHit = recHitsEB_map->find(detids_in_clusters[i][j]);
+	  cout<< "    detids_in_clusters: cluster #, rechit E "<<aHit->second.energy()<<endl;
+
+	}
+
+    }
+    */
+
   // Selection, based on Simple clustering
   //pi0 candidates
   static const int MAXPI0S = 200;
   int npi0_s=0;
-  int sClus_1[MAXPI0S],sClus_2[MAXPI0S];
-  for(int i=0; i<MAXPI0S; i++){
-    sClus_1[i]=0;
-    sClus_2[i]=0;
-  }
 
   if (nClus > 1) 
     {
@@ -336,29 +364,50 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 			  math::XYZPoint pi0vect = math::XYZPoint((p0x+p1x), (p0y+p1y), (p0z+p1z));
 
-			  //cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+			  int icliso = 0;
+			  vector<int> IsoClus;
+			  IsoClus.clear();
 
                           float Iso = 0;
                           for(Int_t k=0 ; k<nClus ; k++)
                             {
-                              float dretaclpi0 = etaClus[k] - pi0vect.eta();
+			      float dretaclpi0 = fabs(etaClus[k] - pi0vect.eta());
+                             
                               float drclpi0 = sqrt( (etaClus[k] - pi0vect.eta())*(etaClus[k] - pi0vect.eta()) + (phiClus[k] - pi0vect.phi())*(phiClus[k] - pi0vect.phi()));
-                              //cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<(etaClus[k] - pi0vect.eta())<<" "<<(phiClus[k] - pi0vect.phi())<<endl;
-                              if( (i!=k) && (j!=k) && (drclpi0<selePi0BeltDR_) && (dretaclpi0<selePi0BeltDeta_) ) Iso = Iso + etClus[k];
+			      //cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<fabs(etaClus[k] - pi0vect.eta())<<" "<<fabs(phiClus[k] - pi0vect.phi())<<endl;
+                              if( (i!=k) && (j!=k) && (drclpi0<selePi0BeltDR_) && (dretaclpi0<selePi0BeltDeta_) )
+				{
+				  // cout<< "   ... good iso cluster #: "<<k<<endl;
+				  Iso = Iso + etClus[k];
+				  IsoClus.push_back(k);
+				}
                             }
 
                           //cout << "  After Iso: Iso, pt_pi0, Isovar "<< Iso<< " "<<pt_pi0<<" "<<(Iso/pt_pi0)<<endl;
 
+			  /*
+			  int isize = IsoClus.size();
+			  for(Int_t iii=0 ; iii<isize ; iii++){
+			    cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl; 
+			  }
+			  */
                           float Isovar = Iso/pt_pi0;
 
                           if(Isovar<selePi0Iso_)
                             {
 
-			      // cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,s4s9_i, s4s9_j, Iso, i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<s4s9Clus[i]<<" "<<s4s9Clus[j]<<" "<<Isovar<<" "<<i<<" "<<j<<" "<<endl;  
+			      //cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,s4s9_i, s4s9_j, Iso, i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<s4s9Clus[i]<<" "<<s4s9Clus[j]<<" "<<Isovar<<" "<<i<<" "<<j<<" "<<endl;  
 
+			       int isize = IsoClus.size();
+			       
+			       for(Int_t iii=0 ; iii<isize ; iii++){
+				 //cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl; 
+				 goodIsoClus[IsoClus[iii]] = 1;
+			       }
 
-			      sClus_1[npi0_s]=i;
-			      sClus_2[npi0_s]=j;
+			       goodIsoClus[i] = 1;
+			       goodIsoClus[j] = 1;
+
 			      npi0_s++;
 			      if(npi0_s == MAXPI0S) return accept;
 			    }
@@ -377,90 +426,26 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //cout<<" "<<endl;
-  //   cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+  //cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
-      for(Int_t jj=0;jj<nClus;jj++)
-	{
-	  EBDetId maxHit = max_hit[jj];
-	  //cout << "        Simple Clustering: maxHit jj eta phi : "<<jj<<" "<<maxHit.ieta()<<" "<<maxHit.iphi()<<endl;
-	}
-
-      vector<EBDetId> scXtals;
-      scXtals.clear();
-      for(Int_t i=0 ; i<npi0_s ; i++)
-	{
-	  //cout<<"     Pi0: i, Bc1, Bc2 "<<i<<" "<<sClus_1[i]<<" "<<sClus_2[i]<<endl; 
-
-	  for(Int_t j=0; j<nClus;j++)
-	    {
-
-	      EBDetId maxHit = max_hit[j];
-	      if( (sClus_1[i] == j) || (sClus_2[i] == j) )
-		{
-
-		  for (int icry=0;icry< gammaCandEtaSize_*gammaCandPhiSize_;icry++)
-		    {
-              
-		      int row = icry / gammaCandEtaSize_;
-		      int column= icry % gammaCandEtaSize_;
-		      int curr_eta=maxHit.ieta() + column - (gammaCandEtaSize_/2);
-		      int curr_phi=maxHit.iphi() + row - (gammaCandPhiSize_/2);
-              
-		      if (curr_eta * maxHit.ieta() <= 0) {if (maxHit.ieta() > 0) curr_eta--; else curr_eta++; }  // JUMP over 0
-		      if (curr_phi < 1) curr_phi += 360;
-		      if (curr_phi > 360) curr_phi -= 360;
-              
-		      //try
-		      //	{
-		      //	  EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
-
-		      EBDetId det;
-
-		      if (!EBDetId::validDetId(curr_eta,curr_phi) ) 
-			{
-			  continue;
-			} else {
-			  det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
-			}
-
-
-			  std::vector<EBDetId>::const_iterator usedIds;
-			  
-			  bool HitAlreadyUsed=false;
-			  for(usedIds=scXtals.begin(); usedIds!=scXtals.end(); usedIds++)
-			    if(*usedIds==det)
-			      {
-				HitAlreadyUsed=true;
-				break;
-			      }
-			  
-			  if(!HitAlreadyUsed)
-			    if (recHitsEB_map->find(det) != recHitsEB_map->end())
-			      {
-				std::map<DetId, EcalRecHit>::iterator aHit;
-				aHit = recHitsEB_map->find(det);
-				if (aHit->second.energy() > seleXtalMinEnergy_)
-				  {
-				    pi0EBRecHitCollection->push_back(aHit->second);
-				    scXtals.push_back(det);
-				  }
-
-				//EBDetId sel_rh = aHit->second.detid();
-				//cout << "       RecHit Ok 20x20 matrix outside cluster : z,ieta,iphi "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
-				//cout << "       RecHit Ok 20x20 matrix outside cluster : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
-				//cout << "       RecHit Ok 20x20 matrix outside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
-				
-			      }
-			  //			}
-			  //catch (...)
-			  //	{
-			  //	}
-		    }
-
-		}
-	
-	    }
-	}
+     for(Int_t jj=0;jj<nClus;jj++)
+       {
+	 if (goodIsoClus[jj] == 1) 
+	   {
+	     int iclusize = detids_in_clusters[jj].size();
+	     //cout<< "   detids_in_clusters: cluster #, cluster size "<<jj<<" "<<iclusize<<endl;
+	     for (int j = 0 ; j<iclusize ; j++)
+	       {
+		 
+		 std::map<DetId, EcalRecHit>::iterator aHit;
+		 aHit = recHitsEB_map->find(detids_in_clusters[jj][j]);
+		 //cout<< "    detids_in_clusters: cluster #, rechit E "<<aHit->second.energy()<<endl;
+		 
+		 pi0EBRecHitCollection->push_back(aHit->second);
+		 
+	       }
+	   }
+       }
 
 
 
