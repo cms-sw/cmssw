@@ -70,7 +70,7 @@ PixelBarrelName::PixelBarrelName(std::string name)
   if ( (name.substr(0, 5) != "BPix_") ||
        (name.find("_B") == string::npos) || 
        (name.find("_LYR") == string::npos) ||
-       (name.find("_LAD") == string::npos) || 
+       (name.find("_LDR") == string::npos) || 
        (name.find("_MOD") == string::npos) ) {
     edm::LogError ("BadNameString|SiPixel") 
       << "Bad name string in PixelBarrelName::PixelBarrelName(std::string): "
@@ -97,7 +97,6 @@ PixelBarrelName::PixelBarrelName(std::string name)
   // find the layer
   int theLayer = 0;
   string layerString = name.substr(name.find("_LYR")+4, name.find("_LDR")-name.find("_LYR")-4);
-  cout << "layerString: " << layerString << endl;
   if (layerString == "1") theLayer = 1;
   else if (layerString == "2") theLayer = 2;
   else if (layerString == "3") theLayer = 3;
