@@ -3,13 +3,12 @@
 #include "Math/Cartesian3D.h" 
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
-
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "Rtypes.h" 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h" 
-#include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/HFEMClusterShape.h"
 #include "DataFormats/EgammaReco/interface/EgammaTrigger.h"
@@ -36,7 +35,6 @@ namespace {
     edm::RefProd<reco::SuperClusterCollection> rp3;
     edm::Wrapper<edm::RefVector<reco::SuperClusterCollection> > wrv3;
 
-    std::vector<reco::EcalCluster> tsv3;
 
     reco::EgammaTriggerCollection v4;
     edm::Wrapper<reco::EgammaTriggerCollection> w4;

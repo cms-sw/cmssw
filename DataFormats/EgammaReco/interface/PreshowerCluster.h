@@ -5,7 +5,7 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.15 2007/02/14 15:45:10 futyand Exp $
+// $Id: PreshowerCluster.h,v 1.16 2007/07/31 15:20:04 ratnik Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -15,13 +15,13 @@
 
 namespace reco {
 
-  class PreshowerCluster : public EcalCluster {
+  class PreshowerCluster : public CaloCluster {
   public:
 
     typedef math::XYZPoint Point;
 
     /// default constructor
-    PreshowerCluster() : EcalCluster(0., Point(0.,0.,0.)) { };
+    PreshowerCluster() : CaloCluster(0., Point(0.,0.,0.)) { };
 
     virtual ~PreshowerCluster();
 
@@ -49,7 +49,7 @@ namespace reco {
     BasicClusterRef basicCluster() const {return bc_ref_;}
 
     /// DetIds of component RecHits
-    virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
+    std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
     void setBCRef( const BasicClusterRef & r ) { bc_ref_ = r; }
 

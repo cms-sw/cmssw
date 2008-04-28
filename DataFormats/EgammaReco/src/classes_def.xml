@@ -1,5 +1,4 @@
 <lcgdict>
-  <class name="reco::EcalCluster"/>
   <class name="reco::BasicCluster"/>
   <class name="std::vector<reco::BasicCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::BasicCluster> >"/>

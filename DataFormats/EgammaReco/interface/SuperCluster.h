@@ -7,26 +7,26 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.13 2008/03/04 00:07:45 ferriff Exp $
+ * \version $Id: SuperCluster.h,v 1.14 2008/03/04 08:38:38 arizzi Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/EcalCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Rtypes.h>
 
 namespace reco {
-  class SuperCluster : public EcalCluster {
+  class SuperCluster : public CaloCluster {
   public:
 
     typedef math::XYZPoint Point;
 
     /// default constructor
-    SuperCluster() : EcalCluster(0., Point(0.,0.,0.)), rawEnergy_(-1.) {}
+    SuperCluster() : CaloCluster(0., Point(0.,0.,0.)), rawEnergy_(-1.) {}
 
-    /// constructor defined by EcalCluster - will have to use setSeed and add() separately
+    /// constructor defined by CaloCluster - will have to use setSeed and add() separately
     SuperCluster( double energy, const Point& position );
 
     SuperCluster( double energy, const Point& position,
@@ -62,7 +62,7 @@ namespace reco {
     size_t clustersSize() const { return clusters_.size(); }
 
     /// list of used xtals by DetId
-    virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
+    std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
     /// set reference to seed BasicCluster
     void setSeed( const BasicClusterRef & r ) { seed_ = r; }

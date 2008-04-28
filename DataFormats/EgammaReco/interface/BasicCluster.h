@@ -7,30 +7,32 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.11 2007/11/28 11:30:46 andreasp Exp $
+ * \version $Id: BasicCluster.h,v 1.12 2008/03/02 12:32:42 kkaadze Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Rtypes.h" 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EgammaReco/interface/EcalCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+
+#include <vector>
 
 namespace reco {
   
   enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3 };
 
-  class BasicCluster : public EcalCluster {
+  class BasicCluster : public CaloCluster {
   public:
 
     typedef math::XYZPoint Point;
 
     /// default constructor
-    BasicCluster() : EcalCluster(0., Point(0.,0.,0.)), chi2_(-1.) { }
+    BasicCluster() : CaloCluster(0., Point(0.,0.,0.)), chi2_(-1.) { }
 
     BasicCluster( const double energy, const Point& position, const double chi2, const std::vector<DetId> usedHits, AlgoId algoID = hybrid);
 
     /// DetIds of component RecHits
-    virtual std::vector<DetId> getHitsByDetId() const { return usedHits_; }
+    std::vector<DetId> getHitsByDetId() const { return usedHits_; }
 
     /// chi-squared
     double chi2() const { return chi2_; }
