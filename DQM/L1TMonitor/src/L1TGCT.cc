@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.22 $
+ * $Date: 2008/04/25 15:40:21 $
+ * $Revision: 1.23 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.23  2008/04/25 15:40:21  tapper
+ * Added histograms to EventInfo//errorSummarySegments.
+ *
  * Revision 1.22  2008/03/20 19:38:25  berryhil
  *
  *
@@ -217,10 +220,23 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 					  PHIBINS, PHIMIN, PHIMAX, 
 					  ETABINS, ETAMIN, ETAMAX);
 
-    l1GctCenJetsRank_ = dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS, R6MIN, R6MAX);
-    l1GctForJetsRank_ =	dbe->book1D("ForJetsRank", "FORWARD JET RANK", R6BINS, R6MIN, R6MAX);
-    l1GctTauJetsRank_ = dbe->book1D("TauJetsRank", "TAU JET RANK", R6BINS, R6MIN, R6MAX);
-    l1GctIsoEmRank_ = dbe->book1D("IsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
+    // For Qtests need 1D eta and phi histograms (would be better if Qtests ran on 2D histograms too!)
+    l1GctCenJetsOccEta_  = dbe->book1D("CenJetsOccEta", "CENTRAL JET ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+    l1GctCenJetsOccPhi_  = dbe->book1D("CenJetsOccPhi", "CENTRAL JET PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
+    l1GctForJetsOccEta_  = dbe->book1D("ForJetsOccEta", "FORWARD JET ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+    l1GctForJetsOccPhi_  = dbe->book1D("ForJetsOccPhi", "FORWARD JET PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX);
+    l1GctTauJetsOccEta_  = dbe->book1D("TauJetsOccEta", "TAU JET ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+    l1GctTauJetsOccPhi_  = dbe->book1D("TauJetsOccPhi", "TAU JET PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
+    l1GctIsoEmOccEta_    = dbe->book1D("IsoEmOccEta", "ISO EM ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+    l1GctIsoEmOccPhi_    = dbe->book1D("IsoEmOccPhi", "ISO EM PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
+    l1GctNonIsoEmOccEta_ = dbe->book1D("NonIsoEmOccEta", "NON-ISO EM ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
+    l1GctNonIsoEmOccPhi_ = dbe->book1D("NonIsoEmOccPhi", "NON-ISO EM PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
+
+    // Rank histograms
+    l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS, R6MIN, R6MAX);
+    l1GctForJetsRank_  = dbe->book1D("ForJetsRank", "FORWARD JET RANK", R6BINS, R6MIN, R6MAX);
+    l1GctTauJetsRank_  = dbe->book1D("TauJetsRank", "TAU JET RANK", R6BINS, R6MIN, R6MAX);
+    l1GctIsoEmRank_    = dbe->book1D("IsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
     l1GctNonIsoEmRank_ = dbe->book1D("NonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN, R6MAX);
 
     // Energy sums
@@ -374,8 +390,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       std::cout << "L1TGCT: Bailing, didn't find squat."<<std::endl;
     return;
   }
-  
-  
+    
   // Fill the histograms for the jets
   if ( doJet ) {
     // Central jets
@@ -388,6 +403,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       if ( cj->rank() == 0 ) continue;
       l1GctCenJetsEtEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta(),cj->rank());
       l1GctCenJetsOccEtaPhi_->Fill(cj->regionId().iphi(),cj->regionId().ieta());
+      l1GctCenJetsOccEta_->Fill(cj->regionId().ieta());
+      l1GctCenJetsOccPhi_->Fill(cj->regionId().iphi());
       l1GctCenJetsRank_->Fill(cj->rank());
       if ( verbose_ ) {
 	std::cout << "L1TGCT: Central jet " 
@@ -406,6 +423,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       if ( fj->rank() == 0 ) continue;
       l1GctForJetsEtEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta(),fj->rank());
       l1GctForJetsOccEtaPhi_->Fill(fj->regionId().iphi(),fj->regionId().ieta());
+      l1GctForJetsOccEta_->Fill(fj->regionId().ieta());
+      l1GctForJetsOccPhi_->Fill(fj->regionId().iphi());
       l1GctForJetsRank_->Fill(fj->rank());
       if ( verbose_ ) {
 	std::cout << "L1TGCT: Forward jet " 
@@ -424,6 +443,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       if ( tj->rank() == 0 ) continue;
       l1GctTauJetsEtEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta(),tj->rank());
       l1GctTauJetsOccEtaPhi_->Fill(tj->regionId().iphi(),tj->regionId().ieta());
+      l1GctTauJetsOccEta_->Fill(tj->regionId().ieta());
+      l1GctTauJetsOccPhi_->Fill(tj->regionId().iphi());
       l1GctTauJetsRank_->Fill(tj->rank());
       if ( verbose_ ) {
 	std::cout << "L1TGCT: Tau jet " 
@@ -453,6 +474,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctSummIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
       l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
       l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta());
+      l1GctIsoEmOccEta_->Fill(ie->regionId().ieta());
+      l1GctIsoEmOccPhi_->Fill(ie->regionId().iphi());
       l1GctIsoEmRank_->Fill(ie->rank());
       l1GctIsoEmRankBin_[ie->regionId().ieta()][ie->regionId().iphi()]->Fill(ie->rank());
       if ( verbose_ ) {
@@ -484,6 +507,8 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctSummNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
       l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
       l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta());
+      l1GctNonIsoEmOccEta_->Fill(ne->regionId().ieta());
+      l1GctNonIsoEmOccPhi_->Fill(ne->regionId().iphi());
       l1GctNonIsoEmRank_->Fill(ne->rank());
       l1GctNonIsoEmRankBin_[ne->regionId().ieta()][ne->regionId().iphi()]->Fill(ne->rank());
 

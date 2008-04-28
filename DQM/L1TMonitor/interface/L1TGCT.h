@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.10 $
+ * $Date: 2008/04/25 15:40:21 $
+ * $Revision: 1.11 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.10 2008/03/01 00:40:00 lat Exp $
+ * $Id: L1TGCT.h,v 1.11 2008/04/25 15:40:21 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.11  2008/04/25 15:40:21  tapper
+ * Added histograms to EventInfo//errorSummarySegments.
+ *
  * Revision 1.10  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
@@ -120,6 +123,18 @@ private:
   MonitorElement* l1GctTauJetsOccEtaPhi_;  
   MonitorElement* l1GctIsoEmOccEtaPhi_;    
   MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
+
+  MonitorElement* l1GctCenJetsOccEta_;
+  MonitorElement* l1GctForJetsOccEta_;  
+  MonitorElement* l1GctTauJetsOccEta_;  
+  MonitorElement* l1GctIsoEmOccEta_;    
+  MonitorElement* l1GctNonIsoEmOccEta_; 
+
+  MonitorElement* l1GctCenJetsOccPhi_;
+  MonitorElement* l1GctForJetsOccPhi_;  
+  MonitorElement* l1GctTauJetsOccPhi_;  
+  MonitorElement* l1GctIsoEmOccPhi_;    
+  MonitorElement* l1GctNonIsoEmOccPhi_; 
 
   MonitorElement* l1GctCenJetsRank_;
   MonitorElement* l1GctForJetsRank_;
