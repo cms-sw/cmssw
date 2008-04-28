@@ -56,7 +56,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
    std::string rocname       = tableMat[r][colM["ROC_NAME"]] ;
    std::string TBMChannel = "A"; // assert(0); // need to add this to the input table
-   tableMat[r][colM["PXLFEC_NAME"]].erase(0 , 8);//PIXFEC
+   tableMat[r][colM["PXLFEC_NAME"]].erase(0 , 13);//PIXFEC
    unsigned int fecnumber    = (unsigned int)atoi(tableMat[r][colM["PXLFEC_NAME"]].c_str());
    unsigned int mfec         = (unsigned int)atoi(tableMat[r][colM["MFEC_POSN"]].c_str());
    unsigned int mfecchannel  = (unsigned int)atoi(tableMat[r][colM["MFEC_CHAN"]].c_str());
@@ -79,7 +79,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 			  hubaddress,portaddress,
 			  rocid,
 			  fednumber,fedchannel,fedrocnumber);
-   std::cout << "[PixelNameTranslation::PixelNameTranslation()] aROC: " << aROC << std::endl;
+//    std::cout << "[PixelNameTranslation::PixelNameTranslation()] aROC: " << aROC << std::endl;
    translationtable_[aROC]=hdwAdd;
    
    PixelModuleName aModule(rocname);
