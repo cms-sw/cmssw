@@ -13,12 +13,13 @@
 namespace reco {
   /// collection of CaloCluster objects 
   typedef std::vector<CaloCluster> CaloClusterCollection;
-  /// edm references
-  typedef edm::Ref<CaloClusterCollection> CaloClusterRef;
-  typedef edm::RefVector<CaloClusterCollection> CaloClusterRefVector;
-  typedef edm::RefProd<CaloClusterCollection> CaloClusterRefProd;
-  typedef edm::Ptr<CaloClusterCollection> CaloClusterPtr;
-  typedef edm::PtrVector<CaloClusterCollection> CaloClusterPtrVector;
+
+  typedef edm::Ptr<CaloCluster> CaloClusterPtr;
+  typedef edm::PtrVector<CaloCluster> CaloClusterPtrVector;
+  typedef edm::View<CaloCluster> CaloClusterView;
+
+
+
 
 }
 #endif

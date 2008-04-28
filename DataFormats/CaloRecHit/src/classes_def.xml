@@ -1,11 +1,8 @@
 <lcgdict>
   <class name="CaloRecHit"/>
   <class name="reco::CaloCluster"/>
-
-  <class name="edm::Wrapper<std::vector<reco::CaloCluster> >"/>
-  <class name="edm::Ref<std::vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> >"/>
-  <class name="edm::RefProd<std::vector<reco::CaloCluster> >"/>
-  <class name="edm::RefVector<std::vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> > >"/>
+  <class name="edm::Ptr<reco::CaloCluster>"/>
+  <class name="edm::PtrVector<reco::CaloCluster>"/>
+  <class name="edm::Wrapper<edm::PtrVector<reco::CaloCluster> >"/>
 
 </lcgdict>
