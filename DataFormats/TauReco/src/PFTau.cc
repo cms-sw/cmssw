@@ -1,8 +1,10 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
+
 using namespace reco;
 
 PFTau::PFTau(){
   PFCandidateRef pfLead;
+  TrackRef tmp;
   leadPFChargedHadrCand_=pfLead;
   leadPFChargedHadrCandsignedSipt_=NAN;
   
@@ -18,10 +20,20 @@ PFTau::PFTau(){
   isolationPFChargedHadrCandsPtSum_=NAN;
   isolationPFGammaCandsEtSum_=NAN;
   maximumHCALPFClusterEt_=NAN;
+  emFraction_ = NAN;
+hcalTotOverPLead_ = NAN;
+hcalMaxOverPLead_ = NAN;
+hcal3x3OverPLead_ = NAN;
+ecalStripSumEOverPLead_= NAN;
+bremsRecoveryEOverPLead_ = NAN;
+electronPreIDTrack_ = tmp;
+electronPreIDOutput_ = NAN;
+electronPreIDDecision_= NAN;
 }
 
 PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,vtx){
   PFCandidateRef pfLead;
+TrackRef tmp;
   leadPFChargedHadrCand_=pfLead;
   leadPFChargedHadrCandsignedSipt_=NAN;
   
@@ -37,6 +49,17 @@ PFTau::PFTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,p4,v
   isolationPFChargedHadrCandsPtSum_=NAN;
   isolationPFGammaCandsEtSum_=NAN;
   maximumHCALPFClusterEt_=NAN;
+
+  emFraction_ = NAN;
+hcalTotOverPLead_ = NAN;
+hcalMaxOverPLead_ = NAN;
+hcal3x3OverPLead_ = NAN;
+ecalStripSumEOverPLead_= NAN;
+bremsRecoveryEOverPLead_ = NAN;
+electronPreIDTrack_ = tmp;
+electronPreIDOutput_ = NAN;
+electronPreIDDecision_= NAN;
+
 }
 
 PFTau* PFTau::clone()const{return new PFTau(*this);}
@@ -97,6 +120,18 @@ void PFTau::setbremsRecoveryEOverPLead(const float& x) {bremsRecoveryEOverPLead_
 void PFTau::setelectronPreIDTrack(const reco::TrackRef& x) {electronPreIDTrack_ = x;}
 void PFTau::setelectronPreIDOutput(const float& x) {electronPreIDOutput_ = x;}
 void PFTau::setelectronPreIDDecision(const bool& x) {electronPreIDDecision_ = x;}
+
+bool PFTau::hasMuonReference()const{ // check if muon ref exists
+if( leadPFChargedHadrCand_.isNull() ) return false;
+else if( leadPFChargedHadrCand_.isNonnull() ){
+reco::MuonRef muonRef = leadPFChargedHadrCand_->muonRef();
+if( muonRef.isNull() )   return false;
+else if( muonRef.isNonnull() ) return  true;
+}
+return false;
+}
+
+
 
 bool PFTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);

@@ -1,3 +1,4 @@
+
 #ifndef DataFormats_TauReco_PFTau_h
 #define DataFormats_TauReco_PFTau_h
 
@@ -14,6 +15,7 @@
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 #include <iostream>
 #include <limits>
 
@@ -35,7 +37,7 @@ namespace reco {
     float leadPFChargedHadrCandsignedSipt()const;
     void setleadPFChargedHadrCandsignedSipt(const float&);
     
-    // XXX PFCandidates which passed quality cuts and are inside a tracker/ECAL/HCAL signal cone around leading charged hadron PFCandidate
+    //  PFCandidates which passed quality cuts and are inside a tracker/ECAL/HCAL signal cone around leading charged hadron PFCandidate
     const PFCandidateRefVector& signalPFCands()const;
     void setsignalPFCands(const PFCandidateRefVector&);
     const PFCandidateRefVector& signalPFChargedHadrCands()const;
@@ -45,7 +47,7 @@ namespace reco {
     const PFCandidateRefVector& signalPFGammaCands()const;
     void setsignalPFGammaCands(const PFCandidateRefVector&);
     
-    // XXX PFCandidates which passed quality cuts and are inside a tracker/ECAL/HCAL isolation annulus around leading charged hadron PFCandidate
+    // PFCandidates which passed quality cuts and are inside a tracker/ECAL/HCAL isolation annulus around leading charged hadron PFCandidate
     const PFCandidateRefVector& isolationPFCands()const;
     void setisolationPFCands(const PFCandidateRefVector&);
     const PFCandidateRefVector& isolationPFChargedHadrCands()const;
@@ -67,6 +69,8 @@ namespace reco {
     float maximumHCALPFClusterEt()const;
     void setmaximumHCALPFClusterEt(const float&);    
 
+
+    //Electron rejection
     float emFraction() const; // Ecal/Hcal Cluster Energy 
     float hcalTotOverPLead() const; // total Hcal Cluster E / leadPFChargedHadron P
     float hcalMaxOverPLead() const; // max. Hcal Cluster E / leadPFChargedHadron P
@@ -87,6 +91,9 @@ namespace reco {
     void setelectronPreIDOutput(const float&);
     void setelectronPreIDDecision(const bool&);
 
+    //end of Electron rejection
+// For Muon Rejection
+    bool    hasMuonReference()const; // check if muon ref exists
     
  private:
     // check overlap with another candidate
@@ -109,6 +116,7 @@ namespace reco {
     reco::TrackRef electronPreIDTrack_;
     float electronPreIDOutput_;
     bool electronPreIDDecision_;
+
 
   };
 
