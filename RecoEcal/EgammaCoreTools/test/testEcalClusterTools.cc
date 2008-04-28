@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.1.2.1 2008/04/22 09:43:32 ferriff Exp $
+// $Id: testEcalClusterTools.cc,v 1.2 2008/04/22 10:06:24 ferriff Exp $
 //
 //
 
@@ -119,9 +119,9 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "e1x5..................... " << EcalClusterTools::e1x5( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x2..................... " << EcalClusterTools::e2x2( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e3x3..................... " << EcalClusterTools::e5x5( *it, ebRecHits, topology ) << std::endl;
+                std::cout << "e3x3..................... " << EcalClusterTools::e3x3( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e4x4..................... " << EcalClusterTools::e4x4( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e5x5..................... " << EcalClusterTools::e3x3( *it, ebRecHits, topology ) << std::endl;
+                std::cout << "e5x5..................... " << EcalClusterTools::e5x5( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x5Right................ " << EcalClusterTools::e2x5Right( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( *it, ebRecHits, topology ) << std::endl;
                 std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( *it, ebRecHits, topology ) << std::endl;
@@ -158,9 +158,9 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
                 std::cout << "e1x5..................... " << EcalClusterTools::e1x5( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e2x2..................... " << EcalClusterTools::e2x2( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e3x3..................... " << EcalClusterTools::e5x5( *it, eeRecHits, topology ) << std::endl;
+                std::cout << "e3x3..................... " << EcalClusterTools::e3x3( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e4x4..................... " << EcalClusterTools::e4x4( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e5x5..................... " << EcalClusterTools::e3x3( *it, eeRecHits, topology ) << std::endl;
+                std::cout << "e5x5..................... " << EcalClusterTools::e5x5( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e2x5Right................ " << EcalClusterTools::e2x5Right( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( *it, eeRecHits, topology ) << std::endl;
                 std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( *it, eeRecHits, topology ) << std::endl;
