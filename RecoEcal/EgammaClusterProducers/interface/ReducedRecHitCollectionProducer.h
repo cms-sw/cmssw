@@ -43,12 +43,9 @@ class ReducedRecHitCollectionProducer : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
       edm::InputTag recHitsLabel_;
-      edm::InputTag basicClusters_;
+      std::vector<edm::InputTag> interestingDetIdCollections_;
       std::string reducedHitsCollection_;
-      int minimalEtaSize_;
-      int minimalPhiSize_;
-      const CaloTopology* caloTopology_;
-
+  
 };
 
 #endif

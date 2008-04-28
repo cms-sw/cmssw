@@ -10,6 +10,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/RecHitFilter.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterShapeProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/ReducedRecHitCollectionProducer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/InterestingDetIdCollectionProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/FixedMatrixClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/FixedMatrixSuperClusterProducer.h"
 
@@ -27,3 +28,4 @@ DEFINE_ANOTHER_FWK_MODULE(PreshowerClusterShapeProducer);
 DEFINE_ANOTHER_FWK_MODULE(FixedMatrixClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(FixedMatrixSuperClusterProducer);
 DEFINE_ANOTHER_FWK_MODULE(ReducedRecHitCollectionProducer);
+DEFINE_ANOTHER_FWK_MODULE(InterestingDetIdCollectionProducer);
