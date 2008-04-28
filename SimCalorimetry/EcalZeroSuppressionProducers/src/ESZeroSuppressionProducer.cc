@@ -46,7 +46,7 @@ void ESZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSetup
   if (fullESDigis) {
     ESDigiCollection::const_iterator i;
     for (i=ESDigis->begin(); i!=ESDigis->end(); i++) {            
-      if (algo_->EvalAmplitude(*i, false) > ESThreshold) (*ESZSDigis).push_back(*i);
+      if (algo_->EvalAmplitude(*i) > ESThreshold) (*ESZSDigis).push_back(*i);
     }
   }     
   
