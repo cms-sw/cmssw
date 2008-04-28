@@ -5,7 +5,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
 #include <map>
 #include <vector>
-namespace minimiser {
+
+namespace pftools {
 class Calibrator {
 public:
 	Calibrator();

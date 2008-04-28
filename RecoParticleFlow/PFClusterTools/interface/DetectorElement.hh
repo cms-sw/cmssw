@@ -2,6 +2,7 @@
 #define DETECTORELEMENT_HH_
 
 #include <vector>
+#include <boost/shared_ptr.hpp>
 /*
  * This is a dirty macro that allows you to make vectors of DetectorElements within CINT
  */
@@ -19,10 +20,13 @@
 #include "TH2F.h"
 #include "TH1F.h"
 
-namespace minimiser {
+namespace pftools {
 
 class DetectorElement {
 public:
+	
+	typedef boost::shared_ptr<DetectorElement> DetectorElementPtr;
+	
 	DetectorElement(DetectorElementType type, double calib = 1.0);
 
 	inline DetectorElementType getType() const {

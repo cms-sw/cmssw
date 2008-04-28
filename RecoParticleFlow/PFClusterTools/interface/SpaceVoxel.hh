@@ -1,7 +1,7 @@
 #ifndef SPACEVOXEL_HH_
 #define SPACEVOXEL_HH_
 #include <iostream>
-namespace minimiser {
+namespace pftools {
 
 /*
  * SpaceVoxel.hh
@@ -32,7 +32,7 @@ public:
 	
 	void print(std::ostream& s) const;
 	
-	friend std::ostream& operator<<(std::ostream& s, const minimiser::SpaceVoxel& sv);
+	friend std::ostream& operator<<(std::ostream& s, const pftools::SpaceVoxel& sv);
 
 private:
 	double myEtaMin;

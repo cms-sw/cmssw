@@ -4,7 +4,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
 #include "TFile.h"
 #include <vector>
-namespace minimiser {
+namespace pftools {
 class TreeUtility {
 public:
 	TreeUtility();

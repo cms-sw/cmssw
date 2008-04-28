@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Deposition.hh"
-using namespace minimiser;
+using namespace pftools;
 Deposition::Deposition(DetectorElement* element, double eta, double phi,
 		double energy, double depth) :
 	myElement(element), myEta(eta), myPhi(phi), myEnergy(energy),

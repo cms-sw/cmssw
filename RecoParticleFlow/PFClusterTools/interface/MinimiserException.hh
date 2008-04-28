@@ -3,7 +3,7 @@
 
 #include <exception>
 #include <string>
-namespace minimiser {
+namespace pftools {
 class MinimiserException : public std::exception {
 public:
 	MinimiserException(const std::string& aErrorDescription="");

@@ -1,5 +1,5 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
-using namespace minimiser;
+using namespace pftools;
 
 Calibrator::Calibrator() : offsetElement(OFFSET) {
 }

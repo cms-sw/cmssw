@@ -1,9 +1,15 @@
 #ifndef SINGLEPARTICLEWRAPPER_HH_
 #define SINGLEPARTICLEWRAPPER_HH_
 
+#include <boost/shared_ptr.hpp>
+
+namespace pftools {
 class SingleParticleWrapper
 {
 public:
+	
+	typedef boost::shared_ptr<SingleParticleWrapper> SingleParticleWrapperPtr;
+	
 	SingleParticleWrapper() {
 		reset();
 	}
@@ -46,5 +52,5 @@ public:
 	double eSqPFEcal;
 	double eSqPFHcal;
 };
-
+}
 #endif /*SINGLEPARTICLEWRAPPER_HH_*/

@@ -11,7 +11,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 
 #include <iostream>
-namespace minimiser {
+namespace pftools {
 class ParticleDeposit {
 public:
 

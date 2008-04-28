@@ -10,7 +10,7 @@
  * 		OFFSET
  */
 
-namespace minimiser {
+namespace pftools {
 enum DetectorElementType {
 	ECAL = 0, HCAL = 1, PRESHOWER = 2, OFFSET = 3
 };

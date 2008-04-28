@@ -1,6 +1,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"
 #include <iostream>
-using namespace minimiser;
+using namespace pftools;
 
 SpaceVoxel::SpaceVoxel(double etaBegin, double etaEnd, double phiBegin,
 		double phiEnd, double energyBegin, double energyEnd) :
@@ -47,7 +47,7 @@ void SpaceVoxel::print(std::ostream& s) const {
 	s << "SpaceVoxel: eta: [" << myEtaMin << ", " << myEtaMax << "]\t phi: [" << myPhiMin << ". " << myPhiMax << "]\t energy: [" << myEnergyMin << ", " << myEnergyMax << "]";
 }
 
-std::ostream& minimiser::operator<<(std::ostream& s, const minimiser::SpaceVoxel& sv) {
+std::ostream& pftools::operator<<(std::ostream& s, const pftools::SpaceVoxel& sv) {
 	sv.print(s);
 	return s;
 }

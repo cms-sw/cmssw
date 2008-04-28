@@ -1,7 +1,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/MinimiserException.hh"
 
 
-using namespace minimiser;
+using namespace pftools;
 
 MinimiserException::MinimiserException(const std::string& aErrorDescription)
 {

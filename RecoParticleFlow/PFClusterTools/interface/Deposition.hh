@@ -14,7 +14,7 @@
  * 
  * */
 
-namespace minimiser {
+namespace pftools {
 class Deposition {
 public:
 

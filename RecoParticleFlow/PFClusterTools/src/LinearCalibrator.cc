@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-using namespace minimiser;
+using namespace pftools;
 
 /* These utility functions allow you to print matrices and vectors to a stream,
  * and copy and paste the output directly into Octave or Matlab

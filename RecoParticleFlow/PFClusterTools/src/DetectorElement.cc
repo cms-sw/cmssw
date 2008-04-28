@@ -1,7 +1,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 #include "RecoParticleFlow/PFClusterTools/interface/MinimiserException.hh"
 #include <iostream>
-using namespace minimiser;
+using namespace pftools;
 //A comment
 DetectorElement::DetectorElement(DetectorElementType type, double calib) :
 	myType(type), myCalib(calib) {
@@ -34,8 +34,8 @@ DetectorElement::~DetectorElement() {
 
 
 
-std::ostream& minimiser::operator<<(std::ostream& s, const DetectorElement& de) {
-	s << "DetectorElement: " << minimiser::DetElNames[de.getType()] << ", \tcalib: " << de.getCalib();
+std::ostream& pftools::operator<<(std::ostream& s, const DetectorElement& de) {
+	s << "DetectorElement: " << pftools::DetElNames[de.getType()] << ", \tcalib: " << de.getCalib();
 
 	return s;
 }

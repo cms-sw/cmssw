@@ -2,7 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
-using namespace minimiser;
+using namespace pftools;
 
 unsigned ParticleDeposit::count = 0;
 
@@ -71,7 +71,7 @@ double ParticleDeposit::getEnergyResolution() const {
 	return fabs((getRecEnergy() - myTruthEnergy) / sqrt(myTruthEnergy));
 }
 
-std::ostream& minimiser::operator<<(std::ostream& s, const minimiser::ParticleDeposit& p) {
+std::ostream& pftools::operator<<(std::ostream& s, const pftools::ParticleDeposit& p) {
 	s << "Particle id:\t" << p.getId() << ", \t trueEnergy: " << p.getTruthEnergy() << "\n";
 	s.width(3);
 	for (std::vector<Deposition>::const_iterator cit = p.getRecDepositions().begin(); cit

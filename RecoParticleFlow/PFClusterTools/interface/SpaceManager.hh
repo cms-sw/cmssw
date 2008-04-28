@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-namespace minimiser {
+namespace pftools {
 class SpaceManager {
 public:
 	SpaceManager();

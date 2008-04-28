@@ -2,7 +2,10 @@
 #include "TBranch.h"
 #include "TTree.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.hh"
-using namespace minimiser;
+
+#include <boost/shared_ptr.hpp>
+
+using namespace pftools;
 TreeUtility::TreeUtility() {
 }
 
@@ -15,11 +18,12 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 
 	std::cout << __PRETTY_FUNCTION__
 			<< ": This method is highly specific to detector element types and may fail if their definitions change. Please be advised of this limitation!\n";
-
+	typedef boost::shared_ptr<SingleParticleWrapper> SingleParticleWrapperPtr;
 	DetectorElement* ecal(0);
 	DetectorElement* hcal(0);
 	DetectorElement* offset(0);
-	SingleParticleWrapper* spw = new SingleParticleWrapper;
+	SingleParticleWrapperPtr spw_ptr(new SingleParticleWrapper);
+	//SingleParticleWrapper* spw = new SingleParticleWrapper;
 
 	for (std::vector<DetectorElement*>::iterator it = elements.begin(); it
 			!= elements.end(); ++it) {
@@ -55,20 +59,21 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 
 	std::cout << "Assigning branch: \n";
 	TBranch* spwBr = tree->GetBranch("SingleParticleWrapper");
-	spwBr->SetAddress(&spw);
+	//spwBr->SetAddress(&spw);
+	spwBr->SetAddress(&spw_ptr);
 	std::cout << "Looping over entries...\n";
 	for (unsigned entries(0); entries < tree->GetEntries(); entries++) {
 
 		tree->GetEntry(entries);
 
-		ParticleDeposit* pd = new ParticleDeposit(spw->trueEnergy);
+		ParticleDeposit* pd = new ParticleDeposit(spw_ptr->trueEnergy);
 		if (offset != 0) {
-			Deposition dOffset(offset, spw->eta, spw->phi, 1.0);
+			Deposition dOffset(offset, spw_ptr->eta, spw_ptr->phi, 1.0);
 			pd->addRecDeposition(dOffset);
 			pd->addTruthDeposition(dOffset);
 		}
-		Deposition dE(ecal, spw->eta, spw->phi, spw->eEcal);
-		Deposition dH(hcal, spw->eta, spw->phi, spw->eHcal);
+		Deposition dE(ecal, spw_ptr->eta, spw_ptr->phi, spw_ptr->eEcal);
+		Deposition dH(hcal, spw_ptr->eta, spw_ptr->phi, spw_ptr->eHcal);
 
 		//RecDepositions are what the detector element should detect
 		//when well calibrated

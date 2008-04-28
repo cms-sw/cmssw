@@ -2,7 +2,7 @@
 #include <cassert>
 #include <algorithm>
 
-using namespace minimiser;
+using namespace pftools;
 
 SpaceManager::SpaceManager() {
 }

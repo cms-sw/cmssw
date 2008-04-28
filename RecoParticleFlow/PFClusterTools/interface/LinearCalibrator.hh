@@ -17,7 +17,7 @@
  * 
  * doOffset is set to true by default: this 'a' term accounts for threshold effects.
  */
-namespace minimiser {
+namespace pftools {
 class LinearCalibrator : public Calibrator {
 public:
 	LinearCalibrator();

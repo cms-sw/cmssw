@@ -1,17 +1,17 @@
 
 <lcgdict>
-  <class name="minimiser::TreeUtility"/>
-  <class name="minimiser::Calibrator"/>
-  <class name="minimiser::DetectorElement"/>    
-  <class name="minimiser::LinearCalibrator"/>     
-  <class name="minimiser::SpaceManager"/> 
-  <class name="minimiser::Deposition"/>
-  <class name="minimiser::MinimiserException"/> 
-  <class name="minimiser::ParticleDeposit"/>
-  <class name="minimiser::SpaceVoxel"/>
-  <class name="SingleParticleWrapper"/>
-  <class name="std::vector<minimiser::DetectorElement*>"/>
-  <class name="std::vector<minimiser::ParticleDeposit*>"/>
+  <class name="pftools::TreeUtility"/>
+  <class name="pftools::Calibrator"/>
+  <class name="pftools::DetectorElement"/>    
+  <class name="pftools::LinearCalibrator"/>     
+  <class name="pftools::SpaceManager"/> 
+  <class name="pftools::Deposition"/>
+  <class name="pftools::MinimiserException"/> 
+  <class name="pftools::ParticleDeposit"/>
+  <class name="pftools::SpaceVoxel"/>
+  <class name="pftools::SingleParticleWrapper"/>
+  <class name="std::vector<pftools::DetectorElement*>"/>
+  <class name="std::vector<pftools::ParticleDeposit*>"/>
 
  </lcgdict>
 
