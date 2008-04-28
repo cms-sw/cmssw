@@ -37,7 +37,7 @@ class listCondDictionary:
         for dir in self.searchpath:
             files=os.listdir(dir)
             #print 'files',files
-            sf=fnmatch.filter(files,'libCondFormats*Capabilities.so')
+            sf=fnmatch.filter(files,'pluginCondFormats*Capabilities.so')
             #print 'sf',sf
             if len(sf)!=0:
                 dictfiles+=sf
@@ -59,7 +59,7 @@ class listCondDictionary:
         """
         Filter out the dictionary name from library name
         """
-        nohead=libname[3:]
+        nohead=libname[6:]
         result=nohead[:-15]
         return result
 if __name__ == "__main__":
