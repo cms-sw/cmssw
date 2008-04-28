@@ -16,9 +16,9 @@ class CSCConstants
 			     NUM_DI_STRIPS = 40+1, // Add 1 to allow for staggering of strips
 			     NUM_HALF_STRIPS = 160+1};
 
-  enum Layer_Info { NUM_LAYERS = 6, KEY_CLCT_LAYER = 3, KEY_ALCT_LAYER = 3 };
+  enum Layer_Info { NUM_LAYERS = 6, KEY_CLCT_LAYER = 3, KEY_CLCT_LAYER_PRE_TMB07 = 4, KEY_ALCT_LAYER = 3 };
 
-  enum Pattern_Info { NUM_ALCT_PATTERNS = 3, NUM_CLCT_PATTERNS = 10 };
+  enum Pattern_Info { NUM_ALCT_PATTERNS = 3, NUM_CLCT_PATTERNS = 11, NUM_CLCT_PATTERNS_PRE_TMB07 = 8 };
 
   enum Digis_Info { MAX_DIGIS_PER_ALCT = 10, MAX_DIGIS_PER_CLCT = 8 };
 
