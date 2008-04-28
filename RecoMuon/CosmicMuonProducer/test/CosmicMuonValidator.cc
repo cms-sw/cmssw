@@ -41,12 +41,8 @@
 
 #include <iostream>
 
-#include <TFile.h>
 #include <TH1D.h>
-#include <TTree.h>
-#include <TROOT.h>
 #include <TSystem.h>
-#include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TLegend.h>
@@ -322,14 +318,15 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 void CosmicMuonValidator::beginJob(const edm::EventSetup&)
 {
 
-  edm::Service<TFileService> fs;
-
   myStyle = new TStyle("myStyle","Cosmic Muon Validator Style");
 
   myStyle->SetCanvasBorderMode(0);
   myStyle->SetCanvasBorderMode(0);
   myStyle->SetOptTitle(0);
   myStyle->SetOptStat(1000010);
+
+  cout<<"Prepare histograms "<<"\n";
+  edm::Service<TFileService> fs;
 
   h_res = fs->make<TH1F>("h_res","resolution of P_{T}",50,-5.0,5.0);
 
@@ -838,7 +835,3 @@ edm::ESHandle<Propagator> CosmicMuonValidator::propagator() const {
    return theService->propagator("SteppingHelixPropagatorAny");
 }
 
-
-//define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CosmicMuonValidator);
