@@ -13,6 +13,15 @@
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
+<use name=RecoPixelVertexing/PixelTrackFitting>
+<use name=DataFormats/HLTReco>
+<use name=DataFormats/VertexReco>
+<use name=CondFormats/EcalObjects>
+<use name=Geometry/EcalMapping>
+<use name=DataFormats/EcalRawData>
+<use name=DataFormats/FEDRawData>
+<use name=EventFilter/EcalRawToDigiDev>
+<use name=RecoEcal/EgammaCoreTools>
 <use name=rootmath>
 <flags EDM_PLUGIN=1>
 <export>

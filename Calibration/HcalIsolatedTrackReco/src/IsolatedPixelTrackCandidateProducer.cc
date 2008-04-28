@@ -40,7 +40,6 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   pixelTracksSource_=config.getParameter<edm::InputTag>("PixelTracksSource");
   pixelIsolationConeSize_=config.getParameter<double>("PixelIsolationConeSize");
   hltGTseedlabel_=config.getParameter<edm::InputTag>("L1GTSeedLabel");
-  l1GtObjectMapSource_ = config.getParameter<edm::InputTag> ("L1GtObjectMapSource");
   ecalFilterLabel_ = config.getParameter<edm::InputTag>("ecalFilterLabel");
   
   
@@ -87,9 +86,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
   l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
   
-  bool restj=false;
-  bool resj=false;
-  
   for (unsigned int p=0; p<l1tauobjref.size(); p++)
     {
       if (l1tauobjref[p]->pt()>ptTriggered)
@@ -109,8 +105,8 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 	  etaTriggered=l1jetobjref[p]->eta();
 	}
     }
-  
-  double minPtTrack_=5;
+
+  double minPtTrack_=2;
   double drMaxL1Track_=tauAssocCone_;
   
   int ntr=0;
@@ -126,7 +122,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 
     l1extra::L1JetParticleCollection::const_iterator selj;
     for (l1extra::L1JetParticleCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) {
-      
+
       //select taus not matched to triggered L1 jet
       double dPhi=fabs(tj->phi()-phiTriggered);
       if (dPhi>3.1415926535) dPhi=2*3.1415926535-dPhi;
@@ -134,8 +130,12 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       if (R<tauUnbiasCone_) continue;
       
       //select tracks matched to tau
+      /*
+      double dphiT=fabs(tj->phi()-track->phi());
+      if (dphiT>acos(-1)) dphiT=2*acos(-1)-dphiT;
+      double sqrD=sqrt(pow(tj->eta()-track->eta(),2)+dphiT*dphiT);
+      */
       if(ROOT::Math::VectorUtil::DeltaR(track->momentum(),tj->momentum()) > drMaxL1Track_) continue;
-      
       selj=tj;
       tmatch=true;
       
