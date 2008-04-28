@@ -51,6 +51,10 @@ namespace pos{
     
     unsigned char getAnalogOutputGain() {return analogOutputGain_;}
     void setAnalogOutputGain(unsigned char analogOutputGain) {analogOutputGain_=analogOutputGain;}
+    
+    // Added by Dario (Apr 2008)
+    bool getMode(void)      {return singlemode_;}
+    void setMode(bool mode) {singlemode_ = mode;}
 
   private:
 

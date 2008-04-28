@@ -142,6 +142,9 @@ namespace pos{
     bool singleROC() const {return singleROC_;}
 
     unsigned int nParameters() const {return parameters_.size();}
+
+    // Added by Dario Apr 24th, 2008
+    std::map<std::string, std::string> parametersList() const {return parameters_;}
     // get the value of parameter parameterName, or "" if parameterName is not in the list
     std::string parameterValue(std::string parameterName) const;
 

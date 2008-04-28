@@ -98,7 +98,7 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 	std::ifstream in(filename.c_str());
 
 	if (!in.good()){
-	    std::cout << "Could not open:"<<filename<<std::endl;
+	    std::cout << "[PixelTBMSettings::PixelTBMSettings()]\t\tCould not open:"<<filename<<std::endl;
 	    assert(0);
 	}
 	else {

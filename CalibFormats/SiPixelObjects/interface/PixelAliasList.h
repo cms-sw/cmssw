@@ -93,7 +93,6 @@ namespace pos{
 
 	  path=tag;
 	  in >> alias;
-	
 	  //std::cout << "path, alias:"<<path<<" "<<alias<<std::endl;
 	
 	  anAlias.addVersionAlias(path,alias);
