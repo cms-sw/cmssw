@@ -95,7 +95,6 @@ PixelBarrelName::PixelBarrelName(std::string name)
   }
 
   // find the layer
-  int theLayer = 0;
   string layerString = name.substr(name.find("_LYR")+4, name.find("_LDR")-name.find("_LYR")-4);
   if (layerString == "1") theLayer = 1;
   else if (layerString == "2") theLayer = 2;
@@ -140,7 +139,6 @@ PixelBarrelName::PixelBarrelName(std::string name)
       << "Unable to determine module in PixelBarrelName::PixelBarrelName(std::string): "
       << name;
   }
-
 
 } // PixelBarrelName::PixelBarrelName(std::string name)
 
@@ -258,7 +256,7 @@ PXBDetId PixelBarrelName::getDetId() {
       if (tmpLadder <= 8) ladder = 9 - tmpLadder;
       else if (tmpLadder <= 16) ladder = 41 - tmpLadder;
     } // layer 2
-    else if (layer == 2) {
+    else if (layer == 3) {
       if (tmpLadder <= 11) ladder = 12 - tmpLadder;
       else if (tmpLadder <= 22) ladder = 56 - tmpLadder;
     } // layer 3
@@ -267,9 +265,9 @@ PXBDetId PixelBarrelName::getDetId() {
   // translate the module number from naming convention to cmssw convention
   // numbering starts at positive z
   if (shell == pO || shell == pI)
-    module = 5 - tmpModule;
-  else // negative z side
     module = tmpModule + 4;
+  else // negative z side
+    module = 5 - tmpModule;
 
   return PXBDetId(layer, ladder, module);
 
