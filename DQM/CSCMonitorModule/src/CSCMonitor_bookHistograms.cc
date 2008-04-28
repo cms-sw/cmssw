@@ -3,7 +3,7 @@
 
 ME_List CSCMonitor::bookCommon(int nodeNumber) 
 {
-	std::string dir = "EMU/Common";
+	std::string dir = "CSC/Common";
 //	dbe->setCurrentFolder(dir);
 //	string prefix = Form("EMU_%d", nodeNumber);
 	string prefix = "EMU";
@@ -27,7 +27,7 @@ ME_List CSCMonitor::bookDDU(int dduNumber)
 {
 	
 	string prefix = Form("DDU_%02d", dduNumber);
-	string dir = "EMU/"+prefix;
+	string dir = "CSC/"+prefix;
 	dbe->setCurrentFolder(dir);
  	ME_List dduMEs;
         ME_List_iterator itr;
@@ -56,7 +56,7 @@ ME_List CSCMonitor::bookChamber(int chamberID)
 	int crate = (chamberID >> 4) & 0xFF;
 	int slot = chamberID & 0xF;
 	string prefix = Form("CSC_%03d_%02d", crate, slot);
-	string dir = "EMU/"+prefix;
+	string dir = "CSC/"+prefix;
 	dbe->setCurrentFolder(dir);
 	ME_List chamberMEs;
         ME_List_iterator itr;

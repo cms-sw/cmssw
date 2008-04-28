@@ -8,10 +8,10 @@ CSCMonitor::CSCMonitor(const edm::ParameterSet& iConfig )
   setParameters();
 
   printout = iConfig.getUntrackedParameter<bool>("monitorVerbosity", false);
-  xmlHistosBookingCfgFile = iConfig.getUntrackedParameter<std::string>("BookingFile", "emuDQMBooking_new.xml"); 
+  xmlHistosBookingCfgFile = iConfig.getUntrackedParameter<std::string>("BookingFile", "emuDQMBooking.xml"); 
   fSaveHistos  = iConfig.getUntrackedParameter<bool>("CSCDQMSaveRootFile", false);
   saveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EventsInterval", 20000);
-  RootHistoFile  = iConfig.getUntrackedParameter<std::string>("RootFileName", "CSCMonitor.root");
+  RootHistoFile  = iConfig.getUntrackedParameter<std::string>("RootFileName", "DQM_CSC_Monitor.root");
 
   // CSC Mapping
   cscMapping  = CSCReadoutMappingFromFile(iConfig);
