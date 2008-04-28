@@ -110,7 +110,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     type = "Event Fragment Size for each FED";
     meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,7000.0,"");
     type = "Ev Frag Size 2d";
-    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,400,700.0,1100.0);
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,22000,0,22000);
 
     // Examine conditions of the DCC Event Fragment
     type = "Number of Event Fragments by FED ID";
@@ -400,7 +400,12 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
   int dccBCN = dccHeader->getBunchId();
   medccBCN_ -> Fill(dccBCN);
-  int EvFragLength = trailer.lenght();
+  //  int EvFragLength = trailer.lenght();
+  //  Deliver the length in units of 64-bit words
+  uint64_t* lastDataWord = (uint64_t*) ( raw.data()+raw.size()-(2*sizeof(uint64_t)) );
+  int EvFragLength = ((*lastDataWord>>32)*8);
+  EvFragLength = raw.size();
+
   meEvFragSize_ ->Fill(dccid, EvFragLength);
   meEvFragSize2_ ->Fill(dccid, EvFragLength);
 
