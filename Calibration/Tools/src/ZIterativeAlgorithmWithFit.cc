@@ -8,16 +8,27 @@
 
 #include "Calibration/Tools/interface/ZIterativeAlgorithmWithFit.h"
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
+#include "Calibration/Tools/interface/EcalIndexingTools.h"
 
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include <TMath.h>
+#include <TCanvas.h> 
+#include "TH1.h"
+#include "TH2.h"
 #include "TF1.h"
+#include "TH1F.h"
 #include "TMinuit.h"
+#include "TGraphErrors.h"
+#include "THStack.h"
+#include "TLegend.h"
 
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 //#include "Tools.C"
 
@@ -42,6 +53,9 @@ ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit()
   currentEvent_=0;
   currentIteration_=0;
   optimizedCoefficients_.resize(channels_);
+  optimizedCoefficientsError_.resize(channels_);
+  optimizedChiSquare_.resize(channels_);
+  optimizedIterations_.resize(channels_);
   calib_fac_.resize(channels_);
   weight_sum_.resize(channels_);
   electrons_.resize(1);
@@ -55,10 +69,19 @@ ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit(const edm::ParameterSet& 
   numberOfIterations_=ps.getUntrackedParameter<unsigned int>("maxLoops",0);
   massMethod = ps.getUntrackedParameter<std::string>("ZCalib_InvMass","SCMass");
   calibType_= ps.getUntrackedParameter<std::string>("ZCalib_CalibType","RING"); 
+
   if (calibType_ == "RING")
-    channels_=EcalRingCalibrationTools::N_RING_TOTAL;
+    channels_ = EcalRingCalibrationTools::N_RING_TOTAL;
   else if (calibType_ == "MODULE")
-    channels_=144;  
+
+
+    channels_ = EcalRingCalibrationTools::N_MODULES_BARREL;  
+  else if (calibType_ == "ABS_SCALE")
+    channels_ = 1;  
+  else if(calibType_ == "ETA_ET_MODE")
+    channels_ = EcalIndexingTools::getInstance()->getNumberOfChannels();
+
+  std::cout << "[ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit] channels_ = " << channels_ << std::endl;
 
   nCrystalCut_=ps.getUntrackedParameter<int>("ZCalib_nCrystalCut",-1);
 
@@ -67,11 +90,10 @@ ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit(const edm::ParameterSet& 
   currentIteration_=0;
   totalEvents_=0;
 
-  //Reserving space for vectors (speedUp) 
-//   electrons_.reserve(events);
-//   massReco_.reserve(events);
-
   optimizedCoefficients_.resize(channels_);
+  optimizedCoefficientsError_.resize(channels_);
+  optimizedChiSquare_.resize(channels_);
+  optimizedIterations_.resize(channels_);
   calib_fac_.resize(channels_);
   weight_sum_.resize(channels_);
 
@@ -179,33 +201,48 @@ bool ZIterativeAlgorithmWithFit::iterate()
 	{
 	  if (weight_sum_[i]!=0.) {
 	    //optimizedCoefficients_[i] = calib_fac_[i]/weight_sum_[i];
-
-	    float peak=findPeak((TH1F*)thePlots_->weightedRescaleFactor[currentIteration_][i]);
-
+	    
+	    double gausFitParameters[3], gausFitParameterErrors[3], gausFitChi2;
+	    int gausFitIterations;
+	    
+	    gausfit( (TH1F*)thePlots_->weightedRescaleFactor[currentIteration_][i], gausFitParameters, gausFitParameterErrors, 2.5, 2.5, &gausFitChi2, &gausFitIterations );
+	    
+	    float peak=gausFitParameters[1];
+	    float peakError=gausFitParameterErrors[1];
+	    float chi2 = gausFitChi2;
+	    
+	    int iters = gausFitIterations;
+	    	  
+	    optimizedCoefficientsError_[i] = peakError;
+	    optimizedChiSquare_[i] = chi2;
+	    optimizedIterations_[i] = iters;
+	    
 	    if (peak >=MIN_RESCALE && peak <= MAX_RESCALE)
 	      optimizedCoefficients_[i] = 1 / (1 + peak);
 	    else
 	      optimizedCoefficients_[i] = 1 / (1 + calib_fac_[i]/weight_sum_[i]);
-
+	  
 	  } else {
 	    optimizedCoefficients_[i]=1.;
+	    optimizedCoefficientsError_[i] = 0.;
+	    optimizedChiSquare_[i] = -1.;
+	    optimizedIterations_[i] = 0;
 	  }
-	  
-// 	  //	  initialCoefficients_[i] *= optimizedCoefficients_[i];
-// 	  EcalCalibMap::getMap()->setRingCalib(i, optimizedCoefficients_[i]);
+
 	}
 
       else
 	{
-	  
+	  optimizedCoefficientsError_[i] = 0.;
 	  optimizedCoefficients_[i]=1.;
-	  
+	  optimizedChiSquare_[i] = -1.;
+	  optimizedIterations_[i] = 0;
 // 	  EcalCalibMap::getMap()->setRingCalib(i, optimizedCoefficients_[i]);
 // 	  //	  initialCoefficients_[i] *= optimizedCoefficients_[i];
 	}
       
       std::cout << "ZIterativeAlgorithmWithFit::run():Energy Rescaling Coefficient for region " 
-		<< i << " is "  << optimizedCoefficients_[i] << " - number of events: " << weight_sum_[i] << std::endl;
+		<< i << " is "  << optimizedCoefficients_[i] << ", with error "<<optimizedCoefficientsError_[i]<<" - number of events: " << weight_sum_[i] << std::endl;
     }
   
   currentIteration_++;
@@ -230,40 +267,20 @@ bool ZIterativeAlgorithmWithFit::addEvent(calib::CalibElectron* ele1, calib::Cal
     {
       massReco_.push_back(invMassCalc(ele1->getRecoElectron()->superCluster()->energy(), ele1->getRecoElectron()->eta(), ele1->getRecoElectron()->phi(), ele2->getRecoElectron()->superCluster()->energy(), ele2->getRecoElectron()->eta(), ele2->getRecoElectron()->phi()));
     }
-  //   else if (massMethod == "S25TRMass" )
-//     {
-//       massReco_[currentEvent_] = invMassCalc(ele1->electronSCE25_, ele1->getRecoElectron()->eta(), ele1->getRecoElectron()->phi(), ele2->electronSCE25_, ele2->getRecoElectron()->eta(), ele2->getRecoElectron()->phi());
-//     }
-//   else if (massMethod == "S25CorrTRMass" )
-//     {
-//       massReco_[currentEvent_] = invMassCalc(ele1->electronSCE25Corr_, ele1->getRecoElectron()->eta(), ele1->getRecoElectron()->phi(), ele2->electronSCE25Corr_, ele2->getRecoElectron()->eta(), ele2->getRecoElectron()->phi());
-//     }
+
   else if (massMethod == "SCMass" )
     {
       massReco_.push_back(invMassCalc(ele1->getRecoElectron()->superCluster()->energy(), ele1->getRecoElectron()->superCluster()->position().eta(), ele1->getRecoElectron()->superCluster()->position().phi(), ele2->getRecoElectron()->superCluster()->energy(), ele2->getRecoElectron()->superCluster()->position().eta(), ele2->getRecoElectron()->superCluster()->position().phi()));
     }  
   
-  //  massReco_[currentEvent_]=invMassCalc(ele1->electronSCE_,ele1->getRecoElectron()->superCluster()->position().eta(),ele1->getRecoElectron()->superCluster()->position().phi(),ele2->electronSCE_,ele2->getRecoElectron()->superCluster()->position().eta(),ele2->getRecoElectron()->superCluster()->position().phi());
-  
-  //Calculate weights and correction factor
- //cout << "\nevent " << currentEvent_ << " - invMass " << massReco_[currentEvent_] << " - el energies: " << ele1->getRecoElectron()->superCluster()->energy() << " & " << ele2->getRecoElectron()->superCluster()->energy() << " - etas " << ele1->getRecoElectron()->superCluster()->position().eta() << " / " << ele2->getRecoElectron()->superCluster()->position().eta() << " - phis " << ele1->getRecoElectron()->superCluster()->position().phi() << " / " << ele2->getRecoElectron()->superCluster()->position().phi() << endl;
-//     if ( massMethod == "SCMass")
-//       {
 #ifdef DEBUG
   std::cout << "Mass calculated " << massReco_[currentEvent_] << std::endl;
 #endif
+
   if((ele2->getRecoElectron()->superCluster()->position().eta() > -10.) && (ele2->getRecoElectron()->superCluster()->position().eta() < 10.) && 
      (ele2->getRecoElectron()->superCluster()->position().phi() > -10.) && (ele2->getRecoElectron()->superCluster()->position().phi() < 10.)) {
     getWeight(currentEvent_, Electrons, invMassRescFactor);
   }
-//       }
-//     else if (massMethod == "SCTRMass" )
-//       {
-// 	if((ele2->getRecoElectron()->eta() > -10.) && (ele2->getRecoElectron()->eta() < 10.) && 
-// 	   (ele2->getRecoElectron()->phi() > -10.) && (ele2->getRecoElectron()->phi() < 10.)) {
-// 	  getWeight(currentEvent_, Electrons, invMassRescFactor);
-// 	}
-//       }
 
   currentEvent_++;
   return kTRUE;
@@ -272,69 +289,20 @@ bool ZIterativeAlgorithmWithFit::addEvent(calib::CalibElectron* ele1, calib::Cal
     
 void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, std::pair<calib::CalibElectron*,calib::CalibElectron*> elepair, float invMassRescFactor) 
 {
-  // std::cout<< "Calculating weight for module " << module << " on electrons " << elestd::pair.first << " & " << elepair.second << std::endl; 
-  //#ifdef DEBUG_VERBOSE
-  //  std::cout << "####Event: " << event_id << std::endl;
-  //#endif
+
   float event_weight;
   if (UseStatWeights_) {
     event_weight=getEventWeight(event_id);
   } else {
     event_weight=1/(elepair.first->getRecoElectron()->superCluster()->rawEnergy()+elepair.second->getRecoElectron()->superCluster()->rawEnergy());
   }
-  //  getWeight(event_id, elepair.first, event_weight);
-  //  getWeight(event_id, elepair.second, event_weight);
-  // RP: introduco il fattore di rescaling della massa invariante
+
   getWeight(event_id, elepair.first, invMassRescFactor);
   getWeight(event_id, elepair.second, invMassRescFactor);
 }
 
 float ZIterativeAlgorithmWithFit::getEventWeight(unsigned int event_id) {
 
-//   pair<calib::CalibElectron*,calib::CalibElectron*> elepair=electrons_[event_id];
-
-//   float evweight=1.;
-//   calib::CalibElectron* ele=elepair.first;
-//   vector<int>* modules=(*ele).getModules();
-
-//   for (unsigned int imod=0;imod<(*modules).size();imod++) {
-//     unsigned int mod=(*modules)(imod);
-//     if (mod<channels_) {
-//       //      if((*weights)(imod)>=.8)
-// #ifdef DEBUG_VERBOSE
-//       std::cout<< "Found a stat weight for module "  << mod << " is " << (StatWeights_)(mod) << std::endl;
-// #endif
-//       //ADDED EVENT WEIGHT 17-04-2003
-//       evweight*=(StatWeights_)(mod);
-//     } else {
-//       std::cout << "ZIterativeAlgorithmWithFit::FATAL:found a wrong module_id" << std::endl;
-//     }
-//   }
-
-//   ele=elepair.second;
-//   modules=(*ele).getModules();
-  
-//   for (unsigned int imod=0;imod<(*modules).size();imod++) {
-//     unsigned int mod=(*modules)(imod);
-//     if (mod<channels_) {
-//       //      if((*weights)(imod)>=.8)
-// #ifdef DEBUG_VERBOSE
-//       std::cout<< "Found a stat weight for module "  << mod << " is " << (StatWeights_)(mod) << std::endl;
-// #endif
-//       //ADDED EVENT WEIGHT 17-04-2003
-//       evweight*=(StatWeights_)(mod);
-//     } else {
-//       std::cout << "ZIterativeAlgorithmWithFit::FATAL:found a wrong module_id" << std::endl;
-//     }
-//   }
-
-// #ifdef DEBUG_VERBOSE
-//   std::cout<< "Returning a stat weight for event "  << event_id << " is " << evweight << std::endl;
-// #endif
-
-//   Event_Weight_(event_id)=evweight;
-
-  
   return 1.;
 }
 
@@ -361,26 +329,14 @@ void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, calib::CalibEl
 				     !((mod > (149-nCrystalCut_)) && (mod <= (149+nCrystalCut_))) &&
 				     !(mod > (169-nCrystalCut_))))
 	    {
-	      //	  float weight=modules[imod].second*evweight;
-	      // RP: metto tutti i pesi ad 1 oppure divido solo per l'energia di un elettrone
-	      //	      float weight = 1.;
+
 	      float weight2 = modules[imod].second / ele->getRecoElectron()->superCluster()->rawEnergy();
 #ifdef DEBUG
 	      std::cout << "w2 " << weight2 << std::endl;
 #endif
 	      if (weight2>=0. && weight2<=1.)
 		{
-		// 	  calib_fac_[mod]+=TMath::Power(M_Z_/massReco_[event_id],AlphaExponent_)*weight;
-	      // 	  weight_sum_[mod]+=weight;
-	  
-	      
-	      //	  if(weight2 > 0.5) {
-	      
-	      
-	      //	  calib_fac_[mod] += weight2 * (TMath::Power((massReco_[event_id]*evweight / M_Z_), 2.) - 1) / 2.;
-	      //	  calib_fac_[mod]+= M_Z_ / massReco_[event_id]*weight2;
-	      
-	      // RP: nuova funzione
+
 		  float rescale = (TMath::Power((massReco_[event_id] / evweight), 2.) - 1) / 2.;
 #ifdef DEBUG
 		  std::cout << "rescale " << rescale << std::endl;		  
@@ -389,7 +345,7 @@ void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, calib::CalibEl
 		    {
 		      calib_fac_[mod] += weight2 * rescale;
 		      weight_sum_[mod]+= weight2;
-		      // PM 20050706: Filling Histograms for Fit Function
+
 		      thePlots_->weightedRescaleFactor[currentIteration_][mod]->Fill(rescale,weight2);
 		      thePlots_->unweightedRescaleFactor[currentIteration_][mod]->Fill(rescale,1.);
 		      thePlots_->weight[currentIteration_][mod]->Fill(weight2,1.);
@@ -399,10 +355,7 @@ void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, calib::CalibEl
 		      std::cout     << "[ZIterativeAlgorithmWithFit]::[getWeight]::rescale out " << rescale << std::endl;
 		    }
 		}
-	      //	    std::cout     << "Ring "  <<  mod << " - Calib_fac is  " << calib_fac_[mod] << " & weight sum is " << weight_sum_[mod] << std::endl;
-	      //	    cout << massReco_[event_id] << " - " << modules[imod].second << " - " << ele->electronSCE_ << endl;
-	      
-	      //}
+
 	    }
 	}
     } 
@@ -416,39 +369,10 @@ void ZIterativeAlgorithmWithFit::getWeight(unsigned int event_id, calib::CalibEl
 
 ZIterativeAlgorithmWithFit::~ZIterativeAlgorithmWithFit()
 {
-//   std::cout << "ZIterativeAlgorithmWithFit::Called Destructor" << std::endl;
-//   for (unsigned int i2 = 0; i2 < numberOfIterations_; i2++) 
-//     for (unsigned int i1 = 0; i1 < channels_; i1++)
-//       { 
-// 	if (thePlots_->weightedRescaleFactor[i1][i2])  
-// 	  delete thePlots_->weightedRescaleFactor[i1][i2];
-// 	if (thePlots_->unweightedRescaleFactor[i1][i2])  
-// 	  delete thePlots_->unweightedRescaleFactor[i1][i2];
-// 	if (thePlots_->weight[i1][i2])  
-// 	  delete thePlots_->weight[i1][i2];
-//       }
-  
-  //  if (eventData_) delete eventData_; //It seems that calling destructors for
-  //if (massReco_) delete massReco_;  // HepMatrix(Vector) is not implemented and
-  // gives segfault. PM 20030305 
+
 }
 
-float ZIterativeAlgorithmWithFit::findPeak(TH1F* histoou)
-{
-  double par[3];
-  double errpar[3];
-  TF1* fitFunc=gausfit(histoou,par,errpar,2.5,2.5);
-  
-  if (gMinuit->GetStatus() == 0)
-    return par[1];
-  else
-    {
-      std::cout << "MIGRAD has not converged"<< std::endl;
-      return -9999.;
-    }
-}
-
-TF1* ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errpar,float nsigmalow, float nsigmaup) {
+void ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errpar,float nsigmalow, float nsigmaup, double* myChi2, int* iterations) {
   TF1 *gausa = new TF1("gausa","gaus",histoou->GetMean()-3*histoou->GetRMS(),histoou->GetMean()+3*histoou->GetRMS());
   
   gausa->SetParameters(histoou->GetMaximum(),histoou->GetMean(),histoou->GetRMS());
@@ -469,7 +393,7 @@ TF1* ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
   int iter=0;
   TF1* fitFunc;
 
-  while ((chi2>1. && iter<10) || iter<2 )
+  while ((chi2>1. && iter<5) || iter<2 )
     {
       xmin_fit=p1-nsigmalow*sigma;
       xmax_fit=p1+nsigmaup*sigma;
@@ -485,10 +409,6 @@ TF1* ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
       //histoou->Fit("FitFunc","lR+","");
       histoou->Fit("FitFunc"+TString(suffix),"qR0+","");
       
-      //FIXME Controllo finale sul fit di fitfunc
-      //       const int kNoDraw = 1<<9;
-      //       histoou->GetFunction("FitFunc")->ResetBit(kNoDraw);
-      
       histoou->GetXaxis()->SetRangeUser(xmi,xma);
       histoou->GetXaxis()->SetLabelSize(0.055);
       
@@ -502,7 +422,9 @@ TF1* ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
       if (fitFunc->GetNDF()!=0)
         {
           chi2=fitFunc->GetChisquare()/(fitFunc->GetNDF());
-        }
+	  *myChi2 = chi2;
+ 
+	}
       else
         {
 	  chi2=100.;
@@ -522,6 +444,10 @@ TF1* ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
       p1=par[1];
       sigma=par[2];
       iter++;
+      *iterations = iter;
+
     }
-  return fitFunc;
+  return;
 }
+
+

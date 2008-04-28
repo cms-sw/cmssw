@@ -65,6 +65,12 @@ class ZIterativeAlgorithmWithFit
   
   const std::vector<float>& getOptimizedCoefficients() const { return optimizedCoefficients_; }
 
+  const std::vector<float>& getOptimizedCoefficientsError() const { return optimizedCoefficientsError_; }
+
+  const std::vector<float>& getOptimizedChiSquare() const { return optimizedChiSquare_; }
+
+  const std::vector<int>& getOptimizedIterations() const { return optimizedIterations_; }
+
   const std::vector<float>& getWeightSum() const { return weight_sum_; }
 
   const std::vector<float>& getEpsilonSum() const { return calib_fac_; }
@@ -79,13 +85,13 @@ class ZIterativeAlgorithmWithFit
     return ((cos(Phi1 - Phi2) + sinh(Eta1) * sinh(Eta2)) / (cosh(Eta1) * cosh(Eta2)));
   }
 
+  /*
   static TF1* gausfit(TH1F * histoou,double* par,double* errpar) {
     return gausfit(histoou,par,errpar,1.,2.);
   }
+  */
 
-  static float findPeak(TH1F* histoou);
-  
-  static TF1* gausfit(TH1F * histoou,double* par,double* errpar,float nsigmalow, float nsigmaup); 
+  static void gausfit(TH1F * histoou,double* par,double* errpar,float nsigmalow, float nsigmaup, double* mychi2, int* iterations); 
 
  private:
 
@@ -121,9 +127,12 @@ class ZIterativeAlgorithmWithFit
   std::vector< std::pair<calib::CalibElectron*,calib::CalibElectron*> > electrons_;
 
   std::vector<float> optimizedCoefficients_;
+  std::vector<float> optimizedCoefficientsError_;
   std::vector<float> calib_fac_;
   std::vector<float> weight_sum_;
   std::vector<float> massReco_;
+  std::vector<float> optimizedChiSquare_;
+  std::vector<int> optimizedIterations_;
 
   std::string massMethod;
 
