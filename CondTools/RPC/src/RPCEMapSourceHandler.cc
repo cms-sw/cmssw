@@ -50,7 +50,7 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
           m_to_transfer.push_back(std::make_pair((RPCEMap*)eMap,snc));
-          delete eMap;
+//          delete eMap;
         }
 
 //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
