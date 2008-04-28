@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/04/14 06:16:22 $
-$Revision: 1.6 $
+$Date: 2008/04/22 12:51:15 $
+$Revision: 1.7 $
 \author J. Mans - Minnesota
 */
 
@@ -24,9 +24,8 @@ $Revision: 1.6 $
 //    Make CaloTower inherit from LeafCandidate,
 //    add new members and accessors.
 
-using namespace reco;
 
-class CaloTower : public LeafCandidate {
+class CaloTower : public reco::LeafCandidate {
 public:
   typedef CaloTowerDetId key_type; // for SortedCollection
 
