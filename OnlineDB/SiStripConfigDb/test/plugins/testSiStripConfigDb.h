@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.h,v 1.1 2007/11/21 13:45:48 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.h,v 1.1 2008/03/26 09:13:11 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h,v $
 
@@ -36,13 +36,15 @@ class testSiStripConfigDb : public edm::EDAnalyzer {
 
   bool upload_;
 
+  bool conns_;
+
   bool devices_;
 
   bool feds_;
 
-  bool conns_;
-
   bool dcus_;
+
+  bool anals_;
   
 };
 

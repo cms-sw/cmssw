@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIdMap.cc,v 1.17 2008/04/24 16:02:34 bainbrid Exp $
+// Last commit: $Id: DcuDetIdMap.cc,v 1.18 2008/04/25 10:06:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,17 +11,17 @@ using namespace sistrip;
 SiStripConfigDb::DcuDetIdMap::range SiStripConfigDb::getDcuDetIdMap( std::string partition ) {
 
   // Check
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { 
+  if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
+       (  dbParams_.usingDbCache() && !databaseCache(__func__) ) ) { 
     return dcuDetIdMap_.emptyRange(); 
   }
   
   try {
 
-    if ( !dbParams_.usingDbCache_ ) { 
+    if ( !dbParams_.usingDbCache() ) { 
 
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions_.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions_.end();
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -89,8 +89,10 @@ SiStripConfigDb::DcuDetIdMap::range SiStripConfigDb::getDcuDetIdMap( std::string
     np = 1;
     nc = range.size();
   } else { 
-    range = DcuDetIdMap::range( dcuDetIdMap_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
-				dcuDetIdMap_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
+    if ( !dcuDetIdMap_.empty() ) {
+      range = DcuDetIdMap::range( dcuDetIdMap_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+				  dcuDetIdMap_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+    } else { range = dcuDetIdMap_.emptyRange(); }
     np = dcuDetIdMap_.size();
     nc = range.size();
   }
@@ -98,9 +100,9 @@ SiStripConfigDb::DcuDetIdMap::range SiStripConfigDb::getDcuDetIdMap( std::string
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Found " << nc << " FED connections";
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputDcuInfoXmlFiles().size() << " 'module.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in " << np << " database partition(s)"; } 
-  else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
+  if ( !dbParams_.usingDb() ) { ss << " in " << dbParams_.inputDcuInfoXmlFiles().size() << " 'module.xml' file(s)"; }
+  else { if ( !dbParams_.usingDbCache() )  { ss << " in " << np << " database partition(s)"; } 
+  else { ss << " from shared memory name '" << dbParams_.sharedMemory() << "'"; } }
   if ( dcuDetIdMap_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
 
@@ -131,10 +133,10 @@ void SiStripConfigDb::addDcuDetIdMap( std::string partition, std::vector<DcuDetI
     return; 
   }
 
-  SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-  SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  if ( iter == dbParams_.partitions_.end() ) { 
+  if ( iter == dbParams_.partitions().second ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
@@ -163,9 +165,10 @@ void SiStripConfigDb::addDcuDetIdMap( std::string partition, std::vector<DcuDetI
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Added " << dst.size() 
        << " DCU-DetId map to local cache for partition \""
-       << partition << "\"."
-       << " (Cache holds DCU-DetId map for " 
-       << dcuDetIdMap_.size() << " partitions.)";
+       << partition << "\"" << std::endl;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Cache holds DCU-DetId map for " 
+       << dcuDetIdMap_.size() << " partitions.";
     LogTrace(mlConfigDb_) << ss.str();
     
   } else {
@@ -196,7 +199,7 @@ void SiStripConfigDb::uploadDcuDetIdMap( std::string partition ) {
     AddAllDetId
   */
   
-//   if ( dbParams_.usingDbCache_ ) {
+//   if ( dbParams_.usingDbCache() ) {
 //     edm::LogWarning(mlConfigDb_)
 //       << "[SiStripConfigDb::" << __func__ << "]" 
 //       << " Using database cache! No uploads allowed!"; 
@@ -215,8 +218,8 @@ void SiStripConfigDb::uploadDcuDetIdMap( std::string partition ) {
 
 //   try {
     
-//     SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-//     SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+//     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+//     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
 //     for ( ; iter != jter; ++iter ) {
       
 //       if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -254,7 +257,7 @@ void SiStripConfigDb::uploadDcuDetIdMap( std::string partition ) {
 // 	// 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
 // 	// 	     << " Cannot find partition \"" << partition
 // 	// 	     << "\" in cached partitions list: \""
-// 	// 	     << dbParams_.partitions( dbParams_.partitions() ) 
+// 	// 	     << dbParams_.partitionNames( dbParams_.partitionNames() ) 
 // 	// 	     << "\", therefore aborting upload for this partition!";
 // 	// 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
 //       }
@@ -282,8 +285,8 @@ void SiStripConfigDb::clearDcuDetIdMap( std::string partition ) {
   DcuDetIdMap temporary_cache;
   if ( partition == ""  ) { temporary_cache = DcuDetIdMap(); }
   else {
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	DcuDetIdMap::range range = dcuDetIdMap_.find( iter->second.partitionName() );
@@ -303,11 +306,13 @@ void SiStripConfigDb::clearDcuDetIdMap( std::string partition ) {
   // Delete objects in local cache for specified partition (or all if not specified) 
   DcuDetIdMap::range dcus;
   if ( partition == "" ) { 
-    dcus = DcuDetIdMap::range( dcuDetIdMap_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
-			       dcuDetIdMap_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
+    if ( !dcuDetIdMap_.empty() ) {
+      dcus = DcuDetIdMap::range( dcuDetIdMap_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+				 dcuDetIdMap_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+    } else { dcus = dcuDetIdMap_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     dcus = dcuDetIdMap_.find( iter->second.partitionName() );
   }

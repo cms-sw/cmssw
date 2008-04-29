@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.25 2008/04/24 16:10:05 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.26 2008/04/25 10:06:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -13,17 +13,17 @@ using namespace sistrip;
 SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std::string partition ) {
 
   // Check
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { 
+  if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
+       (  dbParams_.usingDbCache() && !databaseCache(__func__) ) ) { 
     return feds_.emptyRange(); 
   }
 
   try {
 
-    if ( !dbParams_.usingDbCache_ ) { 
+    if ( !dbParams_.usingDbCache() ) { 
 
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions_.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions_.end();
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -64,11 +64,9 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Downloaded " << feds.size() 
 	       << " FED descriptions to local cache for partition \""
-	       << iter->second.partitionName() << "\" and version " 
-	       << iter->second.fedVersion().first << "." 
-	       << iter->second.fedVersion().second << std::endl;
+	       << iter->second.partitionName() << "\"" << std::endl;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
-	       << " Cache holds connections for " 
+	       << " Cache holds FED descriptions for " 
 	       << feds_.size() << " partitions.";
 	    LogTrace(mlConfigDb_) << ss.str();
 	    
@@ -113,9 +111,11 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
     feds = feds_.find( partition );
     np = 1;
     nc = feds.size();
-  } else { 
-    feds = FedDescriptions::range( feds_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
-				   feds_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
+  } else {  
+    if ( !feds_.empty() ) {
+      feds = FedDescriptions::range( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+				     feds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+    } else { feds = feds_.emptyRange(); }
     np = feds_.size();
     nc = feds.size();
   }
@@ -123,9 +123,9 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Found " << nc << " FED descriptions";
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFedXmlFiles().size() << " 'fed.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in " << np << " database partition(s)"; } 
-  else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
+  if ( !dbParams_.usingDb() ) { ss << " in " << dbParams_.inputFedXmlFiles().size() << " 'fed.xml' file(s)"; }
+  else { if ( !dbParams_.usingDbCache() )  { ss << " in " << np << " database partition(s)"; } 
+  else { ss << " from shared memory name '" << dbParams_.sharedMemory() << "'"; } }
   if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
   
@@ -157,10 +157,10 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
     return; 
   }
 
-  SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-  SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  if ( iter == dbParams_.partitions_.end() ) { 
+  if ( iter == dbParams_.partitions().second ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
@@ -189,9 +189,7 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Added " << feds.size() 
        << " FED descriptions to local cache for partition \""
-       << iter->second.partitionName() << "\" and version " 
-       << iter->second.fedVersion().first << "." 
-       << iter->second.fedVersion().second << std::endl;
+       << iter->second.partitionName() << "\"" << std::endl;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Cache holds FED descriptions for " 
        << feds_.size() << " partitions.";
@@ -213,7 +211,7 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
 // 
 void SiStripConfigDb::uploadFedDescriptions( std::string partition ) { 
   
-  if ( dbParams_.usingDbCache_ ) {
+  if ( dbParams_.usingDbCache() ) {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]" 
       << " Using database cache! No uploads allowed!"; 
@@ -232,8 +230,8 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
   
   try { 
 
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       
       if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -253,10 +251,8 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 	  std::stringstream ss;
 	  ss << "[SiStripConfigDb::" << __func__ << "]"
 	     << " Uploaded " << feds.size() 
-	     << " FED descriptions to DB/xml for partition \""
-	     << iter->second.partitionName() << "\" and version " 
-	     << iter->second.fedVersion().first << "." 
-	     << iter->second.fedVersion().second << ".";
+	     << " FED descriptions to database for partition \""
+	     << iter->second.partitionName() << "\"";
 	  LogTrace(mlConfigDb_) << ss.str();
 	  
 	} else {
@@ -274,7 +270,7 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
 // 	     << " Cannot find partition \"" << partition
 // 	     << "\" in cached partitions list: \""
-// 	     << dbParams_.partitions( dbParams_.partitions() ) 
+// 	     << dbParams_.partitionNames( dbParams_.partitionNames() ) 
 // 	     << "\", therefore aborting upload for this partition!";
 // 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
       }
@@ -303,8 +299,8 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   FedDescriptions temporary_cache;
   if ( partition == ""  ) { temporary_cache = FedDescriptions(); }
   else {
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	FedDescriptions::range range = feds_.find( iter->second.partitionName() );
@@ -327,11 +323,13 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   // Delete objects in local cache for specified partition (or all if not specified) 
   FedDescriptions::range feds;
   if ( partition == "" ) { 
-    feds = FedDescriptions::range( feds_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
-				   feds_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
+    if ( !feds_.empty() ) {
+      feds = FedDescriptions::range( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+				     feds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+    } else { feds = feds_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     feds = feds_.find( iter->second.partitionName() );
   }
@@ -446,8 +444,8 @@ SiStripConfigDb::FedIdsRange SiStripConfigDb::getFedIds( std::string partition )
   
   fedIds_.clear();
   
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { 
+  if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
+       (  dbParams_.usingDbCache() && !databaseCache(__func__) ) ) { 
     return std::make_pair( fedIds_.end(), fedIds_.end() );
   }
   

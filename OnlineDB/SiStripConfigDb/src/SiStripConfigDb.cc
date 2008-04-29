@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.62 2008/04/24 16:10:05 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.63 2008/04/25 10:06:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -112,8 +112,8 @@ void SiStripConfigDb::openDbConnection() {
   openConnection_ = true;
 
   // Establish database connection
-  if ( dbParams_.usingDb_ ) { 
-    if ( dbParams_.usingDbCache_ ) { usingDatabaseCache(); }
+  if ( dbParams_.usingDb() ) { 
+    if ( dbParams_.usingDbCache() ) { usingDatabaseCache(); }
     else { usingDatabase(); }
   } else { usingXmlFiles(); }
 
@@ -183,8 +183,9 @@ void SiStripConfigDb::clearLocalCache() {
   clearFedDescriptions();
   clearDcuDetIdMap();
 #ifdef USING_NEW_DATABASE_MODEL
-  analyses_.clear();
+  clearAnalysisDescriptions();
 #endif
+
   typedDevices_.clear();
   fedIds_.clear();
 
@@ -238,28 +239,28 @@ void SiStripConfigDb::usingDatabase() {
        << " Setting \"user/passwd@path\" to \""
        << user << "/" << passwd << "@" << path
        << "\" using 'CONFDB' environmental variable";
-    if ( dbParams_.user_ != null_ || 
-	 dbParams_.passwd_ != null_ || 
-	 dbParams_.path_ != null_ ) { 
+    if ( dbParams_.user() != null_ || 
+	 dbParams_.passwd() != null_ || 
+	 dbParams_.path() != null_ ) { 
       ss << " (Overwriting existing value of \""
-	 << dbParams_.user_ << "/" 
-	 << dbParams_.passwd_ << "@" 
-	 << dbParams_.path_ 
+	 << dbParams_.user() << "/" 
+	 << dbParams_.passwd() << "@" 
+	 << dbParams_.path() 
 	 << "\" read from .cfg file)";
     }
     LogTrace(mlConfigDb_) << ss.str() << std::endl;
     dbParams_.confdb( user, passwd, path );
 
-  } else if ( dbParams_.user_ != null_ && 
-	      dbParams_.passwd_ != null_ && 
-	      dbParams_.path_ != null_ ) { 
+  } else if ( dbParams_.user() != null_ && 
+	      dbParams_.passwd() != null_ && 
+	      dbParams_.path() != null_ ) { 
 
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"user/passwd@path\" to \""
-       << dbParams_.user_ << "/" 
-       << dbParams_.passwd_ << "@" 
-       << dbParams_.path_ 
+       << dbParams_.user() << "/" 
+       << dbParams_.passwd() << "@" 
+       << dbParams_.path() 
        << "\" using 'ConfDb' configurable read from .cfg file";
     LogTrace(mlConfigDb_) << ss.str();
 
@@ -285,33 +286,32 @@ void SiStripConfigDb::usingDatabase() {
        << " Setting \"partitions\" to \""
        << getenv( partition.c_str() )
        << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
-    if ( !dbParams_.partitions().empty() ) {
+    if ( !dbParams_.partitionNames().empty() ) {
       ss << " (Overwriting existing value of \""
-	 << dbParams_.partitions( dbParams_.partitions() )
+	 << dbParams_.partitionNames( dbParams_.partitionNames() )
 	 << "\" read from .cfg file)";
     }
     LogTrace(mlConfigDb_) << ss.str() << std::endl;
 
     // Build partitions from env. var.
-    std::vector<std::string> partitions = dbParams_.partitions( getenv( partition.c_str() ) );
+    std::vector<std::string> partitions = dbParams_.partitionNames( getenv( partition.c_str() ) );
     if ( !partitions.empty() ) {
-      dbParams_.partitions_.clear();
+      dbParams_.clearPartitions();
       std::vector<std::string>::iterator ii = partitions.begin();
       std::vector<std::string>::iterator jj = partitions.end();
       for ( ; ii != jj; ++ii ) {
-	dbParams_.partitions_[*ii] = SiStripPartition();
-	dbParams_.partitions_[*ii].partitionName() = *ii;
+	SiStripPartition partition( *ii );
+	dbParams_.addPartition( partition );
       }
     }
 
-  } else if ( !dbParams_.partitions().empty() ) {
+  } else if ( !dbParams_.partitionNames().empty() ) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"partitions\" to \""
-       << dbParams_.partitions( dbParams_.partitions() )
+       << dbParams_.partitionNames( dbParams_.partitionNames() )
        << "\" using 'PartitionName' configurables read from .cfg file";
     LogTrace(mlConfigDb_) << ss.str();
-
   } else { 
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -339,13 +339,13 @@ void SiStripConfigDb::usingDatabase() {
   }
 
   // Retrieve TNS_ADMIN from .cfg file and override
-  if ( !dbParams_.tnsAdmin_.empty() ) {
+  if ( !dbParams_.tnsAdmin().empty() ) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Overriding TNS_ADMIN value using cfg file!" << std::endl
        << "  Original value : \"" << tns_admin << "\"!" << std::endl
-       << "  New value      : \"" << dbParams_.tnsAdmin_ << "\"!";
-    tns_admin = dbParams_.tnsAdmin_;
+       << "  New value      : \"" << dbParams_.tnsAdmin() << "\"!";
+    tns_admin = dbParams_.tnsAdmin();
     edm::LogVerbatim(mlConfigDb_) << ss.str();
   }
   
@@ -363,8 +363,8 @@ void SiStripConfigDb::usingDatabase() {
     std::string line;
     while ( !tnsnames_ora.eof() ) {
       getline( tnsnames_ora, line );
-      if ( !dbParams_.path_.empty() && 
-	   line.find( dbParams_.path_ ) != std::string::npos ) { ok = true; }
+      if ( !dbParams_.path().empty() && 
+	   line.find( dbParams_.path() ) != std::string::npos ) { ok = true; }
     }
   } else {
     edm::LogWarning(mlConfigDb_)
@@ -377,13 +377,13 @@ void SiStripConfigDb::usingDatabase() {
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Found database account \"" 
-      << dbParams_.path_ << "\" in file \""
+      << dbParams_.path() << "\" in file \""
       << filename << "\"!";
   } else {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Cannot find database account \"" 
-      << dbParams_.path_ << "\" in file \""
+      << dbParams_.path() << "\" in file \""
       << filename << "\""
       << " Aborting connection to database...";
     return; 
@@ -394,20 +394,20 @@ void SiStripConfigDb::usingDatabase() {
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Creating DeviceFactory object...";
-    factory_ = new DeviceFactory( dbParams_.user_, 
-				  dbParams_.passwd_, 
-				  dbParams_.path_ ); 
+    factory_ = new DeviceFactory( dbParams_.user(), 
+				  dbParams_.passwd(), 
+				  dbParams_.path() ); 
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Created DeviceFactory object!";
   } catch (...) { 
     std::stringstream ss; 
     ss << "Failed to connect to database using parameters '" 
-       << dbParams_.user_ << "/" 
-       << dbParams_.passwd_ << "@" 
-       << dbParams_.path_ 
+       << dbParams_.user() << "/" 
+       << dbParams_.passwd() << "@" 
+       << dbParams_.path() 
        << "' and partitions '" 
-       << dbParams_.partitions( dbParams_.partitions() ) << "'";
+       << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
     handleException( __func__, ss.str() );
     return;
   }
@@ -419,34 +419,34 @@ void SiStripConfigDb::usingDatabase() {
        << " DeviceFactory created at address 0x" 
        << std::hex << std::setw(8) << std::setfill('0') << factory_ << std::dec
        << ", using database account with parameters '" 
-       << dbParams_.user_ << "/" 
-       << dbParams_.passwd_ << "@" 
-       << dbParams_.path_
+       << dbParams_.user() << "/" 
+       << dbParams_.passwd() << "@" 
+       << dbParams_.path()
        << "' and partitions '" 
-       << dbParams_.partitions( dbParams_.partitions() ) << "'";
+       << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL pointer to DeviceFactory!"
       << " Unable to connect to database using connection parameters '" 
-      << dbParams_.user_ << "/" 
-      << dbParams_.passwd_ << "@" 
-      << dbParams_.path_
+      << dbParams_.user() << "/" 
+      << dbParams_.passwd() << "@" 
+      << dbParams_.path()
       << "' and partitions '" 
-      << dbParams_.partitions( dbParams_.partitions() ) << "'";
+      << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
     return; 
   }
   
   try { 
-    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb_ ); 
+    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb() ); 
   } catch (...) { 
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
   
   // Check if should use current state, run number or versions
-  SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions_.begin();
-  SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions_.end();
+  SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions().first;
+  SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions().second;
   for ( ; ip != jp; ++ip ) { ip->second.update( this ); }
   
 }
@@ -459,12 +459,12 @@ void SiStripConfigDb::usingDatabaseCache() {
   SiStripDbParams temp;
   temp = dbParams_;
   dbParams_.reset();
-  dbParams_.usingDb_ = temp.usingDb_;
-  dbParams_.usingDbCache_ = temp.usingDbCache_;
-  dbParams_.sharedMemory_ = temp.sharedMemory_;
+  dbParams_.usingDb( temp.usingDb() );
+  dbParams_.usingDbCache( temp.usingDbCache() );
+  dbParams_.sharedMemory( temp.sharedMemory() );
   
   // Check shared memory name from .cfg file
-  if ( dbParams_.sharedMemory_.empty() ) {
+  if ( dbParams_.sharedMemory().empty() ) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Empty string for shared memory name!" 
@@ -479,14 +479,14 @@ void SiStripConfigDb::usingDatabaseCache() {
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Creating DbClient object...";
-    dbCache_ = new DbClient( dbParams_.sharedMemory_ );
+    dbCache_ = new DbClient( dbParams_.sharedMemory() );
     LogTrace(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Created DbClient object...";
   } catch (...) { 
     std::stringstream ss; 
     ss << "Failed to connect to database cache using shared memory name: '" 
-       << dbParams_.sharedMemory_ << "'!";
+       << dbParams_.sharedMemory() << "'!";
     handleException( __func__, ss.str() );
     return;
   }
@@ -499,14 +499,14 @@ void SiStripConfigDb::usingDatabaseCache() {
        << " DbClient object created at address 0x" 
        << std::hex << std::setw(8) << std::setfill('0') << dbCache_ << std::dec
        << " using shared memory name '" 
-       << dbParams_.sharedMemory_ << "'"; 
+       << dbParams_.sharedMemory() << "'"; 
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL pointer to DbClient object!"
       << " Unable to connect to database cache using shared memory name '" 
-      << dbParams_.sharedMemory_ << "'"; 
+      << dbParams_.sharedMemory() << "'"; 
     return; 
   }
   
@@ -552,7 +552,7 @@ void SiStripConfigDb::usingXmlFiles() {
   }
   
   try { 
-    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb_ );
+    deviceFactory(__func__)->setUsingDb( dbParams_.usingDb() );
   } catch (...) { 
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
@@ -566,8 +566,8 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Iterate through partitions
-  SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions_.begin();
-  SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions_.end();
+  SiStripDbParams::SiStripPartitions::const_iterator ip = dbParams_.partitions().first;
+  SiStripDbParams::SiStripPartitions::const_iterator jp = dbParams_.partitions().second;
   for ( ; ip != jp; ++ip ) {
     
     // Input module.xml file
@@ -685,12 +685,12 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Output module.xml file
-  if ( dbParams_.outputModuleXml_ == "" ) { 
+  if ( dbParams_.outputModuleXml() == "" ) { 
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'module.xml' file!"
       << " Setting to '/tmp/module.xml'...";
-    dbParams_.outputModuleXml_ = "/tmp/module.xml"; 
+    dbParams_.outputModuleXml() = "/tmp/module.xml"; 
   } else {
     try { 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -698,55 +698,55 @@ void SiStripConfigDb::usingXmlFiles() {
 #else
       FedFecConnectionDeviceFactory* factory = deviceFactory(__func__);
 #endif
-      factory->setOutputFileName( dbParams_.outputModuleXml_ ); 
+      factory->setOutputFileName( dbParams_.outputModuleXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'module.xml' file!" ); 
     }
   }
 
   // Output dcuinfo.xml file
-  if ( dbParams_.outputDcuInfoXml_ == "" ) { 
+  if ( dbParams_.outputDcuInfoXml() == "" ) { 
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'dcuinfo.xml' file!"
       << " Setting to '/tmp/dcuinfo.xml'...";
-    dbParams_.outputModuleXml_ = "/tmp/dcuinfo.xml"; 
+    dbParams_.outputModuleXml() = "/tmp/dcuinfo.xml"; 
   } else {
     try { 
       TkDcuInfoFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( dbParams_.outputDcuInfoXml_ ); 
+      factory->setOutputFileName( dbParams_.outputDcuInfoXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'dcuinfo.xml' file!" ); 
     }
   }
 
   // Output fec.xml file
-  if ( dbParams_.outputFecXml_ == "" ) {
+  if ( dbParams_.outputFecXml() == "" ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'fec.xml' file!"
       << " Setting to '/tmp/fec.xml'...";
-    dbParams_.outputFecXml_ = "/tmp/fec.xml";
+    dbParams_.outputFecXml() = "/tmp/fec.xml";
   } else {
     try { 
       FecDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( dbParams_.outputFecXml_ ); 
+      factory->setOutputFileName( dbParams_.outputFecXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'fec.xml' file!" ); 
     }
   }
 
   // Output fed.xml file
-  if ( dbParams_.outputFedXml_ == "" ) {
+  if ( dbParams_.outputFedXml() == "" ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'fed.xml' file!"
       << " Setting to '/tmp/fed.xml'...";
-    dbParams_.outputFedXml_ = "/tmp/fed.xml";
+    dbParams_.outputFedXml() = "/tmp/fed.xml";
   } else {
     try { 
       Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__func__);
-      factory->setOutputFileName( dbParams_.outputFedXml_ ); 
+      factory->setOutputFileName( dbParams_.outputFedXml() ); 
     } catch (...) { 
       handleException( __func__, "Problems setting output 'fed.xml' file!" ); 
     }
@@ -757,7 +757,7 @@ void SiStripConfigDb::usingXmlFiles() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::handleException( const std::string& method_name,
-				       const std::string& extra_info ) { //throw (cms::Exception) {
+				       const std::string& extra_info ) const { 
 
   std::stringstream ss;
   try {

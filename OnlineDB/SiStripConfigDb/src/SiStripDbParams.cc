@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.3 2008/04/21 09:32:21 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.4 2008/04/25 10:06:54 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -30,6 +30,27 @@ SiStripDbParams::SiStripDbParams() :
 // 
 SiStripDbParams::~SiStripDbParams() {
   partitions_.clear();
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripDbParams::addPartition( const SiStripPartition& in ) {
+  if ( in.partitionName() == "" ) {
+    std::stringstream ss;
+    ss << "[SiStripDbParams::" << __func__ << "]"
+       << " Attempting to add partition with null name!";
+    edm::LogWarning(mlConfigDb_) << ss.str();
+  }
+  SiStripPartitions::const_iterator iter = partitions_.find( in.partitionName() );
+  if ( iter != partitions_.end() ) { partitions_[in.partitionName()] = in; }
+  else {
+    std::stringstream ss;
+    ss << "[SiStripDbParams::" << __func__ << "]"
+       << " Partition with name \""
+       << in.partitionName()
+       << "\" already exists in cache!";
+    edm::LogWarning(mlConfigDb_) << ss.str();
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -135,7 +156,7 @@ void SiStripDbParams::confdb( const std::string& user,
 
 // -----------------------------------------------------------------------------
 // 
-std::vector<std::string> SiStripDbParams::partitions() const {
+std::vector<std::string> SiStripDbParams::partitionNames() const {
   std::vector<std::string> partitions;
   SiStripPartitions::const_iterator ii = partitions_.begin();
   SiStripPartitions::const_iterator jj = partitions_.end();
@@ -156,7 +177,7 @@ std::vector<std::string> SiStripDbParams::partitions() const {
 
 // -----------------------------------------------------------------------------
 // 
-std::vector<std::string> SiStripDbParams::partitions( std::string input ) const {
+std::vector<std::string> SiStripDbParams::partitionNames( std::string input ) const {
   std::istringstream ss(input);
   std::vector<std::string> partitions;
   std::string delimiter = ":";
@@ -167,7 +188,7 @@ std::vector<std::string> SiStripDbParams::partitions( std::string input ) const 
 
 // -----------------------------------------------------------------------------
 // 
-std::string SiStripDbParams::partitions( const std::vector<std::string>& partitions ) const {
+std::string SiStripDbParams::partitionNames( const std::vector<std::string>& partitions ) const {
   std::stringstream ss;
   std::vector<std::string>::const_iterator ii = partitions.begin();
   std::vector<std::string>::const_iterator jj = partitions.end();
@@ -234,6 +255,8 @@ std::ostream& operator<< ( std::ostream& os, const SiStripDbParams& params ) {
   return os;
 }
 
+// -----------------------------------------------------------------------------
+// 
 std::vector<std::string> SiStripDbParams::inputModuleXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();
@@ -242,6 +265,8 @@ std::vector<std::string> SiStripDbParams::inputModuleXmlFiles() const {
   return files;
 }
 
+// -----------------------------------------------------------------------------
+// 
 std::vector<std::string> SiStripDbParams::inputDcuInfoXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();
@@ -250,6 +275,8 @@ std::vector<std::string> SiStripDbParams::inputDcuInfoXmlFiles() const {
   return files;
 }
 
+// -----------------------------------------------------------------------------
+// 
 std::vector<std::string> SiStripDbParams::inputFecXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();
@@ -258,6 +285,8 @@ std::vector<std::string> SiStripDbParams::inputFecXmlFiles() const {
   return files;
 }
 
+// -----------------------------------------------------------------------------
+// 
 std::vector<std::string> SiStripDbParams::inputFedXmlFiles() const {
   std::vector<std::string> files;
   SiStripPartitions::const_iterator ii = partitions_.begin();

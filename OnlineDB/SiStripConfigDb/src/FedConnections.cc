@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.22 2008/04/24 16:02:34 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.23 2008/04/25 10:06:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,17 +12,17 @@ using namespace sistrip;
 SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::string partition ) {
 
   // Check
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { 
+  if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
+       (  dbParams_.usingDbCache() && !databaseCache(__func__) ) ) { 
     return connections_.emptyRange();
   }
   
   try {
     
-    if ( !dbParams_.usingDbCache_ ) { 
+    if ( !dbParams_.usingDbCache() ) { 
       
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions_.begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions_.end();
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -80,9 +80,10 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Dowloaded " << conns.size() 
 	       << " FED connections to local cache for partition \""
-	       << iter->second.partitionName() << "\"."
-	       << " (Cache holds connections for " 
-	       << connections_.size() << " partitions.)";
+	       << iter->second.partitionName() << "\"" << std::endl;
+	    ss << "[SiStripConfigDb::" << __func__ << "]"
+	       << " Cache holds FED connections for " 
+	       << connections_.size() << " partitions.";
 	    LogTrace(mlConfigDb_) << ss.str();
 	    
 	  }
@@ -127,8 +128,10 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
     np = 1;
     nc = conns.size();
   } else { 
-    conns = FedConnections::range( connections_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
-				   connections_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
+    if ( !connections_.empty() ) {
+      conns = FedConnections::range( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+				     connections_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+    } else { conns = connections_.emptyRange(); }
     np = connections_.size();
     nc = conns.size();
   }
@@ -136,9 +139,9 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Found " << nc << " FED connections";
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputModuleXmlFiles().size() << " 'module.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in " << np << " database partition(s)"; } 
-  else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
+  if ( !dbParams_.usingDb() ) { ss << " in " << dbParams_.inputModuleXmlFiles().size() << " 'module.xml' file(s)"; }
+  else { if ( !dbParams_.usingDbCache() )  { ss << " in " << np << " database partition(s)"; } 
+  else { ss << " from shared memory name '" << dbParams_.sharedMemory() << "'"; } }
   if ( connections_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
 
@@ -170,10 +173,10 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     return; 
   }
 
-  SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-  SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  if ( iter == dbParams_.partitions_.end() ) { 
+  if ( iter == dbParams_.partitions().second ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
@@ -202,9 +205,10 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Added " << conns.size() 
        << " FED connections to local cache for partition \""
-       << partition << "\"."
-       << " (Cache holds FED connections for " 
-       << connections_.size() << " partitions.)";
+       << partition << "\"" << std::endl;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Cache holds FED connections for " 
+       << connections_.size() << " partitions.";
     LogTrace(mlConfigDb_) << ss.str();
     
   } else {
@@ -223,7 +227,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
 // 
 void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 
-  if ( dbParams_.usingDbCache_ ) {
+  if ( dbParams_.usingDbCache() ) {
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]" 
       << " Using database cache! No uploads allowed!"; 
@@ -240,12 +244,12 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
     return; 
   }
 
-  if ( dbParams_.usingDb_ ) {
+  if ( dbParams_.usingDb() ) {
     
     try { 
       
-      SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-      SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
       for ( ; iter != jter; ++iter ) {
 
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -274,7 +278,7 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Uploaded " << conns.size() 
-	       << " FED connections to DB/xml for partition \""
+	       << " FED connections to database for partition \""
 	       << iter->second.partitionName() << "\".";
 	    LogTrace(mlConfigDb_) << ss.str();
 
@@ -293,7 +297,7 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 	  // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
 	  // 	     << " Cannot find partition \"" << partition
 	  // 	     << "\" in cached partitions list: \""
-	  // 	     << dbParams_.partitions( dbParams_.partitions() ) 
+	  // 	     << dbParams_.partitionNames( dbParams_.partitionNames() ) 
 	  // 	     << "\", therefore aborting upload for this partition!";
 	  // 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
 	}
@@ -306,13 +310,13 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
     
 #ifndef USING_NEW_DATABASE_MODEL
 
-    ofstream out( dbParams_.outputModuleXml_.c_str() );
+    ofstream out( dbParams_.outputModuleXml().c_str() );
     out << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>" << endl
 	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
 	<< "<TrackerDescription>" << endl
 	<< "<FedChannelList>" << endl;
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition == "" || partition == iter->second.partitionName() ) {
 	FedConnections::range range = connections_.find( iter->second.partitionName() );
@@ -352,8 +356,8 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   FedConnections temporary_cache;
   if ( partition == ""  ) { temporary_cache = FedConnections(); }
   else {
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	FedConnections::range range = connections_.find( iter->second.partitionName() );
@@ -373,11 +377,13 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   // Delete objects in local cache for specified partition (or all if not specified) 
   FedConnections::range conns;
   if ( partition == "" ) { 
-    conns = FedConnections::range( connections_.find( dbParams_.partitions_.begin()->second.partitionName() ).begin(),
-				   connections_.find( dbParams_.partitions_.rbegin()->second.partitionName() ).end() );
+    if ( !connections_.empty() ) {
+      conns = FedConnections::range( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+				     connections_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+    } else { conns = connections_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::iterator iter = dbParams_.partitions_.begin();
-    SiStripDbParams::SiStripPartitions::iterator jter = dbParams_.partitions_.end();
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     conns = connections_.find( iter->second.partitionName() );
   }

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.60 2008/04/24 16:02:33 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.61 2008/04/25 10:06:53 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -110,31 +110,40 @@ class SiStripConfigDb {
   // ---------- Typedefs ----------
 
 
+  // FED connections
 #ifdef USING_NEW_DATABASE_MODEL
   typedef ConnectionDescription FedConnection;
 #else
   typedef FedChannelConnectionDescription FedConnection;
 #endif
+  typedef std::vector<FedConnection*> FedConnectionV;
   typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
   
+  // Device descriptions
+  typedef enumDeviceType DeviceType;
   typedef deviceDescription DeviceDescription;
   typedef edm::MapOfVectors<std::string,DeviceDescription*> DeviceDescriptions;
-  typedef std::pair< std::vector<DeviceDescription*>::const_iterator, std::vector<DeviceDescription*>::const_iterator > DeviceDescriptionsRange;
-  
+  typedef std::vector<DeviceDescription*> DeviceDescriptionV;
+  typedef std::pair< DeviceDescriptionV::const_iterator, DeviceDescriptionV::const_iterator > DeviceDescriptionsRange;
+
+  // FED descriptions
   typedef Fed9U::Fed9UDescription FedDescription;
   typedef edm::MapOfVectors<std::string,FedDescription*> FedDescriptions;
   typedef std::pair< std::vector<uint16_t>::const_iterator, std::vector<uint16_t>::const_iterator > FedIdsRange;
-  
+
+  // DCU-DetId map
   typedef std::pair<uint32_t,TkDcuInfo*> DcuDetId; 
   typedef edm::MapOfVectors<std::string,DcuDetId> DcuDetIdMap; 
-  
+
+  // Analysis descriptions
 #ifdef USING_NEW_DATABASE_MODEL
   typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
 #else
   class CommissioningAnalysisDescription;
 #endif
   typedef CommissioningAnalysisDescription AnalysisDescription;
-  typedef std::vector<AnalysisDescription*> AnalysisDescriptions;
+  typedef std::vector<AnalysisDescription*> AnalysisDescriptionV;
+  typedef edm::MapOfVectors<std::string,AnalysisDescription*> AnalysisDescriptions;
 
 
   // ---------- Useful structs ----------
@@ -172,7 +181,7 @@ class SiStripConfigDb {
   inline const SiStripDbParams& dbParams() const;
   
   /** Returns whether using database or xml files. */
-  inline const bool& usingDb() const;
+  inline bool usingDb() const;
   
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DeviceFactory* const deviceFactory( std::string method_name = "" ) const;
@@ -208,8 +217,7 @@ class SiStripConfigDb {
 
   /** Returns (pair of iterators to) descriptions of given type. */
   /** (APV25, APVMUX, DCU, LASERDRIVER, PLL). */
-  DeviceDescriptionsRange getDeviceDescriptions( const enumDeviceType& type,
-						 std::string partition = "" );
+  DeviceDescriptionsRange getDeviceDescriptions( DeviceType, std::string partition = "" );
   
   /** Adds to local cache (just for given partition if specified). */
   void addDeviceDescriptions( std::string partition, std::vector<DeviceDescription*>& );
@@ -249,7 +257,7 @@ class SiStripConfigDb {
   FedIdsRange getFedIds( std::string partition = "" );
   
   /** Strip-level info enabled/disabled within FED descriptions. */
-  inline const bool& usingStrips() const;
+  inline bool usingStrips() const;
   
   /** Enables/disables strip-level info within FED descriptions. */
   inline void usingStrips( bool );
@@ -279,34 +287,26 @@ class SiStripConfigDb {
   
 #ifdef USING_NEW_DATABASE_MODEL
   
-  /** Returns analysis descriptions for given analysis type:
-      T_UNKNOWN, 
-      T_ANALYSIS_FASTFEDCABLING, 
-      T_ANALYSIS_TIMING,
-      T_ANALYSIS_OPTOSCAN, 
-      T_ANALYSIS_VPSPSCAN,
-      T_ANALYSIS_PEDESTAL, 
-      T_ANALYSIS_APVLATENCY, 
-      T_ANALYSIS_FINEDELAY,
-      T_ANALYSIS_CALIBRATION.
-  */
-  const AnalysisDescriptions& getAnalysisDescriptions( const AnalysisType& );
+  /** Returns local cache (just for given partition if specified). */
+  AnalysisDescriptions::range getAnalysisDescriptions( AnalysisType, std::string partition = "" );
   
-  /** Uploads all analysis descriptions in cache to DB/xml. Must be
-      called AFTER the upload of any hardware parameters. */
-  void uploadAnalysisDescriptions( bool use_as_calibrations_for_physics = false ); 
+  /** Adds to local cache (just for given partition if specified). */
+  void addAnalysisDescriptions( std::string partition, std::vector<AnalysisDescription*>& );
   
-  /** Appends analysis descriptions to internal cache. */
-  void createAnalysisDescriptions( AnalysisDescriptions& );
+  /** Uploads to database (just for given partition if specified). */
+  void uploadAnalysisDescriptions( bool calibration_for_physics = false, std::string partition = "" );
   
-  /** Creates analysis descriptions based on FEC cabling. */
-  void createAnalysisDescriptions( const SiStripFecCabling& ) {;}
+  /** Clears local cache (just for given partition if specified). */
+  void clearAnalysisDescriptions( std::string partition = "" );
+  
+  /** Prints local cache (just for given partition if specified). */
+  void printAnalysisDescriptions( std::string partition = "" );
   
   /** Extracts unique hardware address of device from description. */
   DeviceAddress deviceAddress( const AnalysisDescription& ); //@@ uses temp offsets!
   
-  /** */
-  std::string analysisType( const AnalysisType& analysis_type ) const;
+  /** Returns string for given analysis type. */
+  std::string analysisType( AnalysisType ) const;
   
 #endif
   
@@ -329,9 +329,9 @@ class SiStripConfigDb {
   /** */
   void usingXmlFiles();
   
-  /** Handles exceptions thrown by FEC and FED software. */
+  /** Handles exceptions thrown by software. */
   void handleException( const std::string& method_name,
-			const std::string& extra_info = "" );// throw (cms::Exception);
+			const std::string& extra_info = "" ) const;
   
   /** Checks whether file at "path" exists or not. */
   bool checkFileExists( const std::string& path );
@@ -415,10 +415,10 @@ class SiStripConfigDb {
 const SiStripDbParams& SiStripConfigDb::dbParams() const { return dbParams_; }
 
 /** Indicates whether DB (true) or XML files (false) are used. */
-const bool& SiStripConfigDb::usingDb() const { return dbParams_.usingDb_; }
+bool SiStripConfigDb::usingDb() const { return dbParams_.usingDb(); }
 
 /** Indicates whether FED strip info is uploaded/downloaded. */
-const bool& SiStripConfigDb::usingStrips() const { return usingStrips_; }
+bool SiStripConfigDb::usingStrips() const { return usingStrips_; }
 
 /** Switches on/off of upload/download for FED strip info. */
 void SiStripConfigDb::usingStrips( bool using_strips ) { usingStrips_ = using_strips; }
