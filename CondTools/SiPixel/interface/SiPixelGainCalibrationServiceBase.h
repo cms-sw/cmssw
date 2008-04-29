@@ -240,8 +240,13 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
 template<class thePayloadObject, class theDBRecordType>
 void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, const double value = -1) const
 {
-   std::cout << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
-  /* throw cms::Exception("SiPixelGainCalibration") */
+   std::cerr << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
+      << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead. For payload: " << payload << "  DETID: " 
+      << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
+
+   // really yell if this occurs
+
+   edm::LogError("SiPixelGainCalibrationService") << "[SiPixelGainCalibrationServicePayloadGetter::SiPixelGainCalibrationServicePayloadGetter]"
       << "[SiPixelGainCalibrationServicePayloadGetter] ERROR - Slow down, speed racer! You have tried to read the ped/gain on a pixel that is flagged as dead. For payload: " << payload << "  DETID: " 
       << detID << " col: " << col << " row: " << row << ". You must check if the pixel is dead before asking for the ped/gain value, otherwise you will get corrupt data! value: " << value << std::endl;
 }
