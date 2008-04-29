@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
-#     A. Parenti, DESY Hamburg    16-Apr-2008
+#     A. Parenti, DESY Hamburg    21-Apr-2008
 #     $Revision: 1.2 $
 #     $Date: 2008/04/14 19:19:47 $
 #
@@ -26,10 +26,14 @@ while (@ARGV) {
     if ($arg =~ "h") {
       $helpwanted = 1;
     }
-    elsif ($arg =~ "m") {
+    if ($arg =~ "m") {
       $fireMerge = 1;
     }
-    elsif ($arg =~ "u") {
+    if ($arg =~ "f") {
+# Run merge job even if some mille job are not "OK"
+      $forceMerge = 1;
+    }
+    if ($arg =~ "u") {
       $updateDb = 1;
     }
     $optionstring = "$optionstring$arg";
@@ -110,9 +114,17 @@ else {
 	    break;
 	}
     }
-    
+
     $i = $nJobs;
-    if ((@JOBSTATUS[$i] eq "SETUP") && ($mergeOK == 1)) {
+    if ((@JOBSTATUS[$i] eq "SETUP") && ($mergeOK==1 || $forceMerge==1)) {
+        if ($mergeOk!=1) { # some mille jobs are not OK
+          $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+          $mergeCfg =~ s/\n//;
+          # rewrite the mergeCfg, using only "OK" jobs
+          system "mps_merge.pl -c $cfgTemplate $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i] $nJobs";
+          # AP. Maybe mps_scriptm.pl needs also to be recalled?
+        }
+
 	print "bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
 	$result = `bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
 	print "     $result";
