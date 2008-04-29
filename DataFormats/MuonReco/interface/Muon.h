@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.40 2008/04/21 13:42:00 llista Exp $
+ * \version $Id: Muon.h,v 1.41 2008/04/29 17:39:20 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -28,8 +28,6 @@ namespace reco {
     Muon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
     /// create a clone
     Muon * clone() const;
-    /// define arbitration schemes
-    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration };
     
     ///
     /// ====================== TRACK BLOCK ===========================
@@ -101,6 +99,28 @@ namespace reco {
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
      
+    ///
+    /// ====================== SELECTOR BLOCK ===========================
+    ///
+    /// simple muon selection based on stored information inside the muon
+    /// object
+    enum SelectionType {
+         // basic types
+         GlobalMuonAll,
+	 TrackerMuonAll,
+	 StandAloneMuonAll,
+	 // track-muon match based selectors
+	 TMLastStationLoose,          
+	 TMLastStationTight, 
+	 TM2DCompatibilityLoose,      
+	 TM2DCompatibilityTight 
+    };
+    bool isGood( SelectionType type = GlobalMuonAll ) const;
+     
+    
+    /// define arbitration schemes
+    enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration };
+    
     ///
     /// ====================== USEFUL METHODs ===========================
     ///
