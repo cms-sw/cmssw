@@ -203,7 +203,7 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    {
       EcalRecHitCollection::const_iterator itt = hits->find(*it);
       EcalRecHit hit_p = *itt;
-      if (hit_p.energy() >= 0.027) 
+      if (hit_p.energy() >= -1.) 
 	  {
 		energy += hit_p.energy(); //JHaupt only add if greatr than 27 MeV... reevaluate this WARNING!!
 		if (hit_p.energy() > energySecond ) {energySecond = hit_p.energy(); detSec = (EBDetId )hit_p.id();}
