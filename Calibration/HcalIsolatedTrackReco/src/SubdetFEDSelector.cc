@@ -10,7 +10,7 @@ SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig)
   getMuon_=iConfig.getParameter<bool>("getMuon");
   getTrigger_=iConfig.getParameter<bool>("getTrigger");
   
-  rawInLabel_=iConfig.getParameter<edm::InputTag>("RawInputLabel");
+  rawInLabel_=iConfig.getParameter<edm::InputTag>("rawInputLabel");
 
   produces<FEDRawDataCollection>();
   

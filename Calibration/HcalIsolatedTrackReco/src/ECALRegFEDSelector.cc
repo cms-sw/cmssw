@@ -10,8 +10,7 @@ ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
   seedLabel_=iConfig.getParameter<edm::InputTag>("regSeedLabel");
   delta_=iConfig.getParameter<double>("delta");
   
-  rawInLabel_=iConfig.getParameter<edm::InputTag>("RawInputLabel");
-  
+  rawInLabel_=iConfig.getParameter<edm::InputTag>("rawInputLabel");
 
   ec_mapping = new EcalElectronicsMapping();
 

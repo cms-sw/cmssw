@@ -11,7 +11,7 @@ SiStripRegFEDSelector::SiStripRegFEDSelector(const edm::ParameterSet& iConfig)
   seedLabel_=iConfig.getParameter<edm::InputTag>("regSeedLabel");
   delta_=iConfig.getParameter<double>("delta");
   
-  rawInLabel_=iConfig.getParameter<edm::InputTag>("RawInputLabel");
+  rawInLabel_=iConfig.getParameter<edm::InputTag>("rawInputLabel");
 
   produces<FEDRawDataCollection>();
 }
