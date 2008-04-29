@@ -40,11 +40,13 @@ if (-f "${cfg}") then
 else echo "No old "$cfg
 endif
 
-set anroot = hf_LighCalRand$1.root
-set antxt  = hf_LighCalRand$1.txt
+set anroot = hf_LightCalRand$1.root
+set antxt  = hf_LightCalRand$1.txt
 
 cat > ${cfg} <<EOF
 process HFLIHGTCALRAND = {
+
+include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
 
         untracked PSet maxEvents = {untracked int32 input = ${nevents}}
         source = HcalTBSource {
@@ -82,15 +84,6 @@ process HFLIHGTCALRAND = {
 
         path p = { hcalDigis, LightCalRand}
 
-  es_module = HcalDbProducer {}
-  es_source es_hardcode = HcalHardcodeCalibrations { untracked vstring toGet = {"Pedestals", "PedestalWidths", "Gains", "GainWidths", "QIEShape", "QIEData", "ChannelQuality"}}
-
-  es_source es_ascii = HcalTextCalibrations { VPSet input = {
-                                                {string object = "ElectronicsMap"
-                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_v5_080208.txt"
-                                                }                                            
-    }
-  }
 }		
 EOF
 
@@ -104,7 +97,7 @@ endif
 echo "eval scramv1 runtime -csh"
 eval `scramv1 runtime -csh`
 
-set log = "hf_LighCalRand$1.log"
+set log = "hf_LightCalRand$1.log"
 if (-f "${log}") rm $log
 
 cmsRun ${cfg} > $log

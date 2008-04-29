@@ -46,6 +46,8 @@ set pretxt  = hf_PreLightCal$1.txt
 cat > ${cfgp} <<EOF
 process HFPRELIGHTCAL = {
 
+include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
+
         untracked PSet maxEvents = {untracked int32 input = 2000}
         source = HcalTBSource {
                 untracked vstring fileNames = {'file:${file}'}
@@ -81,15 +83,6 @@ process HFPRELIGHTCAL = {
         }
         path p1 = { hcalDigis, PreLightCal }
 
-  es_module = HcalDbProducer {}
-  es_source es_hardcode = HcalHardcodeCalibrations { untracked vstring toGet = {"Pedestals", "PedestalWidths", "Gains", "GainWidths", "QIEShape", "QIEData", "ChannelQuality"}}
-
-  es_source es_ascii = HcalTextCalibrations { VPSet input = {
-                                                {string object = "ElectronicsMap"
-                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_v5_080208.txt"
-                                                }
-    }
-  }
 }
 EOF
 
@@ -116,6 +109,8 @@ set antxt  = hf_LightCal$1.txt
 
 cat > ${cfg} <<EOF
 process HFLIGHTCAL = {
+
+include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
 
         untracked PSet maxEvents = {untracked int32 input = ${nevents}}
         source = HcalTBSource {
@@ -158,15 +153,6 @@ process HFLIGHTCAL = {
 
         path p = { hcalDigis, LightCal}
 
-  es_module = HcalDbProducer {}
-  es_source es_hardcode = HcalHardcodeCalibrations { untracked vstring toGet = {"Pedestals", "PedestalWidths", "Gains", "GainWidths", "QIEShape", "QIEData", "ChannelQuality"}}
-
-  es_source es_ascii = HcalTextCalibrations { VPSet input = {
-                                                {string object = "ElectronicsMap"
-                                                 FileInPath file = "CondFormats/HcalObjects/data/official_emap_v5_080208.txt"
-                                                }
-    }
-  }
 }		
 EOF
 
