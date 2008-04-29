@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/03/01 00:39:57 $
- * $Revision: 1.50 $
+ * $Date: 2008/03/10 18:00:44 $
+ * $Revision: 1.58 $
  * \author W Fisher
  *
 */
@@ -132,33 +132,33 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
-  if(debug_) printf("HcalMonitorModule: Destructor.....");
+  if(true /* debug_ */) printf("HcalMonitorModule: Destructor.....");
   
-  if (dbe_){    
-    if(digiMon_!=NULL) {  digiMon_->clearME();}
-    if(dfMon_!=NULL)   {  dfMon_->clearME();}
-    if(pedMon_!=NULL)  {  pedMon_->clearME();}
-    if(ledMon_!=NULL)  {  ledMon_->clearME();}
-    if(hotMon_!=NULL)  {  hotMon_->clearME();}
-    if(deadMon_!=NULL) {  deadMon_->clearME();}
-    if(mtccMon_!=NULL) {  mtccMon_->clearME();}
-    if(rhMon_!=NULL)   {  rhMon_->clearME();}
-    
-    dbe_->setCurrentFolder(rootFolder_);
-    dbe_->removeContents();
-  }
-  
-  if(digiMon_!=NULL) { delete digiMon_; digiMon_=NULL; }
-  if(dfMon_!=NULL) { delete dfMon_; dfMon_=NULL; }
-  if(pedMon_!=NULL) { delete pedMon_; pedMon_=NULL; }
-  if(ledMon_!=NULL) { delete ledMon_; ledMon_=NULL; }
-  if(hotMon_!=NULL) { delete hotMon_; hotMon_=NULL; }
-  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
-  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
-  if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
-  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
-  delete evtSel_; evtSel_ = NULL;
-
+// if (dbe_){    
+//   if(digiMon_!=NULL) {  digiMon_->clearME();}
+//   if(dfMon_!=NULL)   {  dfMon_->clearME();}
+//   if(pedMon_!=NULL)  {  pedMon_->clearME();}
+//   if(ledMon_!=NULL)  {  ledMon_->clearME();}
+//   if(hotMon_!=NULL)  {  hotMon_->clearME();}
+//   if(deadMon_!=NULL) {  deadMon_->clearME();}
+//   if(mtccMon_!=NULL) {  mtccMon_->clearME();}
+//   if(rhMon_!=NULL)   {  rhMon_->clearME();}
+//   
+//   dbe_->setCurrentFolder(rootFolder_);
+//   dbe_->removeContents();
+// }
+//
+//  if(digiMon_!=NULL) { delete digiMon_;  digiMon_=NULL; }
+//  if(dfMon_!=NULL) { delete dfMon_;     dfMon_=NULL; }
+//  if(pedMon_!=NULL) { delete pedMon_;   pedMon_=NULL; }
+//  if(ledMon_!=NULL) { delete ledMon_;   ledMon_=NULL; }
+//  if(hotMon_!=NULL) { delete hotMon_;   hotMon_=NULL; }
+//  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
+//  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
+//  if(rhMon_!=NULL) { delete rhMon_;     rhMon_=NULL; }
+//  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
+//  delete evtSel_; evtSel_ = NULL;
+//
 
 }
 
@@ -251,7 +251,7 @@ void HcalMonitorModule::endJob(void) {
 //--------------------------------------------------------
 void HcalMonitorModule::reset(){
 
-  if(debug_) cout << "HcalMonitorModule: reset...." << endl;
+  if(true /* debug_ */) cout << "HcalMonitorModule: reset...." << endl;
 
   if(rhMon_!=NULL)   rhMon_->reset();
   if(digiMon_!=NULL) digiMon_->reset();
