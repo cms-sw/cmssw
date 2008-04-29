@@ -38,7 +38,16 @@ towerMaker = cms.EDFilter("CaloTowersCreator",
     EcutTower = cms.double(-1000.0), ## GeV, -1000 means cut not used
 
     ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
-    HBWeight = cms.double(1.0)
+    HBWeight = cms.double(1.0),
+
+    # Method for momentum reconstruction
+    MomConstrMethod = cms.int32(0),
+    #Depth, fraction of the respective calorimeter [0,1]
+    MomEmDepth = cms.double(0),
+    MomHadDepth = cms.double(0),
+    MomTotDepth = cms.double(0)
+                          
+
 )
 
 
