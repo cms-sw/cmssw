@@ -30,6 +30,8 @@
   <class name="pat::Tau" />
   <class name="pat::Photon" />
   <class name="pat::Jet" />
+     <class name="std::vector<reco::CaloJet::Specific>" />
+     <class name="std::vector<reco::PFJet::Specific>"   />
   <class name="pat::MET" />
   <class name="pat::Particle" />
   <class name="pat::Hemisphere" />
