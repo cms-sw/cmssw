@@ -8,8 +8,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2007/08/17 16:22:40 $
- * $Revision: 1.9 $
+ * $Date: 2007/10/08 14:36:54 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -89,8 +89,8 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static const int NCHAMBERS[CSC_TYPES];
   static const int MAX_WG[CSC_TYPES];
   static const int MAX_HS[CSC_TYPES];
-  static const int ptype[CSCConstants::NUM_CLCT_PATTERNS];
-  static const int ptype_TMB07[CSCCathodeLCTProcessor::NUM_CLCT_PATTERNS_2007];
+  static const int ptype[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07];
+  static const int ptype_TMB07[CSCConstants::NUM_CLCT_PATTERNS];
 
   // LCT counters
   static int numALCT;
@@ -168,11 +168,11 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 
   // Histograms
   // ALCTs
-  TH1F *hAlctPerEvent, *hAlctPerChamber, *hAlctPerCSC;
+  TH1F *hAlctPerEvent, *hAlctPerChamber, *hAlctPerCSC, *hAlctCsc[CSC_TYPES];
   TH1F *hAlctValid, *hAlctQuality, *hAlctAccel, *hAlctCollis, *hAlctKeyGroup;
   TH1F *hAlctBXN;
   // CLCTs
-  TH1F *hClctPerEvent, *hClctPerChamber, *hClctPerCSC;
+  TH1F *hClctPerEvent, *hClctPerChamber, *hClctPerCSC, *hClctCsc[CSC_TYPES];
   TH1F *hClctValid, *hClctQuality, *hClctStripType, *hClctSign, *hClctCFEB;
   TH1F *hClctBXN;
   TH1F *hClctKeyStrip[2], *hClctPattern[2];
@@ -181,7 +181,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hLctTMBPerEvent, *hLctTMBPerChamber;
   TH1F *hLctTMBPerCSC, *hCorrLctTMBPerCSC;
   TH1F *hLctTMBEndcap, *hLctTMBStation, *hLctTMBSector, *hLctTMBRing;
-  TH1F *hLctTMBChamber[MAX_STATIONS];
+  TH1F *hLctTMBChamber[MAX_STATIONS], *hLctTMBCsc[CSC_TYPES];
   TH1F *hLctTMBValid, *hLctTMBQuality, *hLctTMBKeyGroup;
   TH1F *hLctTMBKeyStrip, *hLctTMBStripType;
   TH1F *hLctTMBPattern, *hLctTMBBend, *hLctTMBBXN;
@@ -221,7 +221,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hPhiDiffCsc[CSC_TYPES][5];
   TH2F *hPhiDiffVsStripCsc[CSC_TYPES][2];
   TH1F *hTrueBendCsc[CSC_TYPES];
-  TH1F *hPhiDiffPattern[CSCCathodeLCTProcessor::NUM_CLCT_PATTERNS_2007];
+  TH1F *hPhiDiffPattern[CSCConstants::NUM_CLCT_PATTERNS];
   // Efficiency histograms
   TH1F *hEfficHitsEta[MAX_STATIONS];
   TH1F *hEfficALCTEta[MAX_STATIONS], *hEfficCLCTEta[MAX_STATIONS];
