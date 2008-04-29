@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: TrackerToMuonPropagator.cc,v 1.1 2008/02/14 15:39:58 pivarski Exp $
+// $Id: TrackerToMuonPropagator.cc,v 1.1 2008/04/27 01:58:57 pivarski Exp $
 //
 //
 
@@ -34,6 +34,8 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 // references
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -52,6 +54,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
 //
 // class decleration
@@ -69,8 +72,11 @@ class TrackerToMuonPropagator : public edm::EDProducer {
       
       // ----------member data ---------------------------
 
-      edm::InputTag m_trackerTracks, m_globalMuons;
+      edm::InputTag m_globalMuons, m_globalMuonTracks;
       std::string m_propagator;
+
+      bool m_refitTracker;
+      TrackTransformer *m_trackTransformer;
 };
 
 //
@@ -86,9 +92,14 @@ class TrackerToMuonPropagator : public edm::EDProducer {
 //
 TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfig)
 {
-   m_trackerTracks = iConfig.getParameter<edm::InputTag>("trackerTracks");
    m_globalMuons = iConfig.getParameter<edm::InputTag>("globalMuons");
+   m_globalMuonTracks = iConfig.getParameter<edm::InputTag>("globalMuonTracks");
    m_propagator = iConfig.getParameter<std::string>("propagator");
+   m_refitTracker = iConfig.getParameter<bool>("refitTrackerTrack");
+   if (m_refitTracker) {
+      m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
+   }
+   else m_trackTransformer = NULL;
   
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
@@ -112,11 +123,13 @@ TrackerToMuonPropagator::~TrackerToMuonPropagator()
 void
 TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   edm::Handle<reco::TrackCollection> trackerTracks;
-   iEvent.getByLabel(m_trackerTracks, trackerTracks);
+   if (m_trackTransformer) m_trackTransformer->setServices(iSetup);
 
-   edm::Handle<reco::TrackCollection> globalMuons;
+   edm::Handle<reco::MuonCollection> globalMuons;
    iEvent.getByLabel(m_globalMuons, globalMuons);
+
+   edm::Handle<reco::TrackCollection> globalMuonTracks;
+   iEvent.getByLabel(m_globalMuonTracks, globalMuonTracks);
 
    edm::ESHandle<Propagator> propagator;
    iSetup.get<TrackingComponentsRecord>().get(m_propagator, propagator);
@@ -146,103 +159,96 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    // Remember which trajectory is associated with which track
    std::map<edm::Ref<std::vector<Trajectory> >::key_type, edm::Ref<reco::TrackCollection>::key_type> reference_map;
    edm::Ref<std::vector<Trajectory> >::key_type trajCounter = 0;
-   edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
 
-   for (reco::TrackCollection::const_iterator globalMuon = globalMuons->begin();  globalMuon != globalMuons->end();  ++globalMuon) {
-      trackCounter++;
+   for (reco::MuonCollection::const_iterator globalMuon = globalMuons->begin();  globalMuon != globalMuons->end();  ++globalMuon) {
 
-      // find a tracker hit on the globalMuon
-      trackingRecHit_iterator globalHit_ontracker = globalMuon->recHitsEnd();
-      for (trackingRecHit_iterator hit = globalMuon->recHitsBegin();  hit != globalMuon->recHitsEnd();  ++hit) {
-	 if ((*hit)->geographicalId().det() == DetId::Tracker) {
-	    globalHit_ontracker = hit;
-	    break;
-	 }
+      // get the counter for this global muon (that's why we needed to extract the collection explicitly
+      edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
+      reco::TrackCollection::const_iterator globalMuonTrack = globalMuonTracks->begin();
+      for (; globalMuonTrack != globalMuonTracks->end();  ++globalMuonTrack) {
+	 trackCounter++;
+	 if (fabs(globalMuon->combinedMuon()->phi() - globalMuonTrack->phi()) < 1e-10  &&
+	     fabs(globalMuon->combinedMuon()->eta() - globalMuonTrack->eta()) < 1e-10) break;
+      }
+      if (globalMuonTrack == globalMuonTracks->end()) {
+	 throw cms::Exception("BadConfig") << "The tracks label doesn't correspond to the same objects as the muons label" << std::endl;
       }
 
-      // if we found it...
-      if (globalHit_ontracker != globalMuon->recHitsEnd()) {
-	 unsigned int matchThisId = (*globalHit_ontracker)->geographicalId().rawId();
-	 LocalPoint matchThisPos = (*globalHit_ontracker)->localPosition();
+      TrajectoryStateOnSurface tracker_tsos;
+      DetId outerDetId;
+      if (m_refitTracker) {
+	 std::vector<Trajectory> trackerTrajectories = m_trackTransformer->transform(*globalMuon->track());
+	 if (trackerTrajectories.size() == 1) {
+	    const Trajectory trackerTrajectory = *(trackerTrajectories.begin());
+
+	    tracker_tsos = trackerTrajectory.lastMeasurement().forwardPredictedState();
+	    outerDetId = trackerTrajectory.lastMeasurement().recHit()->geographicalId();
+	 }
+	 else continue;
+      }
+      else {
+	 // get information about the outermost tracker hit
+	 GlobalPoint outerPosition(globalMuon->track()->outerPosition().x(), globalMuon->track()->outerPosition().y(), globalMuon->track()->outerPosition().z());
+	 GlobalVector outerMomentum(globalMuon->track()->outerMomentum().x(), globalMuon->track()->outerMomentum().y(), globalMuon->track()->outerMomentum().z());
+	 int charge = globalMuon->track()->charge();
+	 const reco::Track::CovarianceMatrix outerStateCovariance = globalMuon->track()->outerStateCovariance();
+	 outerDetId = DetId(globalMuon->track()->outerDetId());
+
+	 // construct the information necessary to make a TrajectoryStateOnSurface
+	 GlobalTrajectoryParameters globalTrajParams(outerPosition, outerMomentum, charge, &(*magneticField));
+	 CurvilinearTrajectoryError curviError(outerStateCovariance);
+	 FreeTrajectoryState tracker_state(globalTrajParams, curviError);
+
+	 // starting point for propagation into the muon system
+	 tracker_tsos = TrajectoryStateOnSurface(globalTrajParams, curviError, trackerGeometry->idToDet(outerDetId)->surface());
+      }
+
+      TrajectoryStateOnSurface last_tsos = tracker_tsos;
+
+      // loop over the muon hits, keeping track of the successful extrapolations
+      edm::OwnVector<TrackingRecHit> muonHits;
+      std::vector<TrajectoryStateOnSurface> TSOSes;
+      for (trackingRecHit_iterator hit = globalMuon->combinedMuon()->recHitsBegin();  hit != globalMuon->combinedMuon()->recHitsEnd();  ++hit) {
+	 DetId id = (*hit)->geographicalId();
+
+	 TrajectoryStateOnSurface extrapolation;
+	 bool extrapolated = false;
+	 if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
+	    extrapolation = propagator->propagate(last_tsos, dtGeometry->idToDet(id)->surface());
+	    extrapolated = true;
+	 }
+	 else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
+	    extrapolation = propagator->propagate(last_tsos, cscGeometry->idToDet(id)->surface());
+	    extrapolated = true;
+	 }
 	 
-	 // search for a tracker track with the same tracker hit
-	 reco::TrackCollection::const_iterator trackerTrack_match = trackerTracks->end();
-	 for (reco::TrackCollection::const_iterator trackerTrack = trackerTracks->begin();  trackerTrack != trackerTracks->end();  ++trackerTrack) {
-	    for (trackingRecHit_iterator hit = trackerTrack->recHitsBegin();  hit != trackerTrack->recHitsEnd();  ++hit) {
-	       if ((*hit)->geographicalId().rawId() == matchThisId  &&
-		   ((*hit)->localPosition() - matchThisPos).mag() < 1e-10) {
-		  trackerTrack_match = trackerTrack;
-		  break;
-	       } // end if match
-	    } // end loop over hits
-	 } // end loop over tracker tracks
-
-	 // if we found it...
-	 if (trackerTrack_match != trackerTracks->end()) {
-
-	    // get information about the outermost tracker hit
-	    GlobalPoint outerPosition(trackerTrack_match->outerPosition().x(), trackerTrack_match->outerPosition().y(), trackerTrack_match->outerPosition().z());
-	    GlobalVector outerMomentum(trackerTrack_match->outerMomentum().x(), trackerTrack_match->outerMomentum().y(), trackerTrack_match->outerMomentum().z());
-	    int charge = trackerTrack_match->charge();
-	    const reco::Track::CovarianceMatrix outerStateCovariance = trackerTrack_match->outerStateCovariance();
-	    DetId outerDetId = DetId(trackerTrack_match->outerDetId());
-
-	    // construct the information necessary to make a TrajectoryStateOnSurface
-	    GlobalTrajectoryParameters globalTrajParams(outerPosition, outerMomentum, charge, &(*magneticField));
-	    CurvilinearTrajectoryError curviError(outerStateCovariance);
-	    TrajectoryStateOnSurface state(globalTrajParams, curviError, trackerGeometry->idToDet(outerDetId)->surface());
-	    FreeTrajectoryState tracker_state(globalTrajParams, curviError);
-
-	    // starting point for propagation into the muon system
-	    TrajectoryStateOnSurface tracker_tsos(tracker_state, trackerGeometry->idToDet(outerDetId)->surface());
-	    TrajectoryStateOnSurface last_tsos(tracker_state, trackerGeometry->idToDet(outerDetId)->surface());
-
-	    // loop over the muon hits, keeping track of the successful extrapolations
-	    edm::OwnVector<TrackingRecHit> muonHits;
-	    std::vector<TrajectoryStateOnSurface> TSOSes;
-	    for (trackingRecHit_iterator hit = globalMuon->recHitsBegin();  hit != globalMuon->recHitsEnd();  ++hit) {
-	       DetId id = (*hit)->geographicalId();
-
-	       TrajectoryStateOnSurface extrapolation;
-	       bool extrapolated = false;
-	       if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
-		  extrapolation = propagator->propagate(last_tsos, dtGeometry->idToDet(id)->surface());
-		  extrapolated = true;
-	       }
-	       else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
-		  extrapolation = propagator->propagate(last_tsos, cscGeometry->idToDet(id)->surface());
-		  extrapolated = true;
-	       }
+	 if (extrapolated  &&  extrapolation.isValid()) {
+	    muonHits.push_back((*hit)->clone());
+	    TSOSes.push_back(extrapolation);
+	 }
+      } // end loop over standAloneMuon hits
 	 
-	       if (extrapolated  &&  extrapolation.isValid()) {
-		  muonHits.push_back((*hit)->clone());
-		  TSOSes.push_back(extrapolation);
-	       }
-	    } // end loop over standAloneMuon hits
-	 
-	    // if it has any successful extrapolations, make them into a Trajectory
-	    if (muonHits.size() > 0) {
-	       PTrajectoryStateOnDet *PTraj = transformer.persistentState(tracker_tsos, outerDetId.rawId());
-	       TrajectorySeed trajectorySeed(*PTraj, muonHits, alongMomentum);
-	       Trajectory trajectory(trajectorySeed, alongMomentum);
+      // if it has any successful extrapolations, make them into a Trajectory
+      if (muonHits.size() > 0) {
+	 PTrajectoryStateOnDet *PTraj = transformer.persistentState(tracker_tsos, outerDetId.rawId());
+	 TrajectorySeed trajectorySeed(*PTraj, muonHits, alongMomentum);
+	 Trajectory trajectory(trajectorySeed, alongMomentum);
 
-	       for (unsigned int i = 0;  i < muonHits.size();  i++) {
-		  TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(muonHits[i]), globalGeometry));
-		  TrajectoryStateOnSurface TSOS = TSOSes[i];
-		  trajectory.push(TrajectoryMeasurement(TSOS, TSOS, TSOS, hitPtr));
-	       } // end filling Trajectory
+	 for (unsigned int i = 0;  i < muonHits.size();  i++) {
+	    TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(muonHits[i]), globalGeometry));
+	    TrajectoryStateOnSurface TSOS = TSOSes[i];
+	    trajectory.push(TrajectoryMeasurement(TSOS, TSOS, TSOS, hitPtr));
+	 } // end filling Trajectory
 
-	       trajectoryCollection->push_back(trajectory);
+	 trajectoryCollection->push_back(trajectory);
 
-	       // Remember which Trajectory is associated with which Track
-	       trajCounter++;
-	       edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
-	       reference_map[trajCounter] = trackCounter;
+	 // Remember which Trajectory is associated with which Track
+	 trajCounter++;
+	 edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
+	 reference_map[trajCounter] = trackCounter;
 
-	    } // end if we have some good extrapolations
+      } // end if we have some good extrapolations
 
-	 } // end if we found the tracker track that matches this global track
-      } // end if we found any tracker hit on our globalMuon
    } // end loop over globalMuons
 
    unsigned int numTrajectories = trajectoryCollection->size();
@@ -256,7 +262,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    for (trajCounter = 0;  trajCounter < numTrajectories;  trajCounter++) {
       edm::Ref<reco::TrackCollection>::key_type trackCounter = reference_map[trajCounter];
 
-      trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(ohTrajs, trajCounter), edm::Ref<reco::TrackCollection>(globalMuons, trackCounter));
+      trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(ohTrajs, trajCounter), edm::Ref<reco::TrackCollection>(globalMuonTracks, trackCounter));
    }
    // and put it in the Event, also
    iEvent.put(trajTrackMap);
