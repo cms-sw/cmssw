@@ -118,10 +118,7 @@ float SiPixelGainCalibration::getPed(const int& col, const int& row, const Range
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
   if ((s.ped & 0xFF) == deadFlag_)
-  {
      isDead = true;
-     return 0.0;
-  }
   return decodePed(s.ped & 0xFF);  
 }
 
@@ -134,10 +131,7 @@ float SiPixelGainCalibration::getGain(const int& col, const int& row, const Rang
       << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
   }  
   if ((s.gain & 0xFF) == deadFlag_)
-  {
      isDead = true;
-     return 0.0;
-  }
   return decodeGain(s.gain & 0xFF);
 }
 

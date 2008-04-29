@@ -147,10 +147,7 @@ float SiPixelGainCalibrationOffline::getPed(const int& col, const int& row, cons
   }  
 
   if ((s.datum & 0xFF) == deadFlag_)
-  {
      isDead = true;
-     return 0.0;
-  }
 
   return decodePed(s.datum & 0xFF);  
 }
@@ -166,10 +163,7 @@ float SiPixelGainCalibrationOffline::getGain(const int& col, const int& row, con
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+(col)*(lengthOfColumnData) + ( (numberOfAveragedDataBlocksToSkip+1) * lengthOfAveragedDataInEachColumn) - 1);
 
   if ((s.datum & 0xFF) == deadFlag_)
-  {
      isDeadColumn = true;
-     return 0.0;
-  }
 
   int maxRow = lengthOfColumnData - (lengthOfColumnData % numberOfRowsToAverageOver_) - 1;
   if (col >= nCols || row > maxRow){
