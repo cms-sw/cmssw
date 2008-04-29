@@ -148,8 +148,8 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH2D*        MPV_Vs_Eta;
       TH2D*        MPV_Vs_R;
 
-      TH2D*        PD_Vs_Eta;
-      TH2D*        PD_Vs_R;
+//      TH2D*        PD_Vs_Eta;
+//      TH2D*        PD_Vs_R;
 
       TH1D*        APV_DetId;
       TH1D*        APV_PairId;
@@ -281,8 +281,8 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    MPV_Vs_Eta                 = new TH2D ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0, 1350, 0, 1350);
    MPV_Vs_R                   = new TH2D ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 1350, 0, 1350);
    
-   PD_Vs_Eta                  = new TH2D ("PD_Vs_Eta", "PD_Vs_Eta", 50, -3.0, 3.0, 500, 0, 100 );
-   PD_Vs_R                    = new TH2D ("PD_Vs_R"  , "PD_Vs_R"  , 150, 0.0, 150.0, 500, 0, 100);
+//   PD_Vs_Eta                  = new TH2D ("PD_Vs_Eta", "PD_Vs_Eta", 50, -3.0, 3.0, 500, 0, 100 );
+//   PD_Vs_R                    = new TH2D ("PD_Vs_R"  , "PD_Vs_R"  , 150, 0.0, 150.0, 500, 0, 100);
 
    NHighStripInCluster        = new TH1D ("NHighStripInCluster"        , "NHighStripInCluster"         ,15,0,14);
    Charge_Vs_PathLength_Sat   = new TH2D ("Charge_Vs_PathLength_Sat"   , "Charge_Vs_PathLength_Sat"    ,1000,0.2,1.4, 1000,0,2000);
@@ -421,6 +421,47 @@ SiStripGainFromData::algoEndJob() {
 */
 
 
+   if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 ){
+      TFile* file = NULL;
+      for(unsigned int f=0;f<VInputFiles.size();f++){
+         printf("Loading New Input File\n");
+         file =  new TFile( VInputFiles[f].c_str() ); if(file==NULL){printf("Bug With File %s\n",VInputFiles[f].c_str()); exit(0);}
+         APV_Charge               ->Add( (TH1*) file->FindObjectAny("APV_Charge")               , 1);
+         APV_Momentum             ->Add( (TH1*) file->FindObjectAny("APV_Momentum")             , 1);
+
+         Tracks_P_Vs_Eta          ->Add( (TH1*) file->FindObjectAny("Tracks_P_Vs_Eta")          , 1);
+         Tracks_Pt_Vs_Eta         ->Add( (TH1*) file->FindObjectAny("Tracks_Pt_Vs_Eta")         , 1);
+
+         Charge_Vs_PathTIB        ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathTIB")        , 1);
+         Charge_Vs_PathTID        ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathTID")        , 1);
+         Charge_Vs_PathTOB        ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathTOB")        , 1);
+         Charge_Vs_PathTEC        ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathTEC")        , 1);
+         Charge_Vs_PathTEC1       ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathTEC1")       , 1);
+         Charge_Vs_PathTEC2       ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathTEC2")       , 1);
+
+         HTrackChi2OverNDF        ->Add( (TH1*) file->FindObjectAny("TrackChi2OverNDF")         , 1);
+         HTrackHits               ->Add( (TH1*) file->FindObjectAny("TrackHits")                , 1);
+
+         NHighStripInCluster      ->Add( (TH1*) file->FindObjectAny("NHighStripInCluster")      , 1);
+         Charge_Vs_PathLength     ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathLength")     , 1);
+         Charge_Vs_PathLength320  ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathLength320")  , 1);
+         Charge_Vs_PathLength500  ->Add( (TH1*) file->FindObjectAny("Charge_Vs_PathLength500")  , 1);
+         Charge_Vs_TransversAngle ->Add( (TH1*) file->FindObjectAny("Charge_Vs_TransversAngle") , 1);
+         NStrips_Vs_TransversAngle->Add( (TH1*) file->FindObjectAny("NStrips_Vs_TransversAngle"), 1);
+         Charge_Vs_Alpha          ->Add( (TH1*) file->FindObjectAny("Charge_Vs_Alpha")          , 1);
+         NStrips_Vs_Alpha         ->Add( (TH1*) file->FindObjectAny("NStrips_Vs_Alpha")         , 1);
+
+
+
+         printf("Deleting Current Input File\n");
+         file->Close();
+         delete file;
+      }
+
+   }
+
+
+
 
    I=0;
    for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
@@ -458,17 +499,14 @@ SiStripGainFromData::algoEndJob() {
       delete PointerToHisto;
    }
 
-   cout << "F1" << endl;
-
    double MPVmean = MPVs->GetMean();
    for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
       stAPVPairGain* APV = it->second;
-      if(APV->MPV>0) APV->Gain = MPVmean / APV->MPV;
-      else           APV->Gain = 1;     
+      if(APV->MPV>0) APV->Gain = APV->MPV / MPVmean; // APV->MPV;
+      else           APV->Gain = 1;    
+      if(APV->Gain<=0) APV->Gain = 1;
       APV_Gain->Fill(APV->Index,APV->Gain); 
    }
-
-   cout << "F2" << endl;
 
 
    double* FitResults = new double[5]; TH1D* Proj;
@@ -482,9 +520,6 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   cout << "F3" << endl;
-
-
    for(int j=0;j<Charge_Vs_PathLength320->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_PathLength320->ProjectionY(" ",j-1,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
@@ -494,9 +529,6 @@ SiStripGainFromData::algoEndJob() {
       FWHM_Vs_PathLength320->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j)) );
       delete Proj;
    }
-
-   cout << "F4" << endl;
-
 
    for(int j=0;j<Charge_Vs_PathLength500->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_PathLength500->ProjectionY(" ",j-1,j,"e");
@@ -508,9 +540,6 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   cout << "F5" << endl;
-
-
    for(int j=0;j<Charge_Vs_PathTIB->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_PathTIB->ProjectionY(" ",j-1,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
@@ -518,8 +547,6 @@ SiStripGainFromData::algoEndJob() {
       MPV_Vs_PathTIB->SetBinError  (j, FitResults[1]/Charge_Vs_PathTIB->GetXaxis()->GetBinCenter(j));
       delete Proj;
    }
-
-   cout << "F6" << endl;
 
    for(int j=0;j<Charge_Vs_PathTID->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_PathTID->ProjectionY(" ",j-1,j,"e");
@@ -529,8 +556,6 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   cout << "F7" << endl;
-
    for(int j=0;j<Charge_Vs_PathTOB->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_PathTOB->ProjectionY(" ",j-1,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
@@ -539,8 +564,6 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   cout << "F8" << endl;
-
    for(int j=0;j<Charge_Vs_PathTEC->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_PathTEC->ProjectionY(" ",j-1,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
@@ -548,8 +571,6 @@ SiStripGainFromData::algoEndJob() {
       MPV_Vs_PathTEC->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC->GetXaxis()->GetBinCenter(j));
       delete Proj;
    }
-
-   cout << "F9" << endl;
 
    for(int j=0;j<Charge_Vs_PathTEC1->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_PathTEC1->ProjectionY(" ",j-1,j,"e");
@@ -567,9 +588,6 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   cout << "F10" << endl;
-
-
 
    for(int j=1;j<Charge_Vs_TransversAngle->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_TransversAngle->ProjectionY(" ",j-1,j,"e");
@@ -579,9 +597,6 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   cout << "F11" << endl;
-
-
    for(int j=1;j<Charge_Vs_Alpha->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_Alpha->ProjectionY(" ",j-1,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
@@ -590,9 +605,6 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   cout << "F12" << endl;
-
-
    for(int j=1;j<Charge_Vs_Beta->GetXaxis()->GetNbins();j++){
       Proj      = Charge_Vs_Beta->ProjectionY(" ",j-1,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
@@ -600,9 +612,6 @@ SiStripGainFromData::algoEndJob() {
       MPV_Vs_Beta->SetBinError  (j, FitResults[1]);
       delete Proj;
    }
-
-   cout << "F13" << endl;
-
 
    if( (strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) ){
       FILE* Gains = fopen(OutputGains.c_str(),"w");
@@ -615,20 +624,13 @@ SiStripGainFromData::algoEndJob() {
       fclose(Gains);
    }
 
-   cout << "F14" << endl;
-
    Output->cd();
    TObjString str1 = Form("_NEvents =  %i",NEvent);
    TObjString str2 = Form("_Begin Run =  %i Event = %i",0,0);
    TObjString str3 = Form("_End   Run =  %i Event = %i",9,9);
    str1.Write(); str2.Write(); str3.Write();
    Output->Write();
-   cout << "F15" << endl;
-
    Output->Close();
-
-   cout << "F16" << endl;
-
 }
 
 
@@ -725,8 +727,8 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    LocalVector          trackDirection = trajState.localDirection();
    double                  cosine      = trackDirection.z()/trackDirection.mag();
    const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
-   const vector<uint16_t>& Ampls       = Cluster->amplitudes();
-// const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
+// const vector<uint16_t>& Ampls       = Cluster->amplitudes();
+   const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
    uint32_t                DetId       = Cluster->geographicalId();
    int                     FirstStrip  = Cluster->firstStrip();
    int                     APVPairId   = FirstStrip/256;
@@ -872,8 +874,6 @@ void SiStripGainFromData::getPeakOfLandau(TH1* InputHisto, double* FitResults, d
 
 SiStripApvGain* SiStripGainFromData::getNewObject() 
 {
-   cout << "DB1" << endl;
-
   if( !(strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) )return NULL;
 
    SiStripApvGain * obj = new SiStripApvGain();
@@ -901,8 +901,6 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
       SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
       if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
    }
-
-   cout << "DB2" << endl;
 
    return obj;
 }
