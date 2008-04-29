@@ -11,7 +11,7 @@ public:
 	const unsigned short nERRORS, nWARNINGS;
 
 private:
-	std::vector<char*> sERROR,  sWARNING, sERROR_,  sWARNING_;
+	std::vector<char*> sERROR,  sWARNING, sERROR_,  sWARNING_, sDMBExpectedPayload, sDMBEventStaus;
 	long               bERROR,  bWARNING;
 	bool               fERROR  [29];//[nERRORS];
 	bool               fWARNING[5]; //[nWARNINGS];
@@ -20,6 +20,8 @@ private:
 	std::set<int>      fCHAMB_WRN[5];  // Set of chambers which contain particular warning
 	std::map<int,long> bCHAMB_ERR;     // chamber <=> errors in bits
 	std::map<int,long> bCHAMB_WRN;     // chamber <=> errors in bits
+	std::map<int,long> bCHAMB_PAYLOAD; //
+	std::map<int,long> bCHAMB_STATUS;  //
 	std::map<int,long> bDDU_ERR;       // ddu     <-> errors in bits
 	std::map<int,long> bDDU_WRN;       // ddu     <-> errors in bits
 
@@ -138,11 +140,24 @@ public:
 	const char* errorName  (int num) const { if(num>=0&&num<nERRORS)   return sERROR_[num];   else return ""; }
 	const char* warningName(int num) const { if(num>=0&&num<nWARNINGS) return sWARNING_[num]; else return ""; }
 
+	const char* payloadName(int num) const { if(num>=0&&num<13) return sDMBExpectedPayload[num]; else return ""; }
+	const char* statusName (int num) const { if(num>=0&&num<19) return sDMBEventStaus     [num]; else return ""; }
+
 	bool error  (int num) const { if(num>=0&&num<nERRORS)   return fERROR  [num]; else return 0; }
 	bool warning(int num) const { if(num>=0&&num<nWARNINGS) return fWARNING[num]; else return 0; }
 
 	std::set<int> chambersWithError  (int num) const { if(num>=0&&num<nERRORS)   return fCHAMB_ERR[num]; else return std::set<int>(); }
 	std::set<int> chambersWithWarning(int num) const { if(num>=0&&num<nWARNINGS) return fCHAMB_WRN[num]; else return std::set<int>(); }
+
+	long payloadForChamber(int chamber) const {
+		std::map<int,long>::const_iterator item = bCHAMB_PAYLOAD.find(chamber);
+		if( item != bCHAMB_PAYLOAD.end() ) return item->second; else return 0;
+	}
+
+	long statusForChamber(int chamber) const {
+		std::map<int,long>::const_iterator item = bCHAMB_STATUS.find(chamber);
+		if( item != bCHAMB_STATUS.end() ) return item->second; else return 0;
+	}
 
 	long errorsForChamber(int chamber) const {
 		std::map<int,long>::const_iterator item = bCHAMB_ERR.find(chamber);
