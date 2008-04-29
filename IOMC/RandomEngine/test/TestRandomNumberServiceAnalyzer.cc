@@ -13,9 +13,12 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 //
 // Original Author:  Chris Jones, David Dagenhart
 //         Created:  Tue Mar  7 11:57:09 EST 2006
-// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.2 2007/02/15 22:38:07 wdd Exp $
+// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.3 2008/01/29 20:56:16 marafino Exp $
 //
 //
+
+//#define JMMTEST
+#define ORIGINAL
 
 #include <memory>
 #include <iostream>
@@ -145,10 +148,19 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   // It is very important to use the "fire" method not "shoot".
   RandExponential expDist(engine);
   double mean = 10.0;  // Mean of the exponential
+#ifdef ORIGNAL
   for (int i = 0; i < 5; ++i) {
     randomNumber = expDist.fire(mean);
     outFile << randomNumber << "\n";
   }
+#endif
+
+#ifdef JMMTEST
+  for (int i = 0; i < 50000; ++i) {
+    randomNumber = expDist.fire(mean);
+    if(i%10000 == 1)  outFile << randomNumber << "\n";
+  }
+#endif
 
   outFile.close();
 }
