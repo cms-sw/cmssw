@@ -5,7 +5,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=DataFormats/TrajectorySeedCollection>
+<use name=DataFormats/TrajectorySeed>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FastSimulation/ParticlePropagator>
@@ -26,6 +26,7 @@
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackerRecHit2D>
+  <use name=DataFormats/TrajectorySeed>
   <use name=SimDataFormats/Track>
   <use name=RecoEgamma/EgammaElectronAlgos>
   <use name=TrackingTools/TrajectoryState>

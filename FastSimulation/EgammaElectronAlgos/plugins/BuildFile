@@ -1,6 +1,7 @@
 <library name="FastSimulationEgammaElectronAlgosPlugins" file="*.cc">
  <use name=DataFormats/EgammaReco>
  <use name=DataFormats/TrackerRecHit2D>
+ <use name=DataFormats/TrajectorySeed>
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=FWCore/ParameterSet>

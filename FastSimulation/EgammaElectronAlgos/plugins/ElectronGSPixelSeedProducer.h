@@ -17,7 +17,6 @@
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
   
 class ElectronGSPixelSeedGenerator;
-class SeedFilter;
 
 namespace edm { 
   class EventSetup;
@@ -44,8 +43,10 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
 		      HBHERecHitMetaCollection* mhbhe, 
 		      reco::SuperClusterRefVector& sclRefs);
 
+  /*
   //UB added
   void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
+  */
 
  private:
   // Input Tags
@@ -57,9 +58,6 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
 
   // Pixel Seed generator
   ElectronGSPixelSeedGenerator *matcher_;
-
-  // Seed filter
-  SeedFilter * seedFilter_;
 
   // A few collections (seeds and hcal hits)
   const HBHERecHitCollection* hithbhe_;
@@ -73,7 +71,6 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
   double SCEtCut_;
 
   bool fromTrackerSeeds_;
-  bool prefilteredSeeds_;
   
 };
   
