@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.12 2008/02/21 15:33:15 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.13 2008/04/11 16:09:41 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -74,110 +74,14 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     throw except;
   }     
 
-// Loop over parameters of type ParameterSet. Skip those with reserved names
-
-  std::string engineName;
-  uint32_t initialSeed;
-  std::vector<uint32_t> initialSeedSet;
-  VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
-  for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
-    if((*it != std::string("moduleEngines")) &&
-       (*it != std::string("moduleSeeds"))   &&
-       (*it != std::string("moduleSeedVectors"))) {
-      PSet secondary = iPSet.getParameter<edm::ParameterSet>(*it);
-      engineName = secondary.getUntrackedParameter<std::string>("engineName",std::string("HepJamesRandom"));
-      if(!isEngineNameValid(engineName)) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "The specified Random Engine name, " << engineName
-          << " does not correspond to a supported engine." ;
-      }
-
-// For the RanecuEngine case, require a seed set containing exactly two seeds.
-
-      if(engineName == std::string("RanecuEngine")) {
-        if(secondary.exists("initialSeedSet")) {
-          initialSeedSet = secondary.getUntrackedParameter<std::vector<uint32_t> >("initialSeedSet",empty_Vuint32);
-          uint32_t nSeeds = initialSeedSet.size();
-          uint32_t mSeeds = expectedSeedCount(engineName);
-          if(nSeeds != mSeeds) {
-            throw edm::Exception(edm::errors::Configuration)
-              << "RanecuEngine requires 2 seeds and "
-              << nSeeds << " seeds were\n"
-              << "specified in the configuration file for "
-              << "the module with label " << *it << "." ;
-          }
-          seedMap_[*it] = initialSeedSet;
-          CLHEP::HepRandomEngine* engine = new RanecuEngine();
-          engineMap_[*it] = engine;
-          if (initialSeedSet[0] > std::numeric_limits<uint32_t>::max() ||
-              initialSeedSet[1] > std::numeric_limits<uint32_t>::max()) {  // They need to fit in a 32 bit integer
-            throw edm::Exception(edm::errors::Configuration)
-              << "The RanecuEngine seeds should be in the range 0 to " << std::numeric_limits<uint32_t>::max() << " .\n"
-              << "The seeds passed to the RandomNumberGenerationService from the\n"
-     	         "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
-              << " (or one was negative\nor larger "
-                 "than a 32 bit unsigned integer).\nThis was for "
-              << "the module with label " << *it << ".";
-          }
-          long int seedL[2];
-          seedL[0] = static_cast<long int>(initialSeedSet[0]);
-          seedL[1] = static_cast<long int>(initialSeedSet[1]);
-          engine->setSeeds(seedL,0);
-        } else {
-          throw edm::Exception(edm::errors::Configuration)
-            << "No initial seed set was supplied for engine " << engineName
-            << ". Aborting." ;
-        }
-
-// For the other engines, require one seed each as follows:
-//   If a single seed is offered, accept it unconditionally.
-//   If a seed set is offered use the first element of the set unconditionally.
-//   If both are offered, preferentially use the first element of the set.
-
-      } else {
-        initialSeed = 0;
-        if(secondary.exists("initialSeed"))  {
-          initialSeed = secondary.getUntrackedParameter<uint32_t>("initialSeed",0);
-        }
-        if(secondary.exists("initialSeedSet"))  {
-          initialSeedSet = secondary.getUntrackedParameter<std::vector<uint32_t> >("initialSeedSet",empty_Vuint32);
-          initialSeed = initialSeedSet[0];
-        }
-        if(initialSeed == 0)  { 
-          throw edm::Exception(edm::errors::Configuration)
-            << "No initial seed was supplied for engine " << engineName
-            << ". Aborting." ;
-        }
-        seeds.clear();
-        seeds.push_back(initialSeed);
-        seedMap_[*it] = seeds;
-        if(engineName == "HepJamesRandom") {
-          if (initialSeed > 900000000) {
-            throw edm::Exception(edm::errors::Configuration)
-              << "The HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
-              << "The seed passed to the RandomNumberGenerationService from the\n"
-                 "configuration file was " << initialSeed
-              << " or negative or larger\n"
-                 "than a 32 bit unsigned integer.  This was for "
-              << "the module with label " << *it << ".";
-          }
-          long int seedL = static_cast<long int>(initialSeed);
-          CLHEP::HepRandomEngine* engine = new HepJamesRandom(seedL);
-          engineMap_[*it] = engine;
-        } else if(engineName == "TRandom3") {
-          CLHEP::HepRandomEngine* engine = new TRandomAdaptor(initialSeed);
-          engineMap_[*it] = engine;
-        }
-      }
-    }
-  }
-
   // Now get the seeds from the configuration file.  The seeds are used to initialize the
   // random number engines.  Each is associated with either the source or a module label.
   // If there is more than one seed required to initialize the engine type you want to use,
   // the vector form must be used.  Otherwise, either works.  The default engine only requires
   // one seed.  If both the vector seed and single seed commands appear in the configuration
   // file, then the vector form gets used and the other ignored.
+
+  std::string engineName;
 
   if(iPSet.exists("sourceSeedVector")) {
     seeds = iPSet.getUntrackedParameter<std::vector<uint32_t> >("sourceSeedVector");
