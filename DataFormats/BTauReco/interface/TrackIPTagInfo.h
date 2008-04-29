@@ -37,6 +37,11 @@ class TrackIPTagInfo : public JTATagInfo
   
   virtual ~TrackIPTagInfo() {}
   
+  /// clone
+  virtual TrackIPTagInfo * clone(void) const {
+    return new TrackIPTagInfo(*this);
+  }
+
  /**
    Check if probability information is globally available 
    impact parameters in the collection

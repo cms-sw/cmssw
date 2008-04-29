@@ -52,6 +52,11 @@ class SecondaryVertexTagInfo : public BaseTagInfo {
 			unsigned int vertexCandidates,
 			const TrackIPTagInfoRef &trackIPTagInfoRef);
 
+        /// clone
+        virtual SecondaryVertexTagInfo * clone(void) const {
+            return new SecondaryVertexTagInfo(*this);
+        }
+  
 	const TrackIPTagInfoRef &trackIPTagInfoRef() const
 	{ return m_trackIPTagInfoRef; }
 
