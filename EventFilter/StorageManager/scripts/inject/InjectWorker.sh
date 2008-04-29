@@ -1,7 +1,7 @@
 #!/bin/sh
-# $Id: InjectWorker.sh,v 1.4 2008/04/28 11:11:35 loizides Exp $
+# $Id: InjectWorker.sh,v 1.5 2008/04/29 11:25:25 loizides Exp $
 #
-#  ./InjectWorker.sh directory/file scripts [logdir errordir]
+#  ./InjectWorker.sh directory/file scripts [logdir errordir keepdir]
 #
 # or parse environment
 #
@@ -9,6 +9,7 @@
 #  $SW_IWSCRIPT for script
 #  $SM_IWLOGDIR for logdir
 #  $SM_IWERRORDIR for errordir
+#  $SM_IWKEEPDIR for keepdir
 #
 
 function exit_on_trap()
@@ -91,7 +92,22 @@ if test -n "$IW_ERRORDIR"; then
         if ! test -d "$IW_ERRORDIR"; then
             echo "ERROR $0: Error dir $IW_ERRORDIR can not be created." >> $IW_LOGFILE
             exit 125;
-           
+        fi
+    fi
+fi
+
+# test for IW_KEEPDIR
+if test -n "$5"; then
+    IW_KEEPDIR=$5
+else
+    IW_KEEPDIR=$SM_IWKEEPDIR
+fi
+if test -n "$IW_KEEPDIR"; then
+    if ! test -d "$IW_KEEPDIR"; then
+        mkdir -p $IW_KEEPDIR
+        if ! test -d "$IW_KEEPDIR"; then
+            echo "ERROR $0: Keep dir $IW_KEEPDIR can not be created." >> $IW_LOGFILE
+            exit 126;
         fi
     fi
 fi
@@ -135,11 +151,23 @@ while test 1 -gt 0; do
     IFILEDIR=`dirname  $IFILE`
     IFILEBAS=`basename $IFILE .notify`
 
-    TFILE=${IFILEDIR}/${IFILEBAS}.notifying
-    WFILE=${IFILEDIR}/${IFILEBAS}.notified
+    #tmp dir
+    TMPDIR=`mktemp -d`
+    TFILE=${TMPDIR}/${IFILEBAS}.notifying
+    KFILE=${IW_KEEPDIR}/${IFILEBAS}.notifying
+    TFIL1=${TMPDIR}/${IFILEBAS}.tmp1
+    TFIL2=${TMPDIR}/${IFILEBAS}.tmp2
+    WFILE=${TMPDIR}/${IFILEBAS}.notified
 
+    #make a copy
+    cp -a $IFILE $KFILE 
+    #move away
+    mv $IFILE $TFIL1
+    #remove quotes
+    tr -d "\"" < $TFIL1 > $TFIL2
     #rename to notifying
-    mv $IFILE $TFILE
+    mv $TFIL2 $TFILE
+    #create notified file
     touch $WFILE
 
     #process file
@@ -160,17 +188,19 @@ while test 1 -gt 0; do
     if test "$?" -eq 0; then
         rm -f $WFILE $TFILE
     else
-        echo "ERROR $0: Difference in files $WFILE $TFILE, not removed:"  >> $IW_LOGFILE
-        echo "---> `date`"  >> $IW_LOGFILE
-        diff $WFILE $TFILE >> $IW_LOGFILE 2>&1
+        echo "---> `date` <---"  >> $IW_LOGFILE
+        echo "ERROR $0: Difference in files: ${IFILEBAS}.notifying ${IFILEBAS}.notified" >> $IW_LOGFILE
         if test -n "$IW_ERRORDIR"; then
-            echo " $WFILE $TFILE, moved to $IW_LOGDIR."  >> $IW_LOGFILE
+            echo "Info $0: Moving files ${IFILEBAS}.notifying and ${IFILEBAS}.notified into $IW_LOGDIR."  >> $IW_LOGFILE
             mv $WFILE $TFILE $IW_ERRORDIR
         fi
     fi
 
     echo -n "Info $0: Finished file $IFILE at " >> $IW_LOGFILE
     echo `date` >> $IW_LOGFILE
+
+    #delete tmp
+    rm -rf $TMPDIR
 
     #reset signals
     trap exit_on_trap 1 2 9 15
