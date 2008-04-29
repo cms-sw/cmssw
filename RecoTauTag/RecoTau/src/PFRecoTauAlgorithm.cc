@@ -209,9 +209,5 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }
   }
 
-// for muon rejection
-myPFTau.setTauIdAgainstMuon();
-// end muon rejection
-
   return myPFTau;  
 }
