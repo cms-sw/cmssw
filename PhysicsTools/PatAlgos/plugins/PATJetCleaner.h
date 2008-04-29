@@ -1,5 +1,5 @@
 //
-// $Id: PATJetCleaner.h,v 1.3 2008/03/11 11:02:43 llista Exp $
+// $Id: PATJetCleaner.h,v 1.4 2008/03/12 16:13:27 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetCleaner.h,v 1.3 2008/03/11 11:02:43 llista Exp $
+  \version  $Id: PATJetCleaner.h,v 1.4 2008/03/12 16:13:27 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -27,6 +27,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
 
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 #include "PhysicsTools/PatUtils/interface/JetSelector.h"
@@ -72,11 +73,9 @@ namespace pat {
   };
 
   // now I'm typedeffing everything, but I don't think we really need all them
-  typedef PATJetCleaner<reco::Jet,reco::Jet>         PATBaseJetCleaner;
-  typedef PATJetCleaner<reco::PFJet,reco::PFJet>     PATPFJetCleaner;
-  typedef PATJetCleaner<reco::CaloJet,reco::CaloJet> PATCaloJetCleaner;
-  typedef PATJetCleaner<reco::PFJet,reco::Jet>       PATPF2BaseJetCleaner;   // I don't think we need this
-  typedef PATJetCleaner<reco::CaloJet,reco::Jet>     PATCalo2BaseJetCleaner; // nor this
+  typedef PATJetCleaner<reco::BasicJet,reco::BasicJet> PATBasicJetCleaner;
+  typedef PATJetCleaner<reco::CaloJet,reco::CaloJet>   PATCaloJetCleaner;
+  typedef PATJetCleaner<reco::PFJet,reco::PFJet>       PATPFJetCleaner;
 
 }
 

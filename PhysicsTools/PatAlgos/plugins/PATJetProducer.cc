@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.11 2008/04/22 14:09:10 jandrea Exp $
+// $Id: PATJetProducer.cc,v 1.13 2008/04/24 16:36:40 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -53,6 +53,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   genJetSrc_               = iConfig.getParameter<edm::InputTag>	      ( "genJetMatch" );
   addPartonJetMatch_       = iConfig.getParameter<bool> 		      ( "addPartonJetMatch" );
   partonJetSrc_            = iConfig.getParameter<edm::InputTag>	      ( "partonJetSource" );
+  addJetCorrFactors_       = iConfig.getParameter<bool>                       ( "addJetCorrFactors" );
   jetCorrFactorsSrc_       = iConfig.getParameter<edm::InputTag>              ( "jetCorrFactorsSource" );
   addResolutions_          = iConfig.getParameter<bool> 		      ( "addResolutions" );
   useNNReso_               = iConfig.getParameter<bool> 		      ( "useNNResolutions" );
@@ -136,7 +137,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // read in the jet correction factors ValueMap
   edm::Handle<edm::ValueMap<JetCorrFactors> > jetCorrs;
-  iEvent.getByLabel(jetCorrFactorsSrc_, jetCorrs);
+  if (addJetCorrFactors_) iEvent.getByLabel(jetCorrFactorsSrc_, jetCorrs);
 
   // Get the vector of jet tags with b-tagging info
   std::vector<edm::Handle<edm::ValueMap<float> > > jetDiscriminators;
@@ -174,14 +175,20 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     unsigned int idx = itJet - jets->begin();
     edm::RefToBase<JetType> jetRef = jets->refAt(idx); 
     Jet ajet(jetRef);
-    // ensure the internal storage of the jet constituents
-    if (embedCaloTowers_) ajet.setCaloTowers(jetRef->getConstituents());
 
-    // calculate the energy correction factors
-    const JetCorrFactors & jcf = (*jetCorrs)[jetRef];
-    ajet.setP4(jcf.scaleDefault() * itJet->p4());
-    ajet.setNoCorrFactor(1./jcf.scaleDefault());
-    ajet.setJetCorrFactors(jcf);
+    // ensure the internal storage of the jet constituents
+    if (ajet.isCaloJet() && embedCaloTowers_) {
+        const reco::CaloJet *cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());
+        ajet.setCaloTowers( cj->getConstituents() );
+    }
+
+    if (addJetCorrFactors_) {
+        // calculate the energy correction factors
+        const JetCorrFactors & jcf = (*jetCorrs)[jetRef];
+        ajet.setP4(jcf.scaleDefault() * itJet->p4());
+        ajet.setNoCorrFactor(1./jcf.scaleDefault());
+        ajet.setJetCorrFactors(jcf);
+    }
 
     // get the MC flavour information for this jet
     if (getJetMCFlavour_) {

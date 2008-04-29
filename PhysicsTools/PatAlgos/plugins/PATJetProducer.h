@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.h,v 1.4 2008/04/17 23:43:41 gpetrucc Exp $
+// $Id: PATJetProducer.h,v 1.5 2008/04/24 16:36:40 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetProducer.h,v 1.4 2008/04/17 23:43:41 gpetrucc Exp $
+  \version  $Id: PATJetProducer.h,v 1.5 2008/04/24 16:36:40 gpetrucc Exp $
 */
 
 
@@ -61,6 +61,7 @@ namespace pat {
       edm::InputTag            genJetSrc_;
       bool                     addPartonJetMatch_;
       edm::InputTag            partonJetSrc_;
+      bool                     addJetCorrFactors_;
       edm::InputTag            jetCorrFactorsSrc_;
       bool                     addResolutions_;
       bool                     useNNReso_;
