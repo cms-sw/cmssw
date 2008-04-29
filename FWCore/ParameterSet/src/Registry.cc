@@ -1,9 +1,10 @@
 // ----------------------------------------------------------------------
-// $Id: Registry.cc,v 1.8 2006/09/06 19:16:29 paterno Exp $
+// $Id: Registry.cc,v 1.9 2006/09/06 19:27:35 paterno Exp $
 //
 // ----------------------------------------------------------------------
 
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 
 namespace edm
@@ -42,8 +43,23 @@ namespace edm
       for (iter i=reg->begin(), e=reg->end(); i!=e; ++i)
 	fillme[i->first].pset_ = i->second.toStringOfTracked();
     }
-    
-
   } // namespace pset
+
+  edm::ParameterSet getProcessParameterSet()
+  {
+    edm::pset::Registry* reg = edm::pset::Registry::instance();
+    edm::ParameterSetID id = edm::pset::getProcessParameterSetID(reg);
+
+    edm::ParameterSet result;
+    if (!reg->getMapped(id, result))
+      throw edm::Exception(errors::EventCorruption, "Uknown ParameterSetID")
+	<< "Unable to find the ParameterSet for id: "
+	<< id
+	<< ";\nthis was supposed to be the process ParameterSet\n";
+
+    return result;
+  }
+
+
 } // namespace edm
 

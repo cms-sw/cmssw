@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.10 2007/03/04 05:45:42 wmtan Exp $
+// $Id: Registry.h,v 1.11 2007/06/14 04:55:59 wmtan Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
@@ -69,6 +69,8 @@ namespace edm
     void fill(Registry* reg, regmap_type& fillme);
 
   }  // namespace pset
+
+  ParameterSet getProcessParameterSet();
 
 }  // namespace edm
 
