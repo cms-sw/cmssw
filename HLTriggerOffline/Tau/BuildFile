@@ -20,7 +20,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<use name=FWCore/ServiceRegistry>
 <use name=PhysicsTools/UtilAlgos>
 <use name=SimDataFormats/HepMCProduct>
 <use name=Geometry/Records>
