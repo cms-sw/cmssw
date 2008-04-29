@@ -123,6 +123,7 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const
   if ((s.ped & 0xFF) == deadFlag_)
   {
      isDeadColumn = true;
+     return 0.0;
   }
 
   int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
@@ -145,6 +146,7 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, cons
   if ((s.gain & 0xFF) == deadFlag_)
   {
      isDeadColumn = true;
+     return 0.0;
   }
 
   int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
