@@ -44,7 +44,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   } else if (sCAlgo_str=="DynamicHybrid") {
     sCAlgo_ = reco::dynamicHybrid;
     fCorrPset = ps.getParameter<edm::ParameterSet>("dyn_fCorrPset"); 
-  } else if (sCAlgo_str=="FixedMatrix") {
+  } else if (sCAlgo_str=="Multi5x5") {
     sCAlgo_ = reco::fixedMatrix;
     fCorrPset = ps.getParameter<edm::ParameterSet>("fix_fCorrPset");
   } else {
