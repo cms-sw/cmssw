@@ -894,7 +894,7 @@
 		<SetYLabels>1='No Errors'|2='Any Error'|14='Unidentified buffer'|15='DDU Trailer bit error flag from hardware'|16='DDU Header Missing'|17='DDU Trailer Missing (overflow)'|18='DDU Trailer Missing (2 headers in a row)'|</SetYLabels>
 		<SetLeftMargin>0.3</SetLeftMargin>
 	</Histogram>
-	<Histogram>
+	<!--Histogram>
 		<Type>h2</Type>
 		<Prefix>EMU</Prefix>
 		<Name>Readout_Errors</Name>
@@ -914,7 +914,7 @@
 		<SetYLabels>12='Unidentified buffer'|13='DDU Trailer bit error flag from hardware'|14='DDU Header Missing'|15='DDU Trailer Missing (overflow)'|16='DDU Trailer Missing (2 headers in a row)'|</SetYLabels>
 		<SetLeftMargin>0.3</SetLeftMargin>
 		<SetXLabels>1='Number of Events'|</SetXLabels>
-	</Histogram>
+	</Histogram-->
 	<Histogram>
 		<Type>h1</Type>
 		<Prefix>EMU</Prefix>
@@ -1170,7 +1170,7 @@
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='No Warnings'|2='Any Input'|3='1'|4='2'|5='3'|6='4'|7='5'|8='6'|9='7'|10='8'|11='9'|12='10'|13='11'|14='12'|15='13'|16='14'|17='15'|</SetYLabels>
 	</Histogram>
-	<Histogram>
+	<!-- Histogram>
 		<Type>h2</Type>
 		<Prefix>EMU</Prefix>
 		<Name>BinaryChecker_Errors</Name>
@@ -1218,7 +1218,7 @@
 		<YTitle>Number of Events</YTitle>
 		<SetOptStat>emro</SetOptStat>
 		<Title>DDU Buffer Size</Title>
-	</Histogram>
+	</Histogram-->
 
 <!-- ========================================================================================
 # DDU Level histograms

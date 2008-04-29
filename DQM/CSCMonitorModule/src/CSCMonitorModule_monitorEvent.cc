@@ -66,8 +66,14 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
     //if fed has data then unpack it
     if ( fedData.size() >= 32 ) {
        
+/*  
+  
+  Removed as of not useful anymore (VR, 2008-04-29)
+
       // Filling in Buffer size histo with slight correction ;)
       if (MEEMU("Buffer_Size", me)) me->Fill(fedData.size() - 32);
+
+*/ 
 
       const short unsigned int *data = (short unsigned int *) fedData.data();
 
@@ -123,6 +129,10 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     }
   }
 
+/*  
+  
+  Removed as of not useful anymore (VR, 2008-04-29)
+
   if (examiner.errors() != 0) {
     if (MEEMU("BinaryChecker_Errors", me)) {
       for(int i=0; i < examiner.nERRORS; i++) { // run over all errors
@@ -138,6 +148,8 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
       }
     }
   }
+
+*/
 
   bool goodEvent = true;
 
