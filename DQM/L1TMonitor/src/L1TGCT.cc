@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/04/25 15:40:21 $
- * $Revision: 1.23 $
+ * $Date: 2008/04/28 09:23:07 $
+ * $Revision: 1.24 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.24  2008/04/28 09:23:07  tapper
+ * Added 1D eta and phi histograms for electrons and jets as input to Q tests.
+ *
  * Revision 1.23  2008/04/25 15:40:21  tapper
  * Added histograms to EventInfo//errorSummarySegments.
  *
@@ -177,12 +180,12 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 
   if (dbe) {
 
-    dbe->setCurrentFolder("L1T/L1TGCT/EventInfo/errorSummarySegments");
+    dbe->setCurrentFolder("L1T/EventInfo/errorSummarySegments");
 
-    l1GctSummIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhi", "ISO EM RANK", 
+    l1GctSummIsoEmRankEtaPhi_ = dbe->book2D("IsoEmRankEtaPhiSumm", "ISO EM RANK", 
                                             PHIBINS, PHIMIN, PHIMAX, 		    
                                             ETABINS, ETAMIN, ETAMAX);
-    l1GctSummNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhi", "NON-ISO EM RANK",
+    l1GctSummNonIsoEmRankEtaPhi_ = dbe->book2D("NonIsoEmRankEtaPhiSumm", "NON-ISO EM RANK",
                                                PHIBINS, PHIMIN, PHIMAX, 
                                                ETABINS, ETAMIN, ETAMAX);    
 
