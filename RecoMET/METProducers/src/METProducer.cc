@@ -6,6 +6,8 @@
 //--------------------------------------------
 #include <memory>
 #include "RecoMET/METProducers/interface/METProducer.h"
+#include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 //#include "DataFormats/METObjects/interface/METCollection.h"
@@ -40,7 +42,7 @@ namespace cms
   //    of MET inherit from RecoCandidate and merely extend that class with
   //    extra information)
   //-----------------------------------
-  METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() 
+  METProducer::METProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),alg_() 
   {
     inputLabel = iConfig.getParameter<edm::InputTag>("src");
     inputType  = iConfig.getParameter<std::string>("InputType");
@@ -52,7 +54,9 @@ namespace cms
     if(      METtype == "CaloMET" ) 
       produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
     else if( METtype == "GenMET" )  
-      produces<GenMETCollection>().setBranchAlias(alias.c_str());  
+      produces<GenMETCollection>().setBranchAlias(alias.c_str());
+    else if (METtype == "CaloMETSignif")
+      produces<CaloMETCollection>().setBranchAlias(alias.c_str());
     else                            
       produces<METCollection>().setBranchAlias(alias.c_str()); 
   }
@@ -116,6 +120,17 @@ namespace cms
       genmetcoll.reset (new GenMETCollection);
       genmetcoll->push_back( gen.addInfo(input, output) );
       event.put( genmetcoll );
+    }
+    //-----------------------------------
+    else if( METtype == "CaloMETSignif" ) 
+    {
+      SignCaloSpecificAlgo calo;
+      // first calculate all standard info. Then over-write the values used by the significance:
+      std::auto_ptr<CaloMETCollection> calometcoll; 
+      calometcoll.reset(new CaloMETCollection);
+      metsig::SignAlgoResolutions resolutions(conf_);
+      calometcoll->push_back( calo.addInfo(input, output, resolutions, noHF, globalThreshold) );
+      event.put( calometcoll );
     }
     //-----------------------------------
     else
