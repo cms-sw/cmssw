@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
-#     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/04/15 17:47:43 $
+#     A. Parenti, DESY Hamburg    24-Apr-2008
+#     $Revision: 1.3 $
+#     $Date: 2008/04/21 20:48:02 $
 #
 #  produce cfg file for merging run
 #
@@ -10,7 +10,11 @@
 #
 #  mps_merge.pl inCfg mergeCfg mergeDir njobs
 
-
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
+use Mpslib;
 
 $inCfg = "undefined";
 $mergeCfg = "undefined";
@@ -23,6 +27,10 @@ while (@ARGV) {
   if ($arg =~ /\A-/) {  # check for option 
     if ($arg =~ "h") {
       $helpwanted = 1;
+    }
+    elsif ($arg =~ "c") {
+# Check which jobs are "OK" and write just them to the cfg file
+      $checkok = 1;
     }
     elsif ($arg =~ "d") {
       $localdir = 1;
@@ -53,6 +61,10 @@ while (@ARGV) {
 if ($nJobs eq "undefined") {
   print "Insufficient information given\n";
   exit 1;
+}
+
+if ($checkok == 1) {
+  read_db();
 }
 
 # open the input file
@@ -131,6 +143,8 @@ for ($i=1; $i<=$nJobs; ++$i) {
   $sep = ",\n                ";
   if ($i == $nJobs) { $sep = "" ;}
 
+  if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
+
   $newName = sprintf "milleBinary%03d.dat",$i;
   print "Adding $newName to list of binary files\n";
   $newLine = "\"$newName\"$sep";
@@ -160,6 +174,8 @@ $treeList = "";
 for ($i=1; $i<=$nJobs; ++$i) {
   $sep = ",\n                ";
   if ($i == $nJobs) { $sep = "" ;}
+
+  if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
 
 #GF  $newName = sprintf "treeFile%03d.dat",$i;
   $newName = sprintf "treeFile%03d.root",$i;
