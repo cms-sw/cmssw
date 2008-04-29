@@ -12,6 +12,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include <fstream>
+using namespace std;
 
 /*****************************************************************************/
 ClusterShapeTrackFilter::ClusterShapeTrackFilter

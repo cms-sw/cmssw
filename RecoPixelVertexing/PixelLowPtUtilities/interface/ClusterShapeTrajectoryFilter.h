@@ -7,7 +7,6 @@
 #define MaxSize 20
 
 #include <vector>
-using namespace std;
 
 class SiPixelRecHit;
 class SiStripRecHit2D;
@@ -33,7 +32,7 @@ class ClusterShapeTrajectoryFilter : public TrajectoryFilter {
   private:
     bool processHit(const GlobalVector gdir, const SiPixelRecHit* recHit) const;
     bool processHit(const GlobalVector gdir, const SiStripRecHit2D* recHit) const;
-    bool isInside(const float a[2][2], pair<float,float> movement) const;
+    bool isInside(const float a[2][2], std::pair<float,float> movement) const;
 
     const TrackingGeometry* theTracker;
     const MagneticField* theMagneticField;

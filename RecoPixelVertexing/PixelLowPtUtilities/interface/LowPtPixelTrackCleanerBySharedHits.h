@@ -8,9 +8,6 @@
 #include <utility>
 #include <vector>
 
-using namespace std;
-using namespace pixeltrackfitting;
-
 class LowPtPixelTrackCleanerBySharedHits : public PixelTrackCleaner
 {
   public:
@@ -22,12 +19,12 @@ class LowPtPixelTrackCleanerBySharedHits : public PixelTrackCleaner
 
   private:
     int getLayer(const DetId & id);
-    bool hasCommonDetUnit (vector<const TrackingRecHit *> recHitsA,
-                           vector<const TrackingRecHit *> recHitsB,
-                           vector<DetId> detIds);
-    bool hasCommonLayer (vector<const TrackingRecHit *> recHitsA,
-                         vector<const TrackingRecHit *> recHitsB,
-                         vector<int> detLayers);
+    bool hasCommonDetUnit (std::vector<const TrackingRecHit *> recHitsA,
+                           std::vector<const TrackingRecHit *> recHitsB,
+                           std::vector<DetId> detIds);
+    bool hasCommonLayer (std::vector<const TrackingRecHit *> recHitsA,
+                         std::vector<const TrackingRecHit *> recHitsB,
+                         std::vector<int> detLayers);
 
 };
 

@@ -10,8 +10,6 @@
 
 #include <vector>
 
-using namespace std;
-
 #define MaxSize 20
 
 class PixelTripletFilterByClusterShape 
@@ -19,12 +17,12 @@ class PixelTripletFilterByClusterShape
   public:
     PixelTripletFilterByClusterShape(const edm::EventSetup& es);
     ~PixelTripletFilterByClusterShape();
-    bool checkTrack(vector<const TrackingRecHit*> recHits,
-                    vector<LocalVector> localDirs);
+    bool checkTrack(std::vector<const TrackingRecHit*> recHits,
+                    std::vector<LocalVector> localDirs);
 
   private:
     void loadClusterLimits();
-    bool isInside(double a[2][2], pair<double,double> movement);
+    bool isInside(double a[2][2], std::pair<double,double> movement);
     bool isCompatible(const SiPixelRecHit *recHit, const LocalVector& dir);
  
     const TrackerGeometry* theTracker;

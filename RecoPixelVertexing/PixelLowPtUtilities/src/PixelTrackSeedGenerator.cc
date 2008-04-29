@@ -31,6 +31,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+using namespace std;
+
 /*****************************************************************************/
 PixelTrackSeedGenerator::PixelTrackSeedGenerator(const edm::EventSetup& es)
 {

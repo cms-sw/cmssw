@@ -8,7 +8,6 @@
 
 #include <string>
 #include <vector>
-using namespace std;
 
 class PixelTrackSeedProducer : public edm::EDProducer {
  public:
@@ -17,7 +16,7 @@ class PixelTrackSeedProducer : public edm::EDProducer {
    virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 
  private:
-   vector<string> tripletList;
+   std::vector<std::string> tripletList;
 
    const edm::ParameterSet ps;
 };

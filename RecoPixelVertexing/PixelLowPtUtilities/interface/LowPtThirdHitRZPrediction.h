@@ -26,7 +26,6 @@ class TrackingRecHit;
 
 #include <vector>
 #include <utility>
-using namespace std;
 
 class LowPtThirdHitRZPrediction {
 public:
@@ -41,8 +40,8 @@ public:
   void getRanges(float rORz           , float phi[],float rz[]);
 
   bool isCompatibleWithMultipleScattering
-    (GlobalPoint g3, vector<const TrackingRecHit*> h,
-     vector<GlobalVector>& localDirs, const edm::EventSetup& es);
+    (GlobalPoint g3, std::vector<const TrackingRecHit*> h,
+     std::vector<GlobalVector>& localDirs, const edm::EventSetup& es);
 
 private:
   void initLayer(const DetLayer *layer);
@@ -52,11 +51,11 @@ private:
   void invertCircle(Global2DVector& c,float& r);
   void invertPoint (Global2DVector& p);
 
-  pair<float,float> findMinimalCircles (float r);
-  pair<float,float> findTouchingCircles(float r);
+  std::pair<float,float> findMinimalCircles (float r);
+  std::pair<float,float> findTouchingCircles(float r);
 
-  pair<float,float> findArcIntersection
-    (pair<float,float> a, pair<float,float> b, bool& keep);
+  std::pair<float,float> findArcIntersection
+    (std::pair<float,float> a, std::pair<float,float> b, bool& keep);
 
   void fitParabola
     (const float x[3], const float y[3], float par[3]);
@@ -84,7 +83,7 @@ private:
   float Bz, r0,rm;
   GlobalPoint    g1,g2;
   Global2DVector p1,p2,dif;
-  pair<float,float> arc_0m;
+  std::pair<float,float> arc_0m;
 
   bool keep;
 };

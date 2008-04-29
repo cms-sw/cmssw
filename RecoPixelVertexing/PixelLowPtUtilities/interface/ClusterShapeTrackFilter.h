@@ -14,8 +14,6 @@
 
 #include <vector>
 
-using namespace std;
-
 #define MaxSize 20
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
@@ -27,11 +25,11 @@ class ClusterShapeTrackFilter : public TrackHitsFilter
       (const edm::ParameterSet& ps,
        const edm::EventSetup& es);
     virtual ~ClusterShapeTrackFilter();
-    virtual bool operator()(const reco::Track*, vector<const TrackingRecHit *> hits) const;
+    virtual bool operator()(const reco::Track*, std::vector<const TrackingRecHit *> hits) const;
 
   private:
     void loadClusterLimits();
-    bool isInside(const double a[2][2], pair<double,double> movement) const;
+    bool isInside(const double a[2][2], std::pair<double,double> movement) const;
     bool isCompatible(const SiPixelRecHit *recHit, const LocalVector& dir) const;
  
     const TrackerGeometry* theTracker;

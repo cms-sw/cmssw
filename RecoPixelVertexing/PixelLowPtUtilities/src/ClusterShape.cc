@@ -6,6 +6,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include <fstream>
+using namespace std;
 
 /*****************************************************************************/
 ClusterShape::ClusterShape()

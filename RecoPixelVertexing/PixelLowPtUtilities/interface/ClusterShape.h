@@ -14,8 +14,6 @@
 
 #define MaxSize 20
 
-using namespace std;
-
 class ClusterShape
 {
  public:
@@ -26,7 +24,7 @@ class ClusterShape
 
  private:
    int getDirection(int low,int hig, int olow,int ohig);
-   bool processColumn(pair<int,int> pos, bool inTheLoop);
+   bool processColumn(std::pair<int,int> pos, bool inTheLoop);
    void determineShape
      (const PixelGeomDetUnit& pixelDet,
       const SiPixelRecHit& recHit,     ClusterData& data);

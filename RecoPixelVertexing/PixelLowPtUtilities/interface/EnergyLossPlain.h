@@ -9,8 +9,6 @@
 class SiPixelRecHit;
 class SiStripRecHit2D;
 
-using namespace std;
-
 class EnergyLossPlain
 {
   public:
@@ -19,18 +17,18 @@ class EnergyLossPlain
                     double pixelToStripExponent);
     ~EnergyLossPlain();
     int estimate(const Trajectory* trajectory,
-                 vector<pair<int,double> >& arithmeticMean,
-                 vector<pair<int,double> >&  truncatedMean);
+                 std::vector<std::pair<int,double> >& arithmeticMean,
+                 std::vector<std::pair<int,double> >&  truncatedMean);
   private:
-    double average (vector<double>& values);
-    double truncate(vector<double>& values);
-    double logTruncate(vector<double>& values);
+    double average (std::vector<double>& values);
+    double truncate(std::vector<double>& values);
+    double logTruncate(std::vector<double>& values);
     double expected(double Delta1, double Delta2);
 
     void process(LocalVector ldir,const SiPixelRecHit* recHit,
-                 vector<double>& values);
+                 std::vector<double>& values);
     void process(LocalVector ldir,const SiStripRecHit2D* recHit,
-                 vector<double>& values);
+                 std::vector<double>& values);
 
     const TrackerGeometry* theTracker;
     double pixelToStripMultiplier, pixelToStripExponent;

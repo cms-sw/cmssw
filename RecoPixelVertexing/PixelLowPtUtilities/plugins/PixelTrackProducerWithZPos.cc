@@ -63,7 +63,8 @@ class TransientTrackFromFTSFactory {
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
 
 #include <vector>
-
+using namespace std;
+using namespace reco;
 using namespace pixeltrackfitting;
 using namespace ctfseeding;
 using edm::ParameterSet;

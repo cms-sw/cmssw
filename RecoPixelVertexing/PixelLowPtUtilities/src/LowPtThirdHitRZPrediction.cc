@@ -16,6 +16,8 @@
 
 inline float sqr(float x) { return x*x; }
 
+using namespace std;
+
 /*****************************************************************************/
 LowPtThirdHitRZPrediction::LowPtThirdHitRZPrediction
   (float originRBound, float ptMin, GlobalPoint inner, GlobalPoint outer,

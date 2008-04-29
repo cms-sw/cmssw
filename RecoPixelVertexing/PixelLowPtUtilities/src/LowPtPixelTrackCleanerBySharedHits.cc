@@ -7,6 +7,9 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+using namespace std;
+using namespace pixeltrackfitting;
+
 /*****************************************************************************/
 class HitComparator
 {

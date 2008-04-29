@@ -37,6 +37,8 @@ typedef Vector2DBase<float,GlobalTag> Global2DVector;
 // m_e c^2
 #define Tmax 1.
 
+using namespace std;
+
 /*****************************************************************************/
 EnergyLossPlain::EnergyLossPlain
   (const TrackerGeometry* theTracker_,
@@ -190,7 +192,7 @@ void EnergyLossPlain::process
 
   // Collect adc
   double Delta = 0;
-  for(vector<uint8_t>::const_iterator
+  for(vector<uint16_t>::const_iterator
     i = (recHit->cluster()->amplitudes()).begin();
     i!= (recHit->cluster()->amplitudes()).end(); i++)
   {

@@ -9,6 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
+
 /*****************************************************************************/
 PixelTrackSeedProducer::PixelTrackSeedProducer(const edm::ParameterSet& ps_) :
 ps(ps_)

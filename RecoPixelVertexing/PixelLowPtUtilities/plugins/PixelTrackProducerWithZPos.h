@@ -20,9 +20,6 @@ class TrackingRegionProducer;
 class Track;
 
 
-using namespace std;
-using namespace reco;
-
 namespace edm { class Event; class EventSetup; }
 
 class PixelTrackProducerWithZPos :  public edm::EDProducer
@@ -34,7 +31,7 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
  
   private:
     void beginJob(const edm::EventSetup& es);
-    pair<float,float> refitWithVertex (const reco::Track & recTrack,
+    std::pair<float,float> refitWithVertex (const reco::Track & recTrack,
                                        const reco::VertexCollection* vertices);
 
     void store(edm::Event& ev,

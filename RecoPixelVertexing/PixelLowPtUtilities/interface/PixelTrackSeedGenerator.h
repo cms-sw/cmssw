@@ -21,7 +21,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include <vector>
-using namespace std;
 
 class PixelTrackSeedGenerator
 {

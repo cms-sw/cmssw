@@ -2,7 +2,6 @@
 #define _ClusterData_h_
 
 #include <utility>
-using namespace std;
 
 class ClusterData
 {
@@ -10,8 +9,8 @@ class ClusterData
    bool isInBarrel, isNormalOriented, isStraight,isComplete, isUnlocked;
    bool isXBorder;
    int posBorder;
-   pair<float,float> tangent;
-   pair<unsigned short int,short int> size;
+   std::pair<float,float> tangent;
+   std::pair<unsigned short int,short int> size;
 };
 
 #endif

@@ -13,6 +13,8 @@
 bool   PixelTripletFilterByClusterShape::isFirst = true;
 double PixelTripletFilterByClusterShape::limits[2][MaxSize + 1][MaxSize + 1][2][2][2];
 
+using namespace std;
+
 /*****************************************************************************/
 PixelTripletFilterByClusterShape::PixelTripletFilterByClusterShape
   (const edm::EventSetup& es)
