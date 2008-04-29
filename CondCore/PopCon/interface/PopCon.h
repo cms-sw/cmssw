@@ -95,7 +95,7 @@ namespace popcon {
       typedef typename Source::Container Container;
 
       initialize();
-      std::pair<Container * const, std::string const> ret = source(&m_dbService->connection(),
+      std::pair<Container const *, std::string const> ret = source(&m_dbService->connection(),
 							       m_tagInfo,m_logDBEntry); 
       Container const & payloads = *ret.first;
       m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; "+ret.second);

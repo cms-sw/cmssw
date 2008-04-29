@@ -40,7 +40,8 @@ void popcon::ExPedestalSource::getNewObjects() {
       "got offlineInfo"<<
     tagInfo().name << ", size " << tagInfo().size 
             << ", last object valid since " 
-	    << tagInfo().lastInterval.first << std::endl;  
+	    << tagInfo().lastInterval.first << " token "   
+            << tagInfo().lastPayloadToken << std::endl;
   
 
   if (tagInfo().size>0) {
@@ -70,8 +71,9 @@ void popcon::ExPedestalSource::getNewObjects() {
     size+=2;
   }
 
-  ostringstream ss << "num=" << m_number <<","
-		   << "firstSize=3," <<"lastSize=" << size-2; 
+  std::ostringstream ss; 
+  ss << "num=" << m_number <<","
+     << "firstSize=3," <<"lastSize=" << size-2; 
     
 
   m_userTextLog = ss.str()+";";

@@ -86,11 +86,11 @@ namespace popcon {
     }
 
     // this is the only mandatory interface
-    std::pair<Container * const, std::string const>  operator()(cond::Connection* connection,
+    std::pair<Container const *, std::string const>  operator()(cond::Connection* connection,
 				 cond::TagInfo const & tagInfo, 
 				 cond::LogDBEntry const & logDBEntry) const {
       const_cast<self*>(this)->initialize(connection, tagInfo, logDBEntry);
-      return make_pair< &const_cast<self*>(this)->returnData(), userTextLog);
+      return std::pair<Container const *, std::string const>(&(const_cast<self*>(this)->returnData()), userTextLog());
     }
     
     Container const &  returnData() {
