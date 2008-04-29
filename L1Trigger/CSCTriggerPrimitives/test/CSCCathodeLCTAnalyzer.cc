@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/10/08 14:32:56 $
- * $Revision: 1.9 $
+ * $Date: 2008/03/03 14:41:36 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -334,7 +334,8 @@ int CSCCathodeLCTAnalyzer::nearestHS(
   PSimHit matchedHit;
   bool hit_found = false;
   CSCDetId layerId;
-  static const int key_layer = isTMB07 ? 3 : CSCConstants::KEY_CLCT_LAYER;
+  static const int key_layer = isTMB07 ?
+    CSCConstants::KEY_CLCT_LAYER : CSCConstants::KEY_CLCT_LAYER_PRE_TMB07;
 
   vector<CSCCathodeLayerInfo>::const_iterator pli;
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) {
