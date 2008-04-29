@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: InjectWorker.sh,v 1.3 2008/04/25 16:41:47 loizides Exp $
+# $Id: InjectWorker.sh,v 1.4 2008/04/28 11:11:35 loizides Exp $
 #
 #  ./InjectWorker.sh directory/file scripts [logdir errordir]
 #
@@ -165,7 +165,7 @@ while test 1 -gt 0; do
         diff $WFILE $TFILE >> $IW_LOGFILE 2>&1
         if test -n "$IW_ERRORDIR"; then
             echo " $WFILE $TFILE, moved to $IW_LOGDIR."  >> $IW_LOGFILE
-            mv $WFILE $TFILE $IW_LOGDIR
+            mv $WFILE $TFILE $IW_ERRORDIR
         fi
     fi
 
