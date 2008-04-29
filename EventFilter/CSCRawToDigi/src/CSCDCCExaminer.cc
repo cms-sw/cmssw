@@ -730,7 +730,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       if( DAV_ALCT ) bCHAMB_PAYLOAD[currentChamber] |= 0x80;
       if( DAV_TMB  ) bCHAMB_PAYLOAD[currentChamber] |= 0x100;
       bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
-      bCHAMB_PAYLOAD[currentChamber] |= (buf_1[2]>>5)&0x001f);
+      bCHAMB_PAYLOAD[currentChamber] |=((buf_1[2]>>5)&0x001f);
     }
 
 
