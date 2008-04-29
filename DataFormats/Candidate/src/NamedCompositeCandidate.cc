@@ -1,4 +1,4 @@
-// $Id: NamedCompositeCandidate.cc,v 1.5.4.1 2007/11/30 13:16:01 llista Exp $
+// $Id: NamedCompositeCandidate.cc,v 1.1 2008/04/11 15:14:21 srappocc Exp $
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -13,31 +13,32 @@ NamedCompositeCandidate::NamedCompositeCandidate(std::string name,
   name_(name),
   roles_(roles)
 {
-  size_t n = c.numberOfDaughters();
-  if ( roles_.size() == n ) {
-    for(size_t i = 0; i != n; ++i)
-      addDaughter(*c.daughter(i), roles[i] );
-  } else {
-    for(size_t i = 0; i != n; ++i)
-      addDaughter(*c.daughter(i), "" );
+
+  // Check if there are the same number of daughters and roles
+  int N1 = roles_.size();
+  int N2 = numberOfDaughters();
+
+  if ( N1 != N2 ) {
+    throw cms::Exception("InvalidReference")
+      << "NamedCompositeCandidate constructor: Number of roles and daughters differ, this is an error. Name = " << name << "\n";
   }
 }
 
-NamedCompositeCandidate::~NamedCompositeCandidate() { }
+NamedCompositeCandidate::~NamedCompositeCandidate() { clearDaughters(); clearRoles(); }
 
 NamedCompositeCandidate * NamedCompositeCandidate::clone() const { return new NamedCompositeCandidate( * this ); }
 
 void NamedCompositeCandidate::applyRoles()
 {
 
+  // Check if there are the same number of daughters and roles
   int N1 = roles_.size();
   int N2 = numberOfDaughters();
-
   if ( N1 != N2 ) {
-    std::cout << "NamedCompositeCandidate: Number of roles and role candidates differ, exiting" << std::endl;
-    return;
+    throw cms::Exception("InvalidReference")
+      << "NamedCompositeCandidate::applyRoles : Number of roles and daughters differ, this is an error.\n";
   }
-
+  // Set up the daughter roles
   for ( int i = 0 ; i < N1; ++i ) {
     std::string role = roles_[i];
     Candidate * c = CompositeCandidate::daughter( i );
@@ -62,8 +63,8 @@ Candidate * NamedCompositeCandidate::daughter( std::string s )
   }
 
   if ( ret < 0 ) {
-    std::cout << "NamedCompositeCandidate::daughter: Cannot find role " << s << std::endl;
-    return 0;
+    throw cms::Exception("InvalidReference")
+      << "NamedCompositeCandidate::daughter: Cannot find role " << s << "\n";
   }
   
   return daughter(ret);
@@ -82,8 +83,8 @@ const Candidate * NamedCompositeCandidate::daughter( std::string s ) const
   }
 
   if ( ret < 0 ) {
-    std::cout << "NamedCompositeCandidate::daughter: Cannot find role " << s << std::endl;
-    return 0;
+    throw cms::Exception("InvalidReference")
+      << "NamedCompositeCandidate::daughter: Cannot find role " << s << "\n";
   }
   
   return daughter(ret);
@@ -95,9 +96,9 @@ void NamedCompositeCandidate::addDaughter( const Candidate & cand, std::string s
   role_collection::iterator begin = roles_.begin(), end = roles_.end();
   bool isFound = ( find( begin, end, s) != end );
   if ( isFound ) {
-    std::cout << "NamedCompositeCandidate::addDaughter: Already have role with name " << s 
-	      << ", please clearDaughters, or use a new name" << std::endl;
-    return;
+    throw cms::Exception("InvalidReference")
+      << "NamedCompositeCandidate::addDaughter: Already have role with name " << s 
+      << ", please clearDaughters, or use a new name\n";
   }
 
   roles_.push_back( s );
@@ -114,9 +115,9 @@ void NamedCompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, std::s
   role_collection::iterator begin = roles_.begin(), end = roles_.end();
   bool isFound = ( find( begin, end, s) != end );
   if ( isFound ) {
-    std::cout << "NamedCompositeCandidate::addDaughter: Already have role with name " << s 
-	      << ", please clearDaughters, or use a new name" << std::endl;
-    return;
+    throw cms::Exception("InvalidReference")
+      << "NamedCompositeCandidate::addDaughter: Already have role with name " << s 
+      << ", please clearDaughters, or use a new name\n";
   }
 
   roles_.push_back( s );
@@ -125,4 +126,12 @@ void NamedCompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, std::s
     c1->setName( s );
   }
   CompositeCandidate::addDaughter( cand );
+}
+
+
+void NamedCompositeCandidate::fixup() const {
+  size_t n = numberOfDaughters();
+  for( size_t i = 0; i < n; ++ i ) {
+    daughter( i )->addMother( this );
+  }
 }

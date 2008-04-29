@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: NamedCompositeCandidate.h,v 1.16.2.2 2007/11/30 13:16:01 llista Exp $
+ * \version $Id: NamedCompositeCandidate.h,v 1.1 2008/04/11 15:14:20 srappocc Exp $
  *
  */
 
@@ -73,7 +73,8 @@ namespace reco {
     // Apply the roles to the objects
     void                    applyRoles();
   private:
-
+    // Fix the candidate mothers
+    virtual void            fixup() const;
 
     std::string      name_;
     role_collection  roles_;
