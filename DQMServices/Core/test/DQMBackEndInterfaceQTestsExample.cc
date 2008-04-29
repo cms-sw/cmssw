@@ -28,7 +28,6 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/Core/interface/QTest.h"
 
 #include <TRandom.h>

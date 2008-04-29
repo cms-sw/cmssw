@@ -1,4 +1,3 @@
-#include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/Core/interface/QTest.h"
 
 #include <TH1F.h>
