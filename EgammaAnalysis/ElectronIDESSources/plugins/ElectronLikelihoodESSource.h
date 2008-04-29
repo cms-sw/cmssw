@@ -1,25 +1,3 @@
-// -*- C++ -*-
-//-----------------------------------------------------------------------
-//
-// Package:    
-//      EgammaAnalysis/ElectronIDESSource
-// Description:
-//      Class ElectronLikelihoodESSource
-//      class defining the Event Setup sources, where to take:
-//      PDFs, a priori probabilities, cluster shape Fisher setup
-//      
-// Original Authors:  Emanuele Di Marco, 
-//                    Pietro Govoni,
-//                    Chiara Ilaria Rovelli, 
-//                    Paolo Meridiani
-// Universita' di Roma "La Sapienza" and INFN Roma
-// Universita' di Milano "Bicocca" and INFN Milano
-//
-// Created:  Fri Jun  25 11:25:36 CEST 2007
-//
-//-----------------------------------------------------------------------
-
-
 #ifndef ElectronLikelihoodESSource_h
 #define ElectronLikelihoodESSource_h
 
@@ -27,8 +5,8 @@
 #include <fstream>
 #include <vector>
 #include "boost/shared_ptr.hpp"
-#include "EgammaAnalysis/ElectronIDAlgos/interface/ElectronLikelihood.h"
-#include "EgammaAnalysis/ElectronIDAlgos/interface/LikelihoodSwitches.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
+#include "RecoEgamma/ElectronIdentification/interface/LikelihoodSwitches.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
