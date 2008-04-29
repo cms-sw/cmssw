@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/28 16:49:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/23 14:41:52 $
+ *  $Revision: 1.3 $
  *  \author Massimiliano Chiorboli, updated NA 03/08
  */
 
@@ -49,8 +49,7 @@ ParametrizedMagneticFieldProducer::produce(const IdealMagneticFieldRecord& iReco
   } else if (version=="PolyFit2D") {
   // V. Maroussov polynomial fit to mapping data
     std::auto_ptr<MagneticField> result( new PolyFit2DParametrizedMagneticField(parameters));
-  //  return result;
-    return std::auto_ptr<MagneticField>(0);
+    return result;
   } else if (version=="OAE_85l_030919_t") {
     // Use old field - this should be replaced by OAE_85l_030919!!!
     float a = parameters.getParameter<double>("paramFieldRadius");
