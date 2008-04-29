@@ -150,7 +150,7 @@ void CSCOfflineMonitor::beginJob(edm::EventSetup const& iSetup){
       hStripPed.push_back(dbe->book1D("hStripPedMEp41","Pedestal Noise Distribution Chamber ME +4/1 ",50,-25.,25.));
       hStripPed.push_back(dbe->book1D("hStripPedMEp42","Pedestal Noise Distribution Chamber ME +4/2 ",50,-25.,25.));
 
-      hPedvsStrip = dbe->book2D("hPedvsStrip","Pedestal Noise Distribution",4000000,1000000.,5000000.,50,-25.,25.);
+      //hPedvsStrip = dbe->book2D("hPedvsStrip","Pedestal Noise Distribution",4000000,1000000.,5000000.,50,-25.,25.);
 
       // recHits
       dbe->setCurrentFolder("Muons/CSCOfflineMonitor/recHits");
@@ -542,8 +542,8 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
     if (kEndcap == 2) cEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
-    int kChamber = id.chamber();
-    int kLayer   = id.layer();
+    //int kChamber = id.chamber();
+    //int kLayer   = id.layer();
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
@@ -559,12 +559,12 @@ void CSCOfflineMonitor::analyze(const Event & event, const EventSetup& eventSetu
 	  kRing = 1;
 	  if(myStrip <= 16) myStrip += 64; // no trapping for any bizarreness
 	}
-      int globalStrip = cEndcap*( kStation*1000000 + kRing*100000 + kChamber*1000 + kLayer*100 + myStrip);
+      //int globalStrip = cEndcap*( kStation*1000000 + kRing*100000 + kChamber*1000 + kLayer*100 + myStrip);
       if (TotalADC > threshold) { thisStripFired = true;}
       if (!thisStripFired){
 	float ADC = thisSignal - thisPedestal;
 	hStripPedAll->Fill(ADC);
-	hPedvsStrip->Fill(globalStrip,ADC);
+	//hPedvsStrip->Fill(globalStrip,ADC);
         hStripPed[index]->Fill(ADC);
       }
     }

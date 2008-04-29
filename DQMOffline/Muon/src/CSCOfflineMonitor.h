@@ -107,7 +107,7 @@ private:
   // Pedestal Noise
   MonitorElement *hStripPedAll; 
   std::vector<MonitorElement*> hStripPed; 
-  MonitorElement *hPedvsStrip;
+  //MonitorElement *hPedvsStrip;
 
   // recHits
   MonitorElement *hRHCodeBroad;
