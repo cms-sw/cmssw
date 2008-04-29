@@ -11,10 +11,12 @@ class HLTPixelIsolTrackFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      edm::InputTag candTag_; // input tag identifying product contains filtered egammas
-      double maxptnearby;   // Ecal isolation threshold in GeV 
-      double minpttrack;        // number of egammas required
+      edm::InputTag candTag_; 
+      double maxptnearby;    
+      double minpttrack;        
       double maxetatrack;
+      bool filterE_;
+      double minEnergy_;
 };
 
-#endif //HLTEgammaEcalIsolFilter_h
+#endif 

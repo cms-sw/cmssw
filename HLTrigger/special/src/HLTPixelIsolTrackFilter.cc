@@ -21,6 +21,8 @@ HLTPixelIsolTrackFilter::HLTPixelIsolTrackFilter(const edm::ParameterSet& iConfi
   minpttrack = iConfig.getParameter<double> ("MinPtTrack");
   maxptnearby  = iConfig.getParameter<double> ("MaxPtNearby");
   maxetatrack  = iConfig.getParameter<double> ("MaxEtaTrack");
+  filterE_ = iConfig.getParameter<bool> ("filterTrackEnergy");
+  minEnergy_=iConfig.getParameter<double>("MinEnergyTrack");
 
   //register your products
   produces<trigger::TriggerFilterObjectWithRefs>();
@@ -49,12 +51,20 @@ bool HLTPixelIsolTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     {
       candref = edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
 
-      if ((candref->maxPtPxl()<maxptnearby)&&
+      if (!filterE_&&(candref->maxPtPxl()<maxptnearby)&&
 	  (candref->pt()>minpttrack)&&fabs(candref->track()->eta())<maxetatrack)
 	{
 	  filterproduct->addObject(trigger::TriggerTrack, candref);
 	  n++;
 	}
+      if (filterE_){
+      if ((candref->maxPtPxl()<maxptnearby)&&((candref->pt())*cosh(candref->track()->eta())>minEnergy_)&&fabs(candref->track()->eta())<maxetatrack)
+        {
+          filterproduct->addObject(trigger::TriggerTrack, candref);
+          n++;
+        }
+	}
+
     }
   
   
