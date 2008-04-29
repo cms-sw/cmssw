@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/03/06 21:19:54 $
-  * $Revision: 1.17 $
+  * $Date: 2008/03/07 19:06:09 $
+  * $Revision: 1.18 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -87,6 +87,8 @@ private:  ///Monitoring elements
     MonitorElement* CAPID_T0;
     MonitorElement* BQDIGI_NUM;
     MonitorElement* BQDIGI_FRAC;
+
+    std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
 
     std::map<HcalDetId, MonitorElement*> SHAPE;
   } hbHists, heHists, hfHists, hoHists;
