@@ -1,0 +1,15 @@
+2008-04-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-00
+	* reimplementation: the configuration of the service allows to
+	specify a *vector* of prescales for each path in the configuration
+	* This is necessary for dynamic prescale changes at run time
+	initiated by the level1 trigger
+	* Currently, a check is missing that (1) each provided path is
+	actually in the configuration and (2) that each path in the
+	configuration has at most one HLTPrescaler: HLTPrescaler modules
+	are going to update their individual prescaleFactor at the
+	beginning of each lumi block, by querying the PrescaleService,
+	providing the current *pathname* as key!
+	
+
