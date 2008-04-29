@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaDauFilter.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJet.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaGamma.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZJet.h"
@@ -31,6 +32,7 @@
 
 DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilter);
+  DEFINE_ANOTHER_FWK_MODULE(PythiaDauFilter);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaJet);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterGammaGamma);
   DEFINE_ANOTHER_FWK_MODULE(PythiaFilterZJet);
