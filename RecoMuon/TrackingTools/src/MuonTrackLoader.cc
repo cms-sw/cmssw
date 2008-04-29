@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/03/20 13:18:03 $
- *  $Revision: 1.61 $
+ *  $Date: 2008/04/15 12:03:37 $
+ *  $Revision: 1.62 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -343,6 +343,191 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
   return event.put(trackLinksCollection);
 }
+
+OrphanHandle<reco::TrackCollection> 
+MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
+			    Event& event, std::vector<std::pair<Trajectory*,reco::TrackRef> > miniMap, const string& instance, bool reallyDoSmoothing) {
+  
+  const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
+  
+  const string metname = "Muon|RecoMuon|MuonTrackLoader|TevMuonTrackLoader";
+
+  LogDebug(metname)<<"TeV LoadTracks instance: " << instance;
+  
+  // the track collectios; they will be loaded in the event  
+  auto_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
+  // ... and its reference into the event
+  reco::TrackRefProd trackCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance);
+    
+  // Association map between GlobalMuons and TeVMuons
+  auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap);
+  
+  // the track extra collection, it will be loaded in the event  
+  auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
+  // ... and its reference into the event
+  reco::TrackExtraRefProd trackExtraCollectionRefProd = event.getRefBeforePut<reco::TrackExtraCollection>(instance);
+  
+  // the rechit collection, it will be loaded in the event  
+  auto_ptr<TrackingRecHitCollection> recHitCollection(new TrackingRecHitCollection() );
+  // ... and its reference into the event
+  TrackingRecHitRefProd recHitCollectionRefProd = event.getRefBeforePut<TrackingRecHitCollection>(instance);
+  
+  // Collection of Trajectory
+  auto_ptr<vector<Trajectory> > trajectoryCollection(new vector<Trajectory>);
+  
+  // Association map between track and trajectory
+  std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+  
+  // don't waste any time...
+  if ( trajectories.empty() ) { 
+    event.put(recHitCollection,instance);
+    event.put(trackExtraCollection,instance);
+    if(theTrajectoryFlag) {
+      event.put(trajectoryCollection,instance);
+      event.put( trajTrackMap, instance );
+    }
+    event.put(trackToTrackmap, instance);
+    return event.put(trackCollection,instance);
+  }
+  
+  LogTrace(metname) << "Create the collection of Tracks";
+  
+  reco::TrackRef::key_type trackIndex = 0;
+  //  reco::TrackRef::key_type trackUpdatedIndex = 0;
+  
+  reco::TrackExtraRef::key_type trackExtraIndex = 0;
+  TrackingRecHitRef::key_type recHitsIndex = 0;
+  
+  edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
+  edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
+  std::map<unsigned int, unsigned int> tjTkMap;
+  
+  if(doSmoothing)
+    theService->eventSetup().get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
+  
+  
+  for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
+      rawTrajectory != trajectories.end(); ++rawTrajectory){
+
+    reco::TrackRef glbRef;
+    std::vector<std::pair<Trajectory*,reco::TrackRef> >::const_iterator mmit;
+    for(mmit = miniMap.begin();mmit!=miniMap.end();++mmit){
+      if(mmit->first == *rawTrajectory) glbRef = mmit->second;
+    }
+    
+    Trajectory &trajectory = **rawTrajectory;
+    
+    if(doSmoothing){
+      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
+      
+      if(!trajectoriesSM.empty())
+	trajectory = trajectoriesSM.front();
+      else
+	LogInfo(metname)<<"The trajectory has not been smoothed!"<<endl;
+    }
+    
+    if(theTrajectoryFlag) {
+      trajectoryCollection->push_back(trajectory);
+      iTjRef++;
+    }    
+    
+    // get the transient rechit from the trajectory
+    Trajectory::RecHitContainer transHits = trajectory.recHits();
+    
+    if ( trajectory.direction() == oppositeToMomentum)
+      reverse(transHits.begin(),transHits.end());
+    
+    // build the "bare" track from the trajectory.
+    // This track has the parameters defined at PCA (no update)
+    pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(trajectory);
+    
+    // Check if the extrapolation went well    
+    if(!resultOfTrackExtrapAtPCA.first) {
+      //      ++trackIndex;//ADAM
+      delete *rawTrajectory;
+      continue;
+    }
+    
+    // take the "bare" track at PCA
+    reco::Track &track = resultOfTrackExtrapAtPCA.second;
+    
+    // build the "bare" track extra from the trajectory
+    reco::TrackExtra trackExtra = buildTrackExtra( trajectory );
+    
+    // get the TrackExtraRef (persitent reference of the track extra)
+    reco::TrackExtraRef trackExtraRef(trackExtraCollectionRefProd, trackExtraIndex++ );
+    
+    // set the persistent track-extra reference to the Track
+    track.setExtra(trackExtraRef);
+
+    // Fill the map
+    trackToTrackmap->insert(glbRef,
+			    reco::TrackRef(trackCollectionRefProd,trackIndex++));
+
+    // build the updated-at-vertex track, starting from the previous track
+    pair<bool,reco::Track> updateResult(false,reco::Track());
+            
+    // Fill the track extra with the rec hit (persistent-)reference
+    size_t i = 0;
+    for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
+	 recHit != transHits.end(); ++recHit) {
+      if((**recHit).isValid()){
+	TrackingRecHit *singleHit = (**recHit).hit()->clone();
+	track.setHitPattern( *singleHit, i ++ );
+	if(theUpdatingAtVtx && updateResult.first) updateResult.second.setHitPattern( *singleHit, i ++ );
+	recHitCollection->push_back( singleHit );  
+	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
+	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
+      }
+    }
+    
+    // fill the TrackExtraCollection
+    trackExtraCollection->push_back(trackExtra);
+    
+    // fill the TrackCollection
+    trackCollection->push_back(track);
+    iTkRef++;
+    LogTrace(metname) << "Debug Track being loaded pt "<< track.pt();
+    
+    // We don't need the original trajectory anymore.
+    // It has been copied by value in the trajectoryCollection, if 
+    // it is required to put it into the event.
+    delete *rawTrajectory;
+
+    if(theTrajectoryFlag) tjTkMap[iTjRef-1] = iTkRef-1;
+  }
+  
+
+  
+  // Put the Collections in the event
+  LogTrace(metname) << "put the Collections in the event";
+  event.put(recHitCollection,instance);
+  event.put(trackExtraCollection,instance);
+
+  OrphanHandle<reco::TrackCollection> returnTrackHandle;
+  OrphanHandle<reco::TrackCollection> nonUpdatedHandle;
+  if(theUpdatingAtVtx){
+  }
+  else {
+    event.put(trackToTrackmap,instance);
+    returnTrackHandle = event.put(trackCollection,instance);
+    nonUpdatedHandle = returnTrackHandle;
+  }
+
+  if ( theTrajectoryFlag ) {
+    OrphanHandle<std::vector<Trajectory> > rTrajs = event.put(trajectoryCollection,instance);
+    // Now Create traj<->tracks association map
+    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
+          i != tjTkMap.end(); i++ ) {
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
+                            edm::Ref<reco::TrackCollection>( nonUpdatedHandle, (*i).second ) );
+    }
+    event.put( trajTrackMap, instance );
+  }
+
+  return returnTrackHandle;
+}
+
 
 pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajectory) const {
 
