@@ -1,5 +1,5 @@
-#ifndef RecoECAL_ECALClusters_FixedMatrixClusterAlgo_h
-#define RecoECAL_ECALClusters_FixedMatrixClusterAlgo_h
+#ifndef RecoECAL_ECALClusters_Multi5x5ClusterAlgo_h
+#define RecoECAL_ECALClusters_Multi5x5ClusterAlgo_h
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -24,22 +24,22 @@
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
-class FixedMatrixClusterAlgo 
+class Multi5x5ClusterAlgo 
 {
  public:
   
   enum EcalPart { barrel = 0, endcap = 1 };
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
-  FixedMatrixClusterAlgo() {
+  Multi5x5ClusterAlgo() {
   }
 
-  FixedMatrixClusterAlgo(double ebst, double ecst, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
+  Multi5x5ClusterAlgo(double ebst, double ecst, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
     ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst), verbosity(the_verbosity) {
     posCalculator_ = posCalc;
   }
 
-  virtual ~FixedMatrixClusterAlgo()
+  virtual ~Multi5x5ClusterAlgo()
     {
     }
 

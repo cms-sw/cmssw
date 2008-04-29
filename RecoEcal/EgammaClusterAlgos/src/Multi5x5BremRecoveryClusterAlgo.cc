@@ -1,7 +1,7 @@
-#include "RecoEcal/EgammaClusterAlgos/interface/FixedMatrixBremRecoveryClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/Multi5x5BremRecoveryClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 
-reco::SuperClusterCollection FixedMatrixBremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector & clustersCollection)
+reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(reco::BasicClusterRefVector & clustersCollection)
 {
   const float etaBorder = 1.479;
 
@@ -39,7 +39,7 @@ reco::SuperClusterCollection FixedMatrixBremRecoveryClusterAlgo::makeSuperCluste
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
-void FixedMatrixBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
+void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClusterRefVector &clusters_v, 
 						      double etaRoad, double phiRoad)
 {
 
@@ -122,7 +122,7 @@ void FixedMatrixBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicClus
 }
 
 
-bool FixedMatrixBremRecoveryClusterAlgo::match(reco::BasicClusterRef seed_p, 
+bool Multi5x5BremRecoveryClusterAlgo::match(reco::BasicClusterRef seed_p, 
 				    reco::BasicClusterRef cluster_p,
 				    double dEtaMax, double dPhiMax)
 {

@@ -1,5 +1,5 @@
 
-#include "RecoEcal/EgammaClusterAlgos/interface/FixedMatrixClusterAlgo.h"
+#include "RecoEcal/EgammaClusterAlgos/interface/Multi5x5ClusterAlgo.h"
 
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -10,7 +10,7 @@
 
 // Return a vector of clusters from a collection of EcalRecHits:
 //
-std::vector<reco::BasicCluster> FixedMatrixClusterAlgo::makeClusters(
+std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
                                   const EcalRecHitCollection* hits,
 				  const CaloSubdetectorGeometry *geometry_p,
 				  const CaloSubdetectorTopology *topology_p,
@@ -102,7 +102,7 @@ std::vector<reco::BasicCluster> FixedMatrixClusterAlgo::makeClusters(
 
 // Search for clusters
 //
-void FixedMatrixClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
+void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
                                    const CaloSubdetectorGeometry *geometry_p,
                                    const CaloSubdetectorTopology *topology_p,
                                    const CaloSubdetectorGeometry *geometryES_p,
@@ -171,7 +171,7 @@ void FixedMatrixClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 
 }
 
-void FixedMatrixClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
+void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 				    const CaloSubdetectorGeometry *geometry,
 				    const CaloSubdetectorGeometry *geometryES)
 {
@@ -204,7 +204,7 @@ void FixedMatrixClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
 }
 
-bool FixedMatrixClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
+bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
 				       const EcalRecHitCollection *hits)
 {
 
@@ -243,7 +243,7 @@ bool FixedMatrixClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
 
 }
 
-void FixedMatrixClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator, 
+void Multi5x5ClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator, 
                 const EcalRecHitCollection *hits, 
                 const CaloSubdetectorGeometry *geometry)
 {
@@ -302,7 +302,7 @@ void FixedMatrixClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
 }
 
 
-void FixedMatrixClusterAlgo::addCrystal(const DetId &det)
+void Multi5x5ClusterAlgo::addCrystal(const DetId &det)
 {   
 
    EcalRecHitCollection::const_iterator thisIt =  recHits_->find(det);

@@ -1,5 +1,5 @@
-#ifndef RecoEcal_EgammaClusterAlgos_FixedMatrixBremRecoveryClusterAlgo_h_
-#define RecoEcal_EgammaClusterAlgos_FixedMatrixBremRecoveryClusterAlgo_h_
+#ifndef RecoEcal_EgammaClusterAlgos_Multi5x5BremRecoveryClusterAlgo_h_
+#define RecoEcal_EgammaClusterAlgos_Multi5x5BremRecoveryClusterAlgo_h_
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -14,20 +14,20 @@
 
 
 /*
-  The FixedMatrixBremRecoveryClusterAlgo class encapsulates the functionality needed
+  The Multi5x5BremRecoveryClusterAlgo class encapsulates the functionality needed
   to perform the SuperClustering.
   
   WARNING: This code assumes that the BasicClusters 
   from the event are sorted by energy
 */
 
-class FixedMatrixBremRecoveryClusterAlgo
+class Multi5x5BremRecoveryClusterAlgo
 {
  public:
   
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
-  FixedMatrixBremRecoveryClusterAlgo(const edm::ParameterSet &bremRecoveryPset,
+  Multi5x5BremRecoveryClusterAlgo(const edm::ParameterSet &bremRecoveryPset,
 			  double eb_sc_road_etasize = 0.06, // Search window in eta - Barrel
 			  double eb_sc_road_phisize = 0.80, // Search window in phi - Barrel
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
@@ -52,7 +52,7 @@ class FixedMatrixBremRecoveryClusterAlgo
     }
 
   // destructor
-  ~FixedMatrixBremRecoveryClusterAlgo() 
+  ~Multi5x5BremRecoveryClusterAlgo() 
   {
      if (dynamicPhiRoad_) delete phiRoadAlgo_;
   } 
