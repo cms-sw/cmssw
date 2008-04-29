@@ -41,6 +41,16 @@ const bool CSCMonitorModule::isMEValid(const std::string name, MonitorElement*& 
   }
 }
 
+const bool CSCMonitorModule::MEEMU(const std::string name, MonitorElement*& me) {
+  return isMEValid(rootDir + name, me);
+}
+
+const bool CSCMonitorModule::MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me) {
+  std::string buffer;
+  return isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
+}
+
+
 /**
  * @brief  Load XML file and create definitions
  * @param  
@@ -67,7 +77,6 @@ int CSCMonitorModule::loadCollection() {
     delete parser;
     return 1;
   }
-
   DOMNodeList *itemList = docNode->getChildNodes();
 
   for(uint32_t i=0; i < itemList->getLength(); i++) {
@@ -112,13 +121,34 @@ int CSCMonitorModule::loadCollection() {
 
 
 /**
+ * @brief  Book all histograms
+ * @param  
+ * @return 
+ */
+void CSCMonitorModule::bookHistograms() {
+
+  // Book EMU level histograms
+  book("EMU");
+
+  // Book DDU histograms
+  for (int d = NUM_DDU_MIN; d <= NUM_DDU_MAX; d++) {
+
+    std::string buffer;
+    dbe->setCurrentFolder(rootDir + getDDUTag(d, buffer) + "/");
+    book("DDU");
+
+  }
+
+}
+
+
+/**
  * @brief  Book a group of histograms
  * @param  prefix name of histogram group to book
  * @return 
  */
 void CSCMonitorModule::book(const std::string prefix) {
 
-  std::string pwd = dbe->pwd();
   HistoDefMapIter hdmi = collection.find(prefix);
 
   if( hdmi != collection.end()) {

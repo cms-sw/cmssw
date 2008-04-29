@@ -34,20 +34,20 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   if (!dmbHeader || !dmbTrailer) return;
 
   // Unpacking of Chamber Identification number
-  int crateID	= 0xFF;
-  int dmbID	= 0xF;
-  int ChamberID	= 0xFFF;
-  crateID	= dmbHeader->crateID();
-  dmbID		= dmbHeader->dmbID();
-  ChamberID	= (((crateID) << 4) + dmbID) & 0xFFF;
+  int crateID	= dmbHeader->crateID();
+  int dmbID	= dmbHeader->dmbID();
+  // int ChamberID	= (((crateID) << 4) + dmbID) & 0xFFF;
   if (crateID == 0 || dmbID == 0) return;
 
-  int iendcap = -1;
-  int istation = -1;
-  int id = cscMapping.chamber(iendcap, istation, crateID, dmbID, -1);
-  if (id == 0) return;
-  
-  CSCDetId cid(id);
+  // To be switched on on CSC enter :) 
+  // int iendcap  = -1;
+  // int istation = -1;
+  // int icfeb    = 0;
+  // int ilayer   = 0;
+  // CSCDetId cid = pcrate->detId( crateID, dmbID, icfeb, ilayer);
+  // int id = cscMapping.chamber(iendcap, istation, crateID, dmbID, -1);
+  // if (id == 0) return;
+  // CSCDetId cid(id);
   
   int CSCtype = 0;
   int CSCposition = 0;

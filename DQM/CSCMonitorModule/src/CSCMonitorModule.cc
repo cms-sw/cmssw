@@ -55,10 +55,7 @@ void CSCMonitorModule::initialize() {
   rootDir = monitorName + "/";
   nEvents = 0;
 
-  // Load CSC mapping object
-  cscMapping  = CSCReadoutMappingFromFile(parameters); 
-
-  // Booking histograms aka loading collection
+  // Loading histogram collection from XML file
   if(loadCollection()) {
     LOGERROR("initialize") << "Histogram booking failed .. exiting.";
     return;
@@ -69,6 +66,9 @@ void CSCMonitorModule::initialize() {
 
   // Base folder for the contents of this job
   dbe->setCurrentFolder(rootDir);
+
+  // Book all histograms
+  bookHistograms();
 
 }
 
@@ -89,13 +89,6 @@ CSCMonitorModule::~CSCMonitorModule(){
  */
 void CSCMonitorModule::beginJob(const edm::EventSetup& c){
 
-  // Get back-end interface
-  dbe = edm::Service<DQMStore>().operator->();
-
-  // Base folder for the contents of this job
-  dbe->setCurrentFolder(rootDir);
-
-  book("EMU");
 }
 
 /**
@@ -107,6 +100,12 @@ void CSCMonitorModule::beginJob(const edm::EventSetup& c){
  */
 void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
 
+  // Get crate mapping from database
+  edm::ESHandle<CSCCrateMap> hcrate;
+  c.get<CSCCrateMapRcd>().get(hcrate);
+  pcrate = hcrate.product();
+
+  // Pass event to monitoring chain
   monitorEvent(e);
 
 }
@@ -130,24 +129,20 @@ void CSCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
   updateFracHistos();
 }
 
-void CSCMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }
+void CSCMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+
+}
 
 void CSCMonitorModule::getCSCFromMap(int crate, int slot, int& csctype, int& cscposition) {
 
-  int iendcap = -1;
-  int istation = -1;
-  int iring = -1;
-
-  int id = cscMapping.chamber(iendcap, istation, crate, slot, -1);
-  if (id==0) return;
-  CSCDetId cid( id );
-  iendcap = cid.endcap();
-  istation = cid.station();
-  iring = cid.ring();
-  cscposition = cid.chamber();
-
-  std::string tlabel = getCSCTypeLabel(iendcap, istation, iring );
-  std::map<std::string,int>::const_iterator it = tmap.find( tlabel );
+  CSCDetId cid = pcrate->detId(crate, slot, 0, 0);
+  cscposition  = cid.chamber();
+  int iring    = cid.ring();
+  int istation = cid.station();
+  int iendcap  = cid.endcap();
+  
+  std::string tlabel = getCSCTypeLabel(iendcap, istation, iring);
+  std::map<std::string,int>::const_iterator it = tmap.find(tlabel);
   if (it != tmap.end()) {
     csctype = it->second;
   } else {

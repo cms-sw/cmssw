@@ -48,13 +48,16 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 
-#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
+#include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
+#include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 /**
  * Macro Section
  */
 
-#define MEEMU(n, me)       (isMEValid(rootDir + n, me))
+#define NUM_DDU_MIN        1
+#define NUM_DDU_MAX        36
 
 #define LOGERROR(cat)      edm::LogError (cat)
 #define LOGWARNING(cat)    edm::LogWarning (cat)
@@ -83,9 +86,6 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     CSCMonitorModule(const edm::ParameterSet& ps);
     virtual ~CSCMonitorModule();
 
-    // For the backward compatibility with CSCUnpacker object
-    void process(CSCDCCExaminer * examiner, CSCDCCEventData * dccData);
-
   protected:
 
     void beginJob(const edm::EventSetup& c);
@@ -100,6 +100,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     void initialize();
     int loadCollection();    
     void printCollection();
+    void bookHistograms();
     void book(const std::string prefix);
     const bool isMEValid(const std::string name, MonitorElement*& me);
     void getCSCFromMap(int crate, int slot, int& csctype, int& cscposition);
@@ -128,14 +129,21 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     bool            examinerOutput;
     unsigned int    examinerCRCKey;
 
+    /** Pointer to crate mapping from database **/
+    const CSCCrateMap* pcrate;
+
     /** Histogram collection */
     HistoDefMap collection;
 
     /** Histogram mapping, increments, etc. */
     uint32_t nEvents;
-    CSCReadoutMappingFromFile cscMapping;
     std::map<std::string, int> tmap;
     std::map<uint32_t,uint32_t> L1ANumbers;
+
+    /** Find histograms (aka previous macros) **/ 
+
+    const bool MEEMU(const std::string name, MonitorElement*& me);
+    const bool MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me);
 
 };
 

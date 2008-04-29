@@ -97,26 +97,6 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
 
 
 /**
- * @brief  Backward compatibility interface to analysis
- * @param  examiner Examiner object
- * @return dccData DCC object data
- */
-void CSCMonitorModule::process(CSCDCCExaminer * examiner, CSCDCCEventData * dccData) {
-
-  bool goodEvent = true;
-
-  if(examiner != NULL) {
-    goodEvent = monitorExaminer(*examiner);
-  }
-
-  if(dccData != NULL) {
-    monitorDCC(*dccData);
-  }
-
-}
-
-
-/**
  * @brief  Examiner object analyzer
  * @param  examiner Examiner object to monitor
  * @return true if event is good following examiner data, false otherwise

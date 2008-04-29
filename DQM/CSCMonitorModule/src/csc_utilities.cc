@@ -31,6 +31,23 @@ static int tokenize(const std::string& str, std::vector<std::string>& tokens, co
 static int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels) __attribute__ ((unused));
 static void getCSCTypeToBinMap(std::map<std::string, int>& tmap) __attribute__ ((unused));
 static std::string getCSCTypeLabel(int endcap, int station, int ring ) __attribute__ ((unused));
+static const std::string getDDUTag(const unsigned int& dduNumber, std::string& buffer) __attribute__ ((unused));
+
+
+/**
+ * @brief  Format and return DDU Tag (to be folder name)
+ * @param  ddNumber DDU number (1 - 36)
+ * @param  buffer   Buffer to be filled with data
+ * @return 
+ */
+static const std::string getDDUTag(const unsigned int& dduNumber, std::string& buffer) {
+
+  std::stringstream oss;
+  oss << std::setfill('0');
+  oss << "DDU_" << std::setw(2) << dduNumber;
+  buffer = oss.str();
+  return buffer;
+}
 
 /**
  * @brief  Find string histogram value in map
