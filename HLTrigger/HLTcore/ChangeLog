@@ -1,0 +1,17 @@
+2008-04-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V02-02-00
+	* requires FWCore/PrescaleService V00-04-00
+	* reimplementation of HLTPrescaler: 'prescaleFactor' not a
+	configurable parameter anymore, retrieved by querying
+	PrescaleService at the beginning of each lumi block
+	* missing: the PrescaleService manages a *table* of prescales,
+	where the level1 trigger can initiate to switch between columns at
+	lumi block boundaries; the HLTPrescaler needs to be equipped to
+	retrieve the current column index from the level1 global trigger
+	FED. The current implementation only support the 'MC' mode: the
+	PrescaleService can be configured with a table, and each of the
+	defined columns can be declared 'default' and thereby valid for
+	the entire job, but no dynamic adjustments are possible.
+	
+

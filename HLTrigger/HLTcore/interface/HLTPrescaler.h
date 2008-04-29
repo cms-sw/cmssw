@@ -7,42 +7,53 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2007/08/02 21:52:06 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/08/11 23:21:54 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
- *
+ *  \author Philipp Schieferdecker
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
-#include <string>
 
-class HLTPrescaler : public HLTFilter {
 
- public:
-
-  explicit HLTPrescaler(edm::ParameterSet const&);
+class HLTPrescaler : public HLTFilter
+{
+public:
+  //
+  // construction/destruction
+  //
+  explicit HLTPrescaler(edm::ParameterSet const& iConfig);
   virtual ~HLTPrescaler();
-  virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-  virtual bool beginLuminosityBlock(edm::LuminosityBlock &, edm::EventSetup const&);
 
- private:
 
-  /// to put a filterobject into the event?
-  bool         b_;
-  /// accept one in n_
-  unsigned int n_;
-  /// offset in event number (usually 0)
-  unsigned int o_;
-  /// local event counter
-  unsigned int count_;
+  //
+  // member functions
+  //
+  virtual bool beginLuminosityBlock(edm::LuminosityBlock &lb,
+				    edm::EventSetup const& iSetup);
+  virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup);
+  virtual void endJob();
+  
+  
+private:
+  //
+  //member data
+  //
 
-  /// prescaler service
-  edm::service::PrescaleService* ps_;
-  /// module label (temporary, to be replaced asap by method *moduleLabel())
-  std::string moduleLabel_;
+  /// accept one in prescaleFactor_; 0 means never to accept an event
+  unsigned int prescaleFactor_;
 
+  /// event counter
+  unsigned int eventCount_;
+
+  /// accept counter
+  unsigned int acceptCount_;
+
+  /// prescale service
+  edm::service::PrescaleService* prescaleService_;
+  
 };
 
 #endif
