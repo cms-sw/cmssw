@@ -9,7 +9,7 @@
 //
 // Original Author:  Frederic Ronga
 //         Created:  March 16, 2006
-//
+//         $Id$
 
 
 // system include files
@@ -25,7 +25,12 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+#include "CondFormats/Alignment/interface/AlignTransform.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+
+
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 
 
@@ -38,16 +43,19 @@ static const int kLEAD_WIDTH = 40; // First field width
 
 class TestTrackerHierarchy : public edm::EDAnalyzer {
 public:
-  explicit TestTrackerHierarchy( const edm::ParameterSet& ) {}
+  explicit TestTrackerHierarchy( const edm::ParameterSet& pSet) 
+    : dumpAlignments_(pSet.getUntrackedParameter<bool>("dumpAlignments")) {}
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
   void dumpAlignable( const Alignable*, unsigned int, unsigned int );
   void printInfo( const Alignable*, unsigned int );
+  void dumpAlignments(const edm::EventSetup& setup, AlignableTracker *aliTracker) const;
 
   std::string leaders_, blank_, filled_;
 
+  const bool dumpAlignments_;
 };
 
 
@@ -58,7 +66,7 @@ TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
   edm::LogInfo("TrackerHierarchy") << "Starting!";
   edm::ESHandle<TrackerGeometry> trackerGeometry;	 
   setup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-  std::auto_ptr<AlignableTracker> theAlignableTracker( new AlignableTracker(&(*trackerGeometry)) );
+  AlignableTracker theAlignableTracker(&(*trackerGeometry));
 
   leaders_ = "";
   blank_ = "   ";  // These two...
@@ -66,10 +74,14 @@ TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
 
   // Now dump mother of each alignable
   //const Alignable* alignable = (&(*theAlignableTracker))->pixelHalfBarrels()[0];
-  dumpAlignable( &(*theAlignableTracker), 1, 1 );
+  this->dumpAlignable(&theAlignableTracker, 1, 1);
   
   
-  edm::LogInfo("TrackerAlignment") << "Done!";
+  edm::LogInfo("TrackerHierarchy") << "Done!";
+
+  if (dumpAlignments_) {
+    this->dumpAlignments(setup, &theAlignableTracker);
+  }
 
 }
 
@@ -125,6 +137,55 @@ void TestTrackerHierarchy::printInfo( const Alignable* alignable,
     << " | " << pos.str();
 
 }
+
+//__________________________________________________________________________________________________
+void TestTrackerHierarchy::dumpAlignments(const edm::EventSetup& setup,
+					  AlignableTracker *aliTracker) const
+{
+  edm::ESHandle<Alignments> alignments;
+  setup.get<TrackerAlignmentRcd>().get(alignments);
+  if (alignments->empty()) {
+    edm::LogWarning("TrackerAlignment") << "@SUB=dumpAlignments"
+					<< "No TrackerAlignmentRcd.";
+  } else {
+    AlignableNavigator navi(aliTracker);
+    edm::LogInfo("TrackerAlignment") << "@SUB=dumpAlignments"
+				     << "Start dumping alignments.";
+    unsigned int nProblems = 0;
+    for (std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin(),
+	   iEnd = alignments->m_align.end(); iAlign != iEnd; ++iAlign) {
+      const align::ID id = (*iAlign).rawId();
+      const AlignTransform::Translation pos((*iAlign).translation());
+      edm::LogVerbatim("DumpAlignable") << (*iAlign).rawId() << "  |  " << pos;
+
+      AlignableDetOrUnitPtr aliPtr = navi.alignableFromDetId(id);
+      if (!aliPtr.isNull()) {
+	const Alignable::PositionType &aliPos = aliPtr->globalPosition();
+	double dR = aliPos.perp() - pos.perp();
+	double dRphi = (aliPos.phi() - pos.phi()) * pos.perp();
+	double dZ = aliPos.z() - pos.z();
+	if (dR*dR + dRphi*dRphi + dZ*dZ) { 
+	  ++nProblems;
+	  edm::LogWarning("Alignment") 
+	    << "@SUB=analyze" << "Delta r,rphi,z: " << dR << " " << dRphi << " " << dZ
+	    << "\nPos r,phi,z: " << pos.perp() << " " << pos.phi() << " " << pos.z();
+	}
+      } else {
+	++nProblems;
+	edm::LogWarning("Alignment") << "@SUB=dumpAlignments" << "No Alignable for Id " << id;
+      }
+    } // ending loop
+
+    if (nProblems) {
+      edm::LogWarning("TrackerAlignment") 
+	<< "@SUB=dumpAlignments" << "Ending: " << nProblems << " Alignments with problems.";
+    } else {
+      edm::LogInfo("TrackerAlignment") << "@SUB=dumpAlignments" << "Ending without problem.";
+    }
+  }
+}
+
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(TestTrackerHierarchy);
 
