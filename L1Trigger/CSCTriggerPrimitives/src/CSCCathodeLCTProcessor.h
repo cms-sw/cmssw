@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2007/08/17 16:12:36 $
- * $Revision: 1.13 $
+ * $Date: 2007/10/08 14:23:41 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -95,12 +95,12 @@ class CSCCathodeLCTProcessor
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_STRIPS = 26};
   static const int pre_hit_pattern[2][NUM_PATTERN_STRIPS];
-  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_STRIPS+1];
+  static const int pattern[CSCConstants::NUM_CLCT_PATTERNS_PRE_TMB07][NUM_PATTERN_STRIPS+1];
 
   bool isTMB07;
-  enum {NUM_CLCT_PATTERNS_2007 = 11, NUM_PATTERN_HALFSTRIPS = 42};
+  enum {NUM_PATTERN_HALFSTRIPS = 42};
   static const int pattern2007_offset[NUM_PATTERN_HALFSTRIPS];
-  static const int pattern2007[NUM_CLCT_PATTERNS_2007][NUM_PATTERN_HALFSTRIPS+1];
+  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_HALFSTRIPS+1];
   unsigned int best_pid[CSCConstants::NUM_HALF_STRIPS];
   unsigned int nhits[CSCConstants::NUM_HALF_STRIPS];
 
@@ -177,7 +177,8 @@ class CSCCathodeLCTProcessor
 				    const int distrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
   bool preTrigger(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		  unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS], 
-		  const int stripType, const int nStrips, int& first_bx);
+		  const int stripType, const int nStrips,
+		  const int start_bx, int& first_bx);
   bool preTrigLookUp(const unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 		     const int stripType, const int nStrips,
 		     const unsigned int bx_time);
