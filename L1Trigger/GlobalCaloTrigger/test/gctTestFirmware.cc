@@ -162,7 +162,7 @@ bool gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger* gct
   {
     throw cms::Exception("fileReadError")
     << " in gctTestFirmware::checkEnergySumsFromFirmware(const L1GlobalCaloTrigger*, const std::string &)\n"
-    << "Couldn't read data from file " << fileName << "!";
+    << "Couldn't read data from file " << fileName << "!\n";
   }
 
   //Loop reading events from the file (one event per line)
