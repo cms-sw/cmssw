@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.6 2008/04/21 12:13:35 loizides Exp $
+// $Id: FileRecord.cc,v 1.7 2008/04/24 16:27:18 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -79,7 +79,7 @@ void FileRecord::writeToSummaryCatalog()
 void FileRecord::notifyTier0()
 {
   string ver(getReleaseVersion());
-  if(ver[0]=='"') ver=ver.substr(1,ver.length()-1);
+  if(ver[0]=='"') ver=ver.substr(1,ver.size()-2);
 
   std::ostringstream oss;
   oss << "export SM_FILENAME="     << fileName() << fileCounterStr() << ".dat; " 
