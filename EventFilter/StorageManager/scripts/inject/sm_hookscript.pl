@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: sm_hookscript.pl,v 1.1 2008/04/28 12:57:31 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.2 2008/04/29 17:46:46 loizides Exp $
 ################################################################################
 
 use strict;
@@ -30,7 +30,7 @@ my $dola = $ENV{'SM_LA_NFS'};
 if (defined $dola) {
     if ($lumisection == 1 && $count < 1)
     {
-        my $COPYCOMMAND = "if test -n \"`mount | grep $SM_LA_NFS`\"; then cp $pathname/$filename $SM_LOOKAREA && chmod a+r $SM_LOOKAREA/$filename; fi &"; 
+        my $COPYCOMMAND = 'if test -n "`mount | grep $SM_LA_NFS`"; then cp $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA && chmod a+r $SM_LOOKAREA/$SM_FILENAME; fi &'; 
         system($COPYCOMMAND);
     }
 }
