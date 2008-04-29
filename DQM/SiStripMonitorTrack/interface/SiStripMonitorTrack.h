@@ -26,11 +26,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-/* #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" */
-/* #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoFwd.h" */
-/* #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h" */
-/* #include "AnalysisDataFormats/TrackInfo/interface/TrackingRecHitInfo.h" */
-/* #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoEnum.h" */
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -41,7 +36,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -148,6 +142,8 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   edm::InputTag Cluster_src_;
 
   bool Mod_On_;
+  bool OffHisto_On_;
+  int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;

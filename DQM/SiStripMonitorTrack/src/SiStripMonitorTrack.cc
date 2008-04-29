@@ -29,11 +29,17 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   conf_(conf),
   Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
   Mod_On_(conf.getParameter<bool>("Mod_On")),
+  OffHisto_On_(conf.getParameter<bool>("OffHisto_On")),
   folder_organizer(), tracksCollection_in_EventTree(true),
   firstEvent(-1),
   neighbourStripNumber(3)
 {
   for(int i=0;i<4;++i) for(int j=0;j<2;++j) NClus[i][j]=0;
+  if(OffHisto_On_){
+    off_Flag = 2;
+  }else{
+    off_Flag = 1;
+  }
 }
 
 //------------------------------------------------------------------------
@@ -46,7 +52,9 @@ void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es
   es.get<TrackerDigiGeometryRecord>().get( tkgeom );
   edm::LogInfo("SiStripMonitorTrack") << "[SiStripMonitorTrack::beginRun] There are "<<tkgeom->detUnits().size() <<" detectors instantiated in the geometry" << std::endl;  
   es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
+
   book();
+
 }
 
 //------------------------------------------------------------------------
@@ -99,12 +107,17 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   if (tracksCollection_in_EventTree && trackAssociatorCollection_in_EventTree) trackStudy(es);
   
   //Perform Cluster Study (irrespectively to tracks)
-  AllClusters(es);//analyzes the off Track Clusters
-  
+  if (dsv_SiStripCluster.isValid() && OffHisto_On_){
+    AllClusters(es);//analyzes the off Track Clusters
+  }else{
+    LogDebug("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+  }
+
   //Summary Counts of clusters
   std::map<TString, MonitorElement*>::iterator iME;
   std::map<TString, ModMEs>::iterator          iModME ;
-  for (int j=0;j<2;++j){ // loop over ontrack, offtrack
+
+  for (int j=0;j<off_Flag;++j){ // loop over ontrack, offtrack
     int nTot=0;
     for (int i=0;i<4;++i){ // loop over TIB, TID, TOB, TEC
       name=flags[j]+"_in_"+SubDet[i];      
@@ -150,7 +163,7 @@ void SiStripMonitorTrack::book()
     std::string MEFolderName = conf_.getParameter<std::string>("FolderName");    
     dbe->setCurrentFolder(MEFolderName);
     
-    for (int j=0;j<2;j++) { // Loop on onTrack, offTrack
+    for (int j=0;j<off_Flag;j++) { // Loop on onTrack, offTrack
       name=flags[j]+"_NumberOfClusters";
       if(MEMap.find(name)==MEMap.end()) {
 	MEMap[name]=bookME1D("TH1nClusters", name.Data()); 
@@ -164,7 +177,7 @@ void SiStripMonitorTrack::book()
     //					<< " Layer "  << GetSubDetAndLayer(*detid).second;
 
     // book Layer plots      
-    for (int j=0;j<2;j++){ 
+    for (int j=0;j<off_Flag;j++){ 
       folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter).second); 
       bookTrendMEs("layer",folder_organizer.GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
     }
@@ -180,7 +193,7 @@ void SiStripMonitorTrack::book()
   
   //  book SubDet plots
   for (std::map<std::pair<std::string,int32_t>,bool>::const_iterator iter=DetectedLayers.begin(); iter!=DetectedLayers.end();iter++){
-    for (int j=0;j<2;j++){ // Loop on onTrack, offTrack
+    for (int j=0;j<off_Flag;j++){ // Loop on onTrack, offTrack
       folder_organizer.setDetectorFolder(0);
       dbe->cd("SiStrip/MechanicalView/"+iter->first.first);
       name=flags[j]+"_in_"+iter->first.first; 
@@ -513,7 +526,7 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
       }
       ss <<"LocalMomentum: "<<statedirection
 	 << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());	      
-      LogTrace("TrackInfoAnalyzerExample") <<ss.str() << std::endl;
+      LogTrace("SiStripMonitorTrack") <<ss.str() << std::endl;
     }
     
   }
@@ -561,7 +574,6 @@ void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
 {
 
   //Loop on Dets
-  // edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
   for ( edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin(); DSViter!=dsv_SiStripCluster->end();DSViter++){
     uint32_t detid=DSViter->id();
     if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()) continue;
