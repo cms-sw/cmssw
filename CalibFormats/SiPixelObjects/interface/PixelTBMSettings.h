@@ -30,6 +30,8 @@ namespace pos{
 
     PixelTBMSettings(std::vector < std::vector< std::string> > &tableMat);
     PixelTBMSettings(std::string filename);
+    // modified by MR on 29-04-2008 16:43:30
+  PixelTBMSettings():PixelConfigBase("", "", "") {;}
 
     virtual ~PixelTBMSettings(){}
 
@@ -55,7 +57,11 @@ namespace pos{
     // Added by Dario (Apr 2008)
     bool getMode(void)      {return singlemode_;}
     void setMode(bool mode) {singlemode_ = mode;}
-
+    void setROCName(std::string rocname){
+      	PixelROCName tmp(rocname);
+	rocid_=tmp;
+    }
+    
   private:
 
     PixelROCName rocid_;
