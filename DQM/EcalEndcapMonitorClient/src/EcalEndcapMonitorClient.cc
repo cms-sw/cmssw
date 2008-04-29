@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/25 12:25:52 $
- * $Revision: 1.177 $
+ * $Date: 2008/04/25 12:33:02 $
+ * $Revision: 1.178 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1569,6 +1569,10 @@ void EcalEndcapMonitorClient::analyze(void){
       if ( enableSubRunDb_ ) {
         if ( (current_time_ - last_time_db_) > 60 * dbRefreshTime_ ) {
           if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
+               runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               runType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
                runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
           last_time_db_ = current_time_;
