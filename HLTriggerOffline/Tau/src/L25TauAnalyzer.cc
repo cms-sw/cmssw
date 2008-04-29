@@ -30,6 +30,7 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::vector;
+using namespace reco;
 
 namespace GenPart2 {
   // For sorting

@@ -4,8 +4,10 @@
 #include "HLTriggerOffline/Tau/interface/HLTTauMcInfo.h"
 
 #include "HLTriggerOffline/Tau/interface/HLTTauAnalyzer.h"
+
 #include "HLTriggerOffline/Tau/interface/HLTTauL25Validation.h"
-//#include "HLTriggerOffline/Tau/interface/L25TauAnalyzer.h"
+#include "HLTriggerOffline/Tau/interface/L25TauAnalyzer.h"
+
 #include "HLTriggerOffline/Tau/interface/L2TauAnalyzer.h"
 #include "HLTriggerOffline/Tau/interface/L1TauAnalyzer.h"
 
