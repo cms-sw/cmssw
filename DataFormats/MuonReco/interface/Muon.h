@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.39 2008/01/22 09:50:55 bellan Exp $
+ * \version $Id: Muon.h,v 1.40 2008/04/21 13:42:00 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -31,19 +31,31 @@ namespace reco {
     /// define arbitration schemes
     enum ArbitrationType { NoArbitration, SegmentArbitration, SegmentAndTrackArbitration };
     
+    ///
+    /// ====================== TRACK BLOCK ===========================
+    ///
     /// reference to Track reconstructed in the tracker only
-    TrackRef track() const { return track_; }
+    TrackRef innerTrack() const { return track_; }
+    TrackRef track() const __attribute__((deprecated));
     /// reference to Track reconstructed in the muon detector only
-    TrackRef standAloneMuon() const { return standAloneMuon_; }
+    TrackRef outerTrack() const { return standAloneMuon_; }
+    TrackRef standAloneMuon() const __attribute__((deprecated));
     /// reference to Track reconstructed in both tracked and muon detector
-    TrackRef combinedMuon() const { return combinedMuon_; }
+    TrackRef globalTrack() const { return combinedMuon_; }
+    TrackRef combinedMuon() const __attribute__((deprecated));
     /// set reference to Track
-    void setTrack( const TrackRef & t ) { track_ = t; }
+    void setInnerTrack( const TrackRef & t ) { track_ = t; }
+    void setTrack( const TrackRef & t ) __attribute__((deprecated));
     /// set reference to Track
-    void setStandAlone( const TrackRef & t ) { standAloneMuon_ = t; }
+    void setOuterTrack( const TrackRef & t ) { standAloneMuon_ = t; }
+    void setStandAlone( const TrackRef & t ) __attribute__((deprecated));
     /// set reference to Track
-    void setCombined( const TrackRef & t ) { combinedMuon_ = t; }
-
+    void setGlobalTrack( const TrackRef & t ) { combinedMuon_ = t; }
+    void setCombined( const TrackRef & t ) __attribute__((deprecated));
+    
+    ///
+    /// ====================== ENERGY BLOCK ===========================
+    ///
     /// energy deposition
     bool isEnergyValid() const { return energyValid_; }
     /// get energy deposition information
@@ -51,6 +63,9 @@ namespace reco {
     /// set energy deposition information
     void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; energyValid_ = true; }
     
+    ///
+    /// ====================== TIMING BLOCK ===========================
+    ///
     /// timing information
     bool isTimeValid() const { return timeValid_; }
     /// get timing information
@@ -58,6 +73,9 @@ namespace reco {
     /// set timing information
     void setTime( const MuonTime& time ) { time_ = time; timeValid_ = true; }
      
+    ///
+    /// ====================== MUON MATCH BLOCK ===========================
+    ///
     bool isMatchesValid() const { return matchesValid_; }
     /// get muon matching information
     std::vector<MuonChamberMatch>& matches() { return muMatches_;}
@@ -65,19 +83,27 @@ namespace reco {
     /// set muon matching information
     void setMatches( const std::vector<MuonChamberMatch>& matches ) { muMatches_ = matches; matchesValid_ = true; }
      
-    /// Muon hypothesis compatibility block
+    ///
+    /// ====================== MUON COMPATIBILITY BLOCK ===========================
+    ///
     /// Relative likelihood based on ECAL, HCAL, HO energy defined as
     /// L_muon/(L_muon+L_not_muon)
     float caloCompatibility() const { return caloCompatibility_; }
     void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
     bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
     
+    ///
+    /// ====================== ISOLATION BLOCK ===========================
+    ///
     /// Summary of muon isolation information 
     const MuonIsolation& isolationR03() const { return isolationR03_; }
     const MuonIsolation& isolationR05() const { return isolationR05_; }
     void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
     bool isIsolationValid() const { return isolationValid_; }
      
+    ///
+    /// ====================== USEFUL METHODs ===========================
+    ///
     /// number of chambers
     int numberOfChambers() const { return muMatches_.size(); }
     /// get number of chambers with matched segments

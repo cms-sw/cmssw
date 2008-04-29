@@ -36,6 +36,36 @@ Muon * Muon::clone() const {
   return new Muon( * this );
 }
 
+TrackRef Muon::track() const       
+{ 
+   return track_; 
+}
+
+TrackRef Muon::standAloneMuon() const       
+{
+   return standAloneMuon_; 
+}
+
+TrackRef Muon::combinedMuon() const       
+{
+   return combinedMuon_;
+}
+
+void Muon::setTrack( const TrackRef & t ) 
+{
+    track_ = t; 
+}
+
+void Muon::setStandAlone( const TrackRef & t )
+{
+   standAloneMuon_ = t; 
+}
+
+void Muon::setCombined( const TrackRef & t )
+{
+   combinedMuon_ = t; 
+}
+
 int Muon::numberOfMatches( ArbitrationType type ) const
 {
    int matches(0);
