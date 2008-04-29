@@ -49,6 +49,7 @@ namespace cms
       std::string alias;
       bool noHF;
       double globalThreshold;
+      edm::ParameterSet conf_;
       //CandidateCollection tempCol;
     };
 }
