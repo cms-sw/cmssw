@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.1 2008/04/28 11:11:35 loizides Exp $
+#$Id: t0inject.sh,v 1.2 2008/04/28 12:57:31 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -21,7 +21,6 @@ if [ ! -x $SMT0_IWS ]; then
     exit
 fi
 
-SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
 SMT0_MONDIR=/store/global/mbox
 if test -n "$SM_STORE"; then
     SMT0_MONDIR=$SM_STORE/global/mbox
@@ -31,6 +30,10 @@ if [ ! -d $SMT0_MONDIR ]; then
     exit
 fi
 
+#local run dir
+SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
+
+#exported scripts
 export SM_NOTIFYSCRIPT=/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh
 export SM_HOOKSCRIPT=$SMT0_BASE_DIR/sm_hookscript.pl
 
@@ -42,7 +45,8 @@ start(){
     # Setting up environment
     #
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/logs
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/problem
+    mkdir -p ${SMT0_LOCAL_RUN_DIR}/error
+    mkdir -p ${SMT0_LOCAL_RUN_DIR}/keep
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/workdir
 
     cd ${SMT0_LOCAL_RUN_DIR}/workdir
@@ -51,20 +55,21 @@ start(){
     export SMIW_RUNNUM=1
 
     echo -n $"Starting $SMT0_IW"
-    nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_IWS} ${SMT0_LOCAL_RUN_DIR}/logs ${SMT0_LOCAL_RUN_DIR}/problem > `hostname`.$$ 2>&1 &
+    nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_IWS} ${SMT0_LOCAL_RUN_DIR}/logs \
+          ${SMT0_LOCAL_RUN_DIR}/error ${SMT0_LOCAL_RUN_DIR}/keep > `hostname`.$$ 2>&1 &
     sleep 3
     echo
 }
 
 stop(){
-    for pid in `/bin/ps ax | grep ${SMT0_IW} | grep -v grep | cut -d' ' -f 1`; do
-	kill $pid
+    for pid in `/bin/ps ax | grep ${SMT0_IW} | grep -v grep | cut -dp -f1`; do
+	kill -9 $pid
     done
     rm -f ${SMT0_LOCAL_RUN_DIR}/workdir/`hostname`.*
 }
 
 status(){
-    for pid in `/bin/ps ax | grep ${SMT0_IW} | grep -v grep | cut -d' ' -f 1`; do
+    for pid in `/bin/ps ax | grep ${SMT0_IW} | grep -v grep | cut -dp -f1`; do
 	echo `/bin/ps $pid | grep $pid`
     done
 }
