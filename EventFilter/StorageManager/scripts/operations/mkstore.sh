@@ -1,5 +1,5 @@
 #!/bin/bash
-#$Id: mkstore.sh,v 1.3 2008/04/28 13:34:22 loizides Exp $
+#$Id: mkstore.sh,v 1.4 2008/04/28 15:41:37 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -22,6 +22,7 @@ for i in emulator global; do
     find $i -type l -maxdepth 1 -exec rm -f "{}" \;
     cd $store/$i;
     mkdir -p mbox && chmod 777 mbox
+    mkdir -p log && chmod 777 log
     rm -rf scripts
     mkdir -p scripts && chmod 755 scripts
 done
