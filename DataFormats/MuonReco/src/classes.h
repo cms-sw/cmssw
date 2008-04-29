@@ -23,7 +23,7 @@
 #include <map>
 
 namespace {
-  namespace {
+  struct dictionary {
     std::vector<reco::Muon> v1;
     edm::Wrapper<std::vector<reco::Muon> > c1;
     edm::Ref<std::vector<reco::Muon> > r1;
@@ -129,6 +129,6 @@ namespace {
     reco::MuIsoDepositMap idvm;
     reco::MuIsoDepositMap::const_iterator idvmci;
     edm::Wrapper<reco::MuIsoDepositMap> w_idvm;
-  }
+  };
 }
 
