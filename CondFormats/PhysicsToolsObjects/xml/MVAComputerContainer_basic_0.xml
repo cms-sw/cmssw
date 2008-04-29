@@ -1,13 +1,17 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="MVAComputerContainerRcd" >
-   <Class table="MVA_CONTAINER" id_columns="ID" name="PhysicsTools::Calibration::MVAComputerContainer" mapping_version="MVAComputerContainer_basic" >
-     <Container table="MVA_CONT_COMPUTER" id_columns="ID_ID" name="entries" position_column="POS" >
+  <PoolContainer name="BTauGenericMVAJetTagComputerRcd" >
+   <Class table="MVA_CONTAINER" id_columns="ID" 
+name="PhysicsTools::Calibration::MVAComputerContainer" 
+mapping_version="MVAComputerContainer_basic" >
+     <Container table="MVA_CONT_COMPUTER" id_columns="ID_ID" 
+name="entries" position_column="POS" >
        <Object name="value_type" >
          <Primitive column="LABEL" name="first" />
          <Object name="second" >
-           <Container table="MVA_CONT_COMPUTER_INP" id_columns="ID_POS ID_ID_ID" name="inputSet" position_column="POS" >
+           <Container table="MVA_CONT_COMPUTER_INP" id_columns="ID_POS 
+ID_ID_ID" name="inputSet" position_column="POS" >
              <Object name="value_type" >
                <Primitive column="NAME" name="name" />
              </Object >
@@ -34,3 +38,4 @@
    </Class >
   </PoolContainer >
  </PoolDatabase >
+
