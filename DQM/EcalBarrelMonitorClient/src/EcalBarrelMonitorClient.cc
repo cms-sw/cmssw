@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/25 12:33:02 $
- * $Revision: 1.419 $
+ * $Date: 2008/04/29 07:23:49 $
+ * $Revision: 1.420 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -145,32 +145,30 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     }
   }
 
-  // enableSubRunDb switch
+  //updateTime
 
-  enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
-  dbRefreshTime_  = ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+ updateTime_ = ps.getUntrackedParameter<int>("updateTime_", 0);
 
   if ( verbose_ ) {
-    if ( enableSubRunDb_ ) {
-      cout << " enableSubRunDb switch is ON" << endl;
-      cout << " dbRefreshTime is " << dbRefreshTime_ << " minutes" << endl;
-    } else {
-      cout << " enableSubRunDb switch is OFF" << endl;
+    if (updateTime_ ) {
+      cout << "updateTime is " <<updateTime_ << " minute(s)" << endl;
     }
   }
 
-  // enableSubRunHtml switch
+  // dbUpdateTime
 
-  enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
-  htmlRefreshTime_  = ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
+  dbUpdateTime_  = ps.getUntrackedParameter<int>("dbUpdateTime", 15);
 
   if ( verbose_ ) {
-    if ( enableSubRunHtml_ ) {
-      cout << " enableSubRunHtml switch is ON" << endl;
-      cout << " htmlRefreshTime is " << htmlRefreshTime_ << " minutes" << endl;
-    } else {
-      cout << " enableSubRunHtml switch is OFF" << endl;
-    }
+    cout << " dbUpdateTime is " << dbUpdateTime_ << " minute(s)" << endl;
+  }
+
+  // htmlUpdateTime
+
+  htmlUpdateTime_  = ps.getUntrackedParameter<int>("htmlUpdateTime", 5);
+
+  if ( verbose_ ) {
+    cout << " htmlUpdateTime is " << htmlUpdateTime_ << " minute(s)" << endl;
   }
 
   // location
@@ -717,6 +715,7 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
   jevt_ = 0;
 
   current_time_ = time(NULL);
+  last_time_update_ = current_time_;
   last_time_db_ = current_time_;
   last_time_html_ = current_time_;
 
@@ -773,6 +772,7 @@ void EcalBarrelMonitorClient::beginRun(void){
   jevt_ = 0;
 
   current_time_ = time(NULL);
+  last_time_update_ = current_time_;
   last_time_db_ = current_time_;
   last_time_html_ = current_time_;
 
@@ -936,10 +936,19 @@ void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, con
 
 void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
+  current_time_ = time(NULL);
+
   if ( verbose_ ) {
     cout << endl;
     cout << "Standard endLuminosityBlock() for run " << l.id().run() << endl;
     cout << endl;
+  }
+
+  if ( updateTime_ ) {
+    if ( (current_time_ - last_time_update_) < 60 * updateTime_ ) {
+      return;
+    }
+    last_time_update_ = current_time_;
   }
 
   if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
@@ -1529,15 +1538,15 @@ void EcalBarrelMonitorClient::analyze(void){
 
       forced_update_ = false;
 
-      if ( enableSubRunHtml_ ) {
-        if ( (current_time_ - last_time_html_) > 60 * htmlRefreshTime_ ) {
+      if ( htmlUpdateTime_ ) {
+        if ( (current_time_ - last_time_html_) > 60 * htmlUpdateTime_ ) {
           last_time_html_ = current_time_;
           this->htmlOutput( true );
         }
       }
 
-      if ( enableSubRunDb_ ) {
-        if ( (current_time_ - last_time_db_) > 60 * dbRefreshTime_ ) {
+      if ( dbUpdateTime_ ) {
+        if ( (current_time_ - last_time_db_) > 60 * dbUpdateTime_ ) {
           if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
                runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
                runType_ == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||

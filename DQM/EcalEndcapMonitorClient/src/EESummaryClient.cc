@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/27 08:01:24 $
- * $Revision: 1.113 $
+ * $Date: 2008/04/27 08:06:41 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  *
 */
@@ -460,22 +460,22 @@ void EESummaryClient::setup(void) {
 
   MonitorElement* me;
 
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "errorSummary");
+  me = dqmStore_->bookFloat(histo);
+
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
 
   for (int i = 1; i <= 18; i++) {
-    sprintf(histo, "Segment%02d_EcalEndcap", i);
+    sprintf(histo, "Segment%02d", i);
     me = dqmStore_->bookFloat(histo);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "errorSummaryXYM_EcalEndcap");
-  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
-  me->setAxisTitle("jx", 1);
-  me->setAxisTitle("jy", 2);
-
-  sprintf(histo, "errorSummaryXYP_EcalEndcap");
-  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
+  sprintf(histo, "errorSummaryMap");
+  me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 
@@ -1303,16 +1303,14 @@ void EESummaryClient::analyze(void){
     float errorSummaryEE = -1.0;
     if ( nValidChannelsEE[i-1] != 0 )
       errorSummaryEE = 1.0 - float(nGlobalErrorsEE[i-1])/float(nValidChannelsEE[i-1]);
-    sprintf(histo, "Segment%02d_EcalEndcap", i);
+    sprintf(histo, "Segment%02d", i);
     me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
     if (me) me->Fill(errorSummaryEE);
   }
 
-  MonitorElement* meside[2];
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryMap");
 
-  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYM_EcalEndcap");
-  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYP_EcalEndcap");
-  if (meside[0] && meside[1]) {
+  if (me) {
 
     int nValidChannelsTT[2][20][20];
     int nGlobalErrorsTT[2][20][20];
@@ -1359,7 +1357,7 @@ void EESummaryClient::analyze(void){
             xval = 0.0;
           }
 
-          meside[iside]->setBinContent( jxdcc+1, jydcc+1, xval );
+          me->setBinContent( 20*(iside-1)+jxdcc+1, jydcc+1, xval );
 
         }
       }
