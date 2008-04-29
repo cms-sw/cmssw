@@ -5,6 +5,7 @@
 
 
 #include<iostream>
+#include<sstream>
 #include<vector>
 
 namespace {
@@ -51,7 +52,6 @@ void popcon::ExPedestalSource::getNewObjects() {
   
   std::cout<<"first since = "<< m_since <<std::endl;
   
- 
   
   Pedestals * p0 = new Pedestals;
   fill(*p0,3);
@@ -69,6 +69,13 @@ void popcon::ExPedestalSource::getNewObjects() {
     since-=m_increment;
     size+=2;
   }
+
+  ostringstream ss << "num=" << m_number <<","
+		   << "firstSize=3," <<"lastSize=" << size-2; 
+    
+
+  m_userTextLog = ss.str()+";";
+
 
   edm::LogInfo   ("ExPedestalsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;
 }

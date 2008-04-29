@@ -95,10 +95,11 @@ namespace popcon {
       typedef typename Source::Container Container;
 
       initialize();
-      m_dbService->setLogHeaderForRecord(m_record,source.id(),"something clever");
+      std::pair<Container * const, std::string const> ret = source(&m_dbService->connection(),
+							       m_tagInfo,m_logDBEntry); 
+      Container const & payloads = *ret.first;
+      m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; "+ret.second);
 
-      Container const & payloads = source(&m_dbService->connection(),
-					  m_tagInfo,m_logDBEntry);
       displayHelper(payloads,m_since);
       std::for_each(payloads.begin(),payloads.end(),
 		    boost::bind(&popcon::PopCon::writeOne<value_type>,this,

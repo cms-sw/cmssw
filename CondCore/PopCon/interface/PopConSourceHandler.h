@@ -86,11 +86,11 @@ namespace popcon {
     }
 
     // this is the only mandatory interface
-    Container const & operator()(cond::Connection* connection,
+    std::pair<Container * const, std::string const>  operator()(cond::Connection* connection,
 				 cond::TagInfo const & tagInfo, 
 				 cond::LogDBEntry const & logDBEntry) const {
       const_cast<self*>(this)->initialize(connection, tagInfo, logDBEntry);
-      return const_cast<self*>(this)->returnData();
+      return make_pair< &const_cast<self*>(this)->returnData(), userTextLog);
     }
     
     Container const &  returnData() {
@@ -99,7 +99,10 @@ namespace popcon {
       return m_to_transfer;
     }
     
-    //Implement to fill m_to_transfer vector
+    std::string const & userTextLog() const { return m_userTextLog; }
+
+
+    //Implement to fill m_to_transfer vector and  m_userTextLog
     //use getOfflineInfo to get the contents of offline DB
     virtual void getNewObjects()=0;
 
@@ -131,6 +134,10 @@ namespace popcon {
     //vector of payload objects and iovinfo to be transferred
     //class looses ownership of payload object
     Container m_to_transfer;
+
+    std::string m_userTextLog;
+
+
   };
 }
 #endif
