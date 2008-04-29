@@ -34,17 +34,17 @@
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 // Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/FixedMatrixClusterProducer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/Multi5x5ClusterProducer.h"
 
 
-FixedMatrixClusterProducer::FixedMatrixClusterProducer(const edm::ParameterSet& ps)
+Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
 {
   // The verbosity level
   std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = FixedMatrixClusterAlgo::pDEBUG;
-  else if (verbosityString == "WARNING") verbosity = FixedMatrixClusterAlgo::pWARNING;
-  else if (verbosityString == "INFO")    verbosity = FixedMatrixClusterAlgo::pINFO;
-  else                                   verbosity = FixedMatrixClusterAlgo::pERROR;
+  if      (verbosityString == "DEBUG")   verbosity = Multi5x5ClusterAlgo::pDEBUG;
+  else if (verbosityString == "WARNING") verbosity = Multi5x5ClusterAlgo::pWARNING;
+  else if (verbosityString == "INFO")    verbosity = Multi5x5ClusterAlgo::pINFO;
+  else                                   verbosity = Multi5x5ClusterAlgo::pERROR;
 
   // Parameters to identify the hit collections
   barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");
@@ -87,27 +87,27 @@ FixedMatrixClusterProducer::FixedMatrixClusterProducer(const edm::ParameterSet& 
   produces< reco::BasicClusterShapeAssociationCollection >(barrelClusterShapeAssociation_);
   produces< reco::BasicClusterShapeAssociationCollection >(endcapClusterShapeAssociation_);
 
-  island_p = new FixedMatrixClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
+  island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, posCalculator_,verbosity);
 
   nEvt_ = 0;
 }
 
 
-FixedMatrixClusterProducer::~FixedMatrixClusterProducer()
+Multi5x5ClusterProducer::~Multi5x5ClusterProducer()
 {
   delete island_p;
 }
 
 
-void FixedMatrixClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
+void Multi5x5ClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, FixedMatrixClusterAlgo::endcap); 
-  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, FixedMatrixClusterAlgo::barrel);
+  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, Multi5x5ClusterAlgo::endcap); 
+  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, Multi5x5ClusterAlgo::barrel);
   nEvt_++;
 }
 
 
-const EcalRecHitCollection * FixedMatrixClusterProducer::getCollection(edm::Event& evt,
+const EcalRecHitCollection * Multi5x5ClusterProducer::getCollection(edm::Event& evt,
                                                                   const std::string& hitProducer_,
                                                                   const std::string& hitCollection_)
 {
@@ -123,19 +123,19 @@ const EcalRecHitCollection * FixedMatrixClusterProducer::getCollection(edm::Even
     }
   catch ( cms::Exception& ex ) 
     {
-      edm::LogError("FixedMatrixClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
+      edm::LogError("Multi5x5ClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
       return 0;
     }
   return rhcHandle.product();
 }
 
 
-void FixedMatrixClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
+void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
                                                const std::string& hitProducer,
                                                const std::string& hitCollection,
                                                const std::string& clusterCollection,
 					       const std::string& clusterShapeAssociation,
-                                               const FixedMatrixClusterAlgo::EcalPart& ecalPart)
+                                               const Multi5x5ClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
   const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
@@ -148,7 +148,7 @@ void FixedMatrixClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::
   CaloSubdetectorTopology *topology_p;
 
   std::string clustershapetag;
-  if (ecalPart == FixedMatrixClusterAlgo::barrel) 
+  if (ecalPart == Multi5x5ClusterAlgo::barrel) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
       topology_p = new EcalBarrelTopology(geoHandle);
@@ -177,7 +177,7 @@ void FixedMatrixClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::
   std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
   clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
   edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle; 
-  if (ecalPart == FixedMatrixClusterAlgo::barrel) 
+  if (ecalPart == Multi5x5ClusterAlgo::barrel) 
     clusHandle= evt.put(clustersshapes_p, clustershapecollectionEB_);
   else
     clusHandle= evt.put(clustersshapes_p, clustershapecollectionEE_);
@@ -186,7 +186,7 @@ void FixedMatrixClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
-  if (ecalPart == FixedMatrixClusterAlgo::barrel) 
+  if (ecalPart == Multi5x5ClusterAlgo::barrel) 
     bccHandle = evt.put(clusters_p, barrelClusterCollection_);
   else
     bccHandle = evt.put(clusters_p, endcapClusterCollection_);

@@ -18,17 +18,17 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 // Class header file
-#include "RecoEcal/EgammaClusterProducers/interface/FixedMatrixSuperClusterProducer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/Multi5x5SuperClusterProducer.h"
 
 
-FixedMatrixSuperClusterProducer::FixedMatrixSuperClusterProducer(const edm::ParameterSet& ps)
+Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterSet& ps)
 {
   // The verbosity level
   std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = FixedMatrixBremRecoveryClusterAlgo::pDEBUG;
-  else if (verbosityString == "WARNING") verbosity = FixedMatrixBremRecoveryClusterAlgo::pWARNING;
-  else if (verbosityString == "INFO")    verbosity = FixedMatrixBremRecoveryClusterAlgo::pINFO;
-  else                                   verbosity = FixedMatrixBremRecoveryClusterAlgo::pERROR;
+  if      (verbosityString == "DEBUG")   verbosity = Multi5x5BremRecoveryClusterAlgo::pDEBUG;
+  else if (verbosityString == "WARNING") verbosity = Multi5x5BremRecoveryClusterAlgo::pWARNING;
+  else if (verbosityString == "INFO")    verbosity = Multi5x5BremRecoveryClusterAlgo::pINFO;
+  else                                   verbosity = Multi5x5BremRecoveryClusterAlgo::pERROR;
 
   endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
   barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
@@ -51,7 +51,7 @@ FixedMatrixSuperClusterProducer::FixedMatrixSuperClusterProducer(const edm::Para
   const edm::ParameterSet bremRecoveryPset = ps.getParameter<edm::ParameterSet>("bremRecoveryPset");
   bool dynamicPhiRoad = ps.getParameter<bool>("dynamicPhiRoad");
 
-  bremAlgo_p = new FixedMatrixBremRecoveryClusterAlgo(bremRecoveryPset, barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
+  bremAlgo_p = new Multi5x5BremRecoveryClusterAlgo(bremRecoveryPset, barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
 					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
                                          dynamicPhiRoad, seedTransverseEnergyThreshold_, verbosity);
 
@@ -64,28 +64,28 @@ FixedMatrixSuperClusterProducer::FixedMatrixSuperClusterProducer(const edm::Para
 }
 
 
-FixedMatrixSuperClusterProducer::~FixedMatrixSuperClusterProducer()
+Multi5x5SuperClusterProducer::~Multi5x5SuperClusterProducer()
 {
   delete bremAlgo_p;
 }
 
 void
-FixedMatrixSuperClusterProducer::endJob() {
+Multi5x5SuperClusterProducer::endJob() {
   double averEnergy = 0.;
   std::ostringstream str;
-  str << "FixedMatrixSuperClusterProducer::endJob()\n"
+  str << "Multi5x5SuperClusterProducer::endJob()\n"
       << "  total # reconstructed super clusters: " << noSuperClusters << "\n"
       << "  total energy of all clusters: " << totalE << "\n";
   if(noSuperClusters>0) { 
     averEnergy = totalE / noSuperClusters;
     str << "  average SuperCluster energy = " << averEnergy << "\n";
   }
-  edm::LogInfo("FixedMatrixSuperClusterProducerInfo") << str.str() << "\n";
+  edm::LogInfo("Multi5x5SuperClusterProducerInfo") << str.str() << "\n";
 
 }
 
 
-void FixedMatrixSuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
+void Multi5x5SuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   if(doEndcaps_)
     produceSuperclustersForECALPart(evt, endcapClusterProducer_, endcapClusterCollection_, endcapSuperclusterCollection_);
@@ -97,7 +97,7 @@ void FixedMatrixSuperClusterProducer::produce(edm::Event& evt, const edm::EventS
 }
 
 
-void FixedMatrixSuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt, 
+void Multi5x5SuperClusterProducer::produceSuperclustersForECALPart(edm::Event& evt, 
 							   std::string clusterProducer, 
 							   std::string clusterCollection,
 							   std::string superclusterCollection)
@@ -125,7 +125,7 @@ void FixedMatrixSuperClusterProducer::produceSuperclustersForECALPart(edm::Event
 }
 
 
-void FixedMatrixSuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::BasicClusterRefVector *clusterRefVector_p)
+void Multi5x5SuperClusterProducer::getClusterRefVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::BasicClusterRefVector *clusterRefVector_p)
 {  
   edm::Handle<reco::BasicClusterCollection> bccHandle;
   try
@@ -133,13 +133,13 @@ void FixedMatrixSuperClusterProducer::getClusterRefVector(edm::Event& evt, std::
       evt.getByLabel(clusterProducer_, clusterCollection_, bccHandle);
       if (!(bccHandle.isValid()))
 	{
-	  edm::LogError("FixedMatrixSuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
+	  edm::LogError("Multi5x5SuperClusterProducerError") << "could not get a handle on the BasicCluster Collection!";
 	  clusterRefVector_p = 0;
 	}
     } 
   catch ( cms::Exception& ex )
     {
-      edm::LogError("FixedMatrixSuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
+      edm::LogError("Multi5x5SuperClusterProducerError") << "Error! can't get the product " << clusterCollection_.c_str(); 
       clusterRefVector_p = 0;
     }
 
