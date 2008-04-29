@@ -144,16 +144,29 @@ TrackTransformer::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitConta
     }
 }
 
+
 /// Convert Tracks into Trajectories
 vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) const {
-  
+
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
   
   reco::TransientTrack track(newTrack,magneticField(),trackingGeometry());   
-  
+
   // Build the transient Rechits
   TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit = getTransientRecHits(track);
+
+  return transform(newTrack, track, recHitsForReFit);
+}
+
+
+/// Convert Tracks into Trajectories with a given set of hits
+vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack, 
+                                               const reco::TransientTrack track,
+                                               TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit) const {
+  
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
+
+  const std::string metname = "Reco|TrackingTools|TrackTransformer";
   
   // Check the order of the rechits
   RefitDirection recHitsOrder = checkRecHitsOrdering(recHitsForReFit);
@@ -210,6 +223,9 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   Trajectory trajectoryBW = trajectories.front();
     
   vector<Trajectory> trajectoriesSM = theSmoother->trajectories(trajectoryBW);
+
+//  vector<Trajectory> trajectoriesSM;
+//  trajectoriesSM.push_back(trajectoryBW);
   
   if(trajectoriesSM.empty()){
     LogDebug(metname)<<"No Track smoothed!"<<endl;
@@ -217,6 +233,7 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   }
   
   return trajectoriesSM;
+
 }
 
 
