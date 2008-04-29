@@ -428,7 +428,8 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associatePixelRecHit(const SiPixe
   edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = pixeldigisimlink->find(detID); 
   if(isearch != pixeldigisimlink->end()) {  //if it is not empty
     edm::DetSet<PixelDigiSimLink> link_detset = (*pixeldigisimlink)[detID];
-    edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = pixelrechit->cluster();
+    //    edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = pixelrechit->cluster();
+    SiPixelRecHit::ClusterRef const& cluster = pixelrechit->cluster();
     int minPixelRow = (*cluster).minPixelRow();
     int maxPixelRow = (*cluster).maxPixelRow();
     int minPixelCol = (*cluster).minPixelCol();
