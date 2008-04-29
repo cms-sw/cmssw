@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2008/04/25 19:34:15 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/04/28 10:11:38 $
+ *  $Revision: 1.14 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -41,7 +41,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 	/// Booking of MonitoringElemnt for one RPCDetId (= roll)
-	std::map<std::string, MonitorElement*> bookDetUnitME(RPCDetId & detId);	
+	std::map<std::string, MonitorElement*> bookDetUnitME(RPCDetId& , const edm::EventSetup&);	
 	
 	
 	/// Booking of MonitoringElemnt at Wheel/Disk level
@@ -52,6 +52,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 
    private:
 	
+	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
 	int counter;
 	/// back-end interface
 	DQMStore * dbe;

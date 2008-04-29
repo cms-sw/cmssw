@@ -1,4 +1,4 @@
-/************************************************
+ /************************************************
  *						*
  *  implementation of RPCMonitorDigi class	*
  *						*
@@ -212,7 +212,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
     std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
     if (meItr == meCollection.end() || (meCollection.size()==0)) {
-      meCollection[id]=bookDetUnitME(detId);
+      meCollection[id]=bookDetUnitME(detId,iSetup );
     }
     std::map<std::string, MonitorElement*> meMap=meCollection[id];
     
