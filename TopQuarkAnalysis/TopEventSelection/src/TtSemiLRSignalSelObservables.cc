@@ -315,7 +315,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   
   //ratio between ET of the fifth jet and HT
   
-  double Obs19 = TopJets[4].et()/HT;
+  double Obs19 = (TopJets.size() > 4) ? TopJets[4].et()/HT : 1.0;
   evtselectVarVal.push_back(pair<unsigned int,double>(19,Obs19));
   if(DEBUG) cout<<"------ LR observable 19 "<<Obs19<<" calculated ------"<<endl;
   
@@ -592,6 +592,8 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   delete Lept;
   if(DEBUG) cout<<"------     Pointer to Lepn deleted      ------"<<endl;
   delete Lepn;
+  if(DEBUG) cout<<"------     Pointer to Mez deleted       ------"<<endl;
+  delete Mez;
   
   if(DEBUG) cout<<"------------ LR observables calculated -----------"<<endl;  
 }
