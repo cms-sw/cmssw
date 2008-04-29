@@ -307,21 +307,16 @@ void EBSummaryClient::setup(void) {
 
   MonitorElement* me;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "errorSummary");
-  me = dqmStore_->bookFloat(histo);
-
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
 
   for (int i = 1; i <= 36; i++) {
-    sprintf(histo, "Segment%02d", i);
+    sprintf(histo, "Segment%02d_EcalBarrel", i);
     me = dqmStore_->bookFloat(histo);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "errorSummaryMap");
+  sprintf(histo, "errorSummaryPhiEta_EcalBarrel");
   me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
   me->setAxisTitle("jphi", 1);
   me->setAxisTitle("jeta", 2);
@@ -1109,12 +1104,12 @@ void EBSummaryClient::analyze(void){
     float errorSummaryEB = -1.0;
     if ( nValidChannelsEB[i-1] != 0 )
       errorSummaryEB = 1.0 - float(nGlobalErrorsEB[i-1])/float(nValidChannelsEB[i-1]);
-    sprintf(histo, "Segment%02d", i);
+    sprintf(histo, "Segment%02d_EcalBarrel", i);
     me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
     if (me) me->Fill(errorSummaryEB);
   }
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryMap");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryPhiEta_EcalBarrel");
   if (me) {
 
     int nValidChannelsTT[72][34];
