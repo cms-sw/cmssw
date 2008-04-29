@@ -1,0 +1,15 @@
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=hepmc> 
+<use name=ThePEG>
+<use name=Herwigpp>
+
+<flags EDM_PLUGIN=1>
+
+<export>
+	<lib name=GeneratorInterfaceHerwigppInterface>
+	<use name=FWCore/Framework>
+	<use name=SimDataFormats/HepMCProduct>
+	<use name=hepmc>
+	<use name=ThePEG>  
+</export>
