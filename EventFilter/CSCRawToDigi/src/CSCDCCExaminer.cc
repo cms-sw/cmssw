@@ -40,7 +40,7 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS){
+CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTATUSES(19),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(13),sDMBEventStaus(19){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
@@ -727,8 +727,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       if( buf0[0]&0x0004 ) ++DAV_CFEB;
       if( buf0[0]&0x0008 ) ++DAV_CFEB;
       if( buf0[0]&0x0010 ) ++DAV_CFEB;
-      if( DAV_ALCT ) bCHAMB_PAYLOAD[currentChamber] |= 0x80;
-      if( DAV_TMB  ) bCHAMB_PAYLOAD[currentChamber] |= 0x100;
+      if( DAV_ALCT ) bCHAMB_PAYLOAD[currentChamber] |= 0x20;
+      if( DAV_TMB  ) bCHAMB_PAYLOAD[currentChamber] |= 0x40;
       bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
       bCHAMB_PAYLOAD[currentChamber] |=((buf_1[2]>>5)&0x001f);
     }
@@ -1082,8 +1082,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	bCHAMB_ERR[currentChamber] |= 0x40;
     nDMBs++;
       // Set variables if we are waiting ALCT, TMB and CFEB records to be present in event
-      if( buf0[0]&0x0400 ) bCHAMB_PAYLOAD[currentChamber] |= 0x80;
-      if( buf0[0]&0x0800 ) bCHAMB_PAYLOAD[currentChamber] |= 0x100;
+      if( buf0[0]&0x0400 ) bCHAMB_PAYLOAD[currentChamber] |= 0x20;
+      if( buf0[0]&0x0800 ) bCHAMB_PAYLOAD[currentChamber] |= 0x40;
       bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
       bCHAMB_PAYLOAD[currentChamber] |=((buf0[0]>>5)&0x1f);
 
@@ -1147,9 +1147,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       if( !fDMB_Header && !fDMB_Trailer ) nDMBs++; // both DMB Header and DMB F-Trailer were missing
 
       bCHAMB_STATUS[currentChamber] |= (buf0[0]&0x0800)>>11;
-      bCHAMB_STATUS[currentChamber] |= (buf0[0]&0x0020)>>4;
+      bCHAMB_STATUS[currentChamber] |= (buf_1[1]&0x0020)>>4;
       bCHAMB_STATUS[currentChamber] |= (buf0[0]&0x07C0)>>4;
-      bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x0800)>>1;
+      bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x0800)>>4;
       bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x0020)<<3;
       bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x07C0)<<8;
       bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x001f)<<9;

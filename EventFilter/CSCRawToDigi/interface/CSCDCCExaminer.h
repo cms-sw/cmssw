@@ -8,7 +8,7 @@
 
 class CSCDCCExaminer {
 public:
-	const unsigned short nERRORS, nWARNINGS;
+	const unsigned short nERRORS, nWARNINGS, nPAYLOADS, nSTATUSES;
 
 private:
 	std::vector<char*> sERROR,  sWARNING, sERROR_,  sWARNING_, sDMBExpectedPayload, sDMBEventStaus;
@@ -186,6 +186,8 @@ public:
 
 	std::map<int,long> errorsDetailed  (void) const { return bCHAMB_ERR; }
 	std::map<int,long> warningsDetailed(void) const { return bCHAMB_WRN; }
+	std::map<int,long> payloadDetailed (void) const { return bCHAMB_PAYLOAD; }
+	std::map<int,long> statusDetailed  (void) const { return bCHAMB_STATUS; }
 
 	void crcALCT(bool enable);
 	void crcTMB (bool enable);
