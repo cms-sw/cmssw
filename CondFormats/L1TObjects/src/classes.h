@@ -47,7 +47,9 @@ namespace {
   namespace {
     std::map< std::string, std::map< std::string, std::string > > dummy0 ;
     std::map<DTBtiId,DTConfigBti> dummy1 ;
+    std::map<DTChamberId,std::map<DTBtiId,DTConfigBti> > dummy1a ;
     std::map<DTTracoId,DTConfigTraco> dummy2 ;
+    std::map<DTChamberId,std::map<DTTracoId,DTConfigTraco> > dummy2a ;
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
     std::vector<L1GtMuonTemplate> dummy4 ;
     std::vector<L1GtCaloTemplate> dummy5 ;
