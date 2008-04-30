@@ -14,7 +14,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov 13 13:59:09 CET 2007
-// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.13 2008/01/17 12:33:30 friis Exp $
+// $Id: SiPixelSCurveCalibrationAnalysis.h,v 1.14 2008/01/29 18:21:26 fblekman Exp $
 //
 //
 
@@ -39,13 +39,13 @@ enum sCurveHistogramType {
 };
 
 enum sCurveErrorFlag {
-   errNoDigi,
-   errOK,
-   errFlaggedBadByUser,
-   errBadChi2Prob,
-   errNoTurnOn,
-   errAllZeros,
-   errFitNonPhysical
+   errNoDigi,                   //default value (will actually never get passed to the analyzer, but included for consistency when viewing histograms) 
+   errOK,                       //everything is OK
+   errFlaggedBadByUser,         //fit converged, but parameters are outside a user specified range (i.e. noise (sigma) > 6 ADC counts)
+   errBadChi2Prob,              //fit converged, but failed user specified chi2 test
+   errFitNonPhysical,           //fit converged, but in a nonsensical region (i.e. vCalMax < threshold < 0, sigma > vCalMax, etc)
+   errNoTurnOn,                 //sCurve never turned on above 90%
+   errAllZeros                  //sCurve was all zeros.  This shouldn't ever happen, (all zeros would prevent a CalibDigi from being produced) but is included as a potential tool for potential future debugging        
 };
 
 
@@ -65,17 +65,24 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
 
       static std::vector<float> efficiencies_;
       static std::vector<float> effErrors_;
+      std::vector<float> vCalPointsAsFloats_;  //need to save single histograms
 
       sCurveErrorFlag estimateSCurveParameters(const std::vector<float>& eff, float& threshold, float& sigma);
       sCurveErrorFlag fittedSCurveSanityCheck(float threshold, float sigma, float amplitude);
+
+      void            buildACurveHistogram(const uint32_t& detid, const uint32_t& row, 
+                                           const uint32_t& col, sCurveErrorFlag errorFlag, 
+                                           const std::vector<float>& efficiencies, const std::vector<float>& errors);
 
    private:
       //configuration options
       bool                      useDetectorHierarchyFolders_;
       bool                      saveCurvesThatFlaggedBad_;
+      unsigned int              maxCurvesToSave_;               //define maximum number of curves to save, to prevent huge memory consumption
+      unsigned int              curvesSavedCounter_;
       bool                      write2dHistograms_;
       bool                      write2dFitResult_; 
-      std::vector<std::string>  plaquettesToSave_;
+      std::map<uint32_t, bool>  detIDsToSave_;      
 
       //parameters that define "bad curves"
       double                     minimumChi2prob_;
@@ -85,6 +92,11 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
       double                     maximumSigma_;
       double                     minimumEffAsymptote_;
       double                     maximumEffAsymptote_;
+
+      //parameters that define histogram size/binning
+      double                     maximumThresholdBin_;
+      double                     maximumSigmaBin_;
+
       
       //holds histogrms entered
       detIDHistogramMap histograms_;

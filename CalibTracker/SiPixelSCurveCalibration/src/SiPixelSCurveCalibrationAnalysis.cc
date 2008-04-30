@@ -26,10 +26,13 @@ void chi2toMinimize(int &npar, double* grad, double &fcnval, double* xval, int i
 void
 SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
 {
-   std::vector<std::string>     anEmptyDefaultVectorOfStrings;
-   plaquettesToSave_            = iConfig.getUntrackedParameter<std::vector<std::string> >("plaquettesToSave", anEmptyDefaultVectorOfStrings);
-   useDetectorHierarchyFolders_ = iConfig.getUntrackedParameter<bool>("useDetectorHierarchyFolders", false);
+   edm::LogInfo("SiPixelSCurveCalibrationAnalysis") << "Setting up calibration paramters.";
+   std::vector<uint32_t>        anEmptyDefaultVectorOfUInts;
+   std::vector<uint32_t>        detIDsToSaveVector_;
+   useDetectorHierarchyFolders_ = iConfig.getUntrackedParameter<bool>("useDetectorHierarchyFolders", true);
    saveCurvesThatFlaggedBad_    = iConfig.getUntrackedParameter<bool>("saveCurvesThatFlaggedBad", false);
+   detIDsToSaveVector_          = iConfig.getUntrackedParameter<std::vector<uint32_t> >("detIDsToSave", anEmptyDefaultVectorOfUInts);
+   maxCurvesToSave_             = iConfig.getUntrackedParameter<uint32_t>("maxCurvesToSave", 1000);
    write2dHistograms_           = iConfig.getUntrackedParameter<bool>("write2dHistograms", true);
    write2dFitResult_            = iConfig.getUntrackedParameter<bool>("write2dFitResult", true);
    minimumChi2prob_             = iConfig.getUntrackedParameter<double>("minimumChi2prob", 0);
@@ -39,6 +42,13 @@ SiPixelSCurveCalibrationAnalysis::doSetup(const edm::ParameterSet& iConfig)
    maximumSigma_                = iConfig.getUntrackedParameter<double>("maximumSigma", 100);
    minimumEffAsymptote_         = iConfig.getUntrackedParameter<double>("minimumEffAsymptote", 0);
    maximumEffAsymptote_         = iConfig.getUntrackedParameter<double>("maximumEffAsymptote", 1000);
+   maximumSigmaBin_             = iConfig.getUntrackedParameter<double>("maximumSigmaBin", 10);
+   maximumThresholdBin_         = iConfig.getUntrackedParameter<double>("maximumThresholdBin", 255);
+
+   // convert the vector into a map for quicker lookups.
+   for(unsigned int i = 0; i < detIDsToSaveVector_.size(); i++)
+      detIDsToSave_.insert( std::make_pair(detIDsToSaveVector_[i], true) );
+
 }
 
 SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
@@ -46,9 +56,56 @@ SiPixelSCurveCalibrationAnalysis::~SiPixelSCurveCalibrationAnalysis()
    //do nothing
 }
 
+void SiPixelSCurveCalibrationAnalysis::buildACurveHistogram(const uint32_t& detid, const uint32_t& row, const uint32_t& col, sCurveErrorFlag errorFlag, const std::vector<float>& efficiencies, const std::vector<float>& errors)
+{
+   if (curvesSavedCounter_ > maxCurvesToSave_)
+   {
+      edm::LogWarning("SiPixelSCurveCalibrationAnalysis") << "WARNING: Request to save curve for [detid](col/row):  [" << detid << "](" << col << "/" << row << ") denied. Maximum number of saved curves (defined in .cfi) exceeded.";
+      return;
+   }
+   std::ostringstream rootName;
+   rootName << "SCurve_row_" << row << "_col_" << col;
+   std::ostringstream humanName;
+   humanName << translateDetIdToString(detid) << "_" << rootName.str() << "_ErrorFlag_" << (int)errorFlag;
+
+   unsigned int numberOfVCalPoints = vCalPointsAsFloats_.size()-1; //minus one is necessary since the lower edge of the last bin must be added
+   if (efficiencies.size() != numberOfVCalPoints || errors.size() != numberOfVCalPoints)
+   {
+      edm::LogError("SiPixelSCurveCalibrationAnalysis") << "Error saving single curve histogram!  Number of Vcal values (" << numberOfVCalPoints << ") does not match number of efficiency points or error points!";
+      return;
+   }
+   setDQMDirectory(detid);
+   float * vcalValuesToPassToCrappyRoot = &vCalPointsAsFloats_[0];
+   MonitorElement * aBadHisto = bookDQMHistogram1D(detid, rootName.str(), humanName.str(), numberOfVCalPoints, vcalValuesToPassToCrappyRoot);  //ROOT only takes an input as array. :(  HOORAY FOR CINT!
+   curvesSavedCounter_++;
+   for(unsigned int iBin = 0; iBin < numberOfVCalPoints; ++iBin)
+   {
+      int rootBin = iBin + 1;  //root bins start at 1
+      aBadHisto->setBinContent(rootBin, efficiencies[iBin]);
+      aBadHisto->setBinError(rootBin, errors[iBin]);
+   }
+}
+
 void SiPixelSCurveCalibrationAnalysis::calibrationSetup(const edm::EventSetup& iSetup)
 {
    edm::LogInfo("SiPixelSCurveCalibrationAnalysis") << "Calibration Settings: VCalLow: " << vCalValues_[0] << "  VCalHigh: " << vCalValues_[vCalValues_.size()-1] << " nVCal: " << vCalValues_.size() << "  nTriggers: " << nTriggers_;
+   curvesSavedCounter_ = 0;
+   if (saveCurvesThatFlaggedBad_)
+   {
+      //build the vCal values as a vector of floats if we want to save single curves
+      const std::vector<short>* theVCalValues = this->getVcalValues();
+      unsigned int numberOfVCalPoints = theVCalValues->size();
+      edm::LogWarning("SiPixelSCurveCalibrationAnalysis") << "WARNING: Option set to save indiviual S-Curves - max number: " 
+                                                          << maxCurvesToSave_ << " This can lead to large memory consumption! (Got " << numberOfVCalPoints << " VCal Points";
+      for(unsigned int i = 0; i < numberOfVCalPoints; i++)
+      {
+         vCalPointsAsFloats_.push_back( static_cast<float>((*theVCalValues)[i]) );
+         edm::LogInfo("SiPixelSCurveCalibrationAnalysis") << "Adding calibration Vcal: " << (*theVCalValues)[i];
+      }
+      // must add lower edge of last bin to the vector
+      vCalPointsAsFloats_.push_back( vCalPointsAsFloats_[numberOfVCalPoints-1] + 1 );
+   }
+
    fitFunction_ = new TF1("sCurve", "0.5*[2]*(1+TMath::Erf( (x-[0]) / ([1]*sqrt(2)) ) )", vCalValues_[0], vCalValues_[vCalValues_.size()-1]);
 }
 
@@ -86,6 +143,8 @@ sCurveErrorFlag SiPixelSCurveCalibrationAnalysis::estimateSCurveParameters(const
          short saturationVcal   = vCalValues_[saturationBin];
          short delta            = saturationVcal - turnOnVcal;
          sigma                  = delta * 0.682;
+         if (sigma < 1)         //check to make sure sigma guess is larger than our X resolution.  Hopefully prevents Minuit from getting stuck at boundary
+            sigma = 1;
          threshold              = turnOnVcal + (0.5 * delta);
          return errOK;
       }
@@ -136,7 +195,7 @@ void SiPixelSCurveCalibrationAnalysis::newDetID(uint32_t detid)
       if (write2dHistograms_){
 	MonitorElement * D2sigma       = bookDQMHistoPlaquetteSummary2D(detid,"ScurveSigmas", detIdName + " Sigmas");
 	MonitorElement * D2thresh      = bookDQMHistoPlaquetteSummary2D(detid,"ScurveThresholds", detIdName + " Thresholds");
-	MonitorElement * D2chi2        = bookDQMHistoPlaquetteSummary2D(detid,"ScurveChi2NDF",detIdName + " Chi2NDF");
+	MonitorElement * D2chi2        = bookDQMHistoPlaquetteSummary2D(detid,"ScurveChi2Prob",detIdName + " Chi2Prob");
          insertResult.first->second.insert(std::make_pair(kSigmas, D2sigma));
          insertResult.first->second.insert(std::make_pair(kThresholds, D2thresh));
          insertResult.first->second.insert(std::make_pair(kChi2s, D2chi2));
@@ -145,9 +204,9 @@ void SiPixelSCurveCalibrationAnalysis::newDetID(uint32_t detid)
 	MonitorElement * D2FitResult = bookDQMHistoPlaquetteSummary2D(detid,"ScurveFitResult", detIdName + " Fit Result");
          insertResult.first->second.insert(std::make_pair(kFitResults, D2FitResult));
       }
-      MonitorElement * D1sigma       = bookDQMHistogram1D(detid,"ScurveSigmasSummary", detIdName + " Sigmas Summary", 100, 0, maximumSigma_);
-      MonitorElement * D1thresh      = bookDQMHistogram1D(detid,"ScurveThresholdSummary", detIdName + " Thresholds Summary", 255, 0, maximumThreshold_);
-      MonitorElement * D1chi2        = bookDQMHistogram1D(detid,"ScurveChi2NDFSummary", detIdName + " Chi2NDF Summary", 100, 0, 50);
+      MonitorElement * D1sigma       = bookDQMHistogram1D(detid,"ScurveSigmasSummary", detIdName + " Sigmas Summary", 100, 0, maximumSigmaBin_);
+      MonitorElement * D1thresh      = bookDQMHistogram1D(detid,"ScurveThresholdSummary", detIdName + " Thresholds Summary", 255, 0, maximumThresholdBin_);
+      MonitorElement * D1chi2        = bookDQMHistogram1D(detid,"ScurveChi2ProbSummary", detIdName + " Chi2Prob Summary", 100, 0, 1);
       MonitorElement * D1FitResult   = bookDQMHistogram1D(detid,"ScurveFitResultSummary", detIdName + " Fit Result Summary", 10, -0.5, 9.5);
       insertResult.first->second.insert(std::make_pair(kSigmaSummary, D1sigma));
       insertResult.first->second.insert(std::make_pair(kThresholdSummary, D1thresh));
@@ -178,13 +237,14 @@ bool SiPixelSCurveCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixe
    float sigmaGuess;
    errorFlag = estimateSCurveParameters(efficiencies_, thresholdGuess, sigmaGuess);
 
-   Double_t sigma		        = 0;
-   Double_t sigmaError		        = 0;
-   Double_t threshold		        = 0;
-   Double_t thresholdError		= 0;
-   Double_t amplitude		        = 0;
-   Double_t amplitudeError		= 0;
-   Double_t chi2		        = 0;
+   // these -1.0 default values will only be filled if the curve is all zeroes, or doesn't turn on, WHICH INDICATES A SERIOUS PROBLEM
+   Double_t sigma		        = -1.0;
+   Double_t sigmaError		        = -1.0;
+   Double_t threshold		        = -1.0;
+   Double_t thresholdError		= -1.0;
+   Double_t amplitude		        = -1.0;
+   Double_t amplitudeError		= -1.0;
+   Double_t chi2		        = -1.0;
    //calculate NDF
    Int_t nDOF                           = vCalValues_.size() - 3;
    Double_t chi2probability	        = 0;
@@ -193,6 +253,7 @@ bool SiPixelSCurveCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixe
    {
       //set up minuit fit
       TMinuit *gMinuit = new TMinuit(3);
+      gMinuit->SetPrintLevel(-1);  //save ourselves from gigabytes of stdout
       gMinuit->SetFCN(chi2toMinimize);
 
       //define threshold parameters - choose step size 1, max 300, min -50
@@ -242,23 +303,30 @@ bool SiPixelSCurveCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixe
       if (write2dFitResult_)
          (*thisDetIdHistoGrams).second[kFitResults]->setBinContent(col, row, errorFlag);
 
-      //fill sigmas and thresholds and chi2 only if fit made sense
-      if (errorFlag == errOK || errorFlag == errFlaggedBadByUser) 
+      // fill sigma/threshold result
+      (*thisDetIdHistoGrams).second[kSigmaSummary]->Fill(sigma);
+      (*thisDetIdHistoGrams).second[kThresholdSummary]->Fill(threshold);
+      if (write2dHistograms_)
       {
-         (*thisDetIdHistoGrams).second[kSigmaSummary]->Fill(sigma);
-         (*thisDetIdHistoGrams).second[kThresholdSummary]->Fill(threshold);
-         if (write2dHistograms_)
-         {
-            (*thisDetIdHistoGrams).second[kSigmas]->setBinContent(col, row, sigma);
-            (*thisDetIdHistoGrams).second[kThresholds]->setBinContent(col, row, threshold);
-         }
-      } 
-      //only fill chi2's if a fit was performed
-      if(errorFlag != errAllZeros && errorFlag != errNoTurnOn) 
+         (*thisDetIdHistoGrams).second[kSigmas]->setBinContent(col, row, sigma);
+         (*thisDetIdHistoGrams).second[kThresholds]->setBinContent(col, row, threshold);
+      }
+      // fill chi2
+      (*thisDetIdHistoGrams).second[kChi2Summary]->Fill(chi2probability);
+      if (write2dHistograms_)
+         (*thisDetIdHistoGrams).second[kChi2s]->Fill(col, row, chi2probability);
+   }
+   // save individual curves, if requested
+   if (saveCurvesThatFlaggedBad_)
+   {
+      bool thisDetIDinList = false;
+      if (detIDsToSave_.find(detid) != detIDsToSave_.end()) //see if we want to save this histogram
+         thisDetIDinList = true;
+
+      if (errorFlag != errOK || thisDetIDinList)
       {
-         (*thisDetIdHistoGrams).second[kChi2Summary]->Fill(chi2probability);
-         if (write2dHistograms_)
-            (*thisDetIdHistoGrams).second[kChi2s]->Fill(col, row, chi2probability);
+         edm::LogError("SiPixelSCurveCalibrationAnalysis") << "Saving error histogram for [detid](col/row):  [" << detid << "](" << col << "/" << row << ") ErrorFlag: " << errorFlag;
+         buildACurveHistogram(detid, row, col, errorFlag, efficiencies_, effErrors_);
       }
    }
 
