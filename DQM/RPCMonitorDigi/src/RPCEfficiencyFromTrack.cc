@@ -393,19 +393,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  
 	  RPCGeomServ RPCname(rollId);
 	  std::string nameRoll = RPCname.name();
-	  
-	  if(rollId.region()==0){
-	    int first = nameRoll.find("W");
-	    int second = nameRoll.substr(first,nameRoll.npos).find("/");
-	    std::string wheel=nameRoll.substr(first,second);		
-	    first = nameRoll.find("/");
-	    second = nameRoll.substr(first,nameRoll.npos).rfind("/");
-	    std::string rpc=nameRoll.substr(first+1,second-1);		
-	    first = nameRoll.rfind("/");
-	    std::string partition=nameRoll.substr(first+1);
-	    nameRoll=wheel+"_"+rpc+"_"+partition;
-	  }
-	  
+
 	  _idList.push_back(nameRoll);
 	  char detUnitLabel[128];
 	  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
@@ -568,18 +556,6 @@ void RPCEfficiencyFromTrack::endJob(){
     std::string wheel;
     std::string rpc;
     std::string partition;
-
-    if(id.region()==0){
-      int first = nameRoll.find("W");
-      int second = nameRoll.substr(first,nameRoll.npos).find("/");
-      wheel=nameRoll.substr(first,second);	
-      first = nameRoll.find("/");
-      second = nameRoll.substr(first,nameRoll.npos).rfind("/");
-      rpc=nameRoll.substr(first+1,second-1);
-      first = nameRoll.rfind("/");
-      partition=nameRoll.substr(first+1);
-      nameRoll=wheel+"_"+rpc+"_"+partition;
-    }
 
     int p=pred[id]; 
     int o=obse[id]; 

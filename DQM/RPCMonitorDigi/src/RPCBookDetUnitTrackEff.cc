@@ -44,17 +44,6 @@ std::map<std::string, MonitorElement*> RPCEfficiencyFromTrack::bookDetUnitTrackE
 
   RPCGeomServ RPCname(detId);
   std::string nameRoll = RPCname.name();
-  if(detId.region()==0){
-    int first = nameRoll.find("W");
-    int second = nameRoll.substr(first,nameRoll.npos).find("/");
-    std::string wheel=nameRoll.substr(first,second);		
-    first = nameRoll.find("/");
-    second = nameRoll.substr(first,nameRoll.npos).rfind("/");
-    std::string rpc=nameRoll.substr(first+1,second-1);		
-    first = nameRoll.rfind("/");
-    std::string partition=nameRoll.substr(first+1);
-    nameRoll=wheel+"_"+rpc+"_"+partition;
-  }
 
   char detUnitLabel[128];
   char layerLabel[128];
