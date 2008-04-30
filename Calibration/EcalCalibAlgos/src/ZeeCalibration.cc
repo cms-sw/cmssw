@@ -34,8 +34,8 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -82,7 +82,7 @@
 
 #define MZ 91.1876
 
-// #define DEBUG 1
+#define DEBUG 1
 
 ZeeCalibration::ZeeCalibration(const edm::ParameterSet& iConfig)
 {
@@ -1501,6 +1501,10 @@ std::cout<< "[ZeeCalibration] Starting loop number " << iLoop<<std::endl;
  resetVariables();
  
  resetHistograms();
+
+#ifdef DEBUG
+ std::cout<< "[ZeeCalibration] exiting from startingNewLoop" << std::endl;
+#endif
 
 }
 

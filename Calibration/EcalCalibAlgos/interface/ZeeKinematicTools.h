@@ -8,8 +8,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

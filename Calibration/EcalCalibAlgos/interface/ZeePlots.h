@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibration.h,v 1.5 2007/03/16 13:07:34 beaucero Exp $
+// $Id: ZeePlots.h,v 1.1 2008/04/28 16:56:26 palmale Exp $
 //
 //
 
@@ -29,8 +29,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

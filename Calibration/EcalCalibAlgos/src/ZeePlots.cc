@@ -31,7 +31,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 ZeePlots::ZeePlots( char* fileName )
 {

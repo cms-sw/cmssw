@@ -6,7 +6,7 @@
 
 #include <vector>
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 
 
