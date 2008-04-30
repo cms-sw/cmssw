@@ -10,32 +10,35 @@ class PhotonID
   PhotonID(); //Default constructor.  It avails ye naught.
 
   //Real constructor
-  PhotonID(bool Decision, double BCIso, double TrkCone4,
-	   double HollowCone, int nTrkCone, int nHollow,
-	   double EcalRecHitIso, double HcalRecHitIso,
+  PhotonID(bool LooseEM, bool LoosePho, bool TightPho, 
+	   float TrkCone4, float HollowCone, int nTrkCone, int nHollow,
+	   float EcalRecHitIso, float HcalRecHitIso, float r9,
 	   bool EBPho, bool EEPho, bool EBGap, bool EEGap, bool EBEEGap,
 	   bool isAlsoElectron);
   
 
   //getters:
   
-  //Returns decision based on the cuts in the configuration file in Algo
-  bool cutBasedDecision() const {return cutBasedDecision_;}
-  //Returns computed BasicCluster isolation
-  double isolationECal() const{return isolationECal_;}
+  //Returns decision based on the cuts in the configuration file in 
+  //RecoEgamma/PhotonIdentification
+  bool isLooseEM() const{return isLooseEM_;}
+  bool isLoosePhoton() const{return isLoosePhoton_;}
+  bool isTightPhoton() const{return isTightPhoton_;}
+
   //Returns computed EcalRecHit isolation
-  double isolationEcalRecHit() const{return isolationEcalRecHit_;}
+  float isolationEcalRecHit() const{return isolationEcalRecHit_;}
   //Returns computed HcalRecHit isolation
-  double isolationHcalRecHit() const{return isolationHcalRecHit_;}
+  float isolationHcalRecHit() const{return isolationHcalRecHit_;}
   //Returns calculated sum track pT cone of dR
-  double isolationSolidTrkCone() const{return isolationSolidTrkCone_;}
+  float isolationSolidTrkCone() const{return isolationSolidTrkCone_;}
   //As above, excluding the core at the center of the cone
-  double isolationHollowTrkCone() const{return isolationHollowTrkCone_;}
+  float isolationHollowTrkCone() const{return isolationHollowTrkCone_;}
   //Returns number of tracks in a cone of dR
   int nTrkSolidCone() const{return nTrkSolidCone_;}
   //As above, excluding the core at the center of the cone
   int nTrkHollowCone() const{return nTrkHollowTrkCone_;}
-
+  //return r9 = e3x3/etotal
+  float r9() const{return r9_;}
   //if photon is in ECAL barrel
   bool isEBPho() const{return isEBPho_;}
   //if photon is in ECAL endcap
@@ -51,30 +54,30 @@ class PhotonID
 
   //setters:
   void setFiducialFlags(bool EBPho, bool EEPho, bool EBGap, bool EEGap, bool EBEEGap);
-  void setDecision(bool decision);
+  void setDecision(bool decisionLooseEM, bool decisionLoosePho, bool decisionTightPho);
 
  private:
 
   //Did this pass the cuts in the configuration?
-  bool cutBasedDecision_;
+  bool isLooseEM_;
+  bool isLoosePhoton_;
+  bool isTightPhoton_;
 
-  //These are analysis quantities calculated in the algo class
-
-  //BasicCluster Isolation
-  double isolationECal_;
+  //These are analysis quantities calculated in the PhotonIDAlgo class
   //EcalRecHit isolation
-  double isolationEcalRecHit_;
+  float isolationEcalRecHit_;
   //HcalRecHit isolation
-  double isolationHcalRecHit_;
+  float isolationHcalRecHit_;
   //Sum of track pT in a cone of dR
-  double isolationSolidTrkCone_;
+  float isolationSolidTrkCone_;
   //Sum of track pT in a hollow cone of outer radius, inner radius
-  double isolationHollowTrkCone_;
+  float isolationHollowTrkCone_;
   //Number of tracks in a cone of dR
   int nTrkSolidCone_;
   //Number of tracks in a hollow cone of outer radius, inner radius
   int nTrkHollowTrkCone_;
- 
+  //r9 variable
+  float r9_;
   //Fiducial flags
   bool isEBPho_;//Photon is in EB
   bool isEEPho_;//Photon is in EE
