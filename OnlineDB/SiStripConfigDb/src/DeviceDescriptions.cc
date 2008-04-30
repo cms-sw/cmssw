@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.25 2008/04/25 10:06:53 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.26 2008/04/29 11:57:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -9,7 +9,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescriptions( std::string partition ) {
+SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( std::string partition ) {
 
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -27,7 +27,7 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
-	  DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
+	  DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	  if ( range == devices_.emptyRange() ) {
 	    
 	    // Retrieve conections
@@ -50,7 +50,7 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
 	    devices_.loadNext( iter->second.partitionName(), tmp2 );
 
 	    // Some debug
-	    DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
+	    DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Dowloaded " << range.size() 
@@ -97,14 +97,14 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
   // Create range object
   uint16_t np = 0;
   uint16_t nc = 0;
-  DeviceDescriptions::range devs;
+  DeviceDescriptionsRange devs;
   if ( partition != "" ) { 
     devs = devices_.find( partition );
     np = 1;
     nc = devs.size();
   } else { 
     if ( !devices_.empty() ) {
-      devs = DeviceDescriptions::range( devices_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      devs = DeviceDescriptionsRange( devices_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 					devices_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { devs = devices_.emptyRange(); }
     np = devices_.size();
@@ -126,19 +126,21 @@ SiStripConfigDb::DeviceDescriptions::range SiStripConfigDb::getDeviceDescription
 
 // -----------------------------------------------------------------------------
 // 
+//SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( DeviceType device_type, 
 SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( DeviceType device_type, 
-										 std::string partition ) {
+										   std::string partition ) {
   
   typedDevices_.clear();
-
+  
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
        (  dbParams_.usingDbCache() && !databaseCache(__func__) ) ) { 
-    return std::make_pair( typedDevices_.end(), typedDevices_.end() );
+    return DeviceDescriptionsRange( typedDevices_.end(), typedDevices_.end() );
+    //return std::make_pair( typedDevices_.end(), typedDevices_.end() );
   }
   
   try { 
     
-    DeviceDescriptions::range devs = SiStripConfigDb::getDeviceDescriptions( partition );
+    DeviceDescriptionsRange devs = SiStripConfigDb::getDeviceDescriptions( partition );
     
     if ( !devs.empty() ) {
       std::vector<DeviceDescription*> tmp( devs.begin(), devs.end() );
@@ -153,7 +155,8 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
      << " device descriptions (for devices of type " 
      << deviceType( device_type ) << ")";
   
-  return std::make_pair( typedDevices_.begin(), typedDevices_.end() );
+  return DeviceDescriptionsRange( typedDevices_.begin(), typedDevices_.end() );
+  //return std::make_pair( typedDevices_.begin(), typedDevices_.end() );
   
 }
 
@@ -194,7 +197,7 @@ void SiStripConfigDb::addDeviceDescriptions( std::string partition, std::vector<
     return; 
   }
   
-  DeviceDescriptions::range range = devices_.find( partition );
+  DeviceDescriptionsRange range = devices_.find( partition );
   if ( range == devices_.emptyRange() ) {
     
     // Make local copy 
@@ -259,7 +262,7 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
       
       if ( partition == "" || partition == iter->second.partitionName() ) {
 	
-	DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
+	DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	if ( range != devices_.emptyRange() ) {
 	  
 	  std::vector<DeviceDescription*> devs( range.begin(), range.end() );
@@ -327,7 +330,7 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
-	DeviceDescriptions::range range = devices_.find( iter->second.partitionName() );
+	DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	if ( range != devices_.emptyRange() ) {
 	  temporary_cache.loadNext( partition, std::vector<DeviceDescription*>( range.begin(), range.end() ) );
 	} else {
@@ -342,10 +345,10 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   }
 
   // Delete objects in local cache for specified partition (or all if not specified) 
-  DeviceDescriptions::range devs;
+  DeviceDescriptionsRange devs;
   if ( partition == "" ) { 
     if ( !devices_.empty() ) {
-      devs = DeviceDescriptions::range( devices_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      devs = DeviceDescriptionsRange( devices_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 					devices_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { devs = devices_.emptyRange(); }
   } else {

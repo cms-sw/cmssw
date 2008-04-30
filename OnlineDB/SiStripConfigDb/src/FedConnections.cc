@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.23 2008/04/25 10:06:53 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.24 2008/04/29 11:57:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,7 +9,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::string partition ) {
+SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::string partition ) {
 
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -27,7 +27,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
-	  FedConnections::range range = connections_.find( iter->second.partitionName() );
+	  FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	  if ( range == connections_.emptyRange() ) {
 	    
 #ifdef USING_NEW_DATABASE_MODEL
@@ -75,7 +75,7 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
 #endif // USING_NEW_DATABASE_MODEL
 
 	    // Some debug
-	    FedConnections::range conns = connections_.find( iter->second.partitionName() );
+	    FedConnectionsRange conns = connections_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Dowloaded " << conns.size() 
@@ -122,14 +122,14 @@ SiStripConfigDb::FedConnections::range SiStripConfigDb::getFedConnections( std::
   // Create range object
   uint16_t np = 0;
   uint16_t nc = 0;
-  FedConnections::range conns;
+  FedConnectionsRange conns;
   if ( partition != "" ) { 
     conns = connections_.find( partition );
     np = 1;
     nc = conns.size();
   } else { 
     if ( !connections_.empty() ) {
-      conns = FedConnections::range( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      conns = FedConnectionsRange( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 				     connections_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { conns = connections_.emptyRange(); }
     np = connections_.size();
@@ -186,7 +186,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     return; 
   }
   
-  FedConnections::range range = connections_.find( partition );
+  FedConnectionsRange range = connections_.find( partition );
   if ( range == connections_.emptyRange() ) {
     
     // Make local copy 
@@ -254,7 +254,7 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 
-	  FedConnections::range range = connections_.find( iter->second.partitionName() );
+	  FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	  if ( range != connections_.emptyRange() ) {
 
 	    std::vector<FedConnection*> conns( range.begin(), range.end() );
@@ -319,7 +319,7 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition == "" || partition == iter->second.partitionName() ) {
-	FedConnections::range range = connections_.find( iter->second.partitionName() );
+	FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	if ( range != connections_.emptyRange() ) {
 	  std::vector<FedConnection*>::const_iterator ifed = range.begin();
 	  std::vector<FedConnection*>::const_iterator jfed = range.end();
@@ -360,7 +360,7 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
-	FedConnections::range range = connections_.find( iter->second.partitionName() );
+	FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	if ( range != connections_.emptyRange() ) {
 	  temporary_cache.loadNext( partition, std::vector<FedConnection*>( range.begin(), range.end() ) );
 	} else {
@@ -375,10 +375,10 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   }
 
   // Delete objects in local cache for specified partition (or all if not specified) 
-  FedConnections::range conns;
+  FedConnectionsRange conns;
   if ( partition == "" ) { 
     if ( !connections_.empty() ) {
-      conns = FedConnections::range( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      conns = FedConnectionsRange( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 				     connections_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { conns = connections_.emptyRange(); }
   } else {

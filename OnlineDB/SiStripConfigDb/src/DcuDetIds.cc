@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: DcuDetIds.cc,v 1.1 2008/04/30 08:12:36 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +8,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DcuDetIds::range SiStripConfigDb::getDcuDetIds( std::string partition ) {
+SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string partition ) {
 
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -26,7 +26,7 @@ SiStripConfigDb::DcuDetIds::range SiStripConfigDb::getDcuDetIds( std::string par
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
-	  DcuDetIds::range range = dcuDetIds_.find( iter->second.partitionName() );
+	  DcuDetIdsRange range = dcuDetIds_.find( iter->second.partitionName() );
 	  if ( range == dcuDetIds_.emptyRange() ) {
 	    
 #ifdef USING_NEW_DATABASE_MODEL
@@ -83,14 +83,14 @@ SiStripConfigDb::DcuDetIds::range SiStripConfigDb::getDcuDetIds( std::string par
   // Create range object
   uint16_t np = 0;
   uint16_t nc = 0;
-  DcuDetIds::range range;
+  DcuDetIdsRange range;
   if ( partition != "" ) { 
     range = dcuDetIds_.find( partition );
     np = 1;
     nc = range.size();
   } else { 
     if ( !dcuDetIds_.empty() ) {
-      range = DcuDetIds::range( dcuDetIds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      range = DcuDetIdsRange( dcuDetIds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 				dcuDetIds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { range = dcuDetIds_.emptyRange(); }
     np = dcuDetIds_.size();
@@ -151,7 +151,7 @@ void SiStripConfigDb::addDcuDetIds( std::string partition, std::vector<DcuDetId>
   //     return; 
   //   }
   
-  //   DcuDetIds::range range = dcuDetIds_.find( partition );
+  //   DcuDetIdsRange range = dcuDetIds_.find( partition );
   //   if ( range == dcuDetIds_.emptyRange() ) {
     
   //     // Make local copy 
@@ -233,7 +233,7 @@ void SiStripConfigDb::uploadDcuDetIds( std::string partition ) {
       
   //       if ( partition == "" || partition == iter->second.partitionName() ) {
 	
-  // 	DcuDetIds::range range = dcuDetIds_.find( iter->second.partitionName() );
+  // 	DcuDetIdsRange range = dcuDetIds_.find( iter->second.partitionName() );
   // 	if ( range != dcuDetIds_.emptyRange() ) {
 	  
   // 	  // Extract 
@@ -298,7 +298,7 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
-	DcuDetIds::range range = dcuDetIds_.find( iter->second.partitionName() );
+	DcuDetIdsRange range = dcuDetIds_.find( iter->second.partitionName() );
 	if ( range != dcuDetIds_.emptyRange() ) {
 	  temporary_cache.loadNext( partition, std::vector<DcuDetId>( range.begin(), range.end() ) );
 	} else {
@@ -313,10 +313,10 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   }
   
   // Delete objects in local cache for specified partition (or all if not specified) 
-  DcuDetIds::range dcus;
+  DcuDetIdsRange dcus;
   if ( partition == "" ) { 
     if ( !dcuDetIds_.empty() ) {
-      dcus = DcuDetIds::range( dcuDetIds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      dcus = DcuDetIdsRange( dcuDetIds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 			       dcuDetIds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { dcus = dcuDetIds_.emptyRange(); }
   } else {

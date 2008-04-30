@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.26 2008/04/25 10:06:53 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.27 2008/04/29 11:57:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -10,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std::string partition ) {
+SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::string partition ) {
 
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -28,7 +28,7 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
-	  FedDescriptions::range range = feds_.find( iter->second.partitionName() );
+	  FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	  if ( range == feds_.emptyRange() ) {
 
 	    // Extract versions
@@ -59,7 +59,7 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
 	    feds_.loadNext( iter->second.partitionName(), tmp2 );
 
 	    // Some debug
-	    FedDescriptions::range feds = feds_.find( iter->second.partitionName() );
+	    FedDescriptionsRange feds = feds_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
 	       << " Downloaded " << feds.size() 
@@ -106,14 +106,14 @@ SiStripConfigDb::FedDescriptions::range SiStripConfigDb::getFedDescriptions( std
   // Create range object
   uint16_t np = 0;
   uint16_t nc = 0;
-  FedDescriptions::range feds;
+  FedDescriptionsRange feds;
   if ( partition != "" ) { 
     feds = feds_.find( partition );
     np = 1;
     nc = feds.size();
   } else {  
     if ( !feds_.empty() ) {
-      feds = FedDescriptions::range( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      feds = FedDescriptionsRange( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 				     feds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { feds = feds_.emptyRange(); }
     np = feds_.size();
@@ -170,7 +170,7 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
     return; 
   }
   
-  FedDescriptions::range range = feds_.find( partition );
+  FedDescriptionsRange range = feds_.find( partition );
   if ( range == feds_.emptyRange() ) {
     
     // Make local copy 
@@ -236,7 +236,7 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
       
       if ( partition == "" || partition == iter->second.partitionName() ) {
 	
-	FedDescriptions::range range = feds_.find( iter->second.partitionName() );
+	FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
 	  
 	  std::vector<FedDescription*> feds( range.begin(), range.end() );
@@ -303,12 +303,12 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
-	FedDescriptions::range range = feds_.find( iter->second.partitionName() );
+	FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
 	  temporary_cache.loadNext( partition, std::vector<FedDescription*>( range.begin(), range.end() ) );
 	}
       } else {
-	FedDescriptions::range range = feds_.find( iter->second.partitionName() );
+	FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
 	  LogTrace(mlConfigDb_) 
 	    << "[SiStripConfigDb::" << __func__ << "]"
@@ -321,10 +321,10 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   }
   
   // Delete objects in local cache for specified partition (or all if not specified) 
-  FedDescriptions::range feds;
+  FedDescriptionsRange feds;
   if ( partition == "" ) { 
     if ( !feds_.empty() ) {
-      feds = FedDescriptions::range( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
+      feds = FedDescriptionsRange( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
 				     feds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
     } else { feds = feds_.emptyRange(); }
   } else {
@@ -446,7 +446,7 @@ SiStripConfigDb::FedIdsRange SiStripConfigDb::getFedIds( std::string partition )
   
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
        (  dbParams_.usingDbCache() && !databaseCache(__func__) ) ) { 
-    return std::make_pair( fedIds_.end(), fedIds_.end() );
+    return FedIdsRange( fedIds_.end(), fedIds_.end() );
   }
   
   try { 
@@ -454,7 +454,7 @@ SiStripConfigDb::FedIdsRange SiStripConfigDb::getFedIds( std::string partition )
     // Inhibit download of strip info
     bool using_strips = usingStrips_;
     if ( factory_ ) { factory_->setUsingStrips( false ); }
-    FedDescriptions::range feds = getFedDescriptions( partition );
+    FedDescriptionsRange feds = getFedDescriptions( partition );
     if ( factory_ ) { factory_->setUsingStrips( using_strips ); }
     
     if ( !feds.empty() ) {
@@ -479,7 +479,7 @@ SiStripConfigDb::FedIdsRange SiStripConfigDb::getFedIds( std::string partition )
       << " No FED ids found!"; 
   }
   
-  return std::make_pair( fedIds_.begin(), fedIds_.end() );
+  return FedIdsRange( fedIds_.begin(), fedIds_.end() );
 
 }
 

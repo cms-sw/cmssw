@@ -1,10 +1,10 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.62 2008/04/29 11:57:04 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.63 2008/04/30 08:12:36 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 
 #define DATABASE // Needed by DeviceFactory API! Do not comment!
-//#define USING_NEW_DATABASE_MODEL
+#define USING_NEW_DATABASE_MODEL
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -117,28 +117,31 @@ class SiStripConfigDb {
   typedef FedChannelConnectionDescription FedConnection;
 #endif
   typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
+  typedef FedConnections::range FedConnectionsRange;
   typedef std::vector<FedConnection*> FedConnectionV;
-  typedef std::pair< FedConnectionV::const_iterator, FedConnectionV::const_iterator > FedConnectionVRange;
   
   // Device descriptions
   typedef enumDeviceType DeviceType;
   typedef deviceDescription DeviceDescription;
   typedef edm::MapOfVectors<std::string,DeviceDescription*> DeviceDescriptions;
+  typedef DeviceDescriptions::range DeviceDescriptionsRange;
   typedef std::vector<DeviceDescription*> DeviceDescriptionV;
-  typedef std::pair< DeviceDescriptionV::const_iterator, DeviceDescriptionV::const_iterator > DeviceDescriptionsRange;
-
+  
   // FED descriptions
   typedef Fed9U::Fed9UDescription FedDescription;
   typedef edm::MapOfVectors<std::string,FedDescription*> FedDescriptions;
+  typedef FedDescriptions::range FedDescriptionsRange;
   typedef std::vector<FedDescription*> FedDescriptionV;
-  typedef std::pair< FedDescriptionV::const_iterator, FedDescriptionV::const_iterator > FedDescriptionRange;
-  typedef std::pair< std::vector<uint16_t>::const_iterator, std::vector<uint16_t>::const_iterator > FedIdsRange;
 
+  // FED ids
+  typedef std::vector<uint16_t> FedIds;
+  typedef boost::iterator_range<FedIds::const_iterator> FedIdsRange;
+  
   // DCU-DetId map
   typedef std::pair<uint32_t,TkDcuInfo*> DcuDetId; 
   typedef edm::MapOfVectors<std::string,DcuDetId> DcuDetIds; 
+  typedef DcuDetIds::range DcuDetIdsRange; 
   typedef std::vector<DcuDetId> DcuDetIdV;
-  typedef std::pair< DcuDetIdV::const_iterator, DcuDetIdV::const_iterator > DcuDetIdRange;
   typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
   
   
@@ -150,8 +153,8 @@ class SiStripConfigDb {
 #endif
   typedef CommissioningAnalysisDescription AnalysisDescription;
   typedef edm::MapOfVectors<std::string,AnalysisDescription*> AnalysisDescriptions;
+  typedef AnalysisDescriptions::range AnalysisDescriptionsRange;
   typedef std::vector<AnalysisDescription*> AnalysisDescriptionV;
-  typedef std::pair< AnalysisDescriptionV::const_iterator, AnalysisDescriptionV::const_iterator > AnalysisDescriptionRange;
 
 
   // ---------- Useful structs ----------
@@ -202,7 +205,7 @@ class SiStripConfigDb {
 
 
   /** Returns local cache (just for given partition if specified). */
-  FedConnections::range getFedConnections( std::string partition = "" );
+  FedConnectionsRange getFedConnections( std::string partition = "" );
 
   /** Add to local cache (just for given partition if specified). */
   void addFedConnections( std::string partition, std::vector<FedConnection*>& );
@@ -221,10 +224,11 @@ class SiStripConfigDb {
 
   
   /** Returns local cache (just for given partition if specified). */
-  DeviceDescriptions::range getDeviceDescriptions( std::string partition = "" ); 
+  DeviceDescriptionsRange getDeviceDescriptions( std::string partition = "" ); 
 
   /** Returns (pair of iterators to) descriptions of given type. */
   /** (APV25, APVMUX, DCU, LASERDRIVER, PLL). */
+  //DeviceDescriptionsRange getDeviceDescriptions( DeviceType, std::string partition = "" );
   DeviceDescriptionsRange getDeviceDescriptions( DeviceType, std::string partition = "" );
   
   /** Adds to local cache (just for given partition if specified). */
@@ -247,7 +251,7 @@ class SiStripConfigDb {
 
 
   /** Returns local cache (just for given partition if specified). */
-  FedDescriptions::range getFedDescriptions( std::string partition = "" ); 
+  FedDescriptionsRange getFedDescriptions( std::string partition = "" ); 
 
   /** Adds to local cache (just for given partition if specified). */
   void addFedDescriptions( std::string partition, std::vector<FedDescription*>& );
@@ -275,7 +279,7 @@ class SiStripConfigDb {
 
 
   /** Returns local cache (just for given partition if specified). */
-  DcuDetIds::range getDcuDetIds( std::string partition = "" );
+  DcuDetIdsRange getDcuDetIds( std::string partition = "" );
   
   /** Adds to local cache (just for given partition if specified). */
   void addDcuDetIds( std::string partition, std::vector<DcuDetId>& );
@@ -306,7 +310,7 @@ class SiStripConfigDb {
 #ifdef USING_NEW_DATABASE_MODEL
   
   /** Returns local cache (just for given partition if specified). */
-  AnalysisDescriptions::range getAnalysisDescriptions( AnalysisType, std::string partition = "" );
+  AnalysisDescriptionsRange getAnalysisDescriptions( AnalysisType, std::string partition = "" );
   
   /** Adds to local cache (just for given partition if specified). */
   void addAnalysisDescriptions( std::string partition, std::vector<AnalysisDescription*>& );
