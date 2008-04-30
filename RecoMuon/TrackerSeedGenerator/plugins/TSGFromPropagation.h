@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/03/06 15:54:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/17 18:58:55 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -15,6 +15,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
 class LayerMeasurements;
@@ -24,6 +25,7 @@ class MeasurementTracker;
 class GeometricSearchTracker;
 class DirectTrackerNavigation;
 class TrajectoryStateTransform;
+
 
 class TSGFromPropagation : public TrackerSeedGenerator {
 
@@ -45,7 +47,6 @@ public:
   /// set an event
   void setEvent(const edm::Event&);
 
-
 private:
 
   TrajectoryStateOnSurface innerState(const TrackCand&) const;
@@ -54,15 +55,17 @@ private:
 
   const LayerMeasurements* tkLayerMeasurements() const { return theTkLayerMeasurements; } 
 
+  const TrajectoryStateUpdator* updator() const {return theUpdator;}
+
   const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
 
   edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
 
-  /// create a seed from a trajectory state
+  /// create a hitless seed from a trajectory state
   TrajectorySeed createSeed(const TrajectoryStateOnSurface&, const DetId&) const;
 
-  /// create a seed from a trajectory measurement
-  TrajectorySeed createSeed(const TrajectoryMeasurement&) const;
+  /// create a seed from a trajectory state
+  TrajectorySeed createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id) const;
 
   /// select by comparing likely measurements
   void selectMeasurements(std::vector<TrajectoryMeasurement>&) const;
@@ -105,6 +108,8 @@ private:
   const DirectTrackerNavigation* theNavigation;
 
   const MuonServiceProxy* theService;
+
+  const TrajectoryStateUpdator* theUpdator;
 
   const Chi2MeasurementEstimator* theEstimator;
 

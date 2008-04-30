@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/03/06 15:54:57 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/04/17 18:59:39 $
+ *  $Revision: 1.22 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -23,6 +23,7 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -104,10 +105,14 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
        for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
             itm != alltm.end(); itm++) {
         LogTrace(theCategory) << " meas: hit "<<itm->recHit()->isValid()<<" state "<<itm->updatedState().isValid() << " estimate "<<itm->estimate();
-//        if ( itm->recHit()->isValid() && itm->updatedState().isValid() )  {
-            TrajectorySeed ts = createSeed(*itm);
+
+        TrajectoryStateOnSurface updatedTSOS = updator()->update(itm->predictedState(), *(itm->recHit()));
+        if ( itm->recHit()->isValid() && updatedTSOS.isValid() )  {
+            edm::OwnVector<TrackingRecHit> container;
+            container.push_back(itm->recHit()->hit()->clone());
+            TrajectorySeed ts = createSeed(updatedTSOS, container, itm->recHit()->geographicalId());
             result.push_back(ts); 
-//        }
+        }
        }
      return;
     }
@@ -156,6 +161,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
   theUpdateStateFlag = theConfig.getParameter<bool>("UpdateState");
 
   theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
+
+  theUpdator = new KFUpdator();
 
   theTSTransformer = new TrajectoryStateTransform();
 
@@ -243,22 +250,14 @@ TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMu
 
 TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& tsos, const DetId& id) const {
 
-  PTrajectoryStateOnDet* seedTSOS =
-    theTSTransformer->persistentState(tsos, id.rawId());
   edm::OwnVector<TrackingRecHit> container;
-
-  return TrajectorySeed(*seedTSOS,container,oppositeToMomentum);
+  return createSeed(tsos, container, id);
 
 }
 
-TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) const {
+TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id) const {
 
-  PTrajectoryStateOnDet* seedTSOS =
-    theTSTransformer->persistentState(tm.updatedState(),tm.recHit()->geographicalId().rawId());
-    
-  edm::OwnVector<TrackingRecHit> container;
-
-  container.push_back(tm.recHit()->hit()->clone());
+  PTrajectoryStateOnDet* seedTSOS = theTSTransformer->persistentState(tsos,id.rawId());
 
   return TrajectorySeed(*seedTSOS,container,oppositeToMomentum);
 
