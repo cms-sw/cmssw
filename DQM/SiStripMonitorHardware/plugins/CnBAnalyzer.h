@@ -70,6 +70,13 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   // Brute hack in case we have a mismatch between firmware and software versions
   bool preSwapOn_; 
 
+  // Debugging flag: if active we will build all histograms also for perfectly working FEDs
+  // You can remove this functionality by #defining or not CNBANALYZER_BUILD_ALL_HISTOS
+#define CNBANALYZER_BUILD_ALL_HISTOS
+#ifdef CNBANALYZER_BUILD_ALL_HISTOS
+  bool buildAllHistograms_;
+#endif
+
   // Number for event info for plots
 
   // Name of output file

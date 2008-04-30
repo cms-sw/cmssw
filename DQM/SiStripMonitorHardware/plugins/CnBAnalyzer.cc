@@ -12,6 +12,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include <iostream>
+#include <string>
+#include <sstream>
+
 CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
 
   // Dqm private object
@@ -24,6 +28,11 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   // Parameters to write a debug root file
   outputFileName_ = iConfig.getUntrackedParameter<string>("rootFile", "");
   outputFileDir_ = iConfig.getUntrackedParameter<string>("rootFileDirectory","");
+
+  // Decides whether to build histograms also for FEDs without any error
+#ifdef CNBANALYZER_BUILD_ALL_HISTOS
+  buildAllHistograms_ = iConfig.getUntrackedParameter<bool>("buildAllHistograms",false);
+#endif
   
   // FED address mapping is obtained through
   // FEDNumberting object: use and throw !
@@ -82,11 +91,13 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Retrieve FED all found fedIds  and iterate through 
   vector<uint16_t>::const_iterator ifed;
   for (ifed = fedIds_.begin() ; ifed != fedIds_.end(); ifed++ ) {
-    
+
 #ifdef CNBANALYZER_DEBUG
     LogInfo("FEDBuffer") << "A FED event: ";
 #endif
-    createDetailedFedHistograms((*ifed));
+#ifdef CNBANALYZER_BUILD_ALL_HISTOS
+    if (buildAllHistograms_) createDetailedFedHistograms((*ifed));
+#endif
     
     // Retrieve FED raw data for given FED... there it is :)      
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
@@ -116,60 +127,65 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       total_enabled_channels += thisFedEventErrs.totalChannels;
       total_faulty_channels  += thisFedEventErrs.problemsSeen;
 
-      // Update counters for FEDs
-      fedGenericErrors_->Fill(*ifed, total_faulty_channels);
-      if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
-      if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
-  
+      if (total_faulty_channels!=0) {
+	createDetailedFedHistograms((*ifed));
+	
+	// Update counters for FEDs
+	fedGenericErrors_->Fill(*ifed, total_faulty_channels);
+	if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
+	if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
+	
 #ifdef CNBANALYZER_DEBUG
-      LogInfo("FEDBuffer") << "total_enabled = " << total_enabled_channels;
-      LogInfo("FEDBuffer") << "total_faulty = " << total_faulty_channels;
-      LogInfo("FEDBuffer") << "internalFreeze = " << thisFedEventErrs.internalFreeze;
-      LogInfo("FEDBuffer") << "bxError = " << thisFedEventErrs.bxError;
+	LogInfo("FEDBuffer") << "total_enabled = " << total_enabled_channels;
+	LogInfo("FEDBuffer") << "total_faulty = " << total_faulty_channels;
+	LogInfo("FEDBuffer") << "internalFreeze = " << thisFedEventErrs.internalFreeze;
+	LogInfo("FEDBuffer") << "bxError = " << thisFedEventErrs.bxError;
 #endif
-      
-      // Fill the Front-end failure counters 
-      for (unsigned int iFrontEnd=0; iFrontEnd<8; iFrontEnd++) {
+	
+	// Fill the Front-end failure counters 
+	for (unsigned int iFrontEnd=0; iFrontEnd<8; iFrontEnd++) {
 #ifdef CNBANALYZER_DEBUG
-	LogInfo("FEDBuffer") << "feOverflow[" << iFrontEnd << "] = " << thisFedEventErrs.feOverflow[iFrontEnd];
-	LogInfo("FEDBuffer") << "apvAddressError[" << iFrontEnd << "] = " << thisFedEventErrs.apvAddressError[iFrontEnd];
+	  LogInfo("FEDBuffer") << "feOverflow[" << iFrontEnd << "] = " << thisFedEventErrs.feOverflow[iFrontEnd];
+	  LogInfo("FEDBuffer") << "apvAddressError[" << iFrontEnd << "] = " << thisFedEventErrs.apvAddressError[iFrontEnd];
 #endif
-
-	if (thisFedEventErrs.feOverflow[iFrontEnd])
-	  feOverFlow_[*ifed]->Fill(iFrontEnd*24+1);
-	if (thisFedEventErrs.apvAddressError[iFrontEnd])
-	  feAPVAddr_[*ifed]->Fill(iFrontEnd*24+1);
+	  
+	  if (thisFedEventErrs.feOverflow[iFrontEnd])
+	    feOverFlow_[*ifed]->Fill(iFrontEnd);
+	  if (thisFedEventErrs.apvAddressError[iFrontEnd])
+	    feAPVAddr_[*ifed]->Fill(iFrontEnd);
+	  
+	}
+	
+	// Fill the channel failure counters 
+	for (unsigned int iChannel=0; iChannel<96; iChannel++) {
+	  
+#ifdef CNBANALYZER_DEBUG
+	  LogInfo("FEDBuffer") << "channel[" << iChannel << "] = " << hex << thisFedEventErrs.channel[iChannel];
+#endif
+	  
+	  if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBERUNLOCKED)
+	    chanErrUnlock_[*ifed]->Fill(iChannel);
+	  if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBEROUTOFSYNCH)
+	    chanErrOOS_[*ifed]->Fill(iChannel);	
+	}      
+	
+	
+	// apv[96*2]
+	for (unsigned int iApv=0; iApv<192; iApv++) {
+#ifdef CNBANALYZER_DEBUG
+	  LogInfo("FEDBuffer") << "apv[" << iApv << "] = " << hex << thisFedEventErrs.apv[iApv];
+#endif
+	  
+	  if (thisFedEventErrs.apv[iApv])
+	    badApv_[*ifed]->Fill(iApv);
+	}
 	
       }
       
-      // Fill the channel failure counters 
-      for (unsigned int iChannel=0; iChannel<96; iChannel++) {
-
-#ifdef CNBANALYZER_DEBUG
-	LogInfo("FEDBuffer") << "channel[" << iChannel << "] = " << hex << thisFedEventErrs.channel[iChannel];
-#endif
-
-	if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBERUNLOCKED)
-	  chanErrUnlock_[*ifed]->Fill(iChannel*2+1);
-	if (thisFedEventErrs.channel[iChannel]==Fed9UEventAnalyzer::FIBEROUTOFSYNCH)
-	  chanErrOOS_[*ifed]->Fill(iChannel*2+1);	
-      }      
-      
-    
-      // apv[96*2]
-      for (unsigned int iApv=0; iApv<192; iApv++) {
-#ifdef CNBANALYZER_DEBUG
-	LogInfo("FEDBuffer") << "apv[" << iApv << "] = " << hex << thisFedEventErrs.apv[iApv];
-#endif
-
-	if (thisFedEventErrs.apv[iApv])
-	  badApv_[*ifed]->Fill(iApv+1);
-      }
-
     }
     
   } // end of the for ifed loop
-
+  
 
   // TODO: find a better solution to this (and remove the explicit 1000)
   if ( iEvent.id().event()<1000) {
@@ -198,37 +214,53 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 // at the job initialization by beginJob()
 void CnBAnalyzer::createRootFedHistograms() {
 
-  std::string baseFolder;
-  baseFolder = sistrip::root_ + "/Fed Monitoring Summary";
+  stringstream binNameS;
 
+  SiStripFedKey thisFedKey(0, 0, 0, 0);
+  std::string baseFolder = thisFedKey.path() + "/FedMonitoringSummary";
   dqm()->setCurrentFolder(baseFolder);
 
   // This Histogram will be filled with 
   // problemsSeen / totalChannels
-  fedGenericErrors_ = dqm()->book1D( "Fed Generic Errors","Fed Generic Errors vs. FED #",
+  fedGenericErrors_ = dqm()->book1D( "FedGenericErrors","Fed Generic Errors vs. FED #",
 				     totalNumberOfFeds_,
-				     fedIdBoundaries_.first  - 0.5,
-				     fedIdBoundaries_.second + 0.5 );
+				     fedIdBoundaries_.first,
+				     fedIdBoundaries_.second + 1 );
+  fedGenericErrors_->setAxisTitle("Number of errors", 2);
+  fedGenericErrors_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); binNameS << i; fedGenericErrors_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
   
-  
+ 
   // bool internalFreeze
-  fedFreeze_ = dqm()->book1D( "Fed Freeze","Fed Freeze vs. FED #",
+  fedFreeze_ = dqm()->book1D( "FedFreeze","Fed Freeze vs. FED #",
 			      totalNumberOfFeds_,
-			      fedIdBoundaries_.first  - 0.5,
-			      fedIdBoundaries_.second + 0.5 );
+			      fedIdBoundaries_.first,
+			      fedIdBoundaries_.second + 1 );
+  fedFreeze_->setAxisTitle("Number of errors", 2);
+  fedFreeze_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); binNameS << i; fedFreeze_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
   
   // bool bxError
-  fedBx_ = dqm()->book1D( "Fed Bx Error","Fed Bx Error vs. FED #",
+  fedBx_ = dqm()->book1D( "FedBxError","Fed Bx Error vs. FED #",
 			  totalNumberOfFeds_,
-			  fedIdBoundaries_.first  - 0.5,
-			  fedIdBoundaries_.second + 0.5 );
+			  fedIdBoundaries_.first,
+			  fedIdBoundaries_.second + 1 );
+  fedBx_->setAxisTitle("Number of errors", 2);
+  fedBx_->setAxisTitle("Front-End Driver", 1);
+  for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
+    binNameS.str(""); binNameS << i; fedBx_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+  }
 
   // Trend plots:
-  totalChannels_  = dqm()->book1D( "Total channels vs Event",
+  totalChannels_  = dqm()->book1D( "TotalChannelsVsEvent",
 				   "Total channels vs. Event for all FEDs",
 				   1001, 0.5, 1000.5);
 
-  faultyChannels_ = dqm()->book1D( "Faulty channels vs Event",
+  faultyChannels_ = dqm()->book1D( "FaultyChannelsVsEvent",
 				   "Faulty channels vs. Event for all FEDs",
 				   1001, 0.5, 1000.5);
 
@@ -252,6 +284,9 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
     // Set working directory prior to booking histograms 
     std::string dir = thisFedKey.path();
     dqm()->setCurrentFolder( dir );
+
+    std::stringstream binNameS;
+
     
     // All the following histograms are such that thay can be plot together
     // In fact the boundaries of the plots are 1, 192 (or actually 0.5, 192,5)
@@ -261,30 +296,47 @@ void CnBAnalyzer::createDetailedFedHistograms( const uint16_t& fed_id ) {
     // to address the front-end unit number 8) or one can make use of the x axis, which correspond
     // to the APV index (1, 192).
     
-    
+  
     //   bool feOverflow[8];
-    feOverFlow_[fed_id]     = dqm()->book1D( "FedUnit Overflow",
-					     "FedUnit Overflow for FED #"+fedNumber.str(),
-					     8, 0.5, 192.5 );
+    feOverFlow_[fed_id]     = dqm()->book1D( "FeUnitOverflow_FED"+fedNumber.str(),
+					     "FeUnit Overflow for FED #"+fedNumber.str(),
+					     8, 0, 8 );
+    feOverFlow_[fed_id]->setAxisTitle("Number of errors", 2);
+    feOverFlow_[fed_id]->setAxisTitle("Front-End Unit", 1);
+    for(unsigned int i=1; i<=8; i++) { binNameS.str(""); binNameS << i; feOverFlow_[fed_id]->setBinLabel(i, binNameS.str(), 1); }
     
     //   bool apvAddressError[8];
-    feAPVAddr_[fed_id]      = dqm()->book1D( "APV Address error",
+    feAPVAddr_[fed_id]      = dqm()->book1D( "APVAddresserror_FED"+fedNumber.str(),
 					     "FedUnit APV Address error for FED #"+fedNumber.str(),
-					     8, 0.5, 192.5 );
+					     8, 0, 8 );
+    feAPVAddr_[fed_id]->setAxisTitle("Number of errors", 2);
+    feAPVAddr_[fed_id]->setAxisTitle("Front-End Unit", 1);
+    for(unsigned int i=1; i<=8; i++) { binNameS.str(""); binNameS << i; feAPVAddr_[fed_id]->setBinLabel(i, binNameS.str(), 1); }
     
     // Channel[96]
-    chanErrUnlock_[fed_id]  = dqm()->book1D( "Unlock error",
+    chanErrUnlock_[fed_id]  = dqm()->book1D( "UnlockError_FED"+fedNumber.str(),
 					     "Unlocked Fiber error for FED #"+fedNumber.str(),
-					     96, 0.5, 192.5);
-    chanErrOOS_[fed_id]     = dqm()->book1D( "OOS error",
+					     96, 0, 96);
+    chanErrUnlock_[fed_id]->setAxisTitle("Number of errors", 2);
+    chanErrUnlock_[fed_id]->setAxisTitle("Channel", 1);
+    for(unsigned int i=1; i<=96; i++) { binNameS.str(""); if (i%6==0) binNameS << i; chanErrUnlock_[fed_id]->setBinLabel(i, binNameS.str(), 1); }
+
+
+    chanErrOOS_[fed_id]     = dqm()->book1D( "OOSerror_FED"+fedNumber.str(),
 					     "OutOfSynch Fiber error for FED #"+fedNumber.str(),
-					     96, 0.5, 192.5);
+					     96, 0, 96);
+    chanErrOOS_[fed_id]->setAxisTitle("Number of errors", 2);
+    chanErrOOS_[fed_id]->setAxisTitle("Channel", 1);
+    for(unsigned int i=1; i<=96; i++) { binNameS.str(""); if (i%6==0) binNameS << i; chanErrOOS_[fed_id]->setBinLabel(i, binNameS.str(), 1); }
     
     // apv[96*2]
-    badApv_[fed_id]         = dqm()->book1D( "Bad APV error",
+    badApv_[fed_id]         = dqm()->book1D( "BadAPVerror_FED"+fedNumber.str(),
 					     "Bad APV error for FED #"+fedNumber.str(),
-					     192, 0.5, 192.5);
-
+					     192, 0, 192);
+    badApv_[fed_id]->setAxisTitle("Number of errors", 2);
+    badApv_[fed_id]->setAxisTitle("APV", 1);
+    for(unsigned int i=1; i<=192; i++) { binNameS.str(""); if (i%12==0) binNameS << i; badApv_[fed_id]->setBinLabel(i, binNameS.str(), 1); }
+    
 
   } // Otherwise we have nothing to do
   
