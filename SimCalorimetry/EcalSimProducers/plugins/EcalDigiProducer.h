@@ -80,6 +80,8 @@ private:
   std::string EEdigiCollection_;
   std::string ESdigiCollection_;
 
+  std::string hitsProducer_;
+
   double EBs25notCont;
   double EEs25notCont;
 

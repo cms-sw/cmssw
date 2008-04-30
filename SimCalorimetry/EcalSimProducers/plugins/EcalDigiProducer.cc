@@ -23,6 +23,8 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   EEdigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
   ESdigiCollection_ = params.getParameter<std::string>("ESdigiCollection");
 
+  hitsProducer_ = params.getParameter<std::string>("hitsProducer");
+  
   produces<EBDigiCollection>(EBdigiCollection_);
   produces<EEDigiCollection>(EEdigiCollection_);
   produces<ESDigiCollection>(ESdigiCollection_);
@@ -136,9 +138,9 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
   // test access to SimHits
-  const std::string barrelHitsName("EcalHitsEB");
-  const std::string endcapHitsName("EcalHitsEE");
-  const std::string preshowerHitsName("EcalHitsES");
+  const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
+  const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
+  const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
 
   bool isEB = true;
   event.getByLabel("mix",barrelHitsName,crossingFrame);
