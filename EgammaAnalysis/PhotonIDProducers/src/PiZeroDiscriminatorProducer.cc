@@ -114,7 +114,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
   cout << " Photon Collection size : " << corrPhoCollection.size() << endl;
   for( PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
-      float Phot_R9 = iPho->r9();
+      //float Phot_R9 = iPho->r9();
       if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
          cout << " Photon index : " << Photon_index 
                            << " with Energy = " <<  iPho->energy()
@@ -222,7 +222,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 		    << " eta = " << SC_eta
 		    << " phi = " << SC_phi
 		    << " contains: " << it_super->clustersSize() << " BCs "
-                    << " R9 = " << Phot_R9
+                //    << " R9 = " << Phot_R9
 		    << " has NNout = " <<  nnoutput << endl;
          }
  	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,Photon_index), nnoutput); 
@@ -291,7 +291,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 		    << " eta = " << SC_eta
 		    << " phi = " << SC_phi
 		    << " contains: " << it_super->clustersSize() << " BCs "
-		    << " R9 = " << Phot_R9
+		    //<< " R9 = " << Phot_R9
 		    << " has NNout = " <<  nnoutput
 	            << endl;
          }
