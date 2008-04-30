@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id:$
+# $Id: smCleanUp.pl,v 1.1 2008/04/30 13:19:57 loizides Exp $
 
 use strict;
 use DBI;
@@ -91,7 +91,7 @@ if ($dataset)   { $constraint_dataset   = " and DATASET = '$dataset'";}
 my $myquery = '';
 $myquery = "$basesql $constraint_runnumber $constraint_uptorun $constraint_filename $constraint_hostname $constraint_dataset $endsql";
 
-$debug && print "******BASE QUERY: \n   $myquery, \n";
+$debug && print "****** BASE QUERY: \n   $myquery, \n";
 
 # Connect to DB
 my $dbi    = "DBI:Oracle:cms_rcms";
@@ -121,7 +121,7 @@ my $nRMtxt   = 0;
 my @row;  
 my  @outrow;
 
-print "$0 info: MAXFILES=$maxfiles \n";
+print "****** MAXFILES=$maxfiles \n";
 
 while ($nFiles<$maxfiles &&  (@row = $sth->fetchrow_array)) { 
   $debug   && print "       -------------------------------------------------------------------- \n";
@@ -208,21 +208,30 @@ while ($nFiles<$maxfiles &&  (@row = $sth->fetchrow_array)) {
     #if deleted entry, rm *.ind and *smry files
     if( !(defined $delete_err) ) {
       $nDeltDB++;
-      $debug   && print  ">> ...File DELETED from DB, now rm *.ind and *.smry files\n";
+      $debug    && print  ">> ...File DELETED from DB, now rm *.ind and *.smry files\n";
       if( -e "$fileIND"){
         $CHMODCOMMAND = "sudo chmod 666 $fileIND";
-        my $rmIND = `rm -f $fileIND`;
-        if (! -e "$fileIND" ) {$nRMind++;}
+        if( $execute ) { 
+            system($CHMODCOMMAND);
+            my $rmIND = `rm -f $fileIND`;
+            if (! -e "$fileIND" ) {$nRMind++;}
+        }
       }
       if( -e "$fileSMRY"){
         $CHMODCOMMAND = "sudo chmod 666 $fileSMRY";
-        my $rmSMRY = `rm $fileSMRY`;
-        if (! -e "$fileSMRY") {$nRMsmry++;}
+        if( $execute ) { 
+            system($CHMODCOMMAND);
+            my $rmSMRY = `rm $fileSMRY`;
+            if (! -e "$fileSMRY") {$nRMsmry++;}
+        }
       }
       if( -e "$fileTXT"){
 	$CHMODCOMMAND = "sudo chmod 666 $fileTXT";
-        my $rmTXT = `rm $fileTXT`;
-        if (! -e "$fileTXT" ) {$nRMtxt++;}
+        if( $execute ) { 
+            system($CHMODCOMMAND);
+            my $rmTXT = `rm $fileTXT`;
+            if (! -e "$fileTXT" ) {$nRMtxt++;}
+        }
       }
     } else {
       print "DB delete ERRORSTRING:  $delete_err \n";
