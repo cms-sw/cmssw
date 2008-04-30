@@ -36,16 +36,17 @@ private:
 
   // Sets the swap of words of the FED buffer
   bool swapOn_;
+  bool preSwapOn_; // bad hack TODO: clean this
 
   int thisFedId_;
   
 public:
   // Constructor
-  Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap);
+  Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap);
   
   // Constructor and event analyzer
   Fed9UEventAnalyzer(Fed9U::u32* data_u32, Fed9U::u32 size_u32,
-		     std::pair<int,int> newFedBoundaries, bool doSwap);
+		     std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap);
   ~Fed9UEventAnalyzer();
 
   // The actual event analyzer

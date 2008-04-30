@@ -64,9 +64,11 @@ class CnBAnalyzer : public edm::EDAnalyzer {
   MonitorElement* BadHead;
   MonitorElement* NoSynch;
 
-  // Set to 0 for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
+  // Set to false for buffer and non zero for FRL - SLINK readout - compensates for additional DQA headers, etc.
   // (K. Hahn request)
-  int swapOn_;
+  bool swapOn_;
+  // Brute hack in case we have a mismatch between firmware and software versions
+  bool preSwapOn_; 
 
   // Number for event info for plots
 

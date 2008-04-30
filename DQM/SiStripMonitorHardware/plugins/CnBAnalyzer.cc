@@ -12,28 +12,23 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-// This is the maximum number of histogrammed FEDs
-// If the number of FEDs exceeds this limit we have a crash
-//#define N_MAX_FEDS  (1024)
-//#define N_MAX_FEDUS (N_MAX_FEDS * 8)
-// feMajorAddress( N_MAX_FEDS,vector<uint16_t>(8) ), // a grand total of ~ 4000 front end units
-// feMedianAddr(N_MAX_FEDUS),
-
 CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
-  // Get hold of back-end interface
-  // dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
   // Dqm private object
   dqm_ = NULL;
   
   // Parameters for working with S-link and dumping the hex buffer
-  swapOn_ = iConfig.getUntrackedParameter<int>("swapOn");
+  swapOn_ = iConfig.getUntrackedParameter<bool>("swapOn");
+  preSwapOn_ = iConfig.getUntrackedParameter<bool>("preSwapOn", false);
+
+  // Parameters to write a debug root file
   outputFileName_ = iConfig.getUntrackedParameter<string>("rootFile", "");
   outputFileDir_ = iConfig.getUntrackedParameter<string>("rootFileDirectory","");
   
   // FED address mapping is obtained through
   // FEDNumberting object: use and throw !
   FEDNumbering fedNum;
+
   // valid FedIds for the tracker
   fedIdBoundaries_ = fedNum.getSiStripFEDIds();
   totalNumberOfFeds_ = fedIdBoundaries_.second - fedIdBoundaries_.first + 1;
@@ -101,7 +96,7 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
     size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); // Number of words of 32 bits (=4*8) input.size() being the size of an unsigned char vector
     
-    Fed9UEventAnalyzer myEventAnalyzer(fedIdBoundaries_, swapOn_);
+    Fed9UEventAnalyzer myEventAnalyzer(fedIdBoundaries_, swapOn_, preSwapOn_);
     
     // The Initialize function is true if we have a good
     // non-corrupted tracker buffer
