@@ -34,8 +34,8 @@ namespace edm
       explicit MixingWorker() {;}
 
       /*Normal constructor*/ 
-      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, int maxNbSources,Selector *sel, bool isTracker=false):
-	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,maxNbSources, sel,isTracker)
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, int maxNbSources,InputTag & tag, bool isTracker=false):
+	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,maxNbSources,tag,isTracker)
 	{
 
           trackerHigh_=false;
@@ -58,29 +58,25 @@ namespace edm
       }
 
       virtual void addSignals(const edm::Event &e){
-      // default version
-	std::vector<edm::Handle<std::vector<T> > > result_t;
-	e.getMany((*sel_),result_t);
-	int str=result_t.size();
-	if (str>1) LogWarning("MixingModule") << " Found "<<str<<" collections in signal file, only first one will be stored!!!!!!";
-	if (str>0) {
-	  edm::BranchDescription desc =result_t[0].provenance()->product();
-	  LogDebug("MixingModule") <<" adding " << result_t[0].product()->size()<<" signal objects";
-	  crFrame_->addSignals(result_t[0].product(),e.id());
+	// default version
+        edm::Handle<std::vector<T> >  result_t;
+	bool got = e.getByLabel(tag_,result_t);
+	if (got) {
+	  LogDebug("MixingModule") <<" adding " << result_t.product()->size()<<" signal objects for "<<typeid(T).name()<<" with "<<tag_;
+	  crFrame_->addSignals(result_t.product(),e.id());
 	}
+	//	else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tag_;
       }
 
       virtual void addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int &vertexoffset)
 	{
 	  // default version
 	  // valid for CaloHits
-	  std::vector<edm::Handle<std::vector<T> > > result_t;
-	  e->getMany((*sel_),result_t);
-	  int str=result_t.size();
-	  if (str>1) LogWarning("MixingModule") <<"Too many containers, should be only one!";
-	  if (str>0) {
-	    LogDebug("MixingModule") <<result_t[0].product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
-	    crFrame_->addPileups(bcr,result_t[0].product(),eventNr);
+	  edm::Handle<std::vector<T> >  result_t;
+	  bool got = e->getByLabel(tag_,result_t);
+	  if (got) {
+	    LogDebug("MixingModule") <<result_t.product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
+	    crFrame_->addPileups(bcr,result_t.product(),eventNr);
 	  }
 	}
       virtual void setBcrOffset() {crFrame_->setBcrOffset();}

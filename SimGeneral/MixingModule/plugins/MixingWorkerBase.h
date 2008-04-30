@@ -52,11 +52,12 @@ namespace edm
 	maxNbSources_(5),
  	isTracker_(false)
 	{
-	  sel_ =0;
+	  tag_=InputTag();
+	  opp_=InputTag();
 	}
   
       /*Normal constructor*/ 
-      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,Selector *sel,bool isTracker);
+      MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string& label,unsigned int maxNbSources,InputTag &tag,bool isTracker);
 
       /**Default destructor*/
       virtual ~MixingWorkerBase();
@@ -66,7 +67,7 @@ namespace edm
       virtual void addPileups(const int bcr, edm::Event*,unsigned int EventNr,int &vertexOffset=0)=0;
       virtual void setBcrOffset()=0;
       virtual void setSourceOffset(const unsigned int s)=0;
-      virtual void setOppositeSel(Selector *opp) {opp_=opp;}
+      virtual void setOppositeTag(InputTag& opp) {opp_=opp;}
       virtual void setCheckTof(bool checktof) {checktof_=checktof;}
    
     protected:
@@ -76,10 +77,10 @@ namespace edm
       std::string const subdet_;
       std::string const label_;
       unsigned int const maxNbSources_;
-      Selector *sel_;
+      InputTag tag_;
       bool isTracker_;
       bool checktof_;
-      Selector *opp_;
+      InputTag opp_;
 
     private:
       unsigned int eventNr_;
