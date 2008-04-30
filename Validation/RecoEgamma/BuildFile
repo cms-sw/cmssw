@@ -17,7 +17,6 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaElectronAlgos>
 <use name=RecoEgamma/EgammaPhotonAlgos>
-<use name=DQMServices/CoreROOT>
 <use name=clhep>
 <flags EDM_PLUGIN=1>
 <export>
@@ -39,7 +38,6 @@
   <use name=RecoEcal/EgammaCoreTools>
 	<use name=RecoEgamma/EgammaElectronAlgos>
 	<use name=RecoEgamma/EgammaPhotonAlgos>
-  <use name=DQMServices/CoreROOT>        
   <use name=DataFormats/Math>
   <use name=clhep>
 </export>
