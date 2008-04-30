@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.32 2007/09/20 21:05:03 fedor Exp $
+/// $Id: JetMaker.cc,v 1.33 2008/02/16 14:32:02 oehler Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -42,7 +42,7 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fTowers,
   for (JetReco::InputCollection::const_iterator towerCand = fTowers.begin(); towerCand != fTowers.end(); ++towerCand) {
     const Candidate* candidate = towerCand->get ();
     if (candidate) {
-      const CaloTower* tower = CaloJet::caloTower (candidate).get ();
+      const CaloTower* tower = dynamic_cast<const CaloTower*> (candidate);
       if (tower) {
 	//Array of energy in EM Towers:
 	eECal_i.push_back(tower->emEnergy());
@@ -81,7 +81,7 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fTowers,
 	}
       }
       else {
-	std::cerr << "JetMaker::makeSpecific (CaloJet)-> Referred CaloTower is not available in the event" << std::endl;
+	std::cerr << "JetMaker::makeSpecific (CaloJet)-> Constituent is not of CaloTower type" << std::endl;
       }
     }
     else {

@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.16 2008/02/12 23:46:31 fedor Exp $
+// $Id: CaloJet.cc,v 1.17 2008/02/14 00:06:30 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -58,29 +58,9 @@ CaloJet::LorentzVector CaloJet::physicsP4 (float fZVertex) const {
 }
 
 
-CaloTowerRef CaloJet::caloTower (const reco::Candidate* fConstituent) {
-  if (fConstituent) {
-    const RecoCaloTowerCandidate* towerCandidate = dynamic_cast <const RecoCaloTowerCandidate*> (fConstituent);
-    if (towerCandidate) {
-      return towerCandidate->caloTower ();
-    }
-    else {
-      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of RecoCandidate type";
-    }
-  }
-  return CaloTowerRef ();
-}
-
 CaloTowerRef CaloJet::getConstituent (unsigned fIndex) const {
-  // no direct access, have to iterate for now
-  int index (fIndex);
-  Candidate::const_iterator daugh = begin ();
-  for (; --index >= 0 && daugh != end (); daugh++) {}
-  if (daugh != end ()) { // in range
-    const Candidate* constituent = &*daugh; // deref
-    return caloTower (constituent);
-  }
-  return CaloTowerRef ();
+  reco::CandidateBaseRef dau = daughterRef (fIndex);
+  return dau.castTo <CaloTowerRef> ();
 }
 
 
@@ -118,14 +98,6 @@ std::string CaloJet::print () const {
     }
   }
   return out.str ();
-}
-
-std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
-  std::cerr << "===============================================================================" << std::endl 
-	    << " OUT OF DATE! CaloJet::getTowerIndices() method is depricated and does nothing." << std::endl
-	    << " Please use CaloJet::getConstituents() method to access constituent towers. " << std::endl
-	    << "===============================================================================" << std::endl;
-  return std::vector<CaloTowerDetId> ();
 }
 
 //----------------------------------------------------------

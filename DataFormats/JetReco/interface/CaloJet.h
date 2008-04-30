@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.33 2008/02/29 00:52:45 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.34 2008/04/18 21:58:34 fedor Exp $
  ************************************************************/
 
 
@@ -131,8 +131,6 @@ class CaloJet : public Jet {
   float detectorEta () const {return eta();}
 
 
-  /// convert generic constituent to specific type
-  static CaloTowerRef caloTower (const reco::Candidate* fConstituent);
   /// get specific constituent
   virtual CaloTowerRef getConstituent (unsigned fIndex) const;
   /// get all constituents
@@ -147,9 +145,6 @@ class CaloJet : public Jet {
 
   /// Print object
   virtual std::string print () const;
-
-  /// Keep this for a while to avoid braking the third party code
-  std::vector<CaloTowerDetId> getTowerIndices() const;
 
  private:
   /// Polymorphic overlap
