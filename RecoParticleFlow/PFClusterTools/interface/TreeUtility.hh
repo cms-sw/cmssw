@@ -2,6 +2,8 @@
 #define TREEUTILITY_HH_
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 #include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
+
+#include <boost/shared_ptr.hpp>
 #include "TFile.h"
 #include <vector>
 
@@ -22,8 +24,8 @@ public:
 	virtual ~TreeUtility();
 
 	void recreateFromRootFile(TFile& file,
-			std::vector<DetectorElement* >& elements,
-			std::vector<ParticleDeposit* >& toBeFilled);
+			std::vector<DetectorElementPtr >& elements,
+			std::vector<ParticleDepositPtr >& toBeFilled);
 	
 	void recreateFromRootFile(TFile& file);
 };

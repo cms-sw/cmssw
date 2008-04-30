@@ -21,6 +21,7 @@
 #include "TH1F.h"
 
 namespace pftools {
+
 /**
  \class DetectorElement 
  \brief Represents an energy-measuring region of our detector.
@@ -32,9 +33,7 @@ namespace pftools {
  */
 class DetectorElement {
 public:
-	
-	typedef boost::shared_ptr<DetectorElement> DetectorElementPtr;
-	
+
 	DetectorElement(DetectorElementType type, double calib = 1.0);
 
 	inline DetectorElementType getType() const {
@@ -47,37 +46,48 @@ public:
 	/*
 	 * Returns a global detector element calibration.
 	 */
-	virtual double getCalib() const;
+	double getCalib() const {
+		return getCalibCore();
+	}
 
 	/*
 	 * Returns the calibration for this detector element as a function
 	 * of eta and phi.
 	 */
-	virtual double getCalib(double eta, double phi) const;
+	double getCalib(double eta, double phi) const {
+		return getCalibCore(eta, phi);
+	}
 
 	/*
 	 * Set the calibration of this detector element. Must be > 0.
 	 */
-	void setCalib(double calib) throw(PFToolsException&);
-	
+	void setCalib(double calib) throw(PFToolsException&) {
+		setCalibCore(calib);
+	}
 
 	//friend std::ostream& operator<<(std::ostream& s, const DetectorElement& de);
 
-	friend std::ostream& operator<<(std::ostream& s,
-			const DetectorElement& de);
+	friend std::ostream& operator<<(std::ostream& s, const DetectorElement& de);
 
 private:
+	virtual double getCalibCore() const;
+	virtual double getCalibCore(double eta, double phi) const;
+	virtual void setCalibCore(double calib) throw(PFToolsException&);
+	
 	DetectorElement(const DetectorElement& de);
 	DetectorElementType myType;
 	double myCalib;
-	
 
 	/*
 	 * For general ROOT dictionary building happiness!
 	 */
 	std::vector<DetectorElement*> deps_;
+	std::vector<boost::shared_ptr<DetectorElement> > rootFudge1_;
 	//std::vector<DetectorElement> des_;
 };
+
+typedef boost::shared_ptr<DetectorElement> DetectorElementPtr;
+
 }
 
 #endif /*DETECTORELEMENT_HH_*/

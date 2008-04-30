@@ -10,6 +10,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Deposition.hh"
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 
+
 #include <iostream>
 
 /**
@@ -20,6 +21,7 @@
  \date   April 2008
  */
 namespace pftools {
+
 class ParticleDeposit {
 public:
 
@@ -42,7 +44,7 @@ public:
 	/* 
 	 * Returns the detected energy from this detector element, including calibration.
 	 */
-	double getRecEnergy(const DetectorElement* const de) const;
+	double getRecEnergy(const DetectorElementPtr de) const;
 
 	double getRecEnergy() const;
 
@@ -51,7 +53,7 @@ public:
 	/*
 	 * Returns the raw MC energy input into this detector element.
 	 */
-	double getTruthEnergy(const DetectorElement* const de) const;
+	double getTruthEnergy(const DetectorElementPtr de) const;
 
 	inline unsigned getId() const {
 		return myId;
@@ -84,6 +86,10 @@ private:
 	std::vector<ParticleDeposit*> pdps_;
 	//	std::vector<ParticleDeposit> pds_;
 };
+
+
+typedef boost::shared_ptr<ParticleDeposit> ParticleDepositPtr;
+
 }
 
 #endif /*PARTICLEDEPOSIT_HH_*/

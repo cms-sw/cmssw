@@ -30,7 +30,7 @@ const std::vector<Deposition>& ParticleDeposit::getRecDepositions() const {
 	return myRecDepositions;
 }
 
-double ParticleDeposit::getRecEnergy(const DetectorElement* const de) const {
+double ParticleDeposit::getRecEnergy(const DetectorElementPtr de) const {
 	double energy(0);
 	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
 			!= myRecDepositions.end(); ++cit) {
@@ -42,7 +42,7 @@ double ParticleDeposit::getRecEnergy(const DetectorElement* const de) const {
 	return energy;
 }
 
-double ParticleDeposit::getTruthEnergy(const DetectorElement* const de) const {
+double ParticleDeposit::getTruthEnergy(const DetectorElementPtr de) const {
 	double energy(0);
 	for (std::vector<Deposition>::const_iterator
 			cit = myTruthDepositions.begin(); cit != myTruthDepositions.end(); ++cit) {
@@ -77,7 +77,7 @@ std::ostream& pftools::operator<<(std::ostream& s, const pftools::ParticleDeposi
 	for (std::vector<Deposition>::const_iterator cit = p.getRecDepositions().begin(); cit
 				!= p.getRecDepositions().end(); ++cit) {
 			Deposition d = *cit;
-			DetectorElement* de = d.getDetectorElement();
+			DetectorElementPtr de(d.getDetectorElement());
 			s << "\t" << *de << ": \t=> E_contrib = ";
 			s << de->getCalib(d.getEta(), d.getPhi()) * d.getEnergy() << "\n";
 		}

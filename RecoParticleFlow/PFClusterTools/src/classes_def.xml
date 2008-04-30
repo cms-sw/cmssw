@@ -10,8 +10,10 @@
   <class name="pftools::ParticleDeposit"/>
   <class name="pftools::SpaceVoxel"/>
   <class name="pftools::SingleParticleWrapper"/>
+  <class name="pftools::Exercises"/>
   <class name="std::vector<pftools::DetectorElement*>"/>
   <class name="std::vector<pftools::ParticleDeposit*>"/>
-
+  <class name="std::vector<boost::shared_ptr<pftools::DetectorElement> >"/>
+  <class name="std::vector<boost::shared_ptr<pftools::ParticleDeposit> >"/>
  </lcgdict>
 

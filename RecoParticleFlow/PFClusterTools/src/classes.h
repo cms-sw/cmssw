@@ -12,6 +12,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"    
 #include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.hh"
 #include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/Exercises.hh"
 namespace { 
   namespace {
 

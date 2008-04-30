@@ -1,6 +1,8 @@
 #ifndef SPACEVOXEL_HH_
 #define SPACEVOXEL_HH_
 #include <iostream>
+#include <boost/shared_ptr.hpp>
+
 namespace pftools {
 
 /**\class SpaceVoxel 
@@ -47,6 +49,8 @@ private:
 	double myEnergyMax;
 
 };
+
+typedef boost::shared_ptr<SpaceVoxel> SpaceVoxelPtr;
 
 }
 #endif /*SPACEVOXEL_HH_*/

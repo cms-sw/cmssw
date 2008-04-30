@@ -8,7 +8,7 @@ DetectorElement::DetectorElement(DetectorElementType type, double calib) :
 
 }
 
-void DetectorElement::setCalib(double calib) throw(PFToolsException&){
+void DetectorElement::setCalibCore(double calib) throw(PFToolsException&){
 	//I'll tolerate very small negative numbers (artefacts of the minimisation algo
 	//but otherwise this shouldn't be allowed.
 //	if(calib > -0.01) {
@@ -20,11 +20,11 @@ void DetectorElement::setCalib(double calib) throw(PFToolsException&){
 //	}
 }
 
-double DetectorElement::getCalib() const {
+double DetectorElement::getCalibCore() const {
 	return myCalib;
 }
 
-double DetectorElement::getCalib(double eta, double phi) const {
+double DetectorElement::getCalibCore(double eta, double phi) const {
 	return getCalib();
 }
 

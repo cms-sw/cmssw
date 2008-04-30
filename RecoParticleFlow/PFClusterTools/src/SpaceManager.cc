@@ -8,16 +8,14 @@ SpaceManager::SpaceManager() {
 }
 
 SpaceManager::~SpaceManager() {
-	clear();
+	
 }
 
 void SpaceManager::clear() {
-	for (std::map<SpaceVoxel*, Calibrator*>::iterator it = myAddressBook.begin(); it
+	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator it = myAddressBook.begin(); it
 			!= myAddressBook.end(); ++it) {
-		SpaceVoxel* s = (*it).first;
-		Calibrator* c = (*it).second;
-		delete s;
-		delete c;
+		SpaceVoxelPtr s = (*it).first;
+		CalibratorPtr c = (*it).second;
 	}
 }
 
@@ -58,9 +56,9 @@ void SpaceManager::createCalibrators(const Calibrator& toClone,
 				
 				energy1 = energyMin + m * energySeg;
 				energy2 = energy1 + energySeg;
-				SpaceVoxel* sv = new SpaceVoxel(eta1, eta2, phi1, phi2, energy1, energy2);
+				SpaceVoxelPtr sv(new SpaceVoxel(eta1, eta2, phi1, phi2, energy1, energy2));
 				myKnownSpaceVoxels.push_back(sv);
-				Calibrator* c = toClone.clone();
+				CalibratorPtr c(toClone.clone());
 				myAddressBook[sv] = c;
 			}
 		}
@@ -72,13 +70,13 @@ void SpaceManager::createCalibrators(const Calibrator& toClone,
 	assert(myAddressBook.size() == myKnownSpaceVoxels.size());
 
 }
-Calibrator* SpaceManager::createCalibrator(const Calibrator& toClone,
-		SpaceVoxel* s) {
-	Calibrator* c(0);
+CalibratorPtr SpaceManager::createCalibrator(const Calibrator& toClone,
+		SpaceVoxelPtr s) {
+	CalibratorPtr c;
 	int known = count(myKnownSpaceVoxels.begin(), myKnownSpaceVoxels.end(), s);
 	if (known == 0) {
 		myKnownSpaceVoxels.push_back(s);
-		c = toClone.clone();
+		c.reset(toClone.clone());
 		myAddressBook[s] = c;
 	} else {
 		c = myAddressBook[s];
@@ -88,12 +86,12 @@ Calibrator* SpaceManager::createCalibrator(const Calibrator& toClone,
 
 }
 
-Calibrator* SpaceManager::findCalibrator(const double eta, const double phi,
+CalibratorPtr SpaceManager::findCalibrator(const double eta, const double phi,
 		const double energy) const {
-	Calibrator* answer(0);
-	for (std::vector<SpaceVoxel*>::const_iterator
+	CalibratorPtr answer;
+	for (std::vector<SpaceVoxelPtr>::const_iterator
 			cit = myKnownSpaceVoxels.begin(); cit != myKnownSpaceVoxels.end(); ++cit) {
-		SpaceVoxel* s = *cit;
+		SpaceVoxelPtr s = *cit;
 		if (s->contains(eta, phi, energy)) {
 			assert(count(myKnownSpaceVoxels.begin(), myKnownSpaceVoxels.end(), s) != 0);
 			answer = (*myAddressBook.find(s)).second;

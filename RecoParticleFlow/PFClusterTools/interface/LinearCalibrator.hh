@@ -3,6 +3,7 @@
 
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
 
+
 #include "TMatrixD.h"
 #include "TVectorD.h"
 
@@ -25,8 +26,6 @@ public:
 	LinearCalibrator();
 	virtual ~LinearCalibrator();
 
-	virtual std::map<DetectorElement*, double>
-			getCalibrationCoefficients() throw(PFToolsException&);
 
 	/*
 	 * Note: covariant return type w.r.t. Calibrator class: the overloading has changed 
@@ -37,6 +36,10 @@ public:
 	LinearCalibrator* create() const;
 
 protected:
+	
+	virtual std::map<DetectorElementPtr, double>
+			getCalibrationCoefficientsCore() throw(PFToolsException&);
+
 
 	LinearCalibrator(const LinearCalibrator& lc);
 	/*
@@ -58,7 +61,7 @@ protected:
 	/*
 	 * Map to convert detector element to array row/column index.
 	 */
-	std::map<DetectorElement*, unsigned> myDetElIndex;
+	std::map<DetectorElementPtr, unsigned> myDetElIndex;
 
 };
 }

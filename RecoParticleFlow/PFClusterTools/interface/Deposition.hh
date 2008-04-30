@@ -1,9 +1,13 @@
 #ifndef DEPOSITION_HH_
 #define DEPOSITION_HH_
 #include <iostream>
+
+#include <boost/shared_ptr.hpp>
+
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
 
 namespace pftools {
+
 /**
  * \class Deposition
  * 
@@ -16,6 +20,7 @@ namespace pftools {
 class Deposition {
 public:
 
+	
 	inline double getEta() const {
 		return myEta;
 	}
@@ -31,8 +36,8 @@ public:
 	}
 	;
 
-	inline DetectorElement* getDetectorElement() const {
-		return myElement;
+	inline DetectorElementPtr getDetectorElement() const {
+		return myElementPtr;
 	}
 	;
 
@@ -45,7 +50,7 @@ public:
 	}
 	;
 
-	Deposition(DetectorElement* element, double eta = 0.0, double phi = 0.0,
+	Deposition(DetectorElementPtr element, double eta = 0.0, double phi = 0.0,
 			double energy = 0.0, double depth = 0.0);
 
 	virtual ~Deposition();
@@ -56,12 +61,17 @@ public:
 	friend std::ostream& operator<<(std::ostream& s, const Deposition& d);
 
 private:
-	DetectorElement* myElement;
+	//DetectorElement* myElement;
+	DetectorElementPtr myElementPtr;
+	
 	double myEta;
 	double myPhi;
 	double myEnergy;
 	double myDepth;
 };
+
+typedef boost::shared_ptr<Deposition> DepositionPtr;
+
 }
 
 #endif /*DEPOSITION_HH_*/

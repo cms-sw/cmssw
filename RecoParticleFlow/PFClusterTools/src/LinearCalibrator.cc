@@ -58,7 +58,7 @@ LinearCalibrator* LinearCalibrator::create() const {
 	return new LinearCalibrator();
 }
 
-std::map<DetectorElement*, double> LinearCalibrator::getCalibrationCoefficients() throw(
+std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficientsCore() throw(
 		PFToolsException&) {
 	std::cout << __PRETTY_FUNCTION__
 			<< ": determining linear calibration coefficients...\n";
@@ -117,10 +117,10 @@ std::map<DetectorElement*, double> LinearCalibrator::getCalibrationCoefficients(
 	std::cout << "\tCalibrations: \n";
 	printVec(std::cout, calibsSolved);
 
-	std::map<DetectorElement*, double> answers;
-	for (std::map<DetectorElement*, unsigned>::iterator
+	std::map<DetectorElementPtr, double> answers;
+	for (std::map<DetectorElementPtr, unsigned>::iterator
 			it = myDetElIndex.begin(); it != myDetElIndex.end(); ++it) {
-		DetectorElement* de = (*it).first;
+		DetectorElementPtr de = (*it).first;
 		answers[de] = calibsSolved[(*it).second];
 	}
 	return answers;
@@ -142,15 +142,15 @@ void LinearCalibrator::initEijMatrix(TMatrixD& eij, TVectorD& truthE) {
 
 	//loop over all particle deposits
 	unsigned index(0);
-	for (std::vector<ParticleDeposit*>::const_iterator
+	for (std::vector<ParticleDepositPtr>::const_iterator
 			cit = myParticleDeposits.begin(); cit != myParticleDeposits.end(); ++cit) {
-		ParticleDeposit* p = *cit;
+		ParticleDepositPtr p = *cit;
 		//get each of the relevant detector elements
 		
-		for (std::vector<DetectorElement*>::const_iterator
+		for (std::vector<DetectorElementPtr>::const_iterator
 				detElIt = myDetectorElements.begin(); detElIt
 				!= myDetectorElements.end(); ++detElIt) {
-			DetectorElement* de = *detElIt;
+			DetectorElementPtr de = *detElIt;
 			eij[index][myDetElIndex[de]] = p->getRecEnergy(de);
 			//truthE[p->getId()] += p->getTruthEnergy(de);
 		}
@@ -199,9 +199,9 @@ void LinearCalibrator::populateDetElIndex() {
 
 	//myDetElIndex.clear();
 	//loop over known detector elements, and assign a unique row/column index to each
-	for (std::vector<DetectorElement*>::const_iterator
+	for (std::vector<DetectorElementPtr>::const_iterator
 			cit = myDetectorElements.begin(); cit != myDetectorElements.end(); ++cit) {
-		DetectorElement* de = *cit;
+		DetectorElementPtr de = *cit;
 		//std::cout << "\tGot element: "<< *de;
 		//check we don't have duplicate detector elements
 		assert(myDetElIndex.count(de) == 0);

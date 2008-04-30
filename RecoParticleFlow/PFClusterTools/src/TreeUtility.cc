@@ -3,7 +3,6 @@
 #include "TTree.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.hh"
 
-#include <boost/shared_ptr.hpp>
 
 using namespace pftools;
 TreeUtility::TreeUtility() {
@@ -13,21 +12,21 @@ TreeUtility::~TreeUtility() {
 }
 
 void TreeUtility::recreateFromRootFile(TFile& file,
-		std::vector<DetectorElement* >& elements,
-		std::vector<ParticleDeposit* >& toBeFilled) {
+		std::vector<DetectorElementPtr >& elements,
+		std::vector<ParticleDepositPtr >& toBeFilled) {
 
 	std::cout << __PRETTY_FUNCTION__
 			<< ": This method is highly specific to detector element types and may fail if their definitions change. Please be advised of this limitation!\n";
 	typedef boost::shared_ptr<SingleParticleWrapper> SingleParticleWrapperPtr;
-	DetectorElement* ecal(0);
-	DetectorElement* hcal(0);
-	DetectorElement* offset(0);
+	DetectorElementPtr ecal;
+	DetectorElementPtr hcal;
+	DetectorElementPtr offset;
 	SingleParticleWrapperPtr spw_ptr(new SingleParticleWrapper);
 	//SingleParticleWrapper* spw = new SingleParticleWrapper;
 
-	for (std::vector<DetectorElement*>::iterator it = elements.begin(); it
+	for (std::vector<DetectorElementPtr>::iterator it = elements.begin(); it
 			!= elements.end(); ++it) {
-		DetectorElement* de = *it;
+		DetectorElementPtr de = *it;
 		if (de->getType() == ECAL)
 			ecal = de;
 		if (de->getType() == HCAL)
@@ -65,7 +64,7 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 
 		tree->GetEntry(entries);
 
-		ParticleDeposit* pd = new ParticleDeposit(spw_ptr->trueEnergy);
+		ParticleDepositPtr pd(new ParticleDeposit(spw_ptr->trueEnergy));
 		if (offset != 0) {
 			Deposition dOffset(offset, spw_ptr->eta, spw_ptr->phi, 1.0);
 			pd->addRecDeposition(dOffset);
@@ -95,14 +94,14 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 }
 void TreeUtility::recreateFromRootFile(TFile& f) {
 
-	DetectorElement* ecal = new DetectorElement(ECAL, 1.0);
-	DetectorElement* hcal = new DetectorElement(HCAL, 1.0);
-	std::vector<DetectorElement*> elements;
+	DetectorElementPtr ecal(new DetectorElement(ECAL, 1.0));
+	DetectorElementPtr hcal(new DetectorElement(HCAL, 1.0));
+	std::vector<DetectorElementPtr> elements;
 	elements.push_back(ecal);
 	elements.push_back(hcal);
 	std::cout << "Made detector elements...\n";
 	std::cout << "Recreating from root file...\n";
-	std::vector<ParticleDeposit*> particles;
+	std::vector<ParticleDepositPtr> particles;
 	recreateFromRootFile(f, elements, particles);
 	std::cout << "Finished.\n";
 }

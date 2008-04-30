@@ -4,6 +4,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
 #include <map>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 namespace pftools {
 /**
@@ -35,8 +36,8 @@ public:
 			const double phiMin, const double phiMax, const unsigned nEnergy,
 			const double energyMin, const double energyMax) throw(PFToolsException&);
 
-	std::map<SpaceVoxel*, Calibrator*>* getCalibrators() {
-		std::map<SpaceVoxel*, Calibrator*>* ptr = &myAddressBook;
+	std::map<SpaceVoxelPtr, CalibratorPtr>* getCalibrators() {
+		std::map<SpaceVoxelPtr, CalibratorPtr>* ptr = &myAddressBook;
 		return ptr;
 	}
 
@@ -45,20 +46,23 @@ public:
 	 * Returns a pointer to it once it's been created, and returns a pointer to
 	 * any exisitng calibrator should that SpaceVoxel already exist.
 	 */
-	Calibrator* createCalibrator(const Calibrator& toClone, SpaceVoxel* s);
+	CalibratorPtr createCalibrator(const Calibrator& toClone, SpaceVoxelPtr s);
 
 	/*
 	 * Returns a pointer to the calibrator you need for the specified space point.
 	 * Returns 0 if it's not found.
 	 */
-	Calibrator* findCalibrator(const double eta, const double phi,
+	CalibratorPtr findCalibrator(const double eta, const double phi,
 			const double energy = 0) const;
 	
 	void clear();
 
 private:
-	std::map<SpaceVoxel*, Calibrator*> myAddressBook;
-	std::vector<SpaceVoxel*> myKnownSpaceVoxels;
+	std::map<SpaceVoxelPtr, CalibratorPtr> myAddressBook;
+	std::vector<SpaceVoxelPtr> myKnownSpaceVoxels;
 };
+
+
+
 }
 #endif /*SPACEMANAGER_HH_*/

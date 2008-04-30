@@ -1,31 +1,34 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
 using namespace pftools;
 
-Calibrator::Calibrator() : offsetElement(OFFSET) {
+//DetectorElement* Calibrator::offsetElement = new DetectorElement(OFFSET);
+
+Calibrator::Calibrator(){
+
 }
 
 Calibrator::~Calibrator() {
 }
 
-void Calibrator::addDetectorElement(DetectorElement* const de) {
+void Calibrator::addDetectorElement(DetectorElementPtr const de) {
 	//std::cout << "myDetecotElements has size: " << myDetectorElements.size() << "before addition.\n";
 	myDetectorElements.push_back(de);
 }
-void Calibrator::addParticleDeposit(ParticleDeposit* pd) {
+void Calibrator::addParticleDeposit(ParticleDepositPtr pd) {
 	myParticleDeposits.push_back(pd);
 }
 
-std::map<DetectorElement*, double> Calibrator::getCalibrationCoefficients() throw(
+std::map<DetectorElementPtr, double> Calibrator::getCalibrationCoefficientsCore() throw(
 		PFToolsException&) {
 
 	std::cout << __PRETTY_FUNCTION__
 			<< ": Not implemented in default Calibrator class!\n";
 	std::cout << "\tWARNING: returning empty map.\n";
-	std::map<DetectorElement*, double> answers;
+	std::map<DetectorElementPtr, double> answers;
 	return answers;
 }
 
-DetectorElement* Calibrator::getOffsetElement()  {
-	DetectorElement* el = &offsetElement;
-	return el;
-}
+//DetectorElementPtr Calibrator::getOffsetElementCore()  {
+//	DetectorElementPtr el(offsetElement);
+//	return el;
+//}
