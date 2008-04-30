@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.41 2008/04/29 17:39:20 dmytro Exp $
+ * \version $Id: Muon.h,v 1.42 2008/04/29 23:30:21 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -105,17 +105,15 @@ namespace reco {
     /// simple muon selection based on stored information inside the muon
     /// object
     enum SelectionType {
-         // basic types
-         GlobalMuonAll,
-	 TrackerMuonAll,
-	 StandAloneMuonAll,
-	 // track-muon match based selectors
-	 TMLastStationLoose,          
-	 TMLastStationTight, 
-	 TM2DCompatibilityLoose,      
-	 TM2DCompatibilityTight 
+	 TrackerMuonArbitrated,    // resolve ambiguity of sharing segments
+         AllArbitrated,            // all muons with the tracker muon arbitrated
+         GlobalMuonPromptTight,    // global muons with tighter fit requirements
+	 TMLastStationLoose,       // penetration depth loose selector
+	 TMLastStationTight,       // penetration depth tight selector
+	 TM2DCompatibilityLoose,   // likelihood based loose selector
+	 TM2DCompatibilityTight    // likelihood based tight selector
     };
-    bool isGood( SelectionType type = GlobalMuonAll ) const;
+    bool isGood( SelectionType type = AllArbitrated ) const;
      
     
     /// define arbitration schemes

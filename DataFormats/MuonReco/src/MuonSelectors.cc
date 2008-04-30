@@ -328,14 +328,17 @@ bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
 {
   switch (type)
      {
-      case reco::Muon::GlobalMuonAll:
-	return muon.isGlobalMuon();
+      case reco::Muon::TrackerMuonArbitrated:
+	return muon.isTrackerMuon() && muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;
-      case reco::Muon::TrackerMuonAll:
-	return muon.isTrackerMuon();
+      case reco::Muon::AllArbitrated:
+	return ! muon.isTrackerMuon() || muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;
-      case reco::Muon::StandAloneMuonAll:
-	return muon.isStandAloneMuon();
+      case reco::Muon::GlobalMuonPromptTight:
+	return 
+	  muon.globalTrack()->normalizedChi2()<5 &&
+	  fabs(muon.innerTrack()->d0()) < 0.25 &&
+	  muon.innerTrack()->numberOfValidHits() >= 7;
 	break;
       case reco::Muon::TMLastStationLoose:
 	return isGoodMuon(muon,TMLastStation,2,3,3,9999,9999,-3,-3,reco::Muon::SegmentAndTrackArbitration);

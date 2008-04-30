@@ -10,7 +10,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id$
+ * \version $Id: CaloMuon.h,v 1.1 2007/10/06 00:21:05 dmytro Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
@@ -37,7 +37,8 @@ namespace reco {
     /// Muon hypothesis compatibility block
     /// Relative likelihood based on ECAL, HCAL, HO energy defined as
     /// L_muon/(L_muon+L_not_muon)
-    float getCaloCompatibility() const { return caloCompatibility_; }
+    float caloCompatibility() const { return caloCompatibility_; }
+    float getCaloCompatibility() const __attribute__((deprecated));
     void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
     bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
      
