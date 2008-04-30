@@ -1,0 +1,6 @@
+<use name=FWCore/Framework>
+<use name=DQMServices/Core>
+<use name=DQMServices/Components>
+<use name=FWCore/PluginManager>
+<use name=DataFormats/JetReco>
+<flags EDM_PLUGIN=1>
