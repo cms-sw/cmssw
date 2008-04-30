@@ -12,6 +12,7 @@
 #include <sstream>
 
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalXtalGroupId.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
@@ -42,6 +43,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   EcalADCToGeVConstant* readEcalADCToGeVConstantFromFile(const char *);
   EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char *);
   EcalGainRatios* readEcalGainRatiosFromFile(const char *);
+  EcalChannelStatus* readEcalChannelStatusFromFile(const char *);
   void writeToLogFile(string , string, unsigned long long) ;
   void writeToLogFileResults(char* ) ;
   int convertFromConstructionSMToSlot(int ,int );

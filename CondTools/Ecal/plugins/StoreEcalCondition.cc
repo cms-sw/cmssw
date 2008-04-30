@@ -94,7 +94,15 @@ void StoreEcalCondition::endJob() {
 	}else{
 	  mydbservice->appendSinceTime<EcalGainRatios>(mycali,newTime,"EcalGainRatiosRcd");
 	}
-      } else {
+      } else if (objectName_[i]  ==  "EcalChannelStatus") 
+	{
+	  EcalChannelStatus* mycali=readEcalChannelStatusFromFile(inpFileName_[i].c_str());
+	  if(!toAppend){
+	    mydbservice->createNewIOV<EcalChannelStatus>(mycali,newTime,mydbservice->endOfTime(),"EcalChannelStatusRcd");
+	  }else{
+	    mydbservice->appendSinceTime<EcalChannelStatus>(mycali,newTime,"EcalChannelStatusRcd");
+	  } 
+	} else {
 	edm::LogError("StoreEcalCondition")<< "Object " << objectName_[i]  << " is not supported by this program." << endl;
       }
       
@@ -691,4 +699,98 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
 
     return gratio;
 
+}
+
+EcalChannelStatus* 
+StoreEcalCondition::readEcalChannelStatusFromFile(const char* inputFile)
+{
+        EcalChannelStatus* status = new EcalChannelStatus();
+        // barrel
+        for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) 
+	  {
+	    if(ieta==0) continue;
+	    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+	      if (EBDetId::validDetId(ieta,iphi)) {
+		EBDetId ebid(ieta,iphi);
+		status->setValue( ebid, 0 );
+	      }
+	    }
+	  }
+        // endcap
+        for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) 
+	  {
+	    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) 
+	      {
+		// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+		if (EEDetId::validDetId(iX,iY,1)) 
+		  {
+		  EEDetId eedetidpos(iX,iY,1);
+		  status->setValue( eedetidpos, 0 );
+		  }
+		if (EEDetId::validDetId(iX,iY,-1)) 
+		  {
+		    EEDetId eedetidneg(iX,iY,-1);
+		    status->setValue( eedetidneg, 0 );
+		  }
+	      }
+	  }
+
+	
+	//        edm::LogInfo("EcalTrivialConditionRetriever") << "Reading channel status from file " << edm::FileInPath(channelStatusFile_).fullPath().c_str() ;
+        std::cout << "Reading channel status from file " << inputFile << std::endl;
+        FILE *ifile = fopen( inputFile ,"r" );
+        if ( !ifile ) 
+	  throw cms::Exception ("Cannot open ECAL channel status file") ;
+
+	char line[256];
+
+	fgets(line,255,ifile);
+	std::string gen_tag= line;
+	std::cout << "Gen tag " << gen_tag << std::endl ;  
+
+	fgets(line,255,ifile);
+	std::string comment = line ;
+	std::cout << "Gen comment " << comment << std::endl ; 
+
+	int iovRunStart(0);
+	fgets(line,255,ifile);
+	sscanf (line, "%d", &iovRunStart);
+	std::cout << "IOV START " << iovRunStart << std::endl;
+	//if -1 start of time
+
+	int iovRunEnd(0);
+	fgets(line,255,ifile);
+	sscanf (line, "%d", &iovRunEnd);
+	std::cout << "IOV END " << iovRunEnd << std::endl;
+	//if -1 end of time
+
+	int ii = 0;
+	while(fgets(line,255,ifile)) 
+	  {
+	    std::string EBorEE;
+	    int hashedIndex(0);
+	    int chStatus(0);
+	    std::stringstream aStrStream;
+	    aStrStream << line;
+	    aStrStream >> EBorEE >> hashedIndex >> chStatus;
+	    //	    if(ii==0) 
+	    std::cout << EBorEE << " hashedIndex " << hashedIndex << " status " <<  chStatus << std::endl;
+	    
+	    if (EBorEE == "EB") 
+	      {
+		EBDetId aEBDetId=EBDetId::unhashIndex(hashedIndex);
+		status->setValue( aEBDetId, chStatus );
+	      }
+	    else if (EBorEE == "EE")
+	      {
+		EEDetId aEEDetId=EEDetId::unhashIndex(hashedIndex);
+		status->setValue( aEEDetId, chStatus );
+	      }
+	    
+	    ii++ ;
+	    
+	  }
+	
+        fclose(ifile);
+        return status;
 }
