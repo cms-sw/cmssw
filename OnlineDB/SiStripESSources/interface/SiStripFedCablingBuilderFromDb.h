@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.14 2008/02/06 17:21:22 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.15 2008/03/28 15:34:02 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
@@ -6,7 +6,6 @@
 #include "CalibTracker/SiStripESProducers/interface/SiStripFedCablingESProducer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
@@ -14,7 +13,8 @@
 class SiStripFedCablingRcd;
 class SiStripFedCabling;
 class SiStripFecCabling;
-class DcuDetIdMap;
+class SiStripConfigDb;
+class TkDcuInfo;
 
 class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, public edm::EventSetupRecordIntervalFinder {
   
@@ -34,51 +34,46 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, publi
   
   /** Utility method that takes a FEC cabling object as input and
       returns (as an arg) the corresponding FED cabling object. */
-  static void getFedCabling( const SiStripFecCabling&, 
-			     SiStripFedCabling& );
+  static void getFedCabling( const SiStripFecCabling& in, 
+			     SiStripFedCabling& out );
   
   /** Utility method that takes a FED cabling object as input and
       returns (as an arg) the corresponding FEC cabling object. */
-  static void getFecCabling( const SiStripFedCabling&, 
-			     SiStripFecCabling& );
+  static void getFecCabling( const SiStripFedCabling& in, 
+			     SiStripFecCabling& out );
   
   // -------------------- Methods to build FEC cabling --------------------
 
   /** Generic method which builds FEC cabling. Call ones of the three
       methods below depending on the cabling "source" parameter
       (connections, devices, detids). */
-  static void buildFecCabling( SiStripConfigDb* const,
-			       SiStripFecCabling&,
-			       SiStripConfigDb::DcuDetIdMap&,
+  static void buildFecCabling( SiStripConfigDb* const, 
+			       SiStripFecCabling&, 
 			       const sistrip::CablingSource& );
   
   /** Generic method which builds FEC cabling. Call ones of the three
       methods below depending on what descriptions are available
       within the database or which xml files are available. */
   static void buildFecCabling( SiStripConfigDb* const,
-			       SiStripFecCabling&,
-			       SiStripConfigDb::DcuDetIdMap& );
+			       SiStripFecCabling& );
   
   /** Builds the SiStripFecCabling conditions object using information
       found within the "module.xml" and "dcuinfo.xml" files. "Dummy"
       values are provided when necessary. */ 
   static void buildFecCablingFromFedConnections( SiStripConfigDb* const,
-						 SiStripFecCabling&,
-						 SiStripConfigDb::DcuDetIdMap& );
+						 SiStripFecCabling& );
   
   /** Builds the SiStripFecCabling conditions object using information
       found within the "fec.xml" and "dcuinfo.xml" files. "Dummy"
       values are provided when necessary. */
   static void buildFecCablingFromDevices( SiStripConfigDb* const,
-					  SiStripFecCabling&,
-					  SiStripConfigDb::DcuDetIdMap& );
+					  SiStripFecCabling& );
   
   /** Builds the SiStripFecCabling conditions object using information
       found within the "dcuinfo.xml" file (ie, based on DetIds). "Dummy"
       values are provided when necessary. */
   static void buildFecCablingFromDetIds( SiStripConfigDb* const,
-					 SiStripFecCabling&,
-					 SiStripConfigDb::DcuDetIdMap& );
+					 SiStripFecCabling& );
   
  protected:
   
@@ -89,8 +84,7 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, publi
   
   /** */
   static void assignDcuAndDetIds( SiStripFecCabling&,
-				  SiStripConfigDb::DcuDetIdMap&,
-				  SiStripConfigDb::DcuDetIdMap& );
+				  std::vector< std::pair<uint32_t,TkDcuInfo*> > );
   
   /** Virtual method that is called by makeFedCabling() to allow FED
       cabling to be written to the conds DB (local or otherwise). */

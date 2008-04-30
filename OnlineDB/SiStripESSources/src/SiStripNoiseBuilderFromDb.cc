@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.3 2007/11/09 14:40:44 bainbrid Exp $
-// Latest tag:  $Name: V01-00-01 $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.4 2008/03/04 16:42:04 giordano Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h"
@@ -61,10 +61,8 @@ SiStripNoises* SiStripNoiseBuilderFromDb::makeNoise() {
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;
-      SiStripConfigDb::DcuDetIdMap dcu_detid;
       SiStripFedCablingBuilderFromDb::buildFecCabling( db_, 
 						       fec_cabling, 
-						       dcu_detid, 
 						       sistrip::CABLING_FROM_CONNS );
       
       // Retrieve DET cabling (should be improved)
@@ -102,7 +100,7 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
 					    SiStripNoises& noise ) {
   
   // Retrieve FedDescriptions from configuration database
-  const SiStripConfigDb::FedDescriptions& descriptions = db->getFedDescriptions();
+  SiStripConfigDb::FedDescriptions::range descriptions = db->getFedDescriptions();
   if ( descriptions.empty() ) {
     edm::LogWarning(mlESSources_)
       << "SiStripNoiseBuilderFromDb::" << __func__ << "]"
@@ -154,9 +152,9 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
       }
       
       // Check if description exists for given FED id 
-      SiStripConfigDb::FedDescriptions::const_iterator description = descriptions.begin();
+      SiStripConfigDb::FedDescriptionV::const_iterator description = descriptions.begin();
       while ( description != descriptions.end() ) {
-	if ( (*description)->getFedId() ==ipair->fedId() ) { break; }
+	if ( (*description) && (*description)->getFedId() == ipair->fedId() ) { break; }
 	description++;
       }
       if ( description == descriptions.end() ) { 

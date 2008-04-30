@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.2 2007/03/19 13:23:07 bainbrid Exp $
+// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.3 2007/11/09 14:40:44 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripPedestalsBuilderFromDb.cc,v $
 
@@ -67,10 +67,8 @@ SiStripPedestals* SiStripPedestalsBuilderFromDb::makePedestals() {
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;
-      SiStripConfigDb::DcuDetIdMap dcu_detid;
       SiStripFedCablingBuilderFromDb::buildFecCabling( db_, 
 						       fec_cabling, 
-						       dcu_detid, 
 						       sistrip::CABLING_FROM_CONNS );
       
       // Retrieve DET cabling (should be improved)
@@ -110,7 +108,7 @@ void SiStripPedestalsBuilderFromDb::buildPedestals( SiStripConfigDb* const db,
 						    SiStripPedestals& pedestals ) {
   
   // Retrieve FedDescriptions from configuration database
-  const SiStripConfigDb::FedDescriptions& descriptions = db->getFedDescriptions();
+  SiStripConfigDb::FedDescriptions::range descriptions = db->getFedDescriptions();
   if ( descriptions.empty() ) {
     edm::LogWarning(mlESSources_)
       << "SiStripPedestalsBuilderFromDb::" << __func__ << "]"
@@ -162,9 +160,9 @@ void SiStripPedestalsBuilderFromDb::buildPedestals( SiStripConfigDb* const db,
       }
       
       // Check if description exists for given FED id 
-      SiStripConfigDb::FedDescriptions::const_iterator description = descriptions.begin();
+      SiStripConfigDb::FedDescriptionV::const_iterator description = descriptions.begin();
       while ( description != descriptions.end() ) {
-	if ( (*description)->getFedId() ==ipair->fedId() ) { break; }
+	if ( (*description) && (*description)->getFedId() == ipair->fedId() ) { break; }
 	description++;
       }
       if ( description == descriptions.end() ) { 
