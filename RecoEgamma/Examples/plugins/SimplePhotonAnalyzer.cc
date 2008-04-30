@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/04/01 17:20:16 $ 
- ** $Revision: 1.11 $
+ ** $Date: 2008/04/25 23:42:29 $ 
+ ** $Revision: 1.12 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -226,26 +226,25 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
         if ( fabs(localPhotons[iMatch].superCluster()->eta() ) < 1.479 ) { 
 	  h1_recEoverTrueEBarrel_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
 	  h1_recESCoverTrueEBarrel_ -> Fill (localPhotons[iMatch].superCluster()->energy() / (*p)->momentum().e() );
-	  h1_pho_R9Barrel_->Fill( localPhotons[iMatch].r9() );
+	  //	  h1_pho_R9Barrel_->Fill( localPhotons[iMatch].r9() );
 
 
-	  if ( localPhotons[iMatch].r9() > 0.93 ) 
-	    //	    h1_e5x5_unconvBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
-	    h1_e5x5_unconvBarrel_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
-	  else
-	    h1_ePho_convBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	  ///  Waiting for better EcalClusterTools usage
+	  //if ( localPhotons[iMatch].r9() > 0.93 ) 
+	  //h1_e5x5_unconvBarrel_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
+	  //else
+	  // h1_ePho_convBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
 
 	} else { 
 	  h1_recEoverTrueEEndcap_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
 	  h1_recESCoverTrueEEndcap_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
-	  h1_pho_R9Endcap_->Fill( localPhotons[iMatch].r9() );
+	  //	  h1_pho_R9Endcap_->Fill( localPhotons[iMatch].r9() );
 
-
-	  if ( localPhotons[iMatch].r9() > 0.93 ) 
-	    //            h1_e5x5_unconvEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
-            h1_e5x5_unconvEndcap_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
-          else
-	    h1_ePho_convEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	  ///  Waiting for better EcalClusterTools usage
+	  //if ( localPhotons[iMatch].r9() > 0.93 ) 
+	  //  h1_e5x5_unconvEndcap_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
+          //else
+	  // h1_ePho_convEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
 
 	}
 
