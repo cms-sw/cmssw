@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.28 2008/04/15 09:53:46 kkaadze Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.29 2008/04/17 18:22:19 dlevans Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -21,7 +21,9 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise,
   
   fBrem_ = pset.getParameter<std::vector<double> >("fBremVec");  
   fEtEta_ = pset.getParameter<std::vector<double> >("fEtEtaVec");
-  brLinearThr_ = pset.getParameter<double>("brLinearThr");
+  brLinearLowThr_ = pset.getParameter<double>("brLinearLowThr");
+  brLinearHighThr_ = pset.getParameter<double>("brLinearHighThr");
+
 }
 
 EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
@@ -178,9 +180,8 @@ double EgammaSCEnergyCorrectionAlgo::fBrem(double e, double brLinear)
   if ( brLinear == 0 ) return e;
 
   //Make flat corection if brLinear is too small or big 
-  if ( brLinear < 0.7 ) brLinear = 0.7;  
-
-  if ( brLinear > brLinearThr_ ) brLinear = brLinearThr_;  
+  if ( brLinear < brLinearLowThr_ ) brLinear = brLinearLowThr_;  
+  if ( brLinear > brLinearHighThr_ ) brLinear = brLinearHighThr_; 
 
   //Parameters provided in cfg file
   double p0 = fBrem_[0]; 
