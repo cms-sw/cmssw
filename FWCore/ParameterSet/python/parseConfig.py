@@ -3,6 +3,7 @@ import FWCore.ParameterSet.parsecf.pyparsing as pp
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.DictTypes import SortedKeysDict
 from Mixins import PrintOptions
+import copy
 # Questions
 #  If an include includes a parameter already defined is that an error?
 #  If a 'using' block includes a parameter already defined, is that an error?
@@ -191,7 +192,7 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
             values.extend(newValues)
             usingLabels.append(label)
         else:
-            values.append((label,param))
+            values.append((label,copy.deepcopy(param)))
     for label in usingLabels:
         #remove the using nodes
         delattr(process[using.value()],label)
@@ -2649,6 +2650,33 @@ process USER =
             self.assertEqual(t[0].b.c.e[0].i.value(), 1)
             #make sure dump succeeds
             t[0].dumpConfig()
+
+            t=process.parseString("""
+process p = {
+
+  block roster = {
+    string thirdBase = 'Some dude'
+    PSet outfielders = {
+      string rightField = 'Some dude'
+    }
+  }
+
+  module bums = Ballclub {
+    using roster
+  }
+
+
+  module allstars = Ballclub {
+    using roster
+  }
+
+  replace allstars.thirdBase = 'Chuck Norris'
+  replace allstars.outfielders.rightField = 'Babe Ruth'
+}""")
+            self.assertEqual(t[0].bums.thirdBase.value(), 'Some dude')
+            self.assertEqual(t[0].bums.outfielders.rightField.value(), 'Some dude')
+            self.assertEqual(t[0].allstars.thirdBase.value(), 'Chuck Norris')
+            self.assertEqual(t[0].allstars.outfielders.rightField.value(), 'Babe Ruth')
 
             _allUsingLabels = set()
 
