@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.7 2008/04/24 20:47:58 drell Exp $
+// $Id: V0Analyzer.cc,v 1.8 2008/04/28 23:32:42 drell Exp $
 //
 //
 
@@ -97,6 +97,7 @@ class V0Analyzer : public edm::EDAnalyzer {
   std::string outputFile;
   std::string HistoFileName;
   std::string V0CollectionName;
+  std::string cmsswVersion;
 
   //TFile* theHistoFile;
   TH1D* myKshortMassHisto;
@@ -175,7 +176,9 @@ V0Analyzer::V0Analyzer(const edm::ParameterSet& iConfig):
   HistoFileName(iConfig.getUntrackedParameter("histoFileName",
 			       std::string("vtxAnalyzerHistos.root"))), 
   V0CollectionName(iConfig.getUntrackedParameter("v0CollectionName",
-						 std::string("Kshort"))) {
+						 std::string("Kshort"))),
+  cmsswVersion(iConfig.getUntrackedParameter("cmsswVersion",
+					     std::string("200"))) {
 
    //now do what ever initialization is needed
   //theHistoFile = 0;
@@ -208,7 +211,7 @@ void V0Analyzer::beginJob(const edm::EventSetup&) {
   //theHistoFile->Open();
 
   string algo(algoLabel);
-  string vernum("175");
+  string vernum = cmsswVersion;
   algo += vernum;
   string refit("Refitted");
   string native("Native");
