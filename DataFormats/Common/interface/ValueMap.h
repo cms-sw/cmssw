@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.13 2008/02/06 13:51:11 llista Exp $
+ * \version $Id: ValueMap.h,v 1.14 2008/04/01 13:46:46 gpetrucc Exp $
  *
  */
 
@@ -119,25 +119,24 @@ namespace edm {
     const_reference_type operator[](const RefKey & r) const {
       return get(r.id(), r.key());
     }
-    const_reference_type get(ProductID id, size_t idx) const { 
+    // raw index of a given (id,key) pair
+    size_t rawIndexOf(ProductID id, size_t idx) const {
       typename id_offset_vector::const_iterator f = getIdOffset(id);
       if(f==ids_.end()) throwNotExisting();
       offset off = f->second;
       size_t j = off+idx;
       if(j >= values_.size()) throwIndexBound();
-      return values_[j];
+      return j;
+    }
+    const_reference_type get(ProductID id, size_t idx) const { 
+      return values_[rawIndexOf(id,idx)];
     }
     template<typename RefKey>
     reference_type operator[](const RefKey & r) {
       return get(r.id(), r.key());
     }
     reference_type get(ProductID id, size_t idx) { 
-      typename id_offset_vector::const_iterator f = getIdOffset(id);
-      if(f==ids_.end()) throwNotExisting();
-      offset off = f->second;
-      size_t j = off+idx;
-      if(j >= values_.size()) throwIndexBound();
-      return values_[j];
+      return values_[rawIndexOf(id,idx)];
     }
 
     ValueMap<T> & operator+=(const ValueMap<T> & o) {
@@ -194,6 +193,10 @@ namespace edm {
     const_iterator begin() const { return const_iterator(ids_.begin(), ids_.end(), &values_); }
     const_iterator end() const { return const_iterator(ids_.end(), ids_.end(), &values_); }
 
+    /// meant to be used in AssociativeIterator, not by the ordinary user
+    const id_offset_vector & ids() const { return ids_; }
+    /// meant to be used in AssociativeIterator, not by the ordinary user
+    const_reference_type get(size_t idx) const { return values_[idx]; }
   protected:
     container values_;
     id_offset_vector ids_;

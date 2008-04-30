@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.5 2007/11/07 10:25:13 llista Exp $
+ * \version $Id: Association.h,v 1.6 2007/12/26 17:24:16 wmtan Exp $
  *
  */
 
@@ -26,23 +26,28 @@ namespace edm {
     Association() : base() { }
     template<typename H>
     explicit Association(const H & h) : base(), ref_(h) { }
-    
+
+    // import this function from ValueMap<int>
+    using base::rawIndexOf;
+ 
     template<typename RefKey>
       reference_type operator[](const RefKey & r) const {
       return get(r.id(), r.key());
     }
-    reference_type get(ProductID id, size_t idx) const { 
-      typename id_offset_vector::const_iterator f = getIdOffset(id);
-      if(f==ids_.end()||f->first != id) return reference_type();
-      offset off = f->second;
-      size_t j = off+idx;
-      if(j >= values_.size()) throwIndexBound();
-      index i = values_[j];
+
+    /// meant to be used internally or in AssociativeIterator, not by the ordinary user
+    reference_type get(size_t rawIdx) const { 
+      index i = values_[rawIdx];
       if(i < 0) return reference_type(); 
       size_t k = i;
       if (k >= ref_->size()) throwIndexMapBound();
       return reference_type(ref_,k);
     }
+
+    reference_type get(ProductID id, size_t idx) const { 
+      return get(rawIndexOf(id,idx));
+    }
+
     Association<C> & operator+=(const Association<C> & o) {
       add(o);
       return *this;
@@ -80,6 +85,10 @@ namespace edm {
       }
     };
 
+    /// meant to be used in AssociativeIterator, not by the ordinary user
+    const id_offset_vector & ids() const { return ids_; }
+    /// meant to be used in AssociativeIterator, not by the ordinary user
+    using base::id_offset_vector;
   private:
     refprod_type ref_;
     void throwIndexMapBound() const {
