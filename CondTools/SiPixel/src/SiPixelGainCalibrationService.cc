@@ -21,7 +21,10 @@ float SiPixelGainCalibrationService::getPedestal( const uint32_t& detID,const in
    bool isDead = false;
    float pedestalValue = this->getPedestalByPixel(detID, col, row, isDead);
    if (isDead)
+   {
       this->throwExepctionForBadRead("FullCalibration getPedestal()",detID, col, row, pedestalValue);
+      return 0.0;
+   }
    return pedestalValue;
 }
 
@@ -30,7 +33,10 @@ float SiPixelGainCalibrationService::getGain( const uint32_t& detID,const int& c
    bool isDead = false;
    float gainValue = this->getGainByColumn(detID, col, row, isDead);
    if (isDead)
+   {
       this->throwExepctionForBadRead("FullCalibration getGain()",detID, col, row, gainValue);
+      return 0.0;
+   }
    return gainValue;
 }
 
