@@ -3,27 +3,23 @@
 
 
 - General:
-
-    Major rewrite of Core code and histogram transport
-    + Migration from DaqMonitorBEInterface to DQMStore
-    + MEtoEDMConverters for storage of histograms in EDM files
-    + New subsystem DQMOffline for use with data in Tier-0 and CAF
+ - Major rewrite of Core code and histogram transport
+   - Migration from DaqMonitorBEInterface to DQMStore
+   - MEtoEDMConverters for storage of histograms in EDM files
+   - New subsystem DQMOffline for use with data in Tier-0 and CAF
 
 - Main changes and new features:
-
-    All core code in 2 packages, 
-       DQMServices/Core
-       DQMServices/Components    
-    ~10 packages phased out
-
-    Further details at
-    https://twiki.cern.ch/twiki/bin/view/CMS/DQMInfrastructure
+  - All core code in 2 packages, 
+    - DQMServices/Core
+    - DQMServices/Components    
+  - ~10 packages phased out
+  - Further details at https://twiki.cern.ch/twiki/bin/view/CMS/DQMInfrastructure
     
 - Major bug fixes:
 
 - Known issues:
 
 <hr>
-Last updated: @22 Jan 2008@ Andreas Meyer
+Last updated: 28 April 2008 Andreas Meyer
  
 */
