@@ -33,29 +33,46 @@ public:
   bool dorequireFiducial_;
   bool dophotonHadOverEMCut_;
   bool dophotonsigmaeeCut_;
+  bool dophotonR9Cut_;
 
   //Actual cut values
-  double photonBasicClusterIsolationCut_;
-  double photonEcalRecHitIsolationCut_;
-  double photonHcalRecHitIsolationCut_;
-  double photonHollowConeTrkIsolationCut_;
-  double photonSolidConeTrkIsolationCut_;
-  int photonSolidConeNTrkCut_;
-  int photonHollowConeNTrkCut_;
-  double photonEtaWidthCut_;
-  double photonHadOverEMCut_;
+  double looseEMEcalRecHitIsolationCut_;
+  double looseEMHcalRecHitIsolationCut_;
+  double looseEMHollowConeTrkIsolationCut_;
+  double looseEMSolidConeTrkIsolationCut_;
+  int looseEMSolidConeNTrkCut_;
+  int looseEMHollowConeNTrkCut_;
+  double looseEMEtaWidthCut_;
+  double looseEMHadOverEMCut_;
+  double looseEMR9Cut_;
 
+  double loosephotonEcalRecHitIsolationCut_;
+  double loosephotonHcalRecHitIsolationCut_;
+  double loosephotonHollowConeTrkIsolationCut_;
+  double loosephotonSolidConeTrkIsolationCut_;
+  int loosephotonSolidConeNTrkCut_;
+  int loosephotonHollowConeNTrkCut_;
+  double loosephotonEtaWidthCut_;
+  double loosephotonHadOverEMCut_;
+  double loosephotonR9Cut_;
+
+  double tightphotonEcalRecHitIsolationCut_;
+  double tightphotonHcalRecHitIsolationCut_;
+  double tightphotonHollowConeTrkIsolationCut_;
+  double tightphotonSolidConeTrkIsolationCut_;
+  int tightphotonSolidConeNTrkCut_;
+  int tightphotonHollowConeNTrkCut_;
+  double tightphotonEtaWidthCut_;
+  double tightphotonHadOverEMCut_;
+  double tightphotonR9Cut_;
 
   //Isolation parameters
-  double photonBasicClusterConeOuterRadius_;
-  double photonBasicClusterConeInnerRadius_;
   double photonEcalRecHitConeInnerRadius_;
   double photonEcalRecHitConeOuterRadius_;
   double photonEcalRecHitThresh_;
   double photonHcalRecHitConeInnerRadius_;
   double photonHcalRecHitConeOuterRadius_;
   double photonHcalRecHitThresh_;
-  double isolationbasicclusterThreshold_;
   double trackConeOuterRadius_;
   double trackConeInnerRadius_;
   double isolationtrackThreshold_;

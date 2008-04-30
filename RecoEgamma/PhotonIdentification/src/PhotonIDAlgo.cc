@@ -1,5 +1,6 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIDAlgo.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -9,31 +10,27 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include <string>
 #include <TMath.h>
+#include <iostream>
 
 void PhotonIDAlgo::baseSetup(const edm::ParameterSet& conf) {
 
 
   trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
 
-  barrelislandsuperclusterCollection_ = conf.getParameter<std::string>("barrelislandsuperclusterCollection");
-  barrelislandsuperclusterProducer_ = conf.getParameter<std::string>("barrelislandsuperclusterProducer");
-
-  endcapSuperClusterProducer_ = conf.getParameter<std::string>("endcapSuperClustersProducer");      
-  endcapsuperclusterCollection_ = conf.getParameter<std::string>("endcapsuperclusterCollection");
-
-  barrelbasicclusterCollection_ = conf.getParameter<std::string>("barrelbasiccluterCollection");
-  barrelbasicclusterProducer_ = conf.getParameter<std::string>("barrelbasicclusterProducer");
-  endcapbasicclusterCollection_ = conf.getParameter<std::string>("endcapbasicclusterCollection");
-  endcapbasicclusterProducer_ = conf.getParameter<std::string>("endcapbasicclusterProducer");
-  
   barrelecalCollection_ = conf.getParameter<std::string>("barrelEcalRecHitCollection");
   barrelecalProducer_ = conf.getParameter<std::string>("barrelEcalRecHitProducer");
   endcapecalCollection_ = conf.getParameter<std::string>("endcapEcalRecHitCollection");
@@ -185,6 +182,56 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 
   return ecalIsol;
   
+
+}
+
+double PhotonIDAlgo::calculateR9(const reco::Photon* photon,
+				 const edm::Event& iEvent,
+				 const edm::EventSetup& iSetup
+				 ){
+
+
+  edm::Handle<EcalRecHitCollection> ecalhitsCollH;
+  double peta = photon->p4().Eta();
+  edm::ESHandle<CaloGeometry> geoHandle;
+  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  //const CaloGeometry& geometry = *geoHandle;
+  // const CaloSubdetectorGeometry *geometry_p;
+  if (fabs(peta) > 1.479){
+    iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollH);
+  }
+  else{
+    iEvent.getByLabel(barrelecalProducer_,barrelecalCollection_, ecalhitsCollH);
+  }
+  const EcalRecHitCollection* rechitsCollection_ = ecalhitsCollH.product();
+  std::cout << "Got rechits" << std::endl;
+
+  reco::SuperClusterRef scref = photon->superCluster();
+  const reco::SuperCluster *sc = scref.get();
+  const reco::BasicClusterRef bcref = sc->seed();
+  const reco::BasicCluster *bc = bcref.get();
+  std::cout << "Got basiccluster." << std::endl;
+
+  if (fabs(peta) > 1.479){
+    const CaloTopology topo;
+    EcalClusterTools toole;
+    std::cout << "Got calotopology" << std::endl;
+    float e3x3 = toole.e3x3(*bc, rechitsCollection_, &topo);
+    std::cout << "Calculation: " << std::endl;
+    double r9 = e3x3 / (photon->superCluster()->rawEnergy());
+    std::cout << "r9: " << r9 << std::endl;
+    return r9;
+  }					  
+  else{
+    const CaloTopology topo;
+    EcalClusterTools toole;
+    std::cout << "Got calotopology" << std::endl;
+    float e3x3 = toole.e3x3(*bc, rechitsCollection_, &topo);
+    std::cout << "Calculation: " << std::endl;
+    double r9 = e3x3 / (photon->superCluster()->rawEnergy());
+    std::cout << "r9: " << r9 << std::endl;
+    return r9;
+  }
 
 }
 

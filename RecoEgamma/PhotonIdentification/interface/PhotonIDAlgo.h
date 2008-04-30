@@ -47,6 +47,12 @@ public:
 				double RCone,
 				double RConeInner,
 				double etMin);
+
+  double calculateR9(const reco::Photon* photon,
+		     const edm::Event& iEvent,
+		     const edm::EventSetup& iSetup);
+
+  
   bool isAlsoElectron(const reco::Photon* photon,
 		      const edm::Event& e);
   
