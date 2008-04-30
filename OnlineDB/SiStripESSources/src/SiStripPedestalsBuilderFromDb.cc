@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.3 2007/11/09 14:40:44 bainbrid Exp $
+// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.4 2008/04/30 08:15:33 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripPedestalsBuilderFromDb.cc,v $
 
@@ -108,7 +108,7 @@ void SiStripPedestalsBuilderFromDb::buildPedestals( SiStripConfigDb* const db,
 						    SiStripPedestals& pedestals ) {
   
   // Retrieve FedDescriptions from configuration database
-  SiStripConfigDb::FedDescriptions::range descriptions = db->getFedDescriptions();
+  SiStripConfigDb::FedDescriptionsRange descriptions = db->getFedDescriptions();
   if ( descriptions.empty() ) {
     edm::LogWarning(mlESSources_)
       << "SiStripPedestalsBuilderFromDb::" << __func__ << "]"

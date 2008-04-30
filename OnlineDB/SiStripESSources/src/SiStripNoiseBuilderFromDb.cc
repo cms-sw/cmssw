@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.4 2008/03/04 16:42:04 giordano Exp $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.5 2008/04/30 08:15:33 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
@@ -100,7 +100,7 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
 					    SiStripNoises& noise ) {
   
   // Retrieve FedDescriptions from configuration database
-  SiStripConfigDb::FedDescriptions::range descriptions = db->getFedDescriptions();
+  SiStripConfigDb::FedDescriptionsRange descriptions = db->getFedDescriptions();
   if ( descriptions.empty() ) {
     edm::LogWarning(mlESSources_)
       << "SiStripNoiseBuilderFromDb::" << __func__ << "]"

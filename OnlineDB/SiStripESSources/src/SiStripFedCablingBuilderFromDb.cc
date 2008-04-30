@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.46 2008/04/11 13:36:28 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.47 2008/04/30 08:15:33 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -255,7 +255,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
   
   // ---------- Retrieve connection descriptions from database ----------
   
-  SiStripConfigDb::FedConnections::range conns = db->getFedConnections();
+  SiStripConfigDb::FedConnectionsRange conns = db->getFedConnections();
   if ( conns.empty() ) { 
     edm::LogError(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -269,7 +269,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU-DetId vector from database...";
-  SiStripConfigDb::DcuDetIds::range range = db->getDcuDetIds();
+  SiStripConfigDb::DcuDetIdsRange range = db->getDcuDetIds();
   const SiStripConfigDb::DcuDetIdV dcu_detid_vector( range.begin(), range.end() );
   if ( !dcu_detid_vector.empty() ) { 
     LogTrace(mlCabling_) 
@@ -407,7 +407,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving APV descriptions from database...";
-  SiStripConfigDb::DeviceDescriptions::range apv_desc = db->getDeviceDescriptions( APV25 );
+  SiStripConfigDb::DeviceDescriptionsRange apv_desc = db->getDeviceDescriptions( APV25 );
   if ( !apv_desc.empty() ) { 
     LogTrace(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -426,7 +426,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU descriptions from database...";
-  SiStripConfigDb::DeviceDescriptions::range dcu_desc = db->getDeviceDescriptions( DCU );
+  SiStripConfigDb::DeviceDescriptionsRange dcu_desc = db->getDeviceDescriptions( DCU );
 
   if ( !dcu_desc.empty() ) { 
 
@@ -458,7 +458,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU-DetId vector from database...";
-  SiStripConfigDb::DcuDetIds::range range = db->getDcuDetIds();
+  SiStripConfigDb::DcuDetIdsRange range = db->getDcuDetIds();
   const SiStripConfigDb::DcuDetIdV dcu_detid_vector( range.begin(), range.end() );
   if ( !dcu_detid_vector.empty() ) { 
     LogTrace(mlCabling_) 
@@ -476,8 +476,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving FED ids from database...";
-  SiStripConfigDb::FedIdsRange ids = db->getFedIds();
-  std::vector<uint16_t> fed_ids( ids.first, ids.second );
+  SiStripConfigDb::FedIdsRange fed_ids = db->getFedIds();
   
   if ( !fed_ids.empty() ) { 
     LogTrace(mlCabling_) 
@@ -547,10 +546,10 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
     << " Finished building FEC cabling object from APV and DCU descriptions!";
 
   // ---------- Counters used in assigning "dummy" FED ids and channels ----------
-
-  vector<uint16_t>::iterator ifed = fed_ids.begin();
+  
+  std::vector<uint16_t>::const_iterator ifed = fed_ids.begin();
   uint16_t fed_ch = 0;
-
+  
   // ---------- Assign "dummy" FED crates/slots/ids/chans to constructed modules ----------
 
   LogTrace(mlCabling_) 
@@ -744,7 +743,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU-DetId vector from database...";
-  SiStripConfigDb::DcuDetIds::range range = db->getDcuDetIds();
+  SiStripConfigDb::DcuDetIdsRange range = db->getDcuDetIds();
   const SiStripConfigDb::DcuDetIdV dcu_detid_vector( range.begin(), range.end() );
   if ( !dcu_detid_vector.empty() ) { 
     LogTrace(mlCabling_) 
