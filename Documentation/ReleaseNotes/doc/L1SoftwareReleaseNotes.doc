@@ -1,18 +1,11 @@
 /*!
-\page L1SoftwareReleaseNotes L1 Software Release Notes - CMSSW_2_0_x
+\page L1SoftwareReleaseNotes L1 Software Release Notes - CMSSW_2_1_x
 
 
 - General:
 
 - Main changes and new features:
-  - New HF-based minbias trigger quantities
-  - CSC beam halo trigger
-  - New L1 trigger menus for 1030, 1031 lumi
-  - HLT seeding possible from `technical triggers'
-  - Lightweight interface to trigger results for AOD
-  - Firmware related updates to CSC TPG, CSC TF, DTTF
-  - ORCON population modules written
-  - L1 branches renamed
+  - 
 
 - Major bug fixes:
 

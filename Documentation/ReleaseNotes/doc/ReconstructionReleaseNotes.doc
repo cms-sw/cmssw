@@ -1,196 +1,51 @@
 /*!
-\page ReconstructionReleaseNotes Reconstruction Release Notes - CMSSW_2_0_x
+\page ReconstructionReleaseNotes Reconstruction Release Notes - CMSSW_2_1_x
 
 
 - General:
- - Event size reduction mainly thanks to standard tracking and iterative tracking unification
- - Reduction of memory footprint mainly thanks to pixel and CSC DB payload reduction
- - Improved timing
+ - 
  
 - Main changes and new features:
- - renamed and revisited track collection: ctfWithMaterialTracks should be replaced with generalTracks  
+ - 
 
 - Major bug fixes:
- - cleanup of some memory leaks
- - cleanup of some uninitialized variables 
+ -
 
 - Known issues:
- - Loss in efficiency for TeV muon in forward region 
- - Stability against FPE to be checked
+ - 
  
 <hr>
 Details and new features by subsystem:
 
 - Tracker
- - Default CTF track collection is now called generalTracks, replacing
-   the ctfWithMaterialTracks collection
- - Matched hits are split into component hits after pattern recognition
- - Hits with large chi2 ("outliers") are removed from the track in the
-   final fit
- - Template-based pixel CPE used in final track fit
- - Tracks in generalTracks collection are filtered based on # hits and
-   compatiblity with beamline and 3 levels of track quality (loose,
-   tight, and highPurity) are marked in the generalTracks collection
- - Iterative tracking uses the output of the highPurity track filtering
-   as its first step
- - New hit removal tool implemented for iterative tracking to retain the
-   links from hits to clusters in the original collection
- - Significant optimization of standard track reconstruction for improved
-   timing performance
- - First implementation of DAF in CMSSW
+ - 
 
 - ECAL
- - ChannelStatusMap integrated in the reconstruction chain
- - RecHit re-calibrator
- - New super-cluster corrections
- - Cluster position tools: tell if a DetId is close to a module boundary
+ - 
 
 - HCAL
- - DB Interface
-  - templated conditions objects are introduced. Most of the objects (except electronics map) built through  "typedef HcalCondObjectContainer<single cell object>" (unified container, uses hashed id's).
-  - new Conditions objects added for response correction factors and zero supressions thresholds. Also changed is the channel quality format.
-  - HcalCalibrationsSet is modified to work also with pedestals in ADC counts in addition to previously used pedestals in fC.
-  - new PopCon v2 applications for the conditions objects. 
- -  Off-Line Conditions
-  - new QIE data and corresponding new pedestals and pedestal widths. Trivial response correction (=1) is set as default. 
- -  Data Formats
-  - new method in HcalGenericDetId: int hashedId() const. It returns a hashed id separately for HB, HE, HO, HF, HT, CALIB, ZDC (CASTOR to be finished). 
-  - RecHits:  introduction of multiplication of gains with response corrections prior to reconstructing the RecHit, in the HcalCalibrations. New "respcorrgain" method used in RecHit formatting and in trigger code.
-  - CaloTowers:  UseHO flag is enabled.  The mass in the CaloTower 4-vector iz explicitly set to zero (requested by the Jet/Met Group). 
+ - 
 
 - CSC
- - Geometry updates
- - Data Formats:
-  - CSCDigi: minor updates and cleanup to all digi types.
-  - CSCRecHit: CSCRecHit2D has minor updates and cleanup.
-    - Replaced chi2 and chi2 probability of superseded Gatti fit by a 'quality' value.
-    - Added estimated position of shower centre within central strip, and estimated error.
-    - Add flags for bad strips or wire groups contributing to a rechit (for future use.)
- - CondFormats
-  -CSCObjects: content of all calibration-type conditions data (gains, pedestals, crosstalk, noise) have been rationalized,
-   and are stored as short int instead of float to minimize memory requirements.
-   Classes added to handle bad (hot, dead, noisy) strip and wire group channels.
-   A class CSCConditions encapsulates a user interface for all conditions data
-   and handles conversion back to float where appropriate.
-
- - Calibration data handling (CalibMuon/CSCCalibration)
-  - Uses conditions data with the short int storage format.
-  - PopCon implementation.
-
- - Local reconstruction (RecoLocalMuon) uses new default algorithms as mandated by CSC DPG.
-  - Rechit building uses RecoLocalMuon/CSCRecHitD (faster since no Gatti fit;
-    improved error estimates) in place of CSCRecHitB.
-    Uses conditions data with the short int storage format.
-  - Segment building uses CSCSegAlgoSK (a spanning-tree algorithm)
-    in RecoLocalMuon/CSCSegment, in place of CSCSegAlgoDF.
-
- - Raw data unpacking (EventFilter/CSCRawToDigi)
-  - Considerable changes for improved handling of raw data stream.
-  - Unpacking is more robust so that occasional local data
-    corruption does not invalidate CSC data of entire event.
+ - 
 
 - DT
- - Memory leak removed
-
+ - 
 
 - EGamma
- - H/E cut and Et cut before conversion track finding
-   - For both Photons and Conversions the new H/E calculation developed for electrons is used
-     Default cuts are  H/E < 0.2 and Et>5 GeV
- - Photons are no longer applied any energy correction since all corrections will be included at SuperCluster leve
- - Photons with e3x3/Esc > R9threshold (which with high probablity are uncoverted)
-   are constructed forcing their energy  to be the e5x5. Photons with e3x3/Esc < R9threshold get the SuperCluster energy.
- - Protect all Producers against invalid Handle to collections
- - Remove from beginJob all EventSetup-depending stuff
- - ckfTracksFromConversions: no longer separate collections for barrel and endcap. Config files changed accordingly
-  - OneToOne association map between tracks and Super Cluster was replaced with a ValueMap
- - Further revision of photonSequence and conversionSequence. Now that energy corrections are no longer applied to Photons, the
-   correctedPhotons do not exist anymore. Only 2 collections are stored in the event recoPhotons_photons and
-   recoConversions_conversions
- - Remove from the Photon constructor the charge
- - Electron seeding improvements
-  - Pixel match uses TID nad TEC for searching the 2nd hit
-  - Pt dependent phi windows
- - Relax E/p cut in default electron preselection
- - Energy corrections are now at SC level
- - Speed/data size improvements
-  - Move Et and H/E cuts at seeding level
-  - H/E is calculated using a single HCAL cell rather than using CaloConSelector
-
+ - 
+   
 - JetMET
- - reduce number of officially supported algorithms (running in production):
-   iterativeCone R=0.5, sisCone R=0.5, siscone R=0.7, kt D=0.4, kt D=0.6
- - produce only one GenJet collection per jet algorithm: include all genParticles
-   except invisible BSM, and neutrinos and muons produced from gauge bosons  decays
- - apply pT>5GeV/c cut on produced GenJets
- - fine tune of jet "physics eta" - effect of interaction point Z displaced
- - use factorized corrections for JES, release L1,L2,L3,L4,L5,L7 jet corrections
- - use chained corrections to combine stable corrections sequences into one effective
-   correction
+ - 
 
 - Muon 
-  - Data Formats
-   - migration of MuIsoDeposit to common IsoDeposit in MuonReco package
-   - Added timing information in reco:Muon
-  - Configurations
-    - Defined a standard cosmic sequence under Reco*Muon/Configuration
-  - Stand alone / L2
-    - New seed generator algorithm 
-    - proper handle of the beam spot constraint
-    - Proper use of the tracking navigation
-    - do not load the default Tracks when the update at vtx fails
-  - Global / L3
-    - Modularization of L3 code
-    - Outside-In algorithm uses faster measurement method
-    - outside-in seeder always starts from the predicted state on tracker bound.
-    - Written the L3SeedCleaner class that compares L3Seeds to L2Muon
-    - Parameterized tracking region of interest
-    - Region of interest uses BeamSpot
-    - Fix and improvements in the MuonTrackMatcher
-    - Proper use of the tracking navigation 
-    - L3 Modularization: combo-smart-seeder that can run multiple seeder algorithms.
-    - Outside-In seeder option to use the vertex state instead of innermost
-    - Region of interest can use pixel vertices
-    - Outside-In algorithm: Tune the chi2 cut and error rescaling factor 
-    - Add hit-triplet / hit-pair seed comparator in L3SeedCleaner 
-    - Tune the L3SeedCleaner 
-    - Add a method to MuonTrackMatcher to use TrackCandidates
-  - Muon identification
-    - the timing information for beta=1 hypothesis stores both in-out and
-      out-in results. Direction can be estimated based on this information
-      as well as freeBeta sign. A simple function to estimate direction is
-      added  
-  - Isolation: uses generic isolation tools for muon isolation algorithms
-  - Cosmics
-    - reverse trajectory direction
-    - add overlapping measurements
-  - DQM Offline:
-    - Redesigned the structure of the analysers
-    - Added new monitors: Seed, Muon Energy deposits, Tracker/Global/Stand alone track comparisons 
-
-
+  - 
 
 - B Tagging
- - track probability calibration:
-  - code ported to 200 and functionalities restored
-  - capabilities for a grid enabled calibrations inserted
-  - newpayloads created
-  - condformat uses trackquality to define categories
+ - 
 
 - Particle Flow 
- - DataFormats
- - Unified set up for the reconstruction of electrons, conversions, nuclear interactions in ParticleFlowReco and ParticleFlowCandidate. In particular PFCandidate was inheriting from LeafCandidate, and is now inheriting from CompositeCandidate.
- - ParticleFlowCandidate: prepared the integration with PAT. New classes inheriting from PFCandidate added. In PFCandidate, added a reference to the parent PFCandidate, to keep track of what is happening when doing a selection with object copy.
- - ParticleFlowCandidate: bug fix in the reference to the source PFBlock. A PFCandidate now refers to PFBlockElements that can come from several different blocks, as it should because of cluster recovery.
- - Now making use of the Particle::pdgId_ data member. PFCandidate::particleId_ will soon be removed.
-
- - Algorithm: no change, all new features are deactivated by default.
- - Software:
-  - ECAL clustering: hashed index used to speed up navigation. Gain in terms of speed to be quantified
-  - All clustering: general cleanup of the producers and sequences. Production of PFRecHits and of PFClusters are done in separate producers. Processing of ECAL, HCAL and PS data done in separate producers.
-  - All algorithms now make use of permanent refs in full framework, and of transient refs in FWLite
-  - PFRootEvent: jet reconstruction is working.
-
+ - 
 
 
 

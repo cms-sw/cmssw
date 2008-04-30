@@ -1,9 +1,8 @@
 /*!
-\page ReleaseNotes Release Notes for CMSSW_2_0_x
+\page ReleaseNotes Release Notes for CMSSW_2_1_x
 
-
-<a href="https://twiki.cern.ch/twiki/bin/view/CMS/CMSSW_2_0_0">Goals for the CMSSW_2_0_0 release cycle</a>
-
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/CMSSW_2_1_0">Goals for the CMSSW_2_1_0 release cycle</a>
+ 
 \htmlonly
 <table class="doctable">
 <caption>
@@ -60,12 +59,13 @@
 \endhtmlonly
 
 \section other Release notes for other release series: 
-- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_7_5/doc/html/ReleaseNotes.html">CMSSW_1_7_x</a>
-- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_8_3/doc/html/ReleaseNotes.html">CMSSW_1_8_x</a>
+- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_7_7/doc/html/ReleaseNotes.html">CMSSW_1_7_x</a>
+- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_8_4/doc/html/ReleaseNotes.html">CMSSW_1_8_x</a>
+- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_2_0_4/doc/html/ReleaseNotes.html">CMSSW_2_0_x</a>
 
 
 
 <hr>
-Last updated: 10 April 2008 K. Lassila-Perini
+Last updated: 30 April 2008 K. Lassila-Perini
  
 */
