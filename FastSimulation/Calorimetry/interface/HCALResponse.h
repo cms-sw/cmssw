@@ -9,7 +9,7 @@
 
 #include <map>
 
-#define maxHDeB   12
+#define maxHDeB   14
 #define maxHDeF    7
 #define maxEMe     7
 #define maxHDetaB 30
