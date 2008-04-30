@@ -12,7 +12,6 @@ ecal_dqm_client-offline = cms.Sequence(ecalBarrelMonitorClient*dqmQTestEB)
 ecalBarrelMonitorClient.maskFile = ''
 ecalBarrelMonitorClient.location = 'P5'
 ecalBarrelMonitorClient.verbose = False
-ecalBarrelMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Timing', 
-    'Cosmic', 'Cluster', 'TriggerTower', 'Summary']
+ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Summary']
 
 
