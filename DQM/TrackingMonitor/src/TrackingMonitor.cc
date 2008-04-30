@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/29 17:26:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/29 23:20:10 $
+ *  $Revision: 1.5 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -171,10 +171,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 void TrackingMonitor::endJob(void) {
-  dqmStore_->showDirStructure();
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
+    dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   }
 }
