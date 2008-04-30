@@ -158,30 +158,30 @@ class DTConfigTraco : public DTConfig {
 private:
   //  const edm::ParameterSet* m_ps;
 
-  int8_t m_debug;
-  int8_t m_krad;
-  int8_t m_btic;
-  int8_t m_dd;
-  int8_t m_reusei;
-  int8_t m_reuseo;
-  int8_t m_fhtmsk;
-  int8_t m_shtmsk;
-  int8_t m_fltmsk;
-  int8_t m_sltmsk;
-  int8_t m_fslmsk;
-  int8_t m_sslmsk;
-  int8_t m_fhtprf;
-  int8_t m_shtprf;
-  int8_t m_fhism;
-  int8_t m_shism;
-  int8_t m_fprgcomp;
-  int8_t m_sprgcomp;
-  int8_t m_lts;
-  int8_t m_ltf;
+  unsigned short int m_debug;
+  unsigned short int m_krad;
+  unsigned short int m_btic;
+  unsigned short int m_dd;
+  unsigned short int m_reusei;
+  unsigned short int m_reuseo;
+  unsigned short int m_fhtmsk;
+  unsigned short int m_shtmsk;
+  unsigned short int m_fltmsk;
+  unsigned short int m_sltmsk;
+  unsigned short int m_fslmsk;
+  unsigned short int m_sslmsk;
+  unsigned short int m_fhtprf;
+  unsigned short int m_shtprf;
+  unsigned short int m_fhism;
+  unsigned short int m_shism;
+  unsigned short int m_fprgcomp;
+  unsigned short int m_sprgcomp;
+  unsigned short int m_lts;
+  unsigned short int m_ltf;
   BitArray<16> m_trgenb;
-  int8_t m_ibtioff;
-  int16_t m_kprgcom;
-  int8_t m_lvalidifh;
+  unsigned short int m_ibtioff;
+  unsigned short int m_kprgcom;
+  unsigned short int m_lvalidifh;
 
 };
 

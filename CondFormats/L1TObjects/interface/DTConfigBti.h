@@ -133,28 +133,28 @@ class DTConfigBti : DTConfig {
 private:
   //  const edm::ParameterSet* m_ps;
 
-  int8_t m_debug;
-  int8_t m_kcut;
-  int8_t m_kacctheta;
+  unsigned short int m_debug;
+  unsigned short int m_kcut;
+  unsigned short int m_kacctheta;
   bool m_xon;
-  int8_t m_lts;
-  int8_t m_set;
-  int8_t m_ac1;
-  int8_t m_ac2;
-  int8_t m_ach;
-  int8_t m_acl;
+  unsigned short int m_lts;
+  unsigned short int m_set;
+  unsigned short int m_ac1;
+  unsigned short int m_ac2;
+  unsigned short int m_ach;
+  unsigned short int m_acl;
   bool m_ron;
   BitArray<32> m_pattmask;
   BitArray<9>  m_wiremask;
-  int8_t m_ll;
-  int8_t m_lh;
-  int8_t m_cl;
-  int8_t m_ch;
-  int8_t m_rl;
-  int8_t m_rh;
-  int8_t m_4st3;
-  int8_t m_4re3;
-  int8_t m_dead;
+  unsigned short int m_ll;
+  unsigned short int m_lh;
+  unsigned short int m_cl;
+  unsigned short int m_ch;
+  unsigned short int m_rl;
+  unsigned short int m_rh;
+  unsigned short int m_4st3;
+  unsigned short int m_4re3;
+  unsigned short int m_dead;
 };
 
 #endif

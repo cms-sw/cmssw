@@ -164,30 +164,30 @@ class DTConfigTSPhi : public DTConfig {
   bool m_debug;
 
   // TSS Parameters
-  int16_t m_tssmsk[2];  // [0]=1st [1]=2nd
+  unsigned short int m_tssmsk[2];  // [0]=1st [1]=2nd
   bool m_tsshte[3]; // [0]=1st [1]=2nd [2]=carry
   bool m_tssnoe[3]; // [0]=1st [1]=2nd [2]=carry
   bool m_tsscce[3]; // [0]=1st [1]=2nd [2]=carry
-  int8_t m_tssgs1;
-  int8_t m_tssgs2;
+  unsigned short int m_tssgs1;
+  unsigned short int m_tssgs2;
   bool m_tsscgs1;
   bool m_tsscgs2;
 
   //TSM Parameters
-  int16_t m_tsmmsk[2];  // [0]=1st [1]=2nd
+  unsigned short int m_tsmmsk[2];  // [0]=1st [1]=2nd
   bool m_tsmhte[3]; // [0]=1st [1]=2nd [2]=carry
   bool m_tsmnoe[3]; // [0]=1st [1]=2nd [2]=carry
   bool m_tsmcce[3]; // [0]=1st [1]=2nd [2]=carry
-  int8_t m_tsmgs1; 
-  int8_t m_tsmgs2;
+  unsigned short int m_tsmgs1; 
+  unsigned short int m_tsmgs2;
   bool m_tsmcgs1;
   bool m_tsmcgs2;
-  int8_t m_tsmhsp;
+  unsigned short int m_tsmhsp;
 
   
   BitArray<24> m_tstren;     // Enabled TRACOs
   BitArray<8> m_tsmword; // TSM backup mode word
-  int8_t m_ntsstsmd;        // nb tss to one of the tsmd (only if back-up mode)
+  unsigned short int m_ntsstsmd;        // nb tss to one of the tsmd (only if back-up mode)
 
 };
 
