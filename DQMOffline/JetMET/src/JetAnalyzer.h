@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2008/04/30 02:14:43 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -25,6 +25,9 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
+#include <string>
+using namespace std;
+using namespace edm;
 
 class JetAnalyzer : public JetAnalyzerBase {
  public:
@@ -42,6 +45,12 @@ class JetAnalyzer : public JetAnalyzerBase {
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::CaloJet& caloJet);
 
+  void setSource(std::string source) {
+    _source = source;
+    cout<<"[JetAnalyzer] source = " << _source << endl;
+  }
+
+
 
  private:
   // ----------member data ---------------------------
@@ -49,6 +58,7 @@ class JetAnalyzer : public JetAnalyzerBase {
   edm::ParameterSet parameters;
   // Switch for verbosity
   std::string metname;
+  std::string _source;
   // Calo Jet Label
   edm::InputTag theCaloJetCollectionLabel;
 
@@ -64,6 +74,14 @@ class JetAnalyzer : public JetAnalyzerBase {
   int    ptBin;
   double ptMin;
   double ptMax;
+
+  int    eBin;
+  double eMin;
+  double eMax;
+
+  int    pBin;
+  double pMin;
+  double pMax;
 
   //the histos
   MonitorElement* jetME;

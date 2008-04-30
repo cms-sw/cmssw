@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2008/04/30 02:14:43 $
+ *  $Revision: 1.1 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -32,7 +32,7 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   metname = "jetAnalyzer";
 
   LogTrace(metname)<<"[JetAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("JetMET/JetAnalyzer");
+  dbe->setCurrentFolder("JetMET/"+_source);
 
   jetME = dbe->book1D("jetReco", "jetReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloJets",1);
@@ -52,11 +52,23 @@ void JetAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   ptMin = parameters.getParameter<double>("ptMin");
   ptMax = parameters.getParameter<double>("ptMax");
 
+  // 
+  eBin = parameters.getParameter<int>("eBin");
+  eMin = parameters.getParameter<double>("eMin");
+  eMax = parameters.getParameter<double>("eMax");
+
+  // 
+  pBin = parameters.getParameter<int>("pBin");
+  pMin = parameters.getParameter<double>("pMin");
+  pMax = parameters.getParameter<double>("pMax");
+
+
+
   mEta                    = dbe->book1D("Eta", "Eta", etaBin, etaMin, etaMax);
-  mPhi                    = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5);
-  mE                      = dbe->book1D("E", "E", 100, 0, 500);
-  mP                      = dbe->book1D("P", "P", 100, 0, 500);
-  mPt                     = dbe->book1D("Pt", "Pt", 100, 0, 50);
+  mPhi                    = dbe->book1D("Phi", "Phi", phiBin, phiMin, phiMax);
+  mE                      = dbe->book1D("E", "E", eBin, eMin, eMax);
+  mP                      = dbe->book1D("P", "P", pBin, pMin, pMax);
+  mPt                     = dbe->book1D("Pt", "Pt", ptBin, ptMin, ptMax);
   mPt_1                   = dbe->book1D("Pt1", "Pt1", 100, 0, 100);
   mPt_2                   = dbe->book1D("Pt2", "Pt2", 100, 0, 300);
   mPt_3                   = dbe->book1D("Pt3", "Pt3", 100, 0, 5000);
