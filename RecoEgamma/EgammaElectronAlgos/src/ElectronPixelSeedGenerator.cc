@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.51 2008/04/12 22:33:58 charlot Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.52 2008/04/21 09:47:35 uberthon Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/EcalCluster.h"
+//#include "DataFormats/EgammaReco/interface/EcalCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
