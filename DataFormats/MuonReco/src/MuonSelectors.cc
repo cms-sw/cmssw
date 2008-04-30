@@ -18,12 +18,12 @@ unsigned int muon::RequiredStationMask( const reco::Muon& muon,
 }
 
 // ------------ method to calculate the calo compatibility for a track with matched muon info  ------------
-float muon::getCaloCompatibility(const reco::Muon& muon) {
+float muon::caloCompatibility(const reco::Muon& muon) {
   return muon.caloCompatibility();
 }
 
 // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------
-float muon::getSegmentCompatibility(const reco::Muon& muon) {
+float muon::segmentCompatibility(const reco::Muon& muon) {
   bool use_weight_regain_at_chamber_boundary = true;
   bool use_match_dist_penalty = true;
 
@@ -231,7 +231,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
   switch( type ) {
   case TM2DCompatibility:
     // Simplistic first cut in the 2D segment- vs calo-compatibility plane. Will have to be refined!
-    if( ( getCaloCompatibility( muon )+getSegmentCompatibility( muon ) ) > minCompatibility ) goodMuon = true;
+    if( ( caloCompatibility( muon )+segmentCompatibility( muon ) ) > minCompatibility ) goodMuon = true;
     else goodMuon = false;
     return goodMuon;
     break;
@@ -328,6 +328,9 @@ bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
 {
   switch (type)
      {
+      case reco::Muon::All:
+	return true;
+	break;
       case reco::Muon::TrackerMuonArbitrated:
 	return muon.isTrackerMuon() && muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;

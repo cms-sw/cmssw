@@ -10,3 +10,7 @@ float CaloMuon::getCaloCompatibility() const
 { 
    return caloCompatibility_; 
 }
+
+MuonEnergy CaloMuon::getCalEnergy() const { 
+   return calEnergy_; 
+}

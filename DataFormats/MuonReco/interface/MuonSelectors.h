@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jake Ribnik, Dmytro Kovalskyi
-// $Id: IdGlobalFunctions.h,v 1.4 2007/08/23 00:58:44 ibloch Exp $
+// $Id: MuonSelectors.h,v 1.1 2008/04/29 23:30:21 dmytro Exp $
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TMath.h"
@@ -42,10 +42,10 @@ namespace muon {
 				     reco::Muon::ArbitrationType arbitrationType );
 
    // ------------ method to return the calo compatibility for a track with matched muon info  ------------
-   float getCaloCompatibility(const reco::Muon& muon);
+   float caloCompatibility(const reco::Muon& muon);
 
    // ------------ method to calculate the segment compatibility for a track with matched muon info  ------------
-   float getSegmentCompatibility(const reco::Muon& muon);
+   float segmentCompatibility(const reco::Muon& muon);
 
 
 }

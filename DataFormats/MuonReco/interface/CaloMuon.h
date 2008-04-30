@@ -10,7 +10,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: CaloMuon.h,v 1.1 2007/10/06 00:21:05 dmytro Exp $
+ * \version $Id: CaloMuon.h,v 1.2 2008/04/30 18:17:44 dmytro Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
@@ -30,7 +30,8 @@ namespace reco {
     /// energy deposition
     bool isEnergyValid() const { return energyValid_; }
     /// get energy deposition information
-    MuonEnergy getCalEnergy() const { return calEnergy_; }
+    MuonEnergy calEnergy() const { return calEnergy_; }
+    MuonEnergy getCalEnergy() const __attribute__((deprecated));
     /// set energy deposition information
     void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; energyValid_ = true; }
      
