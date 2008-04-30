@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.61 2008/04/25 10:06:53 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.62 2008/04/29 11:57:04 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -116,8 +116,9 @@ class SiStripConfigDb {
 #else
   typedef FedChannelConnectionDescription FedConnection;
 #endif
-  typedef std::vector<FedConnection*> FedConnectionV;
   typedef edm::MapOfVectors<std::string,FedConnection*> FedConnections;
+  typedef std::vector<FedConnection*> FedConnectionV;
+  typedef std::pair< FedConnectionV::const_iterator, FedConnectionV::const_iterator > FedConnectionVRange;
   
   // Device descriptions
   typedef enumDeviceType DeviceType;
@@ -129,12 +130,18 @@ class SiStripConfigDb {
   // FED descriptions
   typedef Fed9U::Fed9UDescription FedDescription;
   typedef edm::MapOfVectors<std::string,FedDescription*> FedDescriptions;
+  typedef std::vector<FedDescription*> FedDescriptionV;
+  typedef std::pair< FedDescriptionV::const_iterator, FedDescriptionV::const_iterator > FedDescriptionRange;
   typedef std::pair< std::vector<uint16_t>::const_iterator, std::vector<uint16_t>::const_iterator > FedIdsRange;
 
   // DCU-DetId map
   typedef std::pair<uint32_t,TkDcuInfo*> DcuDetId; 
-  typedef edm::MapOfVectors<std::string,DcuDetId> DcuDetIdMap; 
-
+  typedef edm::MapOfVectors<std::string,DcuDetId> DcuDetIds; 
+  typedef std::vector<DcuDetId> DcuDetIdV;
+  typedef std::pair< DcuDetIdV::const_iterator, DcuDetIdV::const_iterator > DcuDetIdRange;
+  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
+  
+  
   // Analysis descriptions
 #ifdef USING_NEW_DATABASE_MODEL
   typedef CommissioningAnalysisDescription::commissioningType AnalysisType;
@@ -142,8 +149,9 @@ class SiStripConfigDb {
   class CommissioningAnalysisDescription;
 #endif
   typedef CommissioningAnalysisDescription AnalysisDescription;
-  typedef std::vector<AnalysisDescription*> AnalysisDescriptionV;
   typedef edm::MapOfVectors<std::string,AnalysisDescription*> AnalysisDescriptions;
+  typedef std::vector<AnalysisDescription*> AnalysisDescriptionV;
+  typedef std::pair< AnalysisDescriptionV::const_iterator, AnalysisDescriptionV::const_iterator > AnalysisDescriptionRange;
 
 
   // ---------- Useful structs ----------
@@ -267,20 +275,30 @@ class SiStripConfigDb {
 
 
   /** Returns local cache (just for given partition if specified). */
-  DcuDetIdMap::range getDcuDetIdMap( std::string partition = "" );
+  DcuDetIds::range getDcuDetIds( std::string partition = "" );
   
   /** Adds to local cache (just for given partition if specified). */
-  void addDcuDetIdMap( std::string partition, std::vector<DcuDetId>& );
+  void addDcuDetIds( std::string partition, std::vector<DcuDetId>& );
   
   /** Uploads to database (just for given partition if specified). */
-  void uploadDcuDetIdMap( std::string partition = "" );
+  void uploadDcuDetIds( std::string partition = "" );
   
   /** Clears local cache (just for given partition if specified). */
-  void clearDcuDetIdMap( std::string partition = "" );
+  void clearDcuDetIds( std::string partition = "" );
   
   /** Prints local cache (just for given partition if specified). */
-  void printDcuDetIdMap( std::string partition = "" );
-
+  void printDcuDetIds( std::string partition = "" );
+  
+  /** Utility method. */ 
+  static DcuDetIdV::const_iterator findDcuDetId( DcuDetIdV::const_iterator begin, 
+						 DcuDetIdV::const_iterator end, 
+						 uint32_t dcu_id  );
+  
+  /** Utility method. */ 
+  static DcuDetIdV::iterator findDcuDetId( DcuDetIdV::iterator begin, 
+					   DcuDetIdV::iterator end, 
+					   uint32_t dcu_id  );
+  
 
   // ---------- Commissioning analyses ---------- 
 
@@ -339,14 +357,12 @@ class SiStripConfigDb {
   /** Returns device identifier based on device type. */
   std::string deviceType( const enumDeviceType& device_type ) const;
   
-  typedef Sgi::hash_map<unsigned long,TkDcuInfo*> HashMap;
-
-  void clone( const HashMap& in, std::vector<DcuDetId>& out ) const;
-
-  void clone( const std::vector<DcuDetId>& in, HashMap& out ) const;
-
-  void clone( const std::vector<DcuDetId>& in, std::vector<DcuDetId>& out ) const;
-
+  void clone( const DcuDetIdMap& in, DcuDetIdV& out ) const;
+  
+  void clone( const DcuDetIdV& in, DcuDetIdMap& out ) const;
+  
+  void clone( const DcuDetIdV& in, DcuDetIdV& out ) const;
+  
   
   // ---------- Database connection, partitions and versions ----------
 
@@ -374,7 +390,7 @@ class SiStripConfigDb {
   FedDescriptions feds_;
  
   /** DcuId-DetId map (map of TkDcuInfo objects). */
-  DcuDetIdMap dcuDetIdMap_;
+  DcuDetIds dcuDetIds_;
   
 #ifdef USING_NEW_DATABASE_MODEL
 

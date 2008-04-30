@@ -1,4 +1,4 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.6 2008/04/25 10:06:53 bainbrid Exp $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.7 2008/04/29 11:57:05 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
@@ -505,6 +505,7 @@ SiStripConfigDb::DeviceAddress SiStripConfigDb::deviceAddress( const AnalysisDes
     addr.ccuAddr_  = static_cast<uint16_t>( desc.getCcuAdr() );
     addr.ccuChan_  = static_cast<uint16_t>( desc.getCcuChan() );
     addr.lldChan_  = static_cast<uint16_t>( SiStripFecKey::lldChan( desc.getI2cAddr() ) );
+    addr.i2cAddr_  = static_cast<uint16_t>( desc.getI2cAddr() );
     addr.fedId_    = static_cast<uint16_t>( desc.getFedId() ); //@@ offset required? crate/slot needed?
     addr.feUnit_   = static_cast<uint16_t>( desc.getFeUnit() );
     addr.feChan_   = static_cast<uint16_t>( desc.getFeChan() );

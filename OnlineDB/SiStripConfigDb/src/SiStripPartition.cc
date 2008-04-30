@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.4 2008/04/25 10:06:54 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.5 2008/04/29 11:57:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -16,7 +16,7 @@ SiStripPartition::SiStripPartition( std::string partition ) :
   runNumber_(0),
   runType_(sistrip::UNDEFINED_RUN_TYPE),
   forceVersions_(false),
-  forceCurrentState_(true),
+  forceCurrentState_(false),
   cabVersion_(0,0),
   fedVersion_(0,0),
   fecVersion_(0,0),
@@ -46,7 +46,7 @@ SiStripPartition::SiStripPartition() :
   runNumber_(0),
   runType_(sistrip::UNDEFINED_RUN_TYPE),
   forceVersions_(false),
-  forceCurrentState_(true),
+  forceCurrentState_(false),
   cabVersion_(0,0),
   fedVersion_(0,0),
   fecVersion_(0,0),
@@ -83,7 +83,7 @@ void SiStripPartition::reset() {
   runNumber_         = 0;
   runType_           = sistrip::UNDEFINED_RUN_TYPE;
   forceVersions_     = false;
-  forceCurrentState_ = true;
+  forceCurrentState_ = false;
 
   cabVersion_ = std::make_pair(0,0);
   fedVersion_ = std::make_pair(0,0);
@@ -114,13 +114,13 @@ void SiStripPartition::pset( const edm::ParameterSet& pset ) {
   partitionName_     = pset.getUntrackedParameter<std::string>( "PartitionName", "" );
   runNumber_         = pset.getUntrackedParameter<unsigned int>( "RunNumber", 0 );
   forceVersions_     = pset.getUntrackedParameter<bool>( "ForceVersions", false );
-  forceCurrentState_ = pset.getUntrackedParameter<bool>( "ForceCurrentState", true );
+  forceCurrentState_ = pset.getUntrackedParameter<bool>( "ForceCurrentState", false );
 
   std::vector<uint32_t> tmp1(2,0);
   cabVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "CablingVersion", tmp1 ) );
   fedVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "FedVersion", tmp1 ) );
   fecVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "FecVersion", tmp1 ) );
-  dcuVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "DcuDetIdMapVersion", tmp1 ) );
+  dcuVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "DcuDetIdsVersion", tmp1 ) );
   psuVersion_ = versions( pset.getUntrackedParameter< std::vector<uint32_t> >( "DcuPsuMapVersion", tmp1 ) );
 
   std::vector<uint32_t> tmp2(2,0);

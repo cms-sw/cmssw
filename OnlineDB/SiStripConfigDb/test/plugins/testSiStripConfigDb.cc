@@ -1,9 +1,10 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.8 2008/04/25 10:06:54 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.9 2008/04/29 11:57:06 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <iostream>
 #include <iomanip>
@@ -22,7 +23,7 @@ testSiStripConfigDb::testSiStripConfigDb( const edm::ParameterSet& pset )
     conns_( pset.getUntrackedParameter<bool>("FedConnections",false) ),
     devices_( pset.getUntrackedParameter<bool>("DeviceDescriptions",false) ),
     feds_( pset.getUntrackedParameter<bool>("FedDescriptions",false) ),
-    dcus_( pset.getUntrackedParameter<bool>("DcuDetIdMap",false) ),
+    dcus_( pset.getUntrackedParameter<bool>("DcuDetIds",false) ),
     anals_( pset.getUntrackedParameter<bool>("AnalysisDescriptions",false) )
 {
   std::stringstream ss;
@@ -33,7 +34,7 @@ testSiStripConfigDb::testSiStripConfigDb( const edm::ParameterSet& pset )
      << "  FedConnections       : " << conns_ << std::endl 
      << "  DeviceDescriptions   : " << devices_ << std::endl 
      << "  FedDescriptions      : " << feds_ << std::endl 
-     << "  DcuDetIdMap          : " << dcus_ << std::endl 
+     << "  DcuDetIds            : " << dcus_ << std::endl 
      << "  AnalysisDescriptions : " << anals_;
   LogTrace(mlCabling_) << ss.str();
 }
@@ -98,7 +99,7 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
   SiStripConfigDb::DeviceDescriptions devices;
   SiStripConfigDb::FedDescriptions feds;
   SiStripConfigDb::FedConnections conns;
-  SiStripConfigDb::DcuDetIdMap dcus;
+  SiStripConfigDb::DcuDetIds dcus;
 
 
   // -------------------- UPLOADS (download, then upload) --------------------
@@ -243,12 +244,12 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     if ( dcus_ ) {
 
       // build temporary cache and print, clear (local cache)
-      db_->clearDcuDetIdMap();
-      SiStripConfigDb::DcuDetIdMap feds;
+      db_->clearDcuDetIds();
+      SiStripConfigDb::DcuDetIds feds;
       SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions().first;
       SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions().second;
       for ( ; ii != jj; ++ii ) {
-	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( ii->second.partitionName() );
+	SiStripConfigDb::DcuDetIds::range range = db_->getDcuDetIds( ii->second.partitionName() );
 	if ( range != feds.emptyRange() ) {
 	  std::vector<SiStripConfigDb::DcuDetId> tmp1( range.begin(), range.end() );
 	  std::vector<SiStripConfigDb::DcuDetId> tmp2;
@@ -260,25 +261,25 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	  feds.loadNext( ii->second.partitionName(), tmp2 );
 	}
       }
-      db_->printDcuDetIdMap();
-      db_->clearDcuDetIdMap();
+      db_->printDcuDetIds();
+      db_->clearDcuDetIds();
 
       // iterate through partitions and add, print and upload
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions().first;
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions().second;
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::DcuDetIdMap::range range = feds.find( iter->second.partitionName() );
+	SiStripConfigDb::DcuDetIds::range range = feds.find( iter->second.partitionName() );
 	std::vector<SiStripConfigDb::DcuDetId> temp( range.begin(), range.end() );
-	db_->addDcuDetIdMap( iter->second.partitionName(), temp );
-	db_->printDcuDetIdMap( iter->second.partitionName() );
-	db_->uploadDcuDetIdMap( iter->second.partitionName() );
+	db_->addDcuDetIds( iter->second.partitionName(), temp );
+	db_->printDcuDetIds( iter->second.partitionName() );
+	db_->uploadDcuDetIds( iter->second.partitionName() );
       }
       
       // print all partitions and then upload, clear, print
-      db_->printDcuDetIdMap();
-      db_->uploadDcuDetIdMap();
-      db_->clearDcuDetIdMap();
-      db_->printDcuDetIdMap();
+      db_->printDcuDetIds();
+      db_->uploadDcuDetIds();
+      db_->clearDcuDetIds();
+      db_->printDcuDetIds();
       
     }
     
@@ -465,27 +466,27 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     if ( dcus_ ) {
       
       // iterate through partitions and get, print, clear, print
-      db_->clearDcuDetIdMap();
+      db_->clearDcuDetIds();
       SiStripDbParams::SiStripPartitions::const_iterator iter = db_->dbParams().partitions().first;
       SiStripDbParams::SiStripPartitions::const_iterator jter = db_->dbParams().partitions().second;
       for ( ; iter != jter; ++iter ) {
-	SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap( iter->second.partitionName() );
+	SiStripConfigDb::DcuDetIds::range range = db_->getDcuDetIds( iter->second.partitionName() );
 	std::stringstream ss;
 	ss << "[testSiStripConfigDb::" << __func__ << "]" 
 	   << " Downloaded " << range.size()
 	   << " DCU-DetId map!";
 	if ( !range.empty() ) { edm::LogVerbatim("testSiStripConfigDb") << ss.str(); }
 	else { edm::LogWarning("testSiStripConfigDb") << ss.str(); }
-	db_->printDcuDetIdMap( iter->second.partitionName() );
-	db_->clearDcuDetIdMap( iter->second.partitionName() );
-	db_->printDcuDetIdMap( iter->second.partitionName() );
+	db_->printDcuDetIds( iter->second.partitionName() );
+	db_->clearDcuDetIds( iter->second.partitionName() );
+	db_->printDcuDetIds( iter->second.partitionName() );
       }
       
       // get all partitions and print, clear, print
-      SiStripConfigDb::DcuDetIdMap::range range = db_->getDcuDetIdMap();
-      db_->printDcuDetIdMap();
-      db_->clearDcuDetIdMap();
-      db_->printDcuDetIdMap();
+      SiStripConfigDb::DcuDetIds::range range = db_->getDcuDetIds();
+      db_->printDcuDetIds();
+      db_->clearDcuDetIds();
+      db_->printDcuDetIds();
       std::stringstream ss;
       ss << "[testSiStripConfigDb::" << __func__ << "]" 
 	 << " Downloaded " << range.size()
@@ -519,6 +520,14 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	  type = SiStripConfigDb::AnalysisDescription::T_ANALYSIS_PEDESTALS; 
 	} else if ( iter->second.runType() != sistrip::UNKNOWN_RUN_TYPE &&
 		    iter->second.runType() != sistrip::UNDEFINED_RUN_TYPE ) { 
+	  type = SiStripConfigDb::AnalysisDescription::T_ANALYSIS_PEDESTALS; 
+	  std::stringstream ss;
+	  ss << "[testSiStripConfigDb::" << __func__ << "]"
+	     << " Unexpected run type \"" 
+	     << SiStripEnumsAndStrings::runType( iter->second.runType() )
+	     << "\"! Using T_ANALYSIS_PEDESTALS as analysis type!";
+	  edm::LogWarning(mlConfigDb_) << ss.str();
+	} else {
 	  type = SiStripConfigDb::AnalysisDescription::T_ANALYSIS_PEDESTALS; 
 	}
 	
