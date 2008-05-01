@@ -5,8 +5,8 @@
  * \class RpcData
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/02/15 12:36:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/15 12:04:12 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -39,6 +39,11 @@ namespace popcon{
 
     int snc;
     int tll;	    
+
+    std::string host;
+    std::string user;
+    std::string passw;	
+
   private:
     std::string m_name;
   };
