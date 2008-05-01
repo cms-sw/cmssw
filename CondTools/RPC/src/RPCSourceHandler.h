@@ -5,8 +5,8 @@
  * \class RpcData
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/02/15 12:04:12 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/01 15:26:21 $
+ *  $Revision: 1.3 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -48,4 +48,4 @@ namespace popcon{
     std::string m_name;
   };
 }
-#endif // POPCON_EX_PEDESTALS_SRC_H
+#endif

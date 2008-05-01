@@ -1,7 +1,7 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/02/15 12:04:12 $
+ *  $Date: 2008/02/15 12:15:03 $
  *  $Revision: 1.1 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
@@ -14,6 +14,9 @@
 
 popcon::RpcData::RpcData(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","RpcData")){
+  host = pset.getUntrackedParameter<std::string>("host", "host");
+  user = pset.getUntrackedParameter<std::string>("user", "user");
+  passw = pset.getUntrackedParameter<std::string>("passw", "passw");
 }
 
 popcon::RpcData::~RpcData()
@@ -41,8 +44,7 @@ void popcon::RpcData::getNewObjects() {
   std::cout << ">> UTime = " << utime << "--> IOV :: since = " << snc << " :: till = " << tll << std::endl;
       
 
-  // RPCFw caen ( "oracle://devdb10/CMS_RPC_COMM_DATA", "CMS_RPC_COMM_DATA", "cms.rpcd4vide" ); // MyDB
-  RPCFw caen ( "oracle://omds/RPC_CONDITION", "RPC_CONDITION", "take_data" ); // OMDS
+  RPCFw caen ( host, user, passw ); // OMDS
   
   //  snc = 1163552461; // just for the first time
  
@@ -91,8 +93,8 @@ void popcon::RpcData::getNewObjects() {
 
 
   m_to_transfer.push_back(std::make_pair((RPCdbData*)Idata,tll));
-  //  m_to_transfer.push_back(std::make_pair((RPCdbData*)Vdata,snc));
-  //  m_to_transfer.push_back(std::make_pair((RPCdbData*)Sdata,snc));
+  m_to_transfer.push_back(std::make_pair((RPCdbData*)Vdata,snc));
+  m_to_transfer.push_back(std::make_pair((RPCdbData*)Sdata,snc));
 
   std::cerr << "------- " << m_name << " - > getNewObjects" << std::endl;
   
