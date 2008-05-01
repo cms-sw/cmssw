@@ -8,7 +8,7 @@ from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi import *
 from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import *
 HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     read_Ascii_LUTs = cms.bool(False),
-    inputLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/inputLUTcoder.dat'),
+    inputLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/inputLUTcoder_physics.dat'),
     filename = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat')
 )
 
