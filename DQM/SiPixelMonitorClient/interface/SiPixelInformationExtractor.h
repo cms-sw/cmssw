@@ -161,14 +161,14 @@ class SiPixelInformationExtractor {
   void createDummiesFromLayout();  
   void   fillErrorOverviewHistos(DQMStore                               * bei,
 				 TH1F                                   * errorHisto,
-				 string                                 & subDet,
-				 vector<int>                            & hotModuleList);
+				 std::string                            & subDet,
+				 std::vector<int>                       & hotModuleList);
   int    computeCode(            DQMStore                               * bei,
-				 string                                 & path);
-  int    computeSourceCode(      string                                 & source);
+				 std::string                            & path);
+  int    computeSourceCode(      std::string                            & source);
   void   fillPaveTextForErrorCode(TPaveText                             * pave);
   void   coloredHotModules(      TH1F                                   * histo,
-				 vector<int>                            & binList,
+				 std::vector<int>                       & binList,
 				 int                                      range,
 				 int                                      color);
   void setSubDetAxisDrawing(   std::string                                detector, 
@@ -183,7 +183,7 @@ class SiPixelInformationExtractor {
   
   
   std::ostringstream                     pictureBuffer_ ;
-  map<std::string, std::string>          namedPictureBuffer ;
+  std::map<std::string, std::string>     namedPictureBuffer ;
   
   int                                    alarmCounter_;
 
