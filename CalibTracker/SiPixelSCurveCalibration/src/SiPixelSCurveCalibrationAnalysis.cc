@@ -206,7 +206,7 @@ void SiPixelSCurveCalibrationAnalysis::newDetID(uint32_t detid)
       }
       MonitorElement * D1sigma       = bookDQMHistogram1D(detid,"ScurveSigmasSummary", detIdName + " Sigmas Summary", 100, 0, maximumSigmaBin_);
       MonitorElement * D1thresh      = bookDQMHistogram1D(detid,"ScurveThresholdSummary", detIdName + " Thresholds Summary", 255, 0, maximumThresholdBin_);
-      MonitorElement * D1chi2        = bookDQMHistogram1D(detid,"ScurveChi2ProbSummary", detIdName + " Chi2Prob Summary", 100, 0, 1);
+      MonitorElement * D1chi2        = bookDQMHistogram1D(detid,"ScurveChi2ProbSummary", detIdName + " Chi2Prob Summary", 101, 0, 1.01);
       MonitorElement * D1FitResult   = bookDQMHistogram1D(detid,"ScurveFitResultSummary", detIdName + " Fit Result Summary", 10, -0.5, 9.5);
       insertResult.first->second.insert(std::make_pair(kSigmaSummary, D1sigma));
       insertResult.first->second.insert(std::make_pair(kThresholdSummary, D1thresh));
