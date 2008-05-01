@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2007/11/12 13:58:40 $
-//   $Revision: 1.11 $
+//   $Date: 2008/03/03 14:38:41 $
+//   $Revision: 1.12 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -122,9 +122,21 @@ void CSCMotherboard::run(
   clear();
   alct->run(time1);               // run anode LCT
   clct->run(triad, time2, time2); // run cathodeLCT
-  if (alct->bestALCT.isValid() || clct->bestCLCT.isValid() )
-    correlateLCTs(alct->bestALCT, alct->secondALCT,
+
+  int first_bx = CSCAnodeLCTProcessor::MAX_ALCT_BINS;
+  for (int bx = 0; bx < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx++) {
+    if (alct->bestALCT[bx].isValid()) {first_bx = bx; break;}
+  }
+  // Valid ALCT
+  if (first_bx < CSCAnodeLCTProcessor::MAX_ALCT_BINS) {
+    correlateLCTs(alct->bestALCT[first_bx], alct->secondALCT[first_bx],
 		  clct->bestCLCT, clct->secondCLCT);
+  }
+  // Valid CLCT: use dummy ALCT
+  else if (clct->bestCLCT.isValid()) {
+    correlateLCTs(alct->bestALCT[0], alct->secondALCT[0],
+		  clct->bestCLCT, clct->secondCLCT);
+  }
 }
 
 std::vector<CSCCorrelatedLCTDigi>
@@ -144,13 +156,25 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
       //TimeMe t(clctTimer, false);
       std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
     }
+
     // It may seem like the next function should be
     // 'if (alct->bestALCT.isValid() && clct->bestCLCT.isValid())'.
     // It is || instead of && because the decision to reject non-valid LCTs
     // is handled further upstream (assuming at least 1 is valid).  -JM
-    if (alct->bestALCT.isValid() || clct->bestCLCT.isValid())
-      correlateLCTs(alct->bestALCT, alct->secondALCT,
+    int first_bx = CSCAnodeLCTProcessor::MAX_ALCT_BINS;
+    for (int bx = 0; bx < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx++) {
+      if (alct->bestALCT[bx].isValid()) {first_bx = bx; break;}
+    }
+    // Valid ALCT
+    if (first_bx < CSCAnodeLCTProcessor::MAX_ALCT_BINS) {
+      correlateLCTs(alct->bestALCT[first_bx], alct->secondALCT[first_bx],
 		    clct->bestCLCT, clct->secondCLCT);
+    }
+    // Valid CLCT: use dummy ALCT
+    else if (clct->bestCLCT.isValid()) {
+      correlateLCTs(alct->bestALCT[0], alct->secondALCT[0],
+		    clct->bestCLCT, clct->secondCLCT);
+    }
     if (infoV > 0) {
       if (firstLCT.isValid()) {
 	LogDebug("CSCMotherboard") << firstLCT;

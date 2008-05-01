@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/08/17 16:12:36 $
-//   $Revision: 1.18 $
+//   $Date: 2007/10/08 14:17:55 $
+//   $Revision: 1.19 $
 //
 //   Modifications: 
 //
@@ -153,6 +153,8 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   // Other parameters.
   isMTCC       = comm.getParameter<bool>("isMTCC");
+  // Use TMB07 flag for DAQ-2006 version (implemented in late 2007).
+  isTMB07      = comm.getParameter<bool>("isTMB07");
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -186,6 +188,8 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
   // ALCT parameters.
   setDefaultConfigParameters();
   infoV = 2;
+  isMTCC  = true;
+  isTMB07 = true;
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -245,7 +249,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() const {
   static const unsigned int max_nph_pattern  = 1 << 3;
   static const unsigned int max_trig_mode    = 1 << 2;
   static const unsigned int max_alct_amode   = 1 << 2;
-  static const unsigned int max_l1a_window   = 1 << 4;
+  static const unsigned int max_l1a_window   = MAX_ALCT_BINS; // 4 bits
 
   // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
@@ -296,8 +300,10 @@ void CSCAnodeLCTProcessor::checkConfigParameters() const {
 }
 
 void CSCAnodeLCTProcessor::clear() {
-  bestALCT.clear();
-  secondALCT.clear();
+  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+    bestALCT[bx].clear();
+    secondALCT[bx].clear();
+  }
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
@@ -784,58 +790,78 @@ void CSCAnodeLCTProcessor::lctSearch() {
   }
 
   // Best track selector selects two collision and two accelerator ALCTs
-  // with the best quality.
+  // with the best quality per time bin.
   std::vector<CSCALCTDigi> fourBest = bestTrackSelector(lct_list);
 
-  // Select two best of of four, based on quality and alct_amode parameter.
+  // Select two best of of four per time bin, based on quality and
+  // alct_amode parameter.
   for (std::vector<CSCALCTDigi>::const_iterator plct = fourBest.begin();
        plct != fourBest.end(); plct++) {
 
-    if (isBetterALCT(*plct, bestALCT)) {
-      if (isBetterALCT(bestALCT, secondALCT)) {
-	secondALCT = bestALCT;
+    int bx = plct->getBX();
+    if (bx >= MAX_ALCT_BINS) {
+      throw cms::Exception("CSCAnodeLCTProcessor")
+	<< "+++ Value of bx, " << bx
+	<< ", exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n";
+    }
+
+    if (isBetterALCT(*plct, bestALCT[bx])) {
+      if (isBetterALCT(bestALCT[bx], secondALCT[bx])) {
+	secondALCT[bx] = bestALCT[bx];
       }
-      bestALCT = *plct;
+      bestALCT[bx] = *plct;
     }
-    else if (isBetterALCT(*plct, secondALCT)) {
-      secondALCT = *plct;
+    else if (isBetterALCT(*plct, secondALCT[bx])) {
+      secondALCT[bx] = *plct;
     }
   }
 
-  if (isMTCC) {
-    // Firmware "feature" in 2003 and 2004 test beam data and in MTCC.
-    // Has been fixed in the DAQ-2006 format, which has not been used yet.
-    if (secondALCT.isValid() && secondALCT.getBX() > bestALCT.getBX())
-      secondALCT.clear();
+  if (!isTMB07) {
+    // Prior to DAQ-2006 format, only ALCTs at the earliest bx were reported.
+    int first_bx = MAX_ALCT_BINS;
+    for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+      if (bestALCT[bx].isValid()) {
+	first_bx = bx;
+	break;
+      }
+    }
+    if (first_bx < MAX_ALCT_BINS) {
+      for (int bx = first_bx + 1; bx < MAX_ALCT_BINS; bx++) {
+	if (bestALCT[bx].isValid())   bestALCT[bx].clear();
+	if (secondALCT[bx].isValid()) secondALCT[bx].clear();
+      }
+    }
   }
 
-  if (bestALCT.isValid()) {
-    bestALCT.setTrknmb(1);
-    if (infoV > 0) {
-      LogDebug("CSCAnodeLCTProcessor")
-	<< "\n" << bestALCT << " found in endcap " << theEndcap
-	<< " station " << theStation << " sector " << theSector
-	<< " (" << theSubsector
-	<< ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-						        theTrigChamber)
-	<< " chamber "
-	<< CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                              theSubsector, theStation, theTrigChamber)
-	<< " (trig id. " << theTrigChamber << ")" << "\n";
-    }
-    if (secondALCT.isValid()) {
-      secondALCT.setTrknmb(2);
+  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+    if (bestALCT[bx].isValid()) {
+      bestALCT[bx].setTrknmb(1);
       if (infoV > 0) {
 	LogDebug("CSCAnodeLCTProcessor")
-	  << secondALCT << " found in endcap " << theEndcap
+	  << "\n" << bestALCT[bx] << " found in endcap " << theEndcap
 	  << " station " << theStation << " sector " << theSector
 	  << " (" << theSubsector
-	  << ") ring "<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-						       theTrigChamber)
+	  << ") ring " << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+								     theTrigChamber)
 	  << " chamber "
 	  << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
-                             theSubsector, theStation, theTrigChamber)
+							   theSubsector, theStation, theTrigChamber)
 	  << " (trig id. " << theTrigChamber << ")" << "\n";
+      }
+      if (secondALCT[bx].isValid()) {
+	secondALCT[bx].setTrknmb(2);
+	if (infoV > 0) {
+	  LogDebug("CSCAnodeLCTProcessor")
+	    << secondALCT[bx] << " found in endcap " << theEndcap
+	    << " station " << theStation << " sector " << theSector
+	    << " (" << theSubsector
+	    << ") ring "<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+								      theTrigChamber)
+	    << " chamber "
+	    << CSCTriggerNumbering::chamberFromTriggerLabels(theSector,
+							     theSubsector, theStation, theTrigChamber)
+	    << " (trig id. " << theTrigChamber << ")" << "\n";
+	}
       }
     }
   }
@@ -843,20 +869,49 @@ void CSCAnodeLCTProcessor::lctSearch() {
 
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
                                  const std::vector<CSCALCTDigi>& all_alcts) {
-  /* Selects two collision and two accelerator ALCTs with the best quality. */
-  CSCALCTDigi bestALCTs[2], secondALCTs[2];
+  /* Selects two collision and two accelerator ALCTs per time bin with
+     the best quality. */
+  CSCALCTDigi bestALCTs[MAX_ALCT_BINS][2], secondALCTs[MAX_ALCT_BINS][2];
+
+  static int fpga_latency = 6;
+  static int early_tbins  = fifo_pretrig - fpga_latency;
+  // The number of LCT bins is equal to l1a_window parameter, but made
+  // even by setting the LSB of l1a_window to 0.
+  static int lct_bins   = (l1a_window%2 == 0) ? l1a_window : l1a_window-1;
+  static int late_tbins = early_tbins + lct_bins;
+
+  static int ifois = 0;
+  if (ifois == 0) {
+    if (early_tbins < 0) {
+      edm::LogWarning("CSCAnodeLCTProcessor")
+	<< "+++ fifo_pretrig = " << fifo_pretrig
+	<< "; you are loosing in-time ALCT hits!!! +++" << "\n";
+    }
+
+    if (late_tbins > MAX_ALCT_BINS-1) {
+      throw cms::Exception("CSCAnodeLCTProcessor")
+	<< "+++ Allowed range of time bins, [0-" << late_tbins
+	<< "] exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n";
+    }
+    ifois = 1;
+  }
+
+  if (infoV > 1) {
+    LogTrace("CSCAnodeLCTProcessor") << all_alcts.size() <<
+      " ALCTs at the input of best-track selector: ";
+    for (std::vector <CSCALCTDigi>::const_iterator plct = all_alcts.begin();
+	 plct != all_alcts.end(); plct++) {
+      if (!plct->isValid()) continue;
+      LogTrace("CSCAnodeLCTProcessor") << (*plct);
+    }
+  }
+
   for (std::vector <CSCALCTDigi>::const_iterator plct = all_alcts.begin();
        plct != all_alcts.end(); plct++) {
     if (!plct->isValid()) continue;
 
     // Skip ALCTs found too early relative to L1Accept.
-    int early_tbins = fifo_pretrig - 6;
-    if (early_tbins < 0) {
-      edm::LogWarning("CSCAnodeLCTProcessor|OutOfTime")
-	<< "+++ fifo_pretrig = " << fifo_pretrig
-	<< "; you are loosing in-time ALCT hits!!! +++" << "\n";
-    }
-    if (plct->getBX() < early_tbins) {
+    if (plct->getBX() <= early_tbins) {
       if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
 	<< " Do not report ALCT on keywire " << plct->getKeyWG()
 	<< ": found at bx " << plct->getBX() << ", whereas the earliest "
@@ -865,15 +920,12 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
 
     // Skip ALCTs found too late relative to L1Accept.
-    if (!isMTCC) {
-      int late_tbins = l1a_window + early_tbins;
-      if (plct->getBX() >= late_tbins) {
-	if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
-	  << " Do not report ALCT on keywire " << plct->getKeyWG()
-	  << ": found at bx " << plct->getBX() << ", whereas the latest "
-	  << "allowed bx is " << late_tbins;
+    if (plct->getBX() > late_tbins) {
+      if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
+	<< " Do not report ALCT on keywire " << plct->getKeyWG()
+	<< ": found at bx " << plct->getBX() << ", whereas the latest "
+	<< "allowed bx is " << late_tbins;
       continue;
-      }
     }
 
     // Select two collision and two accelerator ALCTs with the highest
@@ -885,30 +937,35 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     // in the search for the second best ALCTs.
     int qual  = (*plct).getQuality();
     int accel = (*plct).getAccelerator();
-    if ((qual >  bestALCTs[accel].getQuality()) ||
-	(qual == bestALCTs[accel].getQuality() &&
-	 (*plct).getKeyWG() > bestALCTs[accel].getKeyWG())) {
-      if ((bestALCTs[accel].getQuality() >  secondALCTs[accel].getQuality()) ||
-	  (bestALCTs[accel].getQuality() == secondALCTs[accel].getQuality() &&
-	   bestALCTs[accel].getKeyWG() < secondALCTs[accel].getKeyWG())) {
-	secondALCTs[accel] = bestALCTs[accel];
+    int bx    = (*plct).getBX();
+    int best_quality = bestALCTs[bx][accel].getQuality();
+    int scnd_quality = secondALCTs[bx][accel].getQuality();
+    if ((qual >  best_quality) ||
+	(qual == best_quality &&
+	 (*plct).getKeyWG() > bestALCTs[bx][accel].getKeyWG())) {
+      if ((best_quality >  scnd_quality) ||
+	  (best_quality == scnd_quality &&
+	   bestALCTs[bx][accel].getKeyWG() < secondALCTs[bx][accel].getKeyWG())) {
+	secondALCTs[bx][accel] = bestALCTs[bx][accel];
       }
-      bestALCTs[accel] = *plct;
+      bestALCTs[bx][accel] = *plct;
     }
-    else if ((qual >  secondALCTs[accel].getQuality()) ||
-	     (qual == secondALCTs[accel].getQuality() &&
-	      (*plct).getKeyWG() < secondALCTs[accel].getKeyWG())) {
-      secondALCTs[accel] = *plct;
+    else if ((qual >  scnd_quality) ||
+	     (qual == scnd_quality &&
+	      (*plct).getKeyWG() < secondALCTs[bx][accel].getKeyWG())) {
+      secondALCTs[bx][accel] = *plct;
     }
   }
 
   // Fill the vector with up to four best ALCTs and return it.
   std::vector<CSCALCTDigi> fourBest;
-  for (int i = 0; i < 2; i++) {
-    if (bestALCTs[i].isValid())   fourBest.push_back(bestALCTs[i]);
-  }
-  for (int i = 0; i < 2; i++) {
-    if (secondALCTs[i].isValid()) fourBest.push_back(secondALCTs[i]);
+  for (int bx = 0; bx <= late_tbins; bx++) {
+    for (int i = 0; i < 2; i++) {
+      if (bestALCTs[bx][i].isValid())   fourBest.push_back(bestALCTs[bx][i]);
+    }
+    for (int i = 0; i < 2; i++) {
+      if (secondALCTs[bx][i].isValid()) fourBest.push_back(secondALCTs[bx][i]);
+    }
   }
 
   if (infoV > 1) {
@@ -1100,8 +1157,10 @@ void CSCAnodeLCTProcessor::dumpDigis(const int wire[CSCConstants::NUM_LAYERS][CS
 // Returns vector of found ALCTs, if any.
 std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() {
   std::vector<CSCALCTDigi> tmpV;
-  if (bestALCT.isValid())   tmpV.push_back(bestALCT);
-  if (secondALCT.isValid()) tmpV.push_back(secondALCT);
+  for (int bx = 0; bx < MAX_ALCT_BINS; bx++) {
+    if (bestALCT[bx].isValid())   tmpV.push_back(bestALCT[bx]);
+    if (secondALCT[bx].isValid()) tmpV.push_back(secondALCT[bx]);
+  }
   return tmpV;
 }
 

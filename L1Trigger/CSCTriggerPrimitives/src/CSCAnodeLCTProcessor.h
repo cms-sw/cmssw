@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2007/04/18 16:08:55 $
- * $Revision: 1.9 $
+ * $Date: 2007/08/17 16:12:36 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -54,11 +54,18 @@ class CSCAnodeLCTProcessor
   /** Access routine to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
 
-  /** Best LCT in this chamber, as found by the processor. */
-  CSCALCTDigi bestALCT;
+  /** Maximum number of time bins reported in the ALCT readout. */
+  enum {MAX_ALCT_BINS = 16};
 
-  /** Second best LCT in this chamber, as found by the processor. */
-  CSCALCTDigi secondALCT;
+  /** Best LCTs in this chamber, as found by the processor.
+      In old ALCT algorithms, up to two best ALCT per Level-1 accept window
+      had been reported.
+      In the ALCT-2006 algorithms, up to two best ALCTs PER EVERY TIME BIN in
+      Level-1 accept window are reported. */
+  CSCALCTDigi bestALCT[MAX_ALCT_BINS];
+
+  /** Second best LCTs in this chamber, as found by the processor. */
+  CSCALCTDigi secondALCT[MAX_ALCT_BINS];
 
   /** Returns vector of found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
@@ -100,7 +107,10 @@ class CSCAnodeLCTProcessor
   std::vector<int> theWireHits[CSCConstants::NUM_LAYERS];
 
   /** Flag for MTCC data. */
-  bool isMTCC; 
+  bool isMTCC;
+
+  /** Use TMB07 flag for DAQ-2006 version (implemented in late 2007). */
+  bool isTMB07;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
