@@ -83,15 +83,15 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   bool isEBEEGap = false;
   classify(pho, isEBPho, isEEPho, isEBGap, isEEGap, isEBEEGap);
 
-  std::cout << "Output from classification: " << std::endl;
-  std::cout << "Photon Eta: " << pho->p4().Eta();
-  std::cout << " Photon phi: " << pho->p4().Phi() << std::endl;
-  std::cout << "Flags: ";
-  std::cout << "isEBPho: " << isEBPho;
-  std::cout << " isEEPho: " << isEEPho;
-  std::cout << " isEBGap: " << isEBGap;
-  std::cout << " isEEGap: " << isEEGap;
-  std::cout << " isEBEEGap: " << isEBEEGap << std::endl;
+//   std::cout << "Output from classification: " << std::endl;
+//   std::cout << "Photon Eta: " << pho->p4().Eta();
+//   std::cout << " Photon phi: " << pho->p4().Phi() << std::endl;
+//   std::cout << "Flags: ";
+//   std::cout << "isEBPho: " << isEBPho;
+//   std::cout << " isEEPho: " << isEEPho;
+//   std::cout << " isEBGap: " << isEBGap;
+//   std::cout << " isEEGap: " << isEEGap;
+//   std::cout << " isEBEEGap: " << isEBEEGap << std::endl;
 
   //Calculate hollow cone track isolation
   int ntrk=0;
@@ -99,8 +99,8 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   calculateTrackIso(pho, e, trkiso, ntrk, isolationtrackThreshold_,    
 		    trackConeOuterRadius_, trackConeInnerRadius_);
 
-  std::cout << "Output from hollow cone track isolation: ";
-  std::cout << " Sum pT: " << trkiso << " ntrk: " << ntrk << std::endl;
+//   std::cout << "Output from hollow cone track isolation: ";
+//   std::cout << " Sum pT: " << trkiso << " ntrk: " << ntrk << std::endl;
 
   //Calculate solid cone track isolation
   int sntrk=0;
@@ -108,33 +108,33 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   calculateTrackIso(pho, e, strkiso, sntrk, isolationtrackThreshold_,    
 		    trackConeOuterRadius_, 0.);
 
-  std::cout << "Output from solid cone track isolation: ";
-  std::cout << " Sum pT: " << strkiso << " ntrk: " << sntrk << std::endl;
+//   std::cout << "Output from solid cone track isolation: ";
+//   std::cout << " Sum pT: " << strkiso << " ntrk: " << sntrk << std::endl;
   
   double EcalRecHitIso = calculateEcalRecHitIso(pho, e, es,
 						photonEcalRecHitConeOuterRadius_,
 						photonEcalRecHitConeInnerRadius_,
 						photonEcalRecHitThresh_);
 
-  std::cout << "Output from ecal isolation: ";
-  std::cout << " Sum pT: " << EcalRecHitIso << std::endl;
+//   std::cout << "Output from ecal isolation: ";
+//   std::cout << " Sum pT: " << EcalRecHitIso << std::endl;
 
   double HcalRecHitIso = calculateHcalRecHitIso(pho, e, es,
 						photonHcalRecHitConeOuterRadius_,
 						photonHcalRecHitConeInnerRadius_,
 						photonHcalRecHitThresh_);
 
-  std::cout << "Output from hcal isolation: ";
-  std::cout << " Sum pT: " << HcalRecHitIso << std::endl;
+//   std::cout << "Output from hcal isolation: ";
+//   std::cout << " Sum pT: " << HcalRecHitIso << std::endl;
 
   double EcalR9 = 0;
   //R9 calculation will go HERE.
-  //  EcalR9 = calculateR9(pho, e, es);
+  EcalR9 = calculateR9(pho, e, es);
   //
 
   bool isElec = isAlsoElectron(pho, e);
 
-  std::cout << "Are you also an electron? " << isElec << std::endl;
+  //  std::cout << "Are you also an electron? " << isElec << std::endl;
 
   reco::PhotonID temp(false, false, false, strkiso,
 		      trkiso, sntrk, ntrk,
@@ -144,7 +144,7 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
 
   decide(temp, pho);
   
-  std::cout << "Cut based decision: " << temp.isLooseEM() << " " << temp.isLoosePhoton() <<  " " << temp.isTightPhoton() << std::endl;
+  //  std::cout << "Cut based decision: " << temp.isLooseEM() << " " << temp.isLoosePhoton() <<  " " << temp.isTightPhoton() << std::endl;
   
   return temp;
 
