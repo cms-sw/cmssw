@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/03/03 14:41:36 $
-//   $Revision: 1.20 $
+//   $Date: 2008/04/29 10:48:06 $
+//   $Revision: 1.21 $
 //
 //   Modifications:
 //
@@ -942,48 +942,45 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	    hAlctCompSameNCsc[csctype]->Fill(cham);
 	  }
 
-	  for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
-	    if ((*pd).isValid() == 0) continue;
-	    int data_trknmb    = (*pd).getTrknmb();
-	    int data_quality   = (*pd).getQuality();
-	    int data_accel     = (*pd).getAccelerator();
-	    int data_collB     = (*pd).getCollisionB();
-	    int data_wiregroup = (*pd).getKeyWG();
-	    int data_bx        = (*pd).getBX();
-	    int fullBX = (*pd).getFullBX(); // full 12-bit BX
+	  for (int i = 0; i < ndata; i++) {
+	    if (alctV_data[i].isValid() == 0) continue;
+	    int data_trknmb    = alctV_data[i].getTrknmb();
+	    int data_quality   = alctV_data[i].getQuality();
+	    int data_accel     = alctV_data[i].getAccelerator();
+	    int data_collB     = alctV_data[i].getCollisionB();
+	    int data_wiregroup = alctV_data[i].getKeyWG();
+	    int data_bx        = alctV_data[i].getBX();
+	    int fullBX = alctV_data[i].getFullBX(); // full 12-bit BX
 
-	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
-	      if ((*pe).isValid() == 0) continue;
-	      int emul_trknmb    = (*pe).getTrknmb();
-	      int emul_quality   = (*pe).getQuality();
-	      int emul_accel     = (*pe).getAccelerator();
-	      int emul_collB     = (*pe).getCollisionB();
-	      int emul_wiregroup = (*pe).getKeyWG();
-	      int emul_bx        = (*pe).getBX();
+	    if (i < nemul) {
+	      if (alctV_emul[i].isValid() == 0) continue;
+	      int emul_trknmb    = alctV_emul[i].getTrknmb();
+	      int emul_quality   = alctV_emul[i].getQuality();
+	      int emul_accel     = alctV_emul[i].getAccelerator();
+	      int emul_collB     = alctV_emul[i].getCollisionB();
+	      int emul_wiregroup = alctV_emul[i].getKeyWG();
+	      int emul_bx        = alctV_emul[i].getBX();
 
-	      if (data_trknmb == emul_trknmb) {
-		// Emulator BX re-calculated using 12-bit full BX number.
-		// Used for comparison with BX in the data.
-		if (!isTMB07)
-		  emul_corr_bx = (fullBX + emul_bx - tbin_anode_offset) & 0x1f;
-		else
-		  emul_corr_bx = emul_bx - rawhit_tbin_offset + register_delay;
-		if (ndata == nemul) hAlctCompTotalCsc[csctype]->Fill(cham);
-		if (data_quality   == emul_quality   &&
-		    data_accel     == emul_accel     &&
-		    data_collB     == emul_collB     &&
-		    data_wiregroup == emul_wiregroup &&
-		    data_bx        == emul_corr_bx) {
-		  if (ndata == nemul) hAlctCompMatchCsc[csctype]->Fill(cham);
-		  if (debug) LogTrace("CSCTriggerPrimitivesReader")
-		    << "       Identical ALCTs #" << data_trknmb;
-		}
-		else {
-		  edm::LogWarning("CSCTriggerPrimitivesReader")
-		    << "       Different ALCTs #" << data_trknmb << " in ME"
-		    << endc << "-" << stat << "/" << ring << "/" << cham;
-		}
-		break;
+	      // Emulator BX re-calculated for comparison with BX in the data.
+	      if (!isTMB07)
+		emul_corr_bx = (fullBX + emul_bx - tbin_anode_offset) & 0x1f;
+	      else
+		emul_corr_bx = emul_bx - rawhit_tbin_offset + register_delay;
+	      if (ndata == nemul) hAlctCompTotalCsc[csctype]->Fill(cham);
+	      if (data_trknmb    == emul_trknmb    &&
+		  data_quality   == emul_quality   &&
+		  data_accel     == emul_accel     &&
+		  data_collB     == emul_collB     &&
+		  data_wiregroup == emul_wiregroup &&
+		  data_bx        == emul_corr_bx) {
+		if (ndata == nemul) hAlctCompMatchCsc[csctype]->Fill(cham);
+		if (debug) LogTrace("CSCTriggerPrimitivesReader")
+		  << "       Identical ALCTs #" << data_trknmb;
+	      }
+	      else {
+		edm::LogWarning("CSCTriggerPrimitivesReader")
+		  << "       Different ALCTs #" << data_trknmb << " in ME"
+		  << endc << "-" << stat << "/" << ring << "/" << cham;
 	      }
 	    }
 	  }
