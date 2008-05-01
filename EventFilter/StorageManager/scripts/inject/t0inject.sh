@@ -1,9 +1,9 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.3 2008/04/29 22:07:04 loizides Exp $
+#$Id: t0inject.sh,v 1.4 2008/05/01 11:03:19 loizides Exp $
 
 . /etc/init.d/functions
 
-SMT0_BASE_DIR=/nfshome0/smpro/sm_scripts_cvs/inject
+export SMT0_BASE_DIR=/nfshome0/smpro/sm_scripts_cvs/inject
 if [ ! -d $SMT0_BASE_DIR ]; then
     echo "SMT0_BASE_DIR does not exist or is no directory"
     exit
@@ -33,8 +33,9 @@ fi
 #local run dir
 SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
 
-#exported scripts
-export SM_NOTIFYSCRIPT=/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh
+#exported variables
+export SM_NOTIFYSCRIPT=$SMT0_BASE_DIR/sendNotification.sh
+#export SM_NOTIFYSCRIPT=/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh
 export SM_HOOKSCRIPT=$SMT0_BASE_DIR/sm_hookscript.pl
 
 #

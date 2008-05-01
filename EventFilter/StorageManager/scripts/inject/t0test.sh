@@ -1,9 +1,9 @@
 #!/bin/sh
-#$Id: t0test.sh,v 1.1 2008/04/29 21:46:55 loizides Exp $
+#$Id: t0test.sh,v 1.2 2008/05/01 11:03:19 loizides Exp $
 
 . /etc/init.d/functions
 
-SMT0_BASE_DIR=$CMSSW_BASE/src/EventFilter/StorageManager/scripts/inject
+export SMT0_BASE_DIR=$CMSSW_BASE/src/EventFilter/StorageManager/scripts/inject
 if [ ! -d $SMT0_BASE_DIR ]; then
     SMT0_BASE_DIR=$CMSSW_RELEASE_BASE/src/EventFilter/StorageManager/scripts/inject
     if [ ! -d $SMT0_BASE_DIR ]; then
