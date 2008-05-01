@@ -2,8 +2,8 @@
  * \class TrackerSeedCleaner
  *  Reference class for seeds cleaning
  *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
- *  $Date: 2008/04/09 05:12:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/14 09:19:49 $
+ *  $Revision: 1.4 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
@@ -157,7 +157,7 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
 
    //the new seeds collection
      
-   if(useDirection_Cleaner || usePt_Cleaner && seeds.size() >= 10) seeds.swap(result);
+   if((useDirection_Cleaner && seeds.size() >= 10)|| usePt_Cleaner) seeds.swap(result);
 
    LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events after cleaning"<<endl;
  
