@@ -1,8 +1,8 @@
 /** \file LaserAlignmentTrackerStatistics.cc
 *  LAS Reconstruction Programm - Fill the histograms
   *
-  *  $Date: 2007/12/04 23:51:43 $
-  *  $Revision: 1.6 $
+  *  $Date: 2008/02/20 09:50:54 $
+  *  $Revision: 1.7 $
   *  \author Maarten Thomas
  */
 
@@ -218,6 +218,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd, 
 				    currentDataProfiles.GetTECEntry( 0, 0, 0, 0 ) );
+	// this module is also hit by the AT beams, so the profile may virtually belong to the TEC2TEC collection
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd, 
+				    currentDataProfiles.GetTEC2TECEntry( 0, 0, 0 ) );
       }
       else if ( theDetUnitID.rawId() == 470323592 )
       {
@@ -226,6 +229,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 0, 1 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 0, 1 ) );
       }
       else if ( theDetUnitID.rawId() == 470339976 )
       {
@@ -234,6 +240,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 0, 2 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 0, 2 ) );
       }
       else if ( theDetUnitID.rawId() == 470356360 )
       {
@@ -242,6 +251,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 0, 3 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 0, 3 ) );
       }
       else if ( theDetUnitID.rawId() == 470372744 )
       {
@@ -250,6 +262,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 0, 4 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 0, 4 ) );
       }
       else if ( theDetUnitID.rawId() == 470389128 )
       {
@@ -527,6 +542,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 3, 0 ) );
+	// this module is also hit by the AT beams, so the profile may virtually belong to the TEC2TEC collection
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 3, 0 ) );
       }
       else if ( theDetUnitID.rawId() == 470324360 )
       {
@@ -535,6 +553,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 3, 1 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 3, 1 ) );
       }
       else if ( theDetUnitID.rawId() == 470340744 )
       {
@@ -543,6 +564,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 3, 2 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 3, 2 ) );
       }
       else if ( theDetUnitID.rawId() == 470357128 )
       {
@@ -551,6 +575,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 3, 3 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 3, 3 ) );
       }
       else if ( theDetUnitID.rawId() == 470373512 )
       {
@@ -559,6 +586,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 3, 4 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 3, 4 ) );
       }
       else if ( theDetUnitID.rawId() == 470389896 )
       {
@@ -722,6 +752,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 5, 0 ) );
+	// this module is also hit by the AT beams, so the profile may virtually belong to the TEC2TEC collection
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 5, 0 ) );
       }
       else if ( theDetUnitID.rawId() == 470324872 )
       {
@@ -730,6 +763,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 5, 1 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 5, 1 ) );
       }
       else if ( theDetUnitID.rawId() == 470341256 )
       {
@@ -738,6 +774,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 5, 2 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 5, 2 ) );
       }
       else if ( theDetUnitID.rawId() == 470357640 )
       {
@@ -746,6 +785,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 5, 3 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 5, 3 ) );
       }
       else if ( theDetUnitID.rawId() == 470374024 )
       {
@@ -754,6 +796,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 0, 0, 5, 4 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 0, 5, 4 ) );
       }
       else if ( theDetUnitID.rawId() == 470390408 )
       {
@@ -1636,6 +1681,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 0, 0 ) );
+	// this module is also hit by the AT beams, so the profile may virtually belong to the TEC2TEC collection
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 0, 0 ) );
       }
       else if ( theDetUnitID.rawId() == 470061448 )
       {
@@ -1644,6 +1692,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 0, 1 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 0, 1 ) );
       }
       else if ( theDetUnitID.rawId() == 470077832 )
       {
@@ -1652,6 +1703,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 0, 2 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 0, 2 ) );
       }
       else if ( theDetUnitID.rawId() == 470094216 )
       {
@@ -1660,6 +1714,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 0, 3 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 0, 3 ) );
       }
       else if ( theDetUnitID.rawId() == 470110600 )
       {
@@ -1668,6 +1725,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 0, 4 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 0, 4 ) );
       }
       else if ( theDetUnitID.rawId() == 470126984 )
       {
@@ -1953,6 +2013,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 3, 0 ) );
+	// this module is also hit by the AT beams, so the profile may virtually belong to the TEC2TEC collection
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 3, 0 ) );
       }
       else if ( theDetUnitID.rawId() == 470062216 )
       {
@@ -1961,6 +2024,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 3, 1 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 3, 1 ) );
       }
       else if ( theDetUnitID.rawId() == 470078600 )
       {
@@ -1969,6 +2035,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 3, 2 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 3, 2 ) );
       }
       else if ( theDetUnitID.rawId() == 470094984 )
       {
@@ -1977,6 +2046,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 3, 3 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 3, 3 ) );
       }
       else if ( theDetUnitID.rawId() == 470111368 )
       {
@@ -1985,6 +2057,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 3, 4 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 3, 4 ) );
       }
       else if ( theDetUnitID.rawId() == 470127752 )
       {
@@ -2153,6 +2228,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 5, 0 ) );
+	// this module is also hit by the AT beams, so the profile may virtually belong to the TEC2TEC collection
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 5, 0 ) );
       }
       else if ( theDetUnitID.rawId() == 470062728 )
       {
@@ -2161,6 +2239,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 5, 1 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 5, 1 ) );
       }
       else if ( theDetUnitID.rawId() == 470079112 )
       {
@@ -2169,6 +2250,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 5, 2 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 5, 2 ) );
       }
       else if ( theDetUnitID.rawId() == 470095496 )
       {
@@ -2177,6 +2261,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 5, 3 ) );
+	//dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 5, 3 ) );
       }
       else if ( theDetUnitID.rawId() == 470111880 )
       {
@@ -2185,6 +2272,9 @@
 
         if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
 				    currentDataProfiles.GetTECEntry( 1, 0, 5, 4 ) );
+	// dto.
+	if (theDigis) fillAdcCounts(theDetIdHisto.second, theDetUnitID, theDigiRangeIterator, theDigiRangeIteratorEnd,
+				    currentDataProfiles.GetTEC2TECEntry( 1, 5, 4 ) );
       }
       else if ( theDetUnitID.rawId() == 470128264 )
       {

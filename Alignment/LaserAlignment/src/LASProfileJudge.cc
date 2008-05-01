@@ -22,14 +22,14 @@ LASProfileJudge::LASProfileJudge() {
 ///
 /// check if a LASModuleProfile is usable for being stored
 ///
-bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile ) {
+bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, int offset = 0 ) {
 
   profile = aProfile;
   
   // run the tests
-  double negativity = GetNegativity();
-  bool isPeaks = IsPeaksInProfile();
-  bool isNegativePeaks = IsNegativePeaksInProfile();
+  double negativity = GetNegativity( offset );
+  bool isPeaks = IsPeaksInProfile( offset );
+  bool isNegativePeaks = IsNegativePeaksInProfile( offset );
 
   bool result = 
     ( negativity > -1000. ) &&  //&
@@ -48,10 +48,10 @@ bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile ) {
 /// to drop down. here, the strip amplitudes in the area around the
 /// signal region are summed to compute a variable which can indicate this.
 ///
-double LASProfileJudge::GetNegativity( void ) {
+double LASProfileJudge::GetNegativity( int offset ) {
 
   // expected beam position (in strips)
-  const unsigned int meanPosition = 256;
+  const unsigned int meanPosition = 256 + offset;
   // backplane "alignment hole" approx. half size (in strips)
   const unsigned int halfWindowSize = 33;
 
@@ -76,10 +76,10 @@ double LASProfileJudge::GetNegativity( void ) {
 /// if the laser intensity is too small, there's no peak at all.
 /// here we look if any strip is well above noise level.
 ///
-bool LASProfileJudge::IsPeaksInProfile( void ) {
+bool LASProfileJudge::IsPeaksInProfile( int offset ) {
 
   // expected beam position (in strips)
-  const unsigned int meanPosition = 256;
+  const unsigned int meanPosition = 256 + offset;
   // backplane "alignment hole" approx. half size (in strips)
   const unsigned int halfWindowSize = 33;
 
@@ -95,8 +95,8 @@ bool LASProfileJudge::IsPeaksInProfile( void ) {
   }
   average /= counterD;
 
-  // find peaks above noise level
-  const double noiseLevel = 2.;
+  // find peaks well above noise level
+  const double noiseLevel = 2.; // to be softcoded..
   for( unsigned int strip = meanPosition - halfWindowSize; strip < meanPosition + halfWindowSize; ++strip ) {
     if( profile.GetValue( strip ) > ( average + 10. * noiseLevel ) ) { 
       returnValue = true;
@@ -116,10 +116,10 @@ bool LASProfileJudge::IsPeaksInProfile( void ) {
 /// sometimes when the laser intensity is too high the APVs get confused
 /// and a negative peak (dip) shows up. this is filtered here.
 ///
-bool LASProfileJudge::IsNegativePeaksInProfile( void ) {
+bool LASProfileJudge::IsNegativePeaksInProfile( int offset ) {
 
   // expected beam position in middle of module (in strips)
-  const unsigned int meanPosition = 256;
+  const unsigned int meanPosition = 256 + offset;
   // backplane "alignment hole" approx. half size (in strips)
   const unsigned int halfWindowSize = 33;
 

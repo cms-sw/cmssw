@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/03/03 09:43:31 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/04/23 15:17:24 $
+ *  $Revision: 1.13 $
  *  \author Maarten Thomas
  */
 
@@ -79,25 +79,41 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   virtual void endJob();
 
  private:
+
   /// return angle in radian between 0 and 2*pi
   double angle(double theAngle);
+
   /// check in which subdetector/sector/disc we currently are
   std::vector<int> checkBeam(std::vector<std::string>::const_iterator iHistName, std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist);
+
   /// write the ROOT file with histograms
   void closeRootFile();
+
   /// fill adc counts from the laser profiles into a histogram
   void fillAdcCounts(TH1D * theHistogram, DetId theDetId,
 		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator,
 		     edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIteratorEnd,
 		     LASModuleProfile& theProfile );
+
   /// initialize the histograms
   void initHistograms();
+
   /// fill pedestals from dbase
   void fillPedestalProfiles( edm::ESHandle<SiStripPedestals>&  );
+
+  /// decide whether TEC or AT beams have fired
+  bool isTECBeam( void );
+  bool isATBeam( void );
+
+  // return the approximate beam position offset in TOB for the profileJudge
+  int getTOBProfileOffset( int det, int beam, int pos );
+  
   /// search for dets which are hit by a laser beam and fill the profiles into a histogram
   void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
+
   /// do the beam profile fit
   void fit(edm::EventSetup const& theSetup);
+
   /// calculate alignment corrections
   void alignmentAlgorithm(edm::ParameterSet const& theAlgorithmConf, 
 			  AlignableTracker * theAlignableTracker);
@@ -108,6 +124,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   void fillDetectorId( void );
 
   int theEvents;
+  bool theDoPedestalSubtraction;
   bool theStoreToDB;
   bool theSaveHistograms;
   int theDebugLevel;
@@ -137,6 +154,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   // the detector ids for all the modules
   LASGlobalData<int> detectorId;
 
+  // the detector ids for the doubly hit modules in the TECs
+  std::vector<int> tecDoubleHitDetId;
+
   // all the 474 profiles for the pedestals
   LASGlobalData<LASModuleProfile> pedestalProfiles;
 
@@ -150,6 +170,16 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
   // number of accepted profiles for each module
   LASGlobalData<int> numberOfAcceptedProfiles;
+
+  // AT or TEC mode:
+  // switches depending on which beams (seem to) have fired
+  // needed to resolve the ambiguity in the TEC Ring4
+  //  bool isTECMode;
+  //  bool isATMode;
+
+  // hit map for the current event (int=0,1)
+  // which is needed for branching into AT or TEC mode
+  LASGlobalData<int> isAcceptedProfile;
 
   // histograms for the summed profiles;
   // these are needed for the fitting procedure (done by ROOT)

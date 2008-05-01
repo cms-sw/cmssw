@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/03/06 09:10:38 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/04/23 15:17:24 $
+ *  $Revision: 1.22 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -34,6 +34,7 @@
 
 LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf) 
   : theEvents(0), 
+    theDoPedestalSubtraction(theConf.getUntrackedParameter<bool>("SubtractPedestals", true)),
     theStoreToDB(theConf.getUntrackedParameter<bool>("saveToDbase", false)),
     theSaveHistograms(theConf.getUntrackedParameter<bool>("saveHistograms",false)),
     theDebugLevel(theConf.getUntrackedParameter<int>("DebugLevel",0)),
@@ -184,11 +185,12 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
   theSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );
   theSetup.get<IdealGeometryRecord>().get( gD );
 
-  // access pedestals (from db..)
+  // access pedestals (from db..) if desired
   edm::ESHandle<SiStripPedestals> pedestalsHandle;
-  theSetup.get<SiStripPedestalsRcd>().get( pedestalsHandle );
-  fillPedestalProfiles( pedestalsHandle );
-
+  if( theDoPedestalSubtraction ) {
+    theSetup.get<SiStripPedestalsRcd>().get( pedestalsHandle );
+    fillPedestalProfiles( pedestalsHandle );
+  }
 
 
 
@@ -211,6 +213,9 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
     pedestalProfiles.GetTECEntry( det, ring, beam, disk ).SetAllValuesTo( 0. );
     currentDataProfiles.GetTECEntry( det, ring, beam, disk ).SetAllValuesTo( 0. );
     collectedDataProfiles.GetTECEntry( det, ring, beam, disk ).SetAllValuesTo( 0. );
+
+    // init the hit map
+    isAcceptedProfile.SetTECEntry( det, ring, beam, disk, 0 );
     
     // create strings for histo names
     // to be still compatible with Maarten's code
@@ -238,7 +243,10 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
     pedestalProfiles.GetTIBTOBEntry( det, beam, pos ).SetAllValuesTo( 0. );
     currentDataProfiles.GetTIBTOBEntry( det, beam, pos ).SetAllValuesTo( 0. );
     collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ).SetAllValuesTo( 0. );
-    
+
+    // init the hit map
+    isAcceptedProfile.SetTIBTOBEntry( det, beam, pos, 0 );
+
     // create strings for histo names
     nameBuilder.clear();
     nameBuilder.str( "" );
@@ -263,6 +271,9 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup) {
     currentDataProfiles.GetTEC2TECEntry( det, beam, disk ).SetAllValuesTo( 0. );
     collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ).SetAllValuesTo( 0. );
     
+    // init the hit map
+    isAcceptedProfile.SetTEC2TECEntry( det, beam, disk, 0 );
+
     // create strings for histo names
     nameBuilder.clear();
     nameBuilder.str( "" );
@@ -305,26 +316,99 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
   // do the Tracker Statistics to retrieve the current profiles
   trackerStatistics( theEvent, theSetup );
 
-  //
-  // now pass the pedestal subtracted profiles to the judge
-  // if they're accepted, add them on the collectedDataProfiles
-  //
+
 
   // index variables for the LASGlobalLoop object
   int det, ring, beam, disk, pos;
+ 
+
+
+  //
+  // first pre-loop on selected entries to find out
+  // whether the TEC or the AT beams have fired
+  // (pedestal profiles are left empty if false in cfg)
+  // 
+
+
+  // TEC+- (only ring 6)
+  ring = 1;
+  for( det = 0; det < 2; ++det ) {
+    for( beam = 0; beam < 8; ++ beam ) {
+      for( disk = 0; disk < 9; ++disk ) {
+	if( judge.JudgeProfile( currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk ), 0 ) ) {
+	  isAcceptedProfile.SetTECEntry( det, ring, beam, disk, 1 );
+	}
+	else { // assume no initialization
+	  isAcceptedProfile.SetTECEntry( det, ring, beam, disk, 0 );
+	}
+      }
+    }
+  }
+
+  // TIBTOB
+  det = 2; beam = 0; pos = 0;
+  do {
+    // add current event's data and subtract pedestals
+    if( judge.JudgeProfile( currentDataProfiles.GetTIBTOBEntry( det, beam, pos ) - pedestalProfiles.GetTIBTOBEntry( det, beam, pos ), getTOBProfileOffset( det, beam, pos ) ) ) {
+      isAcceptedProfile.SetTIBTOBEntry( det, beam, pos, 1 );
+    }
+    else { // dto.
+      isAcceptedProfile.SetTIBTOBEntry( det, beam, pos, 0 );
+    }
+
+  } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
+
+
+
+
+  // now come the beam finders
+  bool isTECMode = isTECBeam();
+  LogDebug( "[LaserAlignment::produce]" ) << "LaserAlignment::isTECBeam declares this event " << ( isTECMode ? "" : "NOT " ) << "a TEC event." << std::endl;
+
+  bool isATMode  = isATBeam();
+  LogDebug( "[LaserAlignment::produce]" ) << "LaserAlignment::isATBeam declares this event "  << ( isATMode ? "" : "NOT " )  << "an AT event." << std::endl;
+
+
+
+
+  //
+  // now pass the pedestal subtracted profiles to the judge
+  // if they're accepted, add them on the collectedDataProfiles
+  // (pedestal profiles are left empty if false in cfg)
+  //
+
 
   // loop TEC+- modules
   det = 0; ring = 0; beam = 0; disk = 0;
   do {
     
     LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTECEntry( det, ring, beam, disk ) << "." << std::endl;
-    // add current event's data and subtract pedestals
-    if( judge.JudgeProfile( currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk ) ) ) {
-      collectedDataProfiles.GetTECEntry( det, ring, beam, disk ) += currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk );
-      numberOfAcceptedProfiles.GetTECEntry( det, ring, beam, disk )++;
+
+    // this now depends on the AT/TEC mode, is this a doubly hit module?
+    // (ring == 0 not necessary but makes it a little faster)
+    if( ring == 0 && find( tecDoubleHitDetId.begin(), tecDoubleHitDetId.end(), detectorId.GetTECEntry( det, ring, beam, disk ) ) != tecDoubleHitDetId.end() ) {
+      if( isTECMode ) { // add profile to TEC collection
+
+	// add current event's data and subtract pedestals
+	if( judge.JudgeProfile( currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk ), 0 ) ) {
+	  collectedDataProfiles.GetTECEntry( det, ring, beam, disk ) += currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk );
+	  numberOfAcceptedProfiles.GetTECEntry( det, ring, beam, disk )++;
+	}
+
+      }
+    }
+
+    else { // not a doubly hit module
+      // add current event's data and subtract pedestals
+      if( judge.JudgeProfile( currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk ), 0 ) ) {
+	collectedDataProfiles.GetTECEntry( det, ring, beam, disk ) += currentDataProfiles.GetTECEntry( det, ring, beam, disk ) - pedestalProfiles.GetTECEntry( det, ring, beam, disk );
+	numberOfAcceptedProfiles.GetTECEntry( det, ring, beam, disk )++;
+      }
     }
     
   } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
+
+
   
 
 
@@ -335,11 +419,11 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
     LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTIBTOBEntry( det, beam, pos ) << "." << std::endl;
     
     // add current event's data and subtract pedestals
-    if( judge.JudgeProfile( currentDataProfiles.GetTIBTOBEntry( det, beam, pos ) - pedestalProfiles.GetTIBTOBEntry( det, beam, pos ) ) ) {
+    if( judge.JudgeProfile( currentDataProfiles.GetTIBTOBEntry( det, beam, pos ) - pedestalProfiles.GetTIBTOBEntry( det, beam, pos ), getTOBProfileOffset( det, beam, pos ) ) ) {
       collectedDataProfiles.GetTIBTOBEntry( det, beam, pos ) += currentDataProfiles.GetTIBTOBEntry( det, beam, pos ) - pedestalProfiles.GetTIBTOBEntry( det, beam, pos );
       numberOfAcceptedProfiles.GetTIBTOBEntry( det, beam, pos )++;
     }
-    
+
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
   
 
@@ -349,13 +433,30 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
   do {
     
     LogDebug( "[LaserAlignment::produce]" ) << "Profile is: " << theProfileNames.GetTEC2TECEntry( det, beam, disk ) << "." << std::endl;
+
+    // this again depends on the AT/TEC mode, is this a doubly hit module?
+    // (ring == 0 not necessary but makes it a little faster)
+    if( ring == 0 && find( tecDoubleHitDetId.begin(), tecDoubleHitDetId.end(), detectorId.GetTECEntry( det, ring, beam, disk ) ) != tecDoubleHitDetId.end() ) {
+      if( isATMode ) { // add profile to TEC2TEC collection
+
+	// add current event's data and subtract pedestals
+	if( judge.JudgeProfile( currentDataProfiles.GetTEC2TECEntry( det, beam, disk ) - pedestalProfiles.GetTEC2TECEntry( det, beam, disk ), 0 ) ) {
+	  collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ) += currentDataProfiles.GetTEC2TECEntry( det, beam, disk ) - pedestalProfiles.GetTEC2TECEntry( det, beam, disk );
+	  numberOfAcceptedProfiles.GetTEC2TECEntry( det, beam, disk )++;
+	}
+	
+      }
+    }     
     
-    // add current event's data and subtract pedestals
-    if( judge.JudgeProfile( currentDataProfiles.GetTEC2TECEntry( det, beam, disk ) - pedestalProfiles.GetTEC2TECEntry( det, beam, disk ) ) ) {
-      collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ) += currentDataProfiles.GetTEC2TECEntry( det, beam, disk ) - pedestalProfiles.GetTEC2TECEntry( det, beam, disk );
-      numberOfAcceptedProfiles.GetTEC2TECEntry( det, beam, disk )++;
+    else { // not a doubly hit module
+      // add current event's data and subtract pedestals
+      if( judge.JudgeProfile( currentDataProfiles.GetTEC2TECEntry( det, beam, disk ) - pedestalProfiles.GetTEC2TECEntry( det, beam, disk ), 0 ) ) {
+	collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ) += currentDataProfiles.GetTEC2TECEntry( det, beam, disk ) - pedestalProfiles.GetTEC2TECEntry( det, beam, disk );
+	numberOfAcceptedProfiles.GetTEC2TECEntry( det, beam, disk )++;
+      }
     }
-    
+      
+
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
 
 
@@ -622,7 +723,7 @@ void LaserAlignment::endJob() {
       if ( iBeamFit != theBeamProfileFitStore.end() ) {
 	
 	// get the DetId from the map with histograms
-	unsigned int theDetId = ((iHist->second).first).rawId();
+	//	unsigned int theDetId = ((iHist->second).first).rawId();
 	// get the information for the LASBeamProfileFitCollection
 	LASBeamProfileFitCollection::Range inputRange;
 	inputRange.first = (iBeamFit->second).begin();
@@ -1097,7 +1198,92 @@ std::vector<int> LaserAlignment::checkBeam(std::vector<std::string>::const_itera
 
 
 
+///
+/// count useable profiles in TEC,
+/// operates on LASGlobalData<bool> LaserAlignment::isAcceptedProfile
+/// to allow for more elaborate patterns in the future
+///
+bool LaserAlignment::isTECBeam( void ) {
+  
+  int numberOfProfiles = 0;
 
+  int ring = 1; // search all ring6 modules for signals
+  for( int det = 0; det < 2; ++det ) {
+    for( int beam = 0; beam < 8; ++ beam ) {
+      for( int disk = 0; disk < 9; ++disk ) {
+	if( isAcceptedProfile.GetTECEntry( det, ring, beam, disk ) == 1 ) numberOfProfiles++;
+      }
+    }
+  }
+
+  //  LogDebug( "[LaserAlignment::isTECBeam]" ) << " Found: " << numberOfProfiles << "hits." << std::endl;
+  std::cout << " [LaserAlignment::isTECBeam] -- Found: " << numberOfProfiles << " hits." << std::endl; /////////////////////////////////
+
+  if( numberOfProfiles > 10 ) return( true );
+  return( false );
+ 
+}
+
+
+
+
+
+///
+/// count useable profiles in TIBTOB,
+/// operates on LASGlobalData<bool> LaserAlignment::isAcceptedProfile
+/// to allow for more elaborate patterns in the future
+///
+
+bool LaserAlignment::isATBeam( void ) {
+
+  int numberOfProfiles = 0;
+
+  int det = 2; int beam = 0; int pos = 0; // search all TIB/TOB for signals
+  do {
+    if( isAcceptedProfile.GetTIBTOBEntry( det, beam, pos ) == 1 ) numberOfProfiles++;
+  } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
+
+  //  LogDebug( "[LaserAlignment::isATBeam]" ) << " Found: " << numberOfProfiles << "hits." << std::endl;
+  std::cout << " [LaserAlignment::isATBeam] -- Found: " << numberOfProfiles << " hits." << std::endl; /////////////////////////////////
+
+  if( numberOfProfiles > 10 ) return( true );
+  return( false );
+    
+}
+
+
+
+
+
+///
+/// TOB modules of beams 2-6 are not hit in the center;
+/// this func returns the approximate beam offset for the ProfileJudge (in strips)
+///
+int LaserAlignment::getTOBProfileOffset( int det, int beam, int pos ) {
+
+  if( det < 0 || det > 3 || beam < 0 || beam > 7 || pos < 0 || pos > 5 ) {
+    throw cms::Exception("LaserAlignment") << "[LaserAlignment::getTOBProfileOffset] ERROR ** Called with nonexisting par: det " << det << " beam " << beam << " pos " << pos << "." << std::endl;
+  }
+
+  // only for TOB
+  if( det != 3 ) return 0;
+
+  // some beams have no offset
+  if( beam < 2 || beam == 7 ) return 0;
+
+  // two groups of beams with offsets: 2-4 and 5-6
+  else {
+    if( beam < 5 ) {
+      int offsets[] = { 117, -120, -120, 117, 117, -120 };
+      return( offsets[pos] );
+    }
+    else {
+      int offsets[] = { -120, 117, 117, -120, -120, 117 };
+      return( offsets[pos] );
+    }
+  }
+
+}
 
 
 

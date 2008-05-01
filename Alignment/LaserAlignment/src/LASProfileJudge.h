@@ -16,12 +16,12 @@ class LASProfileJudge {
 
  public:
   LASProfileJudge();
-  bool JudgeProfile( const LASModuleProfile& );
+  bool JudgeProfile( const LASModuleProfile&, int );
 
  private:
-  double GetNegativity( void );
-  bool IsPeaksInProfile( void );
-  bool IsNegativePeaksInProfile( void );
+  double GetNegativity( int );
+  bool IsPeaksInProfile( int );
+  bool IsNegativePeaksInProfile( int );
   LASModuleProfile profile;
   std::pair<unsigned int, double> thePeak;
 

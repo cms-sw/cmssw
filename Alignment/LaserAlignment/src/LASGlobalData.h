@@ -11,7 +11,8 @@
 /// There is one entry of type T for each LAS module, e.g. beam profiles, position, name, ...
 /// All identifiers (beam,subdetector,position,...) start with index 0. Note that some ring 4
 /// TEC modules are hit by either TEC internal as well as by AT beams and are therefore 
-/// considered twice in the container (once in tec<X>Data and once in tec<X>ATData)
+/// considered twice in the container (once in tec<X>Data and once in tec<X>ATData).
+/// Do not instantiate this class with bool.
 ///
 /// Short LAS geometry reminder:<BR>
 /// <UL>

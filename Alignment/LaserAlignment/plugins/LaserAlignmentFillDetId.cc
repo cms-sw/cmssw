@@ -7,6 +7,41 @@
 ///
 void LaserAlignment::fillDetectorId( void ) {
   
+  // these are the detids of the TEC modules hit
+  // by the AT as well as the TEC beams
+  tecDoubleHitDetId.push_back( 470307208 );
+  tecDoubleHitDetId.push_back( 470323592 );
+  tecDoubleHitDetId.push_back( 470339976 );
+  tecDoubleHitDetId.push_back( 470356360 );
+  tecDoubleHitDetId.push_back( 470372744 );
+  tecDoubleHitDetId.push_back( 470307976 );
+  tecDoubleHitDetId.push_back( 470324360 );
+  tecDoubleHitDetId.push_back( 470340744 );
+  tecDoubleHitDetId.push_back( 470357128 );
+  tecDoubleHitDetId.push_back( 470373512 );
+  tecDoubleHitDetId.push_back( 470308488 );
+  tecDoubleHitDetId.push_back( 470324872 );
+  tecDoubleHitDetId.push_back( 470341256 );
+  tecDoubleHitDetId.push_back( 470357640 );
+  tecDoubleHitDetId.push_back( 470374024 );
+  tecDoubleHitDetId.push_back( 470045064 );
+  tecDoubleHitDetId.push_back( 470061448 );
+  tecDoubleHitDetId.push_back( 470077832 );
+  tecDoubleHitDetId.push_back( 470094216 );
+  tecDoubleHitDetId.push_back( 470110600 );
+  tecDoubleHitDetId.push_back( 470045832 );
+  tecDoubleHitDetId.push_back( 470062216 );
+  tecDoubleHitDetId.push_back( 470078600 );
+  tecDoubleHitDetId.push_back( 470094984 );
+  tecDoubleHitDetId.push_back( 470111368 );
+  tecDoubleHitDetId.push_back( 470046344 );
+  tecDoubleHitDetId.push_back( 470062728 );
+  tecDoubleHitDetId.push_back( 470079112 );
+  tecDoubleHitDetId.push_back( 470095496 );
+  tecDoubleHitDetId.push_back( 470111880 );
+
+  // now all the modules (above included)
+
   // TEC+
   detectorId.SetTECEntry( 0, 0, 0, 0, 470307208 );
   detectorId.SetTECEntry( 0, 0, 0, 1, 470323592 );
