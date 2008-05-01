@@ -23,8 +23,8 @@ class HcalDbService;
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/07/11 22:09:41 $
-  * $Revision: 1.13 $
+  * $Date: 2008/01/30 08:43:18 $
+  * $Revision: 1.14 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -42,6 +42,7 @@ public:
 
   void update(const HcalDbService& conditions);
   void update(const char* filename);
+  void PrintTPGMap();
 private:
   void loadILUTs(const char* filename);
   typedef std::vector<int> LUTType;
