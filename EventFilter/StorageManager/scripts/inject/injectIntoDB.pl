@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.8 2008/04/29 11:17:21 loizides Exp $
+# $Id: injectIntoDB.pl,v 1.9 2008/05/01 10:50:46 loizides Exp $
 
 use strict;
 use DBI;
@@ -51,7 +51,11 @@ sub inject($)
         if (!defined $notscript) {
             $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
         }
-        my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber --LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum > /dev/null 2>&1";
+
+        my $indfile     = $filename;
+        $indfile =~ s/\.dat$/\.ind/;
+
+        my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber --LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile> /dev/null 2>&1";
         system($TIERZERO);
     }
     return $rows-1;
