@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/04/17 18:59:39 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/04/30 23:29:29 $
+ *  $Revision: 1.23 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -33,7 +33,7 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTk
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
 }
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theEstimator(0), theTSTransformer(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theConfig (iConfig)
 {
 }
 
@@ -44,6 +44,7 @@ TSGFromPropagation::~TSGFromPropagation()
   LogTrace(theCategory) << " TSGFromPropagation dtor called ";
 
   if ( theNavigation ) delete theNavigation;
+  if ( theUpdator ) delete theUpdator;
   if ( theEstimator ) delete theEstimator;
   if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
   if ( theTSTransformer ) delete  theTSTransformer;
