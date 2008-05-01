@@ -1,18 +1,18 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.8 2008/04/29 11:17:21 loizides Exp $
+# $Id: injectDummy.pl,v 1.1 2008/04/29 21:43:22 loizides Exp $
 
 use strict;
 use Getopt::Long;
 
-# injection subroutine
+# fake injection subroutine
 sub inject()
 {
-    my $filename   =  $ENV{'SM_FILENAME'};
-    my $count      =  $ENV{'SM_FILECOUNTER'};
-    my $nevents    =  $ENV{'SM_NEVENTS'};;
-    my $filesize   =  $ENV{'SM_FILESIZE'};
-    my $starttime  =  $ENV{'SM_STARTTIME'};
-    my $stoptime   =  $ENV{'SM_STOPTIME'};
+    my $filename    = $ENV{'SM_FILENAME'};
+    my $count       = $ENV{'SM_FILECOUNTER'};
+    my $nevents     = $ENV{'SM_NEVENTS'};;
+    my $filesize    = $ENV{'SM_FILESIZE'};
+    my $starttime   = $ENV{'SM_STARTTIME'};
+    my $stoptime    = $ENV{'SM_STOPTIME'};
     my $status      = $ENV{'SM_STATUS'};
     my $runnumber   = $ENV{'SM_RUNNUMBER'};
     my $lumisection = $ENV{'SM_LUMISECTION'};
@@ -60,15 +60,30 @@ open(OUTDATA, $outfile) or
 #loop over input files
 while( $line = <INDATA> ){
     chomp($line);
-    my @exports = split(';', $line);
-    my $lexports = scalar(@exports);
-    for (my $count = 0; $count < $lexports; $count++) {
-        my $field = $exports[$count];
-        if ($field =~ m/export (.*)=(.*)/i) {
-            $ENV{$1}=$2;
+    if ($line =~ m/export/i) {
+        my @exports = split(';', $line);
+        my $lexports = scalar(@exports);
+        for (my $count = 0; $count < $lexports; $count++) {
+            my $field = $exports[$count];
+            if ($field =~ m/export (.*)=(.*)/i) {
+                $ENV{$1}=$2;
+            }
         }
+    } elsif ($line =~ m/\-\-/i) {
+        my @exports = split(' ', $line);
+        my $lexports = scalar(@exports);
+        for (my $count = 0; $count < $lexports/2; $count++) {
+            my $field = "SM_$exports[2*$count]=$exports[2*$count+1]";
+            if ($field =~ m/\-\-(.*)=(.*)/i) {
+                my $fname = "SM_$1";
+                if    ($1 eq "COUNT")      { $fname = "SM_FILECOUNTER";}
+                elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
+                elsif ($1 eq "STOP_TIME")  { $fname = "SM_STOPTIME";}
+                elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
+                $ENV{$fname}=$2;
+            }
+        } 
     }
-
     my $ret=inject();
     if ($ret == 0) {
         print OUTDATA "$line\n";
