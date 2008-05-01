@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.2 2008/04/28 12:57:31 loizides Exp $
+#$Id: t0inject.sh,v 1.3 2008/04/29 22:07:04 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -62,14 +62,15 @@ start(){
 }
 
 stop(){
-    for pid in `/bin/ps ax | grep ${SMT0_IW} | grep -v grep | cut -dp -f1`; do
+    for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
+	echo `/bin/ps $pid | grep $pid`
 	kill -9 $pid
     done
     rm -f ${SMT0_LOCAL_RUN_DIR}/workdir/`hostname`.*
 }
 
 status(){
-    for pid in `/bin/ps ax | grep ${SMT0_IW} | grep -v grep | cut -dp -f1`; do
+    for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
 	echo `/bin/ps $pid | grep $pid`
     done
 }
