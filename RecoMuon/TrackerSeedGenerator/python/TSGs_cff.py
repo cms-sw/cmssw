@@ -48,9 +48,7 @@ TSGsBlock = cms.PSet(
         ErrorRescaling = cms.double(3.0),
         ComponentName = cms.string('TSGFromPropagation'),
         errorMatrixPset = cms.PSet(
-            MuonErrorMatrixValues,
-            action = cms.string('use'),
-            atIP = cms.bool(True)
+
         ),
         UpdateState = cms.bool(False),
         UseSecondMeasurements = cms.bool(False),
