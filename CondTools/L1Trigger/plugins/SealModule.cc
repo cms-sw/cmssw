@@ -109,14 +109,19 @@ REGISTER_PLUGIN(L1CSCTPParametersRcd, L1CSCTPParameters);
 REGISTER_L1_WRITER(L1CSCTPParametersRcd, L1CSCTPParameters);
 
 // CSC TF records
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
+
+REGISTER_PLUGIN(L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration);
+REGISTER_L1_WRITER(L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration);
 
 REGISTER_PLUGIN(L1MuCSCDTLutRcd, L1MuCSCDTLut);
 REGISTER_L1_WRITER(L1MuCSCDTLutRcd, L1MuCSCDTLut);
