@@ -229,7 +229,7 @@ void CnBAnalyzer::createRootFedHistograms() {
   fedGenericErrors_->setAxisTitle("Number of errors", 2);
   fedGenericErrors_->setAxisTitle("Front-End Driver", 1);
   for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
-    binNameS.str(""); binNameS << i; fedGenericErrors_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+    binNameS.str(""); if (i%10==0) binNameS << i; fedGenericErrors_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
   }
   
  
@@ -241,7 +241,7 @@ void CnBAnalyzer::createRootFedHistograms() {
   fedFreeze_->setAxisTitle("Number of errors", 2);
   fedFreeze_->setAxisTitle("Front-End Driver", 1);
   for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
-    binNameS.str(""); binNameS << i; fedFreeze_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+    binNameS.str(""); if (i%10==0) binNameS << i; fedFreeze_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
   }
   
   // bool bxError
@@ -252,7 +252,7 @@ void CnBAnalyzer::createRootFedHistograms() {
   fedBx_->setAxisTitle("Number of errors", 2);
   fedBx_->setAxisTitle("Front-End Driver", 1);
   for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
-    binNameS.str(""); binNameS << i; fedBx_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
+    binNameS.str(""); if (i%10==0) binNameS << i; fedBx_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
   }
 
   // Trend plots:
