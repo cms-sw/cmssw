@@ -202,7 +202,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //  }
 
 
-  cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
+  //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
 // -- End Run

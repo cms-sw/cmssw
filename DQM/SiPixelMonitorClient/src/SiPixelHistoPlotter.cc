@@ -46,14 +46,14 @@ void SiPixelHistoPlotter::setNewPlot(std::string& path,
                                      std::string& option, 
 				     int width,
 				     int height) {
-cout<<"Entering SiPixelHistoPlotter::setNewPlot for "<<path<<endl;
+//cout<<"Entering SiPixelHistoPlotter::setNewPlot for "<<path<<endl;
   PlotParameter local_par;
   local_par.Path    = path;
   local_par.Option  = option;
   local_par.CWidth  = width;
   local_par.CHeight = height;
   plotList_.push_back(local_par);  
-cout<<"... leaving SiPixelHistoPlotter::setNewPlot!"<<endl;
+//cout<<"... leaving SiPixelHistoPlotter::setNewPlot!"<<endl;
 }
 
 //
@@ -62,7 +62,7 @@ cout<<"... leaving SiPixelHistoPlotter::setNewPlot!"<<endl;
 void SiPixelHistoPlotter::createPlots(DQMStore* bei) {
   string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
-  cout<<"HP::createPlots:PlotList size="<<plotList_.size()<<endl;
+  //cout<<"HP::createPlots:PlotList size="<<plotList_.size()<<endl;
   for (vector<PlotParameter>::iterator it = plotList_.begin(); 
        it != plotList_.end(); it++) {
     makePlot(bei, (*it));
@@ -74,7 +74,7 @@ void SiPixelHistoPlotter::createPlots(DQMStore* bei) {
 // -- Draw Histograms 
 //
 void SiPixelHistoPlotter::makePlot(DQMStore* bei, const PlotParameter& par) {
-cout<<"Entering SiPixelHistoPlotter::makePlot: "<<endl;
+//cout<<"Entering SiPixelHistoPlotter::makePlot: "<<endl;
   TCanvas * canvas = new TCanvas("PXCanvas", "PXCanvas", par.CWidth, par.CHeight);
   gROOT->Reset(); 
   gStyle->SetPalette(1,0);
@@ -85,7 +85,7 @@ cout<<"Entering SiPixelHistoPlotter::makePlot: "<<endl;
   TPaveText * paveOnCanvas = new TPaveText(0.57,0.79,0.77,0.99,"NDCtr");   
   paveOnCanvas->SetFillColor(0);
   
-  std::cout<<"::makePlot:Trying to plot "<<par.Path<<std::endl;
+  //std::cout<<"::makePlot:Trying to plot "<<par.Path<<std::endl;
   MonitorElement * me = bei->get(par.Path);
   if (me) { 
 	
@@ -222,29 +222,29 @@ cout<<"Entering SiPixelHistoPlotter::makePlot: "<<endl;
     canvas->Update();
     
     
-    cout<<"Calling fillNamedImageBuffer now!"<<endl;
+    //cout<<"Calling fillNamedImageBuffer now!"<<endl;
     fillNamedImageBuffer(canvas, par.Path);
     canvas->Clear();
   } else {
     createDummyImage(par.Path);
   }
   delete canvas;
-  cout<<"... leaving SiPixelHistoPlotter::makePlot!"<<endl;
+  //cout<<"... leaving SiPixelHistoPlotter::makePlot!"<<endl;
 }
 
 //
 // -- Get Named Image buffer
 //
 void SiPixelHistoPlotter::getNamedImageBuffer(const string& path, string& image) {
-std::cout<<"Trying to getNamedImageBuffer for path "<<path<<std::endl;
+//std::cout<<"Trying to getNamedImageBuffer for path "<<path<<std::endl;
   map<string, string>::iterator cPos = namedPictureBuffer_.find(path);
   if (cPos != namedPictureBuffer_.end()) {
-  cout<<"I found an image in the namedPictureBuffer_!"<<endl;
+  //cout<<"I found an image in the namedPictureBuffer_!"<<endl;
     image = cPos->second;
     if (namedPictureBuffer_.size() > 99 ) namedPictureBuffer_.erase(cPos);
   } else {
-    cout << " Sending Dummy Image for :"
-	 <<  path << endl;
+    //cout << " Sending Dummy Image for :"
+	// <<  path << endl;
      cPos = namedPictureBuffer_.find("Dummy");
      image = cPos->second;
   }
@@ -256,7 +256,7 @@ std::cout<<"Trying to getNamedImageBuffer for path "<<path<<std::endl;
  */
 void SiPixelHistoPlotter::fillNamedImageBuffer(TCanvas * c1, const std::string& name) 
 {
-cout<<"Entering SiPixelHistoPlotter::fillNamedImageBuffer: "<<endl;
+//cout<<"Entering SiPixelHistoPlotter::fillNamedImageBuffer: "<<endl;
   //  DQMScope enter;
  // Now extract the image
   // 114 - stands for "no write on Close"
@@ -277,12 +277,12 @@ cout<<"Entering SiPixelHistoPlotter::fillNamedImageBuffer: "<<endl;
 
   if( image == NULL )
   {
-   cout << "No TImage found for "
-	<< name
-   	<< endl ;
+   //cout << "No TImage found for "
+//	<< name
+   //	<< endl ;
     return ;
   }
-  cout<<"found an image!"<<endl;
+  //cout<<"found an image!"<<endl;
   char *buf;
   int sz = 0;
   image->GetImageBuffer(&buf, &sz);
@@ -296,10 +296,10 @@ cout<<"Entering SiPixelHistoPlotter::fillNamedImageBuffer: "<<endl;
   
   // clear the first element map if # of entries > 30
   if (hasNamedImage(name)) namedPictureBuffer_.erase(name);
-  cout<<"filling namedPictureBuffer_["<<name<<"] now"<<endl;
+  //cout<<"filling namedPictureBuffer_["<<name<<"] now"<<endl;
   namedPictureBuffer_[name] = local_str.str();
-  if (namedPictureBuffer_[name].size() > 0) cout << "image created " << name << endl;
-cout<<"... leaving SiPixelHistoPlotter::fillNamedImageBuffer!"<<endl;
+  //if (namedPictureBuffer_[name].size() > 0) cout << "image created " << name << endl;
+//cout<<"... leaving SiPixelHistoPlotter::fillNamedImageBuffer!"<<endl;
 }
 
 //
