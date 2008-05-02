@@ -106,10 +106,10 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	tv.tv_sec = 1;
 	tv.tv_usec = 0;
 
-	int outputcode;
-	int z = 0, localCount = 0;
+	//	int outputcode;
+	//int z = 0, localCount = 0;
 	time_t tempTime, curTime;
-	int ret;
+	//int ret;
 
 	time(&curTime);
 	
@@ -324,59 +324,67 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 #endif
     int i, j, k;
 
-    localSection.hdr.runNumber = 1;
-    localSection.hdr.startOrbit = 2;
-    localSection.hdr.numOrbits = 3;
-    localSection.hdr.numBunches = 4;
-    localSection.hdr.numHLXs = 5;
-    localSection.hdr.bCMSLive = true;
+    localSection.hdr.runNumber     = 1;
+    localSection.hdr.startOrbit    = 2;
+    localSection.hdr.numOrbits     = 3;
+    localSection.hdr.numBunches    = 4;
+    localSection.hdr.numHLXs       = 5;
+    localSection.hdr.bCMSLive      = true;
     localSection.hdr.sectionNumber = 120;
     
-    localSection.lumiSummary.DeadtimeNormalization = 7;
-    localSection.lumiSummary.LHCNormalization = 8;
-    localSection.lumiSummary.InstantLumi = 9;
-    localSection.lumiSummary.InstantLumiErr = 10;
-    localSection.lumiSummary.InstantLumiQlty = 11;
-    localSection.lumiSummary.InstantETLumi = 12;
-    localSection.lumiSummary.InstantETLumiErr = 13;
-    localSection.lumiSummary.InstantETLumiQlty = 14;
-    localSection.lumiSummary.InstantOccLumi[0] = 15;
-    localSection.lumiSummary.InstantOccLumiErr[0] = 16;
+    localSection.lumiSummary.DeadtimeNormalization = 0.7;
+    localSection.lumiSummary.LHCNormalization      = 0.75;
+    localSection.lumiSummary.OccNormalization[0]   = 0.8;
+    localSection.lumiSummary.OccNormalization[1]   = 0.85;
+    localSection.lumiSummary.ETNormalization       = 0.8;
+    localSection.lumiSummary.InstantLumi           = 0.9;
+    localSection.lumiSummary.InstantLumiErr        = 0.10;
+    localSection.lumiSummary.InstantLumiQlty       = 11;
+    localSection.lumiSummary.InstantETLumi         = 0.12;
+    localSection.lumiSummary.InstantETLumiErr      = 0.13;
+    localSection.lumiSummary.InstantETLumiQlty     = 14;
+    localSection.lumiSummary.InstantOccLumi[0]     = 0.15;
+    localSection.lumiSummary.InstantOccLumiErr[0]  = 0.16;
     localSection.lumiSummary.InstantOccLumiQlty[0] = 17;
-    localSection.lumiSummary.lumiNoise[0] = 18;
-    localSection.lumiSummary.InstantOccLumi[1] = 19;
-    localSection.lumiSummary.InstantOccLumiErr[1] = 20;
+    localSection.lumiSummary.lumiNoise[0]          = 0.18;
+    localSection.lumiSummary.InstantOccLumi[1]     = 0.19;
+    localSection.lumiSummary.InstantOccLumiErr[1]  = 0.20;
     localSection.lumiSummary.InstantOccLumiQlty[1] = 21;
-    localSection.lumiSummary.lumiNoise[1] = 22;
+    localSection.lumiSummary.lumiNoise[1]          = 0.22;
+    
+
     
     for(j=0; j < 3564; j++){
-      localSection.lumiDetail.LHCLumi[j] = 1*j;
-      localSection.lumiDetail.ETLumi[j] = 2*j;
-      localSection.lumiDetail.ETLumiErr[j] = 3*j;
-      localSection.lumiDetail.ETLumiQlty[j] = 4*j;
-      localSection.lumiDetail.OccLumi[0][j] = 5*j;
-      localSection.lumiDetail.OccLumiErr[0][j] = 6*j;
-      localSection.lumiDetail.OccLumiQlty[0][j] = 7*j;
-      localSection.lumiDetail.OccLumi[1][j] = 8*j;
-      localSection.lumiDetail.OccLumiErr[1][j] = 9*j;
-      localSection.lumiDetail.OccLumiQlty[1][j] = 10*j;
+      localSection.lumiDetail.ETBXNormalization[j]     = 0.25*j/35640.0;
+      localSection.lumiDetail.OccBXNormalization[0][j] = 0.5*j/35640.0;
+      localSection.lumiDetail.OccBXNormalization[1][j] = 0.75*j/35640.0;      
+      localSection.lumiDetail.LHCLumi[j]               = 1*j/35640.0; 
+      localSection.lumiDetail.ETLumi[j]                = 2*j/35640.0;
+      localSection.lumiDetail.ETLumiErr[j]             = 3*j/35640.0;
+      localSection.lumiDetail.ETLumiQlty[j]            = 4*j;
+      localSection.lumiDetail.OccLumi[0][j]            = 5*j/35640.0;
+      localSection.lumiDetail.OccLumiErr[0][j]         = 6*j/35640.0;
+      localSection.lumiDetail.OccLumiQlty[0][j]        = 7*j;
+      localSection.lumiDetail.OccLumi[1][j]            = 8*j/35640.0;
+      localSection.lumiDetail.OccLumiErr[1][j]         = 9*j/35640.0;
+      localSection.lumiDetail.OccLumiQlty[1][j]        = 10*j;
     }
     
     for(i=0; i<36; i ++){
-      localSection.etSum[i].hdr.numNibbles = 7;
+      localSection.etSum[i].hdr.numNibbles     = 7;
       localSection.occupancy[i].hdr.numNibbles = 8;
-      localSection.lhc[i].hdr.numNibbles = 9;
+      localSection.lhc[i].hdr.numNibbles       = 9;
       
-      localSection.etSum[i].hdr.bIsComplete = true;
+      localSection.etSum[i].hdr.bIsComplete     = true;
       localSection.occupancy[i].hdr.bIsComplete = true;
-      localSection.lhc[i].hdr.bIsComplete = true;
+      localSection.lhc[i].hdr.bIsComplete       = true;
       
       for(j=0; j < 3564; j ++){
-	localSection.etSum[i].data[j] = 6*j+ 10*i;
+	localSection.etSum[i].data[j]          = 6*j+ 10*i;
 	for(k=0; k < 6; k++){
 	  localSection.occupancy[i].data[k][j] = k*j + 11*i;
 	}
-	localSection.lhc[i].data[j]= 7*j + 12*i;
+	localSection.lhc[i].data[j]            = 7*j + 12*i;
       }
     }
 
@@ -393,59 +401,65 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     int i, j, k;
 
     srand(time(NULL));
-    localSection.hdr.runNumber = (rand() % 100);
-    localSection.hdr.startOrbit = (rand() % 100);
-    localSection.hdr.numOrbits = (rand() % 100);
-    localSection.hdr.numBunches = (rand() % 100);
-    localSection.hdr.numHLXs = (rand() % 100);
-    localSection.hdr.bCMSLive = true;
+    localSection.hdr.runNumber     = 55; //(rand() % 100);
+    localSection.hdr.startOrbit    = (rand() % 100);
+    localSection.hdr.numOrbits     = (rand() % 100);
+    localSection.hdr.numBunches    = (rand() % 100);
+    localSection.hdr.numHLXs       = (rand() % 100);
+    localSection.hdr.bCMSLive      = true;
     localSection.hdr.sectionNumber = (rand() %100);
     
-    localSection.lumiSummary.DeadtimeNormalization = (rand() % 100);
-    localSection.lumiSummary.LHCNormalization = (rand() % 100);
-    localSection.lumiSummary.InstantLumi = (rand() % 100);
-    localSection.lumiSummary.InstantLumiErr = (rand() % 100);
-    localSection.lumiSummary.InstantLumiQlty = (rand() % 100);
-    localSection.lumiSummary.InstantETLumi = (rand() % 100);
-    localSection.lumiSummary.InstantETLumiErr = (rand() % 100);
-    localSection.lumiSummary.InstantETLumiQlty = (rand() % 100);
-    localSection.lumiSummary.InstantOccLumi[0] = (rand() % 100);
-    localSection.lumiSummary.InstantOccLumiErr[0] = (rand() % 100);
+    localSection.lumiSummary.DeadtimeNormalization = (float)(rand() % 100)/100;
+    localSection.lumiSummary.LHCNormalization      = (float)(rand() % 100)/100;
+    localSection.lumiSummary.OccNormalization[0]   = (float)(rand() % 100)/100;
+    localSection.lumiSummary.OccNormalization[1]   = (float)(rand() % 100)/100;
+    localSection.lumiSummary.ETNormalization       = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantLumi           = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantLumiErr        = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantLumiQlty       = (rand() % 100);
+    localSection.lumiSummary.InstantETLumi         = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantETLumiErr      = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantETLumiQlty     = (rand() % 100);
+    localSection.lumiSummary.InstantOccLumi[0]     = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantOccLumiErr[0]  = (float)(rand() % 100)/100;
     localSection.lumiSummary.InstantOccLumiQlty[0] = (rand() % 100);
-    localSection.lumiSummary.lumiNoise[0] = (rand() % 100);
-    localSection.lumiSummary.InstantOccLumi[1] = (rand() % 100);
-    localSection.lumiSummary.InstantOccLumiErr[1] = (rand() % 100);
+    localSection.lumiSummary.lumiNoise[0]          = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantOccLumi[1]     = (float)(rand() % 100)/100;
+    localSection.lumiSummary.InstantOccLumiErr[1]  = (float)(rand() % 100)/100;
     localSection.lumiSummary.InstantOccLumiQlty[1] = (rand() % 100);
-    localSection.lumiSummary.lumiNoise[1] = (rand() % 100);
+    localSection.lumiSummary.lumiNoise[1]          = (float)(rand() % 100)/100;
     
     for(j=0; j < 3564; j++){
-      localSection.lumiDetail.LHCLumi[j] = (rand() % 100);
-      localSection.lumiDetail.ETLumi[j] = (rand() % 100);
-      localSection.lumiDetail.ETLumiErr[j] = (rand() % 100);
-      localSection.lumiDetail.ETLumiQlty[j] = (rand() % 100);
-      localSection.lumiDetail.OccLumi[0][j] = (rand() % 100);
-      localSection.lumiDetail.OccLumiErr[0][j] = (rand() % 100);
-      localSection.lumiDetail.OccLumiQlty[0][j] = (rand() % 100);
-      localSection.lumiDetail.OccLumi[1][j] = (rand() % 100);
-      localSection.lumiDetail.OccLumiErr[1][j] = (rand() % 100);
-      localSection.lumiDetail.OccLumiQlty[1][j] = (rand() % 100);
+      localSection.lumiDetail.ETBXNormalization[j]     = 0.25*j/35640.0;
+      localSection.lumiDetail.OccBXNormalization[0][j] = 0.5*j/35640.0;
+      localSection.lumiDetail.OccBXNormalization[1][j] = 0.75*j/35640.0;      
+      localSection.lumiDetail.LHCLumi[j]               = (float)(rand() % 100)/100.0;
+      localSection.lumiDetail.ETLumi[j]                = (float)(rand() % 100)/100.0;
+      localSection.lumiDetail.ETLumiErr[j]             = (float)(rand() % 100)/100.0;
+      localSection.lumiDetail.ETLumiQlty[j]            = (rand() % 100);
+      localSection.lumiDetail.OccLumi[0][j]            = (float)(rand() % 100)/100.0;
+      localSection.lumiDetail.OccLumiErr[0][j]         = (float)(rand() % 100)/100.0;
+      localSection.lumiDetail.OccLumiQlty[0][j]        = (rand() % 100);
+      localSection.lumiDetail.OccLumi[1][j]            = (float)(rand() % 100)/100.0;
+      localSection.lumiDetail.OccLumiErr[1][j]         = (float)(rand() % 100)/100.0;
+      localSection.lumiDetail.OccLumiQlty[1][j]        = (rand() % 100);
     }
     
     for(i=0; i<36; i ++){
-      localSection.etSum[i].hdr.numNibbles = (rand() % 100);
+      localSection.etSum[i].hdr.numNibbles     = (rand() % 100);
       localSection.occupancy[i].hdr.numNibbles = 8*(rand() % 100);
-      localSection.lhc[i].hdr.numNibbles = 9*(rand() % 100);
+      localSection.lhc[i].hdr.numNibbles       = 9*(rand() % 100);
       
-      localSection.etSum[i].hdr.bIsComplete = true;
+      localSection.etSum[i].hdr.bIsComplete     = true;
       localSection.occupancy[i].hdr.bIsComplete = true;
-      localSection.lhc[i].hdr.bIsComplete = true;
+      localSection.lhc[i].hdr.bIsComplete       = true;
       
       for(j=0; j < 3564; j ++){
-	localSection.etSum[i].data[j] = 6*(rand() % 3564);
-	for(k=0; k < 6; k++){
+	localSection.etSum[i].data[j]          = 6*(rand() % 3564);
+	for(k=0; k < 6; k++){ 
 	  localSection.occupancy[i].data[k][j] = k*(rand() % 3564);
 	}
-	localSection.lhc[i].data[j]= 7*(rand() % 3564);
+	localSection.lhc[i].data[j]            = 7*(rand() % 3564);
       }
     } 
 
