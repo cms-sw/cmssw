@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/10/08 14:17:55 $
-//   $Revision: 1.19 $
+//   $Date: 2008/05/01 15:51:03 $
+//   $Revision: 1.20 $
 //
 //   Modifications: 
 //
@@ -906,54 +906,86 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     }
   }
 
+  CSCALCTDigi tA[MAX_ALCT_BINS][2], tB[MAX_ALCT_BINS][2];
   for (std::vector <CSCALCTDigi>::const_iterator plct = all_alcts.begin();
        plct != all_alcts.end(); plct++) {
     if (!plct->isValid()) continue;
 
+    int bx = (*plct).getBX();
     // Skip ALCTs found too early relative to L1Accept.
-    if (plct->getBX() <= early_tbins) {
+    if (bx <= early_tbins) {
       if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
 	<< " Do not report ALCT on keywire " << plct->getKeyWG()
-	<< ": found at bx " << plct->getBX() << ", whereas the earliest "
-	<< "allowed bx is " << early_tbins;
+	<< ": found at bx " << bx << ", whereas the earliest allowed bx is "
+	<< early_tbins+1;
       continue;
     }
 
     // Skip ALCTs found too late relative to L1Accept.
-    if (plct->getBX() > late_tbins) {
+    if (bx > late_tbins) {
       if (infoV > 1) LogDebug("CSCAnodeLCTProcessor")
 	<< " Do not report ALCT on keywire " << plct->getKeyWG()
-	<< ": found at bx " << plct->getBX() << ", whereas the latest "
-	<< "allowed bx is " << late_tbins;
+	<< ": found at bx " << bx << ", whereas the latest allowed bx is "
+	<< late_tbins;
       continue;
     }
 
     // Select two collision and two accelerator ALCTs with the highest
-    // best quality.  The search for best ALCTs is done in parallel
-    // for collision and accelerator patterns.  If two or more ALCTs
-    // have equal qualities, the priority is given to the ALCT with
-    // larger wiregroup number in the search for best ALCTs (collision
-    // and accelerator), and to the ALCT with smaller wiregroup number
-    // in the search for the second best ALCTs.
-    int qual  = (*plct).getQuality();
+    // quality at every bx.  The search for best ALCTs is done in parallel
+    // for collision and accelerator patterns, and simultaneously for
+    // two ALCTs, tA and tB.  If two or more ALCTs have equal qualities,
+    // the priority is given to the ALCT with larger wiregroup number
+    // in the search for tA (collision and accelerator), and to the ALCT
+    // with smaller wiregroup number in the search for tB.
     int accel = (*plct).getAccelerator();
-    int bx    = (*plct).getBX();
-    int best_quality = bestALCTs[bx][accel].getQuality();
-    int scnd_quality = secondALCTs[bx][accel].getQuality();
-    if ((qual >  best_quality) ||
-	(qual == best_quality &&
-	 (*plct).getKeyWG() > bestALCTs[bx][accel].getKeyWG())) {
-      if ((best_quality >  scnd_quality) ||
-	  (best_quality == scnd_quality &&
-	   bestALCTs[bx][accel].getKeyWG() < secondALCTs[bx][accel].getKeyWG())) {
-	secondALCTs[bx][accel] = bestALCTs[bx][accel];
-      }
-      bestALCTs[bx][accel] = *plct;
+    int qual  = (*plct).getQuality();
+    int wire  = (*plct).getKeyWG();
+    bool vA = tA[bx][accel].isValid();
+    bool vB = tB[bx][accel].isValid();
+    int qA  = tA[bx][accel].getQuality();
+    int qB  = tB[bx][accel].getQuality();
+    int wA  = tA[bx][accel].getKeyWG();
+    int wB  = tB[bx][accel].getKeyWG();
+    if (!vA || qual > qA || (qual == qA && wire > wA)) {
+      tA[bx][accel] = *plct;
     }
-    else if ((qual >  scnd_quality) ||
-	     (qual == scnd_quality &&
-	      (*plct).getKeyWG() < secondALCTs[bx][accel].getKeyWG())) {
-      secondALCTs[bx][accel] = *plct;
+    if (!vB || qual > qB || (qual == qB && wire < wB)) {
+      tB[bx][accel] = *plct;
+    }
+  }
+
+  for (int bx = early_tbins+1; bx <= late_tbins; bx++) {
+    for (int accel = 0; accel <= 1; accel++) {
+      // Best ALCT is always tA.
+      if (tA[bx][accel].isValid()) {
+	if (infoV > 2) {
+	  LogTrace("CSCAnodeLCTProcessor") << "tA: " << tA[bx][accel];
+	  LogTrace("CSCAnodeLCTProcessor") << "tB: " << tB[bx][accel];
+	}
+	bestALCTs[bx][accel] = tA[bx][accel];
+
+	// If tA exists, tB exists too.
+	if (tA[bx][accel] != tB[bx][accel] &&
+	    tA[bx][accel].getQuality() == tB[bx][accel].getQuality()) {
+	  secondALCTs[bx][accel] = tB[bx][accel];
+	}
+	else {
+	  // Funny part: if tA and tB are the same, or the quality of tB
+	  // is inferior to the quality of tA, the second best ALCT is
+	  // not tB.  Instead it is the largest-wiregroup ALCT among those
+	  // ALCT whose qualities are lower than the quality of the best one.
+	  for (std::vector <CSCALCTDigi>::const_iterator plct =
+		 all_alcts.begin(); plct != all_alcts.end(); plct++) {
+	    if ((*plct).isValid() && 
+		(*plct).getAccelerator() == accel && (*plct).getBX() == bx &&
+		(*plct).getQuality() <  bestALCTs[bx][accel].getQuality() && 
+		(*plct).getQuality() >= secondALCTs[bx][accel].getQuality() &&
+		(*plct).getKeyWG()   >= secondALCTs[bx][accel].getKeyWG()) {
+	      secondALCTs[bx][accel] = *plct;
+	    }
+	  }
+	}
+      }
     }
   }
 
