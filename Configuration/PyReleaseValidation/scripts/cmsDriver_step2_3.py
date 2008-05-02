@@ -48,7 +48,7 @@ alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+Ec
            'TrackerCosBON':'TkAlCosmics',
            'TrackerCosBOFF':'TkAlCosmics',
            'TrackerLaser':'TkAlLAS',
-           'HaloMuon':'MuAlBeamHalo+MulBeamHaloOverlaps'
+           'HaloMuon':'MuAlBeamHalo+MuAlBeamHaloOverlaps'
            }
 
 typeOfEv=''
