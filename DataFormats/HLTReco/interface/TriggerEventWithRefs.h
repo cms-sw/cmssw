@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for events (RAW case)
  *  describing the details of the (HLT) trigger table
  *
- *  $Date: 2007/12/07 13:39:47 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/01/12 16:53:54 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -16,6 +16,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <string>
 #include <vector>
@@ -33,8 +34,8 @@ namespace trigger
     /// Helper class: trigger objects firing a single filter
     class TriggerFilterObject {
     public:
-      /// label of filter
-      std::string filterLabel_;
+      /// encoded InputTag of filter product
+      std::string filterTag_;
       /// 1-after-end (std C++) indices into linearised vector of Refs
       /// (-> first start index is always 0)
       size_type photons_;
@@ -52,11 +53,13 @@ namespace trigger
 
       /// constructor
       TriggerFilterObject() :
-	filterLabel_(),
-	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0) { }
-      TriggerFilterObject(const std::string& filterLabel,
+	filterTag_(),
+	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), mets_(0), hts_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0) {
+      filterTag_=edm::InputTag().encode();
+      }
+      TriggerFilterObject(const edm::InputTag& filterTag,
         size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nM, size_type nH, size_type nt, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss) :
-	filterLabel_(filterLabel),
+	filterTag_(filterTag.encode()),
 	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), mets_(nM), hts_(nH), pixtracks_(nt), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss) { }
     };
 
@@ -80,9 +83,9 @@ namespace trigger
     }
 
     /// setters - to build EDProduct
-    void addFilterObject(const std::string& filterLabel, const TriggerFilterObjectWithRefs& tfowr) {
+    void addFilterObject(const edm::InputTag& filterTag, const TriggerFilterObjectWithRefs& tfowr) {
       filterObjects_.push_back(
-        TriggerFilterObject(filterLabel, 
+        TriggerFilterObject(filterTag, 
 			    addObjects(tfowr.photonIds(),tfowr.photonRefs()),
 			    addObjects(tfowr.electronIds(),tfowr.electronRefs()),
 			    addObjects(tfowr.muonIds(),tfowr.muonRefs()),
@@ -105,16 +108,17 @@ namespace trigger
     /// number of filters
     size_type size() const {return filterObjects_.size();}
 
-    /// label from index
-    const std::string& filterLabel(size_type filterIndex) const {
-      return filterObjects_.at(filterIndex).filterLabel_;
+    /// tag from index
+    const edm::InputTag filterTag(size_type filterIndex) const {
+      return edm::InputTag(filterObjects_.at(filterIndex).filterTag_);
     }
 
-    /// index from label
-    size_type filterIndex(const std:: string filterLabel) const {
+    /// index from tag
+    size_type filterIndex(const edm::InputTag& filterTag) const {
+      const std::string encodedFilterTag (filterTag.encode());
       const size_type n(filterObjects_.size());
       for (size_type i=0; i!=n; ++i) {
-	if (filterLabel==filterObjects_[i].filterLabel_) {return i;}
+	if (encodedFilterTag==filterObjects_[i].filterTag_) {return i;}
       }
       return n;
     }
