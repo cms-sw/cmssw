@@ -217,7 +217,7 @@ void CnBAnalyzer::createRootFedHistograms() {
   stringstream binNameS;
 
   SiStripFedKey thisFedKey(0, 0, 0, 0);
-  std::string baseFolder = thisFedKey.path() + "/FedMonitoringSummary";
+  std::string baseFolder = thisFedKey.path() + "FedMonitoringSummary";
   dqm()->setCurrentFolder(baseFolder);
 
   // This Histogram will be filled with 
