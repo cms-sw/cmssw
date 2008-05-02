@@ -6,7 +6,7 @@ import optparse
 
 usage=\
 """%prog <job_type> [options].
-<job type>: RELVAL, MinBias, JetETXX, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST, TrackerHaloMuon, TrackerCosBON, TrackerCosBOFF, TrackerLaser, HaloMuon  '
+<job type>: RELVAL, MinBias, JetETXX, JetET20, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST, TrackerHaloMuon, TrackerCosBON, TrackerCosBOFF, TrackerLaser, HaloMuon  '
 """
 
 parser = optparse.OptionParser(usage)
@@ -19,11 +19,12 @@ parser.add_option("--globaltag",
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
 
-alcaDict2={'MinBias':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
+alcaDict2={'MinBias':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
+           'JetET20':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
            'JetETXX':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
-           'GammaJets':'MuAlZMuMu+RpcCalHLT+DQM',
-           'MuonPTXX':'MuAlZMuMu+RpcCalHLT+DQM',
-           'ZW':'SiPixelLorentzAngle+SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
+           'GammaJets':'RpcCalHLT+DQM',
+           'MuonPTXX':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
+           'ZW':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
            'HCALNZS':'',
            'HCALIST':'',
            'RELVAL':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
@@ -35,9 +36,10 @@ alcaDict2={'MinBias':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+
            }
 
 alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalMinBias+HcalCalHO+MuAlOverlaps+DQM',
-           'JetETXX':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+EcalCalElectron+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalHO+MuAlOverlaps+DQM',
-           'GammaJets':'EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+DQM',
-           'MuonPTXX':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalHO+MuAlOverlaps+DQM',
+           'JetET20':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+TkAlMinBias+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalHO+MuAlOverlaps+DQM',
+           'JetETXX':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalHO+MuAlOverlaps+DQM',
+           'GammaJets':'EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+DQM',
+           'MuonPTXX':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalHO+MuAlOverlaps+DQM',
            'ZW':'TkAlZMuMu+TkAlMuonIsolated+EcalCalElectron+HcalCalHO+MuAlOverlaps+DQM',
            'HCALNZS':'HcalCalMinBias+DQM',
            'HCALIST':'HcalCalIsoTrkNoHLT+DQM',
