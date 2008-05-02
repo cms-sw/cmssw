@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id:$
+# $Id: sendNotification.sh,v 1.1 2008/05/01 22:20:04 loizides Exp $
 
 # error file
 errordir=/tmp
@@ -29,7 +29,7 @@ export T0ROOT=${T0_BASE_DIR}/T0
 export CONFIG=${T0_BASE_DIR}/Config/TransferSystem_Cessy.cfg
 export PERL5LIB=${T0ROOT}/perl_lib:${T0_BASE_DIR}/perl
 
-res=`${T0_BASE_DIR}/injection/sendNotification.pl --config $CONFIG $@ | grep "Connection established (3)"`
+res=`${T0_BASE_DIR}/injection/sendNotification.pl --config $CONFIG $@ 2>&1 | grep "Connection established (3)"`
 if test -z "$res"; then
     echo $0 $@ >> $errorfile
     exit 0;
