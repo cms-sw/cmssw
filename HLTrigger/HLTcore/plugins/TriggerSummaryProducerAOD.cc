@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/24 10:45:13 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/05/02 12:13:28 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *
@@ -146,23 +146,23 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    ///
    const size_type nc(collectionTagsEvent_.size());
    LogTrace("") << "Number of unique collections requested " << nc;
-   std::cout    << "Number of unique collections requested " << nc << std::endl;
+   //   cout    << "Number of unique collections requested " << nc << endl;
    const InputTagSet::const_iterator cb(collectionTagsEvent_.begin());
    const InputTagSet::const_iterator ce(collectionTagsEvent_.end());
    for (InputTagSet::const_iterator ci=cb; ci!=ce; ++ci) {
      LogTrace("") << distance(cb,ci) << " " << ci->encode();
-     std::cout    << distance(cb,ci) << " " << ci->encode() << std::endl;
+     //   cout    << distance(cb,ci) << " " << ci->encode() << endl;
    }
 
    ///
    const size_type nf(filterTagsEvent_.size());
    LogTrace("") << "Number of unique filters requested " << nf;
-   std::cout    << "Number of unique filters requested " << nf << std::endl;
+   //   cout    << "Number of unique filters requested " << nf << endl;
    const InputTagSet::const_iterator fb(filterTagsEvent_.begin());
    const InputTagSet::const_iterator fe(filterTagsEvent_.end());
    for (InputTagSet::const_iterator fi=fb; fi!=fe; ++fi) {
      LogTrace("") << distance(fb,fi) << " " << fi->encode();
-     std::cout    << distance(fb,fi) << " " << fi->encode() << std::endl;
+     //   cout    << distance(fb,fi) << " " << fi->encode() << endl;
    }
 
    ///
@@ -351,7 +351,7 @@ void TriggerSummaryProducerAOD::endJob() {
   using namespace edm;
   using namespace trigger;
 
-  cout << "TriggerSummaryProducerAOD --- Job-accumulated config:" << endl;
+  cout << "TriggerSummaryProducerAOD::endJob - accumulated tags:" << endl;
 
   const size_type nc(collectionTagsGlobal_.size());
   const size_type nf(filterTagsGlobal_.size());
@@ -372,7 +372,7 @@ void TriggerSummaryProducerAOD::endJob() {
     cout << "  " << distance(fb,fi) << " " << fi->encode() << endl;
   }
 
-  cout << "TriggerSummaryProducerAOD --- End report" << endl;
+  cout << "TriggerSummaryProducerAOD::endJob." << endl;
 
   return;
 
