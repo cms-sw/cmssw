@@ -6,19 +6,19 @@
  *  taking care of consistency with AlignableDet components.
  *
  *  First implementation April/May 2008
- *  $Date$
- *  $Revision$
  *  \author Gero Flucke, Hamburg University
+ *  $Date: 2008/05/02 07:54:21 $
+ *  $Revision: 1.1 $
  */
  
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
-
-#include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 #include <vector>
 
 class GluedGeomDet;
 class AlignTransformError;
+class Bounds;
+class StripGeomDetType;
 
 class AlignableSiStripDet: public AlignableDet {
  public:
@@ -44,13 +44,16 @@ class AlignableSiStripDet: public AlignableDet {
   void dumpCompareAPE(const std::vector<AlignTransformError> &trafoErrs1,
 		      const std::vector<AlignTransformError> &trafoErrs2) const;
 
-  const GluedGeomDet *theGluedDet; /// FIXME: see comment in constructor
-
-//   Bounds theMonoBounds;
-//   Bounds theStereoBounds;
-//   StripGeomDetType theMonoType;
-//   StripGeomDetType theStereoType;
-
+  /// The following four members are needed to recalculate the surface in consistifyAlignments,
+  /// to get rid of a GluedDet* which is disregarded since it could become an invalid pointer
+  /// in the next event (theoretically...). But this solution is not better, the references  
+  /// would become invalid together with the GeomDets they are taken from. For the Bounds I could
+  /// use instead pointers and clone()/delete, but StripGeomDetType has neither clone() and nor a
+  /// decent copy constructor. Sigh!
+  const Bounds     &theMonoBounds;
+  const Bounds     &theStereoBounds;
+  StripGeomDetType &theMonoType;
+  StripGeomDetType &theStereoType;
 };
 
 #endif

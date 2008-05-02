@@ -1,6 +1,6 @@
 /* 
- *  $Date$
- *  $Revision$
+ *  $Date: 2008/05/02 07:54:22 $
+ *  $Revision: 1.1 $
  */
 
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
@@ -10,6 +10,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
 
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
@@ -23,26 +24,26 @@
 #include <math.h>
 
 AlignableSiStripDet::AlignableSiStripDet(const GluedGeomDet *gluedDet) 
-  : AlignableDet(gluedDet, true), theGluedDet(gluedDet) // true: adding DetUnits
-//     theMonoBounds  (gluedDet->monoDet()  ->surface().bounds()),
-//     theStereoBounds(gluedDet->stereoDet()->surface().bounds())
+  : AlignableDet(gluedDet, true), // true: adding DetUnits
+    theMonoBounds  (gluedDet->monoDet()  ->surface().bounds()), // .clone()
+    theStereoBounds(gluedDet->stereoDet()->surface().bounds()), // .clone()
+    theMonoType  (static_cast<const StripGeomDetUnit*>(gluedDet->monoDet())  ->specificType()),
+    theStereoType(static_cast<const StripGeomDetUnit*>(gluedDet->stereoDet())->specificType())
 {
-  // FIXME: Is it allowed to store a pointer to GeomDet within objects 
-  //        with a life time longer than an Event? Probably not: 
-  //        GeomDet comes from TrackerGeometry that is created from GeometricDet that
-  //        depends on IdealGeometryRecord from EventSetup, so could change in next event!
-  //  ==> Need to store directly what I need from it (still problematic in case this changes, too!)
-
-  if (!gluedDet) {
-    throw cms::Exception("NullPointer") << "[AlignableSiStripDet] GluedGeomDet is null pointer.";
-  }
+  // It is not allowed to store a pointer to GeomDet within objects with a life time
+  // longer than an Event: 
+  // GeomDet comes from TrackerGeometry that is created from GeometricDet that depends on
+  // IdealGeometryRecord from EventSetup, so it could change in next event!
+  //  ==> Need to store directly what I need from it. 
+  // Unfortunately the current way with references for bounds and type does not solve that,
+  // either. But currently no way out, see header file.
 
   // check order mono/stereo
   const Alignables units(this->components());
   if (units.size() != 2
       || gluedDet->monoDet()->geographicalId() != units[0]->geomDetId()
       || gluedDet->stereoDet()->geographicalId() != units[1]->geomDetId()) {
-    throw cms::Exception("Inconistency")
+    throw cms::Exception("LogicError")
       << "[AlignableSiStripDet] " << "Either != 2 components or "
       << "mono/stereo in wrong order for consistifyAlignments.";
   }
@@ -78,46 +79,37 @@ void AlignableSiStripDet::consistifyAlignments()
 
   const Alignables aliUnits(this->components()); // order mono==0, stereo==1 checked in ctr.
 
-  const StripGeomDetUnit *orgMonoDet =
-    static_cast<const StripGeomDetUnit*>(theGluedDet->monoDet());
   BoundPlane::BoundPlanePointer monoPlane
     = BoundPlane::build(aliUnits[0]->globalPosition(), aliUnits[0]->globalRotation(),
-			//			theMonoBounds);
-			orgMonoDet->surface().bounds());
+			theMonoBounds);
   // Fortunately we do not seem to need a GeometricDet pointer and can use 0:
-  const StripGeomDetUnit monoDet(&(*monoPlane), &(orgMonoDet->specificType()), 0);
+  const StripGeomDetUnit monoDet(&(*monoPlane), &theMonoType, 0);
 
-  const StripGeomDetUnit *orgStereoDet = 
-    static_cast<const StripGeomDetUnit*>(theGluedDet->stereoDet());
   BoundPlane::BoundPlanePointer stereoPlane
     = BoundPlane::build(aliUnits[1]->globalPosition(), aliUnits[1]->globalRotation(),
-			//			theStereoBounds);
-			orgStereoDet->surface().bounds());
+			theStereoBounds);
   // Fortunately we do not seem to need a GeometricDet pointer and can use 0:
-  const StripGeomDetUnit stereoDet(&(*stereoPlane), &(orgStereoDet->specificType()), 0);
+  const StripGeomDetUnit stereoDet(&(*stereoPlane), &theStereoType, 0);
 
   std::vector<const GeomDetUnit*> detComps;
-  detComps.push_back(&monoDet);   // order should be as in...
+  detComps.push_back(&monoDet);   // order mono first, stereo second should be as in...
   detComps.push_back(&stereoDet); // ...TrackerGeomBuilderFromGeometricDet::buildGeomDet
 
   // Now we have all to calculate new position (and rotation) via PlaneBuilderForGluedDet.
-  const PositionType oldPos = theSurface.position(); // needed below
+  const PositionType oldPos = theSurface.position(); // From old surface for tracking of movement!
   PlaneBuilderForGluedDet planeBuilder;
   theSurface = AlignableSurface(*planeBuilder.plane(detComps));
+
   // But do not forget to keep track of movements/rotations:
   const GlobalVector movement(theSurface.position().basicVector() - oldPos.basicVector());
   const RotationType rotation; // FIXME: Calculate!! 
   this->addDisplacement(movement);
   this->addRotation(rotation);
 
-//   align::Scalar dX = oldPos.x() - newPos.x();
-//   align::Scalar dY = oldPos.y() - newPos.y();
-//   align::Scalar dZ = oldPos.z() - newPos.z();
-
-//   if (dX*dX + dY*dY + dZ*dZ) { // > 1.e-10) { 
+//   if (movement.mag2()) { // > 1.e-10) { 
 //     edm::LogWarning("Alignment") << "@SUB=consistifyAlignments" 
-//  				 << "Delta: " << dX << " " << dY << " " << dZ
-// 				 << "\nPos: " << newPos.perp() << " " << newPos.phi() << " " << newPos.z();
+//  				 << "Delta: " << movement.x() << " " << movement.y() << " " << movement.z()
+// 				 << "\nPos: " << oldPos.perp() << " " << oldPos.phi() << " " << oldPos.z();
 //   }
 
 }
@@ -130,7 +122,7 @@ void AlignableSiStripDet::consistifyAlignmentErrors()
 
   AlignmentErrors *oldErrs = this->AlignableDet::alignmentErrors();
 
-  const Alignables units(this->components()); // order mono==0, stereo==1 checked in ctr.
+  const Alignables units(this->components()); // order mono==0, stereo==1 does not matter here
 
   const AlignTransformError &gluedErr  = this->errorFromId(oldErrs->m_alignError,
 							   this->geomDetId());
@@ -163,18 +155,15 @@ void AlignableSiStripDet::consistifyAlignmentErrors()
   const AlignmentPositionError newApeGlued(sqrt(maxX2), sqrt(maxY2), sqrt(maxZ2));
 
   // Now set new errors - and reset those of the components, since they get overwritten...
-  //  this->setAlignmentPositionError(AlignmentPositionError(newErrGlued)); 
   this->setAlignmentPositionError(newApeGlued);
   units[0]->setAlignmentPositionError(AlignmentPositionError(errMono));
   units[1]->setAlignmentPositionError(AlignmentPositionError(errStereo));
-
 
 //   edm::LogWarning("Alignment") << "@SUB=consistifyAlignmentErrors" 
 // 			       << "End Id " << this->geomDetId();
 //   AlignmentErrors *newErrs = this->AlignableDet::alignmentErrors();
 //   this->dumpCompareAPE(oldErrs->m_alignError, newErrs->m_alignError);
 //   delete newErrs;
-
 
   delete oldErrs;
 }
