@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: cleanupEmu.sh,v 1.1 2008/04/28 19:46:55 loizides Exp $
+# $Id: cleanupEmu.sh,v 1.2 2008/04/28 19:55:12 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
@@ -12,7 +12,6 @@ fi
 
 #Path of emulator directory to cleanup
 EMUDIR="$store/emulator/"
-CUDBOX="$EMUDIR/mbox/"
 
 if ! test -d "$EMUDIR"; then
     echo "Dir $EMUDIR not found or not a directory"
@@ -48,6 +47,9 @@ for CUD in $( ls $EMUDIR | grep ^[0-9][0-9]$ ); do
 
     #clean
     CUDdir="$EMUDIR/$CUD/"
-    find $CUDdir -cmin +$LIFETIME -not \( -type d \) -exec rm -f {} \; >& /dev/null
+    find $CUDdir -cmin +$LIFETIME -type f -exec rm -f {} \; >& /dev/null
 
 done
+
+# clean up old notify 
+find $EMUDIR/mbox/ -iname "*.notify" -cmin +15000 -type f -exec rm -f {} \; >& /dev/null
