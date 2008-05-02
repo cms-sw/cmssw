@@ -71,9 +71,19 @@ void JetPlotsExample::analyze( const Event& evt, const EventSetup& es ) {
 }
 
 void JetPlotsExample::endJob() {
-
-  //Write out the histogram file.
-  m_file->Write(); 
+  if (m_file !=0) 
+    {
+    //Write the histograms to the file.
+    m_file->cd(); 
+    h_ptCal.Write();
+    h_etaCal.Write();
+    h_phiCal.Write();
+    h_ptGen.Write();
+    h_etaGen.Write();
+    h_phiGen.Write();
+    delete m_file;
+    m_file=0;           
+    }    
 
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
