@@ -5,7 +5,7 @@ ConversionLikelihoodCalculator::ConversionLikelihoodCalculator()
 {
    reader_ = new TMVA::Reader();
    
-   reader_->AddVariable("log(e_over_p)",		&log_e_over_p_);
+   reader_->AddVariable("log(e_over_p)",	&log_e_over_p_);
    reader_->AddVariable("log(abs(cot_theta))",	&log_abs_cot_theta_);
    reader_->AddVariable("log(abs(delta_phi))",	&log_abs_delta_phi_);
    reader_->AddVariable("log(chi2_max_pt)",	&log_chi2_max_pt_);
@@ -18,7 +18,7 @@ void ConversionLikelihoodCalculator::setWeightsFile(const char * weightsFile)
    reader_->BookMVA("Likelihood", weightsFile);
 }
 
-double ConversionLikelihoodCalculator::calculateLikelihood(reco::ConversionRef conversion)
+double ConversionLikelihoodCalculator::calculateLikelihood(reco::ConvertedPhoton * conversion)
 {
    if (conversion->nTracks() != 2) return -1.;
    
