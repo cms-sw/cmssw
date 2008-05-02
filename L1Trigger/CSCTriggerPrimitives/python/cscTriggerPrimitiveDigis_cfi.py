@@ -1,11 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
-# Default parameters for CSCTriggerPrimitives generator
-# =====================================================
 cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCCommonTrigger,
-    # Parameters for ALCT processors: default
     alctParamDef = cms.PSet(
         alctMode = cms.uint32(1),
         alctTrigMode = cms.uint32(3),
@@ -18,7 +15,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         alctFifoTbins = cms.uint32(16),
         alctFifoPretrig = cms.uint32(10)
     ),
-    # Parameters for CLCT processors: default
     clctParamDef = cms.PSet(
         clctDriftDelay = cms.uint32(2),
         clctFifoPretrig = cms.uint32(7),
@@ -32,9 +28,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         clctDsThresh = cms.uint32(2),
         clctPidThresh = cms.uint32(2)
     ),
-    # Name of digi producer module(s)
-    CSCComparatorDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi"),
-    # Parameters for CLCT processors: MTCC-II
+    CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     clctParamMTCC2 = cms.PSet(
         clctDriftDelay = cms.uint32(2),
         clctFifoPretrig = cms.uint32(7),
@@ -43,7 +37,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         clctBxWidth = cms.uint32(6),
         verbosity = cms.untracked.int32(0),
         clctHsThresh = cms.uint32(4),
-        # TMB07 parameters
         clctHitThresh = cms.uint32(2),
         clctSepSrc = cms.uint32(1),
         clctSepVme = cms.uint32(10),
@@ -53,13 +46,11 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     tmbParam = cms.PSet(
         verbosity = cms.untracked.int32(0)
     ),
-    # Parameters common for all boards
     commonParam = cms.PSet(
         isTMB07 = cms.bool(True),
         isMTCC = cms.bool(True)
     ),
-    CSCWireDigiProducer = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
-    # Parameters for ALCT processors: MTCC-II
+    CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
     alctParamMTCC2 = cms.PSet(
         alctMode = cms.uint32(0),
         alctTrigMode = cms.uint32(2),
@@ -72,7 +63,6 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         alctFifoTbins = cms.uint32(16),
         alctFifoPretrig = cms.uint32(10)
     ),
-    # Parameters for ALCT processors: MTCC-I
     alctParamMTCC1 = cms.PSet(
         alctMode = cms.uint32(2),
         alctTrigMode = cms.uint32(0),
