@@ -142,7 +142,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
     return;
   }
   configParser_->getSourceType(source_type_); 
-  cout<<"Found source_type_="<<source_type_<<endl;
+  //cout<<"Found source_type_="<<source_type_<<endl;
   bei->cd();
   fillBarrelSummary(bei, barrel_structure_name, barrel_me_names);
   bei->cd();
@@ -210,7 +210,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
-	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
+	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
 	   (*iv)=="pixelAliveSummary")
 	  prefix="SUMCAL"; 
@@ -349,7 +349,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
-	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
+	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
 	   (*iv)=="pixelAliveSummary")
 	  prefix="SUMCAL"; 
@@ -590,11 +590,11 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	    prefix="SUMHIT";
 	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
 	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
-	     (*iv)=="ScurveChi2NDFSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	     (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
 	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
-	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
 	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
 	    prefix="SUMCAL";
@@ -714,11 +714,11 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    prefix="SUMHIT";
 	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
 	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
-	     (*iv)=="ScurveChi2NDFSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	     (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
 	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
-	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
 	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
 	    prefix="SUMCAL"; 
