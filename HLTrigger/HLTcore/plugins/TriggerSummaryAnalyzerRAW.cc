@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/11 18:09:12 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/11 18:32:54 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -46,9 +46,9 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
      cout << "Used Processname: " << handle->usedProcessName() << endl;
      const size_type nFO(handle->size());
      cout << "Number of TriggerFilterObjects: " << nFO << endl;
-     cout << "The TriggerFilterObjects: #, label" << endl;
+     cout << "The TriggerFilterObjects: #, tag" << endl;
      for (size_type iFO=0; iFO!=nFO; ++iFO) {
-       cout << iFO << " " << handle->filterLabel(iFO) << " " << endl;
+       cout << iFO << " " << handle->filterTag(iFO).encode() << " " << endl;
      }
    } else {
      cout << "Handle invalid! Check InputTag provided." << endl;

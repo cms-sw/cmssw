@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/11 18:32:54 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/11 18:54:03 $
+ *  $Revision: 1.4 $
  *
  *  \author Martin Grunewald
  *
@@ -54,13 +54,13 @@ TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSet
      }
      const size_type nF(handle->sizeFilters());
      cout << "Number of TriggerFilters: " << nF << endl;
-     cout << "The Filters: #, label, #ids/#keys, the id/key pairs" << endl;
+     cout << "The Filters: #, tag, #ids/#keys, the id/key pairs" << endl;
      for (size_type iF=0; iF!=nF; ++iF) {
        const Vids& VIDS (handle->filterIds(iF));
        const Keys& KEYS(handle->filterKeys(iF));
        const size_type nI(VIDS.size());
        const size_type nK(KEYS.size());
-       cout << iF << " " << handle->filterLabel(iF)
+       cout << iF << " " << handle->filterTag(iF).encode()
 	    << " " << nI << "/" << nK
 	    << " the pairs: ";
        const size_type n(max(nI,nK));
