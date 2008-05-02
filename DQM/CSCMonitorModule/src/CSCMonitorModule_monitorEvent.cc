@@ -27,8 +27,6 @@
  */
 void CSCMonitorModule::monitorEvent(const edm::Event& e){
 
-  MonitorElement* me = NULL;
-
   nEvents++;
   if(nEvents %1000 == 0) {
     LOGINFO("monitorEvent") << " # of events = " << nEvents << std::endl;

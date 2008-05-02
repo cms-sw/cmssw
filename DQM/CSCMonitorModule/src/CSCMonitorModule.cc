@@ -27,17 +27,7 @@
 CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   parameters=ps;
-  initialize();
   getCSCTypeToBinMap(tmap);
-
-}
-
-/**
- * @brief Initialize variables and the stuff
- * @param  
- * @return 
- */
-void CSCMonitorModule::initialize() {
 
   edm::FileInPath fp;
 
@@ -64,11 +54,7 @@ void CSCMonitorModule::initialize() {
   // Get back-end interface
   dbe = edm::Service<DQMStore>().operator->();
 
-  // Base folder for the contents of this job
-  dbe->setCurrentFolder(rootDir);
-
-  // Book all histograms
-  bookHistograms();
+  this->init = false;
 
 }
 
@@ -91,6 +77,27 @@ void CSCMonitorModule::beginJob(const edm::EventSetup& c){
 
 }
 
+void CSCMonitorModule::setup() {
+
+  // Base folder for the contents of this job
+  dbe->setCurrentFolder(rootDir);
+
+  // Book EMU level histograms
+  book("EMU");
+
+  // Book DDU histograms
+  for (int d = NUM_DDU_MIN; d <= NUM_DDU_MAX; d++) {
+
+    std::string buffer;
+    dbe->setCurrentFolder(rootDir + getDDUTag(d, buffer));
+    book("DDU");
+
+  }
+
+  this->init = true;
+
+}
+
 /**
  * @brief  Main Analyzer function that receives Events andi starts
  * the acctual analysis (histogram filling) and so on chain.
@@ -104,6 +111,8 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::ESHandle<CSCCrateMap> hcrate;
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
+
+  if (!this->init) this->setup();
 
   // Pass event to monitoring chain
   monitorEvent(e);

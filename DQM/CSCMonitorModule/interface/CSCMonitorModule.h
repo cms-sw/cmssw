@@ -90,6 +90,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
 
     void beginJob(const edm::EventSetup& c);
     void beginRun(const edm::Run& r, const edm::EventSetup& c);
+    void setup();
     void analyze(const edm::Event& e, const edm::EventSetup& c) ;
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
     void endRun(const edm::Run& r, const edm::EventSetup& c);
@@ -97,10 +98,8 @@ class CSCMonitorModule: public edm::EDAnalyzer {
 
   private:
 
-    void initialize();
     int loadCollection();    
     void printCollection();
-    void bookHistograms();
     void book(const std::string prefix);
     const bool isMEValid(const std::string name, MonitorElement*& me);
     void getCSCFromMap(int crate, int slot, int& csctype, int& cscposition);
@@ -119,6 +118,9 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     std::string monitorName;
     std::string rootDir;
     std::string bookingFile;
+
+    /** If histos have been initialized? **/
+    bool init;
     
     /** Source related stuff */
     edm::InputTag inputObjectsTag;

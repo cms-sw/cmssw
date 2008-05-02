@@ -41,10 +41,25 @@ const bool CSCMonitorModule::isMEValid(const std::string name, MonitorElement*& 
   }
 }
 
+
+/**
+ * @brief  Checks if MonitorElement of EMU level is available and returns it
+ * @param  name Histogram name
+ * @param  me Pointer to the histogram to be returned
+ * @return true if histogram was found and false otherwise
+ */
 const bool CSCMonitorModule::MEEMU(const std::string name, MonitorElement*& me) {
   return isMEValid(rootDir + name, me);
 }
 
+
+/**
+ * @brief  Checks if MonitorElement of DDU level is available and returns it
+ * @param  dduId DDU number
+ * @param  name Histogram name
+ * @param  me Pointer to the histogram to be returned
+ * @return true if histogram was found and false otherwise
+ */
 const bool CSCMonitorModule::MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me) {
   std::string buffer;
   return isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
@@ -117,28 +132,6 @@ int CSCMonitorModule::loadCollection() {
   }
 
   return 0;
-}
-
-
-/**
- * @brief  Book all histograms
- * @param  
- * @return 
- */
-void CSCMonitorModule::bookHistograms() {
-
-  // Book EMU level histograms
-  book("EMU");
-
-  // Book DDU histograms
-  for (int d = NUM_DDU_MIN; d <= NUM_DDU_MAX; d++) {
-
-    std::string buffer;
-    dbe->setCurrentFolder(rootDir + getDDUTag(d, buffer) + "/");
-    book("DDU");
-
-  }
-
 }
 
 
