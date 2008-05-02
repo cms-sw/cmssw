@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: sm_hookscript.pl,v 1.2 2008/04/29 17:46:46 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.3 2008/04/29 18:00:24 loizides Exp $
 ################################################################################
 
 use strict;
@@ -30,7 +30,17 @@ my $dola = $ENV{'SM_LA_NFS'};
 if (defined $dola) {
     if ($lumisection == 1 && $count < 1)
     {
-        my $COPYCOMMAND = 'if test -n "`mount | grep $SM_LA_NFS`"; then cp $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA && chmod a+r $SM_LOOKAREA/$SM_FILENAME; fi &'; 
+        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 5";
+        system($COPYCOMMAND);
+    }
+}
+
+# special treatment for calibration stream
+my $doca = $ENV{'SM_CALIB_NFS'};
+if (defined $doca) {
+    my @fields = split(m/\./,$filename);
+    if($fields[3] eq "Calibration") {
+        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 2";
         system($COPYCOMMAND);
     }
 }
