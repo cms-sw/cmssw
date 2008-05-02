@@ -28,6 +28,7 @@ RCTConfigProducers = cms.ESProducer("RCTConfigProducers",
         1.0, 1.0, 1.0),
     eMinForHoECut = cms.double(999.0), ## H/E cut not used, 
 
+    jscQuietThresholdBarrel = cms.uint32(3),
     hActivityCut = cms.double(999.0), ## not used in GR
 
     eActivityCut = cms.double(999.0), ## Activity bits for tau calc
@@ -39,7 +40,7 @@ RCTConfigProducers = cms.ESProducer("RCTConfigProducers",
         0.0, 0.0, 0.0, 0.0, 0.0, 
         0.0, 0.0, 0.0),
     noiseVetoHEplus = cms.bool(False),
-    eicIsolationThreshold = cms.double(0.0), ## force non-isolation
+    eicIsolationThreshold = cms.uint32(0), ## force non-isolation
 
     jetMETLSB = cms.double(1.0),
     # jetMET path not used
@@ -49,9 +50,10 @@ RCTConfigProducers = cms.ESProducer("RCTConfigProducers",
         0.0, 0.0, 0.0, 0.0, 0.0, 
         0.0, 0.0, 0.0, 0.0, 0.0, 
         0.0, 0.0, 0.0),
-    eGammaLSB = cms.double(1.0),
     eMinForFGCut = cms.double(999.0), ## FG cut not used, this serves
 
+    eGammaLSB = cms.double(1.0),
+    jscQuietThresholdEndcap = cms.uint32(3),
     hMinForHoECut = cms.double(999.0), ##
 
     noiseVetoHEminus = cms.bool(False)

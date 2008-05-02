@@ -40,7 +40,9 @@ class L1RCTParameters {
 		  double hMinForHoECut,
 		  double eActivityCut,
 		  double hActivityCut,
-		  double eicIsolationThreshold,
+		  unsigned eicIsolationThreshold,
+		  unsigned jscQuietThresholdBarrel,
+		  unsigned jscQuietThresholdEndcap,
 		  bool noiseVetoHB,
 		  bool noiseVetoHEplus,
 		  bool noiseVetoHEminus,
@@ -65,7 +67,9 @@ class L1RCTParameters {
   double hMinForHoECut() const {return hMinForHoECut_;}
   double eActivityCut() const {return eActivityCut_;}
   double hActivityCut() const {return hActivityCut_;}
-  double eicIsolationThreshold() const {return eicIsolationThreshold_;}
+  unsigned eicIsolationThreshold() const {return eicIsolationThreshold_;}
+  unsigned jscQuietThresholdBarrel() const {return jscQuietThresholdBarrel_;}
+  unsigned jscQuietThresholdEndcap() const {return jscQuietThresholdEndcap_;}
   bool noiseVetoHB() const {return noiseVetoHB_;}
   bool noiseVetoHEplus() const {return noiseVetoHEplus_;}
   bool noiseVetoHEminus() const {return noiseVetoHEminus_;}
@@ -141,7 +145,17 @@ class L1RCTParameters {
   // set of five neighbor towers falls below this threshold, 
   // the electron candidate is isolated.
 
-  double eicIsolationThreshold_;
+  unsigned eicIsolationThreshold_;
+
+  // 9-bit threshold below which quiet bit is set for a barrel region in JSC
+  // (i.e. receiver cards 0-3)
+
+  unsigned jscQuietThresholdBarrel_;
+
+  // 9-bit threshold below which quiet bit is set for an endcap region in JSC
+  // (i.e. receiver cards 4-6)
+
+  unsigned jscQuietThresholdEndcap_;
 
   // Ignores HCAL barrel energy if no ECAL energy in corresponding
   // tower -- to reduce HCAL noise.  Endcaps enabled separately

@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.4 2008/01/29 12:38:22 jleonard Exp $
+// $Id: RCTConfigProducers.cc,v 1.5 2008/02/13 15:46:41 jleonard Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 
 //
-// class decleration
+// class declaration
 //
 
 class RCTConfigProducers : public edm::ESProducer {
@@ -76,7 +76,9 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 			 iConfig.getParameter<double>("hMinForHoECut"),
 			 iConfig.getParameter<double>("eActivityCut"),
 			 iConfig.getParameter<double>("hActivityCut"),
-			 iConfig.getParameter<double>("eicIsolationThreshold"),
+			 iConfig.getParameter<unsigned>("eicIsolationThreshold"),
+			 iConfig.getParameter<unsigned>("jscQuietThresholdBarrel"),
+			 iConfig.getParameter<unsigned>("jscQuietThresholdEndcap"),
 			 iConfig.getParameter<bool>("noiseVetoHB"),
 			 iConfig.getParameter<bool>("noiseVetoHEplus"),
 			 iConfig.getParameter<bool>("noiseVetoHEminus"),
