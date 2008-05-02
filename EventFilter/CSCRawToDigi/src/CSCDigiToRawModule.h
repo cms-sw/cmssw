@@ -3,14 +3,12 @@
 
 /** \class CSCDigiToRawModule
  *
- *  $Date: 2007/07/02 21:17:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/08 22:01:06 $
+ *  $Revision: 1.5 $
  *  \author A. Tumanov - Rice
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
-
-#include <string.h>
 
 class CSCDigiToRaw;
 
@@ -27,7 +25,8 @@ class CSCDigiToRawModule : public edm::EDProducer {
 
  private:
   CSCDigiToRaw * packer;
-  std::string digiCreator;
+  edm::InputTag theStripDigiTag;
+  edm::InputTag theWireDigiTag;
 };
 #endif
 

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/10/08 22:20:13 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/22 18:58:23 $
+ *  $Revision: 1.6 $
  *  \author A. Tumanov - Rice
  */
 
@@ -22,8 +22,11 @@ using namespace edm;
 using namespace std;
 
 CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset): 
-  packer(new CSCDigiToRaw) {
-  digiCreator = pset.getUntrackedParameter<string>("DigiCreator", "cscunpacker");
+  packer(new CSCDigiToRaw),
+  theStripDigiTag(pset.getParameter<edm::InputTag>("stripDigiTag")),
+  theWireDigiTag(pset.getParameter<edm::InputTag>("wireDigiTag"))
+{
+  //theStrip = pset.getUntrackedParameter<string>("DigiCreator", "cscunpacker");
   produces<FEDRawDataCollection>("CSCRawData"); 
 }
 
@@ -43,9 +46,9 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
   auto_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection);
   // Take digis from the event
   Handle<CSCStripDigiCollection> stripDigis;
-  e.getByLabel(digiCreator,"MuonCSCStripDigi", stripDigis);
+  e.getByLabel(theStripDigiTag, stripDigis);
   Handle<CSCWireDigiCollection> wireDigis;
-  e.getByLabel(digiCreator,"MuonCSCWireDigi", wireDigis);
+  e.getByLabel(theWireDigiTag, wireDigis);
 
 
   // Create the packed data
