@@ -1,9 +1,10 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
+ 
 // Geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -11,7 +12,7 @@
 // Alignment
 #include "Alignment/CommonAlignment/interface/AlignableBuilder.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -20,7 +21,7 @@
 
 //__________________________________________________________________________________________________
 AlignableTracker::AlignableTracker( const TrackerGeometry* tkGeom ):
-  AlignableComposite( 0, align::Tracker, RotationType() )
+  AlignableComposite( 0, align::Tracker, RotationType() ) // id not yet known
 {
 
   // Get levels from geometry
@@ -75,7 +76,12 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
       const SiStripDetId detId(dets[i]->geographicalId());
       if (!detId.glued()) { // 2D- or 'pure' 1D-module
         if (dets[i]->components().size()) { // 2D-module
-          alis.push_back(new AlignableDet(dets[i])); // components constructed within
+	  const GluedGeomDet *gluedDet = dynamic_cast<GluedGeomDet*>(dets[i]);
+	  if (!gluedDet) {
+	    throw cms::Exception("LogicError") 
+	      << "[AlignableTracker]" << "dynamic_cast<GluedGeomDet*> failed";
+	  }
+          alis.push_back(new AlignableSiStripDet(gluedDet)); // components constructed within
           const align::Alignables detUnits(alis.back()->components());
 	  // Ensure pointer existence and make list available via moduleName appended with "Unit"
 	  if (!aliUnits) {
