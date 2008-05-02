@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2007/12/07 13:39:46 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/02 12:08:41 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -15,7 +15,7 @@
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include <string>
 #include <vector>
 

@@ -1,4 +1,4 @@
-<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <use name=DataFormats/CLHEP>
@@ -12,6 +12,7 @@
 <use name=boost>
 <use name=rootrflx>
 <export>
+  <use name=FWCore/Utilities>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
   <use name=DataFormats/CLHEP>

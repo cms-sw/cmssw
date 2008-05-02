@@ -13,15 +13,15 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2008/04/24 10:20:14 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/04/24 10:40:54 $
+ *  $Revision: 1.12 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 #include <vector>
