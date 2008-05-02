@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     $Revision: 1.2 $
+#     $Date: 2008/04/21 20:54:07 $
 #
 #  Prepare the run script for the merge job.
 #  The main action is to embed the output directory
@@ -10,9 +10,14 @@
 #
 #  Usage:
 #
-#  mps_scriptm.pl inScript outScript runDir cfgName njobs mssDir
+#  mps_scriptm.pl [-c] inScript outScript runDir cfgName njobs mssDir
 #
 
+BEGIN {
+use File::Basename;
+unshift(@INC, dirname($0)."/mpslib");
+}
+use Mpslib;
 use POSIX;
 
 $inScript = "undefined";
@@ -28,6 +33,10 @@ while (@ARGV) {
   if ($arg =~ /\A-/) {  # check for option 
     if ($arg =~ "h") {
       $helpwanted = 1;
+    }
+    elsif ($arg =~ "c") {
+# Check which jobs are "OK" and write just them to the cfg file
+      $checkok = 1;
     }
     elsif ($arg =~ "d") {
       $localdir = 1;
@@ -63,6 +72,10 @@ while (@ARGV) {
 if ($cfgName eq "undefined") {
   print "Insufficient information given\n";
   exit 1;
+}
+
+if ($checkok == 1) {
+  read_db();
 }
 
 # open the input file
@@ -104,6 +117,9 @@ foreach $theLine (@LINES) {
   if ($theLine =~ m/ISN/) {
     $newBlock = "";
     for ($i = 1; $i <= $nJobs; ++$i) {
+
+      if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
+
       $newLine = $theLine;
       $isnRep = sprintf "%03d",$i;
       $newLine =~ s/ISN/$isnRep/g;
