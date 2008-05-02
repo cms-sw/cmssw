@@ -37,6 +37,8 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
   ecalESLabel(conf.getParameter<std::string>("ecalESLabel")),
   hcalESLabel(conf.getParameter<std::string>("hcalESLabel")),
+  useHcalCosmicTiming(conf.getParameter<bool>("useHcalCosmicTiming")),
+  useEcalCosmicTiming(conf.getParameter<bool>("useEcalCosmicTiming")),
   preSamples(conf.getParameter<unsigned>("preSamples")),
   postSamples(conf.getParameter<unsigned>("postSamples"))
 {
@@ -101,9 +103,11 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   if (ecal.isValid()) 
     { 
       // loop through all ecal digis
-      //std::cout << "size of ecal digi coll is " << ecal->size();
       for (ecal_it = ecal->begin(); ecal_it != ecal->end(); ecal_it++)
 	{
+	  short zside = ecal_it->id().zside();
+	  unsigned short ietaAbs = ecal_it->id().ietaAbs();
+	  short iphi = ecal_it->id().iphi();
 	  /*
 	  if (ecal_it->compressedEt() > 0)
 	    {
@@ -114,13 +118,12 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	  // loop through time samples for each digi
 	  unsigned short digiSize = ecal_it->size();
 	  // (size of each digi must be no less than nSamples)
-	  //std::cout << " size of this digi is " << digiSize;
-	  unsigned short nSOI = (unsigned short) ( ecal_it->sampleOfInterest() );
+	  unsigned short nSOI = (unsigned short) ( ecal_it->
+						   sampleOfInterest() );
 	  if (digiSize < nSamples || nSOI < preSamples
 	      || ((digiSize - nSOI) < (nSamples - preSamples)))
 	    {
 	      // log error -- should not happen!
-	      //throw cms::Exception("EventCorruption") 
 	      if (tooLittleDataEcal == false)
 		{
 		  edm::LogWarning ("TooLittleData")
@@ -128,16 +131,12 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		    << " time samples per digi, current digi has " 
 		    << digiSize << ".  Insufficient data to process "
 		    << "requested bx's.  Filling extra with zeros";
-		  //std::cout << "bad number of time frames in ECAL!" << std::endl;
 		  tooLittleDataEcal = true;
 		}
 	      unsigned short preLoopsZero = (unsigned short) (preSamples) 
 		- nSOI;
 	      unsigned short postLoopsZero = (unsigned short) (postSamples)
 		- (digiSize - nSOI - 1);
-	      short zside = ecal_it->id().zside();
-	      unsigned short ietaAbs = ecal_it->id().ietaAbs();
-	      short iphi = ecal_it->id().iphi();
 	      
 	      // fill extra bx's at beginning with zeros
 	      for (int sample = 0; sample < preLoopsZero; sample++)
@@ -160,16 +159,43 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
 						(int) ietaAbs, (int) iphi));
 		  ecalDigi.setSize(1);
-		  // IS SAMPLE CORRECT???  methinks not!
-		  //ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(sample).raw()));
-		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(nSOI + sample - preSamples).raw()));
+
+		  if (useEcalCosmicTiming && iphi >= 1 && iphi <= 36)
+		    {
+		      if (nSOI == 0)
+			{
+			  edm::LogWarning ("TooLittleData")
+			    << "ECAL data needs at least one presample "
+			    << "to use ecal cosmic timing mod!  Setting data "
+			    << "for this time slice to zero and "
+			    << "reverting to useEcalCosmicTiming = false "
+			    << "for rest of job.";
+			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+					     (0, false, 0));
+			  useEcalCosmicTiming = false;
+			}
+		      else
+			{
+			  // take data from one crossing earlier
+			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+					     (ecal_it->sample(nSOI + sample - 
+							      preSamples - 
+							      1).raw()));
+			}
+		    }
+		  else
+		    {
+		      ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+					 (ecal_it->sample(nSOI + sample - 
+							  preSamples).raw()));
+		    }
 		  ecalColl[sample].push_back(ecalDigi);
 		  /*
 		  if (ecal_it->sample(sample).compressedEt() > 0)
 		    {
 		      std::cout << "[Producer] ecal tower energy is "
-				<< ecal_it->sample(sample).compressedEt()
-				<< " in sample " << sample << std::endl;
+		      << ecal_it->sample(sample).compressedEt()
+		      << " in sample " << sample << std::endl;
 		    }
 		  */
 		}
@@ -200,48 +226,65 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		    }
 		  */
 		  // put each time sample into its own digi
-		  //short zside = (*ecal)[i].id().zside();
-		  //short ietaAbs = (*ecal)[i].id().ietaAbs();
-		  //short iphi = (*ecal)[i].id().iphi();
 		  short zside = ecal_it->id().zside();
 		  unsigned short ietaAbs = ecal_it->id().ietaAbs();
 		  short iphi = ecal_it->id().iphi();
-		  /*std::cout << " [producer] sample " << sample << " zside "
-		    << zside << " ietaAbs " << ietaAbs
-		    << " iphi " << iphi << std::endl;
-		  */
 		  EcalTriggerPrimitiveDigi
 		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
 						(int) ietaAbs, (int) iphi));
 		  ecalDigi.setSize(1);
-		  //ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(sample).raw()));
-		  ecalDigi.setSample(0, EcalTriggerPrimitiveSample(ecal_it->sample(ecal_it->sampleOfInterest() + sample - preSamples).raw()));
+
+		  if (useEcalCosmicTiming && iphi >= 1 && iphi <=36)
+		    {
+		      if (nSOI == 0)
+			{
+			  edm::LogWarning ("TooLittleData")
+			    << "ECAL data needs at least one presample "
+			    << "to use ecal cosmic timing mod!  Setting data "
+			    << "for this time slice to zero and "
+			    << "reverting to useEcalCosmicTiming = false "
+			    << "for rest of job.";
+			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+					     (0, false, 0));
+			  useEcalCosmicTiming = false;
+			}
+		      else
+			{
+			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+					     (ecal_it->sample
+					      (ecal_it->sampleOfInterest() + 
+					       sample - preSamples - 
+					       1).raw()));
+			}
+		    }
+		  else
+		    {
+		      ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+					 (ecal_it->sample
+					  (ecal_it->sampleOfInterest() + 
+					   sample - preSamples).raw()));
+		    }
 		  // push back each digi into correct "time sample" of coll
 		  ecalColl[sample].push_back(ecalDigi);
 		}
 	    }
-	  //std::cout << "ecal sample loop done" << std::endl;
 	}
-      //std::cout << "ecal digi iteration done" << std::endl;
     }
   if (hcal.isValid()) 
     { 
-      //hcalColl = *hcal; 
       // loop through all hcal digis
-      //for (int i = 0; i = (*hcal).size(); i++)
       for (hcal_it = hcal->begin(); hcal_it != hcal->end(); hcal_it++)
 	{
+	  short ieta = hcal_it->id().ieta();
+	  short iphi = hcal_it->id().iphi();
 	  // loop through time samples for each digi
-	  //unsigned short digiSize = (*hcal)[i].size();
 	  unsigned short digiSize = hcal_it->size();
 	  // (size of each digi must be no less than nSamples)
 	  unsigned short nSOI = (unsigned short) (hcal_it->presamples());
 	  if (digiSize < nSamples || nSOI < preSamples
 	      || ((digiSize - nSOI) < (nSamples - preSamples)))
-
 	    {
 	      // log error -- should not happen!
-	      //throw cms::Exception("EventCorruption") 
 	      if (tooLittleDataHcal == false)
 		{
 		  edm::LogWarning ("TooLittleData")
@@ -249,15 +292,12 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		    << " time samples per digi, current digi has " 
 		    << digiSize << ".  Insufficient data to process "
 		    << "requested bx's.  Filling extra with zeros";
-		  //std::cout << "bad number of time frames in HCAL!" << std::endl;
 		  tooLittleDataHcal = true;
 		}
 	      unsigned short preLoopsZero = (unsigned short) (preSamples) 
 		- nSOI;
 	      unsigned short postLoopsZero = (unsigned short) (postSamples)
 		- (digiSize - nSOI - 1);
-	      short ieta = hcal_it->id().ieta();
-	      short iphi = hcal_it->id().iphi();
 	      
 	      // fill extra bx's at beginning with zeros
 	      for (int sample = 0; sample < preLoopsZero; sample++)
@@ -280,8 +320,52 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		    hcalDigi(HcalTrigTowerDetId((int) ieta, (int) iphi));
 		  hcalDigi.setSize(1);
 		  hcalDigi.setPresamples(0);
-		  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-				     (hcal_it->sample(hcal_it->presamples() + sample - preSamples).raw()));
+
+		  // for cosmics, hcal data from upper half of det
+		  // comes 1 bx before data from bottom half
+		  // SHOULDN'T ever go out of bounds (typically >=1 presample)
+		  // but if 0 presamples, sets useHcalCosmicTiming = false
+		  /*
+		  std::cout << "[producer] useHcalCosmicTiming=" 
+			    << useHcalCosmicTiming
+			    << " iphi=" << iphi << " hcal presamples="
+			    << hcal_it->presamples()
+			    << std::endl;
+		  */
+		  if (useHcalCosmicTiming && iphi >= 1 && iphi <= 36)
+		    {
+		      //if (hcal_it->presamples() == 0)
+		      if (nSOI == 0)
+			{
+			  edm::LogWarning ("TooLittleData")
+			    << "HCAL data needs at least one presample "
+			    << "to use hcal cosmic timing mod!  Setting data "
+			    << "for this time slice to zero and "
+			    << "reverting to useHcalCosmicTiming = false "
+			    << "for rest of job.";
+			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					     (0, false, 0, 0));
+			  useHcalCosmicTiming = false;
+			}
+		      else
+			{
+			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					     (hcal_it->sample(hcal_it->
+							      presamples() + 
+							      sample - 
+							      preSamples - 
+							      1).raw()));
+			}
+		    }
+		  else
+		    {
+		      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					 (hcal_it->sample(hcal_it->
+							  presamples() + 
+							  sample - 
+							  preSamples).raw()));
+		      
+		    }
 		  hcalColl[sample].push_back(hcalDigi);
 		}
 	      
@@ -303,13 +387,58 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	      for (unsigned short sample = 0; sample < nSamples; sample++)
 		{
 		  // put each (relevant) time sample into its own digi
-		  HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId
-						    ((int) hcal_it->id().ieta(),
-						     (int) hcal_it->id().iphi()));
+		  //HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId
+		  //			    ((int) hcal_it->id().ieta(),
+		  //			     (int) hcal_it->id().iphi()));
+		  HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId(
+						    (int) ieta, (int) iphi));
 		  hcalDigi.setSize(1);
 		  hcalDigi.setPresamples(0);
-		  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-				     (hcal_it->sample(hcal_it->presamples() + sample - preSamples).raw()));
+
+		  // for cosmics, hcal data from upper half of det
+		  // comes 1 bx before data from bottom half
+		  // SHOULDN'T ever go out of bounds (typically >=1 presample)
+		  // but if 0 presamples, sets useHcalCosmicTiming = false
+		  /*
+		  std::cout << "[producer] useHcalCosmicTiming=" 
+			    << useHcalCosmicTiming
+			    << " iphi=" << iphi << " hcal presamples="
+			    << hcal_it->presamples() << " no extra zeros"
+			    << std::endl;
+		  */
+		  if (useHcalCosmicTiming && iphi >= 1 && iphi <= 36)
+		    {
+		      //if (hcal_it->presamples() == 0)
+		      if (nSOI == 0)
+			{
+			  edm::LogWarning ("TooLittleData")
+			    << "HCAL data needs at least one presample "
+			    << "to use hcal cosmic timing mod!  Setting data "
+			    << "for this time slice to zero and "
+			    << "reverting to useHcalCosmicTiming = false "
+			    << "for rest of job.";
+			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					     (0, false, 0, 0));
+			  useHcalCosmicTiming = false;
+			}
+		      else
+			{
+			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					     (hcal_it->sample(hcal_it->
+							      presamples() + 
+							      sample - 
+							      preSamples - 
+							      1).raw()));
+			}
+		    }
+		  else
+		    {
+		      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+					 (hcal_it->sample(hcal_it->
+							  presamples() + 
+							  sample - 
+							  preSamples).raw()));
+		    }
 		  hcalColl[sample].push_back(hcalDigi);  
 		}
 	    }
@@ -324,7 +453,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   // loop through and process each bx
   for (unsigned short sample = 0; sample < nSamples; sample++)
     {
-      //std::cout << "Processing sample " << sample << std::endl;
       rct->digiInput(ecalColl[sample], hcalColl[sample]);
       rct->processEvent();
 

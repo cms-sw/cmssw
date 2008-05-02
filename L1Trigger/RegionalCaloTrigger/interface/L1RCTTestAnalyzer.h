@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTTestAnalyzer.h,v 1.8 2008/03/11 18:08:03 jleonard Exp $
+// $Id: L1RCTTestAnalyzer.h,v 1.9 2008/04/01 09:31:38 jleonard Exp $
 //
 //
 
@@ -56,6 +56,9 @@ private:
   std::string m_HepMCProduct;
   bool showEmCands;
   bool showRegionSums;
+  edm::InputTag ecalDigisLabel;
+  edm::InputTag hcalDigisLabel;
+  edm::InputTag rctDigisLabel;
 
   TH1F * h_emRank;
   TH1F * h_emRankOutOfTime;

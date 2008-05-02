@@ -22,7 +22,9 @@ int main() {
 			1.0,                       // hMinForHoECut
 			2.0,                       // eActivityCut
 			3.0,                       // hActivityCut
-			3.0,                       // eicIsolationThreshold
+			3,                         // eicIsolationThreshold
+                        3,                         // jscQuietThresholdBarrel
+                        3,                         // jscQuietThresholdEndcap
 			false,                     // noiseVetoHB
 			false,                     // noiseVetoHEplus
 			false,                     // noiseVetoHEminus

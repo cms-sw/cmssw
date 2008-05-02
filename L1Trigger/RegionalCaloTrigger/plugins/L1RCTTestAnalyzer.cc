@@ -26,7 +26,10 @@ using std::endl;
 //
 L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet& iConfig) :
   showEmCands(iConfig.getUntrackedParameter<bool>("showEmCands")),
-  showRegionSums(iConfig.getUntrackedParameter<bool>("showRegionSums"))
+  showRegionSums(iConfig.getUntrackedParameter<bool>("showRegionSums")),
+  ecalDigisLabel(iConfig.getParameter<edm::InputTag>("ecalDigisLabel")),
+  hcalDigisLabel(iConfig.getParameter<edm::InputTag>("hcalDigisLabel")),
+  rctDigisLabel(iConfig.getParameter<edm::InputTag>("rctDigisLabel"))
 {
    //now do what ever initialization is needed
 
@@ -105,10 +108,10 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    EcalTrigPrimDigiCollection::const_iterator ecal;
    HcalTrigPrimDigiCollection::const_iterator hcal;
 
-   iEvent.getByType(rctEmCands);
-   iEvent.getByType(rctRegions);
-   iEvent.getByType(ecalColl);
-   iEvent.getByType(hcalColl);
+   iEvent.getByLabel(rctDigisLabel, rctEmCands);
+   iEvent.getByLabel(rctDigisLabel, rctRegions);
+   iEvent.getByLabel(ecalDigisLabel, ecalColl);
+   iEvent.getByLabel(hcalDigisLabel, hcalColl);
 
    for (ecal=ecalColl->begin(); ecal!=ecalColl->end(); ecal++)
      {

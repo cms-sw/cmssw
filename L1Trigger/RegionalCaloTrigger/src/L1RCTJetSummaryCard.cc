@@ -1,5 +1,6 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 
 #include <iostream>
 using std::cout;
@@ -21,8 +22,8 @@ L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables* rct
   quietBits(0),
   tauBits(0),
   overFlowBits(0),
-  hfFineGrainBits(8),
-  quietThreshold(3)
+  hfFineGrainBits(8)
+  //quietThreshold(3)
 {
 }
 
@@ -187,8 +188,20 @@ void L1RCTJetSummaryCard::fillOverFlowBits(vector<unsigned short> overflow){
 
 void L1RCTJetSummaryCard::fillQuietBits(){
   bitset<14> quiet;
-  for(int i = 0; i<14; i++){
-    if((barrelRegions.at(i))>quietThreshold)
+
+  quietThresholdBarrel = rctLookupTables_->rctParameters()->jscQuietThresholdBarrel();
+  quietThresholdEndcap = rctLookupTables_->rctParameters()->jscQuietThresholdEndcap();
+
+  // use one threshold for barrel regions (first 8 in list, cards 0-3)
+  for(int i = 0; i<8; i++){
+    if((barrelRegions.at(i))>quietThresholdBarrel)
+      quiet[i] = 0;  //switched 0 and 1
+    else
+      quiet[i] = 1;
+  }
+  // use second for endcap regions (last 6 in list, cards 4-6)
+  for(int i = 8; i<14; i++){
+    if((barrelRegions.at(i))>quietThresholdEndcap)
       quiet[i] = 0;  //switched 0 and 1
     else
       quiet[i] = 1;

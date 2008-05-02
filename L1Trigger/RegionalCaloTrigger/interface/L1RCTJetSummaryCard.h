@@ -106,7 +106,9 @@ class L1RCTJetSummaryCard
 
   std::vector<unsigned short> hfFineGrainBits;
 
-  unsigned short quietThreshold;
+  //unsigned quietThreshold;
+  unsigned quietThresholdBarrel;
+  unsigned quietThresholdEndcap;
 
   void asicSort(std::vector<unsigned short>& electrons);
   void asicCompare(std::vector<unsigned short>& array);
