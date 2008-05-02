@@ -1,3 +1,14 @@
+2008-04-21  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-11-01
+	* Implemented transfer to t0 with independent daemon (daemon to be written seperately).
+	* General cleanup of code
+
+2008-04-17  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-11-00
+	* Include fair share event consumer handling in event server and consumer monitoring
+
 2008-03-10  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-10-02

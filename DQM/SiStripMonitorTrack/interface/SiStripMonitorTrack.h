@@ -48,6 +48,7 @@
 class SiStripMonitorTrack : public edm::EDAnalyzer {
  public:
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
@@ -68,9 +69,8 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   // internal evaluation of monitorables
   void AllClusters(const edm::EventSetup& es);
   void trackStudy(const edm::EventSetup& es);
-  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
+  //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
   bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, LocalVector LV);	
-  std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
   void RecHitInfo(const SiStripRecHit2D* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,TString,float);
@@ -142,6 +142,8 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   edm::InputTag Cluster_src_;
 
   bool Mod_On_;
+  bool OffHisto_On_;
+  int off_Flag;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;

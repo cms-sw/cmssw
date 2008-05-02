@@ -224,18 +224,32 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuRegionalCandCollection> dtf_emul;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_data_;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_emul_;
-  L1MuRegionalCandCollection const* dtf_trk_data(new L1MuRegionalCandCollection);
-  L1MuRegionalCandCollection const* dtf_trk_emul(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection const* dtf_trk_data = 0;
+  L1MuRegionalCandCollection const* dtf_trk_emul = 0;
   if(m_doSys[DTF]) {
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DT",dtf_data);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DT",dtf_emul);
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DTTF",dtf_trk_data_);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
   } 
-  if(dtf_trk_data_.isValid())			 
-    dtf_trk_data = dtf_trk_data_->getContainer();
-  if(dtf_trk_emul_.isValid())			 
-    dtf_trk_emul = dtf_trk_emul_->getContainer();
+  //extract the regional cands
+  typedef std::vector<L1MuDTTrackCand> L1MuDTTrackCandCollection;
+  L1MuRegionalCandCollection dtf_trk_data_v, dtf_trk_emul_v;
+  dtf_trk_data_v.clear(); dtf_trk_emul_v.clear();
+  if(dtf_trk_data_.isValid()) {
+    L1MuDTTrackCandCollection *dttc = dtf_trk_data_->getContainer();
+    for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
+	it!=dttc->end(); it++)
+      dtf_trk_data_v.push_back(L1MuRegionalCand(*it)); 
+  }
+  if(dtf_trk_emul_.isValid()) {
+    L1MuDTTrackCandCollection *dttc = dtf_trk_emul_->getContainer();
+    for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
+	it!=dttc->end(); it++)
+      dtf_trk_emul_v.push_back(L1MuRegionalCand(*it)); 
+  }  
+  dtf_trk_data =&dtf_trk_data_v;
+  dtf_trk_emul =&dtf_trk_emul_v;
   
   // -- CTP [cathod strip chamber trigger primitive]
   edm::Handle<CSCALCTDigiCollection>          ctp_ano_data_;
@@ -564,7 +578,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   //reset flags...
-  //for(int i=0; i<DEnsys; i++) isValid[i]=true;
+  for(int i=0; i<DEnsys; i++) isValid[i]=true;
 
   if(verbose())
     std::cout << "L1Comparator start processing the collections.\n" << std::flush;
@@ -601,7 +615,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // >>---- GLT ---- <<  
   GltDEDigi gltdigimon;
   
-  if(m_doSys[GLT] && isValid[GMT] ) {
+  if(m_doSys[GLT] && isValid[GLT] ) {
 
     ///tmp: for getting a clean dump (avoid empty entries)
     bool prt = false; 
@@ -628,8 +642,10 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       globalDBit[1] = glt_rdt_emul->decision();
       gltDecBits[0] = glt_rdt_data->decisionWord();
       gltDecBits[1] = glt_rdt_emul->decisionWord();
-      gltTchBits[0] = glt_rdt_data->gtFdlWord().gtTechnicalTriggerWord();
-      gltTchBits[1] = glt_rdt_emul->gtFdlWord().gtTechnicalTriggerWord();
+      //gltTchBits[0] = glt_rdt_data->gtFdlWord().gtTechnicalTriggerWord();
+      //gltTchBits[1] = glt_rdt_emul->gtFdlWord().gtTechnicalTriggerWord();
+      gltTchBits[0] = glt_rdt_data->technicalTriggerWord();
+      gltTchBits[1] = glt_rdt_emul->technicalTriggerWord();
       gltdigimon.set(globalDBit, gltDecBits, gltTchBits);
 
       DEncand[GLT][0]=1; DEncand[GLT][1]=1;
@@ -834,10 +850,12 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
 
   m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
 
-  bool match = true;
+  bool thematch = true;
   
-  match &= (*data==*emul);
+  thematch &= (*data==*emul);
   
+  bool match = thematch;
+
   if(m_dumpMode==0 && match)
     return match;    
   
@@ -857,16 +875,23 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
   match &= (data->gtFdlWord()           == emul->gtFdlWord()    );
   m_dumpFile << " gtFdlWord:" << match; 	        
   match &= (data->muCollectionRefProd() == emul->muCollectionRefProd());
-  m_dumpFile << " muCollectionRefProd:" << match; 
-  uint16_t dt_psb_bid=0, em_psb_bid=0;    
-  for(int idx=0; idx<(int)data_->gtPsbVector().size(); idx++)
+  m_dumpFile << " muCollectionRefProd:" << match << "\n"; 
+  boost::uint16_t dt_psb_bid=0, em_psb_bid=0;    
+  size_t npsbw = (data_->gtPsbVector().size()>emul_->gtPsbVector().size())?
+    emul_->gtPsbVector().size():data_->gtPsbVector().size();
+  for(int idx=0; idx<(int)npsbw; idx++) {
     if(data_->gtPsbVector().at(idx) != emul_->gtPsbVector().at(idx) ) {
       //match &= false;
       dt_psb_bid = data_->gtPsbVector().at(idx).boardId();
       em_psb_bid = emul_->gtPsbVector().at(idx).boardId();
       break;
     }
+  }
   match &= (data->gtPsbWord(dt_psb_bid) == emul->gtPsbWord(em_psb_bid) );
+  //if(!match) {
+  //  m_dumpFile << "  data"; data_->gtPsbWord(dt_psb_bid).print(m_dumpFile);
+  //  m_dumpFile << "\nemul"; emul_->gtPsbWord(em_psb_bid).print(m_dumpFile);
+  //}
   //problem: vector not accessible from handle (only reference non-const)
   //std::vector<L1GtPsbWord>& data_psbVec = data_->gtPsbVector();
   //std::vector<L1GtPsbWord>& emul_psbVec = emul_->gtPsbVector();
@@ -1032,7 +1057,7 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data,
   m_dumpFile << " ...L1GlobalTriggerReadoutRecord data and emulator comparison: " 
 	   << ok << std::endl;
 
-  return match;
+  return thematch;
 }
 
 
@@ -1194,11 +1219,22 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
   const std::vector<L1GlobalTriggerObjectMap>& data_ovec = data->gtObjectMap();
   const std::vector<L1GlobalTriggerObjectMap>& emul_ovec = emul->gtObjectMap();
 
-  for(int idx=0; idx<(int)data_ovec.size(); idx++) {
+  for(std::vector<L1GtLogicParser::OperandToken>::size_type idx=0; idx<data_ovec.size(); idx++) {
     match &= ( data_ovec.at(idx).algoName()               == emul_ovec.at(idx).algoName()               );
     match &= ( data_ovec.at(idx).algoBitNumber()          == emul_ovec.at(idx).algoBitNumber()	        );
     match &= ( data_ovec.at(idx).algoGtlResult()          == emul_ovec.at(idx).algoGtlResult()	        );
     match &= ( data_ovec.at(idx).combinationVector()      == emul_ovec.at(idx).combinationVector()	);
+    match &= ( data_ovec.at(idx).operandTokenVector().size()==emul_ovec.at(idx).operandTokenVector().size());
+    if(match) {
+      for(std::vector<L1GtLogicParser::OperandToken>::size_type i=0; i<data_ovec.at(idx).operandTokenVector().size(); i++) {
+	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenName ==
+		   emul_ovec.at(idx).operandTokenVector().at(i).tokenName );
+	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenNumber ==
+		   emul_ovec.at(idx).operandTokenVector().at(i).tokenNumber );
+	match &= ( data_ovec.at(idx).operandTokenVector().at(i).tokenResult ==
+		   emul_ovec.at(idx).operandTokenVector().at(i).tokenResult );
+      }
+    }
   }
 
   if(m_dumpMode==0 && match)
@@ -1210,11 +1246,15 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
   m_dumpFile << "\n\tdata: "
 	     << " algorithmName:"         << data_ovec.at(idx).algoName()
 	     << " Bitnumber:"             << data_ovec.at(idx).algoBitNumber()
-	     << " GTLresult:"             << data_ovec.at(idx).algoGtlResult();
+	     << " GTLresult:"             << data_ovec.at(idx).algoGtlResult()
+	     << " combinationVectorSize:" << data_ovec.at(idx).combinationVector().size()
+	     << " operandTokenVector:"    << data_ovec.at(idx).operandTokenVector().size(); 
   m_dumpFile << "\n\temul: "
 	     << " algorithmName:"         << emul_ovec.at(idx).algoName()
 	     << " Bitnumber:"             << emul_ovec.at(idx).algoBitNumber()
 	     << " GTLresult:"             << emul_ovec.at(idx).algoGtlResult()
+	     << " combinationVectorSize:" << emul_ovec.at(idx).combinationVector().size()
+	     << " operandTokenVector:"    << emul_ovec.at(idx).operandTokenVector().size() 
 	     << "\n" << std::endl;
 
   char ok[10];

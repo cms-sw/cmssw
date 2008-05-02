@@ -2,7 +2,7 @@
 #define FWCore_Framework_IEventProcessor_h
 
 /*
-$Id: IEventProcessor.h,v 1.5 2008/04/04 16:11:02 wdd Exp $
+$Id: IEventProcessor.h,v 1.7 2008/04/15 19:20:49 wdd Exp $
 
 Abstract base class for Event Processors
 
@@ -59,8 +59,8 @@ namespace edm
 
     virtual void doErrorStuff() = 0;
 
-    virtual void smBeginRun(int run) = 0;
-    virtual void smEndRun(int run) = 0;
+    virtual void beginRun(int run) = 0;
+    virtual void endRun(int run) = 0;
 
     virtual void beginLumi(int run, int lumi) = 0;
     virtual void endLumi(int run, int lumi) = 0;
@@ -79,6 +79,8 @@ namespace edm
     virtual void setExceptionMessageFiles(std::string& message) = 0;
     virtual void setExceptionMessageRuns(std::string& message) = 0;
     virtual void setExceptionMessageLumis(std::string& message) = 0;
+
+    virtual bool alreadyHandlingException() const = 0;
   };
 }
 

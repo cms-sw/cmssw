@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.106 $
+ * $Date: 2008/04/27 08:06:41 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  *
 */
@@ -458,16 +458,23 @@ void EESummaryClient::setup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
   MonitorElement* me;
 
-  sprintf(histo, "errorSummaryXY_EEM");
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
+
+  for (int i = 1; i <= 18; i++) {
+    sprintf(histo, "Segment%02d_EcalEndcap", i);
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "errorSummaryXYM_EcalEndcap");
   me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 
-  sprintf(histo, "errorSummaryXY_EEP");
+  sprintf(histo, "errorSummaryXYP_EcalEndcap");
   me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
@@ -761,7 +768,7 @@ void EESummaryClient::analyze(void){
     EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
     EETriggerTowerClient* eetttc = dynamic_cast<EETriggerTowerClient*>(clients_[i]);
 
-    MonitorElement* me;
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
 //    MonitorElement *me_04, *me_05;
 
@@ -769,13 +776,13 @@ void EESummaryClient::analyze(void){
     TProfile2D* h2d;
 
     // fill the gain value priority map<id,priority>
-    std::map<float,float> priority;
-    priority.insert( make_pair(0,3) );
-    priority.insert( make_pair(1,1) );
-    priority.insert( make_pair(2,2) );
-    priority.insert( make_pair(3,2) );
-    priority.insert( make_pair(4,3) );
-    priority.insert( make_pair(5,1) );
+    map<float,float> priority;
+    priority.insert( pair<float,float>(0,3) );
+    priority.insert( pair<float,float>(1,1) );
+    priority.insert( pair<float,float>(2,2) );
+    priority.insert( pair<float,float>(3,2) );
+    priority.insert( pair<float,float>(4,3) );
+    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -898,14 +905,15 @@ void EESummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -913,8 +921,8 @@ void EESummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==3)  xval = brightColor;
-              else if(maskedVal.size()==3)  xval = darkColor;
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -945,14 +953,15 @@ void EESummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -982,7 +991,7 @@ void EESummaryClient::analyze(void){
 
           if ( eecc ) {
 
-            h2d = eecc->h01_[ism-1];
+            h2d = eecc->h02_[ism-1];
 
             if ( h2d ) {
 
@@ -1166,9 +1175,16 @@ void EESummaryClient::analyze(void){
   } // loop on clients
 
   // The global-summary
-  // right now a summary of Integrity and PO
-  int nGlobalErrors = 0, nGlobalErrorsEEM = 0, nGlobalErrorsEEP = 0;
-  int nValidChannels = 0, nValidChannelsEEM = 0, nValidChannelsEEP = 0;
+  int nGlobalErrors = 0;
+  int nGlobalErrorsEE[18];
+  int nValidChannels = 0;
+  int nValidChannelsEE[18];
+
+  for (int i = 0; i < 18; i++) {
+    nGlobalErrorsEE[i] = 0;
+    nValidChannelsEE[i] = 0;
+  }
+
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
@@ -1205,12 +1221,18 @@ void EESummaryClient::analyze(void){
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
-          ++nValidChannelsEEM;
-        }
-        if ( xval == 0 ) {
-          ++nGlobalErrors;
-          ++nGlobalErrorsEEM;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
+          for (int i = 1; i <= 9; i++) {
+            if ( xval != 2 && xval != 5 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            }
+          }
+          if ( xval == 0 ) ++nGlobalErrors;
+          for (int i = 1; i <= 9; i++) {
+            if ( xval == 0 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            }
+          }
         }
 
       }
@@ -1227,12 +1249,12 @@ void EESummaryClient::analyze(void){
 
         // turn each dark color to bright green
         // for laser turn also yellow into bright green
-        if(val_in>2) val_in=1;
-        if(val_po>2) val_po=1;
+        if(val_in> 2) val_in=1;
+        if(val_po> 2) val_po=1;
         if(val_ls>=2) val_ls=1;
-        if(val_tm>2)  val_tm=1;
-        if(val_sf>2)  val_sf=1;
-        if(val_ee>2)  val_ee=1;
+        if(val_tm>=2) val_tm=1;
+        if(val_sf> 2) val_sf=1;
+        if(val_ee> 2) val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1242,18 +1264,24 @@ void EESummaryClient::analyze(void){
         if(val_in==-1) xval=-1;
         else if(val_in == 0) xval=0;
         else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
-          ++nValidChannelsEEP;
-        }
-        if ( xval == 0 ) {
-          ++nGlobalErrors;
-          ++nGlobalErrorsEEP;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
+          for (int i = 10; i <= 18; i++) {
+            if ( xval != 2 && xval != 5 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            }
+          }
+          if ( xval == 0 ) ++nGlobalErrors;
+          for (int i = 10; i <= 18; i++) {
+            if ( xval == 0 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            }
+          }
         }
 
       }
@@ -1261,32 +1289,29 @@ void EESummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = -1.0;
-  float errorSummaryEEM = -1.0;
-  float errorSummaryEEP = -1.0;
-
-  if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEEM != 0 )
-    errorSummaryEEM = 1.0 - float(nGlobalErrorsEEM)/float(nValidChannelsEEM);
-  if ( nValidChannelsEEP != 0 )
-    errorSummaryEEP = 1.0 - float(nGlobalErrorsEEP)/float(nValidChannelsEEP);
-
   MonitorElement* me;
 
+  float errorSummary = -1.0;
+  if ( nValidChannels != 0 )
+    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
   me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEEM);
+  char histo[200];
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEEP);
+  for (int i = 1; i <= 18; i++) {
+    float errorSummaryEE = -1.0;
+    if ( nValidChannelsEE[i-1] != 0 )
+      errorSummaryEE = 1.0 - float(nGlobalErrorsEE[i-1])/float(nValidChannelsEE[i-1]);
+    sprintf(histo, "Segment%02d_EcalEndcap", i);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
+    if (me) me->Fill(errorSummaryEE);
+  }
 
   MonitorElement* meside[2];
 
-  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEM");
-  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEP");
+  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYM_EcalEndcap");
+  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYP_EcalEndcap");
   if (meside[0] && meside[1]) {
 
     int nValidChannelsTT[2][20][20];
@@ -1295,9 +1320,9 @@ void EESummaryClient::analyze(void){
     for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
       for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
         for ( int iside = 0; iside < 2; iside++ ) {
-          nValidChannelsTT[iside][jxdcc][jydcc]=0;
-          nGlobalErrorsTT[iside][jxdcc][jydcc]=0;
-          nOutOfGeometryTT[iside][jxdcc][jydcc]=0;
+          nValidChannelsTT[iside][jxdcc][jydcc] = 0;
+          nGlobalErrorsTT[iside][jxdcc][jydcc] = 0;
+          nOutOfGeometryTT[iside][jxdcc][jydcc] = 0;
         }
       }
     }
@@ -1312,8 +1337,8 @@ void EESummaryClient::analyze(void){
           float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
 
           if ( xval > -1 ) {
-            if ( xval != 2 && xval != 5 ) nValidChannelsTT[iside][jxdcc-1][jydcc-1]++;
-            if ( xval == 0 ) nGlobalErrorsTT[iside][jxdcc-1][jydcc-1]++;
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[iside][jxdcc-1][jydcc-1];
+            if ( xval == 0 ) ++nGlobalErrorsTT[iside][jxdcc-1][jydcc-1];
           } else {
             nOutOfGeometryTT[iside][jxdcc-1][jydcc-1]++;
           }
@@ -1431,7 +1456,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   labelGrid2.SetMaximum(+9.01);
 
   string imgNameMapI[2], imgNameMapO[2];
-  string imgNameMapDF[2];
+  string imgNameMapSF[2];
   string imgNameMapPO[2];
   string imgNameMapLL1[2], imgNameMapLL1_PN[2];
   string imgNameMapLD[2], imgNameMapLD_PN[2];
@@ -1603,7 +1628,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   }
 
-  imgNameMapDF[0] = "";
+  imgNameMapSF[0] = "";
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meStatusFlags_[0] );
@@ -1613,8 +1638,8 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     meName = obj2f->GetName();
 
     replace(meName.begin(), meName.end(), ' ', '_');
-    imgNameMapDF[0] = meName + ".png";
-    imgName = htmlDir + imgNameMapDF[0];
+    imgNameMapSF[0] = meName + ".png";
+    imgName = htmlDir + imgNameMapSF[0];
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -1640,7 +1665,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   }
 
-  imgNameMapDF[1] = "";
+  imgNameMapSF[1] = "";
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meStatusFlags_[1] );
@@ -1650,8 +1675,8 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     meName = obj2f->GetName();
 
     replace(meName.begin(), meName.end(), ' ', '_');
-    imgNameMapDF[1] = meName + ".png";
-    imgName = htmlDir + imgNameMapDF[1];
+    imgNameMapSF[1] = meName + ".png";
+    imgName = htmlDir + imgNameMapSF[1];
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -2461,12 +2486,12 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapDF[0].size() != 0 || imgNameMapDF[1].size() != 0 ) {
+  if ( imgNameMapSF[0].size() != 0 || imgNameMapSF[1].size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    if ( imgNameMapDF[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapDF[0] << "\" usemap=\"#StatusFlags_0\" border=0></td>" << endl;
-    if ( imgNameMapDF[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapDF[1] << "\" usemap=\"#StatusFlags_1\" border=0></td>" << endl;
+    if ( imgNameMapSF[0].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapSF[0] << "\" usemap=\"#StatusFlags_0\" border=0></td>" << endl;
+    if ( imgNameMapSF[1].size() != 0 ) htmlFile << "<td><img src=\"" << imgNameMapSF[1] << "\" usemap=\"#StatusFlags_1\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -2577,7 +2602,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   if ( imgNameMapI[0].size() != 0 || imgNameMapI[1].size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO[0].size() != 0 || imgNameMapO[1].size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
-  if ( imgNameMapDF[0].size() != 0 || imgNameMapDF[1].size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
+  if ( imgNameMapSF[0].size() != 0 || imgNameMapSF[1].size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
   if ( imgNameMapPO[0].size() != 0 || imgNameMapPO[1].size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
   if ( imgNameMapLL1[0].size() != 0 || imgNameMapLL1[1].size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
   if ( imgNameMapLD[0].size() != 0 || imgNameMapLD[1].size() != 0 ) this->writeMap( htmlFile, "Led" );
@@ -2600,9 +2625,9 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
 }
 
-void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
+void EESummaryClient::writeMap( ofstream& hf, const char* mapname ) {
 
-  std::map<std::string, std::string> refhtml;
+  map<string, string> refhtml;
   refhtml["Integrity"] = "EEIntegrityClient.html";
   refhtml["Occupancy"] = "EEIntegrityClient.html";
   refhtml["StatusFlags"] = "EEStatusFlagsClient.html";
@@ -2624,7 +2649,7 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
   const int C0 = 34;
   const int C1 = 148;
 
-  hf << "<map name=\"" << mapname << "_0\">" << std::endl;
+  hf << "<map name=\"" << mapname << "_0\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     if( superModules_[sm] >= 1 && superModules_[sm] <= 9 ) {
       int i=superModules_[sm]-1;
@@ -2644,12 +2669,12 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
                            << x3 << ", " << y3 << "\">"
-         << std::endl;
+         << endl;
     }
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
-  hf << "<map name=\"" << mapname << "_1\">" << std::endl;
+  hf << "<map name=\"" << mapname << "_1\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     if( superModules_[sm] >= 10 && superModules_[sm] <= 18 ) {
       int i=superModules_[sm]-9-1;
@@ -2669,10 +2694,10 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
                            << x3 << ", " << y3 << "\">"
-         << std::endl;
+         << endl;
     }
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
 }
 

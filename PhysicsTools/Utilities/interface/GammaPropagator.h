@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_Utilities_GammaPropagator_h
 #define PhysicsTools_Utilities_GammaPropagator_h
 
-namespace funct {
+namespace function {
 
   struct GammaPropagator {
     static const unsigned int arguments = 1;

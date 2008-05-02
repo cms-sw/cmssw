@@ -1,10 +1,10 @@
-// Last commit: $Id: SiStripTrivialDigiSource.h,v 1.2 2008/03/31 16:51:50 bainbrid Exp $
+// Last commit: $Id: SiStripTrivialDigiSource.h,v 1.1 2007/03/21 16:38:16 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialDigiSource_H
 
-#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiAnalysis.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialDigiAnalysis.h"
 #include "boost/cstdint.hpp"
 
  /**
@@ -28,16 +28,14 @@ class SiStripTrivialDigiSource : public edm::EDProducer {
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private: 
+  
+  uint32_t eventCounter_;
 
+  bool  testDistr_;
   float meanOcc_;
-
   float rmsOcc_;
 
-  int ped_;
-
-  bool  raw_;
-
-  bool  useFedKey_;
+  SiStripTrivialDigiAnalysis anal_;
   
 };
 

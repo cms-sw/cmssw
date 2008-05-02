@@ -1,7 +1,10 @@
 #include "CondCore/Modules/src/EmptyIOVSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 
 namespace cond{
   //allowed parameters: firstRun, firstTime, lastRun, lastTime, 

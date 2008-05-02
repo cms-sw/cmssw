@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.12 2007/10/15 11:51:26 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.14 2007/10/15 12:44:33 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -62,6 +62,15 @@ namespace reco {
     /// returns reference to master clone
     virtual const CandidateBaseRef & masterClone() const;
 
+    virtual bool isElectron() const;
+    virtual bool isMuon() const;
+    virtual bool isGlobalMuon() const;
+    virtual bool isStandAloneMuon() const;
+    virtual bool isTrackerMuon() const;
+    virtual bool isCaloMuon() const;
+    virtual bool isPhoton() const;
+    virtual bool isConvertedPhoton() const;
+    virtual bool isJet() const;
   private:
     // const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;

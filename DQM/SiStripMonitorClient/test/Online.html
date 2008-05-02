@@ -182,24 +182,51 @@
             </div>
           </div>
           <div class="dhtmlgoodies_aTab">
+	    <div class="bloc" id="bloc2_3"> 
+      	      <div class="bloc" id="bloc2_3_1"
+                onmouseover="ddrivetip('Select a sub-detector type and get the tree with summary histograms','#EAFFF9',120);"
+                onmouseout="hideddrivetip();">
+	        <fieldset>
+                  <label id="runtag">
+                     Select Type :
+	          </label>
+                  <select name="HistoTypeTag" 
+                       id="type_tag"
+                       style="width:35%;height:5%;text-align;margin-right:0%">
+                       <option value="ReadoutView" SELECTED> HardwareError </option>
+                       <option value="ReadoutView"> Connection Run </option>
+                       <option value="ControlView"> Timing Run</option>
+                       <option value="ControlView"> Gain Run </option>
+                       <option value="ControlView"> Vpsp Run </option>
+                       <option value="ControlView"> Pedestal Run </option>
+                  </select>
+                  <input name="NonGeometricHistos" 
+                        id="get_nongeo_histos"
+                        value="Get Selected Histos" 
+                        style="width:30%;margin-left:2%;margin-top:2%"
+                        onClick="RequestHistos.RequestNonGeomeHistoList()" 
+                        type="submit">
+                   </input>
+	        </fieldset>
+      	      </div>
+	      </br>
+   	      <div class="bloc" id="non_geo_hlist" style="overflow:scroll;height:450px;width:100%;background:#FFF;"> 
+      	      </div> 
+	    </div>
+          </div>
+          <div class="dhtmlgoodies_aTab">
 	    <div class="bloc" id="bloc2_4"> 
       	      <div class="bloc" id="bloc2_4_1"
                 onmouseover="ddrivetip('Select a sub-detector type and get the tree with summary histograms','#EAFFF9',120);"
                 onmouseout="hideddrivetip();">
 	        <fieldset>
-                  <label id="structures"
-                     style="margin-left:10%">
+                  <label id="structures">
                      Sub-Detectors:
 	          </label>
                   <select name="struc_name" 
                        id="structure_name"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
+                       style="width:35%;height:5%;text-align;margin-right:0%">
                        <option value="MechanicalView/TIB" SELECTED> TIB </option>
-                       <option value="MechanicalView/TOB"> TOB </option>
-                       <option value="MechanicalView/TEC/side_2"> TECF </option>
-                       <option value="MechanicalView/TID/side_2"> TIDF </option>
-                       <option value="MechanicalView/TEC/side_1"> TECB </option>
-                       <option value="MechanicalView/TID/side_1"> TIDB </option>
                   </select>
                   <input name="listsummary" 
                         id="list_summary"
@@ -215,25 +242,20 @@
       	      </div> 
 	    </div>
           </div>
+
           <div class="dhtmlgoodies_aTab">
 	    <div class="bloc" id="bloc2_5"> 
       	      <div class="bloc" id="bloc2_5_1"
                 onmouseover="ddrivetip('Select a sub-detector type and get the tree with alarm','#EAFFF9',120);"
                 onmouseout="hideddrivetip();">
 	        <fieldset>
-                  <label id="alarm_structures"
-                     style="margin-left:10%">
+                  <label id="alarm_structures">
                      Sub-Detectors:
 	          </label>
                   <select name="struc_alarm" 
                        id="structure_for_alarm"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
+                       style="width:35%;height:5%;text-align;margin-right:0%">
                        <option value="MechanicalView/TIB" SELECTED> TIB </option>
-                       <option value="MechanicalView/TOB"> TOB </option>
-                       <option value="MechanicalView/TEC/side_2"> TECF </option>
-                       <option value="MechanicalView/TID/side_2"> TIDF </option>
-                       <option value="MechanicalView/TEC/side_1"> TECB </option>
-                       <option value="MechanicalView/TID/side_1"> TIDB </option>
                   </select>
                   <input name="listalarm" 
                         id="read_alarm"
@@ -252,8 +274,8 @@
 	    </div>
           </div>
           <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_3" style="background:#A9FF84"> 
-      	      <div class="bloc" id="bloc2_3_1" style="background:#A9FF84">
+	    <div class="bloc" id="bloc2_6" style="background:#A9FF84"> 
+      	      <div class="bloc" id="bloc2_6_1" style="background:#A9FF84">
 	        <fieldset>
 	          <input type="radio" 
 	                 class="radio" 
@@ -298,7 +320,7 @@
                   </input>
 	        </fieldset>
               </div>
-              <div class="bloc" id="bloc2_3_2">
+              <div class="bloc" id="bloc2_6_2">
                 <fieldset>
                   <select size=12 multiple
                           style="width:100%;height:350px;font-size:10pt;"
@@ -307,7 +329,7 @@
                  </select>
                 </fieldset>
               </div>
-              <div class="bloc" id="bloc2_3_3"
+              <div class="bloc" id="bloc2_6_3"
                 onmouseover="ddrivetip('Different drawing options for histograms','#EAFFF9',120);"
                 onmouseout="hideddrivetip();">
                 <fieldset style="background:#FFAD5A;">

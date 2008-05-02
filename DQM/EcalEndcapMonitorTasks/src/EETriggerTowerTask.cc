@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.34 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.35 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -52,15 +52,10 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
 
 //   realModuleLabel_
-//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel",
-//                                        "ecalEBunpacker");
+//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel", "ecalEBunpacker");
 //   emulModuleLabel_
-//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel",
-//                                        "ecalTriggerPrimitiveDigis");
-  outputFile_
-    = ps.getUntrackedParameter<string>("OutputRootFile",
-                                       "");
-
+//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel", "ecalTriggerPrimitiveDigis");
+  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
 
   ostringstream  str;
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
@@ -180,7 +175,6 @@ void EETriggerTowerTask::setup( const char* nameext,
     (*meFlags)[i]->setAxisTitle("jy", 2);
     dqmStore_->tag((*meFlags)[i], i+1);
 
-
     if(!emulated) {
 
       string  emulErrorNameSM = emulErrorName;
@@ -283,7 +277,6 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsEmul_,
                   realDigis);
 
-
   } else {
     LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
   }
@@ -347,7 +340,6 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     xval = 0.5 + data.ttFlag();
     if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xix, xiy, xval);
 
-
     if( compDigis.isValid() ) {
       bool good = true;
       bool goodFlag = true;
@@ -387,7 +379,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
         if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy, zval);
       }
     }
-  }
+    }
   }
   LogDebug("EETriggerTowerTask")<<str.str()<<endl;
 }

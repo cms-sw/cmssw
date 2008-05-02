@@ -3,7 +3,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-namespace funct {
+namespace function {
   class Parameter {
   public:
     explicit Parameter(const std::string & name ="undefined" , double value = 0) :
@@ -23,7 +23,7 @@ namespace funct {
 
 #include <iostream>
 
-inline std::ostream & operator<<(std::ostream&cout, const funct::Parameter & p) {
+inline std::ostream & operator<<(std::ostream&cout, const function::Parameter & p) {
   return cout << p.name() <<" = " << p.value();
 }
 

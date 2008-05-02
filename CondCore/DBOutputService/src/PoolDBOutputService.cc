@@ -314,6 +314,7 @@ cond::service::PoolDBOutputService::lookUpRecord(const std::string& EventSetupRe
   if(it==m_callbacks.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
   return it->second;
 }
+
 cond::service::UserLogInfo& 
 cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& EventSetupRecordName){
   size_t callbackToken=this->callbackToken( EventSetupRecordName );
@@ -370,6 +371,8 @@ cond::service::PoolDBOutputService::queryLog()const{
   if(!m_logdb) throw cond::Exception("PoolDBOutputService::queryLog ERROR: logging is off");
   return *m_logdb;
 }
+
+
 void 
 cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordName,cond::TagInfo& result ){
   cond::service::serviceCallbackRecord& record=this->lookUpRecord(EventSetupRecordName);
@@ -380,6 +383,7 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordN
   pooldb.start(true);
   cond::IOVService iovmanager( pooldb );
   cond::IOVIterator* iit=iovmanager.newIOVIterator(result.token,cond::IOVService::backwardIter);
+  iit->next(); // just to initialize
   result.lastInterval=iit->validity();
   result.lastPayloadToken=iit->payloadToken();
   result.size=iit->size();

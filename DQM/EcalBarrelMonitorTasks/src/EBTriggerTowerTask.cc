@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.70 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.71 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -50,15 +50,10 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
 
 //   realModuleLabel_
-//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel",
-//                                        "ecalEBunpacker");
+//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel", "ecalEBunpacker");
 //   emulModuleLabel_
-//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel",
-//                                        "ecalTriggerPrimitiveDigis");
-  outputFile_
-    = ps.getUntrackedParameter<string>("OutputRootFile",
-                                       "");
-
+//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel", "ecalTriggerPrimitiveDigis");
+  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
 
   ostringstream  str;
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
@@ -178,7 +173,6 @@ void EBTriggerTowerTask::setup( const char* nameext,
     (*meFlags)[i]->setAxisTitle("iphi'", 2);
     dqmStore_->tag((*meFlags)[i], i+1);
 
-
     if(!emulated) {
 
       string  emulErrorNameSM = emulErrorName;
@@ -281,7 +275,6 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsEmul_,
                   realDigis);
 
-
   } else {
     LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
   }
@@ -345,7 +338,6 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     xval = 0.5 + data.ttFlag();
     if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet, xipt, xval);
-
 
     if( compDigis.isValid() ) {
       bool good = true;

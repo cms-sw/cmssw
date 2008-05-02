@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/07 14:53:26 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/03/01 00:39:51 $
+ *  $Revision: 1.15 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -410,13 +410,15 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       if ((*effME).second->getName().find("TrigEffSec_Phi") == 0) {
 	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangePhi");
 	if (effQReport) {
-	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
+	  // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+	  // edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
 	}
       }
       if ((*effME).second->getName().find("TrigEffSec_Theta") == 0) {
 	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangeTheta");
 	if (effQReport) {
-	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
+	  // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+	  // edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
 	}
       }
     }

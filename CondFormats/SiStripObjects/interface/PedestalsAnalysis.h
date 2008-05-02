@@ -146,9 +146,6 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
   /** Residuals and noise */
   Histo hNoise_;
-
-  // true if legacy histogram naming is used
-  bool legacy_;
   
 };
 

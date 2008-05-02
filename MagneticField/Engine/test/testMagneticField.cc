@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2008/03/28 16:52:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/04/30 09:19:51 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -46,16 +46,14 @@ class testMagneticField : public edm::EDAnalyzer {
     //    verbose::debugOut = true;
     outputFile = pset.getUntrackedParameter<string>("outputTable", "");
     inputFile = pset.getUntrackedParameter<string>("inputTable", "");
-    inputFileType = pset.getUntrackedParameter<string>("inputTableType", "xyz");
-
     //    resolution for validation of maps
     reso = pset.getUntrackedParameter<double>("resolution", 0.0001);
     //    number of random points to try
     numberOfPoints = pset.getUntrackedParameter<int>("numberOfPoints", 10000);
     //    outer radius of test cylinder
-    OuterRadius = pset.getUntrackedParameter<double>("OuterRadius",900);
+    OuterRadius = pset.getUntrackedParameter<double>("OuterRadius",600);
     //    half length of test cylinder
-    HalfLength = pset.getUntrackedParameter<double>("HalfLength",1600);
+    HalfLength = pset.getUntrackedParameter<double>("HalfLength",600);
     
   }
 
@@ -79,7 +77,7 @@ class testMagneticField : public edm::EDAnalyzer {
    }
    
    if (inputFile!="") {
-     validate (inputFile, inputFileType);
+     validate (inputFile);
    }
 
    // Some ad-hoc test
@@ -89,12 +87,11 @@ class testMagneticField : public edm::EDAnalyzer {
   }
   
   void writeValidationTable(int npoints, string filename);
-  void validate(string filename, string type="xyz");
+  void validate(string filename);
    
  private:
   const MagneticField* field;
   string inputFile;
-  string inputFileType;
   string outputFile;  
   double reso;
   int numberOfPoints;
@@ -116,7 +113,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
   }
 }
 
-void testMagneticField::validate(string filename, string type) {
+void testMagneticField::validate(string filename) {
   
   //  double reso = 0.0001; // in T   >> now defined in cfg file
   
@@ -127,32 +124,23 @@ void testMagneticField::validate(string filename, string type) {
   int count = 0;
   
   float maxdelta=0.;
-
-  while (getline(file,line) && count < numberOfPoints) {
+  
+  while (getline(file,line)) {
     if( line == "" || line[0] == '#' ) continue;
     stringstream linestr;
     linestr << line;
+    int i;
     float px, py, pz;
-    float bx, by, bz;
-    linestr  >> px >> py >> pz >> bx >> by >> bz;
-    GlobalPoint gp;
-    if (type=="rpz_m") { // assume rpz file with units in m.
-      gp = GlobalPoint(GlobalPoint::Cylindrical(px*100.,py,pz*100.));
-    } else if (type=="xyz_m") { // assume rpz file with units in m.
-      gp = GlobalPoint(px*100., py*100., pz*100.);
-    } else { // assume x,y,z with units in cm
-      gp = GlobalPoint(px, py, pz);      
-    }
-
-    if (gp.perp() > OuterRadius || fabs(gp.z()) > HalfLength) continue;
-    
+    float bx, by, bz;    
+    linestr >> i >> px >> py >> pz >> bx >> by >> bz;
+    GlobalPoint gp(px, py, pz);
     GlobalVector oldB(bx, by, bz);
     GlobalVector newB = field->inTesla(gp);
     if ((newB-oldB).mag() > reso) {
       ++fail;
       float delta = (newB-oldB).mag();
       if (delta > maxdelta) maxdelta = delta;
-      cout << " Discrepancy at: # " << count+1 << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
+      cout << " Discrepancy at: # " << i << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
     }
     count++;
   }

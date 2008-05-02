@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATPhotonProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: PATPhotonProducer.h,v 1.2 2008/03/05 14:56:50 fronga Exp $
 */
 
 
@@ -25,8 +25,6 @@
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
-
-#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 namespace pat {
 
@@ -47,14 +45,8 @@ namespace pat {
 
       // configurables
       edm::InputTag photonSrc_;
-      bool embedSuperCluster_;
       // tools
       GreaterByEt<Photon> eTComparator_;
-
-      pat::helper::MultiIsolator isolator_; 
-      pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
-      std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
-
 
   };
 

@@ -15,6 +15,10 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe, string client
     energyT_[i]=0; time_[i]=0;
     tot_occ_[i]=0;
   }
+  hfshort_E_all=0;
+  //  hfshort_E_low=0;
+  hfshort_T_all=0;
+
   tot_energy_=0;
 
 }
@@ -74,7 +78,11 @@ void HcalRecHitClient::cleanup(void) {
       if(energyT_[i]) delete energyT_[i];
       if(time_[i]) delete time_[i];
       if(tot_occ_[i]) delete tot_occ_[i];
-    }    
+    } 
+
+    if(hfshort_E_all) delete hfshort_E_all;
+    //if(hfshort_E_low) delete hfshort_E_low;
+    if(hfshort_T_all) delete hfshort_T_all;
     
     if(tot_energy_) delete tot_energy_;
   }  
@@ -84,6 +92,10 @@ void HcalRecHitClient::cleanup(void) {
     energyT_[i]=0; time_[i]=0;
     tot_occ_[i]=0;
   }
+  hfshort_E_all=0;
+  //hfshort_E_low=0;
+  hfshort_T_all=0;
+
   tot_energy_=0;
   
 
@@ -141,19 +153,37 @@ void HcalRecHitClient::getHistograms(){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
     
-    sprintf(name,"RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
-    energy_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
-    
     sprintf(name,"RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
     energyT_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
 
-    sprintf(name,"RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
-    time_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
+    if(i==2){
+      sprintf(name,"RecHitMonitor/%s/%s Long RecHit Energies",type.c_str(),type.c_str());      
+      energy_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
+      
+      sprintf(name,"RecHitMonitor/%s/%s Long RecHit Times",type.c_str(),type.c_str());      
+      time_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
+    } 
+    else {
+      sprintf(name,"RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
+      energy_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
+      
+      sprintf(name,"RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
+      time_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
+    }
 
-    sprintf(name,"RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"RecHitMonitor/%s/%s RecHit Geo Occupancy Map - Threshold",type.c_str(),type.c_str());
     occ_[i] = getHisto2(name, process_,dbe_,debug_,cloneME_);
   }
 
+
+  sprintf(name,"RecHitMonitor/HF/HF Short RecHit Energies");
+  hfshort_E_all = getHisto(name, process_,dbe_,debug_,cloneME_);
+
+  //sprintf(name,"RecHitMonitor/HF/HF Short RecHit Energies - Low Region");
+  //  hfshort_E_low = getHisto(name, process_,dbe_,debug_,cloneME_);
+
+  sprintf(name,"RecHitMonitor/HF/HF Short RecHit Times");
+  hfshort_T_all = getHisto(name, process_,dbe_,debug_,cloneME_);
   
   sprintf(name,"RecHitMonitor/RecHit Total Energy");   
   tot_energy_ = getHisto(name, process_,dbe_, debug_,cloneME_);
@@ -189,19 +219,35 @@ void HcalRecHitClient::resetAllME(){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
 
-
-    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Geo Occupancy Map - Threshold",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
     resetME(name,dbe_);
-    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Energies - Low Region",process_.c_str(),type.c_str(),type.c_str());      
-    resetME(name,dbe_);
-    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());      
-    resetME(name,dbe_);
-    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str()); 
-    resetME(name,dbe_);     
+    sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());   
+ 
+    if(i==2){
+      sprintf(name,"%sHcal/RecHitMonitor/%s/%s Long RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/RecHitMonitor/%s/%s Long RecHit Energies - Low Region",process_.c_str(),type.c_str(),type.c_str());
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/RecHitMonitor/%s/%s Long RecHit Times",process_.c_str(),type.c_str(),type.c_str()); 
+      resetME(name,dbe_);
+    }    
+    else {
+      sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Energies - Low Region",process_.c_str(),type.c_str(),type.c_str());  
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str()); 
+      resetME(name,dbe_);
+    }     
   }
 
+  sprintf(name,"%sHcal/RecHitMonitor/HF/HF Short RecHit Energies",process_.c_str());
+  resetME(name,dbe_);
+  //sprintf(name,"%sHcal/RecHitMonitor/HF/HF Short RecHit Energies - Low Region",process_.c_str());
+  //resetME(name,dbe_);
+  sprintf(name,"%sHcal/RecHitMonitor/HF/HF Short RecHit Times",process_.c_str());
+  resetME(name,dbe_);
 
   return;
 }
@@ -269,9 +315,10 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   histoHTML2(runNo,tot_occ_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-  htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(runNo,tot_energy_,"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
-  htmlFile << "</tr>" << endl;
+  //removed total energy for cosmics run
+  //  htmlFile << "<tr align=\"left\">" << endl;
+  //  histoHTML(runNo,tot_energy_,"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
+  //  htmlFile << "</tr>" << endl;
 
 
   for(int i=0; i<4; i++){
@@ -286,12 +333,25 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;
     histoHTML2(runNo,occ_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML(runNo,energyT_[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
+    //removed total energy for cosmics run
+    //    histoHTML(runNo,energyT_[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
+    if(i==2){
+      htmlFile << "<tr align=\"left\">" << endl;
+      histoHTML(runNo,energy_[i],"Long fibers, RecHit Energy (GeV)","Events", 92, htmlFile,htmlDir);
+      histoHTML(runNo,time_[i],"Long fibers, RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
+
+      htmlFile << "<tr align=\"left\">" << endl;
+      histoHTML(runNo,hfshort_E_all,"Short fibers, RecHit Energy (GeV)","Events", 92, htmlFile,htmlDir);
+      histoHTML(runNo,hfshort_T_all,"Short fibers, RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
+    }
+    else {
     htmlFile << "<tr align=\"left\">" << endl;
     histoHTML(runNo,energy_[i],"RecHit Energy (GeV)","Events", 92, htmlFile,htmlDir);
     histoHTML(runNo,time_[i],"RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
+    }
+
     htmlFile << "</tr>" << endl;	
   }
   htmlFile << "</table>" << endl;
@@ -332,23 +392,44 @@ void HcalRecHitClient::loadHistograms(TFile* infile){
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
     
-    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
-    energy_[i] = (TH1F*)infile->Get(name);
-    
     sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
     energyT_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
-    time_[i] = (TH1F*)infile->Get(name);
+    if(i==2){
+      sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s Long RecHit Energies",type.c_str(),type.c_str());      
+      energy_[i] = (TH1F*)infile->Get(name);
+    
+      sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s Long RecHit Times",type.c_str(),type.c_str());      
+      time_[i] = (TH1F*)infile->Get(name);
+    } 
+    else {
+      sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
+      energy_[i] = (TH1F*)infile->Get(name);
+    
+      sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
+      time_[i] = (TH1F*)infile->Get(name);
+    }
 
-    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Geo Occupancy Map - Threshold",type.c_str(),type.c_str());
     occ_[i] = (TH2F*)infile->Get(name);
 
     sprintf(name,"DQMData/Hcal/RecHitMonitor/RecHit Depth %d Occupancy Map",i);
     tot_occ_[i] = (TH2F*)infile->Get(name);
-  
+
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
+    time_[i] = (TH1F*)infile->Get(name);
     
   }
+
+    //-3 extra histos for HF short:
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/HF/HF Short RecHit Energies");   
+    hfshort_E_all= (TH1F*)infile->Get(name);
+    //-not using this one for now: 
+    //    sprintf(name,"DQMData/Hcal/RecHitMonitor/HF/HF Short RecHit Energies - Low Region");   
+    //    hfshort_E_low= (TH1F*)infile->Get(name);
+    sprintf(name,"DQMData/Hcal/RecHitMonitor/HF/HF Short RecHit Times");      
+    hfshort_T_all = (TH1F*)infile->Get(name);
+
 
   sprintf(name,"DQMData/Hcal/RecHitMonitor/RecHit Total Energy");   
   tot_energy_ = (TH1F*)infile->Get(name);

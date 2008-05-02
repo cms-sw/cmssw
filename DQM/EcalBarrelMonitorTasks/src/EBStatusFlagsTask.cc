@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.11 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -36,7 +36,7 @@ EBStatusFlagsTask::EBStatusFlagsTask(const ParameterSet& ps){
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 

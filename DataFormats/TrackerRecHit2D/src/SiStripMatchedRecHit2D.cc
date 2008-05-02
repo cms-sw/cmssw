@@ -8,21 +8,19 @@ bool
 SiStripMatchedRecHit2D::sharesInput( const TrackingRecHit* other, 
 				     SharedInputType what) const
 {
-  if (what==all && (geographicalId() != other->geographicalId())) return false;
+  if (geographicalId() != other->geographicalId()) return false;
   
-  if ( typeid(*other)!=typeid(SiStripMatchedRecHit2D)){
-    if (what==all)  return false;
-    else return (monoHit()->sharesInput( other,what)|| stereoHit()->sharesInput( other,what));
+  const SiStripMatchedRecHit2D* otherMatched = 
+    dynamic_cast<const SiStripMatchedRecHit2D*>(other);
+  if ( otherMatched == 0 )  return false;
+
+  if ( what == all) {
+    return (monoHit()->sharesInput( otherMatched->monoHit(),what) && 
+	    stereoHit()->sharesInput( otherMatched->stereoHit(),what));
   }
-  else{
-    if ( what == all) {
-      return (monoHit()->sharesInput( monoHit(),what) && 
-	      stereoHit()->sharesInput( stereoHit(),what));
-    }
-    else {
-      return (monoHit()->sharesInput( monoHit(),what) || 
-	      stereoHit()->sharesInput( stereoHit(),what));
-    }
+  else {
+    return (monoHit()->sharesInput( otherMatched->monoHit(),what) || 
+	    stereoHit()->sharesInput( otherMatched->stereoHit(),what));
   }
 }
 

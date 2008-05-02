@@ -2,7 +2,7 @@
 #define FWCore_Framework_MockEventProcessor_h
 
 /*
-$Id: MockEventProcessor.h,v 1.6 2008/04/04 16:11:03 wdd Exp $
+$Id: MockEventProcessor.h,v 1.8 2008/04/15 19:20:50 wdd Exp $
 
 Version of the Event Processor used for tests of
 the state machine and other tests.
@@ -48,8 +48,8 @@ namespace edm
 
     virtual void doErrorStuff();
 
-    virtual void smBeginRun(int run);
-    virtual void smEndRun(int run);
+    virtual void beginRun(int run);
+    virtual void endRun(int run);
 
     virtual void beginLumi(int run, int lumi);
     virtual void endLumi(int run, int lumi);
@@ -68,6 +68,8 @@ namespace edm
     virtual void setExceptionMessageFiles(std::string& message);
     virtual void setExceptionMessageRuns(std::string& message);
     virtual void setExceptionMessageLumis(std::string& message);
+
+    virtual bool alreadyHandlingException() const;
 
   private:
     std::string mockData_;

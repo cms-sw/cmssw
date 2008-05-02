@@ -32,7 +32,7 @@ RequestHistos.RequestHistoList = function()
   }
 }
 //
-// -- Request summary histogram tree
+
 //
 RequestHistos.RequestSummaryHistoList = function()
 {
@@ -218,18 +218,15 @@ RequestHistos.DrawSelectedHistos = function()
   var hist_opt   = RequestHistos.SetHistosAndPlotOption();
   if (hist_opt == " ") return;
   queryString   += hist_opt;
-  IMGC.computeCanvasSize();
+//  IMGC.computeCanvasSize();
   queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
                  '&height='+IMGC.BASE_IMAGE_HEIGHT;
   url += queryString;
-  IMGC.IMAGES_PER_ROW      = 2;
-  IMGC.IMAGES_PER_COL      = 2; 
-  IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
   var getMEURLS = new Ajax.Request(url,                    
  	 		         {			  
  	 		          method: 'get',	  
  			          parameters: '', 
- 			          onComplete: IMGC.processIMGCPlots // <-- call-back function
+ 			          onComplete: IMGC.processImageURLs // <-- call-back function
  			         });
 //  CommonActions.ShowProgress('visible', 'Selected Plot');
 //  setTimeout('RequestHistos.UpdatePlot()', 2000);   
@@ -260,13 +257,13 @@ RequestHistos.SetHistosAndPlotOption = function() {
     if ($('logy').checked) {
       qstring += '&logy=true';
     }
-    obj = $('x-low');
-    value = parseFloat(obj.value);
-    if (!isNaN(value)) qstring += '&xmin=' + value;
-
-    obj = $('x-high');
-    value = parseFloat(obj.value);
-    if (!isNaN(value)) qstring += '&xmax=' + value;
+//    obj = $('x-low');
+//    value = parseFloat(obj.value);
+//    if (!isNaN(value)) qstring += '&xmin=' + value;
+//
+//    obj = $('x-high');
+//    value = parseFloat(obj.value);
+//    if (!isNaN(value)) qstring += '&xmax=' + value;
   } 
   // Drawing option
   var obj1 = $('drawing_options');
@@ -297,20 +294,17 @@ RequestHistos.DrawSingleHisto = function(path)
   queryString  = 'RequestID=PlotHistogramFromPath';
   queryString += '&Path='+path;
   queryString += '&histotype=summary';
-  IMGC.computeCanvasSize();
+//  IMGC.computeCanvasSize();
   queryString += '&width='+IMGC.BASE_IMAGE_WIDTH+
                  '&height='+IMGC.BASE_IMAGE_HEIGHT;
 
   url         += queryString;
 
-  IMGC.IMAGES_PER_ROW      = 2;
-  IMGC.IMAGES_PER_COL      = 2; 
-  IMGC.IMAGES_PER_PAGE     = IMGC.IMAGES_PER_ROW * IMGC.IMAGES_PER_COL;
   var getMEURLS = new Ajax.Request(url,                    
  	 		         {			  
  	 		          method: 'get',	  
  			          parameters: '', 
- 			          onComplete: IMGC.processIMGCPlots // <-- call-back function
+ 			          onComplete: IMGC.processImageURLs // <-- call-back function
  			         });
 
 //  CommonActions.ShowProgress('visible', 'Selected Plot');   
@@ -371,7 +365,7 @@ RequestHistos.FillStatus = function(transport) {
         }
         $('imageCanvas').imageList     = tempImages;
 	$('imageCanvas').titlesList    = tempTitles;
-        IMGC.computeCanvasSize();
+        setTimeout('IMGC.computeCanvasSize()',10000) ;	
       }
     }
     catch (err) {
@@ -442,5 +436,43 @@ RequestHistos.FillTextStatus = function(transport)
     }
     catch (err) {
 //      alert ("Error detail: " + err.message); 
+    }
+}
+//
+// -- Request Readout/Control Tree
+//
+RequestHistos.RequestNonGeomeHistoList = function()
+{
+  var queryString;
+  var url      = WebLib.getApplicationURLWithLID();
+  queryString  = "RequestID=NonGeomHistoList";
+  var obj      = $('type_tag');
+  var fname    = obj.options[obj.selectedIndex].value;
+  queryString += '&FolderName='+fname;
+  url         += queryString; 
+  var retVal = new Ajax.Request(url,
+                               {           
+                  		method: 'get',	  
+ 			        parameters: '', 
+ 			        onSuccess: RequestHistos.FillNonGeomHistoList
+ 			       });
+  CommonActions.ShowProgress("visible", "Readout/Control Tree");
+}
+//
+// -- Fill the readout/control tree in the list area
+//
+RequestHistos.FillNonGeomHistoList = function(transport) 
+{
+    CommonActions.ShowProgress("hidden");
+    try {
+      var text = transport.responseText;
+      var obj  = $('non_geo_hlist');
+      if (obj != null) {
+        obj.innerHTML = text;
+        initTree();
+      }       
+    }
+    catch (err) {
+    // alert ("[RequestHistos.FillNonGeometricHistoList] Error detail: " + err.message); 
     }
 }

@@ -4,13 +4,14 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include <iomanip>
 
 namespace pat { namespace helper {
 class BaseIsolator {
     public:
         typedef edm::ValueMap<float> Isolation;
         BaseIsolator() {}
-        BaseIsolator(const edm::ParameterSet &conf, bool withCut) ;
+        BaseIsolator(const edm::ParameterSet &conf) ;
         virtual ~BaseIsolator() {}
         virtual void beginEvent(const edm::Event &event) = 0;
         virtual void endEvent() = 0;
@@ -21,13 +22,12 @@ class BaseIsolator {
             try_++; if (!ok) fail_++;
             return ok;
         }
-        /// Returns the associated isolation value given any sort of ref
-        template<typename AnyRef> float getValue(const AnyRef &ref) const {
-            return getValue(ref.id(), ref.key());
-        }
-
         virtual std::string description() const = 0;
-        void print(std::ostream &out) const ;
+        void print(std::ostream &out) const {
+            using namespace std;
+            out << "Isolation " << description() << " < " << setw(10) << cut_ << 
+                   ": try " << setw(10) << try_ << ", fail " << setw(10) << fail_;
+        }
     protected:
         virtual float getValue(const edm::ProductID &id, size_t index) const = 0;
         edm::InputTag input_;

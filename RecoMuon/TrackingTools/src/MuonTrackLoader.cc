@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/02/20 08:47:54 $
- *  $Revision: 1.60 $
+ *  $Date: 2008/03/20 13:18:03 $
+ *  $Revision: 1.61 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -321,7 +321,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
   } else {
     for (TrajectoryContainer::iterator it = trackerTrajs.begin(); it != trackerTrajs.end(); ++it) {
-        delete *it;
+        if(*it) delete *it;
     }
   }
 

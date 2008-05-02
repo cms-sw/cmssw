@@ -14,7 +14,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class PFAlgo;
+#include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
+
 
 /**\class PFProducer 
 \brief Producer for particle flow reconstructed particles (PFCandidates)
@@ -38,10 +39,10 @@ class PFProducer : public edm::EDProducer {
   edm::InputTag  inputTagBlocks_;
 
   /// verbose ?
-  bool                       verbose_;
+  bool   verbose_;
 
   /// particle flow algorithm
-  std::auto_ptr<PFAlgo>      pfAlgo_;
+  PFAlgo      pfAlgo_;
 
 };
 

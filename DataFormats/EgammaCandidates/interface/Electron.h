@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Electron.h,v 1.9 2007/03/16 13:59:37 llista Exp $
+ * \version $Id: Electron.h,v 1.10 2007/07/31 15:20:03 ratnik Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -33,6 +33,7 @@ namespace reco {
     /// set refrence to Track component
     void setTrack( const reco::TrackRef & r ) { track_ = r; }
 
+    bool isElectron() const;
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;

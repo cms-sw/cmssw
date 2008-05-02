@@ -10,8 +10,8 @@
  *  Trigger Primitive from an HO HTR
  *
  *
- *  $Date: 2008/02/12 19:04:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/02/12 19:19:44 $
+ *  $Revision: 1.2 $
  *  \author J. St. John - Boston U
  */
 class HOTriggerPrimitiveDigi {
@@ -29,7 +29,7 @@ public:
   /// get the raw ieta value 
   int raw_ieta() const { return theHO_TP&0x1F; }
   /// get the sign of ieta (int: +/- 1)
-  int ieta_sign() const { return ((theHO_TP&010)?(-1):(1)); }
+  int ieta_sign() const { return ((theHO_TP&0x10)?(-1):(1)); }
   /// get the absolute value of ieta
   int ieta_abs() const { return (theHO_TP&0x000F); }
   /// get the signed ieta value 

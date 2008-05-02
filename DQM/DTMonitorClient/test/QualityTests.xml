@@ -9,6 +9,19 @@
 </QTEST>
 
 
+<QTEST name="ResidualsDistributionGaussianTest">
+        <TYPE>MeanWithinExpected</TYPE>
+        <PARAM name="error">0.05</PARAM>
+        <PARAM name="warning">0.5</PARAM>
+        <PARAM name="mean">0.0</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">-0.001</PARAM>
+        <PARAM name="xmax">0.001</PARAM>
+</QTEST>
+
+
 <QTEST name="ResidualsMeanInRange">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">-0.015</PARAM>
@@ -156,7 +169,7 @@
 	<TestName activate="true">tTrigOffSet</TestName>
 </LINK>
 
-<LINK name="*hResDist_W*">
+<LINK name="*hResDist_*">
         <TestName activate="true">ResidualsDistributionGaussianTest</TestName>
 </LINK>
 

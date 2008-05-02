@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/03/11 19:20:12 $
- * $Revision: 1.27 $
+ * $Date: 2008/04/13 14:59:07 $
+ * $Revision: 1.29 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -86,8 +86,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
-
-
+  globalStatusFilling_   = ps.getUntrackedParameter<int>("GlobalStatusFilling", true);
   // get back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -158,6 +157,9 @@ void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 //
 void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
+  sistripWebInterface_->setActionFlag(SiStripWebInterface::CreatePlots);
+  sistripWebInterface_->performAction();
+
 }
 //
 // -- End Luminosity Block
@@ -190,7 +192,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
-  fillGlobalStatus();
+  if (globalStatusFilling_) fillGlobalStatus();
 }
 
 //
@@ -250,8 +252,9 @@ void SiStripAnalyser::fillGlobalStatus() {
       continue;
     }
     StripSubdetector subdet(*idetid);
-    folder_organizer.setDetectorFolder(detId);     
-    vector<MonitorElement*> detector_mes = dqmStore_->getContents(dqmStore_->pwd());
+    string dir_path;
+    folder_organizer.getFolderName(detId, dir_path);     
+    vector<MonitorElement*> detector_mes = dqmStore_->getContents(dir_path);
     int error_me = 0;
     for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
 	 it!= detector_mes.end(); it++) {
@@ -261,7 +264,6 @@ void SiStripAnalyser::fillGlobalStatus() {
       int istat =  SiStripUtility::getMEStatus((*it)); 
       if (istat == dqm::qstatus::ERROR)  error_me++;
     }
-    dqmStore_->cd();
     nDetsTotal++;
         
     if (error_me > 0) {

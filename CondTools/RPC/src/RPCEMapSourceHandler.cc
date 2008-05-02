@@ -24,17 +24,15 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
 
 //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects begins\n";
 
-  edm::Service<cond::service::PoolDBOutputService> mydbservice;
+        edm::Service<cond::service::PoolDBOutputService> mydbservice;
 
 // first check what is already there in offline DB
-  Ref payload;
-  if(m_validate==1 && tagInfo().size>0) {
-    std::cout<<" Validation was requested, so will check present contents"<<std::endl;
-    std::cout<<"Name of tag : "<<tagInfo().name << ", tag size : " << tagInfo().size 
-            << ", last object valid since " 
-	    << tagInfo().lastInterval.first << std::endl;  
-    payload = lastPayload();
-  }
+	const RPCEMap* eMap_prev;
+        if(m_validate==1) {
+//          std::cout<<" Validation was requested, so will check present contents"<<std::endl;
+          std::cout<<" Sorry, validation not available for the moment..."<<std::endl;
+          m_validate=0;
+        }
 
 // now construct new cabling map from online DB
         ConnectOnlineDB(m_host,m_sid,m_user,m_pass,m_port);
@@ -45,15 +43,14 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
 	
 // look for recent changes
         int difference=1;
-        if (m_validate==1) difference=Compare2EMaps(payload,eMap);
+        if (m_validate==1) difference=Compare2EMaps(eMap_prev,eMap);
         if (!difference) cout<<"No changes - will not write anything!!!"<<endl;
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
           m_to_transfer.push_back(std::make_pair((RPCEMap*)eMap,snc));
-          delete eMap;
         }
 
-//	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
+	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
 }
 
 void popcon::RPCEMapSourceHandler::ConnectOnlineDB(string host, string sid, string user, string pass, int port=1521)
@@ -277,8 +274,7 @@ void popcon::RPCEMapSourceHandler::readEMap()
   cout << endl <<"Building RPC e-Map done!" << flush << endl << endl;
 }
 
-//int popcon::RPCEMapSourceHandler::Compare2EMaps(const RPCEMap* map1, RPCEMap* map2) {
-int popcon::RPCEMapSourceHandler::Compare2EMaps(Ref map1, RPCEMap* map2) {
+int popcon::RPCEMapSourceHandler::Compare2EMaps(const RPCEMap* map1, RPCEMap* map2) {
   RPCReadOutMapping* oldmap1 = map1->convert();
   RPCReadOutMapping* oldmap2 = map2->convert();
   vector<const DccSpec *> dccs1 = oldmap1->dccList();

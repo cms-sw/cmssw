@@ -28,20 +28,14 @@ class L1GctEmLeafCard : L1GctProcessor {
   /// destruct
   ~L1GctEmLeafCard();
   ///
-  /// clear internal trigger data buffers
-  void reset();
+  /// clear buffers
+  virtual void reset();
   ///
   /// fetch input data
   virtual void fetchInput();
   ///
   /// process the event
   virtual void process();	
-  ///
-  /// define the bunch crossing range to process
-  void setBxRange(const int firstBx, const int numberOfBx);
-  ///
-  /// clear input data buffers and process a new bunch crossing
-  void setNextBx(const int bxnum);
   ///
   /// get ID
   int id() { return m_id; }
@@ -60,20 +54,11 @@ class L1GctEmLeafCard : L1GctProcessor {
   L1GctElectronSorter* getIsoElectronSorterU2()    { return m_sorters.at(2); }
   L1GctElectronSorter* getNonIsoElectronSorterU2() { return m_sorters.at(3); }
 
- protected:
-
-  /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor() {}
-  virtual void resetPipelines() {}
-
-  /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
-
 private:
   /// card ID (0 or 1)
   int m_id;
   ///  
-  /// processing - 0,2 are iso sorters, 1,3 are non-iso
+  /// processing - 0,1 are iso sorters, 2,3 are non-iso
   std::vector<L1GctElectronSorter*> m_sorters;
   
 };

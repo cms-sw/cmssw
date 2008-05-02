@@ -1,8 +1,6 @@
 #include "PhysicsTools/PatAlgos/plugins/ValueMapSkimmer.h"
-
 //#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 //#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
 using namespace pat::helper;
 
@@ -15,15 +13,10 @@ typedef ValueMapSkimmer<reco::CandidateBaseRef>         CandRefValueMapSkimmer;
 
 //typedef ValueMapSkimmer<reco::JetTagRef>                JetTagRefValueMapSkimmer;
 
-typedef ManyValueMapsSkimmer<float>  CandManyValueMapsSkimmerFloat;
-typedef ManyValueMapsSkimmer<reco::IsoDeposit>  CandManyValueMapsSkimmerIsoDeposits;
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(CandValueMapSkimmerDouble);
 DEFINE_FWK_MODULE(CandValueMapSkimmerFloat);
-DEFINE_FWK_MODULE(CandManyValueMapsSkimmerFloat);
-DEFINE_FWK_MODULE(CandManyValueMapsSkimmerIsoDeposits);
 //DEFINE_FWK_MODULE(CandValueMapSkimmerInt);
 //DEFINE_FWK_MODULE(CandValueMapSkimmerDouble2Float);
 //DEFINE_FWK_MODULE(CandValueMapSkimmerInt2Float);

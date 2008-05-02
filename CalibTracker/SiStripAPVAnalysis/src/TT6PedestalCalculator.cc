@@ -1,4 +1,5 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/TT6PedestalCalculator.h"
+#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
 #include <cmath>
 #include <numeric>

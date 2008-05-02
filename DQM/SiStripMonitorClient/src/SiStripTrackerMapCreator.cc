@@ -73,8 +73,9 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
       if (detId_save != detId) {
         detId_save = detId;
         local_mes.clear();
-        folder_organizer.setDetectorFolder(detId);
-        vector<MonitorElement*> all_mes = dqm_store->getContents(dqm_store->pwd());
+        string dir_path;
+        folder_organizer.getFolderName(detId, dir_path);
+        vector<MonitorElement*> all_mes = dqm_store->getContents(dir_path);
 	for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
 	     it!= all_mes.end(); it++) {
 	  if (!(*it)) continue;

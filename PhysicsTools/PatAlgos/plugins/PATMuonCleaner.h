@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.6 2008/04/03 08:29:48 zeidler Exp $
+// $Id: PATMuonCleaner.h,v 1.2 2008/03/11 11:01:08 llista Exp $
 //
 
 /**
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.6 2008/04/03 08:29:48 zeidler Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.2 2008/03/11 11:01:08 llista Exp $
 */
 
 
@@ -44,8 +44,6 @@
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
-
-#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 #include "PhysicsTools/PatUtils/interface/MuonSelector.h"
 
@@ -71,8 +69,6 @@ namespace pat {
                                   reco::MuonCollection, 
                                   GreaterByPt<reco::Muon> > helper_;
 
-      pat::helper::MultiIsolator isolator_;
-
       edm::ParameterSet selectionCfg_; ///< Defines everything about the selection
       MuonSelector      selector_;     ///< Actually performs the selection
 
@@ -91,31 +87,9 @@ namespace reco {
         config_.selectionType = selectionType;
         if ( selectionType == "custom" )
           {
-		
             config_.dPbyPmax  = cfg.getParameter<double>("dPbyPmax");
             config_.chi2max  = cfg.getParameter<double>("chi2max");
             config_.nHitsMin = cfg.getParameter<int>("nHitsMin");
-          }
-		if ( selectionType == "muId" )
-          {
-            std::string flag = cfg.getParameter<std::string>("flag");
-			if(flag == "TMLastStationLoose"){
-				config_.flag = muonid::TMLastStationLoose;
-			}
-			else if(flag == "TMLastStationTight"){
-				config_.flag = muonid::TMLastStationTight;
-  			}
-			/* 2_0 only
-			else if(flag == "TM2DCompatibilityLoose"){
-				config_.flag = muonid::TM2DCompatibilityLoose;
-  			}
-			else if(flag == "TM2DCompatibilityTight"){
-				config_.flag = muonid::TM2DCompatibilityTight;
-  			}*/
-			else{
-				throw edm::Exception(edm::errors::UnimplementedFeature) 
-					<< "muId flag is not valid or not implemented yet";
-			}
           }
         return pat::MuonSelector( config_ );
       }

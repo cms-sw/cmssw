@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.3 2008/03/12 16:13:26 gpetrucc Exp $
+// $Id: PATElectronCleaner.h,v 1.2 2008/03/11 11:03:44 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -37,7 +37,7 @@
   The actual selection is performed by the ElectronSelector.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.3 2008/03/12 16:13:26 gpetrucc Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.2 2008/03/11 11:03:44 llista Exp $
 */
 
 
@@ -77,11 +77,10 @@ namespace pat {
       edm::InputTag electronSrc_;
       bool          removeDuplicates_;
 
-      typedef pat::helper::CleanerHelper<reco::PixelMatchGsfElectron,
-                                 reco::PixelMatchGsfElectron,
-                                 reco::PixelMatchGsfElectronCollection,
-                                 GreaterByPt<reco::PixelMatchGsfElectron> > MyCleanerHelper;
-      MyCleanerHelper helper_;
+      pat::helper::CleanerHelper<reco::PixelMatchGsfElectron, 
+	                         reco::PixelMatchGsfElectron,
+                                 reco::PixelMatchGsfElectronCollection, 
+	                         GreaterByPt<reco::PixelMatchGsfElectron> > helper_;
 
       pat::helper::MultiIsolator isolator_;
 

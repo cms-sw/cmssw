@@ -38,9 +38,6 @@ class CleanerHelper {
     BOOST_STATIC_ASSERT( (boost::is_base_of<reco::Candidate,T>::value) );
     BOOST_STATIC_ASSERT( (boost::is_base_of<reco::Candidate,T2>::value) );
     public:
-        typedef CleanerHelper<T,T2,Collection,Comparator> cleaner_type;
-        typedef Collection                                collection_type;
-
         CleanerHelper() { } // needed for EDM Modules
         CleanerHelper(const edm::InputTag &src, const std::string &instanceName="") ;
         ~CleanerHelper() { }
@@ -78,7 +75,6 @@ class CleanerHelper {
         /// Must be const, to avoid people doing push_back or remove by hand and breaking the refs.
         const Collection & selected() const { return selected_; }
 
-
         /// Size of the collection of selected items
         size_t size() const { return selected_.size(); }
         /// A reference to the i-th selected item (const)
@@ -89,24 +85,15 @@ class CleanerHelper {
         /// Mark an item (given its index in the selected collection).
         /// At the end only items with mark == 0 will be saved
         void setMark(size_t selIdx, uint32_t mark) { marks_[selIdx] = mark; if (markItems_) reallyMarkItem(selIdx); }
-
-        /// Turn on additional bit flags on an item. Bits which are already 1 won't be affected.
-        /// At the end only items with mark == 0 will be saved
-        void addMark(size_t selIdx, uint32_t mark) { marks_[selIdx] |= mark; if (markItems_) reallyMarkItem(selIdx); }
-
         /// Get the mark of an item (given its index in the selected collection)
         /// At the end only items with mark == 0 will be saved
-        uint32_t mark(size_t selIdx) const { return marks_[selIdx]; }
+        uint32_t mark(size_t selIdx) { return marks_[selIdx]; }
 
         /// Inform the helper that item with index sourceIdx in the source collection is selected,
         /// and it's value in the new collection is "value" (that can just be original object if you only select)
         /// It also allows to set a transient marks on the items (in the end only items with mark == 0 will be saved)
         /// Returns the index in the collection of selected items.
         size_t addItem(size_t sourceIdx, const T2 &value, uint32_t mark=0) ;
-
-        /// Returns the index of the last selected item, in case you forgot it
-        /// Note that if there are no items it will return -1!
-        int    lastItemSelIndex() const { return selected_.size() - 1; }
 
         /// Tell the module also to save "all" items, with a given label,
         /// The collection will contain also the items with mark != 0
@@ -128,9 +115,6 @@ class CleanerHelper {
         /// the value of that bit in the status mark
         void setBitsToIgnore (uint32_t mask) { bitsToIgnore_ = mask; }
 
-        /// Mask of bits which are ignored when determining if the item is accepted or not
-        uint32_t bitsToIgnore() const { return bitsToIgnore_; }
-
         /// Tells this helper to call "setStatus(int status)" method on each object
         /// using the 'mark' as status.
         /// This can be done only if the output type T2 is a subclass of Particle
@@ -143,42 +127,10 @@ class CleanerHelper {
            return comp_(selected_[t1], selected_[t2]);
         }
 
-        class FilteredCollection {
-            public:
-                typedef T2 value_type;
-                typedef typename boost::indirect_iterator<typename Collection::const_iterator> const_iterator;
-                explicit FilteredCollection(const cleaner_type &cleaner)  { fill_(cleaner, cleaner.bitsToIgnore()); }
-                explicit FilteredCollection(const cleaner_type &cleaner, 
-                                            uint32_t bitsToIgnore)        { fill_(cleaner, bitsToIgnore); }
-                size_t size() const { return accepted_.size(); }
-                const T2 & operator[]     (size_t i) const { return * accepted_[i]; }
-                size_t     originalIndexOf(size_t i) const { return oldIndices_[i]; }
-                const_iterator begin() const { return const_iterator(accepted_.begin()); }
-                const_iterator end()   const { return const_iterator(accepted_.end()  ); }
-            private: 
-                std::vector<const value_type *> accepted_; 
-                std::vector<size_t>             oldIndices_;
-                void fill_(const cleaner_type &cleaner, uint32_t mask) {
-                    for (size_t i = 0, n = cleaner.size(); i < n; ++i) {
-                        if ((cleaner.mark(i) & ~mask) == 0) {
-                            accepted_.push_back(& cleaner[i]);
-                            oldIndices_.push_back(i);
-                        }
-                    }
-                }
-        };
-        friend class FilteredCollection;
-
-        /// Returns a "view" of the items which have no mandatory 'bad flags' on
-        /// This "view" is static, it won't change if you change bits 
-        /// To convert between indices here and indices in all list, use originalIndexOf method.
-        FilteredCollection accepted() const { return FilteredCollection(*this); }       
- 
-
         ///Turn on bookkeeping of summary information bit per bit
         void requestSummary() { makeSummary_ = true; } 
-
         ///Print summary information bit per bit. 
+        ///OUT can be something like std::cout or LogInfo("xyz")
         std::string printSummary() ;
     private:
         // ---- member functions ----
@@ -485,6 +437,13 @@ std::string CleanerHelper<T,T2,Collection,Comparator>::printSummary() {
 
 template<typename T, typename T2, typename Collection, typename Comparator>
 void CleanerHelper<T,T2,Collection,Comparator>::endJob() {
+    if (makeSummary_) {
+        typename edm::LogVerbatim("PATLayer0Summary|CleanerHelper") << 
+                    "CleanerHelper with InputTag '" << src_.encode() << "'\n" << 
+                    printSummary(); 
+        // Fixme: switch to LogVerbatim as soon as I find out how to selectively turn on one LogInfo
+        //std::cout << printSummary() << std::endl;
+    }
 }
 
 } } // namespaces

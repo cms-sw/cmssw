@@ -188,10 +188,6 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),sERROR(nERRORS),sW
 
   dduBuffers.clear();
   dmbBuffers.clear();
-  dduOffsets.clear();
-  dmbOffsets.clear();
-  dduSize.clear();
-  dmbSize.clear();
 
   buf_1 = &(tmpbuf[0]);
   buf0  = &(tmpbuf[4]);
@@ -203,9 +199,6 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),sERROR(nERRORS),sW
 
 long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
   if( length<=0 ) return -1;
-
-  // 'buffer' is a sliding pointer; keep track of the true buffer
-  buffer_start = buffer;
 
   while( length>0 ){
     // == Store last 4 read buffers in pipeline-like memory (note that memcpy works quite slower!)
@@ -271,10 +264,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     dduBuffers.clear();
     dmbBuffers.clear();
-    dduOffsets.clear();
-    dmbOffsets.clear();
-    dduSize.clear();
-    dmbSize.clear();
 
     fDCC_Header  = true;
     bzero(fERROR,   sizeof(bool)*nERRORS);
@@ -400,6 +389,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       CFEB_SampleCount          = 0;
       CFEB_BSampleCount         = 0;
 
+      dduBuffers[sourceID] = buf_1;
+
       if (modeDDUonly) {
          fDCC_Header  = true;
          bzero(fERROR,   sizeof(bool)*nERRORS);
@@ -411,22 +402,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
          bCHAMB_WRN.clear();
          bDDU_ERR.clear();
          bDDU_WRN.clear();
-         dduBuffers.clear();
-         dduOffsets.clear();
-         dmbBuffers.clear();
-         dmbOffsets.clear();
-         dduSize.clear();
-         dmbSize.clear();
       }
-
-	  dduBuffers[sourceID] = buf_1;
-      dduOffsets[sourceID] = buf_1-buffer_start;
-      dduSize   [sourceID] = 0;
-      dmbBuffers[sourceID].clear();
-      dmbOffsets[sourceID].clear();
-      dmbSize   [sourceID].clear();
-
-	  bDDU_ERR[sourceID] = 0;
+      bDDU_ERR[sourceID] = 0;
       bDDU_WRN[sourceID] = 0;
 
       nDMBs      = 0;
@@ -515,8 +492,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       nDMBs++;
 
       dmbBuffers[sourceID][currentChamber] = buf0;
-      dmbOffsets[sourceID][currentChamber] = buf0-buffer_start;
-      dmbSize   [sourceID][currentChamber] = 0;
 
       // Print DMB_ID from DMB Header
       cout<<"DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";
@@ -798,7 +773,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
     if( fTMB_Header && checkCrcTMB ){
       for(unsigned short j=0, w=0; j<4; ++j){
 	///w = buf0[j] & 0x7fff;
-	w = buf0[j] & (fTMB_Format2007 ? 0xffff : 0x7fff);
+	w = buf0[j] & (fALCT_Format2007 ? 0xffff : 0x7fff);
 	for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
 	  t = ((w >> i) & 1) ^ ((TMB_CRC >> 21) & 1);
 	  ncrc = (TMB_CRC << 1) & 0x3ffffc;
@@ -892,8 +867,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       uniqueALCT   = true;
       uniqueTMB    = true;
 
-      dmbSize[sourceID][currentChamber] = buf0 - dmbBuffers[sourceID][currentChamber];
-
       // Finally check if DAVs were correct
       if( DAV_ALCT ){
 	fERROR[21] = true;
@@ -962,8 +935,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	bCHAMB_WRN[-1] = 0;
       }
       ++cntCHAMB_Trailers[buf0[1]&0x0FFF];
-
-      dmbSize[sourceID][currentChamber] = buf0 - dmbBuffers[sourceID][currentChamber];
 
       // Lost DMB F-Trailer before
       if( !fDMB_Trailer ){
@@ -1127,7 +1098,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  bCHAMB_ERR[-2] |= 0x1;
 	}
 
-      dduSize[sourceID] = buf0-dduBuffers[sourceID];
 
       ++cntDDU_Trailers; // Increment DDUTrailer counter
 

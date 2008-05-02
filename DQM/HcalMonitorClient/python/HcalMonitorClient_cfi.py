@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#Which subdetectors are present?
-
 import FWCore.ParameterSet.Config as cms
 
 hcalClient = cms.EDFilter("HcalMonitorClient",
@@ -36,7 +32,11 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
     LEDMEAN_ErrThresh = cms.untracked.double(2.25),
     # Operate every N lumi sections
     diagnosticPrescaleLS = cms.untracked.int32(-1),
-    subDetsOn = cms.untracked.vstring('HB', 'HE', 'HF', 'HO'),
+    #Which subdetectors are present?
+    subDetsOn = cms.untracked.vstring('HB', 
+        'HE', 
+        'HF', 
+        'HO'),
     RecHitClient = cms.untracked.bool(True),
     # for the moment, don't run CaloTowerClient unless explicitly requested
     CaloTowerClient = cms.untracked.bool(False),

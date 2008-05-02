@@ -6,40 +6,14 @@
 EventProcessor: This defines the 'framework application' object. It is
 configured in the user's main() function, and is set running.
 
-Requirements placed upon the command line processor:
-
- 1. Support registering of switches/options from user modules
-    a. make help available
-    b. make sure there are no collisions.
-
- 2. If a switch or option is not supplied, the module looking for it
-    must have a sensible default behavior. There should be no required
-    switches, nor required options.
-
-Software policing seems needed in order to provent illicit use to
-configure moddules entirely with passed arguments, rather than using
-the ParameterSet which the module is passed at the time of its
-creation.
-
-
-problems:
-  specification of "pass" and other things like it - things that
-  have to do with the job as a whole or with this object in particular.
-
-  we are not careful yet about catching exceptions and printing
-  useful information.
-
-  where does the pluginmanager initialize call go?
-
-
-$Id: EventProcessor.h,v 1.61 2008/04/04 16:11:02 wdd Exp $
+$Id: EventProcessor.h,v 1.63 2008/04/15 19:20:49 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <string>
 #include <vector>
+#include <memory>
 
-#include "sigc++/signal.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 #include "boost/utility.hpp"
@@ -52,10 +26,10 @@ $Id: EventProcessor.h,v 1.61 2008/04/04 16:11:02 wdd Exp $
 #include "FWCore/Framework/interface/Actions.h"
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
 
 namespace statemachine {
@@ -64,15 +38,17 @@ namespace statemachine {
 
 namespace edm {
 
+  class ProcessDesc;
+  namespace eventsetup {
+    class EventSetupProvider;
+  }
+
   namespace event_processor
   {  
     /*
-      ------------
-      cause events to be processed in a separate thread
-      and functions used in the online.  Several of these
-      state are likely to be transitory in the offline
-      because they are completly driven by the data coming
-      from the input source.
+      Several of these state are likely to be transitory in
+      the offline because they are completly driven by the
+      data coming from the input source.
     */
     enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
 		 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
@@ -83,27 +59,12 @@ namespace edm {
 	       mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
-    class MachineSentry;
-    class LuminosityBlockSentry;
-    class RunSentry;
-    class InputFileSentry;
     class PrePostSourceSignal;
   }
 
   class EventProcessor : public IEventProcessor, private boost::noncopyable
   {
-    // ------------ friend classes and functions ----------------
-
   public:
-
-    /// The input string contains the entire contents of a
-    /// configuration file. Uses default constructed ServiceToken, so
-    /// an EventProcessor created with this constructor will allow
-    /// access to no externally-created services.
-    /// This should become pretty much useless when construction of
-    /// services is moved outside of the EventProcessor.
-    /// explicit EventProcessor(const std::string& config);
-
 
     // The input string 'config' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and
@@ -355,8 +316,8 @@ namespace edm {
 
     virtual void doErrorStuff();
 
-    virtual void smBeginRun(int run);
-    virtual void smEndRun(int run);
+    virtual void beginRun(int run);
+    virtual void endRun(int run);
 
     virtual void beginLumi(int run, int lumi);
     virtual void endLumi(int run, int lumi);
@@ -376,6 +337,8 @@ namespace edm {
     virtual void setExceptionMessageRuns(std::string& message);
     virtual void setExceptionMessageLumis(std::string& message);
 
+    virtual bool alreadyHandlingException() const;
+
   private:
     //------------------------------------------------------------------
     //
@@ -388,32 +351,16 @@ namespace edm {
 
                        
     StatusCode runCommon(bool onlineStateTransitions, int numberOfEventsToProcess);
-    void terminateMachine(bool afterException);
+    void terminateMachine();
 
-    StatusCode processEvents(int & numberEventsToProcess);
-    StatusCode processLumis(int & numberEventsToProcess, bool repeatable);
-    StatusCode processRuns(int & numberEventsToProcess, bool repeatable);
-    StatusCode processInputFiles(int numberEventsToProcess, bool repeatable,
-		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
     
-    boost::shared_ptr<FileBlock> beginInputFile();
-    boost::shared_ptr<RunPrincipal> beginRun();
-    boost::shared_ptr<LuminosityBlockPrincipal> beginLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
-    std::auto_ptr<EventPrincipal> doOneEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     std::auto_ptr<EventPrincipal> doOneEvent(EventID const& id);
     void procOneEvent(EventPrincipal *pep);
-    void endLuminosityBlock(LuminosityBlockPrincipal *lbp);
-    void endRun(RunPrincipal *rp);
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 
     void connectSigs(EventProcessor * ep);
-
-    struct DoPluginInit
-    {
-      DoPluginInit();
-    };
 
     void changeState(event_processor::Msg);
     void errorState();
@@ -433,7 +380,6 @@ namespace edm {
 
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
-    DoPluginInit                                  plug_init_;
     ParameterSet			          maxEventsPset_;
     ParameterSet			          maxLumisPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
@@ -459,8 +405,6 @@ namespace edm {
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
     boost::shared_ptr<FileBlock>                  fb_;
-    boost::shared_ptr<RunPrincipal>               rp_;
-    boost::shared_ptr<LuminosityBlockPrincipal>   lbp_;
     boost::shared_ptr<EDLooper>                   looper_;
 
     std::auto_ptr<statemachine::Machine>          machine_;
@@ -475,23 +419,19 @@ namespace edm {
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageLumis_;
+    bool                                          alreadyHandlingException_;
+    bool                                          forceLooperToEnd_;
 
     friend class event_processor::StateSentry;
-    friend class event_processor::MachineSentry;
-    friend class event_processor::LuminosityBlockSentry;
-    friend class event_processor::RunSentry;
-    friend class event_processor::InputFileSentry;
     friend class event_processor::PrePostSourceSignal;
   }; // class EventProcessor
 
   //--------------------------------------------------------------------
-  // ----- implementation details below ------
 
   inline
   EventProcessor::StatusCode
   EventProcessor::run() {
     return run(-1, false);
   }
-
 }
 #endif

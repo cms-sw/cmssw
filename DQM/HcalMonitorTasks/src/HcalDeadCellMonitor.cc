@@ -54,7 +54,7 @@ namespace HcalDeadCellCheck
     all.digiCheck->Fill(digi.id().ieta()+offset,digi.id().iphi());
 
     // Loop over the 10 time slices of the digi
-    for (int i=0;i<digi.size();i++)
+    for (int i=0;i<digi.size();++i)
       {
 	ADCsum+=digi.sample(i).adc();
 	//if (ADCsum!=0) break;
@@ -71,16 +71,6 @@ namespace HcalDeadCellCheck
 	  }
 	capADC[thisCapid]+=digi.sample(i).adc();
 
-	// FIXME:  Still need to work on Capid check -- 29 Oct 2007
-	/*
-	if (thisCapid!=(i%4)) // do all digis start with capid of 0 on first slice?
-	  {
-	    hist.noADC_ID_map->Fill(digi.id().ieta(),digi.id().iphi());
-	    hist.noADC_ID_eta->Fill(digi.id().ieta());
-	    all.noADC_ID_map->Fill(digi.id().ieta(),digi.id().iphi());
-	    all.noADC_ID_eta->Fill(digi.id().ieta());
-	  }
-	*/
 
 	// Not yet sure if this histogram is useful, but it gives an idea of the ADC distributions
 	hist.ADCdist->Fill(digi.sample(i).adc());
@@ -97,7 +87,7 @@ namespace HcalDeadCellCheck
       }
 
     // look for individual dead caps
-    for (int zz=0;zz<4;zz++)
+    for (int zz=0;zz<4;++zz)
       {
 	if (capADC[zz]<=mincount)
 	  {
@@ -127,7 +117,7 @@ namespace HcalDeadCellCheck
     typename Hits::const_iterator _cell;
     for (_cell=hits.begin();
 	 _cell!=hits.end(); 
-	 _cell++)
+	 ++_cell)
       {
 	// Allow for offsets in eta for cells with depth >1?
 	int offset;
@@ -150,7 +140,7 @@ namespace HcalDeadCellCheck
 	int allneighbors=0;
 	int etaFactor;  // correct for eta regions where phi segmentation is > 5 degrees/cell
 
-	for (typename Hits::const_iterator neighbor=hits.begin();neighbor!=hits.end();neighbor++)
+	for (typename Hits::const_iterator neighbor=hits.begin();neighbor!=hits.end();++neighbor)
 	  {
 	    //if (vetoCell(neighbor->id())) continue;
 	    if  ((HcalSubdetector)(neighbor->id().subdet())!=(HcalSubdetector)(_cell->id().subdet())) continue;
@@ -301,9 +291,9 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
 
   m_dbe->setCurrentFolder(baseFolder_+"/"+hist.subdet.c_str());
   hist.deadADC_map = m_dbe->book2D(hist.subdet+"_deadADCOccupancyMap",hist.subdet+" No ADC Count Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-  hist.noADC_ID_map = m_dbe->book2D(hist.subdet+"_noADCIDOccupancyMap",hist.subdet+" No ADC ID Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  //hist.noADC_ID_map = m_dbe->book2D(hist.subdet+"_noADCIDOccupancyMap",hist.subdet+" No ADC ID Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
   hist.deadADC_eta = m_dbe->book1D(hist.subdet+"_deadADCEta",hist.subdet+" No ADC Count Eta ",etaBins_,etaMin_,etaMax_);
-  hist.noADC_ID_eta = m_dbe->book1D(hist.subdet+"_noADCIDEta",hist.subdet+" No ADC ID Eta ",etaBins_,etaMin_,etaMax_);
+  //hist.noADC_ID_eta = m_dbe->book1D(hist.subdet+"_noADCIDEta",hist.subdet+" No ADC ID Eta ",etaBins_,etaMin_,etaMax_);
   hist.ADCdist = m_dbe->book1D(hist.subdet+"_ADCdist",hist.subdet+" ADC count distribution",128,0,128);
   hist.NADA_cool_cell_map = m_dbe->book2D(hist.subdet+"_NADA_CoolCellMap",hist.subdet+" Cool Cells",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
   hist.digiCheck = m_dbe->book2D(hist.subdet+"_digiCheck",hist.subdet+" Check that digi was found",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -325,7 +315,29 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
   char PedTemp[256];
   sprintf(PedTemp,"%sAbovePedTemp",hist.subdet.c_str());
   hist.above_pedestal_temp = new TH2F(PedTemp,"Don't look at this!",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-  //hist.above_pedestal_temp = m_dbe->book2D(hist.subdet+"_AbovePedTemp","Don't look at this!",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
+  // Set Axis Labels
+  hist.deadADC_map->setAxisTitle("i#eta", 1);
+  hist.deadADC_map->setAxisTitle("i#phi",2);
+  hist.deadADC_eta->setAxisTitle("i#eta", 1);
+  hist.deadADC_eta->setAxisTitle("ADC count< minimum",2);
+  hist.ADCdist->setAxisTitle("ADC",1);
+  hist.ADCdist->setAxisTitle("# of counts",2);
+  hist.NADA_cool_cell_map->setAxisTitle("i#eta", 1);
+  hist.NADA_cool_cell_map->setAxisTitle("i#phi",2);
+  hist.digiCheck->setAxisTitle("i#eta", 1);
+  hist.digiCheck->setAxisTitle("i#phi",2);
+  hist.cellCheck->setAxisTitle("i#eta", 1);
+  hist.cellCheck->setAxisTitle("i#phi",2);
+  for (unsigned int icap=0;icap<hist.deadcapADC_map.size();++icap)
+    {
+      hist.deadcapADC_map[icap]->setAxisTitle("i#eta", 1);
+      hist.deadcapADC_map[icap]->setAxisTitle("i#phi",2);
+    }
+  hist.above_pedestal->setAxisTitle("i#eta", 1);
+  hist.above_pedestal->setAxisTitle("i#phi",2);
+  hist.coolcell_below_pedestal->setAxisTitle("i#eta", 1);
+  hist.coolcell_below_pedestal->setAxisTitle("i#phi",2);
 
   return;
 }
@@ -376,7 +388,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
  
   try
     {
-      for (HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); j++)
+      for (HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j)
 	{
 	  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
 	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
@@ -397,7 +409,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 
   try
     {
-      for (HODigiCollection::const_iterator j=hodigi.begin(); j!=hodigi.end(); j++)
+      for (HODigiCollection::const_iterator j=hodigi.begin(); j!=hodigi.end(); ++j)
 	{
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
@@ -413,7 +425,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 
   try
     {
-      for (HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); j++)
+      for (HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); ++j)
 	{
 	  const HFDataFrame digi = (const HFDataFrame)(*j);
 	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 

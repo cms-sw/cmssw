@@ -49,10 +49,6 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["AntiXiMinusInelastic"] = "Hadronic";
   mapProcesses["AlphaInelastic"] = "Hadronic";
   mapProcesses["FullModelHadronicProcess"] = "Hadronic";
-  mapProcesses["hInelastic"] = "Hadronic";
-  mapProcesses["dInelastic"] = "Hadronic";
-  mapProcesses["tInelastic"] = "Hadronic";
-  mapProcesses["alphaInelastic"] = "Hadronic";
 
   // ionizations
   mapProcesses["eIoni"] = "EIoni";
@@ -121,10 +117,6 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   map2Process["XiZeroInelastic"] = 33;
   map2Process["AntiXiMinusInelastic"] = 34;
   map2Process["FullModelHadronicProcess"] = 35;
-  map2Process["hInelastic"] = 36;
-  map2Process["dInelastic"] = 37;
-  map2Process["tInelastic"] = 38;
-  map2Process["alphaInelastic"] = 39;
   // Decay
   map2Process["Decay"] = 50;
   // EM

@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.h,v 1.3 2008/03/06 13:30:50 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.h,v 1.2 2008/02/21 14:08:01 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H
@@ -9,8 +9,6 @@
 #include <boost/cstdint.hpp>
 #include <string>
 #include <map>
-
-class TH1F;
 
 class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public CalibrationHistograms {
   
@@ -37,9 +35,7 @@ class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public Calib
   void update( SiStripConfigDb::DeviceDescriptions& );
   
   void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
-
-  TH1F *ishaHistogram_, *vfsHistogram_; 
-
+  
 };
 
 #endif // DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H

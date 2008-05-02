@@ -72,19 +72,12 @@ class ProcTMVA : public TrainProcessor {
     private:
 	void runTMVATrainer();
 
-	struct Method {
-		TMVA::Types::EMVA	type;
-		std::string		name;
-		std::string		description;
-	};
-
 	std::string getTreeName() const
 	{ return trainer->getName() + '_' + (const char*)getName(); }
-
-	std::string getWeightsFile(const Method &meth, const char *ext) const
+	std::string getWeightsFile(const char *ext) const
 	{
 		return "weights/" + getTreeName() + '_' +
-		       meth.name + ".weights." + ext;
+		       methodName + ".weights." + ext;
 	}
 
 	enum Iteration {
@@ -92,7 +85,9 @@ class ProcTMVA : public TrainProcessor {
 		ITER_DONE
 	} iteration;
 
-	std::vector<Method>		methods;
+	TMVA::Types::EMVA		methodType;
+	std::string			methodName;
+	std::string			methodDescription;
 	std::vector<std::string>	names;
 	std::auto_ptr<TFile>		file;
 	TTree				*treeSig, *treeBkg;
@@ -140,49 +135,46 @@ void ProcTMVA::configure(DOMElement *elem)
 		names.push_back(name);
 	}
 
-	for(DOMNode *node = elem->getFirstChild();
-	    node; node = node->getNextSibling()) {
-		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
-			continue;
+	DOMNode *node = elem->getFirstChild();
+	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+		node = node->getNextSibling();
 
-		if (std::strcmp(XMLSimpleStr(node->getNodeName()),
-		                "method") != 0)
-			throw cms::Exception("ProcTMVA")
+	if (!node)
+		throw cms::Exception("ProcTMVA")
+			<< "Expected TMVA method in config section."
+			<< std::endl;
+
+	if (std::strcmp(XMLSimpleStr(node->getNodeName()), "method") != 0)
+		throw cms::Exception("ProcTMVA")
 				<< "Expected method tag in config section."
 				<< std::endl;
 
-		elem = static_cast<DOMElement*>(node);
+	elem = static_cast<DOMElement*>(node);
 
-		Method method;
-		method.type = TMVA::Types::Instance().GetMethodType(
-			XMLDocument::readAttribute<std::string>(elem,
+	methodType = TMVA::Types::Instance().GetMethodType(
+		XMLDocument::readAttribute<std::string>(elem,
 		                                        "type").c_str());
 
-		method.name =
-			XMLDocument::readAttribute<std::string>(elem, "name");
+	methodName = XMLDocument::readAttribute<std::string>(elem, "name");
 
-		method.description =
-			(const char*)XMLSimpleStr(node->getTextContent());
+	methodDescription = (const char*)XMLSimpleStr(node->getTextContent());
 
-		methods.push_back(method);
-	}
+	node = node->getNextSibling();
+	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+		node = node->getNextSibling();
 
-	if (!methods.size())
+	if (node)
 		throw cms::Exception("ProcTMVA")
-			<< "Expected TMVA method in config section."
+			<< "Superfluous tags in config section."
 			<< std::endl;
 }
 
 bool ProcTMVA::load()
 {
-	bool ok = true;
-	for(std::vector<Method>::const_iterator iter = methods.begin();
-	    iter != methods.end(); ++iter) {
-		std::ifstream in(getWeightsFile(*iter, "txt").c_str());
-		if (!in.good()) {
-			ok = false;
-			break;
-		}
+	bool ok = false;
+	/* test for weights file */ {
+		std::ifstream in(getWeightsFile("txt").c_str());
+		ok = in.good();
 	}
 
 	if (!ok)
@@ -207,11 +199,11 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 {
 	Calibration::ProcTMVA *calib = new Calibration::ProcTMVA;
 
-	std::ifstream in(getWeightsFile(methods[0], "txt").c_str(),
+	std::ifstream in(getWeightsFile("txt").c_str(),
 	                 std::ios::binary | std::ios::in);
 	if (!in.good())
 		throw cms::Exception("ProcTMVA")
-			<< "Weights file " << getWeightsFile(methods[0], "txt")
+			<< "Weights file " << getWeightsFile("txt")
 			<< " cannot be opened for reading." << std::endl;
 
 	std::size_t size = getStreamSize(in);
@@ -236,7 +228,7 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 	delete[] buffer;
 	in.close();
 
-	calib->method = methods[0].name;
+	calib->method = methodName;
 	calib->variables = names;
 
 	return calib;
@@ -332,9 +324,7 @@ void ProcTMVA::runTMVATrainer()
 	factory->PrepareTrainingAndTestTree("", nSignal, nBackground, 1, 1,
 	                                    "SplitMode=Block:!V");
 
-	for(std::vector<Method>::const_iterator iter = methods.begin();
-	    iter != methods.end(); ++iter)
-		factory->BookMethod(iter->type, iter->name, iter->description);
+	factory->BookMethod(methodType, methodName, methodDescription);
 
 	factory->TrainAllMethods();
 
@@ -395,11 +385,8 @@ void ProcTMVA::cleanup()
 
 	std::remove(trainer->trainFileName(this, "root", "input").c_str());
 	std::remove(trainer->trainFileName(this, "root", "output").c_str());
-	for(std::vector<Method>::const_iterator iter = methods.begin();
-	    iter != methods.end(); ++iter) {
-		std::remove(getWeightsFile(*iter, "txt").c_str());
-		std::remove(getWeightsFile(*iter, "root").c_str());
-	}
+	std::remove(getWeightsFile("txt").c_str());
+	std::remove(getWeightsFile("root").c_str());
 	rmdir("weights");
 }
 

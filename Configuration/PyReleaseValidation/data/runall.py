@@ -42,29 +42,37 @@ def main(argv) :
     import getopt
     
     try:
-        opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat"])
-    except getopt.GetoptError:
+        opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat",'hlt'])
+    except getopt.GetoptError, e:
+        print "unknown option", str(e)
         sys.exit(2)
         
 # check command line parameter
     np=1
     doHighStat=0
+    hlt = False
     for opt, arg in opts :
         if opt == "--nproc" :
             np=arg
         if opt == "--dohighstat" :
             doHighStat=1
-        
-    commands_standard_file=open('cmsDriver_standard.txt','r')
+        if opt in ('--hlt',): # note: trailing comma needed for single arg to indicate tuple
+            hlt = True
+
+    hltSuffix = ''
+    if hlt:
+        hltSuffix = '_hlt'
+
+    commands_standard_file=open('cmsDriver_standard'+hltSuffix+'.txt','r')
     lines_standard=commands_standard_file.readlines()
     commands_standard_file.close()
-
-    commands_highstat_file=open('cmsDriver_highstats.txt','r')
-    lines_highstat=commands_highstat_file.readlines()
-    commands_highstat_file.close()
-
     lines=lines_standard
+
     if doHighStat==1:
+        commands_highstat_file=open('cmsDriver_highstats'+hltSuffix+'.txt','r')
+        lines_highstat=commands_highstat_file.readlines()
+        commands_highstat_file.close()
+
         lines=lines+lines_highstat
    
 

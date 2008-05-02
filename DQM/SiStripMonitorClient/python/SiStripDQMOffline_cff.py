@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 
 #  DQM Online Environment #####
 # use include file for dqmEnv dqmSaver
-from DQMServices.Components.test.dqm_onlineEnv_cfi import *
+from DQMServices.Components.DQMEnvironment_cfi import *
 #--------------------------
 # STRIP DQM Source and Client
 #--------------------------
@@ -27,19 +27,22 @@ qTester = cms.EDFilter("QualityTester",
 )
 
 SiStripDQMOffSimData = cms.Sequence(SiStripSourcesSimData*qTester*SiStripOfflineDQMClient*dqmEnv*dqmSaver)
-SiStripDQMOffRealData = cms.Sequence(SiStripSourcesRealData*qTester*SiStripOfflineDQMClient*dqmEnv*dqmSaver)
-# put your subsystem name here: 
-# DT, Ecal, Hcal, SiStrip, Pixel, RPC, CSC, L1T 
-# (this goes into the filename)
-dqmSaver.fileName = 'SiStrip'
-dqmSaver.dirName = '.'
-# # (this goes into the foldername)
+SiStripDQMOffRealDataTIF = cms.Sequence(SiStripSourcesRealDataTIF*qTester*SiStripOfflineDQMClient*dqmEnv*dqmSaver)
+# Possible conventions are "Online", "Offline" and "RelVal".
+# Default is "Offline"
+dqmSaver.convention = 'Online'
+#replace dqmSaver.workflow      = "/A/B/C"
+# replace dqmSaver.dirName       = "."
+# This is the filename prefix
+dqmSaver.producer = 'DQM'
+# (this goes into the foldername)
 dqmEnv.subSystemFolder = 'SiStrip'
-#  DQM File Saving (optionally change fileSaving condition) #####
-dqmSaver.prescaleLS = -1
-dqmSaver.prescaleTime = -1 ## in minutes
-
-dqmSaver.prescaleEvt = -1
-dqmSaver.saveAtRunEnd = True
+# Ignore run number for MC data
+# replace dqmSaver.forceRunNumber  = -1
+# optionally change fileSaving  conditions
+# replace dqmSaver.saveByLumiSection =  -1
+# replace dqmSaver.saveByMinute = -1
+# replace dqmSaver.saveByEvent =  -1
+dqmSaver.saveByRun = 1
 dqmSaver.saveAtJobEnd = False
 

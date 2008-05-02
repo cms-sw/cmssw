@@ -1,6 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
 
 HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
@@ -35,7 +36,7 @@ namespace HcalDigiPerChan{
       if(dbe){
 	char name[1024];
 	sprintf(name,"%s Digi Shape ieta=%d iphi=%d depth=%d",type.c_str(),digi.id().ieta(),digi.id().iphi(),digi.id().depth());
-	tool[digi.id()] =  dbe->book1D(name,name,11,-0.5,10.5); 
+	tool[digi.id()] =  dbe->book1D(name,name,10,-0.5,9.5); 
 	for (int i=0; i<digi.size(); i++) tool[digi.id()]->Fill(i,ampl[i]);
       }
     }
@@ -193,8 +194,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     BQDIGI_FRAC -> setAxisTitle("# of Events",2);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HB");
-    hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",11,-0.5,10.5);
-    hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",11,-0.5,10.5);
+    hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",10,-0.5,9.5);
+    hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",10,-0.5,9.5);
 
     hbHists.DIGI_NUM =  m_dbe->book1D("HB # of Digis","HB # of Digis",2700,-0.5,2699.5);
     hbHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
@@ -273,8 +274,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
-    heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",11,-0.5,10.5);
-    heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",11,-0.5,10.5);
+    heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",10,-0.5,9.5);
+    heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",10,-0.5,9.5);
     heHists.DIGI_NUM =  m_dbe->book1D("HE # of Digis","HE # of Digis",2700,-0.5,2699.5);
     heHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
     heHists.DIGI_NUM -> setAxisTitle("# of Events",2);
@@ -350,8 +351,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
-    hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",11,-0.5,10.5);
-    hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",11,-0.5,10.5);
+    hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
+    hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",10,-0.5,9.5);
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",1800,-0.5,1799.5);
     hfHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
     hfHists.DIGI_NUM -> setAxisTitle("# of Events",2);
@@ -429,8 +430,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
-    hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",11,-0.5,10.5);
-    hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",11,-0.5,10.5);
+    hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
+    hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",2200,-0.5,2199.5);
     hoHists.DIGI_NUM -> setAxisTitle("# of Digis",1);  
     hoHists.DIGI_NUM -> setAxisTitle("# of Events",2);
@@ -574,15 +575,29 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	if (firsthbcap == -1) firsthbcap = digi.sample(0).capid();
 	int capdif = digi.sample(0).capid() - firsthbcap;
+	capdif = capdif%3 - capdif/3;
 	hbHists.CAPID_T0->Fill(capdif);
 	CAPID_T0->Fill(capdif);
+
+	//for timing plot, find max-TS
+	int maxadc=0;
+	for (int j=0; j<digi.size(); j++){     
+	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+	}
 
 	for (int i=0; i<digi.size(); i++) {	    
 	  hbHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	  hbHists.QIE_ADC->Fill(digi.sample(i).adc());
-	  hbHists.SHAPE_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //   hbHists.SHAPE_tot->Fill(i,normVals[i]);
+	  int jadc=digi.sample(i).adc();
+	  float tmp = (LedMonAdc2fc[jadc]+0.5);
+	  hbHists.SHAPE_tot->Fill(i,tmp);
 	  
-	  if(digiOcc) hbHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //and introducing threshold able to find muons
+	  //   if(digiOcc) hbHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  if(maxadc>10) hbHists.SHAPE_THR_tot->Fill(i,tmp);	  
 	  if(digiUpset) hbHists.QIE_CAPID->Fill(5);
 	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	  hbHists.QIE_DV->Fill(dver);
@@ -625,15 +640,30 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	if (firsthecap == -1) firsthecap = digi.sample(0).capid();
 	int capdif = digi.sample(0).capid() - firsthecap;
+	capdif = capdif%3 - capdif/3;
 	heHists.CAPID_T0->Fill(capdif);
 	CAPID_T0->Fill(capdif);
+
+
+	//for timing plot, find max-TS
+	int maxadc=0;
+	for (int j=0; j<digi.size(); j++){     
+	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+	}
 
 	for (int i=0; i<digi.size(); i++) {	    
 	  heHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	  heHists.QIE_ADC->Fill(digi.sample(i).adc());
-	  heHists.SHAPE_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //   heHists.SHAPE_tot->Fill(i,normVals[i]);
+	  int jadc=digi.sample(i).adc();
+	  float tmp = (LedMonAdc2fc[jadc]+0.5);
+	  heHists.SHAPE_tot->Fill(i,tmp);
 	  
-	  if(digiOcc) heHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	  //and introducing threshold able to find muons
+	  //   if(digiOcc) heHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	  if(maxadc>10) heHists.SHAPE_THR_tot->Fill(i,tmp);
 	  if(digiUpset) heHists.QIE_CAPID->Fill(5);
 	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	  heHists.QIE_DV->Fill(dver);
@@ -695,15 +725,29 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       if (firsthocap == -1) firsthocap = digi.sample(0).capid();
       int capdif = digi.sample(0).capid() - firsthocap;
+      capdif = capdif%3 - capdif/3;
       hoHists.CAPID_T0->Fill(capdif);
       CAPID_T0->Fill(capdif);
       
+      //for timing plot, find max-TS
+      int maxadc=0;
+      for (int j=0; j<digi.size(); j++){     
+	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+      }
+
       for (int i=0; i<digi.size(); i++) {	    
 	hoHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hoHists.QIE_ADC->Fill(digi.sample(i).adc());
-	hoHists.SHAPE_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//  hoHists.SHAPE_tot->Fill(i,normVals[i]);
+	int jadc=digi.sample(i).adc();
+	float tmp = (LedMonAdc2fc[jadc]+0.5);
+	hoHists.SHAPE_tot->Fill(i,tmp);
 	
-	if(digiOcc) hoHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//and introducing threshold able to find muons
+	//   if(digiOcc) hoHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	if(maxadc>10) hoHists.SHAPE_THR_tot->Fill(i,tmp);
 	if(digiUpset) hoHists.QIE_CAPID->Fill(5);
 	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	hoHists.QIE_DV->Fill(dver);
@@ -759,15 +803,29 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       if (firsthfcap == -1) firsthfcap = digi.sample(0).capid();
       int capdif = digi.sample(0).capid() - firsthfcap;
+      capdif = capdif%3 - capdif/3;
       hfHists.CAPID_T0->Fill(capdif);
       CAPID_T0->Fill(capdif);
       
+      //for timing plot, find max-TS
+      int maxadc=0;
+      for (int j=0; j<digi.size(); j++){     
+	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+      }
+   
       for (int i=0; i<digi.size(); i++) {	    
 	hfHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hfHists.QIE_ADC->Fill(digi.sample(i).adc());
-	hfHists.SHAPE_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//  hfHists.SHAPE_tot->Fill(i,normVals[i]);
+	int jadc=digi.sample(i).adc();
+	float tmp = (LedMonAdc2fc[jadc]+0.5);
+	hfHists.SHAPE_tot->Fill(i,tmp);
 	
-	if(digiOcc) hfHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	//and introducing threshold able to find muons
+	//  if(digiOcc) hfHists.SHAPE_THR_tot->Fill(i,normVals[i]);
+        if(maxadc>10) hfHists.SHAPE_THR_tot->Fill(i,tmp);
 	if(digiUpset) hfHists.QIE_CAPID->Fill(5);
 	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	hfHists.QIE_DV->Fill(dver);
@@ -790,11 +848,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     double bqfrac;
     if (nbqdigi == 0){
       bqfrac = (1.0*nbqdigi_report)/(1.0*(ndigi+nbqdigi_report));
-      cout << "Bad Digis from report, bqfrac:  " << nbqdigi_report << "  "<< bqfrac<< endl; 
+      //      cout << "Bad Digis from report, bqfrac:  " << nbqdigi_report << "  "<< bqfrac<< endl; 
     }
     else{
       bqfrac = (1.0*nbqdigi)/(1.0*ndigi);
-      cout << "Bad Digis counted, bqfrac:  " << nbqdigi << "  "<< bqfrac<< endl;
+      //      cout << "Bad Digis counted, bqfrac:  " << nbqdigi << "  "<< bqfrac<< endl;
     }
     BQDIGI_FRAC->Fill(bqfrac);
   }

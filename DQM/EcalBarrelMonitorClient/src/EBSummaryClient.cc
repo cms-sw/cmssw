@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.131 $
+ * $Date: 2008/04/27 08:01:24 $
+ * $Revision: 1.137 $
  * \author G. Della Ricca
  *
 */
@@ -305,11 +305,18 @@ void EBSummaryClient::setup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
   MonitorElement* me;
 
-  sprintf(histo, "errorSummaryPhiEta_EB");
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
+
+  for (int i = 1; i <= 36; i++) {
+    sprintf(histo, "Segment%02d_EcalBarrel", i);
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "errorSummaryPhiEta_EcalBarrel");
   me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
   me->setAxisTitle("jphi", 1);
   me->setAxisTitle("jeta", 2);
@@ -495,20 +502,20 @@ void EBSummaryClient::analyze(void){
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
     EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
-    MonitorElement* me;
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     TH2F* h2;
     TProfile2D* h2d;
 
     // fill the gain value priority map<id,priority>
-    std::map<float,float> priority;
-    priority.insert( make_pair(0,3) );
-    priority.insert( make_pair(1,1) );
-    priority.insert( make_pair(2,2) );
-    priority.insert( make_pair(3,2) );
-    priority.insert( make_pair(4,3) );
-    priority.insert( make_pair(5,1) );
+    map<float,float> priority;
+    priority.insert( pair<float,float>(0,3) );
+    priority.insert( pair<float,float>(1,1) );
+    priority.insert( pair<float,float>(2,2) );
+    priority.insert( pair<float,float>(3,2) );
+    priority.insert( pair<float,float>(4,3) );
+    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -631,14 +638,15 @@ void EBSummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -646,8 +654,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==3)  xval = brightColor;
-              else if(maskedVal.size()==3)  xval = darkColor;
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -685,14 +693,15 @@ void EBSummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -729,7 +738,7 @@ void EBSummaryClient::analyze(void){
 
           if ( ebcc ) {
 
-            h2d = ebcc->h01_[ism-1];
+            h2d = ebcc->h02_[ism-1];
 
             if ( h2d ) {
 
@@ -887,14 +896,14 @@ void EBSummaryClient::analyze(void){
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
 
-              std::vector<float>::const_iterator Val;
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -902,8 +911,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==2)  xval = brightColor;
-              else if(maskedVal.size()==2)  xval = darkColor;
+              if(unmaskedVal.size()==2) xval = brightColor;
+              else if(maskedVal.size()==2) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -939,14 +948,14 @@ void EBSummaryClient::analyze(void){
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
 
-              std::vector<float>::const_iterator Val;
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -954,8 +963,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==2)  xval = brightColor;
-              else if(maskedVal.size()==2)  xval = darkColor;
+              if(unmaskedVal.size()==2) xval = brightColor;
+              else if(maskedVal.size()==2) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -1016,9 +1025,16 @@ void EBSummaryClient::analyze(void){
   } // loop on clients
 
   // The global-summary
-  // Integrity, PedestalOnline, Laser, TPG EmulError, Status Flags contribute
-  int nGlobalErrors = 0, nGlobalErrorsEBP = 0, nGlobalErrorsEBM = 0;
-  int nValidChannels = 0, nValidChannelsEBP = 0, nValidChannelsEBM = 0;
+  int nGlobalErrors = 0;
+  int nGlobalErrorsEB[36];
+  int nValidChannels = 0;
+  int nValidChannelsEB[36];
+
+  for (int i = 0; i < 36; i++) {
+    nGlobalErrorsEB[i] = 0;
+    nValidChannelsEB[i] = 0;
+  }
+
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
@@ -1055,14 +1071,18 @@ void EBSummaryClient::analyze(void){
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
-          if ( iex <= 85 ) ++nValidChannelsEBM;
-          else ++nValidChannelsEBP;
-        }
-        if ( xval == 0 ) {
-          ++nGlobalErrors;
-          if ( iex <= 85 ) ++nGlobalErrorsEBM;
-          else ++nGlobalErrorsEBP;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
+          if ( iex <= 85 ) {
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsEB[(ipx-1)/20];
+          } else {
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsEB[18+(ipx-1)/20];
+          }
+          if ( xval == 0 ) ++nGlobalErrors;
+          if ( iex <= 85 ) {
+            if ( xval == 0 ) ++nGlobalErrorsEB[(ipx-1)/20];
+          } else {
+            if ( xval == 0 ) ++nGlobalErrorsEB[18+(ipx-1)/20];
+          }
         }
 
       }
@@ -1070,37 +1090,34 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = -1.0;
-  float errorSummaryEBM = -1.0;
-  float errorSummaryEBP = -1.0;
-
-  if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEBM != 0 )
-    errorSummaryEBM = 1.0 - float(nGlobalErrorsEBM)/float(nValidChannelsEBM);
-  if ( nValidChannelsEBP != 0 )
-    errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
-
   MonitorElement* me;
 
+  float errorSummary = -1.0;
+  if ( nValidChannels != 0 )
+    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
   me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
   if (me) me->Fill(errorSummary);
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEBM);
+  char histo[200];
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEBP);
+  for (int i = 1; i <= 36; i++) {
+    float errorSummaryEB = -1.0;
+    if ( nValidChannelsEB[i-1] != 0 )
+      errorSummaryEB = 1.0 - float(nGlobalErrorsEB[i-1])/float(nValidChannelsEB[i-1]);
+    sprintf(histo, "Segment%02d_EcalBarrel", i);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
+    if (me) me->Fill(errorSummaryEB);
+  }
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryPhiEta_EB");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryPhiEta_EcalBarrel");
   if (me) {
 
     int nValidChannelsTT[72][34];
     int nGlobalErrorsTT[72][34];
     for ( int iettx = 0; iettx < 34; iettx++ ) {
       for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-        nValidChannelsTT[ipttx][iettx]=0;
-        nGlobalErrorsTT[ipttx][iettx]=0;
+        nValidChannelsTT[ipttx][iettx] = 0;
+        nGlobalErrorsTT[ipttx][iettx] = 0;
       }
     }
 
@@ -1112,8 +1129,10 @@ void EBSummaryClient::analyze(void){
 
         float xval = meGlobalSummary_->getBinContent( ipx, iex );
 
-        if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
-        if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
+        if ( xval > -1 ) {
+          if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[ipttx-1][iettx-1];
+          if ( xval == 0 ) ++nGlobalErrorsTT[ipttx-1][iettx-1];
+        }
 
       }
     }
@@ -1204,7 +1223,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   labelGridTT.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO;
-  string imgNameMapDF;
+  string imgNameMapSF;
   string imgNameMapPO;
   string imgNameMapLL1, imgNameMapLL1_PN;
   string imgNameMapP, imgNameMapP_PN;
@@ -1291,7 +1310,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   }
 
-  imgNameMapDF = "";
+  imgNameMapSF = "";
 
   gStyle->SetPaintTextFormat("+g");
 
@@ -1303,8 +1322,8 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     meName = obj2f->GetName();
 
     replace(meName.begin(), meName.end(), ' ', '_');
-    imgNameMapDF = meName + ".png";
-    imgName = htmlDir + imgNameMapDF;
+    imgNameMapSF = meName + ".png";
+    imgName = htmlDir + imgNameMapSF;
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -1723,11 +1742,11 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapDF.size() != 0 ) {
+  if ( imgNameMapSF.size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapDF << "\" usemap=\"#StatusFlags\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapSF << "\" usemap=\"#StatusFlags\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -1850,7 +1869,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO.size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
-  if ( imgNameMapDF.size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
+  if ( imgNameMapSF.size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
   if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
   if ( imgNameMapLL1.size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
   if ( imgNameMapP.size() != 0 ) this->writeMap( htmlFile, "Pedestal" );
@@ -1872,9 +1891,9 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
 }
 
-void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
+void EBSummaryClient::writeMap( ofstream& hf, const char* mapname ) {
 
-  std::map<std::string, std::string> refhtml;
+  map<string, string> refhtml;
   refhtml["Integrity"] = "EBIntegrityClient.html";
   refhtml["Occupancy"] = "EBIntegrityClient.html";
   refhtml["StatusFlags"] = "EBStatusFlagsClient.html";
@@ -1892,7 +1911,7 @@ void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
   const int B0 =  35;
   const int B1 = 334;
 
-  hf << "<map name=\"" << mapname << "\">" << std::endl;
+  hf << "<map name=\"" << mapname << "\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     int i=(superModules_[sm]-1)/18;
     int j=(superModules_[sm]-1)%18;
@@ -1905,9 +1924,9 @@ void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
        << "#" << Numbers::sEB(superModules_[sm])
        << "\" coords=\"" << x0 << ", " << y0 << ", "
                          << x1 << ", " << y1 << "\">"
-       << std::endl;
+       << endl;
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
 }
 

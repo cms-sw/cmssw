@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.53 2008/03/16 19:50:38 dellaric Exp $
+// $Id: Numbers.cc,v 1.54 2008/04/07 11:30:24 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.53 $
-  \date $Date: 2008/03/16 19:50:38 $
+  \version $Revision: 1.54 $
+  \date $Date: 2008/04/07 11:30:24 $
 */
 
 #include <sstream>
@@ -544,9 +544,9 @@ int Numbers::RtHalf(const EBDetId& id) {
   int ie = (ic-1)/20 + 1;
   int ip = (ic-1)%20 + 1;
 
-  if( ie > 5 && ip < 11 ) return 2;
+  if( ie > 5 && ip < 11 ) return 1;
 
-  return 1;
+  return 0;
 
 }
 

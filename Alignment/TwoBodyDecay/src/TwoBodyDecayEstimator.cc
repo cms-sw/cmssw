@@ -3,6 +3,10 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayEstimator.h"
+#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
+#include "DataFormats/Math/interface/Vector.h" 
+#include "DataFormats/Math/interface/Error.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayDerivatives.h"
 //#include "DataFormats/CLHEP/interface/Migration.h"

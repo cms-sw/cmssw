@@ -1,8 +1,9 @@
-// $Id: FileRecord.cc,v 1.4.2.1 2008/03/07 20:41:32 biery Exp $
+// $Id: FileRecord.cc,v 1.7 2008/04/24 16:27:18 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <FWCore/Utilities/interface/GetReleaseVersion.h>
 
 #include <errno.h>
 #include <iostream>
@@ -17,13 +18,15 @@ using namespace std;
 //
 // *** FileRecord
 //
-FileRecord::FileRecord(int lumi, string file, string path):
+FileRecord::FileRecord(int lumi, const string &file, const string &path):
   fileName_(file),
   basePath_(path),
   fileSystem_(""),
   workingDir_("/open/"),
   mailBoxPath_(path+"/mbox"),
+  logPath_(path+"/log"),
   lumiSection_(lumi),
+  runNumber_(0),
   fileCounter_(0),
   fileSize_(0), 
   events_(0), 
@@ -31,6 +34,8 @@ FileRecord::FileRecord(int lumi, string file, string path):
   lastEntry_(0.0),
   smParameter_(stor::Configurator::instance()->getParameter())
 {
+  //get log file
+  logFile_ = logFile();
 }
 
 
@@ -69,119 +74,110 @@ void FileRecord::writeToSummaryCatalog()
 
 
 //
-// *** notify Tier 0 about a new file
-// *** just call a script with the relavant information
+// *** write notify info to file
 //
 void FileRecord::notifyTier0()
 {
-  // create command
-  std::ostringstream oss;
-  oss << smParameter_->notifyTier0Script() << " " 
-      << " --RUNNUMBER "    << runNumber_                         
-      << " --LUMISECTION "  << lumiSection_                      
-      << " --INSTANCE "     << smParameter_->smInstance()        
-      << " --COUNT "        << fileCounter_                       
-      << " --START_TIME "   << (int) firstEntry()
-      << " --STOP_TIME "    << (int) lastEntry()
-      << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
-      << " --PATHNAME "     << filePath()                        
-      << " --HOSTNAME "     << smParameter_->host()              
-      << " --DATASET "      << setupLabel_ 
-      << " --STREAM "       << streamLabel_                      
-      << " --STATUS "       << "closed"                           
-      << " --TYPE "         << "streamer"               
-      << " --SAFETY "       << smParameter_->initialSafetyLevel()
-      << " --NEVENTS "      << events_                            
-      << " --FILESIZE "     << fileSize_                          
-      << " --CHECKSUM 0 ";
+  string ver(getReleaseVersion());
+  if(ver[0]=='"') ver=ver.substr(1,ver.size()-2);
 
-  // execute script
-  int status = std::system(oss.str().c_str());
-  if (status) 
-    {
-      edm::LogError("StorageManager") << " Error executing " << oss.str().c_str() 
-				      << " Return value = " << status;
-    }
+  std::ostringstream oss;
+  oss << "export SM_FILENAME="     << fileName() << fileCounterStr() << ".dat; " 
+      << "export SM_FILECOUNTER="  << fileCounter_  << "; "                
+      << "export SM_NEVENTS="      << events_ << "; "
+      << "export SM_FILESIZE="     << fileSize_ << "; "
+      << "export SM_STARTTIME="    << (int) firstEntry() << "; "
+      << "export SM_STOPTIME="     << (int) lastEntry() << "; "
+      << "export SM_STATUS=closed; "  
+      << "export SM_RUNNUMBER="    << runNumber_  << "; "
+      << "export SM_LUMISECTION="  << lumiSection_ << "; "
+      << "export SM_PATHNAME="     << filePath()  << "; "
+      << "export SM_HOSTNAME="     << smParameter_->host() << "; "
+      << "export SM_DATASET="      << setupLabel_  << "; "
+      << "export SM_STREAM="       << streamLabel_ << "; "
+      << "export SM_INSTANCE="     << smParameter_->smInstance() << "; "
+      << "export SM_SAFETY="       << smParameter_->initialSafetyLevel()  << "; "
+      << "export SM_APPVERSION="   << ver << "; "
+      << "export SM_APPNAME=CMSSW; "
+      << "export SM_TYPE=streamer; "
+      << "export SM_CHECKSUM=0\n";
+
+  ofstream of( notifyFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  of << oss.str().c_str();
+  of.close();
 }
 
 
 //
-// *** update file information in database
-// *** just call a script with the relavant information
-// *** next version will use TStore
+// *** write file information to log
 //
 void FileRecord::updateDatabase()
 {
   std::ostringstream oss;
-  oss << smParameter_->closeFileScript() << " " 
-      << " --RUNNUMBER "    << runNumber_                         
-      << " --LUMISECTION "  << lumiSection_                      
-      << " --INSTANCE "     << smParameter_->smInstance()        
-      << " --COUNT "        << fileCounter_                       
-      << " --START_TIME "   << (int) firstEntry()
-      << " --STOP_TIME "    << (int) lastEntry()
+  oss << "./closeFile.pl "
       << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
-      << " --PATHNAME "     << filePath()                        
-      << " --HOSTNAME "     << smParameter_->host()              
-      << " --DATASET "      << setupLabel_ 
-      << " --STREAM "       << streamLabel_                      
-      << " --STATUS "       << "closed"                           
-      << " --TYPE "         << "streamer"               
-      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --COUNT "        << fileCounter_                       
       << " --NEVENTS "      << events_                            
       << " --FILESIZE "     << fileSize_                          
-      << " --CHECKSUM 0 ";
+      << " --START_TIME "   << (int) firstEntry()
+      << " --STOP_TIME "    << (int) lastEntry()
+      << " --STATUS "       << "closed"
+      << " --RUNNUMBER "    << runNumber_                         
+      << " --LUMISECTION "  << lumiSection_                      
+      << " --PATHNAME "     << filePath()
+      << " --HOSTNAME "     << smParameter_->host()
+      << " --DATASET "      << setupLabel_ 
+      << " --STREAM "       << streamLabel_                      
+      << " --INSTANCE "     << smParameter_->smInstance()        
+      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --APP_VERSION "  << getReleaseVersion()
+      << " --APP_NAME CMSSW"
+      << " --TYPE streamer"               
+      << " --CHECKSUM 0\n";
 
-  // execute script
-  int status = std::system(oss.str().c_str());
-  if (status) 
-    {
-      edm::LogError("StorageManager") << " Error executing " << oss.str().c_str() 
-				      << " Return value = " << status;
-    }
+  ofstream of(logFile_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  of << oss.str().c_str();
+  of.close();
 }
 
 
 //
-// *** insert file information in database
-// *** just call a script with the relavant information
-// *** next version will use TStore
+// *** write file information to log
 //
 void FileRecord::insertFileInDatabase()
 {
   std::ostringstream oss;
-  oss << smParameter_->insertFileScript()   << " " 
-      << " --RUNNUMBER "    << runNumber_                         
-      << " --LUMISECTION "  << lumiSection_                      
-      << " --INSTANCE "     << smParameter_->smInstance()        
-      << " --COUNT "        << fileCounter_                       
-      << " --START_TIME "   << (int) firstEntry()
-      << " --STOP_TIME "    << (int) lastEntry()
+  oss << "./insertFile.pl "
       << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
-      << " --PATHNAME "     << filePath()                        
-      << " --HOSTNAME "     << smParameter_->host()              
-      << " --DATASET "      << setupLabel_ 
-      << " --STREAM "       << streamLabel_                      
-      << " --STATUS "       << "open"                           
-      << " --TYPE "         << "streamer"               
-      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --COUNT "        << fileCounter_                       
       << " --NEVENTS "      << events_                            
       << " --FILESIZE "     << fileSize_                          
-      << " --CHECKSUM 0 ";
- 
-  // execute script
-  int status = std::system(oss.str().c_str());
-  if (status) 
-    {
-      edm::LogError("StorageManager") << " Error executing " << oss.str().c_str() 
-				      << " Return value = " << status;
-    }
+      << " --START_TIME "   << (int) firstEntry()
+      << " --STOP_TIME "    << (int) lastEntry()
+      << " --STATUS "       << "open"
+      << " --RUNNUMBER "    << runNumber_                         
+      << " --LUMISECTION "  << lumiSection_                      
+      << " --PATHNAME "     << filePath()
+      << " --HOSTNAME "     << smParameter_->host()
+      << " --DATASET "      << setupLabel_ 
+      << " --STREAM "       << streamLabel_                      
+      << " --INSTANCE "     << smParameter_->smInstance()        
+      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --APP_VERSION "  << getReleaseVersion()
+      << " --APP_NAME CMSSW"
+      << " --TYPE streamer"               
+      << " --CHECKSUM 0\n";
+
+  ofstream of(logFile_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  of << oss.str().c_str();
+  of.close();
 }
+
 
 //
 // *** return a formatted string for the file counter
 //
-string FileRecord::fileCounterStr()
+string FileRecord::fileCounterStr() const
 {
   std::ostringstream oss;
   oss << "." << setfill('0') << std::setw(4) << fileCounter_;
@@ -192,7 +188,7 @@ string FileRecord::fileCounterStr()
 //
 // *** return the full path
 //
-string FileRecord::filePath()
+string FileRecord::filePath() const
 {
   return ( basePath_ + fileSystem_ + workingDir_);
 }
@@ -201,7 +197,7 @@ string FileRecord::filePath()
 //
 // *** return the complete file name and path (w/o file ending)
 //
-string FileRecord::completeFileName()
+string FileRecord::completeFileName() const
 {
   return ( basePath_ + fileSystem_ + workingDir_ + fileName_ + fileCounterStr() );
 }
@@ -255,6 +251,14 @@ void FileRecord::moveFileToClosed()
       << " instead of the expected size of " << fileSize_ << std::endl;
   }
 
+  int ronly  = chmod(openStreamerFileName.c_str(), S_IREAD|S_IRGRP|S_IROTH);
+  ronly     += chmod(openIndexFileName.c_str(), S_IREAD|S_IRGRP|S_IROTH);
+  if (ronly != 0) {
+    throw cms::Exception("FileRecord", "moveFileToClosed")
+      << "Unable to change permissions of " << openStreamerFileName << " and "
+      << openIndexFileName << "to read only." << std::endl;
+  }
+
   workingDir_ = "/closed/";
   string closedIndexFileName    = completeFileName() + ".ind";
   string closedStreamerFileName = completeFileName() + ".dat";
@@ -297,11 +301,11 @@ void FileRecord::moveFileToClosed()
 }
 
 
-string FileRecord::timeStamp(double time)
+string FileRecord::timeStamp(double time) const
 {
-  time_t rawtime = (time_t) time ;
+  time_t rawtime = (time_t)time;
   tm * ptm;
-  ptm = localtime ( &rawtime );
+  ptm = localtime(&rawtime);
   ostringstream timeStampStr;
   string colon(":");
   string slash("/");
@@ -315,17 +319,36 @@ string FileRecord::timeStamp(double time)
 }
 
 
-void FileRecord::checkDirectories()
+string FileRecord::logFile() const
+{
+  time_t rawtime = time(0);
+  tm * ptm;
+  ptm = localtime(&rawtime);
+
+  ostringstream logfilename;
+  logfilename << logPath_ << "/"
+              << setfill('0') << std::setw(4) << ptm->tm_year+1900
+              << setfill('0') << std::setw(2) << ptm->tm_mon+1
+              << setfill('0') << std::setw(2) << ptm->tm_mday
+              << "-" << smParameter_->host()
+              << "-" << smParameter_->smInstance()
+              << ".log";
+  return logfilename.str();
+}
+
+
+void FileRecord::checkDirectories() const
 {
   checkDirectory(basePath());
   checkDirectory(fileSystem());
   checkDirectory(fileSystem()+"/open");
   checkDirectory(fileSystem()+"/closed");
   checkDirectory(mailBoxPath_);
+  checkDirectory(logPath_);
 }
 
 
-void FileRecord::checkDirectory(string path)
+void FileRecord::checkDirectory(const string &path) const
 {
   struct stat buf;
 
@@ -340,7 +363,7 @@ void FileRecord::checkDirectory(string path)
 }
 
 
-double FileRecord::calcPctDiff(long long value1, long long value2)
+double FileRecord::calcPctDiff(long long value1, long long value2) const
 {
   if (value1 == value2) {return 0.0;}
   long long largerValue = value1;
@@ -361,19 +384,24 @@ void FileRecord::report(ostream &os, int indentation) const
   string prefix(indentation, ' ');
   os << "\n";
   os << prefix << "------------- FileRecord -------------\n";
-  os << prefix << "fileName            " << fileName_       << "\n";
-  os << prefix << "basePath_           " << basePath_       << "\n";  
-  os << prefix << "workingDir_         " << workingDir_     << "\n";
-  os << prefix << "fileSystem_         " << fileSystem_     << "\n";
+  os << prefix << "fileName            " << fileName_                   << "\n";
+  os << prefix << "basePath_           " << basePath_                   << "\n";  
+  os << prefix << "fileSystem_         " << fileSystem_                 << "\n";
+  os << prefix << "workingDir_         " << workingDir_                 << "\n";
+  os << prefix << "mailBoxPath_        " << mailBoxPath_                << "\n";
+  os << prefix << "logPath_            " << logPath_                    << "\n";
+  os << prefix << "logFile_            " << logFile_                    << "\n";
+  os << prefix << "setupLabel_         " << setupLabel_                 << "\n";
+  os << prefix << "streamLabel_        " << streamLabel_                << "\n";
+  os << prefix << "hostName_           " << smParameter_->host()        << "\n";
+  os << prefix << "notifyFileName_     " << notifyFileName_             << "\n";
   os << prefix << "fileCatalog()       " << smParameter_->fileCatalog() << "\n"; 
-  os << prefix << "mailBoxPath_        " << mailBoxPath_    << "\n";
-  os << prefix << "lumiSection_        " << lumiSection_    << "\n";
-  os << prefix << "fileCounter_        " << fileCounter_    << "\n";
-  os << prefix << "fileSize            " << fileSize_       << "\n";
-  os << prefix << "events              " << events_         << "\n";
-  os << prefix << "first entry         " << firstEntry_     << "\n";
-  os << prefix << "last entry          " << lastEntry_      << "\n";
+  os << prefix << "lumiSection_        " << lumiSection_                << "\n";
+  os << prefix << "runNumber_          " << runNumber_                  << "\n";
+  os << prefix << "fileCounter_        " << fileCounter_                << "\n";
+  os << prefix << "fileSize            " << fileSize_                   << "\n";
+  os << prefix << "events              " << events_                     << "\n";
+  os << prefix << "first entry         " << firstEntry_                 << "\n";
+  os << prefix << "last entry          " << lastEntry_                  << "\n";
   os << prefix << "-----------------------------------------\n";  
 }
-
-

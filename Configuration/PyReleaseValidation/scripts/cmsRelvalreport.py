@@ -32,6 +32,9 @@ elif not os.path.exists(pyrelvallocal):
 # Valgrind Memcheck Parser coordinates:
 VMPARSER='%s/src/Utilities/ReleaseScripts/scripts/valgrindMemcheckParser.pl' %os.environ['CMSSW_RELEASE_BASE']#This has to always point to 'CMSSW_RELEASE_BASE'
 
+# Valgrind Memcheck Parser output style file coordinates:
+VMPARSERSTYLE='%s/src/Utilities/ReleaseScripts/data/valgrindMemcheckParser.css' %os.environ['CMSSW_RELEASE_BASE']#This has to always point to 'CMSSW_RELEASE_BASE'
+
 # IgProf_Analysis coordinates:
 IGPROFANALYS='%s/src/Configuration/PyReleaseValidation/scripts/cmsIgProf_Analysis.py'%os.environ[RELEASE]
 
@@ -275,6 +278,8 @@ class Profile:
         elif self.profiler=='SimpleMem_Parser':
             return self._profile_SimpleMem_Parser()
         elif self.profiler=='':
+            return self._profile_None()
+        elif self.profiler=='None': #adding this for the case of candle ASCII file non-profiling commands
             return self._profile_None()
         else:
             raise('No %s profiler found!' %self.profiler)
@@ -542,6 +547,9 @@ class Profile:
             # Three pages will be produced:
             os.environ['PERL5LIB']=PERL5_LIB
             report_coordinates=(VMPARSER,self.profile_name,outdir)
+            # Copy the Valgrind Memcheck parser style file in the outdir
+            copyStyleFile='cp -pR %s %s'%(VMPARSERSTYLE,outdir)
+            execute(copyStyleFile)
             report_commands=('%s --preset +prod,-prod1 %s > %s/edproduce.html'\
                                 %report_coordinates,
                              '%s --preset +prod1 %s > %s/esproduce.html'\

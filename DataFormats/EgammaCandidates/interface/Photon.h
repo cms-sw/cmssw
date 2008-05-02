@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.17 2007/12/10 20:59:34 futyand Exp $
+ * \version $Id: Photon.h,v 1.18 2008/03/03 20:34:30 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -61,6 +61,8 @@ namespace reco {
     /// Bool flagging photons with a vector of refereces to conversions with size >0
     bool isConverted() const;
 
+    bool isPhoton() const;
+    bool isConvertedPhoton() const;
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;

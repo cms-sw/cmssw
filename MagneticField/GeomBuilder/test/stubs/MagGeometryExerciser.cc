@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/09 18:23:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/09 14:38:46 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -93,7 +93,7 @@ bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
 
 //----------------------------------------------------------------------
 // Check that a set of points is inside() one and only one volume.
-void MagGeometryExerciser::testInside(int ntry, float tolerance) {
+void MagGeometryExerciser::testInside(int ntry) {
 
   cout << "-----------------------------------------------------" << endl
        << " inside(random) test" << endl;
@@ -102,7 +102,7 @@ void MagGeometryExerciser::testInside(int ntry, float tolerance) {
   // Test random points: they should be found inside() one and only one volume
 
   // Test some known overlaps/gaps
-  if (false) { //FIXME
+  if (true) {
     cout << "Known points:" << endl;
     testInside(GlobalPoint(0.,0.,0.));
     testInside(GlobalPoint(331.358,-278.042,-648.788));//V_ZN_81 V_ZN_82
@@ -128,18 +128,12 @@ void MagGeometryExerciser::testInside(int ntry, float tolerance) {
     testInside(GlobalPoint(-141.701,389.32,-142.088));  //81 79
   }
 
-
-  // Full CMS
-  GlobalPointProvider p(0,900,-Geom::pi(),Geom::pi(),-1999.9,1999.9);
-
-  // Zoom of one sector
-  //  GlobalPointProvider p(350.,900.,-0.27,0.27,-1999.9,1999.9);
-  //  GlobalPointProvider p(0.,900.,-0.27,0.27,-1999.9,1999.9);
-
-  cout << "Random points:" << volumes.size() << " volumes" << endl;
+  GlobalPointProvider p;
+  
+  cout << "Random points:" << endl;
   for (int i = 0; i<ntry; ++i) {
     if (i%1000==0) cout << "test # " << i << endl;    
-    testInside(p.getPoint(), tolerance);
+    testInside(p. getPoint());
   }
 }
 
@@ -147,7 +141,9 @@ void MagGeometryExerciser::testInside(int ntry, float tolerance) {
 //----------------------------------------------------------------------
 // Check that the given point is inside() one and only one volume.
 // This is not always the case due to thin gaps and tolerance...
-bool MagGeometryExerciser::testInside(const GlobalPoint & gp, float tolerance){
+bool MagGeometryExerciser::testInside(const GlobalPoint & gp){
+  //FIXME  static const double tolerance = SimpleConfigurable<double>(0.,"MagGeometryExerciser:tolerance"); // 300 micron thin gaps
+  static const double tolerance = 0.;
 
   bool reportSuccess = false;
 
@@ -171,44 +167,10 @@ bool MagGeometryExerciser::testInside(const GlobalPoint & gp, float tolerance){
       found = (*v);
     }
   }
-  
-  
-
+   
   if (found==0) {
-    MagVolume6Faces * foundP = 0;
-    MagVolume6Faces * foundN = 0;
-    // Look for the closest neighbouring volumes
-    const float phi=gp.phi();
-    GlobalPoint gpP, gpN;
-    int ntry=0;
-    while ((foundP==0 || foundP==0) && ntry < 60) {
-      ++ntry;
-      for (vector<MagVolume6Faces*>::const_iterator v = vols.begin();
-	   v!=vols.end(); ++v){
-	if (foundP==0) {
-	  float phiP=phi+ntry*0.008727;
-	  GlobalPoint gpP(GlobalPoint::Cylindrical(gp.perp(),phiP,gp.z()));
-	  if ((*v)->inside(gpP)) {
-	    foundP=(*v);
-	  }
-	}
-	if (foundN==0) {
-	  float phiN=phi-ntry*0.008727;
-	  GlobalPoint gpN(GlobalPoint::Cylindrical(gp.perp(),phiN,gp.z()));
-	  if ((*v)->inside(gpN)) {
-	    foundN=(*v);
-	  }
-	}
-      }
-    }
-    
-    cout << gp << " ***ERROR no volume found! : closests: "
-	 << ((foundP==0) ? " NF " : foundP->name)
-	 << " at dphi: " << gpP.phi()-phi << " "
-	 << ((foundN==0) ? " NF " :foundN->name)
-	 << " at dphi: " << gpN.phi()-phi 
-	 << endl;
-  }
+    cout << gp << " ***ERROR no volume found! "  << endl;
+  }  
   
   return true; //FIXME
 }

@@ -4,8 +4,6 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4Material.hh"
 #include "G4UnitsTable.hh"
-#include "G4EmCalculator.hh"
-#include "G4UnitsTable.hh"
 
 // rr
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -90,7 +88,6 @@ void MaterialBudgetCategorizer::buildMaps()
   buildCategoryMap(theMaterialL0FileName, theL0Map);
   // summary of all the materials loaded
   cout << endl << endl << "MaterialBudgetCategorizer::Material Summary --------" << endl;
-  G4EmCalculator calc;
   for( ii = 0; ii < matSize; ii++ ) {
     //    edm::LogInfo("MaterialBudgetCategorizer")
     cout << " material " << (*matTable)[ii]->GetName()
@@ -98,9 +95,6 @@ void MaterialBudgetCategorizer::buildMaps()
 	 << "\t density = " << G4BestUnit((*matTable)[ii]->GetDensity(),"Volumic Mass")
 	 << endl
 	 << "\t X0 = "      << (*matTable)[ii]->GetRadlen()             << " mm"
-	 << endl
-	 << "\t Energy threshold for photons for 100 mm range = "
-	 << G4BestUnit(calc.ComputeEnergyCutFromRangeCut(100, G4String("gamma"), (*matTable)[ii]->GetName()) , "Energy")
 	 << endl
 	 << " SUP " << theX0Map[ (*matTable)[ii]->GetName() ][0] 
 	 << " SEN " << theX0Map[ (*matTable)[ii]->GetName() ][1]
