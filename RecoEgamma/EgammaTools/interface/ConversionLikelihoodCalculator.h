@@ -1,7 +1,8 @@
 #ifndef ConversionLikelihoodCalculator_h
 #define ConversionLikelihoodCalculator_h
 
-#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 
 #include "TMVA/Reader.h"
 
@@ -11,7 +12,7 @@ class ConversionLikelihoodCalculator
       ConversionLikelihoodCalculator();
       void setWeightsFile(const char * weightsFile);
 
-      double calculateLikelihood(reco::ConvertedPhoton * conversion);
+      double calculateLikelihood(reco::ConversionRef conversion);
 
    private:
       TMVA::Reader * reader_;
