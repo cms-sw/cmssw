@@ -15,7 +15,9 @@ RecoTrackerFEVT = cms.PSet(
         'keep TrackingRecHitsOwned_generalTracks_*_*', 
         'keep recoTracks_rsWithMaterialTracks_*_*', 
         'keep recoTrackExtras_rsWithMaterialTracks_*_*', 
-        'keep TrackingRecHitsOwned_rsWithMaterialTracks_*_*')
+        'keep TrackingRecHitsOwned_rsWithMaterialTracks_*_*',
+        'keep *_secStep_*_*',
+        'keep *_thStep_*_*')
 )
 #RECO content
 RecoTrackerRECO = cms.PSet(
@@ -24,11 +26,15 @@ RecoTrackerRECO = cms.PSet(
         'keep TrackingRecHitsOwned_generalTracks_*_*', 
         'keep recoTracks_rsWithMaterialTracks_*_*', 
         'keep recoTrackExtras_rsWithMaterialTracks_*_*', 
-        'keep TrackingRecHitsOwned_rsWithMaterialTracks_*_*')
+        'keep TrackingRecHitsOwned_rsWithMaterialTracks_*_*',
+        'keep *_secStep_*_*',
+        'keep *_thStep_*_*')
 )
 #AOD content
 RecoTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_generalTracks_*_*', 
-        'keep recoTracks_rsWithMaterialTracks_*_*')
+        'keep recoTracks_rsWithMaterialTracks_*_*',
+        'keep recoTracks_secStep_*_*',
+        'keep recoTracks_thStep_*_*')
 )
 

@@ -22,6 +22,8 @@ from RecoTracker.RoadSearchCloudMaker.RoadSearchClouds_cff import *
 from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidates_cff import *
 # RS track fit with material 
 from RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff import *
+# Iterative Tracking
+from RecoTracker.IterativeTracking.iterativeTk_cff import *
 # new tracking configuration ################
 # it is placed here as a temporary solution
 # Seeding 
@@ -60,7 +62,7 @@ from RecoTracker.FinalTrackSelectors.TracksWithQuality_cff import *
 #
 #sequence ckftracks = {globalMixedSeeds,globalPixelSeeds, ckfTrackCandidates,ctfWithMaterialTracks} #only old ctf sequence
 newTracking = cms.Sequence(newSeedFromPairs*newSeedFromTriplets*newCombinedSeeds*newTrackCandidateMaker*preFilterCmsTracks*tracksWithQuality)
-ckftracks = cms.Sequence(newTracking)
+ckftracks = cms.Sequence(newTracking*iterTracking)
 rstracks = cms.Sequence(roadSearchSeeds*roadSearchClouds*rsTrackCandidates*rsWithMaterialTracks)
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.5
