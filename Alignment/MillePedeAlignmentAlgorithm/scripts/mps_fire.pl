@@ -9,7 +9,7 @@
 #
 #  Usage:
 #
-#  mps_fire.pl [-m] [maxjobs]
+#  mps_fire.pl [-m[f]] [maxjobs]
 
 BEGIN {
 use File::Basename;
@@ -118,11 +118,15 @@ else {
     $i = $nJobs;
     if ((@JOBSTATUS[$i] eq "SETUP") && ($mergeOK==1 || $forceMerge==1)) {
         if ($mergeOk!=1) { # some mille jobs are not OK
+	  # Get the name of merge cfg file -> $mergeCfg
           $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+	  $mergeCfg = `basename $mergeCfg`;
           $mergeCfg =~ s/\n//;
+
           # rewrite the mergeCfg, using only "OK" jobs
           system "mps_merge.pl -c $cfgTemplate $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i] $nJobs";
-          # AP. Maybe mps_scriptm.pl needs also to be recalled?
+          # rewrite theScript.sh, using only "OK" jobs
+	  print "mps_scriptm.pl -c $mergeScript $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i]/$mergeCfg $nJobs $mssDir";
         }
 
 	print "bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
@@ -142,7 +146,7 @@ else {
 	}
     }
     else {
-      print "Merge job $i status @JOBSTATUS[$i] not submitted\n";
+      print "Merge job $i status @JOBSTATUS[$i] not submitted (Try -f to force).\n";
     }
 }
 write_db();
