@@ -7,8 +7,6 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceLineLine.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixLine.h"
 
-using namespace std;
-
   /**
    * General interface to calculate the PCA of two tracks. 
    * According to the charge of the tracks, the correct algorithm is used:<ul>
@@ -41,7 +39,7 @@ public:
    * Returns the two PCA on the trajectories.
    */
 
-  virtual pair<GlobalPoint, GlobalPoint> points() const;
+  virtual std::pair<GlobalPoint, GlobalPoint> points() const;
 
   /** arithmetic mean of the two points of closest approach */
   virtual GlobalPoint crossingPoint() const;
@@ -59,7 +57,7 @@ public:
 
   double firstAngle() const;
   double secondAngle() const;
-  pair <double, double> pathLength() const;
+  std::pair <double, double> pathLength() const;
 
 private:
   enum Charge { hh, hl, ll };
@@ -70,7 +68,7 @@ private:
   mutable TwoTrackMinimumDistanceLineLine theTTMDll;
   mutable TwoTrackMinimumDistanceHelixLine theTTMDhl;
   bool status_;
-  pair<GlobalPoint, GlobalPoint> points_;
+  std::pair<GlobalPoint, GlobalPoint> points_;
 
   bool pointsLineLine(const GlobalTrajectoryParameters & sta,
 	const GlobalTrajectoryParameters & stb);

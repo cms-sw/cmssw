@@ -4,8 +4,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <utility>
-using namespace std;
-
 /** \class TwoTrackMinimumDistanceHelixLine
  *  This is a helper class for TwoTrackMinimumDistance, for the
  *  case where one of the tracks is charged and the other not.
@@ -40,8 +38,8 @@ public:
    * first trajectory, the second point on the second trajectory.
    */
 
-  pair <GlobalPoint, GlobalPoint> points() const;
-  pair <double, double> pathLength() const;
+  std::pair <GlobalPoint, GlobalPoint> points() const;
+  std::pair <double, double> pathLength() const;
 
   double firstAngle() const;
   double secondAngle() const;

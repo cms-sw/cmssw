@@ -86,7 +86,7 @@ BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
   theLocalError(),
   theLocalParametersValid(false),
   theLocalErrorValid(false),
-  theSurfaceP( &aSurface), theSurfaceSide(atCenterOfSurface), 
+  theSurfaceP( &aSurface), theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface), 
   theWeight(weight),
   theField( &par.magneticField())
 {}
@@ -144,7 +144,7 @@ BasicSingleTrajectoryState( const LocalTrajectoryParameters& par,
   theLocalError(err),
   theLocalParametersValid(true),
   theLocalErrorValid(true),
-  theSurfaceP( &aSurface), theSurfaceSide(atCenterOfSurface),
+  theSurfaceP( &aSurface), theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface),
   theWeight(weight),
   theField(field)
 {}
@@ -159,7 +159,7 @@ BasicSingleTrajectoryState(const Surface& aSurface) :
   theLocalError(),
   theLocalParametersValid(false),
   theLocalErrorValid(false),
-  theSurfaceP( &aSurface), theSurfaceSide(atCenterOfSurface), theWeight(0.),
+  theSurfaceP( &aSurface), theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface), theWeight(0.),
   theField(0)
 {}
 

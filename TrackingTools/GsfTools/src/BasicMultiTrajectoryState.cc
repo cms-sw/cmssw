@@ -3,6 +3,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace SurfaceSideDefinition;
+
 BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec) :
   theCombinedStateUp2Date( false)
 {

@@ -7,7 +7,7 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-
+using namespace SurfaceSideDefinition;
 
 PTrajectoryStateOnDet* 
 TrajectoryStateTransform::persistentState( const TrajectoryStateOnSurface& ts,

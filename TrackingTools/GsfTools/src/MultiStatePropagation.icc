@@ -18,7 +18,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
   // now propagate each input state individually
   //
   bool firstPropagation(true);
-  SurfaceSide firstSide(atCenterOfSurface);
+  SurfaceSideDefinition::SurfaceSide firstSide(SurfaceSideDefinition::atCenterOfSurface);
   for ( MultiTSOS::const_iterator iTsos=input.begin();
 	iTsos!=input.end(); iTsos++ ) {
     //

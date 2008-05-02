@@ -17,7 +17,7 @@
 //
 // Original Author:  Loic QUERTENMONT
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.h,v 1.3 2007/10/05 13:50:59 roberfro Exp $
+// $Id: NuclearTrackCorrector.h,v 1.4 2007/10/08 15:52:14 roberfro Exp $
 //
 //
 
@@ -64,9 +64,6 @@
 
 
 
-using namespace edm;
-using namespace std;
-using namespace reco;
 
 class TransientInitialStateEstimator;
 
@@ -111,14 +108,14 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       // ----------member data ---------------------------
 
 
-      string str_Input_Trajectory;
-      string str_Input_NuclearSeed;
+      std::string str_Input_Trajectory;
+      std::string str_Input_NuclearSeed;
       int    int_Input_Hit_Distance;
 
       int    verbosity;
       int    KeepOnlyCorrectedTracks;
 
-      std::vector< pair<unsigned int, unsigned int> > Indice_Map;
+      std::vector< std::pair<unsigned int, unsigned int> > Indice_Map;
 
       
       edm::ESHandle<TrackerGeometry> theG;

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace std;
 
 bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 {
@@ -49,7 +50,7 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 
   if ( Bc2kH == 0. )
   {
-    LogDebug ("TwoTrackMinimumDistanceHelixLine")
+    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
       << "Magnetic field at point " << hOrig << " is zero.";
     return true;
   };

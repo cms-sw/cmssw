@@ -4,6 +4,8 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
+
 namespace {
   inline GlobalPoint operator - ( const GlobalPoint & a, const GlobalPoint & b ){
     return GlobalPoint ( a.x() - b.x(), a.y() - b.y(), a.z() - b.z() );

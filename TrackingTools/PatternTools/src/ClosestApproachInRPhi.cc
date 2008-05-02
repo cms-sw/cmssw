@@ -3,6 +3,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+using namespace std;
+
 bool ClosestApproachInRPhi::calculate(const TrajectoryStateOnSurface & sta, 
 			      const TrajectoryStateOnSurface & stb) 
 {

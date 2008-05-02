@@ -29,7 +29,7 @@ TrajectoryStateOnSurface::
 TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
 			  const CurvilinearTrajectoryError& err,
 			  const Surface& aSurface, double weight) :
-  Base( new BTSOS( gp, err, aSurface, atCenterOfSurface, weight)) {}
+  Base( new BTSOS( gp, err, aSurface, SurfaceSideDefinition::atCenterOfSurface, weight)) {}
 
 TrajectoryStateOnSurface::
 TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
@@ -52,5 +52,5 @@ TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
 			  const Surface& aSurface, 
 			  const MagneticField* field, 
 			  double weight) :
-  Base( new BTSOS( p, err, aSurface, field, atCenterOfSurface, weight)) {}
+  Base( new BTSOS( p, err, aSurface, field, SurfaceSideDefinition::atCenterOfSurface, weight)) {}
 

@@ -45,8 +45,6 @@ class Propagator;
 
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
 
-using namespace std;
-
 class CkfDebugger {
  public:
   CkfDebugger( edm::EventSetup const & es );
@@ -121,7 +119,7 @@ class CkfDebugger {
   int assocTrackId(CTTRHp rechit) const;
 
   //const PSimHit* nextCorrectHit( const Trajectory&, unsigned int&) ;
-  vector<const PSimHit*> nextCorrectHits( const Trajectory&, unsigned int&) ;
+  std::vector<const PSimHit*> nextCorrectHits( const Trajectory&, unsigned int&) ;
 
   bool associated(CTTRHp rechit, const PSimHit& sh) const;
 
@@ -139,7 +137,7 @@ class CkfDebugger {
 
   bool hasDelta(const PSimHit* correctHit){
     bool delta = false;
-    for (vector<PSimHit>::iterator isim = hitAssociator->SimHitMap[correctHit->detUnitId()].begin();
+    for (std::vector<PSimHit>::iterator isim = hitAssociator->SimHitMap[correctHit->detUnitId()].begin();
 	 isim != hitAssociator->SimHitMap[correctHit->detUnitId()].end(); ++isim){ 
 /*       edm::LogVerbatim("CkfDebugger") << "SimHit on this det at pos="<< position(&*isim)  */
 /* 	     << " det=" << isim->detUnitId() << " process=" << isim->processType() ; */
@@ -177,7 +175,7 @@ class CkfDebugger {
   }
 
   template<unsigned int D>  
-  pair<double,double> computePulls(CTTRHp recHit, TSOS startingState){
+  std::pair<double,double> computePulls(CTTRHp recHit, TSOS startingState){
     typedef typename AlgebraicROOTObject<D>::Vector VecD;
     typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
     TSOS detState = theForwardPropagator->propagate(startingState,recHit->det()->surface());
@@ -197,9 +195,9 @@ class CkfDebugger {
     double pullY=(-r[1])*sqrt(R(1,1));
     LogTrace("CkfDebugger") << "pullX=" << pullX ;
     LogTrace("CkfDebugger") << "pullY=" << pullY ;
-    return  pair<double,double>(pullX,pullY);
+    return  std::pair<double,double>(pullX,pullY);
   }
-  pair<double,double> computePulls(CTTRHp recHit, TSOS startingState) {
+  std::pair<double,double> computePulls(CTTRHp recHit, TSOS startingState) {
         switch (recHit->dimension()) {
                 case 1: return computePulls<1>(recHit,startingState);
                 case 2: return computePulls<2>(recHit,startingState);
@@ -210,33 +208,33 @@ class CkfDebugger {
         throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
   }
 
-  vector<int> dump;
-  map<pair<int,int>, int> dump2;
-  map<pair<int,int>, int> dump3;
-  map<pair<int,int>, int> dump4;
-  map<pair<int,int>, int> dump5;
-  map<pair<int,int>, int> dump6;
+  std::vector<int> dump;
+  std::map<std::pair<int,int>, int> dump2;
+  std::map<std::pair<int,int>, int> dump3;
+  std::map<std::pair<int,int>, int> dump4;
+  std::map<std::pair<int,int>, int> dump5;
+  std::map<std::pair<int,int>, int> dump6;
 
   TFile*  file;
   TH1F* hchi2seedAll, *hchi2seedProb;
 
-  map<string,TH1F*> hPullX_shrh;
-  map<string,TH1F*> hPullY_shrh;
-  map<string,TH1F*> hPullX_shst;
-  map<string,TH1F*> hPullY_shst;
-  map<string,TH1F*> hPullX_strh;
-  map<string,TH1F*> hPullY_strh;
+  std::map<std::string,TH1F*> hPullX_shrh;
+  std::map<std::string,TH1F*> hPullY_shrh;
+  std::map<std::string,TH1F*> hPullX_shst;
+  std::map<std::string,TH1F*> hPullY_shst;
+  std::map<std::string,TH1F*> hPullX_strh;
+  std::map<std::string,TH1F*> hPullY_strh;
 
-  map<string,TH1F*> hPullM_shrh;
-  map<string,TH1F*> hPullS_shrh;
-  map<string,TH1F*> hPullM_shst;
-  map<string,TH1F*> hPullS_shst;
-  map<string,TH1F*> hPullM_strh;
-  map<string,TH1F*> hPullS_strh;
+  std::map<std::string,TH1F*> hPullM_shrh;
+  std::map<std::string,TH1F*> hPullS_shrh;
+  std::map<std::string,TH1F*> hPullM_shst;
+  std::map<std::string,TH1F*> hPullS_shst;
+  std::map<std::string,TH1F*> hPullM_strh;
+  std::map<std::string,TH1F*> hPullS_strh;
 
-  map<string,TH1F*> hPullGP_X_shst;
-  map<string,TH1F*> hPullGP_Y_shst;
-  map<string,TH1F*> hPullGP_Z_shst;
+  std::map<std::string,TH1F*> hPullGP_X_shst;
+  std::map<std::string,TH1F*> hPullGP_Y_shst;
+  std::map<std::string,TH1F*> hPullGP_Z_shst;
 
   TH2F* hPullGPXvsGPX_shst;
   TH2F* hPullGPXvsGPY_shst;

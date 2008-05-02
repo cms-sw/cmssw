@@ -30,8 +30,6 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 
 
-using namespace std;
-
 template <class T> void
 TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 					    const MagneticField * theMF,

@@ -3,8 +3,6 @@
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
-using namespace std;
-
 class TrajectoryCleanerMerger : public TrajectoryCleaner {
 
  public:

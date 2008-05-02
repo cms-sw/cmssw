@@ -1,5 +1,8 @@
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
+
+using namespace SurfaceSideDefinition;
+
 //#include "Utilities/UI/interface/SimpleConfigurable.h"
 //
 // Update of the trajectory state (implemented in base class since general for

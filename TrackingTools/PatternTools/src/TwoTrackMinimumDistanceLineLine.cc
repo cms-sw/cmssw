@@ -3,6 +3,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
 
 bool TwoTrackMinimumDistanceLineLine::calculate(
     const GlobalTrajectoryParameters & theG,

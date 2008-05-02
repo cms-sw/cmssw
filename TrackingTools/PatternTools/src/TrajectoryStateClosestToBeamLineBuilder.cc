@@ -3,6 +3,8 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
+
 TrajectoryStateClosestToBeamLine
 TrajectoryStateClosestToBeamLineBuilder::operator()
 	(const FreeTrajectoryState& originalFTS,

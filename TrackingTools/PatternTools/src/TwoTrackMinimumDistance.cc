@@ -4,6 +4,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+using namespace std;
+
 namespace {
   inline GlobalPoint mean ( pair<GlobalPoint, GlobalPoint> pr ) {
     return GlobalPoint ( (pr.first.x() + pr.second.x() ) / 2. ,

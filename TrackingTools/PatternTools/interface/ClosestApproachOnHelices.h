@@ -4,8 +4,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <utility>
 
-using namespace std;
-
 /** \class ClosestApproachOnHelices
  *  Abstract interface for classes which compute the points of closest 
  *  approach of 2 helices. <br>
@@ -37,7 +35,7 @@ public:
   virtual bool status() const = 0;
 
   /** Points of closest approach on the 2 helices */
-  virtual pair<GlobalPoint, GlobalPoint> points() const = 0;
+  virtual std::pair<GlobalPoint, GlobalPoint> points() const = 0;
 
   /** Crossing point of the 2 helices, computed as an average 
    *  of the points of closest approach. 

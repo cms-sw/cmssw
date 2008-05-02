@@ -8,6 +8,9 @@
 // Update of the trajectory state (implemented in base class since general for
 //   all classes returning deltaPs and deltaCovs.
 //
+
+using namespace SurfaceSideDefinition;
+
 TrajectoryStateOnSurface 
 GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS, 
 					const PropagationDirection propDir) const {

@@ -28,20 +28,20 @@ public:
    */
   BasicSingleTrajectoryState( const FreeTrajectoryState& fts,
 			      const Surface& aSurface,
-			      const SurfaceSide side = atCenterOfSurface);
+			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from global parameters and surface. For surfaces with material
    *  the side of the surface should be specified explicitely.
    */
   BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
 			      const Surface& aSurface,
-			      const SurfaceSide side = atCenterOfSurface);
+			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely.
    */
   BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
 			      const CartesianTrajectoryError& err,
 			      const Surface& aSurface,
-			      const SurfaceSide side = atCenterOfSurface);
+			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
    *  For multi-states the weight should be specified explicitely.
@@ -49,7 +49,7 @@ public:
   BasicSingleTrajectoryState( const GlobalTrajectoryParameters& par,
 			      const CurvilinearTrajectoryError& err,
 			      const Surface& aSurface,
-			      const SurfaceSide side = atCenterOfSurface,
+			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface,
 			      double weight = 1.);
   /** Constructor from global parameters, errors and surface. For multi-states the
    *  weight should be specified explicitely. For backward compatibility without
@@ -65,7 +65,7 @@ public:
   BasicSingleTrajectoryState( const LocalTrajectoryParameters& par,
 			      const Surface& aSurface,
 			      const MagneticField* field,
-			      const SurfaceSide side = atCenterOfSurface);
+			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from local parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
    *  For multi-states the weight should be specified explicitely.
@@ -74,7 +74,7 @@ public:
 			      const LocalTrajectoryError& err,
 			      const Surface& aSurface,
 			      const MagneticField* field,
-			      const SurfaceSide side = atCenterOfSurface,
+			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface,
 			      double weight = 1.);
   /** Constructor from local parameters, errors and surface. For multi-states the
    *  weight should be specified explicitely. For backward compatibility without

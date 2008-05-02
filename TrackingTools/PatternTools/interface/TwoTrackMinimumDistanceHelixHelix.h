@@ -6,8 +6,6 @@
 // #include <sstream>
 // #include <utility>
 
-using namespace std;
-
 /** \class TwoTrackMinimumDistanceHelixHelix
  *  This is a helper class for TwoTrackMinimumDistance.
  *  No user should need direct access to this class.
@@ -27,8 +25,8 @@ public:
       const GlobalTrajectoryParameters &,
       const float qual=.001 ); // retval=true? error occured.
 
-  pair <GlobalPoint, GlobalPoint> points() const;
-  pair <double, double> pathLength() const;
+  std::pair <GlobalPoint, GlobalPoint> points() const;
+  std::pair <double, double> pathLength() const;
 
   double firstAngle() const;
   double secondAngle() const;

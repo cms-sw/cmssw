@@ -20,6 +20,8 @@
 
 #include <cmath>
 
+using namespace SurfaceSideDefinition;
+
 std::pair<TrajectoryStateOnSurface,double>
 AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
 					const Plane& plane) const

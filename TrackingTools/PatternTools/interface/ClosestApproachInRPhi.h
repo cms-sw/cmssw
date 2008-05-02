@@ -4,8 +4,6 @@
 #include "TrackingTools/PatternTools/interface/ClosestApproachOnHelices.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 
-using namespace std;
-
 /** Given two trajectory states, computes the two points of closest approach 
  *  in the transverse plane for the helices extrapolated from these states. 
  *  1) computes the intersections of the circles in transverse plane. 
@@ -34,11 +32,11 @@ public:
   /**
    * Returns the two PCA on the trajectories.
    */
-  virtual pair<GlobalPoint, GlobalPoint> points() const;
+  virtual std::pair<GlobalPoint, GlobalPoint> points() const;
 
   /** Returns not only the points, but the full GlobalTrajectoryParemeters 
    *  at the points of closest approach */
-  pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
+  std::pair <GlobalTrajectoryParameters, GlobalTrajectoryParameters >
 	trajectoryParameters () const;
 
   /** arithmetic mean of the two points of closest approach */
