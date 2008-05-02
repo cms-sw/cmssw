@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.9 2008/05/01 10:50:46 loizides Exp $
+# $Id: injectIntoDB.pl,v 1.10 2008/05/01 22:29:56 loizides Exp $
 
 use strict;
 use DBI;
@@ -55,7 +55,7 @@ sub inject($)
         my $indfile     = $filename;
         $indfile =~ s/\.dat$/\.ind/;
 
-        my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber --LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile> /dev/null 2>&1";
+        my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber --LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile";
         system($TIERZERO);
     }
     return $rows-1;
