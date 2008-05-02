@@ -41,12 +41,12 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
           fedId_[i][j][k][m] = -1;
 
   // read in look-up table
-  int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber;
+  int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
   ifstream file;
   file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
     for (int i=0; i<4288; ++i) {
-      file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber;
+      file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx ;
       fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
     }
   } else {
@@ -105,8 +105,11 @@ void ESDigiToRaw::produce(edm::Event& ev, const edm::EventSetup& es) {
 
   auto_ptr<FEDRawDataCollection> productRawData( new FEDRawDataCollection );
 
-  for (int fId=ESFEDIds.first; fId<=ESFEDIds.second; ++fId) {
+  ESDataFormatter::Digis::const_iterator itfed; 
+  for (itfed = Digis.begin(); itfed != Digis.end(); ++itfed) {   
+    int fId = (*itfed).first ; 
     FEDRawData *rawData = ESDataFormatter_->DigiToRaw(fId, Digis);
+    if (rawData==0) continue; 
     FEDRawData& fedRawData = productRawData->FEDData(fId); 
     fedRawData = *rawData;
     if (debug_) cout<<"FED : "<<fId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;

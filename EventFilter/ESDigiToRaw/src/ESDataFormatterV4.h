@@ -34,7 +34,7 @@ class ESDataFormatterV4 : public ESDataFormatter {
   ~ESDataFormatterV4();
 
 
-  FEDRawData * DigiToRaw(int fedId, const Digis & digis);
+  FEDRawData * DigiToRaw(int fedId, Digis & digis);
 
 
   private :    
@@ -46,6 +46,10 @@ class ESDataFormatterV4 : public ESDataFormatter {
   int bundleId_[2][2][40][40];   
   int fiberId_[2][2][40][40];   
   int optoId_[2][2][40][40];
+
+  bool fedIdOptoRx_[56][3]; 
+  bool fedIdOptoRxFiber_[56][3][12]; 
+  std::pair<int,int> ESFEDIds_; 
 
   protected :
 

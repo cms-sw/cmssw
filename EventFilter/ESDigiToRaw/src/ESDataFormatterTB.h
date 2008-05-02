@@ -33,7 +33,7 @@ class ESDataFormatterTB : public ESDataFormatter {
   ~ESDataFormatterTB();
 
   //FEDRawData * DigiToRawDCC(int fedId, const Digis & digis);
-  FEDRawData * DigiToRaw(int fedId, const Digis & digis);
+  FEDRawData * DigiToRaw(int fedId, Digis & digis);
   //FEDRawData * DigiToRawTB(int fedId, const Digis & digis);
 
   private :    

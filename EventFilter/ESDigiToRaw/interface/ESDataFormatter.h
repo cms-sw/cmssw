@@ -33,7 +33,7 @@ class ESDataFormatter {
   };
   virtual ~ESDataFormatter() {};
 
-  virtual FEDRawData * DigiToRaw(int fedId, const Digis & digis) = 0;
+  virtual FEDRawData * DigiToRaw(int fedId, Digis & digis) = 0;
 
   virtual void setRunNumber(int i) {run_number_ = i;};
   virtual void setOrbitNumber(int i) {orbit_number_ = i;};

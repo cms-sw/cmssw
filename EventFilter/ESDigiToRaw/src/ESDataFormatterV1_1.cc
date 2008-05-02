@@ -125,7 +125,7 @@ ESDataFormatterV1_1::~ESDataFormatterV1_1() {
 //   return rawData;
 // }
 
-FEDRawData * ESDataFormatterV1_1::DigiToRaw(int fedId, const Digis & digis) {
+FEDRawData * ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis) {
 
   map<int, vector<Word64> > map_data;
   map_data.clear();  
@@ -135,10 +135,14 @@ FEDRawData * ESDataFormatterV1_1::DigiToRaw(int fedId, const Digis & digis) {
   Word64 word;
   vector<Word64> words;
 
-  for (Digis::const_iterator itr = digis.begin(); itr != digis.end(); ++itr) {
 
-    if (itr->first != fedId) continue;
-    const DetDigis & detDigis = itr->second;
+    const DetDigis& detDigis = digis[fedId];
+
+//     if (detDigis==digis.end()) { 
+//       cout << "ESDataFormatterV1_1::DigiToRaw : could not find digi vector in digis map for fedID: " 
+// 	   << fedId << endl ; 
+//       return 0; 
+//     } 
 
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
       
@@ -183,7 +187,7 @@ FEDRawData * ESDataFormatterV1_1::DigiToRaw(int fedId, const Digis & digis) {
       
       map_data[kchip].push_back(word);
     }
-  }
+
 
   map<int, vector<Word64> >::const_iterator kit;
   for (kit=map_data.begin(); kit!=map_data.end(); ++kit) {

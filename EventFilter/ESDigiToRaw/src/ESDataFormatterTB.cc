@@ -91,7 +91,7 @@ ESDataFormatterTB::~ESDataFormatterTB() {
 
 
 
-FEDRawData * ESDataFormatterTB::DigiToRaw(int fedId, const Digis & digis) {
+FEDRawData * ESDataFormatterTB::DigiToRaw(int fedId, Digis & digis) {
   
   Word16 word16;
   Word32 word1, word2;
