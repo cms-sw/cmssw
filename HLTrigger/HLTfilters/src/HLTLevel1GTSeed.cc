@@ -159,14 +159,14 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     // the filter object
     std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterObject (
         new trigger::TriggerFilterObjectWithRefs( path(), module() ) );
-    filterObject->addCollectionTag(edm::InputTag(m_l1MuonCollectionTag.label()) );
-    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Isolated") );
-    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "NonIsolated") );
-    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Central") );
-    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Forward") );
-    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Tau") );
-    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label()) );
 
+    //    filterObject->addCollectionTag(edm::InputTag(m_l1MuonCollectionTag.label()) );
+    //    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Isolated") );
+    //    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "NonIsolated") );
+    //    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Central") );
+    //    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Forward") );
+    //    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label(), "Tau") );
+    //    filterObject->addCollectionTag(edm::InputTag(m_l1CollectionsTag.label()) );
 
     // get L1GlobalTriggerReadoutRecord and GT decision
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
