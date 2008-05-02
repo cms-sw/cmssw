@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/02/07 15:38:56 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/03/05 12:43:09 $
+ *  $Revision: 1.21 $
  *  \author A. Tumanov - Rice
  */
 
@@ -52,17 +52,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
       if(chamberMapItr == chamberMap.end())
         {
           // make an entry, telling it the correct chamberType
-          int istation = cscDetId.station();
-          int iring = cscDetId.ring();
-          int chamberType = 2 * istation + iring; // i=2S+R
-          if ( istation == 1 )
-            {
-              --chamberType;             // ring 1R -> i=1+R (2S+R-1=1+R for S=1)
-              if ( chamberType > 4 ) 
-                {
-                  chamberType = 1;       // But ring 1A (R=4) -> i=1
-                }
-            }   
+          int chamberType = chamberID.iChamberType();
           chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
         }    
       CSCEventData & cscData = chamberMapItr->second;
@@ -94,17 +84,7 @@ CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis,
       if(chamberMapItr == chamberMap.end())
         {
           // make an entry, telling it the correct chamberType
-          int istation = cscDetId.station();
-          int iring = cscDetId.ring();
-          int chamberType = 2 * istation + iring; // i=2S+R
-          if ( istation == 1 ) 
-            {
-              --chamberType;             // ring 1R -> i=1+R (2S+R-1=1+R for S=1)
-              if ( chamberType > 4 ) 
-                {
-                  chamberType = 1;       // But ring 1A (R=4) -> i=1
-                }
-            }
+          int chamberType = chamberID.iChamberType();
           chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
         }
       CSCEventData & cscData = chamberMapItr->second;
