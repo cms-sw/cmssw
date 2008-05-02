@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/29 08:02:15 $
- * $Revision: 1.421 $
+ * $Date: 2008/05/02 09:56:13 $
+ * $Revision: 1.422 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -147,7 +147,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // updateTime
 
-  updateTime_ = ps.getUntrackedParameter<int>("updateTime_", 0);
+  updateTime_ = ps.getUntrackedParameter<int>("updateTime", 0);
 
   if ( verbose_ ) {
     cout << " updateTime is " << updateTime_ << " minute(s)" << endl;

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/04/29 08:02:16 $
- * $Revision: 1.180 $
+ * $Date: 2008/05/02 09:56:13 $
+ * $Revision: 1.181 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -148,7 +148,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // updateTime
 
-  updateTime_ = ps.getUntrackedParameter<int>("updateTime_", 0);
+  updateTime_ = ps.getUntrackedParameter<int>("updateTime", 0);
 
   if ( verbose_ ) {
     cout << " updateTime is " << updateTime_ << " minute(s)" << endl;
