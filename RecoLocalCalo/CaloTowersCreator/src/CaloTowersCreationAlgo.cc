@@ -295,9 +295,11 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       if(det == DetId::Ecal) {
         tower.E_em += e;
         tower.E += e;
-        // have to add a check for the cases when ECAL puts status for recovered hits instead of time (not there yet)
-        tower.emSumTimeTimesE += ( e * recHit->time() );
-        tower.emSumEForTime   += e;  // see above
+        // do not use "recovered" hits in time calculation
+        if (recHit->time() != EcalRecHit::kRECOVERED) {
+          tower.emSumTimeTimesE += ( e * recHit->time() );
+          tower.emSumEForTime   += e;  // see above
+        }
       }
       // HCAL
       else {
@@ -328,10 +330,9 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
           tower.E_had += e;
           tower.E += e;
 
-	  // time info
+      	  // time info
           tower.hadSumTimeTimesE += ( e * recHit->time() );
           tower.hadSumEForTime   += e;
-
 
           // store energy for depth 2 for towers 18-27
           if (HcalDetId(detId).subdet()==HcalEndcap & HcalDetId(detId).depth()==2 &&
