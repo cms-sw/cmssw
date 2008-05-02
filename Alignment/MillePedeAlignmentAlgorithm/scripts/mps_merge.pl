@@ -1,14 +1,14 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.3 $
-#     $Date: 2008/04/21 20:48:02 $
+#     $Revision: 1.4 $
+#     $Date: 2008/04/29 16:53:50 $
 #
 #  produce cfg file for merging run
 #
 #  Usage:
 #
-#  mps_merge.pl inCfg mergeCfg mergeDir njobs
+#  mps_merge.pl [-f] inCfg mergeCfg mergeDir njobs
 
 BEGIN {
 use File::Basename;
