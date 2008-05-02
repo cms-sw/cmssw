@@ -53,7 +53,7 @@ int main (int argc, char **argv)
   bool bad = false;
   for (int i = 1; i < argc; ++i)
     if (i < argc-1 && ! strcmp(argv[i], "--listen"))
-      port = atoi(argv[i+1]);
+      port = atoi(argv[++i]);
     else if (! strcmp(argv[i], "--debug"))
       debug = true;
     else if (! strcmp(argv[i], "--no-debug"))
