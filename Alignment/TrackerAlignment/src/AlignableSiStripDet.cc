@@ -1,6 +1,6 @@
 /* 
- *  $Date: 2008/05/02 07:54:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/02 09:57:29 $
+ *  $Revision: 1.2 $
  */
 
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
@@ -95,16 +95,19 @@ void AlignableSiStripDet::consistifyAlignments()
   detComps.push_back(&monoDet);   // order mono first, stereo second should be as in...
   detComps.push_back(&stereoDet); // ...TrackerGeomBuilderFromGeometricDet::buildGeomDet
 
-  // Now we have all to calculate new position (and rotation) via PlaneBuilderForGluedDet.
-  const PositionType oldPos = theSurface.position(); // From old surface for tracking of movement!
+  // Now we have all to calculate new position and rotation via PlaneBuilderForGluedDet.
+  const PositionType oldPos(theSurface.position()); // From old surface for keeping...
+  const RotationType oldRot(theSurface.rotation()); // ...track of changes.
   PlaneBuilderForGluedDet planeBuilder;
   theSurface = AlignableSurface(*planeBuilder.plane(detComps));
 
   // But do not forget to keep track of movements/rotations:
   const GlobalVector movement(theSurface.position().basicVector() - oldPos.basicVector());
-  const RotationType rotation; // FIXME: Calculate!! 
+  const RotationType rotation(oldRot.multiplyInverse(theSurface.rotation()));// need FIXME?
   this->addDisplacement(movement);
   this->addRotation(rotation);
+
+//   this->dumpCompareEuler(oldRot, theSurface.rotation());
 
 //   if (movement.mag2()) { // > 1.e-10) { 
 //     edm::LogWarning("Alignment") << "@SUB=consistifyAlignments" 
@@ -183,27 +186,52 @@ AlignableSiStripDet::errorFromId(const std::vector<AlignTransformError> &trafoEr
   return trafoErrs.front(); // never reached due to exception (but pleasing the compiler)
 }
 
-
-//__________________________________________________________________________________________________
-void AlignableSiStripDet::dumpCompareAPE(const std::vector<AlignTransformError> &trafoErrs1,
-					 const std::vector<AlignTransformError> &trafoErrs2) const
-{
-
-  for (unsigned int i = 0; i < trafoErrs1.size() && i < trafoErrs2.size(); ++i) {
-    if (trafoErrs1[i].rawId() != trafoErrs2[i].rawId()) {
-      // complain
-      break;
-    }
-    const GlobalError globErr1(trafoErrs1[i].matrix());
-    const GlobalError globErr2(trafoErrs2[i].matrix());
-    edm::LogVerbatim("Alignment") << trafoErrs1[i].rawId() << " | " 
-				  << globErr1.cxx() << " " 
-				  << globErr1.cyy() << " " 
-				  << globErr1.czz() << " | "
-				  << globErr2.cxx() << " " 
-				  << globErr2.cyy() << " " 
-				  << globErr2.czz();
-
-  }
-
-}
+// //__________________________________________________________________________________________________
+// void AlignableSiStripDet::dumpCompareAPE(const std::vector<AlignTransformError> &trafoErrs1,
+// 					 const std::vector<AlignTransformError> &trafoErrs2) const
+// {
+//   for (unsigned int i = 0; i < trafoErrs1.size() && i < trafoErrs2.size(); ++i) {
+//     if (trafoErrs1[i].rawId() != trafoErrs2[i].rawId()) {
+//       // complain
+//       break;
+//     }
+//     const GlobalError globErr1(trafoErrs1[i].matrix());
+//     const GlobalError globErr2(trafoErrs2[i].matrix());
+//     edm::LogVerbatim("Alignment") << trafoErrs1[i].rawId() << " | " 
+// 				  << globErr1.cxx() << " " 
+// 				  << globErr1.cyy() << " " 
+// 				  << globErr1.czz() << " | "
+// 				  << globErr2.cxx() << " " 
+// 				  << globErr2.cyy() << " " 
+// 				  << globErr2.czz();
+//   }
+// }
+//
+// #include "CLHEP/Vector/EulerAngles.h"
+// #include "CLHEP/Vector/Rotation.h"
+// //__________________________________________________________________________________________________
+// void AlignableSiStripDet::dumpCompareEuler(const RotationType &oldRot,
+// 					   const RotationType &newRot) const
+// {
+//   // 
+//   const HepRotation oldClhep(HepRep3x3(oldRot.xx(), oldRot.xy(), oldRot.xz(),
+// 				       oldRot.yx(), oldRot.yy(), oldRot.yz(),
+// 				       oldRot.zx(), oldRot.zy(), oldRot.zz()));
+//
+//   const HepRotation newClhep(HepRep3x3(newRot.xx(), newRot.xy(), newRot.xz(),
+// 				       newRot.yx(), newRot.yy(), newRot.yz(),
+// 				       newRot.zx(), newRot.zy(), newRot.zz()));
+//
+//   const RotationType rotationGlob(oldRot.multiplyInverse(newRot));
+//   const RotationType rotation(theSurface.toLocal(rotationGlob)); // not 100% correct: new global...
+//   const HepRotation diff(HepRep3x3(rotation.xx(), rotation.xy(), rotation.xz(),
+// 				       rotation.yx(), rotation.yy(), rotation.yz(),
+// 				       rotation.zx(), rotation.zy(), rotation.zz()));
+//
+//   edm::LogWarning("Alignment") << "@SUB=dumpCompareEuler" 
+//  			       << "oldEuler " << oldClhep.eulerAngles()
+//  			       << "\nnewEuler " << newClhep.eulerAngles()
+// 			       << "\n diff_euler " << diff.eulerAngles()
+// 			       << "\n diff_diag (" << diff.xx() << ", " << diff.yy() 
+// 			       <<         ", " << diff.zz() << ")";
+// }

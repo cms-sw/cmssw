@@ -7,8 +7,8 @@
  *
  *  First implementation April/May 2008
  *  \author Gero Flucke, Hamburg University
- *  $Date: 2008/05/02 07:54:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/02 09:57:29 $
+ *  $Revision: 1.2 $
  */
  
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -41,8 +41,9 @@ class AlignableSiStripDet: public AlignableDet {
   const AlignTransformError& errorFromId(const std::vector<AlignTransformError> &trafoErrs,
 					 align::ID id) const;
 
-  void dumpCompareAPE(const std::vector<AlignTransformError> &trafoErrs1,
-		      const std::vector<AlignTransformError> &trafoErrs2) const;
+//   void dumpCompareAPE(const std::vector<AlignTransformError> &trafoErrs1,
+// 		      const std::vector<AlignTransformError> &trafoErrs2) const;
+//   void dumpCompareEuler(const RotationType &oldRot, const RotationType &newRot) const;
 
   /// The following four members are needed to recalculate the surface in consistifyAlignments,
   /// to get rid of a GluedDet* which is disregarded since it could become an invalid pointer
