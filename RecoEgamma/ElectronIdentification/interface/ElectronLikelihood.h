@@ -10,7 +10,6 @@
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodPdfProduct.h"
 #include "CondFormats/DataRecord/interface/ElectronLikelihoodRcd.h"
 #include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCalibration.h"
-#include "FWCore/Framework/interface/data_default_record_trait.h"
 #include <TDirectory.h>
 #include <vector>
 
@@ -107,7 +106,7 @@ class ElectronLikelihood {
 
 };
 
-
+#include "FWCore/Framework/interface/data_default_record_trait.h"
 EVENTSETUP_DATA_DEFAULT_RECORD (ElectronLikelihood, ElectronLikelihoodRcd)
 
 #endif // ElectronLikelihood_H

@@ -8,7 +8,6 @@
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoEgamma/EgammaElectronAlgos>
 <use name=CondCore/DBOutputService>
-<use name=EgammaAnalysis/ElectronIDESSources>
 <export>
   <lib name=RecoEgammaElectronIdentification>
   <use name=FWCore/Framework>
@@ -21,5 +20,4 @@
   <use name=RecoCaloTools/MetaCollections>
   <use name=RecoEgamma/EgammaElectronAlgos>
   <use name=CondCore/DBOutputService>
-  <use name=EgammaAnalysis/ElectronIDESSources>
 </export>

@@ -1,3 +1,4 @@
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "RecoEgamma/ElectronIdentification/plugins/ElectronIDSelectorLikelihood.h"

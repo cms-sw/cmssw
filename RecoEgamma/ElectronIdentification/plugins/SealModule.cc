@@ -1,6 +1,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -31,11 +33,20 @@ typedef ObjectSelector<
          > EleIdLikelihoodRef ;
 
 
-DEFINE_SEAL_MODULE();
+//DEFINE_SEAL_MODULE();
 
 //DEFINE_ANOTHER_FWK_MODULE(ElectronIDProducer);
 
 //DEFINE_ANOTHER_FWK_MODULE(EleIdCutBased);
-DEFINE_ANOTHER_FWK_MODULE(EleIdCutBasedRef);
+DEFINE_FWK_MODULE(EleIdCutBasedRef);
 DEFINE_ANOTHER_FWK_MODULE(EleIdNeuralNetRef);
 DEFINE_ANOTHER_FWK_MODULE(EleIdLikelihoodRef);
+
+
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "RecoEgamma/ElectronIdentification/plugins/ElectronLikelihoodESSource.h"
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE( ElectronLikelihoodESSource );
+
+#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
+EVENTSETUP_DATA_REG( ElectronLikelihood );
