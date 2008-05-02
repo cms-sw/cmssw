@@ -95,7 +95,8 @@ SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSet
   // get input data
   edm::Handle< edm::DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByLabel( src_, input );
-
+  if (!input.isValid()) return; 
+   
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
 
