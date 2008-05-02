@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/04/29 07:23:49 $
- * $Revision: 1.420 $
+ * $Date: 2008/04/29 08:02:15 $
+ * $Revision: 1.421 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -145,19 +145,17 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     }
   }
 
-  //updateTime
+  // updateTime
 
- updateTime_ = ps.getUntrackedParameter<int>("updateTime_", 0);
+  updateTime_ = ps.getUntrackedParameter<int>("updateTime_", 0);
 
   if ( verbose_ ) {
-    if (updateTime_ ) {
-      cout << "updateTime is " <<updateTime_ << " minute(s)" << endl;
-    }
+    cout << " updateTime is " << updateTime_ << " minute(s)" << endl;
   }
 
   // dbUpdateTime
 
-  dbUpdateTime_  = ps.getUntrackedParameter<int>("dbUpdateTime", 15);
+  dbUpdateTime_  = ps.getUntrackedParameter<int>("dbUpdateTime", 0);
 
   if ( verbose_ ) {
     cout << " dbUpdateTime is " << dbUpdateTime_ << " minute(s)" << endl;
@@ -165,7 +163,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // htmlUpdateTime
 
-  htmlUpdateTime_  = ps.getUntrackedParameter<int>("htmlUpdateTime", 5);
+  htmlUpdateTime_  = ps.getUntrackedParameter<int>("htmlUpdateTime", 0);
 
   if ( verbose_ ) {
     cout << " htmlUpdateTime is " << htmlUpdateTime_ << " minute(s)" << endl;
@@ -944,7 +942,7 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
     cout << endl;
   }
 
-  if ( updateTime_ ) {
+  if ( updateTime_ > 0 ) {
     if ( (current_time_ - last_time_update_) < 60 * updateTime_ ) {
       return;
     }
@@ -1538,14 +1536,14 @@ void EcalBarrelMonitorClient::analyze(void){
 
       forced_update_ = false;
 
-      if ( htmlUpdateTime_ ) {
+      if ( htmlUpdateTime_ > 0 ) {
         if ( (current_time_ - last_time_html_) > 60 * htmlUpdateTime_ ) {
           last_time_html_ = current_time_;
           this->htmlOutput( true );
         }
       }
 
-      if ( dbUpdateTime_ ) {
+      if ( dbUpdateTime_ > 0 ) {
         if ( (current_time_ - last_time_db_) > 60 * dbUpdateTime_ ) {
           if ( runType_ == EcalDCCHeaderBlock::COSMIC ||
                runType_ == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
