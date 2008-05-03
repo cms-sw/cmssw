@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/03/07 19:06:09 $
-  * $Revision: 1.18 $
+  * $Date: 2008/04/29 21:23:57 $
+  * $Revision: 1.19 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -90,7 +90,8 @@ private:  ///Monitoring elements
 
     std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
 
-    std::map<HcalDetId, MonitorElement*> SHAPE;
+    // Turn these histograms off for CRUZET -- Jeff
+    //std::map<HcalDetId, MonitorElement*> SHAPE;
   } hbHists, heHists, hfHists, hoHists;
 
 };

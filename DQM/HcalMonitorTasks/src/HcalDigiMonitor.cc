@@ -11,7 +11,13 @@ HcalDigiMonitor::HcalDigiMonitor() {
 
 HcalDigiMonitor::~HcalDigiMonitor() {}
 
-namespace HcalDigiPerChan{
+namespace HcalDigiPerChan
+{
+  
+
+  // ignore perChanHists for CRUZET -- Jeff
+  /*
+
   template<class Digi>
   inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DQMStore* dbe, string baseFolder) {
     
@@ -38,10 +44,13 @@ namespace HcalDigiPerChan{
 	sprintf(name,"%s Digi Shape ieta=%d iphi=%d depth=%d",type.c_str(),digi.id().ieta(),digi.id().iphi(),digi.id().depth());
 	tool[digi.id()] =  dbe->book1D(name,name,10,-0.5,9.5); 
 	for (int i=0; i<digi.size(); i++) tool[digi.id()]->Fill(i,ampl[i]);
-      }
-    }
-  }
-}
+      } // if (dbe)
+    } // else
+  } // inline void perChanHists
+  */
+} // namespace HcalDigiPerChan
+
+
 
 void HcalDigiMonitor::reset(){}
 
@@ -602,7 +611,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_VME,
 						 hbHists.ERR_MAP_DCC);	  
-
+	  
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 ERR_MAP_GEO,ERR_MAP_VME,
 						 ERR_MAP_DCC);	  
@@ -655,8 +664,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  hbHists.QIE_DV->Fill(dver);
 	}    
 	
+	// ignore perchanhists for CRUZET -- Jeff
+	/*
 	if(doPerChannel_)	  
-	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
+	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
+	*/
 
 	if (digi.id().ieta() > 0) {
 	  hbHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
@@ -731,8 +743,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  heHists.QIE_DV->Fill(dver);
 	}    
 	
+	// ignore perchannel hists for CRUZET -- Jeff
+	/*
 	if(doPerChannel_)
 	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
+	*/
 
 	if (digi.id().ieta() > 0) {
 	  heHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
@@ -826,8 +841,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	hoHists.QIE_DV->Fill(dver);
       }    
       
+      // ignore perchannel hists for CRUZET -- Jeff
+      /*
       if(doPerChannel_)	  
 	HcalDigiPerChan::perChanHists<HODataFrame>(2,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
+      */
 
 	if (digi.id().ieta() > 0) {
 	  hoHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
@@ -915,9 +933,12 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	hfHists.QIE_DV->Fill(dver);
       }    
-      
+
+      // ignore perchannel hists for CRUZET -- Jeff
+      /*
       if(doPerChannel_)	  
 	HcalDigiPerChan::perChanHists<HFDataFrame>(3,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
+      */
 
       if (digi.id().ieta() > 0) {
 	hfHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
