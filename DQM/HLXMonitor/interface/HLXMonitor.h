@@ -54,6 +54,8 @@ using namespace HCAL_HLX;
 // class decleration
 //
 
+
+
 class HLXMonitor : public edm::EDAnalyzer 
 {
 
@@ -66,6 +68,8 @@ class HLXMonitor : public edm::EDAnalyzer
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
 
+      void SaveDQMFile();
+
       void SetupHists();
       void FillHistoBX(const LUMI_SECTION&);
       void FillHistoDist(const LUMI_SECTION&);
@@ -75,7 +79,7 @@ class HLXMonitor : public edm::EDAnalyzer
       //  void FillHistoHistory(const LUMI_SECTION&);
 
       // ----------member data ---------------------------
-      TCPReceiver HT;      
+      TCPReceiver HLXTCP;      
 
       MonitorElement * Set1Below[36];
       MonitorElement * Set1Between[36];
@@ -115,7 +119,7 @@ class HLXMonitor : public edm::EDAnalyzer
       double XMIN,  XMAX;
       unsigned int NBINS;
       bool Accumulate;  
-      std::string OutputFile;
+      std::string OutputFilePrefix;
       std::string OutputDir;
       std::string Style;   // BX, History, Distribution
       int SavePeriod;
@@ -137,6 +141,8 @@ class HLXMonitor : public edm::EDAnalyzer
       unsigned int set2BetweenIndex;
       unsigned int set2AboveIndex;
 
+      bool ResetAtNewRun;
+
       unsigned int runNumLength;
       unsigned int secNumLength;
 
@@ -146,6 +152,10 @@ class HLXMonitor : public edm::EDAnalyzer
       std::string EtYAxisTitle;
 
       HCAL_HLX::LUMI_SECTION lumiSection;
+
+      unsigned int runNumber_;
+
+      int HLXHFMap[36];
 
 };
 

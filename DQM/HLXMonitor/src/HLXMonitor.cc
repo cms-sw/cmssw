@@ -4,38 +4,45 @@
 */
 #include "DQM/HLXMonitor/interface/HLXMonitor.h"
 
+// STL Headers
+
+#include <iomanip>
+
 using std::cout;
 using std::endl;
 
 HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 {
 
-   NUM_HLX       = iConfig.getUntrackedParameter<unsigned int>("numHlx", 36);
-   NUM_BUNCHES   = iConfig.getUntrackedParameter<unsigned int>("numBunches",3564);
-   listenPort    = iConfig.getUntrackedParameter<unsigned int>("SourcePort", 51001);
-   OutputFile    = iConfig.getUntrackedParameter<std::string>("outputFile","lumi");
-   OutputDir     = iConfig.getUntrackedParameter<std::string>("outputDir","data");
-   SavePeriod    = iConfig.getUntrackedParameter<unsigned int>("SavePeriod",10);
-   NBINS         = iConfig.getUntrackedParameter<unsigned int>("NBINS",3564);
-   XMIN          = iConfig.getUntrackedParameter<double>("XMIN",0);
-   XMAX          = iConfig.getUntrackedParameter<double>("XMAX",3564);
-   Style         = iConfig.getUntrackedParameter<std::string>("Style","BX");
-   AquireMode    = iConfig.getUntrackedParameter<unsigned int>("AquireMode",0);
-   Accumulate    = iConfig.getUntrackedParameter<bool>("Accumulate",true); // all
-   TriggerBX     = iConfig.getUntrackedParameter<unsigned int>("TriggerBX",50);
-   reconnTime    = iConfig.getUntrackedParameter<unsigned int>("ReconnectionTime",5);
-   DistribIP     = iConfig.getUntrackedParameter<std::string>("HLXIP","localhost");
+   NUM_HLX       = iConfig.getUntrackedParameter< unsigned int >("numHlx",     36);
+   NUM_BUNCHES   = iConfig.getUntrackedParameter< unsigned int >("numBunches", 3564);
+   listenPort    = iConfig.getUntrackedParameter< unsigned int >("SourcePort", 51001);
+   OutputFilePrefix = iConfig.getUntrackedParameter< std::string  >("outputFile", "lumi");
+   OutputDir     = iConfig.getUntrackedParameter< std::string  >("outputDir","  data");
+   SavePeriod    = iConfig.getUntrackedParameter< unsigned int >("SavePeriod",  10);
+   NBINS         = iConfig.getUntrackedParameter< unsigned int >("NBINS",       297);  // 12 BX per bin
+   XMIN          = iConfig.getUntrackedParameter< double       >("XMIN",        0);
+   XMAX          = iConfig.getUntrackedParameter< double       >("XMAX",        3564);
+   Style         = iConfig.getUntrackedParameter< std::string  >("Style",       "BX");
+   AquireMode    = iConfig.getUntrackedParameter< unsigned int >("AquireMode",  0);
+   Accumulate    = iConfig.getUntrackedParameter< bool         >("Accumulate",  true); // all
+   TriggerBX     = iConfig.getUntrackedParameter< unsigned int >("TriggerBX",   50);
+   reconnTime    = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",5);
+   DistribIP     = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcs2f17-19");
+   ResetAtNewRun = iConfig.getUntrackedParameter< bool         >("NewRun_Reset","true");
 
    // HLX Config info
-   set1BelowIndex = 0;
+   set1BelowIndex   = 0;
    set1BetweenIndex = 1;
-   set1AboveIndex = 2;
-   set2BelowIndex = 3;
+   set1AboveIndex   = 2;
+   set2BelowIndex   = 3;
    set2BetweenIndex = 4;
-   set2AboveIndex = 5;
+   set2AboveIndex   = 5;
 
    runNumLength = 9;
    secNumLength = 6;
+
+   runNumber_ = 0;
 
    if(NUM_HLX > 36)       NUM_HLX = 36;
 
@@ -52,9 +59,6 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
       NBINS = (unsigned int)(XMAX-XMIN);
    }
 
-   // get hold of back-end interface
-   // dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-
    dbe_ = edm::Service<DQMStore>().operator->();
 
    if ( dbe_ ) {
@@ -63,22 +67,21 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 
    monitorName_ = iConfig.getUntrackedParameter<std::string>("monitorName","HLX");
    cout << "Monitor name = " << monitorName_ << endl;
-   //   if( monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
    prescaleEvt_ = iConfig.getUntrackedParameter<int>("prescaleEvt", -1);
    cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
 
-   //We put this here for the moment since there is no better place 
-   //  edm::Service<MonitorDaemon> daemon;
-   // daemon.operator->();
+   int HLXHFMapTemp[] = {18,19,20,21,22,23,0,1,2,3,4,5,24,25,26,27,28,29,6,7,8,9,10,11,30,31,32,33,34,35,12,13,14,15,16,17}; //
 
-   // Setup the monitoring histograms
+   for(int i = 0; i < 36; i++){
+     HLXHFMap[i] = HLXHFMapTemp[i];
+   }
+
    SetupHists();
-  
 }
 
 HLXMonitor::~HLXMonitor()
 {
-  HT.Disconnect();
+  HLXTCP.Disconnect();
 }
 
 // ------------ Setup the monitoring elements ---------------
@@ -95,13 +98,13 @@ HLXMonitor::SetupHists()
 
       dbe_->setCurrentFolder(monitorName_+"/HFPlus/Wedge"+tempStreamer.str());
 
-      Set1Below[i]  = dbe_->book1D("Set1_Below",   "HF+ Wedge "+tempStreamer.str()+" Set1 Below Threshold",  NBINS, XMIN, XMAX);
-      Set1Between[i]= dbe_->book1D("Set1_Between", "HF+ Wedge "+tempStreamer.str()+" Set1 Between Threshold",NBINS, XMIN, XMAX);
-      Set1Above[i]  = dbe_->book1D("Set1_Above",   "HF+ Wedge "+tempStreamer.str()+" Set1 Above Threshold",  NBINS, XMIN, XMAX);
-      Set2Below[i]  = dbe_->book1D("Set2_Below",   "HF+ Wedge "+tempStreamer.str()+" Set2 Below Threshold",  NBINS, XMIN, XMAX);
-      Set2Between[i]= dbe_->book1D("Set2_Between", "HF+ Wedge "+tempStreamer.str()+" Set2 Between Threshold",NBINS, XMIN, XMAX);
-      Set2Above[i]  = dbe_->book1D("Set2_Above",   "HF+ Wedge "+tempStreamer.str()+" Set2 Above Threshold",  NBINS, XMIN, XMAX);    
-      ETSum[i]      = dbe_->book1D("ETSum",        "HF+ Wedge "+tempStreamer.str()+" Et Sum",                NBINS, XMIN, XMAX);    
+      Set1Below[  HLXHFMap[i]] = dbe_->book1D("Set1_Below",   "HF+ Wedge "+tempStreamer.str()+" Set1 Below Threshold",  NBINS, XMIN, XMAX);
+      Set1Between[HLXHFMap[i]] = dbe_->book1D("Set1_Between", "HF+ Wedge "+tempStreamer.str()+" Set1 Between Threshold",NBINS, XMIN, XMAX);
+      Set1Above[  HLXHFMap[i]] = dbe_->book1D("Set1_Above",   "HF+ Wedge "+tempStreamer.str()+" Set1 Above Threshold",  NBINS, XMIN, XMAX);
+      Set2Below[  HLXHFMap[i]] = dbe_->book1D("Set2_Below",   "HF+ Wedge "+tempStreamer.str()+" Set2 Below Threshold",  NBINS, XMIN, XMAX);
+      Set2Between[HLXHFMap[i]] = dbe_->book1D("Set2_Between", "HF+ Wedge "+tempStreamer.str()+" Set2 Between Threshold",NBINS, XMIN, XMAX);
+      Set2Above[  HLXHFMap[i]] = dbe_->book1D("Set2_Above",   "HF+ Wedge "+tempStreamer.str()+" Set2 Above Threshold",  NBINS, XMIN, XMAX);    
+      ETSum[      HLXHFMap[i]] = dbe_->book1D("ETSum",        "HF+ Wedge "+tempStreamer.str()+" Et Sum",                NBINS, XMIN, XMAX);    
 
       dbe_->tagContents(monitorName_+"/HFPlus/Wedge"+tempStreamer.str(), i+1);
    }
@@ -113,16 +116,16 @@ HLXMonitor::SetupHists()
       for( unsigned int i=18; i < NUM_HLX; ++i )
       {
 	 std::ostringstream tempStreamer;
-	 tempStreamer << std::dec << (i+1);
+	 tempStreamer << std::dec << std::setw(2) << std::setfill('0') << (i+1);
 
 	 dbe_->setCurrentFolder(monitorName_+"/HFMinus/Wedge"+tempStreamer.str());
-	 Set1Below[i]   = dbe_->book1D("Set1_Below",   "HF- Wedge "+tempStreamer.str()+" Set1 Below Threshold",  NBINS, XMIN, XMAX);
-	 Set1Between[i] = dbe_->book1D("Set1_Between", "HF- Wedge "+tempStreamer.str()+" Set1 Between Threshold",NBINS, XMIN, XMAX);
-	 Set1Above[i]   = dbe_->book1D("Set1_Above",   "HF- Wedge "+tempStreamer.str()+" Set1 Above Threshold",  NBINS, XMIN, XMAX); 
-	 Set2Below[i]   = dbe_->book1D("Set2_Below",   "HF- Wedge "+tempStreamer.str()+" Set2 Below Threshold",  NBINS, XMIN, XMAX); 
-	 Set2Between[i] = dbe_->book1D("Set2_Between", "HF- Wedge "+tempStreamer.str()+" Set2 Between Threshold",NBINS, XMIN, XMAX); 
-	 Set2Above[i]   = dbe_->book1D("Set2_Above",   "HF- Wedge "+tempStreamer.str()+" Set2 Above Threshold",  NBINS, XMIN, XMAX); 
-	 ETSum[i]       = dbe_->book1D("ETSum",        "HF- Wedge "+tempStreamer.str()+" Et Sum",                NBINS, XMIN, XMAX); 
+	 Set1Below[  HLXHFMap[i]] = dbe_->book1D("Set1_Below",   "HF- Wedge "+tempStreamer.str()+" Set1 Below Threshold",  NBINS, XMIN, XMAX);
+	 Set1Between[HLXHFMap[i]] = dbe_->book1D("Set1_Between", "HF- Wedge "+tempStreamer.str()+" Set1 Between Threshold",NBINS, XMIN, XMAX);
+	 Set1Above[  HLXHFMap[i]] = dbe_->book1D("Set1_Above",   "HF- Wedge "+tempStreamer.str()+" Set1 Above Threshold",  NBINS, XMIN, XMAX); 
+	 Set2Below[  HLXHFMap[i]] = dbe_->book1D("Set2_Below",   "HF- Wedge "+tempStreamer.str()+" Set2 Below Threshold",  NBINS, XMIN, XMAX); 
+	 Set2Between[HLXHFMap[i]] = dbe_->book1D("Set2_Between", "HF- Wedge "+tempStreamer.str()+" Set2 Between Threshold",NBINS, XMIN, XMAX); 
+	 Set2Above[  HLXHFMap[i]] = dbe_->book1D("Set2_Above",   "HF- Wedge "+tempStreamer.str()+" Set2 Above Threshold",  NBINS, XMIN, XMAX); 
+	 ETSum[      HLXHFMap[i]] = dbe_->book1D("ETSum",        "HF- Wedge "+tempStreamer.str()+" Et Sum",                NBINS, XMIN, XMAX); 
 
 	 dbe_->tagContents(monitorName_+"/HFMinus/Wedge"+tempStreamer.str(), i+1);
       }
@@ -131,72 +134,74 @@ HLXMonitor::SetupHists()
    dbe_->setCurrentFolder(monitorName_+"/HFCompare");
 
    HFCompareEtSum = dbe_->book1D("HFCompareEtSum","Et Sum - cyclic trigger ",36,0,36);
-   HFCompareEtSum->setAxisTitle("HLX ID",1);
+   HFCompareEtSum->setAxisTitle("HF Wedge",1);
    HFCompareEtSum->setAxisTitle("ET Sum per active Tower",2);
  
    HFCompareOccBelowSet1 = dbe_->book1D("HFCompareOccBelowSet1","Occupancy Below Threshold - Set 1", 36, 0, 36);
-   HFCompareOccBelowSet1->setAxisTitle("HLX ID",1);
+   HFCompareOccBelowSet1->setAxisTitle("HF Wedge",1);
    HFCompareOccBelowSet1->setAxisTitle("Occ per active Tower",2);
 
    HFCompareOccBetweenSet1 = dbe_->book1D("HFCompareOccBetweenSet1","Occupancy Between Threshold - Set 1", 36, 0, 36);
-   HFCompareOccBetweenSet1->setAxisTitle("HLX ID",1);
+   HFCompareOccBetweenSet1->setAxisTitle("HF Wedge",1);
    HFCompareOccBetweenSet1->setAxisTitle("Occ per active Tower",2);
 
    HFCompareOccAboveSet1 = dbe_->book1D("HFCompareOccAboveSet1","Occupancy Above Threshold - Set 1", 36, 0, 36);
-   HFCompareOccAboveSet1->setAxisTitle("HLX ID",1);
+   HFCompareOccAboveSet1->setAxisTitle("HF Wedge",1);
    HFCompareOccAboveSet1->setAxisTitle("Occ per active Tower",2);
 
    HFCompareOccBelowSet2 = dbe_->book1D("HFCompareOccBelowSet2","Occupancy Below Threshold - Set 2", 36, 0, 36);
-   HFCompareOccBelowSet2->setAxisTitle("HLX ID",1);
+   HFCompareOccBelowSet2->setAxisTitle("HF Wedge",1);
    HFCompareOccBelowSet2->setAxisTitle("Occ per active Tower",2);
 
    HFCompareOccBetweenSet2 = dbe_->book1D("HFCompareOccBetweenSet2","Occupancy Between Threshold - Set 2", 36, 0, 36);
-   HFCompareOccBetweenSet2->setAxisTitle("HLX ID",1);
+   HFCompareOccBetweenSet2->setAxisTitle("HF Wedge",1);
    HFCompareOccBetweenSet2->setAxisTitle("Occ per active Tower",2);
 
    HFCompareOccAboveSet2 = dbe_->book1D("HFCompareOccAboveSet2","Occupancy Above Threshold - Set 2", 36, 0, 36);
-   HFCompareOccAboveSet2->setAxisTitle("HLX ID",1);
+   HFCompareOccAboveSet2->setAxisTitle("HF Wedge",1);
    HFCompareOccAboveSet2->setAxisTitle("Occ per active Tower",2);
 
    dbe_->setCurrentFolder(monitorName_+"/Average");
 
    AvgEtSum = dbe_->bookProfile("AvgEtSum","Average EtSum",36,0,36, 10000,0,10000,"");
-   AvgEtSum->setAxisTitle("HLX ID",1);
+   AvgEtSum->setAxisTitle("HF Wedge",1);
    AvgEtSum->setAxisTitle("Avg EtSum",2);
 
    AvgOccBelowSet1 = dbe_->bookProfile("AvgOccBelowSet1","Average OccBelowSet1",36,0,36,10000,0,10000,"");
-   AvgOccBelowSet1->setAxisTitle("HLX ID",1);
+   AvgOccBelowSet1->setAxisTitle("HF Wedge",1);
    AvgOccBelowSet1->setAxisTitle("Avg OccBelowSet1",2);
 
    AvgOccBetweenSet1 = dbe_->bookProfile("AvgOccBetweenSet1","Average OccBetweenSet1",36,0,36,10000,0,10000,"");
-   AvgOccBetweenSet1->setAxisTitle("HLX ID",1);
+   AvgOccBetweenSet1->setAxisTitle("HF Wedge",1);
    AvgOccBetweenSet1->setAxisTitle("Avg OccBetweenSet1",2);
 
    AvgOccAboveSet1 = dbe_->bookProfile("AvgOccAboveSet1","Average OccAboveSet1",36,0,36,10000,0,10000,"");
-   AvgOccAboveSet1->setAxisTitle("HLX ID",1);
+   AvgOccAboveSet1->setAxisTitle("HF Wedge",1);
    AvgOccAboveSet1->setAxisTitle("Avg OccAboveSet1",2);
 
    AvgOccBelowSet2 = dbe_->bookProfile("AvgOccBelowSet2","Average OccBelowSet2",36,0,36,10000,0,10000,"");
-   AvgOccBelowSet2->setAxisTitle("HLX ID",1);
+   AvgOccBelowSet2->setAxisTitle("HF Wedge",1);
    AvgOccBelowSet2->setAxisTitle("Avg OccBelowSet2",2);
 
    AvgOccBetweenSet2 = dbe_->bookProfile("AvgOccBetweenSet2","Average OccBetweenSet2",36,0,36,10000,0,10000,"");
-   AvgOccBetweenSet2->setAxisTitle("HLX ID",1);
+   AvgOccBetweenSet2->setAxisTitle("HF Wedge",1);
    AvgOccBetweenSet2->setAxisTitle("Avg OccBetweenSet2",2);
 
    AvgOccAboveSet2 = dbe_->bookProfile("AvgOccAboveSet2","Average OccAboveSet2",36,0,36,10000,0,10000,"");
-   AvgOccAboveSet2->setAxisTitle("HLX ID",1);
+   AvgOccAboveSet2->setAxisTitle("HF Wedge",1);
    AvgOccAboveSet2->setAxisTitle("Avg OccAboveSet2",2);
 
    for( unsigned int i=0; i < NUM_HLX; ++i )
    {
-      Set1Below[i]->setResetMe(!Accumulate);
-      Set1Between[i]->setResetMe(!Accumulate);
-      Set1Above[i]->setResetMe(!Accumulate);
-      Set2Below[i]->setResetMe(!Accumulate);
-      Set2Between[i]->setResetMe(!Accumulate);
-      Set2Above[i]->setResetMe(!Accumulate);
-      ETSum[i]->setResetMe(!Accumulate);    
+     if(!Accumulate){
+       Set1Below[  HLXHFMap[i]]->setResetMe(true);
+       Set1Between[HLXHFMap[i]]->setResetMe(true);
+       Set1Above[  HLXHFMap[i]]->setResetMe(true);
+       Set2Below[  HLXHFMap[i]]->setResetMe(true);
+       Set2Between[HLXHFMap[i]]->setResetMe(true);
+       Set2Above[  HLXHFMap[i]]->setResetMe(true);
+       ETSum[      HLXHFMap[i]]->setResetMe(true);    
+     }
    }
   
    if(Style.compare("BX") == 0)
@@ -220,32 +225,32 @@ HLXMonitor::SetupHists()
 //       EtXAxisTitle  = "Lumi Section";
 //       EtYAxisTitle  = "Avg Et Sum Occupancy";
     
-//       Set1Below[i]->setResetMe(false);
-//       Set1Between[i]->setResetMe(false);
-//       Set1Above[i]->setResetMe(false);
-//       Set2Below[i]->setResetMe(false);
-//       Set2Between[i]->setResetMe(false);
-//       Set2Above[i]->setResetMe(false);
-//       ETSum[i]->setResetMe(false);
+//       Set1Below[HLXHFMap[i]]->setResetMe(false);
+//       Set1Between[HLXHFMap[i]]->setResetMe(false);
+//       Set1Above[HLXHFMap[i]]->setResetMe(false);
+//       Set2Below[HLXHFMap[i]]->setResetMe(false);
+//       Set2Between[HLXHFMap[i]]->setResetMe(false);
+//       Set2Above[HLXHFMap[i]]->setResetMe(false);
+//       ETSum[HLXHFMap[i]]->setResetMe(false);
     
 //    }
   
    for( unsigned int i=0; i < NUM_HLX; ++i )
    {
-      Set1Below[i]->setAxisTitle(OccXAxisTitle,1);
-      Set1Below[i]->setAxisTitle(OccYAxisTitle, 2);
-      Set1Between[i]->setAxisTitle(OccXAxisTitle,1);
-      Set1Between[i]->setAxisTitle(OccYAxisTitle, 2);
-      Set1Above[i]->setAxisTitle(OccXAxisTitle,1);
-      Set1Above[i]->setAxisTitle(OccYAxisTitle, 2);	
-      Set2Below[i]->setAxisTitle(OccXAxisTitle,1);
-      Set2Below[i]->setAxisTitle(OccYAxisTitle, 2);
-      Set2Between[i]->setAxisTitle(OccXAxisTitle,1);
-      Set2Between[i]->setAxisTitle(OccYAxisTitle, 2);
-      Set2Above[i]->setAxisTitle(OccXAxisTitle,1);
-      Set2Above[i]->setAxisTitle(OccYAxisTitle, 2);	
-      ETSum[i]->setAxisTitle(EtXAxisTitle,1);
-      ETSum[i]->setAxisTitle(EtYAxisTitle, 2);	  
+      Set1Below[  HLXHFMap[i]]->setAxisTitle(OccXAxisTitle, 1);
+      Set1Below[  HLXHFMap[i]]->setAxisTitle(OccYAxisTitle, 2);
+      Set1Between[HLXHFMap[i]]->setAxisTitle(OccXAxisTitle, 1);
+      Set1Between[HLXHFMap[i]]->setAxisTitle(OccYAxisTitle, 2);
+      Set1Above[  HLXHFMap[i]]->setAxisTitle(OccXAxisTitle, 1);
+      Set1Above[  HLXHFMap[i]]->setAxisTitle(OccYAxisTitle, 2);	
+      Set2Below[  HLXHFMap[i]]->setAxisTitle(OccXAxisTitle, 1);
+      Set2Below[  HLXHFMap[i]]->setAxisTitle(OccYAxisTitle, 2);
+      Set2Between[HLXHFMap[i]]->setAxisTitle(OccXAxisTitle, 1);
+      Set2Between[HLXHFMap[i]]->setAxisTitle(OccYAxisTitle, 2);
+      Set2Above[  HLXHFMap[i]]->setAxisTitle(OccXAxisTitle, 1);
+      Set2Above[  HLXHFMap[i]]->setAxisTitle(OccYAxisTitle, 2);	
+      ETSum[      HLXHFMap[i]]->setAxisTitle(EtXAxisTitle,  1);
+      ETSum[      HLXHFMap[i]]->setAxisTitle(EtYAxisTitle,  2);	  
    }
 
    dbe_->showDirStructure();
@@ -261,14 +266,14 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int errorCode = 0;
    do
    {
-      errorCode = HT.ReceiveLumiSection(lumiSection);
+      errorCode = HLXTCP.ReceiveLumiSection(lumiSection);
       cout << "ReceiveLumiSection: " << errorCode << endl;
 
       while(errorCode !=1)
       {
-	 HT.Disconnect();
+	 HLXTCP.Disconnect();
 	 cout << "Connecting to TCPDistributor" << endl;
-	 errorCode = HT.Connect();
+	 errorCode = HLXTCP.Connect();
 	 if(errorCode != 1)
 	 {
 	    cout << "*** Connection Failed: " << errorCode 
@@ -287,6 +292,7 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
       FillHistoDist(lumiSection);
    }
+   // not implemented
 //    else if(Style.compare("History")==0)
 //    {
 //       // FillHistoHistory(lumiSection);
@@ -295,6 +301,26 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    FillHistoHFCompare(lumiSection);
 
    FillHistoAvg(lumiSection);
+
+   if(lumiSection.hdr.runNumber != runNumber_){
+     SaveDQMFile();  
+     runNumber_ = lumiSection.hdr.runNumber;
+
+     if(ResetAtNewRun){
+
+       for( unsigned int i=0; i < NUM_HLX; ++i )
+	 {
+	   // need a good way to do this
+	   //Set1Below[  HLXHFMap[i]]->softReset();
+	   //Set1Between[HLXHFMap[i]]->softReset();
+	   //Set1Above[  HLXHFMap[i]]->softReset();
+	   //Set2Below[  HLXHFMap[i]]->softReset();
+	   //Set2Between[HLXHFMap[i]]->softReset();
+	   //Set2Above[  HLXHFMap[i]]->softReset();
+	   //ETSum[      HLXHFMap[i]]->softReset();    
+	 }
+      }
+   }
 
    cout << "Run: " << lumiSection.hdr.runNumber 
 	<< " Section: " << lumiSection.hdr.sectionNumber 
@@ -305,41 +331,37 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    cout << "Noise[0]: " << lumiSection.lumiSummary.lumiNoise[0] << endl;
    cout << "Noise[1]: " << lumiSection.lumiSummary.lumiNoise[1] << endl;
 
-   /*
-
-   if( lumiSection.hdr.sectionNumber % SavePeriod == 1 )
-   {
-      std::ostringstream tempStreamer;
-      std::ostringstream dqmToHtmlCommand;
-      tempStreamer << OutputDir << "/" << OutputFile 
-		   << "_" << std::setfill('0') << std::setw(runNumLength) 
-		   << lumiSection.hdr.runNumber 
-		   << "_" << std::setfill('0') << std::setw(secNumLength) 
-		   << lumiSection.hdr.sectionNumber
-	 //<< "_" <<  counter 
-		   << ".root";
-      dbe_->save(tempStreamer.str());
-    
+   if( (lumiSection.hdr.sectionNumber % SavePeriod == 0) && (SavePeriod != -1)){
+     SaveDQMFile();
    }
+}
 
-   */
+void HLXMonitor::SaveDQMFile(){
+
+  std::ostringstream tempStreamer;
+  tempStreamer << OutputDir << "/" << OutputFilePrefix 
+	       << "_" << std::setfill('0') << std::setw(runNumLength) 
+	       << runNumber_ 
+	       << "_" << std::setfill('0') << std::setw(secNumLength) 
+	       << lumiSection.hdr.sectionNumber
+	       << ".root";
+  dbe_->save(tempStreamer.str());
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-HLXMonitor::beginJob(const edm::EventSetup&)
+void HLXMonitor::beginJob(const edm::EventSetup&)
 { 
-   HT.SetIP(DistribIP);
+   HLXTCP.SetIP(DistribIP);
 
-   int errorCode = HT.SetPort(listenPort);
+   int errorCode = HLXTCP.SetPort(listenPort);
    cout << "SetPort: " << errorCode << endl;
-   errorCode = HT.SetMode(AquireMode);
+   errorCode = HLXTCP.SetMode(AquireMode);
    cout << "AquireMode: " << errorCode << endl;
   
    do
    {
       // cout << "Connecting to TCPDistributor" << endl;
-      errorCode = HT.Connect();
+      errorCode = HLXTCP.Connect();
       if(errorCode != 1)
       {
 	 cout << "Attempting to reconnect in " << reconnTime << " seconds." << endl;
@@ -349,10 +371,9 @@ HLXMonitor::beginJob(const edm::EventSetup&)
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-HLXMonitor::endJob() 
+void HLXMonitor::endJob() 
 {
-   HT.Disconnect();
+   HLXTCP.Disconnect();
 }
 
 void HLXMonitor::FillHistoAvg(const LUMI_SECTION & section)
@@ -366,13 +387,13 @@ void HLXMonitor::FillHistoAvg(const LUMI_SECTION & section)
 	 {
 	    AvgEtSum->Fill(i,section.etSum[i].data[j]);
 	
-	    AvgOccBelowSet1->Fill(i,section.occupancy[i].data[set1BelowIndex][j]);
-	    AvgOccBetweenSet1->Fill(i,section.occupancy[i].data[set1BetweenIndex][j]);
-	    AvgOccAboveSet1->Fill(i,section.occupancy[i].data[set1AboveIndex][j]);
+	    AvgOccBelowSet1->  Fill( HLXHFMap[i], section.occupancy[i].data[set1BelowIndex][j]   );
+	    AvgOccBetweenSet1->Fill( HLXHFMap[i], section.occupancy[i].data[set1BetweenIndex][j] );
+	    AvgOccAboveSet1->  Fill( HLXHFMap[i], section.occupancy[i].data[set1AboveIndex][j]   );
 	   
-	    AvgOccBelowSet2->Fill(i,section.occupancy[i].data[set2BelowIndex][j]);
-	    AvgOccBetweenSet2->Fill(i,section.occupancy[i].data[set2BetweenIndex][j]);
-	    AvgOccAboveSet2->Fill(i,section.occupancy[i].data[set2AboveIndex][j]);
+	    AvgOccBelowSet2->  Fill( HLXHFMap[i], section.occupancy[i].data[set2BelowIndex][j]   );
+	    AvgOccBetweenSet2->Fill( HLXHFMap[i], section.occupancy[i].data[set2BetweenIndex][j] );
+	    AvgOccAboveSet2->  Fill( HLXHFMap[i], section.occupancy[i].data[set2AboveIndex][j]   );
 	
 	 }
       }
@@ -388,13 +409,13 @@ void HLXMonitor::FillHistoBX(const LUMI_SECTION & section)
       {
 	 for( unsigned int j=0; j < NUM_BUNCHES; j++)
 	 { 
-	    Set1Below[i]->Fill(j,  section.occupancy[i].data[set1BelowIndex][j]);
-	    Set1Between[i]->Fill(j,section.occupancy[i].data[set1BetweenIndex][j]);
-	    Set1Above[i]->Fill(j,  section.occupancy[i].data[set1AboveIndex][j]);
-	    Set2Below[i]->Fill(j,  section.occupancy[i].data[set2BelowIndex][j]);
-	    Set2Between[i]->Fill(j,section.occupancy[i].data[set2BetweenIndex][j]);
-	    Set2Above[i]->Fill(j,  section.occupancy[i].data[set2AboveIndex][j]);
-	    ETSum[i]->Fill(j,      section.etSum[i].data[j]);
+	    Set1Below[HLXHFMap[i]]->            Fill(j, section.occupancy[i].data[set1BelowIndex][j]);
+	    Set1Between[HLXHFMap[i]]->Fill(j, section.occupancy[i].data[set1BetweenIndex][j]);
+	    Set1Above[HLXHFMap[i]]->  Fill(j, section.occupancy[i].data[set1AboveIndex][j]);
+	    Set2Below[HLXHFMap[i]]->  Fill(j, section.occupancy[i].data[set2BelowIndex][j]);
+	    Set2Between[HLXHFMap[i]]->Fill(j, section.occupancy[i].data[set2BetweenIndex][j]);
+	    Set2Above[HLXHFMap[i]]->  Fill(j, section.occupancy[i].data[set2AboveIndex][j]);
+	    ETSum[HLXHFMap[i]]->      Fill(j, section.etSum[i].data[j]);
 	 }
       }
    }
@@ -408,13 +429,13 @@ void HLXMonitor::FillHistoDist(const LUMI_SECTION & section)
       {
 	 for( unsigned int j=0; j < NUM_BUNCHES; j++)
 	 { 
-	    Set1Below[i]->Fill(  section.occupancy[i].data[set1BelowIndex][j]);
-	    Set1Between[i]->Fill(section.occupancy[i].data[set1BetweenIndex][j]);
-	    Set1Above[i]->Fill(  section.occupancy[i].data[set1AboveIndex][j]);
-	    Set2Below[i]->Fill(  section.occupancy[i].data[set2BelowIndex][j]);
-	    Set2Between[i]->Fill(section.occupancy[i].data[set2BetweenIndex][j]);
-	    Set2Above[i]->Fill(  section.occupancy[i].data[set2AboveIndex][j]);
-	    ETSum[i]->Fill(      section.etSum[i].data[j]);
+	    Set1Below[HLXHFMap[i]]->  Fill( section.occupancy[i].data[set1BelowIndex][j]  );
+	    Set1Between[HLXHFMap[i]]->Fill( section.occupancy[i].data[set1BetweenIndex][j]);
+	    Set1Above[HLXHFMap[i]]->  Fill( section.occupancy[i].data[set1AboveIndex][j]  );
+	    Set2Below[HLXHFMap[i]]->  Fill( section.occupancy[i].data[set2BelowIndex][j]  );
+	    Set2Between[HLXHFMap[i]]->Fill( section.occupancy[i].data[set2BetweenIndex][j]);
+	    Set2Above[HLXHFMap[i]]->  Fill( section.occupancy[i].data[set2AboveIndex][j]  );
+	    ETSum[HLXHFMap[i]]->      Fill( section.etSum[i].data[j]);
 	 }
       }
    }
@@ -487,31 +508,31 @@ void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION & section)
 //     ETSumData = AvgETSum(section.etSum[i],NUM_BUNCHES,1);
 
 //     if(Accumulate==true){
-//       avgOcc[set1BelowIndex]   += Set1Below[i]->getBinContent(counter-1);
-//       avgOcc[set1BetweenIndex] += Set1Between[i]->getBinContent(counter-1);
-//       avgOcc[set1AboveIndex]   += Set1Above[i]->getBinContent(counter-1);
-//       avgOcc[set2BelowIndex]   += Set2Below[i]->getBinContent(counter-1);
-//       avgOcc[set2BetweenIndex] += Set2Between[i]->getBinContent(counter-1);
-//       avgOcc[set2AboveIndex]   += Set2Above[i]->getBinContent(counter-1);
-//       ETSumData                += ETSum[i]->getBinContent(counter-1);
+//       avgOcc[set1BelowIndex]   += Set1Below[HLXHFMap[i]]->getBinContent(counter-1);
+//       avgOcc[set1BetweenIndex] += Set1Between[HLXHFMap[i]]->getBinContent(counter-1);
+//       avgOcc[set1AboveIndex]   += Set1Above[HLXHFMap[i]]->getBinContent(counter-1);
+//       avgOcc[set2BelowIndex]   += Set2Below[HLXHFMap[i]]->getBinContent(counter-1);
+//       avgOcc[set2BetweenIndex] += Set2Between[HLXHFMap[i]]->getBinContent(counter-1);
+//       avgOcc[set2AboveIndex]   += Set2Above[HLXHFMap[i]]->getBinContent(counter-1);
+//       ETSumData                += ETSum[HLXHFMap[i]]->getBinContent(counter-1);
 //     }
 
-//     Set1Below[i]   ->Fill(counter,avgOcc[set1BelowIndex]);
-//     Set1Between[i] ->Fill(counter,avgOcc[set1BetweenIndex]);
-//     Set1Above[i]   ->Fill(counter,avgOcc[set1AboveIndex]);
-//     Set2Below[i]   ->Fill(counter,avgOcc[set2BelowIndex]);
-//     Set2Between[i] ->Fill(counter,avgOcc[set2BetweenIndex]);
-//     Set2Above[i]   ->Fill(counter,avgOcc[set2AboveIndex]);
-//     ETSum[i]       ->Fill(counter,ETSumData);
+//     Set1Below[HLXHFMap[i]]   ->Fill(counter,avgOcc[set1BelowIndex]);
+//     Set1Between[HLXHFMap[i]] ->Fill(counter,avgOcc[set1BetweenIndex]);
+//     Set1Above[HLXHFMap[i]]   ->Fill(counter,avgOcc[set1AboveIndex]);
+//     Set2Below[HLXHFMap[i]]   ->Fill(counter,avgOcc[set2BelowIndex]);
+//     Set2Between[HLXHFMap[i]] ->Fill(counter,avgOcc[set2BetweenIndex]);
+//     Set2Above[HLXHFMap[i]]   ->Fill(counter,avgOcc[set2AboveIndex]);
+//     ETSum[HLXHFMap[i]]       ->Fill(counter,ETSumData);
 
 //     //setAxisRange doesn't seem to do anything yet.  
-//     Set1Below[i]  ->setAxisRange(0,counter+1,1);
-//     Set1Between[i]->setAxisRange(0,counter+1,1);
-//     Set1Above[i]  ->setAxisRange(0,counter+1,1);
-//     Set2Below[i]  ->setAxisRange(0,counter+1,1);
-//     Set2Between[i]->setAxisRange(0,counter+1,1);
-//     Set2Above[i]  ->setAxisRange(0,counter+1,1);
-//     ETSum[i]      ->setAxisRange(0,counter+1,1);
+//     Set1Below[HLXHFMap[i]]  ->setAxisRange(0,counter+1,1);
+//     Set1Between[HLXHFMap[i]]->setAxisRange(0,counter+1,1);
+//     Set1Above[HLXHFMap[i]]  ->setAxisRange(0,counter+1,1);
+//     Set2Below[HLXHFMap[i]]  ->setAxisRange(0,counter+1,1);
+//     Set2Between[HLXHFMap[i]]->setAxisRange(0,counter+1,1);
+//     Set2Above[HLXHFMap[i]]  ->setAxisRange(0,counter+1,1);
+//     ETSum[HLXHFMap[i]]      ->setAxisRange(0,counter+1,1);
 //   }
 // }
 

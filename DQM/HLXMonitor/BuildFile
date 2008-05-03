@@ -1,0 +1,11 @@
+<Flags CXXFLAGS="-O0 -g -DDEBUG">
+<use name=DQMServices/Components>
+<use name=DQMServices/Core> 
+<use name=RecoLuminosity/TCPReceiver>
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=DQMHLXMonitor>
+   <use name=DQMServices/Components>
+   <use name=DQMServices/Core> 
+   <use name=RecoLuminosity/TCPReceiver>
+</export>
