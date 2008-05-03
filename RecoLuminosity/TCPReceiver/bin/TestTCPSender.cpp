@@ -10,8 +10,6 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "RecoLuminosity/HLXReadOut/CoreUtils/include/ICTypeDefs.hh"
-#include "RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 
 int gContinue=1;
