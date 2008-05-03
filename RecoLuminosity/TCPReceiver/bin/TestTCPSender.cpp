@@ -30,7 +30,7 @@ int main(){
   using std::endl;
 
   int servSock;
-  int clntSock;
+  //  int clntSock;
 
   unsigned int runCount = 1;
   unsigned int orbitCount = 0;
