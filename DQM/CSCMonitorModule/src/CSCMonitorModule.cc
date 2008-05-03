@@ -31,6 +31,14 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   edm::FileInPath fp;
 
+  std::vector<unsigned> ddus = parameters.getUntrackedParameter< std::vector<unsigned> >("bookDDU");
+  if (ddus.size() > 1) {
+    loadDDU = ddus[1];
+    loadDDU <<= 18;
+    BitsetDDU minusDDU(ddus[0]);
+    loadDDU |= minusDDU;
+  }
+  
   examinerMask   = parameters.getUntrackedParameter<unsigned int>("ExaminerMask", 0x7FB7BF6);
   examinerForce  = parameters.getUntrackedParameter<bool>("ExaminerForce", false);
   examinerOutput = parameters.getUntrackedParameter<bool>("ExaminerOutput", false);
@@ -86,13 +94,13 @@ void CSCMonitorModule::setup() {
   book("EMU");
 
   // Book DDU histograms
-  for (int d = NUM_DDU_MIN; d <= NUM_DDU_MAX; d++) {
-
+  for (int d = 1; d <= 36; d++) {
+    if(!loadDDU.test(d - 1)) continue;
     std::string buffer;
     dbe->setCurrentFolder(rootDir + getDDUTag(d, buffer));
     book("DDU");
-
   }
+  LOGINFO("DDU histograms") << " # of DDU to be monitored = " << loadDDU.count() << " following bitset = " << loadDDU;
 
   this->init = true;
 

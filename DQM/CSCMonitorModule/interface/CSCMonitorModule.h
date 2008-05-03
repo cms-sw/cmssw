@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <bitset>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <DQMServices/Core/interface/DQMStore.h>
@@ -56,9 +57,6 @@
  * Macro Section
  */
 
-#define NUM_DDU_MIN        1
-#define NUM_DDU_MAX        36
-
 #define LOGERROR(cat)      edm::LogError (cat)
 #define LOGWARNING(cat)    edm::LogWarning (cat)
 #define LOGINFO(cat)       edm::LogInfo (cat)
@@ -74,6 +72,8 @@ typedef std::map<std::string, Histo>           HistoDef;
 typedef HistoDef::iterator                     HistoDefIter;
 typedef std::map<std::string, HistoDef>        HistoDefMap;
 typedef HistoDefMap::iterator                  HistoDefMapIter;
+
+typedef std::bitset<36>                        BitsetDDU;
 
 /**
  * Class Definition
@@ -121,6 +121,8 @@ class CSCMonitorModule: public edm::EDAnalyzer {
 
     /** If histos have been initialized? **/
     bool init;
+
+    BitsetDDU loadDDU;
     
     /** Source related stuff */
     edm::InputTag inputObjectsTag;
@@ -143,7 +145,6 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     std::map<uint32_t,uint32_t> L1ANumbers;
 
     /** Find histograms (aka previous macros) **/ 
-
     const bool MEEMU(const std::string name, MonitorElement*& me);
     const bool MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me);
 

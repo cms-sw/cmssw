@@ -62,7 +62,11 @@ const bool CSCMonitorModule::MEEMU(const std::string name, MonitorElement*& me) 
  */
 const bool CSCMonitorModule::MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me) {
   std::string buffer;
-  return isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
+  if(loadDDU.test(dduId - 1)) {
+    return isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
+  } else {
+    return false;
+  }
 }
 
 
@@ -127,9 +131,12 @@ int CSCMonitorModule::loadCollection() {
 
   delete parser;
 
+  std::ostringstream buffer;
+  buffer << std::endl;
   for(HistoDefMapIter hdmi = collection.begin(); hdmi != collection.end(); hdmi++) {
-    LOGINFO("Histograms loaded") << " # of " << hdmi->first << " histograms loaded =  " << hdmi->second.size() << std::endl;
+    buffer << " # of " << hdmi->first << " histograms loaded =  " << hdmi->second.size() << std::endl;
   }
+  LOGINFO("Histograms loaded") << buffer.str();
 
   return 0;
 }
