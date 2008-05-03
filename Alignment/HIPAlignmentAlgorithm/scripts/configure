@@ -1,0 +1,33 @@
+#!/bin/tcsh
+
+set odir = `cd $1; pwd` # get full output path
+
+cp test/common.cff $odir/
+
+## Set up config file for each alignment job
+
+@ j = 0 # job index
+
+foreach data (`ls $2`)
+  set skim = `basename $data .dat`
+
+  foreach file (`cat $data`)
+    @ j++
+
+    mkdir $odir/job$j
+    replace "<FILE>" $file "<PATH>" $odir/job$j "<SKIM>" $skim < test/align.tpl > $odir/job$j/align.cfg
+  end
+end
+
+## Set up config file for collector job
+
+mkdir $odir/main
+replace "<PATH>" $odir "<JOBS>" $j < test/collect.tpl > $odir/main/collect.cfg
+
+## Set up config file for iteration 0
+
+replace "<PATH>" $odir < test/initial.tpl > $odir/main/initial.cfg
+
+## Set up config file for uploading
+
+replace "<PATH>" $odir < test/upload.tpl > $odir/upload.cfg

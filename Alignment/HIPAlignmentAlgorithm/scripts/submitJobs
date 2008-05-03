@@ -1,18 +1,21 @@
 #!/bin/tcsh
 
-set iter = $1
-set odir = $2
-set jobs = `ls -d $odir/job*/ | wc -l`
+set iter = $1                          # final iteration number
+set odir = `cd $2; pwd`                # get full output path
+set name = `basename $odir`            # for job name
+set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
 
 ## Submit jobs and iterate
 
-@ i = `cat $odir/main/IOIteration.root`
+@ i = `cat $odir/main/IOIteration.root` + 1
+
+while (`bjobs -d -J $name/requeue$i` != "") # check if job name exists
+  set name = $name/ # make job name unique to avoid name clash
+end
 
 echo "Starting iteration = $i, number of jobs = $jobs\n"
 
-while ($i < $iter)
-  @ i++
-
+while ($i <= $iter)
   if ($jobs > 0) then
     @ j = 0 # job index
 
@@ -23,34 +26,36 @@ while ($i < $iter)
       cp $odir/main/IOAlignedPositions.root $odir/job$j
     end
 
-    bsub -q cmscaf -C 0 -J $odir/align$i\[1-$jobs\] \
-         -o $odir/job%I/align$i cmsRun $PWD/$odir/job\$LSB_JOBINDEX/align.cfg
+    bsub -q cmscaf -C 0 -J $name/align$i\[1-$jobs\] \
+         -o $odir/job%I/align$i.out cmsRun $odir/job\$LSB_JOBINDEX/align.cfg
 
     sleep 5
-    set id = `bjobs -J $odir/align$i | tail -n1 | awk '{print $1}'`
+    set id = `bjobs -J $name/align$i | tail -n1 | awk '{print $1}'`
 
-    bsub -q cmscaf -C 0 -B -N -J $odir/collect$i -w "done($id)" \
-         -o $odir/main/collect$i \
-         "cmsRun $PWD/$odir/main/collect.cfg; bkill -J $odir/requeue$i"
+    bsub -q cmscaf -C 0 -B -N -J $name/collect$i -w "done($id)" \
+         -o $odir/main/collect$i.out \
+         "cmsRun $odir/main/collect.cfg; \
+          bkill -J $name/requeue$i; \
+          rm $odir/job*/*.root"
 
 ## <collect> job will kill <requeue> job.
 ## So when <collect> job is done, <requeue> job gets an EXIT status.
 ## And we can stop requeuing failed <align> jobs.
 
-    while (`bjobs -d -J $odir/requeue$i | grep EXIT` == "")
-      bsub -q cmsinter -C 0 -J $odir/requeue$i -w "numexit($id, > 0)" \
+    while (`bjobs -d -J $name/requeue$i | grep EXIT` == "")
+      bsub -q cmsinter -C 0 -J $name/requeue$i -w "numexit($id, > 0)" \
            -I brequeue -e $id
-      sleep 10
+      sleep 5
     end
-
-    rm $odir/job*/*.root
   else
-    bsub -q cmscaf -C 0 -B -N -J $odir/collect$i -K \
-         -o $odir/main/collect$i cmsRun $PWD/$odir/main/collect.cfg
+    bsub -q cmscaf -C 0 -B -N -J $name/collect$i -K \
+         -o $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
   endif
 
   sleep 5
-  if (`bjobs -d -J $odir/collect$i | tail -n1 | grep EXIT` != "") break
+  if (`bjobs -d -J $name/collect$i | tail -n1 | grep EXIT` != "") break
+
+  @ i++
 end
 
 # hadd $odir/main/histograms.root $odir/job*/histograms.root >& $odir/main/mergeHist

@@ -1,36 +1,16 @@
 #!/bin/tcsh
 
-set iter = $1
-set odir = $2
+## $1 is the final iteration number
+## $2 is output directory
+## $3 is a list of data files
 
-cp test/common.cff $odir/
+set odir = `cd $2; pwd` # get full output path
 
-## Set up config file for each alignment job
+scripts/configure $2 $3 # create dir and cfg
 
-@ j = 0 # job index
+cmsRun $odir/main/initial.cfg >& $odir/main/initial.out
 
-foreach data (`ls $3`)
-  set skim = `basename $data .dat`
+scripts/submitJobs $1 $2 # Submit jobs and iterate
 
-  foreach file (`cat $data`)
-    @ j++
-
-    mkdir $odir/job$j
-    replace "<FILE>" $file "<PATH>" $PWD/$odir/job$j "<SKIM>" $skim < test/align.tpl > $odir/job$j/align.cfg
-  end
-end
-
-## Set up config file for collector job
-
-mkdir $odir/main
-replace "<PATH>" $PWD/$odir "<JOBS>" $j < test/collect.tpl > $odir/main/collect.cfg
-
-## Set up config file for iteration 0
-
-replace "<PATH>" $PWD/$odir < test/initial.tpl > $odir/main/initial.cfg
-
-cmsRun $odir/main/initial.cfg >& $odir/main/initial
-
-## Submit jobs and iterate
-
-scripts/submitJobs $iter $odir
+# cp $odir/main/IOAlignedPositions.root $odir/main/IOIteration.root $odir/
+# cmsRun $odir/upload.cfg >& $odir/upload.out
