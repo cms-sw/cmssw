@@ -17,7 +17,7 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
  
   //if requested check that the layer is crossed on the right side
   if (theCheckCrossingSide){
-    bool backTobackTransverse = (fts.position().x()*propState.globalPosition().y() - fts.position().y()*propState.globalPosition().x())<0;
+    bool backTobackTransverse = (fts.position().x()*propState.globalPosition().x() + fts.position().y()*propState.globalPosition().y())<0;
     bool backToback = propState.globalPosition().basicVector().dot(fts.position().basicVector())<0;
 
     if (backTobackTransverse || backToback ){
@@ -74,7 +74,7 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 
   //if requested avoids crossing over the tracker 
   if (theCheckCrossingSide){
-    bool backTobackTransverse = (fts.position().x()*propState.globalPosition().y() - fts.position().y()*propState.globalPosition().x())<0;
+    bool backTobackTransverse = (fts.position().x()*propState.globalPosition().x() + fts.position().y()*propState.globalPosition().y())<0;
     bool backToback = propState.globalPosition().basicVector().dot(fts.position().basicVector())<0;
 
     if (backTobackTransverse || backToback ){
