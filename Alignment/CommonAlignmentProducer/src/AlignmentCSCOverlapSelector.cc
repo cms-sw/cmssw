@@ -36,8 +36,23 @@ AlignmentCSCOverlapSelector::select(const Tracks &tracks, const edm::Event &iEve
    Tracks result;
 
    for (Tracks::const_iterator track = tracks.begin();  track != tracks.end();  ++track) {
-      unsigned int even = 0;
-      unsigned int odd = 0;
+      unsigned int MEminus4_even = 0;
+      unsigned int MEminus4_odd = 0;
+      unsigned int MEminus3_even = 0;
+      unsigned int MEminus3_odd = 0;
+      unsigned int MEminus2_even = 0;
+      unsigned int MEminus2_odd = 0;
+      unsigned int MEminus1_even = 0;
+      unsigned int MEminus1_odd = 0;
+
+      unsigned int MEplus1_even = 0;
+      unsigned int MEplus1_odd = 0;
+      unsigned int MEplus2_even = 0;
+      unsigned int MEplus2_odd = 0;
+      unsigned int MEplus3_even = 0;
+      unsigned int MEplus3_odd = 0;
+      unsigned int MEplus4_even = 0;
+      unsigned int MEplus4_odd = 0;
 
       for (trackingRecHit_iterator hit = (*track)->recHitsBegin();  hit != (*track)->recHitsEnd();  ++hit) {
 	 DetId id = (*hit)->geographicalId();
@@ -45,16 +60,67 @@ AlignmentCSCOverlapSelector::select(const Tracks &tracks, const edm::Event &iEve
 	    CSCDetId cscid(id.rawId());
 	    int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
 
-	    if (m_station == 0  ||  station == m_station) {
-	       if (cscid.chamber() % 2 == 0) even++;
-	       else odd++;
+	    if (station == -4) {
+	       if (cscid.chamber() % 2 == 0) MEminus4_even++;
+	       else MEminus4_odd++;
 	    }
+	    else if (station == -3) {
+	       if (cscid.chamber() % 2 == 0) MEminus3_even++;
+	       else MEminus3_odd++;
+	    }
+	    else if (station == -2) {
+	       if (cscid.chamber() % 2 == 0) MEminus2_even++;
+	       else MEminus2_odd++;
+	    }
+	    else if (station == -1) {
+	       if (cscid.chamber() % 2 == 0) MEminus1_even++;
+	       else MEminus1_odd++;
+	    }
+
+	    else if (station == 1) {
+	       if (cscid.chamber() % 2 == 0) MEplus1_even++;
+	       else MEplus1_odd++;
+	    }
+	    else if (station == 2) {
+	       if (cscid.chamber() % 2 == 0) MEplus2_even++;
+	       else MEplus2_odd++;
+	    }
+	    else if (station == 3) {
+	       if (cscid.chamber() % 2 == 0) MEplus3_even++;
+	       else MEplus3_odd++;
+	    }
+	    else if (station == 4) {
+	       if (cscid.chamber() % 2 == 0) MEplus4_even++;
+	       else MEplus4_odd++;
+	    }
+
 	 } // end if it's a CSC hit
       } // end loop over hits
 
-      if ((even >= m_minHitsPerChamber)  &&  (odd >= m_minHitsPerChamber)) {
-	 result.push_back(*track);
-      }
+      if ((m_station == 0  ||  m_station == -4)  &&
+	  (MEminus4_even >= m_minHitsPerChamber)  &&  (MEminus4_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
+      else if ((m_station == 0  ||  m_station == -3)  &&
+	       (MEminus3_even >= m_minHitsPerChamber)  &&  (MEminus3_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
+      else if ((m_station == 0  ||  m_station == -2)  &&
+	       (MEminus2_even >= m_minHitsPerChamber)  &&  (MEminus2_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
+      else if ((m_station == 0  ||  m_station == -1)  &&
+	       (MEminus1_even >= m_minHitsPerChamber)  &&  (MEminus1_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
+      else if ((m_station == 0  ||  m_station == 1)  &&
+	       (MEplus1_even >= m_minHitsPerChamber)  &&  (MEplus1_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
+      else if ((m_station == 0  ||  m_station == 2)  &&
+	       (MEplus2_even >= m_minHitsPerChamber)  &&  (MEplus2_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
+      else if ((m_station == 0  ||  m_station == 3)  &&
+	       (MEplus3_even >= m_minHitsPerChamber)  &&  (MEplus3_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
+      else if ((m_station == 0  ||  m_station == 4)  &&
+	       (MEplus4_even >= m_minHitsPerChamber)  &&  (MEplus4_odd >= m_minHitsPerChamber)) result.push_back(*track);
+
    } // end loop over tracks
   
    return result;
