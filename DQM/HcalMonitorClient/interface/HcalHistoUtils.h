@@ -1,37 +1,44 @@
 #ifndef GUARD_HCALTESTUTILS_h
 #define GUARD_HCALTESTUTILS_h
 
-/***********************************************
+/******************************************************************************
  *
  * HcalTestUtils.h
- * v1.0
- * 24 April 2008
+ * v1.1
+ * 4 May 2008
  * by Jeff Temple (jtemple AT fnal.gov)
  *
- *  Various template methods to make .gif, .html
- *  output for any type of histogram stored as
- *  a MonitorElement.
- *  Still to come:  a "getAnyHisto" routine
- *  that will return get the histogram from the ME
- *  and return an appropriate pointer
+ *  Various template methods to grab any type of
+ *  histogram stored as a MonitorElement, and 
+ *  to return .gif, .html output from the histogram.
  *
- ************************************************
+ * Methods:
+ *
+ * myHist* getAnyHisto(myHist* hist, string name, string process, 
+                         DQMStore* dbe_, bool verb, bool clone)  
+ *			   
+ * std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
+    		         const char* xlab, const char* ylab) 
+ *
+ * void htmlAnyHisto(int runNo, myHist *hist, 
+		     const char* xlab, const char* ylab, 
+		     int width, ofstream& htmlFile, 
+		     std::string htmlDir)
+ *
+ *****************************************************************************
  */
 
+
 template <class myHist>
-myHist* getAnyHisto(string histtype, myHist* hist, 
+myHist* getAnyHisto(myHist* hist,
 		    string name, string process, DQMStore* dbe_,
 		    bool verb, bool clone)
 {
-  
-  /* Method returns histogram named 'name' from DQMStore dbe_;
-     There hould be a more concise way of determining histogram type 
-     than by passing both a string indicating type and a pointer to the 
-     histogram.
-     ( The pointer is needed to set the histogram type myHist.
-     However, at this point, the pointer does not point to anything,
-     which means that we can't access type info via hist->ClassName(),
-     and so the separate histtype variable is needed.)
+  /* 
+     Method returns histogram named 'name' from DQMStore dbe_;
+     'hist' pointer must be declared with 'new' (e.g., new TH2F())
+     in function call so that the pointer actually points to something.
+     Otherwise, the call to hist->ClassName() will fail.
   */
 
   using std::cout;
@@ -53,13 +60,15 @@ myHist* getAnyHisto(string histtype, myHist* hist,
   if (clone)
     sprintf(clonehisto, "ME %s",name.c_str()); // set clone histogram name
 
+
   /* As of 25 April 2008, there are 5 histogram types associated with 
      Monitor Elements (TH1F, TH2F, TH3F, TProfile, and TProfile2D).
      Provide a separate getter for each type.  Add others if necessary.
   */
 
-  // return TH1F from ME
+  string histtype = hist->ClassName();
 
+  // return TH1F from ME
   if (histtype=="TH1F")
     {
       TH1F* out;
@@ -129,13 +138,14 @@ template <class myHist>
 std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 		      const char* xlab, const char* ylab) 
 {
-  /* template functions draws histogram plot, and saves it as a .gif image.
-     If size==2, thumbnail image is made.  Otherwise, full-size image is made
+  /* 
+     Template function draws histogram plot, and saves it as a .gif image.
+     If size==1, thumbnail image is made.  Otherwise, full-size image is made.
   */
 
   if(hist==NULL)
     {
-      return "";
+      return ""; // no histogram provided
     }
 
   // Run cleanString algorithm  -- direct call of cleanString causes a crash 
@@ -160,62 +170,65 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   hist->SetTitle(dest);
   std::string title = dest;
 
-  int xwid = 900; int ywid =540;
-  if(size==1)
+  int xwid = 900; 
+  int ywid =540;
+
+  if(size==1) // thumbnail specified
     {
       title = title+"_tmb";
-      xwid = 600; ywid = 360;
+      xwid = 600; 
+      ywid = 360;
     }
-
-  TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
 
   // run parseString algorithm -- calling it directly causes a crash
-  for ( unsigned int i = 0; i < name.size(); ++i ) {
-    if ( name.substr(i, 1) == " " ){
-      name.replace(i, 1, "_");
+  for ( unsigned int i = 0; i < title.size(); ++i ) {
+    if ( title.substr(i, 1) == " " ){
+      title.replace(i, 1, "_");
     }
-    if ( name.substr(i, 1) == "#" ){
-      name.replace(i, 1, "N");
+    if ( title.substr(i, 1) == "#" ){
+      title.replace(i, 1, "N");
     }
-    if ( name.substr(i, 1) == "-" ){
-      name.replace(i, 1, "_");
+    if ( title.substr(i, 1) == "-" ){
+      title.replace(i, 1, "_");
     }    
-    if ( name.substr(i, 1) == "&" ){
-      name.replace(i, 1, "_and_");
+    if ( title.substr(i, 1) == "&" ){
+      title.replace(i, 1, "_and_");
     }
-    if ( name.substr(i, 1) == "(" 
-	 || name.substr(i, 1) == ")" 
+    if ( title.substr(i, 1) == "(" 
+	 || title.substr(i, 1) == ")" 
 	 )  {
-      name.replace(i, 1, "_");
+      title.replace(i, 1, "_");
     } 
-    if ( name.substr(i,1) == "="){
-      name.replace(i,1,"_");
+    if ( title.substr(i,1) == "="){
+      title.replace(i,1,"_");
     }
-  } // for (unsigned int i=0; i < name.size();...)
+  } // for (unsigned int i=0; i < title.size();...)
   
-
-  //std::string outName = title + ".gif";
-  std::string outName = name+".gif";
+  std::string outName = title+".gif";
   std::string saveName = htmlDir + outName;
 
+
+  // Create canvas for histogram
+  TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
 
   // Don't draw stat box for color plots
-
-  if (hist->GetOption()=="col" || hist->GetOption()=="colz")
+  if (((string)hist->GetOption())=="col" || 
+      ((string)hist->GetOption())=="colz")
     hist->SetStats(false);
 
   // Draw with whatever options are set for the particluar histogram
 
-  
   hist->Draw(hist->GetOption());// I think that Draw should automatically use the GetOption() value, but include it here to be sure.
   
   can->SaveAs(saveName.c_str());  
   delete can;
 
   return outName;
-}
+} // std::string getAnyIMG(...)
+
+
 
 
 // make HTML from histogram
@@ -226,25 +239,30 @@ void htmlAnyHisto(int runNo, myHist *hist,
 		  std::string htmlDir)
 {
 
-  // Generates histogram output for any kind of input histogram
+  /*
+    Generates html output from any kind of input histogram
+  */
 
   using std::cout;
   using std::endl;
 
   if(hist!=NULL)
     {    
-      // Set default option for 2D histogram
-      if (hist->ClassName()=="TH2F" && hist->GetOption()=="")
+      string histtype=hist->ClassName();
+
+      // Set 2D histogram default option to "colz"
+      if (histtype=="TH2F" && ((string)hist->GetOption())=="")
 	{
-	  cout <<"HUZZAH!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<endl;
 	  hist->SetOption("colz");
 	}
 
+      // Form full-sized and thumbnail .gifs from histogram
       std::string imgNameTMB = "";   
       imgNameTMB = getAnyIMG(runNo,hist,1,htmlDir,xlab,ylab); 
       std::string imgName = "";   
       imgName = getAnyIMG(runNo,hist,2,htmlDir,xlab,ylab);  
       
+      // Add thumbnail image to html code, linked to full-sized image
       if (imgName.size() != 0 )
 	{
 	htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
@@ -255,11 +273,11 @@ void htmlAnyHisto(int runNo, myHist *hist,
 	}
     } // (hist != NULL)
 
-  else 
+  else  // if no image found, make a blank table entry (maybe improve on this later? -- write an error message?)
     {
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     }
   return;
-}
+} //void htmlAnyHisto(...)
 
 #endif
