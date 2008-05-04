@@ -32,7 +32,10 @@ void dumpInitHeader(const InitMsgView* view)
   if (view->protocolVersion() >= 5) {
     std::cout << "outModuleLabel = " << view->outputModuleLabel() << "\n";
   }
-
+  if (view->protocolVersion() >= 6) {
+    std::cout << "outputModuleId=0x" << std::hex << view->outputModuleId()
+              << std::dec << std::endl;
+  }
 
   //PSet 16 byte non-printable representation, stored in message.
   uint8 vpset[16];
@@ -208,3 +211,37 @@ void dumpEvent(uint8* buf)
 
 }
 
+void dumpDQMEventHeader(const DQMEventMsgView* dview)
+{
+  std::cout << "code = " << dview->code() << "\n"
+       << "size = " << dview->size() << "\n"
+       << "protocolVersion = " << dview->protocolVersion() << "\n"
+       << "run = " << dview->runNumber() << "\n"
+       << "event = " << dview->eventNumberAtUpdate() << "\n"
+       << "lumi = " << dview->lumiSection() << "\n"
+       << "update = " << dview->updateNumber() << "\n"
+       << "compressionFlag = " << dview->compressionFlag() << "\n"
+       << "reserved = " << dview->reserved() << "\n"
+       << "release = " << dview->releaseTag() << "\n"
+       << "topFolder = " << dview->topFolderName() << "\n"
+       << "event length = " << dview->eventLength() << "\n";
+  std::cout.flush();
+ }
+
+void dumpDQMEventView(const DQMEventMsgView* dview)
+{
+  std::cout << "\n>>>>> DQMEvent Message Dump (begin) >>>>>" << std::endl;
+  dumpDQMEventHeader(dview);
+
+  boost::shared_ptr< std::vector<std::string> > subFolders =
+    dview->subFolderNames();
+  for (uint32 idx = 0; idx < subFolders->size(); idx++) {
+    std::string name = subFolders->at(idx);
+    uint32 count = dview->meCount(name);
+    std::cout << "Subfolder " << name << " has " << count
+              << " monitor elements." << std::endl;
+  }
+
+  std::cout << ">>>>> DQMEvent Message Dump (end) >>>>>" << std::endl;
+  std::cout.flush();
+}
