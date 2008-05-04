@@ -288,11 +288,11 @@ xoap::MessageReference FUEventProcessor::getPsReport(xoap::MessageReference msg)
       keyElement.addTextNode(s);
       xoap::SOAPName attributeName2 = envelope.createName("psstatus", "xdaq", "XDAQ_NS_URI");
       xoap::SOAPElement keyElement2 = responseElement.addChildElement(attributeName2);
-      if(prescaleSvc_ != 0) {
-        keyElement2.addTextNode(prescaleSvc_->getStatus());
-      } else {
-        keyElement2.addTextNode("!prescaleSvc_");
-      }
+      //if(prescaleSvc_ != 0) {
+      //keyElement2.addTextNode(prescaleSvc_->getStatus());
+      //} else {
+      keyElement2.addTextNode("!prescaleSvc_");
+      //}
       return reply;
 
   }
@@ -348,18 +348,18 @@ xoap::MessageReference FUEventProcessor::getLsReport(xoap::MessageReference msg)
       xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
       xoap::SOAPName attributeName = envelope.createName("LS1", "xdaq", "XDAQ_NS_URI");
       xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
-       if(prescaleSvc_ != 0) {
-	keyElement.addTextNode(prescaleSvc_->getLs(requestString));
-      } else {
-	keyElement.addTextNode("!prescaleSvc_");
-      }
+      //if(prescaleSvc_ != 0) {
+      //keyElement.addTextNode(prescaleSvc_->getLs(requestString));
+      //} else {
+      keyElement.addTextNode("!prescaleSvc_");
+      //}
       xoap::SOAPName attributeName2 = envelope.createName("psstatus", "xdaq", "XDAQ_NS_URI");
       xoap::SOAPElement keyElement2 = responseElement.addChildElement(attributeName2);
-      if(prescaleSvc_ != 0) {
-	keyElement2.addTextNode(prescaleSvc_->getStatus());
-      } else {
-	keyElement2.addTextNode("!prescaleSvc_");
-      }
+      //if(prescaleSvc_ != 0) {
+      //keyElement2.addTextNode(prescaleSvc_->getStatus());
+      //} else {
+      keyElement2.addTextNode("!prescaleSvc_");
+      //}
       xoap::SOAPName attributeName3 = envelope.createName("psdebug", "xdaq", "XDAQ_NS_URI");
       xoap::SOAPElement keyElement3 = responseElement.addChildElement(attributeName3);
       keyElement3.addTextNode(requestString);
@@ -424,35 +424,35 @@ xoap::MessageReference FUEventProcessor::putPrescaler(xoap::MessageReference msg
     // cout << "prescalerAsString not updated, is " << prescalerAsString << endl;
   }
   else {
-    if(prescaleSvc_ != 0) {
-      //The number of LS# to prescale module set associations in the prescale
-      //cache.
-      int storeSize = prescaleSvc_->putPrescale(prescalerAsString);
-      LOG4CPLUS_DEBUG(getApplicationLogger(),
-		      "prescaleSvc_->putPrescale(s): " << storeSize);
-    }
-    else {
-      LOG4CPLUS_DEBUG(getApplicationLogger(),"PrescaleService pointer == 0"); 
-    }
+    //if(prescaleSvc_ != 0) {
+    //The number of LS# to prescale module set associations in the prescale
+    //cache.
+    //int storeSize = prescaleSvc_->putPrescale(prescalerAsString);
+    //LOG4CPLUS_DEBUG(getApplicationLogger(),
+    //	      "prescaleSvc_->putPrescale(s): " << storeSize);
+    //}
+    //else {
+    //LOG4CPLUS_DEBUG(getApplicationLogger(),"PrescaleService pointer == 0"); 
+    //}
   }
-
-    xoap::MessageReference reply = xoap::createMessage();
-    xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
-    xoap::SOAPBody body = envelope.getBody();
-    xoap::SOAPName responseName = envelope.createName("PutPrescalerResponse", "xdaq", "XDAQ_NS_URI");
-    xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
-    xoap::SOAPName attributeName = envelope.createName("prescalerAsString", "xdaq", "XDAQ_NS_URI");
-    xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
-    keyElement.addTextNode(prescalerAsString);
-    xoap::SOAPName attributeName2 = envelope.createName("psstatus", "xdaq", "XDAQ_NS_URI");
-    xoap::SOAPElement keyElement2 = responseElement.addChildElement(attributeName2);
-    if(prescaleSvc_ != 0) {
-      keyElement2.addTextNode(prescaleSvc_->getStatus());
-    } else {
-      keyElement2.addTextNode("!prescaleSvc_");
-    }
-
-
+  
+  xoap::MessageReference reply = xoap::createMessage();
+  xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName responseName = envelope.createName("PutPrescalerResponse", "xdaq", "XDAQ_NS_URI");
+  xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
+  xoap::SOAPName attributeName = envelope.createName("prescalerAsString", "xdaq", "XDAQ_NS_URI");
+  xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
+  keyElement.addTextNode(prescalerAsString);
+  xoap::SOAPName attributeName2 = envelope.createName("psstatus", "xdaq", "XDAQ_NS_URI");
+  xoap::SOAPElement keyElement2 = responseElement.addChildElement(attributeName2);
+  //if(prescaleSvc_ != 0) {
+  //keyElement2.addTextNode(prescaleSvc_->getStatus());
+  //} else {
+  keyElement2.addTextNode("!prescaleSvc_");
+  //}
+  
+  
   return reply;
 }
 
@@ -755,9 +755,9 @@ void FUEventProcessor::initEventProcessor()
 	  prescaleSvc_ = edm::Service<edm::service::PrescaleService>().operator->();
 	  LOG4CPLUS_INFO(getApplicationLogger(),
 			 "Obtained pointer to PrescaleService");
-	  prescaleSvc_->putHandle(evtProcessor_);
-	  LOG4CPLUS_INFO(getApplicationLogger(),
-			 "PrescaleService::putHandle called");
+	  //prescaleSvc_->putHandle(evtProcessor_);
+	  //LOG4CPLUS_INFO(getApplicationLogger(),
+	  //	 "PrescaleService::putHandle called");
 	}
     }
     catch(...) {

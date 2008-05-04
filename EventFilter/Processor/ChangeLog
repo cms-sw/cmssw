@@ -1,3 +1,8 @@
+2008-05-04  Philipp Schieferdecler  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-02-04
+	* removed obsolete PrescaleService stuff
+
 2008-03-18  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-02-03
