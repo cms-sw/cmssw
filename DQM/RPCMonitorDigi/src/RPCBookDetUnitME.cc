@@ -19,9 +19,6 @@ using namespace std;
 
 
 
-int david=0;
-
-
 std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, const edm::EventSetup & iSetup) {
   edm::LogVerbatim ("prova") << "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk ";
   // std::cout <<"Booking ME "<<detId<<std::endl; 
@@ -173,7 +170,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     os<<"CrossTalkHigh_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book1D(meId, meTitle,nstrips+0.5 , 0.5, nstrips+0.5);
+    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
     os.str("");
     os<<"BXWithData_"<<detUnitLabel;
@@ -257,22 +254,19 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
   // int nrnr=2;
 
 
-   cout<<"data "<<david<<" "<<detUnitLabel<<endl;
-   david++;
-  
   if (detId.sector()==9 || detId.sector()==11 ) {
     
-    meMap[meId] = dbe->book2D(meId, meTitle,  nstrips, 0.5,nstrips+0.5 , 15, 0.5, 15.5);
+    meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5,96.5, 15, 0.5, 15.5);
     
   }
   
   else  if (detId.sector()==4) {
     
-    meMap[meId] = dbe->book2D(meId, meTitle,  nstrips, 0.5, nstrips+0.5, 22, 0.5, 22.5);
+    meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 21, 0.5, 21.5);
     
   }
   else {
-    meMap[meId] = dbe->book2D(meId, meTitle,  nstrips , 0.5,  nstrips+0.5, 16, 0.5, 16.5);
+    meMap[meId] = dbe->book2D(meId, meTitle, 96, 0.5,  96.5, 17, 0.5, 17.5);
     
   }
  

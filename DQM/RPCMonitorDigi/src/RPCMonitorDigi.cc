@@ -95,16 +95,18 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   GlobalHistogramsFolder="RPC/RecHits/SummaryHistograms";
   dbe->setCurrentFolder(GlobalHistogramsFolder);  
   
-  GlobalZYHitCoordinates = dbe->book2D("GlobalRecHitZYCoordinates", "Rec Hit Z-Y", 1000, -800, 800, 1000, -800, 800);
-  GlobalZXHitCoordinates = dbe->book2D("GlobalRecHitZXCoordinates", "Rec Hit Z-X", 1000, -800, 800, 1000, -800, 800);
-  GlobalZPhiHitCoordinates = dbe->book2D("GlobalRecHitZPhiCoordinates", "Rec Hit Z-Phi", 1000, -800, 800, 1000, -4, 4);
+  // GlobalZYHitCoordinates = dbe->book2D("GlobalRecHitZYCoordinates", "Rec Hit Z-Y", 1000, -800, 800, 1000, -800, 800);
+  // GlobalZXHitCoordinates = dbe->book2D("GlobalRecHitZXCoordinates", "Rec Hit Z-X", 1000, -800, 800, 1000, -800, 800);
+  // GlobalZPhiHitCoordinates = dbe->book2D("GlobalRecHitZPhiCoordinates", "Rec Hit Z-Phi", 1000, -800, 800, 1000, -4, 4);
   
 
   ClusterSize_for_Barrel = dbe->book1D("ClusterSize_for_Barrel", "ClusterSize for Barrel", 20, 0.5, 20.5);
   ClusterSize_for_EndcapForward = dbe->book1D("ClusterSize_for_EndcapForward", "ClusterSize for ForwardEndcap",  20, 0.5, 20.5);
   ClusterSize_for_EndcapBackward = dbe->book1D("ClusterSize_for_EndcapBackward", "ClusterSize for BackwardEndcap", 20, 0.5, 20.5);
-  
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
+
+  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDidi_for_Barrel", "NumberOfDifis for Barrel", 20, 0.5, 20.5);
+  NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
 
   SameBxDigisMe_ = dbe->book1D("SameBXDigis", "Digis with same bx", 20, 0, 20);
 
@@ -128,9 +130,9 @@ void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
   
 
   //Reset All Global histos
-  GlobalZYHitCoordinates->Reset();
-  GlobalZXHitCoordinates->Reset();
-  GlobalZPhiHitCoordinates->Reset();
+  //GlobalZYHitCoordinates->Reset();
+  // GlobalZXHitCoordinates->Reset();
+  //GlobalZPhiHitCoordinates->Reset();
   ClusterSize_for_Barrel->Reset();
   ClusterSize_for_EndcapForward ->Reset();
   ClusterSize_for_EndcapBackward->Reset();
@@ -209,6 +211,9 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
     LayerLabel = nameRoll;
     std::stringstream os;
     
+    RPCGeomServ RPCnumber(detId);
+    int nr = RPCnumber.chambernr();
+    
 
     std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
     if (meItr == meCollection.end() || (meCollection.size()==0)) {
@@ -278,176 +283,21 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	meId = os.str();
 	meMap[meId]->Fill(strip);
 	
-	map<string, int>ChamberNr;
-
-	//W+_W+2_RB1  
-	char r11[340];
-	sprintf(r11, "W%d_RB1in_S%2.2d_Forward", detId.ring(), detId.sector());
-	
-	char r12[340];
-	sprintf(r12, "W%d_RB1in_S%2.2d_Backward", detId.ring(), detId.sector());
-	
-	char r13[340];
-	sprintf(r13, "W%d_RB1out_S%2.2d_Forward", detId.ring(), detId.sector());
-
-	char r14[340];
-	sprintf(r14, "W%d_RB1out_S%2.2d_Backward", detId.ring(), detId.sector());
-
-	char r21[340];
-	sprintf(r21, "W%d_RB2in_S%2.2d_Forward", detId.ring(), detId.sector());
-
-	char r22[340];
-	sprintf(r22, "W%d_RB2in_S%2.2d_Backward", detId.ring(), detId.sector());
-
-	char r23[340];
-	sprintf(r23, "W%d_RB2in_S%2.2d_Middle", detId.ring(), detId.sector());
-	
-	char r24[340];
-	sprintf(r24, "W%d_RB2out_S%2.2d_Forward", detId.ring(), detId.sector());
-
-	char r25[340];
-	sprintf(r25, "W%d_RB2out_S%2.2d_Backward", detId.ring(), detId.sector());
-	
-	char r26[320];
-	sprintf(r26, "W%d_RB2out_S%2.2d_Middle", detId.ring(), detId.sector());
-		
-	char r31[340];
-	sprintf(r31, "W%d_RB3+_S%2.2d_Forward", detId.ring(), detId.sector());
-		
-	char r32[340];
-	sprintf(r32, "W%d_RB3+_S%2.2d_Backward", detId.ring(), detId.sector());
-	
-	char r33[340];
-	sprintf(r33, "W%d_RB3-_S%2.2d_Forward", detId.ring(), detId.sector());
-	
-	
-	char r34[340];
-	sprintf(r34, "W%d_RB3-_S%2.2d_Backward", detId.ring(), detId.sector());
-		
-	char r41[340];
-	sprintf(r41, "W%d_RB4+_S%2.2d_Forward", detId.ring(), detId.sector());
-
-	char r42[340];
-	sprintf(r42, "W%d_RB4+_S%2.2d_Backward", detId.ring(), detId.sector());
-	
-	char r43[340];
-	sprintf(r43, "W%d_RB4-_S%2.2d_Forward", detId.ring(), detId.sector());
-	
-	char r44[340];
-	sprintf(r44, "W%d_RB4-_S%2.2d_Backward", detId.ring(), detId.sector());
-
-	char r45[340];
-	sprintf(r45, "W%d_RB4++_S%2.2d_Forward", detId.ring(), detId.sector());
-
-	char r46[340];
-	sprintf(r46, "W%d_RB4++_S%2.2d_Backward", detId.ring(), detId.sector());
-
-	char r47[340];
-	sprintf(r47, "W%d_RB4--_S%2.2d_Forward", detId.ring(), detId.sector());
-	
-	char r48[340];
-	sprintf(r48, "W%d_RB4--_S%2.2d_Backward", detId.ring(), detId.sector());
-	
-	//RB1in
-	ChamberNr.insert( make_pair( r11, 1) ); 
-	ChamberNr.insert( make_pair( r12, 2) ); 
-	//RBiout
-	ChamberNr.insert( make_pair( r13, 3) ); 
-	ChamberNr.insert( make_pair( r14, 4) ); 
-	
-	
-	//RB2in
-	ChamberNr.insert( make_pair( r21, 5) ); 
-	ChamberNr.insert( make_pair( r22, 6) );
-	
-	int i=6;
-
-	std::string rpccham1=r23;
-	std::string monitel1=detUnitLabel;
-	monitel1.erase(1,1);
-	
-	//RB2in_Middle & RB2out_Middle
-	i++;
-	ChamberNr.insert( make_pair( r23, i) );
-	ChamberNr.insert( make_pair( r26, i) );
-	
-	i++;
-	//Rb2out
-	ChamberNr.insert( make_pair( r24, i) ); 
-	i++;
-	ChamberNr.insert( make_pair( r25, i) );	
-	
-	std::string rpccham=r26;
-	
-	
-	//W+2_RB3
-	i++;
-	ChamberNr.insert( make_pair( r31, i) ); 
-	i++;
-	ChamberNr.insert( make_pair( r32, i) ); 
-	i++;
-	ChamberNr.insert( make_pair( r33, i) ); 
-	i++;
-	ChamberNr.insert( make_pair( r34, i) ); 
-	
-	
-	//W+2_RB4
-	if(detId.sector()!=9 & detId.sector()!=11) {
-	  
-	  i++;
-	  ChamberNr.insert( make_pair( r41, i) ); 
-	  i++;
-	  ChamberNr.insert( make_pair( r42, i) );
-	}
-	
-	i++;
-	ChamberNr.insert( make_pair( r43, i) ); 
-	i++;
-	ChamberNr.insert( make_pair( r44, i) );
-	
-	
-	if (detId.sector()==4) {
-	  i++;
-	  ChamberNr.insert( make_pair( r45, i) ); 
-	  i++;
-	  ChamberNr.insert( make_pair( r46, i) );
-	  i++;
-	  ChamberNr.insert( make_pair( r47, i) ); 
-	  i++;
-	  ChamberNr.insert( make_pair( r48, i) );
-	}
-	
-	
-	std::string label;
-	int nrnr;
-	
 	std::string Yaxis=detUnitLabel;
 	Yaxis.erase (1,1);
 	//std::cout<<Yaxis<<std::endl;
-	if(ChamberNr.find(Yaxis) != ChamberNr.end()) {
 	  
-	  //strcpy(layerLabel, ChamberNr.find(label)->second.());
-	  nrnr = ChamberNr.find(Yaxis)->second;
-	  
-	  os.str("");
-	  os<<"SectorOccupancy_"<<ringType<<"_"<<detId.ring()<<"_Sector_"<<detId.sector();
-	  meId = os.str();
-	  meMap[meId]->Fill(strip, nrnr);
+	os.str("");
+	os<<"SectorOccupancy_"<<ringType<<"_"<<detId.ring()<<"_Sector_"<<detId.sector();
+	meId = os.str();
+	meMap[meId]->Fill(strip, nr);
 
 	 
-	  Yaxis.erase(0,3);
-	  Yaxis.replace(Yaxis.find("S"),4,"");
-	  Yaxis.erase(Yaxis.find("_")+2,8);
-
-	  meMap[meId]->setBinLabel(nrnr, Yaxis, 2);
-	 
-	  
-	} 
-	else { 
-	  
-	  std::cout<<"Missing Gap !!!"<<detUnitLabel<<"/"<<r11<<std::endl;
-	  
-	}
+	Yaxis.erase(0,3);
+	Yaxis.replace(Yaxis.find("S"),4,"");
+	Yaxis.erase(Yaxis.find("_")+2,8);
+	
+	meMap[meId]->setBinLabel(nr, Yaxis, 2);
 	
 	os.str("");
 	os<<"BXN_"<<detUnitLabel;
@@ -501,6 +351,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
       os<<"NumberOfDigi_"<<detUnitLabel;
       meId = os.str();
       meMap[meId]->Fill(numberOfDigi);
+      NumberOfDigis_for_Barrel ->Fill(numberOfDigi);
       
     }
     
@@ -685,7 +536,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 os<<"NumberOfClusters_"<<detUnitLabel;
 	 meId=os.str();
 	 meMap[meId]->Fill(numbOfClusters);
-	     
+	 NumberOfClusters_for_Barrel -> Fill(numbOfClusters);
+
 	 if(numberOfHits>5) numberOfHits=16;
 	 
 	 os.str("");

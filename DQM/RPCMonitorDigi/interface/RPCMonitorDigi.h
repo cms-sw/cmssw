@@ -5,8 +5,8 @@
  *
  * Class for RPC Monitoring (strip id, cluster size).
  *
- *  $Date: 2008/04/28 10:11:38 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/29 14:46:46 $
+ *  $Revision: 1.15 $
  *
  * \author Ilaria Segoni (CERN)
  *
@@ -56,10 +56,12 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	int counter;
 	/// back-end interface
 	DQMStore * dbe;
-        MonitorElement * GlobalZYHitCoordinates;
-        MonitorElement * GlobalZXHitCoordinates;
-        MonitorElement * GlobalZPhiHitCoordinates;
+        //MonitorElement * GlobalZYHitCoordinates;
+        //MonitorElement * GlobalZXHitCoordinates;
+        //MonitorElement * GlobalZPhiHitCoordinates;
         
+	MonitorElement * NumberOfDigis_for_Barrel;
+	MonitorElement * NumberOfClusters_for_Barrel;
 	MonitorElement * ClusterSize_for_Barrel;
         MonitorElement * ClusterSize_for_EndcapForward;
         MonitorElement * ClusterSize_for_EndcapBackward;
