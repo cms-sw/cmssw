@@ -10,6 +10,7 @@ class RPCGeomServ{
   virtual ~RPCGeomServ();
   virtual std::string name();
   virtual int eta_partition(); 
+  virtual int chambernr();
   virtual int segment();
   virtual bool inverted();
   virtual bool zpositive();
@@ -22,6 +23,7 @@ class RPCGeomServ{
   const RPCDetId* _id;
   std::string _n;
   int _t;
+  int _cnr;
   bool _z;
   bool _a;
 
