@@ -25,6 +25,8 @@
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 
+#include "Alignment/CommonAlignment/interface/AlignTools.h"
+
 #include <algorithm>
 #include "TTree.h"
 
@@ -57,9 +59,9 @@ private:
 
 
 	//parameters
-  edm::ParameterSet m_params;
-  std::vector<align::StructureType> theLevels;
-  std::vector<int> theSubDets;
+	edm::ParameterSet m_params;
+	std::vector<align::StructureType> theLevels;
+	//std::vector<int> theSubDets;
 	
 	//compares two geometries
 	void compareGeometries(Alignable* refAli, Alignable* curAli);
@@ -74,6 +76,11 @@ private:
 	//void createDBGeometry(const edm::EventSetup& iSetup);
 	void createROOTGeometry(const edm::EventSetup& iSetup);
 	
+	// for common tracker system
+	void setCommonTrackerSystem();
+	void diffCommonTrackerSystem(Alignable* refAli, Alignable* curAli);
+	bool passIdCut( uint32_t );
+	
 	AlignableTracker* referenceTracker;
 	AlignableTracker* dummyTracker;
 	AlignableTracker* currentTracker;
@@ -82,10 +89,23 @@ private:
 	const Alignments* theSurveyValues;
 	const SurveyErrors* theSurveyErrors;
 	
+	// configurables
 	std::string _inputFilename1;
 	std::string _inputFilename2;
 	std::string _inputTreename;
-	bool _writeToDB;
+	bool _writeToDB; 
+	std::string _weightBy;
+	std::string _setCommonTrackerSystem;
+	bool _detIdFlag;
+	std::string _detIdFlagFile;
+	bool _weightById;
+	std::string _weightByIdFile;
+	
+	std::vector< uint32_t > _detIdFlagVector;
+	align::StructureType _commonTrackerLevel;
+	align::GlobalVector _TrackerCommonT;
+	align::EulerAngles _TrackerCommonR;
+	align::PositionType _TrackerCommonCM;
 	
 	//root configuration
 	std::string _filename;
@@ -96,8 +116,8 @@ private:
 	TTree* _inputTree1;
 	TTree* _inputTree2;
 	
-	int _id, _level, _mid, _mlevel, _sublevel;
-	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
+	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
+	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal, _etaVal;
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
 	float _surWidth, _surLength;
 	uint32_t _identifiers[6];
