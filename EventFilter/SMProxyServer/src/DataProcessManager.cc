@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.9 2008/03/03 20:38:11 biery Exp $
+// $Id: DataProcessManager.cc,v 1.10 2008/04/16 16:43:13 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -107,6 +107,12 @@ namespace stor
     receivedDQMEvents_ = 0;
     pmeter_->init(samples_);
     stats_.fullReset();
+
+    // initialize the counters that we use for statistics
+    ltEventFetchTimeCounter_.reset(new ForeverCounter());
+    stEventFetchTimeCounter_.reset(new RollingIntervalCounter(180,5,20));
+    ltDQMFetchTimeCounter_.reset(new ForeverCounter());
+    stDQMFetchTimeCounter_.reset(new RollingIntervalCounter(180,5,20));
   }
 
   void DataProcessManager::setMaxEventRequestRate(double rate)
@@ -605,7 +611,7 @@ namespace stor
       if (hdrView.code() == Header::INIT)
       {
         InitMsgView initView(&data.d_[0]);
-        if (initMsgCollection_->testAndAddIfUnique(initView))
+        if (initMsgCollection_->addIfUnique(initView))
         {
           addedNewInitMsg = true;
         }
@@ -618,7 +624,7 @@ namespace stor
         while ((unsigned int) (bodyPtr-otherView.msgBody()) < fullSize)
         {
           InitMsgView initView(bodyPtr);
-          if (initMsgCollection_->testAndAddIfUnique(initView))
+          if (initMsgCollection_->addIfUnique(initView))
           {
             addedNewInitMsg = true;
           }
@@ -648,9 +654,14 @@ namespace stor
       throw excpt;
     }
 
-    // check if any currently connected consumers have trigger
-    // selection requests that match more than one INIT message
-    if (addedNewInitMsg && eventServer_.get() != NULL)
+    // check if any currently connected consumers did not specify
+    // an HLT output module label and we now have multiple, different,
+    // INIT messages.  If so, we need to complain because the
+    // SelectHLTOutput parameter needs to be specified when there
+    // is more than one HLT output module (and correspondingly, more
+    // than one INIT message)
+    if (addedNewInitMsg && eventServer_.get() != NULL &&
+        initMsgCollection_->size() > 1)
     {
       std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
         eventServer_->getConsumerTable();
@@ -661,28 +672,20 @@ namespace stor
            consumerIter++)
       {
         boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-        try
-        {
-          Strings consumerSelection = consPtr->getTriggerRequest();
-          initMsgCollection_->getElementForSelection(consumerSelection);
-        }
-        catch (const edm::Exception& excpt)
-        {
-          // store a warning message in the consumer pipe to be
-          // sent to the consumer at the next opportunity
-          consPtr->setRegistryWarning(excpt.what());
-        }
-        catch (const cms::Exception& excpt)
+
+        if (consPtr->getHLTOutputSelection().empty())
         {
           // store a warning message in the consumer pipe to be
           // sent to the consumer at the next opportunity
           std::string errorString;
-          errorString.append(excpt.what());
-          errorString.append("\n");
+          errorString.append("ERROR: The configuration for this ");
+          errorString.append("consumer does not specify an HLT output ");
+          errorString.append("module.\nPlease specify one of the HLT ");
+          errorString.append("output modules listed below as the ");
+          errorString.append("SelectHLTOutput parameter ");
+          errorString.append("in the InputSource configuration.\n");
           errorString.append(initMsgCollection_->getSelectionHelpString());
-          errorString.append("\n\n");
-          errorString.append("*** Please select trigger paths from one and ");
-          errorString.append("only one HLT output module. ***\n");
+          errorString.append("\n");
           consPtr->setRegistryWarning(errorString);
         }
       }
@@ -799,6 +802,11 @@ namespace stor
     // One single try to get a event from this SM URL
     stor::ReadData data;
 
+    // start a measurement of how long the HTTP POST takes
+    eventFetchTimer_.stop();
+    eventFetchTimer_.reset();
+    eventFetchTimer_.start();
+
     data.d_.clear();
     CURL* han = curl_easy_init();
     if(han==0)
@@ -843,6 +851,12 @@ namespace stor
       edm::LogError("getOneEventFromSM") << "curl perform failed for event. "
         << "Could not get event from an already registered Storage Manager"
         << " at " << smURL;
+
+      // keep statistics for all HTTP POSTS
+      eventFetchTimer_.stop();
+      ltEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
@@ -851,11 +865,21 @@ namespace stor
     FDEBUG(9) << "getOneEventFromSM received len = " << len << std::endl;
     if(data.d_.length() == 0)
     { 
+      // keep statistics for all HTTP POSTS
+      eventFetchTimer_.stop();
+      ltEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
     buf_.resize(len);
     for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
+
+    // keep statistics for all HTTP POSTS
+    eventFetchTimer_.stop();
+    ltEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+    stEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
 
     // first check if done message
     OtherMessageView msgView(&buf_[0]);
@@ -981,6 +1005,11 @@ namespace stor
     // One single try to get a event from this SM URL
     stor::ReadData data;
 
+    // start a measurement of how long the HTTP POST takes
+    dqmFetchTimer_.stop();
+    dqmFetchTimer_.reset();
+    dqmFetchTimer_.start();
+
     data.d_.clear();
     CURL* han = curl_easy_init();
     if(han==0)
@@ -1020,6 +1049,12 @@ namespace stor
       edm::LogError("getOneDQMEventFromSM") << "curl perform failed for DQM event. "
         << "Could not get DQMevent from an already registered Storage Manager"
         << " at " << smURL;
+
+      // keep statistics for all HTTP POSTS
+      dqmFetchTimer_.stop();
+      ltDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
@@ -1028,11 +1063,21 @@ namespace stor
     FDEBUG(9) << "getOneDQMEventFromSM received len = " << len << std::endl;
     if(data.d_.length() == 0)
     { 
+      // keep statistics for all HTTP POSTS
+      dqmFetchTimer_.stop();
+      ltDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
     buf_.resize(len);
     for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
+
+    // keep statistics for all HTTP POSTS
+    dqmFetchTimer_.stop();
+    ltDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+    stDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
 
     // first check if done message
     OtherMessageView msgView(&buf_[0]);
@@ -1061,6 +1106,71 @@ namespace stor
     {
        stats_ = pmeter_->getStats();
     }
-}
+  }
 
+  double DataProcessManager::getSampleCount(STATS_TIME_FRAME timeFrame,
+                                            STATS_TIMING_TYPE timingType,
+                                            double currentTime)
+  {
+    if (timeFrame == SHORT_TERM) {
+      if (timingType == DQMEVENT_FETCH) {
+        return stDQMFetchTimeCounter_->getSampleCount(currentTime);
+      }
+      else {
+        return stEventFetchTimeCounter_->getSampleCount(currentTime);
+      }
+    }
+    else {
+      if (timingType == DQMEVENT_FETCH) {
+        return ltDQMFetchTimeCounter_->getSampleCount();
+      }
+      else {
+        return ltEventFetchTimeCounter_->getSampleCount();
+      }
+    }
+  }
+
+  double DataProcessManager::getAverageValue(STATS_TIME_FRAME timeFrame,
+                                             STATS_TIMING_TYPE timingType,
+                                             double currentTime)
+  {
+    if (timeFrame == SHORT_TERM) {
+      if (timingType == DQMEVENT_FETCH) {
+        return stDQMFetchTimeCounter_->getValueAverage(currentTime);
+      }
+      else {
+        return stEventFetchTimeCounter_->getValueAverage(currentTime);
+      }
+    }
+    else {
+      if (timingType == DQMEVENT_FETCH) {
+        return ltDQMFetchTimeCounter_->getValueAverage();
+      }
+      else {
+        return ltEventFetchTimeCounter_->getValueAverage();
+      }
+    }
+  }
+
+  double DataProcessManager::getDuration(STATS_TIME_FRAME timeFrame,
+                                         STATS_TIMING_TYPE timingType,
+                                         double currentTime)
+  {
+    if (timeFrame == SHORT_TERM) {
+      if (timingType == DQMEVENT_FETCH) {
+        return stDQMFetchTimeCounter_->getDuration(currentTime);
+      }
+      else {
+        return stEventFetchTimeCounter_->getDuration(currentTime);
+      }
+    }
+    else {
+      if (timingType == DQMEVENT_FETCH) {
+        return ltDQMFetchTimeCounter_->getDuration(currentTime);
+      }
+      else {
+        return ltEventFetchTimeCounter_->getDuration(currentTime);
+      }
+    }
+  }
 }

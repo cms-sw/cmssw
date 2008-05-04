@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.14 2008/04/16 16:19:05 biery Exp $
+// $Id: SMProxyServer.cc,v 1.15 2008/04/16 18:25:19 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -39,6 +39,7 @@
 
 #include "boost/algorithm/string/case_conv.hpp"
 #include "cgicc/Cgicc.h"
+#include "zlib.h"
 
 using namespace edm;
 using namespace std;
@@ -60,6 +61,7 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   receivedEvents_(0),
   receivedDQMEvents_(0),
   mybuffer_(7000000),
+  fairShareES_(false),
   connectedSMs_(0), 
   storedDQMEvents_(0), 
   sentEvents_(0),
@@ -128,16 +130,17 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   // added for Event Server
   maxESEventRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
-  maxESDataRate_ = 100.0;  // MB/sec
+  maxESDataRate_ = 2048.0;  // MB/sec
   ispace->fireItemAvailable("maxESDataRate",&maxESDataRate_);
   maxEventRequestRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxEventRequestRate",&maxEventRequestRate_);
-  activeConsumerTimeout_ = 300;  // seconds
+  activeConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
-  idleConsumerTimeout_ = 600;  // seconds
+  idleConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
   consumerQueueSize_ = 10;
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
+  ispace->fireItemAvailable("fairShareES",&fairShareES_);
   DQMmaxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
   maxDQMEventRequestRate_ = 1.0;  // hertz
@@ -938,15 +941,28 @@ void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
             dpm_->getInitMsgCollection();
           try
           {
-            Strings consumerSelection = consPtr->getTriggerRequest();
+            std::string hltOMLabel = consPtr->getHLTOutputSelection();
             serializedProds =
-              initMsgCollection->getElementForSelection(consumerSelection);
+              initMsgCollection->getElementForOutputModule(hltOMLabel);
             if (serializedProds.get() != NULL)
             {
               Strings triggerNameList;
               InitMsgView initView(&(*serializedProds)[0]);
               initView.hltTriggerNames(triggerNameList);
-              consPtr->initializeSelection(triggerNameList);
+
+              uint32 outputModuleId;
+              if (initView.protocolVersion() >= 6) {
+                outputModuleId = initView.outputModuleId();
+              }
+              else {
+                std::string moduleLabel = initView.outputModuleLabel();
+                uLong crc = crc32(0L, Z_NULL, 0);
+                Bytef* crcbuf = (Bytef*) moduleLabel.data();
+                crc = crc32(crc, crcbuf, moduleLabel.length());
+                outputModuleId = static_cast<uint32>(crc);
+              }
+              consPtr->initializeSelection(triggerNameList,
+                                           outputModuleId);
             }
           }
           catch (const edm::Exception& excpt)
@@ -955,12 +971,15 @@ void SMProxyServer::headerdataWebPage(xgi::Input *in, xgi::Output *out)
           }
           catch (const cms::Exception& excpt)
           {
-            errorString.append(excpt.what());
-            errorString.append("\n");
+            //errorString.append(excpt.what());
+            errorString.append("ERROR: The configuration for this ");
+            errorString.append("consumer does not specify an HLT output ");
+            errorString.append("module.\nPlease specify one of the HLT ");
+            errorString.append("output modules listed below as the ");
+            errorString.append("SelectHLTOutput parameter ");
+            errorString.append("in the InputSource configuration.\n");
             errorString.append(initMsgCollection->getSelectionHelpString());
-            errorString.append("\n\n");
-            errorString.append("*** Please select trigger paths from one and ");
-            errorString.append("only one HLT output module. ***\n");
+            errorString.append("\n");
           }
         }
       }
@@ -1058,12 +1077,19 @@ void SMProxyServer::consumerWebPage(xgi::Input *in, xgi::Output *out)
     double maxEventRequestRate =
       requestParamSet.getUntrackedParameter<double>("maxEventRequestRate", 1.0);
 
+    // pull the HLT output module selection out of the PSet
+    // (default is empty string)
+    std::string hltOMLabel =
+      requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
+                                                         std::string());
+
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
                                modifiedRequest, maxEventRequestRate,
+                               hltOMLabel,
                                consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
 
@@ -1205,6 +1231,14 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
       *out << "    <br/>" << std::endl;
       *out << "    Maximum event rate from SMs is "
            << maxEventRequestRate_ << " Hz." << std::endl;
+      *out << "    <br/>" << std::endl;
+      *out << "    Fair-share event serving is ";
+      if (fairShareES_) {
+        *out << "ON." << std::endl;
+      }
+      else {
+        *out << "OFF." << std::endl;
+      }
       *out << "  </td>" << std::endl;
       *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
       if (autoUpdate) {
@@ -1430,8 +1464,9 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  <th>ID</th>" << std::endl;
         *out << "  <th>Name</th>" << std::endl;
         *out << "  <th>State</th>" << std::endl;
-        *out << "  <th>Requested Rate</th>" << std::endl;
-        *out << "  <th>Trigger Request</th>" << std::endl;
+        *out << "  <th>Requested<br/>Rate</th>" << std::endl;
+        *out << "  <th>Requested HLT<br/>Output Module</th>" << std::endl;
+        *out << "  <th>Trigger<br/>Request</th>" << std::endl;
         *out << "</tr>" << std::endl;
 
         for (consumerIter = consumerTable.begin();
@@ -1464,9 +1499,20 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
           *out << "</td>" << std::endl;
 
-          *out << "  <td align=\"center\">"
-               << consPtr->getRateRequest()
+          *out << "  <td align=\"center\">" << consPtr->getRateRequest()
                << " Hz</td>" << std::endl;
+
+          {
+            std::string hltOut = consPtr->getHLTOutputSelection();
+            if (hltOut.empty()) {
+              *out << "  <td align=\"center\">&lt;none&gt;</td>" << std::endl;
+            }
+            else {
+              *out << "  <td align=\"center\">" << hltOut
+                   << "</td>" << std::endl;
+            }
+          }
+
           *out << "  <td align=\"center\">"
                << InitMsgCollection::stringsToText(consPtr->getTriggerSelection(), 5)
                << "</td>" << std::endl;
@@ -1989,6 +2035,104 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
 
         *out << "</table>" << std::endl;
       }
+
+      // ************************************************************
+      // * HTTP POST timing
+      // ************************************************************
+      *out << "<h3>HTTP Timing:</h3>" << std::endl;
+      *out << "<h4>Event Retrieval from Storage Manager(s):</h4>"
+           << std::endl;
+      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <th>&nbsp;</th>" << std::endl;
+      *out << "  <th>Average Time per<br/>Request (sec)</th>" << std::endl;
+      *out << "  <th>Number of<br/>Requests</th>" << std::endl;
+      *out << "  <th>Measurement<br/>Duration (sec)</th>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Recent Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getAverageValue(DataProcessManager::SHORT_TERM,
+                                    DataProcessManager::EVENT_FETCH,
+                                    now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getSampleCount(DataProcessManager::SHORT_TERM,
+                                   DataProcessManager::EVENT_FETCH,
+                                   now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getDuration(DataProcessManager::SHORT_TERM,
+                                DataProcessManager::EVENT_FETCH,
+                                now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Full Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getAverageValue(DataProcessManager::LONG_TERM,
+                                    DataProcessManager::EVENT_FETCH,
+                                    now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getSampleCount(DataProcessManager::LONG_TERM,
+                                   DataProcessManager::EVENT_FETCH,
+                                   now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getDuration(DataProcessManager::LONG_TERM,
+                                DataProcessManager::EVENT_FETCH,
+                                now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "</table>" << std::endl;
+
+      *out << "<h4>DQM Event Retrieval from Storage Manager(s):</h4>"
+           << std::endl;
+      *out << "<table border=\"1\" width=\"100%\">" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <th>&nbsp;</th>" << std::endl;
+      *out << "  <th>Average Time per<br/>Request (sec)</th>" << std::endl;
+      *out << "  <th>Number of<br/>Requests</th>" << std::endl;
+      *out << "  <th>Measurement<br/>Duration (sec)</th>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Recent Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getAverageValue(DataProcessManager::SHORT_TERM,
+                                    DataProcessManager::DQMEVENT_FETCH,
+                                    now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getSampleCount(DataProcessManager::SHORT_TERM,
+                                   DataProcessManager::DQMEVENT_FETCH,
+                                   now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getDuration(DataProcessManager::SHORT_TERM,
+                                DataProcessManager::DQMEVENT_FETCH,
+                                now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "<tr>" << std::endl;
+      *out << "  <td align=\"center\">Full Results</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getAverageValue(DataProcessManager::LONG_TERM,
+                                    DataProcessManager::DQMEVENT_FETCH,
+                                    now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getSampleCount(DataProcessManager::LONG_TERM,
+                                   DataProcessManager::DQMEVENT_FETCH,
+                                   now)
+           << "</td>" << std::endl;
+      *out << "  <td align=\"center\">"
+           << dpm_->getDuration(DataProcessManager::LONG_TERM,
+                                DataProcessManager::DQMEVENT_FETCH,
+                                now)
+           << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+      *out << "</table>" << std::endl;
     }
     else
     {
@@ -2395,6 +2539,7 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
+  is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
   // Attach listener to myCounter_ to detect retrieval event
@@ -2438,6 +2583,7 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
+  is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
 
@@ -2519,7 +2665,8 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       dpm_.reset(new stor::DataProcessManager());
       
       boost::shared_ptr<EventServer>
-        eventServer(new EventServer(maxESEventRate_, maxESDataRate_));
+        eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
+                                    fairShareES_));
       dpm_->setEventServer(eventServer);
       boost::shared_ptr<DQMEventServer>
         DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
