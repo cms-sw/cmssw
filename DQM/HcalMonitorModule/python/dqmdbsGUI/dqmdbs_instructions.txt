@@ -1,0 +1,78 @@
+Instructions v1.1 Beta
+by Jeff Temple
+4 May 2008
+Send comments & complaints to jtemple@fnal.gov
+
+
+This GUI is designed to let shifters look for runs recently stored 
+in DBS, and to run the HCAL DQM on those runs.  Below is a simple
+guide for running the beta version of this GUI.
+
+
+To find runs in DBS:
+   1)  Set the range of runs you want in the white windows in the GUI.
+       (These are the windows that say 
+        "Search over XX runs, starting with run # YYYYY").
+       If you want to look at runs in the range 30000-35000, you would 
+       change the windows to read:
+       "Search over 5000 runs, starting with run # 30000".
+
+   2)  Press the red "Check DBS for runs" button on the right of the GUI.
+       The button will become disabled, and the DBS "Current Status" line
+       will change.  
+
+   3)  When the check has finished, the DBS status line will change again.
+       Hopefully, it will say something like "Successfully grabbed runs."
+
+
+To check which runs have been found:
+   1)  Click on the "Status" menu at the top of the GUI
+
+   2)  Click on "Show Run Status".
+       This will show all the runs that the GUI has found from DBS.
+       This list is *not* the same as all of the runs that are in DBS!
+       The GUI searches for files of a specific type (they must be
+       root files, with names of the form */Global*/A/*RAW/*.root).
+       The GUI also does not know about runs unless you have told it to
+       search for them.
+
+   3)  The status window will show you a list of runs, and whether or not
+       they've been processed by DQM.         
+       
+
+To run DQM on newly-found runs:
+   1)  Press the "Run the HCAL DQM" button on the lower right of the GUI.
+
+   2)  The button will become disabled, and the DQM "Current Status" should
+       change.
+
+   3)  Running DQM can take a long time!  You can click on the 
+       Status/Show Run Status menu periodically to see which runs have 
+       completed.
+
+
+That's it!  If you periodically check for runs, and check that HCAL DQM 
+has run on them, then you should always have up-to-date DQM information!
+
+(We hope to have this GUI running automatically later during CRUZET, 
+so that you don't even need to press the buttons.)
+
+
+
+
+Here are a few more advanced instructions:
+
+* To change the DBS search parameters:
+  1)  Go to DBS options->Change DBS Settings.
+  2)  Alter the needed parameters, and press "Enter" after each change.
+      (You may return to the default values with the "Restore default values"
+       button.)
+  3)  Don't change these values unless you know what you are doing!
+
+
+* To change the DQM parameters:
+  1)  Go to DQM options -> Change DQM Settings
+  2)  Change the needed parameters, and press "Enter" after each change.
+
+
+* More features may be coming soon!
