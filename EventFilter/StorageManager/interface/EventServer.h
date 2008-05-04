@@ -12,7 +12,7 @@
  * prescale is in effect.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: EventServer.h,v 1.7 2008/03/03 20:15:54 biery Exp $
+ * $Id: EventServer.h,v 1.8 2008/04/16 16:12:58 biery Exp $
  */
 
 #include <sys/time.h>
@@ -39,7 +39,7 @@ namespace stor
     enum STATS_SAMPLE_TYPE { INPUT_STATS = 10, OUTPUT_STATS = 11 };
     enum STATS_TIMING_TYPE { CPUTIME = 20, REALTIME = 21 };
 
-    EventServer(double maxEventRate, double maxDataRate);
+    EventServer(double maxEventRate, double maxDataRate, bool runFairShareAlgo);
     ~EventServer();
 
     void addConsumer(boost::shared_ptr<ConsumerPipe> consumer);
@@ -89,8 +89,12 @@ namespace stor
 
   private:
     // data members for handling a maximum rate of accepted events
+    double minTimeBetweenEvents_;  // seconds
+    double lastAcceptedEventTime_; // seconds
+    uint32 lastAcceptedEventNumber_;
     double maxEventRate_;
     double maxDataRate_;
+    bool runFairShareAlgo_;
 
     // new fair-share scheme
     boost::shared_ptr<RateLimiter> rateLimiter_;

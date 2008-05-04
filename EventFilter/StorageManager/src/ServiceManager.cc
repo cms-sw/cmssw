@@ -1,8 +1,7 @@
-// $Id: ServiceManager.cc,v 1.6 2008/03/03 20:23:30 biery Exp $
+// $Id: ServiceManager.cc,v 1.7 2008/03/10 10:07:07 meschi Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
-#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include <FWCore/Utilities/interface/Exception.h>
 
 using namespace std;
@@ -12,7 +11,9 @@ using boost::shared_ptr;
 
 ServiceManager::ServiceManager(const std::string& config):
   outModPSets_(0),
-  managedOutputs_(0)
+  managedOutputs_(0),
+  psetHLTOutputLabels_(0),
+  outputModuleIds_(0)
 {
   collectStreamerPSets(config);
 } 
@@ -21,6 +22,7 @@ ServiceManager::ServiceManager(const std::string& config):
 ServiceManager::~ServiceManager()
 { 
   managedOutputs_.clear();
+  outputModuleIds_.clear();
 }
 
 
@@ -36,64 +38,102 @@ void ServiceManager::stop()
 void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::string sourceId, InitMsgView& view, stor::InitMsgCollection& initMsgCollection)
 {
   boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
+  std::string inputOMLabel = view.outputModuleLabel();
+  int psetIdx = -1;
   for(std::vector<ParameterSet>::iterator it = outModPSets_.begin(), itEnd = outModPSets_.end();
       it != itEnd; ++it) {
+    ++psetIdx;
+    bool createStreamNow = false;
 
-      // test if this INIT message is the right one for this output module
-      // (that is, whether the SM output module trigger request matches
-      // the HLT output module trigger request in the INIT message)
-      // Rather than reproduce the code in
-      // InitMsgCollection::getElementForSelection for finding the right
-      // INIT message for a given trigger selection, we simply use that
-      // method to find the "right" INIT message and check if it matches
-      // the one passed into this method.  Of course, this requires that
-      // the INIT message passed into this method has already been added
-      // to the collection.  But we get the (good) side benefit that the
-      // error checking (and associated exceptions) in the
-      // getElementForSelection method come for free.
-      // If we ever switch to something other than the getElementForSelection
-      // method, then we may need to keep track of each StreamService that
-      // we create so that we make sure we don't create two of them for the
-      // same output stream.
-      Strings selections = EventSelector::getEventSelectionVString(*it);
-      try {
-        stor::InitMsgSharedPtr matchingInitMsgPtr =
-          initMsgCollection.getElementForSelection(selections);
-        if (matchingInitMsgPtr.get() != NULL) {
-          InitMsgView matchingView(&(*matchingInitMsgPtr)[0]);
-          if (matchingView.startAddress() == view.startAddress() &&
-              matchingView.size() == view.size()) {
-            shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
-            stream->setCatalog(catalog);
-            stream->setNumberOfFileSystems(disks);
-            stream->setSourceId(sourceId);
-            stream->setFileName(smParameter_ -> fileName());
-            stream->setFilePath(smParameter_ -> filePath());
-            stream->setMaxFileSize(smParameter_ -> maxFileSize());
-            stream->setMathBoxPath(smParameter_ -> mailboxPath());
-            stream->setSetupLabel(smParameter_ -> setupLabel());
-            stream->setHighWaterMark(smParameter_ -> highWaterMark());
-            stream->setLumiSectionTimeOut(smParameter_ -> lumiSectionTimeOut());
-            managedOutputs_.push_back(stream);
-            stream->report(cout,3);
-          }
-        }
+    // test if this INIT message is the right one for this output module
+    // (that is, whether the HLT output module specified in the 
+    // SM output module SelectHLTOutput parameter matches the HLT output
+    // module in the INIT message)
+
+    // fetch the SelectHLTOutput parameter from the SM output PSet
+    std::string requestedOMLabel =
+      it->getUntrackedParameter<std::string>("SelectHLTOutput", std::string());
+
+    // if the SM output PSet didn't specify an HLT output module...
+    //
+    // (Note that the SelectHLTOutput parameter is optional.  If it is not
+    // specified, we create the stream using the first INIT message that
+    // we receive.  However, if we get multiple, different, INIT messages,
+    // we complain loudly.
+    // By allowing it to be optional, though, we provide some level
+    // of backward compatibility - setups that only have one HLT output
+    // module aren't forced to add this parameter.)
+    if (requestedOMLabel.empty()) {
+
+      // if we haven't yet created the stream object, go ahead and do
+      // that using this INIT message
+      if (psetHLTOutputLabels_[psetIdx].empty()) {
+        createStreamNow = true;
       }
-      catch (const cms::Exception& excpt) {
+
+      // if we already created the stream object and this is a different
+      // INIT message than what we used to create it, we need to complain
+      // because SM output PSets are required to have a SelectHLTOutput
+      // parameter in the presence of multiple INIT messages (multiple
+      // HLT output modules)
+      else if (inputOMLabel != psetHLTOutputLabels_[psetIdx]) {
         std::string errorString;
-        errorString.append("Problem with the SelectEvents parameter ");
-        errorString.append("in the definition of Stream ");
+        errorString.append("ERROR: The configuration for Stream ");
         errorString.append((*it).getParameter<string> ("streamLabel"));
-        errorString.append("\n");
-        errorString.append(excpt.what());
-        errorString.append("\n");
+        errorString.append(" does not specify an HLT output module.\n");
+        errorString.append("Please specify one of the HLT output modules ");
+        errorString.append("listed below as the SelectHLTOutput parameter ");
+        errorString.append("in the EventStreamFileWriter configuration ");
+        errorString.append("for Stream ");
+        errorString.append((*it).getParameter<string> ("streamLabel"));
+        errorString.append(".\n");
         errorString.append(initMsgCollection.getSelectionHelpString());
-        errorString.append("\n\n");
-        errorString.append("*** Please select trigger paths from one and ");
-        errorString.append("only one HLT output module. ***\n");
+        errorString.append("\n");
         throw cms::Exception("ServiceManager","manageInitMsg")
           << errorString << std::endl;
       }
+    }
+
+    // if the SM output PSet did specify an HLT output module...
+    else {
+
+      // if the HLT output module labels match...
+      if (inputOMLabel == requestedOMLabel) {
+
+        // if we haven't yet created the stream object, go ahead and do
+        // that using this INIT message
+        if (psetHLTOutputLabels_[psetIdx].empty()) {
+          createStreamNow = true;
+        }
+
+        // if we already created the stream object, we could complain,
+        // but won't (for now) so that this method can support multiple
+        // calls with the same INIT message
+        else {}
+      }
+
+      // if the HLT output module labels do not match, do nothing
+      else {}
+    }
+
+    if (createStreamNow) {
+      shared_ptr<StreamService> stream = shared_ptr<StreamService>(new StreamService((*it),view));
+      stream->setCatalog(catalog);
+      stream->setNumberOfFileSystems(disks);
+      stream->setSourceId(sourceId);
+      stream->setFileName(smParameter_ -> fileName());
+      stream->setFilePath(smParameter_ -> filePath());
+      stream->setMaxFileSize(smParameter_ -> maxFileSize());
+      stream->setMathBoxPath(smParameter_ -> mailboxPath());
+      stream->setSetupLabel(smParameter_ -> setupLabel());
+      stream->setHighWaterMark(smParameter_ -> highWaterMark());
+      stream->setLumiSectionTimeOut(smParameter_ -> lumiSectionTimeOut());
+      managedOutputs_.push_back(stream);
+      outputModuleIds_.push_back(view.outputModuleId());
+      stream->report(cout,3);
+
+      psetHLTOutputLabels_[psetIdx] = inputOMLabel;
+    }
   }
 }
 
@@ -101,9 +141,13 @@ void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::strin
 void ServiceManager::manageEventMsg(EventMsgView& msg)
 {
   bool eventAccepted = false;
-  for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end(); it != itEnd; ++it)
-    eventAccepted = (*it)->nextEvent(msg) || eventAccepted;
-
+  int outputIdx = -1;
+  for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end(); it != itEnd; ++it) {
+    ++outputIdx;
+    if (msg.outModId() == outputModuleIds_[outputIdx]) {
+      eventAccepted = (*it)->nextEvent(msg) || eventAccepted;
+    }
+  }
 }
 
 
@@ -195,8 +239,10 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
 		   << "Empty End Path Found in the Config File" <<endl;
 	      
 	       std::string mod_type = aModInEndPathPset.getParameter<std::string> ("@module_type");
-	       if (mod_type == "EventStreamFileWriter") 
+	       if (mod_type == "EventStreamFileWriter") {
 		 outModPSets_.push_back(aModInEndPathPset);
+                 psetHLTOutputLabels_.push_back(std::string());  // empty string
+               }
 	   }
        }
      } catch (cms::Exception & e) {

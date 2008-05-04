@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * $Id: ConsumerPipe.h,v 1.12 2008/03/03 20:09:36 biery Exp $
+ * $Id: ConsumerPipe.h,v 1.13 2008/04/16 16:10:20 biery Exp $
  */
 
 #include <string>
@@ -53,15 +53,18 @@ namespace stor
     enum STATS_SAMPLE_TYPE { QUEUED_EVENTS = 10, SERVED_EVENTS = 11,
                              DESIRED_EVENTS = 12 };
 
+    static const double MAX_ACCEPT_INTERVAL;
+
     ConsumerPipe(std::string name, std::string priority,
                  int activeTimeout, int idleTimeout,
                  Strings triggerSelection, double rateRequest,
+                 std::string hltOutputSelection,
                  std::string hostName, int queueSize);
 
     ~ConsumerPipe();
 
     uint32 getConsumerId() const;
-    void initializeSelection(Strings const& fullTriggerList);
+    void initializeSelection(Strings const& fullTriggerList, uint32 outputModuleId);
     bool isActive() const;
     bool isIdle() const;
     bool isDisconnected() const;
@@ -102,10 +105,9 @@ namespace stor
                                double currentTime = BaseCounter::getCurrentTime());
     Strings getTriggerSelection() const { return triggerSelection_; }
     double getRateRequest() const { return rateRequest_; }
+    std::string getHLTOutputSelection() const { return hltOutputSelection_; }
 
   private:
-
-    static const double MAX_ACCEPT_INTERVAL;
 
     CURL* han_;
     struct curl_slist *headers_;
@@ -116,6 +118,8 @@ namespace stor
     int events_;
     Strings triggerSelection_;
     double rateRequest_;
+    std::string hltOutputSelection_;
+    uint32 hltOutputModuleId_;
     boost::shared_ptr<RollingSampleCounter> rateRequestCounter_;
     double minTimeBetweenEvents_;
     double lastConsideredEventTime_;

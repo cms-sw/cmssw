@@ -3,7 +3,7 @@
  * been received by the storage manager and will be sent to event
  * consumers and written to output disk files.
  *
- * $Id: InitMsgCollection.cc,v 1.3 2008/02/11 15:18:15 biery Exp $
+ * $Id: InitMsgCollection.cc,v 1.4 2008/04/16 01:39:59 biery Exp $
  */
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
@@ -16,6 +16,7 @@
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "IOPool/Streamer/interface/Utilities.h"
 
+#include "boost/algorithm/string/trim.hpp"
 #include <iostream>
 
 using namespace stor;
@@ -40,6 +41,17 @@ InitMsgCollection::~InitMsgCollection()
 {
   FDEBUG(5) << "Executing destructor for InitMsgCollection" << std::endl;
 }
+
+#if 0
+    // 29-Apr-2008 KAB - replaced the following methods as part of the switch
+    // to the newer HLT output module selection scheme (in which the HLT
+    // output module needs to be explicitly specified)
+    //
+    // testAndAddIfUnique() replaced by addIfUnique()
+    // getElementForSelection() replaced by getElementForOutputModule()
+    //
+    bool testAndAddIfUnique(InitMsgView const& initMsgView);
+    InitMsgSharedPtr getElementForSelection(Strings const& triggerSelection);
 
 /**
  * Adds the specified INIT message to the collection if it is unique and
@@ -269,6 +281,133 @@ InitMsgCollection::getElementForSelection(Strings const& triggerSelection)
           throw cms::Exception("InitMsgCollection", "getElementForSelection:")
             << msg << std::endl;
         }
+      }
+    }
+  }
+
+  return serializedProds;
+}
+
+#endif
+
+/**
+ * Adds the specified INIT message to the collection if it has a unique
+ * HLT output module label.
+ *
+ * If we already have an INIT message with the same output module label
+ * as the input INIT message, the duplicate
+ * message is *not* added to the collection, and this method returns false.
+ *
+ * If the output module label inside the INIT message is empty, an
+ * exception is thrown.
+ *
+ * @param initMsgView The INIT message to be added to the collection.
+ * @return true if the message was added to the collection, false otherwise.
+ * @throws cms::Exception if one of the consistency checks fails.
+ */
+bool InitMsgCollection::addIfUnique(InitMsgView const& initMsgView)
+{
+  boost::mutex::scoped_lock sl(listLock_);
+
+  // test the output module label for validity
+  std::string inputOMLabel = initMsgView.outputModuleLabel();
+  std::string trimmedOMLabel = boost::algorithm::trim_copy(inputOMLabel);
+  if (trimmedOMLabel.empty()) {
+    throw cms::Exception("InitMsgCollection", "addIfUnique:")
+      << "Invalid INIT message: the HLT output module label is empty!"
+      << std::endl;
+  }
+
+  // initially, assume that we will want to include the new message
+  bool addToList = true;
+
+  // if this is the first INIT message that we've seen, we just add it
+  if (initMsgList_.size() == 0) {
+    this->add(initMsgView);
+  }
+
+  // if this is a subsequent INIT message, check if it is unique
+  else {
+
+    // loop over the existing messages
+    std::vector<InitMsgSharedPtr>::const_iterator msgIter;
+    for (msgIter = initMsgList_.begin(); msgIter != initMsgList_.end(); msgIter++) {
+      InitMsgSharedPtr serializedProds = *msgIter;
+      InitMsgView existingInitMsg(&(*serializedProds)[0]);
+      std::string existingOMLabel = existingInitMsg.outputModuleLabel();
+
+      // check if the output module labels match
+      if (inputOMLabel == existingOMLabel) {
+        // we already have a copy of the INIT message
+        addToList = false;
+        break;
+      }
+    }
+
+    // if we've found no problems, add the new message to the collection
+    if (addToList) {
+      this->add(initMsgView);
+    }
+  }
+
+  // indicate whether the message was added or not
+  return addToList;
+}
+
+/**
+ * Fetches the single INIT message that matches the requested HLT output
+ * module label.  If no messages match the request, an empty pointer
+ * is returned.
+ *
+ * If the requested HLT output module label is empty, and there is only
+ * one INIT message in the collection, that INIT message is returned.
+ * However, if there is more than one INIT message in the collection, and
+ * an empty request is passed into this method, an exception will be thrown.
+ * (How can we decide which is the best match when we have nothing to work
+ * with?)
+ *
+ * @param requestedOMLabel The HLT output module label of the INIT
+ *        message to be returned.
+ * @return a pointer to the INIT message that matches.  If no
+ *         matching INIT message is found, and empty pointer is returned.
+ * @throws cms::Exception if the input HLT output module label string is
+ *         empty and there is more than one INIT message in the collection.
+ */
+InitMsgSharedPtr
+InitMsgCollection::getElementForOutputModule(std::string requestedOMLabel)
+{
+  boost::mutex::scoped_lock sl(listLock_);
+  InitMsgSharedPtr serializedProds;
+
+  // handle the special case of an empty request
+  // (If we want to use class methods to check the collection size and
+  // fetch the last element in the collection, then we would need to 
+  // switch to recursive mutexes...)
+  if (requestedOMLabel.empty()) {
+    if (initMsgList_.size() == 1) {
+      serializedProds = initMsgList_.back();
+    }
+    else if (initMsgList_.size() > 1) {
+      std::string msg = "Invalid INIT message lookup: the requested ";
+      msg.append("HLT output module label is empty but there are multiple ");
+      msg.append("HLT output modules to choose from.");
+      throw cms::Exception("InitMsgCollection", "getElementForOutputModule:")
+        << msg << std::endl;
+    }
+  }
+
+  else {
+    // loop over the existing messages
+    std::vector<InitMsgSharedPtr>::const_iterator msgIter;
+    for (msgIter = initMsgList_.begin(); msgIter != initMsgList_.end(); msgIter++) {
+      InitMsgSharedPtr workingMessage = *msgIter;
+      InitMsgView existingInitMsg(&(*workingMessage)[0]);
+      std::string existingOMLabel = existingInitMsg.outputModuleLabel();
+      
+      // check if the output module labels match
+      if (requestedOMLabel == existingOMLabel) {
+        serializedProds = workingMessage;
+        break;
       }
     }
   }

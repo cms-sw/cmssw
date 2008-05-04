@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.19 2008/03/03 20:09:37 biery Exp $
+ * $Id: ConsumerPipe.cc,v 1.20 2008/04/16 16:11:44 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -39,6 +39,7 @@ const double ConsumerPipe::MAX_ACCEPT_INTERVAL = 86400.0;  // seconds in 1 day
 ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
                            int activeTimeout, int idleTimeout,
                            Strings triggerSelection, double rateRequest,
+                           std::string hltOutputSelection,
                            std::string hostName, int queueSize):
   han_(curl_easy_init()),
   headers_(),
@@ -46,6 +47,7 @@ ConsumerPipe::ConsumerPipe(std::string name, std::string priority,
   events_(0),
   triggerSelection_(triggerSelection),
   rateRequest_(rateRequest),
+  hltOutputSelection_(hltOutputSelection),
   hostName_(hostName),
   pushEventFailures_(0),
   maxQueueSize_(queueSize)
@@ -147,10 +149,14 @@ uint32 ConsumerPipe::getConsumerId() const
  * specified full list of triggers and the request ParameterSet
  * that was specified in the constructor.
  */
-void ConsumerPipe::initializeSelection(Strings const& fullTriggerList)
+void ConsumerPipe::initializeSelection(Strings const& fullTriggerList,
+                                       uint32 outputModuleId)
 {
   FDEBUG(5) << "Initializing consumer pipe, ID = " <<
     consumerId_ << std::endl;
+
+  // store the output module id
+  hltOutputModuleId_ = outputModuleId;
 
   // create our event selector
   eventSelector_.reset(new EventSelector(triggerSelection_,
@@ -235,6 +241,10 @@ bool ConsumerPipe::wantsEvent(EventMsgView const& eventView) const
   // or are no longer active
   if (! initializationDone) {return false;}
   if (! this->isActive()) {return false;}
+
+  // the event must be from the correct HLT output module
+  if (! this->isProxyServer() &&
+      eventView.outModId() != hltOutputModuleId_) {return false;}
 
   // get trigger bits for this event and check using eventSelector_
   std::vector<unsigned char> hlt_out;

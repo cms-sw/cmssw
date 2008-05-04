@@ -2,7 +2,7 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * $Id: EventServer.cc,v 1.8 2008/03/03 20:15:55 biery Exp $
+ * $Id: EventServer.cc,v 1.9 2008/04/16 16:14:08 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -19,8 +19,27 @@ using namespace edm;
  * EventServer constructor.  Throttling events are supported:
  * specifying a maximimum allowed rate of accepted events
  */
-EventServer::EventServer(double maxEventRate, double maxDataRate)
+EventServer::EventServer(double maxEventRate, double maxDataRate,
+                         bool runFairShareAlgo)
 {
+  // determine the amount of time that we need to wait between accepted
+  // events (to ensure that the event server doesn't send "too many" events
+  // to consumers).  The maximum rate specified to this constructor is
+  // converted to an interval that is used internally, and the interval
+  // is required to be somewhat reasonable.
+  if (maxEventRate < (1.0 / ConsumerPipe::MAX_ACCEPT_INTERVAL))
+  {
+    minTimeBetweenEvents_ = ConsumerPipe::MAX_ACCEPT_INTERVAL;
+  }
+  else
+  {
+    minTimeBetweenEvents_ = 1.0 / maxEventRate;  // seconds
+  }
+
+  // initialize the last accepted event time to construction time
+  lastAcceptedEventTime_ = BaseCounter::getCurrentTime();
+  lastAcceptedEventNumber_ = 0;
+
   // initialize counters
   disconnectedConsumerTestCounter_ = 0;
 
@@ -34,6 +53,7 @@ EventServer::EventServer(double maxEventRate, double maxDataRate)
   rateLimiter_.reset(new RateLimiter(maxEventRate, maxDataRate));
   this->maxEventRate_ = maxEventRate;
   this->maxDataRate_ = maxDataRate;
+  this->runFairShareAlgo_ = runFairShareAlgo;
 
   outsideTimer_.reset();
   insideTimer_.reset();
@@ -161,10 +181,63 @@ void EventServer::processEvent(const EventMsgView &eventView)
     }
   }
 
+  // do nothing if there are no candidates
+  if (candidateList.size() == 0) {
+    // track timer statistics and start/stop timers as appropriate
+    insideTimer_.stop();
+    longTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime());
+    shortTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime(), now);
+    longTermInsideRealTimeCounter_->addSample(insideTimer_.realTime());
+    shortTermInsideRealTimeCounter_->addSample(insideTimer_.realTime(), now);
+    longTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime());
+    shortTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime(), now);
+    longTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime());
+    shortTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime(), now);
+    outsideTimer_.reset();
+    insideTimer_.reset();
+    outsideTimer_.start();
+    return;
+  }
+
+
+  // if we're not running the fair-share algorithm, use the older
+  // interval-based model for deciding if we're ready for an event
+  if (! runFairShareAlgo_) {
+    double timeDiff = now - lastAcceptedEventTime_;
+    // check if not enough time has passed since we accepted the last event
+    // However, if the last event that we accepted has the same event number
+    // as this one, allow this one to go through.  This sort of thing happens
+    // when two HLT output modules accept the same event and this method
+    // is called in rapid succession for the same event.  In that case, we
+    // don't want to lock out the subscribers to the second HLT output module.
+    if (timeDiff < minTimeBetweenEvents_ &&
+        eventView.event() != lastAcceptedEventNumber_) {
+      insideTimer_.stop();
+      longTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime());
+      shortTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime(), now);
+      longTermInsideRealTimeCounter_->addSample(insideTimer_.realTime());
+      shortTermInsideRealTimeCounter_->addSample(insideTimer_.realTime(), now);
+      longTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime());
+      shortTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime(), now);
+      longTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime());
+      shortTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime(), now);
+      outsideTimer_.reset();
+      insideTimer_.reset();
+      outsideTimer_.start();
+      return;
+    }
+  }
+
   // determine which of the candidate consumers are allowed
   // to receive another event at this time
-  std::vector<uint32> allowedList =
-    rateLimiter_->getAllowedConsumersFromList(sizeInMB, candidateList);
+  std::vector<uint32> allowedList;
+  if (runFairShareAlgo_) {
+    allowedList = rateLimiter_->getAllowedConsumersFromList(sizeInMB,
+                                                            candidateList);
+  }
+  else {
+    allowedList = candidateList;
+  }
 
   // send the event to the allowed consumers
   for (uint32 idx = 0; idx < allowedList.size(); ++idx)
@@ -189,6 +262,10 @@ void EventServer::processEvent(const EventMsgView &eventView)
 
       // switch buffers
       bufPtr.swap(tmpBufPtr);
+
+      // update the local time stamp for the latest accepted event
+      lastAcceptedEventTime_ = now;
+      lastAcceptedEventNumber_ = eventView.event();
     }
 
     // add the event to the consumer pipe

@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.27 2008/04/21 12:12:26 loizides Exp $
+   $Id: StorageManager.h,v 1.28 2008/04/24 10:48:50 loizides Exp $
 */
 
 #include <string>
@@ -181,6 +181,7 @@ namespace stor {
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;
+    xdata::Boolean fairShareES_;
     xdata::Double DQMmaxESEventRate_;  // hertz
     xdata::Integer DQMactiveConsumerTimeout_;  // seconds
     xdata::Integer DQMidleConsumerTimeout_;  // seconds

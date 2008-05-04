@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.51 2008/04/24 10:48:50 loizides Exp $
+// $Id: StorageManager.cc,v 1.52 2008/04/26 21:15:40 loizides Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -56,6 +56,7 @@
 #include "cgicc/Cgicc.h"
 
 #include <sys/statfs.h>
+#include "zlib.h"
 
 namespace stor {
   extern bool getSMFC_exceptionStatus();
@@ -101,6 +102,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   useCompressionDQM_(true),
   compressionLevelDQM_(1),
   mybuffer_(7000000),
+  fairShareES_(false),
   connectedFUs_(0), 
   storedEvents_(0), 
   dqmRecords_(0), 
@@ -206,14 +208,15 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // added for Event Server
   maxESEventRate_ = 10.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
-  maxESDataRate_ = 100.0;  // MB/sec
+  maxESDataRate_ = 2048.0;  // MB/sec
   ispace->fireItemAvailable("maxESDataRate",&maxESDataRate_);
   activeConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
-  idleConsumerTimeout_ = 60;  // seconds
+  idleConsumerTimeout_ = 120;  // seconds
   ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
   consumerQueueSize_ = 5;
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
+  ispace->fireItemAvailable("fairShareES",&fairShareES_);
   DQMmaxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
   DQMactiveConsumerTimeout_ = 300;  // seconds
@@ -332,7 +335,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
     InitMsgView testmsg(regPtr);
     try
     {
-      if (initMsgCollection->testAndAddIfUnique(testmsg))
+      if (initMsgCollection->addIfUnique(testmsg))
       {
         // if the addition of the INIT message to the collection worked,
         // then we know that it is unique, etc. and we need to send it
@@ -356,53 +359,44 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         // picture to consumers
         boost::mutex::scoped_lock sl(consumerInitMsgLock_);
 
-        // check if any currently connected consumers have trigger
-        // selection requests that match more than one INIT message
-        boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
-        std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
-          eventServer->getConsumerTable();
-        std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
-          consumerIter;
-        for (consumerIter = consumerTable.begin();
-             consumerIter != consumerTable.end();
-             consumerIter++)
+        // check if any currently connected consumers did not specify
+        // an HLT output module label and we now have multiple, different,
+        // INIT messages.  If so, we need to complain because the
+        // SelectHLTOutput parameter needs to be specified when there
+        // is more than one HLT output module (and correspondingly, more
+        // than one INIT message)
+        if (initMsgCollection->size() > 1)
         {
-          boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-
-          // for regular consumers, we need to test whether the consumer
-          // trigger selection now matches more than one INIT message.
-          // We could loop through the INIT messages to run this test,
-          // but instead we simply ask the collection for the correct
-          // one and trust it to throw an exception if multiple INIT
-          // messages match the selection.
-          // (For consumer(s) that are instances of the proxy server, we
-          // notify them of the presence of new INIT messages in the
-          // eventdataWebPage routine.)
-          if (! consPtr->isProxyServer())
+          boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
+          std::map< uint32, boost::shared_ptr<ConsumerPipe> > consumerTable = 
+            eventServer->getConsumerTable();
+          std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator 
+            consumerIter;
+          for (consumerIter = consumerTable.begin();
+               consumerIter != consumerTable.end();
+               consumerIter++)
           {
-            try
+            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
+
+            // for regular consumers, we need to test whether the consumer
+            // configuration specified an HLT output module
+            if (! consPtr->isProxyServer())
             {
-              Strings consumerSelection = consPtr->getTriggerRequest();
-              initMsgCollection->getElementForSelection(consumerSelection);
-            }
-            catch (const edm::Exception& excpt)
-            {
-              // store a warning message in the consumer pipe to be
-              // sent to the consumer at the next opportunity
-              consPtr->setRegistryWarning(excpt.what());
-            }
-            catch (const cms::Exception& excpt)
-            {
-              // store a warning message in the consumer pipe to be
-              // sent to the consumer at the next opportunity
-              std::string errorString;
-              errorString.append(excpt.what());
-              errorString.append("\n");
-              errorString.append(initMsgCollection->getSelectionHelpString());
-              errorString.append("\n\n");
-              errorString.append("*** Please select trigger paths from one and ");
-              errorString.append("only one HLT output module. ***\n");
-              consPtr->setRegistryWarning(errorString);
+              if (consPtr->getHLTOutputSelection().empty())
+              {
+                // store a warning message in the consumer pipe to be
+                // sent to the consumer at the next opportunity
+                std::string errorString;
+                errorString.append("ERROR: The configuration for this ");
+                errorString.append("consumer does not specify an HLT output ");
+                errorString.append("module.\nPlease specify one of the HLT ");
+                errorString.append("output modules listed below as the ");
+                errorString.append("SelectHLTOutput parameter ");
+                errorString.append("in the InputSource configuration.\n");
+                errorString.append(initMsgCollection->getSelectionHelpString());
+                errorString.append("\n");
+                consPtr->setRegistryWarning(errorString);
+              }
             }
           }
         }
@@ -1808,9 +1802,9 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
             }
             else
             {
-              Strings consumerSelection = consPtr->getTriggerRequest();
+              std::string hltOMLabel = consPtr->getHLTOutputSelection();
               serializedProds =
-                initMsgCollection->getElementForSelection(consumerSelection);
+                initMsgCollection->getElementForOutputModule(hltOMLabel);
             }
             if (serializedProds.get() != NULL)
             {
@@ -1819,7 +1813,8 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
 
               // if the response that we're sending is an INIT_SET rather
               // than a single INIT message, we simply use the first INIT
-              // message in the collection.  Since all we need is the
+              // message in the collection to initialize the local 
+              // ConsumerPipe.  Since all we need is the
               // full trigger list, any of the INIT messages should be fine
               // (because all of them should have the same full trigger list).
               if (hdrView.code() == Header::INIT_SET) {
@@ -1830,7 +1825,20 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
               Strings triggerNameList;
               InitMsgView initView(regPtr);
               initView.hltTriggerNames(triggerNameList);
-              consPtr->initializeSelection(triggerNameList);
+
+              uint32 outputModuleId;
+              if (initView.protocolVersion() >= 6) {
+                outputModuleId = initView.outputModuleId();
+              }
+              else {
+                std::string moduleLabel = initView.outputModuleLabel();
+                uLong crc = crc32(0L, Z_NULL, 0);
+                Bytef* crcbuf = (Bytef*) moduleLabel.data();
+                crc = crc32(crc, crcbuf, moduleLabel.length());
+                outputModuleId = static_cast<uint32>(crc);
+              }
+              consPtr->initializeSelection(triggerNameList,
+                                           outputModuleId);
             }
           }
           catch (const edm::Exception& excpt)
@@ -1839,12 +1847,15 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
           }
           catch (const cms::Exception& excpt)
           {
-            errorString.append(excpt.what());
-            errorString.append("\n");
+            //errorString.append(excpt.what());
+            errorString.append("ERROR: The configuration for this ");
+            errorString.append("consumer does not specify an HLT output ");
+            errorString.append("module.\nPlease specify one of the HLT ");
+            errorString.append("output modules listed below as the ");
+            errorString.append("SelectHLTOutput parameter ");
+            errorString.append("in the InputSource configuration.\n");
             errorString.append(initMsgCollection->getSelectionHelpString());
-            errorString.append("\n\n");
-            errorString.append("*** Please select trigger paths from one and ");
-            errorString.append("only one HLT output module. ***\n");
+            errorString.append("\n");
           }
         }
       }
@@ -2114,6 +2125,14 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
       *out << "    <br/>" << std::endl;
       *out << "    Maximum consumer queue size is " << consumerQueueSize_
            << "." << std::endl;
+      *out << "    <br/>" << std::endl;
+      *out << "    Fair-share event serving is ";
+      if (fairShareES_) {
+        *out << "ON." << std::endl;
+      }
+      else {
+        *out << "OFF." << std::endl;
+      }
       *out << "  </td>" << std::endl;
       *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
       if (autoUpdate) {
@@ -2339,8 +2358,9 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  <th>ID</th>" << std::endl;
         *out << "  <th>Name</th>" << std::endl;
         *out << "  <th>State</th>" << std::endl;
-        *out << "  <th>Requested Rate</th>" << std::endl;
-        *out << "  <th>Trigger Request</th>" << std::endl;
+        *out << "  <th>Requested<br/>Rate</th>" << std::endl;
+        *out << "  <th>Requested HLT<br/>Output Module</th>" << std::endl;
+        *out << "  <th>Trigger<br/>Request</th>" << std::endl;
         *out << "</tr>" << std::endl;
 
         for (consumerIter = consumerTable.begin();
@@ -2373,9 +2393,21 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
           *out << "</td>" << std::endl;
 
-          *out << "  <td align=\"center\">"
-               << consPtr->getRateRequest()
+          *out << "  <td align=\"center\">" << consPtr->getRateRequest()
                << " Hz</td>" << std::endl;
+          if (consPtr->isProxyServer()) {
+            *out << "  <td align=\"center\">&lt;all&gt;</td>" << std::endl;
+          }
+          else {
+            std::string hltOut = consPtr->getHLTOutputSelection();
+            if (hltOut.empty()) {
+              *out << "  <td align=\"center\">&lt;none&gt;</td>" << std::endl;
+            }
+            else {
+              *out << "  <td align=\"center\">" << hltOut
+                   << "</td>" << std::endl;
+            }
+          }
           *out << "  <td align=\"center\">"
                << InitMsgCollection::stringsToText(consPtr->getTriggerSelection(), 5)
                << "</td>" << std::endl;
@@ -3030,12 +3062,19 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
     double maxEventRequestRate =
       requestParamSet.getUntrackedParameter<double>("maxEventRequestRate", 1.0);
 
+    // pull the HLT output module selection out of the PSet
+    // (default is empty string)
+    std::string hltOMLabel =
+      requestParamSet.getUntrackedParameter<std::string>("SelectHLTOutput",
+                                                         std::string());
+
     // create the local consumer interface and add it to the event server
     boost::shared_ptr<ConsumerPipe>
       consPtr(new ConsumerPipe(consumerName, consumerPriority,
                                activeConsumerTimeout_.value_,
                                idleConsumerTimeout_.value_,
                                modifiedRequest, maxEventRequestRate,
+                               hltOMLabel,
                                consumerHost, consumerQueueSize_));
     eventServer->addConsumer(consPtr);
     // over-ride pushmode if not set in StorageManager
@@ -3318,6 +3357,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
+  is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
   // Attach listener to myCounter_ to detect retrieval event
@@ -3368,6 +3408,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
+  is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
 
@@ -3624,7 +3665,8 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setCompressionLevelDQM(compressionLevelDQM_);
       
       boost::shared_ptr<EventServer>
-	eventServer(new EventServer(maxESEventRate_, maxESDataRate_));
+	eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
+                                    fairShareES_));
       jc_->setEventServer(eventServer);
       boost::shared_ptr<DQMEventServer>
 	DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
