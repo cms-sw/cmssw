@@ -19,6 +19,7 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "IOPool/Streamer/interface/DumpTools.h"
+#include "zlib.h"
 
 int main()
 { 
@@ -50,9 +51,13 @@ int main()
   std::string processName = "HLT";
   std::string outputModuleLabel = "HLTOutput";
 
+  uLong crc = crc32(0L, Z_NULL, 0);
+  Bytef* crcbuf = (Bytef*) outputModuleLabel.data();
+  crc = crc32(crc, crcbuf, outputModuleLabel.length());
+
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(5,(const uint8*)psetid),(const char*)reltag,
-		      processName.c_str(),outputModuleLabel.c_str(),
+                      Version(6,(const uint8*)psetid),(const char*)reltag,
+		      processName.c_str(),outputModuleLabel.c_str(), crc,
                       hlt_names,hlt_names,l1_names);
 
 
@@ -73,7 +78,7 @@ int main()
                        Version(view.protocolVersion(),
                                (const uint8*)psetid2),
                        view.releaseTag().c_str(),
-                       processName.c_str(),outputModuleLabel.c_str(),
+                       processName.c_str(),outputModuleLabel.c_str(), crc,
                        hlt2,hlt2,l12);
 
   init2.setDescLength(view.descLength());

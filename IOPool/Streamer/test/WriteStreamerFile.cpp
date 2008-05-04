@@ -23,6 +23,7 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 
+#include "zlib.h"
 
 #define NO_OF_EVENTS 10
 
@@ -57,10 +58,14 @@ int main()
   std::string processName = "HLT";
   std::string outputModuleLabel = "HLTOutput";
 
+  uLong crc = crc32(0L, Z_NULL, 0);
+  Bytef* crcbuf = (Bytef*) outputModuleLabel.data();
+  crc = crc32(crc, crcbuf, outputModuleLabel.length());
+
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(5,(const uint8*)psetid),
+                      Version(6,(const uint8*)psetid),
                       (const char*)reltag, processName.c_str(),
-                      outputModuleLabel.c_str(),
+                      outputModuleLabel.c_str(), crc,
                       hlt_names,hlt_names,l1_names);
 
   init.setDescLength(sizeof(test_value));
