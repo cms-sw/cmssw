@@ -9,6 +9,7 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                const char* release_tag,
                                const char* process_name,		       
                                const char* output_module_label,
+                               uint32 output_module_id,
                                const Strings& hlt_names,
                                const Strings& hlt_selections,
                                const Strings& l1_names):
@@ -42,6 +43,10 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   *pos++ = outmod_label_len;
   memcpy(pos,output_module_label,outmod_label_len);
   pos += outmod_label_len;
+
+  // output module ID next
+  convert(output_module_id, pos);
+  pos += sizeof(char_uint32);
 
   pos = MsgTools::fillNames(hlt_names,pos);
   pos = MsgTools::fillNames(hlt_selections,pos);

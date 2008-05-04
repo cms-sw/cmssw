@@ -14,6 +14,7 @@ public:
                  const char* release_tag,
                  const char* process_name,
                  const char* output_module_label,
+                 uint32 output_module_id,
                  const Strings& hlt_names,
                  const Strings& hlt_selections,
                  const Strings& l1_names);

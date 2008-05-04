@@ -30,6 +30,12 @@ InitMsgView::InitMsgView(void* buf):
             outputModuleLabel_len_ = *pos;
             outputModuleLabel_start_ = (uint8*)(pos + sizeof(uint8));
             pos = outputModuleLabel_start_ + outputModuleLabel_len_;
+
+            // Output Module Id
+            if (protocolVersion() > 5) {
+              outputModuleId_ = convert32(pos);
+              pos += sizeof(char_uint32);
+            }
         }
   }
 

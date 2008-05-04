@@ -11,6 +11,9 @@ code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Eve
 
 Protocol Version 5:
 code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
+
+Protocol Version 6:
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
   
 
 */
@@ -64,6 +67,7 @@ public:
   std::string releaseTag() const;
   std::string processName() const;
   std::string outputModuleLabel() const;
+  uint32 outputModuleId() const { return outputModuleId_; }
 
   void hltTriggerNames(Strings& save_here) const;
   void hltTriggerSelections(Strings& save_here) const;
@@ -90,7 +94,7 @@ private:
 
   uint8* outputModuleLabel_start_; // points to the string
   uint32 outputModuleLabel_len_;
-
+  uint32 outputModuleId_;
 
   uint8* hlt_trig_start_; // points to the string
   uint32 hlt_trig_count_; // number of strings
