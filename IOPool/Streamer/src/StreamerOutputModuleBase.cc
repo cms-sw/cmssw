@@ -143,24 +143,10 @@ namespace edm {
     //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;  
 
     //Setting protocol version V
-    Version v(5,(uint8*)toplevel.compactForm().c_str());
+    Version v(6,(uint8*)toplevel.compactForm().c_str());
 
     Strings hltTriggerNames = getAllTriggerNames();
     hltsize_ = hltTriggerNames.size();
-    // 18-Apr-2008, KAB: added a check for valid hltTriggerNames and
-    // hltTriggerSelections lists.  This is a partial fix at best.
-    // If getAllTriggerNames has returned an empty list, we are most
-    // likely running offline in a cmsRun job that has no paths.  And,
-    // it is likely that the job is trying to convert a ROOT file to
-    // a streamer file.  In that case, it is not clear what trigger names
-    // should be used.  Possibly ones from a previous process, but which
-    // ones?  (and how would we get them?)
-    // If there are no trigger names in an online job, isn't that a
-    // mistake that should be flagged?
-    if (hltsize_ > 0 && hltTriggerSelections_.size() > 0) {
-      maskingSelector_.reset(new EventSelector(hltTriggerSelections_,
-                                               hltTriggerNames));
-    }
 
     //L1 stays dummy as of today
     Strings l1_names;  //3
@@ -171,10 +157,16 @@ namespace edm {
     //Setting the process name to HLT
     std::string processName = OutputModule::processName();
 
+    std::string moduleLabel = description().moduleLabel();
+    uLong crc = crc32(0L, Z_NULL, 0);
+    Bytef* buf = (Bytef*) moduleLabel.data();
+    crc = crc32(crc, buf, moduleLabel.length());
+    outputModuleId_ = static_cast<uint32>(crc);
+
     std::auto_ptr<InitMsgBuilder> init_message(
         new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
                            run, v, getReleaseVersion().c_str() , processName.c_str(),
-                           description().moduleLabel().c_str(),
+                           moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names));
 
     // the translator already has the product registry (selections_),
@@ -195,20 +187,8 @@ namespace edm {
     std::vector<unsigned char> vHltState; 
     
     if (prod.isValid()) {
-      // 18-Apr-2008, KAB:  if we have a valid maskingSelector, use it
-      // to mask the trigger results, otherwise simply use the TriggerResults
-      // object in the event.
-      if (maskingSelector_.get() != 0) {
-        boost::shared_ptr<TriggerResults> maskedResults =
-          maskingSelector_->maskTriggerResults(*prod);
-        for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
-          vHltState.push_back(((maskedResults->at(i)).state()));
-        }
-      }
-      else {
-        for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
-          vHltState.push_back(((prod->at(i)).state()));
-        }
+      for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
+        vHltState.push_back(((prod->at(i)).state()));
       }
     } else {
      // We fill all Trigger bits to valid state.
@@ -267,16 +247,10 @@ namespace edm {
     unsigned int new_size = src_size + 50000;
     if(bufs_.size() < new_size) bufs_.resize(new_size);
 
-    std::string moduleLabel = description().moduleLabel();
-    uLong crc = crc32(0L, Z_NULL, 0);
-    Bytef* buf = (Bytef*) moduleLabel.data();
-    crc = crc32(crc, buf, moduleLabel.length());
-
     std::auto_ptr<EventMsgBuilder> 
-      msg(new EventMsgBuilder(&bufs_[0], bufs_.size(),
-			       e.id().run(), e.id().event(), lumi_,
-                               (unsigned int) crc,
-			       l1bit_, (uint8*)&hltbits_[0], hltsize_) );
+      msg(new EventMsgBuilder(&bufs_[0], bufs_.size(), e.id().run(),
+                              e.id().event(), lumi_, outputModuleId_,
+                              l1bit_, (uint8*)&hltbits_[0], hltsize_) );
     msg->setOrigDataSize(origSize_); // we need this set to zero
 
     // copy data into the destination message

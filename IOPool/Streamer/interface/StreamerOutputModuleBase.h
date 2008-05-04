@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModuleBase_h
 #define IOPool_Streamer_StreamerOutputModuleBase_h
 
-// $Id: StreamerOutputModuleBase.h,v 1.38 2008/04/18 20:21:12 biery Exp $
+// $Id: StreamerOutputModuleBase.h,v 1.1 2008/04/21 23:28:52 wmtan Exp $
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
@@ -62,7 +62,7 @@ namespace edm {
     uint32 origSize_;
 
     Strings hltTriggerSelections_;
-    boost::shared_ptr<EventSelector> maskingSelector_;
+    uint32 outputModuleId_;
   }; //end-of-class-def
 } // end of namespace-edm
 
