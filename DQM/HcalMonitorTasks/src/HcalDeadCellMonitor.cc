@@ -50,8 +50,8 @@ namespace HcalDeadCellCheck
     offset=0;
 
     // Fill (eta,phi) map if digi is found for that cell
-    hist.digiCheck->Fill(digi.id().ieta()+offset,digi.id().iphi());
-    all.digiCheck->Fill(digi.id().ieta()+offset,digi.id().iphi());
+    hist.digiCheck->Fill(digi.id().ieta(),digi.id().iphi());
+    all.digiCheck->Fill(digi.id().ieta(),digi.id().iphi());
 
     // Loop over the 10 time slices of the digi
     for (int i=0;i<digi.size();++i)
@@ -66,8 +66,8 @@ namespace HcalDeadCellCheck
 	*/
 	if (digi.sample(i).adc()>calibs.pedestal(thisCapid)+Nsigma*widths.pedestal(thisCapid))
 	  {
-	    hist.above_pedestal_temp->Fill(digi.id().ieta()+offset,digi.id().iphi());
-	    all.above_pedestal_temp->Fill(digi.id().ieta()+offset,digi.id().iphi());
+	    hist.above_pedestal_temp->Fill(digi.id().ieta(),digi.id().iphi());
+	    all.above_pedestal_temp->Fill(digi.id().ieta(),digi.id().iphi());
 	  }
 	capADC[thisCapid]+=digi.sample(i).adc();
 
@@ -502,7 +502,50 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 
 {
   if (h.check==0) return;
+  
+  if (h.check==0) return;
 
+  int eta, phi; // these will store detector eta, phi
+  for (int ieta=1;ieta<etaBins_+1;++ieta)
+    {
+      // convert ieta  from histograms to eta (HCAL coordinates)
+      eta=ieta+int(etaMin_)-1;
+      if (eta==0) continue; // skip eta=0 bin
+      if (h.type==1 && abs(eta)>16) continue; // skip events outside range of HB 
+      else if (h.type==2 && (abs(eta)<16 || abs(eta)>29)) // skip events outside range of HE
+	continue;
+      else if (h.type==3 && abs(eta)>4) continue; // ho should extend to eta=15?
+      else if (h.type==4 && abs(eta)<30) continue; // FIXME:  is this the correct condition for HF?
+
+      for (int iphi=1;iphi<phiBins_+1;++iphi)
+	{
+	  // convert iphi from histograms to phi (HCAL coordinates)
+	  phi=iphi+int(phiMin_)-1;
+
+	  if (phi<1) continue; 
+	  if (phi>72) continue; // detector phi runs from 1-72
+
+	  // At larger eta, phi segmentation is more coarse
+	  if (h.type==2 && (abs(eta)>20) && (phi%2)==0) continue; // skip HE even-phi counters where they don't exist
+	  if (h.type==4 && (abs(eta)<40) && (phi%2)==0) continue; // skip HF counters where they don't exist
+	  if (h.type==4 && (abs(eta)>39) && (phi%4)!=1) continue;
+	  double temp=h.above_pedestal_temp->GetBinContent(ieta,iphi);
+
+	  if (temp==0)
+	    {
+	      h.coolcell_below_pedestal->Fill(eta,phi);
+	      hcalHists.coolcell_below_pedestal->Fill(eta,phi);
+	    }
+	  else
+	    {
+	      h.above_pedestal->Fill(eta,phi,temp);
+	      hcalHists.above_pedestal->Fill(eta,phi,temp);
+	    }
+	} // for (int iphi=1; iphi<phiBins_+1;++iphi)
+    } // for (int ieta=1;ieta<etaBins_+1;++ieta)
+
+
+  /*
   for (float eta=etaMin_;eta<etaMax_;eta+=1.)
     {
       if (eta==0.) continue; // skip eta=0;
@@ -530,7 +573,9 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 	      hcalHists.above_pedestal->Fill(int(eta),int(phi),temp);
 	    }
 	}
-    }
+    } // for (float eta=...)
+  */
+
   h.above_pedestal_temp->Reset();
   hcalHists.above_pedestal_temp->Reset();
 
