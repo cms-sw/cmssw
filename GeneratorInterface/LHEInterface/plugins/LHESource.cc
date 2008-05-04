@@ -13,6 +13,8 @@
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
+#include "GeneratorInterface/LHEInterface/interface/LHECommonProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
 
 #include "LHESource.h"
 
@@ -24,8 +26,13 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	reader(new LHEReader(params)),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
+#if 0
+	produces<LHEEventProduct>();
+	produces<LHECommonProduct, edm::InRun>();
+#else
 	produces<HEPEUP>();
 	produces<HEPRUP, edm::InRun>();
+#endif
 }
 
 LHESource::LHESource(const edm::ParameterSet &params,
@@ -35,8 +42,13 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	reader(reader),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
+#if 0
+	produces<LHEEventProduct>();
+	produces<LHECommonProduct, edm::InRun>();
+#else
 	produces<HEPEUP>();
 	produces<HEPRUP, edm::InRun>();
+#endif
 }
 
 LHESource::~LHESource()
@@ -65,8 +77,10 @@ void LHESource::nextEvent()
 	if (!partonLevel.get())
 			return;
 
-	if (!heprup.get())
+	if (!heprup.get()) {
 		heprup.reset(new HEPRUP(*partonLevel->getHEPRUP()));
+		
+	}
 
 	hepeup.reset(new HEPEUP(*partonLevel->getHEPEUP()));
 }

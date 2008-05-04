@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "GeneratorInterface/LHEInterface/interface/LHECommonProduct.h"
 
 namespace lhef {
 
@@ -16,6 +17,8 @@ class LHECommon {
 	LHECommon(std::istream &in, const std::string &comment);
 	LHECommon(const HEPRUP &heprup, const std::string &comment);
 	~LHECommon();
+
+	typedef LHECommonProduct::Header Header;
 
 	const HEPRUP *getHEPRUP() const { return &heprup; } 
 
@@ -74,6 +77,7 @@ class LHECommon {
 
 	HEPRUP			heprup;
 	std::vector<Process>	processes;
+	std::vector<Header>	headers;
 };
 
 } // namespace lhef

@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <boost/shared_ptr.hpp>
+#include <sigc++/signal.h>
 
 #include <HepMC/GenEvent.h>
 
@@ -20,10 +21,15 @@ class Hadronisation {
 	Hadronisation(const edm::ParameterSet &params);
 	virtual ~Hadronisation();
 
+	void init();
 	bool setEvent(const boost::shared_ptr<LHEEvent> &event);
 	void clear();
 
 	std::auto_ptr<HepMC::GenEvent> hadronize();
+
+	inline sigc::signal<bool, const boost::shared_ptr<HepMC::GenEvent>&>&
+					onShoweredEvent() { return sigShower; }
+	inline bool wantsShoweredEvent() const { return !sigShower.empty(); }
 
 	static std::auto_ptr<Hadronisation> create(
 					const edm::ParameterSet &params);
@@ -32,15 +38,18 @@ class Hadronisation {
 					const edm::ParameterSet &)> Factory;
 
     protected:
-	virtual std::auto_ptr<HepMC::GenEvent> doHadronisation() = 0;
-
-	virtual void newCommon(const boost::shared_ptr<LHECommon> &common);
+	bool showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event);
 
 	inline const boost::shared_ptr<LHEEvent> &getRawEvent() const
 	{ return rawEvent; }
 
+	virtual void doInit() = 0;
+	virtual std::auto_ptr<HepMC::GenEvent> doHadronisation() = 0;
+	virtual void newCommon(const boost::shared_ptr<LHECommon> &common);
+
     private:
-	boost::shared_ptr<LHEEvent>		rawEvent;
+	sigc::signal<bool, const boost::shared_ptr<HepMC::GenEvent>&>	sigShower;
+	boost::shared_ptr<LHEEvent>					rawEvent;
 };
 
 } // namespace lhef

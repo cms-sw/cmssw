@@ -2,9 +2,11 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
+<use name="DataFormats/StdDictionaries"/>
 <use name="SimDataFormats/HepMCProduct"/>
 <use name="Utilities/StorageFactory"/>
 <use name="boost"/>
+<use name="sigcpp"/>
 <use name="xerces-c"/>
 <use name="rootmath"/>
 <use name="hepmc"/>
@@ -13,6 +15,7 @@
 	<use name="FWCore/ParameterSet"/>
 	<use name="FWCore/PluginManager"/>
 	<use name="boost"/>
+	<use name="sigcpp"/>
 	<use name="hepmc"/>
 	<lib name="GeneratorInterfaceLHEInterface"/>
 </export>

@@ -1,8 +1,8 @@
-#include <iostream>
 #include <string>
 #include <memory>
 
 #include <boost/shared_ptr.hpp>
+#include <sigc++/signal.h>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/SimpleVector.h>
@@ -29,22 +29,29 @@ class LHEProducer : public edm::EDProducer {
 	virtual ~LHEProducer();
 
     protected:
-	virtual void beginJob();
+	virtual void beginJob(const edm::EventSetup &es);
 	virtual void endJob();
 	virtual void beginRun(edm::Run &run, const edm::EventSetup &es);
 	virtual void endRun(edm::Run &run, const edm::EventSetup &es);
 	virtual void produce(edm::Event &event, const edm::EventSetup &es);
 
     private:
-	unsigned int				eventsToPrint;
-	std::auto_ptr<lhef::Hadronisation>	hadronisation;
-	std::auto_ptr<lhef::JetMatching>	jetMatching;
+	double matching(const HepMC::GenEvent *event) const;
 
-	double					extCrossSect;
-	double					extFilterEff;
+	bool showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event);
 
-	boost::shared_ptr<lhef::LHECommon>	common;
-	unsigned int				index;
+	unsigned int			eventsToPrint;
+	std::auto_ptr<Hadronisation>	hadronisation;
+	std::auto_ptr<JetMatching>	jetMatching;
+
+	double				extCrossSect;
+	double				extFilterEff;
+
+	boost::shared_ptr<LHEEvent>	partonLevel;
+	boost::shared_ptr<LHECommon>	common;
+	unsigned int			index;
+	bool				matchingDone;
+	double				weight;
 };
 
 LHEProducer::LHEProducer(const edm::ParameterSet &params) :
@@ -66,6 +73,8 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 	produces<edm::GenInfoProduct, edm::InRun>();
 
 	if (jetMatching.get()) {
+		hadronisation->onShoweredEvent().connect(
+			sigc::mem_fun(*this, &LHEProducer::showeredEvent));
 		produces< std::vector<double> >("matchDeltaR");
 		produces< std::vector<double> >("matchDeltaPRel");
 	}
@@ -75,8 +84,9 @@ LHEProducer::~LHEProducer()
 {
 }
 
-void LHEProducer::beginJob()
+void LHEProducer::beginJob(const edm::EventSetup &es)
 {
+	hadronisation->init();
 }
 
 void LHEProducer::endJob()
@@ -117,32 +127,34 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	edm::Handle<HEPEUP> hepeup;
 	event.getByLabel("source", hepeup);
 
-	boost::shared_ptr<LHEEvent> partonLevel(new LHEEvent(common, *hepeup));
+	partonLevel.reset(new LHEEvent(common, *hepeup));
 
 	hadronisation->setEvent(partonLevel);
 
+	matchingDone = false;
+	weight = 1.0;
 	std::auto_ptr<HepMC::GenEvent> hadronLevel(hadronisation->hadronize());
 
-	if (!hadronLevel.get()) {
-		event.put(result);
-		return;
+	if (!matchingDone) {
+		if (jetMatching.get() && hadronLevel.get()) {
+			weight = matching(hadronLevel.get());
+			matchingDone = true;
+		} else if (!hadronLevel.get()) {
+			event.put(result);
+			return;
+		}
 	}
 
 	partonLevel->count(LHECommon::kTried);
 
-	if (jetMatching.get()) {
-		double weight = jetMatching->match(
-					partonLevel->asHepMCEvent().get(),
-					hadronLevel.get());
-		if (weight <= 0.0) {
-			edm::LogInfo("Generator|LHEInterface")
-				<< "Event got rejected by the"
-				   "jet matching." << std::endl;
-			partonLevel->count(LHECommon::kSelected);
+	if (weight <= 0.0) {
+		edm::LogInfo("Generator|LHEInterface")
+			<< "Event got rejected by the"
+			   "jet matching." << std::endl;
+		partonLevel->count(LHECommon::kSelected);
 
-			event.put(result);
-			return;
-		}
+		event.put(result);
+		return;
 	}
 
 	partonLevel->count(LHECommon::kAccepted);
@@ -179,6 +191,21 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 		event.put(matchDeltaR, "matchDeltaR");
 		event.put(matchDeltaPRel, "matchDeltaPRel");
 	}
+}
+
+double LHEProducer::matching(const HepMC::GenEvent *event) const
+{
+	if (!jetMatching.get())
+		return 1.0;
+
+	return jetMatching->match(partonLevel->asHepMCEvent().get(), event);
+}
+
+bool LHEProducer::showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event)
+{
+	weight = matching(event.get());
+	matchingDone = true;
+	return weight <= 0.0;
 }
 
 DEFINE_ANOTHER_FWK_MODULE(LHEProducer);

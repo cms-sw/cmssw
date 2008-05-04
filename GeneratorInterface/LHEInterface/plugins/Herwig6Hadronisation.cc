@@ -1,7 +1,6 @@
 // Copyright notice:
 // Large parts taken from Herwig6Interface, originally by Fabian Stoeckli
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -20,6 +19,7 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/HerwigWrapper6_4.h>
+#include <HepMC/HEPEVT_Wrapper.h>
 #include <HepMC/IO_HERWIG.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,23 +47,26 @@ class Herwig6Hadronisation : public Hadronisation {
 
 	void fillHeader();
 	void fillEvent();
-	bool veto();
 
     private:
 	void clear();
+
+	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
-	int			herwigVerbosity;
-	int			maxEventsToPrint;
-	bool			useJimmy;
-	bool			doMPInteraction;
-	int			numTrials;
-	bool			builtinPDFs;
-	std::string		lhapdfSetPath;
+	int				herwigVerbosity;
+	int				maxEventsToPrint;
+	bool				useJimmy;
+	bool				doMPInteraction;
+	int				numTrials;
+	bool				builtinPDFs;
+	std::string			lhapdfSetPath;
+	std::vector<std::string>	paramLines;
 
-	bool			needClear;
-	HepMC::IO_HERWIG	conv;
+	bool				needClear;
+	HepMC::IO_HERWIG		conv;
+	char				*buffer;
 };
 
 struct Herwig6Hadronisation::FortranCallback {
@@ -71,7 +74,6 @@ struct Herwig6Hadronisation::FortranCallback {
 
 	void upinit() { instance->fillHeader(); }
 	void upevnt() { instance->fillEvent(); }
-	bool upveto() { return instance->veto(); }
 
 	lhef::Herwig6Hadronisation *instance;
 } static fortranCallback;
@@ -95,7 +97,6 @@ extern "C" {
 
 	void upinit_() { fortranCallback.upinit(); }
 	void upevnt_() { fortranCallback.upevnt(); }
-	void upveto_(int *veto) { *veto = fortranCallback.upveto(); }
 } // extern "C"
 
 #ifdef _POSIX_C_SOURCE
@@ -179,8 +180,44 @@ Herwig6Hadronisation::Herwig6Hadronisation(const edm::ParameterSet &params) :
 	numTrials(params.getUntrackedParameter<int>("numTrialsMPI", 100)),
 	builtinPDFs(params.getUntrackedParameter<bool>("builtinPDFs", true)),
 	lhapdfSetPath(params.getUntrackedParameter<std::string>("lhapdfSetPath", "")),
-	needClear(false)
+	needClear(false),
+	buffer(0)
 {
+	std::vector<std::string> setNames =
+		params.getParameter< std::vector<std::string> >("parameterSets");
+
+	for(std::vector<std::string>::const_iterator iter = setNames.begin();
+	    iter != setNames.end(); ++iter) {
+		std::vector<std::string> lines =
+			params.getParameter< std::vector<std::string> >(*iter);
+
+		for(std::vector<std::string>::const_iterator
+		    line = lines.begin(); line != lines.end(); ++line) {
+			if (line->substr(0, 6) == "NRN(1)" ||
+			    line->substr(0, 6) == "NRN(2)")
+				throw cms::Exception("HerwigError")
+					<< "Attempted to set random number"
+					   " using Herwig command 'NRN(.)'."
+					   " Please use the"
+					   " RandomNumberGeneratorService."
+					<< std::endl;
+
+			paramLines.push_back(*line);
+		}
+	}
+}
+
+Herwig6Hadronisation::~Herwig6Hadronisation()
+{
+	clear();
+	delete[] buffer;
+}
+
+void Herwig6Hadronisation::doInit()
+{
+	if (wantsShoweredEvent())
+		buffer = new char[sizeof hepevt];
+
 	// Call hwudat to set up HERWIG block data
 	hwudat();
 
@@ -221,41 +258,18 @@ Herwig6Hadronisation::Herwig6Hadronisation(const edm::ParameterSet &params) :
 	hwpram.IPRINT = herwigVerbosity;
 	hwprop.RMASS[6] = 175.0;
 
-	std::vector<std::string> setNames =
-		params.getParameter< std::vector<std::string> >("parameterSets");
-
-	// Loop over the sets
-	for(std::vector<std::string>::const_iterator iter = setNames.begin();
-	    iter != setNames.end(); ++iter) {
-		std::vector<std::string> lines =
-			params.getParameter< std::vector<std::string> >(*iter);
-
-		for(std::vector<std::string>::const_iterator
-		    line = lines.begin(); line != lines.end(); ++line) {
-			if (line->substr(0, 6) == "NRN(1)" ||
-			    line->substr(0, 6) == "NRN(2)")
-				throw cms::Exception("HerwigError")
-					<< "Attempted to set random number"
-					   " using Herwig command 'NRN(.)'."
-					   " Please use the"
-					   " RandomNumberGeneratorService."
-					<< std::endl;
-			if (!hwgive(*line))
-				throw cms::Exception("HerwigError")
-					<< "Herwig did not accept \""
-					<< *line << "\"." << std::endl;
-		}
+	for(std::vector<std::string>::const_iterator iter = paramLines.begin();
+	    iter != paramLines.end(); ++iter) {
+		if (!hwgive(*iter))
+			throw cms::Exception("HerwigError")
+				<< "Herwig did not accept \""
+				<< *iter << "\"." << std::endl;
 	}
 
 	edm::Service<edm::RandomNumberGenerator> rng;
 	if (!setRngSeeds(rng->mySeed()))
 		throw cms::Exception("HerwigError")
 			<< "Impossible error in setting 'NRN(.)'.";
-}
-
-Herwig6Hadronisation::~Herwig6Hadronisation()
-{
-	clear();
 }
 
 void Herwig6Hadronisation::clear()
@@ -275,12 +289,25 @@ void Herwig6Hadronisation::clear()
 static int getStatus(const HepMC::GenParticle *p)
 {
 	int status = p->status();
-	if (status == 1)
+	if (status == 1 || !p->end_vertex())
 		return 1;
 	else if (status == 3)
 		return 3;
 	else
 		return 2;
+}
+
+static void fixupStatus(HepMC::GenEvent *event)
+{
+	for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
+	    iter != event->particles_end(); iter++)
+		(*iter)->set_status(getStatus(*iter));
+}
+
+static unsigned long hepevtSize()
+{
+	int n = HepMC::HEPEVT_Wrapper::max_number_entries();
+	return sizeof(long) * (2 + 4 * n) + sizeof(double) * (9 * n);
 }
 
 std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
@@ -294,26 +321,46 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 		int counter = 0;
 		while(counter++ < numTrials) {
 			// call herwig routines to create HEPEVT
-			hwuine();
-			if (timeout(10, hwepro)) {
+			hwuine();	// initialize event
+			if (timeout(10, hwepro)) { // process event and PS
 				// We hung for more than 10 seconds
 				int error = 199;
 				hwwarn_("HWHGUP", &error);
 			}
-			hwbgen();
+
+			bool vetoed = false;	// matching and veto
+			if (wantsShoweredEvent() && !hwevnt.IERROR) {
+				// save HEPEVT since repair_hepevt breaks it
+				std::memcpy(buffer, hepevt.data, hepevtSize());
+				boost::shared_ptr<HepMC::GenEvent>
+						event(conv.read_next_event());
+				std::memcpy(hepevt.data, buffer, hepevtSize());
+				fixupStatus(event.get());
+				if (showeredEvent(event)) {
+					hwevnt.IERROR = 100;
+					vetoed = true;
+				}
+			}
+
+			hwbgen();	// parton casades
 
 			// call jimmy ... only if event is not killed yet by HERWIG
 			if (useJimmy && doMPInteraction && !hwevnt.IERROR &&
 			    hwmsct_dummy(1.1) > 0.5)
 				continue;
 
-			hwdhob();
-			hwcfor();
-			hwcdec();
-			hwdhad();
-			hwdhvy();
-			hwmevt();
-			hwufne();
+			hwdhob();	// heavy quark decays
+			hwcfor();	// cluster formation
+			hwcdec();	// cluster decays
+			hwdhad();	// unstable particle decays
+			hwdhvy();	// heavy flavour decays
+			hwmevt();	// soft underlying event
+			hwufne();	// finalize event
+
+			if (vetoed) {
+				fortranCallback.instance = 0;
+				return event;
+			}
 
 			// if event was killed by HERWIG retry
 			if (hwevnt.IERROR)
@@ -343,10 +390,7 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 		throw cms::Exception("HerwigError")
 			<< "HepMC Conversion problems in event." << std::endl;
 
-	for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
-	    iter != event->particles_end(); iter++)
-		(*iter)->set_status(getStatus(*iter));
-
+	fixupStatus(event.get());
 	LHEEvent::fixHepMCEventTimeOrdering(event.get());
 
 	getRawEvent()->fillEventInfo(event.get());
@@ -1233,11 +1277,6 @@ void Herwig6Hadronisation::fillEvent()
 	const HEPEUP *hepeup = getRawEvent()->getHEPEUP();
 
 	CommonBlocks::fillHEPEUP(hepeup);
-}
-
-bool Herwig6Hadronisation::veto()
-{
-	return false;
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(Herwig6Hadronisation);

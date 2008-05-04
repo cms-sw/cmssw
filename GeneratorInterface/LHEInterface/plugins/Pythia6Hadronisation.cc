@@ -1,7 +1,10 @@
 #include <iostream>
+#include <algorithm>
+#include <functional>
 #include <sstream>
 #include <string>
 #include <memory>
+#include <vector>
 #include <assert.h>
 
 #include <boost/shared_ptr.hpp>
@@ -9,6 +12,7 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/PythiaWrapper6_2.h>
+#include <HepMC/HEPEVT_Wrapper.h>
 #include <HepMC/IO_HEPEVT.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,14 +41,17 @@ class Pythia6Hadronisation : public Hadronisation {
 	bool veto();
 
     private:
+	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	void newCommon(const boost::shared_ptr<LHECommon> &common);
 
-	const int		pythiaPylistVerbosity;
-	int			maxEventsToPrint;
-	int			iterations;
+	std::vector<std::string>	paramLines;
 
-	HepMC::IO_HEPEVT	conv;
+	const int			pythiaPylistVerbosity;
+	int				maxEventsToPrint;
+	int				iterations;
+
+	HepMC::IO_HEPEVT		conv;
 };
 
 struct Pythia6Hadronisation::FortranCallback {
@@ -89,10 +96,6 @@ Pythia6Hadronisation::Pythia6Hadronisation(const edm::ParameterSet &params) :
 		std::vector<std::string> lines =
 			params.getParameter< std::vector<std::string> >(*iter);
 
-		edm::LogInfo("Generator|LHEInterface") << "----------------------------------------------";
-		edm::LogInfo("Generator|LHEInterface") << "Read PYTHIA parameter set " << *iter;
-		edm::LogInfo("Generator|LHEInterface") << "----------------------------------------------";
-
 		for(std::vector<std::string>::const_iterator line = lines.begin();
 		    line != lines.end(); ++line ) {
 			if (line->substr(0, 7) == "MRPY(1)")
@@ -102,21 +105,34 @@ Pythia6Hadronisation::Pythia6Hadronisation(const edm::ParameterSet &params) :
 					   " Please use the"
 					   " RandomNumberGeneratorService."
 					<< std::endl;
-			if (!call_pygive(*line))
-				throw cms::Exception("PythiaError")
-					<< "Pythia did not accept \""
-					<< *line << "\"." << std::endl;
+
+			paramLines.push_back(*line);
 		}
 	}
 
 	edm::Service<edm::RandomNumberGenerator> rng;
 	std::ostringstream ss;
 	ss << "MRPY(1)=" << rng->mySeed();
-	call_pygive(ss.str());
+	paramLines.push_back(ss.str());
 }
 
 Pythia6Hadronisation::~Pythia6Hadronisation()
 {
+}
+
+void Pythia6Hadronisation::doInit()
+{
+	for(std::vector<std::string>::const_iterator iter = paramLines.begin();
+	    iter != paramLines.end(); ++iter) {
+		if (!call_pygive(*iter))
+			throw cms::Exception("PythiaError")
+				<< "Pythia did not accept \""
+				<< *iter << "\"." << std::endl;
+	}
+
+	call_pygive("MSEL=0");
+	call_pygive(std::string("MSTP(143)=") +
+	            (wantsShoweredEvent() ? "1" : "0"));
 }
 
 std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
@@ -154,14 +170,6 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 	if (pdf.scalePDF() < 0)
 		pdf.set_scalePDF(pypars.pari[20]);
 
-std::cout << pdf.id1() << ", "
-	<< pdf.id2() << ", "
-	<< pdf.pdf1() << ", "
-	<< pdf.pdf2() << ", "
-	<< pdf.x1() << ", "
-	<< pdf.x2() << ", "
-	<< pdf.scalePDF() << std::endl;
-
 	if (maxEventsToPrint > 0) {
 		maxEventsToPrint--;
 		if (pythiaPylistVerbosity)
@@ -198,9 +206,58 @@ void Pythia6Hadronisation::fillEvent()
 	CommonBlocks::fillHEPEUP(hepeup);
 }
 
+namespace {
+	struct SavedHEPEVT {
+		int	index;
+		int	id;
+		int	mo1, mo2;
+
+		void load(int index_)
+		{
+			index = index_;
+			id = HepMC::HEPEVT_Wrapper::id(index);
+			mo1 = HepMC::HEPEVT_Wrapper::first_parent(index);
+			mo2 = HepMC::HEPEVT_Wrapper::last_parent(index);
+		}
+
+		void save()
+		{
+			HepMC::HEPEVT_Wrapper::set_id(index, id);
+			HepMC::HEPEVT_Wrapper::set_parents(index, mo1, mo2);
+		}
+
+		SavedHEPEVT(int index) { load(index); }
+	};
+} // anonymous namespace
+
 bool Pythia6Hadronisation::veto()
 {
-	return false;
+
+	std::vector<SavedHEPEVT> saved;
+	int n = HepMC::HEPEVT_Wrapper::number_entries();
+
+	SavedHEPEVT i1(3), i2(4), p1(5), p2(6);
+	saved.push_back(i1);
+	saved.push_back(i2);
+	i1.mo1 = i1.mo2 = 1, i1.id = p1.id, i1.save();
+	i2.mo1 = i2.mo2 = 2, i2.id = p2.id, i2.save();
+
+	for(int i = 7; i <= n; i++) {
+		SavedHEPEVT p(i);
+		if (p.mo1)
+			break;
+
+		saved.push_back(p);
+		p.mo1 = 5, p.mo2 = 6;
+		p.save();
+	}
+
+	boost::shared_ptr<HepMC::GenEvent> event(conv.read_next_event());
+
+	std::for_each(saved.begin(), saved.end(),
+	              std::mem_fun_ref(&SavedHEPEVT::save));
+
+	return showeredEvent(event);
 }
 
 DEFINE_LHE_HADRONISATION_PLUGIN(Pythia6Hadronisation);

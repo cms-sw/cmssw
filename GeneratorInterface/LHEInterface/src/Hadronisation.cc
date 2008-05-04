@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 #include <memory>
 
@@ -26,6 +25,7 @@ namespace {
 		~NoHadronisation() {}
 
 	    private:
+		void doInit() {}
 		std::auto_ptr<HepMC::GenEvent> doHadronisation()
 		{ return getRawEvent()->asHepMCEvent(); }
 };
@@ -40,6 +40,11 @@ Hadronisation::Hadronisation(const edm::ParameterSet &params)
 
 Hadronisation::~Hadronisation()
 {
+}
+
+void Hadronisation::init()
+{
+	doInit();
 }
 
 bool Hadronisation::setEvent(const boost::shared_ptr<LHEEvent> &event)
@@ -86,7 +91,6 @@ std::auto_ptr<Hadronisation> Hadronisation::create(
 std::auto_ptr<HepMC::GenEvent> Hadronisation::hadronize()
 {
 	std::auto_ptr<HepMC::GenEvent> event = this->doHadronisation();
-
 	if (!event.get())
 		return event;
 
@@ -102,6 +106,19 @@ std::auto_ptr<HepMC::GenEvent> Hadronisation::hadronize()
 
 void Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
 {
+}
+
+bool Hadronisation::showeredEvent(
+			const boost::shared_ptr<HepMC::GenEvent> &event)
+{
+	const HepMC::GenVertex *signalVertex = event->signal_process_vertex();
+	if (!signalVertex) {
+		signalVertex = LHEEvent::findSignalVertex(event.get(), false);
+		event->set_signal_process_vertex(
+			const_cast<HepMC::GenVertex*>(signalVertex));
+	}
+
+	return sigShower.emit(event);
 }
 
 } // namespace lhef

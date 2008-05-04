@@ -15,6 +15,7 @@
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
 
 namespace lhef {
 
@@ -26,12 +27,7 @@ class LHEEvent {
 	         const HEPEUP &hepeup);
 	~LHEEvent();
 
-	struct PDF {
-		std::pair<int, int>		id;
-		std::pair<double, double>	x;
-		std::pair<double, double>	xPDF;
-		double				scalePDF;
-	};
+	typedef LHEEventProduct::PDF PDF;
 
 	const boost::shared_ptr<LHECommon> &getCommon() const { return common; }
 	const HEPEUP *getHEPEUP() const { return &hepeup; }

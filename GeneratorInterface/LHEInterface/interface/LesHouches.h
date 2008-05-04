@@ -68,7 +68,7 @@ class HEPRUP {
 	/**
 	 * PDG id's of beam particles. (first/second is in +/-z direction).
 	 */
-	std::pair<long, long> IDBMUP;
+	std::pair<int, int> IDBMUP;
 
 	/**
 	 * Energy of beam particles given in GeV.
@@ -220,7 +220,7 @@ class HEPEUP {
 	/**
 	 * The PDG id's for the particle entries in this event.
 	 */
-	std::vector<long> IDUP;
+	std::vector<int> IDUP;
 
 	/**
 	 * The status codes for the particle entries in this event.
