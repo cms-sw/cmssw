@@ -50,6 +50,11 @@ PixelThresholdClusterizer::PixelThresholdClusterizer
      conf_.getParameter<int>("SeedThreshold");
    theClusterThreshold = 
      conf_.getParameter<double>("ClusterThreshold");
+   theConversionFactor = 
+     conf_.getParameter<int>("VCaltoElectronGain");
+   theOffset = 
+     conf_.getParameter<int>("VCaltoElectronOffset");
+	
    
    // Get the constants for the miss-calibration studies
    doMissCalibrate=conf_.getUntrackedParameter<bool>("MissCalibrate",true); 
@@ -109,11 +114,9 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
    //  Set up the clusterization on this DetId.
    if (!setup(pixDet)) return;
    detid_ = input.detId();
-
    //  Copy PixelDigis to the buffer array; select the seed pixels
    //  on the way, and store them in theSeeds.
    copy_to_buffer(begin, end);
-
   //  At this point we know the number of seeds on this DetUnit, and thus
   //  also the maximal number of possible clusters, so resize theClusters
   //  in order to make vector<>::push_back() efficient.
@@ -182,47 +185,51 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
   int electrons = 0;
 
   if(doMissCalibrate) {
-    // Linear approximation of the TANH response
-    // Pixel(0,0,0)
-    //const float gain = 2.95; // 1 ADC = 2.95 VCALs (1/0.339)
-    //const float pedestal = -83.; // -28/0.339
-    // Roc-0 average
-    //const float gain = 1./0.357; // 1 ADC = 2.80 VCALs 
-    //const float pedestal = -28.2 * gain; // -79.
+    // do not perform calibration if pixel is dead!
 
-    float DBgain     = theSiPixelGainCalibrationService_->getGain(detid_, col, row);
-    float DBpedestal = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row) * DBgain;
+    if(!theSiPixelGainCalibrationService_->isDead(detid_,col,row)){
 
-    //cout << " DETID " << detid_ << " C=" << col << " R=" << row << " PED=" << 
-    //  DBpedestal << " GAIN " << DBgain << endl;
+      // Linear approximation of the TANH response
+      // Pixel(0,0,0)
+      //const float gain = 2.95; // 1 ADC = 2.95 VCALs (1/0.339)
+      //const float pedestal = -83.; // -28/0.339
+      // Roc-0 average
+      //const float gain = 1./0.357; // 1 ADC = 2.80 VCALs 
+      //const float pedestal = -28.2 * gain; // -79.
 
-    // Roc-6 average
-    //const float gain = 1./0.313; // 1 ADC = 3.19 VCALs 
-    //const float pedestal = -6.2 * gain; // -19.8
-    // 
-    float vcal = adc * DBgain - DBpedestal;
-    
-    // atanh calibration 
-    // Roc-6 average
-    //const float p0 = 0.00492;
-    //const float p1 = 1.998;
-    //const float p2 = 90.6;
-    //const float p3 = 134.1; 
-    // Roc-6 average
-    //const float p0 = 0.00382;
-    //const float p1 = 0.886;
-    //const float p2 = 112.7;
-    //const float p3 = 113.0; 
-    //float vcal = ( atanh( (adc-p3)/p2) + p1)/p0;
-    
-    electrons = int( vcal * 65.); // 1VCAl=65 electrons
-    
-  } else { // No misscalibration in the digitizer
+      float DBgain     = theSiPixelGainCalibrationService_->getGain(detid_, col, row);
+      float DBpedestal = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row) * DBgain;
+
+      
+      // Roc-6 average
+      //const float gain = 1./0.313; // 1 ADC = 3.19 VCALs 
+      //const float pedestal = -6.2 * gain; // -19.8
+      // 
+      float vcal = adc * DBgain - DBpedestal;
+      
+      // atanh calibration 
+      // Roc-6 average
+      //const float p0 = 0.00492;
+      //const float p1 = 1.998;
+      //const float p2 = 90.6;
+      //const float p3 = 134.1; 
+      // Roc-6 average
+      //const float p0 = 0.00382;
+      //const float p1 = 0.886;
+      //const float p2 = 112.7;
+      //const float p3 = 113.0; 
+      //float vcal = ( atanh( (adc-p3)/p2) + p1)/p0;
+  
+      electrons = int( vcal * theConversionFactor + theOffset); 
+    }
+  } 
+  else { // No misscalibration in the digitizer
     // Simple (default) linear gain 
     const float gain = 135.; // 1 ADC = 135 electrons
     const float pedestal = 0.; //
     electrons = int(adc * gain + pedestal);
   }
+  
   return electrons;
 }
 //----------------------------------------------------------------------------
@@ -244,11 +251,12 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix)
     SiPixelCluster::PixelPos curpix = pixel_stack.top(); pixel_stack.pop();
     for ( int r = curpix.row()-1; r <= curpix.row()+1; ++r) {
       for ( int c = curpix.col()-1; c <= curpix.col()+1; ++c) {
-	if ( theBuffer(r,c) >= thePixelThreshold) {
-	  SiPixelCluster::PixelPos newpix(r,c);
-	  cluster.add( newpix, theBuffer(r,c));
-	  theBuffer.set_adc( newpix, 0);
-	  pixel_stack.push( newpix);
+	  if ( theBuffer(r,c) >= thePixelThreshold) {
+	    SiPixelCluster::PixelPos newpix(r,c);
+	    cluster.add( newpix, theBuffer(r,c));
+	    theBuffer.set_adc( newpix, 0);
+	    pixel_stack.push( newpix);
+	  
 	}
       }
     }

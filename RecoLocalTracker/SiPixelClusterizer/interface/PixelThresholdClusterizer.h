@@ -87,7 +87,8 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   int   thePixelThreshold;  // Pixel threshold in electrons
   int   theSeedThreshold;   // Seed threshold in electrons 
   float theClusterThreshold;  // Cluster threshold in electrons
-
+  int   theConversionFactor;  // adc to electron conversion factor
+  int   theOffset;            // adc to electron conversion offset
 
   //! Geometry-related information
   int  theNumOfRows;
