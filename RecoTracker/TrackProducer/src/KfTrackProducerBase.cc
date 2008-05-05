@@ -2,6 +2,7 @@
 // system include files
 #include <memory>
 // user include files
+#include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,6 +14,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
+#include "TrajectoryToResiduals.h"
 
 void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				 std::auto_ptr<TrackingRecHitCollection>& selHits,
@@ -90,7 +92,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     selTrackExtras->push_back( reco::TrackExtra (outpos, outmom, true, inpos, inmom, true,
 						 outertsos.curvilinearError(), outerId,
 						 innertsos.curvilinearError(), innerId,
-    						 seedDir,theTraj->seedRef()));
+    						 seedDir, theTraj->seedRef()));
 
 
     reco::TrackExtra & tx = selTrackExtras->back();
@@ -120,6 +122,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       }
     }
     // ----
+    tx.setResiduals(trajectoryToResiduals(*theTraj));
 
     delete theTrack;
     delete theTraj;
