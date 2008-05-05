@@ -89,6 +89,9 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   CLHEP::HepRandomEngine& engine = rng->getEngine();
   theAmplifier->setRandomEngine(engine);
   theElectronicsSim->setRandomEngine(engine);
+
+  hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
+
 }
 
 
@@ -129,8 +132,12 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   
   // Step A: Get Inputs
   edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
-  e.getByLabel("mix", "HcalHits",cf);
-  e.getByLabel("mix", "ZDCHITS", zdccf);
+
+  const std::string hcalHitsName(hitsProducer_+"HcalHits");
+  const std::string zdcHitsName(hitsProducer_+"ZDCHITS");
+
+  e.getByLabel("mix", hcalHitsName ,cf);
+  e.getByLabel("mix", zdcHitsName , zdccf);
 
   // test access to SimHits for HcalHits and ZDC hits
   std::auto_ptr<MixCollection<PCaloHit> > col(new MixCollection<PCaloHit>(cf.product()));

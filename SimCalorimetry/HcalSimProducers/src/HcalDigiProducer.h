@@ -79,6 +79,8 @@ private:
 
   bool doZDC;
 
+  std::string hitsProducer_;
+
 };
 
 #endif
