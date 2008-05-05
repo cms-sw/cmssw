@@ -8,7 +8,7 @@ const unsigned    PFRecHit::nCorners_ = 4;
 
 PFRecHit::PFRecHit() : 
   detId_(0),
-  layer_(0),
+  layer_(PFLayer::NONE),
   energy_(0.), 
   // seedState_(-1), 
   position_(math::XYZPoint(0.,0.,0.)),
@@ -31,7 +31,7 @@ PFRecHit::PFRecHit() :
 
 
 PFRecHit::PFRecHit(unsigned detId,
-                   int layer, 
+                   PFLayer::Layer layer, 
                    double energy, 
                    const math::XYZPoint& position,
                    const math::XYZVector& axisxyz,
@@ -55,7 +55,7 @@ PFRecHit::PFRecHit(unsigned detId,
 }
 
 PFRecHit::PFRecHit(unsigned detId,
-                   int layer,
+                   PFLayer::Layer layer,
                    double energy, 
                    double posx, double posy, double posz, 
                    double axisx, double axisy, double axisz) :

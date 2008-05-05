@@ -12,6 +12,7 @@
 // #include "DataFormats/DetId/interface/DetId.h"
 #include "Math/GenVector/PositionVector3D.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 //C decide what is the default rechit index. 
 //C maybe 0 ? -> compression 
@@ -44,14 +45,14 @@ namespace reco {
 
     /// constructor from values
     PFRecHit(unsigned detId,
-             int layer,
+             PFLayer::Layer layer,
              double energy, 
              const math::XYZPoint& posxyz, 
              const math::XYZVector& axisxyz, 
              const std::vector< math::XYZPoint >& cornersxyz);
 
     PFRecHit(unsigned detId,
-             int layer,
+             PFLayer::Layer layer,
              double energy, 
              double posx, double posy, double posz, 
              double axisx, double axisy, double axisz);    
@@ -96,7 +97,7 @@ namespace reco {
     unsigned detId() const {return detId_;}
 
     /// rechit layer
-    int layer() const { return layer_; }
+    PFLayer::Layer layer() const { return layer_; }
 
     /// rechit energy
     double energy() const { return energy_; }
@@ -178,7 +179,7 @@ namespace reco {
     unsigned            detId_;             
 
     /// rechit layer
-    int                 layer_;
+    PFLayer::Layer                 layer_;
 
     /// rechit energy
     double              energy_;

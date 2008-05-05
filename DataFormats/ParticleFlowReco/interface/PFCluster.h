@@ -8,6 +8,7 @@
 #include "Rtypes.h" 
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 #include <iostream>
 #include <vector>
@@ -45,17 +46,13 @@ namespace reco {
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
     /// default constructor
-    PFCluster() : layer_(0), color_(1) {}
+    PFCluster() :  color_(1) {}
 
     /// constructor
-    PFCluster(int layer, double energy,
+    PFCluster(PFLayer::Layer layer, double energy,
               double x, double y, double z );
 
-    /// copy constructor
-    // PFCluster(const PFCluster& other);
 
-    /// destructor
-    // ~PFCluster() {}
 
     /// resets clusters parameters
     void reset();
@@ -67,14 +64,14 @@ namespace reco {
     const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
       { return rechits_; }
 
+    /// set layer
+    void setLayer( PFLayer::Layer layer);
+    
     /// cluster layer, see PFLayer.h in this directory
-    int           layer() const {return layer_;}          
+    PFLayer::Layer  layer() const;     
 
     /// cluster energy
     double        energy() const {return energy_;}
-
-/*     /// cluster position: cartesian */
-/*     const math::XYZPoint& position() const {return posxyz_;} */
 
     /// cluster position: rho, eta, phi
     const REPPoint&       positionREP() const {return posrep_;}
@@ -83,7 +80,6 @@ namespace reco {
     void calculatePositionREP() {
       posrep_.SetCoordinates( position_.Rho(), position_.Eta(), position_.Phi() ); 
     }
-
 
     /// \todo move to PFClusterTools
     static double getDepthCorrection(double energy, bool isBelowPS = false,
@@ -95,8 +91,6 @@ namespace reco {
     /// \return color
     int          color() const {return color_;}
   
-    //C remove this
-    /*     PFCluster& operator+=(const PFCluster&); */
 
     PFCluster& operator=(const PFCluster&);
 
@@ -121,9 +115,6 @@ namespace reco {
   
     /// vector of rechit fractions (transient)
     std::vector< reco::PFRecHitFraction >  rechits_;
-
-    /// cluster layer, see PFClusterLayer.h
-    int           layer_;          
 
     /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;
