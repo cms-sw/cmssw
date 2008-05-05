@@ -552,7 +552,7 @@ class DQMDBSgui:
         self.hbcolor=self.bg
 
         self.cfgFileName=StringVar()
-        self.cfgFileName.set("hcal_dqm_dbsgui.cfg")
+        self.cfgFileName.set(os.path.join(self.basedir,"hcal_dqm_dbsgui.cfg"))
 
         return
 
@@ -695,7 +695,8 @@ class DQMDBSgui:
         myrow=0
         
         myvars={"  Final DQM Save Directory = ":self.finalDir,
-                "  # of events to run for each DQM = ":self.maxDQMEvents}
+                "  # of events to run for each DQM = ":self.maxDQMEvents,
+                "  .cfg file to run for each DQM = ":self.cfgFileName}
         temp=myvars.keys()
         temp.sort()
         for i in temp:
