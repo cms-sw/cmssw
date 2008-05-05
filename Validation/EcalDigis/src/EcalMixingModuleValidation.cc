@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2008/02/28 17:23:42 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/29 20:48:26 $
+ * $Revision: 1.17 $
  * \author F. Cossutti
  *
 */
@@ -23,6 +23,7 @@ using namespace std;
 
 EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
   HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
+  hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
   EBdigiCollection_(ps.getParameter<edm::InputTag>("EBdigiCollection")),
   EEdigiCollection_(ps.getParameter<edm::InputTag>("EEdigiCollection")),
   ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection")){
@@ -364,7 +365,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
 
   if ( isBarrel ) {
 
-    const std::string barrelHitsName ("EcalHitsEB") ;
+    const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
     e.getByLabel("mix",barrelHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
       barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
@@ -466,7 +467,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
 
   if ( isEndcap ) {
 
-    const std::string endcapHitsName ("EcalHitsEE") ;
+    const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
     e.getByLabel("mix",endcapHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
       endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
@@ -562,7 +563,7 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
 
   if ( isPreshower) {
 
-    const std::string preshowerHitsName ("EcalHitsES") ;
+    const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
     e.getByLabel("mix",preshowerHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
       preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));

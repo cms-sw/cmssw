@@ -4,8 +4,8 @@
 /*
  * \file EcalMixingModuleValidation.h
  *
- * $Date: 2008/02/18 14:20:28 $
- * $Revision: 1.5 $
+ * $Date: 2008/02/29 20:48:25 $
+ * $Revision: 1.6 $
  * \author F. Cossutti
  *
 */
@@ -85,7 +85,8 @@ private:
  void checkCalibrations(const edm::EventSetup & c);
  
  std::string HepMCLabel;
- 
+ std::string hitsProducer_;
+
  bool verbose_;
 
  DQMStore* dbe_;
