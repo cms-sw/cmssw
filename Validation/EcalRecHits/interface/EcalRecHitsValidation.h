@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2008/02/18 14:20:32 $
+ * $Date: 2008/02/29 20:48:30 $
  * \author C. Rovelli
  *
 */
@@ -75,6 +75,7 @@ void endJob(void);
 private:
 
  std::string HepMCLabel;
+ std::string hitsProducer_;
  
  bool verbose_;
  

@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2008/02/29 20:48:32 $
+ * $Date: 2008/03/12 14:13:03 $
  * \author C. Rovelli
  *
 */
@@ -21,6 +21,7 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
 
   // ---------------------- 
   HepMCLabel                 = ps.getParameter<std::string>("moduleLabelMC"); 
+  hitsProducer_              = ps.getParameter<std::string>("hitsProducer");
   EBrechitCollection_        = ps.getParameter<edm::InputTag>("EBrechitCollection");
   EErechitCollection_        = ps.getParameter<edm::InputTag>("EErechitCollection");
   ESrechitCollection_        = ps.getParameter<edm::InputTag>("ESrechitCollection");
@@ -257,7 +258,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipBarrel) {
 
   // 1) loop over simHits  
-  const std::string barrelHitsName ("EcalHitsEB");
+  const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
   e.getByLabel("mix",barrelHitsName,crossingFrame);
   std::auto_ptr<MixCollection<PCaloHit> > 
     barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
@@ -336,7 +337,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipEndcap ) {
 
   // 1) loop over simHits
-  const std::string endcapHitsName ("EcalHitsEE") ;
+  const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
   e.getByLabel("mix",endcapHitsName,crossingFrame);
   std::auto_ptr<MixCollection<PCaloHit> > 
     endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
@@ -414,7 +415,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipPreshower ) {
 
   // 1) loop over simHits
-  const std::string preshowerHitsName ("EcalHitsES") ;
+  const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
   e.getByLabel("mix",preshowerHitsName,crossingFrame);
   std::auto_ptr<MixCollection<PCaloHit> > 
     preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
