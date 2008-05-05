@@ -25,8 +25,14 @@ double HoECalculator::operator() ( const reco::SuperCluster* clus , const edm::E
 }
 
 double HoECalculator::operator() ( const reco::SuperCluster* clus, 
-			     HBHERecHitMetaCollection *mhbhe) {
-  return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), mhbhe);
+				   HBHERecHitMetaCollection *mhbhe) {
+  //  return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), mhbhe);
+  float HoEmax = 0.;
+  for (reco::BasicClusterRefVector::iterator bc=clus->clustersBegin(); bc!=clus->clustersEnd(); bc++) {
+    float HoE = getHoE(GlobalPoint((*bc)->x(),(*bc)->y(),(*bc)->z()),(*bc)->energy(), mhbhe);
+    if (HoE > HoEmax) HoEmax = HoE;
+  }
+  return HoEmax;
 }
 
 
