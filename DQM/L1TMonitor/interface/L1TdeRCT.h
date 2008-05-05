@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.4 $
+ * $Date: 2008/05/05 15:01:37 $
+ * $Revision: 1.2 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.4 2008/03/01 00:40:00 lat Exp $
- * $Log: L1TRCT.h,v $
+ * $Id: L1TdeRCT.h,v 1.2 2008/05/05 15:01:37 asavin Exp $
+ * $Log: L1TdeRCT.h,v $
+ * Revision 1.2  2008/05/05 15:01:37  asavin
+ * single channel histos are added
+ *
  * Revision 1.4  2008/03/01 00:40:00  lat
  * DQM core migration.
  *
@@ -88,6 +91,7 @@ private:
   DQMStore * dbe;
 
 
+  MonitorElement* rctIsoEmDataOcc_ ;
   MonitorElement* rctIsoEmEmulOcc_ ;
   MonitorElement* rctIsoEmEff1Occ_ ;
   MonitorElement* rctIsoEmEff2Occ_ ;
@@ -98,6 +102,7 @@ private:
   MonitorElement* rctIsoEmIneff_ ;
   MonitorElement* rctIsoEmOvereff_ ;
 
+  MonitorElement* rctIsoEmDataOcc1D_ ;
   MonitorElement* rctIsoEmEmulOcc1D_ ;
   MonitorElement* rctIsoEmEff1Occ1D_ ;
   MonitorElement* rctIsoEmEff2Occ1D_ ;
@@ -108,6 +113,7 @@ private:
   MonitorElement* rctIsoEmIneff1D_ ;
   MonitorElement* rctIsoEmOvereff1D_ ;
 
+  MonitorElement* rctNisoEmDataOcc_ ;
   MonitorElement* rctNisoEmEmulOcc_ ;
   MonitorElement* rctNisoEmEff1Occ_ ;
   MonitorElement* rctNisoEmEff2Occ_ ;
@@ -118,6 +124,7 @@ private:
   MonitorElement* rctNisoEmIneff_ ;
   MonitorElement* rctNisoEmOvereff_ ;
 
+  MonitorElement* rctNisoEmDataOcc1D_ ;
   MonitorElement* rctNisoEmEmulOcc1D_ ;
   MonitorElement* rctNisoEmEff1Occ1D_ ;
   MonitorElement* rctNisoEmEff2Occ1D_ ;

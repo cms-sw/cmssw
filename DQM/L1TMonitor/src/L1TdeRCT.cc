@@ -139,6 +139,14 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
     dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData");
 
+    rctIsoEmDataOcc_ =
+	dbe->book2D("rctIsoEmDataOcc", "rctIsoEmDataOcc", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctIsoEmDataOcc1D_ =
+	dbe->book1D("rctIsoEmDataOcc1D", "rctIsoEmDataOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctIsoEmEmulOcc_ =
 	dbe->book2D("rctIsoEmEmulOcc", "rctIsoEmEmulOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -214,6 +222,15 @@ void L1TdeRCT::beginJob(const EventSetup & c)
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
     dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData");
+
+    rctNisoEmDataOcc_ =
+	dbe->book2D("rctNisoEmDataOcc", "rctNisoEmDataOcc", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmDataOcc1D_ =
+	dbe->book1D("rctNisoEmDataOcc1D", "rctNisoEmDataOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctNisoEmEmulOcc_ =
 	dbe->book2D("rctNisoEmEmulOcc", "rctNisoEmEmulOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -437,12 +454,20 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
        iem != emData->end(); iem++) {
    if(iem->rank() >= 1){
     if (iem->isolated()) {
+      rctIsoEmDataOcc_->Fill(iem->regionId().ieta(),
+			       iem->regionId().iphi());
+      int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
+      rctIsoEmDataOcc1D_->Fill(channel);
       electronDataRank[0][nelectrIsoData]=iem->rank();
       electronDataEta[0][nelectrIsoData]=iem->regionId().ieta();
       electronDataPhi[0][nelectrIsoData]=iem->regionId().iphi();
       nelectrIsoData++ ;
     }
     else {
+      rctNisoEmDataOcc_->Fill(iem->regionId().ieta(),
+			       iem->regionId().iphi());
+      int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
+      rctNisoEmDataOcc1D_->Fill(channel);
       electronDataRank[1][nelectrNisoData]=iem->rank();
       electronDataEta[1][nelectrNisoData]=iem->regionId().ieta();
       electronDataPhi[1][nelectrNisoData]=iem->regionId().iphi();
@@ -451,7 +476,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
    }
   }
 
-std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelectrNisoEmul <<  std::endl ;
+// std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelectrNisoEmul <<  std::endl ;
 
   // StepIII: calculate and fill
 
@@ -478,7 +503,7 @@ std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelect
         if(singlechannelhistos_)
         {
         int energy_difference; 
-          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j])+electronEmulEta[k][i]-electronEmulPhi[k][i] ;
+          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j]) ;
         rctIsoEffChannel_[chnl]->Fill(energy_difference) ;
         }
         if(electronEmulRank[k][i]==electronDataRank[k][j]) {
@@ -498,7 +523,7 @@ std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelect
         if(singlechannelhistos_)
         {
         int energy_difference; 
-          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j])+electronEmulEta[k][i]-electronEmulPhi[k][i] ;
+          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j]) ;
         rctNisoEffChannel_[chnl]->Fill(energy_difference) ;
         }
         if(electronEmulRank[k][i]==electronDataRank[k][j]) {
