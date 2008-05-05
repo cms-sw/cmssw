@@ -1,3 +1,9 @@
+2008-05-05  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-12-00
+	* Changes from Kurt for SM selecting on HLT ouptut module ID and INIT message change
+	  from Streamer protocol 5 to 6
+
 2008-04-21  Constantin Loizides <loizides@mit.edu>
 
 	* tag V03-11-01
