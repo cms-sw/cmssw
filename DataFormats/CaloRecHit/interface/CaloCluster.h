@@ -7,10 +7,11 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.2 2008/04/24 17:46:15 cbern Exp $
+ * \version $Id: CaloCluster.h,v 1.3 2008/04/25 08:43:25 cbern Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/CaloRecHit/interface/CaloID.h"
 
 namespace reco {
 
@@ -22,8 +23,15 @@ namespace reco {
     CaloCluster() : energy_(0.) { }
 
     /// constructor from values
-    CaloCluster( double energy, const math::XYZPoint& position) :
+    CaloCluster( double energy, 
+		 const math::XYZPoint& position ) :
       energy_ (energy), position_ (position) {}
+
+    /// constructor from values
+    CaloCluster( double energy, 
+		 const math::XYZPoint& position, 
+		 const CaloID& caloID) :
+      energy_ (energy), position_ (position), caloID_(caloID) {}
 
     /// destructor
     virtual ~CaloCluster() {}
@@ -69,24 +77,19 @@ namespace reco {
     /// azimuthal angle of cluster centroid
     double phi() const { return position_.phi(); }
 
-    enum Detectors {
-      DET_ECAL_BARREL,
-      DET_ECAL_ENDCAP,
-      DET_PS1,
-      DET_PS2,
-      DET_HCAL_BARREL,
-      DET_HCAL_ENDCAP,
-      DET_HF,
-      DET_HO
-    };
     
-    /// tells the cluster that it is in a given detector
-    void setDetector(Detectors theDetector, bool value);
-	
-    /// return true if the cluster is in a given detector
-    bool detector(Detectors theDetector) const;
+    CaloID& caloID() {return caloID_;}
+    const CaloID& caloID() const {return caloID_;}
+    
+    CaloCluster& operator=(const CaloCluster & rhs) {
+      energy_ = rhs.energy_;
+      position_ = rhs.position_;
+      caloID_ = rhs.caloID_;
+      return *this;
+    }
 
-
+    
+    
   protected:
 
     /// cluster energy
@@ -96,7 +99,7 @@ namespace reco {
     math::XYZPoint      position_;
 
     /// bitmask for detector information
-    unsigned            detectors_;
+    CaloID              caloID_;
 
   };
 
