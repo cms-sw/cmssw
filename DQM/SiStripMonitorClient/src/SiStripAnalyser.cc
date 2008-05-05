@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/04/13 14:59:07 $
- * $Revision: 1.29 $
+ * $Date: 2008/04/28 22:39:00 $
+ * $Revision: 1.30 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -309,7 +309,7 @@ void SiStripAnalyser::fillGlobalStatus() {
 	}
       }
   }
-  gStatus = (1 - nDetsWithErr*1.0/nDetsTotal) *100.0;
+  gStatus = (1 - nDetsWithErr*1.0/nDetsTotal);
   dqmStore_->cd();
   MonitorElement* err_summ_me = dqmStore_->get("SiStrip/EventInfo/errorSummary");
   if(err_summ_me) err_summ_me->Fill(gStatus);
@@ -323,7 +323,7 @@ void SiStripAnalyser::fillGlobalStatus() {
     if (seg_me) {
       float eff = -1.0;
       if (nSubDetsTotal[i] > 0) {
-	eff = (1 - nSubDetsWithErr[i] * 1.0 / nSubDetsTotal[i]) *100.0 ;
+	eff = (1 - nSubDetsWithErr[i] * 1.0 / nSubDetsTotal[i]) ;
       }
       seg_me->Fill(eff);
     }
