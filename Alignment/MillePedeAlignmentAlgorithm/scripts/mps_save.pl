@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     11-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.3 $
-#     $Date: 2008/04/17 16:38:47 $
+#     $Revision: 1.4 $
+#     $Date: 2008/04/21 21:16:04 $
 #
 #  Save output from jobs that have FETCH status
 #  
@@ -65,14 +65,14 @@ unless (@JOBDIR[$i] eq "jobm") {
 
 if (@JOBSTATUS[$i] eq "FETCH"
     or @JOBSTATUS[$i] eq "OK" or @JOBSTATUS[$i] eq "TIMEL") {
- 
-
-  @FILENAMES = ("treeFile_merge.root","histograms_merge.root","alignment_merge.cfg",
-		"alignment_merge.log","alignment_merge.log.gz",
-		"millepede.log","millepede.log.gz","millepede.res",
-		"millepede.his","pede.dump","alignments_MP.db");
 
   $dirPrefix = "jobData/@JOBDIR[$i]/";
+
+  @FILENAMES = ("treeFile_merge.root","histograms_merge.root",
+		"alignment_merge.cfg","alignment_merge.log",
+		"alignment_merge.log.gz","millepede.log","millepede.log.gz",
+		"millepede.res","millepede.his","pede.dump",
+		"alignments_MP.db");
 
   while ($theFile = shift @FILENAMES) {
     $copyFile = $dirPrefix.$theFile;
@@ -89,4 +89,26 @@ if (@JOBSTATUS[$i] eq "FETCH"
     }
   }
 
+# Now copy the backup of original scripts and cfg's
+  $ScriptCfg = `ls jobData/ScriptsAndCfg???.tar`;
+  chomp($ScriptCfg);
+  $ScriptCfg =~ s/\n/ /g;
+  $ScriptCfg =~ s/jobData\///g;
+
+  @FILENAMES = split(' ',$ScriptCfg);
+
+  while ($theFile = shift @FILENAMES) {
+    $copyFile = "jobData/".$theFile;
+    if (-r $copyFile) {
+      print "cp $copyFile $saveDir/\n";
+      system "cp $copyFile $saveDir/";
+      $retcode = $? >> 8;
+      if ($retcode) {
+	print "Copy of $copyFile failed, retcode=$retcode\n";
+      }
+    }
+    else {
+      print "$copyFile unreadable or not existing\n";
+    }
+  }
 }
