@@ -55,6 +55,15 @@ void HitPattern::set(const TrackingRecHit & hit, unsigned int i) {
   }
   pattern += (layer&LayerMask)<<LayerOffset;
 
+  // adding mono/stereo bit
+  uint32_t side = 0;
+  if (detid == DetId::Tracker) {
+       side = isStereo(id);
+  } else if (detid == DetId::Muon) {
+       side = 0;
+  }
+  pattern += (side&SideMask)<<SideOffset;
+
   // adding hit type bits
   pattern += (hitType&HitTypeMask)<<HitTypeOffset;
 
@@ -106,7 +115,7 @@ uint32_t HitPattern::getHitPattern(int position) const {
   uint16_t bitEndOffset = (position+1) * HitSize;
   uint8_t secondWord   = (bitEndOffset >> 5);
   uint8_t secondWordBits = bitEndOffset & (32-1); // that is, bitEndOffset % 32
-  if (secondWordBits >= 10) { // full block is in this word
+  if (secondWordBits >= HitSize) { // full block is in this word
       uint8_t lowBitsToTrash = secondWordBits - HitSize;
       uint32_t myResult = (hitPattern_[secondWord] >> lowBitsToTrash) & ((1 << HitSize)-1);
      #if defined(OLD_HITPATTERN_LOGIC)
@@ -230,6 +239,12 @@ bool HitPattern::muonRPCHitFilter(uint32_t pattern) const {
 uint32_t HitPattern::getLayer(uint32_t pattern) const {
   if (pattern == 0) return 999999;
   return ((pattern>>LayerOffset) & LayerMask);
+}
+
+uint32_t HitPattern::getSide (uint32_t pattern) 
+{
+     if (pattern == 0) return 999999;
+     return (pattern >> SideOffset) & SideMask;
 }
 
 uint32_t HitPattern::getHitType( uint32_t pattern ) const {
@@ -960,4 +975,70 @@ int HitPattern::stripTECLayersNull() const {
     if (getTrackerLayerCase(substr, layer) == 999999) count++;
   }
   return count;
+}
+
+void HitPattern::printHitPattern (int position, std::ostream &stream) const
+{
+     uint32_t pattern = getHitPattern(position);
+     stream << "\t";
+     if (muonHitFilter(pattern))
+	  stream << "muon";
+     if (trackerHitFilter(pattern))
+	  stream << "tracker";
+     stream << "\tsubstructure " << getSubStructure(pattern);
+     stream << "\tlayer " << getLayer(pattern);
+     stream << "\thit type " << getHitType(pattern);
+     stream << std::endl;
+}
+
+void HitPattern::print (std::ostream &stream) const
+{
+     stream << "HitPattern" << std::endl;
+     for (int i = 0; i < numberOfHits(); i++) 
+	  printHitPattern(i, stream);
+     std::ios_base::fmtflags flags = stream.flags();
+     stream.setf ( std::ios_base::hex, std::ios_base::basefield );  
+     stream.setf ( std::ios_base::showbase );               
+     for (int i = 0; i < numberOfHits(); i++) {
+	  uint32_t pattern = getHitPattern(i);
+	  stream << pattern << std::endl;
+     }
+     stream.flags(flags);
+}
+
+uint32_t HitPattern::isStereo (DetId i) 
+{
+     switch (i.det()) {
+     case DetId::Tracker:
+	  switch (i.subdetId()) {
+	  case PixelSubdetector::PixelBarrel:
+	  case PixelSubdetector::PixelEndcap:
+	       return 0;
+	  case StripSubdetector::TIB:
+	  {
+	       TIBDetId id = i;
+	       return id.isStereo();
+	  }
+	  case StripSubdetector::TID:
+	  {
+	       TIDDetId id = i;
+	       return id.isStereo();
+	  }
+	  case StripSubdetector::TOB:
+	  {
+	       TOBDetId id = i;
+	       return id.isStereo();
+	  }
+	  case StripSubdetector::TEC:
+	  {
+	       TECDetId id = i;
+	       return id.isStereo();
+	  }
+	  default:
+	       return 0;
+	  }
+	  break;
+     default:
+	  return 0;
+     }
 }

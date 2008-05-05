@@ -14,23 +14,23 @@
 // Hit pattern is the summary information of the hits associated to track in
 // AOD.  When RecHits are no longer available, the compact hit pattern should
 // allow basic track selection based on the hits in various subdetectors.  The
-// hits of a track are saved in unit32_t hitPattern_[25], initialized as
+// hits of a track are saved in unit32_t hitPattern_[28], initialized as
 // 0x00000000, ..., 0x00000000.  Set one hit with 10 bits
 //
-//      +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-//      |tk/mu|  sub-structure  |   sub-sub-structure   |  hit type |
-//      +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-//  ... |  9  |  8     7     6  |  5     4     3     2  |  1     0  | bit
+//      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
+//      |tk/mu|  sub-structure  |   sub-sub-structure   |     stereo     |  hit type |
+//      +-----+-----+-----+-----+-----+-----+-----+-----+----------------+-----+-----+
+//  ... | 10  |   9    8     7  |   6    5     4     3  |        2       |  1     0  | bit
 //
-//      tk = 1      PXB = 1            layer = 1-3         hit type = 0-3
-//      tk = 1      PXF = 2            disk  = 1-2         hit type = 0-3
-//      tk = 1      TIB = 3            layer = 1-4         hit type = 0-3
-//      tk = 1      TID = 4            wheel = 1-3         hit type = 0-3
-//      tk = 1      TOB = 5            layer = 1-6         hit type = 0-3
-//      tk = 1      TEC = 6            wheel = 1-9         hit type = 0-3
-//      mu = 0      DT  = 1            layer               hit type = 0-3
-//      mu = 0      CSC = 2            layer               hit type = 0-3
-//      mu = 0      RPC = 3            layer               hit type = 0-3
+//      |tk = 1      PXB = 1            layer = 1-3                       hit type = 0-3
+//      |tk = 1      PXF = 2            disk  = 1-2                       hit type = 0-3
+//      |tk = 1      TIB = 3            layer = 1-4      0=rphi,1=stereo  hit type = 0-3
+//      |tk = 1      TID = 4            wheel = 1-3      0=rphi,1=stereo  hit type = 0-3
+//      |tk = 1      TOB = 5            layer = 1-6      0=rphi,1=stereo  hit type = 0-3
+//      |tk = 1      TEC = 6            wheel = 1-9      0=rphi,1=stereo  hit type = 0-3
+//      |mu = 0      DT  = 1            layer                             hit type = 0-3
+//      |mu = 0      CSC = 2            layer                             hit type = 0-3
+//      |mu = 0      RPC = 3            layer                             hit type = 0-3
 //
 //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
 //      valid    = valid hit                                     = 0
@@ -38,7 +38,7 @@
 //      inactive = detector is off, so there was no hope         = 2
 //      bad      = there were many bad strips within the ellipse = 3
 //
-// The maximum number of hits = 32*25/10 = 80.  It had been shown by Zongru
+// The maximum number of hits = 32*28/11 = 81.  It had been shown by Zongru
 // using a 100 GeV muon sample with 5000 events uniform in eta and phi, the 
 // average (maximum) number of tracker hits is 13 (17) and the average 
 // (maximum) number of muon detector hits is about 26 (50).  If the number of 
@@ -98,7 +98,7 @@
 //      std::cout << "number of of pixel barrel layers with measurement is "
 //                << p.pixelBarrelLayersWithMeasurement() << std::endl;
 //
-
+#include <ostream>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -132,6 +132,10 @@ namespace reco {
 	set(*hit, counter);
     }
 
+    // print the pattern of the position-th hit
+    void printHitPattern (int position, std::ostream &stream) const;
+    void print (std::ostream &stream = std::cout) const;
+
     // set the pattern of the i-th hit
     void set(const TrackingRecHit &, unsigned int i); 
 
@@ -161,6 +165,8 @@ namespace reco {
     bool type_1_HitFilter(uint32_t pattern) const; // hit type 1
     bool type_2_HitFilter(uint32_t pattern) const; // hit type 2
     bool type_3_HitFilter(uint32_t pattern) const; // hit type 3
+
+    static uint32_t getSide (uint32_t pattern);		// mono (0) or stereo (1)
 
     bool hasValidHitInFirstPixelBarrel() const; // has valid hit in PXB layer 1
 
@@ -239,19 +245,23 @@ namespace reco {
     const static unsigned short PatternSize = 25;
 
     // number of bits used for each hit
-    const static unsigned short HitSize = 10;    
+    const static unsigned short HitSize = 11;    
  
     // 1 bit to distinguish tracker and muon subsystems
-    const static unsigned short SubDetectorOffset = 9; 
+    const static unsigned short SubDetectorOffset = 10; 
     const static unsigned short SubDetectorMask = 0x1;
 
     // 3 bits to identify the tracker/muon detector substructure
-    const static unsigned short SubstrOffset = 6; 
+    const static unsigned short SubstrOffset = 7; 
     const static unsigned short SubstrMask = 0x7;
 
     // 4 bits to identify the layer/disk/wheel within the substructure
-    const static unsigned short LayerOffset = 2; 
+    const static unsigned short LayerOffset = 3; 
     const static unsigned short LayerMask = 0xF;
+
+    // 1 bit to identify the side in double-sided detectors
+    const static unsigned short SideOffset = 2;
+    const static unsigned short SideMask = 0x1;
 
     // 2 bits for hit type
     const static unsigned short HitTypeOffset = 0;
@@ -265,6 +275,9 @@ namespace reco {
 
     // set pattern for i-th hit passing a reference
     void set(const TrackingRecHitRef & ref, unsigned int i) { set(* ref, i); }
+
+    // detector side for tracker modules (mono/stereo)
+    static uint32_t isStereo (DetId);
   };
 } 
 
