@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/04/14 19:19:47 $
+#     $Revision: 1.5 $
+#     $Date: 2008/05/02 13:13:08 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -28,12 +28,12 @@ while (@ARGV) {
     }
     if ($arg =~ "m") {
       $fireMerge = 1;
-    }
-    if ($arg =~ "f") {
+      if ($arg =~ "f") {
 # Run merge job even if some mille job are not "OK"
-      $forceMerge = 1;
+        $forceMerge = 1;
+      }
     }
-    if ($arg =~ "u") {
+    elsif ($arg =~ "u") {
       $updateDb = 1;
     }
     $optionstring = "$optionstring$arg";
