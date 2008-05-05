@@ -259,14 +259,15 @@ if ($driver eq "merge") {
   system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir";
 }
 
-# Create a backup of batchScript, cfgTemplate (and mergeScript) in jobData
+# Create a backup of batchScript, cfgTemplate, infiList (and mergeScript)
+#   in jobData
 $i = `ls jobData | grep 'ScriptsAndCfg[0-9][0-9][0-9]' | tail -1`;
 $i =~ s/ScriptsAndCfg//;
 $i =~ s/.tar//;
 $i++;
 $ScriptCfg = sprintf "ScriptsAndCfg%03d",$i;
 system "mkdir jobData/$ScriptCfg";
-system "cp $batchScript $cfgTemplate jobData/$ScriptCfg/.";
+system "cp $batchScript $cfgTemplate $infiList jobData/$ScriptCfg/.";
 if ($driver eq "merge") {
   system "cp $mergeScript jobData/$ScriptCfg/.";
 }
