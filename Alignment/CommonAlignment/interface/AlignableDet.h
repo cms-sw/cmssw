@@ -3,14 +3,15 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
-/// An AlignableComposite that has AlignableDetUnits as direct component.
-
+/// An AlignableComposite corresponding to a composite GeomDet
+/// direct components are AlignableDetUnits or AlignableDets.
 class AlignableDet: public AlignableComposite 
 {
 
 public:
   
-  /// Constructor (copies  GeomDetUnits of GeomDet)
+  /// Constructor: If addComponents = true, creates components for
+  /// geomDet's components, assuming they are GeomDetUnits
   AlignableDet( const GeomDet* geomDet, bool addComponents = true );
   
   /// Destructor
