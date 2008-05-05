@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.2 $
-#     $Date: 2008/04/14 19:19:47 $
+#     $Revision: 1.3 $
+#     $Date: 2008/04/17 16:38:47 $
 #
 #  Setup local mps database
 #  
@@ -137,7 +137,8 @@ if ($mssDir ne "") {
 my $nJobExist="";
 if ($append==1 && -d "jobData") {
 # Append mode, and "jobData" exists
-  $nJobExist = `ls jobData | grep 'job[0-9][0-9][0-9]' | tail -1 | awk '{gsub(\"job\",\"\"); print}'`;
+  $nJobExist = `ls jobData | grep 'job[0-9][0-9][0-9]' | tail -1`;
+  $nJobExist =~ s/job//;
 }
 
 if ($nJobExist eq "" || $nJobExist <=0 || $nJobExist>999) {
@@ -258,6 +259,22 @@ if ($driver eq "merge") {
   system "mps_scriptm.pl $mergeScript jobData/jobm/theScript.sh $theJobData/jobm alignment_merge.cfg $nJobsMerge $mssDir";
 }
 
+# Create a backup of batchScript, cfgTemplate (and mergeScript) in jobData
+$i = `ls jobData | grep 'ScriptsAndCfg[0-9][0-9][0-9]' | tail -1`;
+$i =~ s/ScriptsAndCfg//;
+$i =~ s/.tar//;
+$i++;
+$ScriptCfg = sprintf "ScriptsAndCfg%03d",$i;
+system "mkdir jobData/$ScriptCfg";
+system "cp $batchScript $cfgTemplate jobData/$ScriptCfg/.";
+if ($driver eq "merge") {
+  system "cp $mergeScript jobData/$ScriptCfg/.";
+}
+system "tar -cf jobData/$ScriptCfg.tar jobData/$ScriptCfg";
+system "rm -rf jobData/$ScriptCfg";
+
+
+# Write to DB
 write_db();
 read_db();
 print_memdb();
