@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/04/28 22:39:00 $
- * $Revision: 1.30 $
+ * $Date: 2008/05/05 15:23:27 $
+ * $Revision: 1.31 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -280,10 +280,10 @@ void SiStripAnalyser::fillGlobalStatus() {
       case StripSubdetector::TID:
 	{
 	  TIDDetId tidId(detId);
-	  if (tidId.isZPlusSide()) {
+	  if (tidId.side() == 2) {
 	    nSubDetsTotal[1]++;
 	    if (error_me > 0) nSubDetsWithErr[1]++;
-	  }  else if (tidId.isZMinusSide()) {
+	  }  else if (tidId.side() == 1) {
 	    nSubDetsTotal[2]++;
 	    if (error_me > 0) nSubDetsWithErr[2]++;
 	  }
@@ -298,10 +298,10 @@ void SiStripAnalyser::fillGlobalStatus() {
       case StripSubdetector::TEC:
 	{
 	  TECDetId tecId(detId);
-	  if (tecId.isZPlusSide()) {
+	  if (tecId.side() == 2) {
 	    nSubDetsTotal[4]++;
 	    if (error_me > 0) nSubDetsWithErr[4]++;
-	  }  else if (tecId.isZMinusSide()) {
+	  }  else if (tecId.side() == 1) {
 	    nSubDetsTotal[5]++;
 	    if (error_me > 0) nSubDetsWithErr[5]++;
 	  }
