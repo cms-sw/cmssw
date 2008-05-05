@@ -1,6 +1,3 @@
-#ifndef RecoAlgos_CaloRecHitCandidateProducer_h
-#define RecoAlgos_CaloRecHitCandidateProducer_h
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
@@ -59,4 +56,15 @@ namespace reco {
   }
 }
 
-#endif
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+typedef reco::modules::CaloRecHitCandidateProducer<HFRecHitCollection> HFRecHitCandidateProducer;
+typedef reco::modules::CaloRecHitCandidateProducer<ZDCRecHitCollection> ZDCRecHitCandidateProducer;
+typedef reco::modules::CaloRecHitCandidateProducer<HBHERecHitCollection> HBHERecHitCandidateProducer;
+typedef reco::modules::CaloRecHitCandidateProducer<HORecHitCollection> HORecHitCandidateProducer;
+
+DEFINE_FWK_MODULE( HFRecHitCandidateProducer );
+DEFINE_FWK_MODULE( ZDCRecHitCandidateProducer );
+DEFINE_FWK_MODULE( HBHERecHitCandidateProducer );
+DEFINE_FWK_MODULE( HORecHitCandidateProducer );
