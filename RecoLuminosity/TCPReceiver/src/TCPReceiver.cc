@@ -56,25 +56,6 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
         FD_SET(ListeningSocket, &ExceptFDs);
     }
 
-    // Add client connections
-    /*    std::vector<ClientConnectionData>::iterator it = gConnections.begin();
-    while (it != gConnections.end()) {
-      if (it->nCharsInBuffer < kBufferSize) {
-        // There's space in the read buffer, so pay attention to
-        // incoming data.
-        FD_SET(it->sd, &ReadFDs);
-      }
-
-      //if (it->nCharsInBuffer > 0) {
-      // There's data still to be sent on this socket, so we need
-      // to be signalled when it becomes writable.
-      //FD_SET(it->sd, &WriteFDs);
-      //  }
-
-      FD_SET(it->sd, &ExceptFDs);
-
-      ++it;
-      }*/
     if (connectSocket != -1) {
       FD_SET(connectSocket, &ReadFDs);
       FD_SET(connectSocket, &ExceptFDs);
@@ -112,9 +93,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	//int ret;
 
 	time(&curTime);
-	
-
-
+      
 	bytesToReceive = sizeof(localSection);
 	Buffer = new char[Buffer_Size];
 	BigBuffer = new char[bytesToReceive];
@@ -127,11 +106,8 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 	usleep(10000);
 	
 	while((totalBytesRcvd < bytesToReceive) && (errorCode == 0)){
-
-	SetupFDSets(fdsRead, fdsWrite, fdsExcept, -1, tcpSocket);
 	  
-	// FD_ZERO(&fds);
-	// FD_SET(tcpSocket, &fds); // adds sock to the file descriptor set
+	  SetupFDSets(fdsRead, fdsWrite, fdsExcept, -1, tcpSocket);
 	  
 	  if(select(tcpSocket+1, &fdsRead, 0, &fdsExcept, 0)> 0){
 	    
@@ -141,9 +117,8 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 		perror("Recv Error"); 
 		errorCode = 501;
 	      }else{
-		
 		if((totalBytesRcvd + bytesRcvd)<= bytesToReceive){
-		memcpy(&BigBuffer[totalBytesRcvd], Buffer, bytesRcvd);
+		  memcpy(&BigBuffer[totalBytesRcvd], Buffer, bytesRcvd);
 		}else{
 		  std::cout << "***** MEM OVER FLOW: Did someone forget to update LumiStructures.hh? *****" << std::endl;
 		  errorCode = 502;
@@ -171,14 +146,14 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     } else {
       errorCode = 201;
     }
-
+    
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << " " << errorCode << std::endl;
 #endif
     
     return errorCode;
   }
-
+  
   bool TCPReceiver::IsConnected(){
 #ifdef DEBUG
     std::cout << "Begin and End  " << __PRETTY_FUNCTION__ << " " << Connected << std::endl;
@@ -190,16 +165,16 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 #ifdef DEBUG
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
-
+    
     int errorCode;
-
+    
     if(port < 1024){
       errorCode = 101;
     }else{
       servPort = port;
       errorCode = 1;
     }
-
+    
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << " " << errorCode << std::endl;
 #endif
@@ -210,22 +185,22 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
 #ifdef DEBUG
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
-
+    
     int errorCode;
-
+    
     if(mode > 2){
       errorCode = 201;
     } else {
       acquireMode = mode;
       errorCode = 1;
     }
-
+    
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << " " << errorCode << std::endl;
 #endif
     return errorCode;
   }
-
+  
   void TCPReceiver::SetIP(std::string IP){
 #ifdef DEBUG
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
@@ -245,7 +220,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     
     if(acquireMode == 0){
       struct hostent * hostInfo = gethostbyname(servIP.c_str());
-
+      
       if(servPort < 1024){
 	errorCode = 101;  // Protected ports
       } else {
@@ -311,7 +286,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     } else {
       errorCode = 401;  // Not Connected
     }
-
+    
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << " " << errorCode << std::endl;
 #endif
@@ -351,8 +326,6 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     localSection.lumiSummary.InstantOccLumiErr[1]  = 0.20;
     localSection.lumiSummary.InstantOccLumiQlty[1] = 21;
     localSection.lumiSummary.lumiNoise[1]          = 0.22;
-    
-
     
     for(j=0; j < 3564; j++){
       localSection.lumiDetail.ETBXNormalization[j]     = 0.25*j/35640.0;

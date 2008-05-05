@@ -23,6 +23,7 @@
 // Lumi
 #include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
+#include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
 
 /* 
    Error Codes
