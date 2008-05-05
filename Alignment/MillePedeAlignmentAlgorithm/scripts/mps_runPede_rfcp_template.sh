@@ -39,10 +39,8 @@ rm  treeFileISN.root
 gzip -f *.log *.txt
 
 # Merge possible alignment monitor and millepede monitor hists...
-# ...and remove individual histogram files after merging to save space (if
-success):
-#NOTE: the names "histograms.root" and "millePedeMonitor.root" must match
-what is in
+# ...and remove individual histogram files after merging to save space (if success):
+# NOTE: the names "histograms.root" and "millePedeMonitor.root" must match what is in
 #      the mps_template.cfg!
 hadd histograms_merge.root $RUNDIR/../job???/histograms.root
 if [ $? -eq 0 ]; then
@@ -53,9 +51,8 @@ if [ $? -eq 0 ]; then
     rm $RUNDIR/../job???/millePedeMonitor.root
 fi
 
-echo "\nDirectory content after running cmsRun, zipping log file and merging
-histogram files:"
-ls -lh 
+echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
+ls -lh
 # Copy everything you need to MPS directory of your job,
 # but you might want to copy less stuff to save disk space:
 cp -p *.log.gz *.txt.gz *.root millepede.*s $RUNDIR
