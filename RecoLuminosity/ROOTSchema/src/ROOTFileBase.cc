@@ -1,42 +1,35 @@
 #include "RecoLuminosity/ROOTSchema/interface/ROOTFileBase.h"
 
-std::string ROOTFileBase::TimeStampLong(){
+#include <sstream>
+#include <iostream>
+#include <typeinfo>
+#include <iomanip>
+#include <vector>
+#include <ctime>
 
-  time_t rawtime;
-  time(&rawtime);
+#include <stddef.h>
 
-  return ctime(&rawtime);
-}
+// mkdir
+#include <sys/types.h>
+#include <sys/stat.h>
 
-std::string ROOTFileBase::TimeStampShort(){
+#include <TROOT.h>
+#include <TChain.h>
+#include <TTree.h>
+#include <TFile.h>
 
-  time_t rawtime;
-  struct tm* timeinfo;
-
-  rawtime = time(NULL);
-  timeinfo = localtime(&rawtime);
-
-  std::ostringstream out;
-  out.str(std::string());
-  out << std::setfill('0') << std::setw(4) << timeinfo->tm_year + 1900;
-  out << std::setfill('0') << std::setw(2) << timeinfo->tm_mon + 1;
-  out << std::setfill('0') << std::setw(2) << timeinfo->tm_mday;
-
-  return out.str();
-}
-
-ROOTFileBase::ROOTFileBase(){
+HCAL_HLX::ROOTFileBase::ROOTFileBase(){
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-  Header  = new HCAL_HLX::LUMI_SECTION_HEADER;
-  Summary = new HCAL_HLX::LUMI_SUMMARY;
-  Detail  = new HCAL_HLX::LUMI_DETAIL;
+  Header          = new HCAL_HLX::LUMI_SECTION_HEADER;
+  Summary         = new HCAL_HLX::LUMI_SUMMARY;
+  Detail          = new HCAL_HLX::LUMI_DETAIL;
 
-  EtSum     = new HCAL_HLX::ET_SUM_SECTION[HCAL_HLX_MAX_HLXS];
-  Occupancy = new HCAL_HLX::OCCUPANCY_SECTION[HCAL_HLX_MAX_HLXS];
-  LHC       = new HCAL_HLX::LHC_SECTION[HCAL_HLX_MAX_HLXS];
+  EtSum           = new HCAL_HLX::ET_SUM_SECTION[HCAL_HLX_MAX_HLXS];
+  Occupancy       = new HCAL_HLX::OCCUPANCY_SECTION[HCAL_HLX_MAX_HLXS];
+  LHC             = new HCAL_HLX::LHC_SECTION[HCAL_HLX_MAX_HLXS];
 
   Threshold       = new HCAL_HLX::LUMI_THRESHOLD;
   L1Trigger       = new HCAL_HLX::LEVEL1_TRIGGER;
@@ -44,7 +37,8 @@ ROOTFileBase::ROOTFileBase(){
   TriggerDeadtime = new HCAL_HLX::TRIGGER_DEADTIME;
   RingSet         = new HCAL_HLX::LUMI_HF_RING_SET;
 
-  outputDir = ".";
+  outputDir_ = ".";
+  outputFilePrefix_ = "CMS_LUMI_RAW";
 
   m_file = NULL;
 
@@ -53,7 +47,7 @@ ROOTFileBase::ROOTFileBase(){
 #endif
 }
 
-ROOTFileBase::~ROOTFileBase(){
+HCAL_HLX::ROOTFileBase::~ROOTFileBase(){
 
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
@@ -78,7 +72,14 @@ ROOTFileBase::~ROOTFileBase(){
 #endif
 }
 
-void ROOTFileBase::CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection){
+void HCAL_HLX::ROOTFileBase::SetFileName(const std::string& fileName){
+
+  fileName_ = fileName;
+
+} 
+
+
+std::string HCAL_HLX::ROOTFileBase::CreateLSFileName(const unsigned int runNumber, const unsigned int sectionNumber, const unsigned int bCMSLive){
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -86,36 +87,72 @@ void ROOTFileBase::CreateFileName(const HCAL_HLX::LUMI_SECTION &localSection){
   std::ostringstream outputString;
 
   // Create directory name
-  outputString << outputDir << "/" 
-	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;
+  outputString << outputDir_ << "/" 
+	       << std::setfill('0') << std::setw(9) << runNumber;
   
   // Create the directory that will contain the single lumi section file
   mkdir(outputString.str().c_str(), 0777);
   
   // Create file name
-  outputString << "/CMS_LUMI_RAW_"
-	       << TimeStampShort() << "_"
-	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber << "_"
-	       << localSection.hdr.bCMSLive << "_"
-	       << std::setfill('0') << std::setw(4) << localSection.hdr.sectionNumber 
+  outputString << "/"
+	       << outputFilePrefix_
+	       << "_"
+	       << TimeStampShort() 
+	       << "_"
+	       << std::setfill('0') << std::setw(9) << runNumber << "_"
+	       << bCMSLive << "_"
+	       << std::setfill('0') << std::setw(4) << sectionNumber 
 	       << ".root";
-  fileName = outputString.str();
   
 #ifdef DEBUG
-  std::cout << "Output file is " << fileName << std::endl;
+  std::cout << "Output file is " << outputString.str() << std::endl;
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
+
+  return outputString.str();
 }
 
-void ROOTFileBase::CreateTree(const HCAL_HLX::LUMI_SECTION & localSection){
+std::string HCAL_HLX::ROOTFileBase::CreateRunFileName(const unsigned int runNumber, bool bCMSLive){
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
 
-  m_file = new TFile(fileName.c_str(), "UPDATE");  
+  std::ostringstream outputString;
+
+  // Create file name
+  outputString << outputDir_ << "/"
+	       << outputFilePrefix_
+	       << "_"
+	       << TimeStampShort() 
+	       << "_"
+	       << std::setfill('0') << std::setw(9) << runNumber 
+	       << "_"
+	       << bCMSLive
+	       << ".root";
+  
+#ifdef DEBUG
+  std::cout << "Output file is " <<  outputString.str() << std::endl;
+  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
+#endif
+  
+  return  outputString.str();
+
+}
+
+void HCAL_HLX::ROOTFileBase::CreateTree(const HCAL_HLX::LUMI_SECTION & localSection){
+#ifdef DEBUG
+  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
+#endif
+  
+  if(fileName_ == ""){
+    std::cout << "*** File Name was not set ***" << std::endl;
+    return;
+  }
+
+  m_file = new TFile(fileName_.c_str(), "RECREATE");  
 
   if(!m_file){
-    std::cout << " *** Couldn't make or open file: " << fileName << " *** " << std::endl;
+    std::cout << " *** Couldn't make or open file: " << fileName_ << " *** " << std::endl;
     exit(1);
   } 
 
@@ -149,11 +186,16 @@ void ROOTFileBase::CreateTree(const HCAL_HLX::LUMI_SECTION & localSection){
 #endif
 }
 
-void ROOTFileBase::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
+void HCAL_HLX::ROOTFileBase::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
   
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
+
+  if(fileName_ == ""){
+    std::cout << "*** File Name was not set ***" << std::endl;
+    return;
+  }
   
   for(int i = 0; i < HCAL_HLX_MAX_HLXS; i++){
     memcpy(&EtSum[i],     &localSection.etSum[i],     sizeof(HCAL_HLX::ET_SUM_SECTION));
@@ -165,7 +207,7 @@ void ROOTFileBase::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
   memcpy(Summary, &localSection.lumiSummary, sizeof(HCAL_HLX::LUMI_SUMMARY));
   memcpy(Detail,  &localSection.lumiDetail,  sizeof(HCAL_HLX::LUMI_DETAIL));
 
-  InsertInformation();
+  InsertInformation(); // To be modified later.
 
   m_tree->Fill();
 
@@ -176,7 +218,7 @@ void ROOTFileBase::FillTree(const HCAL_HLX::LUMI_SECTION& localSection){
 }
 
 template< class T >
-void ROOTFileBase::MakeBranch(const T &in, T **out, int HLXNum){
+void HCAL_HLX::ROOTFileBase::MakeBranch(const T &in, T **out, int HLXNum){
 
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
@@ -212,7 +254,7 @@ void ROOTFileBase::MakeBranch(const T &in, T **out, int HLXNum){
 #endif
 }
 
-void ROOTFileBase::InsertInformation(){
+void HCAL_HLX::ROOTFileBase::InsertInformation(){
   // This information will eventually come from the lms cell
   Threshold->OccThreshold1Set1 = 51;
   Threshold->OccThreshold2Set1 = 52;
@@ -236,10 +278,15 @@ void ROOTFileBase::InsertInformation(){
   RingSet->EtSumRings = "33L,34L,35S,36S";
 }
 
-void ROOTFileBase::CloseTree(){
+void HCAL_HLX::ROOTFileBase::CloseTree(){
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
+
+  if(fileName_ == ""){
+    std::cout << "*** File Name was not set ***" << std::endl;
+    return;
+  }
 
   m_file->Write();
   m_file->Close();
@@ -251,50 +298,6 @@ void ROOTFileBase::CloseTree(){
     m_tree = NULL;
   }
 
-#ifdef DEBUG
-  std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-}
-
-void ROOTFileBase::Concatenate(const HCAL_HLX::LUMI_SECTION& localSection){
-#ifdef DEBUG
-  std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
-#endif
-
-  std::ostringstream outputString;
-  std::string outFileName;
-  std::string tempString;
-  std::vector<std::string> FileList;
-
-  outputString << outputDir
-	       << "/CMS_LUMI_RAW_"
-	       << TimeStampShort()
-	       << "_"
-	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber
-	       << "_"
-	       << localSection.hdr.bCMSLive
-	       << ".root";
-  outFileName = outputString.str();
-  
-  outputString.str(std::string());
-  outputString << outputDir << "/" << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber;  
-  outputString << "/CMS_LUMI_RAW_"
-	       << TimeStampShort() << "_"
-	       << std::setfill('0') << std::setw(9) << localSection.hdr.runNumber << "_"
-	       << localSection.hdr.bCMSLive << "_*.root";
-
-  TChain Temp("LumiTree");
-  Temp.Add(outputString.str().c_str());
-
-  //  Temp.Merge(outFileName.c_str()); // causes leaks
-  /*
-  TFile* OutputFile = new TFile(outFileName.c_str(),"RECREATE");
-  TTree* OutputTree = Temp.CloneTree();
-  
-  OutputFile->Write();
-  OutputFile->Close();
-  delete OutputFile;
-  */
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif

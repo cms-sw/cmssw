@@ -2,7 +2,9 @@
 <use name=rootcintex>
 <use name=rootcore>
 <use name=root>
+<use name=RecoLuminosity/TCPReceiver>
 <export>
+	<use name=RecoLuminosity/TCPReceiver>
 	<lib name=RecoLuminosityROOTSchema>
 	<use name=rootcore>
 	<use name=root>

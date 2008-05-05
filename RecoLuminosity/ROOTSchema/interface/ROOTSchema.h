@@ -13,14 +13,17 @@ Date: 2007-10-05
 using std::cout;
 using std::endl;
 
-class ROOTSchema: public ROOTFileBase{
-        
-public:
-      
+namespace HCAL_HLX{
+
+  class ROOTSchema: public ROOTFileBase{
+    
+  public:
+    
     ROOTSchema();
     ~ROOTSchema();
-
+    
     void ProcessSection(const HCAL_HLX::LUMI_SECTION & lumiSection);
-};
+  };
+}
 
 #endif
