@@ -47,9 +47,15 @@ using namespace edm;
 #define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
-  conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0) {
+  conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0),
+  use_ineff_from_db_(conf_.getParameter<bool>("useDB")),
+  theSiPixelGainCalibrationService_(0)
+{
   using std::cout;
   using std::endl;
+
+  if(use_ineff_from_db_)// load gain calibration service fromdb...
+    theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineService(conf_);
 
   // Common pixel parameters
   // This are parameters which are not likely to be changed
@@ -425,6 +431,8 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
     if((pixelInefficiency>0) && (_signal.size()>0)) 
       pixel_inefficiency(); // Kill some pixels
+    if(use_ineff_from_db_ && (_signal.size()>0))
+      pixel_inefficiency_db();
 
     delete pIndexConverter;
   }
@@ -1046,6 +1054,7 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 // Delete a selected number of single pixels, dcols and rocs.
 void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 
+
   // Predefined efficiencies
   float pixelEfficiency  = 1.0;
   float columnEfficiency = 1.0;
@@ -1246,4 +1255,24 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
    
   return theDriftDirection;
 }
+
+void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
+  if(!use_ineff_from_db_)
+    return;
+  
+  // Loop over hit pixels, amplitude in electrons, channel = coded row,col
+  for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
+
+    //    int chan = i->first;
+    pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
+    int row = ip.first;  // X in row
+    int col = ip.second; // Y is in col
+    uint32_t detid = detID;
+    //transform to ROC index coordinates   
+    if(theSiPixelGainCalibrationService_->isDead(detid, col, row)){
+      // make pixel amplitude =0, pixel will be lost at clusterization    
+      i->second.set(0.); // reset amplitude, 
+    } // end if
+  } // end pixel loop
+} // end pixel_indefficiency
 

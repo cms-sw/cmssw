@@ -29,6 +29,9 @@
 
 #include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 
+// pixel gain payload access (offline version)
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
+
 // For the random numbers
 namespace CLHEP {
   class RandGaussQ;
@@ -230,7 +233,7 @@ class SiPixelDigitizerAlgorithm  {
     float moduleThickness; // sensor thickness 
     //  int digis; 
     const PixelGeomDetUnit* _detp;
-    int detID;     // Det id
+    uint32_t detID;     // Det id
 
     std::vector<PSimHit> _PixelHits; //cache
     const PixelTopology* topol;
@@ -290,6 +293,10 @@ class SiPixelDigitizerAlgorithm  {
     void add_noise();
     void make_digis();
     void pixel_inefficiency();
+    bool use_ineff_from_db_;
+    void pixel_inefficiency_db(); 
+       // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
+    SiPixelGainCalibrationOfflineService * theSiPixelGainCalibrationService_;    
     float missCalibrate(int col, int row, float amp) const;  
     LocalVector DriftDirection();
 
