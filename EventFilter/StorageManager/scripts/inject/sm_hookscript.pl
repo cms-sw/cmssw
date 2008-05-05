@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: sm_hookscript.pl,v 1.4 2008/05/02 10:49:23 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.5 2008/05/05 11:17:05 loizides Exp $
 ################################################################################
 
 use strict;
@@ -30,7 +30,7 @@ my $doca = $ENV{'SM_CALIB_NFS'};
 if (defined $doca) {
     my @fields = split(m/\./,$filename);
     if($fields[3] eq "Calibration") {
-        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5";
+        my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5';
         system($COPYCOMMAND);
     }
 }
@@ -40,7 +40,7 @@ my $dola = $ENV{'SM_LA_NFS'};
 if (defined $dola) {
     if ($lumisection == 1 && $count < 1)
     {
-        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 10";
+        my $COPYCOMMAND = '$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 10';
         system($COPYCOMMAND);
     }
 }
