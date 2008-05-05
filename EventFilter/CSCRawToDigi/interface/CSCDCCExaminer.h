@@ -140,8 +140,8 @@ public:
 	const char* errorName  (int num) const { if(num>=0&&num<nERRORS)   return sERROR_[num];   else return ""; }
 	const char* warningName(int num) const { if(num>=0&&num<nWARNINGS) return sWARNING_[num]; else return ""; }
 
-	const char* payloadName(int num) const { if(num>=0&&num<13) return sDMBExpectedPayload[num]; else return ""; }
-	const char* statusName (int num) const { if(num>=0&&num<19) return sDMBEventStaus     [num]; else return ""; }
+	const char* payloadName(int num) const { if(num>=0&&num<nPAYLOADS) return sDMBExpectedPayload[num]; else return ""; }
+	const char* statusName (int num) const { if(num>=0&&num<nSTATUSES) return sDMBEventStaus     [num]; else return ""; }
 
 	bool error  (int num) const { if(num>=0&&num<nERRORS)   return fERROR  [num]; else return 0; }
 	bool warning(int num) const { if(num>=0&&num<nWARNINGS) return fWARNING[num]; else return 0; }

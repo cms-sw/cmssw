@@ -40,7 +40,7 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTATUSES(19),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(13),sDMBEventStaus(19){
+CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTATUSES(21),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
@@ -102,24 +102,26 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTA
   sDMBExpectedPayload[12] = "B-words found";
 
   sDMBEventStaus[0]  = "ALCT_FIFO_FULL";
-  sDMBEventStaus[1]  = "TMB_FIFO_HALF";
+  sDMBEventStaus[1]  = "TMB_FIFO_FULL";
   sDMBEventStaus[2]  = "CFEB1_FIFO_FULL";
   sDMBEventStaus[3]  = "CFEB2_FIFO_FULL";
   sDMBEventStaus[4]  = "CFEB3_FIFO_FULL";
   sDMBEventStaus[5]  = "CFEB4_FIFO_FULL";
   sDMBEventStaus[6]  = "CFEB5_FIFO_FULL";
-  sDMBEventStaus[7]  = "ALCT_TIMEOUT";
-  sDMBEventStaus[8]  = "TMB_TIMEOUT";
+  sDMBEventStaus[7]  = "ALCT_START_TIMEOUT";
+  sDMBEventStaus[8]  = "TMB_START_TIMEOUT";
   sDMBEventStaus[9]  = "CFEB1_START_TIMEOUT";
   sDMBEventStaus[10] = "CFEB2_START_TIMEOUT";
   sDMBEventStaus[11] = "CFEB3_START_TIMEOUT";
   sDMBEventStaus[12] = "CFEB4_START_TIMEOUT";
   sDMBEventStaus[13] = "CFEB5_START_TIMEOUT";
-  sDMBEventStaus[14] = "CFEB1_END_TIMEOUT";
-  sDMBEventStaus[15] = "CFEB2_END_TIMEOUT";
-  sDMBEventStaus[16] = "CFEB3_END_TIMEOUT";
-  sDMBEventStaus[17] = "CFEB4_END_TIMEOUT";
-  sDMBEventStaus[18] = "CFEB5_END_TIMEOUT";
+  sDMBEventStaus[14] = "ALCT_END_TIMEOUT";
+  sDMBEventStaus[15] = "TMB_END_TIMEOUT";
+  sDMBEventStaus[16] = "CFEB1_END_TIMEOUT";
+  sDMBEventStaus[17] = "CFEB2_END_TIMEOUT";
+  sDMBEventStaus[18] = "CFEB3_END_TIMEOUT";
+  sDMBEventStaus[19] = "CFEB4_END_TIMEOUT";
+  sDMBEventStaus[20] = "CFEB5_END_TIMEOUT";
 
   sERROR_[0] = " Any errors: 00";
   sERROR_[1] = " DDU Trailer Missing: 01";
@@ -1057,6 +1059,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       bWARNING   |= 0x2;
       fCHAMB_WRN[1].insert(currentChamber);
       bCHAMB_WRN[currentChamber] |= 0x2;
+      bCHAMB_PAYLOAD[currentChamber] |= 0x1000;
+
       if( (CFEB_SampleCount%8)==0 ){ cout<<" <"; }
       cout<<"B";
 
@@ -1147,13 +1151,16 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       if( !fDMB_Header && !fDMB_Trailer ) nDMBs++; // both DMB Header and DMB F-Trailer were missing
 
       bCHAMB_STATUS[currentChamber] |= (buf0[0]&0x0800)>>11;
-      bCHAMB_STATUS[currentChamber] |= (buf_1[1]&0x0020)>>4;
-      bCHAMB_STATUS[currentChamber] |= (buf0[0]&0x07C0)>>4;
-      bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x0800)>>4;
-      bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x0020)<<3;
-      bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x07C0)<<8;
-      bCHAMB_STATUS[currentChamber] |= (buf0[1]&0x001f)<<9;
-
+      bCHAMB_STATUS[currentChamber] |= (buf0[0]&0x0400)>>9;
+      bCHAMB_STATUS[currentChamber] |= (buf0[0]&0x03E0)>>3;
+      if( fDMB_Trailer ){ // F-Trailer exists
+        bCHAMB_STATUS[currentChamber] |= (buf_1[2]&0x0002)<<6;
+        bCHAMB_STATUS[currentChamber] |= (buf_1[2]&0x0001)<<8;
+        bCHAMB_STATUS[currentChamber] |= (buf_1[3]&0x001f)<<9;
+        bCHAMB_STATUS[currentChamber] |= (buf_1[3]&0x0040)<<8;
+        bCHAMB_STATUS[currentChamber] |= (buf_1[3]&0x0020)<<10;
+		bCHAMB_STATUS[currentChamber] |= (buf_1[3]&0x0f80)<<9;
+      }
       fDMB_Header  = false;
 
       // If chamber id is unknown it is time to find it out

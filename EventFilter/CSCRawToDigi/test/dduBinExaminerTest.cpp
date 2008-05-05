@@ -302,8 +302,8 @@ int main(int argc, char **argv){
 				cerr << chamber->first << " PAYLOAD " << pl << "  " << std::setw(50) << std::left << descr << cntChambPAYLOAD[chamber->first][pl] << endl;
 		}
 
-		cerr << endl << " NUMBER OF EVENTS WITH FOLLOWING PAYLOADS: " << endl;
-		for(int st=0; st<examiner.nPAYLOADS; st++){
+		cerr << endl << " NUMBER OF EVENTS WITH FOLLOWING STATUSES: " << endl;
+		for(int st=0; st<examiner.nSTATUSES; st++){
 			if( (descr=examiner.statusName(st)) && strlen(descr) )
 				cerr << chamber->first << " STATUS  " << st << "  " << std::setw(50) << std::left << descr << cntChambSTATUS[chamber->first][st] << endl;
 		}
