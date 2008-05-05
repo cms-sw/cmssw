@@ -72,7 +72,7 @@ unsigned char TrackResiduals::pack_pull (double pull)
 {
      unsigned char sgn = (pull < 0) * 0x08; // 1xxx is -abs(0xxx)
      int mag = -1;
-     while (++mag < 8 && pull_char_to_double[mag][1] > fabs(pull));
+     while (++mag < 8 && pull_char_to_double[mag][1] < fabs(pull));
      return sgn + mag;
 }
 
@@ -99,7 +99,7 @@ unsigned char TrackResiduals::pack_residual (double pull)
 {
      unsigned char sgn = (pull < 0) * 0x08; // 1xxx is -abs(0xxx)
      int mag = -1;
-     while (++mag < 8 && pull_char_to_double[mag][1] > fabs(pull));
+     while (++mag < 8 && pull_char_to_double[mag][1] < fabs(pull));
      return sgn + mag;
 }
 
