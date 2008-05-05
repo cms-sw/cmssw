@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: sm_hookscript.pl,v 1.3 2008/04/29 18:00:24 loizides Exp $
+# $Id: sm_hookscript.pl,v 1.4 2008/05/02 10:49:23 loizides Exp $
 ################################################################################
 
 use strict;
@@ -25,22 +25,22 @@ my $type        = $ENV{'SM_TYPE'};
 my $checksum    = $ENV{'SM_CHECKSUM'};
 my $producer    = 'StorageManager';
 
-# copy first file per lumi section to look area 
-my $dola = $ENV{'SM_LA_NFS'};
-if (defined $dola) {
-    if ($lumisection == 1 && $count < 1)
-    {
-        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 5";
-        system($COPYCOMMAND);
-    }
-}
-
 # special treatment for calibration stream
 my $doca = $ENV{'SM_CALIB_NFS'};
 if (defined $doca) {
     my @fields = split(m/\./,$filename);
     if($fields[3] eq "Calibration") {
-        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 2";
+        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_CALIB_NFS $SM_PATHNAME/$SM_FILENAME $SM_CALIBAREA 5";
+        system($COPYCOMMAND);
+    }
+}
+
+# copy first file per lumi section to look area 
+my $dola = $ENV{'SM_LA_NFS'};
+if (defined $dola) {
+    if ($lumisection == 1 && $count < 1)
+    {
+        my $COPYCOMMAND = "$SMT0_BASE_DIR/sm_nfscopy.sh $SM_LA_NFS $SM_PATHNAME/$SM_FILENAME $SM_LOOKAREA 10";
         system($COPYCOMMAND);
     }
 }
