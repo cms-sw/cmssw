@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/18 20:39:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/24 23:44:55 $
+ *  $Revision: 1.4 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -195,7 +195,12 @@ PythiaProducer::PythiaProducer( const ParameterSet & pset) :
     cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
 
     if(kinedata.size() > 0)
-       fPtYGenerator = new PtYDistributor(kinedata, fRandomEngine);
+    {
+       int ptbins = pset.getUntrackedParameter<int>("ptBinning",1000);
+       int ybins = pset.getUntrackedParameter<int>("yBinning",50);
+       fPtYGenerator = new PtYDistributor(kinedata, fRandomEngine,
+                                          ptmax, ptmin, ymax, ymin, ptbins, ybins);
+    }
   }
 
   // Set PYTHIA parameters in a single ParameterSet
@@ -400,8 +405,8 @@ void PythiaProducer::produce(Event & e, const EventSetup& es) {
 	  ee = sqrt(pe*pe+pmass*pmass);
 	}
       } else { // kinematics from input file, pt and y
-     double pt  = fPtYGenerator->firePt(ptmin, ptmax);
-     double y = fPtYGenerator->fireY(ymin, ymax);
+     double pt  = fPtYGenerator->firePt();
+     double y = fPtYGenerator->fireY();
      double u = exp(y);
      ee = 0.5*sqrt(pmass*pmass+pt*pt)*(u*u+1)/u;
      double pz = sqrt(ee*ee-pt*pt-pmass*pmass);

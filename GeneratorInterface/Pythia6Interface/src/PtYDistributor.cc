@@ -2,53 +2,59 @@
 #include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "TFile.h"
+#include "TGraph.h"
 
 using namespace edm;
 
-PtYDistributor::PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine){
-  
-   theProbSize1 = 0;
-   theProbSize2 = 0;
-
-   std::string file = "GeneratorInterface/Pythia6Interface/data/"+ inputfile +".txt";
+PtYDistributor::PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine, double ptmax = 100, double ptmin = 0, double ymax = 10, double ymin = -10, int ptbins = 1000, int ybins = 50) : ptmax_(ptmax),ptmin_(ptmin),ymax_(ymax),ymin_(ymin), ptbins_(ptbins), ybins_(ybins)
+{  
+   std::string file = "GeneratorInterface/Pythia6Interface/data/"+ inputfile +".root";
    edm::FileInPath f1(file);
    std::string fDataFile = f1.fullPath();
-   
+
    std::cout<<" File from "<<fDataFile <<std::endl;
-   std::ifstream in( fDataFile.c_str() );
-   std::string line;
-  
-   std::cout << " Start to read file "<<fDataFile<<" "<<std::getline( in, line)<<std::endl;
-   
-   while( std::getline( in, line)){
-      
-      if(!line.size() || line[0]=='#') {
-	 std::cout<<" continue "<<std::endl;
-	 continue;
-      }
-      std::istringstream linestream(line);
-      double par,par1;
-      int type;
-      linestream>>type>>par1>>par;
-      std::cout<<" type= "<<type<<" par= "<<par<<std::endl;
-      if(type == 1)
-	 {
-	    // y
-	    aProbFunc1[theProbSize1] = par;
-	    theProbSize1++;
-	 }
-      if(type == 2)
-	 {
-	    // pt
-	    aProbFunc2[theProbSize2] = par;
-	    theProbSize2++;
-	 }
-   }  // while
-   
-  fYGenerator = new RandGeneral(fRandomEngine,aProbFunc1,theProbSize1);
-  fPtGenerator = new RandGeneral(fRandomEngine,aProbFunc2,theProbSize2);
+   TFile f(fDataFile.c_str(),"READ");
+   TGraph* yfunc = (TGraph*)f.Get("rapidity"); 
+   TGraph* ptfunc = (TGraph*)f.Get("pt");
+
+   if(ptbins_ > 100000){
+      ptbins_ = 100000;
+   }
+
+   if(ybins_ > 100000){
+      ybins_ = 100000;
+   }
+
+   double aProbFunc1[100000];
+   double aProbFunc2[100000];
+
+   for(int i = 0; i < ybins_; ++i){
+      double xy = ymin_+i*(ymax_-ymin_)/ybins_;
+      double yy = yfunc->Eval(xy);   
+      aProbFunc1[i] = yy;
+   }
+
+   for(int ip = 0; ip < ptbins_; ++ip){
+      double xpt = ptmin_+ip*(ptmax_-ptmin_)/ptbins_;
+      double ypt = ptfunc->Eval(xpt);
+      aProbFunc2[ip] = ypt;
+   }
+
+  fYGenerator = new RandGeneral(fRandomEngine,aProbFunc1,ybins_);
+  fPtGenerator = new RandGeneral(fRandomEngine,aProbFunc2,ptbins_);
   
 } // from file
+
+double
+PtYDistributor::fireY(){
+   return fireY(ymin_,ymax_);
+}
+
+double
+PtYDistributor::firePt(){
+   return firePt(ptmin_,ptmax_);
+}
 
 double
 PtYDistributor::fireY(double ymin, double ymax){
@@ -57,7 +63,7 @@ PtYDistributor::fireY(double ymin, double ymax){
 
    if(fYGenerator){
       while(y < ymin || y > ymax)
-	 y = 20*fYGenerator->fire()-10;
+	 y = ymin_+(ymax_-ymin_)*fYGenerator->fire();
    }else{
       throw edm::Exception(edm::errors::NullPointerError,"PtYDistributor")
 	 <<"Random y requested but Random Number Generator for y not Initialized!";
@@ -72,7 +78,7 @@ PtYDistributor::firePt(double ptmin, double ptmax){
 
    if(fPtGenerator){
       while(pt < ptmin || pt > ptmax)
-         pt = 100*fPtGenerator->fire();
+         pt = ptmin_+(ptmax_-ptmin_)*fPtGenerator->fire();
    }else{
       throw edm::Exception(edm::errors::NullPointerError,"PtYDistributor")
          <<"Random pt requested but Random Number Generator for pt not Initialized!";

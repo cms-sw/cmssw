@@ -13,19 +13,23 @@ namespace edm
   class PtYDistributor {
   public:
     PtYDistributor() {};
-    PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine);
+    PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine, double ptmax, double ptmin, double ymax, double ymin, int ptbins, int ybins);
     virtual ~PtYDistributor() {};
 
-    double fireY(double ymin=0, double ymax=100);
-    double firePt(double ptmin=0, double ptmax=999);
+    double fireY();
+    double firePt();
+    double fireY(double ymin, double ymax);
+    double firePt(double ptmin, double ptmax);
     
   private:
-    int theProbSize1;
-    int theProbSize2;
-    
-    double aProbFunc1[1000];
-    double aProbFunc2[1000];
-    
+    double ptmax_;
+    double ptmin_;
+    double ymax_;
+    double ymin_;
+
+    int ptbins_;
+    int ybins_;
+
     std::string file;
 
     RandGeneral* fYGenerator;
@@ -33,4 +37,6 @@ namespace edm
 
   };
 }
+
 #endif
+
