@@ -7,6 +7,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackResiduals.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Ref.h"
