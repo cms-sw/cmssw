@@ -33,7 +33,7 @@ using namespace trigger;
 
 HLTMuonL3TkPreFilter::HLTMuonL3TkPreFilter(const ParameterSet& iConfig) :
    beamspotTag_   (iConfig.getParameter< edm::InputTag > ("BeamSpotTag")),
-   l3TkTag_   (iConfig.getParameter<InputTag > ("L3TkTag")),
+   candTag_   (iConfig.getParameter<InputTag > ("CandTag")),
    previousCandTag_   (iConfig.getParameter<InputTag > ("PreviousCandTag")),
    min_N_     (iConfig.getParameter<int> ("MinN")),
    max_Eta_   (iConfig.getParameter<double> ("MaxEta")),
@@ -46,8 +46,8 @@ HLTMuonL3TkPreFilter::HLTMuonL3TkPreFilter(const ParameterSet& iConfig) :
 {
 
    LogDebug("HLTMuonL3TkPreFilter")
-      << " L3TkTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt/NSigmaPt : " 
-      << l3TkTag_.encode()
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt/NSigmaPt : " 
+      << candTag_.encode()
       << " " << min_N_ 
       << " " << max_Eta_
       << " " << min_Nhits_
@@ -82,19 +82,19 @@ HLTMuonL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
      filterproduct (new TriggerFilterObjectWithRefs(path(),module()));
 
    // get hold of trks
-   Handle<reco::TrackCollection> mutks;
-   iEvent.getByLabel(l3TkTag_,mutks);
-   if(saveTag_)filterproduct->addCollectionTag(l3TkTag_);
+   //   Handle<reco::TrackCollection> mucands;
+   Handle<RecoChargedCandidateCollection> mucands;
+   iEvent.getByLabel(candTag_,mucands);
+   if(saveTag_)filterproduct->addCollectionTag(candTag_);
    // sort them by L2Track
-   std::map<reco::TrackRef, std::vector<reco::TrackRef> > L2toL3s;
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
    uint n = 0;
-   uint maxN = mutks->size();
+   uint maxN = mucands->size();
    for (;n!=maxN;n++){
-     //   for (cand=mutks->begin(); cand!=mutks->end(); cand++) {
-     TrackRef tk(mutks,n);
+     TrackRef tk = (*mucands)[n].track();
      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
      TrackRef staTrack = l3seedRef->l2Track();
-     L2toL3s[staTrack].push_back(tk);
+     L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,n));
    }
 
    // additionnal objects needed
@@ -110,8 +110,8 @@ HLTMuonL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    vector<RecoChargedCandidateRef> vl2cands;
    previousLevelCands->getObjects(TriggerMuon,vl2cands);
 
-   std::map<reco::TrackRef, std::vector<reco::TrackRef> > ::iterator L2toL3s_it = L2toL3s.begin();
-   std::map<reco::TrackRef, std::vector<reco::TrackRef> > ::iterator L2toL3s_end = L2toL3s.end();
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_it = L2toL3s.begin();
+   std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > ::iterator L2toL3s_end = L2toL3s.end();
    for (; L2toL3s_it!=L2toL3s_end; ++L2toL3s_it){
      
      if (!triggeredAtL2(L2toL3s_it->first,vl2cands)) continue;
@@ -120,7 +120,9 @@ HLTMuonL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
      uint iTk=0;
      uint maxItk=L2toL3s_it->second.size();
      for (; iTk!=maxItk; iTk++){
-       TrackRef & tk = L2toL3s_it->second[iTk];
+       
+       RecoChargedCandidateRef & cand=L2toL3s_it->second[iTk];
+       TrackRef tk = cand->track();
 
       if (fabs(tk->eta())>max_Eta_) continue;
 
@@ -146,7 +148,7 @@ HLTMuonL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
       if (ptLx<min_Pt_) continue;
 
       //one good L3Tk
-      filterproduct->addObject(TriggerMuon,tk);      
+      filterproduct->addObject(TriggerMuon,cand);      
       break; // and go on with the next L2 association
      }
 
