@@ -51,6 +51,7 @@ class DBSRun:
         self.ignoreRun=0 # if true, DQM won't be performed on run
         self.startedDQM=0 # set to true once DQM started 
         self.finishedDQM=0 # set to true once DQM finished (DQM directory for run exists)
+        self.previouslyFinishedDQM=0 # set to true if file is checked, and self.finishedDQM is already true
         self.maxEvents=1000 # number of events to run over with DQM
         return
 
@@ -76,20 +77,23 @@ class dbsAccessor:
     '''
 
     def __init__(self):
-        self.host=StringVar()
-        self.port=IntVar()
-        self.dbsInst=StringVar()
-        self.searchString=StringVar()
-        self.input=StringVar() #specify input string
-        self.page=IntVar()
-        self.limit=IntVar()
-        self.xml=BooleanVar()
-        self.case=StringVar()
-        self.details=BooleanVar()
-        self.debug=BooleanVar()
-        self.beginRun=IntVar()
-        self.endRun=IntVar()
-
+        try:
+            self.host=StringVar()
+            self.port=IntVar()
+            self.dbsInst=StringVar()
+            self.searchString=StringVar()
+            self.page=IntVar()
+            self.limit=IntVar()
+            self.xml=BooleanVar()
+            self.case=StringVar()
+            self.details=BooleanVar()
+            self.debug=BooleanVar()
+            self.beginRun=IntVar()
+            self.endRun=IntVar()
+        except:
+            print "Cannot define StringVar, IntVar, BooleanVar variables."
+            print "Are you trying to use dbsAccessor outside of Tkinter?"
+            sys.exit()
         self.setDefaults()
         return
 
@@ -103,15 +107,14 @@ class dbsAccessor:
         self.dbsInst.set("cms_dbs_prod_global")
         self.searchString.set("*/Global*/A/*RAW/*.root")
         # Assume file takes the form */Global*/A/*/RAW/*.root
-        self.input.set("find file where file=%s and run=30625"%self.searchString.get())
         self.page.set(0)
         self.limit.set(10000)
         self.xml.set(False)
         self.case.set("on")
         self.details.set(False)
         self.debug.set(False)
-        self.beginRun.set(30625)
-        self.endRun.set(30625)
+        self.beginRun.set(42100)
+        self.endRun.set(42200)
         return
 
 
@@ -124,21 +127,19 @@ class dbsAccessor:
             self.endRun.set(endrun)
         if (mytext==None):
             # Assume dataset takes the form */Global*-A/*
-            mytext="find file where file=%s and run between %i-%i"%(self.searchString.get(),self.beginRun.get(),self.endRun.get())
+            mytext="find run where file=%s and run between %i-%i"%(self.searchString.get(),self.beginRun.get(),self.endRun.get())
+        #print "mytext = ",mytext
 
-        self.input.set(mytext)
         self.searchResult=python_dbs.sendMessage(self.host.get(),
-                                      self.port.get(),
-                                      self.dbsInst.get(),
-                                      self.input.get(),
-                                      self.page.get(),
-                                      self.limit.get(),
-                                      self.xml.get(),
-                                      self.case.get(),
-                                      self.details.get(),
-                                      self.debug.get())
-        #print "Search = ",self.searchResult
-        #print "Finished!"
+                                                 self.port.get(),
+                                                 self.dbsInst.get(),
+                                                 mytext,
+                                                 self.page.get(),
+                                                 self.limit.get(),
+                                                 self.xml.get(),
+                                                 self.case.get(),
+                                                 self.details.get(),
+                                                 self.debug.get())
         return
     
 
@@ -170,7 +171,7 @@ class DQMDBSgui:
         # Create GUI window
         if (parent==None):
             self.root=Tk()
-            self.root.title("DQMfromDBS GUI")
+            self.root.title("HCAL DQM from DBS GUI")
         else:
             self.root=parent
 
@@ -272,6 +273,13 @@ class DQMDBSgui:
                                   padx=10, pady=8)
         self.Bprogress.pack(side="left")
 
+
+        self.HeartBeat=Label(self.menubar,
+                             text="Auto",
+                             bg=self.bg,
+                             fg=self.bg,
+                             padx=10,pady=8)
+        
         self.BAbout=Menubutton(self.menubar,
                                text="About",
                                font= ('Times',12,'bold italic'),
@@ -281,7 +289,8 @@ class DQMDBSgui:
                                fg=self.fg,
                                padx=10, pady=8)
         self.BAbout.pack(side="right")
-        
+        self.HeartBeat.pack(side="right")
+
         self.quitmenu=Menu(self.BFile, tearoff=0,
                            bg="white")
         self.quitmenu.add_separator()
@@ -381,7 +390,7 @@ class DQMDBSgui:
         Label(self.mainFrame,text="",
               font = ('Times',2,'bold italic'),
               bg=self.fg).grid(row=mainrow,column=0,
-                               columnspan=4,sticky=EW)
+                               columnspan=7,sticky=EW)
 
         
         mainrow=mainrow+1
@@ -392,6 +401,14 @@ class DQMDBSgui:
               bg=self.bg,
               fg=self.bg_alt).grid(row=mainrow,column=2)
 
+        self.Automated=BooleanVar()
+        self.Automated.set(False)
+        self.autoButton=Button(self.mainFrame,
+                               text="Auto-Update\nDisabled!!",
+                               bg="black",
+                               fg="white",
+                               command = lambda x=self:x.checkAutoUpdate())
+        self.autoButton.grid(row=mainrow,column=4,padx=10,pady=6)
 
         
 
@@ -419,11 +436,23 @@ class DQMDBSgui:
                               activebackground=self.alt_active,
                               command = lambda x=self:x.checkDBS()
                               )
+        self.dbsAutoVar=BooleanVar()
+        self.dbsAutoVar.set(False)
+        self.dbsAutoButton=Checkbutton(self.mainFrame,
+                                       text="Auto DBS",
+                                       state=DISABLED,
+                                       bg=self.bg,
+                                       fg=self.fg,
+                                       activebackground=self.alt_active,
+                                       variable=self.dbsAutoVar)
+
+
         # Grid the DBS stuff
         self.dbsLabel.grid(row=mainrow,column=0)
         self.dbsProgress.grid(row=mainrow,column=1)
         self.dbsStatus.grid(row=mainrow,column=2)
         self.dbsButton.grid(row=mainrow,column=3)
+        self.dbsAutoButton.grid(row=mainrow,column=4)
         
         # Make labels/entries/buttons dealing with DQM searches
         self.dqmLabel=Label(self.mainFrame,
@@ -449,13 +478,24 @@ class DQMDBSgui:
                               activebackground=self.alt_active,
                               command = lambda x=self:x.runDQM_thread())
 
+        self.dqmAutoVar=BooleanVar()
+        self.dqmAutoVar.set(False)
+        self.dqmAutoButton=Checkbutton(self.mainFrame,
+                                       text="Auto DQM",
+                                       state=DISABLED,
+                                       bg=self.bg,
+                                       fg=self.fg,
+                                       activebackground=self.alt_active,
+                                       variable=self.dqmAutoVar)
+
+
         # Grid the DQM stuff
         mainrow=mainrow+1
         self.dqmLabel.grid(row=mainrow,column=0)
         self.dqmProgress.grid(row=mainrow,column=1)
         self.dqmStatus.grid(row=mainrow,column=2)
         self.dqmButton.grid(row=mainrow,column=3)
-
+        self.dqmAutoButton.grid(row=mainrow,column=4)
         
 
         ######################################################
@@ -484,7 +524,7 @@ class DQMDBSgui:
         
         self.dbsRange.set(10) # specify range of runs over which to search, starting at the LastDBS value
 
-        self.lastFoundDBS.set(30625) # specify last run # found in DBS
+        self.lastFoundDBS.set(42100) # specify last run # found in DBS
 
         self.inittime=time.time()
         # call thread with time.sleep option
@@ -502,8 +542,111 @@ class DQMDBSgui:
             x.sort()
             x.reverse()
             self.lastFoundDBS.set(x[0])
+
+
+        self.dbsAutoUpdateTime=20 # dbs update time in minutes
+        self.dbsAutoCounter=0
+        self.dqmAutoUpdateTime=20 # dqm update time in minutes
+        self.dqmAutoCounter=0
+        self.autoRunning=False
+        self.hbcolor=self.bg
+
+        self.cfgFileName=StringVar()
+        self.cfgFileName.set("hcal_dqm_dbsgui.cfg")
+
         return
 
+
+
+    def checkAutoUpdate(self):
+
+        #self.dqmAutoButton.flash()
+        self.Automated.set(1-self.Automated.get())
+        if (self.Automated.get()==True):
+            self.autoButton.configure(text="Auto Update\nEnabled",
+                                      bg=self.bg_alt,
+                                      fg=self.bg)
+            self.dqmAutoButton.configure(state=NORMAL,bg=self.bg,fg=self.fg)
+            self.dbsAutoButton.configure(state=NORMAL,bg=self.bg,fg=self.fg)
+            self.dbsAutoVar.set(True)
+            self.dqmAutoVar.set(True)
+            thread.start_new(self.autoUpdater,())
+
+        else:
+            self.autoButton.configure(text="Auto Update\nDisabled!!",
+                                      bg="black",
+                                      fg="white")
+            self.dqmAutoButton.configure(state=DISABLED)
+            self.dbsAutoButton.configure(state=DISABLED)
+            self.dbsAutoVar.set(False)
+            self.dqmAutoVar.set(False)
+                        
+        self.root.update()
+
+        return
+
+
+    def heartbeat(self):
+        while (self.Automated.get()):
+            if (self.hbcolor==self.bg):
+                self.hbcolor=self.bg_alt
+            else:
+                self.hbcolor=self.bg
+            self.HeartBeat.configure(bg=self.hbcolor)
+            self.root.update()
+            time.sleep(1)
+
+        self.HeartBeat.configure(bg=self.bg)
+        return
+        
+    def autoUpdater(self):
+        if self.autoRunning==True:
+            self.commentLabel.configure(text="Auto Updater is already running!")
+            self.root.update()
+            return
+        if self.Automated.get()==False:
+            self.commentLabel.configure(text="Auto Updater is disabled")
+            self.root.update()
+            return
+
+        thread.start_new(self.heartbeat,())
+        self.checkDBS() # perform initial check of files
+        self.runDQM_thread() # perform initial check of DQM
+        
+        while (self.Automated.get()):
+            self.autoRunning=True
+            time.sleep(60)
+            #print self.dbsAutoVar.get(), self.dqmAutoVar.get()
+            self.dbsAutoCounter=self.dbsAutoCounter+1
+            self.dqmAutoCounter=self.dqmAutoCounter+1
+            #print self.dbsAutoCounter
+            
+            # if DBS counter > update time ,check DBS for new files
+            if (self.dbsAutoCounter >= self.dbsAutoUpdateTime):
+                print "Checking DBS!"
+                if (self.checkDBS()): # search was successful; reset counter
+                    self.dbsAutoCounter=0
+                    print "DBS Check succeeded!"
+                else: # search unsuccessful; try again in 1 minute
+                    self.dbsAutoCounter=(self.dbsAutoUpdateTime-1)*60
+                    print "DBS Check unsuccessful"
+
+            # repeat for DQM checking
+            if (self.dqmAutoCounter >= self.dqmAutoUpdateTime):
+                print "Starting DQM!"
+                if (self.runDQM_thread()): # search successful; reset counter
+                    self.dqmAutoCounter=0
+                    print "DQM Successful!"
+                else: # search unsuccessful; try again in 5 minutes
+                    self.dqmAutoCounter=(self.dqmAutoUpdateTime-5)*60
+                    print "DQM Unsuccessful!"
+
+        # Auto updating deactivated; reset counters and turn off heartbeat
+        self.dbsAutoCounter=0
+        self.dqmAutoCounter=0
+        self.autoRunning=False
+        return
+        
 
     def printDBS(self):
         # Only allow one window setting at a time?
@@ -699,6 +842,7 @@ class DQMDBSgui:
         self.runningDQM=True
         self.dqmButton.configure(state=DISABLED)
 
+        mycount=0
         goodcount=0
         for i in x:
             self.commentLabel.configure(text="Running DQM on run #%i"%i)
@@ -716,17 +860,22 @@ class DQMDBSgui:
                 continue
             # if DQM started, check to see if DQM has finished
             if self.filesInDBS[i].startedDQM:
+                if self.filesInDBS[i].previouslyFinishedDQM:
+                    # File was finished previously; don't count it here
+                    continue
                 # DQM finished; no problem
+                mycount=mycount+1
                 if self.filesInDBS[i].finishedDQM:
+                    self.filesInDBS[i].previouslyFinishedDQM=True
                     goodcount=goodcount+1
                     continue
                 # DQM not finished; look to see if directory made for it
                 # (can later check for files within directory?)
                 # Check to see if the output exists
                 if (i<100000):
-                    x=os.path.isdir("output/DQM_Hcal_R0000%i"%i)
+                    x=os.path.isdir("DQM_Hcal_R0000%i"%i)
                 else:
-                    x=os.path.isdir("output/DQM_Hcal_R000%i"%i)
+                    x=os.path.isdir("DQM_Hcal_R000%i"%i)
                 if (not x):
                     print "Problem with Run # %i -- DQM started but did not finish!"%i
                     self.commentLabel.configure(text="Problem with Run # %i -- DQM started but did not finish!"%i)
@@ -792,7 +941,7 @@ class DQMDBSgui:
                 
 
     def callDQMscript(self,i):
-        time.sleep(5)
+        time.sleep(1)
         # Get rid of old file
         if os.path.isfile(os.path.join(self.basedir,".runOptions.cfi")):
             os.system("rm %s"%(os.path.join(self.basedir,".runOptions.cfi")))
@@ -821,7 +970,7 @@ class DQMDBSgui:
             self.root.update()
             return
 
-        os.system("cmsRun hcal_dqm_dbsgui.cfg")
+        os.system("cmsRun %s"%self.cfgFileName.get())
         
         if (i<100000):
             x="DQM_Hcal_R0000%i"%i
@@ -831,14 +980,14 @@ class DQMDBSgui:
         time.sleep(5)
 
         
-        # make fancier success requirement later
-        if os.path.isdir(x) and os.path.isfile("%s.root"%x):
+        # make fancier success requirement later -- for now, just check that directory exists
+        if os.path.isdir(x):
             success=True
 
         # Enable move commands once final_dir is determined
         if (self.finalDir.get()<>self.basedir):
-            os.system("mv %s %s"%(x,self.finalDir.get()))
-            os.system("mv %s %s"%(x,self.finalDir.get()))
+            os.system("mv %s %s.root"%(x,self.finalDir.get()))  # move root file
+            os.system("mv %s %s"%(x,self.finalDir.get())) # move directory
 
         return success
 
@@ -847,7 +996,7 @@ class DQMDBSgui:
     def checkDBS(self):
         if (self.dbsSearchInProgress):
             self.commentLabel.configure(text="Sorry, a DBS search is already in progress at the moment")
-            return
+            return False
 
         self.dbsButton.configure(state=DISABLED)
         self.dbsSearchInProgress=True
@@ -860,105 +1009,137 @@ class DQMDBSgui:
 
         self.commentLabel.configure(text="Checking DBS for runs in range %i-%i..."%(begin,end))
         self.root.update()
-        self.myDBS.searchDBS(begin,end)
+        self.myDBS.searchDBS(begin,end) # Search, getting run numbers
 
         if (self.parseDBSInfo()):
             self.commentLabel.configure(text="Finished checking DBS runs (%i-%i)\nFound a total of %i runs"%(begin,end,self.foundfiles))
 
         self.dbsSearchInProgress=False
         self.dbsButton.configure(state=ACTIVE)
-        return
+        return True
 
 
     def parseDBSInfo(self):
-        ''' Once we've checked DBS, let's parse the output for runs!'''
+        '''
+        Once we've checked DBS, let's parse the output for runs!
+        Updated on 5 May 2008 -- apparently, run number in file name cannot be trusted.
+        Instead, we'll get info by checking DBS for all run numbers within range.
+        Then, for each found run number, we'll grab all the files for that run number
+        '''
 
-        files=string.split(self.myDBS.searchResult,"\n")
-        tempdict={}
-
-        self.foundfiles=0
-        badcount=0
-        for i in files:
-            # Assume files are of the form .../A/XXX/XXX/XXX/RAW/....root,
-            # where XXXXXXXX is the run number
-            if len(i)==0:
-                continue
-            # Don't try to split the response describing found files;
-            # simply store that info
-            # (Send warning if found files is greater than # allowed files?)
-            if (i.startswith("Found")):
-                self.foundfiles=string.atoi(string.split(i)[1])
+        runlist=[]
+        runs=string.split(self.myDBS.searchResult,"\n")
+        for r in runs:
+            if (r.startswith("Found")):
+                self.foundfiles=string.atoi(string.split(r)[1])
                 if (self.foundfiles==0):
-                    self.commentLabel.configure(text="WARNING!  No files found in the run range %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
-                    self.dbsProgress.configure(text="No files found in range %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()),
+                    self.commentLabel.configure(text="WARNING!  No runs found in the run range %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
+                    self.dbsProgress.configure(text="No runs found in range %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()),
                                                bg="black")
                     self.root.update()
                     return False
-                continue
 
             try:
-                temp=string.split(i,"/A/")[1]
-                temp=string.split(temp,"/RAW/")[0]
-                temp=temp.replace("/","")
-                temp=string.atoi(temp)
-
-                ignore=False
-                # Protection when run number is wrong
-                if (temp < self.lastFoundDBS.get() or temp > self.lastFoundDBS.get()+self.dbsRange.get()):
-                    self.commentLabel.configure(text="WARNING!  File %s appears to be outside run range \n(%i-%i)"%(i,self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
-                    self.root.update()
-                    print "Run number disagreement for file %s !"%i
-                    ignore=True # ignore these files for now; later try to correct with another call to dbs?
-                
-                # New run number found
-                if temp not in tempdict.keys():
-                    tempdict[temp]=DBSRun([i])
-                    tempdict[temp].runnum=temp
-                    tempdict[temp].maxEvents=self.maxDQMEvents.get()
-                    tempdict[temp].ignoreRun=ignore
-                    self.dbsProgress.configure(text="Found run %i in range (%i-%i)..."%(temp,self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
-                    self.root.update()
-                    
-
-                    # Create separate DBS accessor to get dataset name
-                    # (Do we need data
-                    mytext="find dataset where file=%s"%i
-                    tempDBS=dbsAccessor()
-                    tempDBS.searchDBS(mytext=mytext)
-                    dataset=string.split(tempDBS.searchResult,"\n")
-                    for i in dataset:
-                        if i.startswith("/"):
-                            tempdict[temp].dataset=string.strip(i,"\n")
-                            #print "DATASET = ",tempdict[temp].dataset
-                            break
-                # Another file found for old run number
-                else:
-                    tempdict[temp].files.append(i)
-
+                r.strip("\n")
+                r=string.atoi(r)
+                if r not in runlist:
+                    runlist.append(r)
             except:
-                self.commentLabel.configure(text="Could not parse DBS entry:\n'%s'"%i)
-                badcount=badcount+1
-                print "Could not parse DBS entry: %s"%i
-                self.root.update()
+                continue
+            
+        if len(runlist)==0:
+            self.commentLabel.configure(text="ODD BEHAVIOR!  Runs apparently found, but cannot be parsed!\nDBS output being redirected to screen")
+            print "DBS Run search result: ",self.myDBS.searchResult
+            self.dbsProgress.configure(text="No runs in (%i-%i) could be parsed!"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()),
+                                       bg="black")
+            self.root.update()
+            return False
 
-        # more files were found that DBS is allowed to grab
 
-        # Dump new events to pickle file
-        for i in tempdict.keys():
-            if i not in self.filesInDBS.keys():
-                self.filesInDBS[i]=tempdict[i]
+        # Now loop over each run to get final search result
 
+        self.foundfiles=0
+        badcount=0
+        for r in runlist:
+                        
+            self.dbsProgress.configure(text="Found run %i in range (%i-%i)..."%(r,self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
+            self.root.update()
+
+            tempfiles=[]
+            
+            x=dbsAccessor()
+            text="find file,dataset where file=%s and run=%i"%(self.myDBS.searchString.get(),r)
+            x.searchDBS(mytext=text)
+            
+            files=string.split(x.searchResult,"\n")
+
+            dataset=None
+            # Parse output looking over files for a given run number
+            for file in files:
+
+                # ignore blank lines
+                if len(file)==0:
+                    continue
+
+                # Don't try to split the response describing found files;
+                # simply store that info
+                # (Send warning if found files is greater than # allowed files?)
+                if (file.startswith("Found")):
+                    self.foundfiles=self.foundfiles+string.atoi(string.split(file)[1])
+                    if (self.foundfiles==0):
+                        self.commentLabel.configure(text="WARNING!  No files found for run # %i"%r)
+                        self.dbsProgress.configure(text="No files found for run # %i"%r,
+                                                   bg="black")
+                        self.root.update()
+                        return False
+                else:
+                    print "i = ",file
+                    try:
+                        i=string.split(file,",")
+                        dataset=i[1] # dataset
+                        i=i[0] # file name
+                        if (i.endswith(".root")):  # file must be .root file
+                            tempfiles.append(i) 
+                        else:
+                             self.commentLabel.configure(text="Could not recognize DBS entry:\n'%s'"%i)
+                             badcount=badcount+1
+                             print "Could not parse DBS entry: %s"%i
+                             self.root.update()
+
+                    except:
+                        self.commentLabel.configure(text="Could not parse DBS entry:\n'%s'"%i)
+                        badcount=badcount+1
+                        print "Could not parse DBS entry: %s"%i
+                        self.root.update()
+
+            tempDBS=DBSRun(tempfiles)
+            tempDBS.runnum=r
+            tempDBS.maxEvents=self.maxDQMEvents.get()
+            tempDBS.dataset=string.strip(dataset,"\n")
+
+            if r not in self.filesInDBS.keys():
+                self.filesInDBS[r]=tempDBS
+            else:
+                for file in tempDBS.files:
+                    if file not in self.filesInDBS[r].files:
+                        self.filesInDBS[r].files.append(file)
+                
+            
         # Set lastFoundDBS to most recent run in filesInDBS 
         if len(self.filesInDBS.keys()):
             x=self.filesInDBS.keys()
             x.sort()
             x.reverse()
             self.lastFoundDBS.set(x[0]) # add a +1?
+            #for zz in x:
+            #    print self.filesInDBS[zz].Print()
+            #    for ff in self.filesInDBS[zz].files:
+            #        print ff
             # change from 'last found' to 'last checked'?
             # What about files that were run, but don't yet appear in DBS?
             #self.lastFoundDBS.set(self.lastFoundDBS.get()+self.dbsRange.get())
         self.writePickle()
-        
+
         if (self.foundfiles>self.myDBS.limit.get()):
             self.commentLabel.configure(text="WARNING! A total of %i files were found in DBS, but the current DBS limit is set to %i.  \nConsider increasing your DBS limit, or running on a smaller range of runs."%(foundfiles,self.myDBS.limit.get()))
             self.dbsProgress.configure(text="%i files found; only %i stored!"%(foundfiles,self.myDBS.limit.get()),
@@ -970,12 +1151,12 @@ class DQMDBSgui:
             self.dbsProgress.configure(text="%i lines from DBS could not be parsed!"%badcount)
             self.root.update()
             return False
-
+        
         self.dbsProgress.configure(text="Successfully grabbed runs %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()),
                                    bg="black")
         self.root.update()
         return True
-
+    
 
 
     def displayFiles(self):
@@ -992,11 +1173,11 @@ class DQMDBSgui:
         return
 
 
-    
 
 
 ############################################
 
 if __name__=="__main__":
-    mygui=DQMDBSgui()
-    mygui.root.mainloop()
+
+    mygui=DQMDBSgui()  # set up gui
+    mygui.root.mainloop() # run main loop
