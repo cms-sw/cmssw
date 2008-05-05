@@ -1,12 +1,9 @@
 /*
  * \file L1TdeRCT.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.13 $
- * \author P. Wittich
- * 
  * version 0.0 A.Savin 2008/04/26
- *
+ * version 1.0 A.Savin 2008/05/05
+ * this version contains single channel histos and 1D efficiencies
  */
 
 #include "DQM/L1TMonitor/interface/L1TdeRCT.h"
@@ -29,7 +26,14 @@ const unsigned int ETABINS = 22;
 const float ETAMIN = -0.5;
 const float ETAMAX = 21.5;
 
+const unsigned int DEBINS = 101;
+const float DEMIN = -50.5;
+const float DEMAX = 50.5;
+
 const unsigned int PhiEtaMax = 396;
+const unsigned int CHNLBINS = 396;
+const float CHNLMIN = -0.5;
+const float CHNLMAX = 395.5;
 
 
 L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
@@ -38,6 +42,12 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
 
 {
 
+
+  singlechannelhistos_ = ps.getUntrackedParameter < bool > ("singlechannelhistos", false);
+                                                                                                                        
+  if (singlechannelhistos_)
+    std::cout << "L1TdeRCT: single channels histos ON" << std::endl;
+                                                                                                                        
   // verbosity switch
   verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
 
@@ -93,80 +103,210 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
 
   if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TdeRCT");
-
-    rctIsoEmEmulOcc_ =
-	dbe->book2D("rctIsoEmEmulOcc", "rctIsoEmEmulOcc", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctIsoEmEff1Occ_ =
-	dbe->book2D("rctIsoEmEff1Occ", "rctIsoEmEff1Occ", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctIsoEmEff2Occ_ =
-	dbe->book2D("rctIsoEmEff2Occ", "rctIsoEmEff2Occ", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctIsoEmIneffOcc_ =
-	dbe->book2D("rctIsoEmIneffOcc", "rctIsoEmIneffOcc", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctIsoEmOvereffOcc_ =
-	dbe->book2D("rctIsoEmOvereffOcc", "rctIsoEmOvereffOcc", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+    dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm");
 
     rctIsoEmEff1_ =
 	dbe->book2D("rctIsoEmEff1", "rctIsoEmEff1", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+    rctIsoEmEff1oneD_ =
+	dbe->book1D("rctIsoEmEff1oneD", "rctIsoEmEff1oneD", 
+		    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctIsoEmEff2_ =
 	dbe->book2D("rctIsoEmEff2", "rctIsoEmEff2", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+    rctIsoEmEff2oneD_ =
+	dbe->book1D("rctIsoEmEff2oneD", "rctIsoEmEff2oneD", 
+		    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctIsoEmIneff_ =
 	dbe->book2D("rctIsoEmIneff", "rctIsoEmIneff", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctIsoEmIneff1D_ =
+	dbe->book1D("rctIsoEmIneff1D", "rctIsoEmIneff1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctIsoEmOvereff_ =
 	dbe->book2D("rctIsoEmOvereff", "rctIsoEmOvereff", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+    rctIsoEmOvereff1D_ =
+	dbe->book1D("rctIsoEmOvereff1D", "rctIsoEmOvereff1D", 
+                    CHNLBINS, CHNLMIN, CHNLMAX);
 
-    rctNisoEmEmulOcc_ =
-	dbe->book2D("rctNisoEmEmulOcc", "rctNisoEmEmulOcc", ETABINS, ETAMIN,
+    dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData");
+
+    rctIsoEmEmulOcc_ =
+	dbe->book2D("rctIsoEmEmulOcc", "rctIsoEmEmulOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmEff1Occ_ =
-	dbe->book2D("rctNisoEmEff1Occ", "rctNisoEmEff1Occ", ETABINS, ETAMIN,
+    rctIsoEmEmulOcc1D_ =
+	dbe->book1D("rctIsoEmEmulOcc1D", "rctIsoEmEmulOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctIsoEmEff1Occ_ =
+	dbe->book2D("rctIsoEmEff1Occ", "rctIsoEmEff1Occ", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmEff2Occ_ =
-	dbe->book2D("rctNisoEmEff2Occ", "rctNisoEmEff2Occ", ETABINS, ETAMIN,
+    rctIsoEmEff1Occ1D_ =
+	dbe->book1D("rctIsoEmEff1Occ1D", "rctIsoEmEff1Occ1D", 
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctIsoEmEff2Occ_ =
+	dbe->book2D("rctIsoEmEff2Occ", "rctIsoEmEff2Occ", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmIneffOcc_ =
-	dbe->book2D("rctNisoEmIneffOcc", "rctNisoEmIneffOcc", ETABINS, ETAMIN,
+    rctIsoEmEff2Occ1D_ =
+	dbe->book1D("rctIsoEmEff2Occ1D", "rctIsoEmEff2Occ1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctIsoEmIneffOcc_ =
+	dbe->book2D("rctIsoEmIneffOcc", "rctIsoEmIneffOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    rctNisoEmOvereffOcc_ =
-	dbe->book2D("rctNisoEmOvereffOcc", "rctNisoEmOvereffOcc", ETABINS, ETAMIN,
+    rctIsoEmIneffOcc1D_ =
+	dbe->book1D("rctIsoEmIneffOcc1D", "rctIsoEmIneffOcc1D", 
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctIsoEmOvereffOcc_ =
+	dbe->book2D("rctIsoEmOvereffOcc", "rctIsoEmOvereffOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+    rctIsoEmOvereffOcc1D_ =
+	dbe->book1D("rctIsoEmOvereffOcc1D", "rctIsoEmOvereffOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+
+    dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm");
     rctNisoEmEff1_ =
 	dbe->book2D("rctNisoEmEff1", "rctNisoEmEff1", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmEff1oneD_ =
+	dbe->book1D("rctNisoEmEff1oneD", "rctNisoEmEff1oneD",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctNisoEmEff2_ =
 	dbe->book2D("rctNisoEmEff2", "rctNisoEmEff2", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+    rctNisoEmEff2oneD_ =
+	dbe->book1D("rctNisoEmEff2oneD", "rctNisoEmEff2oneD",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
     rctNisoEmIneff_ =
 	dbe->book2D("rctNisoEmIneff", "rctNisoEmIneff", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmIneff1D_ =
+	dbe->book1D("rctNisoEmIneff1D", "rctNisoEmIneff1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
 
     rctNisoEmOvereff_ =
 	dbe->book2D("rctNisoEmOvereff", "rctNisoEmOvereff", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+    rctNisoEmOvereff1D_ =
+	dbe->book1D("rctNisoEmOvereff1D", "rctNisoEmOvereff1D", 
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData");
+    rctNisoEmEmulOcc_ =
+	dbe->book2D("rctNisoEmEmulOcc", "rctNisoEmEmulOcc", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmEmulOcc1D_ =
+	dbe->book1D("rctNisoEmEmulOcc1D", "rctNisoEmEmulOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctNisoEmEff1Occ_ =
+	dbe->book2D("rctNisoEmEff1Occ", "rctNisoEmEff1Occ", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmEff1Occ1D_ =
+	dbe->book1D("rctNisoEmEff1Occ1D", "rctNisoEmEff1Occ1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctNisoEmEff2Occ_ =
+	dbe->book2D("rctNisoEmEff2Occ", "rctNisoEmEff2Occ", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmEff2Occ1D_ =
+	dbe->book1D("rctNisoEmEff2Occ1D", "rctNisoEmEff2Occ1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctNisoEmIneffOcc_ =
+	dbe->book2D("rctNisoEmIneffOcc", "rctNisoEmIneffOcc", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmIneffOcc1D_ =
+	dbe->book1D("rctNisoEmIneffOcc1D", "rctNisoEmIneffOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+    rctNisoEmOvereffOcc_ =
+	dbe->book2D("rctNisoEmOvereffOcc", "rctNisoEmOvereffOcc", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctNisoEmOvereffOcc1D_ =
+	dbe->book1D("rctNisoEmOvereffOcc1D", "rctNisoEmOvereffOcc1D",
+                    CHNLBINS, CHNLMIN, CHNLMAX);
+
+// for single channels 
+
+    if(singlechannelhistos_)
+   {
+    for(int m=0; m<6; m++)
+    {
+    
+    if(m==0) dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData/Eff1SnglChnls");
+    if(m==1) dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData/Eff1SnglChnls");
+    if(m==2) dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData/IneffSnglChnls");
+    if(m==3) dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData/IneffSnglChnls");
+    if(m==4) dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData/OvereffSnglChnls");
+    if(m==5) dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData/OvereffSnglChnls");
+
+    for(int i=0; i<ETAMAX; i++)
+    {
+     for(int j=0; j<PHIMAX; j++)
+     {
+     char name[80], channel[80]={""} ;
+
+     if(m==0) strcpy(name,"(Eemul-Edata)Chnl") ;
+     if(m==1) strcpy(name,"(Eemul-Edata)Chnl") ;
+     if(m==2) strcpy(name,"EemulChnl") ;
+     if(m==3) strcpy(name,"EemulChnl") ;
+     if(m==4) strcpy(name,"EdataChnl") ;
+     if(m==5) strcpy(name,"EdataChnl") ;
+
+     if(i<10 && j<10) sprintf(channel,"_0%d0%d",i,j); 
+     else if(i<10) sprintf(channel,"_0%d%d",i,j);
+      else if(j<10) sprintf(channel,"_%d0%d",i,j);
+       else sprintf(channel,"_%d%d",i,j);
+     strcat(name,channel); 
+
+     int chnl=18*i+j;
+
+     if(m==0) rctIsoEffChannel_[chnl] =
+	dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+     if(m==1) rctNisoEffChannel_[chnl] =
+	dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+     if(m==2) rctIsoIneffChannel_[chnl] =
+	dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+     if(m==3) rctNisoIneffChannel_[chnl] =
+	dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+     if(m==4) rctIsoOvereffChannel_[chnl] =
+	dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+     if(m==5) rctNisoOvereffChannel_[chnl] =
+	dbe->book1D(name, name, DEBINS, DEMIN, DEMAX);
+     }
+    }
+    }
+   }
+
+//end of single channels
 
 
   }
@@ -273,6 +413,8 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     if (iem->isolated()) {
       rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+      int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
+      rctIsoEmEmulOcc1D_->Fill(channel);
       electronEmulRank[0][nelectrIsoEmul]=iem->rank();
       electronEmulEta[0][nelectrIsoEmul]=iem->regionId().ieta();
       electronEmulPhi[0][nelectrIsoEmul]=iem->regionId().iphi();
@@ -281,6 +423,8 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     else {
       rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+      int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
+      rctNisoEmEmulOcc1D_->Fill(channel);
       electronEmulRank[1][nelectrNisoEmul]=iem->rank();
       electronEmulEta[1][nelectrNisoEmul]=iem->regionId().ieta();
       electronEmulPhi[1][nelectrNisoEmul]=iem->regionId().iphi();
@@ -329,21 +473,43 @@ std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelect
       {
        if(k==0){
         rctIsoEmEff1Occ_->Fill(electronEmulEta[k][i],electronEmulPhi[k][i]) ;
+        int chnl; chnl=18*electronEmulEta[k][i]+electronEmulPhi[k][i]; 
+        rctIsoEmEff1Occ1D_->Fill(chnl);
+        if(singlechannelhistos_)
+        {
+        int energy_difference; 
+          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j])+electronEmulEta[k][i]-electronEmulPhi[k][i] ;
+        rctIsoEffChannel_[chnl]->Fill(energy_difference) ;
+        }
         if(electronEmulRank[k][i]==electronDataRank[k][j]) {
+        rctIsoEmEff2Occ1D_->Fill(chnl);
         rctIsoEmEff2Occ_->Fill(electronEmulEta[k][i],electronEmulPhi[k][i]) ;}
 //        rctIsoEmEff1_->Divide(rctIsoEmEff1Occ_, rctIsoEmEmulOcc_, 1., 1.);
-          DivideME(rctIsoEmEff1Occ_, rctIsoEmEmulOcc_,rctIsoEmEff1_) ;
+          DivideME1D(rctIsoEmEff1Occ1D_, rctIsoEmEmulOcc1D_,rctIsoEmEff1oneD_) ;
+          DivideME2D(rctIsoEmEff1Occ_, rctIsoEmEmulOcc_,rctIsoEmEff1_) ;
 //        rctIsoEmEff2_->Divide(rctIsoEmEff2Occ_, rctIsoEmEmulOcc_, 1., 1.);  
-          DivideME(rctIsoEmEff2Occ_, rctIsoEmEmulOcc_,rctIsoEmEff2_) ;
+          DivideME1D(rctIsoEmEff2Occ1D_, rctIsoEmEmulOcc1D_,rctIsoEmEff2oneD_) ;
+          DivideME2D(rctIsoEmEff2Occ_, rctIsoEmEmulOcc_,rctIsoEmEff2_) ;
          }
        else {
         rctNisoEmEff1Occ_->Fill(electronEmulEta[k][i],electronEmulPhi[k][i]) ;
+        int chnl; chnl=18*electronEmulEta[k][i]+electronEmulPhi[k][i];
+        rctNisoEmEff1Occ1D_->Fill(chnl);
+        if(singlechannelhistos_)
+        {
+        int energy_difference; 
+          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j])+electronEmulEta[k][i]-electronEmulPhi[k][i] ;
+        rctNisoEffChannel_[chnl]->Fill(energy_difference) ;
+        }
         if(electronEmulRank[k][i]==electronDataRank[k][j]) {
+        rctNisoEmEff2Occ1D_->Fill(chnl);
         rctNisoEmEff2Occ_->Fill(electronEmulEta[k][i],electronEmulPhi[k][i]) ;}
 //        rctNisoEmEff1_->Divide(rctNisoEmEff1Occ_, rctNisoEmEmulOcc_, 1., 1.);
-          DivideME(rctNisoEmEff1Occ_, rctNisoEmEmulOcc_,rctNisoEmEff1_) ;
+          DivideME1D(rctNisoEmEff1Occ1D_, rctNisoEmEmulOcc1D_,rctNisoEmEff1oneD_) ;
+          DivideME2D(rctNisoEmEff1Occ_, rctNisoEmEmulOcc_,rctNisoEmEff1_) ;
 //        rctNisoEmEff2_->Divide(rctNisoEmEff2Occ_, rctNisoEmEmulOcc_, 1., 1.);
-          DivideME(rctNisoEmEff2Occ_, rctNisoEmEmulOcc_,rctNisoEmEff2_) ;
+          DivideME1D(rctNisoEmEff2Occ1D_, rctNisoEmEmulOcc1D_,rctNisoEmEff2oneD_) ;
+          DivideME2D(rctNisoEmEff2Occ_, rctNisoEmEmulOcc_,rctNisoEmEff2_) ;
           }
         found = kTRUE;
       }
@@ -353,13 +519,27 @@ std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelect
       {
        if(k==0){
         rctIsoEmIneffOcc_->Fill(electronEmulEta[k][i],electronEmulPhi[k][i]) ;
+        int chnl; chnl=18*electronEmulEta[k][i]+electronEmulPhi[k][i];
+        rctIsoEmIneffOcc1D_->Fill(chnl) ;
 //        rctIsoEmIneff_->Divide(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_, 1., 1.);
-          DivideME(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_,rctIsoEmIneff_) ;
+          DivideME1D(rctIsoEmIneffOcc1D_, rctIsoEmEmulOcc1D_,rctIsoEmIneff1D_) ;
+          DivideME2D(rctIsoEmIneffOcc_, rctIsoEmEmulOcc_,rctIsoEmIneff_) ;
+        if(singlechannelhistos_)
+        {
+         rctIsoIneffChannel_[chnl]->Fill(electronEmulRank[k][i]) ;
+        }
           }
        else {
         rctNisoEmIneffOcc_->Fill(electronEmulEta[k][i],electronEmulPhi[k][i]) ;
+        int chnl; chnl=18*electronEmulEta[k][i]+electronEmulPhi[k][i];
+        rctNisoEmIneffOcc1D_->Fill(chnl) ;
 //        rctNisoEmIneff_->Divide(rctNisoEmIneffOcc_, rctNisoEmEmulOcc_, 1., 1.);  
-          DivideME(rctNisoEmIneffOcc_, rctNisoEmEmulOcc_,rctNisoEmIneff_) ;
+          DivideME1D(rctNisoEmIneffOcc1D_, rctNisoEmEmulOcc1D_,rctNisoEmIneff1D_) ;
+          DivideME2D(rctNisoEmIneffOcc_, rctNisoEmEmulOcc_,rctNisoEmIneff_) ;
+        if(singlechannelhistos_)
+        {
+         rctNisoIneffChannel_[chnl]->Fill(electronEmulRank[k][i]) ;
+        }
           }
       }
  }
@@ -380,13 +560,27 @@ std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelect
       {
        if(k==0){
         rctIsoEmOvereffOcc_->Fill(electronDataEta[k][i],electronDataPhi[k][i]) ;
+        int chnl; chnl=18*electronDataEta[k][i]+electronDataPhi[k][i];
+        rctIsoEmOvereffOcc1D_->Fill(chnl) ;
 //        rctIsoEmOvereff_->Divide(rctIsoEmOvereffOcc_, rctIsoEmEmulOcc_, 1., 1.);
-        DivideME(rctIsoEmOvereffOcc_, rctIsoEmEmulOcc_,rctIsoEmOvereff_) ;
+        DivideME1D(rctIsoEmOvereffOcc1D_, rctIsoEmEmulOcc1D_,rctIsoEmOvereff1D_) ;
+        DivideME2D(rctIsoEmOvereffOcc_, rctIsoEmEmulOcc_,rctIsoEmOvereff_) ;
+        if(singlechannelhistos_)
+        {
+         rctIsoOvereffChannel_[chnl]->Fill(electronDataRank[k][i]) ;
+        }
          }
        else {
         rctNisoEmOvereffOcc_->Fill(electronDataEta[k][i],electronDataPhi[k][i]) ;
+        int chnl; chnl=18*electronDataEta[k][i]+electronDataPhi[k][i]; 
+        rctNisoEmOvereffOcc1D_->Fill(chnl) ;
 //        rctNisoEmOvereff_->Divide(rctNisoEmOvereffOcc_, rctNisoEmEmulOcc_, 1., 1.);  
-        DivideME(rctNisoEmOvereffOcc_, rctNisoEmEmulOcc_,rctNisoEmOvereff_) ;
+        DivideME1D(rctNisoEmOvereffOcc1D_, rctNisoEmEmulOcc1D_,rctNisoEmOvereff1D_) ;
+        DivideME2D(rctNisoEmOvereffOcc_, rctNisoEmEmulOcc_,rctNisoEmOvereff_) ;
+        if(singlechannelhistos_)
+        {
+         rctNisoOvereffChannel_[chnl]->Fill(electronDataRank[k][i]) ;
+        }
          }
       }
   }
@@ -395,11 +589,21 @@ std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelect
 
 }
 
-void L1TdeRCT::DivideME(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result){
+void L1TdeRCT::DivideME2D(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result){
 
    TH2F* num = numerator->getTH2F();
    TH2F* den = denominator->getTH2F();
    TH2F* res = result->getTH2F();
+
+   res->Divide(num,den,1,1,"");
+   
+}
+
+void L1TdeRCT::DivideME1D(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result){
+
+   TH1F* num = numerator->getTH1F();
+   TH1F* den = denominator->getTH1F();
+   TH1F* res = result->getTH1F();
 
    res->Divide(num,den,1,1,"");
    

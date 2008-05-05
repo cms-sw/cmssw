@@ -98,6 +98,16 @@ private:
   MonitorElement* rctIsoEmIneff_ ;
   MonitorElement* rctIsoEmOvereff_ ;
 
+  MonitorElement* rctIsoEmEmulOcc1D_ ;
+  MonitorElement* rctIsoEmEff1Occ1D_ ;
+  MonitorElement* rctIsoEmEff2Occ1D_ ;
+  MonitorElement* rctIsoEmIneffOcc1D_ ;
+  MonitorElement* rctIsoEmOvereffOcc1D_ ; 
+  MonitorElement* rctIsoEmEff1oneD_ ;
+  MonitorElement* rctIsoEmEff2oneD_ ;
+  MonitorElement* rctIsoEmIneff1D_ ;
+  MonitorElement* rctIsoEmOvereff1D_ ;
+
   MonitorElement* rctNisoEmEmulOcc_ ;
   MonitorElement* rctNisoEmEff1Occ_ ;
   MonitorElement* rctNisoEmEff2Occ_ ;
@@ -108,10 +118,29 @@ private:
   MonitorElement* rctNisoEmIneff_ ;
   MonitorElement* rctNisoEmOvereff_ ;
 
+  MonitorElement* rctNisoEmEmulOcc1D_ ;
+  MonitorElement* rctNisoEmEff1Occ1D_ ;
+  MonitorElement* rctNisoEmEff2Occ1D_ ;
+  MonitorElement* rctNisoEmIneffOcc1D_ ;
+  MonitorElement* rctNisoEmOvereffOcc1D_ ;
+  MonitorElement* rctNisoEmEff1oneD_ ;
+  MonitorElement* rctNisoEmEff2oneD_ ;
+  MonitorElement* rctNisoEmIneff1D_ ;
+  MonitorElement* rctNisoEmOvereff1D_ ;
+
+  MonitorElement*  rctIsoEffChannel_[396] ;
+  MonitorElement*  rctIsoIneffChannel_[396] ;
+  MonitorElement*  rctIsoOvereffChannel_[396] ;
+
+  MonitorElement*  rctNisoEffChannel_[396] ;
+  MonitorElement*  rctNisoIneffChannel_[396] ;
+  MonitorElement*  rctNisoOvereffChannel_[396] ;
+
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
+  bool singlechannelhistos_;
   bool monitorDaemon_;
   ofstream logFile_;
 
@@ -120,7 +149,8 @@ private:
 
 protected:
 
-void DivideME(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result) ;
+void DivideME1D(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result) ;
+void DivideME2D(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result) ;
 
 };
 
