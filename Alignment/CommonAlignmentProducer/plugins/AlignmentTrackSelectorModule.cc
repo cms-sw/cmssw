@@ -27,11 +27,7 @@ struct TrackConfigSelector {
     theTwoBodyDecaySelector(cfg.getParameter<edm::ParameterSet>("TwoBodyDecaySelector"))
   {
     //TODO Wrap the BaseSelector into its own PSet
-    theBaseSwitch = 
-      cfg.getParameter<bool>("applyBasicCuts") ||
-      cfg.getParameter<bool>("minHitsPerSubDet") ||
-      cfg.getParameter<bool>("applyNHighestPt") ||
-      cfg.getParameter<bool>("applyMultiplicityFilter");
+    theBaseSwitch = theBaseSelector.useThisFilter();
     
     theGlobalSwitch =  theGlobalSelector.useThisFilter();
       

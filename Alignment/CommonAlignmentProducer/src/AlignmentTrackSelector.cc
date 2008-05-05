@@ -55,17 +55,32 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinBPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inBPIX" ) ),
   minHitsinFPIX_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inFPIX" ) )
 {
+  if (applyBasicCuts_){
+      edm::LogInfo("AlignmentTrackSelector") 
+	<< "applying basic track cuts ..."
+	<< "\nptmin,ptmax:     " << ptMin_   << "," << ptMax_ 
+	<< "\netamin,etamax:   " << etaMin_  << "," << etaMax_
+	<< "\nphimin,phimax:   " << phiMin_  << "," << phiMax_
+	<< "\nnhitmin,nhitmax: " << nHitMin_ << "," << nHitMax_
+	<< "\nnhitmin2D:       " << nHitMin2D_
+	<< "\nchi2nmax:        " << chi2nMax_;
 
-  if (applyBasicCuts_)
+      if (applyIsolation_)
 	edm::LogInfo("AlignmentTrackSelector") 
-	  << "applying basic track cuts ..."
-	  << "\nptmin,ptmax:     " << ptMin_   << "," << ptMax_ 
-	  << "\netamin,etamax:   " << etaMin_  << "," << etaMax_
-	  << "\nphimin,phimax:   " << phiMin_  << "," << phiMax_
-	  << "\nnhitmin,nhitmax: " << nHitMin_ << "," << nHitMax_
-          << "\nnhitmin2D:       " << nHitMin2D_
-	  << "\nchi2nmax:        " << chi2nMax_;
-
+	  << "only retain tracks isolated at least by " << minHitIsolation_ << 
+	  " cm from other rechits"; 
+      
+      if (chargeCheck_)
+	edm::LogInfo("AlignmentTrackSelector") 
+	  << "only retain hits with at least " << minHitChargeStrip_ <<  
+	  " ADC counts of total cluster charge"; 
+      
+      edm::LogInfo("AlignmentTrackSelector") 
+	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX = " 
+	<< minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
+	<< "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_;
+    }
+  
   if (applyNHighestPt_)
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "filter N tracks with highest Pt N=" << nHighestPt_;
@@ -74,21 +89,6 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "apply multiplicity filter N>= " << minMultiplicity_ << "and N<= " << maxMultiplicity_
           << " on " << (multiplicityOnInput_ ? "input" : "output");
-
-  if (applyIsolation_)
-    edm::LogInfo("AlignmentTrackSelector") 
-      << "only retain tracks isolated at least by " << minHitIsolation_ << 
-      " cm from other rechits"; 
-
-  if (chargeCheck_)
-    edm::LogInfo("AlignmentTrackSelector") 
-      << "only retain hits with at least " << minHitChargeStrip_ <<  
-      " ADC counts of total cluster charge"; 
-
-  edm::LogInfo("AlignmentTrackSelector") 
-    << "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX = " 
-    << minHitsinTIB_ << "/" << minHitsinTID_ << "/" << minHitsinTOB_
-    << "/" << minHitsinTEC_ << "/" << minHitsinBPIX_ << "/" << minHitsinFPIX_;
 
 }
 
@@ -130,6 +130,13 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
   
   return result;
 }
+
+ ///returns if any of the Filters is used.
+bool AlignmentTrackSelector::useThisFilter()
+{
+  return applyMultiplicityFilter_  || applyBasicCuts_ || applyNHighestPt_ ;
+}
+
 
 // make basic cuts ------------------------------------------------------------
 
