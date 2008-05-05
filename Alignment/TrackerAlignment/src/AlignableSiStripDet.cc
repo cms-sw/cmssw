@@ -1,6 +1,6 @@
 /* 
- *  $Date: 2008/05/02 09:57:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/02 13:23:49 $
+ *  $Revision: 1.3 $
  */
 
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
@@ -103,7 +103,8 @@ void AlignableSiStripDet::consistifyAlignments()
 
   // But do not forget to keep track of movements/rotations:
   const GlobalVector movement(theSurface.position().basicVector() - oldPos.basicVector());
-  const RotationType rotation(oldRot.multiplyInverse(theSurface.rotation()));// need FIXME?
+  // Seems to be correct down to delta angles 4.*1e-8:
+  const RotationType rotation(oldRot.multiplyInverse(theSurface.rotation()));
   this->addDisplacement(movement);
   this->addRotation(rotation);
 
