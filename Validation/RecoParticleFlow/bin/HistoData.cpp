@@ -44,12 +44,29 @@ void HistoData::initialize() {
   chi2Score = 0.0;
   result = true;
   isEmpty = true;
+  doDrawScores = true;
 
   // for HTML display
   //resultImage = "NoData_Results.gif";
   //resultTarget = "NoData_Results.gif";
   resultImage = "";
   resultTarget = "";
+
+  // summary of results for 2d projections
+  projectionsHeight = 340;
+  projectionsBarsThickness = 20;
+  projectionsTopMargin = 20;
+  projectionsBottomMargin = 60;
+  projectionsLeftMargin = 100;
+  projectionsRightMargin = 40;
+
+  // 1d distribution overlays
+  plotsWidth = 680;
+  plotsHeight = 500;
+  plotsTopMargin = 50;
+  plotsBottomMargin = 80;
+  plotsLeftMargin = 100;
+  plotsRightMargin = 40;
 
   // rebinning/projections, etc.
   doDrawErrorBars = false;
@@ -85,17 +102,6 @@ void HistoData::setResult(bool Result) {
   // set the color scheme
   solidFillColor = result ? passColor : failColor;
   shadedFillColor = result ? passColor : failColor;
-
-}
-
-void HistoData::dump() {
-
-  cout << "name      = " << name << endl
-       << "type      = " << type << endl
-       << "bin       = " << bin << endl
-       << "ksScore   = " << ksScore << endl
-       << "chi2Score = " << chi2Score << endl
-       << "result    = " << (result ? "pass" : "fail") << endl;
 
 }
 

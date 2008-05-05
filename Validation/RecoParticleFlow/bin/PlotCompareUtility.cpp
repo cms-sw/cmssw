@@ -18,11 +18,12 @@
 #include <TGaxis.h>
 using namespace std;
 
-PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New, std::string NewBasePath,
-  std::string NewPrefix, std::string RefBasePath, std::string RefPrefix) {
+PlotCompareUtility::PlotCompareUtility(string Reference, string New, string NewBasePath,
+  string NewPrefix, string RefBasePath, string RefPrefix) {
+
+  // cout << refFile << " " << newFile << endl;
 
   // open TFiles
-  cout << refFile << " " << newFile << endl;
   refFile = new TFile(Reference.c_str(),"READ");
   newFile = new TFile(New.c_str(),"READ");
 
@@ -36,6 +37,9 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New, s
   ksThreshold = 0;
   chi2Threshold = 0;
 
+  // default images
+  noDataImage = "NoData.gif";
+
   // overall summary of results plot
   summaryWidth = 700;
   summaryBarsThickness = 20;
@@ -44,6 +48,7 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New, s
   summaryRightMargin = 60;
   summaryBottomMargin = 60;
 
+/*
   // summary of results for 2d projections
   projectionsHeight = 340;
   projectionsBarsThickness = 20;
@@ -59,7 +64,7 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference, std::string New, s
   plotsBottomMargin = 80;
   plotsLeftMargin = 100;
   plotsRightMargin = 40;
-
+*/
   // initialize the 'final result' variable (set to false by any failing test)
   finalResult = true;
 
@@ -241,13 +246,13 @@ void PlotCompareUtility::makeSummary(string Name) {
 
 void PlotCompareUtility::makeDefaultPlots() {
 
-  // make a default plot for when there is nothing to display
-  TCanvas noDataCanvas("noDataCanvas","noDataCanvas",plotsWidth,plotsHeight);
+  // make a default plot for tests with no result image/html
+  TCanvas noDataCanvas("noDataCanvas","noDataCanvas",100,100);
   noDataCanvas.SetFrameFillColor(10);
   noDataCanvas.Draw();
   TText noData(0.5,0.5,"No Data");
   noData.Draw();
-  noDataCanvas.Print("NoData_Results.gif");
+  noDataCanvas.Print(noDataImage.c_str());
 
 }
 
@@ -305,33 +310,43 @@ void PlotCompareUtility::makeSummaryHTML(string Name) {
   string html = "index.html";
   ofstream fout(html.c_str());
 
+  // thumbnail heights/widths
+  int leftOffset = 250;
+  int thumbLeftMargin = 5;
+  int thumbTopMargin = 80;
+  int thumbWidth = leftOffset - thumbLeftMargin;
+  int thumbHeight = 150;
+
   // print top portion of document
-  fout << "<!DOCTYPE gif PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">" << endl
+  fout << "<!DOCTYPE gif PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN'>" << endl
        << "<html>" << endl << endl
        << "  <head>" << endl
-       << "    <script type=\"text/javascript\">" << endl
+       << "    <script type='text/javascript'>" << endl
        << "      function tn(target, image) {" << endl
-       << "        document.getElementById(\"thumblink\").href = target" << endl
-       << "        document.getElementById(\"thumb\").src = image" << endl
+       << "        document.getElementById('thumblink').href = target" << endl
+       << "        document.getElementById('thumb').src = image" << endl
+       << "        document.getElementById('thumb').width = '" << thumbWidth << "'" << endl
+       << "        document.getElementById('thumb').height = '" << thumbHeight << "'" << endl
        << "      }" << endl
        << "    </script>" << endl
        << "  </head>" << endl << endl
        << "  <body>" << endl << endl
-       << "    <style type=\"text/css\">" << endl
-       << "      #thumb_d {position: absolute; position: fixed; left: 5px; top: 80px; text-align: center; }" << endl
-       << "      #main_d {position: relative; left: 175px; }" << endl
+       << "    <style type='text/css'>" << endl
+       << "      #thumb_d {position: absolute; position: fixed; left: " << thumbLeftMargin << "px;"
+       << " top: " << thumbTopMargin << "px; text-align: center; }" << endl
+       << "      #main_d {position: absolute; left: " << leftOffset << "px; }" << endl
        << "    </style>" << endl << endl
        << "    <!-- added for IE compatibility (untested)" << endl
-       << "    <script language=\"JScript\">" << endl
+       << "    <script language='JScript'>" << endl
        << "      if (document.recalc && document.body.attachEvent) {" << endl
-       << "        theDiv.style.setExpression(\"top\", \"document.body.scrollTop + 150\"); " << endl
+       << "        theDiv.style.setExpression('top', 'document.body.scrollTop + 150'); " << endl
        << "        document.body.onscroll = function() { document.recalc(true) }; " << endl 
        << "      }" << endl
        << "    </script> -->" << endl << endl
-       << "    <div id=\"main_d\">" << endl
-       << "      <img src=\"" << gifName << "\" usemap=\"#" << Name << "\" alt=\"\" style=\"border-style: none;\""
+       << "    <div id='main_d'>" << endl
+       << "      <img src='" << gifName << "' usemap='#" << Name << "' alt='' style='border-style: none;'"
        << " height=" << summaryHeight << " width=" << summaryWidth << " border=0>" << endl
-       << "      <map id=\"" << Name << "\" name=\"" << Name << "\">" << endl;
+       << "      <map id='" << Name << "' name='" << Name << "'>" << endl;
 
   // loop over HistoData entries
   vector<HistoData>::iterator hd;
@@ -347,19 +362,19 @@ void PlotCompareUtility::makeSummaryHTML(string Name) {
     string target = hd->getResultTarget();
 
     // add coordinates area to image map
-    fout << "        <area shape=\"rect\" alt=\"\" coords=\"" << x1 << "," << y1 << "," << x2 << "," << y2
-         << "\" href=\"" << target << "\" onMouseOver=\"tn('" << target << "','" << image << "')\">" << endl;
+    fout << "        <area shape='rect' alt='' coords='" << x1 << "," << y1 << "," << x2 << "," << y2
+         << "' href='" << target << "' onMouseOver=\"tn('" << target << "','" << image << "')\">" << endl;
 
   }
 
   // print bottom portion of document
-  fout << "        <area shape=\"default\" nohref=\"nohref\" alt=\"\">" << endl
+  fout << "        <area shape='default' nohref='nohref' alt=''>" << endl
        << "      </map>" << endl
        << "    </div>" << endl << endl
-       << "    <div id=\"thumb_d\">" << endl
-       << "      <a href=\"#\" id=\"thumblink\"><img src=\"NoData_Results.gif\" id=\"thumb\" width=200 height=150 border=0></a>" << endl
-       << "      <br><a href=\"log.txt\">Root Output</a>" << endl
-       << "      <br><a href=\"err.txt\">Root Warnings</a>" << endl
+       << "    <div id='thumb_d'>" << endl
+       << "      <a href='#' id='thumblink'><img src='" << noDataImage << "' id='thumb' width=0 height=0 border=0></a>" << endl
+//     << "      <br><a href=\"log.txt\">Root Output</a>" << endl
+//     << "      <br><a href=\"err.txt\">Root Warnings</a>" << endl
        << "    </div>" << endl << endl
        << "  </body>" << endl << endl
        << "</html>" << endl;

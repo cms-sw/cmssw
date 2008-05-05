@@ -60,12 +60,12 @@ bool PlotCompareUtility::compare<Plot1D>(HistoData *HD) {
 template < >
 void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
 
-  std::cerr << HD->getName() << "makePlots<Plot1D>\n";
+  //std::cerr << HD->getName() << "makePlots<Plot1D>\n";
 
   // do not make any new plot if empty
   if (HD->getIsEmpty()) {
-    HD->setResultImage("NoData_Results.gif");
-    HD->setResultTarget("NoData_Results.gif");
+    HD->setResultImage(noDataImage);
+    HD->setResultTarget(noDataImage);
     return;
   }
 
@@ -89,15 +89,23 @@ void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
 
   // place the test results as the title
   TString title = HD->getName();
-  if (ksThreshold > 0) title += " KS Score = "; title += HD->getKSScore();
-  if (chi2Threshold > 0) title += " Chi^2 Score = "; title += HD->getChi2Score();
+  if (HD->getDoDrawScores()) {
+    if (ksThreshold > 0) title += " KS Score = "; title += HD->getKSScore();
+    if (chi2Threshold > 0) title += " Chi^2 Score = "; title += HD->getChi2Score();
+  }
 
   // the canvas is rescaled during gif conversion, so add padding to Canvas dimensions
-  int plotsCanvasWidth = plotsWidth + 4;
-  int plotsCanvasHeight = plotsHeight + 28;
+  unsigned short plotsWidth = HD->getPlotsWidth();
+  unsigned short plotsHeight = HD->getPlotsHeight();
+  unsigned short plotsCanvasWidth = plotsWidth + 4;
+  unsigned short plotsCanvasHeight = plotsHeight + 28;
 
   // setup canvas for displaying the compared histograms
   TCanvas hCanvas("hCanvas","hCanvas",plotsCanvasWidth,plotsCanvasHeight);
+  unsigned short plotsTopMargin = HD->getPlotsTopMargin();
+  unsigned short plotsLeftMargin = HD->getPlotsLeftMargin();
+  unsigned short plotsRightMargin = HD->getPlotsRightMargin();
+  unsigned short plotsBottomMargin = HD->getPlotsBottomMargin();
   hCanvas.SetTopMargin(float(plotsTopMargin) / plotsHeight);
   hCanvas.SetLeftMargin(float(plotsLeftMargin) / plotsWidth);
   hCanvas.SetRightMargin(float(plotsRightMargin) / plotsWidth);
@@ -123,10 +131,10 @@ void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
   legend.Draw("SAME");
 
   // create the plots overlay image
-  std::string gifName = HD->getName() + "_Results.gif";
+  std::string gifName = HD->getName() + ".gif";
   if (HD->getResultImage() == "") HD->setResultImage(gifName);
   if (HD->getResultTarget() == "") HD->setResultTarget(gifName);
-  std::cerr << "About to print" << gifName << "\n";
+  //std::cerr << "About to print" << gifName << "\n";
   hCanvas.Print(gifName.c_str());
 
 }
@@ -138,14 +146,15 @@ void PlotCompareUtility::makeHTML<Plot1D>(HistoData *HD) {
 
   // create HTML support code for this HistoData
   std::string Name = hd->getName();
-  std::string gifName = Name + "_Results.gif";
-  std::string html = Name + "_Results.html";
+  std::string gifName = hd->getResultImage();
+  std::string html = Name + ".html";
   ofstream fout(html.c_str());
 
   // simply link to the appropriate image overlay
   fout << "<html><body><img src=\"" << gifName << "\"></body></html>" << endl;
   
   // close the file
+  hd->setResultTarget(html);
   fout.close();
 
   */
