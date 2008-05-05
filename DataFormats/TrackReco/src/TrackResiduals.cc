@@ -1,4 +1,5 @@
 #include <math.h>
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 using namespace reco;
 
@@ -25,28 +26,64 @@ void TrackResiduals::setResidualXY (int idx, double residualX, double residualY)
 
 double TrackResiduals::residualX (int i) const
 {
-     return unpack_residual(residuals_[i] >> 4);
+     switch (residualType) {
+     case X_Y_RESIDUALS:
+	  return unpack_residual(residuals_[i] >> 4);
+     case X_Y_PULLS:
+	  return unpack_pull(residuals_[i] >> 4);
+     default:
+	  assert(0);
+     }
+     return 0;
 }
 
 double TrackResiduals::residualY (int i) const
 {
-     return unpack_residual(residuals_[i] & 0x0f);
+     switch (residualType) {
+     case X_Y_RESIDUALS:
+	  return unpack_residual(residuals_[i] & 0x0f);
+     case X_Y_PULLS:
+	  return unpack_pull(residuals_[i] & 0x0f);
+     default:
+	  assert(0);
+     }
+     return 0;
+}
+
+static int index_to_hitpattern (int i_hitpattern, const HitPattern &h)
+{
+     int i_residuals = 0;
+     assert(i_hitpattern < h.numberOfHits());
+     if (!h.validHitFilter(h.getHitPattern(i_hitpattern))) 
+	  // asking for residual of invalid hit...
+	  return -999;
+     for (int i = 0; i <= i_hitpattern; i++) {
+	  if (h.validHitFilter(h.getHitPattern(i)))
+	       i_residuals++;
+     }
+     return i_residuals;
+}
+
+double TrackResiduals::residualX (int i, const HitPattern &h) const
+{
+     int idx = index_to_hitpattern(i, h);
+     if (idx == -999)
+	  return -999;
+     return residualX(idx);
+}
+
+double TrackResiduals::residualY (int i, const HitPattern &h) const
+{
+     int idx = index_to_hitpattern(i, h);
+     if (idx == -999)
+	  return -999;
+     return residualY(idx);
 }
 
 void TrackResiduals::setPullXY (int idx, double pullX, double pullY)
 {
      assert(residualType == X_Y_PULLS);
      residuals_[idx] = (pack_pull(pullX) << 4) | pack_pull(pullY);
-}
-
-double TrackResiduals::pullX (int i) const
-{
-     return unpack_pull(residuals_[i] >> 4);
-}
-
-double TrackResiduals::pullY (int i) const
-{
-     return unpack_pull(residuals_[i] & 0x0f);
 }
 
 static const double pull_char_to_double[8][2] = { 
@@ -115,4 +152,13 @@ void TrackResiduals::print (std::ostream &stream) const
 //  	  stream << residual << std::endl;
      }
      stream.flags(flags);
+}
+
+void TrackResiduals::print (const HitPattern &h, std::ostream &stream) const
+{
+     stream << "TrackResiduals" << std::endl;
+     for (int i = 0; i < h.numberOfHits(); i++) {
+	  stream << "( " << residualX(i, h) << " , " << residualY(i, h) << " )" 
+		 << std::endl;
+     }
 }

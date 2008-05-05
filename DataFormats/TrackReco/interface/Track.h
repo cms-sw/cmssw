@@ -14,7 +14,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.45 2008/01/15 13:05:48 llista Exp $
+ * \version $Id: Track.h,v 1.46 2008/02/27 23:53:31 vlimant Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -110,6 +110,15 @@ namespace reco {
      *   before the reference is actually used. 
      */
     edm::RefToBase<TrajectorySeed> seedRef() const { return extra_->seedRef(); }
+
+    ///  Access the lightweight track residuals; these are stored in
+    ///  TrackExtra and provide residual information with 4 bits of
+    ///  precision per hit
+    const TrackResiduals &residuals () const { return extra_->residuals(); }
+    /// return the residual (local x/y) for the hit in the ith position;
+    /// this position is aligned with the position in the HitPattern
+    double residualX (int position) const;
+    double residualY (int position) const;
 
   private:
     /// Reference to additional information stored only on RECO.

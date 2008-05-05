@@ -4,7 +4,7 @@
  *
  * \author 
  *
- * \version $Id: TrackExtra.h,v 1.26 2008/02/21 13:16:43 gpetrucc Exp $
+ * \version $Id: TrackResiduals.h,v 1.1 2008/05/05 17:46:18 jmuelmen Exp $
  *
  */
 #include <iostream>
@@ -14,6 +14,7 @@
 class Trajectory;
 
 namespace reco {
+     class HitPattern;
      class TrackResiduals {
 	  friend class Trajectory;
      public:
@@ -32,6 +33,7 @@ namespace reco {
 	  void setPullXY (int idx, double pullX, double pullY);
 	  void setResidualType (enum ResidualType);
 	  void print (std::ostream &stream = std::cout) const;
+	  void print (const HitPattern &, std::ostream &stream = std::cout) const;
 	  /* Example usage:
 	   * 
 	   * HitPattern p;
@@ -49,12 +51,14 @@ namespace reco {
 	   * 	     p.getHitPattern(i), r.residualX(p, i));
 	   * }
 	   */
-	  /// get the residual of the ith valid hit (needs the hit pattern to
+	  /// get the residual of the ith hit (needs the hit pattern to
 	  /// figure out which hits are valid)
+	  double		residualX (int i, const HitPattern &) const;
+	  double		residualY (int i, const HitPattern &) const;
+	  /// get the residual of the ith valid hit, with no regard
+	  /// for alignment with the HitPattern
 	  double		residualX (int i) const;
 	  double		residualY (int i) const;
-	  double 		pullX (int i) const;
-	  double		pullY (int i) const;
        
      protected:
 	  static double 	unpack_pull (unsigned char);

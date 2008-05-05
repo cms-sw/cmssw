@@ -10,3 +10,14 @@ Track::Track( double chi2, double ndof, const Point & vertex, const Vector & mom
 
 Track::~Track() {
 }
+
+double Track::residualX (int position) const
+{
+     return extra_->residuals().residualX(position, hitPattern());
+}
+
+double Track::residualY (int position) const
+{
+     return extra_->residuals().residualY(position, hitPattern());
+}
+
