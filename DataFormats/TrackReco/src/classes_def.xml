@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="reco::HitPattern"/>
+  <class name="reco::TrackResiduals"/>
   <class name="reco::TrackBase">
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
