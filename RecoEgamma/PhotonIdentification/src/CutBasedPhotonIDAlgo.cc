@@ -2,7 +2,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include <iostream>
+
 
 void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   
@@ -115,6 +115,9 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
 						photonEcalRecHitConeOuterRadius_,
 						photonEcalRecHitConeInnerRadius_,
 						photonEcalRecHitThresh_);
+  double rawSCEt = (pho->superCluster()->rawEnergy())/(cosh(pho->superCluster()->position().eta()));
+  double tempiso = EcalRecHitIso - rawSCEt;
+  EcalRecHitIso= tempiso;
 
 //   std::cout << "Output from ecal isolation: ";
 //   std::cout << " Sum pT: " << EcalRecHitIso << std::endl;

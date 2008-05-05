@@ -102,7 +102,7 @@ void PhotonIDAlgo::calculateTrackIso(const reco::Photon* photon,
   //Photon Eta and Phi.  Hope these are correct.
   
   
-  PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, 999., trackCollection);
+  PhotonTkIsolation phoIso(RCone, RinnerCone, pTThresh, 2., trackCollection);
   counter = phoIso.getNumberTracks(photon);
   ptSum = phoIso.getPtTracks(photon);
   //delete phoIso;
