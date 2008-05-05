@@ -258,16 +258,12 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<CSCCLCTDigiCollection>          ctp_cat_emul_;
   edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_lct_data_;
   edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_lct_emul_;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_srt_data_;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_srt_emul_;
   CSCALCTDigiCollection_          const* ctp_ano_data = 0;
   CSCALCTDigiCollection_          const* ctp_ano_emul = 0;
   CSCCLCTDigiCollection_          const* ctp_cat_data = 0;
   CSCCLCTDigiCollection_          const* ctp_cat_emul = 0;
   CSCCorrelatedLCTDigiCollection_ const* ctp_lct_data = 0;
   CSCCorrelatedLCTDigiCollection_ const* ctp_lct_emul = 0;
-  CSCCorrelatedLCTDigiCollection_ const* ctp_srt_data = 0;
-  CSCCorrelatedLCTDigiCollection_ const* ctp_srt_emul = 0;
   if(m_doSys[CTP]) {
     iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_ano_data_);
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_ano_emul_);
@@ -275,8 +271,6 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_cat_emul_);
     iEvent.getByLabel(m_DEsource[CTP][0]                    ,ctp_lct_data_);
     iEvent.getByLabel(m_DEsource[CTP][1]                    ,ctp_lct_emul_);
-    iEvent.getByLabel(m_DEsource[CTP][0].label(),"MPCSORTED",ctp_srt_data_);
-    iEvent.getByLabel(m_DEsource[CTP][1].label(),"MPCSORTED",ctp_srt_emul_);
   }
   ///place candidates into vectors
   CSCALCTDigiCollection_ ctp_ano_data_v, ctp_ano_emul_v;
@@ -332,22 +326,6 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   ctp_lct_data =&ctp_lct_data_v;
   ctp_lct_emul =&ctp_lct_emul_v;
-  CSCCorrelatedLCTDigiCollection_ ctp_srt_data_v, ctp_srt_emul_v;
-  ctp_srt_data_v.clear(); ctp_srt_emul_v.clear();
-  if(ctp_srt_data_.isValid() && ctp_srt_emul_.isValid()) {
-    typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator mapIt;
-    typedef CSCCorrelatedLCTDigiCollection::const_iterator    vecIt;
-    for (mapIt mit = ctp_srt_data_->begin(); mit != ctp_srt_data_->end(); mit++)
-      for (vecIt vit = ctp_srt_data_->get((*mit).first).first; 
-	   vit != ctp_srt_data_->get((*mit).first).second; vit++) 
-	ctp_srt_data_v.push_back(*vit);
-    for (mapIt mit = ctp_srt_emul_->begin(); mit != ctp_srt_emul_->end(); mit++)
-      for (vecIt vit = ctp_srt_data_->get((*mit).first).first; 
-	   vit != ctp_srt_data_->get((*mit).first).second; vit++)
-	ctp_srt_emul_v.push_back(*vit);
-  }
-  ctp_srt_data =&ctp_srt_data_v;
-  ctp_srt_emul =&ctp_srt_emul_v;
   
   // -- CTF [cathod strip chamber track finder]
   edm::Handle<L1MuRegionalCandCollection> ctf_data, ctf_emul;
@@ -364,8 +342,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByLabel(m_DEsource[CTF][2],ctf_trk_data_);
     iEvent.getByLabel(m_DEsource[CTF][3],ctf_trk_emul_);
     //note: unpacker different label: MounL1CSCTrackCollection
-    iEvent.getByLabel(m_DEsource[CTF][0].label(),"CSC",ctf_data);
-    iEvent.getByLabel(m_DEsource[CTF][1].label(),"CSC",ctf_emul);
+    iEvent.getByLabel(m_DEsource[CTF][0],ctf_data);
+    iEvent.getByLabel(m_DEsource[CTF][1],ctf_emul);
     //note: unpacker only
     iEvent.getByLabel(m_DEsource[CTF][0].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_data_);
     iEvent.getByLabel(m_DEsource[CTF][1].label(),"MuonL1CSCStatusDigiCollection",ctf_sta_emul_);
@@ -553,18 +531,17 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValid[DTP]&= ((     dtp_th_data_.isValid()) && (     dtp_th_emul_.isValid()));
   isValid[DTF] = ((        dtf_data .isValid()) && (        dtf_emul .isValid()));
   isValid[DTF]&= ((    dtf_trk_data_.isValid()) && (    dtf_trk_emul_.isValid()));
-  isValid[CTP] = ((    ctp_ano_data_.isValid()) && (    ctp_ano_emul_.isValid()));
-  isValid[CTP]&= ((    ctp_cat_data_.isValid()) && (    ctp_cat_emul_.isValid()));
-  isValid[CTP]&= ((    ctp_lct_data_.isValid()) && (    ctp_lct_emul_.isValid()));
-  isValid[CTP]&= ((    ctp_srt_data_.isValid()) && (    ctp_srt_emul_.isValid()));
+  isValid[CTP]|= ((    ctp_ano_data_.isValid()) && (    ctp_ano_emul_.isValid()));
+  isValid[CTP]|= ((    ctp_cat_data_.isValid()) && (    ctp_cat_emul_.isValid()));
+  isValid[CTP]|= ((    ctp_lct_data_.isValid()) && (    ctp_lct_emul_.isValid()));
   isValid[CTF] = ((        ctf_data .isValid()) && (        ctf_emul .isValid()));
-  isValid[CTF]&= ((   ctf_trk_data_ .isValid()) && (   ctf_trk_emul_ .isValid()));
-  isValid[CTF]&= ((   ctf_sta_data_ .isValid()) && (   ctf_sta_emul_ .isValid()));
+  isValid[CTF]|= ((   ctf_trk_data_ .isValid()) && (   ctf_trk_emul_ .isValid()));
+  isValid[CTF]|= ((   ctf_sta_data_ .isValid()) && (   ctf_sta_emul_ .isValid()));
   isValid[RPC] = ((    rpc_cen_data .isValid()) && (    rpc_cen_emul .isValid()));
-  isValid[RPC]&= ((    rpc_for_data .isValid()) && (    rpc_for_emul .isValid()));
+  isValid[RPC]|= ((    rpc_for_data .isValid()) && (    rpc_for_emul .isValid()));
   isValid[LTC] = ((        ltc_data .isValid()) && (        ltc_emul .isValid()));
   isValid[GMT] = ((        gmt_data .isValid()) && (        gmt_emul .isValid()));
-  isValid[GMT]&= ((    gmt_rdt_data_.isValid()) && (    gmt_rdt_emul_.isValid()));
+  isValid[GMT]|= ((    gmt_rdt_data_.isValid()) && (    gmt_rdt_emul_.isValid()));
   isValid[GLT] = ((    glt_rdt_data .isValid()) && (    glt_rdt_emul .isValid()));
   //isValid[GLT]&= ((    glt_evm_data .isValid()) && (    glt_evm_emul .isValid()));
   //isValid[GLT]&= ((    glt_obj_data .isValid()) && (    glt_obj_emul .isValid()));
@@ -600,7 +577,6 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_doSys[CTP]&&isValid[CTP]) process<CSCALCTDigiCollection_>         (    ctp_ano_data,     ctp_ano_emul, CTP);
   if(m_doSys[CTP]&&isValid[CTP]) process<CSCCLCTDigiCollection_>         (    ctp_cat_data,     ctp_cat_emul, CTP);
   if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_lct_data,     ctp_lct_emul, CTP);
-  if(m_doSys[CTP]&&isValid[CTP]) process<CSCCorrelatedLCTDigiCollection_>(    ctp_srt_data,     ctp_srt_emul, CTP);
   if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (        ctf_data,         ctf_emul, CTF);
   if(m_doSys[CTF]&&isValid[CTF]) process<CSCCorrelatedLCTDigiCollection_>(    ctf_trk_data,     ctf_trk_emul, CTF);
   if(m_doSys[CTF]&&isValid[CTF]) process<L1MuRegionalCandCollection>     (    ctf_trc_data,     ctf_trc_emul, CTF);
