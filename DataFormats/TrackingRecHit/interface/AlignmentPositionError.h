@@ -21,14 +21,25 @@ class AlignmentPositionError {
   
   GlobalError globalError() const { return theGlobalError; };
 
-  AlignmentPositionError operator+= (const AlignmentPositionError& ape) const {
+  AlignmentPositionError operator+ (const AlignmentPositionError& ape) const {
     return AlignmentPositionError ( this->globalError() + ape.globalError());
   };
 
-  AlignmentPositionError operator-= (const AlignmentPositionError& ape) const {
+  AlignmentPositionError operator- (const AlignmentPositionError& ape) const {
     return AlignmentPositionError ( this->globalError() - ape.globalError());
 
   };
+
+  AlignmentPositionError & operator+= (const AlignmentPositionError& ape) {
+    theGlobalError = GlobalError(this->globalError() + ape.globalError());
+    return *this;
+  };
+
+  AlignmentPositionError & operator-= (const AlignmentPositionError& ape) {
+    theGlobalError = GlobalError(this->globalError() - ape.globalError());
+    return *this;
+  };
+
 
  private:
   
