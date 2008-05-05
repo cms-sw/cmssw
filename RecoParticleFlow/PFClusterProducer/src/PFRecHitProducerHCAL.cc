@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -278,10 +277,10 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 
 reco::PFRecHit* 
 PFRecHitProducerHCAL::createHcalRecHit( const DetId& detid,
-				     double energy,
-				     int layer,
-				     const CaloSubdetectorGeometry* geom,
-				     unsigned newDetId ) {
+					double energy,
+					PFLayer::Layer layer,
+					const CaloSubdetectorGeometry* geom,
+					unsigned newDetId ) {
   
   const CaloCellGeometry *thisCell = geom->getGeometry(detid);
   if(!thisCell) {

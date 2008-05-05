@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -214,9 +213,9 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
 
 reco::PFRecHit* 
 PFRecHitProducerECAL::createEcalRecHit( const DetId& detid,
-				     double energy,
-				     int layer,
-				     const CaloSubdetectorGeometry* geom ) {
+					double energy,
+					PFLayer::Layer layer,
+					const CaloSubdetectorGeometry* geom ) {
 
   math::XYZVector position;
   math::XYZVector axis;

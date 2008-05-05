@@ -1231,7 +1231,7 @@ void DisplayManager::loadGClusters()
     createGCluster( (*(em_->clustersPS_))[i],clusId,phi0);
   }
   for(unsigned i=0; i<em_->clustersIslandBarrel_.size(); i++) {
-    int layer = PFLayer::ECAL_BARREL;
+    PFLayer::Layer layer = PFLayer::ECAL_BARREL;
     //int clusId=(i<<shiftId_) | CLUSTERIBID;
     int clusId=(CLUSTERIBID<<shiftId_) | i;
    

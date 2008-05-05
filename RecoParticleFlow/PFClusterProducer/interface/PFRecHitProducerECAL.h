@@ -17,6 +17,7 @@
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
 /**\class PFRecHitProducerECAL 
@@ -57,7 +58,7 @@ class PFRecHitProducerECAL : public PFRecHitProducer {
 
   reco::PFRecHit*  createEcalRecHit( const DetId& detid,
 				     double energy,
-				     int layer,
+				     PFLayer::Layer layer,
 				     const CaloSubdetectorGeometry* geom );
 
 

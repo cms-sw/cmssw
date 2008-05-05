@@ -47,8 +47,8 @@ PFRecHitProducerPS::~PFRecHitProducerPS() {}
 
 
 void PFRecHitProducerPS::createRecHits(vector<reco::PFRecHit>& rechits,
-				     edm::Event& iEvent, 
-				     const edm::EventSetup& iSetup) {
+				       edm::Event& iEvent, 
+				       const edm::EventSetup& iSetup) {
 
   map<unsigned, unsigned > idSortedRecHits;
   typedef map<unsigned, unsigned >::iterator IDH;
@@ -103,7 +103,7 @@ void PFRecHitProducerPS::createRecHits(vector<reco::PFRecHit>& rechits,
       
       const GlobalPoint& position = thisCell->getPosition();
      
-      int layer = 0;
+      PFLayer::Layer layer = PFLayer::NONE;
             
       switch( detid.plane() ) {
       case 1:

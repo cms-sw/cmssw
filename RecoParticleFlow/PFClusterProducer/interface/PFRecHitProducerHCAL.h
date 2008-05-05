@@ -16,6 +16,7 @@
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitProducer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 /**\class PFRecHitProducerHCAL
 \brief Producer for particle flow rechits  (PFRecHit) in HCAL 
@@ -48,7 +49,7 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
 
   reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
 				     double energy,
-				     int layer,
+				     PFLayer::Layer layer,
 				     const CaloSubdetectorGeometry* geom,
 				     unsigned newDetId=0);
   
