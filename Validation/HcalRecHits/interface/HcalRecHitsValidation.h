@@ -120,23 +120,32 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
 
   MonitorElement* map_ecal;
 
-  MonitorElement* emap_HBdepth1;
-  MonitorElement* emap_HBdepth2;
-  MonitorElement* emap_HEdepth1;
-  MonitorElement* emap_HEdepth2;
-  MonitorElement* emap_HEdepth3;
+  MonitorElement* emap_HB1;
+  MonitorElement* emap_HB2;
+  MonitorElement* emap_HE1;
+  MonitorElement* emap_HE2;
+  MonitorElement* emap_HE3;
   MonitorElement* emap_HO;
-  MonitorElement* emap_HFdepth1;
-  MonitorElement* emap_HFdepth2;
+  MonitorElement* emap_HF1;
+  MonitorElement* emap_HF2;
 
-  MonitorElement* emean_vs_ieta_HBdepth1;
-  MonitorElement* emean_vs_ieta_HBdepth2;
-  MonitorElement* emean_vs_ieta_HEdepth1;
-  MonitorElement* emean_vs_ieta_HEdepth2;
-  MonitorElement* emean_vs_ieta_HEdepth3;
+  MonitorElement* emean_vs_ieta_HB1;
+  MonitorElement* emean_vs_ieta_HB2;
+  MonitorElement* emean_vs_ieta_HE1;
+  MonitorElement* emean_vs_ieta_HE2;
+  MonitorElement* emean_vs_ieta_HE3;
   MonitorElement* emean_vs_ieta_HO;
-  MonitorElement* emean_vs_ieta_HFdepth1;
-  MonitorElement* emean_vs_ieta_HFdepth2;
+  MonitorElement* emean_vs_ieta_HF1;
+  MonitorElement* emean_vs_ieta_HF2;
+
+  MonitorElement* RMS_vs_ieta_HB1;
+  MonitorElement* RMS_vs_ieta_HB2;
+  MonitorElement* RMS_vs_ieta_HE1;
+  MonitorElement* RMS_vs_ieta_HE2;
+  MonitorElement* RMS_vs_ieta_HE3;
+  MonitorElement* RMS_vs_ieta_HO;
+  MonitorElement* RMS_vs_ieta_HF1;
+  MonitorElement* RMS_vs_ieta_HF2;
 
   MonitorElement* emean_seqHB1;
   MonitorElement* emean_seqHB2;
@@ -147,23 +156,32 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* emean_seqHF1;
   MonitorElement* emean_seqHF2;
 
-  MonitorElement* occupancy_map_HBdepth1;
-  MonitorElement* occupancy_map_HBdepth2;
-  MonitorElement* occupancy_map_HEdepth1;
-  MonitorElement* occupancy_map_HEdepth2;
-  MonitorElement* occupancy_map_HEdepth3;
-  MonitorElement* occupancy_map_HO;
-  MonitorElement* occupancy_map_HFdepth1;
-  MonitorElement* occupancy_map_HFdepth2;
+  MonitorElement* RMS_seq_HB1;
+  MonitorElement* RMS_seq_HB2;
+  MonitorElement* RMS_seq_HE1;
+  MonitorElement* RMS_seq_HE2;
+  MonitorElement* RMS_seq_HE3;
+  MonitorElement* RMS_seq_HO;
+  MonitorElement* RMS_seq_HF1;
+  MonitorElement* RMS_seq_HF2;
 
-  MonitorElement* occupancy_vs_ieta_HBdepth1;
-  MonitorElement* occupancy_vs_ieta_HBdepth2;
-  MonitorElement* occupancy_vs_ieta_HEdepth1;
-  MonitorElement* occupancy_vs_ieta_HEdepth2;
-  MonitorElement* occupancy_vs_ieta_HEdepth3;
+  MonitorElement* occupancy_map_HB1;
+  MonitorElement* occupancy_map_HB2;
+  MonitorElement* occupancy_map_HE1;
+  MonitorElement* occupancy_map_HE2;
+  MonitorElement* occupancy_map_HE3;
+  MonitorElement* occupancy_map_HO;
+  MonitorElement* occupancy_map_HF1;
+  MonitorElement* occupancy_map_HF2;
+
+  MonitorElement* occupancy_vs_ieta_HB1;
+  MonitorElement* occupancy_vs_ieta_HB2;
+  MonitorElement* occupancy_vs_ieta_HE1;
+  MonitorElement* occupancy_vs_ieta_HE2;
+  MonitorElement* occupancy_vs_ieta_HE3;
   MonitorElement* occupancy_vs_ieta_HO;
-  MonitorElement* occupancy_vs_ieta_HFdepth1;
-  MonitorElement* occupancy_vs_ieta_HFdepth2;
+  MonitorElement* occupancy_vs_ieta_HF1;
+  MonitorElement* occupancy_vs_ieta_HF2;
 
   MonitorElement* occupancy_seqHB1;
   MonitorElement* occupancy_seqHB2;
