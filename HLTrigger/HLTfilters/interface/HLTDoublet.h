@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/12/10 08:14:08 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -40,6 +40,7 @@ class HLTDoublet : public HLTFilter {
       // configuration
       edm::InputTag inputTag1_;   // input tag identifying 1st product
       edm::InputTag inputTag2_;   // input tag identifying 2nd product
+      bool saveTags_;             // whether to save these tags
       double min_Dphi_,max_Dphi_; // Delta phi window
       double min_Deta_,max_Deta_; // Delta eta window
       double min_Minv_,max_Minv_; // Minv(1,2) window

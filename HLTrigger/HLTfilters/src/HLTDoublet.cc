@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/22 08:00:54 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -28,6 +28,7 @@ template<typename T1, int Tid1, typename T2, int Tid2>
 HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+  saveTags_ (iConfig.template getUntrackedParameter<bool>("saveTags",false)),
   min_Dphi_ (iConfig.template getParameter<double>("MinDphi")),
   max_Dphi_ (iConfig.template getParameter<double>("MaxDphi")),
   min_Deta_ (iConfig.template getParameter<double>("MinDeta")),
@@ -84,8 +85,10 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   filterobject->addCollectionTag(inputTag1_);
-   filterobject->addCollectionTag(inputTag2_);
+   if (saveTags_) {
+     filterobject->addCollectionTag(inputTag1_);
+     filterobject->addCollectionTag(inputTag2_);
+   }
    bool accept(false);
 
    // get hold of pre-filtered object collections

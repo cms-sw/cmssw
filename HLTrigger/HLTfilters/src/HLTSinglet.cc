@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/22 08:00:54 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -25,6 +25,7 @@
 template<typename T, int Tid>
 HLTSinglet<T,Tid>::HLTSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
+  saveTag_  (iConfig.template getUntrackedParameter<bool>("saveTag",false)),
   min_Pt_   (iConfig.template getParameter<double>       ("MinPt"   )),
   max_Eta_  (iConfig.template getParameter<double>       ("MaxEta"  )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    ))
@@ -66,7 +67,7 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   filterobject->addCollectionTag(inputTag_);
+   if (saveTag_) filterobject->addCollectionTag(inputTag_);
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
 

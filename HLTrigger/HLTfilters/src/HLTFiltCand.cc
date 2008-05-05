@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/01/09 14:16:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/04/22 08:00:54 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -52,7 +52,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
   httsTag_ (iConfig.getParameter<edm::InputTag>("httsTag")),
   trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
   ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
-
+  saveTags_(iConfig.getUntrackedParameter<bool>("saveTags",false)),
   min_Pt_  (iConfig.getParameter<double>("MinPt"))
 {
   LogDebug("") << "MinPt cut " << min_Pt_
@@ -95,16 +95,17 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs> 
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   filterobject->addCollectionTag(photTag_);
-   filterobject->addCollectionTag(elecTag_);
-   filterobject->addCollectionTag(muonTag_);
-   filterobject->addCollectionTag(tausTag_);
-   filterobject->addCollectionTag(jetsTag_);
-   filterobject->addCollectionTag(metsTag_);
-   filterobject->addCollectionTag(httsTag_);
-   filterobject->addCollectionTag(trckTag_);
-   filterobject->addCollectionTag(ecalTag_);
-
+   if (saveTags_) {
+     filterobject->addCollectionTag(photTag_);
+     filterobject->addCollectionTag(elecTag_);
+     filterobject->addCollectionTag(muonTag_);
+     filterobject->addCollectionTag(tausTag_);
+     filterobject->addCollectionTag(jetsTag_);
+     filterobject->addCollectionTag(metsTag_);
+     filterobject->addCollectionTag(httsTag_);
+     filterobject->addCollectionTag(trckTag_);
+     filterobject->addCollectionTag(ecalTag_);
+   }
 
    // Specific filter code
 

@@ -131,6 +131,9 @@ private:
     /// InputTag for L1 muon collection
     edm::InputTag m_l1MuonCollectionTag;
 
+    /// Whether to save these tags
+    bool saveTags_;
+
 };
 
 #endif // HLTfilters_HLTLevel1GTSeed_h
