@@ -166,8 +166,24 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 
 
       TH1D*        NHighStripInCluster;
-      TH2D*        Charge_Vs_PathLength_Sat;
-      TH2D*        Charge_Vs_PathLength_NoSat;
+      TH2D*        Charge_Vs_PathLength_CS1;
+      TH2D*        Charge_Vs_PathLength_CS2;
+      TH2D*        Charge_Vs_PathLength_CS3;
+      TH2D*        Charge_Vs_PathLength_CS4;
+      TH2D*        Charge_Vs_PathLength_CS5;
+
+      TH1D*        MPV_Vs_PathLength_CS1;
+      TH1D*        MPV_Vs_PathLength_CS2;
+      TH1D*        MPV_Vs_PathLength_CS3;
+      TH1D*        MPV_Vs_PathLength_CS4;
+      TH1D*        MPV_Vs_PathLength_CS5;
+
+      TH1D*        FWHM_Vs_PathLength_CS1;
+      TH1D*        FWHM_Vs_PathLength_CS2;
+      TH1D*        FWHM_Vs_PathLength_CS3;
+      TH1D*        FWHM_Vs_PathLength_CS4;
+      TH1D*        FWHM_Vs_PathLength_CS5;
+
 
       TH2D*        Charge_Vs_PathLength;
       TH2D*        Charge_Vs_PathLength320;
@@ -200,8 +216,17 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH2D*        HitLocalPosition;
       TH2D*        HitLocalPositionBefCut;
 
+      TH1D*        JobInfo;
+
+
       TFile*       Output;
-      unsigned int NEvent;     
+      unsigned int NEvent;    
+      unsigned int SRun;
+      unsigned int SEvent;
+      TimeValue_t  STimestamp;
+      unsigned int ERun;
+      unsigned int EEvent;
+      TimeValue_t  ETimestamp;
 
    private :
       class isEqual{
@@ -281,12 +306,24 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    MPV_Vs_Eta                 = new TH2D ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0, 1350, 0, 1350);
    MPV_Vs_R                   = new TH2D ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 1350, 0, 1350);
    
-//   PD_Vs_Eta                  = new TH2D ("PD_Vs_Eta", "PD_Vs_Eta", 50, -3.0, 3.0, 500, 0, 100 );
-//   PD_Vs_R                    = new TH2D ("PD_Vs_R"  , "PD_Vs_R"  , 150, 0.0, 150.0, 500, 0, 100);
+   NHighStripInCluster        = new TH1D ("NHighStripInCluster"     , "NHighStripInCluster"       ,15,0,14);
+   Charge_Vs_PathLength_CS1   = new TH2D ("Charge_Vs_PathLength_CS1", "Charge_Vs_PathLength_CS1"  ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathLength_CS2   = new TH2D ("Charge_Vs_PathLength_CS2", "Charge_Vs_PathLength_CS2"  ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathLength_CS3   = new TH2D ("Charge_Vs_PathLength_CS3", "Charge_Vs_PathLength_CS3"  ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathLength_CS4   = new TH2D ("Charge_Vs_PathLength_CS4", "Charge_Vs_PathLength_CS4"  ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathLength_CS5   = new TH2D ("Charge_Vs_PathLength_CS5", "Charge_Vs_PathLength_CS5"  ,1000,0.2,1.4, 1000,0,2000);
 
-   NHighStripInCluster        = new TH1D ("NHighStripInCluster"        , "NHighStripInCluster"         ,15,0,14);
-   Charge_Vs_PathLength_Sat   = new TH2D ("Charge_Vs_PathLength_Sat"   , "Charge_Vs_PathLength_Sat"    ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathLength_NoSat = new TH2D ("Charge_Vs_PathLength_NoSat" , "Charge_Vs_PathLength_NoSat"  ,1000,0.2,1.4, 1000,0,2000);
+   MPV_Vs_PathLength_CS1      = new TH1D ("MPV_Vs_PathLength_CS1"   , "MPV_Vs_PathLength_CS1", 1350, 0, 1350);
+   MPV_Vs_PathLength_CS2      = new TH1D ("MPV_Vs_PathLength_CS2"   , "MPV_Vs_PathLength_CS2", 1350, 0, 1350);
+   MPV_Vs_PathLength_CS3      = new TH1D ("MPV_Vs_PathLength_CS3"   , "MPV_Vs_PathLength_CS3", 1350, 0, 1350);
+   MPV_Vs_PathLength_CS4      = new TH1D ("MPV_Vs_PathLength_CS4"   , "MPV_Vs_PathLength_CS4", 1350, 0, 1350);
+   MPV_Vs_PathLength_CS5      = new TH1D ("MPV_Vs_PathLength_CS5"   , "MPV_Vs_PathLength_CS5", 1350, 0, 1350);
+
+   FWHM_Vs_PathLength_CS1     = new TH1D ("FWHM_Vs_PathLength_CS1"  , "FWHM_Vs_PathLength_CS1", 1350, 0, 1350);
+   FWHM_Vs_PathLength_CS2     = new TH1D ("FWHM_Vs_PathLength_CS2"  , "FWHM_Vs_PathLength_CS2", 1350, 0, 1350);
+   FWHM_Vs_PathLength_CS3     = new TH1D ("FWHM_Vs_PathLength_CS3"  , "FWHM_Vs_PathLength_CS3", 1350, 0, 1350);
+   FWHM_Vs_PathLength_CS4     = new TH1D ("FWHM_Vs_PathLength_CS4"  , "FWHM_Vs_PathLength_CS4", 1350, 0, 1350);
+   FWHM_Vs_PathLength_CS5     = new TH1D ("FWHM_Vs_PathLength_CS5"  , "FWHM_Vs_PathLength_CS5", 1350, 0, 1350);
 
    Charge_Vs_PathLength       = new TH2D ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"  ,1000,0.2,1.4, 1000,0,2000);
    Charge_Vs_PathLength320    = new TH2D ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"  ,1000,0.2,1.4, 1000,0,2000);
@@ -333,6 +370,8 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    APV_Thickness              = new TH1D ("APV_Thickness", "APV_Thicknes", 36393,0,36392);
 
    MPVs                       = new TH1D ("MPVs", "MPVs", 600,0,600);
+
+   JobInfo                    = new TH1D ("JobInfo" , "JobInfo", 20,0,20);
    
    gROOT->cd();
 
@@ -382,46 +421,21 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
           }
       }
    }
-   NEvent = 0;
+
+   NEvent     = 0;
+   SRun       = 0;
+   SEvent     = 0;
+   STimestamp = 0;
+   ERun       = 0;
+   EEvent     = 0;
+   ETimestamp = 0;
 }
 
 void 
 SiStripGainFromData::algoEndJob() {
    unsigned int I=0;
 
-/*
-   if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 ){
-      TFile* file = NULL;
-      for(unsigned int f=0;f<VInputFiles.size();f++){
-         if(file!=NULL){
-            printf("Delete Previous File\n");
-//	    delete file;
-//          file->Close();
-            printf("Delete Previous File end\n");
-         }
-         file =  new TFile( VInputFiles[f].c_str() ); if(file==NULL){printf("Bug With File %s\n",VInputFiles[f].c_str()); exit(0);}
-
-
-         for(map<uint32_t, GlobalVector*>::iterator it = ModulePositionMap.begin();it!=ModulePositionMap.end();it++){
-         if( I%364==0 ) printf("Merging Histograms \t %6.2f%%\n",(100.0*I) / (ModulePositionMap.size()*VInputFiles.size()) );I++;
-         for(unsigned int i=0;i<3;i++){
-            int detId   = it->first;
-            int APVPair = i;
-
-            TString HistoName      = Form("ChargeAPVPair %i %i",detId,APVPair);
-            TH1F*   FullHisto      = (TH1F*) FindHisto(HistoName.Data());
-            if(FullHisto==NULL)continue;
-            TH1F*   Histo          = (TH1F*) file->FindObjectAny(HistoName.Data());
-            if(Histo==NULL){printf("BUG_MERGING\n");continue;}
-            FullHisto->Add(Histo);
-         }}  
-
-      }
-   }
-*/
-
-
-   if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 ){
+   if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"Merge")==0){
       TFile* file = NULL;
       for(unsigned int f=0;f<VInputFiles.size();f++){
          printf("Loading New Input File\n");
@@ -451,7 +465,18 @@ SiStripGainFromData::algoEndJob() {
          Charge_Vs_Alpha          ->Add( (TH1*) file->FindObjectAny("Charge_Vs_Alpha")          , 1);
          NStrips_Vs_Alpha         ->Add( (TH1*) file->FindObjectAny("NStrips_Vs_Alpha")         , 1);
 
+	 TH1D* JobInfo_tmp = (TH1D*) file->FindObjectAny("JobInfo");
+         NEvent                 += (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(1));
+         unsigned int tmp_SRun   = (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(3));
+         unsigned int tmp_SEvent = (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(4));
+         unsigned int tmp_ERun   = (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(6));
+         unsigned int tmp_EEvent = (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(7));
 
+              if(tmp_SRun< SRun){SRun=tmp_SRun; SEvent=tmp_SEvent;}
+         else if(tmp_SRun==SRun && tmp_SEvent<SEvent){SEvent=tmp_SEvent;}
+
+              if(tmp_ERun> ERun){ERun=tmp_ERun; EEvent=tmp_EEvent;}
+         else if(tmp_ERun==ERun && tmp_EEvent>EEvent){EEvent=tmp_EEvent;}
 
          printf("Deleting Current Input File\n");
          file->Close();
@@ -460,7 +485,11 @@ SiStripGainFromData::algoEndJob() {
 
    }
 
-
+   JobInfo->Fill(1,NEvent);
+   JobInfo->Fill(3,SRun);
+   JobInfo->Fill(4,SEvent);
+   JobInfo->Fill(6,ERun);
+   JobInfo->Fill(7,EEvent);
 
 
    I=0;
@@ -468,7 +497,8 @@ SiStripGainFromData::algoEndJob() {
    if( I%1825==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
       stAPVPairGain* APV = it->second;
 
-      TH1D* PointerToHisto = APV_Charge->ProjectionY(" ",APV->Index-1,APV->Index,"e");
+      int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
+      TH1D* PointerToHisto = APV_Charge->ProjectionY(" ",bin,bin,"e");
       if(PointerToHisto==NULL)continue;
 
       double* FitResults = new double[5];
@@ -501,9 +531,9 @@ SiStripGainFromData::algoEndJob() {
 
    double MPVmean = MPVs->GetMean();
    for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
-      stAPVPairGain* APV = it->second;
-      if(APV->MPV>0) APV->Gain = APV->MPV / MPVmean; // APV->MPV;
-      else           APV->Gain = 1;    
+      stAPVPairGain*   APV = it->second;
+      if(APV->MPV>0)   APV->Gain = APV->MPV / MPVmean; // APV->MPV;
+      else             APV->Gain = 1;    
       if(APV->Gain<=0) APV->Gain = 1;
       APV_Gain->Fill(APV->Index,APV->Gain); 
    }
@@ -511,7 +541,7 @@ SiStripGainFromData::algoEndJob() {
 
    double* FitResults = new double[5]; TH1D* Proj;
    for(int j=0;j<Charge_Vs_PathLength->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathLength->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathLength->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathLength->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j));
@@ -521,7 +551,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=0;j<Charge_Vs_PathLength320->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength320->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathLength320->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathLength320->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathLength320->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j));
@@ -531,7 +561,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=0;j<Charge_Vs_PathLength500->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength500->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathLength500->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;    
       MPV_Vs_PathLength500->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathLength500->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j));
@@ -540,8 +570,60 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
+   for(int j=0;j<Charge_Vs_PathLength_CS1->GetXaxis()->GetNbins();j++){
+      Proj      = Charge_Vs_PathLength_CS1->ProjectionY(" ",j,j,"e");
+      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+      MPV_Vs_PathLength_CS1->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j));
+      MPV_Vs_PathLength_CS1->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j));
+      FWHM_Vs_PathLength_CS1->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j) ));
+      FWHM_Vs_PathLength_CS1->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j) ));
+      delete Proj;
+   }
+
+   for(int j=0;j<Charge_Vs_PathLength_CS2->GetXaxis()->GetNbins();j++){
+      Proj      = Charge_Vs_PathLength_CS2->ProjectionY(" ",j,j,"e");
+      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+      MPV_Vs_PathLength_CS2->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j));
+      MPV_Vs_PathLength_CS2->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j));
+      FWHM_Vs_PathLength_CS2->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j) ));
+      FWHM_Vs_PathLength_CS2->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j) ));
+      delete Proj;
+   }
+
+   for(int j=0;j<Charge_Vs_PathLength_CS3->GetXaxis()->GetNbins();j++){
+      Proj      = Charge_Vs_PathLength_CS3->ProjectionY(" ",j,j,"e");
+      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+      MPV_Vs_PathLength_CS3->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j));
+      MPV_Vs_PathLength_CS3->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j));
+      FWHM_Vs_PathLength_CS3->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j) ));
+      FWHM_Vs_PathLength_CS3->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j) ));
+      delete Proj;
+   }
+
+   for(int j=0;j<Charge_Vs_PathLength_CS4->GetXaxis()->GetNbins();j++){
+      Proj      = Charge_Vs_PathLength_CS4->ProjectionY(" ",j,j,"e");
+      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+      MPV_Vs_PathLength_CS4->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j));
+      MPV_Vs_PathLength_CS4->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j));
+      FWHM_Vs_PathLength_CS4->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j) ));
+      FWHM_Vs_PathLength_CS4->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j) ));
+      delete Proj;
+   }
+
+   for(int j=0;j<Charge_Vs_PathLength_CS5->GetXaxis()->GetNbins();j++){
+      Proj      = Charge_Vs_PathLength_CS5->ProjectionY(" ",j,j,"e");
+      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+      MPV_Vs_PathLength_CS5->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j));
+      MPV_Vs_PathLength_CS5->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j));
+      FWHM_Vs_PathLength_CS5->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j) ));
+      FWHM_Vs_PathLength_CS5->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j) ));
+      delete Proj;
+   }
+
+
+
    for(int j=0;j<Charge_Vs_PathTIB->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTIB->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathTIB->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathTIB->SetBinContent(j, FitResults[0]/Charge_Vs_PathTIB->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathTIB->SetBinError  (j, FitResults[1]/Charge_Vs_PathTIB->GetXaxis()->GetBinCenter(j));
@@ -549,7 +631,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=0;j<Charge_Vs_PathTID->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTID->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathTID->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathTID->SetBinContent(j, FitResults[0]/Charge_Vs_PathTID->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathTID->SetBinError  (j, FitResults[1]/Charge_Vs_PathTID->GetXaxis()->GetBinCenter(j));
@@ -557,7 +639,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=0;j<Charge_Vs_PathTOB->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTOB->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathTOB->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathTOB->SetBinContent(j, FitResults[0]/Charge_Vs_PathTOB->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathTOB->SetBinError  (j, FitResults[1]/Charge_Vs_PathTOB->GetXaxis()->GetBinCenter(j));
@@ -565,7 +647,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=0;j<Charge_Vs_PathTEC->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTEC->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathTEC->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathTEC->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathTEC->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC->GetXaxis()->GetBinCenter(j));
@@ -573,7 +655,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=0;j<Charge_Vs_PathTEC1->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTEC1->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathTEC1->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathTEC1->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC1->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathTEC1->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC1->GetXaxis()->GetBinCenter(j));
@@ -581,7 +663,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=0;j<Charge_Vs_PathTEC2->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTEC2->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_PathTEC2->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_PathTEC2->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC2->GetXaxis()->GetBinCenter(j));
       MPV_Vs_PathTEC2->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC2->GetXaxis()->GetBinCenter(j));
@@ -590,7 +672,7 @@ SiStripGainFromData::algoEndJob() {
 
 
    for(int j=1;j<Charge_Vs_TransversAngle->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_TransversAngle->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_TransversAngle->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_TransversAngle->SetBinContent(j, FitResults[0]);
       MPV_Vs_TransversAngle->SetBinError  (j, FitResults[1]);
@@ -598,7 +680,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=1;j<Charge_Vs_Alpha->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_Alpha->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_Alpha->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_Alpha->SetBinContent(j, FitResults[0]);
       MPV_Vs_Alpha->SetBinError  (j, FitResults[1]);
@@ -606,14 +688,18 @@ SiStripGainFromData::algoEndJob() {
    }
 
    for(int j=1;j<Charge_Vs_Beta->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_Beta->ProjectionY(" ",j-1,j,"e");
+      Proj      = Charge_Vs_Beta->ProjectionY(" ",j,j,"e");
       getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
       MPV_Vs_Beta->SetBinContent(j, FitResults[0]);
       MPV_Vs_Beta->SetBinError  (j, FitResults[1]);
       delete Proj;
    }
 
-   if( (strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) ){
+
+
+
+
+   if( (strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) || strcmp(AlgoMode.c_str(),"MergeJob")==0){
       FILE* Gains = fopen(OutputGains.c_str(),"w");
       fprintf(Gains,"NEvents = %i\n",NEvent);
       fprintf(Gains,"Number of APVs = %i\n",APVsColl.size());
@@ -625,10 +711,6 @@ SiStripGainFromData::algoEndJob() {
    }
 
    Output->cd();
-   TObjString str1 = Form("_NEvents =  %i",NEvent);
-   TObjString str2 = Form("_Begin Run =  %i Event = %i",0,0);
-   TObjString str3 = Form("_End   Run =  %i Event = %i",9,9);
-   str1.Write(); str2.Write(); str3.Write();
    Output->Write();
    Output->Close();
 }
@@ -638,25 +720,28 @@ SiStripGainFromData::algoEndJob() {
 void
 SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 ) return;
+   if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 ) return;
 
+   if(NEvent==0){
+      SRun          = iEvent.id().run();
+      SEvent        = iEvent.id().event();
+      STimestamp    = iEvent.time().value();
+   }
+   ERun             = iEvent.id().run();
+   EEvent           = iEvent.id().event();
+   ETimestamp       = iEvent.time().value();
    NEvent++;
+
    iEvent_ = &iEvent;
 
    Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
    iEvent.getByLabel(TrajToTrackProducer, TrajToTrackLabel, trajTrackAssociationHandle);
    const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
 
-  //reverse the track-trajectory map
-   map<const Track* ,const Trajectory *> TrackToTrajMap;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); ++it) {
-        TrackToTrajMap[&(*it->val)]=  &(*it->key);
-   }
+      const Track      track = *it->val;   
+      const Trajectory traj  = *it->key;
 
-   for(map<const Track* ,const Trajectory *>::const_iterator it = TrackToTrajMap.begin(); it!=TrackToTrajMap.end(); ++it) {
-      
-      const Track      track = *it->first;   
-      const Trajectory traj  = *it->second;
 
       if(track.p()<MinTrackMomentum || track.p()>MaxTrackMomentum || track.eta()<MinTrackEta || track.eta()>MaxTrackEta)  continue;
 
@@ -727,7 +812,7 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    LocalVector          trackDirection = trajState.localDirection();
    double                  cosine      = trackDirection.z()/trackDirection.mag();
    const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
-// const vector<uint16_t>& Ampls       = Cluster->amplitudes();
+//   const vector<uint16_t>& Ampls       = Cluster->amplitudes();
    const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
    uint32_t                DetId       = Cluster->geographicalId();
    int                     FirstStrip  = Cluster->firstStrip();
@@ -778,8 +863,12 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    NStrips_Vs_Beta          ->Fill(beta ,Ampls.size());
 
    NHighStripInCluster->Fill(NHighStrip);
-   if(NHighStrip==1)   Charge_Vs_PathLength_Sat  ->Fill(path, Charge );
-   if(NHighStrip==2)   Charge_Vs_PathLength_NoSat->Fill(path, Charge );
+   if(NHighStrip==1)   Charge_Vs_PathLength_CS1->Fill(path, Charge );
+   if(NHighStrip==2)   Charge_Vs_PathLength_CS2->Fill(path, Charge );
+   if(NHighStrip==3)   Charge_Vs_PathLength_CS3->Fill(path, Charge );
+   if(NHighStrip==4)   Charge_Vs_PathLength_CS4->Fill(path, Charge );
+   if(NHighStrip==5)   Charge_Vs_PathLength_CS5->Fill(path, Charge );
+
  
    APV_Charge  ->Fill(APV->Index,ClusterChargeOverPath);
    APV_Momentum->Fill(APV->Index,trajState.globalMomentum().mag());
