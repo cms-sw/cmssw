@@ -157,7 +157,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       std::cout << "cluster tracks " << std::endl;
     }
 
-    if( fUseBeamConstraint &&((*iclus).size()>0) ){
+    if( fUseBeamConstraint &&((*iclus).size()>1) ){
       if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
       TransientVertex v = theFitter->vertex(*iclus, beamSpot);
       if (v.isValid()) pvCand.push_back(v);

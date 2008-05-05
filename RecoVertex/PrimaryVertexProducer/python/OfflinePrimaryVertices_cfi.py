@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
     PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(0.02), ## 200 microns
+        maxDistanceToBeam = cms.double(0.05), ## 200 microns
 
         minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability
 
