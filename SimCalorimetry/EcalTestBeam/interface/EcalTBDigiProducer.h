@@ -89,6 +89,7 @@ private:
   double tunePhaseShift;
 
   std::string EBdigiCollection_;
+  std::string hitsProducer_;
 
   double EBs25notCont;
   double EEs25notCont;  

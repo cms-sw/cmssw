@@ -20,6 +20,7 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
   /// output collections names
 
   EBdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
+  hitsProducer_     = params.getParameter<std::string>("hitsProducer");
 
   produces<EBDigiCollection>();
   produces<EcalTBTDCRawInfo>();
@@ -126,7 +127,7 @@ void EcalTBDigiProducer::produce(edm::Event& event, const edm::EventSetup& event
   checkGeometry(eventSetup);
   checkCalibrations(eventSetup);
 
-  const std::string barrelHitsName("EcalHitsEB");
+  const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
 
   // Get input
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
