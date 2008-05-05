@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.5 2008/05/02 11:10:17 loizides Exp $
+# $Id: setup_sm.sh,v 1.6 2008/05/02 13:20:18 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -25,7 +25,7 @@ case $hname in
     cmsdisk1)
         nname=node_cmsdisk1
         ;;
-    srv-*)
+    srv-c2c07-*)
 	for i in $store/sata*a*v*; do 
             sn=`basename $i`
             if test -z "`mount | grep $sn`"; then
@@ -38,7 +38,7 @@ case $hname in
         ;;
 esac
 
-if test -n "$SM_LA_NFS"; then
+if test -n "$SM_LA_NFS" -a "$SM_LA_NFS" != "local"; then
     if test -z "`mount | grep $lookarea`"; then
         mkdir -p $lookarea
         chmod 000 $lookarea
