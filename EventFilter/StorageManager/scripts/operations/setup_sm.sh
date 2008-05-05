@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.6 2008/05/02 13:20:18 loizides Exp $
+# $Id: setup_sm.sh,v 1.7 2008/05/05 07:27:29 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -25,10 +25,11 @@ case $hname in
     cmsdisk1)
         nname=node_cmsdisk1
         ;;
-    srv-c2c07-*)
+    srv-c2c07-* | srv-C2C07-*)
 	for i in $store/sata*a*v*; do 
             sn=`basename $i`
             if test -z "`mount | grep $sn`"; then
+                echo "Attempting to mount $i"
                 mount -L $sn $i
             fi
 	done
