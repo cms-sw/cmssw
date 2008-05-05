@@ -76,7 +76,8 @@ class dbsAccessor:
     easily utilized by the main DQMDBSgui.
     '''
 
-    def __init__(self):
+    def __init__(self,basepath=os.curdir):
+        self.basepath=basepath
         try:
             self.host=StringVar()
             self.port=IntVar()
@@ -94,13 +95,11 @@ class dbsAccessor:
             print "Cannot define StringVar, IntVar, BooleanVar variables."
             print "Are you trying to use dbsAccessor outside of Tkinter?"
             sys.exit()
-        self.setDefaults()
+        self.getDefaultsFromPickle() # do we want to call this for every instance?
         return
 
     def setDefaults(self):
 
-        # Eventually read defaults from pickle file?
-        
         self.searchResult=None
         self.host.set("cmsweb.cern.ch/dbs_discovery/")
         self.port.set(443)
@@ -117,6 +116,49 @@ class dbsAccessor:
         self.endRun.set(42200)
         return
 
+    def getDefaultsFromPickle(self):
+        if os.path.isfile(os.path.join(self.basepath,".dbsDefaults.cPickle")):
+            pcl=open(os.path.join(self.basepath,".dbsDefaults.cPickle"),'rb')
+            try:
+                self.host.set(cPickle.load(pcl))
+                self.port.set(cPickle.load(pcl))
+                self.dbsInst.set(cPickle.load(pcl))
+                self.searchString.set(cPickle.load(pcl))
+                self.page.set(cPickle.load(pcl))
+                self.limit.set(cPickle.load(pcl))
+                self.xml.set(cPickle.load(pcl))
+                self.case.set(cPickle.load(pcl))
+                self.details.set(cPickle.load(pcl))
+                self.debug.set(cPickle.load(pcl))
+                self.beginRun.set(cPickle.load(pcl))
+                self.endRun.set(cPickle.load(pcl))
+            except:
+                self.setDefaults()
+                print "Could not read file '.dbsDefaults.cPickle'"
+            pcl.close()
+        else:
+            self.setDefaults()
+        return
+
+    def writeDefaultsToPickle(self):
+        pcl=open(os.path.join(self.basepath,".dbsDefaults.cPickle"),'wb')
+        try:
+            cPickle.dump(self.host.get(),pcl)
+            cPickle.dump(self.port.get(),pcl)
+            cPickle.dump(self.dbsInst.get(),pcl)
+            cPickle.dump(self.searchString.get(),pcl)
+            cPickle.dump(self.page.get(),pcl)
+            cPickle.dump(self.limit.get(),pcl)
+            cPickle.dump(self.xml.get(),pcl)
+            cPickle.dump(self.case.get(),pcl)
+            cPickle.dump(self.details.get(),pcl)
+            cPickle.dump(self.debug.get(),pcl)
+            cPickle.dump(self.beginRun.get(),pcl)
+            cPickle.dump(self.endRun.get(),pcl)
+        except:
+            print "Could not write file '.dbsDefaults.cPickle'"
+        pcl.close()
+        return
 
     def searchDBS(self,beginrun=-1, endrun=-1,mytext=None):
 
@@ -293,9 +335,15 @@ class DQMDBSgui:
 
         self.quitmenu=Menu(self.BFile, tearoff=0,
                            bg="white")
+
+        self.quitmenu.add_command(label="Clear all default files",
+                                  command=lambda x=self:x.removeFiles(removeAll=False))
+        self.quitmenu.add_command(label="Clear ALL hidden files",
+                                  command=lambda x=self:x.removeFiles(removeAll=True))
         self.quitmenu.add_separator()
         self.quitmenu.add_command(label="Quit",
                                   command = lambda x=self: x.goodQuit())
+
         self.BFile['menu']=self.quitmenu
 
         self.statusmenu=Menu(self.Bprogress,
@@ -530,7 +578,8 @@ class DQMDBSgui:
         # call thread with time.sleep option
         self.foundfiles=0 # number of files found in the latest DBS search
 
-        self.myDBS = dbsAccessor()
+        self.myDBS = dbsAccessor(self.basedir)
+        self.myDBS.getDefaultsFromPickle()
         self.dbsSearchInProgress=False
         self.pickleFileOpen=False
         self.runningDQM=False
@@ -553,7 +602,7 @@ class DQMDBSgui:
 
         self.cfgFileName=StringVar()
         self.cfgFileName.set(os.path.join(self.basedir,"hcal_dqm_dbsgui.cfg"))
-
+        self.getDefaultDQMFromPickle()
         return
 
 
@@ -679,9 +728,11 @@ class DQMDBSgui:
                   width=40,
                   textvar=myvars[i]).grid(row=myrow,column=1)
             myrow=myrow+1
+        Button(self.dbsvaluewin,text="Save as new default values",
+               command = lambda x=self.myDBS:x.writeDefaultsToPickle()).grid(row=myrow,column=0)
         Button(self.dbsvaluewin,text="Restore default values",
-               command = lambda x=self.myDBS:x.setDefaults()).grid(row=myrow,
-                                                                 column=1)
+               command = lambda x=self.myDBS:x.getDefaultsFromPickle()).grid(row=myrow,
+                                                                             column=1)
         return
 
 
@@ -707,6 +758,36 @@ class DQMDBSgui:
                   width=80,
                   textvar=myvars[i]).grid(row=myrow,column=1)
             myrow=myrow+1
+        Button(self.dqmvaluewin,text="Save as new default\n DQM values",
+               command = lambda x=self:x.writeDefaultDQMToPickle()).grid(row=myrow,column=0)
+        Button(self.dqmvaluewin,text="Restore default DQM values",
+               command = lambda x=self:x.getDefaultDQMFromPickle()).grid(row=myrow,
+                                                                         column=1)
+        return
+
+    def getDefaultDQMFromPickle(self):
+        if os.path.isfile(os.path.join(self.basedir,".dqmDefaults.cPickle")):
+            try:
+                pcl=open(os.path.join(self.basedir,".dqmDefaults.cPickle"),'rb')
+                self.finalDir.set(cPickle.load(pcl))
+                self.maxDQMEvents.set(cPickle.load(pcl))
+                self.cfgFileName.set(cPickle.load(pcl))
+                pcl.close()
+            except:
+                self.commentLabel.configure(text="Could not read file '.dqmDefaults.cPickle' ")
+                self.root.update()
+        return
+
+    def writeDefaultDQMToPickle(self):
+        try:
+            pcl=open(os.path.join(self.basedir,".dqmDefaults.cPickle"),'wb')
+            cPickle.dump(self.finalDir.get(),pcl)
+            cPickle.dump(self.maxDQMEvents.get(),pcl)
+            cPickle.dump(self.cfgFileName.get(),pcl)
+            pcl.close()
+        except SyntaxError:
+            self.commentLabel.configure(text="Could not write file '.dqmDefaults.cPickle' ")
+            self.root.update()
         return
 
 
@@ -744,6 +825,7 @@ class DQMDBSgui:
         if len(self.filesInDBS)>0:
             myfile=open(os.path.join(self.basedir,".filesInDBS.cPickle"),'wb')
             cPickle.dump(self.filesInDBS,myfile)
+            myfile.close()
         self.pickleFileOpen=False
         return
 
@@ -779,7 +861,32 @@ class DQMDBSgui:
             self.root.update()
         return
     
-            
+
+
+    def removeFiles(self,removeAll=False):
+        '''
+        Removes hidden files (files starting with "."), such as default option settings, etc.
+        If removeAll is set true, then the .filesInDBS.cPickle file that is used to store run history is also removed.
+        One exception:  .backup_filesInDBS.cPickle can never be removed via the GUI
+        '''
+        if (removeAll):
+            text="This will remove ALL hidden files\n used by the GUI, and will clear\nthe list of runs processed by the\n program.\n\nAre you ABSOLUTELY SURE \nthis is what you want?\n"
+        else:
+            text="This will remove hidden files used to\nstore certain user-set default values.\n\nAre you SURE this is what you want?\n"
+        if tkMessageBox.askyesno("Remove default files???  Really???",
+                                 text):
+            temp=[".dqmDefaults.cPickle",".dbsDefaults.cPickle",".runOptions.cfi"]
+            if (removeAll):
+                temp.append(".filesInDBS.cPickle")
+                self.filesInDBS={}
+            for i in temp:
+                x=os.path.join(self.basedir,i)
+                if os.path.isfile(x):
+                  self.commentLabel.configure(text="Removing file '%s'"%i)
+                  self.root.update()
+                  os.system("rm -f %s"%x)
+                  time.sleep(0.5)
+        return
 
     def goodQuit(self):
         ''' Eventually will perform clean exit
@@ -978,20 +1085,26 @@ class DQMDBSgui:
         else:
             x="DQM_Hcal_R000%i"%i
         success=False
-        time.sleep(5)
+        time.sleep(2)
 
         
         # make fancier success requirement later -- for now, just check that directory exists
-        if os.path.isdir(x):
+        if os.path.isdir(os.path.join(self.basedir,x)):
             success=True
 
-        # Enable move commands once final_dir is determined
-        if (self.finalDir.get()<>self.basedir):
-            os.system("mv %s %s.root"%(x,self.finalDir.get()))  # move root file
-            os.system("mv %s %s"%(x,self.finalDir.get())) # move directory
+            # Enable move commands once final_dir is determined
+
+            if (self.finalDir.get()<>self.basedir):
+                # move .root file, if it's been created
+                temproot="%s.root"%(os.path.join(self.basedir,x))
+                if os.path.isfile(temproot):
+                    os.system("mv %s %s.root"%(temproot,
+                                               os.path.join(self.finalDir.get(),
+                                                            x)))
+                # move directory
+                os.system("mv %s %s"%(x,self.finalDir.get())) 
 
         return success
-
 
 
     def checkDBS(self):
@@ -1094,7 +1207,7 @@ class DQMDBSgui:
                         self.root.update()
                         return False
                 else:
-                    print "i = ",file
+                    #print "i = ",file
                     try:
                         i=string.split(file,",")
                         dataset=i[1] # dataset
