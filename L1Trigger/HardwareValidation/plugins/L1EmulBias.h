@@ -34,7 +34,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
-using dedefs::DEnsys;
 
 class L1EmulBias : public edm::EDProducer {
   
@@ -54,9 +53,9 @@ class L1EmulBias : public edm::EDProducer {
  private:
   int verbose_;
   int verbose() {return verbose_;}
-  edm::InputTag m_DEsource[DEnsys][2];
-  bool m_doSys[DEnsys];
-  std::string instName[DEnsys][5];
+  edm::InputTag m_DEsource[dedefs::DEnsys][2];
+  bool m_doSys[dedefs::DEnsys];
+  std::string instName[dedefs::DEnsys][5];
   CLHEP::RandFlat   *rndFlat_;
   CLHEP::RandGaussQ *rndGaus_;
   

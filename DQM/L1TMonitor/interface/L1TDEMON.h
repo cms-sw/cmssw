@@ -24,7 +24,6 @@
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
-using dedefs::DEnsys;
 
 class L1TDEMON : public edm::EDAnalyzer {
 
@@ -50,8 +49,8 @@ class L1TDEMON : public edm::EDAnalyzer {
 
   // counters
   int nEvt_;
-  int deSysCount[DEnsys];
-  int nEvtWithSys[DEnsys];
+  int deSysCount[dedefs::DEnsys];
+  int nEvtWithSys[dedefs::DEnsys];
 
   // root output file name
   std::string histFile_;
@@ -69,26 +68,26 @@ class L1TDEMON : public edm::EDAnalyzer {
   MonitorElement* sysrates;
   MonitorElement* sysncand[2];
   MonitorElement* errordist;
-  MonitorElement* errortype[DEnsys];
+  MonitorElement* errortype[dedefs::DEnsys];
 
   // localization
-  MonitorElement* etaphi[DEnsys];
-  MonitorElement* eta[DEnsys];
-  MonitorElement* phi[DEnsys];
-  MonitorElement* x3 [DEnsys];
-  MonitorElement* etaData[DEnsys];
-  MonitorElement* phiData[DEnsys];
-  MonitorElement*  x3Data[DEnsys];
-  MonitorElement* rnkData[DEnsys];
+  MonitorElement* etaphi[dedefs::DEnsys];
+  MonitorElement* eta[dedefs::DEnsys];
+  MonitorElement* phi[dedefs::DEnsys];
+  MonitorElement* x3 [dedefs::DEnsys];
+  MonitorElement* etaData[dedefs::DEnsys];
+  MonitorElement* phiData[dedefs::DEnsys];
+  MonitorElement*  x3Data[dedefs::DEnsys];
+  MonitorElement* rnkData[dedefs::DEnsys];
 
   // trigger data word
-  MonitorElement* dword [DEnsys];
-  MonitorElement* eword [DEnsys];
-  MonitorElement* deword[DEnsys];
-  MonitorElement* masked[DEnsys];
+  MonitorElement* dword [dedefs::DEnsys];
+  MonitorElement* eword [dedefs::DEnsys];
+  MonitorElement* deword[dedefs::DEnsys];
+  MonitorElement* masked[dedefs::DEnsys];
 
   // subsytem correlations
-  MonitorElement* CORR[DEnsys][DEnsys][3];
+  MonitorElement* CORR[dedefs::DEnsys][dedefs::DEnsys][3];
 };
 
 #endif
