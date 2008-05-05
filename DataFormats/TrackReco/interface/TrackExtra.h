@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: TrackExtra.h,v 1.25 2007/11/16 11:45:10 tboccali Exp $
+ * \version $Id: TrackExtra.h,v 1.26 2008/02/21 13:16:43 gpetrucc Exp $
  *
  */
 #include <Rtypes.h>
@@ -17,6 +17,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/TrackReco/interface/TrackExtraBase.h"
+#include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
@@ -48,7 +49,7 @@ namespace reco {
 		const Point & innerPosition, const Vector & innerMomentum, bool iok,
 		const CovarianceMatrix& outerState, unsigned int outerId,
 		const CovarianceMatrix& innerState, unsigned int innerId, 
-		PropagationDirection seedDir,
+		PropagationDirection seedDir, 
 		edm::RefToBase<TrajectorySeed>  seedRef=edm::RefToBase<TrajectorySeed>());
 
     /// outermost hit position
@@ -110,6 +111,12 @@ namespace reco {
      */
     edm::RefToBase<TrajectorySeed> seedRef() const { return seedRef_; }
 
+    /// set the residuals
+    void setResiduals (const TrackResiduals &r) { trackResiduals_ = r; }
+
+    /// get the residuals 
+    const TrackResiduals &residuals () const { return trackResiduals_; }
+
   private:
 
     /// outermost hit position
@@ -135,6 +142,9 @@ namespace reco {
 
     PropagationDirection seedDir_;
     edm::RefToBase<TrajectorySeed> seedRef_;
+
+    /// unbiased track residuals 
+    TrackResiduals trackResiduals_;
   };
 
 }
