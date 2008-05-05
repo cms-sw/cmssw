@@ -36,10 +36,10 @@ echo "      -p|--path_file        file_path       path to the data to be analyze
 echo ""
 echo "      -f|--first_ev         f_ev            first (as written to file) event that will be analyzed; default is 1"
 echo "      -l|--last_ev          l_ev            last  (as written to file) event that will be analyzed; default is 9999"
-echo "      -fed|--fed_id          fed_id         select FED id (601...654); default is all"
-echo "      -eb|--ieb_id          ieb_id          selects sm barrel id (1...36); default is all"
+echo "      -fed|--fed_id          fed_id         selects FED id (601...654); default is all"
+echo "      -eb|--ieb_id          ieb_id          selects SM/EndcapSector with EB/EE numbering; you must enter following way: EE-09,EB-07, EB+15, EE+04 ; default is all"
 echo "      -s|--length           numPn           number of Pn's for which graphs are required"
-echo "      -pns|--pnGraph        ipn             graphs from for Pn's in this list will be created"
+echo "      -pns|--pnGraph        ipn             graphs for Pn's in this list will be created"
 
 echo ""
 echo "To specify multiple fed_id's/ieb_id's/pn's  use a comma-separated list in between double quotes, e.g., \"1,2,3\" "
@@ -59,7 +59,7 @@ fed=-1;
 Pn_ipn=-1;
 pnsString="false";
 
-numPn=9
+numPn=4
 
 first_event=1
 last_event=9999
@@ -97,39 +97,8 @@ last_event=9999
 		;;
 
       -pns|--pnGraph)
-				if [ "$numPn" = "1" ]
-					then
-					Pn_ipn="$2"
-				elif [ "$numPn" = "2" ]
-					then
-					Pn_ipn="$2,$3"
-				elif [ "$numPn" = "3" ]
-					then
-					Pn_ipn="$2,$3,$4"
-				elif [ "$numPn" = "4" ]
-					then
-					Pn_ipn="$2,$3,$4,$5"
-				elif [ "$numPn" = "5" ]
-					then
-					Pn_ipn="$2,$3,$4,$5,$6"
-				elif [ "$numPn" = "6" ]
-					then
-					Pn_ipn="$2,$3,$4,$5,$6,$7"
-				elif [ "$numPn" = "7" ]
-					then
-					Pn_ipn="$2,$3,$4,$5,$6,$7,$8"
-				elif [ "$numPn" = "8" ]
-					then
-					Pn_ipn="$2,$3,$4,$5,$6,$7,$8,$9"
-				elif [ "$numPn" = "9" ]
-					then
-					Pn_ipn="$2,$3,$4,$5,$6,$7,$8,$9,$10"
-				elif [ "$numPn" = "10" ]
-					then
-					Pn_ipn="$2,$3,$4,$5,$6,$7,$8,$9,${10},${11}"
-				fi
-                pnsString="true"
-                ;;
+		Pn_ipn="$2"
+		;;
 
       -s|--numPn)
                 numPn="$2"
@@ -150,21 +119,31 @@ echo "first event analyzed will be:                 $first_event"
 first_event=$(($first_event-1))
 
 echo "last event analyzed will be:                  $last_event"
-echo "supermodule selected:                         $ieb"
-
+if [ "$ieb" != "none" ]
+    then
+    echo "supermodule selected:                         $ieb"
+elif [ "$fed" != "-1" ]
+    then
+    echo "supermodule selected:                         $fed"
+else 
+    echo "selected all SMs"
+fi
 
 if [[  $pnsString = "true"  ]]
 then
-        echo "channel selected for graphs:                  $Pn_ipn"
+        echo "PNs selected for graphs:                  $Pn_ipn"
 fi
 
-        echo "numPn:                                        $numPn"
+        echo "numPns around selected one:               $numPn"
 
 
 echo ""
 echo ""
 
-
+if [ "$Pn_ipn" != "-1" ]
+    then
+    pnsString="true"
+fi
 
 
 cat > "$cfg_path$data_file".Pngraph.$$.cfg <<EOF

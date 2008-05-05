@@ -2,8 +2,8 @@
  * module dumping TGraph with 50 data frames from Pn Diodes
  *   
  * 
- * $Date: 2007/12/21 13:33:02 $
- * $Revision: 1.2 $
+ * $Date: 2008/01/22 22:20:53 $
+ * $Revision: 1.1 $
  * \author K. Kaadze
  * \author G. Franzoni 
  *
@@ -56,10 +56,10 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps){
     edm::LogInfo("EcalPnGraphs") << "FED id is given! Goining to beginJob! ";
     fedIsGiven = true;
   }else {
+    feds_.clear();
     if ( ebs_[0] !="none" ) {
       ebIsGiven = true;
       //EB id is given and convert to FED id
-      feds_.clear();
       fedMap = new EcalFedMap(); 
       for (std::vector<std::string>::const_iterator ebItr = ebs_.begin(); 
 	   ebItr!= ebs_.end();  ++ebItr) {
@@ -99,11 +99,12 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps){
 	inputIsOk = false;
 	return;
       }
-      if (!   first_Pn )   first_Pn = (*intIter);	
+      if (!first_Pn )   first_Pn = (*intIter);	
     }
   } else {
     listPns.clear();
     listPns.push_back(5); 
+    listPns.push_back(6); 
   }
   
   // setting the abcissa array once for all
@@ -150,12 +151,15 @@ void EcalPnGraphs::analyze( const edm::Event & e, const  edm::EventSetup& c){
   for ( pn_it = listPns.begin();  pn_it != listPns.end() ; pn_it++  )
     {
       int ipn    = (*pn_it);
-      int hpn = (numPn/2);
+      int hpn = numPn;
       
       for (int u = (-hpn) ; u<=hpn; u++){	  
 	  int ipn_c = ipn + u;
 	  if (ipn_c < 1 || ipn_c > 10) continue;
-	  listAllPns.push_back ( ipn_c ) ;
+	  std::vector<int>::iterator notInList = find(listAllPns.begin(), listAllPns.end(), ipn_c);
+	  if ( notInList == listAllPns.end() ) {
+	    listAllPns.push_back ( ipn_c );
+	  }
       }
     }
   
@@ -168,12 +172,13 @@ void EcalPnGraphs::analyze( const edm::Event & e, const  edm::EventSetup& c){
     
     //Make sure that these are PnDigis from the requested FEDid
     int FEDid = ieb + 600;
+
     std::vector<int>::iterator fedIter = find(feds_.begin(), feds_.end(), FEDid);
+
     if ( fedIter == feds_.end() ) {
       edm::LogWarning("EcalPnGraphs")<< "For Event " << eventCounter << " PnDigis are not found from requested SM!. returning...";
       return;
     }
-    
     // selecting desired Pns only
     std::vector<int>::iterator iPnIter;
     iPnIter     = find( listAllPns.begin() , listAllPns.end() , ipn);
@@ -192,7 +197,7 @@ void EcalPnGraphs::analyze( const edm::Event & e, const  edm::EventSetup& c){
     oneGraph.SetName(title.c_str());
     graphs.push_back(oneGraph);
     
-  }// loop in crystals
+  }// loop over Pn digis
 }
 
 std::string EcalPnGraphs::intToString(int num)
