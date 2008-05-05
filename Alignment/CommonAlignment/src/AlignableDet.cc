@@ -7,6 +7,8 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 //__________________________________________________________________________________________________
 AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) : 
@@ -20,6 +22,8 @@ AlignableDet::AlignableDet( const GeomDet* geomDet, bool addComponents ) :
     
     if ( geomDet->components().size() == 0 ) // Is a DetUnit
     {
+      edm::LogError("Alignment") << "@SUB=AlignableDet"
+				   << "No components, will become exception!";
       addComponent( new AlignableDetUnit( id(), geomDet->surface() ) );
     }
     else // Is a compositeDet: push back all components
@@ -65,9 +69,12 @@ void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape)
 void AlignableDet::addAlignmentPositionError(const AlignmentPositionError& ape)
 {
 
-  if ( !theAlignmentPositionError ) this->setAlignmentPositionError( ape );
-  else 
-    this->setAlignmentPositionError( *theAlignmentPositionError += ape );
+  if ( !theAlignmentPositionError ) {
+    theAlignmentPositionError = new AlignmentPositionError( ape );
+  } else {
+    // *theAlignmentPositionError += ape; grrr... buggy AlignmentPositionError::operator+=
+    *theAlignmentPositionError = (*theAlignmentPositionError) += ape;
+  }
 
   AlignableComposite::addAlignmentPositionError( ape );
 
@@ -114,8 +121,8 @@ Alignments* AlignableDet::alignments() const
   // Get position, rotation, detId
   Hep3Vector clhepVector( globalPosition().x(), globalPosition().y(), globalPosition().z() );
   HepRotation clhepRotation( HepRep3x3( rot.xx(), rot.xy(), rot.xz(),
-										rot.yx(), rot.yy(), rot.yz(),
-										rot.zx(), rot.zy(), rot.zz() ) );
+					rot.yx(), rot.yy(), rot.yz(),
+					rot.zx(), rot.zy(), rot.zz() ) );
   uint32_t detId = this->geomDetId().rawId();
   
   AlignTransform transform( clhepVector, clhepRotation, detId );
@@ -125,15 +132,17 @@ Alignments* AlignableDet::alignments() const
 
   // Add components recursively (if it is not already an alignable det unit)
   std::vector<Alignable*> comp = this->components();
-  if ( comp.size() > 1 )
+  if ( comp.size() > 1 ) {
     for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
       {
-		Alignments* tmpAlignments = (*i)->alignments();
-		std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
-				   std::back_inserter(m_alignments->m_align) );
-		delete tmpAlignments;
+	Alignments* tmpAlignments = (*i)->alignments();
+	std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
+		   std::back_inserter(m_alignments->m_align) );
+	delete tmpAlignments;
       }
-  
+  }
+
+
   return m_alignments;
 
 }
@@ -156,14 +165,16 @@ AlignmentErrors* AlignableDet::alignmentErrors( void ) const
   
   // Add components recursively (if it is not already an alignable det unit)
   std::vector<Alignable*> comp = this->components();
-  if ( comp.size() > 1 )
+  if ( comp.size() > 1 ) {
     for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
       {
 		AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
-		std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 
-				   std::back_inserter(m_alignmentErrors->m_alignError) );
+		std::copy( tmpAlignmentErrors->m_alignError.begin(),
+			   tmpAlignmentErrors->m_alignError.end(), 
+			   std::back_inserter(m_alignmentErrors->m_alignError) );
 		delete tmpAlignmentErrors;
       }
+  }
   
   return m_alignmentErrors;
 
