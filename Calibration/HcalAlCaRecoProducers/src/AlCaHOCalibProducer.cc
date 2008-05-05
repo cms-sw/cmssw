@@ -39,7 +39,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.10 2008/04/10 02:54:45 dlange Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.11 2008/04/25 08:55:36 kodolova Exp $
 //
 //
 
@@ -456,7 +456,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (isCaloTower) {
 	for (CaloTowerCollection::const_iterator calt = calotower->begin();
 	     calt !=calotower->end(); calt++) {
-	  const math::RhoEtaPhiVector towermom = (*calt).momentum();
+	  const math::XYZVector towermom = (*calt).momentum();
 	  double ith = towermom.theta();
 	  double iph = towermom.phi();
 	  Hep3Vector calo3v(sin(ith)*cos(iph), sin(ith)*sin(iph), cos(ith));
