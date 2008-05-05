@@ -140,7 +140,9 @@ void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, cons
     // generate histograms comparing the reco and truth candidate (truth = closest in delta-R)
     const reco::Candidate *particle = &(*RecoCollection)[i];
     const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle,GenCollection);
-
+    
+    if  ((particle!=NULL) &&   (gen_particle!=NULL)){
+      //   std::cout << RecoCollection->size() << " " << GenCollection->size() <<particle  <<gen_particle << std::endl;   
     // get the quantities to place on the denominator and/or divide by
     double et, eta, phi;
     if (PlotAgainstReco) { et = particle->et(); eta = particle->eta(); phi = particle->phi(); }
@@ -182,7 +184,7 @@ void PFBenchmarkAna::fill(const edm::View<reco::Candidate> *RecoCollection, cons
     hDeltaR->Fill(deltaR);
     hDeltaRvsEt->Fill(et,deltaR);
     hDeltaRvsEta->Fill(eta,deltaR);
-
+    }
   }
 
 }
