@@ -25,14 +25,14 @@ alcaDict2={'MinBias':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
            'GammaJets':'RpcCalHLT+DQM',
            'MuonPTXX':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
            'ZW':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
-           'HCALNZS':'',
-           'HCALIST':'',
+           'HCALNZS':'HcalCalMinBias+DQM',
+           'HCALIST':'HcalCalIsoTrkNoHLT+DQM',
            'RELVAL':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
-           'TrackerHaloMuon':'',
-           'TrackerCosBON':'',
-           'TrackerLaser':'',
-           'TrackerCosBOFF':'',
-           'HaloMuon':''
+           'TrackerHaloMuon':'TkAlBeamHalo',
+           'TrackerCosBON':'TkAlCosmics',
+           'TrackerLaser':'TkAlLAS',
+           'TrackerCosBOFF':'TkAlCosmics',
+           'HaloMuon':'MuAlBeamHalo+MuAlBeamHaloOverlaps'
            }
 
 alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalMinBias+HcalCalHO+MuAlOverlaps+DQM',
@@ -41,15 +41,33 @@ alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+Ec
            'GammaJets':'EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+DQM',
            'MuonPTXX':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalHO+MuAlOverlaps+DQM',
            'ZW':'TkAlZMuMu+TkAlMuonIsolated+EcalCalElectron+HcalCalHO+MuAlOverlaps+DQM',
-           'HCALNZS':'HcalCalMinBias+DQM',
-           'HCALIST':'HcalCalIsoTrkNoHLT+DQM',
+           'HCALNZS':'', # 'HcalCalMinBias+DQM',
+           'HCALIST':'', #'HcalCalIsoTrkNoHLT+DQM',
            'RELVAL':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+TkAlMinBias+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalMinBias+HcalCalIsoTrkNoHLT+HcalCalHO+MuAlOverlaps+DQM',
-           'TrackerHaloMuon':'TkAlBeamHalo',
-           'TrackerCosBON':'TkAlCosmics',
-           'TrackerCosBOFF':'TkAlCosmics',
-           'TrackerLaser':'TkAlLAS',
-           'HaloMuon':'MuAlBeamHalo+MuAlBeamHaloOverlaps'
+           'TrackerHaloMuon':'', #'TkAlBeamHalo',
+           'TrackerCosBON':'', # 'TkAlCosmics',
+           'TrackerCosBOFF':'', # 'TkAlCosmics',
+           'TrackerLaser':'', #'TkAlLAS',
+           'HaloMuon':''#'MuAlBeamHalo+MuAlBeamHaloOverlaps'
            }
+
+recoCustomiseDict = {
+                     'MinBias':'Configuration/Spring08Production/iCSA08_MinBias_RECO_cff.py',
+                     'JetET20':'',
+                     'JetETXX':'',
+                     'GammaJets':'',
+                     'MuonPTXX':'',
+                     'ZW':'',
+                     'HCALNZS':'Configuration/Spring08Production/iCSA08_HCALNZS_RECO_cff.py',
+                     'HCALIST':'',
+                     'RELVAL':'',
+                     'TrackerHaloMuon':'Configuration/Spring08Production/iCSA08_TkBeamHalo_RECO_cff.py',
+                     'TrackerCosBON':'Configuration/Spring08Production/iCSA08_TkCosmicBON_RECO_cff.py',
+                     'TrackerCosBOFF':'Configuration/Spring08Production/iCSA08_TkCosmicBOFF_cff.py',
+                     'TrackerLaser':'',
+                     'HaloMuon':'Configuration/Spring08Production/iCSA08_MuonBeamHalo_RECO_cff.py'
+                     }
+
 
 typeOfEv=''
 if ( len(args)>0):
@@ -60,6 +78,8 @@ if not ( typeOfEv in alcaDict3 ):
 
 alca2=alcaDict2[typeOfEv]
 alca3=alcaDict3[typeOfEv]
+
+recoCustomise = recoCustomiseDict[typeOfEv]
 
 baseCommand='cmsDriver.py'
 conditions='FrontierConditions_GlobalTag,'+options.gt+'::All'
@@ -78,6 +98,9 @@ if ( len(args)>1):
 command2=baseCommand+' step2_'+typeOfEv+' -s ' + steps2 + ' -n 1000 --filein file:raw.root --eventcontent ' + eventcontent + ' --conditions '+conditions+extracom+' --dump_cfg'
 command3=baseCommand+' step3_'+typeOfEv+' -s ' + steps3 + ' -n 1000 --filein file:reco.root ' + ' --conditions '+conditions+extracom+' --dump_cfg'
 
+if ( recoCustomise != '' ):
+    command2 = command2+ " --customise "+recoCustomise
+    
 if ( typeOfEv == 'RELVAL'):
     command2=command2+' --oneoutput'
     command3=command3+' --oneoutput --eventcontent FEVTSIM'
