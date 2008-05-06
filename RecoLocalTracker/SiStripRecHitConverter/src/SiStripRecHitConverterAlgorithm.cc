@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <ext/algorithm>
 #include <iostream>
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
@@ -44,12 +45,12 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
   int nmono=0;
   int nstereo=0;
 
+  std::vector<SiStripRecHit2D> collectorrphi, collectorstereo; 
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=inputhandle->begin(); DSViter!=inputhandle->end();DSViter++ ) {//loop over detectors
  
     unsigned int id = DSViter->id();
+    collectorrphi.clear(); collectorstereo.clear();
 
-    edm::OwnVector<SiStripRecHit2D> collectorrphi; 
-    edm::OwnVector<SiStripRecHit2D> collectorstereo; 
     //    if(id!=999999999){ //if is valid detector
       DetId detId(id);
       //get geometry 
@@ -75,11 +76,11 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
           SiStripRecHit2D::ClusterRef cluster=edmNew::makeRefTo(inputhandle,iter);
 
           if(!specDetId.stereo()){ //if the cluster is in a mono det
-            collectorrphi.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
+            collectorrphi.push_back(SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
             nmono++;
           }
           else{                    //if the cluster in in stereo det
-            collectorstereo.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
+            collectorstereo.push_back(SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
             nstereo++;
           }
         }
@@ -177,26 +178,33 @@ void SiStripRecHitConverterAlgorithm::match(SiStripMatchedRecHit2DCollection & o
   
   int nmatch=0;
   
-  const std::vector<DetId> rphidetIDs = outrphi.ids();
-  const std::vector<DetId> stereodetIDs = outstereo.ids();
+  std::vector<DetId> rphidetIDs = outrphi.ids();
+  std::vector<DetId> stereodetIDs = outstereo.ids();
+  if (!__gnu_cxx::is_sorted(stereodetIDs.begin(), stereodetIDs.end())) {
+        // this is an error in the logic of the RangeMap. Anyway, we can cope with it
+        std::sort(stereodetIDs.begin(), stereodetIDs.end());
+  }
   for ( std::vector<DetId>::const_iterator detunit_iterator = rphidetIDs.begin(); detunit_iterator != rphidetIDs.end(); detunit_iterator++ ) {//loop over detectors
     edm::OwnVector<SiStripMatchedRecHit2D> collectorMatched; 
+
+    edm::OwnVector<SiStripMatchedRecHit2D> collectorMatchedSingleHit; 
+    StripSubdetector specDetId(*detunit_iterator);
+    unsigned int id = specDetId.partnerDetId();
+    const DetId theId(id);
+      
+    //find if the detid of the stereo is in the list of stereo RH
+    if (!std::binary_search(stereodetIDs.begin(),stereodetIDs.end(),theId)) id = 0;
+    // Much better std::binary_search than std::find, as the list is sorted
+    // was:// std::vector<DetId>::const_iterator partnerdetiter=std::binary_search(stereodetIDs.begin(),stereodetIDs.end(),theId);
+    // was:// if(partnerdetiter==stereodetIDs.end()) id=0;	
+ 
     SiStripRecHit2DCollection::range monoRecHitRange = outrphi.get((*detunit_iterator));
     SiStripRecHit2DCollection::const_iterator rhRangeIteratorBegin = monoRecHitRange.first;
     SiStripRecHit2DCollection::const_iterator rhRangeIteratorEnd   = monoRecHitRange.second;
     SiStripRecHit2DCollection::const_iterator iter;
     
-    unsigned int id = 0;
     for(iter=rhRangeIteratorBegin;iter!=rhRangeIteratorEnd;++iter){//loop over the mono RH
-      edm::OwnVector<SiStripMatchedRecHit2D> collectorMatchedSingleHit; 
-      StripSubdetector specDetId(*detunit_iterator);
-      id = specDetId.partnerDetId();
-      const DetId theId(id);
-      
-      //find if the detid of the stereo is in the list of stereo RH
-      std::vector<DetId>::const_iterator partnerdetiter=std::find(stereodetIDs.begin(),stereodetIDs.end(),theId);
-      if(partnerdetiter==stereodetIDs.end()) id=0;	
-      
+     
       if (id>0){ //if the detector has a stereo det associated and at least an hit in the stereo detector
 	
 	const SiStripRecHit2DCollection::range rhpartnerRange = outstereo.get(theId);
