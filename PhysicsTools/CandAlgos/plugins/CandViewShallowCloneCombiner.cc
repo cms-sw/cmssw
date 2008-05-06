@@ -11,7 +11,6 @@
 namespace reco {
   namespace modules {
     typedef CandCombiner<
-              reco::CandidateView,
               StringCutObjectSelector<reco::Candidate>,
               reco::CompositeCandidateCollection,
               AnyPairSelector,

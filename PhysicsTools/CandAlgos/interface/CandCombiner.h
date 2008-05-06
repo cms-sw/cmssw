@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.18 $
+ * \version $Revision: 1.20 $
  *
- * $Id: CandCombiner.h,v 1.18 2008/02/19 13:17:25 llista Exp $
+ * $Id: CandCombiner.h,v 1.20 2008/02/20 15:22:07 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -83,9 +83,8 @@ namespace reco {
       int pdgId_;
     };
     
-    template<typename InputCollection, 
-	     typename Selector, 
-             typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection,
+    template<typename Selector, 
+             typename OutputCollection = reco::CompositeCandidateCollection,
              typename PairSelector = AnyPairSelector,
              typename Cloner = ::combiner::helpers::NormalClone, 
              typename Setup = AddFourMomenta,
@@ -111,14 +110,14 @@ namespace reco {
       void produce(edm::Event& evt, const edm::EventSetup& es) {
 	Init::init(combiner_.setup(), evt, es);
 	int n = labels_.size();
-	std::vector<edm::Handle<InputCollection> > colls(n);
+	std::vector<edm::Handle<reco::CandidateView> > colls(n);
 	for(int i = 0; i < n; ++i)
 	  evt.getByLabel(labels_[i].tag_, colls[i]);
-	typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
-	std::vector<RefProd> cv;
-	for(typename std::vector<edm::Handle<InputCollection> >::const_iterator c = colls.begin();
+
+	std::vector<reco::CandidateBaseRefProd> cv;
+	for(typename std::vector<edm::Handle<reco::CandidateView> >::const_iterator c = colls.begin();
 	    c != colls.end(); ++ c) {
-	  RefProd r(*c);
+	  reco::CandidateBaseRefProd r(*c);
 	  cv.push_back(r);
 	}
 	std::auto_ptr<OutputCollection> out = combiner_.combine(cv);
@@ -132,7 +131,7 @@ namespace reco {
 	evt.put(out);
       }
       /// combiner utility
-      ::CandCombiner<InputCollection, Selector, OutputCollection, PairSelector, Cloner, Setup> combiner_;
+      ::CandCombiner<Selector, OutputCollection, PairSelector, Cloner, Setup> combiner_;
       bool checkCharge( const edm::ParameterSet & cfg ) const {
 	using namespace std;
 	const string par( "checkCharge" );

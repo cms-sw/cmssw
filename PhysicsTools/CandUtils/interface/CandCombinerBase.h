@@ -12,53 +12,31 @@
 
 namespace combiner {
   namespace helpers {
-    template<typename InputCollection>
-    struct CandRefHelper {
-    };
-
-    template<>
-    struct CandRefHelper<reco::CandidateCollection> {
-      typedef reco::CandidateRef Ref;
-      typedef reco::CandidateRefProd RefProd;
-      typedef reco::CandidateCollection OutputCollection;
-    };  
-
-    template<>
-    struct CandRefHelper<reco::CandidateView> {
-      typedef reco::CandidateBaseRef Ref;
-      typedef reco::CandidateBaseRefProd RefProd;
-      typedef reco::CompositeCandidateCollection OutputCollection;
-    };  
-
     template<typename OutputCollection>
-    struct CandCompHelper {
-      typedef typename OutputCollection::value_type composite_type;
-      typedef composite_type value_type;
-      static composite_type & make(value_type & v) { return v; }
-     };  
+      struct CandCompHelper {
+	typedef typename OutputCollection::value_type composite_type;
+	typedef composite_type value_type;
+	static composite_type & make(value_type & v) { return v; }
+      };  
 
     template<>
-    struct CandCompHelper<reco::CandidateCollection> {
-      typedef reco::CompositeCandidate composite_type;
-      typedef reco::CompositeCandidate * value_type;
-      static composite_type & make(value_type & v) { 
-	v = new composite_type; return *v; 
-      }
-    };
+      struct CandCompHelper<reco::CandidateCollection> {
+	typedef reco::CompositeCandidate composite_type;
+	typedef reco::CompositeCandidate * value_type;
+	static composite_type & make(value_type & v) { 
+	  v = new composite_type; return *v; 
+	}
+      };
   }
 }
 
-template<typename InputCollection,
-	 typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection>
+template<typename OutputCollection = reco::CompositeCandidateCollection>
 class CandCombinerBase {
 public:
   typedef combiner::helpers::CandCompHelper<OutputCollection> OutputHelper;
   typedef typename OutputHelper::composite_type composite_type;
   typedef typename OutputHelper::value_type value_type;
-  typedef combiner::helpers::template CandRefHelper<InputCollection> RefHelper;
-  typedef typename RefHelper::RefProd RefProd;
-  typedef typename RefHelper::Ref Ref;
- /// default construct
+  /// default construct
   CandCombinerBase();
   /// construct from two charge values
   CandCombinerBase(int, int);
@@ -72,32 +50,34 @@ public:
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
-  combine(const std::vector<RefProd> &) const;
+  combine(const std::vector<reco::CandidateBaseRefProd> &) const;
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
-  combine(const RefProd &) const;
+  combine(const reco::CandidateBaseRefProd &) const;
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
-  combine(const RefProd &, const RefProd &) const;
+  combine(const reco::CandidateBaseRefProd &, const reco::CandidateBaseRefProd &) const;
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
-  combine(const RefProd &, const RefProd &, const RefProd &) const;
+  combine(const reco::CandidateBaseRefProd &, const reco::CandidateBaseRefProd &, const reco::CandidateBaseRefProd &) const;
   /// return all selected candidate pairs
   std::auto_ptr<OutputCollection> 
-  combine(const RefProd &, const RefProd &, const RefProd &, const RefProd &) const;
+  combine(const reco::CandidateBaseRefProd &, const reco::CandidateBaseRefProd &, const reco::CandidateBaseRefProd &, 
+	  const reco::CandidateBaseRefProd &) const;
 
 private:
   /// verify that the two candidate don't overlap and check charge
   bool preselect(const reco::Candidate &, const reco::Candidate &) const;
   /// returns a composite candidate combined from two daughters
-  void combine(composite_type & , const Ref &, const Ref &) const;
+  void combine(composite_type & , const reco::CandidateBaseRef &, const reco::CandidateBaseRef &) const;
   /// temporary candidate stack
-  typedef std::vector<std::pair<std::pair<Ref, size_t>, typename std::vector<RefProd>::const_iterator> > CandStack;
+  typedef std::vector<std::pair<std::pair<reco::CandidateBaseRef, size_t>, 
+    typename std::vector<reco::CandidateBaseRefProd>::const_iterator> > CandStack;
   typedef std::vector<int> ChargeStack;
   /// returns a composite candidate combined from two daughters
   void combine(size_t collectionIndex, CandStack &, ChargeStack &,
-	       typename std::vector<RefProd>::const_iterator begin,
-	       typename std::vector<RefProd>::const_iterator end,
+	       typename std::vector<reco::CandidateBaseRefProd>::const_iterator begin,
+	       typename std::vector<reco::CandidateBaseRefProd>::const_iterator end,
 	       std::auto_ptr<OutputCollection> & comps
 	       ) const;
   /// select a candidate
@@ -107,7 +87,7 @@ private:
   /// set kinematics to reconstructed composite
   virtual void setup(composite_type &) const = 0;
   /// add candidate daughter
-  virtual void addDaughter(composite_type & cmp, const Ref & c) const = 0;
+  virtual void addDaughter(composite_type & cmp, const reco::CandidateBaseRef & c) const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// electric charges of the daughters
@@ -116,28 +96,28 @@ private:
   OverlapChecker overlap_;
 };
 
-template<typename InputCollection, typename OutputCollection>
-CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase() :
+template<typename OutputCollection>
+CandCombinerBase<OutputCollection>::CandCombinerBase() :
   checkCharge_(false), dauCharge_(), overlap_() {
 }
 
-template<typename InputCollection, typename OutputCollection>
-CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase(int q1, int q2) :
+template<typename OutputCollection>
+CandCombinerBase<OutputCollection>::CandCombinerBase(int q1, int q2) :
   checkCharge_(true), dauCharge_(2), overlap_() {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
 }
 
-template<typename InputCollection, typename OutputCollection>
-CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase(int q1, int q2, int q3) :
+template<typename OutputCollection>
+CandCombinerBase<OutputCollection>::CandCombinerBase(int q1, int q2, int q3) :
   checkCharge_(true), dauCharge_(3), overlap_() {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
 }
 
-template<typename InputCollection, typename OutputCollection>
-CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase(int q1, int q2, int q3, int q4) :
+template<typename OutputCollection>
+CandCombinerBase<OutputCollection>::CandCombinerBase(int q1, int q2, int q3, int q4) :
   checkCharge_(true), dauCharge_(4), overlap_() {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
@@ -145,17 +125,17 @@ CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase(int q1, in
   dauCharge_[3] = q4;
 }
 
-template<typename InputCollection, typename OutputCollection>
-CandCombinerBase<InputCollection, OutputCollection>::CandCombinerBase(bool checkCharge, const std::vector<int> & dauCharge) :
+template<typename OutputCollection>
+CandCombinerBase<OutputCollection>::CandCombinerBase(bool checkCharge, const std::vector<int> & dauCharge) :
   checkCharge_(checkCharge), dauCharge_(dauCharge), overlap_() {
 }
 
-template<typename InputCollection, typename OutputCollection>
-CandCombinerBase<InputCollection, OutputCollection>::~CandCombinerBase() {
+template<typename OutputCollection>
+CandCombinerBase<OutputCollection>::~CandCombinerBase() {
 }
 
-template<typename InputCollection, typename OutputCollection>
-bool CandCombinerBase<InputCollection, OutputCollection>::preselect(const reco::Candidate & c1, const reco::Candidate & c2) const {
+template<typename OutputCollection>
+bool CandCombinerBase<OutputCollection>::preselect(const reco::Candidate & c1, const reco::Candidate & c2) const {
   if (checkCharge_) {
     int dq1 = dauCharge_[0], dq2 = dauCharge_[1], q1 = c1.charge(), q2 = c2.charge();
     bool matchCharge = (q1 == dq1 && q2 == dq2) || (q1 == -dq1 && q2 == -dq2); 
@@ -165,16 +145,16 @@ bool CandCombinerBase<InputCollection, OutputCollection>::preselect(const reco::
   return selectPair(c1, c2);
 }
 
-template<typename InputCollection, typename OutputCollection>
-void CandCombinerBase<InputCollection, OutputCollection>::combine(composite_type & cmp, const Ref & c1, const Ref & c2) const {
+template<typename OutputCollection>
+void CandCombinerBase<OutputCollection>::combine(composite_type & cmp, const reco::CandidateBaseRef & c1, const reco::CandidateBaseRef & c2) const {
   addDaughter(cmp, c1);
   addDaughter(cmp, c2);
   setup(cmp);
 }
 
-template<typename InputCollection, typename OutputCollection>
+template<typename OutputCollection>
 std::auto_ptr<OutputCollection> 
-CandCombinerBase<InputCollection, OutputCollection>::combine(const std::vector<RefProd> & src) const {
+CandCombinerBase<OutputCollection>::combine(const std::vector<reco::CandidateBaseRefProd> & src) const {
   size_t srcSize = src.size();
   if (checkCharge_ && dauCharge_.size() != srcSize)
     throw edm::Exception(edm::errors::Configuration) 
@@ -183,17 +163,17 @@ CandCombinerBase<InputCollection, OutputCollection>::combine(const std::vector<R
   
   std::auto_ptr<OutputCollection> comps(new OutputCollection);
   if(srcSize == 2) {
-    RefProd src1 = src[0], src2 = src[1];
+    reco::CandidateBaseRefProd src1 = src[0], src2 = src[1];
     if(src1 == src2) {
-      const InputCollection & cands = * src1;
+      const reco::CandidateView & cands = * src1;
       const int n = cands.size();
       for(int i1 = 0; i1 < n; ++i1) {
 	const reco::Candidate & c1 = cands[i1];
-	Ref cr1(src1, i1);
+	reco::CandidateBaseRef cr1(src1, i1);
 	for(int i2 = i1 + 1; i2 < n; ++i2) {
 	  const reco::Candidate & c2 = cands[i2];
 	  if (preselect(c1, c2)) {
-	    Ref cr2(src2, i2);
+	    reco::CandidateBaseRef cr2(src2, i2);
 	    value_type c; 
 	    composite_type & r = OutputHelper::make(c);
 	    combine(r, cr1, cr2);
@@ -203,15 +183,15 @@ CandCombinerBase<InputCollection, OutputCollection>::combine(const std::vector<R
 	}
       }
     } else {
-      const InputCollection & cands1 = * src1, & cands2 = * src2;
+      const reco::CandidateView & cands1 = * src1, & cands2 = * src2;
       const int n1 = cands1.size(), n2 = cands2.size();
       for(int i1 = 0; i1 < n1; ++i1) {
 	const reco::Candidate & c1 = cands1[i1];
-	Ref cr1(src1, i1);
+	reco::CandidateBaseRef cr1(src1, i1);
 	for(int i2 = 0; i2 < n2; ++i2) {
 	  const reco::Candidate & c2 = cands2[i2];
 	  if(preselect(c1, c2)) {
-	    Ref cr2(src2, i2);
+	    reco::CandidateBaseRef cr2(src2, i2);
 	    value_type c;
 	    composite_type & r = OutputHelper::make(c);
 	    combine(r, cr1, cr2);
@@ -230,24 +210,24 @@ CandCombinerBase<InputCollection, OutputCollection>::combine(const std::vector<R
   return comps;
 }
 
-template<typename InputCollection, typename OutputCollection>
+template<typename OutputCollection>
 std::auto_ptr<OutputCollection> 
-CandCombinerBase<InputCollection, OutputCollection>::combine(const RefProd & src) const {
+CandCombinerBase<OutputCollection>::combine(const reco::CandidateBaseRefProd & src) const {
   if(checkCharge_ && dauCharge_.size() != 2)
     throw edm::Exception(edm::errors::Configuration) 
       << "CandCombiner: trying to combine 2 collections"
       << " but configured to check against " << dauCharge_.size() << " charges.";
 
   std::auto_ptr<OutputCollection> comps(new OutputCollection);
-  const InputCollection & cands = * src; 
+  const reco::CandidateView & cands = * src; 
   const int n = cands.size();
   for(int i1 = 0; i1 < n; ++i1) {
     const reco::Candidate & c1 = cands[i1];
-    Ref cr1(src, i1);
+    reco::CandidateBaseRef cr1(src, i1);
     for(int i2 = i1 + 1; i2 < n; ++i2) {
       const reco::Candidate & c2 = cands[i2];
       if(preselect(c1, c2)) {
-	Ref cr2(src, i2);
+	reco::CandidateBaseRef cr2(src, i2);
 	value_type c;
 	composite_type & r = OutputHelper::make(c);
 	combine(r, cr1, cr2);
@@ -260,30 +240,30 @@ CandCombinerBase<InputCollection, OutputCollection>::combine(const RefProd & src
   return comps;
 }
 
-template<typename InputCollection, typename OutputCollection>
+template<typename OutputCollection>
 std::auto_ptr<OutputCollection> 
-CandCombinerBase<InputCollection, OutputCollection>::combine(const RefProd & src1, const RefProd & src2) const {
-  std::vector<RefProd> src;
+CandCombinerBase<OutputCollection>::combine(const reco::CandidateBaseRefProd & src1, const reco::CandidateBaseRefProd & src2) const {
+  std::vector<reco::CandidateBaseRefProd> src;
   src.push_back(src1);
   src.push_back(src2);
   return combine(src);
 }
 
-template<typename InputCollection, typename OutputCollection>
+template<typename OutputCollection>
 std::auto_ptr<OutputCollection> 
-CandCombinerBase<InputCollection, OutputCollection>::combine(const RefProd & src1, const RefProd & src2, const RefProd & src3) const {
-  std::vector<RefProd> src;
+CandCombinerBase<OutputCollection>::combine(const reco::CandidateBaseRefProd & src1, const reco::CandidateBaseRefProd & src2, const reco::CandidateBaseRefProd & src3) const {
+  std::vector<reco::CandidateBaseRefProd> src;
   src.push_back(src1);
   src.push_back(src2);
   src.push_back(src3);
   return combine(src);
 }
 
-template<typename InputCollection, typename OutputCollection>
+template<typename OutputCollection>
 std::auto_ptr<OutputCollection> 
-CandCombinerBase<InputCollection, OutputCollection>::combine(const RefProd & src1, const RefProd & src2, 
-							     const RefProd & src3, const RefProd & src4) const {
-  std::vector<RefProd> src;
+CandCombinerBase<OutputCollection>::combine(const reco::CandidateBaseRefProd & src1, const reco::CandidateBaseRefProd & src2, 
+					    const reco::CandidateBaseRefProd & src3, const reco::CandidateBaseRefProd & src4) const {
+  std::vector<reco::CandidateBaseRefProd> src;
   src.push_back(src1);
   src.push_back(src2);
   src.push_back(src3);
@@ -291,11 +271,11 @@ CandCombinerBase<InputCollection, OutputCollection>::combine(const RefProd & src
   return combine(src);
 }
 
-template<typename InputCollection, typename OutputCollection>
-								     void CandCombinerBase<InputCollection, OutputCollection>::combine(size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
-																       typename std::vector<RefProd>::const_iterator collBegin,
-																       typename std::vector<RefProd>::const_iterator collEnd,
-																       std::auto_ptr<OutputCollection> & comps) const {
+template<typename OutputCollection>
+void CandCombinerBase<OutputCollection>::combine(size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
+						 typename std::vector<reco::CandidateBaseRefProd>::const_iterator collBegin,
+						 typename std::vector<reco::CandidateBaseRefProd>::const_iterator collEnd,
+						 std::auto_ptr<OutputCollection> & comps) const {
   if(collBegin == collEnd) {
     static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
     int decayType = undetermined;
@@ -327,14 +307,14 @@ template<typename InputCollection, typename OutputCollection>
 	comps->push_back(c);
     }
   } else {
-    const RefProd & srcRef = * collBegin;
-    const InputCollection & src = * srcRef;
+    const reco::CandidateBaseRefProd & srcRef = * collBegin;
+    const reco::CandidateView & src = * srcRef;
     size_t candBegin = 0, candEnd = src.size();
     for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i) 
       if(srcRef == * i->second) 
 	candBegin = i->first.second + 1;
     for(size_t candIndex = candBegin; candIndex != candEnd; ++ candIndex) {
-      Ref candRef(srcRef, candIndex);
+      reco::CandidateBaseRef candRef(srcRef, candIndex);
       bool noOverlap = true;
       const reco::Candidate & cand = * candRef;
       for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i) 

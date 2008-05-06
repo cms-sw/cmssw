@@ -12,7 +12,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef reco::modules::CandCombiner<
-                         reco::CandidateView,
                          StringCutObjectSelector<reco::Candidate>,
                          reco::CompositeCandidateCollection
                        > CandViewCombiner;

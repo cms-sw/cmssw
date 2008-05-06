@@ -40,15 +40,14 @@ namespace combiner {
   }
 }
 
-template<typename InputCollection,
-         typename Selector, 
-	 typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection,
+template<typename Selector, 
+	 typename OutputCollection = reco::CompositeCandidateCollection,
 	 typename PairSelector = AnyPairSelector,
 	 typename Cloner = combiner::helpers::NormalClone, 
 	 typename Setup = AddFourMomenta>
-class CandCombiner : public CandCombinerBase<InputCollection, OutputCollection> {
+class CandCombiner : public CandCombinerBase<OutputCollection> {
 public:
-  typedef CandCombinerBase<InputCollection, OutputCollection> base;
+  typedef CandCombinerBase<OutputCollection> base;
   /// default constructor
   CandCombiner() :
   base(), 
@@ -130,7 +129,6 @@ public:
   Setup & setup() { return setup_; }
 
 private:
-  typedef typename base::Ref Ref;
   typedef typename base::composite_type composite_type;
 
   /// select a candidate
@@ -146,7 +144,7 @@ private:
     setup_.set(c);
   }
   /// add candidate daughter
-  virtual void addDaughter(composite_type & cmp, const Ref & c) const {
+  virtual void addDaughter(composite_type & cmp, const reco::CandidateBaseRef & c) const {
     Cloner::addDaughter(cmp, c);
   }
   /// candidate selector
