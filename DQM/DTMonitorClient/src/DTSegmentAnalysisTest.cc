@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/23 15:02:10 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -47,7 +47,6 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
   badChpercentual = parameters.getUntrackedParameter<int>("badChpercentual", 10);

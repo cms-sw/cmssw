@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/22 16:49:18 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/04/23 15:02:09 $
+ *  $Revision: 1.17 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -40,7 +40,6 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
   
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 

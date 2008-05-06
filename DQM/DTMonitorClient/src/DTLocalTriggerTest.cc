@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/04/22 16:49:18 $
+ *  $Revision: 1.16 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -42,7 +42,6 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
   hwSource = ps.getUntrackedParameter<bool>("dataFromDDU", false) ? "DDU" : "DCC" ; 
   parameters = ps;
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 

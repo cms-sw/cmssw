@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/04/22 16:49:18 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -43,7 +43,6 @@ DTDeadChannelTest::DTDeadChannelTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 

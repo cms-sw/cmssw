@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/15 15:31:49 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/04/16 10:48:26 $
+ *  $Revision: 1.22 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -50,7 +50,6 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 

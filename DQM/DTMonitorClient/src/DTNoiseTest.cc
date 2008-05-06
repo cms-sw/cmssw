@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2008/03/01 00:39:52 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/22 16:49:18 $
+ * $Revision: 1.17 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -42,7 +42,6 @@ DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
   parameters = ps;
   
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
   dbe->setCurrentFolder("DT/Tests/Noise");
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
