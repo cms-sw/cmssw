@@ -2,6 +2,12 @@
 #define EXERCISES_HH_
 
 #include <TFile.h>
+#include <TH1F.h>
+#include <map>
+
+#include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
+
 
 namespace pftools {
 /**
@@ -17,11 +23,31 @@ public:
 	Exercises();
 	virtual ~Exercises();
 
-	void testTreeUtility(TFile& f);
+	/* 
+	 * This tries to recreate SingleParticleWrappers from the supplied TFile
+	 */
+	void testTreeUtility(TFile& f) const;
 
-	void testCalibrators();
+	/*
+	 * This does a test with random data that the calibration chain is working properly.
+	 */
+	void testCalibrators() const;
+
+	/*
+	 * This calibrates SingleParticleWrappers found in the supplied TFile.
+	 */
+	void testCalibrationFromTree(TFile& f) const;
+
+	/*
+	 * This (temporary) method evaluates the energy resolution before and after calibration.
+	 */
+	void evaluatePerformance(
+			const std::map<SpaceVoxelPtr, CalibratorPtr>* const detectorMap,
+			std::map<SpaceVoxelPtr, TH1F>& before,
+			std::map<SpaceVoxelPtr, TH1F>& after) const;
 	
-	void testCalibrationFromTree(TFile& f);
+	void writeOutHistos(std::map<SpaceVoxelPtr, TH1F>& input) const;
+	
 };
 }
 

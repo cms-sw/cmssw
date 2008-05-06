@@ -53,6 +53,10 @@ public:
 	int hasParticles() const {
 		return myParticleDeposits.size();
 	}
+	
+	std::vector<ParticleDepositPtr> getParticles() {
+		return myParticleDeposits;
+	}
 
 	//	virtual void setDetectorElements(const std::vector<DetectorElement*> elements) {
 	//		myDetectorElements = elements;

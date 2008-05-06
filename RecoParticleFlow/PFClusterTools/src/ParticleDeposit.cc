@@ -74,6 +74,7 @@ double ParticleDeposit::getEnergyResolution() const {
 std::ostream& pftools::operator<<(std::ostream& s, const pftools::ParticleDeposit& p) {
 	s << "Particle id:\t" << p.getId() << ", \t trueEnergy: " << p.getTruthEnergy() << "\n";
 	s.width(3);
+	s << "\tEta:\t" << p.getEta() << ",\tphi:\t" << p.getPhi() << "\n";
 	for (std::vector<Deposition>::const_iterator cit = p.getRecDepositions().begin(); cit
 				!= p.getRecDepositions().end(); ++cit) {
 			Deposition d = *cit;

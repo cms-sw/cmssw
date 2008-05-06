@@ -2,6 +2,7 @@
 #define SPACEVOXEL_HH_
 #include <iostream>
 #include <boost/shared_ptr.hpp>
+#include <string>
 
 namespace pftools {
 
@@ -36,9 +37,21 @@ public:
 	virtual bool containsEnergy(const double& energy) const;
 
 	void print(std::ostream& s) const;
+	
+	void printMsg() {
+		std::cout << "Hello!\n";
+	}
+	
+	int getInt() {
+		return 2;
+	}
+	
+	//Prints this SpaceVoxel's name into the supplied string
+	void getName(std::string& s) const;
 
 	friend std::ostream& operator<<(std::ostream& s,
 			const pftools::SpaceVoxel& sv);
+	
 
 private:
 	double myEtaMin;

@@ -5,14 +5,25 @@
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.hh"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
 #include "RecoParticleFlow/PFClusterTools/interface/LinearCalibrator.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/Operators.h"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <iostream>
+#include <string>
+#include <algorithm>
+#include <functional>
+#include <TH1F.h>
 
 #include <TRandom2.h>
 
 using namespace pftools;
+
+
+
+void writeHisto(TH1F& h) {
+	h.Write();
+}
 
 Exercises::Exercises() {
 }
@@ -20,7 +31,7 @@ Exercises::Exercises() {
 Exercises::~Exercises() {
 }
 
-void Exercises::testTreeUtility(TFile& f) {
+void Exercises::testTreeUtility(TFile& f) const {
 	std::cout << __PRETTY_FUNCTION__ << "\n";
 	std::cout << "Starting tests...\n";
 	DetectorElementPtr ecal(new DetectorElement(ECAL, 1.0));
@@ -37,7 +48,7 @@ void Exercises::testTreeUtility(TFile& f) {
 
 }
 
-void Exercises::testCalibrators() {
+void Exercises::testCalibrators() const {
 	std::cout << __PRETTY_FUNCTION__ << "\n";
 	std::cout << "Wilkommen und ze testCalibrator funktionnen!\n";
 	std::cout << "Starting tests...\n";
@@ -115,7 +126,7 @@ void Exercises::testCalibrators() {
 	std::cout << "Finished tests.\n";
 }
 
-void Exercises::testCalibrationFromTree(TFile& f) {
+void Exercises::testCalibrationFromTree(TFile& f) const {
 
 	boost::shared_ptr<SpaceManager> sm(new SpaceManager());
 	//Make detector elements to start with
@@ -132,7 +143,7 @@ void Exercises::testCalibrationFromTree(TFile& f) {
 	linCal->addDetectorElement(ecal);
 	linCal->addDetectorElement(hcal);
 
-	sm->createCalibrators(*linCal, 1, -10.0, 10.0, 4, 0, 360, 1, 0, 800);
+	sm->createCalibrators(*linCal, 2, 0, 2.5, 2, -3.15, 3.15, 1, 0, 1000);
 
 	std::vector<DetectorElementPtr> elements;
 	//elements.push_back(offset);
@@ -143,7 +154,7 @@ void Exercises::testCalibrationFromTree(TFile& f) {
 
 	TreeUtility tu;
 	tu.recreateFromRootFile(f, elements, particles);
-
+	std::vector<std::string> results;
 	for (std::vector<ParticleDepositPtr>::iterator it = particles.begin(); it
 			!= particles.end(); ++it) {
 		ParticleDepositPtr pd = *it;
@@ -152,23 +163,100 @@ void Exercises::testCalibrationFromTree(TFile& f) {
 				pd->getTruthEnergy());
 		//std::cout << *pd << "\n";
 
-		if (c == 0)
+		if (c == 0){
 			std::cout << "Couldn't find calibrator for particle?!\n";
+			std::cout << "\t" << *pd << "\n";
+		}
 		else {
 			c->addParticleDeposit(pd);
 		}
 	}
 
+	TFile output("Exercises.root", "recreate");
 	std::map<SpaceVoxelPtr, CalibratorPtr>* detectorMap = sm->getCalibrators();
+	std::map<SpaceVoxelPtr, TH1F> before;
+	std::map<SpaceVoxelPtr, TH1F> after;
+	evaluatePerformance(detectorMap, before, after);
+	
+	writeOutHistos(before);
+	writeOutHistos(after);
+	output.Write();
+	output.Close();
+
+}
+
+void Exercises::evaluatePerformance(
+		const std::map<SpaceVoxelPtr, CalibratorPtr>* const detectorMap,
+		std::map<SpaceVoxelPtr, TH1F>& before,
+		std::map<SpaceVoxelPtr, TH1F>& after) const {
+
+	//loop over detectorMap
 	for (std::map<SpaceVoxelPtr, CalibratorPtr>::const_iterator
 			cit = detectorMap->begin(); cit != detectorMap->end(); ++cit) {
 		SpaceVoxelPtr sv = (*cit).first;
 		std::cout << *sv << "\n";
 		CalibratorPtr c = (*cit).second;
 		std::cout << "Calibrator has "<< c->hasParticles() << " particles\n";
+
+		//Global energy resolution improvement for this calibrator
+		double oldReso(0.0), newReso(0.0);
+
 		if (c->hasParticles()) {
+			std::vector<ParticleDepositPtr> csParticles = c->getParticles();
+
+			//define histogram names
+			std::string svName;
+			sv->getName(svName);
+			std::string histoNamePre("hPre");
+			std::string histoNamePost("hPost");
+			histoNamePre.append(svName);
+			histoNamePost.append(svName);
+
+			//Construct histograms
+			TH1F pre(histoNamePre.c_str(), histoNamePre.c_str(), 100, 0, 200);
+			TH1F
+					post(histoNamePost.c_str(), histoNamePost.c_str(), 100, 0,
+							200);
+
+			for (std::vector<ParticleDepositPtr>::iterator
+					it = csParticles.begin(); it!= csParticles.end(); ++it) {
+				ParticleDepositPtr pd = *it;
+				oldReso += pd->getEnergyResolution();
+				pre.Fill(pd->getRecEnergy());
+			}
 			std::map<DetectorElementPtr, double>
 					calibs = c->getCalibrationCoefficients();
+			for (std::map<DetectorElementPtr, double>::iterator
+					it = calibs.begin(); it != calibs.end(); ++it) {
+				DetectorElementPtr de = (*it).first;
+				de->setCalib((*it).second);
+			}
+			for (std::vector<ParticleDepositPtr>::iterator
+					it = csParticles.begin(); it!= csParticles.end(); ++it) {
+				ParticleDepositPtr pd = *it;
+				newReso += pd->getEnergyResolution();
+				post.Fill(pd->getRecEnergy());
+			}
+			for (std::map<DetectorElementPtr, double>::iterator
+					it = calibs.begin(); it != calibs.end(); ++it) {
+				DetectorElementPtr de = (*it).first;
+				de->setCalib(1.0);
+			}
+
+			before[sv] = pre;
+			after[sv] = post;
+
+			std::cout << "\tOld reso:\t"<< oldReso / csParticles.size() * 100.0
+					<< "\n";
+			std::cout << "\tNew reso:\t"<< newReso / csParticles.size() * 100.0
+					<< "\n";
 		}
 	}
+
+}
+
+void Exercises::writeOutHistos(std::map<SpaceVoxelPtr, TH1F>& input) const {
+	std::vector<TH1F> histos;
+	valueVector(input, histos);
+	std::for_each(histos.begin(), histos.end(),  writeHisto);
 }

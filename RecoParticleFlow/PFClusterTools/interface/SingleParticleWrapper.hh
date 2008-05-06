@@ -39,6 +39,11 @@ public:
 		ePFHcal = 0;
 		eSqPFEcal = 0;
 		eSqPFHcal = 0;
+		ePFElementEcal = 0;
+		ePFElementHcal = 0;
+		eRecHitsEcal = 0;
+		eRecHitsHcal = 0;
+		
 	};
 	
 	//True, Ecal and Hcal energy and angle depositions
@@ -60,6 +65,13 @@ public:
 	double eSqHcal;
 	double eSqPFEcal;
 	double eSqPFHcal;
+	
+	//Energies in the ECAL and HCAL elements associated with a PFCandidate block
+	double ePFElementEcal;
+	double ePFElementHcal;
+	
+	double eRecHitsEcal;
+	double eRecHitsHcal;
 };
 }
 #endif /*SINGLEPARTICLEWRAPPER_HH_*/

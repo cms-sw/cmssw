@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"
 #include <iostream>
+#include "RecoParticleFlow/PFClusterTools/interface/ToString.h"
 using namespace pftools;
 
 SpaceVoxel::SpaceVoxel(double etaBegin, double etaEnd, double phiBegin,
@@ -45,6 +46,22 @@ bool SpaceVoxel::containsEnergy(const double& energy) const {
 
 void SpaceVoxel::print(std::ostream& s) const {
 	s << "SpaceVoxel: eta: [" << myEtaMin << ", " << myEtaMax << "]\t phi: [" << myPhiMin << ". " << myPhiMax << "]\t energy: [" << myEnergyMin << ", " << myEnergyMax << "]";
+}
+
+void SpaceVoxel::getName(std::string& s) const {
+	s.append("SpaceVoxel: eta: [");
+	s.append(toString(myEtaMin));
+	s.append(", ");
+	s.append(toString(myEtaMax));
+	s.append("] phi: [");
+	s.append(toString(myPhiMin));
+	s.append(", ");
+	s.append(toString(myPhiMax));
+	s.append("], en: [");
+	s.append(toString(myEnergyMin));
+	s.append(", ");
+	s.append(toString(myEnergyMax));
+	s.append("]");
 }
 
 std::ostream& pftools::operator<<(std::ostream& s, const pftools::SpaceVoxel& sv) {

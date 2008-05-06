@@ -64,7 +64,8 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 
 		tree->GetEntry(entries);
 
-		ParticleDepositPtr pd(new ParticleDeposit(spw_ptr->trueEnergy));
+		ParticleDepositPtr pd(new ParticleDeposit(spw_ptr->trueEnergy, spw_ptr->eta, spw_ptr->phi));
+		
 		if (offset != 0) {
 			Deposition dOffset(offset, spw_ptr->eta, spw_ptr->phi, 1.0);
 			pd->addRecDeposition(dOffset);
