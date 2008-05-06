@@ -107,7 +107,7 @@ void CSCMonitorModule::setup() {
     dbe->setCurrentFolder(rootDir + getDDUTag(d, buffer));
     book("DDU");
   }
-  LOGINFO("DDU histograms") << " # of DDU to be monitored = " << loadDDU.count() << " following bitset = " << loadDDU;
+  LOGINFO("DDU histograms") << " # of DDU to be prebooked for monitoring = " << loadDDU.count() << " following bitset = " << loadDDU << " (hitBookDDU = " << std::boolalpha << hitBookDDU;
 
   this->init = true;
 
