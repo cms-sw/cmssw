@@ -19,8 +19,6 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.7 2008/03/13 23:55:32 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/ProductID.h"

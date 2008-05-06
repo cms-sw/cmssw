@@ -23,8 +23,6 @@ If failedToGet() returns true then the requested data is not available
 If failedToGet() returns false but isValid() is also false then no attempt 
   to get data has occurred
 
-$Id: Handle.h,v 1.11 2008/02/24 13:04:53 chrjones Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <typeinfo>
