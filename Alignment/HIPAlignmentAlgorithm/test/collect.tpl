@@ -4,7 +4,7 @@ process Alignment =
 
   source = EmptySource {}
 
-  untracked PSet maxEvents = { untracked int32 input = 1 }
+  untracked PSet maxEvents = { untracked int32 input = 0 }
 
   replace HIPAlignmentAlgorithm.outpath = "<PATH>/main/" # must put backslash
   replace HIPAlignmentAlgorithm.collectorActive = true
@@ -21,7 +21,7 @@ process Alignment =
   {
     using CondDBSetup
 
-    string connect  = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/measurementSurvey_184.db"
+    string connect  = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/measurementSurvey_206.db"
     string timetype = "runnumber"
 
     VPSet toGet =

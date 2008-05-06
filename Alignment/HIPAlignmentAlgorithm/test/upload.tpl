@@ -16,7 +16,7 @@ process Alignment =
 
     string connect  = "sqlite_file:<PATH>/alignments.db"
 #    string connect  = "frontier://cms_orcoff_prep/CMS_COND_ALIGNMENT"
-    string timetype = "runnumber"
+    untracked string timetype = "runnumber"
 
     VPSet toPut =
     {
