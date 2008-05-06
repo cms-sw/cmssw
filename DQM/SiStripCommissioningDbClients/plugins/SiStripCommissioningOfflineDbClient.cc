@@ -1,11 +1,10 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.14 2008/03/08 17:23:39 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.15 2008/03/17 17:40:55 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
-#include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
@@ -107,7 +106,6 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
   
   // Create corresponding "commissioning histograms" object 
   if      ( runType_ == sistrip::FAST_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::FED_CABLING )  { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::APV_TIMING )   { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::OPTO_SCAN )    { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::VPSP_SCAN )    { histos_ = new VpspScanHistosUsingDb( mui_, db ); }

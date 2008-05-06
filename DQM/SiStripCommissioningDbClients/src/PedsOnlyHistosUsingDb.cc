@@ -1,10 +1,11 @@
-// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.14 2008/03/06 13:30:53 delaer Exp $
+// Last commit: $Id: PedsOnlyHistosUsingDb.cc,v 1.1 2008/03/17 17:40:55 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedsOnlyHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
@@ -12,21 +13,9 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( DQMOldReceiver* mui,
-						const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    PedsOnlyHistograms( mui )
-{
-  LogTrace(mlDqmClient_) 
-    << "[PedsOnlyHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( DQMOldReceiver* mui,
-						SiStripConfigDb* const db )
-  : CommissioningHistograms( mui, sistrip::PEDESTALS ),
-    CommissioningHistosUsingDb( db, mui, sistrip::PEDESTALS ),
+					      SiStripConfigDb* const db )
+  : CommissioningHistograms( mui, sistrip::PEDS_ONLY ),
+    CommissioningHistosUsingDb( db, mui, sistrip::PEDS_ONLY ),
     PedsOnlyHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
@@ -37,8 +26,8 @@ PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( DQMOldReceiver* mui,
 // -----------------------------------------------------------------------------
 /** */
 PedsOnlyHistosUsingDb::PedsOnlyHistosUsingDb( DQMStore* bei,
-						SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db, sistrip::PEDESTALS ),
+					      SiStripConfigDb* const db ) 
+  : CommissioningHistosUsingDb( db, sistrip::PEDS_ONLY ),
     PedsOnlyHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
@@ -69,13 +58,13 @@ void PedsOnlyHistosUsingDb::uploadConfigurations() {
   }
   
   // Update FED descriptions with new peds/noise values
-  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
-  update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
+  SiStripConfigDb::FedDescriptionsRange feds = db()->getFedDescriptions(); 
+  update( feds );
   if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[PedsOnlyHistosUsingDb::" << __func__ << "]"
       << " Uploading pedestals/noise to DB...";
-    db()->uploadFedDescriptions(true); // always major version 
+    db()->uploadFedDescriptions(); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[PedsOnlyHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size() 
@@ -90,11 +79,11 @@ void PedsOnlyHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void PedsOnlyHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
+void PedsOnlyHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
  
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
-  SiStripConfigDb::FedDescriptions::iterator ifed;
+  SiStripConfigDb::FedDescriptionsV::const_iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
@@ -178,8 +167,8 @@ void PedsOnlyHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void PedsOnlyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
-					  Analysis analysis ) {
+void PedsOnlyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
+				    Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
 
@@ -213,8 +202,8 @@ void PedsOnlyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 					    fec_key.ccuAddr(),
 					    fec_key.ccuChan(),
 					    SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
-					    db()->dbParams().partition_,
-					    db()->dbParams().runNumber_,
+					    db()->dbParams().partitions().begin()->second.partitionName(),
+					    db()->dbParams().partitions().begin()->second.runNumber(),
 					    anal->isValid(),
 					    "",
 					    fed_key.fedId(),

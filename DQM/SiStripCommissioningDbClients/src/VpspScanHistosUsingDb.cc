@@ -1,24 +1,13 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.14 2008/02/20 11:26:13 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.15 2008/03/06 13:30:53 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
-
-// -----------------------------------------------------------------------------
-/** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( DQMOldReceiver* mui,
-					      const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    VpspScanHistograms( mui )
-{
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
 
 // -----------------------------------------------------------------------------
 /** */
@@ -68,13 +57,13 @@ void VpspScanHistosUsingDb::uploadConfigurations() {
   }
   
   // Update all APV device descriptions with new VPSP settings
-  const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions();
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions();
+  update( devices );
   if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[VpspScanHistosUsingDb::" << __func__ << "]"
       << " Uploading VPSP settings to DB...";
-    db()->uploadDeviceDescriptions(true); 
+    db()->uploadDeviceDescriptions(); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[VpspScanHistosUsingDb::" << __func__ << "]"
       << " Uploaded VPSP settings to DB!";
@@ -91,10 +80,10 @@ void VpspScanHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
+void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices ) {
   
   // Iterate through devices and update device descriptions
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
     // Check device type
@@ -172,7 +161,7 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 
 // -----------------------------------------------------------------------------
 /** */
-void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				    Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -200,8 +189,8 @@ void VpspScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 					   fec_key.ccuAddr(),
 					   fec_key.ccuChan(),
 					   SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
-					   db()->dbParams().partition_,
-					   db()->dbParams().runNumber_,
+					   db()->dbParams().partitions().begin()->second.partitionName(),
+					   db()->dbParams().partitions().begin()->second.runNumber(),
 					   anal->isValid(),
 					   "",
 					   fed_key.fedId(),

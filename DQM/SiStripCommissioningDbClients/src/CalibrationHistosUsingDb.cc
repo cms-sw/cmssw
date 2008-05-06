@@ -1,10 +1,11 @@
-// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.5 2008/04/03 14:47:39 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.cc,v 1.6 2008/04/07 14:37:50 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CalibrationHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
@@ -12,21 +13,8 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
-					            const DbParams& params,
+						    SiStripConfigDb* const db,
 						    const sistrip::RunType& task )
-  : CommissioningHistosUsingDb( params ),
-    CalibrationHistograms( mui, task )
-{
-  LogTrace(mlDqmClient_) 
-    << "[CalibrationHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
-					      SiStripConfigDb* const db,
-					      const sistrip::RunType& task )
   : CommissioningHistograms( mui, task ),
     CommissioningHistosUsingDb( db, mui, task),
     CalibrationHistograms( mui, task )
@@ -35,8 +23,8 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
     << "[CalibrationHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
   // Load and dump the current ISHA/VFS values. This is used by the standalone analysis script
-  const SiStripConfigDb::DeviceDescriptions & apvDescriptions = db->getDeviceDescriptions(APV25);
-  for(SiStripConfigDb::DeviceDescriptions::const_iterator apv = apvDescriptions.begin();apv!=apvDescriptions.end();++apv) {
+  const SiStripConfigDb::DeviceDescriptionsRange & apvDescriptions = db->getDeviceDescriptions(APV25);
+  for(SiStripConfigDb::DeviceDescriptionsV::const_iterator apv = apvDescriptions.begin();apv!=apvDescriptions.end();++apv) {
     apvDescription* desc = dynamic_cast<apvDescription*>( *apv );
     if ( !desc ) { continue; }
     // Retrieve device addresses from device description
@@ -49,8 +37,8 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
     bin << "." << std::setw(2) << std::setfill('0') << addr.ccuChan_;
     bin << "." << desc->getAddress();
     LogTrace(mlDqmClient_) << "Present values for ISHA/VFS of APV " 
-      << bin.str() << " : " 
-      << static_cast<uint16_t>(desc->getIsha()) << " " << static_cast<uint16_t>(desc->getVfs());
+			   << bin.str() << " : " 
+			   << static_cast<uint16_t>(desc->getIsha()) << " " << static_cast<uint16_t>(desc->getVfs());
   }
   // Load the histograms with the results
   std::string pwd = bei()->pwd();
@@ -68,8 +56,8 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMOldReceiver* mui,
 // -----------------------------------------------------------------------------
 /** */
 CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMStore* bei,
-					      SiStripConfigDb* const db,
-					      const sistrip::RunType& task ) 
+						    SiStripConfigDb* const db,
+						    const sistrip::RunType& task ) 
   : CommissioningHistosUsingDb( db, task ),
     CalibrationHistograms( bei, task )
 {
@@ -77,8 +65,8 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMStore* bei,
     << "[CalibrationHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
   // Load and dump the current ISHA/VFS values. This is used by the standalone analysis script
-  const SiStripConfigDb::DeviceDescriptions & apvDescriptions = db->getDeviceDescriptions(APV25);
-  for(SiStripConfigDb::DeviceDescriptions::const_iterator apv = apvDescriptions.begin();apv!=apvDescriptions.end();++apv) {
+  const SiStripConfigDb::DeviceDescriptionsRange & apvDescriptions = db->getDeviceDescriptions(APV25);
+  for(SiStripConfigDb::DeviceDescriptionsV::const_iterator apv = apvDescriptions.begin();apv!=apvDescriptions.end();++apv) {
     apvDescription* desc = dynamic_cast<apvDescription*>( *apv );
     if ( !desc ) { continue; }
     // Retrieve device addresses from device description
@@ -91,8 +79,8 @@ CalibrationHistosUsingDb::CalibrationHistosUsingDb( DQMStore* bei,
     bin << "." << std::setw(2) << std::setfill('0') << addr.ccuChan_;
     bin << "." << desc->getAddress();
     LogTrace(mlDqmClient_) << "Present values for ISHA/VFS of APV " 
-      << bin.str() << " : " 
-      << static_cast<uint16_t>(desc->getIsha()) << " " << static_cast<uint16_t>(desc->getVfs());
+			   << bin.str() << " : " 
+			   << static_cast<uint16_t>(desc->getIsha()) << " " << static_cast<uint16_t>(desc->getVfs());
   }
   // Load the histograms with the results
   std::string pwd = bei->pwd();
@@ -131,15 +119,15 @@ void CalibrationHistosUsingDb::uploadConfigurations() {
       << " Aborting upload...";
     return;
   }
- 
+  
   // Update all APV device descriptions with new ISHA and VFS settings
-  const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions();
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions();
+  update( devices );
   if ( doUploadConf() ) {
     edm::LogVerbatim(mlDqmClient_)
       << "[CalibrationHistosUsingDb::" << __func__ << "]"
       << " Uploading ISHA/VFS settings to DB...";
-    db()->uploadDeviceDescriptions(true);
+    db()->uploadDeviceDescriptions();
     edm::LogVerbatim(mlDqmClient_)
       << "[CalibrationHistosUsingDb::" << __func__ << "]"
       << " Uploaded ISHA/VFS settings to DB!";
@@ -157,12 +145,12 @@ void CalibrationHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void CalibrationHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
-
+void CalibrationHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange& devices ) {
+  
   if(!ishaHistogram_ && !vfsHistogram_) return;
-
+  
   // Iterate through devices and update device descriptions
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
 
     // Check device type
@@ -206,8 +194,8 @@ void CalibrationHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devi
 
 // -----------------------------------------------------------------------------
 /** */
-void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
-				     Analysis analysis) {
+void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
+				       Analysis analysis) {
 
 #ifdef USING_NEW_DATABASE_MODEL
 
@@ -234,8 +222,8 @@ void CalibrationHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& de
   					     fec_key.ccuAddr(),
   					     fec_key.ccuChan(),
   					     SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ),
-  					     db()->dbParams().partition_,
-  					     db()->dbParams().runNumber_,
+  					     db()->dbParams().partitions().begin()->second.partitionName(),
+  					     db()->dbParams().partitions().begin()->second.runNumber(),
   					     anal->isValid(),
   					     "",
   					     fed_key.fedId(),

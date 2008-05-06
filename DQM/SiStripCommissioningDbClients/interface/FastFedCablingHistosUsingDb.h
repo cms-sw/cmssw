@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.5 2008/02/27 16:33:40 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.h,v 1.6 2008/03/06 13:30:50 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FastFedCablingHistosUsingDb_H
@@ -9,9 +9,6 @@
 class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public FastFedCablingHistograms  {
   
  public:
-  
-  FastFedCablingHistosUsingDb( DQMOldReceiver*,
-			       const DbParams& );
   
   FastFedCablingHistosUsingDb( DQMOldReceiver*,
 			       SiStripConfigDb* const );
@@ -27,17 +24,17 @@ class FastFedCablingHistosUsingDb : public CommissioningHistosUsingDb, public Fa
   
  private:
   
-  void update( SiStripConfigDb::FedConnections&,
-	       const SiStripConfigDb::FedDescriptions&,
-	       const SiStripConfigDb::DeviceDescriptions&, 
-	       const SiStripConfigDb::DcuDetIdMap& );
+  void update( SiStripConfigDb::FedConnectionsV&,
+	       SiStripConfigDb::FedDescriptionsRange,
+	       SiStripConfigDb::DeviceDescriptionsRange, 
+	       SiStripConfigDb::DcuDetIdsRange );
   
-  void update( SiStripConfigDb::FedDescriptions& );
+  void update( SiStripConfigDb::FedDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
   
-  void connections( const SiStripConfigDb::DeviceDescriptions&, 
-		    const SiStripConfigDb::DcuDetIdMap& );
+  void connections( SiStripConfigDb::DeviceDescriptionsRange, 
+		    SiStripConfigDb::DcuDetIdsRange );
   
 };
 

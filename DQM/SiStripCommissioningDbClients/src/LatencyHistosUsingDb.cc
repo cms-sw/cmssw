@@ -1,9 +1,10 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.10 2008/04/13 13:28:38 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.11 2008/04/14 11:13:03 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include <DataFormats/DetId/interface/DetId.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include <iostream>
 
 #define MAXFEDCOARSE 15
@@ -13,19 +14,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
-					      const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    SamplingHistograms( mui, APV_LATENCY )
-{
-  LogTrace(mlDqmClient_) 
-    << "[LatencyHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
-					      SiStripConfigDb* const db )
+					    SiStripConfigDb* const db )
   : CommissioningHistograms( mui, APV_LATENCY ),
     CommissioningHistosUsingDb( db, mui, APV_LATENCY ),
     SamplingHistograms( mui, APV_LATENCY )
@@ -38,7 +27,7 @@ LatencyHistosUsingDb::LatencyHistosUsingDb( DQMOldReceiver* mui,
 // -----------------------------------------------------------------------------
 /** */
 LatencyHistosUsingDb::LatencyHistosUsingDb( DQMStore* bei,
-					      SiStripConfigDb* const db ) 
+					    SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
     SamplingHistograms( bei, APV_LATENCY )
 {
@@ -67,9 +56,9 @@ void LatencyHistosUsingDb::uploadConfigurations() {
     return;
   }
 
-  const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions(); 
-  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions();
-  bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices), const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
+  SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions(); 
+  SiStripConfigDb::FedDescriptionsRange feds = db()->getFedDescriptions();
+  bool upload = update( devices, feds );
   // Check if new PLL settings are valid
   if ( !upload ) {
     edm::LogWarning(mlDqmClient_)
@@ -84,7 +73,7 @@ void LatencyHistosUsingDb::uploadConfigurations() {
     LogTrace(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Uploading APV settings to DB...";
-    db()->uploadDeviceDescriptions(true); 
+    db()->uploadDeviceDescriptions(); 
     LogTrace(mlDqmClient_) 
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Upload of APV settings to DB finished!";
@@ -92,7 +81,7 @@ void LatencyHistosUsingDb::uploadConfigurations() {
     LogTrace(mlDqmClient_)
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Uploading FED delays to DB...";
-    db()->uploadFedDescriptions(true);
+    db()->uploadFedDescriptions();
     LogTrace(mlDqmClient_)
       << "[LatencyHistosUsingDb::" << __func__ << "]"
       << " Upload of FED delays to DB finished!";
@@ -106,7 +95,8 @@ void LatencyHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices, SiStripConfigDb::FedDescriptions& feds ) {
+bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices, 
+				   SiStripConfigDb::FedDescriptionsRange feds ) {
   
   // Obtain the latency from the analysis object
   if(!data().size() || !data().begin()->second->isValid() ) {
@@ -118,7 +108,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
 
   // Compute the minimum coarse delay
   uint16_t minCoarseDelay = 256;
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     // Check device type
     if ( (*idevice)->getDeviceType() == PLL ) {
@@ -199,25 +189,25 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
     // Update PLL settings
     if ( delayCoarse != sistrip::invalid_ &&
          delayFine != sistrip::invalid_ ) {
-       std::stringstream ss;
-       ss << "[LatencyHistosUsingDb::" << __func__ << "]"
-          << " Updating coarse/fine PLL settings"
-          << " for Crate/FEC/slot/ring/CCU "
-          << fec_path.fecCrate() << "/"
-          << fec_path.fecSlot() << "/"
-          << fec_path.fecRing() << "/"
-          << fec_path.ccuAddr() << "/"
-          << fec_path.ccuChan()
-          << " from "
-          << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/"
-          << static_cast<uint16_t>( desc->getDelayFine() );
-       desc->setDelayCoarse(delayCoarse);
-       desc->setDelayFine(delayFine);
-       updatedPLL++;
-       ss << " to "
-          << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/"
-	  << static_cast<uint16_t>( desc->getDelayFine() );
-       LogTrace(mlDqmClient_) << ss.str();
+      std::stringstream ss;
+      ss << "[LatencyHistosUsingDb::" << __func__ << "]"
+	 << " Updating coarse/fine PLL settings"
+	 << " for Crate/FEC/slot/ring/CCU "
+	 << fec_path.fecCrate() << "/"
+	 << fec_path.fecSlot() << "/"
+	 << fec_path.fecRing() << "/"
+	 << fec_path.ccuAddr() << "/"
+	 << fec_path.ccuChan()
+	 << " from "
+	 << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/"
+	 << static_cast<uint16_t>( desc->getDelayFine() );
+      desc->setDelayCoarse(delayCoarse);
+      desc->setDelayFine(delayFine);
+      updatedPLL++;
+      ss << " to "
+	 << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/"
+	 << static_cast<uint16_t>( desc->getDelayFine() );
+      LogTrace(mlDqmClient_) << ss.str();
     }
   }
   
@@ -228,7 +218,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
   uint16_t minDelay = 256;
   uint16_t maxDelay = 0;
   uint16_t fedDelayCoarse = 0;
-  for ( SiStripConfigDb::FedDescriptions::iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
     const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
@@ -251,7 +241,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
   if(maxDelay+(offset/25)>MAXFEDCOARSE) offset = (MAXFEDCOARSE-maxDelay)*25; // otherwise, take the largest possible
 
   // loop over the FED ids
-  for ( SiStripConfigDb::FedDescriptions::iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
     const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
@@ -286,9 +276,9 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
 
   // Summary output
   edm::LogVerbatim(mlDqmClient_)
-      << "[LatencyHistosUsingDb::" << __func__ << "]"
-      << " Updated FED delays for " << ids.size() << " FEDs!";
-      
+    << "[LatencyHistosUsingDb::" << __func__ << "]"
+    << " Updated FED delays for " << ids.size() << " FEDs!";
+  
   // Check if invalid settings were found
   if ( !invalid.empty() ) {
     std::stringstream ss;
@@ -318,8 +308,8 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
 
 // -----------------------------------------------------------------------------
 /** */
-void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
-				     Analysis analysis ) {
+void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
+				   Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
   
@@ -331,32 +321,32 @@ void LatencyHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
   
   uint16_t latency = static_cast<uint16_t>( ( anal->maximum() / (-25.) ) + 0.5 );
 
-    ApvLatencyAnalysisDescription* tmp;
-    tmp = new ApvLatencyAnalysisDescription( latency, 
-					     0,
-					     0,
-					     0,
-					     0,
-					     0,
-					     0, 
-					     db()->dbParams().partition_,
-					     db()->dbParams().runNumber_,
-					     anal->isValid(),
-					     "",
-					     fed_key.fedId(),
-					     fed_key.feUnit(),
-					     fed_key.feChan(),
-					     fed_key.fedApv() );
+  ApvLatencyAnalysisDescription* tmp;
+  tmp = new ApvLatencyAnalysisDescription( latency, 
+					   0,
+					   0,
+					   0,
+					   0,
+					   0,
+					   0, 
+					   db()->dbParams().partitions().begin()->second.partitionName(),
+					   db()->dbParams().partitions().begin()->second.runNumber(),
+					   anal->isValid(),
+					   "",
+					   fed_key.fedId(),
+					   fed_key.feUnit(),
+					   fed_key.feChan(),
+					   fed_key.fedApv() );
     
-    // Add comments
-    typedef std::vector<std::string> Strings;
-    Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
-    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+  // Add comments
+  typedef std::vector<std::string> Strings;
+  Strings errors = anal->getErrorCodes();
+  Strings::const_iterator istr = errors.begin();
+  Strings::const_iterator jstr = errors.end();
+  for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
     
-    // Store description
-    desc.push_back( tmp );
+  // Store description
+  desc.push_back( tmp );
     
 #endif
   

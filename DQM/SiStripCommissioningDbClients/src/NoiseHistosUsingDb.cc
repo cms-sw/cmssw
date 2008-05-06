@@ -1,10 +1,11 @@
-// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.14 2008/03/06 13:30:53 delaer Exp $
+// Last commit: $Id: NoiseHistosUsingDb.cc,v 1.1 2008/03/17 17:40:55 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/NoiseHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
@@ -12,21 +13,9 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
-					const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    NoiseHistograms( mui )
-{
-  LogTrace(mlDqmClient_) 
-    << "[NoiseHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
 					SiStripConfigDb* const db )
-  : CommissioningHistograms( mui, sistrip::PEDESTALS ),
-    CommissioningHistosUsingDb( db, mui, sistrip::PEDESTALS ),
+  : CommissioningHistograms( mui, sistrip::NOISE ),
+    CommissioningHistosUsingDb( db, mui, sistrip::NOISE ),
     NoiseHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
@@ -38,7 +27,7 @@ NoiseHistosUsingDb::NoiseHistosUsingDb( DQMOldReceiver* mui,
 /** */
 NoiseHistosUsingDb::NoiseHistosUsingDb( DQMStore* bei,
 					SiStripConfigDb* const db ) 
-  : CommissioningHistosUsingDb( db, sistrip::PEDESTALS ),
+  : CommissioningHistosUsingDb( db, sistrip::NOISE ),
     NoiseHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
@@ -69,13 +58,13 @@ void NoiseHistosUsingDb::uploadConfigurations() {
   }
   
   // Update FED descriptions with new peds/noise values
-  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
-  update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
+  SiStripConfigDb::FedDescriptionsRange feds = db()->getFedDescriptions(); 
+  update( feds );
   if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[NoiseHistosUsingDb::" << __func__ << "]"
       << " Uploading pedestals/noise to DB...";
-    db()->uploadFedDescriptions(true); // always major version 
+    db()->uploadFedDescriptions();
     edm::LogVerbatim(mlDqmClient_) 
       << "[NoiseHistosUsingDb::" << __func__ << "]"
       << " Completed database upload of " << feds.size() 
@@ -90,11 +79,11 @@ void NoiseHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void NoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
+void NoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
  
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
-  SiStripConfigDb::FedDescriptions::iterator ifed;
+  SiStripConfigDb::FedDescriptionsV::const_iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
@@ -178,7 +167,7 @@ void NoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void NoiseHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+void NoiseHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				 Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -213,8 +202,8 @@ void NoiseHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 					    fec_key.ccuAddr(),
 					    fec_key.ccuChan(),
 					    SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
-					    db()->dbParams().partition_,
-					    db()->dbParams().runNumber_,
+					    db()->dbParams().partitions().begin()->second.partitionName(),
+					    db()->dbParams().partitions().begin()->second.runNumber(),
 					    anal->isValid(),
 					    "",
 					    fed_key.fedId(),

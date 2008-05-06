@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.8 2008/02/07 17:02:55 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.h,v 1.9 2008/03/06 13:30:50 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_ApvTimingHistosUsingDb_H
@@ -9,9 +9,6 @@
 class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimingHistograms  {
   
  public:
-  
-  ApvTimingHistosUsingDb( DQMOldReceiver*,
-			  const DbParams& );
 
   ApvTimingHistosUsingDb( DQMOldReceiver*,
 			  SiStripConfigDb* const );
@@ -29,11 +26,11 @@ class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimi
   
  private:
 
-  bool update( SiStripConfigDb::DeviceDescriptions& );
+  bool update( SiStripConfigDb::DeviceDescriptionsRange );
   
-  void update( SiStripConfigDb::FedDescriptions& );
+  void update( SiStripConfigDb::FedDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
   
   bool uploadFecSettings_;
 

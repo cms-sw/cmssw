@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.6 2008/02/07 17:02:56 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.h,v 1.7 2008/03/06 13:30:50 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_VpspScanHistosUsingDb_H
@@ -9,9 +9,6 @@
 class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScanHistograms {
   
  public:
-  
-  VpspScanHistosUsingDb( DQMOldReceiver*,
-			 const DbParams& );
   
   VpspScanHistosUsingDb( DQMOldReceiver*,
 			 SiStripConfigDb* const );
@@ -25,9 +22,9 @@ class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScan
   
  private:
 
-  void update( SiStripConfigDb::DeviceDescriptions& );
+  void update( SiStripConfigDb::DeviceDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
   
 };
 

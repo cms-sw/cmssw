@@ -1,27 +1,14 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.18 2008/02/27 09:19:44 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.19 2008/03/06 13:30:52 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
-
-// -----------------------------------------------------------------------------
-/** */
-ApvTimingHistosUsingDb::ApvTimingHistosUsingDb( DQMOldReceiver* mui,
-						const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    ApvTimingHistograms( mui ),
-    uploadFecSettings_(true),
-    uploadFedSettings_(true)
-{
-  LogTrace(mlDqmClient_) 
-    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
 
 // -----------------------------------------------------------------------------
 /** */
@@ -77,8 +64,8 @@ void ApvTimingHistosUsingDb::uploadConfigurations() {
   if ( uploadFecSettings_ ) {
 
     // Retrieve and update PLL device descriptions
-    const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions( PLL ); 
-    bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+    SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions( PLL ); 
+    bool upload = update( devices );
     
     // Check if new PLL settings are valid 
     if ( !upload ) {
@@ -94,7 +81,7 @@ void ApvTimingHistosUsingDb::uploadConfigurations() {
       edm::LogVerbatim(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Uploading PLL settings to DB...";
-      db()->uploadDeviceDescriptions(true); // always major version
+      db()->uploadDeviceDescriptions(); 
       edm::LogVerbatim(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Upload of PLL settings to DB finished!";
@@ -111,17 +98,17 @@ void ApvTimingHistosUsingDb::uploadConfigurations() {
   }
   
   if ( uploadFedSettings_ ) {
-
+    
     // Update FED descriptions with new ticker thresholds
-    const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
-    update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-
+    SiStripConfigDb::FedDescriptionsRange feds = db()->getFedDescriptions(); 
+    update( feds );
+    
     // Update FED descriptions with new ticker thresholds
     if ( doUploadConf() ) { 
       edm::LogVerbatim(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Uploading FED ticker thresholds to DB...";
-      db()->uploadFedDescriptions(true); // always major version
+      db()->uploadFedDescriptions(); 
       edm::LogVerbatim(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	<< " Upload of FED ticker thresholds to DB finished!";
@@ -141,12 +128,12 @@ void ApvTimingHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
-
+bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices ) {
+  
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
   std::vector<SiStripFecKey> invalid;
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
     // Check device type
@@ -284,14 +271,14 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 
 // -----------------------------------------------------------------------------
 /** */
-void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
+void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
   
   // Retrieve FED ids from cabling
   std::vector<uint16_t> ids = cabling()->feds() ;
   
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
-  SiStripConfigDb::FedDescriptions::iterator ifed;
+  SiStripConfigDb::FedDescriptionsV::const_iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     
     // If FED id not found in list (from cabling), then continue
@@ -388,7 +375,7 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				     Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -419,8 +406,8 @@ void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
 					 fec_key.ccuAddr(),
 					 fec_key.ccuChan(),
 					 SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
-					 db()->dbParams().partition_,
-					 db()->dbParams().runNumber_,
+					 db()->dbParams().partitions().begin()->second.partitionName(),
+					 db()->dbParams().partitions().begin()->second.runNumber(),
 					 anal->isValid(),
 					 "",
 					 fed_key.fedId(),

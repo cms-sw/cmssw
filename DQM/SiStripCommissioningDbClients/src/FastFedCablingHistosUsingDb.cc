@@ -1,24 +1,13 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.16 2008/02/28 13:10:05 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.17 2008/03/06 13:30:52 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
-
-// -----------------------------------------------------------------------------
-/** */
-FastFedCablingHistosUsingDb::FastFedCablingHistosUsingDb( DQMOldReceiver* mui,
-							  const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    FastFedCablingHistograms( mui )
-{
-  LogTrace(mlDqmClient_)
-    << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
 
 // -----------------------------------------------------------------------------
 /** */
@@ -67,66 +56,69 @@ void FastFedCablingHistosUsingDb::uploadConfigurations() {
     return;
   }
 
-  // Retrieve descriptions
-  const SiStripConfigDb::FedConnections& conns = db()->getFedConnections(); 
-  const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
-  SiStripConfigDb::DeviceDescriptions dcus = db()->getDeviceDescriptions( DCU ); 
-  SiStripConfigDb::DcuDetIdMap detids = db()->getDcuDetIdMap(); 
-
-  // Update FED connection descriptions
-  update( const_cast<SiStripConfigDb::FedConnections&>(conns), feds, dcus, detids );
-  if ( doUploadConf() ) { 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " Uploading FED connections to DB...";
-    db()->uploadFedConnections(true); 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " Completed database upload of " << conns.size() 
-      << " ConnectionDescriptions!";
-  } else {
-    edm::LogWarning(mlDqmClient_) 
-      << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " TEST only! No FED connections will be uploaded to DB...";
+  SiStripDbParams::SiStripPartitions::const_iterator ip = db()->dbParams().partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jp = db()->dbParams().partitions().end();
+  for ( ; ip != jp; ++ip ) {
+    
+    // Retrieve descriptions
+    db()->clearFedConnections(); 
+    SiStripConfigDb::FedDescriptionsRange feds = db()->getFedDescriptions( ip->second.partitionName() ); 
+    SiStripConfigDb::DeviceDescriptionsRange dcus = db()->getDeviceDescriptions( DCU, ip->second.partitionName() ); 
+    SiStripConfigDb::DcuDetIdsRange detids = db()->getDcuDetIds( ip->second.partitionName() ); 
+    
+    // Update FED connection descriptions
+    SiStripConfigDb::FedConnectionsV conns;
+    update( conns, feds, dcus, detids );
+    
+    if ( doUploadConf() ) { 
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Uploading FED connections for partition \"" 
+	<< ip->second.partitionName() << "\" to DB...";
+      db()->clearFedConnections( ip->second.partitionName() ); 
+      db()->addFedConnections( ip->second.partitionName(), conns ); 
+      db()->uploadFedConnections( ip->second.partitionName() ); 
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Completed database upload of " << conns.size() 
+	<< " ConnectionDescriptions!";
+    } else {
+      edm::LogWarning(mlDqmClient_) 
+	<< "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " TEST only! No FED connections will be uploaded to DB...";
+    }
+    
+    // Update FED descriptions with enabled/disabled channels
+    update( feds );
+    if ( doUploadConf() ) { 
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Uploading FED descriptions to DB...";
+      db()->uploadFedDescriptions( ip->second.partitionName() ); 
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Completed database upload of " << feds.size()
+	<< " Fed9UDescriptions (with connected channels enabled)!";
+    } else {
+      edm::LogWarning(mlDqmClient_) 
+	<< "[FastFedCablingHistosUsingDb::" << __func__ << "]"
+	<< " TEST only! No FED descriptions will be uploaded to DB...";
+    }
+    
+    // Some debug on good / dirty / missing connections
+    connections( dcus, detids );
+    
   }
-  
-  // Update FED descriptions with enabled/disabled channels
-  update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  if ( doUploadConf() ) { 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " Uploading FED descriptions to DB...";
-    db()->uploadFedDescriptions(true); 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " Completed database upload of " << feds.size()
-      << " Fed9UDescriptions (with connected channels enabled)!";
-  } else {
-    edm::LogWarning(mlDqmClient_) 
-      << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " TEST only! No FED descriptions will be uploaded to DB...";
-  }
-
-  // Some debug on good / dirty / missing connections
-  connections( dcus, detids );
   
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
-					  const SiStripConfigDb::FedDescriptions& feds,
-					  const SiStripConfigDb::DeviceDescriptions& dcus, 
-					  const SiStripConfigDb::DcuDetIdMap& detids ) {
-
-  // Clear any connections retrieved from database
-  if ( !conns.empty() ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[FastFedCablingHistosUsingDb::" << __func__ << "]"
-      << " Clearing existing FED channel connections!";
-    conns.clear();
-  }
-
+void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnectionsV& conns,
+					  SiStripConfigDb::FedDescriptionsRange feds,
+					  SiStripConfigDb::DeviceDescriptionsRange dcus, 
+					  SiStripConfigDb::DcuDetIdsRange detids ) {
+  
   // Update FED-FEC mapping in base class, based on analysis results
   Analyses::iterator ianal = data().begin();
   Analyses::iterator janal = data().end();
@@ -161,7 +153,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
     
     // Retrieve FED crate and slot numbers
     bool found = false;
-    SiStripConfigDb::FedDescriptions::const_iterator ifed = feds.begin();
+    SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin();
     while ( ifed != feds.end() && !found ) {
       if ( *ifed ) {
 	uint16_t fed_id = static_cast<uint16_t>( (*ifed)->getFedId() );
@@ -200,7 +192,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
     conn->setI2c( fec_key.ccuChan() );
     conn->setApv( SiStripFecKey::i2cAddr(anal->lldCh(),true) );
     conn->setDcuHardId( anal->dcuHardId() );
-    SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( anal->dcuHardId() );
+    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.find( anal->dcuHardId() );
     if ( idet != detids.end() ) { 
       conn->setDetId( idet->second->getDetId() );
       conn->setApvPairs( idet->second->getApvNumber()/2 );
@@ -219,7 +211,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
 
   if (0) {
 #ifdef USING_NEW_DATABASE_MODEL	
-    SiStripConfigDb::FedConnections::iterator ifed = conns.begin();
+    SiStripConfigDb::FedConnectionsV::iterator ifed = conns.begin();
     for ( ; ifed != conns.end(); ifed++ ) { (*ifed)->display(); }
 #else
     std::stringstream ss; 
@@ -227,7 +219,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
        << " Dump of " << conns.size() 
        << " FedChannelConnection descriptions: "
        << std::endl;
-    SiStripConfigDb::FedConnections::iterator ifed = conns.begin();
+    SiStripConfigDb::FedConnectionsV::iterator ifed = conns.begin();
     for ( ; ifed != conns.end(); ifed++ ) { (*ifed)->toXML(ss); }
     LogTrace(mlTest_) << ss.str();
 #endif
@@ -237,12 +229,13 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns
 
 // -----------------------------------------------------------------------------
 /** */
-void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
+void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
 
   // Iterate through feds and disable all channels 
-  SiStripConfigDb::FedDescriptions::iterator ifed;
+  SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin();
+  SiStripConfigDb::FedDescriptionsV::const_iterator jfed = feds.end();
   try {
-    for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+    for ( ; ifed != jfed; ++ifed ) {
       for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 	Fed9U::Fed9UAddress addr( ichan );
 	Fed9U::Fed9UAddress addr0( ichan, static_cast<Fed9U::u8>(0) );
@@ -360,8 +353,8 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
   }
 
   // retrieve descriptions for dcu id and det id 
-  SiStripConfigDb::DeviceDescriptions dcus = db()->getDeviceDescriptions( DCU ); 
-  SiStripConfigDb::DcuDetIdMap detids = db()->getDcuDetIdMap(); 
+  SiStripConfigDb::DeviceDescriptionsRange dcus = db()->getDeviceDescriptions( DCU ); 
+  SiStripConfigDb::DcuDetIdsRange detids = db()->getDcuDetIds(); 
   
   if ( dcus.empty() ) { 
     edm::LogError(mlCabling_)
@@ -395,8 +388,8 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
     
     // find dcu that matches analysis result 
     bool found = false;
-    SiStripConfigDb::DeviceDescriptions::const_iterator idcu = dcus.begin();
-    SiStripConfigDb::DeviceDescriptions::const_iterator jdcu = dcus.end();
+    SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
+    SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
     while ( !found && idcu != jdcu ) {
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
       if ( dcu ) { 
@@ -412,7 +405,8 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
 					      addr.ccuChan_,
 					      anal->lldCh() ).key();
 	    anal->fecKey( fec_key );
-	    SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( dcu->getDcuHardId() );
+	    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.end();
+	    idet = SiStripConfigDb::findDcuDetId( detids.begin(), detids.end(), dcu->getDcuHardId() );
 	    if ( idet != detids.end() ) { anal->detId( idet->second->getDetId() ); }
 	  }
 	}
@@ -426,7 +420,7 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
 
 // -----------------------------------------------------------------------------
 /** */
-void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 					  Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -460,8 +454,8 @@ void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions&
 						 fec_key.ccuAddr(),
 						 fec_key.ccuChan(),
 						 SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
-						 db()->dbParams().partition_,
-						 db()->dbParams().runNumber_,
+						 db()->dbParams().partitions().begin()->second.partitionName(),
+						 db()->dbParams().partitions().begin()->second.runNumber(),
 						 anal->isValid(),
 						 "",
 						 fed_key.fedId(),
@@ -487,8 +481,8 @@ void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions&
 
 // -----------------------------------------------------------------------------
 // prints debug info on good, dirty, missing connections, and missing devices
-void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDescriptions& dcus, 
-					       const SiStripConfigDb::DcuDetIdMap& detids ) {
+void FastFedCablingHistosUsingDb::connections( SiStripConfigDb::DeviceDescriptionsRange dcus, 
+					       SiStripConfigDb::DcuDetIdsRange detids ) {
   
   // strings
   std::vector<std::string> valid;
@@ -526,8 +520,8 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
   }
   
   // iterate through dcu devices
-  SiStripConfigDb::DeviceDescriptions::const_iterator idcu = dcus.begin();
-  SiStripConfigDb::DeviceDescriptions::const_iterator jdcu = dcus.end();
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
   for ( ; idcu != jdcu; ++idcu ) {
     
     // extract dcu description
@@ -537,11 +531,12 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
     SiStripConfigDb::DeviceAddress dcu_addr = db()->deviceAddress( *dcu );
     
     // continue if dcu has been "found"
-    std::vector<uint32_t>::const_iterator iter = find ( found_dcus.begin(), found_dcus.end(), dcu->getDcuHardId() );
+    std::vector<uint32_t>::const_iterator iter = find( found_dcus.begin(), found_dcus.end(), dcu->getDcuHardId() );
     if ( iter != found_dcus.end() ) { continue; }
     
     // find detid for "missing" dcu
-    SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( dcu->getDcuHardId() );
+    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.end();
+    idet = SiStripConfigDb::findDcuDetId( detids.begin(), detids.end(), dcu->getDcuHardId() );
     if ( idet == detids.end() ) { continue; }
     if ( idet->second ) { continue; }
     
@@ -551,9 +546,9 @@ void FastFedCablingHistosUsingDb::connections( const SiStripConfigDb::DeviceDesc
     // retrieve apvs for given dcu
     vector<bool> addrs; 
     addrs.resize(6,false);
-    SiStripConfigDb::DeviceDescriptions apvs = db()->getDeviceDescriptions( APV25 );
-    SiStripConfigDb::DeviceDescriptions::const_iterator iapv = apvs.begin();
-    SiStripConfigDb::DeviceDescriptions::const_iterator japv = apvs.end();
+    SiStripConfigDb::DeviceDescriptionsRange apvs = db()->getDeviceDescriptions( APV25 );
+    SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv = apvs.begin();
+    SiStripConfigDb::DeviceDescriptionsV::const_iterator japv = apvs.end();
     for ( ; iapv != japv; ++iapv ) {
       apvDescription* apv = dynamic_cast<apvDescription*>( *iapv );
       if ( !apv ) { continue; }

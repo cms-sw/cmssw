@@ -1,4 +1,5 @@
 <use name=DataFormats/SiStripCommon>
+<use name=DataFormats/DetId>
 <use name=CalibFormats/SiStripObjects>
 <use name=CondFormats/SiStripObjects>
 <use name=DQM/SiStripCommissioningClients>
@@ -16,7 +17,6 @@
   <lib name=DQMSiStripCommissioningDbClients>
   <use name=DataFormats/SiStripCommon>
   <use name=DQM/SiStripCommissioningClients>
-  <use name=FWCore/MessageLogger>
   <use name=FWCore/ServiceRegistry>
   <use name=OnlineDB/SiStripConfigDb>
   <use name=boost>

@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.8 2008/03/08 17:24:52 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.9 2008/04/10 15:01:50 delaer Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -14,24 +14,10 @@
 #include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
 #include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
 #include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
-
-// -----------------------------------------------------------------------------
-/** */
-FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
-						const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    SamplingHistograms( mui, FINE_DELAY ),
-    tracker_(0)
-{
-  LogTrace(mlDqmClient_) 
-    << "[FineDelayHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-  delays_.clear();
-}
 
 // -----------------------------------------------------------------------------
 /** */
@@ -71,7 +57,8 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void FineDelayHistosUsingDb::configure(const edm::ParameterSet& pset, const edm::EventSetup& setup) {
+void FineDelayHistosUsingDb::configure( const edm::ParameterSet& pset, 
+					const edm::EventSetup& setup ) {
   // get geometry
   edm::ESHandle<TrackerGeometry> estracker;
   setup.get<TrackerDigiGeometryRecord>().get(estracker);
@@ -91,52 +78,54 @@ void FineDelayHistosUsingDb::uploadConfigurations() {
     return;
   }
   
-    // Retrieve and update PLL device descriptions
-    const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions( PLL ); 
-    bool upload = update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  // Retrieve and update PLL device descriptions
+  db()->clearDeviceDescriptions(); 
+  SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions( PLL ); 
+  bool upload = update( devices );
     
-    // Check if new PLL settings are valid 
-    if ( !upload ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
-	<< " Found invalid PLL settings (coarse > 15)"
-	<< " Aborting update to database...";
-      return;
-    }
+  // Check if new PLL settings are valid 
+  if ( !upload ) {
+    edm::LogWarning(mlDqmClient_) 
+      << "[FineDelayHistosUsingDb::" << __func__ << "]"
+      << " Found invalid PLL settings (coarse > 15)"
+      << " Aborting update to database...";
+    return;
+  }
     
-    // Upload PLL device descriptions
-    if ( doUploadConf() ) { 
-      LogTrace(mlDqmClient_) 
-	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
-	<< " Uploading PLL settings to DB...";
-      db()->uploadDeviceDescriptions(true); 
-      LogTrace(mlDqmClient_) 
-	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
-	<< " Upload of PLL settings to DB finished!";
-    } else {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
-	<< " TEST only! No PLL settings will be uploaded to DB...";
-    }
+  // Upload PLL device descriptions
+  if ( doUploadConf() ) { 
+    LogTrace(mlDqmClient_) 
+      << "[FineDelayHistosUsingDb::" << __func__ << "]"
+      << " Uploading PLL settings to DB...";
+    db()->uploadDeviceDescriptions(); 
+    LogTrace(mlDqmClient_) 
+      << "[FineDelayHistosUsingDb::" << __func__ << "]"
+      << " Upload of PLL settings to DB finished!";
+  } else {
+    edm::LogWarning(mlDqmClient_) 
+      << "[FineDelayHistosUsingDb::" << __func__ << "]"
+      << " TEST only! No PLL settings will be uploaded to DB...";
+  }
 
-    // Update FED descriptions with new ticker thresholds
-    const SiStripConfigDb::FedDescriptions& feds = db()->getFedDescriptions(); 
-    update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-
-    // Update FED descriptions with new ticker thresholds
-    if ( doUploadConf() ) { 
-      LogTrace(mlDqmClient_) 
-	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
-	<< " Uploading FED ticker thresholds to DB...";
-      db()->uploadFedDescriptions(true); 
-      LogTrace(mlDqmClient_) 
-	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
-	<< " Upload of FED ticker thresholds to DB finished!";
-    } else {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[FineDelayHistosUsingDb::" << __func__ << "]"
-	<< " TEST only! No FED ticker thresholds will be uploaded to DB...";
-    }
+  // Update FED descriptions with new ticker thresholds
+  db()->clearFedDescriptions(); 
+  SiStripConfigDb::FedDescriptionsRange feds = db()->getFedDescriptions(); 
+  update( feds );
+    
+  // Update FED descriptions with new ticker thresholds
+  if ( doUploadConf() ) { 
+    LogTrace(mlDqmClient_) 
+      << "[FineDelayHistosUsingDb::" << __func__ << "]"
+      << " Uploading FED ticker thresholds to DB...";
+    db()->uploadFedDescriptions(); 
+    LogTrace(mlDqmClient_) 
+      << "[FineDelayHistosUsingDb::" << __func__ << "]"
+      << " Upload of FED ticker thresholds to DB finished!";
+  } else {
+    edm::LogWarning(mlDqmClient_) 
+      << "[FineDelayHistosUsingDb::" << __func__ << "]"
+      << " TEST only! No FED ticker thresholds will be uploaded to DB...";
+  }
 
 }
 
@@ -183,8 +172,8 @@ void FineDelayHistosUsingDb::computeDelays() {
                                iconn->ccuChan(), 0 ).key()] = delay;
       } else {
         edm::LogError(mlDqmClient_)
-           << "[FineDelayHistosUsingDb::" << __func__ << "]"
-           << " Tracker geometry not initialized. Impossible to compute the delays.";
+	  << "[FineDelayHistosUsingDb::" << __func__ << "]"
+	  << " Tracker geometry not initialized. Impossible to compute the delays.";
       }
     }
   }
@@ -192,7 +181,7 @@ void FineDelayHistosUsingDb::computeDelays() {
 
 // -----------------------------------------------------------------------------
 /** */
-bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
+bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices ) {
 
   // do the core computation of delays per FED connection
   computeDelays();
@@ -200,7 +189,7 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
   std::vector<SiStripFecKey> invalid;
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
     // Check device type
@@ -295,7 +284,7 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 
 // -----------------------------------------------------------------------------
 /** */
-void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
+void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
 
   // do the core computation of delays per FED connection
   computeDelays();
@@ -304,7 +293,7 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
   std::vector<uint16_t> ids = cabling()->feds() ;
   
   // loop over the FED ids
-  for ( SiStripConfigDb::FedDescriptions::iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
     const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
@@ -345,14 +334,14 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
   }
 
   edm::LogVerbatim(mlDqmClient_)
-      << "[FineDelayHistosUsingDb::" << __func__ << "]"
-      << " Updated FED delay for " << ids.size() << " FEDs!";
+    << "[FineDelayHistosUsingDb::" << __func__ << "]"
+    << " Updated FED delay for " << ids.size() << " FEDs!";
 
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				     Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -363,33 +352,33 @@ void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
   SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first
   SiStripFedKey fed_key( anal->fedKey() );
 
-    FineDelayAnalysisDescription* tmp;
-    tmp = new FineDelayAnalysisDescription( anal->maximum(),
-					    anal->error(),
-					    0,
-					    0,
-					    0,
-					    0,
-					    0,
-					    0, 
-					    db()->dbParams().partition_,
-					    db()->dbParams().runNumber_,
-					    anal->isValid(),
-					    "",
-					    fed_key.fedId(),
-					    fed_key.feUnit(),
-					    fed_key.feChan(),
-					    fed_key.fedApv() );
+  FineDelayAnalysisDescription* tmp;
+  tmp = new FineDelayAnalysisDescription( anal->maximum(),
+					  anal->error(),
+					  0,
+					  0,
+					  0,
+					  0,
+					  0,
+					  0, 
+					  db()->dbParams().partitions().begin()->second.partitionName(),
+					  db()->dbParams().partitions().begin()->second.runNumber(),
+					  anal->isValid(),
+					  "",
+					  fed_key.fedId(),
+					  fed_key.feUnit(),
+					  fed_key.feChan(),
+					  fed_key.fedApv() );
     
-    // Add comments
-    typedef std::vector<std::string> Strings;
-    Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
-    for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
+  // Add comments
+  typedef std::vector<std::string> Strings;
+  Strings errors = anal->getErrorCodes();
+  Strings::const_iterator istr = errors.begin();
+  Strings::const_iterator jstr = errors.end();
+  for ( ; istr != jstr; ++istr ) { tmp->addComments( *istr ); }
     
-    // Store description
-    desc.push_back( tmp );
+  // Store description
+  desc.push_back( tmp );
     
 #endif
   

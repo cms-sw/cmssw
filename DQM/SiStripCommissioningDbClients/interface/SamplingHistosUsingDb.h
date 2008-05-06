@@ -1,4 +1,4 @@
-// Last commit: $Id: SamplingHistosUsingDb.h,v 1.3 2008/02/14 13:53:04 bainbrid Exp $
+// Last commit: $Id: SamplingHistosUsingDb.h,v 1.1 2008/03/06 18:16:06 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SamplingHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_SamplingHistosUsingDb_H
@@ -15,9 +15,6 @@ class SamplingHistosUsingDb : public CommissioningHistosUsingDb, public Sampling
  public:
   
   SamplingHistosUsingDb( MonitorUserInterface*,
-			 const DbParams& );
-  
-  SamplingHistosUsingDb( MonitorUserInterface*,
 			 SiStripConfigDb* const );
   
   SamplingHistosUsingDb( DaqMonitorBEInterface*,
@@ -31,7 +28,7 @@ class SamplingHistosUsingDb : public CommissioningHistosUsingDb, public Sampling
   
   void update( SiStripConfigDb::DeviceDescriptions& );
   
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
   
 };
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: CalibrationHistosUsingDb.h,v 1.3 2008/03/06 13:30:50 delaer Exp $
+// Last commit: $Id: CalibrationHistosUsingDb.h,v 1.4 2008/03/06 18:16:06 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CalibrationHistosUsingDb_H
@@ -17,10 +17,6 @@ class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public Calib
  public:
   
   CalibrationHistosUsingDb( DQMOldReceiver*,
-			    const DbParams&,
-			    const sistrip::RunType& task = sistrip::CALIBRATION );
-  
-  CalibrationHistosUsingDb( DQMOldReceiver*,
 			    SiStripConfigDb* const,
 			    const sistrip::RunType& task = sistrip::CALIBRATION );
   
@@ -34,9 +30,9 @@ class CalibrationHistosUsingDb : public CommissioningHistosUsingDb, public Calib
   
  private:
   
-  void update( SiStripConfigDb::DeviceDescriptions& );
+  void update( SiStripConfigDb::DeviceDescriptionsRange& );
   
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
 
   TH1F *ishaHistogram_, *vfsHistogram_; 
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.5 2008/03/06 18:16:06 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.h,v 1.6 2008/04/10 15:01:49 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
@@ -15,23 +15,21 @@ class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingH
  public:
   
   LatencyHistosUsingDb( DQMOldReceiver*,
-			 const DbParams& );
-  
-  LatencyHistosUsingDb( DQMOldReceiver*,
-			 SiStripConfigDb* const );
+			SiStripConfigDb* const );
   
   LatencyHistosUsingDb( DQMStore*,
-			 SiStripConfigDb* const );
-
+			SiStripConfigDb* const );
+  
   virtual ~LatencyHistosUsingDb();
-
+  
   virtual void uploadConfigurations();
   
  private:
   
-  bool update( SiStripConfigDb::DeviceDescriptions&, SiStripConfigDb::FedDescriptions& );
+  bool update( SiStripConfigDb::DeviceDescriptionsRange, 
+	       SiStripConfigDb::FedDescriptionsRange );
   
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
   
 };
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.10 2008/02/20 11:26:11 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.11 2008/03/06 13:30:52 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -17,77 +17,6 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
-  : runType_(sistrip::UNDEFINED_RUN_TYPE),
-    db_(0),
-    cabling_(0),
-    uploadAnal_(true),
-    uploadConf_(false)
-{
-  LogTrace(mlDqmClient_) 
-    << "[" << __PRETTY_FUNCTION__ << "]"
-    << " Constructing object..." << endl;
-  
-  if ( params.usingDb_ ) {
-
-    // Extract db connections params from CONFDB
-    std::string login = "";
-    std::string passwd = "";
-    std::string path = "";
-    uint32_t ipass = params.confdb_.find("/");
-    uint32_t ipath = params.confdb_.find("@");
-    if ( ( ipass != std::string::npos ) && 
-	 ( ipath != std::string::npos ) ) {
-      login = params.confdb_.substr( 0, ipass );
-      passwd = params.confdb_.substr( ipass+1, ipath-ipass-1 );
-      path = params.confdb_.substr( ipath+1, params.confdb_.size() );
-    }
-  
-    // Create database interface
-    if ( login != "" && passwd != "" && path != "" && params.partition_ != "" ) {
-      db_ = new SiStripConfigDb( login, 
-				 passwd, 
-				 path, 
-				 params.partition_, 
-				 params.major_, 
-				 params.minor_ );
-      db_->openDbConnection();
-    } else {
-      edm::LogError(mlDqmClient_) 
-	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
-	<< " Unexpected value for database connection parameters!"
-	<< " confdb=" << params.confdb_
-	<< " login/passwd@path=" << login << "/" << passwd << "@" << path
-	<< " partition=" << params.partition_;
-    }
-    
-    edm::LogWarning(mlDqmClient_) 
-      << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " Using a database account!"
-      << " SiStripConfigDB ptr: " << db_
-      << " confdb: " << params.confdb_
-      << " login: " << login
-      << " passwd: " << passwd
-      << " path: " << path
-      << " partition: " << params.partition_
-      << " major: " << params.major_
-      << " minor: " << params.minor_;
-    
-  } else {
-    
-    db_ = new SiStripConfigDb( "", "", "", "" );
-    
-    edm::LogWarning(mlDqmClient_) 
-      << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " Using XML files!"
-      << " SiStripConfigDB ptr: " << db_;
-    
-  }
-  
-}
-
-// -----------------------------------------------------------------------------
-/** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db,
 							sistrip::RunType type )
   : CommissioningHistograms(),
@@ -101,25 +30,17 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
   
-  // Retrieve DCU-DetId map from DB
-  SiStripConfigDb::DcuDetIdMap dcuid_detid_map = db->getDcuDetIdMap();
-  
   // Build FEC cabling object from connections found in DB
   SiStripFecCabling fec_cabling;
   if ( runType_ == sistrip::FAST_CABLING ) {
-    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_,
-								fec_cabling,
-								dcuid_detid_map );
+    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_, fec_cabling );
   } else {
-    SiStripFedCablingBuilderFromDb::buildFecCabling( db_,
-						     fec_cabling,
-						     dcuid_detid_map );
+    SiStripFedCablingBuilderFromDb::buildFecCabling( db_, fec_cabling );
   }
   
   // Build FED cabling from FEC cabling
   cabling_ = new SiStripFedCabling();
-  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, 
-						 *cabling_ );
+  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *cabling_ );
   std::stringstream ss;
   ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
      << " Terse print out of FED cabling:" << std::endl;
@@ -150,25 +71,17 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
   
-  // Retrieve DCU-DetId map from DB
-  SiStripConfigDb::DcuDetIdMap dcuid_detid_map = db->getDcuDetIdMap();
-  
   // Build FEC cabling object from connections found in DB
   SiStripFecCabling fec_cabling;
   if ( runType_ == sistrip::FAST_CABLING ) {
-    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_,
-								fec_cabling,
-								dcuid_detid_map );
+    SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( db_, fec_cabling );
   } else {
-    SiStripFedCablingBuilderFromDb::buildFecCabling( db_,
-						     fec_cabling,
-						     dcuid_detid_map );
+    SiStripFedCablingBuilderFromDb::buildFecCabling( db_, fec_cabling );
   }
   
   // Build FED cabling from FEC cabling
   cabling_ = new SiStripFedCabling();
-  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, 
-						 *cabling_ );
+  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *cabling_ );
   std::stringstream ss;
   ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
      << " Terse print out of FED cabling:" << std::endl;
@@ -209,16 +122,6 @@ CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-CommissioningHistosUsingDb::DbParams::DbParams() :
-  usingDb_(true),
-  confdb_(""),
-  partition_(""),
-  major_(0),
-  minor_(0) 
-{;}
-
-// -----------------------------------------------------------------------------
-/** */
 void CommissioningHistosUsingDb::uploadAnalyses() {
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -231,32 +134,38 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
     return;
   }
   
-  // Upload commissioning analysis results 
-  SiStripConfigDb::AnalysisDescriptions anals;
-  create( anals );
-  db_->createAnalysisDescriptions( anals );
+  db_->clearAnalysisDescriptions();
+  SiStripDbParams::SiStripPartitions::const_iterator ip = db_->dbParams().partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jp = db_->dbParams().partitions().end();
+  for ( ; ip != jp; ++ip ) {
 
-  edm::LogVerbatim(mlDqmClient_) 
-    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-    << " Created analysis descriptions for " 
-    << anals.size() << " devices";
-  
-  // Update analysis descriptions with new commissioning results
-  if ( uploadAnal_ ) {
-    if ( uploadConf_ ) { 
-      edm::LogVerbatim(mlDqmClient_)
-	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
-	<< " Uploading major version of analysis descriptions to DB"
-	<< " (will be used for physics)...";
-    } else {
-      edm::LogVerbatim(mlDqmClient_)
-	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
-	<< " Uploading minor version of analysis descriptions to DB"
-	<< " (will not be used for physics)...";
-    }
-    db_->uploadAnalysisDescriptions( uploadConf_ ); 
+    // Upload commissioning analysis results 
+    SiStripConfigDb::AnalysisDescriptionsV anals;
+    create( anals );
+    
     edm::LogVerbatim(mlDqmClient_) 
-      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+      << " Created analysis descriptions for " 
+      << anals.size() << " devices";
+    
+    // Update analysis descriptions with new commissioning results
+    if ( uploadAnal_ ) {
+      if ( uploadConf_ ) { 
+	edm::LogVerbatim(mlDqmClient_)
+	  << "[CommissioningHistosUsingDb::" << __func__ << "]"
+	  << " Uploading major version of analysis descriptions to DB"
+	  << " (will be used for physics)...";
+      } else {
+	edm::LogVerbatim(mlDqmClient_)
+	  << "[CommissioningHistosUsingDb::" << __func__ << "]"
+	  << " Uploading minor version of analysis descriptions to DB"
+	  << " (will not be used for physics)...";
+      }
+      db_->clearAnalysisDescriptions( ip->second.partitionName() );
+      db_->addAnalysisDescriptions( ip->second.partitionName(), anals ); 
+      db_->uploadAnalysisDescriptions( uploadConf_, ip->second.partitionName() ); 
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " Upload of analysis descriptions to DB finished!";
   } else {
     edm::LogWarning(mlDqmClient_) 
@@ -264,14 +173,16 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
       << " TEST only! No analysis descriptions will be uploaded to DB...";
   }
 
+  }
+  
 #endif
-
+  
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistosUsingDb::addDcuDetIds() {
-
+  
   if ( !cabling_ ) {
     edm::LogWarning(mlDqmClient_) 
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
@@ -344,7 +255,7 @@ void CommissioningHistosUsingDb::addDcuDetIds() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc ) {
+void CommissioningHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc ) {
 
   LogTrace(mlDqmClient_) 
     << "[CommissioningHistosUsingDb::" << __func__ << "]"
@@ -394,12 +305,12 @@ void CommissioningHistosUsingDb::detInfo( DetInfoMap& det_info ) {
   }
 
   // Retrieve DCUs and DetIds
-  SiStripConfigDb::DeviceDescriptions dcus = db()->getDeviceDescriptions( DCU ); 
-  SiStripConfigDb::DcuDetIdMap detids = db()->getDcuDetIdMap(); 
+  SiStripConfigDb::DeviceDescriptionsRange dcus = db()->getDeviceDescriptions( DCU ); 
+  SiStripConfigDb::DcuDetIdsRange detids = db()->getDcuDetIds(); 
   
   // Iterate through DCUs
-  SiStripConfigDb::DeviceDescriptions::const_iterator idcu = dcus.begin();
-  SiStripConfigDb::DeviceDescriptions::const_iterator jdcu = dcus.end();
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
   for ( ; idcu != jdcu; ++idcu ) {
 
     // Extract descriptions for FEH DCUs
@@ -412,7 +323,8 @@ void CommissioningHistosUsingDb::detInfo( DetInfoMap& det_info ) {
     info.dcuId_ = dcu->getDcuHardId();
 
     // Set DetId adn number of APV pairs
-    SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( dcu->getDcuHardId() );
+    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.end();
+    SiStripConfigDb::findDcuDetId( detids.begin(), detids.end(), dcu->getDcuHardId() );
     if ( idet != detids.end() ) { 
       info.detId_ = idet->second->getDetId();
       info.pairs_ = idet->second->getApvNumber()/2; 

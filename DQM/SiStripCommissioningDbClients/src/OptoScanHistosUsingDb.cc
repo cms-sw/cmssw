@@ -1,24 +1,13 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.14 2008/04/07 14:42:35 delaer Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.15 2008/04/08 14:13:31 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 using namespace sistrip;
-
-// -----------------------------------------------------------------------------
-/** */
-OptoScanHistosUsingDb::OptoScanHistosUsingDb( DQMOldReceiver* mui,
-					      const DbParams& params )
-  : CommissioningHistosUsingDb( params ),
-    OptoScanHistograms( mui )
-{
-  LogTrace(mlDqmClient_) 
-    << "[OptoScanHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
 
 // -----------------------------------------------------------------------------
 /** */
@@ -72,13 +61,13 @@ void OptoScanHistosUsingDb::uploadConfigurations() {
   detInfo( info );
   
   // Update LLD descriptions with new bias/gain settings
-  const SiStripConfigDb::DeviceDescriptions& devices = db()->getDeviceDescriptions( LASERDRIVER ); 
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices), info );
+  SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions( LASERDRIVER ); 
+  update( devices, info );
   if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
       << " Uploading LLD settings to DB...";
-    db()->uploadDeviceDescriptions(true); 
+    db()->uploadDeviceDescriptions(); 
     edm::LogVerbatim(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
       << " Upload of LLD settings to DB finished!";
@@ -92,12 +81,12 @@ void OptoScanHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices,
+void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices,
 				    const DetInfoMap& info ) {
 
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
-  SiStripConfigDb::DeviceDescriptions::iterator idevice;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
     if ( (*idevice)->getDeviceType() != LASERDRIVER ) { continue; }
@@ -199,7 +188,7 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 
 // -----------------------------------------------------------------------------
 /** */
-void OptoScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
+void OptoScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc,
 				    Analysis analysis ) {
   
 #ifdef USING_NEW_DATABASE_MODEL
@@ -253,8 +242,8 @@ void OptoScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 					   fec_key.ccuAddr(),
 					   fec_key.ccuChan(),
 					   SiStripFecKey::i2cAddr( fec_key.lldChan(), !iapv ), 
-					   db()->dbParams().partition_,
-					   db()->dbParams().runNumber_,
+					   db()->dbParams().partitions().begin()->second.partitionName(),
+					   db()->dbParams().partitions().begin()->second.runNumber(),
 					   anal->isValid(),
 					   "",
 					   fed_key.fedId(),

@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.8 2008/02/28 13:09:00 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.9 2008/03/06 13:30:50 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -20,12 +20,6 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
   // ---------- con(de)structors ----------
 
   // DEPRECATE
-  class DbParams;
-
-  // DEPRECATE
-  CommissioningHistosUsingDb( const DbParams& );
-
-  // DEPRECATE
   CommissioningHistosUsingDb( SiStripConfigDb* const,
 			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
 
@@ -34,20 +28,6 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
 			      sistrip::RunType = sistrip::UNDEFINED_RUN_TYPE );
   
   virtual ~CommissioningHistosUsingDb();
-
-  // ---------- db connection params ----------
-
-  // DEPRECATE
-  class DbParams {
-  public:
-    bool usingDb_;
-    std::string confdb_;
-    std::string partition_;
-    uint32_t major_;
-    uint32_t minor_;
-    DbParams();
-    ~DbParams() {;}
-  };
 
   // ---------- public interface ----------
 
@@ -69,9 +49,9 @@ class CommissioningHistosUsingDb : public virtual CommissioningHistograms {
 
  protected:
   
-  virtual void create( SiStripConfigDb::AnalysisDescriptions& );
+  virtual void create( SiStripConfigDb::AnalysisDescriptionsV& );
 
-  virtual void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ) {;}
+  virtual void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) {;}
   
   inline SiStripConfigDb* const db() const; 
 

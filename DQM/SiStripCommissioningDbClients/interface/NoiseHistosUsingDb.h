@@ -1,4 +1,4 @@
-// Last commit: $Id: NoiseHistosUsingDb.h,v 1.7 2008/03/06 13:30:50 delaer Exp $
+// Last commit: $Id: NoiseHistosUsingDb.h,v 1.1 2008/03/17 17:40:54 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_NoiseHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_NoiseHistosUsingDb_H
@@ -9,9 +9,6 @@
 class NoiseHistosUsingDb : public CommissioningHistosUsingDb, public NoiseHistograms {
   
  public:
-  
-  NoiseHistosUsingDb( DQMOldReceiver*,
-		      const DbParams& );
 
   NoiseHistosUsingDb( DQMOldReceiver*,
 		      SiStripConfigDb* const );
@@ -25,9 +22,9 @@ class NoiseHistosUsingDb : public CommissioningHistosUsingDb, public NoiseHistog
   
  private:
 
-  void update( SiStripConfigDb::FedDescriptions& );
+  void update( SiStripConfigDb::FedDescriptionsRange );
 
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis );
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
 
 };
 

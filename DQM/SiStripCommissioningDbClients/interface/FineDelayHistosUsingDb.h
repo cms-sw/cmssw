@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.6 2008/03/06 18:16:06 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.h,v 1.7 2008/03/08 17:24:52 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_FineDelayHistosUsingDb_H
@@ -17,27 +17,25 @@ class FineDelayHistosUsingDb : public CommissioningHistosUsingDb, public Samplin
  public:
   
   FineDelayHistosUsingDb( DQMOldReceiver*,
-			 const DbParams& );
-  
-  FineDelayHistosUsingDb( DQMOldReceiver*,
-			 SiStripConfigDb* const );
+			  SiStripConfigDb* const );
   
   FineDelayHistosUsingDb( DQMStore*,
-			 SiStripConfigDb* const );
+			  SiStripConfigDb* const );
 
   virtual ~FineDelayHistosUsingDb();
 
-  virtual void configure(const edm::ParameterSet&, const edm::EventSetup&);
+  virtual void configure( const edm::ParameterSet&, 
+			  const edm::EventSetup& );
 
   virtual void uploadConfigurations();
   
  private:
   
-  bool update( SiStripConfigDb::DeviceDescriptions& );
+  bool update( SiStripConfigDb::DeviceDescriptionsRange );
 
-  void update( SiStripConfigDb::FedDescriptions& );
+  void update( SiStripConfigDb::FedDescriptionsRange );
 
-  void create( SiStripConfigDb::AnalysisDescriptions&, Analysis ); 
+  void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ); 
 
   void computeDelays();
 
