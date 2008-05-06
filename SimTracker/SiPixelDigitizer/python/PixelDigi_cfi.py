@@ -3,10 +3,10 @@ import FWCore.ParameterSet.Config as cms
 simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
     ReadoutNoiseInElec = cms.double(500.0),
     DeltaProductionCut = cms.double(0.03),
-    ROUList = cms.vstring('TrackerHitsPixelBarrelLowTof', 
-        'TrackerHitsPixelBarrelHighTof', 
-        'TrackerHitsPixelEndcapLowTof', 
-        'TrackerHitsPixelEndcapHighTof'),
+    ROUList = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof', 
+        'g4SimHitsTrackerHitsPixelBarrelHighTof', 
+        'g4SimHitsTrackerHitsPixelEndcapLowTof', 
+        'g4SimHitsTrackerHitsPixelEndcapHighTof'),
     OffsetSmearing = cms.double(0.0),
     NoiseInElectrons = cms.double(175.0),
     ThresholdInElectrons = cms.double(2500.0),
@@ -20,7 +20,8 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
     Alpha2Order = cms.bool(True),
     AddPixelInefficiency = cms.int32(0),
     AddNoise = cms.bool(True),
-    GainSmearing = cms.double(0.0)
+    GainSmearing = cms.double(0.0),
+    useDB = cms.bool(False) 
 )
 
 
