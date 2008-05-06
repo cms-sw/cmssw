@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.21 $
  *
- * $Id: CandCombiner.h,v 1.20 2008/02/20 15:22:07 llista Exp $
+ * $Id: CandCombiner.h,v 1.21 2008/05/06 07:59:22 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -84,7 +84,6 @@ namespace reco {
     };
     
     template<typename Selector, 
-             typename OutputCollection = reco::CompositeCandidateCollection,
              typename PairSelector = AnyPairSelector,
              typename Cloner = ::combiner::helpers::NormalClone, 
              typename Setup = AddFourMomenta,
@@ -100,7 +99,7 @@ namespace reco {
 		   Setup( cfg ), 
 		   checkCharge(cfg), 
 		   dauCharge_ ) {
-        produces<OutputCollection>();
+        produces<reco::CompositeCandidateCollection>();
       }
 	/// destructor
       virtual ~CandCombiner() { }
@@ -108,21 +107,23 @@ namespace reco {
     private:
       /// process an event
       void produce(edm::Event& evt, const edm::EventSetup& es) {
+	using namespace std;
+	using namespace reco;
 	Init::init(combiner_.setup(), evt, es);
 	int n = labels_.size();
-	std::vector<edm::Handle<reco::CandidateView> > colls(n);
+	vector<edm::Handle<CandidateView> > colls(n);
 	for(int i = 0; i < n; ++i)
 	  evt.getByLabel(labels_[i].tag_, colls[i]);
 
-	std::vector<reco::CandidateBaseRefProd> cv;
-	for(typename std::vector<edm::Handle<reco::CandidateView> >::const_iterator c = colls.begin();
+	vector<CandidateBaseRefProd> cv;
+	for(typename vector<edm::Handle<CandidateView> >::const_iterator c = colls.begin();
 	    c != colls.end(); ++ c) {
-	  reco::CandidateBaseRefProd r(*c);
+	  CandidateBaseRefProd r(*c);
 	  cv.push_back(r);
 	}
-	std::auto_ptr<OutputCollection> out = combiner_.combine(cv);
+	auto_ptr<CompositeCandidateCollection> out = combiner_.combine(cv);
 	if(setLongLived_ || setPdgId_) {
-	  typename OutputCollection::iterator i = out->begin(), e = out->end();
+	  CompositeCandidateCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {
 	    if(setLongLived_) i->setLongLived();
 	    if(setPdgId_) i->setPdgId(pdgId_);
@@ -131,7 +132,7 @@ namespace reco {
 	evt.put(out);
       }
       /// combiner utility
-      ::CandCombiner<Selector, OutputCollection, PairSelector, Cloner, Setup> combiner_;
+      ::CandCombiner<Selector, PairSelector, Cloner, Setup> combiner_;
       bool checkCharge( const edm::ParameterSet & cfg ) const {
 	using namespace std;
 	const string par( "checkCharge" );

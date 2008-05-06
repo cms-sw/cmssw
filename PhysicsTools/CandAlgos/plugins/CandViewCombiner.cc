@@ -9,11 +9,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef reco::modules::CandCombiner<
-                         StringCutObjectSelector<reco::Candidate>,
-                         reco::CompositeCandidateCollection
+                         StringCutObjectSelector<reco::Candidate>
                        > CandViewCombiner;
       
 DEFINE_FWK_MODULE( CandViewCombiner );

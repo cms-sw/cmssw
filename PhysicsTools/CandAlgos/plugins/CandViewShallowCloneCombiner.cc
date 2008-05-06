@@ -6,13 +6,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace reco {
   namespace modules {
     typedef CandCombiner<
               StringCutObjectSelector<reco::Candidate>,
-              reco::CompositeCandidateCollection,
               AnyPairSelector,
               combiner::helpers::ShallowClone
             > CandViewShallowCloneCombiner;

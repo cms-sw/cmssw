@@ -9,7 +9,7 @@
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/AnyPairSelector.h"
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 
 namespace combiner {
@@ -41,96 +41,92 @@ namespace combiner {
 }
 
 template<typename Selector, 
-	 typename OutputCollection = reco::CompositeCandidateCollection,
 	 typename PairSelector = AnyPairSelector,
 	 typename Cloner = combiner::helpers::NormalClone, 
 	 typename Setup = AddFourMomenta>
-class CandCombiner : public CandCombinerBase<OutputCollection> {
+class CandCombiner : public CandCombinerBase {
 public:
-  typedef CandCombinerBase<OutputCollection> base;
   /// default constructor
   CandCombiner() :
-  base(), 
+  CandCombinerBase(), 
     select_(), selectPair_(), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner(int q1, int q2) :
-    base(q1, q2), 
+    CandCombinerBase(q1, q2), 
     select_(), selectPair_(), setup_() { }
   /// constructor from a selector and three charges
   CandCombiner( int q1, int q2, int q3 ) :
-    base(q1, q2, q3), 
+    CandCombinerBase(q1, q2, q3), 
     select_(), selectPair_(), setup_() { }
   /// constructor from a selector and four charges
   CandCombiner(int q1, int q2, int q3, int q4) :
-    base(q1, q2, q3, q4), 
+    CandCombinerBase(q1, q2, q3, q4), 
     select_(), selectPair_(), setup_() { }
   /// default constructor
   CandCombiner(const Selector & select) :
-    base( ), 
+    CandCombinerBase( ), 
     select_(select), selectPair_(), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner( const Selector & select, int q1, int q2 ) :
-    base(q1, q2), 
+    CandCombinerBase(q1, q2), 
     select_(select), selectPair_(), setup_() { }
   /// constructor from a selector and three charges
   CandCombiner( const Selector & select, int q1, int q2, int q3 ) :
-    base(q1, q2, q3), 
+    CandCombinerBase(q1, q2, q3), 
     select_(select), selectPair_(), setup_() { }
   /// constructor from a selector and four charges
   CandCombiner( const Selector & select, int q1, int q2, int q3, int q4 ) :
-    base(q1, q2, q3, q4), 
+    CandCombinerBase(q1, q2, q3, q4), 
     select_(select), selectPair_(), setup_() { }
   /// constructor from selector
   CandCombiner(const Selector & select, const PairSelector & selectPair) :
-    base( ), 
+    CandCombinerBase( ), 
     select_(select), selectPair_(selectPair), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner(const Selector & select, const PairSelector & selectPair, int q1, int q2) :
-    base(q1, q2), 
+    CandCombinerBase(q1, q2), 
     select_(select), selectPair_(selectPair), setup_() { }
   /// constructor from a selector and three charges
   CandCombiner(const Selector & select, const PairSelector & selectPair, int q1, int q2, int q3) :
-    base(q1, q2, q3), 
+    CandCombinerBase(q1, q2, q3), 
     select_(select), selectPair_(selectPair), setup_() { }
   /// constructor from a selector and four charges
   CandCombiner(const Selector & select, const PairSelector & selectPair, int q1, int q2, int q3, int q4) :
-    base(q1, q2, q3, q4), 
+    CandCombinerBase(q1, q2, q3, q4), 
     select_(select), selectPair_(selectPair), setup_() { }
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup) :
-    base(), 
+    CandCombinerBase(), 
     select_(select), selectPair_(selectPair), setup_(setup) { }
   /// constructor from a selector and two charges
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup, int q1, int q2) :
-    base(q1, q2), 
+    CandCombinerBase(q1, q2), 
     select_(select), selectPair_(selectPair), setup_(setup) { }
   /// constructor from a selector and three charges
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup, int q1, int q2, int q3) :
-    base(q1, q2, q3), 
+    CandCombinerBase(q1, q2, q3), 
     select_(select), selectPair_(selectPair), setup_(setup) { }
   /// constructor from a selector and four charges
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup, int q1, int q2, int q3, int q4) :
-    base(q1, q2, q3, q4), 
+    CandCombinerBase(q1, q2, q3, q4), 
     select_(select), selectPair_(selectPair), setup_(setup) { }
   /// constructor from a selector, specifying to check for charge
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup,const std::vector <int> & dauCharge) : 
-    base(true, dauCharge), select_(select), selectPair_(selectPair), setup_(setup) { }
+    CandCombinerBase(true, dauCharge), select_(select), selectPair_(selectPair), setup_(setup) { }
   /// constructor from a selector, specifying to check for charge
   CandCombiner( const Selector & select, const PairSelector & selectPair, const std::vector <int> & dauCharge ) : 
-    base(true, dauCharge), select_(select), selectPair_(selectPair), setup_() { }
+    CandCombinerBase(true, dauCharge), select_(select), selectPair_(selectPair), setup_() { }
   /// constructor from a selector, specifying to check for charge
   CandCombiner(const std::vector <int> & dauCharge) : 
-    base(true, dauCharge), select_(), selectPair_(), setup_() { }
+    CandCombinerBase(true, dauCharge), select_(), selectPair_(), setup_() { }
   /// constructor from a selector, specifying optionally to check for charge
   CandCombiner(const Selector & select, const PairSelector & selectPair, const Setup & setup,
 	       bool checkCharge, const std::vector <int> & dauCharge) : 
-    base(checkCharge, dauCharge), 
+    CandCombinerBase(checkCharge, dauCharge), 
     select_(select), selectPair_(selectPair), setup_(setup) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }
 
 private:
-  typedef typename base::composite_type composite_type;
-
   /// select a candidate
   virtual bool select(const reco::Candidate & c) const {
     return select_(c);
@@ -140,11 +136,11 @@ private:
     return selectPair_(c1, c2);
   } 
   /// set kinematics to reconstructed composite
-  virtual void setup(composite_type & c) const {
+  virtual void setup(reco::CompositeCandidate & c) const {
     setup_.set(c);
   }
   /// add candidate daughter
-  virtual void addDaughter(composite_type & cmp, const reco::CandidateBaseRef & c) const {
+  virtual void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c) const {
     Cloner::addDaughter(cmp, c);
   }
   /// candidate selector
