@@ -1,12 +1,3 @@
-
-
-/******************************************************
- *  WARNING:                                          *
- *  THIS FILE IS SEVERELY DIFFERENT FROM THE ONE IN   *
- *  THE CVS HEAD.  FUNCTION IS MODIFIED!              *
- ******************************************************/
-
-
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
 #include <vector>
@@ -142,7 +133,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
     }
 
   int nEcalDigi = ecalCollection.size();
-  //std::cout << "nEcalDigi = " << nEcalDigi << std::endl;
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   for (int i = 0; i < nEcalDigi; i++){
     short ieta = (short) ecalCollection[i].id().ieta(); 
@@ -171,41 +161,9 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
 //same for hcal, once we get the hcal digis, just need to add 32 to towers:
 // just copied and pasted and changed names where necessary
   int nHcalDigi = hcalCollection.size();
-  //if (nHcalDigi != 4176){ std::cout << "L1RCT: Warning: There are " 
-  //	    << nHcalDigi 
-  //	    << " hcal digis instead of 4176!" 
-  //	    << std::endl;}
+  //if (nHcalDigi != 4176){ std::cout << "L1RCT: Warning: There are " << nHcalDigi << "hcal digis instead of 4176!" << std::endl;}
   // incl HF 4032 + 144 = 4176
   for (int i = 0; i < nHcalDigi; i++){
-
-    // keep track of which of 10 hcal samples has highest et
-    int highSample=0;
-    int highEt=0;
-
-    // dump non-zero hcal tp's for GREN
-    for (int nSample = 0; nSample < 10; nSample++)
-      {
-	if (hcalCollection[i].sample(nSample).compressedEt() != 0)
-	  {
-	    /*
-	    std::cout << "Et " 
-		      << hcalCollection[i].sample(nSample).compressedEt()
-		      << "  fg "
-		      << hcalCollection[i].sample(nSample).fineGrain()
-		      << "  ieta " << hcalCollection[i].id().ieta()
-		      << "  iphi " << hcalCollection[i].id().iphi()
-		      << "  sample " << nSample 
-		      << ", SOI is " << hcalCollection[i].presamples()
-	    */
-	    /*<< "\nDump: \n" << hcalCollection[i] << std::endl*/;
-	    if (hcalCollection[i].sample(nSample).compressedEt() > highEt)
-	      {
-		highEt = hcalCollection[i].sample(nSample).compressedEt();
-		highSample = nSample;
-	      }
-	  }
-      }
-
     short ieta = (short) hcalCollection[i].id().ieta(); 
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short cal_iphi = (unsigned short) hcalCollection[i].id().iphi();
@@ -227,39 +185,8 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection,
     }
     tower = rctLookupTables_->rctParameters()->calcTower(iphi, absIeta);
 
-
-    /*************************************************************
-       TAKES SAMPLE DEPENDING ON PHI, NOT SAMPLE OF INTEREST!
-    **************************************************************/
-
-    //unsigned short energy = hcalCollection[i].SOI_compressedEt();
-    //unsigned short energy = (unsigned short) highEt;
-    //unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
-    //unsigned short fineGrain = (unsigned short) hcalCollection[i].sample(highSample).fineGrain();
-
-    unsigned short energy;
-    unsigned short fineGrain;
-
-    if (hcalCollection[i].id().iphi() >= 1 && hcalCollection[i].id().iphi() <=36)
-      {
-	energy = (unsigned short) hcalCollection[i].sample(hcalCollection[i].presamples()-1).compressedEt();
-	fineGrain = (unsigned short) hcalCollection[i].sample(hcalCollection[i].presamples()-1).fineGrain();
-	//	if (energy > 0) 
-	//{
-	//std::cout << "\ninput Et " << energy << " fg " << fineGrain 
-	//<< " (+1'd)" << endl;
-	//}
-      }
-    else if (hcalCollection[i].id().iphi() >= 37 && hcalCollection[i].id().iphi() <=72)
-      {
-	energy = (unsigned short) hcalCollection[i].sample(hcalCollection[i].presamples()).compressedEt();
-	fineGrain = (unsigned short) hcalCollection[i].sample(hcalCollection[i].presamples()).fineGrain();
-	//if (energy > 0) 
-	//{
-	//  std::cout << "\ninput Et " << energy << " fg " << fineGrain << endl;
-	//}
-      }
-
+    unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
+    unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
     unsigned short hcalInput = energy*2 + fineGrain;
     if (absIeta <= 28){
       // put input into correct crate/card/tower of barrel
