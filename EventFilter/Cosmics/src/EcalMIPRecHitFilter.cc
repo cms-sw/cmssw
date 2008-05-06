@@ -13,7 +13,7 @@
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Wed Sep 19 16:21:29 CEST 2007
-// $Id: EcalMIPRecHitFilter.cc,v 1.2 2008/03/28 02:09:05 haupt Exp $
+// $Id: EcalMIPRecHitFilter.cc,v 1.3 2008/04/11 14:03:52 haupt Exp $
 //
 //
 
@@ -153,15 +153,16 @@ EcalMIPRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      EcalRecHitCollection::const_iterator thishit = recHits->find((*detitr));
               if (thishit == recHits->end()) 
 		{
-		  LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
+		  //LogWarning("EcalMIPRecHitFilter") << "No RecHit available, for "<< EBDetId(*detitr);
 		  continue;
 		}
-	      float thisamp = (*thishit).energy();
-              //E9+=thisamp;
-	      if (thisamp > secondMin) secondMin = thisamp;
+	     if ((*thishit).id() != ebDet)
+                {
+                  float thisamp = (*thishit).energy();
+                  if (thisamp > secondMin) secondMin = thisamp;
+                } 
 	    }
-	  if (secondMin > ampli_) std::swap(ampli_,secondMin);
-          //double E2 = ampli_ + secondMin;
+	  
           if (secondMin > minAmp2_ ) 
 	    {
 	       thereIsSignal = true;
