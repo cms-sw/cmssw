@@ -7,8 +7,8 @@
  *  DQMOffline Test Client
  *       check the residuals of the track parameters comparing STA/tracker only/global muons
  *
- *  $Date: 2008/03/01 00:39:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/04/16 19:40:29 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -56,9 +56,6 @@ protected:
 
   /// Endjob
   void endJob();
-
-  /// book the new ME
-  void bookHistos(std::string type);
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 

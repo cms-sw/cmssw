@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/16 19:40:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/17 15:59:46 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -56,22 +56,44 @@ MuonTrackResidualsTest::~MuonTrackResidualsTest(){
 void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
 
   metname = "trackResidualsTest";
+  dbe->setCurrentFolder("Muons/Tests/trackResidualsTest");
 
   cout<<"[MuonTrackResidualsTest] Parameters initialization"<<endl;
  
-  // residuals sta-glb
-  histoNames["eta"].push_back("Res_StaGlb_eta");
-  histoNames["theta"].push_back("Res_StaGlb_theta");
-  histoNames["phi"].push_back("Res_StaGlb_phi");
-  // residuals tk-glb
-  histoNames["eta"].push_back("Res_TkGlb_eta");
-  histoNames["theta"].push_back("Res_TkGlb_theta");
-  histoNames["phi"].push_back("Res_TkGlb_phi");
-  // residuals tk-sta
-  histoNames["eta"].push_back("Res_TkSta_eta");
-  histoNames["theta"].push_back("Res_TkSta_theta");
-  histoNames["phi"].push_back("Res_TkSta_phi");
-  
+
+  string histName, MeanHistoName, SigmaHistoName;
+  vector<string> type;
+  type.push_back("eta");
+  type.push_back("theta");
+  type.push_back("phi");
+
+
+  for(int c=0; c<type.size(); c++){
+
+    MeanHistoName =  "MeanTest_" + type[c]; 
+    SigmaHistoName =  "SigmaTest_" + type[c];
+ 
+    histName = "Res_StaGlb_"+type[c];
+    histoNames[type[c]].push_back(histName);
+    histName = "Res_TkGlb_"+type[c];
+    histoNames[type[c]].push_back(histName);
+    histName = "Res_TkSta_"+type[c];
+    histoNames[type[c]].push_back(histName);
+
+    
+    MeanHistos[type[c]] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),3,0.5,3.5);
+    (MeanHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);
+    (MeanHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
+    (MeanHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);
+    
+    
+    SigmaHistos[type[c]] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),3,0.5,3.5);
+    (SigmaHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);  
+    (SigmaHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
+    (SigmaHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);
+    
+  }
+
   nevents = 0;
 
 }
@@ -130,7 +152,6 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	float sigma = (*res_histo).getRMS(1);
 	cout<<"mean: "<<mean<<endl;
 	cout<<"sigma: "<<sigma<<endl;
-	if (MeanHistos.find((*histo).first) == MeanHistos.end()) bookHistos((*histo).first);
 	MeanHistos.find((*histo).first)->second->setBinContent(BinNumber, mean);	
 	SigmaHistos.find((*histo).first)->second->setBinContent(BinNumber, sigma);
       }
@@ -183,23 +204,3 @@ void MuonTrackResidualsTest::endJob(){
 
 
 
-void MuonTrackResidualsTest::bookHistos(string type) {
-
-
-  string MeanHistoName =  "MeanTest_" + type; 
-  string SigmaHistoName =  "SigmaTest_" + type; 
-
-  dbe->setCurrentFolder("Muons/Tests/trackResidualsTest");
-
-  MeanHistos[type] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),3,0.5,3.5);
-  (MeanHistos[type])->setBinLabel(1,"Res_StaGlb",1);
-  (MeanHistos[type])->setBinLabel(2,"Res_TkGlb",1);
-  (MeanHistos[type])->setBinLabel(3,"Res_TkSta",1);
-
-
-  SigmaHistos[type] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),3,0.5,3.5);
-  (SigmaHistos[type])->setBinLabel(1,"Res_StaGlb",1);  
-  (SigmaHistos[type])->setBinLabel(2,"Res_TkGlb",1);
-  (SigmaHistos[type])->setBinLabel(3,"Res_TkSta",1);
-
-}
