@@ -13,8 +13,8 @@
  *
  *    Valid for r<1.15m and |z|<2.80m
  *
- *  $Date: 2008/04/21 16:49:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/23 14:42:19 $
+ *  $Revision: 1.4 $
  *  \author V.Karimaki 080228, 080407
  */
 
@@ -33,10 +33,7 @@ namespace magfieldparam {
     /// B out in cartesian
     void getBxyz(const double* x, double* B); 
     /// B out in cylindrical
-    void getBrfz(const double* x, double* B);    
-
-    /// Define validity region (r, z in m)
-    bool isDefined(double r, double z);
+    void getBrfz(const double* x, double* B);
 
   private:
     double prm[9];

@@ -38,7 +38,8 @@ TkBfield::TkBfield(string fld) {
 void TkBfield::Bcyl (const double* x) {
   double r=sqrt(x[0]*x[0]+x[1]*x[1]);
   double z=x[2];
-  if (isDefined(r,z)) {
+  //  if (r<1.15&&fabs(z)<2.8) // NOTE: check omitted, is done already by the wrapper! (NA)
+    {
     z-=prm[3];                    // max Bz point is shifted in z
     double az=fabs(z);
     double zainv=z*ainv;
@@ -59,9 +60,9 @@ void TkBfield::Bcyl (const double* x) {
                         + exp(-(z+prm[7])*(z+prm[7])/(prm[8]*prm[8]))); // double Gaussian
     Bw[0]+=corBr;
     Bw[2]+=corBz;
-  } else {
-    cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
-  }
+//   } else {
+//     cout <<"TkBfield: The point is outside the region r<1.15m && |z|<2.8m"<<endl;
+    }
 }
 
 void TkBfield::ffunkti(const double u, double* ff) {
@@ -89,9 +90,5 @@ void TkBfield::getBxyz(const double *x, double *Bxyz) {
   Bxyz[0]=Bw[0]*x[0]*rinv;
   Bxyz[1]=Bw[0]*x[1]*rinv;
   Bxyz[2]=Bw[2];
-}
-
-bool TkBfield::isDefined(double r, double z) {
-  return (r<1.15&&fabs(z)<2.8);
 }
 
