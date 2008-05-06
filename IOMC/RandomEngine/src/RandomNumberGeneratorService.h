@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.5 2008/02/11 14:27:09 marafino Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.6 2008/02/21 15:33:15 marafino Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -85,6 +85,10 @@ namespace edm {
       // For debugging purposes only
       virtual void print();
 
+      void saveEngineState(const std::string& fileName );
+
+      void restoreEngineState(const std::string& fileName);
+
     private:
 
       RandomNumberGeneratorService(const RandomNumberGeneratorService&); // disallow default
@@ -106,10 +110,6 @@ namespace edm {
       void stashVector(const std::vector<unsigned long> &v, std::ostream &os);
 
       std::vector<unsigned long> restoreVector(std::istream &is, const int32_t n);
-
-      void saveEngineState();
-
-      void restoreEngineState();
 
       bool processStanza(std::istream &is);
 
