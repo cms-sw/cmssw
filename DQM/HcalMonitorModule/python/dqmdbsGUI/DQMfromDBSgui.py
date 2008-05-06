@@ -351,6 +351,9 @@ class DQMDBSgui:
         self.statusmenu.add_command(label="Show run status",
                                     command = lambda x=self:x.displayFiles())
         self.statusmenu.add_separator()
+        self.statusmenu.add_command(label="Change run status",
+                                    command = lambda x=self:x.changeFileSettings())
+        self.statusmenu.add_separator()
         self.statusmenu.add_command(label="Clear run file",
                                     command = lambda x=self:x.clearPickle())
         self.statusmenu.add_command(label="Restore from backup run file",
@@ -1142,6 +1145,8 @@ class DQMDBSgui:
         '''
 
         runlist=[]
+        begin=self.lastFoundDBS.get()
+        end=begin+self.dbsRange.get()
         runs=string.split(self.myDBS.searchResult,"\n")
         for r in runs:
             if (r.startswith("Found")):
@@ -1240,6 +1245,7 @@ class DQMDBSgui:
                 
             
         # Set lastFoundDBS to most recent run in filesInDBS 
+        
         if len(self.filesInDBS.keys()):
             x=self.filesInDBS.keys()
             x.sort()
@@ -1266,9 +1272,10 @@ class DQMDBSgui:
             self.root.update()
             return False
         
-        self.dbsProgress.configure(text="Successfully grabbed runs %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()),
+        self.dbsProgress.configure(text="Successfully grabbed runs %i-%i"%(begin,end),
                                    bg="black")
         self.root.update()
+        
         return True
     
 
@@ -1285,6 +1292,99 @@ class DQMDBSgui:
         
         helpfunctions.Helpwin(temp,usetext=1)
         return
+
+
+    def changeFileSettings(self):
+        # Only allow one window at a time?
+        try:
+            self.changevaluewin.destroy()
+            self.changevaluewin=Toplevel()
+        except:
+            self.changevaluewin=Toplevel()
+            self.changevaluewin.title("Change status of files")
+        
+
+        scrollwin=Frame(self.changevaluewin)
+        scrollwin.grid(row=0,column=0)
+        myrow=0
+        Label(scrollwin,
+              text="Be sure to check Status menu after your changes are made").grid(row=myrow,column=0)
+        myrow=myrow+1
+        lb=Listbox(scrollwin,
+                   selectmode = MULTIPLE)
+        # Get list of runs
+        self.listboxruns=self.filesInDBS.keys()
+        self.listboxruns.sort()
+        self.listboxruns.reverse()
+
+        for i in self.listboxruns:
+            lb.insert(END,i)
+            
+        scroll=Scrollbar(scrollwin,command=lb.yview)
+        lb.configure(yscrollcommand=scroll.set)
+        lb.grid(row=myrow,column=0,sticky=NSEW)
+        scroll.grid(row=myrow,column=1,sticky=NS)
+
+        myrow=myrow+1
+        self.changevaluewin.rowconfigure(myrow,weight=1)
+        bFrame=Frame(self.changevaluewin)
+        bFrame.grid(row=1,column=0)
+        igY=Button(bFrame,
+                   text="Set\n'Ignore Run'\nTrue",
+                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                                                                     "ignoreRun",1),
+                   width=14,height=3)
+        igN=Button(bFrame,
+                   text="Set\n'Ignore Run'\nFalse",
+                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                                                                     "ignoreRun",0),
+                   width=14,height=3)
+        stY=Button(bFrame,
+                   text="Set\n'Started DQM'\nTrue",
+                    command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                                                                      "startedDQM",1),
+                   width=14,height=3)
+        stN=Button(bFrame,
+                   text="Set\n'Started DQM'\nFalse",
+                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                                                                     "startedDQM",0),
+                   width=14,height=3)
+        fiY=Button(bFrame,
+                   text="Set\n'Finished DQM'\nTrue",
+                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                                                                     "finishedDQM",1),
+                   width=14,height=3)
+        fiN=Button(bFrame,
+                   text="Set\n'Finished DQM'\nFalse",
+                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                                                                     "finishedDQM",0),
+                   width=14,height=3)
+
+        igY.grid(row=0,column=0)
+        stY.grid(row=0,column=1)
+        fiY.grid(row=0,column=2)
+        igN.grid(row=1,column=0)
+        stN.grid(row=1,column=1)
+        fiN.grid(row=1,column=2)
+
+        return
+        
+    def commandChangeFileSettings(self,selected,var,value=True):
+        for i in selected:
+            print i
+            run=self.listboxruns[int(i)]
+            print run
+            if (var=="ignoreRun"):
+                self.filesInDBS[run].ignoreRun=value
+            elif (var=="startedDQM"):
+                self.filesInDBS[run].startedDQM=value
+            elif (var=="finishedDQM"):
+                self.filesInDBS[run].finishedDQM=value
+        self.writePickle() # save to pickle file?  I think this is the sensible option (user can always change back)
+        return
+
+
+
 
 
 
