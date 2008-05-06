@@ -367,40 +367,29 @@ void PhiSymmetryCalibration::endJob()
     int ieta,iphi,sign,ix,iy,dummy;
     double etsum;
     std::ifstream etsum_barl_in("etsum_barl.dat", ios::in);
-    while (!etsum_barl_in.eof()) {
-      etsum_barl_in >> dummy;
-      etsum_barl_in >> ieta;
-      etsum_barl_in >> iphi;
-      etsum_barl_in >> sign;
-      etsum_barl_in >> etsum;
+    while ( etsum_barl_in >> dummy >> ieta >> iphi >> sign >> etsum) {
       etsum_barl_[ieta][iphi][sign]+=etsum;
     }
     etsum_barl_in.close();
 
     std::ifstream etsum_endc_in("etsum_endc.dat", ios::in);
-    while (!etsum_endc_in.eof()) {
-      etsum_endc_in >> dummy;
-      etsum_endc_in >> ix;
-      etsum_endc_in >> iy;
-      etsum_endc_in >> sign;
-      etsum_endc_in >> etsum;
+    while (etsum_endc_in >> dummy >> ieta >> iphi >> sign >> etsum) {
       etsum_endc_[ix][iy][sign]+=etsum;
     }
     etsum_endc_in.close();
 
     std::ifstream k_barl_in("k_barl.dat", ios::in);
     for (int ieta=0; ieta<85; ieta++) {
-      k_barl_in >> dummy;
-      k_barl_in >> k_barl_[ieta];
+      k_barl_in >> dummy >> k_barl_[ieta];
     }
     k_barl_in.close();
 
     std::ifstream k_endc_in("k_endc.dat", ios::in);
     for (int ring=0; ring<39; ring++) {
-      k_endc_in >> dummy;
-      k_endc_in >> k_endc_[ring];
+      k_endc_in >> dummy >> k_endc_[ring];
     }
     k_endc_in.close();
+
 
 
 
@@ -428,6 +417,7 @@ void PhiSymmetryCalibration::endJob()
       for (int iy=0; iy<100; iy++) {
 
 	int ring = endcapRing_[ix][iy];
+
 	if (ring!=-1) {
 	  for (int sign=0; sign<2; sign++) {
 
