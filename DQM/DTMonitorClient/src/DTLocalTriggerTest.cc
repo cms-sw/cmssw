@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/22 16:49:18 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/05/06 14:02:08 $
+ *  $Revision: 1.17 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -111,13 +111,13 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	uint32_t indexCh = chId.rawId();
 
 	// Perform DCC/DDU common plot analysis (Phi ones)
-	TH2F * BXvsQual    = getHisto<TH2F>(dbe->get(getMEName("BXvsQual1st","LocalTriggerPhi", chId)));
-	TH1F * BestQual    = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
-	TH2F * Flag1stvsBX = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsBX","LocalTriggerPhi", chId)));
-	if (BXvsQual && Flag1stvsBX && BestQual) {
+	TH2F * BXvsQual      = getHisto<TH2F>(dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
+	TH1F * BestQual      = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
+	TH2F * Flag1stvsQual = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId)));
+	if (BXvsQual && Flag1stvsQual && BestQual) {
 	      
 	  TH1D* BXHH    = BXvsQual->ProjectionY("",7,7,"");
-	  TH1D* Flag1st = Flag1stvsBX->ProjectionY();
+	  TH1D* Flag1st = Flag1stvsQual->ProjectionY();
 	  int BXOK_bin = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
 	  double BX_OK =  BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
 	  double trigsFlag2nd = Flag1st->GetBinContent(2);

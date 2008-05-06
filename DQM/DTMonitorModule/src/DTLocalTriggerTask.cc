@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/03/01 00:39:54 $
- * $Revision: 1.20 $
+ * $Date: 2008/03/08 11:34:20 $
+ * $Revision: 1.21 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -308,6 +308,7 @@ void DTLocalTriggerTask::runDCCAnalysis(const edm::Event& e, string& trigsrc){
       int phi1st  = i->Ts2Tag();
       int phphi   = i->phi();
       int phphiB  = i->phiB();
+      int phbxcorr= phbx - phi1st;
 
       correctMapping(phwheel,phsec);
 
@@ -326,19 +327,11 @@ void DTLocalTriggerTask::runDCCAnalysis(const edm::Event& e, string& trigsrc){
       string histoTag;
     
       // SM BX vs Quality Phi view (1st & 2nd tracks)
-      if (!phi1st){
-	histoTag = "DCC_BXvsQual1st"+ trigsrc;
-	if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	  bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbx);
-      }
-      else {
-	string histoTag = "DCC_BXvsQual2nd"+ trigsrc;
-	if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	  bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbx);
-    
-      }
+      histoTag = "DCC_BXvsQual"+ trigsrc;
+      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
+      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbxcorr);
+
       // SM Quality vs radial angle Phi view
       histoTag = "DCC_QualvsPhirad" + trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
@@ -352,10 +345,10 @@ void DTLocalTriggerTask::runDCCAnalysis(const edm::Event& e, string& trigsrc){
       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(angle,phcode);
       
       // SM BX 1st trigger track segment, phi view
-      histoTag = "DCC_Flag1stvsBX" + trigsrc;
-      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
-      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phbx,phi1st);
+//       histoTag = "DCC_Flag1stvsBX" + trigsrc;
+//       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+// 	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
+//       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phbx,phi1st);
       
       // SM Quality 1st trigger track segment, phi view
       histoTag =  "DCC_Flag1stvsQual" + trigsrc;
@@ -483,7 +476,7 @@ void DTLocalTriggerTask::runDDUAnalysis(const edm::Event& e, string& trigsrc){
       int quality = trigIt->quality();
       int thqual = trigIt->trTheta();
       int flag1st = trigIt->secondTrack() ? 1 : 0;  // it is a second trigger track
-
+      int bxcorr = bx - flag1st;
 	    
       int wh = id.wheel();
       int sec = id.sector();
@@ -507,23 +500,15 @@ void DTLocalTriggerTask::runDDUAnalysis(const edm::Event& e, string& trigsrc){
 	  
 	}
 	
-	if (!flag1st){
-	  histoTag =  "DDU_BXvsQual1st" + trigsrc;
-	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	    bookHistos( id, string("LocalTriggerPhi"), histoTag );
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(quality,bx);
-	}
-	else {
-	  histoTag =  "DDU_BXvsQual2nd" + trigsrc;
-	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	    bookHistos( id, string("LocalTriggerPhi"), histoTag );
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(quality,bx);
-	}
-		
-	histoTag =  "DDU_Flag1stvsBX" + trigsrc;
+	histoTag =  "DDU_BXvsQual" + trigsrc;
 	if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
 	  bookHistos( id, string("LocalTriggerPhi"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(bx,flag1st);
+	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(quality,bxcorr);
+
+// 	histoTag =  "DDU_Flag1stvsBX" + trigsrc;
+// 	if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
+// 	  bookHistos( id, string("LocalTriggerPhi"), histoTag );
+// 	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(bx,flag1st);
 	
 	histoTag = "DDU_Flag1stvsQual" + trigsrc;
 	if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
