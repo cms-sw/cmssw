@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/03/01 00:39:54 $
- * $Revision: 1.36 $
+ * $Date: 2008/05/06 13:16:20 $
+ * $Revision: 1.37 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -424,19 +424,19 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	    bookHistos( dtSLId, string("TimeBoxes"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
 	  
-	  
+	  // FIXME: remove the time distribution for the after-pulses	  
 	  // 2nd - 1st (CathodPhotoPeak) per SL
-	  if ( (*digiIt).number() == 1 ) {
+// 	  if ( (*digiIt).number() == 1 ) {
 	    
-	    DTDigiCollection::const_iterator firstDigiIt = digiIt;
-	    firstDigiIt--;
+// 	    DTDigiCollection::const_iterator firstDigiIt = digiIt;
+// 	    firstDigiIt--;
 	    
-	    histoTag = "CathodPhotoPeak";
-	    if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-	      bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
-	    (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
-									    (*firstDigiIt).countsTDC());
-	  }
+// 	    histoTag = "CathodPhotoPeak";
+// 	    if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
+// 	      bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
+// 	    (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
+// 									    (*firstDigiIt).countsTDC());
+// 	  }
 	}
 	if (!isSyncNoisy) {
 
