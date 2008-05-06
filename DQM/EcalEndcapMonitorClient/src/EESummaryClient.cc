@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/29 08:02:16 $
- * $Revision: 1.115 $
+ * $Date: 2008/05/06 05:41:37 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  *
 */
@@ -467,8 +467,8 @@ void EESummaryClient::setup(void) {
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
-  for (int i = 1; i <= 18; i++) {
-    sprintf(histo, "Content%02d", i);
+  for (int i = 0; i < 18; i++) {
+    sprintf(histo, "status %s", Numbers::sEE(i+1));
     me = dqmStore_->bookFloat(histo);
   }
 
@@ -1299,11 +1299,11 @@ void EESummaryClient::analyze(void){
 
   char histo[200];
 
-  for (int i = 1; i <= 18; i++) {
+  for (int i = 0; i < 18; i++) {
     float reportSummaryEE = -1.0;
-    if ( nValidChannelsEE[i-1] != 0 )
-      reportSummaryEE = 1.0 - float(nGlobalErrorsEE[i-1])/float(nValidChannelsEE[i-1]);
-    sprintf(histo, "Content%02d", i);
+    if ( nValidChannelsEE[i] != 0 )
+      reportSummaryEE = 1.0 - float(nGlobalErrorsEE[i])/float(nValidChannelsEE[i]);
+    sprintf(histo, "status %s", Numbers::sEE(i+1));
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
     if (me) me->Fill(reportSummaryEE);
   }
