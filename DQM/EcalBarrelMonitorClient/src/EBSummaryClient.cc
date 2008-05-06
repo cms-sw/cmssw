@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/04/27 08:01:24 $
- * $Revision: 1.137 $
+ * $Date: 2008/04/29 08:02:15 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  *
 */
@@ -307,16 +307,21 @@ void EBSummaryClient::setup(void) {
 
   MonitorElement* me;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummary");
+  me = dqmStore_->bookFloat(histo);
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
   for (int i = 1; i <= 36; i++) {
-    sprintf(histo, "Segment%02d_EcalBarrel", i);
+    sprintf(histo, "Content%02d", i);
     me = dqmStore_->bookFloat(histo);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "errorSummaryPhiEta_EcalBarrel");
+  sprintf(histo, "reportSummaryMap");
   me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
   me->setAxisTitle("jphi", 1);
   me->setAxisTitle("jeta", 2);
@@ -1092,24 +1097,24 @@ void EBSummaryClient::analyze(void){
 
   MonitorElement* me;
 
-  float errorSummary = -1.0;
+  float reportSummary = -1.0;
   if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
-  if (me) me->Fill(errorSummary);
+    reportSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+  if (me) me->Fill(reportSummary);
 
   char histo[200];
 
   for (int i = 1; i <= 36; i++) {
-    float errorSummaryEB = -1.0;
+    float reportSummaryEB = -1.0;
     if ( nValidChannelsEB[i-1] != 0 )
-      errorSummaryEB = 1.0 - float(nGlobalErrorsEB[i-1])/float(nValidChannelsEB[i-1]);
-    sprintf(histo, "Segment%02d_EcalBarrel", i);
-    me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
-    if (me) me->Fill(errorSummaryEB);
+      reportSummaryEB = 1.0 - float(nGlobalErrorsEB[i-1])/float(nValidChannelsEB[i-1]);
+    sprintf(histo, "Content%02d", i);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    if (me) me->Fill(reportSummaryEB);
   }
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryPhiEta_EcalBarrel");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   if (me) {
 
     int nValidChannelsTT[72][34];

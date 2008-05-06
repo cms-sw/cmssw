@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/27 08:06:41 $
- * $Revision: 1.114 $
+ * $Date: 2008/04/29 08:02:16 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  *
 */
@@ -460,22 +460,22 @@ void EESummaryClient::setup(void) {
 
   MonitorElement* me;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/errorSummarySegments" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummary");
+  me = dqmStore_->bookFloat(histo);
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
   for (int i = 1; i <= 18; i++) {
-    sprintf(histo, "Segment%02d_EcalEndcap", i);
+    sprintf(histo, "Content%02d", i);
     me = dqmStore_->bookFloat(histo);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "errorSummaryXYM_EcalEndcap");
-  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
-  me->setAxisTitle("jx", 1);
-  me->setAxisTitle("jy", 2);
-
-  sprintf(histo, "errorSummaryXYP_EcalEndcap");
-  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
+  sprintf(histo, "reportSummaryMap");
+  me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 
@@ -1291,28 +1291,26 @@ void EESummaryClient::analyze(void){
 
   MonitorElement* me;
 
-  float errorSummary = -1.0;
+  float reportSummary = -1.0;
   if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
-  if (me) me->Fill(errorSummary);
+    reportSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+  if (me) me->Fill(reportSummary);
 
   char histo[200];
 
   for (int i = 1; i <= 18; i++) {
-    float errorSummaryEE = -1.0;
+    float reportSummaryEE = -1.0;
     if ( nValidChannelsEE[i-1] != 0 )
-      errorSummaryEE = 1.0 - float(nGlobalErrorsEE[i-1])/float(nValidChannelsEE[i-1]);
-    sprintf(histo, "Segment%02d_EcalEndcap", i);
-    me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/" + histo);
-    if (me) me->Fill(errorSummaryEE);
+      reportSummaryEE = 1.0 - float(nGlobalErrorsEE[i-1])/float(nValidChannelsEE[i-1]);
+    sprintf(histo, "Content%02d", i);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    if (me) me->Fill(reportSummaryEE);
   }
 
-  MonitorElement* meside[2];
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
 
-  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYM_EcalEndcap");
-  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXYP_EcalEndcap");
-  if (meside[0] && meside[1]) {
+  if (me) {
 
     int nValidChannelsTT[2][20][20];
     int nGlobalErrorsTT[2][20][20];
@@ -1359,7 +1357,7 @@ void EESummaryClient::analyze(void){
             xval = 0.0;
           }
 
-          meside[iside]->setBinContent( jxdcc+1, jydcc+1, xval );
+          me->setBinContent( 20*iside+jxdcc+1, jydcc+1, xval );
 
         }
       }
