@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/21 17:08:38 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/23 14:26:58 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -82,12 +82,7 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
   if (v_85l && gp.z()>0) { 
     GlobalPoint gpSym(gp.x(), gp.y(), -gp.z());
     // Check volume cache
-    if (lastVolume!=0 && lastVolume->inside(gpSym)){
-      v = lastVolume;
-    } else {
-      v = findVolume(gpSym);
-      lastVolume = v;
-    }
+    v = findVolume(gpSym);
 
     if (v!=0) {
       GlobalVector bresult = v->fieldInTesla(gpSym);
@@ -95,12 +90,7 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
     }
     
   } else { // No reflection
-    if (lastVolume!=0 && lastVolume->inside(gp)){
-      v = lastVolume;
-    } else {
-      v = findVolume(gp);
-      if (cacheLastVolume) lastVolume = v;
-    }
+    v = findVolume(gp);
     if (v!=0) {
       return v->fieldInTesla(gp);
     }
@@ -157,8 +147,12 @@ MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
 // Use hierarchical structure for fast lookup.
 MagVolume* 
 MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
-  MagVolume * result=0;
+  // Check volume cache
+  if (lastVolume!=0 && lastVolume->inside(gp)){
+    return lastVolume;
+  }
 
+  MagVolume * result=0;
   if (inBarrel(gp)) { // Barrel
     double R = gp.perp();
     int bin = theBarrelBinFinder->binIndex(R);
@@ -190,6 +184,8 @@ MagGeometry::findVolume(const GlobalPoint & gp, double tolerance) const{
     if (verbose::debugOut) cout << "Increasing the tolerance to 0.03" <<endl;
     result = findVolume(gp, 0.03);
   }
+
+  if (cacheLastVolume) lastVolume = result;
 
   return result;
 }
