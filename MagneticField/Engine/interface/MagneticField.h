@@ -5,8 +5,8 @@
  *
  *  Base class for the different implementation of magnetic field engines.
  *
- *  $Date: 2007/02/03 16:08:01 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/28 16:57:15 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -38,6 +38,13 @@ class MagneticField
     return true;
   }
   
+  /// Optional implementation that derived classes can implement to provide faster query
+  /// by skipping the check to isDefined.
+  virtual GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const {
+    return inTesla(gp);  // default dummy implementation
+  }
+  
+
 };
 
 #endif
