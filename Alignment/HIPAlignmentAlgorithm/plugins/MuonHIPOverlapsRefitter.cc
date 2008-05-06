@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.1 2008/02/14 15:39:58 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.1 2008/05/06 10:48:05 pivarski Exp $
 //
 //
 
@@ -147,6 +147,9 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       int last_station = 0;
       DetId last_id;
 
+      edm::OwnVector<TrackingRecHit> clonedHits;
+      std::vector<TrajectoryStateOnSurface> TSOSes;
+	    
       for (trackingRecHit_iterator hit = track->recHitsBegin();  hit != track->recHitsEnd();  ++hit) {
 	 DetId id = (*hit)->geographicalId();
 
@@ -220,10 +223,7 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    double SXX, SxXX, SxXY, SXY, SxzXX, SxzXY, SyXY, SYY, SyYY, SyzXY, SyzYY, SzXX, SzXY, SzYY, SzzXX, SzzXY, SzzYY;
 	    SXX = SxXX = SxXY = SXY = SxzXX = SxzXY = SyXY = SYY = SyYY = SyzXY = SyzYY = SzXX = SzXY = SzYY = SzzXX = SzzXY = SzzYY = 0.;
 
-	    edm::OwnVector<TrackingRecHit> clonedHits;
 	    for (std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();  hit != station->end();  ++hit) {
-	       clonedHits.push_back((*hit)->clone());
-
 	       DetId id = (*hit)->geographicalId();
 
 	       LocalPoint localPoint = (*hit)->localPosition();
@@ -309,29 +309,7 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    double c = (-SzzXY*(SyzXY*(SXX*SYY - pow(SXY,2)) + SxzXX*(SXX*SYY - pow(SXY,2)) + SzXX*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + SzXY*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX)) - SzzXX*(SXX*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + SzXY*(SyXY*SYY + SxXX*SYY + (-SyYY - SxXY)*SXY) + (SyzYY + SxzXY)*pow(SXY,2) + (-SyXY*SzYY - SxXX*SzYY)*SXY) - SzXY*(SzXX*(-SyzXY*SYY - SxzXX*SYY + (-2*SyzYY - 2*SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) - SyzXY*SzYY*SXX - SxzXX*SzYY*SXX) - pow(SzXX,2)*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) - SzXX*(SyzXY*SzYY*SXY + SxzXX*SzYY*SXY) - pow(SzXY,2)*(SyzXY*SXY + SxzXX*SXY + (SyzYY + SxzXY)*SXX + (SyYY + SxXY)*SzXX) - (-SyXY - SxXX)*pow(SzXY,3))/denom;
 	    double d = (SzzXX*(SzXY*((SyzYY + SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) + (-SyXY*SzzYY - SxXX*SzzYY)*SXY + ((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)*SXX + (-SyYY - SxXY)*pow(SzXY,2)) + SzzXY*(SzXX*((-SyzYY - SxzXY)*SXY - SyXY*SzYY - SxXX*SzYY) + SzXY*(-SyzXY*SXY - SxzXX*SXY + (SyzYY + SxzXY)*SXX + (2*SyYY + 2*SxXY)*SzXX) + SyzXY*SzYY*SXX + SxzXX*SzYY*SXX + (-SyXY - SxXX)*pow(SzXY,2)) + SzXX*(SyzXY*SzzYY*SXY + SxzXX*SzzYY*SXY) + pow(SzzXY,2)*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX) + SzXY*(-SyzXY*SzzYY*SXX - SxzXX*SzzYY*SXX + SzXX*(SyXY*SzzYY + SxXX*SzzYY - SyzXY*SzYY - SxzXX*SzYY)) + pow(SzXX,2)*((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY) + (SyzXY + SxzXX)*pow(SzXY,3) + (-SyzYY - SxzXY)*SzXX*pow(SzXY,2))/denom;
 
-	    // for the trajectory seed (we're not really fitting, but the tools are set up to expect that)
-	    double first_zi = *listz.begin();
-	    GlobalPoint first_position(a * first_zi + b, c * first_zi + d, first_zi);
 	    GlobalVector momentum = chamberSurface->toGlobal(LocalVector(a, c, 1.) / sqrt(pow(a,2) + pow(c,2) + 1.) * track->p());
-	    int charge = track->charge();
-	    DetId first_id = clonedHits.begin()->geographicalId();
-
-	    // construct the information necessary to make a TrajectoryStateOnSurface
-	    GlobalTrajectoryParameters globalTrajParams(first_position, momentum, charge, &(*magneticField));
-	    AlgebraicSymMatrix66 first_error;
-	    first_error(0,0) = 1e-6 * first_position.x();
-	    first_error(1,1) = 1e-6 * first_position.y();
-	    first_error(2,2) = 1e-6 * first_position.z();
-	    first_error(3,3) = 1e-6 * momentum.x();
-	    first_error(4,4) = 1e-6 * momentum.y();
-	    first_error(5,5) = 1e-6 * momentum.z();
-	    TrajectoryStateOnSurface first_state(globalTrajParams, CartesianTrajectoryError(first_error),
-                first_id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(first_id)->surface() : cscGeometry->idToDet(first_id)->surface());
-
-	    // build the trajectory
-	    PTrajectoryStateOnDet *PTraj = transformer.persistentState(first_state, first_id.rawId());
-	    TrajectorySeed trajectorySeed(*PTraj, clonedHits, alongMomentum);
-	    Trajectory trajectory(trajectorySeed, alongMomentum);
 
 // 	    double chi2 = 0.;  // we don't do anything with the chi2
 // 	    int dof = 0;
@@ -342,9 +320,8 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    std::vector<double>::const_iterator XX = listXX.begin();
 	    std::vector<double>::const_iterator XY = listXY.begin();
 	    std::vector<double>::const_iterator YY = listYY.begin();
-	    edm::OwnVector<TrackingRecHit>::const_iterator clonedHit = clonedHits.begin();
 
-	    for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY, ++clonedHit) {
+	    for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
 
 	       double x = a * (*zi) + b;
 	       double y = c * (*zi) + d;
@@ -359,7 +336,7 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	       GlobalPoint position = chamberSurface->toGlobal(LocalPoint(x, y, (*zi)));
 	       DetId id = (*hit)->geographicalId();
 
-	       GlobalTrajectoryParameters globalTrajectoryParameters(position, momentum, charge, &*magneticField);
+	       GlobalTrajectoryParameters globalTrajectoryParameters(position, momentum, track->charge(), &*magneticField);
 	       AlgebraicSymMatrix66 error;
 	       error(0,0) = 1e-6 * position.x();
 	       error(1,1) = 1e-6 * position.y();
@@ -368,21 +345,35 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	       error(4,4) = 1e-6 * momentum.y();
 	       error(5,5) = 1e-6 * momentum.z();
 
-	       TrajectoryStateOnSurface TSOS(globalTrajectoryParameters, CartesianTrajectoryError(error),
-                   id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(id)->surface() : cscGeometry->idToDet(id)->surface());
-	       TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(*clonedHit), globalGeometry));
-	       trajectory.push(TrajectoryMeasurement(TSOS, TSOS, TSOS, hitPtr));
+	       clonedHits.push_back((*hit)->clone());
+	       TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error),
+                   id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(id)->surface() : cscGeometry->idToDet(id)->surface()));
 
 	    } // end loop over hits
 
-	    trajectoryCollection->push_back(trajectory);
-
-	    // Remember which Trajectory is associated with which Track
-	    trajCounter++;
-	    reference_map[trajCounter] = trackCounter;
-
 	 } // end if there are any hits to work with
       } // end loop over stations
+
+      // build the trajectory
+      if (clonedHits.size() > 0) {
+	 PTrajectoryStateOnDet *PTraj = transformer.persistentState(*(TSOSes.begin()), clonedHits.begin()->geographicalId().rawId());
+	 TrajectorySeed trajectorySeed(*PTraj, clonedHits, alongMomentum);
+	 Trajectory trajectory(trajectorySeed, alongMomentum);
+
+	 edm::OwnVector<TrackingRecHit>::const_iterator clonedHit = clonedHits.begin();
+	 std::vector<TrajectoryStateOnSurface>::const_iterator TSOS = TSOSes.begin();
+	 for (;  clonedHit != clonedHits.end();  ++clonedHit, ++TSOS) {
+	    TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(*clonedHit), globalGeometry));
+	    trajectory.push(TrajectoryMeasurement(*TSOS, *TSOS, *TSOS, hitPtr));
+	 }
+
+	 trajectoryCollection->push_back(trajectory);
+
+	 // Remember which Trajectory is associated with which Track
+	 trajCounter++;
+	 reference_map[trajCounter] = trackCounter;
+
+      } // end if there are any clonedHits/TSOSes to work with
 
    } // end loop over tracks
 
