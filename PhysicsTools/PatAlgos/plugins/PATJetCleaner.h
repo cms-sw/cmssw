@@ -1,5 +1,5 @@
 //
-// $Id: PATJetCleaner.h,v 1.4 2008/03/12 16:13:27 gpetrucc Exp $
+// $Id: PATJetCleaner.h,v 1.5 2008/04/29 12:38:15 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATJetCleaner.h,v 1.4 2008/03/12 16:13:27 gpetrucc Exp $
+  \version  $Id: PATJetCleaner.h,v 1.5 2008/04/29 12:38:15 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -49,9 +49,9 @@ namespace pat {
 
     private:
       // configurables
-      edm::InputTag            jetSrc_;
-      edm::InputTag            likelihoodRej_;
-      bool doLikelihoodRej_;
+      edm::InputTag   jetSrc_;
+      bool            doSelByID_;
+      edm::InputTag   IDmap_;
       // helper
       pat::helper::CleanerHelper<JetIn,
                                  JetOut,
