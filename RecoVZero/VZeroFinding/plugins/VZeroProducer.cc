@@ -34,10 +34,6 @@ VZeroProducer::~VZeroProducer()
 /*****************************************************************************/
 void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  LogDebug("VZeroProducer, produce")<<"event# :"<<ev.id();
-
-  cerr << "[V0 finder]" << endl;
-
   // Get tracks
   edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel("globalSecoTracks",  trackCollection);
@@ -66,9 +62,9 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
       negatives.push_back(reco::TrackRef(trackCollection, i));
   }
 
-  cerr << " [VZeroProducer] using tracks :"
+  LogTrace("MinBiasTracking") << "[VZeroProducer] using tracks :"
        << " +" << positives.size()
-       << " -" << negatives.size() << endl;
+       << " -" << negatives.size();
 
   std::auto_ptr<reco::VZeroCollection> result(new reco::VZeroCollection);
 
@@ -98,7 +94,8 @@ void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
       }
     }
 
-  cerr << " [VZeroProducer] found candidates : " << result->size() << endl;
+  LogTrace("MinBiasTracking")
+    << "[VZeroProducer] found candidates : " << result->size();
 
   // Put result back to the event
   ev.put(result);

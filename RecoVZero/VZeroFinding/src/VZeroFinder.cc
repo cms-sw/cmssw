@@ -2,6 +2,8 @@
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
+using namespace std;
+
 /*****************************************************************************/
 VZeroFinder::VZeroFinder
   (const edm::EventSetup& es,
