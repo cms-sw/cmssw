@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.h,v 1.3 2008/04/25 10:06:53 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.h,v 1.4 2008/04/29 11:57:04 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripPartition_h
 #define OnlineDB_SiStripConfigDb_SiStripPartition_h
@@ -135,6 +135,8 @@ class SiStripPartition {
   // analysis description versions
 
   uint32_t globalAnalysisV_;
+
+  Versions runTableVersion_;
 
   Versions fastCablingV_;
   

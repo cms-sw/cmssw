@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.5 2008/04/25 10:06:53 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.6 2008/04/29 11:57:04 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "boost/cstdint.hpp"
+#include "boost/range/iterator_range.hpp"
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -39,9 +40,9 @@ class SiStripDbParams {
   
   typedef std::map< std::string, SiStripPartition > SiStripPartitions;
   
-  typedef std::pair< SiStripPartitions::const_iterator, SiStripPartitions::const_iterator > pair_const_iterator;
-  
-  typedef std::pair< SiStripPartitions::iterator, SiStripPartitions::iterator > pair_iterator;
+  typedef boost::iterator_range<SiStripPartitions::const_iterator> const_iterator_range;
+
+  typedef boost::iterator_range<SiStripPartitions::iterator> iterator_range;
 
   // ---------- database-related ----------
 
@@ -63,12 +64,18 @@ class SiStripDbParams {
 
   // ---------- partition-related ----------
 
-  /** Returns pair of iterators to partitions objects. */
-  inline pair_const_iterator partitions() const;
+  /** Returns pair of const iterators to partitions objects. */
+  inline const_iterator_range partitions() const;
 
   /** Returns pair of iterators to partitions objects. */
-  inline pair_iterator partitions();
+  inline iterator_range partitions();
 
+  /** Returns const iterator to partition object. */
+  SiStripPartitions::const_iterator partition( std::string partition_name ) const;
+  
+  /** Returns iterator to partition object. */
+  SiStripPartitions::iterator partition( std::string partition_name );
+  
   /** */
   inline void clearPartitions();
 
@@ -163,10 +170,10 @@ bool SiStripDbParams::usingDbCache() const { return usingDbCache_; }
 std::string SiStripDbParams::sharedMemory() const { return sharedMemory_; }
 std::string SiStripDbParams::tnsAdmin() const { return tnsAdmin_; }
 
-SiStripDbParams::pair_const_iterator SiStripDbParams::partitions() const { return std::make_pair( partitions_.begin(), 
-												  partitions_.end() ); }
-SiStripDbParams::pair_iterator SiStripDbParams::partitions() { return std::make_pair( partitions_.begin(), 
-										      partitions_.end() ); }
+SiStripDbParams::const_iterator_range SiStripDbParams::partitions() const { return const_iterator_range( partitions_.begin(), 
+													 partitions_.end() ); }
+SiStripDbParams::iterator_range SiStripDbParams::partitions() { return iterator_range( partitions_.begin(), 
+										       partitions_.end() ); }
 
 std::string SiStripDbParams::outputModuleXml() const { return outputModuleXml_; }
 std::string SiStripDbParams::outputDcuInfoXml() const { return outputDcuInfoXml_; }

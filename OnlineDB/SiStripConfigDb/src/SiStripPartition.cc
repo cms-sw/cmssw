@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.5 2008/04/29 11:57:05 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.6 2008/04/30 08:12:36 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -23,6 +23,7 @@ SiStripPartition::SiStripPartition( std::string partition ) :
   dcuVersion_(0,0),
   psuVersion_(0,0),
   globalAnalysisV_(0),
+  runTableVersion_(0,0),
   fastCablingV_(0,0),
   apvTimingV_(0,0),
   optoScanV_(0,0),
@@ -53,6 +54,7 @@ SiStripPartition::SiStripPartition() :
   dcuVersion_(0,0),
   psuVersion_(0,0),
   globalAnalysisV_(0),
+  runTableVersion_(0,0),
   fastCablingV_(0,0),
   apvTimingV_(0,0),
   optoScanV_(0,0),
@@ -92,6 +94,7 @@ void SiStripPartition::reset() {
   psuVersion_ = std::make_pair(0,0);
   
   globalAnalysisV_ = 0;
+  runTableVersion_ = std::make_pair(0,0);
   fastCablingV_ = std::make_pair(0,0);
   apvTimingV_   = std::make_pair(0,0);
   optoScanV_    = std::make_pair(0,0);
@@ -165,7 +168,18 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
     return;
   }
 
+  // Debug
+  std::stringstream ss;
+  ss << "[SiStripDbParams::" << __func__ << "]"
+     << " Updating description versions for partition \""
+     << partitionName_
+     << "\"...";
+  edm::LogVerbatim(mlConfigDb_) << ss.str();
+
   try {
+
+    // Reset container indicating state versions for commissioning runs 
+    runTableVersion_ = Versions(0,0);
 
     // Update versions if using versions from "current state"
     if ( forceCurrentState_ || forceVersions_ ) { 
@@ -225,7 +239,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 #ifdef USING_NEW_DATABASE_MODEL
 	
 	// Retrieve global and local versions 
-	if ( forceCurrentState_ || globalAnalysisV_ ) { 
+	if ( forceCurrentState_ || globalAnalysisV_ ) { // use global version (or current state)
 
 	  // Set global version
 	  if ( forceCurrentState_ ) { globalAnalysisV_ = (*istate)->getAnalysisVersionMapPointerId(); }
@@ -276,7 +290,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	    }
 	  }
       
-	} else if ( !globalAnalysisV_ ) {
+	} else if ( !globalAnalysisV_ ) { // use local versions
 	
 	  // Retrieve local versions and set if necessary
 	  globalAnalysisV_ = (*istate)->getAnalysisVersionMapPointerId(); 
@@ -418,7 +432,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	      runType_ = sistrip::UNKNOWN_RUN_TYPE; 
 	      edm::LogWarning(mlConfigDb_)
 		<< "[SiStripPartition::" << __func__ << "]"
-		<< " UNKONWN run type (" << type<< ") returned!"
+		<< " UNKNOWN run type (" << type<< ") returned!"
 		<< " for partition \"" << partitionName_ << "\"";
 	    }
 
@@ -497,27 +511,35 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 	      // Set appropriate versions
 	      if ( ivers != local_versions.end() ) {
 		if ( type == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) { 
+		  runTableVersion_ = fastCablingV_;
 		  fastCablingV_.first = ivers->second.back().first;
 		  fastCablingV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
+		  runTableVersion_ = apvTimingV_;
 		  apvTimingV_.first = ivers->second.back().first;
 		  apvTimingV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_OPTOSCAN ) {
+		  runTableVersion_ = optoScanV_;
 		  optoScanV_.first = ivers->second.back().first;
 		  optoScanV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_VPSPSCAN ) {
+		  runTableVersion_ = vpspScanV_;
 		  vpspScanV_.first = ivers->second.back().first;
 		  vpspScanV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_CALIBRATION ) {
+		  runTableVersion_ = apvCalibV_;
 		  apvCalibV_.first = ivers->second.back().first;
 		  apvCalibV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_PEDESTALS ) {
+		  runTableVersion_ = pedestalsV_;
 		  pedestalsV_.first = ivers->second.back().first;
 		  pedestalsV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_APVLATENCY ) {
+		  runTableVersion_ = apvLatencyV_;
 		  apvLatencyV_.first = ivers->second.back().first;
 		  apvLatencyV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_FINEDELAY ) {
+		  runTableVersion_ = fineDelayV_;
 		  fineDelayV_.first = ivers->second.back().first;
 		  fineDelayV_.second = ivers->second.back().second;
 		} else if ( type == CommissioningAnalysisDescription::T_UNKNOWN ) {
@@ -601,16 +623,99 @@ void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
        << "  FEC major/minor vers       : " << fecVersion_.first << "." << fecVersion_.second << std::endl
        << "  FED major/minor vers       : " << fedVersion_.first << "." << fedVersion_.second << std::endl
        << "  DCU-DetId map maj/min vers : " << dcuVersion_.first << "." << dcuVersion_.second << std::endl
-       << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl
-       << "  Global analysis version    : " << globalAnalysisV_ << std::endl
-       << "  FED cabling maj/min vers   : " << fastCablingV_.first << "." << fastCablingV_.second << std::endl
-       << "  APV timing maj/min vers    : " << apvTimingV_.first << "." << apvTimingV_.second << std::endl
-       << "  Opto scan maj/min vers     : " << optoScanV_.first << "." << optoScanV_.second << std::endl
-       << "  VPSP scan maj/min vers     : " << vpspScanV_.first << "." << vpspScanV_.second << std::endl
-       << "  APV calib maj/min vers     : " << apvCalibV_.first << "." << apvCalibV_.second << std::endl
-       << "  Pedestals maj/min vers     : " << pedestalsV_.first << "." << pedestalsV_.second << std::endl
-       << "  APV latency maj/min vers   : " << apvLatencyV_.first << "." << apvLatencyV_.second << std::endl
-       << "  Fine delay maj/min vers    : " << fineDelayV_.first << "." << fineDelayV_.second << std::endl;
+       << "  DCU-PSU map maj/min vers   : " << psuVersion_.first << "." << psuVersion_.second << std::endl;
+
+    ss << "  Global analysis version    : " << globalAnalysisV_ << std::endl;
+
+
+    if ( runType_ == sistrip::PHYSICS ||
+	 runType_ == sistrip::UNDEFINED_RUN_TYPE ||
+	 runType_ == sistrip::UNKNOWN_RUN_TYPE ) { 
+      
+      ss << "  FED cabling maj/min vers   : " << fastCablingV_.first << "." << fastCablingV_.second << std::endl;
+      ss << "  APV timing maj/min vers    : " << apvTimingV_.first << "." << apvTimingV_.second << std::endl;
+      ss << "  Opto scan maj/min vers     : " << optoScanV_.first << "." << optoScanV_.second << std::endl;
+      ss << "  VPSP scan maj/min vers     : " << vpspScanV_.first << "." << vpspScanV_.second << std::endl;
+      ss << "  APV calib maj/min vers     : " << apvCalibV_.first << "." << apvCalibV_.second << std::endl;
+      ss << "  Pedestals maj/min vers     : " << pedestalsV_.first << "." << pedestalsV_.second << std::endl;
+      ss << "  APV latency maj/min vers   : " << apvLatencyV_.first << "." << apvLatencyV_.second << std::endl;
+      ss << "  Fine delay maj/min vers    : " << fineDelayV_.first << "." << fineDelayV_.second << std::endl;
+      
+    } else {
+      
+      if ( runType_ != sistrip::FAST_CABLING ) { 
+	ss << "  FED cabling maj/min vers   : " << fastCablingV_.first << "." << fastCablingV_.second << std::endl;
+      } else {
+	ss << "  FED cabling maj/min vers   : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << fastCablingV_.first << "." << fastCablingV_.second 
+	   << " for this FED cabling run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::APV_TIMING ) { 
+	ss << "  APV timing maj/min vers    : " << apvTimingV_.first << "." << apvTimingV_.second << std::endl;
+      } else {
+	ss << "  APV timing maj/min vers    : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << apvTimingV_.first << "." << apvTimingV_.second 
+	   << " for this APV timing run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::OPTO_SCAN ) { 
+	ss << "  Opto scan maj/min vers     : " << optoScanV_.first << "." << optoScanV_.second << std::endl;
+      } else {
+	ss << "  Opto scan maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << optoScanV_.first << "." << optoScanV_.second 
+	   << " for this opto scan run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::VPSP_SCAN ) { 
+	ss << "  VPSP scan maj/min vers     : " << vpspScanV_.first << "." << vpspScanV_.second << std::endl;
+      } else {
+	ss << "  VPSP scan maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << vpspScanV_.first << "." << vpspScanV_.second 
+	   << " for this VPSP scan run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::CALIBRATION ) { 
+	ss << "  APV calib maj/min vers     : " << apvCalibV_.first << "." << apvCalibV_.second << std::endl;
+      } else {
+	ss << "  APV calib maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << apvCalibV_.first << "." << apvCalibV_.second 
+	   << " for this APV calib run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::PEDESTALS ) { 
+	ss << "  Pedestals maj/min vers     : " << pedestalsV_.first << "." << pedestalsV_.second << std::endl;
+      } else {
+	ss << "  Pedestals maj/min vers     : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << pedestalsV_.first << "." << pedestalsV_.second 
+	   << " for this pedestals run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::APV_LATENCY ) { 
+	ss << "  APV latency maj/min vers   : " << apvLatencyV_.first << "." << apvLatencyV_.second << std::endl;
+      } else {
+	ss << "  APV latency maj/min vers   : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << apvLatencyV_.first << "." << apvLatencyV_.second 
+	   << " for this APV latency run!" << std::endl;
+      }
+
+      if ( runType_ != sistrip::FINE_DELAY_TTC ) { 
+	ss << "  Fine delay maj/min vers    : " << fineDelayV_.first << "." << fineDelayV_.second << std::endl;
+      } else {
+	ss << "  Fine delay maj/min vers    : " << runTableVersion_.first << "." << runTableVersion_.second
+	   << " <= This \"state\" version overriden by \"history\" version " 
+	   << fineDelayV_.first << "." << fineDelayV_.second 
+	   << " for this fine delay run!" << std::endl;
+      }
+
+    }
 
   } else {
     

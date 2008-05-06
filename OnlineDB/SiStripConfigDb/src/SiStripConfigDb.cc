@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.64 2008/04/29 11:57:05 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.65 2008/04/30 08:12:36 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -277,50 +277,6 @@ void SiStripConfigDb::usingDatabase() {
     return;
   }
   
-  // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
-  std::string partition = "ENV_CMS_TK_PARTITION";
-  if ( getenv(partition.c_str()) != NULL ) { 
-
-    std::stringstream ss;
-    ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"partitions\" to \""
-       << getenv( partition.c_str() )
-       << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
-    if ( !dbParams_.partitionNames().empty() ) {
-      ss << " (Overwriting existing value of \""
-	 << dbParams_.partitionNames( dbParams_.partitionNames() )
-	 << "\" read from .cfg file)";
-    }
-    LogTrace(mlConfigDb_) << ss.str() << std::endl;
-
-    // Build partitions from env. var.
-    std::vector<std::string> partitions = dbParams_.partitionNames( getenv( partition.c_str() ) );
-    if ( !partitions.empty() ) {
-      dbParams_.clearPartitions();
-      std::vector<std::string>::iterator ii = partitions.begin();
-      std::vector<std::string>::iterator jj = partitions.end();
-      for ( ; ii != jj; ++ii ) {
-	SiStripPartition partition( *ii );
-	dbParams_.addPartition( partition );
-      }
-    }
-
-  } else if ( !dbParams_.partitionNames().empty() ) {
-    std::stringstream ss;
-    ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"partitions\" to \""
-       << dbParams_.partitionNames( dbParams_.partitionNames() )
-       << "\" using 'PartitionName' configurables read from .cfg file";
-    LogTrace(mlConfigDb_) << ss.str();
-  } else { 
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Unable to retrieve 'partition' parameter"
-      << " from 'CONFDB' environmental variable or .cfg file!"
-      << " Aborting connection to database...";
-    return;
-  } 
-
   // Check TNS_ADMIN environmental variable
   std::string pattern = "TNS_ADMIN";
   std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
@@ -421,9 +377,7 @@ void SiStripConfigDb::usingDatabase() {
        << ", using database account with parameters '" 
        << dbParams_.user() << "/" 
        << dbParams_.passwd() << "@" 
-       << dbParams_.path()
-       << "' and partitions '" 
-       << dbParams_.partitionNames( dbParams_.partitionNames() ) << "'";
+       << dbParams_.path();
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_)
@@ -444,11 +398,55 @@ void SiStripConfigDb::usingDatabase() {
     handleException( __func__, "Attempted to 'setUsingDb'" );
   }
   
+  // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
+  std::string partition = "ENV_CMS_TK_PARTITION";
+  if ( getenv(partition.c_str()) != NULL ) { 
+    
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Setting \"partitions\" to \""
+       << getenv( partition.c_str() )
+       << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
+    if ( !dbParams_.partitionNames().empty() ) {
+      ss << " (Overwriting existing value of \""
+	 << dbParams_.partitionNames( dbParams_.partitionNames() )
+	 << "\" read from .cfg file)";
+    }
+    LogTrace(mlConfigDb_) << ss.str() << std::endl;
+
+    // Build partitions from env. var.
+    std::vector<std::string> partitions = dbParams_.partitionNames( getenv( partition.c_str() ) );
+    if ( !partitions.empty() ) {
+      dbParams_.clearPartitions();
+      std::vector<std::string>::iterator ii = partitions.begin();
+      std::vector<std::string>::iterator jj = partitions.end();
+      for ( ; ii != jj; ++ii ) {
+	SiStripPartition partition( *ii );
+	dbParams_.addPartition( partition );
+      }
+    }
+
+  } else if ( !dbParams_.partitionNames().empty() ) {
+    std::stringstream ss;
+    ss << "[SiStripConfigDb::" << __func__ << "]"
+       << " Setting \"partitions\" to \""
+       << dbParams_.partitionNames( dbParams_.partitionNames() )
+       << "\" using 'PartitionName' configurables read from .cfg file";
+    LogTrace(mlConfigDb_) << ss.str();
+  } else { 
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Unable to retrieve 'partition' parameter"
+      << " from 'CONFDB' environmental variable or .cfg file!"
+      << " Aborting connection to database...";
+    return;
+  } 
+
   // Check if should use current state, run number or versions
-  SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions().first;
-  SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions().second;
+  SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions().end();
   for ( ; ip != jp; ++ip ) { ip->second.update( this ); }
-  
+
 }
 
 // -----------------------------------------------------------------------------
@@ -566,8 +564,8 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Iterate through partitions
-  SiStripDbParams::SiStripPartitions::const_iterator ip = dbParams_.partitions().first;
-  SiStripDbParams::SiStripPartitions::const_iterator jp = dbParams_.partitions().second;
+  SiStripDbParams::SiStripPartitions::const_iterator ip = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jp = dbParams_.partitions().end();
   for ( ; ip != jp; ++ip ) {
     
     // Input module.xml file
@@ -825,3 +823,95 @@ bool SiStripConfigDb::checkFileExists( const std::string& path ) {
   fs.close();
   return true;
 }
+
+
+// -----------------------------------------------------------------------------
+//
+std::vector<uint16_t> SiStripConfigDb::runNumbers( std::string partition_name, 
+						   sistrip::RunType run_type ) const {
+  
+  std::vector<uint16_t> runs;
+  runs.clear();
+  
+  // Check partition name
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partition( partition_name );
+  if ( iter == dbParams_.partitions().end() ) { 
+    edm::LogWarning(mlConfigDb_)
+      << "[SiStripPartition::" << __func__ << "]"
+      << " Partition name not found!";
+    return runs; 
+  }
+  
+  // Check DF pointer
+  DeviceFactory* const df = deviceFactory(__func__);
+  if ( !df ) {
+    edm::LogError(mlConfigDb_)
+      << "[SiStripPartition::" << __func__ << "]"
+      << " NULL pointer to DeviceFactory object!";
+    return runs;
+  }
+  
+  // Retrieve runs
+  tkRunVector all;
+#ifdef USING_NEW_DATABASE_MODEL  
+  all = df->getAllRuns();
+#else
+  all = *(df->getAllRuns());
+#endif
+  tkRunVector::const_iterator ii = all.begin();
+  tkRunVector::const_iterator jj = all.end();
+  for ( ; ii != jj; ++ii ) {
+    // Check TkRun pointer
+    if ( *ii ) {
+      // Check partition name
+      if ( (*ii)->getPartitionName() == partition_name ) { 
+	uint16_t type = (*ii)->getModeId( (*ii)->getMode() );
+	sistrip::RunType temp = sistrip::UNKNOWN_RUN_TYPE;
+	if      ( type ==  1 ) { temp = sistrip::PHYSICS; }
+	else if ( type ==  2 ) { temp = sistrip::PEDESTALS; }
+	else if ( type ==  3 ) { temp = sistrip::CALIBRATION; }
+	else if ( type == 33 ) { temp = sistrip::CALIBRATION_DECO; }
+	else if ( type ==  4 ) { temp = sistrip::OPTO_SCAN; }
+	else if ( type ==  5 ) { temp = sistrip::APV_TIMING; }
+	else if ( type ==  6 ) { temp = sistrip::APV_LATENCY; }
+	else if ( type ==  7 ) { temp = sistrip::FINE_DELAY_PLL; }
+	else if ( type ==  8 ) { temp = sistrip::FINE_DELAY_TTC; }
+	else if ( type == 10 ) { temp = sistrip::MULTI_MODE; }
+	else if ( type == 12 ) { temp = sistrip::FED_TIMING; }
+	else if ( type == 13 ) { temp = sistrip::FED_CABLING; }
+	else if ( type == 14 ) { temp = sistrip::VPSP_SCAN; }
+	else if ( type == 15 ) { temp = sistrip::DAQ_SCOPE_MODE; }
+	else if ( type == 16 ) { temp = sistrip::QUITE_FAST_CABLING; }
+	else if ( type == 21 ) { temp = sistrip::FAST_CABLING; }
+	else if ( type ==  0 ) { temp = sistrip::UNDEFINED_RUN_TYPE; }
+	else                   { temp = sistrip::UNKNOWN_RUN_TYPE; }
+	// Check run type
+	if ( temp == run_type ) { 
+	  // Check run number
+	  if ( (*ii)->getRunNumber() ) { 
+	    runs.push_back( (*ii)->getRunNumber() ); 
+	  } else {
+// 	    edm::LogWarning(mlConfigDb_)
+// 	      << "[SiStripPartition::" << __func__ << "]"
+// 	      << " NULL run number!";
+	  }
+	} else {
+// 	  edm::LogWarning(mlConfigDb_)
+// 	    << "[SiStripPartition::" << __func__ << "]"
+// 	    << " Run type does not match!";
+	}
+      } else {
+// 	edm::LogWarning(mlConfigDb_)
+// 	  << "[SiStripPartition::" << __func__ << "]"
+// 	  << " Partition name does not match!";
+      }
+    } else {
+//       edm::LogWarning(mlConfigDb_)
+// 	<< "[SiStripPartition::" << __func__ << "]"
+// 	<< " NULL pointer to TkRun object!";
+    }
+  }
+  return runs;
+}
+  
+  

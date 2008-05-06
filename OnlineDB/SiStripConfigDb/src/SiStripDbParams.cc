@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.4 2008/04/25 10:06:54 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.5 2008/04/29 11:57:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -42,13 +42,24 @@ void SiStripDbParams::addPartition( const SiStripPartition& in ) {
     edm::LogWarning(mlConfigDb_) << ss.str();
   }
   SiStripPartitions::const_iterator iter = partitions_.find( in.partitionName() );
-  if ( iter != partitions_.end() ) { partitions_[in.partitionName()] = in; }
+  if ( iter != partitions_.end() ) { 
+    partitions_[in.partitionName()] = in; 
+    std::stringstream ss;
+    ss << "[SiStripDbParams::" << __func__ << "]"
+       << " Added new partition with name \""
+       << partitions_[in.partitionName()] 
+       << "\"! (Currently have " 
+       << partitions_.size()
+       << " partitions)";
+    edm::LogVerbatim(mlConfigDb_) << ss.str();
+  }
   else {
     std::stringstream ss;
     ss << "[SiStripDbParams::" << __func__ << "]"
        << " Partition with name \""
        << in.partitionName()
-       << "\" already exists in cache!";
+       << "\" already found!"
+       << " Not adding...";
     edm::LogWarning(mlConfigDb_) << ss.str();
   }
 }
@@ -152,6 +163,24 @@ void SiStripDbParams::confdb( const std::string& user,
     path_   = null_;
   }
   confdb_ = user_ + "/" + passwd_ + "@" + path_;
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripDbParams::SiStripPartitions::const_iterator SiStripDbParams::partition( std::string partition_name ) const {
+  SiStripDbParams::SiStripPartitions::const_iterator ii = partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jj = partitions().end();
+  for ( ; ii != jj; ++ii ) { if ( partition_name == ii->second.partitionName() ) { return ii; } }
+  return partitions().end(); 
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripDbParams::SiStripPartitions::iterator SiStripDbParams::partition( std::string partition_name ) {
+  SiStripDbParams::SiStripPartitions::iterator ii = partitions().begin();
+  SiStripDbParams::SiStripPartitions::iterator jj = partitions().end();
+  for ( ; ii != jj; ++ii ) { if ( partition_name == ii->second.partitionName() ) { return ii; } }
+  return partitions().end(); 
 }
 
 // -----------------------------------------------------------------------------

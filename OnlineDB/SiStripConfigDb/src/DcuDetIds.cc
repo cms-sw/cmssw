@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIds.cc,v 1.1 2008/04/30 08:12:36 bainbrid Exp $
+// Last commit: $Id: DcuDetIds.cc,v 1.2 2008/04/30 13:32:13 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,8 +20,8 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 
     if ( !dbParams_.usingDbCache() ) { 
 
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -41,7 +41,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 	    DcuDetIdMap src = deviceFactory(__func__)->getInfos(); 
 	    
 	    // Make local copy 
-	    std::vector<DcuDetId> dst;
+	    DcuDetIdsV dst;
 	    clone( src, dst );
 	    
 	    // Add to cache
@@ -63,7 +63,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
       if ( src ) { 
 	
 	// Make local copy 
-	std::vector<DcuDetId> dst;
+	DcuDetIdsV dst;
 	clone( *src, dst ); 
 	
 	// Add to cache
@@ -90,8 +90,8 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
     nc = range.size();
   } else { 
     if ( !dcuDetIds_.empty() ) {
-      range = DcuDetIdsRange( dcuDetIds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-				dcuDetIds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      range = DcuDetIdsRange( dcuDetIds_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+			      dcuDetIds_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { range = dcuDetIds_.emptyRange(); }
     np = dcuDetIds_.size();
     nc = range.size();
@@ -111,7 +111,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addDcuDetIds( std::string partition, std::vector<DcuDetId>& dcus ) {
+void SiStripConfigDb::addDcuDetIds( std::string partition, DcuDetIdsV& dcus ) {
 
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -138,10 +138,10 @@ void SiStripConfigDb::addDcuDetIds( std::string partition, std::vector<DcuDetId>
   //     return; 
   //   }
 
-  //   SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-  //   SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+  //   SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+  //   SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
   //   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  //   if ( iter == dbParams_.partitions().second ) { 
+  //   if ( iter == dbParams_.partitions().end() ) { 
   //     stringstream ss; 
   //     ss << "[SiStripConfigDb::" << __func__ << "]" 
   //        << " Partition \"" << partition
@@ -155,7 +155,7 @@ void SiStripConfigDb::addDcuDetIds( std::string partition, std::vector<DcuDetId>
   //   if ( range == dcuDetIds_.emptyRange() ) {
     
   //     // Make local copy 
-  //     std::vector<DcuDetId> dst;
+  //     DcuDetIdsV dst;
   // #ifdef USING_NEW_DATABASE_MODEL
   //     clone( dcus, dst );
   // #else
@@ -227,8 +227,8 @@ void SiStripConfigDb::uploadDcuDetIds( std::string partition ) {
 
   //   try {
     
-  //     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-  //     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+  //     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+  //     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
   //     for ( ; iter != jter; ++iter ) {
       
   //       if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -238,7 +238,7 @@ void SiStripConfigDb::uploadDcuDetIds( std::string partition ) {
 	  
   // 	  // Extract 
   // 	  DcuDetIdMap dst;
-  // 	  clone( std::vector<DcuDetId>( range.begin(), range.end() ), dst );
+  // 	  clone( DcuDetIdsV( range.begin(), range.end() ), dst );
   // 	  deviceFactory(__func__)->setTkDcuInfo( dst );
   // 	  getcurrentstate
   // 	  deviceFactory(__func__)->addAllDetId();
@@ -294,13 +294,13 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   DcuDetIds temporary_cache;
   if ( partition == ""  ) { temporary_cache = DcuDetIds(); }
   else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	DcuDetIdsRange range = dcuDetIds_.find( iter->second.partitionName() );
 	if ( range != dcuDetIds_.emptyRange() ) {
-	  temporary_cache.loadNext( partition, std::vector<DcuDetId>( range.begin(), range.end() ) );
+	  temporary_cache.loadNext( partition, DcuDetIdsV( range.begin(), range.end() ) );
 	} else {
 	  // 	  stringstream ss; 
 	  // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -316,12 +316,12 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   DcuDetIdsRange dcus;
   if ( partition == "" ) { 
     if ( !dcuDetIds_.empty() ) {
-      dcus = DcuDetIdsRange( dcuDetIds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-			       dcuDetIds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      dcus = DcuDetIdsRange( dcuDetIds_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+			     dcuDetIds_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { dcus = dcuDetIds_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     dcus = dcuDetIds_.find( iter->second.partitionName() );
   }
@@ -329,8 +329,8 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
   if ( dcus != dcuDetIds_.emptyRange() ) {
     
 #ifdef USING_NEW_DATABASE_MODEL	
-    std::vector<DcuDetId>::const_iterator ifed = dcus.begin();
-    std::vector<DcuDetId>::const_iterator jfed = dcus.end();
+    DcuDetIdsV::const_iterator ifed = dcus.begin();
+    DcuDetIdsV::const_iterator jfed = dcus.end();
     for ( ; ifed != jfed; ++ifed ) { if ( ifed->second ) { delete ifed->second; } }
 #endif
     
@@ -379,7 +379,7 @@ void SiStripConfigDb::printDcuDetIds( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::clone( const DcuDetIdMap& input, std::vector<DcuDetId>& output ) const {
+void SiStripConfigDb::clone( const DcuDetIdMap& input, DcuDetIdsV& output ) const {
   output.clear();
   DcuDetIdMap::const_iterator ii = input.begin();
   DcuDetIdMap::const_iterator jj = input.end();
@@ -388,29 +388,55 @@ void SiStripConfigDb::clone( const DcuDetIdMap& input, std::vector<DcuDetId>& ou
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::clone( const std::vector<DcuDetId>& input, DcuDetIdMap& output ) const {
+void SiStripConfigDb::clone( const DcuDetIdsV& input, DcuDetIdMap& output ) const {
   output.clear();
-  std::vector<DcuDetId>::const_iterator ii = input.begin();
-  std::vector<DcuDetId>::const_iterator jj = input.end();
+  DcuDetIdsV::const_iterator ii = input.begin();
+  DcuDetIdsV::const_iterator jj = input.end();
   for ( ; ii != jj; ++ii ) { if ( ii->second ) { output[ii->first] = new TkDcuInfo( *(ii->second) ); } }
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::clone( const std::vector<DcuDetId>& input, std::vector<DcuDetId>& output ) const {
+void SiStripConfigDb::clone( const DcuDetIdsV& input, DcuDetIdsV& output ) const {
   output.clear();
-  std::vector<DcuDetId>::const_iterator ii = input.begin();
-  std::vector<DcuDetId>::const_iterator jj = input.end();
+  DcuDetIdsV::const_iterator ii = input.begin();
+  DcuDetIdsV::const_iterator jj = input.end();
   for ( ; ii != jj; ++ii ) { if ( ii->second ) { output.push_back( std::make_pair( ii->first, new TkDcuInfo( *(ii->second) ) ) ); } }
 }
 
+// // -----------------------------------------------------------------------------
+// // 
+// SiStripConfigDb::DcuDetIdsV::const_iterator SiStripConfigDb::find( DcuDetIdsV::const_iterator begin, 
+// 								   DcuDetIdsV::const_iterator end, 
+// 								   uint32_t dcu_id  ) {
+//   DcuDetIdsV::const_iterator iter = begin;
+//   DcuDetIdsV::const_iterator jter = end;
+//   for ( ; iter != jter; ++iter  ) {
+//     if ( iter->second && iter->second->getDcuHardId() == dcu_id ) { return iter; }
+//   }
+//   return end;
+// }
+
+// // -----------------------------------------------------------------------------
+// // 
+// SiStripConfigDb::DcuDetIdsV::iterator SiStripConfigDb::find( DcuDetIdsV::iterator begin, 
+// 							     DcuDetIdsV::iterator end, 
+// 							     uint32_t dcu_id  ) {
+//   DcuDetIdsV::iterator iter = begin;
+//   DcuDetIdsV::iterator jter = end;
+//   for ( ; iter != jter; ++iter  ) {
+//     if ( iter->second && iter->second->getDcuHardId() == dcu_id ) { return iter; }
+//   }
+//   return end;
+// }
+
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DcuDetIdV::const_iterator SiStripConfigDb::findDcuDetId( DcuDetIdV::const_iterator begin, 
-									  DcuDetIdV::const_iterator end, 
+SiStripConfigDb::DcuDetIdsV::const_iterator SiStripConfigDb::findDcuDetId( DcuDetIdsV::const_iterator begin, 
+									  DcuDetIdsV::const_iterator end, 
 									  uint32_t dcu_id  ) {
-  DcuDetIdV::const_iterator iter = begin;
-  DcuDetIdV::const_iterator jter = end;
+  DcuDetIdsV::const_iterator iter = begin;
+  DcuDetIdsV::const_iterator jter = end;
   for ( ; iter != jter; ++iter  ) {
     if ( iter->second && iter->second->getDcuHardId() == dcu_id ) { return iter; }
   }
@@ -419,11 +445,11 @@ SiStripConfigDb::DcuDetIdV::const_iterator SiStripConfigDb::findDcuDetId( DcuDet
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DcuDetIdV::iterator SiStripConfigDb::findDcuDetId( DcuDetIdV::iterator begin, 
-								    DcuDetIdV::iterator end, 
+SiStripConfigDb::DcuDetIdsV::iterator SiStripConfigDb::findDcuDetId( DcuDetIdsV::iterator begin, 
+								    DcuDetIdsV::iterator end, 
 								    uint32_t dcu_id  ) {
-  DcuDetIdV::iterator iter = begin;
-  DcuDetIdV::iterator jter = end;
+  DcuDetIdsV::iterator iter = begin;
+  DcuDetIdsV::iterator jter = end;
   for ( ; iter != jter; ++iter  ) {
     if ( iter->second && iter->second->getDcuHardId() == dcu_id ) { return iter; }
   }

@@ -1,4 +1,4 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.8 2008/04/30 08:12:36 bainbrid Exp $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.9 2008/04/30 13:32:13 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
@@ -23,7 +23,7 @@ using namespace sistrip;
     T_ANALYSIS_CALIBRATION.
 */
 SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescriptions( AnalysisType analysis_type,
-										       std::string partition ) {
+										     std::string partition ) {
   
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -35,8 +35,8 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 
     if ( !dbParams_.usingDbCache() ) { 
       
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -44,7 +44,7 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 	  AnalysisDescriptionsRange range = analyses_.find( iter->second.partitionName() );
 	  if ( range == analyses_.emptyRange() ) {
     
-	    std::vector<AnalysisDescription*> tmp1;
+	    AnalysisDescriptionsV tmp1;
 	    if ( analysis_type == AnalysisDescription::T_ANALYSIS_FASTFEDCABLING ) {
 	      tmp1 = deviceFactory(__func__)->getAnalysisHistory( iter->second.partitionName(), 
 								  iter->second.fastCablingVersion().first,
@@ -96,8 +96,8 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 	    }
 	    
 	    // Make local copy 
-	    std::vector<AnalysisDescription*> tmp2;
-	    tmp2 = tmp1; //CommissioningAnalysisFactory::vectorCopy( tmp2, tmp1 );
+	    AnalysisDescriptionsV tmp2;
+	    CommissioningAnalysisFactory::vectorCopy( tmp1, tmp2 );
 	    
 	    // Add to cache
 	    analyses_.loadNext( iter->second.partitionName(), tmp2 );
@@ -106,7 +106,7 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 	    AnalysisDescriptionsRange anals = analyses_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
-	       << " Dowloaded " << anals.size() 
+	       << " Downloaded " << anals.size() 
 	       << " analysis descriptions of type \""
 	       << analysisType( analysis_type )
 	       << "\" to local cache for partition \""
@@ -139,8 +139,8 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
     nc = anals.size();
   } else { 
     if ( !analyses_.empty() ) {
-      anals = AnalysisDescriptionsRange( analyses_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-					   analyses_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      anals = AnalysisDescriptionsRange( analyses_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+					 analyses_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { anals = analyses_.emptyRange(); }
     np = analyses_.size();
     nc = anals.size();
@@ -160,7 +160,7 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addAnalysisDescriptions( std::string partition, std::vector<AnalysisDescription*>& anals ) {
+void SiStripConfigDb::addAnalysisDescriptions( std::string partition, AnalysisDescriptionsV& anals ) {
 
   if ( !deviceFactory(__func__) ) { return; }
 
@@ -182,10 +182,10 @@ void SiStripConfigDb::addAnalysisDescriptions( std::string partition, std::vecto
     return; 
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  if ( iter == dbParams_.partitions().second ) { 
+  if ( iter == dbParams_.partitions().end() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
@@ -199,8 +199,8 @@ void SiStripConfigDb::addAnalysisDescriptions( std::string partition, std::vecto
   if ( range == analyses_.emptyRange() ) {
     
     // Make local copy 
-    std::vector<AnalysisDescription*> tmp;
-    tmp = anals; // CommissioningAnalysisFactory::vectorCopy( tmp, anals );
+    AnalysisDescriptionsV tmp;
+    CommissioningAnalysisFactory::vectorCopy( anals, tmp );
     
     // Add to local cache
     analyses_.loadNext( partition, tmp );
@@ -259,8 +259,8 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
   
   try { 
 
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       
       if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -268,7 +268,7 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
 	AnalysisDescriptionsRange range = analyses_.find( iter->second.partitionName() );
 	if ( range != analyses_.emptyRange() ) {
 	  
-	  std::vector<AnalysisDescription*> anals( range.begin(), range.end() );
+	  AnalysisDescriptionsV anals( range.begin(), range.end() );
 	  
 	  AnalysisType analysis_type = AnalysisDescription::T_UNKNOWN;
 	  if ( anals.front() ) { analysis_type = anals.front()->getType(); }
@@ -341,13 +341,13 @@ void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
   AnalysisDescriptions temporary_cache;
   if ( partition == ""  ) { temporary_cache = AnalysisDescriptions(); }
   else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	AnalysisDescriptionsRange range = analyses_.find( iter->second.partitionName() );
 	if ( range != analyses_.emptyRange() ) {
-	  temporary_cache.loadNext( partition, std::vector<AnalysisDescription*>( range.begin(), range.end() ) );
+	  temporary_cache.loadNext( partition, AnalysisDescriptionsV( range.begin(), range.end() ) );
 	} else {
 	  // 	  stringstream ss; 
 	  // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -363,20 +363,20 @@ void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
   AnalysisDescriptionsRange anals = analyses_.emptyRange();
   if ( partition == "" ) { 
     if ( !analyses_.empty() ) {
-      anals = AnalysisDescriptionsRange( analyses_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-					   analyses_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      anals = AnalysisDescriptionsRange( analyses_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+					 analyses_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { anals = analyses_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     anals = analyses_.find( iter->second.partitionName() );
   }
   
   if ( anals != analyses_.emptyRange() ) {
-    std::vector<AnalysisDescription*>::const_iterator ianal = anals.begin();
-    std::vector<AnalysisDescription*>::const_iterator janal = anals.end();
-    //for ( ; ianal != janal; ++ianal ) { if ( *ianal ) { delete *ianal; } }
+    AnalysisDescriptionsV::const_iterator ianal = anals.begin();
+    AnalysisDescriptionsV::const_iterator janal = anals.end();
+    for ( ; ianal != janal; ++ianal ) { if ( *ianal ) { delete *ianal; } }
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";
@@ -414,8 +414,8 @@ void SiStripConfigDb::printAnalysisDescriptions( std::string partition ) {
       
       // Extract FEC crate, slot, etc
       std::map< uint32_t, vector<uint32_t> > analyses;
-      std::vector<AnalysisDescription*>::const_iterator iter = ianal->second.begin();
-      std::vector<AnalysisDescription*>::const_iterator jter = ianal->second.end();
+      AnalysisDescriptionsV::const_iterator iter = ianal->second.begin();
+      AnalysisDescriptionsV::const_iterator jter = ianal->second.end();
       for ( ; iter != jter; ++iter ) { 
 	if ( *iter ) { 
 	  DeviceAddress addr = deviceAddress( **iter );

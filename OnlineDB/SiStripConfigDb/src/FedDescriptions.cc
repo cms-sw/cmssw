@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.27 2008/04/29 11:57:05 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.28 2008/04/30 13:32:13 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -22,8 +22,8 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 
     if ( !dbParams_.usingDbCache() ) { 
 
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -42,13 +42,13 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 	    }
 
 	    // Retrive FED descriptions
-	    std::vector<FedDescription*> tmp1;
+	    FedDescriptionsV tmp1;
 	    tmp1 = *( deviceFactory(__func__)->getFed9UDescriptions( iter->second.partitionName(), 
 								     major, 
 								     minor ) );
 	    
 	    // Make local copy 
-	    std::vector<FedDescription*> tmp2;
+	    FedDescriptionsV tmp2;
 #ifdef USING_NEW_DATABASE_MODEL
 	    Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, tmp1 );
 #else
@@ -80,12 +80,12 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 
 #ifdef USING_NEW_DATABASE_MODEL
 
-      std::vector<FedDescription*>* tmp1 = databaseCache(__func__)->getFed9UDescriptions();
+      FedDescriptionsV* tmp1 = databaseCache(__func__)->getFed9UDescriptions();
       
       if ( tmp1 ) { 
 	
 	// Make local copy 
-	std::vector<FedDescription*> tmp2;
+	FedDescriptionsV tmp2;
 	Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, *tmp1 );
 	
 	// Add to cache
@@ -113,8 +113,8 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
     nc = feds.size();
   } else {  
     if ( !feds_.empty() ) {
-      feds = FedDescriptionsRange( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-				     feds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      feds = FedDescriptionsRange( feds_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+				   feds_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { feds = feds_.emptyRange(); }
     np = feds_.size();
     nc = feds.size();
@@ -135,7 +135,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<FedDescription*>& feds ) {
+void SiStripConfigDb::addFedDescriptions( std::string partition, FedDescriptionsV& feds ) {
 
   if ( !deviceFactory(__func__) ) { return; }
 
@@ -157,10 +157,10 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
     return; 
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  if ( iter == dbParams_.partitions().second ) { 
+  if ( iter == dbParams_.partitions().end() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
@@ -174,7 +174,7 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, std::vector<Fed
   if ( range == feds_.emptyRange() ) {
     
     // Make local copy 
-    std::vector<FedDescription*> tmp;
+    FedDescriptionsV tmp;
 #ifdef USING_NEW_DATABASE_MODEL
     Fed9U::Fed9UDeviceFactory::vectorCopy( tmp, feds );
 #else
@@ -230,8 +230,8 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
   
   try { 
 
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       
       if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -239,7 +239,7 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 	FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
 	  
-	  std::vector<FedDescription*> feds( range.begin(), range.end() );
+	  FedDescriptionsV feds( range.begin(), range.end() );
 	  
 	  deviceFactory(__func__)->setFed9UDescriptions( feds,
 							 iter->second.partitionName(),
@@ -266,13 +266,13 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 	}
 	
       } else {
-// 	  stringstream ss; 
-// 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
-// 	     << " Cannot find partition \"" << partition
-// 	     << "\" in cached partitions list: \""
-// 	     << dbParams_.partitionNames( dbParams_.partitionNames() ) 
-// 	     << "\", therefore aborting upload for this partition!";
-// 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
+	// 	  stringstream ss; 
+	// 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
+	// 	     << " Cannot find partition \"" << partition
+	// 	     << "\" in cached partitions list: \""
+	// 	     << dbParams_.partitionNames( dbParams_.partitionNames() ) 
+	// 	     << "\", therefore aborting upload for this partition!";
+	// 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
       }
       
     }
@@ -299,13 +299,13 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   FedDescriptions temporary_cache;
   if ( partition == ""  ) { temporary_cache = FedDescriptions(); }
   else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	if ( range != feds_.emptyRange() ) {
-	  temporary_cache.loadNext( partition, std::vector<FedDescription*>( range.begin(), range.end() ) );
+	  temporary_cache.loadNext( partition, FedDescriptionsV( range.begin(), range.end() ) );
 	}
       } else {
 	FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
@@ -324,12 +324,12 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   FedDescriptionsRange feds;
   if ( partition == "" ) { 
     if ( !feds_.empty() ) {
-      feds = FedDescriptionsRange( feds_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-				     feds_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      feds = FedDescriptionsRange( feds_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+				   feds_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { feds = feds_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     feds = feds_.find( iter->second.partitionName() );
   }
@@ -337,8 +337,8 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
   if ( feds != feds_.emptyRange() ) {
 
 #ifdef USING_NEW_DATABASE_MODEL	
-    std::vector<FedDescription*>::const_iterator ifed = feds.begin();
-    std::vector<FedDescription*>::const_iterator jfed = feds.end();
+    FedDescriptionsV::const_iterator ifed = feds.begin();
+    FedDescriptionsV::const_iterator jfed = feds.end();
     for ( ; ifed != jfed; ++ifed ) { if ( *ifed ) { delete *ifed; } }
 #endif
     
@@ -379,8 +379,8 @@ void SiStripConfigDb::printFedDescriptions( std::string partition ) {
 
       // Extract FED crates and ids
       std::map< uint16_t, vector<uint16_t> > feds;
-      std::vector<FedDescription*>::const_iterator iter = iconn->second.begin();
-      std::vector<FedDescription*>::const_iterator jter = iconn->second.end();
+      FedDescriptionsV::const_iterator iter = iconn->second.begin();
+      FedDescriptionsV::const_iterator jter = iconn->second.end();
       for ( ; iter != jter; ++iter ) { 
 	if ( *iter ) { 
 	  uint16_t key = (*iter)->getCrateNumber();
@@ -458,8 +458,8 @@ SiStripConfigDb::FedIdsRange SiStripConfigDb::getFedIds( std::string partition )
     if ( factory_ ) { factory_->setUsingStrips( using_strips ); }
     
     if ( !feds.empty() ) {
-      std::vector<FedDescription*>::const_iterator ifed = feds.begin();
-      std::vector<FedDescription*>::const_iterator jfed = feds.end();
+      FedDescriptionsV::const_iterator ifed = feds.begin();
+      FedDescriptionsV::const_iterator jfed = feds.end();
       for ( ; ifed != jfed; ++ifed ) { 
 	if ( *ifed ) { fedIds_.push_back( (*ifed)->getFedId() ); }
 	else {

@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.26 2008/04/29 11:57:05 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.27 2008/04/30 13:32:13 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -21,8 +21,8 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 
     if ( !dbParams_.usingDbCache() ) { 
 
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -31,7 +31,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 	  if ( range == devices_.emptyRange() ) {
 	    
 	    // Retrieve conections
-	    std::vector<DeviceDescription*> tmp1;
+	    DeviceDescriptionsV tmp1;
 	    deviceFactory(__func__)->getFecDeviceDescriptions( iter->second.partitionName(), 
 							       tmp1,
 							       iter->second.fecVersion().first,
@@ -39,7 +39,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 							       false ); //@@ do not get DISABLED devices
 	    
 	    // Make local copy 
-	    std::vector<DeviceDescription*> tmp2;
+	    DeviceDescriptionsV tmp2;
 #ifdef USING_NEW_DATABASE_MODEL
 	    FecFactory::vectorCopyI( tmp2, tmp1, true );
 #else
@@ -71,12 +71,12 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
       
 #ifdef USING_NEW_DATABASE_MODEL
 
-      std::vector<DeviceDescription*>* tmp1 = databaseCache(__func__)->getDevices();
+      DeviceDescriptionsV* tmp1 = databaseCache(__func__)->getDevices();
 
       if ( tmp1 ) { 
 	
 	// Make local copy 
-	std::vector<DeviceDescription*> tmp2;
+	DeviceDescriptionsV tmp2;
 	FecFactory::vectorCopyI( tmp2, *tmp1, true );
 	
 	// Add to cache
@@ -104,8 +104,8 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
     nc = devs.size();
   } else { 
     if ( !devices_.empty() ) {
-      devs = DeviceDescriptionsRange( devices_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-					devices_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      devs = DeviceDescriptionsRange( devices_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+				      devices_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { devs = devices_.emptyRange(); }
     np = devices_.size();
     nc = devs.size();
@@ -128,7 +128,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 // 
 //SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( DeviceType device_type, 
 SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( DeviceType device_type, 
-										   std::string partition ) {
+										 std::string partition ) {
   
   typedDevices_.clear();
   
@@ -143,7 +143,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
     DeviceDescriptionsRange devs = SiStripConfigDb::getDeviceDescriptions( partition );
     
     if ( !devs.empty() ) {
-      std::vector<DeviceDescription*> tmp( devs.begin(), devs.end() );
+      DeviceDescriptionsV tmp( devs.begin(), devs.end() );
       typedDevices_ = FecFactory::getDeviceFromDeviceVector( tmp, device_type );
     }
     
@@ -162,7 +162,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addDeviceDescriptions( std::string partition, std::vector<DeviceDescription*>& devs ) {
+void SiStripConfigDb::addDeviceDescriptions( std::string partition, DeviceDescriptionsV& devs ) {
 
   if ( !deviceFactory(__func__) ) { return; }
 
@@ -184,10 +184,10 @@ void SiStripConfigDb::addDeviceDescriptions( std::string partition, std::vector<
     return; 
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  if ( iter == dbParams_.partitions().second ) { 
+  if ( iter == dbParams_.partitions().end() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
@@ -201,7 +201,7 @@ void SiStripConfigDb::addDeviceDescriptions( std::string partition, std::vector<
   if ( range == devices_.emptyRange() ) {
     
     // Make local copy 
-    std::vector<DeviceDescription*> tmp;
+    DeviceDescriptionsV tmp;
 #ifdef USING_NEW_DATABASE_MODEL
     FecFactory::vectorCopyI( tmp, devs, true );
 #else
@@ -256,8 +256,8 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
   
   try { 
 
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       
       if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -265,7 +265,7 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
 	DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	if ( range != devices_.emptyRange() ) {
 	  
-	  std::vector<DeviceDescription*> devs( range.begin(), range.end() );
+	  DeviceDescriptionsV devs( range.begin(), range.end() );
 	  
 	  deviceFactory(__func__)->setFecDeviceDescriptions( devs,
 							     iter->second.partitionName(),
@@ -326,13 +326,13 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   DeviceDescriptions temporary_cache;
   if ( partition == ""  ) { temporary_cache = DeviceDescriptions(); }
   else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	if ( range != devices_.emptyRange() ) {
-	  temporary_cache.loadNext( partition, std::vector<DeviceDescription*>( range.begin(), range.end() ) );
+	  temporary_cache.loadNext( partition, DeviceDescriptionsV( range.begin(), range.end() ) );
 	} else {
 	  // 	  stringstream ss; 
 	  // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -348,12 +348,12 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   DeviceDescriptionsRange devs;
   if ( partition == "" ) { 
     if ( !devices_.empty() ) {
-      devs = DeviceDescriptionsRange( devices_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-					devices_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      devs = DeviceDescriptionsRange( devices_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+				      devices_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { devs = devices_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     devs = devices_.find( iter->second.partitionName() );
   }
@@ -361,8 +361,8 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
   if ( devs != devices_.emptyRange() ) {
 
 #ifdef USING_NEW_DATABASE_MODEL	
-    std::vector<DeviceDescription*>::const_iterator ifed = devs.begin();
-    std::vector<DeviceDescription*>::const_iterator jfed = devs.end();
+    DeviceDescriptionsV::const_iterator ifed = devs.begin();
+    DeviceDescriptionsV::const_iterator jfed = devs.end();
     for ( ; ifed != jfed; ++ifed ) { if ( *ifed ) { delete *ifed; } }
 #endif
     
@@ -403,8 +403,8 @@ void SiStripConfigDb::printDeviceDescriptions( std::string partition ) {
       
       // Extract FEC crate, slot, etc
       std::map< uint32_t, vector<std::string> > devices;
-      std::vector<DeviceDescription*>::const_iterator iter = idev->second.begin();
-      std::vector<DeviceDescription*>::const_iterator jter = idev->second.end();
+      DeviceDescriptionsV::const_iterator iter = idev->second.begin();
+      DeviceDescriptionsV::const_iterator jter = idev->second.end();
       for ( ; iter != jter; ++iter ) { 
 	if ( *iter ) { 
 	  DeviceAddress addr = deviceAddress( **iter );

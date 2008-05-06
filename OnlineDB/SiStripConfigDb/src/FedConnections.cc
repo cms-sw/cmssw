@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.24 2008/04/29 11:57:05 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.25 2008/04/30 13:32:13 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,8 +21,8 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
     
     if ( !dbParams_.usingDbCache() ) { 
       
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -33,7 +33,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 #ifdef USING_NEW_DATABASE_MODEL
 	    
 	    // Retrieve connections
-	    std::vector<FedConnection*> tmp1;
+	    FedConnectionsV tmp1;
 	    deviceFactory(__func__)->getConnectionDescriptions( iter->second.partitionName(), 
 								tmp1,
 								iter->second.cabVersion().first,
@@ -41,7 +41,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 								false ); //@@ do not get DISABLED connections
 	    
 	    // Make local copy 
-	    std::vector<FedConnection*> tmp2;
+	    FedConnectionsV tmp2;
 	    ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
 	    
 	    // Add to cache
@@ -66,7 +66,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	      handleException( __func__, ss.str() ); 
 	    }
 	    
-	    std::vector<FedConnection*> tmp;
+	    FedConnectionsV tmp;
 	    for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
 	      tmp.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
 	    }
@@ -96,12 +96,12 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	
 #ifdef USING_NEW_DATABASE_MODEL
 	
-      std::vector<FedConnection*>* tmp1 = databaseCache(__func__)->getConnections();
+      FedConnectionsV* tmp1 = databaseCache(__func__)->getConnections();
       
       if ( tmp1 ) { 
 	
 	// Make local copy 
-	std::vector<FedConnection*> tmp2;
+	FedConnectionsV tmp2;
 	ConnectionFactory::vectorCopyI( tmp2, *tmp1, true );
 	
 	// Add to cache
@@ -129,8 +129,8 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
     nc = conns.size();
   } else { 
     if ( !connections_.empty() ) {
-      conns = FedConnectionsRange( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-				     connections_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      conns = FedConnectionsRange( connections_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+				   connections_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { conns = connections_.emptyRange(); }
     np = connections_.size();
     nc = conns.size();
@@ -151,7 +151,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedConnection*>& conns ) {
+void SiStripConfigDb::addFedConnections( std::string partition, FedConnectionsV& conns ) {
 
   if ( !deviceFactory(__func__) ) { return; }
 
@@ -173,10 +173,10 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
     return; 
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
   for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
-  if ( iter == dbParams_.partitions().second ) { 
+  if ( iter == dbParams_.partitions().end() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Partition \"" << partition
@@ -190,7 +190,7 @@ void SiStripConfigDb::addFedConnections( std::string partition, std::vector<FedC
   if ( range == connections_.emptyRange() ) {
     
     // Make local copy 
-    std::vector<FedConnection*> tmp;
+    FedConnectionsV tmp;
 #ifdef USING_NEW_DATABASE_MODEL
     ConnectionFactory::vectorCopyI( tmp, conns, true );
 #else
@@ -248,8 +248,8 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
     
     try { 
       
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 
 	if ( partition == "" || partition == iter->second.partitionName() ) {
@@ -257,7 +257,7 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 	  FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	  if ( range != connections_.emptyRange() ) {
 
-	    std::vector<FedConnection*> conns( range.begin(), range.end() );
+	    FedConnectionsV conns( range.begin(), range.end() );
 	    
 #ifdef USING_NEW_DATABASE_MODEL
 	    deviceFactory(__func__)->setConnectionDescriptions( conns,
@@ -266,8 +266,8 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 								&(iter->second.cabVersion().second),
 								true ); // new major version
 #else 
-	    std::vector<FedConnection*>::iterator ifed = conns.begin();
-	    std::vector<FedConnection*>::iterator jfed = conns.end();
+	    FedConnectionsV::iterator ifed = conns.begin();
+	    FedConnectionsV::iterator jfed = conns.end();
 	    for ( ; ifed != jfed; ++ifed ) {
 	      deviceFactory(__func__)->addFedChannelConnection( *ifed );
 	    }
@@ -315,14 +315,14 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 	<< "<!DOCTYPE TrackerDescription SYSTEM \"http://cmsdoc.cern.ch/cms/cmt/System_aspects/Daq/dtd/trackerdescription.dtd\">" << endl
 	<< "<TrackerDescription>" << endl
 	<< "<FedChannelList>" << endl;
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       if ( partition == "" || partition == iter->second.partitionName() ) {
 	FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	if ( range != connections_.emptyRange() ) {
-	  std::vector<FedConnection*>::const_iterator ifed = range.begin();
-	  std::vector<FedConnection*>::const_iterator jfed = range.end();
+	  FedConnectionsV::const_iterator ifed = range.begin();
+	  FedConnectionsV::const_iterator jfed = range.end();
 	  for ( ; ifed != jfed; ++ifed ) { (*ifed)->toXML(out); out << endl; }
 	}
       }
@@ -356,13 +356,13 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   FedConnections temporary_cache;
   if ( partition == ""  ) { temporary_cache = FedConnections(); }
   else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       if ( partition != iter->second.partitionName() ) {
 	FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	if ( range != connections_.emptyRange() ) {
-	  temporary_cache.loadNext( partition, std::vector<FedConnection*>( range.begin(), range.end() ) );
+	  temporary_cache.loadNext( partition, FedConnectionsV( range.begin(), range.end() ) );
 	} else {
 	  // 	  stringstream ss; 
 	  // 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -378,12 +378,12 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   FedConnectionsRange conns;
   if ( partition == "" ) { 
     if ( !connections_.empty() ) {
-      conns = FedConnectionsRange( connections_.find( dbParams_.partitions().first->second.partitionName() ).begin(),
-				     connections_.find( (--(dbParams_.partitions().second))->second.partitionName() ).end() );
+      conns = FedConnectionsRange( connections_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+				   connections_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
     } else { conns = connections_.emptyRange(); }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().first;
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().second;
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) { if ( partition == iter->second.partitionName() ) { break; } }
     conns = connections_.find( iter->second.partitionName() );
   }
@@ -391,8 +391,8 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
   if ( conns != connections_.emptyRange() ) {
 
 #ifdef USING_NEW_DATABASE_MODEL	
-    std::vector<FedConnection*>::const_iterator ifed = conns.begin();
-    std::vector<FedConnection*>::const_iterator jfed = conns.end();
+    FedConnectionsV::const_iterator ifed = conns.begin();
+    FedConnectionsV::const_iterator jfed = conns.end();
     for ( ; ifed != jfed; ++ifed ) { if ( *ifed ) { delete *ifed; } }
 #endif
     
@@ -433,8 +433,8 @@ void SiStripConfigDb::printFedConnections( std::string partition ) {
 
       // Extract FED ids and channels
       std::map< uint16_t, vector<uint16_t> > feds;
-      std::vector<FedConnection*>::const_iterator iter = iconn->second.begin();
-      std::vector<FedConnection*>::const_iterator jter = iconn->second.end();
+      FedConnectionsV::const_iterator iter = iconn->second.begin();
+      FedConnectionsV::const_iterator jter = iconn->second.end();
       for ( ; iter != jter; ++iter ) { 
 	if ( *iter ) { 
 	  uint16_t fed_id = (*iter)->getFedId();

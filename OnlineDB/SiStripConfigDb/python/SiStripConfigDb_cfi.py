@@ -3,7 +3,7 @@
 #@@ A non-zero run number will override any versions specified
 #@@ A null run number means use the versions specified
 #@@ For all versions, "0" means "current state"  
-#@@ If "ForceDcuDetIdVersions" is true, versions not overriden by run number (useful for O2O)
+#@@ If "ForceDcuDetIdsVersions" is true, versions not overriden by run number (useful for O2O)
 #@@ If TNS_ADMIN is set, it will override the environmental variable!
 
 import FWCore.ParameterSet.Config as cms
@@ -25,7 +25,7 @@ SiStripConfigDb = cms.Service("SiStripConfigDb",
     DcuDetIdMajorVersion = cms.untracked.uint32(0),
     OutputModuleXml = cms.untracked.string('/tmp/module.xml'),
     FedMajorVersion = cms.untracked.uint32(0),
-    ForceDcuDetIdVersions = cms.untracked.bool(True),
+    ForceDcuDetIdsVersions = cms.untracked.bool(True),
     RunNumber = cms.untracked.uint32(0),
     Partition = cms.untracked.string(''),
     ConfDb = cms.untracked.string(''),
