@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:54 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/06 13:26:47 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -258,9 +258,10 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
   histos.push_back(theDbe->book1D("hResDist"+slHistoName,
 				  "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
 				  200, -0.4, 0.4));
-  histos.push_back(theDbe->book2D("hResDistVsDist"+slHistoName,
-				  "Residuals on the distance (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
-				  100, 0, 2.5, 200, -0.4, 0.4));
+  //FIXME: 2D plot removed to reduce the # of ME
+//   histos.push_back(theDbe->book2D("hResDistVsDist"+slHistoName,
+// 				  "Residuals on the distance (cm) from wire (rec_hit - segm_extr) vs distance  (cm)",
+// 				  100, 0, 2.5, 200, -0.4, 0.4));
   histosPerSL[slId] = histos;
 }
 
@@ -277,6 +278,8 @@ void DTResolutionAnalysisTask::fillHistos(DTSuperLayerId slId,
   }
   vector<MonitorElement *> histos =  histosPerSL[slId];                          
   histos[0]->Fill(residual);
-  histos[1]->Fill(distExtr, residual);
+  //FIXME: 2D plot removed to reduce the # of ME
+  //   histos[1]->Fill(distExtr, residual); 
+
 }
 
