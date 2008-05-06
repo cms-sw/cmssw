@@ -75,9 +75,11 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
     outputFile_ = "";
   }
 
+  histFolder_ 
+    = ps.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/L1TdeRCT/");
 
   if (dbe != NULL) {
-    dbe->setCurrentFolder("L1T/L1TdeRCT");
+    dbe->setCurrentFolder(histFolder_);
   }
 
 
@@ -97,13 +99,14 @@ void L1TdeRCT::beginJob(const EventSetup & c)
   dbe = Service < DQMStore > ().operator->();
 
   if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TdeRCT");
-    dbe->rmdir("L1T/L1TdeRCT");
+    dbe->setCurrentFolder(histFolder_);
+    dbe->rmdir(histFolder_);
   }
 
 
   if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm");
+
+    dbe->setCurrentFolder(histFolder_+"IsoEm");
 
     rctIsoEmEff1_ =
 	dbe->book2D("rctIsoEmEff1", "rctIsoEmEff1", ETABINS, ETAMIN,
@@ -137,7 +140,7 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 	dbe->book1D("rctIsoEmOvereff1D", "rctIsoEmOvereff1D", 
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData");
+    dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData");
 
     rctIsoEmEmulOcc_ =
 	dbe->book2D("rctIsoEmEmulOcc", "rctIsoEmEmulOcc", ETABINS, ETAMIN,
@@ -180,7 +183,7 @@ void L1TdeRCT::beginJob(const EventSetup & c)
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
 
-    dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm");
+    dbe->setCurrentFolder(histFolder_+"NisoEm");
     rctNisoEmEff1_ =
 	dbe->book2D("rctNisoEmEff1", "rctNisoEmEff1", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -213,7 +216,7 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 	dbe->book1D("rctNisoEmOvereff1D", "rctNisoEmOvereff1D", 
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
-    dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData");
+    dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData");
     rctNisoEmEmulOcc_ =
 	dbe->book2D("rctNisoEmEmulOcc", "rctNisoEmEmulOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -260,13 +263,12 @@ void L1TdeRCT::beginJob(const EventSetup & c)
    {
     for(int m=0; m<6; m++)
     {
-    
-    if(m==0) dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData/Eff1SnglChnls");
-    if(m==1) dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData/Eff1SnglChnls");
-    if(m==2) dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData/IneffSnglChnls");
-    if(m==3) dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData/IneffSnglChnls");
-    if(m==4) dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData/OvereffSnglChnls");
-    if(m==5) dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData/OvereffSnglChnls");
+    if(m==0) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/Eff1SnglChnls");
+    if(m==1) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/Eff1SnglChnls");
+    if(m==2) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/IneffSnglChnls");
+    if(m==3) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/IneffSnglChnls");
+    if(m==4) dbe->setCurrentFolder(histFolder_+"IsoEm/ServiceData/OvereffSnglChnls");
+    if(m==5) dbe->setCurrentFolder(histFolder_+"NisoEm/ServiceData/OvereffSnglChnls");
 
     for(int i=0; i<ETAMAX; i++)
     {

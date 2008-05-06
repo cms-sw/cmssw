@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/05/05 15:01:37 $
- * $Revision: 1.2 $
+ * $Date: 2008/05/05 18:42:23 $
+ * $Revision: 1.3 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.2 2008/05/05 15:01:37 asavin Exp $
+ * $Id: L1TdeRCT.h,v 1.3 2008/05/05 18:42:23 asavin Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.3  2008/05/05 18:42:23  asavin
+ * DataOcc added
+ *
  * Revision 1.2  2008/05/05 15:01:37  asavin
  * single channel histos are added
  *
@@ -146,6 +149,7 @@ private:
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
+  std::string histFolder_; // base dqm folder
   bool verbose_;
   bool singlechannelhistos_;
   bool monitorDaemon_;
