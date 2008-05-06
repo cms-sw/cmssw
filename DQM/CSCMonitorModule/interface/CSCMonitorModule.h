@@ -122,7 +122,9 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     /** If histos have been initialized? **/
     bool init;
 
+    /** List of loaded (preloaded) DDU's */
     BitsetDDU loadDDU;
+    bool hitBookDDU;
     
     /** Source related stuff */
     edm::InputTag inputObjectsTag;

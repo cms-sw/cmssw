@@ -31,7 +31,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   edm::FileInPath fp;
 
-  std::vector<unsigned> ddus = parameters.getUntrackedParameter< std::vector<unsigned> >("bookDDU");
+  std::vector<unsigned> ddus = parameters.getUntrackedParameter< std::vector<unsigned> >("preBookDDU");
   if (ddus.size() > 1) {
     loadDDU = ddus[1];
     loadDDU <<= 18;
@@ -39,6 +39,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
     loadDDU |= minusDDU;
   }
   
+  hitBookDDU     = parameters.getUntrackedParameter<bool>("hitBookDDU", false);
   examinerMask   = parameters.getUntrackedParameter<unsigned int>("ExaminerMask", 0x7FB7BF6);
   examinerForce  = parameters.getUntrackedParameter<bool>("ExaminerForce", false);
   examinerOutput = parameters.getUntrackedParameter<bool>("ExaminerOutput", false);
