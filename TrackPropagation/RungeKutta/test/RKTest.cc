@@ -81,7 +81,7 @@ void RKTest::propagateInCentralVolume( const MagneticField* field) const
       
       //Define starting position and momentum
       float sinth = sqrt(1-costh*costh);
-      GlobalVector startingMomentum(3*sin(phi)*sinth,3*cos(phi)*sinth,3*costh);
+      GlobalVector startingMomentum(5*sin(phi)*sinth,5*cos(phi)*sinth,5*costh);
       GlobalPoint startingPosition(0,0,0);
       //Define starting plane
       PlaneBuilder pb;

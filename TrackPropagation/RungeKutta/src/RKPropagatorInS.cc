@@ -27,8 +27,8 @@ RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
   GlobalParametersWithPath gp =  propagateParametersOnPlane( fts, plane);
   if (!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
   else {
-    SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
-      ? beforeSurface : afterSurface;
+    SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
+      ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
     AnalyticalErrorPropagation errorprop;
     return errorprop( fts, plane, side, gp.parameters(),gp.s());
   }
@@ -40,8 +40,8 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylind
   GlobalParametersWithPath gp =  propagateParametersOnCylinder( fts, cyl);
   if (!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
   else {
-    SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
-      ? beforeSurface : afterSurface;
+    SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
+      ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
     AnalyticalErrorPropagation errorprop;
     return errorprop( fts, cyl, side, gp.parameters(),gp.s());
   }

@@ -16,7 +16,7 @@ public:
 
     std::pair<TrajectoryStateOnSurface,double>
     operator()( const FreeTrajectoryState& startingState, 
-		const Surface& surface, SurfaceSide side,
+		const Surface& surface, SurfaceSideDefinition::SurfaceSide side,
 		const GlobalTrajectoryParameters& destParameters, 
 		const double& s) const;
 };
