@@ -9,13 +9,15 @@
 #include <iostream>
 #include "TStyle.h"
 
-comparisonPlots::comparisonPlots(char* filename, char* outputfilename)
+comparisonPlots::comparisonPlots(std::string filename, std::string outputDir, std::string outputFilename)
 {
 	
-	fin = new TFile(filename);
+	_outputDir = outputDir;
+	
+	fin = new TFile(filename.c_str());
 	fin->cd();
 	
-	output = new TFile(outputfilename,"recreate");
+	output = new TFile((outputDir+outputFilename).c_str(),"recreate");
 	output->cd();
 	
 	readTree();
@@ -51,7 +53,7 @@ void comparisonPlots::readTree(){
 	data->SetBranchAddress("detDim",&detDim_);
 }
 
-void comparisonPlots::plot3x5(TCut Cut){
+void comparisonPlots::plot3x5(TCut Cut, bool savePlot, std::string plotName){
 	
 	// ---------  create directory for histograms ---------
 	const char* dirName = Cut;
@@ -123,7 +125,6 @@ void comparisonPlots::plot3x5(TCut Cut){
 	data->Project("h_dxVphi", "dx:phi",Cut);
 	data->Project("h_dyVphi", "dy:phi",Cut);
 	 
-	h_drVr->SetStats(0);
 	
 	// ---------  draw histograms ---------
 	TCanvas* c0 = new TCanvas("c0", "c0", 200, 10, 900, 300);
@@ -180,9 +181,11 @@ void comparisonPlots::plot3x5(TCut Cut){
 	h_drVz->Write(); h_dzVz->Write(); h_rdphiVz->Write(); h_dxVz->Write(); h_dyVz->Write();
 	h_drVphi->Write(); h_dzVphi->Write(); h_rdphiVphi->Write(); h_dxVphi->Write(); h_dyVphi->Write();
 	
+	if (savePlot) c->Print((_outputDir+plotName).c_str());
+	
 }
 
-void comparisonPlots::plot3x5Profile(TCut Cut, int nBins){
+void comparisonPlots::plot3x5Profile(TCut Cut, int nBins, bool savePlot, std::string plotName){
 	
 	// ---------  create directory for histograms ---------
 	const char* dirName = Cut;
@@ -252,7 +255,7 @@ void comparisonPlots::plot3x5Profile(TCut Cut, int nBins){
 	data->Project("hprof_dyVphi", "dy:phi",Cut,"prof");
 	
 	// ---------  draw histograms ---------
-	TCanvas* cp = new TCanvas("c", "c", 200, 10, 1200, 700);
+	TCanvas* cp = new TCanvas("cp", "cp", 200, 10, 1200, 700);
 	cp->SetFillColor(0);
 	data->SetMarkerSize(0.5);
 	data->SetMarkerStyle(6);
@@ -293,6 +296,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, int nBins){
 	hprof_drVr->Write(); hprof_dzVr->Write(); hprof_rdphiVr->Write(); hprof_dxVr->Write(); hprof_dyVr->Write();
 	hprof_drVz->Write(); hprof_dzVz->Write(); hprof_rdphiVz->Write(); hprof_dxVz->Write(); hprof_dyVz->Write();
 	hprof_drVphi->Write(); hprof_dzVphi->Write(); hprof_rdphiVphi->Write(); hprof_dxVphi->Write(); hprof_dyVphi->Write();
+	
+	if (savePlot) cp->Print((_outputDir+plotName).c_str());
 }
 
 

@@ -25,11 +25,11 @@ class comparisonPlots
 	{
 		
 	public:
-		comparisonPlots(char* filename, char* outputfilename);
+		comparisonPlots(std::string filename, std::string outputDir, std::string outputFilename = "OUTPUT_comparison.root");
 		
 		void readTree();
-		void plot3x5(TCut Cut);
-		void plot3x5Profile(TCut Cut, int nBins);
+		void plot3x5(TCut Cut, bool savePlot = false, std::string plotName = "plot3x5.eps");
+		void plot3x5Profile(TCut Cut, int nBins, bool savePlot = false, std::string plotName = "plot3x5Profile.eps");
 		
 		float arrowSize;
 		void Write();
@@ -44,6 +44,7 @@ class comparisonPlots
 		void getMaxMin();
 		void getHistMaxMin( TH1* hist, double &max, double &min );
 		
+		std::string _outputDir;
 		
 		//reading tree
 		int id_, level_, sublevel_, mid_, mlevel_, useDetId_, detDim_;

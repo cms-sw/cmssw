@@ -171,72 +171,80 @@ void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 
 void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	
-	_inputRootFile1 = new TFile(_inputFilename1.c_str());
-	TTree* _inputTree1 = (TTree*) _inputRootFile1->Get(_inputTreename.c_str());
-	_inputRootFile2 = new TFile(_inputFilename2.c_str());
-	TTree* _inputTree2 = (TTree*) _inputRootFile2->Get(_inputTreename.c_str());
-	
-	
-	
-	//loop through the ROOT file
-	int nEntries1 = _inputTree1->GetEntries();
-	int nEntries2 = _inputTree2->GetEntries();
-	if (nEntries1 != nEntries2) edm::LogInfo("creatROOT") << "nEntries incompatible: " << nEntries1 << ",  " << nEntries2;
-	//read the ROOT file
-	//uint32_t inputRawId;
 	int inputRawId1, inputRawId2;
 	double inputX1, inputY1, inputZ1, inputX2, inputY2, inputZ2;
 	double inputAlpha1, inputBeta1, inputGamma1, inputAlpha2, inputBeta2, inputGamma2;
-	_inputTree1->SetBranchAddress("rawid", &inputRawId1);
-	_inputTree1->SetBranchAddress("x", &inputX1);
-	_inputTree1->SetBranchAddress("y", &inputY1);
-	_inputTree1->SetBranchAddress("z", &inputZ1);
-	_inputTree1->SetBranchAddress("alpha", &inputAlpha1);
-	_inputTree1->SetBranchAddress("beta", &inputBeta1);
-	_inputTree1->SetBranchAddress("gamma", &inputGamma1);
-	_inputTree2->SetBranchAddress("rawid", &inputRawId2);
-	_inputTree2->SetBranchAddress("x", &inputX2);
-	_inputTree2->SetBranchAddress("y", &inputY2);
-	_inputTree2->SetBranchAddress("z", &inputZ2);
-	_inputTree2->SetBranchAddress("alpha", &inputAlpha2);
-	_inputTree2->SetBranchAddress("beta", &inputBeta2);
-	_inputTree2->SetBranchAddress("gamma", &inputGamma2);
-	
+		
 	//declare alignments
 	Alignments* alignments1 = new Alignments();
-	AlignmentErrors* alignmentErrors1 = new AlignmentErrors();
+	AlignmentErrors* alignmentErrors1 = new AlignmentErrors();	
+	if (_inputFilename1 != "IDEAL"){
+		_inputRootFile1 = new TFile(_inputFilename1.c_str());
+		TTree* _inputTree1 = (TTree*) _inputRootFile1->Get(_inputTreename.c_str());
+		_inputTree1->SetBranchAddress("rawid", &inputRawId1);
+		_inputTree1->SetBranchAddress("x", &inputX1);
+		_inputTree1->SetBranchAddress("y", &inputY1);
+		_inputTree1->SetBranchAddress("z", &inputZ1);
+		_inputTree1->SetBranchAddress("alpha", &inputAlpha1);
+		_inputTree1->SetBranchAddress("beta", &inputBeta1);
+		_inputTree1->SetBranchAddress("gamma", &inputGamma1);
+		
+		int nEntries1 = _inputTree1->GetEntries();
+		//fill alignments
+		for (int i = 0; i < nEntries1; ++i){
+			
+			_inputTree1->GetEntry(i);
+			Hep3Vector translation1(inputX1, inputY1, inputZ1);
+			HepEulerAngles eulerangles1(inputAlpha1,inputBeta1,inputGamma1);
+			uint32_t detid1 = inputRawId1;
+			AlignTransform transform1(translation1, eulerangles1, detid1);
+			alignments1->m_align.push_back(transform1);
+			
+			//dummy errors
+			HepSymMatrix clhepSymMatrix(3,0);
+			AlignTransformError transformError(clhepSymMatrix, detid1);
+			alignmentErrors1->m_alignError.push_back(transformError);
+		}		
+		
+		// to get the right order
+		std::sort( alignments1->m_align.begin(), alignments1->m_align.end(), lessAlignmentDetId<AlignTransform>() );
+		std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+	}
+	//------------------
 	Alignments* alignments2 = new Alignments();
 	AlignmentErrors* alignmentErrors2 = new AlignmentErrors();
-	
-	//fill alignments
-	for (int i = 0; i < nEntries1; ++i){
+	if (_inputFilename2 != "IDEAL"){	
+		_inputRootFile2 = new TFile(_inputFilename2.c_str());
+		TTree* _inputTree2 = (TTree*) _inputRootFile2->Get(_inputTreename.c_str());
+		_inputTree2->SetBranchAddress("rawid", &inputRawId2);
+		_inputTree2->SetBranchAddress("x", &inputX2);
+		_inputTree2->SetBranchAddress("y", &inputY2);
+		_inputTree2->SetBranchAddress("z", &inputZ2);
+		_inputTree2->SetBranchAddress("alpha", &inputAlpha2);
+		_inputTree2->SetBranchAddress("beta", &inputBeta2);
+		_inputTree2->SetBranchAddress("gamma", &inputGamma2);
 		
-		_inputTree1->GetEntry(i);
-		Hep3Vector translation1(inputX1, inputY1, inputZ1);
-		HepEulerAngles eulerangles1(inputAlpha1,inputBeta1,inputGamma1);
-		uint32_t detid1 = inputRawId1;
-		AlignTransform transform1(translation1, eulerangles1, detid1);
-		alignments1->m_align.push_back(transform1);
+		int nEntries2 = _inputTree2->GetEntries();
+		//fill alignments
+		for (int i = 0; i < nEntries2; ++i){
+			
+			_inputTree2->GetEntry(i);
+			Hep3Vector translation2(inputX2, inputY2, inputZ2);
+			HepEulerAngles eulerangles2(inputAlpha2,inputBeta2,inputGamma2);
+			uint32_t detid2 = inputRawId2;
+			AlignTransform transform2(translation2, eulerangles2, detid2);
+			alignments2->m_align.push_back(transform2);
+			
+			//dummy errors
+			HepSymMatrix clhepSymMatrix(3,0);
+			AlignTransformError transformError(clhepSymMatrix, detid2);
+			alignmentErrors2->m_alignError.push_back(transformError);
+		}			
 		
-		_inputTree2->GetEntry(i);
-		Hep3Vector translation2(inputX2, inputY2, inputZ2);
-		HepEulerAngles eulerangles2(inputAlpha2,inputBeta2,inputGamma2);
-		uint32_t detid2 = inputRawId2;
-		AlignTransform transform2(translation2, eulerangles2, detid2);
-		alignments2->m_align.push_back(transform2);
-		
-		//dummy errors
-		HepSymMatrix clhepSymMatrix(3,0);
-		AlignTransformError transformError(clhepSymMatrix, detid1);
-		alignmentErrors1->m_alignError.push_back(transformError);
-		alignmentErrors2->m_alignError.push_back(transformError);
+		//to get the right order
+		std::sort( alignments2->m_align.begin(), alignments2->m_align.end(), lessAlignmentDetId<AlignTransform>() );
+		std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
 	}
-	//to get the right order
-	std::sort( alignments1->m_align.begin(), alignments1->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-	std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
-	std::sort( alignments2->m_align.begin(), alignments2->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-	std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
-	
 	
 	//accessing the initial geometry
 	edm::ESHandle<DDCompactView> cpv;
@@ -250,15 +258,20 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	
 	//reference tracker
 	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); 
-	GeometryAligner aligner1;
-	aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
-											  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+	if (_inputFilename1 != "IDEAL"){
+		GeometryAligner aligner1;
+		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
+												  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+	}
 	referenceTracker = new AlignableTracker(&(*theRefTracker));
+
 	//currernt tracker
 	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
-	GeometryAligner aligner2;
-	aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
-											  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+	if (_inputFilename2 != "IDEAL"){
+		GeometryAligner aligner2;
+		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
+												  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
+	}
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
 	
