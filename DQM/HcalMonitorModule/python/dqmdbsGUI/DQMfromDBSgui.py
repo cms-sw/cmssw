@@ -713,10 +713,10 @@ class DQMDBSgui:
                     #print "Checking DBS!"
                     if (self.checkDBS()): # search was successful; reset counter
                         self.dbsAutoCounter=0
-                        print "DBS Check succeeded!"
+                        #print "DBS Check succeeded!"
                     else: # search unsuccessful; try again in 1 minute
                         self.dbsAutoCounter=(self.dbsAutoUpdateTime-1)*60
-                        print "DBS Check unsuccessful"
+                        #print "DBS Check unsuccessful"
 
             # repeat for DQM checking
             if (self.dqmAutoCounter >= self.dqmAutoUpdateTime):
@@ -745,6 +745,7 @@ class DQMDBSgui:
             self.dbsvaluewin=Toplevel()
         except:
             self.dbsvaluewin=Toplevel()
+            self.dbsvaluewin.geometry('+600+300')
         myrow=0
         
         myvars={"  DBS File Search String = ":self.myDBS.searchString,
@@ -784,6 +785,7 @@ class DQMDBSgui:
             self.dqmvaluewin=Toplevel()
         except:
             self.dqmvaluewin=Toplevel()
+            self.dqmvaluewin.geometry('+400+300')
         myrow=0
         
         myvars={"  Final DQM Save Directory = ":self.finalDir,
@@ -1128,26 +1130,47 @@ class DQMDBSgui:
         success=False
         time.sleep(2)
 
-        
+
+        #print "x = %s"%x
         # make fancier success requirement later -- for now, just check that directory exists
         if os.path.isdir(os.path.join(self.basedir,x)):
             success=True
 
+            #print "Directory exists!"
             # If final destination is in local area, and
             # if final dir differs from base dir, move to that directory
             if (self.copyLocVar.get()=="Local area" and
                  self.finalDir.get()<>self.basedir):
+                #print "Checking for root file"
                 # move .root file, if it's been created
                 temproot="%s.root"%(os.path.join(self.basedir,x))
+                #print "temproot = ",temproot
                 if os.path.isfile(temproot):
+                    junk="mv %s %s.root"%(temproot,os.path.join(self.finalDir.get(),x))
+                    #print "junk = ",junk
                     os.system("mv %s %s.root"%(temproot,
                                                os.path.join(self.finalDir.get(),
                                                             x)))
+                    self.commentLabel.configure(text = "moved file %s\n to directory %s"%(temproot,
+                                                                                        self.finalDir.get()))
+                    self.root.update()
+                    time.sleep(1)
                 # move directory
+                #print "Now moving directory"
+                tempdir=os.path.join(self.finalDir.get(),x)
+                # Get rid of old version of directory, if it exists
+                if os.path.isdir(tempdir):
+                    os.system("rm -rf %s"%tempdir)
+                # Now move results to final directory
                 os.system("mv %s %s"%(x,self.finalDir.get())) 
+                self.commentLabel.configure(text = "moved folder %s\n to directory %s"%(x,self.finalDir.get()))
+                self.root.update()
+                time.sleep(1)
+            # This needs to be updated once we figure out how to auto scp
             elif (self.copyLocVar.get()=="cmshcal01"):
-                os.system("scp %s ..."%x)  # update with end location name!
-            
+                #os.system("scp %s ..."%x)  # update with end location name!
+                print "cmshcal01 copying not yet implemented!"
+                
         return success
 
 
@@ -1343,6 +1366,7 @@ class DQMDBSgui:
             self.changevaluewin=Toplevel()
         except:
             self.changevaluewin=Toplevel()
+            self.changevaluewin.geometry('+800+20')
             self.changevaluewin.title("Change status of files")
         
 
@@ -1374,32 +1398,32 @@ class DQMDBSgui:
         igY=Button(bFrame,
                    text="Set\n'Ignore Run'\nTrue",
                    command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
-                                                                     "ignoreRun",1),
+                                                                     "ignoreRun",True),
                    width=14,height=3)
         igN=Button(bFrame,
                    text="Set\n'Ignore Run'\nFalse",
                    command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
-                                                                     "ignoreRun",0),
+                                                                     "ignoreRun",False),
                    width=14,height=3)
         stY=Button(bFrame,
                    text="Set\n'Started DQM'\nTrue",
                     command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
-                                                                      "startedDQM",1),
+                                                                      "startedDQM",True),
                    width=14,height=3)
         stN=Button(bFrame,
                    text="Set\n'Started DQM'\nFalse",
                    command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
-                                                                     "startedDQM",0),
+                                                                     "startedDQM",False),
                    width=14,height=3)
         fiY=Button(bFrame,
                    text="Set\n'Finished DQM'\nTrue",
                    command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
-                                                                     "finishedDQM",1),
+                                                                     "finishedDQM",True),
                    width=14,height=3)
         fiN=Button(bFrame,
                    text="Set\n'Finished DQM'\nFalse",
                    command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
-                                                                     "finishedDQM",0),
+                                                                     "finishedDQM",False),
                    width=14,height=3)
 
         igY.grid(row=0,column=0)
@@ -1413,9 +1437,9 @@ class DQMDBSgui:
         
     def commandChangeFileSettings(self,selected,var,value=True):
         for i in selected:
-            print i
+
             run=self.listboxruns[int(i)]
-            print run
+
             if (var=="ignoreRun"):
                 self.filesInDBS[run].ignoreRun=value
             elif (var=="startedDQM"):
@@ -1435,7 +1459,6 @@ class DQMDBSgui:
 
         
         self.autoRunShift=1-self.autoRunShift
-        print "AUTO = ",self.autoRunShift
         if (self.autoRunShift==False):
               self.lastFoundDBSEntry.configure(bg="yellow")
         else:

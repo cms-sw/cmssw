@@ -32,9 +32,9 @@ def Helpwin(filename,usetext=0):
         
         
         if string.find(os.path.basename(filename),"params.dat")>-1:
-            newwin.geometry('950x500+500+20')
+            newwin.geometry('950x500+20+300')
         else:
-            newwin.geometry('950x500+500+20')
+            newwin.geometry('950x500+20+300')
 
         if usetext == 0:
             newwin.title(os.path.basename(filename))
