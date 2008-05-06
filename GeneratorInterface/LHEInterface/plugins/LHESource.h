@@ -3,14 +3,20 @@
 
 #include <memory>
 
+#include <boost/shared_ptr.hpp>
+
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
-#include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
+
+namespace lhef {
+	class LHECommon;
+	class LHEEvent;
+	class LHEReader;
+}
 
 class LHESource : public edm::GeneratedInputSource {
     public:
@@ -29,11 +35,12 @@ class LHESource : public edm::GeneratedInputSource {
 
 	virtual void nextEvent();
 
-	std::auto_ptr<lhef::LHEReader>	reader;
-	std::auto_ptr<lhef::HEPRUP>	heprup;
-	std::auto_ptr<lhef::HEPEUP>	hepeup;
+	std::auto_ptr<lhef::LHEReader>		reader;
 
-	unsigned int			skipEvents;
+	boost::shared_ptr<lhef::LHECommon>	common;
+	boost::shared_ptr<lhef::LHEEvent>	partonLevel;
+
+	unsigned int				skipEvents;
 };
 
 #endif // GeneratorInterface_LHEInterface_LHESource_h

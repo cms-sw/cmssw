@@ -1,6 +1,10 @@
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <memory>
+
+#include <boost/bind.hpp>
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
@@ -11,6 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 #include "GeneratorInterface/LHEInterface/interface/LHECommonProduct.h"
@@ -26,13 +31,8 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	reader(new LHEReader(params)),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
-#if 0
 	produces<LHEEventProduct>();
 	produces<LHECommonProduct, edm::InRun>();
-#else
-	produces<HEPEUP>();
-	produces<HEPRUP, edm::InRun>();
-#endif
 }
 
 LHESource::LHESource(const edm::ParameterSet &params,
@@ -42,13 +42,8 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	reader(reader),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
-#if 0
 	produces<LHEEventProduct>();
 	produces<LHECommonProduct, edm::InRun>();
-#else
-	produces<HEPEUP>();
-	produces<HEPRUP, edm::InRun>();
-#endif
 }
 
 LHESource::~LHESource()
@@ -62,43 +57,53 @@ void LHESource::endJob()
 
 void LHESource::nextEvent()
 {
-	if (hepeup.get())
+	if (partonLevel)
 		return;
 
-	boost::shared_ptr<LHEEvent> partonLevel;
 	while(skipEvents > 0) {
 		skipEvents--;
 		partonLevel = reader->next();
-		if (!partonLevel.get())
+		if (!partonLevel)
 			return;
 	}
 
 	partonLevel = reader->next();
-	if (!partonLevel.get())
+	if (!partonLevel)
 			return;
 
-	if (!heprup.get()) {
-		heprup.reset(new HEPRUP(*partonLevel->getHEPRUP()));
-		
-	}
-
-	hepeup.reset(new HEPEUP(*partonLevel->getHEPEUP()));
+	if (!common)
+		common = partonLevel->getCommon();
 }
 
 void LHESource::beginRun(edm::Run &run)
 {
 	nextEvent();
-	if (heprup.get())
-		run.put(heprup);
+	if (common) {
+		std::auto_ptr<LHECommonProduct> product(
+				new LHECommonProduct(*common->getHEPRUP()));
+		std::for_each(common->getHeaders().begin(),
+		              common->getHeaders().end(),
+		              boost::bind(
+		              	&LHECommonProduct::addHeader,
+		              	product.get(), _1));
+		run.put(product);
+		common.reset();
+	}
 }
 
 bool LHESource::produce(edm::Event &event)
 {
 	nextEvent();
-	if (!hepeup.get())
+	if (!partonLevel)
 		return false;
 
-	event.put(hepeup);
+	std::auto_ptr<LHEEventProduct> product(
+			new LHEEventProduct(*partonLevel->getHEPEUP()));
+	if (partonLevel->getPDF())
+		product->setPDF(*partonLevel->getPDF());
+	event.put(product);
+
+	partonLevel.reset();
 	return true;
 }
 

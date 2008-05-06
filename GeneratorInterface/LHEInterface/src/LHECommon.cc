@@ -24,7 +24,7 @@ static int skipWhitespace(std::istream &in)
 
 namespace lhef {
 
-LHECommon::LHECommon(std::istream &in, const std::string &comment)
+LHECommon::LHECommon(std::istream &in)
 {
 	in >> heprup.IDBMUP.first >> heprup.IDBMUP.second
 	   >> heprup.EBMUP.first >> heprup.EBMUP.second
@@ -57,7 +57,7 @@ LHECommon::LHECommon(std::istream &in, const std::string &comment)
 	init();
 }
 
-LHECommon::LHECommon(const HEPRUP &heprup, const std::string &comment) :
+LHECommon::LHECommon(const HEPRUP &heprup) :
 	heprup(heprup)
 {
 	init();

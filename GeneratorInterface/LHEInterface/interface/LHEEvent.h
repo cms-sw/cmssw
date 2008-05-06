@@ -34,6 +34,8 @@ class LHEEvent {
 	const HEPRUP *getHEPRUP() const { return common->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
 
+	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
+
 	void count(LHECommon::CountMode count);
 
 	void fillPdfInfo(HepMC::PdfInfo *info) const;

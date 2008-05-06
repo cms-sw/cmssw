@@ -42,9 +42,9 @@ class LHECommonProduct {
 
 	const lhef::HEPRUP &heprup() const { return heprup_; }
 
-	size_type size() const { return headers_.size(); }
-	const_iterator begin() const { return headers_.begin(); }
-	const_iterator end() const { return headers_.end(); }
+	size_type headers_size() const { return headers_.size(); }
+	const_iterator headers_begin() const { return headers_.begin(); }
+	const_iterator headers_end() const { return headers_.end(); }
 
     private:
 	lhef::HEPRUP		heprup_;

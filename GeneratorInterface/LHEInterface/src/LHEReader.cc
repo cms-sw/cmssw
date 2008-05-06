@@ -1,8 +1,12 @@
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cstring>
 #include <string>
 #include <vector>
+
+#include <boost/bind.hpp>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -79,12 +83,12 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
     private:
 	friend class LHEReader;
 
-	int		depth;
-	std::string	buffer;
-	std::string	comments;
-	Object		gotObject;
-	Object		mode;
-	bool		headerOk;
+	int				depth;
+	std::string			buffer;
+	Object				gotObject;
+	Object				mode;
+	bool				headerOk;
+	std::vector<LHECommon::Header>	headers;
 };
 
 void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
@@ -162,6 +166,19 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 	buffer.append(data);
 }
 
+static void fillHeader(LHECommon::Header &header, const char *data)
+{
+	while(*data) {
+		std::size_t len = std::strcspn(data, "\r\n");
+		if (data[len] == '\r' && data[len + 1] == '\n')
+			len += 2;
+		else
+			len++;
+		header.addLine(std::string(data, len));
+		data += len;
+	}
+}
+
 void LHEReader::XMLHandler::comment(const XMLCh *const data_,
                                     const unsigned int length)
 {
@@ -171,7 +188,9 @@ void LHEReader::XMLHandler::comment(const XMLCh *const data_,
 
 	XMLSimpleStr data(data_ + offset);
 
-	comments.append(data);
+	LHECommon::Header header;
+	fillHeader(header, data);
+	headers.push_back(header);
 }
 
 LHEReader::LHEReader(const edm::ParameterSet &params) :
@@ -221,9 +240,12 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 			break;
 
 		    case XMLHandler::kInit:
-			curCommon.reset(
-				new LHECommon(data, handler->comments));
-			handler->comments.clear();
+			curCommon.reset(new LHECommon(data));
+			std::for_each(handler->headers.begin(),
+			              handler->headers.end(),
+			              boost::bind(&LHECommon::addHeader,
+			                          curCommon.get(), _1));
+			handler->headers.clear();
 			break;
 
 		    case XMLHandler::kComment:

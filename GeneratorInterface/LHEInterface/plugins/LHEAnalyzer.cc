@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -46,6 +47,7 @@ class LHEAnalyzer : public edm::EDAnalyzer {
     private:
 	void fillDJRSched(unsigned int min, unsigned int max);
 
+	edm::InputTag				sourceLabel;
 	JetInput				jetInput;
 
 	double					defaultDeltaCut;
@@ -72,6 +74,7 @@ class LHEAnalyzer : public edm::EDAnalyzer {
 };
 
 LHEAnalyzer::LHEAnalyzer(const edm::ParameterSet &params) :
+	sourceLabel(params.getParameter<edm::InputTag>("src")),
 	jetInput(params.getParameter<edm::ParameterSet>("jetInput")),
 	defaultDeltaCut(params.getParameter<double>("defaultDeltaCut")),
 	defaultPtCut(params.getParameter<double>("defaultPtCut")),
@@ -158,7 +161,7 @@ void LHEAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
 	typedef JetClustering::Jet Jet;
 
 	edm::Handle<edm::HepMCProduct> hepmc;
-	event.getByLabel("source", hepmc);
+	event.getByLabel(sourceLabel, hepmc);
 
 	JetInput::ParticleVector particles = jetInput(hepmc->GetEvent());
 

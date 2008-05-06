@@ -17,6 +17,9 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 
+#include "GeneratorInterface/LHEInterface/interface/LHECommonProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 #include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
@@ -73,8 +76,12 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 	produces<edm::GenInfoProduct, edm::InRun>();
 
 	if (jetMatching.get()) {
-		hadronisation->onShoweredEvent().connect(
-			sigc::mem_fun(*this, &LHEProducer::showeredEvent));
+		if (params.getUntrackedParameter<bool>(
+					"preferShowerVetoCallback", true))
+			hadronisation->onShoweredEvent().connect(
+				sigc::mem_fun(*this,
+				              &LHEProducer::showeredEvent));
+
 		produces< std::vector<double> >("matchDeltaR");
 		produces< std::vector<double> >("matchDeltaPRel");
 	}
@@ -96,10 +103,10 @@ void LHEProducer::endJob()
 
 void LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 {
-	edm::Handle<HEPRUP> heprup;
-	run.getByLabel("source", heprup);
+	edm::Handle<LHECommonProduct> product;
+	run.getByLabel("source", product);
 
-	common.reset(new LHECommon(*heprup, ""));
+	common.reset(new LHECommon(product->heprup()));
 	index = 0;
 }
 
@@ -124,10 +131,14 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 {
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);
 
-	edm::Handle<HEPEUP> hepeup;
-	event.getByLabel("source", hepeup);
+	edm::Handle<LHEEventProduct> product;
+	event.getByLabel("source", product);
 
-	partonLevel.reset(new LHEEvent(common, *hepeup));
+	partonLevel.reset(new LHEEvent(common, product->hepeup()));
+	if (product->pdf())
+		partonLevel->setPDF(
+			std::auto_ptr<LHEEvent::PDF>(
+				new LHEEvent::PDF(*product->pdf())));
 
 	hadronisation->setEvent(partonLevel);
 

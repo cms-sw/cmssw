@@ -14,8 +14,8 @@ namespace lhef {
 
 class LHECommon {
     public:
-	LHECommon(std::istream &in, const std::string &comment);
-	LHECommon(const HEPRUP &heprup, const std::string &comment);
+	LHECommon(std::istream &in);
+	LHECommon(const HEPRUP &heprup);
 	~LHECommon();
 
 	typedef LHECommonProduct::Header Header;
@@ -25,6 +25,10 @@ class LHECommon {
 	bool operator == (const LHECommon &other) const;
 	inline bool operator != (const LHECommon &other) const
 	{ return !(*this == other); }
+
+	const std::vector<Header> &getHeaders() const { return headers; }
+
+	void addHeader(const Header &header) { headers.push_back(header); }
 
 	enum CountMode {
 		kTried = 0,

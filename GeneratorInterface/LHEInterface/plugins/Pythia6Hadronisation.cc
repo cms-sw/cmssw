@@ -169,6 +169,7 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 		pdf.set_x2(pypars.pari[33]);
 	if (pdf.scalePDF() < 0)
 		pdf.set_scalePDF(pypars.pari[20]);
+	event->set_pdf_info(pdf);
 
 	if (maxEventsToPrint > 0) {
 		maxEventsToPrint--;
@@ -232,7 +233,6 @@ namespace {
 
 bool Pythia6Hadronisation::veto()
 {
-
 	std::vector<SavedHEPEVT> saved;
 	int n = HepMC::HEPEVT_Wrapper::number_entries();
 
@@ -252,10 +252,17 @@ bool Pythia6Hadronisation::veto()
 		p.save();
 	}
 
+	// all particles added by pythia have status 1, so assume rest is 3
 	boost::shared_ptr<HepMC::GenEvent> event(conv.read_next_event());
 
+	// restore modified HepEVT content
 	std::for_each(saved.begin(), saved.end(),
 	              std::mem_fun_ref(&SavedHEPEVT::save));
+
+	for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
+	    iter != event->particles_end(); ++iter)
+		if ((*iter)->status() == 2)
+			(*iter)->set_status(3);
 
 	return showeredEvent(event);
 }
