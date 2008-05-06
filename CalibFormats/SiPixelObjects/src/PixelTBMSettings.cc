@@ -188,6 +188,14 @@ PixelTBMSettings::PixelTBMSettings(std::string filename):
 
 }
 
+void PixelTBMSettings::setTBMGenericValue(std::string what, int value) 
+{
+ if(      what == "analogInputBias" )  {analogInputBias_  = (unsigned char)value;}
+ else if( what == "analogOutputBias" ) {analogOutputBias_ = (unsigned char)value;}
+ else if( what == "analogOutputGain" ) {analogOutputGain_ = (unsigned char)value;}
+ else if( what == "Mode" )             {singlemode_       = (bool)value;         }
+ else {std::cout << "[PixelTBMSettings::setTBMGenericValue()]\t\tFATAL: invalid key/value pair: " << what << "/" << value << std::endl ; assert(0);}
+}
  
 void PixelTBMSettings::writeBinary(std::string filename) const {
 

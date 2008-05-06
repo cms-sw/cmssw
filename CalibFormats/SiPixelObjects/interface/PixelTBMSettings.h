@@ -61,6 +61,7 @@ namespace pos{
       	PixelROCName tmp(rocname);
 	rocid_=tmp;
     }
+    void setTBMGenericValue(std::string, int) ;
     
   private:
 
