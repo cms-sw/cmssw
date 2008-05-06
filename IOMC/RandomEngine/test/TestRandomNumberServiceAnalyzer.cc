@@ -13,7 +13,7 @@ service.  Prints them to an output file named testRandomNumberService.txt.
 //
 // Original Author:  Chris Jones, David Dagenhart
 //         Created:  Tue Mar  7 11:57:09 EST 2006
-// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.3 2008/01/29 20:56:16 marafino Exp $
+// $Id: TestRandomNumberServiceAnalyzer.cc,v 1.4 2008/04/29 20:03:55 marafino Exp $
 //
 //
 
@@ -53,10 +53,15 @@ class TestRandomNumberServiceAnalyzer : public edm::EDAnalyzer {
 
   private:
     static bool firstFileOpen_;
+#ifdef JMMTEST
+    static int  eventNumber_;
+#endif
 };
 
 bool TestRandomNumberServiceAnalyzer::firstFileOpen_ = true;
-
+#ifdef JMMTEST
+int  TestRandomNumberServiceAnalyzer::eventNumber_ = 0;
+#endif
 
 TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(const edm::ParameterSet& iConfig)
 {
@@ -87,12 +92,16 @@ TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(const edm::Para
 #endif
 
   outFile << rng->mySeed() << "\n";
+#ifdef JMMTEST
+  rng->saveEngineState("AtConstruction.dat");
+#endif
 
   CLHEP::HepRandomEngine& engine = rng->getEngine();
   for (int i = 0; i < 5; ++i) { 
     double num = engine.flat();
     outFile << num << "\n";
   }
+
   outFile.close();
 }
 
@@ -122,6 +131,13 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   rng->print();
 #endif
 
+#ifdef JMMTEST
+  if(eventNumber_ == 0) {
+    rng->saveEngineState("InAnalyzer.dat");
+    ++eventNumber_;
+  }
+#endif
+
   // The first random seed
   outFile << rng->mySeed() << "\n";
 
@@ -148,7 +164,8 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   // It is very important to use the "fire" method not "shoot".
   RandExponential expDist(engine);
   double mean = 10.0;  // Mean of the exponential
-#ifdef ORIGNAL
+
+#ifdef ORIGINAL
   for (int i = 0; i < 5; ++i) {
     randomNumber = expDist.fire(mean);
     outFile << randomNumber << "\n";
@@ -156,9 +173,9 @@ TestRandomNumberServiceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 #endif
 
 #ifdef JMMTEST
-  for (int i = 0; i < 50000; ++i) {
+  for (int i = 0; i < 50000000; ++i) {
     randomNumber = expDist.fire(mean);
-    if(i%10000 == 1)  outFile << randomNumber << "\n";
+    if(i%10000000 == 1)  outFile << randomNumber << "\n";
   }
 #endif
 
