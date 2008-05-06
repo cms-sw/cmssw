@@ -19,22 +19,6 @@ namespace edmtest {
     doit(e.me(), std::string("testUserTag"));
   }
 
-  void OtherThingAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&) {
-    doit(lb.me(), std::string("beginLumi"));
-  }
-
-  void OtherThingAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&) {
-    doit(lb.me(), std::string("endLumi"));
-  }
-
-  void OtherThingAnalyzer::beginRun(edm::Run const& r, edm::EventSetup const&) {
-    doit(r.me(), std::string("beginRun"));
-  }
-
-  void OtherThingAnalyzer::endRun(edm::Run const& r, edm::EventSetup const&) {
-    doit(r.me(), std::string("endRun"));
-  }
-
   void OtherThingAnalyzer::doit(edm::DataViewImpl const& dv, std::string const& label) {
     edm::Handle<OtherThingCollection> otherThings;
     dv.getByLabel("OtherThing", label, otherThings);
