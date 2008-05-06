@@ -474,6 +474,11 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                     switch (*itQuad) {
 
                         case TechTr: {
+
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write TechTr"
+                            //<< std::endl;
+
                             // order: 16-bit words
                             int bitsPerWord = 16;
 
@@ -549,6 +554,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                             break;
                         case NoIsoEGQ: {
 
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write NoIsoEGQ"
+                            //<< std::endl;
+
                             int recL1NoIsoEG = m_candL1NoIsoEG->size();
                             for (int iPair = 0; iPair < nrObjRow; ++iPair) {
                                 if (iPair < recL1NoIsoEG) {
@@ -574,6 +583,11 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                             break;
                         case IsoEGQ: {
+                            
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write IsoEGQ"
+                            //<< std::endl;
+
                             int recL1IsoEG = m_candL1IsoEG->size();
                             for (int iPair = 0; iPair < nrObjRow; ++iPair) {
                                 if (iPair < recL1IsoEG) {
@@ -600,6 +614,11 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                             break;
                         case CenJetQ: {
+
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write CenJetQ"
+                            //<< std::endl;
+                            
                             int recL1CenJet = m_candL1CenJet->size();
                             for (int iPair = 0; iPair < nrObjRow; ++iPair) {
                                 if (iPair < recL1CenJet) {
@@ -625,6 +644,11 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                             break;
                         case ForJetQ: {
+                            
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write ForJetQ"
+                            //<< std::endl;
+
                             int recL1ForJet = m_candL1ForJet->size();
                             for (int iPair = 0; iPair < nrObjRow; ++iPair) {
                                 if (iPair < recL1ForJet) {
@@ -651,6 +675,11 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                             break;
                         case TauJetQ: {
+
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write TauJetQ"
+                            //<< std::endl;
+                            
                             int recL1TauJet = m_candL1TauJet->size();
                             for (int iPair = 0; iPair < nrObjRow; ++iPair) {
                                 if (iPair < recL1TauJet) {
@@ -677,20 +706,46 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                             break;
                         case ESumsQ: {
+                            
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write ESumsQ"
+                            //<< std::endl;
+
                             // order: ETT, ETM et, HTT, ETM phi... hardcoded here
                             int iPair = 0;
-                            aDataVal = m_candETT->raw();
+                            
+                            if (m_candETT) {
+                                aDataVal = m_candETT->raw();
+                            }
+                            else {
+                                aDataVal = 0;
+                            }
                             psbWordValue.setAData(aDataVal, iAB + iPair);
 
-                            bDataVal = m_candHTT->raw();
+                            if (m_candHTT) {
+                                bDataVal = m_candHTT->raw();
+                            }
+                            else {
+                                bDataVal = 0;
+                            }
                             psbWordValue.setBData(bDataVal, iAB + iPair);
 
                             //
                             iPair = 1;
-                            aDataVal = m_candETM->et();
+                            if (m_candETM) {
+                                aDataVal = m_candETM->et();
+                            }
+                            else {
+                                aDataVal = 0;
+                            }
                             psbWordValue.setAData(aDataVal, iAB + iPair);
 
-                            bDataVal = m_candETM->phi();
+                            if (m_candETM) {
+                                bDataVal = m_candETM->phi();
+                            }
+                            else {
+                                bDataVal = 0;
+                            }
                             psbWordValue.setBData(bDataVal, iAB + iPair);
                             
                             
@@ -698,6 +753,11 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                             break;
                         case JetCountsQ: {
+
+                            //LogTrace("L1GlobalTriggerPSB")
+                            //<< "\nL1GlobalTriggerPSB: write JetCountsQ"
+                            //<< std::endl;
+                            
                             // order: 3 JetCounts per 16-bits word ... hardcoded here
                             int jetCountsBits = 5; // FIXME get it from event setup
                             int countsPerWord = 3;
@@ -705,45 +765,58 @@ void L1GlobalTriggerPSB::fillPsbBlock(
                             //
                             int iPair = 0;
                             aDataVal = 0;
+                            bDataVal = 0;
                             
                             int iCount = 0;
                             
-                            for (int i = 0; i < countsPerWord; ++i) {
-                                aDataVal = aDataVal | 
-                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));
-                                iCount++;
+                            if (m_candJetCounts) {
+
+                                for (int i = 0; i < countsPerWord; ++i) {
+                                    aDataVal = aDataVal
+                                            | ((m_candJetCounts->count(iCount))
+                                                    << (jetCountsBits*i));
+                                    iCount++;
+                                }
+
+                                //
+
+                                for (int i = 0; i < countsPerWord; ++i) {
+                                    bDataVal = bDataVal
+                                            | ((m_candJetCounts->count(iCount))
+                                                    << (jetCountsBits*i));
+                                    iCount++;
+                                }
+
                             }
+
                             psbWordValue.setAData(aDataVal, iAB + iPair);
-
-                            //
-                            bDataVal = 0;
-
-                            for (int i = 0; i < countsPerWord; ++i) {
-                                bDataVal = bDataVal | 
-                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));                                
-                                iCount++;
-                            }
                             psbWordValue.setBData(bDataVal, iAB + iPair);
 
                             //
                             iPair = 1;
                             aDataVal = 0;
-
-                            for (int i = 0; i < countsPerWord; ++i) {
-                                aDataVal = aDataVal | 
-                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));
-                                iCount++;
-                            }
-                            psbWordValue.setAData(aDataVal, iAB + iPair);
-
-                            //
                             bDataVal = 0;
-                            
-                            for (int i = 0; i < countsPerWord; ++i) {
-                                bDataVal = bDataVal | 
-                                    ((m_candJetCounts->count(iCount)) << (jetCountsBits*i));                                
-                                iCount++;
+
+                            if (m_candJetCounts) {
+                                for (int i = 0; i < countsPerWord; ++i) {
+                                    aDataVal = aDataVal
+                                            | ((m_candJetCounts->count(iCount))
+                                                    << (jetCountsBits*i));
+                                    iCount++;
+                                }
+
+                                //
+
+                                for (int i = 0; i < countsPerWord; ++i) {
+                                    bDataVal = bDataVal
+                                            | ((m_candJetCounts->count(iCount))
+                                                    << (jetCountsBits*i));
+                                    iCount++;
+                                }
+
                             }
+                            
+                            psbWordValue.setAData(aDataVal, iAB + iPair);
                             psbWordValue.setBData(bDataVal, iAB + iPair);
                         }
 
@@ -760,6 +833,10 @@ void L1GlobalTriggerPSB::fillPsbBlock(
 
                 // ** fill L1PsbWord in GT DAQ record
 
+                //LogTrace("L1GlobalTriggerPSB")
+                //<< "\nL1GlobalTriggerPSB: write psbWordValue"
+                //<< std::endl;
+                
                 gtDaqReadoutRecord->setGtPsbWord(psbWordValue);
 
             } // end if (active && PSB)
