@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/31 13:43:26 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/03 16:04:09 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -15,5 +15,9 @@ UniformMagneticField::UniformMagneticField(double value)
 
 
 GlobalVector UniformMagneticField::inTesla (const GlobalPoint& gp) const {
+  return theField;
+}
+
+GlobalVector UniformMagneticField::inTeslaUnchecked (const GlobalPoint& gp) const {
   return theField;
 }

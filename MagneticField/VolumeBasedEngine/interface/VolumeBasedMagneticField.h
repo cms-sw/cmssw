@@ -1,6 +1,15 @@
 #ifndef MagneticField_VolumeBasedMagneticField_h
 #define MagneticField_VolumeBasedMagneticField_h
 
+/** \class VolumeBasedMagneticField
+ *
+ *  Field engine providing interpolation within the full CMS region.
+ *
+ *  $Date: $
+ *  $Revision: $
+ *  \author N. Amapane - CERN
+ */
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 
@@ -15,7 +24,10 @@ class VolumeBasedMagneticField : public MagneticField {
 			    float rMax, float zMax,
 			    const MagneticField* param=0);
   virtual ~VolumeBasedMagneticField();
+
   GlobalVector inTesla ( const GlobalPoint& g) const;
+
+  GlobalVector inTeslaUnchecked ( const GlobalPoint& g) const;
 
   const MagVolume * findVolume(const GlobalPoint & gp) const;
 
