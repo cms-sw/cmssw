@@ -40,7 +40,7 @@ when random numbers are only generated in modules and not in the source).
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //         Created:  Tue Mar  7 09:30:28 EST 2006
-// $Id: RandomNumberGenerator.h,v 1.3 2006/10/23 15:18:35 wdd Exp $
+// $Id: RandomNumberGenerator.h,v 1.4 2007/06/14 02:00:58 wmtan Exp $
 //
 
 #include <vector>
@@ -81,6 +81,8 @@ namespace edm {
 
     // For debugging purposes only
     virtual void print() = 0;
+    virtual void saveEngineState(const std::string& fileName) = 0;
+    virtual void restoreEngineState(const std::string& fileName) = 0;
 
   private:
 
