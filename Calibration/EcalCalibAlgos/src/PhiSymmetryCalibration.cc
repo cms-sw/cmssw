@@ -373,7 +373,7 @@ void PhiSymmetryCalibration::endJob()
     etsum_barl_in.close();
 
     std::ifstream etsum_endc_in("etsum_endc.dat", ios::in);
-    while (etsum_endc_in >> dummy >> ieta >> iphi >> sign >> etsum) {
+    while (etsum_endc_in >> dummy >> ix >> iy >> sign >> etsum) {
       etsum_endc_[ix][iy][sign]+=etsum;
     }
     etsum_endc_in.close();
