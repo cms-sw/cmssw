@@ -12,8 +12,9 @@
 */
 //
 // Original Author:  Michele Pioppi-INFN perugia
+//   Modifications: Freya Blekman - Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.1 2007/04/23 10:05:14 chiochia Exp $
+// $Id: SiPixelDigitizer.cc,v 1.2 2007/09/03 10:11:11 fambrogl Exp $
 //
 //
 
@@ -78,18 +79,25 @@ namespace cms
 {
   SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig):
     conf_(iConfig),
-    _pixeldigialgo(iConfig) 
+    _pixeldigialgo(iConfig)
+
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
     std::string alias ( iConfig.getParameter<std::string>("@module_label") ); 
-
+    
     produces<edm::DetSetVector<PixelDigi> >().setBranchAlias( alias );
     produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias ( alias + "siPixelDigiSimLink");
     trackerContainers.clear();
     trackerContainers = iConfig.getParameter<std::vector<std::string> >("ROUList");
+
+  
+
   }
 
+  void SiPixelDigitizer::beginJob(const edm::EventSetup& es){
+    _pixeldigialgo.init(es);
+  }
   
   SiPixelDigitizer::~SiPixelDigitizer()
   {  edm::LogInfo ("PixelDigitizer ") <<"Destruct the Pixel Digitizer";}
@@ -178,6 +186,9 @@ namespace cms
     iEvent.put(output);
     iEvent.put(outputlink);
   }
-}
 
+
+
+
+}// end namespace cms::
 

@@ -2,6 +2,7 @@
 
 // Original Author Danek Kotlinski
 // Ported in CMSSW by  Michele Pioppi-INFN perugia
+// Added DB capabilities by F.Blekman, Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
 // Add tof, change AddNoise to tracked. 4/06
 // Change drift direction. 6/06 d.k.
@@ -39,12 +40,21 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationOfflineService.h"
  
 
 using namespace std;
 using namespace edm;
 
 #define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
+
+void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es){
+ if(use_ineff_from_db_){// load gain calibration service fromdb...
+   //    std::cout << "loading calibration service..." << std::endl;
+    theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineService(conf_);
+    theSiPixelGainCalibrationService_->setESObjects( es );
+  }
+}
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0),
@@ -54,8 +64,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   using std::cout;
   using std::endl;
 
-  if(use_ineff_from_db_)// load gain calibration service fromdb...
-    theSiPixelGainCalibrationService_= new SiPixelGainCalibrationOfflineService(conf_);
+ 
 
   // Common pixel parameters
   // This are parameters which are not likely to be changed
@@ -328,6 +337,7 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
    // Destructor
    delete gaussDistribution_;
    delete flatDistribution_;
+   delete theSiPixelGainCalibrationService_;
 
     if(addNoise) delete theNoiser;
     if(fluctuateCharge) delete fluctuate;
@@ -1270,6 +1280,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(void){
     uint32_t detid = detID;
     //transform to ROC index coordinates   
     if(theSiPixelGainCalibrationService_->isDead(detid, col, row)){
+      //      std::cout << "now in isdead check, row " << detid << " " << col << "," << row << std::endl;
       // make pixel amplitude =0, pixel will be lost at clusterization    
       i->second.set(0.); // reset amplitude, 
     } // end if

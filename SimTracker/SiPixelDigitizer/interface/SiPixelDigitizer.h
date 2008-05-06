@@ -39,6 +39,7 @@ namespace cms
 
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
+    virtual void beginJob(const edm::EventSetup &es);
   private:
     edm::ParameterSet conf_;
     SiPixelDigitizerAlgorithm  _pixeldigialgo;
@@ -50,6 +51,8 @@ namespace cms
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
     //   std::vector<PixelDigiSimLink> linkcollector;
+
+    // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
   };
 }
 

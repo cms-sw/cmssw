@@ -48,9 +48,10 @@ class SiPixelDigitizerAlgorithm  {
   edm::DetSet<PixelDigi>::collection_type  
     run(const std::vector<PSimHit> &input,PixelGeomDetUnit *pixdet,GlobalVector);
 
-  //
+   //
   std::vector<PixelDigiSimLink> make_link() {
     return link_coll; }
+  void init(const edm::EventSetup& es);
 
  private:
   
@@ -119,6 +120,8 @@ class SiPixelDigitizerAlgorithm  {
     const PSimHit& hit()           { return *_hitp;}
     SignalPoint& set_amplitude( float amp) { _amplitude = amp; return *this;}
     
+  
+
   private:
     LocalPoint         _pos;
     float              _time;
