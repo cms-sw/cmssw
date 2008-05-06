@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.5 2008/04/30 08:15:33 bainbrid Exp $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.6 2008/04/30 13:33:25 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
@@ -152,7 +152,7 @@ void SiStripNoiseBuilderFromDb::buildNoise( SiStripConfigDb* const db,
       }
       
       // Check if description exists for given FED id 
-      SiStripConfigDb::FedDescriptionV::const_iterator description = descriptions.begin();
+      SiStripConfigDb::FedDescriptionsV::const_iterator description = descriptions.begin();
       while ( description != descriptions.end() ) {
 	if ( (*description) && (*description)->getFedId() == ipair->fedId() ) { break; }
 	description++;

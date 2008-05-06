@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.47 2008/04/30 08:15:33 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.48 2008/04/30 13:33:25 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -270,7 +270,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU-DetId vector from database...";
   SiStripConfigDb::DcuDetIdsRange range = db->getDcuDetIds();
-  const SiStripConfigDb::DcuDetIdV dcu_detid_vector( range.begin(), range.end() );
+  const SiStripConfigDb::DcuDetIdsV dcu_detid_vector( range.begin(), range.end() );
   if ( !dcu_detid_vector.empty() ) { 
     LogTrace(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -284,8 +284,8 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 
   // ---------- Populate FEC cabling object with retrieved info ----------
 
-  SiStripConfigDb::FedConnectionV::const_iterator ifed = conns.begin();
-  SiStripConfigDb::FedConnectionV::const_iterator jfed = conns.end();
+  SiStripConfigDb::FedConnectionsV::const_iterator ifed = conns.begin();
+  SiStripConfigDb::FedConnectionsV::const_iterator jfed = conns.end();
   for ( ; ifed != jfed; ++ifed ) {
     
     if ( !(*ifed) ) {
@@ -432,7 +432,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 
     uint16_t feh = 0;
     uint16_t ccu = 0;
-    SiStripConfigDb::DeviceDescriptionV::const_iterator idcu;
+    SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu;
     for ( idcu = dcu_desc.begin(); idcu != dcu_desc.end(); idcu++ ) {
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
       if ( !dcu ) { continue; }
@@ -459,7 +459,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU-DetId vector from database...";
   SiStripConfigDb::DcuDetIdsRange range = db->getDcuDetIds();
-  const SiStripConfigDb::DcuDetIdV dcu_detid_vector( range.begin(), range.end() );
+  const SiStripConfigDb::DcuDetIdsV dcu_detid_vector( range.begin(), range.end() );
   if ( !dcu_detid_vector.empty() ) { 
     LogTrace(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -495,7 +495,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Building FEC cabling object from APV and DCU descriptions...";
   
-  SiStripConfigDb::DeviceDescriptionV::const_iterator iapv;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv;
   for ( iapv = apv_desc.begin(); iapv != apv_desc.end(); iapv++ ) {
     
     if ( !(*iapv) ) {
@@ -516,7 +516,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 
   } 
   
-  SiStripConfigDb::DeviceDescriptionV::const_iterator idcu;
+  SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu;
   for ( idcu = dcu_desc.begin(); idcu != dcu_desc.end(); idcu++ ) {
 
     if ( !(*idcu) ) {
@@ -744,7 +744,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Retrieving DCU-DetId vector from database...";
   SiStripConfigDb::DcuDetIdsRange range = db->getDcuDetIds();
-  const SiStripConfigDb::DcuDetIdV dcu_detid_vector( range.begin(), range.end() );
+  const SiStripConfigDb::DcuDetIdsV dcu_detid_vector( range.begin(), range.end() );
   if ( !dcu_detid_vector.empty() ) { 
     LogTrace(mlCabling_) 
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -761,7 +761,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
   // ---------- Populate FEC cabling object with DCU, DetId and "dummy" control info ----------
 
   uint32_t imodule = 0;
-  SiStripConfigDb::DcuDetIdV::const_iterator iter;
+  SiStripConfigDb::DcuDetIdsV::const_iterator iter;
   for ( iter = dcu_detid_vector.begin(); iter != dcu_detid_vector.end(); iter++ ) {
 
     if ( !(iter->second) ) {
@@ -896,7 +896,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 	      
 	      // --- Search for DcuId in map ---
 	      
-	      SiStripConfigDb::DcuDetIdV::iterator iter = in.end();
+	      SiStripConfigDb::DcuDetIdsV::iterator iter = in.end();
 	      iter = SiStripConfigDb::findDcuDetId( in.begin(), in.end(), module.dcuId() );
 	      if ( iter != in.end() ) { 
 		
@@ -991,13 +991,13 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 	    
 	    if ( !module.detId() ) { 
 	      
-	      SiStripConfigDb::DcuDetIdV::iterator iter = in.end();
+	      SiStripConfigDb::DcuDetIdsV::iterator iter = in.end();
 	      iter = SiStripConfigDb::findDcuDetId( in.begin(), in.end(), module.dcuId() );
 	      if ( iter != in.end() ) { 
 				
 		// --- Search for "random" module with consistent number of APV pairs ---
 		
-		SiStripConfigDb::DcuDetIdV::iterator idcu;
+		SiStripConfigDb::DcuDetIdsV::iterator idcu;
 		if ( in.empty() ) { idcu = in.end(); }
 		else {
 		  idcu = in.begin();
