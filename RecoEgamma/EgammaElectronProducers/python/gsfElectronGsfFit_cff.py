@@ -10,5 +10,5 @@ pixelMatchGsfFit.src = 'egammaCkfTrackCandidates'
 pixelMatchGsfFit.Propagator = 'fwdGsfElectronPropagator'
 pixelMatchGsfFit.Fitter = 'GsfElectronFittingSmoother'
 pixelMatchGsfFit.TTRHBuilder = 'WithTrackAngle'
-pixelMatchGsfFit.TrajectoryInEvent = False
+pixelMatchGsfFit.TrajectoryInEvent = True
 

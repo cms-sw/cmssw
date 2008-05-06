@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # produce electrons based on matched pixel hits with gsf fit
 #
 globalGsfElectrons = cms.EDProducer("GsfElectronProducer",
-    endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","electronPixelSeeds"),
+    endcapSuperClusters = cms.InputTag("multi5x5SuperClustersWithPreshower"),
     maxDeltaPhi = cms.double(0.1),
     minEOverPEndcaps = cms.double(0.35),
     # nested parameter set for TransientInitialStateEstimator
@@ -12,8 +12,9 @@ globalGsfElectrons = cms.EDProducer("GsfElectronProducer",
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite')
     ),
     minEOverPBarrel = cms.double(0.35),
-    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronPixelSeeds"),
-    applyEtaCorrection = cms.bool(True),
+    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters"),
+    applyEtaCorrection = cms.bool(False),
+    applyAmbResolution = cms.bool(False),
     EtCut = cms.double(0.0), ## in Gev
 
     tracks = cms.InputTag("pixelMatchGsfFitForGlobalGsfElectrons"),
