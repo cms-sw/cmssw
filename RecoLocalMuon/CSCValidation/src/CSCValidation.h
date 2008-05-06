@@ -92,16 +92,16 @@
 #include "TString.h"
 #include "TTree.h"
 
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
+//namespace edm {
+//  class ParameterSet;
+// class Event;
+//  class EventSetup;
+//}
 
-class PSimHit;
-class TFile;
-class CSCLayer;
-class CSCDetId;
+//class PSimHit;
+//class TFile;
+//class CSCLayer;
+//class CSCDetId;
 
 class CSCValidation : public edm::EDAnalyzer {
 public:
@@ -121,16 +121,32 @@ protected:
 
 private: 
 
+  // these are the "modules"
+  // if you would like to add code to CSCValidation, please do so by adding an
+  // extra module in the form of an additional private member function
+  void  doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
+                      edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
+  void  doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
+  void  doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
+  void  doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,edm::Handle<CSCStripDigiCollection> strips,
+                  edm::ESHandle<CSCGeometry> cscGeom);
+  void  doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<edm::PSimHitContainer> simHits);
+  void  doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
+  void  doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
+  void  doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
+  void  doGasGain(const CSCWireDigiCollection &, const CSCStripDigiCollection &, const CSCRecHit2DCollection &);
+  void  doCalibrations(const edm::EventSetup& eventSetup);
+
   // some useful functions
-  float      fitX(HepMatrix sp, HepMatrix ep);
-  float      getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
-  void       doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
-  float      getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  float  fitX(HepMatrix sp, HepMatrix ep);
+  float  getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  float  getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+
   // these functions handle Stoyan's efficiency code
-  void       fillEfficiencyHistos(int bin, int flag);
-  void       getEfficiency(float bin, float Norm, std::vector<float> &eff);
-  void       histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
-  void       doGasGain(const CSCWireDigiCollection &, const CSCStripDigiCollection &, const CSCRecHit2DCollection &);
+  void  fillEfficiencyHistos(int bin, int flag);
+  void  getEfficiency(float bin, float Norm, std::vector<float> &eff);
+  void  histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
+
   // counter
   int nEventsAnalyzed;
 
@@ -142,12 +158,22 @@ private:
   //
   //
   // input parameters for this module
-
-  // Root file name
+  bool makePlots;
+  bool makeComparisonPlots;
+  std::string refRootFile;
+  bool writeTreeToFile;
+  bool isSimulation;
   std::string rootFileName;
 
-  // Flag for simulation
-  bool isSimulation;
+  bool makeOccupancyPlots;
+  bool makeStripPlots;
+  bool makeWirePlots;
+  bool makeRecHitPlots;
+  bool makeSimHitPlots;
+  bool makeSegmentPlots;
+  bool makePedNoisePlots;
+  bool makeEfficiencyPlots;
+  bool makeGasGainPlots;
 
   // The histo managing object
   CSCValHists *histos;

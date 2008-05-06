@@ -17,8 +17,23 @@ using namespace edm;
 CSCValidation::CSCValidation(const ParameterSet& pset){
 
   // Get the various input parameters
-  rootFileName     = pset.getUntrackedParameter<string>("rootFileName");
-  isSimulation     = pset.getUntrackedParameter<bool>("isSimulation");
+  rootFileName         = pset.getUntrackedParameter<string>("rootFileName");
+  isSimulation         = pset.getUntrackedParameter<bool>("isSimulation");
+  writeTreeToFile      = pset.getUntrackedParameter<bool>("writeTreeToFile");
+  makePlots            = pset.getUntrackedParameter<bool>("makePlots");
+  makeComparisonPlots  = pset.getUntrackedParameter<bool>("makeComparisonPlots");
+  refRootFile          = pset.getUntrackedParameter<string>("refRootFile","null");
+
+  // flags to switch on/off individual modules
+  makeOccupancyPlots   = pset.getUntrackedParameter<bool>("makeOccupancyPlots",true);
+  makeStripPlots       = pset.getUntrackedParameter<bool>("makeStripPlots",true);
+  makeWirePlots        = pset.getUntrackedParameter<bool>("makeWirePlots",true);
+  makeRecHitPlots      = pset.getUntrackedParameter<bool>("makeRecHitPlots",true);
+  makeSimHitPlots      = pset.getUntrackedParameter<bool>("makeSimHitPlots",true);
+  makeSegmentPlots     = pset.getUntrackedParameter<bool>("makeSegmentPlots",true);
+  makePedNoisePlots    = pset.getUntrackedParameter<bool>("makePedNoisePlots",true);
+  makeEfficiencyPlots  = pset.getUntrackedParameter<bool>("makeEfficiencyPlots",true);
+  makeGasGainPlots     = pset.getUntrackedParameter<bool>("makeGasGainPlots",true);
 
   // set counter to zero
   nEventsAnalyzed = 0;
@@ -53,7 +68,9 @@ CSCValidation::~CSCValidation(){
 
   // write histos to the specified file
   histos->writeHists(theFile);
-  histos->writeTrees(theFile);
+  if (makePlots) histos->printPlots();
+  if (makeComparisonPlots) histos->printComparisonPlots(refRootFile);
+  if (writeTreeToFile) histos->writeTrees(theFile);
   theFile->cd();
   theFile->cd("recHits");
   hRHEff->Write();
@@ -77,7 +94,73 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   LogInfo("EventInfo") << "Run: " << iRun << "    Event: " << iEvent;
 
-  // Variables for occupancy plots
+  // Get the Digis
+  edm::Handle<CSCWireDigiCollection> wires;
+  edm::Handle<CSCStripDigiCollection> strips;
+  event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+  event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+
+  // Get the CSC Geometry :
+  ESHandle<CSCGeometry> cscGeom;
+  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+
+  // Get the RecHits collection :
+  Handle<CSCRecHit2DCollection> recHits;
+  event.getByLabel("csc2DRecHits",recHits);
+
+  // Get the SimHits (if applicable)
+  Handle<PSimHitContainer> simHits;
+  if (isSimulation) event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
+
+  // get CSC segment collection
+  Handle<CSCSegmentCollection> cscSegments;
+  event.getByLabel("cscSegments", cscSegments);
+
+  /////////////////////
+  // Run the modules //
+  /////////////////////
+
+  // Only do this for the first event
+  if (nEventsAnalyzed == 1) doCalibrations(eventSetup);
+
+  // look at various chamber occupancies
+  if (makeOccupancyPlots) doOccupancies(strips,wires,recHits,cscSegments);
+
+  // general look at strip digis
+  if (makeStripPlots) doStripDigis(strips);
+
+  // general look at wire digis
+  if (makeWirePlots) doWireDigis(wires);
+
+  // general look at rechits
+  if (makeRecHitPlots) doRecHits(recHits,strips,cscGeom);
+
+  // look at simHits
+  if (isSimulation && makeSimHitPlots) doSimHits(recHits,simHits);
+
+  // general look at Segments
+  if (makeSegmentPlots) doSegments(cscSegments,cscGeom);
+
+  // look at Pedestal Noise
+  if (makePedNoisePlots) doPedestalNoise(strips);
+  
+  // look at recHit and segment efficiencies
+  if (makeEfficiencyPlots) doEfficiencies(recHits, cscSegments);
+
+  // gas gain
+  if (makeGasGainPlots) doGasGain(*wires,*strips,*recHits);
+
+}
+
+// ==============================================
+//
+// look at Occupancies
+//
+// ==============================================
+
+void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, edm::Handle<CSCWireDigiCollection> wires,
+                                  edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments){
+
   bool wireo[2][4][4][36];
   bool stripo[2][4][4][36];
   bool rechito[2][4][4][36];
@@ -96,11 +179,76 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     }
   }
 
-  // ==============================================
-  //
-  // look at Calibrations
-  //
-  // ==============================================
+  //wires
+  for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
+    CSCDetId id = (CSCDetId)(*j).first;
+    int kEndcap  = id.endcap();
+    int kRing    = id.ring();
+    int kStation = id.station();
+    int kChamber = id.chamber();
+    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+    wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+  }
+  
+  //strips
+  for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
+    CSCDetId id = (CSCDetId)(*j).first;
+    int kEndcap  = id.endcap();
+    int kRing    = id.ring();
+    int kStation = id.station();
+    int kChamber = id.chamber();
+    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    for( ; digiItr != last; ++digiItr) {
+      std::vector<int> myADCVals = digiItr->getADCCounts();
+      bool thisStripFired = false;
+      float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+      float threshold = 13.3 ;
+      float diff = 0.;
+      for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+        diff = (float)myADCVals[iCount]-thisPedestal;
+        if (diff > threshold) { thisStripFired = true; }
+      }
+      if (thisStripFired) {
+        stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+      }
+    }
+  }
+
+  //rechits
+  CSCRecHit2DCollection::const_iterator recIt;
+  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
+    int kEndcap  = idrec.endcap();
+    int kRing    = idrec.ring();
+    int kStation = idrec.station();
+    int kChamber = idrec.chamber();
+    rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+  }
+
+  //segments
+  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
+    CSCDetId id  = (CSCDetId)(*it).cscDetId();
+    int kEndcap  = id.endcap();
+    int kRing    = id.ring();
+    int kStation = id.station();
+    int kChamber = id.chamber();
+    segmento[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
+  }
+
+  // Fill occupancy plots
+  histos->fillOccupancyHistos(wireo,stripo,rechito,segmento);
+
+}
+
+// ==============================================
+//
+// look at Calibrations
+//
+// ==============================================
+
+void CSCValidation::doCalibrations(const edm::EventSetup& eventSetup){
 
   // Only do this for the first event
   if (nEventsAnalyzed == 1){
@@ -153,47 +301,17 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   } // end calib
 
+}
 
 
-  // ==============================================
-  //
-  // look at DIGIs
-  //
-  // ==============================================
+// ==============================================
+//
+// look at WIRE DIGIs
+//
+// ==============================================
 
+void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
 
-  //
-  // These declarations create handles to the types of records that you want
-  // to retrieve from event "e".
-  //
-  edm::Handle<CSCWireDigiCollection> wires;
-  edm::Handle<CSCStripDigiCollection> strips;
-  /*
-  edm::Handle<CSCComparatorDigiCollection> comparators;
-  edm::Handle<CSCALCTDigiCollection> alcts;
-  edm::Handle<CSCCLCTDigiCollection> clcts;
-  edm::Handle<CSCRPCDigiCollection> rpcs;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
-  */
-
-  
-  // Pass the handle to the method "getByType", which is used to retrieve
-  // one and only one instance of the type in question out of event "e". If
-  // zero or more than one instance exists in the event an exception is thrown.
-  //
-
-  event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-  event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
-  /*
-  event.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",comparators);
-  event.getByLabel("muonCSCDigis","MuonCSCALCTDigi",alcts);
-  event.getByLabel("muonCSCDigis","MuonCSCCLCTDigi",clcts);
-  event.getByLabel("muonCSCDigis","MuonCSCRPCDigi",rpcs);
-  event.getByLabel("muonCSCDigis","MuonCSCCorrelatedLCTDigi",correlatedlcts);
-  */
-
-  //
-  // WIRE GROUPS
   int nWireGroupsTotal = 0;
   for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
@@ -212,9 +330,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       nWireGroupsTotal++;
       int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
       int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-      // fill wire histos
-      //histos->fillWireHistos(myWire, myTBin, kCodeNarrow, kCodeBroad,
-      //                       kEndcap, kStation, kRing, kChamber, kLayer);
       histos->fill1DHist(myWire,"hWireAll","all wire group numbers",121,-0.5,120.5,"Digis");
       histos->fill1DHistByType(myWire,"hWireWire","Wiregroup Number",id,113,-0.5,112.5,"Digis");
       histos->fill1DHistByType(kLayer,"hWireLayer","Wires Fired per Layer",id,8,-0.5,7.5,"Digis");
@@ -224,15 +339,21 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
       if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow3","narrow scope wire code station 3",801,-400.5,400.5,"Digis");
       if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow4","narrow scope wire code station 4",801,-400.5,400.5,"Digis");
       histos->fill1DHist(kCodeBroad,"hWireCodeBroad","broad scope code for wires",33,-16.5,16.5,"Digis");
-      
-      wireo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;      
     }
   } // end wire loop
-  
 
-  //
-  // STRIPS
-  //
+  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","total number of wire groups",101,-0.5,100.5,"Digis");
+  
+}
+
+// ==============================================
+//
+// look at STRIP DIGIs
+//
+// ==============================================
+
+void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
+
   int nStripsFired = 0;
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
@@ -269,18 +390,21 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
         if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow3","narrow scope strip code station 3",801,-400.5,400.5,"Digis");
         if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow4","narrow scope strip code station 4",801,-400.5,400.5,"Digis");
         histos->fill1DHist(kCodeBroad,"hStripCodeBroad","broad scope code for strips",33,-16.5,16.5,"Digis");
-        // stripfired = true
-        stripo[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
       }
     }
   } // end strip loop
 
+  histos->fill1DHist(nStripsFired,"hStripNFired","total number of fired strips",301,-0.5,300.5,"Digis");
 
-  //=======================================================
-  //
-  // Look at the Pedestal Noise Distributions
-  //
-  //=======================================================
+}
+
+//=======================================================
+//
+// Look at the Pedestal Noise Distributions
+//
+//=======================================================
+
+void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
 
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
@@ -312,32 +436,23 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 	float ADC = thisSignal - thisPedestal;
         histos->fill1DHist(ADC,"hStripPed","Pedestal Noise Distribution",50,-25.,25.,"PedestalNoise");
         histos->fill1DHistByType(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
-        //histos->fill2DHist(globalStrip,ADC,"hPedvsStrip","Pedestal Noise Distribution",4000000,1000000.,5000000.,50,-25.,25.,"PedestalNoise");
       }
     }
   }
 
+}
 
 
-  // ==============================================
-  //
-  // look at RECHITs
-  //
-  // ==============================================
+// ==============================================
+//
+// look at RECHITs
+//
+// ==============================================
 
-  // Get the CSC Geometry :
-  ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
-  
+void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCStripDigiCollection> strips, edm::ESHandle<CSCGeometry> cscGeom){
+
   // Get the RecHits collection :
-  Handle<CSCRecHit2DCollection> recHits; 
-  event.getByLabel("csc2DRecHits",recHits);  
   int nRecHits = recHits->size();
-
-  // Get the SimHits (if applicable)
-  Handle<PSimHitContainer> simHits;
-  if (isSimulation) event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
- 
  
   // ---------------------
   // Loop over rechits 
@@ -358,8 +473,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kStation = idrec.station();
     int kChamber = idrec.chamber();
     int kLayer   = idrec.layer();
-
-    rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
 
     // Store rechit as a Local Point:
     LocalPoint rhitlocal = (*recIt).localPosition();  
@@ -410,36 +523,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     float grecphi =  rhitglobal.phi();
     float grecr   =  sqrt(grecx*grecx + grecy+grecy);
 
-
-
-    float simHitXres = -99;
-    float simHitYres = -99;
-    float mindiffX   = 99;
-    float mindiffY   = 10;
-    // If MC, find closest muon simHit to check resolution:
-    if (isSimulation){
-      PSimHitContainer::const_iterator simIt;
-      for (simIt = simHits->begin(); simIt != simHits->end(); simIt++){
-        // Get DetID for this simHit:
-        CSCDetId sId = (CSCDetId)(*simIt).detUnitId();
-        // Check if the simHit detID matches that of current recHit
-        // and make sure it is a muon hit:
-        if (sId == idrec && abs((*simIt).particleType()) == 13){
-          // Get the position of this simHit in local coordinate system:
-          LocalPoint sHitlocal = (*simIt).localPosition();
-          // Now we need to make reasonably sure that this simHit is
-          // responsible for this recHit:
-          if ((sHitlocal.x() - xreco) < mindiffX && (sHitlocal.y() - yreco) < mindiffY){
-            simHitXres = (sHitlocal.x() - xreco);
-            simHitYres = (sHitlocal.y() - yreco);
-            mindiffX = (sHitlocal.x() - xreco);
-          }
-        }
-      }
-    }
-
     // Fill the rechit position branch
-    histos->fillRechitTree(xreco, yreco, grecx, grecy, kEndcap, kStation, kRing, kChamber, kLayer);
+    if (writeTreeToFile) histos->fillRechitTree(xreco, yreco, grecx, grecy, kEndcap, kStation, kRing, kChamber, kLayer);
     
     // Simple occupancy variables
     int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
@@ -457,21 +542,68 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"recHits");
     histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"recHits");
     histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
-    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"recHits");
     histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"recHits");
 
   } //end rechit loop
 
+  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",50,0,50,"recHits");
 
-  // ==============================================
-  //
-  // look at SEGMENTs
-  //
-  // ===============================================
+}
+
+// ==============================================
+//
+// look at SIMHITS
+//
+// ==============================================
+
+void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<PSimHitContainer> simHits){
+
+  CSCRecHit2DCollection::const_iterator recIt;
+  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+
+    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
+    LocalPoint rhitlocal = (*recIt).localPosition();
+    float xreco = rhitlocal.x();
+    float yreco = rhitlocal.y();
+    float simHitXres = -99;
+    float simHitYres = -99;
+    float mindiffX   = 99;
+    float mindiffY   = 10;
+    // If MC, find closest muon simHit to check resolution:
+    PSimHitContainer::const_iterator simIt;
+    for (simIt = simHits->begin(); simIt != simHits->end(); simIt++){
+      // Get DetID for this simHit:
+      CSCDetId sId = (CSCDetId)(*simIt).detUnitId();
+      // Check if the simHit detID matches that of current recHit
+      // and make sure it is a muon hit:
+      if (sId == idrec && abs((*simIt).particleType()) == 13){
+        // Get the position of this simHit in local coordinate system:
+        LocalPoint sHitlocal = (*simIt).localPosition();
+        // Now we need to make reasonably sure that this simHit is
+        // responsible for this recHit:
+        if ((sHitlocal.x() - xreco) < mindiffX && (sHitlocal.y() - yreco) < mindiffY){
+          simHitXres = (sHitlocal.x() - xreco);
+          simHitYres = (sHitlocal.y() - yreco);
+          mindiffX = (sHitlocal.x() - xreco);
+        }
+      }
+    }
+
+    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"recHits");
+
+  }
+
+}
+
+// ==============================================
+//
+// look at SEGMENTs
+//
+// ===============================================
+
+void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom){
 
   // get CSC segment collection
-  Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel("cscSegments", cscSegments);
   int nSegments = cscSegments->size();
 
   // -----------------------
@@ -488,8 +620,6 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kRing    = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    segmento[kEndcap-1][kStation-1][kRing-1][kChamber-1] = true;
-
 
     //
     float chisq    = (*it).chi2();
@@ -574,7 +704,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
 
     // Fill segment position branch
-    histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
+    if (writeTreeToFile) histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
 
     // Fill histos
     histos->fill1DHist(kCodeBroad,"hSCodeBroad","broad scope code for segmentss",33,-16.5,16.5,"Segments");
@@ -592,22 +722,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
 
   } // end segment loop
-  
-  // Fill # per even histos (how many stips/wires/rechits/segments per event)
-  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","total number of wire groups",101,-0.5,100.5,"Digis");
-  histos->fill1DHist(nStripsFired,"hStripNFired","total number of fired strips",301,-0.5,300.5,"Digis");
-  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",50,0,50,"recHits");
+
   histos->fill1DHist(nSegments,"hSnSegments","number of segments per event",11,-0.5,10.5,"Segments");
-
-  // Fill occupancy plots
-  histos->fillOccupancyHistos(wireo,stripo,rechito,segmento);
-
-  // do Efficiency
-  doEfficiencies(recHits, cscSegments);
-
-  // do gasgains
-  doGasGain(*wires,*strips,*recHits);
-
 
 }
 
@@ -697,15 +813,17 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
   }
 
   float normADC;
-  for (int i = 0; i < 7; i++){
+  for (int i = 0; i < 8; i++){
     normADC = ADC[i]/ADC[peakTime];
     histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"Digis");
   }
 
+  histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"Digis");
+  histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"Digis");
 
   timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
-  return timing;
 
+  return timing;
 
 }
 
@@ -974,7 +1092,7 @@ void CSCValidation::hf1ForId(std::map<int, TH1*>& mp,
      th1.push_back(h->second);
      int nentries=0;
      for(Int_t i=1;i<=h->second->GetNbinsX();i++) {
-        int m=h->second->GetEntries();
+        int m=(int)h->second->GetEntries();
         nentries=nentries+m;
      }
      if(nentries>0)
@@ -996,7 +1114,7 @@ void CSCValidation::hf2ForId(std::map<int, TH2*>& mp,
      int nentries=0;
      for(Int_t i=1;i<=h->second->GetNbinsX();i++)
         for(Int_t j=1;j<=h->second->GetNbinsY();j++) {
-           int m=h->second->GetEntries();
+           int m=(int)h->second->GetEntries();
         nentries=nentries+m;
        }
      if(nentries>0)
