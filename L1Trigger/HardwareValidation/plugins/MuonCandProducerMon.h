@@ -3,7 +3,8 @@
 
 /*\class MuonCandProducerMon
  *\description Creates full regional muon candidates
-               CSC: from l1track objects provided by tf unpacker
+ *             CSCTF: from l1track provided by tf unpacker
+ *             DTTF: from L1MuDTTrackContainer by tf unpacker
  *\author N.Leonardo, K.Kotov
  *\date 08.04
  */
@@ -26,6 +27,7 @@
 
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 
 class MuonCandProducerMon : public edm::EDProducer {
 
@@ -46,6 +48,7 @@ private:
  
   int verbose_;
   edm::InputTag CSCinput_;
+  edm::InputTag DTinput_;
   CSCTFPtLUT *ptLUT_;
 
 };
