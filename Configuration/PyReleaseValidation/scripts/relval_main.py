@@ -221,6 +221,11 @@ if user_schedule!='':
     if ( nALCA>0):        
         print 'Number of AlCaReco output streams added: '+str(nALCA)
 
+# generic config corrections go here
+process.GlobalTag.DBParameters.connectionTimeOut=60
+
+
+
 # Add a last customisation of the process as specified in the file.
 if customisation_file!='':
     file=__import__(customisation_file[:-3])
