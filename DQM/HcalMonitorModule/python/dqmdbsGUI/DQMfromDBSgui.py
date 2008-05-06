@@ -208,7 +208,6 @@ class DQMDBSgui:
         self.basedir=os.path.join(self.basedir,"src/DQM/HcalMonitorModule/python/dqmdbsGUI")
 
 
-      
         
         # Create GUI window
         if (parent==None):
@@ -274,6 +273,8 @@ class DQMDBSgui:
         #  Fill the menu bar
         #
 
+        
+        mycol=0
         # make File button on menubar
         self.BFile=Menubutton(self.menubar,
                               text = "File",
@@ -283,8 +284,9 @@ class DQMDBSgui:
                               bg=self.bg,
                               fg=self.fg,
                               padx=10, pady=8)
-        self.BFile.pack(side="left")
+        self.BFile.grid(row=0,column=mycol,sticky=W)
 
+        mycol=mycol+1
         self.Bdbs=Menubutton(self.menubar,
                              text="DBS options",
                              font= ('Times',12,'bold italic'),
@@ -293,8 +295,9 @@ class DQMDBSgui:
                              bg=self.bg,
                              fg=self.fg,
                              padx=10, pady=8)
-        self.Bdbs.pack(side="left")
+        self.Bdbs.grid(row=0,column=mycol,sticky=W)
 
+        mycol=mycol+1
         self.Bdqm=Menubutton(self.menubar,
                              text="DQM options",
                              font= ('Times',12,'bold italic'),
@@ -303,8 +306,9 @@ class DQMDBSgui:
                              bg=self.bg,
                              fg=self.fg,
                              padx=10, pady=8)
-        self.Bdqm.pack(side="left")
-
+        self.Bdqm.grid(row=0,column=mycol,sticky=W)
+        
+        mycol=mycol+1
         self.Bprogress=Menubutton(self.menubar,
                                   text="Status",
                                   font=('Times',12,'bold italic'),
@@ -313,9 +317,28 @@ class DQMDBSgui:
                                   bg=self.bg,
                                   fg=self.fg,
                                   padx=10, pady=8)
-        self.Bprogress.pack(side="left")
+        self.Bprogress.grid(row=0,column=mycol)
 
 
+        mycol=mycol+1
+        self.menubar.columnconfigure(mycol,weight=1)
+        Label(self.menubar,text="Copy DQM to:",
+              fg=self.fg,bg=self.bg).grid(row=0,
+                                          column=mycol,
+                                          sticky=E)
+        mycol=mycol+1
+        self.copyLocVar=StringVar()
+        self.copyLocVar.set("Local area")
+        self.copyLoc=OptionMenu(self.menubar,self.copyLocVar,
+                                "Local area","cmshcal01")
+        self.copyLoc.configure(background=self.bg,
+                               foreground=self.fg,
+                               activebackground=self.alt_active)
+
+        self.copyLoc.grid(row=0,column=mycol,sticky=E)
+                
+        
+        mycol=mycol+1
         self.HeartBeat=Label(self.menubar,
                              text="Auto",
                              bg=self.bg,
@@ -330,8 +353,12 @@ class DQMDBSgui:
                                bg=self.bg,
                                fg=self.fg,
                                padx=10, pady=8)
-        self.BAbout.pack(side="right")
-        self.HeartBeat.pack(side="right")
+        mycol=mycol+1
+        self.HeartBeat.grid(row=0,column=mycol,sticky=W)
+        mycol=mycol+1
+        self.BAbout.grid(row=0,column=mycol,sticky=W)
+
+
 
         self.quitmenu=Menu(self.BFile, tearoff=0,
                            bg="white")
@@ -606,6 +633,10 @@ class DQMDBSgui:
         self.cfgFileName=StringVar()
         self.cfgFileName.set(os.path.join(self.basedir,"hcal_dqm_dbsgui.cfg"))
         self.getDefaultDQMFromPickle()
+
+        self.autoRunShift=True # automatically updates run entry when new run found
+        self.lastFoundDBSEntry.bind("<Shift-Up>",self.toggleAutoRunShift)
+        self.lastFoundDBSEntry.bind("<Shift-Down>",self.toggleAutoRunShift)
         return
 
 
@@ -675,23 +706,30 @@ class DQMDBSgui:
             
             # if DBS counter > update time ,check DBS for new files
             if (self.dbsAutoCounter >= self.dbsAutoUpdateTime):
-                print "Checking DBS!"
-                if (self.checkDBS()): # search was successful; reset counter
+                # Reset counter if auto dbs disabled
+                if (self.dbsAutoVar.get()==False):
                     self.dbsAutoCounter=0
-                    print "DBS Check succeeded!"
-                else: # search unsuccessful; try again in 1 minute
-                    self.dbsAutoCounter=(self.dbsAutoUpdateTime-1)*60
-                    print "DBS Check unsuccessful"
+                else:
+                    #print "Checking DBS!"
+                    if (self.checkDBS()): # search was successful; reset counter
+                        self.dbsAutoCounter=0
+                        print "DBS Check succeeded!"
+                    else: # search unsuccessful; try again in 1 minute
+                        self.dbsAutoCounter=(self.dbsAutoUpdateTime-1)*60
+                        print "DBS Check unsuccessful"
 
             # repeat for DQM checking
             if (self.dqmAutoCounter >= self.dqmAutoUpdateTime):
-                print "Starting DQM!"
-                if (self.runDQM_thread()): # search successful; reset counter
+                #print "Starting DQM!"
+                if (self.dqmAutoVar.get()==False):
                     self.dqmAutoCounter=0
-                    print "DQM Successful!"
-                else: # search unsuccessful; try again in 5 minutes
-                    self.dqmAutoCounter=(self.dqmAutoUpdateTime-5)*60
-                    print "DQM Unsuccessful!"
+                else:
+                    if (self.runDQM_thread()): # search successful; reset counter
+                        self.dqmAutoCounter=0
+                        print "DQM Successful!"
+                    else: # search unsuccessful; try again in 5 minutes
+                        self.dqmAutoCounter=(self.dqmAutoUpdateTime-5)*60
+                        print "DQM Unsuccessful!"
 
         # Auto updating deactivated; reset counters and turn off heartbeat
         self.dbsAutoCounter=0
@@ -1095,9 +1133,10 @@ class DQMDBSgui:
         if os.path.isdir(os.path.join(self.basedir,x)):
             success=True
 
-            # Enable move commands once final_dir is determined
-
-            if (self.finalDir.get()<>self.basedir):
+            # If final destination is in local area, and
+            # if final dir differs from base dir, move to that directory
+            if (self.copyLocVar.get()=="Local area" and
+                 self.finalDir.get()<>self.basedir):
                 # move .root file, if it's been created
                 temproot="%s.root"%(os.path.join(self.basedir,x))
                 if os.path.isfile(temproot):
@@ -1106,7 +1145,9 @@ class DQMDBSgui:
                                                             x)))
                 # move directory
                 os.system("mv %s %s"%(x,self.finalDir.get())) 
-
+            elif (self.copyLocVar.get()=="cmshcal01"):
+                os.system("scp %s ..."%x)  # update with end location name!
+            
         return success
 
 
@@ -1250,7 +1291,8 @@ class DQMDBSgui:
             x=self.filesInDBS.keys()
             x.sort()
             x.reverse()
-            self.lastFoundDBS.set(x[0]) # add a +1?
+            if (self.autoRunShift):
+                self.lastFoundDBS.set(x[0]) # add a +1?
             #for zz in x:
             #    print self.filesInDBS[zz].Print()
             #    for ff in self.filesInDBS[zz].files:
@@ -1383,8 +1425,22 @@ class DQMDBSgui:
         self.writePickle() # save to pickle file?  I think this is the sensible option (user can always change back)
         return
 
+    def toggleAutoRunShift(self,event):
+        '''
+        This toggles the autoRunShift variable.
+        If autoRunShift is true, then the run entry
+        value will increment whenever a new run is found.
+        If not, the run entry value will remain the same.
+        '''
 
-
+        
+        self.autoRunShift=1-self.autoRunShift
+        print "AUTO = ",self.autoRunShift
+        if (self.autoRunShift==False):
+              self.lastFoundDBSEntry.configure(bg="yellow")
+        else:
+            self.lastFoundDBSEntry.configure(bg="white")
+        return
 
 
 
