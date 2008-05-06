@@ -9,7 +9,7 @@ set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
 
 @ i = `cat $odir/main/IOIteration.root` + 1
 
-while (`bjobs -d -J $name/requeue$i` != "") # check if job name exists
+while (`bjobs -d -w |& grep $name/requeue$i` != "") # check if job name exists
   set name = $name/ # make job name unique to avoid name clash
 end
 
@@ -42,7 +42,7 @@ while ($i <= $iter)
 ## So when <collect> job is done, <requeue> job gets an EXIT status.
 ## And we can stop requeuing failed <align> jobs.
 
-    while (`bjobs -d -J $name/requeue$i | grep EXIT` == "")
+    while (`bjobs -d -J $name/requeue$i |& grep EXIT` == "")
       bsub -q cmsinter -C 0 -J $name/requeue$i -w "numexit($id, > 0)" \
            -I brequeue -e $id
       sleep 5
