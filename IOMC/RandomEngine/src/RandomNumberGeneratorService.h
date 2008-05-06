@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.6 2008/02/21 15:33:15 marafino Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.7 2008/05/06 14:07:30 marafino Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -119,6 +119,7 @@ namespace edm {
 
       std::string constructSaveFileName();
 
+      void oldStyleConfig(const ParameterSet& iPSet);
 
       // ---------- member data --------------------------------
 
