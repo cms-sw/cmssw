@@ -30,7 +30,7 @@ def gen(process,name,step,evt_type,energy,evtnumber):
     else:
         process.generation_step = cms.Path(getattr(process,'pgen')*getattr(process,name))
         
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.generation_step)
         
     common.log ('%s adding step ...'%func_id)
@@ -47,7 +47,7 @@ def sim(process,name,genfilt):
     else:
         process.simulation_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
         
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.simulation_step)  
     
     common.log ('%s adding step ...'%func_id)
@@ -64,7 +64,7 @@ def digi(process,name,genfilt):
     else:
         process.digitisation_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.digitisation_step)
     
     common.log ('%s adding step ...'%func_id)
@@ -83,7 +83,7 @@ def reco(process,name,genfilt):
     else:
         process.reconstruction_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.reconstruction_step)     
 
     common.log ('%s adding step ...'%func_id)
@@ -101,7 +101,7 @@ def l1_trigger(process,name,genfilt):
     else:
         process.L1_Emulation = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.L1_Emulation)
 
     common.log ('%s adding step ...'%func_id)
@@ -119,7 +119,7 @@ def postreco_gen(process,name,genfilt):
     else:
         process.postreco_generator_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.postreco_generator_step)     
 
     common.log ('%s adding step ...'%func_id)
@@ -137,7 +137,7 @@ def ana(process,name,genfilt):
     else:
         process.analysis_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.analysis_step)
 
     common.log ('%s adding step ...'%func_id)
@@ -155,7 +155,7 @@ def digi2raw(process,name,genfilt):
     else:
         process.digi2raw_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.digi2raw_step)
     
     common.log ('%s adding step ...'%func_id)
@@ -173,7 +173,7 @@ def raw2digi(process,name,genfilt):
     else:
         process.raw2digi_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.raw2digi_step)
     
     common.log ('%s adding step ...'%func_id)
@@ -191,7 +191,7 @@ def validation(process,name,genfilt):
     else:
         process.validation_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.validation_step)
     
     common.log ('%s adding step ...'%func_id)
@@ -230,11 +230,12 @@ def hlt(process,name,genfilt):
             
     theFile.close() 
 
-    for path in sortedPaths:
-        if path.startswith("HLT") or path.startswith("CandHLT") or path.startswith("AlCa"):
-            process.schedule.append(getattr(process,path)) 
-            common.log ('%s path added  ...'%path)
-
+    if user_schedule=='':
+        for path in sortedPaths:
+            if path.startswith("HLT") or path.startswith("CandHLT") or path.startswith("AlCa"):
+                process.schedule.append(getattr(process,path)) 
+                common.log ('%s path added  ...'%path)
+                
     if ( len(endPaths)>1 ):
         print 'Hum, pyrelval can not parse multiple hlt endpaths. Ask for help\n'
         sys.exit(0)
@@ -267,7 +268,7 @@ def fastsim(process,name,genfilt):
     else:
         process.fastsim_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
 
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.fastsim_step)
     
     common.log ('%s adding step ...'%func_id)
@@ -281,17 +282,18 @@ def alca(process,name,genfilt):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
 
 # if paths not specified, just take everything and hope...
-    if ( name ==''):
-        for p  in process.paths_().itervalues():
-            pname=p.label()
-            if ( pname[0:12]=='pathALCARECO'):
-                process.schedule.append(getattr(process,pname))
-                common.log ('%s path added  ...'%pname)
-    else:
-        paths=name.split('+')
-        for p in paths:
-            process.schedule.append(getattr(process,'pathALCARECO'+p))
-            common.log ('%s path added  ...'%p)
+    if user_schedule=='':
+        if ( name ==''):
+            for p  in process.paths_().itervalues():
+                pname=p.label()
+                if ( pname[0:12]=='pathALCARECO'):
+                    process.schedule.append(getattr(process,pname))
+                    common.log ('%s path added  ...'%pname)
+        else:
+            paths=name.split('+')
+            for p in paths:
+                process.schedule.append(getattr(process,'pathALCARECO'+p))
+                common.log ('%s path added  ...'%p)
             
     return process
 
@@ -305,7 +307,7 @@ def postreco(process,name,genfilt):
         process.postreco_step=cms.Path(getattr(process,name))
     else:
         process.postreco_step = cms.Path(getattr(process,genfilt)*getattr(process,name))
-    if not user_schedule:
+    if user_schedule=='':
         process.schedule.append(process.postreco_step)
     
     common.log ('%s adding step ...'%func_id)

@@ -24,8 +24,8 @@ import FWCore.ParameterSet.Config as cms
 
 #import relval_parameters_module as parameters
 #Try to eliminate the problem of the _commonsequence without the import
-execfile("relval_parameters_module.py")
 
+execfile("relval_parameters_module.py")
 import Configuration.PyReleaseValidation.relval_common_module as common
 import Configuration.PyReleaseValidation.relval_steps_module as steps 
 
@@ -157,8 +157,9 @@ for s in step_list:
         process=step_dict[step](process,pathname,genfilt)                      
 
 #look for an hlt endpath
-if hasattr(process,'hltEndPath'):
-    process.schedule.append(process.hltEndPath)
+if user_schedule=='':
+    if hasattr(process,'hltEndPath'):
+        process.schedule.append(process.hltEndPath)
 
 #override the data tier (likely the usual..)
     
@@ -171,13 +172,21 @@ if output_flag:
     if ( not (eventcontent == 'none') ):    
         process = common.event_output\
                   (process, outfile_name, outputDT,eventcontent,filtername, conditions)
-        if not user_schedule:
+        if user_schedule=='':
             process.schedule.append(process.outpath)  
     if ( rawfile_name!='' ):
         print 'Add raw file' + rawfile_name
         process = common.raw_output\
                   (process, rawfile_name)
-        process.schedule.append(process.outpath_raw)  
+        if user_schedule=='':
+            process.schedule.append(process.outpath_raw)  
+
+# add the user schedule here..
+if user_schedule!='':
+    print 'hi there'
+    for k in user_schedule.split(','):
+        print k
+        process.schedule.append(getattr(process,k))
 
 # look for alca reco
     nALCA=0
@@ -201,6 +210,7 @@ if output_flag:
                                                 )
                     setattr(process,modName,poolOutT)
                     setattr(process,pathName,cms.EndPath(getattr(process,modName)))
+#                    if user_schedule=='':
                     process.schedule.append(getattr(process,pathName))
                 else:
                     # add the alca outputs into the main output file 
