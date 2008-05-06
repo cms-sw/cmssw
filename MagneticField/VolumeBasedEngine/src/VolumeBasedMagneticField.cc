@@ -17,19 +17,23 @@ VolumeBasedMagneticField::~VolumeBasedMagneticField(){
   delete field;
 }
 
-
-
-
-GlobalVector VolumeBasedMagneticField::inTesla ( const GlobalPoint& g) const {
+GlobalVector VolumeBasedMagneticField::inTesla (const GlobalPoint& gp) const {
 
   // If parametrization of the inner region is available, use it.
-  if (paramField && paramField->isDefined(g)) return paramField->inTesla(g);
+  if (paramField && paramField->isDefined(gp)) return paramField->inTeslaUnchecked(gp);
 
-  // If point is outside magfield map, return 0 field.
-  if (!isDefined(g))  return GlobalVector();
+  // If point is outside magfield map, return 0 field (not an error)
+  if (!isDefined(gp))  return GlobalVector();
 
-  return field->fieldInTesla(g);
+  return field->fieldInTesla(gp);
 }
+
+GlobalVector VolumeBasedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const{
+  //same as above, but do not check range
+  if (paramField && paramField->isDefined(gp)) return paramField->inTeslaUnchecked(gp);
+  return field->fieldInTesla(gp);
+}
+
 
 const MagVolume * VolumeBasedMagneticField::findVolume(const GlobalPoint & gp) const
 {
