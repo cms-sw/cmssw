@@ -283,7 +283,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "occ_sequential1D_HF2" );
       occupancy_seqHF2 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
  
-      
+      /*      
       sprintf  (histo, "profile_z1" );
       profile_z1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
       sprintf  (histo, "profile_z2" );
@@ -292,6 +292,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       profile_z3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
       sprintf  (histo, "profile_z4" );
       profile_z4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
+      */
 
       if(imc !=0) { 
 	sprintf  (histo, "map_econe_depth1" );
@@ -311,7 +312,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
     //======================= Now various cases one by one ===================
 
-    if(subdet_ != 0) { // just not for noise  
+    if(subdet_ != 0 && imc != 0) { // just not for noise  
       
       //    meEnConeEtaProfiel_depth1->Fill(eta_RecHit, HcalCone_d1);
       
@@ -365,29 +366,33 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     if (subdet_ == 1 || subdet_ == 5 ){
       
       if(etype_ == 1 && subdet_ == 1 ) { 
-	sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HB" ) ;
-	meNumRecHitsConeHB    = dbe_->book1D(histo, histo, 100, 0., 100.);
-	
+        if(imc != 0) {
+	  sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HB" ) ;
+	  meNumRecHitsConeHB    = dbe_->book1D(histo, histo, 100, 0., 100.);
+	  
+	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HB" ) ;
+	  meSumRecHitsEnergyConeHB = dbe_->book1D(histo,histo, 60 ,-20., 280.);
+	}
+
 	sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HB");
 	meNumRecHitsThreshHB = dbe_->book1D(histo, histo,  30, 0., 30.); 
 	
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HB" ) ;
 	meSumRecHitsEnergyHB = dbe_->book1D(histo,histo, 60 , -20., 280.);
 	
-	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HB" ) ;
-	meSumRecHitsEnergyConeHB = dbe_->book1D(histo,histo, 60 , -20., 280.); 
-
 	if (ecalselector_ == "yes") {  
+          if(imc != 0) {
+	    sprintf (histo, "HcalRecHitTask_number_of_ecalrechits_in_cone_HB");
+	    meNumEcalRecHitsConeHB = dbe_->book1D(histo, histo, 300, 0., 300.);	    
+	    sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_in_cone_HB");
+	    meEcalHcalEnergyConeHB =  dbe_->book1D(histo,histo, 60 , -20., 280.);
+	  }
+
 	  sprintf (histo, "HcalRecHitTask_energy_hcal_vs_ecal_HB");
 	  meEnergyHcalVsEcalHB = dbe_->book2D(histo, histo, 300, 0., 150., 300, 0., 150.);  	
-	  sprintf (histo, "HcalRecHitTask_number_of_ecalrechits_in_cone_HB");
-	  meNumEcalRecHitsConeHB = dbe_->book1D(histo, histo,   300, 0., 300.);
-	  
 	  sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_HB" ) ;
 	  meEcalHcalEnergyHB = dbe_->book1D(histo,histo, 60 , -20., 280.);
 	  
-	  sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_in_cone_HB" ) ;
-	  meEcalHcalEnergyConeHB =  dbe_->book1D(histo,histo, 60 , -20., 280.);
 	}
       }
       
@@ -409,12 +414,12 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HB" ) ;
       meTEprofileHB = dbe_->bookProfile(histo, histo, 100, -5., 95., 110, -10., 100.); 
       
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HB");
-      meRecHitSimHitHB = dbe_->book2D(histo, histo, 120, 0., 1.2,  300, 0., 150.);
-      
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HB");
-      meRecHitSimHitProfileHB = dbe_->bookProfile(histo, histo, 120, 0., 1.2, 500, 0., 500.);  
-      
+      if(imc != 0) {
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HB");
+	meRecHitSimHitHB = dbe_->book2D(histo, histo, 120, 0., 1.2,  300, 0., 150.);
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HB");
+	meRecHitSimHitProfileHB = dbe_->bookProfile(histo, histo, 120, 0., 1.2, 500, 0., 500.);  
+      }      
     }
     
     // ********************** HE ************************************
@@ -422,17 +427,19 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       
       if(etype_ == 1 && subdet_ == 2 ) { 
 	
-	sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HE" ) ;
-	meNumRecHitsConeHE    = dbe_->book1D(histo, histo, 100, 0., 100.);
-	
+	if(imc != 0) {
+	  sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HE" ) ;
+	  meNumRecHitsConeHE    = dbe_->book1D(histo, histo, 100, 0., 100.);
+	  
+	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HE" ) ;
+	  meSumRecHitsEnergyConeHE = dbe_->book1D(histo,histo, 60 ,-20., 280.);
+	}	
+
 	sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HE");
 	meNumRecHitsThreshHE = dbe_->book1D(histo, histo,  30, 0., 30.);  
 	
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HE" ) ;
 	meSumRecHitsEnergyHE = dbe_->book1D(histo,histo, 60 , -20., 280.);
-	
-	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HE" ) ;
-	meSumRecHitsEnergyConeHE = dbe_->book1D(histo,histo, 60 , -20., 280.);
 	
 	if (ecalselector_ == "yes") {  	
 	  sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_HE" ) ;
@@ -440,10 +447,12 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 	  
 	  sprintf (histo, "HcalRecHitTask_energy_hcal_vs_ecal_HE");
 	  meEnergyHcalVsEcalHE = dbe_->book2D(histo, histo, 300, 0., 150., 300, 0., 150.);
-	  sprintf (histo, "HcalRecHitTask_number_of_ecalrechits_in_cone_HE");
-	  meNumEcalRecHitsConeHE = dbe_->book1D(histo, histo, 300, 0., 300.);   
-	  sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_in_cone_HE" ) ;
-	  meEcalHcalEnergyConeHE =  dbe_->book1D(histo,histo, 60, -20., 280.);
+	  if(imc != 0) {
+	    sprintf (histo, "HcalRecHitTask_number_of_ecalrechits_in_cone_HE");
+	    meNumEcalRecHitsConeHE = dbe_->book1D(histo, histo, 300, 0., 300.);   
+	    sprintf (histo, "HcalRecHitTask_energy_ecal_plus_hcal_in_cone_HE");
+	    meEcalHcalEnergyConeHE =  dbe_->book1D(histo,histo, 60,-20., 280.);
+	  }
 	}	      
       }
       
@@ -465,12 +474,12 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
       meTEprofileHE = dbe_->bookProfile(histo, histo, 100, -5., 95., 110, -10., 100.); 
       
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HE");
-      meRecHitSimHitHE = dbe_->book2D(histo, histo, 100, 0., 1.0,  300, 0., 150.);
-      
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HE");
-      meRecHitSimHitProfileHE = dbe_->bookProfile(histo, histo, 100, 0., 1.0, 500, 0., 500.);  
-   
+      if(imc != 0) {
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HE");
+	meRecHitSimHitHE = dbe_->book2D(histo, histo, 100, 0., 1.0,  300, 0., 150.);
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HE");
+	meRecHitSimHitProfileHE = dbe_->bookProfile(histo, histo, 100, 0., 1.0, 500, 0., 500.);  
+      }
       
     }
 
@@ -478,18 +487,20 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
     if ( subdet_ == 3 || subdet_ == 5  ){
       
       if(etype_ == 1 && subdet_ == 3) { 
-      
-	sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HO" ) ;
-	meNumRecHitsConeHO    = dbe_->book1D(histo, histo, 100, 0 , 100.);
-	
+        if (imc != 0) {
+	  sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HO" ) ;
+	  meNumRecHitsConeHO    = dbe_->book1D(histo, histo, 100, 0 , 100.);
+	  
+	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HO" ) ;
+	  meSumRecHitsEnergyConeHO = dbe_->book1D(histo,histo, 60 ,-20., 280.);
+	}
+
 	sprintf (histo, "HcalRecHitTask_number_of_rechits_above_1GeV_HO");
 	meNumRecHitsThreshHO = dbe_->book1D(histo, histo,   30, 0., 30.);   
 	
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HO" ) ;
 	meSumRecHitsEnergyHO = dbe_->book1D(histo,histo, 60 , -20., 280.);
 	
-	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HO" ) ;
-	meSumRecHitsEnergyConeHO = dbe_->book1D(histo,histo, 60 , -20., 280.);   
       }      
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HO" ) ;
@@ -504,13 +515,12 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HO" ) ;
       meTEprofileHO = dbe_->bookProfile(histo, histo, 100, -5., 95.,  110, -10., 100.); 
       
-      
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HO");
-      meRecHitSimHitHO = dbe_->book2D(histo, histo, 120, 0., 1.2,  300, 0., 300.);
-      
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HO");
-      meRecHitSimHitProfileHO = dbe_->bookProfile(histo, histo, 120, 0., 1.2, 500, 0., 500.);  
-        
+      if(imc != 0) {
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HO");
+	meRecHitSimHitHO = dbe_->book2D(histo, histo, 120, 0., 1.2,  300, 0., 300.);
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HO");
+	meRecHitSimHitProfileHO = dbe_->bookProfile(histo, histo, 120, 0., 1.2, 500, 0., 500.);  
+      }
     }   
   
     // ********************** HF ************************************
@@ -518,18 +528,22 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
       if(etype_ == 1 &&  subdet_ == 4) { 
 
-	sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HF" ) ;
-	meNumRecHitsConeHF    = dbe_->book1D(histo, histo, 100, 0 , 100.);
+        if(imc != 0) {
+	  sprintf (histo, "HcalRecHitTask_number_of_rechits_in_cone_HF" ) ;
+	  meNumRecHitsConeHF    = dbe_->book1D(histo, histo, 100, 0 , 100.);
 	
+	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HF" ) ;
+	  meSumRecHitsEnergyConeHF = dbe_->book1D(histo,histo, 60, -20., 280.);
+
+	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFL" );
+	  meSumRecHitsEnergyConeHFL = dbe_->book1D(histo,histo, 60,-20., 280.);
+
+	  sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFS");
+	  meSumRecHitsEnergyConeHFS = dbe_->book1D(histo,histo, 60,-20., 280.);
+	}
+
 	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_HF" ) ;
-	meSumRecHitsEnergyHF = dbe_->book1D(histo,histo, 60 , -20., 280.);
-	
-	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HF" ) ;
-	meSumRecHitsEnergyConeHF = dbe_->book1D(histo,histo, 60 , -20., 280.);   
-	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFL" ) ;
-	meSumRecHitsEnergyConeHFL = dbe_->book1D(histo,histo, 60 , -20., 280.);   
-	sprintf (histo, "HcalRecHitTask_sum_of_rechits_energy_in_cone_HFS" ) ;
-	meSumRecHitsEnergyConeHFS = dbe_->book1D(histo,histo, 60 , -20., 280.);   
+	meSumRecHitsEnergyHF = dbe_->book1D(histo,histo, 60 , -20., 280.);  
 
       }
 
@@ -551,20 +565,20 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HF" ) ;
       meTEprofileHF = dbe_->bookProfile(histo, histo, 100, -5., 95., 110, -10., 100.); 
             
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HF");
-      meRecHitSimHitHF  = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);      
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFL");
-      meRecHitSimHitHFL = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);      
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFS");
-      meRecHitSimHitHFS = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);
-
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HF");
-      meRecHitSimHitProfileHF  = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFL");
-      meRecHitSimHitProfileHFL = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
-      sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFS");
-      meRecHitSimHitProfileHFS = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
-   
+      if(imc != 0) {
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HF");
+	meRecHitSimHitHF  = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);      
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFL");
+	meRecHitSimHitHFL = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);      
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HFS");
+	meRecHitSimHitHFS = dbe_->book2D(histo, histo, 120, 0., 60., 200, 0., 200.);
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HF");
+	meRecHitSimHitProfileHF  = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFL");
+	meRecHitSimHitProfileHFL = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
+	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_profile_HFS");
+	meRecHitSimHitProfileHFS = dbe_->bookProfile(histo, histo, 60, 0., 60., 500, 0., 500.);  
+      }
     }
   }  //end-of if(_dbe) 
 
@@ -1039,7 +1053,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double en  = cen[i]; 
     double eta = ceta[i]; 
     double phi = cphi[i]; 
-    double z   = cz[i];
+    //    double z   = cz[i];
 
     int index = ieta * 72 + iphi; //  for sequential histos
     
@@ -1086,14 +1100,16 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     */
 
     if( subdet_ != 6) {  
+
+      /*
       if (depth == 1 ) profile_z1->Fill(double(ieta), z); 
       if (depth == 2 ) profile_z2->Fill(double(ieta), z); 
       if (depth == 3 ) profile_z3->Fill(double(ieta), z); 
       if (depth == 4 ) profile_z4->Fill(double(ieta), z); 
-      
+      */
+
       //      std::cout << "*** 4-1" << std::endl; 
-      
-      
+            
       if (depth == 1 && sub == 1 ) {
 	emap_HB1->Fill(double(ieta), double(iphi), en);
 	emean_vs_ieta_HB1->Fill(double(ieta), en);
@@ -1370,11 +1386,12 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       }
     }
 
-    meEnConeEtaProfile_depth1->Fill(double(ietaMax1), HcalCone_d1);
-    meEnConeEtaProfile_depth2->Fill(double(ietaMax2), HcalCone_d2);
-    meEnConeEtaProfile_depth3->Fill(double(ietaMax3), HcalCone_d3);
-    meEnConeEtaProfile_depth4->Fill(double(ietaMax4), HcalCone_d4);
-
+    if(imc != 0) {
+      meEnConeEtaProfile_depth1->Fill(double(ietaMax1), HcalCone_d1);
+      meEnConeEtaProfile_depth2->Fill(double(ietaMax2), HcalCone_d2);
+      meEnConeEtaProfile_depth3->Fill(double(ietaMax3), HcalCone_d3);
+      meEnConeEtaProfile_depth4->Fill(double(ietaMax4), HcalCone_d4);
+    }
 
     //     std::cout << "*** 7" << std::endl; 
 
@@ -1398,32 +1415,34 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       if(subdet_ == 1) {
 	meSumRecHitsEnergyHB->Fill(eHcal);
-	meSumRecHitsEnergyConeHB->Fill(eHcalConeHB);    
-	meNumRecHitsConeHB->Fill(double(nrechitsCone));
+	if(imc != 0) meSumRecHitsEnergyConeHB->Fill(eHcalConeHB);    
+	if(imc != 0) meNumRecHitsConeHB->Fill(double(nrechitsCone));
 	meNumRecHitsThreshHB->Fill(double(nrechitsThresh));
       }
 
       if(subdet_ == 2) {
         meSumRecHitsEnergyHE->Fill(eHcal);
-	meSumRecHitsEnergyConeHE->Fill(eHcalConeHE);    
-	meNumRecHitsConeHE->Fill(double(nrechitsCone));
+	if(imc != 0) meSumRecHitsEnergyConeHE->Fill(eHcalConeHE);    
+	if(imc != 0) meNumRecHitsConeHE->Fill(double(nrechitsCone));
 	meNumRecHitsThreshHE->Fill(double(nrechitsThresh));
       }
 
       if(subdet_ == 3) {
 	meSumRecHitsEnergyHO->Fill(eHcal);
-	meSumRecHitsEnergyConeHO->Fill(eHcalConeHO);    
-	meNumRecHitsConeHO->Fill(double(nrechitsCone));
+	if(imc != 0) meSumRecHitsEnergyConeHO->Fill(eHcalConeHO);    
+	if(imc != 0) meNumRecHitsConeHO->Fill(double(nrechitsCone));
 	meNumRecHitsThreshHO->Fill(double(nrechitsThresh));
       }
 
       if(subdet_ == 4) {
         if(eHcalConeHF > eps ) {
-	meSumRecHitsEnergyHF ->Fill(eHcal);
-	meSumRecHitsEnergyConeHF ->Fill(eHcalConeHF);    
-	meSumRecHitsEnergyConeHFL ->Fill(eHcalConeHFL);    
-	meSumRecHitsEnergyConeHFS ->Fill(eHcalConeHFS);    
-	meNumRecHitsConeHF->Fill(double(nrechitsCone));
+	  meSumRecHitsEnergyHF ->Fill(eHcal);
+	  if(imc != 0) { 
+	    meSumRecHitsEnergyConeHF ->Fill(eHcalConeHF);    
+	    meNumRecHitsConeHF->Fill(double(nrechitsCone));
+	    meSumRecHitsEnergyConeHFL ->Fill(eHcalConeHFL);    
+	    meSumRecHitsEnergyConeHFS ->Fill(eHcalConeHFS);    
+	  }
 	}
       }
 
@@ -1432,49 +1451,48 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
       // Also combine with ECAL if needed 
       if(subdet_ == 1  && ecalselector_ == "yes") {
-		
+	
 	/*
-	std::cout << "*** point 8-1" 
-		  << "  eEcalB " << eEcalB << "  eHcal " << eHcal
-		  << "  eEcalCone " <<  eEcalCone << "  eHcalCone " 
+	  std::cout << "*** point 8-1" 
+	  << "  eEcalB " << eEcalB << "  eHcal " << eHcal
+	  << "  eEcalCone " <<  eEcalCone << "  eHcalCone " 
 		  << eHcalCone
 		  << "  numrechitsEcal " <<  numrechitsEcal
 		  << std::endl;
-	
+		  
 	*/
-
+	
        	meEcalHcalEnergyHB->Fill(eEcalB+eHcal);
       	meEcalHcalEnergyConeHB->Fill(eEcalCone+eHcalCone);
       	meNumEcalRecHitsConeHB->Fill(double(numrechitsEcal));
-
+	
       }
-
+      
       if(subdet_ == 2  && ecalselector_ == "yes"){
 	
 	/*
-	std::cout << "*** point 8-2a" 
-		  << "  eEcalE " << eEcalE << "  eHcal " << eHcal
-		  << "  eEcalCone " <<  eEcalCone << "  eHcalCone " 
-		  << eHcalCone
-		  << "  numrechitsEcal " <<  numrechitsEcal
-		  << std::endl;
+	  std::cout << "*** point 8-2a" 
+	  << "  eEcalE " << eEcalE << "  eHcal " << eHcal
+	  << "  eEcalCone " <<  eEcalCone << "  eHcalCone " 
+	  << eHcalCone
+	  << "  numrechitsEcal " <<  numrechitsEcal
+	  << std::endl;
 	*/
-
+	
 	meEcalHcalEnergyHE->Fill(eEcalE+eHcal);
-	meEcalHcalEnergyConeHE->Fill(eEcalCone+eHcalCone);
-	meNumEcalRecHitsConeHE->Fill(double(numrechitsEcal));
-
-
+	if(imc != 0) meEcalHcalEnergyConeHE->Fill(eEcalCone+eHcalCone);
+	if(imc != 0) meNumEcalRecHitsConeHE->Fill(double(numrechitsEcal));
       } 
 
       // Banana plots finally
-      if(subdet_ == 1 && ecalselector_ == "yes")
-	meEnergyHcalVsEcalHB -> Fill(eEcalCone,eHcalCone);
-      if(subdet_ == 2 && ecalselector_ == "yes") 
-	meEnergyHcalVsEcalHE -> Fill(eEcalCone,eHcalCone);
+      if(imc != 0) {
+	if(subdet_ == 1 && ecalselector_ == "yes")
+	  meEnergyHcalVsEcalHB -> Fill(eEcalCone,eHcalCone);
+	if(subdet_ == 2 && ecalselector_ == "yes") 
+	  meEnergyHcalVsEcalHE -> Fill(eEcalCone,eHcalCone);
+      }
     }
   }
-
   //  std::cout << "*** 9" << std::endl; 
 
 
@@ -1482,7 +1500,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // Getting SimHits
   //===========================================================================
 
-  if(subdet_ > 0 && subdet_ < 6 &&imc !=0 && !famos_  ) {  // not noise 
+  if(subdet_ > 0 && subdet_ < 6 && imc !=0 && !famos_  ) {  // not noise 
 
     double maxES = -9999.;
     double etaHotS = 1000.;
@@ -1576,13 +1594,13 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     
     if(subdet_ == 4 || subdet_ == 5) {
       if(eHcalConeHF > eps) {
-      meRecHitSimHitHF->Fill( enSimHitsHF, eHcalConeHF );
-      meRecHitSimHitProfileHF->Fill( enSimHitsHF, eHcalConeHF);
-      
-      meRecHitSimHitHFL->Fill( enSimHitsHFL, eHcalConeHFL );
-      meRecHitSimHitProfileHFL->Fill( enSimHitsHFL, eHcalConeHFL);
-      meRecHitSimHitHFS->Fill( enSimHitsHFS, eHcalConeHFS );
-      meRecHitSimHitProfileHFS->Fill( enSimHitsHFS, eHcalConeHFS);       
+	meRecHitSimHitHF->Fill( enSimHitsHF, eHcalConeHF );
+	meRecHitSimHitProfileHF->Fill( enSimHitsHF, eHcalConeHF);
+	
+	meRecHitSimHitHFL->Fill( enSimHitsHFL, eHcalConeHFL );
+	meRecHitSimHitProfileHFL->Fill( enSimHitsHFL, eHcalConeHFL);
+	meRecHitSimHitHFS->Fill( enSimHitsHFS, eHcalConeHFS );
+	meRecHitSimHitProfileHFS->Fill( enSimHitsHFS, eHcalConeHFS);       
       }
     }
     if(subdet_ == 1  || subdet_ == 5) { 
@@ -1597,7 +1615,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       meRecHitSimHitHO->Fill( enSimHitsHO,eHcalConeHO );
       meRecHitSimHitProfileHO->Fill( enSimHitsHO,eHcalConeHO);
     }
-
   }
 
   nevtot++;
