@@ -1,17 +1,10 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.11 2008/05/02 10:47:47 loizides Exp $
+# $Id: InjectWorker.pl,v 1.1 2008/05/05 15:44:49 loizides Exp $
 
 use strict;
 use DBI;
 use Getopt::Long;
 use Sys::Hostname;
-
-$endflag=0;
-$SIG{'INT'}= 'SETFLAG';
-$SIG{'KILL'}='SETFLAG';
-sub SETFLAG {
-    $endflag=1;
-}
 
 #date routine for log file finding / writing
 sub getdatestr()
@@ -153,6 +146,13 @@ open(OUTDATA, $outfile) or
 
 
 #loop over input files - sleep and try to reread file once end is reached
+
+$endflag=0;
+$SIG{'INT'}= 'SETFLAG';
+$SIG{'KILL'}='SETFLAG';
+sub SETFLAG {
+    $endflag=1;
+}
 
 while( !$endflag ) {
     while( $line = <INDATA> ){
