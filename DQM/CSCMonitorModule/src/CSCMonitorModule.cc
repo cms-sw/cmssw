@@ -31,6 +31,10 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   edm::FileInPath fp;
 
+  /*
+   * Histogram prebooking stuff (removed meanwhile so please always put
+   * hitBookDDU to true)
+   *
   std::vector<unsigned> ddus = parameters.getUntrackedParameter< std::vector<unsigned> >("preBookDDU");
   if (ddus.size() > 1) {
     loadDDU = ddus[1];
@@ -38,8 +42,10 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
     BitsetDDU minusDDU(ddus[0]);
     loadDDU |= minusDDU;
   }
+  *
+  */
   
-  hitBookDDU     = parameters.getUntrackedParameter<bool>("hitBookDDU", false);
+  hitBookDDU     = parameters.getUntrackedParameter<bool>("hitBookDDU", true);
   examinerMask   = parameters.getUntrackedParameter<unsigned int>("ExaminerMask", 0x7FB7BF6);
   examinerForce  = parameters.getUntrackedParameter<bool>("ExaminerForce", false);
   examinerOutput = parameters.getUntrackedParameter<bool>("ExaminerOutput", false);
