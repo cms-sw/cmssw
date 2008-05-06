@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.17 2008/04/21 23:22:55 nancy Exp $ 
- **  $Date: 2008/04/21 23:22:55 $ 
- **  $Revision: 1.17 $
+ **  $Id: PhotonProducer.h,v 1.18 2008/04/23 20:05:24 nancy Exp $ 
+ **  $Date: 2008/04/23 20:05:24 $ 
+ **  $Revision: 1.18 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -27,7 +27,9 @@
 #include "DataFormats/EgammaReco/interface/ElectronPixelSeedFwd.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::EDProducer {
@@ -80,14 +82,16 @@ class PhotonProducer : public edm::EDProducer {
   std::string pixelSeedProducer_;
   std::string vertexProducer_;
   bool usePrimaryVertex_;
+  bool risolveAmbiguity_;
   edm::ParameterSet conf_;
 
   PositionCalc posCalculator_;
- 
+  std::string likelihoodWeights_;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
   HoECalculator  theHoverEcalc_;
+  ConversionLikelihoodCalculator* theLikelihoodCalc_;
 
 };
 #endif

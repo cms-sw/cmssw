@@ -25,7 +25,8 @@
 
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : 
-  conf_(config) 
+  conf_(config), 
+  theLikelihoodCalc_(0)
 
 {
 
@@ -41,7 +42,9 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
   conversionProducer_ = conf_.getParameter<std::string>("conversionProducer");
   conversionCollection_ = conf_.getParameter<std::string>("conversionCollection");
-
+  vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
+  PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
+  pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
 
   hbheLabel_        = conf_.getParameter<std::string>("hbheModule");
   hbheInstanceName_ = conf_.getParameter<std::string>("hbheInstance");
@@ -49,12 +52,13 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
   minR9_        = conf_.getParameter<double>("minR9");
+  likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
 
-  pixelSeedProducer_   = conf_.getParameter<std::string>("pixelSeedProducer");
+
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
-  vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
-  PhotonCollection_ = conf_.getParameter<std::string>("photonCollection");
+  risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
 
+ 
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
   providedParameters.insert(std::make_pair("LogWeighted",conf_.getParameter<bool>("posCalc_logweight")));
@@ -71,11 +75,14 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 }
 
 PhotonProducer::~PhotonProducer() {
-
+  delete theLikelihoodCalc_;
 }
 
 
 void  PhotonProducer::beginJob (edm::EventSetup const & theEventSetup) {
+  theLikelihoodCalc_ = new ConversionLikelihoodCalculator();
+  edm::FileInPath path_mvaWeightFile(likelihoodWeights_.c_str() );
+  theLikelihoodCalc_->setWeightsFile(path_mvaWeightFile.fullPath().c_str());
 
 
 }
@@ -279,6 +286,70 @@ void PhotonProducer::fillPhotonCollection(
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
 
     if ( validConversions_) {
+      std::multimap<reco::ConversionRef, double >   convMap;
+      
+      if ( risolveAmbiguity_ ) { 
+	
+	int icp=0;
+	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
+	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+	  icp++;      
+	  
+	  if ( scRef != (*itCP).superCluster() ) continue; 
+	  if ( !(*itCP).isConverted() ) continue;  
+	  //  std::cout << " PhotonProducer conversion SC energy " << (*itCP).superCluster()->energy() << std::endl;
+	  
+	  double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
+	  //std::cout << " Like " << like << std::endl;
+	  convMap.insert ( std::make_pair(cpRef,like) ) ;
+	}		     
+	
+	
+	
+	std::multimap<reco::ConversionRef, double >::iterator  iMap; 
+	double max_lh = -1.;
+	reco::ConversionRef bestRef;
+	//std::cout << " Pick up the best conv " << std::endl;
+	for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
+	  double like = iMap->second;
+	  if (like > max_lh) { 
+	    max_lh = like;
+	    bestRef=iMap->first;
+	  }
+	}            
+	
+	//std::cout << " Best conv like " << max_lh << std::endl;    
+	
+	float ep=0;
+	if ( max_lh <0 ) {
+	  std::cout << " Candidates with only one track " << std::endl;
+	  /// only one track reconstructed. Pick the one with best E/P
+	  float epMin=999; 
+	  
+	  for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
+	    reco::ConversionRef convRef=iMap->first;
+	    std::vector<reco::TrackRef> tracks = convRef->tracks();	
+	    float px=tracks[0]->innerMomentum().x();
+	    float py=tracks[0]->innerMomentum().y();
+	    float pz=tracks[0]->innerMomentum().z();
+	    float p=sqrt(px*px+py*py+pz*pz);
+	    ep=fabs(1.-convRef->superCluster()->energy()/p);
+	    //    std::cout << " 1-E/P = " << ep << std::endl;
+	    if ( ep<epMin) {
+	      epMin=ep;
+	      bestRef=iMap->first;
+	    }
+	  }            
+	}
+	
+	//std::cout << " Best conv 1-E/P " << ep << std::endl;    
+	newCandidate.addConversion(bestRef);     
+
+
+	
+      } else {
+	
+	
 	int icp=0;
 	
 	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
@@ -291,13 +362,14 @@ void PhotonProducer::fillPhotonCollection(
 	  
 	  
 	  newCandidate.addConversion(cpRef);     
-	  
-	  
-	}		     
-
-      }
+	}	  
+	
+      } // solve or not the ambiguity	     
 
 
+
+      
+    }
 
     outputPhotonCollection.push_back(newCandidate);
     
