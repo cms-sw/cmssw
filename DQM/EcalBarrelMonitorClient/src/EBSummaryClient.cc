@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/05/06 05:41:37 $
- * $Revision: 1.140 $
+ * $Date: 2008/05/06 14:32:54 $
+ * $Revision: 1.141 $
  * \author G. Della Ricca
  *
 */
@@ -315,7 +315,7 @@ void EBSummaryClient::setup(void) {
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
   for (int i = 0; i < 36; i++) {
-    sprintf(histo, "status %s", Numbers::sEB(i+1));
+    sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
     me = dqmStore_->bookFloat(histo);
   }
 
@@ -1109,7 +1109,7 @@ void EBSummaryClient::analyze(void){
     float reportSummaryEB = -1.0;
     if ( nValidChannelsEB[i] != 0 )
       reportSummaryEB = 1.0 - float(nGlobalErrorsEB[i])/float(nValidChannelsEB[i]);
-    sprintf(histo, "status %s", Numbers::sEB(i+1));
+    sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
     if (me) me->Fill(reportSummaryEB);
   }
