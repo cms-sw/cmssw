@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: TrackerToMuonPropagator.cc,v 1.1 2008/04/27 01:58:57 pivarski Exp $
+// $Id: TrackerToMuonPropagator.cc,v 1.2 2008/04/29 03:23:41 pivarski Exp $
 //
 //
 
@@ -181,8 +181,9 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	 if (trackerTrajectories.size() == 1) {
 	    const Trajectory trackerTrajectory = *(trackerTrajectories.begin());
 
-	    tracker_tsos = trackerTrajectory.lastMeasurement().forwardPredictedState();
-	    outerDetId = trackerTrajectory.lastMeasurement().recHit()->geographicalId();
+	    // surprisingly, firstMeasurement() corresponds to the outermost state of the tracker
+	    tracker_tsos = trackerTrajectory.firstMeasurement().forwardPredictedState();
+	    outerDetId = trackerTrajectory.firstMeasurement().recHit()->geographicalId();
 	 }
 	 else continue;
       }
@@ -244,7 +245,6 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	 // Remember which Trajectory is associated with which Track
 	 trajCounter++;
-	 edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
 	 reference_map[trajCounter] = trackCounter;
 
       } // end if we have some good extrapolations
