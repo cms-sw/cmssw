@@ -71,7 +71,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   eventSetup.get<CaloTPGRecord>().get(hcalESLabel, transcoder);
   const CaloTPGTranscoder* t = transcoder.product();
   edm::ESHandle<L1CaloEtScale> emScale;
-  eventSetup.get<L1EmEtScaleRcd>().get(ecalESLabel, emScale);
+  eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
 
   EcalTPGScale* e = new EcalTPGScale();
@@ -162,16 +162,19 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
 		  if (useEcalCosmicTiming && iphi >= 1 && iphi <= 36)
 		    {
-		      if (nSOI == 0)
+		      //if (nSOI == 0)
+		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
 			    << "ECAL data needs at least one presample "
-			    << "to use ecal cosmic timing mod!  Setting data "
-			    << "for this time slice to zero and "
+			    << "more than the number requested "
+			    << "to use ecal cosmic timing mod!  "
+			    //<< "Setting data "
+			    //<< "for this time slice to zero and "
 			    << "reverting to useEcalCosmicTiming = false "
 			    << "for rest of job.";
-			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
-					     (0, false, 0));
+			  //ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+			  //		     (0, false, 0));
 			  useEcalCosmicTiming = false;
 			}
 		      else
@@ -183,7 +186,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 							      1).raw()));
 			}
 		    }
-		  else
+		  //else
+		  if ((!useEcalCosmicTiming) || (iphi >=37 && iphi <= 72))
 		    {
 		      ecalDigi.setSample(0, EcalTriggerPrimitiveSample
 					 (ecal_it->sample(nSOI + sample - 
@@ -236,16 +240,19 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
 		  if (useEcalCosmicTiming && iphi >= 1 && iphi <=36)
 		    {
-		      if (nSOI == 0)
+		      //if (nSOI == 0)
+		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
 			    << "ECAL data needs at least one presample "
-			    << "to use ecal cosmic timing mod!  Setting data "
-			    << "for this time slice to zero and "
+			    << "more than the number requested "
+			    << "to use ecal cosmic timing mod!  "
+			    //<< "Setting data "
+			    //<< "for this time slice to zero and "
 			    << "reverting to useEcalCosmicTiming = false "
 			    << "for rest of job.";
-			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
-					     (0, false, 0));
+			  //ecalDigi.setSample(0, EcalTriggerPrimitiveSample
+			  //	     (0, false, 0));
 			  useEcalCosmicTiming = false;
 			}
 		      else
@@ -257,7 +264,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 					       1).raw()));
 			}
 		    }
-		  else
+		  //else
+		  if ((!useEcalCosmicTiming) || (iphi >=37 && iphi <= 72))
 		    {
 		      ecalDigi.setSample(0, EcalTriggerPrimitiveSample
 					 (ecal_it->sample
@@ -335,16 +343,19 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  if (useHcalCosmicTiming && iphi >= 1 && iphi <= 36)
 		    {
 		      //if (hcal_it->presamples() == 0)
-		      if (nSOI == 0)
+		      //if (nSOI == 0)
+		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
 			    << "HCAL data needs at least one presample "
-			    << "to use hcal cosmic timing mod!  Setting data "
-			    << "for this time slice to zero and "
+			    << "more than the number requested "
+			    << "to use hcal cosmic timing mod!  "
+			    //<< "Setting data "
+			    //<< "for this time slice to zero and "
 			    << "reverting to useHcalCosmicTiming = false "
 			    << "for rest of job.";
-			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					     (0, false, 0, 0));
+			  //hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+			  //		     (0, false, 0, 0));
 			  useHcalCosmicTiming = false;
 			}
 		      else
@@ -357,7 +368,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 							      1).raw()));
 			}
 		    }
-		  else
+		  //else
+		  if ((!useHcalCosmicTiming) || (iphi >= 37 && iphi <= 72))
 		    {
 		      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
 					 (hcal_it->sample(hcal_it->
@@ -409,16 +421,19 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  if (useHcalCosmicTiming && iphi >= 1 && iphi <= 36)
 		    {
 		      //if (hcal_it->presamples() == 0)
-		      if (nSOI == 0)
+		      //if (nSOI == 0)
+		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
 			    << "HCAL data needs at least one presample "
-			    << "to use hcal cosmic timing mod!  Setting data "
-			    << "for this time slice to zero and "
+			    << "more than the number requested "
+			    << "to use hcal cosmic timing mod!  "
+			    //<< "Setting data "
+			    //<< "for this time slice to zero and "
 			    << "reverting to useHcalCosmicTiming = false "
 			    << "for rest of job.";
-			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					     (0, false, 0, 0));
+			  //hcalDigi.setSample(0, HcalTriggerPrimitiveSample
+			  //		     (0, false, 0, 0));
 			  useHcalCosmicTiming = false;
 			}
 		      else
@@ -431,7 +446,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 							      1).raw()));
 			}
 		    }
-		  else
+		  //else
+		  if ((!useHcalCosmicTiming) || (iphi >= 37 && iphi <= 72))
 		    {
 		      hcalDigi.setSample(0, HcalTriggerPrimitiveSample
 					 (hcal_it->sample(hcal_it->

@@ -10,12 +10,17 @@ maskedRctInputDigis = cms.EDProducer("MaskedRctInputDigiProducer",
 
 l1RctEmulDigis = cms.EDProducer("L1RCTProducer",
     hcalDigisLabel = cms.InputTag("maskedRctInputDigis"),
+    hcalESLabel = cms.string(''),
+    ecalESLabel = cms.string(''),
+    useEcalCosmicTiming = cms.bool(False),
     postSamples = cms.uint32(0),
     preSamples = cms.uint32(0),
+    useHcalCosmicTiming = cms.bool(False),
     useEcal = cms.bool(True),
     useHcal = cms.bool(False),
     ecalDigisLabel = cms.InputTag("maskedRctInputDigis")
 )
 
 l1RctSequence = cms.Path(maskedRctInputDigis*l1RctEmulDigis)
+
 

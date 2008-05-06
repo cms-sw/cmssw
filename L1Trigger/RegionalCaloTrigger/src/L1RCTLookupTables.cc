@@ -44,6 +44,9 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       << "1 <= |IEta| <= 28, is " << iAbsEta;
   float ecal = convertEcal(ecalInput, iAbsEta, iPhi, sign);
   float hcal = convertHcal(hcalInput, iAbsEta);
+  // couts!
+  //std::cout << "LUTs: ecalInput=" << ecalInput << " ecalConverted="
+  //	    << ecal << std::endl;
   unsigned long etIn7Bits;
   unsigned long etIn9Bits;
   // Saturated input towers cause tower ET pegging at the highest value
@@ -51,6 +54,14 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
     {
       etIn7Bits = 0x7F;
       etIn9Bits = 0x1FF;
+      if (eGammaETCode(ecal, hcal, iAbsEta) == 0)
+	{
+	  etIn7Bits = 0;
+	}
+      if (jetMETETCode(ecal,hcal,iAbsEta) == 0)
+	{
+	  etIn9Bits = 0;
+	}
     }
   else if((ecalInput == 0 && hcalInput > 0) &&
 	  ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
@@ -67,10 +78,19 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       /*
       if (etIn7Bits > 0)
 	{
-	  std::cout << "etIn7Bits is " << etIn7Bits << std::endl;
+	  std::cout << "LUTs: ecalInput=" << ecalInput << " hcalInput=" 
+	  << hcalInput << " ecal=" << ecal << " hcal=" << hcal 
+	  << " etIn7Bits=" << etIn7Bits << " etIn9Bits="
+	  << etIn9Bits << std::endl;
 	}
       */
     }
+  /*
+  std::cout << "LUTs: ecalInput=" << ecalInput << " hcalInput=" 
+	    << hcalInput << " ecal=" << ecal << " hcal=" << hcal 
+	    << " etIn7Bits=" << etIn7Bits << " etIn9Bits="
+	    << etIn9Bits << std::endl;
+  */
   unsigned long shiftEtIn9Bits = etIn9Bits<<8;
   unsigned long shiftHE_FGBit = hOeFGVetoBit(ecal, hcal, fgbit)<<7;
   unsigned long shiftActivityBit = activityBit(ecal, hcal)<<17;
@@ -160,14 +180,13 @@ float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta
       if (iAbsEta <= 17)
 	{
 	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));
-	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));	}
+	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));	
+	}
       else
 	{
 	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));
-	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));	}
-      //EcalTrigTowerDetId det(sign, EcalTriggerTower, iAbsEta, iPhi);
-      //float dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId( (int) sign, EcalTriggerTower, (int) iAbsEta, (int) iPhi)));
-      //float dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, det));
+	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));	
+	}
       /*
       if (ecal > 0)
 	{
@@ -175,16 +194,7 @@ float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta
 		    << dummy << " with iAbsEta " << iAbsEta << std::endl;
 	}
       */
-      /*
-      dummy = dummy * rctParameters_->eGammaLSB();
-      if (ecal > 0)
-	{
-	  std::cout << " e*LSB = " << dummy << std::endl;
-	}
-      */
       return dummy;
-      //return dummy * rctParameters_->eGammaLSB();
-      //return float(ecalScale_->getLinearizedTPG( (uint) ecal, const EcalTrigTowerDetId( sign, EcalTriggerTower, iAbsEta, iPhi ) ) );
     }
   //else if(rctParameters_ == 0)
   //  {

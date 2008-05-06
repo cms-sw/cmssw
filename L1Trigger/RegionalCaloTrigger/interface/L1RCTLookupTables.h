@@ -58,12 +58,16 @@ class L1RCTLookupTables {
   unsigned int jetMETETCode(float ecal, float hcal, int iAbsEta) const;
   bool hOeFGVetoBit(float ecal, float hcal, bool fgbit) const;
   bool activityBit(float ecal, float hcal) const;
+
+  // need this to be public to determine good ecal tower in phi for
+  // ecaldetid in L1RCTLutWriter
+  float convertEcal(unsigned short ecal, unsigned short iAbsEta, unsigned short iPhi, short sign) const;
   
  private:
 
   // helper functions
 
-  float convertEcal(unsigned short ecal, unsigned short iAbsEta, unsigned short iPhi, short sign) const;
+
   float convertHcal(unsigned short hcal, unsigned short iAbsEta) const;
   unsigned long convertToInteger(float et, float lsb, int precision) const;
 
