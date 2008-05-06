@@ -13,8 +13,8 @@ class RandomNumberServiceHelper(object):
 
     Provide both user level and WM APIs.
 
-    Revision: "$Id: RandomServiceHelper.py,v 1.1 2008/03/12 22:34:24 ewv Exp $"
-    Version   "$Revision: 1.1 $"
+    Revision: "$Id: RandomServiceHelper.py,v 1.2 2008/04/19 13:24:19 hegner Exp $"
+    Version   "$Revision: 1.2 $"
     Author:   Dave Evans
     Modified: Eric Vaandering
     """
@@ -136,6 +136,31 @@ class RandomNumberServiceHelper(object):
         return
 
 
+    def getNamedSeed(self, psetName):
+        """
+        _getNamedSeed_
+
+        This method returns the seeds in a PSet in this service. Returned
+
+        - *psetName* : Name of the pset containing the seeds
+
+        """
+        pset = getattr(self._randService, psetName, None)
+        if pset == None:
+            msg = "No PSet named %s belongs to this instance of the" % (
+                psetName,)
+            msg += "Random Seed Service"
+            raise RuntimeError, msg
+
+        seedVal = getattr(pset, "initialSeed", None)
+        if seedVal != None:
+            return [pset.initialSeed.value()]
+
+        seedSet = getattr(pset, "initialSeedSet", None)
+        if seedSet != None:
+            return pset.initialSeedSet
+
+
     def insertSeeds(self, *seeds):
         """
         _insertSeeds_
@@ -254,6 +279,8 @@ if __name__ == '__main__':
 
     print "All seeds 9999"
     print randSvc
+    print "t1 seed(s)",randHelper.getNamedSeed("t1")
+    print "t2 seed(s)",randHelper.getNamedSeed("t2")
 
 
     #  //
