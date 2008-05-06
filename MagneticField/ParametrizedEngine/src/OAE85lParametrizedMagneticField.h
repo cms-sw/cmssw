@@ -7,8 +7,8 @@
  *  of the TOSCA field version 85l_030919 (4 T)
  *  valid in the region r<1.2 m and |z|<3.0 m 
  *
- *  $Date: 2008/03/28 16:49:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/23 14:43:33 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -34,10 +34,11 @@ class OAE85lParametrizedMagneticField : public MagneticField {
   
   GlobalVector inTesla (const GlobalPoint& gp) const;
 
+  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
+
   bool isDefined(const GlobalPoint& gp) const;
 
  private:
-  bool trackerField(const GlobalPoint& gp, GlobalVector& bxyz) const ;
 
   void ffunkti(float u, float* ff) const;
 

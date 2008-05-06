@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/21 16:44:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/23 14:43:29 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -47,10 +47,9 @@ OAE85lParametrizedMagneticField::~OAE85lParametrizedMagneticField() {}
 
 GlobalVector
 OAE85lParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
-  GlobalVector result;
   
-  if (trackerField(gp, result)) {
-    return result;
+  if (isDefined(gp)) {
+    return inTeslaUnchecked(gp);
   } else {
     edm::LogWarning("MagneticField|FieldOutsideValidity") << " Point " << gp << " is outside the validity region of OAE85lParametrizedMagneticField";
     return GlobalVector();
@@ -58,7 +57,10 @@ OAE85lParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
 }
 
 
-bool OAE85lParametrizedMagneticField::trackerField(const GlobalPoint& gp, GlobalVector& bvec) const {
+GlobalVector 
+OAE85lParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
+  
+// Method formerly named "trackerField"
 
 //
 //    B-field in Tracker volume
@@ -86,8 +88,8 @@ bool OAE85lParametrizedMagneticField::trackerField(const GlobalPoint& gp, Global
  float r=sqrt(xyz[0]*xyz[0]+xyz[1]*xyz[1]);
  float z=xyz[2];
  float az = fabs(z);
- // if (r<1.2&&az<3.0) { // use the following to avoid mismatches due to numerical precision...
- if (isDefined(gp)) {
+ // if (r<1.2&&az<3.0) // NOTE: check omitted, is done already by inTesla (NA)
+ {
   float zainv=z*ainv;
   float rinv=(r>0.0) ? 1.0/r : 0.0;
   float u=hlova-zainv;
@@ -107,14 +109,12 @@ bool OAE85lParametrizedMagneticField::trackerField(const GlobalPoint& gp, Global
   //  bvec.x()=0.1*br*xyz[0]*rinv;
   //bvec.y()=0.1*br*xyz[1]*rinv;
   //bvec.z()=0.1*bz;
-  bvec = 0.1*GlobalVector(br*xyz[0]*rinv, br*xyz[1]*rinv, bz);
-  return true;
- }   
- return false;
- // {
+  return  0.1*GlobalVector(br*xyz[0]*rinv, br*xyz[1]*rinv, bz);
+ }
+ // else {
  // cout <<"The point is outside the region r<1.2m && |z|<3.0m"<<endl;
  //}
- //return;
+ // return GlobalVector();
 }
 
 void OAE85lParametrizedMagneticField::ffunkti(float u, float* ff) const {

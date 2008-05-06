@@ -6,8 +6,8 @@
  *  Magnetic Field engine wrapper for V. Maroussov's 2D parametrization
  *  of the MT data.
  *
- *  $Date: 2008/04/23 14:39:16 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/23 14:49:56 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane
  */
 
@@ -29,6 +29,8 @@ class PolyFit2DParametrizedMagneticField : public MagneticField {
   virtual ~PolyFit2DParametrizedMagneticField();
   
   GlobalVector inTesla (const GlobalPoint& gp) const;
+
+  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
 
   bool isDefined(const GlobalPoint& gp) const;
 

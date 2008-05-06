@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/21 16:46:30 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/24 14:57:28 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -31,21 +31,24 @@ OAEParametrizedMagneticField::~OAEParametrizedMagneticField() {
 
 GlobalVector
 OAEParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
-  double x[3] = {gp.x()/100., gp.y()/100., gp.z()/100.};
-  double B[3];
-
-  
   if (isDefined(gp)) {
-    theParam->getBxyz(x,B);
-    return GlobalVector(B[0], B[1], B[2]);
+    return inTeslaUnchecked(gp);
   } else {
     edm::LogWarning("MagneticField|FieldOutsideValidity") << " Point " << gp << " is outside the validity region of OAEParametrizedMagneticField";
     return GlobalVector();
   }
 }
 
+GlobalVector
+OAEParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
+  double x[3] = {gp.x()/100., gp.y()/100., gp.z()/100.};
+  double B[3];
+  theParam->getBxyz(x,B);
+  return GlobalVector(B[0], B[1], B[2]);
+}
+
 
 bool
 OAEParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  return (theParam->isDefined(gp.perp()/100., gp.z()/100.));
+  return (gp.perp()<115. && fabs(gp.z())<280.);
 }

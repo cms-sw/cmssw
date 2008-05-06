@@ -5,12 +5,12 @@
  *
  *  Magnetic Field engine wrapper for V. Karimaki's "off-axis expansion"
  *  of the TOSCA field version 1103l_071212 (2, 3, 3.4, 3.8, 4 T)
- *  valid in the region r<1.1 m and |z|<3.0 m 
+ *  valid in the region r<1.15 m and |z|<2.8 m 
  *  For details, cf TkBfield.h
  *   
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/03/28 16:49:25 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -31,6 +31,8 @@ class OAEParametrizedMagneticField : public MagneticField {
   virtual ~OAEParametrizedMagneticField();
   
   GlobalVector inTesla (const GlobalPoint& gp) const;
+
+  GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
 
   bool isDefined(const GlobalPoint& gp) const;
 

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/24 17:30:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/30 14:34:33 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane
  */
 
@@ -35,23 +35,27 @@ PolyFit2DParametrizedMagneticField::~PolyFit2DParametrizedMagneticField() {
 GlobalVector
 PolyFit2DParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
 
-  double Br, Bz, Bphi;
   if (isDefined(gp)) {
-    theParam->GetField(gp.perp()/100., gp.z()/100., gp.phi(),
-		       Br, Bz, Bphi);
-
-    double cosphi = cos(gp.phi());
-    double sinphi = sin(gp.phi());
-
-    return GlobalVector(Br*cosphi - Bphi*sinphi,
-			Br*sinphi + Bphi*cosphi, 
-			Bz);
+    return inTeslaUnchecked(gp);
   } else {
     edm::LogWarning("MagneticField|FieldOutsideValidity") << " Point " << gp << " is outside the validity region of PolyFit2DParametrizedMagneticField";
     return GlobalVector();
   }
 }
 
+GlobalVector
+PolyFit2DParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
+  double Br, Bz, Bphi;
+  theParam->GetField(gp.perp()/100., gp.z()/100., gp.phi(),
+		     Br, Bz, Bphi);
+
+  double cosphi = cos(gp.phi());
+  double sinphi = sin(gp.phi());
+
+  return GlobalVector(Br*cosphi - Bphi*sinphi,
+		      Br*sinphi + Bphi*cosphi, 
+		      Bz);  
+}
 
 bool
 PolyFit2DParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
