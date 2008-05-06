@@ -1,0 +1,30 @@
+
+//include "Configuration/EventContent/data/EventContent.cff"
+
+//RawToDigi
+include "Configuration/StandardSequences/data/FrontierConditions.cff"
+#include "Configuration/StandardSequences/data/RawToDigi.cff"
+include "L1Trigger/HardwareValidation/data/RawToDigiGR.cff"
+
+//Emulator
+include "L1Trigger/Configuration/data/L1Config.cff"
+//include "L1Trigger/Configuration/data/L1FrontierConfig.cff"
+//include "L1Trigger/Configuration/data/L1SQLiteConfig.cff"
+
+include "L1Trigger/HardwareValidation/data/L1HardwareValidationGR.cff"
+
+include "DQM/L1TMonitor/data/L1TDEMON.cfi"
+
+include "DQM/L1TMonitor/data/L1TdeECAL.cfi"
+
+include "DQM/L1TMonitor/data/L1TdeRCT.cfi"
+replace l1tderct.rctSourceData = gctDigis
+replace l1tderct.rctSourceEmul = valRctDigis
+
+sequence expertDEdqm = {
+    l1demonecal,
+    l1tderct
+}
+
+//path p0 = { RawToDigi }
+//path p1 = { L1HardwareValidation }

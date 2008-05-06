@@ -1,22 +1,16 @@
-/* RCT */
+# Trigger configuration data
+# please include 'replace' statements 
+# as appropriate for the subsystem
 
-include "L1TriggerConfig/RCTConfigProducers/data/L1RCTConfig-GREN.cff"
-include "L1TriggerConfig/L1ScalesProducers/data/L1CaloScalesConfig.cff"
-replace l1CaloScales.L1CaloEmEtScaleLSB = 1.0
+#Maps both ECAL and HCAL to both eGamma and sums paths: 
+#include "L1Trigger/HardwareValidation/hwtest/globrun/Rct-CRUZET_identity.cff"
+#Maps ECAL to eGamma and sums paths, no HCAL: 
+#include"L1Trigger/HardwareValidation/hwtest/globrun/Rct-Eeg_ESums.cff"
+#Maps ECAL to eGamma path and HCAL to sums path: 
+include"L1Trigger/HardwareValidation/hwtest/globrun/Rct-Eeg_HSums.cff"
+#Maps ECAL to sums path and HCAL to eGamma path: 
+#include"L1Trigger/HardwareValidation/hwtest/globrun/Rct-Heg_ESums.cff"
+#Maps HCAL to eGamma and sums paths, no ECAL: 
+#include"L1Trigger/HardwareValidation/hwtest/globrun/Rct-Heg_HSums.cff"
 
-module maskedRctInputDigis = MaskedRctInputDigiProducer {
-    bool useEcal = false
-    bool useHcal = true
-    InputTag ecalDigisLabel = ecalEBunpacker::demon
-    InputTag hcalDigisLabel = hcalDigis::demon     
-    //FileInPath maskFile = "L1Trigger/RegionalCaloTrigger/data/maskEcalGren1.txt"
-    //FileInPath maskFile = "L1Trigger/RegionalCaloTrigger/data/maskEcalGren1.txt"
-    FileInPath maskFile = "L1Trigger/RegionalCaloTrigger/data/maskHcalGren.txt"
-}
 
-module rctDigis = L1RCTProducer {
-	bool useEcal = false
-	bool useHcal = true
-	InputTag ecalDigisLabel = maskedRctInputDigis
-	InputTag hcalDigisLabel = maskedRctInputDigis
-}

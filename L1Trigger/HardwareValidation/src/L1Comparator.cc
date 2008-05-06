@@ -515,45 +515,59 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ///--- done getting collections. --- 
 
   //check collections validity
-  bool isValid[DEnsys];// = {false};
-  for(int i=0; i<DEnsys; i++) isValid[i]=false;
+  bool isValidDE[DEnsys][2];// = {false};
+  for(int i=0; i<DEnsys; i++) for(int j=0; j<2; j++) isValidDE[i][j]=false;
 
-  isValid[ETP] = ((    ecal_tp_data .isValid()) && (    ecal_tp_emul .isValid()));
-  isValid[HTP] = ((    hcal_tp_data .isValid()) && (    hcal_tp_emul .isValid()));
-  isValid[RCT] = ((     rct_em_data .isValid()) && (     rct_em_emul .isValid()));
-  isValid[RCT]&= ((    rct_rgn_data .isValid()) && (    rct_rgn_emul .isValid()));
-  isValid[GCT] = ((gct_isolaem_data .isValid()) && (gct_isolaem_emul .isValid()));
-  isValid[GCT]&= ((gct_noisoem_data .isValid()) && (gct_noisoem_emul .isValid()));
-  isValid[GCT]&= ((gct_cenjets_data .isValid()) && (gct_cenjets_emul .isValid()));
-  isValid[GCT]&= ((gct_forjets_data .isValid()) && (gct_forjets_emul .isValid()));
-  isValid[GCT]&= ((gct_taujets_data .isValid()) && (gct_taujets_emul .isValid()));
-  isValid[DTP] = ((     dtp_ph_data_.isValid()) && (     dtp_ph_emul_.isValid()));
-  isValid[DTP]&= ((     dtp_th_data_.isValid()) && (     dtp_th_emul_.isValid()));
-  isValid[DTF] = ((        dtf_data .isValid()) && (        dtf_emul .isValid()));
-  isValid[DTF]&= ((    dtf_trk_data_.isValid()) && (    dtf_trk_emul_.isValid()));
-  isValid[CTP]|= ((    ctp_ano_data_.isValid()) && (    ctp_ano_emul_.isValid()));
-  isValid[CTP]|= ((    ctp_cat_data_.isValid()) && (    ctp_cat_emul_.isValid()));
-  isValid[CTP]|= ((    ctp_lct_data_.isValid()) && (    ctp_lct_emul_.isValid()));
-  isValid[CTF] = ((        ctf_data .isValid()) && (        ctf_emul .isValid()));
-  isValid[CTF]|= ((   ctf_trk_data_ .isValid()) && (   ctf_trk_emul_ .isValid()));
-  isValid[CTF]|= ((   ctf_sta_data_ .isValid()) && (   ctf_sta_emul_ .isValid()));
-  isValid[RPC] = ((    rpc_cen_data .isValid()) && (    rpc_cen_emul .isValid()));
-  isValid[RPC]|= ((    rpc_for_data .isValid()) && (    rpc_for_emul .isValid()));
-  isValid[LTC] = ((        ltc_data .isValid()) && (        ltc_emul .isValid()));
-  isValid[GMT] = ((        gmt_data .isValid()) && (        gmt_emul .isValid()));
-  isValid[GMT]|= ((    gmt_rdt_data_.isValid()) && (    gmt_rdt_emul_.isValid()));
-  isValid[GLT] = ((    glt_rdt_data .isValid()) && (    glt_rdt_emul .isValid()));
-  //isValid[GLT]&= ((    glt_evm_data .isValid()) && (    glt_evm_emul .isValid()));
-  //isValid[GLT]&= ((    glt_obj_data .isValid()) && (    glt_obj_emul .isValid()));
+  isValidDE[ETP][0] =     ecal_tp_data .isValid(); isValidDE[ETP][1] =    ecal_tp_emul .isValid();
+  isValidDE[HTP][0] =     hcal_tp_data .isValid(); isValidDE[HTP][1] =    hcal_tp_emul .isValid();
+  isValidDE[RCT][0] =      rct_em_data .isValid(); isValidDE[RCT][1] =     rct_em_emul .isValid();
+//isValidDE[RCT][0]|=     rct_rgn_data .isValid(); isValidDE[RCT][1] =    rct_rgn_emul .isValid();
+  isValidDE[GCT][0] = gct_isolaem_data .isValid(); isValidDE[GCT][1] =gct_isolaem_emul .isValid();
+//isValidDE[GCT][0]|= gct_noisoem_data .isValid(); isValidDE[GCT][1] =gct_noisoem_emul .isValid();
+//isValidDE[GCT][0]|= gct_cenjets_data .isValid(); isValidDE[GCT][1] =gct_cenjets_emul .isValid();
+//isValidDE[GCT][0]|= gct_forjets_data .isValid(); isValidDE[GCT][1] =gct_forjets_emul .isValid();
+//isValidDE[GCT][0]|= gct_taujets_data .isValid(); isValidDE[GCT][1] =gct_taujets_emul .isValid();
+  isValidDE[DTP][0] =      dtp_ph_data_.isValid(); isValidDE[DTP][1] =     dtp_ph_emul_.isValid();
+  isValidDE[DTP][0]|=      dtp_th_data_.isValid(); isValidDE[DTP][1]|=     dtp_th_emul_.isValid();
+  isValidDE[DTF][0] =         dtf_data .isValid(); isValidDE[DTF][1] =        dtf_emul .isValid();
+//isValidDE[DTF][0]|=     dtf_trk_data_.isValid(); isValidDE[DTF][1] =    dtf_trk_emul_.isValid();
+//isValidDE[CTP][0]|=     ctp_ano_data_.isValid(); isValidDE[CTP][1] =    ctp_ano_emul_.isValid();
+//isValidDE[CTP][0]|=     ctp_cat_data_.isValid(); isValidDE[CTP][1] =    ctp_cat_emul_.isValid();
+  isValidDE[CTP][0] =     ctp_lct_data_.isValid(); isValidDE[CTP][1] =    ctp_lct_emul_.isValid();
+  isValidDE[CTF][0] =         ctf_data .isValid(); isValidDE[CTF][1] =        ctf_emul .isValid();
+//isValidDE[CTF][0]|=    ctf_trk_data_ .isValid(); isValidDE[CTF][1] =   ctf_trk_emul_ .isValid();
+//isValidDE[CTF][0]|=    ctf_sta_data_ .isValid(); isValidDE[CTF][1] =   ctf_sta_emul_ .isValid();
+  isValidDE[RPC][0] =     rpc_cen_data .isValid(); isValidDE[RPC][1] =    rpc_cen_emul .isValid();
+  isValidDE[RPC][0]|=     rpc_for_data .isValid(); isValidDE[RPC][1]|=    rpc_for_emul .isValid();
+  isValidDE[LTC][0] =         ltc_data .isValid(); isValidDE[LTC][1] =        ltc_emul .isValid();
+  isValidDE[GMT][0] =         gmt_data .isValid(); isValidDE[GMT][1] =        gmt_emul .isValid();
+//isValidDE[GMT][0]|=     gmt_rdt_data_.isValid(); isValidDE[GMT][1] =    gmt_rdt_emul_.isValid();
+  isValidDE[GLT][0] =     glt_rdt_data .isValid(); isValidDE[GLT][1] =    glt_rdt_emul .isValid();
+//isValidDE[GLT][0]&=     glt_evm_data .isValid(); isValidDE[GLT][1] =    glt_evm_emul .isValid();
+//isValidDE[GLT][0]&=     glt_obj_data .isValid(); isValidDE[GLT][1] =    glt_obj_emul .isValid();
 
+  bool isValid[DEnsys];
+  for(int i=0; i<DEnsys; i++) {
+    isValid[i]=true;
+    for(int j=0; j<2; j++) {
+      isValid[i] &= isValidDE[i][j];
+    }
+  }
 
   if(verbose()) {
     std::cout << "L1Comparator sys isValid?  (evt:" << nevt_ << ") ";
+    std::cout << "\n\t&: ";
     for(int i=0; i<DEnsys; i++)
       std::cout << isValid[i] << " ";
+    std::cout << "\n\td: ";
+    for(int i=0; i<DEnsys; i++)
+      std::cout << isValidDE[i][0] << " ";
+    std::cout << "\n\te: ";
+    for(int i=0; i<DEnsys; i++)
+      std::cout << isValidDE[i][1] << " ";
     std::cout << std::endl;
   }
-
+  
   //reset flags...
   for(int i=0; i<DEnsys; i++) isValid[i]=true;
 
