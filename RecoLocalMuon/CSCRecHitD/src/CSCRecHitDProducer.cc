@@ -23,6 +23,8 @@ CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : iRun( 0 
 	
   stripDigiProducer_ = ps.getParameter<std::string>("CSCStripDigiProducer");
   wireDigiProducer_  = ps.getParameter<std::string>("CSCWireDigiProducer");
+  stripDigiTag       = ps.getParameter<std::string>("CSCStripDigiTag");
+  wireDigiTag        = ps.getParameter<std::string>("CSCWireDigiTag");
   useCalib           = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
   
   recHitBuilder_     = new CSCRecHitDBuilder( ps ); // pass on the Parameter Settings
@@ -58,8 +60,8 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   // Get the collections of strip & wire digis from event
   edm::Handle<CSCStripDigiCollection> stripDigis;
   edm::Handle<CSCWireDigiCollection> wireDigis;
-  ev.getByLabel(stripDigiProducer_, "MuonCSCStripDigi", stripDigis);
-  ev.getByLabel(wireDigiProducer_,  "MuonCSCWireDigi",  wireDigis);
+  ev.getByLabel(stripDigiProducer_, stripDigiTag, stripDigis);
+  ev.getByLabel(wireDigiProducer_, wireDigiTag,  wireDigis);
 
   // Create empty collection of rechits
   std::auto_ptr<CSCRecHit2DCollection> oc( new CSCRecHit2DCollection );

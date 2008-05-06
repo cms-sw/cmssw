@@ -39,6 +39,8 @@ public:
 
   std::string stripDigiProducer_;
   std::string wireDigiProducer_;
+  std::string stripDigiTag;
+  std::string wireDigiTag;
 
   CSCRecHitDBuilder* recHitBuilder_;
   CSCRecoConditions* recoConditions_;
