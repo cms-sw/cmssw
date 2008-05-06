@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2008/01/22 18:46:59 $
- * $Revision: 1.12 $
+ * $Date: 2008/03/01 00:39:55 $
+ * $Revision: 1.13 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -48,7 +48,6 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 
   
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
 }
 

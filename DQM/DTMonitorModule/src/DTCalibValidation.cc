@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/27 16:43:53 $
+ *  $Date: 2008/04/08 14:15:40 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -51,7 +51,7 @@ DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
   theDbe = edm::Service<DQMStore>().operator->();
   // To add into CMSSW versions before 20X
   /*theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  theDbe->setVerbose(1);
+
   edm::Service<MonitorDaemon>().operator->();*/
 
   theDbe->setCurrentFolder("DT/DTCalibValidation");
