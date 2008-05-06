@@ -15,6 +15,9 @@ my $config = $ARGV[0];
 (my $source = $config) =~ s/.*(CMSSW)/$1/;
 
 
+# Alignment of comments: column number
+my $alignment = 60;
+
 print "# Generated from $source\n";
 print MSG "Parsing  $source\n";
 
@@ -138,7 +141,7 @@ sub processParameters{
     print MSG "\n";
 
     # Dump out
-    print "replace $levelName.$name = $value";
+    &dumpReplace($levelName,$name,$value);
     if ( !$isMulti ) { print "\n"; }
 
   }
@@ -199,4 +202,24 @@ sub countBraces {
 
   return $nBraces;
 
+}
+
+
+#______________________________________________________________________
+# Subroutine to nicely dump the replace statements
+# Tries to align comments
+sub dumpReplace {
+  my $prefix = shift; # Level name
+  my $name   = shift; # Parameter name
+  my $string = shift; # Value, including possible comment
+
+  if ( $string =~ /(#|\/\/)\s*/ ) {
+    my $value = $`;
+    my $comment = $';
+    $value =~ s/\s+$//g; # Remove trailing spaces
+    # Alignment: add necessary spaces
+    while ( length($prefix.$name." = ".$value) < $alignment ) { $value .= " "; }
+    $string = $value." # ".$comment;
+  }
+  print "replace $prefix.$name = $string";
 }
