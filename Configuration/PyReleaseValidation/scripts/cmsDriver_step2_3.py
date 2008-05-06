@@ -19,7 +19,7 @@ parser.add_option("--globaltag",
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
 
-alcaDict2={'MinBias':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
+alcaDict2={'MinBias':'SiPixelLorentzAngle+SiStripCalMinBias+RpcCalHLT+DQM',
            'JetET20':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
            'JetETXX':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
            'GammaJets':'RpcCalHLT+DQM',
