@@ -139,14 +139,6 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
     dbe->setCurrentFolder("L1T/L1TdeRCT/IsoEm/ServiceData");
 
-    rctIsoEmDataOcc_ =
-	dbe->book2D("rctIsoEmDataOcc", "rctIsoEmDataOcc", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctIsoEmDataOcc1D_ =
-	dbe->book1D("rctIsoEmDataOcc1D", "rctIsoEmDataOcc1D",
-                    CHNLBINS, CHNLMIN, CHNLMAX);
-
     rctIsoEmEmulOcc_ =
 	dbe->book2D("rctIsoEmEmulOcc", "rctIsoEmEmulOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -222,15 +214,6 @@ void L1TdeRCT::beginJob(const EventSetup & c)
                     CHNLBINS, CHNLMIN, CHNLMAX);
 
     dbe->setCurrentFolder("L1T/L1TdeRCT/NisoEm/ServiceData");
-
-    rctNisoEmDataOcc_ =
-	dbe->book2D("rctNisoEmDataOcc", "rctNisoEmDataOcc", ETABINS, ETAMIN,
-		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-    rctNisoEmDataOcc1D_ =
-	dbe->book1D("rctNisoEmDataOcc1D", "rctNisoEmDataOcc1D",
-                    CHNLBINS, CHNLMIN, CHNLMAX);
-
     rctNisoEmEmulOcc_ =
 	dbe->book2D("rctNisoEmEmulOcc", "rctNisoEmEmulOcc", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
@@ -344,7 +327,7 @@ void L1TdeRCT::endJob(void)
 
 void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
 {
-    std::cout << "I am here!" << std::endl ;
+//    std::cout << "I am here!" << std::endl ;
   nev_++;
   if (verbose_) {
     std::cout << "L1TdeRCT: analyze...." << std::endl;
@@ -369,7 +352,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   if (!rgnData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
 			       << rctSourceData_.label() ;
-    std::cout << "Can not find rgnData!" << std::endl ;
+    if (verbose_)std::cout << "Can not find rgnData!" << std::endl ;
     doHd = false;
   }
 
@@ -378,7 +361,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
 			       << rctSourceEmul_.label() ;
     doHd = false;
-    std::cout << "Can not find rgnEmul!" << std::endl ;
+    if (verbose_)std::cout << "Can not find rgnEmul!" << std::endl ;
   }
 //  }
 
@@ -389,7 +372,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   if (!emData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
 			       << rctSourceData_.label() ;
-    std::cout << "Can not find emData!" << std::endl ;
+    if (verbose_)std::cout << "Can not find emData!" << std::endl ;
     doEm = false; 
   }
 
@@ -398,7 +381,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   if (!emEmul.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
 			       << rctSourceEmul_.label() ;
-    std::cout << "Can not find emEmul!" << std::endl ;
+    if (verbose_)std::cout << "Can not find emEmul!" << std::endl ;
     doEm = false; return ;
   }
 
@@ -454,20 +437,12 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
        iem != emData->end(); iem++) {
    if(iem->rank() >= 1){
     if (iem->isolated()) {
-      rctIsoEmDataOcc_->Fill(iem->regionId().ieta(),
-			       iem->regionId().iphi());
-      int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
-      rctIsoEmDataOcc1D_->Fill(channel);
       electronDataRank[0][nelectrIsoData]=iem->rank();
       electronDataEta[0][nelectrIsoData]=iem->regionId().ieta();
       electronDataPhi[0][nelectrIsoData]=iem->regionId().iphi();
       nelectrIsoData++ ;
     }
     else {
-      rctNisoEmDataOcc_->Fill(iem->regionId().ieta(),
-			       iem->regionId().iphi());
-      int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
-      rctNisoEmDataOcc1D_->Fill(channel);
       electronDataRank[1][nelectrNisoData]=iem->rank();
       electronDataEta[1][nelectrNisoData]=iem->regionId().ieta();
       electronDataPhi[1][nelectrNisoData]=iem->regionId().iphi();
@@ -476,7 +451,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
    }
   }
 
-// std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelectrNisoEmul <<  std::endl ;
+std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelectrNisoEmul <<  std::endl ;
 
   // StepIII: calculate and fill
 
@@ -503,7 +478,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
         if(singlechannelhistos_)
         {
         int energy_difference; 
-          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j]) ;
+          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j])+electronEmulEta[k][i]-electronEmulPhi[k][i] ;
         rctIsoEffChannel_[chnl]->Fill(energy_difference) ;
         }
         if(electronEmulRank[k][i]==electronDataRank[k][j]) {
@@ -523,7 +498,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
         if(singlechannelhistos_)
         {
         int energy_difference; 
-          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j]) ;
+          energy_difference=(electronEmulRank[k][i]-electronDataRank[k][j])+electronEmulEta[k][i]-electronEmulPhi[k][i] ;
         rctNisoEffChannel_[chnl]->Fill(energy_difference) ;
         }
         if(electronEmulRank[k][i]==electronDataRank[k][j]) {
