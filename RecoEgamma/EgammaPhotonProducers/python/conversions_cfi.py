@@ -8,21 +8,19 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
     scHybridBarrelCollection = cms.string(''),
     convertedPhotonCollection = cms.string(''),
-    scIslandEndcapProducer = cms.string('correctedEndcapSuperClustersWithPreshower'),
+    scIslandEndcapProducer = cms.string('multi5x5SuperClustersWithPreshower'),
     inOutTrackSCAssociation = cms.string('inOutTrackSCAssociationCollection'),
     outInTrackCollection = cms.string(''),
     barrelClusterShapeMapCollection = cms.string('hybridShapeAssoc'),
-    endcapClusterShapeMapProducer = cms.string('islandBasicClusters'),
-    bcEndcapCollection = cms.string('islandEndcapBasicClusters'),
+    bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
     conversionIOTrackProducer = cms.string('ckfInOutTracksFromConversions'),
-    bcBarrelCollection = cms.string('islandBarrelBasicClusters'),
+    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
     inOutTrackCollection = cms.string(''),
-    bcProducer = cms.string('islandBasicClusters'),
+    bcProducer = cms.string('multi5x5BasicClusters'),
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
     scIslandEndcapCollection = cms.string(''),
     barrelClusterShapeMapProducer = cms.string('hybridSuperClusters'),
-    conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions'),
-    endcapClusterShapeMapCollection = cms.string('islandEndcapShapeAssoc')
+    conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions')
 )
 
 

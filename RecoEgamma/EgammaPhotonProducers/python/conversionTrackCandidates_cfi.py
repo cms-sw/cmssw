@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates.cfi,v 1.17 2008/04/15 14:37:56 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.2 2008/04/21 03:26:32 rpw Exp $
 #
 # Tracker geometry #####################
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
@@ -26,7 +26,7 @@ from RecoEgamma.EgammaPhotonProducers.trajectoryBuilderForConversions_cfi import
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
     inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
-    maxHOverE = cms.double(1.0),
+    maxHOverE = cms.double(0.2),
     scHybridBarrelCollection = cms.string(''),
     hbheModule = cms.string('hbhereco'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),
@@ -38,11 +38,11 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
         propagatorOppositeTISE = cms.string('oppositeToMomElePropagator')
     ),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
-    bcEndcapCollection = cms.string('islandEndcapBasicClusters'),
+    bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
     outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),
-    bcBarrelCollection = cms.string('islandBarrelBasicClusters'),
-    scIslandEndcapProducer = cms.string('correctedEndcapSuperClustersWithPreshower'),
-    bcProducer = cms.string('islandBasicClusters'),
+    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
+    scIslandEndcapProducer = cms.string('multi5x5SuperClustersWithPreshower'),
+    bcProducer = cms.string('multi5x5BasicClusters'),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     scIslandEndcapCollection = cms.string(''),
     hbheInstance = cms.string(''),
