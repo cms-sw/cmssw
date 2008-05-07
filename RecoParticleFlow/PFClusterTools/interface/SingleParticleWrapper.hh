@@ -45,6 +45,8 @@ public:
 		ePFElementHcal = 0;
 		eRecHitsEcal = 0;
 		eRecHitsHcal = 0;
+		nRecHitsEcal = 0;
+		nRecHitsHcal = 0;
 		
 	};
 	
@@ -56,6 +58,7 @@ public:
 	double trueEnergy;
 	double etaMC;
 	double phiMC;
+	//Of the PFClusters
 	double etaEcal;
 	double phiEcal;
 	
@@ -73,6 +76,8 @@ public:
 	//Energies in the ECAL and HCAL elements associated with a PFCandidate block
 	double ePFElementEcal;
 	double ePFElementHcal;
+	int nRecHitsEcal;
+	int nRecHitsHcal;
 	
 	double eRecHitsEcal;
 	double eRecHitsHcal;
