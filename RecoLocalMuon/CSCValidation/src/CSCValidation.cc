@@ -342,7 +342,10 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
     }
   } // end wire loop
 
-  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","total number of wire groups",101,-0.5,100.5,"Digis");
+  // this way you can zero suppress but still store info on # events with no digis
+  if (nWireGroupsTotal == 0) nWireGroupsTotal = -1;
+
+  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","total number of wire groups",41,-0.5,40.5,"Digis");
   
 }
 
@@ -394,7 +397,9 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
     }
   } // end strip loop
 
-  histos->fill1DHist(nStripsFired,"hStripNFired","total number of fired strips",301,-0.5,300.5,"Digis");
+  if (nStripsFired == 0) nStripsFired = -1;
+
+  histos->fill1DHist(nStripsFired,"hStripNFired","total number of fired strips",101,-0.5,100.5,"Digis");
 
 }
 
@@ -539,14 +544,17 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     histos->fill1DHistByType(kLayer,"hRHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"recHits");
     histos->fill1DHistByType(xreco,"hRHX","Local X of recHit",idrec,160,-80.,80.,"recHits");
     histos->fill1DHistByType(yreco,"hRHY","Local Y of recHit",idrec,60,-180.,180.,"recHits");
-    histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"recHits");
+    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"recHits");
+    else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"recHits");
     histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"recHits");
     histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
     histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"recHits");
 
   } //end rechit loop
 
-  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",50,0,50,"recHits");
+  if (nRecHits == 0) nRecHits = -1;
+
+  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",41,-0.5,40.5,"recHits");
 
 }
 
@@ -722,6 +730,8 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
 
 
   } // end segment loop
+
+  if (nSegments == 0) nSegments = -1;
 
   histos->fill1DHist(nSegments,"hSnSegments","number of segments per event",11,-0.5,10.5,"Segments");
 
@@ -1075,6 +1085,27 @@ void CSCValidation::bookForId(int casenmb, const int& idint,
   ss.str(""); // clear
   break;
 
+  case 6101:
+  ss <<idint<<"_wire_timing_mean";
+  mh_wire_timing_mean[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,42,1.0,43.0);  
+  mh_wire_timing_mean[idint]->GetXaxis()->SetTitle("CSC");
+  mh_wire_timing_mean[idint]->GetYaxis()->SetTitle("AFEB");
+  mh_wire_timing_mean[idint]->SetFillColor(4);
+  mh_wire_timing_mean[idint]->SetOption("BOX");
+  ss.str(""); // clear
+  break;
+
+  case 6102:
+  ss <<idint<<"_wire_timing_entries";
+  mh_wire_timing_entries[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,42,1.0,43.0);  
+  mh_wire_timing_entries[idint]->GetXaxis()->SetTitle("CSC");
+  mh_wire_timing_entries[idint]->GetYaxis()->SetTitle("AFEB");
+  mh_wire_timing_entries[idint]->SetFillColor(4);
+  mh_wire_timing_entries[idint]->SetOption("BOX");
+  ss.str(""); // clear
+  break;
+
+
   default:  std::cout<<"CSCValHists::bookForId:  No booked hist for case nmb "
                      <<casenmb<<std::endl;
   }
@@ -1127,7 +1158,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                               const CSCStripDigiCollection&   strpcltn,
                               const CSCRecHit2DCollection& rechitcltn) {
      float x,adcsum;
-     int channel,mult,wire,strip,layer,idlayer,idchamber,wire_strip_rechit_present;
+     int channel,mult,wire,wiretbin,strip,layer,idafeb,idlayer,idchamber,wire_strip_rechit_present;
      CSCIndexer indexer;
      std::map<int,int>::iterator intIt;
 
@@ -1141,6 +1172,8 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
 
   m_mean_adc_3_3_sum.clear();
   m_nmb_adc_3_3_sum.clear();
+  m_mean_wire_timing.clear();
+  m_nmb_wire_timing.clear();
   m_index_csc.clear();
 
   // HV segments, their # and location in terms of wire groups
@@ -1270,13 +1303,15 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
           ++wiredetUnitIt) {
           const CSCDetId id = (*wiredetUnitIt).first;
           idlayer=indexer.dbIndex(id, channel);
-
+          idchamber=idlayer/10;
+          layer=id.layer();
           // looping in the layer of given CSC
           mult=0; wire=0; 
           const CSCWireDigiCollection::Range& range = (*wiredetUnitIt).second;
           for(CSCWireDigiCollection::const_iterator digiIt =
              range.first; digiIt!=range.second; ++digiIt){
              wire=(*digiIt).getWireGroup();
+             wiretbin=(*digiIt).getTimeBin();
              mult++;
           }     // end of digis loop in layer
 
@@ -1287,7 +1322,22 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
           if(mult==1) {
             if(m_single_wire_layer.find(idlayer) == m_single_wire_layer.end())
               m_single_wire_layer[idlayer]=wire;
-          }
+
+            // calculate average timing per afeb
+            idafeb=idchamber*100+3*((wire-1)/8)+(layer+1)/2;
+//            std::cout<<"Event "<<nEventsAnalyzed<<"   ";
+//            std::cout<<idafeb<<"   "<<idchamber<<" "<<wire<<" "<<layer<<
+//                       " "<<wiretbin<<std::endl;
+            if(m_nmb_wire_timing.find(idafeb)==m_nmb_wire_timing.end())
+              m_nmb_wire_timing[idafeb]=0.0;
+            m_nmb_wire_timing[idafeb]=m_nmb_wire_timing[idafeb]+1.0;
+            float entries= m_nmb_wire_timing[idafeb];
+            if(m_mean_wire_timing.find(idafeb)==m_mean_wire_timing.end())
+              m_mean_wire_timing[idafeb]=0.0;
+            float mean_prev=m_mean_wire_timing[idafeb];
+            m_mean_wire_timing[idafeb]=((entries-1.0)*mean_prev+wiretbin)/entries;
+            //std::cout<<"idafeb mean entries   "<<idafeb<<"   "<<m_mean_wire_timing[idafeb]<<"  "<<entries<<std::endl;
+          } // end of if(mult==1)
        }   // end of cycle on detUnit
 
        // The first pass thru rechit collection to count # rechits per layer
@@ -1406,6 +1456,7 @@ hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< location<<" "<< idlocation<<std::endl;
      }   // end of if wire and strip present 
 }
 
+
 void CSCValidation::endJob() {
 
      std::cout<<"Events in "<<nEventsAnalyzed<<std::endl;
@@ -1427,6 +1478,25 @@ void CSCValidation::endJob() {
             hf2ForId(mh_gas_gain_entries,th2_gas_gain,6012,idint,x,y,wentr);
        }
      }     
+
+     // filling mean and entries for wire timing hists
+     if(m_mean_wire_timing.size()>0) {
+       std::map<int,float>::iterator floatIt;
+       for(floatIt=m_mean_wire_timing.begin();floatIt!=m_mean_wire_timing.end();++floatIt) {
+            int idafeb=(*floatIt).first;
+            int idchamber=idafeb/100;
+            float y=idafeb-idchamber*100;
+            float wmean=(*floatIt).second;
+            float wentr=m_nmb_wire_timing[idafeb];
+            int endcap=idchamber/10000;
+            int station=idchamber/1000-endcap*10;
+            int idint=idchamber/100;
+            int csc=idchamber/100; csc=idchamber-csc*100; 
+            float x=csc;
+            hf2ForId(mh_wire_timing_mean,th2_gas_gain,6101,idint,x,y,wmean);
+            hf2ForId(mh_wire_timing_entries,th2_gas_gain,6102,idint,x,y,wentr);
+       }
+     }
      // writing gas gain hists to folder GasGain
      theFile->cd();
      theFile->mkdir("GasGain");

@@ -212,6 +212,9 @@ private:
   std::map<int, TH2*> mh_gas_gain_mean;
   std::map<int, TH2*> mh_gas_gain_entries;
 
+  std::map<int, TH2*> mh_wire_timing_mean;
+  std::map<int, TH2*> mh_wire_timing_entries;
+
   /// Maps and vectors for gas gain
   std::vector<int>     nmbhvsegm;
   std::map<int, std::vector<int> >   m_wire_hvsegm;
@@ -224,6 +227,8 @@ private:
   std::map<int, int>   m_csc_type;
   std::map<int, int>   m_index_csc;
 
+  std::map<int, float> m_mean_wire_timing;
+  std::map<int, float> m_nmb_wire_timing;
 
 };
 #endif
