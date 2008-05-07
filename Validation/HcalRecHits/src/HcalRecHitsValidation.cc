@@ -1636,6 +1636,7 @@ void HcalRecHitsValidation::fillRecHitsTmp(int subdet_, edm::Event const& ev){
   cieta.clear();
   ciphi.clear();
   cdepth.clear();
+  cz.clear();
 
 
   if( subdet_ == 1 || subdet_ == 2  || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
