@@ -101,7 +101,9 @@ void CorJetResponse::done()
 {
   if (hist_file_!=0) 
     {
-      hist_file_->Write(); 
+      hist_file_->cd();
+      for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
+        hid->second->Write(); 
       delete hist_file_;
       hist_file_=0;      
     }
