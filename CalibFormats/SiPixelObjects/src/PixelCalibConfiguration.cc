@@ -238,6 +238,19 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
     
     objectsDependingOnTheNameTranslationBuilt_ = false;
     
+    // Added by Dario as a temporary patch for Debbie (this will disappear in the future)
+    std::ifstream inTmp(filename.c_str());
+    calibFileContent_ = "" ;
+    while(!inTmp.eof())
+    {
+     std::string tmpString ;
+     getline (inTmp, tmpString);
+     calibFileContent_ += tmpString + "\n";
+     //cout << "[PixelCalibConfiguration::~PixelCalibConfiguration()]\t\t" << calibFileContent_ << endl ;
+    }
+    inTmp.close() ;
+    // End of temporary patch
+    
     return;
 
 }
@@ -1196,3 +1209,4 @@ bool PixelCalibConfiguration::containsScan(std::string name) const
 	}
 	return false;
 }
+

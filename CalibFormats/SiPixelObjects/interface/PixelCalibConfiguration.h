@@ -148,6 +148,9 @@ namespace pos{
     // get the value of parameter parameterName, or "" if parameterName is not in the list
     std::string parameterValue(std::string parameterName) const;
 
+    // Added by Dario May 8th, 2008
+    std::string getStreamedContent(void) const {return calibFileContent_;} ;
+
     friend std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& calib);
 
     virtual void writeASCII(std::string dir="") const;
@@ -253,6 +256,8 @@ namespace pos{
 
     bool _bufferData;
 
+    // Added by Dario May 8th, 2008
+    std::string calibFileContent_ ;
   };
 }
 /* @} */
