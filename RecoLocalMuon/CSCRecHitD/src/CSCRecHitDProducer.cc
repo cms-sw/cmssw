@@ -20,10 +20,11 @@
 
 
 CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : 
-  iRun( 0 ), 
+  iRun( 0 ),   
+  useCalib( ps.getUntrackedParameter<bool>("CSCUseCalibrations") ),
   stripDigiTag_( ps.getParameter<edm::InputTag>("stripDigiTag") ),
-  wireDigiTag_(  ps.getParameter<edm::InputTag>("wireDigiTag") ),
-  useCalib( ps.getUntrackedParameter<bool>("CSCUseCalibrations") )
+  wireDigiTag_(  ps.getParameter<edm::InputTag>("wireDigiTag") )
+
 {
   recHitBuilder_     = new CSCRecHitDBuilder( ps ); // pass on the parameter sets
   recoConditions_    = new CSCRecoConditions( ps ); // access to conditions data
