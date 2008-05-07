@@ -17,8 +17,8 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
  public:
   SiGaussianTailNoiseAdder(float,CLHEP::HepRandomEngine&);
   ~SiGaussianTailNoiseAdder();
-  void addNoise(SiPileUpSignals::signal_map_type &,int,float);
-  void createRaw(SiPileUpSignals::signal_map_type &,int,float);
+  void addNoise(std::vector<double>&, unsigned int&, unsigned int&, int, float);
+  void createRaw(std::vector<double>&, unsigned int&, unsigned int&, int, float);
  private:
   int numStrips;
   float noiseRMS;

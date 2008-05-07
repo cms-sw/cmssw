@@ -14,11 +14,11 @@ class SiDigitalConverter{
  public:
   typedef std::vector<SiStripDigi>         DigitalVecType;
   typedef std::vector<SiStripRawDigi>      DigitalRawVecType;
-  typedef SiPileUpSignals::signal_map_type   signal_map_type;
   
   virtual ~SiDigitalConverter() { }
-  virtual DigitalVecType convert(const signal_map_type &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
-  virtual DigitalRawVecType convertRaw(const signal_map_type &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
+  //  virtual DigitalVecType    convert(DigitalVecType& vic, const signal_map_type &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
+  virtual DigitalVecType    convert(const std::vector<double> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;
+  virtual DigitalRawVecType convertRaw(const std::vector<double> &,  edm::ESHandle<SiStripGain>& ,unsigned int detid) = 0;  
 };
 
 #endif

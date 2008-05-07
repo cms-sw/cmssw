@@ -5,14 +5,11 @@ void SiPileUpSignals::resetLink(){
   theMapLink.clear();
 }
 
-void SiPileUpSignals::add(const signal_map_type &in, const PSimHit& hit){
-  for (signal_map_type::const_iterator im = in.begin(); im!=in.end(); im++ ){
-    theMapLink[(*im).first].push_back(std::pair < const PSimHit*, Amplitude >(&hit,Amplitude((*im).second)));
-  }
-}
- 
-void SiPileUpSignals::addCounter(const signal_map_type &in, const PSimHit& hit, const int& counter){
-  for (signal_map_type::const_iterator im = in.begin(); im!=in.end(); im++ ){
-    theCounterMapLink[(*im).first].push_back(std::make_pair(&hit, counter));
+void SiPileUpSignals::add(const std::vector<double>& locAmpl,
+			  const unsigned int& firstChannelWithSignal, const unsigned int& lastChannelWithSignal,
+			  const PSimHit& hit,const int& counter){
+  for (unsigned int iChannel = firstChannelWithSignal-1; iChannel<=lastChannelWithSignal-1; iChannel++){
+    theMapLink[iChannel].push_back(std::pair < const PSimHit*, Amplitude >(&hit,Amplitude(locAmpl[iChannel])));
+    theCounterMapLink[iChannel].push_back(std::make_pair(&hit, counter));
   }
 }

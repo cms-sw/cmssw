@@ -5,10 +5,6 @@
  *
  * SiStripDigitizerAlgorithm converts hits to digis
  *
- * \author Andrea Giammanco
- *
- * \version   1st Version Sep. 29, 2005
- *
  ************************************************************/
 
 #include <string>
@@ -105,6 +101,18 @@ class SiStripDigitizerAlgorithm
 		     const SiPileUpSignals::signal_map_type&,
 		     unsigned int);
  
+  void push_link(const DigitalVecType&,
+		 const HitToDigisMapType&,
+		 const HitCounterToDigisMapType&,
+		 const std::vector<double>&,
+		 unsigned int);
+  
+  void push_link_raw(const DigitalRawVecType&,
+		     const HitToDigisMapType&,
+		     const HitCounterToDigisMapType&,
+		     const std::vector<double>&,
+		     unsigned int);
+  
   CLHEP::HepRandomEngine& rndEngine;
 
   DigitalVecType digis;

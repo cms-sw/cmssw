@@ -18,15 +18,22 @@ SiTrivialInduceChargeOnStrips::SiTrivialInduceChargeOnStrips(const edm::Paramete
   geVperElectron = g;
 }
 void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection_type _collection_points, const StripGeomDetUnit& det, 
-					   SiPileUpSignals::signal_map_type &hit_signal,SiPileUpSignals::signal_map_type &hit_signal_temp){
+					   std::vector<double>& locAmpl, unsigned int& minCha, unsigned int& maxCha){
   //  const StripTopology& t = dynamic_cast<const StripTopology&>(det.topology());
   const StripTopology& t = dynamic_cast<const StripTopology&>(det.specificTopology()); // AG
-
+  
   int numStrips = t.nstrips();
   int stripLeft, stripRight;
   double upperBound, lowerBound;
   
-  for (SiChargeCollectionDrifter::collection_type::const_iterator sp=_collection_points.begin();  sp != _collection_points.end(); sp++ ){
+  // fill local Amplitudes with zeroes
+  // it is done also in SiStripDigitizerAlgorithm 'ma non si sa mai'
+  //  std::fill(locAmpl.begin(),locAmpl.end(),0.);
+  //
+  
+    minCha=locAmpl.size();
+    maxCha=0;
+    for (SiChargeCollectionDrifter::collection_type::const_iterator sp=_collection_points.begin();  sp != _collection_points.end(); sp++ ){
     float chargePosition = t.strip((*sp).position()); // charge in strip coord
     float localPitch = t.localPitch((*sp).position()); // local strip pitch 
     float chargeSpread = (*sp).sigma()/localPitch ;  // sigma in strip coord
@@ -37,7 +44,8 @@ void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection
     stripRight = int( chargePosition+clusterWidth*chargeSpread);
     stripLeft  = (0<stripLeft ? stripLeft : 0);
     stripRight = (numStrips >stripRight ? stripRight : numStrips-1);
-     
+   
+
     for (int i=stripLeft; i<=stripRight; i++){
       /* Definition of the integration borns */
       if (i == 0) lowerBound = 0. ;
@@ -55,14 +63,32 @@ void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection
       
       int nSignalCoupling = signalCoupling.size();
       
-      for (int j = -nSignalCoupling+1 ; j<=nSignalCoupling-1 ; j++) {
-	if (i+j >= 0 && i+j < numStrips ) { 
-	  hit_signal[i+j] += signalCoupling[abs(j)]* 
-	    (totalIntegrationRange/geVperElectron)*
-	    (*sp).amplitude();   
-	  hit_signal_temp[i+j]=hit_signal[i+j];
+
+      int low = std::max(0,i-nSignalCoupling+1);
+      int high = std::min(numStrips-1,i+nSignalCoupling-1);
+      if((int)minCha>low) minCha=low;
+      if((int)maxCha<high)  maxCha=high;
+      double fact = (totalIntegrationRange/geVperElectron)*
+	(*sp).amplitude();
+      for (int j = low ; j<=high ; j++) 
+	locAmpl[j] += signalCoupling[abs(j-i)]*fact; 
+      
+      /*
+	for (int j = -nSignalCoupling+1 ; j<=nSignalCoupling-1 ; j++) {
+	if (i+j >= 0 && i+j < numStrips ) {
+	locAmpl[i+j] += signalCoupling[abs(j)]* 
+	(totalIntegrationRange/geVperElectron)*
+	(*sp).amplitude();
+	// update counters edges
+	if((int)minCha>(i+j))
+	minCha=(i+j);
+	if((int)maxCha<(i+j))
+	maxCha=(i+j);
+	//
 	}
-      }
+	}
+       */
     } //loop on i
-  } //loop on k
+  } //loop on sp
+  
 }

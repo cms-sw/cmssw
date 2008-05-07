@@ -10,8 +10,8 @@ class SiTrivialDigitalConverter: public SiDigitalConverter{
 
   SiTrivialDigitalConverter(float in);
   
-  DigitalVecType    convert(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int);    
-  DigitalRawVecType convertRaw(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int);    
+  DigitalVecType    convert(const std::vector<double>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);
+  DigitalRawVecType convertRaw(const std::vector<double>&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);  
 
  private:
 

@@ -4,14 +4,14 @@
 #include <map>
 #include <vector>
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
- 
+
 class SimHit;
 /**
  * Class which takes the responses from each SimHit and piles-up them.
  */
 class SiPileUpSignals{
-
- public:
+  
+public:
 
   typedef float Amplitude;
   //
@@ -23,15 +23,16 @@ class SiPileUpSignals{
   
   virtual ~SiPileUpSignals(){}
   
- 
+  
   SiPileUpSignals(){reset();}
-  virtual void add(const signal_map_type &map, const PSimHit& hit); 
-  virtual void addCounter(const signal_map_type &map, const PSimHit& hit,const int& counter);
+  virtual void add(const std::vector<double>& locAmpl,
+		   const unsigned int& firstChannelWithSignal, const unsigned int& lastChannelWithSignal,
+		   const PSimHit& hit,const int& counter);
   void reset(){resetLink(); }
   const HitToDigisMapType& dumpLink() const {return theMapLink;}
   const HitCounterToDigisMapType& dumpCounterLink() const {return theCounterMapLink;}
-
- private:
+  
+private:
   void resetLink();
   HitToDigisMapType theMapLink;
   HitCounterToDigisMapType theCounterMapLink;

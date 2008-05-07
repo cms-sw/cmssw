@@ -12,7 +12,7 @@
 #define e_SI (1.6E-19)
 
 SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEngine& eng ):conf_(conf),rndEngine(eng){
-
+  
   //
   // Construct default classes
   //
@@ -25,7 +25,7 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEng
   noDiffusion            = conf_.getParameter<bool>("noDiffusion");
   double diffusionConstant = CBOLTZ/e_SI * chargeMobility * temperature;
   if (noDiffusion) diffusionConstant *= 1.0e-3;
-
+  
   theSiChargeDivider = new SiLinearChargeDivider(conf_,rndEngine);
   
   theSiChargeCollectionDrifter = 
@@ -39,17 +39,16 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEng
 
 
 SiHitDigitizer::~SiHitDigitizer(){
-    delete theSiChargeDivider;
-    delete theSiChargeCollectionDrifter;
-    delete theSiInduceChargeOnStrips;
-  }
+  delete theSiChargeDivider;
+  delete theSiChargeCollectionDrifter;
+  delete theSiInduceChargeOnStrips;
+}
 
 
 void 
 SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle,
-			   SiPileUpSignals::signal_map_type &map,SiPileUpSignals::signal_map_type &map_temp){
-
-
+			   std::vector<double>& locAmpl, unsigned int& firstChannelWithSignal, unsigned int& lastChannelWithSignal){
+  
   //
   // Compute the drift direction for this det
   //
@@ -58,21 +57,22 @@ SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, Glob
   double timeNormalisation = (moduleThickness*moduleThickness)/(2.*depletionVoltage*chargeMobility);
   
   LocalVector driftDir = DriftDirection(&det,bfield,langle);
-
+  
   //
   // Fully process one SimHit
   //
-
+  
   SiChargeCollectionDrifter::ionization_type ion = theSiChargeDivider->divide(hit, driftDir, moduleThickness, det);
- 
-  theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir,moduleThickness,timeNormalisation),det,map,map_temp);
+  
+  theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir,moduleThickness,timeNormalisation),det,
+				    locAmpl,firstChannelWithSignal,lastChannelWithSignal);
 }
 
 LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield,float langle){
   // taken from ORCA/Tracker/SiStripDet/src/SiStripDet.cc
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
-
+  
   if(langle==0.)
     edm::LogError("StripDigiInfo")<< "ERROR: Lorentz angle = 0 for module "<<_detp->geographicalId().rawId();
   
@@ -84,9 +84,9 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
     edm::LogInfo("StripDigiInfo")<< " The drift direction in local coordinate is "<<theDriftDirection;
   }
   return theDriftDirection;
-
+  
 }
 void SiHitDigitizer::setParticleDataTable(const ParticleDataTable * pdt)
 {
- theSiChargeDivider->setParticleDataTable(pdt);
+  theSiChargeDivider->setParticleDataTable(pdt);
 }

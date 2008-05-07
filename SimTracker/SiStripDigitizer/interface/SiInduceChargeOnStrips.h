@@ -11,14 +11,12 @@ class StripDet;
 /**
  * Base class for the induction of signal on strips.
  */
+
 class SiInduceChargeOnStrips{
- public:
-  
-  typedef std::map< int, float, std::less<int> > hit_map_type;
-  
+public:
   
   virtual ~SiInduceChargeOnStrips() { }
   virtual void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&, 
-		      SiPileUpSignals::signal_map_type &, SiPileUpSignals::signal_map_type &) = 0 ;
+		      std::vector<double>&, unsigned int&, unsigned int&) = 0 ;
 };
 #endif

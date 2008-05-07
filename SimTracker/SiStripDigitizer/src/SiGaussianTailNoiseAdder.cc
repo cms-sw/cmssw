@@ -19,8 +19,9 @@ SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
   delete gaussDistribution;
 }
 
-void 
-SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type &in,int ns, float nrms){
+void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
+					unsigned int& minChannel, unsigned int& maxChannel,
+					int ns, float nrms){
   
   numStrips = ns; 
   noiseRMS = nrms; 
@@ -28,18 +29,17 @@ SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type &in,int ns, 
   std::vector<std::pair<int,float> > generatedNoise;
 
   genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
-
+  
   // noise on strips with signal:
   // ----------------------------
   
-  for (SiPileUpSignals::signal_map_type::iterator si  = in.begin();
-       si != in.end()  ; si++){
-
-    float noise = gaussDistribution->fire(0.,noiseRMS);           
-    si->second += noise;
-    
+  for (unsigned int iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
+    if(in[iChannel] != 0) {
+      float noise = gaussDistribution->fire(0.,noiseRMS);           
+      in[iChannel] += noise;
+    }
   }
-    
+
   //
   // Noise on the other strips
   
@@ -50,29 +50,30 @@ SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type &in,int ns, 
       in[(*p).first] += (*p).second;
     }
   }
+  
 }
 
-void 
-SiGaussianTailNoiseAdder::createRaw(SiPileUpSignals::signal_map_type &in,int ns, float nrms){
+void SiGaussianTailNoiseAdder::createRaw(std::vector<double> &in,
+					 unsigned int& minChannel, unsigned int& maxChannel,
+					 int ns, float nrms){
   
   numStrips = ns; 
   noiseRMS = nrms; 
   
   std::vector<std::pair<int,float> > generatedNoise;
-
+  
   genNoise->generateRaw(numStrips,noiseRMS,generatedNoise);
-
+  
   // noise on strips with signal:
   // ----------------------------
   
-  for (SiPileUpSignals::signal_map_type::iterator si  = in.begin();
-       si != in.end()  ; si++){
-
-    float noise = gaussDistribution->fire(0.,noiseRMS);           
-    si->second += noise;
-    
+  for (unsigned int iChannel=minChannel; iChannel<=maxChannel; iChannel++) {
+    if(in[iChannel] != 0) {
+      float noise = gaussDistribution->fire(0.,noiseRMS);           
+      in[iChannel] += noise;
+    }
   }
-    
+  
   //
   // Noise on the other strips
   
@@ -83,4 +84,5 @@ SiGaussianTailNoiseAdder::createRaw(SiPileUpSignals::signal_map_type &in,int ns,
       in[(*p).first] += (*p).second;
     }
   }
+  
 }
