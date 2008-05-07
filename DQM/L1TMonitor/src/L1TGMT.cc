@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2008/04/18 13:41:10 $
- * $Revision: 1.16 $
+ * $Date: 2008/04/25 15:38:47 $
+ * $Revision: 1.17 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -14,8 +14,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+//#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+//#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -72,11 +72,11 @@ void L1TGMT::beginJob(const EventSetup& c)
   edm::ESHandle< L1MuTriggerScales > trigscales_h;
   c.get< L1MuTriggerScalesRcd >().get( trigscales_h );
   const L1MuTriggerScales* scales = trigscales_h.product();
-
+/*
   edm::ESHandle< L1MuTriggerPtScale > trigptscale_h;
   c.get< L1MuTriggerPtScaleRcd >().get( trigptscale_h );
   const L1MuTriggerPtScale* scalept = trigptscale_h.product();  
-  
+  */
   // get hold of back-end interface
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
@@ -98,7 +98,8 @@ void L1TGMT::beginJob(const EventSetup& c)
     {
       int i=0;
       for(int j=1; j<32; j++,i++) {
-        ptscale[i] = scalept->getPtScale()->getLowEdge(j);
+//        ptscale[i] = scalept->getPtScale()->getLowEdge(j);
+        ptscale[i] = scales->getPtScale()->getLowEdge(j);
       }
       ptscale[31]=ptscale[30]+10.;
     }
