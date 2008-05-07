@@ -12,7 +12,8 @@
 #include "TError.h"
 
 namespace {
-void RootErrorHandler(int level, bool die, const char* location, const char* message)
+
+void RootErrorHandler(int level, bool die, char const* location, char const* message)
 {
 // Translate ROOT severity level to MessageLogger severity level
 
@@ -20,19 +21,15 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 
   if (level >= kFatal) {
     el_severity = edm::ELseverityLevel::ELsev_fatal;
-    die = true;
   }
   else if (level >= kSysError) {
     el_severity = edm::ELseverityLevel::ELsev_severe;
-    die = true;
   }
   else if (level >= kError) {
     el_severity = edm::ELseverityLevel::ELsev_error;
-    die = true;
   }
   else if (level >= kWarning) {
-    el_severity = edm::ELseverityLevel::ELsev_error;
-    die = true;
+    el_severity = edm::ELseverityLevel::ELsev_warning;
   }
 
 // Adapt C-strings to std::strings
@@ -70,23 +67,6 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
     }
   }
 
-// Intercept some messages and downgrade the severity
-
-    if (el_message.find("dictionary") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-      die = false;
-    }
-
-    if (el_message.find("already in TClassTable") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-      die = false;
-    }
-
-    if (el_message.find("matrix not positive definite") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
-      die = false;
-    }
-
 // Intercept some messages and upgrade the severity
 
     if ((el_location.find("TBranchElement::Fill") != std::string::npos)
@@ -94,49 +74,73 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
      && (el_message.find("address") != std::string::npos)
      && (el_message.find("not set") != std::string::npos)) {
       el_severity = edm::ELseverityLevel::ELsev_fatal;
-      die = true;
     }
 
     if ((el_message.find("Tree branches") != std::string::npos)
      && (el_message.find("different numbers of entries") != std::string::npos)) {
       el_severity = edm::ELseverityLevel::ELsev_fatal;
-      die = true;
     }
+
+
+// Intercept some messages and downgrade the severity
+
+    if (el_message.find("dictionary") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+    }
+
+    if (el_message.find("already in TClassTable") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+    }
+
+    if (el_message.find("matrix not positive definite") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+    }
+
+    
+  if (el_severity == edm::ELseverityLevel::ELsev_info) {
+    // Don't throw if the message is just informational.
+    die = false;
+  } else {
+    die = true;
+  }
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
-  if (el_severity == edm::ELseverityLevel::ELsev_fatal && !die) {
-    edm::LogError("Root_Fatal") << el_location << el_message;
-  }
-  else if (el_severity == edm::ELseverityLevel::ELsev_severe && !die) {
-    edm::LogError("Root_Severe") << el_location << el_message;
-  }
-  else if (el_severity == edm::ELseverityLevel::ELsev_error && !die) {
-    edm::LogError("Root_Error") << el_location << el_message;
-  }
-  else if (el_severity == edm::ELseverityLevel::ELsev_warning && !die) {
-    edm::LogWarning("Root_Warning") << el_location << el_message ;
-  }
-  else if (el_severity == edm::ELseverityLevel::ELsev_info && !die) {
-    edm::LogInfo("Root_Information") << el_location << el_message ;
-  }
-
-// Root has declared a fatal error.  Throw an EDMException.
-
    if (die) {
-// Throw an edm::Exception instead of just aborting
+// Root has declared a fatal error.  Throw an EDMException.
      std::ostringstream sstr;
      sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
      edm::Exception except(edm::errors::FatalRootError, sstr.str());
      throw except;
    }
+ 
+  // Currently we get here only for informational messages,
+  // but we leave the other code in just in case we change
+  // the criteria for throwing.
+  if (el_severity == edm::ELseverityLevel::ELsev_fatal) {
+    edm::LogError("Root_Fatal") << el_location << el_message;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_severe) {
+    edm::LogError("Root_Severe") << el_location << el_message;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_error) {
+    edm::LogError("Root_Error") << el_location << el_message;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_warning) {
+    edm::LogWarning("Root_Warning") << el_location << el_message ;
+  }
+  else if (el_severity == edm::ELseverityLevel::ELsev_info) {
+    edm::LogInfo("Root_Information") << el_location << el_message ;
+  }
+
 }
 }  // end of unnamed namespace
 
 namespace edm {
 namespace service {
 InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry & activity)
-  : unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", false)),
+  : RootHandlers(),
+    unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", false)),
     resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler", true)),
     autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader", true))
 {
@@ -167,7 +171,17 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   }
 }
 
+
 InitRootHandlers::~InitRootHandlers () {}
 
+void
+InitRootHandlers::disableErrorHandler_() {
+    SetErrorHandler(DefaultErrorHandler);
+}
+
+void
+InitRootHandlers::enableErrorHandler_() {
+    SetErrorHandler(RootErrorHandler);
+}
 }  // end of namespace service
 }  // end of namespace edm

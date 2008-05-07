@@ -34,7 +34,8 @@ DEFINE_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);
 #if defined(__linux__)
 DEFINE_FWK_SERVICE(SimpleMemoryCheck);
 DEFINE_FWK_SERVICE(SimpleProfiling);
-DEFINE_FWK_SERVICE(InitRootHandlers);
+typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
+DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);
 DEFINE_FWK_SERVICE(UnixSignalService);
 DEFINE_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>);
 #endif
