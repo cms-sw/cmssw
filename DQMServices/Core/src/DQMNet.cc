@@ -835,7 +835,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	      << p->peeraddr << std::endl;
 	  DataBlob &data = p->incoming;
 	  if (data.capacity () < data.size () + sz)
-	    data.reserve (data.size() + 10240);
+	    data.reserve (data.size() + 8*1024*1024);
 	  data.insert (data.end(), buf, buf + sz);
 	}
       while (sz == sizeof (buf));
