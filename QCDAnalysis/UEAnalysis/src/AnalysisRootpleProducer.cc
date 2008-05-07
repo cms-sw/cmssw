@@ -105,33 +105,35 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
   
-  e.getByLabel( triggerResultsTag, triggerResults );
-  triggerNames.init( *(triggerResults.product()) );
-
-  acceptedTriggers->Clear();
-  unsigned int iAcceptedTriggers( 0 ); 
-  if ( triggerResults.product()->wasrun() )
+  if (e.getByLabel( triggerResultsTag, triggerResults ) )
     {
-      //cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
-  
-      if ( triggerResults.product()->accept() ) 
+      triggerNames.init( *(triggerResults.product()) );
+      
+      acceptedTriggers->Clear();
+      unsigned int iAcceptedTriggers( 0 ); 
+      if ( triggerResults.product()->wasrun() )
 	{
-	  //cout << endl << "at least one path accepted? " << triggerResults.product()->accept() << endl;
-
-	  const unsigned int n_TriggerResults( triggerResults.product()->size() );
-	  for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
+	  //cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
+	  
+	  if ( triggerResults.product()->accept() ) 
 	    {
-	      if ( triggerResults.product()->accept( itrig ) )
+	      //cout << endl << "at least one path accepted? " << triggerResults.product()->accept() << endl;
+	      
+	      const unsigned int n_TriggerResults( triggerResults.product()->size() );
+	      for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
 		{
-		  //cout << "path " << triggerNames.triggerName( itrig );
-		  //cout << ", module index " << triggerResults.product()->index( itrig );
-		  //cout << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig );
-		  //cout << ", accept " << triggerResults.product()->accept( itrig );
-		  //cout << endl;
-
-		  // save name of accepted trigger path
-		  new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
-		  ++iAcceptedTriggers;
+		  if ( triggerResults.product()->accept( itrig ) )
+		    {
+		      //cout << "path " << triggerNames.triggerName( itrig );
+		      //cout << ", module index " << triggerResults.product()->index( itrig );
+		      //cout << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig );
+		      //cout << ", accept " << triggerResults.product()->accept( itrig );
+		      //cout << endl;
+		      
+		      // save name of accepted trigger path
+		      new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
+		      ++iAcceptedTriggers;
+		    }
 		}
 	    }
 	}
@@ -222,68 +224,75 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
   
   // reco level analysis
-  
-  e.getByLabel( tracksCollName     , CandHandleRECO     );
-  e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle );
-  e.getByLabel( tracksJetCollName  , TracksJetsHandle   );
-  
+
   std::vector<math::XYZTLorentzVector> Tracks;
-  std::vector<BasicJet> TracksJetContainer;
   std::vector<CaloJet> RecoCaloJetContainer;
-  
+  std::vector<BasicJet> TracksJetContainer;
+
   Tracks.clear();
-  TracksJetContainer.clear();
   RecoCaloJetContainer.clear();
+  TracksJetContainer.clear();
   
   Track->Clear();
   TracksJet->Clear();
   CalorimeterJet->Clear();
 
-  if(RecoCaloJetsHandle->size())
+  if ( e.getByLabel( recoCaloJetCollName, RecoCaloJetsHandle ) )
     {
-    for(CaloJetCollection::const_iterator it(RecoCaloJetsHandle->begin()), itEnd(RecoCaloJetsHandle->end());
-	it!=itEnd;++it)
-      {
-	RecoCaloJetContainer.push_back(*it);
-      }
-    std::stable_sort(RecoCaloJetContainer.begin(),RecoCaloJetContainer.end(),CaloJetSort());
-
-    std::vector<CaloJet>::const_iterator it(RecoCaloJetContainer.begin()), itEnd(RecoCaloJetContainer.end());
-    for( int iCalorimeterJet(0); it != itEnd; ++it, ++iCalorimeterJet)
-      {
-	new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
-      }
+      if(RecoCaloJetsHandle->size())
+	{
+	  for(CaloJetCollection::const_iterator it(RecoCaloJetsHandle->begin()), itEnd(RecoCaloJetsHandle->end());
+	      it!=itEnd;++it)
+	    {
+	      RecoCaloJetContainer.push_back(*it);
+	    }
+	  std::stable_sort(RecoCaloJetContainer.begin(),RecoCaloJetContainer.end(),CaloJetSort());
+	  
+	  std::vector<CaloJet>::const_iterator it(RecoCaloJetContainer.begin()), itEnd(RecoCaloJetContainer.end());
+	  for( int iCalorimeterJet(0); it != itEnd; ++it, ++iCalorimeterJet)
+	    {
+	      new((*CalorimeterJet)[iCalorimeterJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+	    }
+	}
     }
     
-  if(TracksJetsHandle->size())
+  
+  if ( e.getByLabel( tracksJetCollName, TracksJetsHandle ) )
     {
-      for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
-	  it!=itEnd;++it)
+      if(TracksJetsHandle->size())
 	{
-	  TracksJetContainer.push_back(*it);
-	}
-      std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
-    
-      std::vector<BasicJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
-      for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
-	{
-	  new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+	  for(BasicJetCollection::const_iterator it(TracksJetsHandle->begin()), itEnd(TracksJetsHandle->end());
+	      it!=itEnd;++it)
+	    {
+	      TracksJetContainer.push_back(*it);
+	    }
+	  std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
+	  
+	  std::vector<BasicJet>::const_iterator it(TracksJetContainer.begin()), itEnd(TracksJetContainer.end());
+	  for(int iTracksJet(0); it != itEnd; ++it, ++iTracksJet)
+	    {
+	      new((*TracksJet)[iTracksJet]) TLorentzVector(it->px(), it->py(), it->pz(), it->energy());
+	    }
 	}
     }
   
-  if(CandHandleRECO->size())
+
+  if ( e.getByLabel( tracksCollName , CandHandleRECO ) )
     {
-      for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
-	  it!=itEnd;++it)
+      if(CandHandleRECO->size())
 	{
-	  Tracks.push_back(it->p4());
-	}
-      std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
-    
-      std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
-      for(int iTracks(0); it != itEnd; ++it, ++iTracks)
-	{
-	  new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
+	  for(CandidateCollection::const_iterator it(CandHandleRECO->begin()), itEnd(CandHandleRECO->end());
+	      it!=itEnd;++it)
+	    {
+	      Tracks.push_back(it->p4());
+	    }
+	  std::stable_sort(Tracks.begin(),Tracks.end(),GreaterPt());
+	  
+	  std::vector<math::XYZTLorentzVector>::const_iterator it( Tracks.begin()), itEnd(Tracks.end());
+	  for(int iTracks(0); it != itEnd; ++it, ++iTracks)
+	    {
+	      new ((*Track)[iTracks]) TLorentzVector(it->Px(), it->Py(), it->Pz(), it->E());
+	    }
 	}
     }
   
