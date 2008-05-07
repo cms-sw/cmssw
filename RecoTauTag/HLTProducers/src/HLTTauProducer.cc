@@ -70,7 +70,7 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     jetTracks = tauL3[i].jtaRef();
     math::XYZVector jetDirL3(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());	
     int  trackIsolationL3 = (int)tauL3[i].discriminator(jetDirL3,matchingCone_, signalCone_, isolationCone_,ptMinLeadTk_,1.,0);
-    const TrackRef leadTkL3 = tauL3[i].leadingSignalTrack(jetDirL3,matchingCone_, ptMinLeadTk_);
+    const TrackRef leadTkL3 = tauL3[i].leadingSignalTrack(jetDirL3,matchingCone_,1.);
     double ptLeadTkL3=0.;
     if(!leadTkL3) 
       {}else{
