@@ -50,3 +50,14 @@ CREATE TABLE CALI_GAIN_RATIO_DAT (
 
 ALTER TABLE CALI_GAIN_RATIO_DAT ADD CONSTRAINT CALI_GAIN_RATIO_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE CALI_GaIN_RATIO_DAT ADD CONSTRAINT CALI_GAIN_RATIO_fk FOREIGN KEY (iov_id) REFERENCES cali_iov (iov_id);
+
+CREATE TABLE CALI_TEMP_DAT (
+  iov_id                NUMBER(10),
+  logic_id              NUMBER(10), -- (crystal)
+  beta                  BINARY_FLOAT,
+  r25                   BINARY_FLOAT,
+  task_status           char(1)
+);
+
+ALTER TABLE CALI_TEMP_DAT ADD CONSTRAINT CALI_TEMP_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE CALI_TEMP_DAT ADD CONSTRAINT CALI_TEMP_fk FOREIGN KEY (iov_id) REFERENCES cali_iov (iov_id);
