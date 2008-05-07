@@ -18,24 +18,33 @@ namespace reco {
   class HLTTau {
   public:
     HLTTau(){
-      metCut_ = 0.;
       emIsolation_ = 0.;
       trackIsolationL25_ = 0;
       leadTrackPtL25_ = 0.;
-      trackIsolationL3_ =0;
+      trackIsolationL3_ =0.;
       leadTrackPtL3_ = 0.;
+      eta_ = 0.;
+      phi_ = 0.;
+      pt_ = 0.;
+
     }
-    HLTTau(float metCut, float emIsolation, int trackIsolationL25, float leadTrackPtL25, int trackIsolationL3, float leadTrackPtL3) {
-      metCut_ = metCut;
+    HLTTau(float eta, float phi, float pt, float emIsolation, int trackIsolationL25, float leadTrackPtL25, int trackIsolationL3, float leadTrackPtL3) {
+      eta_ = eta;
+      phi_ = phi;
+      pt_ = pt;
       emIsolation_ = emIsolation;
       trackIsolationL25_ = trackIsolationL25;
       leadTrackPtL25_ = leadTrackPtL25;
       trackIsolationL3_ =trackIsolationL3 ;
       leadTrackPtL3_ = leadTrackPtL3;
+      
     }
     virtual ~HLTTau(){}
 
-    float getMETValue()const { return metCut_;}
+    float getEta() const {return eta_;}
+    float getPhi() const {return phi_;}
+    float getPt() const {return pt_;}
+
     float getEMIsolationValue() const { return emIsolation_;}
     int getL25TrackIsolationResponse()const { return trackIsolationL25_;}    
     float getL25LeadTrackPtValue() const { return leadTrackPtL25_;}
@@ -45,12 +54,12 @@ namespace reco {
 
 
   private:
-float    metCut_;
-float emIsolation_;
-int trackIsolationL25_;
-float    leadTrackPtL25_;
-int    trackIsolationL3_;
-float    leadTrackPtL3_;
+    float eta_,phi_,pt_;
+    float emIsolation_;
+    int trackIsolationL25_;
+    float    leadTrackPtL25_;
+    int    trackIsolationL3_;
+    float    leadTrackPtL3_;
 
   };
 }
