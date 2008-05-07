@@ -61,7 +61,8 @@ static int index_to_hitpattern (int i_hitpattern, const HitPattern &h)
 	  if (h.validHitFilter(h.getHitPattern(i)))
 	       i_residuals++;
      }
-     return i_residuals;
+     assert(i_residuals > 0);
+     return i_residuals - 1;
 }
 
 double TrackResiduals::residualX (int i, const HitPattern &h) const
@@ -99,7 +100,7 @@ static const double pull_char_to_double[8][2] = {
 
 double TrackResiduals::unpack_pull (unsigned char pull)
 {
-     int sgn = 2 * (pull & 0x08) - 1;
+     int sgn = 1 - 2 * ((pull & 0x08) >> 3);
      unsigned char mag = pull & 0x07;
      return sgn * 
 	  (pull_char_to_double[mag][0] + pull_char_to_double[mag][1]) / 2;
@@ -126,7 +127,7 @@ static const double residual_char_to_double[8][2] = {
 
 double TrackResiduals::unpack_residual (unsigned char pull)
 {
-     signed char sgn = 2 * (pull & 0x08) - 1;
+     int sgn = 1 - 2 * ((pull & 0x08) >> 3);
      unsigned char mag = pull & 0x07;
      return sgn * 
 	  (pull_char_to_double[mag][0] + pull_char_to_double[mag][1]) / 2;
@@ -158,7 +159,9 @@ void TrackResiduals::print (const HitPattern &h, std::ostream &stream) const
 {
      stream << "TrackResiduals" << std::endl;
      for (int i = 0; i < h.numberOfHits(); i++) {
-	  stream << "( " << residualX(i, h) << " , " << residualY(i, h) << " )" 
-		 << std::endl;
+	  stream << (h.validHitFilter(h.getHitPattern(i)) ? 
+		     "valid hit:   " : "invalid hit: ") << 
+	       "( " << residualX(i, h) << " , " << residualY(i, h) << " )" << 
+	       std::endl;
      }
 }
