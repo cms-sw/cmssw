@@ -14,7 +14,7 @@ mkdir $WWWDIR/eps
 mkdir $WWWDIR/gif
 echo "...Copying..."
 
-mv *.eps $WWWDIR/eps
+mv *.eps.gz $WWWDIR/eps
 
 mv *.gif $WWWDIR/gif
 
