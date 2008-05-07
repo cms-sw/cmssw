@@ -78,9 +78,14 @@ class DBSRun:
         '''
         Returns DBSRun class variable values as a string.
         '''
-        x= "%10s     %55s     %10s%12s%15s%15s\n"%(self.runnum, self.dataset,
-                                             len(self.files),self.ignoreRun,
-                                             self.startedDQM,self.finishedDQM)
+        x= "%10s     %55s     %10s%12s%15s%15s%15s\n"%(self.runnum,
+                                                       self.dataset,
+                                                       len(self.files),
+                                                       self.ignoreRun,
+                                                       self.startedDQM,
+                                                       self.finishedDQM
+                                                       #self.previouslyFinishedDQM
+                                                       )
         
         #print x
         return x
@@ -1387,7 +1392,7 @@ class DQMDBSgui:
         self.myDBS.searchDBS(begin,end) # Search, getting run numbers
 
         if (self.parseDBSInfo()):
-            self.commentLabel.configure(text="Finished checking DBS runs (%i-%i)\nFound a total of %i runs"%(begin,end,self.foundfiles))
+            self.commentLabel.configure(text="Finished checking DBS runs (%i-%i)\nFound a total of %i files"%(begin,end,self.foundfiles))
 
         self.dbsSearchInProgress=False
         self.dbsButton.configure(state=ACTIVE)
