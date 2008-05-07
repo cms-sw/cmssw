@@ -186,14 +186,14 @@ for ($i=0;$i<10;$i++)
 	       #"HZZLLLL"=>"H190ZZ4L.cfi",
 	       "MINBIAS"=>"MinBias.cfi",
 	       #For now test using existing (wrong but not to change rest of the code):
-	       "E -e 1000"=>"SingleElectronPt1000.cfi",
+	       #"E -e 1000"=>"SingleElectronPt1000.cfi",
 	       #But we'd like:
-	       #"E -e 1000"=>"SingleElectronE1000.cfi",
+	       "E -e 1000"=>"SingleElectronE1000.cfi",
 	       "MU- -e pt10"=>"SingleMuPt10.cfi",
 	       #For now use existing (wrong but not to change rest of the code):
-	       "PI- -e 1000"=>"SinglePiPt1000.cfi",
+	       #"PI- -e 1000"=>"SinglePiPt1000.cfi",
 	       #But we'd like:
-	       #"PI- -e 1000"=>"SinglePiE1000.cfi",
+	       "PI- -e 1000"=>"SinglePiE1000.cfi",
 	       "TTBAR"=>"TTbar.cfi",
 	       "QCD -e 80_120"=>"QCD_Pt_80_120.cfi"
 	       );
