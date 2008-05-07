@@ -1,12 +1,5 @@
 def csclayout(i, p, *rows): i["CSC/Layouts/" + p] = DQMItem(layout=rows)
   
-  csclayout(dqmitems,"EMU00 Summary/EMU Test00 - Readout Buffer Errors",
-    ["CSC/All_Readout_Errors"]
-  )
-  csclayout(dqmitems,"EMU00 Summary/EMU Test01 - DDUs in Readout",
-    ["CSC/All_DDUs_in_Readout"],
-    ["CSC/All_DDUs_L1A_Increment"]
-  )
   csclayout(dqmitems,"EMU00 Summary/EMU Test02 - DDU Event Size",
     ["CSC/All_DDUs_Event_Size"],
     ["CSC/All_DDUs_Average_Event_Size"]

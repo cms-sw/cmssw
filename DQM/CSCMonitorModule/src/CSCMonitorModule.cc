@@ -50,6 +50,8 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
   examinerForce  = parameters.getUntrackedParameter<bool>("ExaminerForce", false);
   examinerOutput = parameters.getUntrackedParameter<bool>("ExaminerOutput", false);
   examinerCRCKey = parameters.getUntrackedParameter<unsigned int>("ExaminerCRCKey", 0);
+  fractUpdateKey = parameters.getUntrackedParameter<unsigned int>("FractUpdateKey", 1);
+  fractUpdateEvF = parameters.getUntrackedParameter<unsigned int>("FractUpdateEventFreq", 1);
 
   // Initialize some variables
   inputObjectsTag = parameters.getUntrackedParameter<edm::InputTag>("InputObjects", (edm::InputTag)"source");
@@ -100,7 +102,7 @@ void CSCMonitorModule::setup() {
   // Book EMU level histograms
   book("EMU");
 
-  // Book DDU histograms
+  // Prebook DDU histograms
   for (int d = 1; d <= 36; d++) {
     if(!loadDDU.test(d - 1)) continue;
     std::string buffer;
@@ -127,10 +129,18 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
   c.get<CSCCrateMapRcd>().get(hcrate);
   pcrate = hcrate.product();
 
-  if (!this->init) this->setup();
+  // Lets initialize MEs if it was not done so before 
+  if (!this->init) {
+    this->setup();
+  }
 
   // Pass event to monitoring chain
   monitorEvent(e);
+
+  // Update fractional histograms if appropriate
+  if (fractUpdateKey.test(3) && (nEvents % fractUpdateEvF) == 0) { 
+    updateFracHistos();
+  }
 
 }
 
@@ -150,11 +160,15 @@ void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& contex
 }
 
 void CSCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context) {
-  updateFracHistos();
+  if (fractUpdateKey.test(1)) { 
+    updateFracHistos();
+  }
 }
 
 void CSCMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-  updateFracHistos();
+  if (fractUpdateKey.test(2)) {
+    updateFracHistos();
+  }
 }
 
 void CSCMonitorModule::getCSCFromMap(int crate, int slot, int& csctype, int& cscposition) {

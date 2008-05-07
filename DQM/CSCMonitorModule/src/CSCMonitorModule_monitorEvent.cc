@@ -40,9 +40,9 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
   // Implement and set examiner
   CSCDCCExaminer examiner;
 
-  if( examinerCRCKey & 0x01 ) examiner.crcALCT(1);
-  if( examinerCRCKey & 0x02 ) examiner.crcCFEB(1);
-  if( examinerCRCKey & 0x04 ) examiner.crcTMB(1);
+  if(examinerCRCKey.test(1)) examiner.crcALCT(1);
+  if(examinerCRCKey.test(2)) examiner.crcCFEB(1);
+  if(examinerCRCKey.test(3)) examiner.crcTMB(1);
 
   if(examinerOutput) {
     examiner.output1().show();

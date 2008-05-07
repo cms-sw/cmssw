@@ -44,7 +44,7 @@ static const std::string getDDUTag(const unsigned int& dduNumber, std::string& b
 
   std::stringstream oss;
   oss << std::setfill('0');
-  oss << "DDU_" << std::setw(2) << dduNumber;
+  oss << "DDU_" << std::setw(3) << dduNumber;
   buffer = oss.str();
   return buffer;
 }

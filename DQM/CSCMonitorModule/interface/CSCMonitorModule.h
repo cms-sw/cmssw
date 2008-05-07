@@ -74,6 +74,7 @@ typedef std::map<std::string, HistoDef>        HistoDefMap;
 typedef HistoDefMap::iterator                  HistoDefMapIter;
 
 typedef std::bitset<36>                        BitsetDDU;
+typedef std::bitset<32>                        Bitset32;
 
 /**
  * Class Definition
@@ -113,27 +114,31 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     void updateFracHistos();
 
     /** Global Module-wide parameters  */
-    edm::ParameterSet parameters;
-    DQMStore* dbe;
-    std::string monitorName;
-    std::string rootDir;
-    std::string bookingFile;
+    edm::ParameterSet  parameters;
+    DQMStore*          dbe;
+    std::string        monitorName;
+    std::string        rootDir;
+    std::string        bookingFile;
 
     /** If histos have been initialized? **/
     bool init;
 
     /** List of loaded (preloaded) DDU's */
-    BitsetDDU loadDDU;
-    bool hitBookDDU;
+    BitsetDDU       loadDDU;
+    bool            hitBookDDU;
+
+    /** Fractional histograms update stuff */
+    Bitset32        fractUpdateKey;
+    uint32_t        fractUpdateEvF;
     
     /** Source related stuff */
-    edm::InputTag inputObjectsTag;
+    edm::InputTag   inputObjectsTag;
 
     /** Examiner and its stuff */
     unsigned int    examinerMask;
     bool            examinerForce;
     bool            examinerOutput;
-    unsigned int    examinerCRCKey;
+    Bitset32        examinerCRCKey;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
@@ -142,9 +147,9 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     HistoDefMap collection;
 
     /** Histogram mapping, increments, etc. */
-    uint32_t nEvents;
-    std::map<std::string, int> tmap;
-    std::map<uint32_t,uint32_t> L1ANumbers;
+    uint32_t                     nEvents;
+    std::map<std::string, int>   tmap;
+    std::map<uint32_t,uint32_t>  L1ANumbers;
 
     /** Find histograms (aka previous macros) **/ 
     const bool MEEMU(const std::string name, MonitorElement*& me);
