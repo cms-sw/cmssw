@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFPAT_PdgIdPFCandidateSelectorDefinition
-#define RecoParticleFlow_PFPAT_PdgIdPFCandidateSelectorDefinition
+#ifndef PhysicsTools_PFCandProducer_PdgIdPFCandidateSelectorDefinition
+#define PhysicsTools_PFCandProducer_PdgIdPFCandidateSelectorDefinition
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -25,14 +25,13 @@ struct PdgIdPFCandidateSelectorDefinition {
     
     assert( hc.isValid() );
     
-    collection col = *hc;
     unsigned key=0;
-    for( collection::const_iterator trk = col.begin(); 
-         trk != col.end(); ++trk, ++key) {
+    for( collection::const_iterator pfc = hc->begin(); 
+         pfc != hc->end(); ++pfc, ++key) {
       
       for(unsigned iId=0; iId<pdgIds_.size(); iId++) {
-	if ( trk->pdgId() == pdgIds_[iId] ) {
-	  selected_.push_back( new reco::PFCandidate(*trk) );
+	if ( pfc->pdgId() == pdgIds_[iId] ) {
+	  selected_.push_back( new reco::PFCandidate(*pfc) );
 	  reco::PFCandidateRef refToMother( hc, key );
 	  selected_.back()->setSourceRef( refToMother );
 	  break;

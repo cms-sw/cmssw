@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFPAT_PFMET_
-#define RecoParticleFlow_PFPAT_PFMET_
+#ifndef PhysicsTools_PFCandProducer_PFMET_
+#define PhysicsTools_PFCandProducer_PFMET_
 
 // system include files
 #include <memory>
@@ -16,7 +16,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 /**\class PFMET 
-\brief produces IsolatedPFCandidates from PFCandidates
+\brief Computes the MET from a collection of PFCandidates. HF missing!
+
+\todo Add HF energy to the MET calculation (access HF towers)
 
 \author Colin Bernet
 \date   february 2008
@@ -40,7 +42,7 @@ class PFMET : public edm::EDProducer {
  
 
   
-  /// PFCandidates in which we'll look for pile up particles 
+  /// Input PFCandidates
   edm::InputTag   inputTagPFCandidates_;
   
   /// verbose ?

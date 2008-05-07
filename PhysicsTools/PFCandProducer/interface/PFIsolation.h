@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFPAT_PFIsolation_h_
-#define RecoParticleFlow_PFPAT_PFIsolation_h_
+#ifndef PhysicsTools_PFCandProducer_PFIsolation_h_
+#define PhysicsTools_PFCandProducer_PFIsolation_h_
 
 // system include files
 #include <memory>
@@ -17,6 +17,16 @@
 
 /**\class PFIsolation 
 \brief produces IsolatedPFCandidates from PFCandidates
+
+A single isolation algorithm has been implemented up to now. 
+This algorithm computes the isolation for all PFCandidates in a collection collection1. 
+The isolation is computed with respect to the PFCandidates that are present in a collection collection2. 
+
+The isolation for candidate i in collection1 is defined as sum p_T(j) / p_T(i), where the sum runs on the PFCandidates j in collection 2 that are in a cone of a given delta R (isolation_Cone_DeltaR_) around candidate i. 
+
+If the isolation is greater than isolation_Cone_DeltaR_, an IsolatedPFCandidate is created. 
+
+\todo Implement other isolation algorithms, decouple algos from producers, study all this. 
 
 \author Colin Bernet
 \date   february 2008

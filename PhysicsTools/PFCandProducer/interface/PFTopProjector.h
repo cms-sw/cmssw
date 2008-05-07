@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFPAT_PFTopProjector_
-#define RecoParticleFlow_PFPAT_PFTopProjector_
+#ifndef PhysicsTools_PFCandProducer_PFTopProjector_
+#define PhysicsTools_PFCandProducer_PFTopProjector_
 
 // system include files
 #include <memory>

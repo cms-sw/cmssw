@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFPAT_PtMinPFCandidateSelectorDefinition
-#define RecoParticleFlow_PFPAT_PtMinPFCandidateSelectorDefinition
+#ifndef PhysicsTools_PFCandProducer_PtMinPFCandidateSelectorDefinition
+#define PhysicsTools_PFCandProducer_PtMinPFCandidateSelectorDefinition
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -25,14 +25,13 @@ struct PtMinPFCandidateSelectorDefinition {
     
     assert( hc.isValid() );
     
-    collection col = *hc;
     
     unsigned key=0;
-    for( collection::const_iterator trk = col.begin(); 
-         trk != col.end(); ++trk, ++key) {
+    for( collection::const_iterator pfc = hc->begin(); 
+         pfc != hc->end(); ++pfc, ++key) {
 
-      if( trk->pt() > ptMin_ ) {
-	selected_.push_back( new reco::PFCandidate(*trk) );
+      if( pfc->pt() > ptMin_ ) {
+	selected_.push_back( new reco::PFCandidate(*pfc) );
 	reco::PFCandidateRef refToMother( hc, key );
 	selected_.back()->setSourceRef( refToMother );
       }

@@ -1,5 +1,6 @@
 <use name=DataFormats/ParticleFlowCandidate>
 <use name=DataFormats/JetReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/METReco>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
