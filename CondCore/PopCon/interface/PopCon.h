@@ -39,7 +39,7 @@ namespace popcon {
   public:
     typedef cond::Time_t Time_t;
 
-     PopCon(const edm::ParameterSet& pset);
+    PopCon(const edm::ParameterSet& pset);
      
      virtual ~PopCon();
 
@@ -49,6 +49,8 @@ namespace popcon {
      template<typename T>
        void writeOne(T * payload, Time_t time);
 
+    
+     
   private:
      void initialize();
      void finalize();
@@ -71,6 +73,9 @@ namespace popcon {
     cond::TagInfo m_tagInfo;
     
     cond::LogDBEntry m_logDBEntry;
+  
+    
+    
     
     
   };
@@ -84,31 +89,60 @@ namespace popcon {
   template<typename Container>
   void displayHelper(Container const & payloads, bool sinceAppend) {
     typename Container::const_iterator it;
-    for (it = payloads.begin(); it != payloads.end(); it++){
+        for (it = payloads.begin(); it != payloads.end(); it++){
       edm::LogInfo ("PopCon")<< (sinceAppend ? "Since " :" Till ") << (*it).second << std::endl;
+     }
+  }     
+  
+ 
+  template<typename Container>
+   const std::string displayIovHelper(Container const & payloads, bool sinceAppend) {
+    typename Container::const_iterator it;
+    size_t i =0, j=0;
+    std::ostringstream s; std::ostringstream ss;
+    // when only 1 payload is transferred; 
+   
+    for (it = payloads.begin(); it != payloads.end(); it++){
+      i++; 
+      if (i ==1)   s<< "\n payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ; " ;
     }
-  }
-
+   
+    // when more than one payload are transferred;  
+    if (i>1) {
+      ss << "\n transferred " << i << " payloads:\n "  ;
+      for (it = payloads.begin(); it != payloads.end(); it++){
+	j++;
+	if (j==1) ss <<   " first payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ;\n " ;
+	if (j==i) ss<< " last payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ;\n " ;  
+      }  
+    } 
+    
+    return ( (i ==1)  ?  s.str(): ss.str() ) ; 
+  }            
+  
+      
+  
     template<typename Source>
-    void PopCon::write(Source const & source) {
+      void PopCon::write(Source const & source) {
       typedef typename Source::value_type value_type;
       typedef typename Source::Container Container;
-
+      
       initialize();
       std::pair<Container const *, std::string const> ret = source(&m_dbService->connection(),
-							       m_tagInfo,m_logDBEntry); 
-      Container const & payloads = *ret.first;
-      m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; "+ret.second);
-
-      displayHelper(payloads,m_since);
-      std::for_each(payloads.begin(),payloads.end(),
+								   m_tagInfo,m_logDBEntry); 
+     Container const & payloads = *ret.first;
+     m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v2.1; " + displayIovHelper(payloads,m_since ) +  ret.second);
+     
+     
+     displayHelper(payloads,m_since);
+     std::for_each(payloads.begin(),payloads.end(),
 		    boost::bind(&popcon::PopCon::writeOne<value_type>,this,
 				boost::bind(&Container::value_type::first,_1),
 				boost::bind(&Container::value_type::second,_1)
 				)
 		    );
-      
-
+     
+     
       finalize();
     }
 
