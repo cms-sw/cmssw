@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/04/29 13:46:13 $
- *  $Revision: 1.63 $
+ *  $Date: 2008/05/07 21:11:29 $
+ *  $Revision: 1.64 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -421,9 +421,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     if(doSmoothing){
       vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
       
-      if(!trajectoriesSM.empty())
+      if(!trajectoriesSM.empty()) {
 	trajectory = trajectoriesSM.front();
-      else
+        trajectory.setSeedRef((*rawTrajectory)->seedRef());
+      } else
 	LogInfo(metname)<<"The trajectory has not been smoothed!"<<endl;
     }
     
