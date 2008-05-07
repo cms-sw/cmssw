@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.18 2008/04/23 20:05:24 nancy Exp $ 
- **  $Date: 2008/04/23 20:05:24 $ 
- **  $Revision: 1.18 $
+ **  $Id: PhotonProducer.h,v 1.19 2008/05/06 19:24:19 nancy Exp $ 
+ **  $Date: 2008/05/06 19:24:19 $ 
+ **  $Revision: 1.19 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -56,17 +56,19 @@ class PhotonProducer : public edm::EDProducer {
 			    reco::PhotonCollection & outputCollection,
 			    int& iSC);
 
+  reco::ConversionRef solveAmbiguity( const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& sc);
+
   double hOverE(const reco::SuperClusterRef & scRef, HBHERecHitMetaCollection *mhbhe);
 
   std::string PhotonCollection_;
-  std::string scHybridBarrelProducer_;
-  std::string scIslandEndcapProducer_;
-  std::string scHybridBarrelCollection_;
-  std::string scIslandEndcapCollection_;
-  std::string barrelHitProducer_;
-  std::string endcapHitProducer_;
-  std::string barrelHitCollection_;
-  std::string endcapHitCollection_;
+  edm::InputTag scHybridBarrelProducer_;
+  edm::InputTag scIslandEndcapProducer_;
+  edm::InputTag scHybridBarrelCollection_;
+  edm::InputTag scIslandEndcapCollection_;
+
+  edm::InputTag barrelEcalHits_;
+  edm::InputTag endcapEcalHits_;
+
 
   std::string conversionProducer_;
   std::string conversionCollection_;

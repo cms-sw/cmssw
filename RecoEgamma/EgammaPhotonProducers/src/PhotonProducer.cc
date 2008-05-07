@@ -31,14 +31,12 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 {
 
   // use onfiguration file to setup input/output collection names
-  scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
-  scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
-  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
-  scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
-  barrelHitProducer_   = conf_.getParameter<std::string>("barrelHitProducer");
-  endcapHitProducer_   = conf_.getParameter<std::string>("endcapHitProducer");
-  barrelHitCollection_ = conf_.getParameter<std::string>("barrelHitCollection");
-  endcapHitCollection_ = conf_.getParameter<std::string>("endcapHitCollection");
+  scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
+  scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
+  //  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
+  //  scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
+  barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
+  endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
 
   conversionProducer_ = conf_.getParameter<std::string>("conversionProducer");
   conversionCollection_ = conf_.getParameter<std::string>("conversionCollection");
@@ -97,9 +95,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   // Get the  Barrel Super Cluster collection
   Handle<reco::SuperClusterCollection> scBarrelHandle;
-  theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
+  theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
     return;
   }
   reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
@@ -107,9 +105,9 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
  // Get the  Endcap Super Cluster collection
   Handle<reco::SuperClusterCollection> scEndcapHandle;
-  theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
+  theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
     return;
   }
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
@@ -118,18 +116,18 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   // Get EcalRecHits
   Handle<EcalRecHitCollection> barrelHitHandle;
-  theEvent.getByLabel(barrelHitProducer_, barrelHitCollection_, barrelHitHandle);
+  theEvent.getByLabel(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelHitCollection_.c_str();
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
     return;
   }
   const EcalRecHitCollection *barrelRecHits = barrelHitHandle.product();
 
 
   Handle<EcalRecHitCollection> endcapHitHandle;
-  theEvent.getByLabel(endcapHitProducer_, endcapHitCollection_, endcapHitHandle);
+  theEvent.getByLabel(endcapEcalHits_, endcapHitHandle);
   if (!endcapHitHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapHitCollection_.c_str();
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
     return;
   }
   const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
@@ -286,65 +284,13 @@ void PhotonProducer::fillPhotonCollection(
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
 
     if ( validConversions_) {
-      std::multimap<reco::ConversionRef, double >   convMap;
+
       
       if ( risolveAmbiguity_ ) { 
 	
-	int icp=0;
-	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
-	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
-	  icp++;      
-	  
-	  if ( scRef != (*itCP).superCluster() ) continue; 
-	  if ( !(*itCP).isConverted() ) continue;  
-	  //  std::cout << " PhotonProducer conversion SC energy " << (*itCP).superCluster()->energy() << std::endl;
-	  
-	  double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
-	  //std::cout << " Like " << like << std::endl;
-	  convMap.insert ( std::make_pair(cpRef,like) ) ;
-	}		     
-	
-	
-	
-	std::multimap<reco::ConversionRef, double >::iterator  iMap; 
-	double max_lh = -1.;
-	reco::ConversionRef bestRef;
-	//std::cout << " Pick up the best conv " << std::endl;
-	for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
-	  double like = iMap->second;
-	  if (like > max_lh) { 
-	    max_lh = like;
-	    bestRef=iMap->first;
-	  }
-	}            
-	
-	//std::cout << " Best conv like " << max_lh << std::endl;    
-	
-	float ep=0;
-	if ( max_lh <0 ) {
-	  std::cout << " Candidates with only one track " << std::endl;
-	  /// only one track reconstructed. Pick the one with best E/P
-	  float epMin=999; 
-	  
-	  for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
-	    reco::ConversionRef convRef=iMap->first;
-	    std::vector<reco::TrackRef> tracks = convRef->tracks();	
-	    float px=tracks[0]->innerMomentum().x();
-	    float py=tracks[0]->innerMomentum().y();
-	    float pz=tracks[0]->innerMomentum().z();
-	    float p=sqrt(px*px+py*py+pz*pz);
-	    ep=fabs(1.-convRef->superCluster()->energy()/p);
-	    //    std::cout << " 1-E/P = " << ep << std::endl;
-	    if ( ep<epMin) {
-	      epMin=ep;
-	      bestRef=iMap->first;
-	    }
-	  }            
-	}
-	
-	//std::cout << " Best conv 1-E/P " << ep << std::endl;    
-	newCandidate.addConversion(bestRef);     
+        reco::ConversionRef bestRef=solveAmbiguity( conversionHandle , scRef);	
 
+	newCandidate.addConversion(bestRef);     
 
 	
       } else {
@@ -377,6 +323,71 @@ void PhotonProducer::fillPhotonCollection(
   }
   
 }
+
+
+reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& scRef) {
+
+  std::multimap<reco::ConversionRef, double >   convMap;
+  int icp=0;
+  reco::ConversionCollection conversionCollection  = *(conversionHandle.product());
+  for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
+    reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+    icp++;      
+    
+    if ( scRef != (*itCP).superCluster() ) continue; 
+    if ( !(*itCP).isConverted() ) continue;  
+    //  std::cout << " PhotonProducer conversion SC energy " << (*itCP).superCluster()->energy() << std::endl;
+    
+    double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
+    std::cout << " Like " << like << std::endl;
+    convMap.insert ( std::make_pair(cpRef,like) ) ;
+  }		     
+  
+  
+  
+  std::multimap<reco::ConversionRef, double >::iterator  iMap; 
+  double max_lh = -1.;
+  reco::ConversionRef bestRef;
+  //std::cout << " Pick up the best conv " << std::endl;
+  for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
+    double like = iMap->second;
+    if (like > max_lh) { 
+      max_lh = like;
+      bestRef=iMap->first;
+    }
+  }            
+  
+  //std::cout << " Best conv like " << max_lh << std::endl;    
+  
+  float ep=0;
+  if ( max_lh <0 ) {
+    //  std::cout << " Candidates with only one track " << std::endl;
+    /// only one track reconstructed. Pick the one with best E/P
+    float epMin=999; 
+    
+    for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
+      reco::ConversionRef convRef=iMap->first;
+      std::vector<reco::TrackRef> tracks = convRef->tracks();	
+	    float px=tracks[0]->innerMomentum().x();
+	    float py=tracks[0]->innerMomentum().y();
+	    float pz=tracks[0]->innerMomentum().z();
+	    float p=sqrt(px*px+py*py+pz*pz);
+	    ep=fabs(1.-convRef->superCluster()->energy()/p);
+	    //    std::cout << " 1-E/P = " << ep << std::endl;
+	    if ( ep<epMin) {
+	      epMin=ep;
+	      bestRef=iMap->first;
+	    }
+    }
+    //std::cout << " Best conv 1-E/P " << ep << std::endl;    
+            
+  }
+  
+
+  return bestRef;
+  
+  
+} 
 
 double PhotonProducer::hOverE(const reco::SuperClusterRef & scRef,
 			      HBHERecHitMetaCollection *mhbhe){
