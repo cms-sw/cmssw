@@ -27,8 +27,12 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     #    Which digis:
     #
     #  When using data from unpacker
-    CSCStripDigiProducer = cms.string('muonCSCDigis'),
-    CSCWireDigiProducer = cms.string('muonCSCDigis'),
+    wireDigiTag = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
+    stripDigiTag = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
+    #  When using data from simulation
+    #    wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    #    stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+                              
     #
     #    Parameters for 2-D hits (not used currently)
     #

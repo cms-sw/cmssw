@@ -18,6 +18,7 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/InputTag.h>
 
 class CSCRecHitDBuilder; 
 class CSCRecoConditions;
@@ -37,10 +38,8 @@ public:
   bool useCalib;
   //bool isData;
 
-  std::string stripDigiProducer_;
-  std::string wireDigiProducer_;
-  std::string stripDigiTag;
-  std::string wireDigiTag;
+  edm::InputTag stripDigiTag_;
+  edm::InputTag wireDigiTag_;
 
   CSCRecHitDBuilder* recHitBuilder_;
   CSCRecoConditions* recoConditions_;

@@ -19,15 +19,13 @@
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 
 
-CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : iRun( 0 ) {
-	
-  stripDigiProducer_ = ps.getParameter<std::string>("CSCStripDigiProducer");
-  wireDigiProducer_  = ps.getParameter<std::string>("CSCWireDigiProducer");
-  stripDigiTag       = ps.getParameter<std::string>("CSCStripDigiTag");
-  wireDigiTag        = ps.getParameter<std::string>("CSCWireDigiTag");
-  useCalib           = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
-  
-  recHitBuilder_     = new CSCRecHitDBuilder( ps ); // pass on the Parameter Settings
+CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : 
+  iRun( 0 ), 
+  stripDigiTag_( ps.getParameter<edm::InputTag>("stripDigiTag") ),
+  wireDigiTag_(  ps.getParameter<edm::InputTag>("wireDigiTag") ),
+  useCalib( ps.getUntrackedParameter<bool>("CSCUseCalibrations") )
+{
+  recHitBuilder_     = new CSCRecHitDBuilder( ps ); // pass on the parameter sets
   recoConditions_    = new CSCRecoConditions( ps ); // access to conditions data
 
   recHitBuilder_->setConditions( recoConditions_ ); // pass down to who needs access
@@ -60,8 +58,8 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   // Get the collections of strip & wire digis from event
   edm::Handle<CSCStripDigiCollection> stripDigis;
   edm::Handle<CSCWireDigiCollection> wireDigis;
-  ev.getByLabel(stripDigiProducer_, stripDigiTag, stripDigis);
-  ev.getByLabel(wireDigiProducer_, wireDigiTag,  wireDigis);
+  ev.getByLabel( stripDigiTag_, stripDigis);
+  ev.getByLabel( wireDigiTag_,  wireDigis);
 
   // Create empty collection of rechits
   std::auto_ptr<CSCRecHit2DCollection> oc( new CSCRecHit2DCollection );
