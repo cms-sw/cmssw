@@ -107,6 +107,7 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     jetCounterSetup = cms.PSet(
         jcSetup1
     ),
+    ConvertEtValuesToEnergy = cms.bool(False),
     L1CaloJetZeroSuppressionThresholdInGeV = cms.double(5.0)
 )
 
