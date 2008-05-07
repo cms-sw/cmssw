@@ -16,6 +16,15 @@
 #################################################
 
 import sys
+import os # used for sending user commands
+base=os.popen2("echo $CMSSW_BASE")
+base=base[1].read()
+if len(base)<2:
+    print "No $CMSSW_BASE directory can be found."
+    print "Are you sure you've set up your CMSSW release area?"
+    sys.exit()
+                                                 
+
 try:
     from Tkinter import *
 except:
@@ -29,7 +38,6 @@ except:
 import tkMessageBox # for displaying warning messages
 
 import thread # used for automated checking; may not be necessary
-import os # used for sending user commands
 import time # use to determine when to check for files
 import cPickle # stores file information
 import python_dbs # use for "sendmessage" function to get info from DBS
