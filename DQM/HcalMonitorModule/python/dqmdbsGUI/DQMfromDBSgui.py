@@ -152,8 +152,8 @@ class dbsAccessor:
         '''
         
         if os.path.isfile(os.path.join(self.basepath,".dbsDefaults.cPickle")):
-            pcl=open(os.path.join(self.basepath,".dbsDefaults.cPickle"),'rb')
             try:
+                pcl=open(os.path.join(self.basepath,".dbsDefaults.cPickle"),'rb')
                 self.host.set(cPickle.load(pcl))
                 self.port.set(cPickle.load(pcl))
                 self.dbsInst.set(cPickle.load(pcl))
@@ -166,10 +166,10 @@ class dbsAccessor:
                 self.debug.set(cPickle.load(pcl))
                 self.beginRun.set(cPickle.load(pcl))
                 self.endRun.set(cPickle.load(pcl))
+                pcl.close()
             except:
                 self.setDefaults()
                 print "Could not read file '.dbsDefaults.cPickle'"
-            pcl.close()
         else:
             self.setDefaults()
         return
@@ -179,8 +179,8 @@ class dbsAccessor:
         Writes default dbsAccessor values to "dbsDefaults.cPickle"
         '''
         
-        pcl=open(os.path.join(self.basepath,".dbsDefaults.cPickle"),'wb')
         try:
+            pcl=open(os.path.join(self.basepath,".dbsDefaults.cPickle"),'wb')
             cPickle.dump(self.host.get(),pcl)
             cPickle.dump(self.port.get(),pcl)
             cPickle.dump(self.dbsInst.get(),pcl)
@@ -193,9 +193,9 @@ class dbsAccessor:
             cPickle.dump(self.debug.get(),pcl)
             cPickle.dump(self.beginRun.get(),pcl)
             cPickle.dump(self.endRun.get(),pcl)
+            pcl.close()
         except:
             print "Could not write file '.dbsDefaults.cPickle'"
-        pcl.close()
         return
 
     def searchDBS(self,beginrun=-1, endrun=-1,mytext=None):
