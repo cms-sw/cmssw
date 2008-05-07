@@ -670,14 +670,14 @@ inline bool DEutils<HcalTrigPrimDigiCollection>::is_empty(col_cit it) const {
 
 template<>
 inline bool DEutils<L1CaloEmCollection>::is_empty(col_cit it) const { 
-  //return  ((it->rank())==0);
-  return it->empty();
+  return  ((it->rank())==0);
+  //return it->empty();
 }
 
 template<>
 inline bool DEutils<L1CaloRegionCollection>::is_empty(col_cit it) const { 
-  //return  ((it->et())==0);
-  return it->empty();
+  return  ((it->et())==0);
+  //return it->empty();
 }
 
 template<>

@@ -2,3 +2,4 @@
 # please include 'replace' statements 
 # as appropriate for the subsystem
 
+replace EcalTrigPrimESProducer.DatabaseFileEB = "TPG_EB_MIPs.txt"
