@@ -167,6 +167,7 @@ class dbsAccessor:
                 self.beginRun.set(cPickle.load(pcl))
                 self.endRun.set(cPickle.load(pcl))
                 pcl.close()
+                          
             except:
                 self.setDefaults()
                 print "Could not read file '.dbsDefaults.cPickle'"
@@ -194,6 +195,8 @@ class dbsAccessor:
             cPickle.dump(self.beginRun.get(),pcl)
             cPickle.dump(self.endRun.get(),pcl)
             pcl.close()
+            os.system("chmod a+rw %s"%(os.path.join(self.basedir,".dbsDefaults.cPickle")))
+                      
         except:
             print "Could not write file '.dbsDefaults.cPickle'"
         return
@@ -971,6 +974,8 @@ class DQMDBSgui:
             cPickle.dump(self.maxDQMEvents.get(),pcl)
             cPickle.dump(self.cfgFileName.get(),pcl)
             pcl.close()
+            os.system("chmod a+rw %s"%os.path.join(self.basedir,".dqmDefaults.cPickle"))
+                      
         except SyntaxError:
             self.commentLabel.configure(text="Could not write file '.dqmDefaults.cPickle' ")
             self.root.update()
@@ -1019,6 +1024,7 @@ class DQMDBSgui:
                 myfile=open(os.path.join(self.basedir,".filesInDBS.cPickle"),'wb')
                 cPickle.dump(self.filesInDBS,myfile)
                 myfile.close()
+                os.system("chmod a+rw %s"%os.path.join(self.basedir,".filesInDBS.cPickle"))
             except:
                 self.commentLabel.configure(text="ERROR!  Could not write to file .filesInDBS.cPickle!\n  This bug will be investigated!")
                 self.root.update()
@@ -1269,7 +1275,14 @@ class DQMDBSgui:
         time.sleep(1)
 
         #print os.path.join(self.basedir,".runOptions.cfi")
-        temp=open(os.path.join(self.basedir,".runOptions.cfi"),'w')
+        try:
+            temp=open(os.path.join(self.basedir,".runOptions.cfi"),'w')
+        except:
+            self.commentLabel.configure(text="MAJOR ERROR!  Could not write to .runOptions.cfi!  \nCheck file/directory permissions!")
+            self.dqmProgress.configure(text="FAILED!  Couldn't write .runOptions.cfi")
+            self.root.update()
+            return False
+        
         # Allow a different # for each file?
         #temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].maxEvents)
 
@@ -1284,12 +1297,13 @@ class DQMDBSgui:
                 temp.write(",\n")
         temp.write("}\n")
         temp.close()
+        os.system("chmod a+rw %s"%os.path.join(self.basedir,".runOptions.cfi"))
         
         # Now run cmsRun!
         if not (os.path.isfile(os.path.join(self.basedir,".runOptions.cfi"))):
             self.commentLabel.configure(text="Could not find .runOptions.cfi file\nFor run #%i"%i)
             self.root.update()
-            return
+            return False
 
         os.system("cmsRun %s"%self.cfgFileName.get())
         
