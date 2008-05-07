@@ -78,7 +78,7 @@ class DBSRun:
         '''
         Returns DBSRun class variable values as a string.
         '''
-        x= "%10s     %55s     %10s%12s%15s%15s%15s\n"%(self.runnum,
+        x= "%10s     %55s     %10s%12s%15s%15s\n"%(self.runnum,
                                                        self.dataset,
                                                        len(self.files),
                                                        self.ignoreRun,
