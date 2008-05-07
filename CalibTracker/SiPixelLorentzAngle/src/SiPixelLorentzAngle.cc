@@ -322,7 +322,7 @@ void SiPixelLorentzAngle::endJob()
 		}
 	} // end loop over modules and layers
 	fLorentzFit.close(); 
-	
+	hFile_->cd();
 	for(int i_module = 1; i_module<=8; i_module++){
 		for(int i_layer = 1; i_layer<=3; i_layer++){
 			_h_drift_depth_adc_[i_module + (i_layer -1) * 8]->Write();
