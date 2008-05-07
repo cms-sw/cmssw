@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.5 $
-#     $Date: 2008/05/02 13:18:12 $
+#     $Revision: 1.6 $
+#     $Date: 2008/05/05 13:01:34 $
 #
 #  produce cfg file for merging run
 #
@@ -214,10 +214,14 @@ if ($nn != 1) {
     print "No pede dump file directive found, use default\n";
 }
 
-# replace source directive... this is nasty.
+
+# First remove any existing maxEvents directive...
+$body =~ s/ +untracked +PSet +maxEvents .+?\n//;
+# ... then replace source directive... this is nasty.
 $newSource = "source = EmptySource {}\n"
     ."    untracked PSet maxEvents = {untracked int32 input = 0}";
 $nn = ($body =~ s/source \= PoolSource.+?\}.+?\}/$newSource/s);
+
 if ($nn != 1) {
     print "No source directive found, use default\n";
 }
