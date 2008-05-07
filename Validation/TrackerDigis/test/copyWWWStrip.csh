@@ -42,18 +42,18 @@ mkdir $WWWDIR/gif/StripNumTEC
 
 echo "...Copying..."
 
-mv NdigiTIB*.eps $WWWDIR/eps/NdigiTIB
-mv Adc*TIB*.eps $WWWDIR/eps/AdcTIB
-mv StripNu*TIB*.eps $WWWDIR/eps/StripNumTIB
-mv NdigiTOB*.eps $WWWDIR/eps/NdigiTOB
-mv Adc*TOB*.eps $WWWDIR/eps/AdcTOB
-mv StripNu*TOB*.eps $WWWDIR/eps/StripNumTOB
-mv NdigiTID*.eps $WWWDIR/eps/NdigiTID
-mv Adc*TID*.eps $WWWDIR/eps/AdcTID
-mv StripNu*TID*.eps $WWWDIR/eps/StripNumTID
-mv NdigiTEC*.eps $WWWDIR/eps/NdigiTEC
-mv Adc*TEC*.eps $WWWDIR/eps/AdcTEC
-mv StripNu*TEC*.eps $WWWDIR/eps/StripNumTEC
+mv NdigiTIB*.eps.gz $WWWDIR/eps/NdigiTIB
+mv Adc*TIB*.eps.gz $WWWDIR/eps/AdcTIB
+mv StripNu*TIB*.eps.gz $WWWDIR/eps/StripNumTIB
+mv NdigiTOB*.eps.gz $WWWDIR/eps/NdigiTOB
+mv Adc*TOB*.eps.gz $WWWDIR/eps/AdcTOB
+mv StripNu*TOB*.eps.gz $WWWDIR/eps/StripNumTOB
+mv NdigiTID*.eps.gz $WWWDIR/eps/NdigiTID
+mv Adc*TID*.eps.gz $WWWDIR/eps/AdcTID
+mv StripNu*TID*.eps.gz $WWWDIR/eps/StripNumTID
+mv NdigiTEC*.eps.gz $WWWDIR/eps/NdigiTEC
+mv Adc*TEC*.eps.gz $WWWDIR/eps/AdcTEC
+mv StripNu*TEC*.eps.gz $WWWDIR/eps/StripNumTEC
 
 mv NdigiTIB*.gif $WWWDIR/gif/NdigiTIB
 mv Adc*TIB*.gif $WWWDIR/gif/AdcTIB

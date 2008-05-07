@@ -33,14 +33,14 @@ mkdir $WWWDIR/gif/DigiMulPXF
 
 echo "...Copying..."
 
-mv Adc*PXB*.eps $WWWDIR/eps/AdcPXB
-mv Row*PXB*.eps $WWWDIR/eps/RowPXB
-mv Col*PXB*.eps $WWWDIR/eps/ColPXB
-mv DigiMul*PXB*.eps $WWWDIR/eps/DigiMulPXB
-mv AdcZ*Disk*.eps $WWWDIR/eps/AdcPXF
-mv RowZ*Disk*.eps $WWWDIR/eps/RowPXF
-mv ColZ*Disk*.eps $WWWDIR/eps/ColPXF
-mv DigiMul*Endcap*.eps $WWWDIR/eps/DigiMulPXF
+mv Adc*PXB*.eps.gz $WWWDIR/eps/AdcPXB
+mv Row*PXB*.eps.gz $WWWDIR/eps/RowPXB
+mv Col*PXB*.eps.gz $WWWDIR/eps/ColPXB
+mv DigiMul*PXB*.eps.gz $WWWDIR/eps/DigiMulPXB
+mv AdcZ*Disk*.eps.gz $WWWDIR/eps/AdcPXF
+mv RowZ*Disk*.eps.gz $WWWDIR/eps/RowPXF
+mv ColZ*Disk*.eps.gz $WWWDIR/eps/ColPXF
+mv DigiMul*Endcap*.eps.gz $WWWDIR/eps/DigiMulPXF
 
 mv Adc*PXB*.gif $WWWDIR/gif/AdcPXB
 mv Row*PXB*.gif $WWWDIR/gif/RowPXB
