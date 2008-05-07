@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/24 13:56:16 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,7 +42,6 @@ DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
   theDbe->setVerbose(1);
-  theDbe->setCurrentFolder("DT/DTSegmentsTask");
 
   parameters = pset;
 
@@ -56,8 +55,11 @@ DTSegmentsTask::~DTSegmentsTask(){
 
 
 void DTSegmentsTask::beginJob(const edm::EventSetup& context){
-  // the name of the 4D rec hits collection
+ 
+ // the name of the 4D rec hits collection
   theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
+
+  theDbe->setCurrentFolder("DT/DTSegmentsTask");
 
   // histos for phi segments
   phiHistos.push_back(theDbe->book2D("phiSegments_numHitsVsWheel", "phiSegments_numHitsVsWheel", 5, -2.5, 2.5, 20, 0, 20));
