@@ -182,11 +182,11 @@ if output_flag:
             process.schedule.append(process.outpath_raw)  
 
 # add the user schedule here..
-if user_schedule!='':
-    print 'hi there'
-    for k in user_schedule.split(','):
-        print k
-        process.schedule.append(getattr(process,k))
+    if user_schedule!='':
+        print 'hi there'
+        for k in user_schedule.split(','):
+            print k
+            process.schedule.append(getattr(process,k))
 
 # look for alca reco
     nALCA=0
@@ -211,6 +211,7 @@ if user_schedule!='':
                     setattr(process,modName,poolOutT)
                     setattr(process,pathName,cms.EndPath(getattr(process,modName)))
 #                    if user_schedule=='':
+                    print 'adding endpath '+pathName
                     process.schedule.append(getattr(process,pathName))
                 else:
                     # add the alca outputs into the main output file 
