@@ -83,7 +83,10 @@ namespace reco {
     /// the particle type could be removed at some point to gain some space.
     /// low priority
     int     translateTypeToPdgId( ParticleType type ) const;
- 
+
+    /// set Particle Type
+    void setParticleType( ParticleType type ); 
+
     
     /// add an element to the current PFCandidate
     /*     void addElement( const reco::PFBlockElement* element ); */

@@ -117,6 +117,13 @@ int PFCandidate::translateTypeToPdgId( ParticleType type ) const {
   }
 }
 
+
+void PFCandidate::setParticleType( ParticleType type ) {
+  particleId_ = type;
+  translateTypeToPdgId( type );
+}
+
+
 void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
   if(!charge()) {
     string err;
@@ -130,33 +137,13 @@ void PFCandidate::setTrackRef(const reco::TrackRef& ref) {
 			 err.c_str() );
   }
 
-  if( particleId_ == mu ) {
-    
-    if(  trackRef_ != muonRef_->track() ) {
-      string err;
-      err += "PFCandidate::setTrackRef: inconsistent track references!";
-      
-      throw cms::Exception("InconsistentReference",
-			   err.c_str() );
-    }    
-  }
   trackRef_ = ref;
 }
 
 
 void PFCandidate::setMuonRef(const reco::MuonRef& ref) {
 
-  if( particleId_ != mu ) {
-    string err;
-    err += "PFCandidate::setMuonRef: this is not a muon! particleId_=";
-    char num[4];
-    sprintf( num, "%d", particleId_);
-    err += num;
-
-    throw cms::Exception("InconsistentReference",
-			 err.c_str() );
-  }
-  else if(  trackRef_ != muonRef_->track() ) {
+  if(  trackRef_ != ref->track() ) {
     string err;
     err += "PFCandidate::setMuonRef: inconsistent track references!";
     
