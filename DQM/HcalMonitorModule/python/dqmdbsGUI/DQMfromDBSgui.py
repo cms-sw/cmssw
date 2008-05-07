@@ -1015,9 +1015,13 @@ class DQMDBSgui:
             return
         self.pickleFileOpen=True
         if len(self.filesInDBS)>0:
-            myfile=open(os.path.join(self.basedir,".filesInDBS.cPickle"),'wb')
-            cPickle.dump(self.filesInDBS,myfile)
-            myfile.close()
+            try:
+                myfile=open(os.path.join(self.basedir,".filesInDBS.cPickle"),'wb')
+                cPickle.dump(self.filesInDBS,myfile)
+                myfile.close()
+            except:
+                self.commentLabel.configure(text="ERROR!  Could not write to file .filesInDBS.cPickle!\n  This bug will be investigated!")
+                self.root.update()
         self.pickleFileOpen=False
         return
 
