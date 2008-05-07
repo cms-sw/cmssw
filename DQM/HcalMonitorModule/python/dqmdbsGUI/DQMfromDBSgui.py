@@ -4,11 +4,11 @@
 #
 # DQMfromDBSgui.py
 #
-# v1.0 Beta
+# v1.2 Beta
 #
 # by Jeff Temple (jtemple@fnal.gov)
 #
-# 2 May 2008
+# 7 May 2008
 #
 # GUI to automatically grab new runs from DBS
 # and run HCAL DQM on any newly-found runs
@@ -459,14 +459,14 @@ class DQMDBSgui:
         # Fill 'About' menu"
         self.aboutmenu=Menu(self.BAbout,
                             bg="white")
-        temptext="DQMfromDBS GUI\n\nv1.0 Beta\nby Jeff Temple\n4 May 2008\n\n"
+        temptext="DQMfromDBS GUI\n\nv1.2 Beta\nby Jeff Temple\n7 May 2008\n\n"
         temptext=temptext+"GUI allows users to query DBS for files in a specified\nrun range, and then run HCAL DQM over those files.\n\nQuestions or comments?\nSend to:  jtemple@fnal.gov\n"
         self.aboutmenu.add_command(label="Info",
                                    command = lambda x=helpfunctions:
-                                   x.Helpwin(temptext,usetext=1))
+                                   x.Helpwin(temptext,usetext=1,title="About this program..."))
         self.aboutmenu.add_command(label="Help",
                                    command = lambda x=helpfunctions:
-                                   x.Helpwin("dqmdbs_instructions.txt"))
+                                   x.Helpwin("dqmdbs_instructions.txt",title="Basic instructions for the user"))
         self.BAbout['menu']=self.aboutmenu
 
 
@@ -1527,15 +1527,18 @@ class DQMDBSgui:
         x=self.filesInDBS.keys()
         x.sort()
         x.reverse()
-        temp="\t\tA total of %i runs have been found\n\n"%len(x)
-        temp = temp+"%10s     %45s%10s     %10s%12s%15s%15s\n"%(" Run #", "Dataset"," ",
-                                                 "# of files","IgnoreRun?",
-                                                 "Started DQM?","Finished DQM?")
+        temp ="%10s     %45s%10s     %10s%12s%15s%15s\n"%(" Run #", "Dataset"," ",
+                                                          "# of files","IgnoreRun?",
+                                                          "Started DQM?","Finished DQM?")
         for i in x:
             temp=temp+self.filesInDBS[i].Print()
 
         # Make window displaying run info
-        helpfunctions.Helpwin(temp,usetext=1)
+        if (len(x)<>1):
+            title="A total of %i runs have been found in DBS"%len(x)
+        else:
+            title="A total of 1 run has been found in DBS"
+        helpfunctions.Helpwin(temp,usetext=1,title=title )
         return
 
 
