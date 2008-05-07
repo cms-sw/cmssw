@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # jetBProbability btag computer
 jetBProbability = cms.ESProducer("JetBProbabilityESProducer",
-    impactParamterType = cms.int32(0), ## 0 = 3D, 1 = 2D
+    impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
 
     deltaR = cms.double(-1.0), ## use cut from JTA
 
@@ -11,7 +11,9 @@ jetBProbability = cms.ESProducer("JetBProbabilityESProducer",
 
     minimumProbability = cms.double(0.005),
     numberOfBTracks = cms.uint32(4),
-    maximumDecayLength = cms.double(5.0)
+    maximumDecayLength = cms.double(5.0),
+
+    trackQualityClass = cms.string("any")
 )
 
 
