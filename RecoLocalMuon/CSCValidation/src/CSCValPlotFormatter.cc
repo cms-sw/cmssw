@@ -105,7 +105,7 @@
       TCanvas *c = new TCanvas("c","my canvas",1);
       c->SetCanvasSize(700,700);
       //station 1 +side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 1 && rHpos.endcap == 1","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 1 && rHpos.endcap == 1","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
@@ -117,7 +117,7 @@
       c->Update();
       c->Print("rHglobal_station_+1.gif");
       //station 2 +side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 2 && rHpos.endcap == 1","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 2 && rHpos.endcap == 1","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
@@ -129,7 +129,7 @@
       c->Update();
       c->Print("rHglobal_station_+2.gif");
       //station 3 +side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 3 && rHpos.endcap == 1","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 3 && rHpos.endcap == 1","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
@@ -141,7 +141,7 @@
       c->Update();
       c->Print("rHglobal_station_+3.gif");
       //station 4 +side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 4 && rHpos.endcap == 1","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 4 && rHpos.endcap == 1","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
@@ -154,7 +154,7 @@
       c->Print("rHglobal_station_+4.gif");
 
       //station 1 -side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 1 && rHpos.endcap == 2","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 1 && rHpos.endcap == 2","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
@@ -166,7 +166,7 @@
       c->Update();
       c->Print("rHglobal_station_-1.gif");
       //station 2 +side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 2 && rHpos.endcap == 2","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 2 && rHpos.endcap == 2","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
@@ -178,7 +178,7 @@
       c->Update();
       c->Print("rHglobal_station_-2.gif");
       //station 3 +side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 3 && rHpos.endcap == 2","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 3 && rHpos.endcap == 2","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
@@ -190,7 +190,7 @@
       c->Update();
       c->Print("rHglobal_station_-3.gif");
       //station 4 +side
-      t1->Draw("rHpos.globalx:rHpos.globaly","rHpos.station == 4 && rHpos.endcap == 2","goff");
+      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 4 && rHpos.endcap == 2","goff");
       result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
       result->GetXaxis()->SetLimits(-720,720);
       result->GetYaxis()->SetLimits(-720,720);
