@@ -33,6 +33,7 @@ class LHECommon {
 	enum CountMode {
 		kTried = 0,
 		kSelected,
+		kKilled,
 		kAccepted
 	};
 
@@ -43,7 +44,8 @@ class LHECommon {
 		double	error;
 	};
 
-	void count(int process, CountMode count, double weight);
+	void count(int process, CountMode count, double eventWeight = 1.0,
+	           double matchWeight = 1.0);
 	XSec xsec() const;
 
     private:
@@ -67,6 +69,7 @@ class LHECommon {
 		unsigned int	heprupIndex;
 		Counter		tried;
 		Counter		selected;
+		Counter		killed;
 		Counter		accepted;
 
 		inline bool operator < (const Process &other) const

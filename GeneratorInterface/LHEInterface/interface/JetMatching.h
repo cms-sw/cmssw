@@ -19,7 +19,8 @@ class JetMatching {
 	~JetMatching();
 
 	double match(const HepMC::GenEvent *partonLevel,
-	             const HepMC::GenEvent *finalState);
+	             const HepMC::GenEvent *finalState,
+	             bool showeredFinalState = false);
 
 	static std::auto_ptr<JetMatching> create(
 					const edm::ParameterSet &params);

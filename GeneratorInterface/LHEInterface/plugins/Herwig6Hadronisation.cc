@@ -337,12 +337,12 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 				std::memcpy(hepevt.data, buffer, hepevtSize());
 				fixupStatus(event.get());
 				if (showeredEvent(event)) {
-					hwevnt.IERROR = 100;
+					hwevnt.IERROR = 198;
 					vetoed = true;
 				}
 			}
 
-			hwbgen();	// parton casades
+			hwbgen();	// parton cascades
 
 			// call jimmy ... only if event is not killed yet by HERWIG
 			if (useJimmy && doMPInteraction && !hwevnt.IERROR &&
@@ -362,11 +362,9 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 				return event;
 			}
 
-			// if event was killed by HERWIG retry
-			if (hwevnt.IERROR)
-				continue;
-
-			break;
+			// if event was not killed by HERWIG retry
+			if (!hwevnt.IERROR)
+				break;
 		}
 
 		fortranCallback.instance = 0;

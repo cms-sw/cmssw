@@ -99,9 +99,9 @@ LHEEvent::~LHEEvent()
 {
 }
 
-void LHEEvent::count(LHECommon::CountMode mode)
+void LHEEvent::count(LHECommon::CountMode mode, double matchWeight)
 {
-	common->count(hepeup.IDPRUP, mode, hepeup.XWGTUP);
+	common->count(hepeup.IDPRUP, mode, hepeup.XWGTUP, matchWeight);
 }
 
 void LHEEvent::fillPdfInfo(HepMC::PdfInfo *info) const

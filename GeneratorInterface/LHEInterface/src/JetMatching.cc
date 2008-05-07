@@ -71,7 +71,8 @@ JetMatching::JetMatching(const edm::ParameterSet &params) :
 	partonInput(new JetInput(params)),
 	jetInput(new JetInput(*partonInput))
 {
-	partonInput->setPartonicFinalState(true);
+	partonInput->setPartonicFinalState(false);
+	partonInput->setHardProcessOnly(false);
 
 	if (params.exists("matchPtFraction"))
 		matchPtFraction =
@@ -104,13 +105,15 @@ std::auto_ptr<JetMatching> JetMatching::create(const edm::ParameterSet &params)
 // use polymorphic JetMatching subclasses when modularizing
 
 double JetMatching::match(const HepMC::GenEvent *partonLevel,
-                          const HepMC::GenEvent *finalState)
+                          const HepMC::GenEvent *finalState,
+                          bool showeredFinalState)
 {
 	JetInput::ParticleVector partons = (*partonInput)(partonLevel);
 	std::sort(partons.begin(), partons.end(), ParticlePtLess());
 
-	std::vector<JetClustering::Jet> jets =
-				(*jetClustering)((*jetInput)(finalState));
+	std::vector<JetClustering::Jet> jets = (*jetClustering)(
+			showeredFinalState ? (*partonInput)(finalState)
+			                   : (*jetInput)(finalState));
 
 #ifdef DEBUG
 	std::cout << "===== Partons:" << std::endl;

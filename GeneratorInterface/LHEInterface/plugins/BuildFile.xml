@@ -9,6 +9,7 @@
 	<use name="FWCore/Framework"/>
 	<use name="SimDataFormats/HepMCProduct"/>
 	<flags EDM_PLUGIN="1"/>
+	<flags CXXFLAGS="-O0 -fno-inline -g3"/>
 </library>
 <library name="GeneratorInterfaceLHESource" file="LHESource.cc MCDBSource.cc">
 	<use name="FWCore/Framework"/>
@@ -26,10 +27,12 @@
 	<use name="pythia6"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
+<library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">
+	<use name="pythia8"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
 <library name="GeneratorInterfaceHerwig6Hadronisation" file="Herwig6Hadronisation.cc hwudat.f hwmsct_dummy.F pathhelper.F cms_hwwarn.F">
-	<use name="lhapdf"/>
-	<use name="herwig"/>
-	<use name="jimmy"/>
 	<use name="f77compiler"/>
+	<flags LDFLAGS="-lherwig -lherwig_dummy -llhapdf -llhapdf_dummy -ljimmy"/>
 	<flags EDM_PLUGIN="1"/>
 </library>

@@ -36,7 +36,7 @@ class LHEEvent {
 
 	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
 
-	void count(LHECommon::CountMode count);
+	void count(LHECommon::CountMode count, double matchWeight = 1.0);
 
 	void fillPdfInfo(HepMC::PdfInfo *info) const;
 	void fillEventInfo(HepMC::GenEvent *hepmc) const;

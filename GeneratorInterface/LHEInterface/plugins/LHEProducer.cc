@@ -146,29 +146,36 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	weight = 1.0;
 	std::auto_ptr<HepMC::GenEvent> hadronLevel(hadronisation->hadronize());
 
-	if (!matchingDone) {
-		if (jetMatching.get() && hadronLevel.get()) {
-			weight = matching(hadronLevel.get());
-			matchingDone = true;
-		} else if (!hadronLevel.get()) {
-			event.put(result);
-			return;
-		}
+	if (!hadronLevel.get()) {
+		if (matchingDone) {
+			if (weight == 0.0)
+				partonLevel->count(LHECommon::kSelected);
+			else
+				partonLevel->count(LHECommon::kKilled, weight);
+		} else
+			partonLevel->count(LHECommon::kTried);
 	}
 
-	partonLevel->count(LHECommon::kTried);
+	if (!matchingDone && jetMatching.get() && hadronLevel.get())
+		weight = matching(hadronLevel.get());
 
-	if (weight <= 0.0) {
+	if (weight == 0.0) {
 		edm::LogInfo("Generator|LHEInterface")
 			<< "Event got rejected by the"
 			   "jet matching." << std::endl;
-		partonLevel->count(LHECommon::kSelected);
 
+		if (hadronLevel.get()) {
+			partonLevel->count(LHECommon::kSelected);
+			hadronLevel.reset();
+		}
+	}
+
+	if (!hadronLevel.get()) {
 		event.put(result);
 		return;
 	}
 
-	partonLevel->count(LHECommon::kAccepted);
+	partonLevel->count(LHECommon::kAccepted, weight);
 
 	hadronLevel->set_event_number(++index);
 
@@ -216,7 +223,7 @@ bool LHEProducer::showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event)
 {
 	weight = matching(event.get());
 	matchingDone = true;
-	return weight <= 0.0;
+	return weight == 0.0;
 }
 
 DEFINE_ANOTHER_FWK_MODULE(LHEProducer);

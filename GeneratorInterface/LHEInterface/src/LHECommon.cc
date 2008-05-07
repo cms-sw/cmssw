@@ -86,7 +86,8 @@ bool LHECommon::operator == (const LHECommon &other) const
 	return heprup == other.heprup;
 }
 
-void LHECommon::count(int process, CountMode mode, double weight)
+void LHECommon::count(int process, CountMode mode, double eventWeight,
+                      double matchWeight)
 {
 	std::vector<Process>::iterator proc =
 		std::lower_bound(processes.begin(), processes.end(), process);
@@ -95,11 +96,13 @@ void LHECommon::count(int process, CountMode mode, double weight)
 
 	switch(mode) {
 	    case kAccepted:
-		proc->accepted.add(weight);
+		proc->accepted.add(eventWeight * matchWeight);
+	    case kKilled:
+		proc->killed.add(eventWeight * matchWeight);
 	    case kSelected:
-		proc->selected.add(weight);
+		proc->selected.add(eventWeight);
 	    case kTried:
-		proc->tried.add(weight);
+		proc->tried.add(eventWeight);
 	}
 }
 
@@ -125,22 +128,22 @@ LHECommon::XSec LHECommon::xsec() const
 			sigma2Err = 0.0;
 		}
 
-		if (!proc->accepted.n)
+		if (!proc->killed.n)
 			continue;
 
 		double sigmaAvg = sigmaSum / proc->tried.n;
-		double fracAcc = (double)proc->accepted.n / proc->selected.n;
+		double fracAcc = (double)proc->killed.n / proc->selected.n;
 		double sigmaFin = sigmaAvg * fracAcc;
 
 		double deltaFin = sigmaFin;
-		if (proc->accepted.n > 1) {
+		if (proc->killed.n > 1) {
 			double sigmaAvg2 = sigmaAvg * sigmaAvg;
 			double delta2Sig =
 				(sigma2Sum / proc->tried.n - sigmaAvg2) /
 				(proc->tried.n * sigmaAvg2);
 			double delta2Veto =
-				((double)proc->selected.n - proc->accepted.n) /
-				((double)proc->selected.n * proc->accepted.n);
+				((double)proc->selected.n - proc->killed.n) /
+				((double)proc->selected.n * proc->killed.n);
 			double delta2Sum = delta2Sig + delta2Veto
 			                   + sigma2Err / sigmaSum;
 			deltaFin = sigmaFin * (delta2Sum > 0.0 ?
