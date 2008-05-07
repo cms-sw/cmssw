@@ -832,7 +832,11 @@ class DQMDBSgui:
         
         while (self.Automated.get()):
             self.autoRunning=True
-            time.sleep(60)
+            for xx in range(0,60):
+                time.sleep(1)
+                if not self.Automated.get():
+                    break
+
             # print self.dbsAutoVar.get(), self.dqmAutoVar.get()
             # Increment counters once per minute
             self.dbsAutoCounter=self.dbsAutoCounter+1
@@ -1211,10 +1215,10 @@ class DQMDBSgui:
                 # (can later check for files within directory?)
                 # Check to see if the output exists
                 if (i<100000):
-                    x=os.path.isdir("DQM_Hcal_R0000%i"%i)
+                    mydirname=os.path.isdir("DQM_Hcal_R0000%i"%i)
                 else:
-                    x=os.path.isdir("DQM_Hcal_R000%i"%i)
-                if (not x):
+                    mydirname=os.path.isdir("DQM_Hcal_R000%i"%i)
+                if not mydirname:
                     print "Problem with Run # %i -- DQM started but did not finish!"%i
                     self.commentLabel.configure(text="Problem with Run # %i -- DQM started but did not finish!"%i)
                     self.root.update()
