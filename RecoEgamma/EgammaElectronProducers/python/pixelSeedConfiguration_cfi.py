@@ -23,7 +23,6 @@ electronPixelSeedConfiguration = cms.PSet(
     PhiMax2 = cms.double(0.002),
     r2MaxF = cms.double(0.15),
     pPhiMin1 = cms.double(-0.075),
-    initialSeeds = cms.InputTag("globalMixedSeeds"),
     pPhiMax1 = cms.double(0.125),
     SCEtCut = cms.double(4.0),
     z2MaxB = cms.double(0.09),
