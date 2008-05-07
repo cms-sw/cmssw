@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/05/01 15:51:03 $
-//   $Revision: 1.20 $
+//   $Date: 2008/05/02 16:21:35 $
+//   $Revision: 1.21 $
 //
 //   Modifications: 
 //
@@ -721,13 +721,23 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
 	    if (qual_prev >= qual_this) ghost_cleared[key_wire][i_pattern] = 1;
 	  }
 	  else if (dt > 0 && dt <= 4) {
-	    ghost_cleared[key_wire][i_pattern] = 1;
+	    // Next "if" check accounts for firmware bug and should be
+	    // removed once the next firmware version is used.
+	    if (qual_prev >= qual_this)
+	      ghost_cleared[key_wire][i_pattern] = 1;
 	  }
 	}
 
 	// Next wire.
 	// Skip this step if this wire is already declared "ghost".
-	if (ghost_cleared[key_wire][i_pattern] == 1) continue;
+	if (ghost_cleared[key_wire][i_pattern] == 1) {
+	  if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
+	    << ((i_pattern == 0) ? "Accelerator" : "Collision")
+	    << " pattern ghost cancelled on key_wire " << key_wire
+	    << " by wire " << key_wire-1;
+	  continue;
+	}
+
 	int qual_next =
 	  (key_wire < numWireGroups-1) ? quality[key_wire+1][i_pattern] : 0;
 	if (qual_next > 0) {
@@ -737,8 +747,18 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
 	    if (qual_next > qual_this) ghost_cleared[key_wire][i_pattern] = 1;
 	  }
 	  else if (dt > 0 && dt <= 4) {
-	    ghost_cleared[key_wire][i_pattern] = 1;
+	    // Next "if" check accounts for firmware bug and should be
+	    // removed once the next firmware version is used.
+	    if (qual_next > qual_this)
+	      ghost_cleared[key_wire][i_pattern] = 1;
 	  }
+	}
+	if (ghost_cleared[key_wire][i_pattern] == 1) {
+	  if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
+	    << ((i_pattern == 0) ? "Accelerator" : "Collision")
+	    << " pattern ghost cancelled on key_wire " << key_wire
+	    << " by wire " << key_wire+1;
+	  continue;
 	}
       }
     }
@@ -750,9 +770,6 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
     for (int i_pattern = 0; i_pattern < 2; i_pattern++) {
       if (ghost_cleared[key_wire][i_pattern] > 0) {
 	clear(key_wire, i_pattern);
-	if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-	  << ((i_pattern == 0) ? "Accelerator" : "Collision")
-	  << " pattern ghost cancelled on key_wire: " << key_wire << "\n";
       }
     }
   }
