@@ -16,7 +16,7 @@ std::ostringstream ss,ss1;
 
 TFile f;
 TFile f_in("validationHists_41356.root");
-TFile f_out("gas_gain_41356.root","RECREATE");
+TFile f_out("wire_timing_41356.root","RECREATE");
 std::string run="41356";
 
 std::vector<std::string> xTitle;
@@ -32,12 +32,12 @@ xTitle.push_back("ME-3/1 CSC"); xTitle.push_back("ME-3/2 CSC");
 xTitle.push_back("ME-4/1 CSC"); xTitle.push_back("ME-4/2 CSC");
 
 std::vector<std::string> histName;
-histName.push_back("_gas_gain_mean");
-histName.push_back("_gas_gain_entries");
+histName.push_back("_wire_timing_mean");
+histName.push_back("_wire_timing_entries");
 
 std::vector<std::string> histTitle;
-histTitle.push_back("Mean 3X3 ADC Sum");
-histTitle.push_back("Entries 3X3 ADC Sum ");
+histTitle.push_back("Mean Wire_Time_Bin");
+histTitle.push_back("Entries Wire_Time_Bin");
 
 std::string folder="GasGain/";
 
@@ -60,13 +60,13 @@ for(Int_t j=0;j<20;j++) {
      f_out.cd();
      ss<<"ME"<<esr[j]<<histName[i].c_str();
      ss1<<histTitle[i];
-     TH2F *h=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,30,1.0,31.0);
+     TH2F *h=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,42,1.0,43.0);
      ss.str("");
      ss1.str("");
      ss<<xTitle[j];
      h->GetXaxis()->SetTitle(ss.str().c_str());
      ss.str("");
-     h->GetYaxis()->SetTitle("Location=(layer-1)*nsegm+segm");
+     h->GetYaxis()->SetTitle("AFEB");
      h->GetZaxis()->SetLabelSize(0.03);
      h->SetOption("COLZ");
      Int_t nx=h2[k]->GetNbinsX();
