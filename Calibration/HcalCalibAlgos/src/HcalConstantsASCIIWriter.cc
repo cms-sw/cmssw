@@ -61,6 +61,7 @@ void HcalConstantsASCIIWriter::beginJob( const edm::EventSetup& iSetup)
 
 void HcalConstantsASCIIWriter::endJob()
 {
+   delete myout_hcal; 
 }
 
 
