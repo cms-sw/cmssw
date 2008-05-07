@@ -154,7 +154,7 @@ void CSCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context)
 }
 
 void CSCMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-
+  updateFracHistos();
 }
 
 void CSCMonitorModule::getCSCFromMap(int crate, int slot, int& csctype, int& cscposition) {
