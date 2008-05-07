@@ -74,7 +74,15 @@ calotoweroptmaker = cms.EDFilter("CaloTowersCreator",
     HBWeight = cms.double(1.0),
     HOGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy dependent weights and energy scale to be used
-    EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0)
+    EBGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
+
+    # Method for momentum reconstruction
+    MomConstrMethod = cms.int32(0),
+    # Depth, fraction of the respective calorimeter [0,1]
+    MomEmDepth = cms.double(0),
+    MomHadDepth = cms.double(0),
+    MomTotDepth = cms.double(0)
+
 )
 
 
