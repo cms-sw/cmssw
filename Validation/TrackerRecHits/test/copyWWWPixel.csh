@@ -14,7 +14,9 @@ setenv WWWDIR $WWWDIRObj/Pixel
 mkdir $WWWDIR/eps
 mkdir $WWWDIR/gif
 
-mv *.eps $WWWDIR/eps
-mv *.gif $WWWDIR/gif
+mv Clust_*.eps.gz $WWWDIR/eps
+mv RecHit_*.eps.gz $WWWDIR/eps
+mv Clust_*.gif $WWWDIR/gif
+mv RecHit_*.gif $WWWDIR/gif
 
 
