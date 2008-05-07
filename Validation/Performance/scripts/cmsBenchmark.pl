@@ -9,23 +9,32 @@ $CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
 $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
 $HOST=$ENV{'HOST'};
 
+#Default to 0 the number of times running the cmsScimark2 benchmarks
+$cmsScimark2NumOfTimes=0;
+$cmsScimark2LargeNumOfTimes=0;
+
 if (@ARGV)
 {
     $Core=$ARGV[0];
+    if ($ARGV[1])
+    {
+	$cmsScimark2NumOfTimes=$ARGV[1];
+    }
+    if ($ARGV[2])
+    {
+        $cmsScimark2LargeNumOfTimes=$ARGV[2];
+    }
 }
 else
 {
     print "Please input the cpu core number on which you want to run cmsBenchmark.pl!\n";
-    print "Usage [to run on cpu1]: cmsBenchmarkControl.pl 1\n";
+    print "Usage [to run on cpu1 with no leading and trailing cmsScimarks and cmsScimarkLarge]: cmsBenchmarkControl.pl 1\n";
+    print "Usage [to run on cpu1 with 5 leading and trailing cmsScimarks and 3 leading and trainlng cmsScimarkLarge]: cmsBenchmarkControl.pl 1 5 3\n";
     exit;
 }
 
 #Default number of events for each set of tests:
 $TimeSizeNumOfEvts=100;
-
-#Number of times running the cmsScimark2 benchmarks
-$cmsScimark2NumOfTimes=10;
-$cmsScimark2LargeNumOfTimes=10;
 
 #Adding a check for a local version of the packages
 $PerformancePkg="$CMSSW_BASE/src/Validation/Performance";
