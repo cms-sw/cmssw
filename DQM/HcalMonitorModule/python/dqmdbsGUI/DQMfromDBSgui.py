@@ -1104,13 +1104,12 @@ class DQMDBSgui:
             if (self.runningDQM):
                 text=text+"\nDQM is currently running"
             text=text+"\nDo you want to exit anyway?"
-            if tkMessageBox.askyesno("Jobs not yet completed",text):
-                self.root.destroy()
-            else:
+            if not tkMessageBox.askyesno("Jobs not yet completed",text):
                 return
 
-        else:
-            self.root.destroy()
+        # TO DO:  KILL EXISTING cmsRun jobs if they are running when the user decides to quit.
+        self.Automated.set("False")
+        self.root.destroy()
         return
 
 
