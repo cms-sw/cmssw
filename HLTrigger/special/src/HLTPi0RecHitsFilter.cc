@@ -174,7 +174,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
     std::vector<DetId> clus_used;
     //Reject the seed if not able to build the cluster around it correctly
-    if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough RecHits "<<endl; continue;}
+    //if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough RecHits "<<endl; continue;}
     vector<EcalRecHit> RecHitsInWindow;
     
     //    cout<<" clus_v.size() "<<clus_v.size()<<" clusEtaSize_*clusPhiSize_ "<<clusEtaSize_*clusPhiSize_<<endl;
@@ -205,7 +205,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
    
     math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_p,geometryES_p);
-//      cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
+    //      cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
 //      cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
 //      cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
 
@@ -228,6 +228,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float s4s9_[4];
     for(int i=0;i<4;i++)s4s9_[i]= itseed->energy();
     for(int j=0; j<RecHitsInWindow.size();j++){
+      //cout << " Simple cluster rh, ieta, iphi : "<<((EBDetId)RecHitsInWindow[j].id()).ieta()<<" "<<((EBDetId)RecHitsInWindow[j].id()).iphi()<<endl;
       if((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-1 && seed_id.ieta()!=1 ) || ( seed_id.ieta()==1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-2))){
 	if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
 	  s4s9_[0]+=RecHitsInWindow[j].energy();
@@ -315,54 +316,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//	cout<<" m_inv "<<m_inv<<endl;
 	if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
 
-	  cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+	  //cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
 
-	  //Change: no use any more a window around Seed to compute Iso but use clusters:
-	  //We will save only 7x7 cristals around the Pi0 candidate (should be clearly enough)!
-// 	  std::vector<DetId> clus_Isolation1 = topology_p->getWindow(max_hit[i],gammaCandEtaSize_,gammaCandPhiSize_);	
-// 	  EBDetId maxHit = max_hit[i];
-// 	  std::vector<EBDetId>::const_iterator usedIds;
-// 	  for (std::vector<DetId>::iterator det=clus_Isolation1.begin(); det!=clus_Isolation1.end(); det++) {
-// 	    bool HitAlreadyUsed=false;
-// 	    for(usedIds=scXtals.begin(); usedIds!=scXtals.end(); usedIds++){
-// 	      if(*usedIds==*det){
-// 		HitAlreadyUsed=true;
-// 		break;
-// 	      }
-// 	    }
-// 	    if(HitAlreadyUsed)continue;
-// 	    if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
-// 	      EBDetId EBDet = *det;
-// 	      scXtals.push_back(*det);
-// 	      std::map<DetId, EcalRecHit>::iterator aHit;
-// 	      aHit = recHitsEB_map->find(*det);
-// 	      if (aHit->second.energy() > seleXtalMinEnergy_){
-// 		pi0EBRecHitCollection->push_back(aHit->second);
-// 	      }
-// 	    }
-// 	  }
-// 	  std::vector<DetId> clus_Isolation2 = topology_p->getWindow(max_hit[j],gammaCandEtaSize_,gammaCandPhiSize_);
-// 	  EBDetId maxHit2 = max_hit[j];
-// 	  for (std::vector<DetId>::iterator det=clus_Isolation2.begin(); det!=clus_Isolation2.end(); det++) {
-// 	    bool HitAlreadyUsed=false;
-// 	    for(usedIds=scXtals.begin(); usedIds!=scXtals.end(); usedIds++){
-// 	      if(*usedIds==*det){
-// 		HitAlreadyUsed=true;
-// 		break;
-// 	      }
-// 	    }
-// 	    if(HitAlreadyUsed)continue;
-// 	    if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
-// 	      EBDetId EBDet = *det;
-// 	      scXtals.push_back(*det);
-// 	      std::map<DetId, EcalRecHit>::iterator aHit;
-// 	      aHit = recHitsEB_map->find(*det);
-// 	      if (aHit->second.energy() > seleXtalMinEnergy_){
-// 		pi0EBRecHitCollection->push_back(aHit->second);
-// 	      }
-// 	    }
-// 	  }
-	  //End of Change
 
 	  //New Loop on cluster to measure isolation:
 	  vector<int> IsoClus;
@@ -383,10 +338,19 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 	  //	  cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<endl;
 	  if(Iso/pt_pi0<selePi0Iso_){
-	    for(int Rec=0;Rec<RecHitsCluster[i].size();Rec++){
-	      pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
-	    }
-	    for(int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
+	    //  for(int Rec=0;Rec<RecHitsCluster[i].size();Rec++){
+	    //  pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
+	    // }
+	    //	    for(int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
+
+     
+	    for(Int_t iii=0 ; iii<IsoClus.size() ; iii++){   
+	      //cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl;  
+	      if (find(goodIsoClus.begin(), goodIsoClus.end(), IsoClus[iii]) == goodIsoClus.end()) goodIsoClus.push_back(IsoClus[iii]); 
+	    }   
+	    
+	    if (find(goodIsoClus.begin(), goodIsoClus.end(), i) == goodIsoClus.end()) goodIsoClus.push_back(i);
+	    if (find(goodIsoClus.begin(), goodIsoClus.end(), j) == goodIsoClus.end()) goodIsoClus.push_back(j);
 	    
 	    npi0_s++;
 	  }
@@ -401,8 +365,19 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //timers.pop_and_push(timerName);
 
 
-  //cout<<" "<<endl;
-  cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+  //  cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+
+  for(Int_t jj=0;jj<goodIsoClus.size();jj++)
+    {
+      //cout << "  Filling : Good clusters: #, #rhs "<<goodIsoClus[jj]<<" "<<RecHitsCluster[goodIsoClus[jj]].size()<<endl; 
+      for(int Rec2=0;Rec2<RecHitsCluster[goodIsoClus[jj]].size();Rec2++)
+	{
+	  pi0EBRecHitCollection->push_back(RecHitsCluster[goodIsoClus[jj]][Rec2]);                 
+	}
+    }
+
+
+
 
       //timerName = category + "::preparePi0RecHitsCollection";
       //timers.pop_and_push(timerName);
@@ -410,7 +385,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Put selected information in the event
       int pi0_collsize = pi0EBRecHitCollection->size();
-      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+      //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
       if ( pi0_collsize > seleNRHMax_ ) return accept;
       if ( pi0_collsize < 1 ) return accept;
       if( npi0_s ==0 )return accept; 
