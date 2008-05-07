@@ -58,15 +58,15 @@ LinearCalibrator* LinearCalibrator::create() const {
 	return new LinearCalibrator();
 }
 
-std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficientsCore() throw(
-		PFToolsException&) {
+std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficientsCore()
+		throw(PFToolsException&) {
 	std::cout << __PRETTY_FUNCTION__
 			<< ": determining linear calibration coefficients...\n";
-			if(!hasParticles()) {
-				//I have no particles to calibrate to - throw exception.
-				PFToolsException me("Calibrator has no particles for calibration!");
-				throw me;
-			}
+	if (!hasParticles()) {
+		//I have no particles to calibrate to - throw exception.
+		PFToolsException me("Calibrator has no particles for calibration!");
+		throw me;
+	}
 	std::cout << "\tGetting eij matrix...\n";
 	TMatrixD eij;
 	TVectorD truthE;
@@ -107,7 +107,8 @@ std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficient
 		//Deposition dOffset(offset, eta, phi, 1.0);
 		//particle->addRecDeposition(dOffset);
 		//particle->addTruthDeposition(dOffset);
-		std::cout << "\tDid you forget to add a dummy offset deposition to each particle?\n";
+		std::cout
+				<< "\tDid you forget to add a dummy offset deposition to each particle?\n";
 		std::cout << "\tThrowing an exception!"<< std::endl;
 		PFToolsException
 				me("TDecompLU did not converge successfully when finding calibrations. Did you forget to add a dummy offset deposition to each particle?");
@@ -118,8 +119,8 @@ std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficient
 	printVec(std::cout, calibsSolved);
 
 	std::map<DetectorElementPtr, double> answers;
-	for (std::map<DetectorElementPtr, unsigned>::iterator
-			it = myDetElIndex.begin(); it != myDetElIndex.end(); ++it) {
+	for (std::map<DetectorElementPtr, unsigned>::iterator it =
+			myDetElIndex.begin(); it != myDetElIndex.end(); ++it) {
 		DetectorElementPtr de = (*it).first;
 		answers[de] = calibsSolved[(*it).second];
 	}
@@ -142,14 +143,13 @@ void LinearCalibrator::initEijMatrix(TMatrixD& eij, TVectorD& truthE) {
 
 	//loop over all particle deposits
 	unsigned index(0);
-	for (std::vector<ParticleDepositPtr>::const_iterator
-			cit = myParticleDeposits.begin(); cit != myParticleDeposits.end(); ++cit) {
+	for (std::vector<ParticleDepositPtr>::const_iterator cit =
+			myParticleDeposits.begin(); cit != myParticleDeposits.end(); ++cit) {
 		ParticleDepositPtr p = *cit;
 		//get each of the relevant detector elements
-		
-		for (std::vector<DetectorElementPtr>::const_iterator
-				detElIt = myDetectorElements.begin(); detElIt
-				!= myDetectorElements.end(); ++detElIt) {
+
+		for (std::vector<DetectorElementPtr>::const_iterator detElIt =
+				myDetectorElements.begin(); detElIt != myDetectorElements.end(); ++detElIt) {
 			DetectorElementPtr de = *detElIt;
 			eij[index][myDetElIndex[de]] = p->getRecEnergy(de);
 			//truthE[p->getId()] += p->getTruthEnergy(de);
@@ -199,14 +199,15 @@ void LinearCalibrator::populateDetElIndex() {
 
 	//myDetElIndex.clear();
 	//loop over known detector elements, and assign a unique row/column index to each
-	for (std::vector<DetectorElementPtr>::const_iterator
-			cit = myDetectorElements.begin(); cit != myDetectorElements.end(); ++cit) {
+	for (std::vector<DetectorElementPtr>::const_iterator cit =
+			myDetectorElements.begin(); cit != myDetectorElements.end(); ++cit) {
 		DetectorElementPtr de = *cit;
 		//std::cout << "\tGot element: "<< *de;
 		//check we don't have duplicate detector elements
-		assert(myDetElIndex.count(de) == 0);
-		myDetElIndex[de] = index;
-		++index;
+		if (myDetElIndex.count(de) == 0) {
+			myDetElIndex[de] = index;
+			++index;
+		}
 	}
 
 }

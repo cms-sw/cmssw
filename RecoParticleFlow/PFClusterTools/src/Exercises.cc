@@ -43,6 +43,7 @@ void Exercises::testTreeUtility(TFile& f) const {
 	std::cout << "Recreating from root file...\n";
 	std::vector<ParticleDepositPtr> particles;
 	TreeUtility tu;
+	
 	tu.recreateFromRootFile(f, elements, particles);
 	std::cout << "Finished tests.\n";
 
@@ -171,17 +172,23 @@ void Exercises::testCalibrationFromTree(TFile& f) const {
 			c->addParticleDeposit(pd);
 		}
 	}
-
+	
+	std::cout << "Producing Exercises.root..." << std::endl;
 	TFile output("Exercises.root", "recreate");
 	std::map<SpaceVoxelPtr, CalibratorPtr>* detectorMap = sm->getCalibrators();
 	std::map<SpaceVoxelPtr, TH1F> before;
 	std::map<SpaceVoxelPtr, TH1F> after;
+	std::cout << "Calling performance evaluation..." << std::endl;
 	evaluatePerformance(detectorMap, before, after);
-	
+	std::cout << std::endl;
+	std::cout << "Writing out histograms..." << std::endl;
 	writeOutHistos(before);
 	writeOutHistos(after);
+	std::cout << "Closing files..." << std::endl;
 	output.Write();
-	output.Close();
+	//For some weird weird reason, closing the file causes a glibc seg fault! Mad.
+	//output.Close();
+	std::cout << "Finished exercise." << std::endl;
 
 }
 
@@ -194,6 +201,7 @@ void Exercises::evaluatePerformance(
 	for (std::map<SpaceVoxelPtr, CalibratorPtr>::const_iterator
 			cit = detectorMap->begin(); cit != detectorMap->end(); ++cit) {
 		SpaceVoxelPtr sv = (*cit).first;
+		std::cout << "*** Performance evalutation for SpaceVoxel ***\n\t";
 		std::cout << *sv << "\n";
 		CalibratorPtr c = (*cit).second;
 		std::cout << "Calibrator has "<< c->hasParticles() << " particles\n";
@@ -237,6 +245,9 @@ void Exercises::evaluatePerformance(
 				newReso += pd->getEnergyResolution();
 				post.Fill(pd->getRecEnergy());
 			}
+			std::cout << "*** Consistency Check ***\n";
+			c->getCalibrationCoefficients();
+			std::cout << "*** End of check ***\n";
 			for (std::map<DetectorElementPtr, double>::iterator
 					it = calibs.begin(); it != calibs.end(); ++it) {
 				DetectorElementPtr de = (*it).first;
@@ -251,8 +262,13 @@ void Exercises::evaluatePerformance(
 			std::cout << "\tNew reso:\t"<< newReso / csParticles.size() * 100.0
 					<< "\n";
 		}
+		std::cout << "*** Completion of evaluation ***\n";
 	}
 
+}
+
+void Exercises::calibrateAndRewriteParticles(TFile& f) const {
+	
 }
 
 void Exercises::writeOutHistos(std::map<SpaceVoxelPtr, TH1F>& input) const {

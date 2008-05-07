@@ -48,6 +48,12 @@ public:
 	
 	void writeOutHistos(std::map<SpaceVoxelPtr, TH1F>& input) const;
 	
+	/*
+	 * This beast calibrates the particles as test calibration from tree does
+	 * and then writes a new SingleParticleTree to disk - CaloDataCalib
+	 */
+	void calibrateAndRewriteParticles(TFile& f) const;
+	
 };
 }
 

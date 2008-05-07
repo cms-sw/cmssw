@@ -3,7 +3,6 @@
 #include "TTree.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.hh"
 
-
 using namespace pftools;
 TreeUtility::TreeUtility() {
 }
@@ -12,8 +11,8 @@ TreeUtility::~TreeUtility() {
 }
 
 void TreeUtility::recreateFromRootFile(TFile& file,
-		std::vector<DetectorElementPtr >& elements,
-		std::vector<ParticleDepositPtr >& toBeFilled) {
+		std::vector<DetectorElementPtr>& elements,
+		std::vector<ParticleDepositPtr>& toBeFilled) {
 
 	std::cout << __PRETTY_FUNCTION__
 			<< ": This method is highly specific to detector element types and may fail if their definitions change. Please be advised of this limitation!\n";
@@ -64,15 +63,15 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 
 		tree->GetEntry(entries);
 
-		ParticleDepositPtr pd(new ParticleDeposit(spw_ptr->trueEnergy, spw_ptr->eta, spw_ptr->phi));
-		
+		ParticleDepositPtr pd(new ParticleDeposit(spw_ptr->trueEnergy, spw_ptr->etaMC, spw_ptr->phiMC));
+
 		if (offset != 0) {
-			Deposition dOffset(offset, spw_ptr->eta, spw_ptr->phi, 1.0);
+			Deposition dOffset(offset, spw_ptr->etaEcal, spw_ptr->phiEcal, 1.0);
 			pd->addRecDeposition(dOffset);
 			pd->addTruthDeposition(dOffset);
 		}
-		Deposition dE(ecal, spw_ptr->eta, spw_ptr->phi, spw_ptr->eEcal);
-		Deposition dH(hcal, spw_ptr->eta, spw_ptr->phi, spw_ptr->eHcal);
+		Deposition dE(ecal, spw_ptr->etaEcal, spw_ptr->phiEcal, spw_ptr->eEcal);
+		Deposition dH(hcal, spw_ptr->etaEcal, spw_ptr->phiEcal, spw_ptr->eHcal);
 
 		//RecDepositions are what the detector element should detect
 		//when well calibrated
