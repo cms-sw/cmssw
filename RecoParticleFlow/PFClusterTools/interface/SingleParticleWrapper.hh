@@ -28,8 +28,10 @@ public:
 		eEcal = 0;
 		eHcal = 0;
 		trueEnergy = -1;
-		eta = 0;
-		phi = 0;
+		etaMC = 0;
+		phiMC = 0;
+		etaEcal = 0;
+		phiEcal = 0;
 		nEcalCluster = 0;
 		nHcalCluster = 0;
 		eSqEcal = 0;
@@ -52,8 +54,10 @@ public:
 	double ePFEcal;
 	double ePFHcal;
 	double trueEnergy;
-	double eta;
-	double phi;
+	double etaMC;
+	double phiMC;
+	double etaEcal;
+	double phiEcal;
 	
 	//Number of clusters in each of the Ecal and Hcal
 	int nEcalCluster;
