@@ -74,7 +74,7 @@ public:
   int operator!=(const L1CaloEmCand& c) const { return !(*this == c); }
 
   /// is there any information in the candidate
-  bool empty() const { return (rank() == 0 && m_iso == 0); }
+  bool empty() const { return (rank() == 0); }
 
 
  private:
