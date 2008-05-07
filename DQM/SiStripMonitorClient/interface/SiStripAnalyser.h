@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/03/01 00:37:15 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/04/28 22:39:00 $
+ *  $Revision: 1.21 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -72,7 +72,6 @@ protected:
 
 private:
 
-  void fillGlobalStatus();
 
   DQMStore* dqmStore_;
 
