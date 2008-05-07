@@ -29,6 +29,17 @@
 #include "Utilities/Timing/interface/TimerStack.h"
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+// Geometry
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+
 
 //
 // class declaration
@@ -58,9 +69,7 @@ class HLTPi0RecHitsFilter : public HLTFilter {
    private:
       // ----------member data ---------------------------
 
-      // std::string ecalHitsProducer_;
-      // std::string barrelHits_;
-// replace the 2 strings with 1 InputTag of form label:instance
+ // replace the 2 strings with 1 InputTag of form label:instance
    edm::InputTag barrelHits_;
 
 
@@ -75,18 +84,26 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
  double selePtGammaOne_;
  double selePtGammaTwo_;
- double seleS4S9GammaOne_;
- double seleS4S9GammaTwo_;
- double selePi0BeltDR_;
- double selePi0BeltDeta_;
- double selePi0Iso_;
  double selePtPi0_;
  double seleMinvMaxPi0_;
  double seleMinvMinPi0_;
  double seleXtalMinEnergy_;
  int seleNRHMax_;
+ //New criteria
+ double seleS4S9GammaOne_;
+ double seleS4S9GammaTwo_;
+ double selePi0BeltDR_;
+ double selePi0BeltDeta_;
+ double selePi0Iso_;
+ bool ParameterLogWeighted_;
+ double ParameterX0_;
+ double ParameterT0_barl_;
+ double ParameterW0_;
+
+
 
  std::map<DetId, EcalRecHit> *recHitsEB_map;
+
 
 
 };

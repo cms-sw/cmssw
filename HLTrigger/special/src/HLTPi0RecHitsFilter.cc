@@ -5,12 +5,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,11 +12,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "TVector3.h"
+
 HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 {
-  //  ecalHitsProducer_ = iConfig.getParameter< std::string > ("ecalRecHitsProducer");
-  //  barrelHits_ = iConfig.getParameter< std::string > ("barrelHitCollection");
- // replace the 2 strings with 1 InputTag of form label:instance 
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHits");
 
   pi0BarrelHits_ = iConfig.getParameter< std::string > ("pi0BarrelHitCollection");
@@ -41,15 +34,22 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   selePtGammaOne_ = iConfig.getParameter<double> ("selePtGammaOne");  
   selePtGammaTwo_ = iConfig.getParameter<double> ("selePtGammaTwo");  
   selePtPi0_ = iConfig.getParameter<double> ("selePtPi0");  
+  seleMinvMaxPi0_ = iConfig.getParameter<double> ("seleMinvMaxPi0");  
+  seleMinvMinPi0_ = iConfig.getParameter<double> ("seleMinvMinPi0");  
+  seleXtalMinEnergy_ = iConfig.getParameter<double> ("seleXtalMinEnergy");
+  seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
+  //New Selection
   seleS4S9GammaOne_ = iConfig.getParameter<double> ("seleS4S9GammaOne");  
   seleS4S9GammaTwo_ = iConfig.getParameter<double> ("seleS4S9GammaTwo");  
   selePi0Iso_ = iConfig.getParameter<double> ("selePi0Iso");  
   selePi0BeltDR_ = iConfig.getParameter<double> ("selePi0BeltDR");  
   selePi0BeltDeta_ = iConfig.getParameter<double> ("selePi0BeltDeta");  
-  seleMinvMaxPi0_ = iConfig.getParameter<double> ("seleMinvMaxPi0");  
-  seleMinvMinPi0_ = iConfig.getParameter<double> ("seleMinvMinPi0");  
-  seleXtalMinEnergy_ = iConfig.getParameter<double> ("seleXtalMinEnergy");
-  seleNRHMax_ = iConfig.getParameter<int> ("seleNRHMax");
+
+  ParameterLogWeighted_ = iConfig.getParameter<bool> ("ParameterLogWeighted");
+  ParameterX0_ = iConfig.getParameter<double> ("ParameterX0");
+  ParameterT0_barl_ = iConfig.getParameter<double> ("ParameterT0_barl");
+  ParameterW0_ = iConfig.getParameter<double> ("ParameterW0");
+
 
   //register your products
   produces< EBRecHitCollection >(pi0BarrelHits_);
@@ -71,6 +71,10 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
 
+ //To Deal with Geometry:
+  edm::ESHandle<CaloTopology> theCaloTopology;
+  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+
   // Timer
   //  const std::string category = "AlCaPi0RecHitsProducer";
   //TimerStack timers;
@@ -81,14 +85,12 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<EBRecHitCollection> barrelRecHitsHandle;
 
-  //  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-  // replace the 2 strings with 1 InputTag of form label:instance 	 
   iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product!" << std::endl;
   }
 
-  recHitsEB_map = new std::map<DetId, EcalRecHit>();
+  recHitsEB_map= new std::map<DetId, EcalRecHit>();
 
   std::vector<EcalRecHit> seeds;
   seeds.clear();
@@ -99,30 +101,20 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Create empty output collections
   std::auto_ptr< EBRecHitCollection > pi0EBRecHitCollection( new EBRecHitCollection );
-  std::auto_ptr< EBRecHitCollection > pi0EBDummyRecHitCollection( new EBRecHitCollection );
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
-  //cout<< " Unpacked EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
-
-    int ipositive = 0;
+  //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
 
     double energy = itb->energy();
-
-    if (energy > seleXtalMinEnergy_) 
-     {
-	std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
-	recHitsEB_map->insert(map_entry);
-	
-	if (energy > clusSeedThr_) seeds.push_back(*itb);
-
-	ipositive++;
-     }
+    if (energy > seleXtalMinEnergy_) {
+      std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
+      recHitsEB_map->insert(map_entry);
+      if (energy > clusSeedThr_) seeds.push_back(*itb);
+    }
   }
 
-
-  //cout<< " Unpacked positive EB RecHits #: "<<ipositive<<endl;
   //timerName = category + "::readEBRecHitsCollection";
   //timers.push(timerName);
 
@@ -136,318 +128,281 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<IdealGeometryRecord>().get(geoHandle);     
   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  topology_p = new EcalBarrelTopology(geoHandle);
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",1));
-  providedParameters.insert(std::make_pair("X0",0.89));
-  providedParameters.insert(std::make_pair("T0_barl",5.7));
-  providedParameters.insert(std::make_pair("W0",4.2));
+  providedParameters.insert(std::make_pair("LogWeighted",ParameterLogWeighted_));
+  providedParameters.insert(std::make_pair("X0",ParameterX0_));
+  providedParameters.insert(std::make_pair("T0_barl",ParameterT0_barl_));
+  providedParameters.insert(std::make_pair("W0",ParameterW0_));
 
   PositionCalc posCalculator_ = PositionCalc(providedParameters);
-  //PositionCalc::Initialize(providedParameters, &recHitsEB_map, &(*geometry_p));
+  //  PositionCalc posCalculator_;
 
   static const int MAXCLUS = 2000;
   int nClus;
-  float eClus[MAXCLUS];
-  float etClus[MAXCLUS];
-  float etaClus[MAXCLUS];
-  float phiClus[MAXCLUS];
-  float s4s9Clus[MAXCLUS];
-  EBDetId max_hit[MAXCLUS];  
-  int goodIsoClus[MAXCLUS];
-
-  vector<vector<DetId> > detids_in_clusters;
+  vector<float> eClus;
+  vector<float> etClus;
+  vector<float> etaClus;
+  vector<float> phiClus;
+  vector<EBDetId> max_hit;
+  vector< vector<EcalRecHit> > RecHitsCluster;
+  vector<float> s4s9Clus;
+  vector<int> goodIsoClus;
 
   nClus=0;
-  for(int i=0; i<MAXCLUS; i++){
-    eClus[i] = 0;
-    etClus[i] = 0;
-    etaClus[i] = 0;
-    phiClus[i] = 0;
-    goodIsoClus[i] = 0;
-    s4s9Clus[i] = 0;
-    max_hit[i] = EBDetId(0);
-  }
-
- 
 
   // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
-
 
   for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
     EBDetId seed_id = itseed->id();
     std::vector<EBDetId>::const_iterator usedIds;
     
-    //cout<< " Start: Seed with energy "<<itseed->energy()<<endl;
-    //cout<< " Start: Seed with z,ieta,iphi : "<<seed_id.zside()<<" "<<seed_id.ieta()<<" " <<seed_id.iphi()<<endl;
+//     cout<< " Start: Seed with energy "<<itseed->energy()<<endl;
+//     cout<< " Start: Seed with z,ieta,iphi : "<<seed_id.zside()<<" "<<seed_id.ieta()<<" " <<seed_id.iphi()<<endl;
     bool seedAlreadyUsed=false;
-    for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++)
-      if(*usedIds==seed_id)
-	{
-	  seedAlreadyUsed=true;
-	  //cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
+    for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+      if(*usedIds==seed_id){
+	seedAlreadyUsed=true;
+	//cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
+	break; 
+      }
+    }
+    if(seedAlreadyUsed)continue;
+    topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
+    std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);	
+    std::vector<DetId> clus_used;
+    //Reject the seed if not able to build the cluster around it correctly
+    if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough RecHits "<<endl; continue;}
+    vector<EcalRecHit> RecHitsInWindow;
+    
+    //    cout<<" clus_v.size() "<<clus_v.size()<<" clusEtaSize_*clusPhiSize_ "<<clusEtaSize_*clusPhiSize_<<endl;
+    double simple_energy = 0; 
+
+    for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
+      EBDetId EBdet = *det;
+      //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
+     bool  HitAlreadyUsed=false;
+      for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
+	if(*usedIds==*det){
+	  HitAlreadyUsed=true;
 	  break;
 	}
-    if(!seedAlreadyUsed)	    
-      {
-	double simple_energy = 0; 
-	std::vector<DetId> clus_v;
-	clus_v.clear();
-        double extals3x3[3][3];
-
-
-        for(int i=0; i<3; i++){
-          for(int j=0; j<3; j++){
-            extals3x3[i][j] = 0;
-          }
-        }
-    for (int icry=0;icry< clusEtaSize_*clusPhiSize_;icry++)
-      {
-	
-	int row = icry / clusEtaSize_;
-	int column= icry % clusEtaSize_;
-	int curr_eta=seed_id.ieta() + column - (clusEtaSize_/2);
-	int curr_phi=seed_id.iphi() + row - (clusPhiSize_/2);
-	
-	if (curr_eta * seed_id.ieta() <= 0) {if (seed_id.ieta() > 0) curr_eta--; else curr_eta++; }  // JUMP over 0
-	if (curr_phi < 1) curr_phi += 360;
-	if (curr_phi > 360) curr_phi -= 360;
-	
-	//try
-	//  {
-	//    EBDetId det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
-
-        EBDetId det;
-
-	if (!EBDetId::validDetId(curr_eta,curr_phi) ) 
-	  {
-	    continue;
-	  } else {
-	    det = EBDetId(curr_eta,curr_phi,EBDetId::ETAPHIMODE);
-	  }
-
-
-	    std::vector<EBDetId>::const_iterator usedIds;
-			  
-	    std::map<DetId, EcalRecHit>::iterator aHit;
-	    bool HitAlreadyUsed=false;
-	    for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++)
-	      if(*usedIds==det)
-		{
-		  HitAlreadyUsed=true;
-		  break;
-		}
-	    
-	    if(!HitAlreadyUsed)
-	      if (recHitsEB_map->find(det) != recHitsEB_map->end())
-		{
-		  aHit = recHitsEB_map->find(det);
-		  usedXtals.push_back(det);
-		  clus_v.push_back(det);
-
-		  simple_energy = simple_energy + aHit->second.energy();
-		  extals3x3[row][column] = aHit->second.energy();
-		  
-		  EBDetId sel_rh = aHit->second.detid();
-		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : E,z,ieta,iphi "<<aHit->second.energy()<<" "<<sel_rh.zside()<<" "<<sel_rh.ieta()<<" "<<sel_rh.iphi()<<endl;    
-		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : tower_ieta,tower_iphi "<<sel_rh.tower_ieta()<<" "<<sel_rh.tower_iphi()<<endl;   
-		  //cout << "       Simple Clustering: RecHit Ok 3x3 matrix inside cluster : iSM, ic "<<sel_rh.ism()<<" "<<sel_rh.ic()<<endl;
-		  
-		}
-	    //	  }
-	    //	catch (...)
-	    //  {
-	    // }
       }
-    math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_v,hitCollection_p,geometry_p,geometryES_p);
-    //cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
-    //cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
-    //cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
 
-    detids_in_clusters.push_back(clus_v);
+      if(HitAlreadyUsed)continue;
+      if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
+	//	cout<<" Used det "<< EBdet<<endl;
+	std::map<DetId, EcalRecHit>::iterator aHit;
+	aHit = recHitsEB_map->find(*det);
+	usedXtals.push_back(*det);
+	RecHitsInWindow.push_back(aHit->second);
+	clus_used.push_back(*det);
+	simple_energy = simple_energy + aHit->second.energy();
+	//	cout<<" simple_energy "<<simple_energy <<"  aHit->second.energy() "<< aHit->second.energy()<<endl;
+      }
+    }
+   
+    math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_p,geometryES_p);
+//      cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
+//      cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
+//      cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
 
-	    float theta_s = 2. * atan(exp(-clus_pos.eta()));
-	    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
-	    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
-	    float p0z_s = simple_energy * cos(theta_s);
-	    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
-
-	    //cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<p0z_s<<endl;
+    float theta_s = 2. * atan(exp(-clus_pos.eta()));
+    float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
+    float p0y_s = simple_energy * sin(theta_s) * sin(clus_pos.phi());
+    //	    float p0z_s = simple_energy * cos(theta_s);
+    float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
     
-            float s4s9_1 = 0.;
-            float s4s9_max = -999.;
-            s4s9_1 = extals3x3[0][0] + extals3x3[0][1] + extals3x3[1][0] + extals3x3[1][1];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //cout<< " s4s9: 1 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-            s4s9_1 = extals3x3[0][1] + extals3x3[0][2] + extals3x3[1][1] + extals3x3[1][2];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //cout<< " s4s9: 2 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-            s4s9_1 = extals3x3[1][0] + extals3x3[1][1] + extals3x3[2][0] + extals3x3[2][1];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //cout<< " s4s9: 3 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-            s4s9_1 = extals3x3[1][1] + extals3x3[1][2] + extals3x3[2][1] + extals3x3[2][2];
-            if(s4s9_1 >= s4s9_max) s4s9_max = s4s9_1; 
-            //      cout<< " s4s9: 4 cand: s4s9_max s4s9_1 "<<s4s9_max<<" "<<s4s9_1<<endl;
-
-	    //cout<< "       Simple Clustering: s4s9 : "<<(s4s9_max/simple_energy)<<endl;
-	    eClus[nClus] = simple_energy;
-	    etClus[nClus] = et_s;
-	    etaClus[nClus] = clus_pos.eta();
-	    phiClus[nClus] = clus_pos.phi();
-	    max_hit[nClus] = seed_id;
-            s4s9Clus[nClus] = s4s9_max/simple_energy;
-	    
-	    nClus++;
-	    if (nClus == MAXCLUS) return accept;
+    //    cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<endl;
+    
+    eClus.push_back(simple_energy);
+    etClus.push_back(et_s);
+    etaClus.push_back(clus_pos.eta());
+    phiClus.push_back(clus_pos.phi());
+    max_hit.push_back(seed_id);
+    RecHitsCluster.push_back(RecHitsInWindow);
+    //Compute S4/S9 variable
+    //We are not sure to have 9 RecHits so need to check eta and phi:
+    float s4s9_[4];
+    for(int i=0;i<4;i++)s4s9_[i]= itseed->energy();
+    for(int j=0; j<RecHitsInWindow.size();j++){
+      if((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-1 && seed_id.ieta()!=1 ) || ( seed_id.ieta()==1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-2))){
+	if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
+	  s4s9_[0]+=RecHitsInWindow[j].energy();
+	}else{
+	  if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()){
+	    s4s9_[0]+=RecHitsInWindow[j].energy();
+	    s4s9_[1]+=RecHitsInWindow[j].energy();
+	  }else{
+	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
+	      s4s9_[1]+=RecHitsInWindow[j].energy(); 
+	    }
+	  }
+	}
+      }else{
+	if(((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()){
+	  if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
+	    s4s9_[0]+=RecHitsInWindow[j].energy();
+	    s4s9_[3]+=RecHitsInWindow[j].energy();
+	  }else{
+	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
+	      s4s9_[1]+=RecHitsInWindow[j].energy(); 
+	      s4s9_[2]+=RecHitsInWindow[j].energy(); 
+	    }
+	  }
+	}else{
+	  if((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()+1 && seed_id.ieta()!=-1 ) || ( seed_id.ieta()==-1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()+2))){
+	    if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
+	      s4s9_[3]+=RecHitsInWindow[j].energy();
+	    }else{
+	      if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()){
+		s4s9_[2]+=RecHitsInWindow[j].energy();
+		s4s9_[3]+=RecHitsInWindow[j].energy();
+	      }else{
+		if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()+1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()+1 ){
+		  s4s9_[2]+=RecHitsInWindow[j].energy(); 
+		}
+	      }
+	    }
+	  }else{
+	    cout<<" (EBDetId)RecHitsInWindow[j].id()).ieta() "<<((EBDetId)RecHitsInWindow[j].id()).ieta()<<" seed_id.ieta() "<<seed_id.ieta()<<endl;
+	    cout<<" Problem with S4 calculation "<<endl;return accept;
+	  }
+	}
       }
+    }
+    s4s9Clus.push_back(*max_element( s4s9_,s4s9_+4)/simple_energy);
+    //    cout<<" s4s9Clus[0] "<<s4s9_[0]/simple_energy<<" s4s9Clus[1] "<<s4s9_[1]/simple_energy<<" s4s9Clus[2] "<<s4s9_[2]/simple_energy<<" s4s9Clus[3] "<<s4s9_[3]/simple_energy<<endl;
+    //    cout<<" Max "<<*max_element( s4s9_,s4s9_+4)/simple_energy<<endl;
+    nClus++;
+    if (nClus == MAXCLUS) return accept;
   }
-  
+ 
+ 
   //timerName = category + "::makeSimpleClusters";
   //timers.pop_and_push(timerName);
 
-
-  /*
-  int iclusters = detids_in_clusters.size();
-  cout<< "  detids_in_clusters size: "<<iclusters<<endl;
-  for(int i=0 ; i<iclusters ; i++)
-    {
-      int iclusize = detids_in_clusters[i].size();
-      cout<< "   detids_in_clusters: cluster #, cluster size "<<i<<" "<<iclusize<<endl;
-      for (int j = 0 ; j<iclusize ; j++)
-	{
-	  std::map<DetId, EcalRecHit>::iterator aHit;
-	  aHit = recHitsEB_map->find(detids_in_clusters[i][j]);
-	  cout<< "    detids_in_clusters: cluster #, rechit E "<<aHit->second.energy()<<endl;
-
-	}
-
-    }
-    */
 
   // Selection, based on Simple clustering
   //pi0 candidates
   static const int MAXPI0S = 200;
   int npi0_s=0;
 
-  if (nClus > 1) 
-    {
-      for(Int_t i=0 ; i<nClus ; i++)
-        {
-          for(Int_t j=i+1 ; j<nClus ; j++)
-            {
+  vector<EBDetId> scXtals;
+  scXtals.clear();
 
-              if( etClus[i]>selePtGammaOne_ && etClus[j]>selePtGammaTwo_ && s4s9Clus[i]>seleS4S9GammaOne_ && s4s9Clus[j]>seleS4S9GammaTwo_) 
-		{
-                
-		  float theta_0 = 2. * atan(exp(-etaClus[i]));
-		  float theta_1 = 2. * atan(exp(-etaClus[j]));
-                
-		  float p0x = eClus[i] * sin(theta_0) * cos(phiClus[i]);
-		  float p1x = eClus[j] * sin(theta_1) * cos(phiClus[j]);
-		  float p0y = eClus[i] * sin(theta_0) * sin(phiClus[i]);
-		  float p1y = eClus[j] * sin(theta_1) * sin(phiClus[j]);
-		  float p0z = eClus[i] * cos(theta_0);
-		  float p1z = eClus[j] * cos(theta_1);
-                
-		  //
-                
-		  float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
+  if (nClus <= 1) return accept;
+  for(Int_t i=0 ; i<nClus ; i++){
+    for(Int_t j=i+1 ; j<nClus ; j++){
+      //      cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"  etClus[j] "<<etClus[j]<<endl;
+     if( etClus[i]>selePtGammaOne_ && etClus[j]>selePtGammaTwo_ && s4s9Clus[i]>seleS4S9GammaOne_ && s4s9Clus[j]>seleS4S9GammaTwo_){
+	float theta_0 = 2. * atan(exp(-etaClus[i]));
+	float theta_1 = 2. * atan(exp(-etaClus[j]));
+        
+	float p0x = eClus[i] * sin(theta_0) * cos(phiClus[i]);
+	float p1x = eClus[j] * sin(theta_1) * cos(phiClus[j]);
+	float p0y = eClus[i] * sin(theta_0) * sin(phiClus[i]);
+	float p1y = eClus[j] * sin(theta_1) * sin(phiClus[j]);
+	float p0z = eClus[i] * cos(theta_0);
+	float p1z = eClus[j] * cos(theta_1);
+        
+	float pt_pi0 = sqrt( (p0x+p1x)*(p0x+p1x) + (p0y+p1y)*(p0y+p1y));
+	//	cout<<" pt_pi0 "<<pt_pi0<<endl;
+	if (pt_pi0 < selePtPi0_)continue;
+	float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
+	//	cout<<" m_inv "<<m_inv<<endl;
+	if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
 
-		  if (pt_pi0 > selePtPi0_) 
-		    {
-		      float m_inv = sqrt ( (eClus[i] + eClus[j])*(eClus[i] + eClus[j]) - (p0x+p1x)*(p0x+p1x) - (p0y+p1y)*(p0y+p1y) - (p0z+p1z)*(p0z+p1z) );  
-		      if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) )
-			{
+	  cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
 
-			  math::XYZPoint pi0vect = math::XYZPoint((p0x+p1x), (p0y+p1y), (p0z+p1z));
+	  //Change: no use any more a window around Seed to compute Iso but use clusters:
+	  //We will save only 7x7 cristals around the Pi0 candidate (should be clearly enough)!
+// 	  std::vector<DetId> clus_Isolation1 = topology_p->getWindow(max_hit[i],gammaCandEtaSize_,gammaCandPhiSize_);	
+// 	  EBDetId maxHit = max_hit[i];
+// 	  std::vector<EBDetId>::const_iterator usedIds;
+// 	  for (std::vector<DetId>::iterator det=clus_Isolation1.begin(); det!=clus_Isolation1.end(); det++) {
+// 	    bool HitAlreadyUsed=false;
+// 	    for(usedIds=scXtals.begin(); usedIds!=scXtals.end(); usedIds++){
+// 	      if(*usedIds==*det){
+// 		HitAlreadyUsed=true;
+// 		break;
+// 	      }
+// 	    }
+// 	    if(HitAlreadyUsed)continue;
+// 	    if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
+// 	      EBDetId EBDet = *det;
+// 	      scXtals.push_back(*det);
+// 	      std::map<DetId, EcalRecHit>::iterator aHit;
+// 	      aHit = recHitsEB_map->find(*det);
+// 	      if (aHit->second.energy() > seleXtalMinEnergy_){
+// 		pi0EBRecHitCollection->push_back(aHit->second);
+// 	      }
+// 	    }
+// 	  }
+// 	  std::vector<DetId> clus_Isolation2 = topology_p->getWindow(max_hit[j],gammaCandEtaSize_,gammaCandPhiSize_);
+// 	  EBDetId maxHit2 = max_hit[j];
+// 	  for (std::vector<DetId>::iterator det=clus_Isolation2.begin(); det!=clus_Isolation2.end(); det++) {
+// 	    bool HitAlreadyUsed=false;
+// 	    for(usedIds=scXtals.begin(); usedIds!=scXtals.end(); usedIds++){
+// 	      if(*usedIds==*det){
+// 		HitAlreadyUsed=true;
+// 		break;
+// 	      }
+// 	    }
+// 	    if(HitAlreadyUsed)continue;
+// 	    if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
+// 	      EBDetId EBDet = *det;
+// 	      scXtals.push_back(*det);
+// 	      std::map<DetId, EcalRecHit>::iterator aHit;
+// 	      aHit = recHitsEB_map->find(*det);
+// 	      if (aHit->second.energy() > seleXtalMinEnergy_){
+// 		pi0EBRecHitCollection->push_back(aHit->second);
+// 	      }
+// 	    }
+// 	  }
+	  //End of Change
 
-			  int icliso = 0;
-			  vector<int> IsoClus;
-			  IsoClus.clear();
-
-                          float Iso = 0;
-                          for(Int_t k=0 ; k<nClus ; k++)
-                            {
-			      float dretaclpi0 = fabs(etaClus[k] - pi0vect.eta());
-                             
-                              float drclpi0 = sqrt( (etaClus[k] - pi0vect.eta())*(etaClus[k] - pi0vect.eta()) + (phiClus[k] - pi0vect.phi())*(phiClus[k] - pi0vect.phi()));
-			      //cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<fabs(etaClus[k] - pi0vect.eta())<<" "<<fabs(phiClus[k] - pi0vect.phi())<<endl;
-                              if( (i!=k) && (j!=k) && (drclpi0<selePi0BeltDR_) && (dretaclpi0<selePi0BeltDeta_) )
-				{
-				  // cout<< "   ... good iso cluster #: "<<k<<endl;
-				  Iso = Iso + etClus[k];
-				  IsoClus.push_back(k);
-				}
-                            }
-
-                          //cout << "  After Iso: Iso, pt_pi0, Isovar "<< Iso<< " "<<pt_pi0<<" "<<(Iso/pt_pi0)<<endl;
-
-			  /*
-			  int isize = IsoClus.size();
-			  for(Int_t iii=0 ; iii<isize ; iii++){
-			    cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl; 
-			  }
-			  */
-                          float Isovar = Iso/pt_pi0;
-
-                          if(Isovar<selePi0Iso_)
-                            {
-
-			      //cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,s4s9_i, s4s9_j, Iso, i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<s4s9Clus[i]<<" "<<s4s9Clus[j]<<" "<<Isovar<<" "<<i<<" "<<j<<" "<<endl;  
-
-			       int isize = IsoClus.size();
-			       
-			       for(Int_t iii=0 ; iii<isize ; iii++){
-				 //cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl; 
-				 goodIsoClus[IsoClus[iii]] = 1;
-			       }
-
-			       goodIsoClus[i] = 1;
-			       goodIsoClus[j] = 1;
-
-			      npi0_s++;
-			      if(npi0_s == MAXPI0S) return accept;
-			    }
-			}
-
-		    }
-                
-		}
-            } // End of the "j" loop over Simple Clusters
-        } // End of the "i" loop over Simple Clusters
-
-    }
+	  //New Loop on cluster to measure isolation:
+	  vector<int> IsoClus;
+	  IsoClus.clear();
+	  float Iso = 0;
+	  TVector3 pi0vect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
+	  for(Int_t k=0 ; k<nClus ; k++){
+	    if(k==i || k==j)continue;
+	    TVector3 Clusvect = TVector3(eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * cos(phiClus[k]), eClus[k] * sin(2. * atan(exp(-etaClus[k]))) * sin(phiClus[k]) , eClus[k] * cos(2. * atan(exp(-etaClus[k]))));
+	    float dretaclpi0 = fabs(etaClus[k] - pi0vect.Eta());
+	    float drclpi0 = Clusvect.DeltaR(pi0vect);
+	    //	    cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<dretaclpi0<<endl;
+	    if((drclpi0<selePi0BeltDR_) && (dretaclpi0<selePi0BeltDeta_) ){
+	      //	      cout<< "   ... good iso cluster #: "<<k<<" etClus[k] "<<etClus[k] <<endl;
+	      Iso = Iso + etClus[k];
+	      IsoClus.push_back(k);
+	    }
+	  }
+	  //	  cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<endl;
+	  if(Iso/pt_pi0<selePi0Iso_){
+	    for(int Rec=0;Rec<RecHitsCluster[i].size();Rec++){
+	      pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
+	    }
+	    for(int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
+	    
+	    npi0_s++;
+	  }
+	  
+	  if(npi0_s == MAXPI0S) return accept;
+	}
+      }
+    } // End of the "j" loop over Simple Clusters
+  } // End of the "i" loop over Simple Clusters
 
   //timerName = category + "::makePi0Cand";
   //timers.pop_and_push(timerName);
 
 
   //cout<<" "<<endl;
-  //cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
-
-     for(Int_t jj=0;jj<nClus;jj++)
-       {
-	 if (goodIsoClus[jj] == 1) 
-	   {
-	     int iclusize = detids_in_clusters[jj].size();
-	     //cout<< "   detids_in_clusters: cluster #, cluster size "<<jj<<" "<<iclusize<<endl;
-	     for (int j = 0 ; j<iclusize ; j++)
-	       {
-		 
-		 std::map<DetId, EcalRecHit>::iterator aHit;
-		 aHit = recHitsEB_map->find(detids_in_clusters[jj][j]);
-		 //cout<< "    detids_in_clusters: cluster #, rechit E "<<aHit->second.energy()<<endl;
-		 
-		 pi0EBRecHitCollection->push_back(aHit->second);
-		 
-	       }
-	   }
-       }
-
-
+  cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
       //timerName = category + "::preparePi0RecHitsCollection";
       //timers.pop_and_push(timerName);
@@ -455,27 +410,20 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Put selected information in the event
       int pi0_collsize = pi0EBRecHitCollection->size();
-      if ( pi0_collsize > seleNRHMax_ )
-	{
-	  //cout<< "   Max RH limit exceeded: "<<pi0EBRecHitCollection->size()<<" Max RH: "<<seleNRHMax_<<endl;
-	  iEvent.put( pi0EBDummyRecHitCollection, pi0BarrelHits_);
-	  //cout<< "   EB RecHits # in Collection: "<<0<<endl;
-	} else {
-
-	  //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
-	  if (pi0_collsize > 0 ) {
-	    accept = true;
-	    iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
-	  }
-	}
-  
+      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+      if ( pi0_collsize > seleNRHMax_ ) return accept;
+      if ( pi0_collsize < 1 ) return accept;
+      if( npi0_s ==0 )return accept; 
+      //     cout<<" Full RecHit Collection "<<hitCollection_p->size()<<endl;
+      iEvent.put( pi0EBRecHitCollection, pi0BarrelHits_);
+      accept = true;
+      
       //timerName = category + "::storePi0RecHitsCollection";
       //timers.pop_and_push(timerName);
 
       //timers.clear_stack();
       
       delete recHitsEB_map;
-      delete topology_p;
 
       return accept;
 
