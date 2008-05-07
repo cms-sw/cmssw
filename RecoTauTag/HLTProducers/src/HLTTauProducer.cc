@@ -10,14 +10,9 @@ HLTTauProducer::HLTTauProducer(const edm::ParameterSet& iConfig)
   emIsolatedJetsL2_ = iConfig.getParameter<edm::InputTag>("L2EcalIsoJets");
   trackIsolatedJetsL25_ = iConfig.getParameter<edm::InputTag>("L25TrackIsoJets");
   trackIsolatedJetsL3_ = iConfig.getParameter<edm::InputTag>("L3TrackIsoJets");
-  rmax_ = iConfig.getParameter<double>("EcalIsoRMax");
-  rmin_ = iConfig.getParameter<double>("EcalIsoRMin");
   matchingCone_ = iConfig.getParameter<double>("MatchingCone");
   signalCone_ = iConfig.getParameter<double>("SignalCone");
   isolationCone_ = iConfig.getParameter<double>("IsolationCone");
-
-  ptMinLeadTk_ = iConfig.getParameter<double>("PtLeadTk");
-
   produces<reco::HLTTauCollection>();
 }
 
@@ -45,8 +40,9 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   IsolatedTauTagInfoCollection tauL25 = *(tauL25Jets.product());
   IsolatedTauTagInfoCollection tauL3 = *(tauL3Jets.product());
   
-  double metCut_= 1000.;
   int i=0;
+  float eta_, phi_, pt_;
+
  for(L2TauInfoAssociation::const_iterator p = tauL2Jets->begin();p!=tauL2Jets->end();++p)
 	   {
 	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
@@ -59,9 +55,12 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
     JetTracksAssociationRef jetTracks = tauL25[i].jtaRef();
     math::XYZVector jetDirL25(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());   
+    eta_ = jetDirL25.eta();
+    phi_ = jetDirL25.phi();
+    pt_ = jetTracks->first->pt();
 
-    int trackIsolationL25 = (int)tauL25[i].discriminator(jetDirL25,matchingCone_, signalCone_, isolationCone_,ptMinLeadTk_,1.,0);
-    const TrackRef leadTkL25 = tauL25[i].leadingSignalTrack(jetDirL25,matchingCone_, ptMinLeadTk_);
+    int trackIsolationL25 = (int)tauL25[i].discriminator(jetDirL25,matchingCone_, signalCone_, isolationCone_,1.,1.,0);
+    const TrackRef leadTkL25 = tauL25[i].leadingSignalTrack(jetDirL25,matchingCone_, 1.);
     double ptLeadTkL25=0.;
     
     if(!leadTkL25) 
@@ -78,7 +77,7 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	ptLeadTkL3 = (*leadTkL3).pt();
       }
 
-    HLTTau pippo(metCut_,emIsol,trackIsolationL25,ptLeadTkL25,trackIsolationL3,ptLeadTkL3);
+    HLTTau pippo(eta_,phi_,pt_,emIsol,trackIsolationL25,ptLeadTkL25,trackIsolationL3,ptLeadTkL3);
       jetCollection->push_back(pippo);
       i++;
   }
