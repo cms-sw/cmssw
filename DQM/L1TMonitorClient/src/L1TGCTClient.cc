@@ -69,95 +69,102 @@ void L1TGCTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const
   // Will code this in a more elegant way in the future!
 
   // Iso EM
-  MonitorElement *IsoEmHotEtaChannels = dbe_->get("IsoEmOccEta");
-  const QReport *IsoEmHotEtaQReport = IsoEmHotEtaChannels->getQReport("HotChannels");
+  MonitorElement *IsoEmHotEtaChannels = dbe_->get("L1T/L1TGCT/IsoEmOccEta");
+  if (IsoEmHotEtaChannels){
+    const QReport *IsoEmHotEtaQReport = IsoEmHotEtaChannels->getQReport("HotChannels");
+    if (IsoEmHotEtaQReport) {
+      vector<dqm::me_util::Channel> badChannels = IsoEmHotEtaQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctIsoEmHotChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
 
-  if (IsoEmHotEtaQReport) {
-    vector<dqm::me_util::Channel> badChannels = IsoEmHotEtaQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctIsoEmHotChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
+  MonitorElement *IsoEmHotPhiChannels = dbe_->get("L1T/L1TGCT/IsoEmOccPhi");
+  if (IsoEmHotPhiChannels){
+    const QReport *IsoEmHotPhiQReport = IsoEmHotPhiChannels->getQReport("HotChannels");
+    if (IsoEmHotPhiQReport) {
+      vector<dqm::me_util::Channel> badChannels = IsoEmHotPhiQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctIsoEmHotChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
 
-  MonitorElement *IsoEmHotPhiChannels = dbe_->get("IsoEmOccPhi");
-  const QReport *IsoEmHotPhiQReport = IsoEmHotPhiChannels->getQReport("HotChannels");
+  MonitorElement *IsoEmDeadEtaChannels = dbe_->get("L1T/L1TGCT/IsoEmOccEta");
+  if (IsoEmDeadEtaChannels){
+    const QReport *IsoEmDeadEtaQReport = IsoEmDeadEtaChannels->getQReport("DeadChannels");
+    if (IsoEmDeadEtaQReport) {
+      vector<dqm::me_util::Channel> badChannels = IsoEmDeadEtaQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctIsoEmDeadChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
 
-  if (IsoEmHotPhiQReport) {
-    vector<dqm::me_util::Channel> badChannels = IsoEmHotPhiQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctIsoEmHotChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
-
-  MonitorElement *IsoEmDeadEtaChannels = dbe_->get("IsoEmOccEta");
-  const QReport *IsoEmDeadEtaQReport = IsoEmDeadEtaChannels->getQReport("DeadChannels");
-
-  if (IsoEmDeadEtaQReport) {
-    vector<dqm::me_util::Channel> badChannels = IsoEmDeadEtaQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctIsoEmDeadChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
-
-  MonitorElement *IsoEmDeadPhiChannels = dbe_->get("IsoEmOccPhi");
-  const QReport *IsoEmDeadPhiQReport = IsoEmDeadPhiChannels->getQReport("DeadChannels");
-
-  if (IsoEmDeadPhiQReport) {
-    vector<dqm::me_util::Channel> badChannels = IsoEmDeadPhiQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctIsoEmDeadChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
-
+  MonitorElement *IsoEmDeadPhiChannels = dbe_->get("L1T/L1TGCT/IsoEmOccPhi");
+  if (IsoEmDeadPhiChannels){
+    const QReport *IsoEmDeadPhiQReport = IsoEmDeadPhiChannels->getQReport("DeadChannels");
+    if (IsoEmDeadPhiQReport) {
+      vector<dqm::me_util::Channel> badChannels = IsoEmDeadPhiQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctIsoEmDeadChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
   
   // Non-iso EM
-  MonitorElement *NonIsoEmHotEtaChannels = dbe_->get("NonIsoEmOccEta");
-  const QReport *NonIsoEmHotEtaQReport = NonIsoEmHotEtaChannels->getQReport("HotChannels");
+  MonitorElement *NonIsoEmHotEtaChannels = dbe_->get("L1T/L1TGCT/NonIsoEmOccEta");
+  if (NonIsoEmHotEtaChannels){
+    const QReport *NonIsoEmHotEtaQReport = NonIsoEmHotEtaChannels->getQReport("HotChannels");
+    if (NonIsoEmHotEtaQReport) {
+      vector<dqm::me_util::Channel> badChannels = NonIsoEmHotEtaQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctNonIsoEmHotChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
 
-  if (NonIsoEmHotEtaQReport) {
-    vector<dqm::me_util::Channel> badChannels = NonIsoEmHotEtaQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctNonIsoEmHotChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
+  MonitorElement *NonIsoEmHotPhiChannels = dbe_->get("L1T/L1TGCT/NonIsoEmOccPhi");
+  if (NonIsoEmHotPhiChannels){
+    const QReport *NonIsoEmHotPhiQReport = NonIsoEmHotPhiChannels->getQReport("HotChannels");
+    if (NonIsoEmHotPhiQReport) {
+      vector<dqm::me_util::Channel> badChannels = NonIsoEmHotPhiQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctNonIsoEmHotChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
 
-  MonitorElement *NonIsoEmHotPhiChannels = dbe_->get("NonIsoEmOccPhi");
-  const QReport *NonIsoEmHotPhiQReport = NonIsoEmHotPhiChannels->getQReport("HotChannels");
+  MonitorElement *NonIsoEmDeadEtaChannels = dbe_->get("L1T/L1TGCT/NonIsoEmOccEta");
+  if (NonIsoEmDeadEtaChannels){
+    const QReport *NonIsoEmDeadEtaQReport = NonIsoEmDeadEtaChannels->getQReport("DeadChannels");
+    if (NonIsoEmDeadEtaQReport) {
+      vector<dqm::me_util::Channel> badChannels = NonIsoEmDeadEtaQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctNonIsoEmDeadChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
 
-  if (NonIsoEmHotPhiQReport) {
-    vector<dqm::me_util::Channel> badChannels = NonIsoEmHotPhiQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctNonIsoEmHotChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
-
-  MonitorElement *NonIsoEmDeadEtaChannels = dbe_->get("NonIsoEmOccEta");
-  const QReport *NonIsoEmDeadEtaQReport = NonIsoEmDeadEtaChannels->getQReport("DeadChannels");
-
-  if (NonIsoEmDeadEtaQReport) {
-    vector<dqm::me_util::Channel> badChannels = NonIsoEmDeadEtaQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctNonIsoEmDeadChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
-
-  MonitorElement *NonIsoEmDeadPhiChannels = dbe_->get("NonIsoEmOccPhi");
-  const QReport *NonIsoEmDeadPhiQReport = NonIsoEmDeadPhiChannels->getQReport("DeadChannels");
-
-  if (NonIsoEmDeadPhiQReport) {
-    vector<dqm::me_util::Channel> badChannels = NonIsoEmDeadPhiQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
-      l1GctNonIsoEmDeadChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
-    }
-  } 
+  MonitorElement *NonIsoEmDeadPhiChannels = dbe_->get("L1T/L1TGCT/NonIsoEmOccPhi");
+  if (NonIsoEmDeadPhiChannels){
+    const QReport *NonIsoEmDeadPhiQReport = NonIsoEmDeadPhiChannels->getQReport("DeadChannels");
+    if (NonIsoEmDeadPhiQReport) {
+      vector<dqm::me_util::Channel> badChannels = NonIsoEmDeadPhiQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	l1GctNonIsoEmDeadChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+      }
+    } 
+  }
 }
 
 void L1TGCTClient::analyze(const Event& e, const EventSetup& context){}
