@@ -40,9 +40,9 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
   // Implement and set examiner
   CSCDCCExaminer examiner;
 
-  if(examinerCRCKey.test(1)) examiner.crcALCT(1);
-  if(examinerCRCKey.test(2)) examiner.crcCFEB(1);
-  if(examinerCRCKey.test(3)) examiner.crcTMB(1);
+  if(examinerCRCKey.test(0)) examiner.crcALCT(1);
+  if(examinerCRCKey.test(1)) examiner.crcCFEB(1);
+  if(examinerCRCKey.test(2)) examiner.crcTMB(1);
 
   if(examinerOutput) {
     examiner.output1().show();
@@ -151,7 +151,9 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
 
   bool goodEvent = true;
 
-  if ((examiner.errors() & examinerMask) > 0) goodEvent = false;
+  if ((examiner.errors() & examinerMask) > 0) {
+    goodEvent = false;
+  }
 
   if ((examiner.errors() != 0) || (examiner.warnings() != 0)) {
 
