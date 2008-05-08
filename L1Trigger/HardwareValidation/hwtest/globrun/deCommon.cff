@@ -1,17 +1,18 @@
 
-//include "Configuration/EventContent/data/EventContent.cff"
-
 //RawToDigi
-include "Configuration/StandardSequences/data/FrontierConditions.cff"
-#include "Configuration/StandardSequences/data/RawToDigi.cff"
+#include "Configuration/StandardSequences/data/FrontierConditions.cff"
+include "L1Trigger/HardwareValidation/hwtest/globrun/FrontierConditions.cff"
 include "L1Trigger/HardwareValidation/data/RawToDigiGR.cff"
 
 //Emulator
 include "L1Trigger/Configuration/data/L1Config.cff"
+#include "L1Trigger/Configuration/data/L1DBConfig.cff"
 //include "L1Trigger/Configuration/data/L1FrontierConfig.cff"
 //include "L1Trigger/Configuration/data/L1SQLiteConfig.cff"
 
 include "L1Trigger/HardwareValidation/data/L1HardwareValidationGR.cff"
+# common for Rct, Gct
+replace l1CaloScales.L1CaloEmEtScaleLSB = 1.0
 
 include "DQM/L1TMonitor/data/L1TDEMON.cfi"
 
@@ -26,5 +27,6 @@ sequence expertDEdqm = {
     l1tderct
 }
 
-//path p0 = { RawToDigi }
-//path p1 = { L1HardwareValidation }
+#path unpack = { RawToDigi }
+#path emucmp = { L1HardwareValidation }
+#path dqmana = { l1demon, l1demonecal, l1tderct}

@@ -1,0 +1,117 @@
+# Frontier conditions for l1 trigger monitoring
+# required for unpacking
+# default setting: use at P5
+# nuno.leonardo@cern.ch, 08.05
+
+# cf sources:
+# DT:  DQM/Integration/test/dtReco.cff
+# CSC: DQM/CSCMonitorModule/test/csc_dqm_sourceclient.cfi 
+# RPC: DQM/Integration/test/rpc_dqm_sourceclient-live.cfg
+# HCAL:DQM/HcalMonitorModule/data/Hcal_FrontierConditions.cff
+
+
+# DT +++++++++++++++++++++++++
+
+es_source DTMapping = PoolDBESSource {
+  //string connect = "oracle://orcon/CMS_COND_ON_20X_DT" 
+  //string connect = "oracle://cms_orcoff/CMS_COND_ON_20X_DT"
+  //string connect = "frontier://Frontier/CMS_COND_ON_20X_DT" 
+  //string connect = "frontier://(serverurl=http://frontier1.cms:8000/FrontierOn)(serverurl=http://frontier2.cms:8000/FrontierOn)(retrieve-ziplevel=0)/CMS_COND_20X_DT"
+  //string connect = "frontier://(serverurl=http://frontier2.cms:8000/FrontierOnProd)(proxyurl=http://localhost:3128)(retrieve-ziplevel=0)/CMS_COND_20X_DT"
+    string connect ="frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_DT"
+    
+    PSet DBParameters = {
+	untracked int32 messageLevel = 0
+    }
+    
+    string timetype = "runnumber"
+    VPSet toGet = {
+	{ string record = "DTReadOutMappingRcd"
+	    string tag = "map_GRUMM_maskFix" },
+	{ string record = "DTT0Rcd"
+	    string tag = "t0_GRUMM_hlt" },
+	{ string record = "DTStatusFlagRcd"
+	    string tag = "noise_GRUMM_hlt"},
+	{ string record = "DTTtrigRcd"
+	    string tag = "tTrig_GRUMM_37919corr_hlt" }
+    }
+}
+
+
+# RPC +++++++++++++++++++++++++
+
+#include "EventFilter/RPCRawToDigi/data/RPCOrconCabling.cfi"
+es_source RPCCabling = PoolDBESSource {
+    #  using CondDBSetup
+    string timetype = "runnumber"
+    string connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_RPC"
+    PSet DBParameters = {
+	untracked int32 messageLevel = 0
+	untracked string authenticationPath = "/nfshome0/hltpro/cmssw/cfg/"
+    }
+    VPSet toGet = {
+	{ string record = "RPCEMapRcd" string tag = "RPCEMap_v2" }
+    }
+    untracked bool siteLocalConfig = false
+}
+
+
+# CSC +++++++++++++++++++++++++
+
+es_source cscConditions = PoolDBESSource {
+    using CondDBSetup
+    VPSet toGet = {
+        { string record = "CSCChamberIndexRcd"
+	    string tag = "CSCChamberIndex" },
+        { string record = "CSCChamberMapRcd"
+	    string tag = "CSCChamberMap" },
+        { string record = "CSCCrateMapRcd"
+	    string tag = "CSCCrateMap" },
+        { string record = "CSCDDUMapRcd"
+	    string tag = "CSCDDUMap" }
+    }
+    
+    string timetype = "runnumber"
+    
+    # To be used on CMS network (one of them)
+    string connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_CSC"
+    # To be used on lxplus
+    #string connect = "frontier://FrontierDev/CMS_COND_CSC"
+    untracked bool siteLocalConfig = false
+    untracked uint32 authenticationMethod = 1
+    untracked uint32 messagelevel = 0
+}
+
+
+# HCAL +++++++++++++++++++++++++
+
+es_module hcal_db_producer = HcalDbProducer {
+    untracked vstring dump = {""}
+    untracked string file = ""
+}
+    
+es_source hcalConditions = PoolDBESSource {
+	string timetype = "runnumber"
+	string connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_HCAL"
+#     string connect = "frontier://Frontier/CMS_COND_20X_HCAL"
+	PSet DBParameters = {
+	    untracked int32 messageLevel = 0
+	}
+	VPSet toGet = {
+	// Equivalent to be swapped in:
+	// hcal_pedestals_ADC_v2_cruzet_hlt
+	// hcal_widths_ADC_v2_cruzet_hlt
+	    { string record = "HcalPedestalsRcd" string tag = "hcal_pedestals_fC_v2_cruzet_hlt" },       
+	    { string record = "HcalPedestalWidthsRcd" string tag = "hcal_widths_fC_v2_cruzet_hlt" },        
+	    { string record = "HcalElectronicsMapRcd" string tag = "official_emap_v5_080208" },
+	    { string record = "HcalGainsRcd" string tag = "hcal_gains_v2_gren_reprocessing" },   
+	    { string record = "HcalQIEDataRcd" string tag = "qie_normalmode_v5" }
+      //{ string record = "HcalRespCorrsRcd" string tag = "hcal_respcorr_trivial_mc" }     
+      //{ string record = "HcalZSThresholdsRcd" string tag = "hcal_respcorr_trivial_mc" }  
+	}
+	untracked bool siteLocalConfig = false
+    }
+    
+    
+es_source es_hardcode = HcalHardcodeCalibrations {untracked vstring toGet = {"GainWidths", "channelQuality", "ZSThresholds" ,"RespCorrs"} }
+    
