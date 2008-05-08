@@ -9,7 +9,6 @@
 	<use name="FWCore/Framework"/>
 	<use name="SimDataFormats/HepMCProduct"/>
 	<flags EDM_PLUGIN="1"/>
-	<flags CXXFLAGS="-O0 -fno-inline -g3"/>
 </library>
 <library name="GeneratorInterfaceLHESource" file="LHESource.cc MCDBSource.cc">
 	<use name="FWCore/Framework"/>
