@@ -48,12 +48,12 @@ l1csctpconf = cms.ESProducer("L1CSCTriggerPrimitivesConfigProducer",
     ),
     # Parameters for ALCT processors: MTCC-II and 2007 tests of new firmware
     alctParamMTCC2 = cms.PSet(
-        alctL1aWindow = cms.uint32(3),
+        alctL1aWindow = cms.uint32(7),
         alctTrigMode = cms.uint32(2),
         alctNphPattern = cms.uint32(4),
         alctBxWidth = cms.uint32(6),
         alctAlctAmode = cms.uint32(0),
-        alctDriftDelay = cms.uint32(3),
+        alctDriftDelay = cms.uint32(2),
         alctNphThresh = cms.uint32(2),
         alctFifoTbins = cms.uint32(16),
         alctFifoPretrig = cms.uint32(10)
