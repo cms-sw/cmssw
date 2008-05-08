@@ -33,8 +33,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   // use onfiguration file to setup input/output collection names
   scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
-  //  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
-  //  scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
   endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
 
@@ -51,7 +49,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   minSCEt_        = conf_.getParameter<double>("minSCEt");
   minR9_        = conf_.getParameter<double>("minR9");
   likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
-
 
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
@@ -73,7 +70,9 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 }
 
 PhotonProducer::~PhotonProducer() {
+
   delete theLikelihoodCalc_;
+
 }
 
 
@@ -113,8 +112,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
   
-
-  // Get EcalRecHits
+ // Get EcalRecHits
   Handle<EcalRecHitCollection> barrelHitHandle;
   theEvent.getByLabel(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
@@ -131,6 +129,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     return;
   }
   const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
+
 
   // get the geometry from the event setup:
   theEventSetup.get<IdealGeometryRecord>().get(theCaloGeom_);
@@ -220,6 +219,9 @@ void PhotonProducer::fillPhotonCollection(
 		   math::XYZPoint & vtx,
 		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
 
+
+
+
   reco::SuperClusterCollection scCollection = *(scHandle.product());
   reco::SuperClusterCollection::iterator aClus;
   reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
@@ -284,44 +286,40 @@ void PhotonProducer::fillPhotonCollection(
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
 
     if ( validConversions_) {
-
       
       if ( risolveAmbiguity_ ) { 
 	
         reco::ConversionRef bestRef=solveAmbiguity( conversionHandle , scRef);	
-
+	
 	newCandidate.addConversion(bestRef);     
-
+	
 	
       } else {
 	
-	
 	int icp=0;
-	
 	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
 	  
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
 	  icp++;      
-	  
-          if ( scRef != (*itCP).superCluster() ) continue; 
+          
+          if (!( scRef.id() == (*itCP).caloCluster()[0].id() && scRef.key() == (*itCP).caloCluster()[0].key() )) continue; 
 	  if ( !(*itCP).isConverted() ) continue;  
-
 	  newCandidate.addConversion(cpRef);     
+
 	}	  
 	
       } // solve or not the ambiguity	     
-
-
-
       
     }
+
 
     outputPhotonCollection.push_back(newCandidate);
     
     
   }
-  
+
 }
+
 
 
 reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& scRef) {
@@ -332,12 +330,12 @@ reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::Conv
   for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
     reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
     icp++;      
-    
-    if ( scRef != (*itCP).superCluster() ) continue; 
+
+    if (!( scRef.id() == (*itCP).caloCluster()[0].id() && scRef.key() == (*itCP).caloCluster()[0].key() )) continue;    
     if ( !(*itCP).isConverted() ) continue;  
     
     double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
-    std::cout << " Like " << like << std::endl;
+    //    std::cout << " Like " << like << std::endl;
     convMap.insert ( std::make_pair(cpRef,like) ) ;
   }		     
   
@@ -370,7 +368,7 @@ reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::Conv
 	    float py=tracks[0]->innerMomentum().y();
 	    float pz=tracks[0]->innerMomentum().z();
 	    float p=sqrt(px*px+py*py+pz*pz);
-	    ep=fabs(1.-convRef->superCluster()->energy()/p);
+	    ep=fabs(1.-convRef->caloCluster()[0]->energy()/p);
 	    //    std::cout << " 1-E/P = " << ep << std::endl;
 	    if ( ep<epMin) {
 	      epMin=ep;
