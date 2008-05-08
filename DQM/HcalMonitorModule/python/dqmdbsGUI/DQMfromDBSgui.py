@@ -280,6 +280,7 @@ class DQMDBSgui:
             print "Have you checked out the appropriate package in your release area?"
             sys.exit()
 
+        os.chdir(self.basedir)  # put all output into basedir
 
         self.debug=debug
         
@@ -1394,6 +1395,9 @@ class DQMDBSgui:
                                                                                         self.finalDir.get()))
                     self.root.update()
                     time.sleep(1)
+                else:
+                    self.commentLabel("ERROR -- Can't find file %s\nDo you know where your output is?"%temproot)
+                    self.root.update()
                 # move directory
                 #print "Now moving directory"
                 tempdir=os.path.join(self.finalDir.get(),x)
@@ -1744,7 +1748,7 @@ class DQMDBSgui:
 
 
     def checkExistence(self,obj):
-        print obj.get()
+        #print obj.get()
         exists=True
         if not os.path.exists(obj.get()):
             self.commentLabel.configure(text="ERROR!\n Object '%s' does not exist!"%obj.get())
@@ -1788,7 +1792,7 @@ class DQMDBSgui:
         if string.find(compname,"lxplus")>-1 and string.find(compname,".cern.ch")>-1:
             zzz=os.system(text1)
             print text1
-            print zzz
+            #print zzz
             return
         
         else:
