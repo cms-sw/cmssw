@@ -143,6 +143,11 @@ string getIMG2(int runNo,TH2F* hist, int size, string htmlDir, const char* xlab,
   }
   TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
 
+  // Put grids on all 2-D histograms
+  can->SetGridx();
+  can->SetGridy();
+  
+
   parseString(title);
   string outName = title + ".gif";
   string saveName = htmlDir + outName;

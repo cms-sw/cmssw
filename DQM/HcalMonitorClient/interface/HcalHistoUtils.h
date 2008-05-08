@@ -212,6 +212,15 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
+  string histtype=hist->ClassName();
+ 
+  // Set grids to on for all TH2F histograms (maybe add for others later?)
+  if (histtype=="TH2F")
+    {
+      can->SetGridx();
+      can->SetGridy();
+    }
+
 
   // Don't draw stat box for color plots
   if (((string)hist->GetOption())=="col" || 
