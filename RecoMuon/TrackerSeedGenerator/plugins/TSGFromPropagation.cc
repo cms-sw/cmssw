@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/04/30 23:29:29 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/05/01 14:01:05 $
+ *  $Revision: 1.24 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -26,6 +26,8 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theConfig (iConfig)
@@ -97,6 +99,8 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
      if ( alltm.empty() ) {
         LogTrace(theCategory) << " NO Measurements Found: eta: "<<staState.globalPosition().eta() <<"pt "<<staState.globalMomentum().perp();
+        if (debug_) h_Eta_updatingFail->Fill(staState.globalPosition().eta());
+        if (debug_) h_Pt_updatingFail->Fill(staState.globalMomentum().perp());
         usePredictedState = true;
      } else {
        LogTrace(theCategory) << " Measurements for seeds: "<<alltm.size();
@@ -106,6 +110,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
        for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
             itm != alltm.end(); itm++) {
         LogTrace(theCategory) << " meas: hit "<<itm->recHit()->isValid()<<" state "<<itm->updatedState().isValid() << " estimate "<<itm->estimate();
+        if (debug_) h_chi2->Fill(itm->estimate());
 
         TrajectoryStateOnSurface updatedTSOS = updator()->update(itm->predictedState(), *(itm->recHit()));
         if ( itm->recHit()->isValid() && updatedTSOS.isValid() )  {
@@ -115,6 +120,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
             result.push_back(ts); 
         }
        }
+     if (debug_) h_NupdatedSeeds->Fill(result.size());
      return;
     }
   }
@@ -175,6 +181,16 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
     theAdjustAtIp =false;
     theErrorMatrixAdjuster=0;
   }
+
+  debug_ = theConfig.getUntrackedParameter<bool>("Debug",false);
+  if ( debug_ ) {
+    edm::Service<TFileService> fs;
+    h_chi2 = fs->make<TH1F>("h_chi2","h_chi2",30,0,30);
+    h_NupdatedSeeds = fs->make<TH1F>("h_NupdatedSeeds","h_NupdatedSeeds",20,0,20);
+    h_Eta_updatingFail = fs->make<TH1F>("h_Eta_updatingFail","h_Eta_updatingFail",60,-2.5, 2.5);
+    h_Pt_updatingFail = fs->make<TH1F>("h_Pt_updatingFail","h_Pt_updatingFail",60,0,100);
+
+  } 
 
 }
 

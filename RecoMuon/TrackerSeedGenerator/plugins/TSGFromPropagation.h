@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/04/17 18:58:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/30 23:29:10 $
+ *  $Revision: 1.6 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -17,6 +17,8 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
+
+#include <TH1F.h>
 
 class LayerMeasurements;
 class Chi2MeasurementEstimator;
@@ -132,6 +134,13 @@ private:
   MuonErrorMatrix * theErrorMatrixAdjuster;
 
   bool theAdjustAtIp;
+
+  bool debug_;
+
+  TH1F* h_chi2;
+  TH1F* h_NupdatedSeeds;
+  TH1F* h_Eta_updatingFail;
+  TH1F* h_Pt_updatingFail;
 
 };
 
