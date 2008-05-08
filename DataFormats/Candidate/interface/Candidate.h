@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.42 2008/04/21 14:04:27 llista Exp $
+ * \version $Id: Candidate.h,v 1.43 2008/04/22 10:59:31 cbern Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -97,9 +97,15 @@ namespace reco {
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const;
-    /// returns reference to master clone, if existing.
+    /// returns ptr to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
     virtual const CandidateBaseRef & masterClone() const;
+    /// returns true if this candidate has a ptr to a master clone.
+    /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate
+    virtual bool hasMasterClonePtr() const;
+    /// returns ptr to master clone, if existing.
+    /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate
+    virtual const CandidatePtr & masterClonePtr() const;
     /// cast master clone reference to a concrete type
     template<typename Ref>
     Ref masterRef() const { return masterClone().template castTo<Ref>(); }
@@ -164,6 +170,7 @@ namespace reco {
     template<typename, typename, typename> friend struct component; 
     friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;
+    friend class ShallowClonePtrCandidate;
   };
 
 }

@@ -1,4 +1,4 @@
-// $Id: Candidate.cc,v 1.13 2007/11/21 12:58:42 llista Exp $
+// $Id: Candidate.cc,v 1.14 2008/04/21 14:04:28 llista Exp $
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 using namespace reco;
@@ -12,6 +12,16 @@ const CandidateBaseRef & Candidate::masterClone() const {
 }
 
 bool Candidate::hasMasterClone() const { 
+  return false;
+}
+
+const CandidatePtr & Candidate::masterClonePtr() const {
+  throw cms::Exception("Invalid Reference") 
+    << "this Candidate has no master clone ptr."
+    << "Can't call masterClonePtr() method.\n";
+}
+
+bool Candidate::hasMasterClonePtr() const { 
   return false;
 }
 

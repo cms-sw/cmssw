@@ -15,7 +15,8 @@
   <class name="reco::CompositePtrCandidate" />
   <class name="reco::CompositeRefBaseCandidate" />
   <class name="reco::ShallowCloneCandidate" />
-  <class name="reco::NamedCompositeCandidate"/>  
+  <class name="reco::ShallowClonePtrCandidate" />
+  <class name="reco::NamedCompositeCandidate"/>
   <class name="reco::candidate::iterator" />
   <class name="reco::candidate::const_iterator" />
   <class name="reco::candidate::const_iterator_imp" />

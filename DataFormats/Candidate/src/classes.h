@@ -11,6 +11,8 @@
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
+#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
