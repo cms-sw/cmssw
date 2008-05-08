@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/04/29 10:48:06 $
-//   $Revision: 1.21 $
+//   $Date: 2008/05/01 16:11:08 $
+//   $Revision: 1.22 $
 //
 //   Modifications:
 //
@@ -1736,11 +1736,11 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "ALCTs per chamber");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(0);
+  gStyle->SetOptStat(110010);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  pad[page]->Divide(2,5);
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     pad[page]->cd(idh+1);  hAlctCsc[idh]->Draw();
   }
@@ -1811,11 +1811,11 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "CLCTs per chamber");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(0);
+  gStyle->SetOptStat(110010);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  pad[page]->Divide(2,5);
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     pad[page]->cd(idh+1);  hClctCsc[idh]->Draw();
   }
@@ -1968,11 +1968,11 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   title = new TPaveLabel(0.1, 0.94, 0.9, 0.98, "LCTs per chamber");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(0);
+  gStyle->SetOptStat(110010);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  pad[page]->Divide(2,5);
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     pad[page]->cd(idh+1);  hLctTMBCsc[idh]->Draw();
   }
@@ -2101,10 +2101,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   //gStyle->SetOptStat(110010);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
+  pad[page]->Divide(2,5);
   TH1F *hAlctFoundEffVsCsc[CSC_TYPES];
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     hAlctFoundEffVsCsc[idh] = (TH1F*)hAlctCompFoundCsc[idh]->Clone();
     hAlctFoundEffVsCsc[idh]->Divide(hAlctCompSameNCsc[idh],
@@ -2144,10 +2144,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   //gStyle->SetOptStat(110010);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
+  pad[page]->Divide(2,5);
   TH1F *hAlctMatchEffVsCsc[CSC_TYPES];
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     hAlctMatchEffVsCsc[idh] = (TH1F*)hAlctCompTotalCsc[idh]->Clone();
     hAlctMatchEffVsCsc[idh]->Divide(hAlctCompMatchCsc[idh],
@@ -2187,10 +2187,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   //gStyle->SetOptStat(110010);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
+  pad[page]->Divide(2,5);
   TH1F *hClctFoundEffVsCsc[CSC_TYPES];
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     hClctFoundEffVsCsc[idh] = (TH1F*)hClctCompFoundCsc[idh]->Clone();
     hClctFoundEffVsCsc[idh]->Divide(hClctCompSameNCsc[idh],
@@ -2198,7 +2198,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
     gPad->Update();  gStyle->SetStatX(0.65);
     hClctFoundEffVsCsc[idh]->SetMinimum(0.00);
     hClctFoundEffVsCsc[idh]->SetMaximum(1.05);
-   hClctFoundEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
+    hClctFoundEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
     hClctFoundEffVsCsc[idh]->GetYaxis()->SetTitleOffset(0.8);
     hClctFoundEffVsCsc[idh]->GetXaxis()->SetLabelSize(0.06); // default=0.04
     hClctFoundEffVsCsc[idh]->GetYaxis()->SetLabelSize(0.06); // default=0.04
@@ -2230,10 +2230,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   //gStyle->SetOptStat(110010);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
+  pad[page]->Divide(2,5);
   TH1F *hClctMatchEffVsCsc[CSC_TYPES];
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     hClctMatchEffVsCsc[idh] = (TH1F*)hClctCompTotalCsc[idh]->Clone();
     hClctMatchEffVsCsc[idh]->Divide(hClctCompMatchCsc[idh],
@@ -2272,10 +2272,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   //gStyle->SetOptStat(110010);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
+  pad[page]->Divide(2,5);
   TH1F *hLctFoundEffVsCsc[CSC_TYPES];
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     hLctFoundEffVsCsc[idh] = (TH1F*)hLctCompFoundCsc[idh]->Clone();
     hLctFoundEffVsCsc[idh]->Divide(hLctCompSameNCsc[idh],
@@ -2313,10 +2313,10 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   //gStyle->SetOptStat(110010);
   gStyle->SetOptStat(0);
   pad[page]->Draw();
-  pad[page]->Divide(2,4);
+  pad[page]->Divide(2,5);
   TH1F *hLctMatchEffVsCsc[CSC_TYPES];
-  // Leave out ME1/A and station 4 for now.
-  for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+  // Leave out ME1/A and ME4/2 for now.
+  for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
     hLctMatchEffVsCsc[idh] = (TH1F*)hLctCompTotalCsc[idh]->Clone();
     hLctMatchEffVsCsc[idh]->Divide(hLctCompMatchCsc[idh],
