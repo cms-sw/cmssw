@@ -168,8 +168,12 @@ void ODRunConfigSeqInfo::writeDB()
   try {
 
     // get the run mode
+
+
+
     m_run_seq.setConnection(m_env, m_conn);
-    int seq_def_id = m_run_seq.fetchID();
+    int seq_def_id = m_run_seq.writeDB();
+
 
     m_writeStmt->setInt(1, this->getEcalConfigId());
     m_writeStmt->setInt(2, this->getSequenceNumber());

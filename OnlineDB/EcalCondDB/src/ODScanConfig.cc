@@ -55,6 +55,26 @@ int ODScanConfig::fetchNextId()  throw(std::runtime_error) {
 
 }
 
+
+void ODScanConfig::setParameters(std::map<string,string> my_keys_map){
+  
+  // parses the result of the XML parser that is a map of 
+  // string string with variable name variable value 
+  
+  for( std::map<std::string, std::string >::iterator ci=
+	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+    
+    if(ci->first==  "SCAN_ID") setConfigTag(ci->second);
+    if(ci->first==  "TYPE_ID") setTypeId(atoi(ci->second.c_str()) );
+    if(ci->first==  "TYPE" || ci->first== "SCAN_TYPE") setScanType(ci->second.c_str() );
+    if(ci->first==  "FROM" ||ci->first==  "FROM_VAL" ) setFromVal(atoi(ci->second.c_str() ));
+    if(ci->first==  "TO" ||ci->first==  "TO_VAL" ) setToVal(atoi(ci->second.c_str() ));
+    if(ci->first==  "STEP") setStep(atoi(ci->second.c_str() ));
+      
+  }
+  
+}
+
 void ODScanConfig::prepareWrite()
   throw(runtime_error)
 {
@@ -63,7 +83,7 @@ void ODScanConfig::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_scan_dat ( scan_configuration_id, scan_tag ,"
+    m_writeStmt->setSQL("INSERT INTO ECAL_scan_dat ( scan_id, scan_tag ,"
 			"   type_id, scan_type , FROM_VAL , TO_VAL, STEP )"
 			" VALUES ( :1, :2, :3, :4, :5, :6, :7)");
     m_writeStmt->setInt(1, next_id);
@@ -73,8 +93,6 @@ void ODScanConfig::prepareWrite()
     throw(runtime_error("ODScanConfig::prepareWrite():  "+e.getMessage()));
   }
 }
-
-
 
 void ODScanConfig::writeDB()
   throw(runtime_error)

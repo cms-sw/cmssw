@@ -23,6 +23,8 @@ class ODDCCConfig : public IODConfig {
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
+  inline void setSize(unsigned int id) { m_size = id; }
+  inline unsigned int getSize() const { return m_size; }
 
   inline void setDCCConfigurationUrl(std::string x) { m_dcc_url = x; }
   inline std::string getDCCConfigurationUrl() const { return m_dcc_url; }
@@ -39,6 +41,7 @@ class ODDCCConfig : public IODConfig {
   inline void setDCCClob(unsigned char* x) { m_dcc_clob = x; }
   inline unsigned char* getDCCClob() const { return m_dcc_clob; }
 
+  void setParameters(std::map<string,string> my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);
@@ -47,9 +50,6 @@ class ODDCCConfig : public IODConfig {
   void fetchData(ODDCCConfig * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
 
-  unsigned char* readClob (oracle::occi::Clob &clob, int size)   throw(std::runtime_error);
-  void populateClob (oracle::occi::Clob &clob)  throw(std::runtime_error);
-  void dumpClob (oracle::occi::Clob &clob,unsigned int way)   throw (std::runtime_error);
 
   int fetchNextId() throw(std::runtime_error);
 
@@ -60,6 +60,7 @@ class ODDCCConfig : public IODConfig {
   std::string  m_test_url;
   int  m_ntest;
   int  m_sm_half;
+  unsigned int m_size; 
   
 };
 

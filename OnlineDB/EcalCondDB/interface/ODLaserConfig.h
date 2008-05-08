@@ -79,7 +79,7 @@ class ODLaserConfig : public IODConfig {
   inline void setEMTCSlotId(int x) { m_emtc_5 = x; }
   inline int getEMTCSlotId() const { return m_emtc_5; }
 
-
+  void setParameters(std::map<string,string> my_keys_map);
 
   // laser 
 

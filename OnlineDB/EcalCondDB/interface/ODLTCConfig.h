@@ -24,12 +24,16 @@ class ODLTCConfig : public IODConfig {
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
+  inline void setSize(unsigned int id) { m_size = id; }
+  inline unsigned int getSize() const { return m_size; }
+
   inline void setLTCConfigurationFile(std::string x) { m_ltc_file = x; }
   inline std::string getLTCConfigurationFile() const { return m_ltc_file; }
 
   inline void setLTCClob(unsigned char* x) { m_ltc_clob = x; }
   inline unsigned char* getLTCClob() const { return m_ltc_clob; }
 
+  void setParameters(std::map<string,string> my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);
@@ -38,9 +42,6 @@ class ODLTCConfig : public IODConfig {
   void fetchData(ODLTCConfig * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
 
-  unsigned char* readClob (oracle::occi::Clob &clob, int size)   throw(std::runtime_error);
-  void populateClob (oracle::occi::Clob &clob)  throw(std::runtime_error);
-  void dumpClob (oracle::occi::Clob &clob,unsigned int way)   throw (std::runtime_error);
 
   int fetchNextId() throw(std::runtime_error);
 
@@ -48,7 +49,8 @@ class ODLTCConfig : public IODConfig {
   int m_ID;
   unsigned char* m_ltc_clob;
   std::string  m_ltc_file;
-  
+  int m_size;
+
 };
 
 #endif

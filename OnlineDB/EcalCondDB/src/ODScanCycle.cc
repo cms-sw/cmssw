@@ -30,7 +30,7 @@ void ODScanCycle::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_Scan_Cycle (cycle_id, scan_configuration_id ) "
+    m_writeStmt->setSQL("INSERT INTO ECAL_Scan_Cycle (cycle_id, scan_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
     throw(runtime_error("ODScanCycle::prepareWrite():  "+e.getMessage()));
@@ -80,7 +80,7 @@ int ODScanCycle::fetchID()
 
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cycle_id, scan_configuration_id FROM ecal_scan_cycle "
+    stmt->setSQL("SELECT cycle_id, scan_id FROM ecal_scan_cycle "
 		 "WHERE cycle_id = :1 ");
     stmt->setInt(1, m_ID);
     ResultSet* rset = stmt->executeQuery();

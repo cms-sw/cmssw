@@ -34,6 +34,9 @@ class ODTTCciConfig : public IODConfig {
 
   inline void setTTCciClob(unsigned char* x) { m_ttcci_clob = x; }
   inline unsigned char* getTTCciClob() const { return m_ttcci_clob; }
+  inline void setSize(unsigned int id) { m_size = id; }
+  inline unsigned int getSize() const { return m_size; }
+  void setParameters(std::map<string,string> my_keys_map);
 
   
  private:
@@ -43,9 +46,6 @@ class ODTTCciConfig : public IODConfig {
   void fetchData(ODTTCciConfig * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
 
-  unsigned char* readClob (oracle::occi::Clob &clob, int size)   throw(std::runtime_error);
-  void populateClob (oracle::occi::Clob &clob)  throw(std::runtime_error);
-  void dumpClob (oracle::occi::Clob &clob,unsigned int way)   throw (std::runtime_error);
 
   int fetchNextId() throw(std::runtime_error);
 
@@ -55,6 +55,7 @@ class ODTTCciConfig : public IODConfig {
   std::string  m_ttcci_file;
   std::string  m_trg_mode;
   int  m_trg_sleep;
+  int m_size;
 
   
 };

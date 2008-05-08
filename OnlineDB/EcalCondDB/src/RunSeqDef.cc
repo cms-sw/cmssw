@@ -135,3 +135,48 @@ void RunSeqDef::fetchAllDefs( std::vector<RunSeqDef>* fillVec)
     throw(runtime_error("RunSeqDef::fetchAllDefs:  "+e.getMessage()));
   }
 }
+
+int RunSeqDef::writeDB()
+  throw(runtime_error)
+{
+  // see if this data is already in the DB
+  try {
+    if (this->fetchID()) { 
+      return m_ID; 
+    }
+  } catch (SQLException &e) {
+    // it does not exist yet 
+  }
+
+  // check the connectioin
+  this->checkConnection();
+
+  // get the run type
+  m_runType.setConnection(m_env, m_conn);
+  int run_type_id = m_runType.fetchID();
+
+  // write new seq def to the DB
+  try {
+    Statement* stmt = m_conn->createStatement();
+
+    stmt->setSQL("insert into ecal_sequence_type_def(RUN_TYPE_DEF_ID, SEQUENCE_TYPE_STRING) values "
+		 " ( :1, :2 )");
+    stmt->setInt(1, run_type_id);
+    stmt->setString(2, m_runSeq);
+   
+
+    stmt->executeUpdate();
+    
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+   throw(runtime_error("RunSeqDef::writeDB:  "+e.getMessage()));
+  }
+
+  // now get the tag_id
+  if (!this->fetchID()) {
+    throw(runtime_error("RunSeqDef::writeDB:  Failed to write"));
+  }
+
+  return m_ID;
+}
+

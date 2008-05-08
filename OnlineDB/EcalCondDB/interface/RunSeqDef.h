@@ -12,7 +12,8 @@
  */
 class RunSeqDef : public IDef {
   public:
-  friend class EcalCondDBInterface;
+ friend class ODRunConfigSeqInfo; 
+ friend class EcalCondDBInterface;
   
   RunSeqDef();
   virtual ~RunSeqDef();
@@ -40,6 +41,9 @@ class RunSeqDef : public IDef {
   // User data for this def
   std::string m_runSeq;
   RunTypeDef m_runType;  
+
+  int writeDB()throw(std::runtime_error);
+
 
   void fetchAllDefs( std::vector<RunSeqDef>* fillVec) throw(std::runtime_error);
 };

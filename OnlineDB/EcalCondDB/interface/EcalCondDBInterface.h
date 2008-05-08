@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.13 2008/03/04 14:47:51 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.14 2008/03/14 10:59:42 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -33,6 +33,7 @@
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/DCSPTMTempList.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
+#include "OnlineDB/EcalCondDB/interface/all_od_types.h"
 
 
 class EcalCondDBInterface : public EcalDBConnection {
@@ -163,6 +164,8 @@ class EcalCondDBInterface : public EcalDBConnection {
   // updates the end time of an iov
   void updateRunIOV(RunIOV* iov)
     throw(std::runtime_error);
+
+  void updateRunConfig(ODRunConfigInfo* od) throw(std::runtime_error);
 
 
   /**

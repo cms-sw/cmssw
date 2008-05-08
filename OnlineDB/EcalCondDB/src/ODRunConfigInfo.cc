@@ -19,7 +19,7 @@ ODRunConfigInfo::ODRunConfigInfo()
   m_num_seq=0;
   m_runTypeDef = RunTypeDef();
   m_runModeDef = RunModeDef();
-  m_defaults="";
+  m_defaults=0;
   m_trigger_mode=""; 
   m_num_events=0;
 }
@@ -151,7 +151,7 @@ void ODRunConfigInfo::setByID(int id)
        int run_mode_id=rset->getInt(4);
        m_num_seq=rset->getInt(5);
        m_description= rset->getString(6);
-       m_defaults= rset->getString(7);
+       m_defaults= rset->getInt(7);
        m_trigger_mode= rset->getString(8);
        m_num_events= rset->getInt(9);
        Date dbdate = rset->getDate(10);
@@ -213,7 +213,7 @@ void ODRunConfigInfo::writeDB()
     m_writeStmt->setInt(3, run_type_id);
     m_writeStmt->setInt(4, run_mode_id);
     m_writeStmt->setInt(5, this->getNumberOfSequences());
-    m_writeStmt->setString(6, this->getDefaults());
+    m_writeStmt->setInt(6, this->getDefaults());
     m_writeStmt->setString(7, this->getTriggerMode());
     m_writeStmt->setInt(8, this->getNumberOfEvents());
     m_writeStmt->setString(9, this->getDescription());
@@ -232,5 +232,32 @@ void ODRunConfigInfo::writeDB()
 }
 
 
+int ODRunConfigInfo::updateDefaultCycle()
+  throw(runtime_error)
+{
+  this->checkConnection();
 
+  // Check if this has already been written
+  if(!this->fetchID()){
+    this->writeDB();
+  }
+
+
+  try {
+    Statement* stmt = m_conn->createStatement();
+    
+    stmt->setSQL("UPDATE ecal_run_configuration_dat set defaults=:1 where config_id=:2 " );
+   
+    stmt->setInt(1, m_defaults);
+    stmt->setInt(2, m_ID);
+
+    stmt->executeUpdate();
+
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("ODRunConfigInfo::writeDB:  "+e.getMessage()));
+  }
+  
+  return m_ID;
+}
 

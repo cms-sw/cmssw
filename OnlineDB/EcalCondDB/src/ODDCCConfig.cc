@@ -1,5 +1,10 @@
 #include <stdexcept>
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <stdio.h>
+
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODDCCConfig.h"
@@ -13,7 +18,7 @@ ODDCCConfig::ODDCCConfig()
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
-
+  m_size=0;
    m_config_tag="";
    m_ID=0;
    clear();
@@ -62,7 +67,7 @@ void ODDCCConfig::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_DCC_CONFIGURATION (dcc_configuration_id, dcc_tag, "
 			" DCC_CONFIGURATION_URL, TESTPATTERN_FILE_URL, "
 			" N_TESTPATTERNS_TO_LOAD , SM_HALF, " 
-			"dcc_configuration) "
+			" dcc_configuration) "
                         "VALUES (:1, :2, :3, :4, :5, :6 , :7 )");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
@@ -70,6 +75,7 @@ void ODDCCConfig::prepareWrite()
     m_writeStmt->setString(4, getTestPatternFileUrl());
     m_writeStmt->setInt(5, getNTestPatternsToLoad());
     m_writeStmt->setInt(6, getSMHalf());
+
     // and now the clob
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
@@ -86,7 +92,8 @@ void ODDCCConfig::prepareWrite()
 			 " dcc_configuration_id=:1 FOR UPDATE");
 
     std::cout<<"updating the clob 0"<<std::endl;
-
+   
+    
     
   } catch (SQLException &e) {
     throw(runtime_error("ODDCCConfig::prepareWrite():  "+e.getMessage()));
@@ -94,57 +101,50 @@ void ODDCCConfig::prepareWrite()
 
   std::cout<<"updating the clob 1 "<<std::endl;
   
-}
-//
-void ODDCCConfig::dumpClob (oracle::occi::Clob &clob,unsigned int way)
-   throw (std::runtime_error)
-  {
-
-  try{
-    unsigned int size=BUFSIZE;
-    unsigned int offset = 1;
   
-    if (clob.isNull())
-    {
-       cout << "Clob is Null\n";
-       return;
+}
+
+
+void ODDCCConfig::setParameters(std::map<string,string> my_keys_map){
+
+  // parses the result of the XML parser that is a map of
+  // string string with variable name variable value
+
+  for( std::map<std::string, std::string >::iterator ci=
+         my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+
+    if(ci->first==  "DCC_CONFIGURATION_ID") setConfigTag(ci->second);
+    if(ci->first==  "TESTPATTERN_FILE_URL")   setTestPatternFileUrl(ci->second );
+    if(ci->first==  "N_TESTPATTERNS_TO_LOAD") setNTestPatternsToLoad(atoi(ci->second.c_str() ));
+    if(ci->first==  "SM_HALF")                setSMHalf(atoi(ci->second.c_str() ));
+    if(ci->first==  "DCC_CONFIGURATION_URL") {
+      std::string fname=ci->second ;
+      setDCCConfigurationUrl(fname );
+
+      // here we must open the file and read the DCC Clob
+      std::cout << "Going to read DCC file: " << fname << endl;
+
+      ifstream inpFile;
+      inpFile.open(fname.c_str());
+
+      // tell me size of file 
+      int bufsize = 0; 
+      inpFile.seekg( 0,ios::end ); 
+      bufsize = inpFile.tellg(); 
+      std::cout <<" bufsize ="<<bufsize<< std::endl;
+      // set file pointer to start again 
+      inpFile.seekg( 0,ios::beg ); 
+
+      m_size=bufsize;
+
+      inpFile.close();
+
     }
-    unsigned int cloblen = clob.length();
-    cout << "Length of Clob : "<< cloblen << endl;
-    if (cloblen == 0)
-       return;
-    unsigned char *buffer= new unsigned char[size]; 
-    memset (buffer, NULL, size);
-    if (way==USE_NORM)
-    {
-       cout << "Dumping clob (using read ): ";
-       int bytesRead=clob.read(size,buffer,size,offset);
-       for (int i = 0; i < bytesRead; ++i)
-          cout << buffer[i];
-       cout << endl;
-    }
-    else if(way==USE_BUFF)
-    {
-       Stream *inStream = clob.getStream (1,0);
-       cout << "Dumping clob(using stream): ";
-       int bytesRead=(inStream->readBuffer((char *)buffer, size));
-       while (bytesRead > 0)
-       {
-          for (int i = 0; i < bytesRead; ++i) 
-          {
-              cout << buffer[i];
-          }
-          bytesRead=(inStream->readBuffer((char *)buffer, size));
-       }
-       cout << endl;
-       clob.closeStream (inStream);
-    }
-    delete []buffer;
-  } catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::prepareWrite():  "+e.getMessage()));
   }
 
 }
+
+
 
 
 void ODDCCConfig::writeDB()
@@ -152,29 +152,26 @@ void ODDCCConfig::writeDB()
 {
 
 
-  std::cout<<"updating the clob 2"<<std::endl;
+  std::cout<<"updating the clob "<<std::endl;
 
 
   try {
 
-
+ 
     m_writeStmt->setInt(1, m_ID);
     ResultSet* rset = m_writeStmt->executeQuery();
 
-    while (rset->next ())
-      {
-        oracle::occi::Clob clob = rset->getClob (1);
-        cout << "Opening the clob in read write mode" << endl;
+    rset->next ();
+    oracle::occi::Clob clob = rset->getClob (1);
 
-        cout << "dumping the clob" << endl;
-	dumpClob (clob, USE_NORM);
-	cout << "Populating the clob" << endl;
-	populateClob (clob);
-        int clobLength=clob.length ();
-        cout << "Length of the clob is: " << clobLength << endl;
-        clob.close ();
-      }
+    cout << "Opening the clob in read write mode" << endl;
 
+    std::cout << "Populating the clob" << endl;
+    
+    populateClob (clob, getDCCConfigurationUrl(), m_size);
+    int clobLength=clob.length ();
+    cout << "Length of the clob is: " << clobLength << endl;
+  
     m_writeStmt->executeUpdate();
 
     m_writeStmt->closeResultSet (rset);
@@ -186,77 +183,18 @@ void ODDCCConfig::writeDB()
   if (!this->fetchID()) {
     throw(runtime_error("ODDCCConfig::writeDB:  Failed to write"));
   }
-
-
+  
+  
 }
 
 
 void ODDCCConfig::clear(){
-
-  //  strcpy((char *)m_dcc_clob, "");
-
 
    m_dcc_url="";
    m_test_url="";
    m_ntest=0;
    m_sm_half=0;
 
-}
-
-
-unsigned char* ODDCCConfig::readClob (oracle::occi::Clob &clob, int size)
-  throw (runtime_error)
-{
-
-  try{
-    Stream *instream = clob.getStream (1,0);
-    unsigned char *buffer= new unsigned char[size]; 
-    memset (buffer, NULL, size);
-    
-    instream->readBuffer ((char*)buffer, size);
-    cout << "remember to delete the char* at the end of the program ";
-       for (int i = 0; i < size; ++i)
-       cout << (char) buffer[i];
-     cout << endl;
-    
-
-    clob.closeStream (instream);
-
-    return  buffer;
-
-  }catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::dumpClob():  "+e.getMessage()));
-  }
-
-}
-
-/**
- * populating the clob;
- */
-void ODDCCConfig::populateClob (oracle::occi::Clob &clob)
-  throw (std::runtime_error)
-{
-
-  if (clob.isNull())
-    {
-      cout << "Clob is Null\n";
-      return;
-    }
-
-  try{
-    
-    unsigned int offset=1;
-    unsigned int  my_size= strlen((char*)m_dcc_clob);
-    std::cout<<" size is"<< my_size<< std::endl;  
-    std::cout<<" m_dcc_clob is"<< m_dcc_clob<< std::endl;  
-    
-    clob.open(OCCI_LOB_READWRITE);
-    unsigned int bytesWritten=clob.write (my_size,m_dcc_clob, my_size,offset);
-    
-  }catch (SQLException &e) {
-    throw(runtime_error("ODDCCConfig::populateClob():  "+e.getMessage()));
-  }
-  
 }
 
 
@@ -291,12 +229,14 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
     result->setNTestPatternsToLoad(rset->getInt(5));
     result->setSMHalf(rset->getInt(6));
 
+
     Clob clob = rset->getClob (7);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
     cout << "Length of the clob is: " << clobLength << endl;
-    unsigned char* buffer = readClob (clob, clobLength);
+    m_size=clobLength;
+    unsigned char* buffer = readClob (clob, m_size);
     clob.close ();
     cout<< "the clob buffer is:"<<endl;  
     for (int i = 0; i < clobLength; ++i)
@@ -315,5 +255,33 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 
 int ODDCCConfig::fetchID()    throw(std::runtime_error)
 {
+  if (m_ID!=0) {
     return m_ID;
+  }
+  
+  this->checkConnection();
+  
+  try {
+    Statement* stmt = m_conn->createStatement();
+    stmt->setSQL("SELECT DCC_configuration_id FROM ecal_dcc_configuration "
+                 "WHERE  dcc_tag=:dcc_tag "
+		 );
+    
+    stmt->setString(1, getConfigTag() );
+    
+    
+    ResultSet* rset = stmt->executeQuery();
+    
+    if (rset->next()) {
+      m_ID = rset->getInt(1);
+    } else {
+      m_ID = 0;
+    }
+    m_conn->terminateStatement(stmt);
+  } catch (SQLException &e) {
+    throw(runtime_error("ODDCCConfig::fetchID:  "+e.getMessage()));
+  }
+  
+  
+  return m_ID;
 }

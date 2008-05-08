@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <string>
+#include <string.h>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODCCSConfig.h"
@@ -22,8 +23,8 @@ ODCCSConfig::ODCCSConfig()
 void ODCCSConfig::clear(){
    m_daccal=0;
    m_delay=0;
-   m_gain=0;
-   m_memgain=0;
+   m_gain="";
+   m_memgain="";
    m_offset_high=0;
    m_offset_low=0;
    m_offset_mid=0;
@@ -90,7 +91,33 @@ void ODCCSConfig::prepareWrite()
 
 }
 
-
+void ODCCSConfig::setParameters(std::map<string,string> my_keys_map){
+  
+  // parses the result of the XML parser that is a map of 
+  // string string with variable name variable value 
+  
+  for( std::map<std::string, std::string >::iterator ci=
+	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+    
+    if(ci->first==  "CCS_CONFIGURATION_ID") setConfigTag(ci->second);
+    if(ci->first==  "DACCAL") setDaccal(atoi(ci->second.c_str()) );
+    if(ci->first==  "GAIN") setGain(ci->second);
+    if(ci->first==  "MEMGAIN") setMemGain(ci->second);
+    if(ci->first==  "OFFSET_HIGH") setOffsetHigh(atoi(ci->second.c_str() ));
+    if(ci->first==  "OFFSET_LOW") setOffsetLow(atoi(ci->second.c_str() ));
+    if(ci->first==  "OFFSET_MID") setOffsetMid(atoi(ci->second.c_str() ));
+    if(ci->first==  "TRG_MODE") setTrgMode(ci->second );
+    if(ci->first==  "TRG_FILTER") setTrgFilter(ci->second );
+    if(ci->first==  "CLOCK") setClock(atoi(ci->second.c_str()) );
+    if(ci->first==  "BGO_SOURCE") setBGOSource(ci->second) ;
+    if(ci->first==  "TTS_MASK") setTTSMask(atoi(ci->second.c_str()) );
+    if(ci->first==  "DAQ_BCID_PRESET") setDAQBCIDPreset(atoi(ci->second.c_str() ));
+    if(ci->first==  "TRIG_BCID_PRESET") setTrgBCIDPreset(atoi(ci->second.c_str()) );
+    if(ci->first==  "BC0_COUNTER") setBC0Counter(atoi(ci->second.c_str() ));
+    
+  }
+  
+}
 
 void ODCCSConfig::writeDB()
   throw(runtime_error)
@@ -104,8 +131,8 @@ void ODCCSConfig::writeDB()
     m_writeStmt->setString(2, this->getConfigTag());
     m_writeStmt->setInt(3, this->getDaccal());
     m_writeStmt->setInt(4, this->getDelay());
-    m_writeStmt->setInt(5, this->getGain());
-    m_writeStmt->setInt(6, this->getMemGain());
+    m_writeStmt->setString(5, this->getGain());
+    m_writeStmt->setString(6, this->getMemGain());
     m_writeStmt->setInt(7, this->getOffsetHigh());
     m_writeStmt->setInt(8, this->getOffsetLow());
     m_writeStmt->setInt(9, this->getOffsetMid());
@@ -160,8 +187,8 @@ void ODCCSConfig::fetchData(ODCCSConfig * result)
 
     result->setDaccal(       rset->getInt(3) );
     result->setDelay(        rset->getInt(4) );
-    result->setGain(         rset->getInt(5) );
-    result->setMemGain(      rset->getInt(6) );
+    result->setGain(         rset->getString(5) );
+    result->setMemGain(      rset->getString(6) );
     result->setOffsetHigh(   rset->getInt(7) );
     result->setOffsetLow(    rset->getInt(8) );
     result->setOffsetMid(    rset->getInt(9) );

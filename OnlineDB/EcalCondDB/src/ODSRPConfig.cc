@@ -17,11 +17,11 @@ ODSRPConfig::ODSRPConfig()
 
    m_ID=0;
    clear();
-
+   m_size=0;
 }
 
 void ODSRPConfig::clear(){
-  strcpy((char *)m_srp_clob, "");
+  //  strcpy((char *)m_srp_clob, "");
  m_debug=0;
  m_dummy=0;
  m_file="";
@@ -59,6 +59,51 @@ int ODSRPConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 
+void ODSRPConfig::setParameters(std::map<string,string> my_keys_map){
+
+  // parses the result of the XML parser that is a map of
+  // string string with variable name variable value
+
+
+  for( std::map<std::string, std::string >::iterator ci=
+         my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+
+    if(ci->first==  "SRP_CONFIGURATION_ID") setConfigTag(ci->second);
+    if(ci->first==  "debugMode") setDebugMode(atoi(ci->second.c_str()));
+    if(ci->first==  "dummyMode") setDummyMode(atoi(ci->second.c_str()));
+    if(ci->first==  "PatternDirectory") setPatternDirectory(ci->second);
+    if(ci->first==  "AutomaticMasks") setAutomaticMasks(atoi(ci->second.c_str()));
+    if(ci->first==  "SRP0BunchAdjustPosition") setSRP0BunchAdjustPosition(atoi(ci->second.c_str()));
+    if(ci->first==  "SRP_CONFIG_FILE") {
+      std::string fname=ci->second ;
+    
+      cout << "fname="<<fname << endl;
+      setConfigFile(fname);
+
+
+      // here we must open the file and read the LTC Clob
+      std::cout << "Going to read SRP file: " << fname << endl;
+
+      ifstream inpFile;
+      inpFile.open(fname.c_str());
+
+      // tell me size of file 
+      int bufsize = 0; 
+      inpFile.seekg( 0,ios::end ); 
+      bufsize = inpFile.tellg(); 
+      std::cout <<" bufsize ="<<bufsize<< std::endl;
+      // set file pointer to start again 
+      inpFile.seekg( 0,ios::beg ); 
+
+      m_size=bufsize;
+      
+      inpFile.close();
+      
+    }
+  }
+
+}
+
 void ODSRPConfig::prepareWrite()
   throw(runtime_error)
 {
@@ -71,7 +116,7 @@ void ODSRPConfig::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_SRP_CONFIGURATION (srp_configuration_id, srp_tag, "
 			"   DEBUGMODE, DUMMYMODE, PATTERN_DIRECTORY, AUTOMATIC_MASKS, "
 			" SRP0BUNCHADJUSTPOSITION, SRP_CONFIG_FILE, SRP_CONFIGURATION  ) "
-                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8 )");
+                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9 )");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
     m_writeStmt->setInt(3, getDebugMode());
@@ -106,69 +151,15 @@ void ODSRPConfig::prepareWrite()
   std::cout<<"updating the clob 1 "<<std::endl;
   
 }
-//
-void ODSRPConfig::dumpClob (oracle::occi::Clob &clob,unsigned int way)
-   throw (std::runtime_error)
-  {
-
-  try{
-    unsigned int size=BUFSIZE;
-    unsigned int offset = 1;
-  
-    if (clob.isNull())
-    {
-       cout << "Clob is Null\n";
-       return;
-    }
-    unsigned int cloblen = clob.length();
-    cout << "Length of Clob : "<< cloblen << endl;
-    if (cloblen == 0)
-       return;
-    unsigned char *buffer= new unsigned char[size]; 
-    memset (buffer, NULL, size);
-    if (way==USE_NORM)
-    {
-       cout << "Dumping clob (using read ): ";
-       int bytesRead=clob.read(size,buffer,size,offset);
-       for (int i = 0; i < bytesRead; ++i)
-          cout << buffer[i];
-       cout << endl;
-    }
-    else if(way==USE_BUFF)
-    {
-       Stream *inStream = clob.getStream (1,0);
-       cout << "Dumping clob(using stream): ";
-       int bytesRead=(inStream->readBuffer((char *)buffer, size));
-       while (bytesRead > 0)
-       {
-          for (int i = 0; i < bytesRead; ++i) 
-          {
-              cout << buffer[i];
-          }
-          bytesRead=(inStream->readBuffer((char *)buffer, size));
-       }
-       cout << endl;
-       clob.closeStream (inStream);
-    }
-    delete []buffer;
-  } catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::prepareWrite():  "+e.getMessage()));
-  }
-
-}
 
 
 void ODSRPConfig::writeDB()
   throw(runtime_error)
 {
 
-
   std::cout<<"updating the clob 2"<<std::endl;
 
-
   try {
-
-
     m_writeStmt->setInt(1, m_ID);
     ResultSet* rset = m_writeStmt->executeQuery();
 
@@ -176,14 +167,11 @@ void ODSRPConfig::writeDB()
       {
         oracle::occi::Clob clob = rset->getClob (1);
         cout << "Opening the clob in read write mode" << endl;
-
-        cout << "dumping the clob" << endl;
-	dumpClob (clob, USE_NORM);
 	cout << "Populating the clob" << endl;
-	populateClob (clob);
+	populateClob (clob, getConfigFile(), m_size );
         int clobLength=clob.length ();
-        cout << "Length of the clob is: " << clobLength << endl;
-        clob.close ();
+        cout << "Length of the clob after writing is: " << clobLength << endl;
+      
       }
 
     m_writeStmt->executeUpdate();
@@ -202,65 +190,6 @@ void ODSRPConfig::writeDB()
 }
 
 
-
-unsigned char* ODSRPConfig::readClob (oracle::occi::Clob &clob, int size)
-  throw (runtime_error)
-{
-
-  try{
-    Stream *instream = clob.getStream (1,0);
-    unsigned char *buffer= new unsigned char[size]; 
-    memset (buffer, NULL, size);
-    
-    instream->readBuffer ((char*)buffer, size);
-    cout << "remember to delete the char* at the end of the program ";
-       for (int i = 0; i < size; ++i)
-       cout << (char) buffer[i];
-     cout << endl;
-    
-
-    clob.closeStream (instream);
-
-    return  buffer;
-
-  }catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::dumpClob():  "+e.getMessage()));
-  }
-
-}
-
-/**
- * populating the clob;
- */
-void ODSRPConfig::populateClob (oracle::occi::Clob &clob)
-  throw (std::runtime_error)
-{
-
-  if (clob.isNull())
-    {
-      cout << "Clob is Null\n";
-      return;
-    }
-
-  try{
-    
-    unsigned int offset=1;
-    unsigned int  my_size= strlen((char*)m_srp_clob);
-    std::cout<<" size is"<< my_size<< std::endl;  
-    std::cout<<" m_srp_clob is"<< m_srp_clob<< std::endl;  
-    
-    clob.open(OCCI_LOB_READWRITE);
-    unsigned int bytesWritten=clob.write (my_size,m_srp_clob, my_size,offset);
-    
-  }catch (SQLException &e) {
-    throw(runtime_error("ODSRPConfig::populateClob():  "+e.getMessage()));
-  }
-  
-}
-
-
-
-
 void ODSRPConfig::fetchData(ODSRPConfig * result)
   throw(runtime_error)
 {
@@ -272,10 +201,8 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
 
   try {
 
-    m_readStmt->setSQL("SELECT  d.srp_configuration_id, d.srp_tag, "
-		       " d.DEBUGMODE, d.DUMMYMODE, d.PATTERN_DIRECTORY, d.AUTOMATIC_MASKS,"
-		       " d.SRP0BUNCHADJUSTPOSITION, d.SRP_CONFIG_FILE, d.SRP_CONFIGURATION "
-		       " FROM ECAL_SRP_CONFIGURATION d "
+    m_readStmt->setSQL("SELECT  * "
+		       " FROM ECAL_SRP_CONFIGURATION  "
 		       " where (srp_configuration_id = :1 or srp_tag=:2 )" );
     m_readStmt->setInt(1, result->getId());
     m_readStmt->setString(2, result->getConfigTag());

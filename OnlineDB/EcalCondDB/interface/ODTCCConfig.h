@@ -38,6 +38,14 @@ class ODTCCConfig : public IODConfig {
   inline void setTCCClob(unsigned char* x) { m_tcc_clob = x; }
   inline unsigned char* getTCCClob() const { return m_tcc_clob; }
 
+  inline void setLUTClob(unsigned char* x) { m_lut_clob = x; }
+  inline unsigned char* getLUTClob() const { return m_lut_clob; }
+
+  inline void setSLBClob(unsigned char* x) { m_slb_clob = x; }
+  inline unsigned char* getSLBClob() const { return m_slb_clob; }
+
+  void setParameters(std::map<string,string> my_keys_map);
+
   
  private:
   void prepareWrite()  throw(std::runtime_error);
@@ -46,21 +54,20 @@ class ODTCCConfig : public IODConfig {
   void fetchData(ODTCCConfig * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
 
-  unsigned char* readClob (oracle::occi::Clob &clob, int size)   throw(std::runtime_error);
-  void populateClob (oracle::occi::Clob &clob)  throw(std::runtime_error);
-  void dumpClob (oracle::occi::Clob &clob,unsigned int way)   throw (std::runtime_error);
 
   int fetchNextId() throw(std::runtime_error);
 
   // User data
   int m_ID;
   unsigned char* m_tcc_clob;
+  unsigned char* m_lut_clob;
+  unsigned char* m_slb_clob;
   std::string  m_tcc_file;
   std::string  m_lut_file;
   std::string  m_slb_file;
   std::string  m_test_url;
   int  m_ntest;
-  
+  unsigned int m_size;
 };
 
 #endif

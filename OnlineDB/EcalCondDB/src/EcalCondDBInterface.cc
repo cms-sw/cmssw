@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.9 2008/02/14 15:31:46 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.10 2008/03/04 14:47:51 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -359,6 +359,19 @@ void EcalCondDBInterface::updateRunIOV(RunIOV* iov)
   try {
     iov->setConnection(env, conn);
     iov->updateEndTimeDB();
+  } catch(runtime_error &e) {
+    conn->rollback();
+    throw(e);
+  }
+  conn->commit();
+}
+
+void EcalCondDBInterface::updateRunConfig(ODRunConfigInfo* od)
+  throw(runtime_error)
+{
+  try {
+    od->setConnection(env, conn);
+    od->updateDefaultCycle();
   } catch(runtime_error &e) {
     conn->rollback();
     throw(e);

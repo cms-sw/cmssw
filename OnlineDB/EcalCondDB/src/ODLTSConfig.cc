@@ -32,6 +32,22 @@ ODLTSConfig::~ODLTSConfig()
 {
 }
 
+void ODLTSConfig::setParameters(std::map<string,string> my_keys_map){
+  
+  // parses the result of the XML parser that is a map of 
+  // string string with variable name variable value 
+  
+  for( std::map<std::string, std::string >::iterator ci=
+	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+
+    if(ci->first==  "LTS_CONFIGURATION_ID") setConfigTag(ci->second);
+    if(ci->first==  "NUM_OF_EVENTS") setNumberOfEvents(atoi(ci->second.c_str()) );
+    if(ci->first==  "RATE") setRate(atoi(ci->second.c_str() ));
+    if(ci->first==  "TRIGGER_TYPE") setTriggerType(ci->second );
+    if(ci->first==  "TRIG_LOC_L1_DELAY") setTrigLocL1Delay(atoi(ci->second.c_str() ));
+  }
+  
+}
 
 int ODLTSConfig::fetchNextId()  throw(std::runtime_error) {
 

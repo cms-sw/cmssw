@@ -23,6 +23,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODLTSCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODSRPCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODScanCycle.h"
+#include "OnlineDB/EcalCondDB/interface/ODScanConfig.h"
 #include "OnlineDB/EcalCondDB/interface/ODTCCCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTTCFCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTTCciCycle.h"

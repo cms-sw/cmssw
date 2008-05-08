@@ -16,11 +16,12 @@ ODTTCFConfig::ODTTCFConfig()
   m_config_tag="";
   m_ID=0;
   clear();
+  m_size=0;
 }
 
 
 void ODTTCFConfig::clear(){
-  strcpy((char *)m_ttcf_clob, "");
+
 }
 
 
@@ -63,13 +64,15 @@ void ODTTCFConfig::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_TTCF_CONFIGURATION (ttcf_configuration_id, ttcf_tag, " 
-			" configuration ) "
-                        "VALUES (:1, :2, :3 )");
+			" ttcf_configuration_file , configuration ) "
+                        "VALUES (:1, :2, :3 , :4 )");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
+    m_writeStmt->setString(3, getTTCFConfigurationFile());
+
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
-    m_writeStmt->setClob(3,clob);
+    m_writeStmt->setClob(4,clob);
     m_writeStmt->executeUpdate ();
     m_ID=next_id; 
 
@@ -91,57 +94,6 @@ void ODTTCFConfig::prepareWrite()
   std::cout<<"updating the clob 1 "<<std::endl;
 
 }
-//
-void ODTTCFConfig::dumpClob (oracle::occi::Clob &clob,unsigned int way)
-   throw (std::runtime_error)
-  {
-
-  try{
-    unsigned int size=BUFSIZE;
-    unsigned int offset = 1;
-  
-    if (clob.isNull())
-    {
-       cout << "Clob is Null\n";
-       return;
-    }
-    unsigned int cloblen = clob.length();
-    cout << "Length of Clob : "<< cloblen << endl;
-    if (cloblen == 0)
-       return;
-    unsigned char *buffer= new unsigned char[size]; 
-    memset (buffer, NULL, size);
-    if (way==USE_NORM)
-    {
-       cout << "Dumping clob (using read ): ";
-       int bytesRead=clob.read(size,buffer,size,offset);
-       for (int i = 0; i < bytesRead; ++i)
-          cout << buffer[i];
-       cout << endl;
-    }
-    else if(way==USE_BUFF)
-    {
-       Stream *inStream = clob.getStream (1,0);
-       cout << "Dumping clob(using stream): ";
-       int bytesRead=(inStream->readBuffer((char *)buffer, size));
-       while (bytesRead > 0)
-       {
-          for (int i = 0; i < bytesRead; ++i) 
-          {
-              cout << buffer[i];
-          }
-          bytesRead=(inStream->readBuffer((char *)buffer, size));
-       }
-       cout << endl;
-       clob.closeStream (inStream);
-    }
-    delete []buffer;
-  } catch (SQLException &e) {
-    throw(runtime_error("ODTTCFConfig::prepareWrite():  "+e.getMessage()));
-  }
-
-}
-
 
 void ODTTCFConfig::writeDB()
   throw(runtime_error)
@@ -153,22 +105,15 @@ void ODTTCFConfig::writeDB()
     m_writeStmt->setInt(1, m_ID);
     ResultSet* rset = m_writeStmt->executeQuery();
 
-    while (rset->next ())
-      {
-        oracle::occi::Clob clob = rset->getClob (1);
-        cout << "Opening the clob in read write mode" << endl;
+    rset->next ();
 
-        cout << "dumping the clob" << endl;
-	dumpClob (clob, USE_NORM);
-	cout << "Populating the clob" << endl;
-	populateClob (clob);
-        int clobLength=clob.length ();
-        cout << "Length of the clob is: " << clobLength << endl;
-        clob.close ();
-      }
+    oracle::occi::Clob clob = rset->getClob (1);
+    cout << "Opening the clob in read write mode" << endl;
+    populateClob (clob, getTTCFConfigurationFile(), m_size);
+    int clobLength=clob.length ();
+    cout << "Length of the clob is: " << clobLength << endl;
 
     m_writeStmt->executeUpdate();
-
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
@@ -180,63 +125,6 @@ void ODTTCFConfig::writeDB()
   }
 
 
-}
-
-
-
-char* ODTTCFConfig::readClob (oracle::occi::Clob &clob, int size)
-  throw (runtime_error)
-{
-
-  try{
-    Stream *instream = clob.getStream (1,0);
-    char *buffer = new char[size];
-    memset (buffer, NULL, size);
-    
-    instream->readBuffer (buffer, size);
-    cout << "remember to delete the char* at the end of the program ";
-       for (int i = 0; i < size; ++i)
-       cout << (char) buffer[i];
-     cout << endl;
-    
-
-    clob.closeStream (instream);
-
-    return buffer;
-
-  }catch (SQLException &e) {
-    throw(runtime_error("ODTTCFConfig::dumpClob():  "+e.getMessage()));
-  }
-
-}
-
-/**
- * populating the clob;
- */
-void ODTTCFConfig::populateClob (oracle::occi::Clob &clob)
-  throw (std::runtime_error)
-{
-
-  if (clob.isNull())
-    {
-      cout << "Clob is Null\n";
-      return;
-    }
-
-  try{
-    
-    unsigned int offset=1;
-    unsigned int  my_size= strlen((char*)m_ttcf_clob);
-    std::cout<<" size is"<< my_size<< std::endl;  
-    std::cout<<" m_ttcf_clob is"<< m_ttcf_clob<< std::endl;  
-    
-    clob.open(OCCI_LOB_READWRITE);
-    unsigned int bytesWritten=clob.write (my_size,m_ttcf_clob, my_size,offset);
-    
-  }catch (SQLException &e) {
-    throw(runtime_error("ODTTCFConfig::populateClob():  "+e.getMessage()));
-  }
-  
 }
 
 
@@ -265,12 +153,14 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
 
     result->setId(rset->getInt(1));
     result->setConfigTag(rset->getString(2));
-    Clob clob = rset->getClob (3);
+    result->setTTCFConfigurationFile(rset->getString(3));
+    Clob clob = rset->getClob (4);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
     cout << "Length of the clob is: " << clobLength << endl;
-    char* buffer = readClob (clob, clobLength);
+    m_size=clobLength;
+    unsigned char* buffer = readClob (clob, m_size);
     clob.close ();
     result->setTTCFClob((unsigned char*) buffer );
 
@@ -311,3 +201,48 @@ int ODTTCFConfig::fetchID()    throw(std::runtime_error)
 
     return m_ID;
 }
+
+void ODTTCFConfig::setParameters(std::map<string,string> my_keys_map){
+
+  // parses the result of the XML parser that is a map of
+  // string string with variable name variable value
+
+  for( std::map<std::string, std::string >::iterator ci=
+         my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+
+    if(ci->first==  "TTCF_CONFIGURATION_ID") setConfigTag(ci->second);
+    if(ci->first==  "Configuration") {
+      std::string fname=ci->second ;
+      string  str3;
+      size_t pos, pose;
+
+      pos = fname.find("=");    // position of "live" in str
+      pose = fname.size();    // position of "]" in str
+      str3 = fname.substr (pos+1, pose-pos-2);
+
+      cout << "fname="<<fname<< " and reduced is: "<<str3 << endl;
+      setTTCFConfigurationFile(str3 );
+
+
+      // here we must open the file and read the LTC Clob
+      std::cout << "Going to read file: " << str3 << endl;
+
+      ifstream inpFile;
+      inpFile.open(str3.c_str());
+
+      // tell me size of file
+      int bufsize = 0;
+      inpFile.seekg( 0,ios::end );
+      bufsize = inpFile.tellg();
+      std::cout <<" bufsize ="<<bufsize<< std::endl;
+      // set file pointer to start again
+      inpFile.seekg( 0,ios::beg );
+
+      inpFile.close();
+      m_size=bufsize;
+
+    }
+  }
+
+}
+

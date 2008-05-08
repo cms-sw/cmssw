@@ -2,7 +2,7 @@
 #define ODCCSCONFIG_H
 
 #include <map>
-#include <stdexcept>
+#include <string>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -24,11 +24,11 @@ class ODCCSConfig : public IODConfig {
   inline void setDelay(int x) { m_delay = x; }
   inline int getDelay() const { return m_delay; }
 
-  inline void setGain(int x) { m_gain = x; }
-  inline int getGain() const { return m_gain; }
+  inline void setGain(std::string x) { m_gain = x; }
+  inline std::string getGain() const { return m_gain; }
 
-  inline void setMemGain(int x) { m_memgain = x; }
-  inline int getMemGain() const { return m_memgain; }
+  inline void setMemGain(std::string x) { m_memgain = x; }
+  inline std::string getMemGain() const { return m_memgain; }
 
   inline void setOffsetHigh(int x) { m_offset_high = x; }
   inline int getOffsetHigh() const { return m_offset_high; }
@@ -59,6 +59,7 @@ class ODCCSConfig : public IODConfig {
   inline int getBC0Counter() const { return m_bc0; }
 
   int fetchNextId() throw(std::runtime_error);
+  void setParameters(std::map<string,string> my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);
@@ -76,8 +77,8 @@ class ODCCSConfig : public IODConfig {
   int m_ID;
   int m_daccal;
   int m_delay;
-  int m_gain;
-  int m_memgain;
+  std::string m_gain;
+  std::string m_memgain;
   int m_offset_high;
   int m_offset_low;
   int m_offset_mid;

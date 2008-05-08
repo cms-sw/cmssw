@@ -47,6 +47,7 @@ class ODSRPConfig : public IODConfig {
   inline void setSRPClob(unsigned char* x) { m_srp_clob = x; }
   inline unsigned char* getSRPClob() const { return m_srp_clob; }
 
+  void setParameters(std::map<string,string> my_keys_map);
   
  private:
   void prepareWrite()  throw(std::runtime_error);
@@ -55,9 +56,6 @@ class ODSRPConfig : public IODConfig {
   void fetchData(ODSRPConfig * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
 
-  unsigned char* readClob (oracle::occi::Clob &clob, int size)   throw(std::runtime_error);
-  void populateClob (oracle::occi::Clob &clob)  throw(std::runtime_error);
-  void dumpClob (oracle::occi::Clob &clob,unsigned int way)   throw (std::runtime_error);
 
   int fetchNextId() throw(std::runtime_error);
 
@@ -70,6 +68,7 @@ class ODSRPConfig : public IODConfig {
   std::string m_patdir;
   int m_auto;
   int m_bnch;
+  unsigned int m_size;
 
 };
 

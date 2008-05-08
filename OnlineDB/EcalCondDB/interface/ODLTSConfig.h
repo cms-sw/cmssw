@@ -29,8 +29,8 @@ class ODLTSConfig : public IODConfig {
 
   inline void setTrigLocL1Delay(int x) { m_delay = x; }
   inline int getTrigLocL1Delay() const { return m_delay; }
+  void setParameters(std::map<string,string> my_keys_map);
 
-  
  private:
   int fetchNextId() throw(std::runtime_error);
   void prepareWrite()  throw(std::runtime_error);

@@ -56,8 +56,10 @@ class ODRunConfigSeqInfo : public IODConfig {
   int fetchIDLast() throw(std::runtime_error); // fetches the sequence by the ecal_config_id and seq_num
   void setByID(int id) throw(std::runtime_error);
 
+  void  writeDB()throw(std::runtime_error);
+
   void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+
   void fetchData(ODRunConfigSeqInfo * result)     throw(std::runtime_error);
   void clear();
 
