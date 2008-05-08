@@ -279,8 +279,8 @@ def _generate_Higgs(step, evt_type, energy, evtnumber):
         #(0, then use MSUB) and some preprogrammed alternative: QCD hight pT
         #processes (1, then ISUB=11, 12, 13, 28, 53, 68), QCD low pT processes
         #(2, then ISUB=11, #12, 13, 28, 53, 68, 91, 92, 94, 95)",
-        "MSTP(25)=2",                       
-        #Check on possible errors during program
+        #
+	#Check on possible errors during program
         #execution",
         "MSUB(102)=1",             #ggH",
         "MSUB(123)=1",             #ZZ fusion to H",
