@@ -5,8 +5,8 @@ gctDigiToRaw = cms.EDFilter("GctDigiToRaw",
     packRctCalo = cms.untracked.bool(True),
     gctFedId = cms.int32(745),
     packRctEm = cms.untracked.bool(True),
-    rctInputLabel = cms.InputTag("rctDigis"),
-    gctInputLabel = cms.InputTag("gctDigis")
+    rctInputLabel = cms.InputTag("simRctDigis"),
+    gctInputLabel = cms.InputTag("simGctDigis")
 )
 
 

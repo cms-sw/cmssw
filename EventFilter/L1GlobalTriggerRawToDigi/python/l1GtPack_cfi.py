@@ -7,7 +7,7 @@ l1GtPack = cms.EDFilter("L1GTDigiToRaw",
     # input tag for GT readout record: 
     #     gtDigis         = GT emulator, 
     #     l1GtUnpack      = GT unpacker 
-    DaqGtInputTag = cms.InputTag("gtDigis"),
+    DaqGtInputTag = cms.InputTag("simGtDigis"),
     # mask for active boards (actually 16 bits)
     #      if bit is zero, the corresponding board will not be packed
     #      default: no board masked
@@ -15,7 +15,7 @@ l1GtPack = cms.EDFilter("L1GTDigiToRaw",
     # input tag for GMT readout collection: 
     #     gmtDigis       = GMT emulator, 
     #     l1GtUnpack     = GT unpacker 
-    MuGmtInputTag = cms.InputTag("gmtDigis")
+    MuGmtInputTag = cms.InputTag("simGmtDigis")
 )
 
 
