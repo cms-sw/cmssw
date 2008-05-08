@@ -10,10 +10,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCandidateSuperClusterAssociation.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
 //
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 //
@@ -43,8 +42,8 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
 {
 
 
-  //  LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer CTOR " << "\n";
- LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer CTOR " << "\n";
+  
+  //std::cout << "ConversionTrackCandidateProducer CTOR " << "\n";
   
    
   // use onfiguration file to setup input/output collection names
@@ -76,9 +75,9 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   // Register the product
   produces< TrackCandidateCollection > (OutInTrackCandidateCollection_);
   produces< TrackCandidateCollection > (InOutTrackCandidateCollection_);
-  //
-  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( OutInTrackSuperClusterAssociationCollection_);
-  produces< reco::TrackCandidateSuperClusterAssociationCollection > ( InOutTrackSuperClusterAssociationCollection_);
+
+  produces< reco::TrackCandidateCaloClusterPtrAssociation > ( OutInTrackSuperClusterAssociationCollection_);
+  produces< reco::TrackCandidateCaloClusterPtrAssociation > ( InOutTrackSuperClusterAssociationCollection_);
   
 
 }
@@ -115,7 +114,6 @@ void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEve
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
   theNavigationSchool_ = nav.product();
   
-  
   // get the Out In Seed Finder  
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInSeedFinder" << "\n";
   theOutInSeedFinder_ = new OutInConversionSeedFinder (  conf_ );
@@ -123,7 +121,7 @@ void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEve
   // get the Out In Track Finder
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the OutInTrackFinder" << "\n";
   theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_  );
-  
+
   
   // get the In Out Seed Finder  
   edm::LogInfo("ConversionTrackCandidateProducer") << " get the InOutSeedFinder" << "\n";
@@ -144,7 +142,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   using namespace edm;
   nEvt_++;
   edm::LogInfo("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number: " << theEvent.id() << " Global Counter " << nEvt_ << "\n";
-  LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number " <<   theEvent.id() <<  " Global Counter " << nEvt_ << "\n";
+  //  std::cout << "ConversionTrackCandidateProducer Analyzing event number " <<   theEvent.id() <<  " Global Counter " << nEvt_ << "\n";
   
 
   
@@ -164,53 +162,46 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   std::auto_ptr<TrackCandidateCollection> outInTrackCandidate_p(new TrackCandidateCollection); 
   //  In Out  Track Candidates
   std::auto_ptr<TrackCandidateCollection> inOutTrackCandidate_p(new TrackCandidateCollection); 
-  //   Track Candidate  Super Cluster Association
-  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> outInAssoc_p(new reco::TrackCandidateSuperClusterAssociationCollection);
-  std::auto_ptr<reco::TrackCandidateSuperClusterAssociationCollection> inOutAssoc_p(new reco::TrackCandidateSuperClusterAssociationCollection);
- 
-   
+  //   Track Candidate  calo  Cluster Association
+  std::auto_ptr<reco::TrackCandidateCaloClusterPtrAssociation> outInAssoc_p(new reco::TrackCandidateCaloClusterPtrAssociation);
+  std::auto_ptr<reco::TrackCandidateCaloClusterPtrAssociation> inOutAssoc_p(new reco::TrackCandidateCaloClusterPtrAssociation);
+    
   // Get the basic cluster collection in the Barrel 
-  edm::Handle<reco::BasicClusterCollection> bcBarrelHandle;
+  edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
   theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
-    edm::LogError("ConverionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
+    edm::LogError("ConversionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
     return;
   }
-  reco::BasicClusterCollection clusterCollectionBarrel = *(bcBarrelHandle.product());
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer basic cluster collection size  " << clusterCollectionBarrel.size() << "\n";
-  
   
   
   // Get the basic cluster collection in the Endcap 
-  edm::Handle<reco::BasicClusterCollection> bcEndcapHandle;
+  edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
   theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_.c_str();
     return;
   }
-  reco::BasicClusterCollection clusterCollectionEndcap = *(bcEndcapHandle.product());
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer basic cluster collection size  " << clusterCollectionEndcap.size() << "\n";
   
   
+
   // Get the Super Cluster collection in the Barrel
-  Handle<reco::SuperClusterCollection> scBarrelHandle;
+  edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
   theEvent.getByLabel(scHybridBarrelProducer_,scHybridBarrelCollection_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scHybridBarrelCollection_.c_str();
     return;
   }
-  reco::SuperClusterCollection scBarrelCollection = *(scBarrelHandle.product());
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer barrel  SC collection size  " << scBarrelCollection.size() << "\n";
-  
+
+
   // Get the Super Cluster collection in the Endcap
-  Handle<reco::SuperClusterCollection> scEndcapHandle;
+  edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
   theEvent.getByLabel(scIslandEndcapProducer_,scIslandEndcapCollection_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
     edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scIslandEndcapCollection_.c_str();
     return;
   }
-  reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
-  LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Endcap SC collection size  " << scEndcapCollection.size() << "\n";
+
 
   // get the geometry from the event setup:
   theEventSetup.get<IdealGeometryRecord>().get(theCaloGeom_);
@@ -222,6 +213,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
     edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
     return; 
   }
+
   
   if (hOverEConeSize_ > 0.) {
     mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
@@ -229,120 +221,104 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theHoverEcalc_=HoECalculator(theCaloGeom_);
 
 
+  caloPtrVecOutIn_.clear();
+  caloPtrVecInOut_.clear();
 
-  
-
-  /////////////
-  vecOfSCRefForOutIn.clear();
-  vecOfSCRefForInOut.clear();
-
-  buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
-  buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,vecOfSCRefForOutIn,vecOfSCRefForInOut );
+  buildCollections(scBarrelHandle, bcBarrelHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+  buildCollections(scEndcapHandle, bcEndcapHandle,  mhbhe.get(), *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
 
 
 
 
-  LogDebug("ConversionTrackCandidateProducer")  << "  ConversionTrackCandidateProducer vecOfSCRefForOutIn size " << vecOfSCRefForOutIn.size() << " vecOfSCRefForInOut size " << vecOfSCRefForInOut.size()  << "\n"; 
+  //  std::cout  << "  ConversionTrackCandidateProducer  caloPtrVecOutIn_ size " <<  caloPtrVecOutIn_.size() << " caloPtrVecInOut_ size " << caloPtrVecInOut_.size()  << "\n"; 
   
 
 
   // put all products in the event
  // Barrel
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event " << (*outInTrackCandidate_p).size() << " Out In track Candidates " << "\n";
+ std::cout  << "ConversionTrackCandidateProducer Putting in the event " << (*outInTrackCandidate_p).size() << " Out In track Candidates " << "\n";
  edm::LogInfo("ConversionTrackCandidateProducer") << "Number of outInTrackCandidates: " <<  (*outInTrackCandidate_p).size() << "\n";
  const edm::OrphanHandle<TrackCandidateCollection> refprodOutInTrackC = theEvent.put( outInTrackCandidate_p, OutInTrackCandidateCollection_ );
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodOutInTrackC size  " <<  (*(refprodOutInTrackC.product())).size()  <<  "\n";
+ std::cout  << "ConversionTrackCandidateProducer  refprodOutInTrackC size  " <<  (*(refprodOutInTrackC.product())).size()  <<  "\n";
  //
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
+ std::cout  << "ConversionTrackCandidateProducer Putting in the event  " << (*inOutTrackCandidate_p).size() << " In Out track Candidates " <<  "\n";
  edm::LogInfo("ConversionTrackCandidateProducer") << "Number of inOutTrackCandidates: " <<  (*inOutTrackCandidate_p).size() << "\n";
  const edm::OrphanHandle<TrackCandidateCollection> refprodInOutTrackC = theEvent.put( inOutTrackCandidate_p, InOutTrackCandidateCollection_ );
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
+ std::cout  << "ConversionTrackCandidateProducer  refprodInOutTrackC size  " <<  (*(refprodInOutTrackC.product())).size()  <<  "\n";
 
 
-  
-
- edm::ValueMap<reco::SuperClusterRef>::Filler fillerOI(*outInAssoc_p);
- fillerOI.insert(refprodOutInTrackC, vecOfSCRefForOutIn.begin(), vecOfSCRefForOutIn.end());
+ edm::ValueMap<reco::CaloClusterPtr>::Filler fillerOI(*outInAssoc_p);
+ fillerOI.insert(refprodOutInTrackC, caloPtrVecOutIn_.begin(), caloPtrVecOutIn_.end());
  fillerOI.fill();
- edm::ValueMap<reco::SuperClusterRef>::Filler fillerIO(*inOutAssoc_p);
- fillerIO.insert(refprodInOutTrackC, vecOfSCRefForInOut.begin(), vecOfSCRefForInOut.end());
+ edm::ValueMap<reco::CaloClusterPtr>::Filler fillerIO(*inOutAssoc_p);
+ fillerIO.insert(refprodInOutTrackC, caloPtrVecInOut_.begin(), caloPtrVecInOut_.end());
  fillerIO.fill();
 
 
- 
-
   
- LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Putting in the event   OutIn track - SC association: size  " <<  (*outInAssoc_p).size() << "\n";  
+ // std::cout  << "ConversionTrackCandidateProducer Putting in the event   OutIn track - SC association: size  " <<  (*outInAssoc_p).size() << "\n";  
  theEvent.put( outInAssoc_p, OutInTrackSuperClusterAssociationCollection_);
  
- LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Putting in the event   InOut track - SC association: size  " <<  (*inOutAssoc_p).size() << "\n";  
+ // std::cout << "ConversionTrackCandidateProducer Putting in the event   InOut track - SC association: size  " <<  (*inOutAssoc_p).size() << "\n";  
  theEvent.put( inOutAssoc_p, InOutTrackSuperClusterAssociationCollection_);
+
 
 
   
 }
 
 
-void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<reco::SuperClusterCollection> & scHandle,
-                                                         const edm::Handle<reco::BasicClusterCollection> & bcHandle,
+void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+                                                         const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 							 HBHERecHitMetaCollection *mhbhe,
 							 TrackCandidateCollection& outInTrackCandidates,
 							 TrackCandidateCollection& inOutTrackCandidates,
-							 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecOI,
-							 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecIO)
+							 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
+							 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO )
 
 {
 
+  //  std::cout << "ConversionTrackCandidateProducer builcollections bc size " << bcHandle->size() <<  "\n";
 
   //  Loop over SC in the barrel and reconstruct converted photons
-  
-  int lSC=0; // local index for getting the right Ref to supercluster 
-  reco::BasicClusterCollection clusterCollection = *(bcHandle.product());
-  reco::SuperClusterCollection scCollection = *(scHandle.product());
-  reco::SuperClusterCollection::iterator aClus;
+  for (unsigned i = 0; i < scHandle->size(); ++i ) {
 
-  for(aClus = scCollection.begin(); aClus != scCollection.end(); ++aClus) {
-    // get the ref to SC
-    reco::SuperClusterRef scRefOutIn(reco::SuperClusterRef(scHandle, lSC));
-    reco::SuperClusterRef scRefInOut(reco::SuperClusterRef(scHandle, lSC));
-    lSC++;
-
+    reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
     // preselection
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
-    const reco::SuperCluster* pClus=&(*aClus);
-    double HoE=theHoverEcalc_(pClus,mhbhe);
+
+
+    const reco::CaloCluster* pClus=&(*aClus);
+    const reco::SuperCluster*  sc=dynamic_cast<const reco::SuperCluster*>(pClus);
+    double HoE=theHoverEcalc_(sc,mhbhe);
     if (HoE>=maxHOverE_)  continue;
 
+    theOutInSeedFinder_->setCandidate(pClus->energy(), GlobalPoint(pClus->position().x(),pClus->position().y(),pClus->position().z() ) );
+    theOutInSeedFinder_->makeSeeds( bcHandle );
 
-    theOutInSeedFinder_->setCandidate(*aClus);
-    theOutInSeedFinder_->makeSeeds(  clusterCollection );
-
-
-    
     std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds(),  outInTrackCandidates);    
 
-    theInOutSeedFinder_->setCandidate(*aClus);
+ 
+    theInOutSeedFinder_->setCandidate(pClus->energy(), GlobalPoint(pClus->position().x(),pClus->position().y(),pClus->position().z() ) );  
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
-    theInOutSeedFinder_->makeSeeds(  clusterCollection);
+    theInOutSeedFinder_->makeSeeds(  bcHandle);
     
     std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds(),  inOutTrackCandidates); 
 
 
     // Debug
-   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size barrel " << outInTrackCandidates.size() << " in out track size " << inOutTrackCandidates.size() <<   "\n";
+    //   std::cout  << "ConversionTrackCandidateProducer  theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size barrel " << outInTrackCandidates.size() << " in out track size " << inOutTrackCandidates.size() <<   "\n";
 
 
    //////////// Fill vectors of Ref to SC to be used for the Track-SC association
     for (std::vector<Trajectory>::const_iterator it = theOutInTracks.begin(); it !=  theOutInTracks.end(); ++it) {
-      vecOfSCRefForOutIn.push_back( scRefOutIn );
-           
-     LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Barrel OutIn Tracks Number of hits " << (*it).foundHits() << "\n"; 
+      caloPtrVecOutIn_.push_back(aClus);
+      //     std::cout  << "ConversionTrackCandidateProducer Barrel OutIn Tracks Number of hits " << (*it).foundHits() << "\n"; 
     }
 
     for (std::vector<Trajectory>::const_iterator it = theInOutTracks.begin(); it !=  theInOutTracks.end(); ++it) {
-      vecOfSCRefForInOut.push_back( scRefInOut );
-
-     LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer Barrel InOut Tracks Number of hits " << (*it).foundHits() << "\n"; 
+      caloPtrVecInOut_.push_back(aClus);
+      //     std::cout  << "ConversionTrackCandidateProducer Barrel InOut Tracks Number of hits " << (*it).foundHits() << "\n"; 
     }
 
 

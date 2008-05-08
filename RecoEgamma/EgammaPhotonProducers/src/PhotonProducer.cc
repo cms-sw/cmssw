@@ -31,12 +31,19 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 {
 
   // use onfiguration file to setup input/output collection names
+<<<<<<< PhotonProducer.cc
+  scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
+  scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
+  barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
+  endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
+=======
   scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
   //  scHybridBarrelCollection_     = conf_.getParameter<std::string>("scHybridBarrelCollection");
   //  scIslandEndcapCollection_     = conf_.getParameter<std::string>("scIslandEndcapCollection");
   barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
   endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
+>>>>>>> 1.39
 
   conversionProducer_ = conf_.getParameter<std::string>("conversionProducer");
   conversionCollection_ = conf_.getParameter<std::string>("conversionCollection");
@@ -50,8 +57,12 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   maxHOverE_        = conf_.getParameter<double>("maxHOverE");
   minSCEt_        = conf_.getParameter<double>("minSCEt");
   minR9_        = conf_.getParameter<double>("minR9");
+<<<<<<< PhotonProducer.cc
+  likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
+=======
   likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
 
+>>>>>>> 1.39
 
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
@@ -73,7 +84,11 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 }
 
 PhotonProducer::~PhotonProducer() {
+<<<<<<< PhotonProducer.cc
+delete theLikelihoodCalc_;
+=======
   delete theLikelihoodCalc_;
+>>>>>>> 1.39
 }
 
 
@@ -113,8 +128,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::SuperClusterCollection scEndcapCollection = *(scEndcapHandle.product());
   edm::LogInfo("PhotonProducer") << " Accessing Endcap SC collection with size : " << scEndcapCollection.size()  << "\n";
   
-
-  // Get EcalRecHits
+ // Get EcalRecHits
   Handle<EcalRecHitCollection> barrelHitHandle;
   theEvent.getByLabel(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
@@ -131,6 +145,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     return;
   }
   const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
+
 
   // get the geometry from the event setup:
   theEventSetup.get<IdealGeometryRecord>().get(theCaloGeom_);
@@ -220,6 +235,9 @@ void PhotonProducer::fillPhotonCollection(
 		   math::XYZPoint & vtx,
 		   reco::PhotonCollection & outputPhotonCollection, int& iSC) {
 
+
+
+
   reco::SuperClusterCollection scCollection = *(scHandle.product());
   reco::SuperClusterCollection::iterator aClus;
   reco::ElectronPixelSeedCollection::const_iterator pixelSeedItr;
@@ -284,6 +302,20 @@ void PhotonProducer::fillPhotonCollection(
     reco::Photon newCandidate(p4, caloPosition, scRef, HoE, hasSeed, vtx);
 
     if ( validConversions_) {
+<<<<<<< PhotonProducer.cc
+      
+      
+      if ( risolveAmbiguity_ ) { 
+	
+        reco::ConversionRef bestRef=solveAmbiguity( conversionHandle , scRef);	
+
+	newCandidate.addConversion(bestRef);     
+
+	
+      } else {
+	
+	
+=======
 
       
       if ( risolveAmbiguity_ ) { 
@@ -296,33 +328,117 @@ void PhotonProducer::fillPhotonCollection(
       } else {
 	
 	
+>>>>>>> 1.39
 	int icp=0;
 	
 	for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
 	  
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
 	  icp++;      
-	  
-          if ( scRef != (*itCP).superCluster() ) continue; 
+          
+          if (!( scRef.id() == (*itCP).caloCluster()[0].id() && scRef.key() == (*itCP).caloCluster()[0].key() )) continue; 
 	  if ( !(*itCP).isConverted() ) continue;  
-	  
-	  
 	  newCandidate.addConversion(cpRef);     
+<<<<<<< PhotonProducer.cc
 	}	  
 	
       } // solve or not the ambiguity	     
-
-
-
       
     }
+
 
     outputPhotonCollection.push_back(newCandidate);
     
     
   }
+
+
+=======
+	}	  
+	
+      } // solve or not the ambiguity	     
+>>>>>>> 1.39
+
+<<<<<<< PhotonProducer.cc
   
 }
+=======
+>>>>>>> 1.39
+
+
+<<<<<<< PhotonProducer.cc
+reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& scRef) {
+=======
+      
+    }
+>>>>>>> 1.39
+
+  std::multimap<reco::ConversionRef, double >   convMap;
+  int icp=0;
+  reco::ConversionCollection conversionCollection  = *(conversionHandle.product());
+  for( reco::ConversionCollection::const_iterator  itCP = conversionCollection.begin(); itCP != conversionCollection.end(); itCP++) {
+    reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
+    icp++;      
+    
+
+    if (!( scRef.id() == (*itCP).caloCluster()[0].id() && scRef.key() == (*itCP).caloCluster()[0].key() )) continue; 
+    if ( !(*itCP).isConverted() ) continue;  
+        
+    double like = theLikelihoodCalc_->calculateLikelihood(cpRef);
+    //    std::cout << " Like " << like << std::endl;
+    convMap.insert ( std::make_pair(cpRef,like) ) ;
+  }		     
+  
+  
+  
+  std::multimap<reco::ConversionRef, double >::iterator  iMap; 
+  double max_lh = -1.;
+  reco::ConversionRef bestRef;
+  //std::cout << " Pick up the best conv " << std::endl;
+  for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
+    double like = iMap->second;
+    if (like > max_lh) { 
+      max_lh = like;
+      bestRef=iMap->first;
+    }
+  }            
+  
+  //std::cout << " Best conv like " << max_lh << std::endl;    
+  
+  float ep=0;
+  if ( max_lh <0 ) {
+    //  std::cout << " Candidates with only one track " << std::endl;
+    /// only one track reconstructed. Pick the one with best E/P
+    float epMin=999; 
+    
+    for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
+      reco::ConversionRef convRef=iMap->first;
+      std::vector<reco::TrackRef> tracks = convRef->tracks();	
+	    float px=tracks[0]->innerMomentum().x();
+	    float py=tracks[0]->innerMomentum().y();
+	    float pz=tracks[0]->innerMomentum().z();
+	    float p=sqrt(px*px+py*py+pz*pz);
+	    ep=fabs(1.- (convRef->caloCluster()[0]->energy()/p));
+	    //    std::cout << " 1-E/P = " << ep << std::endl;
+	    if ( ep<epMin) {
+	      epMin=ep;
+	      bestRef=iMap->first;
+	    }
+    }
+    //std::cout << " Best conv 1-E/P " << ep << std::endl;    
+            
+  }
+  
+
+  return bestRef;
+  
+  
+} 
+
+
+
+
+
 
 
 reco::ConversionRef  PhotonProducer::solveAmbiguity(const edm::Handle<reco::ConversionCollection> & conversionHandle, reco::SuperClusterRef& scRef) {
