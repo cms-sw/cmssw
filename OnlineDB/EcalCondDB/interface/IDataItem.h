@@ -70,6 +70,8 @@ class IDataItem : public IDBObject {
   // Prepare a statement for writing operations
   virtual void prepareWrite() 
     throw(std::runtime_error) =0;
+
+
 };
 
 #endif

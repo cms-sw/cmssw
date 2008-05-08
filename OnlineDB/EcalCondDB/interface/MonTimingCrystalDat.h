@@ -1,51 +1,13 @@
-#ifndef MONTIMINGCRYSTALDAT_H
-#define MONTIMINGCRYSTALDAT_H
+#ifndef MONTIMINGXTALDAT_H
+#define MONTIMINGXTALDAT_H
 
-#include <map>
-#include <stdexcept>
+#include "OnlineDB/EcalCondDB/interface/ITimingDat.h"
 
-#include "OnlineDB/EcalCondDB/interface/IDataItem.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
-#include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
-#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
-
-class MonTimingCrystalDat : public IDataItem {
+class MonTimingCrystalDat : public ITimingDat {
  public:
-  friend class EcalCondDBInterface;
-  MonTimingCrystalDat();
-  ~MonTimingCrystalDat();
-
   // User data methods
-  inline std::string getTable() { return "MON_TIMING_CRYSTAL_DAT"; }
-
-  inline void setTimingMean(float mean) { m_timingMean = mean; }
-  inline float getTimingMean() const { return m_timingMean; }
-  
-  inline void setTimingRMS(float rms) { m_timingRMS = rms; }
-  inline float getTimingRMS() const { return m_timingRMS; }
-
-  inline void setTaskStatus(bool status) { m_taskStatus = status; }
-  inline bool getTaskStatus() const { return m_taskStatus; }
-  
-
- private:
-  void prepareWrite() 
-    throw(std::runtime_error);
-
-  void writeDB(const EcalLogicID* ecid, const MonTimingCrystalDat* item, MonRunIOV* iov)
-    throw(std::runtime_error);
-
-  void writeArrayDB(const std::map< EcalLogicID, MonTimingCrystalDat >* data, MonRunIOV* iov)
-    throw(std::runtime_error);
-
-  void fetchData(std::map< EcalLogicID, MonTimingCrystalDat >* fillVec, MonRunIOV* iov)
-     throw(std::runtime_error);
-
-  // User data
-  float m_timingMean;
-  float m_timingRMS;
-  bool m_taskStatus;
-  
+  inline std::string getTable() { return "MON_TIMING_CRYSTAL_DAT";}
+   
 };
 
 #endif

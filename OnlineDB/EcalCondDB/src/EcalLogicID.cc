@@ -1,4 +1,4 @@
-// $Id: EcalLogicID.cc,v 1.2 2005/10/07 20:48:07 egeland Exp $
+// $Id: EcalLogicID.cc,v 1.1 2006/03/01 23:39:52 egeland Exp $
 
 #include <string>
 
@@ -21,7 +21,7 @@ EcalLogicID::EcalLogicID( std::string name,
   this->id1 = id1;
   this->id2 = id2;
   this->id3 = id3;
-  if (mapsTo == "") {
+  if (mapsTo.size() == 0) {
     this->mapsTo = name;
   } else {
     this->mapsTo = mapsTo;

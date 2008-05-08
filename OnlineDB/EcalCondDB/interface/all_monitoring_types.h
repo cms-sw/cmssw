@@ -42,6 +42,20 @@
 #include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTimingTTDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTTConsistencyDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserBlueCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserBlueTTDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserGreenCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserGreenTTDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserIRedCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserIRedTTDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserRedCrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLaserRedTTDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed1CrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed1TTDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed2CrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed2TTDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingTTDat.h"
+
 
 #endif
 
