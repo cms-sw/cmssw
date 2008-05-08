@@ -111,6 +111,8 @@ void CSCMonitorModule::setup() {
   }
   LOGINFO("DDU histograms") << " # of DDU to be prebooked for monitoring = " << loadDDU.count() << " following bitset = " << loadDDU << " (hitBookDDU = " << std::boolalpha << hitBookDDU << ")";
 
+  LOGINFO("Fraction histograms") << " updateKey = " << fractUpdateKey << ", update on events (freq) = " << fractUpdateEvF;
+
   this->init = true;
 
 }
@@ -138,7 +140,7 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
   monitorEvent(e);
 
   // Update fractional histograms if appropriate
-  if (fractUpdateKey.test(3) && (nEvents % fractUpdateEvF) == 0) { 
+  if (fractUpdateKey.test(2) && (nEvents % fractUpdateEvF) == 0) { 
     updateFracHistos();
   }
 
@@ -160,13 +162,13 @@ void CSCMonitorModule::beginRun(const edm::Run& r, const edm::EventSetup& contex
 }
 
 void CSCMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context) {
-  if (fractUpdateKey.test(1)) { 
+  if (fractUpdateKey.test(0)) { 
     updateFracHistos();
   }
 }
 
 void CSCMonitorModule::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
-  if (fractUpdateKey.test(2)) {
+  if (fractUpdateKey.test(1)) {
     updateFracHistos();
   }
 }

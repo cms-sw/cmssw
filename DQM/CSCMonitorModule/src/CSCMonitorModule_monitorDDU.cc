@@ -34,9 +34,6 @@ void CSCMonitorModule::monitorDDU(const CSCDDUEventData& dduEvent){
   CSCDDUTrailer dduTrailer = dduEvent.trailer();
 
   int dduID = dduHeader.source_id()&0xFF; // Only 8bits are significant; format of DDU id is Dxx;
-  int fdduID = dduHeader.source_id(); // Only 8bits are significant; format of DDU id is Dxx;
-
-  LOGINFO("DDU information") << "dduID = " << dduID << ", fdduID = " << fdduID<< ", dduHeader.source_id() = " << dduHeader.source_id();
 
   if (MEEMU("All_DDUs_in_Readout", me)) me->Fill(dduID);
 
