@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/03/10 18:00:44 $
- * $Revision: 1.58 $
+ * $Date: 2008/04/29 17:40:11 $
+ * $Revision: 1.59 $
  * \author W Fisher
  *
 */
@@ -174,7 +174,8 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
     meRunType_ = dbe_->bookInt("RUN TYPE");
     meEvtMask_ = dbe_->bookInt("EVT MASK");
     meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
-    meLatency_ = dbe_->book1D("Process Latency","Process Latency",200,0,1);
+    // process latency was (200,0,1), but that gave overflows
+    meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
     meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
