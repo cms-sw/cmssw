@@ -13,9 +13,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateSuperClusterAssociation.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::ParameterSet& iConfig):
   TrackProducerBase<reco::Track>(iConfig.getParameter<bool>("TrajectoryInEvent")),
@@ -45,7 +45,8 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
   produces<TrajTrackAssociationCollection>();
-  produces< reco::TrackSuperClusterAssociationCollection > (trackSuperClusterAssociationCollection_ );
+  //  produces< reco::TrackSuperClusterAssociationCollection > (trackSuperClusterAssociationCollection_ );
+  produces< reco::TrackCaloClusterPtrAssociation > (trackSuperClusterAssociationCollection_ );
 
 }
 
@@ -55,7 +56,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   edm::LogInfo("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
 
   //LogDebug("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
-  LogDebug("TrackProducerWithSCAssociation") << "Analyzing event number: " << theEvent.id() << "\n";
+  //  std::cout << " TrackProducerWithSCAssociation Analyzing event number: " << theEvent.id() << "\n";
 
 
   //
@@ -66,7 +67,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   std::auto_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
   std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
   //   Reco Track - Super Cluster Association
-  std::auto_ptr<reco::TrackSuperClusterAssociationCollection> scTrkAssoc_p(new reco::TrackSuperClusterAssociationCollection);
+  std::auto_ptr<reco::TrackCaloClusterPtrAssociation> scTrkAssoc_p(new reco::TrackCaloClusterPtrAssociation);
 
   //
   //declare and get stuff to be retrieved from ES
@@ -84,11 +85,11 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   //declare and get TrackColection to be retrieved from the event
   edm::Handle<TrackCandidateCollection> theTCCollection;
   //// Get the association map between candidate out in tracks and the SC where they originated
-  edm::Handle<reco::TrackCandidateSuperClusterAssociationCollection> trkCandidateSCAssocHandle;
+  edm::Handle<reco::TrackCandidateCaloClusterPtrAssociation> trkCandidateSCAssocHandle;
 
   theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
-  reco::TrackCandidateSuperClusterAssociationCollection scTrkCandAssCollection = *trkCandidateSCAssocHandle;  
-  LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation  TrkCandidateSCAssoc collection size " << (*trkCandidateSCAssocHandle).size() <<"\n";
+  reco::TrackCandidateCaloClusterPtrAssociation scTrkCandAssCollection = *trkCandidateSCAssocHandle;  
+  //  std::cout   << "TrackProducerWithSCAssociation  TrkCandidateSCAssoc collection size " << (*trkCandidateSCAssocHandle).size() <<"\n";
 
   std::vector<int> tccLocations;
   AlgoProductCollection algoResults;
@@ -110,7 +111,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     // this is ugly temporary code that should be replaced!!!!!
     // start of copied code ======================================================
   
-    LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation  Number of TrackCandidates: " << theTCCollection->size() << "\n";
+    //    std::cout << "TrackProducerWithSCAssociation  Number of TrackCandidates: " << theTCCollection->size() << "\n";
     try{  
       int cont = 0;
       int tcc=0;
@@ -168,23 +169,22 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     // now construct associationmap and put it in the  event
     int itrack=0;
     
-    std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRef; 
+    //    std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRef; 
+    std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVec;
 
     for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-      edm::Ref<reco::TrackCollection> trackRef(rTracks_,itrack);
       edm::Ref<TrackCandidateCollection> trackCRef(theTCCollection,tccLocations[itrack]);
-      reco::SuperClusterRef scRef( scTrkCandAssCollection[trackCRef] );
-      vecOfSCRef.push_back( scRef );
+      const edm::Ptr<reco::CaloCluster>&  aClus = (*trkCandidateSCAssocHandle)[trackCRef];
+      caloPtrVec.push_back( aClus );
       itrack++;
     }
     
-    
-    edm::ValueMap<reco::SuperClusterRef>::Filler filler(*scTrkAssoc_p);
-    filler.insert(rTracks_, vecOfSCRef.begin(), vecOfSCRef.end());
+
+    edm::ValueMap<reco::CaloClusterPtr>::Filler filler(*scTrkAssoc_p);
+    filler.insert(rTracks_, caloPtrVec.begin(), caloPtrVec.end());
     filler.fill();
     
-    
-    LogDebug("TrackProducerWithSCAssociation")<< "TrackProducerWithSCAssociation going to put the Track-SC map in the event with size  " << (*scTrkAssoc_p).size() << std::endl;
+
     theEvent.put(scTrkAssoc_p,trackSuperClusterAssociationCollection_ ); 
     
   }
