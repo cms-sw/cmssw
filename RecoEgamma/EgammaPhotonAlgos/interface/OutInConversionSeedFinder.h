@@ -4,17 +4,17 @@
 /** \class OutInConversionSeedFinder
  **  
  **
- **  $Id: OutInConversionSeedFinder.h,v 1.6 2007/05/23 17:38:17 nancy Exp $ 
- **  $Date: 2007/05/23 17:38:17 $ 
- **  $Revision: 1.6 $
+ **  $Id: OutInConversionSeedFinder.h,v 1.7 2008/02/15 16:47:15 nancy Exp $ 
+ **  $Date: 2008/02/15 16:47:15 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -49,15 +49,15 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   
   
   
-  virtual void  makeSeeds(const reco::BasicClusterCollection& allBc) const  ;
-  
+  virtual void  makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const  ;
+  virtual void  makeSeeds( const reco::CaloClusterPtr&  aBC ) const  ;  
   
  private:
   
   edm::ParameterSet conf_;
   std::pair<FreeTrajectoryState,bool> makeTrackState(int charge) const ;
   
-  void fillClusterSeeds(const reco::BasicCluster* bc) const ;
+  void fillClusterSeeds(const reco::CaloClusterPtr& bc) const ;
   
   void startSeed(const FreeTrajectoryState &) const;
   void completeSeed(const TrajectoryMeasurement & m1,

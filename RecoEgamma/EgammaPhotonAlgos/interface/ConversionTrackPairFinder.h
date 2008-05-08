@@ -18,10 +18,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 //
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 
 class ConversionTrackPairFinder {
 
@@ -33,19 +36,12 @@ public:
   ~ConversionTrackPairFinder();
 
 
-  //   std::vector<std::vector<reco::TransientTrack> > run(std::vector<reco::TransientTrack> outIn,  
-  //					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
-  //					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>&  outInTrackSCAssH, 
-  //					      std::vector<reco::TransientTrack> inOut,  
-  //					      const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
-  //					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  );
-
-  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  run(std::vector<reco::TransientTrack> outIn,  
+  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>  run(std::vector<reco::TransientTrack> outIn,  
   					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
-  					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>&  outInTrackSCAssH, 
+  					      const edm::Handle<reco::TrackCaloClusterPtrAssociation>&  outInTrackSCAssH, 
   					      std::vector<reco::TransientTrack> inOut,  
   					      const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
-  					      const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  );
+  					      const edm::Handle<reco::TrackCaloClusterPtrAssociation>& inOutTrackSCAssH  );
 
 
  private:

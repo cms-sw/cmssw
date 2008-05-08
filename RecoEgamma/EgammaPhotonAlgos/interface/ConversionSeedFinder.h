@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.7 2007/03/07 16:49:30 nancy Exp $ 
- **  $Date: 2007/03/07 16:49:30 $ 
- **  $Revision: 1.7 $
+ **  $Id: ConversionSeedFinder.h,v 1.8 2008/02/15 16:45:27 nancy Exp $ 
+ **  $Date: 2008/02/15 16:45:27 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -13,8 +13,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/View.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
@@ -56,12 +57,12 @@ class ConversionSeedFinder {
   virtual ~ConversionSeedFinder(){}
 
   
-  virtual void makeSeeds(const reco::BasicClusterCollection& allBc ) const  =0 ;
+  virtual void makeSeeds(const edm::Handle<edm::View<reco::CaloCluster> > & allBc ) const  =0 ;
  
 
 
   TrajectorySeedCollection seeds() {  return theSeeds_;}
-  virtual void setCandidate(reco::SuperCluster& sc ) const { theSC_=&sc; }			       
+  virtual void setCandidate( float e, GlobalPoint pos ) const {  theSCenergy_=e; theSCPosition_= pos; }			       
   std::vector<const DetLayer*> layerList() const { return theLayerList_;}
  
   
@@ -104,7 +105,8 @@ class ConversionSeedFinder {
 
   KFUpdator                  theUpdator_;
   PropagationDirection       dir_; 
-  mutable reco::SuperCluster*  theSC_;
+  mutable reco::CaloCluster*  theSC_;
+  mutable float theSCenergy_;  
 
   
   mutable std::vector<const DetLayer *> theLayerList_ ;    

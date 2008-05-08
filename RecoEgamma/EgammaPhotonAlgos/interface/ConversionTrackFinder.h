@@ -4,9 +4,9 @@
 /** \class ConversionTrackFinder
  **  
  **
- **  $Id: ConversionTrackFinder.h,v 1.6 2007/05/29 10:11:45 elmer Exp $ 
- **  $Date: 2007/05/29 10:11:45 $ 
- **  $Revision: 1.6 $
+ **  $Id: ConversionTrackFinder.h,v 1.7 2008/02/15 16:45:35 nancy Exp $ 
+ **  $Date: 2008/02/15 16:45:35 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -17,7 +17,6 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 //
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 //
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"

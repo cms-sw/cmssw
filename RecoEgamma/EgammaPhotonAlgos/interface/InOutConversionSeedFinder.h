@@ -4,15 +4,16 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.9 2007/09/27 18:07:08 nancy Exp $ 
- **  $Date: 2007/09/27 18:07:08 $ 
- **  $Revision: 1.9 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.10 2008/02/15 16:46:39 nancy Exp $ 
+ **  $Date: 2008/02/15 16:46:39 $ 
+ **  $Revision: 1.10 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/View.h"
+
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
@@ -54,7 +55,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   virtual ~InOutConversionSeedFinder();
   
   
-  virtual void  makeSeeds( const reco::BasicClusterCollection& allBc) const;
+  virtual void  makeSeeds(  const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const;
   
   
   
@@ -69,7 +70,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   virtual void findSeeds(const TrajectoryStateOnSurface & startingState,
 			 float signedpt, unsigned int startingLayer) const ;
   
-  std::vector<const reco::BasicCluster*> getSecondBasicClusters(const GlobalPoint & conversionPosition, float charge) const;
+  std::vector<const reco::CaloCluster*> getSecondCaloClusters(const GlobalPoint & conversionPosition, float charge) const;
   void completeSeed(const TrajectoryMeasurement & m1,FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const;
   void createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const ;
 
@@ -90,9 +91,8 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   std::vector<Trajectory> theOutInTracks_;
   mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
 
-  mutable reco::BasicCluster theSecondBC_;
-  mutable reco::BasicClusterCollection  bcCollection_;
-  
+  mutable reco::CaloCluster theSecondBC_;
+  mutable edm::Handle<edm::View<reco::CaloCluster> >  bcCollection_;
 
   
 };
