@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/10/08 14:30:03 $
- * $Revision: 1.7 $
+ * $Date: 2008/03/03 14:41:36 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -75,7 +75,7 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::lctDigis(
   // configuration file eventually.
   const int fifo_tbins  = 16;
   const int bx_width    =  6;
-  const int drift_delay =  3;
+  const int drift_delay =  2;
 
   // Inquire the alct for its pattern and key wiregroup.
   int alct_pattern = 0;
