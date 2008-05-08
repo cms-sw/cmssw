@@ -155,7 +155,8 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 							   unrolled[i].soi,
 							   unrolled[i].databits));
       }
-      std::cout << "Size: " << colls.tphoCont->size() << std::endl;
+      // this if floosing the reco jobs in 21X!!! Shahram 8 may 2008
+      //std::cout << "Size: " << colls.tphoCont->size() << std::endl;
     } else {
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
