@@ -1176,6 +1176,8 @@ class DQMDBSgui:
         # Get list of runs -- whenever we change info, we write to pickle file
         # Therefore, read from the file to get the latest & greatest
         self.readPickle() 
+
+        if (self.debug): print "<runDQM>  Read pickle file"
         if len(self.filesInDBS.keys())==0:
             self.commentLabel.configure(text = "Sorry, no file info available.\nTry the 'Check DBS for Runs' button first.")
             self.dqmProgress.configure(text="No Run Info available",
@@ -1199,6 +1201,7 @@ class DQMDBSgui:
         mycount=0
         goodcount=0
         for i in x:
+            if self.debug:  print "<runDQM> Checking run #%i"%i
             self.commentLabel.configure(text="Running DQM on run #%i"%i)
             self.dqmProgress.configure(text="Running DQM on run #%i"%i,
                                        bg=self.bg_alt)
@@ -1206,6 +1209,7 @@ class DQMDBSgui:
             # Allow user to break loop via setting the runningDQM variable
             # (change to BooleanVar?)
             if (self.runningDQM==False):
+                if self.debug:  print "<runDQM> runningDQM bool = False"
                 self.dqmButton.configure(state=ACTIVE)
                 break
             # ignore files if necessary
@@ -1244,6 +1248,7 @@ class DQMDBSgui:
                 # nothing started yet; begin DQM
 
                 # First check that cmsRun is available
+                if (self.debug): print "<runDQM> looking for cmsRun"
                 checkcmsRun=os.popen3("which cmsRun")
                 # popen3 returns 3 streams -- in, out, and stderr
                 # check that stderr is empty
@@ -1257,12 +1262,14 @@ class DQMDBSgui:
                 if (self.callDQMscript(i)):
                     self.filesInDBS[i].finishedDQM=True
                     goodcount=goodcount+1
-
-
+                
+            if (self.debug):
+                print "<runDQM> made it through callDQMscript"
 
             # Every 20 minutes or so, check for updates to DBS files
             
             if (time.time()-mytime)>20*60:
+                if (self.debug): print "<runDQM> getting time info"
                 mytime=time.time()
                 self.checkDBS()
                 newfiles=False
@@ -1279,6 +1286,8 @@ class DQMDBSgui:
                 else:
                     self.runningDQM=True
 
+        if (self.debug):
+            print "<runDQM> Hi there!"
         self.runningDQM=False
         self.writePickle()
 
@@ -1350,13 +1359,17 @@ class DQMDBSgui:
 
         if os.path.isdir(os.path.join(self.basedir,x)):
             success=True
+            if (self.debug):
+                print "<callDQMScript> success=True!"
 
             #print "Directory exists!"
             # If final destination is in local area, and
             # if final dir differs from base dir, move to that directory
-            if (self.copyLocVar.get()=="Local area" and
+            if (
+                #self.copyLocVar.get()=="Local area" and # copyLocVar doesn't exist at the moment!
                  self.finalDir.get()<>self.basedir):
-                #print "Checking for root file"
+                if self.debug:
+                    print "Checking for root file"
                 # move .root file, if it's been created
                 temproot="%s.root"%(os.path.join(self.basedir,x))
                 #print "temproot = ",temproot
@@ -1381,11 +1394,16 @@ class DQMDBSgui:
                 self.commentLabel.configure(text = "moved folder %s\n to directory %s"%(x,self.finalDir.get()))
                 self.root.update()
                 time.sleep(1)
+
+            if (self.debug):
+                print "<CallDQMscript> What's going on?"
             # This needs to be updated once we figure out how to auto scp
-            elif (self.copyLocVar.get()=="cmshcal01"):
+            #elif (self.copyLocVar.get()=="cmshcal01"):
                 #os.system("scp %s ..."%x)  # update with end location name!
-                print "cmshcal01 copying not yet implemented!"
+                #print "cmshcal01 copying not yet implemented!"
                 
+        if self.debug:
+            print "<CallDQMScript> Success = %s"%success
         return success
 
 
@@ -1737,7 +1755,7 @@ class DQMDBSgui:
             return
         text="scp -r "
         for i in movelist:
-            text=text+"%s "%os.path.join(self.finalDir.get(),"copied_to_hcaldqm","copied_to_hcaldqm",i)
+            text=text+"%s "%os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i)
         text=text+" hcalusc55@cmshcal01:/hcaldqm/global_auto\n\n"
         #print text
         #os.system(text)
@@ -1747,12 +1765,12 @@ class DQMDBSgui:
                               os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
             #print cmd
             os.system(cmd)
-        helpfunctions.Helpwin(text,usetext=1,title="Execute this command in your lxplus window now!" )
+        helpfunctions.Helpwin(text,usetext=1,title="Cut and paste this command into your lxplus window now!" )
         return
 
 ############################################
 
 if __name__=="__main__":
 
-    mygui=DQMDBSgui()  # set up gui
+    mygui=DQMDBSgui(debug=0)  # set up gui
     mygui.root.mainloop() # run main loop
