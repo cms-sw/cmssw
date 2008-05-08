@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIds.cc,v 1.2 2008/04/30 13:32:13 bainbrid Exp $
+// Last commit: $Id: DcuDetIds.cc,v 1.3 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -404,37 +404,11 @@ void SiStripConfigDb::clone( const DcuDetIdsV& input, DcuDetIdsV& output ) const
   for ( ; ii != jj; ++ii ) { if ( ii->second ) { output.push_back( std::make_pair( ii->first, new TkDcuInfo( *(ii->second) ) ) ); } }
 }
 
-// // -----------------------------------------------------------------------------
-// // 
-// SiStripConfigDb::DcuDetIdsV::const_iterator SiStripConfigDb::find( DcuDetIdsV::const_iterator begin, 
-// 								   DcuDetIdsV::const_iterator end, 
-// 								   uint32_t dcu_id  ) {
-//   DcuDetIdsV::const_iterator iter = begin;
-//   DcuDetIdsV::const_iterator jter = end;
-//   for ( ; iter != jter; ++iter  ) {
-//     if ( iter->second && iter->second->getDcuHardId() == dcu_id ) { return iter; }
-//   }
-//   return end;
-// }
-
-// // -----------------------------------------------------------------------------
-// // 
-// SiStripConfigDb::DcuDetIdsV::iterator SiStripConfigDb::find( DcuDetIdsV::iterator begin, 
-// 							     DcuDetIdsV::iterator end, 
-// 							     uint32_t dcu_id  ) {
-//   DcuDetIdsV::iterator iter = begin;
-//   DcuDetIdsV::iterator jter = end;
-//   for ( ; iter != jter; ++iter  ) {
-//     if ( iter->second && iter->second->getDcuHardId() == dcu_id ) { return iter; }
-//   }
-//   return end;
-// }
-
 // -----------------------------------------------------------------------------
 // 
 SiStripConfigDb::DcuDetIdsV::const_iterator SiStripConfigDb::findDcuDetId( DcuDetIdsV::const_iterator begin, 
-									  DcuDetIdsV::const_iterator end, 
-									  uint32_t dcu_id  ) {
+									   DcuDetIdsV::const_iterator end, 
+									   uint32_t dcu_id  ) {
   DcuDetIdsV::const_iterator iter = begin;
   DcuDetIdsV::const_iterator jter = end;
   for ( ; iter != jter; ++iter  ) {
@@ -446,8 +420,8 @@ SiStripConfigDb::DcuDetIdsV::const_iterator SiStripConfigDb::findDcuDetId( DcuDe
 // -----------------------------------------------------------------------------
 // 
 SiStripConfigDb::DcuDetIdsV::iterator SiStripConfigDb::findDcuDetId( DcuDetIdsV::iterator begin, 
-								    DcuDetIdsV::iterator end, 
-								    uint32_t dcu_id  ) {
+								     DcuDetIdsV::iterator end, 
+								     uint32_t dcu_id  ) {
   DcuDetIdsV::iterator iter = begin;
   DcuDetIdsV::iterator jter = end;
   for ( ; iter != jter; ++iter  ) {
