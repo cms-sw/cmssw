@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.1 2008/05/06 10:48:05 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.2 2008/05/06 12:20:01 pivarski Exp $
 //
 //
 
@@ -147,9 +147,6 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       int last_station = 0;
       DetId last_id;
 
-      edm::OwnVector<TrackingRecHit> clonedHits;
-      std::vector<TrajectoryStateOnSurface> TSOSes;
-	    
       for (trackingRecHit_iterator hit = track->recHitsBegin();  hit != track->recHitsEnd();  ++hit) {
 	 DetId id = (*hit)->geographicalId();
 
@@ -204,6 +201,10 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	 hits_by_station.push_back(current_station);
       }
 
+      edm::OwnVector<TrackingRecHit> clonedHits;
+      std::vector<TrajectoryMeasurement::ConstRecHitPointer> transHits;
+      std::vector<TrajectoryStateOnSurface> TSOSes;
+	    
       for (std::vector<std::vector<const TrackingRecHit*> >::const_iterator station = hits_by_station.begin();  station != hits_by_station.end();  ++station) {
 	 if (station->size() > 0) {
 
@@ -226,11 +227,24 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    for (std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();  hit != station->end();  ++hit) {
 	       DetId id = (*hit)->geographicalId();
 
+	       clonedHits.push_back((*hit)->clone());
+	       TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(clonedHits.back()), globalGeometry));
+	       transHits.push_back(hitPtr);
+
 	       LocalPoint localPoint = (*hit)->localPosition();
-	       LocalError localError = (*hit)->localPositionError();
-	       double sigma_xx = localError.xx();
-	       double sigma_xy = localError.xy();
-	       double sigma_yy = localError.yy();
+//	       LocalError localError = (*hit)->localPositionError();
+// 	       double sigma_xx = localError.xx();
+// 	       double sigma_xy = localError.xy();
+// 	       double sigma_yy = localError.yy();
+
+	       AlgebraicSymMatrix localErrorWithAPE = hitPtr->parametersError();
+	       double sigma_xx = localErrorWithAPE[0][0];
+	       double sigma_xy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[0][1]);
+	       double sigma_yy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[1][1]);
+
+	       std::cout << "clonedHit->localPositionError() = " << clonedHits.back().localPositionError() << std::endl;
+	       std::cout << "hitPtr->parametersError() = " <<  hitPtr->parametersError() << std::endl;
+	       std::cout << "sigma_xx, xy, yy = " << sigma_xx << " " << sigma_xy << " " << sigma_yy << std::endl;
 
 	       LocalPoint chamberPoint;
 	       AlgebraicSymMatrix chamberError(2);
@@ -345,7 +359,6 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	       error(4,4) = 1e-6 * momentum.y();
 	       error(5,5) = 1e-6 * momentum.z();
 
-	       clonedHits.push_back((*hit)->clone());
 	       TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error),
                    id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(id)->surface() : cscGeometry->idToDet(id)->surface()));
 
@@ -361,10 +374,10 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	 Trajectory trajectory(trajectorySeed, alongMomentum);
 
 	 edm::OwnVector<TrackingRecHit>::const_iterator clonedHit = clonedHits.begin();
+	 std::vector<TrajectoryMeasurement::ConstRecHitPointer>::const_iterator transHitPtr = transHits.begin();
 	 std::vector<TrajectoryStateOnSurface>::const_iterator TSOS = TSOSes.begin();
-	 for (;  clonedHit != clonedHits.end();  ++clonedHit, ++TSOS) {
-	    TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(*clonedHit), globalGeometry));
-	    trajectory.push(TrajectoryMeasurement(*TSOS, *TSOS, *TSOS, hitPtr));
+	 for (;  clonedHit != clonedHits.end();  ++clonedHit, ++transHitPtr, ++TSOS) {
+	    trajectory.push(TrajectoryMeasurement(*TSOS, *TSOS, *TSOS, (*transHitPtr)));
 	 }
 
 	 trajectoryCollection->push_back(trajectory);
