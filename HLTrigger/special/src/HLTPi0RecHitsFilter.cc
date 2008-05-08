@@ -148,7 +148,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   vector<EBDetId> max_hit;
   vector< vector<EcalRecHit> > RecHitsCluster;
   vector<float> s4s9Clus;
-  vector<int> goodIsoClus;
 
   nClus=0;
 
@@ -338,19 +337,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 	  //	  cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<endl;
 	  if(Iso/pt_pi0<selePi0Iso_){
-	    //  for(int Rec=0;Rec<RecHitsCluster[i].size();Rec++){
-	    //  pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
-	    // }
-	    //	    for(int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
-
+	    for(int Rec=0;Rec<RecHitsCluster[i].size();Rec++)pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
+	    for(int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
+	    
      
 	    for(Int_t iii=0 ; iii<IsoClus.size() ; iii++){   
 	      //cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl;  
-	      if (find(goodIsoClus.begin(), goodIsoClus.end(), IsoClus[iii]) == goodIsoClus.end()) goodIsoClus.push_back(IsoClus[iii]); 
+	      for(int Rec3=0;Rec3<RecHitsCluster[iii].size();Rec3++)pi0EBRecHitCollection->push_back(RecHitsCluster[iii][Rec3]);
 	    }   
-	    
-	    if (find(goodIsoClus.begin(), goodIsoClus.end(), i) == goodIsoClus.end()) goodIsoClus.push_back(i);
-	    if (find(goodIsoClus.begin(), goodIsoClus.end(), j) == goodIsoClus.end()) goodIsoClus.push_back(j);
 	    
 	    npi0_s++;
 	  }
@@ -366,16 +360,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //  cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
-
-  for(Int_t jj=0;jj<goodIsoClus.size();jj++)
-    {
-      //cout << "  Filling : Good clusters: #, #rhs "<<goodIsoClus[jj]<<" "<<RecHitsCluster[goodIsoClus[jj]].size()<<endl; 
-      for(int Rec2=0;Rec2<RecHitsCluster[goodIsoClus[jj]].size();Rec2++)
-	{
-	  pi0EBRecHitCollection->push_back(RecHitsCluster[goodIsoClus[jj]][Rec2]);                 
-	}
-    }
-
 
 
 
