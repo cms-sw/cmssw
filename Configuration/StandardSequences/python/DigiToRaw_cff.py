@@ -16,10 +16,10 @@ from EventFilter.DTRawToDigi.dtPacker_cfi import *
 from EventFilter.RPCRawToDigi.rpcPacker_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 DigiToRaw = cms.Sequence(csctfpacker*dttfpacker*gctDigiToRaw*l1GtPack*siPixelRawData*SiStripDigiToRaw*ecalPacker*esDigiToRaw*hcalRawData*cscpacker*dtpacker*rpcpacker*rawDataCollector)
-csctfpacker.lctProducer = cms.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
+csctfpacker.lctProducer = "simCscTriggerPrimitiveDigis:MPCSORTED"
 csctfpacker.trackProducer = 'simCsctfTrackDigis'
 dttfpacker.DTDigi_Source = 'simDtTriggerPrimitiveDigis'
-dttfpacker.DTTracks_Source = cms.InputTag("simDttfDigis","DTTF")
+dttfpacker.DTTracks_Source = "simDttfDigis:DTTF"
 gctDigiToRaw.rctInputLabel = 'simRctDigis'
 gctDigiToRaw.gctInputLabel = 'simGctDigis'
 l1GtPack.DaqGtInputTag = 'simGtDigis'
@@ -27,6 +27,6 @@ l1GtPack.MuGmtInputTag = 'simGmtDigis'
 ecalPacker.Label = 'simEcalDigis'
 ecalPacker.InstanceEB = 'ebDigis'
 ecalPacker.InstanceEE = 'eeDigis'
-ecalPacker.labelEBSRFlags = cms.InputTag("simEcalDigis","ebSrFlags")
-ecalPacker.labelEESRFlags = cms.InputTag("simEcalDigis","eeSrFlags")
+ecalPacker.labelEBSRFlags = "simEcalDigis:ebSrFlags"
+ecalPacker.labelEESRFlags = "simEcalDigis:eeSrFlags"
 
