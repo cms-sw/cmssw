@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.15 2008/05/06 14:07:30 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.16 2008/05/06 22:18:26 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -49,7 +49,8 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   restoreStateLabel_(iPSet.getUntrackedParameter<std::string>("restoreStateLabel", std::string())),
   saveFileName_(std::string()),
   saveFileNameRecorded_(false),
-  restoreFileName_(std::string())
+  restoreFileName_(std::string()),
+  oldStyle_(false)
 {
 
   std::string labels;
@@ -75,20 +76,22 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   }     
 
 // Check if the configuration file is still expressed in the old style.
-// We do this by looking to see if there is a PSet named moduleSeeds.
-// That parameter is unique to an old style cfg file.
+// We do this by looking for a PSet named moduleSeeds.  That parameter is 
+// unique to an old style cfg file.
 
-  bool oldstyle = false;
   VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
   for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
-    if(*it == std::string("moduleSeeds")) oldstyle = true;
+    if(*it == std::string("moduleSeeds")) oldStyle_ = true;
   }
-  if(oldstyle) {
+  if(oldStyle_) {
     oldStyleConfig(iPSet);
   } else {
 
 // We have a new style configuration file. deal with it here.
-// Loop over parameters of type ParameterSet. Skip those with reserved names
+// Loop over parameters of type ParameterSet and look for things
+// that should not appear in new-style cfg files. If any are found,
+// it means the user has supplied a mixture of new- and old-style
+// configuration parameters that can't possibly work correctly.
 
     bool source;
     std::string engineName;
@@ -99,23 +102,17 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
       source = false;
       if(*it == std::string("moduleEngines")) {
         throw edm::Exception(edm::errors::Configuration)
-          << "moduleEngines is an obsolete configuration parameter." 
+          << "moduleEngines is obsolete for new-style configuration files." 
           << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
       }
   
-      if(*it == std::string("moduleSeeds"))  {
+      if(*it == std::string("moduleSeedVectors")) {
         throw edm::Exception(edm::errors::Configuration)
-          << "moduleSeeds is an obsolete configuration parameter." 
-          << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
-      } 
-  
-      if(*it == std::string("moduleSeedVector")) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "moduleSeedVector is an obsolete configuration parameter." 
+          << "moduleSeedVectors is obsolete for new-style configuration files." 
           << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
       }
   
-  // This needs a lot of work.  Concentrate on it!  ================================================
+  // Deal with a source engine here
       if(*it == std::string("theSource")) source = true;
   
       PSet secondary = iPSet.getParameter<edm::ParameterSet>(*it);

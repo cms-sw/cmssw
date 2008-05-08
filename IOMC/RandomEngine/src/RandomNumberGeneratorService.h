@@ -15,7 +15,7 @@
 //
 // Original Authors:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:43 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.h,v 1.7 2008/05/06 14:07:30 marafino Exp $
+// $Id: RandomNumberGeneratorService.h,v 1.8 2008/05/06 22:18:26 marafino Exp $
 //
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -166,6 +166,10 @@ namespace edm {
       // of all declared engines at the befinnig of a run. A
       // blank name means there isn't one.
       std::string restoreFileName_;
+
+     // Remember if we are dealing with a new-style or old-style
+     // configuration file.
+     bool oldStyle_;
     };
   }
 }
