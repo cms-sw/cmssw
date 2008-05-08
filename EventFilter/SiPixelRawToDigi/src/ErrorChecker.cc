@@ -93,12 +93,12 @@ bool ErrorChecker::checkROC(int fedId, const SiPixelFrameConverter* converter, W
      break;
    }
    case(26) : {
-     LogTrace("")<<"  gap word found (errorType=26)";
-     break;
+     //LogTrace("")<<"  gap word found (errorType=26)";
+     return false;
    }
    case(27) : {
-     LogTrace("")<<"  dummy word found (errorType=27)";
-     break;
+     //LogTrace("")<<"  dummy word found (errorType=27)";
+     return false;
    }
    case(28) : {
      LogTrace("")<<"  error fifo nearly full (errorType=28)";
