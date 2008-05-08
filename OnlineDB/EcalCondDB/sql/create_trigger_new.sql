@@ -193,7 +193,7 @@ CREATE TABLE FE_CONFIG_WEIGHT_DAT (
  group_id number(10) not null);
 
 ALTER TABLE FE_CONFIG_WEIGHT_DAT ADD CONSTRAINT FE_CONFIG_WEIGHT_fk  FOREIGN KEY (wei_conf_id) REFERENCES FE_CONFIG_WEIGHT_INFO (wei_conf_id);
-ALTER TABLE FE_CONFIG_WEIGHT_DAT ADD CONSTRAINT FE_CONFIG_WEIGHT_fk  FOREIGN KEY (wei_conf_id, group_id) REFERENCES FE_CONFIG_WEIGHT_PER_GROUP_DAT (wei_conf_id, group_id);
+ALTER TABLE FE_CONFIG_WEIGHT_DAT ADD CONSTRAINT FE_CONFIG_WEIGHT_fk2  FOREIGN KEY (wei_conf_id, group_id) REFERENCES FE_WEIGHT_PER_GROUP_DAT (wei_conf_id, group_id);
 
 
 /*
@@ -283,8 +283,8 @@ end;
 
 
 
-create synonym CHANNELVIEW              for cond01.CHANNELVIEW              ;
-create synonym VIEWDESCRIPTION          for cond01.VIEWDESCRIPTION          ;
+create synonym CHANNELVIEW              for cms_ecal_cond.CHANNELVIEW              ;
+create synonym VIEWDESCRIPTION          for cms_ecal_cond.VIEWDESCRIPTION          ;
 
 
 
