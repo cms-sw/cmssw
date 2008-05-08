@@ -50,13 +50,12 @@ InOutConversionSeedFinder::~InOutConversionSeedFinder() {
 
 
 
-void InOutConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& allBC )  const  {
+void InOutConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC )  const  {
   
 
   LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::makeSeeds() " << "\n";
   theSeeds_.clear();
-  LogDebug("InOutConversionSeedFinder") << " Check Basic cluster collection size " << allBC.size() << "\n";  
-  theSCPosition_= GlobalPoint ( theSC_->x(), theSC_->y(), theSC_->z() );
+  LogDebug("InOutConversionSeedFinder") << " Check Calo cluster collection size " << allBC->size() << "\n";  
   bcCollection_= allBC;
   
   
@@ -129,7 +128,6 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     
     std::vector<const DetLayer*> myLayers;
     myLayers.clear();    
-    //std::vector<TrajectoryMeasurement>::iterator measurementItr;    
     std::vector<TrajectoryMeasurement>::reverse_iterator measurementItr;    
     std::vector<TrajectoryMeasurement*> myItr;
     TrajectoryMeasurement* myPointer=0;
@@ -297,15 +295,15 @@ void InOutConversionSeedFinder::startSeed( FreeTrajectoryState * fts, const Traj
   // starting at the assumed conversion point with opp. charge to the 
   // inward track.  Loop over these basic clusters.
   track2Charge_ = charge*fts->charge();
-  std::vector<const reco::BasicCluster*> bcVec;
+  std::vector<const reco::CaloCluster*> bcVec;
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::startSeed charge assumed for the in-out track  " << track2Charge_ <<  "\n";
   
   Geom::Phi<float> theConvPhi( stateAtPreviousLayer.globalPosition().phi());
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::startSeed  stateAtPreviousLayer phi " << stateAtPreviousLayer.globalPosition().phi() << " R " <<  stateAtPreviousLayer.globalPosition().perp() << " Z " << stateAtPreviousLayer.globalPosition().z() << "\n";
   
-  bcVec = getSecondBasicClusters(stateAtPreviousLayer.globalPosition(),track2Charge_);
+  bcVec = getSecondCaloClusters(stateAtPreviousLayer.globalPosition(),track2Charge_);
   
-  std::vector<const reco::BasicCluster*>::iterator bcItr;
+  std::vector<const reco::CaloCluster*>::iterator bcItr;
   LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::startSeed bcVec.size " << bcVec.size() << "\n";
   
   // debug
@@ -344,18 +342,19 @@ void InOutConversionSeedFinder::startSeed( FreeTrajectoryState * fts, const Traj
 
 
 
-std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasicClusters(const GlobalPoint & conversionPosition, float charge) const {
+std::vector<const reco::CaloCluster*> InOutConversionSeedFinder::getSecondCaloClusters(const GlobalPoint & conversionPosition, float charge) const {
   
   
-  std::vector<const reco::BasicCluster*> result;
+  std::vector<const reco::CaloCluster*> result;
   
-  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters" <<  "\n"; 
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondCaloClusters" <<  "\n"; 
   
   Geom::Phi<float> theConvPhi(conversionPosition.phi() );
-  
-  for( reco::BasicClusterCollection::const_iterator bcItr = bcCollection_.begin(); bcItr != bcCollection_.end(); bcItr++) {
-    Geom::Phi<float> theBcPhi(bcItr->position().phi());
-    LogDebug("InOutConversionSeedFinder")<< "InOutConversionSeedFinder::getSecondBasicClusters  BC energy " << bcItr->energy() << " Basic cluster phi " << theBcPhi << " " << bcItr->position().phi()<<  " theConvPhi " << theConvPhi << "\n";
+
+  for (unsigned i = 0; i < bcCollection_->size(); ++i ) {
+    
+    Geom::Phi<float> theBcPhi( bcCollection_->ptrAt(i)->position().phi()   );
+    LogDebug("InOutConversionSeedFinder")<< "InOutConversionSeedFinder::getSecondCaloClusters  BC energy " <<  bcCollection_->ptrAt(i)->energy() << " Calo cluster phi " << theBcPhi << " " <<  bcCollection_->ptrAt(i)->position().phi()<<  " theConvPhi " << theConvPhi << "\n";
     
     // Require phi of cluster to be consistent with the conversion 
     // position and the track charge
@@ -364,9 +363,12 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
     if (fabs(theBcPhi-theConvPhi ) < .5 &&
         ((charge<0 && theBcPhi-theConvPhi >-.5) || 
          (charge>0 && theBcPhi-theConvPhi <.5))){
-      //LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters  Adding bc pointer " << &(*bcItr) << "  to vector:" << "\n";
+      //LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondCaloClusters  Adding bc pointer " << &(*bcItr) << "  to vector:" << "\n";
       
-      result.push_back(&(*bcItr));
+      //result.push_back(&(*bcItr));
+
+      result.push_back(&(*(bcCollection_->ptrAt(i))  ));
+
     }
     
     

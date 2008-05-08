@@ -48,43 +48,44 @@ OutInConversionSeedFinder::~OutInConversionSeedFinder() {
 }
 
 
-// Return a vector of seeds 
-void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& allBC )  const  {
+
+void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC )  const  {
 
   //  std::cout  << "  OutInConversionSeedFinder::makeSeeds() " << "\n";
   theSeeds_.clear();
 
-  theSCPosition_= GlobalPoint ( theSC_->x(), theSC_->y(), theSC_->z() );      
-  // debug  
 
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() SC position " << theSCPosition_.x() << " " << theSCPosition_.y() << " " << theSCPosition_.z() << "\n";
-  LogDebug("OutInConversionSeedFinder") << " SC eta  " <<  theSCPosition_.eta() <<  " SC phi  " <<  theSCPosition_.phi() << "\n";  
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() SC energy " << theSC_->energy()  << "\n";  
+  // debug  
+  //  std::cout << "  OutInConversionSeedFinder::makeSeeds() SC position " << theSCPosition_.x() << " " << theSCPosition_.y() << " " << theSCPosition_.z() << "\n";
+  // std::cout << " SC eta  " <<  theSCPosition_.eta() <<  " SC phi  " <<  theSCPosition_.phi() << "\n";  
+  // std::cout << "  OutInConversionSeedFinder::makeSeeds() SC energy " << theSCenergy_  << "\n";  
   //
 
   findLayers();
 
-  LogDebug("OutInConversionSeedFinder") << " Check Basic cluster collection size " << allBC.size() << "\n";
+  
+  //  std::cout  << " Check Calo cluster collection size " << allBC->size() << "\n";
   
   float  theSCPhi=theSCPosition_.phi();
   float  theSCEta=theSCPosition_.eta();
 
   
 
-  //  Loop over the Basic Clusters  in the event looking for seeds 
-  reco::BasicClusterCollection::const_iterator bcItr;
+  //  Loop over the Calo Clusters  in the event looking for seeds 
+  reco::CaloClusterCollection::const_iterator bcItr;
   LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() All BC in the event " << "\n";
-
-  for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
+  for (unsigned i = 0; i < allBC->size(); ++i ) {
+  
+    //for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
     nSeedsPerBC_=0;
 
-    theBCEnergy_=bcItr->energy();
-    theBCPosition_ = GlobalPoint(bcItr->position().x(), bcItr->position().y(), bcItr->position().z() ) ;
+    theBCEnergy_=allBC->ptrAt(i)->energy();
+    theBCPosition_ = GlobalPoint(allBC->ptrAt(i)->position().x(), allBC->ptrAt(i)->position().y(), allBC->ptrAt(i)->position().z() ) ;
     float theBcEta=  theBCPosition_.eta();
     float theBcPhi=  theBCPosition_.phi();
     float  dPhi= theBcPhi-theSCPhi;
 
-    LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
+    //    std::cout << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
     
     if ( theBCEnergy_ < 1.5 ) continue;
 
@@ -92,7 +93,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
 
     if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.25 ) { 
       LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() in et and phi range passed to the analysis " << "\n";
-      fillClusterSeeds( &(*bcItr) );
+      fillClusterSeeds( allBC->ptrAt(i)  );
     }
     
 
@@ -139,10 +140,38 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
   
 }
 
+
+
+void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC )  const  {
+
+  theSeeds_.clear();
+
+  findLayers();
+
+  float  theSCPhi=theSCPosition_.phi();
+  float  theSCEta=theSCPosition_.eta();
+
+  nSeedsPerBC_=0;
+
+  theBCEnergy_=aBC->energy();
+  theBCPosition_ = GlobalPoint(aBC->position().x(), aBC->position().y(), aBC->position().z() ) ;
+  float theBcEta=  theBCPosition_.eta();
+  float theBcPhi=  theBCPosition_.phi();
+  float  dPhi= theBcPhi-theSCPhi;
+
+  if ( theBCEnergy_ < 1.5 ) return;
+
+  if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.25 ) {
+    fillClusterSeeds( aBC);
+  }
+
+}
+
+
  
 
 
-void OutInConversionSeedFinder::fillClusterSeeds(const reco::BasicCluster* bc) const {
+void OutInConversionSeedFinder::fillClusterSeeds(const reco::CaloClusterPtr& bc) const {
 
   
   theFirstMeasurements_.clear();
@@ -170,7 +199,7 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
   result.second=false;
  
 
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder:makeTrackState " << "\n";
+  //std::cout << "  OutInConversionSeedFinder:makeTrackState " << "\n";
 
 
   //  Old GlobalPoint gpOrigine(theBCPosition_.x()*0.3, theBCPosition_.y()*0.3, theBCPosition_.z()*0.3) ;
@@ -239,7 +268,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
 
   //  std::cout << "OutInConversionSeedFinder::startSeed layer list " << this->layerList().size() <<  "\n";
-  LogDebug("OutInConversionSeedFinder") << " fts " << fts <<  "\n";  
+  //std::cout << "OutInConversionSeedFinder::startSeed  fts " << fts <<  "\n";  
 
   std::vector<const DetLayer*> myLayers=layerList();
   if ( myLayers.size() > 3 ) {
@@ -317,7 +346,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
 MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer * layer, float dphi) const {
  
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeEstimator  " << "\n";
+  //std::cout  << "OutInConversionSeedFinder::makeEstimator  " << "\n";
 
   MeasurementEstimator * newEstimator=0;
 
@@ -357,7 +386,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 					     FreeTrajectoryState & fts, 
 					     const Propagator* propagator, int ilayer) const {
 
-  //  std::cout <<  "OutInConversionSeedFinder::completeSeed ilayer " << ilayer << "\n";
+  //std::cout <<  "OutInConversionSeedFinder::completeSeed ilayer " << ilayer << "\n";
 
   MeasurementEstimator * newEstimator=0;
   const DetLayer * layer = theLayerList_[ilayer];
@@ -411,7 +440,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1, 
 					   const TrajectoryMeasurement & m2) const {
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed  from hit1 " << m1.recHit()->globalPosition() << " r1 " << m1.recHit()->globalPosition().perp() << " and hit2 " << m2.recHit()->globalPosition() << " r2 " << m2.recHit()->globalPosition().perp() << "\n";
+  //std::cout  << "OutInConversionSeedFinder::createSeed  from hit1 " << m1.recHit()->globalPosition() << " r1 " << m1.recHit()->globalPosition().perp() << " and hit2 " << m2.recHit()->globalPosition() << " r2 " << m2.recHit()->globalPosition().perp() << "\n";
   
 
   FreeTrajectoryState fts = createSeedFTS(m1, m2);
@@ -479,13 +508,16 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 FreeTrajectoryState OutInConversionSeedFinder::createSeedFTS(const TrajectoryMeasurement & m1,
 							     const TrajectoryMeasurement & m2) const {
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeedFTS " << "\n";
+  //std::cout  << "OutInConversionSeedFinder::createSeedFTS " << "\n";
 
   GlobalPoint xmeas = fixPointRadius(m1);
   GlobalPoint xvert = fixPointRadius(m2);
 
-  float pt = theSC_->energy() * sin(theSCPosition_.theta());
-  float pz = theSC_->energy() * cos(theSCPosition_.theta());
+
+  float pt = theSCenergy_ * sin(theSCPosition_.theta());
+  float pz = theSCenergy_ * cos(theSCPosition_.theta());
+
+
 
   // doesn't work at all for endcap, where r is badly measured
   //float dphidr = (p1.phi()-p2.phi())/(p1.perp()-p2.perp());

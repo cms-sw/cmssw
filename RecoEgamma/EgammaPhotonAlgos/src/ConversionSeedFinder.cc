@@ -49,7 +49,7 @@ void ConversionSeedFinder::setEventSetup(const edm::EventSetup& es  )  {
 
 void ConversionSeedFinder::findLayers() const {
   
-  LogDebug("ConversionSeedFinder")  << "::findLayers() " << "\n"; 
+
   int charge;
   //List the DetLayers crossed by a straight line from the centre of the 
   //detector to the supercluster position
@@ -66,8 +66,8 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
 								  PropagationDirection dir, float scaleFactor) const {
   
   
-  LogDebug("ConversionSeedFinder")  << "::trackStateFromClusters " << "\n"; 
-  double caloEnergy = theSC_->energy() * scaleFactor ;
+
+  double caloEnergy = theSCenergy_ * scaleFactor ;
   
   GlobalVector radiusCalo = theSCPosition_ - theOrigin ;
   
@@ -86,7 +86,7 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
   
   // now create error matrix
   // dpos = 4mm/sqrt(E), dtheta = move vertex by 1sigma
-  float dpos = 0.4/sqrt(theSC_->energy());
+  float dpos = 0.4/sqrt(theSCenergy_);
   dpos *= 2.;
   float dphi = dpos/theSCPosition_.perp();
   //  float dp = 0.03 * sqrt(theCaloEnergy);
@@ -106,6 +106,8 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
 }
 
 void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) const {
+
+
 
   theLayerList_.clear();
 

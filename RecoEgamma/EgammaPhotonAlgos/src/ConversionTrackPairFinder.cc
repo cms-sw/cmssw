@@ -7,9 +7,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackSuperClusterAssociation.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+
+
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 //
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <TMath.h>
@@ -33,26 +35,25 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
 
 
-std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  
-												const edm::Handle<reco::TrackCollection>& outInTrkHandle,
-												const edm::Handle<reco::TrackSuperClusterAssociationCollection>& outInTrackSCAssH, 
-												std::vector<reco::TransientTrack> inOutTrk, 
-												const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
-												const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  ) {
+std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  
+													const edm::Handle<reco::TrackCollection>& outInTrkHandle,
+													const edm::Handle<reco::TrackCaloClusterPtrAssociation>& outInTrackSCAssH, 
+													std::vector<reco::TransientTrack> inOutTrk, 
+													const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
+													const edm::Handle<reco::TrackCaloClusterPtrAssociation>& inOutTrackSCAssH  ) {
 
-
+  
   LogDebug("ConversionTrackPairFinder")  << "ConversionTrackPairFinder::run " <<  "\n";  
   
   std::vector<reco::TransientTrack>  selectedOutInTk;
-  std::vector<reco::TransientTrack> selectedInOutTk;
-  std::vector<reco::TransientTrack> allSelectedTk;
-  std::map<reco::TransientTrack, const reco::SuperCluster*>  scTrkAssocMap; 
-
-
+  std::vector<reco::TransientTrack>  selectedInOutTk;
+  std::vector<reco::TransientTrack>  allSelectedTk;
+  std::map<reco::TransientTrack,  reco::CaloClusterPtr>  scTrkAssocMap; 
+ 
   bool oneLeg=false;
   bool noTrack=false;  
   
-
+  
   
   int iTrk=0;
   for( std::vector<reco::TransientTrack>::const_iterator  iTk =  outInTrk.begin(); iTk !=  outInTrk.end(); iTk++) {
@@ -69,14 +70,13 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
     edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );
     
     //std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner momentum " <<  trackRef->innerMomentum() << "\n";
-    
-    reco::TrackSuperClusterAssociationCollection outInTrackSCAss = *outInTrackSCAssH;
-    const reco::SuperCluster aClus= *outInTrackSCAss[trackRef];
 
-    //    std::cout << "ConversionTrackPairFinder  Filling the OutIn Map  " << &(*outInTrackSCAss[trackRef]) <<  " " << &outInTrackSCAss[trackRef] <<  std::endl;
-    //std::cout << "ConversionTrackPairFinder  Out In track belonging to SC with energy " << aClus.energy() << "\n"; 
+    const reco::CaloClusterPtr  aClus = (*outInTrackSCAssH)[trackRef];
 
-    scTrkAssocMap[*iTk]= &(*outInTrackSCAss[trackRef]);
+    //    std::cout << "ConversionTrackPairFinder  Reading the OutIn Map  " << *outInTrackSCAss[trackRef] <<  " " << &outInTrackSCAss[trackRef] <<  std::endl;
+    //    std::cout << "ConversionTrackPairFinder  Out In track belonging to SC with energy " << aClus->energy() << "\n"; 
+
+    scTrkAssocMap[*iTk]= aClus;
     selectedOutInTk.push_back(*iTk);
     allSelectedTk.push_back(*iTk);
 
@@ -100,13 +100,12 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
     
     //std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner momentum " <<  trackRef->innerMomentum() << "\n";
     
-    reco::TrackSuperClusterAssociationCollection inOutTrackSCAss = *inOutTrackSCAssH;
-    const reco::SuperCluster aClus= *inOutTrackSCAss[trackRef];
+    const reco::CaloClusterPtr  aClus = (*inOutTrackSCAssH)[trackRef];
 
     //    std::cout << "ConversionTrackPairFinder  Filling the InOut Map  " << &(*inOutTrackSCAss[trackRef]) << " " << &inOutTrackSCAss[trackRef] <<  std::endl;
     // std::cout << "ConversionTrackPairFinder  In Out  track belonging to SC with energy " << aClus.energy() << "\n"; 
     
-    scTrkAssocMap[*iTk]= &(*inOutTrackSCAss[trackRef]);
+    scTrkAssocMap[*iTk]= aClus;
     selectedInOutTk.push_back(*iTk);
     allSelectedTk.push_back(*iTk);    
 
@@ -138,10 +137,10 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
   
   std::vector<reco::TransientTrack > thePair(2);
   std::vector<std::vector<reco::TransientTrack> > allPairs;
-  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*> allPairSCAss;
+  std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr > allPairSCAss;
 
-  std::map<reco::TransientTrack, const reco::SuperCluster*>::const_iterator iMap1;
-  std::map<reco::TransientTrack, const reco::SuperCluster*>::const_iterator iMap2;
+  std::map<reco::TransientTrack,  reco::CaloClusterPtr>::const_iterator iMap1;
+  std::map<reco::TransientTrack,  reco::CaloClusterPtr>::const_iterator iMap2;
 
   
   
@@ -249,7 +248,7 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
   for( iMap1 =   scTrkAssocMap.begin(); iMap1 !=   scTrkAssocMap.end(); ++iMap1) {
         
     int nFound=0;
-    for (  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>::const_iterator iPair= allPairSCAss.begin(); iPair!= allPairSCAss.end(); ++iPair ) {
+    for (  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>::const_iterator iPair= allPairSCAss.begin(); iPair!= allPairSCAss.end(); ++iPair ) {
 
       if (  (iMap1->second) == (iPair->second)  )   nFound++;	
       
@@ -271,9 +270,12 @@ std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>  Conversi
   //  std::cout << " ConversionTrackPairFinder FINAL allPairSCAss size " << allPairSCAss.size() << "\n";
  
  
-  // for (  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>::const_iterator iPair= allPairSCAss.begin(); iPair!= allPairSCAss.end(); ++iPair ) {
+  // for (  std::map<std::vector<reco::TransientTrack>, const reco::CaloCluster*>::const_iterator iPair= allPairSCAss.begin(); iPair!= allPairSCAss.end(); ++iPair ) {
   //std::cout << " ConversionTrackPairFindder FINAL allPairSCAss " << (iPair->first).size() << " SC Energy " << (iPair->second)->energy() << " eta " << (iPair->second)->eta() << " phi " <<  (iPair->second)->phi() << "\n";  
   //}
+
+
+
 
   return allPairSCAss;
  

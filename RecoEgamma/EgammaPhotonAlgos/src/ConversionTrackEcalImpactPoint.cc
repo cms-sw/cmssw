@@ -2,14 +2,12 @@
 #include <vector>
 #include <memory>
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
-//#include "RecoEgamma/EgammaPhotonAlgos/interface/ECALSurfaces.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 
@@ -41,14 +39,14 @@ ConversionTrackEcalImpactPoint::~ConversionTrackEcalImpactPoint() {
     
 }
 
-std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vector<reco::TransientTrack>&  tracks, const edm::Handle<reco::BasicClusterCollection>&  bcHandle )   {
+std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vector<reco::TransientTrack>&  tracks,  const edm::Handle<edm::View<reco::CaloCluster> >&  bcHandle )   {
 
   
   std::vector<math::XYZPoint> result;
   // 
   matchingBC_.clear();   
 
-  std::vector<reco::BasicClusterRef> matchingBC(2);
+  std::vector<reco::CaloClusterPtr> matchingBC(2);
 
 
   // 
@@ -88,16 +86,14 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
     if ( stateAtECAL_.isValid() ) { 
       int goodBC=0;
       float bcDistanceToTrack=9999;
-      reco::BasicClusterCollection::const_iterator matchedBCItr;
-      reco::BasicClusterCollection bcBarrel = *(bcHandle.product());
+      reco::CaloClusterPtr matchedBCItr;
       int ibc=0;
       goodBC=0;
-      for( reco::BasicClusterCollection::const_iterator bcItr = bcBarrel.begin(); bcItr != bcBarrel.end(); bcItr++) {
 
-	float dEta= bcItr->eta() - ecalImpactPosition.eta()  ;
-	float dPhi= bcItr->phi() - ecalImpactPosition.phi()  ;
+      for (unsigned i = 0; i < bcHandle->size(); ++i ) {
+	float dEta= bcHandle->ptrAt(i)->position().eta() - ecalImpactPosition.eta()  ;
+	float dPhi= bcHandle->ptrAt(i)->position().phi() - ecalImpactPosition.phi()  ;
 	if ( sqrt(dEta*dEta + dPhi*dPhi)  <  bcDistanceToTrack ) {
-	  matchedBCItr= bcItr;
           goodBC=ibc;
 	  bcDistanceToTrack=sqrt(dEta*dEta + dPhi*dPhi);
 	} 
@@ -105,8 +101,7 @@ std::vector<math::XYZPoint> ConversionTrackEcalImpactPoint::find( const std::vec
 
       }
 
-      reco::BasicClusterRef bcRef(bcHandle, goodBC);
-      matchingBC[iTrk]=bcRef;
+      matchingBC[iTrk]=bcHandle->ptrAt(goodBC);
     }
        
      
