@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.6 2008/02/21 00:24:04 nancy Exp $ 
- **  $Date: 2008/02/21 00:24:04 $ 
- **  $Revision: 1.6 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.7 2008/03/03 21:37:34 nancy Exp $ 
+ **  $Date: 2008/03/03 21:37:34 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -25,9 +25,10 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/View.h"
 
 class OutInConversionSeedFinder;
 class InOutConversionSeedFinder;
@@ -86,16 +87,20 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   InOutConversionTrackFinder* theInOutTrackFinder_;
 
 
+  std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVecOutIn_; 
+  std::vector<edm::Ptr<reco::CaloCluster> > caloPtrVecInOut_; 
+
   std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForOutIn;  
   std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForInOut;  
   
-  void buildCollections( const edm::Handle<reco::SuperClusterCollection> & scHandle,
-			 const edm::Handle<reco::BasicClusterCollection> & bcHandle,
+  void buildCollections( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+			 const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 			 HBHERecHitMetaCollection *mhbhe,
 			 TrackCandidateCollection& outInTracks,
 			 TrackCandidateCollection& inOutTracks,
-			 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecOI,
-			 std::vector<edm::Ref<reco::SuperClusterCollection> >& vecRecIO);
+			 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
+			 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO
+);
 
 
 };

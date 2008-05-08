@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.15 2008/02/12 14:19:10 nancy Exp $ 
- **  $Date: 2008/02/12 14:19:10 $ 
- **  $Revision: 1.15 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.16 2008/02/15 16:51:21 nancy Exp $ 
+ **  $Date: 2008/02/15 16:51:21 $ 
+ **  $Revision: 1.16 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -24,6 +24,8 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/Common/interface/View.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -42,9 +44,9 @@ class ConvertedPhotonProducer : public edm::EDProducer {
 
  private:
 
-  void buildCollections ( const edm::Handle<reco::SuperClusterCollection> & scHandle,
-			  const edm::Handle<reco::BasicClusterCollection> & bcHandle,
-			  std::map<std::vector<reco::TransientTrack>, const reco::SuperCluster*>& allPairs,
+  void buildCollections ( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+			  const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+			  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>& allPairs,
 			  reco::ConversionCollection & outputConvPhotonCollection);
     
   
