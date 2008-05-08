@@ -1,6 +1,7 @@
 <use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaReco>
+<use name=DataFormats/CaloRecHit>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/Math>
 <use name=DataFormats/RecoCandidate>
@@ -14,6 +15,7 @@
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>
   <use name=DataFormats/EgammaReco>
+<use name=DataFormats/CaloRecHit>
   <use name=DataFormats/GeometryVector>
   <use name=DataFormats/Math>
   <use name=DataFormats/RecoCandidate>

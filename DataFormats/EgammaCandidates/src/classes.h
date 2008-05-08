@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.25 2008/04/10 08:45:07 uberthon Exp $
+// $Id: classes.h,v 1.26 2008/04/17 15:49:25 askew Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -21,6 +21,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h" 
+#include "DataFormats/EgammaReco/interface/BasicCluster.h" 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h" 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"

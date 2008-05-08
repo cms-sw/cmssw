@@ -36,9 +36,9 @@
   <class name="edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> > >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
   
-
+  
+  
 
 
   <class name="std::vector<reco::SiStripElectron>"/>
