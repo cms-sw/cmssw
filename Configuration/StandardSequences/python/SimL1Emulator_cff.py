@@ -46,6 +46,7 @@ simGmtDigis.DTCandidates = cms.InputTag("simDttfDigis","DT")
 simGmtDigis.CSCCandidates = cms.InputTag("simCsctfDigis","CSC")
 simGmtDigis.RPCbCandidates = cms.InputTag("simRpcTriggerDigis","RPCb")
 simGmtDigis.RPCfCandidates = cms.InputTag("simRpcTriggerDigis","RPCf")
+simGmtDigis.MipIsoData = cms.InputTag("simRctDigis")
 simGtDigis.GmtInputTag = 'simGmtDigis'
 simGtDigis.GctInputTag = 'simGctDigis'
 simGtDigis.TechnicalTriggersInputTag = 'simTechTrigDigis'
