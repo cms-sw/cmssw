@@ -11,6 +11,7 @@
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripTT6CommonModeNoiseSubtraction.h"
 
 #include "sstream"
+#include "FWCore/Utilities/interface/Exception.h"
 
 SiStripZeroSuppressionAlgorithm::SiStripZeroSuppressionAlgorithm(const edm::ParameterSet& conf) : 
   conf_(conf),  
@@ -75,6 +76,10 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
     int number_detunits        = 0;
     int number_localstripdigis = 0;
 
+    SiStripPedestalsSubtractor_->init(es);
+    SiStripCommonModeNoiseSubtractor_->init(es);
+    SiStripZeroSuppressor_->init(es);
+
     //loop on all detset inside the input collection
     edm::DetSetVector<SiStripRawDigi>::const_iterator DSViter=input.begin();
     for (; DSViter!=input.end();DSViter++){
@@ -87,12 +92,12 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
       std::vector<int16_t> vssRd((*DSViter).data.size());
 
       if ( RawDigiType == "VirginRaw" ) {
-	SiStripPedestalsSubtractor_->subtract(*DSViter,vssRd,es);
-	SiStripCommonModeNoiseSubtractor_->subtract(DSViter->id,vssRd,es);
-	SiStripZeroSuppressor_->suppress(vssRd,ssd,es);
+	SiStripPedestalsSubtractor_->subtract(*DSViter,vssRd);
+	SiStripCommonModeNoiseSubtractor_->subtract(DSViter->id,vssRd);
+	SiStripZeroSuppressor_->suppress(vssRd,ssd);
       } 
       else if ( RawDigiType == "ProcessedRaw" ){
-	SiStripZeroSuppressor_->suppress((*DSViter),ssd,es);	
+	SiStripZeroSuppressor_->suppress((*DSViter),ssd);	
       }
       else{
 	//FIXME
@@ -104,6 +109,12 @@ void SiStripZeroSuppressionAlgorithm::run(std::string RawDigiType,
 	output.push_back(ssd);  // insert the DetSet<SiStripDigi> in the  DetSetVec<SiStripDigi> only if there is at least a digi
     }
 
+  } else if(!validCMNSubtraction_){
+    throw cms::Exception("Wrong Parameter Configuraiton")
+      << "[SiStripZeroSuppressionAlgorithm::run] invalid CMNSubtraction algorithm " << CMNSubtractionMode_ << "\n Please set in the SiStripZeroSuppression configuration file the string CommonModeNoiseSubtractionMode to one of the following Supported modes: Median, TT6, FastLinearone";
+  } else {
+    throw cms::Exception("Wrong Parameter Configuraiton")
+      << "[SiStripZeroSuppressionAlgorithm::run] invalid ZeroSuppression algorithm " << ZeroSuppressionMode_ << "\n Please set in the SiStripZeroSuppression configuration file the string ZeroSuppressionMode = SiStripFedZeroSuppression";
   }
 }
 
