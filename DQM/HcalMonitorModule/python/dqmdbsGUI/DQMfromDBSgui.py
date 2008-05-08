@@ -397,12 +397,25 @@ class DQMDBSgui:
         # outside local areas
         mycol=mycol+1
         self.menubar.columnconfigure(mycol,weight=1)
-        Label(self.menubar,
-              #text="Copy DQM to:",
-              text="scp DQM output to: ",
-              fg=self.fg,bg=self.bg).grid(row=0,
-                                          column=mycol,
-                                          sticky=E)
+        self.enableSCP=BooleanVar()
+        self.enableSCP.set(True)
+        self.scpAutoButton=Checkbutton(self.menubar,
+                                       bg=self.bg,
+                                       fg=self.fg,
+                                       text="scp copying enabled",
+                                       activebackground=self.alt_active,
+                                       variable=self.enableSCP,
+                                       padx=10,
+                                       command=self.toggleSCP)
+        self.scpAutoButton.grid(row=0,column=mycol,sticky=E)
+        #mycol=mycol+1
+        #self.menubar.columnconfigure(mycol,weight=1)
+        #self.scpLabel=Label(self.menubar,
+        #                    #text="Copy DQM to:",
+        #                    text="scp copying enabled ",
+        #                    fg=self.fg,bg=self.bg).grid(row=0,
+        #                                                column=mycol,
+        #                                                sticky=E)
         mycol=mycol+1
         # Add in variable copy abilities later
         #self.copyLocVar=StringVar()
@@ -420,7 +433,7 @@ class DQMDBSgui:
 
         # for now, make button to copy files with scp
         self.copyLoc=Button(self.menubar,
-                            text="global_auto",
+                            text="Copy Output!",
                             command=lambda x=self:x.tempSCP())
         self.copyLoc.configure(background=self.bg_alt,
                                foreground=self.bg,
@@ -1729,6 +1742,17 @@ class DQMDBSgui:
         return
 
 
+    def toggleSCP(self):
+        ''' swaps SCP variable.  If SCP variable is off, no scp copying will take place.'''
+
+        if (self.enableSCP.get()==0):
+            self.scpAutoButton.configure(text="scp copying disabled")
+            self.copyLoc.configure(state=DISABLED)
+        else:
+            self.scpAutoButton.configure(text="scp copying enabled")
+            self.copyLoc.configure(state=NORMAL)
+        return
+
     def toggleAutoRunShift(self,event):
         '''
         This toggles the autoRunShift variable.
@@ -1763,6 +1787,11 @@ class DQMDBSgui:
         to hcalusc55@cmshcal01:hcaldqm/global_auto/
         Jeff
         '''
+
+        if not (self.enableSCP.get()):
+            self.commentLabel.configure("scp copying is not currently enabled.\n(Check button in the middle of the menu bar")")
+            self.root.update()
+            return
         
         if not (os.path.exists(self.finalDir.get())):
             self.commentLabel.configure(text="ERROR -- directory '%s' DOES NOT EXIST!!\nEdit the Final DQM Save Directory in DQM options!"%self.finalDir.get())
