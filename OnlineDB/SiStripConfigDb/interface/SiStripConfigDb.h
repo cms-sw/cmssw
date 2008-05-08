@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.65 2008/04/30 13:32:40 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.66 2008/05/06 12:36:54 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -297,27 +297,17 @@ class SiStripConfigDb {
   /** Prints local cache (just for given partition if specified). */
   void printDcuDetIds( std::string partition = "" );
   
-/*   /\** Utility method. *\/  */
-/*   static DcuDetIdsV::const_iterator find( DcuDetIdsV::const_iterator begin,  */
-/* 					  DcuDetIdsV::const_iterator end,  */
-/* 					  uint32_t dcu_id  ); */
-  
-/*   /\** Utility method. *\/  */
-/*   static DcuDetIdsV::iterator find( DcuDetIdsV::iterator begin,  */
-/* 				    DcuDetIdsV::iterator end,  */
-/* 				    uint32_t dcu_id  ); */
-  
   /** Utility method. */
   static DcuDetIdsV::const_iterator findDcuDetId( DcuDetIdsV::const_iterator begin,
-						 DcuDetIdsV::const_iterator end,
-						 uint32_t dcu_id  );
+						  DcuDetIdsV::const_iterator end,
+						  uint32_t dcu_id  );
   
   /** Utility method. */
   static DcuDetIdsV::iterator findDcuDetId( DcuDetIdsV::iterator begin,
-					   DcuDetIdsV::iterator end,
-					   uint32_t dcu_id  );
-
-
+					    DcuDetIdsV::iterator end,
+					    uint32_t dcu_id  );
+  
+  
   // ---------- Commissioning analyses ---------- 
 
   
