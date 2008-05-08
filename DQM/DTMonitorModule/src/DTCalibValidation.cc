@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/08 14:15:40 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/06 13:26:46 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -462,9 +462,9 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 
 	// Fill the histos
 	if(sl == 1 || sl == 3)
-	  fillHistos(wireId.superlayerId(), segPosAtZWire.x(), residualOnDistance, residualOnPosition, step);
+	  fillHistos(wireId.superlayerId(), segPosAtZWire.x()-wirePosInChamber.x(), residualOnDistance, residualOnPosition, step);
 	else
-	  fillHistos(wireId.superlayerId(), segPosAtZWire.y(), residualOnDistance, residualOnPosition, step);
+	  fillHistos(wireId.superlayerId(), segPosAtZWire.y()-wirePosInChamber.y(), residualOnDistance, residualOnPosition, step);
 	  
 	
       }
