@@ -16,7 +16,6 @@
 //
 #include "DataMixingSiStripWorker.h"
 
-
 using namespace std;
 
 namespace edm
@@ -66,8 +65,6 @@ namespace edm
   void DataMixingSiStripWorker::addSiStripSignals(const edm::Event &e) { 
     // fill in maps of hits
 
-    LogDebug("DataMixingSiStripWorker")<<"===============> adding MC signals for "<<e.id();
-
     Handle< edm::DetSetVector<SiStripDigi> >  input;
 
     if( e.getByLabel(Sistripdigi_collection_.label(),SistripLabel_.label(),input) ) {
@@ -100,7 +97,6 @@ namespace edm
 
 
   void DataMixingSiStripWorker::addSiStripPileups(const int bcr, Event *e, unsigned int eventNr) {
-  
     LogDebug("DataMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
@@ -116,7 +112,7 @@ namespace edm
 #ifdef DEBUG
 	LogDebug("DataMixingSiStripWorker")  << "Pileups: Processing DetID " << DSViter->id;
 #endif
-
+ 
 	uint32_t detID = DSViter->id;
 	edm::DetSet<SiStripDigi>::const_iterator begin =(DSViter->data).begin();
 	edm::DetSet<SiStripDigi>::const_iterator end   =(DSViter->data).end();
@@ -160,7 +156,6 @@ namespace edm
   void DataMixingSiStripWorker::putSiStrip(edm::Event &e) {
 
     // collection of Digis to put in the event
-
     std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
 
     // loop through our collection of detectors, merging hits and putting new ones in the output
@@ -175,56 +170,39 @@ namespace edm
       OneDetectorMap LocalMap = IDet->second;
 
       //counter variables
-      int formerStrip = 0;
+      int formerStrip = -1;
       int currentStrip;
       int ADCSum = 0;
-      SiStripDigi OldHit;
-      int nmatch=0;
 
       OneDetectorMap::const_iterator iLocalchk;
-
-      for(OneDetectorMap::const_iterator iLocal  = LocalMap.begin();
-	  iLocal != LocalMap.end(); ++iLocal) {
+      OneDetectorMap::const_iterator iLocal  = LocalMap.begin();
+      for(;iLocal != LocalMap.end(); ++iLocal) {
 
 	currentStrip = iLocal->first; 
 
 	if (currentStrip == formerStrip) { // we have to add these digis together
-	  nmatch++;                  // use this to avoid using the "count" function
 	  ADCSum+=(iLocal->second).adc();          // on every element...
-
-	  iLocalchk = iLocal;
-	  if((iLocalchk++) == LocalMap.end()) {  //make sure not to lose the last one
-	    SiStripDigi aHit(formerStrip, ADCSum);
-	    SSD.push_back( aHit );	  
-	    // reset adc sum, nmatch
-	    ADCSum = 0 ;
-	    nmatch=0;	  
-	  }
 	}
-	else {
-	  if(nmatch>0) {
+	else{
+	  if(formerStrip!=-1){
+	    if (ADCSum > 511) ADCSum = 255;
+	    else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 	    SiStripDigi aHit(formerStrip, ADCSum);
 	    SSD.push_back( aHit );	  
-	    // reset adc sum, nmatch
-	    ADCSum = 0 ;
-	    nmatch=0;	  
 	  }
-	  else {
-	    SSD.push_back( OldHit );
-	  }
-	
-	  iLocalchk = iLocal;
-	  if((iLocalchk++) == LocalMap.end()) {  //make sure not to lose the last one
-	    SSD.push_back( iLocal->second );
-	  }
-
 	  // save pointers for next iteration
-	  OldHit = iLocal->second;
 	  formerStrip = currentStrip;
 	  ADCSum = (iLocal->second).adc();
 	}
-      }  // end of loop over one detector
 
+	iLocalchk = iLocal;
+	if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one
+	  if (ADCSum > 511) ADCSum = 255;
+	  else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
+	  SSD.push_back( SiStripDigi(formerStrip, ADCSum) );	  
+	} // end of loop over one detector
+	
+      }
       // stick this into the global vector of detector info
       vSiStripDigi.push_back(SSD);
 
