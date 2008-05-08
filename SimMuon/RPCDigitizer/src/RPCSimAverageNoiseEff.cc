@@ -176,6 +176,7 @@ RPCSimAverageNoiseEff::simulate(const RPCRoll* roll,
       double w = flatDistribution->fire(1);
       if (w < 1.e-10) w=1.e-10;
       int clsize = this->getClSize(posX);
+      std::cout<<"CLUSTR SIZE: "<<clsize<<std::endl;
 
       std::vector<int> cls;
       cls.push_back(centralStrip);

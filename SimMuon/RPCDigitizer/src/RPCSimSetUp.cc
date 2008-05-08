@@ -39,111 +39,24 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
   _mapDetIdNoise.clear();
   _mapDetIdEff.clear();
   _bxmap.clear();
+  _clsMap.clear();
 
-    //------------------------ Noise Reading ----------------------------
-    
-  edm::FileInPath fp1 = ps.getParameter<edm::FileInPath>("noisemapfile");
-  _infile1 = new ifstream(fp1.fullPath().c_str(), std::ios::in);
-  
-  std::vector<float> vnoise;
-  int rpcdetid = 0;
-  std::string buff;
-  
-  std::vector< std::string > words;
-  
-  while( getline(*_infile1, buff, '\n') ){
-    
-    words.clear();
-    vnoise.clear();
-    
-    stringstream ss;
-    std::string chname;
-    ss<<buff;
-    ss>>chname>>rpcdetid;
-    
-    std::string::size_type pos = 0, prev_pos = 0;
-    while ( (pos = buff.find("  ",pos)) != string::npos){
-      
-      words.push_back(buff.substr(prev_pos, pos - prev_pos));
-      prev_pos = ++pos;
-    }
-    words.push_back(buff.substr(prev_pos, pos - prev_pos));
-    
-    for(unsigned int i = 2; i < words.size(); ++i){
-      float value = atof((words[i]).c_str());
-      vnoise.push_back(value);
-    }
-    
-    _mapDetIdNoise.insert(make_pair(static_cast<uint32_t>(rpcdetid),vnoise));
-    
-  }
-   _infile1->close();
+}
 
-  //------------------------ Eff Reading ----------------------------
-  
-  edm::FileInPath fp2 = ps.getParameter<edm::FileInPath>("effmapfile");
-  _infile2 = new ifstream(fp2.fullPath().c_str(), std::ios::in);
-  
-  std::vector<float> veff;
-  rpcdetid = 0;
-  
-  while( getline(*_infile2, buff, '\n') ){
-    
-    words.clear();
-    veff.clear();
-    
-    stringstream ss;
-    std::string chname;
-    ss<<buff;
-    ss>>chname>>rpcdetid;
-    
-    std::string::size_type pos = 0, prev_pos = 0;
-    while ( (pos = buff.find("  ",pos)) != string::npos){
-      
-      words.push_back(buff.substr(prev_pos, pos - prev_pos));
-      prev_pos = ++pos;
-    }
-    words.push_back(buff.substr(prev_pos, pos - prev_pos));
-    
-    for(unsigned int i = 2; i < words.size(); ++i){
-      float value = atof((words[i]).c_str());
-      veff.push_back(value);
-    }
-    _mapDetIdEff.insert(make_pair(static_cast<uint32_t>(rpcdetid),veff));
-  }
-  _infile2->close();
+void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<double> vcls){
 
-  //---------------------- Timing reading ------------------------------------
-
-  edm::FileInPath fp3 = ps.getParameter<edm::FileInPath>("timingMap");
-  _infile3 = new ifstream(fp3.fullPath().c_str(), std::ios::in);
-
-  uint32_t detUnit = 0;
-  float timing = 0.;
-  while(!_infile3->eof()){
-    *_infile3>>detUnit>>timing;
-    _bxmap[RPCDetId(detUnit)] = timing;
-  }
-  _infile3->close();
-
-  //---------------------- Cluster size --------------------------------------
-
-  edm::FileInPath fp4 = ps.getParameter<edm::FileInPath>("clsmapfile");
-  _infile4 = new ifstream(fp4.fullPath().c_str(), ios::in);
-
-  string buffer;
   double sum = 0;
   unsigned int counter = 1;
   unsigned int row = 1;
   std::vector<double> sum_clsize;
 
-  while ( *_infile4 >> buffer ) {
-    const char *buffer1 = buffer.c_str();
-    double dato = atof(buffer1);
-    sum += dato;
-    sum_clsize.push_back(sum);
+  for(unsigned int n = 0; n < vcls.size(); ++n){
+    //    std::cout<<"SUM: "<<vcls[n]<<std::endl;
+
+    sum_clsize.push_back(vcls[n]);
 
     if(counter == row*20) {
+      //    std::cout<<"ROW: "<<row<<std::endl;
       _clsMap[row] = sum_clsize;
       row++;
       sum = 0;
@@ -151,7 +64,24 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
     }
     counter++;
   }
-  _infile4->close();
+
+  for(std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it){
+
+    _bxmap[RPCDetId(it->dpid)] = it->time;
+    std::vector<float> veff, vnoise;
+
+    veff.clear();
+    vnoise.clear();
+
+    for(unsigned int j = 0; j < 96;++j){
+      vnoise.push_back((it->noise)[j]);
+      veff.push_back((it->eff)[j]);
+    }
+
+    _mapDetIdNoise[it->dpid]= vnoise;
+    _mapDetIdEff[it->dpid] = veff;
+
+  }
 }
 
 std::vector<float> RPCSimSetUp::getNoise(uint32_t id)
@@ -182,9 +112,4 @@ std::map< int, std::vector<double> > RPCSimSetUp::getClsMap()
   return _clsMap;
 }
 
-RPCSimSetUp::~RPCSimSetUp(){
-  delete _infile1;
-  delete _infile2;
-  delete _infile3;
-  delete _infile4;
-}
+RPCSimSetUp::~RPCSimSetUp(){}

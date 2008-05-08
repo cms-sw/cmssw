@@ -36,7 +36,9 @@ void RPCSim::addLinks(unsigned int strip, int bx) {
     const PSimHit * hit = (hitItr->second);
 
     if(hit != 0) {
-      theRpcDigiSimLinks.push_back( RPCDigiSimLink(digi, hit->entryPoint(),hit->momentumAtEntry(),hit->timeOfFlight(),hit->energyLoss(),hit->particleType(), hit->detUnitId(), hit->trackId(), hit->eventId(), hit->processType() ) );
+      theRpcDigiSimLinks.push_back( RPCDigiSimLink(digi, hit->entryPoint(),hit->momentumAtEntry(),
+						   hit->timeOfFlight(),hit->energyLoss(),hit->particleType(), 
+						   hit->detUnitId(), hit->trackId(), hit->eventId(), hit->processType() ) );
 
     }
   }
