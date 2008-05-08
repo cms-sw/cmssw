@@ -9,18 +9,18 @@ trackingtruthprod = cms.EDProducer("TrackingTruthProducer",
     HepMCDataLabels = cms.vstring('VtxSmeared', 
         'PythiaSource', 
         'source'),
-    TrackerHitLabels = cms.vstring('TrackerHitsPixelBarrelLowTof', 
-        'TrackerHitsPixelBarrelHighTof', 
-        'TrackerHitsPixelEndcapLowTof', 
-        'TrackerHitsPixelEndcapHighTof', 
-        'TrackerHitsTIBLowTof', 
-        'TrackerHitsTIBHighTof', 
-        'TrackerHitsTIDLowTof', 
-        'TrackerHitsTIDHighTof', 
-        'TrackerHitsTOBLowTof', 
-        'TrackerHitsTOBHighTof', 
-        'TrackerHitsTECLowTof', 
-        'TrackerHitsTECHighTof'),
+    TrackerHitLabels = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof', 
+        'g4SimHitsTrackerHitsPixelBarrelHighTof', 
+        'g4SimHitsTrackerHitsPixelEndcapLowTof', 
+        'g4SimHitsTrackerHitsPixelEndcapHighTof', 
+        'g4SimHitsTrackerHitsTIBLowTof', 
+        'g4SimHitsTrackerHitsTIBHighTof', 
+        'g4SimHitsTrackerHitsTIDLowTof', 
+        'g4SimHitsTrackerHitsTIDHighTof', 
+        'g4SimHitsTrackerHitsTOBLowTof', 
+        'g4SimHitsTrackerHitsTOBHighTof', 
+        'g4SimHitsTrackerHitsTECLowTof', 
+        'g4SimHitsTrackerHitsTECHighTof'),
     volumeZ = cms.double(3000.0)
 )
 
@@ -29,4 +29,5 @@ electrontruth = cms.EDProducer("TrackingElectronProducer")
 mergedtruth = cms.EDProducer("MergedTruthProducer")
 
 trackingParticles = cms.Sequence(trackingtruthprod*electrontruth*mergedtruth)
+
 
