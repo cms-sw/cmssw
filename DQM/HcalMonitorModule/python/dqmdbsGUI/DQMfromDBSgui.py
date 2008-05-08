@@ -396,24 +396,34 @@ class DQMDBSgui:
         # outside local areas
         mycol=mycol+1
         self.menubar.columnconfigure(mycol,weight=1)
-        Label(self.menubar,text="Copy DQM to:",
+        Label(self.menubar,
+              #text="Copy DQM to:",
+              text="scp DQM output to: ",
               fg=self.fg,bg=self.bg).grid(row=0,
                                           column=mycol,
                                           sticky=E)
         mycol=mycol+1
-        self.copyLocVar=StringVar()
-        self.copyLocVar.set("Local area")
+        # Add in variable copy abilities later
+        #self.copyLocVar=StringVar()
+        #self.copyLocVar.set("Local area")
         # List possible copy destinations
         # (not yet implemented, until we can figure out how to
         #  auto scp)
-        self.copyLoc=OptionMenu(self.menubar,self.copyLocVar,
-                                "Local area"
-                                #"cmshcal01"
-                                )
-        self.copyLoc.configure(background=self.bg,
-                               foreground=self.fg,
-                               activebackground=self.alt_active)
+        #self.copyLoc=OptionMenu(self.menubar,self.copyLocVar,
+        #                        "Local area"
+        #                        #"cmshcal01"
+        #                        )
+        #self.copyLoc.configure(background=self.bg,
+        #                       foreground=self.fg,
+        #                       activebackground=self.alt_active)
 
+        # for now, make button to copy files with scp
+        self.copyLoc=Button(self.menubar,
+                            text="global_auto",
+                            command=lambda x=self:x.tempSCP())
+        self.copyLoc.configure(background=self.bg_alt,
+                               foreground=self.bg,
+                               activebackground=self.alt_active)
         self.copyLoc.grid(row=0,column=mycol,sticky=E)
                 
 
@@ -859,6 +869,8 @@ class DQMDBSgui:
 
             # repeat for DQM checking
             if (self.dqmAutoCounter >= self.dqmAutoUpdateTime):
+                # Remind user to scp completed files
+                self.tempSCP()
                 # If dqmAutoVar is off, reset counter
                 if (self.dqmAutoVar.get()==False):
                     self.dqmAutoCounter=0
@@ -1702,7 +1714,41 @@ class DQMDBSgui:
         return
 
 
+    def tempSCP(self):
+        '''
+        Temporary method for running scp from local final directory
+        to hcalusc55@cmshcal01:hcaldqm/global_auto/
+        Jeff
+        '''
+        
+        if not (os.path.exists(self.finalDir.get())):
+            self.commentLabel.configure(text="ERROR -- directory '%s' DOES NOT EXIST!!\nEdit the Final DQM Save Directory in DQM options!"%self.finalDir.get())
+            return
 
+        # make directory for files/dirs that have already been copied.
+        if not os.path.isdir(os.path.join(self.finalDir.get(),"copied_to_hcaldqm")):
+            os.mkdir(os.path.join(self.finalDir.get(),"copied_to_hcaldqm"))
+
+        movelist=os.listdir(self.finalDir.get())
+        movelist.remove("copied_to_hcaldqm")
+        if len(movelist)==0:
+            self.commentLabel.configure(text="There are no files in %s\n to be copied to cmshcal01!"%self.finalDir.get())
+            self.root.update()
+            return
+        text="scp -r "
+        for i in movelist:
+            text=text+"%s "%os.path.join(self.finalDir.get(),"copied_to_hcaldqm","copied_to_hcaldqm",i)
+        text=text+" hcalusc55@cmshcal01:/hcaldqm/global_auto\n\n"
+        #print text
+        #os.system(text)
+        #return
+        for i in movelist:
+            cmd="mv %s %s\n"%(os.path.join(self.finalDir.get(),i),
+                              os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
+            #print cmd
+            os.system(cmd)
+        helpfunctions.Helpwin(text,usetext=1,title="Execute this command in your lxplus window now!" )
+        return
 
 ############################################
 
