@@ -8,6 +8,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODRunConfigInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODRunConfigSeqInfo.h"
 #include "OnlineDB/EcalCondDB/interface/RunConfigDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunFEConfigDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunModeDef.h"
 #include "OnlineDB/EcalCondDB/interface/RunSeqDef.h"
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"

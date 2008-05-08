@@ -130,3 +130,12 @@ begin
 select run_comment_dat_SQ.NextVal into :new.comment_id from dual;
 end;
 /
+
+CREATE TABLE run_FEconfig_dat (
+  iov_id		NUMBER(10),
+  logic_id		NUMBER(10),
+  config_id		NUMBER(10) 
+);
+
+ALTER TABLE run_FEconfig_dat ADD CONSTRAINT run_FEconfig_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE run_FEconfig_dat ADD CONSTRAINT run_FEconfig_dat_fk FOREIGN KEY (iov_id) REFERENCES run_iov (iov_id);
