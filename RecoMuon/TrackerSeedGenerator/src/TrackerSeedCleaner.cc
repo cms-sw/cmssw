@@ -2,8 +2,8 @@
  * \class TrackerSeedCleaner
  *  Reference class for seeds cleaning
  *  Seeds Cleaner based on sharedHits cleaning, direction cleaning and pt cleaning
- *  $Date: 2008/04/14 09:19:49 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/01 18:14:28 $
+ *  $Revision: 1.5 $
     \author A. Grelli -  Purdue University, Pavia University
  */
 
@@ -64,10 +64,7 @@ void TrackerSeedCleaner::setEvent(const edm::Event& event)
 void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaPhiTrackingRegion& region, tkSeeds& seeds ) {
 
 
- /*call the cleaner from shared hits. 
-   This is the first step of cleaning. The default option in .cfi is cleaner on.
- */
-
+ // call the shared input cleaner
  if(cleanBySharedHits) theRedundantCleaner->define(seeds);
 
  theProxyService->eventSetup().get<TransientRecHitRecord>().get(builderName_,theTTRHBuilder);
@@ -76,7 +73,6 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
 
  //check the validity otherwise vertexing
  const reco::BeamSpot & bs = *bsHandle_;
-
  /*reco track and seeds as arguments. Seeds eta and phi are checked and 
    based on deviation from L2 eta and phi seed is accepted or not*/  
 
@@ -85,9 +81,8 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
  TrajectoryStateTransform tsTransform;
  TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
  // PerigeeConversions tspConverter;
-
  for(TrajectorySeedCollection::iterator seed = seeds.begin(); seed<seeds.end(); ++seed){
-
+        if(seed->nHits() < 2) continue; 
 	//get parameters and errors from the seed state
 	TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(seed->recHits().second-1));
 	TrajectoryStateOnSurface state = tsTransform.transientState( seed->startingState(), recHit->surface(), theProxyService->magneticField().product());
@@ -108,23 +103,24 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
 	typedef TkTrackingRegionsMargin< float > Margin;
 
 	Range etaRange   = region.etaRange();
-	double etaLimit  = (fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) <0.05) ? 0.05 : fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) ;
+	double etaLimit  = (fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) <0.1) ? 0.1 : fabs(fabs(etaRange.max()) - fabs(etaRange.mean())) ;
 
 	Margin phiMargin = region.phiMargin();
-	double phiLimit  = (phiMargin.right() < 0.05 ) ? 0.05 : phiMargin.right(); 
+	double phiLimit  = (phiMargin.right() < 0.1 ) ? 0.1 : phiMargin.right(); 
 
         double ptSeed  = pSeed.perp();
         double ptMin   = (region.ptMin()>3.5) ? 3.5: region.ptMin();
-
         // Clean  
 	bool inEtaRange = etaSeed >= (etaRange.mean() - etaLimit) && etaSeed <= (etaRange.mean() + etaLimit) ;
 	bool inPhiRange = (fabs(deltaPhi(phiSeed,double(region.direction().phi()))) < phiLimit );
-
         // pt cleaner
         bool inPtRange = ptSeed >= ptMin &&  ptSeed<= 2*(muR->pt());
+        
+        // save efficiency don't clean triplets with pt cleaner 
+        if(seed->nHits()==3) inPtRange = true;
 
         // use pt and angle cleaners
-        if(inPtRange && usePt_Cleaner && !useDirection_Cleaner) {
+        if(inPtRange  && usePt_Cleaner && !useDirection_Cleaner) {
 
             result.push_back(*seed);
             LogDebug("TrackerSeedCleaner")<<" Keeping the seed : this seed passed pt selection";
@@ -156,8 +152,7 @@ void TrackerSeedCleaner::clean( const reco::TrackRef& muR, const RectangularEtaP
   }
 
    //the new seeds collection
-     
-   if((useDirection_Cleaner && seeds.size() >= 10)|| usePt_Cleaner) seeds.swap(result);
+   if(result.size()!=0 && (useDirection_Cleaner || usePt_Cleaner)) seeds.swap(result);
 
    LogDebug("TrackerSeedCleaner")<<seeds.size()<<" trajectory seeds to the events after cleaning"<<endl;
  
