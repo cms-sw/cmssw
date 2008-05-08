@@ -1,8 +1,13 @@
 <lcgdict>
 
-
    <class name="std::vector<reco::SuperClusterRef>" />
    <class name="edm::ValueMap<reco::SuperClusterRef>" />
    <class name="edm::Wrapper<edm::ValueMap<reco::SuperClusterRef> >" />
+   <class name="std::vector<reco::CaloClusterPtr>" />
+   <class name="edm::ValueMap<reco::CaloClusterPtr>" />
+   <class name="edm::ValueMap<reco::CaloClusterPtrVector>" />
+   <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> >" />
+   <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> >" />
+
 
 </lcgdict>                                                                                                                                                        
