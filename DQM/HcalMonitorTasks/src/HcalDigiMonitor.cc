@@ -15,8 +15,8 @@ namespace HcalDigiPerChan
 {
   
 
-  // ignore perChanHists for CRUZET -- Jeff
-  /*
+  // ignore perChanHists for CRUZET? -- Jeff
+  // or just never call these?
 
   template<class Digi>
   inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DQMStore* dbe, string baseFolder) {
@@ -47,7 +47,7 @@ namespace HcalDigiPerChan
       } // if (dbe)
     } // else
   } // inline void perChanHists
-  */
+
 } // namespace HcalDigiPerChan
 
 
@@ -665,10 +665,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}    
 	
 	// ignore perchanhists for CRUZET -- Jeff
-	/*
+
 	if(doPerChannel_)	  
 	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
-	*/
+
 
 	if (digi.id().ieta() > 0) {
 	  hbHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
@@ -744,10 +744,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}    
 	
 	// ignore perchannel hists for CRUZET -- Jeff
-	/*
+
 	if(doPerChannel_)
 	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
-	*/
+
 
 	if (digi.id().ieta() > 0) {
 	  heHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
@@ -842,10 +842,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }    
       
       // ignore perchannel hists for CRUZET -- Jeff
-      /*
+
       if(doPerChannel_)	  
 	HcalDigiPerChan::perChanHists<HODataFrame>(2,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
-      */
+
 
 	if (digi.id().ieta() > 0) {
 	  hoHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
@@ -935,10 +935,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }    
 
       // ignore perchannel hists for CRUZET -- Jeff
-      /*
+
       if(doPerChannel_)	  
 	HcalDigiPerChan::perChanHists<HFDataFrame>(3,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
-      */
+
 
       if (digi.id().ieta() > 0) {
 	hfHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());

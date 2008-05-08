@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/04/29 21:23:57 $
-  * $Revision: 1.19 $
+  * $Date: 2008/05/03 14:56:34 $
+  * $Revision: 1.20 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -90,8 +90,9 @@ private:  ///Monitoring elements
 
     std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
 
-    // Turn these histograms off for CRUZET -- Jeff
-    //std::map<HcalDetId, MonitorElement*> SHAPE;
+    // Turn these histograms off for CRUZET? -- Jeff
+    // or just use flag for perChannel digi?
+    std::map<HcalDetId, MonitorElement*> SHAPE;
   } hbHists, heHists, hfHists, hoHists;
 
 };
