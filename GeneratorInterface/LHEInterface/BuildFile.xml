@@ -10,6 +10,7 @@
 <use name="xerces-c"/>
 <use name="rootmath"/>
 <use name="hepmc"/>
+<use name="libhepml"/>
 <use name="fastjet"/>
 <export>
 	<use name="FWCore/ParameterSet"/>
@@ -17,5 +18,6 @@
 	<use name="boost"/>
 	<use name="sigcpp"/>
 	<use name="hepmc"/>
+	<use name="libhepml"/>
 	<lib name="GeneratorInterfaceLHEInterface"/>
 </export>
