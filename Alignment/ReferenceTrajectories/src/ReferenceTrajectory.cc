@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2008/02/15 15:38:47 $
+//  last update: $Date: 2008/02/21 12:31:07 $
 //  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
@@ -22,10 +22,13 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
+
+using namespace SurfaceSideDefinition; // for beforeSurface etc.
 
 //__________________________________________________________________________________
 
