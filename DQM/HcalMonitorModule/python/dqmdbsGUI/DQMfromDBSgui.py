@@ -947,6 +947,7 @@ class DQMDBSgui:
             self.dqmvaluewin=Toplevel()
 
         self.dqmvaluewin.geometry('+400+300')
+        self.dqmvaluewin.title("Change DQM Values")
         myrow=0
 
         # List of variables to be shown in window.
@@ -964,15 +965,25 @@ class DQMDBSgui:
             Label(self.dqmvaluewin,
                   width=40,
                   text="%s"%i).grid(row=myrow,column=0)
-            Entry(self.dqmvaluewin,
-                  width=80,
-                  textvar=myvars[i]).grid(row=myrow,column=1)
+            tempEnt=Entry(self.dqmvaluewin,
+                          width=80,
+                          textvar=myvars[i])
+            tempEnt.grid(row=myrow,column=1)
+            if i=="  Final DQM Save Directory = " or i=="  .cfg file to run for each DQM = ":
+                tempEnt.bind("<Return>",(lambda event:self.checkExistence(myvars[i])))
             myrow=myrow+1
-        Button(self.dqmvaluewin,text="Save as new default\n DQM values",
-               command = lambda x=self:x.writeDefaultDQMToPickle()).grid(row=myrow,column=0)
-        Button(self.dqmvaluewin,text="Restore default DQM values",
-               command = lambda x=self:x.getDefaultDQMFromPickle()).grid(row=myrow,
+        newFrame=Frame(self.dqmvaluewin)
+        newFrame.grid(row=myrow,column=0,columnspan=2,sticky=EW)
+        newFrame.columnconfigure(0,weight=1)
+        newFrame.columnconfigure(1,weight=1)
+        newFrame.columnconfigure(2,weight=1)
+        Button(newFrame,text="Save as new default\n DQM values",
+               command = lambda x=self:x.writeDefaultDQMToPickle()).grid(row=0,column=0)
+        Button(newFrame,text="Restore default DQM values",
+               command = lambda x=self:x.getDefaultDQMFromPickle()).grid(row=0,
                                                                          column=1)
+        Button(newFrame,text="Exit",
+               command = lambda x=self.dqmvaluewin:x.destroy()).grid(row=0,column=2)
         return
 
 
@@ -1732,6 +1743,16 @@ class DQMDBSgui:
         return
 
 
+    def checkExistence(self,obj):
+        print obj.get()
+        exists=True
+        if not os.path.exists(obj.get()):
+            self.commentLabel.configure(text="ERROR!\n Object '%s' does not exist!"%obj.get())
+            self.root.update()
+            obj.set("ERROR -- FILE/DIR DOES NOT EXIST")
+            exists=False
+        return exists
+
     def tempSCP(self):
         '''
         Temporary method for running scp from local final directory
@@ -1753,19 +1774,30 @@ class DQMDBSgui:
             self.commentLabel.configure(text="There are no files in %s\n to be copied to cmshcal01!"%self.finalDir.get())
             self.root.update()
             return
+        text1="scp -r "
         text="scp -r "
         for i in movelist:
             text=text+"%s "%os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i)
+            text1=text1+"%s "%os.path.join(self.finalDir.get(),i)
         text=text+" hcalusc55@cmshcal01:/hcaldqm/global_auto\n\n"
-        #print text
-        #os.system(text)
-        #return
-        for i in movelist:
-            cmd="mv %s %s\n"%(os.path.join(self.finalDir.get(),i),
-                              os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
-            #print cmd
-            os.system(cmd)
-        helpfunctions.Helpwin(text,usetext=1,title="Cut and paste this command into your lxplus window now!" )
+        text1=text1+" hcalusc55@cmshcal01:/hcaldqm/global_auto\n\n"
+        
+        #if at cms:
+        #if os.getenv("USER")=="cchcal":
+        compname=os.uname()[1]
+        if string.find(compname,"lxplus")>-1 and string.find(compname,".cern.ch")>-1:
+            zzz=os.system(text1)
+            print text1
+            print zzz
+            return
+        
+        else:
+            for i in movelist:
+                cmd="mv %s %s\n"%(os.path.join(self.finalDir.get(),i),
+                                  os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
+            
+                #os.system(cmd)
+            helpfunctions.Helpwin(text,usetext=1,title="Cut and paste this command into your lxplus window now!" )
         return
 
 ############################################
