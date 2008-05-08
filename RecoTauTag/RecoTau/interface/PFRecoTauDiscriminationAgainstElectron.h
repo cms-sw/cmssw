@@ -46,11 +46,20 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
 
     applyCut_bremsRecoveryEOverPLead_  = iConfig.getParameter<bool>("ApplyCut_BremsRecoveryEOverPLead");
 
+    applyCut_electronPreID_  = iConfig.getParameter<bool>("ApplyCut_ElectronPreID");
+
+    elecPreID0_SumEOverPLead_maxValue  = iConfig.getParameter<double>("ElecPreID0_SumEOverPLead_maxValue");
+    elecPreID0_Hcal3x3_minValue  = iConfig.getParameter<double>("ElecPreID0_Hcal3x3_minValue");
+    elecPreID1_SumEOverPLead_maxValue  = iConfig.getParameter<double>("ElecPreID1_SumEOverPLead_maxValue");
+
+    applyCut_ecalCrack_  = iConfig.getParameter<bool>("ApplyCut_EcalCrackCut");
+    
     produces<PFTauDiscriminator>();
   }
   ~PFRecoTauDiscriminationAgainstElectron(){} 
   virtual void produce(Event&, const EventSetup&);
- private:  
+ private:
+  bool isInEcalCrack(double) const; 
   string PFTauProducer_;
   bool applyCut_emFraction_;
   double emFraction_maxValue_;   
@@ -69,6 +78,11 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
   double bremsRecoveryEOverPLead_maxValue_;   
 
   bool applyCut_electronPreID_;
+  double elecPreID0_SumEOverPLead_maxValue;
+  double elecPreID0_Hcal3x3_minValue;
+  double elecPreID1_SumEOverPLead_maxValue;
+
+  bool applyCut_ecalCrack_;
 
 };
 #endif
