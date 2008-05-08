@@ -69,7 +69,7 @@ CSCDigiProducer::~CSCDigiProducer()
 void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", "MuonCSCHits", cf);
+  e.getByLabel("mix", "g4SimHitsMuonCSCHits", cf);
 
   // test access to SimHits
   const std::string hitsName("MuonCSCHits");

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/07 17:54:04 $
- *  $Revision: 1.33 $
+ *  $Date: 2008/04/28 18:55:58 $
+ *  $Revision: 1.34 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -141,7 +141,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
     
   // use MixCollection instead of the previous
   Handle<CrossingFrame<PSimHit> > xFrame;
-  iEvent.getByLabel("mix","MuonDTHits",xFrame);
+  iEvent.getByLabel("mix","g4SimHitsMuonDTHits",xFrame);
   
   auto_ptr<MixCollection<PSimHit> > 
     simHits( new MixCollection<PSimHit>(xFrame.product()) );
