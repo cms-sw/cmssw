@@ -199,8 +199,12 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 
     in >> tmp;
 
+    usesROCList_=false;
     bool buildROCListNow = false;
-    if ( tmp=="Rocs:" ) buildROCListNow = true;
+    if ( tmp=="Rocs:" ) {
+      buildROCListNow = true;
+      usesROCList_=true;
+    }
     else { assert(tmp=="ToCalibrate:"); buildROCListNow = false; }
 
     while (!in.eof())
@@ -1109,6 +1113,13 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
 
   out << "Mode: "<<mode_<<endl;
   if (singleROC_) out << "SingleROC"<<endl;
+  if (!parameters_.empty()){
+    out << "Parameters:"<<endl;
+    std::map<std::string, std::string>::const_iterator it=parameters_.begin();
+    for (;it!=parameters_.end();++it){
+      out << it->first << "        " << it->second <<endl;
+    }
+  }
   out << "Rows:" <<endl;
   for (unsigned int i=0;i<rows_.size();i++){
     for (unsigned int j=0;j<rows_[i].size();j++){
@@ -1159,9 +1170,20 @@ void PixelCalibConfiguration::writeASCII(std::string dir) const {
   out << "Repeat:" <<endl;
   out << ntrigger_ << endl;
 
-  out << "Rocs:"<< endl;
-  for (unsigned int i=0;i<rocs_.size();i++){
-    out << rocs_[i].rocname() <<endl;
+  if (usesROCList_){
+    out << "Rocs:"<< endl;
+  }
+  else{
+    out << "ToCalibrate:"<< endl;
+  }
+  for (unsigned int i=0;i<rocListInstructions_.size();i++){
+    out << rocListInstructions_[i] <<endl;
+    if (rocListInstructions_[i]=="+"||rocListInstructions_[i]=="-"){
+      cout << " ";
+    }
+    else {
+      cout << endl;
+    }
   }  
 
   out.close();

@@ -256,6 +256,8 @@ namespace pos{
 
     bool _bufferData;
 
+    bool usesROCList_;
+
     // Added by Dario May 8th, 2008
     std::string calibFileContent_ ;
   };
