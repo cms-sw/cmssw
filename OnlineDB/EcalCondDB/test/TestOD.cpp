@@ -48,8 +48,8 @@ public:
     ccs.setConfigTag("CCSConfig_1");
     ccs.setDaccal(1 );
     ccs.setDelay( 2 );
-    ccs.setGain( 3 );
-    ccs.setMemGain(  16 );
+    ccs.setGain( "3" );
+    ccs.setMemGain(  "16" );
     ccs.setOffsetHigh( 10 );
     ccs.setOffsetLow(  20 );
     ccs.setOffsetMid(  15 );
