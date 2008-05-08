@@ -12,8 +12,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/12/08 17:07:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/01/12 16:53:54 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -160,21 +160,6 @@ namespace trigger
       l1etmissRefs_.push_back(ref);
     }
 
-    template<typename C>
-    void addObject(int id, const edm::Ref<C>& ref) {
-      std::cout << "@@@@" << std::endl;
-      std::cout << "@@@@ Trigger addObject(Ref<C>): collection type C not recognized - ignored: '"
-		<< typeid(C).name() << "'" << std::endl;
-      std::cout << "@@@@" << std::endl;
-    }	
-    template<typename C>
-    void addObject(int id, const edm::RefProd<C>& ref) {
-      std::cout << "@@@@" << std::endl;
-      std::cout << "@@@@ Trigger addObject(RefProd<C>): need a Ref<C>, not a RefProd<C> [C="
-		<< typeid(C).name() << "]" << std::endl;
-      std::cout << "@@@@" << std::endl;
-    }
-	
 
     /// 
     size_type addObjects (const Vids& ids, const VRphoton& refs) {
@@ -251,14 +236,6 @@ namespace trigger
       return l1emIds_.size();
     }
 
-    template<typename C>
-    size_type addObjects(const Vids& ids, const std::vector<edm::Ref<C> > refs) {
-      std::cout << "@@@@" << std::endl;
-      std::cout << "@@@@ Trigger addObjects(): collection type C not recognized - ignored: '"
-		<< typeid(C).name() << "'" << std::endl;
-      std::cout << "@@@@" << std::endl;
-      return 0;
-    }
 
     /// physics-level getters: get Ref<C>s for physics type id within a slice
     void getObjects(int id, VRphoton& refs) const {
@@ -419,18 +396,6 @@ namespace trigger
       return;
     }
 
-    template<typename C>
-    void getObjects(int id, std::vector<edm::Ref<C> > refs) const {
-      getObjects(id,refs,0,0);
-    }
-    template<typename C>
-    void getObjects(int id, std::vector<edm::Ref<C> > refs, size_type begin, size_type end) const {
-      refs.resize(0);
-      std::cout << "@@@@" << std::endl;
-      std::cout << "@@@@ Trigger getObjects(): collection type C not recognized - ignored: '"
-		<< typeid(C).name() << "'" << std::endl;
-      std::cout << "@@@@" << std::endl;
-    }
 
     /// low-level getters for data members
     const Vids&        photonIds()     const {return photonIds_;}
