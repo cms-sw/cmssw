@@ -7,6 +7,7 @@
 /* #include <boost/cstdint.hpp>  */
 
     std::vector<reco::CaloCluster> v11;
+    std::vector<reco::CaloClusterPtr> v12;
     reco::CaloClusterCollection v1;
     edm::Ptr<reco::CaloCluster> p1;
     edm::PtrVector<reco::CaloCluster> pv1;

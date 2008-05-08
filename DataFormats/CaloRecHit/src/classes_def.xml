@@ -1,8 +1,11 @@
 <lcgdict>
   <class name="CaloRecHit"/>
   <class name="reco::CaloCluster"/>
+  
   <class name="edm::Ptr<reco::CaloCluster>"/>
   <class name="edm::PtrVector<reco::CaloCluster>"/>
   <class name="edm::Wrapper<edm::PtrVector<reco::CaloCluster> >"/>
+  <class name="std::vector<edm::Ptr<reco::CaloCluster> >"/>
   <class name="reco::CaloID"/>
+
 </lcgdict>
