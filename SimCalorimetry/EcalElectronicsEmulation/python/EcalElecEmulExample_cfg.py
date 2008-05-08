@@ -71,14 +71,14 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:toto.root')
 )
 
-process.p = cms.Path(process.mix*process.ecalUnsuppressedDigis*process.ecalTriggerPrimitiveDigis*process.ecalDigis*process.ecalSimRawData)
+process.p = cms.Path(process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis*process.simEcalDigis*process.ecalSimRawData)
 process.fine = cms.EndPath(process.out)
-process.ecalTriggerPrimitiveDigis.Label = 'ecalUnsuppressedDigis'
-process.ecalTriggerPrimitiveDigis.InstanceEB = ''
-process.ecalTriggerPrimitiveDigis.InstanceEE = ''
+process.simEcalTriggerPrimitiveDigis.Label = 'simEcalUnsuppressedDigis'
+process.simEcalTriggerPrimitiveDigis.InstanceEB = ''
+process.simEcalTriggerPrimitiveDigis.InstanceEE = ''
 process.ecalTriggerPrimitiveDigis.TcpOutput = True
-process.ecalDigis.dumpFlags = 10
-process.ecalDigis.trigPrimBypass = False
-process.ecalDigis.writeSrFlags = True
+process.simEcalDigis.dumpFlags = 10
+process.simEcalDigis.trigPrimBypass = False
+process.simEcalDigis.writeSrFlags = True
 
 

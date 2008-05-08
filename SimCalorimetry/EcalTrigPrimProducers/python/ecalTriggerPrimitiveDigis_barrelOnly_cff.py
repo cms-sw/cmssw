@@ -76,5 +76,6 @@ tpparams11 = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-ecalTriggerPrimitiveDigis.BarrelOnly = True
+simEcalTriggerPrimitiveDigis.BarrelOnly = True
+
 

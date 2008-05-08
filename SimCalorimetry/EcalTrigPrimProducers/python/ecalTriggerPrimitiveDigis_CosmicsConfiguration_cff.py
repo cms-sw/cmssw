@@ -84,7 +84,7 @@ EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
 )
 
 # Ecal Trig Prim module
-ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
+simEcalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
     BarrelOnly = cms.bool(True),
     TTFHighEnergyEB = cms.double(1.0),
     InstanceEB = cms.string('ebDigis'),
@@ -100,5 +100,6 @@ ecalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
     TTFLowEnergyEB = cms.double(1.0) ## this + the following is added from 140_pre4 on
 
 )
+
 
 
