@@ -104,7 +104,7 @@ namespace popcon {
    
     for (it = payloads.begin(); it != payloads.end(); it++){
       i++; 
-      if (i ==1)   s<< "\n payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ; " ;
+      if (i ==1)   s<<  (sinceAppend ? "Since " :" Till ") << (*it).second <<  "; " ;
     }
    
     // when more than one payload are transferred;  
@@ -112,8 +112,8 @@ namespace popcon {
       ss << "\n transferred " << i << " payloads:\n "  ;
       for (it = payloads.begin(); it != payloads.end(); it++){
 	j++;
-	if (j==1) ss <<   " first payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ;\n " ;
-	if (j==i) ss<< " last payload valid " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  " ;\n " ;  
+	if (j==1) ss <<   " first payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n " ;
+	if (j==i) ss<< " last payload " << (sinceAppend ? "Since " :" Till ") << (*it).second <<  ";\n " ;  
       }  
     } 
     
