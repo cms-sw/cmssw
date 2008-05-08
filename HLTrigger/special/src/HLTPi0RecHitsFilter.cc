@@ -315,7 +315,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//	cout<<" m_inv "<<m_inv<<endl;
 	if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
 
-	  //cout <<"  Simple Clustering: pi0 Candidate (pt>2.5 GeV, m_inv<0.2) pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
 
 
 	  //New Loop on cluster to measure isolation:
@@ -343,9 +342,11 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
 	    for(Int_t iii=0 ; iii<IsoClus.size() ; iii++){   
 	      //cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl;  
-	      for(int Rec3=0;Rec3<RecHitsCluster[iii].size();Rec3++)pi0EBRecHitCollection->push_back(RecHitsCluster[iii][Rec3]);
+	      for(int Rec3=0;Rec3<RecHitsCluster[IsoClus[iii]].size();Rec3++)pi0EBRecHitCollection->push_back(RecHitsCluster[IsoClus[iii]][Rec3]);
 	    }   
 	    
+	    cout <<"  Simple Clustering: pi0 Candidate pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+
 	    npi0_s++;
 	  }
 	  
@@ -359,7 +360,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //timers.pop_and_push(timerName);
 
 
-  //  cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+    cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
 
 
@@ -369,7 +370,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Put selected information in the event
       int pi0_collsize = pi0EBRecHitCollection->size();
-      //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
       if ( pi0_collsize > seleNRHMax_ ) return accept;
       if ( pi0_collsize < 1 ) return accept;
       if( npi0_s ==0 )return accept; 
