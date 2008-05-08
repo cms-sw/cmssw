@@ -7,16 +7,23 @@
 
 using namespace edm;
 
-PtYDistributor::PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine, double ptmax = 100, double ptmin = 0, double ymax = 10, double ymin = -10, int ptbins = 1000, int ybins = 50) : ptmax_(ptmax),ptmin_(ptmin),ymax_(ymax),ymin_(ymin), ptbins_(ptbins), ybins_(ybins)
+PtYDistributor::PtYDistributor(std::string input, CLHEP::HepRandomEngine& fRandomEngine, double ptmax = 100, double ptmin = 0, double ymax = 10, double ymin = -10, int ptbins = 1000, int ybins = 50) : ptmax_(ptmax),ptmin_(ptmin),ymax_(ymax),ymin_(ymin), ptbins_(ptbins), ybins_(ybins)
 {  
-   std::string file = "GeneratorInterface/Pythia6Interface/data/"+ inputfile +".root";
-   edm::FileInPath f1(file);
+   edm::FileInPath f1(input);
    std::string fDataFile = f1.fullPath();
 
    std::cout<<" File from "<<fDataFile <<std::endl;
    TFile f(fDataFile.c_str(),"READ");
    TGraph* yfunc = (TGraph*)f.Get("rapidity"); 
    TGraph* ptfunc = (TGraph*)f.Get("pt");
+
+   if( !yfunc ) 
+      throw edm::Exception(edm::errors::NullPointerError,"PtYDistributor")
+         <<"Rapidity distribution could not be found in file "<<fDataFile;
+
+   if( !ptfunc )
+      throw edm::Exception(edm::errors::NullPointerError,"PtYDistributor")
+         <<"Pt distribution could not be found in file "<<fDataFile;
 
    if(ptbins_ > 100000){
       ptbins_ = 100000;
@@ -43,6 +50,8 @@ PtYDistributor::PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fR
 
   fYGenerator = new RandGeneral(fRandomEngine,aProbFunc1,ybins_);
   fPtGenerator = new RandGeneral(fRandomEngine,aProbFunc2,ptbins_);
+
+  f.Close();
   
 } // from file
 
