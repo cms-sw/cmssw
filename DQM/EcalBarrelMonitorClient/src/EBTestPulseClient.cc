@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.201 $
+ * $Date: 2008/04/08 18:04:49 $
+ * $Revision: 1.202 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,6 +23,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -658,9 +659,11 @@ void EBTestPulseClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3; 
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
 
   char histo[200];
 
@@ -899,6 +902,34 @@ void EBTestPulseClient::analyze(void){
                   meg03_[ism-1]->setBinContent( ie, ip, val+3 );
                 }
               }
+            }
+
+          }
+        }
+
+	// TT masking
+
+	if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
             }
 
           }
