@@ -99,7 +99,12 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  double ParameterX0_;
  double ParameterT0_barl_;
  double ParameterW0_;
+  double detaL1_;
+  double dphiL1_;
 
+  edm::InputTag l1IsolatedTag_;
+  edm::InputTag l1NonIsolatedTag_;
+  edm::InputTag l1SeedFilterTag_;
 
 
  std::map<DetId, EcalRecHit> *recHitsEB_map;
