@@ -1,16 +1,18 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
-#include "DataFormats/EgammaReco/interface/SuperCluster.h" 
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h" 
+
 
 using namespace reco;
 
-Conversion::Conversion(  const reco::SuperClusterRef sc, 
-                                   const std::vector<reco::TrackRef> tr, 
-			           const std::vector<math::XYZPoint> trackPositionAtEcal, 
-				   const reco::Vertex  & convVtx,
-				   const std::vector<reco::BasicClusterRef> & matchingBC):  
+Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+			 const std::vector<reco::TrackRef> tr, 
+			 const std::vector<math::XYZPoint> trackPositionAtEcal, 
+			 const reco::Vertex  & convVtx,
+			 const std::vector<reco::CaloClusterPtr> & matchingBC):  
+			 
 
-  superCluster_(sc), tracks_(tr), 
+  caloCluster_(sc), tracks_(tr), 
   thePositionAtEcal_(trackPositionAtEcal), 
   theConversionVertex_(convVtx), 
   theMatchingBCs_(matchingBC)  {
@@ -25,8 +27,8 @@ Conversion * Conversion::clone() const {
   return new Conversion( * this ); 
 }
 
-reco::SuperClusterRef Conversion::superCluster() const {
-  return superCluster_;
+reco::CaloClusterPtrVector Conversion::caloCluster() const {
+  return caloCluster_;
 }
 
 
@@ -120,8 +122,15 @@ GlobalVector  Conversion::pairMomentum() const  {
 double  Conversion::EoverP() const  {
 
   double ep=-99.;
-  if ( nTracks() > 0  ) 
-    ep=  this->superCluster()->energy()/this->pairMomentum().mag();
+
+  if ( nTracks() > 0  ) {
+    unsigned int size= this->caloCluster().size();
+    float etot=0.;
+    for ( unsigned int i=0; i<size; i++) {
+      etot+= caloCluster()[0]->energy();
+    }
+    ep= etot/this->pairMomentum().mag();
+  }
 
   return ep;  
 
