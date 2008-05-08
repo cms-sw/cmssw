@@ -1,4 +1,4 @@
-// $Id: NamedCompositeCandidate.cc,v 1.1 2008/04/11 15:14:21 srappocc Exp $
+// $Id: NamedCompositeCandidate.cc,v 1.2 2008/04/29 15:55:59 srappocc Exp $
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -129,9 +129,3 @@ void NamedCompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, std::s
 }
 
 
-void NamedCompositeCandidate::fixup() const {
-  size_t n = numberOfDaughters();
-  for( size_t i = 0; i < n; ++ i ) {
-    daughter( i )->addMother( this );
-  }
-}

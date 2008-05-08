@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowClonePtrCandidate.h,v 1.9 2007/06/13 16:31:37 llista Exp $
+ * \version $Id: ShallowClonePtrCandidate.h,v 1.1 2008/05/08 15:29:35 srappocc Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -29,6 +29,10 @@ namespace reco {
     ShallowClonePtrCandidate( const CandidatePtr & masterClone, 
 			   Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
       Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
+    /// constructor from values
+    ShallowClonePtrCandidate( const CandidatePtr & masterClone, 
+			   Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+      Candidate( q, p4, vtx ), masterClone_( masterClone ) { }
     /// destructor
     virtual ~ShallowClonePtrCandidate();
     /// returns a clone of the Candidate object
@@ -43,8 +47,12 @@ namespace reco {
     virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
+    /// number of mothers
+    virtual size_t numberOfMothers() const;
     /// return daughter at a given position (throws an exception)
     virtual const Candidate * daughter( size_type i ) const;
+    /// return mother at a given position (throws an exception)
+    virtual const Candidate * mother( size_type i ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate * daughter( size_type i );
     /// has master clone pointer
@@ -52,6 +60,16 @@ namespace reco {
     /// returns reference to master clone pointer
     virtual const CandidatePtr & masterClonePtr() const;
 
+
+    virtual bool isElectron() const;
+    virtual bool isMuon() const;
+    virtual bool isGlobalMuon() const;
+    virtual bool isStandAloneMuon() const;
+    virtual bool isTrackerMuon() const;
+    virtual bool isCaloMuon() const;
+    virtual bool isPhoton() const;
+    virtual bool isConvertedPhoton() const;
+    virtual bool isJet() const;
   private:
     // const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
@@ -61,8 +79,6 @@ namespace reco {
     virtual bool overlap( const Candidate & c ) const { return masterClone_->overlap( c ); }
     /// CandidatePtrerence to master clone
     CandidatePtr masterClone_;
-    /// post-read fixup operation
-    virtual void fixup() const;
   };
 
 }
