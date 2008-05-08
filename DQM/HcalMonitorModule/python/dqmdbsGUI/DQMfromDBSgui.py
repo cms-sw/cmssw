@@ -1789,7 +1789,7 @@ class DQMDBSgui:
         '''
 
         if not (self.enableSCP.get()):
-            self.commentLabel.configure("scp copying is not currently enabled.\n(Check button in the middle of the menu bar")")
+            self.commentLabel.configure(text="scp copying is not currently enabled.\n(Check button in the middle of the menu bar)")
             self.root.update()
             return
         
