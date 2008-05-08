@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.16 2008/05/06 22:18:26 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.17 2008/05/08 16:12:36 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -164,7 +164,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
           engine->setSeeds(seedL,0);
         } else {
           throw edm::Exception(edm::errors::Configuration)
-            << "No initial seed set was supplied for engine " << engineName
+            << "No initialSeedSet was supplied for engine " << engineName
             << ". Aborting." ;
         }
   
@@ -184,7 +184,7 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
         }
         if(initialSeed == 0)  { 
           throw edm::Exception(edm::errors::Configuration)
-            << "No initial seed was supplied for engine " << engineName
+            << "No initialSeed was supplied for engine " << engineName
             << ". Aborting." ;
         }
         seeds.clear();
@@ -268,33 +268,70 @@ RandomNumberGeneratorService::getEngine() const {
   if (currentEngine_ == engineMap_.end()) {
     if (currentLabel_ != std::string() ) {
       if ( currentLabel_ != sourceLabel) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "The module with label \""
-          << currentLabel_
-          << "\" requested a random number engine from the \n"
-             "RandomNumberGeneratorService, but that module was not configured\n"
-             "for random numbers.  An engine is created only if a seed(s) is provided\n"
-             "in the configuration file.  Please add the following line to the\n"
-             "configuration file in the moduleSeeds PSet of the RandomNumberGeneratorService:\n"
-             "        untracked uint32 " << currentLabel_ << " = <your random number seed>\n\n"
-             "Adding the line above will not work if you have modified the default and\n"
-             "selected a different type of random engine that requires two or more seeds.\n"
-             "In that case, you will need to add the following line to the moduleSeedVectors\n"
-             "PSet instead:\n"
-	     "        untracked vuint32 " << currentLabel_ 
-             << " = { <your first random number seed>, <your second random number seed> ... }\n\n";
+       if(oldStyle_) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The module with label \""
+            << currentLabel_
+            << "\" requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but that module was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following line to the\n"
+               "configuration file in the moduleSeeds PSet of the RandomNumberGeneratorService:\n"
+               "        untracked uint32 " << currentLabel_ << " = <your random number seed>\n\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to add the following line to the moduleSeedVectors\n"
+               "PSet instead:\n"
+	       "        untracked vuint32 " << currentLabel_ 
+               << " = { <your first random number seed>, <your second random number seed> ... }\n\n";
+        } else {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The module with label \""
+            << currentLabel_
+            << "\" requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but that module was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following PSet to the\n"
+               "configuration file for the RandomNumberGeneratorService:\n"
+               "        PSet " << currentLabel_ << " = {\n"
+               "                   untracked string engineName = <name of chosen engine>\n"
+               "                   untracked uint32 initialSeed = <value of chosen seed>\n" 
+               "                  }\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to replace the line with initialSeed with\n"
+	       "                   untracked vuint32 initialSeedSet = { <your first random number seed>,"
+               "<your second random number seed> ... }\n\n";
+        }
       } else {
-        throw edm::Exception(edm::errors::Configuration)
-          << "The source requested a random number engine from the \n"
-             "RandomNumberGeneratorService, but the source was not configured\n"
-             "for random numbers.  An engine is created only if a seed(s) is provided\n"
-             "in the configuration file.  Please add the following line to the\n"
-             "configuration file in the RandomNumberGeneratorService block:\n"
-             "        untracked uint32 sourceSeed = <your random number seed>\n\n"
-             "Adding the line above will not work if you have modified the default and\n"
-             "selected a different type of random engine that requires two or more seeds.\n"
-             "In that case, you will need to add the following line instead:\n"
-             "        untracked vuint32 sourceSeedVector = { <your first random number seed>, <your second random number seed> ... }\n\n";
+        if(oldStyle_) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The source requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but the source was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following line to the\n"
+               "configuration file in the RandomNumberGeneratorService block:\n"
+               "        untracked uint32 sourceSeed = <your random number seed>\n\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to add the following line instead:\n"
+               "        untracked vuint32 sourceSeedVector = { <your first random number seed>, <your second random number seed> ... }\n\n";
+        } else {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The source requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but the source was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following PSet to the\n"
+               "configuration file in the RandomNumberGeneratorService block:\n"
+               "        PSet theSource  = {\n"
+               "                   untracked string engineName = <name of chosen engine>\n"
+               "                   untracked uint32 initialSeed = <value of chosen seed>\n" 
+               "                  }\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to add the following line instead:\n"
+               "        untracked vuint32 sourceSeedVector = { <your first random number seed>, <your second random number seed> ... }\n\n";
+        }
       }
     }
     else {
@@ -317,37 +354,74 @@ RandomNumberGeneratorService::mySeed() const {
   if (iter == seedMap_.end()) {
     if (currentLabel_ != std::string() ) {
       if ( currentLabel_ != sourceLabel) {
-        throw edm::Exception(edm::errors::Configuration)
-          << "The module with label \""
-          << currentLabel_
-          << "\" requested a random number seed from the \n"
-             "RandomNumberGeneratorService, but that module was not configured\n"
-             "for random numbers.  Please add the following line to the\n"
-             "configuration file in the moduleSeeds PSet of the RandomNumberGeneratorService:\n"
-             "        untracked uint32 " << currentLabel_ << " = <your random number seed>\n\n"
-             "Adding the line above will not work if you have modified the default and\n"
-             "selected a different type of random engine that requires two or more seeds.\n"
-             "In that case, you will need to add the following line to the moduleSeedVectors\n"
-             "PSet instead:\n"
-	     "        untracked vuint32 " << currentLabel_ 
-             << " = { <your first random number seed>, <your second random number seed> ... }\n\n";
+       if(oldStyle_) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The module with label \""
+            << currentLabel_
+            << "\" requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but that module was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following line to the\n"
+               "configuration file in the moduleSeeds PSet of the RandomNumberGeneratorService:\n"
+               "        untracked uint32 " << currentLabel_ << " = <your random number seed>\n\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to add the following line to the moduleSeedVectors\n"
+               "PSet instead:\n"
+	       "        untracked vuint32 " << currentLabel_ 
+               << " = { <your first random number seed>, <your second random number seed> ... }\n\n";
+        } else {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The module with label \""
+            << currentLabel_
+            << "\" requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but that module was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following PSet to the\n"
+               "configuration file for the RandomNumberGeneratorService:\n"
+               "        PSet " << currentLabel_ << " = {\n"
+               "                   untracked string engineName = <name of chosen engine>\n"
+               "                   untracked uint32 initialSeed = <value of chosen seed>\n" 
+               "                  }\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to replace the line with initialSeed with\n"
+	       "                   untracked vuint32 initialSeedSet = { <your first random number seed>,"
+               "<your second random number seed> ... }\n\n";
+        }
+      } else {
+        if(oldStyle_) {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The source requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but the source was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following line to the\n"
+               "configuration file in the RandomNumberGeneratorService block:\n"
+               "        untracked uint32 sourceSeed = <your random number seed>\n\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to add the following line instead:\n"
+               "        untracked vuint32 sourceSeedVector = { <your first random number seed>, <your second random number seed> ... }\n\n";
+        } else {
+          throw edm::Exception(edm::errors::Configuration)
+            << "The source requested a random number engine from the \n"
+               "RandomNumberGeneratorService, but the source was not configured\n"
+               "for random numbers.  An engine is created only if a seed(s) is provided\n"
+               "in the configuration file.  Please add the following PSet to the\n"
+               "configuration file in the RandomNumberGeneratorService block:\n"
+               "        PSet theSource  = {\n"
+               "                   untracked string engineName = <name of chosen engine>\n"
+               "                   untracked uint32 initialSeed = <value of chosen seed>\n" 
+               "                  }\n"
+               "Adding the line above will not work if you have modified the default and\n"
+               "selected a different type of random engine that requires two or more seeds.\n"
+               "In that case, you will need to add the following line instead:\n"
+               "        untracked vuint32 sourceSeedVector = { <your first random number seed>, <your second random number seed> ... }\n\n";
+        }
       }
-      else {
-        throw edm::Exception(edm::errors::Configuration)
-          << "The source requested a random number seed from the \n"
-             "RandomNumberGeneratorService, but the source was not configured\n"
-             "for random numbers.  Please add the following line to the\n"
-             "configuration file in the RandomNumberGeneratorService block:\n"
-             "        untracked uint32 sourceSeed = <your random number seed>\n\n"
-             "Adding the line above will not work if you have modified the default and\n"
-             "selected a different type of random engine that requires two or more seeds.\n"
-             "In that case, you will need to add the following line instead:\n"
-             "        untracked vuint32 sourceSeedVector = { <your first random number seed>, <your second random number seed> ... }\n\n";
-      }
-    }
-    else {
+    } else {
       throw edm::Exception(edm::errors::Unknown)
-        << "Requested a random number seed from the RandomNumberGeneratorService\n"
+        << "Requested a random number engine from the RandomNumberGeneratorService\n"
            "when no module was active.  This is not supposed to be possible.\n"
            "Please rerun the job using a debugger to get a traceback to show\n"
            "what routines were called and then send information to the edm developers.";
@@ -1232,7 +1306,7 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
              "create an unknown random engine type named \""
           << engineName
           << "\"\nfor " << outputString
-          << "\nCurrently the only valid types are HepJamesRandom and RanecuEngine";
+          << "\nCurrently the only valid types are HepJamesRandom, RanecuEngine and TRandom3";
       }
     }
   }
