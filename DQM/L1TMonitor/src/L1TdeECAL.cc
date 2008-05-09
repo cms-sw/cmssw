@@ -17,7 +17,6 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
     std::cout << "L1TdeECAL::L1TdeECAL()...\n" << std::flush;
   
   DEsource_ = iConfig.getParameter<edm::InputTag>("DataEmulCompareSource");
-  histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/xpert/Ecal/");
   
   dbe = NULL;
@@ -26,6 +25,10 @@ L1TdeECAL::L1TdeECAL(const edm::ParameterSet& iConfig) {
     dbe->setVerbose(0);
   }
   
+  histFile_ = iConfig.getUntrackedParameter<std::string>("HistFile", "");
+  if(iConfig.getUntrackedParameter<bool> ("disableROOToutput", true))
+    histFile_ = "";
+
   if(dbe!=NULL)
     dbe->setCurrentFolder(histFolder_);
   
