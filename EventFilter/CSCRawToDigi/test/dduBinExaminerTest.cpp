@@ -291,10 +291,10 @@ int main(int argc, char **argv){
 			if( (descr=examiner.errName(err)) && strlen(descr) )
 				cerr << chamber->first << " ERROR " << err << "  " << descr << "    " << cntChambERROR[chamber->first][err] << endl;
 		}
-		cerr << endl << " NUMBER OF EVENTS WITH FOLLOWING WARNINGS: " << endl;
-		for(int wrn=1; wrn<examiner.nWARNINGS; wrn++)
-			if( (descr=examiner.wrnName(wrn)) && strlen(descr) )
-				cerr << chamber->first << " WARNING " << wrn << "  " << descr << "    " << cntChambWARNING[chamber->first][wrn] << endl;
+//		cerr << endl << " NUMBER OF EVENTS WITH FOLLOWING WARNINGS: " << endl;
+//		for(int wrn=1; wrn<examiner.nWARNINGS; wrn++)
+//			if( (descr=examiner.wrnName(wrn)) && strlen(descr) )
+//				cerr << chamber->first << " WARNING " << wrn << "  " << descr << "    " << cntChambWARNING[chamber->first][wrn] << endl;
 
 		cerr << endl << " NUMBER OF EVENTS WITH FOLLOWING PAYLOADS: " << endl;
 		for(int pl=0; pl<examiner.nPAYLOADS; pl++){

@@ -40,7 +40,7 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTATUSES(22),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES){
+CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
@@ -98,7 +98,6 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTA
   sDMBExpectedPayload[9]  = "CFEB3_DAV";
   sDMBExpectedPayload[10] = "CFEB4_DAV";
   sDMBExpectedPayload[11] = "CFEB5_DAV";
-  sDMBExpectedPayload[12] = "B-words found";
 
   sDMBEventStaus[0]  = "ALCT_FIFO_FULL";
   sDMBEventStaus[1]  = "TMB_FIFO_FULL";
@@ -122,6 +121,7 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTA
   sDMBEventStaus[19] = "CFEB4_END_TIMEOUT";
   sDMBEventStaus[20] = "CFEB5_END_TIMEOUT";
   sDMBEventStaus[21] = "CFEB Active-DAV mismatch";
+  sDMBEventStaus[22] = "B-words found";
 
   sERROR_[0] = " Any errors: 00";
   sERROR_[1] = " DDU Trailer Missing: 01";
@@ -1056,7 +1056,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     // == CFEB B-word found
     if( (buf0[0]&0xF000)==0xB000 && (buf0[1]&0xF000)==0xB000 && (buf0[2]&0xF000)==0xB000 && (buf0[3]&0xF000)==0xB000 ){
-      bCHAMB_PAYLOAD[currentChamber] |= 0x1000;
+      bCHAMB_STATUS[currentChamber] |= 0x400000;
 
       if( (CFEB_SampleCount%8)==0 ){ cout<<" <"; }
       cout<<"B";
