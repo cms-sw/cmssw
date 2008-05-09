@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2.cc,v 1.3 2007/08/17 14:30:59 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.1 2008/05/09 13:20:48 kodolova Exp $
 //
 //
  
@@ -261,7 +261,7 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
 	
 	if(seeds.size()>0) myseeds.insert(myseeds.end(),seeds.begin(),seeds.end());
 	
-//	std::cout<<" Size of seed container "<<myseeds.size()<<std::endl;
+	//std::cout<<" Size of seed container "<<myseeds.size()<<std::endl;
      }
    }
 

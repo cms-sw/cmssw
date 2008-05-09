@@ -32,7 +32,9 @@ TrajectoryStateOnSurface
   double dfcalc,phnext,zdet;
   double pt = p.perp();
   double a = p.perp()/pz;
-  double b = -a*theHicConst.zvert;  
+
+  double b = -a*theHICConst->zvert; 
+ 
   double phiold=x.phi();
   if(x.phi()<0.) phiold=twopi+x.phi();
     

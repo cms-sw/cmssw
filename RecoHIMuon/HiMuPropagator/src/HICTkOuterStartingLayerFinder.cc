@@ -16,10 +16,11 @@ using namespace edm;
 
 namespace cms{
 HICTkOuterStartingLayerFinder::HICTkOuterStartingLayerFinder(int& numberOfSigmas, const MagneticField * mf, 
-                                 const GeometricSearchTracker* th):
+                                 const GeometricSearchTracker* th, const HICConst* hh):
 				 NumberOfSigm(numberOfSigmas),
 				 magfield(mf),
-				 theTracker(th)     
+				 theTracker(th),
+                                 theHICConst(hh)      
 {
 
 // Get tracking geometry         
@@ -27,11 +28,7 @@ HICTkOuterStartingLayerFinder::HICTkOuterStartingLayerFinder(int& numberOfSigmas
     theBarrelLayers = theTracker->barrelLayers();
     forwardPosLayers = theTracker->posForwardLayers();
     forwardNegLayers = theTracker->negForwardLayers();
-  
-  
-  HICConst hicconst;
-  zvert=(double)hicconst.zvert;
-  cout<<" HICTkOuterStartingLayerFinder::zvert "<<zvert<<endl;
+//    cout<<" HICTkOuterStartingLayerFinder::zvert "<<theHICConst->zvert<<endl;
 }
 
 HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::startingLayers(FreeTrajectoryState& fts)
@@ -109,7 +106,7 @@ bool HICTkOuterStartingLayerFinder::findForwardLayers( const FreeTrajectoryState
     newzmin=abs(zseed)-dz; // ok 8*dz
     newzmax=abs(zseed)+dz/(2.*NumberOfSigm); // ok dz
     } else {
-    a1=(rseed+dr)/(abs(zseed)-abs(zvert));
+    a1=(rseed+dr)/(abs(zseed)-abs(theHICConst->zvert));
     if(zseed<0.) a1=-1.*a1;
     newzmin=abs(outrad/a1)-dz; //ok 6*dz
     newzmax=abs((fls.back())->surface().position().z())+dz;
@@ -152,7 +149,7 @@ HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::fin
   BoundCylinder* bc = dynamic_cast<BoundCylinder*>(surc);
   double barrelradius=bc->radius();
 
-  double a1=barrelradius/(abs(zdetlast)-abs(zvert));
+  double a1=barrelradius/(abs(zdetlast)-abs(theHICConst->zvert));
 
 
   rmin=a1*zbarrel-(theBarrelLayers.back())->surface().bounds().thickness();
@@ -160,10 +157,10 @@ HICTkOuterStartingLayerFinder::LayerContainer HICTkOuterStartingLayerFinder::fin
   if(abs(zseed)-dz<zbarrel){
     rmax=barrelradius+(theBarrelLayers.back())->surface().bounds().thickness();
   } else{
-    a2=barrelradius/(abs(zseed-zvert)-dz);
+    a2=barrelradius/(abs(zseed-theHICConst->zvert)-dz);
     if(zseed<0.) a2=-1.*a2;
     rmax=a2*zbarrel+(theBarrelLayers.back())->surface().bounds().thickness();
-    cout<<" Check a2,rmax "<<a2<<" "<<rmax<<endl;
+  //  cout<<" Check a2,rmax "<<a2<<" "<<rmax<<endl;
   }
      
 

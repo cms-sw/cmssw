@@ -14,7 +14,7 @@
 #include <iostream>
 #include <vector>
 
-#define PROPAGATOR_DB
+//#define PROPAGATOR_DB
 
 using namespace std;
 

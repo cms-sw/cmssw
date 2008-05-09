@@ -9,12 +9,10 @@
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=Geometry/CommonTopologies>
-<use name=Geometry/Surface>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
 <use name=RecoTracker/TkTrackingRegions>
-<use name=TrackingTools/PatternTools>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=TrackingTools/KalmanUpdators>
@@ -24,7 +22,6 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/Math>
-<use name=RecoTracker/GeometryESProducer>
 <use name=TrackingTools/MeasurementDet>
 <use name=RecoTracker/MeasurementDet>
 <use name=TrackingTools/TransientTrack>
@@ -36,6 +33,7 @@
 <use name=rootrflx>
 
 <export>
+  <lib name=RecoHIMuonHiMuSeed>
   <use name=boost>
   <use name=clhep>
   <use name=FWCore/Framework>
@@ -47,12 +45,10 @@
   <use name=DataFormats/TrajectorySeed>
   <use name=DataFormats/TrackerRecHit2D>
   <use name=Geometry/CommonTopologies>
-  <use name=Geometry/Surface>
   <use name=Geometry/TrackerGeometryBuilder>
   <use name=DataFormats/DetId>
   <use name=DataFormats/SiStripDetId>
   <use name=RecoTracker/TkTrackingRegions>
-  <use name=TrackingTools/PatternTools>
   <use name=MagneticField/Records>
   <use name=MagneticField/Engine>
   <use name=TrackingTools/KalmanUpdators>
@@ -62,7 +58,6 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/GsfTrackReco>
   <use name=DataFormats/Math>
-  <use name=RecoTracker/GeometryESProducer>
   <use name=TrackingTools/MeasurementDet>
   <use name=RecoTracker/MeasurementDet>
   <use name=TrackingTools/TransientTrack>

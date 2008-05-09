@@ -28,10 +28,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 // Detector geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -72,7 +69,7 @@
 class DiMuonSeedGeneratorHIC  {
 
  public:
-  typedef std::vector<TrajectorySeed> SeedContainer;
+  typedef std::vector<DiMuonTrajectorySeed> SeedContainer;
   typedef SeedContainer::iterator SeedIterator;
   
   DiMuonSeedGeneratorHIC(edm::InputTag,
