@@ -1,8 +1,6 @@
 #ifndef CoreSimTrack_H
 #define CoreSimTrack_H
  
-#include <CLHEP/Vector/LorentzVector.h>
-
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -20,16 +18,8 @@ public:
 
     /// constructors
     CoreSimTrack() {}
-    CoreSimTrack(int ipart, const HepLorentzVector & p) :
-       thePID(ipart) 
-    { theMomentum.SetXYZT( p.x(), p.y(), p.z(), p.e() ) ; }  
-
     CoreSimTrack( int ipart, const math::XYZTLorentzVectorD& p ) :
        thePID(ipart), theMomentum(p) {}
-
-    CoreSimTrack(int ipart, const Hep3Vector& ip, double ie) : 
-       thePID(ipart) 
-    { theMomentum.SetXYZT( ip.x(), ip.y(), ip.z(), ie ) ; }
 
     CoreSimTrack( int ipart, math::XYZVectorD& ip, double ie ) :
        thePID(ipart)
@@ -64,7 +54,6 @@ private:
     EncodedEventId eId;
     unsigned int tId;
     int thePID;
-    // HepLorentzVector theMomentum;
     math::XYZTLorentzVectorD theMomentum ;
 };
 

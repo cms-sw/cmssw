@@ -10,11 +10,9 @@ class SimVertex : public CoreSimVertex
   typedef CoreSimVertex Core;
   /// constructor
   SimVertex();
-  SimVertex(const Hep3Vector & v, float tof);
   SimVertex( const math::XYZVectorD& v, float tof ) ;
 
   /// full constructor (position, time, index of parent in final vector)
-  SimVertex(const Hep3Vector & v, float tof, int it);
   SimVertex( const math::XYZVectorD& v, float tof, int it ) ;
 
   /// constructor from transient
