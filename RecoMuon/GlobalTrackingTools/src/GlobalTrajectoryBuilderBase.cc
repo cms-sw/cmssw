@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/04/11 20:38:35 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/22 15:53:21 $
+ *  $Revision: 1.15 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -246,7 +246,9 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
 
       const Trajectory* chosenTrajectory = chooseTrajectory(refit, theMuonHitsOption);
       if (chosenTrajectory) {
-	finalTrajectory = new MuonCandidate(new Trajectory(*chosenTrajectory), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+	Trajectory *tmpTrajectory = new Trajectory(*chosenTrajectory);
+	tmpTrajectory->setSeedRef((*it)->trackerTrajectory()->seedRef());
+	finalTrajectory = new MuonCandidate(tmpTrajectory, (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
       }
       else {
 	edm::LogError(theCategory)<<"could not choose a valid trajectory. skipping the muon. no final trajectory.";
@@ -255,7 +257,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
       if ( finalTrajectory ) {
         refittedResult.push_back(finalTrajectory);
       }
-    }
+    }//end loop over tkTrajs collection
   }
   else {
     LogTrace(theCategory)<<"theMuonHitsOption="<<theMuonHitsOption<<"\n"
@@ -844,7 +846,7 @@ GlobalTrajectoryBuilderBase::refitTrajectory(const Trajectory& tkTraj) const {
   // this is the only way to get a TrajectorySeed with settable propagation direction
   PTrajectoryStateOnDet garbage1;
   edm::OwnVector<TrackingRecHit> garbage2;
- 
+
   ConstRecHitContainer trackerRecHits = tkTraj.recHits();
   
   RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
@@ -862,6 +864,10 @@ GlobalTrajectoryBuilderBase::refitTrajectory(const Trajectory& tkTraj) const {
   outerTsos.rescaleError(100.);
   
   vector<Trajectory> refitted1 = theKFFitter->fit(seed,trackerRecHits,outerTsos);
+
+  for (std::vector<Trajectory>::iterator nit = refitted1.begin(); nit!=refitted1.end(); ++nit) {
+    (*nit).setSeedRef(tkTraj.seedRef());
+  }
   
   return refitted1;
 
@@ -883,6 +889,7 @@ GlobalTrajectoryBuilderBase::glbTrajectory(const TrajectorySeed& seed,
   if ( hits.empty() ) return vector<Trajectory>();
 
   PTrajectoryStateOnDet PTSOD = seed.startingState();
+
   edm::OwnVector<TrackingRecHit> garbage2;
 
   RefitDirection recHitDir = checkRecHitsOrdering(hits);
