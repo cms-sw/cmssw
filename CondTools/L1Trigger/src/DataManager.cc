@@ -43,6 +43,7 @@ DataManager::DataManager (const std::string & connect,
 	  ->enableReadOnlySessionOnUpdateConnections ();
       }
     session->configuration().setAuthenticationPath( authenticationPath ) ;
+    session->configuration().setBlobStreamer("COND/Services/TBufferBlobStreamingService") ;
     session->open() ;
     
 
