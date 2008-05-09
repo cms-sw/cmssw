@@ -55,6 +55,7 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
                                        int qualityDebugFlags,
 				       bool isRegional) :
   pset_(conf),
+  name_(conf.getParameter<std::string>("ComponentName")),
   thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
   theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker)
   ,isRegional_(isRegional)
@@ -195,7 +196,7 @@ void MeasurementTracker::update( const edm::Event& event) const
 void MeasurementTracker::updatePixels( const edm::Event& event) const
 {
   // avoid to update twice from the same event
-  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updatePixels")) return;
+  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updatePixels::"+name_)) return;
 
   typedef edmNew::DetSet<SiPixelCluster> PixelDetSet;
 
@@ -231,7 +232,7 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
 void MeasurementTracker::updateStrips( const edm::Event& event) const
 {
   // avoid to update twice from the same event
-  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updateStrips")) return;
+  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updateStrips::"+name_)) return;
 
   typedef edmNew::DetSet<SiStripCluster>   StripDetSet;
 

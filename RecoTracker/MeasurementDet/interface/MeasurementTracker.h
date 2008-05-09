@@ -73,6 +73,7 @@ public:
 
  protected:
   const edm::ParameterSet& pset_;
+  const std::string name_;
 
   mutable DetContainer                        theDetMap;
   mutable std::vector<TkStripMeasurementDet*> theStripDets;

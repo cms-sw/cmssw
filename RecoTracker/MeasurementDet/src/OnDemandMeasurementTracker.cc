@@ -174,7 +174,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
 
 void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const 
 {
-  bool oncePerEvent= edm::Service<UpdaterService>()->checkOnce("OnDemandMeasurementTracker::updateStrips");
+  bool oncePerEvent= edm::Service<UpdaterService>()->checkOnce("OnDemandMeasurementTracker::updateStrips::"+name_);
   bool failedToGet = false;
   if (!oncePerEvent)
     failedToGet = theRefGetterH.failedToGet() || theLazyGetterH.failedToGet();
