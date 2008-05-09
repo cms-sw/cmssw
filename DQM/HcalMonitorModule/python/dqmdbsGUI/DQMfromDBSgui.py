@@ -1196,6 +1196,12 @@ class DQMDBSgui:
             thread.start_new(self.runDQM,(1,2))
         return
 
+
+
+
+
+
+
     def runDQM(self,dummy1=None,dummy2=None):
         '''
         Runs DQM over all found files.
@@ -1240,6 +1246,8 @@ class DQMDBSgui:
 
         mycount=0
         goodcount=0
+
+        newfiles=False # stores whether a new file is found in the midst of DQM processing
         for i in foundruns:
             if self.debug:  print "<runDQM> Checking run #%i"%i
             self.commentLabel.configure(text="Running DQM on run #%i"%i)
@@ -1303,6 +1311,7 @@ class DQMDBSgui:
 
                 self.runningDQM=True
                 self.filesInDBS[i].startedDQM=True
+                # Here is where the cmsRun command is sent!
                 if (self.callDQMscript(i)):
                     self.filesInDBS[i].finishedDQM=True
                     goodcount=goodcount+1
@@ -1315,28 +1324,29 @@ class DQMDBSgui:
             # DBS on the fly, and set the ignore flags on the files if
             # they want dqm to finish early
             
-            #if (time.time()-mytime)>20*60:
-            if (1<0):
+            if (time.time()-mytime)>20*60:
+            #if (1<0):
                 if (self.debug): print "<runDQM> getting time info"
                 mytime=time.time()
                 self.checkDBS()
-                newfiles=False
                 if len(self.filesInDBS.keys())<>foundruns:
                     self.commentLabel.configure(text="DBS files have been added since last call to DQM.\n  Restarting DQM.")
                     self.root.update()
                     newfiles=True
-                    #break
-                if (newFiles):
-                    # Save current progress
-                    self.writePickle()
-                    # Could this have caused the bug of .gif files written
-                    # to directory?
-                    # What happens if move call occurs during dqm running?
-                    # Solution for now:  Don't perform this extra time check:
-                    #self.dqmButton.configure(state=ACTIVE)
-                    #self.runDQM(self)
-                else:
-                    self.runningDQM=True
+                    break  # end loop on foundruns
+        if (newFiles):
+            # Save current progress
+            self.writePickle()
+            # Could this have caused the bug of .gif files written
+            # to directory?
+            # What happens if move call occurs during dqm running?
+            
+            self.dqmButton.configure(state=ACTIVE)
+            self.runningDQM=False
+            self.runDQM(self)
+            return  # if need to runDQM again, do so, but then return out of this loop
+        else:
+            self.runningDQM=True
 
         if (self.debug):
             print "<runDQM> Hi there!"
