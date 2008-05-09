@@ -155,10 +155,10 @@ HLTMuonL3TkPreFilter::filter(Event& iEvent, const EventSetup& iSetup)
    }//loop over L2s from L3 grouping
 
 
-   vector<reco::TrackRef> vref;
+   vector<RecoChargedCandidateRef> vref;
    filterproduct->getObjects(TriggerMuon,vref);
    for (unsigned int i=0; i<vref.size(); i++ ) {
-     TrackRef & tk = vref[i];
+     TrackRef tk = vref[i]->track();
      LogDebug("HLTMuonL3TkPreFilter")
        << " Track passing filter: pt= " << tk->pt() << ", eta: " 
        << tk->eta();
