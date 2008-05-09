@@ -407,10 +407,6 @@ class DQMDBSgui:
                                        variable=self.enableSCP,
                                        padx=10,
                                        command=self.toggleSCP)
-        if os.getenv("USER")<>"cchcal":
-            self.enableSCP.set(False)
-            self.scpAutoButton.configure(text="scp copying disabled")
-
         
         self.scpAutoButton.grid(row=0,column=mycol,sticky=E)
         #mycol=mycol+1
@@ -445,6 +441,12 @@ class DQMDBSgui:
                                activebackground=self.alt_active)
         self.copyLoc.grid(row=0,column=mycol,sticky=E)
                 
+        if os.getenv("USER")<>"cchcal":
+            self.enableSCP.set(False)
+            self.scpAutoButton.configure(text="scp copying disabled")
+            self.copyLoc.configure(state=DISABLED)
+                                    
+
 
         # Make 'heartbeat' label that shows when auto-checking is on
         mycol=mycol+1
