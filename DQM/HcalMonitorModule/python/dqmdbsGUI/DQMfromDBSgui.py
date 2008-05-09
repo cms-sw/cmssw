@@ -788,7 +788,7 @@ class DQMDBSgui:
         self.lastFoundDBSEntry.bind("<Shift-Down>",self.toggleAutoRunShift)
 
         if not os.path.isdir(self.finalDir.get()):
-            self.commentLabel.configure("WARNING -- specified Final DQM Save Directory does not exist!\nCheck settings in DQM options!")
+            self.commentLabel.configure(text="WARNING -- specified Final DQM Save Directory does not exist!\nCheck settings in DQM options!")
             self.root.update()
         return
 
@@ -1247,7 +1247,7 @@ class DQMDBSgui:
         mycount=0
         goodcount=0
 
-        newfiles=False # stores whether a new file is found in the midst of DQM processing
+        newFiles=False # stores whether a new file is found in the midst of DQM processing
         for i in foundruns:
             if self.debug:  print "<runDQM> Checking run #%i"%i
             self.commentLabel.configure(text="Running DQM on run #%i"%i)
@@ -1332,7 +1332,7 @@ class DQMDBSgui:
                 if len(self.filesInDBS.keys())<>len(foundruns):
                     self.commentLabel.configure(text="DBS files have been added since last call to DQM.\n  Restarting DQM.")
                     self.root.update()
-                    newfiles=True
+                    newFiles=True
                     break  # end loop on foundruns
         if (newFiles):
             # Save current progress
@@ -1695,8 +1695,11 @@ class DQMDBSgui:
         self.changevaluewin.title("Change status of files")
         
         # Add list of runs as a list box with attached scrollbar
+
+        self.changevaluewin.rowconfigure(0,weight=4)
         scrollwin=Frame(self.changevaluewin)
-        scrollwin.grid(row=0,column=0)
+        scrollwin.grid(row=0,column=0,sticky=NS)
+        scrollwin.rowconfigure(1,weight=1)
         myrow=0
         Label(scrollwin,
               text="Be sure to check Status menu after your changes are made").grid(row=myrow,column=0)
@@ -1718,7 +1721,7 @@ class DQMDBSgui:
 
         # Add buttons for changing DQM values
         myrow=myrow+1
-        self.changevaluewin.rowconfigure(myrow,weight=1)
+        #self.changevaluewin.rowconfigure(myrow,weight=1)
         bFrame=Frame(self.changevaluewin)
         bFrame.grid(row=1,column=0)
         igY=Button(bFrame,
@@ -1865,11 +1868,11 @@ class DQMDBSgui:
         text1=text1+" hcalusc55@cmshcal01:/hcaldqm/global_auto\n\n"
 
         
-        #if at cms (specifically, on lxpus):
+        #if at cms (specifically, on lxplus or caf (lxb...)):
         #if os.getenv("USER")=="cchcal":
         compname=os.uname()[1]
 
-        if string.find(compname,"lxplus")>-1 and string.find(compname,".cern.ch")>-1:
+        if (string.find(compname,"lxplus")>-1 or string.find(compname,"lxb")) and string.find(compname,".cern.ch")>-1:
             zzz=os.system(text1)
             print text1
             #print zzz
@@ -1883,6 +1886,8 @@ class DQMDBSgui:
             
         # move files to the copied_to_hcaldqm subdirectory (so they won't be scp'd again)
         for i in movelist:
+            if os.path.isdir(os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i)):
+                os.system("rm -rf %s"%os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
             cmd="mv %s %s\n"%(os.path.join(self.finalDir.get(),i),
                               os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
             os.system(cmd)
