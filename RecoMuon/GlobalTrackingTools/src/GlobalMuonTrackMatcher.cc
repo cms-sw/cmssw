@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/03/21 01:16:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/04/11 20:38:35 $
+ *  $Revision: 1.10 $
  *
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -525,4 +525,27 @@ GlobalMuonTrackMatcher::match_d(const TrajectoryStateOnSurface& sta,
   if ( !sta.isValid() || !tk.isValid() ) return -1;
   return (sta.localPosition() - tk.localPosition()).mag();
 
+}
+
+double
+GlobalMuonTrackMatcher::match_dist(const TrajectoryStateOnSurface& sta, constTrajectoryStateOnSurface& tk) const {
+  
+  const string category = "GlobalMuonTrackMatcher";
+  
+  if ( !sta.isValid() || !tk.isValid() ) return -1;
+  
+  AlgebraicMatrix22 M;
+  M(0,0) =  tk.localError().positionError().xx()+ sta.localError().positionError().xx();
+  M(1,0) = M(0,1) = tk.localError().positionError().xy()+ sta.localError().positionError().xy();
+  M(1,1) =  tk.localError().positionError().yy()+ sta.localError().positionError().yy();
+  AlgebraicVector2 v;
+  v[0] = tk.localDirection().x()- sta.localDirection().x();
+  v[1] = tk.localDirection().y()- sta.localDirection().y();
+  
+  if(!M.Invert()){
+    LogDebug(category) << "Error inverting local matrix ";
+    return -1;
+  }
+  
+  return  ROOT::Math::Similarity(v,M);
 }
