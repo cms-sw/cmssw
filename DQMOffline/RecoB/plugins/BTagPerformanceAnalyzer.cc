@@ -28,10 +28,11 @@ void BTagPerformanceAnalyzer::bookHistos(const edm::ParameterSet& pSet)
   if (update) {
     //
     // append the DQM file ... we should consider this experimental
-    edm::Service<DQMStore>().operator->()->open(std::string((const char *)(inputFile)),"/");
+    //    edm::Service<DQMStore>().operator->()->open(std::string((const char *)(inputFile)),"/");
+    // removed; DQM framework will take care
   }
 
-  // rec jet
+  // Rec jet
   double pRecJetMin  = 0.0 ;
   double pRecJetMax  = 99999.9 ;
 

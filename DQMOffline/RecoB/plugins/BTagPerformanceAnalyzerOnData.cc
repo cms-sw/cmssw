@@ -26,8 +26,9 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
 
   if (update) {
     //
-    // append the DQM file ... we should consider this experimental
-    edm::Service<DQMStore>().operator->()->open(std::string((const char *)(inputFile)),"/");
+        // append the DQM file ... we should consider this experimental
+    //    edm::Service<DQMStore>().operator->()->open(std::string((const char *)(inputFile)),"/");
+    // removed, a module will take care
   }
 
   // rec jet
