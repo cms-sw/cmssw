@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -67,7 +67,7 @@ namespace reco {
 	rule number, var, method, term, power, factor, function1, function2, expression, 
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, logical_factor, logical_term,
-	  cut, fun;
+	  or_op, and_op, cut, fun;
 	definition(const Grammar & self) {
 	  using namespace boost::spirit;
 	  using namespace std;
@@ -128,7 +128,7 @@ namespace reco {
 		       ('-' >> term) [ minus_s ]);
 	  term = 
 	    power >> * (('*' >> power) [ multiplies_s ] |
-			 ('/' >> power) [ divides_s ]);
+			('/' >> power) [ divides_s ]);
 	  power = 
 	    factor >> * (('^' >> factor) [ power_of_s ]);
 	  factor = 
@@ -151,14 +151,18 @@ namespace reco {
 	    expression >> comparison_op >> expression;
 	  trinary_comp = 
 	    expression >> comparison_op >> expression >> comparison_op >> expression;
+	  or_op = (ch_p('|') >> ch_p('|') [ or_s ]) |
+	    (ch_p('|') [ or_s ]);
+	  and_op = (ch_p('&') >> ch_p('&') [ and_s ]) |
+	    (ch_p('&') [ and_s ]); 
 	  logical_expression = 
-	    logical_term >> * ((ch_p('|') [ or_s ] >> logical_term));
-	  logical_term = 
-	    logical_factor >> * ((ch_p('&') [ and_s ] >> logical_factor));
+            logical_term >> * (or_op >> logical_term);
+          logical_term = 
+            logical_factor >> * (and_op >> logical_factor);
 	  logical_factor =
 	    (trinary_comp [ trinary_s ] | 
-	      binary_comp [ binary_s ] |
-	      (ch_p('!') [ not_s ] >> logical_factor)) [ cut_s ] |
+	     binary_comp [ binary_s ] |
+	     (ch_p('!') [ not_s ] >> logical_factor)) [ cut_s ] |
 	    '(' >> logical_expression >> ')' |
 	    logical_expression;
 	  cut = logical_expression;
