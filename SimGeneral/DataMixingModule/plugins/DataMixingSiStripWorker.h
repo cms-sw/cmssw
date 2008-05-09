@@ -58,7 +58,7 @@ namespace edm
 
       // 
 
-      typedef std::multimap<int, SiStripDigi> OneDetectorMap;   // maps by strip ID for later combination - can have duplicate strips
+      typedef std::vector<SiStripDigi> OneDetectorMap;   // maps by strip ID for later combination - can have duplicate strips
       typedef std::map<uint32_t, OneDetectorMap> SiGlobalIndex; // map to all data for each detector ID
 
       SiGlobalIndex SiHitStorage_;
@@ -68,6 +68,12 @@ namespace edm
 
       Selector * sel_;
       std::string label_;
+
+      class StrictWeakOrdering{
+      public:
+	bool operator() (SiStripDigi i,SiStripDigi j) const {return i.strip() < j.strip();}
+      };
+
 
     };
 }//edm
