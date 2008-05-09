@@ -5,11 +5,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # this is the configuration to model pileup in the low-luminosity phase
+from SimGeneral.MixingModule.mixObjects_cfi import *
 mix = cms.EDFilter("MixingModule",
+    LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in terms of 25 ns
 
-    Label = cms.string(''),
     bunchspace = cms.int32(25), ## nsec
 
     playback = cms.untracked.bool(False),
@@ -20,9 +21,31 @@ mix = cms.EDFilter("MixingModule",
         ),
         seed = cms.int32(1234567),
         type = cms.string('poisson'),
-        fileNames = cms.untracked.vstring('/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/28A8801A-9BAC-DC11-8185-000423D992A4.root', 
-            '/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/68BFD683-9DAC-DC11-BFEC-000423D6B5C4.root', 
-            '/store/mc/2007/12/17/RelVal-RelValMinBias-1197885154/0000/92F813F6-99AC-DC11-B88A-000423D993C0.root')
+        fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/3469E801-5C06-DD11-93DC-00304885AE42.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/52B1C4F8-5406-DD11-8031-00304885B130.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/6012E6A6-6106-DD11-B9C6-003048562890.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/66D7FE91-5606-DD11-A3C7-00304885A74E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/B6CDB304-5706-DD11-B9E4-001617C3B76E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
+    ),
+    mixObjects = cms.PSet(
+        mixCH = cms.PSet(
+            mixCaloHits
+        ),
+        mixTracks = cms.PSet(
+            mixSimTracks
+        ),
+        mixVertices = cms.PSet(
+            mixSimVertices
+        ),
+        mixSH = cms.PSet(
+            mixSimHits
+        ),
+        mixHepMC = cms.PSet(
+            mixHepMCProducts
+        )
     )
 )
 

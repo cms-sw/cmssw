@@ -10,17 +10,23 @@ import FWCore.ParameterSet.Config as cms
 # or you can replace the type by "none" for a source you dont want
 # please note that the names of the input sources are fixed: 'input', 'cosmics', 'beamhalo_minus', 'beamhalo_plus'
 #
+from SimGeneral.MixingModule.mixObjects_cfi import *
 mix = cms.EDFilter("MixingModule",
+    LabelPlayback = cms.string(''),
     beamhalo_minus = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(5.0)
         ),
         seed = cms.int32(3456789),
         type = cms.string('poisson'),
-        fileNames = cms.untracked.vstring('/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/28FE7F00-43D3-DC11-8217-000423D98EC4.root', 
-            '/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/B0D04F90-4CD3-DC11-9B60-001617E30D52.root', 
-            '/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/DC34A8CB-46D3-DC11-981D-001617C3B6E2.root', 
-            '/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/F2338EC3-3FD3-DC11-A1A5-001617E30CA4.root')
+        fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/3469E801-5C06-DD11-93DC-00304885AE42.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/52B1C4F8-5406-DD11-8031-00304885B130.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/6012E6A6-6106-DD11-B9C6-003048562890.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/66D7FE91-5606-DD11-A3C7-00304885A74E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/B6CDB304-5706-DD11-B9E4-001617C3B76E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
     ),
     cosmics = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
@@ -28,17 +34,19 @@ mix = cms.EDFilter("MixingModule",
         ),
         seed = cms.int32(2345678),
         type = cms.string('poisson'),
-        fileNames = cms.untracked.vstring('/store/mc/2007/11/20/RelVal-RelValMinBias-1195584891/0000/140FBA0E-1599-DC11-B571-000423D99F3E.root', 
-            '/store/mc/2007/11/20/RelVal-RelValMinBias-1195584891/0000/7A051E1C-4799-DC11-81FD-000423D99E46.root', 
-            '/store/mc/2007/11/20/RelVal-RelValMinBias-1195584891/0000/9C659A18-4799-DC11-8899-000423D6C8E6.root', 
-            '/store/mc/2007/11/20/RelVal-RelValMinBias-1195584891/0000/AADBC61C-4799-DC11-A162-000423D98AF0.root', 
-            '/store/mc/2007/11/20/RelVal-RelValMinBias-1195584891/0000/B81B6DF7-2898-DC11-8ED5-001617E30F56.root')
+        fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/3469E801-5C06-DD11-93DC-00304885AE42.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/52B1C4F8-5406-DD11-8031-00304885B130.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/6012E6A6-6106-DD11-B9C6-003048562890.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/66D7FE91-5606-DD11-A3C7-00304885A74E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/B6CDB304-5706-DD11-B9E4-001617C3B76E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
     ),
     maxBunch = cms.int32(3),
     playback = cms.untracked.bool(False),
     minBunch = cms.int32(-5), ## in units of 25 nsec
 
-    Label = cms.string(''),
     bunchspace = cms.int32(25), ## nsec
 
     beamhalo_plus = cms.SecSource("PoolSource",
@@ -47,10 +55,14 @@ mix = cms.EDFilter("MixingModule",
         ),
         seed = cms.int32(3456789),
         type = cms.string('poisson'),
-        fileNames = cms.untracked.vstring('/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/28FE7F00-43D3-DC11-8217-000423D98EC4.root', 
-            '/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/B0D04F90-4CD3-DC11-9B60-001617E30D52.root', 
-            '/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/DC34A8CB-46D3-DC11-981D-001617C3B6E2.root', 
-            '/store/relval/2008/2/4/RelVal-Minbias-1202115095/0000/F2338EC3-3FD3-DC11-A1A5-001617E30CA4.root')
+        fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/3469E801-5C06-DD11-93DC-00304885AE42.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/52B1C4F8-5406-DD11-8031-00304885B130.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/6012E6A6-6106-DD11-B9C6-003048562890.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/66D7FE91-5606-DD11-A3C7-00304885A74E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/B6CDB304-5706-DD11-B9E4-001617C3B76E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
     ),
     forwardDetectors = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
@@ -58,7 +70,14 @@ mix = cms.EDFilter("MixingModule",
         ),
         seed = cms.int32(3456789),
         type = cms.string('poisson'),
-        fileNames = cms.untracked.vstring('file:/data/uberthon/mm/767D5826-186A-DC11-88E3-001A928116E8.root')
+        fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/3469E801-5C06-DD11-93DC-00304885AE42.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/52B1C4F8-5406-DD11-8031-00304885B130.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/6012E6A6-6106-DD11-B9C6-003048562890.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/66D7FE91-5606-DD11-A3C7-00304885A74E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/B6CDB304-5706-DD11-B9E4-001617C3B76E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
     ),
     input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
@@ -67,7 +86,31 @@ mix = cms.EDFilter("MixingModule",
         ),
         seed = cms.int32(1234567),
         type = cms.string('poisson'),
-        fileNames = cms.untracked.vstring('file:/data/uberthon/mm/767D5826-186A-DC11-88E3-001A928116E8.root')
+        fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/3469E801-5C06-DD11-93DC-00304885AE42.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/52B1C4F8-5406-DD11-8031-00304885B130.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/6012E6A6-6106-DD11-B9C6-003048562890.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/66D7FE91-5606-DD11-A3C7-00304885A74E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/B6CDB304-5706-DD11-B9E4-001617C3B76E.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
+    ),
+    mixObjects = cms.PSet(
+        mixCH = cms.PSet(
+            mixCaloHits
+        ),
+        mixTracks = cms.PSet(
+            mixSimTracks
+        ),
+        mixVertices = cms.PSet(
+            mixSimVertices
+        ),
+        mixSH = cms.PSet(
+            mixSimHits
+        ),
+        mixHepMC = cms.PSet(
+            mixHepMCProducts
+        )
     )
 )
 
