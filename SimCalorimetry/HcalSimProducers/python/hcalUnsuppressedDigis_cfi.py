@@ -5,7 +5,8 @@ simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
     hcalSimParameters,
     doNoise = cms.bool(True),
     doHPDNoise = cms.bool(False),
-    doTimeSlew = cms.bool(True)
+    doTimeSlew = cms.bool(True),
+    hitsProducer = cms.string('g4SimHits')
 )
 
 
