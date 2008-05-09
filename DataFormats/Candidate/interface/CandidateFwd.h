@@ -8,6 +8,7 @@ namespace reco {
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -22,6 +23,8 @@ namespace reco {
   typedef edm::View<Candidate> CandidateView;
   /// persistent reference to an object in a collection of Candidate objects
   typedef edm::Ptr<Candidate> CandidatePtr;
+  /// persistent reference to an object in a collection of Candidate objects
+  typedef edm::PtrVector<Candidate> CandidatePtrVector;
   /// persistent reference to an object in a collection of Candidate objects
   typedef edm::Ref<CandidateCollection> CandidateRef;
   /// persistent reference to an object in a collection of Candidate objects
