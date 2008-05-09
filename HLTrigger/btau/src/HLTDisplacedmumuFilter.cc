@@ -32,20 +32,22 @@ using namespace trigger;
 //
 // constructors and destructor
 //
-HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
+HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig):	
+	minLxySignificance_ (iConfig.getParameter<double>("MinLxySignificance")),
+	maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
+	minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
+	src_ (iConfig.getParameter<edm::InputTag>("Src")),
+	maxEta_ (iConfig.getParameter<double>("MaxEta")),
+	minPt_ (iConfig.getParameter<double>("MinPt")),
+	minPtPair_ (iConfig.getParameter<double>("MinPtPair")),
+	minInvMass_ (iConfig.getParameter<double>("MinInvMass")),
+	maxInvMass_ (iConfig.getParameter<double>("MaxInvMass")),
+	chargeOpt_ (iConfig.getParameter<int>("ChargeOpt")),
+	fastAccept_ (iConfig.getParameter<bool>("FastAccept")),
+		saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false))
 {
 	//now do what ever initialization is needed
-	minLxySignificance_ = iConfig.getParameter<double>("MinLxySignificance");       
-	maxNormalisedChi2_ = iConfig.getParameter<double>("MaxNormalisedChi2");  
-	minCosinePointingAngle_ = iConfig.getParameter<double>("MinCosinePointingAngle");
-	src_ = iConfig.getParameter<edm::InputTag>("Src");
-	maxEta_ = iConfig.getParameter<double>("MaxEta");
-	minPt_ = iConfig.getParameter<double>("MinPt");
-	minPtPair_ = iConfig.getParameter<double>("MinPtPair");
-	minInvMass_ = iConfig.getParameter<double>("MinInvMass");
-	maxInvMass_ = iConfig.getParameter<double>("MaxInvMass");
-	chargeOpt_ = iConfig.getParameter<int>("ChargeOpt");
-	fastAccept_ = iConfig.getParameter<bool>("FastAccept");
+
 	// collections produced by the filter
 	produces<VertexCollection>();
 	produces<trigger::TriggerFilterObjectWithRefs>();
@@ -88,6 +90,7 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	
 	// get hold of muon trks
 	Handle<RecoChargedCandidateCollection> mucands;
+	if(saveTag_)filterobject->addCollectionTag(src_);
 	iEvent.getByLabel (src_,mucands);
 	
 	//get the transient track builder:
@@ -160,7 +163,6 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 			TransientVertex tv = kvf.vertex(t_tks);
 					
 			if (!tv.isValid()) continue;
-			
 			Vertex vertex = tv;
 					
 			// get vertex position and error to calculate the decay length significance

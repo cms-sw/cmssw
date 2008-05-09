@@ -58,5 +58,6 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 		double maxNormalisedChi2_;
 		double minCosinePointingAngle_;
 		edm::InputTag src_;
+		bool saveTag_;
 };
 #endif
