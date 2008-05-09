@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:45 EDT 2007
-// $Id: PtrVectorBase.h,v 1.5 2008/02/15 20:06:17 wmtan Exp $
+// $Id: PtrVectorBase.h,v 1.6 2008/02/16 17:25:48 wmtan Exp $
 //
 
 // system include files
@@ -67,6 +67,9 @@ namespace edm {
     
     /// Capacity of the RefVector
     size_type capacity() const {return indicies_.capacity();}
+
+    /// Clear the PtrVector
+    void clear() { core_ = RefCore(); indicies_.clear(); cachedItems_.clear(); }
     
     bool operator==(PtrVectorBase const& iRHS) const;
     // ---------- static member functions --------------------

@@ -1,4 +1,4 @@
-// $Id: ptrvector_t.cppunit.cc,v 1.2 2008/03/14 00:57:32 wmtan Exp $
+// $Id: ptrvector_t.cppunit.cc,v 1.3 2008/03/18 12:49:22 wmtan Exp $
 
 #include <algorithm>
 #include <vector>
@@ -131,6 +131,11 @@ testPtrVector::check()
   CPPUNIT_ASSERT(bv3.size() == 2);
   CPPUNIT_ASSERT( &(*r1_1) == &(*bv3[1]) );
 
+  /// clearing, then pushing in Ptr with other product ID
+  bv3.clear();
+  CPPUNIT_ASSERT(bv3.size() == 0);
+  bv3.push_back( r2_0 );
+  CPPUNIT_ASSERT(bv3.size() == 1);
 }
 
 void
