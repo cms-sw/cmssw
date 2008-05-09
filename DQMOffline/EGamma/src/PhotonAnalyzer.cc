@@ -98,7 +98,12 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   double etaMin = parameters_.getParameter<double>("etaMin");
   double etaMax = parameters_.getParameter<double>("etaMax");
   int etaBin = parameters_.getParameter<int>("etaBin");
+
+  double phiMin = parameters_.getParameter<double>("phiMin");
+  double phiMax = parameters_.getParameter<double>("phiMax");
+  int    phiBin = parameters_.getParameter<int>("phiBin");
   
+
   double r9Min = parameters_.getParameter<double>("r9Min"); 
   double r9Max = parameters_.getParameter<double>("r9Max"); 
   int r9Bin = parameters_.getParameter<int>("r9Bin");
