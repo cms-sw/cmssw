@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.76 $
+ * $Date: 2008/05/09 08:07:54 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -995,12 +995,12 @@ void EEPedestalClient::analyze(void){
       if ( mask4.size() != 0 ) {
 	map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
 	for (m = mask4.begin(); m != mask4.end(); m++) {
-	  
+
 	  EcalLogicID ecid = m->first;
-	  
+
 	  int it = 1 + ((i-1)/5);
 	  int itt = 68 + it;
-	  
+
 	  if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
 	    if ( meg04_[ism-1] ) {
 	      float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;

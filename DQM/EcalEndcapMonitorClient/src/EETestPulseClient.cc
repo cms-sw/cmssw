@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.87 $
+ * $Date: 2008/05/09 08:08:25 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -752,7 +752,7 @@ void EETestPulseClient::analyze(void){
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
 
-    me_hs01_[ism-1]->Reset(); 
+    me_hs01_[ism-1]->Reset();
     me_hs02_[ism-1]->Reset();
     me_hs03_[ism-1]->Reset();
 
@@ -1074,12 +1074,12 @@ void EETestPulseClient::analyze(void){
       if ( mask4.size() != 0 ) {
 	map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
 	for (m = mask4.begin(); m != mask4.end(); m++) {
-	  
+
 	  EcalLogicID ecid = m->first;
-	  
+
 	  int it = 1 + ((i-1)/5);
 	  int itt = 68 + it;
-	  
+
 	  if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
 	    if ( meg04_[ism-1] ) {
 	      float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
@@ -1100,7 +1100,7 @@ void EETestPulseClient::analyze(void){
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
-        if ( me_hs01_[ism-1] ) { 
+        if ( me_hs01_[ism-1] ) {
           me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
           me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
         }
@@ -1108,7 +1108,7 @@ void EETestPulseClient::analyze(void){
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
-        if ( me_hs02_[ism-1] ) { 
+        if ( me_hs02_[ism-1] ) {
           me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
           me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
         }
@@ -1330,9 +1330,9 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
           obj1f = UtilsClient::getHisto<TH1F*>( me_hs02_[ism-1] );
           break;
         case 3:
-          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );  
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );
           break;
-        default: 
+        default:
           break;
       }
 

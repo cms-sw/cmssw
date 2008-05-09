@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.79 $
+ * $Date: 2008/05/09 08:07:53 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1846,9 +1846,9 @@ void EELedClient::analyze(void){
       if ( mask4.size() != 0 ) {
 	map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
 	for (m = mask4.begin(); m != mask4.end(); m++) {
-	  
+
 	  EcalLogicID ecid = m->first;
-	  
+
 	  int it = 1 + ((i-1)/5);
 	  int itt = 68 + it;
 
