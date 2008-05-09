@@ -12,19 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
-
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometry.h"
-#include "L1TriggerConfig/L1Geometry/interface/L1CaloGeometryRecord.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-
-
 #include "TVector3.h"
-
-#define TWOPI 6.283185308
 
 HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 {
@@ -62,12 +50,6 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   ParameterT0_barl_ = iConfig.getParameter<double> ("ParameterT0_barl");
   ParameterW0_ = iConfig.getParameter<double> ("ParameterW0");
 
-  detaL1_ = iConfig.getParameter<double> ("detaL1");
-  dphiL1_ = iConfig.getParameter<double> ("dphiL1");
-
-  l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
-  l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
-  l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
 
   //register your products
   produces< EBRecHitCollection >(pi0BarrelHits_);
@@ -88,16 +70,6 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   using namespace std;
-  using namespace trigger;
-
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
-  iEvent.getByLabel (l1SeedFilterTag_,L1SeedOutput);
-  std::vector<l1extra::L1EmParticleRef > l1EGIso;
-  L1SeedOutput->getObjects(trigger::TriggerL1IsoEG, l1EGIso);
-  std::vector<l1extra::L1EmParticleRef > l1EGNonIso;
-  L1SeedOutput->getObjects(trigger::TriggerL1NoIsoEG, l1EGNonIso);
-
-  cout<< "  L1Iso L1NonIso coll # "<<l1EGIso.size()<<" "<<l1EGNonIso.size()<<endl;
 
  //To Deal with Geometry:
   edm::ESHandle<CaloTopology> theCaloTopology;
@@ -132,38 +104,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
-  cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
+  //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
 
     double energy = itb->energy();
     if (energy > seleXtalMinEnergy_) {
       std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
       recHitsEB_map->insert(map_entry);
-
-      bool MatchedToL1Iso=false;
-      for (unsigned int i=0; i<l1EGIso.size(); i++) {
-	float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -l1EGIso[i]->phi());
-	if(deltaphi>TWOPI) deltaphi-=TWOPI;
-	if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
-	if(fabs(l1EGIso[i]->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
-	   deltaphi < dphiL1_){
-	  MatchedToL1Iso=true;
-	  double energy = itb->energy();
-	  if (energy > clusSeedThr_) seeds.push_back(*itb);
-	}
-      }
-      if(MatchedToL1Iso)continue;
-      for (unsigned int i=0; i<l1EGNonIso.size(); i++) {
-	float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -l1EGNonIso[i]->phi());
-	if(deltaphi>TWOPI) deltaphi-=TWOPI;
-	if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
-	if(fabs(l1EGNonIso[i]->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
-	   deltaphi < dphiL1_){
-	  double energy = itb->energy();
-	  if (energy > clusSeedThr_) seeds.push_back(*itb);
-	}
-      }
-      
+      if (energy > clusSeedThr_) seeds.push_back(*itb);
     }
   }
 
@@ -397,7 +345,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      for(int Rec3=0;Rec3<RecHitsCluster[IsoClus[iii]].size();Rec3++)pi0EBRecHitCollection->push_back(RecHitsCluster[IsoClus[iii]][Rec3]);
 	    }   
 	    
-	    cout <<"  Simple Clustering: pi0 Candidate pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+	    //cout <<"  Simple Clustering: pi0 Candidate pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
 
 	    npi0_s++;
 	  }
@@ -412,7 +360,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //timers.pop_and_push(timerName);
 
 
-    cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+  //cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
 
 
@@ -422,7 +370,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Put selected information in the event
       int pi0_collsize = pi0EBRecHitCollection->size();
-      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+      //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
       if ( pi0_collsize > seleNRHMax_ ) return accept;
       if ( pi0_collsize < 1 ) return accept;
       if( npi0_s ==0 )return accept; 
