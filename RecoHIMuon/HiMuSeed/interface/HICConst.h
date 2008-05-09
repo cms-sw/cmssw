@@ -1,6 +1,6 @@
 #ifndef HIC_CONST_FOR_PROPAGATION
 #define HIC_CONST_FOR_PROPAGATION
-
+namespace cms {
 class HICConst {
 public:
 HICConst();
@@ -105,6 +105,7 @@ double phimatchend[2];
 
 
 };
+}
 #endif
 
 

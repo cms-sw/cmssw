@@ -3,7 +3,7 @@
 
 /** The COMMON BLOCK used by FastMuonPropagator.
  */
-
+namespace cms {
 class FmpConst{
 public:
   FmpConst(){
@@ -89,6 +89,7 @@ public:
  float diskoffset;			     
  float partrack;
 };
+}
 #endif
 
 

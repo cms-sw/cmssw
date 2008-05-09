@@ -32,7 +32,7 @@ class TrajectoryFilter;
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 class TransientTrackingRecHitBuilder;
 class TrajectoryFilter;
-
+//namespace cms {
 class HICTrajectoryBuilder :public BaseCkfTrajectoryBuilder {
 protected:
 // short names
@@ -71,7 +71,7 @@ public:
   const Propagator*                     thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
 //  const HICMeasurementEstimator*        theEstimator;
-  mutable HICConst*                     theHICConst;   
+  mutable cms::HICConst*                     theHICConst;   
   
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTracker*             theMeasurementTracker;
@@ -113,5 +113,5 @@ public:
   bool toBeContinued( const TempTrajectory& traj) const;
 
 };
-
+//}
 #endif

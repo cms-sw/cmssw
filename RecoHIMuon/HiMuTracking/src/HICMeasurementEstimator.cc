@@ -4,7 +4,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 using namespace edm;
 using namespace std;
-
+using namespace cms;
+//namespace cms {
 std::pair<bool,double> 
 HICMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 				   const TransientTrackingRecHit& aRecHit) const {
@@ -333,3 +334,4 @@ void HICMeasurementEstimator::setHICDetMap()
    }
 
 }
+//}

@@ -1,5 +1,6 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include <iostream>
+namespace cms {
 void HICConst::setVertex(double a){zvert=a;}
 HICConst::HICConst()
 {
@@ -7965,6 +7966,7 @@ phimatchbar[0] = 0.12;
 phimatchbar[1] = 0.25;
 
 } // end of constructor
+}
 
 
 

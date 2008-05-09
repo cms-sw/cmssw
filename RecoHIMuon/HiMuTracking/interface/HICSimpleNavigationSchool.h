@@ -16,7 +16,7 @@ class MagneticField;
 
 /** Concrete navigation school for the Tracker
  */
-
+///namespace cms {
 class HICSimpleNavigationSchool : public NavigationSchool {
 public:
   
@@ -80,5 +80,5 @@ protected:
   const MagneticField* theField;
   const GeometricSearchTracker* theTracker;
 };
-
+//}
 #endif // SimpleNavigationSchool_H

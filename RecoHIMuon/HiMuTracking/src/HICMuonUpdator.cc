@@ -17,7 +17,7 @@
 //#define LINEFIT_DEBUG
 
 using namespace std;
-
+//namespace cms {
 TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
                                                 const TrajectoryStateOnSurface& nTsos,
 		                                const TrajectoryMeasurement& ntm, 
@@ -509,7 +509,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 //  cout<< "Update endcap end "<<endl;			   
   return tsos;						
 }
-
+//}
 
 
 

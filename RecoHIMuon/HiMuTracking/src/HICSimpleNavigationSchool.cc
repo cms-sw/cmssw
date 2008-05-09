@@ -25,7 +25,7 @@
 #include <cmath>
 
 using namespace std;
-
+//namespace cms {
 HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracker* theInputTracker,
 					       const MagneticField* field) : 
   theBarrelLength(0),theField(field), theTracker(theInputTracker)
@@ -405,4 +405,4 @@ void HICSimpleNavigationSchool::establishInverseRelations() {
     }
   // cout<<"SimpleNavigationSchool::establishInverseRelations::point 3 "<<endl; 
 }
-
+//}

@@ -5,7 +5,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 //#define HICMEASUREMENT_DEBUG
-
+namespace cms {
 class HICSeedMeasurementEstimator:public MeasurementEstimator {
 public:
 
@@ -41,5 +41,5 @@ bool   trtrue;
 int    theNSigma;
 			   			   
 };
-
+}
 #endif // HIC_SEED_MeasurementEstimator_HIC_H

@@ -10,7 +10,7 @@
 
 using namespace edm;
 using namespace std;
-
+namespace cms {
 DiMuonSeedGeneratorHIC::DiMuonSeedGeneratorHIC(edm::InputTag rphirecHitsTag0,
                                                const MagneticField* magfield0, 
                                                const GeometricSearchTracker* theTracker0, 
@@ -467,4 +467,4 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 
   return newtmr;
 }
-
+}

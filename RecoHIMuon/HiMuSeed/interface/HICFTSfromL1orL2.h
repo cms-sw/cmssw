@@ -1,3 +1,6 @@
+#ifndef HICFTSfromL1orL2_H
+#define HICFTSfromL1orL2_H
+
 //CommonDet
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -33,7 +36,7 @@
 
 
 //-----------------------------------------------------------------------------
-
+namespace cms {
 class HICFTSfromL1orL2
 {
 
@@ -53,4 +56,6 @@ class HICFTSfromL1orL2
     
     const MagneticField * field;
 };
+}
+#endif
 

@@ -14,7 +14,7 @@
 #include <iostream>
 #include <vector>
 //#define MUPROPAGATOR_DEBUG
-
+namespace cms {
 TrajectoryStateOnSurface
              HICMuonPropagator::propagate(const FreeTrajectoryState& fts,
   			                  const Cylinder& surface) const
@@ -153,4 +153,4 @@ TrajectoryStateOnSurface
      return tsos;
   }
 
-
+}

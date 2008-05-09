@@ -8,7 +8,7 @@
 
 #include <string>
 #include <iostream>
-
+namespace cms {
 class HICMuonPropagator:public Propagator{
 public:
   HICMuonPropagator(const MagneticField * mf){field = mf;}
@@ -47,7 +47,7 @@ private:
   HICConst*             theHICConst;  
   const MagneticField * field;
 };
-
+}
 #endif
 
 

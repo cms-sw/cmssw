@@ -17,7 +17,7 @@
 //#define PROPAGATOR_DB
 
 using namespace std;
-
+namespace cms {
 TrajectoryStateOnSurface
              FastMuPropagator::propagate(const FreeTrajectoryState& fts,
   			                 const Cylinder& boundcyl) const
@@ -274,4 +274,4 @@ TrajectoryStateOnSurface
 	  }   
 	  return check;
 }
-
+}

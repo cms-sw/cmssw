@@ -65,7 +65,8 @@
 #include <map>
 #include <vector>
 
-
+namespace cms
+{
 class DiMuonSeedGeneratorHIC  {
 
  public:
@@ -94,7 +95,7 @@ class DiMuonSeedGeneratorHIC  {
  private:
   FreeTrajectoryState                        theFtsTracker;
   FreeTrajectoryState                        theFtsMuon;
-  const HICConst*                                  theHICConst;
+  const HICConst*                            theHICConst;
   Propagator*                                thePropagator; 
   
   int                                        theLowMult;
@@ -125,6 +126,6 @@ class DiMuonSeedGeneratorHIC  {
   const LayerMeasurements*              theLayerMeasurements;
   			 
 };
-
+}
 #endif
 

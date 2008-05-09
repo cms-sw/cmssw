@@ -7,8 +7,8 @@
  *  BoundPlane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension. Ported from ORCA.
  *
- *  $Date: 2007/08/17 14:24:15 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/09 13:20:47 $
+ *  $Revision: 1.2 $
  *  \author todorov, cerati
  */
 
@@ -18,7 +18,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
+//namespace cms {
 class HICMeasurementEstimator : public  Chi2MeasurementEstimatorBase{
 public:
 
@@ -52,9 +52,9 @@ public:
   
   virtual void setHICDetMap();
 
-  HICConst* getHICConst(){return theHICConst;}
+  cms::HICConst* getHICConst(){return theHICConst;}
 
-  void setHICConst(HICConst* hh) {theHICConst = hh;}
+  void setHICConst(cms::HICConst* hh) {theHICConst = hh;}
   
   virtual void setLastLayer( DetLayer*&  ll){theLastLayer = ll;}; 
 
@@ -73,7 +73,7 @@ public:
   }
 
 private:
-  HICConst*                                          theHICConst;
+  cms::HICConst*                                          theHICConst;
   double                                             theMaxChi2;
   int                                                theNSigma;
   std::map<const DetLayer*,int>                      theBarrel;
@@ -115,5 +115,5 @@ private:
   int                                                theSign;
   const MagneticField * field;
 };
-
+//}
 #endif

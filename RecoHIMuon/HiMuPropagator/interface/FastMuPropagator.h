@@ -14,7 +14,7 @@
  *  trigger layers of the muon system to the tracker bounds.
  *  Uses precomputed parametrizations.
  */
-
+namespace cms {
 class FastMuPropagator:public Propagator{
 public:
   FastMuPropagator(const MagneticField * mf, PropagationDirection dir = alongMomentum)
@@ -58,7 +58,7 @@ private:
   FmpConst* theFmpConst;
   const MagneticField * field;	      					      
 };
-
+}
 #endif
 
 

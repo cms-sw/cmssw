@@ -1,7 +1,7 @@
 #include "RecoHIMuon/HiMuTracking/interface/HICTrajectoryCorrector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 //#define MUPROPAGATOR_DEBUG
-
+//namespace cms {
 TrajectoryStateOnSurface
              HICTrajectoryCorrector::correct(FreeTrajectoryState& fts, FreeTrajectoryState& ftsnew,
   			                const GeomDet* det) const
@@ -279,4 +279,4 @@ double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, c
      
      return phic;
 }
-
+//}

@@ -8,7 +8,7 @@ using namespace std;
 //#define OK_DEBUG
 //-----------------------------------------------------------------------------
 // Vector of Free Trajectory State in Muon stations from L1 Global Muon Trigger
-
+namespace cms {
 vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1(vector<L1MuGMTExtendedCand>& gmt) 
 { 
 // ========================================================================================
@@ -351,3 +351,5 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
   
   return fts;
   }
+
+}

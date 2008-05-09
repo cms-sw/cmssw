@@ -9,11 +9,11 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <vector>
-
+//namespace cms {
 class HICMuonUpdator{
 
 public:
-  HICMuonUpdator(double&la1,double&la2, const MagneticField * mf, const HICConst* hh){theHICConst=hh; zvert=hh->zvert;
+  HICMuonUpdator(double&la1,double&la2, const MagneticField * mf, const cms::HICConst* hh){theHICConst=hh; zvert=hh->zvert;
                                         thePhiWin=la1; theZWin=la2; field = mf;};
   virtual ~HICMuonUpdator(){}
   TrajectoryStateOnSurface update(const Trajectory& mt,
@@ -47,7 +47,7 @@ private:
   double                thePhiWin;
   double                theZWin;
   const MagneticField * field;		
-  const HICConst*       theHICConst;
+  const cms::HICConst*       theHICConst;
 };
-
+//}
 #endif

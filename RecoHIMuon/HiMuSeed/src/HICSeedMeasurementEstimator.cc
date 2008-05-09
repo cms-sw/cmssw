@@ -1,7 +1,7 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICSeedMeasurementEstimator.h"
 #include <CLHEP/Units/PhysicalConstants.h>
 
-
+namespace cms {
 MeasurementEstimator::HitReturnType HICSeedMeasurementEstimator::estimate(const TrajectoryStateOnSurface& ts,
 					                         const TransientTrackingRecHit& hit) const
 {
@@ -94,4 +94,5 @@ HICSeedMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSu
     return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
   }
   else return Local2DVector(0,0);
+}
 }

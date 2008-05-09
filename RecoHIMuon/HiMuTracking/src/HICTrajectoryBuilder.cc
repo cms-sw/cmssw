@@ -25,9 +25,9 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "RecoHIMuon/HiMuSeed/interface/DiMuonTrajectorySeed.h"
 #include "RecoHIMuon/HiMuTracking/interface/HICMuonUpdator.h"
-
+using namespace cms;
 using namespace std;
-
+//namespace cms {
 HICTrajectoryBuilder::
   HICTrajectoryBuilder(const edm::ParameterSet&              conf,
 		       const TrajectoryStateUpdator*         updator,
@@ -544,4 +544,4 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 
   return result;
 }
-
+//}
