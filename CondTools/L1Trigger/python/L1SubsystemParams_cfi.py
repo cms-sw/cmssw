@@ -106,8 +106,14 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
-            record = cms.string('L1GtPrescaleFactorsRcd'),
-            tag = cms.string('L1GtPrescaleFactors_CRUZET_hlt'),
+            record = cms.string('L1GtPrescaleFactorsAlgoTrigRcd'),
+            tag = cms.string('L1GtPrescaleFactorsAlgoTrig_CRUZET_hlt'),
+            type = cms.string('L1GtPrescaleFactors'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
+            record = cms.string('L1GtPrescaleFactorsTechTrigRcd'),
+            tag = cms.string('L1GtPrescaleFactorsTechTrig_CRUZET_hlt'),
             type = cms.string('L1GtPrescaleFactors'),
             key = cms.string('dummy')
         ), 
@@ -118,8 +124,14 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
-            record = cms.string('L1GtTriggerMaskRcd'),
-            tag = cms.string('L1GtTriggerMask_CRUZET_hlt'),
+            record = cms.string('L1GtTriggerMaskAlgoTrigRcd'),
+            tag = cms.string('L1GtTriggerMaskAlgoTrig_CRUZET_hlt'),
+            type = cms.string('L1GtTriggerMask'),
+            key = cms.string('dummy')
+        ),
+        cms.PSet(
+            record = cms.string('L1GtTriggerMaskTechTrigRcd'),
+            tag = cms.string('L1GtTriggerMaskTechTrig_CRUZET_hlt'),
             type = cms.string('L1GtTriggerMask'),
             key = cms.string('dummy')
         ))

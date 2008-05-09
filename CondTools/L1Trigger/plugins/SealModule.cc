@@ -195,10 +195,13 @@ REGISTER_PLUGIN(L1GtParametersRcd, L1GtParameters);
 REGISTER_L1_WRITER(L1GtParametersRcd, L1GtParameters);
 
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
-#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
-REGISTER_PLUGIN(L1GtPrescaleFactorsRcd, L1GtPrescaleFactors);
-REGISTER_L1_WRITER(L1GtPrescaleFactorsRcd, L1GtPrescaleFactors);
+REGISTER_PLUGIN(L1GtPrescaleFactorsAlgoTrigRcd, L1GtPrescaleFactors);
+REGISTER_L1_WRITER(L1GtPrescaleFactorsAlgoTrigRcd, L1GtPrescaleFactors);
+REGISTER_PLUGIN(L1GtPrescaleFactorsTechTrigRcd, L1GtPrescaleFactors);
+REGISTER_L1_WRITER(L1GtPrescaleFactorsTechTrigRcd, L1GtPrescaleFactors);
 
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
@@ -207,10 +210,13 @@ REGISTER_PLUGIN(L1GtStableParametersRcd, L1GtStableParameters);
 REGISTER_L1_WRITER(L1GtStableParametersRcd, L1GtStableParameters);
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMaskRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
 
-REGISTER_PLUGIN(L1GtTriggerMaskRcd, L1GtTriggerMask);
-REGISTER_L1_WRITER(L1GtTriggerMaskRcd, L1GtTriggerMask);
+REGISTER_PLUGIN(L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask);
+REGISTER_L1_WRITER(L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask);
+REGISTER_PLUGIN(L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask);
+REGISTER_L1_WRITER(L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask);
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
