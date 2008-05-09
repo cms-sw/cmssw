@@ -5,8 +5,8 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2008/02/18 17:38:04 $
-//   $Revision: 1.4 $
+//   $Date: 2008/05/09 15:01:59 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -193,6 +193,7 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
   if (phi_8 < -16) phi_8 = -16;
 
   int phi = (sector_8 + phi_8 + 144)%144;
+  phi_8 = (phi_8 + 32)%32;
 
   m_sp.track(m_id)->setPhi(phi);
   m_sp.tracK(m_id)->setPhi(phi_8);
