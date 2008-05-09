@@ -51,6 +51,7 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
     elecPreID0_SumEOverPLead_maxValue  = iConfig.getParameter<double>("ElecPreID0_SumEOverPLead_maxValue");
     elecPreID0_Hcal3x3_minValue  = iConfig.getParameter<double>("ElecPreID0_Hcal3x3_minValue");
     elecPreID1_SumEOverPLead_maxValue  = iConfig.getParameter<double>("ElecPreID1_SumEOverPLead_maxValue");
+    elecPreID1_Hcal3x3_minValue  = iConfig.getParameter<double>("ElecPreID1_Hcal3x3_minValue");
 
     applyCut_ecalCrack_  = iConfig.getParameter<bool>("ApplyCut_EcalCrackCut");
     
@@ -81,8 +82,10 @@ class PFRecoTauDiscriminationAgainstElectron : public EDProducer {
   double elecPreID0_SumEOverPLead_maxValue;
   double elecPreID0_Hcal3x3_minValue;
   double elecPreID1_SumEOverPLead_maxValue;
+  double elecPreID1_Hcal3x3_minValue;
 
   bool applyCut_ecalCrack_;
+
 
 };
 #endif
