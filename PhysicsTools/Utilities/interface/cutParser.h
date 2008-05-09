@@ -14,6 +14,7 @@ namespace reco {
 	if(*c != ' ') { justBlanks = false; break; }
       if(justBlanks) {
 	sel = SelectorPtr(new AnyObjSelector);
+	return true;
       } else {
 	using namespace boost::spirit;
 	Grammar grammar(sel, (const T *)(0));

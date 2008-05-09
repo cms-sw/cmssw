@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  *
  */
 #include "boost/spirit/core.hpp"
@@ -125,7 +125,7 @@ namespace reco {
             chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ];
 	  expression = 
 	    term >> * (('+' >> term) [ plus_s ] |
-			('-' >> term) [ minus_s ]);
+		       ('-' >> term) [ minus_s ]);
 	  term = 
 	    power >> * (('*' >> power) [ multiplies_s ] |
 			 ('/' >> power) [ divides_s ]);
@@ -142,6 +142,7 @@ namespace reco {
 	  comparison_op = 
 	    (ch_p('<') >> ch_p('=') [ less_equal_s    ]) | 
 	    (ch_p('<')              [ less_s          ]) | 
+	    (ch_p('=') >> ch_p('=') [ equal_to_s      ]) | 
 	    (ch_p('=')              [ equal_to_s      ]) | 
 	    (ch_p('>') >> ch_p('=') [ greater_equal_s ]) | 
 	    (ch_p('>')              [ greater_s       ]) | 
