@@ -44,7 +44,10 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     
     photonCollectionProducer_ = pset.getParameter<std::string>("phoProducer");
     photonCollection_ = pset.getParameter<std::string>("photonCollection");
-    parameters = pset;
+   
+ 
+
+    parameters_ = pset;
    
 
 }
@@ -64,9 +67,10 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 
   nEvt_=0;
+  nEntry_=0;
   
-    dbe_ = 0;
-    dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_ = 0;
+  dbe_ = edm::Service<DQMStore>().operator->();
   
 
 
@@ -83,84 +87,78 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 
 
+  double eMin = parameters_.getParameter<double>("eMin");
+  double eMax = parameters_.getParameter<double>("eMax");
+  int eBin = parameters_.getParameter<int>("eBin");
+
+  double etMin = parameters_.getParameter<double>("etMin");
+  double etMax = parameters_.getParameter<double>("etMax");
+  int etBin = parameters_.getParameter<int>("etBin");
+
+  double etaMin = parameters_.getParameter<double>("etaMin");
+  double etaMax = parameters_.getParameter<double>("etaMax");
+  int etaBin = parameters_.getParameter<int>("etaBin");
+  
+  double r9Min = parameters_.getParameter<double>("r9Min"); 
+  double r9Max = parameters_.getParameter<double>("r9Max"); 
+  int r9Bin = parameters_.getParameter<int>("r9Bin");
+
   if (dbe_) {  
     //// All MC photons
     // SC from reco photons
-    h_scE_=0;
-    h_scEt_=0;
-    h_scEta_=0;
-    h_scPhi_=0;
-    //
-    h_phoE_=0;
-    h_phoEta_=0;
-    h_phoPhi_=0;
-    //
 
     dbe_->setCurrentFolder("DQMOffline/Egamma/PhotonAnalyzer");
 
     //// Reconstructed Converted photons
-    h_scE_ = dbe_->book1D("scE","SC Energy ",100,0., 200.);
-    h_scEt_ = dbe_->book1D("scEt","SC Et ",100,0., 200.);
-    h_scEta_ = dbe_->book1D("scEta","SC Eta ",40,-3., 3.);
-    h_scPhi_ = dbe_->book1D("scPhi","SC Phi ",40, -3.14, 3.14);
+    std::string histname = "scE";
+    h_scE_.push_back(dbe_->book1D(histname+"all","SC Energy: all Ecal  ",eBin,eMin, eMax));
+    h_scE_.push_back(dbe_->book1D(histname+"barrel","SC Energy: Barrel ",eBin,eMin, eMax));
+    h_scE_.push_back(dbe_->book1D(histname+"endcap","SC Energy: Endcap ",eBin,eMin, eMax));
+
+    histname = "scEt";
+    h_scEt_.push_back( dbe_->book1D(histname+"all","SC Et: all Ecal ",etBin,etMin, etMax) );
+    h_scEt_.push_back( dbe_->book1D(histname+"barrel","SC Et: Barrel",etBin,etMin, etMax) );
+    h_scEt_.push_back( dbe_->book1D(histname+"endcap","SC Et: Endcap",etBin,etMin, etMax) );
+
+    histname = "r9";
+    h_r9_.push_back( dbe_->book1D(histname+"all",   "r9: all Ecal",r9Bin,r9Min, r9Max) );
+    h_r9_.push_back( dbe_->book1D(histname+"barrel","r9: all Ecal",r9Bin,r9Min, r9Max) );
+    h_r9_.push_back( dbe_->book1D(histname+"endcap","r9: all Ecal",r9Bin,r9Min, r9Max) );
+
+    h_scEta_ = dbe_->book1D("scEta","SC Eta ",etaBin,etaMin, etaMax);
+    h_scPhi_ = dbe_->book1D("scPhi","SC Phi ",phiBin,phiMin,phiMax);
+    h_scEtaPhi_ = dbe_->book2D("scEtaPhi","SC Phi vs Eta ",etaBin, etaMin, etaMax,phiBin,phiMin,phiMax);
     //
-    h_phoE_ = dbe_->book1D("phoE","Photon Energy ",100,0., 200.);
-    h_phoEta_ = dbe_->book1D("phoEta","Photon Eta ",40,-3., 3.);
-    h_phoPhi_ = dbe_->book1D("phoPhi","Photon  Phi ",40,  -3.14, 3.14);
+    histname = "phoE";
+    h_phoE_.push_back(dbe_->book1D(histname+"all","Photon Energy: all ecal ", eBin,eMin, eMax));
+    h_phoE_.push_back(dbe_->book1D(histname+"barrel","Photon Energy: barrel ",eBin,eMin, eMax));
+    h_phoE_.push_back(dbe_->book1D(histname+"endcap","Photon Energy: endcap ",eBin,eMin, eMax));
+    histname = "phoEt";
+    h_phoEt_.push_back(dbe_->book1D(histname+"all","Photon Transverse Energy: all ecal ", etBin,etMin, etMax));
+    h_phoEt_.push_back(dbe_->book1D(histname+"barrel","Photon Transverse Energy: barrel ",etBin,etMin, etMax));
+    h_phoEt_.push_back(dbe_->book1D(histname+"endcap","Photon Transverse Energy: endcap ",etBin,etMin, etMax));
+
+    h_phoEta_ = dbe_->book1D("phoEta","Photon Eta ",etaBin,etaMin, etaMax);
+    h_phoPhi_ = dbe_->book1D("phoPhi","Photon  Phi ",phiBin,phiMin,phiMax);
     
      // SC from reco photons
-     dbe_->tag( h_scE_->getFullname(),10);
-     dbe_->tag( h_scEt_->getFullname(),11);
-     dbe_->tag( h_scEta_->getFullname(),12);
-     dbe_->tag( h_scPhi_->getFullname(),13);
-     //
-     dbe_->tag( h_phoE_->getFullname(),14);
-     dbe_->tag( h_phoEta_->getFullname(),15);
-     dbe_->tag( h_phoPhi_->getFullname(),16);
-     //
+    /*
+    dbe_->tag( h_scE_->getFullname(),10);
+    dbe_->tag( h_scEt_->getFullname(),11);
+    dbe_->tag( h_scEta_->getFullname(),12);
+    dbe_->tag( h_scPhi_->getFullname(),13);
+    
+    dbe_->tag( h_phoE_->getFullname(),14);
+    dbe_->tag( h_phoEta_->getFullname(),15);
+    dbe_->tag( h_phoPhi_->getFullname(),16);
+    
+    */
 
   }
 
   
   return ;
 }
-
-
-float PhotonAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)  {
-
-//---Definitions
-	const float PI    = 3.1415927;
-	const float TWOPI = 2.0*PI;
-
-//---Definitions for ECAL
-	const float R_ECAL           = 136.5;
-	const float Z_Endcap         = 328.0;
-	const float etaBarrelEndcap  = 1.479; 
-   
-//---ETA correction
-
-	float Theta = 0.0  ; 
-        float ZEcal = R_ECAL*sinh(EtaParticle)+Zvertex;
-
-	if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
-	if(Theta<0.0) Theta = Theta+PI ;
-	float ETA = - log(tan(0.5*Theta));
-         
-	if( fabs(ETA) > etaBarrelEndcap )
-	  {
-	   float Zend = Z_Endcap ;
-	   if(EtaParticle<0.0 )  Zend = -Zend ;
-	   float Zlen = Zend - Zvertex ;
-	   float RR = Zlen/sinh(EtaParticle); 
-	   Theta = atan(RR/Zend);
-	   if(Theta<0.0) Theta = Theta+PI ;
- 	   ETA = - log(tan(0.5*Theta));		      
-	  } 
-//---Return the result
-        return ETA;
-//---end
-}
-
 
 
 
@@ -192,28 +190,77 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   e.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
   std::cout  << "PhotonAnalyzer  Photons with conversions collection size " << photonCollection.size() << "\n";
-
-
+   
+   
 
     //std::cout   << " PhotonAnalyzer  Starting loop over photon candidates " << "\n";
-    for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+    
+   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
             
-      //      std::cout  << " PhotonAnalyzer Reco SC energy " << (*iPho).superCluster()->energy() <<  "\n";
+      std::cout  << " PhotonAnalyzer Reco SC energy " << (*iPho).superCluster()->energy() <<  "\n";
 
+      nEntry_++;
       float phiClu=(*iPho).superCluster()->phi();
       float etaClu=(*iPho).superCluster()->eta();
+      float etaPho=(*iPho).phi();
+      float phiPho=(*iPho).eta();
 
-      
-      h_scE_->Fill( (*iPho).superCluster()->energy() );
-      h_scEt_->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+      bool  scIsInBarrel=false;
+      bool  scIsInEndcap=false;
+      bool  phoIsInBarrel=false;
+      bool  phoIsInEndcap=false;
+   
+      if ( fabs(etaClu) <  1.479 ) 
+	scIsInBarrel=true;
+      else
+	scIsInEndcap=true;
+
+      if ( fabs(etaPho) <  1.479 ) 
+	phoIsInBarrel=true;
+      else
+	phoIsInEndcap=true;
+
+
+
       h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
       h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
+      h_scEtaPhi_->Fill( (*iPho).superCluster()->position().eta(),(*iPho).superCluster()->position().phi() );
+
+   
+      h_scE_[0]->Fill( (*iPho).superCluster()->energy() );
+      h_scEt_[0]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+      h_r9_[0]->Fill( (*iPho).r9() );
+      
+      if ( scIsInBarrel ) {
+	h_scE_[1]->Fill( (*iPho).superCluster()->energy() );
+	h_scEt_[1]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+      }
+      if ( scIsInEndcap ) {
+	h_scE_[2]->Fill( (*iPho).superCluster()->energy() );
+	h_scEt_[2]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+      }
 
 
-      h_phoE_->Fill( (*iPho).energy() );
       h_phoEta_->Fill( (*iPho).eta() );
       h_phoPhi_->Fill( (*iPho).phi() );
+
+      h_phoE_[0]->Fill( (*iPho).energy() );
+      h_phoEt_[0]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+      h_r9_[0]->Fill( (*iPho).r9());
       
+      if ( phoIsInBarrel ) {
+	h_phoE_[1]->Fill( (*iPho).energy() );
+	h_phoEt_[1]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+	h_r9_[1]->Fill( (*iPho).r9());
+      }
+
+      if ( phoIsInEndcap ) {
+	h_phoE_[2]->Fill( (*iPho).energy() );
+	h_phoEt_[2]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+	h_r9_[2]->Fill( (*iPho).r9());
+      }
+
+
       
     }/// End loop over Reco  particles
     
@@ -231,8 +278,8 @@ void PhotonAnalyzer::endJob()
 
 
   dbe_->showDirStructure();
-  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
+  bool outputMEsInRootFile = parameters_.getParameter<bool>("OutputMEsInRootFile");
+  std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
     dbe_->save(outputFileName);
   }
@@ -240,6 +287,7 @@ void PhotonAnalyzer::endJob()
   edm::LogInfo("PhotonAnalyzer") << "Analyzed " << nEvt_  << "\n";
    // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
   std::cout  << "PhotonAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
+  std::cout << " Total number of photons " << nEntry_ << std::endl;
    
    return ;
 }

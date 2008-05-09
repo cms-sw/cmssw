@@ -37,10 +37,6 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   virtual void endJob() ;
 
  private:
-
-  float etaTransformation( float a, float b);
-
-      
   //
       
   std::string fName_;
@@ -48,24 +44,36 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int verbosity_;
 
   int nEvt_;
+  int nEntry_;
   int nMCPho_;
   int nMatched_;
-  edm::ParameterSet parameters;
+  edm::ParameterSet parameters_;
       
            
   std::string photonCollectionProducer_;       
   std::string photonCollection_;
 
+  
+
+
   // SC from reco photons
-  MonitorElement* h_scE_;
-  MonitorElement* h_scEt_;
   MonitorElement* h_scEta_;
   MonitorElement* h_scPhi_;
+  MonitorElement* h_scEtaPhi_;
+ 
+  std::vector<MonitorElement*> h_scE_;
+  std::vector<MonitorElement*> h_scEt_;
+
+  std::vector<MonitorElement*> h_r9_;  
+  std::vector<MonitorElement*> h_phoE_;
+  std::vector<MonitorElement*> h_phoEt_;
+  
+
   //
-  MonitorElement* h_phoE_;
   MonitorElement* h_phoEta_;
   MonitorElement* h_phoPhi_;
   //
+  
 
 
 };
