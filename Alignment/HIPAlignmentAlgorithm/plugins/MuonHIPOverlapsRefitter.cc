@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.2 2008/05/06 12:20:01 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.3 2008/05/08 22:01:34 pivarski Exp $
 //
 //
 
@@ -241,10 +241,6 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	       double sigma_xx = localErrorWithAPE[0][0];
 	       double sigma_xy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[0][1]);
 	       double sigma_yy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[1][1]);
-
-	       std::cout << "clonedHit->localPositionError() = " << clonedHits.back().localPositionError() << std::endl;
-	       std::cout << "hitPtr->parametersError() = " <<  hitPtr->parametersError() << std::endl;
-	       std::cout << "sigma_xx, xy, yy = " << sigma_xx << " " << sigma_xy << " " << sigma_yy << std::endl;
 
 	       LocalPoint chamberPoint;
 	       AlgebraicSymMatrix chamberError(2);
