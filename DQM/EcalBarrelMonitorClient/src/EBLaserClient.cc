@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.231 $
+ * $Date: 2008/05/08 19:12:44 $
+ * $Revision: 1.232 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1678,7 +1678,7 @@ void EBLaserClient::analyze(void){
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
-  EcalErrorMask::fetchDataSet(&mask3); 
+  EcalErrorMask::fetchDataSet(&mask3);
 
   char histo[200];
 

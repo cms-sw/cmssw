@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/04/08 18:04:49 $
- * $Revision: 1.202 $
+ * $Date: 2008/05/08 19:13:09 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -659,7 +659,7 @@ void EBTestPulseClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
-  map<EcalLogicID, RunTTErrorsDat> mask3; 
+  map<EcalLogicID, RunTTErrorsDat> mask3;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
@@ -1024,7 +1024,7 @@ void EBTestPulseClient::analyze(void){
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
-        if ( me_hs01_[ism-1] ) { 
+        if ( me_hs01_[ism-1] ) {
           me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
           me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
         }
@@ -1032,7 +1032,7 @@ void EBTestPulseClient::analyze(void){
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
-        if ( me_hs02_[ism-1] ) { 
+        if ( me_hs02_[ism-1] ) {
           me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
           me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
         }
@@ -1040,7 +1040,7 @@ void EBTestPulseClient::analyze(void){
 
       if ( hs03_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
-        if ( me_hs03_[ism-1] ) { 
+        if ( me_hs03_[ism-1] ) {
           me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
           me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
         }
