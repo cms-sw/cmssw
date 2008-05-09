@@ -1,5 +1,4 @@
 #include "RecoHIMuon/HiMuTracking/interface/HICTrajectoryCorrector.h"
-#include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 //#define MUPROPAGATOR_DEBUG
 
@@ -7,10 +6,10 @@ TrajectoryStateOnSurface
              HICTrajectoryCorrector::correct(FreeTrajectoryState& fts, FreeTrajectoryState& ftsnew,
   			                const GeomDet* det) const
   {
-//  cout<<" HICTrajectoryCorrector::correct::start "<<endl;
+        //std::cout<<" HICTrajectoryCorrector::correct::start "<<std::endl;
 // Temporarily!!!!!!!!!!!!!!!!!!!!
-        HICConst theHicConst;
-        double zvert=theHicConst.zvert;
+        double zvert=theHICConst->zvert;
+        //std::cout<<"HICTrajectoryCorrector::zvert "<<zvert<<std::endl;
 //!!!!!!!!!!!!!!!!!!!!!!!!!!	  
   	LocalVector lp(1,0,0); double adet,bdet;
 	GlobalVector gp=det->toGlobal(lp);

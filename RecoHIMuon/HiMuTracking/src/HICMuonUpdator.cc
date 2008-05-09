@@ -29,6 +29,9 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
 // trajectory type
   
   vector<TrajectoryMeasurement> MTM=mt.measurements();
+//  std::cout<<" HICMuonUpdator::update::MTM size "<<MTM.size()<<" vertex "<<zvert<<std::endl;
+//  std::cout<<" HICMuonUpdator::update::charge "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge()<<std::endl;
+//  std::cout<<" HICMuonUpdator::update::momentum "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().momentum()<<std::endl;
  
   vector<double> phihit,rhit,zhit,dphihit,drhit,dzhit,dzhitl,ehitphi,dehitphi,ehitstrip;
 
@@ -57,13 +60,15 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
     }       
     ehitphi.push_back(phierror);
     
-
+#ifdef UPDATOR_BARREL_DEBUG
+    cout<<" Errors "<<phierror<<" "<<(*ihit).recHit()->globalPositionError().rerr(realhit)<<" "<<tan(theta)<<endl;
+#endif
 
 
     if((*ihit).layer()->location()==GeomDetEnumerators::barrel){
     ehitstrip.push_back(sqrt((*ihit).recHit()->globalPositionError().czz()));
     } else{    
-    ehitstrip.push_back(sqrt((*ihit).recHit()->globalPositionError().rerr(realhit)/tan(theta))); 
+    ehitstrip.push_back(sqrt((*ihit).recHit()->globalPositionError().rerr(realhit)/fabs(tan(theta)))); 
     }   
 
   }
@@ -80,7 +85,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   if(ntm.layer()->location()==GeomDetEnumerators::barrel){
     ehitstrip.push_back(sqrt(nRecHit->globalPositionError().czz())); 
   } else {
-    ehitstrip.push_back(sqrt(nRecHit->globalPositionError().rerr(nRecHit->globalPosition()))/tan(theta));
+    ehitstrip.push_back(sqrt(nRecHit->globalPositionError().rerr(nRecHit->globalPosition()))/fabs(tan(theta)));
   }
   
 // add vertex 
@@ -94,9 +99,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   if(dpnew>pi) dpnew=twopi-dpnew;
   
 #ifdef UPDATOR_BARREL_DEBUG
-  if(itrust) {
   cout<<" dphi=dpnew="<<dpnew<<" "<<*iphi<<" "<<*(iphi+1)<<endl;
-  }
 #endif
 
   dphihit.push_back(dpnew);  
@@ -106,9 +109,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   double dpnew=abs(*ir-*(ir+1));
   
 #ifdef UPDATOR_BARREL_DEBUG
-  if(itrust) { 
   cout<<" dr=dpnew="<<dpnew<<" "<<*ir<<" "<<*(ir+1)<<endl;
-  }
 #endif
 
   drhit.push_back(dpnew);  
@@ -117,9 +118,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   double dpnew=*iz-*(iz+1);
   
 #ifdef UPDATOR_BARREL_DEBUG
-  if(itrust) {
-  cout<<" dZ=dpnew="<<dpnew<<endl;
-  }
+  cout<<" dZ=dpnew="<<dpnew<<" "<<*iz<<" "<<*(iz+1)<<endl;
 #endif
   
   dzhit.push_back(abs(dpnew));
@@ -137,6 +136,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
 //
 int tType = 1;
 if ( (*(MTM.begin())).layer()->location()==GeomDetEnumerators::barrel){
+//  std::cout<<" Update barrel "<<std::endl;
   TrajectoryStateOnSurface tsos=updateBarrel(rhit, zhit, dphihit, drhit, ehitstrip, dehitphi, pRecHit, nRecHit, 
                                                                  nTsos, chirz, chirf, tType);
 	
@@ -147,6 +147,7 @@ if ( (*(MTM.begin())).layer()->location()==GeomDetEnumerators::barrel){
    return tsos;
 
 } else{
+//  std::cout<<" Update endcap "<<std::endl;
   TrajectoryStateOnSurface tsos=updateEndcap(rhit, zhit, dphihit, dzhit, ehitstrip, dehitphi, pRecHit, nRecHit, 
                                                         nTsos, chirz, chirf, tType);
    return tsos;
@@ -170,6 +171,7 @@ fit=false;
 
 #ifdef LINEFIT_DEBUG
 cout<<" linefit2::sizes="<<x.size()<<" "<<y.size()<<" "<<err.size()<<endl;
+cout<<" linefit2::a00 "<<a00<<" "<<a01<<" "<<a11<<" "<<b0<<" "<<b1<<endl;
 #endif
 
 if(x.size() != y.size()) return fit;
@@ -177,6 +179,9 @@ if(x.size() != err.size()) return fit;
 
 
 for (int i=0;i<x.size();i++){
+#ifdef LINEFIT_DEBUG
+cout<<" line2fit "<<a00<<" "<<x[i]/err[i]<<" "<<x[i]<<" "<<err[i]<<" second try "<<err[i]<<endl; 
+#endif
 a00=a00+(x[i]/err[i])*(x[i]/err[i]);
 a01=a01+(x[i]/err[i])/err[i];
 a10=a01;

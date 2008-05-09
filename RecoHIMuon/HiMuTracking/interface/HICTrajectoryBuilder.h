@@ -19,7 +19,7 @@ class TrajectoryFilter;
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
@@ -28,13 +28,12 @@ class TrajectoryFilter;
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoHIMuon/HiMuTracking/interface/HICMeasurementEstimator.h"
-
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
-
+#include "TrackingTools/PatternTools/interface/TempTrajectory.h"
+#include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 class TransientTrackingRecHitBuilder;
+class TrajectoryFilter;
 
-
-class HICTrajectoryBuilder :public TrackerTrajectoryBuilder {
+class HICTrajectoryBuilder :public BaseCkfTrajectoryBuilder {
 protected:
 // short names
   typedef TrajectoryStateOnSurface TSOS;
@@ -54,7 +53,8 @@ public:
 		       const Propagator*                     propagatorOpposite,
 		       const Chi2MeasurementEstimatorBase*           estimator,
 		       const TransientTrackingRecHitBuilder* RecHitBuilder,
-		       const MeasurementTracker*             measurementTracker);
+		       const MeasurementTracker*             measurementTracker,
+                       const TrajectoryFilter*               filter);
 
   ~HICTrajectoryBuilder();
   
@@ -71,7 +71,7 @@ public:
   const Propagator*                     thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
 //  const HICMeasurementEstimator*        theEstimator;
-  
+  mutable HICConst*                     theHICConst;   
   
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTracker*             theMeasurementTracker;
@@ -108,7 +108,7 @@ public:
 
   void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const; 
   
-  void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
+  bool updateTrajectory( TempTrajectory& traj, const TM& tm) const;
 
   bool toBeContinued( const TempTrajectory& traj) const;
 

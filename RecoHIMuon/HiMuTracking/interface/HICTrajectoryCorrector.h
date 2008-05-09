@@ -9,7 +9,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
+#include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -25,7 +25,7 @@
 
 class HICTrajectoryCorrector{
 public:
-  HICTrajectoryCorrector(const MagneticField * mf){field = mf;}
+  HICTrajectoryCorrector(const MagneticField * mf,const HICConst* hh){field = mf;theHICConst = hh;}
   virtual  ~HICTrajectoryCorrector(){}
   TrajectoryStateOnSurface correct(FreeTrajectoryState& rh,
                                    FreeTrajectoryState& ftsnew,
@@ -36,6 +36,7 @@ public:
                           const GeomDet* det ) const;  
 private:
   const MagneticField * field; 
+  const HICConst *      theHICConst;
 };
 
 #endif

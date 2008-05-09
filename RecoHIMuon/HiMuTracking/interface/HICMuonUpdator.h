@@ -13,7 +13,7 @@
 class HICMuonUpdator{
 
 public:
-  HICMuonUpdator(double&la1,double&la2, const MagneticField * mf){HICConst hc; zvert=hc.zvert;
+  HICMuonUpdator(double&la1,double&la2, const MagneticField * mf, const HICConst* hh){theHICConst=hh; zvert=hh->zvert;
                                         thePhiWin=la1; theZWin=la2; field = mf;};
   virtual ~HICMuonUpdator(){}
   TrajectoryStateOnSurface update(const Trajectory& mt,
@@ -43,10 +43,11 @@ private:
                 double& a, double& chi ) const;
   bool linefit2(const std::vector <double>& x, const std::vector <double>& y, const std::vector <double>& err,
                 double& a, double& b, double& chi ) const;
-  double zvert;
-  double          thePhiWin;
-  double          theZWin;
+  double                zvert;
+  double                thePhiWin;
+  double                theZWin;
   const MagneticField * field;		
+  const HICConst*       theHICConst;
 };
 
 #endif

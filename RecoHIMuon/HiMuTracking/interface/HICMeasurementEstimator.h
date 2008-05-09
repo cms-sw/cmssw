@@ -7,8 +7,8 @@
  *  BoundPlane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension. Ported from ORCA.
  *
- *  $Date: 2007/05/09 14:05:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/08/17 14:24:15 $
+ *  $Revision: 1.1 $
  *  \author todorov, cerati
  */
 
@@ -51,6 +51,10 @@ public:
   virtual std::vector<double> setCuts( Trajectory& traj, const DetLayer* theCurrentLayer ); 
   
   virtual void setHICDetMap();
+
+  HICConst* getHICConst(){return theHICConst;}
+
+  void setHICConst(HICConst* hh) {theHICConst = hh;}
   
   virtual void setLastLayer( DetLayer*&  ll){theLastLayer = ll;}; 
 
@@ -58,7 +62,7 @@ public:
   
   virtual void chooseCuts(int& i);
   
-  virtual void setMult(int aMult=1){theLowMult=aMult;}
+  virtual void setMult(int aMult=1) {theLowMult=aMult;}
   
   virtual void setSign(int& i){theSign=i;} 
   
@@ -69,7 +73,7 @@ public:
   }
 
 private:
-  HICConst                                           theHicConst;
+  HICConst*                                          theHICConst;
   double                                             theMaxChi2;
   int                                                theNSigma;
   std::map<const DetLayer*,int>                      theBarrel;

@@ -28,6 +28,10 @@
 <use name=TrackingTools/KalmanUpdators>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
+<use name=DataFormats/VertexReco>
+<use name=RecoVertex/KalmanVertexFit>
+<use name=RecoVertex/VertexPrimitives>
+<use name=TrackingTools/TransientTrack>
 <use name=RecoHIMuon/HiMuSeed>
 <use name=RecoHIMuon/HiMuPropagator>
 <use name=rootrflx>
@@ -58,6 +62,10 @@
    <use name=TrackingTools/KalmanUpdators>
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
+   <use name=DataFormats/VertexReco>
+   <use name=RecoVertex/KalmanVertexFit>
+   <use name=RecoVertex/VertexPrimitives>
+   <use name=TrackingTools/TransientTrack>
    <use name=RecoHIMuon/HiMuSeed>
    <use name=RecoHIMuon/HiMuPropagator>
    <use name=rootrflx>

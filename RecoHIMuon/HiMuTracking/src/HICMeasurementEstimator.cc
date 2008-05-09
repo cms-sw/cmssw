@@ -25,20 +25,31 @@ HICMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
   typedef typename AlgebraicROOTObject<D>::SymMatrix Mat;
   double est = 0.;
 // If RecHit is not valid   
-  if(!(aRecHit.isValid())) return HitReturnType(false,est); 
+  if(!(aRecHit.isValid())) {std::cout<<" Measurement estimator::RecHit is invalid "<<std::endl; return HitReturnType(false,est); }
 // Check windows
 
   double dphi = abs(tsos.freeTrajectoryState()->parameters().position().phi() - aRecHit.globalPosition().phi() - thePhiBoundMean);
   double dz = abs( tsos.freeTrajectoryState()->parameters().position().z() - aRecHit.globalPosition().z() - theZBoundMean );
   double dr = abs( tsos.freeTrajectoryState()->parameters().position().perp() - aRecHit.globalPosition().perp() - theZBoundMean );
 
+//  std::cout<<" Momentum "<<tsos.freeTrajectoryState()->parameters().momentum().perp()<<" "<<tsos.freeTrajectoryState()->parameters().momentum().z()<<std::endl;
+//  std::cout<<" RecHit position r "<<aRecHit.globalPosition().perp()<<" phi "<<aRecHit.globalPosition().phi()<<" "<<aRecHit.globalPosition().z()<<std::endl;
+//  std::cout<<" Predicted position "<<tsos.freeTrajectoryState()->parameters().position().perp()<<" "<<tsos.freeTrajectoryState()->parameters().position().phi()<<
+//  " "<<tsos.freeTrajectoryState()->parameters().position().z()<<std::endl;
+//  std::cout<<" HICMeasurementEstimator::phi "<<dphi<<" "<<thePhiBound<<std::endl;
+//  std::cout<<" HICMeasurementEstimator::z "<<dz<<" "<<theZBound<<std::endl;
+//  std::cout<<" HICMeasurementEstimator::z "<<dr<<" "<<theZBound<<std::endl;
+
   if( dphi > thePhiBound ) {
+//    std::cout<<" HICMeasurementEstimator::phi::failed "<<std::endl;
     return HitReturnType(false,est);
   }
   if( dz > theZBound ) {
+//    std::cout<<" HICMeasurementEstimator::z::failed "<<std::endl;
     return HitReturnType(false,est);
   }
   if( dr > theZBound ) {
+//    std::cout<<" HICMeasurementEstimator::r::failed "<<std::endl;
     return HitReturnType(false,est);
   }
 
@@ -72,11 +83,11 @@ bool HICMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
 //  if( theTrue == 1 )
 //  {				      
 
-  cout<<" ======================================================================================== ";
-  cout<<" Estimate detector::   tsos      :     detector   :   Error "<<endl;
-  cout<<" R                 "<<ts.globalPosition().perp()<<" "<<plane.position().perp()<<" "<<theZError<<endl;
-  cout<<" Phi               "<<ts.globalPosition().phi()<<" "<<plane.position().phi()<<" "<<thePhiError<<endl;
-  cout<<" Z                 "<<ts.globalPosition().z()<<" "<<plane.position().z()<<" "<<theZError<<endl;
+//  cout<<" ======================================================================================== ";
+//  cout<<" Estimate detector::   tsos      :     detector   :   Error "<<endl;
+//  cout<<" R                 "<<ts.globalPosition().perp()<<" "<<plane.position().perp()<<" "<<theZError<<endl;
+//  cout<<" Phi               "<<ts.globalPosition().phi()<<" "<<plane.position().phi()<<" "<<thePhiError<<endl;
+//  cout<<" Z                 "<<ts.globalPosition().z()<<" "<<plane.position().z()<<" "<<theZError<<endl;
 //  }
 #endif
 
@@ -95,7 +106,7 @@ bool HICMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
 #ifdef HICMEASUREMENTESTIMATOR_DEBUG
 //  if( theTrue == 1 )
 //  {				      
-    cout<<" Estimate = "<<flag<<endl;
+//    cout<<" Estimate = "<<flag<<endl;
 //  }
 #endif
 
@@ -143,27 +154,32 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
      {
        if( first->location() == GeomDetEnumerators::barrel ) 
        {
-        thePhiWin = theHicConst.phiwinbar[(*theBarrel.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
-        theZWin = theHicConst.zwinbar[(*theBarrel.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
-        thePhiCut = theHicConst.phicutbar[(*theBarrel.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
-        theZCut = theHicConst.zcutbar[(*theBarrel.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
-
+        thePhiWin = (*theHICConst).phiwinbar[(*theBarrel.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
+        theZWin = (*theHICConst).zwinbar[(*theBarrel.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
+        thePhiCut = (*theHICConst).phicutbar[(*theBarrel.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+        theZCut = (*theHICConst).zcutbar[(*theBarrel.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+//        cout<<" Barrel first -Barrel cuts::layers "<<(*theBarrel.find(first)).second<<" "<<(*theBarrel.find(a)).second<<" "<<(*theBarrel.find(b)).second<<endl; 
+//        cout<<" Barrel first -Barrel cuts "<< thePhiWin<<" "<<theZWin <<" "<<thePhiCut <<" "<<theZCut<<endl;
        }
          else
 	 {
-          thePhiWin = theHicConst.phiwinfbb[(*theForward.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
-          theZWin = theHicConst.zwinfbb[(*theForward.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
-          thePhiCut = theHicConst.phicutfbb[(*theForward.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
-          theZCut = theHicConst.zcutfbb[(*theForward.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
-//#ifdef LOWMULT
-           if(theLowMult == 1)
-	   {
-//          if( b->module() == pixel ) theNewCut = 20.;
-           }
-//#endif
-
-
-	 }
+          if(first->surface().position().z() > 0. )
+          {
+          thePhiWin = (*theHICConst).phiwinfbb[(*theForward.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
+          theZWin = (*theHICConst).zwinfbb[(*theForward.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
+          thePhiCut = (*theHICConst).phicutfbb[(*theForward.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+          theZCut = (*theHICConst).zcutfbb[(*theForward.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+//          cout<<" Endcap first positive -Barrel cuts::layers "<<(*theForward.find(first)).second<<" "<<(*theBarrel.find(a)).second<<" "<<(*theBarrel.find(b)).second<<endl;       
+//          cout<<" Endcap first positive -Barrel cuts "<< thePhiWin<<" "<<theZWin <<" "<<thePhiCut <<" "<<theZCut<<endl;
+          } else {
+          thePhiWin = (*theHICConst).phiwinfbb[(*theBackward.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
+          theZWin = (*theHICConst).zwinfbb[(*theBackward.find(first)).second][(*theBarrel.find(a)).second][(*theBarrel.find(b)).second];
+          thePhiCut = (*theHICConst).phicutfbb[(*theBackward.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+          theZCut = (*theHICConst).zcutfbb[(*theBackward.find(first)).second][(*theBarrel.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+//          cout<<" Endcap first negative -Barrel cuts::layers "<<(*theBackward.find(first)).second<<" "<<(*theBarrel.find(a)).second<<" "<<(*theBarrel.find(b)).second<<endl;
+//          cout<<" Endcap first negative -Barrel cuts "<< thePhiWin<<" "<<theZWin <<" "<<thePhiCut <<" "<<theZCut<<endl;
+         }
+	 } //
 
 
 	theCuts.push_back(thePhiWin); theCuts.push_back(theZWin);
@@ -175,17 +191,17 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
      {
         if( a->surface().position().z() > 0. )
 	{
-        thePhiWin = theHicConst.phiwinfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theForward.find(b)).second];
-        theZWin = theHicConst.zwinfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theForward.find(b)).second];
-        thePhiCut = theHicConst.phicutfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theForward.find(b)).second];
-        theZCut = theHicConst.zcutfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theForward.find(b)).second];
+        thePhiWin = (*theHICConst).phiwinfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theForward.find(b)).second];
+        theZWin = (*theHICConst).zwinfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theForward.find(b)).second];
+        thePhiCut = (*theHICConst).phicutfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theForward.find(b)).second];
+        theZCut = (*theHICConst).zcutfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theForward.find(b)).second];
         }
 	  else
 	  {
-           thePhiWin = theHicConst.phiwinfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBackward.find(b)).second];
-           theZWin = theHicConst.zwinfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBackward.find(b)).second];
-           thePhiCut = theHicConst.phicutfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBackward.find(b)).second];
-           theZCut = theHicConst.zcutfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBackward.find(b)).second];
+           thePhiWin = (*theHICConst).phiwinfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBackward.find(b)).second];
+           theZWin = (*theHICConst).zwinfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBackward.find(b)).second];
+           thePhiCut = (*theHICConst).phicutfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBackward.find(b)).second];
+           theZCut = (*theHICConst).zcutfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBackward.find(b)).second];
 	  }
 	
         if( theLowMult == 1 )
@@ -209,17 +225,17 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
        
        if( a->surface().position().z() > 0. )
        {
-        thePhiWin = theHicConst.phiwinbfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theBarrel.find(b)).second];
-        theZWin = theHicConst.zwinbfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theBarrel.find(b)).second];
-        thePhiCut = theHicConst.phicutbfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
-        theZCut = theHicConst.zcutbfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+        thePhiWin = (*theHICConst).phiwinbfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theBarrel.find(b)).second];
+        theZWin = (*theHICConst).zwinbfrw[(*theForward.find(first)).second][(*theForward.find(a)).second][(*theBarrel.find(b)).second];
+        thePhiCut = (*theHICConst).phicutbfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+        theZCut = (*theHICConst).zcutbfrw[(*theForward.find(first)).second][(*theForward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
        }
           else
 	  {
-            thePhiWin = theHicConst.phiwinbfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBarrel.find(b)).second];
-            theZWin = theHicConst.zwinbfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBarrel.find(b)).second];
-            thePhiCut = theHicConst.phicutbfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
-            theZCut = theHicConst.zcutbfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+            thePhiWin = (*theHICConst).phiwinbfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBarrel.find(b)).second];
+            theZWin = (*theHICConst).zwinbfrw[(*theBackward.find(first)).second][(*theBackward.find(a)).second][(*theBarrel.find(b)).second];
+            thePhiCut = (*theHICConst).phicutbfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
+            theZCut = (*theHICConst).zcutbfrw[(*theBackward.find(first)).second][(*theBackward.find(theLastLayer)).second][(*theBarrel.find(b)).second];
 	  }	
 	
         if( b->subDetector() ==  GeomDetEnumerators::PixelBarrel) theNewCut = 20.;
@@ -232,7 +248,7 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
 	
         return theCuts;
      }
-     cout<<" HICMeasurementEstimator::setCuts::Error: unknown detector layer "<<endl;
+//     cout<<" HICMeasurementEstimator::setCuts::Error: unknown detector layer "<<endl;
      return theCuts;
 }
 
@@ -280,7 +296,7 @@ int HICMeasurementEstimator::getDetectorCode(const DetLayer* a)
      if( a->location() == GeomDetEnumerators::endcap ) 
      {
 	   if( a->surface().position().z() > 0. ) { layer = 100+(*theForward.find(a)).second;}
-	   if( a->surface().position().z() < 0. ) {layer = -100-(*theBackward.find(a)).second;}	   
+	   if( a->surface().position().z() < 0. ) { layer = -100-(*theBackward.find(a)).second;}	   
      }
      return layer;
 }
@@ -311,6 +327,7 @@ void HICMeasurementEstimator::setHICDetMap()
    for ( vector<ForwardDetLayer*>::const_iterator ilayer = fneg.begin(); 
                                                     ilayer != fneg.end(); ilayer++)
    {
+            cout<<" HICDetectorMap::negative layers "<<(**ilayer).position().z()<<" "<<ilf2<<endl;
                    theBackward[(*ilayer)] = ilf2;
                    ilf2++;
    }
