@@ -5,6 +5,7 @@ class HICConst {
 public:
 HICConst();
 virtual ~HICConst(){}
+void setVertex(double a);
 public:
 double chicut;
 double Zcut1;

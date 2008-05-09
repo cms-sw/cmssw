@@ -26,13 +26,16 @@ public:
 typedef edm::OwnVector<TrackingRecHit> recHitContainer;
 
 // construct
-  DiMuonTrajectorySeed( 
-                        TrajectoryStateOnSurface tsos, 
-                        const FreeTrajectoryState& ftsmuon, 
-			const TrackingRecHit*  rh, 
-			int aMult,
-			int det 
-		      );
+  DiMuonTrajectorySeed( const TrajectoryMeasurement& mtm0, const FreeTrajectoryState& ftsmuon, int aMult=1 ): 
+                        theFtsMuon(ftsmuon),
+		        thePropagationDirection(oppositeToMomentum),
+		        theLowMult(aMult)
+		                                                   {
+								   theTrajMeasurements.push_back(mtm0);
+                                                                   //const TrackingRecHit* outerHit = mtm0.recHit()->hit();   
+								   //theRecHits.push_back(outerHit->clone());
+                                                                   //theRecHits.push_back(mtm0.recHit());` 
+								   } 
 
 // access
 
@@ -47,18 +50,13 @@ typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   range recHits() const{std::cout<<" Number of RecHits "<<theRecHits.size(); return std::make_pair(theRecHits.begin(), theRecHits.end());};
   
   PropagationDirection direction() const{return thePropagationDirection;}
-  
-  PTrajectoryStateOnDet startingState(){return *PTraj;}
       
  private:
- TransientTrackingRecHit::ConstRecHitPointer rh;
- recHitContainer theRecHits;
- FreeTrajectoryState theFtsMuon;
- PropagationDirection thePropagationDirection;
- boost::shared_ptr<PTrajectoryStateOnDet> PTraj;
- int                 theLowMult;
- int                 theDetId;
- TrajectoryStateTransform transformer;
+ std::vector<TrajectoryMeasurement> theTrajMeasurements;
+ edm::OwnVector<TrackingRecHit>     theRecHits;
+ FreeTrajectoryState                theFtsMuon;
+ PropagationDirection               thePropagationDirection;
+ int                                theLowMult;
 };
 
 #endif // Tracker_TrajectorySeed_H

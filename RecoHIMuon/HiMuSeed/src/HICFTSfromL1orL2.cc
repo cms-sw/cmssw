@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 using namespace reco;
 using namespace std;
-#define OK_DEBUG
+//#define OK_DEBUG
 //-----------------------------------------------------------------------------
 // Vector of Free Trajectory State in Muon stations from L1 Global Muon Trigger
 
@@ -126,7 +126,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
 #endif	 
 	 
 	 if ( itused != used.end() ) {
-	    cout<<" L2 is already used in primary cycle"<<endl;
+//	    cout<<" L2 is already used in primary cycle"<<endl;
 	    continue;
 	 }
 	 
@@ -146,7 +146,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
 	       L2 = 1;
 	       ftsL1orL2.push_back((*tl2));
 	       used.push_back(&(*tl2));
-	       cout<<" add L2 for same muon"<<endl;
+//	       cout<<" add L2 for same muon"<<endl;
 	       break;
 //	     } // endif  
 //	       else 
@@ -160,12 +160,12 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
       } // end for L2
        if( L2 == 0 ) 
        {
-	  cout<<" add L1 for no L2 muon"<<endl;
+//	  cout<<" add L1 for no L2 muon"<<endl;
           ftsL1orL2.push_back((*tl1)); // No L1 candidate. Take L1 candidate.
        }	  
     } // end for L1
 
-    cout<<" Add the last L2 candidates that have not corresponding L1 "<<endl;
+  //  cout<<" Add the last L2 candidates that have not corresponding L1 "<<endl;
     
     if( ftsL2.size() > 0 )
     { // just add the ramains L2 candidates
@@ -174,13 +174,13 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
       itused = find(used.begin(),used.end(),&(*tl2));
       if ( itused != used.end() ) 
       {
-	 cout<<" L2 is already used in secondary cycle"<<endl;
+//	 cout<<" L2 is already used in secondary cycle"<<endl;
          continue;
       }	 
       ftsL1orL2.push_back((*tl2));
     } // end for L2
     }
-    cout<<" The number of trajectories in muon stations "<<ftsL1orL2.size()<<endl;
+  //  cout<<" The number of trajectories in muon stations "<<ftsL1orL2.size()<<endl;
     return ftsL1orL2; 
 }
 //-----------------------------------------------------------------------------
@@ -281,7 +281,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
       mom = mom1;
     }
 
-    cout<<" L2::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
+   // cout<<" L2::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
     
     AlgebraicSymMatrix m(5,0);
     double error;
@@ -329,7 +329,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
       mom = mom1;
     }
 
-    cout<<" StandAlone::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
+    //cout<<" StandAlone::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
     
     AlgebraicSymMatrix m(5,0);
     double error;

@@ -50,6 +50,9 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "RecoHIMuon/HiMuSeed/interface/DiMuonTrajectorySeed.h"
 
+// HICConst
+#include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
+
 // CLHEP includes
 #include "CLHEP/Units/PhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
@@ -75,14 +78,15 @@ class DiMuonSeedGeneratorHIC  {
   DiMuonSeedGeneratorHIC(edm::InputTag,
                          const MagneticField*, 
                          const GeometricSearchTracker*,
+                         const HICConst*,
 			 int aMult);
 
   virtual SeedContainer  produce(const edm::Event& e, const edm::EventSetup& c,
   			 FreeTrajectoryState&, 
 			 TrajectoryStateOnSurface&,
 			 FreeTrajectoryState&,
-			 const TransientTrackingRecHitBuilder* RecHitBuilder,
-			 const MeasurementTracker* measurementTracker,
+		    const TransientTrackingRecHitBuilder* RecHitBuilder,
+		    const MeasurementTracker* measurementTracker,
 			 std::vector<DetLayer*>* 
                        );
 
@@ -93,8 +97,7 @@ class DiMuonSeedGeneratorHIC  {
  private:
   FreeTrajectoryState                        theFtsTracker;
   FreeTrajectoryState                        theFtsMuon;
-  HICConst*                                  theHicConst;
-//  PropagatorWithMaterial*                    thePropagator; 
+  const HICConst*                                  theHICConst;
   Propagator*                                thePropagator; 
   
   int                                        theLowMult;
@@ -108,16 +111,13 @@ class DiMuonSeedGeneratorHIC  {
   bool                                       isFirstCall;
   TrackerLayerIdAccessor                     acc;
   
-  std::pair<bool,TrajectoryStateOnSurface> barrelUpdateSeed(
-                                           FreeTrajectoryState&,
-					   TrajectoryStateOnSurface&,
-					   const TransientTrackingRecHit::ConstRecHitPointer
-					                 ) const;
-					 
-  std::pair<bool,TrajectoryStateOnSurface> forwardUpdateSeed(
-                                           FreeTrajectoryState&,
-					   TrajectoryStateOnSurface&,
-					   const TransientTrackingRecHit::ConstRecHitPointer
+  std::pair<TrajectoryMeasurement,bool> barrelUpdateSeed(
+                                           const FreeTrajectoryState&,
+					   const TrajectoryMeasurement&
+					 ) const;
+  std::pair<TrajectoryMeasurement,bool> forwardUpdateSeed(
+                                           const FreeTrajectoryState&,
+					   const TrajectoryMeasurement&
 					 ) const;
 					 
   edm::InputTag rphirecHitsTag;

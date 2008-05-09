@@ -1,5 +1,6 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include <iostream>
+void HICConst::setVertex(double a){zvert=a;}
 HICConst::HICConst()
 {
 
@@ -1123,7 +1124,7 @@ phicutfbb[13][3][0] = 0.005;
 phicutfbb[13][2][1] = 0.005;
 phicutfbb[13][2][0] = 0.003;
 
-phicutfbb[13][1][0] = 0.003;
+phicutfbb[13][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 12
 
@@ -1216,7 +1217,7 @@ phicutfbb[12][3][0] = 0.005;
 phicutfbb[12][2][1] = 0.005;
 phicutfbb[12][2][0] = 0.005;
 
-phicutfbb[12][1][0] = 0.003;
+phicutfbb[12][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 11
 
@@ -1310,7 +1311,7 @@ phicutfbb[11][3][0] = 0.005;
 phicutfbb[11][2][1] = 0.005;
 phicutfbb[11][2][0] = 0.005;
 
-phicutfbb[11][1][0] = 0.003;
+phicutfbb[11][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 10
 
@@ -1970,7 +1971,7 @@ phiwinfbb[13][3][0] = 0.005;
 phiwinfbb[13][2][1] = 0.005;
 phiwinfbb[13][2][0] = 0.003;
 
-phiwinfbb[13][1][0] = 0.003;
+phiwinfbb[13][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 12
 
@@ -2063,7 +2064,7 @@ phiwinfbb[12][3][0] = 0.005;
 phiwinfbb[12][2][1] = 0.005;
 phiwinfbb[12][2][0] = 0.005;
 
-phiwinfbb[12][1][0] = 0.003;
+phiwinfbb[12][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 11
 
@@ -2157,7 +2158,7 @@ phiwinfbb[11][3][0] = 0.005;
 phiwinfbb[11][2][1] = 0.005;
 phiwinfbb[11][2][0] = 0.005;
 
-phiwinfbb[11][1][0] = 0.003;
+phiwinfbb[11][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 10
 
@@ -2250,7 +2251,7 @@ phiwinfbb[10][3][0] = 0.005;
 phiwinfbb[10][2][1] = 0.005;
 phiwinfbb[10][2][0] = 0.005;
 
-phiwinfbb[10][1][0] = 0.003;
+phiwinfbb[10][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 9
 
@@ -2344,7 +2345,7 @@ phiwinfbb[9][3][0] = 0.005;
 phiwinfbb[9][2][1] = 0.005;
 phiwinfbb[9][2][0] = 0.005;
 
-phiwinfbb[9][1][0] = 0.003;
+phiwinfbb[9][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 8
 
@@ -2438,7 +2439,7 @@ phiwinfbb[8][3][0] = 0.005;
 phiwinfbb[8][2][1] = 0.005;
 phiwinfbb[8][2][0] = 0.005;
 
-phiwinfbb[8][1][0] = 0.003;
+phiwinfbb[8][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 7
 
@@ -2533,7 +2534,7 @@ phiwinfbb[7][3][0] = 0.005;
 phiwinfbb[7][2][1] = 0.005;
 phiwinfbb[7][2][0] = 0.005;
 
-phiwinfbb[7][1][0] = 0.003;
+phiwinfbb[7][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 6
 
@@ -2628,7 +2629,7 @@ phiwinfbb[6][3][0] = 0.005;
 phiwinfbb[6][2][1] = 0.005;
 phiwinfbb[6][2][0] = 0.005;
 
-phiwinfbb[6][1][0] = 0.003;
+phiwinfbb[6][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 5
 
@@ -2724,7 +2725,7 @@ phiwinfbb[5][3][0] = 0.005;
 phiwinfbb[5][2][1] = 0.005;
 phiwinfbb[5][2][0] = 0.005;
 
-phiwinfbb[5][1][0] = 0.003;
+phiwinfbb[5][1][0] = 0.0035;
 
 
 // Forward roads, windows, phiwinfrw
@@ -2833,7 +2834,7 @@ phiwinfrw[13][3][0] = 0.005;
 phiwinfrw[13][2][1] = 0.005;
 phiwinfrw[13][2][0] = 0.003;
 
-phiwinfrw[13][1][0] = 0.003;
+phiwinfrw[13][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 12
 
@@ -2926,7 +2927,7 @@ phiwinfrw[12][3][0] = 0.005;
 phiwinfrw[12][2][1] = 0.005;
 phiwinfrw[12][2][0] = 0.005;
 
-phiwinfrw[12][1][0] = 0.003;
+phiwinfrw[12][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 11
 
@@ -3006,7 +3007,7 @@ phiwinfrw[11][3][0] = 0.005;
 phiwinfrw[11][2][1] = 0.005;
 phiwinfrw[11][2][0] = 0.005;
 
-phiwinfrw[11][1][0] = 0.003;
+phiwinfrw[11][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 10
 
@@ -3073,7 +3074,7 @@ phiwinfrw[10][3][0] = 0.005;
 phiwinfrw[10][2][1] = 0.005;
 phiwinfrw[10][2][0] = 0.005;
 
-phiwinfrw[10][1][0] = 0.003;
+phiwinfrw[10][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 9
 
@@ -3130,7 +3131,7 @@ phiwinfrw[9][3][0] = 0.005;
 phiwinfrw[9][2][1] = 0.005;
 phiwinfrw[9][2][0] = 0.005;
 
-phiwinfrw[9][1][0] = 0.003;
+phiwinfrw[9][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 8
 
@@ -3177,7 +3178,7 @@ phiwinfrw[8][3][0] = 0.005;
 phiwinfrw[8][2][1] = 0.005;
 phiwinfrw[8][2][0] = 0.005;
 
-phiwinfrw[8][1][0] = 0.003;
+phiwinfrw[8][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 7
 
@@ -3214,7 +3215,7 @@ phiwinfrw[7][3][0] = 0.005;
 phiwinfrw[7][2][1] = 0.005;
 phiwinfrw[7][2][0] = 0.005;
 
-phiwinfrw[7][1][0] = 0.003;
+phiwinfrw[7][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 6
 
@@ -3243,7 +3244,7 @@ phiwinfrw[6][3][0] = 0.005;
 phiwinfrw[6][2][1] = 0.005;
 phiwinfrw[6][2][0] = 0.005;
 
-phiwinfrw[6][1][0] = 0.003;
+phiwinfrw[6][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 5
 
@@ -3265,7 +3266,7 @@ phiwinfrw[5][3][0] = 0.005;
 phiwinfrw[5][2][1] = 0.005;
 phiwinfrw[5][2][0] = 0.005;
 
-phiwinfrw[5][1][0] = 0.003;
+phiwinfrw[5][1][0] = 0.0035;
 
 // =============== size of propagation cut in phi-z.
 // =============== forward phi, phicutfrw
@@ -3374,7 +3375,7 @@ phicutfrw[13][3][0] = 0.005;
 phicutfrw[13][2][1] = 0.005;
 phicutfrw[13][2][0] = 0.003;
 
-phicutfrw[13][1][0] = 0.003;
+phicutfrw[13][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 12
 
@@ -3467,7 +3468,7 @@ phicutfrw[12][3][0] = 0.005;
 phicutfrw[12][2][1] = 0.005;
 phicutfrw[12][2][0] = 0.005;
 
-phicutfrw[12][1][0] = 0.003;
+phicutfrw[12][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 11
 
@@ -3547,7 +3548,7 @@ phicutfrw[11][3][0] = 0.005;
 phicutfrw[11][2][1] = 0.005;
 phicutfrw[11][2][0] = 0.005;
 
-phicutfrw[11][1][0] = 0.003;
+phicutfrw[11][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 10
 
@@ -3614,7 +3615,7 @@ phicutfrw[10][3][0] = 0.005;
 phicutfrw[10][2][1] = 0.005;
 phicutfrw[10][2][0] = 0.005;
 
-phicutfrw[10][1][0] = 0.003;
+phicutfrw[10][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 9
 
@@ -3671,7 +3672,7 @@ phicutfrw[9][3][0] = 0.005;
 phicutfrw[9][2][1] = 0.005;
 phicutfrw[9][2][0] = 0.005;
 
-phicutfrw[9][1][0] = 0.003;
+phicutfrw[9][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 8
 
@@ -3718,7 +3719,7 @@ phicutfrw[8][3][0] = 0.005;
 phicutfrw[8][2][1] = 0.005;
 phicutfrw[8][2][0] = 0.005;
 
-phicutfrw[8][1][0] = 0.003;
+phicutfrw[8][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 7
 
@@ -3755,7 +3756,7 @@ phicutfrw[7][3][0] = 0.005;
 phicutfrw[7][2][1] = 0.005;
 phicutfrw[7][2][0] = 0.005;
 
-phicutfrw[7][1][0] = 0.003;
+phicutfrw[7][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 6
 
@@ -3784,7 +3785,7 @@ phicutfrw[6][3][0] = 0.005;
 phicutfrw[6][2][1] = 0.005;
 phicutfrw[6][2][0] = 0.005;
 
-phicutfrw[6][1][0] = 0.003;
+phicutfrw[6][1][0] = 0.0035;
 
 // +++++++++++ Last layer = 5
 
@@ -3806,7 +3807,7 @@ phicutfrw[5][3][0] = 0.005;
 phicutfrw[5][2][1] = 0.005;
 phicutfrw[5][2][0] = 0.005;
 
-phicutfrw[5][1][0] = 0.003;
+phicutfrw[5][1][0] = 0.0035;
 
 
 
