@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.23 2008/02/15 12:10:54 rwolf Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.24 2008/04/24 19:52:11 rwolf Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -224,12 +224,22 @@ void TtSemiEvtSolution::setupHyp()
   reco::NamedCompositeCandidate recLepW;
 
   // Get refs to leaf nodes
-  JetCandRef hadp( hadp_->p4(), hadp_->charge(), hadp_->vertex());  hadp.setRef( hadp_ );
-  JetCandRef hadq( hadq_->p4(), hadq_->charge(), hadq_->vertex());  hadq.setRef( hadq_ );
-  JetCandRef hadb( hadb_->p4(), hadb_->charge(), hadb_->vertex());  hadb.setRef( hadb_ );
-  JetCandRef lepb( lepb_->p4(), lepb_->charge(), lepb_->vertex());  lepb.setRef( lepb_ );
+  reco::ShallowCloneCandidate hadp( reco::CandidateBaseRef( hadp_ ), hadp_->charge(), hadp_->p4(), hadp_->vertex() );
+  reco::ShallowCloneCandidate hadq( reco::CandidateBaseRef( hadq_ ), hadq_->charge(), hadq_->p4(), hadq_->vertex() );
+  reco::ShallowCloneCandidate hadb( reco::CandidateBaseRef( hadb_ ), hadb_->charge(), hadb_->p4(), hadb_->vertex() );
+  reco::ShallowCloneCandidate lepb( reco::CandidateBaseRef( lepb_ ), lepb_->charge(), lepb_->p4(), lepb_->vertex() );
 
-  METCandRef neutrino  ( neutrino_->p4(), neutrino_->charge(), neutrino_->vertex() ); neutrino.setRef( neutrino_ );
+  reco::ShallowCloneCandidate neutrino( reco::CandidateBaseRef( neutrino_ ), neutrino_->charge(), neutrino_->p4(), neutrino_->vertex() );
+
+
+//   JetCandRef hadp( hadp_->p4(), hadp_->charge(), hadp_->vertex());  hadp.setRef( hadp_ );
+//   JetCandRef hadq( hadq_->p4(), hadq_->charge(), hadq_->vertex());  hadq.setRef( hadq_ );
+//   JetCandRef hadb( hadb_->p4(), hadb_->charge(), hadb_->vertex());  hadb.setRef( hadb_ );
+//   JetCandRef lepb( lepb_->p4(), lepb_->charge(), lepb_->vertex());  lepb.setRef( lepb_ );
+
+//   METCandRef neutrino  ( neutrino_->p4(), neutrino_->charge(), neutrino_->vertex() ); neutrino.setRef( neutrino_ );
+
+
 
   recHadW.addDaughter( hadp,    "hadp" );
   recHadW.addDaughter( hadq,    "hadq" );
@@ -243,10 +253,12 @@ void TtSemiEvtSolution::setupHyp()
   
   recLepW.addDaughter( neutrino,"neutrino" );
   if ( getDecay() == "electron" ) {
-    ElectronCandRef electron ( electron_->p4(), electron_->charge(), electron_->vertex() ); electron.setRef( electron_ );
+    reco::ShallowCloneCandidate electron ( reco::CandidateBaseRef( electron_), electron_->charge(), electron_->p4(), electron_->vertex() );
+//     ElectronCandRef electron ( electron_->p4(), electron_->charge(), electron_->vertex() ); electron.setRef( electron_ );
     recLepW.addDaughter ( electron, "electron" );
   } else if ( getDecay() == "muon" ) {
-    MuonCandRef muon ( muon_->p4(), muon_->charge(), muon_->vertex() ); muon.setRef( muon_ );
+    reco::ShallowCloneCandidate muon ( reco::CandidateBaseRef( muon_ ), muon_->charge(),  muon_->p4(), muon_->vertex() );
+//     MuonCandRef muon ( muon_->p4(), muon_->charge(), muon_->vertex() ); muon.setRef( muon_ );
     recLepW.addDaughter ( muon, "muon" );
   }
 
