@@ -383,7 +383,8 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
     }
     
     //Subtract Pedestals
-    SiStripPedestalsSubtractor_->subtract(rawDigis_ds_,vssRd,es_);
+    SiStripPedestalsSubtractor_->init(es_);
+    SiStripPedestalsSubtractor_->subtract(rawDigis_ds_,vssRd);
     
     if (edm::isDebugEnabled()){
       std::stringstream sss;
@@ -397,7 +398,8 @@ void SiStripClusterInfo::rawdigi_algorithm(const edm::DetSet<SiStripRawDigi>  ra
     
     //Subtract CMN
     if (validCMNSubtraction_){
-      SiStripCommonModeNoiseSubtractor_->subtract(rawDigis_ds_.id,vssRd,es_);
+      SiStripCommonModeNoiseSubtractor_->init(es_);
+      SiStripCommonModeNoiseSubtractor_->subtract(rawDigis_ds_.id,vssRd);
       
       if (edm::isDebugEnabled()){
 	std::stringstream sss;
