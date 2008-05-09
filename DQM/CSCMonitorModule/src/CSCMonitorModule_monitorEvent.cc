@@ -37,23 +37,23 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel( inputObjectsTag, rawdata);
 
-  // Implement and set examiner
-  CSCDCCExaminer examiner;
-
-  if(examinerCRCKey.test(0)) examiner.crcALCT(1);
-  if(examinerCRCKey.test(1)) examiner.crcCFEB(1);
-  if(examinerCRCKey.test(2)) examiner.crcTMB(1);
-
-  if(examinerOutput) {
-    examiner.output1().show();
-    examiner.output2().show();
-  } else {
-    examiner.output1().hide();
-    examiner.output2().hide();
-  }
-
   // Lets run through the DCC's 
   for (int id = FEDNumbering::getCSCFEDIds().first; id <= FEDNumbering::getCSCFEDIds().second; ++id) {
+
+    // Implement and set examiner
+    CSCDCCExaminer examiner;
+
+    if(examinerCRCKey.test(0)) examiner.crcALCT(1);
+    if(examinerCRCKey.test(1)) examiner.crcCFEB(1);
+    if(examinerCRCKey.test(2)) examiner.crcTMB(1);
+
+    if(examinerOutput) {
+      examiner.output1().show();
+      examiner.output2().show();
+    } else {
+      examiner.output1().hide();
+      examiner.output2().hide();
+    }
 
     // Take a reference to this FED's data and
     // construct the DCC data object
