@@ -142,19 +142,22 @@ if(allCSCSegments->size()>0){
 		//--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
 
 		RPCDetId  rollId = rollasociated->id();
-		uint32_t id = rollId.rawId();
-		_idList.push_back(id);
-	      
+		
+		RPCGeomServ rpcsrv(rollId);
+	        std::string nameRoll = rpcsrv.name();
+	        _idList.push_back(nameRoll);
+
 		char detUnitLabel[128];
-		sprintf(detUnitLabel ,"%d",id);
-		sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
+		sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+	        sprintf(layerLabel ,"%s",nameRoll.c_str());
+		
 	      
-		std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
+		std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
 		if (meItr == meCollection.end()){
-		  meCollection[id] = bookDetUnitSeg(rollId);
+		  meCollection[nameRoll] = bookDetUnitSeg(rollId);
 		}
 	      
-		std::map<std::string, MonitorElement*> meMap=meCollection[id];
+		std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
 
 		sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
 		meMap[meIdCSC]->Fill(stripPredicted);

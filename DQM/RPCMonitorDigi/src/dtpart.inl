@@ -83,7 +83,7 @@ if(all4DSegments->size()>0){
 	  std::cout<<"\t \t \t Is the distance less than MaxD? D="<<D<<"cm"<<std::endl;
   
 
-	  if(X*X+Y*Y+Z*Z<=MaxD*MaxD){ 
+	  if(X*X+Y*Y<=MaxD*MaxD){ 
 	    std::cout<<"\t \t \t yes"<<std::endl;
 	    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
 	    LocalPoint xmin = top_->localPosition(0.);
@@ -112,6 +112,7 @@ if(all4DSegments->size()>0){
 	      std::cout<<"\t \t \t \t Candidate"<<rollasociated->id()<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
 	      
 	      int stripDetected = 0;
+	      std::cout<<"\t \t \t Getting Roll Asociated"<<std::endl;	
 	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
 	      
 	      int stripCounter = 0;
@@ -119,22 +120,35 @@ if(all4DSegments->size()>0){
 
 	      //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
 	      
-	      uint32_t id = rollId.rawId();
-	      _idList.push_back(id);
+	      RPCGeomServ rpcsrv(rollId);
+	      std::string nameRoll = rpcsrv.name();
+	      std::cout<<"\t \t \t The RPCName is"<<nameRoll<<std::endl;
+	      _idList.push_back(nameRoll);
 	      
 	      char detUnitLabel[128];
-	      sprintf(detUnitLabel ,"%d",id);
-	      sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
+	      sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+	      sprintf(layerLabel ,"%s",nameRoll.c_str());
+
+	      std::cout<<"\t \t \t Finding Id"<<nameRoll<<std::endl;
+	      std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
+	      std::cout<<"\t \t \t Done Finding Id"<<nameRoll<<std::endl;
 	      
-	      std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
+
 	      if (meItr == meCollection.end()){
-		meCollection[id] = bookDetUnitSeg(rollId);
+	        std::cout<<"\t \t \t  Booking for"<<nameRoll<<std::endl;		
+		meCollection[nameRoll] = bookDetUnitSeg(rollId);
+	        std::cout<<"\t \t \t  Done Booking "<<std::endl;		
 	      }
 	      
-	      std::map<std::string, MonitorElement*> meMap=meCollection[id];
+	      std::cout<<"\t \t \t  Creating Map for"<<nameRoll<<std::endl;		
+	      std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+	      std::cout<<"\t \t \t  Created Map"<<std::endl;		
+	      
+              sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
 
-	      sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+	      std::cout<<"\t \t \t  Filling the histogram"<<meIdDT<<std::endl;
 	      meMap[meIdDT]->Fill(stripPredicted);
+	      std::cout<<"\t \t \t  Done Filling the histogram"<<std::endl;
 
 	      sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
 	      meMap[meIdDT]->Fill(stripPredicted,Y);

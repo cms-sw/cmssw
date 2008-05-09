@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.17 2008/02/15 11:40:22 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.18 2008/03/01 00:40:15 lat Exp $
 //
 //
 
@@ -116,6 +116,7 @@ private:
 
 MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
 {
+
   std::map<RPCDetId, int> buff;
   counter.clear();
   counter.reserve(3);
@@ -146,7 +147,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   
   ofrej.open(rejected.c_str());
   ofeff.open(rollseff.c_str());
-  
+  oftwiki.open("tabletotwiki.txt");
+
   // Giuseppe
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
@@ -267,6 +269,7 @@ MuonSegmentEff::endJob() {
   std::map<RPCDetId, int> reje = counter[2];
   std::map<RPCDetId, int>::iterator irpc;
 
+  oftwiki <<"|  RPC Name  |  Observed  |  Predicted  |  Efficiency %  |  Error %  |";
      
   for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     RPCDetId id=irpc->first;
@@ -280,10 +283,12 @@ MuonSegmentEff::endJob() {
       float er = sqrt(ef*(1.-ef)/float(p));
       std::cout <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
       ofeff <<"\n "<<id<<"\t Predicted "<<p<<"\t Observed "<<o<<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %";
-      if(ef<0.8){
-	std::cout<<"\t \t Warning!";
-	ofeff<<"\t \t Warning!";
-      } 
+      RPCGeomServ RPCname(id);
+      oftwiki <<"\n |  "<<RPCname.name()<<"  |  "<<o<<"  |  "<<p<<"  |  "<<ef*100.<<"  |  "<<er*100<<"  |";
+      //if(ef<0.8){
+      //std::cout<<"\t \t Warning!";
+      //ofeff<<"\t \t Warning!";
+      //} 
     }
     else{
       std::cout<<"No predictions in this file p=0"<<std::endl;
@@ -306,7 +311,7 @@ MuonSegmentEff::endJob() {
     ofeff <<"No predictions in this file = 0!!!"<<std::endl;
   }
 
-  std::vector<uint32_t>::iterator meIt;
+  std::vector<std::string>::iterator meIt;
   for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
 
     char detUnitLabel[128];
@@ -319,7 +324,10 @@ MuonSegmentEff::endJob() {
     char meIdDT_2D [128];
     char effIdRPC_DT_2D [128];
 
-    sprintf(detUnitLabel ,"%d",*meIt);
+    
+    sprintf(detUnitLabel ,"%s",(*meIt).c_str());
+    
+    std::cout<<"Creating Efficiency Root Files!!!"<<std::endl;
 
     sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
     sprintf(meIdRPC_2D,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
@@ -333,7 +341,6 @@ MuonSegmentEff::endJob() {
     std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
 
     for(unsigned int i=1;i<=100;++i){
-      
       if(meMap[meIdDT]->getBinContent(i) != 0){
 	float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdDT]->getBinContent(i);
 	float erreff = sqrt(eff*(1-eff)/meMap[meIdDT]->getBinContent(i));
@@ -361,7 +368,7 @@ MuonSegmentEff::endJob() {
     char meIdCSC_2D [128];
     char effIdRPC_CSC_2D [128];
 
-    sprintf(detUnitLabel ,"%d",*meIt);
+    sprintf(detUnitLabel ,"%s",(*meIt).c_str());
 
     sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
     sprintf(meRPC_2D,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
@@ -396,6 +403,10 @@ MuonSegmentEff::endJob() {
   }
 
   //Giuseppe
-  //if(EffSaveRootFile) dbe->save(EffRootFileName);
+  std::cout<<"Saving RootFile"<<std::endl;
+  if(EffSaveRootFile) dbe->save(EffRootFileName);
+  ofeff.close();
+  oftwiki.close();
+  ofrej.close();
 }
 
