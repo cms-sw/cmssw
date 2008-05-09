@@ -16,7 +16,8 @@ void comparisonScript(){
 	gStyle->SetOptStat("emr");
 	gSystem->Load("comparisonPlots_cc.so");
 	
-	// create plots object for given input, 2nd argument is the outputfile
+	// create plots object for given input
+	// arg1 = input ROOT comparison, arg2 = output directory, arg3 = name of output ROOT file
 	comparisonPlots c1("../test/comparisonSurvey.root","outputDir/");
 	
 	// ------------ COMMON CUTS -----------
@@ -31,6 +32,11 @@ void comparisonScript(){
 	TCut TOBCut = "(sublevel == 5)"; // TOB
 	TCut TECCut = "(sublevel == 6)"; // TEC
 		
+	// for plot3x5:
+	// arg1 = cuts, arg2 = bool to save the 3x5 plot, arg3 = name of saved plot
+	// for plot3x5Profile:
+	// arg1 = cuts, arg2 = nBins for profile, arg3 = bool to save 3x5 profile plot, arg4 = name of saved plot
+	
 	// plots the normal 3x3 plus dx/dy vs. r/z/phi
 	// stores each histogram to output file (including dr/dz/r*dphi 1D plots)
 	c1.plot3x5( levelCut, true );
