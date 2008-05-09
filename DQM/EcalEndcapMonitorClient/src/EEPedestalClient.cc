@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.75 $
+ * $Date: 2008/04/08 18:05:29 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,7 +24,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -673,9 +675,13 @@ void EEPedestalClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3;
+  map<EcalLogicID, RunMemTTErrorsDat> mask4;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
+  EcalErrorMask::fetchDataSet(&mask4);
 
   char histo[200];
 
@@ -876,6 +882,34 @@ void EEPedestalClient::analyze(void){
           }
         }
 
+	// TT masking
+
+        if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg01_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg02_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg03_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -954,6 +988,31 @@ void EEPedestalClient::analyze(void){
           }
 
         }
+      }
+
+      // TT masking
+
+      if ( mask4.size() != 0 ) {
+	map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
+	for (m = mask4.begin(); m != mask4.end(); m++) {
+	  
+	  EcalLogicID ecid = m->first;
+	  
+	  int it = 1 + ((i-1)/5);
+	  int itt = 68 + it;
+	  
+	  if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	    if ( meg04_[ism-1] ) {
+	      float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg04_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	    if ( meg05_[ism-1] ) {
+	      float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg05_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	  }
+
+	}
       }
 
     }

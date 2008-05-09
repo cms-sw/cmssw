@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.73 $
+ * $Date: 2008/04/08 18:05:29 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,6 +23,8 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -329,9 +331,11 @@ void EEPedestalOnlineClient::analyze(void){
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
 
-  map<EcalLogicID, RunCrystalErrorsDat> mask;
+  map<EcalLogicID, RunCrystalErrorsDat> mask1;
+  map<EcalLogicID, RunTTErrorsDat> mask2;
 
-  EcalErrorMask::fetchDataSet(&mask);
+  EcalErrorMask::fetchDataSet(&mask1);
+  EcalErrorMask::fetchDataSet(&mask2);
 
   char histo[200];
 
@@ -390,9 +394,9 @@ void EEPedestalOnlineClient::analyze(void){
 
         // masking
 
-        if ( mask.size() != 0 ) {
+        if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask.begin(); m != mask.end(); m++) {
+          for (m = mask1.begin(); m != mask1.end(); m++) {
 
             int jx = ix + Numbers::ix0EE(ism);
             int jy = iy + Numbers::iy0EE(ism);
@@ -414,6 +418,26 @@ void EEPedestalOnlineClient::analyze(void){
                   meg03_[ism-1]->setBinContent( ix, iy, val+3 );
                 }
               }
+            }
+
+          }
+        }
+
+	// TT masking
+
+        if ( mask2.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask2.begin(); m != mask2.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg03_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
             }
 
           }

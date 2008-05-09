@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.95 $
+ * $Date: 2008/04/08 18:05:28 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -30,7 +30,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -1710,9 +1712,13 @@ void EELaserClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3;
+  map<EcalLogicID, RunMemTTErrorsDat> mask4;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
+  EcalErrorMask::fetchDataSet(&mask4);
 
   char histo[200];
 
@@ -2699,6 +2705,38 @@ void EELaserClient::analyze(void){
           }
         }
 
+	// TT masking
+
+        if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg01_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg02_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg03_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg04_[ism-1] ) {
+		float val = int(meg04_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg04_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -2962,6 +3000,53 @@ void EELaserClient::analyze(void){
 
         }
       }
+
+      if ( mask4.size() != 0 ) {
+          map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
+          for (m = mask4.begin(); m != mask4.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+	    int it = 1 + ((i-1)/5);
+            int itt = 68 + it;
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	      if ( meg05_[ism-1] ) {
+		float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
+		meg05_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+	      if ( meg06_[ism-1] ) {
+		float val = int(meg06_[ism-1]->getBinContent(i, 1)) % 3;
+		meg06_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+	      if ( meg07_[ism-1] ) {
+		float val = int(meg07_[ism-1]->getBinContent(i, 1)) % 3;
+		meg07_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+	      if ( meg08_[ism-1] ) {
+		float val = int(meg08_[ism-1]->getBinContent(i, 1)) % 3;
+		meg08_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+	      if ( meg09_[ism-1] ) {
+		float val = int(meg09_[ism-1]->getBinContent(i, 1)) % 3;
+		meg09_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+	      if ( meg10_[ism-1] ) {
+		float val = int(meg10_[ism-1]->getBinContent(i, 1)) % 3;
+		meg10_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+	      if ( meg11_[ism-1] ) {
+		float val = int(meg11_[ism-1]->getBinContent(i, 1)) % 3;
+		meg11_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+	      if ( meg12_[ism-1] ) {
+		float val = int(meg12_[ism-1]->getBinContent(i, 1)) % 3;
+		meg12_[ism-1]->setBinContent( i, 1, val+3 );
+	      }
+            }
+
+          }
+        }
 
     }
 
