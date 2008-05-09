@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.13 2007/12/21 22:42:30 wmtan Exp $
+$Id: SortedCollection.h,v 1.14 2008/03/31 21:12:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -34,6 +34,7 @@ $Id: SortedCollection.h,v 1.13 2007/12/21 22:42:30 wmtan Exp $
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/FillView.h"
+#include "DataFormats/Common/interface/fillPtrVector.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -53,6 +54,11 @@ namespace edm {
     static bool const value = true;
   };
 
+  template <class T, class SORT>
+  struct has_setPtr<edm::SortedCollection<T,SORT> >
+  {
+    static bool const value = true;
+  };
 
   template <class T>
   struct StrictWeakOrdering
@@ -110,7 +116,7 @@ namespace edm {
     void reserve(size_type n);
 
     // Return a reference to the i'th item in the collection.
-    // Not that the argument is an *integer*, not an object of
+    // Note that the argument is an *integer*, not an object of
     //   type key_type
     reference       operator[](size_type i);
     const_reference operator[](size_type i) const;
@@ -145,6 +151,14 @@ namespace edm {
     void fillView(ProductID const& id,
 		  std::vector<void const*>& pointers,
 		  helper_vector& helpers) const;
+
+    void setPtr(std::type_info const& toType,
+		unsigned long index,
+		void const*& ptr) const;
+
+    void fillPtrVector(const std::type_info& toType,
+		       const std::vector<unsigned long>& indices,
+		       std::vector<void const*>& ptrs) const;
 
   private:
 
@@ -358,12 +372,33 @@ namespace edm {
   }
 
   template <class T, class SORT>
+  inline
   void
   SortedCollection<T,SORT>::fillView(ProductID const& id, 
 				     std::vector<void const*>& pointers,
 				     helper_vector& helpers) const
   {
     detail::reallyFillView(*this, id, pointers, helpers);
+  }
+
+  template <class T, class SORT>
+  inline
+  void
+  SortedCollection<T,SORT>::setPtr(std::type_info const& toType,
+				   unsigned long index,
+				   void const*& ptr) const
+  {
+    detail::reallySetPtr(*this, toType, index, ptr);
+  }
+
+  template <class T, class SORT>
+  inline
+  void 
+  SortedCollection<T,SORT>::fillPtrVector(const std::type_info& toType,
+					  const std::vector<unsigned long>& indices,
+					  std::vector<void const*>& ptrs) const
+  {
+    detail::reallyfillPtrVector(*this, toType, indices, ptrs);
   }
 
   // Free swap function
@@ -430,6 +465,28 @@ namespace edm {
     obj.fillView(id, pointers, helpers);
   }
 
+  // Free function templates to support the use of edm::Ptr.
+  template <class T, class SORT>
+  inline
+  void
+  setPtr(SortedCollection<T,SORT> const& obj,
+	 std::type_info const& toType,
+	 unsigned long index,
+	 void const*& ptr)
+  {
+    obj.setPtr(toType, index, ptr);
+  }
+
+  template <class T, class SORT>
+  inline
+  void
+  fillPtrVector(SortedCollection<T,SORT> const& obj,
+		const std::type_info& toType,
+		const std::vector<unsigned long>& indices,
+		std::vector<void const*>& ptrs)
+  {
+    obj.fillPtrVector(toType, indices, ptrs);
+  }
 }
 
 #endif

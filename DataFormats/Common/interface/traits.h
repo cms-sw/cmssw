@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.16 2007/12/21 22:42:30 wmtan Exp $
+$Id: traits.h,v 1.17 2008/03/31 21:12:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -149,8 +149,8 @@ namespace edm
   //
   //      void T::setPtr(const std::type_info&, void const*&) const
   //
-  // We assume the 'general case' for T is to not support fillView.
-  // Classes which do support fillView must specialize this trait.
+  // We assume the 'general case' for T is to not support setPtr.
+  // Classes which do support setPtr must specialize this trait.
   //
   //------------------------------------------------------------
   
