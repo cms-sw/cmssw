@@ -407,6 +407,11 @@ class DQMDBSgui:
                                        variable=self.enableSCP,
                                        padx=10,
                                        command=self.toggleSCP)
+        if os.getenv("USER")<>"cchcal":
+            self.enableSCP.set(False)
+            self.scpAutoButton.configure(text="scp copying disabled")
+
+        
         self.scpAutoButton.grid(row=0,column=mycol,sticky=E)
         #mycol=mycol+1
         #self.menubar.columnconfigure(mycol,weight=1)
@@ -779,6 +784,10 @@ class DQMDBSgui:
         # Hidden trick to freeze starting run value!
         self.lastFoundDBSEntry.bind("<Shift-Up>",self.toggleAutoRunShift)
         self.lastFoundDBSEntry.bind("<Shift-Down>",self.toggleAutoRunShift)
+
+        if not os.path.isdir(self.finalDir.get()):
+            self.commentLabel.configure("WARNING -- specified Final DQM Save Directory does not exist!\nCheck settings in DQM options!")
+            self.root.update()
         return
 
 
@@ -1216,9 +1225,9 @@ class DQMDBSgui:
 
         # If runs found, sort by run number (largest number first)
         if len(self.filesInDBS.keys()):
-            x=self.filesInDBS.keys()
-            x.sort()
-            x.reverse()
+            foundruns=self.filesInDBS.keys()
+            foundruns.sort()
+            foundruns.reverse()
         else:
             self.commentLabel.configure(text="No unprocessed runs found")
             self.root.update()
@@ -1229,7 +1238,7 @@ class DQMDBSgui:
 
         mycount=0
         goodcount=0
-        for i in x:
+        for i in foundruns:
             if self.debug:  print "<runDQM> Checking run #%i"%i
             self.commentLabel.configure(text="Running DQM on run #%i"%i)
             self.dqmProgress.configure(text="Running DQM on run #%i"%i,
@@ -1237,6 +1246,8 @@ class DQMDBSgui:
             self.root.update()
             # Allow user to break loop via setting the runningDQM variable
             # (change to BooleanVar?)
+            is (self.debug):
+                print "<runDQM> runningDQM bool = ",self.runningDQM
             if (self.runningDQM==False):
                 if self.debug:  print "<runDQM> runningDQM bool = False"
                 self.dqmButton.configure(state=ACTIVE)
@@ -1247,9 +1258,11 @@ class DQMDBSgui:
                 continue
             # if DQM started, check to see if DQM has finished
             if self.filesInDBS[i].startedDQM:
-                if self.filesInDBS[i].previouslyFinishedDQM:
+                # This is causing a bug, and doesn't help with counting
+                # ignore this bool for now
+                #if self.filesInDBS[i].previouslyFinishedDQM:
                     # File was finished previously; don't count it here
-                    continue
+                    #continue
                 # DQM finished; no problem
                 mycount=mycount+1
                 if self.filesInDBS[i].finishedDQM:
@@ -1306,11 +1319,11 @@ class DQMDBSgui:
                 mytime=time.time()
                 self.checkDBS()
                 newfiles=False
-                if len(self.filesInDBS.keys())<>x:
+                if len(self.filesInDBS.keys())<>foundruns:
                     self.commentLabel.configure(text="DBS files have been added since last call to DQM.\n  Restarting DQM.")
                     self.root.update()
                     newfiles=True
-                    break
+                    #break
                 if (newFiles):
                     # Save current progress
                     self.writePickle()
@@ -1325,10 +1338,11 @@ class DQMDBSgui:
 
         if (self.debug):
             print "<runDQM> Hi there!"
+
         self.runningDQM=False
         self.writePickle()
 
-        if (goodcount==len(x)):
+        if (goodcount==len(foundruns)):
             self.dqmProgress.configure(text="Successfully finished running DQM",
                                        bg="black")
         else:
@@ -1340,7 +1354,7 @@ class DQMDBSgui:
         self.dqmButton.configure(state=ACTIVE)
         
         self.root.update()
-        return
+        return  #end of runDQM
                 
 
     def callDQMscript(self,i):
@@ -1423,7 +1437,7 @@ class DQMDBSgui:
                     self.commentLabel.configure(text = "moved file %s\n to directory %s"%(temproot,
                                                                                         self.finalDir.get()))
                     self.root.update()
-                    time.sleep(1)
+                    time.sleep(3)
                 else:
                     self.commentLabel("ERROR -- Can't find file %s\nDo you know where your output is?"%temproot)
                     self.root.update()
@@ -1438,7 +1452,9 @@ class DQMDBSgui:
                 os.system("mv %s %s"%(outputdir,self.finalDir.get())) 
                 self.commentLabel.configure(text = "moved folder %s\n to directory %s"%(x,self.finalDir.get()))
                 self.root.update()
-                time.sleep(1)
+                time.sleep(3)
+                # Call scp at the completion of each run?
+                self.tempSCP()
 
             if (self.debug):
                 print "<CallDQMscript> What's going on?"
