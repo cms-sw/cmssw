@@ -151,31 +151,44 @@ namespace {
     edm::reftobase::Holder<pat::ElectronType, pat::ElectronTypeRef> rbh1Electron;
     edm::reftobase::Holder<pat::ElectronType, pat::ElectronRef>     rbh2Electron;
     edm::reftobase::RefHolder<pat::ElectronRef> rhElectron;
+    edm::reftobase::Holder<reco::Candidate, pat::ElectronRef> rbh3Electron;
+
+
     edm::RefToBase<pat::MuonType>  rbMuon;
     edm::reftobase::IndirectHolder<pat::MuonType> rbihMuon;
     edm::reftobase::Holder<pat::MuonType, pat::MuonTypeRef> rbh1Muon;
     edm::reftobase::Holder<pat::MuonType, pat::MuonRef>     rbh2Muon;
     edm::reftobase::RefHolder<pat::MuonRef> rhMuon;
+    edm::reftobase::Holder<reco::Candidate, pat::MuonRef> rbh3Muon;
+
     edm::RefToBase<pat::TauType>  rbTau;
     edm::reftobase::IndirectHolder<pat::TauType> rbihTau;
     edm::reftobase::Holder<pat::TauType, pat::TauTypeRef> rbh1Tau;
     edm::reftobase::Holder<pat::TauType, pat::TauRef>     rbh2Tau;
     edm::reftobase::RefHolder<pat::TauRef> rhTau;
+    edm::reftobase::Holder<reco::Candidate, pat::TauRef> rbh3Tau;
+
     edm::RefToBase<pat::PhotonType>  rbPhoton;
     edm::reftobase::IndirectHolder<pat::PhotonType> rbihPhoton;
     edm::reftobase::Holder<pat::PhotonType, pat::PhotonTypeRef> rbh1Photon;
     edm::reftobase::Holder<pat::PhotonType, pat::PhotonRef>     rbh2Photon;
     edm::reftobase::RefHolder<pat::PhotonRef> rhPhoton;
+    edm::reftobase::Holder<reco::Candidate, pat::PhotonRef> rbh3Photon;
+
     edm::RefToBase<pat::JetType>  rbJet;
     edm::reftobase::IndirectHolder<pat::JetType> rbihJet;
     edm::reftobase::Holder<pat::JetType, pat::JetTypeRef> rbh1Jet;
     edm::reftobase::Holder<pat::JetType, pat::JetRef>     rbh2Jet;
     edm::reftobase::RefHolder<pat::JetRef> rhJet;
+    edm::reftobase::Holder<reco::Candidate, pat::JetRef> rbh3Jet;
+
     edm::RefToBase<pat::METType>  rbMET;
     edm::reftobase::IndirectHolder<pat::METType> rbihMET;
     edm::reftobase::Holder<pat::METType, pat::METTypeRef> rbh1MET;
     edm::reftobase::Holder<pat::METType, pat::METRef>     rbh2MET;
     edm::reftobase::RefHolder<pat::METRef> rhMET;
+    edm::reftobase::Holder<reco::Candidate, pat::METRef> rbh3MET;
+
     edm::RefToBase<pat::ParticleType>  rbParticle;
     edm::reftobase::IndirectHolder<pat::ParticleType> rbihParticle;
     edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef> rbh1Particle;
