@@ -1348,9 +1348,9 @@ class DQMDBSgui:
             self.dqmProgress.configure(text="Successfully finished running DQM",
                                        bg="black")
         else:
-            self.dqmProgress.configure(text="Ran DQM on %i/%i runs"%(goodcount,len(x)))
+            self.dqmProgress.configure(text="Ran DQM on %i/%i runs"%(goodcount,len(foundruns)))
         self.dqmStatus.configure(text="%s"%time.strftime("%d %b %Y at %H:%M:%S",time.localtime()))
-        self.commentLabel.configure(text="Finished running DQM:\n%i out of %i runs successfully processed"%(goodcount,len(x)))
+        self.commentLabel.configure(text="Finished running DQM:\n%i out of %i runs successfully processed"%(goodcount,len(foundruns)))
         time.sleep(5)
         self.tempSCP() # Call scp copying routine once dqm has finished
         self.dqmButton.configure(state=ACTIVE)
