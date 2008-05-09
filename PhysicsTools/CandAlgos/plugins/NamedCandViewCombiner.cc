@@ -14,9 +14,7 @@
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 
 typedef reco::modules::NamedCandCombiner<
-                         reco::CandidateView,
-                         StringCutObjectSelector<reco::Candidate>,
-                         reco::NamedCompositeCandidateCollection
+                         StringCutObjectSelector<reco::Candidate>
                        > NamedCandViewCombiner;
       
 DEFINE_FWK_MODULE( NamedCandViewCombiner );

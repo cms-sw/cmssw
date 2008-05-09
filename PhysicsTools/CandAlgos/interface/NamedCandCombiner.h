@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.1 $
  *
- * $Id: NamedCandCombiner.h,v 1.20 2008/02/20 15:22:07 llista Exp $
+ * $Id: NamedCandCombiner.h,v 1.1 2008/04/22 02:59:48 srappocc Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -92,9 +92,7 @@ namespace reco {
       std::vector<std::string> roles_;
     };
     
-    template<typename InputCollection, 
-	     typename Selector, 
-             typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection,
+    template<typename Selector, 
              typename PairSelector = AnyPairSelector,
              typename Cloner = ::combiner::helpers::NormalClone, 
              typename Setup = AddFourMomenta,
@@ -111,7 +109,7 @@ namespace reco {
 		   Setup( cfg ), 
 		   checkCharge(cfg), 
 		   dauCharge_ ) {
-        produces<OutputCollection>();
+        produces<reco::NamedCompositeCandidateCollection>();
       }
 	/// destructor
       virtual ~NamedCandCombiner() { }
@@ -119,23 +117,28 @@ namespace reco {
     private:
       /// process an event
       void produce(edm::Event& evt, const edm::EventSetup& es) {
-
+	using namespace std;
+	using namespace reco;
 	Init::init(combiner_.setup(), evt, es);
 	int n = labels_.size();
-	std::vector<edm::Handle<InputCollection> > colls(n);
+	std::vector<edm::Handle<CandidateView> > colls(n);
 	for(int i = 0; i < n; ++i) {
 	  evt.getByLabel(labels_[i].tag_, colls[i]);
 	}
-	typedef typename combiner::helpers::template CandRefHelper<InputCollection>::RefProd RefProd;
-	std::vector<RefProd> cv;
-	for(typename std::vector<edm::Handle<InputCollection> >::const_iterator c = colls.begin();
+	std::vector<CandidatePtrVector> cv;
+	for(typename std::vector<edm::Handle<CandidateView> >::const_iterator c = colls.begin();
 	    c != colls.end(); ++ c) {
-	  RefProd r(*c);
+	  CandidatePtrVector r;
+	  CandidateView::size_type n_view = (*c)->size();
+	  for ( CandidateView::size_type iview = 0; iview < n_view; ++iview ) {
+	    CandidatePtr ri( *c, iview );
+	    r.push_back( ri );
+	  }
 	  cv.push_back(r);
 	}
-	std::auto_ptr<OutputCollection> out = combiner_.combine(cv, roles_);
+	std::auto_ptr<NamedCompositeCandidateCollection> out = combiner_.combine(cv, roles_);
 	if(setLongLived_ || setPdgId_) {
-	  typename OutputCollection::iterator i = out->begin(), e = out->end();
+	  typename NamedCompositeCandidateCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {
 	    i->setName( name_ );
 	    i->setRoles( roles_ );
@@ -147,7 +150,7 @@ namespace reco {
 	evt.put(out);
       }
       /// combiner utility
-      ::NamedCandCombiner<InputCollection, Selector, OutputCollection, PairSelector, Cloner, Setup> combiner_;
+      ::NamedCandCombiner<Selector, PairSelector, Cloner, Setup> combiner_;
       bool checkCharge( const edm::ParameterSet & cfg ) const {
 	using namespace std;
 	const string par( "checkCharge" );
