@@ -9,6 +9,9 @@ DEFINE_SEAL_MODULE();
 #include "PhysicsTools/UtilAlgos/interface/EventSetupInitTrait.h"
 
 #include "RecoEgamma/PhotonIdentification/plugins/PhotonIDProducer.h"
+#include "RecoEgamma/PhotonIdentification/plugins/PhotonIDSimpleAnalyzer.h"
+
 
 DEFINE_ANOTHER_FWK_MODULE(PhotonIDProducer);
+DEFINE_ANOTHER_FWK_MODULE(PhotonIDSimpleAnalyzer);
 
