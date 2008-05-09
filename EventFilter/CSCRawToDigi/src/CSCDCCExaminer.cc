@@ -40,7 +40,7 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTATUSES(21),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES){
+CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTATUSES(22),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
@@ -84,8 +84,7 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTA
   //	sERROR[21] = "DDU Header vs. Trailer mismatch for DAV or Avtive"; // oboslete since 16.09.05
 
   sWARNING[0] = " Extra words between DDU Trailer and DDU Header ";
-  sWARNING[1] = " CFEB B-Words                                   ";
-  sWARNING[2] = " DDU Header Incomplete                          ";
+  sWARNING[1] = " DDU Header Incomplete                          ";
 
   sDMBExpectedPayload[0]  = "CFEB1_ACTIVE";
   sDMBExpectedPayload[1]  = "CFEB2_ACTIVE";
@@ -122,6 +121,7 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTA
   sDMBEventStaus[18] = "CFEB3_END_TIMEOUT";
   sDMBEventStaus[19] = "CFEB4_END_TIMEOUT";
   sDMBEventStaus[20] = "CFEB5_END_TIMEOUT";
+  sDMBEventStaus[21] = "CFEB Active-DAV mismatch";
 
   sERROR_[0] = " Any errors: 00";
   sERROR_[1] = " DDU Trailer Missing: 01";
@@ -155,8 +155,7 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(13),nSTA
   //	sERROR_[21] = "DDU Header vs. Trailer mismatch for DAV or Avtive: 21"; // oboslete since 16.09.05
 
   sWARNING_[0] = " Extra words between DDU Trailer and DDU Header: 00";
-  sWARNING_[1] = " CFEB B-Words: 01";
-  sWARNING_[2] = " DDU Header Incomplete: 02";
+  sWARNING_[1] = " DDU Header Incomplete: 02";
 
   fDCC_Header  = false;
   fDCC_Trailer = false;
@@ -560,10 +559,10 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       }
 
       if( (buf_1[3]&0xF000)!=0x5000 ){
-        fWARNING[2]=true;
-        bWARNING|=0x4;
+        fWARNING[1]=true;
+        bWARNING|=0x2;
         cerr<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
-		cerr<<"  WARNING 2 "<<sWARNING[2]<<". What must have been Header 1: 0x"<<std::hex<<buf_1[0]<<" 0x"<<buf_1[1]<<" 0x"<<buf_1[2]<<" 0x"<<buf_1[3]<<std::dec<<endl;
+		cerr<<"  WARNING 1 "<<sWARNING[1]<<". What must have been Header 1: 0x"<<std::hex<<buf_1[0]<<" 0x"<<buf_1[1]<<" 0x"<<buf_1[2]<<" 0x"<<buf_1[3]<<std::dec<<endl;
       }
 
       ++cntDDU_Headers;
@@ -672,10 +671,11 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  fCHAMB_ERR[err].erase(-1);
 	  fCHAMB_ERR[err].insert(-2);
 	}
-      if( fCHAMB_WRN[1].find(-1) != fCHAMB_WRN[1].end() ){
-	fCHAMB_WRN[1].erase(-1);
-	fCHAMB_WRN[1].insert(-2);
-      }
+// Two lines below are commented out because payloads never get filled if 0xA header is missing
+//      bCHAMB_PAYLOAD[-2] |= bCHAMB_PAYLOAD[-1];
+//      fCHAMB_PAYLOAD[-1] = 0;
+      bCHAMB_STATUS[-2] |= bCHAMB_STATUS[-1];
+      bCHAMB_STATUS[-1] = 0;
       bCHAMB_ERR[-2] |= bCHAMB_ERR[-1];
       bCHAMB_ERR[-1] = 0;
       bCHAMB_WRN[-2] |= bCHAMB_WRN[-1];
@@ -733,6 +733,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       if( DAV_TMB  ) bCHAMB_PAYLOAD[currentChamber] |= 0x40;
       bCHAMB_PAYLOAD[currentChamber] |= (buf0[0]&0x001f)<<7;
       bCHAMB_PAYLOAD[currentChamber] |=((buf_1[2]>>5)&0x001f);
+	  bCHAMB_STATUS [currentChamber] |= (buf0[0]&0x0040)<<16;
     }
 
 
@@ -1055,10 +1056,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
     // == CFEB B-word found
     if( (buf0[0]&0xF000)==0xB000 && (buf0[1]&0xF000)==0xB000 && (buf0[2]&0xF000)==0xB000 && (buf0[3]&0xF000)==0xB000 ){
-      fWARNING[1] = true;
-      bWARNING   |= 0x2;
-      fCHAMB_WRN[1].insert(currentChamber);
-      bCHAMB_WRN[currentChamber] |= 0x2;
       bCHAMB_PAYLOAD[currentChamber] |= 0x1000;
 
       if( (CFEB_SampleCount%8)==0 ){ cout<<" <"; }
@@ -1135,8 +1132,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  for(int err=0; err<nERRORS; err++)
 	  if( fCHAMB_ERR[err].find(-1) != fCHAMB_ERR[err].end() )
 	  fCHAMB_ERR[err].erase(-1);
-	  if( fCHAMB_WRN[1].find(-1) != fCHAMB_WRN[1].end() )
-	  fCHAMB_WRN[1].erase(-1);
 	  bCHAMB_ERR[-1] = 0;
 	  bCHAMB_WRN[-1] = 0;
 	*/
@@ -1171,10 +1166,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	    fCHAMB_ERR[err].insert(currentChamber);
 	    fCHAMB_ERR[err].erase(-1);
 	  }
-	if( fCHAMB_WRN[1].find(-1) != fCHAMB_WRN[1].end() ){
-	  fCHAMB_WRN[1].insert(currentChamber);
-	  fCHAMB_WRN[1].erase(-1);
-	}
+    bCHAMB_STATUS[currentChamber] = bCHAMB_STATUS[-1];
+    bCHAMB_STATUS[-1] = 0;
 	bCHAMB_ERR[currentChamber] = bCHAMB_ERR[-1];
 	bCHAMB_ERR[-1] = 0;
 	bCHAMB_WRN[currentChamber] = bCHAMB_WRN[-1];
@@ -1273,10 +1266,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  fCHAMB_ERR[err].erase(-1);
 	  fCHAMB_ERR[err].insert(-2);
 	}
-      if( fCHAMB_WRN[1].find(-1) != fCHAMB_WRN[1].end() ){
-	fCHAMB_WRN[1].erase(-1);
-	fCHAMB_WRN[1].insert(-2);
-      }
+      bCHAMB_STATUS[-2] |= bCHAMB_STATUS[-1];
+      bCHAMB_STATUS[-1] = 0;
       bCHAMB_ERR[-2] |= bCHAMB_ERR[-1];
       bCHAMB_ERR[-1] = 0;
       bCHAMB_WRN[-2] |= bCHAMB_WRN[-1];
@@ -1418,10 +1409,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 	  fCHAMB_ERR[err].erase(-1);
 	  fCHAMB_ERR[err].insert(-2);
 	}
-      if( fCHAMB_WRN[1].find(-1) != fCHAMB_WRN[1].end() ){
-	fCHAMB_WRN[1].erase(-1);
-	fCHAMB_WRN[1].insert(-2);
-      }
+      bCHAMB_STATUS[-2] |= bCHAMB_STATUS[-1];
+      bCHAMB_STATUS[-1] = 0;
       bCHAMB_ERR[-2] |= bCHAMB_ERR[-1];
       bCHAMB_ERR[-1] = 0;
       bCHAMB_WRN[-2] |= bCHAMB_WRN[-1];
