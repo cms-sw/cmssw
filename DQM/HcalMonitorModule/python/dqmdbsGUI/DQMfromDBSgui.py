@@ -1292,8 +1292,12 @@ class DQMDBSgui:
                 print "<runDQM> made it through callDQMscript"
 
             # Every 20 minutes or so, check for updates to DBS files
+            # We shouldn't need this check any more -- users can call
+            # DBS on the fly, and set the ignore flags on the files if
+            # they want dqm to finish early
             
-            if (time.time()-mytime)>20*60:
+            #if (time.time()-mytime)>20*60:
+            if (1<0):
                 if (self.debug): print "<runDQM> getting time info"
                 mytime=time.time()
                 self.checkDBS()
@@ -1306,8 +1310,12 @@ class DQMDBSgui:
                 if (newFiles):
                     # Save current progress
                     self.writePickle()
-                    self.dqmButton.configure(state=ACTIVE)
-                    self.runDQM(self)
+                    # Could this have caused the bug of .gif files written
+                    # to directory?
+                    # What happens if move call occurs during dqm running?
+                    # Solution for now:  Don't perform this extra time check:
+                    #self.dqmButton.configure(state=ACTIVE)
+                    #self.runDQM(self)
                 else:
                     self.runningDQM=True
 
@@ -1378,7 +1386,7 @@ class DQMDBSgui:
         else:
             x="DQM_Hcal_R000%i"%i
         success=False
-        time.sleep(2)
+        time.sleep(5)
 
         #print "x = %s"%x
         # make fancier success requirement later -- for now, just check that directory exists
