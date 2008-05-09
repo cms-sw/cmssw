@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2008/05/07 21:11:29 $
- *  $Revision: 1.64 $
+ *  $Date: 2008/05/07 21:44:06 $
+ *  $Revision: 1.65 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -145,8 +145,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
       
       if(!trajectoriesSM.empty()) {
+	const edm::RefToBase<TrajectorySeed> tmpSeedRef = (**rawTrajectory).seedRef();
 	trajectory = trajectoriesSM.front();
-        trajectory.setSeedRef((*rawTrajectory)->seedRef());
+        trajectory.setSeedRef(tmpSeedRef);
+	LogDebug(metname) << "theSeedRef.isNonnull " << trajectory.seedRef().isNonnull();
       } else
 	LogInfo(metname)<<"The trajectory has not been smoothed!"<<endl;
     }
@@ -302,6 +304,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
   for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); it++) {
+    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull()  << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
     combinedTrajs.push_back((*it)->trajectory());
     trackerTrajs.push_back((*it)->trackerTrajectory());
   
@@ -422,8 +425,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
       
       if(!trajectoriesSM.empty()) {
+	const edm::RefToBase<TrajectorySeed> tmpSeedRef = (**rawTrajectory).seedRef();
 	trajectory = trajectoriesSM.front();
-        trajectory.setSeedRef((*rawTrajectory)->seedRef());
+        trajectory.setSeedRef(tmpSeedRef);
       } else
 	LogInfo(metname)<<"The trajectory has not been smoothed!"<<endl;
     }
