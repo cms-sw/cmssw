@@ -90,6 +90,43 @@ class DBSRun:
         #print x
         return x
 
+    def Print2(self):
+        
+        if (self.ignoreRun==0):
+            self.ignoreRun=False
+        elif (self.ignoreRun==1):
+            self.ignoreRun=True
+        if (self.startedDQM==0):
+            self.startedDQM=False
+        if (self.startedDQM==1):
+            self.startedDQM=True
+        if (self.finishedDQM==0):
+            self.finishedDQM=False
+        if (self.finishedDQM==1):
+            self.finishedDQM=True
+
+        run=`self.runnum`
+        ignore=`self.ignoreRun`
+        #print "IGNORE = ",ignore,len(ignore)
+        mylen=`len(self.files)`
+        start=`self.startedDQM`
+        end=`self.finishedDQM`
+        dataset=self.dataset
+        while len(run)<10:
+            run=" "+run
+        while (len(mylen)<20):
+            mylen=" "+mylen
+        while len(ignore)<20:
+            ignore=" "+ignore
+        while len(start)<20:
+            start=" "+start
+        while len(end)<20:
+            end=" "+end
+        #print "*%s*"%mylen
+        temp = "%10s%20s%30s%25s%20s%20s%s"%(run,start,end,ignore,mylen," ",dataset)
+
+        return temp
+    
 def dbsSort(x,y):
     '''
     Sorts DBSRun objects by run number.
@@ -293,6 +330,8 @@ class DQMDBSgui:
             self.root=parent # could conceivably put GUI within another window
 
 
+
+    
         if (debug):
             print "Created main GUI window"
 
@@ -1244,8 +1283,14 @@ class DQMDBSgui:
         self.runningDQM=True
         self.dqmButton.configure(state=DISABLED)
 
-        mycount=0
-        goodcount=0
+        unfinished_run=0
+        finished_run=0
+        all_run=len(foundruns)
+        if (self.debug): print "<runDQM>  Set finished, unfinished run vars"
+        for i in foundruns:
+
+            if self.filesInDBS[i].ignoreRun==False and self.filesInDBS[i].finishedDQM==False:
+                unfinished_run=unfinished_run+1
 
         newFiles=False # stores whether a new file is found in the midst of DQM processing
         for i in foundruns:
@@ -1264,7 +1309,6 @@ class DQMDBSgui:
                 break
             # ignore files if necessary
             if self.filesInDBS[i].ignoreRun:
-                goodcount=goodcount+1
                 continue
             # if DQM started, check to see if DQM has finished
             if self.filesInDBS[i].startedDQM:
@@ -1274,10 +1318,9 @@ class DQMDBSgui:
                     # File was finished previously; don't count it here
                     #continue
                 # DQM finished; no problem
-                mycount=mycount+1
                 if self.filesInDBS[i].finishedDQM:
-                    self.filesInDBS[i].previouslyFinishedDQM=True
-                    goodcount=goodcount+1
+                    self.filesInDBS[i].previouslyFinishedDQM=True # don't use this variable any more
+                    #finished_run=finished_run+1
                     continue
                 # DQM not finished; look to see if directory made for it
                 # (can later check for files within directory?)
@@ -1294,7 +1337,7 @@ class DQMDBSgui:
                 else:
                     # files have finished; need to update status
                     self.filesInDBS[i].finishedDQM=True
-                    goodcount=goodcount+1
+                    finished_run=finished_run+1
                     continue
             else:
                 # nothing started yet; begin DQM
@@ -1314,7 +1357,7 @@ class DQMDBSgui:
                 # Here is where the cmsRun command is sent!
                 if (self.callDQMscript(i)):
                     self.filesInDBS[i].finishedDQM=True
-                    goodcount=goodcount+1
+                    finished_run=finished_run+1
                 
             if (self.debug):
                 print "<runDQM> made it through callDQMscript"
@@ -1348,19 +1391,17 @@ class DQMDBSgui:
         else:
             self.runningDQM=True
 
-        if (self.debug):
-            print "<runDQM> Hi there!"
 
         self.runningDQM=False
         self.writePickle()
 
-        if (goodcount==len(foundruns)):
+        if (finished_run==unfinished_run): # all unfinished_runs are now finished
             self.dqmProgress.configure(text="Successfully finished running DQM",
                                        bg="black")
         else:
-            self.dqmProgress.configure(text="Ran DQM on %i/%i runs"%(goodcount,len(foundruns)))
+            self.dqmProgress.configure(text="Ran DQM on %i/%i runs"%(finished_run, unfinished_run))
         self.dqmStatus.configure(text="%s"%time.strftime("%d %b %Y at %H:%M:%S",time.localtime()))
-        self.commentLabel.configure(text="Finished running DQM:\n%i out of %i runs successfully processed"%(goodcount,len(foundruns)))
+        self.commentLabel.configure(text="Finished running DQM:\n%i out of %i runs successfully processed"%(finished_run,unfinished_run))
         time.sleep(5)
         self.tempSCP() # Call scp copying routine once dqm has finished
         self.dqmButton.configure(state=ACTIVE)
@@ -1691,20 +1732,42 @@ class DQMDBSgui:
             self.changevaluewin=Toplevel()
         except:
             self.changevaluewin=Toplevel()
-        self.changevaluewin.geometry('+800+20')
+
+        maingeom=self.root.winfo_geometry()
+        maingeomx=string.split(maingeom,"+")[1]
+        maingeomy=string.split(maingeom,"+")[2]
+        try:
+            maingeomx=string.atoi(maingeomx)
+            maingeomy=string.atoi(maingeomy)
+            # new window is ~380 pixels high, place it directly below main window (240 pix high),
+            # if room exists
+            if (self.root.winfo_screenheight()-(maingeomy+240)>350):
+                self.changevaluewin.geometry('+%i+%i'%(maingeomx,maingeomy+240))
+            elif (maingeomy>380):
+                self.changevaluewin.geometry('+%i+%i'%(maingeomx,maingeomy-380))
+        except:
+            self.changevaluewin.geometry('+500+320')
+
+
         self.changevaluewin.title("Change status of files")
         
         # Add list of runs as a list box with attached scrollbar
 
-        self.changevaluewin.rowconfigure(0,weight=4)
+        self.changevaluewin.rowconfigure(0,weight=1)
+        self.changevaluewin.columnconfigure(0,weight=1)
         scrollwin=Frame(self.changevaluewin)
-        scrollwin.grid(row=0,column=0,sticky=NS)
+        scrollwin.grid(row=0,column=0,sticky=NSEW)
         scrollwin.rowconfigure(1,weight=1)
+        scrollwin.columnconfigure(0,weight=1)
         myrow=0
+        temp = "%s%s%s%s%s%s"%(string.ljust(" Run #",20),
+                               string.ljust("Started DQM?",20),string.ljust("Finished DQM?",20),
+                               string.ljust("IgnoreRun?",20),string.ljust("# of files",20),
+                               string.ljust("Dataset",30))
         Label(scrollwin,
-              text="Be sure to check Status menu after your changes are made").grid(row=myrow,column=0)
+              text=temp).grid(row=myrow,column=0)
         myrow=myrow+1
-        lb=Listbox(scrollwin,
+        self.lb=Listbox(scrollwin,
                    selectmode = MULTIPLE)
         # Get list of runs
         self.listboxruns=self.filesInDBS.keys()
@@ -1712,12 +1775,20 @@ class DQMDBSgui:
         self.listboxruns.reverse()
 
         for i in self.listboxruns:
-            lb.insert(END,i)
+            self.lb.insert(END,self.filesInDBS[i].Print2())
             
-        scroll=Scrollbar(scrollwin,command=lb.yview)
-        lb.configure(yscrollcommand=scroll.set)
-        lb.grid(row=myrow,column=0,sticky=NSEW)
+        scroll=Scrollbar(scrollwin,command=self.lb.yview)
+        
+        self.lb.configure(yscrollcommand=scroll.set)
+
+        xscroll=Scrollbar(scrollwin,command=self.lb.xview,
+                          orient=HORIZONTAL)
+        self.lb.configure(xscrollcommand=xscroll.set)
+        
+        self.lb.grid(row=myrow,column=0,sticky=NSEW)
         scroll.grid(row=myrow,column=1,sticky=NS)
+        myrow=myrow+1
+        xscroll.grid(row=myrow,column=0,sticky=EW)
 
         # Add buttons for changing DQM values
         myrow=myrow+1
@@ -1726,43 +1797,86 @@ class DQMDBSgui:
         bFrame.grid(row=1,column=0)
         igY=Button(bFrame,
                    text="Set\n'Ignore Run'\nTrue",
-                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                   command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
                                                                      "ignoreRun",True),
                    width=14,height=3)
         igN=Button(bFrame,
                    text="Set\n'Ignore Run'\nFalse",
-                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                   command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
                                                                      "ignoreRun",False),
                    width=14,height=3)
         stY=Button(bFrame,
                    text="Set\n'Started DQM'\nTrue",
-                    command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                    command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
                                                                       "startedDQM",True),
                    width=14,height=3)
         stN=Button(bFrame,
                    text="Set\n'Started DQM'\nFalse",
-                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                   command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
                                                                      "startedDQM",False),
                    width=14,height=3)
         fiY=Button(bFrame,
                    text="Set\n'Finished DQM'\nTrue",
-                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                   command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
                                                                      "finishedDQM",True),
                    width=14,height=3)
         fiN=Button(bFrame,
                    text="Set\n'Finished DQM'\nFalse",
-                   command=lambda x=self:x.commandChangeFileSettings(lb.curselection(),
+                   command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
                                                                      "finishedDQM",False),
                    width=14,height=3)
+        selAll=Button(bFrame,
+                      text="Select\nall runs",
+                      command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
+                                                                        "selectall",True),
+                      width=14,height=3)
+        deselAll=Button(bFrame,
+                        text="Deselect\nall runs",
+                        command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
+                                                                          "deselectall",False),
+                        width=14,height=3)
+        dbsSearch=Button(bFrame,
+                         text="Search\nDBS for new\nruns",
+                         bg=self.bg,
+                         fg=self.fg,
+                         command=lambda x=self:x.commandChangeFileSettings(self.lb.curselection(),
+                                                                           "searchDBS",False))
 
+        quitButton=Button(bFrame,
+                          text="Close\nwindow",
+                          bg=self.bg_alt,
+                          fg=self.bg,
+                          command=lambda x=self:x.changevaluewin.destroy())
         # Grid buttons
-        igY.grid(row=0,column=0)
+        igY.grid(row=0,column=3)
         stY.grid(row=0,column=1)
         fiY.grid(row=0,column=2)
-        igN.grid(row=1,column=0)
+        igN.grid(row=1,column=3)
         stN.grid(row=1,column=1)
         fiN.grid(row=1,column=2)
+        selAll.grid(row=0,column=4)
+        deselAll.grid(row=1,column=4)
+        dbsSearch.grid(row=0,column=0,rowspan=2,sticky=NS)
+        quitButton.grid(row=0,column=5,rowspan=2,sticky=NS)
 
+        return
+
+
+    def updateListbox(self):
+        self.lb.delete(0,END)
+        temp = "%s%s%s%s%s%s"%(string.ljust(" Run #",20),
+                               string.ljust("Started DQM?",20),string.ljust("Finished DQM?",20),
+                               string.ljust("IgnoreRun?",20),string.ljust("# of files",20),
+                               string.ljust("Dataset",80))
+        #self.lb.insert(END,temp)
+        # Get list of runs
+        self.listboxruns=self.filesInDBS.keys()
+        self.listboxruns.sort()
+        self.listboxruns.reverse()
+
+        for i in self.listboxruns:
+
+            self.lb.insert(END,self.filesInDBS[i].Print2())
         return
         
     def commandChangeFileSettings(self,selected,var,value=True):
@@ -1775,9 +1889,19 @@ class DQMDBSgui:
         Allowed values for var:
         "ignoreRun", "startedDQM", "finishedDQM"
         '''
+
+
+
+        if (var=="selectall"):
+            for i in range(0,self.lb.size()):
+                self.lb.selection_set(i)
+            return
+        elif (var=="deselectall"):
+            for i in range(0,self.lb.size()):
+                self.lb.selection_clear(i)
+            return
         
         for i in selected:
-
             run=self.listboxruns[int(i)] # get run number from index
 
             if (var=="ignoreRun"):
@@ -1786,7 +1910,11 @@ class DQMDBSgui:
                 self.filesInDBS[run].startedDQM=value
             elif (var=="finishedDQM"):
                 self.filesInDBS[run].finishedDQM=value
+            
+        if (var=="searchDBS"):
+            self.checkDBS()
         self.writePickle() # save to pickle file?  I think this is the sensible option (user can always change back)
+        self.updateListbox()
         return
 
 
@@ -1799,6 +1927,8 @@ class DQMDBSgui:
         else:
             self.scpAutoButton.configure(text="scp copying enabled")
             self.copyLoc.configure(state=NORMAL)
+
+      
         return
 
     def toggleAutoRunShift(self,event):
