@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/05/01 16:11:08 $
-//   $Revision: 1.22 $
+//   $Date: 2008/05/08 14:58:03 $
+//   $Revision: 1.23 $
 //
 //   Modifications:
 //
@@ -1742,6 +1742,7 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   // Leave out ME1/A and ME4/2 for now.
   for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
+    hAlctCsc[idh]->SetMinimum(0.0);
     pad[page]->cd(idh+1);  hAlctCsc[idh]->Draw();
   }
   page++;  c1->Update();
@@ -1791,11 +1792,12 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   pad[page]->Divide(1,3);
   pad[page]->cd(1);  hClctPerEvent->Draw();
 
+  edm::LogInfo("CSCTriggerPrimitivesReader") << "\n";
   int nbins = hClctPerChamber->GetNbinsX();
   for (int ibin = 1; ibin <= nbins; ibin++) {
     double f_bin = hClctPerChamber->GetBinContent(ibin);
-    edm::LogInfo(" ")
-      << "bin = " << ibin << " content: " << f_bin << endl;
+    edm::LogInfo("CSCTriggerPrimitivesReader")
+      << "  # CLCT/chamber: " << ibin-1 << "; events: " << f_bin << endl;
   }
 
   pad[page]->cd(2);  hClctPerChamber->Draw();
@@ -1817,6 +1819,7 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   // Leave out ME1/A and ME4/2 for now.
   for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
+    hClctCsc[idh]->SetMinimum(0.0);
     pad[page]->cd(idh+1);  hClctCsc[idh]->Draw();
   }
   page++;  c1->Update();
@@ -1974,6 +1977,7 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   // Leave out ME1/A and ME4/2 for now.
   for (int idh = 0; idh < CSC_TYPES-1; idh++) {
     if (idh == 3) continue;
+    hLctTMBCsc[idh]->SetMinimum(0.0);
     pad[page]->cd(idh+1);  hLctTMBCsc[idh]->Draw();
   }
   page++;  c1->Update();
