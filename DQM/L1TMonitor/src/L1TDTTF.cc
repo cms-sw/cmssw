@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.20 $
+ * $Date: 2008/04/30 08:44:21 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.13  2008/04/30 08:44:21  lorenzo
+ * new dttf source, not based on gmt record
+ *
  * Revision 1.20  2008/03/20 19:38:25  berryhil
  *
  *
@@ -30,6 +33,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.13  2008/04/30 08:44:21  lorenzo
+ * new dttf source, not based on gmt record
+ *
  * Revision 1.20  2008/03/20 19:38:25  berryhil
  *
  *
@@ -165,7 +171,7 @@ void L1TDTTF::beginJob(const EventSetup& c)
     dbe->setCurrentFolder(l1tinfofolder);
     
     //  error summary segments
-    string suberrfolder = l1tinfofolder + "/errorSummarySegments" ;
+    string suberrfolder = l1tinfofolder + "/reportSummaryContents" ;
     dbe->setCurrentFolder(suberrfolder);
     dttpgphmap = dbe->book2D("DT_TPG_phi_map","Map of triggers per station",20,1,21,12,0,12);
     setMapPhLabel(dttpgphmap);

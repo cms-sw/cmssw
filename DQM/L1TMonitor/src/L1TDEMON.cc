@@ -47,7 +47,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
   dbe = edm::Service<DQMStore>().operator->();
   if(dbe) {
     dbe->setCurrentFolder(histFolder_);
-    dbe->rmdir(histFolder_);
+    // dbe->rmdir(histFolder_);
   }
 
   if(dbe) {
