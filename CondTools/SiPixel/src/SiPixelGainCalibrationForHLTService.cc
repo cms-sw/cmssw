@@ -43,14 +43,32 @@ float SiPixelGainCalibrationForHLTService::getGain( const uint32_t& detID,const 
 bool SiPixelGainCalibrationForHLTService::isDead( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   this->getPedestalByColumn(detID, col, row, isDead); //pedestal stores dead column value as well
+   try  
+   {
+      this->getPedestalByColumn(detID, col, row, isDead); //pedestal stores dead column value as well
+   }
+   catch (cms::Exception& e) 
+   {
+      // Do not stop processing if you check if a nonexistant pixel is dead
+      edm::LogInfo("SiPixelGainCalibrationForHLTService") << "Attempting to check if nonexistant pixel is dead.  Exception message: " << e.what();
+      isDead = false; 
+   }
    return isDead;
 }
    
 bool SiPixelGainCalibrationForHLTService::isDeadColumn( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   this->getGainByColumn(detID, col, row, isDead);
+   try  
+   {
+      this->getGainByColumn(detID, col, row, isDead);
+   }
+   catch (cms::Exception& e) 
+   {
+      // Do not stop processing if you check if a nonexistant pixel is dead
+      edm::LogInfo("SiPixelGainCalibrationForHLTService") << "Attempting to check if nonexistant pixel is dead.  Exception message: " << e.what();
+      isDead = false; 
+   }
    return isDead;
 }
 

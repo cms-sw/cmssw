@@ -43,13 +43,22 @@ float SiPixelGainCalibrationService::getGain( const uint32_t& detID,const int& c
 bool SiPixelGainCalibrationService::isDead( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;
-   this->getPedestalByPixel(detID, col, row, isDead); 
+   try  
+   {
+      this->getPedestalByPixel(detID, col, row, isDead); 
+   }
+   catch (cms::Exception& e) 
+   {
+      // Do not stop processing if you check if a nonexistant pixel is dead
+      edm::LogInfo("SiPixelGainCalibrationService") << "Attempting to check if nonexistant pixel is dead.  Exception message: " << e.what();
+      isDead = false; 
+   }
    return isDead;
 }
    
 bool SiPixelGainCalibrationService::isDeadColumn( const uint32_t& detID,const int& col, const int& row)
 {
-   throw cms::Exception("SiPixelGainCalibrationService") << "You attempted to check if an entire column was dead with a payload that stores information at pixel granularity.  Please check by pixel. THANKS!";
+   edm::LogError("SiPixelGainCalibrationService") << "You attempted to check if an entire column was dead with a payload that stores information at pixel granularity.  Please check by pixel. THANKS!";
    return false;
 }
 
