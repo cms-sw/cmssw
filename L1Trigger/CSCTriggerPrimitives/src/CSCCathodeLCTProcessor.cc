@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/03/03 14:33:01 $
-//   $Revision: 1.24 $
+//   $Date: 2008/04/29 10:32:32 $
+//   $Revision: 1.25 $
 //
 //   Modifications: 
 //
@@ -1943,6 +1943,9 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs2007(const int halfstri
 	  }
 	}
       }
+    }
+    else {
+      start_bx = first_bx + 1;
     }
   }
 
