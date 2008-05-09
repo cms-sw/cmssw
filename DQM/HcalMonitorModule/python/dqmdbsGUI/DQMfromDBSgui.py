@@ -111,7 +111,7 @@ class dbsAccessor:
         dbsAccessor tries to read its values from a cPickle file.
         If the file does not exist, values will be initialized as defaults.
         IMPORTANT -- this class uses Tkinter StringVar, etc. variables,
-        so this class won't properly initialize unless a Tk instance has
+        so this class will not properly initialize unless a Tk instance has
         been created first.
         '''
         
@@ -1178,7 +1178,11 @@ class DQMDBSgui:
         '''
         Start new thread for running DQM
         '''
-        thread.start_new(self.runDQM,(1,2))
+        if self.runningDQM:
+            self.commentLabel.configure(text="Sorry, DQM is already running!")
+            self.root.update()
+        else:
+            thread.start_new(self.runDQM,(1,2))
         return
 
     def runDQM(self,dummy1=None,dummy2=None):
@@ -1801,7 +1805,7 @@ class DQMDBSgui:
         Jeff
         '''
 
-        
+
         if not (self.enableSCP.get()):
             self.commentLabel.configure(text="scp copying is not currently enabled.\n(Check button in the middle of the menu bar)")
             self.root.update()
