@@ -1246,7 +1246,7 @@ class DQMDBSgui:
             self.root.update()
             # Allow user to break loop via setting the runningDQM variable
             # (change to BooleanVar?)
-            is (self.debug):
+            if (self.debug):
                 print "<runDQM> runningDQM bool = ",self.runningDQM
             if (self.runningDQM==False):
                 if self.debug:  print "<runDQM> runningDQM bool = False"
