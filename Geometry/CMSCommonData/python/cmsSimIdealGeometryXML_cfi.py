@@ -247,8 +247,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/EcalSimData/data/EcalProdCuts.xml', 
         'Geometry/TrackerSimData/data/trackerProdCuts.xml', 
         'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml', 
-        'Geometry/MuonSimData/data/muonProdCuts.xml', 
-        'Geometry/ForwardSimData/data/TotemProdCuts.xml'),
+        'Geometry/MuonSimData/data/muonProdCuts.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
 
