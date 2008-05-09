@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/04/11 20:38:35 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/05/09 20:20:38 $
+ *  $Revision: 1.11 $
  *
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -528,7 +528,8 @@ GlobalMuonTrackMatcher::match_d(const TrajectoryStateOnSurface& sta,
 }
 
 double
-GlobalMuonTrackMatcher::match_dist(const TrajectoryStateOnSurface& sta, constTrajectoryStateOnSurface& tk) const {
+GlobalMuonTrackMatcher::match_dist(const TrajectoryStateOnSurface& sta, 
+				   const TrajectoryStateOnSurface& tk) const {
   
   const string category = "GlobalMuonTrackMatcher";
   
