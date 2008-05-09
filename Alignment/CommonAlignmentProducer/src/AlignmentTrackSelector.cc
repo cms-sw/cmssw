@@ -9,9 +9,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -126,8 +128,6 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
     }
   }
   
-  // edm::LogDebug("AlignmentTrackSelector") << "tracks all,kept: " << tracks.size() << "," << result.size();
-  
   return result;
 }
 
@@ -176,7 +176,8 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
       || minHitsinFPIX_ || minHitsinBPIX_ || nHitMin2D_ || chargeCheck_
-      || applyIsolation_) { // any detailed hit cut is active, so have to check
+      || applyIsolation_ || (seedOnlyFromAbove_ == 1 || seedOnlyFromAbove_ == 2)) {
+    // any detailed hit cut is active, so have to check
     
     int nhitinTIB = 0, nhitinTOB = 0, nhitinTID = 0;
     int nhitinTEC = 0, nhitinBPIX = 0, nhitinFPIX = 0;
@@ -184,6 +185,11 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     unsigned int thishit = 0;
 
     for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); ++iHit) {
+
+      if (this->isOkCharge((*iHit).get()) != this->isOkChargeOld((*iHit).get())) {
+        edm::LogError("Mismatch") << "detailedHitsCheck" << "New " << this->isOkCharge((*iHit).get()) 
+                                  << "\nOld " << this->isOkChargeOld((*iHit).get());
+      }
 
       thishit++;
       int type = (*iHit)->geographicalId().subdetId(); 
@@ -258,7 +264,66 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 
 //-----------------------------------------------------------------------------
 
-bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* therechit) const
+bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
+{
+  if (!hit) return false;
+
+  // check det and subdet
+  const DetId id(hit->geographicalId());
+  if (id.det() != DetId::Tracker) {
+    edm::LogWarning("DetectorMismatch") << "@SUB=isOkCharge" << "Hit not in tracker!";
+    return true;
+  }
+  if (id.subdetId() == kFPIX || id.subdetId() == kBPIX) {
+    return true; // might add some requirement...
+  }
+
+  // We are in SiStrip now, so test normal hit:
+  const SiStripRecHit2D *stripHit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
+  if (stripHit2D) {
+    return this->isOkChargeStripHit(stripHit2D);
+  }
+  // or matched (should not occur anymore due to hit splitting since 20X):
+  const SiStripMatchedRecHit2D *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+  if (matchedHit) {  
+    return (this->isOkChargeStripHit(matchedHit->monoHit())
+            && this->isOkChargeStripHit(matchedHit->stereoHit()));
+  }
+  // or projected (should not occur anymore due to hit splitting since 20X):
+  const ProjectedSiStripRecHit2D *projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
+  if (projHit) {
+    return this->isOkChargeStripHit(&projHit->originalHit());
+  }
+
+  // and now? SiTrackerMultiRecHit? Not here I guess!
+  // Should we throw instead?
+  edm::LogError("AlignmentTrackSelector") << "@SUB=isOkCharge"
+                                          << "Unknown tracker hit not in pixel " << id.subdetId()
+                                          << " " << dynamic_cast<const SiTrackerMultiRecHit*>(hit)
+                                          << " " << dynamic_cast<const BaseSiTrackerRecHit2DLocalPos*>(hit); 
+  
+  return true;
+} 
+
+//-----------------------------------------------------------------------------
+
+bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D *siStripRecHit2D) const
+{
+  double charge = 0.;
+
+  SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D->cluster());
+  const std::vector<uint16_t> &amplitudes = cluster->amplitudes();
+
+  for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
+    charge += amplitudes[ia];
+  }
+
+  return (charge >= minHitChargeStrip_);
+}
+
+//-----------------------------------------------------------------------------
+
+bool AlignmentTrackSelector::isOkChargeOld(const TrackingRecHit* therechit) const
 {
   // const TrackingRecHit* therechit = hit.get();
   float charge1 = 0;
