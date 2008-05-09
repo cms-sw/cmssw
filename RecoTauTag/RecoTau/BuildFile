@@ -3,6 +3,8 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/VertexReco>
+<use name=DataFormats/ParticleFlowReco>
+<use name=DataFormats/ParticleFlowCandidate>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -17,10 +19,7 @@
 <use name=TrackingTools/IPTools>
 <use name=RecoJets/JetAlgorithms>
 <use name=RecoTauTag/TauTagTools>
-
-<use name=DataFormats/MuonReco>
 <use name=RecoMuon/MuonIdentification>
-
 <flags EDM_PLUGIN=1>
 <export>
   <use name=SimDataFormats/Vertex>
