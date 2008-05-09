@@ -52,7 +52,7 @@ void SiStripClusterizerAlgorithm::run(const edm::DetSetVector<SiStripDigi>& inpu
     edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input.begin();
     for (; DSViter!=input.end();DSViter++) {
       ++number_detunits;
-#ifdef DEBUG_SiStripClusterizerAlgorithm_
+#ifdef DEBUG_SiStripClusterizer_
       LogDebug("SiStripClusterizer")  << "[SiStripClusterizerAlgorithm::run] DetID " << DSViter->id;
 #endif
       if (DSViter->empty()) continue;
