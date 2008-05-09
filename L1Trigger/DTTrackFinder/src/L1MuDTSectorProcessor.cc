@@ -5,8 +5,8 @@
 //   Description: Sector Processor
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2008/02/18 17:38:04 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -59,7 +59,7 @@ L1MuDTSectorProcessor::L1MuDTSectorProcessor(const L1MuDTTrackFinder& tf,
       m_DataBuffer(new L1MuDTDataBuffer(*this)),
       m_EU(new L1MuDTExtrapolationUnit(*this)),
       m_TA(new L1MuDTTrackAssembler(*this)), 
-      m_AUs(), m_TrackCands() {
+      m_AUs(), m_TrackCands(), m_TracKCands() {
 
   // 2 assignment units
   m_AUs.reserve(2);
@@ -70,6 +70,10 @@ L1MuDTSectorProcessor::L1MuDTSectorProcessor(const L1MuDTTrackFinder& tf,
   m_TrackCands.reserve(2);
   m_TrackCands.push_back(new L1MuDTTrack(m_spid) );
   m_TrackCands.push_back(new L1MuDTTrack(m_spid) );
+
+  m_TracKCands.reserve(2);
+  m_TracKCands.push_back(new L1MuDTTrack(m_spid) );
+  m_TracKCands.push_back(new L1MuDTTrack(m_spid) );
   
 }
 
@@ -88,6 +92,8 @@ L1MuDTSectorProcessor::~L1MuDTSectorProcessor() {
   delete m_AUs[1];
   delete m_TrackCands[0];
   delete m_TrackCands[1];
+  delete m_TracKCands[0];
+  delete m_TracKCands[1];
 
 }
 
@@ -151,6 +157,8 @@ void L1MuDTSectorProcessor::reset() {
   if ( m_AUs[1] ) m_AUs[1]->reset();
   if ( m_TrackCands[0] ) m_TrackCands[0]->reset();
   if ( m_TrackCands[1] ) m_TrackCands[1]->reset();
+  if ( m_TracKCands[0] ) m_TracKCands[0]->reset();
+  if ( m_TracKCands[1] ) m_TracKCands[1]->reset();
 
 } 
 
