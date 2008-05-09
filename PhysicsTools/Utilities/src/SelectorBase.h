@@ -19,7 +19,7 @@ namespace reco {
       /// destructor
       virtual ~SelectorBase() { }
       /// return true if the Refle object is selected
-      virtual bool operator()( const ROOT::Reflex::Object & c ) const = 0;
+      virtual bool operator()(const ROOT::Reflex::Object & c) const = 0;
     };
   }
 }
