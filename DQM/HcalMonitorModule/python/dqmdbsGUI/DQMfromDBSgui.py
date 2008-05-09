@@ -1323,7 +1323,10 @@ class DQMDBSgui:
             self.dqmProgress.configure(text="Ran DQM on %i/%i runs"%(goodcount,len(x)))
         self.dqmStatus.configure(text="%s"%time.strftime("%d %b %Y at %H:%M:%S",time.localtime()))
         self.commentLabel.configure(text="Finished running DQM:\n%i out of %i runs successfully processed"%(goodcount,len(x)))
+        time.sleep(5)
+        self.tempSCP() # Call scp copying routine once dqm has finished
         self.dqmButton.configure(state=ACTIVE)
+        
         self.root.update()
         return
                 
@@ -1382,7 +1385,8 @@ class DQMDBSgui:
         if (self.debug):
             print "%s exists? %i"%(os.path.join(self.basedir,x),os.path.isdir(os.path.join(self.basedir,x)))
 
-        if os.path.isdir(os.path.join(self.basedir,x)):
+        outputdir=os.path.join(self.basedir,x)
+        if os.path.isdir(outputdir):
             success=True
             if (self.debug):
                 print "<callDQMScript> success=True!"
@@ -1415,10 +1419,11 @@ class DQMDBSgui:
                 #print "Now moving directory"
                 tempdir=os.path.join(self.finalDir.get(),x)
                 # Get rid of old version of directory, if it exists
+
                 if os.path.isdir(tempdir):
                     os.system("rm -rf %s"%tempdir)
                 # Now move results to final directory
-                os.system("mv %s %s"%(x,self.finalDir.get())) 
+                os.system("mv %s %s"%(outputdir,self.finalDir.get())) 
                 self.commentLabel.configure(text = "moved folder %s\n to directory %s"%(x,self.finalDir.get()))
                 self.root.update()
                 time.sleep(1)
@@ -1788,6 +1793,7 @@ class DQMDBSgui:
         Jeff
         '''
 
+        
         if not (self.enableSCP.get()):
             self.commentLabel.configure(text="scp copying is not currently enabled.\n(Check button in the middle of the menu bar)")
             self.root.update()
@@ -1797,6 +1803,9 @@ class DQMDBSgui:
             self.commentLabel.configure(text="ERROR -- directory '%s' DOES NOT EXIST!!\nEdit the Final DQM Save Directory in DQM options!"%self.finalDir.get())
             return
 
+        self.commentLabel.configure(text="Trying to scp results to cmshcal01")
+        self.root.update()
+        
         # make directory for files/dirs that have already been copied.
         if not os.path.isdir(os.path.join(self.finalDir.get(),"copied_to_hcaldqm")):
             os.mkdir(os.path.join(self.finalDir.get(),"copied_to_hcaldqm"))
@@ -1814,23 +1823,33 @@ class DQMDBSgui:
             text1=text1+"%s "%os.path.join(self.finalDir.get(),i)
         text=text+" hcalusc55@cmshcal01:/hcaldqm/global_auto\n\n"
         text1=text1+" hcalusc55@cmshcal01:/hcaldqm/global_auto\n\n"
+
         
-        #if at cms:
+        #if at cms (specifically, on lxpus):
         #if os.getenv("USER")=="cchcal":
         compname=os.uname()[1]
+
         if string.find(compname,"lxplus")>-1 and string.find(compname,".cern.ch")>-1:
             zzz=os.system(text1)
             print text1
             #print zzz
-            return
+            self.commentLabel.configure(text = "FINISHED!\nPerformed scp of files to cmshcal01!")
+            self.root.update()
         
-        else:
-            for i in movelist:
-                cmd="mv %s %s\n"%(os.path.join(self.finalDir.get(),i),
-                                  os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
-            
-                #os.system(cmd)
+        else:  # not at cern
             helpfunctions.Helpwin(text,usetext=1,title="Cut and paste this command into your lxplus window now!" )
+            self.commentLabel.configure(text="Cannot auto-scp to cmshcal from your machine!\nFollow instructions in the help window!")
+            self.root.update()
+            
+        # move files to the copied_to_hcaldqm subdirectory (so they won't be scp'd again)
+        for i in movelist:
+            cmd="mv %s %s\n"%(os.path.join(self.finalDir.get(),i),
+                              os.path.join(self.finalDir.get(),"copied_to_hcaldqm",i))
+            os.system(cmd)
+
+
+
+
         return
 
 ############################################
