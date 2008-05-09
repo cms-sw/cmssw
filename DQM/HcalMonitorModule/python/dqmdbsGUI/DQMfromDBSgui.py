@@ -1329,7 +1329,7 @@ class DQMDBSgui:
                 if (self.debug): print "<runDQM> getting time info"
                 mytime=time.time()
                 self.checkDBS()
-                if len(self.filesInDBS.keys())<>foundruns:
+                if len(self.filesInDBS.keys())<>len(foundruns):
                     self.commentLabel.configure(text="DBS files have been added since last call to DQM.\n  Restarting DQM.")
                     self.root.update()
                     newfiles=True
