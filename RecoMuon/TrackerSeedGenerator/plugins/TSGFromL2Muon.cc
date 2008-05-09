@@ -146,7 +146,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     //clean them internatly
     if(theSeedCleaner){
        theSeedCleaner->clean(muRef,region,tkSeeds);
-       edm::LogWarning("TSGFromL2Muon") << tkSeeds.size() << " seeds for this L2 afther cleaning.";
+       LogDebug("TSGFromL2Muon") << tkSeeds.size() << " seeds for this L2 afther cleaning.";
     }
     if(h_nGoodSeedPerTrack) h_nGoodSeedPerTrack->Fill(tkSeeds.size());
 
