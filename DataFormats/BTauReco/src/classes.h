@@ -34,7 +34,6 @@
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
-#include "DataFormats/BTauReco/interface/HLTOpenBJet.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
@@ -215,9 +214,5 @@ namespace {
     edm::reftobase::RefHolder<reco::TauMassTagInfoRef>                          rbh_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;
     edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoRef>                 rbh_tp;
-
-    // HLTOpen stuff
-    trigger::HLTOpenBJet                hltopenbjet;
-    edm::Wrapper<trigger::HLTOpenBJet>  w_hltopenbjet;
   }
 }

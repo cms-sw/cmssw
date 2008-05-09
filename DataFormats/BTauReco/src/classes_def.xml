@@ -171,9 +171,4 @@
   <class name="edm::reftobase::RefHolder<reco::TauMassTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoRef>" />
-
-  <!-- HLTOpen stuff -->
-  <class name="trigger::HLTOpenBJet" />
-  <class name="edm::Wrapper<trigger::HLTOpenBJet>" />
-          
 </lcgdict>
