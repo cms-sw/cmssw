@@ -10,7 +10,7 @@
 #include "TStyle.h"
 #include "TCut.h"
 
-void comparisonScript(){
+void comparisonScriptCSA08(){
 
 	
 	gStyle->SetOptStat("emr");
