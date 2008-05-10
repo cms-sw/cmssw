@@ -16,7 +16,9 @@ class LASProfileJudge {
 
  public:
   LASProfileJudge();
+  bool IsSignalIn( const LASModuleProfile&, int );
   bool JudgeProfile( const LASModuleProfile&, int );
+  void EnableZeroFilter( bool );
 
  private:
   double GetNegativity( int );
@@ -24,6 +26,7 @@ class LASProfileJudge {
   bool IsNegativePeaksInProfile( int );
   LASModuleProfile profile;
   std::pair<unsigned int, double> thePeak;
+  bool isZeroFilter;
 
 };
 

@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/04/23 15:17:24 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/05/01 08:12:26 $
+ *  $Revision: 1.14 $
  *  \author Maarten Thomas
  */
 
@@ -29,9 +29,14 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 // Alignable Tracker needed to propagate the alignment corrections calculated 
 // for the disks down to the lowest levels
@@ -42,6 +47,12 @@
 #include "Alignment/LaserAlignment/src/LASGlobalLoop.h"
 #include "Alignment/LaserAlignment/src/LASModuleProfile.h"
 #include "Alignment/LaserAlignment/src/LASProfileJudge.h"
+#include "Alignment/LaserAlignment/src/LASBarrelAlgorithm.h"
+#include "Alignment/LaserAlignment/src/LASEndcapAlgorithm.h"
+#include "Alignment/LaserAlignment/src/LASPeakFinder.h"
+#include "Alignment/LaserAlignment/src/LASCoordinateSet.h"
+#include "Alignment/LaserAlignment/src/LASGeometryUpdater.h"
+
 
 // ROOT
 #include "TH1.h"
@@ -50,7 +61,7 @@ class TFile;
 class TH1D;
 
 #include <iostream>
-
+#include <cmath>
 
 ///
 ///
@@ -121,10 +132,19 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
  private:
 
+  // hard coded detIds
   void fillDetectorId( void );
+
+  // convert an angle in the [-pi,pi] range to the [0,2*pi] range
+  double ConvertAngle( double );
+
+  // fills a LASGlobalData<LASCoordinateSet> with nominal module positions
+  void CalculateNominalCoordinates( void );
+
 
   int theEvents;
   bool theDoPedestalSubtraction;
+  bool enableJudgeZeroFilter;
   bool theStoreToDB;
   bool theSaveHistograms;
   int theDebugLevel;
@@ -135,6 +155,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   bool theAlignNegTEC;
   bool theAlignTEC2TEC;
   bool theUseBrunosAlgorithm;
+  bool theUseNewAlgorithms;
   bool theIsGoodFit;
   double theSearchPhiTIB;
   double theSearchPhiTOB;
@@ -185,6 +206,9 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   // these are needed for the fitting procedure (done by ROOT)
   LASGlobalData<TH1D*> summedHistograms;
 
+  // container for nominal module positions
+  LASGlobalData<LASCoordinateSet> nominalCoordinates;
+
   // a class for easy looping over LASGlobalData objects,
   // avoids nested for-statements
   LASGlobalLoop moduleLoop;
@@ -230,7 +254,11 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
   /// use the BS frame in the alignment algorithm (i.e. BS at z = 0)
   bool theUseBSFrame;
-    
+  // the "barrel" algorithm
+  LASBarrelAlgorithm barrelAlgorithm;
+  // the new endcap algorithm
+  LASEndcapAlgorithm endcapAlgorithm;
+
   // the map to store digis for cluster creation
   std::map<DetId, std::vector<SiStripRawDigi> > theDigiStore;
   // map to store temporary the LASBeamProfileFits

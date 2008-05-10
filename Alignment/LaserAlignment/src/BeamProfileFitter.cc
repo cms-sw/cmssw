@@ -1,7 +1,7 @@
 /** \file BeamProfileFitter.cc
 *
-	*  $Date: 2008/03/03 09:43:32 $
-	*  $Revision: 1.15 $
+	*  $Date: 2008/03/04 07:52:33 $
+	*  $Revision: 1.16 $
 	*  \author Maarten Thomas
 */
 
@@ -109,7 +109,8 @@ std::vector<LASBeamProfileFit> BeamProfileFitter::doFit(
 		
 		// find peaks and fit the beam profile
 		std::vector<double> thePeakPosition = findPeakGaus(theCloneHist,theDisc, theRing);
-		
+
+
 		// finally if the fit was ok, calculate the fitted beam coordinates in the CMS detector
 		if ( thePeakPosition.at(0) > 0.0 && thePeakPosition.at(1) > 0.0 &&
 		     thePeakPosition.at(2) > 0.0 && thePeakPosition.at(3) > 0.0) 
@@ -233,7 +234,8 @@ std::vector<LASBeamProfileFit> BeamProfileFitter::doFit(
 		      }
 		    else
 		      {
-			edm::LogWarning("BeamProfileFitter::Fit ERROR") << " Error! Result of the fit is not ok! Mean is not a value between 0 and 512 ... ";
+			edm::LogWarning("BeamProfileFitter::Fit ERROR") << " Error! Result of the fit for detId: " << theDetUnitId.rawId()
+									<< " is not ok! Mean: " << theMean << "  is not a value between 0 and 512 ... ";
 
 			// return an empty LASBeamProfileFit and set isGoodResult to false	      
 			theResult.push_back(LASBeamProfileFit(theHistoName, 0.0, 0.0, 0.0, 0.0));
@@ -244,7 +246,8 @@ std::vector<LASBeamProfileFit> BeamProfileFitter::doFit(
 		  }
 		else
 		  { 
-		    edm::LogWarning("BeamProfileFitter:Fit ERROR") << " Error! Result of the fit is not ok! No position information available ... "; 
+		    edm::LogWarning("BeamProfileFitter:Fit ERROR") << " Error! Result of the fit for detId: " << theDetUnitId.rawId()
+								   << " is not ok! No position information available ... "; 
 
 		    // return an empty LASBeamProfileFit and set isGoodResult to false	      
 		    theResult.push_back(LASBeamProfileFit(theHistoName, 0.0, 0.0, 0.0, 0.0));
@@ -254,7 +257,8 @@ std::vector<LASBeamProfileFit> BeamProfileFitter::doFit(
 	      }
 	    else
 	      { 
-		edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram is empty!!! Skipping the fit :-( ... ";
+		edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram for detId: " << theDetUnitId.rawId() 
+							       << " is empty!!! Skipping the fit :-( ... ";
 
 		// return an empty LASBeamProfileFit and set isGoodResult to false	      
 		theResult.push_back(LASBeamProfileFit(theHistogram->GetName(), 0.0, 0.0, 0.0, 0.0));
@@ -264,7 +268,8 @@ std::vector<LASBeamProfileFit> BeamProfileFitter::doFit(
 	  }
 	else 
 	  { 
-	    edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram does not exist!???? Nothing to fit :-( ... "; 
+	    edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram for detId: " << theDetUnitId.rawId()
+							   << " does not exist!???? Nothing to fit :-( ... "; 
 
 	    // return an empty LASBeamProfileFit and set isGoodResult to false	      
 	    theResult.push_back(LASBeamProfileFit("no histogram found", 0.0, 0.0, 0.0, 0.0));

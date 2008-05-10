@@ -14,13 +14,46 @@
 ///
 ///
 LASProfileJudge::LASProfileJudge() {
+
+  // switch on the zero filter by default
+  isZeroFilter = true;
+
 }
 
 
 
 
+
 ///
-/// check if a LASModuleProfile is usable for being stored
+/// Check if a LASModuleProfile indicates that the module has been hit,
+/// i.e. contains a visible signal or is even distorted by too high laser amplitude.
+/// This method doesn't care if the profile is usable for analysis.
+///
+bool LASProfileJudge::IsSignalIn( const LASModuleProfile& aProfile, int offset ) {
+
+  profile = aProfile;
+  
+  double negativity = GetNegativity( offset );
+  bool isPeaks = IsPeaksInProfile( offset );
+  bool isNegativePeaks = IsNegativePeaksInProfile( offset );
+  
+  bool result = 
+    ( negativity < -1000. ) ||  // if we see negativity, there was laser..
+    ( isPeaks )             ||  // if we see a peak, " " "
+    ( isNegativePeaks );    // same here
+  
+  return( result );
+
+
+}
+
+
+
+
+
+///
+/// Check if a LASModuleProfile is usable for being stored,
+/// i.e. contains a visible signal & no baseline distortions
 ///
 bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, int offset = 0 ) {
 
@@ -28,13 +61,17 @@ bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, int offset
   
   // run the tests
   double negativity = GetNegativity( offset );
-  bool isPeaks = IsPeaksInProfile( offset );
+
+  bool isPeaks;
+  if( isZeroFilter ) isPeaks = true; // disable this test if set in cfg
+  else isPeaks = IsPeaksInProfile( offset );
+
   bool isNegativePeaks = IsNegativePeaksInProfile( offset );
 
   bool result = 
-    ( negativity > -1000. ) &&  //&
-    ( isPeaks )             &&  //&
-   !( isNegativePeaks );
+    ( negativity > -1000. ) &&  // < 1000. = distorted profile
+    ( isPeaks )             &&  // want to see a peak (zero filter)
+    !( isNegativePeaks ); // no negative peaks
 
   return( result );
 
@@ -43,25 +80,43 @@ bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, int offset
 
 
 
+
 ///
-/// in case of too high laser intensities, the APV baselines tend
+/// toggle the zero filter (passed from cfg file)
+///
+void LASProfileJudge::EnableZeroFilter( bool zeroFilter ) {
+
+  isZeroFilter = zeroFilter;
+
+}
+
+
+
+
+
+///
+/// In case of too high laser intensities, the APV baselines tend
 /// to drop down. here, the strip amplitudes in the area around the
-/// signal region are summed to compute a variable which can indicate this.
+/// signal region are summed to return a variable which can indicate this.
 ///
 double LASProfileJudge::GetNegativity( int offset ) {
 
+  // here we could later run the sum only on the affected (pair of) APV
+
   // expected beam position (in strips)
   const unsigned int meanPosition = 256 + offset;
-  // backplane "alignment hole" approx. half size (in strips)
+  // backplane "alignment hole" (="signal region") approx. half size 
   const unsigned int halfWindowSize = 33;
+  // half size of range over which is summed (must be > halfWindowSize)
+  const unsigned int sumHalfRange = 128;
 
   double neg = 0;
   
-  for( unsigned int i = 128; i < meanPosition - halfWindowSize; ++i ) {
+  for( unsigned int i = meanPosition - sumHalfRange; i < meanPosition - halfWindowSize; ++i ) {
     neg += profile.GetValue( i );
   }
 
-  for( unsigned int i = meanPosition + halfWindowSize; i < 384; ++i ) {
+  for( unsigned int i = meanPosition + halfWindowSize; i < meanPosition + sumHalfRange; ++i ) {
     neg += profile.GetValue( i );
   }
 
@@ -73,8 +128,8 @@ double LASProfileJudge::GetNegativity( int offset ) {
 
 
 ///
-/// if the laser intensity is too small, there's no peak at all.
-/// here we look if any strip is well above noise level.
+/// If the laser intensity is too small, there's no peak at all.
+/// Here we look if any strip is well above noise level.
 ///
 bool LASProfileJudge::IsPeaksInProfile( int offset ) {
 

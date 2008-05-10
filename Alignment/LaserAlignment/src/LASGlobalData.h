@@ -42,6 +42,7 @@ class LASGlobalData {
   void SetTECEntry( int subdetector, int tecRing, int beam, int tecDisk, T );
   void SetTIBTOBEntry( int subdetector, int beam, int tibTobPosition, T );
   void SetTEC2TECEntry( int subdetector, int beam, int tecDisk, T );
+  //  LASGlobalData<T>& operator=( LASGlobalData<T>& );
 
  private:
   void Init( void );

@@ -176,6 +176,47 @@ void LASGlobalData<T>::SetTEC2TECEntry( int theDetector, int theBeam, int theDis
 
 
 
+// ///
+// /// element wise assignment operator
+// ///
+// template <class T>
+// LASGlobalData<T>& LASGlobalData<T>::operator=( LASGlobalData<T>& anotherGlobalData ) {
+
+//   // TEC copy
+//   for( int det = 0; det < 2; ++det ) {
+//     for( int ring = 0; ring < 2; ++ring ) {
+//       for( int beam = 0; beam < 8; ++ beam ) {
+// 	for( int disk = 0; disk < 9; ++ disk ) {
+// 	  this->SetTECEntry( det, ring, beam, disk, anotherGlobalData.GetTECEntry( det, ring, beam, disk ) );
+// 	}
+//       }
+//     }
+//   }
+
+//   // TIBTOB copy
+//   for( int det = 2; det < 4; ++det ) {
+//     for( int beam = 0; beam < 8; ++ beam ) {
+//       for( int pos = 0; pos < 6; ++ pos ) {
+// 	this->SetTIBTOBEntry( det, beam, pos, anotherGlobalData.GetTIBTOBEntry( det, beam, pos ) );
+//       }
+//     }
+//   }
+  
+//   // TEC2TEC copy
+//   for( int det = 2; det < 4; ++det ) {
+//     for( int beam = 0; beam < 8; ++ beam ) {
+//       for( int disk = 0; disk < 9; ++ disk ) {
+// 	this->SetTEC2TECEntry( det, beam, disk, anotherGlobalData.GetTEC2TECEntry( det, beam, disk ) );
+//       }
+//     }
+//   }
+
+// }
+
+
+
+
+
 ///
 /// whatever initialization 
 /// is needed
