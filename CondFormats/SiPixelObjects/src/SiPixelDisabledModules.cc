@@ -40,7 +40,7 @@ bool SiPixelDisabledModules::isModuleDisabled(disabledModuleType module) {
 						     theDisabledModules.end(),
 						     module);
 
-  return iter == theDisabledModules.end();
+  return iter != theDisabledModules.end();
 
 } // bool SiPixelDisabledModules::isModuleDisabled(disabledModuleType module)
 
