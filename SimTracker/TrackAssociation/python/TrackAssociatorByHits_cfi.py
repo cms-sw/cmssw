@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackAssociatorByHitsESProducer = cms.ESProducer("TrackAssociatorByHitsESProducer",
+TrackAssociatorByHits = cms.ESProducer("TrackAssociatorByHitsESProducer",
+    ComponentName = cms.string('TrackAssociatorByHits'),                                                
     associateRecoTracks = cms.bool(True),
     UseGrouped = cms.bool(True),
     associatePixel = cms.bool(True),

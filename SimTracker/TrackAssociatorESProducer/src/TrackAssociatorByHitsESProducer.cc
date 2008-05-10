@@ -30,9 +30,10 @@
 //
 TrackAssociatorByHitsESProducer::TrackAssociatorByHitsESProducer(const edm::ParameterSet& iConfig)
 {
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this,"TrackAssociatorByHits");
+  //the following line is needed to tell the framework what
+  // data is being produced
+  std::string myName=iConfig.getParameter<std::string>("ComponentName");
+  setWhatProduced(this,myName);
 
    //now do what ever other initialization is needed
    conf_=iConfig;
