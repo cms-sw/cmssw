@@ -7,7 +7,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h" 
-#include "DataFormats/TrackReco/interface/TrackResiduals.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -19,6 +18,9 @@
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
+#include "DataFormats/TrackReco/interface/TrajectorySateOnDetInfo.h"
+#include "DataFormats/TrackReco/interface/TrackTrajectorySateOnDetInfos.h"
+
 
 #include <vector>
 
@@ -88,5 +90,18 @@ namespace {
     edm::reftobase::RefHolder<reco::TrackRef>           rf_tkr;
     edm::reftobase::Holder<reco::Track, reco::TrackRef> h_tk_tkr;
     std::vector< edm::RefToBase<reco::Track> >		rtb_tk_vect;
+
+    reco::TrajectorySateOnDetInfo 		TSODI1;
+    //reco::TrajectorySateOnDetInfoCollection	TSODI2;
+    reco::TrackTrajectorySateOnDetInfosCollection TSODI3;
+    reco::TrackTrajectorySateOnDetInfos TSODI4;
+    reco::TrackTrajectorySateOnDetInfosRef TSODI5;
+    reco::TrackTrajectorySateOnDetInfosRefProd TSODI6;
+    reco::TrackTrajectorySateOnDetInfosRefVector TSODI7;
+    std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::TrajectorySateOnDetInfo> > > TSODI8;
+    std::vector<std::vector<reco::TrajectorySateOnDetInfo> > TSODI9;
+    edm::Wrapper<reco::TrackTrajectorySateOnDetInfosCollection> TSODI10;
+
+
   }
 }
