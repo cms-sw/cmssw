@@ -86,8 +86,6 @@ private:
   float fakerecchiq;
   float fakereseta, fakerespt, fakeresd0, fakeresz0, fakeresphi,fakerescottheta,fake;
   
-  HepLorentzVector vertexPosition;
-
   double chi2tmp;
   float fractiontmp;
   bool onlyDiag;

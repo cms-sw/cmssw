@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.18 2007/10/09 02:38:18 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.19 2007/10/20 12:17:36 dlange Exp $
 //
 //
 
@@ -130,7 +130,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       int vertexIndex = tracksCI->vertIndex();
       // uint trackIndex = tracksCI->genpartIndex();
       
-      SimVertex vertex(Hep3Vector(0.,0.,0.),0);
+      SimVertex vertex(math::XYZVectorD(0.,0.,0.),0);
       if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
       
       // skip tracks originated away from the IP
