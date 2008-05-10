@@ -185,26 +185,24 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     unsigned int thishit = 0;
 
     for (trackingRecHit_iterator iHit = trackp->recHitsBegin(); iHit != trackp->recHitsEnd(); ++iHit) {
-
-      if (this->isOkCharge((*iHit).get()) != this->isOkChargeOld((*iHit).get())) {
-        edm::LogError("Mismatch") << "detailedHitsCheck" << "New " << this->isOkCharge((*iHit).get()) 
-                                  << "\nOld " << this->isOkChargeOld((*iHit).get());
-      }
-
       thishit++;
-      int type = (*iHit)->geographicalId().subdetId(); 
+      const DetId detId((*iHit)->geographicalId());
+      const int subdetId = detId.subdetId(); 
 
       // *** thishit == 1 means last hit in CTF *** 
       // (FIXME: assumption might change or not be valid for all tracking algorthms)
       // ==> for cosmics
       // seedOnlyFrom = 1 is TIB-TOB-TEC tracks only
       // seedOnlyFrom = 2 is TOB-TEC tracks only 
-      if (seedOnlyFromAbove_ == 1 && thishit == 1 && (type == int(StripSubdetector::TOB) || type == int(StripSubdetector::TEC))) return false; 
-
-      if (seedOnlyFromAbove_ == 2 && thishit == 1 && type == int(StripSubdetector::TIB)) return false;  
+      if (seedOnlyFromAbove_ == 1 && thishit == 1 
+          && (subdetId == int(StripSubdetector::TOB) || subdetId == int(StripSubdetector::TEC))){
+        return false; 
+      }
+      if (seedOnlyFromAbove_ == 2 && thishit == 1 && subdetId == int(StripSubdetector::TIB)) {
+        return false;
+      }
 
       if (!(*iHit)->isValid()) continue; // only real hits count as in trackp->numberOfValidHits()
-      const DetId detId((*iHit)->geographicalId());
       if (detId.det() != DetId::Tracker) {
         edm::LogError("DetectorMismatch") << "@SUB=AlignmentTrackSelector::detailedHitsCheck"
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
@@ -213,12 +211,12 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       const TrackingRecHit* therechit = (*iHit).get();
       if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
       if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
-      if      (StripSubdetector::TIB == detId.subdetId()) ++nhitinTIB;
-      else if (StripSubdetector::TOB == detId.subdetId()) ++nhitinTOB;
-      else if (StripSubdetector::TID == detId.subdetId()) ++nhitinTID;
-      else if (StripSubdetector::TEC == detId.subdetId()) ++nhitinTEC;
-      else if (                kBPIX == detId.subdetId()) ++nhitinBPIX;
-      else if (                kFPIX == detId.subdetId()) ++nhitinFPIX;
+      if      (StripSubdetector::TIB == subdetId) ++nhitinTIB;
+      else if (StripSubdetector::TOB == subdetId) ++nhitinTOB;
+      else if (StripSubdetector::TID == subdetId) ++nhitinTID;
+      else if (StripSubdetector::TEC == subdetId) ++nhitinTEC;
+      else if (                kBPIX == subdetId) ++nhitinBPIX;
+      else if (                kFPIX == subdetId) ++nhitinFPIX;
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
       if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
     } // end loop on hits
@@ -266,7 +264,7 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 
 bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
 {
-  if (!hit) return false;
+  if (!hit || !hit->isValid()) return true; 
 
   // check det and subdet
   const DetId id(hit->geographicalId());
@@ -297,10 +295,10 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
 
   // and now? SiTrackerMultiRecHit? Not here I guess!
   // Should we throw instead?
-  edm::LogError("AlignmentTrackSelector") << "@SUB=isOkCharge"
-                                          << "Unknown tracker hit not in pixel " << id.subdetId()
-                                          << " " << dynamic_cast<const SiTrackerMultiRecHit*>(hit)
-                                          << " " << dynamic_cast<const BaseSiTrackerRecHit2DLocalPos*>(hit); 
+  edm::LogError("AlignmentTrackSelector") 
+    << "@SUB=isOkCharge" << "Unknown valid tracker hit not in pixel, subdet " << id.subdetId()
+    << ", SiTrackerMultiRecHit " << dynamic_cast<const SiTrackerMultiRecHit*>(hit)
+    << ", BaseSiTrackerRecHit2DLocalPos " << dynamic_cast<const BaseSiTrackerRecHit2DLocalPos*>(hit); 
   
   return true;
 } 
@@ -320,59 +318,6 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D *siStripRe
 
   return (charge >= minHitChargeStrip_);
 }
-
-//-----------------------------------------------------------------------------
-
-bool AlignmentTrackSelector::isOkChargeOld(const TrackingRecHit* therechit) const
-{
-  // const TrackingRecHit* therechit = hit.get();
-  float charge1 = 0;
-  float charge2 = 0;
-  const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);
-  const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>(therechit);
-  const ProjectedSiStripRecHit2D* unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D*>(therechit);
-  
-  if (matchedhit) {  
-    const SiStripRecHit2D *monohit=matchedhit->monoHit();    
-    const SiStripCluster* monocluster = &*(monohit->cluster());
-    const std::vector<uint16_t> amplitudesmono( monocluster->amplitudes().begin(),
-						monocluster->amplitudes().end());
-    for(size_t ia=0; ia<amplitudesmono.size();++ia)
-      { charge1+=amplitudesmono[ia];} 
-    
-    const SiStripRecHit2D *stereohit=matchedhit->stereoHit();   
-    const SiStripCluster* stereocluster = &*(stereohit->cluster());
-    const std::vector<uint16_t> amplitudesstereo( stereocluster->amplitudes().begin(),
-						  stereocluster->amplitudes().end());
-    for(size_t ia=0; ia<amplitudesstereo.size();++ia)
-      {charge2+=amplitudesstereo[ia];}
-    // std::cout << "charge1 = " << charge1 << "\n";
-    // std::cout << "charge2 = " << charge2 << "\n";
-    if (charge1 < minHitChargeStrip_ || charge2 < minHitChargeStrip_) return false;
-  }
-  else if (hit) {
-    
-    const SiStripCluster* cluster = &*(hit->cluster());
-    const std::vector<uint16_t> amplitudes( cluster->amplitudes().begin(),
-					    cluster->amplitudes().end());
-    for(size_t ia=0; ia<amplitudes.size();++ia)
-      {charge1+=amplitudes[ia];}
-    // std::cout << "charge1 = " << charge1 << "\n";
-    if (charge1 < minHitChargeStrip_) return false;
-  }
-  else if (unmatchedhit) {
-    
-    const SiStripRecHit2D &orighit = unmatchedhit->originalHit(); 
-    const SiStripCluster* origcluster = &*(orighit.cluster());
-    const std::vector<uint16_t> amplitudes( origcluster->amplitudes().begin(),
-					    origcluster->amplitudes().end());
-    for(size_t ia=0; ia<amplitudes.size();++ia)
-      {charge1+=amplitudes[ia];}
-    // std::cout << "charge1 = " << charge1 << "\n";
-    if (charge1 < minHitChargeStrip_) return false;
-  } 
-  return true;
-} 
 
 //-----------------------------------------------------------------------------
 
