@@ -26,7 +26,7 @@ class DeDxEstimatorProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
       BaseDeDxEstimator * m_estimator;
-      edm::InputTag m_trackDeDxHitsTag;
+      edm::InputTag m_TsodiTag;
 
 };
 

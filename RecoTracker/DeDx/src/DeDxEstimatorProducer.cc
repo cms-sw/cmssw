@@ -26,10 +26,21 @@
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrajectorySateOnDetInfo.h"
+#include "DataFormats/TrackReco/interface/TrackTrajectorySateOnDetInfos.h"
 
 #include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
+
+
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+
+
 using namespace reco;
 using namespace std;
 //
@@ -39,12 +50,12 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 {
    //register your products
    produces<TrackDeDxEstimateCollection>();
-   m_trackDeDxHitsTag = iConfig.getParameter<edm::InputTag>("trackDeDxHits");
+   m_TsodiTag = iConfig.getParameter<edm::InputTag>("TrajectoryStateOnDetInfo");
 
    //FIXME: configurable, use ES?
    string estimatorName = iConfig.getParameter<string>("estimator");
-   if(estimatorName == "median")  m_estimator = new MedianDeDxEstimator(-2.);
-   if(estimatorName == "generic")  m_estimator = new GenericAverageDeDxEstimator(iConfig.getParameter<double>("exponent"));
+   if(estimatorName == "median")     m_estimator = new MedianDeDxEstimator(-2.);
+   if(estimatorName == "generic")    m_estimator = new GenericAverageDeDxEstimator  (iConfig.getParameter<double>("exponent"));
    if(estimatorName == "truncated")  m_estimator = new TruncatedAverageDeDxEstimator(iConfig.getParameter<double>("fraction"));
 
 }
@@ -69,28 +80,30 @@ void
 DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-//TODO: loop on tracks+dedxhits and apply the estimator
-   edm::Handle<reco::TrackDeDxHitsCollection> trackDeDxHitsCollectionHandle;
-   iEvent.getByLabel(m_trackDeDxHitsTag,trackDeDxHitsCollectionHandle);
-   const reco::TrackDeDxHitsCollection & hits = *trackDeDxHitsCollectionHandle.product();
-   TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection(hits.keyProduct());
-   
-   reco::TrackDeDxHitsCollection::const_iterator it= hits.begin();
-   for(int j=0;it!=hits.end();++it,j++)
+
+   edm::ESHandle<TrackerGeometry> tkGeom;
+   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
+
+   edm::Handle<reco::TrackTrajectorySateOnDetInfosCollection> trackTrajectorySateOnDetInfosCollectionHandle;
+   iEvent.getByLabel(m_TsodiTag,trackTrajectorySateOnDetInfosCollectionHandle);
+   const reco::TrackTrajectorySateOnDetInfosCollection& tsodis = *trackTrajectorySateOnDetInfosCollectionHandle.product();
+
+   TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection(tsodis.keyProduct());
+
+   reco::TrackTrajectorySateOnDetInfosCollection::const_iterator tsodis_it= tsodis.begin();
+   for(int j=0;tsodis_it!=tsodis.end();++tsodis_it,j++)
    {
-      //FIXME: insert here some code to suppress pixel usage if wanted 
-      reco::TrackDeDxHitsCollection::value_type trackWithHits = *it;
-      reco::DeDxHitCollection filteredHits;
-      for(reco::DeDxHitCollection::iterator it_hits = trackWithHits.second.begin(); it_hits!=trackWithHits.second.end();it_hits++) {
-       if(it_hits->subDet() != 1 && it_hits->subDet() != 2 ) filteredHits.push_back(*it_hits);   
-      }
-      float val=m_estimator->dedx(reco::TrackDeDxHitsCollection::value_type(it->first,filteredHits));
-      outputCollection->setValue(j, val);
-   }
-   
+      TrajectorySateOnDetInfoCollection tmp = (*tsodis_it).second;
+//      printf("Track %i contains %i hits\n",j,tmp.size());
+
+      float val=m_estimator->dedx( (*tsodis_it).second, tkGeom );
+   //   float val=0;
+      outputCollection->setValue(j, val);      
+   }   
+
    //put in the event the result
-    std::auto_ptr<TrackDeDxEstimateCollection> estimator(outputCollection);
-    iEvent.put(estimator);
+   std::auto_ptr<TrackDeDxEstimateCollection> estimator(outputCollection);
+   iEvent.put(estimator);
    
 }
 

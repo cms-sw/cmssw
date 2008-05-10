@@ -1,0 +1,52 @@
+#ifndef TrajectorySateOnDetInfosProducer_H
+#define TrajectorySateOnDetInfosProducer_H
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+#include "DataFormats/TrackReco/interface/TrajectorySateOnDetInfo.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+
+
+//
+// class decleration
+//
+#include <map>
+
+using namespace reco;
+
+
+class TrackerGeometry;
+
+class TrajectorySateOnDetInfosProducer : public edm::EDProducer {
+   public:
+      explicit TrajectorySateOnDetInfosProducer(const edm::ParameterSet&);
+      ~TrajectorySateOnDetInfosProducer();
+
+   private:
+      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+
+      reco::TrajectorySateOnDetInfo* Get_TSODI(const Trajectory*, const TrajectoryStateOnSurface*, const SiStripRecHit2D*);
+
+     
+      // ----------member data ---------------------------
+     edm::InputTag m_trajTrackAssociationTag;
+     edm::InputTag m_tracksTag;
+     
+};
+
+
+#endif
+
