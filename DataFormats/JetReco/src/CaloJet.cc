@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.17 2008/02/14 00:06:30 fedor Exp $
+// $Id: CaloJet.cc,v 1.18 2008/04/30 22:05:16 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -59,8 +59,8 @@ CaloJet::LorentzVector CaloJet::physicsP4 (float fZVertex) const {
 
 
 CaloTowerRef CaloJet::getConstituent (unsigned fIndex) const {
-  reco::CandidateBaseRef dau = daughterRef (fIndex);
-  return dau.castTo <CaloTowerRef> ();
+  Constituent dau = daughterPtr (fIndex);
+  return CaloTowerRef (dau.id(), dau.key(), dau.productGetter());
 }
 
 
@@ -104,4 +104,11 @@ std::string CaloJet::print () const {
 // here are methods extracting information from constituents
 //----------------------------------------------------------
 
-
+std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
+  std::vector<CaloTowerDetId> result;
+  std::vector <CaloTowerRef> towers = getConstituents ();
+  for (unsigned i = 0; i < towers.size(); ++i) {
+    result.push_back (towers[i]->id());
+  }
+  return result;
+}
