@@ -46,7 +46,7 @@ SiPixelErrorsDigisToCalibDigis::SiPixelErrorsDigisToCalibDigis(const edm::Parame
 
 {
 
-  siPixelProducerLabel_ = iConfig.getParameter<edm::InputTag>("SiPixelProducerLabelTag");
+  siPixelProducerLabel_ = iConfig.getParameter<edm::InputTag>("SiPixelProducerLabelTag"); 
   createOutputFile_ = iConfig.getUntrackedParameter<bool>("saveFile",false);
   outputFilename_ = iConfig.getParameter<std::string>("outputFilename");
   daqBE_ = &*edm::Service<DQMStore>();
@@ -134,8 +134,13 @@ SiPixelErrorsDigisToCalibDigis::beginJob(const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-SiPixelErrorsDigisToCalibDigis::endJob() {  
-  if (!outputFilename_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outputFilename_);
+SiPixelErrorsDigisToCalibDigis::endJob() { 
+
+  if (!outputFilename_.empty() && createOutputFile_)
+    {
+      edm::LogInfo("SiPixelErrorCalibDigis") << "Writing ROOT file to: " << outputFilename_ << std::endl;
+      if ( &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outputFilename_);
+    }
 }
 
 // ------------ helper functions ---------------------------------------------------------
