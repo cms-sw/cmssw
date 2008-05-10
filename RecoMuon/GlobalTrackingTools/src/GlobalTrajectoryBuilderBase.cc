@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/04/22 15:53:21 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/05/09 19:46:48 $
+ *  $Revision: 1.16 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -801,8 +801,9 @@ void GlobalTrajectoryBuilderBase::addTraj(TrackCand& candIn) {
 
     TC staTrajs = theTrackTransformer->transform(*(candIn.second));
     if (staTrajs.empty()) LogTrace(theCategory) << "Transformer: Add Traj failed!";
-
-    candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    
+    Trajectory *tmpTrajectory = new Trajectory(staTrajs.front());
+    tmpTrajectory->setSeedRef(candIn.second->seedRef());
+    candIn = ( !staTrajs.empty() ) ? TrackCand(tmpTrajectory,candIn.second) : TrackCand(0,candIn.second);    
   }
 
 }
