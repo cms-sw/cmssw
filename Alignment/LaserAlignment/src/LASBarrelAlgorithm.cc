@@ -66,14 +66,14 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
 
   // start values
   static float _vstart[52] = {
-    0.01, 0.01, 0.1, 0.1, 0.1, 0.1, // subdet for TIB+
-    0.01, 0.01, 0.1, 0.1, 0.1, 0.1, // subdet for TIB-
-    0.01, 0.01, 0.1, 0.1, 0.1, 0.1, // subdet for TOB+
-    0.01, 0.01, 0.1, 0.1, 0.1, 0.1, // subdet for TOB-
-    0.01, 0.00, 0.1, 0.0, 0.1, 0.0, // subdet for TEC+
-    0.00, 0.01, 0.0, 0.1, 0.0, 0.1, // subdet for TEC-
-    0.01, 0.01,  0.01, 0.01,  0.01, 0.01,  0.01, 0.01, // beams 0-3
-    0.01, 0.01,  0.01, 0.01,  0.01, 0.01,  0.01, 0.01  // beams 4-7
+    0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TIB+
+    0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TIB-
+    0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TOB+
+    0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TOB-
+    0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TEC+
+    0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TEC-
+    0.00, 0.00,  0.00, 0.00,  0.00, 0.00,  0.00, 0.00, // beams 0-3
+    0.00, 0.00,  0.00, 0.00,  0.00, 0.00,  0.00, 0.00  // beams 4-7
   };
 
   // step sizes: to be tuned
