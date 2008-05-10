@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="reco::HitPattern"/>
-  <class name="reco::TrackResiduals"/>
   <class name="reco::TrackBase">
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
@@ -95,5 +94,29 @@
      <class name="edm::reftobase::Holder<reco::Track, reco::TrackRef>"/>
 
      <class name="std::vector<edm::RefToBase<reco::Track> >" />
+
+
+
+      <class name="reco::TrajectorySateOnDetInfo" />
+      <class name="reco::TrajectorySateOnDetInfoCollection" />
+
+  <class pattern="edm::AssociationVector<*>">
+    <field name="transientVector_" transient="false"/>
+    <field name="fixed_" transient="false"/>
+  </class>
+
+
+     <!-- <class name="reco::TrackTrajectorySateOnDetInfosCollection" />-->
+      <class name="reco::TrackTrajectorySateOnDetInfos" />
+      <class name="reco::TrackTrajectorySateOnDetInfosRef" />
+      <class name="reco::TrackTrajectorySateOnDetInfosRefProd" />
+      <class name="reco::TrackTrajectorySateOnDetInfosRefVector" />
+      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::TrajectorySateOnDetInfo> > >"/>
+      <class name="std::vector<std::vector<reco::TrajectorySateOnDetInfo> >"/>
+
+  <class name="edm::Wrapper<reco::TrackTrajectorySateOnDetInfosCollection>"/>
+
+
+
 
   </lcgdict>
