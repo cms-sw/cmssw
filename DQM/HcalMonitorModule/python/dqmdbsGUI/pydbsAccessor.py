@@ -24,6 +24,7 @@ except:
 
 import python_dbs # this sends/receives messages to/from DBS
 import string # use to parse DBS input/output
+import cPickle # used for saving files
 
 #############################################################################
 
@@ -43,10 +44,16 @@ class dbsAccessor:
         so this class will not properly initialize unless a Tk instance has
         been created first.
         '''
+
+
         
         self.basepath=basepath
         self.class_debug=debug
         self.pclName=pclName
+
+        if (self.class_debug):
+            print self.__init__.__doc__
+
         try:
             self.host=StringVar()
             self.port=IntVar()
@@ -71,9 +78,14 @@ class dbsAccessor:
 
     def setDefaults(self):
         '''
+        ** pydbsAccessor.setDefaults() **
         Sets defaults for dbsAccessor.  This is used when
         defaults cannot be read from cPickle file.
         '''
+
+        if (self.class_debug):
+            print self.setDefaults.__doc__
+        
         self.searchResult=None
         self.host.set("cmsweb.cern.ch/dbs_discovery/")
         self.port.set(443)
@@ -99,10 +111,14 @@ class dbsAccessor:
 
     def getDefaultsFromPickle(self):
         '''
+        ** pydbsAccessor.getDefaultsFromPickle() **
         Try to read default values of dbsAccessor from .dbsDefaults.cPickle.
         If unsuccessful, defaults will be initialized from "setDefaults"
         function.
         '''
+
+        if (self.class_debug):
+            print self.getDefaultsFromPickle.__doc__
         
         if os.path.isfile(os.path.join(self.basepath,self.pclName)):
             try:
@@ -131,8 +147,12 @@ class dbsAccessor:
 
     def writeDefaultsToPickle(self):
         '''
+        ** pydbsAccessor.writeDefaultsToPickle() **
         Writes default dbsAccessor values to "dbsDefaults.cPickle"
         '''
+
+        if (self.class_debug):
+            print self.writeDefaultsToPickle.__doc__
         
         try:
             pcl=open(os.path.join(self.basepath,self.pclName),'wb')
@@ -150,7 +170,9 @@ class dbsAccessor:
             cPickle.dump(self.beginRun.get(),pcl)
             cPickle.dump(self.endRun.get(),pcl)
             pcl.close()
-            os.system("chmod a+rw %s"%(os.path.join(self.basedir,self.pclName)))
+            os.system("chmod a+rw %s"%(os.path.join(self.basepath,self.pclName)))
+            if self.class_debug:
+                print "Wrote output to %s"%os.path.join(self.basepath,self.pclName)
                       
         except:
             print "Could not write file '.dbsDefaults.cPickle'"
@@ -160,9 +182,13 @@ class dbsAccessor:
 
     def formParsedString(self):
         '''
+        ** pydbsAccessor.formParsedString() **
         Creates a string to send to DBS based on
         user-inputted dataset and file values.
         '''
+
+        if (self.class_debug):
+            print self.formParsedString.__doc__
         
         temp=""
         myfile=self.searchStringFile.get()
@@ -180,12 +206,18 @@ class dbsAccessor:
 
     def searchDBS(self,beginrun=-1, endrun=-1,mytext=None):
         '''
+        ** pydbsAccessor.searchDBS(beginrun=-1,endRun=-1,text=None) **
+
         Searches DBS for files matching specified criteria.
         Criteria is given by user-supplied "mytext" string.
         If no such string is provided, default is "find run
         where file = <dbsAccessor default searchString> and
         run between <default begin run>-<default end run>"
+
         '''
+
+        if (self.class_debug):
+            print self.searchDBS.__doc__
 
         # If beginrun, endrun specified, use their values in the search
         if (beginrun>-1):
