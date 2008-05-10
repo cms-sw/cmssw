@@ -170,7 +170,7 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
       int vertexIndex = tracksCI->vertIndex();
       // uint trackIndex = tracksCI->genpartIndex();
       
-      SimVertex vertex(Hep3Vector(0.,0.,0.),0);
+      SimVertex vertex(math::XYZVectorD(0.,0.,0.),0);
       if (vertexIndex >= 0) vertex = (*simVertices)[vertexIndex];
       
       // skip tracks originated away from the IP
