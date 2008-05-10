@@ -5,8 +5,8 @@
  * \class RpcData
  *  Core of RPC PopCon Appication
  *
- *  $Date: 2008/05/01 15:26:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/01 15:27:10 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -32,6 +32,7 @@ namespace popcon{
     std::string id() const { return m_name;}
     ~RpcData(); 
     RpcData(const edm::ParameterSet& pset); 
+    void writelast(int newtime);
 
     RPCdbData* Idata;
     RPCdbData* Vdata;
@@ -39,13 +40,18 @@ namespace popcon{
 
     int snc;
     int tll;	    
-
-    std::string host;
-    std::string user;
-    std::string passw;	
+    	
 
   private:
     std::string m_name;
+    std::string host;
+    std::string user;
+    std::string passw;
+    std::string Ohost;
+    std::string Ouser;
+    std::string Opassw;
+    int since;
+    std::string logpath;
   };
 }
 #endif
