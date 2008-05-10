@@ -4,12 +4,16 @@
 #
 # DQMfromDBSgui.py
 #
-# v1.2 Beta
+# v1.3 Beta
 #
 # by Jeff Temple (jtemple@fnal.gov)
 #
-# 7 May 2008
+# 10 May 2008
 #
+# v1.3 updates -- separate code into subpackages
+#      introduce separate file, dataset substrings
+#      reposition daughter windows relative to parent
+
 # GUI to automatically grab new runs from DBS
 # and run HCAL DQM on any newly-found runs
 #
@@ -961,7 +965,16 @@ class DQMDBSgui:
             self.dbsvaluewin=Toplevel()
 
         self.dbsvaluewin.title('Change DBS values')
-        self.dbsvaluewin.geometry('+600+300')
+        try:
+            maingeom=self.root.winfo_geometry()
+            maingeomx=string.split(maingeom,"+")[1]
+            maingeomy=string.split(maingeom,"+")[2]
+            maingeomx=int(maingeomx)
+            maingeomy=int(maingeomy)
+            self.dbsvaluewin.geometry('+%i+%i'%(maingeomx+575,maingeomy+275))
+        except:
+            self.dbsvaluewin.geometry('+600+300')
+
         myrow=0
 
         # Variables to be shown in window
@@ -1010,7 +1023,16 @@ class DQMDBSgui:
         except:
             self.dqmvaluewin=Toplevel()
 
-        self.dqmvaluewin.geometry('+400+300')
+        try:
+            maingeom=self.root.winfo_geometry()
+            maingeomx=string.split(maingeom,"+")[1]
+            maingeomy=string.split(maingeom,"+")[2]
+            maingeomx=int(maingeomx)
+            maingeomy=int(maingeomy)
+            self.dqmvaluewin.geometry('+%i+%i'%(maingeomx+375,maingeomy+275))
+        except:
+            self.dqmvaluewin.geometry('+600+300')
+
         self.dqmvaluewin.title("Change DQM Values")
         myrow=0
 
@@ -1739,10 +1761,10 @@ class DQMDBSgui:
         try:
             maingeomx=string.atoi(maingeomx)
             maingeomy=string.atoi(maingeomy)
-            # new window is ~380 pixels high, place it directly below main window (240 pix high),
+            # new window is ~380 pixels high, place it directly below main window (250 pix high),
             # if room exists
-            if (self.root.winfo_screenheight()-(maingeomy+240)>350):
-                self.changevaluewin.geometry('+%i+%i'%(maingeomx,maingeomy+240))
+            if (self.root.winfo_screenheight()-(maingeomy+250)>350):
+                self.changevaluewin.geometry('+%i+%i'%(maingeomx,maingeomy+250))
             elif (maingeomy>380):
                 self.changevaluewin.geometry('+%i+%i'%(maingeomx,maingeomy-380))
         except:
@@ -1768,7 +1790,8 @@ class DQMDBSgui:
               text=temp).grid(row=myrow,column=0)
         myrow=myrow+1
         self.lb=Listbox(scrollwin,
-                   selectmode = MULTIPLE)
+                        bg="white",
+                        selectmode = MULTIPLE)
         # Get list of runs
         self.listboxruns=self.filesInDBS.keys()
         self.listboxruns.sort()
