@@ -25,10 +25,15 @@
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TF1.h"
 #include "TROOT.h"
+#include "TList.h"
+#include "TKey.h"
 
 //
 // constructors and destructor
@@ -394,11 +399,15 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
 
   if (thePlotFileName ==""){
     thePlotFile = 0;
+    //    thePlotDir=0;
     gROOT->cd();
   }
   else{
+    edm::Service<TFileService> fs;
+    //    thePlotDir = new TFileDirectory(fs->mkdir(thePlotFileName.c_str()));
     thePlotFile = TFile::Open(thePlotFileName.c_str(),"recreate");
     thePlotFile->cd();
+    theBookKeeping = new TList;
   }
   
   //book histograms in this section
@@ -445,7 +454,10 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
 				  ij->GetZaxis()->GetBinLowEdge(iPhi+1), ij->GetZaxis()->GetBinUpEdge(iPhi+1)
 				  ));
 	      //diagonal term
+	      thePlotFile->cd();
 	      theH = new TH1F(hname,htitle,bin[i],min[i],max[i]);
+	      //	      theH = thePlotDir->make<TH1F>(hname,htitle,bin[i],min[i],max[i]);
+	      theBookKeeping->Add(theH);
 	      theH->SetXTitle("#Delta_{reco-gen}("+MuonErrorMatrix::vars[i]+")");
 
 	      LogDebug(theCategory)<<"creating a TH1F "<<hname<<" at: "<<theH; 
@@ -457,7 +469,10 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
 				  ij->GetYaxis()->GetBinLowEdge(iEta+1), ij->GetYaxis()->GetBinUpEdge(iEta+1),
 				  ij->GetZaxis()->GetBinLowEdge(iPhi+1), ij->GetZaxis()->GetBinUpEdge(iPhi+1)
 				  ));
+	      thePlotFile->cd();
 	      theH = new TH2F(hname,htitle,bin[i],min[i],max[i],100,min[j],max[j]);
+	      //	      theH = thePlotDir->make<TH2F>(hname,htitle,bin[i],min[i],max[i],100,min[j],max[j]);
+	      theBookKeeping->Add(theH);
 	      theH->SetXTitle("#Delta_{reco-gen}("+MuonErrorMatrix::vars[i]+")");
 	      theH->SetYTitle("#Delta_{reco-gen}("+MuonErrorMatrix::vars[j]+")");
 	      
@@ -506,7 +521,10 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
                                   ij->GetZaxis()->GetBinLowEdge(iPhi+1), ij->GetZaxis()->GetBinUpEdge(iPhi+1)
                                   ));
               //diagonal term
-              theH = new TH1F(hname,htitle,bin[i],min[i],max[i]);
+	      thePlotFile->cd();
+	      theH = new TH1F(hname,htitle,bin[i],min[i],max[i]);
+	      //	      theH = thePlotDir->make<TH1F>(hname,htitle,bin[i],min[i],max[i]);
+	      theBookKeeping->Add(theH);
               theH->SetXTitle("#Delta_{reco-gen}/#sigma("+MuonErrorMatrix::vars[i]+")");
 
               LogDebug(theCategory)<<"creating a TH1F "<<hname<<" at: "<<theH;
@@ -518,7 +536,10 @@ MuonErrorMatrixAnalyzer::beginJob(const edm::EventSetup& setup)
                                   ij->GetYaxis()->GetBinLowEdge(iEta+1), ij->GetYaxis()->GetBinUpEdge(iEta+1),
                                   ij->GetZaxis()->GetBinLowEdge(iPhi+1), ij->GetZaxis()->GetBinUpEdge(iPhi+1)
                                   ));
-              theH = new TH2F(hname,htitle,bin[i],min[i],max[i],100,min[j],max[j]);
+	      thePlotFile->cd();
+	      theH = new TH2F(hname,htitle,bin[i],min[i],max[i],100,min[j],max[j]);
+	      //	      theH = thePlotDir->make<TH2F>(hname,htitle,bin[i],min[i],max[i],100,min[j],max[j]);
+	      theBookKeeping->Add(theH);
               theH->SetXTitle("#Delta_{reco-gen}/#sigma("+MuonErrorMatrix::vars[i]+")");
               theH->SetYTitle("#Delta_{reco-gen}/#sigma("+MuonErrorMatrix::vars[j]+")");
 
@@ -598,6 +619,7 @@ MuonErrorMatrixAnalyzer::extractRes MuonErrorMatrixAnalyzer::extract(TH2 * h2){
 void 
 MuonErrorMatrixAnalyzer::endJob() {
   LogDebug(theCategory)<<"endJob begins.";  
+  //  std::cout<<"endJob of MuonErrorMatrixAnalyzer"<<std::endl;
   //evaluate the histograms to find the correlation factors and sigmas
 
   if (theErrorMatrixStore_Reported){
@@ -606,7 +628,23 @@ MuonErrorMatrixAnalyzer::endJob() {
   }
 
   //write the file with all the plots in it.
-  if(thePlotFileName!= ""){thePlotFile->Write(); }
+  TFile*   thePlotFile=0;
+  if(thePlotFileName!= ""){
+    //    std::cout<<"trying to write in: "<<thePlotFileName<<std::endl;
+    
+    thePlotFile = TFile::Open(thePlotFileName.c_str(),"recreate");
+    thePlotFile->cd();
+    TListIter iter(theBookKeeping);
+    //    std::cout<<"number of objects to write: "<<theBookKeeping->GetSize()<<std::endl;
+    TObject * o=0;
+    while(o=iter.Next())
+      {
+	//	std::cout<<"writing: "<<o->GetName()<<" in file: "<<thePlotFile->GetName()<<std::endl;
+	o->Write();
+      }
+    //thePlotFile->Write();
+
+  }
 
   if (theErrorMatrixStore_Residual){
     //extract the rms and correlation factor from the residual

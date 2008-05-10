@@ -7,7 +7,7 @@
  * to give an empirical parametrization of the track parameters errors.
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -28,6 +28,8 @@
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 class MagneticField;
 class TrackAssociatorBase;
@@ -114,6 +116,8 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
 
   /// control plot root file (auxiliary, configurable)
   TFile * thePlotFile;
+  TFileDirectory * thePlotDir;
+  TList * theBookKeeping;
   std::string thePlotFileName;
 
   /// arrays of plots for the empirical error parametrization
