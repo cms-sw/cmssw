@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.8 2008/04/28 23:32:42 drell Exp $
+// $Id: V0Analyzer.cc,v 1.9 2008/04/30 20:55:41 drell Exp $
 //
 //
 
@@ -530,8 +530,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   double simRad = 0.;
   for(unsigned int ndx1 = 0; ndx1 < theSimTracks.size(); ndx1++) {
     if(theSimTracks[ndx1].type() == 310) {
-      HepLorentzVector k0sP(theSimTracks[ndx1].momentum());
-      k0sPtHisto->Fill( k0sP.perp(), 1. );
+      math::XYZTLorentzVectorD k0sP(theSimTracks[ndx1].momentum());
+      k0sPtHisto->Fill( sqrt(k0sP.Perp2()), 1. );
       simRad = 
 	sqrt(theSimVerts[(theSimTracks[ndx1].vertIndex() + 1)].position().perp2());
       numSimKshorts += 1.;
@@ -572,10 +572,10 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	double posE = sqrt(posP2 + piMassSq);
 	double negE = sqrt(negP2 + piMassSq);
 	double k0sE = posE + negE;
-	HepLorentzVector k0sMomentum(thePosSimTk->momentum()
-				     +theNegSimTk->momentum());
-	k0sMomentum.setE(k0sE);
-	double k0sInvMass = k0sMomentum.m();
+	math::XYZTLorentzVectorD k0sMomentum(thePosSimTk->momentum()
+                                             +theNegSimTk->momentum());
+	k0sMomentum.SetE(k0sE);
+	double k0sInvMass = k0sMomentum.M();
 	simTkMpipiHisto->Fill(k0sInvMass, 1.);
       }
       thePosSimTk = theNegSimTk = 0;
