@@ -6,7 +6,7 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
 // Constructors
 
-TrackingVertex::TrackingVertex() : position_(HepLorentzVector(0,0,0,0)), eId_(0) {
+TrackingVertex::TrackingVertex() : position_(LorentzVector(0,0,0,0)), eId_(0) {
 //  daughterTracks_.clear();
 }
 
