@@ -247,35 +247,35 @@ void HTrack::computeResolutionAndPull(FreeTrajectoryState& fts, SimTrack& simTra
   // computeTDRPull(fts,simTracks,hTDRPull); 
 
 
-  hVariables->Fill(simTrack.momentum().perp(),
+  hVariables->Fill(sqrt(simTrack.momentum().Perp2()),
 		   simTrack.momentum().eta(),
 		   simTrack.momentum().phi()); //FIXME
 
 
   if(doSubHisto){
     // [5-10] GeV range
-    if(simTrack.momentum().perp() <10 ){  
+    if(sqrt(simTrack.momentum().Perp2()) <10 ){  
       computeResolution(fts,simTrack,hResolution_5_10);
       computeTDRResolution(fts,simTrack,hTDRResolution_5_10);
       computePull(fts,simTrack,hPull_5_10);
     }
 
     // [10-40] GeV range
-    if(simTrack.momentum().perp() >=10 && simTrack.momentum().perp() < 40){
+    if(sqrt(simTrack.momentum().Perp2()) >=10 && sqrt(simTrack.momentum().Perp2()) < 40){
       computeResolution(fts,simTrack,hResolution_10_40); 
       computeTDRResolution(fts,simTrack,  hTDRResolution_10_40);
       computePull(fts,simTrack,hPull_10_40);
     }
   
     // [40-70] GeV range
-    if(simTrack.momentum().perp() >=40 && simTrack.momentum().perp() < 70){
+    if(sqrt(simTrack.momentum().Perp2()) >=40 && sqrt(simTrack.momentum().Perp2()) < 70){
       computeResolution(fts,simTrack,hResolution_40_70); 
       computeTDRResolution(fts,simTrack,hTDRResolution_40_70);
       computePull(fts,simTrack,hPull_40_70); 
     }
 
     // [70-100] GeV range
-    if(simTrack.momentum().perp() >= 70 && simTrack.momentum().perp() < 100){	       
+    if(sqrt(simTrack.momentum().Perp2()) >= 70 && sqrt(simTrack.momentum().Perp2()) < 100){	       
       computeResolution(fts,simTrack,hResolution_70_100); 
       computeTDRResolution(fts,simTrack,hTDRResolution_70_100);
       computePull(fts,simTrack,hPull_70_100); 
@@ -339,11 +339,11 @@ void HTrack::computeResolution(FreeTrajectoryState &fts,
 
 
   hReso->Fill(simTrack.momentum().mag(),
-	      simTrack.momentum().perp(),
+	      sqrt(simTrack.momentum().Perp2()),
 	      simTrack.momentum().eta(),
 	      simTrack.momentum().phi(),
 	      resolution(fts.momentum().mag(),simTrack.momentum().mag()),
-	      resolution(fts.momentum().perp(),simTrack.momentum().perp()),
+	      resolution(fts.momentum().perp(),sqrt(simTrack.momentum().Perp2())),
 	      fts.momentum().eta()-simTrack.momentum().eta(),
 	      fts.momentum().phi()-simTrack.momentum().phi(),
 	      fts.charge()+simTrack.type()/abs(simTrack.type())); // FIXME
@@ -359,11 +359,11 @@ void HTrack::computeTDRResolution(FreeTrajectoryState &fts,
   double signedInverseRecMom = (simTrack.momentum().mag() == 0 ) ? 0 : fts.signedInverseMomentum();
 
   hReso->Fill(simTrack.momentum().mag(),
-	      simTrack.momentum().perp(),
+	      sqrt(simTrack.momentum().Perp2()),
 	      simTrack.momentum().eta(),
 	      simTrack.momentum().phi(),
 	      resolution(signedInverseRecMom , simCharge*invSimP ),
-	      resolution(fts.charge()/fts.momentum().perp(),simCharge/simTrack.momentum().perp()));
+	      resolution(fts.charge()/fts.momentum().perp(),simCharge/sqrt(simTrack.momentum().Perp2())));
 }
 
 void HTrack::computePull(FreeTrajectoryState &fts,
@@ -387,11 +387,11 @@ void HTrack::computePull(FreeTrajectoryState &fts,
 
 
   hReso->Fill(simTrack.momentum().mag(),
-	      simTrack.momentum().perp(),
+	      sqrt(simTrack.momentum().Perp2()),
 	      simTrack.momentum().eta(),
 	      simTrack.momentum().phi(),
 	      pull(fts.momentum().mag(),simTrack.momentum().mag(),perror),
-	      pull(fts.momentum().perp(),simTrack.momentum().perp(),pterror),
+	      pull(fts.momentum().perp(),sqrt(simTrack.momentum().Perp2()),pterror),
 	      pull(fts.momentum().eta(),simTrack.momentum().eta(),etaerror),
 	      pull(fts.momentum().phi(),simTrack.momentum().phi(),phierror),
 	      pull(fts.charge() , -simTrack.type()/ abs(simTrack.type()), 1.)); // FIXME

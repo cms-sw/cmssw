@@ -1,8 +1,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2007/05/29 08:57:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/11/30 18:50:59 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -274,7 +274,7 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
     double deltaPt_in_out = innerTSOS.globalMomentum().perp()-outerTSOS.globalMomentum().perp();
     hDeltaPt_In_Out_VsEta->Fill(simTrack.momentum().eta(),deltaPt_in_out);
 
-    double deltaPt_pca_sim = pcaTSOS.globalMomentum().perp()-simTrack.momentum().perp();
+    double deltaPt_pca_sim = pcaTSOS.globalMomentum().perp()-sqrt(simTrack.momentum().Perp2());
     hDeltaPtVsEta->Fill(simTrack.momentum().eta(),deltaPt_pca_sim);
     
     hChargeVsEta->Fill(simTrack.momentum().eta(),pcaTSOS.charge());
@@ -343,7 +343,7 @@ void  MuonTrackAnalyzer::fillPlots(TrajectoryStateOnSurface &recoTSOS,SimTrack &
   histo->Fill(recoTSOS);
   
   GlobalVector tsosVect = recoTSOS.globalMomentum();
-  Hep3Vector reco(tsosVect.x(), tsosVect.y(), tsosVect.z());
+  math::XYZVectorD reco(tsosVect.x(), tsosVect.y(), tsosVect.z());
   double deltaRVal = deltaR<double>(reco.eta(),reco.phi(),
 				    simTrack.momentum().eta(),simTrack.momentum().phi());
   histo->FillDeltaR(deltaRVal);
@@ -359,7 +359,7 @@ void  MuonTrackAnalyzer::fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTra
   histo->Fill(recoFTS);
   
   GlobalVector ftsVect = recoFTS.momentum();
-  Hep3Vector reco(ftsVect.x(), ftsVect.y(), ftsVect.z());
+  math::XYZVectorD reco(ftsVect.x(), ftsVect.y(), ftsVect.z());
   double deltaRVal = deltaR<double>(reco.eta(),reco.phi(),
 				    simTrack.momentum().eta(),simTrack.momentum().phi());
   histo->FillDeltaR(deltaRVal);
@@ -399,7 +399,7 @@ pair<SimTrack,double> MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &t
     
     //    double newDeltaR = tsos.globalMomentum().basicVector().deltaR(simTrack->momentum().vect());
     GlobalVector tsosVect = tsos.globalMomentum();
-    Hep3Vector vect(tsosVect.x(), tsosVect.y(), tsosVect.z());
+    math::XYZVectorD vect(tsosVect.x(), tsosVect.y(), tsosVect.z());
     double newDeltaR = deltaR<double>(vect.eta(),vect.phi(),
 				      simTrack->momentum().eta(),simTrack->momentum().phi());
 
