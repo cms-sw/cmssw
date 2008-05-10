@@ -161,10 +161,10 @@ void PixelTrackVal::analyze(
 //    float pt_gen = (*p).momentum().Pt();
     float pt_gen = sqrt((*p).momentum().x() * (*p).momentum().x() + (*p).momentum().y() * (*p).momentum().y());
     float eta_gen = (*p).momentum().eta();
-    HepLorentzVector vtx((*simVtcs)[p->vertIndex()].position().x(),
-                         (*simVtcs)[p->vertIndex()].position().y(),
-                         (*simVtcs)[p->vertIndex()].position().z(),
-                         (*simVtcs)[p->vertIndex()].position().e());
+    math::XYZTLorentzVectorD vtx((*simVtcs)[p->vertIndex()].position().x(),
+                                 (*simVtcs)[p->vertIndex()].position().y(),
+                                 (*simVtcs)[p->vertIndex()].position().z(),
+                                 (*simVtcs)[p->vertIndex()].position().e());
     float z_gen  = vtx.z();
 
 //     cout << "\tmomentum: " <<  (*p).momentum()
