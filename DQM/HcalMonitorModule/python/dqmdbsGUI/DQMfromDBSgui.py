@@ -66,13 +66,8 @@ class DQMDBSgui:
 
         '''
         **self.__init__**
-        DQMDBSgui.__init__  creates the graphic interface for the
-        program, and initializes a few needed variables.  Remaining
-        variables are created through the setup() method, called at
-        the end of __init__.
-
+        DQMDBSgui.__init__  sets up all class variables used by the GUI.
         '''
-
 
         # Check that CMSSW environment has been set;
         # Set basedir to CMSSW release area
@@ -94,26 +89,21 @@ class DQMDBSgui:
 
         os.chdir(self.basedir)  # put all output into basedir
 
+
+        # init function should define all variables needed for the creation of the GUI
         self.debug=debug
         if (self.debug):
             print self.__doc__
             print self.__init__.__doc__
 
-            
-        
+        self.parent=parent  # parent window in which GUI is drawn (a new window is created if parent==None)
         # Create GUI window
-        if (parent==None):
+        if (self.parent==None):
             self.root=Tk()
             self.root.title("HCAL DQM from DBS GUI")
             self.root.geometry('+25+25') # set initial position of GUI
         else:
-            self.root=parent # could conceivably put GUI within another window
-
-
-
-    
-        if (debug):
-            print "Created main GUI window"
+            self.root=self.parent # could conceivably put GUI within another window
 
         #######################################
         # Set up bg, fg colors for use by GUI #
@@ -123,7 +113,82 @@ class DQMDBSgui:
         self.fg="#180580410" # basic fg color -- green/grey-ish
         self.alt_active="gold3" # active bg for buttons
 
+        self.enableSCP=BooleanVar() # variable to determine whether 'scp' copying is enabled
+        self.enableSCP.set(True)
 
+        # Set possible auto-update times (in minutes) for DBS, DQM
+        self.updateTimes=(2,5,10,20,30,60,120)
+
+        # Variables used for starting point, range of runs to search when looking at DBS
+        self.dbsRange=IntVar()
+        self.lastFoundDBS=IntVar()
+
+        # Create boolean for determining whether or not Auto-running
+        # is enabled
+        self.Automated=BooleanVar()
+        self.Automated.set(False)
+        # "Sub"-booleans for toggling DBS, DQM independently when Auto-running is enabled
+        self.dbsAutoVar=BooleanVar()
+        self.dbsAutoVar.set(False)
+        self.dqmAutoVar=BooleanVar()
+        self.dqmAutoVar.set(False)
+        
+        # DQM output is initially stored locally;
+        #self.finalDir determines where
+        # it will be sent once the DQM has finished running.
+        self.finalDir=StringVar()
+       
+        # Store maximum # of events to be run for each DQM job 
+        self.maxDQMEvents=IntVar()
+        self.maxDQMEvents.set(1000)
+
+        # TO DO:  Make this default value changeable by user?  Save in cPickle?
+        self.dbsRange.set(100) # specify range of runs over which to search, starting at the LastDBS value
+
+        self.lastFoundDBS.set(42100) # specify last run # found in DBS
+
+        self.foundfiles=0 # number of files found in the latest DBS search -- deprecated variable?
+
+        self.dbsSearchInProgress=False
+        self.pickleFileOpen=False
+        self.runningDQM=False
+
+
+        # Set initial DBS auto-update interval to 20 minutes
+        self.dbsAutoUpdateTime=IntVar()
+        self.dbsAutoUpdateTime.set(20) # dbs update time in minutes
+        self.dbsAutoCounter=0
+        # Set initial DQM auto-update interval to 20 minutes
+        self.dqmAutoUpdateTime=IntVar()
+        self.dqmAutoUpdateTime.set(20) # dqm update time in minutes
+
+        self.dqmAutoCounter=0
+        self.autoRunning=False
+        self.hbcolor=self.bg # heartbeat color
+
+        self.cfgFileName=StringVar()
+        self.mycfg="hcal_dqm_dbsgui.cfg"
+
+        self.autoRunShift=True # automatically updates run entry when new run found
+
+        return
+
+
+
+    
+
+
+    def DrawGUI(self):
+        '''
+        ** self.DrawGUI **
+        Creates GUI window, grids all Tkinter objects within the window.
+        This function should only contain calls to objects in the GUI display.
+        Variables attached to those objects are created in the __init__ method.
+        '''
+
+        if (self.debug):
+            print self.DrawGUI.__doc__
+            
         self.root.configure(bg=self.bg)
         rootrow=0
         
@@ -136,8 +201,9 @@ class DQMDBSgui:
         
         self.menubar.grid(row=rootrow,column=0,sticky=EW)
 
-        rootrow=rootrow+1
+
         # Create frame that holds search values (i.e., run range to search in DBS)
+        rootrow=rootrow+1
         self.searchFrame=Frame(self.root,
                                bg=self.bg)
                                
@@ -145,18 +211,18 @@ class DQMDBSgui:
                               sticky=EW,
                               column=0)
 
-        rootrow=rootrow+1
 
         # Create main Frame (holds "Check DBS" and "Check DQM" buttons and status values)
+        rootrow=rootrow+1
         self.mainFrame=Frame(self.root,
                              bg=self.bg)
         self.mainFrame.grid(row=rootrow,column=0,sticky=EW)
 
         # Frame that will display overall status messages
+        rootrow=rootrow+1
         self.statusFrame=Frame(self.root,
                                bg=self.bg
                                )
-        rootrow=rootrow+1
         self.statusFrame.grid(row=rootrow,column=0,sticky=EW)
 
 
@@ -167,6 +233,7 @@ class DQMDBSgui:
         ########################################################
         
         mycol=0
+
         # make File button on menubar
         self.BFile=Menubutton(self.menubar,
                               text = "File",
@@ -189,7 +256,6 @@ class DQMDBSgui:
                              fg=self.fg,
                              padx=10, pady=8)
         self.Bdbs.grid(row=0,column=mycol,sticky=W)
-
 
         # Make DQM option menu on menubar
         mycol=mycol+1
@@ -219,8 +285,6 @@ class DQMDBSgui:
         # outside local areas
         mycol=mycol+1
         self.menubar.columnconfigure(mycol,weight=1)
-        self.enableSCP=BooleanVar()
-        self.enableSCP.set(True)
         self.scpAutoButton=Checkbutton(self.menubar,
                                        bg=self.bg,
                                        fg=self.fg,
@@ -231,6 +295,10 @@ class DQMDBSgui:
                                        command=self.toggleSCP)
         
         self.scpAutoButton.grid(row=0,column=mycol,sticky=E)
+
+        # This is an old implementation of scp choices.
+        # Can it be removed?  Jeff, 10 May 2008
+        
         #mycol=mycol+1
         #self.menubar.columnconfigure(mycol,weight=1)
         #self.scpLabel=Label(self.menubar,
@@ -254,7 +322,8 @@ class DQMDBSgui:
         #                       foreground=self.fg,
         #                       activebackground=self.alt_active)
 
-        # for now, make button to copy files with scp
+
+        # for now, use a button to copy files with scp
         self.copyLoc=Button(self.menubar,
                             text="Copy Output!",
                             command=lambda x=self:x.tempSCP())
@@ -262,7 +331,8 @@ class DQMDBSgui:
                                foreground=self.bg,
                                activebackground=self.alt_active)
         self.copyLoc.grid(row=0,column=mycol,sticky=E)
-                
+
+        # Turn off copying by default if user is not "cchcal"
         if os.getenv("USER")<>"cchcal":
             self.enableSCP.set(False)
             self.scpAutoButton.configure(text="scp copying disabled")
@@ -303,11 +373,11 @@ class DQMDBSgui:
         self.quitmenu.add_command(label="Clear ALL hidden files",
                                   command=lambda x=self:x.removeFiles(removeAll=True))
         self.quitmenu.add_separator()
-        # Call Quit coomand
+        # Call Quit command
         self.quitmenu.add_command(label="Quit",
                                   command = lambda x=self: x.goodQuit())
-
         self.BFile['menu']=self.quitmenu
+
 
 
         # Fill 'Status' Menu
@@ -325,23 +395,21 @@ class DQMDBSgui:
                                     command = lambda x=self:x.restoreFromBackupPickle())
         self.Bprogress['menu']=self.statusmenu
 
+
         # Fill 'About' menu"
         self.aboutmenu=Menu(self.BAbout,
                             bg="white")
-        temptext="DQMfromDBS GUI\n\nv1.2 Beta\nby Jeff Temple\n7 May 2008\n\n"
+        temptext="DQMfromDBS GUI\n\nv1.3 Beta\nby Jeff Temple\n10 May 2008\n\n"
         temptext=temptext+"GUI allows users to query DBS for files in a specified\nrun range, and then run HCAL DQM over those files.\n\nQuestions or comments?\nSend to:  jtemple@fnal.gov\n"
         self.aboutmenu.add_command(label="Info",
                                    command = lambda x=helpfunctions:
                                    x.Helpwin(temptext,usetext=1,title="About this program..."))
         self.aboutmenu.add_command(label="Help",
                                    command = lambda x=helpfunctions:
-                                   x.Helpwin("dqmdbs_instructions.txt",title="Basic instructions for the user"))
+                                   x.Helpwin("%s"%os.path.join(self.basedir,dqmdbs_instructions.txt),title="Basic instructions for the user"))
         self.BAbout['menu']=self.aboutmenu
 
 
-
-        # Set possible auto-update times for DBS, DQM
-        self.updateTimes=(1,5,10,20,30,60,120)
         
         # Fill 'DBS Options' Menu
         self.dbsmenu=Menu(self.Bdbs,
@@ -349,8 +417,10 @@ class DQMDBSgui:
                           tearoff=0)
         self.dbsmenu.add_command(label="Change DBS settings",
                                  command = lambda x=self:x.printDBS())
-        # update with save DBS
+        
         self.dbsmenu.add_separator()
+
+        # Create submenu to allow changing of DBS auto-update interval
         self.dbsUpdateMenu=Menu(self.dbsmenu,
                                 bg="white",
                                 tearoff=0)
@@ -374,6 +444,8 @@ class DQMDBSgui:
         self.dqmmenu.add_command(label="Change DQM settings",
                                  command = lambda x=self:x.printDQM())
         self.dqmmenu.add_separator()
+
+        # Create submenu to allow changing of DQM auto-update interval
         self.dqmUpdateMenu=Menu(self.dqmmenu,
                                 bg="white",
                                 tearoff=0)
@@ -387,8 +459,6 @@ class DQMDBSgui:
                                                    )
         self.dqmmenu.add_cascade(label="Set DQM update time",
                                  menu=self.dqmUpdateMenu.choices)
-        
-        
         self.Bdqm['menu']=self.dqmmenu
 
 
@@ -404,9 +474,6 @@ class DQMDBSgui:
         # ("lastFoundDBS" is a bit of a misnomer -- this value will
         # actually be 1 greater than the last found run under normal
         # circumstances.)
-
-        self.dbsRange=IntVar()
-        self.lastFoundDBS=IntVar()
 
         searchrow=0
         Label(self.searchFrame,text = "Search over ",
@@ -447,7 +514,8 @@ class DQMDBSgui:
               bg=self.fg).grid(row=mainrow,column=0,
                                columnspan=10,sticky=EW)
 
-        
+
+        # Make row showing column headings, Auto-Update button
         mainrow=mainrow+1
         Label(self.mainFrame,text="Current Status",
               bg=self.bg,
@@ -456,10 +524,7 @@ class DQMDBSgui:
               bg=self.bg,
               fg=self.bg_alt).grid(row=mainrow,column=2)
 
-        # Create boolean for determining whether or not Auto-running
-        # is enabled
-        self.Automated=BooleanVar()
-        self.Automated.set(False)
+        # Button for enabling/disabling auto updating
         self.autoButton=Button(self.mainFrame,
                                text="Auto-Update\nDisabled!!",
                                bg="black",
@@ -467,10 +532,9 @@ class DQMDBSgui:
                                command = lambda x=self:x.checkAutoUpdate())
         self.autoButton.grid(row=mainrow,column=4,padx=10,pady=6)
 
-        
 
-        mainrow=mainrow+1
         # Make labels/entries/buttons dealing with DBS
+        mainrow=mainrow+1
         self.dbsLabel=Label(self.mainFrame,
                             text="DBS:",
                             fg=self.fg, bg=self.bg,
@@ -494,8 +558,7 @@ class DQMDBSgui:
                               activebackground=self.alt_active,
                               command = lambda x=self:x.checkDBS()
                               )
-        self.dbsAutoVar=BooleanVar()
-        self.dbsAutoVar.set(False)
+
         self.dbsAutoButton=Checkbutton(self.mainFrame,
                                        text="Auto DBS\nupdate OFF",
                                        state=DISABLED,
@@ -538,8 +601,6 @@ class DQMDBSgui:
                               activebackground=self.alt_active,
                               command = lambda x=self:x.runDQM_thread())
 
-        self.dqmAutoVar=BooleanVar()
-        self.dqmAutoVar.set(False)
         self.dqmAutoButton=Checkbutton(self.mainFrame,
                                        text="Auto DQM\nupdate OFF",
                                        state=DISABLED,
@@ -571,8 +632,8 @@ class DQMDBSgui:
         self.commentLabel=Label(self.statusFrame,
                                 bg=self.bg,
                                 fg=self.bg_alt,
-                                height=2,
-                                text="Welcome to the HCAL DQM/DBS GUI")
+                                height=2)
+
         statusrow=0
         self.commentLabel.grid(row=statusrow,column=0,sticky=EW)
 
@@ -586,38 +647,30 @@ class DQMDBSgui:
     def setup(self):
         '''
         **self.setup**
-        Setup creates variables, sets values, etc. once drawing of
-        main GUI is complete.
+        Setup performs some GUI tuning that cannot be completed until variables are declared and
+        GUI is drawn.
         
             '''
 
         if self.debug:  print self.setup.__doc__
 
-        # DQM output is initially stored locally;
-        #self.finalDir determines where
-        # it will be sent once the DQM has finished running.
-        self.finalDir=StringVar()
-        self.finalDir.set(self.basedir) # set this to some other location later!
+        #self.commentLabel.configure("Welcome to the HCAL DBS/DQM GUI")
+        #self.commentLabel.update_idletasks()
 
-        # Store maximum # of events to be run for each DQM job 
-        self.maxDQMEvents=IntVar()
-        self.maxDQMEvents.set(1000)
+        os.chdir(self.basedir) # cd to the self.basedir directory
 
+        self.finalDir.set(self.basedir) # set this to some other location later?
 
-        # TO DO:  Make this default value changeable by user?  Save in cPickle?
-        self.dbsRange.set(100) # specify range of runs over which to search, starting at the LastDBS value
-
-        self.lastFoundDBS.set(42100) # specify last run # found in DBS
-
-        self.inittime=time.time()
-        # call thread with time.sleep option
-        self.foundfiles=0 # number of files found in the latest DBS search
-
+        # Create DBS accessor
         self.myDBS = dbsAccessor(self.basedir,debug=self.debug) # Will access runs from DBS
         self.myDBS.getDefaultsFromPickle()
-        self.dbsSearchInProgress=False
-        self.pickleFileOpen=False
-        self.runningDQM=False
+
+
+        # Default file settings may only be read/set once correct basedir location
+        # is set.
+        
+        self.cfgFileName.set(os.path.join(self.basedir,self.mycfg))
+        self.getDefaultDQMFromPickle(startup=True)
 
         self.readPickle() # Read defaults from cPickle file
         
@@ -628,28 +681,12 @@ class DQMDBSgui:
             x.reverse()
             self.lastFoundDBS.set(x[0])
 
-        # TO DO:  Make Auto Update Times adjustable by user
-        self.dbsAutoUpdateTime=IntVar()
-        self.dbsAutoUpdateTime.set(20) # dbs update time in minutes
+        # Set update time in UpdateMenus to 20 minutes (they will appear in red in the menu)
         for temptime in range(len(self.updateTimes)):
             if self.updateTimes[temptime]==20:
                 self.dbsUpdateMenu.choices.entryconfig(temptime,foreground="red")
-        self.dbsAutoCounter=0
-
-        self.dqmAutoUpdateTime=IntVar()
-        self.dqmAutoUpdateTime.set(20) # dqm update time in minutes
-        for temptime in range(len(self.updateTimes)):
-            if self.updateTimes[temptime]==20:
                 self.dqmUpdateMenu.choices.entryconfig(temptime,foreground="red")
-        self.dqmAutoCounter=0
-        self.autoRunning=False
-        self.hbcolor=self.bg
 
-        self.cfgFileName=StringVar()
-        self.cfgFileName.set(os.path.join(self.basedir,"hcal_dqm_dbsgui.cfg"))
-        self.getDefaultDQMFromPickle(startup=True)
-
-        self.autoRunShift=True # automatically updates run entry when new run found
         # Hidden trick to freeze starting run value!
         self.lastFoundDBSEntry.bind("<Shift-Up>",self.toggleAutoRunShift)
         self.lastFoundDBSEntry.bind("<Shift-Down>",self.toggleAutoRunShift)
@@ -2111,4 +2148,5 @@ class DQMDBSgui:
 if __name__=="__main__":
 
     mygui=DQMDBSgui(debug=0)  # set up gui
+    mygui.DrawGUI()
     mygui.root.mainloop() # run main loop
