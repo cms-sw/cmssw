@@ -45,23 +45,11 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-
-//typedef edm::AssociationMap<reco::TrackRefProd,reco::TrajectorySateOnDetInfoCollection > TrackTrajectorySateOnDetInfosCollection2;
-
-//typedef  edm::OneToOne<reco::TrackRefProd,reco::TrajectorySateOnDetInfoCollection>  TrackTrajectorySateOnDetInfosCollection2;
-//typedef edm::AssociationMap<edm::OneToOne<reco::TrackRefProd,reco::TrajectorySateOnDetInfoCollection,unsigned short> > TrackTrajectorySateOnDetInfosCollection2;
-//typedef  edm::AssociationVector<reco::TrackRefProd,std::vector<reco::TrajectorySateOnDetInfoCollection> >  TrackTrajectorySateOnDetInfosCollection2;
-
-
-
-
 TrajectorySateOnDetInfosProducer::TrajectorySateOnDetInfosProducer(const edm::ParameterSet& iConfig)
 {
    m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
    m_tracksTag                 = iConfig.getParameter<edm::InputTag>("Track");
 
-
-   //register your products
    produces<reco::TrackTrajectorySateOnDetInfosCollection>();  
 }
 
@@ -70,60 +58,59 @@ TrajectorySateOnDetInfosProducer::~TrajectorySateOnDetInfosProducer()
 { 
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 TrajectorySateOnDetInfosProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-
    Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
    iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
    const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
 
    edm::Handle<reco::TrackCollection> trackCollectionHandle;
    iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
-   const reco::TrackCollection &tracks=*trackCollectionHandle.product();
 
+   TrackTrajectorySateOnDetInfosCollection* outputCollection = Get_TSODICollection(TrajToTrackMap,trackCollectionHandle);
+   
+   //put in the event the result
+   std::auto_ptr<TrackTrajectorySateOnDetInfosCollection> outputs(outputCollection);
+   iEvent.put(outputs);
+}
+
+TrackTrajectorySateOnDetInfosCollection*
+TrajectorySateOnDetInfosProducer::Get_TSODICollection(const TrajTrackAssociationCollection TrajToTrackMap, edm::Handle<reco::TrackCollection> trackCollectionHandle)
+{
    TrackTrajectorySateOnDetInfosCollection* outputCollection = new TrackTrajectorySateOnDetInfosCollection(reco::TrackRefProd(trackCollectionHandle) );
 
    int track_index=0;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); it++) {
-      const Track      track = *it->val;   
+      const Track      track = *it->val;
       const Trajectory traj  = *it->key;
 
       TrajectorySateOnDetInfoCollection TSODI_Coll;
-         
+
       vector<TrajectoryMeasurement> measurements = traj.measurements();
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
 
-         TrajectoryStateOnSurface trajState              = measurement_it->updatedState();                     if( !trajState.isValid() ) continue;     
+         TrajectoryStateOnSurface trajState              = measurement_it->updatedState();                     if( !trajState.isValid() ) continue;
          const TrackingRecHit*         hit               = (*measurement_it->recHit()).hit();
          const SiStripRecHit2D*        sistripsimplehit  = dynamic_cast<const SiStripRecHit2D*>(hit);
          const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
 
-	 TrajectorySateOnDetInfo* TSODI_Temp;
+         TrajectorySateOnDetInfo* TSODI_Temp;
          if(sistripsimplehit)
          {
-	       TSODI_Temp = Get_TSODI(&traj, &trajState, sistripsimplehit);                  if(TSODI_Temp!=NULL)TSODI_Coll.push_back(*TSODI_Temp);
+               TSODI_Temp = Get_TSODI(&traj, &trajState, sistripsimplehit);                  if(TSODI_Temp!=NULL)TSODI_Coll.push_back(*TSODI_Temp);
          }else if(sistripmatchedhit){
                TSODI_Temp = Get_TSODI(&traj, &trajState, sistripmatchedhit->monoHit()   );   if(TSODI_Temp!=NULL)TSODI_Coll.push_back(*TSODI_Temp);
                TSODI_Temp = Get_TSODI(&traj, &trajState, sistripmatchedhit->stereoHit() );   if(TSODI_Temp!=NULL)TSODI_Coll.push_back(*TSODI_Temp);
-         }                 
+         }
       }
       outputCollection->setValue(track_index,TSODI_Coll);
       track_index++;
    }
 
-   //put in the event the result
-   std::auto_ptr<TrackTrajectorySateOnDetInfosCollection> outputs(outputCollection);
-   iEvent.put(outputs);
-
+   return outputCollection;
 }
+
 
 TrajectorySateOnDetInfo* TrajectorySateOnDetInfosProducer::Get_TSODI(const Trajectory* traj, const TrajectoryStateOnSurface* trajSOS, const SiStripRecHit2D* hit)
 {
@@ -161,18 +148,13 @@ TrajectorySateOnDetInfo* TrajectorySateOnDetInfosProducer::Get_TSODI(const Traje
    return toReturn;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
 void 
 TrajectorySateOnDetInfosProducer::beginJob(const edm::EventSetup&)
 {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
 void 
 TrajectorySateOnDetInfosProducer::endJob() {
-//TODO: if verbose level very high, print the detid->calib map
 }
 
-
-//define this as a plug-in
 DEFINE_FWK_MODULE(TrajectorySateOnDetInfosProducer);

@@ -13,10 +13,20 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackReco/interface/TrackTrajectorySateOnDetInfos.h"
 #include "DataFormats/TrackReco/interface/TrajectorySateOnDetInfo.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
 
 //
 // class decleration
@@ -33,6 +43,9 @@ class TrajectorySateOnDetInfosProducer : public edm::EDProducer {
       explicit TrajectorySateOnDetInfosProducer(const edm::ParameterSet&);
       ~TrajectorySateOnDetInfosProducer();
 
+       TrackTrajectorySateOnDetInfosCollection* Get_TSODICollection(const TrajTrackAssociationCollection TrajToTrackMap, edm::Handle<reco::TrackCollection> trackCollectionHandle);
+
+
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -46,7 +59,6 @@ class TrajectorySateOnDetInfosProducer : public edm::EDProducer {
      edm::InputTag m_tracksTag;
      
 };
-
 
 #endif
 
