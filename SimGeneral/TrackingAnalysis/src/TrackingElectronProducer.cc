@@ -28,7 +28,6 @@
 
 using namespace edm;
 using namespace std;
-using CLHEP::HepLorentzVector;
 
 typedef TkNavigableSimElectronAssembler::VertexPtr VertexPtr;
 typedef math::XYZTLorentzVectorD LorentzVector;

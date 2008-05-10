@@ -26,7 +26,6 @@
 
 using namespace edm;
 using namespace std;
-using CLHEP::HepLorentzVector;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >   GenVertexRef;
