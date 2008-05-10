@@ -19,6 +19,24 @@
 <use name=SimDataFormats/TrackerDigiSimLink>
 <use name=SimDataFormats/RPCDigiSimLink>
 <use name=boost>
+<use name=root>
+
+<use name=PhysicsTools/UtilAlgos>
+<use name=Geometry/Records>
+<use name=CondFormats/RPCObjects>
+<use name=CondCore/DBCommon>
+<use name=CondCore/DBOutputService>
+ <use name=CondCore/PopCon>
+<use name=CondCore/IOVService>
+<use name=CondCore/MetaDataService>
+<use name=CondFormats/DataRecord>
+<use name=CoralBase>
+<use name=DataFormats/Provenance>
+<use name=FWCore/Catalog>
+<use name=FWCore/ServiceRegistry>
+<use name=RelationalAccess>
+<use name=rootrflx>
+
 <flags EDM_PLUGIN=1>
 
 <export>
