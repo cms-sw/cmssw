@@ -9,7 +9,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=SimDataFormats/CrossingFrame>
-<use name=SimMuon/MCTruth>
 <use name=root>
 
 <flags EDM_PLUGIN=1>
