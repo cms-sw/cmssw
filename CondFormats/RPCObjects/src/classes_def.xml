@@ -52,6 +52,11 @@
   <class name="RPCdbData::Item"/>
   <class name="std::vector<RPCdbData::Item>"/>
 
+  <class name="RPCStripNoises"/>
+  <class name="RPCStripNoises::NoiseItem"/>
+  <class name="std::vector<RPCStripNoises::NoiseItem>"/>
+  <class name="std::vector<double>"/>
+
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
 

@@ -9,6 +9,8 @@
 
 #include "CondFormats/RPCObjects/interface/RPCdbData.h"
 
+#include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
+
 namespace{
   std::vector<ChamberStripSpec> theStrips;
 }
