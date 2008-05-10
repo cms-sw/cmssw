@@ -34,6 +34,16 @@ Description: Create monitorElements for the Errors in created in the reduction o
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
+#include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+
 //
 // class declaration
 //
@@ -43,6 +53,12 @@ class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
       explicit SiPixelErrorsDigisToCalibDigis(const edm::ParameterSet&);
       ~SiPixelErrorsDigisToCalibDigis();
 
+      MonitorElement*  bookDQMHistogram2D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);      
+      MonitorElement*  bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
+
+ protected:
+
+       edm::ESHandle<TrackerGeometry> geom_;
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -56,12 +72,14 @@ class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
 
       edm::InputTag siPixelProducerLabel_;
       DQMStore* daqBE_;
+      SiPixelHistogramId * theHistogramIdWorker_;
       std::string outputFilename_;
       bool createOutputFile_;
 
-      
+      SiPixelFolderOrganizer* folderMaker_;
       std::map<uint32_t, MonitorElement*> SiPixelErrorsDigisToCalibDigis_2DErrorInformation_; 
       
+      MonitorElement * temp;
 };
 
 #endif

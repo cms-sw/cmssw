@@ -7,7 +7,11 @@
 <use name=DataFormats/FEDRawData> 
 <use name=DataFormats/Common>
 <use name=DataFormats/SiPixelDigi>
-
+<use name=DQMServices/Core>
+<use name=DQM/SiPixelCommon>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
 <library file="*.cc" name=CalibTrackerSiPixelToolsPlugin>
 <flags EDM_PLUGIN=1>
 </library>
