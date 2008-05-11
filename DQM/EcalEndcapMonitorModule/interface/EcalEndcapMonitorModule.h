@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2008/04/08 15:06:27 $
- * $Revision: 1.17 $
+ * $Date: 2008/04/08 18:09:43 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,15 @@ void endJob(void);
 /// Setup
 void setup(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Cleanup
 void cleanup(void);
 
@@ -74,6 +83,8 @@ DQMStore* dqmStore_;
 std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 MonitorElement* meStatus_;
 

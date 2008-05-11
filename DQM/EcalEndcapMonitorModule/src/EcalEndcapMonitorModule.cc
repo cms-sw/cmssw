@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/04/08 15:06:27 $
- * $Revision: 1.54 $
+ * $Date: 2008/04/08 18:09:43 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -104,6 +104,9 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   // enableCleanup switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  // mergeRuns switch
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   if ( enableCleanup_ ) {
     LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is ON";
   } else {
@@ -147,6 +150,38 @@ void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
     if ( enableEventDisplay_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
       dqmStore_->rmdir(prefixME_ + "/EcalEvent");
+    }
+  }
+
+}
+
+void EcalEndcapMonitorModule::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+  
+}
+  
+void EcalEndcapMonitorModule::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EcalEndcapMonitorModule::reset(void) {
+
+  if ( meEvtType_ ) meEvtType_->Reset();
+
+  if ( meEEDCC_ ) meEEDCC_->Reset();
+
+  for (int i = 0; i < 2; i++) {
+    if ( meEEdigis_[i] ) meEEdigis_[i]->Reset();
+
+    if ( meEEhits_[i] ) meEEdigis_[i]->Reset();
+
+    if ( meEEtpdigis_[i] ) meEEtpdigis_[i]->Reset();
+  }
+
+  if ( enableEventDisplay_ ) {
+    for (int i = 0; i < 18; i++) {
+      if ( meEvent_[i] ) meEvent_[i]->Reset();
     }
   }
 
