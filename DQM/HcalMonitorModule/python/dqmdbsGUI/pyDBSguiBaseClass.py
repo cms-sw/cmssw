@@ -56,9 +56,9 @@ from pydbsAccessor import dbsAccessor  # sends queries to DBS
     
 
 ###################################################################
-class DQMDBSgui:
+class dbsBaseGui:
     '''
-    DQMDBSgui:  Main GUI Class for finding files in DBS, and running HCAL DQM on them.
+    dbsBaseGui:  Base Class for finding files in DBS, running analyses on them
 
     '''
     
@@ -66,7 +66,7 @@ class DQMDBSgui:
 
         '''
         **self.__init__(parent=None, debug=False)**
-        DQMDBSgui.__init__  sets up all class variables used by the GUI.
+        dbsBaseGui.__init__  sets up all class variables used by the GUI.
         '''
 
         # Check that CMSSW environment has been set;
@@ -2200,7 +2200,7 @@ class DQMDBSgui:
 
 if __name__=="__main__":
 
-    mygui=DQMDBSgui(debug=1)  # set up gui
+    mygui=dbsBaseGui(debug=1)  # set up gui
     mygui.DrawGUI()
     mygui.root.mainloop() # run main loop
 

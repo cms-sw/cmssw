@@ -57,7 +57,32 @@ import helpfunctions  # displays text in new window
 from pyDBSRunClass import DBSRun  # Gets class that holds information as to whether a given run has been processed through DQM
 
 from pydbsAccessor import dbsAccessor  # sends queries to DBS
-from pyDBSguiBaseClass import DQMDBSgui # get main gui package
+from pyDBSguiBaseClass import dbsBaseGui # get main gui package
+
+
+############################################################
+
+# Silly inheritance:  DQMfromDBSgui.py makes no changes from base class gui
+
+class DQMfromDBSgui(dbsBaseGui):
+    '''
+    *** DQMfromDBSgui ***
+    Looks in DBS, and runs HCAL DQM on resulting found files.
+    '''
+
+    def __init__(self,parent=None,debug=False):
+        ''' *** DQMfromDBSgui.__init__ ***
+        Call the base class __init__ function, and replaces necessary variables
+        with DQMfromDBSgui-specific values.
+        '''
+        
+        dbsBaseGui.__init__(self,parent,debug)
+
+        if (self.debug):
+            print self.__doc__
+            print self.__init__.__doc__
+
+        return
 
 
 ###########################################################
@@ -85,6 +110,6 @@ if __name__=="__main__":
 
 
     # Now run the GUI
-    mygui=DQMDBSgui(debug=debug)  # set up gui
+    mygui=DQMfromDBSgui(debug=debug)  # set up gui
     mygui.DrawGUI()
     mygui.root.mainloop() # run main loop
