@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/06 14:35:04 $
- * $Revision: 1.119 $
+ * $Date: 2008/05/11 10:19:55 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  *
 */
@@ -462,17 +462,28 @@ void EESummaryClient::setup(void) {
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
+    dqmStore_->removeElement(me->getName());
+  }
+
   sprintf(histo, "reportSummary");
   me = dqmStore_->bookFloat(histo);
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
   for (int i = 0; i < 18; i++) {
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + Numbers::sEE(i+1)) ) {
+      dqmStore_->removeElement(me->getName());
+    }
     sprintf(histo, "status %s", Numbers::sEE(i+1).c_str());
     me = dqmStore_->bookFloat(histo);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
+    dqmStore_->removeElement(me->getName());
+  }
 
   sprintf(histo, "reportSummaryMap");
   me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
@@ -625,18 +636,21 @@ void EESummaryClient::cleanup(void) {
   if ( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
   meGlobalSummary_[1] = 0;
 
+  // summary for DQM GUI
 
-  if ( MonitorElement* me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
+  MonitorElement* me;
+
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
     dqmStore_->removeElement(me->getName());
   }
 
-  for (int i = 0; i < 36; i++) {
-    if ( MonitorElement* me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + Numbers::sEE(i+1)) ) {
+  for (int i = 0; i < 18; i++) {
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + Numbers::sEE(i+1)) ) {
       dqmStore_->removeElement(me->getName());
     }
   }
 
-  if ( MonitorElement* me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
     dqmStore_->removeElement(me->getName());
   }
 
