@@ -44,6 +44,8 @@ namespace pos{
     unsigned int value(unsigned int ivalue) const { assert(ivalue<values_.size()); return values_[ivalue]; }
     bool mixValuesAcrossROCs() const { return mixValuesAcrossROCs_; }
     bool uniformSteps() const { return uniformSteps_; }
+    void setRelative() { relative_=true; }
+    bool relative() const { return relative_; }
 
   private:
 
@@ -60,6 +62,10 @@ namespace pos{
     unsigned int index_;
 
     bool mixValuesAcrossROCs_; // whether to spread the DAC values across the entire range on each iteration for different ROCs on a channel
+
+    bool relative_; //Only to be used with 'SetRelative' and indicates that the
+                    //value specified should apply a change to the default
+                    //dac setting.
 
   };
 }

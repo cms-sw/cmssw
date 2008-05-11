@@ -18,6 +18,7 @@ PixelDACScanRange::PixelDACScanRange(std::string name, unsigned int first,
                                      unsigned int index, bool mixValuesAcrossROCs){
 
   uniformSteps_=true;
+  relative_=false;
 
   first_=first;
   last_=last;
@@ -43,6 +44,7 @@ PixelDACScanRange::PixelDACScanRange(std::string name,
                                      unsigned int index, bool mixValuesAcrossROCs){
 
   uniformSteps_=false;
+  relative_=false;
 
   name_=name;
   values_=values;

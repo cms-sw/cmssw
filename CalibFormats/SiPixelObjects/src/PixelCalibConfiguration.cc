@@ -181,13 +181,16 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 	}
       }
       
-      while (tmp=="Set:"){
+      while ((tmp=="Set:")||(tmp=="SetRelative:")){
         in >> tmp;
         unsigned int val;
         in >> val;
         unsigned int index=1;
         if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
         PixelDACScanRange dacrange(tmp,val,val,1,index,false);
+	if (tmp=="SetRelative:") {
+	  dacrange.setRelative();
+	}
         dacs_.push_back(dacrange);
         in >> tmp;
       }
@@ -713,8 +716,22 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
     // Program all the DAC values.
     for (unsigned int ii=0;ii<dacs_.size();ii++){
     
+      //FIXME have to make this signed so that we can have negative 
+      //offsets.
       unsigned int dacvalue = scanValue(ii, state, rocs_[i]);
-    
+      
+      if (dacs_[ii].relative()){
+	//We have to find the default DAC setting so that we can
+	//add the offset as we are in relative mode.
+	std::map<std::string, unsigned int> defaultDACValues;
+	(*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
+	std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_[ii].name());
+	assert( foundThisDAC != defaultDACValues.end() );
+	dacvalue+=foundThisDAC->second;
+	cout << "[PixelCalibConfiguration::nextFECState] ROC="<<rocs_[i]
+	     << " dac="<<dacs_[ii].name()<<" new value="<<dacvalue<<endl;
+      }
+
       pixelFEC->progdac(theROC.mfec(),
          theROC.mfecchannel(),
          theROC.hubaddress(),
