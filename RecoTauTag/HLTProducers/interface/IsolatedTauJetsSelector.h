@@ -23,17 +23,9 @@ class IsolatedTauJetsSelector: public edm::EDProducer {
  private:
   typedef std::vector<edm::InputTag> vtag;
   vtag jetSrc;
- double matching_cone;
- double signal_cone;
- double isolation_cone;
- double pt_min_isolation;
  double pt_min_leadTrack;
- double dZ_vertex;
- int n_tracks_isolation_ring;
  bool useInHLTOpen;
- bool useVertex;
- edm::InputTag vertexSrc;
- 
+ bool useIsolationDiscriminator;
   
 
 };
