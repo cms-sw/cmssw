@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.1 2008/04/28 21:53:01 vasquez Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.3 2008/05/10 14:31:19 vasquez Exp $
 //
 //
 
@@ -53,9 +53,9 @@ SiPixelErrorsDigisToCalibDigis::SiPixelErrorsDigisToCalibDigis(const edm::Parame
 
   folderMaker_ = new SiPixelFolderOrganizer();
 
-  std::cout<<"siPixelProducerLabel_ = "<<siPixelProducerLabel_<<std::endl;
-  std::cout<<"createOutputFile_= "<< createOutputFile_<<std::endl;
-  std::cout<<"outpuFilename_= "<< outputFilename_<< std::endl;
+//  std::cout<<"siPixelProducerLabel_ = "<<siPixelProducerLabel_<<std::endl;
+//  std::cout<<"createOutputFile_= "<< createOutputFile_<<std::endl;
+//  std::cout<<"outpuFilename_= "<< outputFilename_<< std::endl;
 }
 
 
@@ -100,20 +100,20 @@ SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm::Eve
       if (digiIter->begin() != digiIter->end()) {
 	if ( mapIterator == SiPixelErrorsDigisToCalibDigis_2DErrorInformation_.end() )
 	  {
-	    std::cout << "This is the beginning of an error 2d histo booking: "<<std::endl;
+//	    std::cout << "This is the beginning of an error 2d histo booking: "<<std::endl;
 	    temp_ = bookDQMHistoPlaquetteSummary2D(detId, "SiPixelErrorsCalibDigis", "SiPixelErrorsDigisToCalibDigis");
 	    SiPixelErrorsDigisToCalibDigis_2DErrorInformation_.insert( std::make_pair(detId,temp_));
 	  }
 	else
 	  {
-	    std::cout << "This one was already booked."<<std::endl;
+//	    std::cout << "This one was already booked."<<std::endl;
 	    temp_ = (*mapIterator).second;
 	  }
 	
 	for(ipix=digiIter->begin(); ipix!=digiIter->end(); ++ipix)
 	  {
 	    temp_->Fill(ipix->getRow(), ipix->getCol());
-	    std::cout << "detId: " << detId << " " << ipix->getRow() << " " << ipix->getCol() << std::endl;	  
+//	    std::cout << "detId: " << detId << " " << ipix->getRow() << " " << ipix->getCol() << std::endl;	  
 	  }
 	
       } // end of the if statement asking if the plaquette in question has any errors in it    
