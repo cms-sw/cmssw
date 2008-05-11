@@ -6,7 +6,7 @@ import optparse
 
 usage=\
 """%prog <job_type> [options].
-<job type>: RELVAL, MinBias, JetETXX, JetET20, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST, TrackerHaloMuon, TrackerCosBON, TrackerCosBOFF, TrackerLaser, HaloMuon  '
+<job type>: RELVAL, MinBias, JetETXX, JetET20, GammaJets, MuonPTXX, ZW, HCALNZS, HCALIST, TrackerHaloMuon, TrackerCosBON, TrackerCosBOFF, TrackerLaser, HaloMuon  MuonCosBON, MuonCosBOFF '
 """
 
 parser = optparse.OptionParser(usage)
@@ -30,8 +30,10 @@ alcaDict2={'MinBias':'SiPixelLorentzAngle+SiStripCalMinBias+RpcCalHLT+DQM',
            'RELVAL':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
            'TrackerHaloMuon':'TkAlBeamHalo',
            'TrackerCosBON':'TkAlCosmics',
-           'TrackerLaser':'TkAlLAS',
            'TrackerCosBOFF':'TkAlCosmics',
+           'MuonCosBON':'MuAlZMuMu',
+           'MuonCosBOFF':'MuAlZMuMu',
+           'TrackerLaser':'TkAlLAS',
            'HaloMuon':'MuAlBeamHalo+MuAlBeamHaloOverlaps'
            }
 
@@ -47,6 +49,8 @@ alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+Ec
            'TrackerHaloMuon':'', #'TkAlBeamHalo',
            'TrackerCosBON':'', # 'TkAlCosmics',
            'TrackerCosBOFF':'', # 'TkAlCosmics',
+           'MuonCosBON':'', # 'TkAlCosmics',
+           'MuonCosBOFF':'', # 'TkAlCosmics',
            'TrackerLaser':'', #'TkAlLAS',
            'HaloMuon':''#'MuAlBeamHalo+MuAlBeamHaloOverlaps'
            }
@@ -64,6 +68,8 @@ recoCustomiseDict = {
                      'TrackerHaloMuon':'Configuration/Spring08Production/iCSA08_TkBeamHalo_RECO_cff.py',
                      'TrackerCosBON':'',
                      'TrackerCosBOFF':'Configuration/Spring08Production/iCSA08_TkCosmicBOFF_RECO_cff.py',
+                     'MuonCosBON':'',
+                     'MuonCosBOFF':'Configuration/Spring08Production/iCSA08_MuCosmicBOFF_RECO_cff.py',
                      'TrackerLaser':'',
                      'HaloMuon':'Configuration/Spring08Production/iCSA08_MuonBeamHalo_RECO_cff.py'
                      }
@@ -81,6 +87,8 @@ cffCustomiseDict = {
                      'TrackerHaloMuon':'',
                      'TrackerCosBON':'RECO:Configuration/GlobalRuns/data/ReconstructionGR.cff',
                      'TrackerCosBOFF':'RECO:Configuration/GlobalRuns/data/ReconstructionGR.cff',
+                     'MuonCosBON':'RECO:Configuration/GlobalRuns/data/ReconstructionGR.cff',
+                     'MuonCosBOFF':'RECO:Configuration/GlobalRuns/data/ReconstructionGR.cff',
                      'TrackerLaser':'',
                      'HaloMuon':''
                      }
@@ -98,6 +106,8 @@ recoseqCustomiseDict = {
                         'TrackerHaloMuon':'',
                         'TrackerCosBON':':reconstructionGR',
                         'TrackerCosBOFF':':reconstructionGR',
+                        'MuonCosBON':':reconstructionGR',
+                        'MuonCosBOFF':':reconstructionGR',
                         'TrackerLaser':'',
                         'HaloMuon':''
                         }
