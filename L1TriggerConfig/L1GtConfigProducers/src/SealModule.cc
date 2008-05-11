@@ -5,7 +5,6 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtParametersTrivialProducer.h"
 
 //
-#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtFactorsTrivialProducer.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtPrescaleFactorsAlgoTrigTrivialProducer.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtPrescaleFactorsTechTrigTrivialProducer.h"
 
@@ -22,7 +21,6 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtStableParametersTester.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtParametersTester.h"
 
-#include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtFactorsTester.h"
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtPrescaleFactorsAndMasksTester.h"
 
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtBoardMapsTester.h"
@@ -32,9 +30,6 @@
 
 DEFINE_FWK_EVENTSETUP_MODULE(L1GtStableParametersTrivialProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1GtParametersTrivialProducer);
-
-//
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1GtFactorsTrivialProducer);
 
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1GtPrescaleFactorsAlgoTrigTrivialProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1GtPrescaleFactorsTechTrigTrivialProducer);
@@ -52,7 +47,6 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1GtTriggerMenuXmlProducer);
 DEFINE_ANOTHER_FWK_MODULE(L1GtStableParametersTester);
 DEFINE_ANOTHER_FWK_MODULE(L1GtParametersTester);
 
-DEFINE_ANOTHER_FWK_MODULE(L1GtFactorsTester);
 DEFINE_ANOTHER_FWK_MODULE(L1GtPrescaleFactorsAndMasksTester);
 
 DEFINE_ANOTHER_FWK_MODULE(L1GtBoardMapsTester);
