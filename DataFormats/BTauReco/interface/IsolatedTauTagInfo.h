@@ -1,3 +1,4 @@
+
 #ifndef DataFormats_BTauReco_IsolatedTauTagInfo_h
 #define DataFormats_BTauReco_IsolatedTauTagInfo_h
 //
@@ -21,8 +22,12 @@ namespace reco {
     //default constructor
     IsolatedTauTagInfo( void ) : 
       JTATagInfo(),
-      selectedTracks_()
-    { }
+	selectedTracks_()
+	
+    { 
+      TrackRef leadTk;
+      leadTrack_ = leadTk;
+    }
 
     IsolatedTauTagInfo( const TrackRefVector & tracks, const JetTracksAssociationRef & jtaRef ) :
       JTATagInfo(jtaRef),
@@ -33,7 +38,7 @@ namespace reco {
     virtual ~IsolatedTauTagInfo() {}
     
     //get the tracks from the jetTag
-    const TrackRefVector allTracks() const { return tracks(); }
+    const TrackRefVector & allTracks() const { return tracks(); }
 
     //get the selected tracks used to computed the isolation
     const TrackRefVector & selectedTracks() const {return selectedTracks_;}
@@ -55,11 +60,14 @@ namespace reco {
     const TrackRefVector tracksInCone(const math::XYZVector myVector, const float size, const float pt_min, const float z_pv, const float dz_lt ) const;
     
     // return the leading track in a given cone around the jet axis or a given direction
-    const TrackRef leadingSignalTrack(const float rm_cone, const float pt_min) const;
-    const TrackRef leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
+    void setLeadingTrack(const TrackRef &) ; 
+    const TrackRef & leadingSignalTrack() const;
+    const TrackRef & leadingSignalTrack(const float rm_cone, const float pt_min) const;
+    const TrackRef & leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
      
   private:
     TrackRefVector selectedTracks_;
+    TrackRef leadTrack_;
   };
 
   DECLARE_EDM_REFS( IsolatedTauTagInfo )
