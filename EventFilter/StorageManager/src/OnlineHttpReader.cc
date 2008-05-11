@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: OnlineHttpReader.cc,v 1.1 2008/04/26 19:26:29 hcheung Exp $
+  $Id: OnlineHttpReader.cc,v 1.2 2008/04/28 09:09:44 loizides Exp $
 */
 
 #include "EventFilter/StorageManager/src/OnlineHttpReader.h"
@@ -118,7 +118,7 @@ namespace edm
   void OnlineHttpReader::setRun(RunNumber_t r) {
      // We do not actually set the run number, just use this hook
      // to do the needed resetting of flags in the EP and this source
-     //resetAfterEndRun(); //temporarily commented by C.L.
+     resetAfterEndRun();
      // I think we need the 2 of the 3 lines below as in DAQ source
      //newRun_ = newLumi_ = true;
      resetLuminosityBlockPrincipal();
