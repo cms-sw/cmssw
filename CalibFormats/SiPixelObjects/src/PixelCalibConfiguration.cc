@@ -182,12 +182,13 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
       }
       
       while ((tmp=="Set:")||(tmp=="SetRelative:")){
-        in >> tmp;
+	string name;
+        in >> name;
         unsigned int val;
         in >> val;
         unsigned int index=1;
         if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
-        PixelDACScanRange dacrange(tmp,val,val,1,index,false);
+        PixelDACScanRange dacrange(name,val,val,1,index,false);
 	if (tmp=="SetRelative:") {
 	  dacrange.setRelative();
 	}
@@ -719,6 +720,8 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
       //FIXME have to make this signed so that we can have negative 
       //offsets.
       unsigned int dacvalue = scanValue(ii, state, rocs_[i]);
+
+      //cout << "dacname ii:"<<dacs_[ii].name()<<" "<<ii<<endl;
       
       if (dacs_[ii].relative()){
 	//We have to find the default DAC setting so that we can
@@ -728,8 +731,8 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_[ii].name());
 	assert( foundThisDAC != defaultDACValues.end() );
 	dacvalue+=foundThisDAC->second;
-	cout << "[PixelCalibConfiguration::nextFECState] ROC="<<rocs_[i]
-	     << " dac="<<dacs_[ii].name()<<" new value="<<dacvalue<<endl;
+	//cout << "[PixelCalibConfiguration::nextFECState] ROC="<<rocs_[i]
+	//     << " dac="<<dacs_[ii].name()<<" new value="<<dacvalue<<endl;
       }
 
       pixelFEC->progdac(theROC.mfec(),
