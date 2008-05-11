@@ -1,3 +1,9 @@
+2008-05-11  Harry Cheung <cheung@fnal.gov>
+
+	* tag V01-08-01
+	* Fix processing loop so that SMProxy gets INIT message from all Storage Managers else
+	  will not receive events from all SMs
+
 2008-05-05  Harry Cheung <cheung@fnal.gov>
 
 	* tag V01-08-00

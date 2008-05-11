@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.5 2008/02/11 14:54:52 biery Exp $
+// $Id: DataProcessManager.h,v 1.6 2008/05/04 12:40:21 biery Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -33,6 +33,7 @@ namespace stor
 
     typedef std::vector<char> Buf;
     typedef std::map<std::string, unsigned int> RegConsumer_map;
+    typedef std::map<std::string, bool> HeaderConsumer_map;
     typedef std::map<std::string, struct timeval> LastReqTime_map;
 
     DataProcessManager();
@@ -146,6 +147,7 @@ namespace stor
     int registerWithSM(std::string smURL);
     int registerWithDQMSM(std::string smURL);
     bool getAnyHeaderFromSM();
+    bool getHeaderFromAllSM();
     bool getHeaderFromSM(std::string smURL);
     void waitBetweenRegTrys();
 
@@ -158,6 +160,7 @@ namespace stor
 
     std::vector<std::string> smList_;
     RegConsumer_map smRegMap_;
+    HeaderConsumer_map smHeaderMap_;
     std::vector<std::string> DQMsmList_;
     RegConsumer_map DQMsmRegMap_;
     std::string eventpage_;

@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.10 2008/04/16 16:43:13 biery Exp $
+// $Id: DataProcessManager.cc,v 1.11 2008/05/04 12:40:21 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -87,6 +87,12 @@ namespace stor
     alreadyRegistered_ = false;
     alreadyRegisteredDQM_ = false;
     headerRefetchRequested_ = false;
+
+    smList_.clear();
+    smRegMap_.clear();
+    smHeaderMap_.clear();
+    DQMsmList_.clear();
+    DQMsmRegMap_.clear();
 
     edm::ParameterSet ps = ParameterSet();
     // TODO fixme: only request event types that are requested by connected consumers?
@@ -191,7 +197,8 @@ namespace stor
     bool alreadysaid = false;
     bool alreadysaidDQM = false;
 
-    bool gotOneHeader = false;
+    //bool gotOneHeader = false;
+    bool gotOneHeaderFromAll = false;
     unsigned int countINIT = 0; // keep of count of tries and quit after 255
     bool alreadysaidINIT = false;
 
@@ -202,7 +209,9 @@ namespace stor
       // if a header re-fetch has been requested, reset the header vars
       if (headerRefetchRequested_) {
         headerRefetchRequested_ = false;
-        gotOneHeader = false;
+        //gotOneHeader = false;
+        gotOneHeaderFromAll = false;
+        smHeaderMap_.clear();
         countINIT = 0;
       }
       // register as event consumer to all SM senders
@@ -244,20 +253,28 @@ namespace stor
       // now get one INIT header (product registry) and save it
       // as long as at least one SMsender registered with
       // TODO fixme: use the data member for got header to go across runs
-      if(!gotOneHeader)
+      // With multiple SMs, we need to get a Header from each else that consumer
+      // is counted as not initialized
+      // TODO how to we get all INIT messages from each SM (and know it!)
+      //if(!gotOneHeader)
+      if(!gotOneHeaderFromAll)
       {
         waitBetweenRegTrys();
-        bool success = getAnyHeaderFromSM();
-        if(success) gotOneHeader = true;
+        //bool success = getAnyHeaderFromSM();
+        bool success = getHeaderFromAllSM();
+        //if(success) gotOneHeader = true;
+        if(success) gotOneHeaderFromAll = true;
         ++countINIT;
       }
       if(countINIT >= maxcount) edm::LogInfo("processCommands") << "Could not get product registry!"
           << " after " << maxcount << " tries";
-      if(gotOneHeader && !alreadysaidINIT) {
+      //if(gotOneHeader && !alreadysaidINIT) {
+      if(gotOneHeaderFromAll && !alreadysaidINIT) {
         edm::LogInfo("processCommands") << "Got the product registry";
         alreadysaidINIT = true;
       }
-      if(alreadyRegistered_ && gotOneHeader && haveHeader()) {
+      //if(alreadyRegistered_ && gotOneHeader && haveHeader()) {
+      if(alreadyRegistered_ && gotOneHeaderFromAll && haveHeader()) {
         getEventFromAllSM();
       }
       if(alreadyRegisteredDQM_) {
@@ -296,6 +313,7 @@ namespace stor
     if(alreadyInList) return;
     smList_.push_back(smURL);
     smRegMap_.insert(std::make_pair(smURL,0));
+    smHeaderMap_.insert(std::make_pair(smURL,false));
     struct timeval lastRequestTime;
     lastRequestTime.tv_sec = 0;
     lastRequestTime.tv_usec = 0;
@@ -545,6 +563,29 @@ namespace stor
       return false;
     }
     return gotOneHeader;
+  }
+
+  bool DataProcessManager::getHeaderFromAllSM()
+  {
+    // Try the list of SM in order of registration to get one Header from each
+    // TODO: how do we get multiple headers if there are more than one?
+    bool gotAllHeaders = true;
+    if(smList_.size() > 0) {
+       for(unsigned int i = 0; i < smList_.size(); ++i) {
+         if(smRegMap_[smList_[i] ] > 0) { // is registered
+            if(smHeaderMap_[smList_[i] ]) continue; // already got header
+            bool success = getHeaderFromSM(smList_[i]);
+            if(success) {
+              smHeaderMap_[smList_[i] ] = true;
+            } else {
+              gotAllHeaders = false;
+            }
+         }
+       }
+    } else {
+      return false;
+    }
+    return gotAllHeaders;
   }
 
   bool DataProcessManager::getHeaderFromSM(std::string smURL)
