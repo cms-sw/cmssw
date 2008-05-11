@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/05/01 14:01:05 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/05/08 15:00:19 $
+ *  $Revision: 1.25 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -21,7 +21,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
@@ -50,13 +49,12 @@ TSGFromPropagation::~TSGFromPropagation()
   if ( theEstimator ) delete theEstimator;
   if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
   if ( theTSTransformer ) delete  theTSTransformer;
+  if ( theErrorMatrixAdjuster ) delete theErrorMatrixAdjuster;
   LogTrace(theCategory) << " TSGFromPropagation dtor finished  ";
 
 }
 
 void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, std::vector<TrajectorySeed> & result) {
-
-  MuonPatternRecoDumper debug;
 
   LogTrace(theCategory) << " begin of trackerSeed ";
 
@@ -68,7 +66,9 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
   }
 
   LogTrace(theCategory) << " staState pos: "<<staState.globalPosition()
-                     << " mom: "<<staState.globalMomentum() <<"eta: "<<staState.globalPosition().eta();
+                        << " mom: "<<staState.globalMomentum() 
+                        <<"pos eta: "<<staState.globalPosition().eta()
+                        <<"mom eta: "<<staState.globalMomentum().eta();
 
   std::vector<const DetLayer*> nls = theNavigation->compatibleLayers(*(staState.freeState()), oppositeToMomentum);
 
@@ -88,6 +88,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
 
          if ( (!alltm.empty()) || (*inl == 0) ) {
             LogTrace(theCategory) << "final compatible layer: "<<ndesLayer;
+            if (debug_) h_NseedLayer->Fill(ndesLayer);
             break;
          }
          ndesLayer++;
@@ -104,21 +105,20 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
         usePredictedState = true;
      } else {
        LogTrace(theCategory) << " Measurements for seeds: "<<alltm.size();
+       if (debug_) h_NrawMeas->Fill(alltm.size());
        selectMeasurements(alltm);
        LogTrace(theCategory) << " Measurements for seeds after select: "<<alltm.size();
 
        for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin();
             itm != alltm.end(); itm++) {
-        LogTrace(theCategory) << " meas: hit "<<itm->recHit()->isValid()<<" state "<<itm->updatedState().isValid() << " estimate "<<itm->estimate();
-        if (debug_) h_chi2->Fill(itm->estimate());
-
-        TrajectoryStateOnSurface updatedTSOS = updator()->update(itm->predictedState(), *(itm->recHit()));
-        if ( itm->recHit()->isValid() && updatedTSOS.isValid() )  {
-            edm::OwnVector<TrackingRecHit> container;
-            container.push_back(itm->recHit()->hit()->clone());
-            TrajectorySeed ts = createSeed(updatedTSOS, container, itm->recHit()->geographicalId());
-            result.push_back(ts); 
-        }
+            if (debug_) h_chi2->Fill(itm->estimate());
+            TrajectoryStateOnSurface updatedTSOS = updator()->update(itm->predictedState(), *(itm->recHit()));
+            if ( updatedTSOS.isValid() )  {
+               edm::OwnVector<TrackingRecHit> container;
+               container.push_back(itm->recHit()->hit()->clone());
+               TrajectorySeed ts = createSeed(updatedTSOS, container, itm->recHit()->geographicalId());
+               result.push_back(ts);
+            }
        }
      if (debug_) h_NupdatedSeeds->Fill(result.size());
      return;
@@ -131,10 +131,8 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRe
          inl != nls.end(); inl++ ) {
 
          if ( !result.empty() || *inl == 0 ) {
-            LogTrace(theCategory) << "final compatible layer: "<<ndesLayer;
             break;
          }
-         ndesLayer++;
          std::vector<DetLayer::DetWithState> compatDets = (*inl)->compatibleDets(staState, *propagator(), *estimator());
          LogTrace(theCategory) << " compatDets "<<compatDets.size();
          if ( compatDets.empty() ) continue;
@@ -182,6 +180,9 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
     theErrorMatrixAdjuster=0;
   }
 
+  theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker); 
+  theNavigation = new DirectTrackerNavigation(theTracker);
+
   debug_ = theConfig.getUntrackedParameter<bool>("Debug",false);
   if ( debug_ ) {
     edm::Service<TFileService> fs;
@@ -189,17 +190,15 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
     h_NupdatedSeeds = fs->make<TH1F>("h_NupdatedSeeds","h_NupdatedSeeds",20,0,20);
     h_Eta_updatingFail = fs->make<TH1F>("h_Eta_updatingFail","h_Eta_updatingFail",60,-2.5, 2.5);
     h_Pt_updatingFail = fs->make<TH1F>("h_Pt_updatingFail","h_Pt_updatingFail",60,0,100);
-
+    h_NrawMeas = fs->make<TH1F>("h_NrawMeas","h_NrawMeas",20,0,20);
+    h_NseedLayer = fs->make<TH1F>("h_NseedLayer","h_NseedLayer",10,0,10);
   } 
 
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
-  // DetLayer Geometry
   bool measTrackerChanged = false;
-
-  theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theTracker);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
@@ -208,7 +207,6 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
     theCacheId_MT = newCacheId_MT;
     theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTracker);
     measTrackerChanged = true;
-
   }
 
   theMeasTracker->update(iEvent);
@@ -217,9 +215,6 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
      if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
      theTkLayerMeasurements = new LayerMeasurements(&*theMeasTracker);
   }
-
-    if(theNavigation) delete theNavigation;
-    theNavigation = new DirectTrackerNavigation(theTracker);
 
 }
 
@@ -275,12 +270,11 @@ TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& ts
 TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& tsos, const edm::OwnVector<TrackingRecHit>& container, const DetId& id) const {
 
   PTrajectoryStateOnDet* seedTSOS = theTSTransformer->persistentState(tsos,id.rawId());
-
   return TrajectorySeed(*seedTSOS,container,oppositeToMomentum);
 
 }
 
-/// further clear measurements on diffrent layers
+/// further clean measurements
 void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& tms) const {
 
   if ( tms.size() < 2 ) return;
@@ -300,6 +294,8 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
 
     for ( jter = iter+1; jter != tms.end(); jter++ ) {
       if ( !mask[j] ) { j++; continue; }
+      LogTrace(theCategory) << "comparing measurment state: "<<iter->updatedState()<<"with measurment state: "<<jter->updatedState();
+
       if (
            ( (iter->updatedState().globalPosition() - jter->updatedState().globalPosition()).mag() < 1e-3 ) && 
            ( ( (iter->updatedState().globalMomentum() - jter->updatedState().globalMomentum()).mag() < 1.0 ) || 
@@ -315,17 +311,9 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
   }
 
   i = 0;
-  for ( iter = tms.begin(); iter != tms.end(); iter++ ) {
-
-  LogTrace(theCategory)<<"select mom eta: "<<iter->updatedState().globalMomentum().eta();
-  LogTrace(theCategory)<<"select pos eta: " << iter->updatedState().globalPosition().eta();
-
-  LogTrace(theCategory)<<"select delta eta: " <<fabs(iter->updatedState().globalMomentum().eta() - iter->updatedState().globalPosition().eta() );
-
-    if ( fabs(iter->updatedState().globalMomentum().eta() - iter->updatedState().globalPosition().eta() ) > 0.2 ) continue;
-
-    if ( mask[i] ) result.push_back(*iter);
-    i++;
+  for ( iter = tms.begin(); iter != tms.end(); iter++, i++ ) {
+    if ( mask[i] )
+      result.push_back(*iter);
   }
   tms.clear();
   tms.swap(result);
@@ -339,17 +327,17 @@ void TSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement>& t
 
   if ( tms.empty()) return;
 
-  std::vector<TrajectoryMeasurement> validMeasurements;
+  std::vector<TrajectoryMeasurement> validMeas;
 
   // consider only valid TM
   for ( std::vector<TrajectoryMeasurement>::const_iterator measurement = tms.begin();
         measurement!= tms.end(); ++measurement ) {
     if ((*measurement).recHit()->isValid() && (*measurement).updatedState().isValid()) {
-      validMeasurements.push_back( (*measurement) );
+      validMeas.push_back( (*measurement) );
     }
   }
   tms.clear();
-  tms.swap(validMeasurements);
+  tms.swap(validMeas);
 
   return;
 
@@ -370,11 +358,22 @@ std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements_new(cons
      }
   }
   
-  if ( !result.empty() ) validMeasurements(result);
-
+  validMeasurements(result);
   return result;
-}
 
+/*
+  std::vector<TrajectoryMeasurement> updatedResult;
+
+  for (std::vector<TrajectoryMeasurement>::const_iterator iter = result.begin(); iter != result.end(); iter++ ) {
+
+    TrajectoryStateOnSurface updatedTSOS = updator()->update(iter->predictedState(), *(iter->recHit())); 
+    if ( updatedTSOS.isValid() && (updatedTSOS.globalMomentum().perp() > 3.0) && (fabs(updatedTSOS.globalMomentum().eta() - updatedTSOS.globalPosition().eta() ) < 0.2 ) )  {
+       updatedResult.push_back(TrajectoryMeasurement(iter->forwardPredictedState(), updatedTSOS, iter->recHit(), iter->estimate()));
+    }
+  }
+  return updatedResult;
+*/
+}
 
 std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(const DetLayer* nl, const TrajectoryStateOnSurface& staState) const {
 

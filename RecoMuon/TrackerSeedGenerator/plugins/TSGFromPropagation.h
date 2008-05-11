@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/04/30 23:29:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/08 15:00:08 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -141,6 +141,8 @@ private:
   TH1F* h_NupdatedSeeds;
   TH1F* h_Eta_updatingFail;
   TH1F* h_Pt_updatingFail;
+  TH1F* h_NrawMeas;
+  TH1F* h_NseedLayer;
 
 };
 
