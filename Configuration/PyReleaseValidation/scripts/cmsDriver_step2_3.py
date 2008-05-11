@@ -68,6 +68,40 @@ recoCustomiseDict = {
                      'HaloMuon':'Configuration/Spring08Production/iCSA08_MuonBeamHalo_RECO_cff.py'
                      }
 
+cffCustomiseDict = {
+                     'MinBias':'',
+                     'JetET20':'',
+                     'JetETXX':'',
+                     'GammaJets':'',
+                     'MuonPTXX':'',
+                     'ZW':'',
+                     'HCALNZS':'',
+                     'HCALIST':'',
+                     'RELVAL':'',
+                     'TrackerHaloMuon':'',
+                     'TrackerCosBON':'RECO:Configuration/GlobalRuns/data/ReconstructionGR.cff',
+                     'TrackerCosBOFF':'RECO:Configuration/GlobalRuns/data/ReconstructionGR.cff',
+                     'TrackerLaser':'',
+                     'HaloMuon':''
+                     }
+
+recoseqCustomiseDict = {
+                        'MinBias':'',
+                        'JetET20':'',
+                        'JetETXX':'',
+                        'GammaJets':'',
+                        'MuonPTXX':'',
+                        'ZW':'',
+                        'HCALNZS':'',
+                        'HCALIST':'',
+                        'RELVAL':'',
+                        'TrackerHaloMuon':'',
+                        'TrackerCosBON':':reconstructionGR',
+                        'TrackerCosBOFF':':reconstructionGR',
+                        'TrackerLaser':'',
+                        'HaloMuon':''
+                        }
+
 
 typeOfEv=''
 if ( len(args)>0):
@@ -80,11 +114,12 @@ alca2=alcaDict2[typeOfEv]
 alca3=alcaDict3[typeOfEv]
 
 recoCustomise = recoCustomiseDict[typeOfEv]
+cffCustomise = cffCustomiseDict[typeOfEv]
 
 baseCommand='cmsDriver.py'
 conditions='FrontierConditions_GlobalTag,'+options.gt+'::All'
 eventcontent='RECOSIM'
-steps2='RAW2DIGI,RECO,POSTRECO'
+steps2='RAW2DIGI,RECO'+recoseqCustomiseDict[typeOfEv]+',POSTRECO'
 if ( not (alca2=='')):
     steps2=steps2+',ALCA:'+alca2
 
@@ -100,6 +135,10 @@ command3=baseCommand+' step3_'+typeOfEv+' -s ' + steps3 + ' -n 1000 --filein fil
 
 if ( recoCustomise != '' ):
     command2 = command2+ " --customise "+recoCustomise
+
+if ( cffCustomise != '' ):
+    command2 = command2+ " --altcffs "+cffCustomise
+
     
 if ( typeOfEv == 'RELVAL'):
     command2=command2+' --oneoutput'
