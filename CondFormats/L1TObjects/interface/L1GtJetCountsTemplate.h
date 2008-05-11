@@ -57,14 +57,13 @@ public:
 public:
 
     /// typedef for a single object template
-    typedef struct
+    struct ObjectParameter
     {
         unsigned int countIndex;
         unsigned int countThreshold;
 
         bool countOverflow;
-    }
-    ObjectParameter;
+    };
 
 
 public:

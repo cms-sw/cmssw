@@ -57,7 +57,7 @@ public:
 public:
 
     // typedef for a single object template
-    typedef struct
+    struct ObjectParameter
     {
         unsigned int ptHighThreshold;
         unsigned int ptLowThreshold;
@@ -68,13 +68,12 @@ public:
         boost::uint64_t etaRange;
         unsigned int phiHigh;
         unsigned int phiLow;
-    }
-    ObjectParameter;
+    };
 
     // typedef for correlation parameters
     // chargeCorrelation is defined always
     // see documentation for meaning
-    typedef struct
+    struct CorrelationParameter
     {
         unsigned int chargeCorrelation;
         boost::uint64_t deltaEtaRange;
@@ -82,8 +81,7 @@ public:
         boost::uint64_t deltaPhiRange0Word;
         boost::uint64_t deltaPhiRange1Word;
         unsigned int deltaPhiMaxbits;
-    }
-    CorrelationParameter;
+    };
 
 public:
 

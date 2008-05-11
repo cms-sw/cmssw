@@ -65,14 +65,13 @@ public:
 public:
 
     /// typedef for correlation parameters
-    typedef struct
+    struct CorrelationParameter
     {
         boost::uint64_t deltaEtaRange;
 
         boost::uint64_t deltaPhiRange;
         unsigned int deltaPhiMaxbits;
-    }
-    CorrelationParameter;
+    };
 
 
 public:

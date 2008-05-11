@@ -57,7 +57,7 @@ public:
 public:
 
     /// typedef for a single object template
-    typedef struct
+    struct ObjectParameter
     {
         unsigned int etThreshold;
         bool energyOverflow;
@@ -65,7 +65,7 @@ public:
         // used only for ETM
         boost::uint64_t phiRange0Word; // ETM phi has 72 bins - two 64-bits words
         boost::uint64_t phiRange1Word;
-    } ObjectParameter;
+    };
 
 public:
 
