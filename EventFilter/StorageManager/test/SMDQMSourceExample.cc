@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.8 2008/01/31 03:46:20 wmtan Exp $
+  $Id: SMDQMSourceExample.cc,v 1.9 2008/03/04 17:12:40 hcheung Exp $
 
 */
 
@@ -24,7 +24,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -46,6 +47,10 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
   virtual void endJob(void);
+
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+                          edm::EventSetup const& eSetup);
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
 private:
       // ----------member data ---------------------------
@@ -151,6 +156,21 @@ void SMDQMSourceExample::endJob(void)
   dbe->rmdir("D1");
 }
 
+void SMDQMSourceExample::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+                                            edm::EventSetup const& eSetup)
+{
+  std::cout << "Doing end of lumi processing for lumi number "
+            << lumiSeg.luminosityBlock() << " of run "
+            << lumiSeg.run() << std::endl;
+}
+
+void SMDQMSourceExample::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
+{
+  std::cout << "Doing end of run processing for run number "
+            <<  run.run() << std::endl;
+  dbe->rmdir("C1");
+  dbe->rmdir("D1");
+}
 
 //
 // member functions
