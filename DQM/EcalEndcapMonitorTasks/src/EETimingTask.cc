@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.33 $
+ * $Date: 2008/04/22 05:55:41 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -41,6 +41,8 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
@@ -65,6 +67,25 @@ void EETimingTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EETimingTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EETimingTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EETimingTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meTimeMap_[i] ) meTimeMap_[i]->Reset();
+    if ( meTimeAmpli_[i] ) meTimeAmpli_[i]->Reset();
+  }
 
 }
 
@@ -97,7 +118,7 @@ void EETimingTask::setup(void){
 
 void EETimingTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EETimingTask");
@@ -117,7 +138,7 @@ void EETimingTask::endJob(void){
 
   LogInfo("EETimingTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/04/08 15:35:12 $
- * $Revision: 1.62 $
+ * $Date: 2008/04/16 21:39:37 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,6 +43,8 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -97,6 +99,49 @@ void EBOccupancyTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBOccupancyTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBOccupancyTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
+    if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
+  }
+
+  if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Reset();
+  if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Reset();
+  if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Reset();
+
+  if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Reset();
+  if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Reset();
+  if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Reset();
+
+  if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Reset();
+  if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Reset();
+  if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Reset();
+
+  if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Reset();
+  if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Reset();
+  if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Reset();
+
+  if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Reset();
+  if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Reset();
+  if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Reset();
+
+  if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Reset();
+  if ( meEBLaserDigiOccupancy_ ) meEBLaserDigiOccupancy_->Reset();
+  if ( meEBPedestalDigiOccupancy_ ) meEBPedestalDigiOccupancy_->Reset();
 
 }
 
@@ -210,7 +255,7 @@ void EBOccupancyTask::setup(void){
 
 void EBOccupancyTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBOccupancyTask");
@@ -276,7 +321,7 @@ void EBOccupancyTask::endJob(void) {
 
   LogInfo("EBOccupancyTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

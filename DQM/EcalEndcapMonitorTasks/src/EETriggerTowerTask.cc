@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.35 $
+ * $Date: 2008/04/24 18:38:05 $
+ * $Revision: 1.36 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -38,6 +38,10 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
   reserveArray(meFlagsReal_);
@@ -63,8 +67,6 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
   LogDebug("EETriggerTowerTask")<<str.str()<<endl;
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
-
 }
 
 EETriggerTowerTask::~EETriggerTowerTask(){
@@ -88,6 +90,34 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EETriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EETriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EETriggerTowerTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+
+    if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
+    if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
+    if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
+    if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
+    if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
+    if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
+    if ( meEmulError_[i] ) meEmulError_[i]->Reset();
+    if ( meVetoEmulError_[i] ) meVetoEmulError_[i]->Reset();
+    if ( meFlagEmulError_[i] ) meFlagEmulError_[i]->Reset();
+
+  }
 
 }
 
@@ -219,7 +249,7 @@ void EETriggerTowerTask::setup( const char* nameext,
 
 void EETriggerTowerTask::cleanup(void) {
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
 
@@ -237,7 +267,7 @@ void EETriggerTowerTask::endJob(void){
 
   LogInfo("EETriggerTowerTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -264,7 +294,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsReal_);
 
   } else {
-    LogWarning("EBTriggerTowerTask") << realCollection_ << " not available"; 
+    LogWarning("EETriggerTowerTask") << realCollection_ << " not available"; 
   }
 
   Handle<EcalTrigPrimDigiCollection> emulDigis;

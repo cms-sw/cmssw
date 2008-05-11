@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.44 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -47,6 +47,8 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   // parameters...
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
@@ -111,6 +113,85 @@ void EEClusterTask::beginJob(const EventSetup& c){
 
   Numbers::initGeometry(c, false);
 
+}
+
+void EEClusterTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEClusterTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEClusterTask::reset(void) {
+
+  if ( meBCEne_ ) meBCEne_->Reset();
+
+  if ( meBCNum_ ) meBCNum_->Reset();
+
+  if ( meBCSiz_ ) meBCSiz_->Reset();
+
+  if ( meBCEneFwdMap_ ) meBCEneFwdMap_->Reset();
+
+  if ( meBCNumFwdMap_ ) meBCNumFwdMap_->Reset();
+
+  if ( meBCETFwdMap_ ) meBCETFwdMap_->Reset();
+
+  if ( meBCSizFwdMap_ ) meBCSizFwdMap_->Reset();
+
+  if ( meBCEneFwdMapProjR_ ) meBCEneFwdMapProjR_->Reset();
+
+  if ( meBCEneFwdMapProjPhi_ ) meBCEneFwdMapProjPhi_->Reset();
+
+  if ( meBCNumFwdMapProjR_ ) meBCNumFwdMapProjR_->Reset();
+
+  if ( meBCNumFwdMapProjPhi_ ) meBCNumFwdMapProjPhi_->Reset();
+
+  if ( meBCETFwdMapProjR_ ) meBCETFwdMapProjR_->Reset();
+
+  if ( meBCETFwdMapProjPhi_ ) meBCETFwdMapProjPhi_->Reset();
+
+  if ( meBCSizFwdMapProjR_ ) meBCSizFwdMapProjR_->Reset();
+
+  if ( meBCSizFwdMapProjPhi_ ) meBCSizFwdMapProjPhi_->Reset();
+
+  if ( meBCEneBwdMap_ ) meBCEneBwdMap_->Reset();
+
+  if ( meBCNumBwdMap_ ) meBCNumBwdMap_->Reset();
+
+  if ( meBCETBwdMap_ ) meBCETBwdMap_->Reset();
+
+  if ( meBCSizBwdMap_ ) meBCSizBwdMap_->Reset();
+
+  if ( meBCEneBwdMapProjR_ ) meBCEneBwdMapProjR_->Reset();
+
+  if ( meBCEneBwdMapProjPhi_ ) meBCEneBwdMapProjPhi_->Reset();
+
+  if ( meBCNumBwdMapProjR_ ) meBCNumBwdMapProjR_->Reset();
+
+  if ( meBCNumBwdMapProjPhi_ ) meBCNumBwdMapProjPhi_->Reset();
+
+  if ( meBCETBwdMapProjR_ ) meBCETBwdMapProjR_->Reset();
+
+  if ( meBCETBwdMapProjPhi_ ) meBCETBwdMapProjPhi_->Reset();
+
+  if ( meBCSizBwdMapProjR_ ) meBCSizBwdMapProjR_->Reset();
+
+  if ( meBCSizBwdMapProjPhi_ ) meBCSizBwdMapProjPhi_->Reset();
+
+  if ( meSCEne_ ) meSCEne_->Reset();
+
+  if ( meSCNum_ ) meSCNum_->Reset();
+
+  if ( meSCSiz_ ) meSCSiz_->Reset();
+
+  if ( mes1s9_ ) mes1s9_->Reset();
+
+  if ( mes9s25_ ) mes9s25_->Reset();
+
+  if ( meInvMass_ ) meInvMass_->Reset();
 }
 
 void EEClusterTask::setup(void){
@@ -284,7 +365,7 @@ void EEClusterTask::setup(void){
 
 void EEClusterTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEClusterTask");
@@ -398,7 +479,7 @@ void EEClusterTask::endJob(void){
 
   LogInfo("EEClusterTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

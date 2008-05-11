@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.70 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
  */
@@ -40,6 +40,8 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
   EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
@@ -82,6 +84,33 @@ void EBIntegrityTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBIntegrityTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBIntegrityTask::reset(void) {
+
+  if ( meIntegrityDCCSize ) meIntegrityDCCSize->Reset();
+  for (int i = 0; i < 36; i++) {
+    if ( meIntegrityGain[i] ) meIntegrityGain[i]->Reset();
+    if ( meIntegrityChId[i] ) meIntegrityChId[i]->Reset();
+    if ( meIntegrityGainSwitch[i] ) meIntegrityGainSwitch[i]->Reset();
+    if ( meIntegrityTTId[i] ) meIntegrityTTId[i]->Reset();
+    if ( meIntegrityTTBlockSize[i] ) meIntegrityTTBlockSize[i]->Reset();
+    if ( meIntegrityMemChId[i] ) meIntegrityMemChId[i]->Reset();
+    if ( meIntegrityMemGain[i] ) meIntegrityMemGain[i]->Reset();
+    if ( meIntegrityMemTTId[i] ) meIntegrityMemTTId[i]->Reset();
+    if ( meIntegrityMemTTBlockSize[i] ) meIntegrityMemTTBlockSize[i]->Reset();
+  }
 
 }
 
@@ -200,7 +229,7 @@ void EBIntegrityTask::setup(void){
 
 void EBIntegrityTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask");
@@ -272,7 +301,7 @@ void EBIntegrityTask::endJob(void){
 
   LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

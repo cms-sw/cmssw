@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.12 $
+ * $Date: 2008/04/17 04:53:16 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -40,6 +40,8 @@ EEStatusFlagsTask::EEStatusFlagsTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   for (int i = 0; i < 18; i++) {
@@ -65,6 +67,27 @@ void EEStatusFlagsTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EEStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEStatusFlagsTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEStatusFlagsTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meEvtType_[i] ) meEvtType_[i]->Reset();
+
+    if ( meFEchErrors_[i][0] ) meFEchErrors_[i][0]->Reset();
+    if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
+  }
 
 }
 
@@ -150,7 +173,7 @@ void EEStatusFlagsTask::setup(void){
 
 void EEStatusFlagsTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask");
@@ -179,7 +202,7 @@ void EEStatusFlagsTask::endJob(void){
 
   LogInfo("EEStatusFlagsTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

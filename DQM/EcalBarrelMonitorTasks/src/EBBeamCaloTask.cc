@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.67 $
+ * $Date: 2008/04/08 15:35:11 $
+ * $Revision: 1.68 $
  * \author A. Ghezzi
  *
  */
@@ -45,6 +45,8 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -56,8 +58,8 @@ EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
     meBBCaloGains_[i]=0;
     meBBCaloEne_[i]=0;
 
-    //    meBBCaloPulseProfMoving_[i]=0;
-    // meBBCaloPulseProfG12Moving_[i]=0;
+    //meBBCaloPulseProfMoving_[i]=0;
+    //meBBCaloPulseProfG12Moving_[i]=0;
     //meBBCaloGainsMoving_[i]=0;
     //meBBCaloEneMoving_[i]=0;
   }
@@ -109,6 +111,56 @@ void EBBeamCaloTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBBeamCaloTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBBeamCaloTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBBeamCaloTask::reset(void) {
+
+    for (int i = 0; i < cryInArray_ ; i++) {
+      if ( meBBCaloPulseProf_[i] ) meBBCaloPulseProf_[i]->Reset();
+      if ( meBBCaloPulseProfG12_[i] ) meBBCaloPulseProfG12_[i]->Reset();
+      if ( meBBCaloGains_[i] ) meBBCaloGains_[i]->Reset();
+      if ( meBBCaloEne_[i] ) meBBCaloEne_[i]->Reset();
+
+//       if ( meBBCaloPulseProfMoving_[i] ) meBBCaloPulseProfMoving_[i]->Reset();
+//       if ( meBBCaloPulseProfG12Moving_[i] ) meBBCaloPulseProfG12Moving_[i]->Reset();
+//       if ( meBBCaloGainsMoving_[i] ) meBBCaloGainsMoving_[i]->Reset();
+//       if ( meBBCaloEneMoving_[i] ) meBBCaloEneMoving_[i]->Reset();
+    }
+
+//     for(int u=0; u< 1701;u++){
+//       if ( meBBCaloE3x3Cry_[u] ) meBBCaloE3x3Cry_[u]->Reset();
+//       if ( meBBCaloE1Cry_[u] ) meBBCaloE1Cry_[u]->Reset();
+//     }
+
+    if ( meBBCaloCryRead_ ) meBBCaloCryRead_->Reset();
+//    if ( meBBCaloCryReadMoving_ ) meBBCaloCryReadMoving_->Reset();
+    if ( meBBCaloAllNeededCry_ ) meBBCaloAllNeededCry_->Reset();
+    if ( meBBNumCaloCryRead_ ) meBBNumCaloCryRead_->Reset();
+    if ( meBBCaloE3x3_ ) meBBCaloE3x3_->Reset();
+    if ( meBBCaloE3x3Moving_ ) meBBCaloE3x3Moving_->Reset();
+    if ( meBBCaloCryOnBeam_ ) meBBCaloCryOnBeam_->Reset();
+    if ( meBBCaloMaxEneCry_ ) meBBCaloMaxEneCry_->Reset();
+    if ( TableMoving_ ) TableMoving_->Reset();
+    if ( CrystalsDone_ ) CrystalsDone_->Reset();
+    if ( CrystalInBeam_vs_Event_ ) CrystalInBeam_vs_Event_->Reset();
+    if( meEBBCaloReadCryErrors_ ) meEBBCaloReadCryErrors_->Reset();
+    if( meEBBCaloE1vsCry_ ) meEBBCaloE1vsCry_->Reset();
+    if( meEBBCaloE3x3vsCry_ ) meEBBCaloE3x3vsCry_->Reset();
+    if( meEBBCaloEntriesVsCry_ )  meEBBCaloEntriesVsCry_->Reset();
+    if( meEBBCaloBeamCentered_ ) meEBBCaloBeamCentered_->Reset();
+    if( meEBBCaloE1MaxCry_ ) meEBBCaloE1MaxCry_->Reset();
+    if( meEBBCaloDesync_ ) meEBBCaloDesync_->Reset();
 
 }
 
@@ -281,7 +333,7 @@ void EBBeamCaloTask::setup(void){
 
 void EBBeamCaloTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBBeamCaloTask");
@@ -316,8 +368,8 @@ void EBBeamCaloTask::cleanup(void){
 //     dqmStore_->setCurrentFolder(prefixME_ + "/EBBeamCaloTask");
     if ( meBBCaloCryRead_ ) dqmStore_->removeElement( meBBCaloCryRead_->getName() );
     meBBCaloCryRead_ = 0;
-    //    if ( meBBCaloCryReadMoving_ ) dqmStore_->removeElement( meBBCaloCryReadMoving_->getName() );
-    //meBBCaloCryReadMoving_ = 0;
+//    if ( meBBCaloCryReadMoving_ ) dqmStore_->removeElement( meBBCaloCryReadMoving_->getName() );
+//    meBBCaloCryReadMoving_ = 0;
     if ( meBBCaloAllNeededCry_ ) dqmStore_->removeElement( meBBCaloAllNeededCry_->getName() );
     meBBCaloAllNeededCry_ = 0;
     if ( meBBNumCaloCryRead_ ) dqmStore_->removeElement( meBBNumCaloCryRead_->getName() );
@@ -360,7 +412,7 @@ void EBBeamCaloTask::endJob(void){
 
   LogInfo("EBBeamCaloTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

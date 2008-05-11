@@ -6,6 +6,7 @@ ecalEndcapBeamCaloTask = cms.EDFilter("EEBeamCaloTask",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
     enableCleanup = cms.untracked.bool(False),
+    mergeRuns = cms.untracked.bool(False),    
     prefixME = cms.untracked.string('EcalEndcap')
 )
 

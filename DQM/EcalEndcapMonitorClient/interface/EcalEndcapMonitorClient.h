@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/04/08 18:05:28 $
- * $Revision: 1.40 $
+ * $Date: 2008/04/29 08:02:16 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -73,6 +73,9 @@ void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup 
 
 /// EndLumiBlock
 void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);

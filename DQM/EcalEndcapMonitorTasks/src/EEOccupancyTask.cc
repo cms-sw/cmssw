@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.48 $
+ * $Date: 2008/04/16 21:39:37 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,6 +43,8 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
@@ -121,6 +123,72 @@ void EEOccupancyTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EEOccupancyTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEOccupancyTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEOccupancyTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
+    if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
+  }
+
+  if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Reset();
+  if ( meEEDigiOccupancyProR_[0] ) meEEDigiOccupancyProR_[0]->Reset();
+  if ( meEEDigiOccupancyProPhi_[0] ) meEEDigiOccupancyProPhi_[0]->Reset();
+  if ( meEEDigiOccupancy_[1] ) meEEDigiOccupancy_[1]->Reset();
+  if ( meEEDigiOccupancyProR_[1] ) meEEDigiOccupancyProR_[1]->Reset();
+  if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Reset();
+
+  if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Reset();
+  if ( meEERecHitOccupancyProR_[0] ) meEERecHitOccupancyProR_[0]->Reset();
+  if ( meEERecHitOccupancyProPhi_[0] ) meEERecHitOccupancyProPhi_[0]->Reset();
+  if ( meEERecHitOccupancy_[1] ) meEERecHitOccupancy_[1]->Reset();
+  if ( meEERecHitOccupancyProR_[1] ) meEERecHitOccupancyProR_[1]->Reset();
+  if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Reset();
+
+  if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Reset();
+  if ( meEERecHitOccupancyProRThr_[0] ) meEERecHitOccupancyProRThr_[0]->Reset();
+  if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Reset();
+  if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Reset();
+  if ( meEERecHitOccupancyProRThr_[1] ) meEERecHitOccupancyProRThr_[1]->Reset();
+  if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Reset();
+
+  if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancyProR_[0] ) meEETrigPrimDigiOccupancyProR_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancyProPhi_[0] ) meEETrigPrimDigiOccupancyProPhi_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancy_[1] ) meEETrigPrimDigiOccupancy_[1]->Reset();
+  if ( meEETrigPrimDigiOccupancyProR_[1] ) meEETrigPrimDigiOccupancyProR_[1]->Reset();
+  if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Reset();
+
+  if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancyProRThr_[0] ) meEETrigPrimDigiOccupancyProRThr_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancyProPhiThr_[0] ) meEETrigPrimDigiOccupancyProPhiThr_[0]->Reset();
+  if ( meEETrigPrimDigiOccupancyThr_[1] ) meEETrigPrimDigiOccupancyThr_[1]->Reset();
+  if ( meEETrigPrimDigiOccupancyProRThr_[1] ) meEETrigPrimDigiOccupancyProRThr_[1]->Reset();
+  if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) meEETrigPrimDigiOccupancyProPhiThr_[1]->Reset();
+
+  if ( meEETestPulseDigiOccupancy_[0] ) meEETestPulseDigiOccupancy_[0]->Reset();
+  if ( meEETestPulseDigiOccupancy_[1] ) meEETestPulseDigiOccupancy_[1]->Reset();
+
+  if ( meEELaserDigiOccupancy_[0] ) meEELaserDigiOccupancy_[0]->Reset();
+  if ( meEELaserDigiOccupancy_[1] ) meEELaserDigiOccupancy_[1]->Reset();
+
+  if ( meEELedDigiOccupancy_[0] ) meEELedDigiOccupancy_[0]->Reset();
+  if ( meEELedDigiOccupancy_[1] ) meEELedDigiOccupancy_[1]->Reset();
+
+  if ( meEEPedestalDigiOccupancy_[0] ) meEEPedestalDigiOccupancy_[0]->Reset();
+  if ( meEEPedestalDigiOccupancy_[1] ) meEEPedestalDigiOccupancy_[1]->Reset();
 
 }
 
@@ -324,7 +392,7 @@ void EEOccupancyTask::setup(void){
 
 void EEOccupancyTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEOccupancyTask");
@@ -436,7 +504,7 @@ void EEOccupancyTask::endJob(void) {
 
   LogInfo("EEOccupancyTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/05/02 09:56:13 $
- * $Revision: 1.181 $
+ * $Date: 2008/05/02 10:53:19 $
+ * $Revision: 1.182 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -984,6 +984,10 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
     this->analyze();
 
   }
+
+}
+
+void EcalEndcapMonitorClient::reset(void) {
 
 }
 

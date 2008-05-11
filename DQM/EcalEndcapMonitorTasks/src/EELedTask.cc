@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.36 $
+ * $Date: 2008/04/22 05:55:41 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,8 @@ EELedTask::EELedTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
@@ -92,6 +94,54 @@ void EELedTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EELedTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EELedTask::endRun(const Run& r, const EventSetup& c) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meShapeMapL1A_[i] )  meShapeMapL1A_[i]->Reset();
+    if ( meAmplMapL1A_[i] ) meAmplMapL1A_[i]->Reset();
+    if ( meTimeMapL1A_[i] ) meTimeMapL1A_[i]->Reset();
+    if ( meAmplPNMapL1A_[i] ) meAmplPNMapL1A_[i]->Reset();
+
+    if ( meShapeMapL1B_[i] )  meShapeMapL1B_[i]->Reset();
+    if ( meAmplMapL1B_[i] ) meAmplMapL1B_[i]->Reset();
+    if ( meTimeMapL1B_[i] ) meTimeMapL1B_[i]->Reset();
+    if ( meAmplPNMapL1B_[i] ) meAmplPNMapL1B_[i]->Reset();
+
+    if ( meShapeMapL2A_[i] )  meShapeMapL2A_[i]->Reset();
+    if ( meAmplMapL2A_[i] ) meAmplMapL2A_[i]->Reset();
+    if ( meTimeMapL2A_[i] ) meTimeMapL2A_[i]->Reset();
+    if ( meAmplPNMapL2A_[i] ) meAmplPNMapL2A_[i]->Reset();
+
+    if ( meShapeMapL2B_[i] )  meShapeMapL2B_[i]->Reset();
+    if ( meAmplMapL2B_[i] ) meAmplMapL2B_[i]->Reset();
+    if ( meTimeMapL2B_[i] ) meTimeMapL2B_[i]->Reset();
+    if ( meAmplPNMapL2B_[i] ) meAmplPNMapL2B_[i]->Reset();
+
+    if ( mePnAmplMapG01L1_[i] ) mePnAmplMapG01L1_[i]->Reset();
+    if ( mePnPedMapG01L1_[i] ) mePnPedMapG01L1_[i]->Reset();
+
+    if ( mePnAmplMapG16L1_[i] ) mePnAmplMapG16L1_[i]->Reset();
+    if ( mePnPedMapG16L1_[i] ) mePnPedMapG16L1_[i]->Reset();
+
+    if ( mePnAmplMapG01L2_[i] ) mePnAmplMapG01L2_[i]->Reset();
+    if ( mePnPedMapG01L2_[i] ) mePnPedMapG01L2_[i]->Reset();
+
+    if ( mePnAmplMapG16L2_[i] ) mePnAmplMapG16L2_[i]->Reset();
+    if ( mePnPedMapG16L2_[i] ) mePnPedMapG16L2_[i]->Reset();
+  }
+
+}
+
+void EELedTask::reset(void) {
 
 }
 
@@ -264,7 +314,7 @@ void EELedTask::setup(void){
 
 void EELedTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EELedTask");
@@ -357,7 +407,7 @@ void EELedTask::endJob(void){
 
   LogInfo("EELedTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

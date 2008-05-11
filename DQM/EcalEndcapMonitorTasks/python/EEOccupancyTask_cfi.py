@@ -7,6 +7,7 @@ ecalEndcapOccupancyTask = cms.EDFilter("EEOccupancyTask",
     EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     enableCleanup = cms.untracked.bool(False),
+    mergeRuns = cms.untracked.bool(False),    
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker")
 )
 

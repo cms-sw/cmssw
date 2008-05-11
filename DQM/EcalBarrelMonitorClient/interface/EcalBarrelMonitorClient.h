@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.104 $
+ * $Date: 2008/04/29 08:02:15 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -73,6 +73,9 @@ void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup 
 
 /// EndLumiBlock
 void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);

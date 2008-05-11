@@ -6,6 +6,7 @@ ecalEndcapTestPulseTask = cms.EDFilter("EETestPulseTask",
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE"),
     enableCleanup = cms.untracked.bool(False),
+    mergeRuns = cms.untracked.bool(False),    
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker")
 )
 

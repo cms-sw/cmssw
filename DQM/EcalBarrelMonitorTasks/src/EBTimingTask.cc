@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2008/04/08 15:35:12 $
- * $Revision: 1.40 $
+ * $Date: 2008/04/22 05:55:40 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -41,6 +41,8 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
@@ -65,6 +67,25 @@ void EBTimingTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBTimingTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBTimingTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBTimingTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( meTimeMap_[i] ) meTimeMap_[i]->Reset();
+    if ( meTimeAmpli_[i] ) meTimeAmpli_[i]->Reset();
+  }
 
 }
 
@@ -97,7 +118,7 @@ void EBTimingTask::setup(void){
 
 void EBTimingTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
@@ -117,7 +138,7 @@ void EBTimingTask::endJob(void){
 
   LogInfo("EBTimingTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

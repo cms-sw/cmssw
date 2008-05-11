@@ -5,6 +5,7 @@ ecalEndcapTriggerTowerTask = cms.EDFilter("EETriggerTowerTask",
     OutputRootFile = cms.untracked.string(''),
     enableCleanup = cms.untracked.bool(False),
     prefixME = cms.untracked.string('EcalEndcap'),
+    mergeRuns = cms.untracked.bool(False),    
     EcalTrigPrimDigiCollectionEmul = cms.InputTag("ecalTriggerPrimitiveDigis")
 )
 

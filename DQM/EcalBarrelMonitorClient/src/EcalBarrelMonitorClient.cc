@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/05/02 09:56:13 $
- * $Revision: 1.422 $
+ * $Date: 2008/05/02 10:53:19 $
+ * $Revision: 1.423 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -955,6 +955,10 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const
     this->analyze();
 
   }
+
+}
+
+void EcalBarrelMonitorClient::reset(void) {
 
 }
 

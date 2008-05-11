@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.23 $
+ * $Date: 2008/04/08 18:11:27 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,6 +43,8 @@ EEBeamHodoTask::EEBeamHodoTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
@@ -106,6 +108,45 @@ void EEBeamHodoTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EEBeamHodoTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEBeamHodoTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEBeamHodoTask::reset(void) {
+
+  for (int i=0; i<4; i++) {
+    if ( meHodoOcc_[i] ) meHodoOcc_[i]->Reset();
+    if ( meHodoRaw_[i] ) meHodoRaw_[i]->Reset();
+  }
+
+  if ( meHodoPosRecX_ ) meHodoPosRecX_->Reset();
+  if ( meHodoPosRecY_ ) meHodoPosRecY_->Reset();
+  if ( meHodoPosRecXY_ ) meHodoPosRecXY_->Reset();
+  if ( meHodoSloXRec_ ) meHodoSloXRec_->Reset();
+  if ( meHodoSloYRec_ ) meHodoSloYRec_->Reset();
+  if ( meHodoQuaXRec_ ) meHodoQuaXRec_->Reset();
+  if ( meHodoQuaYRec_ ) meHodoQuaYRec_->Reset();
+  if ( meTDCRec_ ) meTDCRec_->Reset();
+  if ( meEvsXRecProf_ ) meEvsXRecProf_->Reset();
+  if ( meEvsYRecProf_ ) meEvsYRecProf_->Reset();
+  if ( meEvsXRecHis_ ) meEvsXRecHis_->Reset();
+  if ( meEvsYRecHis_ ) meEvsYRecHis_->Reset();
+  if ( meCaloVsHodoXPos_ ) meCaloVsHodoXPos_->Reset();
+  if ( meCaloVsHodoYPos_ ) meCaloVsHodoYPos_->Reset();
+  if ( meCaloVsTDCTime_ ) meCaloVsTDCTime_->Reset();
+  if ( meHodoPosXMinusCaloPosXVsCry_  ) meHodoPosXMinusCaloPosXVsCry_->Reset();
+  if ( meHodoPosYMinusCaloPosYVsCry_  ) meHodoPosYMinusCaloPosYVsCry_->Reset();
+  if ( meTDCTimeMinusCaloTimeVsCry_  ) meTDCTimeMinusCaloTimeVsCry_->Reset();
+  if ( meMissingCollections_  ) meMissingCollections_->Reset();
 
 }
 
@@ -227,7 +268,7 @@ void EEBeamHodoTask::setup(void){
 
 void EEBeamHodoTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEBeamHodoTask");
@@ -269,13 +310,13 @@ void EEBeamHodoTask::cleanup(void){
     meCaloVsHodoYPos_ = 0;
     if ( meCaloVsTDCTime_ ) dqmStore_->removeElement( meCaloVsTDCTime_->getName() );
     meCaloVsTDCTime_ = 0;
-    if ( meHodoPosXMinusCaloPosXVsCry_  ) dqmStore_->removeElement( meHodoPosXMinusCaloPosXVsCry_ ->getName() );
+    if ( meHodoPosXMinusCaloPosXVsCry_  ) dqmStore_->removeElement( meHodoPosXMinusCaloPosXVsCry_->getName() );
     meHodoPosXMinusCaloPosXVsCry_  = 0;
-    if ( meHodoPosYMinusCaloPosYVsCry_  ) dqmStore_->removeElement( meHodoPosYMinusCaloPosYVsCry_ ->getName() );
+    if ( meHodoPosYMinusCaloPosYVsCry_  ) dqmStore_->removeElement( meHodoPosYMinusCaloPosYVsCry_->getName() );
     meHodoPosYMinusCaloPosYVsCry_  = 0;
-    if ( meTDCTimeMinusCaloTimeVsCry_  ) dqmStore_->removeElement( meTDCTimeMinusCaloTimeVsCry_  ->getName() );
+    if ( meTDCTimeMinusCaloTimeVsCry_  ) dqmStore_->removeElement( meTDCTimeMinusCaloTimeVsCry_->getName() );
     meTDCTimeMinusCaloTimeVsCry_  = 0;
-    if ( meMissingCollections_  ) dqmStore_->removeElement( meMissingCollections_ ->getName() );
+    if ( meMissingCollections_  ) dqmStore_->removeElement( meMissingCollections_->getName() );
     meMissingCollections_  = 0;
 
   }
@@ -288,7 +329,7 @@ void EEBeamHodoTask::endJob(void){
 
   LogInfo("EEBeamHodoTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -302,7 +343,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     Header = pHeader.product(); // get a ptr to the product
     if (!Header) {
       LogWarning("EEBeamHodoTask") << "Event header not found. Returning. ";
-      meMissingCollections_ -> Fill(0); // bin1: missing CMSSW Event header
+      meMissingCollections_-> Fill(0); // bin1: missing CMSSW Event header
       return;
     }
     tableIsMoving_     = Header->tableIsMoving();
@@ -336,7 +377,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
     LogWarning("EcalBeamTask") << EcalRawDataCollection_ << " not available";
-    meMissingCollections_ -> Fill(1); // bin2: missing DCC headers
+    meMissingCollections_-> Fill(1); // bin2: missing DCC headers
     return;
     // see bottom of cc file for compatibility to 2004 data [***]
   }
@@ -356,7 +397,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("EEBeamHodoTask") << EcalUncalibratedRecHitCollection_ << " found in event " << ievt_ << "; hits collection size " << neh;
   } else {
     LogWarning("EEBeamHodoTask") << EcalUncalibratedRecHitCollection_ << " not available";
-    meMissingCollections_ -> Fill(2); // bin3: missing uncalibRecHits
+    meMissingCollections_-> Fill(2); // bin3: missing uncalibRecHits
     return;
   }
 
@@ -367,7 +408,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     rawTDC = pTDCRaw.product();
   } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRawInfo. Returning.";
-    meMissingCollections_ -> Fill(4); // bin5: missing raw TDC
+    meMissingCollections_-> Fill(4); // bin5: missing raw TDC
     return;
   }
 
@@ -382,7 +423,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     }
   } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRawInfo. Returning";
-    meMissingCollections_ -> Fill(3); // bin4: missing raw hodo hits collection
+    meMissingCollections_-> Fill(3); // bin4: missing raw hodo hits collection
     return;
   }
 
@@ -421,32 +462,32 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       //                 prescaling = 100 X 2FU
       //                 that we want at leas 2k events per crystal
 
-      if (meCaloVsHodoXPos_ -> getEntries()  > 10){
-	HodoPosXMinusCaloPosXVsCry_mean = meCaloVsHodoXPos_ -> getMean(1);
-	HodoPosXMinusCaloPosXVsCry_rms  = meCaloVsHodoXPos_ -> getRMS(1);
-	meHodoPosXMinusCaloPosXVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_mean);
-	meHodoPosXMinusCaloPosXVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_rms);
+      if (meCaloVsHodoXPos_-> getEntries()  > 10){
+	HodoPosXMinusCaloPosXVsCry_mean = meCaloVsHodoXPos_-> getMean(1);
+	HodoPosXMinusCaloPosXVsCry_rms  = meCaloVsHodoXPos_-> getRMS(1);
+	meHodoPosXMinusCaloPosXVsCry_->  setBinContent( cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_mean);
+	meHodoPosXMinusCaloPosXVsCry_->  setBinError(      cryInBeamCounter_, HodoPosXMinusCaloPosXVsCry_rms);
 	LogDebug("EcalBeamTask")  << "At event number: " << LV1_ << " step: " << cryInBeamCounter_
-				  <<  " DeltaPosX is: " << (meCaloVsHodoXPos_ -> getMean(1))
-				  << " +-" << ( meCaloVsHodoXPos_ -> getRMS(1));
+				  <<  " DeltaPosX is: " << (meCaloVsHodoXPos_-> getMean(1))
+				  << " +-" << ( meCaloVsHodoXPos_-> getRMS(1));
       }
-      if (meCaloVsHodoYPos_ -> getEntries()  > 10){
-	HodoPosYMinusCaloPosYVsCry_mean = meCaloVsHodoYPos_ -> getMean(1);
-	HodoPosYMinusCaloPosYVsCry_rms  = meCaloVsHodoYPos_ -> getRMS(1);
-	meHodoPosYMinusCaloPosYVsCry_ ->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
-	meHodoPosYMinusCaloPosYVsCry_ ->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
+      if (meCaloVsHodoYPos_-> getEntries()  > 10){
+	HodoPosYMinusCaloPosYVsCry_mean = meCaloVsHodoYPos_-> getMean(1);
+	HodoPosYMinusCaloPosYVsCry_rms  = meCaloVsHodoYPos_-> getRMS(1);
+	meHodoPosYMinusCaloPosYVsCry_->  setBinContent( cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_mean);
+	meHodoPosYMinusCaloPosYVsCry_->  setBinError(      cryInBeamCounter_, HodoPosYMinusCaloPosYVsCry_rms);
 	LogDebug("EcalBeamTask")  << "At event number: " << LV1_ << " step: " << cryInBeamCounter_
-				  <<  " DeltaPosY is: " << (meCaloVsHodoYPos_ -> getMean(1))
-				  << " +-" << ( meCaloVsHodoYPos_ -> getRMS(1));
+				  <<  " DeltaPosY is: " << (meCaloVsHodoYPos_-> getMean(1))
+				  << " +-" << ( meCaloVsHodoYPos_-> getRMS(1));
       }
-      if (meCaloVsTDCTime_ -> getEntries()  > 10){
-	TDCTimeMinusCaloTimeVsCry_mean     = meCaloVsTDCTime_    -> getMean(1);
-	TDCTimeMinusCaloTimeVsCry_rms      = meCaloVsTDCTime_    -> getRMS(1);
-	meTDCTimeMinusCaloTimeVsCry_     ->  setBinContent(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_mean);
-	meTDCTimeMinusCaloTimeVsCry_     ->  setBinError(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_rms);
+      if (meCaloVsTDCTime_-> getEntries()  > 10){
+	TDCTimeMinusCaloTimeVsCry_mean     = meCaloVsTDCTime_-> getMean(1);
+	TDCTimeMinusCaloTimeVsCry_rms      = meCaloVsTDCTime_-> getRMS(1);
+	meTDCTimeMinusCaloTimeVsCry_->  setBinContent(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_mean);
+	meTDCTimeMinusCaloTimeVsCry_->  setBinError(cryInBeamCounter_, TDCTimeMinusCaloTimeVsCry_rms);
 	LogDebug("EcalBeamTask")  << "At event number: " << LV1_ << " step: " << cryInBeamCounter_
-				  <<  " DeltaT is: " << (meCaloVsTDCTime_ -> getMean(1))
-				  << " +-" << ( meCaloVsTDCTime_ -> getRMS(1));
+				  <<  " DeltaT is: " << (meCaloVsTDCTime_-> getMean(1))
+				  << " +-" << ( meCaloVsTDCTime_-> getRMS(1));
       }
 
       LogDebug("EcalBeamTask")  << "At event number: " << LV1_ <<  " trace histos filled ( cryInBeamCounter_="
@@ -483,14 +524,14 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("EcalBeamTask")  << "\t plane: " << (planeId+1)
 			      << "\t number of fibers: " << planeRaw.channels()
 			      << "\t number of hits: " << planeRaw.numberOfFiredHits();
-    meHodoOcc_[planeId] -> Fill( planeRaw.numberOfFiredHits() );
+    meHodoOcc_[planeId]-> Fill( planeRaw.numberOfFiredHits() );
 
     for (unsigned int i=0;i<planeRaw.channels();i++)
       {
 	if (planeRaw.isChannelFired(i))
 	  {
 	    LogInfo("EcalBeamTask")<< " channel " << (i+1) << " has fired";
-	    meHodoRaw_[planeId] -> Fill(i+0.5);
+	    meHodoRaw_[planeId]-> Fill(i+0.5);
 	  }
       }
   }
@@ -505,7 +546,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     LogDebug("EEBeamHodoTask") << " TDC offset is: " << recTDC->offset();
   } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBTDCRecInfo. Returning";
-    meMissingCollections_ -> Fill(5); // bin6: missing reconstructed TDC
+    meMissingCollections_-> Fill(5); // bin6: missing reconstructed TDC
     return;
   }
 
@@ -520,7 +561,7 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 			     << "\t sy: " << recHodo->slopeY() << "\t qualy: " << recHodo->qualY();
   } else {
     LogError("EcalBeamTask") << "Error! Can't get the product EcalTBHodoscopeRecInfo";
-    meMissingCollections_ -> Fill(6); // bin7: missing reconstructed hodoscopes
+    meMissingCollections_-> Fill(6); // bin7: missing reconstructed hodoscopes
     return;
   }
 
@@ -530,15 +571,15 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   }
   LogDebug("EEBeamHodoTask") << " Hodo reco and TDC reco found.";
 
-  meTDCRec_        ->Fill( recTDC->offset());
+  meTDCRec_->Fill( recTDC->offset());
 
-  meHodoPosRecXY_    ->Fill( recHodo->posX(), recHodo->posY() );
-  meHodoPosRecX_       ->Fill( recHodo->posX());
-  meHodoPosRecY_       ->Fill( recHodo->posY() );
-  meHodoSloXRec_        ->Fill( recHodo->slopeX());
-  meHodoSloYRec_        ->Fill( recHodo->slopeY());
-  meHodoQuaXRec_       ->Fill( recHodo->qualX());
-  meHodoQuaYRec_       ->Fill( recHodo->qualY());
+  meHodoPosRecXY_->Fill( recHodo->posX(), recHodo->posY() );
+  meHodoPosRecX_->Fill( recHodo->posX());
+  meHodoPosRecY_->Fill( recHodo->posY() );
+  meHodoSloXRec_->Fill( recHodo->slopeX());
+  meHodoSloYRec_->Fill( recHodo->slopeY());
+  meHodoQuaXRec_->Fill( recHodo->qualX());
+  meHodoQuaYRec_->Fill( recHodo->qualY());
 
   /**************************************
   // handling histos type II:
@@ -566,10 +607,10 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
       return;
   }
 
-  meEvsXRecProf_ -> Fill(recHodo->posX(), maxE);
-  meEvsYRecProf_ -> Fill(recHodo->posY(), maxE);
-  meEvsXRecHis_   -> Fill(recHodo->posX(), maxE);
-  meEvsYRecHis_   -> Fill(recHodo->posY(), maxE);
+  meEvsXRecProf_-> Fill(recHodo->posX(), maxE);
+  meEvsYRecProf_-> Fill(recHodo->posY(), maxE);
+  meEvsXRecHis_-> Fill(recHodo->posX(), maxE);
+  meEvsYRecHis_-> Fill(recHodo->posY(), maxE);
 
   LogInfo("EcalBeamTask")<< " channel with max is " << maxHitId;
 
@@ -627,9 +668,9 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   caloX /=sumWeight;
   caloY /=sumWeight;
 
-  meCaloVsHodoXPos_  ->Fill( recHodo->posX()-caloX );
-  meCaloVsHodoYPos_  ->Fill( recHodo->posY()-caloY );
-  meCaloVsTDCTime_     ->Fill( (*  pUncalRH->find( maxHitId )  ).jitter()  -  recTDC->offset() - 3);
+  meCaloVsHodoXPos_->Fill( recHodo->posX()-caloX );
+  meCaloVsHodoYPos_->Fill( recHodo->posY()-caloY );
+  meCaloVsTDCTime_->Fill( (*  pUncalRH->find( maxHitId )  ).jitter()  -  recTDC->offset() - 3);
   LogDebug("EcalBeamTask")<< "jiitter from uncalRecHit: " <<  (*  pUncalRH->find( maxHitId )  ).jitter();
 
 }
