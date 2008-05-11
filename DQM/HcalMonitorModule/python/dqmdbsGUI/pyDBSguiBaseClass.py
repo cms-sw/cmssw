@@ -963,8 +963,10 @@ class dbsBaseGui:
                           bg="white",
                           textvar=myvars[i])
             tempEnt.grid(row=myrow,column=1)
-            if i=="  Final DQM Save Directory = " or i=="  .cfg file to run for each DQM = ":
-                tempEnt.bind("<Return>",(lambda event:self.checkExistence(myvars[i])))
+            if i=="  Final DQM Save Directory = ": 
+                tempEnt.bind("<Return>",(lambda event:self.checkExistence(self.finalDir)))
+            elif i== "  .cfg file to run for each DQM = ":
+                tempEnt.bind("<Return>",(lambda event:self.checkExistence(self.cfgFileName)))
             myrow=myrow+1
         newFrame=Frame(self.dqmvaluewin)
         newFrame.grid(row=myrow,column=0,columnspan=2,sticky=EW)
@@ -2070,12 +2072,16 @@ class dbsBaseGui:
         if (self.debug):
             print self.checkExistence.__doc__
 
+        print obj.get()
         exists=True
         if not os.path.exists(obj.get()):
             self.commentLabel.configure(text="ERROR!\n Object '%s' does not exist!"%obj.get())
             self.commentLabel.update_idletasks()
             obj.set("ERROR -- FILE/DIR DOES NOT EXIST")
             exists=False
+        else:
+            self.commentLabel.configure(text="Set value to '%s'"%obj.get())
+            self.commentLabel.update_idletasks()
         return exists
 
     def tempSCP(self):
