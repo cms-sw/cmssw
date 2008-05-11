@@ -77,7 +77,7 @@ def include_files(includes_set):
     
 #------------------------
 
-def add_includes(process,PU_flag,step_list,conditions,beamspot):
+def add_includes(process,PU_flag,step_list,conditions,beamspot,altcffs):
     """Function to add the includes to the process.
     It returns a process enriched with the includes.
     """
@@ -113,6 +113,14 @@ def add_includes(process,PU_flag,step_list,conditions,beamspot):
               'POSTRECO':'"Configuration/StandardSequences/data/PostRecoGenerator.cff"'
               }
 
+# replace anything desired in the inc_dict
+    if altcffs!='': 
+        altsp=altcffs.split(' ')
+        for altcff in altsp:
+            astep=altcff.split(':')[0]
+            acff=altcff.split(':')[1]
+            inc_dict[astep]='"'+acff+'"'
+            
 # to get the configs to parse, sometimes other steps are needed..
     dep_dict={'DIGI':'SIM','ALCA':'RECO','HLT':'GEN:SIM:DIGI:L1'}
     
@@ -297,7 +305,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.14 $"),
+              (version=cms.untracked.string("$Revision: 1.15 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

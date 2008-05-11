@@ -186,6 +186,11 @@ parser.add_option("--beamspot",
                    default="BetafuncEarlyCollision",
                    dest="beamspot")
 
+parser.add_option("--altcffs",
+                   help="Specify any nondefault cffs to include (replace the default ones) [syntax <step>:cff]",
+                   default="",
+                   dest="altcffs")
+
 parser.add_option( "--dirin",
                    help="The infile directory.",
                    default="",
@@ -438,6 +443,7 @@ dataTier='"""+options.datatier+"""'
 filtername='"""+options.filtername+"""'
 conditions='"""+options.conditions+"""'
 beamspot='"""+options.beamspot+"""'
+altcffs='"""+options.altcffs+"""'
 
 # The step
 step='"""+str(options.step)+"""'

@@ -102,7 +102,7 @@ process = cms.Process (process_name)
 process.schedule=cms.Schedule()
 
 # Enrich the process with the features described in the relval_includes_module.
-process=common.add_includes(process,PU_flag,step_list,conditions,beamspot)
+process=common.add_includes(process,PU_flag,step_list,conditions,beamspot,altcffs)
 
 # Add the fpe service if needed
 if fpe_service_flag:
