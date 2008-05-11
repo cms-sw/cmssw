@@ -1,7 +1,7 @@
 <TESTSCONFIGURATION>
 
 <QTEST name="EE_Integrity_Gain_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -17,7 +17,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_ChId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -33,7 +33,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_Gain_Switch_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -49,7 +49,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_TtId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -65,7 +65,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_TtBlockSize_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -81,7 +81,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_MemChId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -97,7 +97,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_MemGain_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -113,7 +113,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_MemTtId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -129,7 +129,7 @@
 </LINK>
 
 <QTEST name="EE_Integrity_MemSize_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -145,7 +145,7 @@
 </LINK>
 
 <QTEST name="EE_StatusFlags_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
@@ -161,7 +161,7 @@
 </LINK>
 
 <QTEST name="EE_PedestalOnline_G12_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
@@ -177,7 +177,7 @@
 </LINK>
 
 <QTEST name="EE_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
@@ -193,7 +193,7 @@
 </LINK>
 
 <QTEST name="EE_Pedestal_G06_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
@@ -209,7 +209,7 @@
 </LINK>
 
 <QTEST name="EE_Pedestal_G12_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
@@ -225,7 +225,7 @@
 </LINK>
 
 <QTEST name="EE_Pedestal_PN_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -241,7 +241,7 @@
 </LINK>
 
 <QTEST name="EE_Pedestal_PN_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -257,7 +257,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L1_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">100.0</PARAM>
@@ -273,7 +273,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L1_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -289,7 +289,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L1_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -305,7 +305,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L1_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -321,7 +321,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L1_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -337,7 +337,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L4_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">100.0</PARAM>
@@ -353,7 +353,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L4_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -369,7 +369,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L4_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -385,7 +385,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L4_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -401,7 +401,7 @@
 </LINK>
 
 <QTEST name="EE_Laser_L4_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -417,7 +417,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L1_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">100.0</PARAM>
@@ -433,7 +433,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L1_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -449,7 +449,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L1_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -465,7 +465,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L1_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -481,7 +481,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L1_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -497,7 +497,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L2_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">100.0</PARAM>
@@ -513,7 +513,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L2_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -529,7 +529,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L2_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -545,7 +545,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L2_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -561,7 +561,7 @@
 </LINK>
 
 <QTEST name="EE_Led_L2_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -577,7 +577,7 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">0.0</PARAM>
@@ -593,7 +593,7 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_G06_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">0.0</PARAM>
@@ -609,7 +609,7 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_G12_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">0.0</PARAM>
@@ -625,7 +625,7 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -641,7 +641,7 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
@@ -657,7 +657,7 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">12.5</PARAM>
@@ -673,7 +673,7 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">200.0</PARAM>
@@ -689,7 +689,7 @@
 </LINK>
 
 <QTEST name="EE_Timing_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">4.8</PARAM>
@@ -705,7 +705,7 @@
 </LINK>
 
 <QTEST name="EE_Quality_Summary">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">1.0</PARAM>
