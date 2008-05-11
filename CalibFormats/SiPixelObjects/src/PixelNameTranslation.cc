@@ -320,7 +320,11 @@ const PixelHdwAddress& PixelNameTranslation::getHdwAddress(const PixelChannel& a
 const PixelHdwAddress& PixelNameTranslation::firstHdwAddress(const PixelModuleName& aModule) const
 {
 	std::set<PixelChannel> channelsOnModule = getChannelsOnModule(aModule);
-	assert( channelsOnModule.size() > 0 );
+	if (channelsOnModule.size() == 0 ){
+	  cout << "[PixelNameTranslation::firstHdwAddress] module="<<aModule<<" has zero channels!"<<endl;
+	  cout << "Will terminate" <<endl;
+	  ::abort();
+	}
 	std::set<PixelChannel>::const_iterator firstChannel = channelsOnModule.begin();
 	assert( firstChannel != channelsOnModule.end() );
 	return getHdwAddress( *firstChannel );
