@@ -33,6 +33,8 @@ from RecoBTag.Configuration.RecoBTag_FakeConditions_cff import *
 from RecoBTau.Configuration.RecoBTau_FakeConditions_cff import *
 # BeamSpot Conditions
 from RecoVertex.BeamSpotProducer.BeamSpotFakeConditionsEarlyCollision_cff import *
-# HLT conditions
-from HLTrigger.Configuration.rawToDigi.FakeConditions_cff import *
-
+# Cabling maps
+from EventFilter.DTRawToDigi.DTSQLiteCabling_cfi import *
+from EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi import *
+from EventFilter.CSCRawToDigi.cscSQLiteCablingPack_cff import *
+from EventFilter.CSCRawToDigi.cscSQLiteCablingUnpck_cff import *
