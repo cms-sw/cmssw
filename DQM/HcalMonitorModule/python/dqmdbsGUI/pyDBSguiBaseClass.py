@@ -512,8 +512,9 @@ class dbsBaseGui:
         # This is a blank label that provides a green stripe across the GUI
         self.stripe=Label(self.mainFrame,text="",
                           font = ('Times',2,'bold italic'),
-                          bg=self.fg).grid(row=mainrow,column=0,
-                                           columnspan=10,sticky=EW)
+                          bg=self.fg)
+        self.stripe.grid(row=mainrow,column=0,
+                         columnspan=10,sticky=EW)
 
 
         # Make row showing column headings, Auto-Update button
