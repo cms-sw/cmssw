@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/06 14:32:54 $
- * $Revision: 1.118 $
+ * $Date: 2008/05/06 14:35:04 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  *
 */
@@ -625,11 +625,20 @@ void EESummaryClient::cleanup(void) {
   if ( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
   meGlobalSummary_[1] = 0;
 
-  // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+  if ( MonitorElement* me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
+    dqmStore_->removeElement(me->getName());
+  }
 
-  // to be done
+  for (int i = 0; i < 36; i++) {
+    if ( MonitorElement* me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + Numbers::sEE(i+1)) ) {
+      dqmStore_->removeElement(me->getName());
+    }
+  }
+
+  if ( MonitorElement* me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
+    dqmStore_->removeElement(me->getName());
+  }
 
 }
 
