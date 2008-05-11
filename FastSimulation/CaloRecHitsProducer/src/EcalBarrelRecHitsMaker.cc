@@ -21,6 +21,7 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   : random_(myrandom)
 {
   edm::ParameterSet RecHitsParameters = p.getParameter<edm::ParameterSet>("ECALBarrel");
+  inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
@@ -125,7 +126,7 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
 
   edm::Handle<CrossingFrame<PCaloHit> > cf;
-  iEvent.getByLabel("mix","EcalHitsEB",cf);
+  iEvent.getByLabel(inputCol_,cf);
   std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
 
 

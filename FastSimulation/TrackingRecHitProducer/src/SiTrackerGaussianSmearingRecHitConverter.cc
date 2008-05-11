@@ -88,7 +88,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 
   //--- PSimHit Containers
   trackerContainers.clear();
-  trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
+  trackerContainers = conf.getParameter<std::vector<edm::InputTag> >("ROUList");
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
 
@@ -543,7 +543,7 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
   for(uint32_t i=0; i<trackerContainers.size(); i++){
-    e.getByLabel("mix",trackerContainers[i], cf_simhit);
+    e.getByLabel(trackerContainers[i], cf_simhit);
     cf_simhitvec.push_back(cf_simhit.product());
   }
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));

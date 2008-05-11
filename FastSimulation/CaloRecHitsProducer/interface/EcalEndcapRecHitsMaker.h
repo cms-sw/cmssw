@@ -3,6 +3,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 //#include <boost/cstdint.hpp>
 
 class RandomEngine;
@@ -28,8 +29,9 @@ class EcalEndcapRecHitsMaker
   void geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const;
 
  private:
- bool doDigis_;
- bool doMisCalib_;
+  edm::InputTag inputCol_;
+  bool doDigis_;
+  bool doMisCalib_;
   double refactor_;
   double refactor_mean_;
   // poor-man Selective Readout

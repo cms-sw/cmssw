@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include <TROOT.h>
 #include <TFile.h>
@@ -124,7 +125,7 @@ private:
   //
   
   // PSimHits
-  std::vector<std::string> trackerContainers;
+  std::vector<edm::InputTag> trackerContainers;
   //
   
   // Pixel more detailed analysis

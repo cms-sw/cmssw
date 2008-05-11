@@ -55,6 +55,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
   hcalfileinpath_= RecHitsParameters.getParameter<std::string> ("fileNameHcal");  
+  inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
   maxIndex_=0;
   maxIndexDebug_=0;
   theDetIds_.resize(10000);
@@ -277,7 +278,7 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
   clean();
 
   edm::Handle<CrossingFrame<PCaloHit> > cf;
-  iEvent.getByLabel("mix","HcalHits",cf);
+  iEvent.getByLabel(inputCol_,cf);
   std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
 
   MixCollection<PCaloHit>::iterator it=colcalo->begin();;

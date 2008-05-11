@@ -10,6 +10,7 @@
 
 // Framework
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // PSimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -82,7 +83,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //
   //
   // parameters
-  std::vector<std::string> trackerContainers;
+  std::vector<edm::InputTag> trackerContainers;
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
   //

@@ -27,6 +27,8 @@ EcalPreshowerRecHitsMaker::EcalPreshowerRecHitsMaker(
     = p.getParameter<edm::ParameterSet>("ECALPreshower");
   noise_ = RecHitsParameters.getParameter<double>("Noise");
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
+  inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
+
   initialized_=false;
 
   Genfun::Erf myErf;
@@ -79,7 +81,7 @@ void EcalPreshowerRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
   clean();
 
   edm::Handle<CrossingFrame<PCaloHit> > cf;
-  iEvent.getByLabel("mix","EcalHitsES",cf);
+  iEvent.getByLabel(inputCol_,cf);
   std::auto_ptr<MixCollection<PCaloHit> > colcalo(new MixCollection<PCaloHit>(cf.product(),std::pair<int,int>(0,0) ));
 
   MixCollection<PCaloHit>::iterator it=colcalo->begin();

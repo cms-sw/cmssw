@@ -3,6 +3,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 //#include <boost/cstdint.hpp>
 
 class RandomEngine;
@@ -38,7 +39,7 @@ class EcalBarrelRecHitsMaker
   double calibfactor_;
   const RandomEngine* random_;
   bool noisified_;
-
+  edm::InputTag inputCol_;
   // array (size = 62000) of the energy in the barrel
   std::vector<float> theCalorimeterHits_;
   // array of the hashedindices in the previous array of the cells that received a hit

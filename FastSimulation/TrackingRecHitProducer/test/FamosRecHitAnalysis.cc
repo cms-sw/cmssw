@@ -63,7 +63,7 @@ FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) :
 #endif
   //--- PSimHit Containers
   trackerContainers.clear();
-  trackerContainers = pset.getParameter<std::vector<std::string> >("SimHitList");
+  trackerContainers = pset.getParameter<std::vector<edm::InputTag> >("SimHitList");
   //
   if(useCMSSWPixelParameterization)
   {
@@ -693,7 +693,7 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit; 
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
   for(uint32_t i=0; i<trackerContainers.size(); i++){
-    event.getByLabel("mix",trackerContainers[i], cf_simhit);
+    event.getByLabel(trackerContainers[i], cf_simhit);
     cf_simhitvec.push_back(cf_simhit.product());
   }
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));

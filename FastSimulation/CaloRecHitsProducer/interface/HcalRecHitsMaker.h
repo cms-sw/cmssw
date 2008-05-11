@@ -4,6 +4,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include <map>
 #include <vector>
 
@@ -54,7 +55,7 @@ class HcalRecHitsMaker
   double hcalHotFractionHB_,  hcalHotFractionHE_, hcalHotFractionHO_, hcalHotFractionHF_; 
 
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
-  
+  edm::InputTag inputCol_;
   bool initialized_;
   bool doDigis_;
   bool doMiscalib_;

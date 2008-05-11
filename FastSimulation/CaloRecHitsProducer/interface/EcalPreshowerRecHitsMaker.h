@@ -3,7 +3,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
-
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include <map>
 #include <vector>
 
@@ -45,6 +45,7 @@ class EcalPreshowerRecHitsMaker
   void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal=true);
 
  private:
+  edm::InputTag inputCol_;
   double threshold_;
   double noise_;
   double preshowerHotFraction_;
