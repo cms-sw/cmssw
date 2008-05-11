@@ -2080,7 +2080,6 @@ class dbsBaseGui:
         if (self.debug):
             print self.checkExistence.__doc__
 
-        print obj.get()
         exists=True
         if not os.path.exists(obj.get()):
             self.commentLabel.configure(text="ERROR!\n Object '%s' does not exist!"%obj.get())
