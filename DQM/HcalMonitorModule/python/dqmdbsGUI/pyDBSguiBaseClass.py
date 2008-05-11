@@ -1333,7 +1333,7 @@ class dbsBaseGui:
                     return
 
                 self.runningDQM=True
-                self.filesInDBS[i].startedDQM=True
+                self.filesInDBS[i].startedDQM=True  # Set to True, but info not yet saved to .cPickle file
                 # Here is where the cmsRun command is sent!
                 if (self.callDQMscript(i)):
                     self.filesInDBS[i].finishedDQM=True
@@ -1449,6 +1449,9 @@ class dbsBaseGui:
 
         # Get list of output files, directories produced by cmsRun call
         success=self.getcmsRunOutput(i)
+
+        if (self.debug):
+            print "Were all expected files found? ",success
         if (success):
             for myobject in self.cmsRunOutput:
 
@@ -1456,9 +1459,14 @@ class dbsBaseGui:
                     self.finalDir.get()<>self.basedir
                     ):
 
+                    if (self.debug):
+                        print "myobject = ",myobject
+                        print "BaseName = ",os.path.basename(myobject)
+                        
                     # Delete old copies of output (stored in self.finalDir.get() directory)
                     if os.path.exists(os.path.join(self.finalDir.get(),os.path.basename(myobject))):
                         os.system("rm -rf %s"%os.path.join(self.finalDir.get(),os.path.basename(myobject)))
+
                     # now move object to final directory
                     os.system("mv %s %s"%(myobject,os.path.join(self.finalDir.get(),os.path.basename(myobject))))
 
@@ -1475,7 +1483,7 @@ class dbsBaseGui:
 
 
         else: # success = False
-            self.commentLabel("ERROR -- did not retrieve all expected output from cmsRun")
+            self.commentLabel.configure(text="ERROR -- did not retrieve all expected output from cmsRun")
             self.commentLabel.update_idletasks()
             time.sleep(3)
             
