@@ -1,4 +1,4 @@
-// $Id: ServiceManager.cc,v 1.7 2008/03/10 10:07:07 meschi Exp $
+// $Id: ServiceManager.cc,v 1.8 2008/05/04 12:37:34 biery Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include "EventFilter/StorageManager/interface/Configurator.h"
@@ -13,8 +13,10 @@ ServiceManager::ServiceManager(const std::string& config):
   outModPSets_(0),
   managedOutputs_(0),
   psetHLTOutputLabels_(0),
-  outputModuleIds_(0)
+  outputModuleIds_(0),
+  storedEvents_(0)
 {
+  storedNames_.clear();
   collectStreamerPSets(config);
 } 
 
@@ -23,6 +25,8 @@ ServiceManager::~ServiceManager()
 { 
   managedOutputs_.clear();
   outputModuleIds_.clear();
+  storedEvents_.clear();
+  storedNames_.clear();
 }
 
 
@@ -130,6 +134,8 @@ void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::strin
       stream->setLumiSectionTimeOut(smParameter_ -> lumiSectionTimeOut());
       managedOutputs_.push_back(stream);
       outputModuleIds_.push_back(view.outputModuleId());
+      storedEvents_.push_back(0);
+      storedNames_.push_back(stream->getStreamLabel());
       stream->report(cout,3);
 
       psetHLTOutputLabels_[psetIdx] = inputOMLabel;
@@ -141,11 +147,14 @@ void ServiceManager::manageInitMsg(std::string catalog, uint32 disks, std::strin
 void ServiceManager::manageEventMsg(EventMsgView& msg)
 {
   bool eventAccepted = false;
+  bool thisEventAccepted = false;
   int outputIdx = -1;
   for(StreamsIterator  it = managedOutputs_.begin(), itEnd = managedOutputs_.end(); it != itEnd; ++it) {
     ++outputIdx;
     if (msg.outModId() == outputModuleIds_[outputIdx]) {
-      eventAccepted = (*it)->nextEvent(msg) || eventAccepted;
+      thisEventAccepted = (*it)->nextEvent(msg);
+      eventAccepted = thisEventAccepted || eventAccepted;
+      if (thisEventAccepted) ++storedEvents_[outputIdx];
     }
   }
 }
@@ -180,6 +189,16 @@ std::list<std::string>& ServiceManager::get_currfiles()
 	filelist_.insert(filelist_.end(), sub_list.begin(), sub_list.end());
   }
   return currfiles_;  
+}
+
+//
+std::vector<uint32>& ServiceManager::get_storedEvents()
+{ 
+  return storedEvents_;  
+}
+std::vector<std::string>& ServiceManager::get_storedNames()
+{ 
+  return storedNames_;  
 }
 
 /**

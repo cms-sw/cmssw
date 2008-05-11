@@ -1,7 +1,7 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id: StreamService.h,v 1.6 2008/03/10 10:05:57 meschi Exp $
+// $Id: StreamService.h,v 1.7 2008/04/21 12:15:02 loizides Exp $
 
 // - handling output files per stream make the problem 1-dimensional 
 // - allows to use different file handling rules per stream
@@ -59,6 +59,7 @@ namespace edm {
 
       std::list<std::string> getFileList();
       std::list<std::string> getCurrentFileList();
+      const std::string& getStreamLabel()    const {return streamLabel_;}
 
     private:
       boost::shared_ptr<OutputService>  newOutputService();

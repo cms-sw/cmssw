@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.52 2008/04/26 21:15:40 loizides Exp $
+// $Id: StorageManager.cc,v 1.53 2008/05/04 12:37:34 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -105,7 +105,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   fairShareES_(false),
   connectedFUs_(0), 
   storedEvents_(0), 
+  receivedEvents_(0), 
   dqmRecords_(0), 
+  closedFiles_(0), 
+  openFiles_(0), 
   storedVolume_(0.),
   progressMarker_(ProgressMarker::instance()->idle()),
   lastEventSeen_(0)
@@ -125,11 +128,17 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("stateName",     fsm_.stateName());
   ispace->fireItemAvailable("connectedFUs",  &connectedFUs_);
   ispace->fireItemAvailable("storedEvents",  &storedEvents_);
+  ispace->fireItemAvailable("receivedEvents",&receivedEvents_);
   ispace->fireItemAvailable("dqmRecords",    &dqmRecords_);
   ispace->fireItemAvailable("closedFiles",   &closedFiles_);
+  ispace->fireItemAvailable("openFiles",     &openFiles_);
   ispace->fireItemAvailable("fileList",      &fileList_);
   ispace->fireItemAvailable("eventsInFile",  &eventsInFile_);
+  ispace->fireItemAvailable("storedEventsInStream",  &storedEventsInStream_);
+  ispace->fireItemAvailable("receivedEventsForOutMod",  &receivedEventsFromOutMod_);
   ispace->fireItemAvailable("fileSize",      &fileSize_);
+  ispace->fireItemAvailable("namesOfStream",      &namesOfStream_);
+  ispace->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
 
   // Bind specific messages to functions
   i2o::bind(this,
@@ -250,6 +259,14 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   sourceId_ = sourcename.str();
   smParameter_ -> setSmInstance(sourceId_);
 
+  storedEventsInStream_.reserve(20);
+  storedEventsInStream_.clear();
+  receivedEventsFromOutMod_.reserve(6);
+  receivedEventsFromOutMod_.clear();
+  receivedEventsMap_.clear();
+  modId2ModOutMap_.clear();
+  storedEventsMap_.clear();
+
   // need the line below so that deserializeRegistry can run
   // in order to compare two registries (cannot compare byte-for-byte) (if we keep this)
   // need line below anyway in case we deserialize DQMEvents for collation
@@ -353,6 +370,16 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         // this is checked ok by default
         smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                      msg->hltLocalId, msg->hltInstance, msg->hltTid);
+
+        // add this output module to the monitoring
+        bool alreadyStoredOutMod = false;
+        std::string moduleLabel = testmsg.outputModuleLabel();
+        uint32 moduleId = testmsg.outputModuleId();
+        if(modId2ModOutMap_.find(moduleId) != modId2ModOutMap_.end())  alreadyStoredOutMod = true;
+        if(!alreadyStoredOutMod) {
+          modId2ModOutMap_.insert(std::make_pair(moduleId,moduleLabel));
+          receivedEventsMap_.insert(std::make_pair(moduleLabel,0));
+        }
 
         // limit this (and other) interaction with the InitMsgCollection
         // to a single thread so that we can present a coherent
@@ -544,7 +571,15 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 					    msg->originalSize, isLocal);
 
-         if(status == 1) ++(storedEvents_.value_);
+         //if(status == 1) ++(storedEvents_.value_);
+         if(status == 1) {
+           ++(receivedEvents_.value_);
+           uint32 moduleId = msg->outModID;
+           std::string moduleLabel = modId2ModOutMap_[moduleId];
+           // TODO: what happens if this is an invalid non-known moduleId??
+           ++(receivedEventsMap_[moduleLabel]);
+         }
+
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
                     "updateFUSender4data: Cannot find FU in FU Sender list!"
@@ -599,7 +634,14 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
 				       msg->originalSize, isLocal);
     
-    if(status == 1) ++(storedEvents_.value_);
+    //if(status == 1) ++(storedEvents_.value_);
+    if(status == 1) {
+      ++(receivedEvents_.value_);
+      uint32 moduleId = msg->outModID;
+      std::string moduleLabel = modId2ModOutMap_[moduleId];
+      // TODO: what happens if this is an invalid non-known moduleId??
+      ++(receivedEventsMap_[moduleLabel]);
+    }
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
 		      "updateFUSender4data: Cannot find FU in FU Sender list!"
@@ -914,7 +956,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "  <td>"                                                   << endl;
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\""	 << endl;
-  *out << " readonly title=\"Note: this info updates every 30s !!!\">"<< endl;
+  *out << " readonly title=\"Note: parts of this info updates every 30s !!!\">"<< endl;
   *out << "<colgroup> <colgroup align=\"right\">"			 << endl;
     *out << "  <tr>"						 	 << endl;
     *out << "    <th colspan=2>"					 << endl;
@@ -929,14 +971,67 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << runNumber_ << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
-        *out << "<tr>" << endl;
+        *out << "<tr class=\"special\">" << endl;
           *out << "<td >" << endl;
-          *out << "Events Received" << endl;
+          *out << "Events Received for this Run" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << receivedEvents_ << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
+        idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
+        for( ; oi != oe; ++oi) {
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Events Received for Output Module " << oi->second << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << receivedEventsMap_[oi->second] << endl;
+            *out << "</td>" << endl;
+          *out << "</tr>" << endl;
+        }
+        if(fsm_.stateName()->value_ == "Enabled")
+        {
+          if(jc_.get() != NULL) {
+            storedEvents_ = 0;
+            storedEventsInStream_.clear();
+            namesOfStream_.clear();
+            // following is thread safe as size of all_storedEvents is fixed (number of streams)
+            std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
+            std::vector<std::string> all_storedNames = jc_->get_storedNames();
+            for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
+                it != itEnd; ++it) {
+                  storedEvents_ = storedEvents_ + (*it);
+                  storedEventsInStream_.push_back(*it);
+            }
+            for(std::vector<std::string>::iterator it = all_storedNames.begin(), itEnd = all_storedNames.end();
+                it != itEnd; ++it) {
+                  namesOfStream_.push_back(*it);
+            }
+          }
+        }
+        *out << "<tr class=\"special\">" << endl;
+          *out << "<td >" << endl;
+          *out << "Events Stored for this Run" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << storedEvents_ << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
+        xdata::Vector<xdata::String>::iterator ni(namesOfStream_.begin());
+        xdata::Vector<xdata::UnsignedInteger32>::iterator si(storedEventsInStream_.begin()), 
+          se(storedEventsInStream_.end());
+        for( ; si != se; ++si) {
+          *out << "<tr>" << endl;
+            *out << "<td >" << endl;
+            *out << "Events Stored for Stream " << ni->value_ << endl;
+            *out << "</td>" << endl;
+            *out << "<td align=right>" << endl;
+            *out << si->value_ << endl;
+            *out << "</td>" << endl;
+            ++ni;
+          *out << "</tr>" << endl;
+        }
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
           *out << "Last Event ID" << endl;
@@ -993,7 +1088,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
         }
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=4>"                                       << endl;
-    *out << "      " << "Streams"                                      << endl;
+    *out << "      " << "Streams (updated only every 30 sec)"          << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr class=\"special\">"			       << endl;
@@ -3317,7 +3412,11 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("url",                  &url_);
   // Body
   is->fireItemAvailable("receivedFrames",       &receivedFrames_);
-  is->fireItemAvailable("storedEvents",         &storedEvents_);
+  // should this be here also??
+  //is->fireItemAvailable("storedEvents",         &storedEvents_);
+  is->fireItemAvailable("receivedEvents",       &receivedEvents_);
+  is->fireItemAvailable("namesOfStream",      &namesOfStream_);
+  is->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
   is->fireItemAvailable("dqmRecords",           &dqmRecords_);
   is->fireItemAvailable("storedVolume",         &storedVolume_);
   is->fireItemAvailable("memoryUsed",           &memoryUsed_);
@@ -3368,7 +3467,11 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("url",                  this);
   // Body
   is->addItemRetrieveListener("receivedFrames",       this);
-  is->addItemRetrieveListener("storedEvents",         this);
+  // should this be here also??
+  //is->addItemRetrieveListener("storedEvents",         this);
+  is->addItemRetrieveListener("receivedEvents",       this);
+  is->addItemRetrieveListener("namesOfStream", this);
+  is->addItemRetrieveListener("namesOfOutMod", this);
   is->addItemRetrieveListener("dqmRecords",           this);
   is->addItemRetrieveListener("storedVolume",         this);
   is->addItemRetrieveListener("memoryUsed",           this);
@@ -3429,8 +3532,43 @@ void StorageManager::actionPerformed(xdata::Event& e)
       memoryUsed_     = pool_->getMemoryUsage().getUsed();
     else if (item == "storedVolume")
       storedVolume_   = pmeter_->totalvolumemb();
-    else if (item == "progressMarker")
+    else if (item == "closedFiles") {
+        std::list<std::string>& files = jc_->get_filelist();
+        std::list<std::string>& currfiles= jc_->get_currfiles();
+        closedFiles_ = files.size() - currfiles.size();
+    } else if (item == "openFiles") {
+        std::list<std::string>& currfiles= jc_->get_currfiles();
+        openFiles_ = currfiles.size();
+    } else if (item == "receivedEventsFromOutMod" || item == "namesOfOutMod") {
+      receivedEventsFromOutMod_.clear();
+      namesOfOutMod_.clear();
+      idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
+      for( ; oi != oe; ++oi) {
+        receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
+        namesOfOutMod_.push_back(oi->second);
+      }
+    } else if (item == "storedEvents" || item == "storedEventsInStream" || item == "namesOfStream") {
+      // only clear and get values if in enabled state so latest values available if fail/stop
+      if(jc_.get() != NULL) {
+        storedEvents_ = 0;
+        storedEventsInStream_.clear();
+        namesOfStream_.clear();
+        // following is thread safe as size of all_storedEvents is fixed (number of streams)
+        std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
+        std::vector<std::string> all_storedNames = jc_->get_storedNames();
+        for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
+            it != itEnd; ++it) {
+              storedEvents_ = storedEvents_ + (*it);
+              storedEventsInStream_.push_back(*it);
+        }
+        for(std::vector<std::string>::iterator it = all_storedNames.begin(), itEnd = all_storedNames.end();
+            it != itEnd; ++it) {
+              namesOfStream_.push_back(*it);
+        }
+      }
+    } else if (item == "progressMarker")
       progressMarker_ = ProgressMarker::instance()->status();
+
     is->unlock();
   } 
 }
@@ -3719,9 +3857,19 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     
     fileList_.clear();
     eventsInFile_.clear();
+    storedEventsInStream_.clear();
     fileSize_.clear();
     storedEvents_ = 0;
+    receivedEvents_ = 0;
+    receivedEventsFromOutMod_.clear();
+    namesOfStream_.clear();
+    namesOfOutMod_.clear();
+    receivedEventsMap_.clear();
+    modId2ModOutMap_.clear();
+    storedEventsMap_.clear();
     dqmRecords_   = 0;
+    closedFiles_  = 0;
+    openFiles_  = 0;
     jc_->start();
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
@@ -3802,6 +3950,7 @@ void StorageManager::stopAction()
   std::list<std::string>& files = jc_->get_filelist();
   std::list<std::string>& currfiles= jc_->get_currfiles();
   closedFiles_ = files.size() - currfiles.size();
+  openFiles_ = currfiles.size();
   
   unsigned int totInFile = 0;
   for(list<string>::const_iterator it = files.begin();
@@ -3817,6 +3966,22 @@ void StorageManager::stopAction()
       fileSize_.push_back((unsigned int) (size / 1048576));
       FDEBUG(5) << name << " " << nev << " " << size << std::endl;
     }
+  receivedEventsFromOutMod_.clear();
+  namesOfOutMod_.clear();
+  idMap_iter oi(modId2ModOutMap_.begin()), oe(modId2ModOutMap_.end());
+  for( ; oi != oe; ++oi) {
+    receivedEventsFromOutMod_.push_back(receivedEventsMap_[oi->second]);
+    namesOfOutMod_.push_back(oi->second);
+  }
+  storedEvents_ = 0;
+  storedEventsInStream_.clear();
+  // following is thread safe as size of all_storedEvents is fixed (number of streams)
+  std::vector<uint32> all_storedEvents = jc_->get_storedEvents();
+  for(std::vector<uint32>::iterator it = all_storedEvents.begin(), itEnd = all_storedEvents.end();
+    it != itEnd; ++it) {
+      storedEvents_ = storedEvents_ + (*it);
+      storedEventsInStream_.push_back(*it);
+  }
   
   jc_->stop();
 

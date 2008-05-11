@@ -1,6 +1,6 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
-// $Id: JobController.h,v 1.17 2007/05/16 22:53:45 hcheung Exp $
+// $Id: JobController.h,v 1.18 2008/01/29 21:10:05 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -79,6 +79,8 @@ namespace stor
 
     std::list<std::string>& get_filelist() { return collector_->get_filelist(); }
     std::list<std::string>& get_currfiles() { return collector_->get_currfiles(); }
+    std::vector<uint32>& get_storedEvents() { return collector_->get_storedEvents(); }
+    std::vector<std::string>& get_storedNames() { return collector_->get_storedNames(); }
 
   private:
     void init(const std::string& my_config,FragmentCollector::Deleter);

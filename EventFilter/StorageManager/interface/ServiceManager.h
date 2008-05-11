@@ -1,7 +1,7 @@
 #ifndef _SERVICEMANAGER_H_
 #define _SERVICEMANAGER_H_
 
-// $Id: ServiceManager.h,v 1.3 2008/03/03 20:23:29 biery Exp $
+// $Id: ServiceManager.h,v 1.4 2008/05/04 12:34:05 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -40,6 +40,8 @@ namespace edm
     
     std::list<std::string>& get_filelist();
     std::list<std::string>& get_currfiles();
+    std::vector<uint32>& get_storedEvents();
+    std::vector<std::string>& get_storedNames();
 
     std::map<std::string, Strings> getStreamSelectionTable();
     
@@ -53,6 +55,8 @@ namespace edm
     std::list<std::string>                 currfiles_;
     Strings                                psetHLTOutputLabels_;
     std::vector<uint32>                    outputModuleIds_;
+    std::vector<uint32>                    storedEvents_;
+    std::vector<std::string>              storedNames_;
   };
   
 }//edm-namespace

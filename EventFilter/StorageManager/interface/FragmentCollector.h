@@ -125,6 +125,8 @@ namespace stor
 
     std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
+    std::vector<uint32>& get_storedEvents() { return writer_->get_storedEvents(); }
+    std::vector<std::string>& get_storedNames() { return writer_->get_storedNames(); }
   private:
     uint32 runNumber_;
     uint32 disks_;
