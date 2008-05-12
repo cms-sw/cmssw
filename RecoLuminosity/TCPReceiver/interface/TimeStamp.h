@@ -7,8 +7,9 @@ namespace HCAL_HLX{
   
   class TimeStamp{
   public:
-    std::string TimeStampShort();
     std::string TimeStampLong();
+    std::string TimeStampYYYYMMDD();
+    std::string TimeStampYYYYMM();    
   };
   
 }
