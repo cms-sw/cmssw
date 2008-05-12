@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: mangano $
-// $Date: 2008/03/04 14:36:28 $
-// $Revision: 1.8 $
+// $Author: burkett $
+// $Date: 2008/03/11 14:54:11 $
+// $Revision: 1.9 $
 //
 
 #include <memory>
@@ -34,10 +34,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 //#include "DataFormats/TrackReco/src/classes.h"
 
 namespace cms
@@ -46,8 +42,13 @@ namespace cms
   SimpleTrackListMerger::SimpleTrackListMerger(edm::ParameterSet const& conf) : 
     conf_(conf)
   {
+
     produces<reco::TrackCollection>();
-//    produces<reco::TrackExtraCollection>();
+    produces<reco::TrackExtraCollection>();
+    produces<TrackingRecHitCollection>();
+    produces< std::vector<Trajectory> >();
+    produces< TrajTrackAssociationCollection >();
+
   }
 
 
@@ -69,7 +70,7 @@ namespace cms
     if ( epsilon > 0.0 )use_sharesInput = false;
     double shareFrac =  conf_.getParameter<double>("ShareFrac");
   
-    //
+    //bool copyTrajectories = conf_.getUntrackedParameter<bool>("copyTrajectories");   //
     // extract tracker geometry
     //
     edm::ESHandle<TrackerGeometry> theG;
@@ -108,7 +109,15 @@ namespace cms
     const reco::TrackCollection tC2 = *TC2;
 
     // Step B: create empty output collection
-    std::auto_ptr<reco::TrackCollection> output(new reco::TrackCollection);
+    outputTrks = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection);
+    refTrks = e.getRefBeforePut<reco::TrackCollection>();      
+
+    outputTrkExtras = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection);
+    refTrkExtras    = e.getRefBeforePut<reco::TrackExtraCollection>();
+    outputTrkHits   = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection);
+    refTrkHits      = e.getRefBeforePut<TrackingRecHitCollection>();
+    outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
+    outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
 
   //
   //  no input tracks
@@ -338,35 +347,139 @@ namespace cms
   //
   //  output selected tracks - if any
   //
+   trackRefs.resize(tC1.size()+tC2.size());
+   size_t current = 0;
+
    if ( 0<tC1.size() ){
-    i=-1;
-    for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); track++){
-      i++;  if (!selected1[i])continue;
-      reco::Track * theTrack = new reco::Track(*track);
+     i=0;
+     for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); 
+	  ++track, ++current, ++i){
+      if (!selected1[i]){
+	trackRefs[current] = reco::TrackRef();
+	continue;
+      }
+      const reco::Track & theTrack = * track;
       //fill the TrackCollection
-      reco::TrackExtraRef theTrackExtraRef=track->extra();    
-      theTrack->setExtra(theTrackExtraRef);    
-      theTrack->setHitPattern((*theTrackExtraRef).recHits());
-      output->push_back(*theTrack);
-      delete theTrack;
+      outputTrks->push_back( reco::Track( theTrack ) );
+
+      // Fill TrackExtra collection
+      outputTrkExtras->push_back( reco::TrackExtra( 
+		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
+                    theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
+                    theTrack.outerStateCovariance(), theTrack.outerDetId(),
+                    theTrack.innerStateCovariance(), theTrack.innerDetId(),
+                    theTrack.seedDirection(), theTrack.seedRef() ) );
+      outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
+      reco::TrackExtra & tx = outputTrkExtras->back();
+      // fill TrackingRecHits
+      for( trackingRecHit_iterator hit = theTrack.recHitsBegin(); hit != theTrack.recHitsEnd(); ++ hit ) {
+	outputTrkHits->push_back( (*hit)->clone() );
+	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+      }
+      trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
+
     }//end faux loop over tracks
    }//end more than 0 track
+
+   //Fill the trajectories, etc. for 1st collection
+   edm::Handle< std::vector<Trajectory> > hTraj1;
+   e.getByLabel(trackProducer1, hTraj1);
+   edm::Handle< TrajTrackAssociationCollection > hTTAss1;
+   e.getByLabel(trackProducer1, hTTAss1);
+ 
+   outputTrajs = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
+   refTrajs    = e.getRefBeforePut< std::vector<Trajectory> >();
+   outputTTAss = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+
+   for (size_t i = 0, n = hTraj1->size(); i < n; ++i) {
+     edm::Ref< std::vector<Trajectory> > trajRef(hTraj1, i);
+     TrajTrackAssociationCollection::const_iterator match = hTTAss1->find(trajRef);
+     if (match != hTTAss1->end()) {
+       const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
+       short oldKey = static_cast<short>(trkRef.key());
+       if (trackRefs[oldKey].isNonnull()) {
+	 outputTrajs->push_back( Trajectory(*trajRef) );
+	 outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
+			       trackRefs[oldKey] );
+       }
+     }
+   }
+
+   short offset = current; //save offset into trackRefs
+
    if ( 0<tC2.size() ){
-    i=-1;
-    for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end(); track++){
-      i++;  if (!selected2[i])continue;
-      reco::Track * theTrack = new reco::Track(*track);
+    i=0;
+    for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end();
+	 ++track, ++current, ++i){
+      if (!selected2[i]){
+	trackRefs[current] = reco::TrackRef();
+	continue;
+      }
+      const reco::Track & theTrack = * track;
       //fill the TrackCollection
-      reco::TrackExtraRef theTrackExtraRef=track->extra();    
-      theTrack->setExtra(theTrackExtraRef);    
-      theTrack->setHitPattern((*theTrackExtraRef).recHits());
-      output->push_back(*theTrack);
-      delete theTrack;
+      outputTrks->push_back( reco::Track( theTrack ) );
+
+      // Fill TrackExtra collection
+      outputTrkExtras->push_back( reco::TrackExtra( 
+		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
+                    theTrack.innerPosition(), theTrack.innerMomentum(), theTrack.innerOk(),
+                    theTrack.outerStateCovariance(), theTrack.outerDetId(),
+                    theTrack.innerStateCovariance(), theTrack.innerDetId(),
+                    theTrack.seedDirection(), theTrack.seedRef() ) );
+      outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
+      reco::TrackExtra & tx = outputTrkExtras->back();
+      // fill TrackingRecHits
+      for( trackingRecHit_iterator hit = theTrack.recHitsBegin(); hit != theTrack.recHitsEnd(); ++ hit ) {
+	outputTrkHits->push_back( (*hit)->clone() );
+	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+      }
+      trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
+
     }//end faux loop over tracks
    }//end more than 0 track
 
+   //Fill the trajectories, etc. for 2nd collection
+   edm::Handle< std::vector<Trajectory> > hTraj2;
+   e.getByLabel(trackProducer2, hTraj2);
+   edm::Handle< TrajTrackAssociationCollection > hTTAss2;
+   e.getByLabel(trackProducer2, hTTAss2);
 
-    e.put(output);
+   for (size_t i = 0, n = hTraj2->size(); i < n; ++i) {
+     edm::Ref< std::vector<Trajectory> > trajRef(hTraj2, i);
+     TrajTrackAssociationCollection::const_iterator match = hTTAss2->find(trajRef);
+     if (match != hTTAss2->end()) {
+       const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
+       short oldKey = static_cast<short>(trkRef.key()) + offset;
+       if (trackRefs[oldKey].isNonnull()) {
+	 outputTrajs->push_back( Trajectory(*trajRef) );
+	 outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
+			       trackRefs[oldKey] );
+       }
+     }
+   }
+
+   if (outputTrks->size() != outputTrajs->size() ||
+       outputTrks->size() != outputTTAss->size()){
+     std::cout<<"*** ERROR IN COLLECTION SIZES !!! *** "<<std::endl;
+    std::cout<<"Output sizes -- Tracks:: " << outputTrks->size()
+	     << "  TrackExtras: " << outputTrkExtras->size()
+	     << "  TrackHits: " << outputTrkHits->size()
+	     << "  Trajectories: " << outputTrajs->size()
+	     << "  TTAssocMap: " << outputTTAss->size()
+	     << std::endl;
+   }
+    std::cout<<"Output sizes -- Tracks:: " << outputTrks->size()
+	     << "  TrackExtras: " << outputTrkExtras->size()
+	     << "  TrackHits: " << outputTrkHits->size()
+	     << "  Trajectories: " << outputTrajs->size()
+	     << "  TTAssocMap: " << outputTTAss->size()
+	     << std::endl;
+
+    e.put(outputTrks);
+    e.put(outputTrkExtras);
+    e.put(outputTrkHits);
+    e.put(outputTrajs);
+    e.put(outputTTAss);
     return;
 
   }//end produce
