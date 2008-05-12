@@ -53,8 +53,8 @@ EgammaHLTEcalIsolationProducersRegional::EgammaHLTEcalIsolationProducersRegional
 
   egEcalIsoEtMin_       = conf_.getParameter<double>("egEcalIsoEtMin");
   egEcalIsoConeSize_    = conf_.getParameter<double>("egEcalIsoConeSize");
-
-  test_ = new EgammaHLTEcalIsolation(egEcalIsoEtMin_,egEcalIsoConeSize_);
+  algoType_ = conf_.getParameter<int>("SCAlgoType");
+  test_ = new EgammaHLTEcalIsolation(egEcalIsoEtMin_,egEcalIsoConeSize_,algoType_);
 
 
   //register your products
