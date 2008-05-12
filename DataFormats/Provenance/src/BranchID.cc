@@ -1,12 +1,13 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "FWCore/Utilities/interface/CRC32Calculator.h"
 #include <ostream>
 
 namespace edm {
-  // These will be replaced with crc32
-  BranchID::BranchID() : id_(ID()) {}
 
-  // These will be replaced with crc32
-  BranchID::BranchID(std::string const& str) : id_(str) {}
+  void BranchID::setID(std::string const& branchName) {
+    cms::CRC32Calculator crc32(branchName);
+    id_ = crc32.checksum();
+  }
 
   std::ostream&
   operator<<(std::ostream& os, BranchID const& id) {

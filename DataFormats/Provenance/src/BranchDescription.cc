@@ -155,7 +155,7 @@ namespace edm {
     branchName_ += processName();
     branchName_ += period;
 
-    if (branchID_.empty()) {
+    if (!branchID_.isValid()) {
       branchID_.setID(branchName_);
     }
 
