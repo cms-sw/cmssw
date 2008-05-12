@@ -1,33 +1,9 @@
-
-
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "SimMuon/MCTruth/src/CSCTruthTest.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimMuon/MCTruth/interface/MuonTruth.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
-//
-// class decleration
-//
-
-class CSCTruthTest : public edm::EDAnalyzer {
-public:
-  explicit CSCTruthTest(const edm::ParameterSet&);
-  ~CSCTruthTest();
-
-
-private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  MuonTruth theTruth;  
-
-      // ----------member data ---------------------------
-};
 
 CSCTruthTest::CSCTruthTest(const edm::ParameterSet& iConfig)
 {
