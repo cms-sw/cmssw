@@ -1,0 +1,78 @@
+# -*-make-*-
+#  Autors:   Dmytro Kovalskyi
+#            Johannes Muelmenstaedt
+# 
+ifndef VERBOSE
+  QUIET := @
+endif
+
+include core.mk
+include project.mk
+
+LinkerOptions := -Wl,-rpath -Wl,
+# 
+# common compiler flags
+# COMPILERFLAGS := -Wall -O2
+COMPILERFLAGS := -Wall -O0 -g
+# common includes
+INCLUDE := -I./ -Isrc -I$(ROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
+# compiler
+CC := c++
+
+CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
+
+# linker
+LINKER = c++
+# linker flags
+ProjectMissingFlags = -lGeom
+ProjectLinkerFlags = -shared -Lexternal/lib -L$(ROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+
+# cmsShow source code and its object files
+ProjectSources = $(wildcard src/*/*/src/*.cc)
+ProjectBuildFiles = $(wildcard src/*/*/BuildFile)
+ProjectObjects = $(addprefix tmp/,$(ProjectSources:.cc=.o))
+
+# cmsShow dictionaries
+ProjectRootDicHeaders = $(wildcard src/*/*/src/*LinkDef.h)
+ProjectRootDicSources = $(addprefix tmp/,$(ProjectRootDicHeaders:.h=.cc))
+ProjectRootDicObjects = $(ProjectRootDicSources:.cc=.ro)
+
+ProjectDictionaryIncludes = $(wildcard src/*/*/src/classes.h)
+ProjectDictionaryXMLs     = $(ProjectDictionaryIncludes:.h=_def.xml)
+ProjectDictionarySources  = $(addprefix tmp/,$(ProjectDictionaryIncludes:.h=.cpp))
+ProjectDictionaryObjects  = $(ProjectDictionarySources:.cpp=.do)
+
+LibCore = CMSDataFormats
+LibProject = CMSShow
+
+LDLIBRARYPATH := `pwd` `pwd`/external/lib $(ROOTSYS)/lib
+
+all: display
+	
+display: env lib$(LibProject).so tmp/lib$(LibProject).so.out
+
+# check if proper environment is setup
+env: 
+	$(QUIET) if [ -z "$(ROOTSYS)" ]; then \
+	   echo "ROOTSYS not set. Cannot compile dictionaries."; \
+	   exit 1; \
+	fi;
+
+lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).so
+	$(QUIET) echo "linking core library $(LibProject)"; \
+	$(LINKER) $(ProjectLinkerFlags) -L./ -l$(LibCore) -o lib$(LibProject).so \
+	$(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects)
+
+######################################################################################
+# 
+#                General rules for making object files
+# 
+######################################################################################
+
+include common.mk
+
+clean:
+	$(QUIET) echo "removing temporary project objects and output libraries..."; \
+	rm -rf tmp/src lib$(LibProject).so; echo "done"
+project.mk: extractCMSDataFormats.pl $(ProjectBuildFiles)
+	$(QUIET) ./extractCMSDataFormats.pl --mode project --dir ./
