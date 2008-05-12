@@ -111,7 +111,7 @@ namespace edm {
     std::string processName_;
 
     // An ID uniquely identifying the branch
-    mutable BranchID branchID_;
+    BranchID branchID_;
 
     // An ID uniquely identifying the branch
     // This is needed only for backward compatibility

@@ -73,6 +73,9 @@ namespace edm {
     psetIDs_.insert(modDesc.parameterSetID());
     processConfigurationIDs_.insert(modDesc.processConfigurationID());
     init();
+    if (!branchID_.isValid()) {
+      branchID_.setID(branchName_);
+    }
   }
 
 
@@ -110,6 +113,9 @@ namespace edm {
     basketSize_(invalidBasketSize)
   {
     init();
+    if (!branchID_.isValid()) {
+      branchID_.setID(branchName_);
+    }
   }
 
   void
@@ -154,10 +160,6 @@ namespace edm {
     branchName_ += underscore;
     branchName_ += processName();
     branchName_ += period;
-
-    if (!branchID_.isValid()) {
-      branchID_.setID(branchName_);
-    }
 
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
