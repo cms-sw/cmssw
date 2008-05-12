@@ -163,6 +163,10 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH1D*        APV_Thickness;
 
       TH1D*        MPVs;
+      TH1D*        MPVs320;
+      TH1D*        MPVs500;
+
+      TH2D*        MPV_vs_10RplusEta;
 
 
       TH1D*        NHighStripInCluster;
@@ -279,84 +283,7 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    TH1::AddDirectory(kTRUE);
    Output                     = new TFile(OutputHistos.c_str(), "RECREATE");
 
-   Tracks_P_Vs_Eta            = new TH2D ("Tracks_P_Vs_Eta"   , "Tracks_P_Vs_Eta" , 60, 0,3,500,0,100);
-   Tracks_Pt_Vs_Eta           = new TH2D ("Tracks_Pt_Vs_Eta"  , "Tracks_Pt_Vs_Eta", 60, 0,3,500,0,100);
-
-   MPV_Vs_EtaTIB              = new TH2D ("MPV_Vs_EtaTIB"     , "MPV_Vs_EtaTIB" , 50, -3.0, 3.0, 1350, 0, 1350);
-   MPV_Vs_EtaTID              = new TH2D ("MPV_Vs_EtaTID"     , "MPV_Vs_EtaTID" , 50, -3.0, 3.0, 1350, 0, 1350);
-   MPV_Vs_EtaTOB              = new TH2D ("MPV_Vs_EtaTOB"     , "MPV_Vs_EtaTOB" , 50, -3.0, 3.0, 1350, 0, 1350);
-   MPV_Vs_EtaTEC              = new TH2D ("MPV_Vs_EtaTEC"     , "MPV_Vs_EtaTEC" , 50, -3.0, 3.0, 1350, 0, 1350);
-   MPV_Vs_EtaTEC1             = new TH2D ("MPV_Vs_EtaTEC1"    , "MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 1350, 0, 1350);
-   MPV_Vs_EtaTEC2             = new TH2D ("MPV_Vs_EtaTEC2"    , "MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 1350, 0, 1350);
-
-   Charge_Vs_PathTIB          = new TH2D ("Charge_Vs_PathTIB" , "Charge_Vs_PathTIB" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTID          = new TH2D ("Charge_Vs_PathTID" , "Charge_Vs_PathTID" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTOB          = new TH2D ("Charge_Vs_PathTOB" , "Charge_Vs_PathTOB" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTEC          = new TH2D ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTEC1         = new TH2D ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTEC2         = new TH2D ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",1000,0.2,1.4, 1000,0,2000);
-
-   MPV_Vs_PathTIB             = new TH1D ("MPV_Vs_PathTIB"    , "MPV_Vs_PathTIB"    ,1000,0.2,1.4);
-   MPV_Vs_PathTID             = new TH1D ("MPV_Vs_PathTID"    , "MPV_Vs_PathTID"    ,1000,0.2,1.4);
-   MPV_Vs_PathTOB             = new TH1D ("MPV_Vs_PathTOB"    , "MPV_Vs_PathTOB"    ,1000,0.2,1.4);
-   MPV_Vs_PathTEC             = new TH1D ("MPV_Vs_PathTEC"    , "MPV_Vs_PathTEC"    ,1000,0.2,1.4);
-   MPV_Vs_PathTEC1            = new TH1D ("MPV_Vs_PathTEC1"   , "MPV_Vs_PathTEC1"   ,1000,0.2,1.4);
-   MPV_Vs_PathTEC2            = new TH1D ("MPV_Vs_PathTEC2"   , "MPV_Vs_PathTEC2"   ,1000,0.2,1.4);
-
-   MPV_Vs_Eta                 = new TH2D ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0, 1350, 0, 1350);
-   MPV_Vs_R                   = new TH2D ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 1350, 0, 1350);
-   
-   NHighStripInCluster        = new TH1D ("NHighStripInCluster"     , "NHighStripInCluster"       ,15,0,14);
-   Charge_Vs_PathLength_CS1   = new TH2D ("Charge_Vs_PathLength_CS1", "Charge_Vs_PathLength_CS1"  ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathLength_CS2   = new TH2D ("Charge_Vs_PathLength_CS2", "Charge_Vs_PathLength_CS2"  ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathLength_CS3   = new TH2D ("Charge_Vs_PathLength_CS3", "Charge_Vs_PathLength_CS3"  ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathLength_CS4   = new TH2D ("Charge_Vs_PathLength_CS4", "Charge_Vs_PathLength_CS4"  ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathLength_CS5   = new TH2D ("Charge_Vs_PathLength_CS5", "Charge_Vs_PathLength_CS5"  ,1000,0.2,1.4, 1000,0,2000);
-
-   MPV_Vs_PathLength_CS1      = new TH1D ("MPV_Vs_PathLength_CS1"   , "MPV_Vs_PathLength_CS1", 1350, 0, 1350);
-   MPV_Vs_PathLength_CS2      = new TH1D ("MPV_Vs_PathLength_CS2"   , "MPV_Vs_PathLength_CS2", 1350, 0, 1350);
-   MPV_Vs_PathLength_CS3      = new TH1D ("MPV_Vs_PathLength_CS3"   , "MPV_Vs_PathLength_CS3", 1350, 0, 1350);
-   MPV_Vs_PathLength_CS4      = new TH1D ("MPV_Vs_PathLength_CS4"   , "MPV_Vs_PathLength_CS4", 1350, 0, 1350);
-   MPV_Vs_PathLength_CS5      = new TH1D ("MPV_Vs_PathLength_CS5"   , "MPV_Vs_PathLength_CS5", 1350, 0, 1350);
-
-   FWHM_Vs_PathLength_CS1     = new TH1D ("FWHM_Vs_PathLength_CS1"  , "FWHM_Vs_PathLength_CS1", 1350, 0, 1350);
-   FWHM_Vs_PathLength_CS2     = new TH1D ("FWHM_Vs_PathLength_CS2"  , "FWHM_Vs_PathLength_CS2", 1350, 0, 1350);
-   FWHM_Vs_PathLength_CS3     = new TH1D ("FWHM_Vs_PathLength_CS3"  , "FWHM_Vs_PathLength_CS3", 1350, 0, 1350);
-   FWHM_Vs_PathLength_CS4     = new TH1D ("FWHM_Vs_PathLength_CS4"  , "FWHM_Vs_PathLength_CS4", 1350, 0, 1350);
-   FWHM_Vs_PathLength_CS5     = new TH1D ("FWHM_Vs_PathLength_CS5"  , "FWHM_Vs_PathLength_CS5", 1350, 0, 1350);
-
-   Charge_Vs_PathLength       = new TH2D ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"  ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathLength320    = new TH2D ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"  ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathLength500    = new TH2D ("Charge_Vs_PathLength500" , "Charge_Vs_PathLength"  ,1000,0.2,1.4, 1000,0,2000);
-
-   MPV_Vs_PathLength          = new TH1D ("MPV_Vs_PathLength"       , "MPV_Vs_PathLength"  ,1000,0.2,1.4);
-   MPV_Vs_PathLength320       = new TH1D ("MPV_Vs_PathLength320"    , "MPV_Vs_PathLength"  ,1000,0.2,1.4);
-   MPV_Vs_PathLength500       = new TH1D ("MPV_Vs_PathLength500"    , "MPV_Vs_PathLength"  ,1000,0.2,1.4);
-
-   FWHM_Vs_PathLength         = new TH1D ("FWHM_Vs_PathLength"      , "FWHM_Vs_PathLength"  ,1000,0.2,1.4);
-   FWHM_Vs_PathLength320      = new TH1D ("FWHM_Vs_PathLength320"   , "FWHM_Vs_PathLength"  ,1000,0.2,1.4);
-   FWHM_Vs_PathLength500      = new TH1D ("FWHM_Vs_PathLength500"   , "FWHM_Vs_PathLength"  ,1000,0.2,1.4);
-
-
-   Charge_Vs_TransversAngle   = new TH2D ("Charge_Vs_TransversAngle" , "Charge_Vs_TransversAngle" ,220,-20,200, 1000,0,2000);
-   MPV_Vs_TransversAngle      = new TH1D ("MPV_Vs_TransversAngle"    , "MPV_Vs_TransversAngle"    ,220,-20,200);
-   NStrips_Vs_TransversAngle  = new TH2D ("NStrips_Vs_TransversAngle", "NStrips_Vs_TransversAngle",220,-20,200, 50,0,10);
-
-   Charge_Vs_Alpha            = new TH2D ("Charge_Vs_Alpha"  , "Charge_Vs_Alpha"   ,220 ,-20,200, 1000,0,2000);
-   MPV_Vs_Alpha               = new TH1D ("MPV_Vs_Alpha"     , "MPV_Vs_Alpha"      ,220 ,-20,200);
-   NStrips_Vs_Alpha           = new TH2D ("NStrips_Vs_Alpha" , "NStrips_Vs_Alpha"  ,220 ,-20,200, 50,0,10);
-
-   Charge_Vs_Beta             = new TH2D ("Charge_Vs_Beta"   , "Charge_Vs_Beta"    ,220,-20,200, 1000,0,2000);
-   MPV_Vs_Beta                = new TH1D ("MPV_Vs_Beta"      , "MPV_Vs_Beta"       ,220,-20,200);
-   NStrips_Vs_Beta            = new TH2D ("NStrips_Vs_Beta"  , "NStrips_Vs_Beta"   ,220,-20,200, 50,0,10);
-
-   MPV_Vs_Error               = new TH2D ("MPV_Vs_Error"   , "MPV_Vs_Error"  ,1350, 0, 1350, 1000,0,100);
-   Entries_Vs_Error           = new TH2D ("Entries_Vs_Error","Entries_Vs_Error",2000,0,2000,1000,0,100); 
-
-   NumberOfEntriesByAPVPair   = new TH1D ("NumberOfEntriesByAPVPair", "NumberOfEntriesByAPVPair", 2500, 0,2500);
-   HChi2OverNDF               = new TH1D ("Chi2OverNDF","Chi2OverNDF", 5000, 0,10);
-   HTrackChi2OverNDF          = new TH1D ("TrackChi2OverNDF","TrackChi2OverNDF", 5000, 0,10);
-   HTrackHits                 = new TH1D ("TrackHits","TrackHits", 40, 0,40);
+   JobInfo                    = new TH1D ("JobInfo" , "JobInfo", 20,0,20);
 
    APV_DetId                  = new TH1D ("APV_DetId"    , "APV_DetId"   , 36393,0,36392);
    APV_PairId                 = new TH1D ("APV_PairId"   , "APV_PairId"  , 36393,0,36392);
@@ -369,10 +296,95 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
    APV_Gain                   = new TH1D ("APV_Gain"     , "APV_Gain"    , 36393,0,36392);
    APV_Thickness              = new TH1D ("APV_Thickness", "APV_Thicknes", 36393,0,36392);
 
-   MPVs                       = new TH1D ("MPVs", "MPVs", 600,0,600);
 
-   JobInfo                    = new TH1D ("JobInfo" , "JobInfo", 20,0,20);
+   Tracks_P_Vs_Eta            = new TH2D ("Tracks_P_Vs_Eta"   , "Tracks_P_Vs_Eta" , 60, 0,3,500,0,100);
+   Tracks_Pt_Vs_Eta           = new TH2D ("Tracks_Pt_Vs_Eta"  , "Tracks_Pt_Vs_Eta", 60, 0,3,500,0,100);
+
+   Charge_Vs_PathTIB          = new TH2D ("Charge_Vs_PathTIB" , "Charge_Vs_PathTIB" ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathTID          = new TH2D ("Charge_Vs_PathTID" , "Charge_Vs_PathTID" ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathTOB          = new TH2D ("Charge_Vs_PathTOB" , "Charge_Vs_PathTOB" ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathTEC          = new TH2D ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathTEC1         = new TH2D ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathTEC2         = new TH2D ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",1000,0.2,1.4, 1000,0,2000);
+
+   Charge_Vs_PathLength_CS1   = new TH2D ("Charge_Vs_PathLength_CS1", "Charge_Vs_PathLength_CS1"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength_CS2   = new TH2D ("Charge_Vs_PathLength_CS2", "Charge_Vs_PathLength_CS2"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength_CS3   = new TH2D ("Charge_Vs_PathLength_CS3", "Charge_Vs_PathLength_CS3"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength_CS4   = new TH2D ("Charge_Vs_PathLength_CS4", "Charge_Vs_PathLength_CS4"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength_CS5   = new TH2D ("Charge_Vs_PathLength_CS5", "Charge_Vs_PathLength_CS5"  , 500,0.2,1.4, 2000,0,2000);
+
+   Charge_Vs_PathLength       = new TH2D ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength320    = new TH2D ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength500    = new TH2D ("Charge_Vs_PathLength500" , "Charge_Vs_PathLength"  , 500,0.2,1.4, 2000,0,2000);
+
+   Charge_Vs_TransversAngle   = new TH2D ("Charge_Vs_TransversAngle" , "Charge_Vs_TransversAngle" ,220,-20,200, 1000,0,2000);
+   Charge_Vs_Alpha            = new TH2D ("Charge_Vs_Alpha"  , "Charge_Vs_Alpha"   ,220 ,-20,200, 1000,0,2000);
+   Charge_Vs_Beta             = new TH2D ("Charge_Vs_Beta"   , "Charge_Vs_Beta"    ,220,-20,200, 1000,0,2000);
+
+   NStrips_Vs_TransversAngle  = new TH2D ("NStrips_Vs_TransversAngle", "NStrips_Vs_TransversAngle",220,-20,200, 50,0,10);
+   NStrips_Vs_Alpha           = new TH2D ("NStrips_Vs_Alpha" , "NStrips_Vs_Alpha"  ,220 ,-20,200, 50,0,10);
+   NStrips_Vs_Beta            = new TH2D ("NStrips_Vs_Beta"  , "NStrips_Vs_Beta"   ,220,-20,200, 50,0,10);
+   NHighStripInCluster        = new TH1D ("NHighStripInCluster"     , "NHighStripInCluster"       ,15,0,14);
+
+   HTrackChi2OverNDF          = new TH1D ("TrackChi2OverNDF","TrackChi2OverNDF", 5000, 0,10);
+   HTrackHits                 = new TH1D ("TrackHits","TrackHits", 40, 0,40);
+
+   if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
+
+      MPV_Vs_EtaTIB              = new TH2D ("MPV_Vs_EtaTIB"     , "MPV_Vs_EtaTIB" , 50, -3.0, 3.0, 1350, 0, 1350);
+      MPV_Vs_EtaTID              = new TH2D ("MPV_Vs_EtaTID"     , "MPV_Vs_EtaTID" , 50, -3.0, 3.0, 1350, 0, 1350);
+      MPV_Vs_EtaTOB              = new TH2D ("MPV_Vs_EtaTOB"     , "MPV_Vs_EtaTOB" , 50, -3.0, 3.0, 1350, 0, 1350);
+      MPV_Vs_EtaTEC              = new TH2D ("MPV_Vs_EtaTEC"     , "MPV_Vs_EtaTEC" , 50, -3.0, 3.0, 1350, 0, 1350);
+      MPV_Vs_EtaTEC1             = new TH2D ("MPV_Vs_EtaTEC1"    , "MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 1350, 0, 1350);
+      MPV_Vs_EtaTEC2             = new TH2D ("MPV_Vs_EtaTEC2"    , "MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 1350, 0, 1350);
+
+      MPV_Vs_PathTIB             = new TH1D ("MPV_Vs_PathTIB"    , "MPV_Vs_PathTIB"    ,1000,0.2,1.4);
+      MPV_Vs_PathTID             = new TH1D ("MPV_Vs_PathTID"    , "MPV_Vs_PathTID"    ,1000,0.2,1.4);
+      MPV_Vs_PathTOB             = new TH1D ("MPV_Vs_PathTOB"    , "MPV_Vs_PathTOB"    ,1000,0.2,1.4);
+      MPV_Vs_PathTEC             = new TH1D ("MPV_Vs_PathTEC"    , "MPV_Vs_PathTEC"    ,1000,0.2,1.4);
+      MPV_Vs_PathTEC1            = new TH1D ("MPV_Vs_PathTEC1"   , "MPV_Vs_PathTEC1"   ,1000,0.2,1.4);
+      MPV_Vs_PathTEC2            = new TH1D ("MPV_Vs_PathTEC2"   , "MPV_Vs_PathTEC2"   ,1000,0.2,1.4);
+
+      MPV_Vs_Eta                 = new TH2D ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0, 1350, 0, 1350);
+      MPV_Vs_R                   = new TH2D ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 1350, 0, 1350);
    
+      MPV_Vs_PathLength_CS1      = new TH1D ("MPV_Vs_PathLength_CS1"   , "MPV_Vs_PathLength_CS1", 500, 0.2, 1.4);
+      MPV_Vs_PathLength_CS2      = new TH1D ("MPV_Vs_PathLength_CS2"   , "MPV_Vs_PathLength_CS2", 500, 0.2, 1.4);
+      MPV_Vs_PathLength_CS3      = new TH1D ("MPV_Vs_PathLength_CS3"   , "MPV_Vs_PathLength_CS3", 500, 0.2, 1.4);
+      MPV_Vs_PathLength_CS4      = new TH1D ("MPV_Vs_PathLength_CS4"   , "MPV_Vs_PathLength_CS4", 500, 0.2, 1.4);
+      MPV_Vs_PathLength_CS5      = new TH1D ("MPV_Vs_PathLength_CS5"   , "MPV_Vs_PathLength_CS5", 500, 0.2, 1.4);
+
+      FWHM_Vs_PathLength_CS1     = new TH1D ("FWHM_Vs_PathLength_CS1"  , "FWHM_Vs_PathLength_CS1", 500, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS2     = new TH1D ("FWHM_Vs_PathLength_CS2"  , "FWHM_Vs_PathLength_CS2", 500, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS3     = new TH1D ("FWHM_Vs_PathLength_CS3"  , "FWHM_Vs_PathLength_CS3", 500, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS4     = new TH1D ("FWHM_Vs_PathLength_CS4"  , "FWHM_Vs_PathLength_CS4", 500, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS5     = new TH1D ("FWHM_Vs_PathLength_CS5"  , "FWHM_Vs_PathLength_CS5", 500, 0.2, 1.4);
+
+      MPV_Vs_PathLength          = new TH1D ("MPV_Vs_PathLength"       , "MPV_Vs_PathLength"  ,500,0.2,1.4);
+      MPV_Vs_PathLength320       = new TH1D ("MPV_Vs_PathLength320"    , "MPV_Vs_PathLength"  ,500,0.2,1.4);
+      MPV_Vs_PathLength500       = new TH1D ("MPV_Vs_PathLength500"    , "MPV_Vs_PathLength"  ,500,0.2,1.4);
+
+      FWHM_Vs_PathLength         = new TH1D ("FWHM_Vs_PathLength"      , "FWHM_Vs_PathLength"  ,500,0.2,1.4);
+      FWHM_Vs_PathLength320      = new TH1D ("FWHM_Vs_PathLength320"   , "FWHM_Vs_PathLength"  ,500,0.2,1.4);
+      FWHM_Vs_PathLength500      = new TH1D ("FWHM_Vs_PathLength500"   , "FWHM_Vs_PathLength"  ,500,0.2,1.4);
+
+      MPV_Vs_TransversAngle      = new TH1D ("MPV_Vs_TransversAngle"    , "MPV_Vs_TransversAngle"    ,220,-20,200);
+      MPV_Vs_Alpha               = new TH1D ("MPV_Vs_Alpha"     , "MPV_Vs_Alpha"      ,220 ,-20,200);
+      MPV_Vs_Beta                = new TH1D ("MPV_Vs_Beta"      , "MPV_Vs_Beta"       ,220,-20,200);
+
+      MPV_Vs_Error               = new TH2D ("MPV_Vs_Error"   , "MPV_Vs_Error"  ,1350, 0, 1350, 1000,0,100);
+      Entries_Vs_Error           = new TH2D ("Entries_Vs_Error","Entries_Vs_Error",2000,0,10000,1000,0,100); 
+
+      NumberOfEntriesByAPVPair   = new TH1D ("NumberOfEntriesByAPVPair", "NumberOfEntriesByAPVPair", 2500, 0,10000);
+      HChi2OverNDF               = new TH1D ("Chi2OverNDF","Chi2OverNDF", 5000, 0,10);
+
+      MPVs                       = new TH1D ("MPVs", "MPVs", 600,0,600);
+      MPVs320                    = new TH1D ("MPVs320", "MPVs320", 600,0,600);
+      MPVs500                    = new TH1D ("MPVs500", "MPVs500", 600,0,600);
+ 
+      MPV_vs_10RplusEta          = new TH2D ("MPV_vs_10RplusEta","MPV_vs_10RplusEta", 12000,0,1200, 400,100,500);
+   }
+
    gROOT->cd();
 
    edm::ESHandle<TrackerGeometry> tkGeom;
@@ -438,8 +450,8 @@ SiStripGainFromData::algoEndJob() {
    if( strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"Merge")==0){
       TFile* file = NULL;
       for(unsigned int f=0;f<VInputFiles.size();f++){
-         printf("Loading New Input File\n");
-         file =  new TFile( VInputFiles[f].c_str() ); if(file==NULL){printf("Bug With File %s\n",VInputFiles[f].c_str()); exit(0);}
+         printf("Loading New Input File : %s\n", VInputFiles[f].c_str());
+         file =  new TFile( VInputFiles[f].c_str() ); if(file==NULL || file->IsZombie() ){printf("### Bug With File %s\n### File will be skipped \n",VInputFiles[f].c_str()); continue;}
          APV_Charge               ->Add( (TH1*) file->FindObjectAny("APV_Charge")               , 1);
          APV_Momentum             ->Add( (TH1*) file->FindObjectAny("APV_Momentum")             , 1);
 
@@ -491,215 +503,217 @@ SiStripGainFromData::algoEndJob() {
    JobInfo->Fill(6,ERun);
    JobInfo->Fill(7,EEvent);
 
+   if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
 
-   I=0;
-   for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
-   if( I%1825==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
-      stAPVPairGain* APV = it->second;
+      I=0;
+      for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+      if( I%1825==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
+         stAPVPairGain* APV = it->second;
 
-      int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
-      TH1D* PointerToHisto = APV_Charge->ProjectionY(" ",bin,bin,"e");
-      if(PointerToHisto==NULL)continue;
+         int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
+         TH1D* PointerToHisto = APV_Charge->ProjectionY(" ",bin,bin,"e");
+         if(PointerToHisto==NULL)continue;
 
-      double* FitResults = new double[5];
-      getPeakOfLandau(PointerToHisto,FitResults);
-      APV->MPV = FitResults[0];
-      if(FitResults[0]!=-0.5 && FitResults[1]<MaxMPVError){
-         APV_MPV->Fill(APV->Index,APV->MPV);
-         MPVs   ->Fill(APV->MPV);
+         double* FitResults = new double[5];
+         getPeakOfLandau(PointerToHisto,FitResults);
+         APV->MPV = FitResults[0];
+         if(FitResults[0]!=-0.5 && FitResults[1]<MaxMPVError){
+            APV_MPV->Fill(APV->Index,APV->MPV);
+            MPVs   ->Fill(APV->MPV);
+            if(APV->Thickness<0.04)                 MPVs320->Fill(APV->MPV);
+            if(APV->Thickness>0.04)                 MPVs500->Fill(APV->MPV);
 
-         MPV_Vs_R->Fill(APV->R,APV->MPV);
-         MPV_Vs_Eta->Fill(APV->Eta,APV->MPV);
-         if(APV->SubDet==StripSubdetector::TIB)  MPV_Vs_EtaTIB ->Fill(APV->Eta,APV->MPV);
-         if(APV->SubDet==StripSubdetector::TID)  MPV_Vs_EtaTID ->Fill(APV->Eta,APV->MPV);
-         if(APV->SubDet==StripSubdetector::TOB)  MPV_Vs_EtaTOB ->Fill(APV->Eta,APV->MPV);
-         if(APV->SubDet==StripSubdetector::TEC){ MPV_Vs_EtaTEC ->Fill(APV->Eta,APV->MPV);
-         if(APV->Thickness<0.04)		 MPV_Vs_EtaTEC1->Fill(APV->Eta,APV->MPV);
-         if(APV->Thickness>0.04)                 MPV_Vs_EtaTEC2->Fill(APV->Eta,APV->MPV);
+            MPV_Vs_R->Fill(APV->R,APV->MPV);
+            MPV_Vs_Eta->Fill(APV->Eta,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TIB)  MPV_Vs_EtaTIB ->Fill(APV->Eta,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TID)  MPV_Vs_EtaTID ->Fill(APV->Eta,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TOB)  MPV_Vs_EtaTOB ->Fill(APV->Eta,APV->MPV);
+            if(APV->SubDet==StripSubdetector::TEC){ MPV_Vs_EtaTEC ->Fill(APV->Eta,APV->MPV);
+            if(APV->Thickness<0.04)		 MPV_Vs_EtaTEC1->Fill(APV->Eta,APV->MPV);
+            if(APV->Thickness>0.04)                 MPV_Vs_EtaTEC2->Fill(APV->Eta,APV->MPV);
+            }
+
+            double Eta_R = ((int)(APV->R*10))+APV->Eta;
+            MPV_vs_10RplusEta ->Fill(Eta_R,APV->MPV);
          }
+
+         if(FitResults[0]!=-0.5){
+            HChi2OverNDF->Fill(FitResults[4]);
+            MPV_Vs_Error->Fill(FitResults[0],FitResults[1]);
+            Entries_Vs_Error->Fill(PointerToHisto->GetEntries(),FitResults[1]);
+         }
+         NumberOfEntriesByAPVPair->Fill(PointerToHisto->GetEntries());
+
+         delete PointerToHisto;
       }
 
-      if(FitResults[0]!=-0.5){
-         HChi2OverNDF->Fill(FitResults[4]);
-         MPV_Vs_Error->Fill(FitResults[0],FitResults[1]);
-         Entries_Vs_Error->Fill(PointerToHisto->GetEntries(),FitResults[1]);
+      double MPVmean = MPVs->GetMean();
+      for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
+         stAPVPairGain*   APV = it->second;
+         if(APV->MPV>0)   APV->Gain = APV->MPV / MPVmean; // APV->MPV;
+         else             APV->Gain = 1;    
+         if(APV->Gain<=0) APV->Gain = 1;
+         APV_Gain->Fill(APV->Index,APV->Gain); 
       }
-      NumberOfEntriesByAPVPair->Fill(PointerToHisto->GetEntries());
-
-      delete PointerToHisto;
-   }
-
-   double MPVmean = MPVs->GetMean();
-   for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
-      stAPVPairGain*   APV = it->second;
-      if(APV->MPV>0)   APV->Gain = APV->MPV / MPVmean; // APV->MPV;
-      else             APV->Gain = 1;    
-      if(APV->Gain<=0) APV->Gain = 1;
-      APV_Gain->Fill(APV->Index,APV->Gain); 
-   }
 
 
-   double* FitResults = new double[5]; TH1D* Proj;
-   for(int j=0;j<Charge_Vs_PathLength->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathLength->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j)) );
-      FWHM_Vs_PathLength->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j)) );
-      delete Proj;
-   }
+      double* FitResults = new double[5]; TH1D* Proj;
+      for(int j=0;j<Charge_Vs_PathLength->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathLength->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j)) );
+         FWHM_Vs_PathLength->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength->GetXaxis()->GetBinCenter(j)) );
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathLength320->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength320->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathLength320->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength320->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength320->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j)) );
-      FWHM_Vs_PathLength320->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j)) );
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathLength320->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength320->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathLength320->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength320->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength320->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j)) );
+         FWHM_Vs_PathLength320->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength320->GetXaxis()->GetBinCenter(j)) );
+        delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathLength500->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength500->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;    
-      MPV_Vs_PathLength500->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength500->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength500->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j) ));
-      FWHM_Vs_PathLength500->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j) ));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathLength500->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength500->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;    
+         MPV_Vs_PathLength500->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength500->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength500->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j) ));
+         FWHM_Vs_PathLength500->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength500->GetXaxis()->GetBinCenter(j) ));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathLength_CS1->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength_CS1->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathLength_CS1->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength_CS1->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength_CS1->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j) ));
-      FWHM_Vs_PathLength_CS1->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j) ));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathLength_CS1->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength_CS1->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathLength_CS1->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength_CS1->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength_CS1->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j) ));
+         FWHM_Vs_PathLength_CS1->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS1->GetXaxis()->GetBinCenter(j) ));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathLength_CS2->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength_CS2->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathLength_CS2->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength_CS2->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength_CS2->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j) ));
-      FWHM_Vs_PathLength_CS2->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j) ));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathLength_CS2->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength_CS2->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathLength_CS2->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength_CS2->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength_CS2->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j) ));
+         FWHM_Vs_PathLength_CS2->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS2->GetXaxis()->GetBinCenter(j) ));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathLength_CS3->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength_CS3->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathLength_CS3->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength_CS3->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength_CS3->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j) ));
-      FWHM_Vs_PathLength_CS3->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j) ));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathLength_CS3->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength_CS3->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathLength_CS3->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength_CS3->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength_CS3->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j) ));
+         FWHM_Vs_PathLength_CS3->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS3->GetXaxis()->GetBinCenter(j) ));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathLength_CS4->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength_CS4->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathLength_CS4->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength_CS4->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength_CS4->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j) ));
-      FWHM_Vs_PathLength_CS4->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j) ));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathLength_CS4->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength_CS4->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathLength_CS4->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength_CS4->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength_CS4->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j) ));
+         FWHM_Vs_PathLength_CS4->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS4->GetXaxis()->GetBinCenter(j) ));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathLength_CS5->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathLength_CS5->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathLength_CS5->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathLength_CS5->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j));
-      FWHM_Vs_PathLength_CS5->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j) ));
-      FWHM_Vs_PathLength_CS5->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j) ));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathLength_CS5->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathLength_CS5->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathLength_CS5->SetBinContent (j, FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathLength_CS5->SetBinError   (j, FitResults[1]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j));
+         FWHM_Vs_PathLength_CS5->SetBinContent(j, FitResults[2]/(FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j) ));
+         FWHM_Vs_PathLength_CS5->SetBinError  (j, FitResults[3]/(FitResults[0]/Charge_Vs_PathLength_CS5->GetXaxis()->GetBinCenter(j) ));
+         delete Proj;
+      }
 
 
 
-   for(int j=0;j<Charge_Vs_PathTIB->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTIB->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathTIB->SetBinContent(j, FitResults[0]/Charge_Vs_PathTIB->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathTIB->SetBinError  (j, FitResults[1]/Charge_Vs_PathTIB->GetXaxis()->GetBinCenter(j));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathTIB->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathTIB->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathTIB->SetBinContent(j, FitResults[0]/Charge_Vs_PathTIB->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathTIB->SetBinError  (j, FitResults[1]/Charge_Vs_PathTIB->GetXaxis()->GetBinCenter(j));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathTID->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTID->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathTID->SetBinContent(j, FitResults[0]/Charge_Vs_PathTID->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathTID->SetBinError  (j, FitResults[1]/Charge_Vs_PathTID->GetXaxis()->GetBinCenter(j));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathTID->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathTID->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathTID->SetBinContent(j, FitResults[0]/Charge_Vs_PathTID->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathTID->SetBinError  (j, FitResults[1]/Charge_Vs_PathTID->GetXaxis()->GetBinCenter(j));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathTOB->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTOB->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathTOB->SetBinContent(j, FitResults[0]/Charge_Vs_PathTOB->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathTOB->SetBinError  (j, FitResults[1]/Charge_Vs_PathTOB->GetXaxis()->GetBinCenter(j));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathTOB->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathTOB->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathTOB->SetBinContent(j, FitResults[0]/Charge_Vs_PathTOB->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathTOB->SetBinError  (j, FitResults[1]/Charge_Vs_PathTOB->GetXaxis()->GetBinCenter(j));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathTEC->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTEC->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathTEC->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathTEC->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC->GetXaxis()->GetBinCenter(j));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathTEC->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathTEC->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathTEC->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathTEC->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC->GetXaxis()->GetBinCenter(j));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathTEC1->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTEC1->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathTEC1->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC1->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathTEC1->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC1->GetXaxis()->GetBinCenter(j));
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathTEC1->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathTEC1->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathTEC1->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC1->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathTEC1->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC1->GetXaxis()->GetBinCenter(j));
+         delete Proj;
+      }
 
-   for(int j=0;j<Charge_Vs_PathTEC2->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_PathTEC2->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_PathTEC2->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC2->GetXaxis()->GetBinCenter(j));
-      MPV_Vs_PathTEC2->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC2->GetXaxis()->GetBinCenter(j));
-      delete Proj;
-   }
-
-
-   for(int j=1;j<Charge_Vs_TransversAngle->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_TransversAngle->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_TransversAngle->SetBinContent(j, FitResults[0]);
-      MPV_Vs_TransversAngle->SetBinError  (j, FitResults[1]);
-      delete Proj;
-   }
-
-   for(int j=1;j<Charge_Vs_Alpha->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_Alpha->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_Alpha->SetBinContent(j, FitResults[0]);
-      MPV_Vs_Alpha->SetBinError  (j, FitResults[1]);
-      delete Proj;
-   }
-
-   for(int j=1;j<Charge_Vs_Beta->GetXaxis()->GetNbins();j++){
-      Proj      = Charge_Vs_Beta->ProjectionY(" ",j,j,"e");
-      getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
-      MPV_Vs_Beta->SetBinContent(j, FitResults[0]);
-      MPV_Vs_Beta->SetBinError  (j, FitResults[1]);
-      delete Proj;
-   }
+      for(int j=0;j<Charge_Vs_PathTEC2->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_PathTEC2->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_PathTEC2->SetBinContent(j, FitResults[0]/Charge_Vs_PathTEC2->GetXaxis()->GetBinCenter(j));
+         MPV_Vs_PathTEC2->SetBinError  (j, FitResults[1]/Charge_Vs_PathTEC2->GetXaxis()->GetBinCenter(j));
+         delete Proj;
+      }
 
 
+      for(int j=1;j<Charge_Vs_TransversAngle->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_TransversAngle->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_TransversAngle->SetBinContent(j, FitResults[0]);
+         MPV_Vs_TransversAngle->SetBinError  (j, FitResults[1]);
+         delete Proj;
+      }
+
+      for(int j=1;j<Charge_Vs_Alpha->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_Alpha->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_Alpha->SetBinContent(j, FitResults[0]);
+         MPV_Vs_Alpha->SetBinError  (j, FitResults[1]);
+         delete Proj;
+      }
+
+      for(int j=1;j<Charge_Vs_Beta->GetXaxis()->GetNbins();j++){
+         Proj      = Charge_Vs_Beta->ProjectionY(" ",j,j,"e");
+         getPeakOfLandau(Proj,FitResults); if(FitResults[0] ==-0.5)continue;
+         MPV_Vs_Beta->SetBinContent(j, FitResults[0]);
+         MPV_Vs_Beta->SetBinError  (j, FitResults[1]);
+         delete Proj;
+      }
 
 
-
-   if( (strcmp(AlgoMode.c_str(),"WriteOnDB")==0 || strcmp(AlgoMode.c_str(),"SingleJob")==0) || strcmp(AlgoMode.c_str(),"MergeJob")==0){
       FILE* Gains = fopen(OutputGains.c_str(),"w");
       fprintf(Gains,"NEvents = %i\n",NEvent);
       fprintf(Gains,"Number of APVs = %i\n",APVsColl.size());
@@ -710,6 +724,7 @@ SiStripGainFromData::algoEndJob() {
       fclose(Gains);
    }
 
+   Output->SetCompressionLevel(5);
    Output->cd();
    Output->Write();
    Output->Close();
