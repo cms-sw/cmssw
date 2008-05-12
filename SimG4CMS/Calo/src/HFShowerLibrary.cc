@@ -19,10 +19,9 @@
 
 HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) : fibre(0),hf(0),
-								emTree(0),
-								hadTree(0),
 								emBranch(0),
 								hadBranch(0),
+								nHit(0), 
 								npe(0) {
   
 
@@ -54,40 +53,23 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			     << " successfully"; 
   }
 
-  TTree * event = (TTree *) hf->Get("EventInfo");
-  readBranch = false;
-  format     = true;
-  unsigned int pos = pTreeName.find("vcal5x5.root");
-  if (pos > 0 && pos < pTreeName.size()) format = false;
+  TTree* event = (TTree *) hf ->Get("Events");
   if (event) {
-    loadEventInfo(event);
-  } else if (!format) {
-    libVers = -2; listVersion =-1; totEvents = 12000; evtPerBin = 1000;
-    pmom.push_back(10000.); pmom.push_back(15000.); pmom.push_back(20000.); 
-    pmom.push_back(35000.); pmom.push_back(50000.); pmom.push_back(80000.); 
-    pmom.push_back(100000.);pmom.push_back(150000.);pmom.push_back(250000.); 
-    pmom.push_back(350000.);pmom.push_back(500000.);pmom.push_back(1000000.); 
-    nMomBin = pmom.size();
-  } else {
-    event = (TTree *) hf ->Get("Events");
-    if (event) {
-      readBranch       = true;
-      std::string info = branchEvInfo + branchPost;
-      TBranch *evtInfo = event->GetBranch(info.c_str());
-      if (evtInfo) {
-	loadEventInfo(evtInfo);
-      } else {
-	edm::LogError("HFShower") << "HFShowerLibrary: HFShowerLibrayEventInfo"
-				  << " Branch does not exist in Event";
-	throw cms::Exception("Unknown", "HFShowerLibrary")
-	  << "Event information absent\n";
-      }
+    std::string info = branchEvInfo + branchPost;
+    TBranch *evtInfo = event->GetBranch(info.c_str());
+    if (evtInfo) {
+      loadEventInfo(evtInfo);
     } else {
-      edm::LogError("HFShower") << "HFShowerLibrary: Events Tree does not "
-				<< "exist";
+      edm::LogError("HFShower") << "HFShowerLibrary: HFShowerLibrayEventInfo"
+				<< " Branch does not exist in Event";
       throw cms::Exception("Unknown", "HFShowerLibrary")
-	<< "Events tree absent\n";
+	<< "Event information absent\n";
     }
+  } else {
+    edm::LogError("HFShower") << "HFShowerLibrary: Events Tree does not "
+			      << "exist";
+    throw cms::Exception("Unknown", "HFShowerLibrary")
+      << "Events tree absent\n";
   }
   
   edm::LogInfo("HFShower") << "HFShowerLibrary: Library " << libVers 
@@ -100,53 +82,20 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
     edm::LogInfo("HFShower") << "HFShowerLibrary: pmom[" << i << "] = "
 			     << pmom[i]/GeV << " GeV";
 
-  packXYZ = false;
-  if (readBranch) {
-    std::string name = branchPre + emName + branchPost;
-    emBranch         = event->GetBranch(name.c_str());
-    if (verbose) emBranch->Print();
-    name             = branchPre + hadName + branchPost;
-    hadBranch        = event->GetBranch(name.c_str());
-    if (verbose) hadBranch->Print();
-    edm::LogInfo("HFShower") << "HFShowerLibrary:Branch " << emName 
-			     << " has " << emBranch->GetEntries() 
-			     << " entries and Branch " << hadName 
-			     << " has " << hadBranch->GetEntries() 
-			     << " entries";
-  } else {
-    // Separate trees for EM/Hadronic particles
-    emTree  = (TTree *) hf->Get(emName.c_str());
-    if (verbose) emTree->Print();
-    hadTree = (TTree *) hf->Get(hadName.c_str());
-    if (verbose) hadTree->Print();
-    edm::LogInfo("HFShower") << "HFShowerLibrary:Tree " << emName 
-			     << " has " << emTree->GetEntries() 
-			     << " entries and Tree "  << hadName 
-			     << " has " << hadTree->GetEntries() << " entries";
-    //Packing parameters
-    TTree * packing = (TTree *) hf->Get("Packing");
-    if (packing) {
-      loadPacking(packing);
-      packXYZ = true;
-    } else if (!format) {
-      packXYZ = true;
-      xOffset = 50;  xMultiplier = 1000000; xScale = 10;
-      yOffset = 50;  yMultiplier = 1000;    yScale = 10;
-      zOffset = 150; zMultiplier = 1;       zScale = 1;
-    } 
-  }
-  if (packXYZ) {
-    edm::LogInfo("HFShower") << "HFShowerLibrary::XOffset: " << xOffset
-			     << " XMultiplier: " << xMultiplier 
-			     << " XScale: " << xScale << " YOffset: " 
-			     << yOffset << " YMultiplier: " << yMultiplier 
-			     << " YScale: " << yScale  << " ZOffset: " 
-			     << zOffset << " ZMultiplier: " << zMultiplier 
-			     << " ZScale: " << zScale;
-  } else {
-    edm::LogInfo("HFShower") << "HFShowerLibrary::No packing information -"
-			     << " Assume x, y, z are not in packed form";
-  }     
+  std::string nameBr = branchPre + emName + branchPost;
+  emBranch         = event->GetBranch(nameBr.c_str());
+  if (verbose) emBranch->Print();
+  nameBr           = branchPre + hadName + branchPost;
+  hadBranch        = event->GetBranch(nameBr.c_str());
+  if (verbose) hadBranch->Print();
+  edm::LogInfo("HFShower") << "HFShowerLibrary:Branch " << emName 
+			   << " has " << emBranch->GetEntries() 
+			   << " entries and Branch " << hadName 
+			   << " has " << hadBranch->GetEntries() 
+			   << " entries";
+  edm::LogInfo("HFShower") << "HFShowerLibrary::No packing information -"
+			   << " Assume x, y, z are not in packed form";
+
   edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
 			   << probMax << "  Back propagation of light prob. "
                            << backProb ;
@@ -230,8 +179,7 @@ void HFShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 		       << anutauPDG;
 }
 
-std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
-							   bool & ok) {
+int HFShowerLibrary::getHits(G4Step * aStep) {
 
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
@@ -245,14 +193,6 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
-
-  std::vector<HFShowerLibrary::Hit> hit;
-  ok = false;
-  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
-      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
-    return hit;
-  ok = true;
 
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
   double pin    = preStepPoint->GetTotalEnergy();
@@ -289,7 +229,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
                        << sphi << "," << cphi << ","   
                        << stheta << "," << ctheta ; 
     
-  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
+                       
+  if (parCode == pi0PDG || parCode == etaPDG || parCode == nuePDG ||
+      parCode == numuPDG || parCode == nutauPDG || parCode == anuePDG ||
+      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) {
+    return -1;
+  } else if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
     if (pin<pmom[nMomBin-1]) {
       interpolate(0, pin);
     } else {
@@ -303,8 +248,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
     }
   }
     
-  int nHit = 0;
-  HFShowerLibrary::Hit oneHit;
+  nHit = 0;
+  if (npe > 0) {
+    hit.clear(); hit.resize(npe);
+  }
   for (int i = 0; i < npe; i++) {
     LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
     double zv = std::abs(pe[i].z()); // abs local z  
@@ -370,10 +317,9 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 
       if (rInside(r) && r1 <= exp(-p*zv) && r2 <= probMax && dfir > gpar[5] &&
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1] && r3 <= backProb ){
-	oneHit.position = pos;
-	oneHit.depth    = depth;
-	oneHit.time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
-	hit.push_back(oneHit);
+	hit[nHit].position = pos;
+	hit[nHit].depth    = depth;
+	hit[nHit].time     = (tSlice+(pe[i].t())+(fibre->tShift(pos,depth,true)));
 	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
 			     <<" position " << (hit[nHit].position) <<" Depth "
 			     <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
@@ -388,8 +334,35 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
   if (nHit > npe)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
-  return hit;
+  return nHit;
 
+}
+
+G4ThreeVector HFShowerLibrary::getPosHit(int i) {
+
+  G4ThreeVector pos;
+  if (i < nHit) pos = (hit[i].position);
+  LogDebug("HFShower") << " HFShowerLibrary: getPosHit (" << i << "/" << nHit 
+		       << ") " << pos;
+  return pos;
+}
+
+int HFShowerLibrary::getDepth(int i) {
+
+  int depth = 0;
+  if (i < nHit) depth = (hit[i].depth);
+  LogDebug("HFShower") << " HFShowerLibrary: getDepth (" << i << "/" << nHit 
+		       << ") "  << depth;
+  return depth;
+}
+
+double HFShowerLibrary::getTSlice(int i) {
+  
+  double tim = 0.;
+  if (i < nHit) tim = (hit[i].time);
+  LogDebug("HFShower") << " HFShowerLibrary: Time (" << i << "/" << nHit 
+		       << ") "  << tim;
+  return tim;
 }
 
 bool HFShowerLibrary::rInside(double r) {
@@ -403,118 +376,19 @@ void HFShowerLibrary::getRecord(int type, int record) {
   int nrc     = record-1;
   int nPhoton = 0;
   photon.clear();
-  if (readBranch) {
-    if (type > 0) {
-      hadBranch->SetAddress(&photon);
-      hadBranch->GetEntry(nrc);
-    } else {
-      emBranch->SetAddress(&photon);
-      emBranch->GetEntry(nrc);
-    }
-    nPhoton = photon.size();
+  if (type > 0) {
+    hadBranch->SetAddress(&photon);
+    hadBranch->GetEntry(nrc);
   } else {
-    TTree*        tree = emTree;
-    if (type > 0) tree = hadTree;
-    if (format) {
-      tree->SetBranchAddress("NPH", &nPhoton);
-    } else{
-      tree->SetBranchAddress("Nph", &nPhoton);
-    }      
-    tree->GetEntry(nrc);
-    if (nPhoton > 0) {
-      float  x[10000], y[10000], z[10000];
-      int    nph, coor[10000], wl[10000], time[10000];
-      if (format) {
-	if (packXYZ) {
-	  tree->SetBranchAddress("XYZ", &coor);
-	} else {
-	  tree->SetBranchAddress("X", &x);
-	  tree->SetBranchAddress("Y", &y);
-	  tree->SetBranchAddress("Z", &z);
-	}
-	tree->SetBranchAddress("L",   &wl);
-	tree->SetBranchAddress("T",   &time);
-	tree->SetBranchAddress("NPH", &nph);
-      } else {
-	tree->SetBranchAddress("Ixyz",&coor);
-	tree->SetBranchAddress("L",   &wl);
-	tree->SetBranchAddress("It",  &time);
-	tree->SetBranchAddress("Nph", &nph);
-      }
-      tree->GetEntry(nrc);
-      for (int j = 0; j < nPhoton; j++) {
-	if (packXYZ) {
-	  int   ix = (coor[j])/xMultiplier;
-	  int   iy = (coor[j])/yMultiplier - ix*yMultiplier;
-	  int   iz = (coor[j])/zMultiplier - ix*xMultiplier - iy*yMultiplier;
-	  float xx, yy, tim;
-	  if (libVers > 0) {
-	    xx = (ix/xScale - xOffset)*cm + 5.; //account for wrong offset
-	    yy = (iy/yScale - yOffset)*cm + 35.;//idem
-	    tim= time[j]/100.;
-	  } else {
-	    xx = (ix/xScale - xOffset)*cm;
-	    yy = (iy/yScale - yOffset)*cm;
-	    tim= time[j]/10.;
-	  }
-	  float zz = (iz/zScale - zOffset)*cm;
-	  HFShowerPhoton hfPhot = HFShowerPhoton(xx,yy,zz, wl[j],tim);
-	  photon.push_back(hfPhot);
-	} else {
-	  HFShowerPhoton hfPhot = HFShowerPhoton(x[j],y[j],z[j],wl[j],time[j]/100.);
-	  photon.push_back(hfPhot);
-	}
-      }
-    }
+    emBranch->SetAddress(&photon);
+    emBranch->GetEntry(nrc);
   }
+  nPhoton = photon.size();
   LogDebug("HFShower") << "HFShowerLibrary::getRecord: Record " << record
 		       << " of type " << type << " with " << nPhoton 
 		       << " photons";
   for (int j = 0; j < nPhoton; j++) 
     LogDebug("HFShower") << "Photon " << j << photon[j];
-}
-
-void HFShowerLibrary::loadPacking(TTree* tree) {
-
-  tree->SetBranchAddress("XOffset",     &xOffset);
-  tree->SetBranchAddress("XMultiplier", &xMultiplier);
-  tree->SetBranchAddress("XScale",      &xScale);
-  tree->SetBranchAddress("YOffset",     &yOffset);
-  tree->SetBranchAddress("YMultiplier", &yMultiplier);
-  tree->SetBranchAddress("YScale",      &yScale);
-  tree->SetBranchAddress("ZOffset",     &zOffset);
-  tree->SetBranchAddress("ZMultiplier", &zMultiplier);
-  tree->SetBranchAddress("ZScale",      &zScale);
-  if (tree->GetEntries() > 0) {
-    tree->GetEntry(0);
-  }
-}
-
-void HFShowerLibrary::loadEventInfo(TTree* tree) {
-
-  int v[200];
-  libVers     = -1;
-  listVersion = 0;
-  if (format) {
-    tree->SetBranchAddress("LIBVERS",     &libVers);
-    tree->SetBranchAddress("PHYLISTVERS", &listVersion);
-  }
-  tree->SetBranchAddress("NUMBINS",     &nMomBin);
-  tree->SetBranchAddress("EVTNUMPERBIN",&evtPerBin);
-  tree->SetBranchAddress("TOTEVTS",     &totEvents);
-  tree->SetBranchAddress("ENERGIES",    &v);
-  if (tree->GetEntries() > 0) {
-    tree->GetEntry(0);
-    for (int i=0; i<nMomBin; i++) {
-      double val = ((double)(v[i]))*GeV;
-      pmom.push_back(val);
-    }
-  }
-  if (evtPerBin*nMomBin != totEvents) {
-    edm::LogWarning("HFShower") << "HFShowerLibrary::loadEventInfo:mismatch "
-				<< totEvents << " and " << evtPerBin*nMomBin;
-    totEvents = evtPerBin*nMomBin;
-  }
 }
 
 void HFShowerLibrary::loadEventInfo(TBranch* branch) {

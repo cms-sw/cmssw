@@ -72,7 +72,8 @@ protected:
   CaloG4Hit*    createNewHit();
   void          updateHit(CaloG4Hit*);
   void          resetForNewPrimary(G4ThreeVector, double);
-  double        getAttenuation(G4Step* aStep, double birk1, double birk2);
+  double        getAttenuation(G4Step* aStep, double birk1, double birk2,
+			       double birk3);
 
   virtual void  update(const BeginOfRun *);
   virtual void  update(const BeginOfEvent *);

@@ -26,7 +26,8 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_EcalTBH4BeamSD = p.getParameter<edm::ParameterSet>("EcalTBH4BeamSD");
   useBirk= m_EcalTBH4BeamSD.getParameter<bool>("UseBirkLaw");
   birk1  = m_EcalTBH4BeamSD.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2  = m_EcalTBH4BeamSD.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2  = m_EcalTBH4BeamSD.getParameter<double>("BirkC2");
+  birk3  = m_EcalTBH4BeamSD.getParameter<double>("BirkC3");
 
   EcalNumberingScheme* scheme=0;
   if     (name == "EcalTBH4BeamHits") { 
@@ -35,11 +36,12 @@ EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
   else {edm::LogWarning("EcalTBSim") << "EcalTBH4BeamSD: ReadoutName not supported\n";}
 
   if (scheme)  setNumberingScheme(scheme);
-  edm::LogInfo("EcalTBSim") << "Constructing a EcalTBH4BeamSD  with name " << GetName();
-  edm::LogInfo("EcalTBSim")  << "EcalTBH4BeamSD:: Use of Birks law is set to      " 
-			   << useBirk << "        with the two constants C1 = "
-			   << birk1 << ", C2 = " << birk2;
-
+  edm::LogInfo("EcalTBSim") << "Constructing a EcalTBH4BeamSD  with name " 
+			    << GetName();
+  edm::LogInfo("EcalTBSim") << "EcalTBH4BeamSD:: Use of Birks law is set to  " 
+			    << useBirk << "        with three constants kB = "
+			    << birk1 << ", C1 = " << birk2 << ", C2 = " 
+			    << birk3;
 }
 
 EcalTBH4BeamSD::~EcalTBH4BeamSD() {
@@ -56,7 +58,7 @@ double EcalTBH4BeamSD::getEnergyDeposit(G4Step * aStep) {
 
     // take into account light collection curve for crystals
     double weight = 1.;
-    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2);
+    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
     double edep   = aStep->GetTotalEnergyDeposit() * weight;
     LogDebug("EcalTBSim") << "EcalTBH4BeamSD:: " << nameVolume
 			<<" Light Collection Efficiency " << weight 

@@ -437,7 +437,8 @@ void CaloSD::resetForNewPrimary(G4ThreeVector point, double energy) {
 		      << " (Global) " << entranceLocal << " (Local)";
 }
 
-double CaloSD::getAttenuation(G4Step* aStep, double birk1, double birk2) {
+double CaloSD::getAttenuation(G4Step* aStep, double birk1, double birk2,
+			      double birk3) {
 
   double weight = 1.;
   double charge = aStep->GetPreStepPoint()->GetCharge();
@@ -447,8 +448,8 @@ double CaloSD::getAttenuation(G4Step* aStep, double birk1, double birk2) {
     double density = mat->GetDensity();
     double dedx    = aStep->GetTotalEnergyDeposit()/aStep->GetStepLength();
     double rkb     = birk1/density;
-    double c       = birk2/(density*density);
-    if (std::abs(charge) >= 2.) rkb *= 7.2/12.6; // based on alpha particle data
+    double c       = birk2*rkb*rkb;
+    if (std::abs(charge) >= 2.) rkb /= birk3; // based on alpha particle data
     weight = 1./(1.+rkb*dedx+c*dedx*dedx);
     LogDebug("CaloSim") << "CaloSD::getAttenuation in " << mat->GetName() 
 			<< " Charge " << charge << " dE/dx " << dedx 

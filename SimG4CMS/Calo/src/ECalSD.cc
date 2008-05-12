@@ -28,10 +28,11 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   
-  //   static SimpleConfigurable<bool>   on1(false, "ECalSD:UseBirkLaw");
-  //   static SimpleConfigurable<double> bk1(0.013, "ECalSD:BirkC1");
-  //   static SimpleConfigurable<double> bk2(9.6e-6,"ECalSD:BirkC2");
-  // Values from NIM 80 (1970) 239-244: as implemented in Geant3
+  //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
+  //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");
+  //   static SimpleConfigurable<double> bk2(-0.03,  "ECalSD:BirkC2");
+  //   static SimpleConfigurable<double> bk3(1.0,    "ECalSD:BirkC3");
+  // Values from NIM A484 (2002) 239-244: as implemented in Geant3
   //   useBirk          = on1.value();
   //   birk1            = bk1.value()*(g/(MeV*cm2));
   //   birk2            = bk2.value()*(g/(MeV*cm2))*(g/(MeV*cm2));
@@ -40,7 +41,8 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   useBirk    = m_EC.getParameter<bool>("UseBirkLaw");
   useBirkL3  = m_EC.getParameter<bool>("BirkL3Parametrization");
   birk1      = m_EC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2      = m_EC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2      = m_EC.getParameter<double>("BirkC2");
+  birk3      = m_EC.getParameter<double>("BirkC3");
   birkSlope  = m_EC.getParameter<double>("BirkSlope");
   birkCut    = m_EC.getParameter<double>("BirkCut");
   slopeLY    = m_EC.getParameter<double>("SlopeLightYield");
@@ -60,9 +62,9 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   LogDebug("EcalSim") 
     << "Constructing a ECalSD  with name " << GetName() << "\n";
   edm::LogInfo("EcalSim")  << "ECalSD:: Use of Birks law is set to      " 
-			   << useBirk << "        with the two constants C1 = "
-			   << birk1 << ", C2 = " << birk2 << "\n"
-			   << "         Use of L3 parametrization " 
+			   << useBirk << "        with three constants kB = "
+			   << birk1 << ", C1 = " << birk2 << ", C2 = " << birk3
+			   << "\n         Use of L3 parametrization " 
 			   << useBirkL3 << " with slope " << birkSlope
 			   << " and cut off " << birkCut << "\n"
 			   << "         Slope for Light yield is set to "
@@ -114,7 +116,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
       weight *= curve_LY(aStep);
       if (useBirk) {
 	if (useBirkL3) weight *= getBirkL3(aStep);
-	else           weight *= getAttenuation(aStep, birk1, birk2);
+	else           weight *= getAttenuation(aStep, birk1, birk2, birk3);
       }
     }
     double edep   = aStep->GetTotalEnergyDeposit() * weight;

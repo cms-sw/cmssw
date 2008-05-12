@@ -33,14 +33,16 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
-  //static SimpleConfigurable<double> bk2(9.6e-6,"HCalSD:BirkC2");
+  //static SimpleConfigurable<double> bk2(0.0568,"HCalSD:BirkC2");
+  //static SimpleConfigurable<double> bk3(1.75,  "HCalSD:BirkC3");
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   //static SimpleConfigurable<bool> on2(true,"HCalSD:UseShowerLibrary");
 
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
   useBirk    = m_HC.getParameter<bool>("UseBirkLaw");
   birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2      = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2      = m_HC.getParameter<double>("BirkC2");
+  birk3      = m_HC.getParameter<double>("BirkC3");
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
   useParam         = m_HC.getParameter<bool>("UseParametrize");
   bool testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
@@ -66,9 +68,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << useShowerLibrary << "\nUse PMT Hit is set to "
 			  << usePMTHit << " with beta Threshold "<< betaThr
 			  << "\n         Use of Birks law is set to      " 
-			  << useBirk << "  with the two constants C1 = "
-			  << birk1 << ", C2 = " << birk2;
-  
+			  << useBirk << "  with three constants kB = "
+			  << birk1 << ", C1 = " << birk2 << ", C2 = " << birk3;
   edm::LogInfo("HcalSim") << "HCalSD:: Suppression Flag " << suppressHeavy
 			  << " protons below " << kmaxProton << " MeV,"
 			  << " neutrons below " << kmaxNeutron << " MeV and"
@@ -327,7 +328,7 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   if (useBirk) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (isItScintillator(mat))
-      weight *= getAttenuation(aStep, birk1, birk2);
+      weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
   LogDebug("HcalSim") << "HCalSD: Detector " << det+3 << " Depth " << depth
 		      << " weight " << weight0 << " " << weight;
@@ -479,10 +480,9 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
 
   preStepPoint  = aStep->GetPreStepPoint(); 
   theTrack      = aStep->GetTrack();   
-  int det       = 5;
-  bool ok;
 
-  std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok);
+  int nhit      = showerLibrary->getHits(aStep);
+  int det       = 5;
 
   double etrack    = preStepPoint->GetKineticEnergy();
   int    primaryID = 0;
@@ -505,15 +505,15 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
     edepositEM  = 0.; edepositHAD = 1.*GeV;
   }
 
-  LogDebug("HcalSim") << "HCalSD::getFromLibrary " <<hits.size() <<" hits for "
+  LogDebug("HcalSim") << "HCalSD::getFromLibrary " << nhit << " hits for "
 		      << GetName() << " of " << primaryID << " with " 
 		      << theTrack->GetDefinition()->GetParticleName() << " of " 
 		      << preStepPoint->GetKineticEnergy()/GeV << " GeV";
 
-  for (unsigned int i=0; i<hits.size(); i++) {
-    G4ThreeVector hitPoint = hits[i].position;
-    int depth              = hits[i].depth;
-    double time            = hits[i].time;
+  for (int i=0; i<nhit; i++) {
+    G4ThreeVector hitPoint = showerLibrary->getPosHit(i);
+    int depth              = showerLibrary->getDepth(i);
+    double time            = showerLibrary->getTSlice(i);
     unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
     currentID.setID(unitID, time, primaryID, 0);
    
@@ -526,7 +526,7 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
   }
 
   //Now kill the current track
-  if (ok) {
+  if (nhit >= 0) {
     theTrack->SetTrackStatus(fStopAndKill);
   }
 }
@@ -578,10 +578,13 @@ void HCalSD::hitForFibre (G4Step* aStep) {
 
 void HCalSD::getFromParam (G4Step* aStep) {
 
-  std::vector<HFShowerParam::Hit> hits = showerParam->getHits(aStep);
-  int nHit = static_cast<int>(hits.size());
+  std::vector<double> edeps = showerParam->getHits(aStep);
+  int nHit = static_cast<int>(edeps.size());
 
   if (nHit > 0) {
+    edepositEM    = edeps[0]*GeV; 
+    edepositHAD   = 0.;
+
     preStepPoint  = aStep->GetPreStepPoint();
     int primaryID = setTrackID(aStep);
    
@@ -593,13 +596,11 @@ void HCalSD::getFromParam (G4Step* aStep) {
 			<< " GeV in detector type " << det;
 
     for (int i = 0; i<nHit; i++) {
-      G4ThreeVector hitPoint = hits[i].position;
-      int depth              = hits[i].depth;
-      double time            = hits[i].time;
+      G4ThreeVector hitPoint = showerParam->getPosHit(i);
+      int depth              = showerParam->getDepth(i);
+      double time            = showerParam->getTSlice(i);
       unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
-      edepositEM             = hits[i].edep*GeV; 
-      edepositHAD            = 0;
 
       // check if it is in the same unit and timeslice as the previous one
       if (currentID == previousID) {

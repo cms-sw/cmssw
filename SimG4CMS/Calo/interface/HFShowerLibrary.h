@@ -36,55 +36,53 @@ public:
 
 public:
 
-  struct Hit {
-    Hit() {}
-    G4ThreeVector             position;
-    int                       depth;
-    double                    time;
-  };
-
-  void                        initRun(G4ParticleTable * theParticleTable);
-  std::vector<Hit>            getHits(G4Step * aStep, bool & ok);
+  void                initRun(G4ParticleTable * theParticleTable);
+  int                 getHits(G4Step * aStep);
+  G4ThreeVector       getPosHit(int i);
+  int                 getDepth(int i);
+  double              getTSlice(int i);
 
 protected:
 
-  bool                        rInside(double r);
-  void                        getRecord(int, int);
-  void                        loadPacking(TTree *);
-  void                        loadEventInfo(TTree *);
-  void                        loadEventInfo(TBranch *);
-  void                        interpolate(int, double);
-  void                        extrapolate(int, double);
-  void                        storePhoton(int j);
-  std::vector<double>         getDDDArray(const std::string&, 
-					  const DDsvalues_type&, int&);
+  bool                rInside(double r);
+  void                getRecord(int, int);
+  void                loadEventInfo(TBranch *);
+  void                interpolate(int, double);
+  void                extrapolate(int, double);
+  void                storePhoton(int j);
+  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
+				  int&);
+
+  struct Hit {
+    Hit() {}
+    G4ThreeVector     position;
+    int               depth;
+    double            time;
+  };
 
 private:
 
-  HFFibre *                   fibre;
-  TFile *                     hf;
-  TTree                       *emTree, *hadTree;
-  TBranch                     *emBranch, *hadBranch;
+  HFFibre *           fibre;
+  TFile *             hf;
+  TBranch             *emBranch, *hadBranch;
 
-  bool                        readBranch, verbose;
-  int                         nMomBin, totEvents, evtPerBin;
-  float                       libVers, listVersion; 
-  std::vector<double>         pmom;
+  bool                verbose;
+  int                 nMomBin, totEvents, evtPerBin;
+  float               libVers, listVersion; 
+  std::vector<double> pmom;
 
-  bool                        format, packXYZ;
-  int                         xOffset, xMultiplier, xScale;
-  int                         yOffset, yMultiplier, yScale;
-  int                         zOffset, zMultiplier, zScale;
+  double              probMax, backProb;
+  double              dphi, rMin, rMax;
+  std::vector<double> gpar;
 
-  double                      probMax, backProb;
-  double                      dphi, rMin, rMax;
-  std::vector<double>         gpar;
+  int                 emPDG, epPDG, gammaPDG;
+  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
+  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
-  int                         emPDG, epPDG, gammaPDG;
-  int                         pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                         anuePDG, anumuPDG, anutauPDG, geantinoPDG;
+  int                 nHit;
+  std::vector<Hit>    hit;
 
-  int                         npe;
+  int                 npe;
   std::vector<HFShowerPhoton> pe;
   std::vector<HFShowerPhoton> photon;
 

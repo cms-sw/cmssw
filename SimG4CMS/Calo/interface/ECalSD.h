@@ -42,7 +42,7 @@ private:
   EcalNumberingScheme *             numberingScheme;
   bool                              useWeight;
   bool                              useBirk, useBirkL3;
-  double                            birk1, birk2, birkSlope, birkCut;
+  double                            birk1, birk2, birk3, birkSlope, birkCut;
   double                            slopeLY;
   std::map<G4LogicalVolume*,double> xtalLMap;
   EcalBaseNumber                    theBaseNumber;
