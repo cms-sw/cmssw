@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/05/08 14:35:48 $
- *  $Revision: 1.35 $
+ *  $Date: 2008/05/12 06:46:15 $
+ *  $Revision: 1.36 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -122,7 +122,7 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow"); // (10 ns)
 
   //Name of Collection used for create the XF 
-  collection_for_XF = conf.getParameter<std::string> >("InputCollection");
+  collection_for_XF = conf_.getParameter<std::string>("InputCollection");
 }
 
 // Destructor

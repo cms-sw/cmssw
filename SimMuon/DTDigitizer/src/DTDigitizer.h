@@ -6,8 +6,8 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2007/10/25 10:36:02 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/03/07 17:53:53 $
+ *  $Revision: 1.10 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -119,6 +119,9 @@ class DTDigitizer : public edm::EDProducer {
   // to configure the creation of Digi-Sim links
   bool MultipleLinks;
   float LinksTimeWindow;
+  
+  //Name of Collection use for create the XF 
+  std::string collection_for_XF;
 
 };
 #endif
