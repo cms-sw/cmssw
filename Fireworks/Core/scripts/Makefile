@@ -6,7 +6,7 @@ ifndef VERBOSE
   QUIET := @
 endif
 
-all: core display
+all: display
 
 core:   env Makefile.core
 	$(QUIET) $(MAKE) -f Makefile.core
@@ -14,10 +14,14 @@ core:   env Makefile.core
 display: env Makefile.project
 	$(QUIET) $(MAKE) -f Makefile.project
 
+install: env Makefile.core
+	$(QUIET) $(MAKE) -f Makefile.core install;\
+	echo Done
+
 # check if proper environment is setup
 env: 
 	$(QUIET) if [ -z "$(ROOTSYS)" ]; then \
-	   echo "ROOTSYS not set. Cannot compile dictionaries."; \
+	   echo "ROOTSYS not set. Abort."; \
 	   exit 1; \
 	fi;
 

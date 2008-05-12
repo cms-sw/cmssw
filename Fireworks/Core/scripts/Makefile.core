@@ -48,7 +48,9 @@ LibCore = CMSDataFormats
 
 LDLIBRARYPATH := `pwd` `pwd`/external/lib $(ROOTSYS)/lib
 
-all: core
+all: core install
+
+install:
 	$(QUIET) echo '#!/bin/sh' > root.sh; \
 	echo "CMSSW_BASE="`pwd` >> root.sh; \
 	echo "export CMSSW_BASE" >> root.sh; \
