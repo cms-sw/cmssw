@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
+#include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
+#include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 
 class RPCGeometry;
 class RPCSimSetUp;
@@ -24,6 +26,8 @@ public:
   /**Produces the EDM products,*/
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 
+  void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem>, std::vector<double>);
+
 private:
 
   RPCDigitizer* theDigitizer;
@@ -31,7 +35,6 @@ private:
 
   //Name of Collection used for create the XF 
   std::string collection_for_XF;
-
 };
 
 #endif
