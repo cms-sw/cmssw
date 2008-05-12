@@ -3,7 +3,7 @@
  *   TeV muon reconstructor:
  *
  *
- *   $Date: 2008/02/27 21:50:41 $
+ *   $Date: 2008/04/29 13:52:39 $
  *   $Revision: 1.1 $
  *
  *   \author  Piotr Traczyk (SINS Warsaw)
@@ -67,15 +67,12 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
 
   for(unsigned int ww=0;ww<theCocktails.size();ww++){
     LogDebug("Muon|RecoMuon|TevMuonProducer") << "Cocktail " << theCocktails[ww];
-    //  setAlias(parameterSet.getParameter<std::string>("@module_label"));
-    //  produces<int>();
     produces<reco::TrackCollection>(theCocktails[ww]);
     produces<TrackingRecHitCollection>(theCocktails[ww]);
     produces<reco::TrackExtraCollection>(theCocktails[ww]);
     produces<vector<Trajectory> >(theCocktails[ww]) ;
     produces<TrajTrackAssociationCollection>(theCocktails[ww]);
     produces<reco::TrackToTrackMap>(theCocktails[ww]);
-    //  produces<reco::MuonTrackLinksCollection>().setBranchAlias(theAlias + "s");
   }
 }
 
@@ -121,14 +118,13 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   event.getByLabel(theGLBCollectionLabel.label(), glbMuonsTraj);
     
   const reco::TrackCollection *glbTracks = glbMuons.product();
-  //  vector<Trajectory*> trajectories;
   Trajectory refitted;
   
-  reco::TrackRef::key_type trackIndex = 0;
-  for(unsigned int ww=0;ww<theCocktails.size();ww++){
+  for(unsigned int ww=0;ww<theCocktails.size();ww++) {
     LogDebug(metname)<<"TeVRefit for cocktail: " <<theCocktailIndex[ww];
     std::vector<std::pair<Trajectory*,reco::TrackRef> > miniMap;
     vector<Trajectory*> trajectories;
+    reco::TrackRef::key_type trackIndex = 0;
     for (reco::TrackCollection::const_iterator track = glbTracks->begin(); track!=glbTracks->end(); track++ , ++trackIndex) {
       reco::TrackRef glbRef(glbMuons,trackIndex);
       refitted=theRefitter->refit(*track,theCocktailIndex[ww]);
@@ -145,7 +141,4 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     
   LogTrace(metname) << "Done." << endl;    
 
-//  int output = 1;
-//  std::auto_ptr< int > output_decision( new int(output) );
-//  event.put(output_decision);
 }
