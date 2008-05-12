@@ -15,6 +15,7 @@ namespace {
 
 void RootErrorHandler(int level, bool die, char const* location, char const* message)
 {
+ 
 // Translate ROOT severity level to MessageLogger severity level
 
   edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info;
@@ -104,15 +105,17 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
     die = true;
   }
 
-// Feed the message to the MessageLogger... let it choose to suppress or not.
+// Feed the message to the MessageLogger and let it choose to suppress or not.
 
-   if (die) {
-// Root has declared a fatal error.  Throw an EDMException.
+// Root has declared a fatal error.  Throw an EDMException unless the
+// message corresponds to a pending signal. In that case, do not throw
+// but let the OS deal with the signal in the usual way.
+  if (die && (location != std::string("TUnixSystem::DispatchSignals"))) {
      std::ostringstream sstr;
      sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
      edm::Exception except(edm::errors::FatalRootError, sstr.str());
      throw except;
-   }
+  }
  
   // Currently we get here only for informational messages,
   // but we leave the other code in just in case we change
