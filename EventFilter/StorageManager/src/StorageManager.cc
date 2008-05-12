@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.53 2008/05/04 12:37:34 biery Exp $
+// $Id: StorageManager.cc,v 1.54 2008/05/11 13:50:47 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -106,12 +106,14 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   connectedFUs_(0), 
   storedEvents_(0), 
   receivedEvents_(0), 
+  receivedErrorEvents_(0), 
   dqmRecords_(0), 
   closedFiles_(0), 
   openFiles_(0), 
   storedVolume_(0.),
   progressMarker_(ProgressMarker::instance()->idle()),
-  lastEventSeen_(0)
+  lastEventSeen_(0),
+  lastErrorEventSeen_(0)
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -129,6 +131,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("connectedFUs",  &connectedFUs_);
   ispace->fireItemAvailable("storedEvents",  &storedEvents_);
   ispace->fireItemAvailable("receivedEvents",&receivedEvents_);
+  ispace->fireItemAvailable("receivedErrorEvents",&receivedErrorEvents_);
   ispace->fireItemAvailable("dqmRecords",    &dqmRecords_);
   ispace->fireItemAvailable("closedFiles",   &closedFiles_);
   ispace->fireItemAvailable("openFiles",     &openFiles_);
@@ -148,6 +151,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   i2o::bind(this,
             &StorageManager::receiveDataMessage,
             I2O_SM_DATA,
+            XDAQ_ORGANIZATION_ID);
+  i2o::bind(this,
+            &StorageManager::receiveErrorDataMessage,
+            I2O_SM_ERROR,
             XDAQ_ORGANIZATION_ID);
   i2o::bind(this,
             &StorageManager::receiveOtherMessage,
@@ -661,6 +668,192 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     }
 }
 
+void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
+{
+  // get the memory pool pointer for statistics if not already set
+  if(pool_is_set_ == 0)
+  {
+    pool_ = ref->getBuffer()->getPool();
+    pool_is_set_ = 1;
+  }
+
+  I2O_MESSAGE_FRAME         *stdMsg =
+    (I2O_MESSAGE_FRAME*)ref->getDataLocation();
+  I2O_SM_DATA_MESSAGE_FRAME *msg    =
+    (I2O_SM_DATA_MESSAGE_FRAME*)stdMsg;
+  FDEBUG(10)   << "StorageManager: Received error data message from HLT at " << msg->hltURL 
+	       << " application " << msg->hltClassName << " id " << msg->hltLocalId
+	       << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
+  FDEBUG(10)   << "                 for run " << msg->runID << " event " << msg->eventID
+	       << " total frames = " << msg->numFrames << std::endl;
+  FDEBUG(10)   << "StorageManager: Frame " << msg->frameCount << " of " 
+	       << msg->numFrames-1 << std::endl;
+  
+  int len = msg->dataSize;
+
+  // check the storage Manager is in the Ready state first!
+  if(fsm_.stateName()->toString() != "Enabled")
+  {
+    LOG4CPLUS_ERROR(this->getApplicationLogger(),
+                       "Received EVENT message but not in Enabled state! Current state = "
+                       << fsm_.stateName()->toString() << " EVENT from" << msg->hltURL
+                       << " application " << msg->hltClassName);
+    // just release the memory at least - is that what we want to do?
+    ref->release();
+    return;
+  }
+
+  // If running with local transfers, a chain of I2O frames when posted only has the
+  // head frame sent. So a single frame can complete a chain for local transfers.
+  // We need to test for this. Must be head frame, more than one frame
+  // and next pointer must exist.
+  int is_local_chain = 0;
+  if(msg->frameCount == 0 && msg->numFrames > 1 && ref->getNextReference())
+  {
+    // this looks like a chain of frames (local transfer)
+    toolbox::mem::Reference *head = ref;
+    toolbox::mem::Reference *next = 0;
+    // best to check the complete chain just in case!
+    unsigned int tested_frames = 1;
+    next = head;
+    while((next=next->getNextReference())!=0) tested_frames++;
+    FDEBUG(10) << "StorageManager: Head frame has " << tested_frames-1
+               << " linked frames out of " << msg->numFrames-1 << std::endl;
+    if(msg->numFrames == tested_frames)
+    {
+      // found a complete linked chain from the leading frame
+      is_local_chain = 1;
+      FDEBUG(10) << "StorageManager: Leading frame contains a complete linked chain"
+                 << " - must be local transfer" << std::endl;
+      FDEBUG(10) << "StorageManager: Breaking the chain" << std::endl;
+      // break the chain and feed them to the fragment collector
+      next = head;
+
+      for(int iframe=0; iframe <(int)msg->numFrames; iframe++)
+      {
+         toolbox::mem::Reference *thisref=next;
+         next = thisref->getNextReference();
+         thisref->setNextReference(0);
+         I2O_MESSAGE_FRAME         *thisstdMsg = (I2O_MESSAGE_FRAME*)thisref->getDataLocation();
+         I2O_SM_DATA_MESSAGE_FRAME *thismsg    = (I2O_SM_DATA_MESSAGE_FRAME*)thisstdMsg;
+         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
+         int thislen = thismsg->dataSize;
+         // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
+         new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
+                  thismsg->frameCount+1, thismsg->numFrames, Header::ERROR_EVENT, 
+                  thismsg->runID, thismsg->eventID, thismsg->outModID);
+         b.commit(sizeof(stor::FragEntry));
+
+         receivedFrames_++;
+         // for bandwidth performance measurements
+         // Following is wrong for the last frame because frame sent is
+         // is actually larger than the size taken by actual data
+         unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DATA_MESSAGE_FRAME)
+                                         +thislen;
+         addMeasurement(actualFrameSize);
+
+         // should only do this test if the first data frame from each FU?
+         // check if run number is the same as that in Run configuration, complain otherwise !!!
+         // this->runNumber_ comes from the RunBase class that StorageManager inherits from
+         if(msg->runID != runNumber_)
+         {
+           LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from error event stream = " << msg->runID
+                           << " From " << msg->hltURL
+                           << " Different from Run Number from configuration = " << runNumber_);
+         }
+         // for FU sender list update
+         // msg->frameCount start from 0, but in EventMsg header it starts from 1!
+         bool isLocal = true;
+
+         //update last event seen
+         lastErrorEventSeen_ = msg->eventID;
+
+         int status = 
+	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
+					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
+					    msg->originalSize, isLocal);
+
+         if(status == 1) {
+           ++(receivedErrorEvents_.value_);
+         }
+
+         if(status == -1) {
+           LOG4CPLUS_ERROR(this->getApplicationLogger(),
+                    "updateFUSender4data: Cannot find FU in FU Sender list!"
+                    << " For Error Event With URL "
+                    << msg->hltURL << " class " << msg->hltClassName  << " instance "
+                    << msg->hltInstance << " Tid " << msg->hltTid);
+         }
+      }
+
+    } else {
+      // should never get here!
+      FDEBUG(10) << "StorageManager: Head frame has fewer linked frames "
+                 << "than expected: abnormal error! " << std::endl;
+    }
+  }
+
+  if (is_local_chain == 0) 
+  {
+    // put pointers into fragment collector queue
+    EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
+    // must give it the 1 of N for this fragment (starts from 0 in i2o header)
+    /* stor::FragEntry* fe = */ new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
+                                msg->frameCount+1, msg->numFrames, Header::ERROR_EVENT, 
+                                msg->runID, msg->eventID, msg->outModID);
+    b.commit(sizeof(stor::FragEntry));
+    // Frame release is done in the deleter.
+    receivedFrames_++;
+    // for bandwidth performance measurements
+    unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DATA_MESSAGE_FRAME)
+                                    + len;
+    addMeasurement(actualFrameSize);
+
+    // should only do this test if the first data frame from each FU?
+    // check if run number is the same as that in Run configuration, complain otherwise !!!
+    // this->runNumber_ comes from the RunBase class that StorageManager inherits from
+    if(msg->runID != runNumber_)
+    {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),"Run Number from event stream = " << msg->runID
+                      << " From " << msg->hltURL
+                      << " Different from Run Number from configuration = " << runNumber_);
+    }
+
+    //update last event seen
+    lastErrorEventSeen_ = msg->eventID;
+
+    // for FU sender list update
+    // msg->frameCount start from 0, but in EventMsg header it starts from 1!
+    bool isLocal = false;
+    int status = 
+      smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
+				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
+				       msg->originalSize, isLocal);
+    
+    if(status == 1) {
+      ++(receivedErrorEvents_.value_);
+    }
+    if(status == -1) {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		      "updateFUSender4data: Cannot find FU in FU Sender list!"
+		      << " For Error Event With URL "
+		      << msg->hltURL << " class " << msg->hltClassName  << " instance "
+		      << msg->hltInstance << " Tid " << msg->hltTid);
+    }
+  }
+
+  if (  msg->frameCount == msg->numFrames-1 )
+    {
+      string hltClassName(msg->hltClassName);
+      sendDiscardMessage(msg->fuID, 
+			 msg->hltInstance, 
+			 I2O_FU_DATA_DISCARD,
+			 hltClassName);
+    }
+}
+
 void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
 {
   // get the memory pool pointer for statistics if not already set
@@ -1038,6 +1231,22 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << lastEventSeen_ << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr class=\"special\">" << endl;
+          *out << "<td >" << endl;
+          *out << "Error Events Received for this Run" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << receivedErrorEvents_ << endl;
+          *out << "</td>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Last Error Event ID" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << lastErrorEventSeen_ << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
         for(int i=0;i<=(int)nLogicalDisk_;i++) {
@@ -3415,6 +3624,7 @@ void StorageManager::setupFlashList()
   // should this be here also??
   //is->fireItemAvailable("storedEvents",         &storedEvents_);
   is->fireItemAvailable("receivedEvents",       &receivedEvents_);
+  is->fireItemAvailable("receivedErrorEvents",  &receivedErrorEvents_);
   is->fireItemAvailable("namesOfStream",      &namesOfStream_);
   is->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
   is->fireItemAvailable("dqmRecords",           &dqmRecords_);
@@ -3861,6 +4071,7 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     fileSize_.clear();
     storedEvents_ = 0;
     receivedEvents_ = 0;
+    receivedErrorEvents_ = 0;
     receivedEventsFromOutMod_.clear();
     namesOfStream_.clear();
     namesOfOutMod_.clear();
@@ -3870,6 +4081,8 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     dqmRecords_   = 0;
     closedFiles_  = 0;
     openFiles_  = 0;
+    lastEventSeen_ = 0;
+    lastErrorEventSeen_ = 0;
     jc_->start();
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");

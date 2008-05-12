@@ -76,6 +76,7 @@ namespace stor
     void processEvent(FragEntry* msg);
     void processHeader(FragEntry* msg);
     void processDQMEvent(FragEntry* msg);
+    void processErrorEvent(FragEntry* msg);
 
     edm::EventBuffer* cmd_q_;
     edm::EventBuffer* evtbuf_q_;

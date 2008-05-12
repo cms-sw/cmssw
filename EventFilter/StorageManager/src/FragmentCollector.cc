@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.37 2008/01/30 16:51:47 biery Exp $
+// $Id: FragmentCollector.cc,v 1.38 2008/01/30 17:31:38 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -146,6 +146,12 @@ namespace stor
 	    {
 	      FR_DEBUG << "FragColl: Got a DQM_Event" << endl;
 	      processDQMEvent(entry);
+	      break;
+	    }
+	  case Header::ERROR_EVENT:
+	    {
+	      FR_DEBUG << "FragColl: Got an Error_Event" << endl;
+	      processErrorEvent(entry);
 	      break;
 	    }
 	  default:
@@ -420,4 +426,68 @@ namespace stor
     }
     ProgressMarker::instance()->processing(false);
   }
+
+  void FragmentCollector::processErrorEvent(FragEntry* entry)
+  {
+    ProgressMarker::instance()->processing(true);
+    if(entry->totalSegs_==1)
+    {
+	FR_DEBUG << "FragColl: Got an Error Event with one segment" << endl;
+	FR_DEBUG << "FragColl: Event size " << entry->buffer_size_ << endl;
+	FR_DEBUG << "FragColl: Event ID " << entry->id_ << endl;
+
+	// send immediately
+        //EventMsgView emsg(entry->buffer_address_);
+        //FR_DEBUG << "FragColl: writing event size " << entry->buffer_size_ << endl;
+        //writer_->manageEventMsg(emsg);
+
+	// make sure the buffer properly released
+	(*buffer_deleter_)(entry);
+	return;
+    } // end of single segment test
+
+    pair<Collection::iterator,bool> rc =
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->secondaryId_), Fragments()));
+    
+    rc.first->second.push_back(*entry);
+    FR_DEBUG << "FragColl: added fragment" << endl;
+    
+    if((int)rc.first->second.size()==entry->totalSegs_)
+    {
+	FR_DEBUG << "FragColl: completed an error event with "
+		 << entry->totalSegs_ << " segments" << endl;
+        // we are done with this error event so assemble parts
+        // but first make sure we have enough room; use an overestimate
+        unsigned int max_sizePerFrame = rc.first->second.begin()->buffer_size_;
+        if((entry->totalSegs_ * max_sizePerFrame) > event_area_.capacity()) {
+          event_area_.resize(entry->totalSegs_ * max_sizePerFrame);
+        }
+        unsigned char* pos = (unsigned char*)&event_area_[0];
+	
+	int sum=0;
+	unsigned int lastpos=0;
+	Fragments::iterator
+	  i(rc.first->second.begin()),e(rc.first->second.end());
+
+	for(;i!=e;++i)
+	{
+	    int dsize = i->buffer_size_;
+	    sum+=dsize;
+	    unsigned char* from=(unsigned char*)i->buffer_address_;
+	    copy(from,from+dsize,pos+lastpos);
+            lastpos = lastpos + dsize;
+	    // ask deleter to kill off the buffer
+	    (*buffer_deleter_)(&(*i));
+	}
+
+        //EventMsgView emsg(&event_area_[0]);
+        //FR_DEBUG << "FragColl: writing error event size " << sum << endl;
+        //writer_->manageEventMsg(emsg);
+
+	// remove the entry from the map
+	fragment_area_.erase(rc.first);
+    }
+    ProgressMarker::instance()->processing(false);
+  }
+
 }
