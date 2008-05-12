@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.14 2007/07/09 07:28:49 llista Exp $
+$Id: EDProductfwd.h,v 1.15 2007/12/21 22:42:30 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include "boost/shared_ptr.hpp"
@@ -30,6 +30,7 @@ namespace edm
   template <typename T> class Wrapper;
   template <typename T> class Handle;
   template <typename T> class OrphanHandle;
+  template <typename T> class OutputHandle;
 
   namespace reftobase
   {
