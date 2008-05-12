@@ -41,7 +41,6 @@ public:
 
   static const unsigned NUMBER_ETA_VALUES;     ///< Number of eta bins used in correction
   static const unsigned N_CENTRAL_ETA_VALUES;  ///< Number of eta bins for separate tau correction
-  static const unsigned LIN_SCALE_MAX;  ///< Max value of linear scale
 
   L1GctJetEtCalibrationFunction();
   ~L1GctJetEtCalibrationFunction();
