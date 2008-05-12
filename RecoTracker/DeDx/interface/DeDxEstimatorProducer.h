@@ -33,8 +33,6 @@ class DeDxEstimatorProducer : public edm::EDProducer {
       // ----------member data ---------------------------
       BaseDeDxEstimator *               m_estimator;
       edm::InputTag                     m_TsodiTag;
-      edm::InputTag                     m_trajTrackAssociationTag;
-      edm::InputTag                     m_tracksTag;
       bool                              m_FromTrajectory;
       TrajectorySateOnDetInfosProducer* m_TSODIProducer;
 };

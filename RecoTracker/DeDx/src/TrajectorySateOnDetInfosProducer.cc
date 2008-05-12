@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Author:  andrea
-//         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: TrajectorySateOnDetInfosProducer.cc,v 1.9 2007/08/13 08:01:07 arizzi Exp $
+// Original Author:  loic Quertenmont (querten)
+//         Created:  Thu May 10 14:09:02 CEST 2008
+// $Id: TrajectorySateOnDetInfosProducer.cc,v 1.2 2008/05/10 18:57:23 querten Exp $
 //
 //
 
@@ -50,6 +50,11 @@ TrajectorySateOnDetInfosProducer::TrajectorySateOnDetInfosProducer(const edm::Pa
    m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
    m_tracksTag                 = iConfig.getParameter<edm::InputTag>("Track");
 
+   Track_PMin                  = iConfig.getUntrackedParameter<double>("Track_PMin"    ,0);
+   Track_PMax                  = iConfig.getUntrackedParameter<double>("Track_PMax"    ,9999999);
+   Track_Chi2Max               = iConfig.getUntrackedParameter<double>("Track_Chi2Max" ,9999999);
+
+
    produces<reco::TrackTrajectorySateOnDetInfosCollection>();  
 }
 
@@ -61,14 +66,7 @@ TrajectorySateOnDetInfosProducer::~TrajectorySateOnDetInfosProducer()
 void
 TrajectorySateOnDetInfosProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
-   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
-
-   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
-
-   TrackTrajectorySateOnDetInfosCollection* outputCollection = Get_TSODICollection(TrajToTrackMap,trackCollectionHandle);
+   TrackTrajectorySateOnDetInfosCollection* outputCollection = Get_TSODICollection(iEvent, iSetup);
    
    //put in the event the result
    std::auto_ptr<TrackTrajectorySateOnDetInfosCollection> outputs(outputCollection);
@@ -76,14 +74,27 @@ TrajectorySateOnDetInfosProducer::produce(edm::Event& iEvent, const edm::EventSe
 }
 
 TrackTrajectorySateOnDetInfosCollection*
-TrajectorySateOnDetInfosProducer::Get_TSODICollection(const TrajTrackAssociationCollection TrajToTrackMap, edm::Handle<reco::TrackCollection> trackCollectionHandle)
+TrajectorySateOnDetInfosProducer::Get_TSODICollection(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
+   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
+
+   edm::Handle<reco::TrackCollection> trackCollectionHandle;
+   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
+
+
    TrackTrajectorySateOnDetInfosCollection* outputCollection = new TrackTrajectorySateOnDetInfosCollection(reco::TrackRefProd(trackCollectionHandle) );
 
    int track_index=0;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); it++) {
+      track_index++;
       const Track      track = *it->val;
       const Trajectory traj  = *it->key;
+
+      if(track.p()    < Track_PMin    )continue;
+      if(track.p()    > Track_PMax    )continue;
+      if(track.chi2() < Track_Chi2Max )continue;
 
       TrajectorySateOnDetInfoCollection TSODI_Coll;
 
@@ -104,8 +115,7 @@ TrajectorySateOnDetInfosProducer::Get_TSODICollection(const TrajTrackAssociation
                TSODI_Temp = Get_TSODI(&traj, &trajState, sistripmatchedhit->stereoHit() );   if(TSODI_Temp!=NULL)TSODI_Coll.push_back(*TSODI_Temp);
          }
       }
-      outputCollection->setValue(track_index,TSODI_Coll);
-      track_index++;
+      outputCollection->setValue(track_index-1,TSODI_Coll);
    }
 
    return outputCollection;

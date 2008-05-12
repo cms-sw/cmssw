@@ -43,8 +43,7 @@ class TrajectorySateOnDetInfosProducer : public edm::EDProducer {
       explicit TrajectorySateOnDetInfosProducer(const edm::ParameterSet&);
       ~TrajectorySateOnDetInfosProducer();
 
-       TrackTrajectorySateOnDetInfosCollection* Get_TSODICollection(const TrajTrackAssociationCollection TrajToTrackMap, edm::Handle<reco::TrackCollection> trackCollectionHandle);
-
+       TrackTrajectorySateOnDetInfosCollection* Get_TSODICollection(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -57,6 +56,10 @@ class TrajectorySateOnDetInfosProducer : public edm::EDProducer {
       // ----------member data ---------------------------
      edm::InputTag m_trajTrackAssociationTag;
      edm::InputTag m_tracksTag;
+
+     double Track_PMin;
+     double Track_PMax;
+     double Track_Chi2Max;
      
 };
 

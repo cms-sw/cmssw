@@ -13,7 +13,9 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxEstimatorProducer.cc,v 1.6 2007/06/18 13:49:40 arizzi Exp $
+//    Code Updates:  loic Quertenmont (querten)
+//         Created:  Thu May 10 14:09:02 CEST 2008
+// $Id: DeDxEstimatorProducer.cc,v 1.9 2008/05/10 18:57:23 querten Exp $
 //
 //
 
@@ -58,8 +60,6 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    if(!m_FromTrajectory){
       m_TsodiTag                  = iConfig.getParameter<edm::InputTag>("TrajectoryStateOnDetInfo");
    }else{
-      m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
-      m_tracksTag                 = iConfig.getParameter<edm::InputTag>("Track");
       m_TSODIProducer             = new TrajectorySateOnDetInfosProducer(iConfig);
 
    }
@@ -110,16 +110,7 @@ DeDxEstimatorProducer::produce_from_tsodi(edm::Event& iEvent, const edm::EventSe
 void
 DeDxEstimatorProducer::produce_from_trajectory(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::ESHandle<TrackerGeometry> tkGeom)
 {
-
-   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
-   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
-
-   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
-
-   TrackTrajectorySateOnDetInfosCollection* tsodis = m_TSODIProducer->Get_TSODICollection(TrajToTrackMap,trackCollectionHandle);
-
+   TrackTrajectorySateOnDetInfosCollection* tsodis = m_TSODIProducer->Get_TSODICollection(iEvent, iSetup);
    TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection(tsodis->keyProduct());
 
    reco::TrackTrajectorySateOnDetInfosCollection::const_iterator tsodis_it= tsodis->begin();
