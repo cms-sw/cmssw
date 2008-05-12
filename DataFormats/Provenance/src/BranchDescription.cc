@@ -1,6 +1,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include <ostream>
 #include <sstream>
@@ -8,7 +9,6 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.8 2007/10/09 19:17:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,6 +17,7 @@ namespace edm {
     branchType_(InEvent),
     moduleLabel_(),
     processName_(),
+    branchID_(),
     productID_(),
     fullClassName_(),
     friendlyClassName_(),
@@ -25,11 +26,11 @@ namespace edm {
     psetIDs_(),
     processConfigurationIDs_(),
     branchAliases_(),
+    productIDtoAssign_(),
     branchName_(),
     wrappedName_(),
     produced_(false),
     present_(true),
-    provenancePresent_(true),
     transient_(false),
     type_(),
     splitLevel_(invalidSplitLevel),
@@ -50,6 +51,7 @@ namespace edm {
     branchType_(branchType),
     moduleLabel_(mdLabel),
     processName_(procName),
+    branchID_(),
     productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
@@ -58,11 +60,11 @@ namespace edm {
     psetIDs_(),
     processConfigurationIDs_(),
     branchAliases_(aliases),
+    productIDtoAssign_(),
     branchName_(),
     wrappedName_(),
     produced_(true),
     present_(true),
-    provenancePresent_(true),
     transient_(false),
     type_(),
     splitLevel_(invalidSplitLevel),
@@ -89,6 +91,7 @@ namespace edm {
     branchType_(branchType),
     moduleLabel_(mdLabel),
     processName_(procName),
+    branchID_(),
     productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
@@ -101,7 +104,6 @@ namespace edm {
     wrappedName_(),
     produced_(true),
     present_(true),
-    provenancePresent_(true),
     transient_(false),
     type_(),
     splitLevel_(invalidSplitLevel),
@@ -153,6 +155,10 @@ namespace edm {
     branchName_ += processName();
     branchName_ += period;
 
+    if (branchID_.empty()) {
+      branchID_.setID(branchName_);
+    }
+
     ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(fullClassName());
     ROOT::Reflex::PropertyList p = t.Properties();
     transient_ = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
@@ -201,7 +207,7 @@ namespace edm {
     os << "Branch Type = " << branchType() << std::endl;
     os << "Process Name = " << processName() << std::endl;
     os << "ModuleLabel = " << moduleLabel() << std::endl;
-    os << "Product ID = " << productID() << '\n';
+    os << "Branch ID = " << branchID() << '\n';
     os << "Class Name = " << fullClassName() << '\n';
     os << "Friendly Class Name = " << friendlyClassName() << '\n';
     os << "Product Instance Name = " << productInstanceName() << std::endl;
@@ -238,14 +244,15 @@ namespace edm {
       throwExceptionWithText("Invalid ModuleDescriptionID detected");    
   }
 
-
+  void
+  BranchDescription::updateFriendlyClassName() {
+    friendlyClassName_ = friendlyname::friendlyName(fullClassName());
+  }
 
   bool
   operator<(BranchDescription const& a, BranchDescription const& b) {
     if (a.processName() < b.processName()) return true;
     if (b.processName() < a.processName()) return false;
-    if (a.productID() < b.productID()) return true;
-    if (b.productID() < a.productID()) return false;
     if (a.fullClassName() < b.fullClassName()) return true;
     if (b.fullClassName() < a.fullClassName()) return false;
     if (a.friendlyClassName() < b.friendlyClassName()) return true;
@@ -256,6 +263,8 @@ namespace edm {
     if (b.moduleLabel() < a.moduleLabel()) return false;
     if (a.branchType() < b.branchType()) return true;
     if (b.branchType() < a.branchType()) return false;
+    if (a.branchID() < b.branchID()) return true;
+    if (b.branchID() < a.branchID()) return false;
     if (a.psetIDs() < b.psetIDs()) return true;
     if (b.psetIDs() < a.psetIDs()) return false;
     if (a.processConfigurationIDs() < b.processConfigurationIDs()) return true;
@@ -272,11 +281,11 @@ namespace edm {
     return
     (a.branchType() == b.branchType()) &&
     (a.processName() == b.processName()) &&
-    (a.productID() == b.productID()) &&
     (a.fullClassName() == b.fullClassName()) &&
     (a.friendlyClassName() == b.friendlyClassName()) &&
     (a.productInstanceName() == b.productInstanceName()) &&
     (a.moduleLabel() == b.moduleLabel()) &&
+    (a.branchID() == b.branchID()) &&
     (a.psetIDs() == b.psetIDs()) &&
     (a.processConfigurationIDs() == b.processConfigurationIDs()) &&
     (a.branchAliases() == b.branchAliases());
@@ -304,9 +313,9 @@ namespace edm {
       differences << "Branch '" << b.branchName() << "' is a(n) '" << b.branchType() << "' branch\n";
       differences << "    in file '" << fileName << "', but a(n) '" << a.branchType() << "' branch in previous files.\n";
     }
-    if (a.productID() != b.productID()) {
-      differences << "Branch '" << b.branchName() << "' has a product ID of '" << b.productID() << "'\n";
-      differences << "    in file '" << fileName << "', but '" << a.productID() << "' in previous files.\n";
+    if (a.branchID() != b.branchID()) {
+      differences << "Branch '" << b.branchName() << "' has a branch ID of '" << b.branchID() << "'\n";
+      differences << "    in file '" << fileName << "', but '" << a.branchID() << "' in previous files.\n";
     }
     if (a.fullClassName() != b.fullClassName()) {
       differences << "Products on branch '" << b.branchName() << "' have type '" << b.fullClassName() << "'\n";

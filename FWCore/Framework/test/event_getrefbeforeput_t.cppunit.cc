@@ -2,8 +2,6 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.18 2007/12/31 22:43:57 wmtan Exp $
-
 ----------------------------------------------------------------------*/  
 #include <cassert>
 #include <iostream>
@@ -55,7 +53,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
   edm::ProductRegistry *preg = new edm::ProductRegistry;
-  preg->setProductIDs();
+  preg->setFrozen();
+  preg->setProductIDs(1U);
   edm::EventID col(1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -96,23 +95,26 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
-  edm::BranchDescription product;
-
-  product.fullClassName_ = dummytype.userClassName();
-  product.friendlyClassName_ = className;
-
   edm::ModuleDescription modDesc;
   modDesc.moduleName_ = "Blah";
 
-  product.moduleLabel_ = label;
-  product.productInstanceName_ = productInstanceName;
-  product.processName_ = processName;
-  product.moduleDescriptionID_ = modDesc.id();
+  edm::BranchDescription product(edm::InEvent,
+				 label,
+				 processName,
+				 dummytype.userClassName(),
+				 className,
+				 productInstanceName,
+				 modDesc.id(),
+				 std::set<edm::ParameterSetID>(),
+				 std::set<edm::ProcessConfigurationID>()
+				);
+
   product.init();
 
   edm::ProductRegistry *preg = new edm::ProductRegistry;
   preg->addProduct(product);
-  preg->setProductIDs();
+  preg->setFrozen();
+  preg->setProductIDs(1U);
   edm::EventID col(1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;

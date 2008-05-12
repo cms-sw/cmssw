@@ -1,8 +1,6 @@
 #ifndef IOPool_Streamer_StreamerOutputModule_h
 #define IOPool_Streamer_StreamerOutputModule_h
 
-// $Id: StreamerOutputModule.h,v 1.38 2008/04/18 20:21:12 biery Exp $
-
 #include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 
 namespace edm {

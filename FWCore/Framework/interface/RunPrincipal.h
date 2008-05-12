@@ -10,26 +10,36 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.22 2008/01/31 04:56:44 wmtan Exp $
+$Id: RunPrincipal.h,v 1.23.2.3 2008/05/12 15:33:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
+#include <vector>
 
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
   class UnscheduledHandler;
-  class RunPrincipal : public Principal {
-  typedef Principal Base;
+  class RunPrincipal : public Principal<RunLumiEntryInfo> {
   public:
+    typedef RunAuxiliary Auxiliary;
+    typedef LumiEntryInfo EntryInfo;
+    typedef BranchMapper<EntryInfo> Mapper;
+    typedef std::vector<EntryInfo> EntryInfoVector;
+    typedef Principal<EntryInfo> Base;
+
     RunPrincipal(RunAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
+	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader)) :
-	  Base(reg, pc, hist, rtrv), aux_(aux) {}
+	  Base(reg, pc, hist, rtrv),
+	  aux_(aux),
+	  branchMapperPtr_(mapper) {}
     ~RunPrincipal() {}
 
     RunAuxiliary const& aux() const {
@@ -61,12 +71,32 @@ namespace edm {
 
     void mergeRun(boost::shared_ptr<RunPrincipal> rp);
 
+    Provenance
+    getProvenance(BranchID const& bid) const;
+
+    void
+    getAllProvenance(std::vector<Provenance const *> & provenances) const;
+
+    void put(std::auto_ptr<EDProduct> edp,
+	     ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+
+    void addGroup(ConstBranchDescription const& bd);
+
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+
+    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+
   private:
+
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
-    virtual bool unscheduledFill(Provenance const&) const {return false;}
+    virtual void resolveProvenance(Group const& g) const;
+
+    virtual bool unscheduledFill(std::string const&) const {return false;}
 
     RunAuxiliary aux_;
+
+    boost::shared_ptr<Mapper> branchMapperPtr_;
   };
 }
 #endif

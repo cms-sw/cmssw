@@ -1,5 +1,4 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.28 2008/02/28 20:51:06 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -7,18 +6,25 @@
 #include <stdexcept>
 
 #include "FWCore/Framework/interface/Principal.h"
+#include "DataFormats/Provenance/interface/BranchMapper.h"
+//#include "DataFormats/Provenance/interface/BranchMapperRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/OutputHandle.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/src/Group.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/Selector.h"
 //using boost::lambda::_1;
 
 namespace edm {
 
-  Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
+  template <typename T>
+  Principal<T>::Principal(boost::shared_ptr<ProductRegistry const> reg,
 		       ProcessConfiguration const& pc,
 		       ProcessHistoryID const& hist,
 		       boost::shared_ptr<DelayedReader> rtrv) :
@@ -27,11 +33,9 @@ namespace edm {
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
     processHistoryModified_(false),
-    groups_(reg->maxID()),
-    productStatuses_(reg->maxID(), productstatus::invalid()),
+    groups_(),
     preg_(reg),
-    store_(rtrv),
-    size_(0)
+    store_(rtrv)
   {
     if (processHistoryID_.isValid()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
@@ -41,61 +45,45 @@ namespace edm {
     }
   }
 
-  Principal::~Principal() {
+  template <typename T>
+  Principal<T>::~Principal() {
   }
 
-  Group*
-  Principal::getExistingGroup(Group const& group) {
-    unsigned int index = group.index();
-    return groups_[index].get();
+  template <typename T>
+  GroupT<T>*
+  Principal<T>::getExistingGroup(GroupT<T> const& group) {
+    typename GroupCollection::const_iterator it = groups_.find(group.productDescription().branchID());
+    if (it == groups_.end()) return 0;
+    return it->second.get();
   }
 
+  template <typename T>
   void 
-  Principal::addGroup_(std::auto_ptr<Group> group) {
-    BranchDescription const& bd = group->productDescription();
+  Principal<T>::addGroup_(typename std::auto_ptr<GroupT<T> > group) {
+    ConstBranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
-    assert (bd.productID().isValid());
-    unsigned int index = group->index();
-    assert (index < groups_.size());
     SharedGroupPtr g(group);
-    if (g->entryDescription() == 0) g->provenance().setStore(store_);
-    if (!g->onDemand()) ++size_;
-    groups_[index] = g;
+    groups_.insert(std::make_pair(bd.branchID(), g));
   }
 
+  template <typename T>
   void 
-  Principal::replaceGroup(std::auto_ptr<Group> group) {
-    BranchDescription const& bd = group->productDescription();
+  Principal<T>::replaceGroup(typename std::auto_ptr<GroupT<T> > group) {
+    ConstBranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
-    assert (bd.productID().isValid());
-    unsigned int index = group->index();
-    assert (index < groups_.size());
     SharedGroupPtr g(group);
-    if (g->entryDescription() == 0) g->provenance().setStore(store_);
-    if (groups_[index]->onDemand()) ++size_;
-    groups_[index]->replace(*g);
+    groups_[bd.branchID()]->replace(*g);
   }
 
+  template <typename T>
   void
-  Principal::addGroup(ConstBranchDescription const& bd, ProductStatus status) {
-    std::auto_ptr<Group> g(new Group(bd, status));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  Principal::addGroup(std::auto_ptr<EDProduct> prod, std::auto_ptr<Provenance> prov) {
-    std::auto_ptr<Group> g(new Group(prod, prov));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  Principal::addToProcessHistory() const {
+  Principal<T>::addToProcessHistory() const {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration_.processName();
@@ -119,95 +107,42 @@ namespace edm {
     processHistoryModified_ = true;
   }
 
+  template <typename T>
   ProcessHistory const&
-  Principal::processHistory() const {
+  Principal<T>::processHistory() const {
     return *processHistoryPtr_;
   }
 
-  void 
-  Principal::put(std::auto_ptr<EDProduct> edp,
-		 std::auto_ptr<Provenance> prov) {
-
-    if (!prov->productID().isValid()) {
-      throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
-	<< "put: Cannot put product with null Product ID."
-	<< "\n";
-    }
-    if (edp.get() == 0) {
-      throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-	<< "put: Cannot put because auto_ptr to product is null."
-	<< "\n";
-    }
-    // Group assumes ownership
-    this->addGroup(edp, prov);
-    this->addToProcessHistory();
-  }
-
-  Principal::SharedConstGroupPtr const
-  Principal::getGroup(ProductID const& oid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
-    unsigned int index = Group::index(oid);
-    if (index < 0 || index >= groups_.size() || groups_[index].get() == 0) {
+  template <typename T>
+  typename Principal<T>::SharedConstGroupPtr const
+  Principal<T>::getGroup(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
+    typename GroupCollection::const_iterator it = groups_.find(bid);
+    if (it == groups_.end()) {
       return SharedConstGroupPtr();
     }
-    SharedConstGroupPtr const& g = groups_[index];
+    SharedConstGroupPtr const& g = it->second;
+    if (g->provenanceAvailable()) {
+      this->resolveProvenance(*g);
+    }
     if (resolveProd && !g->productUnavailable()) {
       this->resolveProduct(*g, fillOnDemand);
-    }
-    if (resolveProv && g->provenanceAvailable()) {
-      this->resolveProvenance(*g);
     }
     return g;
   }
 
-  BasicHandle
-  Principal::get(ProductID const& oid) const {
-    SharedConstGroupPtr const& g = getGroup(oid, true, false, true);
+  template <typename T>
+  OutputHandle<T>
+  Principal<T>::getForOutput(BranchID const& bid, bool getProd) const {
+    SharedConstGroupPtr const& g = getGroup(bid, getProd, false);
     if (g.get() == 0) {
-      if (!oid.isValid()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	  << "get by product ID: invalid ProductID supplied\n";
-      }
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
-      *whyFailed
-	<< "get by product ID: no product with given id: "<< oid << "\n";
-      return BasicHandle(whyFailed);
+      return OutputHandle<T>();
     }
-
-    // Check for case where we tried on demand production and
-    // it failed to produce the object
-    if (g->onDemand()) {
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
-      *whyFailed
-	<< "get by product ID: no product with given id: " << oid << "\n"
-        << "onDemand production failed to produce it.\n";
-      return BasicHandle(whyFailed);
-    }
-    return BasicHandle(g->product(), &g->provenance());
+    return OutputHandle<T>(g->product(), &g->productDescription(), g->entryInfoPtr());
   }
 
+  template <typename T>
   BasicHandle
-  Principal::getForOutput(ProductID const& oid, bool getProd, bool getProv) const {
-    ProductStatus & status = const_cast<ProductStatus &>(productStatuses_[Group::index(oid)]);
-
-    SharedConstGroupPtr const& g = getGroup(oid, getProd, getProv, false);
-    if (g.get() == 0) {
-      if (!oid.isValid()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	  << "getForOutput: invalid ProductID supplied\n";
-      }
-      status = productstatus::neverCreated();
-      return BasicHandle();
-    }
-    status = g->status();
-    if (productstatus::onDemand(status)) {
-      status = productstatus::neverCreated();
-      return BasicHandle();
-    }
-    return BasicHandle(g->product(), &g->provenance());
-  }
-
-  BasicHandle
-  Principal::getBySelector(TypeID const& productType, 
+  Principal<T>::getBySelector(TypeID const& productType, 
 			   SelectorBase const& sel) const {
 
     BasicHandleVec results;
@@ -233,8 +168,9 @@ namespace edm {
     return results[0];
   }
 
+  template <typename T>
   BasicHandle
-  Principal::getByLabel(TypeID const& productType, 
+  Principal<T>::getByLabel(TypeID const& productType, 
 			std::string const& label,
 			std::string const& productInstanceName) const {
     BasicHandleVec results;
@@ -267,8 +203,9 @@ namespace edm {
     return results[0];
   }
 
+  template <typename T>
   BasicHandle
-  Principal::getByLabel(TypeID const& productType,
+  Principal<T>::getByLabel(TypeID const& productType,
 			std::string const& label,
 			std::string const& productInstanceName,
 			std::string const& processName) const
@@ -308,8 +245,9 @@ namespace edm {
   }
  
 
+  template <typename T>
   void 
-  Principal::getMany(TypeID const& productType, 
+  Principal<T>::getMany(TypeID const& productType, 
 		     SelectorBase const& sel,
 		     BasicHandleVec& results) const {
 
@@ -322,8 +260,9 @@ namespace edm {
     return;
   }
 
+  template <typename T>
   BasicHandle
-  Principal::getByType(TypeID const& productType) const {
+  Principal<T>::getByType(TypeID const& productType) const {
 
     BasicHandleVec results;
 
@@ -350,8 +289,9 @@ namespace edm {
     return results[0];
   }
 
+  template <typename T>
   void 
-  Principal::getManyByType(TypeID const& productType, 
+  Principal<T>::getManyByType(TypeID const& productType, 
 			   BasicHandleVec& results) const {
 
     edm::MatchAllSelector sel;
@@ -364,8 +304,9 @@ namespace edm {
     return;
   }
 
+  template <typename T>
   size_t
-  Principal::getMatchingSequence(TypeID const& typeID,
+  Principal<T>::getMatchingSequence(TypeID const& typeID,
 				 SelectorBase const& selector,
 				 BasicHandleVec& results,
 				 bool stopIfProcessHasMatch) const {
@@ -379,62 +320,22 @@ namespace edm {
                       stopIfProcessHasMatch);
   }
 
-  Provenance const&
-  Principal::getProvenance(ProductID const& oid) const {
-    SharedConstGroupPtr const& g = getGroup(oid, false, true, true);
-    if (g.get() == 0) {
-      if (!oid.isValid()) {
-        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	  << "getProvenance: invalid ProductID supplied\n";
-      }
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "getProvenance: no product with given id: "<< oid << "\n";
-    }
-
-    if (g->onDemand()) {
-      unscheduledFill(g->provenance());
-    }
-    // We already tried to produce the unscheduled products above
-    // If they still are not there, then throw
-    if (g->onDemand()) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-	<< "getProvenance: no product with given ProductID: "<< oid <<"\n";
-    }
-
-    return g->provenance();
-  }
-
-  // This one is mostly for test printout purposes
-  // No attempt to trigger on demand execution
-  // Skips provenance when the EDProduct is not there
+  template <typename T>
   void
-  Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
-    provenances.clear();
-    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if ((*i)->provenanceAvailable() && (*i)->provenance().isPresent() && (*i)->provenance().product().present())
-	 provenances.push_back(&(*i)->provenance());
-    }
-  }
-
-  void
-  Principal::readImmediate() const {
-    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if (!(*i)->productUnavailable()) {
-        resolveProduct(**i, false);
+  Principal<T>::readImmediate() const {
+    for (typename Principal<T>::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
+      if (i->second->provenanceAvailable()) {
+	resolveProvenance(*i->second);
       }
-      if ((*i)->provenanceAvailable()) {
-	resolveProvenance(**i);
+      if (!i->second->productUnavailable()) {
+        resolveProduct(*i->second, false);
       }
     }
   }
 
-  EDProduct const *
-  Principal::getIt(ProductID const& oid) const {
-    return get(oid).wrapper();
-  }
-
+  template <typename T>
   size_t
-  Principal::findGroups(TypeID const& typeID,
+  Principal<T>::findGroups(TypeID const& typeID,
 			TypeLookup const& typeLookup,
 			SelectorBase const& selector,
 			BasicHandleVec& results,
@@ -483,8 +384,9 @@ namespace edm {
     return results.size();
   }
 
+  template <typename T>
   void 
-  Principal::findGroupsForProcess(std::string const& processName,
+  Principal<T>::findGroupsForProcess(std::string const& processName,
 				  ProcessLookup const& processLookup,
 				  SelectorBase const& selector,
 				  BasicHandleVec& results) const {
@@ -496,17 +398,17 @@ namespace edm {
     // This is a vector of indexes into the productID vector
     // These indexes point to groups with desired process name (and
     // also type when this function is called from findGroups)
-    std::vector<ProductID> const& vindex = j->second;
+    std::vector<BranchID> const& vindex = j->second;
 
-    for (std::vector<ProductID>::const_iterator ib(vindex.begin()), ie(vindex.end());
+    for (std::vector<BranchID>::const_iterator ib(vindex.begin()), ie(vindex.end());
 	 ib != ie;
 	 ++ib) {
-      SharedConstGroupPtr const& group = getGroup(*ib, false, false, false);
+      SharedConstGroupPtr const& group = getGroup(*ib, false, false);
       if(group.get() == 0) {
         continue;
       }
 
-      if (selector.match(group->provenance())) {
+      if (selector.match(group->productDescription())) {
 
 	// Skip product if not available.
         if (!group->productUnavailable()) {
@@ -515,7 +417,7 @@ namespace edm {
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->productUnavailable() && !group->onDemand()) {
             // Found a good match, save it
-            results.push_back(BasicHandle(group->product(), &group->provenance()));
+            results.push_back(BasicHandle(group->product(), group->provenance()));
           }
         }
       }
@@ -523,8 +425,9 @@ namespace edm {
     return;
   }
 
+  template <typename T>
   void
-  Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
+  Principal<T>::resolveProduct(GroupT<T> const& g, bool fillOnDemand) const {
     if (g.productUnavailable()) {
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
@@ -535,7 +438,7 @@ namespace edm {
 
     // Try unscheduled production.
     if (g.onDemand()) {
-      if (fillOnDemand) unscheduledFill(g.provenance());
+      if (fillOnDemand) unscheduledFill(g.productDescription().moduleLabel());
       return;
     }
 
@@ -547,24 +450,19 @@ namespace edm {
     g.setProduct(edp);
   }
 
+  template <typename T>
   void
-  Principal::resolveProvenance(Group const& g) const {
-    if (g.entryDescription()) return;
-
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(g.productDescription());
-    std::auto_ptr<EntryDescription> prov(store_->getProvenance(bk));
-
-    // Now fix up the Group
-    g.setProvenance(prov);
-  }
-
-  void
-  Principal::recombine(Principal & other, std::vector<ProductID> const& pids) {
-    for (std::vector<ProductID>::const_iterator it = pids.begin(), itEnd = pids.end(); it != itEnd; ++it) {
-      unsigned int index = Group::index(*it);
-      groups_[index].swap(other.groups_[index]);
+  Principal<T>::recombine(Principal & other, std::vector<BranchID> const& bids) {
+    for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
+      groups_[*it].swap(other.groups_[*it]);
     }
     store_->mergeReaders(other.store());
+  }
+
+  template <typename T>
+  EDProduct const*
+  Principal<T>::getIt(ProductID const& pid) const {
+    assert(0);
+    return 0;
   }
 }

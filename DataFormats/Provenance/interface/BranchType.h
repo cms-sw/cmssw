@@ -6,7 +6,6 @@
   
 BranchType: The type of a Branch (Event, LuminosityBlock, or Run)
 
-$Id: BranchType.h,v 1.11 2008/02/01 20:02:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -32,6 +31,8 @@ namespace edm {
 
   std::string const& BranchTypeToProductStatusBranchName(BranchType const& branchType);
 
+  std::string const& BranchTypeToBranchEntryInfoBranchName(BranchType const& branchType);
+
   std::string const& BranchTypeToMajorIndexName(BranchType const& branchType);
 
   std::string const& BranchTypeToMinorIndexName(BranchType const& branchType);
@@ -50,8 +51,15 @@ namespace edm {
 
     // Branches on EntryDescription Tree
     std::string const& entryDescriptionIDBranchName();
-     std::string const& entryDescriptionBranchName();
+    std::string const& entryDescriptionBranchName();
 
+    //------------------------------------------------------------------
+    // BranchMapper Tree
+    std::string const& branchMapperTreeName();
+
+    // Branches on BranchMapper Tree
+    std::string const& branchMapperIDBranchName();
+    std::string const& branchMapperBranchName();
     //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
     std::string const& metaDataTreeName();
@@ -65,13 +73,18 @@ namespace edm {
     std::string const& fileFormatVersionBranchName();
     std::string const& fileIdentifierBranchName();
     std::string const& fileIndexBranchName();
+
+    // Event History Tree
+    std::string const& eventHistoryTreeName();
+
+    // Branches on EventHistory Tree
     std::string const& eventHistoryBranchName();
+    std::string const& eventBranchMapperBranchName();
 
     //------------------------------------------------------------------
     // Other tree names
     std::string const& eventTreeName();
     std::string const& eventMetaDataTreeName();
-    std::string const& eventHistoryTreeName();
   }
 }
 #endif

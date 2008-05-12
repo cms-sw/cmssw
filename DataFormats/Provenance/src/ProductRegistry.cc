@@ -4,11 +4,8 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.8 2008/03/24 02:26:03 wmtan Exp $
    \date 19 Jul 2005
 */
-
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.8 2008/03/24 02:26:03 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -23,76 +20,48 @@ namespace edm {
   ProductRegistry::ProductRegistry() :
       productList_(),
       nextID_(1),
-      maxID_(0),
       frozen_(false),
       constProductList_(),
       productLookup_(),
-      elementLookup_(),
-      fixedProductIDs_(),
-      preExistingFixedProductIDs_() {
-        fixedProductIDs_.insert(std::make_pair(std::string("FEDRawDataCollection_rawDataCollector_"), 1U));
-        fixedProductIDs_.insert(std::make_pair(std::string("edmTriggerResults_TriggerResults_"), 2U));
-        fixedProductIDs_.insert(std::make_pair(std::string("triggerTriggerEvent_triggerSummaryAOD_"), 3U));
-        fixedProductIDs_.insert(std::make_pair(std::string("triggerTriggerEventWithRefs_triggerSummaryRAW_"), 4U));
-	nextID_ += fixedProductIDs_.size();
+      elementLookup_() {
   }
 
   void
   ProductRegistry::addProduct(BranchDescription const& productDesc,
 			      bool fromListener) {
+    assert(productDesc.produced());
     throwIfFrozen();
     productDesc.init();
     checkDictionaries(productDesc.fullClassName(), productDesc.transient());
     productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     addCalled(productDesc,fromListener);
-    // we must now check if this product must use a fixed product ID.
-    if (preExistingFixedProductIDs_.size() < fixedProductIDs_.size()) {
-      // NOTE: Not the full branch name.
-      std::string branchName = productDesc.friendlyClassName() + '_' +
-                               productDesc.moduleLabel() + '_';
-      std::map<std::string, unsigned int>::const_iterator it = fixedProductIDs_.find(branchName);
-      if (it != fixedProductIDs_.end()) {
-	if (preExistingFixedProductIDs_.find(it->second) == preExistingFixedProductIDs_.end()) {
-	  // The ID is fixed, and not already in use. Use fixed ID.
-          productList_[BranchKey(productDesc)].productID_.id_ = it->second;
-	}
-      }
-    }
   }
  
   void
   ProductRegistry::copyProduct(BranchDescription const& productDesc) {
+    assert(!productDesc.produced());
     throwIfFrozen();
     productDesc.init();
     BranchKey k = BranchKey(productDesc);
     ProductList::iterator iter = productList_.find(k);
     if (iter == productList_.end()) {
       productList_.insert(std::make_pair(k, productDesc));
-      if (productDesc.productID().id_ >= nextID_) {
-        nextID_ = productDesc.productID().id_ + 1;
-      }
-      // If the product ID is small enough to be a fixed ID,
-      // save the fact that the ID is already used.
-      if (productDesc.productID().id_ <= fixedProductIDs_.size()) {
-        preExistingFixedProductIDs_.insert(productDesc.productID().id_);
-      }
     } else {
       assert(combinable(iter->second, productDesc));
-      iter->second.present_ = iter->second.present() || productDesc.present();
+      iter->second.setPresent(iter->second.present() || productDesc.present());
     }
   }
   
   void
-  ProductRegistry::setProductIDs() {
-    checkAllDictionaries();
-    throwIfFrozen();
+  ProductRegistry::setProductIDs(unsigned int startingID) {
+    throwIfNotFrozen();
+    --startingID;
     for (ProductList::iterator it = productList_.begin(), itEnd = productList_.end();
         it != itEnd; ++it) {
-      if (it->second.productID().id_ == 0) {
-        it->second.productID_.id_ = nextID_++;
+      if (it->second.produced() && it->second.branchType() == InEvent) {
+        it->second.setProductIDtoAssign(ProductID(++startingID));
       }
     }
-    frozen_ = true;
     initializeTransients();
   }
 
@@ -114,6 +83,7 @@ namespace edm {
   
   void
   ProductRegistry::setFrozen() const {
+    checkAllDictionaries();
     if(frozen_) return;
     frozen_ = true;
     initializeTransients();
@@ -129,12 +99,10 @@ namespace edm {
   
   void
   ProductRegistry::throwIfNotFrozen() const {
-/*
     if (!frozen_) {
       throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
             << "cannot read the ProductRegistry because it is not yet frozen";
     }
-*/
   }
   
   void
@@ -186,14 +154,10 @@ namespace edm {
     elementLookup_.clear();
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
       constProductList_.insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
-      if (i->second.productID().id() > maxID_) {
-        maxID_ = i->second.productID().id();    
-      }
-	
 
       ProcessLookup& processLookup = productLookup_[i->first.friendlyClassName_];
-      std::vector<ProductID>& vint = processLookup[i->first.processName_];
-      vint.push_back(i->second.productID());
+      std::vector<BranchID>& vint = processLookup[i->first.processName_];
+      vint.push_back(i->second.branchID());
       //[could use productID instead]
         
       ROOT::Reflex::Type type(ROOT::Reflex::Type::ByName(i->second.className()));
@@ -207,22 +171,22 @@ namespace edm {
         // because there are known cases where the dictionary does
         // not exist and we do not need to support those cases.
         ROOT::Reflex::Type valueType;
-        if ((edm::is_RefVector(type, valueType) || 
+        if ((is_RefVector(type, valueType) || 
 	     is_RefToBaseVector(type, valueType ) || 
-	     edm::value_type_of(type, valueType)) 
+	     value_type_of(type, valueType)) 
             && bool(valueType)) {
           
-          fillElementLookup(valueType, i->second.productID(), i->first);
+          fillElementLookup(valueType, i->second.branchID(), i->first);
           
           // Repeat this for all public base classes of the value_type
           std::vector<ROOT::Reflex::Type> baseTypes;
-          edm::public_base_classes(valueType, baseTypes);
+          public_base_classes(valueType, baseTypes);
           
           for (std::vector<ROOT::Reflex::Type>::iterator iter = baseTypes.begin(),
 	       iend = baseTypes.end();
                iter != iend;
                ++iter) {
-            fillElementLookup(*iter, i->second.productID(), i->first);
+            fillElementLookup(*iter, i->second.branchID(), i->first);
           }
         }
       }
@@ -230,14 +194,14 @@ namespace edm {
   }
 
   void ProductRegistry::fillElementLookup(const ROOT::Reflex::Type & type,
-                                          const edm::ProductID& id,
+                                          const BranchID& id,
                                           const BranchKey& bk) const
   {
     TypeID typeID(type.TypeInfo());
     std::string friendlyClassName = typeID.friendlyClassName();
     
     ProcessLookup& processLookup = elementLookup_[friendlyClassName];
-    std::vector<ProductID>& vint = processLookup[bk.processName_];
+    std::vector<BranchID>& vint = processLookup[bk.processName_];
     vint.push_back(id);    
   }
   

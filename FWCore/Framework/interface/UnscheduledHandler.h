@@ -17,13 +17,14 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 13 16:26:33 IST 2006
-// $Id: UnscheduledHandler.h,v 1.4 2007/06/05 04:02:30 wmtan Exp $
+// $Id: UnscheduledHandler.h,v 1.5.6.1 2008/05/06 21:10:01 wmtan Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <string>
 
 // forward declarations
 namespace edm {
@@ -40,10 +41,10 @@ namespace edm {
 
       // ---------- member functions ---------------------------
       ///returns true if found an EDProducer and ran it
-      bool tryToFill(Provenance const& iProd,
+      bool tryToFill(std::string const& label,
                              EventPrincipal& iEvent) {
          assert(m_setup);
-         return tryToFillImpl(iProd, iEvent, *m_setup);
+         return tryToFillImpl(label, iEvent, *m_setup);
       }
       void setEventSetup(EventSetup const& iSetup) {
          m_setup = &iSetup;
@@ -53,7 +54,7 @@ namespace edm {
 
       const UnscheduledHandler& operator=(UnscheduledHandler const&); // stop default
 
-      virtual bool tryToFillImpl(Provenance const&,
+      virtual bool tryToFillImpl(std::string const&,
                                  EventPrincipal&,
                                  EventSetup const&) = 0;
       // ---------- member data --------------------------------

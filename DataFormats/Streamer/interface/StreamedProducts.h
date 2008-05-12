@@ -23,7 +23,7 @@ namespace edm {
   // ------------------------------------------
 
   class BranchDescription;
-  class EntryDescription;
+  class EventEntryInfo;
   class EDProduct;
   struct ProdPair
   {
@@ -34,17 +34,17 @@ namespace edm {
     ProdPair(const EDProduct* prod,
 	     const Provenance* prov):
       prod_(prod),
-      prov_(&prov->event()),
+      prov_(&prov->branchEntryInfo()),
       desc_(&prov->product()) { }
 
-    const EntryDescription* prov() const { return prov_; }
+    const EventEntryInfo* prov() const { return prov_; }
     const EDProduct* prod() const { return prod_; }
     const BranchDescription* desc() const { return desc_; }
 
     void clear() { prod_=0; prov_=0; desc_=0; }
 
     const EDProduct* prod_;
-    const EntryDescription* prov_;
+    const EventEntryInfo* prov_;
     const BranchDescription* desc_;
   };
 

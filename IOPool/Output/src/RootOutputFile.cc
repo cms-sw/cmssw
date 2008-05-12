@@ -1,13 +1,13 @@
-// $Id: RootOutputFile.cc,v 1.52 2008/04/04 17:53:18 wmtan Exp $
 
-#include "RootOutputFile.h"
-#include "PoolOutputModule.h"
+#include "IOPool/Output/src/RootOutputFile.h"
+#include "IOPool/Output/src/PoolOutputModule.h"
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h" 
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h" 
+#include "DataFormats/Provenance/interface/RunAuxiliary.h" 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
-#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -16,13 +16,20 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+// BMM #include "DataFormats/Provenance/interface/BranchMapper.h"
+// BMM #include "DataFormats/Provenance/interface/BranchMapperRegistry.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,9 +44,9 @@
 #include "TClass.h"
 #include "Rtypes.h"
 
-#include <algorithm>
-#include <map>
 #include <iomanip>
+#include <sstream>
+
 
 namespace edm {
 
@@ -99,7 +106,6 @@ namespace edm {
       fileSizeCheckEvent_(100),
       om_(om),
       currentlyFastCloning_(),
-      currentlyFastMetaCloning_(),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
       fileIndex_(),
@@ -107,16 +113,28 @@ namespace edm {
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
       metaDataTree_(0),
+      // BMM branchMapperTree_(0),
       entryDescriptionTree_(0),
       eventHistoryTree_(0),
       pEventAux_(0),
       pLumiAux_(0),
       pRunAux_(0),
-      pProductStatuses_(0),
+      eventEntryInfoVector_(),
+      lumiEntryInfoVector_(),
+      runEntryInfoVector_(),
+      pEventEntryInfoVector_(&eventEntryInfoVector_),
+      pLumiEntryInfoVector_(&lumiEntryInfoVector_),
+      pRunEntryInfoVector_(&runEntryInfoVector_),
       pHistory_(0),
-      eventTree_(filePtr_, InEvent, pEventAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      lumiTree_(filePtr_, InLumi, pLumiAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      runTree_(filePtr_, InRun, pRunAux_, pProductStatuses_, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      eventTree_(static_cast<EventPrincipal *>(0),
+                 filePtr_, InEvent, pEventAux_, pEventEntryInfoVector_,
+                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      lumiTree_(static_cast<LuminosityBlockPrincipal *>(0),
+                filePtr_, InLumi, pLumiAux_, pLumiEntryInfoVector_,
+                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      runTree_(static_cast<RunPrincipal *>(0),
+               filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
+               om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       newFileAtEndOfRun_(false), 
       dataTypeReported_(false)  {
@@ -127,25 +145,26 @@ namespace edm {
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
-      TTree * meta = (branchType == InEvent ? om_->fileBlock_->metaTree() : 
-		     (branchType == InLumi ? om_->fileBlock_->lumiMetaTree() : om_->fileBlock_->runMetaTree()));
-      fillItemList(om_->keptProducts()[branchType], om_->droppedProducts()[branchType], outputItemList_[branchType], meta);
-      int nBranches = (meta ? meta->GetNbranches() : 0);
+      TTree * theTree = (branchType == InEvent ? om_->fileBlock_->tree() : 
+		        (branchType == InLumi ? om_->fileBlock_->lumiTree() :
+                        om_->fileBlock_->runTree()));
+      fillItemList(om_->keptProducts()[branchType], om_->droppedProducts()[branchType], outputItemList_[branchType], theTree);
+      int nProductBranches = (theTree ? theTree->GetNbranches() - 1 : 0);
       // itMarker Marks one past the end of the branches thast are in the input file.
       // needed for fast cloning. 
-      OutputItemList::const_iterator itMarker = outputItemList_[branchType].begin() + nBranches;
+      OutputItemList::const_iterator itMarker = outputItemList_[branchType].begin() + nProductBranches;
       for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
 	  itEnd = outputItemList_[branchType].end();
 	  it != itEnd; ++it) {
 	treePointers_[branchType]->addBranch(*it->branchDescription_,
 					      it->selected_,
-					      it->entryDescriptionIDPtr_,
 					      it->product_,
 					      it < itMarker);
       }
     }
     // Don't split metadata tree or event description tree
     metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
+    // BMM branchMapperTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::branchMapperTreeName(), 0);
     entryDescriptionTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::entryDescriptionTreeName(), 0);
 
     // Create the tree that will carry (event) History objects.
@@ -210,7 +229,7 @@ namespace edm {
   void RootOutputFile::fillItemList(Selections const& keptVector,
 				    Selections const& droppedVector,
 				    OutputItemList & outputItemList,
-				    TTree * meta) {
+				    TTree * theTree) {
 
     // Fill outputItemList with an entry for each branch, including dropped branches.
     std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
@@ -225,15 +244,14 @@ namespace edm {
     // Sort outputItemList to allow fast copying.
     // meta is a pointer to the input XMetaData tree (X is Event, Run, or LuminosityBlock).
     // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
-    sort_all(outputItemList, OutputItem::Sorter(meta));
+    sort_all(outputItemList, OutputItem::Sorter(theTree));
   }
 
 
-  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone, bool fastMetaClone) {
+  void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
     currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
-    currentlyFastMetaCloning_ = om_->fastCloning() && fb.fastClonable() && fastMetaClone;
-    eventTree_.beginInputFile(currentlyFastCloning_, currentlyFastMetaCloning_);
-    eventTree_.fastCloneTree(fb.tree(), fb.metaTree());
+    eventTree_.beginInputFile(currentlyFastCloning_);
+    eventTree_.fastCloneTree(fb.tree());
   }
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
@@ -268,8 +286,6 @@ namespace edm {
       dataTypeReported_ = true;
     }
 
-    // Product Statuses
-    pProductStatuses_ = &e.productStatuses();
     pHistory_ = & e.history();
 
     // Add event to index
@@ -279,7 +295,7 @@ namespace edm {
     // Store an invailid process history ID in EventAuxiliary for obsolete field.
     pEventAux_->processHistoryID_ = ProcessHistoryID();
 
-    fillBranches(InEvent, e.groupGetter());
+    fillBranches(InEvent, e, pEventEntryInfoVector_);
 
     // Report event written 
     Service<JobReport> reportSvc;
@@ -302,36 +318,60 @@ namespace edm {
   void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
     // Auxiliary branch
     pLumiAux_ = &lb.aux();
-    // Product Statuses
-    pProductStatuses_ = &lb.productStatuses();
     // Add lumi to index.
     fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
-    fillBranches(InLumi, lb.groupGetter());
+    fillBranches(InLumi, lb, pLumiEntryInfoVector_);
   }
 
   bool RootOutputFile::writeRun(RunPrincipal const& r) {
     // Auxiliary branch
     pRunAux_ = &r.aux();
-    // Product Statuses
-    pProductStatuses_ = &r.productStatuses();
     // Add run to index.
     fileIndex_.addEntry(pRunAux_->run(), 0U, 0U, runEntryNumber_);
     ++runEntryNumber_;
-    fillBranches(InRun, r.groupGetter());
+    fillBranches(InRun, r, pRunEntryInfoVector_);
     return newFileAtEndOfRun_;
   }
+
+  /* BMM
+  void RootOutputFile::writeBranchMapper() {
+    BranchMapperID const* hash(0);
+    BranchMapper const*   desc(0);
+    
+    if (!branchMapperTree_->Branch(poolNames::branchMapperIDBranchName().c_str(), 
+					&hash, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for BranchMapperIDs in the output file";
+
+    if (!branchMapperTree_->Branch(poolNames::branchMapperBranchName().c_str(), 
+					&desc, om_->basketSize(), 0))
+      throw edm::Exception(edm::errors::FatalRootError) 
+	<< "Failed to create a branch for BranchMappers in the output file";
+
+    BranchMapperRegistry& edreg = *BranchMapperRegistry::instance();
+    for (BranchMapperRegistry::const_iterator
+	   i = edreg.begin(),
+	   e = edreg.end();
+	 i != e;
+	 ++i) {
+	hash = const_cast<BranchMapperID*>(&(i->first)); // cast needed because keys are const
+	desc = &(i->second);
+	branchMapperTree_->Fill();
+      }
+  }
+  */
 
   void RootOutputFile::writeEntryDescriptions() {
     EntryDescriptionID const* hash(0);
     EntryDescription const*   desc(0);
     
-    if (! entryDescriptionTree_->Branch(poolNames::entryDescriptionIDBranchName().c_str(), 
+    if (!entryDescriptionTree_->Branch(poolNames::entryDescriptionIDBranchName().c_str(), 
 					&hash, om_->basketSize(), 0))
       throw edm::Exception(edm::errors::FatalRootError) 
 	<< "Failed to create a branch for EntryDescriptionIDs in the output file";
 
-    if (! entryDescriptionTree_->Branch(poolNames::entryDescriptionBranchName().c_str(), 
+    if (!entryDescriptionTree_->Branch(poolNames::entryDescriptionBranchName().c_str(), 
 					&desc, om_->basketSize(), 0))
       throw edm::Exception(edm::errors::FatalRootError) 
 	<< "Failed to create a branch for EntryDescriptions in the output file";
@@ -341,8 +381,7 @@ namespace edm {
 	   i = edreg.begin(),
 	   e = edreg.end();
 	 i != e;
-	 ++i)
-      {
+	 ++i) {
 	hash = const_cast<EntryDescriptionID*>(&(i->first)); // cast needed because keys are const
 	desc = &(i->second);
 	entryDescriptionTree_->Fill();
@@ -350,7 +389,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeFileFormatVersion() {
-    FileFormatVersion fileFormatVersion(edm::getFileFormatVersion());
+    FileFormatVersion fileFormatVersion(getFileFormatVersion());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
     TBranch* b = metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
     assert(b);
@@ -420,7 +459,8 @@ namespace edm {
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
 
-    //entryDescriptionTree_->SetEntries(-1);
+    // BMM RootOutputTree::writeTTree(branchMapperTree_);
+
     RootOutputTree::writeTTree(entryDescriptionTree_);
 
     // Create branch aliases for all the branches in the
@@ -440,59 +480,6 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportSvc->outputFileClosed(reportToken_);
 
-  }
-
-  void RootOutputFile::RootOutputFile::fillBranches(BranchType const& branchType, Principal const& principal) const {
-
-    bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
-    bool const fastMetaCloning = (branchType == InEvent) && currentlyFastMetaCloning_;
-    
-    OutputItemList const& items = outputItemList_[branchType];
-
-    // Loop over EDProduct branches, fill the provenance, and write the branch.
-    for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
-
-      ProductID const& id = i->branchDescription_->productID_;
-      if (id == ProductID()) {
-	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	  << "PoolOutputModule::write: invalid ProductID supplied in productRegistry\n";
-      }
-
-      bool getProd = i->selected_ && (i->branchDescription_->produced() || i->renamed_ || !fastCloning);
-      bool getProv = i->branchDescription_->produced() || i->renamed_ || !fastMetaCloning;
-
-      EDProduct const* product = 0;
-      BasicHandle const bh = principal.getForOutput(id, getProd, getProv);
-      if (getProv) {
-        if (bh.provenance() == 0) {
-	  // No product with this ID is in the event.
-	  // Create and write the provenance.
-	  if (i->branchDescription_->produced_) {
-	    EntryDescription entryDescription;
-	    entryDescription.moduleDescriptionID_ = i->branchDescription_->moduleDescriptionID_;
-            EntryDescriptionRegistry::instance()->insertMapped(entryDescription);
-	    *i->entryDescriptionIDPtr_ = entryDescription.id();
-	  } else {
-	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	      << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
-	      << "No group for branch" << i->branchDescription_->branchName_ << '\n';
-	  }
-        } else {
-	  product = bh.wrapper();
-	  *i->entryDescriptionIDPtr_ = bh.provenance()->event().id();
-        }
-      }
-      if (getProd) {
-	if (product == 0) {
-	  // No product with this ID is in the event.
-	  // Add a null product.
-	  TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
-	  product = static_cast<EDProduct *>(cp->New());
-	}
-	i->product_ = product;
-      }
-    }
-    treePointers_[branchType]->fillTree();
   }
 
   void

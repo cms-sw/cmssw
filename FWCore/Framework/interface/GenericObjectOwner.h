@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb  3 19:43:16 EST 2008
-// $Id: GenericObjectOwner.h,v 1.1 2008/02/12 21:48:33 chrjones Exp $
 //
 
 // system include files
@@ -24,7 +23,7 @@
 #include "Reflex/Builder/TypeBuilder.h"
 
 // user include files
-#include "FWCore/Framework/interface/DataViewImpl.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 // forward declarations
@@ -102,11 +101,11 @@ class GenericObjectOwner
       
    template<>
    OrphanHandle<GenericObjectOwner> 
-   DataViewImpl::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::string const& productInstanceName)
+   Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::string const& productInstanceName)
    {
       if (product.get() == 0) {                // null pointer is illegal
          throw edm::Exception(edm::errors::NullPointerError)
-         << "DataViewImpl::put: A null auto_ptr was passed to 'put'.\n"
+         << "Event::put: A null auto_ptr was passed to 'put'.\n"
          << "The pointer is of type " << "GenericObjectOwner" << ".\n"
          << "The specified productInstanceName was '" << productInstanceName << "'.\n";
       }
@@ -125,7 +124,7 @@ class GenericObjectOwner
       ROOT::Reflex::Type const wrapperType=ROOT::Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
       if(wrapperType == ROOT::Reflex::Type() ) {
          throw cms::Exception("NoWrapperDictionary")
-         <<"DataViewImpl::put: the class type '"<<desc.fullClassName()
+         <<"Event::put: the class type '"<<desc.fullClassName()
          <<"' was passed to put but the Reflex dictionary for the required class '"
          <<wrappedClassName(desc.fullClassName())<<"' could not be found./n"
          <<"Please change the C++ package which contains the description of '"<<desc.fullClassName()
@@ -145,12 +144,12 @@ class GenericObjectOwner
 
       static ROOT::Reflex::Type s_edproductType( ROOT::Reflex::Type::ByTypeInfo(typeid(EDProduct)));
       EDProduct *wp(reinterpret_cast<EDProduct*>(oWrapper.CastObject(s_edproductType).Address()));
-      put_products_.push_back(std::make_pair(wp, &desc));
+      putProducts().push_back(std::make_pair(wp, &desc));
       
       // product.release(); // The object has been copied into the Wrapper.
       // The old copy must be deleted, so we cannot release ownership.
       
-      return(OrphanHandle<GenericObjectOwner>(oWrapper.Get("obj"), desc.productID()));
+      return(OrphanHandle<GenericObjectOwner>(oWrapper.Get("obj"), desc.productIDtoAssign()));
    }
    
 }

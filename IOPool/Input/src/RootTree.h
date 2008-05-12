@@ -5,21 +5,23 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.23 2008/04/09 23:00:24 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "boost/shared_ptr.hpp"
 
 #include "Inputfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "TBranch.h"
+#include "TTree.h"
 class TFile;
-class TTree;
 
 namespace edm {
 
@@ -43,22 +45,28 @@ namespace edm {
     EntryNumber const& entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
     std::vector<std::string> const& branchNames() const {return branchNames_;}
-    void fillGroups(Principal& item);
-    boost::shared_ptr<DelayedReader> makeDelayedReader(FileFormatVersion const& fileFormatVersion) const;
+    template <typename T>
+    void fillGroups(T& item);
+    boost::shared_ptr<DelayedReader> makeDelayedReader() const;
+    template <typename T>
+    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(std::vector<T> *&);
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T *& pAux) const {
       auxBranch_->SetAddress(&pAux);
       auxBranch_->GetEntry(entryNumber_);
     }
-    void fillStatus() {
-      statusBranch_->SetAddress(&pProductStatuses_);
-      statusBranch_->GetEntry(entryNumber_);
-    }
     TTree const* tree() const {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
     void setCacheSize(unsigned int cacheSize) const;
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+
+    // below for backward compatibility
+    void fillStatus() {
+      statusBranch_->SetAddress(&pProductStatuses_);
+      statusBranch_->GetEntry(entryNumber_);
+    }
+
   private:
     boost::shared_ptr<TFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
@@ -66,16 +74,49 @@ namespace edm {
 // Therefore,using smart pointers here will do no good.
     TTree *const tree_;
     TTree *const metaTree_;
-    TTree *const infoTree_;
     BranchType branchType_;
     TBranch *const auxBranch_;
-    TBranch *const statusBranch_;
+    TBranch *const branchEntryInfoBranch_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
     boost::shared_ptr<BranchMap> branches_;
-    ProductStatusVector productStatuses_;
-    ProductStatusVector* pProductStatuses_;
+
+    // below for backward compatibility
+    std::vector<ProductStatus> productStatuses_;
+    std::vector<ProductStatus>* pProductStatuses_;
+    TTree *const infoTree_;
+    TBranch *const statusBranch_;
   };
+
+  template <typename T>
+  void
+  RootTree::fillGroups(T& item) {
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) return;
+    // Loop over provenance
+    for (BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end(); pit != pitEnd; ++pit) {
+      item.addGroup(pit->second.branchDescription_);
+    }
+  }
+
+  template <typename T>
+  boost::shared_ptr<BranchMapper<T> >
+  RootTree::makeBranchMapper(std::vector<T> *& pEntryInfoVector) {
+    boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapper<T>);
+    if (branchEntryInfoBranch_) {
+      branchEntryInfoBranch_->SetAddress(&pEntryInfoVector);
+      branchEntryInfoBranch_->GetEntry(entryNumber_);
+      for (typename std::vector<T>::const_iterator it = pEntryInfoVector->begin(), itEnd = pEntryInfoVector->end();
+	  it != itEnd; ++it) {
+	mapper->insert(*it);
+      }
+    } else if (statusBranch_) {
+      fillStatus();
+    } else {
+    }
+    return mapper;
+  }
+
+
 }
 #endif

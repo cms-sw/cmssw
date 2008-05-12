@@ -7,7 +7,6 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.6 2008/03/24 02:26:02 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -45,15 +44,15 @@ namespace edm {
 
     typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
     
-    // Used for indices to find product IDs by type and process
-    typedef std::map<std::string, std::vector<ProductID> > ProcessLookup;
+    // Used for indices to find branch IDs by type and process
+    typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
     typedef std::map<std::string, ProcessLookup> TypeLookup;
 
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
 
     void copyProduct(BranchDescription const& productdesc);
 
-    void setProductIDs();
+    void setProductIDs(unsigned int startingID);
 
     void setFrozen() const;
 
@@ -62,20 +61,18 @@ namespace edm {
 	BranchDescription::MatchMode m);
 
     ProductList const& productList() const {
-      throwIfNotFrozen();
+      //throwIfNotFrozen();
       return productList_;
     }
 
     ConstProductList const& constProductList() const {
-      throwIfNotFrozen();
+      //throwIfNotFrozen();
       return constProductList_;
     }
 
     unsigned int nextID() const {return nextID_;}
 
     void setNextID(unsigned int next) {nextID_ = next;}
-
-    unsigned int maxID() const {return maxID_;}
 
     const TypeLookup& productLookup() const {
       return productLookup_;
@@ -109,12 +106,11 @@ namespace edm {
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
     void fillElementLookup(const ROOT::Reflex::Type & type,
-                           const ProductID& slotNumber,
+                           const BranchID& slotNumber,
                            const BranchKey& bk) const;
     
     ProductList productList_;
     unsigned int nextID_;
-    mutable unsigned int maxID_;
     mutable bool frozen_;
     mutable ConstProductList constProductList_;
     
@@ -124,10 +120,6 @@ namespace edm {
     // an EDProduct
     mutable TypeLookup productLookup_; // 1->many
     mutable TypeLookup elementLookup_; // 1->many
-    
-    // Fix some product ID's to facilitate merging.
-    std::map<std::string, unsigned int> fixedProductIDs_;
-    std::set<unsigned int> preExistingFixedProductIDs_;
   };
 
   inline

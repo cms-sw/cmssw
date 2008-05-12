@@ -3,7 +3,6 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.19 2007/03/04 06:14:45 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -73,9 +72,17 @@ namespace {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
       void respond(const edm::BranchDescription& iDesc){
-         edm::BranchDescription prod(iDesc);
-         prod.moduleLabel_ = name_;
-         prod.productInstanceName_ = prod.productInstanceName()+"-"+prod.moduleLabel();
+         edm::BranchDescription prod(iDesc.branchType(),
+				     name_,
+				     iDesc.processName(),
+				     iDesc.fullClassName(),
+				     iDesc.friendlyClassName(),
+				     iDesc.productInstanceName() + "-" + name_,
+				     iDesc.moduleDescriptionID(),
+				     iDesc.psetIDs(),
+				     iDesc.processConfigurationIDs(),
+				     iDesc.branchAliases()
+				    );
          reg_->addProduct(prod);
       }
    };

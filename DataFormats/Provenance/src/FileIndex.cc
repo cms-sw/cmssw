@@ -36,7 +36,7 @@ namespace edm {
   FileIndex::const_iterator
   FileIndex::findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
     Element el(run, lumi, event);
-    const_iterator it = std::lower_bound(entries_.begin(), entries_.end(), el);
+    const_iterator it = lower_bound_all(entries_, el);
     bool lumiMissing = (lumi == 0 && event != 0);
     if (lumiMissing) {
       const_iterator itEnd = entries_.end();

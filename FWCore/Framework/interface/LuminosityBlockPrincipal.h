@@ -10,27 +10,35 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.28 2008/01/31 04:56:44 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.29.2.3 2008/05/12 15:33:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
+#include <vector>
 
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
   class RunPrincipal;
   class UnscheduledHandler;
-  class LuminosityBlockPrincipal : public Principal {
-  typedef Principal Base;
+  class LuminosityBlockPrincipal : public Principal<RunLumiEntryInfo> {
   public:
+    typedef LuminosityBlockAuxiliary Auxiliary;
+    typedef LumiEntryInfo EntryInfo;
+    typedef BranchMapper<EntryInfo> Mapper;
+    typedef std::vector<EntryInfo> EntryInfoVector;
+    typedef Principal<EntryInfo> Base;
     LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<RunPrincipal> rp,
-        ProcessConfiguration const& pc,
+	boost::shared_ptr<RunPrincipal> rp,
+	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
+	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     ~LuminosityBlockPrincipal() {}
@@ -81,12 +89,33 @@ namespace edm {
 
     void mergeLuminosityBlock(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
+    Provenance
+    getProvenance(BranchID const& bid) const;
+
+    void
+    getAllProvenance(std::vector<Provenance const *> & provenances) const;
+
+    void put(std::auto_ptr<EDProduct> edp,
+	     ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+
+    void addGroup(ConstBranchDescription const& bd);
+
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+
+    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<RunLumiEntryInfo> entryInfo);
+
   private:
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
-    virtual bool unscheduledFill(Provenance const&) const {return false;}
+
+    virtual void resolveProvenance(Group const& g) const;
+
+    virtual bool unscheduledFill(std::string const&) const {return false;}
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;
     LuminosityBlockAuxiliary aux_;
+
+    boost::shared_ptr<Mapper> branchMapperPtr_;
+
   };
 }
 #endif

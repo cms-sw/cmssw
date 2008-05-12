@@ -7,13 +7,14 @@
 
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "TClass.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
+#include "DataFormats/Common/interface/OutputHandle.h"
 
 #include "zlib.h"
 #include <cstdlib>
@@ -133,22 +134,20 @@ namespace edm
 
     for(; i != ie; ++i) {
       BranchDescription const& desc = **i;
-      ProductID const& id = desc.productID();
+      BranchID const& id = desc.branchID();
 
-      if (id == ProductID()) {
-        throw Exception(errors::ProductNotFound,"InvalidID")
-          << "StreamSerializer::serializeEvent: invalid ProductID supplied in productRegistry\n";
-      }
-      BasicHandle const bh = eventPrincipal.getForOutput(id, true, true);
-      if (bh.provenance() == 0) {
+      OutputHandle<EventEntryInfo> const oh = eventPrincipal.getForOutput(id, true);
+      if (!oh.entryInfo()) {
 	// No product with this ID was put in the event.
 	// Create and write the provenance.
-	EntryDescription entryDescription;
-	entryDescription.moduleDescriptionID_ = desc.moduleDescriptionID();
-        dummyProvenances.push_front(Provenance(desc, entryDescription, false));
+	boost::shared_ptr<EntryDescription> entryDescription(new EntryDescription);
+	entryDescription->moduleDescriptionID_ = desc.moduleDescriptionID();
+	boost::shared_ptr<EventEntryInfo> branchEntryInfo(
+	    new EventEntryInfo(desc.branchID(), productstatus::neverCreated(), desc.productIDtoAssign(), entryDescription));
+        dummyProvenances.push_front(Provenance(desc, branchEntryInfo));
         se.prods_.push_back(ProdPair(0, &*dummyProvenances.begin()));
       } else {
-        se.prods_.push_back(ProdPair(bh.wrapper(), bh.provenance()));
+        se.prods_.push_back(ProdPair(oh.wrapper(), new Provenance(*oh.desc(), oh.entryInfoSharedPtr())));
       }
     }
 

@@ -5,8 +5,6 @@
 
 /*----------------------------------------------------------------------
 
-$Id: EntryDescription.cc,v 1.2 2008/01/25 21:06:48 paterno Exp $
-
 ----------------------------------------------------------------------*/
 
 namespace edm {
@@ -65,27 +63,5 @@ namespace edm {
     return
       a.parents() == b.parents()
       && a.moduleDescriptionID() == b.moduleDescriptionID();
-  }
-
-  void
-  EntryDescription::mergeEntryDescription(EntryDescription const* entry) {
-    edm::sort_all(parents_);
-    std::vector<ProductID> other = entry->parents_;
-    edm::sort_all(other);
-    std::vector<ProductID> result;
-    std::set_union(parents_.begin(), parents_.end(),
-                   other.begin(), other.end(),
-                   back_inserter(result)); 
-    parents_ = result;
-    
-    // If they are not equal, set the module description ID to an
-    // invalid value.  Currently, there is no way to store multiple
-    // values.  An invalid value is better than a partially incorrect
-    // value.  In the future, we may need to improve this.
-    if (moduleDescriptionID_ != entry->moduleDescriptionID_) {
-      moduleDescriptionID_ = ModuleDescriptionID();
-    }
-
-    EntryDescriptionRegistry::instance()->insertMapped(*this);
   }
 }

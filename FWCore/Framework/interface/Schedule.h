@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.43 2008/01/17 05:14:01 wmtan Exp $
+  $Id: Schedule.h,v 1.44.2.1 2008/05/06 21:10:01 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -326,11 +326,11 @@ namespace edm {
       labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
     }
   private:
-    virtual bool tryToFillImpl(Provenance const& prov,
+    virtual bool tryToFillImpl(std::string const& moduleLabel,
 			       EventPrincipal& event,
 			       const EventSetup& eventSetup) {
       std::map<std::string, Worker*>::const_iterator itFound =
-        labelToWorkers_.find(prov.moduleLabel());
+        labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
 	  // Unscheduled reconstruction has no accepted definition
 	  // (yet) of the "current path". We indicate this by passing

@@ -18,10 +18,13 @@ namespace edm {
   namespace input {
     struct EventBranchInfo {
       EventBranchInfo(ConstBranchDescription const& prod) :
-        branchDescription_(prod), provenanceBranch_(0), productBranch_(0) {}
+        branchDescription_(prod),
+	productBranch_(0),
+	provenanceBranch_(0) {}
       ConstBranchDescription branchDescription_;
-      TBranch * provenanceBranch_;
       TBranch * productBranch_;
+      // The rest are for backward compatibility
+      TBranch * provenanceBranch_;
     };
     typedef std::map<BranchKey const, EventBranchInfo> BranchMap;
     typedef Long64_t EntryNumber;

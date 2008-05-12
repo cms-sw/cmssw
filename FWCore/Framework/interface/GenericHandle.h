@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.11 2007/08/08 03:40:16 chrjones Exp $
+// $Id: GenericHandle.h,v 1.12.4.1 2008/05/06 21:10:01 wmtan Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@
 
 // user include files
 #include "Reflex/Object.h"
-#include "FWCore/Framework/interface/DataViewImpl.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 // forward declarations
@@ -158,13 +158,13 @@ void convert_handle(BasicHandle const& orig,
 ///Specialize the Event's getByLabel method to work with a Handle<GenericObject>
 template<>
 bool
-edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
+edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const;
 
 template <> 	 
 bool 	 
-edm::DataViewImpl::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const; 	 
+edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const; 	 
 
 }
 #endif

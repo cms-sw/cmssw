@@ -7,7 +7,6 @@ ConstBranchDescription: A class containing a constant shareable branch descripti
 that is inexpensive to copy.
 This class is not persistable.
 
-$Id: ConstBranchDescription.h,v 1.2 2007/08/28 17:49:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -36,14 +35,14 @@ namespace edm {
 
     std::string const& moduleLabel() const {return ptr_->moduleLabel();}
     std::string const& processName() const {return ptr_->processName();}
-    ProductID const& productID() const {return ptr_->productID();}
+    BranchID const& branchID() const {return ptr_->branchID();}
+    ProductID const& productIDtoAssign() const {return ptr_->productIDtoAssign();}
     std::string const& fullClassName() const {return ptr_->fullClassName();}
     std::string const& className() const {return ptr_->fullClassName();}
     std::string const& friendlyClassName() const {return ptr_->friendlyClassName();}
     std::string const& productInstanceName() const {return ptr_->productInstanceName();} 
     bool const& produced() const {return ptr_->produced();}
     bool const& present() const {return ptr_->present();}
-    bool const& provenancePresent() const {return ptr_->provenancePresent();}
     bool const& transient() const {return ptr_->transient();}
     ROOT::Reflex::Type const& type() const {return ptr_->type();}
     int const& splitLevel() const {return ptr_->splitLevel();}

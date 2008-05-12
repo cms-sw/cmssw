@@ -245,7 +245,7 @@ namespace edm {
     // Now that the output workers are filled in, set any output limits.
     limitOutput();
 
-    prod_reg_->setProductIDs();
+    prod_reg_->setFrozen();
 
     //Now that these have been set, we can create the list of Branches we need for the 'on demand'
     ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
@@ -946,7 +946,7 @@ namespace edm {
     for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
         itBranch != itBranchEnd;
         ++itBranch) {
-      ep.addGroup(**itBranch, productstatus::onDemand());
+      ep.addOnDemandGroup(**itBranch);
     }
   }
 

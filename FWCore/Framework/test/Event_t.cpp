@@ -3,7 +3,6 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.30 2008/01/31 04:56:34 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -169,16 +168,19 @@ testEvent::registerProduct(std::string const& tag,
   localModuleDescription.moduleLabel_          = moduleLabel;
   localModuleDescription.processConfiguration_ = process;
   
-  BranchDescription branch;
-
   TypeID product_type(typeid(T));
-  branch.moduleLabel_         = moduleLabel;
-  branch.processName_         = processName;
-  branch.productInstanceName_ = productInstanceName;
-  branch.fullClassName_       = product_type.userClassName();
-  branch.friendlyClassName_   = product_type.friendlyClassName();
-  branch.moduleDescriptionID_ = localModuleDescription.id();
-  
+
+  BranchDescription branch(InEvent,
+			   moduleLabel,
+			   processName,
+			   product_type.userClassName(),
+			   product_type.friendlyClassName(),
+			   productInstanceName,
+			   localModuleDescription.id(),
+			   std::set<ParameterSetID>(),
+			   std::set<ProcessConfigurationID>()
+			  );
+
   moduleDescriptions_[tag] = localModuleDescription;
   availableProducts_->addProduct(branch);
 }
@@ -251,20 +253,22 @@ testEvent::testEvent() :
 
   std::string productInstanceName("int1");
 
-  BranchDescription branch;
-  branch.moduleLabel_         = moduleLabel;
-  branch.productInstanceName_ = productInstanceName;
-  branch.processName_         = processName;
-  branch.fullClassName_       = product_type.userClassName();
-  branch.friendlyClassName_   = product_type.friendlyClassName();
-  branch.moduleDescriptionID_ = currentModuleDescription_->id();
-  
+  BranchDescription branch(InEvent,
+			   moduleLabel,
+			   processName,
+			   product_type.userClassName(),
+			   product_type.friendlyClassName(),
+			   productInstanceName,
+			   currentModuleDescription_->id(),
+			   std::set<ParameterSetID>(),
+			   std::set<ProcessConfigurationID>()
+			  );
+
   availableProducts_->addProduct(branch);
 
-
   // Freeze the product registry before we make the Event.
-  availableProducts_->setProductIDs();
   availableProducts_->setFrozen();
+  availableProducts_->setProductIDs(1U);
 }
 
 testEvent::~testEvent()
@@ -438,16 +442,16 @@ void testEvent::getByProductID()
   }
 
   handle_t h;
-  currentEvent_->get(wanted, h);
+  currentEvent_->getByProductID(wanted, h);
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.id() == wanted);
   CPPUNIT_ASSERT(h->value == 1);
 
   ProductID invalid;
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), cms::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->getByProductID(invalid, h), cms::Exception);
   CPPUNIT_ASSERT(!h.isValid());
   ProductID notpresent(std::numeric_limits<unsigned int>::max());
-  CPPUNIT_ASSERT(!currentEvent_->get(notpresent, h));
+  CPPUNIT_ASSERT(!currentEvent_->getByProductID(notpresent, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
@@ -646,7 +650,7 @@ void testEvent::getByLabel()
     principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE");
   convert_handle(bh, h);
   CPPUNIT_ASSERT(h->value == 100);
-  edm::BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch"));
+  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch"));
   CPPUNIT_ASSERT(!bh2.isValid());
 }
 

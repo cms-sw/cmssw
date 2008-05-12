@@ -4,9 +4,6 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include <assert.h>
 
-// In addition to the tests here, the EntryDescription
-// is also tested in FWCore/Integration/test/run_RunMerge.sh
-
 int main()
 {
   edm::EntryDescription ed1;
@@ -34,46 +31,4 @@ int main()
   edm::EntryDescriptionID id4 = ed4.id();
   assert(ed4 == ed2);
   assert (id4 == id2);
-
-  // Test Merging
-
-  edm::ModuleDescription md1;
-  md1.moduleName_ = "class1";
-
-  edm::ModuleDescription md2;
-  md2.moduleName_ = "class2";
-
-  edm::EntryDescription ed101;
-  ed101.moduleDescriptionID_ = md1.id();
-
-  edm::EntryDescription ed102;
-  ed102.moduleDescriptionID_ = md1.id();
-
-  edm::EntryDescription ed103;
-  ed103.moduleDescriptionID_ = md1.id();
-
-  ed101.mergeEntryDescription(&ed102);
-  assert(ed101 == ed103);
-
-  edm::EntryDescription ed104;
-  ed104.moduleDescriptionID_ = md2.id();
-
-  ed101.mergeEntryDescription(&ed104);
-  assert(ed101 != ed103);
-  assert(ed101.moduleDescriptionID_ == edm::ModuleDescriptionID());
-
-  edm::ProductID pid1(1); 
-  edm::ProductID pid2(2); 
-  edm::ProductID pid3(3);
-
-  ed101.parents_.push_back(pid3);
-  ed101.parents_.push_back(pid2);
-
-  ed102.parents_.push_back(pid2);
-  ed102.parents_.push_back(pid1);
-
-  ed101.mergeEntryDescription(&ed102);
-  assert(ed101.parents_[0] == pid1);
-  assert(ed101.parents_[1] == pid2);
-  assert(ed101.parents_[2] == pid3);  
 }

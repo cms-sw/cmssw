@@ -4,7 +4,6 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.53 2008/03/18 18:41:28 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 

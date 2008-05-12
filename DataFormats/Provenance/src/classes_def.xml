@@ -1,5 +1,6 @@
 <lcgdict>
  <class name="edm::ProductID"/>
+ <class name="edm::BranchID"/>
  <class name="edm::EventID"/>
  <class name="edm::LuminosityBlockID"/>
  <class name="edm::RunID"/>
@@ -8,7 +9,9 @@
  <class name="std::basic_string<char>"/>
  <class name="std::vector<std::basic_string<char> >"/>
  <class name="std::set<std::basic_string<char> >"/>
- <class name="edm::EventAuxiliary"/>
+ <class name="edm::EventAuxiliary">
+   <field name="branchMapperID_" transient="true"/>
+ </class>
  <class name="edm::History"/>
  <class name="edm::LuminosityBlockAuxiliary"/>
  <class name="edm::RunAuxiliary"/>
@@ -17,12 +20,9 @@
  <class name="edm::RunAux"/>
  <class name="edm::ProductRegistry">
    <field name="frozen_" transient="true"/>
-   <field name="maxID_" transient="true"/>
    <field name="constProductList_" transient="true"/>
    <field name="productLookup_" transient="true"/>
    <field name="elementLookup_" transient="true"/>
-   <field name="fixedProductIDs_" transient="true"/>
-   <field name="preExistingFixedProductIDs_" transient="true"/>
  </class>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
@@ -34,6 +34,12 @@
  <class name="edm::BranchEntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>
  </class>
+ <class name="edm::EventEntryInfo">
+   <field name="entryDescriptionPtr_" transient="true"/>
+ </class>
+ <class name="edm::RunLumiEntryInfo"/>
+ <class name="std::vector<edm::EventEntryInfo>"/>
+ <class name="std::vector<edm::RunLumiEntryInfo>"/>
  <class name="edm::EntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>
  </class>
@@ -42,12 +48,12 @@
    <field name="wrappedName_" transient="true"/>
    <field name="produced_" transient="true"/>
    <field name="present_" transient="true"/>
-   <field name="provenancePresent_" transient="true"/>
    <field name="transient_" transient="true"/>
    <field name="splitLevel_" transient="true"/>
    <field name="basketSize_" transient="true"/>
    <field name="moduleDescriptionID_" transient="true"/>
    <field name="type_" transient="true"/>
+   <field name="productIDtoAssign_" transient="true"/>
  </class>
  <class name="edm::ParameterSetBlob"/>
  <class name="edm::ProcessConfiguration"/>

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id: GenericHandle.cc,v 1.5 2007/08/08 03:40:17 chrjones Exp $
+// $Id: GenericHandle.cc,v 1.6.4.1 2008/05/06 21:10:02 wmtan Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ void convert_handle(BasicHandle const& orig,
 ///Specialize the getByLabel method to work with a Handle<GenericObject>
 template<>
 bool
-edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
+edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
@@ -79,7 +79,7 @@ edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
 
 template<>
 bool
-edm::DataViewImpl::getByLabel<GenericObject>(edm::InputTag const& tag,
+edm::Event::getByLabel<GenericObject>(edm::InputTag const& tag,
                                              Handle<GenericObject>& result) const
 {
   if (tag.process().empty()) {

@@ -5,11 +5,22 @@
 
 namespace edm {
 
-    Event::Event(EventPrincipal& dbk, ModuleDescription const& md) :
-	DataViewImpl(dbk.groupGetter(), md, InEvent),
-	aux_(dbk.aux()),
-	luminosityBlock_(new LuminosityBlock(dbk.luminosityBlockPrincipal(), md)),
-	principal_(dbk) {
+    Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
+	DataViewImpl<EventEntryInfo>(ep, md, InEvent),
+	aux_(ep.aux()),
+	luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
+	gotProductIDs_(),
+	gotViews_() {
+    }
+
+    EventPrincipal &
+    Event::eventPrincipal() {
+      return dynamic_cast<EventPrincipal &>(principal());
+    }
+
+    EventPrincipal const &
+    Event::eventPrincipal() const {
+      return dynamic_cast<EventPrincipal const&>(principal());
     }
 
     Run const&
@@ -27,6 +38,54 @@ namespace edm {
 //   }
   History const&
   Event::history() const {
-    return principal_.history();
+    return eventPrincipal().history();
   }
+
+
+  Provenance
+  Event::getProvenance(BranchID const& bid) const
+  {
+    return eventPrincipal().getProvenance(bid);
+  }
+
+  void
+  Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
+  {
+    eventPrincipal().getAllProvenance(provenances);
+  }
+
+  BasicHandle
+  Event::getByProductID_(ProductID const& oid) const
+  {
+    return eventPrincipal().getByProductID(oid);
+  }
+
+
+  void
+  Event::commit_() {
+    // fill in guts of provenance here
+    EventPrincipal & ep = eventPrincipal();
+    ProductPtrVec::iterator pit(putProducts().begin());
+    ProductPtrVec::iterator pie(putProducts().end());
+
+    while(pit!=pie) {
+	std::auto_ptr<EDProduct> pr(pit->first);
+	// note: ownership has been passed - so clear the pointer!
+	pit->first = 0;
+
+	// set provenance
+	std::auto_ptr<EventEntryInfo> eventEntryInfoPtr(
+		new EventEntryInfo(pit->second->branchID(),
+				    productstatus::present(),
+				    pit->second->moduleDescriptionID(),
+				    pit->second->productIDtoAssign(),
+				    gotProductIDs_));
+	ep.put(pr, *pit->second, eventEntryInfoPtr);
+	++pit;
+    }
+
+    // the cleanup is all or none
+    putProducts().clear();
+  }
+
 }

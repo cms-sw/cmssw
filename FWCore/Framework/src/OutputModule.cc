@@ -1,6 +1,5 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.58 2008/02/21 22:47:51 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -205,11 +204,7 @@ namespace edm {
 	  hasNewlyDroppedBranch_[desc.branchType()] = true;
 	}
       } else {
-	if(!desc.provenancePresent()) {
-	  // If the branch containing the provenance has been previously dropped,
-	  // and the product has not been produced again, output nothing
-	  continue;
-	} else if(desc.transient()) {
+	if(desc.transient()) {
 	  // else if the class of the branch is marked transient, output nothing
 	  continue;
 	} else if(!desc.present()) {
@@ -410,6 +405,7 @@ namespace edm {
     writeParameterSetRegistry();
     writeProductDescriptionRegistry();
     writeEntryDescriptions();
+    writeBranchMapper();
     finishEndFile();
   }
 

@@ -40,7 +40,6 @@ when random numbers are only generated in modules and not in the source).
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //         Created:  Tue Mar  7 09:30:28 EST 2006
-// $Id: RandomNumberGenerator.h,v 1.4 2007/06/14 02:00:58 wmtan Exp $
 //
 
 #include <vector>

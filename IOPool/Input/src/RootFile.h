@@ -5,8 +5,6 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.56 2008/04/09 23:00:24 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <map>
@@ -28,6 +26,8 @@ $Id: RootFile.h,v 1.56 2008/04/09 23:00:24 wmtan Exp $
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 class TFile;
@@ -115,7 +115,7 @@ namespace edm {
     void overrideRunNumber(LuminosityBlockID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
-    void readEventDescriptionTree();
+    void readEntryDescriptionTree();
     void readEventHistoryTree();
 
     std::string const file_;
@@ -145,6 +145,12 @@ namespace edm {
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;
     RunAuxiliary runAux_;
+    EventEntryInfoVector            eventEntryInfoVector_;
+    LumiEntryInfoVector	            lumiEntryInfoVector_;
+    RunEntryInfoVector              runEntryInfoVector_;
+    EventEntryInfoVector *          pEventEntryInfoVector_;
+    LumiEntryInfoVector *           pLumiEntryInfoVector_;
+    RunEntryInfoVector *            pRunEntryInfoVector_;
     RootTree eventTree_;
     RootTree lumiTree_;
     RootTree runTree_;

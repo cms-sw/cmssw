@@ -6,14 +6,14 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.6 2008/01/30 00:17:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
-#include "DataFormats/Provenance/interface/ProvenanceDelayedReader.h"
 #include "boost/shared_ptr.hpp"
 
 /*
@@ -30,48 +30,52 @@ $Id: Provenance.h,v 1.6 2008/01/30 00:17:51 wmtan Exp $
 namespace edm {
   class Provenance {
   public:
-    Provenance(BranchDescription const& p, bool present);
-    Provenance(ConstBranchDescription const& p, bool present);
-    Provenance(BranchDescription const& p, boost::shared_ptr<EntryDescription> e, bool present);
-    Provenance(ConstBranchDescription const& p, boost::shared_ptr<EntryDescription> e, bool present);
-    Provenance(BranchDescription const& p, EntryDescription const& e, bool present);
-    Provenance(ConstBranchDescription const& p, EntryDescription const& e, bool present);
+    explicit Provenance(ConstBranchDescription const& p);
+    explicit Provenance(BranchDescription const& p);
+    Provenance(ConstBranchDescription const& p, boost::shared_ptr<EventEntryInfo> entryDesc);
+    Provenance(BranchDescription const& p, boost::shared_ptr<EventEntryInfo> entryDesc);
+    Provenance(ConstBranchDescription const& p, boost::shared_ptr<RunLumiEntryInfo> entryDesc);
+    Provenance(BranchDescription const& p, boost::shared_ptr<RunLumiEntryInfo> entryDesc);
 
     ~Provenance() {}
 
-    void setEvent(boost::shared_ptr<EntryDescription> e) const;
+    EntryDescription const& event() const {return entryDescription();}
+    BranchDescription const& product() const {return branchDescription_.me();}
 
-    BranchDescription const& product() const {return product_.me();}
-    EntryDescription const& event() const {if (event_.get()) return *event_; return resolve();}
-    EntryDescription const& resolve() const;
-    boost::shared_ptr<EntryDescription> entryDescription()  const {return event_;}
+    BranchDescription const& branchDescription() const {return branchDescription_.me();}
+    ConstBranchDescription const& constBranchDescription() const {return branchDescription_;}
+    EventEntryInfo const* branchEntryInfoPtr() const {return branchEntryInfoPtr_.get();}
+    boost::shared_ptr<EventEntryInfo> branchEntryInfoSharedPtr() const {return branchEntryInfoPtr_;}
+    EventEntryInfo const& branchEntryInfo() const {return *branchEntryInfoPtr_;}
+    EntryDescription const& entryDescription() const {return branchEntryInfo().entryDescription();}
+    BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
     std::string const& className() const {return product().className();}
     std::string const& moduleLabel() const {return product().moduleLabel();}
-    std::string const& moduleName() const {return event().moduleName();}
-    PassID const& passID() const {return event().passID();}
+    std::string const& moduleName() const {return entryDescription().moduleName();}
+    PassID const& passID() const {return entryDescription().passID();}
     std::string const& processName() const {return product().processName();}
-    ProductID const& productID() const {return product().productID();}
+    ProductID const& productID() const {return branchEntryInfo().productID();}
+    ProductStatus const& productStatus() const {return branchEntryInfo().productStatus();}
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
     std::set<ParameterSetID> const& psetIDs() const {return product().psetIDs();}
-    ParameterSetID const& psetID() const {return event().psetID();}
-    ReleaseVersion const& releaseVersion() const {return event().releaseVersion();}
+    ParameterSetID const& psetID() const {return entryDescription().psetID();}
+    ReleaseVersion const& releaseVersion() const {return entryDescription().releaseVersion();}
     std::set<std::string> const& branchAliases() const {return product().branchAliases();}
-    ModuleDescriptionID const& moduleDescriptionID() const {return event().moduleDescriptionID();}
-    ModuleDescription const& moduleDescription() const {return event().moduleDescription();}
-    bool const& isPresent() const {return isPresent_;}
+    ModuleDescriptionID const& moduleDescriptionID() const {return entryDescription().moduleDescriptionID();}
+    ModuleDescription const& moduleDescription() const {return entryDescription().moduleDescription();}
+    bool isPresent() const {return productstatus::present(productStatus());}
 
-    std::vector<ProductID> const& parents() const {return event().parents();}
+    std::vector<ProductID> const& parents() const {return entryDescription().parents();}
 
     void write(std::ostream& os) const;
-    void setStore(boost::shared_ptr<ProvenanceDelayedReader> store) {store_ = store;}
+
+    void setEventEntryInfo(boost::shared_ptr<EventEntryInfo> bei) const;
 
   private:
-    ConstBranchDescription const product_;
-    mutable boost::shared_ptr<EntryDescription> event_;
-    mutable bool isPresent_;
-    boost::shared_ptr<ProvenanceDelayedReader> store_;
+    ConstBranchDescription const branchDescription_;
+    mutable boost::shared_ptr<EventEntryInfo> branchEntryInfoPtr_;
   };
   
   inline

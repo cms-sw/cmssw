@@ -6,13 +6,13 @@
 BranchEntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
-$Id: BranchEntryDescription.h,v 1.2 2008/01/23 23:34:53 wdd Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <vector>
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
@@ -38,8 +38,6 @@ namespace edm {
     BranchEntryDescription(ProductID const& pid, CreatorStatus const& status);
 
     ~BranchEntryDescription() {}
-
-    void mergeBranchEntryDescription(BranchEntryDescription const* entry);
 
     ProductID productID_;
 
@@ -85,13 +83,7 @@ namespace edm {
 
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     ModuleDescription const& moduleDescription() const {init(); return *moduleDescriptionPtr_;}
-    std::auto_ptr<EntryDescription> convertToEntryDescription() const {
-	std::auto_ptr<EntryDescription> entryDescription(new EntryDescription);
-	entryDescription->parents_ = parents_;
-	entryDescription->moduleDescriptionID_ = moduleDescriptionID_;
-	entryDescription->moduleDescriptionPtr_ = moduleDescriptionPtr_;
-	return entryDescription;
-    }
+    std::auto_ptr<EntryDescription> convertToEntryDescription() const;
   };
   
   inline

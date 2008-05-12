@@ -2,8 +2,6 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.53 2008/01/31 04:56:34 wmtan Exp $
-
 ----------------------------------------------------------------------*/  
 #include <map>
 #include <memory>
@@ -14,14 +12,18 @@ $Id: eventprincipal_t.cppunit.cc,v 1.53 2008/01/31 04:56:34 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -157,7 +159,8 @@ void test_ep::setUp()
   pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));
   pProductRegistry_->addProduct(*fake_single_process_branch("user", "USER"));
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
-  pProductRegistry_->setProductIDs();
+  pProductRegistry_->setFrozen();
+  pProductRegistry_->setProductIDs(1U);
  
   // Put products we'll look for into the EventPrincipal.
   {
@@ -174,9 +177,16 @@ void test_ep::setUp()
     edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
     edm::BranchKey const bk(branch);
     edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
-    branch.productID_ = it->second.productID_;
 
-    std::auto_ptr<edm::Provenance> provenance(new edm::Provenance(branch, true));
+    const edm::ConstBranchDescription branchFromRegistry(it->second);
+
+    boost::shared_ptr<edm::EntryDescription> entryDescriptionPtr(new edm::EntryDescription);
+    entryDescriptionPtr->moduleDescriptionID_ = branchFromRegistry.moduleDescriptionID();
+    std::auto_ptr<edm::EventEntryInfo> branchEntryInfoPtr(
+      new edm::EventEntryInfo(branchFromRegistry.branchID(),
+                               edm::productstatus::present(),
+                               branchFromRegistry.productIDtoAssign(),
+                               entryDescriptionPtr));
 
     edm::ProcessConfiguration* process = processConfigurations_[tag];
     assert(process);
@@ -189,7 +199,7 @@ void test_ep::setUp()
     boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, rp, *process));
     edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->luminosityBlock(), true);
     pEvent_ = new edm::EventPrincipal(eventAux, preg, lbp, *process);
-    pEvent_->put(product, provenance);
+    pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);
   
@@ -223,10 +233,10 @@ void test_ep::tearDown()
 void test_ep::failgetbyIdTest() 
 {
   edm::ProductID invalid;
-  CPPUNIT_ASSERT_THROW(pEvent_->get(invalid), edm::Exception);
+  CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(invalid), edm::Exception);
 
   edm::ProductID notpresent(10000000);
-  edm::BasicHandle h(pEvent_->get(notpresent));
+  edm::BasicHandle h(pEvent_->getByProductID(notpresent));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
@@ -263,7 +273,7 @@ void test_ep::failgetManyTest()
   edm::TypeID tid(dummy);
 
   edm::ProcessNameSelector sel("PROD");
-  std::vector<edm::BasicHandle> handles;
+  std::vector<edm::BasicHandle > handles;
   pEvent_->getMany(tid, sel, handles);
   CPPUNIT_ASSERT(handles.empty());
 }
@@ -282,7 +292,7 @@ void test_ep::failgetManybyTypeTest()
   // so that's a type sure not to match any product.
   edm::ProductID dummy;
   edm::TypeID tid(dummy);
-  std::vector<edm::BasicHandle> handles;
+  std::vector<edm::BasicHandle > handles;
 
   
   pEvent_->getManyByType(tid, handles);
@@ -295,12 +305,12 @@ void test_ep::failgetbyInvalidIdTest()
   //put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
 
   edm::ProductID id;
-  CPPUNIT_ASSERT_THROW(pEvent_->get(id), edm::Exception);
+  CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(id), edm::Exception);
 }
 
 void test_ep::failgetProvenanceTest() 
 {
-  edm::ProductID id;
+  edm::BranchID id;
   CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
 }
 

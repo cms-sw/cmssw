@@ -1,11 +1,10 @@
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------
-
-$Id: BranchEntryDescription.cc,v 1.3 2008/01/23 23:34:54 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,35 +47,6 @@ namespace edm {
   }
 
   void
-  BranchEntryDescription::mergeBranchEntryDescription(BranchEntryDescription const* entry) {
-
-    assert(productID_ == entry->productID_);
-
-    edm::sort_all(parents_);
-    std::vector<ProductID> other = entry->parents_;
-    edm::sort_all(other);
-    std::vector<ProductID> result;
-    std::set_union(parents_.begin(), parents_.end(),
-                   other.begin(), other.end(),
-                   back_inserter(result)); 
-    parents_ = result;
-    
-    assert(cid_ == entry->cid_);
-
-    if (status_ == Success || entry->status_ == Success) status_ = Success;
-
-    if (isPresent_ || entry->isPresent_) isPresent_ = true;
-
-    // If they are not equal, set the module description ID to an
-    // invalid value.  Currently, there is no way to store multiple
-    // values.  An invalid value is better than a partially incorrect
-    // value.  In the future, we may need to improve this.
-    if (moduleDescriptionID_ != entry->moduleDescriptionID_) {
-      moduleDescriptionID_ = ModuleDescriptionID();
-    }
-  }
-
-  void
   BranchEntryDescription::write(std::ostream& os) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
@@ -93,5 +63,15 @@ namespace edm {
       && a.creatorStatus() == b.creatorStatus()
       && a.parents() == b.parents()
       && a.moduleDescriptionID() == b.moduleDescriptionID();
+  }
+
+  std::auto_ptr<EntryDescription>
+  BranchEntryDescription::convertToEntryDescription() const {
+    std::auto_ptr<EntryDescription> entryDescription(new EntryDescription);
+    entryDescription->parents_ = parents_;
+    entryDescription->moduleDescriptionID_ = moduleDescriptionID_;
+    entryDescription->moduleDescriptionPtr_ = moduleDescriptionPtr_;
+    EntryDescriptionRegistry::instance()->insertMapped(*entryDescription);
+    return entryDescription;
   }
 }

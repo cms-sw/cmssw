@@ -3,8 +3,6 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.46 2008/03/04 00:05:03 paterno Exp $
-//
 // Class PoolOutputModule. Output module to POOL file
 //
 // Oringinal Author: Luca Lista
@@ -12,18 +10,15 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <memory>
 #include <string>
-#include <iosfwd>
 #include "boost/scoped_ptr.hpp"
-#include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "IOPool/Output/src/RootOutputFile.h"
 
 namespace edm {
   class ParameterSet;
+  class RootOutputFile;
 
   class PoolOutputModule : public OutputModule {
   public:
@@ -37,7 +32,6 @@ namespace edm {
     int const& splitLevel() const {return splitLevel_;}
     int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
     bool const& fastCloning() const {return fastCloning_;}
-    bool const& fastMetaCloning() const {return fastMetaCloning_;}
 
   private:
     virtual void openFile(FileBlock const& fb);
@@ -63,6 +57,7 @@ namespace edm {
     virtual void writeParameterSetRegistry();
     virtual void writeProductDescriptionRegistry();
     virtual void writeEntryDescriptions();
+    // BMM virtual void writeBranchMapper();
     virtual void finishEndFile();
 
     std::string const fileName_;
@@ -74,7 +69,6 @@ namespace edm {
     int const splitLevel_;
     int const treeMaxVirtualSize_;
     bool fastCloning_;
-    bool fastMetaCloning_;
     FileBlock *fileBlock_;
     std::string const moduleLabel_;
     int fileCount_;

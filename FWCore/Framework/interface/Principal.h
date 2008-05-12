@@ -16,8 +16,6 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.17 2008/02/10 23:28:49 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 #include <map>
 #include <memory>
@@ -27,6 +25,8 @@ $Id: Principal.h,v 1.17 2008/02/10 23:28:49 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
@@ -34,13 +34,16 @@ $Id: Principal.h,v 1.17 2008/02/10 23:28:49 wmtan Exp $
 
 
 namespace edm {
+  template <typename T>
   class Principal : public EDProductGetter {
   public:
-    typedef std::vector<boost::shared_ptr<Group> > GroupVec;
-    typedef ProcessHistory::const_iterator         ProcessNameConstIterator;
-    typedef boost::shared_ptr<const Group>         SharedConstGroupPtr;
-    typedef std::vector<BasicHandle>               BasicHandleVec;
-    typedef GroupVec::size_type                    size_type;
+    typedef GroupT<T> Group;
+    typedef std::map<BranchID, boost::shared_ptr<Group> > GroupCollection;
+    typedef typename GroupCollection::const_iterator const_iterator;
+    typedef ProcessHistory::const_iterator ProcessNameConstIterator;
+    typedef boost::shared_ptr<const Group> SharedConstGroupPtr;
+    typedef typename std::vector<BasicHandle> BasicHandleVec;
+    typedef typename GroupCollection::size_type      size_type;
 
     typedef boost::shared_ptr<Group> SharedGroupPtr;
     typedef std::string ProcessName;
@@ -51,20 +54,10 @@ namespace edm {
               boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     virtual ~Principal();
-    size_t  size() const { return size_; }
 
     EDProductGetter const* prodGetter() const {return this;}
 
-    Principal const& groupGetter() const {return *this;}
-
-    Principal & groupGetter() {return *this;}
-
-    void put(std::auto_ptr<EDProduct> edp,
-	     std::auto_ptr<Provenance> prov);
-
-    BasicHandle  get(ProductID const& oid) const;
-
-    BasicHandle  getForOutput(ProductID const& oid, bool getProd, bool getProv) const;
+    OutputHandle<T>  getForOutput(BranchID const& bid, bool getProd) const;
 
     BasicHandle  getBySelector(TypeID const& tid,
                                SelectorBase const& s) const;
@@ -98,12 +91,6 @@ namespace edm {
 			       BasicHandleVec& results,
 			       bool stopIfProcessHasMatch) const;
 
-    Provenance const&
-    getProvenance(ProductID const& oid) const;
-
-    void
-    getAllProvenance(std::vector<Provenance const *> & provenances) const;
-
     void
     readImmediate() const;
 
@@ -113,28 +100,23 @@ namespace edm {
       return processHistoryID_;   
     }
 
-    ProductStatusVector const& productStatuses() const {
-      return productStatuses_;   
-    }
-
-    void addGroup(ConstBranchDescription const& bd, ProductStatus status);
-
-    void addGroup(std::auto_ptr<EDProduct> prod, std::auto_ptr<Provenance> prov);
-
     ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
 
     ProductRegistry const& productRegistry() const {return *preg_;}
 
     boost::shared_ptr<DelayedReader> store() const {return store_;}
 
-    virtual EDProduct const* getIt(ProductID const& oid) const;
-
     // ----- Mark this Principal as having been updated in the
     // current Process.
     void addToProcessHistory() const;
 
     // merge Principals containing different groups.
-    void recombine(Principal & other, std::vector<ProductID> const& pids);
+    void recombine(Principal & other, std::vector<BranchID> const& bids);
+
+    size_t  size() const { return groups_.size(); }
+
+    const_iterator begin() const {return groups_.begin();}
+    const_iterator end() const {return groups_.end();}
 
   protected:
     // ----- Add a new Group
@@ -144,49 +126,21 @@ namespace edm {
     Group*  getExistingGroup(Group const& g);
     void replaceGroup(std::auto_ptr<Group> g);
 
-    // We need a custom iterator to skip non-existent groups.
-    class const_iterator : public std::iterator <std::forward_iterator_tag, boost::shared_ptr<Group> > {
-    public:
-      typedef GroupVec::value_type value_type;
-      typedef GroupVec::const_iterator Iter;
-      const_iterator(Iter const& it, Iter const& itEnd) : iter_(it), iterEnd_(itEnd) {}
-      value_type const& operator*() const { return *iter_; }
-      value_type const * operator->() const { return &*iter_; }
-      const_iterator & operator++() {
-        ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return *this;
-      }
-      const_iterator operator++(int) {
-        const_iterator it(*this); ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return it;
-      }
-      bool operator==(const_iterator const& rhs) const {return this->iter_ == rhs.iter_;}
-      bool operator!=(const_iterator const& rhs) const {return this->iter_ != rhs.iter_;}
-    private:
-      Iter iter_;
-      Iter iterEnd_;
-    };
-
-    // ----- access to all products
-
-    const_iterator begin() const {
-      GroupVec::const_iterator iter(groups_.begin());
-      while (iter != groups_.end() && iter->get() == 0) ++iter; 
-      return const_iterator(iter, groups_.end());
-    }
-
-    const_iterator end() const { return const_iterator(groups_.end(), groups_.end()); }
-
-  private:
-    virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
-
-    SharedConstGroupPtr const getGroup(ProductID const& oid,
+    SharedConstGroupPtr const getGroup(BranchID const& oid,
                                        bool resolveProd,
-                                       bool resolveProv,
 				       bool fillOnDemand) const;
 
-    virtual bool unscheduledFill(Provenance const& prov) const = 0;
+  private:
+    virtual EDProduct const* getIt(ProductID const&) const;
+
+    virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
+
+    virtual void resolveProvenance(Group const& g) const = 0;
+
+    virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
 
     // Used for indices to find groups by type and process
-    typedef std::map<std::string, std::vector<ProductID> > ProcessLookup;
+    typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
     typedef std::map<std::string, ProcessLookup> TypeLookup;
 
     size_t findGroups(TypeID const& typeID,
@@ -207,10 +161,6 @@ namespace edm {
     // *this is const.
     void resolveProduct(Group const& g, bool fillOnDemand) const;
 
-    // Make my DelayedReader get the EntryDescription
-    // for a group.
-    void resolveProvenance(Group const& g) const;
-
     mutable ProcessHistoryID processHistoryID_;
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
@@ -220,10 +170,7 @@ namespace edm {
     mutable bool processHistoryModified_;
 
     // A vector of groups.
-    GroupVec groups_; // products and provenances are persistent
-
-    // A vector of statuses
-    ProductStatusVector productStatuses_;
+    GroupCollection groups_; // products and provenances are persistent
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
@@ -232,9 +179,8 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
-
-    // Number of groups in the event (excluding on-demand groups not yet produced).
-    size_t size_;
   };
 }
+
+#include "Principal.icc"
 #endif

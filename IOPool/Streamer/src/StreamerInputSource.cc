@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -326,25 +327,26 @@ namespace edm {
         FDEBUG(5) << "Prov:"
              << " " << spi->desc()->className()
              << " " << spi->desc()->productInstanceName()
-             << " " << spi->desc()->productID()
+             << " " << spi->desc()->branchID()
              << std::endl;
 
-        std::auto_ptr<EntryDescription>
-          aedesc(const_cast<EntryDescription*>(spi->prov()));
+        boost::shared_ptr<EventEntryInfo>
+          aedesc(const_cast<EventEntryInfo*>(spi->prov()));
         std::auto_ptr<BranchDescription>
           adesc(const_cast<BranchDescription*>(spi->desc()));
 
-        std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get()), spi->prod() != 0));
-        EntryDescriptionRegistry::instance()->insertMapped(aprov->event());
+        std::auto_ptr<Provenance> aprov(
+	    new Provenance(*(adesc.get()), aedesc));
+        // EntryDescriptionRegistry::instance()->insertMapped(aprov->event());
         if(spi->prod() != 0) {
           std::auto_ptr<EDProduct>
             aprod(const_cast<EDProduct*>(spi->prod()));
           FDEBUG(10) << "addgroup next " << aprov->productID() << std::endl;
-          ep->addGroup(aprod, aprov);
+          ep->addGroup(aprod, aprov->constBranchDescription(), aprov->branchEntryInfoSharedPtr());
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
           FDEBUG(10) << "addgroup empty next " << aprov->productID() << std::endl;
-          ep->addGroup(aprov);
+          ep->addGroup(aprov->constBranchDescription(), aprov->branchEntryInfoSharedPtr());
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
         spi->clear();
@@ -399,24 +401,5 @@ namespace edm {
     }
 
     return (unsigned int) uncompressedSize;
-  }
-
-  void StreamerInputSource::resetAfterEndRun()
-  {
-     // called from an online streamer source to reset after a stop command
-     // so an enable command will work
-     assert(ep_.get() == 0);
-     reset();
-     runEndingFlag_ = false;
-  }
-
-  void StreamerInputSource::setRun(RunNumber_t) 
-  {
-     // Need to define a dummy setRun here or else the InputSource::setRun is called
-     // if we have a source inheriting from this and wants to define a setRun method
-     throw edm::Exception(edm::errors::LogicError)
-     << "StreamerInputSource::setRun()\n"
-     << "Run number cannot be modified for this type of Input Source\n"
-     << "Contact a Storage Manager Developer\n";
   }
 }

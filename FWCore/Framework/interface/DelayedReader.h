@@ -6,20 +6,16 @@
 DelayedReader: The abstract interface through which the EventPrincipal
 uses input sources to retrieve EDProducts from external storage.
 
-$Id: DelayedReader.h,v 1.8 2007/09/05 23:50:39 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
-#include "DataFormats/Provenance/interface/ProvenanceDelayedReader.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
 namespace edm {
   class BranchKey;
-  class EDProduct;
   class EDProductGetter;
-  class DelayedReader : public ProvenanceDelayedReader {
+  class DelayedReader {
   public:
     virtual ~DelayedReader();
     std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) {

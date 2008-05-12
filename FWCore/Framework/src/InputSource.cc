@@ -1,5 +1,4 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.38 2008/01/08 06:59:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -14,6 +13,7 @@ $Id: InputSource.cc,v 1.38 2008/01/08 06:59:01 wmtan Exp $
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -143,10 +143,13 @@ namespace edm {
   }
 
   // Return a dummy file block.
-  // This function must be overridden for any input source that supports multiple input files
-  // if the framework needs to inform modules about each input file.
+  // This function must be overridden for any input source that reads a file
+  // containing Products.
   boost::shared_ptr<FileBlock>
   InputSource::readFile_() {
+    if (primary()) {
+      productRegistryUpdate().setProductIDs(1U);
+    }
     return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 

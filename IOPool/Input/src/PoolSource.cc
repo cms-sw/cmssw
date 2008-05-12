@@ -1,5 +1,4 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.81 2008/03/19 19:42:00 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootInputFileSequence.h"
@@ -35,26 +34,26 @@ namespace edm {
     VectorInputSource(pset, desc),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1), false)),
-    productIDsToReplace_() {
+    branchIDsToReplace_() {
     ClassFiller();
     if (secondaryFileSequence_) {
-      std::set<ProductID> idsToReplace;
+      std::set<BranchID> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry().productList();
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry().productList();
       typedef ProductRegistry::ProductList::const_iterator const_iterator;
       for (const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
-	if (it->second.present() && it->second.branchType() == InEvent) idsToReplace.insert(it->second.productID());
+	if (it->second.present() && it->second.branchType() == InEvent) idsToReplace.insert(it->second.branchID());
       }
       for (const_iterator it = primary.begin(), itEnd = primary.end(); it != itEnd; ++it) {
-	if (it->second.present() && it->second.branchType() == InEvent) idsToReplace.erase(it->second.productID());
+	if (it->second.present() && it->second.branchType() == InEvent) idsToReplace.erase(it->second.branchID());
       }
       if (idsToReplace.empty()) {
         secondaryFileSequence_.reset();
       } else {
-        productIDsToReplace_.reserve(idsToReplace.size());
-	for (std::set<ProductID>::const_iterator it = idsToReplace.begin(), itEnd = idsToReplace.end();
+        branchIDsToReplace_.reserve(idsToReplace.size());
+	for (std::set<BranchID>::const_iterator it = idsToReplace.begin(), itEnd = idsToReplace.end();
 	     it != itEnd; ++it) {
-	  productIDsToReplace_.push_back(*it);
+	  branchIDsToReplace_.push_back(*it);
         }
       }
     }
@@ -99,7 +98,7 @@ namespace edm {
       std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id(), primaryPrincipal->luminosityBlock(), true);
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
-        primaryPrincipal->recombine(*secondaryPrincipal, productIDsToReplace_);
+        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_);
       }
       return primaryPrincipal;
     }
@@ -113,7 +112,7 @@ namespace edm {
       std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(id, primaryPrincipal->luminosityBlock(), true);
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);      
-        primaryPrincipal->recombine(*secondaryPrincipal, productIDsToReplace_);
+        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_);
       }
       return primaryPrincipal;
     }

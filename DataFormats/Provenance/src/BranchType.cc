@@ -7,6 +7,7 @@ namespace edm {
     std::string const auxiliary = "Auxiliary";
     std::string const aux = "Aux";
     std::string const productStatus = "ProductStatus";
+    std::string const branchEntryInfo = "BranchEntryInfo";
 
     // Prefixes
     std::string const run = "Run";
@@ -34,6 +35,10 @@ namespace edm {
     std::string const lumiProductStatus = lumi + productStatus;
     std::string const eventProductStatus = event + productStatus;
 
+    std::string const runEventEntryInfo = run + branchEntryInfo;
+    std::string const lumiEventEntryInfo = lumi + branchEntryInfo;
+    std::string const eventEventEntryInfo = event + branchEntryInfo;
+
     std::string const majorIndex = ".id_.run_";
     std::string const runMajorIndex = runAuxiliary + majorIndex;
     std::string const lumiMajorIndex = lumiAuxiliary + majorIndex;
@@ -51,6 +56,10 @@ namespace edm {
     std::string const entryDescriptionIDBranch = "Hash";
     std::string const entryDescriptionBranch   = "Description";
 
+    std::string const branchMapperTree     = "BranchMapper";
+    std::string const branchMapperIDBranch = "Hash";
+    std::string const branchMapperBranch   = "Description";
+
     std::string const metaDataTree = "MetaData";
     std::string const productRegistry = "ProductRegistry";
     std::string const parameterSetMap = "ParameterSetMap";
@@ -61,6 +70,7 @@ namespace edm {
     std::string const fileIdentifier = "FileIdentifier";
     std::string const fileIndex = "FileIndex";
     std::string const eventHistory = "EventHistory";
+    std::string const eventBranchMapper = "EventBranchMapper";
   }
 
   std::string const& BranchTypeToString(BranchType const& branchType) {
@@ -91,6 +101,10 @@ namespace edm {
     return ((branchType == InEvent) ? eventProductStatus : ((branchType == InRun) ? runProductStatus : lumiProductStatus));
   }
 
+  std::string const& BranchTypeToBranchEntryInfoBranchName(BranchType const& branchType) {
+    return ((branchType == InEvent) ? eventEventEntryInfo : ((branchType == InRun) ? runEventEntryInfo : lumiEventEntryInfo));
+  }
+
   std::string const& BranchTypeToMajorIndexName(BranchType const& branchType) {
     return ((branchType == InEvent) ? eventMajorIndex : ((branchType == InRun) ? runMajorIndex : lumiMajorIndex));
   }
@@ -112,6 +126,19 @@ namespace edm {
 
     std::string const& entryDescriptionBranchName() {
       return entryDescriptionBranch;
+    }
+
+    // BranchMapper tree (1 branch per recorded distinct value of BranchMapper)
+    std::string const& branchMapperTreeName() {
+      return branchMapperTree;
+    }
+
+    std::string const& branchMapperIDBranchName() {
+      return branchMapperIDBranch;
+    }
+
+    std::string const& branchMapperBranchName() {
+      return branchMapperBranch;
     }
 
     // MetaData Tree (1 entry per file)
@@ -159,9 +186,14 @@ namespace edm {
       return fileIndex;
     }
 
-    // Branch on MetaData Tree
+    // Branch on Event History Tree
     std::string const& eventHistoryBranchName() {
       return eventHistory;
+    }
+
+    // Branch on Event History Tree
+    std::string const& eventbranchMapperBranchName() {
+      return eventBranchMapper;
     }
 
     std::string const& eventTreeName() {

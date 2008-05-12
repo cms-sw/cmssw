@@ -1,8 +1,6 @@
 #ifndef IOPool_Streamer_StreamerOutputModuleBase_h
 #define IOPool_Streamer_StreamerOutputModuleBase_h
 
-// $Id: StreamerOutputModuleBase.h,v 1.1 2008/04/21 23:28:52 wmtan Exp $
-
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include "IOPool/Streamer/interface/MsgTools.h"

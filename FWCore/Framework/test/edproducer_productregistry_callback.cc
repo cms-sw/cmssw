@@ -3,7 +3,6 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: edproducer_productregistry_callback.cc,v 1.14 2007/11/07 08:35:43 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -91,10 +90,10 @@ namespace {
    void ListenMod::listen(BranchDescription const& iDesc)
    {
       edm::TypeID intType(typeid(int));
-      //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
-      if(iDesc.friendlyClassName_ == intType.friendlyClassName()) {
-         produces<int>(iDesc.moduleLabel()+"-"+iDesc.productInstanceName_);
-         //std::cout <<iDesc.moduleLabel()<<"-"<<iDesc.productInstanceName_<<std::endl;
+      //std::cout << "see class " << iDesc.typeName() << std::endl;
+      if(iDesc.friendlyClassName() == intType.friendlyClassName()) {
+         produces<int>(iDesc.moduleLabel() + "-" + iDesc.productInstanceName());
+         //std::cout << iDesc.moduleLabel() << "-" << iDesc.productInstanceName() << std::endl;
       }
    }
 

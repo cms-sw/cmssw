@@ -1,22 +1,20 @@
-#ifndef DataFormats_CommonHashedTypes_h
-#define DataFormats_CommonHashedTypes_h
+#ifndef DataFormats_Common_HashedTypes_h
+#define DataFormats_Common_HashedTypes_h
 
-// $Id: HashedTypes.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
-//
 
 /// Declaration of the enum HashedTypes, used in defining several "id"
 /// classes.
 
 namespace edm
 {
-  enum HashedTypes 
-    {
+  enum HashedTypes {
       ModuleDescriptionType,
       ParameterSetType,
       ProcessHistoryType,
       ProcessConfigurationType,
-      EntryDescriptionType
-    };		     
+      EntryDescriptionType //,
+      // BranchMapperType
+  };		     
 }
 
-#endif // DataFormats_CommonHashedTypes_h
+#endif // DataFormats_Common_HashedTypes_h

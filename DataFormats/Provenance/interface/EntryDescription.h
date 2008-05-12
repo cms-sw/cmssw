@@ -6,7 +6,6 @@
 EntryDescription: The event dependent portion of the description of a product
 and how it came into existence.
 
-$Id: EntryDescription.h,v 1.1 2008/01/25 16:02:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <vector>
@@ -39,14 +38,12 @@ namespace edm {
     // The EDProduct IDs of the parents
     std::vector<ProductID> parents_;
 
-    void mergeEntryDescription(EntryDescription const* entry);
-
     // the last of these is not in the roadmap, but is on the board
 
     ModuleDescriptionID moduleDescriptionID_;
 
     // transient.  Filled in from the hash when needed.
-    mutable boost::shared_ptr<ModuleDescription> moduleDescriptionPtr_;
+    mutable boost::shared_ptr<ModuleDescription> moduleDescriptionPtr_; //! transient
 
     void init() const;
 

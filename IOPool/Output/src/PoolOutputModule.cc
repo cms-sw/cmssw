@@ -1,7 +1,6 @@
-// $Id: PoolOutputModule.cc,v 1.104 2008/04/16 04:08:14 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
-#include "boost/array.hpp" 
+
 #include "FWCore/MessageLogger/interface/JobReport.h" 
 #include "IOPool/Output/src/RootOutputFile.h" 
 #include "IOPool/Common/interface/ClassFiller.h"
@@ -13,11 +12,13 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
+#include "TTree.h"
 
-#include <map>
-#include <vector>
 #include <iomanip>
+#include <sstream>
 
 namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
@@ -31,7 +32,6 @@ namespace edm {
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
-    fastMetaCloning_(fastCloning_),
     fileBlock_(0),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(0),
@@ -48,10 +48,8 @@ namespace edm {
 
   void PoolOutputModule::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
-      if (fb.tree() == 0 || fb.fileFormatVersion().value_ < 3) {
-	fastCloning_ = fastMetaCloning_ = false;
-      } else if (fb.tree() == 0 || fb.fileFormatVersion().value_ < 6) {
-	fastMetaCloning_ = false;
+      if (fb.tree() == 0 || fb.fileFormatVersion().value_ < 8) {
+	fastCloning_ = false;
       }
       doOpenFile();
       respondToOpenInputFile(fb);
@@ -63,7 +61,7 @@ namespace edm {
     if (isFileOpen()) {
       bool fastCloneThisOne = fb.tree() != 0 &&
                             (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());
-      rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_, fastCloneThisOne && fastMetaCloning_);
+      rootOutputFile_->beginInputFile(fb, fastCloneThisOne && fastCloning_);
     }
   }
 
@@ -109,6 +107,7 @@ namespace edm {
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
   void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
   void PoolOutputModule::writeEntryDescriptions() { rootOutputFile_->writeEntryDescriptions(); }
+  // BMM void PoolOutputModule::writeBranchMapper() { rootOutputFile_->writeBranchMapper(); }
   void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
   bool PoolOutputModule::isFileOpen() const { return rootOutputFile_.get() != 0; }
 

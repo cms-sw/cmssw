@@ -8,14 +8,13 @@ EDProducts based on information in the associated Provenance.
 
 Developers who make their own Selectors should inherit from SelectorBase.
 
-$Id: SelectorBase.h,v 1.2 2007/03/04 06:00:22 wmtan Exp $
+$Id: SelectorBase.h,v 1.3.6.1 2008/05/12 15:33:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm 
 {
-  class SelectorProvenance;
-  struct Provenance;
+  class ConstBranchDescription;
 
   //------------------------------------------------------------------
   //
@@ -26,12 +25,11 @@ namespace edm
   class SelectorBase {
   public:
     virtual ~SelectorBase();
-    bool match(Provenance const& p) const;
-    bool match(SelectorProvenance const& p) const;
+    bool match(ConstBranchDescription const& p) const;
     virtual SelectorBase* clone() const = 0;
 
   private:
-    virtual bool doMatch(SelectorProvenance const& p) const = 0;
+    virtual bool doMatch(ConstBranchDescription const& p) const = 0;
   };
 }
 

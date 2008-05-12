@@ -30,7 +30,7 @@ to use such a selector, it is best to initialize it directly upon
 construction of the module, rather than creating a new Selector instance
 for every event.
 
-$Id: Selector.h,v 1.16 2007/03/04 06:00:22 wmtan Exp $
+$Id: Selector.h,v 1.17.6.1 2008/05/12 15:33:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -40,7 +40,7 @@ $Id: Selector.h,v 1.16 2007/03/04 06:00:22 wmtan Exp $
 #include "boost/utility/enable_if.hpp"
 
 #include "FWCore/Framework/interface/SelectorBase.h"
-#include "FWCore/Framework/interface/SelectorProvenance.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 namespace edm 
 {
@@ -78,7 +78,7 @@ namespace edm
     pn_(pn.empty() ? std::string("*") : pn)
       { }
     
-    virtual bool doMatch(SelectorProvenance const& p) const 
+    virtual bool doMatch(ConstBranchDescription const& p) const 
     {
       return (pn_=="*") || (p.processName() == pn_);
     }
@@ -111,7 +111,7 @@ namespace edm
       pin_(pin)
     { }
     
-    virtual bool doMatch(SelectorProvenance const& p) const 
+    virtual bool doMatch(ConstBranchDescription const& p) const 
     {
       return p.productInstanceName() == pin_;
     }
@@ -138,7 +138,7 @@ namespace edm
       label_(label)
     { }
     
-    virtual bool doMatch(SelectorProvenance const& p) const 
+    virtual bool doMatch(ConstBranchDescription const& p) const 
     {
       return p.moduleLabel() == label_;
     }
@@ -164,7 +164,7 @@ namespace edm
     MatchAllSelector()
     { }
     
-    virtual bool doMatch(SelectorProvenance const& p) const 
+    virtual bool doMatch(ConstBranchDescription const& p) const 
     {
       return true;
     }
@@ -187,7 +187,7 @@ namespace edm
   {
   public:
     AndHelper(A const& a, B const& b) : a_(a), b_(b) { }
-    bool match(SelectorProvenance const& p) const { return a_.match(p) && b_.match(p); }  
+    bool match(ConstBranchDescription const& p) const { return a_.match(p) && b_.match(p); }  
   private:
     A a_;
     B b_;
@@ -219,7 +219,7 @@ namespace edm
   {
   public:
     OrHelper(A const& a, B const& b) : a_(a), b_(b) { }
-    bool match(SelectorProvenance const& p) const { return a_.match(p) || b_.match(p); }  
+    bool match(ConstBranchDescription const& p) const { return a_.match(p) || b_.match(p); }  
   private:
     A a_;
     B b_;
@@ -252,7 +252,7 @@ namespace edm
   {
   public:
     explicit NotHelper(A const& a) : a_(a) { }
-    bool match(SelectorProvenance const& p) const { return ! a_.match(p); }
+    bool match(ConstBranchDescription const& p) const { return ! a_.match(p); }
   private:
     A a_;
   };
@@ -285,7 +285,7 @@ namespace edm
     typedef T wrapped_type;
     explicit ComposedSelectorWrapper(T const& t) : expression_(t) { }
     ~ComposedSelectorWrapper() {};
-    virtual bool doMatch(SelectorProvenance const& p) const { return expression_.match(p); }
+    virtual bool doMatch(ConstBranchDescription const& p) const { return expression_.match(p); }
     ComposedSelectorWrapper<T>* clone() const { return new ComposedSelectorWrapper<T>(*this); }
   private:
     wrapped_type expression_;
@@ -307,7 +307,7 @@ namespace edm
     virtual ~Selector();
     virtual Selector* clone() const;
 
-    virtual bool doMatch(SelectorProvenance const& p) const;
+    virtual bool doMatch(ConstBranchDescription const& p) const;
     
   private:
     SelectorBase* sel_;

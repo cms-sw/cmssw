@@ -4,8 +4,11 @@
 namespace edm {
   class BranchDescription;
   class EntryDescription;
+  class BranchID;
   class BranchKey;
   class ConstBranchDescription;
+  class EventEntryInfo;
+  class RunLumiEntryInfo;
   class BranchKey;
   class EventAuxiliary;
   class EventID;
@@ -21,6 +24,7 @@ namespace edm {
   class RunAuxiliary;
   class RunID;
   class Timestamp;
+  template <typename T> class BranchMapper;
 }
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/PassID.h"

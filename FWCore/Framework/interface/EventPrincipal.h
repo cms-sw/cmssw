@@ -10,14 +10,15 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.73 2008/02/28 20:51:05 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
+#include <vector>
 
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "FWCore/Framework/interface/Principal.h"
 
 
@@ -27,17 +28,25 @@ namespace edm {
   class RunPrincipal;
   class UnscheduledHandler;
 
-  class EventPrincipal : public Principal {
-    typedef Principal Base;
+  class EventPrincipal : public Principal<EventEntryInfo> {
   public:
+    typedef EventAuxiliary Auxiliary;
+    typedef EventEntryInfo EntryInfo;
+    typedef BranchMapper<EntryInfo> Mapper;
+    typedef std::vector<EntryInfo> EntryInfoVector;
+
+    typedef Principal<EntryInfo> Base;
+
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
+    typedef GroupT<EventEntryInfo> Group;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
-        ProcessConfiguration const& pc,
+	boost::shared_ptr<LuminosityBlockPrincipal> lbp,
+	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
+	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 
@@ -95,27 +104,59 @@ namespace edm {
 
     RunPrincipal & runPrincipal();
 
-    void addGroup(std::auto_ptr<Provenance>);
-
-    using Base::addGroup;
+    void addOnDemandGroup(ConstBranchDescription const& desc);
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
 
     EventSelectionIDVector const& eventSelectionIDs() const;
+
     History const& history() const;
+
     void setHistory(History const& h);
+
+    Provenance
+    getProvenance(BranchID const& bid) const;
+
+    void
+    getAllProvenance(std::vector<Provenance const *> & provenances) const;
+
+    BasicHandle
+    getByProductID(ProductID const& oid) const;
+
+    void put(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
+
+    void addGroup(ConstBranchDescription const& bd);
+
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
+
+    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<EventEntryInfo> entryInfo);
+
+    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo);
+
+    void addGroup(ConstBranchDescription const& bd, boost::shared_ptr<EventEntryInfo> entryInfo);
+
+    virtual EDProduct const* getIt(ProductID const& oid) const;
+
   private:
+
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
-    virtual bool unscheduledFill(Provenance const& prov) const;
+    virtual void resolveProvenance(Group const& g) const;
+
+    virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
     EventAuxiliary aux_;
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
+
+    boost::shared_ptr<Mapper> branchMapperPtr_;
+
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 
     mutable std::vector<std::string> moduleLabelsRunning_;
+
     History   eventHistory_;
+
   };
 
   inline

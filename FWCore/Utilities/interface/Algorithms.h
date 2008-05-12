@@ -55,6 +55,35 @@ namespace edm {
     return std::binary_search(s.begin(), s.end(), d);
   }
 
+  /// wrappers for std::lower_bound
+  template <typename ForwardSequence, typename Datum>
+  inline
+  typename ForwardSequence::const_iterator
+  lower_bound_all(ForwardSequence const& s, Datum const& d) {
+    return std::lower_bound(s.begin(), s.end(), d);
+  }
+
+  template <typename ForwardSequence, typename Datum>
+  inline
+  typename ForwardSequence::iterator
+  lower_bound_all(ForwardSequence& s, Datum const& d) {
+    return std::lower_bound(s.begin(), s.end(), d);
+  }
+
+  template <typename ForwardSequence, typename Datum, typename Predicate>
+  inline
+  typename ForwardSequence::const_iterator
+  lower_bound_all(ForwardSequence const& s, Datum const& d, Predicate p) {
+    return std::lower_bound(s.begin(), s.end(), d, p);
+  }
+
+  template <typename ForwardSequence, typename Datum, typename Predicate>
+  inline
+  typename ForwardSequence::iterator
+  lower_bound_all(ForwardSequence& s, Datum const& d, Predicate p) {
+    return std::lower_bound(s.begin(), s.end(), d, p);
+  }
+
   /// wrappers for std::sort
   template <typename RandomAccessSequence>
   inline
