@@ -81,6 +81,9 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["SynchrotronRadiation"] = "SynchrotronRadiation";
   // Compton
   mapProcesses["compt"] = "Compton";
+  // hbrem etc;
+  mapProcesses["hBrems"] = "hBrems";
+  mapProcesses["hPairProd"] = "hPairProd";
   //
   map2Process["Undefined"] = -1;
   map2Process["Unknown"] = 0;
@@ -143,6 +146,8 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   map2Process["phot"] = 63;
   map2Process["SynchrotronRadiation"] = 64;
   map2Process["compt"] = 65;
+  map2Process["hBrems"] = 66;
+  map2Process["hPairProd"] = 67;
   //
   buildReverseMap();
   //
