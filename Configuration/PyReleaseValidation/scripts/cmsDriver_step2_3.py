@@ -66,10 +66,10 @@ recoCustomiseDict = {
                      'HCALIST':'',
                      'RELVAL':'',
                      'TrackerHaloMuon':'Configuration/Spring08Production/iCSA08_TkBeamHalo_RECO_cff.py',
-                     'TrackerCosBON':'',
+                     'TrackerCosBON':'Configuration/Spring08Production/iCSA08_TkCosmicBON_RECO_cff.py',
                      'TrackerCosBOFF':'Configuration/Spring08Production/iCSA08_TkCosmicBOFF_RECO_cff.py',
-                     'MuonCosBON':'',
-                     'MuonCosBOFF':'Configuration/Spring08Production/iCSA08_MuCosmicBOFF_RECO_cff.py',
+                     'MuonCosBON':'Configuration/Spring08Production/iCSA08_MuonCosmicBON_RECO_cff.py',
+                     'MuonCosBOFF':'Configuration/Spring08Production/iCSA08_MuonCosmicBOFF_RECO_cff.py',
                      'TrackerLaser':'',
                      'HaloMuon':'Configuration/Spring08Production/iCSA08_MuonBeamHalo_RECO_cff.py'
                      }
