@@ -1,4 +1,3 @@
-#include "SimG4Core/PhysicsLists/interface/G4Version.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
 #include "CMSModel.hh"
@@ -8,13 +7,9 @@
 #include "QGSCCMS.hh"
 #include "QGSPCMS.hh"
 #include "QGSPCMS_EMV.hh"
-#ifndef G4V9
-#include "QGSPCMS_G4v52.hh"
-#else
 #include "FTFCMS_BIC.hh"
 #include "QGSPCMS_BIC.hh"
 #include "QBBCCMS.hh"
-#endif
 #include "QGSPCMS_BERT.hh"
 #include "QGSPCMS_BERT_HP.hh"
 #include "QGSPCMS_BERT_EMV.hh"
@@ -31,17 +26,12 @@ typedef QGSPCMS QGSP;
 DEFINE_PHYSICSLIST(QGSP);
 typedef QGSPCMS_EMV QGSP_EMV;
 DEFINE_PHYSICSLIST(QGSP_EMV);
-#ifndef G4V9
-typedef QGSPCMS_G4v52 QGSP_G4v52;
-DEFINE_PHYSICSLIST(QGSP_G4v52);
-#else
 typedef FTFCMS_BIC FTF_BIC;
 DEFINE_PHYSICSLIST(FTF_BIC);
 typedef QBBCCMS QBBC;
 DEFINE_PHYSICSLIST(QBBC);
 typedef QGSPCMS_BIC QGSP_BIC;
 DEFINE_PHYSICSLIST(QGSP_BIC);
-#endif
 typedef QGSPCMS_BERT QGSP_BERT;
 DEFINE_PHYSICSLIST(QGSP_BERT);
 typedef QGSPCMS_BERT_HP QGSP_BERT_HP;

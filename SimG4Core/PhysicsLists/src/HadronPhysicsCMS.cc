@@ -19,13 +19,15 @@ HadronPhysicsCMS::HadronPhysicsCMS(const G4String& name, G4bool quasiElastic) :
   theQGSCEflowPiK(0), theQGSCPiK(0), theQGSPPiK(0), thePro(0),theBertiniPro(0),
   theBinaryPro(0), theFTFCPro(0), theFTFPPro(0), theLEPPro(0), theLHEPPro(0),
   thePrecoPro(0),  theQGSCEflowPro(0), theQGSCPro(0), theQGSPPro(0),
-  theMiscLHEP(), modelName(name), QuasiElastic(quasiElastic) {}
+  theMiscLHEP(), theFTFNeutron(0), theFTFPiK(0), theFTFPro(0), 
+  theRPGNeutron(0), theRPGPiK(0), theRPGPro(0), modelName(name), 
+  QuasiElastic(quasiElastic) {}
 
 void HadronPhysicsCMS::CreateModels() {
 
   theNeutrons = new G4NeutronBuilder;
   thePro      = new G4ProtonBuilder;
-  thePiK=new G4PiKBuilder;
+  thePiK      = new G4PiKBuilder;
 
   if (modelName == "Bertini") {
     theBertiniNeutron = new G4BertiniNeutronBuilder();
@@ -108,6 +110,20 @@ void HadronPhysicsCMS::CreateModels() {
     theQGSCPiK     = new G4QGSCPiKBuilder();
     theQGSCPiK->SetMinEnergy(0.1*GeV);
     thePiK->RegisterMe(theQGSCPiK);
+  } else if (modelName == "RPG") {
+    theRPGNeutron  = new G4RPGNeutronBuilder();
+    theNeutrons->RegisterMe(theRPGNeutron);
+    theRPGPro      = new G4RPGProtonBuilder();
+    thePro->RegisterMe(theRPGPro);
+    theRPGPiK      = new G4RPGPiKBuilder();
+    thePiK->RegisterMe(theRPGPiK);
+  } else if (modelName == "FTF") {
+    theFTFNeutron  = new G4FTFBinaryNeutronBuilder();
+    theNeutrons->RegisterMe(theFTFNeutron);
+    theFTFPro      = new G4FTFBinaryProtonBuilder();
+    thePro->RegisterMe(theFTFPro);
+    theFTFPiK      = new G4FTFBinaryPiKBuilder();
+    thePiK->RegisterMe(theFTFPiK);
   } else {
     theQGSPNeutron = new G4QGSPNeutronBuilder(QuasiElastic);
     theQGSPNeutron->SetMinEnergy(0.1*GeV);
@@ -135,6 +151,8 @@ HadronPhysicsCMS::~HadronPhysicsCMS() {
   if (theQGSCEflowNeutron) delete theQGSCEflowNeutron;
   if (theQGSCNeutron)      delete theQGSCNeutron;
   if (theQGSPNeutron)      delete theQGSPNeutron;
+  if (theFTFNeutron)       delete theFTFNeutron;
+  if (theRPGNeutron)       delete theRPGNeutron;
   delete theNeutrons;
   if (theBertiniPro)       delete theBertiniPro;
   if (theBinaryPro)        delete theBinaryPro;
@@ -146,6 +164,8 @@ HadronPhysicsCMS::~HadronPhysicsCMS() {
   if (theQGSCEflowPro)     delete theQGSCEflowPro;
   if (theQGSCPro)          delete theQGSCPro;
   if (theQGSPPro)          delete theQGSPPro; 
+  if (theFTFPro)           delete theFTFPro;
+  if (theRPGPro)           delete theRPGPro;
   delete thePro;
   if (theBertiniPiK)       delete theBertiniPiK;
   if (theBinaryPiK)        delete theBinaryPiK;
@@ -154,8 +174,9 @@ HadronPhysicsCMS::~HadronPhysicsCMS() {
   if (theLEPPiK)           delete theLEPPiK;
   if (theLHEPPiK)          delete theLHEPPiK;
   if (theQGSCEflowPiK)     delete theQGSCEflowPiK;
-  if (theQGSCPiK)          delete theQGSCPiK;
   if (theQGSPPiK)          delete theQGSPPiK;
+  if (theFTFPiK)           delete theFTFPiK;
+  if (theRPGPiK)           delete theRPGPiK;
   delete thePiK;
 }
 

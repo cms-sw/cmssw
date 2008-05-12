@@ -42,6 +42,14 @@
 #include "G4QGSCNeutronBuilder.hh"
 #include "G4QGSPNeutronBuilder.hh"
 
+#include "G4FTFBinaryNeutronBuilder.hh"  
+#include "G4FTFBinaryPiKBuilder.hh"
+#include "G4FTFBinaryProtonBuilder.hh"
+
+#include "SimG4Core/PhysicsLists/interface/G4RPGNeutronBuilder.hh"
+#include "SimG4Core/PhysicsLists/interface/G4RPGPiKBuilder.hh"
+#include "SimG4Core/PhysicsLists/interface/G4RPGProtonBuilder.hh"
+
 class HadronPhysicsCMS : public G4VPhysicsConstructor {
 
 public: 
@@ -94,7 +102,15 @@ private:
   G4QGSPProtonBuilder       * theQGSPPro;    
     
   G4MiscLHEPBuilder         * theMiscLHEP;
-    
+
+  G4FTFBinaryNeutronBuilder * theFTFNeutron;
+  G4FTFBinaryPiKBuilder     * theFTFPiK;
+  G4FTFBinaryProtonBuilder  * theFTFPro;
+
+  G4RPGNeutronBuilder       * theRPGNeutron;
+  G4RPGPiKBuilder           * theRPGPiK;
+  G4RPGProtonBuilder        * theRPGPro;
+
   G4String                    modelName;
   G4bool                      QuasiElastic;
 };
