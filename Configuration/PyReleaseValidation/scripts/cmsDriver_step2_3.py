@@ -112,6 +112,7 @@ recoseqCustomiseDict = {
                         'HaloMuon':''
                         }
 
+noPostReco=['MuonCosBON', 'MuonCosBOFF','TrackerCosBOFF','TrackerCosBON']
 
 typeOfEv=''
 if ( len(args)>0):
@@ -129,7 +130,10 @@ cffCustomise = cffCustomiseDict[typeOfEv]
 baseCommand='cmsDriver.py'
 conditions='FrontierConditions_GlobalTag,'+options.gt+'::All'
 eventcontent='RECOSIM'
-steps2='RAW2DIGI,RECO'+recoseqCustomiseDict[typeOfEv]+',POSTRECO'
+steps2='RAW2DIGI,RECO'+recoseqCustomiseDict[typeOfEv]
+if not typeOfEv in noPostReco:
+    steps2=steps2+',POSTRECO'
+
 if ( not (alca2=='')):
     steps2=steps2+',ALCA:'+alca2
 
