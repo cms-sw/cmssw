@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.1.2.2 2008/03/18 01:40:04 dmytro Exp $
+// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.1 2008/03/20 09:39:25 dmytro Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 //

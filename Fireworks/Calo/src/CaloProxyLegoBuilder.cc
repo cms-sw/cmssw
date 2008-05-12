@@ -3,7 +3,7 @@
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "THStack.h"
 #include "TH2F.h"

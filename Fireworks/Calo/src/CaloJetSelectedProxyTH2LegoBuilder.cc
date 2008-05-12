@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetSelectedProxyTH2LegoBuilder.cc,v 1.1 2008/03/06 10:17:15 dmytro Exp $
+// $Id: CaloJetSelectedProxyTH2LegoBuilder.cc,v 1.1 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -20,7 +20,7 @@
 #include "Fireworks/Calo/interface/CaloJetProxyTH2LegoBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 //

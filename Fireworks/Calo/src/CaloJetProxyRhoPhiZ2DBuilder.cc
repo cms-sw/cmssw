@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/02/28 22:49:09 chrjones Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/02/29 21:14:11 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
 //
