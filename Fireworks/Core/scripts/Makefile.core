@@ -9,10 +9,9 @@ endif
 include core.mk
 include project.mk
 
-LinkerOptions := -Wl,-rpath -Wl,
 # 
 # common compiler flags
-COMPILERFLAGS := -Wall -O2
+COMPILERFLAGS := -Wall -O2 -m32
 # COMPILERFLAGS := -Wall -O0 -g
 # common includes
 INCLUDE := -I./ -I$(ROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
@@ -25,7 +24,7 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 CoreMissingFlags = -lEG
-CoreLinkerFlags = -shared -Lexternal/lib -L$(ROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
+CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(ROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
 
 # cms data format source files and their object files
 CoreSources = $(wildcard cms/*/*/src/*.cc)
@@ -47,6 +46,9 @@ CoreDictionaryObjects  = $(CoreDictionarySources:.cpp=.do)
 LibCore = CMSDataFormats
 
 LDLIBRARYPATH := `pwd` `pwd`/external/lib $(ROOTSYS)/lib
+
+# Don't change
+LinkerOptions := -Wl,-rpath -Wl,
 
 all: core install
 

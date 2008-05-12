@@ -9,11 +9,10 @@ endif
 include core.mk
 include project.mk
 
-LinkerOptions := -Wl,-rpath -Wl,
 # 
 # common compiler flags
 # COMPILERFLAGS := -Wall -O2
-COMPILERFLAGS := -Wall -O0 -g
+COMPILERFLAGS := -Wall -O0 -g -m32
 # common includes
 INCLUDE := -I./ -Isrc -I$(ROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
 # compiler
@@ -25,7 +24,7 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 ProjectMissingFlags = -lGeom
-ProjectLinkerFlags = -shared -Lexternal/lib -L$(ROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(ROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
 
 # cmsShow source code and its object files
 ProjectSources = $(wildcard src/*/*/src/*.cc)
@@ -44,6 +43,9 @@ ProjectDictionaryObjects  = $(ProjectDictionarySources:.cpp=.do)
 
 LibCore = CMSDataFormats
 LibProject = CMSShow
+
+# Don't change this
+LinkerOptions := -Wl,-rpath -Wl,
 
 LDLIBRARYPATH := `pwd` `pwd`/external/lib $(ROOTSYS)/lib
 
