@@ -35,13 +35,14 @@ private:
 				       const DDsvalues_type & sv);
   bool isSensitive(std::string);
   bool isItHF(const G4VTouchable*);
+  bool isItEC(std::string);
   
 private:
 
-  static const int         maxSet = 22;
+  static const int         maxSet = 25;
   TestHistoMgr*            hmgr;
   std::string              theFileName;
-  std::vector<std::string> sensitives, hfNames;
+  std::vector<std::string> sensitives, hfNames, sensitiveEC;
   std::vector<int>         hfLevels;
   int                      binEta, binPhi;
   double                   maxEta, etaLow, etaHigh;

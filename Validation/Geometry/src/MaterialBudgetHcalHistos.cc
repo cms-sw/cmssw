@@ -43,7 +43,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
 				 << value << " has " << sensitives.size()
 				 << " elements";
   for (unsigned int i=0; i<sensitives.size(); i++) 
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:  Sensitive[" 
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:  sensitives["
 				   << i << "] = " << sensitives[i];
 
   attribute = "Volume";
@@ -69,6 +69,26 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
 				   << hfLevels[i];
   }
 
+  std::string ecalRO[2] = {"EcalHitsEB", "EcalHitsEE"};
+  attribute = "ReadOutName";
+  for (int k=0; k<2; k++) {
+    value     = ecalRO[k];
+    DDSpecificsFilter filter3;
+    DDValue           ddv3(attribute,value,0);
+    filter3.setCriteria(ddv3,DDSpecificsFilter::equals);
+    DDFilteredView fv3(cpv);
+    fv3.addFilter(filter3);
+    std::vector<std::string> senstmp = getNames(fv3);
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be "
+				   << "tested for " << attribute << " = " 
+				   << value << " has " << senstmp.size()
+				   << " elements";
+    for (unsigned int i=0; i<senstmp.size(); i++)
+      sensitiveEC.push_back(senstmp[i]);
+  }
+  for (unsigned int i=0; i<sensitiveEC.size(); i++) 
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos:  sensitiveEC["
+				   << i << "] = " << sensitiveEC[i];
 }
 
 void MaterialBudgetHcalHistos::fillStartTrack(const G4Track* aTrack) {
@@ -117,18 +137,30 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
 			     << step/intl << "/" << intLen;
 
   int det=0, lay=0;
-  if (isSensitive(name)) {
-    if (isItHF(touch)) {
-      det = 5;
-      lay = 20;
-    } else {
-      det   = (touch->GetReplicaNumber(1))/1000;
-      lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
+  if (isItEC(name)) {
+    det = 1;
+    lay = 1;
+    if (layer != lay) {
+      id++;
+      layer = lay;
     }
-    LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det
-			       << " Layer " << lay << " Eta " << eta << " Phi "
-			       << phi/deg;
-    if (det > 0) {
+  } else {
+    if (isSensitive(name)) {
+      if (isItHF(touch)) {
+	det = 5;
+	lay = 22;
+      } else {
+	det   = (touch->GetReplicaNumber(1))/1000;
+	lay   = (touch->GetReplicaNumber(0)/10)%100 + 3;
+      }
+      LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Det " << det
+				 << " Layer " << lay << " Eta " << eta 
+				 << " Phi " << phi/deg;
+    } else if (layer == 1) {
+      det = -1;
+      lay = 2;
+    }
+    if (det != 0) {
       if (layer != lay) {
 	id++;
 	layer = lay;
@@ -144,7 +176,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   stepLen += step;
   radLen  += step/radl;
   intLen  += step/intl;
-  if (layer == 20) {
+  if (layer == 22) {
     if (!isItHF(aStep->GetPostStepPoint()->GetTouchable())) {
       LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: After HF in " 
 				 << aStep->GetPostStepPoint()->GetTouchable()->GetVolume(0)->GetName();
@@ -317,6 +349,14 @@ bool MaterialBudgetHcalHistos::isItHF (const G4VTouchable* touch) {
       if (name == hfNames[it]) return true;
     }
   }
+  return false;
+}
+
+bool MaterialBudgetHcalHistos::isItEC (std::string name) {
+
+  std::vector<std::string>::const_iterator it = sensitiveEC.begin();
+  for (; it != sensitiveEC.end(); it++)
+    if (name == *it) return true;
   return false;
 }
 
