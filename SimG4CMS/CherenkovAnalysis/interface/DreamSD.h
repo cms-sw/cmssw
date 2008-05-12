@@ -40,7 +40,7 @@ private:
   bool setPbWO2MaterialProperties_( G4Material* aMaterial );
 
   bool                              useBirk,doCherenkov_;
-  double                            birk1, birk2;
+  double                            birk1, birk2, birk3;
   double                            slopeLY;
   std::map<G4LogicalVolume*,double> xtalLMap;
 

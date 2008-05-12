@@ -23,13 +23,15 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
   useBirk= m_EC.getParameter<bool>("UseBirkLaw");
   doCherenkov_ = m_EC.getParameter<bool>("doCherenkov");
   birk1  = m_EC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2  = m_EC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2  = m_EC.getParameter<double>("BirkC2");
+  birk3  = m_EC.getParameter<double>("BirkC3");
   slopeLY= m_EC.getParameter<double>("SlopeLightYield");
   
   edm::LogInfo("EcalSim")  << "Constructing a DreamSD  with name " << GetName() << "\n"
 			   << "DreamSD:: Use of Birks law is set to      " 
-			   << useBirk << "        with the two constants C1 = "
-			   << birk1 << ", C2 = " << birk2 << "\n"
+			   << useBirk << "  with three constants kB = "
+			   << birk1 << ", C1 = " << birk2 << ", C2 = " 
+			   << birk3 << "\n"
 			   << "         Slope for Light yield is set to "
 			   << slopeLY << "\n"
                            << "         Parameterization of Cherenkov is set to " 
@@ -51,7 +53,7 @@ double DreamSD::getEnergyDeposit(G4Step * aStep) {
     // take into account light collection curve for crystals
     double weight = 1.;
     weight *= curve_LY(aStep);
-    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2);
+    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
     edep    = aStep->GetTotalEnergyDeposit() * weight;
     LogDebug("EcalSim") << "DreamSD:: " << nameVolume
 			<<" Light Collection Efficiency " << weight 
