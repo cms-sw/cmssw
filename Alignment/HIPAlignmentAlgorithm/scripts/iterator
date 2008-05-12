@@ -6,7 +6,7 @@
 
 set odir = `cd $2; pwd` # get full output path
 
-scripts/configure $2 $3 # create dir and cfg
+scripts/configure $2 "$3" # create dir and cfg
 
 cmsRun $odir/main/initial.cfg >& $odir/main/initial.out
 
