@@ -24,6 +24,8 @@
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=RecoPixelVertexing/PixelTrackFitting>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/GeometryCommonDetAlgo>
@@ -46,6 +48,8 @@
   <use name=TrackingTools/MeasurementDet>
   <use name=TrackingTools/PatternTools>
   <use name=TrackingTools/TransientTrackingRecHit>
+  <use name=DataFormats/L1GlobalMuonTrigger>
+  <use name=RecoPixelVertexing/PixelTrackFitting>
   <lib name=RecoMuonTrackerSeedGenerator>
 </export>
 

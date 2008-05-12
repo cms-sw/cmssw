@@ -12,8 +12,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm { class Event; class EventSetup; }
-class PixelFitter;
+class L1MuonRegionProducer;
+class L1MuonPixelTrackFitter;
 class OrderedHitsGenerator;
+class PixelTrackFilter;
+class L1MuonSeedsMerger;
+
 
 class TSGFromL1Muon : public edm::EDProducer {
 public:
@@ -22,16 +26,17 @@ public:
   virtual void beginJob(const edm::EventSetup& es);
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 private:
-  float deltaPhi(float phi1, float phi2) const;
-  float getPt(float phi0, float phiL1, float eta, float charge) const;
-  float getBending(float eta, float pt, float charge) const;
-  void param(float eta, float &p1, float& p2) const;
  
 private:
   edm::ParameterSet theConfig;
   edm::InputTag theSourceTag;
+
+
+  L1MuonRegionProducer * theRegionProducer;
   OrderedHitsGenerator * theHitGenerator;
-  const PixelFitter       * theFitter;
+  L1MuonPixelTrackFitter * theFitter;
+  PixelTrackFilter * theFilter;
+  L1MuonSeedsMerger * theMerger;
 
 };
 #endif
