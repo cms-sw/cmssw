@@ -62,13 +62,16 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
 
     tracksInputTag_    = pset.getParameter<edm::InputTag>("trackProducer");   
 
+    minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");   
     trkIsolExtRadius_ = pset.getParameter<double>("trkIsolExtR");   
     trkIsolInnRadius_ = pset.getParameter<double>("trkIsolInnR");   
-    etLow_     = pset.getParameter<double>("minEtCut");   
+    trkPtLow_     = pset.getParameter<double>("minTrackPtCut");   
     lip_       = pset.getParameter<double>("lipCut");   
     ecalIsolRadius_ = pset.getParameter<double>("ecalIsolR");   
+    bcEtLow_     = pset.getParameter<double>("minBcEtCut");   
     hcalIsolExtRadius_ = pset.getParameter<double>("hcalIsolExtR");   
     hcalIsolInnRadius_ = pset.getParameter<double>("hcalIsolInnR");   
+    hcalHitEtLow_     = pset.getParameter<double>("minHcalHitEtCut");   
 
     numOfTracksInCone_ = pset.getParameter<int>("maxNumOfTracksInCone");   
     trkPtSumCut_  = pset.getParameter<double>("trkPtSumCut");   
@@ -142,8 +145,12 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
     dbe_->setCurrentFolder("DQMOffline/Egamma/PhotonAnalyzer");
 
-    //// Reconstructed Converted photons
-    std::string histname = "scE";
+    //// Reconstructed photons
+    std::string histname = "nPho";
+    h_nPho_.push_back(dbe_->book1D(histname+"all","Numbef Of Isolated Photon candidates per events: all Ecal  ",10,-0.5, 9.5));
+    h_nPho_.push_back(dbe_->book1D(histname+"barrel","Numbef Of Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5));
+    h_nPho_.push_back(dbe_->book1D(histname+"endcap","Numbef Of Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5));
+    histname = "scE";
     h_scE_.push_back(dbe_->book1D(histname+"all","SC Energy: all Ecal  ",eBin,eMin, eMax));
     h_scE_.push_back(dbe_->book1D(histname+"barrel","SC Energy: Barrel ",eBin,eMin, eMax));
     h_scE_.push_back(dbe_->book1D(histname+"endcap","SC Energy: Endcap ",eBin,eMin, eMax));
@@ -261,8 +268,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   e.getByLabel(tracksInputTag_,tracksHandle);
   const reco::TrackCollection* trackCollection = tracksHandle.product();
   
-  
+
+  int nPho=0;
+  int nPhoBarrel=0;
+  int nPhoEndcap=0;  
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+
+
+    if ( (*iPho).energy()/ cosh( (*iPho).eta()) < minPhoEtCut_) continue; 
 
     bool  phoIsInBarrel=false;
     bool  phoIsInEndcap=false;
@@ -289,7 +302,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     double ecalSum=0.;
     double hcalSum=0.;
     /// isolation in the tracker
-    PhotonTkIsolation trackerIsol(trkIsolExtRadius_, trkIsolInnRadius_, etLow_, lip_, trackCollection);     
+    PhotonTkIsolation trackerIsol(trkIsolExtRadius_, trkIsolInnRadius_, trkPtLow_, lip_, trackCollection);     
     nTracks = trackerIsol.getNumberTracks(&(*iPho));
     ptSum = trackerIsol.getPtTracks(&(*iPho));
 
@@ -333,63 +346,76 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     const reco::SuperClusterCollection scCollection = *(scHandle.product());
     const reco::BasicClusterCollection bcCollection = *(bcHandle.product());
     
-    EgammaEcalIsolation ecalIsol( ecalIsolRadius_, etLow_, &bcCollection, &scCollection);
+    EgammaEcalIsolation ecalIsol( ecalIsolRadius_, bcEtLow_, &bcCollection, &scCollection);
     ecalSum = ecalIsol.getEcalEtSum(&(*iPho));
     /// isolation in Hcal
-    EgammaHcalIsolation hcalIsol (hcalIsolExtRadius_,hcalIsolInnRadius_,etLow_,theCaloGeom_.product(),mhbhe.get()); 
+    EgammaHcalIsolation hcalIsol (hcalIsolExtRadius_,hcalIsolInnRadius_,hcalHitEtLow_,theCaloGeom_.product(),mhbhe.get()); 
     hcalSum = hcalIsol.getHcalEtSum(&(*iPho));
 
-    if ( nTracks > numOfTracksInCone_) continue;
-    if ( ptSum > trkPtSumCut_)    continue;
-    if ( ecalSum > ecalEtSumCut_ ) continue;
-    if ( hcalSum > hcalEtSumCut_ ) continue;
+    bool isIsolated=false;
+    if ( (nTracks < numOfTracksInCone_) && 
+	 ( ptSum < trkPtSumCut_) &&
+	 ( ecalSum < ecalEtSumCut_ ) &&
+	 ( hcalSum < hcalEtSumCut_ ) ) isIsolated = true;
 
 
     nEntry_++;
 
-
-    h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
-    h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
-    h_scEtaPhi_->Fill( (*iPho).superCluster()->position().eta(),(*iPho).superCluster()->position().phi() );
-
-   
-    h_scE_[0]->Fill( (*iPho).superCluster()->energy() );
-    h_scEt_[0]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-    h_r9_[0]->Fill( (*iPho).r9() );
+    if ( isIsolated ) {
+      nPho++;
+      if (phoIsInBarrel)  nPhoBarrel++;
+      if (phoIsInEndcap)  nPhoEndcap++;
       
-    if ( scIsInBarrel ) {
-      h_scE_[1]->Fill( (*iPho).superCluster()->energy() );
-      h_scEt_[1]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-    }
-    if ( scIsInEndcap ) {
-      h_scE_[2]->Fill( (*iPho).superCluster()->energy() );
-      h_scEt_[2]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-    }
-
-
-    h_phoEta_->Fill( (*iPho).eta() );
-    h_phoPhi_->Fill( (*iPho).phi() );
-
-    h_phoE_[0]->Fill( (*iPho).energy() );
-    h_phoEt_[0]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-    h_r9_[0]->Fill( (*iPho).r9());
       
-    if ( phoIsInBarrel ) {
-      h_phoE_[1]->Fill( (*iPho).energy() );
-      h_phoEt_[1]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-      h_r9_[1]->Fill( (*iPho).r9());
+      
+      h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
+      h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
+      h_scEtaPhi_->Fill( (*iPho).superCluster()->position().eta(),(*iPho).superCluster()->position().phi() );
+      
+      
+      h_scE_[0]->Fill( (*iPho).superCluster()->energy() );
+      h_scEt_[0]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+      h_r9_[0]->Fill( (*iPho).r9() );
+      
+      if ( scIsInBarrel ) {
+	h_scE_[1]->Fill( (*iPho).superCluster()->energy() );
+	h_scEt_[1]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+      }
+      if ( scIsInEndcap ) {
+	h_scE_[2]->Fill( (*iPho).superCluster()->energy() );
+	h_scEt_[2]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+      }
+      
+      
+      h_phoEta_->Fill( (*iPho).eta() );
+      h_phoPhi_->Fill( (*iPho).phi() );
+      
+      h_phoE_[0]->Fill( (*iPho).energy() );
+      h_phoEt_[0]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+      h_r9_[0]->Fill( (*iPho).r9());
+      
+      if ( phoIsInBarrel ) {
+	h_phoE_[1]->Fill( (*iPho).energy() );
+	h_phoEt_[1]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+	h_r9_[1]->Fill( (*iPho).r9());
+      }
+      
+      if ( phoIsInEndcap ) {
+	h_phoE_[2]->Fill( (*iPho).energy() );
+	h_phoEt_[2]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+	h_r9_[2]->Fill( (*iPho).r9());
+      }
+      
     }
-
-    if ( phoIsInEndcap ) {
-      h_phoE_[2]->Fill( (*iPho).energy() );
-      h_phoEt_[2]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-      h_r9_[2]->Fill( (*iPho).r9());
-    }
-
-
       
   }/// End loop over Reco  particles
     
+
+
+  h_nPho_[0]-> Fill (float(nPho));
+  h_nPho_[1]-> Fill (float(nPhoBarrel));
+  h_nPho_[2]-> Fill (float(nPhoEndcap));
+
 
   
 
