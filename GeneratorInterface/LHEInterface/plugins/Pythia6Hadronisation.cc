@@ -144,7 +144,7 @@ std::auto_ptr<HepMC::GenEvent> Pythia6Hadronisation::doHadronisation()
 	call_pyhepc(1);
 	fortranCallback.instance = 0;
 
-	if (iterations > 1)
+	if (iterations > 1 || hepeup_.nup <= 0 || pypars.msti[0] == 1)
 		return std::auto_ptr<HepMC::GenEvent>();
 
 	std::auto_ptr<HepMC::GenEvent> event(conv.read_next_event());
@@ -233,6 +233,7 @@ namespace {
 
 bool Pythia6Hadronisation::veto()
 {
+call_pylist(1);
 	std::vector<SavedHEPEVT> saved;
 	int n = HepMC::HEPEVT_Wrapper::number_entries();
 
@@ -264,6 +265,8 @@ bool Pythia6Hadronisation::veto()
 		if ((*iter)->status() == 2)
 			(*iter)->set_status(3);
 
+
+event->print();
 	return showeredEvent(event);
 }
 

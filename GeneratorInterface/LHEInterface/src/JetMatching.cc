@@ -52,10 +52,10 @@ namespace {
 		}
 	};
 
-	struct ParticlePtLess {
+	struct ParticlePtGreater {
 		double operator () (const HepMC::GenParticle *v1,
 		                    const HepMC::GenParticle *v2)
-		{ return v1->momentum().perp() < v2->momentum().perp(); }
+		{ return v1->momentum().perp() > v2->momentum().perp(); }
 	};
 
 	inline HepMC::FourVector convert(const JetClustering::Jet &jet)
@@ -109,16 +109,27 @@ double JetMatching::match(const HepMC::GenEvent *partonLevel,
                           bool showeredFinalState)
 {
 	JetInput::ParticleVector partons = (*partonInput)(partonLevel);
-	std::sort(partons.begin(), partons.end(), ParticlePtLess());
+	std::sort(partons.begin(), partons.end(), ParticlePtGreater());
 
-	std::vector<JetClustering::Jet> jets = (*jetClustering)(
+	JetInput::ParticleVector jetInput =
 			showeredFinalState ? (*partonInput)(finalState)
-			                   : (*jetInput)(finalState));
+			                   : (*this->jetInput)(finalState);
+	std::sort(jetInput.begin(), jetInput.end(), ParticlePtGreater());
+
+	std::vector<JetClustering::Jet> jets = (*jetClustering)(jetInput);
 
 #ifdef DEBUG
 	std::cout << "===== Partons:" << std::endl;
 	for(JetClustering::ParticleVector::const_iterator c = partons.begin();
 	    c != partons.end(); c++)
+		std::cout << "\tpid = " << (*c)->pdg_id()
+		          << ", pt = " << (*c)->momentum().perp()
+		          << ", eta = " << (*c)->momentum().eta()
+		          << ", phi = " << (*c)->momentum().phi()
+		          << std::endl;
+	std::cout << "===== JetInput:" << std::endl;
+	for(JetClustering::ParticleVector::const_iterator c = jetInput.begin();
+	    c != jetInput.end(); c++)
 		std::cout << "\tpid = " << (*c)->pdg_id()
 		          << ", pt = " << (*c)->momentum().perp()
 		          << ", eta = " << (*c)->momentum().eta()

@@ -31,6 +31,7 @@
 
 #include "GeneratorInterface/LHEInterface/interface/JetInput.h"
 #include "GeneratorInterface/LHEInterface/interface/JetClustering.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 using namespace lhef;
 
@@ -163,7 +164,18 @@ void LHEAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
 	edm::Handle<edm::HepMCProduct> hepmc;
 	event.getByLabel(sourceLabel, hepmc);
 
-	JetInput::ParticleVector particles = jetInput(hepmc->GetEvent());
+	std::auto_ptr<HepMC::GenEvent> clonedEvent;
+	const HepMC::GenEvent *genEvent = hepmc->GetEvent();
+	if (!genEvent->signal_process_vertex()) {
+		clonedEvent.reset(new HepMC::GenEvent(*genEvent));
+		const HepMC::GenVertex *signalVertex =
+			LHEEvent::findSignalVertex(clonedEvent.get());
+		clonedEvent->set_signal_process_vertex(
+			const_cast<HepMC::GenVertex*>(signalVertex));
+		genEvent = clonedEvent.get();
+	}
+
+	JetInput::ParticleVector particles = jetInput(genEvent);
 
 	std::vector<Jet> ptJets = (*ptClustering)(particles);
 	std::sort(ptJets.begin(), ptJets.end(),

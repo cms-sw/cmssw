@@ -39,7 +39,7 @@ class LHEProducer : public edm::EDProducer {
 	virtual void produce(edm::Event &event, const edm::EventSetup &es);
 
     private:
-	double matching(const HepMC::GenEvent *event) const;
+	double matching(const HepMC::GenEvent *event, bool shower) const;
 
 	bool showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event);
 
@@ -157,7 +157,7 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	}
 
 	if (!matchingDone && jetMatching.get() && hadronLevel.get())
-		weight = matching(hadronLevel.get());
+		weight = matching(hadronLevel.get(), false);
 
 	if (weight == 0.0) {
 		edm::LogInfo("Generator|LHEInterface")
@@ -211,17 +211,18 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	}
 }
 
-double LHEProducer::matching(const HepMC::GenEvent *event) const
+double LHEProducer::matching(const HepMC::GenEvent *event, bool shower) const
 {
 	if (!jetMatching.get())
 		return 1.0;
 
-	return jetMatching->match(partonLevel->asHepMCEvent().get(), event);
+	return jetMatching->match(partonLevel->asHepMCEvent().get(),
+	                          event, shower);
 }
 
 bool LHEProducer::showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event)
 {
-	weight = matching(event.get());
+	weight = matching(event.get(), true);
 	matchingDone = true;
 	return weight == 0.0;
 }

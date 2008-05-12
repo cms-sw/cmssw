@@ -15,8 +15,26 @@ class LHEProxy {
 
 	~LHEProxy();
 
-	const boost::shared_ptr<LHECommon> &getCommon() const { return common; }
-	const boost::shared_ptr<LHEEvent> &getEvent() const { return event; }
+	const boost::shared_ptr<LHECommon> &getCommon() const
+	{ return common; }
+	const boost::shared_ptr<LHEEvent> &getEvent() const
+	{ return event; }
+
+	boost::shared_ptr<LHECommon> releaseCommon()
+	{
+		boost::shared_ptr<LHECommon> result(common);
+		common.reset();
+		return result;
+	}
+	boost::shared_ptr<LHEEvent> releaseEvent()
+	{
+		boost::shared_ptr<LHEEvent> result(event);
+		event.reset();
+		return result;
+	}
+
+	void clearCommon() { common.reset(); }
+	void clearEvent() { event.reset(); }
 
 	void loadCommon(const boost::shared_ptr<LHECommon> &common)
 	{ this->common = common; }
