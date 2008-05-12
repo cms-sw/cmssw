@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.63.2.2 2008/05/12 15:33:07 wmtan Exp $
+$Id: Event.h,v 1.64 2008/05/12 18:14:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -138,9 +138,12 @@ namespace edm {
     void 
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
-    // Template member overload to deal with Views. Perhaps only this
-    // one needs to be overloaded, because the other getByLabel
-    // implementations go through this one.
+    // Template member overload to deal with Views.
+    template <typename ELEMENT>
+    bool
+    getByLabel(std::string const& label, 
+	       Handle<View<ELEMENT> >& result) const;
+
     template <typename ELEMENT>
     bool
     getByLabel(std::string const& label, 
@@ -357,6 +360,14 @@ namespace edm {
     }
   }
   
+  template <typename ELEMENT>
+  bool
+  Event::getByLabel(std::string const& moduleLabel,
+			   Handle<View<ELEMENT> >& result) const
+  {
+    return getByLabel(moduleLabel, std::string(), result);
+  }
+
   template <typename ELEMENT>
   bool
   Event::getByLabel(std::string const& moduleLabel,
