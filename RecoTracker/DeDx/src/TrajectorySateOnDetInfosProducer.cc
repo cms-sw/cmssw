@@ -13,7 +13,7 @@
 //
 // Original Author:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: TrajectorySateOnDetInfosProducer.cc,v 1.2 2008/05/10 18:57:23 querten Exp $
+// $Id: TrajectorySateOnDetInfosProducer.cc,v 1.3 2008/05/12 10:32:28 querten Exp $
 //
 //
 
@@ -94,7 +94,7 @@ TrajectorySateOnDetInfosProducer::Get_TSODICollection(edm::Event& iEvent, const 
 
       if(track.p()    < Track_PMin    )continue;
       if(track.p()    > Track_PMax    )continue;
-      if(track.chi2() < Track_Chi2Max )continue;
+      if(track.chi2() > Track_Chi2Max )continue;
 
       TrajectorySateOnDetInfoCollection TSODI_Coll;
 
