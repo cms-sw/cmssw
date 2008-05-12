@@ -121,38 +121,70 @@ void PixelROCDACSettings::setDACs(std::map<std::string, unsigned int>& dacs)
 }
 
 // Added by Dario
-void PixelROCDACSettings::compareDACs(std::map<std::string, unsigned int>& dacs, std::map<std::string, bool>& changes) 
+void PixelROCDACSettings::compareDACs(std::map<std::string, unsigned int>& dacs, 
+                                      std::map<std::string, bool>& changes, 
+				      std::map<std::string, unsigned int>& previous) 
 {
-    if( Vdd_	     != dacs[k_DACName_Vdd	  ] ) {changes[k_DACName_Vdd	    ] = true;} else {changes[k_DACName_Vdd	  ] = false;} ;
-    if( Vana_	     != dacs[k_DACName_Vana	  ] ) {changes[k_DACName_Vana	    ] = true;} else {changes[k_DACName_Vana	  ] = false;} ; 
-    if( Vsf_	     != dacs[k_DACName_Vsf	  ] ) {changes[k_DACName_Vsf	    ] = true;} else {changes[k_DACName_Vsf	  ] = false;} ; 	 
-    if( Vcomp_       != dacs[k_DACName_Vcomp	  ] ) {changes[k_DACName_Vcomp      ] = true;} else {changes[k_DACName_Vcomp	  ] = false;} ; 	 
-    if( Vleak_       != dacs[k_DACName_Vleak	  ] ) {changes[k_DACName_Vleak      ] = true;} else {changes[k_DACName_Vleak	  ] = false;} ; 	 
-    if( VrgPr_       != dacs[k_DACName_VrgPr	  ] ) {changes[k_DACName_VrgPr      ] = true;} else {changes[k_DACName_VrgPr	  ] = false;} ; 	 
-    if( VwllPr_      != dacs[k_DACName_VwllPr	  ] ) {changes[k_DACName_VwllPr     ] = true;} else {changes[k_DACName_VwllPr	  ] = false;} ; 	
-    if( VrgSh_       != dacs[k_DACName_VrgSh	  ] ) {changes[k_DACName_VrgSh      ] = true;} else {changes[k_DACName_VrgSh	  ] = false;} ; 	 
-    if( VwllSh_      != dacs[k_DACName_VwllSh	  ] ) {changes[k_DACName_VwllSh     ] = true;} else {changes[k_DACName_VwllSh	  ] = false;} ; 	
-    if( VHldDel_     != dacs[k_DACName_VHldDel    ] ) {changes[k_DACName_VHldDel    ] = true;} else {changes[k_DACName_VHldDel    ] = false;} ;        
-    if( Vtrim_       != dacs[k_DACName_Vtrim	  ] ) {changes[k_DACName_Vtrim      ] = true;} else {changes[k_DACName_Vtrim	  ] = false;} ; 	 
-    if( VcThr_       != dacs[k_DACName_VcThr	  ] ) {changes[k_DACName_VcThr      ] = true;} else {changes[k_DACName_VcThr	  ] = false;} ; 	 
-    if( VIbias_bus_  != dacs[k_DACName_VIbias_bus ] ) {changes[k_DACName_VIbias_bus ] = true;} else {changes[k_DACName_VIbias_bus ] = false;} ;
-    if( VIbias_sf_   != dacs[k_DACName_VIbias_sf  ] ) {changes[k_DACName_VIbias_sf  ] = true;} else {changes[k_DACName_VIbias_sf  ] = false;} ; 
-    if( VOffsetOp_   != dacs[k_DACName_VOffsetOp  ] ) {changes[k_DACName_VOffsetOp  ] = true;} else {changes[k_DACName_VOffsetOp  ] = false;} ; 
-    if( VbiasOp_     != dacs[k_DACName_VbiasOp    ] ) {changes[k_DACName_VbiasOp    ] = true;} else {changes[k_DACName_VbiasOp    ] = false;} ;        
-    if( VOffsetRO_   != dacs[k_DACName_VOffsetRO  ] ) {changes[k_DACName_VOffsetRO  ] = true;} else {changes[k_DACName_VOffsetRO  ] = false;} ; 
-    if( VIon_	     != dacs[k_DACName_VIon	  ] ) {changes[k_DACName_VIon	    ] = true;} else {changes[k_DACName_VIon	  ] = false;} ; 	  
-    if( VIbias_PH_   != dacs[k_DACName_VIbias_PH  ] ) {changes[k_DACName_VIbias_PH  ] = true;} else {changes[k_DACName_VIbias_PH  ] = false;} ; 
-    if( VIbias_DAC_  != dacs[k_DACName_VIbias_DAC ] ) {changes[k_DACName_VIbias_DAC ] = true;} else {changes[k_DACName_VIbias_DAC ] = false;} ;
-    if( VIbias_roc_  != dacs[k_DACName_VIbias_roc ] ) {changes[k_DACName_VIbias_roc ] = true;} else {changes[k_DACName_VIbias_roc ] = false;} ;
-    if( VIColOr_     != dacs[k_DACName_VIColOr    ] ) {changes[k_DACName_VIColOr    ] = true;} else {changes[k_DACName_VIColOr    ] = false;} ;        
-    if( Vnpix_       != dacs[k_DACName_Vnpix	  ] ) {changes[k_DACName_Vnpix      ] = true;} else {changes[k_DACName_Vnpix	  ] = false;} ; 	 
-    if( VsumCol_     != dacs[k_DACName_VsumCol    ] ) {changes[k_DACName_VsumCol    ] = true;} else {changes[k_DACName_VsumCol    ] = false;} ;        
-    if( Vcal_	     != dacs[k_DACName_Vcal	  ] ) {changes[k_DACName_Vcal	    ] = true;} else {changes[k_DACName_Vcal	  ] = false;} ; 	  
-    if( CalDel_      != dacs[k_DACName_CalDel	  ] ) {changes[k_DACName_CalDel     ] = true;} else {changes[k_DACName_CalDel	  ] = false;} ; 	
-    if( TempRange_   != dacs[k_DACName_TempRange  ] ) {changes[k_DACName_TempRange  ] = true;} else {changes[k_DACName_TempRange  ] = false;} ; 
-    if( WBC_	     != dacs[k_DACName_WBC	  ] ) {changes[k_DACName_WBC	    ] = true;} else {changes[k_DACName_WBC	  ] = false;} ;
-    if( ChipContReg_ != dacs[k_DACName_ChipContReg] ) {changes[k_DACName_ChipContReg] = true;} else {changes[k_DACName_ChipContReg] = false;} ;
-}		   								       
+    changes[k_DACName_Vdd	 ] = false;
+    changes[k_DACName_Vana	 ] = false;
+    changes[k_DACName_Vsf	 ] = false;
+    changes[k_DACName_Vcomp	 ] = false;
+    changes[k_DACName_Vleak	 ] = false;
+    changes[k_DACName_VrgPr	 ] = false;
+    changes[k_DACName_VwllPr	 ] = false;
+    changes[k_DACName_VrgSh	 ] = false;
+    changes[k_DACName_VwllSh	 ] = false;
+    changes[k_DACName_VHldDel	 ] = false;
+    changes[k_DACName_Vtrim	 ] = false;
+    changes[k_DACName_VcThr	 ] = false;
+    changes[k_DACName_VIbias_bus ] = false;
+    changes[k_DACName_VIbias_sf  ] = false;
+    changes[k_DACName_VOffsetOp  ] = false;
+    changes[k_DACName_VbiasOp	 ] = false;
+    changes[k_DACName_VOffsetRO  ] = false;
+    changes[k_DACName_VIon	 ] = false;
+    changes[k_DACName_VIbias_PH  ] = false;
+    changes[k_DACName_VIbias_DAC ] = false;
+    changes[k_DACName_VIbias_roc ] = false;
+    changes[k_DACName_VIColOr	 ] = false;
+    changes[k_DACName_Vnpix	 ] = false;
+    changes[k_DACName_VsumCol	 ] = false;
+    changes[k_DACName_Vcal	 ] = false;
+    changes[k_DACName_CalDel	 ] = false;
+    changes[k_DACName_TempRange  ] = false;
+    changes[k_DACName_WBC	 ] = false;
+    changes[k_DACName_ChipContReg] = false;
+
+    if( Vdd_	     != dacs[k_DACName_Vdd	  ] ) {changes[k_DACName_Vdd	    ] = true; previous[k_DACName_Vdd	    ] = Vdd_	    ;} 
+    if( Vana_	     != dacs[k_DACName_Vana	  ] ) {changes[k_DACName_Vana	    ] = true; previous[k_DACName_Vana	    ] = Vana_	    ;} 
+    if( Vsf_	     != dacs[k_DACName_Vsf	  ] ) {changes[k_DACName_Vsf	    ] = true; previous[k_DACName_Vsf	    ] = Vsf_	    ;}         
+    if( Vcomp_       != dacs[k_DACName_Vcomp	  ] ) {changes[k_DACName_Vcomp      ] = true; previous[k_DACName_Vcomp      ] = Vcomp_      ;}         
+    if( Vleak_       != dacs[k_DACName_Vleak	  ] ) {changes[k_DACName_Vleak      ] = true; previous[k_DACName_Vleak      ] = Vleak_      ;}         
+    if( VrgPr_       != dacs[k_DACName_VrgPr	  ] ) {changes[k_DACName_VrgPr      ] = true; previous[k_DACName_VrgPr      ] = VrgPr_      ;}         
+    if( VwllPr_      != dacs[k_DACName_VwllPr	  ] ) {changes[k_DACName_VwllPr     ] = true; previous[k_DACName_VwllPr     ] = VwllPr_     ;}        
+    if( VrgSh_       != dacs[k_DACName_VrgSh	  ] ) {changes[k_DACName_VrgSh      ] = true; previous[k_DACName_VrgSh      ] = VrgSh_      ;}         
+    if( VwllSh_      != dacs[k_DACName_VwllSh	  ] ) {changes[k_DACName_VwllSh     ] = true; previous[k_DACName_VwllSh     ] = VwllSh_     ;}        
+    if( VHldDel_     != dacs[k_DACName_VHldDel    ] ) {changes[k_DACName_VHldDel    ] = true; previous[k_DACName_VHldDel    ] = VHldDel_    ;} 
+    if( Vtrim_       != dacs[k_DACName_Vtrim	  ] ) {changes[k_DACName_Vtrim      ] = true; previous[k_DACName_Vtrim      ] = Vtrim_      ;}         
+    if( VcThr_       != dacs[k_DACName_VcThr	  ] ) {changes[k_DACName_VcThr      ] = true; previous[k_DACName_VcThr      ] = VcThr_      ;}         
+    if( VIbias_bus_  != dacs[k_DACName_VIbias_bus ] ) {changes[k_DACName_VIbias_bus ] = true; previous[k_DACName_VIbias_bus ] = VIbias_bus_ ;} 
+    if( VIbias_sf_   != dacs[k_DACName_VIbias_sf  ] ) {changes[k_DACName_VIbias_sf  ] = true; previous[k_DACName_VIbias_sf  ] = VIbias_sf_  ;} 
+    if( VOffsetOp_   != dacs[k_DACName_VOffsetOp  ] ) {changes[k_DACName_VOffsetOp  ] = true; previous[k_DACName_VOffsetOp  ] = VOffsetOp_  ;} 
+    if( VbiasOp_     != dacs[k_DACName_VbiasOp    ] ) {changes[k_DACName_VbiasOp    ] = true; previous[k_DACName_VbiasOp    ] = VbiasOp_    ;} 
+    if( VOffsetRO_   != dacs[k_DACName_VOffsetRO  ] ) {changes[k_DACName_VOffsetRO  ] = true; previous[k_DACName_VOffsetRO  ] = VOffsetRO_  ;} 
+    if( VIon_	     != dacs[k_DACName_VIon	  ] ) {changes[k_DACName_VIon	    ] = true; previous[k_DACName_VIon	    ] = VIon_	    ;}  	
+    if( VIbias_PH_   != dacs[k_DACName_VIbias_PH  ] ) {changes[k_DACName_VIbias_PH  ] = true; previous[k_DACName_VIbias_PH  ] = VIbias_PH_  ;} 
+    if( VIbias_DAC_  != dacs[k_DACName_VIbias_DAC ] ) {changes[k_DACName_VIbias_DAC ] = true; previous[k_DACName_VIbias_DAC ] = VIbias_DAC_ ;} 
+    if( VIbias_roc_  != dacs[k_DACName_VIbias_roc ] ) {changes[k_DACName_VIbias_roc ] = true; previous[k_DACName_VIbias_roc ] = VIbias_roc_ ;} 
+    if( VIColOr_     != dacs[k_DACName_VIColOr    ] ) {changes[k_DACName_VIColOr    ] = true; previous[k_DACName_VIColOr    ] = VIColOr_    ;} 
+    if( Vnpix_       != dacs[k_DACName_Vnpix	  ] ) {changes[k_DACName_Vnpix      ] = true; previous[k_DACName_Vnpix      ] = Vnpix_      ;}         
+    if( VsumCol_     != dacs[k_DACName_VsumCol    ] ) {changes[k_DACName_VsumCol    ] = true; previous[k_DACName_VsumCol    ] = VsumCol_    ;} 
+    if( Vcal_	     != dacs[k_DACName_Vcal	  ] ) {changes[k_DACName_Vcal	    ] = true; previous[k_DACName_Vcal	    ] = Vcal_	    ;}  	
+    if( CalDel_      != dacs[k_DACName_CalDel	  ] ) {changes[k_DACName_CalDel     ] = true; previous[k_DACName_CalDel     ] = CalDel_     ;}        
+    if( TempRange_   != dacs[k_DACName_TempRange  ] ) {changes[k_DACName_TempRange  ] = true; previous[k_DACName_TempRange  ] = TempRange_  ;} 
+    if( WBC_	     != dacs[k_DACName_WBC	  ] ) {changes[k_DACName_WBC	    ] = true; previous[k_DACName_WBC	    ] = WBC_	    ;} 
+    if( ChipContReg_ != dacs[k_DACName_ChipContReg] ) {changes[k_DACName_ChipContReg] = true; previous[k_DACName_ChipContReg] = ChipContReg_;} 
+}		   								            
 										       
 void PixelROCDACSettings::setDAC(unsigned int dacaddress, unsigned int dacvalue)       
 {
