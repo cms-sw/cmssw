@@ -16,7 +16,7 @@ struct Header
                HEADER_REQUEST = 5, EVENT_REQUEST = 6,
                CONS_REG_REQUEST = 7, CONS_REG_RESPONSE = 8,
                DQM_INIT = 9, DQM_EVENT = 10, DQMEVENT_REQUEST = 11,
-               INIT_SET = 12, NEW_INIT_AVAILABLE = 13 };
+               INIT_SET = 12, NEW_INIT_AVAILABLE = 13, ERROR_EVENT = 14 };
 };
 
 // as we need to see it
