@@ -15,7 +15,7 @@ namespace edmtest {
 
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
 
-    void doit(edm::DataViewImpl const& dv, std::string const& label);
+    void doit(edm::Event const& event, std::string const& label);
 
   private:
     bool thingWasDropped_;

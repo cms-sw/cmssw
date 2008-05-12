@@ -13,7 +13,7 @@ namespace edmtest {
   
     /// Runs the algorithm and returns a list of OtherThings
     /// The user declares the vector and calls this method.
-    void run(edm::DataViewImpl const& dv, 
+    void run(edm::Event const& ev, 
 	     OtherThingCollection& otherThingCollection, 
 	     std::string const& thingLabel = std::string("Thing"),
 	     std::string const& instance = std::string(), bool refsAreTransient = false);

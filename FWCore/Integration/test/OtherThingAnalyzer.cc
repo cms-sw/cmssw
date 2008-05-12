@@ -16,10 +16,10 @@ namespace edmtest {
   }
 
   void OtherThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
-    doit(e.me(), std::string("testUserTag"));
+    doit(e, std::string("testUserTag"));
   }
 
-  void OtherThingAnalyzer::doit(edm::DataViewImpl const& dv, std::string const& label) {
+  void OtherThingAnalyzer::doit(edm::Event const& dv, std::string const& label) {
     edm::Handle<OtherThingCollection> otherThings;
     dv.getByLabel("OtherThing", label, otherThings);
     edm::LogInfo("OtherThingAnalyzer") << " --------------- next event ------------ \n";

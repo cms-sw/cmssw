@@ -1,10 +1,10 @@
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
-#include "DataFormats/TestObjects/interface/OtherThing.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/TestObjects/interface/OtherThing.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 namespace edmtest {
-  void OtherThingAlgorithm::run(edm::DataViewImpl const& event, 
+  void OtherThingAlgorithm::run(edm::Event const& event, 
 				OtherThingCollection& result,
 				std::string const& thingLabel, 
 				std::string const& instance,

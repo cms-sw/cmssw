@@ -23,7 +23,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(e.me(), *result, thingLabel_, std::string(), refsAreTransient_);
+    alg_.run(e, *result, thingLabel_, std::string(), refsAreTransient_);
 
     // Step D: Put outputs into event
     e.put(result, std::string("testUserTag"));
