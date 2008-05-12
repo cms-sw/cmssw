@@ -1,12 +1,19 @@
 #ifndef PhotonAnalyzer_H
 #define PhotonAnalyzer_H
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
 //
 #include <map>
 #include <vector>
@@ -48,12 +55,40 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int nMCPho_;
   int nMatched_;
   edm::ParameterSet parameters_;
-      
+  edm::ESHandle<CaloGeometry> theCaloGeom_;	    
            
   std::string photonCollectionProducer_;       
   std::string photonCollection_;
+  std::string  bcProducer_;
+  std::string  bcBarrelCollection_;
+  std::string  bcEndcapCollection_;
+  std::string hbheLabel_;
+  std::string hbheInstanceName_;
+ 
 
+  edm::InputTag scBarrelProducer_;
+  edm::InputTag scEndcapProducer_;
+ 
+  edm::InputTag barrelEcalHits_;
+  edm::InputTag endcapEcalHits_;
+
+
+  edm::InputTag tracksInputTag_;
   
+  double trkIsolExtRadius_;
+  double trkIsolInnRadius_;
+  double etLow_;
+  double lip_;
+  double ecalIsolRadius_;
+  double hcalIsolExtRadius_;
+  double hcalIsolInnRadius_;
+  int  numOfTracksInCone_;
+  double trkPtSumCut_;
+  double ecalEtSumCut_;
+  double hcalEtSumCut_;
+
+
+
 
 
   // SC from reco photons

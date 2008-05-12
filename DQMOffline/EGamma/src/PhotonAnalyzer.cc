@@ -5,9 +5,6 @@
 //
 #include "DQMOffline/EGamma/interface/PhotonAnalyzer.h"
 //
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -21,6 +18,11 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
 #include "TFile.h"
 #include "TH1.h"
@@ -44,8 +46,34 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
     
     photonCollectionProducer_ = pset.getParameter<std::string>("phoProducer");
     photonCollection_ = pset.getParameter<std::string>("photonCollection");
-   
- 
+
+    scBarrelProducer_       = pset.getParameter<std::string>("scBarrelProducer");
+    scEndcapProducer_       = pset.getParameter<std::string>("scEndcapProducer");
+    barrelEcalHits_   = pset.getParameter<edm::InputTag>("barrelEcalHits");
+    endcapEcalHits_   = pset.getParameter<edm::InputTag>("endcapEcalHits");
+
+    bcProducer_             = pset.getParameter<std::string>("bcProducer");
+    bcBarrelCollection_     = pset.getParameter<std::string>("bcBarrelCollection");
+    bcEndcapCollection_     = pset.getParameter<std::string>("bcEndcapCollection");
+
+    hbheLabel_        = pset.getParameter<std::string>("hbheModule");
+    hbheInstanceName_ = pset.getParameter<std::string>("hbheInstance");
+    
+
+    tracksInputTag_    = pset.getParameter<edm::InputTag>("trackProducer");   
+
+    trkIsolExtRadius_ = pset.getParameter<double>("trkIsolExtR");   
+    trkIsolInnRadius_ = pset.getParameter<double>("trkIsolInnR");   
+    etLow_     = pset.getParameter<double>("minEtCut");   
+    lip_       = pset.getParameter<double>("lipCut");   
+    ecalIsolRadius_ = pset.getParameter<double>("ecalIsolR");   
+    hcalIsolExtRadius_ = pset.getParameter<double>("hcalIsolExtR");   
+    hcalIsolInnRadius_ = pset.getParameter<double>("hcalIsolInnR");   
+
+    numOfTracksInCone_ = pset.getParameter<int>("maxNumOfTracksInCone");   
+    trkPtSumCut_  = pset.getParameter<double>("trkPtSumCut");   
+    ecalEtSumCut_ = pset.getParameter<double>("ecalEtSumCut");   
+    hcalEtSumCut_ = pset.getParameter<double>("hcalEtSumCut");   
 
     parameters_ = pset;
    
@@ -98,12 +126,12 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   double etaMin = parameters_.getParameter<double>("etaMin");
   double etaMax = parameters_.getParameter<double>("etaMax");
   int etaBin = parameters_.getParameter<int>("etaBin");
-
+ 
   double phiMin = parameters_.getParameter<double>("phiMin");
   double phiMax = parameters_.getParameter<double>("phiMax");
   int    phiBin = parameters_.getParameter<int>("phiBin");
-  
-
+ 
+ 
   double r9Min = parameters_.getParameter<double>("r9Min"); 
   double r9Max = parameters_.getParameter<double>("r9Max"); 
   int r9Bin = parameters_.getParameter<int>("r9Bin");
@@ -169,7 +197,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 
 
-void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
+void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 {
   
   
@@ -190,84 +218,177 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   std::cout << "PhotonAnalyzer Analyzing event number: "  << e.id() << " Global Counter " << nEvt_ <<"\n";
  
   
-  ///// Get the recontructed  conversions
+  ///// Get the recontructed  photons
   Handle<reco::PhotonCollection> photonHandle; 
   e.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
   std::cout  << "PhotonAnalyzer  Photons with conversions collection size " << photonCollection.size() << "\n";
-   
-   
 
-    //std::cout   << " PhotonAnalyzer  Starting loop over photon candidates " << "\n";
+  
+ // Get EcalRecHits
+  Handle<EcalRecHitCollection> barrelHitHandle;
+  e.getByLabel(barrelEcalHits_, barrelHitHandle);
+  if (!barrelHitHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
+    return;
+  }
+  const EcalRecHitCollection *barrelRecHits = barrelHitHandle.product();
+
+
+  Handle<EcalRecHitCollection> endcapHitHandle;
+  e.getByLabel(endcapEcalHits_, endcapHitHandle);
+  if (!endcapHitHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
+    return;
+  }
+  const EcalRecHitCollection *endcapRecHits = endcapHitHandle.product();
+
+  // get the geometry from the event setup:
+  esup.get<IdealGeometryRecord>().get(theCaloGeom_);
+
+  Handle<HBHERecHitCollection> hbhe;
+  std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
+  e.getByLabel(hbheLabel_,hbheInstanceName_,hbhe);  
+  if (!hbhe.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<hbheInstanceName_.c_str();
+    return; 
+  }
+
+  mhbhe=  std::auto_ptr<HBHERecHitMetaCollection>(new HBHERecHitMetaCollection(*hbhe));
+
+  // Get the tracks
+  edm::Handle<reco::TrackCollection> tracksHandle;
+  e.getByLabel(tracksInputTag_,tracksHandle);
+  const reco::TrackCollection* trackCollection = tracksHandle.product();
+  
+  
+  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+
+    bool  phoIsInBarrel=false;
+    bool  phoIsInEndcap=false;
+    float etaPho=(*iPho).phi();
+    float phiPho=(*iPho).eta();
+    if ( fabs(etaPho) <  1.479 ) 
+      phoIsInBarrel=true;
+    else
+      phoIsInEndcap=true;
+
+    float phiClu=(*iPho).superCluster()->phi();
+    float etaClu=(*iPho).superCluster()->eta();
+
+    bool  scIsInBarrel=false;
+    bool  scIsInEndcap=false;
+    if ( fabs(etaClu) <  1.479 ) 
+      scIsInBarrel=true;
+    else
+      scIsInEndcap=true;
     
-   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
-            
-      std::cout  << " PhotonAnalyzer Reco SC energy " << (*iPho).superCluster()->energy() <<  "\n";
+    
+    int nTracks=0;
+    double ptSum=0.;
+    double ecalSum=0.;
+    double hcalSum=0.;
+    /// isolation in the tracker
+    PhotonTkIsolation trackerIsol(trkIsolExtRadius_, trkIsolInnRadius_, etLow_, lip_, trackCollection);     
+    nTracks = trackerIsol.getNumberTracks(&(*iPho));
+    ptSum = trackerIsol.getPtTracks(&(*iPho));
 
-      nEntry_++;
-      float phiClu=(*iPho).superCluster()->phi();
-      float etaClu=(*iPho).superCluster()->eta();
-      float etaPho=(*iPho).phi();
-      float phiPho=(*iPho).eta();
+    /// isolation in Ecal
+    edm::Handle<reco::BasicClusterCollection> bcHandle;
+    edm::Handle<reco::SuperClusterCollection> scHandle;
+    if ( phoIsInBarrel ) {
+      // Get the basic cluster collection in the Barrel 
+      e.getByLabel(bcProducer_, bcBarrelCollection_, bcHandle);
+      if (!bcHandle.isValid()) {
+	edm::LogError("ConverionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
+	return;
+      }
 
-      bool  scIsInBarrel=false;
-      bool  scIsInEndcap=false;
-      bool  phoIsInBarrel=false;
-      bool  phoIsInEndcap=false;
+      // Get the  Barrel Super Cluster collection
+      e.getByLabel(scBarrelProducer_,scHandle);
+      if (!scHandle.isValid()) {
+	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scBarrelProducer_.label();
+	return;
+      }
+
+    } else if ( phoIsInEndcap ) {    
+      // Get the basic cluster collection in the Endcap 
+      e.getByLabel(bcProducer_, bcEndcapCollection_, bcHandle);
+      if (!bcHandle.isValid()) {
+	edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_.c_str();
+	return;
+      }
+
+
+      // Get the  Endcap Super Cluster collection
+      e.getByLabel(scEndcapProducer_,scHandle);
+      if (!scHandle.isValid()) {
+	edm::LogError("PhotonProducer") << "Error! Can't get the product "<<scEndcapProducer_.label();
+	return;
+      }
+
+
+    }
+
+    const reco::SuperClusterCollection scCollection = *(scHandle.product());
+    const reco::BasicClusterCollection bcCollection = *(bcHandle.product());
+    
+    EgammaEcalIsolation ecalIsol( ecalIsolRadius_, etLow_, &bcCollection, &scCollection);
+    ecalSum = ecalIsol.getEcalEtSum(&(*iPho));
+    /// isolation in Hcal
+    EgammaHcalIsolation hcalIsol (hcalIsolExtRadius_,hcalIsolInnRadius_,etLow_,theCaloGeom_.product(),mhbhe.get()); 
+    hcalSum = hcalIsol.getHcalEtSum(&(*iPho));
+
+    if ( nTracks > numOfTracksInCone_) continue;
+    if ( ptSum > trkPtSumCut_)    continue;
+    if ( ecalSum > ecalEtSumCut_ ) continue;
+    if ( hcalSum > hcalEtSumCut_ ) continue;
+
+
+    nEntry_++;
+
+
+    h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
+    h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
+    h_scEtaPhi_->Fill( (*iPho).superCluster()->position().eta(),(*iPho).superCluster()->position().phi() );
+
    
-      if ( fabs(etaClu) <  1.479 ) 
-	scIsInBarrel=true;
-      else
-	scIsInEndcap=true;
-
-      if ( fabs(etaPho) <  1.479 ) 
-	phoIsInBarrel=true;
-      else
-	phoIsInEndcap=true;
-
-
-
-      h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
-      h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
-      h_scEtaPhi_->Fill( (*iPho).superCluster()->position().eta(),(*iPho).superCluster()->position().phi() );
-
-   
-      h_scE_[0]->Fill( (*iPho).superCluster()->energy() );
-      h_scEt_[0]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-      h_r9_[0]->Fill( (*iPho).r9() );
+    h_scE_[0]->Fill( (*iPho).superCluster()->energy() );
+    h_scEt_[0]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+    h_r9_[0]->Fill( (*iPho).r9() );
       
-      if ( scIsInBarrel ) {
-	h_scE_[1]->Fill( (*iPho).superCluster()->energy() );
-	h_scEt_[1]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-      }
-      if ( scIsInEndcap ) {
-	h_scE_[2]->Fill( (*iPho).superCluster()->energy() );
-	h_scEt_[2]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-      }
+    if ( scIsInBarrel ) {
+      h_scE_[1]->Fill( (*iPho).superCluster()->energy() );
+      h_scEt_[1]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+    }
+    if ( scIsInEndcap ) {
+      h_scE_[2]->Fill( (*iPho).superCluster()->energy() );
+      h_scEt_[2]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
+    }
 
 
-      h_phoEta_->Fill( (*iPho).eta() );
-      h_phoPhi_->Fill( (*iPho).phi() );
+    h_phoEta_->Fill( (*iPho).eta() );
+    h_phoPhi_->Fill( (*iPho).phi() );
 
-      h_phoE_[0]->Fill( (*iPho).energy() );
-      h_phoEt_[0]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-      h_r9_[0]->Fill( (*iPho).r9());
+    h_phoE_[0]->Fill( (*iPho).energy() );
+    h_phoEt_[0]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+    h_r9_[0]->Fill( (*iPho).r9());
       
-      if ( phoIsInBarrel ) {
-	h_phoE_[1]->Fill( (*iPho).energy() );
-	h_phoEt_[1]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-	h_r9_[1]->Fill( (*iPho).r9());
-      }
+    if ( phoIsInBarrel ) {
+      h_phoE_[1]->Fill( (*iPho).energy() );
+      h_phoEt_[1]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+      h_r9_[1]->Fill( (*iPho).r9());
+    }
 
-      if ( phoIsInEndcap ) {
-	h_phoE_[2]->Fill( (*iPho).energy() );
-	h_phoEt_[2]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-	h_r9_[2]->Fill( (*iPho).r9());
-      }
+    if ( phoIsInEndcap ) {
+      h_phoE_[2]->Fill( (*iPho).energy() );
+      h_phoEt_[2]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+      h_r9_[2]->Fill( (*iPho).r9());
+    }
 
 
       
-    }/// End loop over Reco  particles
+  }/// End loop over Reco  particles
     
 
   
@@ -290,11 +411,11 @@ void PhotonAnalyzer::endJob()
   }
   
   edm::LogInfo("PhotonAnalyzer") << "Analyzed " << nEvt_  << "\n";
-   // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
+  // std::cout  << "::endJob Analyzed " << nEvt_ << " events " << " with total " << nPho_ << " Photons " << "\n";
   std::cout  << "PhotonAnalyzer::endJob Analyzed " << nEvt_ << " events " << "\n";
   std::cout << " Total number of photons " << nEntry_ << std::endl;
    
-   return ;
+  return ;
 }
  
 
