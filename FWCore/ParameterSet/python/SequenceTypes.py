@@ -180,7 +180,7 @@ class _SequenceNegation(_Sequenceable):
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
     def fillNamesList(self, l, processDict):
-        self.__operand.fillNamesList(l, processDict)
+        l.append(self.dumpSequenceConfig())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
     def resolve(self, processDict):
@@ -204,7 +204,7 @@ class _SequenceIgnore(_Sequenceable):
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
     def fillNamesList(self, l, processDict):
-        l.append(self.__str__())
+        l.append(self.dumpSequenceConfig())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
     def resolve(self, processDict):
@@ -316,7 +316,7 @@ if __name__=="__main__":
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
-            print 'testing'
+            pass
         def testDumpPython(self):
             a = DummyModule("a")
             b = DummyModule('b')
@@ -328,7 +328,20 @@ if __name__=="__main__":
             p3 = Path(c*(a+b))
             self.assertEqual(p3.dumpPython(None),"cms.Path(process.c*process.a+process.b)\n")
             p4 = Path(a+ignore(b))
-            self.assertEqual(p4.dumpPython(None),"cms.Path(process.c+cms.ignore(process.b))")
+            self.assertEqual(p4.dumpPython(None),"cms.Path(process.a+cms.ignore(process.b))\n")
+            p5 = Path(a+~b)
+            self.assertEqual(p5.dumpPython(None),"cms.Path(process.a+~process.b)\n")
+            l = list()
+            d = dict()
+            p.fillNamesList(l, d)
+            self.assertEqual(l, ['a', 'b'])
+            l = list()
+            p4.fillNamesList(l, d)
+            self.assertEqual(l, ['a', '-b'])
+            l = list()
+            p5.fillNamesList(l, d)
+            self.assertEqual(l, ['a', '!b'])
+
         def testVisitor(self):
             class TestVisitor(object):
                 def __init__(self, enters, leaves):
