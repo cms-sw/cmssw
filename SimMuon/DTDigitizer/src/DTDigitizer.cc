@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/28 18:55:58 $
- *  $Revision: 1.34 $
+ *  $Date: 2008/05/08 14:35:48 $
+ *  $Revision: 1.35 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -120,6 +120,9 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   // MultipleLinks=true ==> association of SimHits within a time window LinksTimeWindow 
   // (of the order of the resolution)
   LinksTimeWindow = conf_.getParameter<double>("LinksTimeWindow"); // (10 ns)
+
+  //Name of Collection used for create the XF 
+  collection_for_XF = conf.getParameter<std::string> >("InputCollection");
 }
 
 // Destructor
@@ -141,7 +144,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
     
   // use MixCollection instead of the previous
   Handle<CrossingFrame<PSimHit> > xFrame;
-  iEvent.getByLabel("mix","g4SimHitsMuonDTHits",xFrame);
+  iEvent.getByLabel("mix",collection_for_XF,xFrame);
   
   auto_ptr<MixCollection<PSimHit> > 
     simHits( new MixCollection<PSimHit>(xFrame.product()) );
