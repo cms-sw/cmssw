@@ -191,6 +191,35 @@ class _SequenceNegation(_Sequenceable):
     def _visitSubNodes(self,visitor):
         self.__operand.visitNode(visitor)
 
+class _SequenceIgnore(_Sequenceable):
+    """Used in the expression tree for a sequence as a stand in for the '-' operator"""
+    def __init__(self, operand):
+        self.__operand = operand
+    def __str__(self):
+        return 'cms.ignore(%s)' %self.__operand
+    def dumpSequenceConfig(self):
+        return '-%s' %self.__operand.dumpSequenceConfig()
+    def dumpSequencePython(self):
+        return 'cms.ignore(%s)' %self.__operand.dumpSequencePython()
+    def _findDependencies(self,knownDeps, presentDeps):
+        self.__operand._findDependencies(knownDeps, presentDeps)
+    def fillNamesList(self, l, processDict):
+        l.append(self.__str__())
+    def _clonesequence(self, lookuptable):
+        return type(self)(self.__operand._clonesequence(lookuptable))
+    def resolve(self, processDict):
+        self.__operand = self.__operand.resolve(processDict)
+        return self
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self.__operand.visitNode(visitor)
+
+def ignore(seq):
+    """The EDFilter passed as an argument will be run but its filter value will be ignored
+    """
+    return _SequenceIgnore(seq)
+
 class Path(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
         super(Path,self).__init__(*arg,**argv)
@@ -298,6 +327,8 @@ if __name__=="__main__":
             c = DummyModule('c')
             p3 = Path(c*(a+b))
             self.assertEqual(p3.dumpPython(None),"cms.Path(process.c*process.a+process.b)\n")
+            p4 = Path(a+ignore(b))
+            self.assertEqual(p4.dumpPython(None),"cms.Path(process.c+cms.ignore(process.b))")
         def testVisitor(self):
             class TestVisitor(object):
                 def __init__(self, enters, leaves):
