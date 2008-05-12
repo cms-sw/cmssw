@@ -1,3 +1,17 @@
+2008-05-12  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-12-02
+	* Include a callback function to handle error events from resource broker with separate
+	  I2O function code. Gave it a new ERROR_EVENT message code that requires
+	  IOPool/Streamer tag hwkc20080512 (V04-34-01), this stops problems on receiving error
+	  events, but the error events are not yet written out!
+
+2008-05-11  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-12-01
+	* Report storedEvents as actually stored events and not received events. Added reporting
+	  of received events for each HLT output module, and stored events for each SM stream.
+
 2008-05-05  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-12-00
