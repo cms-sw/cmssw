@@ -3,7 +3,6 @@
 #include <string>
 #include <map>
 
-char *g4ver = "G4.9.1";
 int mstyle[15] = { 29, 29, 20, 21, 20, 21, 22, 21, 22, 20, 21, 22, 20, 20, 21};
 int mcolor[15] = {  1,  1,  3,  3,  4,  4,  4,  7,  7,  7,  2,  2,  2, 28, 28};
 float msiz[15] = {1.4,1.4,1.1,1.1,1.1,1.1,1.4,1.1,1.4,1.1,1.1,1.4,1.1,1.1,1.1};
@@ -11,7 +10,8 @@ int lcolor[15] = {  1,  1,  3,  3,  4,  4,  4,  7,  7,  7,  2,  2,  2, 28, 28};
 int lstyle[15] = {  1,  1,  1,  2,  1,  2,  3,  2,  3,  1,  3,  2,  1,  1,  2};
 int lwidth[15] = {  1,  1,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  2};
 
-void plotMomentum(char target[6], char list[10], char ene[6], char part[4]) {
+void plotMomentum(char target[6], char list[10], char ene[6], char part[4],
+		  char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
   
   setStyle();
   gStyle->SetOptLogy(1);
@@ -20,7 +20,7 @@ void plotMomentum(char target[6], char list[10], char ene[6], char part[4]) {
   int energy = atoi(ene);
   
   char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
+  sprintf (ofile, "%s/histo_%s%s_%s_%sGeV.root", dir, target, list, part, ene);
   std::cout << "Input file " << ofile << "\n";
   TFile *fout = TFile::Open(ofile);
   fout->cd();
@@ -53,7 +53,8 @@ void plotMomentum(char target[6], char list[10], char ene[6], char part[4]) {
   }
 }
 
-void plotParticles(char target[6], char list[10], char ene[6], char part[4]) {
+void plotParticles(char target[6], char list[10], char ene[6], char part[4],
+		   char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
   
   gStyle->SetOptLogy(1);
   gStyle->SetTitleX(.1);
@@ -62,7 +63,7 @@ void plotParticles(char target[6], char list[10], char ene[6], char part[4]) {
   
   std::vector<std::string> types = types();
   char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
+  sprintf (ofile, "%s/histo_%s%s_%s_%sGeV.root", dir, target, list, part, ene);
   std::cout << "Input file " << ofile << "\n";
   TFile *fout = TFile::Open(ofile);
   fout->cd();
@@ -194,7 +195,8 @@ void plotParticles(char target[6], char list[10], char ene[6], char part[4]) {
 }
 
 
-void plotMultiplicity(char target[6],char list[10],char part[4],int ymax=25) {
+void plotMultiplicity(char target[6], char list[10], char part[4], int ymax=25,
+		      char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -204,20 +206,20 @@ void plotMultiplicity(char target[6],char list[10],char part[4],int ymax=25) {
   else if (part=="pip") sprintf(sym, "#pi^{+}");
   else                  sprintf(sym, "p");
 
-  std::map<string, double> means_300=getMean(target,list,part,"300.0","Multi");
-  std::map<string, double> means_200=getMean(target,list,part,"200.0","Multi");
-  std::map<string, double> means_150=getMean(target,list,part,"150.0","Multi");
-  std::map<string, double> means_100=getMean(target,list,part,"100.0","Multi");
-  std::map<string, double> means_50 =getMean(target,list,part,"50.0", "Multi");
-  std::map<string, double> means_30 =getMean(target,list,part,"30.0", "Multi");
-  std::map<string, double> means_20 =getMean(target,list,part,"20.0", "Multi");
-  std::map<string, double> means_15 =getMean(target,list,part,"15.0", "Multi");
-  std::map<string, double> means_9  =getMean(target,list,part,"9.0",  "Multi");
-  std::map<string, double> means_7  =getMean(target,list,part,"7.0",  "Multi");
-  std::map<string, double> means_5  =getMean(target,list,part,"5.0",  "Multi");
-  std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "Multi");
-  std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "Multi");
-  std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "Multi");
+  std::map<string, double> means_300=getMean(target,list,part,"300.0","Multi",dir);
+  std::map<string, double> means_200=getMean(target,list,part,"200.0","Multi",dir);
+  std::map<string, double> means_150=getMean(target,list,part,"150.0","Multi",dir);
+  std::map<string, double> means_100=getMean(target,list,part,"100.0","Multi",dir);
+  std::map<string, double> means_50 =getMean(target,list,part,"50.0", "Multi",dir);
+  std::map<string, double> means_30 =getMean(target,list,part,"30.0", "Multi",dir);
+  std::map<string, double> means_20 =getMean(target,list,part,"20.0", "Multi",dir);
+  std::map<string, double> means_15 =getMean(target,list,part,"15.0", "Multi",dir);
+  std::map<string, double> means_9  =getMean(target,list,part,"9.0",  "Multi",dir);
+  std::map<string, double> means_7  =getMean(target,list,part,"7.0",  "Multi",dir);
+  std::map<string, double> means_5  =getMean(target,list,part,"5.0",  "Multi",dir);
+  std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "Multi",dir);
+  std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "Multi",dir);
+  std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "Multi",dir);
 
   char ctype[20];
   std::vector<std::string> types   = types();
@@ -282,7 +284,8 @@ void plotMultiplicity(char target[6],char list[10],char part[4],int ymax=25) {
   leg->Draw("same");
 }
 
-void plotMultiplicity(char target[6],char list[10],char ene[6],char part[4]) {
+void plotMultiplicity(char target[6], char list[10], char ene[6], char part[4],
+		      char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -296,7 +299,7 @@ void plotMultiplicity(char target[6],char list[10],char ene[6],char part[4]) {
   int energy = atoi(ene);
   
   char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
+  sprintf (ofile, "%s/histo_%s%s_%s_%sGeV.root", dir, target, list, part, ene);
   std::cout << "Input file " << ofile << "\n";
   TFile *fout = TFile::Open(ofile);
   fout->cd();
@@ -338,7 +341,8 @@ void plotMultiplicity(char target[6],char list[10],char ene[6],char part[4]) {
   }
 }
 
-void plotTotalKE(char target[6], char list[10], char part[4]) {
+void plotTotalKE(char target[6], char list[10], char part[4], 
+		 char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -349,20 +353,20 @@ void plotTotalKE(char target[6], char list[10], char part[4]) {
   else if (part=="pip") sprintf(sym, "#pi^{+}");
   else                  sprintf(sym, "p");
 
-  std::map<string, double> means_300=getMean(target,list,part,"300.0","TotalKE");
-  std::map<string, double> means_200=getMean(target,list,part,"200.0","TotalKE");
-  std::map<string, double> means_150=getMean(target,list,part,"150.0","TotalKE");
-  std::map<string, double> means_100=getMean(target,list,part,"100.0","TotalKE");
-  std::map<string, double> means_50 =getMean(target,list,part,"50.0", "TotalKE");
-  std::map<string, double> means_30 =getMean(target,list,part,"30.0", "TotalKE");
-  std::map<string, double> means_20 =getMean(target,list,part,"20.0", "TotalKE");
-  std::map<string, double> means_15 =getMean(target,list,part,"15.0", "TotalKE");
-  std::map<string, double> means_9  =getMean(target,list,part,"9.0",  "TotalKE");
-  std::map<string, double> means_7  =getMean(target,list,part,"7.0",  "TotalKE");
-  std::map<string, double> means_5  =getMean(target,list,part,"5.0",  "TotalKE");
-  std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "TotalKE");
-  std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "TotalKE");
-  std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "TotalKE");
+  std::map<string, double> means_300=getMean(target,list,part,"300.0","TotalKE",dir);
+  std::map<string, double> means_200=getMean(target,list,part,"200.0","TotalKE",dir);
+  std::map<string, double> means_150=getMean(target,list,part,"150.0","TotalKE",dir);
+  std::map<string, double> means_100=getMean(target,list,part,"100.0","TotalKE",dir);
+  std::map<string, double> means_50 =getMean(target,list,part,"50.0", "TotalKE",dir);
+  std::map<string, double> means_30 =getMean(target,list,part,"30.0", "TotalKE",dir);
+  std::map<string, double> means_20 =getMean(target,list,part,"20.0", "TotalKE",dir);
+  std::map<string, double> means_15 =getMean(target,list,part,"15.0", "TotalKE",dir);
+  std::map<string, double> means_9  =getMean(target,list,part,"9.0",  "TotalKE",dir);
+  std::map<string, double> means_7  =getMean(target,list,part,"7.0",  "TotalKE",dir);
+  std::map<string, double> means_5  =getMean(target,list,part,"5.0",  "TotalKE",dir);
+  std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "TotalKE",dir);
+  std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "TotalKE",dir);
+  std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "TotalKE",dir);
 
   char ctype[20];
   std::vector<std::string> types   = types();
@@ -429,7 +433,8 @@ void plotTotalKE(char target[6], char list[10], char part[4]) {
   leg->Draw("same");
 }
 
-void plotKE(char target[6],char list[10],char ene[6],char part[4],int typ=0) {
+void plotKE(char target[6], char list[10], char ene[6], char part[4],
+	    int typ=0, char dir[8]="histo", char g4ver[20]="G4.9.1.p01") {
 
   setStyle();
   gStyle->SetOptTitle(0);
@@ -448,7 +453,7 @@ void plotKE(char target[6],char list[10],char ene[6],char part[4],int typ=0) {
   std::cout << "Energy " << ener << "\n";
   
   char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
+  sprintf (ofile, "%s/histo_%s%s_%s_%sGeV.root", dir, target, list, part, ene);
   std::cout << "Input file " << ofile << "\n";
   TFile *fout = TFile::Open(ofile);
   fout->cd();
@@ -516,13 +521,15 @@ void printMeans(std::map<string, double> means) {
   }
 }
 
-std::map<string, double> getMean(char target[6], char list[10], char part[5], char ene[6], char ctyp0[10]="Multi") {
+std::map<string, double> getMean(char target[6], char list[10], char part[5], 
+				 char ene[6], char ctyp0[10]="Multi",
+				 char dir[8]="histo") {
 
   std::vector<std::string> types = typesOld();
   std::map<string, double> means;
   
   char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
+  sprintf (ofile, "%s/histo_%s%s_%s_%sGeV.root", dir, target, list, part, ene);
   std::cout << "Input File: " << ofile << "\n";
   TFile *fout = TFile::Open(ofile);
   fout->cd();

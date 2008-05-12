@@ -28,6 +28,7 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
   char *g4ver = "G4.9.1";
   bool detail = true;
 
+  int  energy = atoi(ene);
   char fname[100];
   sprintf (fname, "%s%s_%s_%sGeV.root", element, list, part, ene);
   char ofile[100];
@@ -40,7 +41,7 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
   
   TFile *fout = new TFile(ofile, "recreate");
   TH1F *hiKE0[20], *hiKE1[20], *hiKE2[20], *hiCT0[20], *hiCT1[20], *hiCT2[20];
-  TH1I *hiMulti[20];
+  TH1I *hiMulti[20], *hiPT2[20], *hiEP2[4];
   TH1F *hiParticle[5][20], *hiTotalKE[20], *hiMomInclusive[20];
   TH1F *hiSumP[20], *baryon1, *baryon2;
   TH1F *hProton[2], *hNeutron[2], *hHeavy[2], *hIon[2], *hBaryon[2];;
@@ -114,6 +115,14 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
     sprintf (ytitle, "Events/%6.3f", xbin);
     hiCT2[ii]->GetYaxis()->SetTitle(ytitle);
     if (debug) std::cout << "hiCT2[" << ii << "] = " << hiCT2[ii] << " " <<  name << " cos(T#eta) " << title << "\n";
+
+    sprintf (name, "PT2%s%s%sGeV(%s)", element, list, ene, ctype);
+    hiPT2[ii] = new TH1F (name, title, 15000, 0.0, 3000.0.);
+    hiPT2[ii]->GetXaxis()->SetTitle("p_T (GeV)");
+    xbin = hiCT2[ii]->GetBinWidth(1);
+    sprintf (ytitle, "Events/(%6.3f GeV)", xbin);
+    hiPT2[ii]->GetYaxis()->SetTitle(ytitle);
+    if (debug) std::cout << "hiPT2[" << ii << "] = " << hiPT2[ii] << " " <<  name << " pT " << title << "\n";
 
     sprintf (name, "Multi%s%s%sGeV(%s)", element, list, ene, ctype);
     sprintf (title,"%s multiplicity in %s at %s GeV (%s)", ctype, element, ene, list);
@@ -230,6 +239,8 @@ void AnalyseH2TB(char element[6], char list[10], char ene[6], char part[4], int 
 	  pp        = sqrt (pp);
 	  double cth= (pp == 0. ? -2. : (pl/pp));
 	  pp       /= 1000.0;
+	  pt        = sqrt(pt)/1000.;
+
 	  if      (type == proton)  pProton.push_back(ke);
 	  else if (type == neutron) pNeutron.push_back(ke);
 	  else if (type == heavy)   pHeavy.push_back(ke);
