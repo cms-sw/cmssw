@@ -6,8 +6,8 @@ namespace cms {
 
   namespace {
 
-    const uint32_t CRC32_XINIT = 0xFFFFFFFFL;
-    const uint32_t CRC32_XOROT = 0xFFFFFFFFL;
+    const boost::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
+    const boost::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
 
     boost::uint32_t crctable[256] =
     {
