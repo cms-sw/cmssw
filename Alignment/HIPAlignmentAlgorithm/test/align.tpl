@@ -17,6 +17,7 @@ process Alignment =
   replace ttrhbwor.Matcher = "StandardMatcher" # matching for strip stereo!
 
   replace HIPAlignmentAlgorithm.outpath = "<PATH>/"
+  replace HIPAlignmentAlgorithm.verbosity = true
   replace HIPAlignmentAlgorithm.apeParam =
   {
     {

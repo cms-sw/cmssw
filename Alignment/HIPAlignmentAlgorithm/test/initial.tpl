@@ -4,7 +4,7 @@ process Alignment =
 
   source = EmptySource {}
 
-  untracked PSet maxEvents = { untracked int32 input = 0 }
+  untracked PSet maxEvents = { untracked int32 input = 1 }
 
   replace HIPAlignmentAlgorithm.outpath = "<PATH>/main/" # must put backslash
   replace HIPAlignmentAlgorithm.collectorActive = true

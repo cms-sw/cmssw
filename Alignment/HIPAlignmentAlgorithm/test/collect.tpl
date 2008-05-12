@@ -4,7 +4,7 @@ process Alignment =
 
   source = EmptySource {}
 
-  untracked PSet maxEvents = { untracked int32 input = 0 }
+  untracked PSet maxEvents = { untracked int32 input = 1 }
 
   replace HIPAlignmentAlgorithm.outpath = "<PATH>/main/" # must put backslash
   replace HIPAlignmentAlgorithm.collectorActive = true
@@ -13,8 +13,9 @@ process Alignment =
   replace HIPAlignmentAlgorithm.minimumNumberOfHits = 0
   replace HIPAlignmentAlgorithm.maxRelParameterError = 1e99
 
-  replace HIPAlignmentAlgorithm.surveyResiduals = {"Det"}
+/* Remove comments for survey constraint
 
+  replace HIPAlignmentAlgorithm.surveyResiduals = {"Det"}
   replace AlignmentProducer.useSurvey = true
 
   es_source survey = PoolDBESSource
@@ -30,5 +31,5 @@ process Alignment =
       { string record = "TrackerSurveyErrorRcd" string tag = "errorTag" }
     }
   }
-  
+*/
 }
