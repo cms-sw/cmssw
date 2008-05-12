@@ -12,5 +12,6 @@ cmsRun $odir/main/initial.cfg >& $odir/main/initial.out
 
 scripts/submitJobs $1 $2 # Submit jobs and iterate
 
+# create DB objects
 # cp $odir/main/IOAlignedPositions.root $odir/main/IOIteration.root $odir/
 # cmsRun $odir/upload.cfg >& $odir/upload.out

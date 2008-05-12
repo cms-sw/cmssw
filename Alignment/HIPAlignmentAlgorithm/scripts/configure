@@ -2,7 +2,7 @@
 
 set odir = `cd $1; pwd` # get full output path
 
-cp test/common.cff $odir/
+cp test/common.cff test/*.tpl $odir/
 
 ## Set up config file for each alignment job
 
@@ -15,7 +15,7 @@ foreach data (`ls $2`)
     @ j++
 
     mkdir $odir/job$j
-    replace "<FILE>" $file "<PATH>" $odir/job$j "<SKIM>" $skim < test/align.tpl > $odir/job$j/align.cfg
+    replace "<FILE>" "$file" "<PATH>" $odir/job$j "<SKIM>" $skim < test/align.tpl > $odir/job$j/align.cfg
   end
 end
 
@@ -31,3 +31,13 @@ replace "<PATH>" $odir < test/initial.tpl > $odir/main/initial.cfg
 ## Set up config file for uploading
 
 replace "<PATH>" $odir < test/upload.tpl > $odir/upload.cfg
+
+## Check available disk space
+
+set fslq = `cd $1; fs lq`
+set quot = `echo $fslq | awk '{print $8}'`
+set used = `echo $fslq | awk '{print $9}'`
+
+@ f = ($quot - $used) / 1000 # free space in MB
+
+echo Available disk space = $f MB 
