@@ -39,6 +39,7 @@ class PFRecoTauProducer : public EDProducer {
   virtual void produce(Event&,const EventSetup&);
  private:
   InputTag PFTauTagInfoProducer_;
+  InputTag ElectronPreIDProducer_;
   string PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
