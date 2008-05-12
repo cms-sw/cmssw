@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/29 23:20:10 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/30 14:06:32 $
+ *  $Revision: 1.6 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -14,6 +14,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackingMonitor.h"
 #include <string>
@@ -124,11 +125,13 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
 void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   
-  std::string TrackProducer = conf_.getParameter<std::string>("TrackProducer");
-  std::string TrackLabel = conf_.getParameter<std::string>("TrackLabel");
+  // std::string TrackProducer = conf_.getParameter<std::string>("TrackProducer");
+  //  std::string TrackLabel = conf_.getParameter<std::string>("TrackLabel");
+  InputTag TrackProducer = conf_.getParameter<edm::InputTag>("TrackProducer");
   
   Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByLabel(TrackProducer, TrackLabel, trackCollection);
+  //  iEvent.getByLabel(TrackProducer, TrackLabel, trackCollection);
+  iEvent.getByLabel(TrackProducer, trackCollection);
   if (!trackCollection.isValid()) return;
 
 
