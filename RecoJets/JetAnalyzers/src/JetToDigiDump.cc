@@ -100,27 +100,26 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
   if(Dump>=1)cout <<"   *********************************************************" <<endl;
   jetInd = 0;
   if(Dump>=1)for( CaloJetCollection::const_iterator jet = caloJets->begin(); jet != caloJets->end(); ++ jet ) {
-    const std::vector<CaloTowerDetId>&  detIDs=jet->getTowerIndices();
-    int nConstituents= detIDs.size();
     cout <<"   Jet: "<<jetInd<<", eta="<<jet->eta()<<", phi="<<jet->phi()<<", pt="<<jet->pt()<<\
     ",E="<<jet->energy()<<", EB E="<<jet->emEnergyInEB()<<" ,HB E="<<jet->hadEnergyInHB()<<\
     ", HO E="<<jet->hadEnergyInHO()<<" ,EE E="<< jet->emEnergyInEE()\
-     <<", HE E="<<jet->hadEnergyInHE()<<", HF E="<<jet->hadEnergyInHF()+jet->emEnergyInHF()<<", Num Towers="<<nConstituents<<endl;
+     <<", HE E="<<jet->hadEnergyInHE()<<", HF E="<<jet->hadEnergyInHF()+jet->emEnergyInHF()<<", Num Towers="<<jet->nConstituents()<<endl;
     if(Dump>=2)cout <<"      ====================================================="<<endl;
     float sumTowerE = 0.0;
-    if(Dump>=2)for (int i = 0; i <nConstituents ; i++) {
-       CaloTowerCollection::const_iterator theTower=caloTowers->find(detIDs[i]);  //Find the tower from its CaloTowerDetID	
-       int ietaTower = detIDs[i].ieta();
-       int iphiTower = detIDs[i].iphi();
-       sumTowerE += theTower->energy();
-       size_t numRecHits = theTower->constituentsSize();
-       cout << "      Tower " << i <<": ieta=" << ietaTower <<  ", eta=" << theTower->eta() <<", iphi=" << iphiTower << ", phi=" << theTower->phi() << \
-       ", energy=" << theTower->energy() << ", EM=" << theTower->emEnergy()<< ", HAD=" << theTower->hadEnergy()\
-       << ", HO=" << theTower->outerEnergy() <<",  Num Rec Hits =" << numRecHits << endl;
+
+    if(Dump>=2)for (int i = 0; i <jet->nConstituents(); i++) {
+       const CaloTower& tower = *(jet->getConstituent (i));
+       int ietaTower = tower.id().ieta();
+       int iphiTower = tower.id().iphi();
+       sumTowerE += tower.energy();
+       size_t numRecHits = tower.constituentsSize();
+       cout << "      Tower " << i <<": ieta=" << ietaTower <<  ", eta=" << tower.eta() <<", iphi=" << iphiTower << ", phi=" << tower.phi() << \
+       ", energy=" << tower.energy() << ", EM=" << tower.emEnergy()<< ", HAD=" << tower.hadEnergy()\
+       << ", HO=" << tower.outerEnergy() <<",  Num Rec Hits =" << numRecHits << endl;
        if(Dump>=3)cout << "         ------------------------------------------------"<<endl;
        float sumRecHitE = 0.0;
        if(Dump>=3)for(size_t j = 0; j <numRecHits ; j++) {
-          DetId RecHitDetID=theTower->constituent(j);
+          DetId RecHitDetID=tower.constituent(j);
           DetId::Detector DetNum=RecHitDetID.det();
           if( DetNum == DetId::Hcal ){
 	    //cout << "RecHit " << j << ": Detector = " << DetNum << ": Hcal " << endl;
@@ -246,10 +245,10 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
        }
        if(Dump>=3){
          if( abs(ietaTower)==28||abs(ietaTower)==29){
-             cout << "         Splitted Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << theTower->energy() <<  endl;
+             cout << "         Splitted Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << tower.energy() <<  endl;
          }
 	 else{
-             cout << "         Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << theTower->energy() <<  endl;
+             cout << "         Sum of RecHit Energies=" << sumRecHitE <<", CaloTower energy=" << tower.energy() <<  endl;
          }
        }
        if(Dump>=3)cout << "         ------------------------------------------------"<<endl;
