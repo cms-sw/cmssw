@@ -13,9 +13,13 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Calibration/Tools/interface/GenericMinL3Algorithm.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 //#include "DataFormats/JetReco/interface/CaloJet.h"
+#include <fstream>
+
 namespace cms
 {
 DiJetAnalyzer::DiJetAnalyzer(const edm::ParameterSet& iConfig)
@@ -74,7 +78,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        jet1 = jet2; 
        jet2 = jet; 
      } 
-     if(fabs(jet1.eta())>eta_1||fabs(jet2.eta())<eta_2){ return;}
+     if(fabs(jet1.eta())>eta_1 || (fabs(jet2.eta())-jet_R) < eta_2){ return;}
      if(jets->size()==3){jet3 = (*jets)[2];}
    } else {return;}
 
@@ -103,14 +107,16 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
        DetId id = ecItr->detid();
        GlobalPoint pos = geo->getPosition(id);
+       double ehit = ecItr->energy();
+       double ethit = ehit*sin(pos.theta());
        double etahit = pos.eta();
        double phihit = pos.phi();
        double deta = fabs(jet2.eta()-etahit);
        double dphi = fabs(jet2.phi()-phihit);
        if(dphi>pi){dphi = 2*pi-dphi;}
        double dR = sqrt(pow(deta,2)+pow(dphi,2));
-       if(dR<jet_R){DetEMap[id] = ecItr->energy(); e_em_in_forw_jet += ecItr->energy();
-       hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits++;}
+       if(dR<jet_R && ethit>0.5){DetEMap[id] = ecItr->energy(); e_em_in_forw_jet += ecItr->energy();
+       hitE[nHits]=ehit; hitEt[nHits]=ethit; hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits++;}
       }
 
    } catch (cms::Exception& e) { // can't find it!
@@ -119,6 +125,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 
     float EJet = jet1.et()/sin(jet2.theta()) - e_em_in_forw_jet; 
+    if(EJet<0){return;}
     energyVector.push_back(EJet);        
 
    try {
@@ -129,14 +136,16 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
        DetId id = hbheItr->detid(); 
        GlobalPoint pos = geo->getPosition(id);
+       double ehit = hbheItr->energy();
+       double ethit = ehit*sin(pos.theta());
        double etahit = pos.eta();
        double phihit = pos.phi();
        double deta = fabs(jet2.eta()-etahit); 
        double dphi = fabs(jet2.phi()-phihit); 
        if(dphi>pi){dphi = 2*pi-dphi;}
        double dR = sqrt(pow(deta,2)+pow(dphi,2)); 
-       if(dR<jet_R){DetEMap[id] = hbheItr->energy(); NDetEntries[id]++;
-       hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits++;}
+       if(dR<jet_R && ethit>0.5){DetEMap[id] = hbheItr->energy(); NDetEntries[id]++;
+       hitE[nHits]=ehit; hitEt[nHits]=ethit; hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits++;}
       }
 
    } catch (cms::Exception& e) { // can't find it!
@@ -151,14 +160,16 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
        DetId id = hoItr->detid();
        GlobalPoint pos = geo->getPosition(id);
+       double ehit = hoItr->energy();
+       double ethit = ehit*sin(pos.theta());
        double etahit = pos.eta();
        double phihit = pos.phi();
        double deta = fabs(jet2.eta()-etahit);
        double dphi = fabs(jet2.phi()-phihit);
        if(dphi>pi){dphi = 2*pi-dphi;}
        double dR = sqrt(pow(deta,2)+pow(dphi,2));
-       if(dR<jet_R){DetEMap[id] = hoItr->energy(); NDetEntries[id]++;
-       hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits;}
+       if(dR<jet_R && ethit>0.5){DetEMap[id] = hoItr->energy(); NDetEntries[id]++;
+       hitE[nHits]=ehit; hitEt[nHits]=ethit; hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits++;}
       }
 
    } catch (cms::Exception& e) { // can't find it!
@@ -175,14 +186,16 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
        DetId id = hfItr->detid();
        GlobalPoint pos = geo->getPosition(id);
+       double ehit = hfItr->energy();
+       double ethit = ehit*sin(pos.theta());
        double etahit = pos.eta();
        double phihit = pos.phi();
        double deta = fabs(jet2.eta()-etahit);
        double dphi = fabs(jet2.phi()-phihit);
        if(dphi>pi){dphi = 2*pi-dphi;}
        double dR = sqrt(pow(deta,2)+pow(dphi,2));
-       if(dR<jet_R){DetEMap[id] = hfItr->energy(); NDetEntries[id]++;
-       hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits++;}
+       if(dR<jet_R && ethit>0.5){DetEMap[id] = hfItr->energy(); NDetEntries[id]++;
+       hitE[nHits]=ehit; hitEt[nHits]=ethit; hitEta[nHits]=etahit; hitPhi[nHits]=phihit; nHits++;}
       }
 
    } catch (cms::Exception& e) { // can't find it!
@@ -223,6 +236,8 @@ DiJetAnalyzer::beginJob(const edm::EventSetup& iSetup)
    myTree->Branch("phi_jet_forw",  &phi_jet_forw, "phi_jet_forw/F");
 
    myTree->Branch("nHits", &nHits, "nHits/I");
+   myTree->Branch("hitE",   hitE, "hitE[nHits]/F");
+   myTree->Branch("hitEt",   hitEt, "hitEt[nHits]/F");
    myTree->Branch("hitEta",  hitEta, "hitEta[nHits]/F");
    myTree->Branch("hitPhi",  hitPhi, "hitPhi[nHits]/F");
 
@@ -242,6 +257,9 @@ DiJetAnalyzer::beginJob(const edm::EventSetup& iSetup)
       }
    }
 
+   edm::ESHandle<HcalRespCorrs> r;
+   iSetup.get<HcalRespCorrsRcd>().get(r);
+   oldRespCorrs = new HcalRespCorrs(*r.product());
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -250,22 +268,43 @@ DiJetAnalyzer::endJob() {
 
    nIter = 10; 
    GenericMinL3Algorithm* minL3 = new GenericMinL3Algorithm(); 
-      for(int j=0; j<eventMatrix.size(); j++){
+      for(unsigned j=0; j<eventMatrix.size(); j++){
         vector<float> h = eventMatrix[j]; 
       } 
+   HcalRespCorrs* mycorrections = new HcalRespCorrs();
    vector<float> calib = minL3->iterate(eventMatrix,energyVector,nIter);         
-   for(int i=0; i<calib.size(); i++){
+   for(unsigned i=0; i<calib.size(); i++){
        DetId id = did_selected[i];  
        int i_eta = HcalDetId(id).ieta();
        int i_phi = HcalDetId(id).iphi();
        int i_depth = HcalDetId(id).depth();
        int mydet = (id.rawId()>>28)&0xF;
        int mysubd = (id.rawId()>>25)&0x7;
+       HcalRespCorr item (id.rawId(), calib[i]);
+       mycorrections->addValues(item);
 
        std::cout << "ieta=" << i_eta << " iphi=" << i_phi << " idepth=" << i_depth << 
        " mydet=" << mydet << " mysubd=" << mysubd << " calib=" << calib[i] << "NEntries=" 
        << NDetEntries[id] << std::endl;
    }
+
+   HcalRespCorrs* newRespCorrs = new HcalRespCorrs();
+   std::vector<DetId> channels = oldRespCorrs->getAllChannels ();
+
+   for (unsigned i = 0; i < channels.size(); i++) {
+       DetId id = channels[i];
+       float scale;
+       if (mycorrections->exists(id) )
+          scale = mycorrections->getValues(id)->getValue();
+       else scale = 1.;
+       HcalRespCorr item(id.rawId(),scale*oldRespCorrs->getValues(id)->getValue()); 
+       newRespCorrs->addValues(item);
+   }
+   std::ostringstream file;
+   file << "corrections.txt";
+   std::ofstream outStream(file.str().c_str() );
+   HcalDbASCIIIO::dumpObject (outStream, (*newRespCorrs) );
+
 
    hOutputFile->SetCompressionLevel(2);
    hOutputFile->cd();

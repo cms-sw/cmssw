@@ -19,6 +19,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
@@ -53,7 +55,7 @@ class DiJetAnalyzer : public edm::EDAnalyzer {
      float et_jet_forw, phi_jet_forw, eta_jet_forw;  
 
      int nHits; 
-     float hitEta[5000], hitPhi[5000];
+     float hitE[5000], hitEt[5000], hitEta[5000], hitPhi[5000];
 
      TFile*      hOutputFile ;
      TTree * myTree;
@@ -96,6 +98,7 @@ class DiJetAnalyzer : public edm::EDAnalyzer {
      bool allowMissingInputs_;
      const CaloGeometry* geo;
 
+     HcalRespCorrs* oldRespCorrs; 
 
 };
 }
