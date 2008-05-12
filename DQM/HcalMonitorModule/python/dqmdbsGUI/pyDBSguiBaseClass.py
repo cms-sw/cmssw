@@ -118,7 +118,11 @@ class dbsBaseGui:
 
         # Set possible auto-update times (in minutes) for DBS, DQM
         self.updateTimes=(2,5,10,20,30,60,120)
-
+        # Set blocks of Luminosity over which to search
+        self.lumiBlockRanges=("All",1,5,10,20,50,100,200,500,1000)
+        self.lumiBlockRange=StringVar()
+        self.lumiBlockRange.set("All")
+        
         # Variables used for starting point, range of runs to search when looking at DBS
         self.dbsRange=IntVar()
         self.lastFoundDBS=IntVar()
@@ -435,8 +439,8 @@ class dbsBaseGui:
                                                    )
         self.dbsmenu.add_cascade(label="Set DBS update time",
                                  menu=self.dbsUpdateMenu.choices)
-        
         self.Bdbs['menu']=self.dbsmenu
+
 
         # Fill 'DQM Options' Menu
         self.dqmmenu=Menu(self.Bdqm,
@@ -453,13 +457,27 @@ class dbsBaseGui:
         self.dqmUpdateMenu.choices=Menu(self.dqmUpdateMenu,
                                         bg="white",
                                         tearoff=0)
-
         for upTime in range(len(self.updateTimes)):
             self.dqmUpdateMenu.choices.add_command(label='%s minutes'%self.updateTimes[upTime],
-                                                   command = lambda x=upTime,y=self.updateTimes:self.dqmSetUpdateMenu(x,y)
-                                                   )
+                                                   command = lambda x=upTime,y=self.updateTimes:self.dqmSetUpdateMenu(x,y))
         self.dqmmenu.add_cascade(label="Set DQM update time",
                                  menu=self.dqmUpdateMenu.choices)
+
+
+        # Create submenu for choosing luminosity block ranges
+        self.lumiBlockRangeMenu=Menu(self.dqmmenu,
+                                bg="white",
+                                tearoff=0)
+        self.lumiBlockRangeMenu.choices=Menu(self.lumiBlockRangeMenu,
+                                        bg="white",
+                                        tearoff=0)
+        for lumiChoice in range(len(self.lumiBlockRanges)):
+            self.lumiBlockRangeMenu.choices.add_command(label='%s'%self.lumiBlockRanges[lumiChoice],
+                                                   command = lambda x=lumiChoice,y=self.lumiBlockRanges:self.setLumiBlockMenu(x,y))
+        self.dqmmenu.add_cascade(label="Set Lum'y Block Range",
+                                 menu=self.lumiBlockRangeMenu.choices)
+
+
         self.Bdqm['menu']=self.dqmmenu
 
 
@@ -685,9 +703,16 @@ class dbsBaseGui:
 
         # Set update time in UpdateMenus to 20 minutes (they will appear in red in the menu)
         for temptime in range(len(self.updateTimes)):
-            if self.updateTimes[temptime]==20:
+            if self.updateTimes[temptime]==self.dbsAutoUpdateTime.get():
                 self.dbsUpdateMenu.choices.entryconfig(temptime,foreground="red")
+            if self.updateTimes[temptime]==self.dqmAutoUpdateTime.get():
                 self.dqmUpdateMenu.choices.entryconfig(temptime,foreground="red")
+
+        # Set initial lum'y block choice to red
+        for templumi in range(len(self.lumiBlockRanges)):
+            if self.lumiBlockRanges[templumi]==self.lumiBlockRange.get():
+                self.lumiBlockRangeMenu.choices.entryconfig(templumi,foreground="red")
+
 
         # Hidden trick to freeze starting run value!
         self.lastFoundDBSEntry.bind("<Shift-Up>",self.toggleAutoRunShift)
@@ -1278,6 +1303,7 @@ class dbsBaseGui:
         for i in foundruns:
             if (self.debug):
                 print "<runDQM> Checking run #%i"%i
+
             self.commentLabel.configure(text="Running DQM on run #%i"%i)
             self.dqmProgress.configure(text="Running DQM on run #%i"%i,
                                        bg=self.bg_alt)
@@ -1307,18 +1333,28 @@ class dbsBaseGui:
                 #     Revise this in the future?  Check to see if output was moved to finalDir, but finishedDQM
                 #     boolean wasn't set True?  That should never be able to happen, right?
 
+
                 success=self.getcmsRunOutput(i)
                 if not success:
-                    print "Problem with Run # %i -- DQM started but did not finish!"%i
-                    self.commentLabel.configure(text="Problem with Run # %i -- DQM started but did not finish!"%i)
-                    self.commentLabel.update_idletasks()
+                    # If we're only running once (not checking multiple lumi block ranges),
+                    # then the lack of output indicates that there was a real problem
+                    if (self.filesInDBS[i].lumiBlockIncrement==0):     
+
+                        print "Problem with Run # %i -- DQM started but did not finish!"%i
+                        self.commentLabel.configure(text="Problem with Run # %i -- DQM started but did not finish!"%i)
+                        self.commentLabel.update_idletasks()
 
                 else:
                     # files have finished; need to update status
                     self.filesInDBS[i].finishedDQM=True
                     finished_run=finished_run+1
                     continue
-            else:
+            # Run DQM if DQM process hasn't started yet or if we want to re-run over a new luminosity
+            # block (in which case "startedDQM" will be True, but "finishedDQM" will be False).
+            if ((not self.filesInDBS[i].startedDQM ) or
+                  (self.filesInDBS[i].lumiBlockIncrement>0 and self.filesInDBS[i].startedDQM
+                   and not self.filesInDBS[i].finishedDQM)):
+                
                 # nothing started yet; begin DQM
 
                 # First check that cmsRun is available
@@ -1335,9 +1371,17 @@ class dbsBaseGui:
                 self.runningDQM=True
                 self.filesInDBS[i].startedDQM=True  # Set to True, but info not yet saved to .cPickle file
                 # Here is where the cmsRun command is sent!
+                
                 if (self.callDQMscript(i)):
-                    self.filesInDBS[i].finishedDQM=True
-                    finished_run=finished_run+1
+                    if (self.filesInDBS[i].lumiBlockIncrement==0):
+                        self.filesInDBS[i].finishedDQM=True
+                        
+                    else:
+                        self.filesInDBS[i].currentLumiBlock=self.filesInDBS[i].currentLumiBlock+self.filesInDBS[i].lumiBlockIncrement
+                        if (self.filesInDBS[i].currentLumiBlock>self.filesInDBS[i].numLumiBlocks):
+                            self.filesInDBS[i].finishedDQM=True
+
+                    finished_run=finished_run+1 # increment finished regardless of whether all lum'y blocks completed?
                 
             if (self.debug):
                 print "<runDQM> made it through callDQMscript"
@@ -1419,7 +1463,14 @@ class dbsBaseGui:
         # Allow a different # for each file?
         #temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].maxEvents)
 
+        # Set luminosity blocks over which to run
         temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
+        if (self.debug):
+            print "run= ",i," lumi increment = ",self.filesInDBS[i].lumiBlockIncrement
+        if (self.filesInDBS[i].lumiBlockIncrement>0):
+            temp.write("# replace lumiblockFilter.startblock=%i\n"%self.filesInDBS[i].currentLumiBlock)
+            temp.write("# replace lumiblockFilter.endblock=%i\n"%(self.filesInDBS[i].lumiBlockIncrement+self.filesInDBS[i].currentLumiBlock))
+
         filelength=len(self.filesInDBS[i].files)
         if (filelength==0):
             self.commentLabel.configure(text = "<ERROR> No files found for run %i!"%i)
@@ -1525,12 +1576,25 @@ class dbsBaseGui:
         if (success):
             if (self.debug):
                 print "<getcmsRunOutput> success=True!"
+            # Move directory to new name if checking runs by lumi block
+            if (self.filesInDBS[runnum].lumiBlockIncrement>0):
+                newdirname="%s_L%i_%i"%(outputdir,self.filesInDBS[runnum].currentLumiBlock,
+                                        self.filesInDBS[runnum].currentLumiBlock+self.filesInDBS[runnum].lumiBlockIncrement-1)
+                os.system("mv %s %s"%(outputdir,newdirname))
+                outputdir=newdirname
             self.cmsRunOutput.append(outputdir)
 
         # now check that root file exists
         outputroot="%s.root"%(os.path.join(self.basedir,outname))
         success=success and (os.path.exists(outputroot))
         if os.path.exists(outputroot):
+            # Perform additional move when lumi block checking is incremented
+            if (self.filesInDBS[runnum].lumiBlockIncrement>0):
+                newfilename="%s_L%i_%i.root"%(os.path.join(self.basedir,outname),
+                                              self.filesInDBS[runnum].currentLumiBlock,
+                                              self.filesInDBS[runnum].currentLumiBlock+self.filesInDBS[runnum].lumiBlockIncrement-1)
+                os.system("mv %s %s"%(outputroot,newfilename))
+                outputroot=newfilename
             self.cmsRunOutput.append(outputroot)
 
         if (self.debug):
@@ -1708,7 +1772,31 @@ class dbsBaseGui:
                     if file not in self.filesInDBS[r].files:
                         self.filesInDBS[r].files.append(file)
                 
-            
+            # Now we have to repeat search again, this time looking for luminosity blocks:  (We could perform both searches at once, but that results in a huge number of files (# files * # lumi blocks, I think).  It's easier (but slower?) to just search twice.)
+
+            text="find lumi where %s run=%i"%(self.myDBS.formParsedString(),r)
+            x.searchDBS(mytext=text)
+            lumiinfo=string.split(x.searchResult,"\n")
+            maxlumi=0
+            # Lumi blocks should be returned in descending order, so it's not really necessary to loop through all of them.  However, the loop offers some protections should the ordering be changed, and I don't think it takes too much extra time.
+            for lumi in lumiinfo:
+                if (self.debug):
+                    print "lumi = '%s'"%lumi
+                try:
+                    templumi=string.atoi(string.strip(lumi))
+                    if templumi>maxlumi:
+                        maxlumi=templumi
+                    if (self.debug):
+                        print "Max. lumi block is now: ",maxlumi
+                except:
+                    continue
+            self.filesInDBS[r].numLumiBlocks=max(maxlumi,
+                                                 self.filesInDBS[r].numLumiBlocks)
+            tmpvar=self.lumiBlockRange.get()
+            if (tmpvar=="All"):
+                tmpvar="0"
+            self.filesInDBS[r].lumiBlockIncrement=string.atoi(tmpvar)
+
         # Set lastFoundDBS to most recent run in filesInDBS 
         
         if len(self.filesInDBS.keys()):
@@ -1726,7 +1814,7 @@ class dbsBaseGui:
         self.writePickle()
 
         if (self.foundfiles>self.myDBS.limit.get()):
-            self.commentLabel.configure(text="WARNING! A total of %i files were found in DBS, but the current DBS limit is set to %i.  \nConsider increasing your DBS limit, or running on a smaller range of runs."%(foundfiles,self.myDBS.limit.get()))
+            self.commentLabel.configure(text="WARNING! A total of %i files were found in DBS, but the current DBS limit is set to %i.  \nConsider increasing your DBS limit, or running on a smaller range of runs."%(self.foundfiles,self.myDBS.limit.get()))
             self.dbsProgress.configure(text="%i files found; only %i stored!"%(foundfiles,self.myDBS.limit.get()),
                                        bg="black")
             self.commentLabel.update_idletasks()
@@ -1834,7 +1922,7 @@ class dbsBaseGui:
         self.listboxruns.reverse()
 
         for i in self.listboxruns:
-            self.lb.insert(END,self.filesInDBS[i].Print2())
+            self.lb.insert(END,self.filesInDBS[i].Print2(screenoutput=self.debug))
             
         scroll=Scrollbar(scrollwin,command=self.lb.yview)
         
@@ -1944,7 +2032,7 @@ class dbsBaseGui:
 
         for i in self.listboxruns:
 
-            self.lb.insert(END,self.filesInDBS[i].Print2())
+            self.lb.insert(END,self.filesInDBS[i].Print2(screenoutput=self.debug))
         return
         
     def commandChangeFileSettings(self,selected,var,value=True):
@@ -1979,6 +2067,7 @@ class dbsBaseGui:
                 self.filesInDBS[run].ignoreRun=value
             elif (var=="startedDQM"):
                 self.filesInDBS[run].startedDQM=value
+                self.filesInDBS[run].currentLumiBlock=1
             elif (var=="finishedDQM"):
                 self.filesInDBS[run].finishedDQM=value
             
@@ -2080,6 +2169,7 @@ class dbsBaseGui:
         if (self.debug):
             print self.checkExistence.__doc__
 
+        print obj.get()
         exists=True
         if not os.path.exists(obj.get()):
             self.commentLabel.configure(text="ERROR!\n Object '%s' does not exist!"%obj.get())
@@ -2197,7 +2287,6 @@ class dbsBaseGui:
         if (self.debug):
             print self.dqmSetUpdateMenu.__doc__
 
-        
         self.dqmAutoUpdateTime.set(allTimes[upTime])
         for i in range(len(allTimes)):
             if i==upTime:
@@ -2210,6 +2299,37 @@ class dbsBaseGui:
         return
 
 
+
+    def setLumiBlockMenu(self,lumiChoice,allLumis):
+        '''
+        *** self.setLumiBlockMenu(lumiChoice, allLumis) ***
+        Sets colors in "Set lum"y block range" menu,
+        and sets value of self.lumiBlockRange variable.
+        lumiChoice = index of chosen lumi range.
+        allLumis = list of all possible choices.
+        Will also set all the lumi choices for all previously-found runs to the selected value
+        '''
+
+        if (self.debug):
+            print self.setLumiBlockMenu.__doc__
+
+        self.lumiBlockRange.set(allLumis[lumiChoice])
+        if (self.debug):
+            print "Chosen lumi range = ",self.lumiBlockRange.get() 
+        for i in range(len(allLumis)):
+            if i==lumiChoice:
+                self.lumiBlockRangeMenu.choices.entryconfig(i,foreground="red")
+            else:
+                self.lumiBlockRangeMenu.choices.entryconfig(i,foreground="black")
+        choice=self.lumiBlockRange.get()
+        if choice=="All":
+            choice="0"
+        for r in self.filesInDBS.keys():
+            self.filesInDBS[r].lumiBlockIncrement=string.atoi(choice)
+            if (self.debug):
+                print "<setLumiBlockMenu> run # = %i, lumi block increment = %i"%(r, self.filesInDBS[r].lumiBlockIncrement)
+        return
+    
 ############################################
 
 if __name__=="__main__":
