@@ -1,8 +1,6 @@
 
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-
 #include <iostream>
 #include <iomanip>
 #include <assert.h>
@@ -11,6 +9,7 @@
 //DEFINE STATICS
 const unsigned L1GctJetEtCalibrationFunction::NUMBER_ETA_VALUES = 11;
 const unsigned L1GctJetEtCalibrationFunction::N_CENTRAL_ETA_VALUES = 7;
+const unsigned L1GctJetEtCalibrationFunction::LIN_SCALE_MAX = 0x3ff;
 
 L1GctJetEtCalibrationFunction::L1GctJetEtCalibrationFunction()
   : m_corrFunType(POWER_SERIES_CORRECTION),
@@ -208,8 +207,8 @@ uint16_t L1GctJetEtCalibrationFunction::calibratedEt(const double correctedEt) c
 
   uint16_t jetEtOut = static_cast<uint16_t>(scaledEt);
 
-  if(jetEtOut > L1CaloEtScale::linScaleMax) {
-    return L1CaloEtScale::linScaleMax;
+  if(jetEtOut > L1GctJetEtCalibrationFunction::LIN_SCALE_MAX) {
+    return L1GctJetEtCalibrationFunction::LIN_SCALE_MAX;
   } else {
     return jetEtOut;
   }

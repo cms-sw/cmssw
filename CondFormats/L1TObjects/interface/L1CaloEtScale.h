@@ -27,17 +27,14 @@ class L1CaloEtScale {
 
  public:
 
-  /// linear scale maximum
-  static uint16_t linScaleMax;
-  
-  /// rank scale maximum
-  static uint16_t rankScaleMax;
-
   /// default constructor (out = in)
   L1CaloEtScale();
 
   /// constructor takes physically meaningful quantities
   L1CaloEtScale(const double linearLsbInGeV, const std::vector<double> thresholdsInGeV);
+
+  /// constructor for non-default number of bits
+  L1CaloEtScale(unsigned linScaleMax, unsigned rankScaleMax, const double linearLsbInGeV, const std::vector<double> thresholdsInGeV);
 
   // destructor
   ~L1CaloEtScale();
@@ -57,6 +54,12 @@ class L1CaloEtScale {
   void print(std::ostream& s) const;
 
  private:
+
+  /// linear scale maximum
+  uint16_t m_linScaleMax;
+  
+  /// rank scale maximum
+  uint16_t m_rankScaleMax;
 
   /// LSB of linear scale in GeV
   double m_linearLsb;
