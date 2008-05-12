@@ -75,13 +75,16 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
   edm::InputTag tracksInputTag_;
   
+  double minPhoEtCut_;
   double trkIsolExtRadius_;
   double trkIsolInnRadius_;
-  double etLow_;
+  double trkPtLow_;
   double lip_;
   double ecalIsolRadius_;
+  double bcEtLow_;
   double hcalIsolExtRadius_;
   double hcalIsolInnRadius_;
+  double hcalHitEtLow_;
   int  numOfTracksInCone_;
   double trkPtSumCut_;
   double ecalEtSumCut_;
@@ -92,6 +95,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
 
   // SC from reco photons
+  std::vector<MonitorElement*> h_nPho_;
   MonitorElement* h_scEta_;
   MonitorElement* h_scPhi_;
   MonitorElement* h_scEtaPhi_;
