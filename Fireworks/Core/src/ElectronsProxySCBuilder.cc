@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxySCBuilder.cc,v 1.10 2008/03/07 00:18:14 jmuelmen Exp $
+// $Id: ElectronsProxySCBuilder.cc,v 1.11 2008/03/09 19:10:45 dmytro Exp $
 //
 
 // system include files
@@ -37,11 +37,14 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
 //
 // constants, enums and typedefs
 //
@@ -87,8 +90,8 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
      }
      // get electrons
      resetCenter();
-     using reco::PixelMatchGsfElectronCollection;
-     const PixelMatchGsfElectronCollection *electrons = 0;
+     using reco::GsfElectronCollection;
+     const GsfElectronCollection *electrons = 0;
      // printf("getting electrons\n");
      m_item->get(electrons);
      // printf("got electrons\n");
@@ -139,7 +142,7 @@ void ElectronsProxySCBuilder::build (TEveElementList **product)
      int index=0;
      TEveRecTrack t;
 //      t.fBeta = 1.;
-     for(PixelMatchGsfElectronCollection::const_iterator i = electrons->begin();
+     for(GsfElectronCollection::const_iterator i = electrons->begin();
 	 i != electrons->end(); ++i, ++index) {
 	  assert(i->gsfTrack().isNonnull());
 #if 0

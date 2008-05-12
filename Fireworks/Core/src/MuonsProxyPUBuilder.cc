@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyPUBuilder.cc,v 1.1 2008/03/07 04:01:59 tdaniels Exp $
+// $Id: MuonsProxyPUBuilder.cc,v 1.2 2008/03/09 19:29:31 dmytro Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -113,8 +113,8 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
   // get muons, instead of electrons
   resetCenter();
   // Original code from the electrons
-  //  using reco::PixelMatchGsfElectronCollection;
-  //  const PixelMatchGsfElectronCollection *electrons = 0;
+  //  using reco::GsfElectronCollection;
+  //  const GsfElectronCollection *electrons = 0;
   // And my replacement
   using reco::MuonCollection;
   const MuonCollection *muons = 0;
@@ -272,11 +272,11 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     std::cout << "Printing Muon related quantities" << std::endl;
     std::cout << "isEnergyValid(): " << (*muon).isEnergyValid() << std::endl;
     std::cout << "isCaloCompatibilityValid(): " << (*muon).isCaloCompatibilityValid() << std::endl;
-    std::cout << "getCaloCompatibility(): " << (*muon).getCaloCompatibility() << std::endl;
+    std::cout << "caloCompatibility(): " << (*muon).caloCompatibility() << std::endl;
     std::cout << "Energies along the way: " << std::endl;
-    std::cout << "Energy in the ecal: " << (*muon).getCalEnergy().em << std::endl;
-    std::cout << "Energy in the hcal: " << (*muon).getCalEnergy().had << std::endl;
-    std::cout << "Energy in the outer hcal: " << (*muon).getCalEnergy().ho << std::endl;
+    std::cout << "Energy in the ecal: " << (*muon).calEnergy().em << std::endl;
+    std::cout << "Energy in the hcal: " << (*muon).calEnergy().had << std::endl;
+    std::cout << "Energy in the outer hcal: " << (*muon).calEnergy().ho << std::endl;
 
     /* This isn't quite ready yet.  According to Dima, there's a better way to do things that 
        might necessitate a thorough rewrite of both this, and what is called here:
@@ -305,7 +305,7 @@ void MuonsProxyPUBuilder::build (TEveElementList **product)
     }
     
     // add muon segments
-    const std::vector<reco::MuonChamberMatch>& matches = muon->getMatches();
+    const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
     Double_t localTrajectoryPoint[3];
     Double_t globalTrajectoryPoint[3];
     //need to use auto_ptr since the segmentSet may not be passed to muonList

@@ -227,7 +227,7 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(1);
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<reco::PixelMatchGsfElectron>");
+  topaaa.addValue("std::vector<reco::GsfElectron>");
   topaa.addKeyValue("type", topaaa);
 }
 {

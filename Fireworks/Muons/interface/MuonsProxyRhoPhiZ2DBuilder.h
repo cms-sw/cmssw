@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/02/24 20:39:03 dmytro Exp $
+// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/03/10 07:29:27 dmytro Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 // forward declarations
 

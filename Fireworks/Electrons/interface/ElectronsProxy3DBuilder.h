@@ -7,15 +7,14 @@
 //
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 class ElectronsProxy3DBuilder : public FWRPZDataProxyBuilder
 {
  public:
    ElectronsProxy3DBuilder();
    virtual ~ElectronsProxy3DBuilder();
 
-   static const reco::PixelMatchGsfElectronCollection *electrons;
+   static const reco::GsfElectronCollection *electrons;
 
  private:
    virtual void 	build (const FWEventItem* iItem, TEveElementList** product);

@@ -134,7 +134,7 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, TEveElementList
            
            
 	// add muon segments
-	const std::vector<reco::MuonChamberMatch>& matches = muon->getMatches();
+	const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
 	Double_t localTrajectoryPoint[3];
 	Double_t globalTrajectoryPoint[3];
 	//need to use auto_ptr since the segmentSet may not be passed to muonList

@@ -9,9 +9,10 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Electrons/interface/ElectronsProxy3DBuilder.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-const reco::PixelMatchGsfElectronCollection *ElectronsProxy3DBuilder::electrons = 0;
+const reco::GsfElectronCollection *ElectronsProxy3DBuilder::electrons = 0;
 
 ElectronsProxy3DBuilder::ElectronsProxy3DBuilder()
 {
@@ -36,8 +37,8 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 	  tList->DestroyElements();
      }
      
-     using reco::PixelMatchGsfElectronCollection;
-     const PixelMatchGsfElectronCollection *electrons = 0;
+     using reco::GsfElectronCollection;
+     const GsfElectronCollection *electrons = 0;
      // printf("getting electrons\n");
      iItem->get(electrons);
      // printf("got electrons\n");
@@ -57,7 +58,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
      int index=0;
      TEveRecTrack t;
      t.fBeta = 1.;
-     for(PixelMatchGsfElectronCollection::const_iterator i = electrons->begin();
+     for(GsfElectronCollection::const_iterator i = electrons->begin();
 	 i != electrons->end(); ++i, ++index) {
 	  std::stringstream s;
 	  s << "electron" << index;

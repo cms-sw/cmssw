@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.4 2008/01/25 20:24:16 chrjones Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.5 2008/01/27 01:10:42 dmytro Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
 
     const reco::TrackCollection* tracks=0;
     iItem->get(tracks);
+   
     //fwlite::Handle<reco::TrackCollection> tracks;
     //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
     

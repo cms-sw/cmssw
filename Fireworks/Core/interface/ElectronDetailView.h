@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronDetailView.h,v 1.1 2008/03/07 01:05:12 jmuelmen Exp $
+// $Id: ElectronDetailView.h,v 1.2 2008/03/20 03:49:45 jmuelmen Exp $
 //
 
 // system include files
@@ -32,7 +32,7 @@
 class FWEventItem;
 class TEveElementList;
 namespace reco {
-     class PixelMatchGsfElectron;
+     class GsfElectron;
 }
 
 class ElectronDetailView : public FWDetailView {
@@ -53,7 +53,7 @@ protected:
 	vars[1] = rotation_center[1];
 	vars[2] = rotation_center[2];
      }
-     TEveElementList *makeLabels (const reco::PixelMatchGsfElectron &);
+     TEveElementList *makeLabels (const reco::GsfElectron &);
      TEveElementList *getEcalCrystals (const class DetIdToMatrix &,
 				       const std::vector<class DetId> &);
      TEveElementList *getEcalCrystals (const class DetIdToMatrix &,

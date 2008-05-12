@@ -144,7 +144,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("ctfWithMaterialTracks");
+  topaaa.addValue("generalTracks");
   topaa.addKeyValue("moduleLabel", topaaa);
 }
 {
@@ -188,7 +188,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("trackerMuons");
+  topaaa.addValue("muons");
   topaa.addKeyValue("moduleLabel", topaaa);
 }
 {
@@ -227,7 +227,7 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaa(1);
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("std::vector<reco::PixelMatchGsfElectron>");
+  topaaa.addValue("std::vector<reco::GsfElectron>");
   topaa.addKeyValue("type", topaaa);
 }
 {

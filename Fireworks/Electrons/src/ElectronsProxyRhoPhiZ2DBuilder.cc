@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/02/26 02:25:34 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/02/28 18:29:03 dmytro Exp $
 //
 
 // system include files
@@ -27,10 +27,12 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 //
 // constants, enums and typedefs
@@ -75,7 +77,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	  tList->DestroyElements();
      }
      // get electrons
-     const reco::PixelMatchGsfElectronCollection *electrons = 0;
+     const reco::GsfElectronCollection *electrons = 0;
      iItem->get(electrons);
      if (electrons == 0) {
 	  std::cout <<"failed to get GSF electrons" << std::endl;
@@ -84,7 +86,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      fw::NamedCounter counter("electron");
      const double r = 122;
      // loop over electrons
-     for (reco::PixelMatchGsfElectronCollection::const_iterator electron = electrons->begin();
+     for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron,++counter) {
 	TEveElementList* container = new TEveElementList( counter.str().c_str() );
 	assert(electron->superCluster().isNonnull());
@@ -126,7 +128,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      } else {
 	  tList->DestroyElements();
      }
-     const reco::PixelMatchGsfElectronCollection *electrons = 0;
+     const reco::GsfElectronCollection *electrons = 0;
      iItem->get(electrons);
      if (electrons == 0) {
 	  std::cout <<"failed to get GSF electrons" << std::endl;
@@ -135,7 +137,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      fw::NamedCounter counter("electron");
      double z_ecal = 302; // ECAL endcap inner surface
      double r_ecal = 122;
-     for (reco::PixelMatchGsfElectronCollection::const_iterator electron = electrons->begin();
+     for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron, ++counter) {
 	TEveElementList* container = new TEveElementList( counter.str().c_str() );
 	assert(electron->superCluster().isNonnull());

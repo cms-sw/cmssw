@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.6 2008/03/24 01:50:44 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.7 2008/03/24 19:56:04 jmuelmen Exp $
 //
 
 // system include files
@@ -41,11 +41,13 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 //
 // constants, enums and typedefs
 //
@@ -97,8 +99,8 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
      }
      // get electrons
      resetCenter();
-     using reco::PixelMatchGsfElectronCollection;
-     const PixelMatchGsfElectronCollection *electrons = 0;
+     using reco::GsfElectronCollection;
+     const GsfElectronCollection *electrons = 0;
      // printf("getting electrons\n");
      m_item->get(electrons);
      // printf("got electrons\n");
@@ -149,7 +151,7 @@ void ElectronDetailView::build_3d (TEveElementList **product, const FWModelId &i
      TEveRecTrack t;
      assert((unsigned int)id.index() < electrons->size());
 //      t.fBeta = 1.;
-     if (const reco::PixelMatchGsfElectron *i = &electrons->at(id.index())) {
+     if (const reco::GsfElectron *i = &electrons->at(id.index())) {
 	  assert(i->gsfTrack().isNonnull());
 	  t.fP = TEveVector(i->gsfTrack()->px(),
 			    i->gsfTrack()->py(),
@@ -324,8 +326,8 @@ void ElectronDetailView::build_projected (TEveElementList **product,
      }
      // get electrons
      resetCenter();
-     using reco::PixelMatchGsfElectronCollection;
-     const PixelMatchGsfElectronCollection *electrons = 0;
+     using reco::GsfElectronCollection;
+     const GsfElectronCollection *electrons = 0;
      // printf("getting electrons\n");
      m_item->get(electrons);
      // printf("got electrons\n");
@@ -371,7 +373,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
      }
      const double scale = 100;
      float rgba[4] = { 1, 0, 0, 1 };
-     if (const reco::PixelMatchGsfElectron *i = &electrons->at(id.index())) {
+     if (const reco::GsfElectron *i = &electrons->at(id.index())) {
 	  assert(i->gsfTrack().isNonnull());
 	  assert(i->superCluster().isNonnull());
 	  TEveElementList* container = new TEveElementList("supercluster");
@@ -552,7 +554,7 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 }
 
 TEveElementList *ElectronDetailView::makeLabels (
-     const reco::PixelMatchGsfElectron &electron) 
+     const reco::GsfElectron &electron) 
 {
      TEveElementList *ret = new TEveElementList("electron labels");
 #if DRAW_LABELS_IN_SEPARATE_VIEW
