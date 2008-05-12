@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/24 13:12:15 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/04/24 15:24:35 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -15,6 +15,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -38,12 +40,15 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   
   // STA Cosmic Muon Collection Label
   theSTACollectionLabel = parameters.getParameter<edm::InputTag>("CosmicsCollectionLabel");
+  // STA Cosmic Muon Collection Label
+  theTrackCollectionLabel = parameters.getParameter<edm::InputTag>("trackCollectionLabel");
   // Seeds Collection Label
   theSeedsCollectionLabel = parameters.getParameter<edm::InputTag>("seedsCollectionLabel");
   
   theMuEnergyAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonEnergyAnalysis",true);
   theSeedsAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonSeedAnalysis",true);
   theMuonRecoAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonRecoAnalysis",true);
+  theMuonSegmentsAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoTrackSegmentsAnalysis",true);
 
   // do the analysis on muon energy
   if(theMuEnergyAnalyzerFlag)
@@ -54,6 +59,9 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   // do the analysis on muon energy
   if(theMuonRecoAnalyzerFlag)
     theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"), theService);
+  // do the analysis on muon track segments
+  if(theMuonSegmentsAnalyzerFlag)
+    theMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(parameters.getParameter<ParameterSet>("trackSegmentsAnalysis"), theService);
 
 }
 
@@ -62,6 +70,7 @@ MuonAnalyzer::~MuonAnalyzer() {
   if(theMuEnergyAnalyzerFlag) delete theMuEnergyAnalyzer;
   if(theSeedsAnalyzerFlag) delete theSeedsAnalyzer;
   if(theMuonRecoAnalyzerFlag) delete theMuonRecoAnalyzer;
+  if(theMuonSegmentsAnalyzerFlag) delete theMuonSegmentsAnalyzer;
 }
 
 
@@ -76,6 +85,7 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer->beginJob(iSetup, dbe);
   if(theSeedsAnalyzerFlag) theSeedsAnalyzer->beginJob(iSetup, dbe);
   if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer->beginJob(iSetup, dbe);
+  if(theMuonSegmentsAnalyzerFlag) theMuonSegmentsAnalyzer->beginJob(iSetup, dbe);
 
 }
 
@@ -102,6 +112,21 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        }
      }
    }
+
+
+   // Take the track container
+   Handle<reco::TrackCollection> tracks;
+   iEvent.getByLabel(theTrackCollectionLabel,tracks);
+
+   if(tracks.isValid()){
+     for (reco::TrackCollection::const_iterator recoTrack = tracks->begin(); recoTrack!=tracks->end(); ++recoTrack){
+       if(theMuonSegmentsAnalyzerFlag){
+	 LogTrace(metname)<<"[SegmentsAnalyzer] Call to the track segments analyzer";
+	 theMuonSegmentsAnalyzer->analyze(iEvent, iSetup, *recoTrack);
+       }
+     }
+   }
+     
 
    // Take the seeds container
    edm::Handle<TrajectorySeedCollection> seeds;
