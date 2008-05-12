@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.23 2008/03/14 21:11:01 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.24 2008/03/19 15:19:11 chrjones Exp $
 //
 
 // system include files
@@ -663,34 +663,39 @@ void FWRhoPhiZViewManager::estimateProjectionSizeDT( const TGeoHMatrix* matrix, 
 void FWRhoPhiZViewManager::estimateProjectionSizeCSC( const TGeoHMatrix* matrix, const TGeoShape* shape,
 						      double& min_rho, double& max_rho, double& min_z, double& max_z )
 {
-   const TGeoTrap* trap = dynamic_cast<const TGeoTrap*>( shape );
-   if ( ! trap ) return;
-
+   // const TGeoTrap* trap = dynamic_cast<const TGeoTrap*>( shape );
+   const TGeoBBox* bb = dynamic_cast<const TGeoBBox*>( shape );
+   if ( ! bb ) {
+      std::cout << "WARNING: CSC shape is not TGeoBBox. Ignored\n";
+      shape->IsA()->Print();
+      return;
+   }
+   
    // we will test 3 points on both sides ( +/- z)
    // local z is along Rho
    Double_t local[3], global[3];
    
-   local[0]=0; local[1]=trap->GetH1(); local[2]=-trap->GetDZ();
+   local[0]=0; local[1]=bb->GetDY(); local[2]=-bb->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=0; local[1]=-trap->GetH1(); local[2]=-trap->GetDZ();
+   local[0]=0; local[1]=-bb->GetDY(); local[2]=-bb->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=trap->GetTl2(); local[1]=trap->GetH2(); local[2]=trap->GetDZ();
+   local[0]=bb->GetDX(); local[1]=bb->GetDY(); local[2]=bb->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=-trap->GetTl2(); local[1]=trap->GetH2(); local[2]=trap->GetDZ();
+   local[0]=-bb->GetDX(); local[1]=bb->GetDY(); local[2]=bb->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=trap->GetTl2(); local[1]=-trap->GetH2(); local[2]=trap->GetDZ();
+   local[0]=bb->GetDX(); local[1]=-bb->GetDY(); local[2]=bb->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=-trap->GetTl2(); local[1]=-trap->GetH2(); local[2]=trap->GetDZ();
+   local[0]=-bb->GetDX(); local[1]=-bb->GetDY(); local[2]=bb->GetDZ();
    matrix->LocalToMaster(local,global);
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 }
