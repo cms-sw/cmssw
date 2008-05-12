@@ -1,7 +1,4 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
-#include "CondTools/L1Trigger/plugins/L1TDBESSource.h"
-#include "CondTools/L1Trigger/plugins/L1TWriter.h"
 #include "CondTools/L1Trigger/plugins/L1CondDBPayloadWriter.h"
 #include "CondTools/L1Trigger/plugins/L1CondDBIOVWriter.h"
 #include "CondTools/L1Trigger/plugins/L1TriggerKeyDummyProd.h"
@@ -11,9 +8,7 @@
 
 using namespace l1t;
 
-DEFINE_FWK_EVENTSETUP_SOURCE(L1TDBESSource);
-DEFINE_FWK_MODULE(L1TWriter);
-DEFINE_ANOTHER_FWK_MODULE(L1CondDBPayloadWriter);
+DEFINE_FWK_MODULE(L1CondDBPayloadWriter);
 DEFINE_ANOTHER_FWK_MODULE(L1CondDBIOVWriter);
 DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerKeyDummyProd);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(L1TriggerKeyListDummyProd);
