@@ -6,7 +6,7 @@ ifndef VERBOSE
   QUIET := @
 endif
 
-all: display
+all: display install
 
 core:   env Makefile.core
 	$(QUIET) $(MAKE) -f Makefile.core
