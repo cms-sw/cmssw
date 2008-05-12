@@ -1,5 +1,5 @@
 process.simMuonCSCSuppressedDigis = cms.EDProducer("CSCDigiSuppressor",
     stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
-    lctTag = cms.InputTag("cscTriggerPrimitiveDigis")
+    lctTag = cms.InputTag("simCscTriggerPrimitiveDigis")
 )
 
