@@ -10,8 +10,8 @@
  *    - one Eta Matching Unit (EMU)
  *
  *
- *   $Date: 2007/02/27 11:44:00 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/04/01 10:05:05 $
+ *   $Revision: 1.5 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -114,6 +114,7 @@ class L1MuDTEtaProcessor {
 
     int                                       m_address[12];
     L1MuDTTrack*                              m_TrackCand[12];    
+    L1MuDTTrack*                              m_TracKCand[12];    
     std::vector<const L1MuDTTrackSegEta*>     m_tseta;
     
     edm::ESHandle< L1MuDTEtaPatternLut >  theEtaPatternLUT;  // ETF look-up table

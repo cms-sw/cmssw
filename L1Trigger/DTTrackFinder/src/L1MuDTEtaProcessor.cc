@@ -9,8 +9,8 @@
 //                one Eta Track Finder (ETF) and 
 //                one Eta Matching Unit (EMU) 
 //
-//   $Date: 2008/02/25 16:35:32 $
-//   $Revision: 1.9 $
+//   $Date: 2008/04/09 15:13:32 $
+//   $Revision: 1.10 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -119,6 +119,7 @@ void L1MuDTEtaProcessor::reset() {
     m_pattern[i] = 0;
     m_address[i] = 0;
     m_TrackCand[i] = 0;
+    m_TracKCand[i] = 0;
   }
 
   m_foundPattern.clear();
@@ -267,9 +268,13 @@ void L1MuDTEtaProcessor::receiveAddresses() {
     L1MuDTSecProcId tmpspid(wheel,sector);
     for ( int number = 0; number < 2; number++ ) { 
       const L1MuDTTrack* cand = m_tf.sp(tmpspid)->track(number);
+      const L1MuDTTrack* canD = m_tf.sp(tmpspid)->tracK(number);
       if ( cand ) {
         m_address[i] = cand->address().trackAddressCode();
-        if ( !cand->empty() ) m_TrackCand[i] = const_cast<L1MuDTTrack*>(cand);
+        if ( !cand->empty() ) {
+          m_TrackCand[i] = const_cast<L1MuDTTrack*>(cand);
+          m_TracKCand[i] = const_cast<L1MuDTTrack*>(canD);
+        }
         i++;
       }
     }
@@ -394,12 +399,14 @@ void L1MuDTEtaProcessor::assign() {
     if ( m_TrackCand[i] ) {
       if ( m_eta[i] != 99 ) { 
         m_TrackCand[i]->setEta(m_eta[i]);
+        m_TracKCand[i]->setEta(m_eta[i]);
       }
       else {  
         if ( i/2 != 2 ) cerr << "L1MuDTEtaProcessor: assign invalid eta" << " " << m_address[i] << endl;
       }
       if ( m_fine[i] ) {
         m_TrackCand[i]->setFineEtaBit();
+        m_TracKCand[i]->setFineEtaBit();
         // find all contributing track segments 
         const L1MuDTEtaPattern p = theEtaPatternLUT->getPattern(m_pattern[i]);
         vector<const L1MuDTTrackSegEta*> TSeta;
@@ -412,6 +419,7 @@ void L1MuDTEtaProcessor::assign() {
           TSeta.push_back(ts);
         }
         m_TrackCand[i]->setTSeta(TSeta);
+        m_TracKCand[i]->setTSeta(TSeta);
       }  
     }
   }
