@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.39 2008/04/21 17:17:05 maborgia Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.40 2008/04/29 15:00:43 dutta Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -172,8 +172,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   edm::ESHandle<SiStripGain> gainHandle;
   iSetup.get<SiStripGainRcd>().get(gainHandle);
 
+  
+  std::string quality_label  = conf_.getParameter<std::string>("StripQualityLabel");
   edm::ESHandle<SiStripQuality> qualityHandle;
-  iSetup.get<SiStripQualityRcd>().get(qualityHandle);
+  iSetup.get<SiStripQualityRcd>().get(quality_label,qualityHandle);
 
 
   // retrieve producer name of input StripClusterCollection
