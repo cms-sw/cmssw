@@ -222,8 +222,7 @@ namespace edm {
     // if they are different.    
 
     if (entryInfo_->moduleDescriptionID() != newGroup->entryInfo_->moduleDescriptionID()) {
-	// Not just yet
-      //entryInfo_->moduleDescriptionID_ = ModuleDescriptionID();
+      entryInfo_->setModuleDescriptionID(ModuleDescriptionID());
     }
 
     if (!productUnavailable() && !newGroup->productUnavailable()) {
