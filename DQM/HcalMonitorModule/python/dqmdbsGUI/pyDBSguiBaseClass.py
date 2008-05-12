@@ -474,8 +474,11 @@ class dbsBaseGui:
         for lumiChoice in range(len(self.lumiBlockRanges)):
             self.lumiBlockRangeMenu.choices.add_command(label='%s'%self.lumiBlockRanges[lumiChoice],
                                                    command = lambda x=lumiChoice,y=self.lumiBlockRanges:self.setLumiBlockMenu(x,y))
-        self.dqmmenu.add_cascade(label="Set Lum'y Block Range",
-                                 menu=self.lumiBlockRangeMenu.choices)
+
+        # For the moment ( 12 May 2008), keep this disabled, until we
+        # understand how lumi blocks are arranged in files
+        #self.dqmmenu.add_cascade(label="Set Lum'y Block Range",
+        #                        menu=self.lumiBlockRangeMenu.choices)
 
 
         self.Bdqm['menu']=self.dqmmenu
