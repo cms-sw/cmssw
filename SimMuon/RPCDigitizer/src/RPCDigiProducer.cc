@@ -22,12 +22,6 @@
 #include <sstream>
 #include <string>
 
-#include <map>
-#include <vector>
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
 RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
 
   theRPCSimSetUp =  new RPCSimSetUp(ps);
@@ -36,6 +30,8 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   produces<RPCDigiCollection>();
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 
+  //Name of Collection used for create the XF 
+  collection_for_XF = ps.getParameter<std::string>("InputCollection");
 }
 
 RPCDigiProducer::~RPCDigiProducer() {
@@ -46,31 +42,27 @@ RPCDigiProducer::~RPCDigiProducer() {
 void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", "g4SimHitsMuonRPCHits", cf);
+  e.getByLabel("mix", collection_for_XF, cf);
 
   // test access to SimHits
-  //  const std::string hitsName("MuonRPCHits");
+  const std::string hitsName("MuonRPCHits");
 
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );
 
+  // Create empty output
+  std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
+  std::auto_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
+
   // find the geometry & conditions for this event
   edm::ESHandle<RPCGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
+
   const RPCGeometry *pGeom = &*hGeom;
-
-  edm::ESHandle<RPCStripNoises> noiseRcd;
-  eventSetup.get<RPCStripNoisesRcd>().get(noiseRcd);
-
-  theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
 
   theDigitizer->setGeometry( pGeom );
   theRPCSimSetUp->setGeometry( pGeom );
   theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
-
-  // Create empty output
-  std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());
-  std::auto_ptr<RPCDigitizerSimLinks> RPCDigitSimLink(new RPCDigitizerSimLinks() );
 
   // run the digitizer
   theDigitizer->doAction(*hits, *pDigis, *RPCDigitSimLink);

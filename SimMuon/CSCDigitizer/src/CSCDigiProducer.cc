@@ -57,6 +57,9 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
   theDigitizer.setRandomEngine(engine);
   theStripConditions->setRandomEngine(engine);
 
+  //Name of Collection used for create the XF 
+  collection_for_XF = ps.getParameter<std::string>("InputCollection");
+
 }
 
 
@@ -69,14 +72,10 @@ CSCDigiProducer::~CSCDigiProducer()
 void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", "g4SimHitsMuonCSCHits", cf);
-
-  // test access to SimHits
-  const std::string hitsName("MuonCSCHits");
+  e.getByLabel("mix", collection_for_XF, cf);
 
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );
-
 
   // Create empty output
 
@@ -95,7 +94,6 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
     const CSCGeometry *pGeom = &*hGeom;
 
     theDigitizer.setGeometry( pGeom );
-
 
     // find the magnetic field
     edm::ESHandle<MagneticField> magfield;
