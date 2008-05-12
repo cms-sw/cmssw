@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/04/29 15:24:49 $
- * $Revision: 1.25 $
+ * $Date: 2008/05/09 16:42:27 $
+ * $Revision: 1.26 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.26  2008/05/09 16:42:27  ameyer
+ * *** empty log message ***
+ *
  * Revision 1.25  2008/04/29 15:24:49  tapper
  * Changed path to summary histograms.
  *
@@ -477,6 +480,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 		<< l1IsoEm->size() << std::endl;
     }
     for (L1GctEmCandCollection::const_iterator ie=l1IsoEm->begin(); ie!=l1IsoEm->end(); ie++) {
+      if ( ie->rank() == 0 ) continue;
       l1GctSummIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
       l1GctIsoEmRankEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta(),ie->rank());
       l1GctIsoEmOccEtaPhi_->Fill(ie->regionId().iphi(),ie->regionId().ieta());
@@ -493,16 +497,18 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 
     } 
 
-    // Rank for each candidate
-    l1GctIsoEmRankCand0_->Fill((*l1IsoEm)[0].rank());
-    l1GctIsoEmRankCand1_->Fill((*l1IsoEm)[1].rank());
-    l1GctIsoEmRankCand2_->Fill((*l1IsoEm)[2].rank());
-    l1GctIsoEmRankCand3_->Fill((*l1IsoEm)[3].rank());
+    if ( l1IsoEm->size()==4){
+      // Rank for each candidate
+      l1GctIsoEmRankCand0_->Fill((*l1IsoEm)[0].rank());
+      l1GctIsoEmRankCand1_->Fill((*l1IsoEm)[1].rank());
+      l1GctIsoEmRankCand2_->Fill((*l1IsoEm)[2].rank());
+      l1GctIsoEmRankCand3_->Fill((*l1IsoEm)[3].rank());
 
-    // Differences between candidate ranks
-    l1GctIsoEmRankDiff01_->Fill((*l1IsoEm)[0].rank()-(*l1IsoEm)[1].rank());
-    l1GctIsoEmRankDiff12_->Fill((*l1IsoEm)[1].rank()-(*l1IsoEm)[2].rank());
-    l1GctIsoEmRankDiff23_->Fill((*l1IsoEm)[2].rank()-(*l1IsoEm)[3].rank());
+      // Differences between candidate ranks
+      l1GctIsoEmRankDiff01_->Fill((*l1IsoEm)[0].rank()-(*l1IsoEm)[1].rank());
+      l1GctIsoEmRankDiff12_->Fill((*l1IsoEm)[1].rank()-(*l1IsoEm)[2].rank());
+      l1GctIsoEmRankDiff23_->Fill((*l1IsoEm)[2].rank()-(*l1IsoEm)[3].rank());
+    }
 
     // Non-isolated EM
     if ( verbose_ ) {
@@ -510,6 +516,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
 		<< l1NonIsoEm->size() << std::endl;
     }
     for (L1GctEmCandCollection::const_iterator ne=l1NonIsoEm->begin(); ne!=l1NonIsoEm->end(); ne++) {
+      if ( ne->rank() == 0 ) continue;
       l1GctSummNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
       l1GctNonIsoEmRankEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta(),ne->rank());
       l1GctNonIsoEmOccEtaPhi_->Fill(ne->regionId().iphi(),ne->regionId().ieta());
@@ -526,17 +533,18 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       }
     } 
 
-    // Rank for each candidate
-    l1GctNonIsoEmRankCand0_->Fill((*l1NonIsoEm)[0].rank());
-    l1GctNonIsoEmRankCand1_->Fill((*l1NonIsoEm)[1].rank());
-    l1GctNonIsoEmRankCand2_->Fill((*l1NonIsoEm)[2].rank());
-    l1GctNonIsoEmRankCand3_->Fill((*l1NonIsoEm)[3].rank());
-   
-    // Differences between candidate ranks
-    l1GctNonIsoEmRankDiff01_->Fill((*l1NonIsoEm)[0].rank()-(*l1NonIsoEm)[1].rank());
-    l1GctNonIsoEmRankDiff12_->Fill((*l1NonIsoEm)[1].rank()-(*l1NonIsoEm)[2].rank());
-    l1GctNonIsoEmRankDiff23_->Fill((*l1NonIsoEm)[2].rank()-(*l1NonIsoEm)[3].rank());
-
+    if ( l1NonIsoEm->size()==4){
+      // Rank for each candidate
+      l1GctNonIsoEmRankCand0_->Fill((*l1NonIsoEm)[0].rank());
+      l1GctNonIsoEmRankCand1_->Fill((*l1NonIsoEm)[1].rank());
+      l1GctNonIsoEmRankCand2_->Fill((*l1NonIsoEm)[2].rank());
+      l1GctNonIsoEmRankCand3_->Fill((*l1NonIsoEm)[3].rank());
+      
+      // Differences between candidate ranks
+      l1GctNonIsoEmRankDiff01_->Fill((*l1NonIsoEm)[0].rank()-(*l1NonIsoEm)[1].rank());
+      l1GctNonIsoEmRankDiff12_->Fill((*l1NonIsoEm)[1].rank()-(*l1NonIsoEm)[2].rank());
+      l1GctNonIsoEmRankDiff23_->Fill((*l1NonIsoEm)[2].rank()-(*l1NonIsoEm)[3].rank());
+    }
   }
 }
 
