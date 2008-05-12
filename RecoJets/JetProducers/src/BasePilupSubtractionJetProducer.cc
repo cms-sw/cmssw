@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.16 2007/09/20 21:05:04 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.17 2007/09/21 19:43:30 fedor Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -405,7 +405,7 @@ namespace cms
       Jet* newJet = &(jets->back());
       // put constituents
       for (unsigned iConstituent = 0; iConstituent < constituents.size (); ++iConstituent) {
-	newJet->addDaughter (inputHandle->refAt (constituents[iConstituent].index ()));
+	newJet->addDaughter (inputHandle->ptrAt (constituents[iConstituent].index ()));
       }
       newJet->setJetArea (protojet->jetArea ());
       newJet->setPileup (protojet->pileup ());

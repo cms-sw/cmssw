@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.29 2007/09/21 19:43:29 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.30 2007/10/17 21:38:01 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -68,7 +68,7 @@ namespace {
   void copyConstituents (const JetReco::InputCollection& fConstituents, const edm::View <Candidate>& fInput, reco::Jet* fJet) {
     // put constituents
     for (unsigned iConstituent = 0; iConstituent < fConstituents.size (); ++iConstituent) {
-      fJet->addDaughter (fInput.refAt (fConstituents[iConstituent].index ()));
+      fJet->addDaughter (fInput.ptrAt (fConstituents[iConstituent].index ()));
     }
   }
 

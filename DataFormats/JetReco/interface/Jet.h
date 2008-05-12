@@ -12,15 +12,16 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.25 2008/04/18 21:58:34 fedor Exp $
+ * \version   $Id: Jet.h,v 1.26 2008/04/21 14:06:05 llista Exp $
  ************************************************************/
 #include <string>
-#include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
+#include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 
 namespace reco {
-  class Jet : public CompositeRefBaseCandidate {
+  class Jet : public CompositePtrCandidate {
   public:
-    typedef reco::CandidateBaseRefVector Constituents;
+    typedef edm::Ptr<Candidate> Constituent;
+    typedef std::vector<Constituent>  Constituents;
 
     /// record to store eta-phi first and second moments
     class EtaPhiMoments {

@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.20 2008/02/14 18:27:20 fedor Exp $
+// $Id: Jet.cc,v 1.21 2008/04/21 14:06:05 llista Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -68,7 +68,7 @@ namespace {
 Jet::Jet (const LorentzVector& fP4, 
 	  const Point& fVertex, 
 	  const Constituents& fConstituents)
-  :  CompositeRefBaseCandidate (0, fP4, fVertex),
+  :  CompositePtrCandidate (0, fP4, fVertex),
      mJetArea (0),
      mPileupEnergy (0),
      mPassNumber (0)
@@ -80,7 +80,7 @@ Jet::Jet (const LorentzVector& fP4,
 
 Jet::Jet (const LorentzVector& fP4, 
 	  const Point& fVertex) 
-  :  CompositeRefBaseCandidate (0, fP4, fVertex),
+  :  CompositePtrCandidate (0, fP4, fVertex),
      mJetArea (0),
      mPileupEnergy (0),
      mPassNumber (0)
@@ -235,7 +235,7 @@ float Jet::detectorEta (float fZVertex, float fPhysicsEta) {
 Jet::Constituents Jet::getJetConstituents () const {
   Jet::Constituents result;
   for (unsigned i = 0; i < numberOfDaughters(); i++) {
-    result.push_back (daughterRef (i));
+    result.push_back (daughterPtr (i));
   }
   return result;
 }
@@ -256,7 +256,7 @@ std::string Jet::print () const {
        << "    # of constituents: " << nConstituents () << std::endl;
   out << "    Constituents:" << std::endl;
   for (unsigned index = 0; index < numberOfDaughters(); index++) {
-    CandidateBaseRef constituent = daughterRef (index); // deref
+    Constituent constituent = daughterPtr (index); // deref
     if (constituent.isNonnull()) {
       out << "      #" << index << " p/pt/eta/phi: " 
 	  << constituent->p() << '/' << constituent->pt() << '/' << constituent->eta() << '/' << constituent->phi() 
