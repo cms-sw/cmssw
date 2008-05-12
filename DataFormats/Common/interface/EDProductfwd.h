@@ -5,8 +5,6 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.15 2007/12/21 22:42:30 wmtan Exp $
-
 ----------------------------------------------------------------------*/
 #include "boost/shared_ptr.hpp"
 
