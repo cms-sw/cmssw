@@ -15,13 +15,15 @@ public:
 
   /// real ctor specifyig LB if this LB is master, 
   /// its number in link, and which chamber it is serving  
-  LinkBoardSpec(bool master, int linkBoardNumInLin);
+  LinkBoardSpec(bool master, int linkBoardNumInLin, std::string lbName);
 
   /// true if master LB (is it of any use?)
   bool master() { return theMaster; }
 
   /// this LB number in link
   int linkBoardNumInLink() const { return theLinkBoardNumInLink; }
+
+  std::string linkBoardName() const { return theName;}
 
   /// attache feb
   void add(const FebConnectorSpec & feb); 
@@ -36,6 +38,7 @@ public:
 private: 
   bool theMaster;
   int theLinkBoardNumInLink; 
+  std::string theName;
   std::vector<FebConnectorSpec> theFebs;
 };
 #endif

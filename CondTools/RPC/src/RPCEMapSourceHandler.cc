@@ -178,6 +178,7 @@ void popcon::RPCEMapSourceHandler::readEMap()
         for(unsigned int iLB=0; iLB<theLB.size(); iLB++) {
           thisLB.theLinkBoardNumInLink=atoi(((theLB[iLB].second).substr((theLB[iLB].second).length()-1,1)).c_str());
           thisLB.theMaster = (theLB[iLB].first==boardId);
+          thisLB.theName = theLB[iLB].second;
           FEBStruct tmpFEB;
           std::vector<FEBStruct> theFEB;
 // get FEBs
