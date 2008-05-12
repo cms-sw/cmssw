@@ -42,6 +42,7 @@ namespace edm {
     ProductStatus const& productStatus() const {return productStatus_;}
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     void setStatus(ProductStatus status) {productStatus_ = status;}
+    void setModuleDescriptionID(ModuleDescriptionID const& mdid) {moduleDescriptionID_ = mdid;}
     void setPresent();
     void setNotPresent();
 
