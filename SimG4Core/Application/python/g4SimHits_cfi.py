@@ -50,7 +50,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
     HcalTB02SD = cms.PSet(
         UseBirkLaw = cms.untracked.bool(False),
         BirkC1 = cms.untracked.double(0.013),
-        BirkC2 = cms.untracked.double(9.6e-06)
+        BirkC2 = cms.untracked.double(0.0568),
+        BirkC3 = cms.untracked.double(1.75)
     ),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),
@@ -82,12 +83,13 @@ g4SimHits = cms.EDProducer("OscarProducer",
     ),
     ECalSD = cms.PSet(
         BirkL3Parametrization = cms.bool(False),
-        BirkC2 = cms.double(9.6e-06),
         BirkCut = cms.double(0.1),
-        BirkC1 = cms.double(0.013),
+        BirkC1 = cms.double(0.00463),
+        BirkC2 = cms.double(0.0),
+        BirkC3 = cms.double(1.0),
         TestBeam = cms.untracked.bool(False),
         SlopeLightYield = cms.double(0.02),
-        UseBirkLaw = cms.bool(False),
+        UseBirkLaw = cms.bool(True),
         BirkSlope = cms.double(0.253694)
     ),
     UseMagneticField = cms.bool(True),
@@ -108,9 +110,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
         UseHF = cms.untracked.bool(True),
         UseLayerWt = cms.untracked.bool(False),
         UseShowerLibrary = cms.bool(True),
-        BirkC2 = cms.double(9.6e-06),
         BirkC1 = cms.double(0.013),
-        UseBirkLaw = cms.bool(False)
+        BirkC2 = cms.double(0.0568),
+        BirkC3 = cms.double(1.75),
+        UseBirkLaw = cms.bool(True)
     ),
     HFShowerLibrary = cms.PSet(
         BranchPost = cms.untracked.string('_R.obj'),
@@ -153,13 +156,15 @@ g4SimHits = cms.EDProducer("OscarProducer",
     HcalTB06BeamSD = cms.PSet(
         UseBirkLaw = cms.bool(False),
         BirkC1 = cms.double(0.013),
-        BirkC2 = cms.double(9.6e-06)
+        BirkC2 = cms.double(0.0568),
+        BirkC3 = cms.untracked.double(1.75)
     ),
     Watchers = cms.VPSet(),
     EcalTBH4BeamSD = cms.PSet(
         UseBirkLaw = cms.bool(False),
         BirkC1 = cms.double(0.013),
-        BirkC2 = cms.double(9.6e-06)
+        BirkC2 = cms.double(0.0568),
+        BirkC3 = cms.untracked.double(1.75)
     ),
     RunAction = cms.PSet(
         StopFile = cms.string('StopRun')
