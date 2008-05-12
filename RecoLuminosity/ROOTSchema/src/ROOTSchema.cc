@@ -27,7 +27,7 @@ HCAL_HLX::ROOTSchema::~ROOTSchema(){
 
 void HCAL_HLX::ROOTSchema::ProcessSection(const HCAL_HLX::LUMI_SECTION &lumiSection){
 
-  SetFileName(CreateLSFileName(lumiSection.hdr.runNumber, lumiSection.hdr.sectionNumber, lumiSection.hdr.bCMSLive));
+  SetFileName(CreateLSFileName(lumiSection.hdr.runNumber, lumiSection.hdr.sectionNumber));
   CreateTree(lumiSection);  
   FillTree(lumiSection);
   CloseTree();

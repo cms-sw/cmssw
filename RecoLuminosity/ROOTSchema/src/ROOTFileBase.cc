@@ -42,6 +42,8 @@ HCAL_HLX::ROOTFileBase::ROOTFileBase(){
 
   m_file = NULL;
 
+  fileCounter_ = 0;
+
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -78,8 +80,7 @@ void HCAL_HLX::ROOTFileBase::SetFileName(const std::string& fileName){
 
 } 
 
-
-std::string HCAL_HLX::ROOTFileBase::CreateLSFileName(const unsigned int runNumber, const unsigned int sectionNumber, const unsigned int bCMSLive){
+std::string HCAL_HLX::ROOTFileBase::CreateLSFileName(const unsigned int runNumber, const unsigned int sectionNumber){
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -87,8 +88,11 @@ std::string HCAL_HLX::ROOTFileBase::CreateLSFileName(const unsigned int runNumbe
   std::ostringstream outputString;
 
   // Create directory name
-  outputString << outputDir_ << "/" 
-	       << std::setfill('0') << std::setw(9) << runNumber;
+  outputString << outputDir_ << "/"
+	       << TimeStampYYYYMM();
+  mkdir(outputString.str().c_str(), 0777);
+
+  outputString << "/" << std::setfill('0') << std::setw(9) << runNumber;
   
   // Create the directory that will contain the single lumi section file
   mkdir(outputString.str().c_str(), 0777);
@@ -97,13 +101,11 @@ std::string HCAL_HLX::ROOTFileBase::CreateLSFileName(const unsigned int runNumbe
   outputString << "/"
 	       << outputFilePrefix_
 	       << "_"
-	       << TimeStampShort() 
+	       << TimeStampYYYYMMDD() 
 	       << "_"
 	       << std::setfill('0') << std::setw(9) << runNumber << "_"
-	       << bCMSLive << "_"
 	       << std::setfill('0') << std::setw(4) << sectionNumber 
 	       << ".root";
-  
 #ifdef DEBUG
   std::cout << "Output file is " << outputString.str() << std::endl;
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
@@ -112,7 +114,7 @@ std::string HCAL_HLX::ROOTFileBase::CreateLSFileName(const unsigned int runNumbe
   return outputString.str();
 }
 
-std::string HCAL_HLX::ROOTFileBase::CreateRunFileName(const unsigned int runNumber, bool bCMSLive){
+std::string HCAL_HLX::ROOTFileBase::CreateRunFileName(const unsigned int runNumber, const unsigned int firstSection){
 #ifdef DEBUG
   std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -121,13 +123,15 @@ std::string HCAL_HLX::ROOTFileBase::CreateRunFileName(const unsigned int runNumb
 
   // Create file name
   outputString << outputDir_ << "/"
+	       << TimeStampYYYYMM()
+	       << "/"
 	       << outputFilePrefix_
 	       << "_"
-	       << TimeStampShort() 
+	       << TimeStampYYYYMMDD() 
 	       << "_"
 	       << std::setfill('0') << std::setw(9) << runNumber 
 	       << "_"
-	       << bCMSLive
+	       << std::setfill('0') << std::setw(4) << firstSection
 	       << ".root";
   
 #ifdef DEBUG

@@ -7,8 +7,8 @@ Adam Hunt - Princeton University
 ahunt@princeton.edu
 
 */
-#include "RecoLuminosity/HLXReadOut/CoreUtils/include/ICTypeDefs.hh"
-#include "RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
+#include "RecoLuminosity/TCPReceiver/interface/ICTypeDefs.hh"
+#include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 #include "RecoLuminosity/TCPReceiver/interface/TimeStamp.h"
 
 #include <string>
@@ -31,10 +31,12 @@ namespace HCAL_HLX{
     std::string GetOutputDir(){ return outputDir_; }
     void SetOutputDir(std::string dir){ outputDir_ = dir; }
     
-    std::string CreateRunFileName(const unsigned int runNumber, bool bCMSLive);
-    std::string CreateLSFileName(const unsigned int runNumber, const unsigned int sectionNumber, const unsigned int bCMSLive);
+    std::string CreateRunFileName(const unsigned int runNumber, const unsigned int firstSection);
+    std::string CreateLSFileName(const unsigned int runNumber, const unsigned int sectionNumber);
     
   protected:
+
+    unsigned int fileCounter_;
     
     TTree *m_tree;
     TFile *m_file;

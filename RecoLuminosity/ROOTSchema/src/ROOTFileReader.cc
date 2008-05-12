@@ -15,10 +15,6 @@ HCAL_HLX::ROOTFileReader::ROOTFileReader(){
   mChain_ = new TChain("LumiTree");
 
   lumiSection_ = new HCAL_HLX::LUMI_SECTION;
-  
-  // LumiSection
-  
-  // Other
   Threshold_       = new HCAL_HLX::LUMI_THRESHOLD;
   L1Trigger_       = new HCAL_HLX::LEVEL1_TRIGGER;
   HLT_             = new HCAL_HLX::HLT;
@@ -127,15 +123,6 @@ int HCAL_HLX::ROOTFileReader::GetNumEntries(){
 }
 
 int HCAL_HLX::ROOTFileReader::GetLumiSection(HCAL_HLX::LUMI_SECTION& localSection){
-
-  memcpy(&(lumiSection_->hdr),         Header_,  sizeof(HCAL_HLX::LUMI_SECTION_HEADER));
-  memcpy(&(lumiSection_->lumiSummary), Summary_, sizeof(HCAL_HLX::LUMI_SUMMARY));
-  memcpy(&(lumiSection_->lumiDetail),  Detail_,  sizeof(HCAL_HLX::LUMI_DETAIL));
-  for(int HLXnum = 0; HLXnum < HCAL_HLX_MAX_HLXS; HLXnum++){
-    //memcpy(&(lumiSection_->etSum[HLXnum]),     ,sizeof(HCAL_HLX::ET_SUM_SECTION)); 
-    //memcpy(&(lumiSection_->occupancy[HLXnum]), ,sizeof(HCAL_HLX::OCCUPANCY_SECTION));
-    //memcpy(&(lumiSection_->lhc[HLXnum]),       ,sizeof(HCAL_HLX::LHC_SECTION));
-  }
 
   memcpy(&localSection, lumiSection_, sizeof(HCAL_HLX::LUMI_SECTION));
 
