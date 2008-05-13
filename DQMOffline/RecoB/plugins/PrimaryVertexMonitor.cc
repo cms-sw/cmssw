@@ -65,7 +65,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   zerrVsTrks[1]	 = dqmStore_->book2D("tagErrVsWeightZ","Uncertainty z Coordinate vs. track weight (tagged Vtx)",100,0,100.,100,0.,100);
 
   type[0] = dqmStore_->book1D("type","Vertex type",3,-0.5,2.5);
-  type[1] = dqmStore_->book1D("type","Vertex type",3,-0.5,2.5);
+  type[1] = dqmStore_->book1D("tagType","Vertex type (tagged Vtx)",3,-0.5,2.5);
   for (int i=0;i<2;++i){
     type[i]->getTH1F()->GetXaxis()->SetBinLabel(1,"Valid, real");
     type[i]->getTH1F()->GetXaxis()->SetBinLabel(2,"Valid, fake");
