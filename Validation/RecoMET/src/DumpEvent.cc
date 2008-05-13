@@ -144,15 +144,15 @@ void DumpEvent::WriteJets(const edm::Event& iEvent, const edm::EventSetup& iSetu
       njet++;
       DEBUG( "Jet # " << njet << " : eta =" << eta << ", phi = " << phi << ", energy = " << energy );
       
-      const std::vector<CaloTowerDetId>&  detIDs=jet->getTowerIndices();
-      int nConstituents= detIDs.size();
-      for (int i = 0; i <nConstituents ; i++) 
-	{
-	  //CaloTowerCollection::const_iterator theTower=caloTowers->find(detIDs[i]);  //Find the tower from its CaloTowerDetID	
-	  int ietaTower = detIDs[i].ieta();
-	  int iphiTower = detIDs[i].iphi();
-	  hCaloTowerToJetMap_ieta_iphi->Fill(ietaTower, iphiTower, njet);
-	}
+     int nConstituents= jet->nConstituents();
+     for (int i = 0; i <nConstituents ; i++)
+       {
+         const CaloTower& tower = *(jet->getConstituent (i));
+         int ietaTower = tower.id().ieta();
+         int iphiTower = tower.id().iphi();
+         hCaloTowerToJetMap_ieta_iphi->Fill(ietaTower, iphiTower, njet);
+       } 
+
     }
 }
 
