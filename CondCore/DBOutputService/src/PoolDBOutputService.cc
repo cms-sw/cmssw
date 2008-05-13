@@ -25,7 +25,7 @@
 //#include <iostream>
 #include <vector>
 
-static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+//static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
@@ -58,14 +58,14 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   //std::string catconnect("pfncatalog_memory://POOL_RDBMS?");
   //catconnect.append(connect);
-  conHandler.registerConnection("outputdb",connect,-1);
+  cond::ConnectionHandler::Instance().registerConnection("outputdb",connect,-1);
   if( !logconnect.empty() ){
     m_logdbOn=true;
-    conHandler.registerConnection("logdb",logconnect,-1);
+    cond::ConnectionHandler::Instance().registerConnection("logdb",logconnect,-1);
   }
   m_session->open();
-  conHandler.connect(m_session);
-  m_connection=conHandler.getConnection("outputdb");
+  cond::ConnectionHandler::Instance().connect(m_session);
+  m_connection=cond::ConnectionHandler::Instance().getConnection("outputdb");
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
   for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
@@ -127,7 +127,7 @@ cond::service::PoolDBOutputService::initDB()
     coraldb.commit();    
     //init logdb if required
     if(m_logdbOn){
-      m_logdb=new cond::Logger(conHandler.getConnection("logdb"));
+      m_logdb=new cond::Logger(cond::ConnectionHandler::Instance().getConnection("logdb"));
       m_logdb->getWriteLock();
       m_logdb->createLogDBIfNonExist();
       m_logdb->releaseWriteLock();
