@@ -9,8 +9,8 @@
  *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2007/10/07 17:28:01 $
- *   $Revision: 1.11 $
+ *   $Date: 2008/04/29 13:52:39 $
+ *   $Revision: 1.1 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -50,8 +50,8 @@ class TevMuonProducer : public edm::EDProducer {
   MuonTrackLoader* theTrackLoader;
   
   std::string theAlias;
-  std::vector<std::string> theCocktails;
-  std::vector<int> theCocktailIndex;
+  std::vector<std::string> theRefits;
+  std::vector<int> theRefitIndex;
 
   void setAlias( std::string alias ){
     alias.erase( alias.size() - 1, alias.size() );
