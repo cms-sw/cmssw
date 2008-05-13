@@ -161,7 +161,6 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, TEveElementList
 	   // std::cout << "\tpx " << outerRecTrack.fP.fX << " py " << outerRecTrack.fP.fY << " pz " << outerRecTrack.fP.fZ
 	   //  << " lastPointVX " << outerRecTrack.fV.fX << " vy " << outerRecTrack.fV.fY << " vz " << outerRecTrack.fV.fZ
 	   //  << " sign " << outerRecTrack.fSign << std::endl;
-	   muonList->AddElement( outerTrack );
 	   
 	   // add muon segments
 	   addMatchInformation( &(*muon), iItem, outerTrack, muonList, showEndcap );
