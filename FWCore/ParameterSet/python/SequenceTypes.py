@@ -171,6 +171,8 @@ class _SequenceNegation(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
     def __init__(self, operand):
         self.__operand = operand
+        if isinstance(operand, _ModuleSequenceType):
+            raise RuntimeError("The ~ operator cannot accept a sequence")
     def __str__(self):
         return '~%s' %self.__operand
     def dumpSequenceConfig(self):
@@ -195,6 +197,8 @@ class _SequenceIgnore(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the '-' operator"""
     def __init__(self, operand):
         self.__operand = operand
+        if isinstance(operand, _ModuleSequenceType):
+            raise RuntimeError("The ignore command cannot accept a sequence")
     def __str__(self):
         return 'cms.ignore(%s)' %self.__operand
     def dumpSequenceConfig(self):
