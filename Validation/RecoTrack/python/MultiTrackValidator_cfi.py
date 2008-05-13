@@ -4,6 +4,7 @@ from Validation.RecoTrack.TrackingParticleSelectionForEfficiency_cfi import *
 multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     #InputTag associatormap = assoc2secStepTk
     #InputTag associatormap = assoc2thStepTk   
+    #InputTag associatormap = assoc2GsfTracks   
     # selection of TP for evaluation of efficiency
     TrackingParticleSelectionForEfficiency,
     useFabsEta = cms.bool(False),
@@ -23,8 +24,7 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     # 
     sim = cms.string('g4SimHits'),
     # 
-    associators = cms.vstring('TrackAssociatorByHits', 
-        'TrackAssociatorByChi2'),
+    associators = cms.vstring('TrackAssociatorByHits'),
     max = cms.double(2.5),
     maxpT = cms.double(100.0),
     nint = cms.int32(50),

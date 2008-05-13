@@ -9,6 +9,7 @@ simEcalUnsuppressedDigis = cms.EDProducer("EcalTBDigiProducer",
     ecal_sim_parameter_map,
     ecal_notCont_sim,
     EcalTBSimTDCRangesBlock,
+    hitsProducer = cms.string('g4SimHits'),
     use2004OffsetConvention = cms.untracked.bool(False),
     tunePhaseShift = cms.double(0.5),
     EBdigiCollection = cms.string(''),
@@ -47,5 +48,4 @@ simEcalUnsuppressedDigis = cms.EDProducer("EcalTBDigiProducer",
 )
 
 simEcalUnsuppressedDigis.syncPhase = False
-
 

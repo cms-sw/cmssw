@@ -20,7 +20,7 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
             RescaleErrorFactor = cms.double(1.0),
             Granularity = cms.int32(0)
         ),
-        EnableRPCMeasurement = cms.untracked.bool(False),
+        EnableRPCMeasurement = cms.untracked.bool(True),
         CSCRecSegmentLabel = cms.InputTag("cscSegments"),
         BuildTraversingMuon = cms.untracked.bool(False),
         EnableDTMeasurement = cms.untracked.bool(True),

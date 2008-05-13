@@ -5,6 +5,7 @@ from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 ecalMixingModuleValidation = cms.EDFilter("EcalMixingModuleValidation",
     ecal_sim_parameter_map,
     es_electronics_sim,
+    hitsProducer = cms.string('g4SimHits'),
     EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis"),
     verbose = cms.untracked.bool(True),
     EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis"),

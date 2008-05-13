@@ -4,7 +4,7 @@ from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 from Geometry.CSCGeometry.cscGeometry_cfi import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
-DaqMonitorROOTBackEnd = cms.Service("DaqMonitorROOTBackEnd")
+DQMStore = cms.Service("DQMStore")
 
 muonIdVal = cms.EDFilter("MuonIdVal",
     inputCSCSegmentCollection = cms.InputTag("cscSegments"),

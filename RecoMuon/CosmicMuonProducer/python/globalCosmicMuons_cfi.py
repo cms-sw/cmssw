@@ -9,8 +9,8 @@ globalCosmicMuons = cms.EDProducer("GlobalCosmicMuonProducer",
         TkTrackCollectionLabel = cms.string('cosmictrackfinder'),
         Propagator = cms.string('SteppingHelixPropagatorAny'),
         SmootherParameters = cms.PSet(
-            PropagatorAlong = cms.string('SteppingHelixPropagatorAlong'),
-            PropagatorOpposite = cms.string('SteppingHelixPropagatorOpposite')
+            PropagatorAlong = cms.string('SmartPropagatorAny'),
+            PropagatorOpposite = cms.string('SmartPropagatorAnyOpposite')
         )
     ),
     MuonCollectionLabel = cms.InputTag("cosmicMuons")

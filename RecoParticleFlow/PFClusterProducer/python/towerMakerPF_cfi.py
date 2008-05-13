@@ -1,46 +1,25 @@
 # The following comments couldn't be translated into the new config version:
 
-# GeV, Scheme B
-# GeV, Scheme B
+# GeV, -1000 means cut not used 
+# GeV, -1000 means cut not used 
 import FWCore.ParameterSet.Config as cms
 
-towerMakerPF = cms.EDFilter("CaloTowersCreator",
-    EBSumThreshold = cms.double(-1000.0),
-    EBWeight = cms.double(1.0),
-    hfInput = cms.InputTag("hfreco"),
-    AllowMissingInputs = cms.untracked.bool(True),
-    EESumThreshold = cms.double(-1000.0),
-    HOThreshold = cms.double(999999.0), ## GeV, Scheme B
+import RecoJets.JetProducers.CaloTowerSchemeB_cfi
+towerMakerPF = RecoJets.JetProducers.CaloTowerSchemeB_cfi.towerMaker.clone()
+towerMakerPF.HBThreshold = 0.
+towerMakerPF.HOThreshold = 999999
+towerMakerPF.HESThreshold = 0.
+towerMakerPF.HEDThreshold = 0.
+towerMakerPF.HF1Threshold = 999999
+towerMakerPF.HF2Threshold = 999999
+towerMakerPF.EBThreshold = 999999
+towerMakerPF.EEThreshold = 999999
+towerMakerPF.EBSumThreshold = -1000
+towerMakerPF.EESumThreshold = -1000
+towerMakerPF.HcalThreshold = -1000 ## GeV, -1000 means cut not used 
 
-    HBThreshold = cms.double(0.0), ## GeV, Scheme B
+towerMakerPF.EcutTower = -1000 ## GeV, -1000 means cut not used
 
-    EBThreshold = cms.double(999999.0), ## GeV, ORCA value w/o selective readout
-
-    HcalThreshold = cms.double(-1000.0), ## GeV, -1000 means cut not used 
-
-    HEDWeight = cms.double(1.0),
-    EEWeight = cms.double(1.0),
-    UseHO = cms.bool(False),
-    HF1Weight = cms.double(1.0),
-    HOWeight = cms.double(1.0),
-    HESWeight = cms.double(1.0),
-    hbheInput = cms.InputTag("hbhereco"),
-    HF2Weight = cms.double(1.0),
-    HF2Threshold = cms.double(999999.0), ## GeV, ORCA value
-
-    EEThreshold = cms.double(999999.0), ## GeV, ORCA value w/o selective readout
-
-    HESThreshold = cms.double(0.0), ## GeV, Scheme B
-
-    hoInput = cms.InputTag("horeco"),
-    HF1Threshold = cms.double(999999.0), ## GeV, ORCA value
-
-    HEDThreshold = cms.double(0.0), ## GeV, Scheme B
-
-    EcutTower = cms.double(-1000.0), ## GeV, -1000 means cut not used
-
-    ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
-    HBWeight = cms.double(1.0)
-)
-
+towerMakerPF.UseHO = False
+towerMakerPF.AllowMissingInputs = True
 
