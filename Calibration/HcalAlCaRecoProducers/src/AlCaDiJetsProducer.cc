@@ -1,6 +1,6 @@
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaDiJetsProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -38,10 +38,6 @@ AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig)
 void AlCaDiJetsProducer::beginJob( const edm::EventSetup& iSetup)
 {
 
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
-   geo = pG.product();
-
 }
 
 AlCaDiJetsProducer::~AlCaDiJetsProducer()
@@ -57,6 +53,13 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 // cout<<" Start produce in AlCaDiJetsProducer "<<endl;
 // Jet Collections
+
+
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<CaloGeometryRecord>().get(pG);
+   geo = pG.product();
+
+
    double myvalue = 4.*atan(1.);
    double twomyvalue = 8.*atan(1.);
    CaloJet fJet1,fJet2;

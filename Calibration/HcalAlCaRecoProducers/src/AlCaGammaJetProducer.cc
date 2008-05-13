@@ -1,6 +1,6 @@
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaGammaJetProducer.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -47,10 +47,6 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
 }
 void AlCaGammaJetProducer::beginJob( const edm::EventSetup& iSetup)
 {
-   edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
-   geo = pG.product();
-
 }
 
 AlCaGammaJetProducer::~AlCaGammaJetProducer()
@@ -66,6 +62,11 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    using namespace std;
+
+   edm::ESHandle<CaloGeometry> pG;
+   iSetup.get<CaloGeometryRecord>().get(pG);
+   geo = pG.product();
+
 // Produced collections 
   
   std::auto_ptr<reco::SuperClusterCollection> result (new reco::SuperClusterCollection); //Corrected jets

@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaIsoTracksProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h" 
@@ -180,7 +180,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 // =================================================================================
    
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
    edm::Handle<reco::TrackCollection> trackCollection;
    iEvent.getByLabel(m_inputTrackLabel,trackCollection);
@@ -449,7 +449,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       
   // get the ps geometry
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
     
 //  const CaloSubdetectorGeometry *psGeometry = 
 //    geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
