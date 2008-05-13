@@ -7,9 +7,9 @@ eval `scramv1 runtime -sh`
 
 workdir=`pwd`
 
-path=$CMSSW_BASE/src/CondFormats/SiStripObjects/xml/
-if [ ! -e $path ] ;then
 path=$CMSSW_RELEASE_BASE/src/CondFormats/SiStripObjects/xml/
+if [ ! -e $path ] ;then
+path=$CMSSW_BASE/src/CondFormats/SiStripObjects/xml/
 if [ ! -e $path ]; then
 echo -e "Error: CondFormats/SiStripObjects/xml doesn't exist\nplease install that package\nexit"
 exit 1
