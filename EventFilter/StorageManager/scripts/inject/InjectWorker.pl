@@ -1,23 +1,25 @@
 #!/usr/bin/perl -w
-# $Id: injectIntoDB.pl,v 1.11 2008/05/02 10:47:47 loizides Exp $
+# $Id: InjectWorker.pl,v 1.5 2008/05/13 09:00:59 loizides Exp $
 
 use strict;
 #use DBI;
 use Getopt::Long;
 use File::Basename;
 use Sys::Hostname;
+use Cwd;
+use Cwd 'abs_path';
 
-
+############################################################################################################
 my $debug=1;
+############################################################################################################
 
-my $endflag=0;
-$SIG{'INT'}= 'SETFLAG';
-$SIG{'KILL'}='SETFLAG';
-sub SETFLAG {
-    $endflag=1;
+# printout syntax and die
+sub printsyntax()
+{
+    die "Syntax: ./InjectWorker.pl inputpath/file outputpath logpath sm_instance(not required if file input)";
 }
 
-#date routine for log file finding / writing
+# date routine for log file finding / writing
 sub getdatestr()
 {
     my @ltime = localtime(time);
@@ -40,13 +42,11 @@ sub getdatestr()
 
 
 # injection subroutine 
-# if called from insertFile, 2nd arg is 0 - insert into DB, no notify
-# if called from closeFile msg, 2nd arg is 1 - updates DB, notifies file to be transferred
+# if called from insertFile, 2nd arg is 0: insert into DB, no notify
+# if called from closeFile msg, 2nd arg is 1: updates DB, notifies file to be transferred
 sub inject($$)
 {
-
-
-    my $dbh = $_[0]; #shift;
+    my $dbh = $_[0];      #shift;
     my $doNotify = $_[1]; #shift;
 
     my $filename    = $ENV{'SM_FILENAME'};
@@ -71,7 +71,7 @@ sub inject($$)
     my $producer    = 'StorageManager';
 
     my $SQL;
-    if($doNotify==0) {
+    if ($doNotify==0) {
         $SQL = "INSERT INTO CMS_STOMGR.TIER0_INJECTION (" .
             "RUNNUMBER,LUMISECTION,INSTANCE,COUNT,START_TIME,STOP_TIME,FILENAME,PATHNAME," .
             "HOSTNAME,DATASET,PRODUCER,STREAM,STATUS,TYPE,SAFETY,NEVENTS,FILESIZE,CHECKSUM) " .
@@ -79,261 +79,282 @@ sub inject($$)
             "'$filename','$pathname','$hostname','$dataset','$producer','$stream','$status'," .
             "'$type',$safety,$nevents,$filesize,$checksum)";
     } else {
-        $SQL = "UPDATE CMS_STOMGR.TIER0_INJECTION SET FILESIZE=$filesize, STATUS='$status',  STOP_TIME='$stoptime', NEVENTS=$nevents, CHECKSUM=$checksum, PATHNAME='$pathname', SAFETY=$safety WHERE FILENAME = '$filename'";
+        $SQL = "UPDATE CMS_STOMGR.TIER0_INJECTION SET FILESIZE=$filesize, STATUS='$status'," .
+               "STOP_TIME='$stoptime',NEVENTS=$nevents,CHECKSUM=$checksum,PATHNAME='$pathname'," . 
+               "SAFETY=$safety WHERE FILENAME = '$filename'";
     }
+
+    my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
+    if (!defined $notscript) {
+        $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
+    }
+
+    my $indfile     = $filename;
+    $indfile =~ s/\.dat$/\.ind/;
+
+    my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber" . 
+        "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime" . 
+        "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname" .
+        "--DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety" .
+        "--NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile";
     
     if (!defined $dbh) { 
-        if($debug) { print "DB not defined, just printing and returning 0\n";}
+        if ($debug) { print "DB not defined, just printing and returning 0\n";}
         print "$SQL\n";
-        if($doNotify) {
-        
-            my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
-            if (!defined $notscript) {
-                $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
-            }
-
-            my $indfile     = $filename;
-            $indfile =~ s/\.dat$/\.ind/;
-            print "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber --LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile \n";
+        if ($doNotify) {
+            print "$TIERZERO\n";
         }
         return 0;
     }
 
-    my $rows = $dbh->do($SQL) or 
-        die $dbh->errstr;
-
-    if ($rows==1 && $doNotify) {
-        my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
-        if (!defined $notscript) {
-            $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
+    my $rows = $dbh->do($SQL) or die $dbh->errstr;
+    if ($doNotify) {
+        if ($rows==1) {
+            system($TIERZERO);
+        } else {
+            print "Error in DB access: Did not execute $TIERZERO\n";
         }
-
-        my $indfile     = $filename;
-        $indfile =~ s/\.dat$/\.ind/;
-
-        my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber --LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime --STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile";
-        system($TIERZERO);
     }
     return $rows-1;
 }
 
 
+############################################################################################################
+# Main starts here                                                                                         #
+############################################################################################################
 
-# main starts here
-my $oldflag=0;
-my $thedate = getdatestr();
-my $host = hostname();
-my $inpath;
-my $infile;
-my $outfile;
-my $errfile;
-my $line;
-my $lnum = 1;
-my $lastline;
-
-if (!defined $ARGV[0]) {
-    die "Syntax: ./injectWorker.pl inpath(or file) donepath logpath SMinstance(required if in not a file)";
-}
-if ( -d $ARGV[0]) {
-    $inpath="$ARGV[0]";
-} elsif ( -e $ARGV[0] ) {
-    $infile="$ARGV[0]";
-    $oldflag=1;
-} else {
-    die("Specified infile does not exist");
+# redirect signals
+my $endflag=0; 
+$SIG{'INT'}= 'SETFLAG';
+$SIG{'KILL'}='SETFLAG';
+sub SETFLAG {
+    $endflag=1;
 }
 
-if (!defined $ARGV[1]) {
-    die "Syntax: ./injectWorker.pl inpath(or file) donepath logpath SMinstance(required if in not a file)";
-}
-my $outpath="$ARGV[1]";
+# figure out how I am called
+my $mycall = abs_path($0);
 
-
+# check arguments
 if (!defined $ARGV[2]) {
-    die "Syntax: ./injectWorker.pl inpath(or file) donepath logpath SMinstance(required if in not a file)";
+    printsyntax();
+}
+
+my $infile;
+my $inpath;
+my $fileflag=0;
+my $sminstance;
+if (-d $ARGV[0]) {
+    $inpath="$ARGV[0]";
+    if (!defined $ARGV[3]) {
+        printsyntax();
+    }
+    $sminstance=$ARGV[3];
+} elsif (-e $ARGV[0] ) {
+    $infile="$ARGV[0]";
+    $fileflag=1;
+} else {
+    die("Error: Specified input \"$ARGV[0]\" does not exist");
+}
+
+my $outpath="$ARGV[1]";
+if (!-d $outpath) {
+    die("Error: Specified output path \"$outpath\" does not exist");
 }
 my $errpath="$ARGV[2]";
+if (!-d $errpath) {
+    die("Error: Specified output path \"$errpath\" does not exist");
+}
 
-my $sminstance;
+my $errfile;
+my $outfile;
+my $thedate = getdatestr();
+my @harray  = split(/\./,hostname());
+my $host    = $harray[0];
 
-if (!defined $ARGV[3] && !defined $infile) {
-    die "Syntax: ./injectWorker.pl inpath(or file) donepath logpath SMinstance(required if in not a file)";
-} elsif(!defined $infile) {
-    my $sminstance=$ARGV[3];
-    $infile = "$inpath/$thedate-$host-$sminstance.log";
-    $outfile = "$outpath/$thedate-$host-$sminstance.log"; #should this have a different name?
-    #if the output file exists (has been worked on before) then find what the last thing done was
-    if( -e $outfile ) {
-        open QUICKSEARCH, "<$outfile";
-        while($line=<QUICKSEARCH>) { $lastline=$line;}
-        close QUICKSEARCH;
-    }
+my $waiting = -10;
+if ($fileflag==0) {
+    $infile  = "$inpath/$thedate-$host-$sminstance.log";
+    $outfile = "$outpath/$thedate-$host-$sminstance.log";
     $errfile = "$errpath/$thedate-$host-$sminstance.log";
-
 } else {
     my $inbase = basename($infile);
     $outfile = "$outpath/$inbase";
-    #if the output file exists (has been worked on before) then find what the last thing done was
-    if( -e $outfile ) {
-        open QUICKSEARCH, "<$outfile" or die("Error: cannot open output file '$outfile'\n");
-        if($debug){ print "Found old file...searching for last thing done.\n";}
-        while($line=<QUICKSEARCH>) { $lastline=$line;}
-        close QUICKSEARCH;
-        if ($debug) { print "Last line done was:\n $lastline\n";}
-    }
     $errfile = "$errpath/$inbase";
 }
 
 
+# lockfile
+my $lockfile = "/tmp/." . basename($outfile) . ".lock";
+if (-e $lockfile) {
+    die("Error: Lock \"$lockfile\" exists.");
+} else {
+    system("touch $lockfile");
+}
 
-open(STDOUT, ">$errfile") or
-    die("Error:cannot open log file '$errfile'\n");
-open(STDERR, ">&STDOUT");
+# redirecting output
+open(STDOUT, ">>$errfile") or
+    die("Error: Cannot open log file \"$errfile\"\n");
+open(STDERR, ">>&STDOUT");
+if ($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";}
 
-if($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";}
-
-if( !(-e "$infile")) { print "In file for today does not already exist, creating it"; system("touch $infile");}
-
-open(INDATA, $infile) or 
-    die("Error: cannot open input file '$infile'\n");
-
-#Find the last thing done in a previously opened outfile - then read till that point
-if( defined($lastline) ) {
-    if ($debug) {print "Last line done was:\n $lastline\n"; print "Skipping previously done work\n";}
-    while($line = <INDATA>) {
-        if($line eq $lastline) { if($debug) {print "Found last line previously done\n";} last;}
+# if the output file exists (has been worked on before) then find what the last thing done was
+my $line;
+my $lastline="";
+if (-e $outfile ) {
+    open QUICKSEARCH, "<$outfile" or die("Error: Cannot open output file \"$outfile\"\n");
+    if ($debug) {print "Found old output file \"$outfile\": Searching for last line.\n";}
+    while($line=<QUICKSEARCH>) {$lastline=$line;}
+    close QUICKSEARCH;
+    if ($debug) {
+        if (defined($lastline) ) {print "Last line done was:\n $lastline\n";}
     }
 }
 
+# touch input file if it does not exist yet
+if (!(-e "$infile")) {
+    print "Input file \"$infile\" does not already exist, creating it\n"; 
+    system("touch $infile");
+}
+open(INDATA, $infile) or 
+    die("Error: Cannot open input file \"$infile\"\n");
+
+# find the last thing done in a previously opened outfile - then read till that point
+if (defined($lastline) ) {
+    if ($debug) {print "Last line done was:\n $lastline\n"; print "Skipping previously done work\n";}
+    while($line = <INDATA>) {
+        if ($line eq $lastline) { 
+            if ($debug) {print "Found last line previously done\n";} 
+            last;
+        }
+    }
+}
+
+# open output file
 open(OUTDATA, ">>$outfile") or 
-    die("Error: cannot open output file '$outfile'\n");
+    die("Error: Cannot open output file \"$outfile\"\n");
     
-#Make the output file hot so that buffer is flushed on every printed line
+# make the output file hot so that buffer is flushed on every printed line
 my $ofh = select OUTDATA;
 $| = 1;
 select $ofh;
 
-#overwrite TNS to be sure it points to new DB
+# overwrite TNS to be sure it points to new DB
 $ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
 
 # connect to DB
 my $dbh; #my DB handle
 if (!defined $ENV{'SM_DONTACCESSDB'}) { 
-    
-    if($debug) {print "env var is $ENV{'SM_DONTACCESSDB'}"; print "Setting up DB connection\n";}
     my $dbi    = "DBI:Oracle:cms_rcms";
     my $reader = "CMS_STOMGR_W";
+    if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
     $dbh = DBI->connect($dbi,$reader,"qwerty") or 
         die "Error: Connection to Oracle failed: $DBI::errstr\n";
-} else {print "Don't access DB flag set \n"."Following commands would have been processed: \n";}
+} else { 
+    print "Don't access DB flag set \n".
+          "Following commands would have been processed: \n";
+}
 
-
-
-#loop over input files - sleep and try to reread file once end is reached
-
+#loop over input files: sleep and try to reread file once end is reached
+my $lnum=0;
 while( !$endflag ) {
-    while($line=<INDATA>){
-        if($endflag) {last;}
-        if($debug) {print $line;}
+
+    while($line=<INDATA>) {
+
+        if ($endflag) {last;}
+
+        if ($debug) {print $line;}
 	chomp($line);
+        my $type=-1;
 	if ($line =~ m/insertFile/i) {
-	    if($debug) {print "Found file insertion\n";}
-	    my @exports = split(' ', $line);
-	    my $lexports = scalar(@exports);
-	    for (my $count = 0; $count < $lexports; $count++) {
-
-		my $field = "$exports[$count]=$exports[$count+1]";
-		if ($field =~ m/^\-\-(.*)=(.*)/i) {    
-		    my $fname = "SM_$1";
-		    if    ($1 eq "COUNT")      { $fname = "SM_FILECOUNTER";}
-		    elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
-		    elsif ($1 eq "STOP_TIME")  { $fname = "SM_STOPTIME";}
-		    elsif ($1 eq "APP_VERSION") { $fname = "SM_APPVERSION";}
-		    elsif ($1 eq "APP_NAME") { $fname = "SM_APPNAME";}
-		    $ENV{$fname}=$2;
-		    if($debug) {print "$fname = $ENV{$fname}\n";}
-		    $count++;
-		}
-
-	    } 
-	
-	    my $ret=inject($dbh,0);
-	    
-	    
-	    if ($ret == 0) {
-		print OUTDATA "$line\n";
-		my $cmd=$ENV{'SM_HOOKSCRIPT'};
-		if (defined $cmd) {
-		    system($cmd);
-		}
-	    }
-
+	    if ($debug) {print "Found file insert\n";}
+            $type=0;
 	} elsif ($line =~ m/closeFile/i) {
-	    if($debug) {print "Found file close\n";}
+	    if ($debug) {print "Found file close\n";}
+            $type=1;
+        } else {
+	    if ($debug) {print "Unknown line: $line\n";}
+            next;
+        }
 
-	    my @exports = split(' ', $line);
-	    my $lexports = scalar(@exports);
-	    for (my $count = 0; $count < $lexports; $count++) {
+        my @exports = split(' ', $line);
+        my $lexports = scalar(@exports);
+        for (my $count = 0; $count < $lexports; $count++) {
 
-		my $field = "$exports[$count]=$exports[$count+1]";
-		if ($field =~ m/^\-\-(.*)=(.*)/i) {    
-		    my $fname = "SM_$1";
-		    if    ($1 eq "COUNT")      { $fname = "SM_FILECOUNTER";}
-		    elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
-		    elsif ($1 eq "STOP_TIME")  { $fname = "SM_STOPTIME";}
-		    elsif ($1 eq "APP_VERSION") { $fname = "SM_APPVERSION";}
-		    elsif ($1 eq "APP_NAME") { $fname = "SM_APPNAME";}
-		    $ENV{$fname}=$2;
-		    if($debug) {print "$fname = $ENV{$fname}\n";}
-		    $count++;
-		}
+            my $field = "$exports[$count]=$exports[$count+1]";
+            if ($field =~ m/^\-\-(.*)=(.*)/i) {    
+                my $fname = "SM_$1";
+                if    ($1 eq "COUNT")      { $fname = "SM_FILECOUNTER";}
+                elsif ($1 eq "START_TIME") { $fname = "SM_STARTTIME";}
+                elsif ($1 eq "STOP_TIME")  { $fname = "SM_STOPTIME";}
+                elsif ($1 eq "APP_VERSION") { $fname = "SM_APPVERSION";}
+                elsif ($1 eq "APP_NAME") { $fname = "SM_APPNAME";}
+                $ENV{$fname}=$2;
+                if ($debug) {print "$fname = $ENV{$fname}\n";}
+                $count++;
+            }
 
-	    } 
+        } 
 	
-	    my $ret=inject($dbh,1);
+        my $ret=inject($dbh,$type);
 	    
-	    if ($ret == 0) {
-		print OUTDATA "$line\n";
-		my $cmd=$ENV{'SM_HOOKSCRIPT'};
-		if (defined $cmd) {
-		    system($cmd);
-		}
-	    }
- 
-	}
+        if ($ret == 0) {
+            print OUTDATA "$line\n";
+            my $cmd=$ENV{'SM_HOOKSCRIPT'};
+            if (defined $cmd) {
+                system($cmd);
+            }
+        }
 
 	$lnum++;
     }
 
+    if ($fileflag==1) {
+        $endflag=1;
+        last;
+    }
+
+    #when the date changes (next day), we want to spawn a new copy of this process 
+    #that goes to work on the new log. But need to check also that we got everything 
+    #from the old file!
+#    if ($waiting<0 && $thedate!=getdatestr()) {
+    if ($waiting==0) {
+        sleep(5);
+        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $sminstance\n";}
+        system("rm -f $lockfile");
+	system("$mycall $inpath $outpath $errpath $sminstance&") 
+            or warn("Can't launch new process after date change.");
+        last;
+
+        $waiting=0; #start the waiting counter
+    } elsif ($waiting>=0) {
+        $waiting++;
+        if ($waiting>1) {
+            $endflag=1;
+            last;
+        }
+    }
+    $waiting++;
 
     #sleep a little bit
     sleep(5);
-    #Seek nowhere in file to reset EOF flag
+
+    #seek nowhere in file to reset EOF flag
     seek(INDATA,0,1);
-
-
-    if($thedate!=getdatestr() && $oldflag==0) {
-	#When the date changes (next day), we want to spawn a new copy of this process that goes to work on the new log
-	#But need to check also that we got everything from the old file!
-	exec('./InjectWorker.pl $inpath $outpath $errpath $sminstance') or warn("Can't launch new process after date change.");
-        #Wait some number of hours, then end the process (can be done by setting the flag)
-	my @ltime = localtime(time);
-	if($ltime[2] > 6) { $endflag=1;}
-    } elsif ($oldflag) {
-        $endflag=1;
-    }
-
 }
 
-
-close INDATA;
-close OUTDATA;
-
-# Disconnect from DB
+# disconnect from DB
 if (defined $dbh) { 
     $dbh->disconnect or 
         warn "Warning: Disconnection from Oracle failed: $DBI::errstr\n";
 }
 
+# close files
+close INDATA;
+close OUTDATA;
+
+# remove lock file
+system("rm -f $lockfile");
+
+# reset signal
 $SIG{'INT'}='DEFAULT';
 $SIG{'KILL'}='DEFAULT';
