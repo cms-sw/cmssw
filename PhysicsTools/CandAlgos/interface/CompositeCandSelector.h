@@ -20,8 +20,8 @@ namespace reco {
 	typedef CompositeCandSelector<Combiner<StringCutObjectSelector<T1>,
 					       StringCutObjectSelector<T2> >, T1, T2, nDau> Selector;
 	  static Selector make(const edm::ParameterSet & cfg) {
-	    StringCutObjectSelector<T1> s1(cfg.getParameter<std::string>("cut1"));
-	    StringCutObjectSelector<T2> s2(cfg.getParameter<std::string>("cut2"));
+	    StringCutObjectSelector<T1> s1(cfg.getParameter<std::string>("daughter1cut"));
+	    StringCutObjectSelector<T2> s2(cfg.getParameter<std::string>("daughter2cut"));
 	    Combiner<StringCutObjectSelector<T1>, StringCutObjectSelector<T2> > c(s1, s2);					   
 	    return Selector(c);
 	  }
