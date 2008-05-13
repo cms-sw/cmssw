@@ -17,9 +17,10 @@ from RecoTracker.RoadSearchCloudMaker.RoadSearchCloudsP5_cff import *
 from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidatesP5_cff import *
 from RecoTracker.TrackProducer.RSFinalFitWithMaterialP5_cff import *
 # TRACK INFO
-from AnalysisAlgos.TrackInfoProducer.TrackInfoProducerP5_cff import *
+#include "AnalysisAlgos/TrackInfoProducer/data/TrackInfoProducerP5.cff"
 ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*ckfTrackCandidatesP5*ctfWithMaterialTracksP5)
 rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidatesP5*rsWithMaterialTracksP5)
 cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmictrackfinderP5)
-tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5*trackinfoP5)
+#sequence tracksP5 = {cosmictracksP5, ctftracksP5, rstracksP5, trackinfoP5}
+tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5)
 
