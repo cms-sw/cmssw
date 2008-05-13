@@ -60,7 +60,7 @@ int PixelROCTrimBits::read(PixelROCName rocid,std::ifstream& in){
 
     for(int j=0;j<80;j++){
 
-      unsigned char tmp=data[j]-48;
+      unsigned char tmp=toupper(data[j])-48;
       if (tmp>9) tmp-=7;  //FIXME this is so ugly
 
       byte+=tmp;
