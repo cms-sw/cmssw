@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.25 2008/04/30 13:32:13 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.26 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -78,7 +78,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	    FedConnectionsRange conns = connections_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
-	       << " Dowloaded " << conns.size() 
+	       << " Downloaded " << conns.size() 
 	       << " FED connections to local cache for partition \""
 	       << iter->second.partitionName() << "\"" << std::endl;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"

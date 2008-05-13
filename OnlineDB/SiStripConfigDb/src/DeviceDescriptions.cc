@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.27 2008/04/30 13:32:13 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.28 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -53,7 +53,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 	    DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	    std::stringstream ss;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
-	       << " Dowloaded " << range.size() 
+	       << " Downloaded " << range.size() 
 	       << " device descriptions to local cache for partition \""
 	       << iter->second.partitionName() << "\"" << std::endl;
 	    ss << "[SiStripConfigDb::" << __func__ << "]"
