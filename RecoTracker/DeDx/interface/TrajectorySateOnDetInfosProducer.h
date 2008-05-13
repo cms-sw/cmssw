@@ -28,6 +28,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 
+//#include "RecoTracker/DeDx/interface/TrajectorySateOnDetInfosTools.h"
+
+
 //
 // class decleration
 //
@@ -42,14 +45,14 @@ class TrajectorySateOnDetInfosProducer : public edm::EDProducer {
       explicit TrajectorySateOnDetInfosProducer(const edm::ParameterSet&);
       ~TrajectorySateOnDetInfosProducer();
 
-       TrackTrajectorySateOnDetInfosCollection* Get_TSODICollection(edm::Event& iEvent, const edm::EventSetup& iSetup);
+//       TrackTrajectorySateOnDetInfosCollection* Get_TSODICollection(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      reco::TrajectorySateOnDetInfo* Get_TSODI(const Trajectory*, const TrajectoryStateOnSurface*, const SiStripRecHit2D*);
+//      reco::TrajectorySateOnDetInfo* Get_TSODI(const Trajectory*, const TrajectoryStateOnSurface*, const SiStripRecHit2D*);
 
      
       // ----------member data ---------------------------

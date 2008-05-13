@@ -38,13 +38,12 @@
 #include "DataFormats/TrackReco/interface/TrajectorySateOnDetInfo.h"
 #include "DataFormats/TrackReco/interface/TrackTrajectorySateOnDetInfos.h"
 #include "RecoTracker/DeDx/interface/TrajectorySateOnDetInfosProducer.h"
-
+#include "RecoTracker/DeDx/interface/TrajectorySateOnDetInfosTools.h"
 
 
 using namespace reco;
 using namespace std;
 using namespace edm;
-
 
 
 TrajectorySateOnDetInfosProducer::TrajectorySateOnDetInfosProducer(const edm::ParameterSet& iConfig)
@@ -68,13 +67,22 @@ TrajectorySateOnDetInfosProducer::~TrajectorySateOnDetInfosProducer()
 void
 TrajectorySateOnDetInfosProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   TrackTrajectorySateOnDetInfosCollection* outputCollection = Get_TSODICollection(iEvent, iSetup);
+   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+   iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
+   const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
+
+   edm::Handle<reco::TrackCollection> trackCollectionHandle;
+   iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
+
+
+   TrackTrajectorySateOnDetInfosCollection* outputCollection = TSODI::Get_TSODICollection(TrajToTrackMap,trackCollectionHandle);
    
    //put in the event the result
    std::auto_ptr<TrackTrajectorySateOnDetInfosCollection> outputs(outputCollection);
    iEvent.put(outputs);
 }
 
+/*
 TrackTrajectorySateOnDetInfosCollection*
 TrajectorySateOnDetInfosProducer::Get_TSODICollection(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -94,14 +102,13 @@ TrajectorySateOnDetInfosProducer::Get_TSODICollection(edm::Event& iEvent, const 
       const Track      track = *it->val;
       const Trajectory traj  = *it->key;
 
-/*      printf("%6.2f<%6.2f  -  %6.2f>%6.2f\n", track.p(),Track_PMin,track.chi2(),Track_Chi2Max);
-      if(track.p()    < Track_PMin    )continue;
-      if(track.p()    > Track_PMax    )continue;
-      if(track.chi2() > Track_Chi2Max )continue;
-      K++;
+//      printf("%6.2f<%6.2f  -  %6.2f>%6.2f\n", track.p(),Track_PMin,track.chi2(),Track_Chi2Max);
+//      if(track.p()    < Track_PMin    )continue;
+//      if(track.p()    > Track_PMax    )continue;
+//      if(track.chi2() > Track_Chi2Max )continue;
+//      K++;
+//      printf("NoSkipped\n");
 
-      printf("NoSkipped\n");
-*/
       TrajectorySateOnDetInfoCollection TSODI_Coll;
       vector<TrajectoryMeasurement> measurements = traj.measurements();
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
@@ -164,7 +171,7 @@ TrajectorySateOnDetInfo* TrajectorySateOnDetInfosProducer::Get_TSODI(const Traje
    TrajectorySateOnDetInfo* toReturn = new TrajectorySateOnDetInfo(theLocalParameters, theLocalErrors, theCluster);
    return toReturn;
 }
-
+*/
 void 
 TrajectorySateOnDetInfosProducer::beginJob(const edm::EventSetup&)
 {

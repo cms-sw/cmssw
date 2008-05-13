@@ -41,7 +41,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-
+#include "RecoTracker/DeDx/interface/TrajectorySateOnDetInfosTools.h"
 
 using namespace reco;
 using namespace std;
@@ -60,8 +60,8 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    if(!m_FromTrajectory){
       m_TsodiTag                  = iConfig.getParameter<edm::InputTag>("TrajectoryStateOnDetInfo");
    }else{
-      m_TSODIProducer             = new TrajectorySateOnDetInfosProducer(iConfig);
-
+      m_trajTrackAssociationTag   = iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation");
+      m_tracksTag                 = iConfig.getParameter<edm::InputTag>("Track");
    }
 }
 
@@ -84,10 +84,17 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       iEvent.getByLabel(m_TsodiTag,trackTrajectorySateOnDetInfosCollectionHandle);
       tsodis = (TrackTrajectorySateOnDetInfosCollection*) trackTrajectorySateOnDetInfosCollectionHandle.product();
    }else{
-      tsodis = m_TSODIProducer->Get_TSODICollection(iEvent, iSetup);
+      Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+      iEvent.getByLabel(m_trajTrackAssociationTag, trajTrackAssociationHandle);
+      const TrajTrackAssociationCollection TrajToTrackMap = *trajTrackAssociationHandle.product();
+
+      edm::Handle<reco::TrackCollection> trackCollectionHandle;
+      iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
+
+      tsodis = TSODI::Get_TSODICollection(TrajToTrackMap,trackCollectionHandle);
    }
 
-   TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection(tsodis->keyProduct());
+   TrackDeDxEstimateCollection* outputCollection = new TrackDeDxEstimateCollection(tsodis->keyProduct());
 //  TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection();
 
 
