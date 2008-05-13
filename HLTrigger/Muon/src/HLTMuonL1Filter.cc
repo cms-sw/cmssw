@@ -76,10 +76,15 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n = 0;
    vector<L1MuonParticleRef> l1mu;
    mucands->getObjects(TriggerL1Mu,l1mu);
+   InputTag saveThisTag;
+   const Provenance * prov=0;
    if(saveTag_)filterproduct->addCollectionTag(candTag_);
    for (unsigned int i=0; i<l1mu.size(); i++) {
       L1MuonParticleRef muon = L1MuonParticleRef(l1mu[i]);
-
+      if (!prov && saveTag_){
+	prov=&iEvent.getProvenance(muon.id());
+	saveThisTag = InputTag(prov->moduleLabel(), prov->productInstanceName(), prov->processName());
+      }
       LogDebug("HLTMuonL1Filter") 
             << " Muon in loop: q*pt= " << muon->charge()*muon->pt() 
             << ", eta= " << muon->eta();
@@ -99,6 +104,8 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       n++;
       filterproduct->addObject(TriggerL1Mu,muon);
    }
+   if(saveTag_)filterproduct->addCollectionTag(saveThisTag);
+
    vector<L1MuonParticleRef> vref;
    filterproduct->getObjects(TriggerL1Mu,vref);
    for (unsigned int i=0; i<vref.size(); i++) {
