@@ -5,8 +5,8 @@
  * *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2008/05/13 13:50:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/13 13:57:48 $
+ *  $Revision: 1.2 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -16,6 +16,10 @@
 
 class DQMStore;
 class MonitorElement;
+class edm::Event;
+class edm::EventSetup;
+class edm::LuminosityBlock;
+class edm::Run;
 
 //
 // class declaration
@@ -41,7 +45,6 @@ protected:
 
 private:
 
-  edm::ParameterSet m_parameters;
   edm::InputTag m_lifetimeL2Jets;
   edm::InputTag m_lifetimeL25TagInfo;
   edm::InputTag m_lifetimeL25JetTags;
@@ -60,6 +63,9 @@ private:
 
   std::string m_monitorName;
   std::string m_outputFile;
+  bool m_storeDQM;
+  bool m_storeROOT;
+
   DQMStore * m_dbe;
 
   MonitorElement * m_lifetimeL2JetsEnergy;
@@ -169,9 +175,8 @@ private:
   MonitorElement * m_performanceL3MuonPtrelSig;
   MonitorElement * m_performanceL3Discriminator;
 
-  int  m_counterEvt;
-  int  m_prescaleEvt;
-  bool m_verbose;
+  unsigned int m_counterEvent;
+  unsigned int m_prescaleEvent;
 };
 
 #endif // DQM_HLTEvF_HLTBJetDQMSource_H
