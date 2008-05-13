@@ -14,7 +14,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackIPTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update = false);
+	const edm::ParameterSet& pSet, bool update, bool mc);
 
   ~TrackIPTagPlotter () ;
 
@@ -31,6 +31,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   int	nBinEffPur_ ;
   double startEffPur_ ; 
   double endEffPur_ ; 
+  bool mcPlots_;
 
   FlavourHistograms<double> * tkcntHistosSig3D[5];
   FlavourHistograms<double> * tkcntHistosSig2D[5];

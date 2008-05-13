@@ -11,7 +11,7 @@ class SoftLeptonTagPlotter : public BaseTagInfoPlotter {
 public:
 
   SoftLeptonTagPlotter(const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update = false);
+	const edm::ParameterSet& pSet, bool mc, bool update);
   
   ~SoftLeptonTagPlotter( void ) ;
 
@@ -24,6 +24,8 @@ public:
   void epsPlot( const TString & name );
 
 private:
+
+  bool mcPlots_;
 
   // keep plots for up to 3 leptons per jet
   static const int s_leptons = 2;

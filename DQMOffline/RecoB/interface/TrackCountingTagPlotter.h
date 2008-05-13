@@ -14,7 +14,7 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackCountingTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update = false);
+	const edm::ParameterSet& pSet, bool update, bool mc);
 
   ~TrackCountingTagPlotter () ;
 
@@ -27,7 +27,7 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
   void psPlot(const TString & name);
 
  private:
-
+  bool mcPlots_;
   int	nBinEffPur_ ;
   double startEffPur_ ; 
   double endEffPur_ ; 

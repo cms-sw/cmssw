@@ -17,7 +17,7 @@ class JetTagPlotter : public BaseBTagPlotter {
  public:
 
   JetTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-		 const edm::ParameterSet& pSet, bool update = false);
+		 const edm::ParameterSet& pSet, bool mc , bool update);
 
   virtual ~JetTagPlotter () ;
 
@@ -50,6 +50,7 @@ class JetTagPlotter : public BaseBTagPlotter {
   double endEffPur_ ; 
 
   bool finalized;
+  bool mcPlots_;
 
   // for the misid vs. eff plots
   EffPurFromHistos * effPurFromHistos ;

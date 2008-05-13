@@ -15,7 +15,7 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackProbabilityTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update = false);
+	const edm::ParameterSet& pSet, bool update, bool mc);
 
   ~TrackProbabilityTagPlotter () ;
 
@@ -36,6 +36,7 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
   FlavourHistograms<double> * tkcntHistosSig2D[5];
   EffPurFromHistos * effPurFromHistos[4] ;
   bool finalized;
+  bool mcPlots_;
 } ;
 
 #endif

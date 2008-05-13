@@ -5,6 +5,7 @@
       <flags EDM_PLUGIN=1>
 <use name=RecoBTag/MCTools>
 </library> -->
-<library file="BTagPerformanceAnalyzerOnData.cc" name=RecoBTagAnalysisDataPlugins>
+<library file="BTagPerformanceAnalyzerOnData.cc" name=DQMOfflineRecoBPlugins>
       <flags EDM_PLUGIN=1>
+<Flags CXXFLAGS="-O0 -g">
 </library>

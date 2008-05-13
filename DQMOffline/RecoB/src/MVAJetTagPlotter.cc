@@ -15,7 +15,7 @@ using namespace reco;
 
 MVAJetTagPlotter::MVAJetTagPlotter(const TString &tagName,
                                    const EtaPtBin &etaPtBin,
-                                   const ParameterSet &pSet, bool update) :
+                                   const ParameterSet &pSet, bool update, bool mc) :
 	BaseTagInfoPlotter(tagName, etaPtBin),
 	jetTagComputer(tagName), computer(0),
 	categoryVariable(btau::lastTaggingVariable)
@@ -34,7 +34,7 @@ MVAJetTagPlotter::MVAJetTagPlotter(const TString &tagName,
 		ss << "CAT" << i;
 		categoryPlotters.push_back(
 			new TaggingVariablePlotter(tagName, etaPtBin,
-			                           pSets[i], update,
+			                           pSets[i], update,mc,
 			                           i ? ss.str() : string()));
 	}
 }

@@ -1,10 +1,10 @@
 #include "DQMOffline/RecoB/interface/TrackCountingTagPlotter.h"
 
 TrackCountingTagPlotter::TrackCountingTagPlotter(const TString & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update) :
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc) :
 	BaseTagInfoPlotter(tagName, etaPtBin)
 {
-
+  mcPlots_ = mc;
   nBinEffPur_  = pSet.getParameter<int>("nBinEffPur");
   startEffPur_ = pSet.getParameter<double>("startEffPur");
   endEffPur_   = pSet.getParameter<double>("endEffPur");
@@ -16,54 +16,54 @@ TrackCountingTagPlotter::TrackCountingTagPlotter(const TString & tagName,
 
   trkNbr3D = new FlavourHistograms<int>
 	("selTrksNbr_3D" + theExtensionString, "Number of selected tracks for 3D IPS" + theExtensionString, 31, -0.5, 30.5,
-	false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)));
+	false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc);
 
   trkNbr2D = new FlavourHistograms<int>
 	("selTrksNbr_2D" + theExtensionString, "Number of selected tracks for 2D IPS" + theExtensionString, 31, -0.5, 30.5,
-	false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)));
+	false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc);
 
   lowerIPSBound = -35.0;
   upperIPSBound = +35.0;
 
   tkcntHistosSig3D[4] = new FlavourHistograms<double>
        ("ips_3D" + theExtensionString, "3D Significance of impact parameter",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig3D[0] = new FlavourHistograms<double>
        ("ips1_3D" + theExtensionString, "3D Significance of impact parameter 1st trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig3D[1] = new FlavourHistograms<double>
        ("ips2_3D" + theExtensionString, "3D Significance of impact parameter 2nd trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig3D[2] = new FlavourHistograms<double>
        ("ips3_3D" + theExtensionString, "3D Significance of impact parameter 3rd trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig3D[3] = new FlavourHistograms<double>
        ("ips4_3D" + theExtensionString, "3D Significance of impact parameter 4th trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig2D[4] = new FlavourHistograms<double>
        ("ips_2D" + theExtensionString, "2D Significance of impact parameter",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig2D[0] = new FlavourHistograms<double>
        ("ips1_2D" + theExtensionString, "2D Significance of impact parameter 1st trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig2D[1] = new FlavourHistograms<double>
        ("ips2_2D" + theExtensionString, "2D Significance of impact parameter 2nd trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig2D[2] = new FlavourHistograms<double>
        ("ips3_2D" + theExtensionString, "2D Significance of impact parameter 3rd trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
   tkcntHistosSig2D[3] = new FlavourHistograms<double>
        ("ips4" + theExtensionString, "2D Significance of impact parameter 4th trk",
-	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString))) ;
+	50, lowerIPSBound, upperIPSBound, false, true, true, "b", update, std::string((const char *)("TrackCounting"+theExtensionString)), mc) ;
 
 }
 
@@ -121,16 +121,16 @@ void TrackCountingTagPlotter::finalize ()
   // final processing:
   // produce the misid. vs. eff histograms
   //
-  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],std::string((const char *)("TrackCounting"+theExtensionString)),
+  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],std::string((const char *)("TrackCounting"+theExtensionString)),mcPlots_,
 		nBinEffPur_, startEffPur_,
 		endEffPur_);
-  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],std::string((const char *)("TrackCounting"+theExtensionString)),
+  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],std::string((const char *)("TrackCounting"+theExtensionString)),mcPlots_,
 		nBinEffPur_, startEffPur_,
 		endEffPur_);
-  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],std::string((const char *)("TrackCounting"+theExtensionString)),
+  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],std::string((const char *)("TrackCounting"+theExtensionString)),mcPlots_,
 		nBinEffPur_, startEffPur_,
 		endEffPur_);
-  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],std::string((const char *)("TrackCounting"+theExtensionString)),
+  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],std::string((const char *)("TrackCounting"+theExtensionString)),mcPlots_,
 		nBinEffPur_, startEffPur_,
 		endEffPur_);
   for(int n=0; n < 4; n++) effPurFromHistos[n]->compute();

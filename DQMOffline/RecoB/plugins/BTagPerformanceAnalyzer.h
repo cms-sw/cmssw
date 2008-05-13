@@ -73,6 +73,7 @@ class BTagPerformanceAnalyzer : public edm::EDAnalyzer {
   TString psBaseName, epsBaseName, inputFile;
   bool update, allHisto;
   bool finalize;
+  bool finalizeOnly;
   bool fastMC;
   edm::InputTag jetMCSrc;
 

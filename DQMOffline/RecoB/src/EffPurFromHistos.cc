@@ -19,13 +19,13 @@ using namespace RecoBTag;
 
 EffPurFromHistos::EffPurFromHistos ( const TString & ext, TH1F * h_d, TH1F * h_u,
 	TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
-	TH1F * h_dus, TH1F * h_dusg,std::string label, int nBin, double startO, double endO) :
+	TH1F * h_dus, TH1F * h_dusg,std::string label,bool mc, int nBin, double startO, double endO) :
 	//BTagPlotPrintC(),
 	histoExtension(ext), effVersusDiscr_d(h_d), effVersusDiscr_u(h_u),
 	effVersusDiscr_s(h_s), effVersusDiscr_c(h_c), effVersusDiscr_b(h_b),
 	effVersusDiscr_g(h_g), effVersusDiscr_ni(h_ni), effVersusDiscr_dus(h_dus),
 	effVersusDiscr_dusg(h_dusg), nBinOutput(nBin), startOutput(startO),
-	endOutput(endO), label_(label)
+	endOutput(endO),  mcPlots_(mc), label_(label)
 {
   fromDiscriminatorDistr = false;
   // consistency check
@@ -33,37 +33,38 @@ EffPurFromHistos::EffPurFromHistos ( const TString & ext, TH1F * h_d, TH1F * h_u
 }
 
 EffPurFromHistos::EffPurFromHistos 
-	(const FlavourHistograms<double> * dDiscriminatorFC,std::string label, int nBin,
+	(const FlavourHistograms<double> * dDiscriminatorFC,std::string label, bool mc, int nBin,
 	double startO, double endO) :
-	  nBinOutput(nBin), startOutput(startO), endOutput(endO), label_(label){
+	  nBinOutput(nBin), startOutput(startO), endOutput(endO),  mcPlots_(mc), label_(label){
   histoExtension = "_"+dDiscriminatorFC->baseNameTitle();
 
-
-  std::cout << " WRITiNG "<<label<<std::endl;
 
   fromDiscriminatorDistr = true;
   discrNoCutEffic = new FlavourHistograms<double> (
 	"totalEntries" + histoExtension, "Total Entries: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), true, true, false, "b", false, label );
+	dDiscriminatorFC->upperBound(), true, true, false, "b", false, label, mcPlots_ );
 
   // conditional discriminator cut for efficiency histos
 
   discrCutEfficScan = new FlavourHistograms<double> (
 	"effVsDiscrCut" + histoExtension, "Eff. vs Disc. Cut: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), true, true, false, "b", false, label );
+	dDiscriminatorFC->upperBound(), true, true, false, "b", false, label , mcPlots_ );
   discrCutEfficScan->SetMinimum(1E-4);
-
-  effVersusDiscr_d =    discrCutEfficScan->histo_d   ();
-  effVersusDiscr_u =    discrCutEfficScan->histo_u   ();
-  effVersusDiscr_s =    discrCutEfficScan->histo_s   ();
-  effVersusDiscr_c =    discrCutEfficScan->histo_c   ();
-  effVersusDiscr_b =    discrCutEfficScan->histo_b   ();
+  if (mcPlots_ == true){ 
+    
+    effVersusDiscr_d =    discrCutEfficScan->histo_d   ();
+    effVersusDiscr_u =    discrCutEfficScan->histo_u   ();
+    effVersusDiscr_s =    discrCutEfficScan->histo_s   ();
+    effVersusDiscr_c =    discrCutEfficScan->histo_c   ();
+    effVersusDiscr_b =    discrCutEfficScan->histo_b   ();
   effVersusDiscr_g =    discrCutEfficScan->histo_g   ();
   effVersusDiscr_ni =   discrCutEfficScan->histo_ni  ();
   effVersusDiscr_dus =  discrCutEfficScan->histo_dus ();
   effVersusDiscr_dusg = discrCutEfficScan->histo_dusg();
+  
+  
 
   effVersusDiscr_d->SetXTitle ( "Discriminant" );
   effVersusDiscr_d->GetXaxis()->SetTitleOffset ( 0.75 );
@@ -83,6 +84,17 @@ EffPurFromHistos::EffPurFromHistos
   effVersusDiscr_dus->GetXaxis()->SetTitleOffset ( 0.75 );
   effVersusDiscr_dusg->SetXTitle ( "Discriminant" );
   effVersusDiscr_dusg->GetXaxis()->SetTitleOffset ( 0.75 );
+  }else{
+    effVersusDiscr_d =    0;
+    effVersusDiscr_u =    0; 
+    effVersusDiscr_s =     0;
+    effVersusDiscr_c =    0; 
+    effVersusDiscr_b =     0;
+    effVersusDiscr_g =     0;
+    effVersusDiscr_ni =    0;
+    effVersusDiscr_dus =   0;
+    effVersusDiscr_dusg =  0;
+}
 
   // discr. for computation
   vector<TH1F*> discrCfHistos = dDiscriminatorFC->getHistoVector();
@@ -384,6 +396,23 @@ void EffPurFromHistos::check () {
 
 void EffPurFromHistos::compute ()
 {
+  if (mcPlots_ == false) {
+
+    EffFlavVsBEff_d = 0;
+       EffFlavVsBEff_u = 0; 
+       EffFlavVsBEff_s = 0; 
+       EffFlavVsBEff_c = 0; 
+       EffFlavVsBEff_b = 0; 
+       EffFlavVsBEff_g = 0; 
+       EffFlavVsBEff_ni = 0; 
+       EffFlavVsBEff_dus = 0; 
+       EffFlavVsBEff_dusg = 0; 
+    
+    return; 
+ 
+  }
+ 
+
   // to have shorter names ......
   TString & hE = histoExtension;
   TString hB = "FlavEffVsBEff_";

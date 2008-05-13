@@ -6,7 +6,7 @@ using namespace reco;
 
 TaggingVariablePlotter::VariableConfig::VariableConfig(
 		const string &name, const ParameterSet &pSet, bool update,
-		const string &category, string label) :
+		const string &category, string label, bool mc) :
 	var(getTaggingVariableName(name)),
 	nBins(pSet.getParameter<unsigned int>("nBins")),
 	min(pSet.getParameter<double>("min")),
@@ -32,27 +32,29 @@ TaggingVariablePlotter::VariableConfig::VariableConfig(
 	    iter != indices.end(); iter++) {
 		Plot plot;
 		plot.histo.reset(new FlavourHistograms<double>(
-			name.c_str() + (*iter ? Form("%d", *iter) : TString())
-			             + (category.empty() ? TString()
-			              		: (TString("_") + category)),
+							       name.c_str() + (*iter ? Form("%d", *iter) : TString())
+							       + (category.empty() ? TString()
+								  : (TString("_") + category)),
 			TaggingVariableDescription[var], nBins, min, max,
-			false, logScale, true, "b", update,(label)));
+			false, logScale, true, "b", update,(label),mc));
 		plot.index = *iter;
 		plots.push_back(plot);
 	}
 }
 
 TaggingVariablePlotter::TaggingVariablePlotter(const TString &tagName,
-	const EtaPtBin &etaPtBin, const ParameterSet &pSet, bool update,
-	const string &category) : BaseTagInfoPlotter(tagName, etaPtBin)
+					       const EtaPtBin &etaPtBin, const ParameterSet &pSet, bool update,
+					       bool mc,
+					       const string &category) : BaseTagInfoPlotter(tagName, etaPtBin)
 {
+  mcPlots_ = mc;
 
 	vector<string> pSets = pSet.getParameterNames();
 	for(vector<string>::const_iterator iter = pSets.begin();
 	    iter != pSets.end(); iter++) {
 		VariableConfig var(*iter,
 		                   pSet.getParameter<ParameterSet>(*iter),
-		                   update, category,std::string((const char *)("TaggingVariable" + theExtensionString)));
+		                   update, category,std::string((const char *)("TaggingVariable" + theExtensionString)), mcPlots_);
 		variables.push_back(var);
 	}
 }

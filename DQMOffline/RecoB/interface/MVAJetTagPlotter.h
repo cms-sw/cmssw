@@ -18,7 +18,7 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
  public:
 
   MVAJetTagPlotter (const TString & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, bool update = false);
+	const edm::ParameterSet& pSet, bool update, bool mc);
 
   ~MVAJetTagPlotter ();
 

@@ -10,20 +10,20 @@
 using namespace std;
 
 BaseTagInfoPlotter*  TagInfoPlotterFactory::buildPlotter(string dataFormatType, const TString & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update)
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update, bool mc)
 {
   if (dataFormatType == "TrackCounting") {
-    return new TrackCountingTagPlotter(tagName, etaPtBin, pSet, update);
+    return new TrackCountingTagPlotter(tagName, etaPtBin, pSet, update, mc);
   } else if (dataFormatType == "TrackProbability") {
-    return new TrackProbabilityTagPlotter(tagName, etaPtBin, pSet, update);
+    return new TrackProbabilityTagPlotter(tagName, etaPtBin, pSet, update, mc);
   } else if (dataFormatType == "SoftLepton") {
-    return new SoftLeptonTagPlotter(tagName, etaPtBin, pSet, update);
+    return new SoftLeptonTagPlotter(tagName, etaPtBin, pSet, update, mc);
   } else if (dataFormatType == "TrackIP") {
-    return new TrackIPTagPlotter(tagName, etaPtBin, pSet, update);
+    return new TrackIPTagPlotter(tagName, etaPtBin, pSet, update, mc);
   } else if (dataFormatType == "TaggingVariable") {
-    return new TaggingVariablePlotter(tagName, etaPtBin, pSet, update);
+    return new TaggingVariablePlotter(tagName, etaPtBin, pSet, update, mc);
   } else if (dataFormatType == "GenericMVA") {
-    return new MVAJetTagPlotter(tagName, etaPtBin, pSet, update);
+    return new MVAJetTagPlotter(tagName, etaPtBin, pSet, update, mc);
   }
   throw cms::Exception("Configuration")
     << "BTagPerformanceAnalysis: Unknown ExtendedTagInfo " << dataFormatType << endl

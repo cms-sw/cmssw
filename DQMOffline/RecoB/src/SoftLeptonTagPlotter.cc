@@ -4,50 +4,51 @@
 static const char* ordinal[] = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th" };
 
 SoftLeptonTagPlotter::SoftLeptonTagPlotter(const TString & tagName,
-	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool update) :
+	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, bool mc, bool update) :
     BaseTagInfoPlotter(tagName, etaPtBin)
 {
+  mcPlots_ = mc;
   for (int i = 0; i < s_leptons; i++) {
     m_leptonId[i] = new FlavourHistograms<double> (
-        Form("%s lepton %s", ordinal[i], "id" ),
-        "Lepton identification discriminaint",
-        60, -0.1, 1.1, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+						   Form("%s lepton %s", ordinal[i], "id" ),
+						   "Lepton identification discriminaint",
+						   60, -0.1, 1.1, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_ );
     m_leptonPt[i] = new FlavourHistograms<double> (
-        Form( "%s lepton %s", ordinal[i], "pT" ),
-        "Lepton transverse moementum",
-        100, 0.0, 20.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+						   Form( "%s lepton %s", ordinal[i], "pT" ),
+						   "Lepton transverse moementum",
+						   100, 0.0, 20.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_sip2d[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "sip2d" ),
         "Lepton signed 2D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, -20.0, 30.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_sip3d[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "sip3d" ),
         "Lepton signed 3D impact parameter significance",
-        100, -20.0, 30.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, -20.0, 30.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_ptRel[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "pT rel" ),
         "Lepton transverse moementum relative to jet axis",
-        100, 0.0, 10.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, 0.0, 10.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_p0Par[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "p0 par" ),
         "Lepton moementum along jet axis in the B rest frame",
-        100, 0.0, 10.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, 0.0, 10.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_etaRel[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "eta rel" ),
         "Lepton pseudorapidity relative to jet axis",
-        100, -5.0, 25.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, -5.0, 25.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_deltaR[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "delta R" ),
         "Lepton pseudoangular distance from jet axis",
-        100, 0.0, 0.6, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, 0.0, 0.6, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_ratio[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "energy ratio" ),
         "Ratio of lepton momentum to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, 0.0, 2.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
     m_ratioRel[i] = new FlavourHistograms<double> (
         Form( "%s lepton %s", ordinal[i], "parallel energy ratio" ),
         "Ratio of lepton momentum along the jet axis to jet energy",
-        100, 0.0, 2.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)));
+        100, 0.0, 2.0, false, false, true, "b", update,std::string((const char *)("SoftLepton"+theExtensionString)),mcPlots_);
   }
 }
 

@@ -201,6 +201,7 @@ void BTagPerformanceAnalyzer::init(const edm::ParameterSet& iConfig)
   inputFile = TString(iConfig.getParameter<std::string>( "inputfile" ));
 
   finalize = iConfig.getParameter< bool >("finalizePlots");
+  finalizeOnly = iConfig.getParameter< bool >("finalizeOnly");
 
   produceEps = iConfig.getParameter< bool >("produceEps");
   producePs = iConfig.getParameter< bool >("producePs");
@@ -262,6 +263,7 @@ BTagPerformanceAnalyzer::~BTagPerformanceAnalyzer()
 
 void BTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if (finalizeOnly == true) return;
   if (!fastMC)
     jfi.readEvent(iEvent);
 

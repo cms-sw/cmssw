@@ -18,11 +18,11 @@ class EffPurFromHistos {
 
   EffPurFromHistos ( const TString & ext, TH1F * h_d, TH1F * h_u,
 	TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
-		     TH1F * h_dus, TH1F * h_dusg, std::string label,
+		     TH1F * h_dus, TH1F * h_dusg, std::string label, bool mc,
 	int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
-  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, std::string label,
+  EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, std::string label, bool mc,
 	int nBin = 100 , double startO = 0.005 , double endO = 1.005 ) ;
 	// defaults reasonable for lifetime based tags
 
@@ -32,7 +32,8 @@ class EffPurFromHistos {
   void compute () ;
 
   // return the newly created histos
-  TH1F * getEffFlavVsBEff_d    () { return EffFlavVsBEff_d->getTH1F()    ; };
+  TH1F * getEffFlavVsBEff_d    () { 
+    return EffFlavVsBEff_d->getTH1F()    ; };
   TH1F * getEffFlavVsBEff_u    () { return EffFlavVsBEff_u->getTH1F()    ; };
   TH1F * getEffFlavVsBEff_s    () { return EffFlavVsBEff_s ->getTH1F()   ; };
   TH1F * getEffFlavVsBEff_c    () { return EffFlavVsBEff_c ->getTH1F()   ; };
@@ -58,6 +59,7 @@ class EffPurFromHistos {
   FlavourHistograms<double> * discriminatorCutEfficScan() const {return discrCutEfficScan;}
 
  private:
+
 
   // consistency check (same binning)
   void check () ;
@@ -90,6 +92,9 @@ class EffPurFromHistos {
   int   nBinOutput ;
   double startOutput ;
   double endOutput ;
+
+  bool mcPlots_;
+
 
   MonitorElement * EffFlavVsBEff_d    ;
   MonitorElement * EffFlavVsBEff_u    ;

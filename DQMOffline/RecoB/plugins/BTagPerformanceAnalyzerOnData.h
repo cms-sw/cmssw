@@ -66,6 +66,7 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   TString psBaseName, epsBaseName, inputFile;
   bool update, allHisto;
   bool finalize;
+  bool finalizeOnly;
 
   vector< vector<JetTagPlotter*> > binJetTagPlotters;
   vector< vector<BaseTagInfoPlotter*> > binTagInfoPlotters;
@@ -75,6 +76,8 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   vector< vector<BTagDifferentialPlot*> > differentialPlots;
   vector<edm::ParameterSet> moduleConfig;
   map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
+
+  bool mcPlots_;
 
 };
 
