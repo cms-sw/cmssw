@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.3 2008/05/10 14:31:19 vasquez Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.4 2008/05/11 10:47:33 vasquez Exp $
 //
 //
 
@@ -50,7 +50,6 @@ SiPixelErrorsDigisToCalibDigis::SiPixelErrorsDigisToCalibDigis(const edm::Parame
   createOutputFile_ = iConfig.getUntrackedParameter<bool>("saveFile",false);
   outputFilename_ = iConfig.getParameter<std::string>("outputFilename");
   daqBE_ = &*edm::Service<DQMStore>();
-
   folderMaker_ = new SiPixelFolderOrganizer();
 
 //  std::cout<<"siPixelProducerLabel_ = "<<siPixelProducerLabel_<<std::endl;
@@ -101,6 +100,7 @@ SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm::Eve
 	if ( mapIterator == SiPixelErrorsDigisToCalibDigis_2DErrorInformation_.end() )
 	  {
 //	    std::cout << "This is the beginning of an error 2d histo booking: "<<std::endl;
+	    setDQMDirectory(detId);
 	    temp_ = bookDQMHistoPlaquetteSummary2D(detId, "SiPixelErrorsCalibDigis", "SiPixelErrorsDigisToCalibDigis");
 	    SiPixelErrorsDigisToCalibDigis_2DErrorInformation_.insert( std::make_pair(detId,temp_));
 	  }
@@ -153,21 +153,23 @@ MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t deti
 
 MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title){
 
-  //  std::cerr<< "Are we ever in this function0???"<< std::endl;
   DetId detId(detid);
-
-  //  std::cerr<< "Are we ever in this function1???"<< std::endl;
   const TrackerGeometry &theTracker(*geom_);
-
-  //  std::cerr<< "Are we ever in this function2???"<< std::endl;
   const PixelGeomDetUnit *theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( theTracker.idToDet(detId) ); 
-
-  //  std::cerr<< "Are we ever in this function3???"<< std::endl;
   int maxcol = theGeomDet->specificTopology().ncolumns();
-
-  //  std::cerr<< "Are we ever in this function4???"<< std::endl;
   int maxrow = theGeomDet->specificTopology().nrows();  
 
   std::string hid = theHistogramIdWorker_->setHistoId(name,detid);
   return daqBE_->book2D(hid,title,maxcol,0,maxcol,maxrow,0,maxrow);
+}
+
+bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(std::string dirName)
+{
+   daqBE_->setCurrentFolder(dirName);
+   return daqBE_->dirExists(dirName);
+}
+
+bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(uint32_t detID)
+{
+   return folderMaker_->setModuleFolder(detID);
 }

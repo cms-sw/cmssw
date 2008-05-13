@@ -49,15 +49,17 @@ Description: Create monitorElements for the Errors in created in the reduction o
 //
 
 class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
-   public:
-      explicit SiPixelErrorsDigisToCalibDigis(const edm::ParameterSet&);
-      ~SiPixelErrorsDigisToCalibDigis();
-
-      MonitorElement*  bookDQMHistogram2D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);      
-      MonitorElement*  bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
-
+ public:
+  explicit SiPixelErrorsDigisToCalibDigis(const edm::ParameterSet&);
+  ~SiPixelErrorsDigisToCalibDigis();
+  
+  MonitorElement*  bookDQMHistogram2D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);      
+  MonitorElement*  bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title); // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user. 
+  
+  bool setDQMDirectory(std::string dirName);	
+  bool setDQMDirectory(uint32_t detID); //automatically create directory hierachy based on DetID
  protected:
-
+  
        edm::ESHandle<TrackerGeometry> geom_;
 
    private:
@@ -71,6 +73,7 @@ class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
       // store the location of the mismatching error in the detector id
 
       edm::InputTag siPixelProducerLabel_;
+
       DQMStore* daqBE_;
       SiPixelHistogramId * theHistogramIdWorker_;
       std::string outputFilename_;
