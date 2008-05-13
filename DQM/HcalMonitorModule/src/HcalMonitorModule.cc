@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/04/29 17:40:11 $
- * $Revision: 1.59 $
+ * $Date: 2008/05/08 17:10:32 $
+ * $Revision: 1.60 $
  * \author W Fisher
  *
 */
@@ -169,7 +169,7 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   if(debug_) cout << "HcalMonitorModule: begin job...." << endl;
   
   if ( dbe_ != NULL ){
-    dbe_->setCurrentFolder(rootFolder_ );
+    dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
     meStatus_  = dbe_->bookInt("STATUS");
     meRunType_ = dbe_->bookInt("RUN TYPE");
     meEvtMask_ = dbe_->bookInt("EVT MASK");
