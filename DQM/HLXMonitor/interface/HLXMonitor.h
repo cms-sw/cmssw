@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.8 2008/03/11 14:41:06 ahunt Exp $
+// $Id: HLXMonitor.h,v 1.4 2008/05/13 07:17:48 neadam Exp $
 //
 //
 
@@ -37,15 +37,11 @@ Implementation:
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"  // Obsolete as of version 3. 
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "/opt/TriDAS/RecoLuminosity/HLXReadOut/CoreUtils/include/ICTypeDefs.hh"
-#include "/opt/TriDAS/RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 
 using namespace HCAL_HLX;
