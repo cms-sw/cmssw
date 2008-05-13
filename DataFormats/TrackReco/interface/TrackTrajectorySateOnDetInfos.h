@@ -8,6 +8,7 @@
 
 namespace reco {
 
+//typedef  edm::AssociationMap<  edm::OneToValue<reco::TrackCollection, reco::TrajectorySateOnDetInfoCollection >     > TrackTrajectorySateOnDetInfosCollection;
 typedef  edm::AssociationVector<reco::TrackRefProd,std::vector<reco::TrajectorySateOnDetInfoCollection> >  TrackTrajectorySateOnDetInfosCollection;
 typedef  TrackTrajectorySateOnDetInfosCollection::value_type 						   TrackTrajectorySateOnDetInfos;
 typedef  edm::Ref<TrackTrajectorySateOnDetInfosCollection> 						   TrackTrajectorySateOnDetInfosRef;

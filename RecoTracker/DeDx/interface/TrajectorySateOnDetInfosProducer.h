@@ -35,7 +35,6 @@
 
 using namespace reco;
 
-
 class TrackerGeometry;
 
 class TrajectorySateOnDetInfosProducer : public edm::EDProducer {

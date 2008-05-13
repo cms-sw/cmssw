@@ -78,53 +78,39 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
 
+   TrackTrajectorySateOnDetInfosCollection* tsodis;
    if(!m_FromTrajectory){
-      produce_from_tsodi      (iEvent, iSetup, tkGeom);
+      edm::Handle<reco::TrackTrajectorySateOnDetInfosCollection> trackTrajectorySateOnDetInfosCollectionHandle;
+      iEvent.getByLabel(m_TsodiTag,trackTrajectorySateOnDetInfosCollectionHandle);
+      tsodis = (TrackTrajectorySateOnDetInfosCollection*) trackTrajectorySateOnDetInfosCollectionHandle.product();
    }else{
-      produce_from_trajectory (iEvent, iSetup, tkGeom);
+      tsodis = m_TSODIProducer->Get_TSODICollection(iEvent, iSetup);
    }
 
-}
-
-void
-DeDxEstimatorProducer::produce_from_tsodi(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::ESHandle<TrackerGeometry> tkGeom)
-{
-   edm::Handle<reco::TrackTrajectorySateOnDetInfosCollection> trackTrajectorySateOnDetInfosCollectionHandle;
-   iEvent.getByLabel(m_TsodiTag,trackTrajectorySateOnDetInfosCollectionHandle);
-   const reco::TrackTrajectorySateOnDetInfosCollection* tsodis = trackTrajectorySateOnDetInfosCollectionHandle.product();
-
    TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection(tsodis->keyProduct());
+//  TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection();
+
 
    reco::TrackTrajectorySateOnDetInfosCollection::const_iterator tsodis_it= tsodis->begin();
    for(int j=0;tsodis_it!=tsodis->end();++tsodis_it,j++)
    {
       TrajectorySateOnDetInfoCollection tmp = (*tsodis_it).second;
+//      TrajectorySateOnDetInfoCollection tmp = (*tsodis_it).val;
       float val=m_estimator->dedx( (*tsodis_it).second, tkGeom );
+//      float val=m_estimator->dedx( (*tsodis_it).val, tkGeom );
+      
+//      if(val>18000){
+//         printf("########## BUG????\n");
+//         printf("   %6.2f %6.2f\n",((*tsodis_it).first)->p(), ((*tsodis_it).first)->chi2());
+//         for(unsigned int i=0;i<tmp.size();i++)
+//            printf("   %i --> Cluster Size = %i\n",tmp[i].charge(),tmp[i].clusterSize());
+//      }
       outputCollection->setValue(j, val);
    }
 
    std::auto_ptr<TrackDeDxEstimateCollection> estimator(outputCollection);
    iEvent.put(estimator);
 }
-
-void
-DeDxEstimatorProducer::produce_from_trajectory(edm::Event& iEvent, const edm::EventSetup& iSetup, edm::ESHandle<TrackerGeometry> tkGeom)
-{
-   TrackTrajectorySateOnDetInfosCollection* tsodis = m_TSODIProducer->Get_TSODICollection(iEvent, iSetup);
-   TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection(tsodis->keyProduct());
-
-   reco::TrackTrajectorySateOnDetInfosCollection::const_iterator tsodis_it= tsodis->begin();
-   for(int j=0;tsodis_it!=tsodis->end();++tsodis_it,j++)
-   {
-      TrajectorySateOnDetInfoCollection tmp = (*tsodis_it).second;
-      float val=m_estimator->dedx( (*tsodis_it).second, tkGeom );
-      outputCollection->setValue(j, val);
-   }
-
-   std::auto_ptr<TrackDeDxEstimateCollection> estimator(outputCollection);
-   iEvent.put(estimator);
-}
-
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

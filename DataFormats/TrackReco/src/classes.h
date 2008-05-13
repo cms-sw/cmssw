@@ -93,7 +93,7 @@ namespace {
     std::vector< edm::RefToBase<reco::Track> >		rtb_tk_vect;
 
     reco::TrajectorySateOnDetInfo 		TSODI1;
-    //reco::TrajectorySateOnDetInfoCollection	TSODI2;
+    reco::TrajectorySateOnDetInfoCollection	TSODI2;
     reco::TrackTrajectorySateOnDetInfosCollection TSODI3;
     reco::TrackTrajectorySateOnDetInfos TSODI4;
     reco::TrackTrajectorySateOnDetInfosRef TSODI5;

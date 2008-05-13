@@ -13,7 +13,7 @@
 //
 // Original Author:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: TrajectorySateOnDetInfosProducer.cc,v 1.3 2008/05/12 10:32:28 querten Exp $
+// $Id: TrajectorySateOnDetInfosProducer.cc,v 1.2 2008/05/10 18:57:23 querten Exp $
 //
 //
 
@@ -44,6 +44,8 @@
 using namespace reco;
 using namespace std;
 using namespace edm;
+
+
 
 TrajectorySateOnDetInfosProducer::TrajectorySateOnDetInfosProducer(const edm::ParameterSet& iConfig)
 {
@@ -83,21 +85,24 @@ TrajectorySateOnDetInfosProducer::Get_TSODICollection(edm::Event& iEvent, const 
    edm::Handle<reco::TrackCollection> trackCollectionHandle;
    iEvent.getByLabel(m_tracksTag,trackCollectionHandle);
 
-
    TrackTrajectorySateOnDetInfosCollection* outputCollection = new TrackTrajectorySateOnDetInfosCollection(reco::TrackRefProd(trackCollectionHandle) );
-
+//   TrackTrajectorySateOnDetInfosCollection* outputCollection = new TrackTrajectorySateOnDetInfosCollection();
+//   int K = 0;
    int track_index=0;
    for(TrajTrackAssociationCollection::const_iterator it = TrajToTrackMap.begin(); it!=TrajToTrackMap.end(); it++) {
       track_index++;
       const Track      track = *it->val;
       const Trajectory traj  = *it->key;
 
+/*      printf("%6.2f<%6.2f  -  %6.2f>%6.2f\n", track.p(),Track_PMin,track.chi2(),Track_Chi2Max);
       if(track.p()    < Track_PMin    )continue;
       if(track.p()    > Track_PMax    )continue;
       if(track.chi2() > Track_Chi2Max )continue;
+      K++;
 
+      printf("NoSkipped\n");
+*/
       TrajectorySateOnDetInfoCollection TSODI_Coll;
-
       vector<TrajectoryMeasurement> measurements = traj.measurements();
       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
 
@@ -116,8 +121,10 @@ TrajectorySateOnDetInfosProducer::Get_TSODICollection(edm::Event& iEvent, const 
          }
       }
       outputCollection->setValue(track_index-1,TSODI_Coll);
+//      outputCollection->insert(it->val,TSODI_Coll);
    }
 
+//   printf("SIZE = %i >< %i\n",outputCollection->size(),K );
    return outputCollection;
 }
 

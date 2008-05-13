@@ -29,6 +29,8 @@ public:
   double       thickness      (edm::ESHandle<TrackerGeometry> tkGeom);
   double       chargeOverPath (edm::ESHandle<TrackerGeometry> tkGeom);
   double       pathLength     (edm::ESHandle<TrackerGeometry> tkGeom);
+  unsigned int clusterSize();
+
 
 
   LocalVector  momentum       ();
