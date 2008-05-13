@@ -10,12 +10,11 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.PathSingleMu_1032_NoIso_cff import *
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
+import HLTrigger.HLTcore.hltPrescaler_cfi
 # HLT Filter flux ##########################################################
-prescaleSingleMuNoIsoRelaxedVtx2mm = copy.deepcopy(hltPrescaler)
-SingleMuNoIsoL3PreFilteredRelaxedVtx2mm = cms.EDFilter("HLTMuonL3PreFilter",
-    PreviousCandTag = cms.InputTag("SingleMuNoIsoL2PreFiltered"),
+hltPrescaleSingleMuNoIsoRelaxedVtx2mm = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltSingleMuNoIsoL3PreFilteredRelaxedVtx2mm = cms.EDFilter("HLTMuonL3PreFilter",
+    PreviousCandTag = cms.InputTag("hltSingleMuNoIsoL2PreFiltered"),
     MinPt = cms.double(16.0),
     MinN = cms.int32(1),
     MaxEta = cms.double(2.5),
@@ -29,5 +28,5 @@ SingleMuNoIsoL3PreFilteredRelaxedVtx2mm = cms.EDFilter("HLTMuonL3PreFilter",
     CandTag = cms.InputTag("hltL3MuonCandidates")
 )
 
-singleMuNoIsoRelaxedVtx2mm = cms.Sequence(prescaleSingleMuNoIsoRelaxedVtx2mm+l1muonreco+SingleMuNoIsoLevel1Seed+SingleMuNoIsoL1Filtered+l2muonreco+SingleMuNoIsoL2PreFiltered+l3muonreco+SingleMuNoIsoL3PreFilteredRelaxedVtx2mm)
+singleMuNoIsoRelaxedVtx2mm = cms.Sequence(hltPrescaleSingleMuNoIsoRelaxedVtx2mm+hltL1muonrecoSequence+hltSingleMuNoIsoLevel1Seed+hltSingleMuNoIsoL1Filtered+hltL2muonrecoSequence+hltSingleMuNoIsoL2PreFiltered+hltL3muonrecoSequence+hltSingleMuNoIsoL3PreFilteredRelaxedVtx2mm)
 

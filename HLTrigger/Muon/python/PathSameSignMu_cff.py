@@ -5,32 +5,30 @@
 #L2 muon
 
 #L2 muon isolation
-# & l2muonisoreco & SameSignMuL2IsoFiltered
+# & hltL2muonisorecoSequence & hltSameSignMuL2IsoFiltered
 #L3 muon
 
 import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.CommonModules_cff import *
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # HLT Filter flux ##########################################################
-SameSignMuLevel1Seed = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-prescaleSameSignMu = copy.deepcopy(hltPrescaler)
-SameSignMuL1Filtered = cms.EDFilter("HLTMuonL1Filter",
+hltSameSignhltMuLevel1Seed = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
+hltPrescalehltSameSignMu = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltSameSignMuL1Filtered = cms.EDFilter("HLTMuonL1Filter",
     MaxEta = cms.double(2.5),
-    CandTag = cms.InputTag("SameSignMuLevel1Seed"),
+    CandTag = cms.InputTag("hltSameSignhltMuLevel1Seed"),
     MinPt = cms.double(0.0),
     MinN = cms.int32(2),
     MinQuality = cms.int32(-1)
 )
 
-SameSignMuL2PreFiltered = cms.EDFilter("HLTMuonDimuonL2Filter",
+hltSameSignMuL2PreFiltered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(3.0),
-    PreviousCandTag = cms.InputTag("SameSignMuL1Filtered"),
+    PreviousCandTag = cms.InputTag("hltSameSignMuL1Filtered"),
     MaxPtBalance = cms.double(999999.0),
     ChargeOpt = cms.int32(1),
     MaxInvMass = cms.double(9999.0),
@@ -50,16 +48,16 @@ SameSignMuL2PreFiltered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinAcop = cms.double(-1.0)
 )
 
-SameSignMuL2IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
-    CandTag = cms.InputTag("SameSignMuL2PreFiltered"),
+hltSameSignMuL2IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
+    CandTag = cms.InputTag("hltSameSignMuL2PreFiltered"),
     MinN = cms.int32(1),
     IsoTag = cms.InputTag("hltL2MuonIsolations")
 )
 
-SameSignMuL3PreFiltered = cms.EDFilter("HLTMuonDimuonL3Filter",
+hltSameSignMuL3PreFiltered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(3.0),
-    PreviousCandTag = cms.InputTag("SameSignMuL2PreFiltered"),
+    PreviousCandTag = cms.InputTag("hltSameSignMuL2PreFiltered"),
     MaxPtBalance = cms.double(999999.0),
     ChargeOpt = cms.int32(1),
     MaxInvMass = cms.double(9999.0),
@@ -79,12 +77,12 @@ SameSignMuL3PreFiltered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinAcop = cms.double(-1.0)
 )
 
-SameSignMuL3IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
-    CandTag = cms.InputTag("SameSignMuL3PreFiltered"),
+hltSameSignMuL3IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
+    CandTag = cms.InputTag("hltSameSignMuL3PreFiltered"),
     MinN = cms.int32(1),
     IsoTag = cms.InputTag("hltL3MuonIsolations")
 )
 
-sameSignMu = cms.Sequence(prescaleSameSignMu+l1muonreco+SameSignMuLevel1Seed+SameSignMuL1Filtered+l2muonreco+SameSignMuL2PreFiltered+l3muonreco+SameSignMuL3PreFiltered)
-SameSignMuLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
+sameSignMu = cms.Sequence(hltPrescalehltSameSignMu+hltL1muonrecoSequence+hltSameSignhltMuLevel1Seed+hltSameSignMuL1Filtered+hltL2muonrecoSequence+hltSameSignMuL2PreFiltered+hltL3muonrecoSequence+hltSameSignMuL3PreFiltered)
+hltSameSignhltMuLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
 

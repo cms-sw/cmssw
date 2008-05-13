@@ -14,23 +14,21 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.CommonModules_2x1033_cff import *
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # HLT Filter flux ##########################################################
-DiMuonIsoLevel1Seed = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-prescaleDiMuonIso = copy.deepcopy(hltPrescaler)
-DiMuonIsoL1Filtered = cms.EDFilter("HLTMuonL1Filter",
+hltDiMuonIsoLevel1Seed = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
+hltPrescalehltDiMuonIso = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltDiMuonIsoL1Filtered = cms.EDFilter("HLTMuonL1Filter",
     MaxEta = cms.double(2.5),
-    CandTag = cms.InputTag("DiMuonIsoLevel1Seed"),
+    CandTag = cms.InputTag("hltDiMuonIsoLevel1Seed"),
     MinPt = cms.double(0.0),
     MinN = cms.int32(2),
     MinQuality = cms.int32(-1)
 )
 
-DiMuonIsoL2PreFiltered = cms.EDFilter("HLTMuonL2PreFilter",
-    PreviousCandTag = cms.InputTag("DiMuonIsoL1Filtered"),
+hltDiMuonIsoL2PreFiltered = cms.EDFilter("HLTMuonL2PreFilter",
+    PreviousCandTag = cms.InputTag("hltDiMuonIsoL1Filtered"),
     MinPt = cms.double(7.0),
     MinN = cms.int32(2),
     MaxEta = cms.double(2.5),
@@ -43,14 +41,14 @@ DiMuonIsoL2PreFiltered = cms.EDFilter("HLTMuonL2PreFilter",
     CandTag = cms.InputTag("hltL2MuonCandidates")
 )
 
-DiMuonIsoL2IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
-    CandTag = cms.InputTag("DiMuonIsoL2PreFiltered"),
+hltDiMuonIsoL2IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
+    CandTag = cms.InputTag("hltDiMuonIsoL2PreFiltered"),
     MinN = cms.int32(1),
     IsoTag = cms.InputTag("hltL2MuonIsolations")
 )
 
-DiMuonIsoL3PreFiltered = cms.EDFilter("HLTMuonL3PreFilter",
-    PreviousCandTag = cms.InputTag("DiMuonIsoL2IsoFiltered"),
+hltDiMuonIsoL3PreFiltered = cms.EDFilter("HLTMuonL3PreFilter",
+    PreviousCandTag = cms.InputTag("hltDiMuonIsoL2IsoFiltered"),
     MinPt = cms.double(7.0),
     MinN = cms.int32(2),
     MaxEta = cms.double(2.5),
@@ -63,12 +61,12 @@ DiMuonIsoL3PreFiltered = cms.EDFilter("HLTMuonL3PreFilter",
     CandTag = cms.InputTag("hltL3MuonCandidates")
 )
 
-DiMuonIsoL3IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
-    CandTag = cms.InputTag("DiMuonIsoL3PreFiltered"),
+hltDiMuonIsoL3IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
+    CandTag = cms.InputTag("hltDiMuonIsoL3PreFiltered"),
     MinN = cms.int32(1),
     IsoTag = cms.InputTag("hltL3MuonIsolations")
 )
 
-diMuonIso = cms.Sequence(prescaleDiMuonIso+l1muonreco+DiMuonIsoLevel1Seed+DiMuonIsoL1Filtered+l2muonreco+DiMuonIsoL2PreFiltered+l2muonisoreco+DiMuonIsoL2IsoFiltered+l3muonreco+DiMuonIsoL3PreFiltered+l3muonisoreco+DiMuonIsoL3IsoFiltered)
-DiMuonIsoLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
+diMuonIso = cms.Sequence(hltPrescalehltDiMuonIso+hltL1muonrecoSequence+hltDiMuonIsoLevel1Seed+hltDiMuonIsoL1Filtered+hltL2muonrecoSequence+hltDiMuonIsoL2PreFiltered+hltL2muonisorecoSequence+hltDiMuonIsoL2IsoFiltered+hltL3muonrecoSequence+hltDiMuonIsoL3PreFiltered+hltL3muonisorecoSequence+hltDiMuonIsoL3IsoFiltered)
+hltDiMuonIsoLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
 

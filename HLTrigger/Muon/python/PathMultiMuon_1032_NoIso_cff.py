@@ -10,13 +10,11 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.CommonModules_1032_cff import *
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # HLT Filter flux ##########################################################
-multiMuonNoIsoLevel1Seed = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-prescaleMultiMuonNoIso = copy.deepcopy(hltPrescaler)
+multiMuonNoIsoLevel1Seed = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
+hltPrescalehltMultiMuonNoIso = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
 multiMuonNoIsoL1Filtered = cms.EDFilter("HLTMuonL1Filter",
     MaxEta = cms.double(2.5),
     CandTag = cms.InputTag("multiMuonNoIsoLevel1Seed"),
@@ -53,6 +51,6 @@ multiMuonNoIsoL3PreFiltered = cms.EDFilter("HLTMuonL3PreFilter",
     CandTag = cms.InputTag("hltL3MuonCandidates")
 )
 
-multiMuonNoIso = cms.Sequence(prescaleMultiMuonNoIso+l1muonreco+multiMuonNoIsoLevel1Seed+multiMuonNoIsoL1Filtered+l2muonreco+multiMuonNoIsoL2PreFiltered+l3muonreco+multiMuonNoIsoL3PreFiltered)
+multiMuonNoIso = cms.Sequence(hltPrescalehltMultiMuonNoIso+hltL1muonrecoSequence+multiMuonNoIsoLevel1Seed+multiMuonNoIsoL1Filtered+hltL2muonrecoSequence+multiMuonNoIsoL2PreFiltered+hltL3muonrecoSequence+multiMuonNoIsoL3PreFiltered)
 multiMuonNoIsoLevel1Seed.L1SeedsLogicalExpression = 'L1_TripleMu3'
 

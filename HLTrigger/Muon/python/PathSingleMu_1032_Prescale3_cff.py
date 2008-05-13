@@ -10,23 +10,21 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.CommonModules_1032_cff import *
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # HLT Filter flux ##########################################################
-SingleMuPrescale3Level1Seed = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-prescaleSingleMuPrescale3 = copy.deepcopy(hltPrescaler)
-SingleMuPrescale3L1Filtered = cms.EDFilter("HLTMuonL1Filter",
+hltSingleMuPrescale3Level1Seed = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
+hltPrescaleSingleMuPrescale3 = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltSingleMuPrescale3L1Filtered = cms.EDFilter("HLTMuonL1Filter",
     MaxEta = cms.double(2.5),
-    CandTag = cms.InputTag("SingleMuPrescale3Level1Seed"),
+    CandTag = cms.InputTag("hltSingleMuPrescale3Level1Seed"),
     MinPt = cms.double(0.0),
     MinN = cms.int32(1),
     MinQuality = cms.int32(-1)
 )
 
-SingleMuPrescale3L2PreFiltered = cms.EDFilter("HLTMuonL2PreFilter",
-    PreviousCandTag = cms.InputTag("SingleMuPrescale3L1Filtered"),
+hltSingleMuPrescale3L2PreFiltered = cms.EDFilter("HLTMuonL2PreFilter",
+    PreviousCandTag = cms.InputTag("hltSingleMuPrescale3L1Filtered"),
     MinPt = cms.double(3.0),
     MinN = cms.int32(1),
     MaxEta = cms.double(2.5),
@@ -39,8 +37,8 @@ SingleMuPrescale3L2PreFiltered = cms.EDFilter("HLTMuonL2PreFilter",
     CandTag = cms.InputTag("hltL2MuonCandidates")
 )
 
-SingleMuPrescale3L3PreFiltered = cms.EDFilter("HLTMuonL3PreFilter",
-    PreviousCandTag = cms.InputTag("SingleMuPrescale3L2PreFiltered"),
+hltSingleMuPrescale3L3PreFiltered = cms.EDFilter("HLTMuonL3PreFilter",
+    PreviousCandTag = cms.InputTag("hltSingleMuPrescale3L2PreFiltered"),
     MinPt = cms.double(3.0),
     MinN = cms.int32(1),
     MaxEta = cms.double(2.5),
@@ -53,6 +51,6 @@ SingleMuPrescale3L3PreFiltered = cms.EDFilter("HLTMuonL3PreFilter",
     CandTag = cms.InputTag("hltL3MuonCandidates")
 )
 
-singleMuPrescale3 = cms.Sequence(prescaleSingleMuPrescale3+l1muonreco+SingleMuPrescale3Level1Seed+SingleMuPrescale3L1Filtered+l2muonreco+SingleMuPrescale3L2PreFiltered+l3muonreco+SingleMuPrescale3L3PreFiltered)
-SingleMuPrescale3Level1Seed.L1SeedsLogicalExpression = 'L1_SingleMu3'
+singleMuPrescale3 = cms.Sequence(hltPrescaleSingleMuPrescale3+hltL1muonrecoSequence+hltSingleMuPrescale3Level1Seed+hltSingleMuPrescale3L1Filtered+hltL2muonrecoSequence+hltSingleMuPrescale3L2PreFiltered+hltL3muonrecoSequence+hltSingleMuPrescale3L3PreFiltered)
+hltSingleMuPrescale3Level1Seed.L1SeedsLogicalExpression = 'L1_SingleMu3'
 

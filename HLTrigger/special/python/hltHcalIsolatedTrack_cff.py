@@ -1,50 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 # HLT setup ############################
 # include "HLTrigger/Configuration/data/common/HLTSetup.cff"
-# include "HLTrigger/special/data/HLTFullRecoForSpecial.cff"
+from HLTrigger.special.HLTFullRecoForSpecial_cff import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # l1 seed filter #############
-l1sIsolTrack = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
+l1sIsolTrack = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
 # PRESCALERS ###################
-preIsolTrack = copy.deepcopy(hltPrescaler)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-preIsolTrackNoEcalIso = copy.deepcopy(hltPrescaler)
+preIsolTrack = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
 # CALO #######################
 #include "RecoLocalCalo/EcalRecProducers/data/getEcalConditions_frontier.cff"
 #include "RecoLocalCalo/Configuration/data/ecalLocalRecoSequence_frontier.cff"
 # TRACKER LOCAL ################
-#include "RecoLocalTracker/Configuration/data/RecoLocalTracker.cff"
-# include "RecoPixelVertexing/PixelTrackFitting/data/PixelTracks.cff"
-# ECAL ISOLATION PRODUCER ##############
-from Calibration.HcalIsolatedTrackReco.ecalIsolPartProd_cfi import *
-# ECAL ISOLATION FILTER ##########################
-from HLTrigger.special.ecalIsolFilter_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
 # ISOLATED PIXEL CANDS ##########################
 from Calibration.HcalIsolatedTrackReco.isolPixelTrackProd_cfi import *
 # ISOLATED PIXEL CAND FILTER ####################
 from HLTrigger.special.isolPixelTrackFilter_cfi import *
+# REGIONAL FED COLLECTIONS PRODUCERS ############
+from Calibration.HcalIsolatedTrackReco.subdetFED_cfi import *
+from Calibration.HcalIsolatedTrackReco.stripFED_cfi import *
+from Calibration.HcalIsolatedTrackReco.ecalFED_cfi import *
 #
 l1SeedFilter = cms.Sequence(l1sIsolTrack)
-doEcal = cms.Sequence(cms.SequencePlaceholder("doLocalEcal"))
-doEcalIsolInput = cms.Sequence(ecalIsolPartProd)
 doPixelReco = cms.Sequence(cms.SequencePlaceholder("doLocalPixel"))
-doPixTrackInput = cms.Sequence(cms.SequencePlaceholder("pixelTrackingForIsol")*isolPixelTrackProd)
+doPixTrackInput = cms.Sequence(pixelTrackingForIsol*isolPixelTrackProd)
 pixelTrackFilter = cms.Sequence(isolPixelTrackFilter)
-# L2 filtering on isolation in ECAL ##############################
-l2EcalIsolFilter = cms.Sequence(doEcal*doEcalIsolInput*ecalIsolFilter)
-# L3 filtering on isolation in pixel detector ####################
-l3PixelIsolFilter = cms.Sequence(doPixelReco*doPixTrackInput*pixelTrackFilter)
+regFED = cms.Sequence(subdetFED*stripFED*ecalFED)
+pixelIsolFilter = cms.Sequence(doPixelReco*doPixTrackInput*pixelTrackFilter)
 #
-hltHcalIsolatedTrack = cms.Sequence(cms.SequencePlaceholder("hltBegin")*l1SeedFilter*preIsolTrack*l2EcalIsolFilter+l3PixelIsolFilter)
-hltHcalIsolatedTrackNoEcalIsol = cms.Sequence(cms.SequencePlaceholder("hltBegin")*l1SeedFilter*preIsolTrackNoEcalIso+l3PixelIsolFilter)
-l1sIsolTrack.L1SeedsLogicalExpression = 'L1_SingleJet100 OR L1_SingleTauJet100'
+hltHcalIsolatedTrack = cms.Sequence(cms.SequencePlaceholder("hltBegin")*l1SeedFilter*preIsolTrack+pixelIsolFilter*regFED)
+l1sIsolTrack.L1SeedsLogicalExpression = 'L1_SingleJet30 OR L1_SingleJet50 OR L1_SingleJet70 OR L1_SingleJet100 OR L1_SingleTauJet30 OR L1_SingleTauJet40 OR L1_SingleTauJet60 OR L1_SingleTauJet80 '
 preIsolTrack.prescaleFactor = 1
-preIsolTrackNoEcalIso.prescaleFactor = 1
-ecalIsolPartProd.L1GTSeedLabel = 'l1sIsolTrack'
 isolPixelTrackProd.L1GTSeedLabel = 'l1sIsolTrack'
+stripFED.regSeedLabel = 'isolPixelTrackFilter'
+ecalFED.regSeedLabel = 'isolPixelTrackFilter'
 

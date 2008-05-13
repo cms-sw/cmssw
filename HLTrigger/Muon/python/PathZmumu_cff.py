@@ -10,25 +10,23 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.CommonModules_cff import *
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # HLT Filter flux ##########################################################
-ZMMLevel1Seed = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-prescaleZMM = copy.deepcopy(hltPrescaler)
-ZMML1Filtered = cms.EDFilter("HLTMuonL1Filter",
+hltZMMLevel1Seed = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
+hltPrescalehltZMM = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltZMML1Filtered = cms.EDFilter("HLTMuonL1Filter",
     MaxEta = cms.double(2.5),
-    CandTag = cms.InputTag("ZMMLevel1Seed"),
+    CandTag = cms.InputTag("hltZMMLevel1Seed"),
     MinPt = cms.double(0.0),
     MinN = cms.int32(2),
     MinQuality = cms.int32(-1)
 )
 
-ZMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
+hltZMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(7.0),
-    PreviousCandTag = cms.InputTag("ZMML1Filtered"),
+    PreviousCandTag = cms.InputTag("hltZMML1Filtered"),
     MaxPtBalance = cms.double(999999.0),
     ChargeOpt = cms.int32(0),
     MaxInvMass = cms.double(9999.0),
@@ -48,10 +46,10 @@ ZMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinAcop = cms.double(-1.0)
 )
 
-ZMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
+hltZMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(7.0),
-    PreviousCandTag = cms.InputTag("ZMML2Filtered"),
+    PreviousCandTag = cms.InputTag("hltZMML2Filtered"),
     MaxPtBalance = cms.double(999999.0),
     ChargeOpt = cms.int32(0),
     MaxInvMass = cms.double(1e+30),
@@ -71,6 +69,6 @@ ZMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinAcop = cms.double(-1.0)
 )
 
-zMM = cms.Sequence(prescaleZMM+l1muonreco+ZMMLevel1Seed+ZMML1Filtered+l2muonreco+ZMML2Filtered+l3muonreco+ZMML3Filtered)
-ZMMLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
+zMM = cms.Sequence(hltPrescalehltZMM+hltL1muonrecoSequence+hltZMMLevel1Seed+hltZMML1Filtered+hltL2muonrecoSequence+hltZMML2Filtered+hltL3muonrecoSequence+hltZMML3Filtered)
+hltZMMLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
 

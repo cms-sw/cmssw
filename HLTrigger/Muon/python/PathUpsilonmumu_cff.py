@@ -10,25 +10,23 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.CommonModules_cff import *
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # HLT Filter flux ##########################################################
-UpsilonMMLevel1Seed = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-prescaleUpsilonMM = copy.deepcopy(hltPrescaler)
-UpsilonMML1Filtered = cms.EDFilter("HLTMuonL1Filter",
+hltUpsilonMMLevel1Seed = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
+hltPrescalehltUpsilonMM = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltUpsilonMML1Filtered = cms.EDFilter("HLTMuonL1Filter",
     MaxEta = cms.double(2.5),
-    CandTag = cms.InputTag("UpsilonMMLevel1Seed"),
+    CandTag = cms.InputTag("hltUpsilonMMLevel1Seed"),
     MinPt = cms.double(0.0),
     MinN = cms.int32(2),
     MinQuality = cms.int32(-1)
 )
 
-UpsilonMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
+hltUpsilonMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(3.0),
-    PreviousCandTag = cms.InputTag("UpsilonMML1Filtered"),
+    PreviousCandTag = cms.InputTag("hltUpsilonMML1Filtered"),
     MaxPtBalance = cms.double(999999.0),
     ChargeOpt = cms.int32(0),
     MaxInvMass = cms.double(13.0),
@@ -48,10 +46,10 @@ UpsilonMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinAcop = cms.double(-1.0)
 )
 
-UpsilonMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
+hltUpsilonMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(3.0),
-    PreviousCandTag = cms.InputTag("UpsilonMML2Filtered"),
+    PreviousCandTag = cms.InputTag("hltUpsilonMML2Filtered"),
     MaxPtBalance = cms.double(999999.0),
     ChargeOpt = cms.int32(0),
     MaxInvMass = cms.double(11.0),
@@ -71,6 +69,6 @@ UpsilonMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinAcop = cms.double(-1.0)
 )
 
-upsilonMM = cms.Sequence(prescaleUpsilonMM+l1muonreco+UpsilonMMLevel1Seed+UpsilonMML1Filtered+l2muonreco+UpsilonMML2Filtered+l3muonreco+UpsilonMML3Filtered)
-UpsilonMMLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
+upsilonMM = cms.Sequence(hltPrescalehltUpsilonMM+hltL1muonrecoSequence+hltUpsilonMMLevel1Seed+hltUpsilonMML1Filtered+hltL2muonrecoSequence+hltUpsilonMML2Filtered+hltL3muonrecoSequence+hltUpsilonMML3Filtered)
+hltUpsilonMMLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
 

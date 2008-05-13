@@ -14,25 +14,23 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.CommonModules_cff import *
-import copy
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+import HLTrigger.HLTfilters.hltLevel1GTSeed_cfi
 # HLT Filter flux ##########################################################
-ExclMMLevel1Seed = copy.deepcopy(hltLevel1GTSeed)
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
-prescaleExclMM = copy.deepcopy(hltPrescaler)
-ExclMML1Filtered = cms.EDFilter("HLTMuonL1Filter",
+hltExclMMLevel1Seed = HLTrigger.HLTfilters.hltLevel1GTSeed_cfi.hltLevel1GTSeed.clone()
+import HLTrigger.HLTcore.hltPrescaler_cfi
+hltPrescalehltExclMM = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltExclMML1Filtered = cms.EDFilter("HLTMuonL1Filter",
     MaxEta = cms.double(2.5),
-    CandTag = cms.InputTag("ExclMMLevel1Seed"),
+    CandTag = cms.InputTag("hltExclMMLevel1Seed"),
     MinPt = cms.double(0.0),
     MinN = cms.int32(2),
     MinQuality = cms.int32(-1)
 )
 
-ExclMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
+hltExclMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(3.0),
-    PreviousCandTag = cms.InputTag("ExclMML1Filtered"),
+    PreviousCandTag = cms.InputTag("hltExclMML1Filtered"),
     MaxPtBalance = cms.double(999999.0),
     ChargeOpt = cms.int32(0),
     MaxInvMass = cms.double(999999.0),
@@ -52,16 +50,16 @@ ExclMML2Filtered = cms.EDFilter("HLTMuonDimuonL2Filter",
     MinAcop = cms.double(-1.0)
 )
 
-ExclDiMuonIsoL2IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
-    CandTag = cms.InputTag("ExclMML2Filtered"),
+hltExclhltDiMuonIsoL2IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
+    CandTag = cms.InputTag("hltExclMML2Filtered"),
     MinN = cms.int32(1),
     IsoTag = cms.InputTag("hltL2MuonIsolations")
 )
 
-ExclMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
+hltExclMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinPtBalance = cms.double(-1.0),
     MinPtMax = cms.double(4.0),
-    PreviousCandTag = cms.InputTag("ExclDiMuonIsoL2IsoFiltered"),
+    PreviousCandTag = cms.InputTag("hltExclhltDiMuonIsoL2IsoFiltered"),
     MaxPtBalance = cms.double(2.0),
     ChargeOpt = cms.int32(0),
     MaxInvMass = cms.double(999999.0),
@@ -81,12 +79,12 @@ ExclMML3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
     MinAcop = cms.double(3.0)
 )
 
-ExclDiMuonIsoL3IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
-    CandTag = cms.InputTag("ExclMML3Filtered"),
+hltExclhltDiMuonIsoL3IsoFiltered = cms.EDFilter("HLTMuonIsoFilter",
+    CandTag = cms.InputTag("hltExclMML3Filtered"),
     MinN = cms.int32(1),
     IsoTag = cms.InputTag("hltL3MuonIsolations")
 )
 
-diMuonExcl = cms.Sequence(prescaleExclMM+l1muonreco+ExclMMLevel1Seed+ExclMML1Filtered+l2muonreco+ExclMML2Filtered+l2muonisoreco+ExclDiMuonIsoL2IsoFiltered+l3muonreco+ExclMML3Filtered+l3muonisoreco+ExclDiMuonIsoL3IsoFiltered)
-ExclMMLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
+diMuonhltExcl = cms.Sequence(hltPrescalehltExclMM+hltL1muonrecoSequence+hltExclMMLevel1Seed+hltExclMML1Filtered+hltL2muonrecoSequence+hltExclMML2Filtered+hltL2muonisorecoSequence+hltExclhltDiMuonIsoL2IsoFiltered+hltL3muonrecoSequence+hltExclMML3Filtered+hltL3muonisorecoSequence+hltExclhltDiMuonIsoL3IsoFiltered)
+hltExclMMLevel1Seed.L1SeedsLogicalExpression = 'L1_DoubleMu3'
 

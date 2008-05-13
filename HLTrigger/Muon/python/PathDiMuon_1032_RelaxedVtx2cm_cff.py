@@ -10,12 +10,11 @@ import FWCore.ParameterSet.Config as cms
 
 # RecoMuon flux ##########################################################
 from HLTrigger.Muon.PathDiMuon_1032_NoIso_cff import *
-import copy
-from HLTrigger.HLTcore.hltPrescaler_cfi import *
+import HLTrigger.HLTcore.hltPrescaler_cfi
 # HLT Filter flux ##########################################################
-prescaleDiMuonNoIsoRelaxedVtx2cm = copy.deepcopy(hltPrescaler)
-DiMuonNoIsoL3PreFilteredRelaxedVtx2cm = cms.EDFilter("HLTMuonL3PreFilter",
-    PreviousCandTag = cms.InputTag("DiMuonNoIsoL2PreFiltered"),
+hltPrescalehltDiMuonNoIsoRelaxedVtx2cm = HLTrigger.HLTcore.hltPrescaler_cfi.hltPrescaler.clone()
+hltDiMuonNoIsoL3PreFilteredRelaxedVtx2cm = cms.EDFilter("HLTMuonL3PreFilter",
+    PreviousCandTag = cms.InputTag("hltDiMuonNoIsoL2PreFiltered"),
     MinPt = cms.double(3.0),
     MinN = cms.int32(2),
     MaxEta = cms.double(2.5),
@@ -29,5 +28,5 @@ DiMuonNoIsoL3PreFilteredRelaxedVtx2cm = cms.EDFilter("HLTMuonL3PreFilter",
     CandTag = cms.InputTag("hltL3MuonCandidates")
 )
 
-diMuonNoIsoRelaxedVtx2cm = cms.Sequence(prescaleDiMuonNoIsoRelaxedVtx2cm+l1muonreco+DiMuonNoIsoLevel1Seed+DiMuonNoIsoL1Filtered+l2muonreco+DiMuonNoIsoL2PreFiltered+l3muonreco+DiMuonNoIsoL3PreFilteredRelaxedVtx2cm)
+diMuonNoIsoRelaxedVtx2cm = cms.Sequence(hltPrescalehltDiMuonNoIsoRelaxedVtx2cm+hltL1muonrecoSequence+hltDiMuonNoIsoLevel1Seed+hltDiMuonNoIsoL1Filtered+hltL2muonrecoSequence+hltDiMuonNoIsoL2PreFiltered+hltL3muonrecoSequence+hltDiMuonNoIsoL3PreFilteredRelaxedVtx2cm)
 
