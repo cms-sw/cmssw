@@ -28,7 +28,8 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
   useBirk    = m_HC.getParameter<bool>("UseBirkLaw");
   birk1      = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
-  birk2      = m_HC.getParameter<double>("BirkC2")*(g/(MeV*cm2))*(g/(MeV*cm2));
+  birk2      = m_HC.getParameter<double>("BirkC2");
+  birk3      = m_HC.getParameter<double>("BirkC3");
 
   LogDebug("HcalTBSim") <<"***************************************************"
 			<< "\n"
@@ -41,8 +42,8 @@ HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
 			<<"***************************************************";
 
   edm::LogInfo("HcalTBSim") << "HcalTB06BeamSD:: Use of Birks law is set to " 
-			    << useBirk << "  with the two constants C1 = "
-			    << birk1 << ", C2 = " << birk2;
+			    << useBirk << "  with three constants kB = "
+			    << birk1 << ", C1 = " <<birk2 << ", C2 = " <<birk3;
 
   std::string attribute, value;
 
@@ -111,7 +112,7 @@ double HcalTB06BeamSD::getEnergyDeposit(G4Step* aStep) {
   if (useBirk) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (mat->GetName() == matName)
-      weight *= getAttenuation(aStep, birk1, birk2);
+      weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
   LogDebug("HcalTBSim") << "HcalTB06BeamSD: Detector " 
 			<< aStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName()
