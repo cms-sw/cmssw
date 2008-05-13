@@ -62,17 +62,17 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
   theTrackLoader = new MuonTrackLoader(trackLoaderParameters,theService);
 
-  theCocktails = parameterSet.getParameter< std::vector<std::string> >("Cocktails");
-  theCocktailIndex = parameterSet.getParameter< std::vector<int> >("CocktailIndex");
+  theRefits = parameterSet.getParameter< std::vector<std::string> >("Refits");
+  theRefitIndex = parameterSet.getParameter< std::vector<int> >("RefitIndex");
 
-  for(unsigned int ww=0;ww<theCocktails.size();ww++){
-    LogDebug("Muon|RecoMuon|TevMuonProducer") << "Cocktail " << theCocktails[ww];
-    produces<reco::TrackCollection>(theCocktails[ww]);
-    produces<TrackingRecHitCollection>(theCocktails[ww]);
-    produces<reco::TrackExtraCollection>(theCocktails[ww]);
-    produces<vector<Trajectory> >(theCocktails[ww]) ;
-    produces<TrajTrackAssociationCollection>(theCocktails[ww]);
-    produces<reco::TrackToTrackMap>(theCocktails[ww]);
+  for(unsigned int ww=0;ww<theRefits.size();ww++){
+    LogDebug("Muon|RecoMuon|TevMuonProducer") << "Refit " << theRefits[ww];
+    produces<reco::TrackCollection>(theRefits[ww]);
+    produces<TrackingRecHitCollection>(theRefits[ww]);
+    produces<reco::TrackExtraCollection>(theRefits[ww]);
+    produces<vector<Trajectory> >(theRefits[ww]) ;
+    produces<TrajTrackAssociationCollection>(theRefits[ww]);
+    produces<reco::TrackToTrackMap>(theRefits[ww]);
   }
 }
 
@@ -118,25 +118,29 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   event.getByLabel(theGLBCollectionLabel.label(), glbMuonsTraj);
     
   const reco::TrackCollection *glbTracks = glbMuons.product();
-  Trajectory refitted;
   
-  for(unsigned int ww=0;ww<theCocktails.size();ww++) {
-    LogDebug(metname)<<"TeVRefit for cocktail: " <<theCocktailIndex[ww];
+  for(unsigned int ww=0;ww<theRefits.size();ww++) {
+    LogDebug(metname)<<"TeVRefit for Refit: " <<theRefitIndex[ww];
     std::vector<std::pair<Trajectory*,reco::TrackRef> > miniMap;
     vector<Trajectory*> trajectories;
     reco::TrackRef::key_type trackIndex = 0;
     for (reco::TrackCollection::const_iterator track = glbTracks->begin(); track!=glbTracks->end(); track++ , ++trackIndex) {
       reco::TrackRef glbRef(glbMuons,trackIndex);
-      refitted=theRefitter->refit(*track,theCocktailIndex[ww]);
-      Trajectory *refit = new Trajectory(refitted);
-      if (refitted.isValid()) {
-	LogDebug(metname)<<"TeVTrackLoader for cocktail: " <<theCocktails[ww];
+      
+      // FIXME temporary protection very energetic tracks crash the refitter...
+      if (track->pt()>10000.) continue;
+      
+      vector<Trajectory> refitted=theRefitter->refit(*track,theRefitIndex[ww]);
+
+      if (refitted.size()>0) {
+        Trajectory *refit = new Trajectory(refitted.front());
+	LogDebug(metname)<<"TeVTrackLoader for Refit: " <<theRefits[ww];
 	trajectories.push_back(refit);
 	std::pair<Trajectory*,reco::TrackRef> thisPair(refit,glbRef);
 	miniMap.push_back(thisPair);
       }
     }
-    theTrackLoader->loadTracks(trajectories,event,miniMap,theCocktails[ww]);
+    theTrackLoader->loadTracks(trajectories,event,miniMap,theRefits[ww]);
   }
     
   LogTrace(metname) << "Done." << endl;    
