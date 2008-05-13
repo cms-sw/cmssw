@@ -159,7 +159,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
         
-        size_t numberObjects = m_candL1NoIsoEG->size();
+        int numberObjects = m_candL1NoIsoEG->size();
         if (numberObjects < nrL1NoIsoEG) {
             throw cms::Exception("EventCorruption")
             << "\nError: L1GctEmCandCollection contains for BxInEvent = " << iBxInEvent
@@ -195,7 +195,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        size_t numberObjects = m_candL1IsoEG->size();
+        int numberObjects = m_candL1IsoEG->size();
         if (numberObjects < nrL1IsoEG) {
             throw cms::Exception("EventCorruption")
             << "\nError: L1GctEmCandCollection contains for BxInEvent = " << iBxInEvent
@@ -232,7 +232,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        size_t numberObjects = m_candL1CenJet->size();
+        int numberObjects = m_candL1CenJet->size();
         if (numberObjects < nrL1CenJet) {
             throw cms::Exception("EventCorruption")
             << "\nError: L1GctJetCandCollection contains for BxInEvent = " << iBxInEvent
@@ -267,7 +267,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        size_t numberObjects = m_candL1ForJet->size();
+        int numberObjects = m_candL1ForJet->size();
         if (numberObjects < nrL1ForJet) {
             throw cms::Exception("EventCorruption")
             << "\nError: L1GctJetCandCollection contains for BxInEvent = " << iBxInEvent
@@ -302,7 +302,7 @@ void L1GlobalTriggerPSB::receiveGctObjectData(
             }
         }
 
-        size_t numberObjects = m_candL1TauJet->size();
+        int numberObjects = m_candL1TauJet->size();
         if (numberObjects < nrL1TauJet) {
             throw cms::Exception("EventCorruption")
             << "\nError: L1GctJetCandCollection contains for BxInEvent = " << iBxInEvent
