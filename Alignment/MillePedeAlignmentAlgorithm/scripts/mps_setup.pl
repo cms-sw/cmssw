@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.3 $
-#     $Date: 2008/04/17 16:38:47 $
+#     $Revision: 1.5 $
+#     $Date: 2008/05/05 12:14:22 $
 #
 #  Setup local mps database
 #  
@@ -166,6 +166,7 @@ if ($append == 1) {
   my $tmpNJobs = $nJobs;
   my $tmpInfiList = $infiList;
   my $tmpDriver = $driver;
+  my $tmpCfgTemplate = $cfgTemplate;
 
 # Read DB file
   read_db();
@@ -191,6 +192,7 @@ if ($append == 1) {
   $nJobs = $tmpNJobs;
   $infiList = $tmpInfiList;
   $driver = $tmpDriver;
+  $cfgTemplate = $tmpCfgTemplate; 
 }
 
 
