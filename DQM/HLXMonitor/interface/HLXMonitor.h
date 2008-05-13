@@ -14,14 +14,14 @@ Implementation:
 // Original Author:  Adam Hunt - Princeton University
 //           email:  ahunt@princeton.edu
 //         Created:  Thu Jul 19 02:29:59 EDT 2007
-// $Id: HLXMonitor.h,v 1.2 2008/05/03 19:11:06 ahunt Exp $
+// $Id: HLXMonitor.h,v 1.8 2008/03/11 14:41:06 ahunt Exp $
 //
 //
 
 #ifndef _HLXMONITOR_H_
 #define _HLXMONITOR_H_
 
-// system include files
+// system include fileshlx_dqm_sourceclient-live.cfg
 #include <iostream>
 #include <string>
 #include <memory>
@@ -37,11 +37,15 @@ Implementation:
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+//#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"  // Obsolete as of version 3. 
+//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "/opt/TriDAS/RecoLuminosity/HLXReadOut/CoreUtils/include/ICTypeDefs.hh"
+#include "/opt/TriDAS/RecoLuminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh"
 #include "RecoLuminosity/TCPReceiver/interface/TCPReceiver.h"
 
 using namespace HCAL_HLX;
@@ -67,10 +71,15 @@ class HLXMonitor : public edm::EDAnalyzer
       void SaveDQMFile();
 
       void SetupHists();
+      void SetupEventInfo(const edm::ParameterSet&);
+
       void FillHistoBX(const LUMI_SECTION&);
       void FillHistoDist(const LUMI_SECTION&);
       void FillHistoHFCompare(const LUMI_SECTION&);
       void FillHistoAvg(const LUMI_SECTION&);
+      void FillHistoLumi(const LUMI_SECTION&);
+      void FillHistoSum(const LUMI_SECTION&);
+      void FillEventInfo(const LUMI_SECTION&);
 
       //  void FillHistoHistory(const LUMI_SECTION&);
 
@@ -101,6 +110,32 @@ class HLXMonitor : public edm::EDAnalyzer
       MonitorElement * AvgOccBetweenSet2;
       MonitorElement * AvgOccAboveSet2;
 
+      // Luminosity Monitoring
+      MonitorElement * LumiEtSum;
+      MonitorElement * LumiOccSet1;
+      MonitorElement * LumiOccSet2;
+      MonitorElement * LumiDiffEtSumOcc1;
+      MonitorElement * LumiDiffEtSumOcc2;
+      MonitorElement * LumiDiffOcc1Occ2;
+
+      // Sanity Check for Occupancy
+      MonitorElement * SumAllOccSet1;
+      MonitorElement * SumAllOccSet2;
+
+      //EventInfo Clone
+      //////////////////////////////////////////////////////////////////
+      ///These MEs are filled with the info from the most recent event 
+      ///   by the module
+      //////////////////////////////////////////////////////////////////
+      MonitorElement * runId_;
+      MonitorElement * lumisecId_;
+
+      edm::ParameterSet parameters_;
+      timeval currentTime_, lastUpdateTime_, lastAvgTime_;
+      float evtRateWindow_;
+      int evtRateCount_;
+      int pEvent_;
+  
       DQMStore* dbe_;
 
       unsigned int numActiveTowersSet1;
