@@ -97,7 +97,7 @@ void CSCMonitorModule::beginJob(const edm::EventSetup& c){
 void CSCMonitorModule::setup() {
 
   // Base folder for the contents of this job
-  dbe->setCurrentFolder(rootDir);
+  dbe->setCurrentFolder(rootDir + SUMMARY_FOLDER);
 
   // Book EMU level histograms
   book("EMU");
@@ -106,7 +106,7 @@ void CSCMonitorModule::setup() {
   for (int d = 1; d <= 36; d++) {
     if(!loadDDU.test(d - 1)) continue;
     std::string buffer;
-    dbe->setCurrentFolder(rootDir + getDDUTag(d, buffer));
+    dbe->setCurrentFolder(rootDir + DDU_FOLDER + getDDUTag(d, buffer));
     book("DDU");
   }
   LOGINFO("DDU histograms") << " # of DDU to be prebooked for monitoring = " << loadDDU.count() << " following bitset = " << loadDDU << " (hitBookDDU = " << std::boolalpha << hitBookDDU << ")";

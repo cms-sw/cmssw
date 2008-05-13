@@ -62,6 +62,9 @@
 #define LOGINFO(cat)       edm::LogInfo (cat)
 #define LOGDEBUG(cat)      LogDebug (cat)
 
+#define SUMMARY_FOLDER     "Summary/"
+#define DDU_FOLDER         "DDUs/"
+
 /**
  * Type Definition Section
  */

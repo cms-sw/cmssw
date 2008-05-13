@@ -49,7 +49,7 @@ const bool CSCMonitorModule::isMEValid(const std::string name, MonitorElement*& 
  * @return true if histogram was found and false otherwise
  */
 const bool CSCMonitorModule::MEEMU(const std::string name, MonitorElement*& me) {
-  return isMEValid(rootDir + name, me);
+  return isMEValid(rootDir + SUMMARY_FOLDER + name, me);
 }
 
 
@@ -79,12 +79,12 @@ const bool CSCMonitorModule::MEDDU(const unsigned int dduId, const std::string n
   }
   */
 
-  bool result = isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
+  bool result = isMEValid(rootDir + DDU_FOLDER + getDDUTag(dduId, buffer) + "/" + name, me);
   if (!result && hitBookDDU) {
     LOGINFO("DDU ME booking on demand") << "DDU id = " << dduId << " is being booked on demand (hitBookDDU = " << std::boolalpha << hitBookDDU << ")";
-    dbe->setCurrentFolder(rootDir + getDDUTag(dduId, buffer));
+    dbe->setCurrentFolder(rootDir + DDU_FOLDER + getDDUTag(dduId, buffer));
     book("DDU");
-    result = isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
+    result = isMEValid(rootDir + DDU_FOLDER + getDDUTag(dduId, buffer) + "/" + name, me);
   }
 
   return result;
