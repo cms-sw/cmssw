@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.66 2008/05/06 12:36:54 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.67 2008/05/08 10:07:58 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Common/interface/MapOfVectors.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForRunType.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -23,6 +24,7 @@
 #include <ostream>
 #include <vector>
 #include <string>
+#include <list>
 #include <map>
 
 #ifdef USING_NEW_DATABASE_MODEL
@@ -200,9 +202,40 @@ class SiStripConfigDb {
   
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DbClient* const databaseCache( std::string method_name = "" ) const;
+
+
+  // ---------- Run numbers for partitions and run types ----------
+
   
-  std::vector<uint16_t> runNumbers( std::string partition_name, 
-				    sistrip::RunType run ) const;
+  class Run {
+  public:
+    sistrip::RunType type_;
+    std::string      partition_;
+    uint16_t         number_;
+    Run() : type_(sistrip::UNDEFINED_RUN_TYPE), partition_(""), number_(0) {;}
+  };
+  
+  typedef std::vector<Run> Runs;
+  
+  typedef std::map<sistrip::RunType,Runs> RunsByType;
+  
+  typedef std::map<std::string,Runs> RunsByPartition;
+  
+  /** Retrieves all runs from database. */
+  void runs( Runs& ) const;
+  
+  /** Runs organsed by type, optionally for given partition. */
+  void runs( const Runs& in,
+	     RunsByType& out,
+	     std::string optional_partition = "" ) const;
+  
+  /** Runs organsed by partition, optionally for given type. */
+  void runs( const Runs& in,
+	     RunsByPartition& out,
+	     sistrip::RunType optional_type = sistrip::UNDEFINED_RUN_TYPE ) const;
+
+  /** Retrieves all partitions names from database. */
+  void partitions( std::list<std::string>& ) const;
   
   
   // ---------- FED connections ----------

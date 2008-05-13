@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.65 2008/04/30 08:12:36 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.66 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -781,7 +781,11 @@ void SiStripConfigDb::handleException( const std::string& method_name,
   catch ( const FecExceptionHandler& e ) {
     ss << " Caught FecExceptionHandler exception in method "
        << method_name << " with message: " << std::endl 
+#ifdef USING_NEW_DATABASE_MODEL
+       << const_cast<FecExceptionHandler&>(e).what();
+#else
        << const_cast<FecExceptionHandler&>(e).getMessage();
+#endif
     if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
@@ -824,23 +828,11 @@ bool SiStripConfigDb::checkFileExists( const std::string& path ) {
   return true;
 }
 
-
 // -----------------------------------------------------------------------------
 //
-std::vector<uint16_t> SiStripConfigDb::runNumbers( std::string partition_name, 
-						   sistrip::RunType run_type ) const {
+void SiStripConfigDb::runs( SiStripConfigDb::Runs& runs ) const {
   
-  std::vector<uint16_t> runs;
   runs.clear();
-  
-  // Check partition name
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partition( partition_name );
-  if ( iter == dbParams_.partitions().end() ) { 
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripPartition::" << __func__ << "]"
-      << " Partition name not found!";
-    return runs; 
-  }
   
   // Check DF pointer
   DeviceFactory* const df = deviceFactory(__func__);
@@ -848,7 +840,7 @@ std::vector<uint16_t> SiStripConfigDb::runNumbers( std::string partition_name,
     edm::LogError(mlConfigDb_)
       << "[SiStripPartition::" << __func__ << "]"
       << " NULL pointer to DeviceFactory object!";
-    return runs;
+    return;
   }
   
   // Retrieve runs
@@ -858,60 +850,203 @@ std::vector<uint16_t> SiStripConfigDb::runNumbers( std::string partition_name,
 #else
   all = *(df->getAllRuns());
 #endif
+
+  // Iterate through tkRunVector
   tkRunVector::const_iterator ii = all.begin();
   tkRunVector::const_iterator jj = all.end();
   for ( ; ii != jj; ++ii ) {
+
     // Check TkRun pointer
     if ( *ii ) {
-      // Check partition name
-      if ( (*ii)->getPartitionName() == partition_name ) { 
-	uint16_t type = (*ii)->getModeId( (*ii)->getMode() );
-	sistrip::RunType temp = sistrip::UNKNOWN_RUN_TYPE;
-	if      ( type ==  1 ) { temp = sistrip::PHYSICS; }
-	else if ( type ==  2 ) { temp = sistrip::PEDESTALS; }
-	else if ( type ==  3 ) { temp = sistrip::CALIBRATION; }
-	else if ( type == 33 ) { temp = sistrip::CALIBRATION_DECO; }
-	else if ( type ==  4 ) { temp = sistrip::OPTO_SCAN; }
-	else if ( type ==  5 ) { temp = sistrip::APV_TIMING; }
-	else if ( type ==  6 ) { temp = sistrip::APV_LATENCY; }
-	else if ( type ==  7 ) { temp = sistrip::FINE_DELAY_PLL; }
-	else if ( type ==  8 ) { temp = sistrip::FINE_DELAY_TTC; }
-	else if ( type == 10 ) { temp = sistrip::MULTI_MODE; }
-	else if ( type == 12 ) { temp = sistrip::FED_TIMING; }
-	else if ( type == 13 ) { temp = sistrip::FED_CABLING; }
-	else if ( type == 14 ) { temp = sistrip::VPSP_SCAN; }
-	else if ( type == 15 ) { temp = sistrip::DAQ_SCOPE_MODE; }
-	else if ( type == 16 ) { temp = sistrip::QUITE_FAST_CABLING; }
-	else if ( type == 21 ) { temp = sistrip::FAST_CABLING; }
-	else if ( type ==  0 ) { temp = sistrip::UNDEFINED_RUN_TYPE; }
-	else                   { temp = sistrip::UNKNOWN_RUN_TYPE; }
-	// Check run type
-	if ( temp == run_type ) { 
-	  // Check run number
-	  if ( (*ii)->getRunNumber() ) { 
-	    runs.push_back( (*ii)->getRunNumber() ); 
-	  } else {
-// 	    edm::LogWarning(mlConfigDb_)
-// 	      << "[SiStripPartition::" << __func__ << "]"
-// 	      << " NULL run number!";
-	  }
-	} else {
-// 	  edm::LogWarning(mlConfigDb_)
-// 	    << "[SiStripPartition::" << __func__ << "]"
-// 	    << " Run type does not match!";
-	}
-      } else {
-// 	edm::LogWarning(mlConfigDb_)
-// 	  << "[SiStripPartition::" << __func__ << "]"
-// 	  << " Partition name does not match!";
-      }
+
+      // Retrieve run type
+      uint16_t type = (*ii)->getModeId( (*ii)->getMode() );
+      sistrip::RunType temp = sistrip::UNKNOWN_RUN_TYPE;
+      if      ( type ==  1 ) { temp = sistrip::PHYSICS; }
+      else if ( type ==  2 ) { temp = sistrip::PEDESTALS; }
+      else if ( type ==  3 ) { temp = sistrip::CALIBRATION; }
+      else if ( type == 33 ) { temp = sistrip::CALIBRATION_DECO; }
+      else if ( type ==  4 ) { temp = sistrip::OPTO_SCAN; }
+      else if ( type ==  5 ) { temp = sistrip::APV_TIMING; }
+      else if ( type ==  6 ) { temp = sistrip::APV_LATENCY; }
+      else if ( type ==  7 ) { temp = sistrip::FINE_DELAY_PLL; }
+      else if ( type == 10 ) { temp = sistrip::MULTI_MODE; }
+      else if ( type ==  8 ) { temp = sistrip::FINE_DELAY_TTC; }
+      else if ( type == 12 ) { temp = sistrip::FED_TIMING; }
+      else if ( type == 13 ) { temp = sistrip::FED_CABLING; }
+      else if ( type == 14 ) { temp = sistrip::VPSP_SCAN; }
+      else if ( type == 15 ) { temp = sistrip::DAQ_SCOPE_MODE; }
+      else if ( type == 16 ) { temp = sistrip::QUITE_FAST_CABLING; }
+      else if ( type == 17 ) { temp = sistrip::FINE_DELAY; }
+      else if ( type == 18 ) { temp = sistrip::PHYSICS_ZS; }
+      else if ( type == 19 ) { temp = sistrip::CALIBRATION_SCAN; }
+      else if ( type == 20 ) { temp = sistrip::CALIBRATION_SCAN_DECO; }
+      else if ( type == 21 ) { temp = sistrip::FAST_CABLING; }
+      else if ( type ==  0 ) { temp = sistrip::UNDEFINED_RUN_TYPE; }
+      else                   { temp = sistrip::UNKNOWN_RUN_TYPE; }
+      
+      // Store run details
+      Run r;
+      r.type_      = temp;
+      r.partition_ = (*ii)->getPartitionName();
+      r.number_    = (*ii)->getRunNumber();
+      runs.push_back(r);
+
     } else {
-//       edm::LogWarning(mlConfigDb_)
-// 	<< "[SiStripPartition::" << __func__ << "]"
-// 	<< " NULL pointer to TkRun object!";
+      edm::LogWarning(mlConfigDb_)
+ 	<< "[SiStripPartition::" << __func__ << "]"
+ 	<< " NULL pointer to TkRun object!";
+    }
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::runs( const SiStripConfigDb::Runs& in,
+			    SiStripConfigDb::RunsByType& out,
+			    std::string optional_partition ) const {
+  
+  out.clear();
+  
+  // Check partition name (if not empty string)
+  if ( !optional_partition.empty() ) {
+    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partition( optional_partition );
+    if ( iter == dbParams_.partitions().end() ) { 
+      edm::LogWarning(mlConfigDb_)
+	<< "[SiStripPartition::" << __func__ << "]"
+	<< " Partition name not found!";
+      return; 
     }
   }
-  return runs;
+
+  // Iterate through runs
+  Runs::const_iterator ii = in.begin();
+  Runs::const_iterator jj = in.end();
+  for ( ; ii != jj; ++ii ) {
+    // Check partition name
+    if ( ii->partition_ == optional_partition || optional_partition == "" ) { 
+      // Check run type
+      if ( ii->type_ != sistrip::UNKNOWN_RUN_TYPE &&
+	   ii->type_ != sistrip::UNDEFINED_RUN_TYPE ) { 
+	// Check run number
+	if ( ii->number_ ) { 
+	  bool found = false;
+	  if ( out.find( ii->type_ ) != out.end() ) {
+	    Runs::const_iterator irun = out[ ii->type_ ].begin();
+	    Runs::const_iterator jrun = out[ ii->type_ ].end();
+	    while ( !found && irun != jrun ) {
+	      if ( irun->number_ == ii->number_ ) { found = true; }
+	      ++irun;
+	    }
+	  }
+	  // Check if run number already found
+	  if ( !found ) { 
+	    out[ ii->type_ ].push_back( *ii ); 
+	  } else {
+	    // 	      edm::LogWarning(mlConfigDb_)
+	    // 		<< "[SiStripPartition::" << __func__ << "]"
+	    // 		<< " Run number already found!";
+	  }
+	} else {
+	  // 	    edm::LogWarning(mlConfigDb_)
+	  // 	      << "[SiStripPartition::" << __func__ << "]"
+	  // 	      << " NULL run number!";
+	}
+      } else {
+	// 	  edm::LogWarning(mlConfigDb_)
+	// 	    << "[SiStripPartition::" << __func__ << "]"
+	// 	    << " Unexpected run type!";
+      }
+    } else {
+      // 	edm::LogWarning(mlConfigDb_)
+      // 	  << "[SiStripPartition::" << __func__ << "]"
+      // 	  << " Partition name does not match!";
+    }
+
+  }
+
 }
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::runs( const SiStripConfigDb::Runs& in,
+			    SiStripConfigDb::RunsByPartition& out,
+			    sistrip::RunType optional_type ) const {
   
+  out.clear();
+
+  // Iterate through runs
+  Runs::const_iterator ii = in.begin();
+  Runs::const_iterator jj = in.end();
+  for ( ; ii != jj; ++ii ) {
+    // Check partition name
+    if ( ii->partition_ != "" ) {
+      // Check run type
+      if ( ii->type_ == optional_type || optional_type == sistrip::UNDEFINED_RUN_TYPE ) { 
+	// Check run number
+	if ( ii->number_ ) { 
+	  bool found = false;
+	  if ( out.find( ii->partition_ ) != out.end() ) {
+	    Runs::const_iterator irun = out[ ii->partition_ ].begin();
+	    Runs::const_iterator jrun = out[ ii->partition_ ].end();
+	    while ( !found && irun != jrun ) {
+	      if ( irun->number_ == ii->number_ ) { found = true; }
+	      ++irun;
+	    }
+	  }
+	  // Check if run number already found
+	  if ( !found ) { 
+	    out[ ii->partition_ ].push_back( *ii ); 
+	  } else {
+	    // 	      edm::LogWarning(mlConfigDb_)
+	    // 		<< "[SiStripPartition::" << __func__ << "]"
+	    // 		<< " Run number already found!";
+	  }
+	} else {
+	  // 	    edm::LogWarning(mlConfigDb_)
+	  // 	      << "[SiStripPartition::" << __func__ << "]"
+	  // 	      << " NULL run number!";
+	}
+      } else {
+	// 	  edm::LogWarning(mlConfigDb_)
+	// 	    << "[SiStripPartition::" << __func__ << "]"
+	// 	    << " Run type does not match!";
+      }
+    } else {
+      // 	edm::LogWarning(mlConfigDb_)
+      // 	  << "[SiStripPartition::" << __func__ << "]"
+      // 	  << " NULL value for partition!";
+    }
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripConfigDb::partitions( std::list<std::string>& partitions ) const {
+
+  partitions.clear();
+
+  // Check DF pointer
+  DeviceFactory* const df = deviceFactory(__func__);
+  if ( !df ) {
+    edm::LogError(mlConfigDb_)
+      << "[SiStripPartition::" << __func__ << "]"
+      << " NULL pointer to DeviceFactory object!";
+    return;
+  }
+
+#ifdef USING_NEW_DATABASE_MODEL
+  partitions = df->getAllPartitionNames();
+#else
+  edm::LogWarning(mlConfigDb_)
+    << "[SiStripPartition::" << __func__ << "]"
+    << " No partitions returned for old model!";
+#endif
+  
+}
+
   

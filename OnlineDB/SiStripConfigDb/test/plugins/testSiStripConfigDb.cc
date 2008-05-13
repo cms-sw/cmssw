@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.11 2008/04/30 13:32:14 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.12 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -94,43 +94,83 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
     return;
   }
 
+  // Retrieve run numbers for all partitions
+  SiStripConfigDb::Runs runs;
+  db_->runs( runs );
+
+  // Print run numbers for partitions and run types
+  {
+    std::stringstream ss;
+    ss << "[testSiStripConfigDb::" << __func__ << "]"
+       << " Retrieving run numbers by partition and run type:" 
+       << std::endl;
+
+    SiStripConfigDb::RunsByPartition partitions;
+    db_->runs( runs, partitions );
+  
+    if ( partitions.empty() ) { 
+      ss << " Found no partitions!";
+    } else {
+    
+      SiStripConfigDb::RunsByPartition::const_iterator ii = partitions.begin();
+      SiStripConfigDb::RunsByPartition::const_iterator jj = partitions.end();
+      for ( ; ii != jj; ++ii ) {
+      
+	SiStripConfigDb::RunsByType types;
+	db_->runs( ii->second, types );
+      
+	if ( types.empty() ) { 
+	  ss << " Found no runs for partition \"" << ii->first << "\"!";
+	} else {
+	
+	  SiStripConfigDb::RunsByType::const_iterator iii = types.begin();
+	  SiStripConfigDb::RunsByType::const_iterator jjj = types.end();
+	  for ( ; iii != jjj; ++iii ) {
+	  
+	    if ( iii->second.empty() ) { 
+	      ss << " Found no runs for partition \"" 
+		 << ii->first
+		 << "\" and run type \""
+		 << iii->first
+		 << "\"!";
+	    } else {
+	    
+	      ss << " Found " << iii->second.size()
+		 << " runs for partition \"" 
+		 << ii->first
+		 << "\" and run type \""
+		 << SiStripEnumsAndStrings::runType( iii->first )
+		 << "\": ";
+	    
+	      uint16_t cntr = 0;
+	      SiStripConfigDb::Runs::const_iterator iiii = iii->second.begin();
+	      SiStripConfigDb::Runs::const_iterator jjjj = iii->second.end();
+	      for ( ; iiii != jjjj; ++iiii ) {
+		if ( cntr < 10 ) { 
+		  iiii == iii->second.begin() ? 
+		    ss << iiii->number_ : 
+		    ss << ", " << iiii->number_; 
+		}
+		cntr++;
+	      }	      
+	    
+	      ss << std::endl;
+
+	    }
+	  }
+	}
+      }
+    }
+    LogTrace(mlCabling_) << ss.str();
+  }
+
+
   // Local caches
   std::stringstream ss;
   SiStripConfigDb::DeviceDescriptions devices;
   SiStripConfigDb::FedDescriptions feds;
   SiStripConfigDb::FedConnections conns;
   SiStripConfigDb::DcuDetIds dcus;
-
-  // Retrieve run numbers
-  SiStripDbParams::SiStripPartitions::const_iterator ip = db_->dbParams().partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jp = db_->dbParams().partitions().end();
-  for ( ; ip != jp; ++ip ) {
-    for ( uint16_t itype = 0; itype < 6; ++itype ) {
-      sistrip::RunType type = sistrip::UNKNOWN_RUN_TYPE;
-      if      ( itype == 0 ) { type = sistrip::FAST_CABLING; } 
-      else if ( itype == 1 ) { type = sistrip::APV_TIMING; } 
-      else if ( itype == 2 ) { type = sistrip::OPTO_SCAN; } 
-      else if ( itype == 3 ) { type = sistrip::VPSP_SCAN; } 
-      else if ( itype == 4 ) { type = sistrip::PEDESTALS; } 
-      else if ( itype == 5 ) { type = sistrip::PHYSICS; } 
-      else                   { type = sistrip::UNDEFINED_RUN_TYPE; }
-      std::vector<uint16_t> runs = db_->runNumbers( ip->second.partitionName(), type );
-      std::stringstream ss;
-      ss << "[testSiStripConfigDb::" << __func__ << "]" 
-	 << " Found " 
-	 << runs.size()
-	 << " runs of type " 
-	 << std::setw(11) << SiStripEnumsAndStrings::runType( type )
-	 << " for partition \"" 
-	 << ip->second.partitionName() 
-	 << "\": "; 
-      std::vector<uint16_t>::const_iterator irun = runs.begin();
-      std::vector<uint16_t>::const_iterator jrun = runs.end();
-      for ( ; irun != jrun; ++irun ) { irun == runs.begin() ? ss << *irun : ss << ", " << *irun; }
-      LogTrace(mlCabling_) << ss.str();
-    }
-  }
-  
 
   // -------------------- UPLOADS (download, then upload) --------------------
   
