@@ -78,7 +78,6 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    mucands->getObjects(TriggerL1Mu,l1mu);
    InputTag saveThisTag;
    const Provenance * prov=0;
-   if(saveTag_)filterproduct->addCollectionTag(candTag_);
    for (unsigned int i=0; i<l1mu.size(); i++) {
       L1MuonParticleRef muon = L1MuonParticleRef(l1mu[i]);
       if (!prov && saveTag_){
