@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/03/10 07:29:27 dmytro Exp $
+// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/05/12 15:43:29 dmytro Exp $
 //
 
 // system include files
@@ -27,8 +27,15 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 // forward declarations
+namespace reco
+{
+   class Muon;
+}
 
+class TEveTrack;
+class TEveElementList;
 class TEveGeoShapeExtract;
+
 class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 {
 
@@ -52,6 +59,12 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product, 
 			 bool showEndcap);
+      
+      void addMatchInformation( const reco::Muon* muon,
+				const FWEventItem* iItem,
+				TEveTrack* track,
+				TEveElementList* parentList,
+				bool showEndcap);
    
       MuonsProxyRhoPhiZ2DBuilder(const MuonsProxyRhoPhiZ2DBuilder&); // stop default
 

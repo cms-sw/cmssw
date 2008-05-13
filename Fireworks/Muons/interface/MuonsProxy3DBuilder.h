@@ -8,6 +8,14 @@
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
+namespace reco
+{
+   class Muon;
+}
+
+class TEveTrack;
+class TEveElementList;
+
 class MuonsProxy3DBuilder : public FWRPZDataProxyBuilder
 {
  public:
@@ -20,6 +28,11 @@ class MuonsProxy3DBuilder : public FWRPZDataProxyBuilder
    MuonsProxy3DBuilder(const MuonsProxy3DBuilder&); // stop default
    
    const MuonsProxy3DBuilder& operator=(const MuonsProxy3DBuilder&); // stop default
+   
+   void addMatchInformation( const reco::Muon* muon,
+			     const DetIdToMatrix* geom,
+			     TEveTrack* track,
+			     TEveElementList* parentList);
 
 };
 
