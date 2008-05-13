@@ -233,7 +233,6 @@ namespace {
 
 bool Pythia6Hadronisation::veto()
 {
-call_pylist(1);
 	std::vector<SavedHEPEVT> saved;
 	int n = HepMC::HEPEVT_Wrapper::number_entries();
 
@@ -265,8 +264,6 @@ call_pylist(1);
 		if ((*iter)->status() == 2)
 			(*iter)->set_status(3);
 
-
-event->print();
 	return showeredEvent(event);
 }
 
