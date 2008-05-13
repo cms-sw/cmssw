@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for segments associated to the muon track
  *
- *  $Date: 2008/03/28 15:21:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/12 15:59:36 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -50,6 +50,10 @@ class SegmentTrackAnalyzer : public MuonAnalyzerBase {
   std::string metname;
   // Find the segments associated to the track
   SegmentsTrackAssociator* theSegmentsAssociator;
+
+  // the histos
+  MonitorElement* hitsNotUsed;
+  MonitorElement* TrackSegm;
 
  };
 #endif  
