@@ -3,6 +3,7 @@
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/Math>
+<use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DQMServices/WebComponents>
@@ -15,6 +16,7 @@
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/Math>
+  <use name=RecoEgamma/EgammaIsolationAlgos>
   <use name=DQMServices/Components>
   <use name=DQMServices/Core>
   <use name=DQMServices/WebComponents>
