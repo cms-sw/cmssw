@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2008/04/25 15:38:47 $
- * $Revision: 1.17 $
+ * $Date: 2008/05/07 12:05:55 $
+ * $Revision: 1.18 $
  * \author J. Berryhill, I. Mikulec
  *
  */
@@ -14,8 +14,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-//#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
-//#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -72,11 +72,11 @@ void L1TGMT::beginJob(const EventSetup& c)
   edm::ESHandle< L1MuTriggerScales > trigscales_h;
   c.get< L1MuTriggerScalesRcd >().get( trigscales_h );
   const L1MuTriggerScales* scales = trigscales_h.product();
-/*
+
   edm::ESHandle< L1MuTriggerPtScale > trigptscale_h;
   c.get< L1MuTriggerPtScaleRcd >().get( trigptscale_h );
   const L1MuTriggerPtScale* scalept = trigptscale_h.product();  
-  */
+
   // get hold of back-end interface
   DQMStore* dbe = 0;
   dbe = Service<DQMStore>().operator->();
@@ -93,13 +93,26 @@ void L1TGMT::beginJob(const EventSetup& c)
     
     int nphi=144; double phimin=  0.; double phimax=360.;
     int nqty=  8; double qtymin=-0.5; double qtymax=7.5;
+
+    float phiscale[145];
+    {
+      for(int j=0; j<145; j++) {
+        phiscale[j] = j*2.5 ;
+      }
+    }
+
+    float qscale[9];
+    {
+      for(int j=0; j<9; j++) {
+        qscale[j] = -0.5 + j;
+      }
+    } 
     
     float ptscale[32];
     {
       int i=0;
       for(int j=1; j<32; j++,i++) {
-//        ptscale[i] = scalept->getPtScale()->getLowEdge(j);
-        ptscale[i] = scales->getPtScale()->getLowEdge(j);
+        ptscale[i] = scalept->getPtScale()->getLowEdge(j);
       }
       ptscale[31]=ptscale[30]+10.;
     }
@@ -197,14 +210,12 @@ void L1TGMT::beginJob(const EventSetup& c)
       subs_qty[i]->setAxisTitle(subs[i] + " quality",1);
       
       hname = subs[i] + "_etaphi"; htitle = subs[i] + " phi vs eta";
-      // FIXME put a nonlinear eta scale as soon as variable bin 2D available in DQMStore
-      subs_etaphi[i] = dbe->book2D(hname.data(),htitle.data(),100,-2.5,2.5,nphi, phimin, phimax);
+      subs_etaphi[i] = dbe->book2D(hname.data(),htitle.data(), netascale[i], etascale[i], 144, phiscale);
       subs_etaphi[i]->setAxisTitle("eta",1);
       subs_etaphi[i]->setAxisTitle("phi (deg)",2);
       
       hname = subs[i] + "_etaqty"; htitle = subs[i] + " qty vs eta";
-      // FIXME put a nonlinear eta scale as soon as variable bin 2D available in DQMStore
-      subs_etaqty[i] = dbe->book2D(hname.data(),htitle.data(),100,-2.5,2.5,nqty,qtymin,qtymax);
+      subs_etaqty[i] = dbe->book2D(hname.data(),htitle.data(), netascale[i], etascale[i], 8, qscale);
       subs_etaqty[i]->setAxisTitle("eta",1);
       subs_etaqty[i]->setAxisTitle(subs[i] + " quality",2);
       
