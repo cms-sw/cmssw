@@ -5,6 +5,7 @@ OutALCARECORpcCalHLT = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECORpcCalHLT')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
+        'keep *_muonDTDigis_*_*', 
         'keep CSCDetIdCSCWireDigiMuonDigiCollection_*_*_*', 
         'keep CSCDetIdCSCStripDigiMuonDigiCollection_*_*_*', 
         'keep DTLayerIdDTDigiMuonDigiCollection_*_*_*', 

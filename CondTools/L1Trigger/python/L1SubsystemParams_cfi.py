@@ -28,6 +28,12 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('DTConfigManagerRcd'),
+            tag = cms.string('DTConfigManager_CRUZET_hlt'),
+            type = cms.string('DTConfigManager'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1MuDTEtaPatternLutRcd'),
             tag = cms.string('L1MuDTEtaPatternLut_CRUZET_hlt'),
             type = cms.string('L1MuDTEtaPatternLut'),
@@ -128,7 +134,7 @@ L1SubsystemParams = cms.PSet(
             tag = cms.string('L1GtTriggerMaskAlgoTrig_CRUZET_hlt'),
             type = cms.string('L1GtTriggerMask'),
             key = cms.string('dummy')
-        ),
+        ), 
         cms.PSet(
             record = cms.string('L1GtTriggerMaskTechTrigRcd'),
             tag = cms.string('L1GtTriggerMaskTechTrig_CRUZET_hlt'),
