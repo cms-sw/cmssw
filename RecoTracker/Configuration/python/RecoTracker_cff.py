@@ -55,14 +55,16 @@ from TrackingTools.TrackFitters.RungeKuttaKFFittingSmootherESProducer_cfi import
 FittingSmootherWithOutlierRejection = copy.deepcopy(RKFittingSmoother)
 import copy
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-preFilterCmsTracks = copy.deepcopy(ctfWithMaterialTracks)
+preFilterFirstStepTracks = copy.deepcopy(ctfWithMaterialTracks)
 # Collection cleaning and quality
 from RecoTracker.FinalTrackSelectors.TracksWithQuality_cff import *
-# defines sequence tracksWithQuality, input is preFilterCmsTracks, output is generalTracks
+# include track colleciton merging sequence
+from RecoTracker.FinalTrackSelectors.data.MergeTrackCollections_cff import *
+# defines sequence tracksWithQuality, input is preFilterFirstStepTracks, output is generalTracks
 #
 #sequence ckftracks = {globalMixedSeeds,globalPixelSeeds, ckfTrackCandidates,ctfWithMaterialTracks} #only old ctf sequence
-newTracking = cms.Sequence(newSeedFromPairs*newSeedFromTriplets*newCombinedSeeds*newTrackCandidateMaker*preFilterCmsTracks*tracksWithQuality)
-ckftracks = cms.Sequence(newTracking*iterTracking)
+newTracking = cms.Sequence(newSeedFromPairs*newSeedFromTriplets*newCombinedSeeds*newTrackCandidateMaker*preFilterFirstStepTracks*tracksWithQuality)
+ckftracks = cms.Sequence(newTracking*iterTracking*trackCollectionMerging)
 rstracks = cms.Sequence(roadSearchSeeds*roadSearchClouds*rsTrackCandidates*rsWithMaterialTracks)
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 newSeedFromTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.5
@@ -80,8 +82,8 @@ newTrackCandidateMaker.doSeedingRegionRebuilding = True
 FittingSmootherWithOutlierRejection.ComponentName = 'FittingSmootherWithOutlierRejection'
 FittingSmootherWithOutlierRejection.EstimateCut = 20
 FittingSmootherWithOutlierRejection.MinNumberOfHits = 3
-preFilterCmsTracks.src = 'newTrackCandidateMaker'
-preFilterCmsTracks.TTRHBuilder = 'WithAngleAndTemplate'
-preFilterCmsTracks.Fitter = 'FittingSmootherWithOutlierRejection'
-preFilterCmsTracks.AlgorithmName = 'ctf'
+preFilterFirstStepTracks.src = 'newTrackCandidateMaker'
+preFilterFirstStepTracks.TTRHBuilder = 'WithAngleAndTemplate'
+preFilterFirstStepTracks.Fitter = 'FittingSmootherWithOutlierRejection'
+preFilterFirstStepTracks.AlgorithmName = 'ctf'
 
