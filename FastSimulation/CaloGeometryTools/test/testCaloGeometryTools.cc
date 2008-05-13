@@ -28,7 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -128,7 +128,7 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
 
 
 
