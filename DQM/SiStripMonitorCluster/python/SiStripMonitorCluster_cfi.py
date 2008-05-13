@@ -6,6 +6,7 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
     # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
     OutputMEsInRootFile = cms.bool(False),
     ClusterLabel = cms.string(''),
+    StripQualityLabel = cms.string(''),
     OutputFileName = cms.string('test_digi_cluster.root'),
     #
     SelectAllDetectors = cms.bool(False),

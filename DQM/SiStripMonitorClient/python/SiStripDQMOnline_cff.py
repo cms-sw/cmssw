@@ -42,7 +42,7 @@ dqmEnv.subSystemFolder = 'SiStrip'
 # Ignore run number for MC data
 # replace dqmSaver.forceRunNumber  = -1
 # optionally change fileSaving  conditions
-dqmSaver.saveByLumiSection = 1
+dqmSaver.saveByLumiSection = -1
 # replace dqmSaver.saveByMinute = -1
 # replace dqmSaver.saveByEvent =  -1
 dqmSaver.saveByRun = 1

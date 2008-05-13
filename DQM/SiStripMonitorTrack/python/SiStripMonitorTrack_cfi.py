@@ -42,13 +42,10 @@ SiStripMonitorTrack = cms.EDFilter("SiStripMonitorTrack",
         Nbinx = cms.int32(200),
         xmax = cms.double(200.0)
     ),
-    TProfileClusterPGV = cms.PSet(
-        ymax = cms.double(1.2),
-        Nbinx = cms.int32(20),
-        Nbiny = cms.int32(20),
-        xmax = cms.double(10.0),
-        xmin = cms.double(-10.0),
-        ymin = cms.double(-0.1)
+    TH1ClusterPos = cms.PSet(
+        xmin = cms.double(-0.5),
+        Nbinx = cms.int32(768),
+        xmax = cms.double(767.5)
     ),
     MTCCData = cms.bool(False),
     OutputFileName = cms.string('test_monitortrackparameters_rs.root'),
@@ -57,16 +54,20 @@ SiStripMonitorTrack = cms.EDFilter("SiStripMonitorTrack",
         Nbinx = cms.int32(30),
         xmax = cms.double(29.5)
     ),
-    TH1ClusterPos = cms.PSet(
-        xmin = cms.double(-0.5),
-        Nbinx = cms.int32(768),
-        xmax = cms.double(767.5)
+    TProfileClusterPGV = cms.PSet(
+        ymax = cms.double(1.2),
+        Nbinx = cms.int32(20),
+        Nbiny = cms.int32(20),
+        xmax = cms.double(10.0),
+        xmin = cms.double(-10.0),
+        ymin = cms.double(-0.1)
     ),
     TH1ClusterStoN = cms.PSet(
         xmin = cms.double(0.0),
         Nbinx = cms.int32(60),
         xmax = cms.double(200.0)
     ),
+    OffHisto_On = cms.bool(True),
     TH1ClusterChargeCorr = cms.PSet(
         xmin = cms.double(0.0),
         Nbinx = cms.int32(200),
