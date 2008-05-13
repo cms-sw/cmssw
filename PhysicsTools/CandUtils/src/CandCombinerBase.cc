@@ -52,7 +52,7 @@ void CandCombinerBase::combine(CompositeCandidate & cmp, const CandidateBaseRef 
 }
 
 auto_ptr<CompositeCandidateCollection> 
-CandCombinerBase::combine(const vector<CandidateBaseRefProd> & src) const {
+CandCombinerBase::combine(const vector<edm::Handle<CandidateView> > & src) const {
   size_t srcSize = src.size();
   if (checkCharge_ && dauCharge_.size() != srcSize)
     throw edm::Exception(edm::errors::Configuration) 
@@ -61,8 +61,8 @@ CandCombinerBase::combine(const vector<CandidateBaseRefProd> & src) const {
   
   auto_ptr<CompositeCandidateCollection> comps(new CompositeCandidateCollection);
   if(srcSize == 2) {
-    CandidateBaseRefProd src1 = src[0], src2 = src[1];
-    if(src1 == src2) {
+    edm::Handle<CandidateView> src1 = src[0], src2 = src[1];
+    if(src1.id() == src2.id()) {
       const CandidateView & cands = * src1;
       const int n = cands.size();
       for(int i1 = 0; i1 < n; ++i1) {
@@ -107,7 +107,7 @@ CandCombinerBase::combine(const vector<CandidateBaseRefProd> & src) const {
 }
 
 auto_ptr<CompositeCandidateCollection> 
-CandCombinerBase::combine(const CandidateBaseRefProd & src) const {
+CandCombinerBase::combine(const edm::Handle<CandidateView> & src) const {
   if(checkCharge_ && dauCharge_.size() != 2)
     throw edm::Exception(edm::errors::Configuration) 
       << "CandCombiner: trying to combine 2 collections"
@@ -135,16 +135,16 @@ CandCombinerBase::combine(const CandidateBaseRefProd & src) const {
 }
 
 auto_ptr<CompositeCandidateCollection> 
-CandCombinerBase::combine(const CandidateBaseRefProd & src1, const CandidateBaseRefProd & src2) const {
-  vector<CandidateBaseRefProd> src;
+CandCombinerBase::combine(const edm::Handle<CandidateView> & src1, const edm::Handle<CandidateView> & src2) const {
+  vector<edm::Handle<CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
   return combine(src);
 }
 
 auto_ptr<CompositeCandidateCollection> 
-CandCombinerBase::combine(const CandidateBaseRefProd & src1, const CandidateBaseRefProd & src2, const CandidateBaseRefProd & src3) const {
-  vector<CandidateBaseRefProd> src;
+CandCombinerBase::combine(const edm::Handle<CandidateView> & src1, const edm::Handle<CandidateView> & src2, const edm::Handle<CandidateView> & src3) const {
+  vector<edm::Handle<CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
   src.push_back(src3);
@@ -152,9 +152,9 @@ CandCombinerBase::combine(const CandidateBaseRefProd & src1, const CandidateBase
 }
 
 auto_ptr<CompositeCandidateCollection> 
-CandCombinerBase::combine(const CandidateBaseRefProd & src1, const CandidateBaseRefProd & src2, 
-					    const CandidateBaseRefProd & src3, const CandidateBaseRefProd & src4) const {
-  vector<CandidateBaseRefProd> src;
+CandCombinerBase::combine(const edm::Handle<CandidateView> & src1, const edm::Handle<CandidateView> & src2, 
+			  const edm::Handle<CandidateView> & src3, const edm::Handle<CandidateView> & src4) const {
+  vector<edm::Handle<CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
   src.push_back(src3);
@@ -163,8 +163,8 @@ CandCombinerBase::combine(const CandidateBaseRefProd & src1, const CandidateBase
 }
 
 void CandCombinerBase::combine(size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
-			       vector<CandidateBaseRefProd>::const_iterator collBegin,
-			       vector<CandidateBaseRefProd>::const_iterator collEnd,
+			       vector<edm::Handle<CandidateView> >::const_iterator collBegin,
+			       vector<edm::Handle<CandidateView> >::const_iterator collEnd,
 			       auto_ptr<CompositeCandidateCollection> & comps) const {
   if(collBegin == collEnd) {
     static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
@@ -196,11 +196,11 @@ void CandCombinerBase::combine(size_t collectionIndex, CandStack & stack, Charge
 	comps->push_back(c);
     }
   } else {
-    const CandidateBaseRefProd & srcRef = * collBegin;
+    const edm::Handle<CandidateView> & srcRef = * collBegin;
     const CandidateView & src = * srcRef;
     size_t candBegin = 0, candEnd = src.size();
     for(CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i) 
-      if(srcRef == * i->second) 
+      if(srcRef.id() == i->second->id()) 
 	candBegin = i->first.second + 1;
     for(size_t candIndex = candBegin; candIndex != candEnd; ++ candIndex) {
       CandidateBaseRef candRef(srcRef, candIndex);

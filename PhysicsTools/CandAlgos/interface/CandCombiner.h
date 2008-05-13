@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.21 $
+ * \version $Revision: 1.22 $
  *
- * $Id: CandCombiner.h,v 1.21 2008/05/06 07:59:22 llista Exp $
+ * $Id: CandCombiner.h,v 1.22 2008/05/06 08:50:04 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -115,13 +115,7 @@ namespace reco {
 	for(int i = 0; i < n; ++i)
 	  evt.getByLabel(labels_[i].tag_, colls[i]);
 
-	vector<CandidateBaseRefProd> cv;
-	for(typename vector<edm::Handle<CandidateView> >::const_iterator c = colls.begin();
-	    c != colls.end(); ++ c) {
-	  CandidateBaseRefProd r(*c);
-	  cv.push_back(r);
-	}
-	auto_ptr<CompositeCandidateCollection> out = combiner_.combine(cv);
+	auto_ptr<CompositeCandidateCollection> out = combiner_.combine(colls);
 	if(setLongLived_ || setPdgId_) {
 	  CompositeCandidateCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {

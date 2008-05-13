@@ -25,25 +25,25 @@ public:
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
   std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const std::vector<reco::CandidateBaseRefProd> &) const;
+  combine(const std::vector<edm::Handle<reco::CandidateView> > &) const;
   /// return all selected candidate pairs
   std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const reco::CandidateBaseRefProd &) const;
+  combine(const edm::Handle<reco::CandidateView> &) const;
   /// return all selected candidate pairs
   std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const reco::CandidateBaseRefProd &, 
-	  const reco::CandidateBaseRefProd &) const;
+  combine(const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &) const;
   /// return all selected candidate pairs
   std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const reco::CandidateBaseRefProd &, 
-	  const reco::CandidateBaseRefProd &, 
-	  const reco::CandidateBaseRefProd &) const;
+  combine(const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &) const;
   /// return all selected candidate pairs
   std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const reco::CandidateBaseRefProd &, 
-	  const reco::CandidateBaseRefProd &, 
-	  const reco::CandidateBaseRefProd &, 
-	  const reco::CandidateBaseRefProd &) const;
+  combine(const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &) const;
 
 private:
   /// verify that the two candidate don't overlap and check charge
@@ -54,12 +54,12 @@ private:
 	       const reco::CandidateBaseRef &) const;
   /// temporary candidate stack
   typedef std::vector<std::pair<std::pair<reco::CandidateBaseRef, size_t>, 
-				std::vector<reco::CandidateBaseRefProd>::const_iterator> > CandStack;
+				std::vector<edm::Handle<reco::CandidateView> >::const_iterator> > CandStack;
   typedef std::vector<int> ChargeStack;
   /// returns a composite candidate combined from two daughters
   void combine(size_t collectionIndex, CandStack &, ChargeStack &,
-	       std::vector<reco::CandidateBaseRefProd>::const_iterator begin,
-	       std::vector<reco::CandidateBaseRefProd>::const_iterator end,
+	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator begin,
+	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator end,
 	       std::auto_ptr<reco::CompositeCandidateCollection> & comps
 	       ) const;
   /// select a candidate
