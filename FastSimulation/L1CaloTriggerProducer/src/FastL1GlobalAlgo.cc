@@ -13,12 +13,13 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.36 2008/01/12 00:46:17 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.37 2008/04/24 20:10:35 chinhan Exp $
 //
 
 // No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 #include <fstream>
 
@@ -800,7 +801,7 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& c)
   c.get<CaloTopologyRecord>().get(calotopo);
   
   edm::ESHandle<CaloGeometry> cGeom;
-  c.get<IdealGeometryRecord>().get(cGeom);
+  c.get<CaloGeometryRecord>().get(cGeom);
   
   edm::Handle<EcalRecHitCollection> ec1;
   e.getByLabel(m_L1Config.EmInputs.at(1),ec1);
