@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.5 2008/02/13 15:46:41 jleonard Exp $
+// $Id: RCTConfigProducers.cc,v 1.6 2008/05/02 16:48:21 jleonard Exp $
 //
 //
 
@@ -25,27 +25,30 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-
+#include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 
 //
 // class declaration
 //
 
 class RCTConfigProducers : public edm::ESProducer {
-   public:
-      RCTConfigProducers(const edm::ParameterSet&);
-      ~RCTConfigProducers();
-
-      typedef boost::shared_ptr<L1RCTParameters> ReturnType;
-
-      ReturnType produce(const L1RCTParametersRcd&);
+public:
+  RCTConfigProducers(const edm::ParameterSet&);
+  ~RCTConfigProducers();
+  
+  //typedef boost::shared_ptr<L1RCTParameters> ReturnType;
+  typedef edm::ESProducts< boost::shared_ptr<L1RCTParameters>, boost::shared_ptr<L1RCTChannelMask> > ReturnType;
+  
+  ReturnType produce(const L1RCTParametersRcd&);
 private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
   L1RCTParameters *rctParameters;
+  L1RCTChannelMask *rctChannelMask;
 };
 
 //
@@ -87,6 +90,23 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
                          iConfig.getParameter<std::vector< double > >("jetMETECalScaleFactors"),
                          iConfig.getParameter<std::vector< double > >("jetMETHCalScaleFactors")
 			 );
+
+   // value of true if channel is masked, false if not masked
+   for (int i = 0; i < 18; i++)
+     {
+       for (int j = 0; j < 2; j++)
+	 {
+	   for (int k = 0; k < 28; k++)
+	     {
+	       rctChannelMask->ecalMask[i][j][k] = false;
+	       rctChannelMask->hcalMask[i][j][k] = false;
+	     }
+	   for (int k = 0; k < 4; k++)
+	     {
+	       rctChannelMask->hfMask[i][j][k] = false;
+	     }
+	 }
+     }
 }
 
 
@@ -110,7 +130,10 @@ RCTConfigProducers::produce(const L1RCTParametersRcd& iRecord)
    using namespace edm::es;
    boost::shared_ptr<L1RCTParameters> pL1RCTParameters =
      (boost::shared_ptr<L1RCTParameters>) rctParameters;
-   return pL1RCTParameters ;
+   boost::shared_ptr<L1RCTChannelMask> pL1RCTChannelMask =
+     (boost::shared_ptr<L1RCTChannelMask>) rctChannelMask;
+   //return pL1RCTParameters ;
+   return products( pL1RCTParameters, pL1RCTChannelMask );
 }
 
 //define this as a plug-in
