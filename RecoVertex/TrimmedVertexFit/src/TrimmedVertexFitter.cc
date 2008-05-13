@@ -8,7 +8,7 @@
 TrimmedVertexFitter::TrimmedVertexFitter(const edm::ParameterSet & pSet)
 {
   theRector.setMaxNbOfVertices(1);
-  setPtCut(pSet.getParameter<double>("PtCut"));
+  setPtCut(pSet.getParameter<double>("minPt"));
 }
 
 
