@@ -60,29 +60,34 @@ void L1TGMTClient::beginJob(const EventSetup& context){
   // booking
   eff_eta_dtcsc = bookClone1DVB("eff_eta_dtcsc","efficiency DTCSC vs eta","eta_DTCSC_and_RPC");
   eff_eta_dtcsc->setAxisTitle("eta",1);
+  eff_eta_dtcsc->getTH1F()->Sumw2();
   
   eff_eta_rpc   = bookClone1DVB("eff_eta_rpc","efficiency RPC vs eta","eta_DTCSC_and_RPC");
   eff_eta_rpc->setAxisTitle("eta",1);
+  eff_eta_rpc->getTH1F()->Sumw2();
 
   
   eff_phi_dtcsc = bookClone1D("eff_phi_dtcsc","efficiency DTCSC vs phi","phi_DTCSC_and_RPC");
   eff_phi_dtcsc->setAxisTitle("phi (deg)",1);
+  eff_phi_dtcsc->getTH1F()->Sumw2();
   
   eff_phi_rpc   = bookClone1D("eff_phi_rpc","efficiency RPC vs phi","phi_DTCSC_and_RPC");
   eff_phi_rpc->setAxisTitle("phi (deg)",1);
+  eff_phi_rpc->getTH1F()->Sumw2();
   
   
   eff_etaphi_dtcsc = bookClone2D("eff_etaphi_dtcsc","efficiency DTCSC vs eta and phi","etaphi_DTCSC_and_RPC");
   eff_etaphi_dtcsc->setAxisTitle("eta",1);
   eff_etaphi_dtcsc->setAxisTitle("phi (deg)",2);
+  eff_etaphi_dtcsc->getTH2F()->Sumw2();
   
   eff_etaphi_rpc   = bookClone2D("eff_etaphi_rpc","efficiency RPC vs eta and phi","etaphi_DTCSC_and_RPC");
   eff_etaphi_rpc->setAxisTitle("eta",1);
   eff_etaphi_rpc->setAxisTitle("phi (deg)",2);
+  eff_etaphi_rpc->getTH2F()->Sumw2();
   
   ratio_dt_rpcb_lumi  = bookClone1D("ratio_dt_rpcb_lumi" ,"ratio candidates DT/RPCb per lumisegment","DTTF_candlumi");
   ratio_csc_rpcf_lumi = bookClone1D("ratio_csc_rpcf_lumi","ratio candidates CSC/RPCf per lumisegment","DTTF_candlumi");
-  
 }
 
 //--------------------------------------------------------
@@ -145,7 +150,6 @@ void L1TGMTClient::makeRatio1D(MonitorElement* mer, string h1Name, string h2Name
    TH1F* h1 = get1DHisto(input_dir_+"/"+h1Name,dbe_);
    TH1F* h2 = get1DHisto(input_dir_+"/"+h2Name,dbe_);
    TH1F* hr = mer->getTH1F();
-   hr->Sumw2();
    
    if(hr && h1 && h2) {
      hr->Divide(h1,h2,1.,1.," ");
@@ -157,7 +161,6 @@ void L1TGMTClient::makeEfficiency1D(MonitorElement* meeff, string heName, string
    TH1F* he = get1DHisto(input_dir_+"/"+heName,dbe_);
    TH1F* hi = get1DHisto(input_dir_+"/"+hiName,dbe_);
    TH1F* heff = meeff->getTH1F();
-   heff->Sumw2();
    
    if(heff && he && hi) {
      TH1F* hall = (TH1F*) he->Clone("hall");
@@ -172,7 +175,6 @@ void L1TGMTClient::makeEfficiency2D(MonitorElement* meeff, string heName, string
    TH2F* he = get2DHisto(input_dir_+"/"+heName,dbe_);
    TH2F* hi = get2DHisto(input_dir_+"/"+hiName,dbe_);
    TH2F* heff = meeff->getTH2F();
-   heff->Sumw2();
   
    if(heff && he && hi) {
      TH2F* hall = (TH2F*) he->Clone("hall");
