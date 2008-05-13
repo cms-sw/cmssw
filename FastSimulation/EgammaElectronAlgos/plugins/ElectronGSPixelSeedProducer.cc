@@ -23,7 +23,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
@@ -41,6 +41,8 @@
 
 ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet& iConfig)
 {
+
+  m_firstTimeProduce = true ;
 
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   SCEtCut_=iConfig.getParameter<double>("SCEtCut");
@@ -72,11 +74,11 @@ ElectronGSPixelSeedProducer::~ElectronGSPixelSeedProducer()
       delete matcher_;
 }
 
-void ElectronGSPixelSeedProducer::beginJob(edm::EventSetup const&iSetup) 
+void ElectronGSPixelSeedProducer::beginJobProduce(edm::EventSetup const&iSetup) 
 {
   // Get the calo geometry
   edm::ESHandle<CaloGeometry> theCaloGeom;
-  iSetup.get<IdealGeometryRecord>().get(theCaloGeom);
+  iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
 
   // The H/E calculator
   calc_=HoECalculator(theCaloGeom);
@@ -89,6 +91,12 @@ void ElectronGSPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
 {
   LogDebug("entering");
   LogDebug("")  <<"[ElectronGSPixelSeedProducer::produce] entering " ;
+
+  if( m_firstTimeProduce )
+  {
+     beginJobProduce( iSetup ) ;
+     m_firstTimeProduce = false ;
+  }
 
   // get initial TrajectorySeeds if necessary
   if (fromTrackerSeeds_) {
