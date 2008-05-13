@@ -5,7 +5,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -21,6 +21,16 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
 {
   using namespace edm;
   using namespace std;
+
+  // geometry
+  ESHandle<CaloGeometry> theGeometry;
+  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
+  evtSetup.get<CaloGeometryRecord>().get( theGeometry );
+  evtSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+  evtSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
+  evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
+  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
+  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
 
   EcalTPGScale ecalScale ;
   ecalScale.setEventSetup(evtSetup) ;
@@ -69,16 +79,6 @@ void testEcalTPGScale::beginJob(const edm::EventSetup& evtSetup)
 {
   using namespace edm;
   using namespace std;
-
-  // geometry
-  ESHandle<CaloGeometry> theGeometry;
-  ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
-  evtSetup.get<IdealGeometryRecord>().get( theGeometry );
-  evtSetup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
-  evtSetup.get<IdealGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
-  evtSetup.get<IdealGeometryRecord>().get(eTTmap_);
-  theEndcapGeometry_ = &(*theEndcapGeometry_handle);
-  theBarrelGeometry_ = &(*theBarrelGeometry_handle);
 
 }
 
