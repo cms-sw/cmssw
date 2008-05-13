@@ -3,7 +3,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -110,7 +110,7 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   const EcalRecHitCollection *hitCollection_p = barrelRecHitsHandle.product();
 
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);     
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);     
   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   topology_p = new EcalBarrelTopology(geoHandle);
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
