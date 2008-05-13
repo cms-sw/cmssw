@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
@@ -161,7 +161,7 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   barrelRawId_.resize(62000);
   if (doMisCalib_) theCalibConstants_.resize(62000);
   edm::ESHandle<CaloGeometry> pG;
-  es.get<IdealGeometryRecord>().get(pG);   
+  es.get<CaloGeometryRecord>().get(pG);   
   
   const EcalBarrelGeometry * myEcalBarrelGeometry = dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
   //  std::cout << " Got the geometry " << myEcalBarrelGeometry << std::endl;

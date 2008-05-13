@@ -22,6 +22,7 @@
 CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
   : HcalRecHitsMaker_(NULL)
 {    
+  m_firstTimeProduce = true ;
 
   // Initialize the random number generator service
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -82,7 +83,7 @@ CaloRecHitsProducer::~CaloRecHitsProducer()
   std::cout << " Done " << std::endl;
 }
 
-void CaloRecHitsProducer::beginJob(const edm::EventSetup & es)
+void CaloRecHitsProducer::beginJobProduce(const edm::EventSetup & es)
 {
   std::cout << " (Fast)RecHitsProducer initializing " << std::endl;
   EcalBarrelRecHitsMaker_->init(es,doDigis_,doMiscalib_);
@@ -102,6 +103,12 @@ void CaloRecHitsProducer::endJob()
 
 void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
+   if( m_firstTimeProduce )
+   {
+      beginJobProduce( es ) ;
+      m_firstTimeProduce = false ;
+   }
+
   // create empty outputs for HCAL 
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc
   std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection);  // ECAL Barrel

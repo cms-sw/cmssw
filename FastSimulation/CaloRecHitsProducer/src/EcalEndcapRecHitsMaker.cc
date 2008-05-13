@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
@@ -151,7 +151,7 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   endcapRawId_.resize(20000);
   if (doMisCalib_) theCalibConstants_.resize(20000);
   edm::ESHandle<CaloGeometry> pG;
-  es.get<IdealGeometryRecord>().get(pG);   
+  es.get<CaloGeometryRecord>().get(pG);   
   
   const EcalEndcapGeometry * myEcalEndcapGeometry = dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
   std::vector<DetId> vec(myEcalEndcapGeometry->getValidDetIds(DetId::Ecal,EcalEndcap));

@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
@@ -439,7 +439,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 unsigned HcalRecHitsMaker::createVectorsOfCells(const edm::EventSetup &es)
 {
     edm::ESHandle<CaloGeometry> pG;
-    es.get<IdealGeometryRecord>().get(pG);     
+    es.get<CaloGeometryRecord>().get(pG);     
     nhbcells_ = createVectorOfSubdetectorCells(*pG, HcalBarrel,  hbhi_);
     nhecells_ = createVectorOfSubdetectorCells(*pG, HcalEndcap,  hehi_);
     nhocells_ = createVectorOfSubdetectorCells(*pG, HcalOuter,   hohi_);

@@ -23,6 +23,7 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
   virtual void beginJob(const edm::EventSetup & c);
+  void beginJobAnalyze(const edm::EventSetup & c);
   virtual void endJob();
 private:
   DQMStore * dbe;
@@ -44,6 +45,8 @@ private:
   const EcalTrigTowerConstituentsMap* eTTmap_;  
   CaloGeometryHelper myGeometry;
   std::map<EcalTrigTowerDetId,double> mapTow_sintheta;
+
+  bool m_firstTimeAnalyze ;
 };
 
 #endif

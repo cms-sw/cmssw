@@ -6,7 +6,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
@@ -17,7 +17,11 @@
 DigiCheck::DigiCheck(const edm::ParameterSet&){;}
 DigiCheck::~DigiCheck(){;}
 typedef math::XYZVector XYZPoint;
+
 void  DigiCheck::beginJob(const edm::EventSetup & c){
+
+  m_firstTimeAnalyze = true ;
+
   dbe = edm::Service<DQMStore>().operator->();
   h0b = dbe->book2D("h0b","Gain vs Gev",100,0.,1700.,5,-0.5,4.5);
   h0e = dbe->book2D("h0e","Gain vs Gev",100,0.,3000.,5,-0.5,4.5);
@@ -33,10 +37,14 @@ void  DigiCheck::beginJob(const edm::EventSetup & c){
   h7  = dbe->book1D("h7","TP digis vs calohits ",100,-10,10);
   h8  = dbe->book2D("h8","ieta vs TP/calohits ",64,-31.5,31.5,200,-2,2);
   h9  = dbe->book2D("h9","iphi vs TP/calohits ",100,-0.5,99.5,200,-2,2);
+}
+
+void  DigiCheck::beginJobAnalyze(const edm::EventSetup & c){
+
   edm::ESHandle<CaloTopology> theCaloTopology;
   c.get<CaloTopologyRecord>().get(theCaloTopology);       
   edm::ESHandle<CaloGeometry> pG;
-  c.get<IdealGeometryRecord>().get(pG);     
+  c.get<CaloGeometryRecord>().get(pG);     
   // Setup the tools
   double bField000 = 4.;
   myGeometry.setupGeometry(*pG);
@@ -50,6 +58,12 @@ void  DigiCheck::beginJob(const edm::EventSetup & c){
 
 void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   if( m_firstTimeAnalyze )
+   {
+      beginJobAnalyze( iSetup ) ;
+      m_firstTimeAnalyze = false ;
+   }
+
   // builds the tower-cell map
   if(mapTow_sintheta.size()==0)
     {

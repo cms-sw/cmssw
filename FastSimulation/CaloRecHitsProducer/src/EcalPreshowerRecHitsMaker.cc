@@ -12,7 +12,7 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CLHEP/GenericFunctions/Erf.hh"
 
@@ -104,7 +104,7 @@ void EcalPreshowerRecHitsMaker::init(const edm::EventSetup &es)
 unsigned EcalPreshowerRecHitsMaker::createVectorsOfCells(const edm::EventSetup &es)
 {
     edm::ESHandle<CaloGeometry> pG;
-    es.get<IdealGeometryRecord>().get(pG);     
+    es.get<CaloGeometryRecord>().get(pG);     
     unsigned total=0;
 
     escells_.reserve(137728);
