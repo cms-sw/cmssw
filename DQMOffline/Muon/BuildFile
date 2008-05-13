@@ -6,5 +6,6 @@
 <use name=RecoMuon/TrackingTools>
 <use name=TrackingTools/TransientTrack>
 <use name=DataFormats/CSCDigi>
-<use name=DataFormats/CSCRecHit>
+<use name=DataFormats/CSCRecHit
+<use name=DataFormats/DTRecHit>
 <flags EDM_PLUGIN=1>
