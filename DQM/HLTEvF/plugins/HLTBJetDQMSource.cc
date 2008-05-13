@@ -2,8 +2,8 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2008/05/13 13:58:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/13 16:38:49 $
+ *  $Revision: 1.3 $
  *  \author Andrea Bocci, Pisa
  *
  */
@@ -177,32 +177,12 @@ void HLTBJetDQMSource::analyze(const edm::Event & event, const edm::EventSetup &
   edm::Handle<reco::JetTagCollection>               h_lifetimeL25JetTags;
   edm::Handle<reco::TrackIPTagInfoCollection>       h_lifetimeL3TagInfo;
   edm::Handle<reco::JetTagCollection>               h_lifetimeL3JetTags;
-  edm::Handle<edm::View<reco::Jet> >                h_softmuonL2Jets;
-  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_softmuonL25TagInfo;
-  edm::Handle<reco::JetTagCollection>               h_softmuonL25JetTags;
-  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_softmuonL3TagInfo;
-  edm::Handle<reco::JetTagCollection>               h_softmuonL3JetTags;
-  edm::Handle<edm::View<reco::Jet> >                h_performanceL2Jets;
-  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_performanceL25TagInfo;
-  edm::Handle<reco::JetTagCollection>               h_performanceL25JetTags;
-  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_performanceL3TagInfo;
-  edm::Handle<reco::JetTagCollection>               h_performanceL3JetTags;
-
+  
   event.getByLabel(m_lifetimeL2Jets,        h_lifetimeL2Jets);
   event.getByLabel(m_lifetimeL25TagInfo,    h_lifetimeL25TagInfo);
   event.getByLabel(m_lifetimeL25JetTags,    h_lifetimeL25JetTags);
   event.getByLabel(m_lifetimeL3TagInfo,     h_lifetimeL3TagInfo);
   event.getByLabel(m_lifetimeL3JetTags,     h_lifetimeL3JetTags);
-  event.getByLabel(m_softmuonL2Jets,        h_softmuonL2Jets);
-  event.getByLabel(m_softmuonL25TagInfo,    h_softmuonL25TagInfo);
-  event.getByLabel(m_softmuonL25JetTags,    h_softmuonL25JetTags);
-  event.getByLabel(m_softmuonL3TagInfo,     h_softmuonL3TagInfo);
-  event.getByLabel(m_softmuonL3JetTags,     h_softmuonL3JetTags);
-  event.getByLabel(m_performanceL2Jets,     h_performanceL2Jets);
-  event.getByLabel(m_performanceL25TagInfo, h_performanceL25TagInfo);
-  event.getByLabel(m_performanceL25JetTags, h_performanceL25JetTags);
-  event.getByLabel(m_performanceL3TagInfo,  h_performanceL3TagInfo);
-  event.getByLabel(m_performanceL3JetTags,  h_performanceL3JetTags);
 
   if (h_lifetimeL2Jets.isValid()) {
     for (unsigned int i = 0; i < h_lifetimeL2Jets->size(); ++i) {
@@ -290,14 +270,52 @@ void HLTBJetDQMSource::analyze(const edm::Event & event, const edm::EventSetup &
     }
   }
 
+  edm::Handle<edm::View<reco::Jet> >                h_softmuonL2Jets;
+  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_softmuonL25TagInfo;
+  edm::Handle<reco::JetTagCollection>               h_softmuonL25JetTags;
+  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_softmuonL3TagInfo;
+  edm::Handle<reco::JetTagCollection>               h_softmuonL3JetTags;
+
+  event.getByLabel(m_softmuonL2Jets,        h_softmuonL2Jets);
+  event.getByLabel(m_softmuonL25TagInfo,    h_softmuonL25TagInfo);
+  event.getByLabel(m_softmuonL25JetTags,    h_softmuonL25JetTags);
+  event.getByLabel(m_softmuonL3TagInfo,     h_softmuonL3TagInfo);
+  event.getByLabel(m_softmuonL3JetTags,     h_softmuonL3JetTags);
+
   if (h_softmuonL2Jets.isValid()) { 
+    for (unsigned int i = 0; i < h_softmuonL2Jets->size(); ++i) {
+      const reco::Jet & jet = (*h_softmuonL2Jets)[i];
+      m_softmuonL2JetsEnergy->Fill( jet.energy() );
+      m_softmuonL2JetsET->Fill(     jet.et() );
+      m_softmuonL2JetsEta->Fill(    jet.eta() );
+      m_softmuonL2JetsPhi->Fill(    jet.phi() );
+    }
   }
   if (h_softmuonL25TagInfo.isValid() and h_softmuonL25JetTags.isValid()) {
   }
   if (h_softmuonL3TagInfo.isValid() and h_softmuonL3JetTags.isValid()) {
   }
 
+  event.getByLabel(m_performanceL2Jets,     h_performanceL2Jets);
+  event.getByLabel(m_performanceL25TagInfo, h_performanceL25TagInfo);
+  event.getByLabel(m_performanceL25JetTags, h_performanceL25JetTags);
+  event.getByLabel(m_performanceL3TagInfo,  h_performanceL3TagInfo);
+  event.getByLabel(m_performanceL3JetTags,  h_performanceL3JetTags);
+
+  edm::Handle<edm::View<reco::Jet> >                h_performanceL2Jets;
+  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_performanceL25TagInfo;
+  edm::Handle<reco::JetTagCollection>               h_performanceL25JetTags;
+  edm::Handle<reco::SoftLeptonTagInfoCollection>    h_performanceL3TagInfo;
+  edm::Handle<reco::JetTagCollection>               h_performanceL3JetTags;
+
   if (h_performanceL2Jets.isValid()) { 
+    for (unsigned int i = 0; i < h_performanceL2Jets->size(); ++i) {
+      const reco::Jet & jet = (*h_performanceL2Jets)[i];
+      m_performanceL2JetsEnergy->Fill( jet.energy() );
+      m_performanceL2JetsET->Fill(     jet.et() );
+      m_performanceL2JetsEta->Fill(    jet.eta() );
+      m_performanceL2JetsPhi->Fill(    jet.phi() );
+    }
   }
   if (h_performanceL25TagInfo.isValid() and h_performanceL25JetTags.isValid()) {
   }
