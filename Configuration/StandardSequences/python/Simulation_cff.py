@@ -46,8 +46,8 @@ from SimGeneral.Configuration.SimGeneral_cff import *
 #
 from Configuration.StandardSequences.Digi_cff import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
-psim = cms.Sequence(randomEngineStateProducer*g4SimHits)
-pdigi = cms.Sequence(randomEngineStateProducer*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles)
+psim = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*g4SimHits)
+pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles)
 simulation = cms.Sequence(psim*pdigi)
+
 
