@@ -1,5 +1,24 @@
-<use name=DQM/HLTEvF>
-<use name=DataFormats/BeamSpot>
-<library file="*.cc" name=DQMHLTEvFPlugins>
-<flags EDM_PLUGIN=1>
+<library file="*.cc" name="DQMHLTEvFPlugins">
+  <use name="DQM/HLTEvF">
+  <use name="DQMServices/Core">
+  <use name="DataFormats/BTauReco">
+  <use name="DataFormats/BeamSpot">
+  <use name="DataFormats/Common">
+  <use name="DataFormats/EgammaCandidates">
+  <use name="DataFormats/EgammaReco">
+  <use name="DataFormats/HLTReco">
+  <use name="DataFormats/JetReco">
+  <use name="DataFormats/L1GlobalMuonTrigger">
+  <use name="DataFormats/L1Trigger">
+  <use name="DataFormats/MuonReco">
+  <use name="DataFormats/MuonSeed">
+  <use name="DataFormats/RecoCandidate">
+  <use name="DataFormats/TrackReco">
+  <use name="DataFormats/TrajectorySeed">
+  <use name="FWCore/Framework">
+  <use name="FWCore/MessageLogger">
+  <use name="FWCore/ParameterSet">
+  <use name="FWCore/ServiceRegistry">
+  <use name="rootcore">
+  <flags EDM_PLUGIN="1">
 </library>
