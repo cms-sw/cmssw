@@ -2,8 +2,8 @@
 /**
  * \file EcalPedOffset.cc
  *
- * $Date: 2008/03/09 19:53:31 $
- * $Revision: 1.13 $
+ * $Date: 2008/04/25 17:05:51 $
+ * $Revision: 1.14 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch) - originally
  * \author S. Cooper (seth.cooper@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
@@ -239,7 +239,7 @@ void EcalPedOffset::readDACs(edm::Handle<EEDigiCollection> pDigis,
     EEDetId detId = EEDetId(itdigi->id());
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
     int FEDid = 600+elecId.dccId();
-    int crystalId = 25*elecId.towerId()+detId.ic();
+    int crystalId = 25*elecId.towerId()+5*elecId.stripId()+elecId.xtalId();
     int endcapCrystalId = 100*elecId.towerId()+5*(elecId.stripId()-1)+elecId.xtalId();
     
     //TODO: Behavior here
