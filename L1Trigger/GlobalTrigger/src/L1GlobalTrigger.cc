@@ -120,6 +120,12 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     // logical flag to read the technical trigger records
     //     if true, it will read via getMany the available records
     m_readTechnicalTriggerRecords = parSet.getParameter<bool>("ReadTechnicalTriggerRecords");
+    
+    // number of "bunch crossing in the event" (BxInEvent) to be emulated
+    // symmetric around L1Accept (BxInEvent = 0):
+    //    1 (BxInEvent = 0); 3 (F 0 1) (standard record); 5 (E F 0 1 2) (debug record)
+    // even numbers (except 0) "rounded" to the nearest lower odd number
+    m_emulateBxInEvent = parSet.getParameter<int>("EmulateBxInEvent");
 
     LogTrace("L1GlobalTrigger")
     << "\nInput tag for muon collection from GMT:         "
@@ -136,10 +142,21 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     << m_produceL1GtObjectMapRecord << " \n"
     << "\nWrite Psb content to L1 GT DAQ Record:          "
     << m_writePsbL1GtDaqRecord << " \n"
-    << "\nRead technical trigger records                  "
+    << "\nRead technical trigger records:                 "
     << m_readTechnicalTriggerRecords << " \n"
+    << "\nNumber of BxInEvent to be emulated:             "
+    << m_emulateBxInEvent << " \n"
     << std::endl;
 
+    if ((m_emulateBxInEvent > 0)  && ( (m_emulateBxInEvent%2) == 0) ) {
+        m_emulateBxInEvent = m_emulateBxInEvent - 1;
+
+        edm::LogInfo("L1GlobalTrigger")
+        << "\nWARNING: Number of bunch crossing to be emulated rounded to: "
+        << m_emulateBxInEvent 
+        << "\n         The number must be an odd number!\n"
+        << std::endl;
+    }
 
     // register products
     if (m_produceL1GtDaqRecord) {
@@ -191,9 +208,9 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     
     //
     m_l1GtParCacheID = 0ULL;
-
+    
     m_totalBxInEvent = 0;
-
+    
     m_activeBoardsGtDaq = 0;
     m_activeBoardsGtEvm = 0;
 
@@ -291,10 +308,10 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         edm::ESHandle< L1GtParameters > l1GtPar;
         evSetup.get< L1GtParametersRcd >().get( l1GtPar );        
         m_l1GtPar = l1GtPar.product();
-        
-        //    total number of Bx's in the event
+       
+        //    total number of Bx's in the event coming from EventSetup
         m_totalBxInEvent = m_l1GtPar->gtTotalBxInEvent();
-
+ 
         //    active boards in L1 GT DAQ record and in L1 GT EVM record
         m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
         m_activeBoardsGtEvm = m_l1GtPar->gtEvmActiveBoards();
@@ -303,13 +320,18 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         m_l1GtParCacheID = l1GtParCacheID;
 
     }
+    
+    // negative value: emulate TotalBxInEvent as given in EventSetup 
+    if (m_emulateBxInEvent < 0) {
+        m_emulateBxInEvent = m_totalBxInEvent;
+    }
 
-    int minBxInEvent = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
-    int maxBxInEvent = (m_totalBxInEvent + 1)/2 - 1;
+    int minBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
+    int maxBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
 
     LogDebug("L1GlobalTrigger")
     << "\nTotal number of bunch crosses to put in the GT readout record: "
-    << m_totalBxInEvent << " = " << "["
+    << m_emulateBxInEvent << " = " << "["
     << minBxInEvent << ", " << maxBxInEvent << "] BX\n"
     << "\n  Active boards in L1 GT DAQ record (hex format) = "
     << std::hex << std::setw(sizeof(m_activeBoardsGtDaq)*2) << std::setfill('0')
@@ -595,12 +617,12 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // BxInEvent the record has and how many boards are active
     std::auto_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord(
         new L1GlobalTriggerReadoutRecord(
-            m_totalBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
+            m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
 
 
     // * produce the L1GlobalTriggerEvmReadoutRecord
     std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
-        new L1GlobalTriggerEvmReadoutRecord(m_totalBxInEvent, daqNrFdlBoards) );
+        new L1GlobalTriggerEvmReadoutRecord(m_emulateBxInEvent, daqNrFdlBoards) );
     // daqNrFdlBoards OK, just reserve memory at this point
 
     // * produce the L1GlobalTriggerObjectMapRecord
@@ -641,7 +663,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 // cast int to boost::uint16_t
                                 // there are normally 3 or 5 BxInEvent
                                 gtfeWordValue.setRecordLength(
-                                    static_cast<boost::uint16_t>(m_totalBxInEvent));
+                                    static_cast<boost::uint16_t>(m_emulateBxInEvent));
 
                                 // set the list of active boards
                                 gtfeWordValue.setActiveBoards(m_activeBoardsGtDaq);
@@ -715,7 +737,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 // cast int to boost::uint16_t
                                 // there are normally 3 or 5 BxInEvent
                                 gtfeWordValue.setRecordLength(
-                                    static_cast<boost::uint16_t>(m_totalBxInEvent));
+                                    static_cast<boost::uint16_t>(m_emulateBxInEvent));
 
                                 // set the list of active boards
                                 gtfeWordValue.setActiveBoards(m_activeBoardsGtEvm);
@@ -846,7 +868,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                 m_prescaleFactorsAlgoTrig, m_prescaleFactorsTechTrig, 
                 m_triggerMaskAlgoTrig, m_triggerMaskTechTrig, 
                 m_triggerMaskVetoAlgoTrig, m_triggerMaskVetoTechTrig, 
-                boardMaps, m_totalBxInEvent, iBxInEvent,
+                boardMaps, m_emulateBxInEvent, iBxInEvent,
                 m_numberPhysTriggers, m_numberTechnicalTriggers,
                 m_numberDaqPartitions,
                 m_gtGTL, m_gtPSB);

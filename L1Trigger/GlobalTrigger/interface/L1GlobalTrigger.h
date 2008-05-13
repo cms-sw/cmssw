@@ -122,7 +122,7 @@ private:
     const L1GtParameters* m_l1GtPar;
     unsigned long long m_l1GtParCacheID;
     
-    ///    total number of Bx's in the event
+    ///    total number of Bx's in the event coming from EventSetup
     int m_totalBxInEvent;
 
     ///    active boards in L1 GT DAQ record and in L1 GT EVM record
@@ -193,6 +193,13 @@ private:
     
     /// logical flag to read the technical trigger records
     bool m_readTechnicalTriggerRecords;
+
+    /// number of "bunch crossing in the event" (BxInEvent) to be emulated
+    /// symmetric around L1Accept (BxInEvent = 0):
+    ///    1 (BxInEvent = 0); 3 (F 0 1) (standard record); 5 (E F 0 1 2) (debug record)
+    /// even numbers (except 0) "rounded" to the nearest lower odd number
+    int m_emulateBxInEvent;
+
 
 };
 
