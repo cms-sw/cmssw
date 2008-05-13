@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/07 14:05:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/12 16:01:56 $
+ *  $Revision: 1.1 $
  *  \author C. Botta - INFN Torino
  *  Revised by G. Mila
  */
@@ -87,7 +87,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
     
     
     // for DT recHits
-    if (IdRivHit.subdetId() == MuonSubdetId::DT ) {
+    if (IdRivHit.det() == DetId::Muon && IdRivHit.subdetId() == MuonSubdetId::DT ) {
 
       DTRecSegment4DCollection::range range; 	
       NrecHitDT++;
@@ -154,7 +154,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
     
    
     // for CSC recHits
-    if (IdRivHit.subdetId() == MuonSubdetId::CSC ) {
+    if (IdRivHit.det() == DetId::Muon && IdRivHit.subdetId() == MuonSubdetId::CSC ) {
 
       CSCSegmentCollection::range range; 
       NrecHitCSC++;
