@@ -25,6 +25,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
         pMax = cms.double(500.0),
         phiMax = cms.double(3.2)
     ),
+    DoMuonSeedAnalysis = cms.untracked.bool(True),
     seedsAnalysis = cms.PSet(
         phiErrMax = cms.double(5.0),
         seedPxMin = cms.double(-50.0),
@@ -74,6 +75,8 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
         seedPzMin = cms.double(-50.0)
     ),
     OutputFileName = cms.string('MuonMonitoring.root'),
+    DoMuonEnergyAnalysis = cms.untracked.bool(True),
+    DoMuonRecoAnalysis = cms.untracked.bool(True),
     seedsCollectionLabel = cms.InputTag("CosmicMuonSeed"),
     muonEnergyAnalysis = cms.PSet(
         AlgoName = cms.string('muons'),
