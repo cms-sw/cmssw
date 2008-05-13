@@ -6,7 +6,7 @@
  *
  *  DQM source for BJet HLT paths
  *
- *  $Date: 2008/05/13 13:50:06 $
+ *  $Date: 2008/05/13 13:57:42 $
  *  $Revision: 1.1 $
  *  \author Andrea Bocci, Pisa
  *
@@ -27,3 +27,5 @@ void HLTBJetDQMSource::endLuminosityBlock(const edm::LuminosityBlock & lumi, con
 
 void HLTBJetDQMSource::analyze(const edm::Event & event, const edm::EventSetup & setup)  { }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTBJetDQMSource); 
