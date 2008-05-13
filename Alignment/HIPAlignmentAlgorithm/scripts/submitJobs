@@ -35,9 +35,9 @@ while ($i <= $iter)
     bsub -q cmscaf -C 0 -J $name/collect$i -w "done($id)" \
          -o $odir/main/collect$i.out \
          "cmsRun $odir/main/collect.cfg; \
-          bkill -J $name/requeue$i; \
           rm $odir/job*/*.root; \
-          gzip $odir/job*/align$i.out"
+          gzip $odir/job*/align$i.out; \
+          bkill -J $name/requeue$i"
 
 ## <collect> job will kill <requeue> job.
 ## So when <collect> job is done, <requeue> job gets an EXIT status.
@@ -53,7 +53,7 @@ while ($i <= $iter)
          -o $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
   endif
 
-  sleep 5
+  sleep 10
   if (`bjobs -d -J $name/collect$i | tail -n1 | grep EXIT` != "") break
   gzip $odir/main/collect$i.out
 
