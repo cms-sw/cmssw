@@ -1,11 +1,12 @@
 <use name=root>
 <use name=DQMOffline/RecoB>
 <use name=DQMServices/Core>
+<use name=CommonTools/Statistics>
 <!-- this is moved in Validation/RecoB ><library file="BTagPerformanceAnalyzer.cc" name=RecoBTagAnalysisPlugins>
       <flags EDM_PLUGIN=1>
 <use name=RecoBTag/MCTools>
 </library> -->
-<library file="BTagPerformanceAnalyzerOnData.cc" name=DQMOfflineRecoBPlugins>
+<library file="BTagPerformanceAnalyzerOnData.cc PrimaryVertexMonitor.cc" name=DQMOfflineRecoBPlugins>
       <flags EDM_PLUGIN=1>
 <Flags CXXFLAGS="-O0 -g">
 </library>
