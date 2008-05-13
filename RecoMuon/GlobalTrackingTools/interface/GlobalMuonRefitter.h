@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2008/02/14 20:35:07 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/29 13:49:47 $
+ *  $Revision: 1.1 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -64,7 +64,7 @@ class GlobalMuonRefitter : public TrackTransformer {
     virtual void setEvent(const edm::Event&);
 
     /// build combined trajectory from sta Track and tracker RecHits
-    Trajectory refit(const reco::Track& globalTrack , const int theMuonHitsOption) const;
+    std::vector<Trajectory> refit(const reco::Track& globalTrack , const int theMuonHitsOption) const;
 
   protected:
 

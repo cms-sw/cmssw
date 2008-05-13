@@ -4,7 +4,7 @@
  *  Description:
  *
  *
- *  $Date: 2008/02/25 22:17:48 $
+ *  $Date: 2008/04/29 13:49:47 $
  *  $Revision: 1.1 $
  *
  *  Authors :
@@ -106,7 +106,7 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 //
 // build a combined tracker-muon trajectory
 //
-Trajectory GlobalMuonRefitter::refit(const reco::Track& globalTrack, const int theMuonHitsOption) const {
+vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack, const int theMuonHitsOption) const {
 
   // MuonHitsOption: 0 - tracker only
   //                 1 - include all muon hits
@@ -142,7 +142,7 @@ Trajectory GlobalMuonRefitter::refit(const reco::Track& globalTrack, const int t
 //    printHits(allRecHits);
 
   vector <Trajectory> outputTraj;
-
+  
   if (theMuonHitsOption == 1 ) {
     outputTraj.push_back(globalTraj.front());
     // for testing only - the result should be the same as before the refit
@@ -160,8 +160,12 @@ Trajectory GlobalMuonRefitter::refit(const reco::Track& globalTrack, const int t
   
   if (outputTraj.size()) {
     LogTrace(theCategory) << "Refitted pt: " << outputTraj.front().firstMeasurement().updatedState().globalParameters().momentum().perp();
-    return outputTraj.front();
-  }    
+    return outputTraj;
+  } else {
+    LogTrace(theCategory) << "No refitted Tracks... " << endl;
+    return vector<Trajectory>();
+  }
+  
 }
 
 //
