@@ -847,7 +847,7 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod) {
       DDpos(plog, glog, idOffset+layer+1, r2, DDRotation());
       LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: " << plog.name() 
 			   << " number " << idOffset+layer+1 
-			   << " positioned in " << glog.name() << " at " << r1
+			   << " positioned in " << glog.name() << " at " << r2
 			   << " with no rotation";
 
       //Constructin the scintillators inside
