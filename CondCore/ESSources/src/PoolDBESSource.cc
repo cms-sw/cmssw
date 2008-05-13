@@ -89,7 +89,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
    }
 }
 
-static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
+//static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
 
 PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_session( new cond::DBSession )
@@ -118,7 +118,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   m_session->open();
   
   if(!userconnect.empty()){
-    conHandler.registerConnection(userconnect,*m_session,0);
+    cond::ConnectionHandler::Instance().registerConnection(userconnect,*m_session,0);
   }
 
   fillRecordToTypeMap(m_recordToTypes);
@@ -134,7 +134,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       if( itToGet->exists("connect") ){
 	std::string userconnect=itToGet->getUntrackedParameter<std::string>("connect");
 	m.pfn=userconnect;
-	conHandler.registerConnection(m.pfn,*m_session,0);
+	cond::ConnectionHandler::Instance().registerConnection(m.pfn,*m_session,0);
       }else{
 	m.pfn=userconnect;
       }
@@ -156,8 +156,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_datumToToken.insert( std::make_pair<std::string,std::string>(datumName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
-      cond::Connection* c=conHandler.getConnection(m.pfn);
-      conHandler.connect(m_session);
+      cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(m.pfn);
+      cond::ConnectionHandler::Instance().connect(m_session);
       boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(m.recordname, m.objectname), c, pos));
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( m.recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
@@ -175,8 +175,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
   }else{
     std::string globaltag=iConfig.getUntrackedParameter<std::string>("globaltag");
-    cond::Connection* c=conHandler.getConnection(userconnect);
-    conHandler.connect(m_session);
+    cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(userconnect);
+    cond::ConnectionHandler::Instance().connect(m_session);
     cond::CoralTransaction& coraldb=c->coralTransaction();
     coraldb.start(true);
     this->fillTagCollectionFromDB(coraldb, globaltag);
@@ -185,9 +185,9 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     std::set<cond::TagMetadata>::iterator itBeg=m_tagCollection.begin();
     std::set<cond::TagMetadata>::iterator itEnd=m_tagCollection.end();
     for(it=itBeg; it!=itEnd; ++it){
-      conHandler.registerConnection(it->pfn,*m_session,0);
+      cond::ConnectionHandler::Instance().registerConnection(it->pfn,*m_session,0);
     }
-    conHandler.connect(m_session);
+    cond::ConnectionHandler::Instance().connect(m_session);
     for(it=itBeg;it!=itEnd;++it){
       //std::cout<<"recordname "<<it->second.recordname<<std::endl;
       //std::cout<<"objectname "<<it->second.objectname<<std::endl;
@@ -201,7 +201,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_datumToToken.insert( make_pair(datumName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
-      cond::Connection* c=conHandler.getConnection(it->pfn); 
+      cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(it->pfn); 
       boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create(buildName(it->recordname, it->objectname), c, pos));
       edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType( it->recordname ) );
       if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag() ) {
@@ -270,7 +270,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   }else{
     abtime=(cond::Time_t)iTime.eventID().run();
   }
-  cond::Connection* c=conHandler.getConnection(pos->second.begin()->pfn);
+  cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(pos->second.begin()->pfn);
   //std::cout<<"leading pfn "<< pos->second.front().pfn <<std::endl;
   cond::PoolTransaction& pooldb=c->poolTransaction();
   cond::IOVService iovservice(pooldb);  
@@ -301,7 +301,7 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   for(itProxy=pos->second.begin(); itProxy!=pos->second.end(); ++itProxy){
     if( (itProxy->label) != leadingLable){
       std::string datumName=recordname+"@"+objectname+"@"+itProxy->label;
-      cond::Connection* c=conHandler.getConnection(itProxy->pfn);
+      cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(itProxy->pfn);
       cond::PoolTransaction& labelpooldb=c->poolTransaction();
       cond::IOVService labeliovservice(labelpooldb);  
       labelpooldb.start(true);
@@ -348,7 +348,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
 	throw cond::Exception(std::string("token not found for datum ")+datumName);
       }
       if( type != defaultType ) {
-	cond::Connection* c=conHandler.getConnection(it->pfn);
+	cond::Connection* c=cond::ConnectionHandler::Instance().getConnection(it->pfn);
 	boost::shared_ptr<edm::eventsetup::DataProxy> proxy(cond::ProxyFactory::get()->create( proxyname ,c,pDatumToToken) );
 	if(0 != proxy.get()) {
 	  edm::eventsetup::DataKey key( type, edm::eventsetup::IdTags(it->label.c_str()) );
@@ -380,7 +380,7 @@ PoolDBESSource::fillRecordToIOVInfo(){
     iovInfo.pfn=it->pfn;
     iovInfo.label=it->labelname;
     
-    cond::Connection* connection=conHandler.getConnection(iovInfo.pfn);
+    cond::Connection* connection=cond::ConnectionHandler::Instance().getConnection(iovInfo.pfn);
     cond::CoralTransaction& coraldb=connection->coralTransaction();
     cond::MetaData metadata(coraldb);
     coraldb.start(true);
