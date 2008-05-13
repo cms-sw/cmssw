@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/03/11 14:54:11 $
-// $Revision: 1.9 $
+// $Date: 2008/05/12 19:06:28 $
+// $Revision: 1.10 $
 //
 
 #include <memory>
@@ -70,7 +70,21 @@ namespace cms
     if ( epsilon > 0.0 )use_sharesInput = false;
     double shareFrac =  conf_.getParameter<double>("ShareFrac");
   
-    //bool copyTrajectories = conf_.getUntrackedParameter<bool>("copyTrajectories");   //
+    bool promoteQuality = conf_.getParameter<bool>("promoteTrackQuality");
+//
+
+    // New track quality should be read from the file, but
+    // for now we will override the value from the cfi file
+    std::string qualityStr = conf_.getParameter<std::string>("newQuality");
+    reco::TrackBase::TrackQuality qualityToSet;
+    if (qualityStr != "") {
+      qualityToSet = reco::TrackBase::qualityByName(conf_.getParameter<std::string>("newQuality"));
+    }
+    else 
+      qualityToSet = reco::TrackBase::undefQuality;
+    // override for now
+    qualityToSet = reco::TrackBase::looseWithConfirm;
+
     // extract tracker geometry
     //
     edm::ESHandle<TrackerGeometry> theG;
@@ -193,6 +207,8 @@ namespace cms
       }//end loop over tracks
    }//end more than 0 track
 
+   //DON'T BELIEVE WE NEED THIS LOOP
+   /*
   //
   //  L1 has > 1 track - try merging
   //
@@ -227,7 +243,7 @@ namespace cms
         //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
-            selected1[j]=0; 
+            selected1[j]=0;
             //std::cout << " removing 2nd trk in pair " << std::endl;
           }else{
             if (fi>fj){
@@ -242,7 +258,10 @@ namespace cms
       }//end track2 loop
     }//end track loop
    }//end more than 1 track
+   */
 
+   //DON'T BELIEVE WE NEED THIS LOOP EITHER
+   /*
   //
   //  L2 has > 1 track - try merging
   //
@@ -292,6 +311,7 @@ namespace cms
       }//end track2 loop
     }//end track loop
    }//end more than 1 track
+   */
 
   //
   //  L1 and L2 both have > 0 track - try merging
@@ -329,14 +349,22 @@ namespace cms
         if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected2[j]=0; 
+	    selected1[i]=2;
             //std::cout << " removing L2 trk in pair " << std::endl;
           }else{
             if (fi>fj){
               selected1[i]=0; 
+	      selected2[j]=2;
               //std::cout << " removing L1 trk in pair " << std::endl;
             }else{
               //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
-              if (track->normalizedChi2() > track2->normalizedChi2()){selected1[i]=0;}else{selected2[j]=0;}
+              if (track->normalizedChi2() > track2->normalizedChi2()) {
+		selected1[i]=0;
+		selected2[j]=2;
+	      }else{
+		selected2[j]=0;
+		selected1[i]=2;
+	      }
             }//end fi > or = fj
           }//end fi < fj
         }//end got a duplicate
@@ -361,6 +389,8 @@ namespace cms
       const reco::Track & theTrack = * track;
       //fill the TrackCollection
       outputTrks->push_back( reco::Track( theTrack ) );
+      if (selected1[i]==2 && promoteQuality) 
+	outputTrks->back().setQuality(qualityToSet);
 
       // Fill TrackExtra collection
       outputTrkExtras->push_back( reco::TrackExtra( 
@@ -418,6 +448,8 @@ namespace cms
       const reco::Track & theTrack = * track;
       //fill the TrackCollection
       outputTrks->push_back( reco::Track( theTrack ) );
+      if (selected2[i]==2 && promoteQuality) 
+	outputTrks->back().setQuality(qualityToSet);
 
       // Fill TrackExtra collection
       outputTrkExtras->push_back( reco::TrackExtra( 
@@ -457,23 +489,6 @@ namespace cms
        }
      }
    }
-
-   if (outputTrks->size() != outputTrajs->size() ||
-       outputTrks->size() != outputTTAss->size()){
-     std::cout<<"*** ERROR IN COLLECTION SIZES !!! *** "<<std::endl;
-    std::cout<<"Output sizes -- Tracks:: " << outputTrks->size()
-	     << "  TrackExtras: " << outputTrkExtras->size()
-	     << "  TrackHits: " << outputTrkHits->size()
-	     << "  Trajectories: " << outputTrajs->size()
-	     << "  TTAssocMap: " << outputTTAss->size()
-	     << std::endl;
-   }
-    std::cout<<"Output sizes -- Tracks:: " << outputTrks->size()
-	     << "  TrackExtras: " << outputTrkExtras->size()
-	     << "  TrackHits: " << outputTrkHits->size()
-	     << "  Trajectories: " << outputTrajs->size()
-	     << "  TTAssocMap: " << outputTTAss->size()
-	     << std::endl;
 
     e.put(outputTrks);
     e.put(outputTrkExtras);

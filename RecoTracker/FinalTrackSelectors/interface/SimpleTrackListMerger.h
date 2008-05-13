@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2007/08/01 01:00:34 $
-// $Revision: 1.2 $
+// $Author: burkett $
+// $Date: 2008/05/12 19:06:28 $
+// $Revision: 1.3 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -24,6 +24,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
