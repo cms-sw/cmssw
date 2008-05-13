@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory Safronov
 //         Created:  Thu Jun  7 17:21:58 MSD 2007
-// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.6 2008/01/22 18:52:36 muzaffar Exp $
+// $Id: EcalIsolatedParticleCandidateProducer.cc,v 1.7 2008/02/20 07:54:31 safronov Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -84,7 +84,7 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 //  std::cout<<"get geom"<<std::endl;
 
   ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
+  iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
 
 //  std::cout<<" get ec rechit"<<std::endl;
