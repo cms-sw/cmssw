@@ -2,6 +2,7 @@
 #define L1RCTLookupTables_h
 
 class L1RCTParameters;
+struct L1RCTChannelMask;
 class CaloTPGTranscoder;
 class L1CaloEtScale;
 class EcalTPGScale;
@@ -12,7 +13,7 @@ class L1RCTLookupTables {
 
   // constructor
 
-  L1RCTLookupTables() : rctParameters_(0), transcoder_(0), etScale_(0) {}
+  L1RCTLookupTables() : rctParameters_(0), channelMask_(0), transcoder_(0), etScale_(0) {}
   
   // this needs to be refreshed every event -- constructor inits to zero
   // to indicate that it cannot be used -- if this set function is
@@ -20,6 +21,11 @@ class L1RCTLookupTables {
   void setRCTParameters(const L1RCTParameters* rctParameters)
     {
       rctParameters_ = rctParameters;
+    }
+  // ditto for channel mask
+  void setChannelMask(const L1RCTChannelMask* channelMask)
+    {
+      channelMask_ = channelMask;
     }
   // ditto for transcoder
   void setTranscoder(const CaloTPGTranscoder* transcoder)
@@ -72,6 +78,7 @@ class L1RCTLookupTables {
   unsigned long convertToInteger(float et, float lsb, int precision) const;
 
   const L1RCTParameters* rctParameters_;
+  const L1RCTChannelMask* channelMask_;
   const CaloTPGTranscoder* transcoder_;
   const L1CaloEtScale* etScale_;
   EcalTPGScale* ecalScale_;

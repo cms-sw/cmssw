@@ -12,6 +12,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
@@ -67,6 +69,9 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters* r = rctParameters.product();
+  edm::ESHandle<L1RCTChannelMask> channelMask;
+  eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
+  const L1RCTChannelMask* c = channelMask.product();
   edm::ESHandle<CaloTPGTranscoder> transcoder;
   eventSetup.get<CaloTPGRecord>().get(hcalESLabel, transcoder);
   const CaloTPGTranscoder* t = transcoder.product();
@@ -78,6 +83,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   e->setEventSetup(eventSetup);
 
   rctLookupTables->setRCTParameters(r);
+  rctLookupTables->setChannelMask(c);
   rctLookupTables->setTranscoder(t);
   rctLookupTables->setL1CaloEtScale(s);
   rctLookupTables->setEcalTPGScale(e);
