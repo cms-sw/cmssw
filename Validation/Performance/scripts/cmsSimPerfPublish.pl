@@ -46,7 +46,7 @@ $UserWebArea=$ARGV[0];
 	  "Valgrind"
 	  );
 @Step=(
-       "SIM",
+       "GEN,SIM",
        "DIGI",
        "RECO",
        "DIGI_PILEUP",
