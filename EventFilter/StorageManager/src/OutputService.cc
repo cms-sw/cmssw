@@ -1,4 +1,4 @@
-// $Id: OutputService.cc,v 1.3 2008/01/22 19:28:36 muzaffar Exp $
+// $Id: OutputService.cc,v 1.4 2008/04/21 12:15:51 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/OutputService.h>
 
@@ -78,7 +78,7 @@ void OutputService::closeFile()
   file_   -> writeToSummaryCatalog();
 // file_   -> writeToMailBox();
   file_   -> updateDatabase();
-  file_   -> notifyTier0();
+// file_   -> notifyTier0();
 }
 
 

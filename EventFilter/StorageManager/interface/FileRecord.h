@@ -1,7 +1,7 @@
 #ifndef FILERECORD_H
 #define FILERECORD_H
 
-// $Id: FileRecord.h,v 1.4 2008/03/10 14:50:07 biery Exp $
+// $Id: FileRecord.h,v 1.5 2008/04/21 12:13:34 loizides Exp $
 #include <EventFilter/StorageManager/interface/Parameter.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -32,7 +32,6 @@ namespace edm {
       void   setRunNumber(int i)                     { runNumber_ = i; }
       void   setStreamLabel(const std::string &s)    { streamLabel_ = s;}
       void   setSetupLabel(const std::string &s)     { setupLabel_ = s;}
-      void   setNotifyFile(const std::string &f)     { notifyFileName_ = f; }
 
       const std::string& fileName()  const { return fileName_; }
       const std::string& basePath()  const { return basePath_; }
@@ -53,6 +52,8 @@ namespace edm {
       double      firstEntry()       const { return firstEntry_; }
 
     private:
+      boost::shared_ptr<stor::Parameter> smParameter_; 
+
       std::string fileName_;                         // file name (w/o ending)
       std::string basePath_;                         // base path name
       std::string fileSystem_;                       // file system directory
@@ -62,7 +63,7 @@ namespace edm {
       std::string logFile_;                          // log file including path
       std::string setupLabel_;                       // setup label
       std::string streamLabel_;                      // datastream label
-      std::string notifyFileName_;                   // notify file name
+      std::string cmsver_;                           // CMSSW version string
       
       int         lumiSection_;                      // luminosity section  
       int         runNumber_;                        // runNumber
@@ -71,8 +72,6 @@ namespace edm {
       int         events_;                           // total number of events
       double      firstEntry_;                       // time when last event was writen
       double      lastEntry_;                        // time when last event was writen
-
-      boost::shared_ptr<stor::Parameter> smParameter_; // 
       
       void   checkDirectory(const std::string &) const;
       double calcPctDiff(long long, long long) const;

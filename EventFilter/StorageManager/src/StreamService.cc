@@ -1,4 +1,4 @@
-// $Id: StreamService.cc,v 1.8 2008/04/24 16:27:50 loizides Exp $
+// $Id: StreamService.cc,v 1.9 2008/04/26 19:27:38 hcheung Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
@@ -51,8 +51,6 @@ bool StreamService::nextEvent(EventMsgView const& view)
   runNumber_   = view.run();
   lumiSection_ = view.lumi();
 
-  setNotifyFile();
-
   shared_ptr<OutputService> outputService = getOutputService(view);
   ProgressMarker::instance()->processing(false);
   
@@ -74,7 +72,6 @@ void StreamService::stop()
     outputMap_.erase(it++);
     fillOutputSummaryClosed(fd);
   }
-  renameNotifyFile();
 }
 
 
@@ -123,7 +120,6 @@ boost::shared_ptr<OutputService> StreamService::getOutputService(EventMsgView co
 // *** generate output service
 // *** add ouput service to output map
 // *** add ouput service to output summary
-// *** handle lock file
 //
 boost::shared_ptr<OutputService> StreamService::newOutputService()
 {
@@ -133,25 +129,7 @@ boost::shared_ptr<OutputService> StreamService::newOutputService()
   shared_ptr<OutputService> outputService(new OutputService(file, view));
   outputMap_[file] = outputService;
 
-  handleLock(file); 
   return outputService;
-}
-
-
-//
-// *** handle lock for this stream
-// *** has to be in sync with other streams
-//
-void StreamService::handleLock(shared_ptr<FileRecord> file)
-{
-  string lockFileName = currentLockPath_ + ".lock";
-  remove(lockFileName.c_str());
-
-  currentLockPath_ = file->filePath();  
-  lockFileName = currentLockPath_ + ".lock";
-
-  ofstream *lockFile  = new ofstream(lockFileName.c_str(), ios_base::ate | ios_base::out | ios_base::app);
-  delete(lockFile);
 }
 
 
@@ -256,7 +234,6 @@ void StreamService::setStreamParameter()
   maxSize_ = 1048576 * (long long) parameterSet_.getParameter<int> ("maxSize");
   fileName_           = ""; // set by setFileName
   filePath_           = ""; // set by setFilePath
-  mailboxPath_        = ""; // set by setMathBoxPath
   setupLabel_         = ""; // set by setSetupLabel
   highWaterMark_      = 0.9;// set by setHighWaterMark
   lumiSectionTimeOut_ = 10; // set by setLumiSectionTimeOut
@@ -306,7 +283,6 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
   fd->setRunNumber(runNumber_);
   fd->setStreamLabel(streamLabel_);
   fd->setSetupLabel(setupLabel_);
-  fd->setNotifyFile(notifyFileName_ + ".do_not_touch");
 
   // fd->report(cout, 12);
   return fd;
@@ -395,7 +371,6 @@ void StreamService::report(ostream &os, int indentation) const
   os << prefix << "fileName            " << fileName_              << "\n";
   os << prefix << "filePath            " << filePath_              << "\n";
   os << prefix << "sourceId            " << sourceId_              << "\n";
-  os << prefix << "mailboxPath         " << mailboxPath_           << "\n";
   os << prefix << "setupLabel          " << setupLabel_            << "\n";
   os << prefix << "streamLabel         " << streamLabel_           << "\n";
   os << prefix << "maxSize             " << maxSize_               << "\n";
@@ -404,92 +379,4 @@ void StreamService::report(ostream &os, int indentation) const
   os << prefix << "no. active files    " << outputMap_.size()      << "\n";
   os << prefix << "no. files           " << outputSummary_.size()  << "\n";
   os << prefix << "-----------------------------------------\n";
-}
-
-//
-// *** create a filename for notify data
-//
-string StreamService::createNotifyFile() const
-{
-  time_t rawtime = time(0);
-  tm * ptm;
-  ptm = localtime(&rawtime);
-  int min = ptm->tm_min / 5; //every 5 minutes a new file
-
-  boost::shared_ptr<stor::Parameter> smp = 
-     stor::Configurator::instance()->getParameter();
-
-  ostringstream notfilename;
-  notfilename << filePath_ << "/mbox/"
-              << smp->host()
-              << "-" << smp->smInstance() << "-"
-              << setfill('0') << std::setw(4) << ptm->tm_year+1900
-              << setfill('0') << std::setw(2) << ptm->tm_mon+1
-              << setfill('0') << std::setw(2) << ptm->tm_mday 
-              << setfill('0') << std::setw(2) << ptm->tm_hour
-              << "-"
-              << setfill('0') << std::setw(2) << min;
-  return notfilename.str();
-}
-
-//
-// *** rename notify file
-//
-void StreamService::renameNotifyFile()
-{
-  if(notifyFileName_.empty()) return;
-
-  string notfile(notifyFileName_);
-  ostringstream osf1;
-  osf1 << notfile << ".do_not_touch";
-  ostringstream osf2;
-  osf2 << notfile << ".notify";
-  notifyFileName_.clear();
-  
-  // test if a file was written
-  if(1) {
-    struct stat sb;
-    int st = stat(osf1.str().c_str(), &sb);
-    if (st != 0) return;
-  }
-
-  // test if a file was already moved
-  if(1) {
-    struct stat sb;
-    int st = stat(osf2.str().c_str(), &sb);
-    if (st == 0) {
-       time_t rawtime = time(0);
-       //osf2.clear(); // this just clears the error state flags
-       osf2.str("");
-       osf2 << notfile 
-            << "-scat-" 
-            << (int) rawtime
-            << ".notify";
-    }
-  }
-
-  int result = rename(osf1.str().c_str(), osf2.str().c_str());
-  cout << "renamed : " << result << " " << osf1.str() << " --- " << osf2.str() << endl;
-  if (result != 0) {
-    throw cms::Exception("StreamService", "renameNotifyFile")
-       << "Unable to move " << osf1.str() << " to " << osf2.str()
-       << ". Possibly the storage manager mailbox area is full." << std::endl;
-  }
-}
-
-
-//
-// *** set new notify file for all file descriptors
-//
-void StreamService::setNotifyFile()
-{
-  // get a potentially new notify name
-  string newNotName(createNotifyFile());
-  if (newNotName==notifyFileName_) return; 
-
-  renameNotifyFile();
-  notifyFileName_= newNotName;
-  for (OutputMapIterator it = outputMap_.begin(), itEnd = outputMap_.end(); it != itEnd; ++it) {
-     it->first->setNotifyFile(notifyFileName_ + ".do_not_touch");
-  }
 }

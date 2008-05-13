@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.54 2008/05/11 13:50:47 hcheung Exp $
+// $Id: StorageManager.cc,v 1.55 2008/05/12 15:55:17 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -195,27 +195,19 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("nLogicalDisk",        &nLogicalDisk_);
 
   boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
-  closeFileScript_    = smParameter_ -> closeFileScript();
-  notifyTier0Script_  = smParameter_ -> notifyTier0Script();
-  insertFileScript_   = smParameter_ -> insertFileScript();  
   fileCatalog_        = smParameter_ -> fileCatalog(); 
   fileName_           = smParameter_ -> fileName();
   filePath_           = smParameter_ -> filePath();
   maxFileSize_        = smParameter_ -> maxFileSize();
-  mailboxPath_        = smParameter_ -> mailboxPath();
   setupLabel_         = smParameter_ -> setupLabel();
   highWaterMark_      = smParameter_ -> highWaterMark();
   lumiSectionTimeOut_ = smParameter_ -> lumiSectionTimeOut();
   exactFileSizeTest_  = smParameter_ -> exactFileSizeTest();
 
-  ispace->fireItemAvailable("closeFileScript",    &closeFileScript_);
-  ispace->fireItemAvailable("notifyTier0Script",  &notifyTier0Script_);
-  ispace->fireItemAvailable("insertFileScript",   &insertFileScript_);
   ispace->fireItemAvailable("fileCatalog",        &fileCatalog_);
   ispace->fireItemAvailable("fileName",           &fileName_);
   ispace->fireItemAvailable("filePath",           &filePath_);
   ispace->fireItemAvailable("maxFileSize",        &maxFileSize_);
-  ispace->fireItemAvailable("mailboxPath",        &mailboxPath_);
   ispace->fireItemAvailable("setupLabel",         &setupLabel_);
   ispace->fireItemAvailable("highWaterMark",      &highWaterMark_);
   ispace->fireItemAvailable("lumiSectionTimeOut", &lumiSectionTimeOut_);
@@ -3625,8 +3617,8 @@ void StorageManager::setupFlashList()
   //is->fireItemAvailable("storedEvents",         &storedEvents_);
   is->fireItemAvailable("receivedEvents",       &receivedEvents_);
   is->fireItemAvailable("receivedErrorEvents",  &receivedErrorEvents_);
-  is->fireItemAvailable("namesOfStream",      &namesOfStream_);
-  is->fireItemAvailable("namesOfOutMod",      &namesOfOutMod_);
+  is->fireItemAvailable("namesOfStream",        &namesOfStream_);
+  is->fireItemAvailable("namesOfOutMod",        &namesOfOutMod_);
   is->fireItemAvailable("dqmRecords",           &dqmRecords_);
   is->fireItemAvailable("storedVolume",         &storedVolume_);
   is->fireItemAvailable("memoryUsed",           &memoryUsed_);
@@ -3656,7 +3648,6 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("fileCatalog",          &fileCatalog_);
   is->fireItemAvailable("fileName",             &fileName_);
   is->fireItemAvailable("filePath",             &filePath_);
-  is->fireItemAvailable("mailboxPath",          &mailboxPath_);
   is->fireItemAvailable("setupLabel",           &setupLabel_);
   is->fireItemAvailable("highWaterMark",        &highWaterMark_);
   is->fireItemAvailable("lumiSectionTimeOut",   &lumiSectionTimeOut_);
@@ -3711,7 +3702,6 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("fileCatalog",          this);
   is->addItemRetrieveListener("fileName",             this);
   is->addItemRetrieveListener("filePath",             this);
-  is->addItemRetrieveListener("mailboxPath",          this);
   is->addItemRetrieveListener("setupLabel",           this);
   is->addItemRetrieveListener("highWaterMark",        this);
   is->addItemRetrieveListener("lumiSectionTimeOut",   this);
@@ -3852,14 +3842,10 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     smFileCatalog_     = fileCatalog_.toString();
     
     boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
-    smParameter_ -> setCloseFileScript(closeFileScript_.toString());
-    smParameter_ -> setNotifyTier0Script(notifyTier0Script_.toString());
-    smParameter_ -> setInsertFileScript(insertFileScript_.toString());
     smParameter_ -> setFileCatalog(fileCatalog_.toString());
     smParameter_ -> setfileName(fileName_.toString());
     smParameter_ -> setfilePath(filePath_.toString());
     smParameter_ -> setmaxFileSize(maxFileSize_.value_);
-    smParameter_ -> setmailboxPath(mailboxPath_.toString());
     smParameter_ -> setsetupLabel(setupLabel_.toString());
     smParameter_ -> sethighWaterMark(highWaterMark_.value_);
     smParameter_ -> setlumiSectionTimeOut(lumiSectionTimeOut_.value_);
@@ -3868,10 +3854,6 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     // check output locations and scripts before we continue
     try {
       checkDirectoryOK(filePath_.toString());
-      checkDirectoryOK(mailboxPath_.toString());
-      checkDirectoryOK(closeFileScript_.toString());
-      checkDirectoryOK(notifyTier0Script_.toString());
-      checkDirectoryOK(insertFileScript_.toString());
       if((bool)archiveDQM_) checkDirectoryOK(filePrefixDQM_.toString());
     }
     catch(cms::Exception& e)

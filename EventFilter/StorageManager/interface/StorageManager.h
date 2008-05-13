@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.30 2008/05/11 13:49:18 hcheung Exp $
+   $Id: StorageManager.h,v 1.31 2008/05/12 15:55:17 hcheung Exp $
 */
 
 #include <string>
@@ -147,16 +147,11 @@ namespace stor {
     xdata::String  fileName_;
     xdata::String  filePath_;
     xdata::Integer maxFileSize_;
-    xdata::String  mailboxPath_;
     xdata::String  setupLabel_;
     xdata::Double  highWaterMark_;
     xdata::Double  lumiSectionTimeOut_;
     xdata::String  fileCatalog_;
     xdata::Boolean exactFileSizeTest_;
-
-    xdata::String  closeFileScript_;
-    xdata::String  notifyTier0Script_;
-    xdata::String  insertFileScript_;
 
     bool pushMode_;
     std::string smConfigString_;

@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.7 2008/04/24 16:27:18 loizides Exp $
+// $Id: FileRecord.cc,v 1.8 2008/04/29 19:09:07 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -19,23 +19,27 @@ using namespace std;
 // *** FileRecord
 //
 FileRecord::FileRecord(int lumi, const string &file, const string &path):
+  smParameter_(stor::Configurator::instance()->getParameter()),
   fileName_(file),
   basePath_(path),
   fileSystem_(""),
   workingDir_("/open/"),
   mailBoxPath_(path+"/mbox"),
   logPath_(path+"/log"),
+  logFile_(logFile()),
+  setupLabel_(""),
+  streamLabel_(""),
+  cmsver_(getReleaseVersion()),
   lumiSection_(lumi),
   runNumber_(0),
   fileCounter_(0),
   fileSize_(0), 
   events_(0), 
   firstEntry_(0.0), 
-  lastEntry_(0.0),
-  smParameter_(stor::Configurator::instance()->getParameter())
+  lastEntry_(0.0)
 {
-  //get log file
-  logFile_ = logFile();
+   // stripp quotes if present
+   if(cmsver_[0]=='"') cmsver_=cmsver_.substr(1,cmsver_.size()-2);
 }
 
 
@@ -78,31 +82,30 @@ void FileRecord::writeToSummaryCatalog()
 //
 void FileRecord::notifyTier0()
 {
-  string ver(getReleaseVersion());
-  if(ver[0]=='"') ver=ver.substr(1,ver.size()-2);
 
   std::ostringstream oss;
-  oss << "export SM_FILENAME="     << fileName() << fileCounterStr() << ".dat; " 
-      << "export SM_FILECOUNTER="  << fileCounter_  << "; "                
-      << "export SM_NEVENTS="      << events_ << "; "
-      << "export SM_FILESIZE="     << fileSize_ << "; "
-      << "export SM_STARTTIME="    << (int) firstEntry() << "; "
-      << "export SM_STOPTIME="     << (int) lastEntry() << "; "
-      << "export SM_STATUS=closed; "  
-      << "export SM_RUNNUMBER="    << runNumber_  << "; "
-      << "export SM_LUMISECTION="  << lumiSection_ << "; "
-      << "export SM_PATHNAME="     << filePath()  << "; "
-      << "export SM_HOSTNAME="     << smParameter_->host() << "; "
-      << "export SM_DATASET="      << setupLabel_  << "; "
-      << "export SM_STREAM="       << streamLabel_ << "; "
-      << "export SM_INSTANCE="     << smParameter_->smInstance() << "; "
-      << "export SM_SAFETY="       << smParameter_->initialSafetyLevel()  << "; "
-      << "export SM_APPVERSION="   << ver << "; "
-      << "export SM_APPNAME=CMSSW; "
-      << "export SM_TYPE=streamer; "
-      << "export SM_CHECKSUM=0\n";
+  oss << "./notifyTier0.pl "
+      << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
+      << " --COUNT "        << fileCounter_                       
+      << " --NEVENTS "      << events_                            
+      << " --FILESIZE "     << fileSize_                          
+      << " --START_TIME "   << (int) firstEntry()
+      << " --STOP_TIME "    << (int) lastEntry()
+      << " --STATUS "       << "closed"
+      << " --RUNNUMBER "    << runNumber_                         
+      << " --LUMISECTION "  << lumiSection_                      
+      << " --PATHNAME "     << filePath()
+      << " --HOSTNAME "     << smParameter_->host()
+      << " --DATASET "      << setupLabel_ 
+      << " --STREAM "       << streamLabel_                      
+      << " --INSTANCE "     << smParameter_->smInstance()        
+      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --APP_VERSION "  << cmsver_
+      << " --APP_NAME CMSSW"
+      << " --TYPE streamer"               
+      << " --CHECKSUM 0\n";
 
-  ofstream of( notifyFileName_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
+  ofstream of(logFile_.c_str(), ios_base::ate | ios_base::out | ios_base::app );
   of << oss.str().c_str();
   of.close();
 }
@@ -130,7 +133,7 @@ void FileRecord::updateDatabase()
       << " --STREAM "       << streamLabel_                      
       << " --INSTANCE "     << smParameter_->smInstance()        
       << " --SAFETY "       << smParameter_->initialSafetyLevel()
-      << " --APP_VERSION "  << getReleaseVersion()
+      << " --APP_VERSION "  << cmsver_
       << " --APP_NAME CMSSW"
       << " --TYPE streamer"               
       << " --CHECKSUM 0\n";
@@ -163,7 +166,7 @@ void FileRecord::insertFileInDatabase()
       << " --STREAM "       << streamLabel_                      
       << " --INSTANCE "     << smParameter_->smInstance()        
       << " --SAFETY "       << smParameter_->initialSafetyLevel()
-      << " --APP_VERSION "  << getReleaseVersion()
+      << " --APP_VERSION "  << cmsver_
       << " --APP_NAME CMSSW"
       << " --TYPE streamer"               
       << " --CHECKSUM 0\n";
@@ -394,7 +397,6 @@ void FileRecord::report(ostream &os, int indentation) const
   os << prefix << "setupLabel_         " << setupLabel_                 << "\n";
   os << prefix << "streamLabel_        " << streamLabel_                << "\n";
   os << prefix << "hostName_           " << smParameter_->host()        << "\n";
-  os << prefix << "notifyFileName_     " << notifyFileName_             << "\n";
   os << prefix << "fileCatalog()       " << smParameter_->fileCatalog() << "\n"; 
   os << prefix << "lumiSection_        " << lumiSection_                << "\n";
   os << prefix << "runNumber_          " << runNumber_                  << "\n";
