@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/05/09 19:46:48 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/05/10 01:54:26 $
+ *  $Revision: 1.17 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -800,12 +800,15 @@ void GlobalTrajectoryBuilderBase::addTraj(TrackCand& candIn) {
     LogTrace(theCategory) << "Making new trajectory from TrackRef " << (*candIn.second).pt();
 
     TC staTrajs = theTrackTransformer->transform(*(candIn.second));
-    if (staTrajs.empty()) LogTrace(theCategory) << "Transformer: Add Traj failed!";
-    Trajectory *tmpTrajectory = new Trajectory(staTrajs.front());
-    tmpTrajectory->setSeedRef(candIn.second->seedRef());
-    candIn = ( !staTrajs.empty() ) ? TrackCand(tmpTrajectory,candIn.second) : TrackCand(0,candIn.second);    
+    if (staTrajs.empty()) {
+        LogTrace(theCategory) << "Transformer: Add Traj failed!";
+        candIn = TrackCand(0,candIn.second); 
+    } else {
+        Trajectory * tmpTrajectory = new Trajectory(staTrajs.front());
+        tmpTrajectory->setSeedRef(candIn.second->seedRef());
+        candIn = TrackCand(tmpTrajectory,candIn.second);
+    }
   }
-
 }
 
 
@@ -866,8 +869,10 @@ GlobalTrajectoryBuilderBase::refitTrajectory(const Trajectory& tkTraj) const {
   
   vector<Trajectory> refitted1 = theKFFitter->fit(seed,trackerRecHits,outerTsos);
 
+  if( !refitted1.empty() ) {
   for (std::vector<Trajectory>::iterator nit = refitted1.begin(); nit!=refitted1.end(); ++nit) {
     (*nit).setSeedRef(tkTraj.seedRef());
+  }
   }
   
   return refitted1;
