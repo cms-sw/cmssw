@@ -163,10 +163,13 @@ print "theJobData= $theJobData \n";
 
 if ($append == 1) {
 # save current values
-  my $tmpNJobs = $nJobs;
-  my $tmpInfiList = $infiList;
-  my $tmpDriver = $driver;
+  my $tmpBatchScript = $batchScript;
   my $tmpCfgTemplate = $cfgTemplate;
+  my $tmpInfiList = $infiList;
+  my $tmpNJobs = $nJobs;
+  my $tmpClass = $class;
+  my $tmpMergeScript = $mergeScript;
+  my $tmpDriver = $driver;
 
 # Read DB file
   read_db();
@@ -189,10 +192,13 @@ if ($append == 1) {
   }
 
 # Restore variables
-  $nJobs = $tmpNJobs;
-  $infiList = $tmpInfiList;
-  $driver = $tmpDriver;
+  $batchScript = $tmpBatchScript;
   $cfgTemplate = $tmpCfgTemplate; 
+  $infiList = $tmpInfiList;
+  $nJobs = $tmpNJobs;
+  $class = $tmpClass;
+  $mergeScript = $tmpMergeScript;
+  $driver = $tmpDriver;
 }
 
 
