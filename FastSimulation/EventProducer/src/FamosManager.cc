@@ -19,7 +19,7 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 //#include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -153,7 +153,7 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
   //  Initialize the calorimeter geometry
   if ( myCalorimetry ) {
     edm::ESHandle<CaloGeometry> pG;
-    es.get<IdealGeometryRecord>().get(pG);   
+    es.get<CaloGeometryRecord>().get(pG);   
     myCalorimetry->getCalorimeter()->setupGeometry(*pG);
 
     edm::ESHandle<CaloTopology> theCaloTopology;

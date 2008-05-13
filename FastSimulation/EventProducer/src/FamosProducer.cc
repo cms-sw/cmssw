@@ -45,12 +45,13 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     if ( simulateMuons ) produces<edm::SimTrackContainer>("MuonSimTracks");
     famosManager_ = new FamosManager(p);
 
+    m_firstTimeProduce = true ;
 }
 
 FamosProducer::~FamosProducer() 
 { if ( famosManager_ ) delete famosManager_; }
 
-void FamosProducer::beginJob(const edm::EventSetup & es)
+void FamosProducer::beginJobProduce(const edm::EventSetup & es)
 {
     famosManager_->setupGeometryAndField(es);
 }
@@ -63,6 +64,12 @@ void FamosProducer::endJob()
 void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
    using namespace edm;
+
+   if( m_firstTimeProduce )
+   {
+      beginJobProduce( es ) ;
+      m_firstTimeProduce = false ;
+   }
 
    // Get the generated event(s) from the edm::Event
    // 1. Check if a HepMCProduct exists

@@ -19,7 +19,8 @@ class FamosProducer : public edm::EDProducer
 
   explicit FamosProducer(edm::ParameterSet const & p);
   virtual ~FamosProducer();
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginJob(const edm::EventSetup & c){};
+  void beginJobProduce(const edm::EventSetup & c);
   virtual void endJob();
   virtual void produce(edm::Event & e, const edm::EventSetup & c);
 
@@ -29,6 +30,7 @@ class FamosProducer : public edm::EDProducer
   HepMC::GenEvent * evt_;
   bool simulateMuons;
 
+  bool m_firstTimeProduce ;
 };
 
 #endif
