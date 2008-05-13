@@ -53,7 +53,8 @@
   <ZSection z="5.641*m  "  rMin="67.5*cm "  rMax="1.3*m  " />
   <ZSection z="5.674*m  "  rMin="67.5*cm "  rMax="1.3*m  " />
   <ZSection z="5.674*m  "  rMin="67.5*cm "  rMax="85*cm " />
-  <ZSection z="6.835*m  "  rMin="67.5*cm "  rMax="85*cm " />
+  <ZSection z="6590*mm"    rMin="67.5*cm "  rMax="85*cm " />
+  <ZSection z="6.835*m  "  rMin="701*mm"    rMax="85*cm " />
  </Polycone> 
  <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="5.641*m  "  rMin="1.3*m  "  rMax="2.8*m  " />
@@ -67,15 +68,16 @@
  <Tubs name="ShieldingAntinomyLead_2_ME1" rMin="88.2*cm " rMax="89.5*cm " dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_3_ME1" rMin="89.6*cm " rMax="941*mm" dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_3_ME1" rMin="942*mm" rMax="955*mm" dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ShieldingBoronPoly_4_ME1" rMin="85.1*cm " rMax="88.1*cm " dz="14.3*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ShieldingAntinomyLead_4_ME1" rMin="88.2*cm " rMax="89.5*cm " dz="14.3*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ShieldingBoronPoly_5_ME1" rMin="89.6*cm " rMax="931*mm" dz="14.3*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ShieldingAntinomyLead_5_ME1" rMin="932*mm" rMax="945*mm" dz="14.3*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ShieldingBoronPoly_4_ME1" rMin="85.1*cm " rMax="88.1*cm " dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ShieldingAntinomyLead_4_ME1" rMin="88.2*cm " rMax="89.5*cm " dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ShieldingBoronPoly_5_ME1" rMin="89.6*cm " rMax="931*mm" dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ShieldingAntinomyLead_5_ME1" rMin="932*mm" rMax="945*mm" dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_6_ME1" rMin="945.1*mm" rMax="2330*mm" dz="5*mm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ShieldingBoronPoly_6_ME1" rMin="945.1*mm" rMax="2330*mm" dz="12*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ShieldingBoronPoly_6_ME1" rMin="945.1*mm" rMax="2330*mm" dz="11.9*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ME11SupportDisk" rMin="86*cm " rMax="2455*mm" dz="4*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ME11Space" rMin="1.005*m  " rMax="2.625*m  " dz="12.35*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME11" dz="81*cm " dy1="12.5*cm " dy2="12.5*cm " dx1="15.065*cm " dx2="30.45*cm " />
+ <Tubs name="ME11SupportDisk1" rMin="86*cm " rMax="2455*mm" dz="4*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ME11Space" rMin="990*mm" rMax="2725*mm" dz="91.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME11" dz="81*cm " dy1="91.5*mm" dy2="91.5*mm" dx1="15.065*cm " dx2="30.45*cm " />
 
  <Trd1 name="ME11AlumFrame" dz="810*mm " dy1="[ME11AlumFrameHalfThick]" dy2="[ME11AlumFrameHalfThick]" dx1="15.065*cm " dx2="30.45*cm " />
  <Trd1 name="ME11FR4Body" dz="81*cm " dy1="[ME11FR4BodyHalfThick]" dy2="[ME11FR4BodyHalfThick]" dx1="15.065*cm " dx2="30.45*cm " />
@@ -104,7 +106,7 @@ RE1/1 staged volumes -->
  <Tubs name="ZStopSpace" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ZStop_1_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="346.25*deg" deltaPhi="3.0999999*deg"/>
  <Tubs name="ZStop_2_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="10.75*deg" deltaPhi="3.0999999*deg"/>
- <Tubs name="ME12Ring" rMin="2.6*m  " rMax="4.685*m  " dz="311.8875*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ME12Ring" rMin="2.734*m  " rMax="4.685*m  " dz="311.8875*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ME12Space" rMin="2.735*m  " rMax="4.685*m  " dz="105.2335*mm" startPhi="0*deg" deltaPhi="360*deg"/>
  <Trd1 name="ME12" dz="94.7*cm " dy1="105.2335*mm" dy2="105.2335*mm" dx1="37.614*cm " dx2="53.856*cm " />
 
@@ -181,15 +183,21 @@ RE1/1 staged volumes -->
  <Trd1 name="REC2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.369*cm " dx2="56.009*cm " />
  <Trd1 name="REC3" dz="28*cm " dy1="1*mm " dy2="1*mm " dx1="44.382*cm " dx2="49.281*cm " />
 
- <Tubs name="ME2Ring" rMin="1.135*m  " rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <!-- <Tubs name="ME2Ring" rMin="1142*mm" rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/> -->
+ <Polycone name="ME2Ring" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="7865*mm"  rMin="1142*mm"  rMax="7020*mm" />
+  <ZSection z="8509*mm"  rMin="1142*mm"  rMax="7020*mm" />
+  <ZSection z="8509*mm"  rMin="1361*mm"  rMax="7020*mm" />
+  <ZSection z="8520*mm"  rMin="1361*mm"  rMax="7020*mm" />
+ </Polycone>
  <Tubs name="ShieldingBoronPoly_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_2_ME2" rMin="1.142*m  " rMax="1.217*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_2_ME2" rMin="1.218*m  " rMax="1.238*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_3_ME2" rMin="1.239*m  " rMax="1.264*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_3_ME2" rMin="1.265*m  " rMax="1.278*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ME21Space" rMin="1.39*m  " rMax="3.554*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/> 
- <Trd1 name="ME21" dz="1.023*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="37.405*cm " dx2="76.545*cm " />
+ <Tubs name="ME21Space" rMin="1.39*m  " rMax="3.554*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/> 
+ <Trd1 name="ME21" dz="1.023*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="37.405*cm " dx2="76.545*cm " />
 
  <Trd1 name="ME21AlumFrameBlock" dz="1023*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="374.05*mm" dx2="765.45*mm" />
  <!-- REB determined ME21 Al frame width to be approx. 83.5 mm based on eng. drawing -->
@@ -218,7 +226,12 @@ RE1/1 staged volumes -->
  <Trd1 name="ME_DeadGas_2_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.33*cm " dx2="40.805*cm " />
 
  <Tubs name="RR2X" rMin="1.97*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-
+ <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="5.641*m  "  rMin="1.3*m  "  rMax="2.8*m  " />
+  <ZSection z="5.674*m  "  rMin="1.3*m  "  rMax="2.8*m  " />
+  <ZSection z="5.674*m  "  rMin="85*cm "  rMax="2.8*m  " />
+  <ZSection z="6.345*m  "  rMin="85*cm "  rMax="2.8*m  " />
+ </Polycone> 
  <!-- RE2/1 staged volumes 
  <Tubs name="RT2D" rMin="1.97*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
  <Trd1 name="RFDX" dz="61.55*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="35.159*cm " dx2="56.847*cm " />
@@ -241,8 +254,8 @@ RE2/1 staged volumes-->
  <Trd1 name="REF2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.413*cm " dx2="56.053*cm " />
  <Trd1 name="REF3" dz="30.2*cm " dy1="1*mm " dy2="1*mm " dx1="44.041*cm " dx2="49.325*cm " />
 
- <Tubs name="ME22Space" rMin="3.555*m  " rMax="7.01*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME22" dz="1.690*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="45.519*cm " dx2="76.34*cm " />
+ <Tubs name="ME22Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME22" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm " />
 
  <Trd1 name="ME22AlumFrameBlock" dz="1690*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm" />
  <!-- REB determined ME22 Al frame width to be approx. 81.3 mm based on drawing 400220-B_ME234-2_Integrated_Assy -->
@@ -272,15 +285,15 @@ RE2/1 staged volumes-->
  <Trd1 name="ME_DeadGas_3_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm " />
  <Trd1 name="ME_DeadGas_4_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm " />
 
- <Tubs name="ME3Ring" rMin="1.36*m  " rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ME3Ring" rMin="1360*mm" rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_1_ME3" rMin="1.362*m  " rMax="1.437*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_1_ME3" rMin="1.438*m  " rMax="1.468*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_2_ME3" rMin="1.469*m  " rMax="1.494*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_2_ME3" rMin="1.5*m  " rMax="1.508*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_3_ME3" rMin="1.53*m  " rMax="2.394*m  " dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_3_ME3" rMin="1.532*m  " rMax="2.394*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ME31Space" rMin="1.59*m  " rMax="3.554*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME31" dz="92.3*cm " dy1="12.5*cm " dy2="12.5*cm " dx1="41.46*cm " dx2="76.545*cm " />
+ <Tubs name="ME31Space" rMin="1.59*m  " rMax="3.554*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME31" dz="92.3*cm " dy1="125.3*mm" dy2="125.3*mm" dx1="41.46*cm " dx2="76.545*cm " />
 
  <Trd1 name="ME31AlumFrameBlock" dz="923*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="414.6*mm" dx2="765.45*mm" />
  <Trd1 name="ME31AlumFrameSubtraction" dz="923*mm-83.5*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="414.6*mm-83.5*mm" dx2="765.45*mm-83.5*mm" />
@@ -317,8 +330,8 @@ RE2/1 staged volumes-->
  <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
 RE3/1 stage volumes -->
 
- <Tubs name="ME32Space" rMin="3.555*m  " rMax="7.01*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME32" dz="1.690*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="45.519*cm " dx2="76.34*cm " />
+ <Tubs name="ME32Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME32" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm " />
 
  <Trd1 name="ME32AlumFrameBlock" dz="1.690*m  " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm" />
  <!-- REB determined ME32 Al frame width to be approx. 81.3 mm based on drawing 400220-B_ME234-2_Integrated_Assy -->
@@ -348,15 +361,15 @@ RE3/1 stage volumes -->
  <Trd1 name="ME_DeadGas_3_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm " />
  <Trd1 name="ME_DeadGas_4_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm " />
 
- <Tubs name="ME4Ring" rMin="1.53*m  " rMax="7.02*m  " dz="33.675*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="ME4Ring" rMin="1530*mm" rMax="7.02*m  " dz="33.675*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_1_ME4" rMin="1.532*m  " rMax="1.607*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_1_ME4" rMin="1.608*m  " rMax="1.646*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_2_ME4" rMin="1.647*m  " rMax="1.672*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_2_ME4" rMin="1.673*m  " rMax="1.686*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingAntinomyLead_3_ME4" rMin="1.7*m  " rMax="2.478*m  " dz="6.5*mm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="ShieldingBoronPoly_3_ME4" rMin="1.7*m  " rMax="2.478*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Tubs name="ME41Space" rMin="1.79*m  " rMax="3.554*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME41" dz="833.5*mm" dy1="12.5*cm " dy2="12.5*cm " dx1="44.985*cm " dx2="76.545*cm " />
+ <Tubs name="ME41Space" rMin="1.79*m  " rMax="3.554*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME41" dz="833.5*mm" dy1="125.3*mm" dy2="125.3*mm" dx1="44.985*cm " dx2="76.545*cm " />
 
 <!-- 31.5.07 Oleg says ME41 length is 82.35 cm in drawings. Must check all other ME41 length dims. Also, the narrow end alg pin is 34.9 mm from the frame and the wide is 53.9 - 54.3 mm --> 
  <Trd1 name="ME41AlumFrameBlock" dz="833.5*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="449.85*mm" dx2="765.45*mm" />
@@ -385,8 +398,8 @@ RE3/1 stage volumes -->
  <Trd1 name="ME_DeadGas_2_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="43.32*cm " dx2="43.8*cm " />
 
 <!-- Remove this line and matching comment ending line below to restore ME42
- <Tubs name="ME42Space" rMin="3.555*m  " rMax="7.01*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
- <Trd1 name="ME42" dz="1.690*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="45.519*cm " dx2="76.34*cm " />
+ <Tubs name="ME42Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+ <Trd1 name="ME42" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm " />
 
  <Trd1 name="ME42AlumFrameBlock" dz="1.690*m  " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm" />
  <Trd1 name="ME42AlumFrameSubtraction" dz="1607.53*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm" />
@@ -1363,25 +1376,25 @@ RE4/1 staged volumes -->
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:ShieldingBoronPoly_4_ME1"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="6216*mm" />
+  <Translation x="0*fm " y="0*fm " z="6209*mm" />
  </PosPart>
  <PosPart copyNumber="4">
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:ShieldingAntinomyLead_4_ME1"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="6216*mm" />
+  <Translation x="0*fm " y="0*fm " z="6209*mm" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:ShieldingBoronPoly_5_ME1"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="6216*mm" />
+  <Translation x="0*fm " y="0*fm " z="6209*mm" />
  </PosPart>
  <PosPart copyNumber="5">
    <rParent name="mf:ME1Ring"/>
    <rChild name="mf:ShieldingAntinomyLead_5_ME1"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="6216*mm" />
+  <Translation x="0*fm " y="0*fm " z="6209*mm" />
  </PosPart>
  <PosPart copyNumber="6">
    <rParent name="mf:ME1Ring"/>
@@ -2366,55 +2379,55 @@ RE1/1 staged volumes -->
    <rParent name="mf:ME"/>
    <rChild name="mf:ME2Ring"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="8.1925*m  " />
+  <!-- <Translation x="0*fm " y="0*fm " z="8.1925*m  " /> -->
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ShieldingBoronPoly_1_ME2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="-30.25*cm " />
+  <Translation x="0*fm " y="0*fm " z="-30.25*cm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ShieldingAntinomyLead_1_ME2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="-27.1*cm " />
+  <Translation x="0*fm " y="0*fm " z="-27.1*cm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ShieldingBoronPoly_2_ME2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="-2.5*mm " />
+  <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ShieldingAntinomyLead_2_ME2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="-2.5*mm " />
+  <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ShieldingBoronPoly_3_ME2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="-2.5*mm " />
+  <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="3">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ShieldingAntinomyLead_3_ME2"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="-2.5*mm " />
+  <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ME21Space"/>
   <rRotation name="rotations:R005"/>
-  <Translation x="0*fm " y="0*fm " z="202.1125*mm " />
+  <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ME21Space"/>
   <rRotation name="rotations:R025"/>
-  <Translation x="0*fm " y="0*fm " z="-45.8875*mm " />
+  <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m " />
  </PosPart>
  <Division name="ME21SpaceDivision" parent="ME21Space" axis="phi" offset="-20*deg" width="40*deg"/>
  <PosPart copyNumber="1">
@@ -2486,7 +2499,7 @@ RE1/1 staged volumes -->
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:RR2X"/>
   <rRotation name="rotations:R005"/>
-  <Translation x="0*fm " y="0*fm " z="-28.25*cm " />
+  <Translation x="0*fm " y="0*fm " z="-28.25*cm+8.1925*m " />
  </PosPart>
 
  <!-- RE2/1 staged volumes 
@@ -3349,13 +3362,13 @@ RE4 stage volumes -->
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ME22Space"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm " y="0*fm " z="202.1125*mm " />
+  <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m " />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mf:ME2Ring"/>
    <rChild name="mf:ME22Space"/>
   <rRotation name="rotations:R010"/>
-  <Translation x="0*fm " y="0*fm " z="-45.8875*mm " />
+  <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m " />
  </PosPart>
  <Division name="ME22SpaceDivision" parent="ME22Space" axis="phi" offset="-10.*deg" width="20*deg"/>
  <PosPart copyNumber="1">
