@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.63 2008/03/10 20:51:11 burkett Exp $
+ * \version $Id: TrackBase.h,v 1.64 2008/03/11 00:39:19 gpetrucc Exp $
  *
  */
 
@@ -80,7 +80,8 @@ namespace reco {
     /// track algorithm
     enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7 };
     /// track quality
-    enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2 };
+      enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2 ,
+			  looseWithConfirm=3, goodIterative=4};
     
     /// default constructor
     TrackBase();
@@ -273,7 +274,12 @@ namespace reco {
   inline bool TrackBase::quality( const TrackBase::TrackQuality q) const{
     switch(q){
     case undefQuality: return (quality_==0);
-    default:
+    case goodIterative: 
+      {
+        return ( ((quality_ & (1<<TrackBase::looseWithConfirm))>>TrackBase::looseWithConfirm) ||
+                 ((quality_ & (1<<TrackBase::highPurity))>>TrackBase::highPurity));
+      }
+     default:
       {
 	return (quality_ & (1<<q))>>q;
       }
@@ -297,10 +303,12 @@ namespace reco {
   inline std::string TrackBase::qualityName(TrackQuality q){
     switch(q)
       {
-      case undefQuality: return "undefQuality";
-      case loose:        return "loose";
-      case tight:        return "tight";
-      case highPurity:   return "highPurity";
+      case undefQuality:      return "undefQuality";
+      case loose:             return "loose";
+      case tight:             return "tight";
+      case highPurity:        return "highPurity";
+      case looseWithConfirm:  return "looseWithConfirm";
+      case goodIterative:     return "goodIterative";
       }
     return "undefQuality";
   }
