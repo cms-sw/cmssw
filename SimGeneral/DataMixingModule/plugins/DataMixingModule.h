@@ -113,7 +113,8 @@ namespace edm
       virtual void put(edm::Event &e) ;
       virtual void createnewEDProduct();
       virtual void addSignals(const edm::Event &e); 
-      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId);
+      virtual void doPileUp(edm::Event &e);
+      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventId,unsigned int worker);
       virtual void getSubdetectorNames();
 
       // internally used information : subdetectors present in input

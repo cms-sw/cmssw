@@ -198,8 +198,8 @@ namespace edm
 
   
 
-  void DataMixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr) {
-  
+  void DataMixingModule::addPileups(const int bcr, Event *e, unsigned int eventNr, unsigned int worker) {  
+
 
     LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
@@ -222,6 +222,22 @@ namespace edm
 
   }
  
+
+
+  void DataMixingModule::doPileUp(edm::Event &e)
+  {// 
+
+    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+      setBcrOffset();
+      for (unsigned int isource=0;isource<maxNbSources_;++isource) {
+	setSourceOffset(isource);
+	if (doit_[isource]) {
+	  merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],1);
+	}
+      }
+    }
+  }
+
 
 
   void DataMixingModule::put(edm::Event &e) {
