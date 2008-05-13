@@ -202,11 +202,6 @@ if output_flag:
             modName='pool'+k.label()[4:len(k.label())]
             pathName='outPath'+k.label()[4:len(k.label())]
             if ( hasattr(process,poUsing)):
-# patch for csa08
-                if k.label()[12:4]=='TkAl':
-                    print 'adding DQM to output module'
-                    getattr(process,poUsing).append('keep *_MEtoEDMConverter_*_*')
-                    
                 if not oneoutput:
                     poolOutT = cms.OutputModule("PoolOutputModule",getattr(process,poUsing),\
                                                 dataset = cms.untracked.PSet(filterName = cms.untracked.string(filterName),\
@@ -226,15 +221,6 @@ if output_flag:
                             process.out_step.outputCommands.append(a)
     if ( nALCA>0):        
         print 'Number of AlCaReco output streams added: '+str(nALCA)
-
-# generic config corrections go here for CSA
-print 'Patching connection time out..'
-process.GlobalTag.DBParameters.connectionTimeOut=60
-if ( hasattr(process,'ALCARECOMuAlOverlaps')):
-    print 'Adding patch to ALCRECOMuAlOverlaps'
-    process.ALCARECOMuAlOverlaps.src='ALCRECOMuAlOverlapsMuonSelector:StandAlone'
-
-
 
 # Add a last customisation of the process as specified in the file.
 if customisation_file!='':
