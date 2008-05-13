@@ -1,0 +1,27 @@
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/Common>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/TrackReco>
+<use name=SimDataFormats/JetMatching>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=CondFormats/DataRecord>
+<use name=RecoBTau/JetTagComputer>
+<use name=rootcore>
+<use name=DQMServices/Core>
+<Flags CXXFLAGS="-O0 -g">
+<use name=root>
+<use name=boost>
+<export>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoBTau/JetTagComputer>
+  <use name=RecoBTag/MCTools>
+  <use name=rootcore>
+  <use name=boost>
+  <lib name=DQMOfflineRecoB>
+</export>                                                                                                                               
