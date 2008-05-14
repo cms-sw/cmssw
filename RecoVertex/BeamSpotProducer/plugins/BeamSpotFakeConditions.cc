@@ -63,6 +63,10 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 
 		// we are going to use the truth values defined at the generator stage,
 		// see IOMC/EventVertexGenerators/data
+
+		//////////////////
+		// FOR THE MOMENT, FAKE CONDITIONS ARE A HARD WIRED COPY OF THE DB CONDITIONS
+		//////////////////
 		
 		if ( BeamType == "SimpleGaussian" || BeamType == "DummySigmaZ_5p3cm") {
 			adummy->SetPosition(0.,0.,0.);
@@ -70,6 +74,21 @@ BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record){
 			adummy->Setdxdz(0.);
 			adummy->Setdydz(0.);
 			adummy->SetBeamWidth(15.e-4);
+		}
+
+		else if ( BeamType == "Early10TeVCollision" ) {
+			adummy->SetPosition(0.0325127,0.000505765,0.0795808);
+			adummy->SetSigmaZ(3.79659);
+			adummy->Setdxdz(4.58986e-05);
+			adummy->Setdydz(-0.000112271);
+			adummy->SetBeamWidth(46.0e-4);
+			adummy->SetCovariance(0,0,pow(5.17247e-05,2));
+			adummy->SetCovariance(1,1,pow(5.01696e-05,2));
+			adummy->SetCovariance(2,2,pow(0.467712,2));
+			adummy->SetCovariance(3,3,pow(0.400947,2));
+			adummy->SetCovariance(4,4,pow(1.39248e-05,2));
+			adummy->SetCovariance(5,5,pow(1.31797e-05,2));
+			adummy->SetCovariance(6,6,pow(2.0e-4,2));
 		}
 
 		else if ( BeamType == "EarlyCollision" ) {
