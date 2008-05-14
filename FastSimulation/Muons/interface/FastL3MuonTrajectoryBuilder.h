@@ -4,8 +4,8 @@
 /** \class FastL3MuonTrajectoryBuilder
  *  class to build muon trajectory from STA L2 muons and tracker tracks
  *
- *  $Date: 2008/03/14 19:12:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/03/24 20:07:54 $
+ *  $Revision: 1.5 $
  *
  *  \author Patrick Janot - CERN 
  */
@@ -65,9 +65,6 @@ class FastL3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     /// build a tracker Trajectory from a seed
     TC makeTrajsFromSeeds(const std::vector<TrajectorySeed>&) const;
 
-    /// Find the simTrack id of a reco track
-    int findId(const reco::Track& aTrack) const;
-
   private:
   
     std::vector<TrackCand> regionalTkTracks;
@@ -88,7 +85,6 @@ class FastL3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
 #ifdef FAMOS_DEBUG
     DQMStore * dbe;
-    MonitorElement* simuMuons;
     MonitorElement* matchMuons;
     MonitorElement* refitMuons;
 #endif

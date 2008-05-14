@@ -5,20 +5,13 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon and a tracker track.
  *
- *   $Date: 2008/03/13 14:55:58 $
- *   $Revision: 1.2 $
+ *   $Date: 2008/03/14 19:12:07 $
+ *   $Revision: 1.3 $
  *   \author  Patrick Janot - CERN
  */
 
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FastSimulation/Muons/plugins/FastL3MuonProducer.h"
-
 // TrackFinder and specific GLB Trajectory Builder
+#include "FastSimulation/Muons/plugins/FastL3MuonProducer.h"
 #include "FastSimulation/Muons/interface/FastL3MuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
@@ -26,12 +19,9 @@
 
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 //
 // constructor with config

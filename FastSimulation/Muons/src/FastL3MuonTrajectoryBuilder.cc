@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/03/24 20:07:54 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/10 17:38:45 $
+ *  $Revision: 1.8 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -34,11 +34,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
@@ -46,10 +42,6 @@
 
 // Tracker RecHits and Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
-
-// SimTrack
-#include "SimDataFormats/Track/interface/SimTrack.h"
 
 //----------------
 // Constructors --
@@ -65,11 +57,9 @@ FastL3MuonTrajectoryBuilder::FastL3MuonTrajectoryBuilder(const edm::ParameterSet
   theFirstEvent = true;
   
   theTrackerTrajectoryCollection = par.getParameter<edm::InputTag>("TrackerTrajectories");
-  theSimModule = par.getParameter<edm::InputTag>("SimulatedMuons");
 
 #ifdef FAMOS_DEBUG
   dbe = edm::Service<DQMStore>().operator->();
-  simuMuons = dbe->book1D("SimuMuons", "Eta distribution (sim)",100,-2.5,2.5);
   matchMuons = dbe->book1D("MatchMuons", "Eta distribution (match)",100,-2.5,2.5);
   refitMuons = dbe->book1D("RefitMuons", "Eta distribution (refit)",100,-2.5,2.5);
 #endif
@@ -190,14 +180,11 @@ FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
 
   std::vector<TrackCand> tkCandColl;  
 
-  // Get the tracker tracks corresponding to simulated muons 
+  // Get the tracker tracks
   edm:: Handle<std::vector<Trajectory> > theTrajectories;
   edm::Handle<TrajTrackAssociationCollection> theAssoMap;  
-  edm::Handle<std::vector<SimTrack> > simMuons;
   theEvent->getByLabel(theTrackerTrajectoryCollection,theTrajectories);
   theEvent->getByLabel(theTrackerTrajectoryCollection,theAssoMap);
-  theEvent->getByLabel(theSimModule,simMuons);
-  unsigned nmuons = simMuons->size();
   
   TrajTrackAssociationCollection::const_iterator anAssociation;  
   TrajTrackAssociationCollection::const_iterator firstAssociation;  
@@ -205,31 +192,15 @@ FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
   firstAssociation = theAssoMap->begin();
   lastAssociation = theAssoMap->end();
 
-  // Loop on simulated muons
-  for ( unsigned amuon=0; amuon<nmuons; ++amuon ) {
-    // The sim track can be a muon or a decaying hadron
-    const SimTrack& simTrack = (*simMuons)[amuon];
-    // The daughter muons in case of a decaying hadron is just after the muon in the list
-    // We skip the daughter muon in the loop to be more time-efficient
-    int pid = simTrack.type();        
-    if ( fabs(pid) != 13 ) ++amuon;
-
-#ifdef FAMOS_DEBUG
-    if ( simTrack.momentum().Pt() > 10. ) simuMuons->Fill(simTrack.momentum().Eta());
-#endif
-
-    for ( anAssociation = firstAssociation; anAssociation != lastAssociation; ++anAssociation ) { 
-      edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
-      reco::TrackRef aTrackRef = anAssociation->val;
-      int recoTrackId = findId(*aTrackRef);
-      if ( recoTrackId == (int)(simTrack.trackId()) ) {
-	tkCandColl.push_back(TrackCand(new Trajectory((*aTrajectoryRef)),reco::TrackRef()));
-	break;
-      }
-    }
+  // Loop on muon tracks seeded by L2 muons
+  for ( anAssociation = firstAssociation; anAssociation != lastAssociation; ++anAssociation ) { 
+    edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
+    reco::TrackRef aTrackRef = anAssociation->val;
+    tkCandColl.push_back(TrackCand(new Trajectory((*aTrajectoryRef)),reco::TrackRef()));
   }
 	
   // LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
+  // std::cout << "Found " << tkCandColl.size() << " tkCands from seeds" << std::endl;
 
   return tkCandColl;
 
@@ -247,20 +218,6 @@ FastL3MuonTrajectoryBuilder::makeTrajsFromSeeds(const std::vector<TrajectorySeed
   // edm::LogInfo(category) << "Trajectories from all seeds " << result.size();
   return result;
 
-}
-
-int 
-FastL3MuonTrajectoryBuilder::findId(const reco::Track& aTrack) const {
-  int trackId = -1;
-  trackingRecHit_iterator aHit = aTrack.recHitsBegin();
-  trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
-  for ( ; aHit!=lastHit; ++aHit ) {
-    if ( !aHit->get()->isValid() ) continue;
-    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
-    trackId = rechit->simtrackId();
-    break;
-  }
-  return trackId;
 }
 
 void 

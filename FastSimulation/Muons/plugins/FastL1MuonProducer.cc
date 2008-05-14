@@ -19,11 +19,8 @@
 // CMSSW headers 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 // Regional eta scales...
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
@@ -46,16 +43,9 @@
 // STL headers 
 #include <iostream>
 
-// CLHEP headers
-#include "DataFormats/Math/interface/LorentzVector.h"
-
 // Data Formats
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-//#include "DataFormats/MuonReco/interface/Muon.h"
-//#include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include <map>
 
