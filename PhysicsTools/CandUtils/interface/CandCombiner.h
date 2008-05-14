@@ -49,11 +49,12 @@ namespace combiner {
 template<typename Selector, 
 	 typename PairSelector = AnyPairSelector,
 	 typename Cloner = combiner::helpers::NormalClone, 
+	 typename OutputCollection = reco::CompositeCandidateCollection,
 	 typename Setup = AddFourMomenta>
-class CandCombiner : public CandCombinerBase<typename Cloner::CandPtr> {
+class CandCombiner : public CandCombinerBase<OutputCollection, typename Cloner::CandPtr> {
 public:
   typedef typename Cloner::CandPtr CandPtr;
-  typedef CandCombinerBase<CandPtr> base;
+  typedef CandCombinerBase<OutputCollection, CandPtr> base;
   /// default constructor
   CandCombiner() :
   base(), 
