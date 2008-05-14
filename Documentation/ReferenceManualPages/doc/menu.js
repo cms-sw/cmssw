@@ -63,15 +63,16 @@
 					re = new RegExp("Classes");
 					if(re.test(aText))
 					{
-						ahref = "annotated.html";
+						ahref = "classes.html";	/*fix 13/05/08: annotated */
 						// FIX
 						var path = location.href.split(/\//g); 
 						var j = path.length - 2;
-						if (path[j] != "html") ahref = "../../annotated.html";
+						if (path[j] != "html") ahref = "../../classes.html";		/*fix 13/05/08: annotated */
 						// FIX_END
 					}
 					re = new RegExp("Related.*Pages"); if(re.test(aText)) aText = "Package Documentation";
-					re = new RegExp("Alphabetical.*List"); if(re.test(aText)) {alpha = true; continue;}
+					re = new RegExp("Class.*List"); if(re.test(aText)) {continue;}		/*fix 13/05/08: annotated */
+					re = new RegExp("Alphabetical.*List"); if(re.test(aText)) {alpha = true;}		/*fix 13/05/08: annotated */
 					
 					out = out+(i==0 || alpha?"":" | ");
 					
@@ -115,8 +116,8 @@
 				{
 					clasHL = true;
 				}
-				//if (location.href.search(/class_list/g) > -1)
-				if (location.href.search(/annotated/g) > -1)
+				//if (location.href.search(/alphabetical_list/g) > -1)
+				if (location.href.search(/classes/g) > -1)		/*fix 13/05/08: annotated */
 				{
 					clasHL = true;
 				}
@@ -132,27 +133,35 @@
 				var clas = "";
 				var cchk = false;
 				var a = tabs.innerHTML.split(/\s*\|\s*/g);
+				var tmp = a[2];	/*fix 13/05/08: annotated */
+				a[2] = a[3];
+				a[3] = tmp;
 				
 				for( var i = 0; i < a.length; i++ )
 				{
 					if (i==1)
 					{
 						var namespacehref = " href=\"namespaces.html\">Namespaces</a>";
-						var clashref = " href=\"hierarchy.html\">Classes</a>";
+						var clashref = " href=\"classes.html\">Classes</a>";	/*fix 13/05/08: annotated */
 						// FIX
 						var path = location.href.split(/\//g); 
 						var j = path.length - 2;
 						if (path[j] != "html")
 						{
 							namespacehref = " href=\"../../namespaces.html\">Namespaces</a>";
-							clashref = " href=\"../../hierarchy.html\">Classes</a>";
+							clashref = " href=\"../../classes.html\">Classes</a>";	/*fix 13/05/08: annotated */
 						}
 						// FIX_END
 						out = out + " | <a class=\""+(namespaceHL?"qindexHL":"qindex")+"\""+namespacehref;
 						out = out + " | <a class=\""+(clasHL?"qindexHL":"qindex")+"\""+clashref;
 					}
 					if (a[i].search(/File/g) > -1 || a[i].search(/Examples/g) > -1) continue;
-					if (a[i].search(/Alphabetical/g) > -1) continue;
+					if (a[i].search(/Alphabetical/g) > -1)		/*fix 13/05/08: annotated */
+					{
+						clas = clas + (cchk?" | ":"") + a[i];
+						cchk = true;
+						continue;
+					}
 					if (a[i].search(/Namespace/g) > -1)
 					{
 						namespace = namespace + (nchk?" | ":"") + a[i];
@@ -161,6 +170,7 @@
 					}
 					if (a[i].search(/Class/g) > -1)
 					{
+						if (a[i].search(/Class.*List/g) > -1) continue;	/*fix 13/05/08: annotated */
 						clas = clas + (cchk?" | ":"") + a[i];
 						cchk = true;
 						continue;
@@ -208,26 +218,11 @@
 			}
     	}
   
- 		var t = document.getElementsByTagName("title")[0];
-		//alert(t.textContent);
-		t.textContent = version + " Reference Manual";
-		//var newtext = document.createTextNode(version + " Reference Manual"); 
-		//t.appendChild(newtext);
-		
-		//var h = document.getElementsByTagName("head")[0];
-		//var tnew = document.createElement("title");
-                //var newtext = document.createTextNode(version + " Reference Manual");
-                //tnew.appendChild(newtext);
-	 	//var t = h.getElementsByTagName("title")[0];
-		//h.replaceChild(tnew, t);
-		//var r = h.removeChild(t);
-		//t.setAttribute("style", "color: red;");		
-	
+ 		var titleHTML = document.getElementsByTagName("title")[0];
+ 		var titletxt = document.createElement("div");
+ 		titleHTML.innerText = version + " Reference Manual";
 
-		//alert(h.innerHTML);
-		//alert(window.status);    		
-		//window.status = version + " Reference Manual";		
-
+    	
 		if (location.href.search(/pages/g) > -1)
 		{
 			var pages = document.getElementsByTagName("h1")[0];
