@@ -71,7 +71,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				    StripGeomDetUnit *det,
 				    GlobalVector bfield,float langle, 
 				    edm::ESHandle<SiStripGain> & gainHandle,
-				    edm::ESHandle<SiStripPedestals> & pedestalsHandle,
+				    edm::ESHandle<SiStripThreshold> & thresholdHandle,
 				    edm::ESHandle<SiStripNoises> & noiseHandle){
   
   theSiPileUpSignals->reset();
@@ -142,7 +142,7 @@ void SiStripDigitizerAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
     if(noise) 
       theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC);
     digis.clear();
-    theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID,noiseHandle,pedestalsHandle);
+    theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID,noiseHandle,thresholdHandle);
     push_link(digis, theLink, theCounterLink, detAmpl,detID);
     outdigi.data = digis;
   }

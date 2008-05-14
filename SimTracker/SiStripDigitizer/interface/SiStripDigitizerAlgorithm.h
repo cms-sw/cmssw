@@ -27,6 +27,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
@@ -60,7 +61,7 @@ class SiStripDigitizerAlgorithm
   //  void  run(edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripRawDigi>&,const std::vector<PSimHit> &, StripGeomDetUnit *,GlobalVector,
   //	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
   void  run(edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripRawDigi>&,const std::vector<std::pair<PSimHit, int > >  &, StripGeomDetUnit *,GlobalVector,
-	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripNoises> &);
+	    float , edm::ESHandle<SiStripGain> &,edm::ESHandle<SiStripThreshold> &, edm::ESHandle<SiStripNoises> &);
 
   void setParticleDataTable(const ParticleDataTable * pdt);
   

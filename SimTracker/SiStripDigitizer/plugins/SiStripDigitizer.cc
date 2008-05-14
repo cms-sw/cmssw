@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.8 2008/01/17 13:09:04 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.9 2008/02/15 13:47:53 azzi Exp $
 //
 //
 
@@ -63,9 +63,11 @@
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -158,11 +160,11 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
-  edm::ESHandle<SiStripPedestals> pedestalsHandle;
+  edm::ESHandle<SiStripThreshold> thresholdHandle;
   iSetup.get<SiStripLorentzAngleRcd>().get(lorentzAngleHandle);
   iSetup.get<SiStripGainRcd>().get(gainHandle);
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
-  iSetup.get<SiStripPedestalsRcd>().get(pedestalsHandle);
+  iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
 
 
   theDigiAlgo->setParticleDataTable(&*pdt);
@@ -192,7 +194,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       
       float langle=0.;
       if(lorentzAngleHandle.isValid())langle=lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId());
-      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,gainHandle,pedestalsHandle,noiseHandle);
+      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,gainHandle,thresholdHandle,noiseHandle);
       
       if(zeroSuppression){
 	if(collectorZS.data.size()>0){
