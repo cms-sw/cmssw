@@ -1,7 +1,7 @@
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSelectiveReadoutProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <memory>
@@ -153,7 +153,7 @@ EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event) const
 void EcalSelectiveReadoutProducer::checkGeometry(const edm::EventSetup & eventSetup)
 {
   edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
+  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
 
   const CaloGeometry * pGeometry = &*hGeometry;
 

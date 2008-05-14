@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -352,16 +352,18 @@ EcalSelectiveReadoutSuppressor::setTtFlags(const edm::EventSetup& es,
   double trigPrim[nTriggerTowersInEta][nTriggerTowersInPhi];
 
   //ecal geometry:
-  static const CaloSubdetectorGeometry* eeGeometry = 0;
-  static const CaloSubdetectorGeometry* ebGeometry = 0;
-  if(eeGeometry==0 || ebGeometry==0){
+//  static const CaloSubdetectorGeometry* eeGeometry = 0;
+//  static const CaloSubdetectorGeometry* ebGeometry = 0;
+  const CaloSubdetectorGeometry* eeGeometry = 0;
+  const CaloSubdetectorGeometry* ebGeometry = 0;
+//  if(eeGeometry==0 || ebGeometry==0){
     edm::ESHandle<CaloGeometry> geoHandle;
-    es.get<IdealGeometryRecord>().get(geoHandle);
+    es.get<CaloGeometryRecord>().get(geoHandle);
     eeGeometry
       = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     ebGeometry
       = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  }
+//  }
 
   //init trigPrim array:
   bzero(trigPrim, sizeof(trigPrim));
