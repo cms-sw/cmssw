@@ -13,9 +13,9 @@ namespace reco {
               StringCutObjectSelector<reco::Candidate>,
               AnyPairSelector,
               combiner::helpers::ShallowClonePtr
-            > CandViewShallowCloneCombiner;
+            > CandViewShallowClonePtrCombiner;
 
-DEFINE_FWK_MODULE( CandViewShallowCloneCombiner );
+DEFINE_FWK_MODULE( CandViewShallowClonePtrCombiner );
 
   }
 }

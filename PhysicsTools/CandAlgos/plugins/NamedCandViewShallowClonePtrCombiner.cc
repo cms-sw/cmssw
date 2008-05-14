@@ -17,9 +17,9 @@ namespace reco {
               AnyPairSelector,
               combiner::helpers::ShallowClonePtr,
               reco::NamedCompositeCandidateCollection 
-            > NamedCandViewShallowCloneCombiner;
+            > NamedCandViewShallowClonePtrCombiner;
 
-DEFINE_FWK_MODULE( NamedCandViewShallowCloneCombiner );
+DEFINE_FWK_MODULE( NamedCandViewShallowClonePtrCombiner );
 
   }
 }

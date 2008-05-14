@@ -5,54 +5,56 @@
  * \author Luca Lista, INFN
  *
  */
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include <vector>
+#include <string>
 
 template<typename OutputCollection, typename CandPtr>
 class CandCombinerBase {
 public:
+  typedef std::vector<std::string> vstring;
   /// default construct
-  CandCombinerBase();
+  explicit CandCombinerBase(const std::string & = "");
   /// construct from two charge values
-  CandCombinerBase(int, int);
+  CandCombinerBase(int, int, const std::string & = "");
   /// construct from three charge values
-  CandCombinerBase(int, int, int);
+  CandCombinerBase(int, int, int, const std::string & = "");
   /// construct from four charge values
-  CandCombinerBase(int, int, int, int);
+  CandCombinerBase(int, int, int, int, const std::string & = "");
   /// constructor from a selector, specifying optionally to check for charge
-  CandCombinerBase(bool checkCharge, const std::vector <int> &);
+  CandCombinerBase(bool checkCharge, const std::vector <int> &, const std::string & = "");
   /// destructor
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
-  std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const std::vector<edm::Handle<reco::CandidateView> > &) const;
+  std::auto_ptr<OutputCollection> 
+  combine(const std::vector<edm::Handle<reco::CandidateView> > &, const vstring & = vstring()) const;
   /// return all selected candidate pairs
-  std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const edm::Handle<reco::CandidateView> &) const;
+  std::auto_ptr<OutputCollection> 
+  combine(const edm::Handle<reco::CandidateView> &, const vstring & = vstring()) const;
   /// return all selected candidate pairs
-  std::auto_ptr<reco::CompositeCandidateCollection> 
+  std::auto_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &) const;
+	  const edm::Handle<reco::CandidateView> &, const vstring & = vstring()) const;
   /// return all selected candidate pairs
-  std::auto_ptr<reco::CompositeCandidateCollection> 
-  combine(const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &) const;
-  /// return all selected candidate pairs
-  std::auto_ptr<reco::CompositeCandidateCollection> 
+  std::auto_ptr<OutputCollection> 
   combine(const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &, const vstring & = vstring()) const;
+  /// return all selected candidate pairs
+  std::auto_ptr<OutputCollection> 
+  combine(const edm::Handle<reco::CandidateView> &, 
 	  const edm::Handle<reco::CandidateView> &, 
-	  const edm::Handle<reco::CandidateView> &) const;
+	  const edm::Handle<reco::CandidateView> &, 
+	  const edm::Handle<reco::CandidateView> &, const vstring & = vstring()) const;
 
 private:
   /// verify that the two candidate don't overlap and check charge
   bool preselect(const reco::Candidate &, const reco::Candidate &) const;
   /// returns a composite candidate combined from two daughters
-  void combine(reco::CompositeCandidate &, 
+  void combine(typename OutputCollection::value_type &, 
 	       const CandPtr &, 
-	       const CandPtr &) const;
+	       const CandPtr &, const std::string & = "", const std::string & = "") const;
   /// temporary candidate stack
   typedef std::vector<std::pair<std::pair<CandPtr, size_t>, 
 				std::vector<edm::Handle<reco::CandidateView> >::const_iterator> > CandStack;
@@ -61,47 +63,49 @@ private:
   void combine(size_t collectionIndex, CandStack &, ChargeStack &,
 	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator begin,
 	       std::vector<edm::Handle<reco::CandidateView> >::const_iterator end,
-	       std::auto_ptr<reco::CompositeCandidateCollection> & comps
-	       ) const;
+	       std::auto_ptr<OutputCollection> & comps,
+	       const vstring & name = vstring()) const;
   /// select a candidate
   virtual bool select(const reco::Candidate &) const = 0;
   /// select a candidate pair
   virtual bool selectPair(const reco::Candidate & c1, const reco::Candidate & c2) const = 0;
   /// set kinematics to reconstructed composite
-  virtual void setup(reco::CompositeCandidate &) const = 0;
+  virtual void setup(typename OutputCollection::value_type &) const = 0;
   /// add candidate daughter
-  virtual void addDaughter(reco::CompositeCandidate & cmp, const CandPtr & c) const = 0;
+  virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string & = "") const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// electric charges of the daughters
   std::vector<int> dauCharge_;
   /// utility to check candidate daughters overlap
   OverlapChecker overlap_;
+  /// composite name (if applies)
+  std::string name_;
 };
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase() :
-  checkCharge_(false), dauCharge_(), overlap_() {
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(const std::string & name) :
+  checkCharge_(false), dauCharge_(), overlap_(), name_(name) {
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2) :
-  checkCharge_(true), dauCharge_(2), overlap_() {
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, const std::string & name) :
+  checkCharge_(true), dauCharge_(2), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3) :
-  checkCharge_(true), dauCharge_(3), overlap_() {
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, const std::string & name) :
+  checkCharge_(true), dauCharge_(3), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, int q4) :
-  checkCharge_(true), dauCharge_(4), overlap_() {
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, int q4, const std::string & name) :
+  checkCharge_(true), dauCharge_(4), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
@@ -109,8 +113,8 @@ CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, in
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(bool checkCharge, const std::vector<int> & dauCharge) :
-  checkCharge_(checkCharge), dauCharge_(dauCharge), overlap_() {
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(bool checkCharge, const std::vector<int> & dauCharge, const std::string & name) :
+  checkCharge_(checkCharge), dauCharge_(dauCharge), overlap_(), name_(name) {
 }
 
 template<typename OutputCollection, typename CandPtr>
@@ -129,36 +133,48 @@ bool CandCombinerBase<OutputCollection, CandPtr>::preselect(const reco::Candidat
 }
 
 template<typename OutputCollection, typename CandPtr>
-void CandCombinerBase<OutputCollection, CandPtr>::combine(reco::CompositeCandidate & cmp, const CandPtr & c1, const CandPtr & c2) const {
-  addDaughter(cmp, c1);
-  addDaughter(cmp, c2);
+void CandCombinerBase<OutputCollection, CandPtr>::combine(typename OutputCollection::value_type & cmp, 
+							  const CandPtr & c1, const CandPtr & c2,
+							  const std::string & name1, const std::string & name2) const {
+  addDaughter(cmp, c1, name1);
+  addDaughter(cmp, c2, name2);
   setup(cmp);
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<reco::CompositeCandidateCollection> 
-CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Handle<reco::CandidateView> > & src) const {
+std::auto_ptr<OutputCollection> 
+CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Handle<reco::CandidateView> > & src,
+						     const vstring & names) const {
   size_t srcSize = src.size();
   if (checkCharge_ && dauCharge_.size() != srcSize)
     throw edm::Exception(edm::errors::Configuration) 
       << "CandCombiner: trying to combine " << srcSize << " collections"
       << " but configured to check against " << dauCharge_.size() << " charges.";
-  
-  std::auto_ptr<reco::CompositeCandidateCollection> comps(new reco::CompositeCandidateCollection);
+  std::auto_ptr<OutputCollection> comps(new OutputCollection);
+  size_t namesSize = names.size();
   if(srcSize == 2) {
+    std::string name1, name2;
+    if(namesSize > 0) {
+      if(namesSize != 2)
+	throw edm::Exception(edm::errors::Configuration)
+	  << "CandCombiner: should specify exactly two "
+	  << " names in configuration (" << namesSize << " specified).\n";
+      name1 = names[0];
+      name2 = names[1];
+    }
     edm::Handle<reco::CandidateView> src1 = src[0], src2 = src[1];
     if(src1.id() == src2.id()) {
       const reco::CandidateView & cands = * src1;
-      const int n = cands.size();
-      for(int i1 = 0; i1 < n; ++i1) {
+      const size_t n = cands.size();
+      for(size_t i1 = 0; i1 < n; ++i1) {
 	const reco::Candidate & c1 = cands[i1];
 	CandPtr cr1(src1, i1);
-	for(int i2 = i1 + 1; i2 < n; ++i2) {
+	for(size_t i2 = i1 + 1; i2 < n; ++i2) {
 	  const reco::Candidate & c2 = cands[i2];
-	  if (preselect(c1, c2)) {
+	  if(preselect(c1, c2)) {
 	    CandPtr cr2(src2, i2);
-	    reco::CompositeCandidate c; 
-	    combine(c, cr1, cr2);
+	    typename OutputCollection::value_type c; 
+	    combine(c, cr1, cr2, names[0], names[1]);
 	    if(select(c))
 	      comps->push_back(c);
 	  }
@@ -166,16 +182,16 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
       }
     } else {
       const reco::CandidateView & cands1 = * src1, & cands2 = * src2;
-      const int n1 = cands1.size(), n2 = cands2.size();
-      for(int i1 = 0; i1 < n1; ++i1) {
+      const size_t n1 = cands1.size(), n2 = cands2.size();
+      for(size_t i1 = 0; i1 < n1; ++i1) {
 	const reco::Candidate & c1 = cands1[i1];
 	CandPtr cr1(src1, i1);
-	for(int i2 = 0; i2 < n2; ++i2) {
+	for(size_t i2 = 0; i2 < n2; ++i2) {
 	  const reco::Candidate & c2 = cands2[i2];
 	  if(preselect(c1, c2)) {
 	    CandPtr cr2(src2, i2);
-	    reco::CompositeCandidate c;
-	    combine(c, cr1, cr2);
+	    typename OutputCollection::value_type c;
+	    combine(c, cr1, cr2, name1, name2);
 	    if(select(c))
 	      comps->push_back(c);
 	  }
@@ -185,32 +201,43 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
   } else {
     CandStack stack;
     ChargeStack qStack;
-    combine(0, stack, qStack, src.begin(), src.end(), comps);
+    combine(0, stack, qStack, src.begin(), src.end(), comps, names);
   }
 
   return comps;
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<reco::CompositeCandidateCollection> 
-CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src) const {
+std::auto_ptr<OutputCollection> 
+CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src,
+						     const vstring & names) const {
   if(checkCharge_ && dauCharge_.size() != 2)
     throw edm::Exception(edm::errors::Configuration) 
       << "CandCombiner: trying to combine 2 collections"
       << " but configured to check against " << dauCharge_.size() << " charges.";
 
-  std::auto_ptr<reco::CompositeCandidateCollection> comps(new reco::CompositeCandidateCollection);
+  std::auto_ptr<OutputCollection> comps(new OutputCollection);
+  size_t namesSize = names.size();
+  std::string name1, name2;
+  if(namesSize > 0) {
+    if(namesSize != 2)
+      throw edm::Exception(edm::errors::Configuration)
+	<< "CandCombiner: should specify exactly two "
+	<< " names in configuration (" << namesSize << " specified).\n";
+    name1 = names[0];
+    name2 = names[1];
+  }
   const reco::CandidateView & cands = * src; 
-  const int n = cands.size();
-  for(int i1 = 0; i1 < n; ++i1) {
+  const size_t n = cands.size();
+  for(size_t i1 = 0; i1 < n; ++i1) {
     const reco::Candidate & c1 = cands[i1];
     CandPtr cr1(src, i1);
-    for(int i2 = i1 + 1; i2 < n; ++i2) {
+    for(size_t i2 = i1 + 1; i2 < n; ++i2) {
       const reco::Candidate & c2 = cands[i2];
       if(preselect(c1, c2)) {
 	CandPtr cr2(src, i2);
-	reco::CompositeCandidate c;
-	combine(c, cr1, cr2);
+	typename OutputCollection::value_type c;
+	combine(c, cr1, cr2, name1, name2);
 	if(select(c))
 	  comps->push_back(c);
       }
@@ -221,41 +248,50 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::Can
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<reco::CompositeCandidateCollection> 
-CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, const edm::Handle<reco::CandidateView> & src2) const {
+std::auto_ptr<OutputCollection> 
+CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
+						     const edm::Handle<reco::CandidateView> & src2,
+						     const vstring & names) const {
   std::vector<edm::Handle<reco::CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
-  return combine(src);
+  return combine(src, names);
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<reco::CompositeCandidateCollection> 
-CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, const edm::Handle<reco::CandidateView> & src2, const edm::Handle<reco::CandidateView> & src3) const {
+std::auto_ptr<OutputCollection> 
+CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
+						     const edm::Handle<reco::CandidateView> & src2, 
+						     const edm::Handle<reco::CandidateView> & src3,
+						     const vstring & names) const {
   std::vector<edm::Handle<reco::CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
   src.push_back(src3);
-  return combine(src);
+  return combine(src, names);
 }
 
 template<typename OutputCollection, typename CandPtr>
-std::auto_ptr<reco::CompositeCandidateCollection> 
-CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, const edm::Handle<reco::CandidateView> & src2, 
-			  const edm::Handle<reco::CandidateView> & src3, const edm::Handle<reco::CandidateView> & src4) const {
+std::auto_ptr<OutputCollection> 
+CandCombinerBase<OutputCollection, CandPtr>::combine(const edm::Handle<reco::CandidateView> & src1, 
+						     const edm::Handle<reco::CandidateView> & src2, 
+						     const edm::Handle<reco::CandidateView> & src3, 
+						     const edm::Handle<reco::CandidateView> & src4,
+						     const vstring & names) const {
   std::vector<edm::Handle<reco::CandidateView> > src;
   src.push_back(src1);
   src.push_back(src2);
   src.push_back(src3);
   src.push_back(src4);
-  return combine(src);
+  return combine(src, names);
 }
 
 template<typename OutputCollection, typename CandPtr>
 void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
-			       std::vector<edm::Handle<reco::CandidateView> >::const_iterator collBegin,
-			       std::vector<edm::Handle<reco::CandidateView> >::const_iterator collEnd,
-			       std::auto_ptr<reco::CompositeCandidateCollection> & comps) const {
+							  std::vector<edm::Handle<reco::CandidateView> >::const_iterator collBegin,
+							  std::vector<edm::Handle<reco::CandidateView> >::const_iterator collEnd,
+							  std::auto_ptr<OutputCollection> & comps,
+							  const vstring & names) const {
   if(collBegin == collEnd) {
     static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
     int decayType = undetermined;
@@ -277,9 +313,10 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex
       }
     }
     if(decayType != wrongDecay) { 
-      reco::CompositeCandidate c;
-      for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i) {
-	addDaughter(c, i->first.first);
+      typename OutputCollection::value_type c;
+      size_t nameIndex = 0;
+      for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i, ++ nameIndex) {
+	addDaughter(c, i->first.first, names[nameIndex]);
       }
       setup(c);
       if(select(c))
@@ -304,7 +341,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex
       if(noOverlap) {
 	stack.push_back(std::make_pair(std::make_pair(candRef, candIndex), collBegin));
 	if(checkCharge_) qStack.push_back(cand.charge()); 
-	combine(collectionIndex + 1, stack, qStack, collBegin + 1, collEnd, comps);
+	combine(collectionIndex + 1, stack, qStack, collBegin + 1, collEnd, comps, names);
 	stack.pop_back();
 	qStack.pop_back();
       }
