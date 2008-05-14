@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/CaloTowersCreator/src/CaloTowersReCreator.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/ctEScales.h"
 
@@ -61,7 +61,7 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<CaloGeometry> pG;
   edm::ESHandle<HcalTopology> htopo;
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  c.get<IdealGeometryRecord>().get(pG);
+  c.get<CaloGeometryRecord>().get(pG);
   c.get<IdealGeometryRecord>().get(htopo);
   c.get<IdealGeometryRecord>().get(cttopo);
  

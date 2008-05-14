@@ -13,7 +13,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -95,9 +95,10 @@ CaloRecHitCandidateProducer::CaloRecHitCandidateProducer ( const edm::ParameterS
 void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::EventSetup & fSetup) {
   // get geometry
   //  const IdealGeometryRecord& record = fSetup.template get<IdealGeometryRecord>();
-  const IdealGeometryRecord& record = fSetup.get<IdealGeometryRecord>();
+  const CaloGeometryRecord& caloRecord = fSetup.get<CaloGeometryRecord>();
   ESHandle<CaloGeometry> geometry;
-  record.get (geometry);
+  caloRecord.get (geometry);
+  const IdealGeometryRecord& record = fSetup.get<IdealGeometryRecord>();
   ESHandle<HcalTopology> topology;
   record.get (topology);
   // set Output
