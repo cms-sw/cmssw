@@ -184,12 +184,15 @@ def event_input(infile_name,second_name):
         pr_source=cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring\
                              ((infile_name)),
+                             useCSA08Kludge = cms.untracked.bool(True),
                              secondaryFileNames = cms.untracked.vstring\
                              ((second_name)))
     else:    
         pr_source=cms.Source("PoolSource",
                              fileNames = cms.untracked.vstring\
-                             ((infile_name)))
+                             ((infile_name)),
+                             useCSA08Kludge = cms.untracked.bool(True),
+                             )
         
     log(func_id+" Adding PoolSource source ...")                         
     return pr_source
@@ -305,7 +308,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.15 $"),
+              (version=cms.untracked.string("$Revision: 1.16 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
