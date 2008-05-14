@@ -30,8 +30,6 @@ using namespace std;
 
 RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
   
-  std::cout<< "sono nel costruttore RPCSimSetup " << std::endl;
-
   _mapDetIdNoise.clear();
   _mapDetIdEff.clear();
   _bxmap.clear();
@@ -60,8 +58,6 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
     ss<<buff;
     ss>>chname>>rpcdetid;
 
-    //    std::cout<< " Nel loop: " << count << std::endl;
-    //std::cout<< "chname: " <<chname<< "  "<<" rpcdetid: "<<rpcdetid<<std::endl;
     std::string::size_type pos = 0, prev_pos = 0;
 
     while ( (pos = buff.find("  ",pos)) != string::npos){
@@ -82,15 +78,10 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
   }
    _infile1.close();
 
-  std::cout<< " dopo del loop " << std::endl;
-
-
   //------------------------ Eff Reading ----------------------------
   
   edm::FileInPath fp2 = ps.getParameter<edm::FileInPath>("effmapfile");
   std::ifstream _infile2(fp2.fullPath().c_str(), std::ios::in);
-
-  std::cout<< " Prima del loop sull'efficenza " << std::endl;
 
   std::vector<float> veff ;
   rpcdetid = 0;
@@ -126,8 +117,6 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
   edm::FileInPath fp3 = ps.getParameter<edm::FileInPath>("timingMap");
   std::ifstream _infile3(fp3.fullPath().c_str(), std::ios::in);
 
-  std::cout<< " Prima del loop sul timing " << std::endl;
-
   uint32_t detUnit = 0;
   float timing = 0.;
   while(!_infile3.eof()){
@@ -140,8 +129,6 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
 
   edm::FileInPath fp4 = ps.getParameter<edm::FileInPath>("clsmapfile");
   std::ifstream _infile4(fp4.fullPath().c_str(), ios::in);
-
-  std::cout<< " Prima del loop su cls " << std::endl;
 
   string buffer;
   double sum = 0;
@@ -164,9 +151,6 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
     counter++;
   }
   _infile4.close();
-
-  std::cout<< " DOPO del loop su cls " << std::endl;
-
 
 }
 
