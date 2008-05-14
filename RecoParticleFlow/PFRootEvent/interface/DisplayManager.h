@@ -69,13 +69,12 @@ class DisplayManager {
   bool drawGenParticles_;
   bool drawPFBlocks_;
      
-  //bool redrawWithoutHits_;
      
   //---------------------- new graphic Container ----------------
   //container of all the graphic Objects of one event 
   std::multimap<int,GPFBase *>  graphicMap_;
-  //container of idents of objects within a PFBlock
-  std::multimap<int ,int>       blockIdentsMap_;
+  //container of idents/elementNb  of objects within a PFBlock
+  std::multimap<int , std::pair <int,int> >   blockIdentsMap_;
   
   //------------- graphic attributes ------------------------------------
   std::vector<int>      trackAttributes_;

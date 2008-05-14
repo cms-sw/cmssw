@@ -755,7 +755,6 @@ void DisplayManager::displayAll(bool noRedraw)
     std::cout<<" no Graphic Objects to draw"<<std::endl;
     return;
   }
-//  if (!redrawWithoutHits_) { 
     if (noRedraw) { 
     for (int viewType=0;viewType<NViews;++viewType) {
       displayView_[viewType]->cd();
@@ -783,7 +782,6 @@ void DisplayManager::displayAll(bool noRedraw)
       break;
     case RECHITECALID: case  RECHITHCALID: case RECHITPSID:
       {
-       // if (redrawWithoutHits_) break;
        if (!noRedraw) break; 
         if (drawHits_) 
           if(p->second->getEnergy() > hitEnMin_)  {
@@ -840,9 +838,6 @@ void DisplayManager::drawWithNewGraphicAttributes()
     switch (type) {
     case CLUSTERECALID: case CLUSTERHCALID: case  CLUSTERPSID: case CLUSTERIBID:
       {
-        //p->second->setNewStyle(clusterAttributes_[0]);
-        //p->second->setNewSize(clusterAttributes_[1]);
-        //p->second->setColor(clusterAttributes_[2]);	
         p->second->setNewStyle();
         p->second->setNewSize();
         p->second->setColor();	
@@ -850,9 +845,6 @@ void DisplayManager::drawWithNewGraphicAttributes()
       break;
     case RECTRACKID:
       {
-        //p->second->setColor(trackAttributes_[0]);
-        //p->second->setNewStyle(trackAttributes_[1]);
-        //p->second->setNewSize(trackAttributes_[2]);
         p->second->setColor();
         p->second->setNewStyle();
         p->second->setNewSize();
@@ -966,11 +958,11 @@ void DisplayManager::displayPFBlock(int blockNb)
   selectedGObj_.clear();
   if (!drawPFBlocks_) return;
   int color=1;
-  multimap<int,int>::const_iterator p;
+  multimap<int,pair <int,int > >::const_iterator p;
   p= blockIdentsMap_.find(blockNb);
   if (p !=blockIdentsMap_.end()) {
     do {
-      int ident=p->second;
+      int ident=(p->second).first;
       drawGObject(ident,color,false);
       p++;
     } while (p!=blockIdentsMap_.upper_bound(blockNb));
@@ -1032,16 +1024,18 @@ void DisplayManager::findAndDraw(int ident)
 void DisplayManager::findBlock(int ident) 
 {
   int blockNb=-1;
-  multimap<int,int>::const_iterator p;
+  int elemNb=-1;
+  multimap<int, pair <int,int > >::const_iterator p;
   for (p=blockIdentsMap_.begin();p!=blockIdentsMap_.end();p++) {
-    int id=p->second;
+    int id=(p->second).first;
     if (id == ident) {
       blockNb=p->first;
+      elemNb=(p->second).second;
       break;
     }   
   }
   if (blockNb > -1) {
-    std::cout<<"this object belongs to PFblock nb "<<blockNb<<std::endl;
+    std::cout<<"this object is element "<<elemNb<<" of PFblock nb "<<blockNb<<std::endl;
     assert( blockNb < static_cast<int>(em_->blocks().size()) );
     const reco::PFBlock& block = em_->blocks()[blockNb];
     std::cout<<block<<std::endl;
@@ -1248,15 +1242,15 @@ void DisplayManager::loadGPFBlocks()
 {
   int size = em_->pfBlocks_->size();
   for (int ibl=0;ibl<size;ibl++) {
-    //     int elemNb=((*(em_->pfBlocks_))[ibl].elements()).size();
+    //int elemNb=((*(em_->pfBlocks_))[ibl].elements()).size();
     //std::cout<<"block "<<ibl<<":"<<elemNb<<" elements"<<std::flush<<std::endl;
     edm::OwnVector< reco::PFBlockElement >::const_iterator iter;
     for( iter =((*(em_->pfBlocks_))[ibl].elements()).begin();
          iter != ((*(em_->pfBlocks_))[ibl].elements()).end();iter++) {
-      //std::cout<<"elem index "<<(*iter).index()<<"-type:"
-      //         <<(*iter).type()<<std::flush<<std::endl;
+         //std::cout<<"elem index "<<(*iter).index()<<"-type:"
+         //      <<(*iter).type()<<std::flush<<std::endl;
       int ident=-1;  
-
+       
       reco::PFBlockElement::Type type = (*iter).type();
       switch (type) {
       case reco::PFBlockElement::NONE :
@@ -1306,7 +1300,10 @@ void DisplayManager::loadGPFBlocks()
         std::cout<<"unknown PFBlock element"<<std::endl;
         break; 
       } //end switch 
-      if (ident != -1) blockIdentsMap_.insert(pair<int,int> (ibl,ident));            
+      pair <int, int> idElem;
+      idElem.first=ident;
+      idElem.second=(*iter).index();
+      if (ident != -1) blockIdentsMap_.insert(pair<int,pair <int,int> > (ibl,idElem));            
     }   //end for elements
   }   //end for blocks
    
@@ -1438,18 +1435,6 @@ void DisplayManager::loadGSimParticles()
     const std::vector<reco::PFTrajectoryPoint>& points = 
       ptc.trajectoryPoints();
       
-//    int markerstyle;
-//    switch( abs(ptc.pdgCode() ) ) {
-//  case 22:   markerstyle = 3 ;   break; // photons
-//    case 11:   markerstyle = 5 ;   break; // electrons 
-//    case 13:   markerstyle = 2 ;   break; // muons 
-//    case 130:  
-//    case 321:  markerstyle = 24;  break; // K
-//    case 211:  markerstyle = 25;  break; // pi+/pi-
-//    case 2212: markerstyle = 26;  break; // protons
-//    case 2112: markerstyle = 27;  break; // neutrons  
-//    default:   markerstyle = 30;  break; 
-//    }
 
    int markerstyle;
    int indexMarker;
@@ -1466,16 +1451,10 @@ void DisplayManager::loadGSimParticles()
     }
    
    
-   
-    //int    color = 4;
-    //int    linestyle = 2;
-    //double markersize = 0.8;
     bool displayInitial=true;
     if( ptc.motherId() < 0 ) displayInitial=false;
     
-    //int partId=(i<<shiftId_) | SIMPARTICLEID;
     int partId=(SIMPARTICLEID << shiftId_) | i; 
-    //createGPart(ptc, points,partId, pt, phi0, sign, displayInitial,markerstyle);
     createGPart(ptc, points,partId, pt, phi0, sign, displayInitial,indexMarker);
     
   }

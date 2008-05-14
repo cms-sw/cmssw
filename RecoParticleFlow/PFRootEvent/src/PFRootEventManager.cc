@@ -2358,8 +2358,7 @@ void  PFRootEventManager::print(ostream& out,int maxNLines ) const {
 
   
   if ( printGenParticles_ ) { 
-    //out<<"GenParticles ==========================================="<<endl;
-    printGenParticles(out);
+    printGenParticles(out,maxNLines);
   }
 }
 

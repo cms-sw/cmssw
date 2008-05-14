@@ -16,7 +16,6 @@
 #include "TMarker.h"
 #include "TText.h"
 #include <TApplication.h>
-//#include "TVirtualPadEditor.h"
 
 
 
@@ -324,13 +323,10 @@ void DialogFrame::doModifyPtThreshold(unsigned objNb,double pt)
   switch(objNb) {
   case 0: 
     display_->hitEnMin_= pt;break;
-    break;
   case 1:
     display_->clusEnMin_= pt;break;
-    break;
   case 2:
     display_->trackPtMin_= pt;break;
-    break;
   case 3:
     display_->particlePtMin_= pt;break;
   case 4:
