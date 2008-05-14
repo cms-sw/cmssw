@@ -20,6 +20,9 @@
 	 <use name=clhep>
 	 <flags EDM_PLUGIN=1>
 </library>
+<library file=BeamSpotWrite2DB.cc name=BeamSpotWrite2DB>
+       	 <flags EDM_PLUGIN=1>
+</library>
 <library file=BeamSpotFakeConditions.cc name=BeamSpotFakeConditions>
 	 <flags EDM_PLUGIN=1>
 </library>

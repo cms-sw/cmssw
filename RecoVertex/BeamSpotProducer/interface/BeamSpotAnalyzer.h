@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.h,v 1.3 2007/03/30 18:46:57 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.h,v 1.4 2007/08/15 21:51:13 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -27,6 +27,8 @@ ________________________________________________________________**/
 #include "TFile.h"
 #include "TTree.h"
 
+#include<fstream>
+
 class BeamSpotAnalyzer : public edm::EDAnalyzer {
  public:
   explicit BeamSpotAnalyzer(const edm::ParameterSet&);
@@ -38,6 +40,10 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   virtual void endJob() ;
 
   std::string outputfilename_;
+  std::string fasciifilename;
+  std::ofstream fasciiFile;
+  std::string fasciiFileName;
+
   TFile* file_;
   TTree* ftree_;
 

@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.2 2008/03/06 09:45:05 tboccali Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.3 2008/03/14 22:13:32 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -72,6 +72,10 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   
    
   fBSvector.clear();
+
+  //dump to file
+  fasciiFileName = outputfilename_.replace(outputfilename_.size()-4,outputfilename_.size(),"txt");
+  fasciiFile.open(fasciiFileName.c_str());
 
   
   // get parameter
@@ -257,6 +261,34 @@ BeamSpotAnalyzer::endJob() {
 	std::cout << "\n RESULTS OF DEFAULT FIT:" << std::endl;
 	std::cout << beam_default << std::endl;
 
+	// dump to file
+	fasciiFile << "X " << beam_default.x0() << std::endl;
+	fasciiFile << "Y " << beam_default.y0() << std::endl;
+	fasciiFile << "Z " << beam_default.z0() << std::endl;
+	fasciiFile << "sigmaZ " << beam_default.sigmaZ() << std::endl;
+	fasciiFile << "dxdz " << beam_default.dxdz() << std::endl;
+	fasciiFile << "dydz " << beam_default.dydz() << std::endl;
+	if (inputBeamWidth_ > 0 ) {
+		fasciiFile << "BeamWidth " << inputBeamWidth_ << std::endl;
+	} else {
+		fasciiFile << "BeamWidth " << beam_default.BeamWidth() << std::endl;
+	}
+	
+	for (int i = 0; i<6; ++i) {
+		fasciiFile << "Cov("<<i<<",j) ";
+		for (int j=0; j<7; ++j) {
+			fasciiFile << beam_default.covariance(i,j) << " ";
+		}
+		fasciiFile << std::endl;
+	}
+	// beam width error
+	if (inputBeamWidth_ > 0 ) {
+		fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << pow(2.e-4,2) << std::endl;
+	} else {
+		fasciiFile << "Cov(6,j) 0 0 0 0 0 0 " << beam_default.covariance(6,6) << std::endl;
+	}
+	
+	
 	if (write2DB_) {
 		std::cout << "\n-------------------------------------\n\n" << std::endl;
 		std::cout << " write results to DB..." << std::endl;
