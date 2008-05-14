@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.17 2008/05/08 16:12:36 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.18 2008/05/08 20:20:02 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -97,6 +97,28 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
     std::string engineName;
     uint32_t initialSeed;
     std::vector<uint32_t> initialSeedSet;
+
+    std::string sourceEngine = iPSet.getUntrackedParameter<std::string>("sourceEngine",std::string(""));
+    if(!sourceEngine.empty()) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "sourceEngine is obsolete for new-style configuration files." 
+        << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
+    }
+
+    uint32_t sourceSeed = iPSet.getUntrackedParameter<uint32_t>("sourceSeed",0);
+    if(sourceSeed != 0) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "sourceSeed is obsolete for new-style configuration files." 
+        << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
+    }
+
+    std::vector<uint32_t> sourceSeedVector = iPSet.getUntrackedParameter<std::vector<uint32_t> >("sourceSeedVector",empty_Vuint32);
+    if(!sourceSeedVector.empty()) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "sourceSeedVector is obsolete for new-style configuration files." 
+        << "\nPlease switch to the newer cfg format for the RandomNumberGeneratorService." ;
+    }
+
     VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
     for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
       source = false;
@@ -1141,6 +1163,16 @@ RandomNumberGeneratorService::oldStyleConfig(const ParameterSet& iPSet)
   Vuint32  empty_Vuint32;
 
   std::string engineName;
+
+  VString pSets = iPSet.getParameterNamesForType<edm::ParameterSet>();
+  for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
+    if(*it == std::string("theSource")) {
+      throw edm::Exception(edm::errors::Configuration)
+        << "PSet theSource is not recognized for old-style configuration files." 
+        << "\nYou must be consistent in your use of new- or old-style cfg format"
+        << "\nfor the RandomNumberGeneratorService." ;
+    }
+  }
 
   // If there is more than one seed required to initialize the engine type you want to use,
   // the vector form must be used.  Otherwise, either works.  The default engine only requires
