@@ -1,20 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for muon based alignment using beam-halo muons in the CSC overlap regions
-ALCARECOMuAlBeamHaloOverlapsHLT = copy.deepcopy(hltHighLevel)
+ALCARECOMuAlBeamHaloOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
-import copy
-from RecoLocalMuon.CSCSegment.cscSegments_cfi import *
-cscSegmentsALCARECOBHO = copy.deepcopy(cscSegments)
-import copy
-from RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi import *
-CosmicMuonSeedALCARECOBHO = copy.deepcopy(CosmicMuonSeed)
-import copy
-from RecoMuon.CosmicMuonProducer.cosmicMuons_cfi import *
-cosmicMuonsALCARECOBHO = copy.deepcopy(cosmicMuons)
+import RecoLocalMuon.CSCSegment.cscSegments_cfi
+cscSegmentsALCARECOBHO = RecoLocalMuon.CSCSegment.cscSegments_cfi.cscSegments.clone()
+import RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi
+CosmicMuonSeedALCARECOBHO = RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi.CosmicMuonSeed.clone()
+import RecoMuon.CosmicMuonProducer.cosmicMuons_cfi
+cosmicMuonsALCARECOBHO = RecoMuon.CosmicMuonProducer.cosmicMuons_cfi.cosmicMuons.clone()
 ALCARECOMuAlBeamHaloOverlapsEnergyCut = cms.EDFilter("AlignmentCSCBeamHaloSelectorModule",
     filter = cms.bool(True),
     src = cms.InputTag("cosmicMuonsALCARECOBHO"),
@@ -36,9 +32,10 @@ seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT+r
 ALCARECOMuAlBeamHaloOverlapsHLT.HLTPaths = ['CandHLTCSCBeamHaloOverlapRing1', 'CandHLTCSCBeamHaloOverlapRing2']
 # Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, ...
 cscSegmentsALCARECOBHO.algo_type = 4
+cscSegmentsALCARECOBHO.inputObjects = 'hltCsc2DRecHits'
 CosmicMuonSeedALCARECOBHO.EnableDTMeasurement = False
 CosmicMuonSeedALCARECOBHO.CSCRecSegmentLabel = 'cscSegmentsALCARECOBHO'
-cosmicMuonsALCARECOBHO.MuonSeedCollectionLabel = 'CosmicMuonSeed'
-cosmicMuonsALCARECOBHO.EnableDTMeasurement = False
-cosmicMuonsALCARECOBHO.CSCRecSegmentLabel = 'cscSegmentsALCARECOBHO'
+cosmicMuonsALCARECOBHO.MuonSeedCollectionLabel = 'CosmicMuonSeedALCARECOBHO'
+cosmicMuonsALCARECOBHO.TrajectoryBuilderParameters.EnableDTMeasurement = False
+cosmicMuonsALCARECOBHO.TrajectoryBuilderParameters.CSCRecSegmentLabel = 'cscSegmentsALCARECOBHO'
 

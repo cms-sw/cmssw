@@ -6,6 +6,7 @@ OutALCARECOTkAlZMuMu = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlZMuMu')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOTkAlZMuMu_*_*')
+        'keep *_ALCARECOTkAlZMuMu_*_*', 
+        'keep *_MEtoEDMConverter_*_*')
 )
 

@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 # AlCaReco for track based alignment using min. bias events
 #  module ALCARECOTkAlBeamHaloHLT = hltHighLevel from "HLTrigger/HLTfilters/data/hltHighLevel.cfi"
 #  replace ALCARECOTkAlBeamHaloHLT.andOr = true # choose logical OR between Triggerbits
 # which is the BeamHalo HLT Tag?
 #  replace ALCARECOTkAlBeamHaloHLT.HLTPaths = {""}
-ALCARECOTkAlBeamHalo = copy.deepcopy(AlignmentTrackSelector)
+ALCARECOTkAlBeamHalo = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 seqALCARECOTkAlBeamHalo = cms.Sequence(ALCARECOTkAlBeamHalo)
 ALCARECOTkAlBeamHalo.src = 'ctfWithMaterialTracksBeamHaloMuon'
 ALCARECOTkAlBeamHalo.filter = True ##do not store empty events

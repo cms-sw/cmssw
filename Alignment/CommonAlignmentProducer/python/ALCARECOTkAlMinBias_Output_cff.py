@@ -6,6 +6,7 @@ OutALCARECOTkAlMinBias = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlMinBias')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOTkAlMinBias_*_*')
+        'keep *_ALCARECOTkAlMinBias_*_*', 
+        'keep *_MEtoEDMConverter_*_*')
 )
 

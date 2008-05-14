@@ -6,6 +6,7 @@ OutALCARECOTkAlMuonIsolated = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOTkAlMuonIsolated')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_ALCARECOTkAlMuonIsolated_*_*')
+        'keep *_ALCARECOTkAlMuonIsolated_*_*', 
+        'keep *_MEtoEDMConverter_*_*')
 )
 

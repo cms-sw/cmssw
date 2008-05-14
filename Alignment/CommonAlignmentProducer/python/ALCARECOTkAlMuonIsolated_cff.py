@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for track based alignment using isolated muon tracks
-ALCARECOTkAlMuonIsolatedHLT = copy.deepcopy(hltHighLevel)
-import copy
-from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
-ALCARECOTkAlMuonIsolated = copy.deepcopy(AlignmentTrackSelector)
+ALCARECOTkAlMuonIsolatedHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+ALCARECOTkAlMuonIsolated = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 seqALCARECOTkAlMuonIsolated = cms.Sequence(ALCARECOTkAlMuonIsolatedHLT+ALCARECOTkAlMuonIsolated)
 ALCARECOTkAlMuonIsolatedHLT.andOr = True ## choose logical OR between Triggerbits
 

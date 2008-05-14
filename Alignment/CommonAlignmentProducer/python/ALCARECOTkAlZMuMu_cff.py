@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for track based alignment using ZMuMu events
-ALCARECOTkAlZMuMuHLT = copy.deepcopy(hltHighLevel)
-import copy
-from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
-ALCARECOTkAlZMuMu = copy.deepcopy(AlignmentTrackSelector)
+ALCARECOTkAlZMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+ALCARECOTkAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+ALCARECOTkAlZMuMu)
 ALCARECOTkAlZMuMuHLT.andOr = True ## choose logical OR between Triggerbits
 

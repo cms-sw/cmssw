@@ -1,16 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for track based alignment using min. bias events
-ALCARECOTkAlMinBiasHLT = copy.deepcopy(hltHighLevel)
-import copy
-from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
-ALCARECOTkAlMinBias = copy.deepcopy(AlignmentTrackSelector)
+ALCARECOTkAlMinBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+ALCARECOTkAlMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT+ALCARECOTkAlMinBias)
 ALCARECOTkAlMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOTkAlMinBiasHLT.HLTPaths = ['HLTMinBias', 'HLTMinBiasPixel']
+ALCARECOTkAlMinBiasHLT.HLTPaths = ['HLTMinBiasEcal', 'HLTMinBiasHcal', 'HLTMinBiasPixel']
 ALCARECOTkAlMinBias.filter = True ##do not store empty events	
 
 ALCARECOTkAlMinBias.applyBasicCuts = True

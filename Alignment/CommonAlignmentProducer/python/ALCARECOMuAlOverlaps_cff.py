@@ -1,15 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for muon based alignment using beam-halo muons in the CSC overlap regions
-ALCARECOMuAlOverlapsHLT = copy.deepcopy(hltHighLevel)
-import copy
-from Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi import *
-ALCARECOMuAlOverlapsMuonSelector = copy.deepcopy(AlignmentMuonSelector)
+ALCARECOMuAlOverlapsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
+ALCARECOMuAlOverlapsMuonSelector = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone()
 ALCARECOMuAlOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
     filter = cms.bool(True),
-    src = cms.InputTag("ALCARECOMuAlOverlapsMuonSelector","GlobalMuon"),
+    src = cms.InputTag("ALCARECOMuAlOverlapsMuonSelector","StandAlone"),
     minHitsPerChamber = cms.uint32(4),
     station = cms.int32(0) ## all stations: I'll need to split it by station (8 subsamples) offline
 

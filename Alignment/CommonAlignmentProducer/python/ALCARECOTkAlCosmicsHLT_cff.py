@@ -1,9 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/05/12 17:33:31 $ by $Author: flucke $
+# last update: $Date: 2008/05/09 15:19:27 $ by $Author: emiglior $
+#_________________________________HLT bits___________________________________________
+ALCARECOTkAlCosmicsCTFHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOTkAlCosmicsCosmicTFHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOTkAlCosmicsRSHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 #________________________________Track selection____________________________________
 # AlCaReco for track based alignment using Cosmic muons reconstructed by Combinatorial Track Finder
 ALCARECOTkAlCosmicsCTF = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -13,6 +20,19 @@ ALCARECOTkAlCosmicsCosmicTF = Alignment.CommonAlignmentProducer.AlignmentTrackSe
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 # AlCaReco for track based alignment using Cosmic muons reconstructed by Road Search Track Finder
 ALCARECOTkAlCosmicsRS = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
+#________________________________Sequences____________________________________
+seqALCARECOTkAlCosmicsCTFHLT = cms.Sequence(ALCARECOTkAlCosmicsCTFHLT+ALCARECOTkAlCosmicsCTF)
+seqALCARECOTkAlCosmicsCosmicTFHLT = cms.Sequence(ALCARECOTkAlCosmicsCosmicTFHLT+ALCARECOTkAlCosmicsCosmicTF)
+seqALCARECOTkAlCosmicsRSHLT = cms.Sequence(ALCARECOTkAlCosmicsRSHLT+ALCARECOTkAlCosmicsRS)
+ALCARECOTkAlCosmicsCTFHLT.andOr = True ## choose logical OR between Triggerbits
+
+ALCARECOTkAlCosmicsCTFHLT.HLTPaths = ['CandHLTTrackerCosmicsCTF']
+ALCARECOTkAlCosmicsCosmicTFHLT.andOr = True ## choose logical OR between Triggerbits
+
+ALCARECOTkAlCosmicsCosmicTFHLT.HLTPaths = ['CandHLTTrackerCosmicsCoTF']
+ALCARECOTkAlCosmicsRSHLT.andOr = True ## choose logical OR between Triggerbits
+
+ALCARECOTkAlCosmicsRSHLT.HLTPaths = ['CandHLTTrackerCosmicsRS']
 ALCARECOTkAlCosmicsCTF.src = 'ctfWithMaterialTracksP5'
 ALCARECOTkAlCosmicsCTF.filter = True
 ALCARECOTkAlCosmicsCTF.applyBasicCuts = True

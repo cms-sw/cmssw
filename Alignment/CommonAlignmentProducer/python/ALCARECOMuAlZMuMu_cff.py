@@ -1,12 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 # AlCaReco for muon based alignment using ZMuMu events
-ALCARECOMuAlZMuMuHLT = copy.deepcopy(hltHighLevel)
-import copy
-from Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi import *
-ALCARECOMuAlZMuMu = copy.deepcopy(AlignmentMuonSelector)
+ALCARECOMuAlZMuMuHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi
+ALCARECOMuAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.AlignmentMuonSelector.clone()
 seqALCARECOMuAlZMuMu = cms.Sequence(ALCARECOMuAlZMuMuHLT+ALCARECOMuAlZMuMu)
 ALCARECOMuAlZMuMuHLT.andOr = True ## choose logical OR between Triggerbits
 
