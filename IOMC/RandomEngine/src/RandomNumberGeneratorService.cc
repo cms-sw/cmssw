@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.18 2008/05/08 20:20:02 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.19 2008/05/14 15:39:07 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -83,6 +83,12 @@ RandomNumberGeneratorService::RandomNumberGeneratorService(const ParameterSet& i
   for(VString::const_iterator it = pSets.begin(), itEnd = pSets.end(); it != itEnd; ++it) {
     if(*it == std::string("moduleSeeds")) oldStyle_ = true;
   }
+
+// If only the source needs a random engine, there won't be a PSet named moduleSeeds and
+// this test will fail.  To cover that case, look for a sourceSeed parameter as well.  
+
+  if(iPSet.getUntrackedParameter<uint32_t>("sourceSeed",0) != 0) oldStyle_ = true;
+      
   if(oldStyle_) {
     oldStyleConfig(iPSet);
   } else {
