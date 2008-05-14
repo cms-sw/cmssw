@@ -20,12 +20,11 @@ namespace edm {
 
     void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<edm::EventID> &ids, std::vector<int> &fileNrs,std::vector<unsigned int> & nrEvents);
 
-    //    int minBunch() const {return minBunch_;}
-    //    int maxBunch() const {return maxBunch_;}
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
     bool doPileup() {return none_ ? false :  averageNumber_>0.;}
-    //    int getStartFileNr() {return fileSeqNr_;}
+    void setWantedBranches(std::vector<std::string> const * branches) {wantedBranches_=branches;}
+    const std::vector<std::string> * getWantedBranchNames() const {return wantedBranches_;}
 
   private:
     std::string const type_;
@@ -38,6 +37,7 @@ namespace edm {
     bool const none_;
     VectorInputSource * const input_;
     CLHEP::RandPoissonQ *poissonDistribution_;
+    const std::vector<std::string> *wantedBranches_;
 
     //playback info
     bool playback_;

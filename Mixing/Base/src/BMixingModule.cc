@@ -23,7 +23,7 @@ const unsigned int edm::BMixingModule::maxNbSources_ =5;
 namespace
 {
   boost::shared_ptr<edm::PileUp>
-  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback)
+  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback, std::vector<std::string> const * wantedBranches)
   {
     boost::shared_ptr<edm::PileUp> pileup; // value to be returned
     // Make sure we have a parameter named 'sourceName'
@@ -57,6 +57,7 @@ namespace
 	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
+	      pileup->setWantedBranches(wantedBranches);
 	    }
 	  }
 	}
@@ -94,11 +95,11 @@ namespace edm {
     } else
       playback_=false;
 
-    input_=     maybeMakePileUp(pset,"input",minBunch_,maxBunch_,playback_);
-    cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_);
-    beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_);
-    beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_);
-    fwdDet_=maybeMakePileUp(pset,"forwardDetectors",minBunch_,maxBunch_,playback_);
+    input_=     maybeMakePileUp(pset,"input",minBunch_,maxBunch_,playback_,&wantedBranches_);
+    cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_,&wantedBranches_);
+    beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_,&wantedBranches_);
+    beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_,&wantedBranches_);
+    fwdDet_=maybeMakePileUp(pset,"forwardDetectors",minBunch_,maxBunch_,playback_,&wantedBranches_);
 
     //prepare playback info structures
     fileSeqNrs_.resize(maxBunch_-minBunch_+1);
@@ -137,17 +138,6 @@ namespace edm {
       if (input_->doPileup()) {  
 	LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
 	doit_[0]=true;
-// 	// start testprints
-//         std::cout<<"\n\n Got "<<pileup[0].size()<<" +++++++ EventPrincipalVectors "<<std::endl;
-//         for (unsigned int i=0;i<pileup[0].size();++i) {
-// 	  std::cout<<" \n+++++++ For bcr "<<i<<" we have "<<(pileup[0][i]).size()  <<" events:"<<std::endl;
-//           EventPrincipalVector& vec=(pileup[0])[i];
-// 	  for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-// 	    Event e(**it, md_);
-// 	    std::cout<<" +++++++ Event with id "<<e.id()<<std::endl;
-// 	  }
-// 	}
-// 	// end testprint
       } 
     }
     if (cosmics_) {

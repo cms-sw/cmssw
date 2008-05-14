@@ -72,8 +72,7 @@ namespace edm {
       const static unsigned int maxNbSources_;
       bool doit_[5];//FIXME
       std::vector<EventPrincipalVector> pileup_[5];//FIXME
-      //      bool doit_[maxNbSources_];
-      //      std::vector<EventPrincipalVector> pileup_[maxNbSources_];
+      std::vector<std::string> wantedBranches_;
 
   private:
 
