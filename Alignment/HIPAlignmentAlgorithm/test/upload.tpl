@@ -20,8 +20,8 @@ process Alignment =
 
     VPSet toPut =
     {
-      { string record = "TrackerAlignmentRcd"      string tag = "valueTag" },
-      { string record = "TrackerAlignmentErrorRcd" string tag = "errorTag" }
+      { string record = "TrackerAlignmentRcd"      string tag = "Alignments" },
+      { string record = "TrackerAlignmentErrorRcd" string tag = "AlignmentErrors" }
     }
   }
 }
