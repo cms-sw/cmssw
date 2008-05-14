@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: pixelMatchElectronL1NonIsoSequenceForHLT.cff,v 1.6 2008/03/13 14:55:57 pjanot Exp $
+import FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi
+#
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons
 #
@@ -8,33 +9,48 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 # modules to make seeds, tracks and electrons
-from RecoEgamma.EgammaHLTProducers.egammaHLTChi2MeasurementEstimatorESProducer_cff import *
-import copy
-from FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi import *
+# include "RecoEgamma/EgammaHLTProducers/data/egammaHLTChi2MeasurementEstimatorESProducer.cff"
 # Cluster-seeded pixel pairs
-l1NonIsoElectronPixelSeeds = copy.deepcopy(electronGSPixelSeeds)
-from RecoEgamma.EgammaHLTProducers.pixelSeedConfigurationsForHLT_cfi import *
-from RecoEgamma.EgammaHLTProducers.pixelMatchElectronsL1NonIsoForHLT_cff import *
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
+hltL1NonIsoElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi.electronGSPixelSeeds.clone()
+import FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi
+hltL1NonIsoStartUpElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi.electronGSPixelSeeds.clone()
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+# include "RecoEgamma/EgammaHLTProducers/data/pixelMatchElectronsL1NonIsoForHLT.cff"
 # CKFTrackCandidateMaker
-ckfL1NonIsoTrackCandidates = copy.deepcopy(trackCandidateProducer)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+hltCkfL1NonIsoTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+hltCkfL1NonIsoStartUpTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 # CTF track fit with material
-ctfL1NonIsoWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
-pixelMatchElectronL1NonIsoSequenceForHLT = cms.Sequence(l1NonIsoElectronPixelSeeds)
-l1NonIsoElectronPixelSeeds.SeedConfiguration = cms.PSet(
-    l1NonIsoElectronPixelSeedConfiguration
+hltCtfL1NonIsoWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+hltCtfL1NonIsoStartUpWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+# include "RecoEgamma/EgammaHLTProducers/data/pixelSeedConfigurationsForHLT.cfi"
+hltL1NonIsoElectronPixelSeeds.SeedConfiguration = cms.PSet(
+    # using l1NonIsoElectronPixelSeedConfiguration
+    block_hltL1NonIsoElectronPixelSeeds
 )
-l1NonIsoElectronPixelSeeds.superClusterBarrel = 'correctedHybridSuperClustersL1NonIsolated'
-l1NonIsoElectronPixelSeeds.superClusterEndcap = 'correctedEndcapSuperClustersWithPreshowerL1NonIsolated'
-ckfL1NonIsoTrackCandidates.SeedProducer = cms.InputTag("l1NonIsoElectronPixelSeeds")
-ckfL1NonIsoTrackCandidates.TrackProducer = cms.InputTag("None","None")
-ckfL1NonIsoTrackCandidates.MaxNumberOfCrossedLayers = 999
-ckfL1NonIsoTrackCandidates.SeedCleaning = True
-ctfL1NonIsoWithMaterialTracks.src = 'ckfL1NonIsoTrackCandidates'
-ctfL1NonIsoWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-ctfL1NonIsoWithMaterialTracks.Fitter = 'KFFittingSmoother'
-ctfL1NonIsoWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+hltL1NonIsoElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
+hltL1NonIsoElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated'
+hltL1NonIsoStartUpElectronPixelSeeds.SeedConfiguration = cms.PSet(
+    block_hltL1NonIsoStartUpElectronPixelSeeds
+)
+hltL1NonIsoStartUpElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
+hltL1NonIsoStartUpElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated'
+hltCkfL1NonIsoTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoElectronPixelSeeds")
+hltCkfL1NonIsoTrackCandidates.TrackProducers = []
+hltCkfL1NonIsoTrackCandidates.MaxNumberOfCrossedLayers = 999
+hltCkfL1NonIsoTrackCandidates.SeedCleaning = True
+hltCkfL1NonIsoStartUpTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
+hltCkfL1NonIsoStartUpTrackCandidates.TrackProducers = []
+hltCkfL1NonIsoStartUpTrackCandidates.MaxNumberOfCrossedLayers = 999
+hltCkfL1NonIsoStartUpTrackCandidates.SeedCleaning = True
+hltCtfL1NonIsoWithMaterialTracks.src = 'hltCkfL1NonIsoTrackCandidates'
+hltCtfL1NonIsoWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
+hltCtfL1NonIsoWithMaterialTracks.Fitter = 'KFFittingSmoother'
+hltCtfL1NonIsoWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+hltCtfL1NonIsoStartUpWithMaterialTracks.src = 'hltCkfL1NonIsoStartUpTrackCandidates'
+hltCtfL1NonIsoStartUpWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
+hltCtfL1NonIsoStartUpWithMaterialTracks.Fitter = 'KFFittingSmoother'
+hltCtfL1NonIsoStartUpWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 

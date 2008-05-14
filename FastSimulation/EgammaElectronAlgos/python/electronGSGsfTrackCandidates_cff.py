@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
 # GsfTrackCandidateMaker
-electronGSGsfTrackCandidates = copy.deepcopy(trackCandidateProducer)
+electronGSGsfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 electronGSGsfTrackCandidates.SeedProducer = cms.InputTag("electronGSPixelSeeds")
-electronGSGsfTrackCandidates.TrackProducer = cms.InputTag("None","None")
+electronGSGsfTrackCandidates.TrackProducers = []
 electronGSGsfTrackCandidates.SeedCleaning = True
 electronGSGsfTrackCandidates.MinNumberOfCrossedLayers = 5
 

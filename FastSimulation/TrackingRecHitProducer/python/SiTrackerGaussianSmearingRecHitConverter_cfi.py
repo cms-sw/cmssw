@@ -91,7 +91,7 @@ siTrackerGaussianSmearingRecHits = cms.EDFilter("SiTrackerGaussianSmearingRecHit
     #   "TrackerHitsPixelBarrelLowTof","TrackerHitsPixelBarrelHighTof",
     #   "TrackerHitsPixelEndcapLowTof","TrackerHitsPixelEndcapHighTof" } 	
     # FAMOS
-    ROUList = cms.vstring('TrackerHits'),
+    ROUList = cms.VInputTag(cms.InputTag("mix","famosSimHitsTrackerHits")),
     PixelBarrelResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution.root'),
     TOB5y = cms.double(5.2836), ## 2*9.1514/sqrt(12.)
 
@@ -140,9 +140,6 @@ siTrackerGaussianSmearingRecHits = cms.EDFilter("SiTrackerGaussianSmearingRecHit
     TOB2x = cms.double(0.00458),
     TIB4y = cms.double(3.3775), ## 11.7/sqrt(12.)
 
-    #
-    # Use TRandom instead of the default CLHEP random engine
-    UseTRandomEngine = cms.bool(True),
     # Needed to compute Pixel Errors
     PixelErrorParametrization = cms.string('NOTcmsim'),
     BetaBarrel_BinMinNew = cms.double(0.0),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: pixelMatchElectronL1NonIsoLargeWindowSequenceForHLT.cff,v 1.6 2008/03/13 14:55:57 pjanot Exp $
+import FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi
+#
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons
 #
@@ -8,38 +9,35 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 # modules to make seeds, tracks and electrons
-from RecoEgamma.EgammaHLTProducers.egammaHLTChi2MeasurementEstimatorESProducer_cff import *
-import copy
-from FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi import *
+# include "RecoEgamma/EgammaHLTProducers/data/egammaHLTChi2MeasurementEstimatorESProducer.cff"
 # Cluster-seeded pixel pairs
-l1NonIsoLargeWindowElectronPixelSeeds = copy.deepcopy(electronGSPixelSeeds)
-from RecoEgamma.EgammaHLTProducers.pixelSeedConfigurationsForHLT_cfi import *
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
-ckfL1NonIsoLargeWindowTrackCandidates = copy.deepcopy(trackCandidateProducer)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+hltL1NonIsoLargeWindowElectronPixelSeeds = FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi.electronGSPixelSeeds.clone()
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+hltCkfL1NonIsoLargeWindowTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 # CTF track fit with material
-ctfL1NonIsoLargeWindowTracks = copy.deepcopy(ctfWithMaterialTracks)
-# Electron collection
-from RecoEgamma.EgammaHLTProducers.pixelMatchElectronsL1NonIsoLargeWindowForHLT_cff import *
-ctfL1NonIsoLargeWindowWithMaterialTracks = cms.EDFilter("FastTrackMerger",
+ctfL1NonIsoLargeWindowTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltCtfL1NonIsoLargeWindowWithMaterialTracks = cms.EDFilter("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("ctfL1NonIsoLargeWindowTracks"), cms.InputTag("ctfL1NonIsoWithMaterialTracks"))
+    TrackProducers = cms.VInputTag(cms.InputTag("ctfL1NonIsoLargeWindowTracks"), cms.InputTag("hltCtfL1NonIsoWithMaterialTracks"))
 )
 
-pixelMatchElectronL1NonIsoLargeWindowSequenceForHLT = cms.Sequence(l1NonIsoLargeWindowElectronPixelSeeds)
-pixelMatchElectronL1NonIsoLargeWindowTrackingSequenceForHLT = cms.Sequence(ckfL1NonIsoLargeWindowTrackCandidates+ctfL1NonIsoLargeWindowTracks+ctfL1NonIsoLargeWindowWithMaterialTracks+pixelMatchElectronsL1NonIsoLargeWindowForHLT)
-l1NonIsoLargeWindowElectronPixelSeeds.SeedConfiguration = cms.PSet(
-    l1NonIsoLargeWindowElectronPixelSeedConfiguration
+# Electron collection
+# include "RecoEgamma/EgammaHLTProducers/data/pixelMatchElectronsL1NonIsoLargeWindowForHLT.cff"
+# sequence HLTPixelMatchElectronL1NonIsoLargeWindowSequence = {
+#     hltL1NonIsoLargeWindowElectronPixelSeeds
+# }
+HLTPixelMatchElectronL1NonIsoLargeWindowTrackingSequence = cms.Sequence(hltCkfL1NonIsoLargeWindowTrackCandidates+ctfL1NonIsoLargeWindowTracks+hltCtfL1NonIsoLargeWindowWithMaterialTracks+cms.SequencePlaceholder("hltPixelMatchElectronsL1NonIsoLargeWindow"))
+hltL1NonIsoLargeWindowElectronPixelSeeds.SeedConfiguration = cms.PSet(
+    block_hltL1NonIsoLargeWindowElectronPixelSeeds
 )
-l1NonIsoLargeWindowElectronPixelSeeds.superClusterBarrel = 'correctedHybridSuperClustersL1NonIsolated'
-l1NonIsoLargeWindowElectronPixelSeeds.superClusterEndcap = 'correctedEndcapSuperClustersWithPreshowerL1NonIsolated'
-ckfL1NonIsoLargeWindowTrackCandidates.SeedProducer = cms.InputTag("l1NonIsoLargeWindowElectronPixelSeeds")
-ckfL1NonIsoLargeWindowTrackCandidates.TrackProducer = cms.InputTag("ctfL1NonIsoWithMaterialTracks")
-ckfL1NonIsoLargeWindowTrackCandidates.MaxNumberOfCrossedLayers = 999
-ckfL1NonIsoLargeWindowTrackCandidates.SeedCleaning = True
-ctfL1NonIsoLargeWindowTracks.src = 'ckfL1NonIsoLargeWindowTrackCandidates'
+hltL1NonIsoLargeWindowElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1NonIsolated'
+hltL1NonIsoLargeWindowElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedEndcapSuperClustersWithPreshowerL1NonIsolated'
+hltCkfL1NonIsoLargeWindowTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoLargeWindowElectronPixelSeeds")
+hltCkfL1NonIsoLargeWindowTrackCandidates.TrackProducers = cms.VInputTag(cms.InputTag("hltCtfL1NonIsoWithMaterialTracks"))
+hltCkfL1NonIsoLargeWindowTrackCandidates.MaxNumberOfCrossedLayers = 999
+hltCkfL1NonIsoLargeWindowTrackCandidates.SeedCleaning = True
+ctfL1NonIsoLargeWindowTracks.src = 'hltCkfL1NonIsoLargeWindowTrackCandidates'
 ctfL1NonIsoLargeWindowTracks.TTRHBuilder = 'WithoutRefit'
 ctfL1NonIsoLargeWindowTracks.Fitter = 'KFFittingSmoother'
 ctfL1NonIsoLargeWindowTracks.Propagator = 'PropagatorWithMaterial'

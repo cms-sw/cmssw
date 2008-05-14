@@ -9,12 +9,12 @@ L3Muons = cms.EDProducer("FastL3MuonProducer",
     L3TrajBuilderParameters = cms.PSet(
         GlobalTrajectoryBuilderCommon,
         SimulatedMuons = cms.InputTag("famosSimHits","MuonSimTracks"),
-        StateOnTrackerBoundOutPropagator = cms.string('SmartPropagator'),
         #	InputTag tkTrajLabel = hltL3Trajectory
         #	InputTag l3SeedLabel = hltL3TrajectorySeedFromL2
-        TrackerTrajectories = cms.InputTag("GlobalPixelGSWithMaterialTracks"),
+        TrackerTrajectories = cms.InputTag("GlobalPixelWithMaterialTracks"),
         TkTrackBuilder = cms.string('muonCkfTrajectoryBuilder'),
-        KFFitter = cms.string('L3MuKFFitter')
+        KFFitter = cms.string('L3MuKFFitter'),
+        OutPropagator = cms.string('SmartPropagator')
     ),
     MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx")
 )

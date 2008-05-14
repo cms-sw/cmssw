@@ -1,14 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 # Take all pixel tracks but the potential electrons
-l1NonIsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDFilter("FastTrackMerger",
-    #    untracked VInputTag RemoveTrackProducers = { 
-    #	ctfL1NonIsoWithMaterialTracks
-    #    }
+hltL1NonIsoElectronsRegionalCTFFinalFitWithMaterial = cms.EDFilter("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelGSWithMaterialTracks"))
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"))
+)
+
+hltL1NonIsoStartUpElectronsRegionalCTFFinalFitWithMaterial = cms.EDFilter("FastTrackMerger",
+    SaveTracksOnly = cms.untracked.bool(True),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"))
 )
 
 # The sequence
-l1NonIsoElectronsRegionalRecoTracker = cms.Sequence(cms.SequencePlaceholder("globalPixelGSTracking")+l1NonIsoElectronsRegionalCTFFinalFitWithMaterial)
+HLTL1NonIsoElectronsRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+hltL1NonIsoElectronsRegionalCTFFinalFitWithMaterial)
+HLTL1NonIsoStartUpElectronsRegionalRecoTrackerSequence = cms.Sequence(cms.SequencePlaceholder("globalPixelTracking")+hltL1NonIsoStartUpElectronsRegionalCTFFinalFitWithMaterial)
 
