@@ -2,6 +2,7 @@
 #define PhysicsTools_PFCandProducer_PFTopProjector_
 
 // system include files
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -14,7 +15,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
- 
+#include "DataFormats/TauReco/interface/PFTau.h"
+
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 
@@ -39,6 +41,7 @@ class PFTopProjector : public edm::EDProducer {
 
   virtual void beginJob(const edm::EventSetup & c);
 
+
  private:
  
   /// fills ancestors with RefToBases to the PFCandidates that in
@@ -56,6 +59,8 @@ class PFTopProjector : public edm::EDProducer {
   void maskAncestors( const reco::CandidateBaseRefVector& ancestors,
 		      std::vector<bool>& masked ) const;
     
+  void printAncestors( const reco::CandidateBaseRefVector& ancestors,
+		       const edm::Handle<reco::PFCandidateCollection> allPFCandidates ) const;
 
   /// ancestor PFCandidates
   edm::InputTag   inputTagPFCandidates_;
@@ -68,13 +73,16 @@ class PFTopProjector : public edm::EDProducer {
   
   /// optional collection of jets
   edm::InputTag   inputTagPFJets_;
+
+  /// optional collection of taus
+  edm::InputTag   inputTagPFTaus_;
   
   /// verbose ?
   bool   verbose_;
 
 };
 
-
+std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau);
 
 
 #endif
