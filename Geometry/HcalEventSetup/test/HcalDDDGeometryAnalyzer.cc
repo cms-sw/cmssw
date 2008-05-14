@@ -29,7 +29,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -84,7 +84,7 @@ void HcalDDDGeometryAnalyzer::analyze(const edm::Event& ,
   LogDebug("HCalGeom") << "HcalDDDGeometryAnalyzer::analyze at pass " << pass_;
 
   edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);     
+  iSetup.get<CaloGeometryRecord>().get(geometry);     
   //
   // get the ecal & hcal geometry
   //
