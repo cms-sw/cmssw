@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/13 14:52:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/14 10:24:31 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -50,30 +50,42 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   
   // histograms initalization
   hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking", "HitsNotUsedForGlobalTracking", 50, -0.5, 49.5);
+  hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed", "HitsNotUsedForGlobalTrackingDvHitUsed", 50, 0, 0.5);
 
   TrackSegm = dbe->book2D("trackSegments", "trackSegments", 3, 0.5, 3.5, 50, -0.5, 49.5);
   TrackSegm->setBinLabel(1,"DT+CSC",1);
-  TrackSegm->setBinLabel(1,"DT",2);
-  TrackSegm->setBinLabel(1,"CSC",3);
+  TrackSegm->setBinLabel(2,"DT",1);
+  TrackSegm->setBinLabel(3,"CSC",1);
   
-  hitStaProvenance = dbe->book2D("trackHitProvenance", "trackHitProvenance", 7, 0.5, 7.5, 100, -0.5, 99.5);
-  /*hitStaProvenance->setBinLabel(1,"DT",1);
-  hitStaProvenance->setBinLabel(1,"CSC",2);
-  hitStaProvenance->setBinLabel(1,"RPC",3);
-  hitStaProvenance->setBinLabel(1,"DT+CSC",4);
-  hitStaProvenance->setBinLabel(1,"DT+RPC",5);
-  hitStaProvenance->setBinLabel(1,"CSC+RPC",6);
-  hitStaProvenance->setBinLabel(1,"DT+CSC+RPC",7);*/
+  hitStaProvenance = dbe->book1D("trackHitProvenance", "trackHitProvenance", 7, 0.5, 7.5);
+  hitStaProvenance->setBinLabel(1,"DT");
+  hitStaProvenance->setBinLabel(2,"CSC");
+  hitStaProvenance->setBinLabel(3,"RPC");
+  hitStaProvenance->setBinLabel(4,"DT+CSC");
+  hitStaProvenance->setBinLabel(5,"DT+RPC");
+  hitStaProvenance->setBinLabel(6,"CSC+RPC");
+  hitStaProvenance->setBinLabel(7,"DT+CSC+RPC");
 
   int etaBin = parameters.getParameter<int>("etaBin");
   double etaMin = parameters.getParameter<double>("etaMin");
   double etaMax = parameters.getParameter<double>("etaMax");
   trackHitPercentualVsEta = dbe->book2D("trackHitDivtrackSegmHitVsEta", "trackHitDivtrackSegmHitVsEta", etaBin, etaMin, etaMax, 50, 0, 5);
+  dtTrackHitPercentualVsEta = dbe->book2D("dtTrackHitDivtrackSegmHitVsEta", "dtTrackHitDivtrackSegmHitVsEta", etaBin, etaMin, etaMax, 20, 0, 2);
+  cscTrackHitPercentualVsEta = dbe->book2D("cscTrackHitDivtrackSegmHitVsEta", "cscTrackHitDivtrackSegmHitVsEta", etaBin, etaMin, etaMax, 20, 0, 2);
 
   int phiBin = parameters.getParameter<int>("phiBin");
   double phiMin = parameters.getParameter<double>("phiMin");
   double phiMax = parameters.getParameter<double>("phiMax");
   trackHitPercentualVsPhi = dbe->book2D("trackHitDivtrackSegmHitVsPhi", "trackHitDivtrackSegmHitVsPhi", phiBin, phiMin, phiMax, 50, 0, 5);
+  dtTrackHitPercentualVsPhi = dbe->book2D("dtTrackHitDivtrackSegmHitVsPhi", "dtTrackHitDivtrackSegmHitVsPhi", phiBin, phiMin, phiMax, 20, 0, 2);
+  cscTrackHitPercentualVsPhi = dbe->book2D("cscTrackHitDivtrackSegmHitVsPhi", "cscTrackHitDivtrackSegmHitVsPhi", phiBin, phiMin, phiMax, 20, 0, 2);
+
+  int ptBin = parameters.getParameter<int>("ptBin");
+  double ptMin = parameters.getParameter<double>("ptMin");
+  double ptMax = parameters.getParameter<double>("ptMax");
+  trackHitPercentualVsPt = dbe->book2D("trackHitDivtrackSegmHitVsPt", "trackHitDivtrackSegmHitVsPt", ptBin, ptMin, ptMax, 50, 0, 5);
+  dtTrackHitPercentualVsPt = dbe->book2D("dtTrackHitDivtrackSegmHitVsPt", "dtTrackHitDivtrackSegmHitVsPt", ptBin, ptMin, ptMax, 20, 0, 2);
+  cscTrackHitPercentualVsPt = dbe->book2D("cscTrackHitDivtrackSegmHitVsPt", "cscTrackHitDivtrackSegmHitVsPt", ptBin, ptMin, ptMax, 20, 0, 2);
 
 
 }
@@ -148,22 +160,36 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // fill the histos
   hitsNotUsed->Fill(hitsFromSegmDt+hitsFromSegmCsc+hitsFromRpc+hitsFromTk-hitsFromTrack);
+  hitsNotUsedPercentual->Fill(double(hitsFromSegmDt+hitsFromSegmCsc+hitsFromRpc+hitsFromTk-hitsFromTrack)/hitsFromTrack);
 
   TrackSegm->Fill(1,segmFromDt+segmFromCsc);
   TrackSegm->Fill(2,segmFromDt);
   TrackSegm->Fill(3,segmFromCsc);
 
-  hitStaProvenance->Fill(1,hitsFromDt);
-  hitStaProvenance->Fill(2,hitsFromCsc);
-  hitStaProvenance->Fill(3,hitsFromRpc);
-  hitStaProvenance->Fill(4,hitsFromDt+hitsFromCsc);
-  hitStaProvenance->Fill(5,hitsFromDt+hitsFromRpc);
-  hitStaProvenance->Fill(6,hitsFromCsc+hitsFromRpc);
-  hitStaProvenance->Fill(7,hitsFromDt+hitsFromCsc+hitsFromRpc);
+  if(hitsFromDt!=0) hitStaProvenance->Fill(1);
+  if(hitsFromCsc!=0) hitStaProvenance->Fill(2);
+  if(hitsFromRpc!=0) hitStaProvenance->Fill(3);
+  if(hitsFromDt!=0 && hitsFromCsc!=0) hitStaProvenance->Fill(4);
+  if(hitsFromDt!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(5);
+  if(hitsFromCsc!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(6);
+  if(hitsFromDt!=0 && hitsFromCsc!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(7);
 
   if(hitsFromSegmDt+hitsFromSegmCsc !=0){
     trackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
     trackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
+    trackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
+  }
+
+  if(hitsFromSegmDt!=0){
+    dtTrackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromDt)/hitsFromSegmDt);
+    dtTrackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromDt)/hitsFromSegmDt);
+    dtTrackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromDt)/hitsFromSegmDt);
+  }
+
+  if(hitsFromSegmCsc!=0){
+    cscTrackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromCsc)/hitsFromSegmCsc);
+    cscTrackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromCsc)/hitsFromSegmCsc);
+    cscTrackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromCsc)/hitsFromSegmCsc);
   }
 
 } 
