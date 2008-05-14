@@ -542,6 +542,7 @@ void MultiTrackValidator::endJob() {
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
+      doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);    
    
       //pulls of track params vs eta: get sigma from 2D histos
       FitSlicesYTool fsyt_dxyp(dxypull_vs_eta[w]);
