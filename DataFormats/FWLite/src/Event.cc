@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.13 2007/12/15 00:20:44 wmtan Exp $
+// $Id: Event.cc,v 1.14 2008/03/05 05:55:28 wmtan Exp $
 //
 
 // system include files
@@ -468,7 +468,9 @@ Event::getByProductID(edm::ProductID const& iID) const
         //this has to be called since 'branchName' is not stored and the 'init' method is supposed to
         // regenerate it
         itProd->second.init();
-        idToBD_[itProd->second.productID()] = &(itProd->second);
+	// WMTAN: Kludge for building
+        //idToBD_[itProd->second.productID()] = &(itProd->second);
+        idToBD_[itProd->second.oldProductID()] = &(itProd->second);
       }
       //std::cout <<"  cached"<<std::endl;
     }

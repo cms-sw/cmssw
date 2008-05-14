@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.18 2007/08/23 23:20:53 wmtan Exp $
+// $Id: BareRootProductGetter.cc,v 1.19 2007/09/13 17:27:47 chrjones Exp $
 //
 
 // system include files
@@ -196,7 +196,9 @@ BareRootProductGetter::setupNewFile(TFile* iFile) const
         //this has to be called since 'branchName' is not stored and the 'init' method is supposed to
         // regenerate it
         itProd->second.init();
-        idToBranchDesc_.insert(IdToBranchDesc::value_type(itProd->second.productID(), itProd->second) );
+	//WMTAN: Kludge for building
+        //idToBranchDesc_.insert(IdToBranchDesc::value_type(itProd->second.productID(), itProd->second) );
+        idToBranchDesc_.insert(IdToBranchDesc::value_type(itProd->second.oldProductID(), itProd->second) );
       }
     }
   }

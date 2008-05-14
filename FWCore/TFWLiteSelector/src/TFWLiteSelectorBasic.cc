@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.36 2008/02/06 06:24:46 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.37 2008/03/20 15:10:33 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -292,7 +294,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, aux.time(), aux.time());
 	 boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(
 	    new edm::LuminosityBlockPrincipal(lumiAux, reg, rp, pc));
-	 edm::EventPrincipal ep(aux, reg, lbp, pc, aux.processHistoryID(), m_->reader_);
+	 boost::shared_ptr<edm::BranchMapper<edm::EventEntryInfo> > mapper(new edm::BranchMapper<edm::EventEntryInfo>);
+	 edm::EventPrincipal ep(aux, reg, lbp, pc, aux.processHistoryID(), mapper, m_->reader_);
          ep.setHistory(history);
          m_->processNames_ = ep.processHistory();
 
@@ -301,8 +304,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 std::map<ProductID, BranchDescription>::iterator pitEnd = m_->productMap_.end();
 	 for (; pit != pitEnd; ++pit) {
 	    BranchDescription &product = pit->second;
-            if (not product.productID_.isValid()) continue;
-	    ep.addGroup(edm::ConstBranchDescription(product), productstatus::present());
+            if (not product.oldProductID().isValid()) continue;
+	    ep.addGroup(edm::ConstBranchDescription(product));
 	 }
 
 	 edm::ModuleDescription md;
@@ -399,8 +402,8 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       prod.init();
       //NEED to do this and check to see if branch exists
       //prod.present_ = (branch != 0);
-      m_->productMap_.insert(std::make_pair(it->second.productID_, it->second));
-      //std::cout <<"id "<<it->second.productID_<<" branch "<<it->second.branchName()<<std::endl;
+      m_->productMap_.insert(std::make_pair(it->second.oldProductID(), it->second));
+      //std::cout <<"id "<<it->second.oldProductID()<<" branch "<<it->second.branchName()<<std::endl;
       m_->pointerToBranchBuffer_.push_back( & (*itB));
       void* tmp = &(m_->pointerToBranchBuffer_.back());
       //edm::EntryDescription* tmp = & (*itB);
