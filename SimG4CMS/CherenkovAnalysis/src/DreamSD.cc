@@ -160,7 +160,7 @@ double DreamSD::curve_LY(G4Step* aStep) {
 //________________________________________________________________________________________
 double DreamSD::crystalLength(G4LogicalVolume* lv) {
 
-  double length= 230.;
+  double length= -1.;
   std::map<G4LogicalVolume*,double>::const_iterator ite = xtalLMap.find(lv);
   if (ite != xtalLMap.end()) length = ite->second;
   return length;
@@ -200,10 +200,14 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   // Get particle properties
   G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
   G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
+  G4ThreeVector x0 = pPreStepPoint->GetPosition();
+  G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const double charge = aParticle->GetDefinition()->GetPDGCharge();
   // beta is averaged over step
-  const double beta = 0.5*( pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta() );
+  double beta = 0.5*( pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta() );
+  double BetaInverse = 1.0/beta;
+  
 
   LogDebug("EcalSim") << "Particle properties: " << "\n"
                       << "  charge = " << charge
@@ -229,12 +233,62 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
     return cherenkovEnergy;
   }
 
-//   // Finally: get contribution of each photon
-//   for ( int iPhoton = 0; iPhoton<numPhotons; ++iPhoton ) {
-//     // Sample momentum
-//     double momentum = 0., 
-//     cherenkovEnergy += getPhotonEnergyDeposit_( momentum );
-//   }
+  // Material refraction properties
+  double Pmin = Rindex->GetMinPhotonMomentum();
+  double Pmax = Rindex->GetMaxPhotonMomentum();
+  double dp = Pmax - Pmin;
+  double maxCos = BetaInverse / Rindex->GetMaxProperty(); 
+  double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
+
+  // Finally: get contribution of each photon
+  for ( int iPhoton = 0; iPhoton<numPhotons; ++iPhoton ) {
+
+    // Determine photon momentum
+    double randomNumber;
+    double sampledMomentum, sampledRI; 
+    double cosTheta, sin2Theta;
+
+    // sample a momentum (not sure why this is needed!)
+    do {
+      randomNumber = G4UniformRand();	
+      sampledMomentum = Pmin + randomNumber * dp; 
+      sampledRI = Rindex->GetProperty(sampledMomentum);
+      cosTheta = BetaInverse / sampledRI;  
+      
+      sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
+      randomNumber = G4UniformRand();	
+      
+    } while (randomNumber*maxSin2 > sin2Theta);
+
+    // Generate random position of photon on cone surface 
+    // defined by Theta 
+    randomNumber = G4UniformRand();
+
+    double phi =  twopi*randomNumber;
+    double sinPhi = sin(phi);
+    double cosPhi = cos(phi);
+
+    // Create photon momentum direction vector 
+    // The momentum direction is still w.r.t. the coordinate system where the primary
+    // particle direction is aligned with the z axis  
+    double sinTheta = sqrt(sin2Theta); 
+    double px = sinTheta*cosPhi;
+    double py = sinTheta*sinPhi;
+    double pz = cosTheta;
+    G4ThreeVector photonDirection(px, py, pz);
+
+    // Rotate momentum direction back to global (crystal) reference system 
+    photonDirection.rotateUz(p0);
+
+    // Create photon position and momentum
+    randomNumber = G4UniformRand();
+    G4ThreeVector photonPosition = x0 + randomNumber * aStep->GetDeltaPosition();
+    G4ThreeVector photonMomentum = sampledMomentum*photonDirection;
+
+    // Collect energy on APD
+    cherenkovEnergy += getPhotonEnergyDeposit_( photonMomentum, photonPosition, aStep );
+
+  }
   
 
   return cherenkovEnergy;
@@ -245,10 +299,10 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 //________________________________________________________________________________________
 // Returns number of photons produced per GEANT-unit (millimeter) in the current medium. 
 // From G4Cerenkov.cc
-double DreamSD::getAverageNumberOfPhotons_( const double charge,
-                                            const double beta,
-                                            const G4Material* aMaterial,
-                                            const G4MaterialPropertyVector* Rindex ) const
+const double DreamSD::getAverageNumberOfPhotons_( const double charge,
+                                                  const double beta,
+                                                  const G4Material* aMaterial,
+                                                  const G4MaterialPropertyVector* Rindex ) const
 {
   const G4double rFact = 369.81/(eV * cm);
 
@@ -371,5 +425,29 @@ bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
   LogDebug("EcalSim") << "Material properties set for " << aMaterial->GetName();
 
   return true;
+
+}
+
+
+//________________________________________________________________________________________
+// Calculate energy deposit of a photon on APD
+// - simple tracing to APD position (straight line);
+// - configurable reflection probability if not straight to APD;
+// - APD response function
+const double DreamSD::getPhotonEnergyDeposit_( const G4ParticleMomentum& p, 
+                                               const G4ThreeVector& x,
+                                               const G4Step* aStep ) const
+{
+
+  double energy = 0;
+
+  // Crystal dimensions
+  
+  edm::LogVerbatim("EcalSim") << p << x;
+
+  // 1. Check if this photon goes straight to the APD
+  
+
+  return energy;
 
 }
