@@ -1,0 +1,46 @@
+<use name=boost>
+
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=Geometry/Records>
+<use name=FWCore/PluginManager>
+<use name=Utilities/Timing>
+<use name=DataFormats/Common>
+<use name=DQMServices/Core>
+
+<use name=DataFormats/MuonDetId>
+<use name=DataFormats/RPCDigi>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/RPCObjects>
+
+<use name=oracle>
+
+<use name=clhep>
+#<use name=xdaq>
+
+<use name=DataFormats/FEDRawData> 
+
+<use name=CondCore/DBOutputService>
+
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=CalibMuon/RPCCalibration>
+
+   <use name=FWCore/Framework>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/MessageLogger>
+   <use name=Utilities/Timing>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/FEDRawData>
+   <use name=DataFormats/RPCDetId>
+   <use name=DataFormats/RPCDigi>
+   <use name=CondFormats/DataRecord>
+   <use name=CondFormats/RPCObjects>
+   <use name=CondCore/DBOutputService>
+   <use name=oracle>
+   <use name=clhep>
+#   <use name=xdaq>
+
+
+</export>
