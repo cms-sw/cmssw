@@ -49,6 +49,7 @@ namespace pos{
 
     const std::vector <PixelModuleName>& getModuleList() const { return modules_; }
 
+    void addROC(   PixelROCName &, std::string statusLabel)    				; // modified by MR on 14-05-2008 11:32:48
     void addROC(   PixelROCName &) 							; // Added by Dario (March 3, 2008)
     void removeROC(PixelROCName &) 							; // Added by Dario (March 3, 2008)
     const std::map<PixelROCName, PixelROCStatus>& getROCsList() const { return rocs_; } ; // Added by Dario (March 3, 2008)

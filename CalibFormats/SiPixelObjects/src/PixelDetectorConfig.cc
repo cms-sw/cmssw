@@ -339,6 +339,25 @@ void PixelDetectorConfig::addROC(   PixelROCName &theROC)  // Added by Dario (Ma
 //  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it on"  << endl ;  
  }
 }
+
+//=============================================================================================
+void PixelDetectorConfig::addROC(   PixelROCName &theROC, string statusLabel)  // modified by MR on 14-05-2008 11:29:51
+{
+ std::string mthn = "[PixelDetectorConfig::addROC()]\t\t\t\t" ;
+ std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
+ if( theROCIt == rocs_.end() ) // if theROC was not there, add it and turn it on
+ {
+  PixelROCStatus  theStatus ;
+  theStatus.set(statusLabel) ;
+  theStatus.reset() ;
+  rocs_[theROC] = theStatus ; 
+//  cout << mthn << "Non existing ROC (" << theROC.rocname() << "): adding it"  << endl ;  
+ } else {
+  theROCIt->second.set(statusLabel) ;  // otherwise just turn it on by resetting it to zero
+//  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it on"  << endl ;  
+ }
+}
+
 //=============================================================================================
 void PixelDetectorConfig::removeROC(PixelROCName &theROC)  // Added by Dario (March 3, 2008)
 {

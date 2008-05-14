@@ -36,6 +36,7 @@ PixelROCStatus::~PixelROCStatus(){}
     
 //======================================================================================
 void PixelROCStatus::set(ROCstatus stat){
+  reset() ;
   bits_=bits_|(1<<stat);
 }
 
@@ -52,6 +53,7 @@ void PixelROCStatus::reset(void){
 
 //======================================================================================
 void PixelROCStatus::set(ROCstatus stat, bool mode){
+  reset() ;
   if (mode) {
     set(stat);
   }
@@ -81,7 +83,7 @@ string PixelROCStatus::statusName() const {
     {
       if (get(istat))
 	{
-	  result += " " + statusName(istat) ;
+	  result += statusName(istat) ;
 	}
     }
   return result ;
@@ -90,13 +92,16 @@ string PixelROCStatus::statusName() const {
 //======================================================================================
 void PixelROCStatus::set(const string& statName){
 
-  for (ROCstatus istat=off; istat!=nStatus; istat=ROCstatus(istat+1)){
-    if (statName==statusName(istat)){
-      set(istat);
-      return;
+  if(statName != "")
+    {
+      for (ROCstatus istat=off; istat!=nStatus; istat=ROCstatus(istat+1)){
+	if (statName==statusName(istat)){
+	  set(istat);
+	  return;
+	}
+      }
+      cout << "[PixelROCStatus::set()] statName |"
+	   << statName <<"| is an invalid keyword"<<endl;
+      ::abort();
     }
-  }
-  cout << "[PixelROCStatus::set()] statName "
-       << statName <<" is an invalid keyword"<<endl;
-  ::abort();
 }
