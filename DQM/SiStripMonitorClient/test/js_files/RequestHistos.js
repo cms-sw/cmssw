@@ -8,6 +8,9 @@ RequestHistos.RequestHistoList = function()
   var url = WebLib.getApplicationURLWithLID();
   if ($('module_histos').checked) {
     queryString = "RequestID=SingleModuleHistoList";
+    var obj = $('mod_struc_name');
+    var sname    = obj.options[obj.selectedIndex].value;
+    queryString += '&FolderName='+sname;    
     url        += queryString; 
     var retVal = new Ajax.Request(url,                    
  	 	                 {			  
@@ -19,7 +22,9 @@ RequestHistos.RequestHistoList = function()
     CommonActions.ShowProgress("visible", "Module Histogram List");     
   } else if ($('global_histos').checked) {
     queryString = "RequestID=GlobalHistoList";    
-    queryString += "&GlobalFolder=Track/GlobalParameters";
+    var obj = $('ghisto_path');
+    var value =  obj.value;
+    queryString += '&GlobalFolder='+value;
     url        += queryString;
     var retVal = new Ajax.Request(url,                    
  	 	                 {			  
@@ -39,7 +44,7 @@ RequestHistos.RequestSummaryHistoList = function()
   var queryString;
   var url      = WebLib.getApplicationURLWithLID();
   queryString  = "RequestID=SummaryHistoList";
-  var obj      = $('structure_name');
+  var obj      = $('summ_struc_name');
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url         += queryString; 
@@ -60,7 +65,7 @@ RequestHistos.RequestAlarmList = function()
   var queryString;
   var url      = WebLib.getApplicationURLWithLID();
   queryString  = "RequestID=AlarmList";
-  var obj      = $('structure_for_alarm');
+  var obj      = $('alarm_struc_name');
   var sname    = obj.options[obj.selectedIndex].value;
   queryString += '&StructureName='+sname;
   url         += queryString; 

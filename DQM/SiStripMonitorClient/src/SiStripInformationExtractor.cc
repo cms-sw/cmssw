@@ -4,6 +4,7 @@
 #include "DQMServices/Core/interface/QTest.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -388,14 +389,13 @@ void SiStripInformationExtractor::readLayoutNames(multimap<string, string>& req_
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out) {
+void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, string& sname, const edm::ESHandle<SiStripDetCabling>& detcabling, xgi::Output * out) {
 
   std::vector<uint32_t> SelectedDetIds;
   detcabling->addActiveDetectorsRawIds(SelectedDetIds);
 
   setXMLHeader(out);
   *out << "<ModuleAndHistoList>" << endl;
-
 
   // Fill Module List
   *out << "<ModuleList>" << endl;
@@ -404,9 +404,17 @@ void SiStripInformationExtractor::readModuleAndHistoList(DQMStore* dqm_store, co
     uint32_t detId = *idetid;
     if (detId == 0 || detId == 0xFFFFFFFF) continue;
     if (aDetId == 0) aDetId = detId;
-    ostringstream detIdStr;
-    detIdStr << detId;
-    *out << "<ModuleNum>" << detIdStr.str() << "</ModuleNum>" << endl;     
+    StripSubdetector subdet(*idetid);
+    if ( (sname == "ALL") ||
+         (sname == "TIB" && subdet.subdetId() == StripSubdetector::TIB) ||
+         (sname == "TOB" && subdet.subdetId() == StripSubdetector::TOB) ||
+         (sname == "TID" && subdet.subdetId() == StripSubdetector::TID) ||
+         (sname == "TEC" && subdet.subdetId() == StripSubdetector::TEC) ) {
+
+      ostringstream detIdStr;
+      detIdStr << detId;
+      *out << "<ModuleNum>" << detIdStr.str() << "</ModuleNum>" << endl;     
+    }
   }
   *out << "</ModuleList>" << endl;
   // Fill Histo list

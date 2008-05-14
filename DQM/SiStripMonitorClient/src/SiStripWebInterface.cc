@@ -56,8 +56,8 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   } 
   else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
-
-    infoExtractor_->readModuleAndHistoList(dqmStore_, detcabling, out);
+    std::string sname = get_from_multimap(requestMap_, "FolderName");    
+    infoExtractor_->readModuleAndHistoList(dqmStore_, sname, detcabling, out);
   } 
   else if (requestID == "GlobalHistoList") {
     theActionFlag = NoAction;

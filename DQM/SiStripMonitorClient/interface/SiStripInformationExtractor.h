@@ -39,7 +39,7 @@ class SiStripInformationExtractor {
        const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
 
 
-  void readModuleAndHistoList(DQMStore* dqm_store,const edm::ESHandle<SiStripDetCabling>& detcabling,xgi::Output * out);
+  void readModuleAndHistoList(DQMStore* dqm_store,std::string& sname, const edm::ESHandle<SiStripDetCabling>& detcabling,xgi::Output * out);
   void plotHistosFromLayout(DQMStore * dqm_store);
   void readSummaryHistoTree(DQMStore* dqm_store, std::string& str_name, 
                 xgi::Output * out);
