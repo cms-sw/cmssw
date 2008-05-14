@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
-// Location:    $Source: $
+// Last commit: $Id: test_PedestalsBuilder.cc,v 1.1 2006/12/22 12:30:40 bainbrid Exp $
+// Latest tag:  $Name: V01-01-00 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -52,9 +52,7 @@ void test_PedestalsBuilder::beginJob( const edm::EventSetup& setup ) {
 
     // Extract peds and low/high thresholds
     for ( uint16_t istrip = 0; istrip < nstrips; istrip++ ) {
-      ss << peds->getPed( istrip, range ) << "/"
-	 << peds->getLowTh( istrip, range ) << "/"
-	 << peds->getHighTh( istrip, range ) << ", ";
+      ss << peds->getPed( istrip, range ) << ", ";
     }
 
     LogTrace(mlCabling_) << ss.str();
