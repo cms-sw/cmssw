@@ -7,7 +7,14 @@ process Alignment =
 
   source = PoolSource { untracked vstring fileNames = {<FILE>} }
 
-  untracked PSet maxEvents = { untracked int32 input = -1 }
+#####################
+
+######################
+
+#  untracked PSet maxEvents = { untracked int32 input = -1 }
+#  untracked PSet maxEvents = { untracked int32 input = 30000 }
+  untracked PSet maxEvents = { untracked int32 input = 6000 }
+#  untracked PSet maxEvents = { untracked int32 input = 300 }
 
 # Patch for track refitter (adapted to alignment needs)
 
@@ -55,6 +62,12 @@ process Alignment =
       string function = "linear" # linear or exponential
       vdouble apeSPar = {1e-2, 0.0, 100}
       vdouble apeRPar = {1e-4, 0.0, 100}
+    },
+    {
+      PSet Selector = { vstring alignParams = {"AllRods,000000"} }
+      string function = "linear" # linear or exponential
+      vdouble apeSPar = {2e-2, 0.0, 100}
+      vdouble apeRPar = {3e-4, 0.0, 100}
     }
   }
 
