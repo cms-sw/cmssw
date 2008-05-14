@@ -1,3 +1,9 @@
+2008-05-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-13
+	* adjust to StorageManager changes (removed xdaq parameters) in
+	EventFilter/StorageManager V03-12-03
+
 2008-04-24  Marco Zanetti  <marco.zanetti@cern.ch>
 
 	* tag V00-06-12

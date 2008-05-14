@@ -205,12 +205,7 @@ if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
 		    "runNumber",        "unsignedInt","10",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
-		    "filePath",		"string",     "$SMout",
-		    "mailboxPath",      "string",     "$SMout/mbox",
-		    "setupLabel",       "string",     "test",
-		    "closeFileScript",  "string",     "$SMperl/dummy.pl",
-		    "notifyTier0Script","string",     "$SMperl/dummy.pl",
-		    "insertFileScript", "string",     "$SMperl/dummy.pl");
+		    "setupLabel",       "string",     "test")
 
 
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
