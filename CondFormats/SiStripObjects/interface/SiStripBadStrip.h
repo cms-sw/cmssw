@@ -30,14 +30,21 @@ class SiStripBadStrip {
   };
   
 
+  typedef std::vector<unsigned int>                        Container;  
   typedef std::vector<unsigned int>::const_iterator        ContainerIterator;  
   typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
   typedef std::vector<DetRegistry>                         Registry;
   typedef Registry::const_iterator                         RegistryIterator;
+  typedef Container                                        InputVector;  
  
   SiStripBadStrip(){};
+  SiStripBadStrip(const SiStripBadStrip& orig){
+    v_badstrips=orig.v_badstrips; 
+    indexes=orig.indexes;
+  }
   virtual ~SiStripBadStrip(){};
   
+  bool put(const uint32_t& detID,const InputVector& vect){return put(detID,Range(vect.begin(),vect.end()));}
   bool put(const uint32_t& detID,Range input);
   const Range getRange(const uint32_t& detID) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
@@ -62,8 +69,8 @@ class SiStripBadStrip {
   }
 
 protected:
-  std::vector<unsigned int> v_badstrips; 
-  std::vector<DetRegistry> indexes;
+  Container v_badstrips; 
+  Registry indexes;
 };
 
 #endif
