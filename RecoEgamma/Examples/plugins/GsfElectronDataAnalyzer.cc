@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.6 2008/03/15 14:41:40 charlot Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.1 2008/04/21 13:44:57 uberthon Exp $
 //
 //
 
@@ -259,10 +259,10 @@ void GsfElectronDataAnalyzer::beginJob(edm::EventSetup const&iSetup){
   h_ele_dPhiClVsPhi_propOut = new TH2F( "h_ele_dPhiClVsPhi_propOut", "ele #phi_{cl} - #phi_{tr} vs phi, prop from out", nbinphi2D,phimin,phimax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   h_ele_dPhiClVsPt_propOut = new TH2F( "h_ele_dPhiSClsPt_propOut", "ele #phi_{cl} - #phi_{tr} vs pt, prop from out", nbinpt2D,0.,ptmax,nbindphimatch2D,dphimatchmin,dphimatchmax);
   
-  h_ele_HoE = new TH1F("h_ele_HoE", "ele H/E", 100,-0.5,0.5) ;
-  h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele H/E vs eta", nbineta,etamin,etamax,50,-0.5,0.5) ;
-  h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele H/E vs phi", nbinphi2D,phimin,phimax,50,-0.5,0.5) ;
-  h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele H/E vs E", nbinp, 0.,300.,50,0.,1.) ;
+  h_ele_HoE = new TH1F("h_ele_HoE", "ele H/E", 55,-0.05,0.5) ;
+  h_ele_HoEVsEta = new TH2F("h_ele_HoEVsEta", "ele H/E vs eta", nbineta,etamin,etamax,55,-0.05,0.5) ;
+  h_ele_HoEVsPhi = new TH2F("h_ele_HoEVsPhi", "ele H/E vs phi", nbinphi2D,phimin,phimax,55,-0.05,0.5) ;
+  h_ele_HoEVsE = new TH2F("h_ele_HoEVsE", "ele H/E vs E", nbinp, 0.,300.,55,-0.05,0.5) ;
  
   // classes  
   h_ele_classes = new TH1F( "h_ele_classes", "ele electron classes",      150,0.0,150.);
