@@ -11,7 +11,7 @@
 #include "MCPizeroAnalyzer.h"
 #include "SimpleConvertedPhotonAnalyzer.h"
 #include "SimplePhotonAnalyzer.h"
-//#include "SiStripElectronAnalyzer.h"
+#include "SiStripElectronAnalyzer.h"
 #include "PhotonsWithConversionsAnalyzer.h"
 #include "GsfElectronMCAnalyzer.h"
 #include "GsfElectronDataAnalyzer.h"
@@ -35,5 +35,5 @@ DEFINE_ANOTHER_FWK_MODULE(GsfElectronDataAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(GsfElectronFakeAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SimplePhotonAnalyzer);
-//DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(PhotonsWithConversionsAnalyzer);
