@@ -1,10 +1,10 @@
 #!/bin/sh
-# $Id: sendNotification.sh,v 1.1 2008/05/01 22:20:04 loizides Exp $
+# $Id: sendNotification.sh,v 1.2 2008/05/02 10:48:26 loizides Exp $
 
 # error file
 errordir=/tmp
 if test -n "$SMT0_BASE_DIR"; then
-    errordir=$SMT0_BASE_DIR/error
+    errordir=$SMT0_BASE_DIR/logs
 fi
 mkdir -p $errordir
 

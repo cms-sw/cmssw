@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.4 2008/05/01 11:03:19 loizides Exp $
+#$Id: t0inject.sh,v 1.5 2008/05/01 22:30:32 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -9,19 +9,13 @@ if [ ! -d $SMT0_BASE_DIR ]; then
     exit
 fi
 
-SMT0_IW=$SMT0_BASE_DIR/InjectWorker.sh
+SMT0_IW=$SMT0_BASE_DIR/InjectWorker.pl
 if [ ! -x $SMT0_IW ]; then
     echo "SMT0_IW does not exist or is not executable"
     exit
 fi
 
-SMT0_IWS=$SMT0_BASE_DIR/injectIntoDB.pl
-if [ ! -x $SMT0_IWS ]; then
-    echo "SMT0_IWS does not exist or is not executable"
-    exit
-fi
-
-SMT0_MONDIR=/store/global/mbox
+SMT0_MONDIR=/store/global/log
 if test -n "$SM_STORE"; then
     SMT0_MONDIR=$SM_STORE/global/mbox
 fi
@@ -46,26 +40,27 @@ start(){
     # Setting up environment
     #
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/logs
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/error
-    mkdir -p ${SMT0_LOCAL_RUN_DIR}/keep
+    mkdir -p ${SMT0_LOCAL_RUN_DIR}/done
     mkdir -p ${SMT0_LOCAL_RUN_DIR}/workdir
 
     cd ${SMT0_LOCAL_RUN_DIR}/workdir
 
-    #running with one instance should be enough
-    export SMIW_RUNNUM=1
-
-    echo -n $"Starting $SMT0_IW"
-    nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_IWS} ${SMT0_LOCAL_RUN_DIR}/logs \
-          ${SMT0_LOCAL_RUN_DIR}/error ${SMT0_LOCAL_RUN_DIR}/keep > `hostname`.$$ 2>&1 &
-    sleep 3
+    #running with four instances should be enough
+    for i in `seq 1 4`; do
+        inst=`expr $i - 1`
+        export SMIW_RUNNUM=$inst
+        echo -n $"Starting $SMT0_IW instance $inst\n"
+        nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/done \
+            ${SMT0_LOCAL_RUN_DIR}/logs $inst > `hostname`.$$ 2>&1 &
+        sleep 1
+    done
     echo
 }
 
 stop(){
     for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
-	echo `/bin/ps $pid | grep $pid`
-	kill -9 $pid
+	echo "Attempting to stop $pid"
+	kill -s 15 $pid
     done
     rm -f ${SMT0_LOCAL_RUN_DIR}/workdir/`hostname`.*
 }
@@ -78,6 +73,7 @@ status(){
 
 cleanup(){
     find ${SMT0_LOCAL_RUN_DIR}/logs -type f -name "*.log*" -exec rm -f {} \;
+    find ${SMT0_LOCAL_RUN_DIR}/done -type f -name "*.log*" -exec rm -f {} \;
     find ${SMT0_LOCAL_RUN_DIR}/workdir -type f -name "*.*" -exec rm -f {} \;
 }
 

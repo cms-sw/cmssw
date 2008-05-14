@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.5 2008/05/13 09:00:59 loizides Exp $
+# $Id: InjectWorker.pl,v 1.6 2008/05/13 18:03:18 loizides Exp $
 
 use strict;
 #use DBI;
@@ -12,6 +12,7 @@ use Cwd 'abs_path';
 ############################################################################################################
 my $debug=1;
 ############################################################################################################
+my $endflag=0; 
 
 # printout syntax and die
 sub printsyntax()
@@ -40,6 +41,40 @@ sub getdatestr()
     return $datestr;
 }
 
+# time routine for printouts
+sub gettimestr()
+{
+    my @ltime = localtime(time);
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
+    $year += 1900;
+    $mon++;
+
+    my $timestr="";
+    if ($hour < 10) {
+	$timestr=$timestr . "0";
+    }
+    $timestr=$timestr . $hour;
+    $timestr=$timestr . ":";
+    if ($min < 10) {
+	$timestr=$timestr . "0";
+    }
+    $timestr=$timestr . $min;
+    $timestr=$timestr . ":";
+    if ($sec < 10) {
+	$timestr=$timestr . "0";
+    }
+    $timestr=$timestr . $sec;
+    return $timestr;
+}
+
+# execute on terminate
+sub TERMINATE {
+    my $timestr = gettimestr();
+    if ($endflag!=1) {
+        print "$timestr: Terminating on request\n"; 
+        $endflag=1;
+    }
+}
 
 # injection subroutine 
 # if called from insertFile, 2nd arg is 0: insert into DB, no notify
@@ -92,10 +127,10 @@ sub inject($$)
     my $indfile     = $filename;
     $indfile =~ s/\.dat$/\.ind/;
 
-    my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber" . 
-        "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime" . 
-        "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname" .
-        "--DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety" .
+    my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber " . 
+        "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime " . 
+        "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname " .
+        "--DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety " .
         "--NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile";
     
     if (!defined $dbh) { 
@@ -124,12 +159,11 @@ sub inject($$)
 ############################################################################################################
 
 # redirect signals
-my $endflag=0; 
-$SIG{'INT'}= 'SETFLAG';
-$SIG{'KILL'}='SETFLAG';
-sub SETFLAG {
-    $endflag=1;
-}
+$SIG{ABRT} = \&TERMINATE;
+$SIG{INT}  = \&TERMINATE;
+$SIG{KILL} = \&TERMINATE;
+$SIG{QUIT} = \&TERMINATE;
+$SIG{TERM} = \&TERMINATE;
 
 # figure out how I am called
 my $mycall = abs_path($0);
@@ -171,7 +205,7 @@ my $thedate = getdatestr();
 my @harray  = split(/\./,hostname());
 my $host    = $harray[0];
 
-my $waiting = -10;
+my $waiting = -1;
 if ($fileflag==0) {
     $infile  = "$inpath/$thedate-$host-$sminstance.log";
     $outfile = "$outpath/$thedate-$host-$sminstance.log";
@@ -181,7 +215,6 @@ if ($fileflag==0) {
     $outfile = "$outpath/$inbase";
     $errfile = "$errpath/$inbase";
 }
-
 
 # lockfile
 my $lockfile = "/tmp/." . basename($outfile) . ".lock";
@@ -199,14 +232,14 @@ if ($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";
 
 # if the output file exists (has been worked on before) then find what the last thing done was
 my $line;
-my $lastline="";
-if (-e $outfile ) {
+my $lastline;
+if (-e $outfile) {
     open QUICKSEARCH, "<$outfile" or die("Error: Cannot open output file \"$outfile\"\n");
     if ($debug) {print "Found old output file \"$outfile\": Searching for last line.\n";}
     while($line=<QUICKSEARCH>) {$lastline=$line;}
     close QUICKSEARCH;
     if ($debug) {
-        if (defined($lastline) ) {print "Last line done was:\n $lastline\n";}
+        if (defined($lastline)) {print "Last line done was:\n $lastline\n";}
     }
 }
 
@@ -219,7 +252,7 @@ open(INDATA, $infile) or
     die("Error: Cannot open input file \"$infile\"\n");
 
 # find the last thing done in a previously opened outfile - then read till that point
-if (defined($lastline) ) {
+if (defined($lastline)) {
     if ($debug) {print "Last line done was:\n $lastline\n"; print "Skipping previously done work\n";}
     while($line = <INDATA>) {
         if ($line eq $lastline) { 
@@ -249,6 +282,9 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
     $dbh = DBI->connect($dbi,$reader,"qwerty") or 
         die "Error: Connection to Oracle failed: $DBI::errstr\n";
+
+    my $timestr = gettimestr();
+    print "$timestr: Setup DB connection\n";
 } else { 
     print "Don't access DB flag set \n".
           "Following commands would have been processed: \n";
@@ -256,6 +292,7 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
 
 #loop over input files: sleep and try to reread file once end is reached
 my $lnum=0;
+my $livecounter=0;
 while( !$endflag ) {
 
     while($line=<INDATA>) {
@@ -306,6 +343,7 @@ while( !$endflag ) {
         }
 
 	$lnum++;
+        $livecounter=0;
     }
 
     if ($fileflag==1) {
@@ -313,33 +351,35 @@ while( !$endflag ) {
         last;
     }
 
-    #when the date changes (next day), we want to spawn a new copy of this process 
-    #that goes to work on the new log. But need to check also that we got everything 
-    #from the old file!
-#    if ($waiting<0 && $thedate!=getdatestr()) {
-    if ($waiting==0) {
+    # when the date changes (next day), we want to spawn a new copy of this process 
+    # that goes to work on the new log. But need to check also that we got everything 
+    # from the old file!
+    if ($waiting<0 && $thedate!=getdatestr()) {
         sleep(5);
         if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $sminstance\n";}
-        system("rm -f $lockfile");
-	system("$mycall $inpath $outpath $errpath $sminstance&") 
-            or warn("Can't launch new process after date change.");
-        last;
-
+	system("$mycall $inpath $outpath $errpath $sminstance &"); 
         $waiting=0; #start the waiting counter
     } elsif ($waiting>=0) {
         $waiting++;
-        if ($waiting>1) {
+        if ($waiting>10) {
             $endflag=1;
             last;
         }
     }
-    $waiting++;
 
-    #sleep a little bit
-    sleep(5);
+    # sleep a little bit
+    sleep(10);
 
-    #seek nowhere in file to reset EOF flag
+    # seek nowhere in file to reset EOF flag
     seek(INDATA,0,1);
+
+    # check live counter
+    $livecounter++;
+    if ($livecounter>360) {
+        my $timestr = gettimestr();
+        print "$timestr: Still alive in main loop\n";
+        $livecounter = 0;
+    }
 }
 
 # disconnect from DB
@@ -356,5 +396,8 @@ close OUTDATA;
 system("rm -f $lockfile");
 
 # reset signal
-$SIG{'INT'}='DEFAULT';
-$SIG{'KILL'}='DEFAULT';
+$SIG{ABRT} = 'DEFAULT';
+$SIG{INT}  = 'DEFAULT';
+$SIG{KILL} = 'DEFAULT';
+$SIG{QUIT} = 'DEFAULT';
+$SIG{TERM} = 'DEFAULT';
