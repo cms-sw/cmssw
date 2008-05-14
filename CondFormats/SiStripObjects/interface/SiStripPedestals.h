@@ -28,11 +28,12 @@ class SiStripPedestals {
 				bool operator() (const DetRegistry& p,const uint32_t& i) const {return p.detid < i;}
 		};
 
+		typedef std::vector<char>                                Container;  
 		typedef std::vector<char>::const_iterator                ContainerIterator;  
 		typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
 		typedef std::vector<DetRegistry>                         Registry;
 		typedef Registry::const_iterator                         RegistryIterator;
-		typedef const std::vector<short>		         InputVector;
+		typedef std::vector<uint16_t>	            	         InputVector;
 
 		SiStripPedestals(){};
 		~SiStripPedestals(){};
@@ -47,7 +48,7 @@ class SiStripPedestals {
 		RegistryIterator getRegistryVectorBegin() const {return indexes.begin();}
 		RegistryIterator getRegistryVectorEnd()   const{return indexes.end();}
 
-		void  setData(float ped, std::vector<short>& vped);
+		void  setData(float ped, InputVector& vped);
 		float getPed   (const uint16_t& strip, const Range& range) const;
 
 	private:
@@ -55,8 +56,8 @@ class SiStripPedestals {
 		void     encode(InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
 		uint16_t decode (const uint16_t& strip, const Range& range) const;
 
-		std::vector<char> v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with SiStripData::Data
-		std::vector<DetRegistry> indexes;
+		Container v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with SiStripData::Data
+		Registry indexes;
 };
 
 #endif
