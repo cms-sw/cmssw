@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/12/16 13:56:15 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/25 15:26:50 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -116,6 +116,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
 //  hits.insert(hits.end(), muRecHits.begin(), muRecHits.end());
 //  stable_sort(hits.begin(), hits.end(), DecreasingGlobalY());
+
   sortHits(hits, muRecHits, tkRecHits);
 
   LogTrace(metname) << "Used RecHits after sort: "<<hits.size();
@@ -192,13 +193,37 @@ std::pair<bool,double> GlobalCosmicMuonTrajectoryBuilder::match(const reco::Trac
 
 void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, ConstRecHitContainer& muonHits, ConstRecHitContainer& tkHits) {
 
-  std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
+   std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
+
+   ConstRecHitContainer::const_iterator frontTkHit = tkHits.begin();
+   ConstRecHitContainer::const_iterator backTkHit  = tkHits.end() - 1;
+   while ( !(*frontTkHit)->isValid() && frontTkHit != backTkHit) {frontTkHit++;}
+   while ( !(*backTkHit)->isValid() && backTkHit != frontTkHit)  {backTkHit--;}
+
+   ConstRecHitContainer::const_iterator frontMuHit = muonHits.begin();
+   ConstRecHitContainer::const_iterator backMuHit  = muonHits.end() - 1;
+   while ( !(*frontMuHit)->isValid() && frontMuHit != backMuHit) {frontMuHit++;}
+   while ( !(*backMuHit)->isValid() && backMuHit != frontMuHit)  {backMuHit--;}
+
+   if ( frontTkHit == backTkHit ) {
+      LogTrace(metname) << "No valid tracker hits";
+      return;
+   }
+   if ( frontMuHit == backMuHit ) {
+      LogTrace(metname) << "No valid muon hits";
+      return;
+   }
+
+  LogTrace(metname) << "No valid muon hits";
+  GlobalPoint frontTkPos = (*frontTkHit)->globalPosition();
+  GlobalPoint backTkPos = (*backTkHit)->globalPosition();
+
   //sort hits going from higher to lower positions
-  if ( tkHits.front()->globalPosition().y() < tkHits.back()->globalPosition().y() )  {//check if tk hits order same direction
+  if ( frontTkPos.y() < backTkPos.y() )  {//check if tk hits order same direction
     reverse(tkHits.begin(), tkHits.end());
   }
 
-  if ( muonHits.front()->globalPosition().y() < muonHits.back()->globalPosition().y() )  {//check if tk hits order same direction
+  if ( (*frontMuHit)->globalPosition().y() < (*backMuHit)->globalPosition().y() )  {//check if tk hits order same direction
     reverse(muonHits.begin(), muonHits.end());
   }
 
@@ -224,13 +249,13 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
   if ( insertInMiddle ) { //if tk hits should be sandwich
     GlobalPoint jointpointpos = (*middlepoint)->globalPosition();
     LogTrace(metname)<<"jointpoint "<<jointpointpos;
-    if ((tkHits.front()->globalPosition() - jointpointpos).mag() > (tkHits.back()->globalPosition() - jointpointpos).mag() ) {//check if tk hits order same direction
+    if ((frontTkPos - jointpointpos).mag() > (backTkPos - jointpointpos).mag() ) {//check if tk hits order same direction
       reverse(tkHits.begin(), tkHits.end());
     }
     muonHits.insert(middlepoint+1, tkHits.begin(), tkHits.end());
     hits = muonHits; 
   } else { // append at one end
-    if ( (tkHits.front()->globalPosition() - muonHits.back()->globalPosition()).y() < 0 ) { //insert at the end
+    if ( (frontTkPos - backTkPos).y() < 0 ) { //insert at the end
       hits = muonHits; 
       hits.insert(hits.end(), tkHits.begin(), tkHits.end());
     } else { //insert at the beginning
