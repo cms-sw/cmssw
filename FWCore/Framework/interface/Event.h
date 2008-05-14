@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.65 2008/05/12 23:13:02 wdd Exp $
+$Id: Event.h,v 1.66 2008/05/14 19:45:12 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -162,6 +162,9 @@ namespace edm {
 
     Provenance
     getProvenance(BranchID const& theID) const;
+
+    Provenance
+    getProvenance(ProductID const& theID) const;
 
     void
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
