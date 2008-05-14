@@ -2,8 +2,8 @@
 
 <QTEST name="AnyError">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">1</PARAM>
-	<PARAM name="ymax">1</PARAM>
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0</PARAM>
 	<PARAM name="error">0.0</PARAM>
 	<PARAM name="warning">0.0</PARAM>
 </QTEST>
