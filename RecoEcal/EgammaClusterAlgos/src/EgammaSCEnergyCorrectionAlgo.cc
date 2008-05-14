@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.29 2008/04/17 18:22:19 dlevans Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.30 2008/04/30 11:30:03 dlevans Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -129,7 +129,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     double eT = newEnergy/cosh(cl.eta());
     eT = fEtEta(eT, cl.eta());
     newEnergy = eT*cosh(cl.eta());
-  } else if  ( theAlgo == reco::fixedMatrix ) {     
+  } else if  ( theAlgo == reco::multi5x5 ) {     
     newEnergy = fBrem(cl.energy(), phiWidth/etaWidth);
     double eT = newEnergy/cosh(cl.eta());
     eT = fEtEta(eT, cl.eta());
