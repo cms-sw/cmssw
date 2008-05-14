@@ -13,6 +13,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
@@ -28,7 +29,6 @@
 #include "CondFormats/L1TObjects/interface/DTConfigSectColl.h"
 #include "CondFormats/L1TObjects/interface/DTConfigManager.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
-#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 

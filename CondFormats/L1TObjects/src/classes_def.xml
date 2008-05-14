@@ -32,6 +32,7 @@
   <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >"/>
   <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >::value_type"/>
   <class name="L1MuDTQualPatternLut"/>
+  <class name="L1MuDTTFParameters"/>
   <class name="L1CSCTPParameters"/>
   <class name="L1MuCSCTFConfiguration"/>
   <class name="L1MuCSCPtLut"/>
@@ -74,7 +75,6 @@
   <class name="std::map<std::string, std::map<std::string, std::string> >"/>
   <class name="std::map<std::string, std::map<std::string, std::string> >::value_type"/>
   <class name="L1RCTParameters"/>
-  <class name="L1RCTChannelMask"/>
 
   <class name="L1GtStableParameters"/>
   <class name="L1GtParameters"/>
