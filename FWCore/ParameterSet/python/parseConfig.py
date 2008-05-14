@@ -2132,10 +2132,10 @@ process RECO = {
    module foo = FooProd {}
    module bar = BarProd {}
    module fii = FiiProd {}
-   path p = {!s&!fii}
+   path p = {s&!fii}
    sequence s = {foo,bar}
 }""")
-            self.assertEqual(str(t[0].p),'~foo*bar+~fii')
+            self.assertEqual(str(t[0].p),'foo*bar+~fii')
             self.assertEqual(str(t[0].s),'foo*bar')
             t[0].dumpConfig()
             
@@ -2777,12 +2777,12 @@ process RECO = {
             t=path.parseString('path p = {(a&b),c}')
             self.assertEqual(str(t[0][1]),'((a&b),c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'a+b*c')
+            self.assertEqual(str(pth),'(a+b)*c')
 #            print t[0][1]
             t=path.parseString('path p = {a,(b&c)}')
             self.assertEqual(str(t[0][1]),'(a,(b&c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'a*b+c')
+            self.assertEqual(str(pth),'a*(b+c)')
 #            print t[0][1]
             t=path.parseString('path p = {a&(b,c)}')
             self.assertEqual(str(t[0][1]),'(a&(b,c))')
