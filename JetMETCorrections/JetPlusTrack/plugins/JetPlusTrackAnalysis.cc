@@ -8,6 +8,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -110,7 +112,7 @@ void JetPlusTrackAnalysis::beginJob( const edm::EventSetup& iSetup)
 
 // Calo Geometry
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
    
 

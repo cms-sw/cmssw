@@ -1,5 +1,6 @@
 // user include files
 #include "JetMETCorrections/MinBias/interface/MinBias.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 using namespace std;
 namespace cms
@@ -42,7 +43,7 @@ void MinBias::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("mom4",  &mom4, "mom4/F");
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
    std::vector<DetId> did =  geo->getValidDetIds();
    
