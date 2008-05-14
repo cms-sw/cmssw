@@ -13,9 +13,12 @@ while (`bjobs -d -w |& grep $name/requeue$i` != "") # check if job name exists
   set name = $name/ # make job name unique to avoid name clash
 end
 
-echo "Starting iteration = $i, final iteration = $iter, number of jobs = $jobs\n"
+echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs
 
 while ($i <= $iter)
+
+  echo Running iteration $i
+
   if ($jobs > 0) then
     @ j = 0 # job index
 
@@ -33,11 +36,10 @@ while ($i <= $iter)
     set id = `bjobs -J $name/align$i | tail -n1 | awk '{print $1}'`
 
     bsub -q cmscaf -C 0 -J $name/collect$i -w "done($id)" \
-         -o $odir/main/collect$i.out \
-         "cmsRun $odir/main/collect.cfg; \
-          rm $odir/job*/*.root; \
-          gzip $odir/job*/align$i.out; \
-          bkill -J $name/requeue$i"
+         -o $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
+
+    bsub -q cmscaf -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
+         -o /dev/null bkill -J $name/requeue$i
 
 ## <collect> job will kill <requeue> job.
 ## So when <collect> job is done, <requeue> job gets an EXIT status.
@@ -48,14 +50,20 @@ while ($i <= $iter)
            -I brequeue -e $id
       sleep 10
     end
+
+    if (`bjobs -d -J $name/collect$i | tail -n1 | grep DONE` != "") then
+      rm $odir/job*/*.root
+      gzip $odir/job*/*.out
+    endif
+
   else
     bsub -q cmscaf -C 0 -J $name/collect$i -K \
          -o $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
   endif
 
-  sleep 10
-  if (`bjobs -d -J $name/collect$i | tail -n1 | grep EXIT` != "") break
-  gzip $odir/main/collect$i.out
+  sleep 5
+  if (`bjobs -d -J $name/collect$i | tail -n1 | grep EXIT` != "") exit 1
+  gzip $odir/main/*.out
 
   @ i++
 end
