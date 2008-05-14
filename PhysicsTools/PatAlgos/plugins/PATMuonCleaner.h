@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatAlgos_PATMuonCleaner_h
 #define PhysicsTools_PatAlgos_PATMuonCleaner_h
 //
-// $Id: PATMuonCleaner.h,v 1.7 2008/04/03 09:36:23 zeidler Exp $
+// $Id: PATMuonCleaner.h,v 1.8 2008/04/11 12:25:42 zeidler Exp $
 //
 
 /**
@@ -17,7 +17,7 @@
 
 \code
  PSet selection = {
-   string type = "none | globalMuons | muId | custom" // muId not implemented yet
+   string type = "none | globalMuons | muonPOG | custom"
    [ // If custom, give cut values
      double dPbyPmax = ...
      double chi2max  = ...
@@ -29,7 +29,7 @@
   The actual selection is performed by the MuonSelector.
 
   \author   Giovanni Petrucciani (from PATMuonProducer by Steven Lowette, Roger Wolf)
-  \version  $Id: PATMuonCleaner.h,v 1.7 2008/04/03 09:36:23 zeidler Exp $
+  \version  $Id: PATMuonCleaner.h,v 1.8 2008/04/11 12:25:42 zeidler Exp $
 */
 
 
@@ -89,34 +89,33 @@ namespace reco {
         pat::MuonSelection config_;
         const std::string& selectionType = cfg.getParameter<std::string>("type");
         config_.selectionType = selectionType;
-        if ( selectionType == "custom" )
+        if      ( selectionType == "custom" )
           {
-		
             config_.dPbyPmax  = cfg.getParameter<double>("dPbyPmax");
             config_.chi2max  = cfg.getParameter<double>("chi2max");
             config_.nHitsMin = cfg.getParameter<int>("nHitsMin");
           }
-		if ( selectionType == "muonPOG" )
+        else if ( selectionType == "muonPOG" )
           {
             std::string flag = cfg.getParameter<std::string>("flag");
-			if(flag == "TMLastStationLoose"){
-				config_.flag = muonid::TMLastStationLoose;
-			}
-			else if(flag == "TMLastStationTight"){
-				config_.flag = muonid::TMLastStationTight;
-  			}
-			else if(flag == "TM2DCompatibilityLoose"){
-				config_.flag = muonid::TM2DCompatibilityLoose;
-  			}
-			else if(flag == "TM2DCompatibilityTight"){
-				config_.flag = muonid::TM2DCompatibilityTight;
-  			}
-			else{
-				throw edm::Exception(edm::errors::UnimplementedFeature) 
-					<< "muId flag is not valid or not implemented yet";
-			}
-			config_.minCaloCompatibility = cfg.getParameter<double>("minCaloCompatibility");
-			config_.minSegmentCompatibility = cfg.getParameter<double>("minSegmentCompatibility");
+            if      ( flag == "TMLastStationLoose" ) {
+              config_.flag = muonid::TMLastStationLoose;
+            }
+            else if ( flag == "TMLastStationTight" ) {
+              config_.flag = muonid::TMLastStationTight;
+            }
+            else if ( flag == "TM2DCompatibilityLoose" ) {
+              config_.flag = muonid::TM2DCompatibilityLoose;
+            }
+            else if ( flag == "TM2DCompatibilityTight" ) {
+              config_.flag = muonid::TM2DCompatibilityTight;
+            }
+            else {
+              throw edm::Exception(edm::errors::UnimplementedFeature) 
+                << "muonPOG flag is not valid or not implemented yet";
+            }
+            config_.minCaloCompatibility    = cfg.getParameter<double>("minCaloCompatibility");
+            config_.minSegmentCompatibility = cfg.getParameter<double>("minSegmentCompatibility");
           }
         return pat::MuonSelector( config_ );
       }
