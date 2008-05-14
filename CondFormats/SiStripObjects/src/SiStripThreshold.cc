@@ -1,7 +1,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-bool SiStripThreshold::put(const uint32_t& DetId, Range input) {
+bool SiStripThreshold::put(const uint32_t& DetId, InputVector vect) {
   // put in SiStripThreshold::v_threshold of DetId
   Registry::iterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripThreshold::StrictWeakOrdering());
   if (p!=indexes.end() && p->detid==DetId){
@@ -9,15 +10,23 @@ bool SiStripThreshold::put(const uint32_t& DetId, Range input) {
     return false;
   }
   
-  size_t sd= input.second-input.first;
+  SiStripThreshold::Container::iterator new_end=compact(vect);
+
+  size_t sd= new_end-vect.begin();
   DetRegistry detregistry;
   detregistry.detid=DetId;
   detregistry.ibegin=v_threshold.size();
   detregistry.iend=v_threshold.size()+sd;
   indexes.insert(p,detregistry);
-
-  v_threshold.insert(v_threshold.end(),input.first,input.second);
+  
+  v_threshold.insert(v_threshold.end(),vect.begin(),new_end);
+  
   return true;
+}
+
+SiStripThreshold::Container::iterator SiStripThreshold::compact(Container& input) {
+  std::stable_sort(input.begin(),input.end());
+  return std::unique(input.begin(),input.end());
 }
 
 const SiStripThreshold::Range SiStripThreshold::getRange(const uint32_t& DetId) const {
@@ -40,33 +49,20 @@ void SiStripThreshold::getDetIds(std::vector<uint32_t>& DetIds_) const {
   }
 }
 
-void SiStripThreshold::setData(float lth, float hth, std::vector<unsigned int>& vthr){
-  
-  //unsigned int ped_  = (static_cast<unsigned int>(ped)) & 0xFFF; 
-  unsigned int low_  = (static_cast<unsigned int>(lth*5.0+0.5)) & 0x3F; 
-  unsigned int hig_  = (static_cast<unsigned int>(hth*5.0+0.5)) & 0x3F; 
-  unsigned int data = /*(ped_ << 12)|*/ (hig_ << 6) | low_ ;
-  vthr.resize(vthr.size()+4);
-  // insert in vector of char
-  ::memcpy((void*)(&vthr[vthr.size()-4]),(void*)(&data),2);
-}
-/*
-float SiStripThreshold::getLowTh(const uint16_t& strip, const Range& range) const {
-  if (strip>=(range.second-range.first)/3){
-    throw cms::Exception("CorruptedData")
-      << "[SiStripPedestals::getLowTh] looking for SiStripPedestals for a strip out of range: strip " << strip;
-  }
-  //const DecodingStructure & s = (const DecodingStructure & ) *(range.first+strip*3);
-  //return (s.lth & 0x3F)/5.0;
-	return static_cast<float> (decode(strip,range));
+void SiStripThreshold::setData(const uint16_t& strip, const float& lTh,const float& hTh, Container& vthr){
+  Data a;
+  a.encode(strip,lTh,hTh);
+  vthr.push_back(a);
 }
 
-float SiStripThreshold::getHighTh(const uint16_t& strip, const Range& range) const {
-  if (strip>=(range.second-range.first)/3){
-    throw cms::Exception("CorruptedData")
-      << "[SiStripPedestals::getHighTh] looking for SiStripPedestals for a strip out of range: strip " << strip;
+SiStripThreshold::Data SiStripThreshold::getData(const uint16_t& strip, const Range& range) const {
+  uint16_t estrip=(strip & sistrip::FirstThStripMask_)<<sistrip::FirstThStripShift_ | (63 & sistrip::HighThStripMask_);
+  ContainerIterator p = std::upper_bound(range.first,range.second,estrip,SiStripThreshold::dataStrictWeakOrdering());
+  if (p!=range.first){
+    return *(--p);
   }
-  //const DecodingStructure & s = (const DecodingStructure & ) *(range.first+strip*3);
-  //return (s.hth & 0x3F)/5.0;
-	return static_cast<float> (decode(strip,range));
-}*/
+  else{
+    throw cms::Exception("CorruptedData")
+      << "[SiStripThreshold::getData] asking for data for a strip " << strip << " lower then the first stored strip " << p->getFirstStrip();
+  }
+}

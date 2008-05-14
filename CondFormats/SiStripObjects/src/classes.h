@@ -42,8 +42,8 @@ namespace {
   std::vector< SiStripPerformanceSummary::DetSummary >::iterator tmp20;
   std::vector< SiStripPerformanceSummary::DetSummary >::const_iterator tmp21;
 
-  std::vector<char>::iterator tmp22;
-  std::vector<char>::const_iterator tmp23;
+  std::vector<SiStripThreshold::Container>::iterator tmp22;
+  std::vector<SiStripThreshold::Container>::const_iterator tmp23;
   std::vector< SiStripThreshold::DetRegistry >::iterator tmp24;
   std::vector< SiStripThreshold::DetRegistry >::const_iterator tmp25;
 

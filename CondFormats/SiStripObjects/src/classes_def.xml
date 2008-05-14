@@ -17,6 +17,8 @@
   <class name="SiStripThreshold" class_version="0"/>
   <class name="SiStripThreshold::DetRegistry"/>
   <class name="std::vector<SiStripThreshold::DetRegistry>"/>
+  <class name="SiStripThreshold::Container"/>
+  <class name="std::vector<SiStripThreshold::Container>"/>
 
   <class name="SiStripApvGain" class_version="0"/>
 
