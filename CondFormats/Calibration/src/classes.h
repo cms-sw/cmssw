@@ -7,6 +7,7 @@
 #include<bitset>
 #include "CondFormats/Calibration/interface/BitArray.h"
 #include "CondFormats/Calibration/interface/boostTypeObj.h"
+#include "CondFormats/Calibration/interface/fixedArray.h"
 namespace {
   std::vector< Pedestals::Item >::iterator tmp0;
   std::vector< Pedestals::Item >::const_iterator tmp1;
@@ -31,4 +32,5 @@ namespace {
   std::bitset<7> a;
   std::bitset<8> b;
   BitArray<9> c;
+  fixedArray<unsigned short,2097> d;
 }

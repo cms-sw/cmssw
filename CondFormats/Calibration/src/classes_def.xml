@@ -38,5 +38,6 @@
  <class name="std::bitset<7>"/>
  <class name="BitArray<9>"/>
  <class name="boostTypeObj"/>
+ <class name="fixedArray<unsigned short,2097>"/>
 </lcgdict>   
 
