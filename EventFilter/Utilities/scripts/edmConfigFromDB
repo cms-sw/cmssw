@@ -32,6 +32,8 @@ my $usage =
     "\t--noservices                (exclude all services)\n" .
     "\t--nooutput                  (exclude all output modules)\n" .
     "\t--nopaths                   (exclude all paths [+=referenced seqs&mods])\n" .
+    "\t--nosequences               (don't define sequences [+=referenced s&m])\n" .
+    "\t--nomodules                 (don't define modules)\n" .
     "\t--psets <pset1[,pset2]>     (include only specified global psets)\n" .
     "\t--psets <-pset1[,-pset2]>   (include all global psets but the specified)\n" .
     "\t--essources <ess1[,ess2]>   (include only specified essources)\n" .
@@ -68,7 +70,9 @@ my %bool_options = ('--cff',1,
 		    '--noesmodules',1,
 		    '--noservices',1,
 		    '--nooutput',1,
-		    '--nopaths',1
+		    '--nopaths',1,
+		    '--nosequences',1,
+		    '--nomodules',1
 		    );
 my %options      = ('--format',1,
 		    '--input',1,
