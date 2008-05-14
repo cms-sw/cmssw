@@ -12,7 +12,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "PhysicsTools/Utilities/interface/normalizedPhi.h"
 
@@ -45,7 +45,7 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
   event.getByLabel(theCaloTowerCollectionLabel,towers);
 
   edm::ESHandle<CaloGeometry> caloGeom;
-  eventSetup.get<IdealGeometryRecord>().get(caloGeom);
+  eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -101,7 +101,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
   event.getByLabel(theCaloTowerCollectionLabel,towers);
 
   edm::ESHandle<CaloGeometry> caloGeom;
-  eventSetup.get<IdealGeometryRecord>().get(caloGeom);
+  eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);

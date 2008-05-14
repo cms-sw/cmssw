@@ -15,7 +15,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -139,7 +139,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     //! do things based on rec-hits here
     //! too much copy-pasting now (refactor later?)
     edm::ESHandle<CaloGeometry> caloGeom;
-    eventSetup.get<IdealGeometryRecord>().get(caloGeom);
+    eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 
     //Ecal
     std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
