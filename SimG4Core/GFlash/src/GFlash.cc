@@ -1,6 +1,7 @@
 #include "SimG4Core/GFlash/interface/GFlash.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
 #include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
+#include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -21,7 +22,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet &
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP 3.3 + CMS GFLASH\n";
+			      << "QGSP_BERT + CMS GFLASH\n";
 
   RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 
 
@@ -39,8 +40,18 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet &
 
   // Hadron Physics
   G4bool quasiElastic=true;
-  RegisterPhysics(new HadronPhysicsQGSP_WP("hadron",quasiElastic));
-  //RegisterPhysics(new HadronPhysicsQGSP("hadron"));
+  std::string hadronPhysics = thePar.getParameter<std::string>("GflashHadronPhysics");
+  if(hadronPhysics=="QGSP_BERT") {
+    RegisterPhysics(new HadronPhysicsQGSP_BERT_WP("hadron",quasiElastic));
+  }
+  else if (hadronPhysics=="QGSP") {
+    RegisterPhysics(new HadronPhysicsQGSP_WP("hadron",quasiElastic));
+  }
+  else {
+    edm::LogInfo("PhysicsList") << hadronPhysics << " is not available for GflashHadronPhysics!"
+				<< "... Using QGSP_BERT\n";
+    RegisterPhysics(new HadronPhysicsQGSP_BERT_WP("hadron",quasiElastic));
+  }
 
   // Stopping Physics
   RegisterPhysics(new G4QStoppingPhysics("stopping"));

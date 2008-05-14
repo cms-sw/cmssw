@@ -32,6 +32,8 @@ GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope)
   theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
   theRandGamma = new CLHEP::RandGamma(rng->getEngine());
 
+  //correllation and fluctuation matrix
+  fillFluctuationVector();
 }
 
 GflashHadronShowerProfile::~GflashHadronShowerProfile()
@@ -81,13 +83,13 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   // unit convention: energy in [GeV] and length in [cm]
 
   // maximum number of energy spots 
-  const G4int    maxNumberOfSpots = 1500;  
+  const G4int    maxNumberOfSpots = 10000;  
 
   // low energy cutoff (unit in GeV)
   //  const G4double energyCutoff     = 0.01; 
 
   // intrinsic properties of hadronic showers (lateral shower profile)
-  const G4double maxShowerDepthforR50 = 2.0;
+  const G4double maxShowerDepthforR50 = 10.0;
 
   G4double rShower = 0.;
   G4double rGauss = theRandGauss->fire();
@@ -109,6 +111,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   // inside the magnetic field;
 
   const G4double bField = 4.0*tesla; 
+
   double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
 
   theHelix->initializeTrajectory(momentumShower,positionShower,charge,bField/tesla);
@@ -149,7 +152,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   G4double pathLength  = pathLength0; // this will grow along the shower development
 
   // Limit number of spots to maxNumberOfSpots
-  G4int numberOfSpots = std::max( 50, static_cast<int>(80.*std::log(einc)+50.));
+  G4int numberOfSpots = std::max( 50, static_cast<int>(800.*std::log(einc)+50.));
   numberOfSpots = std::min(numberOfSpots,maxNumberOfSpots);
 
   // Spot energy to simulate sampling fluctuations (SampleEnergySpot) and
@@ -213,8 +216,7 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     // Lateral shape and fluctuations
 
-    //    double showerDepthR50 = std::min(showerDepth, maxShowerDepthforR50);
-    double showerDepthR50 = showerDepth/20.7394;
+    double showerDepthR50 = std::min(showerDepth/20.7394, maxShowerDepthforR50);
 
     double R50          = lateralPar[0] + lateralPar[1] * showerDepthR50;
     double varinanceR50 = std::pow((lateralPar[2] + lateralPar[3] * showerDepthR50) * R50, 2);
@@ -364,6 +366,7 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     //@@@need z-dependent correction on the mean energy reponse
   }
 
+  
   // total energy to deposite
   //@@@ need additional parameterization by the shower starting point
   G4double fractionEnergy  = 1.0;
@@ -379,43 +382,67 @@ void GflashHadronShowerProfile::loadParameters(const G4FastTrack& fastTrack)
     sigmaEnergy = 0.0844/std::sqrt(einc) + 0.0592;
   }
 
-  energyToDeposit = fractionEnergy*(1.0+correctionAsDepth)*einc+sigmaEnergy*theRandGauss->fire();
-  //  energyToDeposit = fractionEnergy*einc+sigmaEnergy*theRandGauss->fire();
+  energyToDeposit = fractionEnergy*(1.0+correctionAsDepth)*einc*(1.0+sigmaEnergy*theRandGauss->fire());
   energyToDeposit = std::max(0.0,energyToDeposit);
 
   // parameters for the longitudinal profiles
   //@@@check longitudinal profiles of endcaps for possible varitations
   //@@@need to add fluctuation and correlation for individual shower
 
-  longPar1[0] = std::max(0.0,-5.96481e-03 + 0.18231*std::tanh(0.55451*(std::log(einc)-0.458775))) ;
-  longPar1[1] = std::max(0.0,2.01611 + 1.77483 * std::tanh(0.75719*(std::log(einc) - 2.58172)));
-  longPar1[2] = std::max(0.0,0.21261 + 0.24168 * std::tanh(0.76962*(std::log(einc) - 2.11936)));
-  longPar1[3] = std::max(0.0,1.05577e-02 + 1.00807  * std::tanh(-6.31044e-04*(std::log(einc) - 4.60658)));
-  longPar1[4] = std::max(0.0,1.19845e-01 + 6.87070e-02 * std::tanh(-8.23888e-01*(std::log(einc) - 2.90178)));
-  longPar1[5] = std::max(0.0,2.49694e+01 + 1.10258e+01 * std::tanh(6.16435e-01*(std::log(einc) - 3.56012)));
+  longPar[0][0] = 1.41*std::max(0.0,-5.96481e-03 + 0.18231*std::tanh(0.55451*(std::log(einc)-0.458775))) ;
+  longPar[0][1] = std::max(0.0,2.01611 + 1.77483 * std::tanh(0.75719*(std::log(einc) - 2.58172)));
+  longPar[0][2] = std::max(0.0,0.21261 + 0.24168 * std::tanh(0.76962*(std::log(einc) - 2.11936)));
+  longPar[0][3] = std::max(0.0,1.05577e-02 + 1.00807  * std::tanh(-6.31044e-04*(std::log(einc) - 4.60658)));
+  longPar[0][4] = 0.87*std::max(0.0,1.19845e-01 + 6.87070e-02 * std::tanh(-8.23888e-01*(std::log(einc) - 2.90178)));
+  longPar[0][5] = std::max(0.0,2.49694e+01 + 1.10258e+01 * std::tanh(6.16435e-01*(std::log(einc) - 3.56012)));
 
-  /*
-  longPar2[0] = 0.4557172;
-  longPar2[1] = std::max(0.0,3.77314e+01 + 5.85599*std::tanh(-2.30211*(std::log(einc) - 2.12697)));
-  longPar2[2] = std::max(0.0,1.73542e+01 + 3.71233*std::tanh(-1.61000*(std::log(einc) - 2.21103)));
-  longPar2[3] = 0.8986237;
-  longPar2[4] = std::max(0.0,7.17636 + 1.11195*std::tanh(-1.94221*(std::log(einc) - 1.87846)));
-  longPar2[5] = std::max(0.0,2.06695e-01 + 5.92547e-02*std::tanh(-1.67709*(std::log(einc) - 2.20970)));
-  */
+  longSigma[0][0] = 0.02;
+  longSigma[0][1] = 0.16;
+  longSigma[0][2] = 0.02;
+  longSigma[0][3] = 0.01;
+  longSigma[0][4] = 0.03;
+  longSigma[0][5] = 2.50;
+  
+  longPar[1][0] = 0.1126;
+  longPar[1][1] = 1.3857;
+  longPar[1][2] = std::max(0.0,1.1353 + 0.4997*std::tanh(-0.6382*(std::log(einc) - 2.0035)));
+  longPar[1][3] = 0.2300;
+  longPar[1][4] = 3.5018;
+  longPar[1][5] = std::max(0.0,0.6151 - 0.0561*std::log(einc));
 
-  longPar2[0] = 0.1126;
-  longPar2[1] = 1.3857;
-  longPar2[2] = std::max(0.0,1.1353 + 0.4997*std::tanh(-0.6382*(std::log(einc) - 2.0035)));
-  longPar2[3] = 0.2300;
-  longPar2[4] = 3.5018;
-  longPar2[5] = std::max(0.0,0.6151 - 0.0561*std::log(einc));
+  longSigma[1][0] = 0.01;
+  longSigma[1][1] = 0.44;
+  longSigma[1][2] = 0.01;
+  longSigma[1][3] = 0.01;
+  longSigma[1][4] = 0.20;
+  longSigma[1][5] = 0.04;
 
-  longPar3[0] = std::max(0.0,-1.55624e+01+1.56831e+01*std::tanh(5.93651e-01*(std::log(einc) + 4.89902)));
-  longPar3[1] = std::max(0.0,7.28995e-01+ 7.71148e-01*std::tanh(4.77898e-01*(std::log(einc) - 1.69087)));
-  longPar3[2] = std::max(0.0,1.23387+ 7.34778e-01*std::tanh(-3.14958e-01*(std::log(einc) - 0.529206)));
-  longPar3[3] = std::max(0.0,1.02070e+02+1.01873e+02*std::tanh(-4.99805e-01*(std::log(einc) + 5.04012)));
-  longPar3[4] = std::max(0.0,3.59765+8.53358e-01*std::tanh( 8.47277e-01*(std::log(einc) - 3.36548)));
-  longPar3[5] = std::max(0.0,4.27294e-01+1.62535e-02*std::tanh(-2.26278*(std::log(einc) - 1.81308)));
+  longPar[2][0] = std::max(0.0,-1.55624e+01+1.56831e+01*std::tanh(5.93651e-01*(std::log(einc) + 4.89902)));
+  longPar[2][1] = std::max(0.0,7.28995e-01+ 7.71148e-01*std::tanh(4.77898e-01*(std::log(einc) - 1.69087)));
+  longPar[2][2] = std::max(0.0,1.23387+ 7.34778e-01*std::tanh(-3.14958e-01*(std::log(einc) - 0.529206)));
+  longPar[2][3] = std::max(0.0,1.02070e+02+1.01873e+02*std::tanh(-4.99805e-01*(std::log(einc) + 5.04012)));
+  longPar[2][4] = std::max(0.0,3.59765+8.53358e-01*std::tanh( 8.47277e-01*(std::log(einc) - 3.36548)));
+  longPar[2][5] = std::max(0.0,4.27294e-01+1.62535e-02*std::tanh(-2.26278*(std::log(einc) - 1.81308)));
+
+  longSigma[2][0] = 0.01;
+  longSigma[2][1] = 0.44;
+  longSigma[2][2] = 0.01;
+  longSigma[2][3] = 0.01;
+  longSigma[2][4] = 0.20;
+  longSigma[2][5] = 0.04;
+
+  double normalZ[Gflash::NxN];
+  for (int i = 0; i < Gflash::NxN ; i++) normalZ[i] = theRandGauss->fire();
+  
+  for(int k = 0 ; k < Gflash::NRegion ; k++) {
+    for(int i = 0 ; i < Gflash::NxN ; i++) {
+      double correlationSum = 0.0;
+      for(int j = 0 ; j < Gflash::NxN ; j++) {
+	correlationSum += correlationVector[Gflash::NStart[Gflash::NRegion]+(i+1)/2+j]*normalZ[i];
+      }
+      longPar[k][i] = std::max(0.0,longPar[k][i]+longSigma[k][i]*correlationSum);
+    }
+  }
 
   // parameters for the lateral profile
 
@@ -444,12 +471,12 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
   if(showerType == 1 || showerType == 2 ) {
     //    std::cout << " pathLength tempPoint.getPosition().getRho()=  "  << pathLength << " "  << tempPoint.getPosition().getRho() << std::endl;
     if(tempPoint.getPosition().getRho() < 150.0 ) { 
-      x = showerDepth*longPar1[2];
-      heightProfile = longPar1[0]*std::pow(x,longPar1[1]-1.0)*std::exp(-x)/std::exp(lgam(longPar1[1]))+longPar1[3];
+      x = showerDepth*longPar[0][2];
+      heightProfile = longPar[0][0]*std::pow(x,longPar[0][1]-1.0)*std::exp(-x)/std::exp(lgam(longPar[0][1]))+longPar[0][3];
     }
     else if (tempPoint.getPosition().getRho() > Gflash::Rmin[Gflash::kHB] ){
       x = showerDepth;
-      heightProfile = longPar1[4]*std::exp(-x/longPar1[5]);
+      heightProfile = longPar[0][4]*std::exp(-x/longPar[0][5]);
       heightProfile *= Gflash::ScaleSensitive;
     }
     else heightProfile = 0.;
@@ -457,12 +484,12 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
   else if(showerType == 5 || showerType == 6){
     //@@@use new parameterization for EE/HE
     if(std::abs(tempPoint.getPosition().getZ()) < Gflash::Zmin[Gflash::kENCA]+23.0 ) { 
-      x = showerDepth*longPar1[2];
-      heightProfile = longPar1[0]*std::pow(x,longPar1[1]-1.0)*std::exp(-x)/std::exp(lgam(longPar1[1]))+longPar1[3];
+      x = showerDepth*longPar[0][2];
+      heightProfile = longPar[0][0]*std::pow(x,longPar[0][1]-1.0)*std::exp(-x)/std::exp(lgam(longPar[0][1]))+longPar[0][3];
     }
     else if (std::abs(tempPoint.getPosition().getZ()) > Gflash::Rmin[Gflash::kHE] ){
       x = showerDepth;
-      heightProfile = longPar1[4]*std::exp(-x/longPar1[5]);
+      heightProfile = longPar[0][4]*std::exp(-x/longPar[0][5]);
       heightProfile *= Gflash::ScaleSensitive;
     }
     else heightProfile = 0.;
@@ -470,23 +497,23 @@ G4double GflashHadronShowerProfile::longitudinalProfile(G4double showerDepth, G4
   else if (showerType == 3 || showerType == 7 ) {
     //two gammas between crystal and Hcal
     if((showerDepth - transDepth) > 0.0) {
-      double x1 = (showerDepth-transDepth)*longPar2[2]/16.42;
-      double x2 = (showerDepth-transDepth)*longPar2[5]/1.49;
+      double x1 = (showerDepth-transDepth)*longPar[1][2]/16.42;
+      double x2 = (showerDepth-transDepth)*longPar[1][5]/1.49;
 
-      heightProfile = longPar2[3]*std::pow(x1,longPar2[1]-1.0)*std::exp(-x1)/std::exp(lgam(longPar2[1]))
-	+ (1.0-longPar2[3])*std::pow(x2,longPar2[4]-1.0)*std::exp(-x2)/std::exp(lgam(longPar2[4]));
-      heightProfile = std::max(0.0,longPar2[0]*heightProfile);
+      heightProfile = longPar[1][3]*std::pow(x1,longPar[1][1]-1.0)*std::exp(-x1)/std::exp(lgam(longPar[1][1]))
+	+ (1.0-longPar[1][3])*std::pow(x2,longPar[1][4]-1.0)*std::exp(-x2)/std::exp(lgam(longPar[1][4]));
+      heightProfile = std::max(0.0,longPar[1][0]*heightProfile);
       heightProfile *= Gflash::ScaleSensitive;
     }
     else heightProfile = 0.;
   }
   else if (showerType == 4 || showerType == 8 ) {
     //two gammas inside Hcal
-    double x1 = showerDepth*longPar3[2]/16.42;
-    double x2 = showerDepth*longPar3[5]/1.49;
-    heightProfile = longPar3[3]*std::pow(x1,longPar3[1]-1.0)*std::exp(-x1)/std::exp(lgam(longPar3[1]))
-                  + (1.0-longPar3[3])*std::pow(x2,longPar3[4]-1.0)*std::exp(-x2)/std::exp(lgam(longPar3[4]));
-    heightProfile = std::max(0.0,longPar3[0]*heightProfile);
+    double x1 = showerDepth*longPar[2][2]/16.42;
+    double x2 = showerDepth*longPar[2][5]/1.49;
+    heightProfile = longPar[2][3]*std::pow(x1,longPar[2][1]-1.0)*std::exp(-x1)/std::exp(lgam(longPar[2][1]))
+                  + (1.0-longPar[2][3])*std::pow(x2,longPar[2][4]-1.0)*std::exp(-x2)/std::exp(lgam(longPar[2][4]));
+    heightProfile = std::max(0.0,longPar[2][0]*heightProfile);
     heightProfile *= Gflash::ScaleSensitive;
   }
 
@@ -517,3 +544,75 @@ G4bool GflashHadronShowerProfile::insideSampling(const G4ThreeVector pos) {
   return issampling;
 }
 
+void GflashHadronShowerProfile::fillFluctuationVector() {
+  //  G4double RMX[186]; //21*6 = 186
+
+  for(G4int k = 0 ; k < Gflash::NRegion ; k++) {
+    const G4int dim = Gflash::NDim[k];
+    G4double **xr   = new G4double *[dim];
+    G4double **xrho = new G4double *[dim];
+    
+    for(G4int j=0;j<dim;j++) {
+      xr[j]   = new G4double [dim];
+      xrho[j] = new G4double [dim];
+    }
+    
+    for(G4int i = 0; i < dim; i++) {
+      for(G4int j = 0; j < i+1 ; j++) {
+	xrho[i][j] = Gflash::rho[i+Gflash::NRegion*k][j];
+	xrho[i][j] = Gflash::rho[i][j];
+	xrho[j][i] = xrho[i][j];
+      }
+    }
+    
+    doCholeskyReduction(xrho,xr,dim);
+
+    for(G4int i = 0 ; i < dim ; i++) {
+      for (G4int j = 0 ; j < i+1 ; j++){
+	correlationVector[Gflash::NStart[k]+i*(i+1)/2 + j] = xr[i][j];
+      }
+    }
+
+    std::cout << "this should be calcuated at constructor" << std::endl;
+    for(int i = 0; i < 21 ; i++) std::cout << correlationVector[i] << std::endl;
+    
+    for(G4int j=0;j<dim;j++) delete [] xr[j];
+    delete [] xr;
+    for(G4int j=0;j<dim;j++) delete [] xrho[j];
+    delete [] xrho;
+  }
+}
+
+void GflashHadronShowerProfile::doCholeskyReduction(double **vv, double **cc, const int ndim) {
+
+  G4double sumCjkSquare;
+  G4double vjjLess;
+  G4double sumCikjk;
+
+  cc[0][0] = std::sqrt(vv[0][0]);
+
+  for(G4int j=1 ; j < ndim ; j++) {
+    cc[j][0] = vv[j][0]/cc[0][0];
+  }
+
+  for(G4int j=1 ; j < ndim ; j++) {
+
+    sumCjkSquare = 0.0;
+    for (G4int k=0 ; k < j ; k++) sumCjkSquare += cc[j][k]*cc[j][k];
+
+    vjjLess =  vv[j][j] - sumCjkSquare;
+
+    if ( vjjLess < 0. ) {
+      std::cout << "GflashHadronShowerProfile::CholeskyReduction failed " << std::endl;
+    }
+    else {
+      cc[j][j] = std::sqrt(std::fabs(vjjLess));
+
+      for (G4int i=j+1 ; i < ndim ; i++) {
+        sumCikjk = 0.;
+        for(G4int k=0 ; k < j ; k++) sumCikjk += cc[i][k]*cc[j][k];
+        cc[i][j] = (vv[i][j] - sumCikjk)/cc[j][j];
+      }
+    }
+  }
+}

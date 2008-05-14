@@ -32,9 +32,9 @@ namespace Gflash {
     
   //constants needed for GflashHadronShowerProfile
 
-  //@@@approximately ScaleSensitive = 0.2 and need fine tune later
-  //temporarily we set it 1.0 for the energy shape studies
-  const G4double ScaleSensitive = 1.0;
+  //@@@approximately ScaleSensitive = 0.2 and need fine tune later 
+  //@@@set it to 1.0 for the energy shape studies
+  const G4double ScaleSensitive = 0.26;
 
   // number of sub-detectors (calorimeters)  
   const G4int NDET = 4; 
@@ -51,6 +51,31 @@ namespace Gflash {
 
   //utility functions
 
+  // correlation matrix RHO[I][J]
+  const G4int NRegion   = 3;
+  const G4int NxN  = 6;
+  const int NDim[NRegion] = {6,6,6};
+  const G4int NStart[NRegion] = {0,21,42};
+
+  const G4double rho[NRegion*NxN][NxN] = {
+    { 1.}, 
+    {-0.532, 1.},
+    {-0.330, 0.581, 1.},
+    {-0.026, 0.289, 0.192, 1.},
+    { 0.001,-0.004,-0.009, 0.028, 1.},
+    {-0.062,-0.031,-0.022,-0.019,-0.434, 1.},
+    { 1.}, 
+    {-0.593, 1.},
+    {-0.277, 0.492, 1.},
+    {-0.201, 0.443, 0.100, 1.},
+    { 0.017,-0.102, 0.088,-0.079, 1.},
+    {-0.157, 0.112, 0.031,-0.018, 0.230, 1.},
+    { 1.}, 
+    {-0.593, 1.},
+    {-0.277, 0.492, 1.},
+    {-0.201, 0.443, 0.100, 1.},
+    { 0.017,-0.102, 0.088,-0.079, 1.},
+    {-0.157, 0.112, 0.031,-0.018, 0.230, 1.}};
 }
 
 #endif

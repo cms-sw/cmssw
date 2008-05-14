@@ -35,6 +35,8 @@ private:
   void samplingFluctuation(G4double &de, G4double einc);
   inline Gflash::CalorimeterNumber getCalorimeterNumber() {return jCalorimeter;}
   G4bool insideSampling(const G4ThreeVector pos);
+  void doCholeskyReduction(G4double **cc, G4double **vv, const G4int ndim);
+  void fillFluctuationVector();
 
 private:  
 
@@ -44,10 +46,14 @@ private:
 
   G4double energyToDeposit; 
   //lateral and longitudinal parameters
-  G4double longPar1[6];  
-  G4double longPar2[6];  
-  G4double longPar3[6];  
+  G4double correlationVector[Gflash::NRegion*Gflash::NxN*(Gflash::NxN+1)/2]; //21*3 = 63
+  G4double longPar[Gflash::NRegion][Gflash::NxN];  
+  //  G4double longPar2[6];  
+  //  G4double longPar3[6];  
   G4double lateralPar[4]; 
+
+  //  G4double longSigma1[6];  
+  G4double longSigma[Gflash::NRegion][Gflash::NxN];  
 
   //  GflashMediaMap* theMediaMap;
   GflashHistogram* theHisto;
