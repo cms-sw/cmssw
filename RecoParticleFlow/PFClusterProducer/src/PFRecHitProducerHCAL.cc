@@ -19,7 +19,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
@@ -74,7 +74,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 
 
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
   // get the hcalBarrel geometry
   const CaloSubdetectorGeometry *hcalBarrelGeometry = 

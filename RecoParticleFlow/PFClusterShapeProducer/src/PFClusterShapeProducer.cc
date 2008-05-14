@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <sstream>
 
@@ -42,7 +42,7 @@ void PFClusterShapeProducer::produce(edm::Event & evt, const edm::EventSetup & e
     rechitHandle = getRecHitCollection(evt);
 
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<IdealGeometryRecord>().get(geoHandle);
+  es.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry * barrelGeo_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorTopology * barrelTop_p = new EcalBarrelTopology(geoHandle);

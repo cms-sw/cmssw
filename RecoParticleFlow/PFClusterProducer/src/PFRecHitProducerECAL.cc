@@ -20,7 +20,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
@@ -79,7 +79,7 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
 //   typedef map<unsigned, unsigned >::iterator IDH;
 
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
   // get the ecalBarrel geometry
   const CaloSubdetectorGeometry *ebtmp = 

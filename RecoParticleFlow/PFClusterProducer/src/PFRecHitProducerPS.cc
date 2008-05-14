@@ -19,7 +19,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
@@ -56,7 +56,7 @@ void PFRecHitProducerPS::createRecHits(vector<reco::PFRecHit>& rechits,
 
   // get the ps geometry
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
     
   const CaloSubdetectorGeometry *psGeometry = 
     geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
