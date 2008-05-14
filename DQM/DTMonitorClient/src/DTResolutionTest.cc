@@ -50,6 +50,7 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
+  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -214,7 +215,7 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 	if(BinNumber == 12) BinNumber=11;
 	TProfile* prof = res_histo_2D_root->ProfileX();
 	prof->GetXaxis()->SetRangeUser(0,2);
-	prof->Fit("pol1","R");
+	prof->Fit("pol1","Q");
 	TF1 *fitting = prof->GetFunction("pol1");
 	double slope = fitting->GetParameter(1);
 	if (SlopeHistos.find(make_pair(slID.wheel(),slID.sector())) == SlopeHistos.end()) bookHistos((*ch_it)->id());
