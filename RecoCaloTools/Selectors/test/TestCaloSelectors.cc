@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 
 class TestCaloSelectors : public edm::EDAnalyzer {
@@ -23,7 +23,7 @@ void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c)
   evt.getByType(hbhe);
   HBHERecHitMetaCollection mhbhe(*hbhe);
   edm::ESHandle<CaloGeometry> pG;
-  c.get<IdealGeometryRecord>().get(pG);
+  c.get<CaloGeometryRecord>().get(pG);
 
   double maxEt=-1;
   GlobalPoint pMax;

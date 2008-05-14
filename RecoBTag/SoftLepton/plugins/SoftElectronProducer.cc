@@ -22,6 +22,8 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
@@ -122,7 +124,7 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   HBHERecHitMetaCollection metaRecHit(*handleRecHit);
 
   // get calorimeter geometry
-  iSetup.get<IdealGeometryRecord>().get(handleCaloGeom);
+  iSetup.get<CaloGeometryRecord>().get(handleCaloGeom);
 
   CaloConeSelector selectorRecHit(theHOverEConeSize, handleCaloGeom.product(), DetId::Hcal);
 
