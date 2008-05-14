@@ -10,7 +10,7 @@ class TruncatedAverageDeDxEstimator: public BaseDeDxEstimator
 public: 
  TruncatedAverageDeDxEstimator(float fraction): m_fraction(fraction) {}
 
- virtual float dedx(reco::TrajectorySateOnDetInfoCollection tsodis, edm::ESHandle<TrackerGeometry> tkGeom){
+ virtual Measurement1D  dedx(reco::TrajectorySateOnDetInfoCollection tsodis, edm::ESHandle<TrackerGeometry> tkGeom){
     if(tsodis.size()<=0) return 0;
 
     std::vector<double> ChargeN;
@@ -24,7 +24,7 @@ public:
     for(unsigned int i=0;i + nTrunc <  ChargeN.size() ; i++){
        sumdedx+=ChargeN[i];
     } 
-    return  sumdedx/(ChargeN.size()-nTrunc);
+    return Measurement1D( sumdedx/(ChargeN.size()-nTrunc) , 0 );
  } 
 
 private:

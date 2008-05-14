@@ -103,7 +103,7 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    {
       TrajectorySateOnDetInfoCollection tmp = (*tsodis_it).second;
 //      TrajectorySateOnDetInfoCollection tmp = (*tsodis_it).val;
-      float val=m_estimator->dedx( (*tsodis_it).second, tkGeom );
+      Measurement1D val=m_estimator->dedx( (*tsodis_it).second, tkGeom );
 //      float val=m_estimator->dedx( (*tsodis_it).val, tkGeom );
       
 //      if(val>18000){

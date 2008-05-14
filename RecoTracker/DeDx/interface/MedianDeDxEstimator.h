@@ -8,7 +8,7 @@ class MedianDeDxEstimator: public BaseDeDxEstimator
 {
 public: 
  MedianDeDxEstimator(float expo) {}
- virtual float dedx(reco::TrajectorySateOnDetInfoCollection tsodis, edm::ESHandle<TrackerGeometry> tkGeom){
+ virtual Measurement1D  dedx(reco::TrajectorySateOnDetInfoCollection tsodis, edm::ESHandle<TrackerGeometry> tkGeom){
     if(tsodis.size()<=0)return 0;
 
     std::vector<double> ChargeN;
@@ -17,7 +17,7 @@ public:
     }
     std::sort(ChargeN.begin(), ChargeN.end() );
 
-    return  ChargeN[ChargeN.size()/2]; 
+    return Measurement1D( ChargeN[ChargeN.size()/2] , 0 ); 
  } 
 };
 
