@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/04/28 22:39:00 $
- * $Revision: 1.30 $
+ * $Date: 2008/05/07 19:22:10 $
+ * $Revision: 1.33 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -146,10 +146,7 @@ void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
     if (globalStatusFilling_) actionExecutor_->bookGlobalStatus(dqmStore_);
   } else {
-    if (globalStatusFilling_) {
-      actionExecutor_->resetGlobalStatus();
-      actionExecutor_->bookGlobalStatus(dqmStore_);
-    }
+    if (globalStatusFilling_) actionExecutor_->resetGlobalStatus();
   }
 }
 //
