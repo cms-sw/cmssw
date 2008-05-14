@@ -45,7 +45,7 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
     sCAlgo_ = reco::dynamicHybrid;
     fCorrPset = ps.getParameter<edm::ParameterSet>("dyn_fCorrPset"); 
   } else if (sCAlgo_str=="Multi5x5") {
-    sCAlgo_ = reco::fixedMatrix;
+    sCAlgo_ = reco::multi5x5;
     fCorrPset = ps.getParameter<edm::ParameterSet>("fix_fCorrPset");
   } else {
     edm::LogError("EgammaSCCorrectionMakerError") 
@@ -91,7 +91,10 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   } else if(rHInputCollection == "EcalRecHitsPS") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  } else throw(std::runtime_error("\n\nSCCorrectionMaker encountered invalied ecalhitcollection type.\n\n"));
+  } else {
+          std::string str = "\n\nSCCorrectionMaker encountered invalied ecalhitcollection type: " + rHInputCollection + ".\n\n";
+          throw(std::runtime_error( str.c_str() ));
+  }
   
   // Get raw SuperClusters from the event    
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
