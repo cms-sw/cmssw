@@ -5,8 +5,8 @@
 //   L1 DT Track Finder ESProducer
 //
 //
-//   $Date: 2007/03/30 08:03:00 $
-//   $Revision: 1.1 $
+//   $Date: 2008/02/25 15:37:30 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
@@ -27,6 +27,7 @@ DTTrackFinderConfig::DTTrackFinderConfig(const edm::ParameterSet& pset) {
   setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTPtaLut);
   setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTEtaPatternLut);
   setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTQualPatternLut);
+  setWhatProduced(this, &DTTrackFinderConfig::produceL1MuDTTFParameters);
   
 }
 
@@ -87,4 +88,13 @@ auto_ptr<L1MuDTQualPatternLut> DTTrackFinderConfig::produceL1MuDTQualPatternLut(
    }
 
    return qualut;
+}
+
+auto_ptr<L1MuDTTFParameters> DTTrackFinderConfig::produceL1MuDTTFParameters(const L1MuDTTFParametersRcd& iRecord) {
+
+  auto_ptr<L1MuDTTFParameters> dttfpar = auto_ptr<L1MuDTTFParameters>( new L1MuDTTFParameters() );
+
+   dttfpar->reset();
+
+   return dttfpar;
 }
