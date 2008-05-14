@@ -121,28 +121,25 @@ class _SequenceOperator(_Sequenceable):
         self._left = left
         self._right = right
     def __str__(self):
-        returnValue = str(self._left)
-        if isinstance(self._left,_SequenceOperator) and (self._left._precedence() < self._precedence()):
-            returnValue='('+str(self._left)+')'
-                
+        returnValue = self._dumpChild(self._left, str(self._left))
         returnValue +=self._pySymbol
-        if isinstance(self._right,_SequenceOperator) and (self._right._precedence() < self._precedence()):
-            returnValue +='('+str(self._right)+')'
-        else:
-            returnValue += str(self._right)
+        returnValue +=self._dumpChild(self._right, str(self._right))
         return returnValue
     def dumpSequenceConfig(self):
-        return '('+self._left.dumpSequenceConfig()+self._cfgSymbol+self._right.dumpSequenceConfig()+')'
+        returnValue = self._dumpChild(self._left, self._left.dumpSequenceConfig())
+        returnValue +=self._cfgSymbol
+        returnValue +=self._dumpChild(self._right, self._right.dumpSequenceConfig())
+        return returnValue
     def dumpSequencePython(self):
-        returnValue = self._left.dumpSequencePython()
-        if isinstance(self._left,_SequenceOperator) and (self._left._precedence() < self._precedence()):
-            returnValue='('+self._left.dumpSequencePython()+')'
-                
+        returnValue = self._dumpChild(self._left, self._left.dumpSequencePython())
         returnValue +=self._pySymbol
-        if isinstance(self._right,_SequenceOperator) and (self._right._precedence() < self._precedence()):
-            returnValue +='('+self._right.dumpSequencePython()+')'
-        else:
-            returnValue += self._right.dumpSequencePython()
+        returnValue +=self._dumpChild(self._right, self._right.dumpSequencePython())
+        return returnValue
+    def _dumpChild(self, child, dump):
+        returnValue = dump
+        # see if it needs parentheses for precedence
+        if isinstance(child, _SequenceOperator) and (child._precedence() < self._precedence()):
+           returnValue = '('+returnValue+')'
         return returnValue
     def _clonesequence(self, lookuptable):
         return type(self)(self._left._clonesequence(lookuptable),self._right._clonesequence(lookuptable))
