@@ -22,6 +22,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 //#include "RecoJets/Geom/interface/TTrajectoryPoint.hh"
 //#include "RecoJets/Geom/interface/TSimpleExtrapolator.hh"
@@ -141,7 +142,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
 void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) {
 
    edm::ESHandle<CaloGeometry> geometry;
-   iSetup.get<IdealGeometryRecord>().get(geometry);
+   iSetup.get<CaloGeometryRecord>().get(geometry);
 
   // These declarations create handles to the types of records that you want
   // to retrieve from event "evt".

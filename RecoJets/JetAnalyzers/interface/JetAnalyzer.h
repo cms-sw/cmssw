@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -79,8 +78,8 @@
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2007/07/23 21:58:55 $
-  * $Revision: 1.6 $
+  * $Date: 2008/01/28 21:52:42 $
+  * $Revision: 1.7 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalyzer : public edm::EDAnalyzer {
