@@ -42,11 +42,11 @@ int trackAngle( TString fileName = "simevent.root" )
 int getAngleParams( double angle )
 {
 
-  double meanY = 1.45; // Y position of gun - (width crystal)/2
+  double meanY = 0.9; // Y position of gun - (width crystal)/2
 
   double radAngle = angle*TMath::Pi()/180.;
 
-  double meanX = meanY*TMath::Tan( radAngle );
+  double meanX = -meanY*TMath::Tan( radAngle );
   
   double phi = TMath::PiOver2()-radAngle;
 
