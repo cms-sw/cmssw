@@ -45,6 +45,7 @@ function test_db() {
     eval `scramv1 runtime -sh`
     SealPluginRefresh
 
+    
     if [ ${blobflag} == "blob" ] && [ "${mode}" == "write" ]; then
 		#cp dbfile.db ${dbfile}
         [ -e ${dbfile} ] && rm -f ${dbfile}
@@ -55,7 +56,6 @@ function test_db() {
 	write_dbconfigurationOrconXML sqlite_file:$dbfile $dbconfigurationOrconXML
 	cmscond_bootstrap_detector -P ~/conddb -D STRIP -f ./dbconfiguration-orcon.xml -b $CMSSW_BASE
 	[ -e ${dbconfigurationOrconXML} ] && rm -f ${dbconfigurationOrconXML}
-	pool_insertFileToCatalog -u file:${dbcatalog} -t POOL_RDBMS sqlite_file:${dbfile}
 	echo " " 
 
     fi

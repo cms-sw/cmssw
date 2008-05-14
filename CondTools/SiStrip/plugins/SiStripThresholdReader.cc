@@ -5,7 +5,7 @@ using namespace std;
 using namespace cms;
 
 SiStripThresholdReader::SiStripThresholdReader( const edm::ParameterSet& iConfig ):
-  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)){}
+  printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",3)){}
 
 SiStripThresholdReader::~SiStripThresholdReader(){}
 
@@ -18,22 +18,27 @@ void SiStripThresholdReader::analyze( const edm::Event& e, const edm::EventSetup
   std::vector<uint32_t> detid;
   SiStripThreshold_->getDetIds(detid);
   edm::LogInfo("Number of detids ")  << detid.size() << std::endl;
-  
   if (printdebug_)
     for (size_t id=0;id<detid.size() && id<printdebug_;id++)
       {
 	SiStripThreshold::Range range=SiStripThreshold_->getRange(detid[id]);
 	
 	//int strip=0;
-	for(int it=0;it<range.second-range.first;it++){
-	  unsigned int value=(*(range.first+it));
-	  edm::LogInfo("SiStripThresholdReader")  << "detid: " << detid[id] << " \t"
-						<< "firstStrip: " << SiStripThreshold_->decode(value).firstStrip << " \t"
-						<< "NumConsecutiveStrip: " << SiStripThreshold_->decode(value).stripRange << " \t"
-						<< "lTh: " << SiStripThreshold_->decode(value).lowTh   << " \t" 
-						<< "hTh: " << SiStripThreshold_->decode(value).highTh   << " \t" 
-						<< "packed integer: " << std::hex << value << std::dec
-						<< std::endl; 	    
+	float old_lowTh=-1, old_highTh=-1, old_FirstStrip=-1;
+	for(int it=0;it<768;it++){
+	  SiStripThreshold::Data data=SiStripThreshold_->getData(it,range);
+	  if (old_lowTh!=data.getLth() || old_highTh!=data.getHth() || old_FirstStrip!=data.getFirstStrip()){
+	    edm::LogInfo("SiStripThresholdReader")  << "detid: " << detid[id] << " \t"
+						    << "strip: " << it << " \t" 
+						    << "firstStrip: " <<  data.getFirstStrip() << " \t"
+						    << "lTh: " << data.getLth()  << " \t" 
+						    << "hTh: " << data.getHth()   << " \t" 
+						    << "FirstStrip_and_Hth: " << data.FirstStrip_and_Hth << " \t"
+						    << std::endl; 	    
+	    old_lowTh=data.getLth();
+	    old_highTh=data.getHth();
+	    old_FirstStrip=data.getFirstStrip();
+	  }
 	} 
       }
 }

@@ -22,14 +22,13 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = reader.getAllData();
 
   int count=-1;
-  unsigned short NconsecutiveValueTh=1;
-  unsigned int encodeValueTh;
   for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
     count++;
     //Generate Pedestal for det detid
-    std::vector<unsigned int> theSiStripVector;   
-    for(int strip=0; strip<128*it->second.nApvs;++strip){
-	
+    SiStripThreshold::Container theSiStripVector;   
+    uint16_t strip=0;
+    while(strip<128*it->second.nApvs){
+      
       float lTh = (RandFlat::shoot(1.) * 64)/5;
       float hTh = (RandFlat::shoot(1.) * 64)/5;
       if (hTh < lTh){
@@ -37,28 +36,26 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
 	hTh = lTh;
 	lTh = tmp;
       }
-	  
-	encodeValueTh=obj->encode(strip,NconsecutiveValueTh,lTh,hTh);
-      if (count<printdebug_)
-	edm::LogInfo("SiStripThresholdBuilder") <<"detid: "  << it->first << " \t"
-						<< "firstStrip: " << strip << " \t"
-						<< "NumConsecutiveStrip: " << NconsecutiveValueTh << " \t"
-						<< "lTh: " << lTh       << " \t" 
-						<< "hTh: " << hTh       << " \t" 
-						<< "packed integer: " << std::hex << encodeValueTh << std::dec
-						<< std::endl; 	    
-	  theSiStripVector.push_back(encodeValueTh);
-    }
       
-    SiStripThreshold::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( ! obj->put(it->first,range) )
+      obj->setData(strip,lTh,hTh,theSiStripVector);
+      if (count<(int)printdebug_)
+	edm::LogInfo("SiStripThresholdBuilder") <<"detid: "  << it->first << " \t"
+						<< "firstStrip: " << strip << " \t" << theSiStripVector.back().getFirstStrip() << " \t"
+						<< "lTh: " << lTh       << " \t" << theSiStripVector.back().getLth() << " \t"
+						<< "hTh: " << hTh       << " \t" << theSiStripVector.back().getHth() << " \t"
+						<< "FirstStrip_and_Hth: " << theSiStripVector.back().FirstStrip_and_Hth << " \t"
+						<< std::endl; 	    
+      obj->setData(strip+1,lTh,hTh,theSiStripVector);
+      strip=(uint16_t) (RandFlat::shoot(strip+2,128*it->second.nApvs));
+    }      
+    if ( ! obj->put(it->first,theSiStripVector) )
       edm::LogError("SiStripThresholdBuilder")<<"[SiStripThresholdBuilder::analyze] detid already exists"<<std::endl;
   }
   
 
   //End now write sistrippedestals data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
-
+  
   if( mydbservice.isAvailable() ){
     if ( mydbservice->isNewTagRequest("SiStripThresholdRcd") ){
       mydbservice->createNewIOV<SiStripThreshold>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripThresholdRcd");

@@ -24,7 +24,7 @@ void SiStripNoisesBuilder::analyze(const edm::Event& evt, const edm::EventSetup&
   for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
     count++;
     //Generate Noise for det detid
-    std::vector<short> theSiStripVector;
+    SiStripNoises::InputVector theSiStripVector;
     for(int strip=0; strip<128*it->second.nApvs; ++strip){
 
       float MeanNoise = 5;

@@ -10,6 +10,9 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+
 #include <vector>
 #include <ext/hash_map>
 
