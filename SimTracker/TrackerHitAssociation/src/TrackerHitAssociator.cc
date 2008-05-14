@@ -66,8 +66,8 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
     SimHitMap[(*isim).detUnitId()].push_back((*isim));
   }
   
-  if(doStrip_) e.getByLabel("siStripDigis", stripdigisimlink);
-  if(doPixel_) e.getByLabel("siPixelDigis", pixeldigisimlink);
+  if(doStrip_) e.getByLabel("simSiStripDigis", stripdigisimlink);
+  if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
   
 }
 
@@ -112,8 +112,8 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
     
   }
 
-  if(doStrip_) e.getByLabel("siStripDigis", stripdigisimlink);
-  if(doPixel_) e.getByLabel("siPixelDigis", pixeldigisimlink);
+  if(doStrip_) e.getByLabel("simSiStripDigis", stripdigisimlink);
+  if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
   
 }
 
