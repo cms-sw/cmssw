@@ -3,8 +3,8 @@
  * 
  * Analyzer to test Shower Containment Corrections
  *   
- * $Date: 2007/07/16 14:11:21 $
- * $Revision: 1.5 $
+ * $Date: 2007/07/16 14:15:01 $
+ * $Revision: 1.1 $
  * \author S. Argiro'
  *
 */
@@ -30,7 +30,7 @@
 #include "RecoTBCalo/EcalTBAnalysisCoreTools/interface/TBPositionCalc.h"
 
 // geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -368,7 +368,7 @@ EcalShowerContainmentAnalyzer::contCorrection(const edm::Event& iEvent,
   posparam["W0"]=4.0;
   
   edm::ESHandle<CaloGeometry> geoHandle;
-  iESetup.get<IdealGeometryRecord>().get(geoHandle);
+  iESetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p= 
     geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
