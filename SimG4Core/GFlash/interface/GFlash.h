@@ -16,6 +16,7 @@ public:
 
 private:
   GflashHistogram* theHisto;
+  edm::ParameterSet thePar;
 
 };
 

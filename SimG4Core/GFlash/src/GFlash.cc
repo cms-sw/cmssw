@@ -14,8 +14,8 @@
 #include "G4DataQuestionaire.hh"
 #include "SimG4Core/GFlash/interface/GflashHistogram.h"
 
-GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
-	       const edm::ParameterSet & p) : PhysicsList(map, p) {
+GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet & p) :
+  PhysicsList(map, p), thePar(p.getParameter<edm::ParameterSet>("GFlash")) {
 
   G4DataQuestionaire it(photon);
 
@@ -23,7 +23,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP 3.3 + CMS GFLASH\n";
 
-  RegisterPhysics(new ParametrisedPhysics("parametrised",p)); 
+  RegisterPhysics(new ParametrisedPhysics("parametrised",thePar)); 
 
   // EM Physics
   RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
@@ -54,7 +54,7 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 
   // singleton histogram object
   theHisto = GflashHistogram::instance();
-  if(p.getParameter<bool>("GflashHistogram")) {
+  if(thePar.getParameter<bool>("GflashHistogram")) {
     theHisto->setStoreFlag(true);
     theHisto->bookHistogram();
   }
