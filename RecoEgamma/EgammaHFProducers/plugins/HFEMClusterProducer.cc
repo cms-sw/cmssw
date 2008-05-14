@@ -8,7 +8,7 @@
 #include <iostream>
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoEgamma/EgammaHFProducers/plugins/HFEMClusterProducer.h"
 using namespace reco;
 HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf): hfreco_(conf.getUntrackedParameter<edm::InputTag>("hits")) {
@@ -26,7 +26,7 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   e.getByLabel(hfreco_,hf_hits);
   
   edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);
+  iSetup.get<CaloGeometryRecord>().get(geometry);
   
   // create return data
   std::auto_ptr<reco::HFEMClusterShapeCollection> retdata1(new HFEMClusterShapeCollection());
