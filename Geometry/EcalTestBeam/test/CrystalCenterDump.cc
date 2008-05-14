@@ -32,7 +32,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
@@ -150,7 +150,7 @@ CrystalCenterDump::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
    std::cout << "Writing the center (eta,phi) for crystals in barrel SM 1 " << std::endl;
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
    //
    // get the ecal & hcal geometry
    //

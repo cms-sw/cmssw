@@ -30,7 +30,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
@@ -129,7 +129,7 @@ EcalTBHodoscopeGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::E
    std::cout << "Here I am " << std::endl;
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);     
+   iSetup.get<CaloGeometryRecord>().get(pG);     
    //
    // get the ecal & hcal geometry
    //
