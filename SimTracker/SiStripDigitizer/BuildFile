@@ -4,7 +4,6 @@
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimDataFormats/TrackingHit>
 <use name=DataFormats/SiStripDigi>
-<use name=DataFormats/Common>
 <use name=SimDataFormats/TrackerDigiSimLink>
 <use name=Mixing/Base>
 <use name=SimDataFormats/CrossingFrame>
