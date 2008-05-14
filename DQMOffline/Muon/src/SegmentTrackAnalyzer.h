@@ -55,6 +55,8 @@ class SegmentTrackAnalyzer : public MuonAnalyzerBase {
   MonitorElement* hitsNotUsed;
   MonitorElement* TrackSegm;
   MonitorElement* hitStaProvenance;
+  MonitorElement* trackHitPercentualVsEta;
+  MonitorElement* trackHitPercentualVsPhi;
 
  };
 #endif  
