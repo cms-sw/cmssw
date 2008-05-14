@@ -121,6 +121,8 @@ namespace edm
 
 	  }else LogWarning("MixingModule") <<"You have asked to mix an unknown type of object("<<object<<").\n If you want to include it in mixing, please contact the authors of the MixingModule!";
       }
+
+    for (unsigned int branch=0;branch<wantedBranches_.size();++branch) LogDebug("MixingModule")<<"Will keep branch "<<wantedBranches_[branch];
   
     produces<CrossingFramePlaybackInfo>();
   }
@@ -144,6 +146,7 @@ namespace edm
       if (desc.className()==lookfor && desc.moduleLabel()==tag.label() && desc.productInstanceName()==tag.instance()) {
 	  	    label=desc.moduleLabel()+desc.productInstanceName();
 	  found=true;
+	  wantedBranches_.push_back(desc.branchName());
 	  break; 
 	}
     }
