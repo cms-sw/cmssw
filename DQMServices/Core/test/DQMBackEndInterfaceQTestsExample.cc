@@ -77,14 +77,13 @@ private:
   ContentsYRange * yrange_test;  // contents within y-range test
   DeadChannel * deadChan_test;  // check against dead channels
   NoisyChannel * noisyChan_test;  // check against noisy channels
-  Comp2RefEqualH1 * equalH1_test; // equality test for histograms
-  Comp2RefEqualInt * equalInt_test; // equality test for integers
+  Comp2RefEqualH * equalH_test; // equality test for histograms
   MeanWithinExpected * meanNear_test; // mean-within-expected test
-  MostProbableLandau *poMPLandau_test_;
+  // MostProbableLandau *poMPLandau_test_;
   // contents within z-range tests
-  ContentsTH2FWithinRange * zrangeh2f_test; 
-  ContentsProfWithinRange * zrangeprof_test; 
-  ContentsProf2DWithinRange * zrangeprof2d_test;
+  // ContentsTH2FWithinRange * zrangeh2f_test; 
+  // ContentsProfWithinRange * zrangeprof_test; 
+  // ContentsProf2DWithinRange * zrangeprof2d_test;
 
   // use <ref> as the reference for the quality tests
   void setReference(MonitorElement * ref);
@@ -147,13 +146,12 @@ DQMStoreQTestsExample::DQMStoreQTestsExample(const edm::ParameterSet& iConfig ) 
   yrange_test = new ContentsYRange("my_yrange");
   deadChan_test = new DeadChannel("deadChan");
   noisyChan_test = new NoisyChannel("noisyChan");
-  equalH1_test = new Comp2RefEqualH1("my_histo_equal");
-  equalInt_test = new Comp2RefEqualInt("my_int_equal");
+  equalH_test = new Comp2RefEqualH("my_histo_equal");
   meanNear_test = new MeanWithinExpected("meanNear");
-  zrangeh2f_test = new ContentsTH2FWithinRange("zrangeh2f");
-  zrangeprof_test = new ContentsProfWithinRange("zrangeprof");
-  zrangeprof2d_test = new ContentsProf2DWithinRange("zrangeprof2d");
-  poMPLandau_test_ = new MostProbableLandau( "mplandau");
+  //zrangeh2f_test = new ContentsTH2FWithinRange("zrangeh2f");
+  //zrangeprof_test = new ContentsProfWithinRange("zrangeprof");
+  //zrangeprof2d_test = new ContentsProf2DWithinRange("zrangeprof2d");
+  //poMPLandau_test_ = new MostProbableLandau( "mplandau");
   
   // set reference for chi2, ks tests
   setReference(href);
@@ -170,10 +168,10 @@ DQMStoreQTestsExample::DQMStoreQTestsExample(const edm::ParameterSet& iConfig ) 
   // use RMS of distribution to judge if mean near expected value
   meanNear_test->useRMS();
   // Setup MostProbableLandau
-  poMPLandau_test_->setXMin( 0.1 * XMIN);
-  poMPLandau_test_->setXMax( 0.9 * XMAX);
-  poMPLandau_test_->setMostProbable( dLandauMP_);
-  poMPLandau_test_->setSigma( dLandauSigma_);
+  //poMPLandau_test_->setXMin( 0.1 * XMIN);
+  //poMPLandau_test_->setXMax( 0.9 * XMAX);
+  //poMPLandau_test_->setMostProbable( dLandauMP_);
+  //poMPLandau_test_->setSigma( dLandauSigma_);
 
   // fill in test integer
   int1->Fill(sample_int_value);
@@ -182,17 +180,10 @@ DQMStoreQTestsExample::DQMStoreQTestsExample(const edm::ParameterSet& iConfig ) 
 // use <ref> as the reference for the quality tests
 void DQMStoreQTestsExample::setReference(MonitorElement * ref)
 {
-  if(chi2_test)chi2_test->setReference(ref);
-  if(ks_test)ks_test->setReference(ref);  
-
-  if(equalH1_test)equalH1_test->setReference(ref);
-  // set reference equal to test integer
-  intRef1->Fill(sample_int_value);
-  if(equalInt_test)
-    {
-      if(ref)equalInt_test->setReference(intRef1);
-      else equalInt_test->setReference(ref);
-    }
+// FIXME, need to use reference in proper location /Reference here
+//  if(chi2_test)chi2_test->setReference(ref);
+//  if(ks_test)ks_test->setReference(ref);  
+//  if(equalH_test)equalH_test->setReference(ref);
 }
 
 
@@ -206,53 +197,17 @@ DQMStoreQTestsExample::~DQMStoreQTestsExample()
   if(yrange_test)delete yrange_test;
   if(deadChan_test)delete deadChan_test;
   if(noisyChan_test)delete noisyChan_test;
-  if(equalH1_test) delete equalH1_test;
-  if(equalInt_test) delete equalInt_test;
+  if(equalH_test) delete equalH_test;
   if(meanNear_test)delete meanNear_test;
-  if(zrangeh2f_test) delete zrangeh2f_test;
-  if(zrangeprof_test) delete zrangeprof_test;
-  if(zrangeprof2d_test) delete zrangeprof2d_test;
-  if( poMPLandau_test_) delete poMPLandau_test_;
+//  if(zrangeh2f_test) delete zrangeh2f_test;
+//  if(zrangeprof_test) delete zrangeprof_test;
+//  if(zrangeprof2d_test) delete zrangeprof2d_test;
+//  if( poMPLandau_test_) delete poMPLandau_test_;
 
 }
 
 void DQMStoreQTestsExample::endJob(void)
 {
-  // test # 1:  disable tests
-  chi2_test->disable();
-  ks_test->disable();
-  xrange_test->disable();
-  yrange_test->disable();
-  deadChan_test->disable();
-  noisyChan_test->disable();
-  equalH1_test->disable();
-  equalInt_test->disable();
-  meanNear_test->disable();
-  zrangeh2f_test->disable();
-  zrangeprof_test->disable();
-  zrangeprof2d_test->disable();
-  poMPLandau_test_->disable();
-
-  // attempt to run tests after they have been disabled
-  runTests(dqm::qstatus::DISABLED, "disabled tests");
-
-  // test #2: enable tests, run w/o reference 
-  // (affects only chi2_test, ks_test and equality tests)
-  chi2_test->enable();
-  ks_test->enable();
-  xrange_test->enable();
-  yrange_test->enable();
-  deadChan_test->enable();
-  noisyChan_test->enable();
-  equalH1_test->enable();
-  equalInt_test->enable();
-  // test will not run because mean value has not been set
-  meanNear_test->enable(); 
-  // test will not run because allowed range for mean & RMS has not been set
-  zrangeh2f_test->enable();
-  zrangeprof_test->enable();
-  zrangeprof2d_test->enable();
-  poMPLandau_test_->enable();
   setReference(0);
   
   // attempt to run tests w/o a reference histogram
@@ -263,15 +218,15 @@ void DQMStoreQTestsExample::endJob(void)
   // set expected mean value
   meanNear_test->setExpectedMean(mean_);
   // set allowed range for mean & RMS
-  zrangeh2f_test->setMeanRange(0., 3.);
-  zrangeh2f_test->setRMSRange(0., 2.);
-  zrangeh2f_test->setMeanTolerance(2.);
-  zrangeprof_test->setMeanRange(0., 1.);
-  zrangeprof_test->setRMSRange(0., 1.);
-  zrangeprof_test->setMeanTolerance(2.);
-  zrangeprof2d_test->setMeanRange(0., 3.);
-  zrangeprof2d_test->setRMSRange(0., 1.);
-  zrangeprof2d_test->setMeanTolerance(2.);
+  //zrangeh2f_test->setMeanRange(0., 3.);
+  //zrangeh2f_test->setRMSRange(0., 2.);
+  //zrangeh2f_test->setMeanTolerance(2.);
+  //zrangeprof_test->setMeanRange(0., 1.);
+  //zrangeprof_test->setRMSRange(0., 1.);
+  //zrangeprof_test->setMeanTolerance(2.);
+  //zrangeprof2d_test->setMeanRange(0., 3.);
+  //zrangeprof2d_test->setRMSRange(0., 1.);
+  //zrangeprof2d_test->setMeanTolerance(2.);
 
   chi2_test->setMinimumEntries(10000);
   ks_test->setMinimumEntries(10000);
@@ -279,13 +234,12 @@ void DQMStoreQTestsExample::endJob(void)
   yrange_test->setMinimumEntries(10000);
   deadChan_test->setMinimumEntries(10000);
   noisyChan_test->setMinimumEntries(10000);
-  equalH1_test->setMinimumEntries(10000);
-  equalInt_test->setMinimumEntries(10000);
+  equalH_test->setMinimumEntries(10000);
   meanNear_test->setMinimumEntries(10000);
-  zrangeh2f_test->setMinimumEntries(10000);
-  zrangeprof_test->setMinimumEntries(10000);
-  zrangeprof2d_test->setMinimumEntries(10000);
-  poMPLandau_test_->setMinimumEntries( 10000);
+  //zrangeh2f_test->setMinimumEntries(10000);
+  //zrangeprof_test->setMinimumEntries(10000);
+  //zrangeprof2d_test->setMinimumEntries(10000);
+  //poMPLandau_test_->setMinimumEntries( 10000);
 
   // attempt to run tests after specifying a minimum # of entries that is too high
   runTests(dqm::qstatus::INSUF_STAT, "tests w/ low statistics");
@@ -297,13 +251,12 @@ void DQMStoreQTestsExample::endJob(void)
   yrange_test->setMinimumEntries(0);
   deadChan_test->setMinimumEntries(0);
   noisyChan_test->setMinimumEntries(0);
-  equalH1_test->setMinimumEntries(0);
-  equalInt_test->setMinimumEntries(0);
+  equalH_test->setMinimumEntries(0);
   meanNear_test->setMinimumEntries(0);
-  zrangeh2f_test->setMinimumEntries(0);
-  zrangeprof_test->setMinimumEntries(0);
-  zrangeprof2d_test->setMinimumEntries(0);
-  poMPLandau_test_->setMinimumEntries( 0);
+  //zrangeh2f_test->setMinimumEntries(0);
+  //zrangeprof_test->setMinimumEntries(0);
+  //zrangeprof2d_test->setMinimumEntries(0);
+  //poMPLandau_test_->setMinimumEntries( 0);
   // run tests normally
   runTests(0, "regular tests");
 }
@@ -341,27 +294,24 @@ void DQMStoreQTestsExample::runTests(int expected_status,
   meanNear_test->runTest(h1);
   checkTest(meanNear_test);
 
-  poMPLandau_test_->runTest( poMPLandauH1_);
-  checkTest( poMPLandau_test_);
+  //poMPLandau_test_->runTest( poMPLandauH1_);
+  //checkTest( poMPLandau_test_);
 
-  equalH1_test->runTest(h1);
-  checkTest(equalH1_test);
-  showBadChannels(equalH1_test);
+  equalH_test->runTest(h1);
+  checkTest(equalH_test);
+  showBadChannels(equalH_test);
 
-  equalInt_test->runTest(int1);
-  checkTest(equalInt_test);
+  //zrangeh2f_test->runTest(testh2f);
+  //checkTest(zrangeh2f_test);
+  //showBadChannels(zrangeh2f_test);
 
-  zrangeh2f_test->runTest(testh2f);
-  checkTest(zrangeh2f_test);
-  showBadChannels(zrangeh2f_test);
+  //zrangeprof_test->runTest(testprof);
+  //checkTest(zrangeprof_test);
+  //showBadChannels(zrangeprof_test);
 
-  zrangeprof_test->runTest(testprof);
-  checkTest(zrangeprof_test);
-  showBadChannels(zrangeprof_test);
-
-  zrangeprof2d_test->runTest(testprof2d);
-  checkTest(zrangeprof2d_test);
-  showBadChannels(zrangeprof2d_test);
+  //zrangeprof2d_test->runTest(testprof2d);
+  //checkTest(zrangeprof2d_test);
+  //showBadChannels(zrangeprof2d_test);
 
   int status = 0;
   status = chi2_test->getStatus();
@@ -410,38 +360,30 @@ void DQMStoreQTestsExample::runTests(int expected_status,
     cout << "ERROR: MeanWithinExpected test expected status " << expected_status
 	 << ", got " << status << endl;
 
-  status = poMPLandau_test_->getStatus();
+  //status = poMPLandau_test_->getStatus();
+  //if (expected_status && expected_status != status)
+  //  cout << "ERROR: MostProbableLandau test expected status " << expected_status
+  //	 << ", got " << status << endl;
+
+  status = equalH_test->getStatus();
   if (expected_status && expected_status != status)
-    cout << "ERROR: MostProbableLandau test expected status " << expected_status
+    cout << "ERROR: Comp2RefEqualH test expected status " << expected_status
 	 << ", got " << status << endl;
 
-  status = equalH1_test->getStatus();
-  if (expected_status && expected_status != status)
-    cout << "ERROR: Comp2RefEqualH1 test expected status " << expected_status
-	 << ", got " << status << endl;
+  //status = zrangeh2f_test->getStatus();
+  // if (expected_status && expected_status != status)
+  //  cout << "ERROR: Comp2RefEqualInt test expected status " <<  expected_status
+  //	 << ", got " << status << endl;
 
-  status = equalInt_test->getStatus();
-  // there is no "INSUF_STAT" result when running "int equality" tests
-  if (expected_status
-      && expected_status != dqm::qstatus::INSUF_STAT
-      && expected_status != status)
-    cout << "ERROR: Comp2RefEqualInt test expected status " << expected_status
-	 << ", got " << status << endl;
+  //status = zrangeprof_test->getStatus();
+  // if (expected_status && expected_status != status)
+  //  cout << "ERROR: ContentsProfWithinRange test expected status " << expected_status
+  //	   << ", got " << status << endl;
 
-  status = zrangeh2f_test->getStatus();
-   if (expected_status && expected_status != status)
-    cout << "ERROR: Comp2RefEqualInt test expected status " << expected_status
-	 << ", got " << status << endl;
-
-  status = zrangeprof_test->getStatus();
-   if (expected_status && expected_status != status)
-    cout << "ERROR: ContentsProfWithinRange test expected status " << expected_status
-	 << ", got " << status << endl;
-
-  status = zrangeprof2d_test->getStatus();
-   if (expected_status && expected_status != status)
-    cout << "ERROR: ContentsProf2DWithinRange test expected status " << expected_status
-	 << ", got " << status << endl;
+  //status = zrangeprof2d_test->getStatus();
+  // if (expected_status && expected_status != status)
+  //  cout << "ERROR: ContentsProf2DWithinRange test expected status " << expected_status
+  //	   << ", got " << status << endl;
 }
 
 // called by runTests; return status

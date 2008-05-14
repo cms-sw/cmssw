@@ -79,8 +79,7 @@ private:
   ContentsYRange * yrange_test;  // contents within y-range test
   DeadChannel * deadChan_test;  // check against dead channels
   NoisyChannel * noisyChan_test;  // check against noisy channels
-  Comp2RefEqualH1 * equalH1_test; // equality test for histograms
-  Comp2RefEqualInt * equalInt_test; // equality test for integers
+  Comp2RefEqualH * equalH_test; // equality test for histograms
   MeanWithinExpected * meanNear_test; // mean-within-expected test
   // names for all quality tests
   vector<string> testNames;
@@ -169,14 +168,9 @@ void DQMOldReceiverStandaloneExample::createQualityTests(void)
   dbe->useQTestByMatch("histo_1", *it);
 
   ++it;
-  equalH1_test = dynamic_cast<Comp2RefEqualH1 *>
-    (dbe->createQTest(Comp2RefEqualH1::getAlgoName(), *it) );
+  equalH_test = dynamic_cast<Comp2RefEqualH *>
+    (dbe->createQTest(Comp2RefEqualH::getAlgoName(), *it) );
   dbe->useQTestByMatch("histo_1", *it);
-
-  ++it;
-  equalInt_test = dynamic_cast<Comp2RefEqualInt *>
-    (dbe->createQTest(Comp2RefEqualInt::getAlgoName(), *it) );
-  dbe->useQTestByMatch("int1", *it);
 
   ++it;
   meanNear_test = dynamic_cast<MeanWithinExpected *>
@@ -232,17 +226,10 @@ DQMOldReceiverStandaloneExample::DQMOldReceiverStandaloneExample(const edm::Para
 // use <ref> as the reference for the quality tests
 void DQMOldReceiverStandaloneExample::setReference(MonitorElement * ref)
 {
-  if(chi2_test)chi2_test->setReference(ref);
-  if(ks_test)ks_test->setReference(ref);  
-
-  if(equalH1_test)equalH1_test->setReference(ref);
-  // set reference equal to test integer
-  intRef1->Fill(sample_int_value);
-  if(equalInt_test)
-    {
-      if(ref)equalInt_test->setReference(intRef1);
-      else equalInt_test->setReference(ref);
-    }
+// FIXME, need to use reference in proper location /Reference here
+//  if(chi2_test)chi2_test->setReference(ref);
+//  if(ks_test)ks_test->setReference(ref);  
+//  if(equalH_test)equalH_test->setReference(ref);
 }
 
 

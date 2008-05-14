@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2008/02/22 23:52:24 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/05/13 13:10:59 $
+ *  $Revision: 1.12.2.7 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -23,15 +23,27 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 		std::string testType = params["type"]; 
 
 		if(!std::strcmp(testType.c_str(),ContentsXRange::getAlgoName().c_str())) this->EnableXRangeTest(testName, params,bei);       
+//		if(!std::strcmp(testType.c_str(),ContentsXRangeAS::getAlgoName().c_str())) this->EnableXRangeASTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),ContentsYRange::getAlgoName().c_str())) this->EnableYRangeTest(testName, params,bei);       
+//		if(!std::strcmp(testType.c_str(),ContentsYRangeAS::getAlgoName().c_str())) this->EnableYRangeASTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),DeadChannel::getAlgoName().c_str()))   this->EnableDeadChannelTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),NoisyChannel::getAlgoName().c_str()))  this->EnableNoisyChannelTest(testName, params,bei);       
-		if(!std::strcmp(testType.c_str(),MeanWithinExpected::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,bei);       
-                if(!std::strcmp(testType.c_str(),MostProbableLandau::getAlgoName().c_str()))  this->EnableMostProbableLandauTest(testName, params, bei);
+		if(!std::strcmp(testType.c_str(),MeanWithinExpected::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,bei);     
 
-                if(!std::strcmp(testType.c_str(),ContentsTH2FWithinRange::getAlgoName().c_str())) this->EnableTH2FContentsInRangeTest(testName, params, bei);
-                if(!std::strcmp(testType.c_str(),ContentsProfWithinRange::getAlgoName().c_str())) this->EnableProfContentsInRangeTest(testName, params, bei);
-                if(!std::strcmp(testType.c_str(),ContentsProf2DWithinRange::getAlgoName().c_str())) this->EnableProf2DContentsInRangeTest(testName, params, bei);
+		//================================== new qtests in the parser =============================================================//
+                if(!std::strcmp(testType.c_str(),Comp2RefEqualH::getAlgoName().c_str())) this->EnableComp2RefEqualHTest(testName, params,bei);
+                if(!std::strcmp(testType.c_str(),  Comp2RefChi2::getAlgoName().c_str())) this->EnableComp2RefChi2Test(testName, params,bei); 
+                if(!std::strcmp(testType.c_str(),Comp2RefKolmogorov::getAlgoName().c_str())) this->EnableComp2RefKolmogorovTest(testName, params,bei);
+
+
+
+  
+/*
+                if(!std::strcmp(testType.c_str(),MostProbableLandau::getAlgoName().c_str()))  this->EnableMostProbableLandauTest(testName, params, bei);
+*/
+
+                if(!std::strcmp(testType.c_str(),ContentsWithinExpected::getAlgoName().c_str())) this->EnableContentsWithinExpectedTest(testName, params, bei);
+//              if(!std::strcmp(testType.c_str(),ContentsWithinExpectedAS::getAlgoName().c_str())) this->EnableContentsWithinExpectedASTest(testName, params, bei);
 
 	}
 	
@@ -39,6 +51,60 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 }
 
 
+
+void QTestConfigure::EnableComp2RefEqualHTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+	QCriterion * qc1;	
+  	if(! bei->getQCriterion(testName) ){
+		testsConfigured.push_back(testName);
+		qc1 = bei->createQTest(Comp2RefEqualH::getAlgoName(),testName);
+	}else{
+		qc1 = bei->getQCriterion(testName);
+		
+	}	
+	Comp2RefEqualH * me_qc1 = (Comp2RefEqualH *) qc1;
+	
+	double warning=atof(params["warning"].c_str());
+	double error=atof(params["error"].c_str());
+	me_qc1->setWarningProb(warning);
+	me_qc1->setErrorProb(error);
+}
+
+
+
+void QTestConfigure::EnableComp2RefChi2Test(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+	QCriterion * qc1;	
+  	if(! bei->getQCriterion(testName) ){
+		testsConfigured.push_back(testName);
+		qc1 = bei->createQTest(Comp2RefChi2::getAlgoName(),testName);
+	}else{
+		qc1 = bei->getQCriterion(testName);
+		
+	}	
+	Comp2RefChi2 * me_qc1 = (Comp2RefChi2 *) qc1;
+	
+	double warning=atof(params["warning"].c_str());
+	double error=atof(params["error"].c_str());
+	me_qc1->setWarningProb(warning);
+	me_qc1->setErrorProb(error);
+}
+
+
+void QTestConfigure::EnableComp2RefKolmogorovTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+	QCriterion * qc1;	
+  	if(! bei->getQCriterion(testName) ){
+		testsConfigured.push_back(testName);
+		qc1 = bei->createQTest(Comp2RefKolmogorov::getAlgoName(),testName);
+	}else{
+		qc1 = bei->getQCriterion(testName);
+		
+	}	
+	Comp2RefKolmogorov * me_qc1 = (Comp2RefKolmogorov *) qc1;
+	
+	double warning=atof(params["warning"].c_str());
+	double error=atof(params["error"].c_str());
+	me_qc1->setWarningProb(warning);
+	me_qc1->setErrorProb(error);
+}
 
 void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;	
@@ -62,6 +128,28 @@ void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string
 	me_qc1->setErrorProb(error);
 }
 
+/* void QTestConfigure::EnableXRangeASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+	QCriterion * qc1;	
+  	if(! bei->getQCriterion(testName) ){
+		testsConfigured.push_back(testName);
+		qc1 = bei->createQTest(ContentsXRangeAS::getAlgoName(),testName);
+	}else{
+		qc1 = bei->getQCriterion(testName);
+		
+	}	
+	ContentsXRangeAS * me_qc1 = (ContentsXRangeAS *) qc1;
+	
+	double xmin=atof(params["xmin"].c_str());
+	double xmax=atof(params["xmax"].c_str());
+	
+	me_qc1->setAllowedXRange(xmin,xmax);
+	
+	double warning=atof(params["warning"].c_str());
+	double error=atof(params["error"].c_str());
+	me_qc1->setWarningProb(warning);
+	me_qc1->setErrorProb(error);
+}*/
+
 void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;	
   	if(! bei->getQCriterion(testName) ){
@@ -81,6 +169,26 @@ void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string
 	me_qc1->setWarningProb(warning);
 	me_qc1->setErrorProb(error);
 }
+
+/*void QTestConfigure::EnableYRangeASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+	QCriterion * qc1;	
+  	if(! bei->getQCriterion(testName) ){
+		testsConfigured.push_back(testName);
+		qc1 = bei->createQTest(ContentsYRangeAS::getAlgoName(),testName);
+	}else{
+		qc1 = bei->getQCriterion(testName);	
+	}	
+	ContentsYRangeAS * me_qc1 = (ContentsYRangeAS *) qc1;
+	
+	double ymin=atof(params["ymin"].c_str());
+	double ymax=atof(params["ymax"].c_str());
+	me_qc1->setAllowedYRange(ymin,ymax);
+
+	double warning=atof(params["warning"].c_str());
+	double error=atof(params["error"].c_str());
+	me_qc1->setWarningProb(warning);
+	me_qc1->setErrorProb(error);
+}*/
 
 void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;
@@ -167,7 +275,7 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map
 	
 	
 }
-
+/*
 void QTestConfigure::EnableMostProbableLandauTest( 
        const std::string                        &roTEST_NAME,
        std::map<std::string, std::string> &roMParams,
@@ -196,17 +304,17 @@ void QTestConfigure::EnableMostProbableLandauTest(
   poQTest->setMostProbable ( atof( roMParams["mostprobable"].c_str()) );
   poQTest->setSigma        ( atof( roMParams["sigma"].c_str()) );
 }
-
-void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+*/
+void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 
         QCriterion * qc1;
         if(! bei->getQCriterion(testName) ){
                 testsConfigured.push_back(testName);
-                qc1 = bei->createQTest(ContentsTH2FWithinRange::getAlgoName(),testName);
+                qc1 = bei->createQTest(ContentsWithinExpected::getAlgoName(),testName);
         }else{
                 qc1 = bei->getQCriterion(testName);
         }
-        ContentsTH2FWithinRange * me_qc1 = (ContentsTH2FWithinRange *) qc1;
+        ContentsWithinExpected * me_qc1 = (ContentsWithinExpected *) qc1;
 
         double warning=atof(params["warning"].c_str());
         double error=atof(params["error"].c_str());
@@ -226,80 +334,28 @@ void QTestConfigure::EnableTH2FContentsInRangeTest(std::string testName, std::ma
 
         int minEntries=atoi(params["minEntries"].c_str());
         if ( minEntries != 0 ) me_qc1->setMinimumEntries(minEntries);
-
 }
 
-void QTestConfigure::EnableProfContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
+/* void QTestConfigure::EnableContentsWithinExpectedASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 
         QCriterion * qc1;
         if(! bei->getQCriterion(testName) ){
                 testsConfigured.push_back(testName);
-                qc1 = bei->createQTest(ContentsProfWithinRange::getAlgoName(),testName);
+                qc1 = bei->createQTest(ContentsWithinExpectedAS::getAlgoName(),testName);
         }else{
                 qc1 = bei->getQCriterion(testName);
         }
-        ContentsProfWithinRange * me_qc1 = (ContentsProfWithinRange *) qc1;
+        ContentsWithinExpectedAS * me_qc1 = (ContentsWithinExpectedAS *) qc1;
 
         double warning=atof(params["warning"].c_str());
         double error=atof(params["error"].c_str());
         me_qc1->setWarningProb(warning);
         me_qc1->setErrorProb(error);
 
-        double minMean=atof(params["minMean"].c_str());
-        double maxMean=atof(params["maxMean"].c_str());
-        if ( minMean != 0 || maxMean != 0 ) me_qc1->setMeanRange(minMean, maxMean);
+        double minCont=atof(params["minCont"].c_str());
+        double maxCont=atof(params["maxCont"].c_str());
+        if ( minCont != 0 || maxCont != 0 ) me_qc1->setContentsRange(minCont, maxCont);
 
-        double minRMS=atof(params["minRMS"].c_str());
-        double maxRMS=atof(params["maxRMS"].c_str());
-        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setRMSRange(minRMS, maxRMS);
 
-        double toleranceMean=atof(params["toleranceMean"].c_str());
-        if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
+} */
 
-        int minEntries=atoi(params["minEntries"].c_str());
-        if ( minEntries != 0 ) me_qc1->setMinimumEntries(minEntries);
-
-}
-
-void QTestConfigure::EnableProf2DContentsInRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
-
-        QCriterion * qc1;
-        if(! bei->getQCriterion(testName) ){
-                testsConfigured.push_back(testName);
-                qc1 = bei->createQTest(ContentsProf2DWithinRange::getAlgoName(),testName);
-        }else{
-                qc1 = bei->getQCriterion(testName);
-        }
-        ContentsProf2DWithinRange * me_qc1 = (ContentsProf2DWithinRange *) qc1;
-
-        double warning=atof(params["warning"].c_str());
-        double error=atof(params["error"].c_str());
-        me_qc1->setWarningProb(warning);
-        me_qc1->setErrorProb(error);
-
-        double minMean=atof(params["minMean"].c_str());
-        double maxMean=atof(params["maxMean"].c_str());
-        if ( minMean != 0 || maxMean != 0 ) me_qc1->setMeanRange(minMean, maxMean);
-
-        double minRMS=atof(params["minRMS"].c_str());
-        double maxRMS=atof(params["maxRMS"].c_str());
-        if ( minRMS != 0 || maxRMS != 0 ) me_qc1->setRMSRange(minRMS, maxRMS);
-
-        double toleranceMean=atof(params["toleranceMean"].c_str());
-        if ( toleranceMean != 0 ) me_qc1->setMeanTolerance(toleranceMean);
-
-        int minEntries=atoi(params["minEntries"].c_str());
-        if ( minEntries != 0 ) me_qc1->setMinimumEntries(minEntries);
-
-}
-
-void QTestConfigure::disableTests(std::vector<std::string> testsOFFList, DQMStore *bei){
- std::vector<std::string>::iterator testsItr;
- for(testsItr= testsOFFList.begin(); testsItr != testsOFFList.end();++testsItr){ 
-	if( bei->getQCriterion(*testsItr) ){
-		QCriterion * qc1=bei->getQCriterion(*testsItr);
-		qc1->disable();	
-	}  
- }
-
-}
