@@ -5,17 +5,18 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/CandAlgos/interface/NamedCandCombiner.h"
+#include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 
 namespace reco {
   namespace modules {
-    typedef NamedCandCombiner<
+    typedef CandCombiner<
               StringCutObjectSelector<reco::Candidate>,
               AnyPairSelector,
-              combiner::helpers::ShallowClone
+              combiner::helpers::ShallowClone,
+              reco::NamedCompositeCandidateCollection
             > NamedCandShallowCloneCombiner;
 
 DEFINE_FWK_MODULE( NamedCandShallowCloneCombiner );

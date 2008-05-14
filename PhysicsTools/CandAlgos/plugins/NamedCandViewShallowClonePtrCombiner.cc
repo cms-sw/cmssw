@@ -15,7 +15,7 @@ namespace reco {
     typedef CandCombiner<
               StringCutObjectSelector<reco::Candidate>,
               AnyPairSelector,
-              combiner::helpers::ShallowClone,
+              combiner::helpers::ShallowClonePtr,
               reco::NamedCompositeCandidateCollection 
             > NamedCandViewShallowCloneCombiner;
 

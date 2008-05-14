@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.22 $
+ * \version $Revision: 1.23 $
  *
- * $Id: CandCombiner.h,v 1.22 2008/05/06 08:50:04 llista Exp $
+ * $Id: CandCombiner.h,v 1.23 2008/05/13 14:30:25 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -35,9 +35,44 @@ namespace edm {
 
 namespace reco {
   namespace modules {
+    
+    struct NoNames {
+      explicit NoNames(const edm::ParameterSet & cfg) { }
+      std::vector<std::string> roles() const { return std::vector<std::string>(); }
+      template<typename Cand>
+      void set(Cand & c) const { }
+    };
+    
+    struct RoleNames {
+      explicit RoleNames(const edm::ParameterSet & cfg) : 
+	name_(cfg.getParameter<std::string>("name")),
+        roles_(cfg.getParameter<std::vector<std::string> >("roles")) {
+      }
+      const std::vector<std::string> roles() const { return roles_; }
+      void set(reco::NamedCompositeCandidate &c) const {
+	c.setName(name_);
+	c.setRoles(roles_);
+	c.applyRoles();
+      } 
+    private:
+      /// Name of this candidate
+      std::string name_;
+      // Name of the roles
+      std::vector<std::string> roles_;
+    };
 
+    template<typename OutputCollection>
+    struct RoleNamesTrait {
+      typedef NoNames type;
+    };
+
+    template<>
+    struct RoleNamesTrait<reco::NamedCompositeCandidateCollection> {
+      typedef RoleNames type;
+    };  
+    
     struct CandCombinerBase : public edm::EDProducer {
-      CandCombinerBase( const edm::ParameterSet & cfg ) :
+      CandCombinerBase(const edm::ParameterSet & cfg) :
 	setLongLived_(false), 
 	setPdgId_(false) {
         using namespace cand::parser;
@@ -47,7 +82,7 @@ namespace reco {
 	  for(vector<ConjInfo>::iterator label = labels_.begin();
 	       label != labels_.end(); ++label)
 	if(label->mode_ == ConjInfo::kPlus)
-	  dauCharge_.push_back( 1 );
+	  dauCharge_.push_back(1);
 	else if (label->mode_ == ConjInfo::kMinus)
 	  dauCharge_.push_back(-1);
 	else
@@ -86,20 +121,22 @@ namespace reco {
     template<typename Selector, 
              typename PairSelector = AnyPairSelector,
              typename Cloner = ::combiner::helpers::NormalClone, 
+             typename OutputCollection = reco::CompositeCandidateCollection,
              typename Setup = AddFourMomenta,
              typename Init = typename ::reco::modules::EventSetupInit<Setup>::type         
             >
     class CandCombiner : public CandCombinerBase {
       public:
       /// constructor from parameter settypedef 
-      explicit CandCombiner( const edm::ParameterSet & cfg ) :
-        CandCombinerBase( cfg ),
-        combiner_( reco::modules::make<Selector>( cfg ), 
-		   reco::modules::make<PairSelector>( cfg ),
-		   Setup( cfg ), 
+      explicit CandCombiner(const edm::ParameterSet & cfg) :
+        CandCombinerBase(cfg),
+        combiner_(reco::modules::make<Selector>(cfg), 
+		   reco::modules::make<PairSelector>(cfg),
+		   Setup(cfg), 
 		   checkCharge(cfg), 
-		   dauCharge_ ) {
-        produces<reco::CompositeCandidateCollection>();
+		   dauCharge_),
+      names_(cfg) {
+        produces<OutputCollection>();
       }
 	/// destructor
       virtual ~CandCombiner() { }
@@ -115,27 +152,30 @@ namespace reco {
 	for(int i = 0; i < n; ++i)
 	  evt.getByLabel(labels_[i].tag_, colls[i]);
 
-	auto_ptr<CompositeCandidateCollection> out = combiner_.combine(colls);
+	auto_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
 	if(setLongLived_ || setPdgId_) {
-	  CompositeCandidateCollection::iterator i = out->begin(), e = out->end();
+	  typename OutputCollection::iterator i = out->begin(), e = out->end();
 	  for(; i != e; ++i) {
+	    names_.set(*i);
 	    if(setLongLived_) i->setLongLived();
 	    if(setPdgId_) i->setPdgId(pdgId_);
 	  }
 	}
 	evt.put(out);
       }
-      /// combiner utility
-      ::CandCombiner<Selector, PairSelector, Cloner, Setup> combiner_;
-      bool checkCharge( const edm::ParameterSet & cfg ) const {
+      bool checkCharge(const edm::ParameterSet & cfg) const {
 	using namespace std;
-	const string par( "checkCharge" );
+	const string par("checkCharge");
 	vector<string> bools = cfg.getParameterNamesForType<bool>();
-	bool found = find( bools.begin(), bools.end(), "checkCharge" ) != bools.end();
-	if (found) return cfg.getParameter<bool>( par );
+	bool found = find(bools.begin(), bools.end(), "checkCharge") != bools.end();
+	if (found) return cfg.getParameter<bool>(par);
 	// default: check charge
 	return true;
       }
+      /// combiner utility
+      ::CandCombiner<Selector, PairSelector, Cloner, OutputCollection, Setup> combiner_;
+      typedef typename RoleNamesTrait<OutputCollection>::type Roles;
+      Roles names_;
     };
 
   }

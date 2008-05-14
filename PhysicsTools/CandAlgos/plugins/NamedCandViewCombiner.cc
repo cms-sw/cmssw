@@ -8,13 +8,16 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/CandAlgos/interface/NamedCandCombiner.h"
+#include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 
-typedef reco::modules::NamedCandCombiner<
-                         StringCutObjectSelector<reco::Candidate>
+typedef reco::modules::CandCombiner<
+                         StringCutObjectSelector<reco::Candidate>,
+                         AnyPairSelector,
+                         combiner::helpers::NormalClone,
+                         reco::NamedCompositeCandidateCollection
                        > NamedCandViewCombiner;
       
-DEFINE_FWK_MODULE( NamedCandViewCombiner );
+DEFINE_FWK_MODULE(NamedCandViewCombiner);
