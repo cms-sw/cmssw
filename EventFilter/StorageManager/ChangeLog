@@ -1,3 +1,14 @@
+2008-05-14  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-12-04
+	* Kurt's changes to include event server statistics by HLT output module
+
+2008-05-14 Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-12-03
+	* Moved calls to scripts outside of the Storage manager and fixed web display of
+	  running Workers (script jobs)
+
 2008-05-12  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-12-02
