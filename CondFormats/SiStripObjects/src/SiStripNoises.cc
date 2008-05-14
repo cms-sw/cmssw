@@ -8,7 +8,7 @@ SiStripNoises::SiStripNoises(const SiStripNoises& input){
   indexes.insert(indexes.end(),input.indexes.begin(),input.indexes.end());
 }
 
-bool SiStripNoises::put(const uint32_t& DetId,InputVector& input) {
+bool SiStripNoises::put(const uint32_t& DetId, const InputVector& input) {
 	std::vector<unsigned char>	Vo_CHAR;
 	encode(input, Vo_CHAR);
 
@@ -53,11 +53,11 @@ float SiStripNoises::getNoise(const uint16_t& strip, const Range& range) const {
 	return   static_cast<float> (decode(strip,range)/10.0);
 }
 
-void SiStripNoises::setData(float noise_, std::vector<short>& v){
+void SiStripNoises::setData(float noise_, InputVector& v){
 	v.push_back((static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF)) ;
 }
 
-void SiStripNoises::encode(InputVector& Vi, std::vector<unsigned char>& Vo){
+void SiStripNoises::encode(const InputVector& Vi, std::vector<unsigned char>& Vo){
   static const uint16_t  BITS_PER_STRIP  = 9;
   const size_t           VoSize          = (size_t)((Vi.size() *       BITS_PER_STRIP)/8+.999);
   Vo.resize(VoSize);
