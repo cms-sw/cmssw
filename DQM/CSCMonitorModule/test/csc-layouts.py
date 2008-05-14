@@ -1,4 +1,4 @@
-def csclayout(i, p, *rows): i["CSC/Summary/Layouts/" + p] = DQMItem(layout=rows)
+def csclayout(i, p, *rows): i["CSC/Layouts/" + p] = DQMItem(layout=rows)
 
 csclayout(dqmitems,"EMU Summary/EMU Test01 - DDUs in Readout",
         ["CSC/Summary/All_DDUs_in_Readout"],
