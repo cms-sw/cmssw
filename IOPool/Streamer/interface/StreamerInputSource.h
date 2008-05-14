@@ -68,6 +68,7 @@ namespace edm {
     void buildClassCache(SendDescs const& descs);
     void saveTriggerNames(InitMsgView const* header);
     void setEndRun() {runEndingFlag_ = true;}
+    void resetAfterEndRun();
 
   private:
     virtual std::auto_ptr<EventPrincipal> read() = 0;
@@ -80,6 +81,8 @@ namespace edm {
     readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
     virtual InputSource::ItemType getNextItemType();
+
+    virtual void setRun(RunNumber_t r);
 
     bool newRun_;
     bool newLumi_;

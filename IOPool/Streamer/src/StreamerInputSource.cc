@@ -402,4 +402,23 @@ namespace edm {
 
     return (unsigned int) uncompressedSize;
   }
+
+  void StreamerInputSource::resetAfterEndRun()
+  {
+     // called from an online streamer source to reset after a stop command
+     // so an enable command will work
+     assert(ep_.get() == 0);
+     reset();
+     runEndingFlag_ = false;
+  }
+
+  void StreamerInputSource::setRun(RunNumber_t) 
+  {
+     // Need to define a dummy setRun here or else the InputSource::setRun is called
+     // if we have a source inheriting from this and wants to define a setRun method
+     throw edm::Exception(edm::errors::LogicError)
+     << "StreamerInputSource::setRun()\n"
+     << "Run number cannot be modified for this type of Input Source\n"
+     << "Contact a Storage Manager Developer\n";
+  }
 }
