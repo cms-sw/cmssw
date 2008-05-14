@@ -48,6 +48,12 @@ namespace edm {
     return eventPrincipal().getProvenance(bid);
   }
 
+  Provenance
+  Event::getProvenance(ProductID const& pid) const
+  {
+    return eventPrincipal().getProvenance(pid);
+  }
+
   void
   Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {

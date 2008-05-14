@@ -172,6 +172,12 @@ namespace edm {
     return *g->provenance();
   }
 
+  Provenance
+  EventPrincipal::getProvenance(ProductID const& pid) const {
+    BranchID bid = branchMapperPtr_->productToBranch(pid);
+    return getProvenance(bid);
+  }
+
   // This one is mostly for test printout purposes
   // No attempt to trigger on demand execution
   // Skips provenance when the EDProduct is not there
