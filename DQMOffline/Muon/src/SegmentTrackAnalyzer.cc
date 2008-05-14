@@ -43,6 +43,7 @@ SegmentTrackAnalyzer::~SegmentTrackAnalyzer() { }
 
 void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
 
+
   metname = "segmTrackAnalyzer";
   LogTrace(metname)<<"[SegmentTrackAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
@@ -56,13 +57,23 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   TrackSegm->setBinLabel(1,"CSC",3);
   
   hitStaProvenance = dbe->book2D("trackHitProvenance", "trackHitProvenance", 7, 0.5, 7.5, 100, -0.5, 99.5);
-  hitStaProvenance->setBinLabel(1,"DT",1);
+  /*hitStaProvenance->setBinLabel(1,"DT",1);
   hitStaProvenance->setBinLabel(1,"CSC",2);
   hitStaProvenance->setBinLabel(1,"RPC",3);
   hitStaProvenance->setBinLabel(1,"DT+CSC",4);
   hitStaProvenance->setBinLabel(1,"DT+RPC",5);
   hitStaProvenance->setBinLabel(1,"CSC+RPC",6);
-  hitStaProvenance->setBinLabel(1,"DT+CSC+RPC",7);
+  hitStaProvenance->setBinLabel(1,"DT+CSC+RPC",7);*/
+
+  int etaBin = parameters.getParameter<int>("etaBin");
+  double etaMin = parameters.getParameter<double>("etaMin");
+  double etaMax = parameters.getParameter<double>("etaMax");
+  trackHitPercentualVsEta = dbe->book2D("trackHitDivtrackSegmHitVsEta", "trackHitDivtrackSegmHitVsEta", etaBin, etaMin, etaMax, 50, 0, 5);
+
+  int phiBin = parameters.getParameter<int>("phiBin");
+  double phiMin = parameters.getParameter<double>("phiMin");
+  double phiMax = parameters.getParameter<double>("phiMax");
+  trackHitPercentualVsPhi = dbe->book2D("trackHitDivtrackSegmHitVsPhi", "trackHitDivtrackSegmHitVsPhi", phiBin, phiMin, phiMax, 50, 0, 5);
 
 
 }
@@ -149,6 +160,11 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   hitStaProvenance->Fill(5,hitsFromDt+hitsFromRpc);
   hitStaProvenance->Fill(6,hitsFromCsc+hitsFromRpc);
   hitStaProvenance->Fill(7,hitsFromDt+hitsFromCsc+hitsFromRpc);
+
+  if(hitsFromSegmDt+hitsFromSegmCsc !=0){
+    trackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
+    trackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
+  }
 
 } 
 
