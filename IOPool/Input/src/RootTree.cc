@@ -51,10 +51,13 @@ namespace edm {
   bool
   RootTree::isValid() const {
     if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
-      return tree_ != 0 && auxBranch_ != 0 &&
-	 tree_->GetNbranches() == 1; 
+      return tree_ != 0 && auxBranch_ != 0 && tree_->GetNbranches() == 1; 
     }
-    return tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0 && (branchEntryInfoBranch_ != 0 || statusBranch_ != 0);
+    if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) {
+      if (branchEntryInfoBranch_ != 0 || statusBranch_ != 0) return true;
+      return (entries_ == metaTree_->GetEntries() && tree_->GetNbranches() <= metaTree_->GetNbranches() + 1); 
+    }
+    return false;
   }
 
   void
@@ -73,15 +76,15 @@ namespace edm {
       //use the translated branch name 
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
       assert (prod.present() == (branch != 0));
-      input::EventBranchInfo info = input::EventBranchInfo(ConstBranchDescription(prod));
+      input::BranchInfo info = input::BranchInfo(ConstBranchDescription(prod));
       info.productBranch_ = 0;
       if (prod.present()) {
         info.productBranch_ = branch;
         //we want the new branch name for the JobReport
         branchNames_.push_back(prod.branchName());
       }
-      branches_->insert(std::make_pair(key, info));
       info.provenanceBranch_ = metaTree_->GetBranch(oldBranchName.c_str());
+      branches_->insert(std::make_pair(key, info));
   }
 
   boost::shared_ptr<DelayedReader>

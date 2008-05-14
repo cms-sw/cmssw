@@ -25,7 +25,7 @@ namespace edm {
       assert(nextReader_);
       return nextReader_->getProduct(k, ep);
     }
-    input::EventBranchInfo const& branchInfo = getBranchInfo(iter);
+    input::BranchInfo const& branchInfo = getBranchInfo(iter);
     TBranch *br = branchInfo.productBranch_;
     if (br == 0) {
       assert(nextReader_);

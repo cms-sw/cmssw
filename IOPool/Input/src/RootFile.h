@@ -16,6 +16,7 @@ RootFile.h // used by ROOT input sources
 
 #include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -27,8 +28,12 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/FileIndex.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 class TFile;
 
@@ -117,6 +122,8 @@ namespace edm {
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void readEntryDescriptionTree();
     void readEventHistoryTree();
+    template <typename T>
+    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(RootTree & rootTree, BranchType const& type, std::vector<T> *&) const;
 
     std::string const file_;
     std::string const logicalFile_;
@@ -163,6 +170,53 @@ namespace edm {
     TTree * eventHistoryTree_;
     History history_;    
   }; // class RootFile
+
+  template <typename T>
+  boost::shared_ptr<BranchMapper<T> >
+  RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type, std::vector<T> *& pEntryInfoVector) const {
+    if (fileFormatVersion_.value_ >= 8) {
+      return rootTree.makeBranchMapper<T>(pEntryInfoVector);
+    } 
+    // backward compatibility
+    boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapper<T>);
+    if (fileFormatVersion_.value_ >= 7) {
+      rootTree.fillStatus();
+      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
+          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
+        if (type == it->second.branchType()) {
+	  input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
+	  input::BranchInfo const& ib = ix->second;
+	  TBranch *br = ib.provenanceBranch_;
+	  //TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+          std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
+          EntryDescriptionID* ppb = pb.get();
+          br->SetAddress(&ppb);
+          br->GetEntry(rootTree.entryNumber());
+          br->SetAddress(0);
+	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().id() - 1;
+	  T entry(it->second.branchID(),
+		  rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
+	  mapper->insert(entry);
+        }
+      }
+    } else {
+      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
+          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
+        if (type == it->second.branchType()) {
+	  TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+          std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+          BranchEntryDescription* ppb = pb.get();
+          br->SetAddress(&ppb);
+          br->GetEntry(rootTree.entryNumber());
+          std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
+	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
+	  T entry(it->second.branchID(), status, entryDesc->moduleDescriptionID(), it->second.oldProductID(), entryDesc->parents());
+	  mapper->insert(entry);
+       }
+      }
+    }
+    return mapper;
+  }
 
 }
 #endif

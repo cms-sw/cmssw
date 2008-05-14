@@ -1,4 +1,7 @@
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
+#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------
@@ -25,13 +28,29 @@ namespace edm {
     moduleDescriptionID_()
   {}
 
+   // The last two arguments are ignored.
+   // They are used for backward compatibility.
    RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
 				    ProductStatus status,
-				    ModuleDescriptionID const& mid) :
+				    ModuleDescriptionID const& mid,
+		    		    ProductID const&,
+				    std::vector<ProductID> const&) :
     branchID_(bid),
     productStatus_(status),
     moduleDescriptionID_(mid)
   {} 
+
+   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
+				    ProductStatus status,
+		    		    ProductID const&,
+				    EntryDescriptionID const& edid) :
+    branchID_(bid),
+    productStatus_(status),
+    moduleDescriptionID_() {
+     EntryDescription ed;
+     EntryDescriptionRegistry::instance()->getMapped(edid, ed);
+     moduleDescriptionID_ = ed.moduleDescriptionID();
+  } 
 
   void
   RunLumiEntryInfo::setPresent() {

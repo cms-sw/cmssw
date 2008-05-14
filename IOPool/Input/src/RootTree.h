@@ -49,7 +49,7 @@ namespace edm {
     void fillGroups(T& item);
     boost::shared_ptr<DelayedReader> makeDelayedReader() const;
     template <typename T>
-    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(std::vector<T> *&);
+    boost::shared_ptr<BranchMapper<T> > makeBranchMapper(std::vector<T> *&) const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T *& pAux) const {
@@ -60,6 +60,8 @@ namespace edm {
     TTree const* metaTree() const {return metaTree_;}
     void setCacheSize(unsigned int cacheSize) const;
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+    BranchMap const& branches() const {return *branches_;}
+    std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;}
 
     // below for backward compatibility
     void fillStatus() {
@@ -101,22 +103,18 @@ namespace edm {
 
   template <typename T>
   boost::shared_ptr<BranchMapper<T> >
-  RootTree::makeBranchMapper(std::vector<T> *& pEntryInfoVector) {
+  RootTree::makeBranchMapper(std::vector<T> *& pEntryInfoVector) const {
+    assert (branchEntryInfoBranch_);
     boost::shared_ptr<BranchMapper<T> > mapper(new BranchMapper<T>);
-    if (branchEntryInfoBranch_) {
-      branchEntryInfoBranch_->SetAddress(&pEntryInfoVector);
-      branchEntryInfoBranch_->GetEntry(entryNumber_);
-      for (typename std::vector<T>::const_iterator it = pEntryInfoVector->begin(), itEnd = pEntryInfoVector->end();
-	  it != itEnd; ++it) {
-	mapper->insert(*it);
-      }
-    } else if (statusBranch_) {
-      fillStatus();
-    } else {
+
+    branchEntryInfoBranch_->SetAddress(&pEntryInfoVector);
+    branchEntryInfoBranch_->GetEntry(entryNumber_);
+    for (typename std::vector<T>::const_iterator it = pEntryInfoVector->begin(), itEnd = pEntryInfoVector->end();
+	it != itEnd; ++it) {
+      mapper->insert(*it);
     }
     return mapper;
   }
-
 
 }
 #endif

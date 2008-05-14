@@ -36,6 +36,17 @@ namespace edm {
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
 				    ProductStatus status,
 				    ProductID const& pid,
+				    EntryDescriptionID const& edid) :
+    branchID_(bid),
+    productID_(pid),
+    productStatus_(status),
+    entryDescriptionID_(edid),
+    entryDescriptionPtr_()
+  {}
+
+   EventEntryInfo::EventEntryInfo(BranchID const& bid,
+				    ProductStatus status,
+				    ProductID const& pid,
 				    boost::shared_ptr<EntryDescription> edPtr) :
     branchID_(bid),
     productID_(pid),

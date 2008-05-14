@@ -16,8 +16,8 @@ namespace edm {
   class RootDelayedReader;
   class RootTree;
   namespace input {
-    struct EventBranchInfo {
-      EventBranchInfo(ConstBranchDescription const& prod) :
+    struct BranchInfo {
+      BranchInfo(ConstBranchDescription const& prod) :
         branchDescription_(prod),
 	productBranch_(0),
 	provenanceBranch_(0) {}
@@ -26,7 +26,7 @@ namespace edm {
       // The rest are for backward compatibility
       TBranch * provenanceBranch_;
     };
-    typedef std::map<BranchKey const, EventBranchInfo> BranchMap;
+    typedef std::map<BranchKey const, BranchInfo> BranchMap;
     typedef Long64_t EntryNumber;
   }
 }

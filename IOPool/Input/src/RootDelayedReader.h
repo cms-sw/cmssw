@@ -28,7 +28,7 @@ namespace edm {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
-    typedef input::EventBranchInfo EventBranchInfo;
+    typedef input::BranchInfo BranchInfo;
     typedef input::BranchMap::const_iterator iterator;
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
@@ -42,7 +42,7 @@ namespace edm {
     BranchMap const& branches() const {return *branches_;}
     iterator branchIter(BranchKey const& k) const {return branches().find(k);}
     bool found(iterator const& iter) const {return iter != branches().end();}
-    EventBranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
+    BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
     EntryNumber const entryNumber_;
     boost::shared_ptr<BranchMap const> branches_;
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
