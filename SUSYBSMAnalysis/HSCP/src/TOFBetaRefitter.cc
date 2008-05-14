@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: TOFBetaRefitter.cc,v 1.1 2008/03/17 17:13:20 ptraczyk Exp $
+// $Id: TOFBetaRefitter.cc,v 1.1 2008/03/17 23:24:07 ptraczyk Exp $
 //
 //
 
@@ -119,6 +119,9 @@ class TOFBetaRefitter : public edm::EDProducer {
 
   unsigned int theHitsMinTheta, theHitsMinPhi;
   bool debug;
+  bool requireLR;
+  bool correctDist;
+  double thePruneCut;
 
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   
@@ -132,9 +135,12 @@ TOFBetaRefitter::TOFBetaRefitter(const edm::ParameterSet& iConfig)
   :
   MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
   DTSegmentTags_(iConfig.getUntrackedParameter<edm::InputTag>("DTsegments")),
-  theHitsMinPhi(iConfig.getParameter<int>("HitsMinPhi")),
   theHitsMinTheta(iConfig.getParameter<int>("HitsMinTheta")),
-  debug(iConfig.getParameter<bool>("debug")) 
+  theHitsMinPhi(iConfig.getParameter<int>("HitsMinPhi")),
+  correctDist(iConfig.getParameter<bool>("correctDist")),
+  requireLR(iConfig.getParameter<bool>("requireLR")),
+  debug(iConfig.getParameter<bool>("debug")),
+  thePruneCut(iConfig.getParameter<double>("pruneCut"))
 {
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -165,6 +171,8 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (debug) 
     cout << "*** Refit beta from TOF Start ***" << endl;
 
+  theService->update(iSetup);
+
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
   ESHandle<DTGeometry> theDTGeometry;
@@ -183,6 +191,8 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   MuonRefProd muRP(allMuons); 
   MuonTOFCollection *outputCollection = new MuonTOFCollection(muRP);
 
+  Propagator *propag = &*theService->propagator("SteppingHelixPropagatorAny")->clone();
+
   // Get the DT-Segment collection from the Event
   edm::Handle<DTRecSegment4DCollection> dtRecHits;
   iEvent.getByLabel(DTSegmentTags_, dtRecHits);  
@@ -192,6 +202,21 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   size_t muId = 0;
 
   for(MuonTOFCollection::const_iterator mi = betaReco.begin(); mi != betaReco.end() ; mi++, muId++) {
+
+    //the associated muon track
+    TrackRef muonTrack;
+    if ((*mi).first->combinedMuon().isNonnull()) muonTrack = (*mi).first->combinedMuon();
+      else
+        if ((*mi).first->standAloneMuon().isNonnull()) muonTrack = (*mi).first->standAloneMuon();
+          else continue;
+          
+    math::XYZPoint  pos=muonTrack->innerPosition();
+    math::XYZVector mom=muonTrack->innerMomentum();
+
+    GlobalPoint  posp(pos.x(), pos.y(), pos.z());
+    GlobalVector momv(mom.x(), mom.y(), mom.z());
+
+    FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
     double invbeta = (*mi).second.invBeta;
     double invbetaerr = (*mi).second.invBetaErr;
@@ -209,38 +234,91 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (int sta=1;sta<5;sta++)
         for (int phi=0;phi<2;phi++) {
           vector <TimeMeasurement> seg;
-          for (vector<TimeMeasurement>::const_iterator tm=tms.begin(); tm!=tms.end(); ++tm) 
+          for (vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) 
             if ((tm->station==sta) && (tm->isPhi==phi)) seg.push_back(*tm);
           
-          if (seg.size()<=minHits[phi]) continue;
+          unsigned int segsize = seg.size();
+          
+          if (segsize<minHits[phi]) continue;
 
-          nStations++;
-
-          double a=0, b=0, celly;
+          double a=0, b=0, celly, chi2, chi2max, t0=0.;
           vector <double> hitxl,hitxr,hityl,hityr;
+          vector<TimeMeasurement>::iterator tmmax;
+          bool firstpass=true;
 
-          for (vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+          if (debug) 
+            cout << endl << " *** New segment" << endl;
 
-            DetId id = tm->driftCell;
-            const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
-            DTChamberId chamberId(id.rawId());
-            const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
+          do {
+            hitxl.clear();
+            hityl.clear();
+            hitxr.clear();
+            hityr.clear();
+            tmmax=seg.begin();
+            chi2max=-1.;
+            segsize=seg.size();
 
-            celly=dtcham->toLocal(dtcell->position()).z();
+            for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+ 
+              DetId id = tm->driftCell;
+              const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
+              DTChamberId chamberId(id.rawId());
+              const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
+
+              celly=dtcham->toLocal(dtcell->position()).z();
             
-            if (tm->isLeft) {
-              hitxl.push_back(celly);
-              hityl.push_back(tm->posInLayer);
-            } else {
-              hitxr.push_back(celly);
-              hityr.push_back(tm->posInLayer);
-            }    
+              if (tm->isLeft) {
+                hitxl.push_back(celly);
+                hityl.push_back(tm->posInLayer);
+              } else {
+                hitxr.push_back(celly);
+                hityr.push_back(tm->posInLayer);
+              }    
+            }
+
+            t0 = fitT0(a,b,hitxl,hityl,hitxr,hityr);
+
+            for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+ 
+              DetId id = tm->driftCell;
+              const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
+              DTChamberId chamberId(id.rawId());
+              const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
+
+              celly=dtcham->toLocal(dtcell->position()).z();
+              chi2 = (a * celly + b - tm->posInLayer)/0.02;
+              chi2*= chi2;
+            
+              // calculate chi2 if this is not the 1-st pass
+              if ((chi2>chi2max) && (a!=0)) {
+                chi2max=chi2;
+                tmmax=tm;
+              }
+            
+              if (debug) 
+                cout << " Hit x= " << tm->posInLayer << "  z= " << celly << "  chi2= " << chi2 << endl;
+            
+            }
+            
+            if (chi2max>thePruneCut) seg.erase(tmmax); 
+            firstpass=false;
+
+            if (debug)     	        
+              cout << "     Segment size: " << seg.size() << "  t0 from fit: " << t0 << endl;  
+//              cout << "     Left size: " << hitxl.size() << "  Right size: " << hitxr.size() <<  endl;  
+//              cout << "   a= " << a << "   b= " << b << "   chi2max " << chi2max << endl;
+            
+          } while ((segsize!=seg.size()) && (seg.size()>2) && (a!=0));
+
+          if ((t0==0) && (requireLR)) {
+            if (debug)
+              cout << "     t0 = zero, Left hits: " << hitxl.size() << " Right hits: " << hitxr.size() << endl;
+            continue;
           }
 
-          double t0 = fitT0(a,b,hitxl,hityl,hitxr,hityr);
+          if (seg.size()<minHits[phi]) continue;
 
-          if (debug)     	        
-            cout << "     Segment size: " << seg.size() << "  t0 from fit: " << t0 << endl;  
+          nStations++;
 
           for (vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
 
@@ -257,7 +335,19 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             double hitLocalPos = tm->posInLayer;
             int hitSide = -tm->isLeft*2+1;
             double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
-                  
+            
+            std::pair< TrajectoryStateOnSurface, double> tsos;
+            tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
+            
+            if (tsos.first.isValid() && correctDist) dist = tsos.second+posp.mag();
+            
+            if ((debug) || (fabs(dist)>100.)) {
+              cout << " Dist: " << dist << "   segm: " << segmLocalPos << "   hit: " << hitLocalPos;
+              if (tsos.first.isValid()) cout << " traj: " << dtcham->toLocal(tsos.first.globalPosition()) << " path: " << tsos.second+posp.mag();
+              cout << " Start: " << posp;
+              cout << endl;
+            }
+
             dstnc.push_back(dist);
             dsegm.push_back(t0_segm);
             left.push_back(hitSide);
@@ -275,7 +365,7 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // inverse beta - weighted average of the contributions from individual hits
     for (unsigned int i=0;i<dstnc.size();i++) {
-    invbeta_hits+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
+      invbeta_hits+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
 //      cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
 //      cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
     }
@@ -289,13 +379,20 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     invbetaerr_hits=sqrt(invbetaerr_hits)/totalWeight;
 
-    if (debug) {
+    if (fabs(invbeta_hits-1.)>1.) {
+      for (unsigned int i=0;i<dstnc.size();i++) {
+        cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
+        cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
+      }
+    }
+
+    if ((debug) || (fabs(invbeta-invbeta_hits)>0.3)) {
       cout << " New 1/beta: " << invbeta_hits << " +/- " << invbetaerr_hits << endl;
       cout << " Old 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
       cout << " New nStations: " << nStations << " nHits: " << dstnc.size() << endl;
       cout << " Old nStations: " << (*mi).second.nStations << " nHits: " << (*mi).second.nHits << endl;
     }
-      
+          
     DriftTubeTOF tof;
     
     tof.invBeta=invbeta_hits;
@@ -306,7 +403,6 @@ TOFBetaRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     tof.vertexTimeErr=(*mi).second.vertexTimeErr;
     tof.nHits = dstnc.size();
     tof.nStations=nStations;
-
 
     outputCollection->setValue(muId,tof); 
 
@@ -325,6 +421,8 @@ double
 TOFBetaRefitter::fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr ) {
 
   double sx=0,sy=0,sxy=0,sxx=0,ssx=0,ssy=0,s=0,ss=0;
+
+  if ((xl.size()==0) || (xr.size()==0)) return 0;
 
   for (unsigned int i=0; i<xl.size(); i++) {
     sx+=xl[i];
