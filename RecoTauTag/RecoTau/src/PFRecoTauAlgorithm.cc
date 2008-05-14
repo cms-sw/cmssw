@@ -176,7 +176,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
         for(int i=0;i<(int)myPFCands.size();i++){ 
       if (myPFCands[i]->blockRef()->elements().size()!=0){
 	for (OwnVector<PFBlockElement>::const_iterator iPFBlockElement=myPFCands[i]->blockRef()->elements().begin();iPFBlockElement!=myPFCands[i]->blockRef()->elements().end();iPFBlockElement++){
-	  if ((*iPFBlockElement).type()==PFBlockElement::HCAL && (*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()))>mymaximumHCALPFClusterEt) mymaximumHCALPFClusterEt=(*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->positionXYZ().Theta()));
+	  if ((*iPFBlockElement).type()==PFBlockElement::HCAL && (*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->position().Theta()))>mymaximumHCALPFClusterEt) mymaximumHCALPFClusterEt=(*iPFBlockElement).clusterRef()->energy()*fabs(sin((*iPFBlockElement).clusterRef()->position().Theta()));
 	}
       }
     }
@@ -263,7 +263,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	const reco::PFBlockElement& element = elements[indexOfElementInBlock];
 	
 	if(element.type()==reco::PFBlockElement::HCAL) {
-	  math::XYZPoint clusPos = element.clusterRef()->positionXYZ();
+	  math::XYZPoint clusPos = element.clusterRef()->position();
 	  double en = (double)element.clusterRef()->energy();
 	  double et = (double)element.clusterRef()->energy()*fabs(sin(clusPos.Theta()));
 	  if (en>myMaximumHCALPFClusterE) {
@@ -282,7 +282,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	  }
 	} else if(element.type()==reco::PFBlockElement::ECAL) {
 	  double en = (double)element.clusterRef()->energy();
-	  math::XYZPoint clusPos = element.clusterRef()->positionXYZ();
+	  math::XYZPoint clusPos = element.clusterRef()->position();
 	  if (!checkPos(ecalPosV,clusPos)) {
 	    ecalPosV.push_back(clusPos);
 	    myECALenergy += en;
