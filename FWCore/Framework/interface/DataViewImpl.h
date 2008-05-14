@@ -226,10 +226,11 @@ namespace edm {
                                 BasicHandleVec& results,
                                 bool stopIfProcessHasMatch) const;
     
-  private:
+  protected:
     // Also isolates the DataViewImpl class
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
+  private:
     //------------------------------------------------------------
     // Copying and assignment of DataViewImpls is disallowed
     //

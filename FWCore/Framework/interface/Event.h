@@ -16,10 +16,11 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.64 2008/05/12 18:14:07 wmtan Exp $
+$Id: Event.h,v 1.65 2008/05/12 23:13:02 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
+#include <set>
 #include <vector>
 #include "boost/shared_ptr.hpp"
 
@@ -76,12 +77,12 @@ namespace edm {
 
     template <typename PROD>
     bool 
-    getByProductID(ProductID const& oid, Handle<PROD>& result) const;
+    get(ProductID const& oid, Handle<PROD>& result) const;
 
     // Template member overload to deal with Views.     
     template <typename ELEMENT>
     bool
-    getByProductID(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
+    get(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
 
     History const& history() const;
 
@@ -195,8 +196,8 @@ namespace edm {
     // which do not logically modify the DataViewImpl. gotProductIDs_ is
     // merely a cache reflecting what has been retreived from the
     // Principal class.
-    typedef std::vector<ProductID> ProductIDVec;
-    mutable ProductIDVec gotProductIDs_;
+    typedef std::set<ProductID> ProductIDSet;
+    mutable ProductIDSet gotProductIDs_;
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
@@ -204,7 +205,7 @@ namespace edm {
 
   template <typename PROD>
   bool
-  Event::getByProductID(ProductID const& oid, Handle<PROD>& result) const
+  Event::get(ProductID const& oid, Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->getByProductID_(oid);
@@ -212,13 +213,13 @@ namespace edm {
     if (bh.failedToGet()) {
       return false;
     }
-    gotProductIDs_.push_back(bh.id());
+    gotProductIDs_.insert(bh.id());
     return true;
   }
 
   template <typename ELEMENT>
   bool
-  Event::getByProductID(ProductID const& oid, Handle<View<ELEMENT> >& result) const
+  Event::get(ProductID const& oid, Handle<View<ELEMENT> >& result) const
   {
       result.clear();
       BasicHandle bh = this->getByProductID_(oid);
@@ -286,7 +287,7 @@ namespace edm {
   {
     bool ok = this->Base::get(sel, result);
     if (ok) {
-      gotProductIDs_.push_back(result.id());
+      gotProductIDs_.insert(result.id());
     }
     return ok;
   }
@@ -297,7 +298,7 @@ namespace edm {
   {
     bool ok = this->Base::getByLabel(tag, result);
     if (ok) {
-      gotProductIDs_.push_back(result.id());
+      gotProductIDs_.insert(result.id());
     }
     return ok;
   }
@@ -308,7 +309,7 @@ namespace edm {
   {
     bool ok = this->Base::getByLabel(label, result);
     if (ok) {
-      gotProductIDs_.push_back(result.id());
+      gotProductIDs_.insert(result.id());
     }
     return ok;
   }
@@ -321,7 +322,7 @@ namespace edm {
   {
     bool ok = this->Base::getByLabel(label, productInstanceName, result);
     if (ok) {
-      gotProductIDs_.push_back(result.id());
+      gotProductIDs_.insert(result.id());
     }
     return ok;
   }
@@ -334,7 +335,7 @@ namespace edm {
     this->Base::getMany(sel, results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
-      gotProductIDs_.push_back(it->id());
+      gotProductIDs_.insert(it->id());
     }
   }
 
@@ -344,7 +345,7 @@ namespace edm {
   {
     bool ok = this->Base::getByType(result);
     if (ok) {
-      gotProductIDs_.push_back(result.id());
+      gotProductIDs_.insert(result.id());
     }
     return ok;
   }
@@ -356,7 +357,7 @@ namespace edm {
     this->Base::getManyByType(results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
-      gotProductIDs_.push_back(it->id());
+      gotProductIDs_.insert(it->id());
     }
   }
   
@@ -469,7 +470,7 @@ namespace edm {
     boost::shared_ptr<View<ELEMENT> > 
       newview(new View<ELEMENT>(pointersToElements, helpers));
     
-    gotProductIDs_.push_back(bh.id());
+    gotProductIDs_.insert(bh.id());
     gotViews_.push_back(newview);
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);

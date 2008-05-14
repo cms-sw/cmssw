@@ -68,6 +68,15 @@ namespace edm {
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 
+    std::vector<ProductID> gotProductIDVector;
+    if (!gotProductIDs_.empty()) {
+      gotProductIDVector.reserve(gotProductIDs_.size());
+      for (ProductIDSet::const_iterator it = gotProductIDs_.begin(), itEnd = gotProductIDs_.end();
+	  it != itEnd; ++it) {
+        gotProductIDVector.push_back(*it);
+      }
+    }
+
     while(pit!=pie) {
 	std::auto_ptr<EDProduct> pr(pit->first);
 	// note: ownership has been passed - so clear the pointer!
@@ -79,7 +88,7 @@ namespace edm {
 				    productstatus::present(),
 				    pit->second->moduleDescriptionID(),
 				    pit->second->productIDtoAssign(),
-				    gotProductIDs_));
+				    gotProductIDVector));
 	ep.put(pr, *pit->second, eventEntryInfoPtr);
 	++pit;
     }

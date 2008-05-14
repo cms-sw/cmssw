@@ -442,16 +442,16 @@ void testEvent::getByProductID()
   }
 
   handle_t h;
-  currentEvent_->getByProductID(wanted, h);
+  currentEvent_->get(wanted, h);
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.id() == wanted);
   CPPUNIT_ASSERT(h->value == 1);
 
   ProductID invalid;
-  CPPUNIT_ASSERT_THROW(currentEvent_->getByProductID(invalid, h), cms::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), cms::Exception);
   CPPUNIT_ASSERT(!h.isValid());
   ProductID notpresent(std::numeric_limits<unsigned int>::max());
-  CPPUNIT_ASSERT(!currentEvent_->getByProductID(notpresent, h));
+  CPPUNIT_ASSERT(!currentEvent_->get(notpresent, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
