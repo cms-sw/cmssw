@@ -1,3 +1,9 @@
+2008-05-14  Harry Cheung <cheung@fnal.gov>
+
+	* tag V01-08-02
+	* Kurt's changes to include Event Server statistics by HLT output module to enable easier
+	  debugging of event rates to DQM consumers
+
 2008-05-11  Harry Cheung <cheung@fnal.gov>
 
 	* tag V01-08-01
