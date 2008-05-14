@@ -8,8 +8,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2008/04/03 12:54:54 $
-  * $Revision: 1.8 $
+  * $Date: 2008/04/22 17:59:30 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
  static const float TrigMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -110,7 +110,7 @@ private:  ///Monitoring elements
           }
   float *get_tp(int eta,int phi,int depth=1){
              return &tp_data[eta+50][phi][depth][0];}
-  void   set_tp(int eta,int phi,int depth=1,float *val){ 
+  void   set_tp(int eta,int phi,int depth,float *val){ 
              if(eta<-42 || eta>42 || eta==0) return;
 	     if(phi<1 || phi>72)             return;
 	     if(depth<1 || depth>4)          return;
