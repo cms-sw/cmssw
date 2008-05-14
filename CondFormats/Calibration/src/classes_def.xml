@@ -39,5 +39,6 @@
  <class name="BitArray<9>"/>
  <class name="boostTypeObj"/>
  <class name="fixedArray<unsigned short,2097>"/>
+ <class name="mypt"/>
 </lcgdict>   
 

@@ -7,7 +7,7 @@
 #include<bitset>
 #include "CondFormats/Calibration/interface/BitArray.h"
 #include "CondFormats/Calibration/interface/boostTypeObj.h"
-#include "CondFormats/Calibration/interface/fixedArray.h"
+#include "CondFormats/Calibration/interface/mypt.h"
 namespace {
   std::vector< Pedestals::Item >::iterator tmp0;
   std::vector< Pedestals::Item >::const_iterator tmp1;

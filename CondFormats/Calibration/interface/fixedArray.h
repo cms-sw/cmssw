@@ -1,3 +1,5 @@
+#ifndef FIXEDARRAY_H
+#define FIXEDARRAY_H
 template<typename T, unsigned int S>
 class fixedArray {
     public:
@@ -5,7 +7,8 @@ class fixedArray {
 
         operator T*() { return content; }
         operator const T*() const { return content; }
-	const T& operator [](const unsigned int i) { return content[i]; }
+	T& operator [](const unsigned int i) { return content[i]; }
     private:
         T content[S];
 };
+#endif
