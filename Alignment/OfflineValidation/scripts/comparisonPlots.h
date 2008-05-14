@@ -42,7 +42,7 @@ class comparisonPlots
 	private:
 		
 		void getMaxMin();
-		void getHistMaxMin( TH1* hist, double &max, double &min );
+		void getHistMaxMin( TH1* hist, double &max, double &min, int flag );
 		
 		std::string _outputDir;
 		
