@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/12 15:59:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/13 14:52:34 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -49,10 +49,21 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   
   // histograms initalization
   hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking", "HitsNotUsedForGlobalTracking", 50, -0.5, 49.5);
+
   TrackSegm = dbe->book2D("trackSegments", "trackSegments", 3, 0.5, 3.5, 50, -0.5, 49.5);
   TrackSegm->setBinLabel(1,"DT+CSC",1);
   TrackSegm->setBinLabel(1,"DT",2);
   TrackSegm->setBinLabel(1,"CSC",3);
+  
+  hitStaProvenance = dbe->book2D("trackHitProvenance", "trackHitProvenance", 7, 0.5, 7.5, 100, -0.5, 99.5);
+  hitStaProvenance->setBinLabel(1,"DT",1);
+  hitStaProvenance->setBinLabel(1,"CSC",2);
+  hitStaProvenance->setBinLabel(1,"RPC",3);
+  hitStaProvenance->setBinLabel(1,"DT+CSC",4);
+  hitStaProvenance->setBinLabel(1,"DT+RPC",5);
+  hitStaProvenance->setBinLabel(1,"CSC+RPC",6);
+  hitStaProvenance->setBinLabel(1,"DT+CSC+RPC",7);
+
 
 }
 
@@ -126,9 +137,18 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // fill the histos
   hitsNotUsed->Fill(hitsFromSegmDt+hitsFromSegmCsc+hitsFromRpc+hitsFromTk-hitsFromTrack);
+
   TrackSegm->Fill(1,segmFromDt+segmFromCsc);
   TrackSegm->Fill(2,segmFromDt);
   TrackSegm->Fill(3,segmFromCsc);
+
+  hitStaProvenance->Fill(1,hitsFromDt);
+  hitStaProvenance->Fill(2,hitsFromCsc);
+  hitStaProvenance->Fill(3,hitsFromRpc);
+  hitStaProvenance->Fill(4,hitsFromDt+hitsFromCsc);
+  hitStaProvenance->Fill(5,hitsFromDt+hitsFromRpc);
+  hitStaProvenance->Fill(6,hitsFromCsc+hitsFromRpc);
+  hitStaProvenance->Fill(7,hitsFromDt+hitsFromCsc+hitsFromRpc);
 
 } 
 
