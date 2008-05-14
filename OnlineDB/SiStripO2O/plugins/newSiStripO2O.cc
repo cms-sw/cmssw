@@ -1,4 +1,6 @@
 #include "OnlineDB/SiStripO2O/plugins/newSiStripO2O.h"
+#include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 newSiStripO2O::newSiStripO2O( const edm::ParameterSet& pset ):
   UsingDb_(pset.getUntrackedParameter<bool>("UsingDb",true))
@@ -13,21 +15,22 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
   
   unsigned int run=evt.id().run();
   std::cout << "RunNb " << run << std::endl;
+  
+  SiStripCondObjBuilderFromDb condObjBuilder;
+  
+  condObjBuilder.buildCondObj();
 
-  //getting fed cabling from onlinedb through ES
-  edm::ESHandle<SiStripFedCabling> cabling;
-  iSetup.get<SiStripFedCablingRcd>().get( cabling );
-  SiStripFedCabling *cabling_cpy = new SiStripFedCabling(*cabling);
 
-  edm::ESHandle<SiStripDetCabling> det_cabling;
-  iSetup.get<SiStripDetCablingRcd>().get( det_cabling );
+  SiStripFedCabling *cabling_cpy = condObjBuilder.getFedCabling();
 
-  edm::ESHandle<SiStripPedestals> ped;
-  iSetup.get<SiStripPedestalsRcd>().get(ped);
-  SiStripPedestals *ped_cpy = new SiStripPedestals();
+  SiStripDetCabling* det_cabling=new SiStripDetCabling(*cabling_cpy);
 
-  edm::ESHandle<SiStripNoises> noise;
-  iSetup.get<SiStripNoisesRcd>().get(noise);
+  SiStripPedestals *ped_cpy = condObjBuilder.getPedestals();
+  SiStripPedestals *ped = condObjBuilder.getPedestals();
+
+  SiStripNoises *noise_cpy = condObjBuilder.getNoises();
+  SiStripNoises *noise = condObjBuilder.getNoises();
+
 
   vector<uint32_t> det_ids;
   det_cabling->addActiveDetectorsRawIds(det_ids);
@@ -62,7 +65,6 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
 
   //COPY NOISE
   
-  SiStripNoises *noise_cpy = new SiStripNoises(*noise);
 
   std::vector<uint32_t> ndetid;
   noise->getDetIds(ndetid);
@@ -86,19 +88,15 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
   edm::LogInfo("SiStripO2O") << " Peds Found " << pdetid.size() << " DetIds";
   for (size_t id=0;id<pdetid.size();id++){
     SiStripPedestals::Range range=ped->getRange(pdetid[id]);
-    ped_cpy->put(pdetid[id],range);
-
     if (edm::isDebugEnabled()){
       int strip=0;
       LogTrace("SiStripO2O")  << "PED detid " << pdetid[id] << " \t"
 			      << " strip " << strip << " \t"
 			      << ped->getPed   (strip,range)   << " \t" 
-			      << ped->getLowTh (strip,range)   << " \t" 
-			      << ped->getHighTh(strip,range)   << " \t" 
 			      << std::endl; 	    
     } 
   }  
-  
+
   //End now write data in DB
   if(UsingDb_){
     edm::LogInfo("SiStripO2O") << "calling PoolDBOutputService" << std::endl;
@@ -108,7 +106,7 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
 
       if( mydbservice->isNewTagRequest("SiStripPedestalsRcd") ){
 	edm::LogInfo("SiStripO2O") << "new tag requested for SiStripPedestalsRcd" << std::endl;
-	mydbservice->createNewIOV<SiStripPedestals>(ped_cpy,mydbservice->currentTime(),mydbservice->endOfTime(),"SiStripPedestalsRcd");      
+	mydbservice->createNewIOV<SiStripPedestals>(ped_cpy,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripPedestalsRcd");      
       } else {
 	edm::LogInfo("SiStripO2O") << "append to existing tag for SiStripPedestalsRcd" << std::endl;
 	mydbservice->appendSinceTime<SiStripPedestals>(ped_cpy,mydbservice->currentTime(),"SiStripPedestalsRcd");
@@ -116,7 +114,7 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
       
       if( mydbservice->isNewTagRequest("SiStripNoisesRcd") ){
 	edm::LogInfo("SiStripO2O") << "new tag requested for SiStripNoisesRcd" << std::endl;
-	mydbservice->createNewIOV<SiStripNoises>(noise_cpy,mydbservice->currentTime(),mydbservice->endOfTime(),"SiStripNoisesRcd");      
+	mydbservice->createNewIOV<SiStripNoises>(noise_cpy,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripNoisesRcd");      
       } else {
 	edm::LogInfo("SiStripO2O") << "append to existing tag for SiStripNoisesRcd" << std::endl;
 	mydbservice->appendSinceTime<SiStripNoises>(noise_cpy,mydbservice->currentTime(),"SiStripNoisesRcd");      
@@ -124,10 +122,28 @@ void newSiStripO2O::analyze(const edm::Event& evt, const edm::EventSetup& iSetup
      
       if( mydbservice->isNewTagRequest("SiStripFedCablingRcd") ){
 	edm::LogInfo("SiStripO2O") << "new tag requested for SiStripFedCablingRcd" << std::endl;
-	mydbservice->createNewIOV<SiStripFedCabling>(cabling_cpy,mydbservice->currentTime(),mydbservice->endOfTime(),"SiStripFedCablingRcd");      
+	mydbservice->createNewIOV<SiStripFedCabling>(cabling_cpy,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripFedCablingRcd");      
       } else {
 	edm::LogInfo("SiStripO2O") << "append to existing tag for SiStripFedCablingRcd" << std::endl;
 	mydbservice->appendSinceTime<SiStripFedCabling>(cabling_cpy,mydbservice->currentTime(),"SiStripFedCablingRcd"); 
+      }
+
+      if( mydbservice->isNewTagRequest("SiStripThresholdRcd") ){
+	edm::LogInfo("SiStripO2O") << "new tag requested for SiStripThresholdRcd" << std::endl;
+	mydbservice->createNewIOV<SiStripThreshold>(condObjBuilder.getThreshold(),mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripThresholdRcd");      
+      } else {
+	edm::LogInfo("SiStripO2O") << "append to existing tag for SiStripThresholdRcd" << std::endl;
+	mydbservice->appendSinceTime<SiStripThreshold>(condObjBuilder.getThreshold(),mydbservice->currentTime(),"SiStripThresholdRcd"); 
+      }
+
+      SiStripQuality qobj=SiStripQuality(*(condObjBuilder.getQuality()));
+      SiStripBadStrip* obj= new SiStripBadStrip(qobj); 
+      if( mydbservice->isNewTagRequest("SiStripBadStripRcd") ){
+	edm::LogInfo("SiStripO2O") << "new tag requested for SiStripBadStripRcd" << std::endl;
+	mydbservice->createNewIOV<SiStripBadStrip>(obj,mydbservice->beginOfTime(),mydbservice->endOfTime(),"SiStripBadStripRcd");      
+      } else {
+	edm::LogInfo("SiStripO2O") << "append to existing tag for SiStripBadStripRcd" << std::endl;
+	mydbservice->appendSinceTime<SiStripBadStrip>(obj,mydbservice->currentTime(),"SiStripBadStripRcd"); 
       }
 
       //edm::LogInfo("SiStripO2O")  << " finished to upload data " << std::endl;    

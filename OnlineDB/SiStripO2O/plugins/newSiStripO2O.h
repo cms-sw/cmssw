@@ -21,6 +21,10 @@
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
+#include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
