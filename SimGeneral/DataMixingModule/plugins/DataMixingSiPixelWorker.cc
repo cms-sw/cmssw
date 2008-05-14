@@ -174,11 +174,10 @@ namespace edm
       OneDetectorMap LocalMap = IDet->second;
 
       //counter variables
-      int formerPixel = 0;
+      int formerPixel = -1;
       int currentPixel;
       int ADCSum = 0;
-      PixelDigi OldHit;
-      int nmatch=0;
+
 
       OneDetectorMap::const_iterator iLocalchk;
 
@@ -188,41 +187,28 @@ namespace edm
 	currentPixel = iLocal->first; 
 
 	if (currentPixel == formerPixel) { // we have to add these digis together
-	  nmatch++;                  // use this to avoid using the "count" function
-	  ADCSum+=(iLocal->second).adc();          // on every element...
-
-	  iLocalchk = iLocal;
-	  if((iLocalchk++) == LocalMap.end()) {  //make sure not to lose the last one
-	    PixelDigi aHit(formerPixel, ADCSum);
-	    SPD.push_back( aHit );	  
-	    // reset adc sum, nmatch
-	    ADCSum = 0 ;
-	    nmatch=0;	  
-	  }
+	  ADCSum+=(iLocal->second).adc();
 	}
-	else {
-	  if(nmatch>0) {
+	else{
+	  if(formerPixel!=-1){             // ADC info stolen from SiStrips...
+	    if (ADCSum > 511) ADCSum = 255;
+	    else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 	    PixelDigi aHit(formerPixel, ADCSum);
 	    SPD.push_back( aHit );	  
-	    // reset adc sum, nmatch
-	    ADCSum = 0 ;
-	    nmatch=0;	  
 	  }
-	  else {
-	    SPD.push_back( OldHit );
-	  }
-	
-	  iLocalchk = iLocal;
-	  if((iLocalchk++) == LocalMap.end()) {  //make sure not to lose the last one
-	    SPD.push_back( iLocal->second );
-	  }
-
 	  // save pointers for next iteration
-	  OldHit = iLocal->second;
 	  formerPixel = currentPixel;
 	  ADCSum = (iLocal->second).adc();
 	}
-      }  // end of loop over one detector
+
+	iLocalchk = iLocal;
+	if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one
+	  if (ADCSum > 511) ADCSum = 255;
+	  else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
+	  SPD.push_back( PixelDigi(formerPixel, ADCSum) );	  
+	} 
+
+      }// end of loop over one detector
 
       // stick this into the global vector of detector info
       vPixelDigi.push_back(SPD);

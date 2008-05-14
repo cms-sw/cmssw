@@ -120,9 +120,9 @@ namespace edm
 
   void DataMixingModule::getSubdetectorNames() {
     // get subdetector names
-    edm::Service<edm::ConstProductRegistry> reg;
+    // edm::Service<edm::ConstProductRegistry> reg;
     // Loop over provenance of products in registry.
-    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin(); it != reg->productList().end(); ++it) {
+    //for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin(); it != reg->productList().end(); ++it) {
 
       //  **** Check this out.... ****
 
@@ -132,26 +132,26 @@ namespace edm
       // This section not very backwards-compatible in terms of digi-merging.  Need to be able to specify here which data format
       // to look at...
 
-      edm::BranchDescription desc = it->second;
-      if (!desc.friendlyClassName_.compare(0,9,"EBRecHitC")) {
-	Subdetectors_.push_back(desc.productInstanceName_);
-	LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
-      }
-      else if (!desc.friendlyClassName_.compare(0,9,"EERecHitC")) {
+      //      edm::BranchDescription desc = it->second;
+      //if (!desc.friendlyClassName_.compare(0,9,"EBRecHitC")) {
+      //	Subdetectors_.push_back(desc.productInstanceName_);
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      //}
+      //else if (!desc.friendlyClassName_.compare(0,9,"EERecHitC")) {
 	//      else if (!desc.friendlyClassName_.compare(0,9,"EErechitC") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
-	Subdetectors_.push_back(desc.productInstanceName_);
-        LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
-      }
-      else if (!desc.friendlyClassName_.compare(0,9,"HBRecHitC")) {
-	Subdetectors_.push_back(desc.productInstanceName_);
-	LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
-      }
-      else if (!desc.friendlyClassName_.compare(0,9,"HERecHitC")) {
-	Subdetectors_.push_back(desc.productInstanceName_);
-	LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
-      }
+      //	Subdetectors_.push_back(desc.productInstanceName_);
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      //}
+      //else if (!desc.friendlyClassName_.compare(0,9,"HBRecHitC")) {
+      //	Subdetectors_.push_back(desc.productInstanceName_);
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      //}
+      //else if (!desc.friendlyClassName_.compare(0,9,"HERecHitC")) {
+      //	Subdetectors_.push_back(desc.productInstanceName_);
+      //LogInfo("DataMixingModule") <<"Adding container "<<desc.productInstanceName_ <<" for pileup treatment";
+      // }
 	// and so on with other detector types...
-    }
+    // }
   }       
 	       
 

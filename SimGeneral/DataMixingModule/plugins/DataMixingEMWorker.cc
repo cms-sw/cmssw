@@ -275,8 +275,6 @@ namespace edm
     DetId currentID;
     float ESum = 0.;
     float EBTime = 0.;
-    EcalRecHit OldHit;
-    int nmatch=0;
 
     // EB first...
 
@@ -288,40 +286,25 @@ namespace edm
       currentID = iEB->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
-	nmatch++;                  // use this to avoid using the "count" function
-	ESum+=(iEB->second).energy();          // on every element...
 
-	iEBchk = iEB;
-	if((iEBchk++) == EBRecHitStorage_.end()) {  //make sure not to lose the last one
-	  EcalRecHit aHit(formerID, ESum, EBTime);
-	  EBrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
+	ESum+=(iEB->second).energy(); 
       }
       else {
-	if(nmatch>0) {
-	  EcalRecHit aHit(formerID, ESum, EBTime);
-	  EBrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
-	else {
-	  if(formerID>0) EBrechits->push_back( OldHit );
-	}
-	
-	iEBchk = iEB;
-	if((iEBchk++) == EBRecHitStorage_.end()) {  //make sure not to lose the last one
-	  EBrechits->push_back( iEB->second );
-	}
+	  if(formerID>0) {
+	    // cutoff for ESum?
+	    EcalRecHit aHit(formerID, ESum, EBTime);
+	    EBrechits->push_back( aHit );
+	  }
+	  //save pointers for next iteration
+	  formerID = currentID;
+	  ESum = (iEB->second).energy();
+	  EBTime = (iEB->second).time();  // take time of first hit in sequence - is this ok?
+      }
 
-	// save pointers for next iteration
-	OldHit = iEB->second;
-	formerID = currentID;
-	ESum = (iEB->second).energy();
-	EBTime = (iEB->second).time();  // take time of first hit in sequence - is this ok?
+      iEBchk = iEB;
+      if((++iEBchk) == EBRecHitStorage_.end()) {  //make sure not to lose the last one
+	EcalRecHit aHit(formerID, ESum, EBTime);
+	EBrechits->push_back( aHit );	  
       }
     }
 
@@ -332,8 +315,6 @@ namespace edm
     ESum = 0.;
     float EETime = 0.;
     
-    nmatch=0;
-
     EERecHitMap::const_iterator iEEchk;
 
     for(EERecHitMap::const_iterator iEE  = EERecHitStorage_.begin();
@@ -342,40 +323,25 @@ namespace edm
       currentID = iEE->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
-	nmatch++;                  // use this to avoid using the "count" function
-	ESum+=(iEE->second).energy();          // on every element...
 
-	iEEchk = iEE;
-	if((iEEchk++) == EERecHitStorage_.end()) {  //make sure not to lose the last one
-	  EcalRecHit aHit(formerID, ESum, EETime);
-	  EErechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
+	ESum+=(iEE->second).energy(); 
       }
       else {
-	if(nmatch>0) {
-	  EcalRecHit aHit(formerID, ESum, EETime);
-	  EErechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
-	else {
-	  if(formerID>0) EErechits->push_back( OldHit );
-	}
-	
-	iEEchk = iEE;
-	if((iEEchk++) == EERecHitStorage_.end()) {  //make sure not to lose the last one
-	  EErechits->push_back( iEE->second );
-	}
+	  if(formerID>0) {
+	    // cutoff for ESum?
+	    EcalRecHit aHit(formerID, ESum, EETime);
+	    EErechits->push_back( aHit );
+	  }
+	  //save pointers for next iteration
+	  formerID = currentID;
+	  ESum = (iEE->second).energy();
+	  EETime = (iEE->second).time();  // take time of first hit in sequence - is this ok?
+      }
 
-	// save pointers for next iteration
-	OldHit = iEE->second;
-	formerID = currentID;
-	ESum = (iEE->second).energy();
-	EETime = (iEE->second).time();  // take time of first hit in sequence - is this ok?
+      iEEchk = iEE;
+      if((++iEEchk) == EERecHitStorage_.end()) {  //make sure not to lose the last one
+	EcalRecHit aHit(formerID, ESum, EETime);
+	EErechits->push_back( aHit );	  
       }
     }
 
@@ -385,7 +351,6 @@ namespace edm
     formerID = 0;
     ESum = 0.;
     float ESTime = 0.;
-    nmatch=0;
 
     ESRecHitMap::const_iterator iESchk;
 
@@ -395,42 +360,29 @@ namespace edm
       currentID = iES->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
-	nmatch++;                  // use this to avoid using the "count" function
-	ESum+=(iES->second).energy();          // on every element...
 
-	iESchk = iES;
-	if((iESchk++) == ESRecHitStorage_.end()) {  //make sure not to lose the last one
-	  EcalRecHit aHit(formerID, ESum, ESTime);
-	  ESrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
+	ESum+=(iES->second).energy(); 
       }
       else {
-	if(nmatch>0) {
-	  EcalRecHit aHit(formerID, ESum, ESTime);
-	  ESrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
-	else {
-	  if(formerID>0) ESrechits->push_back( OldHit );
-	}
-	
-	iESchk = iES;
-	if((iESchk++) == ESRecHitStorage_.end()) {  //make sure not to lose the last one
-	  ESrechits->push_back( iES->second );
-	}
+	  if(formerID>0) {
+	    // cutoff for ESum?
+	    EcalRecHit aHit(formerID, ESum, ESTime);
+	    ESrechits->push_back( aHit );
+	  }
+	  //save pointers for next iteration
+	  formerID = currentID;
+	  ESum = (iES->second).energy();
+	  ESTime = (iES->second).time();  // take time of first hit in sequence - is this ok?
+      }
 
-	// save pointers for next iteration
-	OldHit = iES->second;
-	formerID = currentID;
-	ESum = (iES->second).energy();
-	ESTime = (iES->second).time();  // take time of first hit in sequence - is this ok?
+      iESchk = iES;
+      if((++iESchk) == ESRecHitStorage_.end()) {  //make sure not to lose the last one
+	EcalRecHit aHit(formerID, ESum, ESTime);
+	ESrechits->push_back( aHit );	  
       }
     }
+
+    // done merging
 
     // put the collection of reconstructed hits in the event   
     LogInfo("DataMixingEMWorker") << "total # EB Merged rechits: " << EBrechits->size() ;

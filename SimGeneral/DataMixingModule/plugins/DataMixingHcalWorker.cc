@@ -331,8 +331,6 @@ namespace edm
     DetId currentID;
     float ESum = 0.;
     float HBTime = 0.;
-    HBHERecHit OldHit;
-    int nmatch=0;
 
     // HB first...
 
@@ -344,40 +342,26 @@ namespace edm
       currentID = iHB->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
-	nmatch++;                  // use this to avoid using the "count" function
-	ESum+=(iHB->second).energy();          // on every element...
 
-	iHBchk = iHB;
-	if((iHBchk++) == HBHERecHitStorage_.end()) {  //make sure not to lose the last one
-	  HBHERecHit aHit(formerID, ESum, HBTime);
-	  HBHErechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
+	ESum+=(iHB->second).energy();  
+
       }
       else {
-	if(nmatch>0) {
+	if(formerID>0) {
+	  // cutoff for ESum?                                                                                 
 	  HBHERecHit aHit(formerID, ESum, HBTime);
-	  HBHErechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
+	  HBHErechits->push_back( aHit );
 	}
-	else {
-	  if(formerID>0) HBHErechits->push_back( OldHit );
-	}
-	
-	iHBchk = iHB;
-	if((iHBchk++) == HBHERecHitStorage_.end()) {  //make sure not to lose the last one
-	  HBHErechits->push_back( iHB->second );
-	}
-
-	// save pointers for next iteration
-	OldHit = iHB->second;
+	//save pointers for next iteration                                                                    
 	formerID = currentID;
 	ESum = (iHB->second).energy();
 	HBTime = (iHB->second).time();  // take time of first hit in sequence - is this ok?
+      }
+
+      iHBchk = iHB;
+      if((++iHBchk) == HBHERecHitStorage_.end()) {  //make sure not to lose the last one  
+        HBHERecHit aHit(formerID, ESum, HBTime);
+        HBHErechits->push_back( aHit );
       }
     }
 
@@ -387,8 +371,6 @@ namespace edm
     formerID = 0;
     ESum = 0.;
     float HOTime = 0.;
-    HORecHit HOOldHit;
-    nmatch=0;
 
     HORecHitMap::const_iterator iHOchk;
 
@@ -398,42 +380,29 @@ namespace edm
       currentID = iHO->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
-	nmatch++;                  // use this to avoid using the "count" function
-	ESum+=(iHO->second).energy();          // on every element...
 
-	iHOchk = iHO;
-	if((iHOchk++) == HORecHitStorage_.end()) {  //make sure not to lose the last one
-	  HORecHit aHit(formerID, ESum, HOTime);
-	  HOrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
+	ESum+=(iHO->second).energy();  
+
       }
       else {
-	if(nmatch>0) {
+	if(formerID>0) {
+	  // cutoff for ESum?                                                                                 
 	  HORecHit aHit(formerID, ESum, HOTime);
-	  HOrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
+	  HOrechits->push_back( aHit );
 	}
-	else {
-	  if(formerID>0) HOrechits->push_back( HOOldHit );
-	}
-	
-	iHOchk = iHO;
-	if((iHOchk++) == HORecHitStorage_.end()) {  //make sure not to lose the last one
-	  HOrechits->push_back( iHO->second );
-	}
-
-	// save pointers for next iteration
-	HOOldHit = iHO->second;
+	//save pointers for next iteration                                                                    
 	formerID = currentID;
 	ESum = (iHO->second).energy();
 	HOTime = (iHO->second).time();  // take time of first hit in sequence - is this ok?
       }
+
+      iHOchk = iHO;
+      if((++iHOchk) == HORecHitStorage_.end()) {  //make sure not to lose the last one  
+        HORecHit aHit(formerID, ESum, HOTime);
+        HOrechits->push_back( aHit );
+      }
     }
+
 
     // HF next...
 
@@ -442,7 +411,6 @@ namespace edm
     ESum = 0.;
     float HFTime = 0.;
     HFRecHit HFOldHit;
-    nmatch=0;
 
     HFRecHitMap::const_iterator iHFchk;
 
@@ -452,40 +420,26 @@ namespace edm
       currentID = iHF->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
-	nmatch++;                  // use this to avoid using the "count" function
-	ESum+=(iHF->second).energy();          // on every element...
 
-	iHFchk = iHF;
-	if((iHFchk++) == HFRecHitStorage_.end()) {  //make sure not to lose the last one
-	  HFRecHit aHit(formerID, ESum, HFTime);
-	  HFrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
+	ESum+=(iHF->second).energy();  
+
       }
       else {
-	if(nmatch>0) {
+	if(formerID>0) {
+	  // cutoff for ESum?                                                                                 
 	  HFRecHit aHit(formerID, ESum, HFTime);
-	  HFrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
+	  HFrechits->push_back( aHit );
 	}
-	else {
-	  if(formerID>0) HFrechits->push_back( HFOldHit );
-	}
-	
-	iHFchk = iHF;
-	if((iHFchk++) == HFRecHitStorage_.end()) {  //make sure not to lose the last one
-	  HFrechits->push_back( iHF->second );
-	}
-
-	// save pointers for next iteration
-	HFOldHit = iHF->second;
+	//save pointers for next iteration                                                                    
 	formerID = currentID;
 	ESum = (iHF->second).energy();
 	HFTime = (iHF->second).time();  // take time of first hit in sequence - is this ok?
+      }
+
+      iHFchk = iHF;
+      if((++iHFchk) == HFRecHitStorage_.end()) {  //make sure not to lose the last one  
+        HFRecHit aHit(formerID, ESum, HBTime);
+        HFrechits->push_back( aHit );
       }
     }
 
@@ -496,7 +450,6 @@ namespace edm
     ESum = 0.;
     float ZDCTime = 0.;
     ZDCRecHit ZOldHit;
-    nmatch=0;
 
     ZDCRecHitMap::const_iterator iZDCchk;
 
@@ -506,42 +459,30 @@ namespace edm
       currentID = iZDC->first; 
 
       if (currentID == formerID) { // we have to add these rechits together
-	nmatch++;                  // use this to avoid using the "count" function
-	ESum+=(iZDC->second).energy();          // on every element...
 
-	iZDCchk = iZDC;
-	if((iZDCchk++) == ZDCRecHitStorage_.end()) {  //make sure not to lose the last one
-	  ZDCRecHit aHit(formerID, ESum, ZDCTime);
-	  ZDCrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
-	}
+	ESum+=(iZDC->second).energy();  
+	
       }
       else {
-	if(nmatch>0) {
+	if(formerID>0) {
+	  // cutoff for ESum?                                                                                 
 	  ZDCRecHit aHit(formerID, ESum, ZDCTime);
-	  ZDCrechits->push_back( aHit );	  
-	  // reset energy sum, nmatch
-	  ESum = 0 ;
-	  nmatch=0;	  
+	  ZDCrechits->push_back( aHit );
 	}
-	else {
-	  if(formerID>0) ZDCrechits->push_back( ZOldHit );
-	}
-	
-	iZDCchk = iZDC;
-	if((iZDCchk++) == ZDCRecHitStorage_.end()) {  //make sure not to lose the last one
-	  ZDCrechits->push_back( iZDC->second );
-	}
-
-	// save pointers for next iteration
-	ZOldHit = iZDC->second;
+	//save pointers for next iteration                                                                    
 	formerID = currentID;
 	ESum = (iZDC->second).energy();
 	ZDCTime = (iZDC->second).time();  // take time of first hit in sequence - is this ok?
       }
-    }
+      
+      iZDCchk = iZDC;
+      if((++iZDCchk) == ZDCRecHitStorage_.end()) {  //make sure not to lose the last one  
+	ZDCRecHit aHit(formerID, ESum, HBTime);
+	ZDCrechits->push_back( aHit );
+      }
+    } 
+  
+   //done merging
 
     // put the collection of recunstructed hits in the event   
     LogInfo("DataMixingHcalWorker") << "total # HBHE Merged rechits: " << HBHErechits->size() ;
