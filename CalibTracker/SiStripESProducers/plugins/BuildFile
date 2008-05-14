@@ -8,6 +8,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
+  <use name=CondCore/DBOutputService>
   <use name=boost>
   <flags EDM_PLUGIN=1>
 </library>
@@ -33,6 +34,7 @@
   <use name=FWCore/ParameterSet>
   <use name=Geometry/TrackerGeometryBuilder>
 #  <use name=Geometry/CommonDetUnit>
+  <use name=CondCore/DBOutputService>
   <use name=boost>
   <flags EDM_PLUGIN=1>
 </library>
