@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for segments associated to the muon track
  *
- *  $Date: 2008/05/12 15:59:36 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/13 14:52:39 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -54,6 +54,7 @@ class SegmentTrackAnalyzer : public MuonAnalyzerBase {
   // the histos
   MonitorElement* hitsNotUsed;
   MonitorElement* TrackSegm;
+  MonitorElement* hitStaProvenance;
 
  };
 #endif  
