@@ -5,7 +5,7 @@
  *  Analysis on DT residuals to validate the kFactor
  *
  *
- *  $Date: 2008/02/27 16:44:10 $
+ *  $Date: 2008/04/08 14:16:01 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -68,6 +68,7 @@ class DTCalibValidation: public edm::EDAnalyzer{
   edm::ParameterSet parameters;
   int wrongSegment;
   int rightSegment;
+  int nevent;
 
   // Lable of 1D rechits in the event
   std::string recHits1DLabel;

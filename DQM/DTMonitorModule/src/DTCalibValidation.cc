@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 13:26:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/08 14:15:40 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -51,7 +51,7 @@ DTCalibValidation::DTCalibValidation(const ParameterSet& pset) {
   theDbe = edm::Service<DQMStore>().operator->();
   // To add into CMSSW versions before 20X
   /*theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
-
+  theDbe->setVerbose(1);
   edm::Service<MonitorDaemon>().operator->();*/
 
   theDbe->setCurrentFolder("DT/DTCalibValidation");
@@ -79,6 +79,8 @@ void DTCalibValidation::beginJob(const edm::EventSetup& context){
    // the counter of segments used to compute residuals
   rightSegment = 0;
 
+  nevent=0;
+
 }
 
 
@@ -102,9 +104,11 @@ void DTCalibValidation::endJob(){
 
 
 void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  if(debug)
-    cout << "[DTCalibValidation] Analyze #Run: " << event.id().run()
-	 << " #Event: " << event.id().event() << endl;
+
+
+  nevent++;
+  cout << "[DTCalibValidation] Analyze #Run: " << event.id().run()
+	 << " #Event: " << nevent << endl;
 
 
    // Get the DT Geometry
@@ -462,9 +466,9 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
 
 	// Fill the histos
 	if(sl == 1 || sl == 3)
-	  fillHistos(wireId.superlayerId(), segPosAtZWire.x()-wirePosInChamber.x(), residualOnDistance, residualOnPosition, step);
+	  fillHistos(wireId.superlayerId(), segPosAtZWire.x(), residualOnDistance, residualOnPosition, step);
 	else
-	  fillHistos(wireId.superlayerId(), segPosAtZWire.y()-wirePosInChamber.y(), residualOnDistance, residualOnPosition, step);
+	  fillHistos(wireId.superlayerId(), segPosAtZWire.y(), residualOnDistance, residualOnPosition, step);
 	  
 	
       }
