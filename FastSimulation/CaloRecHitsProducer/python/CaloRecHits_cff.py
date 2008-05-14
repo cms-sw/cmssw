@@ -9,16 +9,15 @@ from Geometry.EcalMapping.EcalMapping_cfi import *
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
 caloRecHits = cms.EDProducer("CaloRecHitsProducer",
-    # Set the following to false if you want to use the default CLHEP
-    # random engine
-    UseTRandomEngine = cms.bool(True),
     RecHitsFactory = cms.PSet(
         ECALPreshower = cms.PSet(
             Threshold = cms.double(4.5e-05),
+            MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsES"),
             Noise = cms.double(1.5e-05)
         ),
         ECALEndcap = cms.PSet(
             Threshold = cms.double(-999.0),
+            MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsEE"),
             Refactor_mean = cms.double(1.0),
             Noise = cms.double(0.15),
             Refactor = cms.double(1.0)
@@ -30,7 +29,8 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
 
         HCAL = cms.PSet(
             NoiseHO = cms.double(0.17),
-            SaturationHB = cms.double(1500.0),
+            SaturationHB = cms.double(14000.0),
+            MixedSimHits = cms.InputTag("mix","famosSimHitsHcalHits"),
             NoiseHB = cms.double(0.23),
             NoiseHE = cms.double(0.31),
             Refactor = cms.double(1.0),
@@ -47,6 +47,7 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
         ),
         ECALBarrel = cms.PSet(
             Threshold = cms.double(-999.0),
+            MixedSimHits = cms.InputTag("mix","famosSimHitsEcalHitsEB"),
             Refactor_mean = cms.double(1.0),
             Noise = cms.double(0.04),
             Refactor = cms.double(1.0)
@@ -63,8 +64,8 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
     )
 )
 
-hcalTriggerPrimitiveDigis.inputLabel = 'caloRecHits'
-hcalTriggerPrimitiveDigis.peakFilter = False
-ecalTriggerPrimitiveDigis.Famos = True
-ecalTriggerPrimitiveDigis.Label = 'caloRecHits'
+simHcalTriggerPrimitiveDigis.inputLabel = 'caloRecHits'
+simHcalTriggerPrimitiveDigis.peakFilter = False
+simEcalTriggerPrimitiveDigis.Famos = True
+simEcalTriggerPrimitiveDigis.Label = 'caloRecHits'
 
