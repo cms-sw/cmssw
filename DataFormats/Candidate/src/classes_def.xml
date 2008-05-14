@@ -89,6 +89,8 @@
   <class name="edm::Wrapper<reco::CandViewMatchMap>" />
   <class name="edm::Wrapper<reco::CandMatchMapMany>" /> 
   <class name="edm::Wrapper<reco::CandRefValueMap>" /> 
+  <class name="edm::Wrapper<std::vector<edm::RefToBase<reco::Candidate> > >" />
+  <class name="edm::Wrapper<std::vector<edm::Ptr<reco::Candidate> > >" />
   <class pattern="edm::AssociationMap<*>::const_iterator" />
   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
   <class name="edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >" />
