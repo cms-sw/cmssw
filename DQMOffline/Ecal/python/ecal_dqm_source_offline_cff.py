@@ -15,10 +15,6 @@ ecal_dqm_source-offline5 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBa
 ecal_dqm_source-offline6 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelPedestalOnlineTask*ecalBarrelTriggerTowerTask*ecalBarrelCosmicTask)
 ecal_dqm_source-offline7 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelPedestalOnlineTask*ecalBarrelTriggerTowerTask*ecalBarrelCosmicTask*ecalBarrelClusterTask)
 ecal_dqm_source-offline9 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelLaserTask*ecalBarrelPedestalOnlineTask*ecalBarrelPedestalTask*ecalBarrelTestPulseTask*ecalBarrelTriggerTowerTask*ecalBarrelTimingTask*ecalBarrelCosmicTask*ecalBarrelClusterTask)
-ecalFixedAlphaBetaFitUncalibRecHit.MinAmplBarrel = 12.
-ecalFixedAlphaBetaFitUncalibRecHit.MinAmplEndcap = 16.
-ecalFixedAlphaBetaFitUncalibRecHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
-ecalFixedAlphaBetaFitUncalibRecHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
 ecalBarrelMonitorModule.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
@@ -55,6 +51,7 @@ ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalWei
 ecalBarrelTimingTask.EcalRawDataCollection = cms.InputTag("ecalDigis")
 ecalBarrelTimingTask.EcalUncalibratedRecHitCollection = cms.InputTag("ecalFixedAlphaBetaFitUncalibRecHit","EcalUncalibRecHitsEB")
 ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
-ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'valEcalTriggerPrimitiveDigis'
+ecalBarrelClusterTask.BasicClusterCollection = cms.InputTag("cosmicBasicClusters","CosmicBarrelBasicClusters")
 
 
