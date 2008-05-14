@@ -2,19 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 # Global Pixel seeding
 from FastSimulation.Tracking.GlobalPixelSeedProducer_cff import *
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
 # TrackCandidates
-globalPixelGSTrackCandidates = copy.deepcopy(trackCandidateProducer)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+globalPixelTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 # reco::Tracks (possibly with invalid hits)
-globalPixelGSWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
+globalPixelWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 # The sequence
-globalPixelGSTracking = cms.Sequence(globalPixelGSSeeds*globalPixelGSTrackCandidates*globalPixelGSWithMaterialTracks)
-globalPixelGSTrackCandidates.SeedProducer = cms.InputTag("globalPixelGSSeeds","GlobalPixel")
-globalPixelGSWithMaterialTracks.src = 'globalPixelGSTrackCandidates'
-globalPixelGSWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-globalPixelGSWithMaterialTracks.Fitter = 'KFFittingSmoother'
-globalPixelGSWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+globalPixelTracking = cms.Sequence(globalPixelSeeds*globalPixelTrackCandidates*globalPixelWithMaterialTracks)
+globalPixelTrackCandidates.SeedProducer = cms.InputTag("globalPixelSeeds","GlobalPixel")
+globalPixelWithMaterialTracks.src = 'globalPixelTrackCandidates'
+globalPixelWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
+globalPixelWithMaterialTracks.Fitter = 'KFFittingSmoother'
+globalPixelWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 

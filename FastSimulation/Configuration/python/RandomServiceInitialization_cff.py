@@ -5,22 +5,67 @@
 import FWCore.ParameterSet.Config as cms
 
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    # This is to initialize the random engines of Famos
-    moduleSeeds = cms.PSet(
-        l1ParamMuons = cms.untracked.uint32(54525),
-        caloRecHits = cms.untracked.uint32(654321),
-        MuonSimHits = cms.untracked.uint32(97531),
-        muonCSCDigis = cms.untracked.uint32(525432),
-        muonDTDigis = cms.untracked.uint32(67673876),
-        famosSimHits = cms.untracked.uint32(13579),
-        paramMuons = cms.untracked.uint32(54525),
-        famosPileUp = cms.untracked.uint32(918273),
-        VtxSmeared = cms.untracked.uint32(123456789),
-        muonRPCDigis = cms.untracked.uint32(524964),
-        siTrackerGaussianSmearingRecHits = cms.untracked.uint32(24680)
+    l1ParamMuons = cms.PSet(
+        initialSeed = cms.untracked.uint32(6453209),
+        engineName = cms.untracked.string('TRandom3')
     ),
+    simMuonRPCDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(524964),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    caloRecHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(654321),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    # This is to initialize the random engines used for  Famos
+    VtxSmeared = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    # To save the status of the last event (useful for crashes)
+    # Just give a name to the file you want the status to be saved
+    # otherwise just put saveFileName = ""
+    saveFileName = cms.untracked.string(''),
+    famosPileUp = cms.PSet(
+        initialSeed = cms.untracked.uint32(918273),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    # To restore the status of the last event, just un-comment the
+    # following line (and comment the saveFileName line!)
+    # untracked string restoreFileName = "RandomEngineState.log"
+    # To reproduce events using the RandomEngineStateProducer (source
+    # excluded), comment the sourceSeed definition, and un-comment 
+    # the restoreStateLabel
+    # untracked string restoreStateLabel = "randomEngineStateProducer"
     # This is to initialize the random engine of the source
-    sourceSeed = cms.untracked.uint32(123456789)
+    theSource = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    simMuonCSCDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(525432),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    famosSimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(13579),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    paramMuons = cms.PSet(
+        initialSeed = cms.untracked.uint32(54525),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    MuonSimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(987346),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    simMuonDTDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(67673876),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    siTrackerGaussianSmearingRecHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(24680),
+        engineName = cms.untracked.string('TRandom3')
+    )
 )
 
 

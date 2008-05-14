@@ -1,11 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from FastSimulation.Tracking.TrajectorySeedProducer_cfi import *
-pixelLessGSSeeds = copy.deepcopy(trajectorySeedProducer)
-pixelLessGSSeeds.firstHitSubDetectorNumber = [3]
-pixelLessGSSeeds.firstHitSubDetectors = [3, 4, 6]
-pixelLessGSSeeds.secondHitSubDetectorNumber = [3]
-pixelLessGSSeeds.secondHitSubDetectors = [3, 4, 6]
-pixelLessGSSeeds.seedingAlgo = ['PixelLess']
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+pixelLessSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
+pixelLessSeeds.firstHitSubDetectorNumber = [3]
+pixelLessSeeds.firstHitSubDetectors = [3, 4, 6]
+pixelLessSeeds.secondHitSubDetectorNumber = [3]
+pixelLessSeeds.secondHitSubDetectors = [3, 4, 6]
+pixelLessSeeds.seedingAlgo = ['PixelLess']
 

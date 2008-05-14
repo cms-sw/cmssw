@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 cutsGS = cms.EDFilter("RecoTrackSelector",
-    src = cms.InputTag("ctfGSWithMaterialTracks"),
+    src = cms.InputTag("ctfWithMaterialTracks"),
     maxChi2 = cms.double(10000.0), ##not used in tdr
 
     tip = cms.double(3.5),

@@ -1,16 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
-iterativeFirstTrackCandidatesWithTriplets = copy.deepcopy(trackCandidateProducer)
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
-iterativeFirstTrackCandidatesWithPairs = copy.deepcopy(trackCandidateProducer)
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+iterativeFirstTrackCandidatesWithTriplets = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+iterativeFirstTrackCandidatesWithPairs = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeFirstTrackCandidates = cms.Sequence(iterativeFirstTrackCandidatesWithTriplets+iterativeFirstTrackCandidatesWithPairs)
-iterativeFirstTrackCandidatesWithTriplets.SeedProducer = cms.InputTag("iterativeTrackingSeeds","FirstMixedTriplets")
-iterativeFirstTrackCandidatesWithTriplets.TrackProducer = 'globalPixelGSWithMaterialTracks'
+iterativeFirstTrackCandidatesWithTriplets.SeedProducer = cms.InputTag("iterativeFirstSeeds","FirstMixedTriplets")
+iterativeFirstTrackCandidatesWithTriplets.TrackProducers = ['globalPixelWithMaterialTracks']
 iterativeFirstTrackCandidatesWithTriplets.MinNumberOfCrossedLayers = 5
-iterativeFirstTrackCandidatesWithPairs.SeedProducer = cms.InputTag("iterativeTrackingSeeds","FirstMixedPairs")
-iterativeFirstTrackCandidatesWithPairs.TrackProducer = 'globalPixelGSWithMaterialTracks'
+iterativeFirstTrackCandidatesWithPairs.SeedProducer = cms.InputTag("iterativeFirstSeeds","FirstMixedPairs")
+iterativeFirstTrackCandidatesWithPairs.TrackProducers = ['globalPixelWithMaterialTracks']
 iterativeFirstTrackCandidatesWithPairs.MinNumberOfCrossedLayers = 5
 

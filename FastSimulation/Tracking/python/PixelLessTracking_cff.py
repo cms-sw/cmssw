@@ -2,19 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 # Pixel Less seeding
 from FastSimulation.Tracking.PixelLessSeedProducer_cff import *
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
 # TrackCandidates
-pixelLessGSTrackCandidates = copy.deepcopy(trackCandidateProducer)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+pixelLessTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 # reco::Tracks
-pixelLessGSWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
+pixelLessWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 # The sequence
-pixelLessGSTracking = cms.Sequence(pixelLessGSSeeds*pixelLessGSTrackCandidates*pixelLessGSWithMaterialTracks)
-pixelLessGSTrackCandidates.SeedProducer = cms.InputTag("pixelLessGSSeeds","PixelLess")
-pixelLessGSWithMaterialTracks.src = 'pixelLessGSTrackCandidates'
-pixelLessGSWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-pixelLessGSWithMaterialTracks.Fitter = 'KFFittingSmoother'
-pixelLessGSWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+pixelLessTracking = cms.Sequence(pixelLessSeeds*pixelLessTrackCandidates*pixelLessWithMaterialTracks)
+pixelLessTrackCandidates.SeedProducer = cms.InputTag("pixelLessSeeds","PixelLess")
+pixelLessWithMaterialTracks.src = 'pixelLessTrackCandidates'
+pixelLessWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
+pixelLessWithMaterialTracks.Fitter = 'KFFittingSmoother'
+pixelLessWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 

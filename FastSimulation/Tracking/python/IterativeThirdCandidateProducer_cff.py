@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
-iterativeThirdTrackCandidatesWithPairs = copy.deepcopy(trackCandidateProducer)
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+iterativeThirdTrackCandidatesWithPairs = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeThirdTrackCandidates = cms.Sequence(iterativeThirdTrackCandidatesWithPairs)
-iterativeThirdTrackCandidatesWithPairs.SeedProducer = cms.InputTag("iterativeTrackingSeeds","ThirdMixedPairs")
-iterativeThirdTrackCandidatesWithPairs.TrackProducer = 'globalPixelGSWithMaterialTracks'
+iterativeThirdTrackCandidatesWithPairs.SeedProducer = cms.InputTag("iterativeThirdSeeds","ThirdMixedPairs")
+iterativeThirdTrackCandidatesWithPairs.TrackProducers = ['firstfilter', 'secStep']
+iterativeThirdTrackCandidatesWithPairs.KeepFittedTracks = False
 iterativeThirdTrackCandidatesWithPairs.MinNumberOfCrossedLayers = 3
 

@@ -3,9 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 MuonSimHits = cms.EDProducer("MuonSimHitProducer",
     MuonServiceProxy,
-    # Set the following to false if you want to use the default CLHEP
-    # random engine
-    UseTRandomEngine = cms.bool(True),
     # Muons
     MUONS = cms.PSet(
         # The muon simtrack's must be taken from there

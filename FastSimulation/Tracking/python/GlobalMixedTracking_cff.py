@@ -2,25 +2,23 @@ import FWCore.ParameterSet.Config as cms
 
 # Global Mixed seeding
 from FastSimulation.Tracking.GlobalMixedSeedProducer_cff import *
-import copy
-from FastSimulation.Tracking.TrackCandidateProducer_cfi import *
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
 # TrackCandidates
-globalMixedGSTrackCandidates = copy.deepcopy(trackCandidateProducer)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+globalMixedTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 # reco::Tracks
-globalMixedGSWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
+globalMixedWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 # Merging
-ctfGSWithMaterialTracks = cms.EDFilter("FastTrackMerger",
-    TrackProducers = cms.VInputTag(cms.InputTag("globalMixedGSTrackCandidates"), cms.InputTag("globalMixedGSWithMaterialTracks"))
+ctfWithMaterialTracks = cms.EDFilter("FastTrackMerger",
+    TrackProducers = cms.VInputTag(cms.InputTag("globalMixedTrackCandidates"), cms.InputTag("globalMixedWithMaterialTracks"))
 )
 
 # The sequence
-ctfGSTracking = cms.Sequence(globalMixedGSSeeds*globalMixedGSTrackCandidates*globalMixedGSWithMaterialTracks*ctfGSWithMaterialTracks)
-globalMixedGSTrackCandidates.SeedProducer = cms.InputTag("globalMixedGSSeeds","GlobalMixed")
-globalMixedGSTrackCandidates.TrackProducer = 'globalPixelGSWithMaterialTracks'
-globalMixedGSWithMaterialTracks.src = 'globalMixedGSTrackCandidates'
-globalMixedGSWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-globalMixedGSWithMaterialTracks.Fitter = 'KFFittingSmoother'
-globalMixedGSWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+ctfTracking = cms.Sequence(globalMixedSeeds*globalMixedTrackCandidates*globalMixedWithMaterialTracks*ctfWithMaterialTracks)
+globalMixedTrackCandidates.SeedProducer = cms.InputTag("globalMixedSeeds","GlobalMixed")
+globalMixedTrackCandidates.TrackProducers = ['globalPixelWithMaterialTracks']
+globalMixedWithMaterialTracks.src = 'globalMixedTrackCandidates'
+globalMixedWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
+globalMixedWithMaterialTracks.Fitter = 'KFFittingSmoother'
+globalMixedWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 
