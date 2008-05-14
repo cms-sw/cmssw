@@ -51,12 +51,11 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
   std::vector<double> sum_clsize;
 
   for(unsigned int n = 0; n < vcls.size(); ++n){
-    //    std::cout<<"SUM: "<<vcls[n]<<std::endl;
 
     sum_clsize.push_back(vcls[n]);
 
     if(counter == row*20) {
-      //    std::cout<<"ROW: "<<row<<std::endl;
+
       _clsMap[row] = sum_clsize;
       row++;
       sum = 0;
@@ -68,17 +67,17 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
   for(std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it){
 
     _bxmap[RPCDetId(it->dpid)] = it->time;
-    std::vector<float> veff, vnoise;
+    std::vector<float> veff, vvnoise;
 
     veff.clear();
-    vnoise.clear();
+    vvnoise.clear();
 
     for(unsigned int j = 0; j < 96;++j){
-      vnoise.push_back((it->noise)[j]);
+      vvnoise.push_back((it->noise)[j]);
       veff.push_back((it->eff)[j]);
     }
 
-    _mapDetIdNoise[it->dpid]= vnoise;
+    _mapDetIdNoise[it->dpid]= vvnoise;
     _mapDetIdEff[it->dpid] = veff;
 
   }
