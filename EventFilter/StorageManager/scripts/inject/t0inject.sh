@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.5 2008/05/01 22:30:32 loizides Exp $
+#$Id: t0inject.sh,v 1.6 2008/05/14 10:43:20 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -49,7 +49,7 @@ start(){
     for i in `seq 1 4`; do
         inst=`expr $i - 1`
         export SMIW_RUNNUM=$inst
-        echo -n $"Starting $SMT0_IW instance $inst\n"
+        echo "Starting $SMT0_IW instance $inst"
         nohup ${SMT0_IW} ${SMT0_MONDIR} ${SMT0_LOCAL_RUN_DIR}/done \
             ${SMT0_LOCAL_RUN_DIR}/logs $inst > `hostname`.$$ 2>&1 &
         sleep 1
@@ -59,7 +59,7 @@ start(){
 
 stop(){
     for pid in `ps ax | grep ${SMT0_IW} | grep -v grep | cut -b1-6 | tr -d " "`; do
-	echo "Attempting to stop $pid"
+	echo "Attempting to stop worker with pid $pid"
 	kill -s 15 $pid
     done
     rm -f ${SMT0_LOCAL_RUN_DIR}/workdir/`hostname`.*

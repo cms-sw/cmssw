@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.6 2008/05/13 18:03:18 loizides Exp $
+# $Id: InjectWorker.pl,v 1.7 2008/05/14 10:43:20 loizides Exp $
 
 use strict;
-#use DBI;
+use DBI;
 use Getopt::Long;
 use File::Basename;
 use Sys::Hostname;
@@ -10,7 +10,7 @@ use Cwd;
 use Cwd 'abs_path';
 
 ############################################################################################################
-my $debug=1;
+my $debug=0;
 ############################################################################################################
 my $endflag=0; 
 
