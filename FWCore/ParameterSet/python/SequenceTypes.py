@@ -371,6 +371,8 @@ if __name__=="__main__":
             self.assertEqual(p6.dumpPython(None),"cms.Path(process.c+process.a*process.b)\n")
             p7 = Path(a+~b)
             self.assertEqual(p7.dumpPython(None),"cms.Path(process.a+~process.b)\n")
+            p8 = Path((a+b)*c)
+            self.assertEqual(p8.dumpPython(None),"cms.Path((process.a+process.b)*process.c)\n")
             l = list()
             d = dict()
             p.fillNamesList(l, d)
