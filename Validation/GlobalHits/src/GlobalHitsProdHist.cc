@@ -2,12 +2,13 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/11/06 22:21:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/11/20 23:53:45 $
+ *  $Revision: 1.3 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalHits/interface/GlobalHitsProdHist.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), 
@@ -1581,10 +1582,10 @@ void GlobalHitsProdHist::fillECal(edm::Event& iEvent,
   
   // access the calorimeter geometry
   edm::ESHandle<CaloGeometry> theCaloGeometry;
-  iSetup.get<IdealGeometryRecord>().get(theCaloGeometry);
+  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   if (!theCaloGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find IdealGeometryRecord in event!";
+      << "Unable to find CaloGeometryRecord in event!";
     return;
   }
   const CaloGeometry& theCalo(*theCaloGeometry);
@@ -1762,10 +1763,10 @@ void GlobalHitsProdHist::fillHCal(edm::Event& iEvent,
   
   // access the calorimeter geometry
   edm::ESHandle<CaloGeometry> theCaloGeometry;
-  iSetup.get<IdealGeometryRecord>().get(theCaloGeometry);
+  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   if (!theCaloGeometry.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find IdealGeometryRecord in event!";
+      << "Unable to find CaloGeometryRecord in event!";
     return;
   }
   const CaloGeometry& theCalo(*theCaloGeometry);
