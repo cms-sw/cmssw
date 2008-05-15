@@ -397,14 +397,13 @@ void MuIsoValidation::InitHistos(){
 					SetBins(NUM_LOG_BINS, bin_edges);
 				delete[] bin_edges;
 			}
-	
 			h_2D[var1][var2]->setAxisTitle(axis_titles[var1],XAXIS);
 			h_2D[var1][var2]->setAxisTitle(axis_titles[var2],YAXIS);
 			GetTH2FromMonitorElement(h_2D[var1][var2])->Sumw2();
 
 			p_2D[var1][var2]->setAxisTitle(axis_titles[var1],XAXIS);
 			p_2D[var1][var2]->setAxisTitle(axis_titles[var2],YAXIS);
-			GetTProfileFromMonitorElement(p_2D[var1][var2])->Sumw2();
+			//			GetTProfileFromMonitorElement(p_2D[var1][var2])->Sumw2();
 		}
 	}//Finish 2D
 
