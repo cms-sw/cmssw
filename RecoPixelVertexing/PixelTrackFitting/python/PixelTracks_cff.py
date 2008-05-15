@@ -14,10 +14,11 @@ from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
+#-ap   include "CalibTracker/Configuration/data/SiPixelLorentzAngle/SiPixelLorentzAngle_Fake.cff"
+# include "RecoTracker/TransientTrackingRecHit/data/TransientTrackingRecHitBuilderWithoutRefit.cfi"
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-myTTRHBuilderWithoutAngle = copy.deepcopy(ttrhbwr)
+import RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi
+myTTRHBuilderWithoutAngle = RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi.ttrhbwr.clone()
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
