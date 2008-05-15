@@ -75,11 +75,13 @@ REGISTER_L1_WRITER(DTConfigManagerRcd, DTConfigManager);
 #include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPhiLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
 REGISTER_PLUGIN(L1MuDTEtaPatternLutRcd, L1MuDTEtaPatternLut);
 REGISTER_L1_WRITER(L1MuDTEtaPatternLutRcd, L1MuDTEtaPatternLut);
@@ -95,6 +97,9 @@ REGISTER_L1_WRITER(L1MuDTPtaLutRcd, L1MuDTPtaLut);
 
 REGISTER_PLUGIN(L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut);
 REGISTER_L1_WRITER(L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut);
+
+REGISTER_PLUGIN(L1MuDTTFParametersRcd, L1MuDTTFParameters);
+REGISTER_L1_WRITER(L1MuDTTFParametersRcd, L1MuDTTFParameters);
 
 // CSC TPG records
 #include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
@@ -150,6 +155,12 @@ REGISTER_L1_WRITER(L1MuGMTParametersRcd, L1MuGMTParameters);
 
 REGISTER_PLUGIN(L1RCTParametersRcd, L1RCTParameters);
 REGISTER_L1_WRITER(L1RCTParametersRcd, L1RCTParameters);
+
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
+
+REGISTER_PLUGIN(L1RCTChannelMaskRcd, L1RCTChannelMask);
+REGISTER_L1_WRITER(L1RCTChannelMaskRcd, L1RCTChannelMask);
 
 // GCT records
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
