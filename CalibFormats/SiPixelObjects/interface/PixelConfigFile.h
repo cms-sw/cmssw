@@ -254,8 +254,14 @@ namespace pos{
       static void get(T* &data, std::string path, PixelConfigKey key){
 
       unsigned int theKey=key.key();
-    
-      assert(theKey<=getConfig().size());
+      
+      static PixelConfigList configList=getConfig();
+
+      if (theKey>configList.size()){
+	configList=getConfig();
+      }
+
+      assert(theKey<=configList.size());
     
       unsigned int last=path.find_last_of("/");
       assert(last!=std::string::npos);
@@ -278,7 +284,7 @@ namespace pos{
 //      std::cout << "[pos::PixelConfigFile::get()]\t\t\tExtracted ext :"<<ext <<std::endl;
     
       unsigned int version;
-      int err=getConfig()[theKey].find(dir,version);   
+      int err=configList[theKey].find(dir,version);   
       // assert(err==0);
       if(0!=err) 
 	{
