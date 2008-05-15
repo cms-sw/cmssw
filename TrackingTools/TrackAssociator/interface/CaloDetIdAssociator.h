@@ -15,12 +15,13 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id$
+// $Id: CaloDetIdAssociator.h,v 1.7 2007/10/08 13:59:31 dmytro Exp $
 //
 //
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -43,7 +44,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
 
    virtual void setGeometry(const DetIdAssociatorRecord& iRecord){
       edm::ESHandle<CaloGeometry> geometryH;
-      iRecord.getRecord<IdealGeometryRecord>().get(geometryH);
+      iRecord.getRecord<CaloGeometryRecord>().get(geometryH);
       setGeometry(geometryH.product());
    };
 
