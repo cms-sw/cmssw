@@ -15,6 +15,9 @@
 
 // The template header files
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateSplit.h"
+
 #include <vector>
 #include "boost/multi_array.hpp"
 
@@ -55,6 +58,8 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   speed_ = conf.getParameter<int>( "speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") <<
     "Template speed = " << speed_ << "\n";
+
+  UseClusterSplitter_ = conf.getParameter<bool>("UseClusterSplitter");
 
 }
 
@@ -204,52 +209,174 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   templXrec_ = templYrec_ = templSigmaX_ = templSigmaY_ = nonsense;
   templProbY_ = templProbX_ = nonsense;
   
+  float templYrec1_ = nonsense;
+  float templXrec1_ = nonsense;
+  float templYrec2_ = nonsense;
+  float templXrec2_ = nonsense;
+
   // ******************************************************************
   // Do it! Use cotalpha_ and cotbeta_ calculated in PixelCPEBase
 
   ierr =
-    PixelTempReco2D(ID, fpix, cotalpha_, cotbeta_,
-                    clust_array_2d, ydouble, xdouble,
-                    templ_,
-                    templYrec_, templSigmaY_, templProbY_,
-                    templXrec_, templSigmaX_, templProbX_, 
-		    templQbin_, 
-		    speed_);
+    PixelTempReco2D( ID, fpix, cotalpha_, cotbeta_,
+		     clust_array_2d, ydouble, xdouble,
+		     templ_,
+		     templYrec_, templSigmaY_, templProbY_,
+		     templXrec_, templSigmaX_, templProbX_, 
+		     templQbin_, 
+		     speed_ );
   // ******************************************************************
 
-  LocalPoint template_lp = LocalPoint( nonsense, nonsense );
-  
   // Check exit status
-  if (ierr != 0) 
+  if ( ierr != 0 ) 
     {
+      //cout << "Error from PixelTempReco2D" << endl;
+
       LogDebug("PixelCPETemplateReco::localPosition") <<
 	"reconstruction failed with error " << ierr << "\n";
 
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift correction
-      double lorentz_drift = 60.0;
-      templXrec_ = theTopol->localX( cluster.x() ) / micronsToCm - lorentz_drift; // very rough Lorentz drift correction
-      templYrec_ = theTopol->localY( cluster.y() ) / micronsToCm;
-    
-      //cout << "templXrec_ = " << templXrec_ << endl;
-      //cout << "templYrec_ = " << templYrec_ << endl;
-    }
+      double lorentz_drift = 60.0; // in microns
+      templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
+      templYrec_ = theTopol->localY( cluster.y() );
 
+      // go back to the module coordinate system 
+      templXrec_ += lp.x();
+      templYrec_ += lp.y();    
+    }
+  else if ( UseClusterSplitter_ && templQbin_ == 0 )
+    {
+      //cout << "PixelTempReco2D returned without error and templQbin_ == 0" << endl;
+
+      ierr = 
+	PixelTempSplit( ID, fpix, cotalpha_, cotbeta_, 
+			clust_array_2d, ydouble, xdouble, 
+			templ_, 
+			templYrec1_, templYrec2_, templSigmaY_, templProbY_,
+			templXrec1_, templXrec2_, templSigmaX_, templProbX_, 
+			templQbin_ );
+
+      if ( ierr != 0 )
+	{
+	  //cout << "Error from PixelTempSplit" << endl;
+	  
+	  LogDebug("PixelCPETemplateReco::localPosition") <<
+	    "reconstruction failed with error " << ierr << "\n";
+	  
+	  double lorentz_drift = 60.0; // in microns
+	  templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
+	  templYrec_ = theTopol->localY( cluster.y() );
+	
+	  // go back to the module coordinate system 
+	  templXrec_ += lp.x();
+	  templYrec_ += lp.y();    
+	}
+      else
+	{
+	  //cout << "PixelTempSplit returned without error " << endl;
+
+	  // go from micrometer to centimeter      
+	  templXrec1_ *= micronsToCm;
+	  templYrec1_ *= micronsToCm;	  
+	  templXrec2_ *= micronsToCm;
+	  templYrec2_ *= micronsToCm;
+      
+	  // go back to the module coordinate system   
+	  templXrec1_ += lp.x();
+	  templYrec1_ += lp.y();
+	  templXrec2_ += lp.x();
+	  templYrec2_ += lp.y();
+      
+      	  //cout << "templXrec1_ = " << templXrec1_ << endl;
+	  //cout << "templYrec1_ = " << templYrec1_ << endl;
+	  //cout << "templXrec2_ = " << templXrec2_ << endl;
+	  //cout << "templYrec2_ = " << templYrec2_ << endl;
+	  //cout << "trk_lp_x    = " << trk_lp_x    << endl;
+	  //cout << "trk_lp_y    = " << trk_lp_y    << endl;
+	        
+	  // calculate distance from each hit to the track and choose the 
+	  // hit closest to the track
+	  float distance11 = sqrt( (templXrec1_ - trk_lp_x)*(templXrec1_ - trk_lp_x) + 
+				   (templYrec1_ - trk_lp_y)*(templYrec1_ - trk_lp_y) );
+	  
+	  float distance12 = sqrt( (templXrec1_ - trk_lp_x)*(templXrec1_ - trk_lp_x) + 
+				   (templYrec2_ - trk_lp_y)*(templYrec2_ - trk_lp_y) );
+	  
+	  float distance21 = sqrt( (templXrec2_ - trk_lp_x)*(templXrec2_ - trk_lp_x) + 
+				   (templYrec1_ - trk_lp_y)*(templYrec1_ - trk_lp_y) );
+	  
+	  float distance22 = sqrt( (templXrec2_ - trk_lp_x)*(templXrec2_ - trk_lp_x) + 
+				   (templYrec2_ - trk_lp_y)*(templYrec2_ - trk_lp_y) );
+	  
+	  //cout << "distance11 = " << distance11 << endl;
+	  //cout << "distance12 = " << distance12 << endl;
+	  //cout << "distance21 = " << distance21 << endl;
+	  //cout << "distance22 = " << distance22 << endl;
+	  
+	  int index_dist = -999;
+	  float min_templXrec_ = -999.9;
+	  float min_templYrec_ = -999.9;
+	  float distance_min = 9999999999.9;
+	  if ( distance11 < distance_min )
+	    {
+	      distance_min = distance11;
+	      min_templXrec_ = templXrec1_;
+	      min_templYrec_ = templYrec1_;
+	      index_dist = 1;
+	    }
+	  if ( distance12 < distance_min )
+	    {
+	      distance_min = distance12;
+	      min_templXrec_ = templXrec1_;
+	      min_templYrec_ = templYrec2_;
+	      index_dist = 2;
+	    }
+	  if ( distance21 < distance_min )
+	    {
+	      distance_min = distance21;
+	      min_templXrec_ = templXrec2_;
+	      min_templYrec_ = templYrec1_;
+	      index_dist = 3;
+	    }
+	  if ( distance22 < distance_min )
+	    {
+	      distance_min = distance22;
+	      min_templXrec_ = templXrec2_;
+	      min_templYrec_ = templYrec2_;
+	      index_dist = 4;
+	    }
+	  
+	  //cout << "index_dist = " << index_dist << endl;
+	  
+	  templXrec_ = min_templXrec_;
+	  templYrec_ = min_templYrec_;
+	}
+    } // else if ( UseClusterSplitter_ && templQbin_ == 0 )
+  else 
+    {
+      //cout << "PixelTempReco2D returned without error and templQbin_ != 0" << endl;
+
+      // go from micrometer to centimeter      
+      templXrec_ *= micronsToCm;
+      templYrec_ *= micronsToCm;
+      
+      // go back to the module coordinate system 
+      templXrec_ += lp.x();
+      templYrec_ += lp.y();
+    }
+  
+  //cout << "templXrec_ = " << templXrec_ << endl;
+  //cout << "templYrec_ = " << templYrec_ << endl;
+  
   // Save probabilities and qBin in the quantities given to us by the base class
   // (for which there are also inline getters).  &&& templProbX_ etc. should be retired...
   probabilityX_ = templProbX_;
   probabilityY_ = templProbY_;
   qBin_         = templQbin_;
 
-      
-  // go from micrometer to centimeter      
-  templXrec_ *= micronsToCm;
-  templYrec_ *= micronsToCm;
   
-  // go back to the module coordinate system 
-  templXrec_ += lp.x();
-  templYrec_ += lp.y();
-  
+  LocalPoint template_lp = LocalPoint( nonsense, nonsense );
   template_lp = LocalPoint( templXrec_, templYrec_ );      
   
   return template_lp;
