@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/05/09 20:48:39 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/05/15 19:36:47 $
+ *  $Revision: 1.13 $
  *
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -147,7 +147,7 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& sta,
 
     // calculate chi^2 of local track parameters
     double chi2 = match_Chi2(tsosPair.first,tsosPair.second);
-    if ( chi2 <= minChi2 ) {
+    if ( chi2 > 0. && chi2 <= minChi2 ) {
       minChi2 = chi2;
       result = is;
     }
