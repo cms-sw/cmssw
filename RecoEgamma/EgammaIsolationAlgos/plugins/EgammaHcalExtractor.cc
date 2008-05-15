@@ -16,6 +16,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaHcalExtractor.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -42,7 +43,7 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event & iEvent,
 
    //Get Calo Geometry
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    const CaloGeometry* caloGeom = pG.product();
    CaloDualConeSelector coneSel(intRadius_, extRadius_, caloGeom, DetId::Hcal);
 

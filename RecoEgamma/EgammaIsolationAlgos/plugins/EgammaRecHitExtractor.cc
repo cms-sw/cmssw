@@ -17,6 +17,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
@@ -78,7 +79,7 @@ EgammaRecHitExtractor::~EgammaRecHitExtractor() { }
 reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent, 
       const edm::EventSetup & iSetup, const reco::Candidate &emObject ) const {
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    const CaloGeometry* caloGeom = pG.product(); 
 
    std::auto_ptr<const CaloRecHitMetaCollectionV> barrelRecHits(0), endcapRecHits(0);
