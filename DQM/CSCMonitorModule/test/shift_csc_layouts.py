@@ -1,4 +1,4 @@
-def csclayout(i, p, *rows): i["CSC/Layouts/" + p] = DQMItem(layout=rows)
+def csclayout(i, p, *rows): i["Shift/CSC/" + p] = DQMItem(layout=rows)
   
 csclayout(dqmitems,"EMU Summary/EMU Test01 - DDUs in Readout",
   	[{'path': "CSC/Summary/All_DDUs_in_Readout", 'description': "Number of Events in DDU. If Readout and Trigger Enable were started in a correct sequence (first, Readout Enable and, then, Trigger Enable) and the rate of events with CSC payload present is not too high (<100 CSCs with data per second per DDU) then all DDUs should give the exact same number of events. For more information please click <a href=\"https://twiki.cern.ch/twiki/bin/view/CMS/DQMShiftCSC#All_DDUs_in_Readout\">here</a>."}],
