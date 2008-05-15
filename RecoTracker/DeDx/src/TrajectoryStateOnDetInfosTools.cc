@@ -160,6 +160,8 @@ int TSODI::charge(TrajectoryStateOnDetInfo* Tsodi, bool stereo)
 double TSODI::thickness(TrajectoryStateOnDetInfo* Tsodi, edm::ESHandle<TrackerGeometry> tkGeom)
 {
    const TrackingRecHit*         hit               = (Tsodi->recHit()).get();
+   if(hit->type()>=1)return -1;
+
    const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(hit->geographicalId()));
    if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
 //     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
