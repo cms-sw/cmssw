@@ -29,6 +29,8 @@ class FamosProducer : public edm::EDProducer
   FamosManager * famosManager_;
   HepMC::GenEvent * evt_;
   bool simulateMuons;
+  edm::InputTag theSourceLabel;
+  edm::InputTag theGenParticleLabel;
 
   bool m_firstTimeProduce ;
 };

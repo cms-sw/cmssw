@@ -43,6 +43,11 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     // Temporary facility to allow for the crossing frame to work...
     simulateMuons = p.getParameter<bool>("SimulateMuons");
     if ( simulateMuons ) produces<edm::SimTrackContainer>("MuonSimTracks");
+
+    // The generator input label
+    theSourceLabel = p.getParameter<edm::InputTag>("SourceLabel");
+    theGenParticleLabel = p.getParameter<edm::InputTag>("GenParticleLabel");
+
     famosManager_ = new FamosManager(p);
 
     m_firstTimeProduce = true ;
@@ -83,7 +88,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
 
    // Get the generated signal event
-   bool source = iEvent.getByLabel("source",theHepMCProduct);
+   bool source = iEvent.getByLabel(theSourceLabel,theHepMCProduct);
    if ( source ) { 
      myGenEvent = theHepMCProduct->GetEvent();
      // First rotate in case of beam crossing angle (except if done already)
@@ -95,13 +100,19 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    } 
 
    // In case there is no HepMCProduct, seek a genParticle Candidate Collection
+   bool genPart = false;
    const reco::GenParticleCollection* myGenParticles = 0;
    if ( !myGenEvent ) { 
      // Look for the particle CandidateCollection
      Handle<reco::GenParticleCollection> genEvt;
-     bool genPart = iEvent.getByLabel("genParticles",genEvt);
+     genPart = iEvent.getByLabel(theGenParticleLabel,genEvt);
      if ( genPart ) myGenParticles = &(*genEvt);
-   }
+   } 
+
+   if ( !myGenEvent && !genPart )
+     std::cout << "There is no generator input for this event, under " 
+	       << "any form (HepMCProduct, genParticles)" << std::endl
+	       << "Please check SourceLabel or GenParticleLabel" << std::endl;
 
    // Get the pile-up events from the pile-up producer
    // There might be no pile-up events, by the way, in that case, just continue
