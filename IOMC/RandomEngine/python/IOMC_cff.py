@@ -1,19 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    mix = cms.PSet(
+        initialSeed = cms.untracked.uint32(12345),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simMuonRPCDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simECalUnsuppressedDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
     # to save the status of the last event (useful for crashes)
     saveFileName = cms.untracked.string(''),
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(11),
-        simEcalUnsuppressedDigis = cms.untracked.uint32(1234567),
-        simMuonCSCDigis = cms.untracked.uint32(11223344),
-        mix = cms.untracked.uint32(12345),
-        simSiPixelDigis = cms.untracked.uint32(1234567),
-        VtxSmeared = cms.untracked.uint32(98765432),
-        simHcalUnsuppressedDigis = cms.untracked.uint32(11223344),
-        simMuonDTDigis = cms.untracked.uint32(1234567),
-        simSiStripDigis = cms.untracked.uint32(1234567),
-        simMuonRPCDigis = cms.untracked.uint32(1234567)
+    simSiStripDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simHCalUnsuppressedDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(11223344),
+        engineName = cms.untracked.string('HepJamesRandom')
     ),
     # to restore the status of the last event, 
     # comment the line above and decomment the following one
@@ -21,7 +29,30 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     # to reproduce events using the RandomEngineStateProducer (source excluded),
     # comment the sourceSeed definition, decomment the following one
     #   untracked string restoreStateLabel = "randomEngineStateProducer"
-    sourceSeed = cms.untracked.uint32(123456789)
+    theSource = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simMuonCSCDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(11223344),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    VtxSmeared = cms.PSet(
+        initialSeed = cms.untracked.uint32(98765432),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    g4SimHits = cms.PSet(
+        initialSeed = cms.untracked.uint32(11),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simSiPixelDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    simMuonDTDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
 )
 
 randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
