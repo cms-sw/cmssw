@@ -107,7 +107,8 @@ bool InputGenJetsParticleSelector::isExcludedFromResonance(int pdgId) const
     std::lower_bound(excludeFromResonancePids.begin(),
 		     excludeFromResonancePids.end(),
 		     (unsigned int)pdgId);
-  return pos != ignoreParticleIDs.end() && *pos == (unsigned int)pdgId;
+  return pos != excludeFromResonancePids.end() && *pos == (unsigned int)pdgId;
+ 
 }
 
 static unsigned int partIdx(const InputGenJetsParticleSelector::ParticleVector &p,
@@ -174,8 +175,9 @@ InputGenJetsParticleSelector::fromResonance(ParticleBitmap &invalid,
   unsigned int idx = partIdx(p, particle);
   int id = particle->pdgId();
 
-  if (invalid[idx] ||
-      (isResonance(id) && particle->status() == 3)){
+  if (invalid[idx]) return kIndirect;
+      
+  if (isResonance(id) && particle->status() == 3){
     return kDirect;
   }
 
@@ -192,12 +194,19 @@ InputGenJetsParticleSelector::fromResonance(ParticleBitmap &invalid,
 
   for(unsigned int i=0;i<nMo;++i){
     ResonanceState result = fromResonance(invalid,p,dynamic_cast<const reco::GenParticle*>(particle->mother(i)));
-    if (!result) continue;
-    if (result == kIndirect || isExcludedFromResonance(id))
+    switch(result) {
+    case kNo:
+      break;
+    case kDirect:
+      if (dynamic_cast<const reco::GenParticle*>(particle->mother(i))->pdgId()==id)
+	return kDirect;
+      if(!isExcludedFromResonance(id))
+	break;
+    case kIndirect:
       return kIndirect;
+    }
   }
-  
-  return kNo;
+return kNo;
 }
 
     
@@ -211,8 +220,7 @@ bool InputGenJetsParticleSelector::hasPartonChildren(ParticleBitmap &invalid,
 //function NEEDED and called per EVENT by FRAMEWORK:
 void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSetup &evtSetup){
 
-  //const edm::Handle<collection> &, const edm::Event &evt, const edm::EventSetup &evtSetup){
-      
+ 
   std::auto_ptr<reco::GenParticleRefVector> selected_ (new reco::GenParticleRefVector);
     
   edm::Handle<reco::GenParticleCollection> genParticles;
@@ -252,26 +260,30 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     }
 	
   }
-
+ unsigned int count=0;
   for(size_t idx=0;idx<genParticles->size();++idx){ 
     const reco::GenParticle *particle = particles[idx];
-    if (!selected[idx] || invalid[idx])
+    if (!selected[idx] || invalid[idx]){
       continue;
+    }
 	
     if (excludeResonances &&
 	fromResonance(invalid, particles, particle)) {
       invalid[idx] = true;
-      //cout<<"Invalidates FROM RESONANCE!: ["<<setw(4)<<idx<<"] "<<particle->pdgId()<<" "<<particle->pt()<<endl;
+      //cout<<"[INPUTSELECTOR] Invalidates FROM RESONANCE!: ["<<setw(4)<<idx<<"] "<<particle->pdgId()<<" "<<particle->pt()<<endl;
       continue;
     }
 	
-    if (isIgnored(particle->pdgId()))
+    if (isIgnored(particle->pdgId())){
       continue;
-	
+    }
+
+   
     if (particle->pt() >= ptMin){
       edm::Ref<reco::GenParticleCollection> particleRef(genParticles,idx);
       selected_->push_back(particleRef);
       //cout<<"Finally we have: ["<<setw(4)<<idx<<"] "<<setw(4)<<particle->pdgId()<<" "<<particle->pt()<<endl;
+      count++;
     }
   }
   evt.put(selected_);
