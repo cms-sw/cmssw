@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2008/05/09 20:20:38 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/05/09 20:48:39 $
+ *  $Revision: 1.12 $
  *
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -187,10 +187,9 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair
       = convertToTSOSMuHit(sta,*is);
 
-    muonTSOS = tsosPair.first;
+    if(tsosPair.first.isValid()) muonTSOS = tsosPair.first;
     cands.push_back(TrackCandWithTSOS(*is,tsosPair.second));
   }
-
 
   // try various matching criteria
   for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is) {
@@ -206,7 +205,11 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     LogDebug(category) << "MatchChi2 returned 0 results";
     for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is) {
 
-      double distance = match_D(muonTSOS,(*is).second);
+      double distance = match_d(muonTSOS,(*is).second);
+      double Distance = match_D(muonTSOS,(*is).second);
+      double distanceWithError = match_dist(muonTSOS,(*is).second);
+
+      LogDebug(category) << "match_d - match_D = " << distance << " - " << Distance << " = " << distance - Distance << " match_dist: " << distanceWithError;
 
       if ( distance > 0. && distance < theDeltaD ) {
 	result.push_back((*is).first);
@@ -431,7 +434,7 @@ GlobalMuonTrackMatcher::match_Chi2(const TrajectoryStateOnSurface& tsos1,
                                    const TrajectoryStateOnSurface& tsos2) const {
   
   const string category = "GlobalMuonTrackMatcher";
-  
+  LogDebug(category) << "match_Chi2 sanity check: " << tsos1.isValid() << " " << tsos2.isValid();
   if ( !tsos1.isValid() || !tsos2.isValid() ) return -1.;
   
   AlgebraicVector5 v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
@@ -441,7 +444,10 @@ GlobalMuonTrackMatcher::match_Chi2(const TrajectoryStateOnSurface& tsos1,
 
   bool ierr = !m.Invert();
  
-  if ( !ierr ) edm::LogInfo(category) << "Error inverting covariance matrix";
+  if ( ierr ) { 
+    edm::LogInfo(category) << "Error inverting covariance matrix";
+    return -1;
+  }
  
   double est = ROOT::Math::Similarity(v,m);
  
@@ -527,6 +533,11 @@ GlobalMuonTrackMatcher::match_d(const TrajectoryStateOnSurface& sta,
 
 }
 
+
+//
+// calculate the chi2 of the distance in local position of two 
+// trajectory states including local errors
+//
 double
 GlobalMuonTrackMatcher::match_dist(const TrajectoryStateOnSurface& sta, 
 				   const TrajectoryStateOnSurface& tk) const {
@@ -535,18 +546,19 @@ GlobalMuonTrackMatcher::match_dist(const TrajectoryStateOnSurface& sta,
   
   if ( !sta.isValid() || !tk.isValid() ) return -1;
   
-  AlgebraicMatrix22 M;
-  M(0,0) =  tk.localError().positionError().xx()+ sta.localError().positionError().xx();
-  M(1,0) = M(0,1) = tk.localError().positionError().xy()+ sta.localError().positionError().xy();
-  M(1,1) =  tk.localError().positionError().yy()+ sta.localError().positionError().yy();
+  AlgebraicMatrix22 m;
+  m(0,0) = tk.localError().positionError().xx() + sta.localError().positionError().xx();
+  m(1,0) = m(0,1) = tk.localError().positionError().xy() + sta.localError().positionError().xy();
+  m(1,1) = tk.localError().positionError().yy() + sta.localError().positionError().yy();
   AlgebraicVector2 v;
-  v[0] = tk.localDirection().x()- sta.localDirection().x();
-  v[1] = tk.localDirection().y()- sta.localDirection().y();
+  v[0] = tk.localDirection().x() - sta.localDirection().x();
+  v[1] = tk.localDirection().y() - sta.localDirection().y();
   
-  if(!M.Invert()){
+  if ( !m.Invert() ) {
     LogDebug(category) << "Error inverting local matrix ";
     return -1;
   }
   
-  return  ROOT::Math::Similarity(v,M);
+  return ROOT::Math::Similarity(v,m);
+
 }
