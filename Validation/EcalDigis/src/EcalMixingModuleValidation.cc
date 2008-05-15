@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2008/02/29 20:48:26 $
- * $Revision: 1.17 $
+ * $Date: 2008/05/05 10:45:22 $
+ * $Revision: 1.18 $
  * \author F. Cossutti
  *
 */
@@ -12,7 +12,7 @@
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -718,7 +718,7 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & even
   // load the geometry
 
   edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
+  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
 
   const CaloGeometry * pGeometry = &*hGeometry;
   
