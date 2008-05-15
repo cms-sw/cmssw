@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.51 2008/03/26 16:48:10 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.48 2008/02/25 14:30:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 
+using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -21,7 +22,6 @@ bool SiStripConfigDb::allowCalibUpload_ = false;
 SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 				  const edm::ActivityRegistry& activity ) :
   factory_(0), 
-  dbCache_(0), 
   dbParams_(),
   // Local cache
   devices_(), 
@@ -49,6 +49,147 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 }
 
 // -----------------------------------------------------------------------------
+// 
+SiStripConfigDb::SiStripConfigDb( string confdb, 
+				  string partition,
+				  uint32_t major,
+				  uint32_t minor ) :
+  factory_(0), 
+  dbParams_(),
+  // Local cache
+  devices_(), 
+  feds_(), 
+  connections_(), 
+  dcuDetIdMap_(), 
+  fedIds_(),
+  // Misc
+  usingStrips_(true),
+  openConnection_(false)
+{
+  cntr_++;
+  LogTrace(mlConfigDb_)
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Constructing object..."
+    << " (Class instance: " << cntr_ << ")";
+
+  dbParams_.reset();
+  dbParams_.usingDb_ = true; 
+  dbParams_.confdb( confdb );
+  dbParams_.partition_ = partition; 
+  dbParams_.cabMajor_ = major;
+  dbParams_.cabMinor_ = minor;
+  dbParams_.fedMajor_ = major; //@@
+  dbParams_.fedMinor_ = minor; //@@
+  dbParams_.fecMajor_ = major; //@@
+  dbParams_.fecMinor_ = minor; //@@
+  dbParams_.dcuMajor_ = major; //@@
+  dbParams_.dcuMinor_ = minor; //@@
+  dbParams_.calMajor_ = major; //@@
+  dbParams_.calMinor_ = minor; //@@
+
+  stringstream ss;
+  ss << "[SiStripConfigDb::" << __func__ << "]"
+     << " Database connection parameters:" << endl
+     << dbParams_ << endl;
+  edm::LogVerbatim(mlConfigDb_) << ss.str();
+
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripConfigDb::SiStripConfigDb( string user, 
+				  string passwd, 
+				  string path,
+				  string partition,
+				  uint32_t major,
+				  uint32_t minor ) :
+  factory_(0), 
+  dbParams_(),
+  // Local cache
+  devices_(), 
+  feds_(), 
+  connections_(), 
+  dcuDetIdMap_(), 
+  fedIds_(), 
+  // Misc
+  usingStrips_(true),
+  openConnection_(false)
+{
+  cntr_++;
+  LogTrace(mlConfigDb_)
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Constructing object..."
+    << " (Class instance: " << cntr_ << ")";
+  
+  dbParams_.reset();
+  dbParams_.usingDb_ = true; 
+  dbParams_.confdb( user, passwd, path );
+  dbParams_.partition_ = partition; 
+  dbParams_.cabMajor_ = major;
+  dbParams_.cabMinor_ = minor;
+  dbParams_.fedMajor_ = major; //@@
+  dbParams_.fedMinor_ = minor; //@@
+  dbParams_.fecMajor_ = major; //@@
+  dbParams_.fecMinor_ = minor; //@@
+  dbParams_.calMajor_ = major; //@@
+  dbParams_.calMinor_ = minor; //@@
+
+  stringstream ss;
+  ss << "[SiStripConfigDb::" << __func__ << "]"
+     << " Database connection parameters:" << endl
+     << dbParams_ << endl;
+  edm::LogVerbatim(mlConfigDb_) << ss.str();
+
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripConfigDb::SiStripConfigDb( string input_module_xml,
+				  string input_dcuinfo_xml,
+				  vector<string> input_fec_xml,
+				  vector<string> input_fed_xml,
+				  string output_module_xml,
+				  string output_dcuinfo_xml,
+				  string output_fec_xml,
+				  string output_fed_xml ) : 
+  factory_(0), 
+  dbParams_(),
+  // Local cache
+  devices_(), 
+  feds_(), 
+  connections_(), 
+  dcuDetIdMap_(),
+  fedIds_(), 
+  // Misc
+  usingStrips_(true),
+  openConnection_(false)
+{
+  cntr_++;
+  LogTrace(mlConfigDb_)
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Constructing object..."
+    << " (Class instance: " << cntr_ << ")";
+
+  dbParams_.reset();
+  dbParams_.usingDb_          = false; 
+  dbParams_.inputModuleXml_   = input_module_xml; 
+  dbParams_.inputDcuInfoXml_  = input_dcuinfo_xml; 
+  dbParams_.inputFecXml_      = input_fec_xml; 
+  dbParams_.inputFedXml_      = input_fed_xml; 
+  dbParams_.outputModuleXml_  = output_module_xml; 
+  dbParams_.outputDcuInfoXml_ = output_dcuinfo_xml; 
+  dbParams_.outputFecXml_     = output_fec_xml; 
+  dbParams_.outputFedXml_     = output_fed_xml; 
+
+  stringstream ss;
+  ss << "[SiStripConfigDb::" << __func__ << "]"
+     << " Database connection parameters:" << endl
+     << dbParams_ << endl;
+  edm::LogVerbatim(mlConfigDb_) << ss.str();
+
+}
+
+// -----------------------------------------------------------------------------
 //
 SiStripConfigDb::~SiStripConfigDb() {
   if ( openConnection_ ) { closeDbConnection(); }
@@ -65,9 +206,7 @@ SiStripConfigDb::DbParams::DbParams() :
   user_(null_),
   passwd_(null_),
   path_(null_),
-  partitions_(), 
-  usingDbCache_(false),
-  sharedMemory_(""),
+  partition_(null_), 
   runNumber_(0),
   cabMajor_(0),
   cabMinor_(0),
@@ -105,12 +244,10 @@ SiStripConfigDb::DbParams::~DbParams() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::DbParams::reset() {
-  usingDb_ = false;
+  usingDb_ = true;
   confdb_ = null_;
   confdb( confdb_ );
-  partitions_ = std::vector<std::string>();
-  usingDbCache_ = false;
-  sharedMemory_ = "";
+  partition_ = null_;
   runNumber_ = 0;
   cabMajor_ = 0;
   cabMinor_ = 0;
@@ -126,161 +263,14 @@ void SiStripConfigDb::DbParams::reset() {
   force_    = true;
   inputModuleXml_   = "";
   inputDcuInfoXml_  = "";
-  inputFecXml_      = std::vector<std::string>(1,"");
-  inputFedXml_      = std::vector<std::string>(1,"");
+  inputFecXml_      = vector<string>(1,"");
+  inputFedXml_      = vector<string>(1,"");
   inputDcuConvXml_  = "";
   outputModuleXml_  = "";
   outputDcuInfoXml_ = "";
   outputFecXml_     = "";
   outputFedXml_     = "";
   tnsAdmin_         = "";
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
-  reset();
-  usingDb_ = pset.getUntrackedParameter<bool>( "UsingDb", false ); 
-  confdb( pset.getUntrackedParameter<std::string>( "ConfDb", "") );
-  partitions_ = pset.getUntrackedParameter< std::vector<std::string> >( "Partitions", std::vector<std::string>() );
-  runNumber_ = pset.getUntrackedParameter<unsigned int>( "RunNumber", 0 );
-  usingDbCache_ = pset.getUntrackedParameter<bool>( "UsingDbCache", false ); 
-  sharedMemory_ = pset.getUntrackedParameter<std::string>( "SharedMemory", "" ); 
-  cabMajor_ = pset.getUntrackedParameter<unsigned int>( "MajorVersion", 0 );
-  cabMinor_ = pset.getUntrackedParameter<unsigned int>( "MinorVersion", 0 );
-  fedMajor_ = pset.getUntrackedParameter<unsigned int>( "FedMajorVersion", 0 );
-  fedMinor_ = pset.getUntrackedParameter<unsigned int>( "FedMinorVersion", 0 );
-  fecMajor_ = pset.getUntrackedParameter<unsigned int>( "FecMajorVersion", 0 );
-  fecMinor_ = pset.getUntrackedParameter<unsigned int>( "FecMinorVersion", 0 );
-  dcuMajor_ = pset.getUntrackedParameter<unsigned int>( "DcuDetIdMajorVersion", 0 );
-  dcuMinor_ = pset.getUntrackedParameter<unsigned int>( "DcuDetIdMinorVersion", 0 );
-  calMajor_ = pset.getUntrackedParameter<unsigned int>( "CalibMajorVersion", 0 );
-  calMinor_ = pset.getUntrackedParameter<unsigned int>( "CalibMinorVersion", 0 );
-  force_ = pset.getUntrackedParameter<bool>( "ForceDcuDetIdVersions", true );
-  inputModuleXml_ = pset.getUntrackedParameter<std::string>( "InputModuleXml", "" );
-  inputDcuInfoXml_ = pset.getUntrackedParameter<std::string>( "InputDcuInfoXml", "" ); 
-  inputFecXml_ = pset.getUntrackedParameter< std::vector<std::string> >( "InputFecXml", std::vector<std::string>(1,"") ); 
-  inputFedXml_ = pset.getUntrackedParameter< std::vector<std::string> >( "InputFedXml", std::vector<std::string>(1,"") ); 
-  inputDcuConvXml_ = pset.getUntrackedParameter<std::string>( "InputDcuConvXml", "" );
-  outputModuleXml_ = pset.getUntrackedParameter<std::string>( "OutputModuleXml", "/tmp/module.xml" );
-  outputDcuInfoXml_ = pset.getUntrackedParameter<std::string>( "OutputDcuInfoXml", "/tmp/dcuinfo.xml" );
-  outputFecXml_ = pset.getUntrackedParameter<std::string>( "OutputFecXml", "/tmp/fec.xml" );
-  outputFedXml_ = pset.getUntrackedParameter<std::string>( "OutputFedXml", "/tmp/fed.xml" );
-  tnsAdmin_ = pset.getUntrackedParameter<std::string>( "TNS_ADMIN", "" );
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::confdb( const std::string& confdb ) {
-  confdb_ = confdb;
-  uint32_t ipass = confdb.find("/");
-  uint32_t ipath = confdb.find("@");
-  if ( ipass != std::string::npos && 
-       ipath != std::string::npos ) {
-    user_   = confdb.substr(0,ipass); 
-    passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
-    path_   = confdb.substr(ipath+1,confdb.size());
-  } else {
-    user_   = null_;
-    passwd_ = null_;
-    path_   = null_;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::confdb( const std::string& user,
-					const std::string& passwd,
-					const std::string& path ) {
-  if ( user != "" && passwd != "" && path != "" &&
-       user != null_ && passwd != null_ && path != null_ ) {
-    user_   = user;
-    passwd_ = passwd;
-    path_   = path;
-  } else {
-    user_   = null_;
-    passwd_ = null_;
-    path_   = null_;
-  }
-  confdb_ = user_ + "/" + passwd_ + "@" + path_;
-}
-
-// -----------------------------------------------------------------------------
-// 
-std::string SiStripConfigDb::DbParams::partitions() const {
-  std::stringstream ss;
-  std::vector<std::string>::const_iterator ii = partitions_.begin();
-  std::vector<std::string>::const_iterator jj = partitions_.end();
-  for ( ; ii != jj; ++ii ) { ii == partitions_.begin() ? ss << *ii : ss << ", " << *ii; }
-  return ss.str();
-}
-
-// -----------------------------------------------------------------------------
-// 
-std::vector<std::string> SiStripConfigDb::DbParams::partitions( std::string input ) const {
-  std::istringstream ss(input);
-  std::vector<std::string> partitions;
-  std::string delimiter = ":";
-  std::string token;
-  while ( getline( ss, token, ':' ) ) { partitions.push_back(token); }
-  return partitions;
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripConfigDb::DbParams::print( std::stringstream& ss ) const {
-
-  ss << " Using database account    : " << std::boolalpha << usingDb_ << std::noboolalpha << std::endl;
-  ss << " Using database cache      : " << std::boolalpha << usingDbCache_ << std::noboolalpha << std::endl;
-  ss << " Shared memory name        : " << std::boolalpha << sharedMemory_ << std::noboolalpha << std::endl;
-
-  if ( usingDb_ ) {
-
-    ss << " ConfDb                    : " << confdb_ << std::endl;
-      //<< " User, Passwd, Path        : " << user_ << ", " << passwd_ << ", " << path_ << std::endl;
-
-  } else {
-
-    // Input
-    ss << " Input \"module.xml\" file   : " << inputModuleXml_ << std::endl
-       << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << std::endl
-       << " Input \"fec.xml\" file(s)   : ";
-    std::vector<std::string>::const_iterator ifec = inputFecXml_.begin();
-    for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << *ifec << ", "; }
-    ss << std::endl;
-    ss << " Input \"fed.xml\" file(s)   : ";
-    std::vector<std::string>::const_iterator ifed = inputFedXml_.begin();
-    for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << *ifed << ", "; }
-    ss << std::endl;
-
-    // Output 
-    ss << " Output \"module.xml\" file  : " << outputModuleXml_ << std::endl
-       << " Output \"dcuinfo.xml\" file : " << outputDcuInfoXml_ << std::endl
-       << " Output \"fec.xml\" file(s)  : " << outputFecXml_ << std::endl
-       << " Output \"fed.xml\" file(s)  : " << outputFedXml_ << std::endl;
-
-  }
-  
-  ss << " Partitions                : " << partitions() << std::endl;
-  ss << " Run number                : " << runNumber_ << std::endl
-     << " Run type                  : " << SiStripEnumsAndStrings::runType( runType_ ) << std::endl
-     << " Cabling major/minor vers  : " << cabMajor_ << "." << cabMinor_ << std::endl
-     << " FED major/minor vers      : " << fedMajor_ << "." << fedMinor_ << std::endl
-     << " FEC major/minor vers      : " << fecMajor_ << "." << fecMinor_ << std::endl
-     << " Calibration maj/min vers  : " << calMajor_ << "." << calMinor_ << std::endl
-     << " DCU-DetId maj/min vers    : " << dcuMajor_ << "." << dcuMinor_;
-  if ( force_ ) { ss << " (version not overridden by run number)"; }
-  ss << std::endl;
-  
-}
-
-// -----------------------------------------------------------------------------
-// 
-ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
-  std::stringstream ss;
-  params.print(ss);
-  os << ss.str();
-  return os;
 }
 
 // -----------------------------------------------------------------------------
@@ -315,6 +305,128 @@ void SiStripConfigDb::DeviceAddress::reset() {
 
 // -----------------------------------------------------------------------------
 // 
+void SiStripConfigDb::DbParams::setParams( const edm::ParameterSet& pset ) {
+  reset();
+  usingDb_ = pset.getUntrackedParameter<bool>("UsingDb",true); 
+  confdb( pset.getUntrackedParameter<string>("ConfDb","") );
+  partition_ = pset.getUntrackedParameter<string>("Partition","");
+  runNumber_ = pset.getUntrackedParameter<unsigned int>("RunNumber",0);
+  cabMajor_ = pset.getUntrackedParameter<unsigned int>("MajorVersion",0);
+  cabMinor_ = pset.getUntrackedParameter<unsigned int>("MinorVersion",0);
+  fedMajor_ = pset.getUntrackedParameter<unsigned int>("FedMajorVersion",0);
+  fedMinor_ = pset.getUntrackedParameter<unsigned int>("FedMinorVersion",0);
+  fecMajor_ = pset.getUntrackedParameter<unsigned int>("FecMajorVersion",0);
+  fecMinor_ = pset.getUntrackedParameter<unsigned int>("FecMinorVersion",0);
+  dcuMajor_ = pset.getUntrackedParameter<unsigned int>("DcuDetIdMajorVersion",0);
+  dcuMinor_ = pset.getUntrackedParameter<unsigned int>("DcuDetIdMinorVersion",0);
+  calMajor_ = pset.getUntrackedParameter<unsigned int>("CalibMajorVersion",0);
+  calMinor_ = pset.getUntrackedParameter<unsigned int>("CalibMinorVersion",0);
+  force_ = pset.getUntrackedParameter<bool>("ForceDcuDetIdVersions",true);
+  inputModuleXml_ = pset.getUntrackedParameter<string>("InputModuleXml","");
+  inputDcuInfoXml_ = pset.getUntrackedParameter<string>("InputDcuInfoXml",""); 
+  inputFecXml_ = pset.getUntrackedParameter< vector<string> >( "InputFecXml", vector<string>(1,"") ); 
+  inputFedXml_ = pset.getUntrackedParameter< vector<string> >( "InputFedXml", vector<string>(1,"") ); 
+  inputDcuConvXml_ = pset.getUntrackedParameter<string>( "InputDcuConvXml","" );
+  outputModuleXml_ = pset.getUntrackedParameter<string>("OutputModuleXml","/tmp/module.xml");
+  outputDcuInfoXml_ = pset.getUntrackedParameter<string>("OutputDcuInfoXml","/tmp/dcuinfo.xml");
+  outputFecXml_ = pset.getUntrackedParameter<string>( "OutputFecXml", "/tmp/fec.xml" );
+  outputFedXml_ = pset.getUntrackedParameter<string>( "OutputFedXml", "/tmp/fed.xml" );
+  tnsAdmin_ = pset.getUntrackedParameter<string>( "TNS_ADMIN", "" );
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::DbParams::confdb( const string& confdb ) {
+  confdb_ = confdb;
+  uint32_t ipass = confdb.find("/");
+  uint32_t ipath = confdb.find("@");
+  if ( ipass != string::npos && 
+       ipath != string::npos ) {
+    user_   = confdb.substr(0,ipass); 
+    passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
+    path_   = confdb.substr(ipath+1,confdb.size());
+  } else {
+    user_   = null_;
+    passwd_ = null_;
+    path_   = null_;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::DbParams::confdb( const string& user,
+					const string& passwd,
+					const string& path ) {
+  if ( user != "" && passwd != "" && path != "" &&
+       user != null_ && passwd != null_ && path != null_ ) {
+    user_   = user;
+    passwd_ = passwd;
+    path_   = path;
+  } else {
+    user_   = null_;
+    passwd_ = null_;
+    path_   = null_;
+  }
+  confdb_ = user_ + "/" + passwd_ + "@" + path_;
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
+
+  ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl;
+
+  if ( usingDb_ ) {
+
+    ss << " ConfDb                    : " << confdb_ << endl;
+      //<< " User, Passwd, Path        : " << user_ << ", " << passwd_ << ", " << path_ << endl;
+
+  } else {
+
+    // Input
+    ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
+       << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
+       << " Input \"fec.xml\" file(s)   : ";
+    vector<string>::const_iterator ifec = inputFecXml_.begin();
+    for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << *ifec << ", "; }
+    ss << endl;
+    ss << " Input \"fed.xml\" file(s)   : ";
+    vector<string>::const_iterator ifed = inputFedXml_.begin();
+    for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << *ifed << ", "; }
+    ss << endl;
+
+    // Output 
+    ss << " Output \"module.xml\" file  : " << outputModuleXml_ << endl
+       << " Output \"dcuinfo.xml\" file : " << outputDcuInfoXml_ << endl
+       << " Output \"fec.xml\" file(s)  : " << outputFecXml_ << endl
+       << " Output \"fed.xml\" file(s)  : " << outputFedXml_ << endl;
+
+  }
+
+  ss << " Partition                 : " << partition_ << endl
+     << " Run number                : " << runNumber_ << endl
+     << " Run type                  : " << SiStripEnumsAndStrings::runType( runType_ ) << endl
+     << " Cabling major/minor vers  : " << cabMajor_ << "." << cabMinor_ << endl
+     << " FED major/minor vers      : " << fedMajor_ << "." << fedMinor_ << endl
+     << " FEC major/minor vers      : " << fecMajor_ << "." << fecMinor_ << endl
+     << " Calibration maj/min vers  : " << calMajor_ << "." << calMinor_ << endl
+     << " DCU-DetId maj/min vers    : " << dcuMajor_ << "." << dcuMinor_;
+  if ( force_ ) { ss << " (version not overridden by run number)"; }
+  ss << endl;
+  
+}
+
+// -----------------------------------------------------------------------------
+// 
+ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
+  stringstream ss;
+  params.print(ss);
+  os << ss.str();
+  return os;
+}
+
+// -----------------------------------------------------------------------------
+// 
 void SiStripConfigDb::openDbConnection() {
 
   LogTrace(mlConfigDb_) 
@@ -332,15 +444,11 @@ void SiStripConfigDb::openDbConnection() {
   
   // Establish database connection
   if ( dbParams_.usingDb_ ) { 
-    if ( dbParams_.usingDbCache_ ) { 
-      usingDatabaseCache(); 
-    } else { 
-      usingDatabase(); 
-    }
+    usingDatabase(); 
   } else { 
     usingXmlFiles(); 
   }
-  
+
   devices_.clear();
   feds_.clear();
   connections_.clear();
@@ -372,15 +480,8 @@ void SiStripConfigDb::closeDbConnection() {
   
   try { 
     if ( factory_ ) { delete factory_; }
-  } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
+  } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
   factory_ = 0; 
-
-#ifdef USING_DATABASE_CACHE
-  try { 
-    if ( dbCache_ ) { delete dbCache_; }
-  } catch (...) { handleException( __func__, "Attempting to delete DbClient object..." ); }
-  dbCache_ = 0; 
-#endif
   
   LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
@@ -390,28 +491,13 @@ void SiStripConfigDb::closeDbConnection() {
 
 // -----------------------------------------------------------------------------
 //
-DeviceFactory* const SiStripConfigDb::deviceFactory( std::string method_name ) const { 
+DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const { 
   if ( factory_ ) { return factory_; }
   else { 
     if ( method_name != "" ) { 
-      std::stringstream ss;
+      stringstream ss;
       ss << "[SiStripConfigDb::" << method_name << "]"
 	 << " NULL pointer to DeviceFactory!";
-      edm::LogWarning(mlConfigDb_) << ss.str();
-    }
-    return 0;
-  }
-}
-
-// -----------------------------------------------------------------------------
-//
-DbClient* const SiStripConfigDb::databaseCache( std::string method_name ) const { 
-  if ( dbCache_ ) { return dbCache_; }
-  else { 
-    if ( method_name != "" ) { 
-      std::stringstream ss;
-      ss << "[SiStripConfigDb::" << method_name << "]"
-	 << " NULL pointer to DbClient!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
     return 0;
@@ -423,12 +509,12 @@ DbClient* const SiStripConfigDb::databaseCache( std::string method_name ) const 
 void SiStripConfigDb::usingDatabase() {
   
   // Retrieve connection params from CONFDB env. var. and override .cfg values 
-  std::string user = "";
-  std::string passwd = "";
-  std::string path = "";
+  string user = "";
+  string passwd = "";
+  string path = "";
   DbAccess::getDbConfiguration( user, passwd, path );
   if ( user != "" && passwd != "" && path != "" ) {
-    std::stringstream ss;
+    stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"user/passwd@path\" to \""
        << user << "/" << passwd << "@" << path
@@ -442,12 +528,12 @@ void SiStripConfigDb::usingDatabase() {
 	 << dbParams_.path_ 
 	 << "\" read from .cfg file)";
     }
-    LogTrace(mlConfigDb_) << ss.str() << std::endl;
+    LogTrace(mlConfigDb_) << ss.str() << endl;
     dbParams_.confdb( user, passwd, path );
   } else if ( dbParams_.user_ != null_ && 
 	      dbParams_.passwd_ != null_ && 
 	      dbParams_.path_ != null_ ) { 
-    std::stringstream ss;
+    stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " Setting \"user/passwd@path\" to \""
        << dbParams_.user_ << "/" 
@@ -469,28 +555,26 @@ void SiStripConfigDb::usingDatabase() {
   }
   
   // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
-  std::string partition = "ENV_CMS_TK_PARTITION";
+  string partition = "ENV_CMS_TK_PARTITION";
   if ( getenv(partition.c_str()) != NULL ) { 
-    std::stringstream ss;
+    stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"partitions\" to \""
+       << " Setting \"PARTITION\" to \""
        << getenv( partition.c_str() )
        << "\" using 'ENV_CMS_TK_PARTITION' environmental variable";
-    if ( !dbParams_.partitions_.empty() && 
-	 dbParams_.partitions_.front() != "" ) {
+    if ( dbParams_.partition_ != "" ) { 
       ss << " (Overwriting existing value of \""
-	 << dbParams_.partitions()
+	 << dbParams_.partition_
 	 << "\" read from .cfg file)";
     }
-    LogTrace(mlConfigDb_) << ss.str() << std::endl;
-    dbParams_.partitions_ = dbParams_.partitions( getenv( partition.c_str() ) );
-  } else if ( !dbParams_.partitions_.empty() && 
-	      dbParams_.partitions_.front() != "" ) {
+    LogTrace(mlConfigDb_) << ss.str() << endl;
+    dbParams_.partition_ = getenv( partition.c_str() ); 
+  } else if ( dbParams_.partition_ != "" ) {
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Setting \"partitions\" to \""
-       << dbParams_.partitions()
-       << "\" using 'Partitions' configurable read from .cfg file";
+       << " Setting \"partition\" to \""
+       << dbParams_.partition_
+       << "\" using 'Partition' configurable read from .cfg file";
     LogTrace(mlConfigDb_) << ss.str();
   } else { 
     edm::LogWarning(mlConfigDb_)
@@ -581,29 +665,28 @@ void SiStripConfigDb::usingDatabase() {
       << "[SiStripConfigDb::" << __func__ << "]"
       << " Created DeviceFactory object!";
   } catch (...) { 
-    std::stringstream ss; 
+    stringstream ss; 
     ss << "Failed to connect to database using parameters '" 
        << dbParams_.user_ << "/" 
        << dbParams_.passwd_ << "@" 
        << dbParams_.path_ 
-       << "' and partitions '" 
-       << dbParams_.partitions() << "'";
+       << "' and partition '" 
+       << dbParams_.partition_ << "'";
     handleException( __func__, ss.str() );
-    return;
   }
   
   // Check for valid pointer to DeviceFactory
   if ( deviceFactory(__func__) ) { 
-    std::stringstream ss;
+    stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" 
-       << std::hex << std::setw(8) << std::setfill('0') << factory_ << std::dec
+       << hex << setw(8) << setfill('0') << factory_ << dec
        << ", using database account with parameters '" 
        << dbParams_.user_ << "/" 
        << dbParams_.passwd_ << "@" 
        << dbParams_.path_
-       << "' and partitions '" 
-       << dbParams_.partitions() << "'";
+       << "' and partition '" 
+       << dbParams_.partition_ << "'";
     LogTrace(mlConfigDb_) << ss.str();
   } else {
     edm::LogError(mlConfigDb_)
@@ -613,8 +696,8 @@ void SiStripConfigDb::usingDatabase() {
       << dbParams_.user_ << "/" 
       << dbParams_.passwd_ << "@" 
       << dbParams_.path_
-      << "' and partitions '" 
-      << dbParams_.partitions() << "'";
+      << "' and partition '" 
+      << dbParams_.partition_ << "'";
     return; 
   }
   
@@ -626,7 +709,7 @@ void SiStripConfigDb::usingDatabase() {
   
   // Retrieve versioning from DB for a non-zero run numbers
   if ( dbParams_.runNumber_ ) {
-    TkRun* run = deviceFactory(__func__)->getRun( dbParams_.partitions_.front(), //@@ only using first here! 
+    TkRun* run = deviceFactory(__func__)->getRun( dbParams_.partition_, 
 						  dbParams_.runNumber_ );
     if ( run ) {
 
@@ -703,7 +786,7 @@ void SiStripConfigDb::usingDatabase() {
 	<< " Unable to retrieve versions for run number "
 	<< dbParams_.runNumber_
 	<< ". Run number may not be consistent with partition \"" 
-	<< dbParams_.partitions_.front() << "\"!"; //@@ only using first here!!!
+	<< dbParams_.partition_ << "\"!";
     }
   }
   
@@ -716,15 +799,15 @@ void SiStripConfigDb::usingDatabase() {
   // DCU-DetId 
   try { 
 #ifdef USING_NEW_DATABASE_MODEL
-    deviceFactory(__func__)->addDetIdPartition( dbParams_.partitions_.front(),
+    deviceFactory(__func__)->addDetIdPartition( dbParams_.partition_,
 						dbParams_.dcuMajor_, 
 						dbParams_.dcuMinor_ );
 #else
-    deviceFactory(__func__)->addDetIdPartition( dbParams_.partitions_.front() );
+    deviceFactory(__func__)->addDetIdPartition( dbParams_.partition_ );
 #endif
   } catch (...) { 
-    std::stringstream ss;
-    ss << "Attempted to 'addDetIdPartition' for partition: " << dbParams_.partitions_.front();
+    stringstream ss;
+    ss << "Attempted to 'addDetIdPartition; for partition: " << dbParams_.partition_;
     handleException( __func__, ss.str() );
   }
 
@@ -737,83 +820,13 @@ void SiStripConfigDb::usingDatabase() {
   }
   
   try {
-    deviceFactory(__func__)->setInputDBVersion( dbParams_.partitions_.front(),
+    deviceFactory(__func__)->setInputDBVersion( dbParams_.partition_,
 						dbParams_.cabMajor_,
 						dbParams_.cabMinor_ );
   } catch (...) { 
-    std::stringstream ss;
-    ss << "Attempted to 'setInputDBVersion' for partition: " << dbParams_.partitions_.front();
+    stringstream ss;
+    ss << "Attempted to 'setInputDBVersion; for partition: " << dbParams_.partition_;
     handleException( __func__, ss.str() ); 
-  }
-#endif
-  
-}
-
-// -----------------------------------------------------------------------------
-//
-void SiStripConfigDb::usingDatabaseCache() {
-  
-  // Reset all DbParams except for those concerning databae cache
-  DbParams temp;
-  temp = dbParams_;
-  dbParams_.reset();
-  dbParams_.usingDb_ = temp.usingDb_;
-  dbParams_.usingDbCache_ = temp.usingDbCache_;
-  dbParams_.sharedMemory_ = temp.sharedMemory_;
-
-  // Check shared memory name from .cfg file
-  if ( dbParams_.sharedMemory_.empty() ) {
-    std::stringstream ss;
-    ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " Empty string for shared memory name!" 
-       << " Cannot accept shared memory!";
-    edm::LogError(mlConfigDb_) << ss.str();
-    return;
-  }
-  
-  // Create database cache object
-#ifdef USING_DATABASE_CACHE
-  try { 
-    LogTrace(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Creating DbClient object...";
-    dbCache_ = new DbClient( dbParams_.sharedMemory_ );
-    LogTrace(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " Created DbClient object...";
-  } catch (...) { 
-    std::stringstream ss; 
-    ss << "Failed to connect to database cache using shared memory name: '" 
-       << dbParams_.sharedMemory_ << "'!";
-    handleException( __func__, ss.str() );
-    return;
-  }
-#endif
-  
-  // Check for valid pointer to DbClient object
-  if ( databaseCache(__func__) ) { 
-    std::stringstream ss;
-    ss << "[SiStripConfigDb::" << __func__ << "]"
-       << " DbClient object created at address 0x" 
-       << std::hex << std::setw(8) << std::setfill('0') << dbCache_ << std::dec
-       << " using shared memory name '" 
-       << dbParams_.sharedMemory_ << "'"; 
-    LogTrace(mlConfigDb_) << ss.str();
-  } else {
-    edm::LogError(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]"
-      << " NULL pointer to DbClient object!"
-      << " Unable to connect to database cache using shared memory name '" 
-      << dbParams_.sharedMemory_ << "'"; 
-    return; 
-  }
-  
-  // Try retrieve descriptions from Database Client
-#ifdef USING_DATABASE_CACHE
-  try { 
-    databaseCache(__func__)->parse(); 
-  } catch (...) { 
-    handleException( __func__, "Attempted to called DbClient::parse() method" );
   }
 #endif
   
@@ -835,12 +848,13 @@ void SiStripConfigDb::usingXmlFiles() {
   
  // Check for valid pointer to DeviceFactory
   if ( deviceFactory(__func__) ) { 
-    std::stringstream ss;
+    stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" 
-       << std::hex << std::setw(8) << std::setfill('0') << factory_ << std::dec
+       << hex << setw(8) << setfill('0') << factory_ << dec
        << ", using XML description files";
     LogTrace(mlConfigDb_) << ss.str();
+    cout << ss.str() << endl;
   } else {    
     edm::LogError(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -919,7 +933,7 @@ void SiStripConfigDb::usingXmlFiles() {
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL paths to input 'fec.xml' files!";
   } else {
-    std::vector<std::string>::iterator iter = dbParams_.inputFecXml_.begin();
+    vector<string>::iterator iter = dbParams_.inputFecXml_.begin();
     for ( ; iter != dbParams_.inputFecXml_.end(); iter++ ) {
       if ( *iter == "" ) {
 	edm::LogWarning(mlConfigDb_)
@@ -953,7 +967,7 @@ void SiStripConfigDb::usingXmlFiles() {
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL paths to input 'fed.xml' files!";
   } else {
-    std::vector<std::string>::iterator iter = dbParams_.inputFedXml_.begin();
+    vector<string>::iterator iter = dbParams_.inputFedXml_.begin();
     for ( ; iter != dbParams_.inputFedXml_.end(); iter++ ) {
       if ( *iter == "" ) {
 	edm::LogWarning(mlConfigDb_) 
@@ -1055,43 +1069,43 @@ void SiStripConfigDb::usingXmlFiles() {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::createPartition( const std::string& partition_name,
+void SiStripConfigDb::createPartition( const string& partition_name,
 				       const SiStripFecCabling& fec_cabling,
 				       const DcuDetIdMap& dcu_detid_map ) {
   
   // Set partition name and version
-  dbParams_.partitions_.push_back( partition_name );
+  dbParams_.partition_ = partition_name;
   dbParams_.fecMajor_ = 0;
   dbParams_.fecMinor_ = 0;
-  
+
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
-    << " Creating partition " << dbParams_.partitions_.front();
+    << " Creating partition " << dbParams_.partition_;
 
   // Create new partition based on device descriptions
   createDeviceDescriptions( fec_cabling );
   if ( !devices_.empty() ) {
     try {
-      std::stringstream ss; 
-      ss << "/tmp/fec_" << dbParams_.partitions_.front() << ".xml";
+      stringstream ss; 
+      ss << "/tmp/fec_" << dbParams_.partition_ << ".xml";
       FecDeviceFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( ss.str() );
 #ifdef USING_NEW_DATABASE_MODEL
       deviceFactory(__func__)->createPartition( devices_,
 						&dbParams_.fecMajor_, 
 						&dbParams_.fecMinor_, 
-						dbParams_.partitions_.front() );
+						dbParams_.partition_ );
 #else
       deviceFactory(__func__)->createPartition( devices_,
 						&dbParams_.fecMajor_, 
 						&dbParams_.fecMinor_, 
-						dbParams_.partitions_.front(),
-						dbParams_.partitions_.front() ); 
+						dbParams_.partition_,
+						dbParams_.partition_ ); 
 #endif
     } catch (...) { 
-      std::stringstream ss; 
+      stringstream ss; 
       ss << "Failed to create new partition with name "
-	 << dbParams_.partitions_.front() << " and version " 
+	 << dbParams_.partition_ << " and version " 
 	 << dbParams_.fecMajor_ << "." << dbParams_.fecMinor_;
       handleException( __func__, ss.str() );
     } 
@@ -1101,16 +1115,16 @@ void SiStripConfigDb::createPartition( const std::string& partition_name,
   createFedDescriptions( fec_cabling );
   if ( !feds_.empty() ) {
     try {
-      std::stringstream ss; 
-      ss << "/tmp/fed_" << dbParams_.partitions_.front() << ".xml";
+      stringstream ss; 
+      ss << "/tmp/fed_" << dbParams_.partition_ << ".xml";
       Fed9U::Fed9UDeviceFactory* factory = deviceFactory(__func__);
       factory->setOutputFileName( ss.str() );
       uploadFedDescriptions( true );
     } catch(...) {
-      std::stringstream ss; 
+      stringstream ss; 
       ss << "Failed to create and upload FED descriptions"
 	 << " to partition with name "
-	 << dbParams_.partitions_.front() << " and version " 
+	 << dbParams_.partition_ << " and version " 
 	 << dbParams_.fedMajor_ << "." << dbParams_.fedMinor_;
       handleException( __func__, ss.str() );
     }
@@ -1122,13 +1136,13 @@ void SiStripConfigDb::createPartition( const std::string& partition_name,
     try {
       uploadFedConnections( true );
     } catch(...) {
-      std::stringstream ss; 
+      stringstream ss; 
       ss << "Failed to add FedChannelConnectionDescription!";
       handleException( __func__, ss.str() );
     }
     try {
-      std::stringstream ss; 
-      ss << "/tmp/module_" << dbParams_.partitions_.front() << ".xml";
+      stringstream ss; 
+      ss << "/tmp/module_" << dbParams_.partition_ << ".xml";
 #ifdef USING_NEW_DATABASE_MODEL
       ConnectionFactory* factory = deviceFactory(__func__);
 #else
@@ -1139,10 +1153,10 @@ void SiStripConfigDb::createPartition( const std::string& partition_name,
       deviceFactory(__func__)->write(); //@@ corresponding method in new model???
 #endif
     } catch(...) {
-      std::stringstream ss; 
+      stringstream ss; 
       ss << "Failed to create and upload ConnectionDescriptions"
 	 << " to partition with name "
-	 << dbParams_.partitions_.front() << " and version " 
+	 << dbParams_.partition_ << " and version " 
 	 << dbParams_.cabMajor_ << "." << dbParams_.cabMinor_;
       handleException( __func__, ss.str() );
     }
@@ -1157,65 +1171,65 @@ void SiStripConfigDb::createPartition( const std::string& partition_name,
   
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
-    << " Finished creating partition " << dbParams_.partitions_.front();
+    << " Finished creating partition " << dbParams_.partition_;
   
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::handleException( const std::string& method_name,
-				       const std::string& extra_info ) { //throw (cms::Exception) {
+void SiStripConfigDb::handleException( const string& method_name,
+				       const string& extra_info ) { //throw (cms::Exception) {
 
-  std::stringstream ss;
+  stringstream ss;
   try {
     throw; // rethrow caught exception to be dealt with below
   } 
 
   catch ( const cms::Exception& e ) { 
     ss << " Caught cms::Exception in method "
-       << method_name << " with message: " << std::endl 
+       << method_name << " with message: " << endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
     //throw e; // rethrow cms::Exception
   }
   
   catch ( const oracle::occi::SQLException& e ) { 
     ss << " Caught oracle::occi::SQLException in method "
-       << method_name << " with message: " << std::endl 
+       << method_name << " with message: " << endl 
        << e.getMessage();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
   }
 
   catch ( const FecExceptionHandler& e ) {
     ss << " Caught FecExceptionHandler exception in method "
-       << method_name << " with message: " << std::endl 
+       << method_name << " with message: " << endl 
        << const_cast<FecExceptionHandler&>(e).getMessage();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
   }
 
   catch ( const ICUtils::ICException& e ) {
     ss << " Caught ICUtils::ICException in method "
-       << method_name << " with message: " << std::endl 
+       << method_name << " with message: " << endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
   }
 
   catch ( const exception& e ) {
     ss << " Caught std::exception in method "
-       << method_name << " with message: " << std::endl 
+       << method_name << " with message: " << endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
   }
 
   catch (...) {
     ss << " Caught unknown exception in method "
-       << method_name << " (No message) " << std::endl;
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
-    //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
+       << method_name << " (No message) " << endl;
+    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << endl; }
+    //throw cms::Exception(mlConfigDb_) << ss.str() << endl;
   }
   
   // Message

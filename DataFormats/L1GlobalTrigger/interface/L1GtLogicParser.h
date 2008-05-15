@@ -53,12 +53,11 @@ public:
         OP_CLOSEBRACKET=128
     };
 
-    typedef struct
+    struct TokenRPN
     {
         OperationType operation;             // type of operation: AND, OR, NOT or OPERAND
         std::string   operand;               // a possible operand
-    }
-    TokenRPN;
+    };
 
     typedef std::vector<TokenRPN> RpnVector;
 

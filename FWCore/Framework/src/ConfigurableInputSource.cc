@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.33 2007/12/31 22:43:57 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.35 2008/04/03 16:18:37 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -126,6 +126,22 @@ namespace edm {
       resetRunPrincipal();
     }
   }
+
+  void
+  ConfigurableInputSource::beginRun(Run&)
+  { }
+
+  void
+  ConfigurableInputSource::endRun(Run&)
+  { }
+
+  void
+  ConfigurableInputSource::beginLuminosityBlock(LuminosityBlock &)
+  { }
+
+  void
+  ConfigurableInputSource::endLuminosityBlock(LuminosityBlock &)
+  { }
 
   void
   ConfigurableInputSource::setLumi(LuminosityBlockNumber_t lb) {

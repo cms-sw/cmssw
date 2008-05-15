@@ -51,7 +51,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
  private:
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, std::string subdet, int & mult , int & shift) ;
-  void create_header() ;
+  void create_header(std::ofstream * out_file, std::string subdet) ;
   int uncodeWeight(double weight, int complement2 = 7) ;
   double uncodeWeight(int iweight, int complement2 = 7) ;
   std::vector<unsigned int> computeWeights(EcalShape & shape) ;
@@ -72,13 +72,13 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
   bool useTransverseEnergy_ ;
   double xtal_LSB_EB_ , xtal_LSB_EE_ ;
-  double Et_sat_EB_,  Et_sat_EE_ ;
+  double Et_sat_ ;
   unsigned int sliding_ ;
   unsigned int sampleMax_ ;
   unsigned int nSample_ ;
   unsigned int complement2_ ;
   std::string LUT_option_ ;
-  double LUT_threshold_EB_, LUT_threshold_EE_ ;
+  double LUT_threshold_ ;
   double LUT_stochastic_EB_, LUT_noise_EB_, LUT_constant_EB_ ;
   double LUT_stochastic_EE_, LUT_noise_EE_, LUT_constant_EE_ ;
   double TTF_lowThreshold_EB_, TTF_highThreshold_EB_ ;
@@ -88,7 +88,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   double FG_Threshold_EE_ ;
   unsigned int FG_lut_strip_EE_, FG_lut_tower_EE_ ;
 
-  std::ofstream * out_file_ ;
+  std::ofstream * out_fileEB_ ;
+  std::ofstream * out_fileEE_ ;
   std::ofstream * geomFile_ ;
   EcalTPGCondDBApp * db_ ;
   bool readFromDB_ ;

@@ -12,7 +12,6 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -527,15 +526,6 @@ namespace edm {
     makeRefToLazyGetter(const Handle< LazyGetter<T> >& handle, const uint32_t index) {return Ref< LazyGetter<T>, T, FindValue<T> >(handle,index);}
   
   //------------------------------------------------------------
-
-  
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <class T>
-    struct has_swap<edm::LazyGetter<T> > {
-      static bool const value = true;
-    };
-#endif
   
 }
 

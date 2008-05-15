@@ -24,6 +24,10 @@ process TESTPROD = {
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_1}'
+                untracked vstring outputCommands = {
+			"keep *",
+			"drop *_OtherThing_*_*"
+               }
 	}
 	source = EmptySource {
                  untracked uint32 firstEvent = 1
@@ -44,11 +48,15 @@ cat > ${LOCAL_TMP_DIR}/PreFastMergeTest_2.cfg << !
 process TESTPROD = {
 	untracked PSet maxEvents = {untracked int32 input = 15}
         include "FWCore/Framework/test/cmsExceptionsFatal.cff"
-	path p = {Thing, OtherThing}
+	path p = {Thing, OtherOtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 0}
-	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
+	module OtherOtherThing = OtherThingProducer {untracked int32 debugLevel = 0}
 	module output = PoolOutputModule {
 		untracked string fileName = '${INPUT_2}'
+                untracked vstring outputCommands = {
+			"keep *",
+			"drop *_OtherOtherThing_*_*"
+               }
 	}
 	source = EmptySource {
                  untracked uint32 firstEvent = 100
@@ -78,6 +86,7 @@ process TESTMERGE = {
 			'file:${INPUT_1}',
 			'file:${INPUT_2}'
 		}
+		untracked bool dropMetaData = true
         }
         endpath ep = {output}
 }

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootInputFileSequence.cc,v 1.7 2008/03/20 03:28:13 wmtan Exp $
+$Id: RootInputFileSequence.cc,v 1.15 2008/04/16 23:31:37 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "RootInputFileSequence.h"
 #include "PoolSource.h"
@@ -14,6 +14,7 @@ $Id: RootInputFileSequence.cc,v 1.7 2008/03/20 03:28:13 wmtan Exp $
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TTree.h"
@@ -23,7 +24,8 @@ namespace edm {
   RootInputFileSequence::RootInputFileSequence(
 		ParameterSet const& pset,
 		PoolSource const& input,
-		InputFileCatalog const& catalog) :
+		InputFileCatalog const& catalog,
+		bool primarySequence) :
     input_(input),
     catalog_(catalog),
     firstFile_(true),
@@ -42,9 +44,16 @@ namespace edm {
     whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockID> >("lumisToSkip", std::vector<LuminosityBlockID>())),
     eventsToProcess_(pset.getUntrackedParameter<std::vector<EventID> >("eventsToProcess",std::vector<EventID>())),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
+    treeCacheSize_(pset.getUntrackedParameter<unsigned int>("cacheSize", 0U)),
+    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     forcedRunOffset_(0),
-    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0)) {
+    setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
+    dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
+    primarySequence_(primarySequence),
+    randomAccess_(false),
+    csa08Kludge_(pset.getUntrackedParameter<bool>("useCSA08Kludge", false)) {
 
+    sort_all(eventsToProcess_);
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     if (primary()) {
@@ -61,7 +70,7 @@ namespace edm {
             << "'setRunNumber' was " << setRun_ <<", while the first run was "
             << setRun_ - forcedRunOffset_ << ".\n";
         }
-        updateProductRegistry();
+        if (primarySequence_) updateProductRegistry();
       }
     } else {
       Service<RandomNumberGenerator> rng;
@@ -89,10 +98,13 @@ namespace edm {
   boost::shared_ptr<FileBlock>
   RootInputFileSequence::readFile_() {
     if (firstFile_) {
-      // The first input file has already been opened.
+      // The first input file has already been opened, or a rewind has occurred.
       firstFile_ = false;
+      if (!rootFile_) {
+	initFile(skipBadFiles_);
+      }
     } else {
-      if (!nextFile(!primary())) {
+      if (!nextFile()) {
         assert(0);
       }
     }
@@ -125,7 +137,8 @@ namespace edm {
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
-	  remainingEvents(), forcedRunOffset_, eventsToProcess_));
+	  remainingEvents(), treeCacheSize_, treeMaxVirtualSize_, forcedRunOffset_, eventsToProcess_,
+          dropMetaData_, csa08Kludge_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
@@ -152,19 +165,19 @@ namespace edm {
     return *rootFile_->productRegistry();
   }
 
-  bool RootInputFileSequence::nextFile(bool wrapAround) {
+  bool RootInputFileSequence::nextFile() {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
-      if (wrapAround) {
-	fileIter_ = fileIterBegin_;
-      } else {
+      if (primarySequence_) {
 	return false;
+      } else {
+	fileIter_ = fileIterBegin_;
       }
     }
 
     initFile(skipBadFiles_);
 
-    if (primary() && !wrapAround && rootFile_) {
+    if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -178,7 +191,7 @@ namespace edm {
 
   bool RootInputFileSequence::previousFile() {
     if(fileIter_ == fileIterBegin_) {
-      if (primary()) {
+      if (primarySequence_) {
 	return false;
       } else {
 	fileIter_ = fileIterEnd_;
@@ -188,7 +201,7 @@ namespace edm {
 
     initFile(false);
 
-    if (primary() && rootFile_) {
+    if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
 							    fileIter_->fileName(),
@@ -206,12 +219,12 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   RootInputFileSequence::readRun_() {
-    return rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    return rootFile_->readRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry()); 
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   RootInputFileSequence::readLuminosityBlock_() {
-    return rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), runPrincipal()); 
+    return rootFile_->readLumi(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal()); 
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -230,18 +243,26 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
+    if (randomAccess_) {
+      return rootFile_->readEvent(primarySequence_ ?
+				  productRegistry() :
+			          rootFile_->productRegistry(),
+				  boost::shared_ptr<LuminosityBlockPrincipal>()); 
+    }
+    return rootFile_->readEvent(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), lbp); 
   }
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readCurrentEvent() {
-    return rootFile_->readCurrentEvent(primary() ?
+    return rootFile_->readCurrentEvent(primarySequence_ ?
 				       productRegistry() :
-				       rootFile_->productRegistry(), boost::shared_ptr<LuminosityBlockPrincipal>()); 
+				       rootFile_->productRegistry(),
+				       boost::shared_ptr<LuminosityBlockPrincipal>()); 
   }
 
   std::auto_ptr<EventPrincipal>
   RootInputFileSequence::readIt(EventID const& id, LuminosityBlockNumber_t lumi, bool exact) {
+    randomAccess_ = true;
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
     if (!found) {
@@ -259,7 +280,9 @@ namespace edm {
 	  // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
 	  assert (found);
-          return readCurrentEvent();
+	  std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
+          skip(1);
+	  return ep;
 	}
       }
       // Look for event in files not yet opened.
@@ -269,14 +292,18 @@ namespace edm {
 	  initFile(true);
           found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
 	  if (found) {
-            return readCurrentEvent();
+	    std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
+            skip(1);
+	    return ep;
 	  }
 	}
       }
       // Not found
       return std::auto_ptr<EventPrincipal>(0);
     }
-    return readCurrentEvent();
+    std::auto_ptr<EventPrincipal> eptr = readCurrentEvent();
+    skip(1);
+    return eptr;
   }
 
   InputSource::ItemType
@@ -288,6 +315,12 @@ namespace edm {
       return InputSource::IsFile;
     }
     if (rootFile_) {
+      if (randomAccess_) {
+        skip(0);
+        if (fileIter_== fileIterEnd_) {
+          return InputSource::IsStop;
+        }
+      }
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return InputSource::IsEvent;
@@ -307,9 +340,9 @@ namespace edm {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    closeFile_();
+    randomAccess_ = false;
+    firstFile_ = true;
     fileIter_ = fileIterBegin_;
-    initFile(skipBadFiles_);
   }
 
   // Rewind to the beginning of the current file
@@ -321,11 +354,13 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   RootInputFileSequence::skip(int offset) {
+    randomAccess_ = true;
     while (offset != 0) {
       offset = rootFile_->skipEvents(offset);
-      if (offset > 0 && !nextFile(!primary())) return;
+      if (offset > 0 && !nextFile()) return;
       if (offset < 0 && !previousFile()) return;
     }
+    rootFile_->skipEvents(0);
   }
 
   bool const

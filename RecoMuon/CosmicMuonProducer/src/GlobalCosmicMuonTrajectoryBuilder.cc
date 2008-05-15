@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/05/31 18:48:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/12/16 13:56:15 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -116,6 +116,14 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
 //  hits.insert(hits.end(), muRecHits.begin(), muRecHits.end());
 //  stable_sort(hits.begin(), hits.end(), DecreasingGlobalY());
+  if (!(tkRecHits.front()->isValid()) || !(tkRecHits.back()->isValid())) {
+    LogTrace(metname) << "mkw bug fix for tkRecHits";
+    return result;
+  }
+  if (!muRecHits.front()->isValid() || !muRecHits.back()->isValid()) {
+    LogTrace(metname) << "mkw bug fix for muRecHits";
+    return result;
+  }
   sortHits(hits, muRecHits, tkRecHits);
 
   LogTrace(metname) << "Used RecHits After sort: "<<hits.size();
@@ -214,6 +222,8 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
 
   for (ConstRecHitContainer::iterator ihit = muonHits.begin(); 
        ihit != muonHits.end() - 1; ihit++ ) {
+    if (!(*ihit)->isValid() || !(*(ihit+1))->isValid())
+      continue;
     GlobalPoint ipos = (*ihit)->globalPosition();
     GlobalPoint nextpos = (*(ihit+1))->globalPosition();
     GlobalPoint middle((ipos.x()+nextpos.x())/2, (ipos.y()+nextpos.y())/2, (ipos.z()+nextpos.z())/2);

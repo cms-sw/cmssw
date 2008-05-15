@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.4 2007/03/21 14:56:23 fabstoec Exp $
+// $Id: H4muAnalyzer.cc,v 1.3 2007/03/02 15:41:37 fabstoec Exp $
 //
 //
 
@@ -19,13 +19,23 @@
 #include "H4muAnalyzer.h"
 
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
+#include "TH1D.h"
+#include "TFile.h"
 
 H4muAnalyzer::H4muAnalyzer(const edm::ParameterSet& iConfig)
 {

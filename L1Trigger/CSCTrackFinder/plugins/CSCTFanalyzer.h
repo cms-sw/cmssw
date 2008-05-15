@@ -17,9 +17,9 @@ private:
 	edm::InputTag lctProducer, trackProducer;
 	TTree *tree;
 	TFile *file;
-	int nMuons;
-	int phi1, eta1, pt1, ch1;
-	int phi2, eta2, pt2, ch2;
+	int nMuons, verbose;
+	int phi1, eta1, pt1, ch1, bx1;
+	int phi2, eta2, pt2, ch2, bx2;
 
 public:
 	virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);

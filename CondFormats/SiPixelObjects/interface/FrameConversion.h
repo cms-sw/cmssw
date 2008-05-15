@@ -17,6 +17,8 @@ public:
     : theRowConversion( LinearConversion(rowOffset,rowSlopeSign) ),
     theCollumnConversion( LinearConversion(colOffset, colSlopeSign) ) {}
 
+  FrameConversion * clone() const { return new FrameConversion(*this); }
+
   const sipixelobjects::LinearConversion & row() const { return theRowConversion; }
   const sipixelobjects::LinearConversion & collumn() const { return theCollumnConversion;}
 

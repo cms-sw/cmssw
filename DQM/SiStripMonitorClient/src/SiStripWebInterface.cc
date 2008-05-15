@@ -80,62 +80,25 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
   } 
    else if (requestID == "PlotAsModule") {
     theActionFlag = NoAction;  
-    infoExtractor_->plotSingleModuleHistos(dqmStore_, requestMap_, out);    
+    infoExtractor_->getSingleModuleHistos(dqmStore_, requestMap_, out);    
   }
   else if (requestID == "PlotGlobalHisto") {
     theActionFlag = NoAction;
-    infoExtractor_->plotGlobalHistos(dqmStore_, requestMap_, out);    
+    infoExtractor_->getGlobalHistos(dqmStore_, requestMap_, out);    
   }
   else if (requestID == "PlotHistogramFromPath") {
    theActionFlag = NoAction;
-   infoExtractor_->plotHistosFromPath(dqmStore_, requestMap_, out);    
+   infoExtractor_->getHistosFromPath(dqmStore_, requestMap_, out);    
   } 
   else if (requestID == "PlotTkMapHistogram") {
     theActionFlag = NoAction;
-    infoExtractor_->plotTrackerMapHistos(dqmStore_, requestMap_, out);
+    infoExtractor_->getTrackerMapHistos(dqmStore_, requestMap_, out);
   }
   else if (requestID == "PlotHistogramFromLayout") {
     theActionFlag = PlotHistogramFromLayout;
   } 
-  else if (requestID == "UpdatePlot") {
-    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
-    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
-    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
-    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    *out << infoExtractor_->getImage().str();
-    theActionFlag = NoAction;    
-  }
-  else if (requestID == "updateIMGCPlots") {
-    theActionFlag = NoAction;    
-    std::string MEFolder = get_from_multimap(requestMap_, "MEFolder");
-    std::cout << "SiStripWebInterface::handleAnalyserRequest : "
-         << "Collecting ME from folder " 
-         << MEFolder
-         << std::endl ;
-    out->getHTTPResponseHeader().addHeader("Content-Type", "text/html");
-    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
-    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
-    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    std::vector<MonitorElement *> meList = dqmStore_->getContents(MEFolder);
-    *out << MEFolder << " " ;
-    std::cout << "SiStripWebInterface::handleAnalyserRequest "
-         << "MEFolder: " << MEFolder << std::endl;
-    for(std::vector<MonitorElement *>::const_iterator it=meList.begin(); it!=meList.end(); it++)
-    {
-     *out  << (*it)->getName() << " " ;
-      std::cout << (*it)->getName() << " " ;
-    }
-    std::cout << std::endl;       
-  }
   else if (requestID == "GetIMGCImage") { 
-    theActionFlag = NoAction;    
-    std::string imageName = get_from_multimap(requestMap_, "ImageName");
-    std::cout << requestID << " " << imageName << std::endl;
-    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
-    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
-    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
-    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-    *out << infoExtractor_->getIMGCImage(dqmStore_, requestMap_).str();
+   infoExtractor_->getIMGCImage(requestMap_, out);
   }
   else if (requestID == "GetTkMap") { 
     theActionFlag = NoAction;    
@@ -155,13 +118,18 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     out->getHTTPResponseHeader().addHeader("Content-type","application/xhtml+xml");
     *out << html_out.str();
   }
-    
+  else if (requestID == "NonGeomHistoList") {
+    theActionFlag = NoAction;
+    std::string fname = get_from_multimap(requestMap_, "FolderName");
+    infoExtractor_->readNonGeomHistoTree(dqmStore_, fname, out);
+  }     
   performAction();
 }
 //
 // -- Perform action
 //
 void SiStripWebInterface::performAction() {
+
   switch (theActionFlag) {
   case SiStripWebInterface::Summary :
     {
@@ -191,6 +159,11 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::PlotHistogramFromLayout :
     {
       infoExtractor_->plotHistosFromLayout(dqmStore_);
+      break;
+    }
+  case SiStripWebInterface::CreatePlots :
+    {
+      infoExtractor_->createImages(dqmStore_);
       break;
     }
   case SiStripWebInterface::NoAction :

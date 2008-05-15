@@ -195,7 +195,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    return true;
 }
 bool 
-PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack, 
+PFTrackTransformer::addPointsAndBrems( reco::PFRecTrack& pftrack, 
 				       const reco::Track& track,
 				       const Trajectory& traj,
 				       const bool& GetMode) const {

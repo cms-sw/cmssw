@@ -50,6 +50,8 @@ namespace cond{
 
   private:
     void init();
+    bool validTime(cond::Time_t time) const;
+
     cond::PoolTransaction* m_pooldb;
     std::string m_token;
     cond::Time_t m_globalSince;

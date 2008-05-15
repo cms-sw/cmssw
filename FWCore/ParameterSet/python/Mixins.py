@@ -59,8 +59,11 @@ class UsingBlock(_SimpleParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
        then have a post process step which strips these out
     """
-    def __init__(self,value):
+    def __init__(self,value, s='', loc=0, file=''):
         super(UsingBlock,self).__init__(value)
+        self.s = s
+        self.loc = loc
+        self.file = file
         self.isResolved = False
     @staticmethod
     def _isValid(value):
@@ -91,7 +94,7 @@ class _Parameterizable(object):
             for block in arg:
                 if type(block).__name__ != "PSet":
                     raise ValueError("Only PSets can be passed as unnamed argument blocks.  This is a "+type(block).__name__)
-                self.__setParameters(block.parameters())
+                self.__setParameters(block.parameters_())
         self.__setParameters(kargs)
         self._isModified = False
     def parameterNames_(self):
@@ -106,7 +109,7 @@ class _Parameterizable(object):
                 self._isModified = True
                 return True
         return False
-    def parameters(self):
+    def parameters_(self):
         """Returns a dictionary of copies of the user-set parameters"""
         import copy
         result = dict()
@@ -190,7 +193,7 @@ class _TypedParameterizable(_Parameterizable):
         return self.__type
     def copy(self):
         returnValue =_TypedParameterizable.__new__(type(self))
-        params = self.parameters()
+        params = self.parameters_()
         args = list()
         if len(params) == 0:
             args.append(None)
@@ -198,6 +201,36 @@ class _TypedParameterizable(_Parameterizable):
                              **params)
         returnValue._isModified = self._isModified
         return returnValue
+    def clone(self, *args, **params):
+        """Copies the object and allows one to modify the parameters of the clone.
+        New parameters may be added by specify the exact type
+        Modifying existing parameters can be done by just specifying the new
+          value without having to specify the type.
+        """
+        returnValue =_TypedParameterizable.__new__(type(self))
+        myparams = self.parameters_()
+        if len(myparams) == 0 and len(params) and len(args):
+            args.append(None)
+        if len(params):
+            #need to treat items both in params and myparams specially
+            for key in params.iterkeys():
+                value = params[key]
+                if key in myparams:                    
+                    if isinstance(value,_ParameterTypeBase):
+                        myparams[key] =value
+                    else:
+                        myparams[key].setValue(value)
+            else:
+                if isinstance(value,_ParameterTypeBase):
+                    myparams[key]=value
+                else:
+                    self._Parameterizable__raiseBadSetAttr(self,key)
+
+        returnValue.__init__(self.__type,*args,
+                             **myparams)
+        returnValue._isModified = False
+        return returnValue
+
     @staticmethod
     def __findDefaultsFor(label,type):
         #This routine is no longer used, but I might revive it in the future
@@ -241,7 +274,7 @@ class _TypedParameterizable(_Parameterizable):
 
     def dumpPython(self, options=PrintOptions()):
         result = "cms."+str(type(self).__name__)+"(\""+self.type_()+"\""
-        nparam = len(self.parameters())
+        nparam = len(self.parameterNames_())
         if nparam == 0:
             result += ")\n"
         elif nparam < 256:
@@ -386,8 +419,27 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return self.dumpPython()
     def dumpPython(self, options=PrintOptions()):
         result = self.pythonTypeName()+"("
-        if len(self)<255:
-            result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
+        n = len(self)
+        if n<255:
+            indented = False
+            for i, v in enumerate(self):
+                if i == 0:
+                    if hasattr(self, "_nPerLine"):
+                        nPerLine = self._nPerLine
+                    else:
+                        nPerLine = 5
+                else:
+                    if not indented:
+                        indented = True
+                        options.indent()
+
+                    result += ', '
+                    if i % nPerLine == 0:
+                        result += '\n'+options.indentation()
+                result += self.pythonValueForItem(v,options)
+            if indented:
+                options.unindent()
+            #result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
         else:
             result = '('
             start = 0
@@ -428,4 +480,28 @@ if __name__ == "__main__":
         def testUsingBlock(self):
             a = UsingBlock("a")
             self.assert_(isinstance(a, _ParameterTypeBase))
+        def testCopy(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
+            b = a.copy()
+            self.assertEqual(b.t.value(),1)
+            self.assertEqual(b.u.value(),2)
+        def testClone(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
+            b = a.clone(t=3, v=__TestType(4))
+            self.assertEqual(a.t.value(),1)
+            self.assertEqual(a.u.value(),2)
+            self.assertEqual(b.t.value(),3)
+            self.assertEqual(b.u.value(),2)
+            self.assertEqual(b.v.value(),4)
+            self.assertRaises(TypeError,a.clone,None,**{"v":1})
     unittest.main()

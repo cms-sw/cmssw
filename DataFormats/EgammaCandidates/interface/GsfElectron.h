@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: GsfElectron.h,v 1.4 2007/12/11 10:35:47 futyand Exp $
+ * \version $Id: GsfElectron.h,v 1.5 2007/12/11 16:22:02 uberthon Exp $
  *
  */
 
@@ -26,6 +26,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: GsfElectron.h,v $
+// Revision 1.5  2007/12/11 16:22:02  uberthon
+// remove annoying LogWarning
+//
 // Revision 1.4  2007/12/11 10:35:47  futyand
 // revert HEAD to 18X version
 //
@@ -161,6 +164,7 @@ class GsfElectron : public RecoCandidate {
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
 
+  bool isElectron() const;
  private:
 
   // temporary

@@ -20,10 +20,11 @@
 
 HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 {
-//  ecalHitsProducer_ = iConfig.getParameter< std::string > ("ecalRecHitsProducer");
-//  barrelHits_ = iConfig.getParameter< std::string > ("barrelHitCollection");
-// replace the 2 strings with 1 InputTag of form label:instance
+  //  ecalHitsProducer_ = iConfig.getParameter< std::string > ("ecalRecHitsProducer");
+  //  barrelHits_ = iConfig.getParameter< std::string > ("barrelHitCollection");
+ // replace the 2 strings with 1 InputTag of form label:instance 
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHits");
+
   pi0BarrelHits_ = iConfig.getParameter< std::string > ("pi0BarrelHitCollection");
 
   gammaCandEtaSize_ = iConfig.getParameter<int> ("gammaCandEtaSize");
@@ -75,8 +76,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<EBRecHitCollection> barrelRecHitsHandle;
 
-//  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-// replace the 2 strings with 1 InputTag of form label:instance
+  //  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  // replace the 2 strings with 1 InputTag of form label:instance 	 
   iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product!" << std::endl;
@@ -132,7 +133,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   PositionCalc posCalculator_ = PositionCalc(providedParameters);
   //PositionCalc::Initialize(providedParameters, &recHitsEB_map, &(*geometry_p));
 
-  static const int MAXCLUS = 200;
+  static const int MAXCLUS = 2000;
   int nClus;
   float eClus[MAXCLUS];
   float etClus[MAXCLUS];
@@ -249,6 +250,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    max_hit[nClus] = seed_id;
 	    
 	    nClus++;
+	    if (nClus == MAXCLUS) return accept;
       }
   }
   
@@ -258,7 +260,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Selection, based on Simple clustering
   //pi0 candidates
-  static const int MAXPI0S = 20;
+  static const int MAXPI0S = 200;
   int npi0_s=0;
   int sClus_1[MAXPI0S],sClus_2[MAXPI0S];
   for(int i=0; i<MAXPI0S; i++){
@@ -299,6 +301,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			  sClus_1[npi0_s]=i;
 			  sClus_2[npi0_s]=j;
 			  npi0_s++;
+			  if(npi0_s == MAXPI0S) return accept;
 			}
 
 		    }

@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.71 $
+ * $Date: 2008/05/09 08:07:53 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,7 +26,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNLed2Dat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -48,8 +50,14 @@ EELedClient::EELedClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -176,11 +184,11 @@ EELedClient::~EELedClient(){
 
 }
 
-void EELedClient::beginJob(DQMStore* dbe){
+void EELedClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EELedClient: beginJob" << endl;
+  if ( debug_ ) cout << "EELedClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -189,7 +197,7 @@ void EELedClient::beginJob(DQMStore* dbe){
 
 void EELedClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EELedClient: beginRun" << endl;
+  if ( debug_ ) cout << "EELedClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -199,7 +207,7 @@ void EELedClient::beginRun(void){
 
 void EELedClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EELedClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EELedClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -207,7 +215,7 @@ void EELedClient::endJob(void) {
 
 void EELedClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EELedClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EELedClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -217,184 +225,184 @@ void EELedClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EELedClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EELedClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality L1 %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg01_[ism-1]->setAxisTitle("jx", 1);
     meg01_[ism-1]->setAxisTitle("jy", 2);
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality L2 %s", Numbers::sEE(ism).c_str());
-    meg02_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg02_[ism-1]->setAxisTitle("jx", 1);
     meg02_[ism-1]->setAxisTitle("jy", 2);
 
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality L1 PNs G01 %s", Numbers::sEE(ism).c_str());
-    meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg05_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg06_[ism-1] ) dbe_->removeElement( meg06_[ism-1]->getName() );
+    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality L2 PNs G01 %s", Numbers::sEE(ism).c_str());
-    meg06_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg06_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg06_[ism-1]->setAxisTitle("channel", 2);
 
-    if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality L1 PNs G16 %s", Numbers::sEE(ism).c_str());
-    meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg09_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg10_[ism-1] ) dbe_->removeElement( meg10_[ism-1]->getName() );
+    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
     sprintf(histo, "EELDT led quality L2 PNs G16 %s", Numbers::sEE(ism).c_str());
-    meg10_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg10_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg10_[ism-1]->setAxisTitle("channel", 2);
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude L1A %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
     mea01_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude L2A %s", Numbers::sEE(ism).c_str());
-    mea02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     mea02_[ism-1]->setAxisTitle("channel", 1);
     mea02_[ism-1]->setAxisTitle("amplitude", 2);
 
-    if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
+    if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EELDT amplitude L1B %s", Numbers::sEE(ism).c_str());
-    mea05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     mea05_[ism-1]->setAxisTitle("channel", 1);
     mea05_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea06_[ism-1] ) dbe_->removeElement( mea06_[ism-1]->getName() );
+    if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude L2B %s", Numbers::sEE(ism).c_str());
-    mea06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    mea06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     mea06_[ism-1]->setAxisTitle("channel", 1);
     mea06_[ism-1]->setAxisTitle("amplitude", 2);
 
-    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing L1A %s", Numbers::sEE(ism).c_str());
-    met01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     met01_[ism-1]->setAxisTitle("channel", 1);
     met01_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing L2A %s", Numbers::sEE(ism).c_str());
-    met02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     met02_[ism-1]->setAxisTitle("channel", 1);
     met02_[ism-1]->setAxisTitle("jitter", 2);
 
-    if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
+    if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing L1B %s", Numbers::sEE(ism).c_str());
-    met05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     met05_[ism-1]->setAxisTitle("channel", 1);
     met05_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
+    if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing L2B %s", Numbers::sEE(ism).c_str());
-    met06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    met06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     met06_[ism-1]->setAxisTitle("channel", 1);
     met06_[ism-1]->setAxisTitle("jitter", 2);
 
-    if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing mean L1A %s", Numbers::sEE(ism).c_str());
-    metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav01_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
+    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing mean L2A %s", Numbers::sEE(ism).c_str());
-    metav02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav02_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
+    if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing mean L1B %s", Numbers::sEE(ism).c_str());
-    metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav05_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
+    if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing mean L2B %s", Numbers::sEE(ism).c_str());
-    metav06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav06_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing rms L1A %s", Numbers::sEE(ism).c_str());
-    metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms01_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
+    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing rms L2A %s", Numbers::sEE(ism).c_str());
-    metrms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms02_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
+    if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing rms L1B %s", Numbers::sEE(ism).c_str());
-    metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms05_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
+    if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
     sprintf(histo, "EELDT led timing rms L2B %s", Numbers::sEE(ism).c_str());
-    metrms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms06_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN L1A %s", Numbers::sEE(ism).c_str());
-    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     meaopn01_[ism-1]->setAxisTitle("channel", 1);
     meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn02_[ism-1] ) dbe_->removeElement( meaopn02_[ism-1]->getName() );
+    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN L2A %s", Numbers::sEE(ism).c_str());
-    meaopn02_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     meaopn02_[ism-1]->setAxisTitle("channel", 1);
     meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
-    if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
+    if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN L1B %s", Numbers::sEE(ism).c_str());
-    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn05_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     meaopn05_[ism-1]->setAxisTitle("channel", 1);
     meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn06_[ism-1] ) dbe_->removeElement( meaopn06_[ism-1]->getName() );
+    if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
     sprintf(histo, "EELDT amplitude over PN L2B %s", Numbers::sEE(ism).c_str());
-    meaopn06_[ism-1] = dbe_->book1D(histo, histo, 850, 0., 850.);
+    meaopn06_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
     meaopn06_[ism-1]->setAxisTitle("channel", 1);
     meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
-    if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
-    mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms01_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms02_[ism-1] ) dbe_->removeElement( mepnprms02_[ism-1]->getName() );
+    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
-    mepnprms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms02_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
-    mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms05_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms06_[ism-1] ) dbe_->removeElement( mepnprms06_[ism-1]->getName() );
+    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
-    mepnprms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms06_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
     sprintf(histo, "EELDT led shape L1A %s", Numbers::sEE(ism).c_str());
-    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs01_[ism-1]->setAxisTitle("sample", 1);
     me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
     sprintf(histo, "EELDT led shape L2A %s", Numbers::sEE(ism).c_str());
-    me_hs02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs02_[ism-1]->setAxisTitle("sample", 1);
     me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
 
-    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
     sprintf(histo, "EELDT led shape L1B %s", Numbers::sEE(ism).c_str());
-    me_hs05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs05_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs05_[ism-1]->setAxisTitle("sample", 1);
     me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
     sprintf(histo, "EELDT led shape L2B %s", Numbers::sEE(ism).c_str());
-    me_hs06_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs06_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs06_[ism-1]->setAxisTitle("sample", 1);
     me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
 
@@ -572,91 +580,91 @@ void EELedClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    dbe_->setCurrentFolder( "EcalEndcap/EELedClient" );
+    dqmStore_->setCurrentFolder( prefixME_ + "/EELedClient" );
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
 
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     meg05_[ism-1] = 0;
-    if ( meg06_[ism-1] ) dbe_->removeElement( meg06_[ism-1]->getName() );
+    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
     meg06_[ism-1] = 0;
 
-    if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
     meg09_[ism-1] = 0;
-    if ( meg10_[ism-1] ) dbe_->removeElement( meg10_[ism-1]->getName() );
+    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
     meg10_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
-    if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
     mea02_[ism-1] = 0;
 
-    if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );
+    if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );
     mea05_[ism-1] = 0;
-    if ( mea06_[ism-1] ) dbe_->removeElement( mea06_[ism-1]->getName() );
+    if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
     mea06_[ism-1] = 0;
 
-    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     met01_[ism-1] = 0;
-    if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
     met02_[ism-1] = 0;
 
-    if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
+    if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
     met05_[ism-1] = 0;
-    if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
+    if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
     met06_[ism-1] = 0;
 
-    if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
     metav01_[ism-1] = 0;
-    if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
+    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
     metav02_[ism-1] = 0;
 
-    if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
+    if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
     metav05_[ism-1] = 0;
-    if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
+    if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
     metav06_[ism-1] = 0;
 
-    if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
     metrms01_[ism-1] = 0;
-    if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
+    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
     metrms02_[ism-1] = 0;
 
-    if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
+    if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
     metrms05_[ism-1] = 0;
-    if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
+    if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
     metrms06_[ism-1] = 0;
 
-    if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
     meaopn01_[ism-1] = 0;
-    if ( meaopn02_[ism-1] ) dbe_->removeElement( meaopn02_[ism-1]->getName() );
+    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
     meaopn02_[ism-1] = 0;
 
-    if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
+    if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
     meaopn05_[ism-1] = 0;
-    if ( meaopn06_[ism-1] ) dbe_->removeElement( meaopn06_[ism-1]->getName() );
+    if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
     meaopn06_[ism-1] = 0;
 
-    if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
     mepnprms01_[ism-1] = 0;
-    if ( mepnprms02_[ism-1] ) dbe_->removeElement( mepnprms02_[ism-1]->getName() );
+    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
     mepnprms02_[ism-1] = 0;
 
-    if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
     mepnprms05_[ism-1] = 0;
-    if ( mepnprms06_[ism-1] ) dbe_->removeElement( mepnprms06_[ism-1]->getName() );
+    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
     mepnprms06_[ism-1] = 0;
 
-    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
     me_hs01_[ism-1] = 0;
-    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
     me_hs02_[ism-1] = 0;
 
-    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
     me_hs05_[ism-1] = 0;
-    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
     me_hs06_[ism-1] = 0;
 
   }
@@ -678,13 +686,17 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-    UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+    if ( verbose_ ) {
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+      UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+    }
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -728,11 +740,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -765,11 +777,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num09 << " " << mean09 << " " << rms09 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -802,11 +814,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -839,11 +851,11 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num11 << " " << mean11 << " " << rms11 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -879,16 +891,16 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonLedDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonLedDat ..." << endl;
       if ( dataset1_l1.size() != 0 ) econn->insertDataArraySet(&dataset1_l1, moniov);
       if ( dataset1_l2.size() != 0 ) econn->insertDataArraySet(&dataset1_l2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   MonPNLed1Dat pn_l1;
   map<EcalLogicID, MonPNLed1Dat> dataset2_l1;
@@ -899,18 +911,22 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
-    UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
-    UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
-    UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
+    if ( verbose_ ) {
+      UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
 
-    UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
-    UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
-    UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
-    UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+    }
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -949,12 +965,12 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -991,12 +1007,12 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
-          cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -1035,10 +1051,10 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPnDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPnDat ..." << endl;
       if ( dataset2_l1.size() != 0 ) econn->insertDataArraySet(&dataset2_l1, moniov);
       if ( dataset2_l2.size() != 0 ) econn->insertDataArraySet(&dataset2_l2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1053,7 +1069,7 @@ void EELedClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EELedClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EELedClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;
@@ -1082,9 +1098,13 @@ void EELedClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3;
+  map<EcalLogicID, RunMemTTErrorsDat> mask4;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
+  EcalErrorMask::fetchDataSet(&mask4);
 
   char histo[200];
 
@@ -1094,100 +1114,100 @@ void EELedClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT amplitude %s L1A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT amplitude over PN %s L1A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT amplitude %s L2A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT amplitude over PN %s L2A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT timing %s L1A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT timing %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT timing %s L2A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT timing %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT amplitude %s L1B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT amplitude over PN %s L1B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT amplitude over PN %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT amplitude %s L2B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT amplitude over PN %s L2B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT amplitude over PN %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT timing %s L1B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT timing %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT timing %s L2B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT timing %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT shape %s L1A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT shape %s L1A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT shape %s L2A", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT shape %s L2A").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/EELDT shape %s L1B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/EELDT shape %s L1B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/EELDT shape %s L2B", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/EELDT shape %s L2B").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs amplitude %s G01 L1", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EEPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs amplitude %s G01 L2", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EEPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs pedestal %s G01 L1", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain01/EEPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs pedestal %s G01 L2", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain01/EEPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs amplitude %s G16 L1", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EEPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs amplitude %s G16 L2", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EEPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs pedestal %s G16 L1", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led1/PN/Gain16/EEPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs pedestal %s G16 L2", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EELedTask/Led2/PN/Gain16/EEPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
@@ -1644,6 +1664,30 @@ void EELedClient::analyze(void){
           }
         }
 
+	// TT masking
+
+        if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg01_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg02_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -1797,6 +1841,39 @@ void EELedClient::analyze(void){
         }
       }
 
+      // TT masking
+
+      if ( mask4.size() != 0 ) {
+	map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
+	for (m = mask4.begin(); m != mask4.end(); m++) {
+
+	  EcalLogicID ecid = m->first;
+
+	  int it = 1 + ((i-1)/5);
+	  int itt = 68 + it;
+
+	  if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	    if ( meg05_[ism-1] ) {
+	      float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg05_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	    if ( meg06_[ism-1] ) {
+	      float val = int(meg06_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg06_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	    if ( meg09_[ism-1] ) {
+	      float val = int(meg09_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg09_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	    if ( meg10_[ism-1] ) {
+	      float val = int(meg10_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg10_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	  }
+
+	}
+      }
+
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -1841,7 +1918,7 @@ void EELedClient::analyze(void){
 
 void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EELedClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EELedClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -2071,15 +2148,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2129,7 +2206,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         obj1f->Draw();
         cTim->Update();
         cTim->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2175,14 +2252,14 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2228,14 +2305,14 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2280,14 +2357,14 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2333,16 +2410,16 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->SetMaximum(20.0);
         obj1f->Draw();
         cAmpoPN->Update();
         cAmpoPN->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2474,15 +2551,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2520,15 +2597,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2568,15 +2645,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2614,15 +2691,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2660,15 +2737,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -2706,15 +2783,15 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 

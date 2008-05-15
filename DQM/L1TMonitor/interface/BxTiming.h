@@ -45,6 +45,14 @@ class BxTiming : public edm::EDAnalyzer {
   int verbose_;
   int verbose() {return verbose_;}
 
+  /** calculates the difference (closest distance) between two bunch crossing numbers.
+      This is similar to calculating delta phi between two vectors. 
+      
+      Calculates bx1 - bx2 but makes sure that the value is in the range 
+        -num_bx_per_orbit / 2 .. + num_bx_per_orbit / 2 .
+  */
+  int calcBxDiff(int bx1, int bx2);
+
   // counters
   int nEvt_;
 
@@ -58,7 +66,9 @@ class BxTiming : public edm::EDAnalyzer {
   DQMStore* dbe;
  
   // readout l1 systems
-  static const int norb_ = 3565;  // bx per orbit
+  static const int norb_ = 3564;  // bx per orbit
+  static const int half_norb_ = norb_ / 2; // for calculating the difference between two BX numbers
+
   static const int nbig_ = 10000; // larger than bx spread
   static const int nttype_ = 6;   // number of trigger types (physics, cal,...)
 

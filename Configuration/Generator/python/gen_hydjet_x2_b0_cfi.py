@@ -41,13 +41,18 @@ source = cms.Source("HydjetSource",
 )
 
 # whatever parameters from the hydjetSourceDefault you want to modify, do it following the exampels
+# whatever parameters from the hydjetSourceDefault you want to modify, do it following the exampels
 HydjetSource.bFixed = 0.
 # replace HydjetSource.bMax          = 0.               # max impact param (fm)
 # replace HydjetSource.bMin          = 0.               # min impact param (fm)
-HydjetSource.cFlag = 0
+HydjetSource.cFlag = 0 ## centrality flag
+
 # =  0 fixed impact param
 # <> 0 between bmin and bmax
+# =  0 fixed impact param
+# <> 0 between bMin and bMax
 HydjetSource.nMultiplicity = 26000
+#automatically calculated for other centralities and beams
 #automatically calculated for other centralities and beams
 HydjetSource.hydjetMode = 'kHydroQJets'
 

@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2008/03/14 14:38:57 $
- * $Revision: 1.22 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EETestPulseClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -79,12 +79,15 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TProfile2D* ha01_[18];
 TProfile2D* ha02_[18];

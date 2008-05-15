@@ -4,7 +4,7 @@
 
 HcalRecHitMonitor::HcalRecHitMonitor() {
   doPerChannel_ = false;
-  occThresh_ = 1.0;
+  occThresh_ = 1;
   ievt_=0;
 }
 
@@ -41,7 +41,9 @@ namespace HcalRecHitPerChan{
       if(dbe){
 	char name[1024];
 	sprintf(name,"%s RecHit Energy ieta=%d iphi=%d depth=%d",type.c_str(),rhit.id().ieta(),rhit.id().iphi(),rhit.id().depth());
-	toolE[rhit.id()] =  dbe->book1D(name,name,200,0,200); 
+	//changed for GRUMM cosmics:
+	//	toolE[rhit.id()] =  dbe->book1D(name,name,200,0,200); 
+       	toolE[rhit.id()] =  dbe->book1D(name,name,200,-10,20); 
 	toolE[rhit.id()]->Fill(rhit.energy());
       }
     }
@@ -50,7 +52,7 @@ namespace HcalRecHitPerChan{
     _mei=toolT.find(rhit.id()); // look for a histogram with this hit's id
     if (_mei!=toolT.end()){
       if (_mei->second==0) return;
-      else _mei->second->Fill(rhit.time()); // if it's there, fill it with energy
+      else _mei->second->Fill(rhit.time()); // if it's there, fill it with time
     }
     else{
       if(dbe){
@@ -62,6 +64,7 @@ namespace HcalRecHitPerChan{
     }
   }
 }
+
 
 void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   HcalBaseMonitor::setup(ps,dbe);
@@ -89,7 +92,9 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   if ( m_dbe !=NULL ) {    
 
     m_dbe->setCurrentFolder(baseFolder_);
-    meRECHIT_E_all =  m_dbe->book1D("RecHit Total Energy","RecHit Total Energy",100,0,400);
+    //changed for cosmics
+    //    meRECHIT_E_all =  m_dbe->book1D("RecHit Total Energy","RecHit Total Energy",100,0,400);
+    meRECHIT_E_all =  m_dbe->book1D("RecHit Total Energy","RecHit Total Energy",100,-20,400);
     meRECHIT_Ethresh_all =  m_dbe->book1D("RecHit Total Energy - Threshold","RecHit Total Energy - Threshold",100,0,400);
 
     meEVT_ = m_dbe->bookInt("RecHit Event Number");    
@@ -121,8 +126,11 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     meOCC_MAP_PHI_E = m_dbe->book1D("RecHit Phi Energy Map","RecHit Phi Energy Map",phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HB");
-    hbHists.meRECHIT_E_tot = m_dbe->book1D("HB RecHit Total Energy","HB RecHit Total Energy",100,0,400);
-    hbHists.meRECHIT_E_all = m_dbe->book1D("HB RecHit Energies","HB RecHit Energies",200,0,200);
+    //changed for cosmics
+    //    hbHists.meRECHIT_E_tot = m_dbe->book1D("HB RecHit Total Energy","HB RecHit Total Energy",100,0,400);
+    hbHists.meRECHIT_E_tot = m_dbe->book1D("HB RecHit Total Energy","HB RecHit Total Energy",100,-200,200);
+    //    hbHists.meRECHIT_E_all = m_dbe->book1D("HB RecHit Energies","HB RecHit Energies",200,0,200);
+    hbHists.meRECHIT_E_all = m_dbe->book1D("HB RecHit Energies","HB RecHit Energies",200,-2,2);
 
     hbHists.meRECHIT_E_low = m_dbe->book1D("HB RecHit Energies - Low Region","HB RecHit Energies - Low Region",200,0,10);
     hbHists.meRECHIT_T_all = m_dbe->book1D("HB RecHit Times","HB RecHit Times",300,-100,200);
@@ -137,8 +145,11 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
-    heHists.meRECHIT_E_tot = m_dbe->book1D("HE RecHit Total Energy","HE RecHit Total Energy",100,0,400);
-    heHists.meRECHIT_E_all = m_dbe->book1D("HE RecHit Energies","HE RecHit Energies",200,0,200);
+    //changed for cosmics
+    //     heHists.meRECHIT_E_tot = m_dbe->book1D("HE RecHit Total Energy","HE RecHit Total Energy",100,0,400);
+    heHists.meRECHIT_E_tot = m_dbe->book1D("HE RecHit Total Energy","HE RecHit Total Energy",100,-200,200);
+    //    heHists.meRECHIT_E_all = m_dbe->book1D("HE RecHit Energies","HE RecHit Energies",200,0,200);
+    heHists.meRECHIT_E_all = m_dbe->book1D("HE RecHit Energies","HE RecHit Energies",200,-2,2);
     heHists.meRECHIT_E_low = m_dbe->book1D("HE RecHit Energies - Low Region","HE RecHit Energies - Low Region",200,0,10);
     heHists.meRECHIT_T_all = m_dbe->book1D("HE RecHit Times","HE RecHit Times",300,-100,200);
     heHists.meOCC_MAP_GEO = m_dbe->book2D("HE RecHit Geo Occupancy Map","HE RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -149,10 +160,32 @@ void HcalRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 						etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
-    hfHists.meRECHIT_E_tot = m_dbe->book1D("HF RecHit Total Energy","HF RecHit Total Energy",100,0,400);
-    hfHists.meRECHIT_E_all = m_dbe->book1D("HF RecHit Energies","HF RecHit Energies",200,0,200);
-    hfHists.meRECHIT_E_low = m_dbe->book1D("HF RecHit Energies - Low Region","HF RecHit Energies - Low Region",200,0,10);
-hfHists.meRECHIT_T_all = m_dbe->book1D("HF RecHit Times","HF RecHit Times",300,-100,200);
+    //changed for cosmics
+    // hfHists.meRECHIT_E_tot = m_dbe->book1D("HF RecHit Total Energy","HF RecHit Total Energy",100,0,400);
+    hfHists.meRECHIT_E_tot = m_dbe->book1D("HF RecHit Total Energy","HF RecHit Total Energy",100,-200,200);
+
+    //    hfHists.meRECHIT_E_all = m_dbe->book1D("HF Long, RecHit Energies","HF Long, RecHit Energies",200,0,200);
+    hfHists.meRECHIT_E_all = m_dbe->book1D("HF Long RecHit Energies","HF Long RecHit Energies",200,-5,5);
+    hfHists.meRECHIT_E_low = m_dbe->book1D("HF Long RecHit Energies - Low Region","HF Long RecHit Energies - Low Region",200,0,10);
+    hfHists.meRECHIT_T_all = m_dbe->book1D("HF Long RecHit Times","HF Long RecHit Times",300,-100,200);
+
+    
+    //need to see Long (depth1) and Short (depth2) fibers separately:
+    //hfHists.meRECHIT_E_all_L = m_dbe->book1D("HF Long, RecHit Energies","HF Long, RecHit Energies",200,-5,5);
+    //hfHists.meRECHIT_E_low_L = m_dbe->book1D("HF Long, RecHit Energies - Low Region","HF Long, RecHit Energies - Low Region",200,0,10);
+    //hfHists.meRECHIT_T_all_L = m_dbe->book1D("HF Long, RecHit Times","HF Long, RecHit Times",300,-100,200);
+    //--
+    //hfHists.meRECHIT_E_all_S = m_dbe->book1D("HF Short, RecHit Energies","HF Short, RecHit Energies",200,-5,5);
+    //hfHists.meRECHIT_E_low_S = m_dbe->book1D("HF Short, RecHit Energies - Low Region","HF Short, RecHit Energies - Low Region",200,0,10);
+    //hfHists.meRECHIT_T_all_S = m_dbe->book1D("HF Short, RecHit Times","HF Short, RecHit Times",300,-100,200);
+
+    //--but above is in a map...instead I just add 3 histos for Short:
+    hfshort_meRECHIT_E_all = m_dbe->book1D("HF Short RecHit Energies","HF Short RecHit Energies",200,-5,5);
+    hfshort_meRECHIT_E_low = m_dbe->book1D("HF Short RecHit Energies - Low Region","HF Short RecHit Energies - Low Region",200,0,10);
+    hfshort_meRECHIT_T_all = m_dbe->book1D("HF Short RecHit Times","HF Short RecHit Times",300,-100,200);
+
+
+
     hfHists.meOCC_MAP_GEO = m_dbe->book2D("HF RecHit Geo Occupancy Map","HF RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.meRECHIT_Ethresh_tot = m_dbe->book1D("HF RecHit Total Energy - Threshold","HF RecHit Total Energy - Threshold",100,0,400);
     hfHists.meRECHIT_Tthresh_all = m_dbe->book1D("HF RecHit Times - Threshold","HF RecHit Times - Threshold",300,-100,200);
@@ -162,10 +195,13 @@ hfHists.meRECHIT_T_all = m_dbe->book1D("HF RecHit Times","HF RecHit Times",300,-
 
 
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
-    hoHists.meRECHIT_E_tot = m_dbe->book1D("HO RecHit Total Energy","HO RecHit Total Energy",100,0,400);
-    hoHists.meRECHIT_E_all = m_dbe->book1D("HO RecHit Energies","HO RecHit Energies",200,0,200);
+    //changed for cosmics
+    //hoHists.meRECHIT_E_tot = m_dbe->book1D("HO RecHit Total Energy","HO RecHit Total Energy",100,0,400);
+    hoHists.meRECHIT_E_tot = m_dbe->book1D("HO RecHit Total Energy","HO RecHit Total Energy",100,-200,200);
+    //    hoHists.meRECHIT_E_all = m_dbe->book1D("HO RecHit Energies","HO RecHit Energies",200,0,200);
+    hoHists.meRECHIT_E_all = m_dbe->book1D("HO RecHit Energies","HO RecHit Energies",200,-2,2);
     hoHists.meRECHIT_E_low = m_dbe->book1D("HO RecHit Energies - Low Region","HO RecHit Energies - Low Region",200,0,10);
-hoHists.meRECHIT_T_all = m_dbe->book1D("HO RecHit Times","HO RecHit Times",300,-100,200);
+    hoHists.meRECHIT_T_all = m_dbe->book1D("HO RecHit Times","HO RecHit Times",300,-100,200);
     hoHists.meOCC_MAP_GEO = m_dbe->book2D("HO RecHit Geo Occupancy Map","HO RecHit Geo Occupancy Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.meRECHIT_Ethresh_tot = m_dbe->book1D("HO RecHit Total Energy - Threshold","HO RecHit Total Energy - Threshold",100,0,400);
     hoHists.meRECHIT_Tthresh_all = m_dbe->book1D("HO RecHit Times - Threshold","HO RecHit Times - Threshold",300,-100,200);
@@ -201,11 +237,14 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	float en = _ib->energy();      float ti = _ib->time();
 	float ieta = _ib->id().ieta(); float iphi = _ib->id().iphi();
 	float depth = _ib->id().depth();
-	if(en>0.0){
+	//for cosmics, want to see all distribution, changed to -100
+	//	if(en>0.0){
+	if(en>-100){
 	  if((HcalSubdetector)(_ib->id().subdet())==HcalBarrel){
 	    hbHists.meRECHIT_E_all->Fill(en);
 	    hbHists.meRECHIT_E_low->Fill(en);
 	    hbHists.meRECHIT_T_all->Fill(ti);
+	    //NON-threshold occupancy map:
 	    hbHists.meOCC_MAP_GEO->Fill(ieta,iphi);
 	    tot += en;
 
@@ -243,6 +282,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	    heHists.meRECHIT_E_all->Fill(en);
 	    heHists.meRECHIT_E_low->Fill(en);
 	    heHists.meRECHIT_T_all->Fill(ti);
+	    //NON-threshold occupancy map:
 	    heHists.meOCC_MAP_GEO->Fill(ieta,iphi);
 
 	    tot2 += en;
@@ -279,9 +319,11 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	}
 	
       }
-      if(tot>0) hbHists.meRECHIT_E_tot->Fill(tot);
+      //      if(tot>0) hbHists.meRECHIT_E_tot->Fill(tot);
+      if(tot>-100) hbHists.meRECHIT_E_tot->Fill(tot);
       if(totThr>0) hbHists.meRECHIT_Ethresh_tot->Fill(totThr);
-      if(tot2>0) heHists.meRECHIT_E_tot->Fill(tot2);
+      //if(tot2>0) heHists.meRECHIT_E_tot->Fill(tot2);
+      if(tot2>-100) heHists.meRECHIT_E_tot->Fill(tot2);
       if(tot2Thr>0) heHists.meRECHIT_Ethresh_tot->Fill(tot2Thr);
       all += tot;
       all += tot2;
@@ -296,15 +338,18 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
     tot = 0; totThr = 0;
     if(hoHits.size()>0){
       for (_io=hoHits.begin(); _io!=hoHits.end(); _io++) { // loop over all hits
-	
-	if(_io->energy()>0.0){
+	//changed to -100 for cosmics
+	//	if(_io->energy()>0.0){
+	if(_io->energy()>-100){
 	  hoHists.meRECHIT_E_all->Fill(_io->energy());
 	  hoHists.meRECHIT_E_low->Fill(_io->energy());
 	  hoHists.meRECHIT_T_all->Fill(_io->time());
+	  //HO for some reason DOES NOT have a non-threshold occupancy map
 	  
 	  tot += _io->energy();
 	  if(_io->energy()>occThresh_){
 	    totThr += _io->energy();
+
 	    hoHists.meOCC_MAPthresh_GEO->Fill(_io->id().ieta(),_io->id().iphi());
 	    hoHists.meRECHIT_Tthresh_all->Fill(_io->time());
 
@@ -334,7 +379,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HORecHit>(2,*_io,hoHists.meRECHIT_E,hoHists.meRECHIT_T,m_dbe, baseFolder_);
 	}
       }
-      if(tot>0) hoHists.meRECHIT_E_tot->Fill(tot);
+      //      if(tot>0) hoHists.meRECHIT_E_tot->Fill(tot);
+      if(tot>-100) hoHists.meRECHIT_E_tot->Fill(tot);
       if(totThr>0) hoHists.meRECHIT_Ethresh_tot->Fill(totThr);
       all += tot;
       allThr += totThr;
@@ -347,10 +393,24 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
     tot=0;  totThr=0;
     if(hfHits.size()>0){
       for (_if=hfHits.begin(); _if!=hfHits.end(); _if++) { // loop over all hits
-	if(_if->energy()>0.0){
-	  hfHists.meRECHIT_E_all->Fill(_if->energy());
-	  hfHists.meRECHIT_E_low->Fill(_if->energy());
-	  hfHists.meRECHIT_T_all->Fill(_if->time());
+	//changed to -100 for cosmics
+	//	if(_if->energy()>0.0){
+	if(_if->energy()>-100){
+	  //Want to see these 3 histos for Long fibers:
+	  if (_if->id().depth()==1){
+	    hfHists.meRECHIT_E_all->Fill(_if->energy());
+	    hfHists.meRECHIT_E_low->Fill(_if->energy());
+	    hfHists.meRECHIT_T_all->Fill(_if->time());
+	  }
+
+	  //Fill 3 histos for Short Fibers :
+	  if (_if->id().depth()==2){
+	    hfshort_meRECHIT_E_all->Fill(_if->energy());
+	    hfshort_meRECHIT_E_low->Fill(_if->energy());
+	    hfshort_meRECHIT_T_all->Fill(_if->time());
+	  }
+
+	  //HF: no non-threshold occupancy map is filled?
 	  
 	  tot += _if->energy();
 	  if(_if->energy()>occThresh_){
@@ -384,7 +444,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HFRecHit>(3,*_if,hfHists.meRECHIT_E,hfHists.meRECHIT_T,m_dbe, baseFolder_);
 	}
       }
-      if(tot>0) hfHists.meRECHIT_E_tot->Fill(tot);
+      //      if(tot>0) hfHists.meRECHIT_E_tot->Fill(tot)
+      if(tot>-100) hfHists.meRECHIT_E_tot->Fill(tot);
       if(totThr>0) hfHists.meRECHIT_Ethresh_tot->Fill(totThr);
       all += tot;
       allThr += totThr;
@@ -394,7 +455,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   }
   
   
-  if(all>0) meRECHIT_E_all->Fill(all);
+  //  if(all>0) meRECHIT_E_all->Fill(all);
+  if(all>-100) meRECHIT_E_all->Fill(all);
   if(allThr>0) meRECHIT_Ethresh_all->Fill(allThr);
 
   return;

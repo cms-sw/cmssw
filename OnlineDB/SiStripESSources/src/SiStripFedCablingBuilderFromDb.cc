@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.43 2008/02/19 21:28:03 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.42 2008/02/06 17:21:23 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -74,8 +74,7 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::make( const SiStripFedCabling
   // Check if DB connection is made 
   if ( db_ ) { 
 
-    if ( db_->deviceFactory() || 
-	 db_->databaseCache() ) { 
+    if ( db_->deviceFactory() ) { 
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;
@@ -98,10 +97,9 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::make( const SiStripFedCabling
     } else {
       edm::LogError(mlCabling_)
 	<< "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-	<< " NULL pointers to DeviceFactory and DatabaseCache returned by SiStripConfigDb!"
+	<< " NULL pointer to DeviceFactory returned by SiStripConfigDb!"
 	<< " Cannot build FED cabling object!";
     }
-
   } else {
     edm::LogError(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"

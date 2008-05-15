@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.194 $
+ * $Date: 2008/05/08 19:13:09 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,6 +23,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -45,8 +46,14 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -120,11 +127,11 @@ EBTestPulseClient::~EBTestPulseClient(){
 
 }
 
-void EBTestPulseClient::beginJob(DQMStore* dbe){
+void EBTestPulseClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBTestPulseClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBTestPulseClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -133,7 +140,7 @@ void EBTestPulseClient::beginJob(DQMStore* dbe){
 
 void EBTestPulseClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBTestPulseClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBTestPulseClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -143,7 +150,7 @@ void EBTestPulseClient::beginRun(void){
 
 void EBTestPulseClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBTestPulseClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -151,7 +158,7 @@ void EBTestPulseClient::endJob(void) {
 
 void EBTestPulseClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBTestPulseClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -161,77 +168,77 @@ void EBTestPulseClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTestPulseClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G01 %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg01_[ism-1]->setAxisTitle("ieta", 1);
     meg01_[ism-1]->setAxisTitle("iphi", 2);
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G06 %s", Numbers::sEB(ism).c_str());
-    meg02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg02_[ism-1]->setAxisTitle("ieta", 1);
     meg02_[ism-1]->setAxisTitle("iphi", 2);
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G12 %s", Numbers::sEB(ism).c_str());
-    meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg03_[ism-1]->setAxisTitle("ieta", 1);
     meg03_[ism-1]->setAxisTitle("iphi", 2);
 
-    if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality PNs G01 %s", Numbers::sEB(ism).c_str());
-    meg04_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg04_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg04_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality PNs G16 %s", Numbers::sEB(ism).c_str());
-    meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg05_[ism-1]->setAxisTitle("channel", 2);
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G01 %s", Numbers::sEB(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
     mea01_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G06 %s", Numbers::sEB(ism).c_str());
-    mea02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea02_[ism-1]->setAxisTitle("channel", 1);
     mea02_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
+    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G12 %s", Numbers::sEB(ism).c_str());
-    mea03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea03_[ism-1]->setAxisTitle("channel", 1);
     mea03_[ism-1]->setAxisTitle("amplitude", 2);
 
-    if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
+    if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
-    mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer04_[ism-1]->setAxisTitle("rms", 1);
-    if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
+    if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
-    mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer05_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse shape G01 %s", Numbers::sEB(ism).c_str());
-    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs01_[ism-1]->setAxisTitle("sample", 1);
     me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse shape G06 %s", Numbers::sEB(ism).c_str());
-    me_hs02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs02_[ism-1]->setAxisTitle("sample", 1);
     me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse shape G12 %s", Numbers::sEB(ism).c_str());
-    me_hs03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs03_[ism-1]->setAxisTitle("sample", 1);
     me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
 
@@ -322,37 +329,37 @@ void EBTestPulseClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    dbe_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
+    dqmStore_->setCurrentFolder( prefixME_ + "/EBTestPulseClient" );
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
     meg04_[ism-1] = 0;
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     meg05_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
-    if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
     mea02_[ism-1] = 0;
-    if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
+    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
     mea03_[ism-1] = 0;
 
-    if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
+    if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
     mer04_[ism-1] = 0;
-    if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
+    if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
 
-    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
     me_hs01_[ism-1] = 0;
-    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
     me_hs02_[ism-1] = 0;
-    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
     me_hs03_[ism-1] = 0;
 
   }
@@ -374,12 +381,13 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], ha02_[ism-1]);
-    UtilsClient::printBadChannels(meg03_[ism-1], ha03_[ism-1]);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], ha01_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], ha02_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], ha03_[ism-1]);
+    }
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -400,12 +408,13 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-            cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-            cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
-            cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "G01 (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+              cout << "G06 (" << ie << "," << ip << ") " << num02 << " " << mean02 << " " << rms02 << endl;
+              cout << "G12 (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -462,25 +471,27 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
               for ( int i = 1; i <= 10; i++ ) { sample03.push_back(-1.); }
             }
 
-            cout << "sample01 = " << flush;
-            for ( unsigned int i = 0; i < sample01.size(); i++ ) {
-              cout << sample01[i] << " " << flush;
-            }
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "sample01 = " << flush;
+              for ( unsigned int i = 0; i < sample01.size(); i++ ) {
+                cout << sample01[i] << " " << flush;
+              }
+              cout << endl;
 
-            cout << "sample02 = " << flush;
-            for ( unsigned int i = 0; i < sample02.size(); i++ ) {
-              cout << sample02[i] << " " << flush;
-            }
-            cout << endl;
+              cout << "sample02 = " << flush;
+              for ( unsigned int i = 0; i < sample02.size(); i++ ) {
+                cout << sample02[i] << " " << flush;
+              }
+              cout << endl;
 
-            cout << "sample03 = " << flush;
-            for ( unsigned int i = 0; i < sample03.size(); i++ ) {
-              cout << sample03[i] << " " << flush;
+              cout << "sample03 = " << flush;
+              for ( unsigned int i = 0; i < sample03.size(); i++ ) {
+                cout << sample03[i] << " " << flush;
+              }
+              cout << endl;
             }
-            cout << endl;
 
-            cout << endl;
+            if ( verbose_ ) cout << endl;
 
             shape.setSamples(sample01,  1);
             shape.setSamples(sample02,  6);
@@ -505,16 +516,16 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonTestPulseDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonTestPulseDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   MonPNMGPADat pn;
   map<EcalLogicID, MonPNMGPADat> dataset3;
@@ -523,13 +534,14 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
-    UtilsClient::printBadChannels(meg04_[ism-1], i03_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i04_[ism-1]);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg04_[ism-1], i03_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i04_[ism-1]);
+    }
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -551,12 +563,12 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
-          cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01 << " " << num03 << " " << mean03 << " " << rms03 << endl;
+            cout << "PNs (" << i << ") G16 " << num02  << " " << mean02 << " " << rms02 << " " << num04 << " " << mean04 << " " << rms04 << endl;
+            cout << endl;
+          }
 
         }
 
@@ -595,9 +607,9 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPNMGPADat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPNMGPADat ..." << endl;
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -612,7 +624,7 @@ void EBTestPulseClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBTestPulseClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;
@@ -647,9 +659,11 @@ void EBTestPulseClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
 
   char histo[200];
 
@@ -659,44 +673,44 @@ void EBTestPulseClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude %s G01", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain01/EBTPT amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     ha01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude %s G06", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain06/EBTPT amplitude %s G06").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     ha02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude %s G12", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain12/EBTPT amplitude %s G12").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     ha03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain01/EBTPT shape %s G01", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain01/EBTPT shape %s G01").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain06/EBTPT shape %s G06", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain06/EBTPT shape %s G06").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/Gain12/EBTPT shape %s G12", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain12/EBTPT shape %s G12").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude %s G16").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
@@ -893,6 +907,34 @@ void EBTestPulseClient::analyze(void){
           }
         }
 
+	// TT masking
+
+	if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -982,7 +1024,7 @@ void EBTestPulseClient::analyze(void){
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
-        if ( me_hs01_[ism-1] ) { 
+        if ( me_hs01_[ism-1] ) {
           me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
           me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
         }
@@ -990,7 +1032,7 @@ void EBTestPulseClient::analyze(void){
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
-        if ( me_hs02_[ism-1] ) { 
+        if ( me_hs02_[ism-1] ) {
           me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
           me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
         }
@@ -998,7 +1040,7 @@ void EBTestPulseClient::analyze(void){
 
       if ( hs03_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs03_[ism-1] );
-        if ( me_hs03_[ism-1] ) { 
+        if ( me_hs03_[ism-1] ) {
           me_hs03_[ism-1]->setBinContent( i, hs03_[ism-1]->GetBinContent(ic, i) );
           me_hs03_[ism-1]->setBinError( i, hs03_[ism-1]->GetBinError(ic, i) );
         }
@@ -1013,7 +1055,7 @@ void EBTestPulseClient::analyze(void){
 
 void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBTestPulseClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBTestPulseClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -1170,16 +1212,16 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cAmp->Update();
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1214,14 +1256,14 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1297,15 +1339,15 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1337,15 +1379,15 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1375,15 +1417,15 @@ void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 

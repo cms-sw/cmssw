@@ -12,7 +12,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep 19 11:47:28 CEST 2005
-// $Id: EventContentAnalyzer.cc,v 1.26 2007/12/26 20:56:04 wmtan Exp $
+// $Id: EventContentAnalyzer.cc,v 1.27 2008/01/30 00:34:17 wmtan Exp $
 //
 //
 
@@ -252,7 +252,7 @@ EventContentAnalyzer::EventContentAnalyzer(const edm::ParameterSet& iConfig) :
   verbose_(iConfig.getUntrackedParameter("verbose",false) || moduleLabels_.size()>0),
   getModuleLabels_(iConfig.getUntrackedParameter("getDataForModuleLabels",std::vector<std::string>())),
   getData_(iConfig.getUntrackedParameter("getData",false) || getModuleLabels_.size()>0),
-  evno_(0)
+  evno_(1)
 {
    //now do what ever initialization is needed
    edm::sort_all(moduleLabels_);
@@ -295,7 +295,6 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    for(Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
                              itProv != itProvEnd;
                            ++itProv) {
-     if((*itProv)->product().present()) {
        friendlyName = (*itProv)->friendlyClassName();
        //if(friendlyName.empty())  friendlyName = std::string("||");
        
@@ -350,7 +349,6 @@ EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                              handle);
          }
        }      
-     }
    }
    //std::cout <<"Mine"<<std::endl;
    ++evno_;

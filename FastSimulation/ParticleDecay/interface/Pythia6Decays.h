@@ -14,7 +14,7 @@ typedef DaughterParticleList::const_iterator DaughterParticleIterator;
 class Pythia6Decays 
 {
  public:
-  Pythia6Decays(int seed);
+  Pythia6Decays(int seed,double comE=14000.);
   ~Pythia6Decays();
 
   const DaughterParticleList&
@@ -28,7 +28,6 @@ class Pythia6Decays
   Pythia6jets* pyjets;
   Pythia6Random* pyrand;
   DaughterParticleList theList;
-
 
 };
 #endif

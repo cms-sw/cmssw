@@ -28,7 +28,8 @@ writeBlobComplex::analyze( const edm::Event& evt, const edm::EventSetup& evtSetu
     unsigned int serial = 123;
     me->fill(serial);
     if( mydbservice->isNewTagRequest(m_RecordName) ){
-      mydbservice->createNewIOV<BlobComplex>(me,mydbservice->endOfTime(),m_RecordName);
+      cond::Time_t firstSinceTime=mydbservice->beginOfTime();
+      mydbservice->createNewIOV<BlobComplex>(me,firstSinceTime,mydbservice->endOfTime(),m_RecordName);
     }else{
       mydbservice->appendSinceTime<BlobComplex>(me,mydbservice->currentTime(),m_RecordName);
     }

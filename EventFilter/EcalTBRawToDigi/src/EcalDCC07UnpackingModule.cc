@@ -1,7 +1,7 @@
 /* \file EcalDCCTB07UnpackingModule.h
  *
- *  $Date: 2007/11/23 09:31:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/10/23 16:04:06 $
+ *  $Revision: 1.8 $
  *  \author Y. Maravin
  *  \author G. Franzoni
  *  \author G. Della Ricca
@@ -150,6 +150,8 @@ EcalDCCTB07UnpackingModule::EcalDCCTB07UnpackingModule(const edm::ParameterSet& 
   produces<EBDetIdCollection>("EcalIntegrityChIdErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainErrors");
   produces<EBDetIdCollection>("EcalIntegrityGainSwitchErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
+  produces<EBDetIdCollection>("EcalIntegrityGainSwitchStayErrors");
 
   // mem channels' integrity
   produces<EcalElectronicsIdCollection>("EcalIntegrityMemTtIdErrors");
@@ -215,6 +217,9 @@ void EcalDCCTB07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& 
   // create the collection of Ecal Integrity Gain Switch
   std::auto_ptr<EBDetIdCollection> productGainSwitch(new EBDetIdCollection);
 
+  // create the collection of Ecal Integrity Gain Switch Stay
+  std::auto_ptr<EBDetIdCollection> productGainSwitchStay(new EBDetIdCollection);
+
   // create the collection of Ecal Integrity Mem towerBlock_id errors
   std::auto_ptr<EcalElectronicsIdCollection> productMemTtId(new EcalElectronicsIdCollection);
   
@@ -266,7 +271,7 @@ void EcalDCCTB07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& 
 				       *productDCCHeader, 
 				       *productDCCSize, 
 				       *productTTId, *productBlockSize, 
-				       *productChId, *productGain, *productGainSwitch, 
+				       *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
 				       *productMemTtId,  *productMemBlockSize,
 				       *productMemGain,  *productMemChIdErrors,
 				       *productTriggerPrimitives);
@@ -305,6 +310,7 @@ void EcalDCCTB07UnpackingModule::produce(edm::Event & e, const edm::EventSetup& 
   if (ProduceEBDigis_)  e.put(productChId,"EcalIntegrityChIdErrors");
   if (ProduceEBDigis_)  e.put(productGain,"EcalIntegrityGainErrors");
   if (ProduceEBDigis_)  e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
+  if (ProduceEBDigis_)  e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
   
   if (ProduceEBDigis_)  e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
   if (ProduceEBDigis_)  e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");

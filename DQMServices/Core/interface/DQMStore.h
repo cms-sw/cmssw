@@ -55,26 +55,39 @@ public:
   MonitorElement *		book1D       (const std::string &name,
 					      const std::string &title,
 					      int nchX, float *xbinsize);
+  MonitorElement *		book1D       (const std::string &name, TH1F *h);
+
   MonitorElement *		book2D       (const std::string &name,
 					      const std::string &title,
 					      int nchX, double lowX, double highX,
 					      int nchY, double lowY, double highY);
+  MonitorElement *		book2D       (const std::string &name,
+					      const std::string &title,
+					      int nchX, float *xbinsize,
+					      int nchY, float *ybinsize);
+  MonitorElement *		book2D       (const std::string &name, TH2F *h);
+
   MonitorElement *		book3D       (const std::string &name,
 					      const std::string &title,
 					      int nchX, double lowX, double highX,
 					      int nchY, double lowY, double highY,
 					      int nchZ, double lowZ, double highZ);
+  MonitorElement *		book3D       (const std::string &name, TH3F *h);
+
   MonitorElement *		bookProfile  (const std::string &name,
 					      const std::string &title,
 					      int nchX, double lowX, double highX,
 					      int nchY, double lowY, double highY,
 					      const char *option = "s");
+  MonitorElement *		bookProfile  (const std::string &name, TProfile *h);
+
   MonitorElement *		bookProfile2D(const std::string &name,
 					      const std::string &title,
 					      int nchX, double lowX, double highX,
 					      int nchY, double lowY, double highY,
 					      int nchZ, double lowZ, double highZ,
 					      const char *option = "s");
+  MonitorElement *		bookProfile2D(const std::string &name, TProfile2D *h);
 
   //-------------------------------------------------------------------------
   // ---------------------- public tagging ----------------------------------
@@ -107,6 +120,8 @@ public:
   // ---------------------- public I/O --------------------------------------
   void				save(const std::string &filename,
 				     const std::string &path = "",
+				     const std::string &pattern = "",
+				     const std::string &rewrite = "",
                                      int minStatus = dqm::qstatus::STATUS_OK);
   void				open(const std::string &filename,
 				     bool overwrite = false,
@@ -154,8 +169,8 @@ private:
 					   const std::string &name,
 					   std::string &path) const;
 
-  void				getAllTags(std::vector<std::string> &into) const;
 public:
+  void				getAllTags(std::vector<std::string> &into) const;
   std::vector<MonitorElement*>	getAllContents(const std::string &path) const;
   std::vector<MonitorElement*>	getMatchingContents(const std::string &pattern) const;
 private:
@@ -173,11 +188,6 @@ private:
   MonitorElement *		book(const std::string &dir, const std::string &name,
 				     const char *context, int kind,
 				     HISTO *h, COLLATE collate);
-  MonitorElement *		clone1D(const std::string &name, TH1F *source);
-  MonitorElement *		clone2D(const std::string &name, TH2F *source);
-  MonitorElement *		clone3D(const std::string &name, TH3F *source);
-  MonitorElement *		cloneProfile(const std::string &name, TProfile *source);
-  MonitorElement *		cloneProfile2D(const std::string &name, TProfile2D *source);
 
   MonitorElement *		bookInt(const std::string &dir, const std::string &name);
   MonitorElement *		bookFloat(const std::string &dir, const std::string &name);
@@ -235,9 +245,6 @@ private:
   friend class DQMOldReceiver;
   friend class DQMService;
   friend class DQMNet;
-  friend class QTestStatusChecker;
-  friend class EDMtoMEConverter;       // need clone methods
-  friend class MEtoEDMConverter;
   friend class DQMStoreExample; // for get{All,Matching}Contents -- sole user of this method!
 };
 

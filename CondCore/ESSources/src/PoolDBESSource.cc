@@ -18,25 +18,18 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
-#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/IOVService.h"
-#include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
-#include "CondCore/MetaDataService/interface/MetaDataNames.h"
-//#include "POOLCore/Exception.h"
-#include "RelationalAccess/IWebCacheControl.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include <exception>
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include <cstdlib>
 #include "TagCollectionRetriever.h"
-
+#include <exception>
 //#include <iostream>
 static
 std::string
@@ -114,24 +107,21 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   if( iConfig.exists("globaltag") ){
     usetagDB=true;
   }
-  std::string connect=iConfig.getParameter<std::string>("connect"); 
+ 
+  std::string userconnect;
+  userconnect=iConfig.getParameter<std::string>("connect");
   //ignore "timetype" parameter
   //std::string timetype=iConfig.getParameter<std::string>("timetype");
-  //std::cout<<"connect "<<connect<<std::endl;
   //std::cout<<"timetype "<<timetype<<std::endl;
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   m_session->open();
-  if( connect.find("sqlite_fip:") != std::string::npos ){
-    cond::FipProtocolParser p;
-    connect=p.getRealConnect(connect);
+  
+  if(!userconnect.empty()){
+    conHandler.registerConnection(userconnect,*m_session,0);
   }
-  ///handle frontier cache refresh
-  if( connect.rfind("frontier://") != std::string::npos){
-    connect=this->setupFrontier(connect);
-  }
+
   fillRecordToTypeMap(m_recordToTypes);
-  conHandler.registerConnection(connect,connect,0);
   std::string lastRecordName;
   if( !usetagDB ){
     typedef std::vector< edm::ParameterSet > Parameters;
@@ -142,21 +132,12 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     for(Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
       cond::TagMetadata m;
       if( itToGet->exists("connect") ){
-	std::string connect=itToGet->getUntrackedParameter<std::string>("connect");
-	if( connect.find("sqlite_fip:") != std::string::npos ){
-	  cond::FipProtocolParser p;
-	  connect=p.getRealConnect(connect);
-	}
-	m.pfn=connect;
-	conHandler.registerConnection(m.pfn,m.pfn,0);
+	std::string userconnect=itToGet->getUntrackedParameter<std::string>("connect");
+	m.pfn=userconnect;
+	conHandler.registerConnection(m.pfn,*m_session,0);
       }else{
-	m.pfn=connect;
+	m.pfn=userconnect;
       }
-      //if( itToGet->exists("timetype") ){
-      //m.timetype=itToGet->getUntrackedParameter<std::string>("timetype");
-      //}else{
-      //m.timetype=timetype;
-      //}
       if( itToGet->exists("label") ){
 	m.labelname=itToGet->getUntrackedParameter<std::string>("label");
       }else{
@@ -190,7 +171,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     }
   }else{
     std::string globaltag=iConfig.getUntrackedParameter<std::string>("globaltag");
-    cond::Connection* c=conHandler.getConnection(connect);
+    cond::Connection* c=conHandler.getConnection(userconnect);
     conHandler.connect(m_session);
     cond::CoralTransaction& coraldb=c->coralTransaction();
     coraldb.start(true);
@@ -200,7 +181,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     std::map< std::string, cond::TagMetadata >::iterator itBeg=m_tagCollection.begin();
     std::map< std::string, cond::TagMetadata >::iterator itEnd=m_tagCollection.end();
     for(it=itBeg; it!=itEnd; ++it){
-      conHandler.registerConnection(it->second.pfn,it->second.pfn,0);
+      conHandler.registerConnection(it->second.pfn,*m_session,0);
     }
     conHandler.connect(m_session);
     for(it=itBeg;it!=itEnd;++it){
@@ -212,6 +193,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       throw cond::Exception("NoRecord")<<" The record \""<<it->second.recordname<<"\" is not known by the PoolDBESSource";
       }
       std::string datumName = it->second.recordname+"@"+it->second.objectname+"@"+it->second.labelname;
+      //std::cout<<"datumName "<<datumName<<std::endl;
       m_datumToToken.insert( make_pair(datumName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
@@ -225,7 +207,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       if( lastRecordName != it->second.recordname ) {
 	lastRecordName = it->second.recordname;
 	findingRecordWithKey( recordKey );
-      usingRecordWithKey( recordKey );
+	usingRecordWithKey( recordKey );
       }    
     }
     /*
@@ -309,21 +291,21 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::string payloadToken=iovservice.payloadToken(leadingToken,abtime);
   std::string datumName=recordname+"@"+objectname+"@"+leadingLable;
   m_datumToToken[datumName]=payloadToken;  
-  //pooldb.commit();
+  pooldb.commit();
 
   std::vector<cond::IOVInfo>::iterator itProxy;
   for(itProxy=pos->second.begin(); itProxy!=pos->second.end(); ++itProxy){
     if( (itProxy->label) != leadingLable){
       std::string datumName=recordname+"@"+objectname+"@"+itProxy->label;
-      //cond::Connection* c=conHandler.getConnection(itProxy->pfn);
-      //cond::PoolTransaction& pooldb=c->poolTransaction();
-      //cond::IOVService iovservice(pooldb);  
-      //pooldb.start(true);
-      std::string payloadToken=iovservice.payloadToken(itProxy->token,abtime);
+      cond::Connection* c=conHandler.getConnection(itProxy->pfn);
+      cond::PoolTransaction& labelpooldb=c->poolTransaction();
+      cond::IOVService labeliovservice(labelpooldb);  
+      labelpooldb.start(true);
+      std::string payloadToken=labeliovservice.payloadToken(itProxy->token,abtime);
+      labelpooldb.commit();
       m_datumToToken[datumName]=payloadToken;  
     }
   }
-  pooldb.commit();
 }
 
 void 
@@ -419,63 +401,9 @@ PoolDBESSource::fillRecordToIOVInfo(){
     }
   }
 }
-std::string
-PoolDBESSource::setupFrontier(const std::string& frontierconnect){ 
-  //Mark tables that need to not be cached (always refreshed)
-  //strip off the leading protocol:// and trailing schema name from connect
-  std::string realconnect=frontierconnect;
-  std::string proto("frontier://");
-  std::string::size_type fpos=frontierconnect.find(proto);
-  unsigned int nslash=this->countslash(frontierconnect.substr(proto.size(),frontierconnect.size()-fpos));
-  //if( nslash!=1 && nslash!=2) {
-  //throw cms::Exception("connect string "+frontierconnect+" has bad format");
-  //}
-  if(nslash==1){
-    edm::Service<edm::SiteLocalConfig> localconfservice;
-    if( !localconfservice.isAvailable() ){
-      throw cms::Exception("edm::SiteLocalConfigService is not available");       
-    }
-    realconnect=localconfservice->lookupCalibConnect(frontierconnect);
-  }
-  std::string::size_type startRefresh = realconnect.find("://");
-  if (startRefresh != std::string::npos){
-    startRefresh += 3;
-  }
-  std::string::size_type endRefresh = realconnect.rfind("/", std::string::npos);
-  std::string refreshConnect;
-  if (endRefresh == std::string::npos){
-    refreshConnect = realconnect;
-  }else{
-    refreshConnect = realconnect.substr(startRefresh, endRefresh-startRefresh);
-    if(refreshConnect.substr(0,1) != "("){
-      //if the connect string is not a complicated parenthesized string,
-      // an http:// needs to be at the beginning of it
-      refreshConnect.insert(0, "http://");
-    }
-  }
-  //get handle to webCacheControl()
-  m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovTableName() );
-  m_session->webCacheControl().refreshTable( refreshConnect,cond::IOVNames::iovDataTableName() );
-  m_session->webCacheControl().refreshTable( refreshConnect,cond::MetaDataNames::metadataTable() );
-  return realconnect;
-}
 void 
 PoolDBESSource::fillTagCollectionFromDB( cond::CoralTransaction& coraldb, 
 					 const std::string& roottag ){
   cond::TagCollectionRetriever tagRetriever( coraldb );
   tagRetriever.getTagCollection(roottag,m_tagCollection);
-}
-unsigned int
-PoolDBESSource::countslash(const std::string& input)const{
-  unsigned int count=0;
-  std::string::size_type slashpos( 0 );
-  while( slashpos!=std::string::npos){
-    slashpos = input.find('/', slashpos );
-    if ( slashpos != std::string::npos ){
-      ++count;
-      // start next search after this word
-      slashpos += 1;
-    }
-  }
-  return count;
 }

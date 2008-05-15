@@ -6,12 +6,11 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: ProducerBase.h,v 1.3 2006/12/08 21:40:28 wmtan Exp $
+$Id: ProducerBase.h,v 1.4 2007/06/14 17:52:15 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "boost/bind.hpp"
 #include "boost/function.hpp"
@@ -21,12 +20,7 @@ namespace edm {
   class BranchDescription;
   class ModuleDescription;
   class ProductRegistry;
-#if GCC_PREREQUISITE(3,4,4)
   class ProducerBase : private ProductRegistryHelper {
-#else
-  // Bug in gcc3.2.3 compiler forces public inheritance
-  class ProducerBase : public ProductRegistryHelper {
-#endif
   public:
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     ProducerBase ();

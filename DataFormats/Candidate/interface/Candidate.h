@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.40 2007/10/29 10:22:10 llista Exp $
+ * \version $Id: Candidate.h,v 1.41 2007/11/21 12:58:40 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -139,6 +139,16 @@ namespace reco {
     typename daughter_iterator<S>::type endFilter( const S & s ) const {
       return boost::make_filter_iterator(s, end(), end());
     }
+
+    virtual bool isElectron() const;
+    virtual bool isMuon() const;
+    virtual bool isStandAloneMuon() const;
+    virtual bool isGlobalMuon() const;
+    virtual bool isTrackerMuon() const;
+    virtual bool isCaloMuon() const;
+    virtual bool isPhoton() const;
+    virtual bool isConvertedPhoton() const;
+    virtual bool isJet() const;
 
   private:
     /// check overlap with another Candidate

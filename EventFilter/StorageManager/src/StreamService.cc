@@ -1,11 +1,14 @@
-// $Id: StreamService.cc,v 1.5 2008/02/27 16:00:52 meschi Exp $
+// $Id: StreamService.cc,v 1.8 2008/04/24 16:27:50 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/StreamService.h>
 #include <EventFilter/StorageManager/interface/ProgressMarker.h>
+#include <EventFilter/StorageManager/interface/Parameter.h>
+#include "EventFilter/StorageManager/interface/Configurator.h"
 
 #include <iostream>
 #include <iomanip>
 #include <sys/time.h> 
+#include <sys/stat.h>
 #include <sys/statfs.h>
 
 using namespace edm;
@@ -18,7 +21,15 @@ using stor::ProgressMarker;
 // *** parameter set and init message
 //
 StreamService::StreamService(ParameterSet const& pset, InitMsgView const& view):
-  parameterSet_(pset)
+   parameterSet_(pset),
+   runNumber_(0),
+   lumiSection_(0),
+   numberOfFileSystems_(0),
+   maxFileSizeInMB_(0),
+   maxSize_(0),
+   highWaterMark_(0),
+   lumiSectionTimeOut_(0),
+   ntotal_(0)
 {
   saveInitMessage(view);
   initializeSelection(view);
@@ -39,6 +50,9 @@ bool StreamService::nextEvent(EventMsgView const& view)
     }
   runNumber_   = view.run();
   lumiSection_ = view.lumi();
+
+  setNotifyFile();
+
   shared_ptr<OutputService> outputService = getOutputService(view);
   ProgressMarker::instance()->processing(false);
   
@@ -55,7 +69,12 @@ bool StreamService::nextEvent(EventMsgView const& view)
 //
 void StreamService::stop()
 {
-  outputMap_.erase(outputMap_.begin(), outputMap_.end());
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
+    boost::shared_ptr<FileRecord> fd(it->first);
+    outputMap_.erase(it++);
+    fillOutputSummaryClosed(fd);
+  }
+  renameNotifyFile();
 }
 
 
@@ -65,13 +84,14 @@ void StreamService::stop()
 // 
 void StreamService::closeTimedOutFiles()
 {
-  // can be done in a more clever way ... 
   double currentTime = getCurrentTime();
-  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ++it) {
+  for (OutputMapIterator it = outputMap_.begin(); it != outputMap_.end(); ) {
       if (currentTime - it->second->lastEntry() > lumiSectionTimeOut_) {
-	  outputMap_.erase(it);
-	  it = outputMap_.begin();
-      }
+        boost::shared_ptr<FileRecord> fd(it->first);
+        outputMap_.erase(it++);
+        fillOutputSummaryClosed(fd);
+      } else 
+        ++it;
   }
 }
 
@@ -87,8 +107,10 @@ boost::shared_ptr<OutputService> StreamService::getOutputService(EventMsgView co
 	  if (checkEvent(it->first, view))
 	    return it->second;
 	  else {
-	      outputMap_.erase(it);
-	      break;
+            boost::shared_ptr<FileRecord> fd(it->first);
+            outputMap_.erase(it);
+            fillOutputSummaryClosed(fd);
+            break;
 	  }
       }
   }
@@ -109,11 +131,7 @@ boost::shared_ptr<OutputService> StreamService::newOutputService()
   InitMsgView view(&saved_initmsg_[0]);
 
   shared_ptr<OutputService> outputService(new OutputService(file, view));
-
   outputMap_[file] = outputService;
-
-  boost::mutex::scoped_lock sl(list_lock_);
-  outputSummary_.push_back(file);  
 
   handleLock(file); 
   return outputService;
@@ -141,7 +159,7 @@ void StreamService::handleLock(shared_ptr<FileRecord> file)
 // *** perform checks before writing the event
 // *** so far ... check the event will fit into the file 
 //
-bool StreamService::checkEvent(shared_ptr<FileRecord> file, EventMsgView const& view)
+bool StreamService::checkEvent(shared_ptr<FileRecord> file, EventMsgView const& view) const
 {
   if (file->fileSize() + static_cast<long long>(view.size()) > maxSize_ && file->events() > 0)
     return false;
@@ -154,7 +172,7 @@ bool StreamService::checkEvent(shared_ptr<FileRecord> file, EventMsgView const& 
 // *** check that the file system exists and that there
 // *** is enough disk space
 //
-bool StreamService::checkFileSystem()
+bool StreamService::checkFileSystem() const
 {
   struct statfs64 buf;
   int retVal = statfs64(filePath_.c_str(), &buf);
@@ -174,8 +192,8 @@ bool StreamService::checkFileSystem()
       btotal = buf.f_blocks;
       bfree  = buf.f_bfree;
     }
-  float dfree = float(bfree)/float(btotal);
-  float dusage = 1. - dfree;
+  double dfree = double(bfree)/double(btotal);
+  double dusage = 1. - dfree;
 
   if(dusage>highWaterMark_)
     {
@@ -233,14 +251,9 @@ void StreamService::setStreamParameter()
 {
   // some parameters common to streams are given in the XML file
   // these are defaults, actually set at configure time
-  //fileName_           = parameterSet_.getParameter<string> ("fileName");
-  //filePath_           = parameterSet_.getParameter<string> ("filePath");
-  //mailboxPath_        = parameterSet_.getParameter<string> ("mailboxPath");
-  //setupLabel_         = parameterSet_.getParameter<string> ("setupLabel");
+
   streamLabel_        = parameterSet_.getParameter<string> ("streamLabel");
   maxSize_ = 1048576 * (long long) parameterSet_.getParameter<int> ("maxSize");
-  //highWaterMark_      = parameterSet_.getParameter<double> ("highWaterMark");
-  //lumiSectionTimeOut_ = parameterSet_.getParameter<double> ("lumiSectionTimeOut");
   fileName_           = ""; // set by setFileName
   filePath_           = ""; // set by setFilePath
   mailboxPath_        = ""; // set by setMathBoxPath
@@ -260,7 +273,8 @@ void StreamService::setStreamParameter()
 //     but in any case we have to make sure that file names are
 //     unique. 
 //
-//     Keep a list of file names and check if file name //     was not already used in this run. 
+//     Keep a list of file names and check if file name 
+//     was not already used in this run. 
 //
 boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 {
@@ -274,22 +288,26 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
   string fileName = oss.str();
 
   shared_ptr<FileRecord> fd = shared_ptr<FileRecord>(new FileRecord(lumiSection_, fileName, filePath_));    
+  ++ntotal_;
 
-  for (OutputSummaryReIterator it = outputSummary_.rbegin(), itEnd = outputSummary_.rend(); it != itEnd; ++it) {
-      if ((*it)->fileName() == fd->fileName()) {
-	  fd->setFileCounter((*it)->fileCounter() + 1);
-	  break;
-      }
+  boost::mutex::scoped_lock sl(list_lock_);
+  map<string, int>::iterator it = outputSummary_.find(fileName);
+  if(it==outputSummary_.end()) {
+     outputSummary_.insert(std::pair<string, int>(fileName,0));
+  } else {
+     ++it->second;
+     fd->setFileCounter(it->second);
   }
 
-  if (numberOfFileSystems_ > 0 && numberOfFileSystems_ < 100)
-    fd->fileSystem((runNumber_ + outputSummary_.size()) % numberOfFileSystems_); 
+  if (numberOfFileSystems_ > 0)
+    fd->fileSystem((runNumber_ + atoi(sourceId_.c_str()) + ntotal_) % numberOfFileSystems_); 
   
   fd->checkDirectories();
-  fd->setCatalog(catalog_);
   fd->setRunNumber(runNumber_);
   fd->setStreamLabel(streamLabel_);
   fd->setSetupLabel(setupLabel_);
+  fd->setNotifyFile(notifyFileName_ + ".do_not_touch");
+
   // fd->report(cout, 12);
   return fd;
 }
@@ -302,16 +320,33 @@ boost::shared_ptr<FileRecord> StreamService::generateFileRecord()
 std::list<std::string> StreamService::getFileList()
 {
   boost::mutex::scoped_lock sl(list_lock_);
-  std::list<std::string> files_;
-  for (OutputSummaryIterator it = outputSummary_.begin(), itEnd = outputSummary_.end(); it != itEnd; ++it) {
+
+  std::list<std::string> files_=outputSummaryClosed_;
+  for (OutputMapIterator it = outputMap_.begin() ; it != outputMap_.end(); ++it) {
     std::ostringstream entry;
-    entry << (*it)->fileCounter() << " " 
-          << (*it)->completeFileName() << " " 
-          << (*it)->events() << " "
-          << (*it)->fileSize();
+    entry << it->first->fileCounter() << " " 
+          << it->first->completeFileName() << " " 
+          << it->first->events() << " "
+          << it->first->fileSize();
     files_.push_back(entry.str());
   }
+
   return files_;
+}
+
+//
+// *** Copy file string from OutputMap into OutputMapClosed
+//
+void StreamService::fillOutputSummaryClosed(const boost::shared_ptr<FileRecord> &file)
+{
+  boost::mutex::scoped_lock sl(list_lock_);
+
+  std::ostringstream entry;
+  entry << file->fileCounter() << " " 
+        << file->completeFileName() << " " 
+        << file->events() << " "
+        << file->fileSize();
+  outputSummaryClosed_.push_back(entry.str());
 }
 
 
@@ -340,7 +375,7 @@ std::list<std::string> StreamService::getCurrentFileList()
 //
 // *** get the current time
 //
-double StreamService::getCurrentTime()
+double StreamService::getCurrentTime() const
 {
   struct timeval now;
   struct timezone dummyTZ;
@@ -369,4 +404,92 @@ void StreamService::report(ostream &os, int indentation) const
   os << prefix << "no. active files    " << outputMap_.size()      << "\n";
   os << prefix << "no. files           " << outputSummary_.size()  << "\n";
   os << prefix << "-----------------------------------------\n";
+}
+
+//
+// *** create a filename for notify data
+//
+string StreamService::createNotifyFile() const
+{
+  time_t rawtime = time(0);
+  tm * ptm;
+  ptm = localtime(&rawtime);
+  int min = ptm->tm_min / 5; //every 5 minutes a new file
+
+  boost::shared_ptr<stor::Parameter> smp = 
+     stor::Configurator::instance()->getParameter();
+
+  ostringstream notfilename;
+  notfilename << filePath_ << "/mbox/"
+              << smp->host()
+              << "-" << smp->smInstance() << "-"
+              << setfill('0') << std::setw(4) << ptm->tm_year+1900
+              << setfill('0') << std::setw(2) << ptm->tm_mon+1
+              << setfill('0') << std::setw(2) << ptm->tm_mday 
+              << setfill('0') << std::setw(2) << ptm->tm_hour
+              << "-"
+              << setfill('0') << std::setw(2) << min;
+  return notfilename.str();
+}
+
+//
+// *** rename notify file
+//
+void StreamService::renameNotifyFile()
+{
+  if(notifyFileName_.empty()) return;
+
+  string notfile(notifyFileName_);
+  ostringstream osf1;
+  osf1 << notfile << ".do_not_touch";
+  ostringstream osf2;
+  osf2 << notfile << ".notify";
+  notifyFileName_.clear();
+  
+  // test if a file was written
+  if(1) {
+    struct stat sb;
+    int st = stat(osf1.str().c_str(), &sb);
+    if (st != 0) return;
+  }
+
+  // test if a file was already moved
+  if(1) {
+    struct stat sb;
+    int st = stat(osf2.str().c_str(), &sb);
+    if (st == 0) {
+       time_t rawtime = time(0);
+       //osf2.clear(); // this just clears the error state flags
+       osf2.str("");
+       osf2 << notfile 
+            << "-scat-" 
+            << (int) rawtime
+            << ".notify";
+    }
+  }
+
+  int result = rename(osf1.str().c_str(), osf2.str().c_str());
+  cout << "renamed : " << result << " " << osf1.str() << " --- " << osf2.str() << endl;
+  if (result != 0) {
+    throw cms::Exception("StreamService", "renameNotifyFile")
+       << "Unable to move " << osf1.str() << " to " << osf2.str()
+       << ". Possibly the storage manager mailbox area is full." << std::endl;
+  }
+}
+
+
+//
+// *** set new notify file for all file descriptors
+//
+void StreamService::setNotifyFile()
+{
+  // get a potentially new notify name
+  string newNotName(createNotifyFile());
+  if (newNotName==notifyFileName_) return; 
+
+  renameNotifyFile();
+  notifyFileName_= newNotName;
+  for (OutputMapIterator it = outputMap_.begin(), itEnd = outputMap_.end(); it != itEnd; ++it) {
+     it->first->setNotifyFile(notifyFileName_ + ".do_not_touch");
+  }
 }

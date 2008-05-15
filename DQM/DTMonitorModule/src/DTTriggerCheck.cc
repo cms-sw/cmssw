@@ -19,7 +19,6 @@ using namespace std;
 
 DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset){
  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setVerbose(1);
 
  debug = pset.getUntrackedParameter<bool>("debug","false");
     parameters = pset;

@@ -104,11 +104,11 @@ PixelFEDConfig::PixelFEDConfig(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << "Could not open:"<<filename.c_str()<<std::endl;
+      std::cout << "Could not open:"<<filename<<std::endl;
       assert(0);
     }
     else {
-      std::cout << "Opened:"<<filename.c_str()<<std::endl;
+      std::cout << "Opened:"<<filename<<std::endl;
     }
 
     std::string dummy;

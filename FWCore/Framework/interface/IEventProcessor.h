@@ -2,12 +2,14 @@
 #define FWCore_Framework_IEventProcessor_h
 
 /*
-$Id: IEventProcessor.h,v 1.3 2008/03/17 17:32:43 wdd Exp $
+$Id: IEventProcessor.h,v 1.7 2008/04/15 19:20:49 wdd Exp $
 
 Abstract base class for Event Processors
 
 Original Authors: W. David Dagenhart, Marc Paterno
 */
+
+#include <string>
 
 namespace statemachine {
   class Restart;
@@ -36,6 +38,7 @@ namespace edm
     virtual ~IEventProcessor();
 
     virtual StatusCode runToCompletion(bool onlineStateTransitions) = 0;
+    virtual StatusCode runEventCount(int numberOfEventsToProcess) = 0;
 
     virtual void readFile() = 0;
     virtual void closeInputFile() = 0;
@@ -56,8 +59,8 @@ namespace edm
 
     virtual void doErrorStuff() = 0;
 
-    virtual void smBeginRun(int run) = 0;
-    virtual void smEndRun(int run) = 0;
+    virtual void beginRun(int run) = 0;
+    virtual void endRun(int run) = 0;
 
     virtual void beginLumi(int run, int lumi) = 0;
     virtual void endLumi(int run, int lumi) = 0;
@@ -72,6 +75,12 @@ namespace edm
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;
     virtual bool shouldWeStop() = 0;
+
+    virtual void setExceptionMessageFiles(std::string& message) = 0;
+    virtual void setExceptionMessageRuns(std::string& message) = 0;
+    virtual void setExceptionMessageLumis(std::string& message) = 0;
+
+    virtual bool alreadyHandlingException() const = 0;
   };
 }
 

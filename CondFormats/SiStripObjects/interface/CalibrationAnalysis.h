@@ -60,8 +60,6 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   inline const VFloat& chi2Min() const { return min_chi2_; }
   inline const VFloat& chi2Max() const { return max_chi2_; }
   
-  inline bool deconvMode() const { return deconv_; }
-  inline int calchan() const { return calchan_; }
   inline const Histo& histo(int i) const { return histo_[i]; }
   void print( std::stringstream&, uint32_t not_used = 0 );
   

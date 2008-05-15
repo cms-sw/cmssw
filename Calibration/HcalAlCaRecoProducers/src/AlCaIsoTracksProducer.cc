@@ -52,8 +52,6 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   m_ecalCut = iConfig.getUntrackedParameter<double>("ecalCut",8.);
   m_histoFlag = iConfig.getUntrackedParameter<int>("histoFlag",0);
   
-  cout<<" Isolation parameter "<< m_ddirCut << " cm"<< endl;
-  
 //
 // Parameters for track associator   ===========================
 //  
@@ -362,7 +360,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	
 // Take info on the track extras and keep it in the outercollection
 		  
-          cout <<"   ---> Track "<<itrk<<" is isolated!"<<std::endl;
+//          cout <<"   ---> Track "<<itrk<<" is isolated!"<<std::endl;
 	  
 	  TrackExtraRef myextra = (*track).extra();
 //          cout<<" Check my extra "<<myextra->outerMomentum()<<" "<<myextra->outerPosition()<<endl;
@@ -492,8 +490,8 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       
     }
 
-   std::cout<<" Size of IsoTrk collections H "<<outputHColl->size()<<" E "<<outputEColl->size()<<
-   " T "<<outputTColl->size()<<" HO "<<outputHOColl->size() << " P " << outputPSEColl->size()<<std::endl;
+    //   std::cout<<" Size of IsoTrk collections H "<<outputHColl->size()<<" E "<<outputEColl->size()<<
+    //   " T "<<outputTColl->size()<<" HO "<<outputHOColl->size() << " P " << outputPSEColl->size()<<std::endl;
 
 //Put selected information in the event
 

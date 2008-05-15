@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.17 2008/03/26 09:10:05 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.15 2007/11/20 22:39:27 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -14,42 +14,21 @@ using namespace sistrip;
 const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
 
   feds_.clear(); 
-  
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { return feds_; }
+
+  if ( !deviceFactory(__func__) ) { return feds_; }
 
   try {
-
-    if ( !dbParams_.usingDbCache_ ) { 
-
-      deviceFactory(__func__)->setUsingStrips( usingStrips_ );
-      int16_t major = dbParams_.fedMajor_; 
-      int16_t minor = dbParams_.fedMinor_; 
-      if ( dbParams_.fedMajor_ == 0 && 
-	   dbParams_.fedMinor_ == 0 ) {
-	major = -1; //@@ "current state" for fed factory!
-	minor = -1; //@@ "current state" for fed factory!
-      }
-      feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partitions_.front(), 
-								major, 
-								minor ) );
-
-    } else {
-
-#ifdef USING_DATABASE_CACHE
-      FedDescriptions* tmp = databaseCache(__func__)->getFed9UDescriptions();
-      if ( tmp ) { 
- 	feds_.resize( tmp->size() );
- 	std::copy( feds_.begin(), feds_.end(), tmp->begin() ); 
-      } else {
-	edm::LogWarning(mlConfigDb_)
-	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " NULL pointer to FedDescriptions vector!";
-      }
-#endif
-
+    deviceFactory(__func__)->setUsingStrips( usingStrips_ );
+    int16_t major = dbParams_.fedMajor_; 
+    int16_t minor = dbParams_.fedMinor_; 
+    if ( dbParams_.fedMajor_ == 0 && 
+	 dbParams_.fedMinor_ == 0 ) {
+      major = -1; //@@ "current state" for fed factory!
+      minor = -1; //@@ "current state" for fed factory!
     }
-
+    feds_ = *( deviceFactory(__func__)->getFed9UDescriptions( dbParams_.partition_, 
+							      major, 
+							      minor ) );
   } catch (... ) { handleException( __func__ ); }
   
   // Debug 
@@ -58,8 +37,7 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
      << " Found " << feds_.size() 
      << " FED descriptions"; 
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFedXml_.size() << " 'fed.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
-  else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( feds_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
   
@@ -70,13 +48,6 @@ const SiStripConfigDb::FedDescriptions& SiStripConfigDb::getFedDescriptions() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) { 
-
-  if ( dbParams_.usingDbCache_ ) {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]" 
-      << " Using database cache! No uploads allowed!"; 
-    return;
-  }
 
   if ( !deviceFactory(__func__) ) { return; }
   
@@ -90,7 +61,7 @@ void SiStripConfigDb::uploadFedDescriptions( bool new_major_version ) {
   
   try { 
     deviceFactory(__func__)->setFed9UDescriptions( feds_,
-						   dbParams_.partitions_.front(),
+						   dbParams_.partition_,
 						   (uint16_t*)(&dbParams_.fedMajor_), 
 						   (uint16_t*)(&dbParams_.fedMinor_),
 						   (new_major_version?1:0) ); 
@@ -167,12 +138,6 @@ const vector<uint16_t>& SiStripConfigDb::getFedIds() {
   
   FedDescriptions::iterator ifed = feds_.begin();
   for ( ; ifed != feds_.end(); ifed++ ) { 
-    if ( !(*ifed) ) {
-      edm::LogError(mlCabling_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " NULL pointer to FedConnection!";
-      continue;
-    }
     fedIds_.push_back( (*ifed)->getFedId() );
   }
   

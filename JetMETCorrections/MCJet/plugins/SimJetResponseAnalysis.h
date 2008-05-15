@@ -20,16 +20,15 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJetfwd.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
 
-namespace cms
-{
+
 class SimJetResponseAnalysis : public edm::EDAnalyzer {
 
  public:
@@ -92,5 +91,5 @@ private:
   TString gjetpfx, rjetpfx,gmetpfx, rmetpfx,calopfx;
 
 };
-}
+
 #endif

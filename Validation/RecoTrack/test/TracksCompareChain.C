@@ -76,8 +76,10 @@ void TracksCompareChain()
  if (ctf){
    string rdirName,sdirName;
    if(rdir->cd("cutsReco_AssociatorByHits"))rdirName="cutsReco";
+   else if(rdir->cd("general_AssociatorByHits"))rdirName="general";
    else rdirName="cutsCKF";
    if(sdir->cd("cutsReco_AssociatorByHits"))sdirName="cutsReco";
+   else if(sdir->cd("general_AssociatorByHits"))sdirName="general";
    else sdirName="cutsCKF";
    //efficiency&fakerate
    cout<<rdir->GetPath()<<endl;

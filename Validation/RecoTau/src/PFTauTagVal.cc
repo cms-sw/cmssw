@@ -13,12 +13,13 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2007 
-// $Id: PFTauTagVal.cc,v 1.8 2008/03/04 11:00:34 gennai Exp $
+// $Id: PFTauTagVal.cc,v 1.7 2008/03/01 17:28:22 gennai Exp $
 //
 //
 // user include files
 
 #include "Validation/RecoTau/interface/PFTauTagVal.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace edm;
 using namespace std;
@@ -38,8 +39,8 @@ PFTauTagVal::PFTauTagVal(const edm::ParameterSet& iConfig)
   PFTauProducer_ = iConfig.getParameter<string>("PFTauProducer");
   PFTauDiscriminatorByIsolationProducer_ = iConfig.getParameter<string>("PFTauDiscriminatorByIsolationProducer");
   
-  DQMStore* dbe = &*edm::Service<DQMStore>();
- 
+
+ DQMStore* dbe = &*edm::Service<DQMStore>();
   if(dbe) {
 
     // What kind of Taus do we originally have!
@@ -403,8 +404,8 @@ void PFTauTagVal::endJob(){
   cout<<setfill('-')<<setw(110)<<"-"<<endl;
   */
 
+if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);
 
-  if (!outPutFile_.empty() && &*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outPutFile_);
   
 }
 

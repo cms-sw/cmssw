@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.26 $
+ * \version $Revision: 1.27 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -248,14 +248,6 @@ namespace edm {
   struct has_fillView<edm::AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> > {
     static bool const value = true;
   };
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType, typename KeyReferenceHelper>
-  struct has_swap<edm::AssociationVector<KeyRefProd, CVal, KeyRef, SizeType, KeyReferenceHelper> > {
-    static bool const value = true;
-  };
-#endif
 
 }
 

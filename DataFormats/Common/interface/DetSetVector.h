@@ -33,7 +33,7 @@ criteria and obey the rules of "strict weak ordering" as will be used to
 find things in the collection.  Not insuring this leads to undefined
 behavior (usually a core dump).
 
-$Id: DetSetVector.h,v 1.20 2007/12/21 22:44:14 wmtan Exp $
+$Id: DetSetVector.h,v 1.21 2008/03/02 17:23:24 gpetrucc Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -57,7 +57,6 @@ $Id: DetSetVector.h,v 1.20 2007/12/21 22:44:14 wmtan Exp $
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "DataFormats/Common/interface/BoolCache.h"
 
 namespace edm {
@@ -65,24 +64,6 @@ namespace edm {
   //------------------------------------------------------------
   // Forward declarations
   template <class T> class DetSetVector;
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  //------------------------------------------------------------
-  // The following template partial specialization can be removed
-  // when we move to GCC 3.4.x
-  //------------------------------------------------------------
-
-  // Partial specialization of has_postinsert_trait template for any
-  // DetSetVector<T>, regardless of T; all DetSetVector classes have
-  // post_insert.
-
-  template <class T>
-  struct has_postinsert_trait<edm::DetSetVector<T> > 
-  {
-    static bool const value = 
-      ! boost::is_base_of<edm::DoNotSortUponInsertion,T>::value;
-  };
-#endif
 
   //------------------------------------------------------------
   // Helper function, to regularize throwing of exceptions.
@@ -457,14 +438,6 @@ namespace edm {
   {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // has swap function
-  template <class T>
-  struct has_swap<edm::DetSetVector<T> > {
-    static bool const value = true;
-  };
-#endif
 
 }
 

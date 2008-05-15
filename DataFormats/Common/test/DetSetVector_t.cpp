@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.16 2008/03/14 00:57:32 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.17 2008/03/18 12:49:22 wmtan Exp $
  *  CMSSW
  *
  */
@@ -16,11 +16,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#if ! GCC_PREREQUISITE(3,4,4)
-#include "DataFormats/Common/interface/traits.h"
-#endif
 
 using namespace edm;
 
@@ -186,16 +181,6 @@ void detsetTest()
   //std::cerr << "\nEnd DetSetVector_t detsetTest()\n";
 }
 
-#if ! GCC_PREREQUISITE(3,4,4)
-void traitsTest()
-{
-  //std::cerr << "\nStart DetSetVector_t traitsTest()\n";
-  assert(edm::has_postinsert_trait<int>::value == false);
-  assert(edm::has_postinsert_trait<coll_type>::value == true);
-  //std::cerr << "\nEnd DetSetVector_t traitsTest()\n";
-}
-#endif
-
 namespace
 {
   template<class T>
@@ -285,9 +270,6 @@ void refTest()
 void work()
 {
   detsetTest();
-#if ! GCC_PREREQUISITE(3,4,4)
-  traitsTest();
-#endif
   refTest();
 
   coll_type c1;

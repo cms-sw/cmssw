@@ -8,12 +8,13 @@
 //
 // Original Author:
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.11 2007/10/19 21:18:28 wmtan Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.12 2007/11/07 05:30:09 wmtan Exp $
 //
 
 // system include files
 #include <string>
 #include <iostream>
+#include <map>
 #include "TROOT.h"
 #include "G__ci.h"
 #include "boost/regex.hpp"
@@ -29,9 +30,34 @@
 
 #include "Reflex/Type.h"
 #include "Cintex/Cintex.h"
+#include "TClass.h" 
 //
 // constants, enums and typedefs
 //
+namespace {
+  //Based on http://root.cern.ch/lxr/source/cintex/src/CINTSourceFile.h
+  // If a Cint dictionary is accidently loaded as a side effect of loading a CMS
+  // library Cint must have a file name assigned to that dictionary else Cint may crash
+  class RootLoadFileSentry {
+  public:
+    RootLoadFileSentry()
+    {
+       G__setfilecontext("{CMS auto library loader}", &oldIFile_);
+    }
+
+    ~RootLoadFileSentry()
+    {
+      G__input_file* ifile = G__get_ifile();
+      if (ifile) {
+        *ifile = oldIFile_;
+      }
+      
+    }
+    
+  private:
+      G__input_file oldIFile_;
+  };
+}
 
 //
 // static data member definitions
@@ -45,8 +71,41 @@ static const char* kDummyLibName = "*dummy";
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
 extern CallbackPtr G__p_class_autoloading;
 
+namespace {
+   //just want access to the copy constructor
+   class MyClass : public TClass {
+   public:
+      MyClass(const TClass& iOther): TClass(iOther) {}
+   };
+}
+
 namespace edm {
 
+static
+std::map<std::string,std::string>&
+cintToReflexSpecialCasesMap()
+{
+   static std::map<std::string,std::string> s_map;
+   return s_map;
+}
+
+static
+void
+addWrapperOfVectorOfBuiltin(std::map<std::string,std::string>& iMap, const char* iBuiltin)
+{
+   static std::string sReflexPrefix("edm::Wrapper<std::vector<");
+   static std::string sReflexPostfix("> >");
+
+   //Wrapper<vector<float,allocator<float> > >
+   static std::string sCintPrefix("Wrapper<vector<");
+   static std::string sCintMiddle(",allocator<");
+   static std::string sCintPostfix("> > >");
+
+   std::string type(iBuiltin);
+   iMap.insert(make_pair(sCintPrefix+type+sCintMiddle+type+sCintPostfix,
+                         sReflexPrefix+type+sReflexPostfix));
+}
+   
 static
 bool loadLibraryForClass(const char* classname)
 {
@@ -58,6 +117,8 @@ bool loadLibraryForClass(const char* classname)
   static const std::string cPrefix("LCGReflex/");
   //std::cout <<"asking to find "<<cPrefix+classname<<std::endl;
   try {
+    //give ROOT a name for the file we are loading
+    RootLoadFileSentry sentry;
     if(edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+classname)) {
       ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
       if (ROOT::Reflex::Type() == t) {
@@ -164,6 +225,15 @@ void registerTypes() {
   ClassAndLibraries classes;
   classes.reserve(1000);
   std::string lastClass;
+
+  //find where special cases come from
+  std::map<std::string,std::string> specialsToLib;
+  const std::map<std::string,std::string>& specials = cintToReflexSpecialCasesMap();
+  for(std::map<std::string,std::string>::const_iterator itSpecial = specials.begin();
+      itSpecial != specials.end();
+      ++itSpecial) {
+    specialsToLib[classNameForRoot(itSpecial->second)];
+  }
   static const std::string cPrefix("LCGReflex/");
   for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
        itInfoEnd = itFound->second.end();
@@ -176,6 +246,10 @@ void registerTypes() {
     if(cPrefix == lastClass.substr(0,cPrefix.size())) {
       std::string className = classNameForRoot(lastClass.c_str()+cPrefix.size());
       classes.push_back(std::pair<std::string,std::string>(className, itInfo->loadable_.native_file_string()));
+      std::map<std::string,std::string>::iterator itFound = specialsToLib.find(className);
+      if(itFound !=specialsToLib.end()){
+        itFound->second = itInfo->loadable_.native_file_string();
+      }
     }
   }
   //sort_all(classes, std::greater<std::string>());
@@ -201,6 +275,37 @@ void registerTypes() {
     G__set_class_autoloading_table(const_cast<char*>(className.c_str()), const_cast<char*>(libraryName.c_str()));
     //std::cout <<"class "<<className.c_str()<<std::endl;
   }
+   
+  //now handle the special cases
+  for(std::map<std::string,std::string>::const_iterator itSpecial = specials.begin();
+      itSpecial != specials.end();
+      ++itSpecial) {
+    //std::cout <<"registering special "<<itSpecial->first<<" "<<itSpecial->second<<" "<<specialsToLib[classNameForRoot(itSpecial->second)]<<std::endl;
+    //force loading of specials
+    if(specialsToLib[classNameForRoot(itSpecial->second)].size()) {
+      //std::cout <<"&&&&& found special case "<<itSpecial->first<<std::endl;
+      std::string name=itSpecial->second;
+      if(not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name)) {
+        std::cout <<"failed to load plugin"<<std::endl;
+        continue;
+      } else {
+        //need to construct the Class ourselves
+        ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(name);
+        if(ROOT::Reflex::Type() == t) {
+          std::cout <<"reflex did not build "<<name<<std::endl;
+          continue;
+        }
+        TClass* reflexNamedClass = TClass::GetClass(t.TypeInfo());
+        if(0==reflexNamedClass){
+          std::cout <<" failed to get TClass by typeid"<<std::endl;
+          continue;
+        }
+        MyClass* myNewlyNamedClass = new MyClass(*reflexNamedClass);
+        myNewlyNamedClass->SetName(itSpecial->first.c_str());
+        gROOT->AddClass(myNewlyNamedClass);
+      }
+    }
+  }
 }
 
 //
@@ -213,6 +318,22 @@ RootAutoLibraryLoader::RootAutoLibraryLoader() :
    gROOT->AddClassGenerator(this);
    ROOT::Cintex::Cintex::Enable();
 
+   //set the special cases
+   std::map<std::string,std::string>& specials = cintToReflexSpecialCasesMap();
+   if(specials.empty()) {
+      addWrapperOfVectorOfBuiltin(specials,"char");
+      addWrapperOfVectorOfBuiltin(specials,"unsigned char");
+      addWrapperOfVectorOfBuiltin(specials,"signed char");
+      addWrapperOfVectorOfBuiltin(specials,"short");
+      addWrapperOfVectorOfBuiltin(specials,"unsigned short");
+      addWrapperOfVectorOfBuiltin(specials,"int");
+      addWrapperOfVectorOfBuiltin(specials,"unsigned int");
+      addWrapperOfVectorOfBuiltin(specials,"long");
+      addWrapperOfVectorOfBuiltin(specials,"unsigned long");
+
+      addWrapperOfVectorOfBuiltin(specials,"float");
+      addWrapperOfVectorOfBuiltin(specials,"double");
+   }
    //std::cout <<"my loader"<<std::endl;
    //remember if the callback was already set so we can chain together our results
    gPrevious = G__p_class_autoloading;
@@ -292,6 +413,10 @@ RootAutoLibraryLoader::loadAll()
   }
   std::string lastClass;
   const std::string cPrefix("LCGReflex/");
+
+  //give ROOT a name for the file we are loading
+  RootLoadFileSentry sentry;
+
   for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
        itInfoEnd = itFound->second.end();
        itInfo != itInfoEnd; ++itInfo)

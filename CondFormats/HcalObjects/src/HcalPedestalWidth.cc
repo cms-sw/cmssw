@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 correlation matrix for pedestals
 $Author: ratnikov
-$Date: 2006/10/24 23:30:01 $
-$Revision: 1.4 $
+$Date: 2006/11/13 22:40:37 $
+$Revision: 1.5 $
 */
 
 #include <math.h>
@@ -40,10 +40,17 @@ void HcalPedestalWidth::setSigma (int fCapId1, int fCapId2, float fSigma) {
 
 // produces pedestal noise in assumption of near correlations and small variations
 void HcalPedestalWidth::makeNoise (unsigned fFrames, const double* fGauss, double* fNoise) const {
+
   double s_xx_mean = (getSigma (0,0) + getSigma (1,1) + getSigma (2,2) + getSigma (3,3)) / 4;
   double s_xy_mean = (getSigma (1,0) + getSigma (2,1) + getSigma (3,2) + getSigma (3,0)) / 4;
-  double sigma = sqrt (0.5 * (s_xx_mean + sqrt (s_xx_mean*s_xx_mean - 2*s_xy_mean*s_xy_mean)));
-  double corr = sigma == 0 ? 0 : 0.5*s_xy_mean / sigma;
+
+  // added a simple protection against negative sqrt() arguments in case of 
+  // big off-diaigonal terms (S.Abdullin, 27.03.2008)
+  double term  = s_xx_mean*s_xx_mean - 2.*s_xy_mean*s_xy_mean;
+  if (term < 0.) term = 1.e-50 ;
+  double sigma = sqrt (0.5 * (s_xx_mean + sqrt(term)));
+  double corr = sigma == 0. ? 0. : 0.5*s_xy_mean / sigma;
+
   for (unsigned i = 0; i < fFrames; i++) {
     fNoise [i] = fGauss[i]*sigma;
     if (i > 0) fNoise [i] += fGauss[i-1]*corr;

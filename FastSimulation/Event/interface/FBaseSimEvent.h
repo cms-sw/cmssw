@@ -2,7 +2,7 @@
 #define FastSimulation_Event_FBaseSimEvent_H
 
 // Data Formats
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 // HepPDT Headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -36,6 +36,7 @@ namespace edm {
 namespace HepMC {
   class GenEvent;
   class GenParticle;
+  class GenVertex;
 }
 
 class FBaseSimEvent  
@@ -64,8 +65,8 @@ public:
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);
 
-  /// fill the FBaseSimEvent from the current reco::CandidateCollection
-  void fill(const reco::CandidateCollection& hev);
+  /// fill the FBaseSimEvent from the current reco::GenParticleCollection
+  void fill(const reco::GenParticleCollection& hev);
 
   /// fill the FBaseSimEvent from SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>&, const std::vector<SimVertex>&);
@@ -75,7 +76,7 @@ public:
 
   /// Add the particles and their vertices to the list
   void addParticles(const HepMC::GenEvent& hev);
-  void addParticles(const reco::CandidateCollection& myGenParticles);
+  void addParticles(const reco::GenParticleCollection& myGenParticles);
 
   /// print the FBaseSimEvent in an intelligible way
   void print() const;
@@ -126,7 +127,8 @@ public:
   const HepMC::GenParticle* embdGenpart(int i) const;
 
   /// Add a new track to the Event and to the various lists
-  int addSimTrack(const RawParticle* p, int iv, int ig=-1);
+  int addSimTrack(const RawParticle* p, int iv, int ig=-1, 
+		  const HepMC::GenVertex* ev=0);
 
   /// Add a new vertex to the Event and to the various lists
   int addSimVertex(const XYZTLorentzVector& decayVertex,int im=-1);

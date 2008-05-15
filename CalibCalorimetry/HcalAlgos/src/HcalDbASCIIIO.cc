@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.37 2008/03/09 15:22:44 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.36 2008/03/05 10:31:18 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -552,7 +552,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap& fObject) {
   std::vector<HcalElectronicsId> eids = fObject.allElectronicsId ();
   char buf [1024];
-  sprintf (buf, "#%10s %6s %6s %6s %6s %6s %6s %6s %15s %15s %15s %15s",
+  sprintf (buf, "#%6s %6s %6s %6s %6s %6s %6s %6s %15s %15s %15s %15s",
 	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber/slb", "fibcha/slbcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
@@ -562,9 +562,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
       DetId trigger = fObject.lookupTrigger (eid);
       if (trigger.rawId ()) {
 	HcalText2DetIdConverter converter (trigger);
-	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
-		 //		 i,
-		 converter.getId().rawId(),
+	sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+		 i,
 		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
 		 converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
 		 );
@@ -574,9 +573,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
       DetId channel = fObject.lookup (eid);
       if (channel.rawId()) {
 	HcalText2DetIdConverter converter (channel);
-	sprintf (buf, " %10X %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
-		 //		 i,
-		 converter.getId().rawId(),
+	sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+		 i,
 		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
 		 converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
 	       );

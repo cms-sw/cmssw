@@ -29,14 +29,6 @@ CachingVertex<5> AbstractConfFitter::vertex(
 }
 
 CachingVertex<5> AbstractConfFitter::vertex(
-  const vector<RefCountedVertexTrack> & tracks,
-  const reco::BeamSpot & spot ) const
-{
-  return theFitter->vertex ( tracks, spot );
-}
-
-
-CachingVertex<5> AbstractConfFitter::vertex(
   const vector<reco::TransientTrack> & tracks, const GlobalPoint& linPoint) const
 {
   return theFitter->vertex ( tracks, linPoint );

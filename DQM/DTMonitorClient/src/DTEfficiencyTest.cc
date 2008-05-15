@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 18:45:23 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/23 15:02:09 $
+ *  $Revision: 1.17 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -40,7 +40,6 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
   
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -227,7 +226,8 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       }
       LayerBadCells[(*hEff).first].push_back(counter);
       LayerBadCells[(*hEff).first].push_back(muonGeom->layer((*hEff).first)->specificTopology().channels());
-      edm::LogWarning ("efficiency") << "-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus();
+      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+      // edm::LogWarning ("efficiency") << "-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus();
     }
   }
 
@@ -250,7 +250,8 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       }
       LayerUnassBadCells[(*hUnassEff).first].push_back(counter);
       LayerUnassBadCells[(*hUnassEff).first].push_back(double(muonGeom->layer((*hUnassEff).first)->specificTopology().channels()));
-      edm::LogWarning ("efficiency") << theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus();
+      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+      // edm::LogWarning ("efficiency") << theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus();
     }
   }
 
@@ -410,7 +411,7 @@ void DTEfficiencyTest::bookHistos(int wh) {
   dbe->setCurrentFolder("DT/Tests/DTEfficiency/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
-    string histoName =  "ESummary_testFailedByAtLeast%BadSL";
+    string histoName =  "ESummary_testFailedByAtLeastBadSL";
     wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
@@ -434,7 +435,7 @@ void DTEfficiencyTest::bookHistos(int wh) {
     wheelHistos[3]->setBinLabel(5,"Wheel+2",2);
   }
   if(wheelUnassHistos.find(3) == wheelUnassHistos.end()){
-    string histoName =  "UESummary_testFailedByAtLeast%BadSL";
+    string histoName =  "UESummary_testFailedByAtLeastBadSL";
     wheelUnassHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);
     wheelUnassHistos[3]->setBinLabel(1,"Sector1",1);

@@ -189,7 +189,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 					else isflipped_ = 0;
 
 					SiPixelRecHit rechit = (*tmpiter->first);
-					edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = rechit.cluster();				
+					SiPixelRecHit::ClusterRef const& cluster = rechit.cluster();				
 					rechit_.x  = rechit.localPosition().x();
 					rechit_.y  = rechit.localPosition().y();
 					// fill entries in clust_
@@ -322,7 +322,16 @@ void SiPixelLorentzAngle::endJob()
 		}
 	} // end loop over modules and layers
 	fLorentzFit.close(); 
-	
+	hFile_->cd();
+	for(int i_module = 1; i_module<=8; i_module++){
+		for(int i_layer = 1; i_layer<=3; i_layer++){
+			_h_drift_depth_adc_[i_module + (i_layer -1) * 8]->Write();
+			_h_drift_depth_adc2_[i_module + (i_layer -1) * 8]->Write();
+			_h_drift_depth_noadc_[i_module + (i_layer -1) * 8]->Write();
+			_h_drift_depth_[i_module + (i_layer -1) * 8]->Write();
+			_h_mean_[i_module + (i_layer -1) * 8]->Write();
+		}
+	}
 	
 	hFile_->Write();
 	hFile_->Close();

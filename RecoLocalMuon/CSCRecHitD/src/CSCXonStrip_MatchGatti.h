@@ -80,6 +80,7 @@ class CSCXonStrip_MatchGatti
   double q_sum, q_sumL, q_sumC, q_sumR;
 
   // Parameter settings from config file
+  bool debug;
   bool useCalib;
   //bool isData;
   bool use3TimeBins;

@@ -139,6 +139,7 @@ class TrajectoryManager
   MaterialEffects* theMaterialEffects;
 
   Pythia6Decays* myDecayEngine;
+  double distCut;
 
   double pTmin;
   bool firstLoop;

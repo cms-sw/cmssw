@@ -134,7 +134,7 @@ void SiPixelActionExecutor::createTkMap(DQMStore* bei,
 
 //=============================================================================================================
 void SiPixelActionExecutor::createSummary(DQMStore* bei) {
-//cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
+cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
   vector<string> barrel_me_names;
   if (!configParser_->getMENamesForBarrelSummary(barrel_structure_name, barrel_me_names)){
@@ -142,6 +142,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
     return;
   }
   configParser_->getSourceType(source_type_); 
+  cout<<"Found source_type_="<<source_type_<<endl;
   bei->cd();
   fillBarrelSummary(bei, barrel_structure_name, barrel_me_names);
   bei->cd();
@@ -171,7 +172,7 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei) {
   configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
-//cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
+cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
 }
 
 
@@ -595,7 +596,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
 	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary")
+	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
 	    prefix="SUMCAL";
         }
 	string var = "_" + (*iv) + "_";
@@ -658,6 +659,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 //cout<<"Entering SiPixelActionExecutor::fillGrandEndcapSummaryHistos..."<<endl;
   vector<MonitorElement*> gsum_mes;
   string path_name = bei->pwd();
+  
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
@@ -676,9 +678,9 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
        it != subdirs.end(); it++) {
     cnt++;
     bei->cd(*it);
-
+    //cout<<"I am in "<<bei->pwd()<<" now!"<<endl;
     vector<string> contents = bei->getMEs();
-    
+   
     bei->goUp();
     
     string prefix;
@@ -718,10 +720,11 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
 	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary")
+	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
 	    prefix="SUMCAL"; 
         }
 	string var = "_" + (*iv) + "_";
+	//cout<<"prefix is "<<prefix<<" , and var is "<<var<<" , looking in "<<(*im)<<endl;
 	if ((*im).find(var) != string::npos) {
 	   string full_path = (*it) + "/" +(*im);
 
@@ -730,16 +733,19 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	   if (!me) continue; 
 	   int actual_size = gsum_mes.size();
 	   int wanted_size = me_names.size();
+	   //cout<<"Found the ME and have "<<actual_size<<" , "<<wanted_size<<endl;
 	   //if (dir_name=="Endcap") wanted_size = wanted_size * 2.;
            if (actual_size !=  wanted_size) {
 	     nbin = me->getTH1F()->GetNbinsX();        
              string me_name = prefix + "_" + (*iv) + "_" + dir_name;
+	     //cout<<"nbin for ME "<<me_name<<" is "<<nbin<<endl;
              if(dir_name=="Endcap") nbin=672;
 	     else if(dir_name.find("HalfCylinder")!=string::npos) nbin=168;
 	     else if(dir_name.find("Disk")!=string::npos) nbin=84;
 	     else if(dir_name.find("Blade")!=string::npos) nbin=7;
 	     else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
 	     else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
+	     //cout<<"now: me_name="<<me_name<<" , nbins="<<nbin<<" , creating histogram now!"<<endl;
 	     getGrandSummaryME(bei, nbin, me_name, gsum_mes);
 	     //if (dir_name.find("Endcap")!=string::npos){
 	     //  bei->goUp(); 
@@ -801,6 +807,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
       MonitorElement* me = bei->get(fullpathname);
       
       if (me) {
+      //cout<<"Found ME "<<fullpathname<<endl;
 	me->Reset();
 	mes.push_back(me);
 	return;

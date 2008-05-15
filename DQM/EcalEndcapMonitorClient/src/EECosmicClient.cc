@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.54 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -39,8 +39,14 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -72,11 +78,11 @@ EECosmicClient::~EECosmicClient(){
 
 }
 
-void EECosmicClient::beginJob(DQMStore* dbe){
+void EECosmicClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EECosmicClient: beginJob" << endl;
+  if ( debug_ ) cout << "EECosmicClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -85,7 +91,7 @@ void EECosmicClient::beginJob(DQMStore* dbe){
 
 void EECosmicClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EECosmicClient: beginRun" << endl;
+  if ( debug_ ) cout << "EECosmicClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -95,7 +101,7 @@ void EECosmicClient::beginRun(void){
 
 void EECosmicClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EECosmicClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EECosmicClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -103,7 +109,7 @@ void EECosmicClient::endJob(void) {
 
 void EECosmicClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EECosmicClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EECosmicClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -155,7 +161,10 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     const float n_min_tot = 1000.;
     const float n_min_bin = 10.;
@@ -202,12 +211,12 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "Cut (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Sel (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "Cut (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "Sel (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -234,9 +243,9 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -251,7 +260,7 @@ void EECosmicClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EECosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];
@@ -262,23 +271,23 @@ void EECosmicClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EECosmicTask/Cut/EECT energy cut %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, "EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EECosmicTask/Sel/EECT energy sel %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, "EcalEndcap/EECosmicTask/Spectrum/EECT 1x1 energy spectrum %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EECosmicTask/Spectrum/EECT 1x1 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    sprintf(histo, "EcalEndcap/EECosmicTask/Spectrum/EECT 3x3 energy spectrum %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EECosmicTask/Spectrum/EECT 3x3 energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
     meh04_[ism-1] = me;
 
@@ -288,7 +297,7 @@ void EECosmicClient::analyze(void){
 
 void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EECosmicClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EECosmicClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -434,14 +443,14 @@ void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cAmp->Update();
       cAmp->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -461,14 +470,14 @@ void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cAmp->Update();
       cAmp->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 

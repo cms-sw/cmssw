@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/01/22 18:46:59 $
- * $Revision: 1.35 $
+ * $Date: 2008/05/06 13:16:20 $
+ * $Revision: 1.37 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -54,7 +54,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   parameters = ps;
   
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
+  if(debug) dbe->setVerbose(1);
 
   syncNumTot = 0;
   syncNum = 0;
@@ -301,7 +301,7 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   int digiSize = 0;
   for (DTDigiCollection::DigiRangeIterator dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
     digiSize++;
-  }
+  } // FIXME: remove the loop
   
   if (digiSize == 0) {
     doSync = false;
@@ -424,19 +424,19 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	    bookHistos( dtSLId, string("TimeBoxes"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
 	  
-	  
+	  // FIXME: remove the time distribution for the after-pulses	  
 	  // 2nd - 1st (CathodPhotoPeak) per SL
-	  if ( (*digiIt).number() == 1 ) {
+// 	  if ( (*digiIt).number() == 1 ) {
 	    
-	    DTDigiCollection::const_iterator firstDigiIt = digiIt;
-	    firstDigiIt--;
+// 	    DTDigiCollection::const_iterator firstDigiIt = digiIt;
+// 	    firstDigiIt--;
 	    
-	    histoTag = "CathodPhotoPeak";
-	    if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-	      bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
-	    (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
-									    (*firstDigiIt).countsTDC());
-	  }
+// 	    histoTag = "CathodPhotoPeak";
+// 	    if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
+// 	      bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
+// 	    (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
+// 									    (*firstDigiIt).countsTDC());
+// 	  }
 	}
 	if (!isSyncNoisy) {
 
@@ -450,10 +450,10 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	      bookHistos( dtChId, string("Occupancies"), histoTag );
 	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									    (layer_number+(superlayer_number-1)*4)-1);
-	    histoTag = "OccupancyAllHits_perL";
-	    if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-	      bookHistos( dtChId, string("Occupancies"), histoTag );
-	    (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+// 	    histoTag = "OccupancyAllHits_perL";
+// 	    if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+// 	      bookHistos( dtChId, string("Occupancies"), histoTag );
+// 	    (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
 	  }
 	  
 	  // after-Calibration jobs 
@@ -468,10 +468,10 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 		bookHistos( dtChId, string("Occupancies"), histoTag );
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									      (layer_number+(superlayer_number-1)*4)-1);
-	      histoTag = "OccupancyNoise_perL";
-	      if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-		bookHistos( dtChId, string("Occupancies"), histoTag );
-	      (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+// 	      histoTag = "OccupancyNoise_perL";
+// 	      if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+// 		bookHistos( dtChId, string("Occupancies"), histoTag );
+// 	      (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
 	    }
 	    
 	    // Physical hits: within the time window	
@@ -483,10 +483,10 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 		bookHistos( dtChId, string("Occupancies"), histoTag );
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									      (layer_number+(superlayer_number-1)*4)-1);
-	      histoTag = "OccupancyInTimeHits_perL";
-	      if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-		bookHistos( dtChId, string("Occupancies"), histoTag );
-	      (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+// 	      histoTag = "OccupancyInTimeHits_perL";
+// 	      if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+// 		bookHistos( dtChId, string("Occupancies"), histoTag );
+// 	      (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
 	    }
 	  }
 	}

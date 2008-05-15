@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.58 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -33,8 +33,14 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -77,11 +83,11 @@ EBClusterClient::~EBClusterClient(){
 
 }
 
-void EBClusterClient::beginJob(DQMStore* dbe){
+void EBClusterClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBClusterClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBClusterClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -90,7 +96,7 @@ void EBClusterClient::beginJob(DQMStore* dbe){
 
 void EBClusterClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBClusterClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBClusterClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -100,7 +106,7 @@ void EBClusterClient::beginRun(void){
 
 void EBClusterClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBClusterClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBClusterClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -108,7 +114,7 @@ void EBClusterClient::endJob(void) {
 
 void EBClusterClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBClusterClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBClusterClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -116,7 +122,7 @@ void EBClusterClient::endRun(void) {
 
 void EBClusterClient::setup(void) {
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBClusterClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBClusterClient" );
 
 }
 
@@ -194,102 +200,102 @@ void EBClusterClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBClusterClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];
 
   MonitorElement* me;
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC energy").c_str());
+  me = dqmStore_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC size").c_str());
+  me = dqmStore_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC number").c_str());
+  me = dqmStore_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy map");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC energy map").c_str());
+  me = dqmStore_->get(histo);
   h02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC ET map");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC ET map").c_str());
+  me = dqmStore_->get(histo);
   h02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number map");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC number map").c_str());
+  me = dqmStore_->get(histo);
   h03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size map");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC size map").c_str());
+  me = dqmStore_->get(histo);
   h04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC energy projection eta").c_str());
+  me = dqmStore_->get(histo);
   h02ProjEta_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[0] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC energy projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC energy projection phi").c_str());
+  me = dqmStore_->get(histo);
   h02ProjPhi_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[0] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC ET projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC ET projection eta").c_str());
+  me = dqmStore_->get(histo);
   h02ProjEta_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjEta_[1] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC ET projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC ET projection phi").c_str());
+  me = dqmStore_->get(histo);
   h02ProjPhi_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, h02ProjPhi_[1] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC number projection eta").c_str());
+  me = dqmStore_->get(histo);
   h03ProjEta_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjEta_ );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC number projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC number projection phi").c_str());
+  me = dqmStore_->get(histo);
   h03ProjPhi_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03ProjPhi_ );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC size projection eta").c_str());
+  me = dqmStore_->get(histo);
   h04ProjEta_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjEta_ );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT BC size projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT BC size projection phi").c_str());
+  me = dqmStore_->get(histo);
   h04ProjPhi_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, h04ProjPhi_ );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT SC energy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT SC energy").c_str());
+  me = dqmStore_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT SC size");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT SC size").c_str());
+  me = dqmStore_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT SC number");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT SC number").c_str());
+  me = dqmStore_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT s1s9");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT s1s9").c_str());
+  me = dqmStore_->get(histo);
   s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT s9s25");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT s9s25").c_str());
+  me = dqmStore_->get(histo);
   s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
-  sprintf(histo, "EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBClusterTask/EBCLT dicluster invariant mass").c_str());
+  me = dqmStore_->get(histo);
   s01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[2] );
 
 }
 
 void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBClusterClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBClusterClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -390,14 +396,14 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 
@@ -631,14 +637,14 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 
@@ -689,15 +695,15 @@ void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       obj1f->SetStats(kTRUE);
 
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
 
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
     }
   }
 

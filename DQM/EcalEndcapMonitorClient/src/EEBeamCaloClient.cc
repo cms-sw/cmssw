@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.45 $
+ * $Date: 2008/04/08 15:06:25 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -38,8 +38,14 @@ EEBeamCaloClient::EEBeamCaloClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -95,11 +101,11 @@ EEBeamCaloClient::~EEBeamCaloClient(){
 
 }
 
-void EEBeamCaloClient::beginJob(DQMStore* dbe){
+void EEBeamCaloClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: beginJob" << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -108,7 +114,7 @@ void EEBeamCaloClient::beginJob(DQMStore* dbe){
 
 void EEBeamCaloClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: beginRun" << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -118,7 +124,7 @@ void EEBeamCaloClient::beginRun(void){
 
 void EEBeamCaloClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -126,7 +132,7 @@ void EEBeamCaloClient::endJob(void) {
 
 void EEBeamCaloClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EEBeamCaloClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EEBeamCaloClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -136,11 +142,11 @@ void EEBeamCaloClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEBeamCaloClient" );
 
-  if ( meEEBCaloRedGreen_ ) dbe_->removeElement( meEEBCaloRedGreen_->getName() );
+  if ( meEEBCaloRedGreen_ ) dqmStore_->removeElement( meEEBCaloRedGreen_->getName() );
   sprintf(histo, "EEBCT quality");
-  meEEBCaloRedGreen_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+  meEEBCaloRedGreen_ = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   meEEBCaloRedGreen_->Reset();
 
@@ -152,15 +158,15 @@ void EEBeamCaloClient::setup(void) {
     }
   }
 
-  if ( meEEBCaloRedGreenReadCry_ ) dbe_->removeElement( meEEBCaloRedGreenReadCry_->getName() );
+  if ( meEEBCaloRedGreenReadCry_ ) dqmStore_->removeElement( meEEBCaloRedGreenReadCry_->getName() );
   sprintf(histo, "EEBCT quality read crystal errors");
-  meEEBCaloRedGreenReadCry_ = dbe_->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
+  meEEBCaloRedGreenReadCry_ = dqmStore_->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
   meEEBCaloRedGreenReadCry_->Reset();
   meEEBCaloRedGreenReadCry_ ->setBinContent( 1, 1, 2. );
 
-  if( meEEBCaloRedGreenSteps_ )  dbe_->removeElement( meEEBCaloRedGreenSteps_->getName() );
+  if( meEEBCaloRedGreenSteps_ )  dqmStore_->removeElement( meEEBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EEBCT quality entries or read crystals errors");
-  meEEBCaloRedGreenSteps_ = dbe_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
+  meEEBCaloRedGreenSteps_ = dqmStore_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
   meEEBCaloRedGreenSteps_->setAxisTitle("step in the scan");
   meEEBCaloRedGreenSteps_->Reset();
   for( int bin=1; bin <87; bin++){ meEEBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
@@ -219,13 +225,13 @@ void EEBeamCaloClient::cleanup(void) {
   hbDesync_ = 0;
   pBCriInBeamEvents_ =0;
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEBeamCaloClient" );
 
-  if ( meEEBCaloRedGreen_) dbe_->removeElement( meEEBCaloRedGreen_->getName() );
+  if ( meEEBCaloRedGreen_) dqmStore_->removeElement( meEEBCaloRedGreen_->getName() );
   meEEBCaloRedGreen_ = 0;
-  if ( meEEBCaloRedGreenReadCry_) dbe_->removeElement( meEEBCaloRedGreenReadCry_->getName() );
+  if ( meEEBCaloRedGreenReadCry_) dqmStore_->removeElement( meEEBCaloRedGreenReadCry_->getName() );
   meEEBCaloRedGreenReadCry_ = 0;
-  if( meEEBCaloRedGreenSteps_ ) dbe_->removeElement (  meEEBCaloRedGreenSteps_->getName() );
+  if( meEEBCaloRedGreenSteps_ ) dqmStore_->removeElement (  meEEBCaloRedGreenSteps_->getName() );
   meEEBCaloRedGreenSteps_ = 0;
 }
 
@@ -242,7 +248,10 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     const float n_min_tot = 1000.;
 
@@ -276,20 +285,18 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         //if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
         if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
         }
-        //if(mean01 >0){cout<<"cry: "<<ic<<" ie: "<<ie<<" ip: "<<ip<<" mean: "<< mean01<<endl;}
 
         if ( update_channel ) {
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
-        //if ( mean01 !=0) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
-            cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
-            cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "CryOnBeam (" << ie << "," << ip << ") " << num01  << endl;
+              cout << "MaxEneCry (" << ie << "," << ip << ") " << num02  << endl;
+              cout << "E1 ("        << ie << "," << ip << ") " << mean01 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -312,9 +319,9 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -329,7 +336,7 @@ void EEBeamCaloClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EEBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EEBeamCaloClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];
@@ -337,89 +344,89 @@ void EEBeamCaloClient::analyze(void){
   MonitorElement* me = 0;
 
   // MonitorElement* meCD;
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT crystals done");
-  //meCD = dbe_->get(histo);
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT crystals done").c_str());
+  //meCD = dqmStore_->get(histo);
+  me = dqmStore_->get(histo);
   hBcryDone_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBcryDone_ );
 
   //MonitorElement* meCryInBeam;
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT crystal on beam");
-  //meCryInBeam = dbe_->get(histo);
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT crystal on beam").c_str());
+  //meCryInBeam = dqmStore_->get(histo);
+  me = dqmStore_->get(histo);
   hBCryOnBeam_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBCryOnBeam_);
 
   //MonitorElement* allNeededCry;
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT all needed crystals readout");
-  //allNeededCry= dbe_->get(histo);
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT all needed crystals readout").c_str());
+  //allNeededCry= dqmStore_->get(histo);
+  me = dqmStore_->get(histo);
   hBAllNeededCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBAllNeededCry_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT readout crystals number");
-  //allNeededCry= dbe_->get(histo);
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT readout crystals number").c_str());
+  //allNeededCry= dqmStore_->get(histo);
+  me = dqmStore_->get(histo);
   hBNumReadCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBNumReadCry_);
 
   //MonitorElement* RecEne3x3;
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT rec Ene sum 3x3");
-  //RecEne3x3= dbe_->get(histo);
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT rec Ene sum 3x3").c_str());
+  //RecEne3x3= dqmStore_->get(histo);
+  me = dqmStore_->get(histo);
   hBE3x3_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBE3x3_);
 
   //MonitorElement* ErrRedCry;
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT readout crystals errors");
-  //ErrRedCry = dbe_->get(histo);
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT readout crystals errors").c_str());
+  //ErrRedCry = dqmStore_->get(histo);
+  me = dqmStore_->get(histo);
   hBReadCryErrors_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBReadCryErrors_);
 
   //  MonitorElement* RecEne1;
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT rec energy cry 5");
-  //RecEne1= dbe_->get(histo);
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT rec energy cry 5").c_str());
+  //RecEne1= dqmStore_->get(histo);
+  me = dqmStore_->get(histo);
   hBEne1_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEne1_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT crystal with maximum rec energy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT crystal with maximum rec energy").c_str());
+  me = dqmStore_->get(histo);
   hBMaxEneCry_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBMaxEneCry_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT average rec energy in the 3x3 array");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT average rec energy in the 3x3 array").c_str());
+  me = dqmStore_->get(histo);
   hBE3x3vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE3x3vsCry_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT average rec energy in the single crystal");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT average rec energy in the single crystal").c_str());
+  me = dqmStore_->get(histo);
   hBE1vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE1vsCry_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT number of entries");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT number of entries").c_str());
+  me = dqmStore_->get(histo);
   hBEntriesvsCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEntriesvsCry_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT energy deposition in the 3x3");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT energy deposition in the 3x3").c_str());
+  me = dqmStore_->get(histo);
   hBBeamCentered_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBBeamCentered_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT table is moving");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT table is moving").c_str());
+  me = dqmStore_->get(histo);
   hbTBmoving_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hbTBmoving_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT crystal in beam vs event");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT crystal in beam vs event").c_str());
+  me = dqmStore_->get(histo);
   pBCriInBeamEvents_ =  UtilsClient::getHisto<TProfile*>( me, cloneME_, pBCriInBeamEvents_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT E1 in the max cry");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT E1 in the max cry").c_str());
+  me = dqmStore_->get(histo);
   hbE1MaxCry_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbE1MaxCry_);
 
-  sprintf(histo, "EcalEndcap/EEBeamCaloTask/EEBCT Desynchronization vs step");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT Desynchronization vs step").c_str());
+  me = dqmStore_->get(histo);
   hbDesync_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbDesync_);
 
   for(int ind = 0; ind < cryInArray_; ind ++){
-    sprintf(histo,"EcalEndcap/EEBeamCaloTask/EEBCT pulse profile in G12 cry %01d", ind+1);
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT pulse profile in G12 cry %01d").c_str(), ind+1);
+    me = dqmStore_->get(histo);
     hBpulse_[ind] = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBpulse_[ind]);
 
-    sprintf(histo,"EcalEndcap/EEBeamCaloTask/EEBCT found gains cry %01d", ind+1);
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEBeamCaloTask/EEBCT found gains cry %01d").c_str(), ind+1);
+    me = dqmStore_->get(histo);
     hBGains_[ind] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBGains_[ind]);
   }
 
@@ -427,7 +434,7 @@ void EEBeamCaloClient::analyze(void){
   if (hBcryDone_){
     for(int cry=1 ; cry<1701 ; cry ++){
       int step = (int) hBcryDone_->GetBinContent(cry);
-      if( step>0 ){//this crystal has been scanned or is dbeng scanned
+      if( step>0 ){//this crystal has been scanned or is being scanned
         DoneCry++;
         float E3x3RMS = -1, E3x3 =-1, E1=-1;
         if(hBE3x3vsCry_){
@@ -441,7 +448,6 @@ void EEBeamCaloClient::analyze(void){
         bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
         bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
         bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
-        //cout<<"E1: "<<E1<<" E3x3: "<<E3x3<<" E3x3RMS: "<<E3x3RMS<<endl;
         int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
         int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
         //fill the RedGreen histo
@@ -454,9 +460,6 @@ void EEBeamCaloClient::analyze(void){
         //if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
         if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
         bool Nent = ( Entries * prescaling_  > minEvtNum_ );
-        //cout<<"step: "<<step<<" entries: "<<Entries<<endl;
-        //cout<<"step -1 entries: "<<hBEntriesvsCry_->GetBinContent(step-1)<<endl;
-        //cout<<"step +1 entries: "<<hBEntriesvsCry_->GetBinContent(step+1)<<endl;
         bool readCryOk = true;
         if( hBReadCryErrors_ ) {
           int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
@@ -534,7 +537,7 @@ void EEBeamCaloClient::analyze(void){
 
 void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEBeamCaloClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEBeamCaloClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -599,7 +602,6 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     for(int cry=1 ; cry<1701 ; cry ++){
       int step = (int) hBcryDone_->GetBinContent(cry);
       if (step >0 ){dummyStep.SetBinContent( step+1, 1, cry );}
-      //cout<<"cry: "<<cry<<" step: "<<step <<"  histo: "<<dummyStep.GetBinContent(step+1,1)<<endl;}
     }
   }
   //dummyStep.SetBinContent( 6, 1, 1699 );
@@ -1246,12 +1248,10 @@ void EEBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         if(temp > Ymax){Ymax=temp;}
       }
     }
-    //cout<<"Ym: "<<Ymin<< " YM: "<<Ymax<<endl;
     if( Ymin < Ymax+1 ){
        for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
          if( objp1->GetBinError(bin) >0 ){
            objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
-           // cout<<"bin: "<<bin<<" rms: "<< objp1->GetBinError(bin) <<"  "<<(Ymin+Ymax)/2<<endl;
          }
        }
        objp1->GetYaxis()->SetRangeUser(Ymin-1. , Ymax+1.);

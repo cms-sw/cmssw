@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.37 2008/01/04 17:10:51 wmtan Exp $
+$Id: InputSource.cc,v 1.38 2008/01/08 06:59:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -16,6 +16,7 @@ $Id: InputSource.cc,v 1.37 2008/01/04 17:10:51 wmtan Exp $
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {
 
@@ -60,6 +61,10 @@ namespace edm {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(desc.productRegistry_ != 0);
+      unsigned int firstFreeID = pset.getUntrackedParameter<unsigned int>("firstFreeID", 0U);
+      if (firstFreeID > desc.productRegistry_->nextID()) {
+	desc.productRegistry_->setNextID(firstFreeID);
+      }
     }
     int maxEventsOldStyle = pset.getUntrackedParameter<int>("maxEvents", improbable);
     if (maxEventsOldStyle != improbable) {

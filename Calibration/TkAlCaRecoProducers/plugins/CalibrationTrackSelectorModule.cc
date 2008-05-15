@@ -11,13 +11,13 @@
 // tracks have only the recoTracks branch!
 #include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
 
-struct TrackConfigSelector {
+struct SiStripCalTrackConfigSelector {
 
   typedef std::vector<const reco::Track*> container;
   typedef container::const_iterator const_iterator;
   typedef reco::TrackCollection collection; 
 
- TrackConfigSelector( const edm::ParameterSet & cfg ) :
+ SiStripCalTrackConfigSelector( const edm::ParameterSet & cfg ) :
     theBaseSelector(cfg)
   {
     //TODO Wrap the BaseSelector into its own PSet
@@ -53,6 +53,6 @@ private:
 
 };
 
-typedef ObjectSelector<TrackConfigSelector>  CalibrationTrackSelectorModule;
+typedef ObjectSelector<SiStripCalTrackConfigSelector>  CalibrationTrackSelectorModule;
 
 DEFINE_FWK_MODULE( CalibrationTrackSelectorModule );

@@ -7,7 +7,7 @@ namespace pat { namespace helper {
 class SimpleIsolator : public BaseIsolator {
     public:
         SimpleIsolator() {}
-        SimpleIsolator(const edm::ParameterSet &conf, bool withCut) ;
+        SimpleIsolator(const edm::ParameterSet &conf) ;
         virtual ~SimpleIsolator() {}
         virtual void beginEvent(const edm::Event &event) ;
         virtual void endEvent() ;

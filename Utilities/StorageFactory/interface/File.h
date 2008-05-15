@@ -37,7 +37,6 @@ public:
   using Storage::write;
   using Storage::position;
 
-  virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
   virtual IOSize	read (void *into, IOSize n);
   virtual IOSize	read (void *into, IOSize n, IOOffset pos);
   virtual IOSize	readv (IOBuffer *into, IOSize length);

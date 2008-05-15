@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.49 2008/03/26 16:48:03 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.42 2008/02/28 13:13:36 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -23,13 +23,6 @@
 #include <map>
 
 //#define USING_NEW_DATABASE_MODEL
-//#define USING_DATABASE_CACHE
-
-#ifdef USING_DATABASE_CACHE
-#include "DbClient.h"
-#else
-class DbClient;
-#endif
 
 /*
   - Remaining work:
@@ -61,9 +54,8 @@ namespace cms { class SiStripO2O; }
 */
 class SiStripConfigDb {
   
-  
  public:
-
+  
 
   // ---------- Constructors, destructors ----------
 
@@ -73,112 +65,42 @@ class SiStripConfigDb {
       parameters). */
   SiStripConfigDb( const edm::ParameterSet&,
 		   const edm::ActivityRegistry& );
+
+  /** Constructor when using the configuration database, which takes
+      as arguments the database connection parameters. DO NOT USE: TO
+      BE DEPRECATED!!! */
+  SiStripConfigDb( std::string confdb, 
+		   std::string db_partition,
+		   uint32_t    db_major_vers = 0,
+		   uint32_t    db_minor_vers = 0 ); 
+
+  /** Constructor when using the configuration database, which takes
+      as arguments the database connection parameters. DO NOT USE: TO
+      BE DEPRECATED!!! */
+  SiStripConfigDb( std::string db_user, 
+		   std::string db_passwd, 
+		   std::string db_path,
+		   std::string db_partition,
+		   uint32_t    db_major_vers = 0,
+		   uint32_t    db_minor_vers = 0 ); 
+  
+  /** Constructor when using xml files, which takes as arguments the
+      paths to the various input (and output) xml files. DO NOT USE:
+      TO BE DEPRECATED!!! */
+  SiStripConfigDb( std::string input_module_xml,
+		   std::string input_dcuinfo_xml,
+		   std::vector<std::string> input_fec_xml,
+		   std::vector<std::string> input_fed_xml,
+		   std::string output_module_xml = "/tmp/module.xml",
+		   std::string output_dcuinfo_xml = "/tmp/dcuinfo.xml",
+		   std::string output_fec_xml = "/tmp/fec.xml",
+		   std::string output_fed_xml = "/tmp/fed.xml" );
   
   /** Default destructor. */
   ~SiStripConfigDb();
   
-  /** 
-   * Container class for database connection parameters: 
-   * Connection params: usingDB flag, confdb, user, passwd and path strings.
-   * Partition info: partition name and major, minor versions.
-   * Input XML files: for modules, DCU-DetId map (dcuinfo.xml), FECs and FEDs.
-   * Output XML files: as for input XML files.
-   */
-  class DbParams { 
 
-  public:
-    
-    // Constructor and methods
-    DbParams();
-    ~DbParams();
-
-    void print( std::stringstream& ) const; 
-    void reset(); 
-    void setParams( const edm::ParameterSet& );
-    void confdb( const std::string& );
-    void confdb( const std::string& user,
-		 const std::string& passwd,
-		 const std::string& path );
-    std::string partitions() const;
-    std::vector<std::string> partitions( std::string ) const;
-
-    // Public member data 
-    bool usingDb_;
-    std::string confdb_;
-    std::string user_;
-    std::string passwd_;
-    std::string path_;
-    std::vector<std::string> partitions_; 
-    bool usingDbCache_;
-    std::string sharedMemory_;
-    uint32_t runNumber_;
-    uint32_t cabMajor_;
-    uint32_t cabMinor_;
-    uint32_t fedMajor_;
-    uint32_t fedMinor_;
-    uint32_t fecMajor_;
-    uint32_t fecMinor_;
-    uint32_t calMajor_;
-    uint32_t calMinor_;
-    uint32_t dcuMajor_;
-    uint32_t dcuMinor_;
-    sistrip::RunType runType_;
-    bool force_;
-    std::string inputModuleXml_;
-    std::string inputDcuInfoXml_;
-    std::vector<std::string> inputFecXml_;
-    std::vector<std::string> inputFedXml_;
-    std::string inputDcuConvXml_;
-    std::string outputModuleXml_;
-    std::string outputDcuInfoXml_;
-    std::string outputFecXml_;
-    std::string outputFedXml_;
-    std::string tnsAdmin_;
-
-  };
-  
-
-  // ---------- PROTECTED INTERFACE ----------
-  
-  
- protected:
-  
-  
-  /*
-    Access to the configuration database is reserved solely for the
-    commissioning (database) client and the online-to-offline transfer
-    tool. If you wish to use this interface to the configuration
-    database, then please contact one of the package administrators.
-  */
-  
-  // ESSources and O2O
-  friend class SiStripFedCablingBuilderFromDb;
-  friend class SiStripPedestalsBuilderFromDb;
-  friend class SiStripNoiseBuilderFromDb;
-  friend class cms::SiStripO2O;
-  
-  // Commissioning clients
-  friend class SiStripCommissioningDbClient;
-  friend class SiStripCommissioningOfflineDbClient;
-  friend class CommissioningHistosUsingDb;
-  friend class FastFedCablingHistosUsingDb;
-  friend class FedCablingHistosUsingDb;
-  friend class ApvTimingHistosUsingDb;
-  friend class OptoScanHistosUsingDb;
-  friend class PedestalsHistosUsingDb;
-  friend class PedsOnlyHistosUsingDb;
-  friend class NoiseHistosUsingDb;
-  friend class VpspScanHistosUsingDb;
-  friend class LatencyHistosUsingDb;
-  friend class FineDelayHistosUsingDb;
-  friend class CalibrationHistosUsingDb;
-
-  // Utility and tests
-  friend class PopulateConfigDb;
-  friend class testSiStripConfigDb;
-
-
-  // ---------- Typedefs and structs ----------
+  // ---------- Typedefs ----------
 
 
   typedef std::vector<deviceDescription*> DeviceDescriptions;
@@ -207,6 +129,61 @@ class SiStripConfigDb {
   /** Key is DCU id. */
   typedef Sgi::hash_map<unsigned long,TkDcuInfo*> DcuDetIdMap;
   
+  
+  // ---------- Structs and enums ----------
+  
+  
+  /** 
+   * Container class for database connection parameters: 
+   * Connection params: usingDB flag, confdb, user, passwd and path strings.
+   * Partition info: partition name and major, minor versions.
+   * Input XML files: for modules, DCU-DetId map (dcuinfo.xml), FECs and FEDs.
+   * Output XML files: as for input XML files.
+   */
+  class DbParams { 
+  public:
+    // Constructor and methods
+    DbParams();
+    ~DbParams();
+    void print( std::stringstream& ) const; 
+    void reset(); 
+    void setParams( const edm::ParameterSet& );
+    void confdb( const std::string& );
+    void confdb( const std::string& user,
+		 const std::string& passwd,
+		 const std::string& path );
+    // Public member data 
+    bool usingDb_;
+    std::string confdb_;
+    std::string user_;
+    std::string passwd_;
+    std::string path_;
+    std::string partition_; 
+    uint32_t runNumber_;
+    uint32_t cabMajor_;
+    uint32_t cabMinor_;
+    uint32_t fedMajor_;
+    uint32_t fedMinor_;
+    uint32_t fecMajor_;
+    uint32_t fecMinor_;
+    uint32_t calMajor_;
+    uint32_t calMinor_;
+    uint32_t dcuMajor_;
+    uint32_t dcuMinor_;
+    sistrip::RunType runType_;
+    bool force_;
+    std::string inputModuleXml_;
+    std::string inputDcuInfoXml_;
+    std::vector<std::string> inputFecXml_;
+    std::vector<std::string> inputFedXml_;
+    std::string inputDcuConvXml_;
+    std::string outputModuleXml_;
+    std::string outputDcuInfoXml_;
+    std::string outputFecXml_;
+    std::string outputFedXml_;
+    std::string tnsAdmin_;
+  };
+  
   /** Class that holds addresses that uniquely identify a hardware
       component within the control system. */
   class DeviceAddress { 
@@ -224,8 +201,44 @@ class SiStripConfigDb {
     uint16_t feUnit_;
     uint16_t feChan_;
   };
+
+
+  // ---------- PRIVATE INTERFACE ----------
+
   
+  /*
+    Access to the configuration database is reserved solely for the
+    commissioning (database) client and the online-to-offline transfer
+    tool. If you wish to use this interface to the configuration
+    database, then please contact one of the package administrators.
+  */
+
+  // ESSources and O2O
+  friend class SiStripFedCablingBuilderFromDb;
+  friend class SiStripPedestalsBuilderFromDb;
+  friend class SiStripNoiseBuilderFromDb;
+  friend class cms::SiStripO2O;
   
+  // Commissioning clients
+  friend class SiStripCommissioningDbClient;
+  friend class SiStripCommissioningOfflineDbClient;
+  friend class CommissioningHistosUsingDb;
+  friend class FastFedCablingHistosUsingDb;
+  friend class FedCablingHistosUsingDb;
+  friend class ApvTimingHistosUsingDb;
+  friend class OptoScanHistosUsingDb;
+  friend class PedestalsHistosUsingDb;
+  friend class VpspScanHistosUsingDb;
+  friend class LatencyHistosUsingDb;
+  friend class FineDelayHistosUsingDb;
+
+  // Utility and tests
+  friend class PopulateConfigDb;
+  friend class testDatabaseService;
+
+ protected:
+  
+
   // ---------- Connection and local cache ----------
 
   
@@ -243,9 +256,6 @@ class SiStripConfigDb {
   
   /** Returns pointer to DeviceFactory API, with check if NULL. */
   DeviceFactory* const deviceFactory( std::string method_name = "" ) const;
-
-  /** Returns pointer to DeviceFactory API, with check if NULL. */
-  DbClient* const databaseCache( std::string method_name = "" ) const;
   
 
   // ---------- FEC / Front-End devices ---------- 
@@ -366,9 +376,6 @@ class SiStripConfigDb {
   
   /** */
   void usingDatabase();
-
-  /** */
-  void usingDatabaseCache();
   
   /** */
   void usingXmlFiles();
@@ -389,9 +396,6 @@ class SiStripConfigDb {
   
   /** Pointer to the DeviceFactory API. */
   DeviceFactory* factory_; 
-
-  /** Pointer to the DbClient class. */
-  DbClient* dbCache_; 
 
   /** Instance of struct that holds all DB connection parameters. */
   DbParams dbParams_;

@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.10 2007/09/07 21:02:21 wmtan Exp $
+$Id: Run.h,v 1.11 2008/01/15 06:51:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,16 +25,9 @@ $Id: Run.h,v 1.10 2007/09/07 21:02:21 wmtan Exp $
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-
 namespace edm {
 
-#if GCC_PREREQUISITE(3,4,4)
   class Run : private DataViewImpl
-#else
-  // Bug in gcc3.2.3 compiler forces public inheritance
-  class Run : public DataViewImpl
-#endif
   {
   public:
     Run(RunPrincipal& dbk, const ModuleDescription& md);

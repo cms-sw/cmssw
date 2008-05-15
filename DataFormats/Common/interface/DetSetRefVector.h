@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetRefVector.h,v 1.9 2007/12/21 22:46:50 wmtan Exp $
+$Id: DetSetRefVector.h,v 1.10 2008/03/18 12:48:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,8 +42,6 @@ $Id: DetSetRefVector.h,v 1.9 2007/12/21 22:46:50 wmtan Exp $
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/TestHandle.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -283,14 +281,6 @@ namespace edm {
   swap(DetSetRefVector<T, C>& a, DetSetRefVector<T, C>& b) {
     a.swap(b);
   }
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  // Has swap function
-  template <typename T, typename C>
-  struct has_swap<edm::DetSetRefVector<T,C> > {
-    static bool const value = true;
-  };
-#endif
 
 //specialize behavior of edm::Ref to get access to the 'Det'
 

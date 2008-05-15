@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_Vector_h
 #define DataFormats_Common_Vector_h
-// $Id: Vector.h,v 1.1 2007/09/12 13:42:59 llista Exp $
+// $Id: Vector.h,v 1.2 2007/12/21 22:46:51 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
@@ -15,8 +15,6 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
 #include "DataFormats/Common/interface/debugging_allocator.h"
@@ -272,14 +270,6 @@ namespace edm {
   {
     static bool const value = true;
   };
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  /// has swap function
-  template<typename T>
-  struct has_swap<edm::Vector<T> > {
-    static bool const value = true;
-  };
-#endif
 
 }
 

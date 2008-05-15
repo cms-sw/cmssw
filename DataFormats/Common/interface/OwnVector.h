@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_OwnVector_h
 #define DataFormats_Common_OwnVector_h
-// $Id: OwnVector.h,v 1.34 2007/10/02 17:04:14 chrjones Exp $
+// $Id: OwnVector.h,v 1.35 2007/12/21 22:42:30 wmtan Exp $
 
 #include <algorithm>
 #include <functional>
@@ -15,8 +15,6 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 #if defined CMS_USE_DEBUGGING_ALLOCATOR
 #include "DataFormats/Common/interface/debugging_allocator.h"
@@ -441,14 +439,6 @@ namespace edm {
   {
     static bool const value = true;
   };
-
-#if ! GCC_PREREQUISITE(3,4,4)
-  /// has swap function
-  template<typename T, typename P>
-  struct has_swap<edm::OwnVector<T,P> > {
-    static bool const value = true;
-  };
-#endif
 
 }
 

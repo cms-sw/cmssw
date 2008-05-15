@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
-# Created by Markus Klute on 2007 Jan 24.
-# $Id:$
+# $Id: selectFilesInTimeSpan.pl,v 1.1 2007/01/29 13:33:22 klute Exp $
 ################################################################################
 
 use strict;
@@ -48,12 +47,12 @@ elsif ($#ARGV ==  1)    { $TIME_A   = "$ARGV[0]";
 else                    { &show_help(1);          }
 
 # Connect to DB
-my $dbi    = "DBI:Oracle:omds";
-my $reader = "cms_sto_mgr";
-my $dbh = DBI->connect($dbi,$reader,"qwerty");
+my $dbi    = "DBI:Oracle:cms_rcms";
+my $reader = "CMS_STOMGR_W";
+my $dbh    = DBI->connect($dbi,$reader,"qwerty");
 
 # Prepare sql query
-my $SQLQUERY = "SELECT RUNNUMBER, LUMISECTION, INSTANCE, COUNT, TYPE, STREAM, STATUS, SAFETY, NEVENTS, FILESIZE, HOSTNAME, PATHNAME, FILENAME FROM CMS_STO_MGR_ADMIN.RUN_FILES WHERE STOP_TIME > '$TIME_A' AND STOP_TIME < '$TIME_B'";
+my $SQLQUERY = "SELECT RUNNUMBER, LUMISECTION, INSTANCE, COUNT, TYPE, STREAM, STATUS, SAFETY, NEVENTS, FILESIZE, HOSTNAME, PATHNAME, FILENAME FROM CMS_STOMGR.TIER0_INJECTION WHERE STOP_TIME > '$TIME_A' AND STOP_TIME < '$TIME_B'";
 my $sth = $dbh->prepare($SQLQUERY);
 
 # Execute the SQL

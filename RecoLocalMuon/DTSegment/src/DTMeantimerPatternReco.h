@@ -6,8 +6,8 @@
  * Algo for reconstructing 2d segment in DT using a combinatorial approach with
  * a T0 estimation produced along the way
  *  
- * $Date: 2007/07/09 13:58:28 $
- * $Revision: 1.1 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.8 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author Piotr Traczyk - SINS Warsaw <ptraczyk@fuw.edu.pl>
@@ -80,11 +80,8 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
 					    const std::vector<DTHitPairForFit*>& hits);
 
   // try adding more hits to a candidate
-  void addHits(const DTSuperLayer* sl, 
-               std::vector<AssPoint>& assHits, 
-               const std::vector<DTHitPairForFit*>& hits, 
-               std::vector<DTSegmentCand*> &result,
-               std::vector<AssPoint>& usedHits);
+  void addHits(const DTSuperLayer* sl, std::vector<AssPoint>& assHits, 
+                      const std::vector<DTHitPairForFit*>& hits, std::vector<DTSegmentCand*> &result);
 
   // fit a set of left/right hits, calculate t0 and chi^2
   bool fitWithT0(const std::vector<AssPoint> &assHits, double &chi2, double &t0_corr, const bool fitdebug);
@@ -110,8 +107,6 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
   bool debug;
   DTSegmentUpdator* theUpdator; // the updator and fitter
   DTSegmentCleaner* theCleaner; // the cleaner
-  
-  unsigned int maxfound;
 
   edm::ESHandle<DTGeometry> theDTGeometry; // the DT geometry
 };

@@ -1,10 +1,9 @@
 #ifndef PixelConfigKey_h
 #define PixelConfigKey_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelConfigKey.h
-*   \brief This class implements the configuration key which actually just is an integer.
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class implements the configuration key
+// which actually just is an integer.
+//
 
 #include <iostream>
 #include <fstream>
@@ -12,11 +11,6 @@
 #include <assert.h>
 
 namespace pos{
-/*! \class PixelConfigKey PixelConfigKey.h "interface/PixelConfigKey.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelConfigKey {
 
   public:

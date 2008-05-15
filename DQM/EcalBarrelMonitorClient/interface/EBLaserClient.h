@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.73 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ virtual ~EBLaserClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -78,12 +78,15 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TProfile2D* h01_[36];
 TProfile2D* h02_[36];

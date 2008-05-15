@@ -68,14 +68,6 @@ public:
   {
     return theSequentialFitter->vertex(tracks);
   }
-  
-  virtual inline CachingVertex<5> 
-  vertex(const vector<RefCountedVertexTrack> & tracks,
-      const reco::BeamSpot & spot ) const
-  {
-    return theSequentialFitter->vertex(tracks, spot );
-  }
-
 
   /** Fit vertex out of a set of RecTracks. 
    *  Uses the specified linearization point.

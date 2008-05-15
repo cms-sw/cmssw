@@ -24,6 +24,7 @@ CSCRecHitDProducer::CSCRecHitDProducer( const edm::ParameterSet& ps ) : iRun( 0 
   stripDigiProducer_ = ps.getParameter<std::string>("CSCStripDigiProducer");
   wireDigiProducer_  = ps.getParameter<std::string>("CSCWireDigiProducer");
   useCalib           = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
+  debug              = ps.getUntrackedParameter<bool>("CSCDebug");
   
   recHitBuilder_     = new CSCRecHitDBuilder( ps ); // pass on the Parameter Settings
   recoConditions_    = new CSCRecoConditions( ps ); // access to conditions data
@@ -70,7 +71,7 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
 
 
   // Put collection in event
-  LogTrace("CSCRecHit")<< "Will output rechits collection to event" << "\n";
+  if (debug) std::cout << "Will output rechits collection to event" << std::endl;
   ev.put( oc );
 
 }

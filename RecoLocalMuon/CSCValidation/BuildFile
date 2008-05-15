@@ -3,14 +3,20 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/Utilities>
+
 <use name=Geometry/Records>
 <use name=Geometry/CSCGeometry>
+
 <use name=CommonTools/Statistics>
+
+<user name=clhep>
+
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/CSCRecHit>
 <use name=DataFormats/Common>
 <use name=DataFormats/MuonDetId>
 <use name=CondFormats/CSCObjects>
+
 <use name=root>
 
 <flags EDM_PLUGIN=1>

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/07 14:53:26 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/05/06 14:02:08 $
+ *  $Revision: 1.17 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -42,7 +42,6 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
   hwSource = ps.getUntrackedParameter<bool>("dataFromDDU", false) ? "DDU" : "DCC" ; 
   parameters = ps;
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -112,13 +111,13 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	uint32_t indexCh = chId.rawId();
 
 	// Perform DCC/DDU common plot analysis (Phi ones)
-	TH2F * BXvsQual    = getHisto<TH2F>(dbe->get(getMEName("BXvsQual1st","LocalTriggerPhi", chId)));
-	TH1F * BestQual    = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
-	TH2F * Flag1stvsBX = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsBX","LocalTriggerPhi", chId)));
-	if (BXvsQual && Flag1stvsBX && BestQual) {
+	TH2F * BXvsQual      = getHisto<TH2F>(dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
+	TH1F * BestQual      = getHisto<TH1F>(dbe->get(getMEName("BestQual","LocalTriggerPhi", chId)));
+	TH2F * Flag1stvsQual = getHisto<TH2F>(dbe->get(getMEName("Flag1stvsQual","LocalTriggerPhi", chId)));
+	if (BXvsQual && Flag1stvsQual && BestQual) {
 	      
 	  TH1D* BXHH    = BXvsQual->ProjectionY("",7,7,"");
-	  TH1D* Flag1st = Flag1stvsBX->ProjectionY();
+	  TH1D* Flag1st = Flag1stvsQual->ProjectionY();
 	  int BXOK_bin = BXHH->GetEntries()>=1 ? BXHH->GetMaximumBin() : 51;
 	  double BX_OK =  BXvsQual->GetYaxis()->GetBinCenter(BXOK_bin);
 	  double trigsFlag2nd = Flag1st->GetBinContent(2);
@@ -410,13 +409,15 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       if ((*effME).second->getName().find("TrigEffSec_Phi") == 0) {
 	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangePhi");
 	if (effQReport) {
-	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
+	  // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+	  // edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
 	}
       }
       if ((*effME).second->getName().find("TrigEffSec_Theta") == 0) {
 	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangeTheta");
 	if (effQReport) {
-	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
+	  // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+	  // edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
 	}
       }
     }

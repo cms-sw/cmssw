@@ -132,26 +132,3 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
   }
   
 }
-
-// -----------------------------------------------------------------------------
-/** */
-void OptoScanHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
-  for ( ; ianal != janal; ++ianal ) {
-    if ( ianal->second ) {
-      std::stringstream ss;
-      if ( ianal->second->isValid() ) {
-	ianal->second->print( ss );
-	LogTrace(mlDqmClient_) << ss.str();
-      } else {
-	ianal->second->print( ss, 0 );
-	ianal->second->print( ss, 1 );
-	ianal->second->print( ss, 2 );
-	ianal->second->print( ss, 3 );
-	edm::LogWarning(mlDqmClient_) << ss.str();
-      }
-    }
-  }
-}
-

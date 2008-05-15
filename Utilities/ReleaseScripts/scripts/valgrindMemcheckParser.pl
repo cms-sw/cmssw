@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: valgrindMemcheckParser.pl,v 1.5 2008/03/27 11:19:58 gpetrucc Exp $
+# $Id: valgrindMemcheckParser.pl,v 1.3 2007/06/19 13:19:08 gpetrucc Exp $
 # Created: June 2007
 # Author: Giovanni Petrucciani, INFN Pisa
 #
@@ -12,7 +12,6 @@ use Getopt::Long;
 
 my $mstart = qr/^==\d+== (\S.*? bytes) in \S+ blocks are (.*?) in loss (record \S+ of \S+)/;
 my $mstartuni = qr/^==\d+== ()(\S.*uninitialised.*)()/;
-my $mstartfree = qr/^==\d+== ()(\S.*free\(\).*)()/;
 my $mtrace = qr/^==\d+== \s+(?:at|by)\s.*?:\s+(.*?)\s\((.*)\)/;
 my $version = "CMSSW_1_5_0_pre3";
 my @showstoppers = qq(libFWCoreFramework);
@@ -24,12 +23,11 @@ my %presets = (
                  qw(Streamer python static MessageLogger ServiceRegistry) ],
     'prod' => [ '::produce\(\s*edm::Event\s*&' ],
     'prod1' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)' ],
-    'prod1+' => [ '::produce\(\s*\w+(?:\s+const)?\s*&\w*\s*\)', 'edm::eventsetup::DataProxyTemplate<' ],
 );
 my $preset_names = join(', ', sort(keys(%presets)));
 
 my @trace = (); my @libs = (); my @presets = (); my @dump_presets = ();
-my $help = '';  my $all = ''; my $onecolumn = ''; my $uninitialised = undef; my $free = undef;
+my $help = '';  my $all = ''; my $onecolumn = ''; my $uninitialised = undef;
 
 GetOptions(
         'rel|release|r=s' => \$version,
@@ -41,10 +39,8 @@ GetOptions(
         'preset=s'   => \@presets,
         'dump-preset=s'   => \@dump_presets,
         'uninitialised|u' => \$uninitialised,
-        'free|f' => \$free,
         'help|h|?' => \$help);
 if ($uninitialised) { $mstart = $mstartuni; print STDERR "Hunting for uninitialised stuff\n"; }
-if ($free) { $mstart = $mstartfree; print STDERR "Hunting for free stuff\n"; }
 if ($help) {
         print <<_END;
    Usage: valgrindMemcheckParser.pl [ --rel RELEASE ] 
@@ -54,7 +50,6 @@ if ($help) {
                  [ --preset name,name,-name,+name,... ]
                  [ --all ]
                  [ --onecolumn ]
-                 [ --uninitialised | --free ]
                  logfile [ logfile2 logfile3 ... ]
         
   It will output a XHTML file to standard output.
@@ -86,9 +81,6 @@ if ($help) {
 
     --all: show all leaks, skipping any filter
              Abbreviation is "-a" 
-
-    --uninitialised: look for uses of uninitialized memory instead of leaks
-    --free: look for bad calls to free() instead of memory leaks
 
     Note: you can use PERL regexps in "libs", "trace" 
 
@@ -216,8 +208,7 @@ my $idx = 0;
 foreach my $l (@sleaks) {
         my %L = %{$l}; $idx++;
         my $colspan = ($onecolumn ? 1 : 2);
-        my $aname = sprintf("L%04d", $idx);
-        print "<tr class='header'><th class='header' colspan='$colspan'><a name=\"$aname\">Leak $idx</a>: $L{size} $L{status} ($L{record}) <a href=\"#$aname\">[href]</a></th></tr>\n";
+        print "<tr class='header'><th class='header' colspan='$colspan'>Leak $idx: $L{size} $L{status} ($L{record})</th></tr>\n";
         foreach my $sf (@{$L{'trace'}}) {
                 print "<tr class='trace'><td class='func'>"  . fformat($sf->[0]) . "</td>";
                 print "<td class='lib'>" . $sf->[1]. "</td>" unless $onecolumn;

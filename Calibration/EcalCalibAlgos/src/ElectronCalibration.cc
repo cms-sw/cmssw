@@ -1,10 +1,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/calibXMLwriter.h"
+#include "Calibration/Tools/interface/CalibrationCluster.h"
+#include "Calibration/Tools/interface/HouseholderDecomposition.h"
+#include "Calibration/Tools/interface/MinL3Algorithm.h"
 #include "Calibration/EcalAlCaRecoProducers/interface/AlCaPhiSymRecHitsProducer.h"
 #include "Calibration/EcalCalibAlgos/interface/ElectronCalibration.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -13,6 +18,9 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TH2.h"
 #include "TF1.h"
 #include "TRandom.h"
 

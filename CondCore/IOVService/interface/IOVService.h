@@ -53,8 +53,7 @@ namespace cond{
     */
 
     std::string exportIOVWithPayload( cond::PoolTransaction& destDB,
-				      const std::string& iovToken,
-				      const std::string& payloadObjectName );
+				      const std::string& iovToken );
     /**
        export IOV selected by token within selected range and associated 
        payload to another database
@@ -64,8 +63,7 @@ namespace cond{
 					   const std::string& iovToken,
 					   const std::string& destToken,
 					   cond::Time_t since,
-					   cond::Time_t till,
-					   const std::string& payloadObjectName );
+					   cond::Time_t till );
   private:
     cond::PoolTransaction* m_pooldb;
     cond::IOVServiceImpl* m_impl;

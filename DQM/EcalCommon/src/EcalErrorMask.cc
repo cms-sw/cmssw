@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.32 2008/03/20 08:37:07 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.33 2008/03/20 08:42:44 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.32 $
-  \date $Date: 2008/03/20 08:37:07 $
+  \version $Revision: 1.33 $
+  \date $Date: 2008/03/20 08:42:44 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -44,7 +44,7 @@ std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 
 //----------------------------------------------------------------------------------
 
-void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySyntax ) throw( std::runtime_error ) {
+void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax ) throw( std::runtime_error ) {
 
   if( done_ ) {
     throw( std::runtime_error( "already done." ) );
@@ -75,7 +75,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
   std::vector<EcalErrorDictionary::errorDef_t> errors;
   EcalErrorDictionary::getDictionary( errors );
 
-  if( verbose ) std::cout << std::endl
+  if( debug ) std::cout << std::endl
                           << "--------- Input Mask File Dump ----------"
                           << std::endl;
 
@@ -91,7 +91,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
     is >> s;
     if( s.size() == 0 ) continue;
 
-    if( verbose ) std::cout << is.str() << std::endl;
+    if( debug ) std::cout << is.str() << std::endl;
 
     int subdet = 0;
 
@@ -428,7 +428,7 @@ void EcalErrorMask::readFile( std::string& inFile, bool verbose, bool verifySynt
     std::cout << "----------------------------------------------------------------" << std::endl;
   }
 
-  if( verbose ) std::cout << "------- End Input Mask File Dump --------"
+  if( debug ) std::cout << "------- End Input Mask File Dump --------"
                           << std::endl;
 
   f.close();

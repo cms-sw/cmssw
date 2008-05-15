@@ -116,8 +116,8 @@ DCacheFile::open (const char *name,
   if ((newfd = dc_open (name, openflags, perms)) == -1)
     throw cms::Exception("DCacheFile::open()")
       << "dc_open(name='" << name
-      << "', flags=0x" << std::hex << openflags
-      << ", permissions=0" << std::oct << perms << std::dec
+      << "', flags=" << openflags
+      << ", permissions=" << perms
       << ") => error '" << dc_strerror(dc_errno)
       << "' (dc_errno=" << dc_errno << ")";
 
@@ -128,8 +128,8 @@ DCacheFile::open (const char *name,
   // ten difference in the amount of data read, and time spent
   // reading). Note also that docs say the flag turns off write
   // buffering -- this turns off all buffering.
-  if (flags & IOFlags::OpenUnbuffered)
-    dc_noBuffering (m_fd);
+  // if (flags & IOFlags::OpenUnbuffered)
+  //   dc_noBuffering (m_fd);
 
   m_close = true;
 

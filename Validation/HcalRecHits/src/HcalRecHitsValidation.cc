@@ -24,13 +24,14 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
   mc_           = conf.getUntrackedParameter<std::string>("mc", "yes");
 
-  subdet_ = 0;
-  if (hcalselector_ == "HB"  ) subdet_ = 1;
-  if (hcalselector_ == "HE"  ) subdet_ = 2;
-  if (hcalselector_ == "HO"  ) subdet_ = 3;
-  if (hcalselector_ == "HF"  ) subdet_ = 4;
-  if (hcalselector_ == "all" ) subdet_ = 5;
-  if (hcalselector_ == "ZS"  ) subdet_ = 6;
+  subdet_ = 5;
+  if (hcalselector_ == "noise") subdet_ = 0;
+  if (hcalselector_ == "HB"   ) subdet_ = 1;
+  if (hcalselector_ == "HE"   ) subdet_ = 2;
+  if (hcalselector_ == "HO"   ) subdet_ = 3;
+  if (hcalselector_ == "HF"   ) subdet_ = 4;
+  if (hcalselector_ == "all"  ) subdet_ = 5;
+  if (hcalselector_ == "ZS"   ) subdet_ = 6;
 
   etype_ = 1;
   if (eventype_ == "multi") etype_ = 2;
@@ -836,7 +837,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   // SUBSYSTEMS,  
   //===========================================================================
   
-  else if (subdet_ != 6) {
+  else if ((subdet_ != 6) && (subdet_ != 0)) {
 
     //       std::cout << "*** 6" << std::endl; 
     

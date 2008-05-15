@@ -200,6 +200,7 @@ ostream& reco::operator<<(  ostream& out,
   int iHE = 0;
   int iHB = 0;
   int iHF = 0;
+  int iMU = 0;
 
   // for each element in turn
   
@@ -210,6 +211,10 @@ ostream& reco::operator<<(  ostream& out,
     case PFBlockElement::TRACK:
       iTK++;
       ss << "TK" << iTK;
+      break;
+    case PFBlockElement::MUON:
+      iMU++;
+      ss << "MU" << iMU;
       break;
     default:{
       PFClusterRef clusterref = elements[ie].clusterRef();

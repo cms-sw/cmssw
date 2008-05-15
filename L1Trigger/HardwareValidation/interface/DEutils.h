@@ -112,9 +112,21 @@ DEutils<L1CaloEmCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   x2 = (aflag!=4) ? itd->regionId().ieta() : itm->regionId().ieta();
   //alternative coordinates: rctCrate(), rctCard(), index()
   L1DataEmulDigi digi(dedefs::RCT,cid, x1,x2,x3, errt);
-  unsigned int dw = (aflag==4)?0:itd->raw();
-  unsigned int ew = (aflag==3)?0:itm->raw();
-  dw &= 0x03ff; ew &= 0x03ff; //10-bit
+  unsigned int dw = itd->raw(); 
+  unsigned int ew = itm->raw();
+  dw &= 0x3ff;
+  dw += (((itd->rctCrate())&0x1f)<<10);
+  dw += (((itd->isolated()?1:0)&0x1)<<15);
+  dw += (((itd->index())&0x3)<<16);
+  ew &= 0x3ff;
+  ew += (((itm->rctCrate())&0x1f)<<10);
+  ew += (((itm->isolated()?1:0)&0x1)<<15);
+  ew += (((itm->index())&0x3)<<16);
+  dw = (aflag==4)?0:dw;
+  ew = (aflag==3)?0:ew;
+  /// bits: index(17:16) iso(15) crate(14:10)  +  card(9:7) region(6) rank (5:0)
+  /// (rank & 0x3f) + ((region & 0x1)<<6) + ((card & 0x7)<<7)
+  ///  + ((card & 0x1f)<<10) + ((0x1)<<15) + ((0x3)<<16)
   digi.setData(dw,ew); 
   int de = (aflag==4)?0:itd->rank();
   int ee = (aflag==3)?0:itm->rank();
@@ -130,8 +142,18 @@ DEutils<L1CaloRegionCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   double x2 = (aflag!=4) ? itd->rctCard () : itm->rctCard (); //rctEta()
   double x3 = (aflag!=4) ? itd->rctRegionIndex() : itm->rctRegionIndex();
   L1DataEmulDigi digi(dedefs::RCT,cid, x1,x2,x3, errt);
-  //Missing raw data accessor! (pack method private;)
-  //dw &= 0x2fff; de &= 0x2fff; //14-bit 
+  unsigned int dw = itd->raw(); 
+  unsigned int ew = itm->raw();
+  dw &= 0x3fff;
+  dw += (((itd->id().ieta())&0x1f)<<14);
+  dw += (((itd->id().iphi())&0x1f)<<19);
+  ew &= 0x3fff;
+  ew += (((itm->id().ieta())&0x1f)<<14);
+  ew += (((itm->id().iphi())&0x1f)<<19);
+  dw = (aflag==4)?0:dw;
+  ew = (aflag==3)?0:ew;
+  /// bits: iphi(23:19), ieta(18:14) + quiet(13), mip(12), fg(11), ovf(10), et (9:0)
+  digi.setData(dw,ew); 
   int de = (aflag==4)?0:itd->et();
   int ee = (aflag==3)?0:itm->et();
   digi.setRank((float)de,(float)ee);
@@ -648,14 +670,14 @@ inline bool DEutils<HcalTrigPrimDigiCollection>::is_empty(col_cit it) const {
 
 template<>
 inline bool DEutils<L1CaloEmCollection>::is_empty(col_cit it) const { 
-    return  ((it->rank())==0);
-    //return  ((it->raw())==0);
+  //return  ((it->rank())==0);
+  return it->empty();
 }
 
 template<>
 inline bool DEutils<L1CaloRegionCollection>::is_empty(col_cit it) const { 
-    return  ((it->et())==0);
-    //note: missing accessors in dataformats
+  //return  ((it->et())==0);
+  return it->empty();
 }
 
 template<>

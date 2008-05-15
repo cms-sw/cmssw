@@ -109,7 +109,7 @@ public:
   unsigned gctPhi() const { return m_id.iphi(); }
 
   /// get bunch-crossing index
-  int16_t bx() const { return m_bx; }
+  int bx() const { return m_bx; }
 
   /// equality operator, including rank, feature bits, and position
   int operator==(const L1CaloRegion& c) const { return ((m_data==c.raw() && m_id==c.id()) || (this->empty() && c.empty())); }

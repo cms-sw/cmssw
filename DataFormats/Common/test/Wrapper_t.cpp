@@ -1,5 +1,5 @@
 /*
- *  $Id: Wrapper_t.cpp,v 1.6 2007/05/16 22:32:01 paterno Exp $
+ *  $Id: Wrapper_t.cpp,v 1.7 2007/06/07 15:40:41 paterno Exp $
  *  CMSSW
  *
  */
@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 class CopyNoSwappy
 {
@@ -19,9 +18,6 @@ class CopyNoSwappy
   CopyNoSwappy(CopyNoSwappy const&) { /* std::cout << "copied\n"; */ }
   CopyNoSwappy& operator=(CopyNoSwappy const&) { /*std::cout << "assigned\n";*/ return *this;}
  private:
-#if ! GCC_PREREQUISITE(3,4,4)
-  void swap(CopyNoSwappy&); // not implemented
-#endif
 };
 
 class SwappyNoCopy
@@ -33,13 +29,6 @@ class SwappyNoCopy
   SwappyNoCopy(SwappyNoCopy const&); // not implemented
   SwappyNoCopy& operator=(SwappyNoCopy const&); // not implemented
 };
-
-#if ! GCC_PREREQUISITE(3,4,4)
-namespace edm
-{
-  template <> struct has_swap<SwappyNoCopy> { static const bool value=true; };
-}
-#endif
 
 void work()
 {

@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.8 2008/02/22 13:04:07 bainbrid Exp $
+// Last commit: $Id: ConstantsForDqm.h,v 1.7 2007/12/11 19:36:45 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -33,26 +33,13 @@ namespace sistrip {
   static const std::string summaryPlot_ = "SummaryPlot";
   static const std::string runNumber_   = "RunNumber";
 
-  namespace extrainfo { 
-
-    // ---------- opto scan ----------
-    
-    static const std::string gain_        = "Gain";
-    static const std::string digital_     = "Digital";
-    static const std::string baselineRms_ = "BaselineNoise";
-
-    // ---------- peds and noise ----------
-    
-    static const std::string pedestals_  = "Pedestals";
-    static const std::string rawNoise_   = "RawNoise";
-    static const std::string noise_      = "Noise";
-    static const std::string commonMode_ = "CommonMode";
-    
-    static const std::string pedsAndRawNoise_   = "PedsAndRawNoise";          //@@ LEGACY
-    static const std::string residualsAndNoise_ = "ResidualsAndNoise";        //@@ LEGACY
-    static const std::string pedsAndCmSubNoise_ = "PedsAndCMSubtractedNoise"; //@@ LEGACY
-    
-  }
+  static const std::string gain_              = "Gain";
+  static const std::string digital_           = "Digital";
+  static const std::string baselineRms_       = "BaselineNoise";
+  static const std::string pedsAndRawNoise_   = "PedsAndRawNoise";
+  static const std::string residualsAndNoise_ = "ResidualsAndNoise";
+  static const std::string pedsAndCmSubNoise_ = "PedsAndCMSubtractedNoise";
+  static const std::string commonMode_        = "CommonMode";
   
   // ---------- Actions to be taken by web client ----------
 

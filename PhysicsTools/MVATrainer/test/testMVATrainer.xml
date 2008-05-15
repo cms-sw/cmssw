@@ -28,27 +28,15 @@
 			<var name="y"/>
 		</output>
 	</processor>
-	<processor id="rot" name="ProcMatrix">
+<!--
+	<processor id="lkh" name="ProcLikelihood">
 		<input>
 			<var source="norm" name="x"/>
 			<var source="norm" name="y"/>
 		</input>
 		<config>
-			<fill signal="true" background="true"/>
-		</config>
-		<output>
-			<var name="rot1"/>
-			<var name="rot2"/>
-		</output>
-	</processor>
-	<processor id="lkh" name="ProcLikelihood">
-		<input>
-			<var source="rot" name="rot1"/>
-			<var source="rot" name="rot2"/>
-		</input>
-		<config>
-			<sigbkg smooth="3"/>
-			<sigbkg smooth="3"/>
+			<sigbkg/>
+			<sigbkg/>
 		</config>
 		<output>
 			<var name="discriminator"/>
@@ -57,7 +45,7 @@
 	<output>
 		<var source="lkh" name="discriminator"/>
 	</output>
-<!--
+-->
 	<processor id="tmva" name="ProcTMVA">
 		<input>
 			<var source="norm" name="x"/>
@@ -73,5 +61,4 @@
 	<output>
 		<var source="tmva" name="discriminator"/>
 	</output>
--->
 </MVATrainer>

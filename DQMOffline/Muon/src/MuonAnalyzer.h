@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date$
- *  $Revision$
+ *  $Date: 2008/04/24 13:12:15 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -24,6 +24,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMOffline/Muon/src/MuonEnergyDepositAnalyzer.h"
 #include "DQMOffline/Muon/src/MuonSeedsAnalyzer.h"
+#include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
+#include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
 
 
 class MuonAnalyzer : public edm::EDAnalyzer {
@@ -55,13 +57,24 @@ class MuonAnalyzer : public edm::EDAnalyzer {
 
   // STA Label
   edm::InputTag theSTACollectionLabel;
+  // Track label
+   edm::InputTag theTrackCollectionLabel;
   // Seed Label
   edm::InputTag theSeedsCollectionLabel;
   
+  bool theMuEnergyAnalyzerFlag;
+  bool theSeedsAnalyzerFlag;
+  bool theMuonRecoAnalyzerFlag;
+  bool theMuonSegmentsAnalyzerFlag;
+
   // the muon energy analyzer
   MuonEnergyDepositAnalyzer * theMuEnergyAnalyzer;
   // the seeds analyzer
   MuonSeedsAnalyzer * theSeedsAnalyzer;
+  // the muon reco analyzer
+  MuonRecoAnalyzer * theMuonRecoAnalyzer;
+  // the track segments analyzer
+  SegmentTrackAnalyzer * theMuonSegmentsAnalyzer;
 
 };
 #endif  

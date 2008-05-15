@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.107 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.112 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -37,8 +37,14 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -70,11 +76,11 @@ EBCosmicClient::~EBCosmicClient(){
 
 }
 
-void EBCosmicClient::beginJob(DQMStore* dbe){
+void EBCosmicClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBCosmicClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBCosmicClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -83,7 +89,7 @@ void EBCosmicClient::beginJob(DQMStore* dbe){
 
 void EBCosmicClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBCosmicClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBCosmicClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -93,7 +99,7 @@ void EBCosmicClient::beginRun(void){
 
 void EBCosmicClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBCosmicClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -101,7 +107,7 @@ void EBCosmicClient::endJob(void) {
 
 void EBCosmicClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBCosmicClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBCosmicClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -153,7 +159,10 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
 
     const float n_min_tot = 1000.;
     const float n_min_bin = 10.;
@@ -193,12 +202,12 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "Cut (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "Sel (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "Cut (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "Sel (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -223,9 +232,9 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   if ( econn ) {
     try {
-      cout << "Inserting MonOccupancyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonOccupancyDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -240,7 +249,7 @@ void EBCosmicClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];
@@ -251,23 +260,23 @@ void EBCosmicClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBCosmicTask/Cut/EBCT energy cut %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBCosmicTask/Cut/EBCT energy cut %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, "EcalBarrel/EBCosmicTask/Sel/EBCT energy sel %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBCosmicTask/Sel/EBCT energy sel %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, "EcalBarrel/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    sprintf(histo, "EcalBarrel/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h04_[ism-1] );
     meh04_[ism-1] = me;
 
@@ -277,7 +286,7 @@ void EBCosmicClient::analyze(void){
 
 void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBCosmicClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBCosmicClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -405,14 +414,14 @@ void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cAmp->Update();
       cAmp->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -432,14 +441,14 @@ void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cAmp->Update();
       cAmp->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 

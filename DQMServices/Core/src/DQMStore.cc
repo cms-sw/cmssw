@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "classlib/utils/RegexpMatch.h"
 #include "classlib/utils/Regexp.h"
+#include "classlib/utils/StringOps.h"
 #include "TFile.h"
 #include "TROOT.h"
 #include "TKey.h"
@@ -159,13 +160,13 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initQCriterion<Comp2RefKolmogorov>(qalgos_);
   initQCriterion<ContentsXRange>(qalgos_);
   initQCriterion<ContentsYRange>(qalgos_);
+  initQCriterion<MeanWithinExpected>(qalgos_);
   initQCriterion<Comp2RefEqualString>(qalgos_);
   initQCriterion<Comp2RefEqualInt>(qalgos_);
   initQCriterion<Comp2RefEqualFloat>(qalgos_);
   initQCriterion<Comp2RefEqualH1>(qalgos_);
   initQCriterion<Comp2RefEqualH2>(qalgos_);
   initQCriterion<Comp2RefEqualH3>(qalgos_);
-  initQCriterion<MeanWithinExpected>(qalgos_);
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<MostProbableLandau>(qalgos_);
@@ -362,6 +363,11 @@ MonitorElement *
 DQMStore::bookInt(const std::string &dir, const std::string &name)
 {
   std::string path;
+  if (collateHistograms_)
+  {
+    if (MonitorElement *me = findObject(dir, name, path))
+      return me;
+  }
   return book(dir, name, path, "bookInt")
     ->initialise(MonitorElement::DQM_KIND_INT, path);
 }
@@ -379,6 +385,11 @@ MonitorElement *
 DQMStore::bookFloat(const std::string &dir, const std::string &name)
 {
   std::string path;
+  if (collateHistograms_)
+  {
+    if (MonitorElement *me = findObject(dir, name, path))
+      return me;
+  }
   return book(dir, name, path, "bookFloat")
     ->initialise(MonitorElement::DQM_KIND_REAL, path);
 }
@@ -398,6 +409,11 @@ DQMStore::bookString(const std::string &dir,
 		     const std::string &value)
 {
   std::string path;
+  if (collateHistograms_)
+  {
+    if (MonitorElement *me = findObject(dir, name, path))
+      return me;
+  }
   return book(dir, name, path, "bookString")
     ->initialise(MonitorElement::DQM_KIND_STRING, path, value);
 }
@@ -435,7 +451,7 @@ DQMStore::book1D(const std::string &name, const std::string &title,
 
 /// Book 1D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone1D(const std::string &name, TH1F *source)
+DQMStore::book1D(const std::string &name, TH1F *source)
 {
   return book1D(pwd_, name, static_cast<TH1F *>(source->Clone()));
 }
@@ -459,9 +475,18 @@ DQMStore::book2D(const std::string &name, const std::string &title,
 				     nchY, lowY, highY));
 }
 
+/// Book 2D variable bin histogram.
+MonitorElement *
+DQMStore::book2D(const std::string &name, const std::string &title,
+		 int nchX, float *xbinsize, int nchY, float *ybinsize)
+{
+  return book2D(pwd_, name, new TH2F(name.c_str(), title.c_str(), 
+                                               nchX, xbinsize, nchY, ybinsize));
+}
+
 /// Book 2D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone2D(const std::string &name, TH2F *source)
+DQMStore::book2D(const std::string &name, TH2F *source)
 {
   return book2D(pwd_, name, static_cast<TH2F *>(source->Clone()));
 }
@@ -489,7 +514,7 @@ DQMStore::book3D(const std::string &name, const std::string &title,
 
 /// Book 3D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone3D(const std::string &name, TH3F *source)
+DQMStore::book3D(const std::string &name, TH3F *source)
 {
   return book3D(pwd_, name, static_cast<TH3F *>(source->Clone()));
 }
@@ -521,7 +546,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 
 /// Book TProfile by cloning an existing profile.
 MonitorElement *
-DQMStore::cloneProfile(const std::string &name, TProfile *source)
+DQMStore::bookProfile(const std::string &name, TProfile *source)
 {
   return bookProfile(pwd_, name, static_cast<TProfile *>(source->Clone()));
 }
@@ -555,7 +580,7 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 
 /// Book TProfile2D by cloning an existing profile.
 MonitorElement *
-DQMStore::cloneProfile2D(const std::string &name, TProfile2D *source)
+DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 {
   return bookProfile2D(pwd_, name, static_cast<TProfile2D *>(source->Clone()));
 }
@@ -901,7 +926,7 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
     size_t sz = di->size() + 2;
     size_t nfound = 0;
     for ( ; m != me && isSubdirectory(*di, m->second.path_); ++m)
-      if (*di == m->second.path_ && ! mi->second.data_.tags.empty())
+      if (*di == m->second.path_ && ! m->second.data_.tags.empty())
       {
         // the tags count for '/' + up to 10 digits, otherwise ',' + ME name
 	sz += 1 + m->second.name_.size() + 11*m->second.data_.tags.size();
@@ -920,7 +945,7 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
     *istr += ':';
     for (sz = 0; mi != m; ++mi)
     {
-      if (*di != mi->second.path_)
+      if (*di != mi->second.path_ || mi->second.data_.tags.empty())
 	continue;
 
       if (sz > 0)
@@ -928,10 +953,10 @@ DQMStore::getAllTags(std::vector<std::string> &into) const
 
       *istr += mi->second.name_;
 
-      for (size_t ti = 0, te = m->second.data_.tags.size(); ti < te; ++ti)
+      for (size_t ti = 0, te = mi->second.data_.tags.size(); ti < te; ++ti)
       {
 	char tagbuf[32]; // more than enough for '/' and up to 10 digits
-	sprintf(tagbuf, "/%u", m->second.data_.tags[ti]);
+	sprintf(tagbuf, "/%u", mi->second.data_.tags[ti]);
 	*istr += tagbuf;
       }
 
@@ -1184,8 +1209,6 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       qv.code = atoi(m.matchString(value, 1).c_str());
       qv.message = m.matchString(value, 2);
       me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
-
-      // FIXME: Update flags?
     }
     else
     {
@@ -1271,7 +1294,9 @@ DQMStore::cdInto(const std::string &path) const
 void
 DQMStore::save(const std::string &filename,
 	       const std::string &path /* = "" */,
-	       int minStatus /* =dqm::qstatus::STATUS_OK */)
+	       const std::string &pattern /* = "" */,
+	       const std::string &rewrite /* = "" */,
+	       int minStatus /* = dqm::qstatus::STATUS_OK */)
 {
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
@@ -1285,16 +1310,8 @@ DQMStore::save(const std::string &filename,
       << "Failed to create file '" << filename << "'";
   f.cd();
 
-
-  bool putrunprefix = false;
-  std::string run ;
-  // if minStatus is large it is interpreted as Runnumber
-  if (minStatus > 10000 || minStatus < 2) {
-     putrunprefix = true;
-     char runnumber[10];
-     sprintf(runnumber,"R%09d",minStatus);  
-     run = runnumber;
-  }
+  // Construct a regular expression from the pattern string.
+  lat::Regexp rxpat(pattern.empty() ? "^" : pattern.c_str());
 
   // Loop over the directory structure.
   for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
@@ -1329,26 +1346,11 @@ DQMStore::save(const std::string &filename,
 
       // Create the directory.
       gDirectory->cd("/");
-      if(!putrunprefix){
-	  if (di->empty())
-	    cdInto(s_monitorDirName);
-	  else
-	    cdInto(s_monitorDirName + '/' + *di);
-	  //	    std::cout << "prepend=\"\" " << s_monitorDirName + '/' + *di << std::endl;
-      }
-      else {
-	  if (di->empty())
-	    cdInto(run);
-	  else
-	    {
-	      size_t slash = (*di).find('/');
-	      size_t length = (*di).length();
-	      std::string firstpart = (*di).substr(0,slash);
-	      std::string lastpart = (*di).substr(slash+1,length);
-	      // std::cout << run + "/" + firstpart + "/Run summary/" + lastpart << std::endl;
-	      cdInto(run + "/" + firstpart + "/Run summary/" + lastpart);
-	    }
-      }      
+      if (di->empty())
+	cdInto(s_monitorDirName);
+      else
+	cdInto(s_monitorDirName + '/' + lat::StringOps::replace(*di, rxpat, rewrite));
+
       // Save the object.
       mi->second.data_.object->Write();
 
@@ -1426,6 +1428,15 @@ DQMStore::readDirectory(TFile *file,
 	&& dirpart.compare(slash+1, s_referenceDirName.size(), s_referenceDirName) == 0)
       return 0;
 
+    // Remove Run # and RunSummary dirs from Reference dir structure
+    if (slash != std::string::npos
+        && dirpart.compare(0,4,"Run ")==0) 
+        dirpart.erase(0,dirpart.find('/')+1);
+
+    size_t pos = dirpart.find("/Run summary");
+    if (slash != std::string::npos && pos !=std::string::npos) 
+	dirpart.erase(pos,12);
+    
     // Add prefix.
     if (dirpart.empty())
       dirpart = prepend;
@@ -1501,6 +1512,11 @@ DQMStore::open(const std::string &filename,
 
   unsigned n = readDirectory(&f, overwrite, onlypath, prepend, "");
   f.Close();
+
+  MEMap::iterator mi = data_.begin();
+  MEMap::iterator me = data_.end();
+  for ( ; mi != me; ++mi)
+    mi->second.updateQReportStats();
 
   if (verbose_)
   {
@@ -1686,7 +1702,7 @@ DQMStore::createQTest(const std::string &algoname, const std::string &qtname)
   QAMap::iterator i = qalgos_.find(algoname);
   if (i == qalgos_.end())
     throw cms::Exception("DQMStore")
-      << "Cannot create a qualiy test using unknown algorithm '"
+      << "Cannot create a quality test using unknown algorithm '"
       << algoname << '\'';
 
   QCriterion *qc = i->second(qtname);

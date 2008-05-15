@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/03/13 11:24:38 $
- * $Revision: 1.7 $
+ * $Date: 2008/04/17 04:53:16 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -34,10 +34,13 @@ EEStatusFlagsTask::EEStatusFlagsTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
@@ -58,12 +61,33 @@ void EEStatusFlagsTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask");
-    dbe_->rmdir("EcalEndcap/EEStatusFlagsTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask");
+    dqmStore_->rmdir(prefixME_ + "/EEStatusFlagsTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
+
+}
+
+void EEStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEStatusFlagsTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEStatusFlagsTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meEvtType_[i] ) meEvtType_[i]->Reset();
+
+    if ( meFEchErrors_[i][0] ) meFEchErrors_[i][0]->Reset();
+    if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
+  }
 
 }
 
@@ -73,13 +97,13 @@ void EEStatusFlagsTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask/EvtType");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask/EvtType");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EESFT EVTTYPE %s", Numbers::sEE(i+1).c_str());
-      meEvtType_[i] = dbe_->book1D(histo, histo, 31, -1., 30.);
+      meEvtType_[i] = dqmStore_->book1D(histo, histo, 31, -1., 30.);
       meEvtType_[i]->setBinLabel(1, "UNKNOWN", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -104,16 +128,16 @@ void EEStatusFlagsTask::setup(void){
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
       meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
-      dbe_->tag(meEvtType_[i], i+1);
+      dqmStore_->tag(meEvtType_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask/FEStatus");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask/FEStatus");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EESFT front-end status %s", Numbers::sEE(i+1).c_str());
-      meFEchErrors_[i][0] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meFEchErrors_[i][0] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meFEchErrors_[i][0]->setAxisTitle("jx", 1);
       meFEchErrors_[i][0]->setAxisTitle("jy", 2);
-      dbe_->tag(meFEchErrors_[i][0], i+1);
+      dqmStore_->tag(meFEchErrors_[i][0], i+1);
 
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
@@ -123,7 +147,7 @@ void EEStatusFlagsTask::setup(void){
       meFEchErrors_[i][0]->setEntries( 0 );
 
       sprintf(histo, "EESFT front-end status bits %s", Numbers::sEE(i+1).c_str());
-      meFEchErrors_[i][1] = dbe_->book1D(histo, histo, 16, 0., 16.);
+      meFEchErrors_[i][1] = dqmStore_->book1D(histo, histo, 16, 0., 16.);
       meFEchErrors_[i][1]->setBinLabel(1+0, "ACTIVE", 1);
       meFEchErrors_[i][1]->setBinLabel(1+1, "DISABLED", 1);
       meFEchErrors_[i][1]->setBinLabel(1+2, "TIMEOUT", 1);
@@ -140,7 +164,7 @@ void EEStatusFlagsTask::setup(void){
       meFEchErrors_[i][1]->setBinLabel(1+13, "H PARITY", 1);
       meFEchErrors_[i][1]->setBinLabel(1+14, "V PARITY", 1);
       meFEchErrors_[i][1]->setBinLabel(1+15, "H+V PARITY", 1);
-      dbe_->tag(meFEchErrors_[i][1], i+1);
+      dqmStore_->tag(meFEchErrors_[i][1], i+1);
     }
 
   }
@@ -149,22 +173,22 @@ void EEStatusFlagsTask::setup(void){
 
 void EEStatusFlagsTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask/EvtType");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask/EvtType");
     for (int i = 0; i < 18; i++) {
-      if ( meEvtType_[i] ) dbe_->removeElement( meEvtType_[i]->getName() );
+      if ( meEvtType_[i] ) dqmStore_->removeElement( meEvtType_[i]->getName() );
       meEvtType_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEStatusFlagsTask/FEStatus");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask/FEStatus");
     for (int i = 0; i < 18; i++) {
-      if ( meFEchErrors_[i][0] ) dbe_->removeElement( meFEchErrors_[i][0]->getName() );
+      if ( meFEchErrors_[i][0] ) dqmStore_->removeElement( meFEchErrors_[i][0]->getName() );
       meFEchErrors_[i][0] = 0;
-      if ( meFEchErrors_[i][1] ) dbe_->removeElement( meFEchErrors_[i][1]->getName() );
+      if ( meFEchErrors_[i][1] ) dqmStore_->removeElement( meFEchErrors_[i][1]->getName() );
       meFEchErrors_[i][1] = 0;
     }
 
@@ -178,7 +202,7 @@ void EEStatusFlagsTask::endJob(void){
 
   LogInfo("EEStatusFlagsTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

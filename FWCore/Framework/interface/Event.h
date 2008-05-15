@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.61 2008/01/15 06:51:46 wmtan Exp $
+$Id: Event.h,v 1.62 2008/03/06 19:34:54 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,16 +32,9 @@ $Id: Event.h,v 1.61 2008/01/15 06:51:46 wmtan Exp $
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
-
 namespace edm {
 
-#if GCC_PREREQUISITE(3,4,4)
   class Event : private DataViewImpl
-#else
-  // Bug in gcc3.2.3 compiler forces public inheritance
-  class Event : public DataViewImpl
-#endif
   {
   public:
     Event(EventPrincipal& dbk, const ModuleDescription& md);

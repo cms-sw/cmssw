@@ -143,7 +143,9 @@ namespace edm
       if (bh.provenance() == 0) {
 	// No product with this ID was put in the event.
 	// Create and write the provenance.
-        dummyProvenances.push_front(Provenance(desc, EntryDescription()));
+	EntryDescription entryDescription;
+	entryDescription.moduleDescriptionID_ = desc.moduleDescriptionID();
+        dummyProvenances.push_front(Provenance(desc, entryDescription, false));
         se.prods_.push_back(ProdPair(0, &*dummyProvenances.begin()));
       } else {
         se.prods_.push_back(ProdPair(bh.wrapper(), bh.provenance()));

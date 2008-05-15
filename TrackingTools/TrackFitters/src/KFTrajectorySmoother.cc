@@ -22,17 +22,19 @@ std::vector<Trajectory>
 KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   // let's try to get return value optimization
   // the 'standard' case is when we return 1 tractory
-  std::vector<Trajectory> ret(1, Trajectory(aTraj.seed(), thePropagator->propagationDirection()));
-  Trajectory & myTraj = ret.front();
-
-
-  if(aTraj.empty()) { ret.clear(); return ret; } 
 
   if (  aTraj.direction() == alongMomentum) {
     thePropagator->setPropagationDirection(oppositeToMomentum);
   } else {
     thePropagator->setPropagationDirection(alongMomentum);
   }
+
+  std::vector<Trajectory> ret(1, Trajectory(aTraj.seed(), thePropagator->propagationDirection()));
+  Trajectory & myTraj = ret.front();
+
+
+  if(aTraj.empty()) { ret.clear(); return ret; } 
+
 
   const std::vector<TM> & avtm = aTraj.measurements();
   LogDebug("TrackFitters") << "KFTrajectorySmoother::trajectories starting with " << avtm.size() << " HITS\n";

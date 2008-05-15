@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/02/19 11:28:20 $
- *  $Revision: 1.39 $
+ *  $Date: 2008/02/21 09:36:20 $
+ *  $Revision: 1.40 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -15,7 +15,9 @@
 class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidatorBase {
  public:
   /// Constructor
-  MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){}
+  MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
+    dirName_ = pset.getParameter<std::string>("dirName");
+  }
 
   /// Destructor
   virtual ~MultiTrackValidator(){ }
@@ -28,6 +30,7 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   void endJob();
 
  private:
+  std::string dirName_;
   //1D
   std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits;
 

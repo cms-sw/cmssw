@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # External libraries (standard in Python >= 2.4, at least)
 from sys import stdin

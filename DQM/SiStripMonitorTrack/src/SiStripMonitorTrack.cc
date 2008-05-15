@@ -13,7 +13,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "AnalysisDataFormats/TrackInfo/src/TrackInfo.cc"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorTrack.h"
 
@@ -27,13 +27,19 @@ static std::string flags[2] = {"OnTrack","OffTrack"};
 SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
   dbe(edm::Service<DQMStore>().operator->()),
   conf_(conf),
-  Track_src_( conf.getParameter<edm::InputTag>( "Track_src" ) ),
   Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
+  Mod_On_(conf.getParameter<bool>("Mod_On")),
+  OffHisto_On_(conf.getParameter<bool>("OffHisto_On")),
   folder_organizer(), tracksCollection_in_EventTree(true),
   firstEvent(-1),
   neighbourStripNumber(3)
 {
   for(int i=0;i<4;++i) for(int j=0;j<2;++j) NClus[i][j]=0;
+  if(OffHisto_On_){
+    off_Flag = 2;
+  }else{
+    off_Flag = 1;
+  }
 }
 
 //------------------------------------------------------------------------
@@ -42,9 +48,9 @@ SiStripMonitorTrack::~SiStripMonitorTrack() { }
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es)
 {
-  //get geom    
+  //get geom 
   es.get<TrackerDigiGeometryRecord>().get( tkgeom );
-  edm::LogInfo("SiStripMonitorTrack") << "[SiStripMonitorTrack::beginJob] There are "<<tkgeom->detUnits().size() <<" detectors instantiated in the geometry" << std::endl;  
+  edm::LogInfo("SiStripMonitorTrack") << "[SiStripMonitorTrack::beginRun] There are "<<tkgeom->detUnits().size() <<" detectors instantiated in the geometry" << std::endl;  
   es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
   book();
 }
@@ -52,9 +58,10 @@ void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::endJob(void)
 {
-  dbe->showDirStructure();
-  if(conf_.getParameter<bool>("OutputMEsInRootFile"))
+  if(conf_.getParameter<bool>("OutputMEsInRootFile")){
+    dbe->showDirStructure();
     dbe->save(conf_.getParameter<std::string>("OutputFileName"));
+  }
 }
 
 // ------------ method called to produce the data  ------------
@@ -62,7 +69,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 {
   tracksCollection_in_EventTree=true;
   trackAssociatorCollection_in_EventTree=true;
-
+  
   //initialization of global quantities
   edm::LogInfo("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;
   runNb   = e.id().run();
@@ -70,40 +77,44 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   vPSiStripCluster.clear();
   countOn=0;
   countOff=0;
-  
-  //cluster input
-  theRawdigiProducer = conf_.getParameter<edm::InputTag>("rawdigiProducer");
-  theRawdigiLabel = conf_.getParameter<edm::InputTag>("rawdigiLabel");
-  
-  e.getByLabel( Cluster_src_, dsv_SiStripCluster);    
-  e.getByLabel(theRawdigiProducer.label(),theRawdigiLabel.label(),rawDigiHandle);
 
-  e.getByLabel(Track_src_, trackCollection);
+  e.getByLabel( Cluster_src_, dsv_SiStripCluster); 
+
+  // track input  
+  std::string TrackProducer = conf_.getParameter<std::string>("TrackProducer");
+  std::string TrackLabel = conf_.getParameter<std::string>("TrackLabel");
+  
+  e.getByLabel(TrackProducer, TrackLabel, trackCollection);//takes the track collection
+ 
   if (trackCollection.isValid()){
   }else{
-    edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !!" <<std::endl;
+    LogDebug("SiStripMonitorTrack")<<" Track Collection is not valid !!" <<std::endl;
     tracksCollection_in_EventTree=false;
   }
-      
-  // track input
-  edm::InputTag TkiTag = conf_.getParameter<edm::InputTag>( "TrackInfo" );
-  e.getByLabel( TkiTag, TItkAssociatorCollection );
+
+  // trajectory input
+  e.getByLabel(TrackProducer, TrackLabel, TrajectoryCollection);
+  e.getByLabel(TrackProducer, TrackLabel, TItkAssociatorCollection);
   if( TItkAssociatorCollection.isValid()){
   }else{
-    edm::LogError("SiStripMonitorTrack")<<"trackInfo not found "<<std::endl;
+    LogDebug("SiStripMonitorTrack")<<"Association not found "<<std::endl;
     trackAssociatorCollection_in_EventTree=false;
   }
- 
- //Perform track study
-  if (tracksCollection_in_EventTree || trackAssociatorCollection_in_EventTree) trackStudy(es);
+  
+  //Perform track study
+  if (tracksCollection_in_EventTree && trackAssociatorCollection_in_EventTree) trackStudy(es);
   
   //Perform Cluster Study (irrespectively to tracks)
-  AllClusters(es);//analyzes the off Track Clusters
+  if (dsv_SiStripCluster.isValid() && OffHisto_On_){
+    AllClusters(es);//analyzes the off Track Clusters
+  }else{
+    LogDebug("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+  }
 
   //Summary Counts of clusters
   std::map<TString, MonitorElement*>::iterator iME;
   std::map<TString, ModMEs>::iterator          iModME ;
-  for (int j=0;j<2;++j){ // loop over ontrack, offtrack
+  for (int j=0;j<off_Flag;++j){ // loop over ontrack, offtrack
     int nTot=0;
     for (int i=0;i<4;++i){ // loop over TIB, TID, TOB, TEC
       name=flags[j]+"_in_"+SubDet[i];      
@@ -122,7 +133,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
     iME = MEMap.find(name+"Trend");
     if(iME!=MEMap.end()) fillTrend(iME->second,nTot);
 
-  } // loop over ontrack, offtrack
+ } // loop over ontrack, offtrack
   
 }
 
@@ -140,15 +151,16 @@ void SiStripMonitorTrack::book()
       edm::LogError("SiStripMonitorTrack")<< "[" <<__PRETTY_FUNCTION__ << "] invalid detid " << detid<< std::endl;
       continue;
     }
-    if (DetectedLayers.find(GetSubDetAndLayer(detid)) == DetectedLayers.end()){
+    if (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(detid)) == DetectedLayers.end()){
       
-      DetectedLayers[GetSubDetAndLayer(detid)]=true;
+      DetectedLayers[folder_organizer.GetSubDetAndLayer(detid)]=true;
     }    
 
     // set the DQM directory
-    dbe->setCurrentFolder("Track/GlobalParameters");
+    std::string MEFolderName = conf_.getParameter<std::string>("FolderName");    
+    dbe->setCurrentFolder(MEFolderName);
     
-    for (int j=0;j<2;j++) { // Loop on onTrack, offTrack
+    for (int j=0;j<off_Flag;j++) { // Loop on onTrack, offTrack
       name=flags[j]+"_NumberOfClusters";
       if(MEMap.find(name)==MEMap.end()) {
 	MEMap[name]=bookME1D("TH1nClusters", name.Data()); 
@@ -162,26 +174,25 @@ void SiStripMonitorTrack::book()
     //					<< " Layer "  << GetSubDetAndLayer(*detid).second;
 
     // book Layer plots      
-    for (int j=0;j<2;j++){ 
-      folder_organizer.setLayerFolder(*detid_iter,GetSubDetAndLayer(*detid_iter).second); 
-      bookTrendMEs("layer",GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
+    for (int j=0;j<off_Flag;j++){ 
+      folder_organizer.setLayerFolder(*detid_iter,folder_organizer.GetSubDetAndLayer(*detid_iter).second); 
+      bookTrendMEs("layer",folder_organizer.GetSubDetAndLayer(*detid_iter).second,*detid_iter,flags[j]);
     }
   
-    const edm::ParameterSet mod = conf_.getParameter<edm::ParameterSet>("Modules");
-    if (mod.getParameter<bool>("Mod_On")) {
+    if(Mod_On_){
       //    book module plots
       folder_organizer.setDetectorFolder(*detid_iter);
       bookModMEs("det",*detid_iter);
     }
-    DetectedLayers[GetSubDetAndLayer(*detid_iter)] |= (DetectedLayers.find(GetSubDetAndLayer(*detid_iter)) == DetectedLayers.end());
+    DetectedLayers[folder_organizer.GetSubDetAndLayer(*detid_iter)] |= (DetectedLayers.find(folder_organizer.GetSubDetAndLayer(*detid_iter)) == DetectedLayers.end());
     //      }
   }//end loop on detector
   
-  // book SubDet plots
+  //  book SubDet plots
   for (std::map<std::pair<std::string,int32_t>,bool>::const_iterator iter=DetectedLayers.begin(); iter!=DetectedLayers.end();iter++){
-    for (int j=0;j<2;j++){ // Loop on onTrack, offTrack
+    for (int j=0;j<off_Flag;j++){ // Loop on onTrack, offTrack
       folder_organizer.setDetectorFolder(0);
-      dbe->cd(iter->first.first);
+      dbe->cd("SiStrip/MechanicalView/"+iter->first.first);
       name=flags[j]+"_in_"+iter->first.first; 
       bookSubDetMEs(name,flags[j]); //for subdets
     }//end loop on onTrack,offTrack
@@ -255,11 +266,9 @@ void SiStripMonitorTrack::bookTrendMEs(TString name,int32_t layer,uint32_t id,st
     ModMEs theModMEs; 
     //Cluster Width
     theModMEs.ClusterWidth=bookME1D("TH1ClusterWidth", hidmanager.createHistoLayer("Summary_cWidth",name.Data(),rest,flag).c_str()); 
-    LogTrace("SiStripMonitorTrack") << "booking histogram: "<<  hidmanager.createHistoLayer("Summary_cWidth",name.Data(),rest,flag).c_str() << std::endl;
     dbe->tag(theModMEs.ClusterWidth,layer); 
     theModMEs.ClusterWidthTrend=bookMETrend("TH1ClusterWidth", hidmanager.createHistoLayer("Trend_cWidth",name.Data(),rest,flag).c_str()); 
     dbe->tag(theModMEs.ClusterWidthTrend,layer); 
-    LogTrace("SiStripMonitorTrack") << "booking histogram: "<<  hidmanager.createHistoLayer("Trend_cWidth",name.Data(),rest,flag).c_str() << std::endl;
 
     //Cluster Noise
     theModMEs.ClusterNoise=bookME1D("TH1ClusterNoise", hidmanager.createHistoLayer("Summary_cNoise",name.Data(),rest,flag).c_str()); 
@@ -424,13 +433,15 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 //------------------------------------------------------------------------------------------
 void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
 {
-  LogDebug("SiStripMonitorTrack") << "Start" << __PRETTY_FUNCTION__ ;
+
+  LogDebug("SiStripMonitorTrack") << "inside trackstudy" << std::endl;
   const reco::TrackCollection tC = *(trackCollection.product());
   int i=0;
-  for (unsigned int track=0;track<trackCollection->size();++track){
-    // TrackInfo Map, extract TrackInfo for this track
-    reco::TrackRef trackref = reco::TrackRef(trackCollection, track); 
-    reco::TrackInfoRef trackinforef=(*TItkAssociatorCollection.product())[trackref];
+  std::vector<TrajectoryMeasurement> measurements;
+  for(TrajTrackAssociationCollection::const_iterator it =  TItkAssociatorCollection->begin();it !=  TItkAssociatorCollection->end(); ++it){
+    const edm::Ref<std::vector<Trajectory> > traj_iterator = it->key;  
+    // Trajectory Map, extract Trajectory for this track
+    reco::TrackRef trackref = it->val;
     LogTrace("SiStripMonitorTrack")
       << "Track number "<< i+1 
       << "\n\tmomentum: " << trackref->momentum()
@@ -443,60 +454,78 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
       <<"\n\t\touter PT "<< trackref->outerPt()<<std::endl;
     i++;
 
-//     std::vector<std::pair<const TrackingRecHit*, float> > hitangle;
-//     hitangle = SeparateHits(trackinforef);
-
-    reco::TrackInfo::TrajectoryInfo::const_iterator iter;
-    
-    for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();iter++){
-      
+    measurements =traj_iterator->measurements();
+    std::vector<TrajectoryMeasurement>::iterator traj_mes_iterator;
+    int nhit=0;
+    for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();traj_mes_iterator++){//loop on measurements
       //trajectory local direction and position on detector
-      LocalVector statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
-      LocalPoint  stateposition=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).position();
+      LocalPoint  stateposition;
+      LocalVector statedirection;
+      
+      TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
+      ConstRecHitPointer ttrh=traj_mes_iterator->recHit();
+      if (!ttrh->isValid()) {continue;}
       
       std::stringstream ss;
-      ss <<"LocalMomentum: "<<statedirection
-	 <<"\nLocalPosition: "<<stateposition
-	 << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());
       
-      if(trackinforef->type((*iter).first)==Matched){ // get the direction for the components
+      nhit++;
+      
+      const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( ttrh->hit() );
+      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( ttrh->hit() );
+      const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>( ttrh->hit() );	
+      
+      RecHitType type=Single;
+
+      if(matchedhit){
+	LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;
+	type=Matched;
 	
-	const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(iter)->first));
-	if (matchedhit!=0){
-	  ss<<"\nMatched recHit found"<< std::endl;	  
-	  //mono side
-	  statedirection= trackinforef->localTrackMomentumOnMono(Updated,(*iter).first);
-	  if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->monoHit(),statedirection,trackref,es);
-	  //stereo side
-	  statedirection= trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	  if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->stereoHit(),statedirection,trackref,es);
-	  ss<<"\nLocalMomentum (stereo): "<<trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	}
+	GluedGeomDet * gdet=(GluedGeomDet *)tkgeom->idToDet(matchedhit->geographicalId());
+	GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());	    
+	//mono side
+	const GeomDetUnit * monodet=gdet->monoDet();
+	statedirection=monodet->toLocal(gtrkdirup);
+	if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->monoHit(),statedirection,trackref,es);
+	//stereo side
+	const GeomDetUnit * stereodet=gdet->stereoDet();
+	statedirection=stereodet->toLocal(gtrkdirup);
+	if(statedirection.mag() != 0)	  RecHitInfo(matchedhit->stereoHit(),statedirection,trackref,es);
+	ss<<"\nLocalMomentum (stereo): " <<  statedirection;
       }
-      else if (trackinforef->type((*iter).first)==Projected){//one should be 0
-	ss<<"\nProjected recHit found"<< std::endl;
-	const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>(&(*(iter)->first));
-	if(phit!=0){
+      else if(phit){
+	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;
+	type=Projected;
+	GluedGeomDet * gdet=(GluedGeomDet *)tkgeom->idToDet(phit->geographicalId());
+	
+	GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());
+	const SiStripRecHit2D&  originalhit=phit->originalHit();
+	const GeomDetUnit * det;
+	if(!StripSubdetector(originalhit.geographicalId().rawId()).stereo()){
 	  //mono side
-	  statedirection= trackinforef->localTrackMomentumOnMono(Updated,(*iter).first);
+	  LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found  MONO"<< std::endl;
+	  det=gdet->monoDet();
+	  statedirection=det->toLocal(gtrkdirup);
 	  if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref,es);
+	}
+	else{
+	  LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found STEREO"<< std::endl;
 	  //stereo side
-	  statedirection= trackinforef->localTrackMomentumOnStereo(Updated,(*iter).first);
-	  if(statedirection.mag() != 0)  RecHitInfo(&(phit->originalHit()),statedirection,trackref,es);
-	}	
-	
-      }
-      else {
-	const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(iter)->first));
+	  det=gdet->stereoDet();
+	  statedirection=det->toLocal(gtrkdirup);
+	  if(statedirection.mag() != 0) RecHitInfo(&(phit->originalHit()),statedirection,trackref,es);
+	}
+      }else {
 	if(hit!=0){
 	  ss<<"\nSingle recHit found"<< std::endl;	  
-	  statedirection=(trackinforef->stateOnDet(Updated,(*iter).first)->parameters()).momentum();
+	  statedirection=updatedtsos.localMomentum();
 	  if(statedirection.mag() != 0) RecHitInfo(hit,statedirection,trackref,es);
-	  
 	}
       }
+      ss <<"LocalMomentum: "<<statedirection
+	 << "\nLocal x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());	      
       LogTrace("TrackInfoAnalyzerExample") <<ss.str() << std::endl;
     }
+    
   }
 }
 
@@ -541,7 +570,6 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
 void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
 {
 
-  LogDebug("SiStripMonitorTrack") << "Start cluster analysis" ;
   //Loop on Dets
   edm::DetSetVector<SiStripCluster>::const_iterator DSViter=dsv_SiStripCluster->begin();
   for (; DSViter!=dsv_SiStripCluster->end();DSViter++){
@@ -580,7 +608,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   // start of the analysis
   
   int SubDet_enum = StripSubdetector(detid).subdetId()-3;
-  int iflag;
+  int iflag =0;
   if      (flag=="OnTrack")  iflag=0;
   else if (flag=="OffTrack") iflag=1;
   NClus[SubDet_enum][iflag]++;
@@ -597,7 +625,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   std::string name;
   
    //Filling SubDet Plots (on Track + off Track)
-   std::pair<std::string,int32_t> SubDetAndLayer = GetSubDetAndLayer(detid);
+   std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid);
    name=flag+"_in_"+SubDetAndLayer.first;
    fillTrendMEs(cluster,name,cosRZ,flag);
 
@@ -629,12 +657,10 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
    
    //Filling Layer Plots
    name= hidmanager1.createHistoLayer("","layer",rest,flag);
-   LogTrace("SiStripMonitorTrack") << "fill " << name << std::endl;
    fillTrendMEs(cluster,name,cosRZ,flag);
    
    //Module plots filled only for onTrack Clusters
-   const edm::ParameterSet _mod = conf_.getParameter<edm::ParameterSet>("Modules");
-   if (_mod.getParameter<bool>("Mod_On")) { 
+   if(Mod_On_){
      if(flag=="OnTrack"){
        SiStripHistoId hidmanager2;
        name =hidmanager2.createHistoId("","det",detid);
@@ -643,35 +669,6 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
    }
      return true;
    }
-
-//--------------------------------------------------------------------------------
-std::pair<std::string,int32_t> SiStripMonitorTrack::GetSubDetAndLayer(const uint32_t& detid)
-{
-  std::string cSubDet;
-  int32_t layer=0;
-  switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
-    {
-    case StripSubdetector::TIB:
-      cSubDet="TIB";
-      layer=TIBDetId(detid).layer();
-      break;
-    case StripSubdetector::TOB:
-      cSubDet="TOB";
-      layer=TOBDetId(detid).layer();
-      break;
-    case StripSubdetector::TID:
-      cSubDet="TID";
-      layer=TIDDetId(detid).wheel() * ( TIDDetId(detid).side()==1 ? -1 : +1);
-      break;
-    case StripSubdetector::TEC:
-      cSubDet="TEC";
-      layer=TECDetId(detid).wheel() * ( TECDetId(detid).side()==1 ? -1 : +1);
-      break;
-    default:
-      edm::LogWarning("SiStripMonitorTrack") << "WARNING!!! this detid does not belong to tracker" << std::endl;
-    }
-  return std::make_pair(cSubDet,layer);
-}
 
 //--------------------------------------------------------------------------------
 void SiStripMonitorTrack::fillTrend(MonitorElement* me ,float value)
@@ -803,4 +800,5 @@ void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string n
     fillME(iModME->second.ClusterPos   ,cluster->getPosition());
   }
 }
+
 DEFINE_FWK_MODULE(SiStripMonitorTrack);

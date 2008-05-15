@@ -1,5 +1,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -274,9 +275,9 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"left\">" << endl;
   
   // Histogram Row
-  histoHTML2(runNo,hcalhists.threshOccMap[hcalhists.threshOccMap.size()-1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hcalhists.nadaOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hcalhists.nadaNegOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,hcalhists.threshOccMap[hcalhists.threshOccMap.size()-1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,hcalhists.nadaOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,hcalhists.nadaNegOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile<<"</tr>"<<endl;
 
   // Description row
@@ -303,7 +304,7 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   for (unsigned int i=hcalhists.threshOccMap.size();i>0;i--)
     {
       //hcalhists.threshOccMap[i-1]->Scale(1./ievt_);
-      histoHTML2(runNo,hcalhists.threshOccMap[i-1],"iEta","iPhi", 92, htmlFile,htmlDir);
+      htmlAnyHisto(runNo,hcalhists.threshOccMap[i-1],"iEta","iPhi", 92, htmlFile,htmlDir);
     }
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl; // end of table
@@ -634,90 +635,94 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
   if (debug_)
     cout <<"Getting HcalHotCell Subdetector Histograms for Subdetector:  "<<type<<endl;
 
+  // Make dummy histogram that is used by template function getAnyHisto to determine hist type -- is there a better way to get this info?
+
+  TH2F* dummy2D = new TH2F();
   for (int i=0;i<hist.thresholds;i++)
     {
       sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapThresh%i",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshOccMap.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      
+      hist.threshOccMap.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapThresh%i",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshEnergyMap.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshEnergyMap.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       
       sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellOccMapThresh%iDepth1",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshOccMapDepth1.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshOccMapDepth1.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellEnergyMapThresh%iDepth1",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshEnergyMapDepth1.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshEnergyMapDepth1.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       
       sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellOccMapThresh%iDepth2",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshOccMapDepth2.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshOccMapDepth2.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellEnergyMapThresh%iDepth2",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshEnergyMapDepth2.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshEnergyMapDepth2.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       
       sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellOccMapThresh%iDepth3",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshOccMapDepth3.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshOccMapDepth3.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellEnergyMapThresh%iDepth3",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshEnergyMapDepth3.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshEnergyMapDepth3.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       
       sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellOccMapThresh%iDepth4",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshOccMapDepth4.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshOccMapDepth4.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellEnergyMapThresh%iDepth4",type.c_str(),type.c_str(),i);
       //cout <<name<<endl;
-      hist.threshEnergyMapDepth4.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshEnergyMapDepth4.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
     }
 
   sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapMaxCell",type.c_str(),type.c_str());
   //cout <<name<<endl;
-  hist.maxCellOccMap = getHisto2(name, process_, dbe_,debug_,cloneME_);      
+  hist.maxCellOccMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);      
   sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapMaxCell",type.c_str(),type.c_str());
   //cout <<name<<endl;
-  hist.maxCellEnergyMap = getHisto2(name, process_, dbe_,debug_,cloneME_);
+  hist.maxCellEnergyMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);
   
   sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMaxCell",type.c_str(),type.c_str());
-  hist.maxCellEnergy = getHisto(name, process_, dbe_,debug_,cloneME_);
+  hist.maxCellEnergy = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);
   //cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%sHotCellTimeMaxCell",type.c_str(),type.c_str());
-  hist.maxCellTime = getHisto(name, process_, dbe_,debug_,cloneME_);    
+  hist.maxCellTime = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);    
   //cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%sHotCellIDMaxCell",type.c_str(),type.c_str());
-  hist.maxCellID = getHisto(name, process_, dbe_,debug_,cloneME_);    
+  hist.maxCellID = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);    
   //cout <<name<<endl;
 
   // NADA histograms
   sprintf(name,"HotCellMonitor/%s/%snadaOccMap",type.c_str(),type.c_str());
-  hist.nadaOccMap=getHisto2(name, process_, dbe_,debug_,cloneME_);
+  hist.nadaOccMap=getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);
   //cout <<"NAME = "<<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%snadaEnergyMap",type.c_str(),type.c_str());
-  hist.nadaEnergyMap=getHisto2(name, process_, dbe_,debug_,cloneME_);
+  hist.nadaEnergyMap=getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);
   //cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NumHotCells",type.c_str(),type.c_str());
-  hist.nadaNumHotCells = getHisto(name, process_, dbe_,debug_,cloneME_);
+  hist.nadaNumHotCells = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);
    //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_testcell",type.c_str(),type.c_str());
-  hist.nadaTestCell = getHisto(name, process_, dbe_,debug_,cloneME_); 
+  hist.nadaTestCell = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_Energy",type.c_str(),type.c_str());
-  hist.nadaEnergy = getHisto(name, process_, dbe_,debug_,cloneME_); 
+  hist.nadaEnergy = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NumNegCells",type.c_str(),type.c_str());
-  hist.nadaNumNegCells = getHisto(name, process_, dbe_,debug_,cloneME_); 
+  hist.nadaNumNegCells = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/%snadaNegOccMap",type.c_str(),type.c_str());
-  hist.nadaNegOccMap = getHisto2(name, process_, dbe_,debug_,cloneME_); 
+  hist.nadaNegOccMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/%snadaNegEnergyMap",type.c_str(),type.c_str());
-  hist.nadaNegEnergyMap = getHisto2(name, process_, dbe_,debug_,cloneME_); 
+  hist.nadaNegEnergyMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_); 
   //cout <<name<<endl;
 
   return;
@@ -1026,26 +1031,26 @@ void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo,
   htmlSubFile << "cellpadding=\"10\"> " << endl;
   
   htmlSubFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.nadaOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
-  histoHTML2(runNo,hist.nadaEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
   htmlSubFile << "</tr>" << endl;
 
   htmlSubFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.nadaNegOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
-  histoHTML2(runNo,hist.nadaNegEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaNegOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaNegEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
   htmlSubFile << "</tr>" << endl;
 
 
   for (int i=0;i<hist.thresholds;i++){
     htmlSubFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.threshOccMap[i],"iEta","iPhi", 92, htmlSubFile,htmlDir);
-    histoHTML2(runNo,hist.threshEnergyMap[i],"iEta","iPhi", 100, htmlSubFile,htmlDir);
+    htmlAnyHisto(runNo,hist.threshOccMap[i],"iEta","iPhi", 92, htmlSubFile,htmlDir);
+    htmlAnyHisto(runNo,hist.threshEnergyMap[i],"iEta","iPhi", 100, htmlSubFile,htmlDir);
     htmlSubFile << "</tr>" << endl;
   }
   
   htmlSubFile << "<tr align=\"left\">" << endl;	
-  histoHTML(runNo,hist.maxCellEnergy,"GeV","Evts", 92, htmlSubFile,htmlDir);
-  histoHTML(runNo,hist.maxCellTime,"nS","Evts", 100, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.maxCellEnergy,"GeV","Evts", 92, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.maxCellTime,"nS","Evts", 100, htmlSubFile,htmlDir);
   htmlSubFile << "</tr></table>" << endl;
   htmlSubFile << "<hr>" << endl;
   htmlSubFile.close();

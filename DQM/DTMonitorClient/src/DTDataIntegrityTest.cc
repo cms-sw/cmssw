@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/01/22 18:45:23 $
- * $Revision: 1.14 $
+ * $Date: 2008/03/01 00:39:51 $
+ * $Revision: 1.15 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -35,7 +35,6 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
   parameters = ps;
 
   dbe = Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 

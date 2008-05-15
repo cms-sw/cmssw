@@ -81,12 +81,13 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.35 2008/01/15 06:51:44 wmtan Exp $
+$Id: DataViewImpl.h,v 1.37 2008/03/31 21:13:27 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
 #include <memory>
 #include <typeinfo>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -111,8 +112,6 @@ $Id: DataViewImpl.h,v 1.35 2008/01/15 06:51:44 wmtan Exp $
 
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
 
@@ -212,7 +211,7 @@ namespace edm {
     
   private:
 
-    typedef std::vector<ProductID>       ProductIDVec;
+    typedef std::set<ProductID>       ProductIDSet;
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
@@ -316,7 +315,7 @@ namespace edm {
     // which do not logically modify the DataViewImpl. gotProductIDs_ is
     // merely a cache reflecting what has been retreived from the
     // Principal class.
-    mutable ProductIDVec gotProductIDs_;
+    mutable ProductIDSet gotProductIDs_;
 
     // Each DataViewImpl must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
@@ -356,7 +355,6 @@ namespace edm {
     // application of SFINAE. GCC 3.4.2 is known to deal with this code
     // correctly.
     //------------------------------------------------------------
-#if GCC_PREREQUISITE(3,4,4)
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -374,27 +372,6 @@ namespace edm {
 	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
 	!boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
     };
-#else
-    //------------------------------------------------------------
-    // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
-    // compiler; see the note above.
-    //------------------------------------------------------------
-
-    //------------------------------------------------------------
-    // The definition of the primary template should be in its own
-    // header, in EDProduct; this is because anyone who specializes
-    // this template has to include the declaration of the primary
-    // template.
-    //------------------------------------------------------------
-
-
-    template<typename T>
-    struct has_postinsert
-    {
-      static bool const value = has_postinsert_trait<T>::value;	
-    };
-
-#endif
   }
 
 
@@ -475,7 +452,7 @@ namespace edm {
     BasicHandle bh = this->get_(oid);
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -490,7 +467,7 @@ namespace edm {
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -517,7 +494,7 @@ namespace edm {
       BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(),tag.process());
       convert_handle(bh, result);  // throws on conversion error
       if(!bh.failedToGet()) {
-        gotProductIDs_.push_back(bh.id());
+        gotProductIDs_.insert(bh.id());
         return true;
       }
     }
@@ -534,7 +511,7 @@ namespace edm {
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName);
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -670,7 +647,7 @@ namespace edm {
     boost::shared_ptr<View<ELEMENT> > 
       newview(new View<ELEMENT>(pointersToElements, helpers));
     
-    gotProductIDs_.push_back(bh.id());
+    gotProductIDs_.insert(bh.id());
     gotViews_.push_back(newview);
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);
@@ -703,7 +680,7 @@ namespace edm {
     BasicHandleVec::const_iterator end = bhv.end();
 
     while (it != end) {
-      gotProductIDs_.push_back((*it).id());
+      gotProductIDs_.insert((*it).id());
       Handle<PROD> result;
       convert_handle(*it, result);  // throws on conversion error
       products.push_back(result);
@@ -720,7 +697,7 @@ namespace edm {
     BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
     return false;
@@ -752,7 +729,7 @@ namespace edm {
     BasicHandleVec::const_iterator end = bhv.end();
 
     while (it != end) {
-      gotProductIDs_.push_back((*it).id());
+      gotProductIDs_.insert((*it).id());
       Handle<PROD> result;
       convert_handle(*it, result);  // throws on conversion error
       products.push_back(result);

@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.27 2008/02/12 22:52:03 wmtan Exp $
+  $Id: Principal.cc,v 1.28 2008/02/28 20:51:06 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -411,7 +411,8 @@ namespace edm {
   Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if ((*i)->provenanceAvailable()) provenances.push_back(&(*i)->provenance());
+      if ((*i)->provenanceAvailable() && (*i)->provenance().isPresent() && (*i)->provenance().product().present())
+	 provenances.push_back(&(*i)->provenance());
     }
   }
 

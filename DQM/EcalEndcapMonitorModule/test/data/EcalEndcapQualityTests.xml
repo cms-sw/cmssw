@@ -8,7 +8,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -24,7 +24,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -40,7 +40,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -56,7 +56,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -72,7 +72,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -88,7 +88,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -104,7 +104,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -120,7 +120,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -136,7 +136,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -152,7 +152,7 @@
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -168,7 +168,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -184,7 +184,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -200,7 +200,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.2</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -216,7 +216,7 @@
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -225,14 +225,14 @@
 </LINK>
 
 <QTEST name="EE_Pedestal_PN_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -241,14 +241,14 @@
 </LINK>
 
 <QTEST name="EE_Pedestal_PN_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -272,31 +272,15 @@
         <TestName activate="true">EE_Laser_L1_Quality</TestName>
 </LINK>
 
-<QTEST name="EE_Laser_L4_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
-        <PARAM name="error">1.00</PARAM>
-        <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">100.0</PARAM>
-        <PARAM name="maxMean">49152.0</PARAM>
-        <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
-        <PARAM name="minEntries">100</PARAM>
-</QTEST>
-
-<LINK name="*EcalEndcap/EELaserTask/Laser4/EELT amplitude EE* L4*">
-        <TestName activate="true">EE_Laser_L4_Quality</TestName>
-</LINK>
-
 <QTEST name="EE_Laser_L1_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -305,14 +289,14 @@
 </LINK>
 
 <QTEST name="EE_Laser_L1_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -352,15 +336,31 @@
         <TestName activate="true">EE_Laser_L1_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
-<QTEST name="EE_Laser_L4_PN_Pedestal_G01_Quality">
+<QTEST name="EE_Laser_L4_Quality">
         <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="maxMean">49152.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELaserTask/Laser4/EELT amplitude EE* L4*">
+        <TestName activate="true">EE_Laser_L4_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Laser_L4_PN_Pedestal_G01_Quality">
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -369,14 +369,14 @@
 </LINK>
 
 <QTEST name="EE_Laser_L4_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -416,7 +416,7 @@
         <TestName activate="true">EE_Laser_L4_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
-<QTEST name="EE_Led_Quality">
+<QTEST name="EE_Led_L1_Quality">
         <TYPE>ContentsWithinExpectedProf2D</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -428,43 +428,43 @@
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/EELDT amplitude EE*">
-        <TestName activate="true">EE_Led_Quality</TestName>
+<LINK name="*EcalEndcap/EELedTask/Led1/EELDT amplitude EE* L1*">
+        <TestName activate="true">EE_Led_L1_Quality</TestName>
 </LINK>
 
-<QTEST name="EE_Led_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+<QTEST name="EE_Led_L1_PN_Pedestal_G01_Quality">
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs pedestal EE* G01">
-        <TestName activate="true">EE_Led_PN_Pedestal_G01_Quality</TestName>
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs pedestal EE* G01 L1">
+        <TestName activate="true">EE_Led_L1_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
-<QTEST name="EE_Led_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+<QTEST name="EE_Led_L1_PN_Pedestal_G16_Quality">
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs pedestal EE* G16">
-        <TestName activate="true">EE_Led_PN_Pedestal_G16_Quality</TestName>
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs pedestal EE* G16 L1">
+        <TestName activate="true">EE_Led_L1_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
-<QTEST name="EE_Led_PN_Amplitude_G01_Quality">
+<QTEST name="EE_Led_L1_PN_Amplitude_G01_Quality">
         <TYPE>ContentsWithinExpectedProf2D</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -476,11 +476,11 @@
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/PN/Gain01/EEPDT PNs amplitude EE* G01">
-        <TestName activate="true">EE_Led_PN_Amplitude_G01_Quality</TestName>
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs amplitude EE* G01 L1">
+        <TestName activate="true">EE_Led_L1_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
-<QTEST name="EE_Led_PN_Amplitude_G16_Quality">
+<QTEST name="EE_Led_L1_PN_Amplitude_G16_Quality">
         <TYPE>ContentsWithinExpectedProf2D</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -492,8 +492,88 @@
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
-<LINK name="*EcalEndcap/EELedTask/PN/Gain16/EEPDT PNs amplitude EE* G16">
-        <TestName activate="true">EE_Led_PN_Amplitude_G16_Quality</TestName>
+<LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs amplitude EE* G16 L1">
+        <TestName activate="true">EE_Led_L1_PN_Amplitude_G16_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Led_L2_Quality">
+        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="maxMean">49152.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELedTask/Led2/EELDT amplitude EE* L2*">
+        <TestName activate="true">EE_Led_L2_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Led_L2_PN_Pedestal_G01_Quality">
+        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">650.0</PARAM>
+        <PARAM name="maxMean">850.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">1.0</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs pedestal EE* G01 L2">
+        <TestName activate="true">EE_Led_L2_PN_Pedestal_G01_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Led_L2_PN_Pedestal_G16_Quality">
+        <TYPE>ContentsWithinExpectedProf</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">650.0</PARAM>
+        <PARAM name="maxMean">850.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">3.0</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs pedestal EE* G16 L2">
+        <TestName activate="true">EE_Led_L2_PN_Pedestal_G16_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Led_L2_PN_Amplitude_G01_Quality">
+        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="maxMean">4096.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs amplitude EE* G01 L2">
+        <TestName activate="true">EE_Led_L2_PN_Amplitude_G01_Quality</TestName>
+</LINK>
+
+<QTEST name="EE_Led_L2_PN_Amplitude_G16_Quality">
+        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">50.0</PARAM>
+        <PARAM name="maxMean">4096.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">4096.0</PARAM>
+        <PARAM name="toleranceMean">0.20</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs amplitude EE* G16 L2">
+        <TestName activate="true">EE_Led_L2_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
 <QTEST name="EE_TestPulse_G01_Quality">
@@ -545,14 +625,14 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -561,14 +641,14 @@
 </LINK>
 
 <QTEST name="EE_TestPulse_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpectedProf</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -616,7 +696,7 @@
         <PARAM name="maxMean">7.2</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.5</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -632,7 +712,7 @@
         <PARAM name="maxMean">6.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -692,15 +772,27 @@
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EELedClient/EELDT led quality EE*">
+<LINK name="*EcalEndcap/EELedClient/EELDT led quality L1 EE*">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EELedClient/EELDT led quality PNs G01 EE*">
+<LINK name="*EcalEndcap/EELedClient/EELDT led quality L1 PNs G01 EE*">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EELedClient/EELDT led quality PNs G16 EE*">
+<LINK name="*EcalEndcap/EELedClient/EELDT led quality L1 PNs G16 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELedClient/EELDT led quality L2 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELedClient/EELDT led quality L2 PNs G01 EE*">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EELedClient/EELDT led quality L2 PNs G16 EE*">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
@@ -756,15 +848,27 @@
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EESummaryClient/EELDT EE * led quality summary">
+<LINK name="*EcalEndcap/EESummaryClient/EELDT EE * led quality summary L1">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EESummaryClient/EELDT EE * PN led quality summary">
+<LINK name="*EcalEndcap/EESummaryClient/EELDT EE * PN led quality summary L1">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalEndcap/EESummaryClient/EEPT EE * pedestal quality summary">
+<LINK name="*EcalEndcap/EESummaryClient/EEPT EE * pedestal quality summary L1">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EESummaryClient/EELDT EE * led quality summary L2">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EESummaryClient/EELDT EE * PN led quality summary L2">
+        <TestName activate="true">EE_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EESummaryClient/EEPT EE * pedestal quality summary L2">
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 

@@ -96,6 +96,7 @@ parser.add_option("-s", "--step",
                         "GENSIM (Generation+Simulation)"+\
                         "DIGI (Digitisation), "+\
                         "RECO (Reconstruction), "+\
+                        "ALCA (alignment/calibration), "+\
                         "DIGIRECO (DigitisationReconstruction), "+\
                         "DIGIPURECO (DigitisationReconstruction+ Pileup at low lumi), "+\
                         "ALL (Simulation-Reconstruction-Digitisation).",
@@ -136,6 +137,12 @@ parser.add_option("--filein",
                    default="",#to be changed in the default form later
                    dest="filein")
 
+parser.add_option("--secondfilein",
+                   help="The secondary infile name."+\
+                        "for the two-file solution. Default is no file",
+                   default="",#to be changed in the default form later
+                   dest="secondfilein")
+
 parser.add_option("--fileout",
                    help="The outfile name. If absent a default value is "+\
                         "assigned. The form is <type>_<energy>_<step>.root.",
@@ -147,6 +154,42 @@ parser.add_option("--writeraw",
                   action="store_true",
                   default=False,
                   dest="writeraw")
+
+parser.add_option("--eventcontent",
+                   help="What event content to write out. Default=FEVTSIMDIGI",
+                   default="FEVTSIMDIGI",
+                   dest="eventcontent")
+
+parser.add_option("--datatier",
+                   help="What data tier to use. Default from lookup table",
+                   default='',
+                   dest="datatier")
+
+parser.add_option("--filtername",
+                   help="What filter name to specify in output module",
+                   default="",
+                   dest="filtername")
+
+parser.add_option("--oneoutput",
+                   help="use only one output module",
+                   action="store_true",
+                   default="False",
+                   dest="oneoutput")
+
+parser.add_option("--conditions",
+                   help="What conditions to use. Default=FrontierConditions_GlobalTag,STARTUP::All",
+                   default="FrontierConditions_GlobalTag,STARTUP::All",
+                   dest="conditions")
+
+parser.add_option("--beamspot",
+                   help="What beam spot to use (from Configuration/StandardSequences). Default=BetafuncEarlyCollision",
+                   default="BetafuncEarlyCollision",
+                   dest="beamspot")
+
+parser.add_option("--altcffs",
+                   help="Specify any nondefault cffs to include (replace the default ones) [syntax <step>:cff]",
+                   default="",
+                   dest="altcffs")
 
 parser.add_option( "--dirin",
                    help="The infile directory.",
@@ -219,11 +262,6 @@ parser.add_option("--no_exec",
                   default=False,
                   dest="no_exec_flag")   
                   
-parser.add_option("--substep3",
-                  help="Substitute the \"p3\" sequence with userdefined names.Use ONLY commas to separate values.",
-                  default="",
-                  dest="newstep3")                                  
-                  
 parser.add_option("--customise",
                   help="Specify the file where the code to modify the process object is stored.",
                   default="",
@@ -231,8 +269,7 @@ parser.add_option("--customise",
 
 parser.add_option("--user_schedule",
                   help="User defined schedule instead of the default one.",
-                  action="store_true",
-                  default=False,
+                  default='',
                   dest="user_schedule")
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
@@ -262,9 +299,12 @@ prec_step = {"ALL":"",
              "SIM":"GEN",
              "DIGI":"SIM",
              "RECO":"DIGI",
+             "ALCA":"RECO",
              "ANA":"RECO",
              "DIGI2RAW":"DIGI",
              "RAW2DIGI":"DIGI2RAW"}
+
+trimmedEvtType=options.evt_type.split('/')[-1:][0]
 
 trimmedStep=''
 isFirst=0
@@ -282,14 +322,17 @@ first_step=trimmedStep.split(',')[0]
 if options.filein=="" and not first_step in ("ALL","GEN"):
     if options.dirin=="":
         options.dirin="file:"
-    options.filein=options.evt_type+"_"+options.energy+\
+    options.filein=trimmedEvtType+"_"+options.energy+\
      "_"+prec_step[trimmedStep]+".root"
 
      
 if options.fileout=="":
-    options.fileout=options.evt_type+"_"+\
+    options.fileout=trimmedEvtType+"_"+\
                     options.energy+\
                     "_"+trimmedStep
+    options.fileout=options.fileout.replace(',','_')
+    options.fileout=options.fileout.replace('.','_')
+
     if options.PU_flag:
         options.fileout+="_PU"
     if options.analysis_flag:
@@ -316,9 +359,10 @@ if options.writeraw:
 # File where to dump the python cfg file
 python_config_filename=''
 if options.dump_python:
-    python_config_filename=options.evt_type+"_"+\
+    python_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
+    python_config_filename=python_config_filename.replace(',','_').replace('.','_')
     if options.PU_flag:
         python_config_filename+="_PU"
     if options.analysis_flag:
@@ -327,31 +371,31 @@ if options.dump_python:
 
 cfg_config_filename=''
 if options.dump_cfg:
-    cfg_config_filename=options.evt_type+"_"+\
+    cfg_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
+    cfg_config_filename=cfg_config_filename.replace(',','_').replace('.','_')
     if options.PU_flag:
         cfg_config_filename+="_PU"
     if options.analysis_flag:
         cfg_config_filename+="_ana"
     cfg_config_filename+=".cfg"
-    
-#prepare new step3 list:
-newstep3list=[]
-if options.newstep3!="":
-    newstep3list=options.newstep3.split(",")    
 
 # Print the options to screen
 if not options.dump_dsetname_flag:
     print_options(options)  
 
 #set process name:
-ext_process_name=options.evt_type+options.energy+trimmedStep
+ext_process_name=trimmedEvtType+options.energy+trimmedStep
 
 
 if options.dump_dsetname_flag:
     print ext_process_name
     sys.exit(0) # no need to go further
+
+secondfilestr=''
+if options.secondfilein!='':
+    secondfilestr=options.dirin+options.secondfilein
     
 cfgfile="""
 #############################################################
@@ -391,8 +435,16 @@ evtnumber="""+options.number+"""
 releasevalidation=("""+options.relval+""")
 # Input and output file names
 infile_name='"""+options.dirin+options.filein+"""'
+insecondfile_name='"""+secondfilestr+"""'
 outfile_name='"""+options.dirout+options.fileout+"""'
 rawfile_name='"""+fileraw+"""'
+eventcontent='"""+options.eventcontent+"""'
+dataTier='"""+options.datatier+"""'
+filtername='"""+options.filtername+"""'
+conditions='"""+options.conditions+"""'
+beamspot='"""+options.beamspot+"""'
+altcffs='"""+options.altcffs+"""'
+
 # The step
 step='"""+str(options.step)+"""'
 # Omit the output in a root file
@@ -401,14 +453,12 @@ output_flag="""+str(not options.no_output_flag)+"""
 profiler_service_cuts='"""+options.profiler_service_cuts+"""'
 # Use the floating point exception module:
 fpe_service_flag="""+str(options.fpe_service_flag)+"""
-# Substitute Step 3 sequence
-newstep3list="""+str(newstep3list)+"""
 # The anlaysis
 analysis_flag="""+str(options.analysis_flag)+"""
 # Customisation_file
 customisation_file='"""+str(options.customisation_file)+"""'
 # User defined schedule
-user_schedule="""+str(options.user_schedule)+"""
+user_schedule='"""+options.user_schedule+"""'
 
 # Pyrelval parameters
 # Enable verbosity
@@ -421,6 +471,7 @@ dump_python='"""+python_config_filename+"""'
 dump_pickle='"""+str(options.dump_pickle)+"""'
 #Dump the dataset Name
 dump_dsetname_flag="""+str(options.dump_dsetname_flag)+"""
+oneoutput="""+str(options.oneoutput)+"""
 
 """
 
@@ -429,19 +480,6 @@ config_module_name="./relval_parameters_module.py"
 config_module=file(config_module_name,"w")
 config_module.write(cfgfile)
 config_module.close()
-
-# Prepare command execution
-cmssw_base=os.environ["CMSSW_BASE"]
-cmssw_release_base=os.environ["CMSSW_RELEASE_BASE"]
-pyrelvallocal=cmssw_base+"/src/Configuration/PyReleaseValidation"
-#Set the path depending on the presence of a locally checked out version of PyReleaseValidation
-if os.path.exists(pyrelvallocal):
-    # set the PYTHONPATH environmental variable
-    pyrelvalcodedir=cmssw_base+"/src/Configuration/PyReleaseValidation/data/"
-    print "Using LOCAL version of Configuration/PyReleaseValidation instead of the RELEASE version"
-elif not os.path.exists(pyrelvallocal):
-    pyrelvalcodedir=cmssw_release_base+"/src/Configuration/PyReleaseValidation/data/"
-os.environ["PYTHONPATH"]+=":"+pyrelvalcodedir
 
 executable='cmsRun'
 if options.dump_pickle!='':
@@ -464,7 +502,7 @@ if options.no_exec_flag:
 
 
 # Remove existing pyc files:
-os.system("rm -f "+pyrelvalcodedir+"*.pyc")    
+#os.system("rm -f *.pyc")    
 # A temporary ugly fix for a problem to investigate further.
 
 print "Launching "+' '.join(command)+"..."

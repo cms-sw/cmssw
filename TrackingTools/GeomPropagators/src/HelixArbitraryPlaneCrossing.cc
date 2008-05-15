@@ -65,7 +65,6 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     // return empty solution vector if no convergence after maxIterations iterations
     //
     if ( --iteration<0 ) {
-      std::cout << "HelixArbitraryPlaneCrossing::pathLength : no convergence" << std::endl;
       return std::pair<bool,double>(false,0);
     }
     //

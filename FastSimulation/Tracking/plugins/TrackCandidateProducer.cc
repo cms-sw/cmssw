@@ -57,7 +57,11 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   hitProducer = conf.getParameter<edm::InputTag>("HitProducer");
 
   // The name of the track producer (tracks already produced need not be produced again!)
-  trackProducer = conf.getParameter<edm::InputTag>("TrackProducer");
+  // trackProducer = conf.getParameter<edm::InputTag>("TrackProducer");
+  trackProducers = conf.getParameter<std::vector<edm::InputTag> >("TrackProducers");
+
+  // Copy (or not) the tracks already produced in a new collection
+  keepFittedTracks = conf.getParameter<bool>("KeepFittedTracks");
 
   // The minimum number of crossed layers
   minNumberOfCrossedLayers = conf.getParameter<unsigned int>("MinNumberOfCrossedLayers");
@@ -146,49 +150,65 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByLabel(hitProducer, theGSRecHits);
 
   // The input track collection + extra's
+  /*
   edm::Handle<reco::TrackCollection> theTrackCollection;
   edm:: Handle<std::vector<Trajectory> > theTrajectoryCollection;
   edm::Handle<TrajTrackAssociationCollection> theAssoMap;  
-  bool isTrackCollection = e.getByLabel(trackProducer,theTrackCollection); 
-
-  unsigned nRecoHits = 0;
-  if ( isTrackCollection ) { 
-    reco::TrackCollection::const_iterator aTrack = theTrackCollection->begin();
-    reco::TrackCollection::const_iterator lastTrack = theTrackCollection->end();
-    for ( ; aTrack!=lastTrack; ++aTrack ) nRecoHits+= aTrack->recHitsSize();
-    e.getByLabel(trackProducer,theTrajectoryCollection);
-    e.getByLabel(trackProducer,theAssoMap);
-    recoHits->reserve(nRecoHits); // This is to save some time at push_back.
-  }
-
-  // The track collection iterators.
+  bool isTrackCollection = e.getByLabel(trackProducer,theTrackCollection);
+  */
+  std::vector<edm::Handle<reco::TrackCollection> > theTrackCollections;
+  std::vector<edm:: Handle<std::vector<Trajectory> > > theTrajectoryCollections;
+  std::vector<edm::Handle<TrajTrackAssociationCollection> > theAssoMaps;
+  std::vector<bool> isTrackCollections;
   TrajTrackAssociationCollection::const_iterator anAssociation;  
   TrajTrackAssociationCollection::const_iterator lastAssociation;
   TrackMap theTrackMap;
-  if ( isTrackCollection ) { 
-    anAssociation = theAssoMap->begin();
-    lastAssociation = theAssoMap->end(); 
-#ifdef FAMOS_DEBUG
-    std::cout << "Input Track Producer : " << trackProducer << std::endl;
-    std::cout << "List of tracks already reconstructed " << std::endl;
-#endif
-    // Build the map of correspondance between reco tracks and sim tracks
-    for ( ; anAssociation != lastAssociation; ++anAssociation ) { 
-      edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
-      reco::TrackRef aTrackRef = anAssociation->val;
+  unsigned nCollections = trackProducers.size();
+  unsigned nRecoHits = 0;
 
-      // FInd the simtrack id of the reconstructed track
-      int recoTrackId = findId(*aTrackRef);
-      if ( recoTrackId < 0 ) continue;
+  if ( nCollections ) { 
+    theTrackCollections.resize(nCollections);
+    theTrajectoryCollections.resize(nCollections);
+    theAssoMaps.resize(nCollections);
+    isTrackCollections.resize(nCollections);
+    for ( unsigned tprod=0; tprod < nCollections; ++tprod ) { 
+      isTrackCollections[tprod] = e.getByLabel(trackProducers[tprod],theTrackCollections[tprod]); 
 
+      if ( isTrackCollections[tprod] ) { 
+	// The track collection
+	reco::TrackCollection::const_iterator aTrack = theTrackCollections[tprod]->begin();
+	reco::TrackCollection::const_iterator lastTrack = theTrackCollections[tprod]->end();
+	// The numbers of hits
+	for ( ; aTrack!=lastTrack; ++aTrack ) nRecoHits+= aTrack->recHitsSize();
+	e.getByLabel(trackProducers[tprod],theTrajectoryCollections[tprod]);
+	e.getByLabel(trackProducers[tprod],theAssoMaps[tprod]);
+	// The association between trajectories and tracks
+	anAssociation = theAssoMaps[tprod]->begin();
+	lastAssociation = theAssoMaps[tprod]->end(); 
 #ifdef FAMOS_DEBUG
-      std::cout << recoTrackId << " ";
+	std::cout << "Input Track Producer : " << trackProducer << std::endl;
+	std::cout << "List of tracks already reconstructed " << std::endl;
 #endif
-      theTrackMap[recoTrackId] = TrackPair(aTrackRef,aTrajectoryRef);
+	// Build the map of correspondance between reco tracks and sim tracks
+	for ( ; anAssociation != lastAssociation; ++anAssociation ) { 
+	  edm::Ref<std::vector<Trajectory> > aTrajectoryRef = anAssociation->key;
+	  reco::TrackRef aTrackRef = anAssociation->val;
+	  // Find the simtrack id of the reconstructed track
+	  int recoTrackId = findId(*aTrackRef);
+	  if ( recoTrackId < 0 ) continue;
+#ifdef FAMOS_DEBUG
+	  std::cout << recoTrackId << " ";
+#endif
+	  // And store it.
+	  theTrackMap[recoTrackId] = TrackPair(aTrackRef,aTrajectoryRef);
+	}
+#ifdef FAMOS_DEBUG
+	std::cout << std::endl;
+#endif
+      }
     }
-#ifdef FAMOS_DEBUG
-    std::cout << std::endl;
-#endif
+    // This is to save some time at push_back.
+    recoHits->reserve(nRecoHits); 
   }
 
   // Loop over the seeds
@@ -237,30 +257,42 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
  
     // The track has indeed been reconstructed already -> Save the pertaining info
     TrackMap::const_iterator theTrackIt = theTrackMap.find(simTrackId);
-    if ( isTrackCollection && theTrackIt != theTrackMap.end() ) { 
+    //    if ( isTrackCollection && theTrackIt != theTrackMap.end() ) { 
+    if ( nCollections && theTrackIt != theTrackMap.end() ) { 
+
+      if ( keepFittedTracks ) { 
 
 #ifdef FAMOS_DEBUG
-      std::cout << "Track " << simTrackId << " already reconstructed -> copy it" << std::endl;
+	std::cout << "Track " << simTrackId << " already reconstructed -> copy it" << std::endl;
 #endif      
-      // The track and trajectroy references
-      reco::TrackRef aTrackRef = theTrackIt->second.first;
-      edm::Ref<std::vector<Trajectory> > aTrajectoryRef = theTrackIt->second.second;
+	// The track and trajectroy references
+	reco::TrackRef aTrackRef = theTrackIt->second.first;
+	edm::Ref<std::vector<Trajectory> > aTrajectoryRef = theTrackIt->second.second;
+	
+	// A copy of the track
+	reco::Track aRecoTrack(*aTrackRef);
+	recoTracks->push_back(aRecoTrack);      
+	
+	// A copy of the hits
+	unsigned nh = aRecoTrack.recHitsSize();
+	for ( unsigned ih=0; ih<nh; ++ih ) {
+	  TrackingRecHit *hit = aRecoTrack.recHit(ih)->clone();
+	  recoHits->push_back(hit);
+	}
+	
+	// A copy of the trajectories
+	recoTrajectories->push_back(*aTrajectoryRef);
+	
+      } else { 
 
-      // A copy of the track
-      reco::Track aRecoTrack(*aTrackRef);
-      recoTracks->push_back(aRecoTrack);      
-      
-      // A copy of the hits
-      unsigned nh = aRecoTrack.recHitsSize();
-      for ( unsigned ih=0; ih<nh; ++ih ) {
-	TrackingRecHit *hit = aRecoTrack.recHit(ih)->clone();
-	recoHits->push_back(hit);
+#ifdef FAMOS_DEBUG
+	std::cout << "Track " << simTrackId << " already reconstructed -> ignore it" << std::endl;
+#endif      
+
       }
 
-      // A copy of the trajectories
-      recoTrajectories->push_back(*aTrajectoryRef);
-      
-    // The track was not saved -> create a track candidate.
+      // The track was not saved -> create a track candidate.
+
     } else { 
       
 #ifdef FAMOS_DEBUG

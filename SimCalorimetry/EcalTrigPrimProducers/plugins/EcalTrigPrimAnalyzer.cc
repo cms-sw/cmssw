@@ -211,13 +211,12 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
 
   EcalTPGScale ecalScale ;
-  ecalScale.setEventSetup(iSetup) ;
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
     if (it!= mapTow_Et.end()) {
-      float Et = ecalScale.getTPGInGeV(d) ; 
+      float Et = ecalScale.getTPGInGeV(iSetup, d) ; 
       if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28)    Et*=2;
       hTPvsRechit_->Fill(it->second,Et);
       hTPoverRechit_->Fill(Et/it->second);

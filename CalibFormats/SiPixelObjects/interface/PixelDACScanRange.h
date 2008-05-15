@@ -1,10 +1,5 @@
 #ifndef PixelDACScanRange_h
 #define PixelDACScanRange_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelConfigurationVerifier.h
-*   \brief This class collects the information about the range of DAC settings used in scans of the DACs
-*
-*   A longer explanation will be placed here later
-*/
 //
 // This class collects the information
 // about the range of DAC settings used
@@ -16,11 +11,6 @@
 #include <string>
 
 namespace pos{
-/*! \class PixelConfigurationVerifier PixelConfigurationVerifier.h "interface/PixelConfigurationVerifier.h"
-*   \brief This class collects the information about the range of DAC settings used in scans of the DACs
-*
-*   A longer explanation will be placed here later
-*/
   class PixelDACScanRange {
 
   public:
@@ -28,7 +18,7 @@ namespace pos{
     PixelDACScanRange(){;}
     PixelDACScanRange(std::string dacname, unsigned int first, 
 		      unsigned int last, unsigned int step,
-		      unsigned int index, bool mixValuesAcrossROCs);
+		      unsigned int index);
 
     std::string name() const { return name_;}
     unsigned int dacchannel() const { return dacchannel_; }
@@ -37,7 +27,6 @@ namespace pos{
     unsigned int last() const { return last_; }
     unsigned int index() const { return index_; }
     unsigned int getNPoints() const { return (last_-first_)/step_+1; }
-    bool mixValuesAcrossROCs() const { return mixValuesAcrossROCs_; }
 
   private:
 
@@ -48,7 +37,6 @@ namespace pos{
     unsigned int step_;
     unsigned int index_;
 
-    bool mixValuesAcrossROCs_; // whether to spread the DAC values across the entire range on each iteration for different ROCs on a channel
 
   };
 }

@@ -24,6 +24,10 @@ namespace cond {
       throw cond::Exception("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
     }
 
+    if(!validTime(firstSince))
+      throw cond::Exception("cond::IOVEditorImpl::create time not in global range");
+      
+
     m_iov=cond::TypedRef<cond::IOV>(*m_pooldb,new cond::IOV);
     m_iov->timetype=(int)timetype;
     m_iov->firstsince=firstSince;
@@ -62,13 +66,22 @@ namespace cond {
     return (TimeType)(m_iov->timetype);
   }
   
+
+  bool IOVEditorImpl::validTime(cond::Time_t time) const {
+    return time>=m_globalSince && time<=m_globalTill;   
+  }
+
   
   unsigned int
   IOVEditorImpl::insert( cond::Time_t tillTime,
 			 const std::string& payloadToken
 			 ){
     if(!m_isActive) this->init();
-    
+
+
+    if(!validTime(tillTime))
+      throw cond::Exception("cond::IOVEditorImpl::insert time not in global range");
+  
     if(tillTime<=firstSince() ||
        ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::insert IOV not in range");
@@ -83,7 +96,14 @@ namespace cond {
     if (values.empty()) return;
     if(!m_isActive) this->init();
     cond::Time_t tillTime = values.front().first;
-    if(tillTime<=firstSince() ||
+
+    if(!validTime(tillTime))
+      throw cond::Exception("cond::IOVEditorImpl::bulkInsert first time not in global range");
+
+    if(!validTime(values.back().first))
+      throw cond::Exception("cond::IOVEditorImpl::bulkInsert last time not in global range");
+
+   if(tillTime<=firstSince() ||
        ( !m_iov->iov.empty() && tillTime<=m_iov->iov.back().first) 
        )    throw cond::Exception("cond::IOVEditorImpl::bulkInsert IOV not in range");
     
@@ -114,7 +134,11 @@ namespace cond {
     
     if( m_iov->iov.empty() ) throw cond::Exception("cond::IOVEditorImpl::appendIOV cannot append to empty IOV index");
     
-    if (sinceTime<=firstSince())  throw cond::Exception("IOVEditor::append Error: since time out of range, below first since");
+
+   if(!validTime(sinceTime))
+      throw cond::Exception("cond::IOVEditorImpl::append time not in global range");
+
+   if (sinceTime<=firstSince())  throw cond::Exception("IOVEditor::append Error: since time out of range, below first since");
     
     
     if(  m_iov->iov.size()>1 ){
@@ -146,9 +170,7 @@ namespace cond {
       IOV::iterator payloadItEnd=m_iov->iov.end();
       for(payloadIt=m_iov->iov.begin();payloadIt!=payloadItEnd;++payloadIt){
 	tokenStr=payloadIt->second;
-	pool::Token token;
-	const pool::Guid& classID=token.fromString(tokenStr).classID();
-	cond::GenericRef ref(*m_pooldb,tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
+	cond::GenericRef ref(*m_pooldb,tokenStr);
 	ref.markDelete();
 	ref.reset();
       }

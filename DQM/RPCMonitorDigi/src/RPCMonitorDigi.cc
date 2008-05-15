@@ -242,71 +242,71 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	
 	//W+_W+2_RB1  
 	char r11[340];
-	sprintf(r11, "W%d_RB1in_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r11, "W%d_RB1in_S%d_Forward", detId.ring(), detId.sector());
 	
 	char r12[340];
-	sprintf(r12, "W%d_RB1in_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r12, "W%d_RB1in_S%d_Backward", detId.ring(), detId.sector());
 	
 	char r13[340];
-	sprintf(r13, "W%d_RB1out_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r13, "W%d_RB1out_S%d_Forward", detId.ring(), detId.sector());
 
 	char r14[340];
-	sprintf(r14, "W%d_RB1out_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r14, "W%d_RB1out_S%d_Backward", detId.ring(), detId.sector());
 
 	char r21[340];
-	sprintf(r21, "W%d_RB2in_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r21, "W%d_RB2in_S%d_Forward", detId.ring(), detId.sector());
 
 	char r22[340];
-	sprintf(r22, "W%d_RB2in_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r22, "W%d_RB2in_S%d_Backward", detId.ring(), detId.sector());
 
 	char r23[340];
-	sprintf(r23, "W%d_RB2in_S%2.2d_Middle", detId.ring(), detId.sector());
+	sprintf(r23, "W%d_RB2in_S%d_Middle", detId.ring(), detId.sector());
 	
 	char r24[340];
-	sprintf(r24, "W%d_RB2out_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r24, "W%d_RB2out_S%d_Forward", detId.ring(), detId.sector());
 
 	char r25[340];
-	sprintf(r25, "W%d_RB2out_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r25, "W%d_RB2out_S%d_Backward", detId.ring(), detId.sector());
 	
 	char r26[320];
-	sprintf(r26, "W%d_RB2out_S%2.2d_Middle", detId.ring(), detId.sector());
+	sprintf(r26, "W%d_RB2out_S%d_Middle", detId.ring(), detId.sector());
 		
 	char r31[340];
-	sprintf(r31, "W%d_RB3+_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r31, "W%d_RB3+_S%d_Forward", detId.ring(), detId.sector());
 		
 	char r32[340];
-	sprintf(r32, "W%d_RB3+_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r32, "W%d_RB3+_S%d_Backward", detId.ring(), detId.sector());
 	
 	char r33[340];
-	sprintf(r33, "W%d_RB3-_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r33, "W%d_RB3-_S%d_Forward", detId.ring(), detId.sector());
 	
 	
 	char r34[340];
-	sprintf(r34, "W%d_RB3-_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r34, "W%d_RB3-_S%d_Backward", detId.ring(), detId.sector());
 		
 	char r41[340];
-	sprintf(r41, "W%d_RB4+_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r41, "W%d_RB4+_S%d_Forward", detId.ring(), detId.sector());
 
 	char r42[340];
-	sprintf(r42, "W%d_RB4+_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r42, "W%d_RB4+_S%d_Backward", detId.ring(), detId.sector());
 	
 	char r43[340];
-	sprintf(r43, "W%d_RB4-_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r43, "W%d_RB4-_S%d_Forward", detId.ring(), detId.sector());
 	
 	char r44[340];
-	sprintf(r44, "W%d_RB4-_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r44, "W%d_RB4-_S%d_Backward", detId.ring(), detId.sector());
 
 	char r45[340];
-	sprintf(r45, "W%d_RB4++_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r45, "W%d_RB4++_S%d_Forward", detId.ring(), detId.sector());
 
 	char r46[340];
-	sprintf(r46, "W%d_RB4++_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r46, "W%d_RB4++_S%d_Backward", detId.ring(), detId.sector());
 
 	char r47[340];
-	sprintf(r47, "W%d_RB4--_S%2.2d_Forward", detId.ring(), detId.sector());
+	sprintf(r47, "W%d_RB4--_S%d_Forward", detId.ring(), detId.sector());
 	
 	char r48[340];
-	sprintf(r48, "W%d_RB4--_S%2.2d_Backward", detId.ring(), detId.sector());
+	sprintf(r48, "W%d_RB4--_S%d_Backward", detId.ring(), detId.sector());
 	
 
 	ChamberNr.insert( make_pair( r11, 1) ); 
@@ -408,7 +408,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	  Yaxis.erase(Yaxis.find("_")+2,8);
 
 	  meMap[meId]->setBinLabel(nrnr, Yaxis, 2);
-	  cout<<"DetUnit: "<<detUnitLabel<<" r"<<r21<<endl;
+	 
 	  
 	} 
 	else { 

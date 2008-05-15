@@ -317,7 +317,7 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 
 	 //((extend << 1) & 0xe)|bxa_on // {reserved[11:0], extend[2:0],BXA_enable}
 	 ///0x144?:
-         (m_preTrigger<<7)||(m_allowCLCTonly<<5)||(m_allowALCTonly<<4)||(m_extend_length<<1)
+         (m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)
 	 );
       /* // Extremely verbose debug
       LogDebug("CSCTFSPCoreLogic:run()") << std::hex

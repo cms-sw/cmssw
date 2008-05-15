@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.31 2008/03/01 00:38:25 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.33 2008/04/12 14:19:41 dutta Exp $
 //
 //
 
@@ -482,7 +482,8 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const& eSetup) {
   
   eSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
   eSetup.get<SiStripNoisesRcd>().get(noiseHandle);
-  eSetup.get<SiStripQualityRcd>().get(qualityHandle);
+  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
+  eSetup.get<SiStripQualityRcd>().get(quality_label, qualityHandle);
 
   for (std::map<uint32_t, ModMEs >::const_iterator i = PedMEs.begin() ; i!=PedMEs.end() ; i++) {
     uint32_t detid = i->first; 

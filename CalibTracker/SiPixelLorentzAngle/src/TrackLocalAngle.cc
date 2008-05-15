@@ -126,20 +126,24 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 	TransientTrackingRecHit::RecHitContainer tmp;
 	TransientTrackingRecHit::RecHitContainer hits;
 	float ndof=0;
-  
+	cout << "hits in the track" << theT.recHitsSize() << endl;
+	
 	for (trackingRecHit_iterator i=theT.recHitsBegin(); i!=theT.recHitsEnd(); i++){
-// 		cout << "detid: " << (**i).geographicalId().det() << endl;
 		if((**i).geographicalId().det() == DetId::Tracker) { 
-		tmp.push_back(RHBuilder->build(&**i ));
-// 		cout << "after builder" << endl;
-		if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+			tmp.push_back(RHBuilder->build(&**i ));
+			if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
 		}
 	}	
-
+// 	cout << "found " << tmp.size() << " rechits" << endl;
+	if(tmp.size() < 1){
+		LogDebug("TrackLocalAngle") << "No transient rechits found" << "\n";
+		std::vector<Trajectory> zeroTracks;
+		return zeroTracks;
+	}
+	
 	LogDebug("TrackLocalAngle") << "Transient rechit filled" << "\n";
   
 	ndof = ndof - 5;
-  
   //SORT RECHITS ALONGMOMENTUM
 	const TransientTrackingRecHit::ConstRecHitPointer *firstHit = 0;
 	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
@@ -149,19 +153,19 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 		}
 	}
 	const TransientTrackingRecHit::ConstRecHitPointer *lastHit = 0;
-	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){	  
 		if ((**it).isValid()) {
 			lastHit= &(*it);
 			break;
 		}
-	}
-	if ((*firstHit)->globalPosition().mag2() > ((*lastHit)->globalPosition().mag2()) ){
+	}	  
+		
+	if ((*firstHit)->globalPosition().mag2() > ((*lastHit)->globalPosition().mag2()) ){	  
     //FIXME temporary should use reverse
 		for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
 			hits.push_back(*it);
 		}
 	} else hits=tmp;
-
 	reco::TransientTrack theTT(theT, thePropagator->magneticField() );
   
 	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());

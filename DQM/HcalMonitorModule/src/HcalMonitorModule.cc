@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/03/01 00:39:57 $
- * $Revision: 1.50 $
+ * $Date: 2008/05/08 17:10:32 $
+ * $Revision: 1.60 $
  * \author W Fisher
  *
 */
@@ -132,33 +132,33 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
-  if(debug_) printf("HcalMonitorModule: Destructor.....");
+  if(true /* debug_ */) printf("HcalMonitorModule: Destructor.....");
   
-  if (dbe_){    
-    if(digiMon_!=NULL) {  digiMon_->clearME();}
-    if(dfMon_!=NULL)   {  dfMon_->clearME();}
-    if(pedMon_!=NULL)  {  pedMon_->clearME();}
-    if(ledMon_!=NULL)  {  ledMon_->clearME();}
-    if(hotMon_!=NULL)  {  hotMon_->clearME();}
-    if(deadMon_!=NULL) {  deadMon_->clearME();}
-    if(mtccMon_!=NULL) {  mtccMon_->clearME();}
-    if(rhMon_!=NULL)   {  rhMon_->clearME();}
-    
-    dbe_->setCurrentFolder(rootFolder_);
-    dbe_->removeContents();
-  }
-  
-  if(digiMon_!=NULL) { delete digiMon_; digiMon_=NULL; }
-  if(dfMon_!=NULL) { delete dfMon_; dfMon_=NULL; }
-  if(pedMon_!=NULL) { delete pedMon_; pedMon_=NULL; }
-  if(ledMon_!=NULL) { delete ledMon_; ledMon_=NULL; }
-  if(hotMon_!=NULL) { delete hotMon_; hotMon_=NULL; }
-  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
-  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
-  if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
-  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
-  delete evtSel_; evtSel_ = NULL;
-
+// if (dbe_){    
+//   if(digiMon_!=NULL) {  digiMon_->clearME();}
+//   if(dfMon_!=NULL)   {  dfMon_->clearME();}
+//   if(pedMon_!=NULL)  {  pedMon_->clearME();}
+//   if(ledMon_!=NULL)  {  ledMon_->clearME();}
+//   if(hotMon_!=NULL)  {  hotMon_->clearME();}
+//   if(deadMon_!=NULL) {  deadMon_->clearME();}
+//   if(mtccMon_!=NULL) {  mtccMon_->clearME();}
+//   if(rhMon_!=NULL)   {  rhMon_->clearME();}
+//   
+//   dbe_->setCurrentFolder(rootFolder_);
+//   dbe_->removeContents();
+// }
+//
+//  if(digiMon_!=NULL) { delete digiMon_;  digiMon_=NULL; }
+//  if(dfMon_!=NULL) { delete dfMon_;     dfMon_=NULL; }
+//  if(pedMon_!=NULL) { delete pedMon_;   pedMon_=NULL; }
+//  if(ledMon_!=NULL) { delete ledMon_;   ledMon_=NULL; }
+//  if(hotMon_!=NULL) { delete hotMon_;   hotMon_=NULL; }
+//  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
+//  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
+//  if(rhMon_!=NULL) { delete rhMon_;     rhMon_=NULL; }
+//  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
+//  delete evtSel_; evtSel_ = NULL;
+//
 
 }
 
@@ -169,12 +169,13 @@ void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   if(debug_) cout << "HcalMonitorModule: begin job...." << endl;
   
   if ( dbe_ != NULL ){
-    dbe_->setCurrentFolder(rootFolder_ );
+    dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
     meStatus_  = dbe_->bookInt("STATUS");
     meRunType_ = dbe_->bookInt("RUN TYPE");
     meEvtMask_ = dbe_->bookInt("EVT MASK");
     meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
-    meLatency_ = dbe_->book1D("Process Latency","Process Latency",200,0,1);
+    // process latency was (200,0,1), but that gave overflows
+    meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
     meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
@@ -251,7 +252,7 @@ void HcalMonitorModule::endJob(void) {
 //--------------------------------------------------------
 void HcalMonitorModule::reset(){
 
-  if(debug_) cout << "HcalMonitorModule: reset...." << endl;
+  if(true /* debug_ */) cout << "HcalMonitorModule: reset...." << endl;
 
   if(rhMon_!=NULL)   rhMon_->reset();
   if(digiMon_!=NULL) digiMon_->reset();

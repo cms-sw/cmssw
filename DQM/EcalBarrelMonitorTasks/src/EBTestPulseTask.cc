@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.93 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -38,10 +38,13 @@ EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -72,12 +75,39 @@ void EBTestPulseTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");
-    dbe_->rmdir("EcalBarrel/EBTestPulseTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask");
+    dqmStore_->rmdir(prefixME_ + "/EBTestPulseTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
+
+}
+
+void EBTestPulseTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBTestPulseTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBTestPulseTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( meShapeMapG01_[i] ) meShapeMapG01_[i]->Reset();
+    if ( meAmplMapG01_[i] ) meAmplMapG01_[i]->Reset();
+    if ( meShapeMapG06_[i] ) meShapeMapG06_[i]->Reset();
+    if ( meAmplMapG06_[i] ) meAmplMapG06_[i]->Reset();
+    if ( meShapeMapG12_[i] ) meShapeMapG12_[i]->Reset();
+    if ( meAmplMapG12_[i] ) meAmplMapG12_[i]->Reset();
+    if ( mePnAmplMapG01_[i] ) mePnAmplMapG01_[i]->Reset();
+    if ( mePnPedMapG01_[i] ) mePnPedMapG01_[i]->Reset();
+    if ( mePnAmplMapG16_[i] ) mePnAmplMapG16_[i]->Reset();
+    if ( mePnPedMapG16_[i] ) mePnPedMapG16_[i]->Reset();
+  }
 
 }
 
@@ -87,82 +117,82 @@ void EBTestPulseTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTPT shape %s G01", Numbers::sEB(i+1).c_str());
-      meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG01_[i]->setAxisTitle("channel", 1);
       meShapeMapG01_[i]->setAxisTitle("sample", 2);
       meShapeMapG01_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapG01_[i], i+1);
+      dqmStore_->tag(meShapeMapG01_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G01", Numbers::sEB(i+1).c_str());
-      meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       meAmplMapG01_[i]->setAxisTitle("ieta", 1);
       meAmplMapG01_[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meAmplMapG01_[i], i+1);
+      dqmStore_->tag(meAmplMapG01_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain06");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTPT shape %s G06", Numbers::sEB(i+1).c_str());
-      meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG06_[i]->setAxisTitle("channel", 1);
       meShapeMapG06_[i]->setAxisTitle("sample", 2);
       meShapeMapG06_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapG06_[i], i+1);
+      dqmStore_->tag(meShapeMapG06_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G06", Numbers::sEB(i+1).c_str());
-      meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       meAmplMapG06_[i]->setAxisTitle("ieta", 1);
       meAmplMapG06_[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meAmplMapG06_[i], i+1);
+      dqmStore_->tag(meAmplMapG06_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain12");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBTPT shape %s G12", Numbers::sEB(i+1).c_str());
-      meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      meShapeMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       meShapeMapG12_[i]->setAxisTitle("channel", 1);
       meShapeMapG12_[i]->setAxisTitle("sample", 2);
       meShapeMapG12_[i]->setAxisTitle("amplitude", 3);
-      dbe_->tag(meShapeMapG12_[i], i+1);
+      dqmStore_->tag(meShapeMapG12_[i], i+1);
       sprintf(histo, "EBTPT amplitude %s G12", Numbers::sEB(i+1).c_str());
-      meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      meAmplMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       meAmplMapG12_[i]->setAxisTitle("ieta", 1);
       meAmplMapG12_[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meAmplMapG12_[i], i+1);
+      dqmStore_->tag(meAmplMapG12_[i], i+1);
    }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/Gain01");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G01", Numbers::sEB(i+1).c_str());
-      mePnAmplMapG01_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG01_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
-      dbe_->tag(mePnAmplMapG01_[i], i+1);
+      dqmStore_->tag(mePnAmplMapG01_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
-      mePnPedMapG01_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG01_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG01_[i]->setAxisTitle("channel", 1);
       mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
-      dbe_->tag(mePnPedMapG01_[i], i+1);
+      dqmStore_->tag(mePnPedMapG01_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/Gain16");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPDT PNs amplitude %s G16", Numbers::sEB(i+1).c_str());
-      mePnAmplMapG16_[i] = dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnAmplMapG16_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
       mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
-      dbe_->tag(mePnAmplMapG16_[i], i+1);
+      dqmStore_->tag(mePnAmplMapG16_[i], i+1);
       sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
-      mePnPedMapG16_[i] =  dbe_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+      mePnPedMapG16_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
       mePnPedMapG16_[i]->setAxisTitle("channel", 1);
       mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
-      dbe_->tag(mePnPedMapG16_[i], i+1);
+      dqmStore_->tag(mePnPedMapG16_[i], i+1);
     }
 
   }
@@ -171,50 +201,50 @@ void EBTestPulseTask::setup(void){
 
 void EBTestPulseTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain01");
     for (int i = 0; i < 36; i++) {
-      if ( meShapeMapG01_[i] ) dbe_->removeElement( meShapeMapG01_[i]->getName() );
+      if ( meShapeMapG01_[i] ) dqmStore_->removeElement( meShapeMapG01_[i]->getName() );
       meShapeMapG01_[i] = 0;
-      if ( meAmplMapG01_[i] ) dbe_->removeElement( meAmplMapG01_[i]->getName() );
+      if ( meAmplMapG01_[i] ) dqmStore_->removeElement( meAmplMapG01_[i]->getName() );
       meAmplMapG01_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain06");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain06");
     for (int i = 0; i < 36; i++) {
-      if ( meShapeMapG06_[i] ) dbe_->removeElement( meShapeMapG06_[i]->getName() );
+      if ( meShapeMapG06_[i] ) dqmStore_->removeElement( meShapeMapG06_[i]->getName() );
       meShapeMapG06_[i] = 0;
-      if ( meAmplMapG06_[i] ) dbe_->removeElement( meAmplMapG06_[i]->getName() );
+      if ( meAmplMapG06_[i] ) dqmStore_->removeElement( meAmplMapG06_[i]->getName() );
       meAmplMapG06_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/Gain12");
     for (int i = 0; i < 36; i++) {
-      if ( meShapeMapG12_[i] ) dbe_->removeElement( meShapeMapG12_[i]->getName() );
+      if ( meShapeMapG12_[i] ) dqmStore_->removeElement( meShapeMapG12_[i]->getName() );
       meShapeMapG12_[i] = 0;
-      if ( meAmplMapG12_[i] ) dbe_->removeElement( meAmplMapG12_[i]->getName() );
+      if ( meAmplMapG12_[i] ) dqmStore_->removeElement( meAmplMapG12_[i]->getName() );
       meAmplMapG12_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain01");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/Gain01");
     for (int i = 0; i < 36; i++) {
-      if ( mePnAmplMapG01_[i] ) dbe_->removeElement( mePnAmplMapG01_[i]->getName() );
+      if ( mePnAmplMapG01_[i] ) dqmStore_->removeElement( mePnAmplMapG01_[i]->getName() );
       mePnAmplMapG01_[i] = 0;
-      if ( mePnPedMapG01_[i] ) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
+      if ( mePnPedMapG01_[i] ) dqmStore_->removeElement( mePnPedMapG01_[i]->getName() );
       mePnPedMapG01_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask/PN/Gain16");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask/PN/Gain16");
     for (int i = 0; i < 36; i++) {
-      if ( mePnAmplMapG16_[i] ) dbe_->removeElement( mePnAmplMapG16_[i]->getName() );
+      if ( mePnAmplMapG16_[i] ) dqmStore_->removeElement( mePnAmplMapG16_[i]->getName() );
       mePnAmplMapG16_[i] = 0;
-      if ( mePnPedMapG16_[i] ) dbe_->removeElement( mePnPedMapG16_[i]->getName() );
+      if ( mePnPedMapG16_[i] ) dqmStore_->removeElement( mePnPedMapG16_[i]->getName() );
       mePnPedMapG16_[i] = 0;
     }
 
@@ -228,7 +258,7 @@ void EBTestPulseTask::endJob(void){
 
   LogInfo("EBTestPulseTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

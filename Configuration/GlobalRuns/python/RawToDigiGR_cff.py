@@ -26,6 +26,7 @@ from Geometry.RPCGeometry.rpcGeometry_cfi import *
 #-------------------------#
 #--- L1 Setup ---#
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
+from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
 from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
@@ -77,7 +78,7 @@ muonRPCDigis = copy.deepcopy(rpcunpacker)
 RawToDigi = cms.Sequence(l1CscTfEmulDigis+l1DttfEmulDigis+l1GmtEmulDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
 l1GmtEmulDigis.DaqGtInputTag = 'source'
 siPixelDigis.InputLabel = 'source'
-SiStripDigis.ProductLabel = 'source'
+siStripDigis.ProductLabel = 'source'
 ecalDigis.DoRegional = False
 muonCSCDigis.UseExaminer = False
 

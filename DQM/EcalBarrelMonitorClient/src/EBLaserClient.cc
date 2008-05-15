@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.224 $
+ * $Date: 2008/05/08 19:12:44 $
+ * $Revision: 1.232 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -28,6 +28,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -50,8 +51,14 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -226,11 +233,11 @@ EBLaserClient::~EBLaserClient(){
 
 }
 
-void EBLaserClient::beginJob(DQMStore* dbe){
+void EBLaserClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBLaserClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBLaserClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -239,7 +246,7 @@ void EBLaserClient::beginJob(DQMStore* dbe){
 
 void EBLaserClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBLaserClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBLaserClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -249,7 +256,7 @@ void EBLaserClient::beginRun(void){
 
 void EBLaserClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBLaserClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -257,7 +264,7 @@ void EBLaserClient::endJob(void) {
 
 void EBLaserClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBLaserClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -267,334 +274,334 @@ void EBLaserClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBLaserClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L1 %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg01_[ism-1]->setAxisTitle("ieta", 1);
     meg01_[ism-1]->setAxisTitle("iphi", 2);
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L2 %s", Numbers::sEB(ism).c_str());
-    meg02_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg02_[ism-1]->setAxisTitle("ieta", 1);
     meg02_[ism-1]->setAxisTitle("iphi", 2);
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L3 %s", Numbers::sEB(ism).c_str());
-    meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg03_[ism-1]->setAxisTitle("ieta", 1);
     meg03_[ism-1]->setAxisTitle("iphi", 2);
-    if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L4 %s", Numbers::sEB(ism).c_str());
-    meg04_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg04_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg04_[ism-1]->setAxisTitle("ieta", 1);
     meg04_[ism-1]->setAxisTitle("iphi", 2);
 
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L1 PNs G01 %s", Numbers::sEB(ism).c_str());
-    meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg05_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg06_[ism-1] ) dbe_->removeElement( meg06_[ism-1]->getName() );
+    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L2 PNs G01 %s", Numbers::sEB(ism).c_str());
-    meg06_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg06_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg06_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg06_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg07_[ism-1] ) dbe_->removeElement( meg07_[ism-1]->getName() );
+    if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L3 PNs G01 %s", Numbers::sEB(ism).c_str());
-    meg07_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg07_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg07_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg07_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg08_[ism-1] ) dbe_->removeElement( meg08_[ism-1]->getName() );
+    if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L4 PNs G01 %s", Numbers::sEB(ism).c_str());
-    meg08_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg08_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg08_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg08_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L1 PNs G16 %s", Numbers::sEB(ism).c_str());
-    meg09_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg09_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg09_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg09_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg10_[ism-1] ) dbe_->removeElement( meg10_[ism-1]->getName() );
+    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L2 PNs G16 %s", Numbers::sEB(ism).c_str());
-    meg10_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg10_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg10_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg10_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg11_[ism-1] ) dbe_->removeElement( meg11_[ism-1]->getName() );
+    if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L3 PNs G16 %s", Numbers::sEB(ism).c_str());
-    meg11_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg11_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg11_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg11_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg12_[ism-1] ) dbe_->removeElement( meg12_[ism-1]->getName() );
+    if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getName() );
     sprintf(histo, "EBLT laser quality L4 PNs G16 %s", Numbers::sEB(ism).c_str());
-    meg12_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg12_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg12_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg12_[ism-1]->setAxisTitle("channel", 2);
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );;
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );;
     sprintf(histo, "EBLT amplitude L1A %s", Numbers::sEB(ism).c_str());
-    mea01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
     mea01_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L2A %s", Numbers::sEB(ism).c_str());
-    mea02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea02_[ism-1]->setAxisTitle("channel", 1);
     mea02_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
+    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L3A %s", Numbers::sEB(ism).c_str());
-    mea03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea03_[ism-1]->setAxisTitle("channel", 1);
     mea03_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea04_[ism-1] ) dbe_->removeElement( mea04_[ism-1]->getName() );
+    if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L4A %s", Numbers::sEB(ism).c_str());
-    mea04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea04_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea04_[ism-1]->setAxisTitle("channel", 1);
     mea04_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );;
+    if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );;
     sprintf(histo, "EBLT amplitude L1B %s", Numbers::sEB(ism).c_str());
-    mea05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea05_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea05_[ism-1]->setAxisTitle("channel", 1);
     mea05_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea06_[ism-1] ) dbe_->removeElement( mea06_[ism-1]->getName() );
+    if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L2B %s", Numbers::sEB(ism).c_str());
-    mea06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea06_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea06_[ism-1]->setAxisTitle("channel", 1);
     mea06_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea07_[ism-1] ) dbe_->removeElement( mea07_[ism-1]->getName() );
+    if ( mea07_[ism-1] ) dqmStore_->removeElement( mea07_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L3B %s", Numbers::sEB(ism).c_str());
-    mea07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea07_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea07_[ism-1]->setAxisTitle("channel", 1);
     mea07_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( mea08_[ism-1] ) dbe_->removeElement( mea08_[ism-1]->getName() );
+    if ( mea08_[ism-1] ) dqmStore_->removeElement( mea08_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude L4B %s", Numbers::sEB(ism).c_str());
-    mea08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    mea08_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     mea08_[ism-1]->setAxisTitle("channel", 1);
     mea08_[ism-1]->setAxisTitle("amplitude", 2);
 
-    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L1A %s", Numbers::sEB(ism).c_str());
-    met01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met01_[ism-1]->setAxisTitle("channel", 1);
     met01_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L2A %s", Numbers::sEB(ism).c_str());
-    met02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met02_[ism-1]->setAxisTitle("channel", 1);
     met02_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
+    if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L3A %s", Numbers::sEB(ism).c_str());
-    met03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met03_[ism-1]->setAxisTitle("channel", 1);
     met03_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met04_[ism-1] ) dbe_->removeElement( met04_[ism-1]->getName() );
+    if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L4A %s", Numbers::sEB(ism).c_str());
-    met04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met04_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met04_[ism-1]->setAxisTitle("channel", 1);
     met04_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
+    if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L1B %s", Numbers::sEB(ism).c_str());
-    met05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met05_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met05_[ism-1]->setAxisTitle("channel", 1);
     met05_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
+    if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L2B %s", Numbers::sEB(ism).c_str());
-    met06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met06_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met06_[ism-1]->setAxisTitle("channel", 1);
     met06_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met07_[ism-1] ) dbe_->removeElement( met07_[ism-1]->getName() );
+    if ( met07_[ism-1] ) dqmStore_->removeElement( met07_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L3B %s", Numbers::sEB(ism).c_str());
-    met07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met07_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met07_[ism-1]->setAxisTitle("channel", 1);
     met07_[ism-1]->setAxisTitle("jitter", 2);
-    if ( met08_[ism-1] ) dbe_->removeElement( met08_[ism-1]->getName() );
+    if ( met08_[ism-1] ) dqmStore_->removeElement( met08_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing L4B %s", Numbers::sEB(ism).c_str());
-    met08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    met08_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     met08_[ism-1]->setAxisTitle("channel", 1);
     met08_[ism-1]->setAxisTitle("jitter", 2);
 
-    if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L1A %s", Numbers::sEB(ism).c_str());
-    metav01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav01_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
+    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L2A %s", Numbers::sEB(ism).c_str());
-    metav02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav02_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav03_[ism-1] ) dbe_->removeElement( metav03_[ism-1]->getName() );
+    if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L3A %s", Numbers::sEB(ism).c_str());
-    metav03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav03_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav04_[ism-1] ) dbe_->removeElement( metav04_[ism-1]->getName() );
+    if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L4A %s", Numbers::sEB(ism).c_str());
-    metav04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav04_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
+    if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L1B %s", Numbers::sEB(ism).c_str());
-    metav05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav05_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
+    if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L2B %s", Numbers::sEB(ism).c_str());
-    metav06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav06_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav07_[ism-1] ) dbe_->removeElement( metav07_[ism-1]->getName() );
+    if ( metav07_[ism-1] ) dqmStore_->removeElement( metav07_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L3B %s", Numbers::sEB(ism).c_str());
-    metav07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav07_[ism-1]->setAxisTitle("mean", 1);
-    if ( metav08_[ism-1] ) dbe_->removeElement( metav08_[ism-1]->getName() );
+    if ( metav08_[ism-1] ) dqmStore_->removeElement( metav08_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing mean L4B %s", Numbers::sEB(ism).c_str());
-    metav08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    metav08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     metav08_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L1A %s", Numbers::sEB(ism).c_str());
-    metrms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms01_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
+    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L2A %s", Numbers::sEB(ism).c_str());
-    metrms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms02_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms03_[ism-1] ) dbe_->removeElement( metrms03_[ism-1]->getName() );
+    if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L3A %s", Numbers::sEB(ism).c_str());
-    metrms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms03_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms04_[ism-1] ) dbe_->removeElement( metrms04_[ism-1]->getName() );
+    if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L4A %s", Numbers::sEB(ism).c_str());
-    metrms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms04_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
+    if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L1B %s", Numbers::sEB(ism).c_str());
-    metrms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms05_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
+    if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L2B %s", Numbers::sEB(ism).c_str());
-    metrms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms06_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms07_[ism-1] ) dbe_->removeElement( metrms07_[ism-1]->getName() );
+    if ( metrms07_[ism-1] ) dqmStore_->removeElement( metrms07_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L3B %s", Numbers::sEB(ism).c_str());
-    metrms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms07_[ism-1]->setAxisTitle("rms", 1);
-    if ( metrms08_[ism-1] ) dbe_->removeElement( metrms08_[ism-1]->getName() );
+    if ( metrms08_[ism-1] ) dqmStore_->removeElement( metrms08_[ism-1]->getName() );
     sprintf(histo, "EBLT laser timing rms L4B %s", Numbers::sEB(ism).c_str());
-    metrms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 0.5);
+    metrms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 0.5);
     metrms08_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L1A %s", Numbers::sEB(ism).c_str());
-    meaopn01_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn01_[ism-1]->setAxisTitle("channel", 1);
     meaopn01_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn02_[ism-1] ) dbe_->removeElement( meaopn02_[ism-1]->getName() );
+    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L2A %s", Numbers::sEB(ism).c_str());
-    meaopn02_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn02_[ism-1]->setAxisTitle("channel", 1);
     meaopn02_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn03_[ism-1] ) dbe_->removeElement( meaopn03_[ism-1]->getName() );
+    if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L3A %s", Numbers::sEB(ism).c_str());
-    meaopn03_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn03_[ism-1]->setAxisTitle("channel", 1);
     meaopn03_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn04_[ism-1] ) dbe_->removeElement( meaopn04_[ism-1]->getName() );
+    if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L4A %s", Numbers::sEB(ism).c_str());
-    meaopn04_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn04_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn04_[ism-1]->setAxisTitle("channel", 1);
     meaopn04_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
+    if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L1B %s", Numbers::sEB(ism).c_str());
-    meaopn05_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn05_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn05_[ism-1]->setAxisTitle("channel", 1);
     meaopn05_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn06_[ism-1] ) dbe_->removeElement( meaopn06_[ism-1]->getName() );
+    if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L2B %s", Numbers::sEB(ism).c_str());
-    meaopn06_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn06_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn06_[ism-1]->setAxisTitle("channel", 1);
     meaopn06_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn07_[ism-1] ) dbe_->removeElement( meaopn07_[ism-1]->getName() );
+    if ( meaopn07_[ism-1] ) dqmStore_->removeElement( meaopn07_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L3B %s", Numbers::sEB(ism).c_str());
-    meaopn07_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn07_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn07_[ism-1]->setAxisTitle("channel", 1);
     meaopn07_[ism-1]->setAxisTitle("amplitude/PN", 2);
-    if ( meaopn08_[ism-1] ) dbe_->removeElement( meaopn08_[ism-1]->getName() );
+    if ( meaopn08_[ism-1] ) dqmStore_->removeElement( meaopn08_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L4B %s", Numbers::sEB(ism).c_str());
-    meaopn08_[ism-1] = dbe_->book1D(histo, histo, 1700, 0., 1700.);
+    meaopn08_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
     meaopn08_[ism-1]->setAxisTitle("channel", 1);
     meaopn08_[ism-1]->setAxisTitle("amplitude/PN", 2);
 
-    if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L1", Numbers::sEB(ism).c_str());
-    mepnprms01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms01_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms02_[ism-1] ) dbe_->removeElement( mepnprms02_[ism-1]->getName() );
+    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L2", Numbers::sEB(ism).c_str());
-    mepnprms02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms02_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms03_[ism-1] ) dbe_->removeElement( mepnprms03_[ism-1]->getName() );
+    if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L3", Numbers::sEB(ism).c_str());
-    mepnprms03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms03_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms04_[ism-1] ) dbe_->removeElement( mepnprms04_[ism-1]->getName() );
+    if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01 L4", Numbers::sEB(ism).c_str());
-    mepnprms04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms04_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L1", Numbers::sEB(ism).c_str());
-    mepnprms05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms05_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms06_[ism-1] ) dbe_->removeElement( mepnprms06_[ism-1]->getName() );
+    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L2", Numbers::sEB(ism).c_str());
-    mepnprms06_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms06_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms06_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms07_[ism-1] ) dbe_->removeElement( mepnprms07_[ism-1]->getName() );
+    if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L3", Numbers::sEB(ism).c_str());
-    mepnprms07_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms07_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms07_[ism-1]->setAxisTitle("rms", 1);
-    if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
+    if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16 L4", Numbers::sEB(ism).c_str());
-    mepnprms08_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mepnprms08_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mepnprms08_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L1A %s", Numbers::sEB(ism).c_str());
-    me_hs01_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs01_[ism-1]->setAxisTitle("sample", 1);
     me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L2A %s", Numbers::sEB(ism).c_str());
-    me_hs02_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs02_[ism-1]->setAxisTitle("sample", 1);
     me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L3A %s", Numbers::sEB(ism).c_str());
-    me_hs03_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs03_[ism-1]->setAxisTitle("sample", 1);
     me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs04_[ism-1] ) dbe_->removeElement( me_hs04_[ism-1]->getName() );
+    if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L4A %s", Numbers::sEB(ism).c_str());
-    me_hs04_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs04_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs04_[ism-1]->setAxisTitle("sample", 1);
     me_hs04_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L1B %s", Numbers::sEB(ism).c_str());
-    me_hs05_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs05_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs05_[ism-1]->setAxisTitle("sample", 1);
     me_hs05_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L2B %s", Numbers::sEB(ism).c_str());
-    me_hs06_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs06_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs06_[ism-1]->setAxisTitle("sample", 1);
     me_hs06_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs07_[ism-1] ) dbe_->removeElement( me_hs07_[ism-1]->getName() );
+    if ( me_hs07_[ism-1] ) dqmStore_->removeElement( me_hs07_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L3B %s", Numbers::sEB(ism).c_str());
-    me_hs07_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs07_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs07_[ism-1]->setAxisTitle("sample", 1);
     me_hs07_[ism-1]->setAxisTitle("amplitude", 2);
-    if ( me_hs08_[ism-1] ) dbe_->removeElement( me_hs08_[ism-1]->getName() );
+    if ( me_hs08_[ism-1] ) dqmStore_->removeElement( me_hs08_[ism-1]->getName() );
     sprintf(histo, "EBLT laser shape L4B %s", Numbers::sEB(ism).c_str());
-    me_hs08_[ism-1] = dbe_->book1D(histo, histo, 10, 0., 10.);
+    me_hs08_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
     me_hs08_[ism-1]->setAxisTitle("sample", 1);
     me_hs08_[ism-1]->setAxisTitle("amplitude", 2);
 
@@ -837,151 +844,151 @@ void EBLaserClient::cleanup(void) {
 
     int ism = superModules_[i];
 
-    dbe_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
+    dqmStore_->setCurrentFolder( prefixME_ + "/EBLaserClient" );
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
-    if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
     meg04_[ism-1] = 0;
 
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     meg05_[ism-1] = 0;
-    if ( meg06_[ism-1] ) dbe_->removeElement( meg06_[ism-1]->getName() );
+    if ( meg06_[ism-1] ) dqmStore_->removeElement( meg06_[ism-1]->getName() );
     meg06_[ism-1] = 0;
-    if ( meg07_[ism-1] ) dbe_->removeElement( meg07_[ism-1]->getName() );
+    if ( meg07_[ism-1] ) dqmStore_->removeElement( meg07_[ism-1]->getName() );
     meg07_[ism-1] = 0;
-    if ( meg08_[ism-1] ) dbe_->removeElement( meg08_[ism-1]->getName() );
+    if ( meg08_[ism-1] ) dqmStore_->removeElement( meg08_[ism-1]->getName() );
     meg08_[ism-1] = 0;
-    if ( meg09_[ism-1] ) dbe_->removeElement( meg09_[ism-1]->getName() );
+    if ( meg09_[ism-1] ) dqmStore_->removeElement( meg09_[ism-1]->getName() );
     meg09_[ism-1] = 0;
-    if ( meg10_[ism-1] ) dbe_->removeElement( meg10_[ism-1]->getName() );
+    if ( meg10_[ism-1] ) dqmStore_->removeElement( meg10_[ism-1]->getName() );
     meg10_[ism-1] = 0;
-    if ( meg11_[ism-1] ) dbe_->removeElement( meg11_[ism-1]->getName() );
+    if ( meg11_[ism-1] ) dqmStore_->removeElement( meg11_[ism-1]->getName() );
     meg11_[ism-1] = 0;
-    if ( meg12_[ism-1] ) dbe_->removeElement( meg12_[ism-1]->getName() );
+    if ( meg12_[ism-1] ) dqmStore_->removeElement( meg12_[ism-1]->getName() );
     meg12_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dbe_->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
-    if ( mea02_[ism-1] ) dbe_->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
     mea02_[ism-1] = 0;
-    if ( mea03_[ism-1] ) dbe_->removeElement( mea03_[ism-1]->getName() );
+    if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
     mea03_[ism-1] = 0;
-    if ( mea04_[ism-1] ) dbe_->removeElement( mea04_[ism-1]->getName() );
+    if ( mea04_[ism-1] ) dqmStore_->removeElement( mea04_[ism-1]->getName() );
     mea04_[ism-1] = 0;
-    if ( mea05_[ism-1] ) dbe_->removeElement( mea05_[ism-1]->getName() );
+    if ( mea05_[ism-1] ) dqmStore_->removeElement( mea05_[ism-1]->getName() );
     mea05_[ism-1] = 0;
-    if ( mea06_[ism-1] ) dbe_->removeElement( mea06_[ism-1]->getName() );
+    if ( mea06_[ism-1] ) dqmStore_->removeElement( mea06_[ism-1]->getName() );
     mea06_[ism-1] = 0;
-    if ( mea07_[ism-1] ) dbe_->removeElement( mea07_[ism-1]->getName() );
+    if ( mea07_[ism-1] ) dqmStore_->removeElement( mea07_[ism-1]->getName() );
     mea07_[ism-1] = 0;
-    if ( mea08_[ism-1] ) dbe_->removeElement( mea08_[ism-1]->getName() );
+    if ( mea08_[ism-1] ) dqmStore_->removeElement( mea08_[ism-1]->getName() );
     mea08_[ism-1] = 0;
 
-    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     met01_[ism-1] = 0;
-    if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
     met02_[ism-1] = 0;
-    if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
+    if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
     met03_[ism-1] = 0;
-    if ( met04_[ism-1] ) dbe_->removeElement( met04_[ism-1]->getName() );
+    if ( met04_[ism-1] ) dqmStore_->removeElement( met04_[ism-1]->getName() );
     met04_[ism-1] = 0;
-    if ( met05_[ism-1] ) dbe_->removeElement( met05_[ism-1]->getName() );
+    if ( met05_[ism-1] ) dqmStore_->removeElement( met05_[ism-1]->getName() );
     met05_[ism-1] = 0;
-    if ( met06_[ism-1] ) dbe_->removeElement( met06_[ism-1]->getName() );
+    if ( met06_[ism-1] ) dqmStore_->removeElement( met06_[ism-1]->getName() );
     met06_[ism-1] = 0;
-    if ( met07_[ism-1] ) dbe_->removeElement( met07_[ism-1]->getName() );
+    if ( met07_[ism-1] ) dqmStore_->removeElement( met07_[ism-1]->getName() );
     met07_[ism-1] = 0;
-    if ( met08_[ism-1] ) dbe_->removeElement( met08_[ism-1]->getName() );
+    if ( met08_[ism-1] ) dqmStore_->removeElement( met08_[ism-1]->getName() );
     met08_[ism-1] = 0;
 
-    if ( metav01_[ism-1] ) dbe_->removeElement( metav01_[ism-1]->getName() );
+    if ( metav01_[ism-1] ) dqmStore_->removeElement( metav01_[ism-1]->getName() );
     metav01_[ism-1] = 0;
-    if ( metav02_[ism-1] ) dbe_->removeElement( metav02_[ism-1]->getName() );
+    if ( metav02_[ism-1] ) dqmStore_->removeElement( metav02_[ism-1]->getName() );
     metav02_[ism-1] = 0;
-    if ( metav03_[ism-1] ) dbe_->removeElement( metav03_[ism-1]->getName() );
+    if ( metav03_[ism-1] ) dqmStore_->removeElement( metav03_[ism-1]->getName() );
     metav03_[ism-1] = 0;
-    if ( metav04_[ism-1] ) dbe_->removeElement( metav04_[ism-1]->getName() );
+    if ( metav04_[ism-1] ) dqmStore_->removeElement( metav04_[ism-1]->getName() );
     metav04_[ism-1] = 0;
-    if ( metav05_[ism-1] ) dbe_->removeElement( metav05_[ism-1]->getName() );
+    if ( metav05_[ism-1] ) dqmStore_->removeElement( metav05_[ism-1]->getName() );
     metav05_[ism-1] = 0;
-    if ( metav06_[ism-1] ) dbe_->removeElement( metav06_[ism-1]->getName() );
+    if ( metav06_[ism-1] ) dqmStore_->removeElement( metav06_[ism-1]->getName() );
     metav06_[ism-1] = 0;
-    if ( metav07_[ism-1] ) dbe_->removeElement( metav07_[ism-1]->getName() );
+    if ( metav07_[ism-1] ) dqmStore_->removeElement( metav07_[ism-1]->getName() );
     metav07_[ism-1] = 0;
-    if ( metav08_[ism-1] ) dbe_->removeElement( metav08_[ism-1]->getName() );
+    if ( metav08_[ism-1] ) dqmStore_->removeElement( metav08_[ism-1]->getName() );
     metav08_[ism-1] = 0;
 
-    if ( metrms01_[ism-1] ) dbe_->removeElement( metrms01_[ism-1]->getName() );
+    if ( metrms01_[ism-1] ) dqmStore_->removeElement( metrms01_[ism-1]->getName() );
     metrms01_[ism-1] = 0;
-    if ( metrms02_[ism-1] ) dbe_->removeElement( metrms02_[ism-1]->getName() );
+    if ( metrms02_[ism-1] ) dqmStore_->removeElement( metrms02_[ism-1]->getName() );
     metrms02_[ism-1] = 0;
-    if ( metrms03_[ism-1] ) dbe_->removeElement( metrms03_[ism-1]->getName() );
+    if ( metrms03_[ism-1] ) dqmStore_->removeElement( metrms03_[ism-1]->getName() );
     metrms03_[ism-1] = 0;
-    if ( metrms04_[ism-1] ) dbe_->removeElement( metrms04_[ism-1]->getName() );
+    if ( metrms04_[ism-1] ) dqmStore_->removeElement( metrms04_[ism-1]->getName() );
     metrms04_[ism-1] = 0;
-    if ( metrms05_[ism-1] ) dbe_->removeElement( metrms05_[ism-1]->getName() );
+    if ( metrms05_[ism-1] ) dqmStore_->removeElement( metrms05_[ism-1]->getName() );
     metrms05_[ism-1] = 0;
-    if ( metrms06_[ism-1] ) dbe_->removeElement( metrms06_[ism-1]->getName() );
+    if ( metrms06_[ism-1] ) dqmStore_->removeElement( metrms06_[ism-1]->getName() );
     metrms06_[ism-1] = 0;
-    if ( metrms07_[ism-1] ) dbe_->removeElement( metrms07_[ism-1]->getName() );
+    if ( metrms07_[ism-1] ) dqmStore_->removeElement( metrms07_[ism-1]->getName() );
     metrms07_[ism-1] = 0;
-    if ( metrms08_[ism-1] ) dbe_->removeElement( metrms08_[ism-1]->getName() );
+    if ( metrms08_[ism-1] ) dqmStore_->removeElement( metrms08_[ism-1]->getName() );
     metrms08_[ism-1] = 0;
 
-    if ( meaopn01_[ism-1] ) dbe_->removeElement( meaopn01_[ism-1]->getName() );
+    if ( meaopn01_[ism-1] ) dqmStore_->removeElement( meaopn01_[ism-1]->getName() );
     meaopn01_[ism-1] = 0;
-    if ( meaopn02_[ism-1] ) dbe_->removeElement( meaopn02_[ism-1]->getName() );
+    if ( meaopn02_[ism-1] ) dqmStore_->removeElement( meaopn02_[ism-1]->getName() );
     meaopn02_[ism-1] = 0;
-    if ( meaopn03_[ism-1] ) dbe_->removeElement( meaopn03_[ism-1]->getName() );
+    if ( meaopn03_[ism-1] ) dqmStore_->removeElement( meaopn03_[ism-1]->getName() );
     meaopn03_[ism-1] = 0;
-    if ( meaopn04_[ism-1] ) dbe_->removeElement( meaopn04_[ism-1]->getName() );
+    if ( meaopn04_[ism-1] ) dqmStore_->removeElement( meaopn04_[ism-1]->getName() );
     meaopn04_[ism-1] = 0;
-    if ( meaopn05_[ism-1] ) dbe_->removeElement( meaopn05_[ism-1]->getName() );
+    if ( meaopn05_[ism-1] ) dqmStore_->removeElement( meaopn05_[ism-1]->getName() );
     meaopn05_[ism-1] = 0;
-    if ( meaopn06_[ism-1] ) dbe_->removeElement( meaopn06_[ism-1]->getName() );
+    if ( meaopn06_[ism-1] ) dqmStore_->removeElement( meaopn06_[ism-1]->getName() );
     meaopn06_[ism-1] = 0;
-    if ( meaopn07_[ism-1] ) dbe_->removeElement( meaopn07_[ism-1]->getName() );
+    if ( meaopn07_[ism-1] ) dqmStore_->removeElement( meaopn07_[ism-1]->getName() );
     meaopn07_[ism-1] = 0;
-    if ( meaopn08_[ism-1] ) dbe_->removeElement( meaopn08_[ism-1]->getName() );
+    if ( meaopn08_[ism-1] ) dqmStore_->removeElement( meaopn08_[ism-1]->getName() );
     meaopn08_[ism-1] = 0;
 
-    if ( mepnprms01_[ism-1] ) dbe_->removeElement( mepnprms01_[ism-1]->getName() );
+    if ( mepnprms01_[ism-1] ) dqmStore_->removeElement( mepnprms01_[ism-1]->getName() );
     mepnprms01_[ism-1] = 0;
-    if ( mepnprms02_[ism-1] ) dbe_->removeElement( mepnprms02_[ism-1]->getName() );
+    if ( mepnprms02_[ism-1] ) dqmStore_->removeElement( mepnprms02_[ism-1]->getName() );
     mepnprms02_[ism-1] = 0;
-    if ( mepnprms03_[ism-1] ) dbe_->removeElement( mepnprms03_[ism-1]->getName() );
+    if ( mepnprms03_[ism-1] ) dqmStore_->removeElement( mepnprms03_[ism-1]->getName() );
     mepnprms03_[ism-1] = 0;
-    if ( mepnprms04_[ism-1] ) dbe_->removeElement( mepnprms04_[ism-1]->getName() );
+    if ( mepnprms04_[ism-1] ) dqmStore_->removeElement( mepnprms04_[ism-1]->getName() );
     mepnprms04_[ism-1] = 0;
-    if ( mepnprms05_[ism-1] ) dbe_->removeElement( mepnprms05_[ism-1]->getName() );
+    if ( mepnprms05_[ism-1] ) dqmStore_->removeElement( mepnprms05_[ism-1]->getName() );
     mepnprms05_[ism-1] = 0;
-    if ( mepnprms06_[ism-1] ) dbe_->removeElement( mepnprms06_[ism-1]->getName() );
+    if ( mepnprms06_[ism-1] ) dqmStore_->removeElement( mepnprms06_[ism-1]->getName() );
     mepnprms06_[ism-1] = 0;
-    if ( mepnprms07_[ism-1] ) dbe_->removeElement( mepnprms07_[ism-1]->getName() );
+    if ( mepnprms07_[ism-1] ) dqmStore_->removeElement( mepnprms07_[ism-1]->getName() );
     mepnprms07_[ism-1] = 0;
-    if ( mepnprms08_[ism-1] ) dbe_->removeElement( mepnprms08_[ism-1]->getName() );
+    if ( mepnprms08_[ism-1] ) dqmStore_->removeElement( mepnprms08_[ism-1]->getName() );
     mepnprms08_[ism-1] = 0;
 
-    if ( me_hs01_[ism-1] ) dbe_->removeElement( me_hs01_[ism-1]->getName() );
+    if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
     me_hs01_[ism-1] = 0;
-    if ( me_hs02_[ism-1] ) dbe_->removeElement( me_hs02_[ism-1]->getName() );
+    if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
     me_hs02_[ism-1] = 0;
-    if ( me_hs03_[ism-1] ) dbe_->removeElement( me_hs03_[ism-1]->getName() );
+    if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
     me_hs03_[ism-1] = 0;
-    if ( me_hs04_[ism-1] ) dbe_->removeElement( me_hs04_[ism-1]->getName() );
+    if ( me_hs04_[ism-1] ) dqmStore_->removeElement( me_hs04_[ism-1]->getName() );
     me_hs04_[ism-1] = 0;
-    if ( me_hs05_[ism-1] ) dbe_->removeElement( me_hs05_[ism-1]->getName() );
+    if ( me_hs05_[ism-1] ) dqmStore_->removeElement( me_hs05_[ism-1]->getName() );
     me_hs05_[ism-1] = 0;
-    if ( me_hs06_[ism-1] ) dbe_->removeElement( me_hs06_[ism-1]->getName() );
+    if ( me_hs06_[ism-1] ) dqmStore_->removeElement( me_hs06_[ism-1]->getName() );
     me_hs06_[ism-1] = 0;
-    if ( me_hs07_[ism-1] ) dbe_->removeElement( me_hs07_[ism-1]->getName() );
+    if ( me_hs07_[ism-1] ) dqmStore_->removeElement( me_hs07_[ism-1]->getName() );
     me_hs07_[ism-1] = 0;
-    if ( me_hs08_[ism-1] ) dbe_->removeElement( me_hs08_[ism-1]->getName() );
+    if ( me_hs08_[ism-1] ) dqmStore_->removeElement( me_hs08_[ism-1]->getName() );
     me_hs08_[ism-1] = 0;
 
   }
@@ -1007,17 +1014,18 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-    UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
-    UtilsClient::printBadChannels(meg03_[ism-1], h05_[ism-1]);
-    UtilsClient::printBadChannels(meg03_[ism-1], h17_[ism-1]);
-    UtilsClient::printBadChannels(meg04_[ism-1], h07_[ism-1]);
-    UtilsClient::printBadChannels(meg04_[ism-1], h19_[ism-1]);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+      UtilsClient::printBadChannels(meg01_[ism-1], h13_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h03_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h15_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], h05_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], h17_[ism-1]);
+      UtilsClient::printBadChannels(meg04_[ism-1], h07_[ism-1]);
+      UtilsClient::printBadChannels(meg04_[ism-1], h19_[ism-1]);
+    }
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -1070,11 +1078,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L1A (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1A (" << ie << "," << ip << ") " << num01 << " " << mean01 << " " << rms01 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1105,11 +1113,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L1B (" << ie << "," << ip << ") " << num09 << " " << mean09 << " " << rms09 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1B (" << ie << "," << ip << ") " << num09 << " " << mean09 << " " << rms09 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1140,11 +1148,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L2A (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2A (" << ie << "," << ip << ") " << num03 << " " << mean03 << " " << rms03 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1175,11 +1183,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L2B (" << ie << "," << ip << ") " << num11 << " " << mean11 << " " << rms11 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2B (" << ie << "," << ip << ") " << num11 << " " << mean11 << " " << rms11 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1210,11 +1218,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L3A (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L3A (" << ie << "," << ip << ") " << num05 << " " << mean05 << " " << rms05 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1245,11 +1253,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L3B (" << ie << "," << ip << ") " << num13 << " " << mean13 << " " << rms13 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L3B (" << ie << "," << ip << ") " << num13 << " " << mean13 << " " << rms13 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1280,11 +1288,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L4A (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L4A (" << ie << "," << ip << ") " << num07 << " " << mean07 << " " << rms07 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1315,11 +1323,11 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "L4B (" << ie << "," << ip << ") " << num15 << " " << mean15 << " " << rms15 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L4B (" << ie << "," << ip << ") " << num15 << " " << mean15 << " " << rms15 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -1353,18 +1361,18 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      cout << "Inserting MonLaserDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonLaserDat ..." << endl;
       if ( dataset1_bl.size() != 0 ) econn->insertDataArraySet(&dataset1_bl, moniov);
       if ( dataset1_ir.size() != 0 ) econn->insertDataArraySet(&dataset1_ir, moniov);
       if ( dataset1_gr.size() != 0 ) econn->insertDataArraySet(&dataset1_gr, moniov);
       if ( dataset1_rd.size() != 0 ) econn->insertDataArraySet(&dataset1_rd, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   MonPNBlueDat pn_bl;
   map<EcalLogicID, MonPNBlueDat> dataset2_bl;
@@ -1379,25 +1387,26 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
-    UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
-    UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
-    UtilsClient::printBadChannels(meg07_[ism-1], i03_[ism-1]);
-    UtilsClient::printBadChannels(meg07_[ism-1], i07_[ism-1]);
-    UtilsClient::printBadChannels(meg08_[ism-1], i04_[ism-1]);
-    UtilsClient::printBadChannels(meg08_[ism-1], i08_[ism-1]);
-    UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
-    UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
-    UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
-    UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
-    UtilsClient::printBadChannels(meg11_[ism-1], i11_[ism-1]);
-    UtilsClient::printBadChannels(meg11_[ism-1], i15_[ism-1]);
-    UtilsClient::printBadChannels(meg12_[ism-1], i12_[ism-1]);
-    UtilsClient::printBadChannels(meg12_[ism-1], i16_[ism-1]);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg05_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i05_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i02_[ism-1]);
+      UtilsClient::printBadChannels(meg06_[ism-1], i06_[ism-1]);
+      UtilsClient::printBadChannels(meg07_[ism-1], i03_[ism-1]);
+      UtilsClient::printBadChannels(meg07_[ism-1], i07_[ism-1]);
+      UtilsClient::printBadChannels(meg08_[ism-1], i04_[ism-1]);
+      UtilsClient::printBadChannels(meg08_[ism-1], i08_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i09_[ism-1]);
+      UtilsClient::printBadChannels(meg09_[ism-1], i13_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i10_[ism-1]);
+      UtilsClient::printBadChannels(meg10_[ism-1], i14_[ism-1]);
+      UtilsClient::printBadChannels(meg11_[ism-1], i11_[ism-1]);
+      UtilsClient::printBadChannels(meg11_[ism-1], i15_[ism-1]);
+      UtilsClient::printBadChannels(meg12_[ism-1], i12_[ism-1]);
+      UtilsClient::printBadChannels(meg12_[ism-1], i16_[ism-1]);
+    }
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -1446,12 +1455,12 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L1 G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "PNs (" << i << ") L1 G16 " << num09  << " " << mean09 << " " << rms09  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -1488,12 +1497,12 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
-          cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L2 G01 " << num02  << " " << mean02 << " " << rms02  << endl;
+            cout << "PNs (" << i << ") L2 G16 " << num10  << " " << mean10 << " " << rms10  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -1530,12 +1539,12 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
-          cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L3 G01 " << num03  << " " << mean03 << " " << rms03  << endl;
+            cout << "PNs (" << i << ") L3 G16 " << num11  << " " << mean11 << " " << rms11  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -1572,12 +1581,12 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
-          cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") L4 G01 " << num04  << " " << mean04 << " " << rms04  << endl;
+            cout << "PNs (" << i << ") L4 G16 " << num12  << " " << mean12 << " " << rms12  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -1616,12 +1625,12 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPnDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPnDat ..." << endl;
       if ( dataset2_bl.size() != 0 ) econn->insertDataArraySet(&dataset2_bl, moniov);
       if ( dataset2_ir.size() != 0 ) econn->insertDataArraySet(&dataset2_ir, moniov);
       if ( dataset2_gr.size() != 0 ) econn->insertDataArraySet(&dataset2_gr, moniov);
       if ( dataset2_rd.size() != 0 ) econn->insertDataArraySet(&dataset2_rd, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -1636,7 +1645,7 @@ void EBLaserClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBLaserClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;
@@ -1665,9 +1674,11 @@ void EBLaserClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
 
   char histo[200];
 
@@ -1677,196 +1688,196 @@ void EBLaserClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude %s L1A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude %s L2A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude %s L3A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude %s L4A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT timing %s L1A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT timing %s L2A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT timing %s L3A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT timing %s L4A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude %s L1B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude %s L2B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude %s L3B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h17_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h18_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude %s L4B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h19_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h20_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT timing %s L1B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT timing %s L2B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT timing %s L3B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h23_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT timing %s L4B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h24_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT shape %s L1A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT shape %s L2A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT shape %s L3A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4A", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT shape %s L4A").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/EBLT shape %s L1B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/EBLT shape %s L2B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/EBLT shape %s L3B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4B", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/EBLT shape %s L4B").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     hs08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i05_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i05_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain01/EBPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i06_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i06_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain01/EBPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i07_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i07_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i08_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i08_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i09_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i09_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i10_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i10_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i11_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i11_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i12_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i12_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i13_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser2/PN/Gain16/EBPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i14_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i14_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser3/PN/Gain16/EBPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i15_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i15_[ism-1] );
 
-    sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     i16_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i16_[ism-1] );
 
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
@@ -2585,6 +2596,38 @@ void EBLaserClient::analyze(void){
           }
         }
 
+	// TT masking
+
+	if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg01_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg02_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+	      if ( meg04_[ism-1] ) {
+		float val = int(meg04_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg04_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -2915,7 +2958,7 @@ void EBLaserClient::analyze(void){
 
 void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBLaserClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBLaserClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -3140,15 +3183,15 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3202,7 +3245,7 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         obj1f->Draw();
         cTim->Update();
         cTim->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3252,14 +3295,14 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3309,14 +3352,14 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3365,14 +3408,14 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->Draw();
         cShape->Update();
         cShape->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3422,16 +3465,16 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->SetMaximum(20.0);
         obj1f->Draw();
         cAmpoPN->Update();
         cAmpoPN->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3575,15 +3618,15 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3625,15 +3668,15 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cAmp->Update();
         cAmp->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3677,15 +3720,15 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3727,15 +3770,15 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3777,15 +3820,15 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -3827,15 +3870,15 @@ void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
 //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         obj1f->SetMinimum(0.0);
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 

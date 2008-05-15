@@ -58,11 +58,4 @@ function::Product<A, B> operator*(const A& a, const B& b) {
   return function::Product<A, B>(a, b);
 }
 
-#include "PhysicsTools/Utilities/interface/Constant.h"
-
-template<typename B>
-function::Product<function::Constant, B> operator*(const function::Parameter& a, const B& b) {
-  return function::Product<function::Constant, B>(function::Constant(a), b);
-}
-
 #endif

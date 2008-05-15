@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/02/21 23:17:48 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/04/28 22:39:00 $
+ *  $Revision: 1.21 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -72,7 +72,6 @@ protected:
 
 private:
 
-  void fillGlobalStatus();
 
   DQMStore* dqmStore_;
 
@@ -82,6 +81,7 @@ private:
   int summaryFrequency_;
   int tkMapFrequency_;
   int staticUpdateFrequency_;
+  bool globalStatusFilling_;
 
   std::string outputFilePath_;
   std::string outputFileName_;
