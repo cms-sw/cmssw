@@ -43,8 +43,8 @@ SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) :
 	width_ = 0.0285;
 	min_depth_ = -100.;
 	max_depth_ = 400.;
-	min_drift_ = -200.;
-	max_drift_ = 400.;
+	min_drift_ = -400.; //-200.;
+	max_drift_ = 800.; //400.;
 	event_counter_ = 0;
 	hits_layer1_module7_ = 0;
 }
@@ -54,6 +54,8 @@ SiPixelLorentzAngle::~SiPixelLorentzAngle() {  }
 
 void SiPixelLorentzAngle::beginJob(const edm::EventSetup& c)
 {
+
+// 	cout << "started SiPixelLorentzAngle" << endl;
 	ntracks = 200;
   	hFile_ = new TFile (filename_.c_str(), "RECREATE" );
 	int bufsize = 64000;
