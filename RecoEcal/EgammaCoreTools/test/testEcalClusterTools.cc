@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  "Federico Ferri federi
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
-// $Id: testEcalClusterTools.cc,v 1.2 2008/04/22 10:06:24 ferriff Exp $
+// $Id: testEcalClusterTools.cc,v 1.3 2008/04/28 19:27:51 meridian Exp $
 //
 //
 
@@ -42,7 +42,7 @@ Implementation:
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 
@@ -102,7 +102,7 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
         const EcalRecHitCollection *eeRecHits = pEERecHits.product();
 
         edm::ESHandle<CaloGeometry> pGeometry;
-        es.get<IdealGeometryRecord>().get(pGeometry);
+        es.get<CaloGeometryRecord>().get(pGeometry);
         const CaloGeometry *geometry = pGeometry.product();
 
         edm::ESHandle<CaloTopology> pTopology;
