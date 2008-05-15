@@ -311,6 +311,7 @@ foreach (@Candle)
 		}
 		else
 		{
+		    $OutputStep=$step."_PILEUP";
 		    $InputFileOption="$FileName{$candle}"."_"."$Step[$stepIndex-1]"."_PILEUP".".root ";
 		    $OutputFileOption="--fileout=$FileName{$candle}"."_"."$step"."_PILEUP.root";
 		    #Adding .cfi to use new method of using cmsDriver.py
