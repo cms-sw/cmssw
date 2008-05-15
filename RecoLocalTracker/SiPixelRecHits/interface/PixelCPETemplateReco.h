@@ -75,6 +75,8 @@ class PixelCPETemplateReco : public PixelCPEBase
 
   mutable int ierr;
 
+  mutable bool UseClusterSplitter_;
+
 };
 
 #endif
