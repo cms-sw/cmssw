@@ -172,7 +172,10 @@ void do_check(TString filename_official, TString filename_test,TString sampletyp
 }
 
 double make_plot(TH1F* off, TH1F *test){
-  off->Scale((float)test->GetSum()/(float)off->GetSum());
+  if(off->GetSum()>0)
+    off->Scale((float)test->GetSum()/(float)off->GetSum());
+  else if (off->GetEntries()>0)
+    off->Scale((float)test->GetEntries()/(float)off->GetEntries());
   if(off->GetMaximum()<test->GetMaximum())
     off->SetMaximum(1.3*test->GetMaximum());
   else
