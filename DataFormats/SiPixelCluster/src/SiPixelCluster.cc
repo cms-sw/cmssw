@@ -18,30 +18,49 @@
 SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
   detId_(0),     // &&& To be fixed ?? 
   // The center of pixel with row # N is at N+0.5 in the meas. frame!
-  theSumX( (pix.row()+0.5) * float(adc)), 
-  theSumY( (pix.col()+0.5) * float(adc)),
-  theCharge( float(adc)),
+	//  theSumX( (pix.row()+0.5) * float(adc)), 
+	// theSumY( (pix.col()+0.5) * float(adc)),
+	//  theCharge( float(adc)),
   theMinPixelRow( pix.row()),
-  theMaxPixelRow( pix.row()),
-  theMinPixelCol( pix.col()),
-  theMaxPixelCol( pix.col())
+	//  theMaxPixelRow( pix.row()),
+  theMinPixelCol( pix.col())
+	//  theMaxPixelCol( pix.col())
 {
   // First pixel in this cluster.
-  thePixels.push_back( Pixel( pix.row(), pix.col(), adc ) );
+  thePixelADC.push_back( adc );
+	thePixelOffset.push_back( ((pix.row() - theMinPixelRow) << 5) + pix.col() - theMinPixelCol );
 }
 
 void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
 
   // The center of pixel with row # N is at N+0.5 in the meas. frame!
-  theSumX += (pix.row()+0.5) * float(adc); 
-  theSumY += (pix.col()+0.5) * float(adc); 
-  theCharge += float(adc);
-
-  thePixels.push_back( Pixel( pix.row(), pix.col(), adc ) );
-
-  if (pix.row() < theMinPixelRow) theMinPixelRow = pix.row();
-  if (pix.row() > theMaxPixelRow) theMaxPixelRow = pix.row();
-  if (pix.col() < theMinPixelCol) theMinPixelCol = pix.col();
-  if (pix.col() > theMaxPixelCol) theMaxPixelCol = pix.col();
+  //theSumX += (pix.row()+0.5) * float(adc); 
+  //theSumY += (pix.col()+0.5) * float(adc); 
+  //theCharge += float(adc);
+	//  thePixels.push_back( Pixel( pix.row(), pix.col(), adc ) );
+	
+	int minRow = theMinPixelRow;
+	int minCol = theMinPixelCol;
+	bool recalculate = false;
+	
+	if (pix.row() < theMinPixelRow) {
+		theMinPixelRow = pix.row();
+		recalculate = true;
+	}
+	if (pix.col() < theMinPixelCol) {
+		theMinPixelCol = pix.col();
+		recalculate = true;
+	}
+	if (recalculate) {
+		int isize = thePixelADC.size();
+		for (int i=0; i<isize; ++i) {
+			int xoffset = (thePixelOffset[i] >> 5) + minRow - theMinPixelRow;
+			int yoffset = (thePixelOffset[i] & 31) + minCol - theMinPixelCol;
+			thePixelOffset[i] = (xoffset << 5) + yoffset;
+		}
+	}
+	
+	thePixelADC.push_back( adc );
+	thePixelOffset.push_back( ((pix.row() - theMinPixelRow) << 5) + pix.col() - theMinPixelCol );
 }
 

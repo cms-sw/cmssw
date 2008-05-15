@@ -1,7 +1,6 @@
 <lcgdict>
   <class name="SiPixelCluster"/>
   <class name="SiPixelCluster::Pixel"/>
-  <class name="std::vector<SiPixelCluster::Pixel>"/>
   <class name="SiPixelCluster::Shift"/>
   <class name="SiPixelCluster::PixelPos"/>
   <class name="std::vector<SiPixelCluster>"/>
