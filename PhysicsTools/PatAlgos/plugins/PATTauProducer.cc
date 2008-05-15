@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.3 2008/04/17 22:51:56 gpetrucc Exp $
+// $Id$
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -32,7 +32,10 @@ using namespace pat;
 
 PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
   // initialize the configurables
-  tauSrc_         = iConfig.getParameter<edm::InputTag>( "tauSource" );
+  tauSrc_               = iConfig.getParameter<edm::InputTag>( "tauSource" );
+  embedIsolationTracks_ = iConfig.getParameter<bool>         ( "embedIsolationTracks" );
+  embedLeadTrack_       = iConfig.getParameter<bool>         ( "embedLeadTrack" );
+  embedSignalTracks_    = iConfig.getParameter<bool>         ( "embedSignalTracks" );
   addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
@@ -74,6 +77,9 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     const TauType * originalTau = tausRef.get();
 
     Tau aTau(tausRef);
+    if (embedIsolationTracks_) aTau.embedIsolationTracks();
+    if (embedLeadTrack_) aTau.embedLeadTrack();
+    if (embedSignalTracks_) aTau.embedSignalTracks();
 
     if (typeid(originalTau) == typeid(const reco::PFTau *)) {
       const reco::PFTau *thePFTau = dynamic_cast<const reco::PFTau*>(originalTau);

@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
+// $Id$
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.8 2008/04/03 12:29:08 gpetrucc Exp $
+  \version  $Id$
 */
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -38,14 +38,33 @@ namespace pat {
       virtual ~Electron();
 
       virtual Electron * clone() const { return new Electron(*this); }
+
+      /// override the ElectronType::gsfTrack method, to access the internal storage of the supercluster
+      reco::GsfTrackRef gsfTrack() const;
+      /// override the ElectronType::superCluster method, to access the internal storage of the supercluster
+      reco::SuperClusterRef superCluster() const;
+      /// override the ElectronType::track method, to access the internal storage of the track
+      reco::TrackRef track() const;
       float leptonID() const;
       float electronIDRobust() const;
 
+      /// method to store the electron's supercluster internally
+      void embedGsfTrack();
+      /// method to store the electron's supercluster internally
+      void embedSuperCluster();
+      /// method to store the electron's supercluster internally
+      void embedTrack();
       void setLeptonID(float id);
       void setElectronIDRobust(float id);
 
     protected:
 
+      bool embeddedGsfTrack_;
+      std::vector<reco::GsfTrack> gsfTrack_;
+      bool embeddedSuperCluster_;
+      std::vector<reco::SuperCluster> superCluster_;
+      bool embeddedTrack_;
+      std::vector<reco::Track> track_;
       float leptonID_;
       float electronIDRobust_;
 

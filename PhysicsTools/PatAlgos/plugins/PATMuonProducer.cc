@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.3 2008/04/03 14:44:37 gpetrucc Exp $
+// $Id$
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -31,7 +31,10 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) 
 {
   // general configurables
-  muonSrc_       = iConfig.getParameter<edm::InputTag>( "muonSource" );
+  muonSrc_             = iConfig.getParameter<edm::InputTag>( "muonSource" );
+  embedTrack_          = iConfig.getParameter<bool>         ( "embedTrack" );
+  embedStandAloneMuon_ = iConfig.getParameter<bool>         ( "embedStandAloneMuon" );
+  embedCombinedMuon_   = iConfig.getParameter<bool>         ( "embedCombinedMuon" );
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
   genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
@@ -97,7 +100,12 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // construct the Muon from the ref -> save ref to original object
     unsigned int idx = itMuon - muons->begin();
     edm::RefToBase<MuonType> muonsRef = muons->refAt(idx);
+
     Muon aMuon(muonsRef);
+    if (embedTrack_) aMuon.embedTrack();
+    if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
+    if (embedCombinedMuon_) aMuon.embedCombinedMuon();
+
     // match to generated final state muons
     if (addGenMatch_) {
       reco::GenParticleRef genMuon = (*genMatch)[muonsRef];

@@ -1,5 +1,5 @@
 //
-// $Id: Muon.h,v 1.9 2008/04/04 18:22:08 srappocc Exp $
+// $Id$
 //
 
 #ifndef DataFormats_PatCandidates_Muon_h
@@ -12,7 +12,7 @@
    Muon implements the analysis-level muon class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id: Muon.h,v 1.9 2008/04/04 18:22:08 srappocc Exp $
+  \version  $Id$
 */
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -45,6 +45,12 @@ namespace pat {
       /// reimplementation of the Candidate clone method
       virtual Muon * clone() const { return new Muon(*this); }
 
+      /// reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
+      reco::TrackRef track() const;
+      /// reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
+      reco::TrackRef standAloneMuon() const;
+      /// reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
+      reco::TrackRef combinedMuon() const;
       /// return the lepton ID discriminator
       float leptonID() const;
       /// return whether it is a good muon
@@ -52,11 +58,23 @@ namespace pat {
       /// return the muon segment compatibility -> meant for
       float segmentCompatibility() const;
 
+      /// set reference to Track reconstructed in the tracker only (reimplemented from reco::Muon)
+      void embedTrack();
+      /// set reference to Track reconstructed in the muon detector only (reimplemented from reco::Muon)
+      void embedStandAloneMuon();
+      /// set reference to Track reconstructed in both tracked and muon detector (reimplemented from reco::Muon)
+      void embedCombinedMuon();
       /// method to set the lepton ID discriminator
       void setLeptonID(float id);
 
     protected:
 
+      bool embeddedTrack_;
+      std::vector<reco::Track> track_;
+      bool embeddedStandAloneMuon_;
+      std::vector<reco::Track> standAloneMuon_;
+      bool embeddedCombinedMuon_;
+      std::vector<reco::Track> combinedMuon_;
       float leptonID_;
 
   };
