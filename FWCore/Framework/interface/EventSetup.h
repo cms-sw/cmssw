@@ -70,8 +70,8 @@ class EventSetup
          void getData(const std::string& iLabel, T& iHolder) const {
             typedef typename T::value_type data_type;
             typedef typename eventsetup::data_default_record_trait<data_type>::type RecordT;
-            const RecordT& rec = this->get<RecordT>(iLabel);
-            rec.get(iHolder);
+            const RecordT& rec = this->get<RecordT>();
+            rec.get(iLabel,iHolder);
          }
       
       const IOVSyncValue& iovSyncValue() const { return syncValue_;}
