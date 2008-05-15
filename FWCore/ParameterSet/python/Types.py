@@ -471,14 +471,21 @@ class VInputTag(_ValidatingParameterListBase):
     def configValueForItem(self,item,options):
         return InputTag.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
-        return item.dumpPython(options)
+        # we tolerate strings as members
+        if isinstance(item, str):
+            return '"'+item+'"'
+        else:
+            return item.dumpPython(options)
     @staticmethod
     def _valueFromString(value):
         return VInputTag(*_ValidatingParameterListBase._itemsFromStrings(value,InputTag._valueFromString))
     def insertInto(self, parameterSet, myname):
         cppTags = list()
         for i in self:
-           cppTags.append(i.cppTag(parameterSet))
+            item = i 
+            if isinstance(item, str):
+                item = InputTag(i)
+            cppTags.append(item.cppTag(parameterSet))
         parameterSet.addVInputTag(self.isTracked(), myname, cppTags)
 
 class VEventID(_ValidatingParameterListBase):
@@ -614,6 +621,9 @@ if __name__ == "__main__":
             self.assertEqual(repr(it), "cms.InputTag(\"label\",\"\",\"proc\")")
             vit = VInputTag(InputTag("label1"), InputTag("label2"))
             self.assertEqual(repr(vit), "cms.VInputTag(cms.InputTag(\"label1\"), cms.InputTag(\"label2\"))")
+            vit = VInputTag("label1", "label2:label3")
+            self.assertEqual(repr(vit), "cms.VInputTag(\"label1\", \"label2:label3\")")
+
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
