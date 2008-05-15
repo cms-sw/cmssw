@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1MuDTPtaLutRcd" >
+   <Class table="L1MUDTPTALUT" id_columns="ID" name="L1MuDTPtaLut" mapping_version="L1MuDTPtaLut_basic" >
+     <Primitive column="NBIT_PHI" name="nbit_phi" />
+     <Blob column="L1MUDTPTALUT_PTA_LUT_BLOB" name="pta_lut"/>
+     <Blob column="L1MUDTPTALUT_PTA_T_1_BLOB" name="pta_threshold"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

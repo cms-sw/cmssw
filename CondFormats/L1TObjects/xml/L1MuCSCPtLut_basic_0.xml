@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1MuCSCPtLutRcd" >
+   <Class table="L1MUCSCPTLUT" id_columns="ID" name="L1MuCSCPtLut" mapping_version="L1MuCSCPtLut_basic" >
+     <Blob column="L1MUCSCPTLUT_PT_LUT_BLOB" name="pt_lut"/>
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
