@@ -55,6 +55,7 @@ CPPUNIT_TEST(getTest);
 CPPUNIT_TEST_EXCEPTION(getExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(recordProviderTest);
 CPPUNIT_TEST(provenanceTest);
+CPPUNIT_TEST(getDataWithLabelTest);
 CPPUNIT_TEST_EXCEPTION(recordValidityTest,edm::eventsetup::NoRecordException<DummyRecord>); 
 CPPUNIT_TEST_EXCEPTION(recordValidityExcTest,edm::eventsetup::NoRecordException<DummyRecord>);
 CPPUNIT_TEST(proxyProviderTest);
@@ -80,7 +81,8 @@ public:
   void recordValidityExcTest();
   void proxyProviderTest();
   void provenanceTest();
-  
+  void getDataWithLabelTest();
+   
   void producerConflictTest();
   void sourceConflictTest();
   void twoSourceTest();
@@ -368,6 +370,51 @@ void testEventsetup::provenanceTest()
       CPPUNIT_ASSERT( desc->processName_ == "UnitTest");
    } catch (const cms::Exception& iException) {
        std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+      throw;
+   }
+}
+
+void testEventsetup::getDataWithLabelTest()
+{
+   using edm::eventsetup::test::DummyProxyProvider;
+   using edm::eventsetup::test::DummyData;
+   DummyData kGood; kGood.value_ = 1;
+   DummyData kBad; kBad.value_=0;
+   
+   eventsetup::EventSetupProvider provider;
+   try {
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
+	 edm::ParameterSet ps;
+	 ps.addParameter<std::string>("name", "test11");
+         description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_11_0_0";
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
+         dummyProv->setDescription(description);
+         provider.add(dummyProv);
+      }
+      {
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
+	 edm::ParameterSet ps;
+	 ps.addParameter<std::string>("name", "test22");
+         ps.addParameter<std::string>("appendToDataLabel","blah");
+         description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_12_0_0";
+         description.processName_ = "UnitTest";
+         description.passID_ = "22";
+         boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
+         dummyProv->setDescription(description);
+         dummyProv->setAppendToDataLabel(ps);
+         provider.add(dummyProv);
+      }
+      EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
+      edm::ESHandle<DummyData> data;
+      eventSetup.getData("blah",data);
+      CPPUNIT_ASSERT(kGood.value_==data->value_);
+      const edm::eventsetup::ComponentDescription* desc = data.description();
+      CPPUNIT_ASSERT( desc->processName_ == "UnitTest");
+   } catch (const cms::Exception& iException) {
+      std::cout <<"caught "<<iException.explainSelf()<<std::endl;
       throw;
    }
 }
