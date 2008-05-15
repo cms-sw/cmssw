@@ -150,6 +150,11 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   mutable float cotalpha_;
   mutable float cotbeta_;
 
+  // G.Giurgiu (05/14/08) tracl local coordinates
+  mutable float trk_lp_x;
+  mutable float trk_lp_y;
+
+
   // [Petar, 5/18/07] 
   // Add estimates of cot(alpha) and cot(beta) from the
   // cluster length.  This can be used by:
