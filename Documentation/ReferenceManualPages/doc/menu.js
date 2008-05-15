@@ -71,7 +71,7 @@
 						// FIX_END
 					}
 					re = new RegExp("Related.*Pages"); if(re.test(aText)) aText = "Package Documentation";
-					re = new RegExp("Class.*List"); if(re.test(aText)) {continue;}		/*fix 13/05/08: annotated */
+					re = new RegExp("Class.*List"); if(re.test(aText)) {/*continue;*/}		/*fix 14/05/08: alphabetical */
 					re = new RegExp("Alphabetical.*List"); if(re.test(aText)) {alpha = true;}		/*fix 13/05/08: annotated */
 					
 					out = out+(i==0 || alpha?"":" | ");
@@ -118,6 +118,11 @@
 				}
 				//if (location.href.search(/alphabetical_list/g) > -1)
 				if (location.href.search(/classes/g) > -1)		/*fix 13/05/08: annotated */
+				{
+					clasHL = true;
+				}
+				//if (location.href.search(/class_list/g) > -1)
+				if (location.href.search(/annotated/g) > -1)	/*fix 14/05/08: alphabetical */
 				{
 					clasHL = true;
 				}
@@ -170,7 +175,7 @@
 					}
 					if (a[i].search(/Class/g) > -1)
 					{
-						if (a[i].search(/Class.*List/g) > -1) continue;	/*fix 13/05/08: annotated */
+						/*fix 14/05/08: alphabetical */
 						clas = clas + (cchk?" | ":"") + a[i];
 						cchk = true;
 						continue;
