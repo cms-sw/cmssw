@@ -35,6 +35,16 @@
 namespace pos{
   class PixelHdwAddress;
 
+  //This class contains info about a ROC
+  class PixelROCInfo {    
+  public:
+    const PixelHdwAddress* hdwadd_;
+    const PixelROCTrimBits* trims_;
+    const PixelROCMaskBits* masks_;
+    std::vector<std::pair<unsigned int, unsigned int> > defaultDACs_;
+  };
+
+
 /*!  \ingroup ConfigurationObjects "Configuration Objects"
 *    \ingroup CalibrationObjects "Calibration Objects"
 *    \brief This class implements the steps that are used in a scan over Threshold and CalDelay
@@ -188,23 +198,13 @@ namespace pos{
     unsigned int ROCNumberOnChannelAmongThoseCalibrated(PixelROCName roc) const;
     unsigned int numROCsCalibratedOnChannel(PixelROCName roc) const;
 
-    //Mode is one of the following: 
-    //  ThresholdCalDelay
-    //  FEDChannelOffsetDAC
-    //  FEDAddressLevelDAC
-    //  FEDChannelOffsetPixel
-    //  FEDAddressLevelPixel
-    //  GainCalibration
-    //  PixelAlive
-    //  SCurve
-    //  ClockPhaseCalibration
-
     bool singleROC_;
 
     std::vector<std::vector<unsigned int> > rows_;
     std::vector<std::vector<unsigned int> > cols_;
 
     mutable std::vector<PixelROCName> rocs_;
+    mutable std::vector<PixelROCInfo> rocInfo_;
     std::set <PixelModuleName> modules_;
     bool rocAndModuleListsBuilt_;
     std::vector<std::string> rocListInstructions_;

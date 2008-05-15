@@ -605,6 +605,37 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
     ::abort();
   }
 
+  if (state==0){
+    //here we will do some initialization...
+    for(unsigned int i=0;i<rocs_.size();i++){
+      const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+      PixelROCInfo rocInfo;
+      rocInfo.hdwadd_=hdwadd;
+      //FIXME This is very inefficient
+      PixelModuleName module(rocs_[i].rocname());
+      rocInfo.trims_=(*trims)[module]->getTrimBits(rocs_[i]);
+      rocInfo.masks_=(*masks)[module]->getMaskBits(rocs_[i]);
+      
+      std::map<std::string, unsigned int> defaultDACValues;
+      (*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
+
+      for ( std::vector<PixelDACScanRange>::const_iterator dacs_itr = dacs_.begin(); dacs_itr != dacs_.end(); dacs_itr++ )
+      {
+        std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_itr->name());
+        assert( foundThisDAC != defaultDACValues.end() );
+
+	pair<unsigned int, unsigned int> 
+	  dacchannelAndValue(dacs_itr->dacchannel(),
+			     foundThisDAC->second);
+
+	rocInfo.defaultDACs_.push_back(dacchannelAndValue);
+      }
+      rocInfo_.push_back(rocInfo);
+    }
+  }
+
+  assert(rocs_.size()==rocInfo_.size());
+
   bool changedWBC=false;
   
   pixelFEC->fecDebug(1);
@@ -633,11 +664,15 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
   if (state==0&&(mode==0||mode==1)) {
 
     for(unsigned int i=0;i<rocs_.size();i++){
+
+      //REMOVE
       const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+      assert(hdwadd==rocInfo_[i].hdwadd_);
 
       assert(hdwadd!=0);
       PixelHdwAddress theROC=*hdwadd;
-          
+      
+      //REMOVE    
       //FIXME This is very inefficient
       PixelModuleName module(rocs_[i].rocname());
       
@@ -645,6 +680,7 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
       
       PixelROCTrimBits* rocTrims=moduleTrims->getTrimBits(rocs_[i]);
 
+      assert(rocTrims==rocInfo_[i].trims_);
 
       //Turn off all pixels
       disablePixels(pixelFEC, rocTrims, theROC);
@@ -663,19 +699,27 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
     unsigned int i_col_previous=colCounter(previousState);
 
     for(unsigned int i=0;i<rocs_.size();i++){
+      //REMOVE
       const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+      assert(hdwadd==rocInfo_[i].hdwadd_);
+
       assert(hdwadd!=0);
       PixelHdwAddress theROC=*hdwadd;
 
       if ( !scanningROCForState(rocs_[i], previousState) ) continue;
 
+      //REMOVE
       // Set the DACs back to their default values when we're done with a scan.
       std::map<std::string, unsigned int> defaultDACValues;
       (*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
+      int j=0;
       for ( std::vector<PixelDACScanRange>::const_iterator dacs_itr = dacs_.begin(); dacs_itr != dacs_.end(); dacs_itr++ )
       {
         std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_itr->name());
         assert( foundThisDAC != defaultDACValues.end() );
+
+	assert(dacs_itr->dacchannel()==rocInfo_[i].defaultDACs_[j].first);
+	assert(foundThisDAC->second==rocInfo_[i].defaultDACs_[j].second);
 
         pixelFEC->progdac(theROC.mfec(),
             theROC.mfecchannel(),
@@ -684,15 +728,20 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
             theROC.rocid(),
             dacs_itr->dacchannel(),
             foundThisDAC->second,_bufferData);
-
+	
+	j++;
+	
       }
 
+      //REMOVE
       //FIXME This is very inefficient
       PixelModuleName module(rocs_[i].rocname());
       
       PixelTrimBase* moduleTrims=(*trims)[module];
       
       PixelROCTrimBits* rocTrims=moduleTrims->getTrimBits(rocs_[i]);
+
+      assert(rocTrims==rocInfo_[i].trims_);
 
       disablePixels(pixelFEC, i_row_previous, i_col_previous, 
 		    rocTrims, theROC);
@@ -705,7 +754,10 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
     //	std::cout << "Will configure roc:"<<rocs_[i] << std::endl;
 
+    //REMOVE
     const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+    assert(hdwadd==rocInfo_[i].hdwadd_);
+
     assert(hdwadd!=0);
     PixelHdwAddress theROC=*hdwadd;
     
@@ -730,10 +782,15 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	(*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
 	std::map<std::string, unsigned int>::const_iterator foundThisDAC = defaultDACValues.find(dacs_[ii].name());
 	assert( foundThisDAC != defaultDACValues.end() );
+	
+	assert(foundThisDAC->second==rocInfo_[i].defaultDACs_[ii].second);
+	
 	dacvalue+=foundThisDAC->second;
 	//cout << "[PixelCalibConfiguration::nextFECState] ROC="<<rocs_[i]
 	//     << " dac="<<dacs_[ii].name()<<" new value="<<dacvalue<<endl;
       }
+
+      assert(dacs_[ii].dacchannel()==rocInfo_[i].defaultDACs_[ii].first);
 
       pixelFEC->progdac(theROC.mfec(),
          theROC.mfecchannel(),
@@ -752,6 +809,8 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
       // Set masks and trims.
       if (mode!=2){
 
+
+	//REMOVE
         //FIXME This is very inefficient
         PixelModuleName module(rocs_[i].rocname());
 	
@@ -760,6 +819,10 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
         PixelROCMaskBits* rocMasks=moduleMasks->getMaskBits(rocs_[i]);
         PixelROCTrimBits* rocTrims=moduleTrims->getTrimBits(rocs_[i]);
+
+	assert(rocTrims==rocInfo_[i].trims_);
+	assert(rocMasks==rocInfo_[i].masks_);
+
 
         if (mode==1) rocMasks=0;
 
@@ -770,6 +833,8 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
       // Set high or low Vcal range.
       //FIXME This is very inefficient
+      //should only do if state==0 REMOVE
+
       PixelModuleName module(rocs_[i].rocname());
 
       unsigned int roccontrolword=(*dacs)[module]->getDACSettings(rocs_[i])->getControlRegister();
@@ -828,7 +893,9 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
   if (changedWBC){
     for(unsigned int i=0;i<rocs_.size();i++){
+      //REMOVE
       const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
+      assert(hdwadd==rocInfo_[i].hdwadd_);
       assert(hdwadd!=0);
       PixelHdwAddress theROC=*hdwadd; 
       pixelFEC->rocreset(theROC.mfec(),
