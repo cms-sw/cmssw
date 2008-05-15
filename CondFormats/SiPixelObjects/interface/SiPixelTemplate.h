@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v3.42)
+//  SiPixelTemplate.h (v4.00)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -15,6 +15,11 @@
 //  Add qscale to match charge scales
 //  Small improvement to x-chisquare interpolation
 //  Enlarge SiPixelTemplateStore to accommodate larger templates and increased alpha acceptance (reduce PT threshold to ~200 MeV)
+//  Store x and y cluster sizes in fractional pixels to facilitate cluster splitting
+//  Keep interpolated central 9 template bins in private storage and expand/shift in the getter functions (faster for speed=2/3) and easier to build 3d templates
+//  Store error and bias information for the simple chi^2 min position analysis (no interpolation or Q_{FB} corrections) to use in cluster splitting
+//  To save time, the gaussian centers and sigma are not interpolated right now (they aren't currently used).  They can be restored by un-commenting lines in the interpolate method.
+//  Add a new method to calculate qbin for input cotbeta and cluster charge.  To be used for error estimation of merged clusters in PixelCPEGeneric.
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -28,6 +33,9 @@
 
 #include<vector>
 #include<cassert>
+#include "boost/multi_array.hpp"
+
+typedef boost::multi_array<float, 3> array_3d;
 
 struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a single set of track angles 
   int runnum;              //!< number of pixelav run used to generate this entry 
@@ -48,6 +56,8 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float dxtwo;             //!< mean offset/correction for one double-pixel x-clusters 
   float sxtwo;             //!< rms for one double-pixel x-clusters 
   float qmin;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits) 
+  float clsleny;           //!< cluster y-length in pixels at signal height symax/2
+  float clslenx;           //!< cluster x-length in pixels at signal height sxmax/2
   float ypar[2][5];        //!< projected y-pixel uncertainty parameterization 
   float ytemp[9][21];      //!< templates for y-reconstruction (binned over 1 central pixel) 
   float xpar[2][5];        //!< projected x-pixel uncertainty parameterization 
@@ -66,6 +76,14 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float chi2ymin[4];       //!< minimum of y chi^2 in 4 charge bins
   float chi2xavg[4];       //!< average x chi^2 in 4 charge bins
   float chi2xmin[4];       //!< minimum of x chi^2 in 4 charge bins 
+  float yavgc2m[4];        //!< 1st pass chi2 min search: average y-bias of reconstruction binned in 4 charge bins 
+  float yrmsc2m[4];        //!< 1st pass chi2 min search: average y-rms of reconstruction binned in 4 charge bins 
+  float ygx0c2m[4];        //!< 1st pass chi2 min search: average y0 from Gaussian fit binned in 4 charge bins 
+  float ygsigc2m[4];       //!< 1st pass chi2 min search: average sigma_y from Gaussian fit binned in 4 charge bins 
+  float xavgc2m[4];        //!< 1st pass chi2 min search: average x-bias of reconstruction binned in 4 charge bins 
+  float xrmsc2m[4];        //!< 1st pass chi2 min search: average x-rms of reconstruction binned in 4 charge bins 
+  float xgx0c2m[4];        //!< 1st pass chi2 min search: average x0 from Gaussian fit binned in 4 charge bins 
+  float xgsigc2m[4];       //!< 1st pass chi2 min search: average sigma_x from Gaussian fit binned in 4 charge bins 
   float yspare[10];       //!< spare entries
   float xspare[10];       //!< spare entries
 } ;
@@ -139,6 +157,11 @@ class SiPixelTemplate {
   
   void xtemp(int fxbin, int fxbin, float xtemplate[41][11]);
   
+  // new methods to build templates from two interpolated clusters (for splitting) 
+  void ytemp3d(int nypix, array_3d& ytemplate);
+  
+  void xtemp3d(int nxpix, array_3d& xtemplate);
+  
   // Convert vector of projected signals into uncertainties for fitting. 
   void ysigma2(int fypix, int lypix, float sythr, float ysum[25], float ysig2[25]);
   
@@ -149,6 +172,9 @@ class SiPixelTemplate {
   
   // Interpolate qfl correction in x. 
   float xflcorr(int binq, float qflx);
+  
+  // Interpolate input beta angle to estimate the average charge and return qbin flag for input cluster charge. 
+  int qbin(int id, bool fpix, float cotbeta, float qclus);
   
   float qavg() {return pqavg;}        //!< average cluster charge for this set of track angles 
   float qscale() {return pqscale;}         //!< charge scaling factor 
@@ -164,6 +190,8 @@ class SiPixelTemplate {
   float dxtwo() {return pdxtwo;}             //!< mean offset/correction for one double-pixel x-clusters 
   float sxtwo() {return psxtwo;}             //!< rms for one double-pixel x-clusters 
   float qmin() {return pqmin;}               //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
+  float clsleny() {return pclsleny;}         //!< y-size of smaller interpolated template in pixels
+  float clslenx() {return pclslenx;}         //!< x-size of smaller interpolated template in pixels
   float yratio() {return pyratio;}            //!< fractional distance in y between cotbeta templates 
   float yxratio() {return pyxratio;}           //!< fractional distance in y between cotalpha templates slices
   float xxratio() {return pxxratio;}           //!< fractional distance in x between cotalpha templates 
@@ -179,6 +207,14 @@ class SiPixelTemplate {
   float chi2ymin(int i) {assert(i>=0 && i<4); return pchi2ymin[i];} //!< minimum y chi^2 in 4 charge bins 
   float chi2xavg(int i) {assert(i>=0 && i<4); return pchi2xavg[i];} //!< averaage x chi^2 in 4 charge bins
   float chi2xmin(int i) {assert(i>=0 && i<4); return pchi2xmin[i];} //!< minimum y chi^2 in 4 charge bins
+  float yavgc2m(int i) {assert(i>=0 && i<4); return pyavgc2m[i];}   //!< 1st pass chi2 min search: average y-bias of reconstruction binned in 4 charge bins 
+  float yrmsc2m(int i) {assert(i>=0 && i<4); return pyrmsc2m[i];}   //!< 1st pass chi2 min search: average y-rms of reconstruction binned in 4 charge bins 
+  float ygx0c2m(int i) {assert(i>=0 && i<4); return pygx0c2m[i];}   //!< 1st pass chi2 min search: average y0 from Gaussian fit binned in 4 charge bins 
+  float ygsigc2m(int i) {assert(i>=0 && i<4); return pygsigc2m[i];} //!< 1st pass chi2 min search: average sigma_y from Gaussian fit binned in 4 charge bins 
+  float xavgc2m(int i) {assert(i>=0 && i<4); return pxavgc2m[i];}   //!< 1st pass chi2 min search: average x-bias of reconstruction binned in 4 charge bins 
+  float xrmsc2m(int i) {assert(i>=0 && i<4); return pxrmsc2m[i];}   //!< 1st pass chi2 min search: average x-rms of reconstruction binned in 4 charge bins 
+  float xgx0c2m(int i) {assert(i>=0 && i<4); return pxgx0c2m[i];}   //!< 1st pass chi2 min search: average x0 from Gaussian fit binned in 4 charge bins 
+  float xgsigc2m(int i) {assert(i>=0 && i<4); return pxgsigc2m[i];} //!< 1st pass chi2 min search: average sigma_x from Gaussian fit binned in 4 charge bins 
 //  float yspare(int i) {assert(i>=0 && i<10); return pyspare[i];}    //!< vector of 10 spares interpolated in beta only
 //  float xspare(int i) {assert(i>=0 && i<10); return pxspare[i];}    //!< vector of 10 spares interpolated in alpha and beta
   
@@ -212,18 +248,20 @@ class SiPixelTemplate {
   float pdxtwo;             //!< mean offset/correction for one double-pixel x-clusters 
   float psxtwo;             //!< rms for one double-pixel x-clusters 
   float pqmin;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
+  float pclsleny;           //!< y-cluster length of smaller interpolated template in pixels 
+  float pclslenx;           //!< x-cluster length of smaller interpolated template in pixels 
   float pyratio;            //!< fractional distance in y between cotbeta templates 
   float pyparl[2][5];       //!< projected y-pixel uncertainty parameterization for smaller cotbeta 
   float pyparh[2][5];       //!< projected y-pixel uncertainty parameterization for larger cotbeta 
   float pxparly0[2][5];     //!< projected x-pixel uncertainty parameterization for smaller cotbeta (central alpha)
   float pxparhy0[2][5];     //!< projected x-pixel uncertainty parameterization for larger cotbeta (central alpha)
-  float pytemp[41][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
+  float pytemp[9][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
   float pyxratio;           //!< fractional distance in y between x-slices of cotalpha templates 
   float pxxratio;           //!< fractional distance in x between cotalpha templates 
   float pxpar0[2][5];       //!< projected x-pixel uncertainty parameterization for central cotalpha 
   float pxparl[2][5];       //!< projected x-pixel uncertainty parameterization for smaller cotalpha 
   float pxparh[2][5];       //!< projected x-pixel uncertainty parameterization for larger cotalpha 
-  float pxtemp[41][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
+  float pxtemp[9][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
   float pyavg[4];           //!< average y-bias of reconstruction binned in 4 charge bins 
   float pyrms[4];           //!< average y-rms of reconstruction binned in 4 charge bins 
   float pygx0[4];           //!< average y0 from Gaussian fit binned in 4 charge bins 
@@ -242,6 +280,14 @@ class SiPixelTemplate {
   float pchi2ymin[4];       //!< minimum of y chi^2 in 4 charge bins
   float pchi2xavg[4];       //!< average x chi^2 in 4 charge bins
   float pchi2xmin[4];       //!< minimum of x chi^2 in 4 charge bins 
+  float pyavgc2m[4];        //!< 1st pass chi2 min search: average y-bias of reconstruction binned in 4 charge bins 
+  float pyrmsc2m[4];        //!< 1st pass chi2 min search: average y-rms of reconstruction binned in 4 charge bins 
+  float pygx0c2m[4];        //!< 1st pass chi2 min search: average y0 from Gaussian fit binned in 4 charge bins 
+  float pygsigc2m[4];       //!< 1st pass chi2 min search: average sigma_y from Gaussian fit binned in 4 charge bins 
+  float pxavgc2m[4];        //!< 1st pass chi2 min search: average x-bias of reconstruction binned in 4 charge bins 
+  float pxrmsc2m[4];        //!< 1st pass chi2 min search: average x-rms of reconstruction binned in 4 charge bins 
+  float pxgx0c2m[4];        //!< 1st pass chi2 min search: average x0 from Gaussian fit binned in 4 charge bins 
+  float pxgsigc2m[4];       //!< 1st pass chi2 min search: sigma from Gaussian fit binned in 4 charge bins 
   float pyspare[10];        //!< vector of 10 spares interpolated in beta only
   float pxspare[10];        //!< vector of 10 spares interpolated in alpha and beta
   
