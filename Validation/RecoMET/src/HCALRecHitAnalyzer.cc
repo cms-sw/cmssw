@@ -24,7 +24,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -210,7 +210,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   try {
 
     edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<IdealGeometryRecord>().get(pG);
+    iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry cG = *pG;
 
     HBgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel);

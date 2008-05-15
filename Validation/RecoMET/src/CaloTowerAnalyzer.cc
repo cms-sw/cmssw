@@ -35,7 +35,7 @@
 
 //#include "Geometry/Vector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <vector>
 #include <utility>
@@ -148,7 +148,7 @@ void CaloTowerAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   try {
 
     edm::ESHandle<CaloGeometry> pG;
-    iSetup.get<IdealGeometryRecord>().get(pG);
+    iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry cG = *pG;
     geom = cG.getSubdetectorGeometry(DetId::Calo,1);
 

@@ -1,5 +1,8 @@
 #include "Validation/RecoMET/interface/ECALRecHitAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 // author: Bobby Scurlock, University of Florida
 // first version 11/20/2006
 
@@ -179,7 +182,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   using namespace edm;
   //int b=0;
   edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
+  iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
   
   //----Fill Ecal Barrel----//
@@ -309,7 +312,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
   */
 
   edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
+  iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry cG = *pG;
   const CaloSubdetectorGeometry* EBgeom=cG.getSubdetectorGeometry(DetId::Ecal,1);
   const CaloSubdetectorGeometry* EEgeom=cG.getSubdetectorGeometry(DetId::Ecal,2);
