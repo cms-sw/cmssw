@@ -181,7 +181,7 @@ if(allCSCSegments->size()>0){
 		  
 		  int stripDetected=digiIt->strip();
 		  
-	  	  double res = fabs((double)(stripDetected) - (double)(stripPredicted));
+	  	  double res = (double)(stripDetected) - (double)(stripPredicted);
 		  std::cout<<"\t \t \t \t \t Diference "<<res<<std::endl;
 
 
@@ -195,7 +195,7 @@ if(allCSCSegments->size()>0){
 		  //-------------------------------------------------------
 
 		  
-		  if(res < widestrip){
+		  if(fabs(res) < widestrip){
 		    anycoincidence=true;
 		    std::cout <<"\t \t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
 		    totalcounter[1]++;

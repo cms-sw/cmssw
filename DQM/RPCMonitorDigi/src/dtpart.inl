@@ -170,7 +170,7 @@ if(all4DSegments->size()>0){
 		std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
 		stripDetected=digiIt->strip();
 		
-		double res = fabs((double)(stripDetected) - (double)(stripPredicted));
+		double res = (double)(stripDetected) - (double)(stripPredicted);
 
 		//-------filling the histograms--------------------
 
@@ -184,7 +184,7 @@ if(all4DSegments->size()>0){
 		//-------------------------------------------------
 
 		
-		if(res < widestrip){
+		if(fabs(res) < widestrip){
 		  std::cout <<"\t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
 		  anycoincidence=true;
 		  std::cout <<"\t \t \t \t \t Increassing counter"<<std::endl;

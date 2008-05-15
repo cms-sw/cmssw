@@ -152,7 +152,7 @@ if(all4DSegments->size()>0){
 
 		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 		      stripDetected=digiIt->strip();
-		      double res = fabs((double)(stripDetected) - (double)(stripPredicted));
+		      double res = (double)(stripDetected) - (double)(stripPredicted);
 
 		      //-------filling the histograms--------------------
 
@@ -167,7 +167,7 @@ if(all4DSegments->size()>0){
 		      //-------------------------------------------------------
 
 
-		      if(res<widestripRB4){
+		      if(fabs(res)<widestripRB4){
 			anycoincidence=true;
 
 			//-------filling the histograms-------------------------------
