@@ -64,6 +64,12 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1MuDTTFParametersRcd'),
+            tag = cms.string('L1MuDTTFParameters_CRUZET_hlt'),
+            type = cms.string('L1MuDTTFParameters'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1MuGMTParametersRcd'),
             tag = cms.string('L1MuGMTParameters_CRUZET_hlt'),
             type = cms.string('L1MuGMTParameters'),
@@ -73,6 +79,12 @@ L1SubsystemParams = cms.PSet(
             record = cms.string('L1RCTParametersRcd'),
             tag = cms.string('L1RCTParameters_CRUZET_hlt'),
             type = cms.string('L1RCTParameters'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
+            record = cms.string('L1RCTChannelMaskRcd'),
+            tag = cms.string('L1RCTChannelMask_CRUZET_hlt'),
+            type = cms.string('L1RCTChannelMask'),
             key = cms.string('dummy')
         ), 
         cms.PSet(
