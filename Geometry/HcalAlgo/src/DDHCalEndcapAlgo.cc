@@ -84,6 +84,7 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
   nEndcap       = int (nArgs["Endcap"]);
   rotHalf       = sArgs["RotHalf"];
   rotns         = sArgs["RotNameSpace"];
+  zShift        = nArgs["ZShift"];
 
   zFront        = nArgs["ZFront"];
   zEnd          = nArgs["ZEnd"];
@@ -94,6 +95,7 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
   z0Beam        = nArgs["Z0Beam"];
   ziDip         = nArgs["ZiDip"];
   dzStep        = nArgs["DzStep"];
+  zShiftHac2    = nArgs["ZShiftHac2"];
   double gap    = nArgs["Gap"];
   double z1     = nArgs["Z1"];
   double r1     = nArgs["R1"];
@@ -116,7 +118,8 @@ void DDHCalEndcapAlgo::initialize(const DDNumericArguments & nArgs,
 		       << " z1 " << z1 << "\n\tr1 " << r1 << " rout " << rout
 		       << " HeboxDepth " << heboxDepth << " drEnd " << drEnd 
 		       << "\tetamin " << etamin << " Bottom angle " << angBot
-		       << " Gap angle " << angGap;
+		       << " Gap angle " << angGap << " Z-Shift " << zShift
+		       << " " << zShiftHac2;
 
   //Derived quantities
   angTop   = 2.0 * atan (exp(-etamin));
@@ -320,6 +323,9 @@ void DDHCalEndcapAlgo::execute() {
 void DDHCalEndcapAlgo::constructGeneralVolume() {
   
   LogDebug("HCalGeom") << "DDHCalEndcapAlgo test: General volume...";
+  bool proto = true;
+  for (int i=0; i<3; i++) 
+    if (equipModule(i) > 0) proto = false;
 
   DDRotation    rot;
   if (DDSplit(getRotation()).first == "NULL") rot = DDRotation();
@@ -327,7 +333,7 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
   LogDebug("HCalGeom") << " First " << DDSplit(getRotation()).first
 		       << " Second " << DDSplit(getRotation()).second 
 		       << " Rotation " << rot;
-  DDTranslation r0(0,0,0);
+  DDTranslation r0(0,0,getZShift());
   double alpha = pi/getNsectors();
   double dphi  = getNsectortot()*twopi/getNsectors();
 
@@ -335,34 +341,37 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
   //vertical walls are allowed in SolidPolyhedra
   double delz = 0;
 
-  vector<double> pgonZ;
-  pgonZ.push_back(getZFront()   - getDzShift()); 
-  pgonZ.push_back(getZiL0Body() - getDzShift()); 
-  pgonZ.push_back(getZiL0Body() - getDzShift()); 
+  vector<double> pgonZ, pgonRmin, pgonRmax;
+  if (proto) {
+    double zf = getZiBody() + getZShiftHac2();
+    pgonZ.push_back(zf - getDzShift()); 
+    pgonRmin.push_back(zf * tan(getAngBot())); 
+    pgonRmax.push_back((zf - getZ1Beam())*getSlope()); 
+  } else {
+    pgonZ.push_back(getZFront()   - getDzShift()); 
+    pgonRmin.push_back(getZFront()   * tan(getAngTop())); 
+    pgonRmax.push_back((getZFront()   - getZ1Beam())*getSlope()); 
+    pgonZ.push_back(getZiL0Body() - getDzShift()); 
+    pgonRmin.push_back(getZiL0Body() * tan(getAngTop())); 
+    pgonRmax.push_back((getZiL0Body() - getZ1Beam())*getSlope()); 
+    pgonZ.push_back(getZiL0Body() - getDzShift()); 
+    pgonRmin.push_back(getZiL0Body() * tan(getAngBot())); 
+    pgonRmax.push_back((getZiL0Body() - getZ1Beam())*getSlope()); 
+  }
   pgonZ.push_back(getZiKink()   - getDzShift()); 
-  pgonZ.push_back(getZiDip()    - getDzShift()); 
-  pgonZ.push_back(getZiDip()    - getDzShift() + delz); 
-  pgonZ.push_back(getZEnd()     - getDzShift()); 
-  pgonZ.push_back(getZEnd()); 
-
-  vector<double> pgonRmin;
-  pgonRmin.push_back(getZFront()   * tan(getAngTop())); 
-  pgonRmin.push_back(getZiL0Body() * tan(getAngTop())); 
-  pgonRmin.push_back(getZiL0Body() * tan(getAngBot())); 
   pgonRmin.push_back(getRinKink()); 
-  pgonRmin.push_back(getRinDip()); 
-  pgonRmin.push_back(getRinDip()); 
-  pgonRmin.push_back(getZEnd() * tan(getAngBot())); 
-  pgonRmin.push_back(getZEnd() * tan(getAngBot())); 
-
-  vector<double> pgonRmax;
-  pgonRmax.push_back((getZFront()   - getZ1Beam())*getSlope()); 
-  pgonRmax.push_back((getZiL0Body() - getZ1Beam())*getSlope()); 
-  pgonRmax.push_back((getZiL0Body() - getZ1Beam())*getSlope()); 
   pgonRmax.push_back(getRout()); 
+  pgonZ.push_back(getZiDip()    - getDzShift()); 
+  pgonRmin.push_back(getRinDip()); 
   pgonRmax.push_back(getRout()); 
+  pgonZ.push_back(getZiDip()    - getDzShift() + delz); 
+  pgonRmin.push_back(getRinDip()); 
   pgonRmax.push_back(getRoutDip()); 
+  pgonZ.push_back(getZEnd()     - getDzShift()); 
+  pgonRmin.push_back(getZEnd() * tan(getAngBot())); 
   pgonRmax.push_back(getRoutDip()); 
+  pgonZ.push_back(getZEnd()); 
+  pgonRmin.push_back(getZEnd() * tan(getAngBot())); 
   pgonRmax.push_back(getRoutDip()); 
 
   string name("Null");
@@ -403,7 +412,7 @@ void DDHCalEndcapAlgo::constructGeneralVolume() {
   //Forward half
   name  = idName + "Front";
   vector<double> pgonZMod, pgonRminMod, pgonRmaxMod;
-  for (i=0; i < 7; i++) {
+  for (i=0; i < (pgonZ.size()-1); i++) {
     pgonZMod.push_back(pgonZ[i] + getDzShift()); 
     pgonRminMod.push_back(pgonRmin[i]); 
     pgonRmaxMod.push_back(pgonRmax[i]); 
@@ -523,13 +532,18 @@ void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector) {
       double deltaz = 0;
     
       vector<double> pgonZ, pgonRmin, pgonRmax;
-      pgonZ.push_back(getZminBlock(i));
-      pgonRmin.push_back(getRinBlock1(i)); 
-      pgonRmax.push_back(getRoutBlock1(i));
       if (nsec == 3) {
+	double zf = getZminBlock(i) + getZShiftHac2();
+	pgonZ.push_back(zf);
+	pgonRmin.push_back(zf*tan(getAngBot())); 
+	pgonRmax.push_back((zf-getZ1Beam())*getSlope());
 	pgonZ.push_back(getZiKink());  
 	pgonRmin.push_back(getRinKink()); 
 	pgonRmax.push_back(getRout());
+      } else {
+	pgonZ.push_back(getZminBlock(i));
+	pgonRmin.push_back(getRinBlock1(i)); 
+	pgonRmax.push_back(getRoutBlock1(i));
       }
       if (nsec == 4) {
 	pgonZ.push_back(getZiDip());

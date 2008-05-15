@@ -20,6 +20,7 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
   int         getNsectortot()              const {return nsectortot;}
   int         getEndcaps()                 const {return nEndcap;}
   int         equipModule(unsigned int i)  const {return eModule[i];}
+  double      getZShift()                  const {return zShift;}
 
   double      getZFront()                  const {return zFront;}
   double      getZEnd()                    const {return zEnd;}
@@ -33,6 +34,7 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
   double      getZiDip()                   const {return ziDip;}
   double      getDzStep()                  const {return dzStep;}
   double      getDzShift()                 const {return dzShift;}
+  double      getZShiftHac2()              const {return zShiftHac2;}
 
   double      getRout()                    const {return rout;}
   double      getRinKink()                 const {return riKink;}
@@ -111,6 +113,7 @@ private:
   std::string              rotHalf;       //Rotation matrix for half
   std::string              rotns;         //Name space for rotation
   std::string              rotation;      //Rotation matrix to place in mother
+  double                   zShift;        //needed for TB setup (move HE)
 
   double                   zFront;        //Z of the front section
   double                   zEnd;          //Outer Z of the HE
@@ -124,6 +127,7 @@ private:
   double                   ziDip;         //Starting Z of dipped part of body
   double                   dzStep;        //Width in Z of a layer
   double                   dzShift;       //Shift in Z for HE
+  double                   zShiftHac2;    //needed for TB (remove part Hac2)
 
   double                   rout;          //Outer R of the HE
   double                   riKink;        //Inner radius at kink point

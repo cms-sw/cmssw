@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <RotationSection label="TBHcalEndcap.xml">
  <Rotation name="R2" phiX="10*deg"   thetaX="90*deg" phiY="100*deg" 
@@ -58,7 +58,7 @@
     <Numeric name="AngGap"      value="53.0*deg"/>
     <Numeric name="TolPos"      value="0.90*mm"/>
     <Numeric name="TolAbs"      value="0.75*mm"/>
-    <Numeric name="ZShift"      value="-73.58*mm"/>
+    <Numeric name="ZShift"      value="-97.08*mm"/>
     <Numeric name="ZShiftHac2"  value="35.0*mm"/>
 
 <!--

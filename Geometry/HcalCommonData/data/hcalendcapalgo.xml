@@ -53,7 +53,8 @@
     <Numeric name="AngGap"      value="53.0*deg"/>
     <Numeric name="TolPos"      value="0.90*mm"/>
     <Numeric name="TolAbs"      value="0.75*mm"/>
-
+    <Numeric name="ZShift"      value="0.0*mm"/>
+    <Numeric name="ZShiftHac2"  value="0.0*mm"/>
 <!--
 #. Modules
 #. Absorber     Modules
