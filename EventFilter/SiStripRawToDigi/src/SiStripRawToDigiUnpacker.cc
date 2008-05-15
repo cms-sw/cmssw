@@ -265,14 +265,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	if ( !samples.empty() ) { 
 	  sm.data.clear(); 
 	  sm.data.resize( samples.size() ); 
-	  int physical = 0;
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
-	    physical = i%128; 
-	    (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
-	    sm.data[i] = SiStripRawDigi( samples[physical] ); 
+	    sm.data[i] = SiStripRawDigi( samples[i] );
 	  }
 	}
-
+	
       } else if ( mode == sistrip::FED_VIRGIN_RAW ) {
 	
         if ( virgin_raw_vector.empty() ) { virgin_raw_vector.reserve(40000); }
