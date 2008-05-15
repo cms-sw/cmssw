@@ -144,8 +144,8 @@ int TSODI::charge(TrajectoryStateOnDetInfo* Tsodi, bool stereo)
       if(sistripmatchedhit && stereo) sistripsimplehit = sistripmatchedhit->stereoHit();
 
       const SiStripCluster*   Cluster = (sistripsimplehit->cluster()).get();
-//      const vector<uint8_t >& Ampls   = Cluster->amplitudes();
-      const vector<uint16_t>& Ampls   = Cluster->amplitudes();
+      const vector<uint8_t >& Ampls   = Cluster->amplitudes();
+//      const vector<uint16_t>& Ampls   = Cluster->amplitudes();
 
       unsigned int charge=0;
       for(unsigned int a=0;a<Ampls.size();a++){charge+=Ampls[a];}
