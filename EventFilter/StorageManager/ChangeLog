@@ -1,3 +1,8 @@
+2008-05-15  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-12-05
+	* Fix to FUSender* classes to handle multiple HLT output modules
+
 2008-05-14  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-12-04

@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.57 2008/05/14 10:36:10 loizides Exp $
+// $Id: StorageManager.cc,v 1.58 2008/05/14 16:00:00 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -326,18 +326,29 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
                                   + msg->dataSize;
   addMeasurement(actualFrameSize);
   // register this FU sender into the list to keep its status
+  // need output module name and Id which is not available in the I2O header!!
+  // We must assume the registry is in a single frame! So in this case
+  // we extract the information from the INIT message header
+  unsigned int origsize = msg->originalSize;
+  vector<char> tempbuffer(origsize);
+  int sz = msg->dataSize;
+  copy(msg->dataPtr(), &msg->dataPtr()[sz], &tempbuffer[0]);
+  InitMsgView dummymsg(&tempbuffer[0]);
+  std::string dmoduleLabel = dummymsg.outputModuleLabel();
+  uint32 dmoduleId = dummymsg.outputModuleId();
+
   int status = smfusenders_.registerFUSender(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid,
-                 msg->frameCount, msg->numFrames, ref);
+                 msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId);
   // see if this completes the registry data for this FU
   // if so then: if first copy it, if subsequent test it (mark which is first?)
   // should test on -1 as problems
   if(status == 1)
   {
     char* regPtr = smfusenders_.getRegistryData(&msg->hltURL[0], &msg->hltClassName[0],
-                 msg->hltLocalId, msg->hltInstance, msg->hltTid);
+                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
     unsigned int regSz = smfusenders_.getRegistrySize(&msg->hltURL[0], &msg->hltClassName[0],
-                 msg->hltLocalId, msg->hltInstance, msg->hltTid);
+                 msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
 
     // attempt to add the INIT message to our collection
     // of INIT messages.  (This assumes that we have a full INIT message
@@ -368,7 +379,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         b.commit(sizeof(stor::FragEntry));
         // this is checked ok by default
         smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                     msg->hltLocalId, msg->hltInstance, msg->hltTid);
+                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
 
         // add this output module to the monitoring
         bool alreadyStoredOutMod = false;
@@ -434,7 +445,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         // there was no exception.
         FDEBUG(9) << "copyAndTestRegistry: Duplicate registry is okay" << std::endl;
         smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                     msg->hltLocalId, msg->hltInstance, msg->hltTid);
+                                     msg->hltLocalId, msg->hltInstance, msg->hltTid, dmoduleLabel);
       }
     }
     catch(cms::Exception& excpt)
@@ -568,7 +579,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
 	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
-					    msg->originalSize, isLocal);
+					    msg->originalSize, isLocal, msg->outModID);
 
          //if(status == 1) ++(storedEvents_.value_);
          if(status == 1) {
@@ -631,7 +642,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
       smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
-				       msg->originalSize, isLocal);
+				       msg->originalSize, isLocal, msg->outModID);
     
     //if(status == 1) ++(storedEvents_.value_);
     if(status == 1) {
@@ -760,11 +771,12 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
          //update last event seen
          lastErrorEventSeen_ = msg->eventID;
 
+         // TODO need to fix this as the outModId is not valid for error events
          int status = 
 	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
 					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
-					    msg->originalSize, isLocal);
+					    msg->originalSize, isLocal, msg->outModID);
 
          if(status == 1) {
            ++(receivedErrorEvents_.value_);
@@ -818,11 +830,12 @@ void StorageManager::receiveErrorDataMessage(toolbox::mem::Reference *ref)
     // for FU sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
+    // TODO need to fix this as the outModId is not valid for error events
     int status = 
       smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
 				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
 				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
-				       msg->originalSize, isLocal);
+				       msg->originalSize, isLocal, msg->outModID);
     
     if(status == 1) {
       ++(receivedErrorEvents_.value_);
@@ -1176,6 +1189,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
             *out << "</td>" << endl;
           *out << "</tr>" << endl;
         }
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
         if(fsm_.stateName()->value_ == "Enabled")
         {
           if(jc_.get() != NULL) {
@@ -1218,6 +1232,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
             ++ni;
           *out << "</tr>" << endl;
         }
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
           *out << "Last Event ID" << endl;
@@ -1242,6 +1257,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << lastErrorEventSeen_ << endl;
           *out << "</td>" << endl;
         *out << "</tr>" << endl;
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
         for(int i=0;i<=(int)nLogicalDisk_;i++) {
            string path(filePath_);
            if(nLogicalDisk_>0) {
@@ -1676,28 +1692,69 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "Product registry" << endl;
+          *out << "Number of registries received (output modules)" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          if((*pos)->regAllReceived_) {
-            *out << "All Received" << endl;
-          } else {
-            *out << "Partially received" << endl;
-          }
+          *out << (*pos)->registryCollection_.outModName_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Product registry" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          if((*pos)->regCheckedOK_) {
-            *out << "Checked OK" << endl;
-          } else {
-            *out << "Bad" << endl;
+        *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+        // Loop over number of registries
+        if(!(*pos)->registryCollection_.outModName_.empty()) {
+          for(vector<std::string>::iterator idx = (*pos)->registryCollection_.outModName_.begin();
+              idx != (*pos)->registryCollection_.outModName_.end(); ++idx)
+          {
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Output Module Name" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*idx) << endl;
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Output Module Id" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*pos)->registryCollection_.outModName2ModId_[*idx] << endl;
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Product registry size (bytes)" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              *out << (*pos)->registryCollection_.registrySizeMap_[*idx] << endl;
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Product registry" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              if((*pos)->registryCollection_.regAllReceivedMap_[*idx]) {
+                *out << "All Received" << endl;
+              } else {
+                *out << "Partially received" << endl;
+              }
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr>" << endl;
+              *out << "<td >" << endl;
+              *out << "Product registry" << endl;
+              *out << "</td>" << endl;
+              *out << "<td align=right>" << endl;
+              if((*pos)->registryCollection_.regCheckedOKMap_[*idx]) {
+                *out << "Checked OK" << endl;
+              } else {
+                *out << "Bad" << endl;
+              }
+              *out << "</td>" << endl;
+            *out << "  </tr>" << endl;
+            *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
           }
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
+        }
         *out << "<tr>" << endl;
           *out << "<td>" << endl;
           *out << "Connection Status" << endl;
@@ -1759,6 +1816,47 @@ void StorageManager::fusenderWebPage(xgi::Input *in, xgi::Output *out)
             *out << (*pos)->totalSizeReceived_ << endl;
             *out << "</td>" << endl;
           *out << "  </tr>" << endl;
+          *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+          // Loop over number of output modules
+          if(!(*pos)->registryCollection_.outModName_.empty()) {
+            for(vector<std::string>::iterator idx = (*pos)->registryCollection_.outModName_.begin();
+                idx != (*pos)->registryCollection_.outModName_.end(); ++idx)
+            {
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Output Module Name" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*idx) << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Frames received" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->datCollection_.framesReceivedMap_[*idx] << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Events received" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->datCollection_.eventsReceivedMap_[*idx] << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr>" << endl;
+                *out << "<td >" << endl;
+                *out << "Total Bytes received" << endl;
+                *out << "</td>" << endl;
+                *out << "<td align=right>" << endl;
+                *out << (*pos)->datCollection_.totalSizeReceivedMap_[*idx] << endl;
+                *out << "</td>" << endl;
+              *out << "  </tr>" << endl;
+              *out << "<tr><td bgcolor=\"#999933\" height=\"1\" colspan=\"2\"></td></tr>" << endl;
+            }
+          }
           if((*pos)->eventsReceived_ > 0) {
             *out << "<tr>" << endl;
               *out << "<td >" << endl;

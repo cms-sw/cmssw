@@ -1,10 +1,11 @@
 #ifndef _smfusenderstats_h_
 #define _smfusenderstats_h_
 
-// $Id$ 
+// $Id: SMFUSenderStats.h,v 1.1 2007/02/04 06:25:52 hcheung Exp $ 
 
 #include <vector>
 
+#include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
 #include "boost/shared_ptr.hpp"
 
 namespace stor {
@@ -16,11 +17,8 @@ struct SMFUSenderStats // for FU sender statistics (from SMFUSenderEntry)
                   unsigned int  hltLocalId,
                   unsigned int  hltInstance,
                   unsigned int  hltTid,
-                  unsigned int  registrySize,
-                  bool          regAllReceived,
-                  unsigned int  totFrames,
-                  unsigned int  currFrames,
-                  bool          regCheckedOK,
+                  SMFUSenderRegCollection RegistryCollection,
+                  SMFUSenderDatCollection DatCollection,
                   unsigned int  connectStatus,
                   double        lastLatency,
                   unsigned int  runNumber,
@@ -29,8 +27,6 @@ struct SMFUSenderStats // for FU sender statistics (from SMFUSenderEntry)
                   unsigned int  eventsReceived,
                   unsigned int  lastEventID,
                   unsigned int  lastRunID,
-                  unsigned int  lastFrameNum,
-                  unsigned int  lastTotalFrameNum,
                   unsigned int  totalOutOfOrder,
                   unsigned long long  totalSizeReceived,
                   unsigned int  totalBadEvents,
@@ -41,11 +37,8 @@ struct SMFUSenderStats // for FU sender statistics (from SMFUSenderEntry)
   unsigned int  hltLocalId_;
   unsigned int  hltInstance_;
   unsigned int  hltTid_;
-  unsigned int  registrySize_;    // size of registry in bytes once received AND copied
-  bool          regAllReceived_;  // All Registry fragments are received or not
-  unsigned int  totFrames_;    // number of frames in this fragment
-  unsigned int  currFrames_;   // current frames received for registry
-  bool          regCheckedOK_;    // Registry checked to be same as configuration
+  SMFUSenderRegCollection registryCollection_;
+  SMFUSenderDatCollection datCollection_;
   unsigned int  connectStatus_;   // FU+HLT connection status
   double        lastLatency_;     // Latency of last frame in microseconds
   unsigned int  runNumber_;
@@ -54,8 +47,6 @@ struct SMFUSenderStats // for FU sender statistics (from SMFUSenderEntry)
   unsigned int  eventsReceived_;
   unsigned int  lastEventID_;
   unsigned int  lastRunID_;
-  unsigned int  lastFrameNum_;
-  unsigned int  lastTotalFrameNum_;
   unsigned int  totalOutOfOrder_;
   unsigned long long  totalSizeReceived_;// For data only
   unsigned int  totalBadEvents_;   // Update meaning: include original size check?
