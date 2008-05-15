@@ -13,7 +13,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Mon Jul 16 23:48:35 CEST 2007
-// $Id: RCTConfigProducers.cc,v 1.7 2008/05/13 20:54:50 jleonard Exp $
+// $Id: RCTConfigProducers.cc,v 1.8 2008/05/13 23:53:52 jleonard Exp $
 //
 //
 
@@ -99,6 +99,7 @@ RCTConfigProducers::RCTConfigProducers(const edm::ParameterSet& iConfig)
 			 );
 
    // value of true if channel is masked, false if not masked
+   rctChannelMask = new L1RCTChannelMask ;
    for (int i = 0; i < 18; i++)
      {
        for (int j = 0; j < 2; j++)
