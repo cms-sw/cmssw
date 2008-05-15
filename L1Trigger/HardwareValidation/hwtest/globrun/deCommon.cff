@@ -10,8 +10,8 @@ include "L1Trigger/Configuration/data/L1DBConfig.cff"
 #include "L1Trigger/Configuration/data/L1DummyConfig.cff"
 
 ///RawToDigi
-#include "L1Trigger/HardwareValidation/data/RawToDigiGR.cff"
-include "Configuration/GlobalRuns/data/RawToDigiGR.cff"
+include "L1Trigger/HardwareValidation/data/RawToDigiGR.cff"
+#include "Configuration/GlobalRuns/data/RawToDigiGR.cff"
 
 ///Emulator/Comparator
 include "L1Trigger/HardwareValidation/data/L1HardwareValidationGR.cff"
