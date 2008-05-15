@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.11 2008/04/01 15:52:42 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.12 2008/04/08 14:34:42 uberthon Exp $
 //
 //
 
@@ -38,7 +38,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
@@ -139,9 +139,9 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
   edm::ESHandle<CaloGeometry> theGeometry;
   edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;
   edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-  iSetup.get<IdealGeometryRecord>().get( theGeometry );
-  iSetup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
-  iSetup.get<IdealGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
+  iSetup.get<CaloGeometryRecord>().get( theGeometry );
+  iSetup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+  iSetup.get<EcalBarrelGeometryRecord>().get("EcalBarrel",theBarrelGeometry_handle);
 
   const CaloSubdetectorGeometry *theEndcapGeometry,*theBarrelGeometry;
   theEndcapGeometry = &(*theEndcapGeometry_handle);
