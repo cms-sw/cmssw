@@ -9,7 +9,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -155,7 +155,7 @@ void HcalTBDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
 
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
-  eventSetup.get<IdealGeometryRecord>().get(geometry);
+  eventSetup.get<CaloGeometryRecord>().get(geometry);
  
   const CaloGeometry * pGeometry = &*geometry;
 
