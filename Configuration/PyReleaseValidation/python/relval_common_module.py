@@ -206,7 +206,17 @@ def event_output(process, outfile_name, step, eventcontent, filtername, conditio
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     # Event content
     print 'reading'
-    content=include_files("Configuration/EventContent/data/EventContent.cff")[0]
+
+    # check if event content or event content + definition file are given
+    tmp = eventcontent.split(":")
+    if len(tmp) == 1:
+        content=include_files("Configuration/EventContent/data/EventContent.cff")[0]
+    elif len(tmp) == 2:
+        content=include_files(tmp[1])[0]
+        eventcontent = tmp[0]
+    else:
+        raise ValueError()
+
     process.extend(content)
 
     conditionsSP=conditions.split(',')
@@ -308,7 +318,7 @@ def build_production_info(evt_type, energy, evtnumber):
     func_id=mod_id+"["+sys._getframe().f_code.co_name+"]"
     
     prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.16 $"),
+              (version=cms.untracked.string("$Revision: 1.17 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

@@ -112,7 +112,12 @@ recoseqCustomiseDict = {
                         'HaloMuon':''
                         }
 
-noPostReco=['MuonCosBON', 'MuonCosBOFF','TrackerCosBOFF','TrackerCosBON']
+# the cosmic samples all need special treatment
+# - no post reco
+# - another event content
+cosmicSamples=['MuonCosBON', 'MuonCosBOFF','TrackerCosBOFF','TrackerCosBON']
+cosmicContentFileName = "Alignment/CommonAlignmentProducer/data/EventContent_cosmics.cff"
+cosmicContentName = "RECOSIMCosmics"
 
 typeOfEv=''
 if ( len(args)>0):
@@ -131,8 +136,14 @@ baseCommand='cmsDriver.py'
 conditions='FrontierConditions_GlobalTag,'+options.gt+'::All'
 eventcontent='RECOSIM'
 steps2='RAW2DIGI,RECO'+recoseqCustomiseDict[typeOfEv]
-if not typeOfEv in noPostReco:
+
+if typeOfEv in cosmicSamples:
+    eventcontent = cosmicContentName+":"+cosmicContentFileName
+else:
     steps2=steps2+',POSTRECO'
+
+
+    
 
 if ( not (alca2=='')):
     steps2=steps2+',ALCA:'+alca2
