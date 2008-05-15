@@ -17,6 +17,7 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
 #include "RecoMuon/MuonIdentification/interface/IdGlobalFunctions.h"

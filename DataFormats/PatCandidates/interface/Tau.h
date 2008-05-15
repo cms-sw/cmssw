@@ -17,6 +17,7 @@
 
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
 
