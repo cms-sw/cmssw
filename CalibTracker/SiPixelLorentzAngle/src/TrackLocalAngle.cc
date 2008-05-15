@@ -74,6 +74,8 @@ std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > TrackLocalAngl
 	std::vector<std::pair<SiPixelRecHit*,Trackhit> >hitangleassociation;
 	Trajectory * theTraj; 
 	trajVec = buildTrajectory(theT);
+	
+// 	if (trajVec == 0) return hitangleassociation;
 	LogDebug("TrackProducer") <<" FITTER FOUND "<< trajVec.size() << " TRAJECTORIES" <<"\n";
 
 	TrajectoryStateOnSurface innertsos;
@@ -92,10 +94,17 @@ std::vector<std::pair<SiPixelRecHit*,TrackLocalAngle::Trackhit> > TrackLocalAngl
 		vector<TrajectoryMeasurement>::iterator itm;
 		int i=0;
 		LogDebug("TrackLocalAngle::findtrackangle")<<"Loop on rechit and TSOS";
+		if (TMeas.size() == 0){
+			cout << "TMeas is empty" << endl;
+		}
 		for (itm=TMeas.begin();itm!=TMeas.end();itm++){
 			TrajectoryStateOnSurface tsos=itm->updatedState();
 			const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 			const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>((*thit).hit());
+			if(!tsos.isValid()){
+			 	cout << "tsos not valid" << endl;
+				continue;	
+			}	
 			LocalVector trackdirection=tsos.localDirection();
 			LocalPoint trackposition=tsos.localPosition();
 			if(rechit){
@@ -171,7 +180,16 @@ std::vector<Trajectory> TrackLocalAngle::buildTrajectory(const reco::Track& theT
 	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
 	AlgebraicSymMatrix C(5,1);
 	C *= 100.;
-	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C), firstState.surface(), thePropagator->magneticField()); 
+	if(!firstState.isValid()){
+		LogDebug("TrackLocalAngle") << " firstState not Valid" << endl;
+		std::vector<Trajectory> a;
+		return a;
+	}
+	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C), firstState.surface(), thePropagator->magneticField()); if(!theTSOS.isValid()){
+		LogDebug("TrackLocalAngle") << " theTSOS not Valid" << endl;
+		std::vector<Trajectory> a;
+		return a;
+	}
 //   PTrajectoryStateOnDet psod;
 	LogDebug("TrackLocalAngle") << "Initial TSOS\n" << theTSOS << "\n";
 	PTrajectoryStateOnDet ptsod;
