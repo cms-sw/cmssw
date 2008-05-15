@@ -82,9 +82,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         delta = cms.double(1.0)
     ),
     ECalSD = cms.PSet(
-        BirkL3Parametrization = cms.bool(False),
+        BirkL3Parametrization = cms.bool(True),
         BirkCut = cms.double(0.1),
-        BirkC1 = cms.double(0.00463),
+        BirkC1 = cms.double(0.03333),
         BirkC2 = cms.double(0.0),
         BirkC3 = cms.double(1.0),
         TestBeam = cms.untracked.bool(False),
@@ -178,30 +178,27 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity = cms.untracked.int32(2)
     ),
     Physics = cms.PSet(
-        FlagCHIPS = cms.untracked.bool(False),
+        type = cms.string('SimG4Core/Physics/QGSP_EMV'),
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
-
         DefaultCutValue = cms.double(1.0), ## cuts in cm
-
-        FlagHP = cms.untracked.bool(False),
-        GflashEMShowerModel = cms.bool(False),
         Verbosity = cms.untracked.int32(0),
-        FlagBERT = cms.untracked.bool(False),
         # 2 will do as 1 + will dump Geant4 table of cuts
-        EMPhysics = cms.untracked.bool(True),
         CutsPerRegion = cms.bool(True),
+
+        FlagBERT = cms.untracked.bool(False),
+        FlagCHIPS   = cms.untracked.bool(False),
+        FlagFTF     = cms.untracked.bool(False),
+        FlagGlauber = cms.untracked.bool(False),
+        FlagHP      = cms.untracked.bool(False),
+        EMPhysics = cms.untracked.bool(True),
+        HadPhysics = cms.untracked.bool(True),
+        DummyEMPhysics = cms.bool(False)
+    ),
+    GFlash = cms.PSet(
+        GflashEMShowerModel = cms.bool(False),
         GflashHadronShowerModel = cms.bool(False),
         GflashHistogram = cms.bool(False),
-        FlagGlauber = cms.untracked.bool(False),
-        FlagFTF = cms.untracked.bool(False),
-        HadPhysics = cms.untracked.bool(True),
-        # NOTE : if you want EM Physics only,
-        #        please select "SimG4Core/Physics/DummyPhysics" for type
-        #        and turn ON DummyEMPhysics
-        #
-        #string type = "SimG4Core/Physics/QGSP"          #        # not fully operational in G4.8.1
-        type = cms.string('SimG4Core/Physics/QGSP_EMV'),
-        DummyEMPhysics = cms.bool(False)
+        GflashHadronPhysics = cms.string('QGSP')
     ),
     G4Commands = cms.vstring(),
     StackingAction = cms.PSet(
