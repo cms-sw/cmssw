@@ -116,11 +116,14 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+roll_id;
   } 
   else { 
-    //cout << "ENDCAP : " << endl;
+    //    cout << "ENDCAP : " << endl;
     int eta_id = ch.layer;
     if(ch.diskOrWheel>0) eta_id = 12-ch.layer;
     int plane_id = abs(ch.diskOrWheel);
     int sector_id = ch.sector;
+    // patch to fix phi rotation
+    sector_id--;
+    if (sector_id==0) sector_id=1;
     int copy_id = 1;
     int roll_id = iroll;
     trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+ roll_id;
@@ -132,10 +135,10 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
   //
   //cout<<"DBSpec: "<<trIndex;
   try {
-   RPCDetId du;
-   //du = RPCDetId(region, ring, station, sector, layer, subsector, iroll);
-   du.buildfromTrIndex(trIndex);
-   return du.rawId();
+    RPCDetId du;
+    //du = RPCDetId(region, ring, station, sector, layer, subsector, iroll);
+    du.buildfromTrIndex(trIndex);
+    return du.rawId();
   } 
   catch(...) {
     cout <<" Problem with RPCDetId, got exception!! " <<endl;
