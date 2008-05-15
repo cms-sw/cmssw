@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/04/25 15:26:50 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/14 22:37:31 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -58,7 +58,7 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   event.getByLabel(theTkTrackLabel,theTrackerTracks);
 
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) ) {
+  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) && handleTrackerTrajs.isValid() ) {
       tkTrajsAvailable = true;
       allTrackerTrajs = &*handleTrackerTrajs;   
       LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
@@ -81,6 +81,11 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   const std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
   MuonCandidate::CandidateContainer result;
+
+  if (!theTrackerTracks.isValid()) {
+    LogTrace(metname)<< "Tracker Track collection is invalid!!!";
+    return result;
+  }
 
   LogTrace(metname) <<"Found "<<theTrackerTracks->size()<<" tracker Tracks";
   if (theTrackerTracks->empty()) return result;
