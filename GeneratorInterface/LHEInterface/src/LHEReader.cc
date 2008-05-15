@@ -172,7 +172,7 @@ static void fillHeader(LHECommon::Header &header, const char *data)
 		std::size_t len = std::strcspn(data, "\r\n");
 		if (data[len] == '\r' && data[len + 1] == '\n')
 			len += 2;
-		else
+		else if (data[len])
 			len++;
 		header.addLine(std::string(data, len));
 		data += len;
