@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.30 2007/09/19 10:55:39 llista Exp $
+// $Id: RefToBase.h,v 1.31 2008/03/02 17:26:04 gpetrucc Exp $
 //
 
 // system include files
@@ -152,7 +152,7 @@ namespace edm {
   inline
   RefToBase<T>::RefToBase(RefToBase<T1> const& iRef) : 
         holder_(new reftobase::IndirectHolder<T> (
-            typename boost::shared_ptr<typename edm::reftobase::RefHolderBase>(iRef.holder().release())
+             boost::shared_ptr< edm::reftobase::RefHolderBase>(iRef.holder().release())
         ) ) 
   {
     // OUT: holder_( new reftobase::Holder<T,RefToBase<T1> >(iRef ) )  { 
