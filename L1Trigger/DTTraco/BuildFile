@@ -5,7 +5,6 @@
 <use name=L1Trigger/DTUtilities>
 <use name=L1Trigger/DTBti>
 <use name=L1Trigger/DTTriggerServerTheta>
-<use name=VisFramework/VisUtilities>
 
 <use name=CLHEP>
 <use name=root>
