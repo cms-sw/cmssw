@@ -367,11 +367,11 @@ void PixelDetectorConfig::removeROC(PixelROCName &theROC)  // Added by Dario (Ma
  std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
  if( theROCIt != rocs_.end() ) // if theROC was there remove it, otherwise ignore
  {
-  theROCIt->second.set("off") ;  
+  theROCIt->second.set("noInit") ;  
 //  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it off"  << endl ;  
  } else {
   PixelROCStatus  theStatus ;
-  theStatus.set("off") ;
+  theStatus.set("noInit") ;
   rocs_[theROC] = theStatus ; 
 //  cout << mthn << "ROC " << theROC.rocname() << " was not individually declared in the file: declare and switch off"  << endl ;  
  }
