@@ -65,6 +65,9 @@ class MuonSeedCreator {
   /// Compute weighted mean pt from different pt estimators
   void weightedPt(std::vector<double> ptEstimate, std::vector<double> sptEstimate, double& ptAvg, double& sptAvg);
 
+  /// Compute pt from parameters
+  std::vector<double> getPt(std::vector<double> vParameters, double eta, double dPhi);
+
   // Miminum and maximum pt momentum of a track  
   float theMinMomentum;
   float theMaxMomentum;
@@ -79,5 +82,47 @@ class MuonSeedCreator {
   // Cache Magnetic Field for current event
   const MagneticField* BField;
 
+  // seed parameters vectors
+  std::vector<double> DT12;  
+  std::vector<double> DT13;  
+  std::vector<double> DT14;  
+  std::vector<double> DT23;  
+  std::vector<double> DT24;  
+  std::vector<double> DT34;  
+
+  std::vector<double> CSC01;
+  std::vector<double> CSC12;
+  std::vector<double> CSC02;
+  std::vector<double> CSC13;
+  std::vector<double> CSC03;
+  std::vector<double> CSC14;
+  std::vector<double> CSC23;
+  std::vector<double> CSC24;
+  std::vector<double> CSC34;
+
+  std::vector<double> OL1213;
+  std::vector<double> OL1222;
+  std::vector<double> OL1232;
+  std::vector<double> OL2213;
+  std::vector<double> OL2222;
+  
+  std::vector<double> SME11;
+  std::vector<double> SME12;
+  std::vector<double> SME13;
+  std::vector<double> SME21;
+  std::vector<double> SME22;
+  std::vector<double> SME31;
+  std::vector<double> SME32;
+  std::vector<double> SME41;
+
+  std::vector<double> SMB10;
+  std::vector<double> SMB11;
+  std::vector<double> SMB12;
+  std::vector<double> SMB20;
+  std::vector<double> SMB21;
+  std::vector<double> SMB22;
+  std::vector<double> SMB30;
+  std::vector<double> SMB31;
+  std::vector<double> SMB32;
 };
 #endif

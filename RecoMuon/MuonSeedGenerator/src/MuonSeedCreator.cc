@@ -1,7 +1,7 @@
 /**
  *  See header file for a description of this class.
  *
- *  \author Shih-Chuan Kao, Dominique Fortin - UCR
+ *  \author: Shih-Chuan Kao, Dominique Fortin - UCR
  *
  */
 
@@ -41,6 +41,48 @@ MuonSeedCreator::MuonSeedCreator(const edm::ParameterSet& pset){
   defaultMomentum = pset.getParameter<double>("defaultSeedPt");
   debug           = pset.getParameter<bool>("DebugMuonSeed");
   sysError        = pset.getParameter<double>("SeedPtSystematics");
+  // load seed parameters 
+  DT12 = pset.getParameter<std::vector<double> >("DT_12");
+  DT13 = pset.getParameter<std::vector<double> >("DT_13");
+  DT14 = pset.getParameter<std::vector<double> >("DT_14");
+  DT23 = pset.getParameter<std::vector<double> >("DT_23");
+  DT24 = pset.getParameter<std::vector<double> >("DT_24");
+  DT34 = pset.getParameter<std::vector<double> >("DT_34");
+
+  CSC01 = pset.getParameter<std::vector<double> >("CSC_01");
+  CSC12 = pset.getParameter<std::vector<double> >("CSC_12");
+  CSC02 = pset.getParameter<std::vector<double> >("CSC_02");
+  CSC13 = pset.getParameter<std::vector<double> >("CSC_13");
+  CSC03 = pset.getParameter<std::vector<double> >("CSC_03");
+  CSC14 = pset.getParameter<std::vector<double> >("CSC_14");
+  CSC23 = pset.getParameter<std::vector<double> >("CSC_23");
+  CSC24 = pset.getParameter<std::vector<double> >("CSC_24");
+  CSC34 = pset.getParameter<std::vector<double> >("CSC_34");
+
+  OL1213 = pset.getParameter<std::vector<double> >("OL_1213");
+  OL1222 = pset.getParameter<std::vector<double> >("OL_1222");
+  OL1232 = pset.getParameter<std::vector<double> >("OL_1232");
+  OL1213 = pset.getParameter<std::vector<double> >("OL_1213");
+  OL2222 = pset.getParameter<std::vector<double> >("OL_1222");
+
+  SME11 =  pset.getParameter<std::vector<double> >("SME_11");
+  SME12 =  pset.getParameter<std::vector<double> >("SME_12");
+  SME13 =  pset.getParameter<std::vector<double> >("SME_13");
+  SME21 =  pset.getParameter<std::vector<double> >("SME_21");
+  SME22 =  pset.getParameter<std::vector<double> >("SME_22");
+  SME31 =  pset.getParameter<std::vector<double> >("SME_31");
+  SME32 =  pset.getParameter<std::vector<double> >("SME_32");
+  SME41 =  pset.getParameter<std::vector<double> >("SME_41");
+
+  SMB10 =  pset.getParameter<std::vector<double> >("SMB_10");
+  SMB11 =  pset.getParameter<std::vector<double> >("SMB_11");
+  SMB12 =  pset.getParameter<std::vector<double> >("SMB_12");
+  SMB20 =  pset.getParameter<std::vector<double> >("SMB_20");
+  SMB21 =  pset.getParameter<std::vector<double> >("SMB_21");
+  SMB22 =  pset.getParameter<std::vector<double> >("SMB_22");
+  SMB30 =  pset.getParameter<std::vector<double> >("SMB_30");
+  SMB31 =  pset.getParameter<std::vector<double> >("SMB_31");
+  SMB32 =  pset.getParameter<std::vector<double> >("SMB_32");
 }
 
 
@@ -155,9 +197,11 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      segPos = seg[last]->localPosition();
      /// get the Global direction
      GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
+
      /// count the energy loss - from parameterization
      double ptRatio = 0.994 - (2.14/(ptmean -1)) + (3.46/((ptmean-1)*(ptmean-1)));
      ptmean = ptmean*ptRatio ;
+
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
      /// Trasfer into local direction
@@ -218,9 +262,11 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      /// get the Global direction
      //GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
      GlobalVector polar(GlobalVector::Spherical(seg[last]->globalDirection().theta(),seg[last]->globalDirection().phi(),1.));
+
      /// count the energy loss - from parameterization
      double ptRatio = 1.0 - (2.808/(ptmean -1)) + (4.546/((ptmean-1)*(ptmean-1)));
      ptmean = ptmean*ptRatio ;
+
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
      /// Trasfer into local direction
@@ -348,23 +394,23 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       if ( layer0 == 0 ) {
         // ME1/2 is outer-most
         if ( layer1 == 1 ) {
-          pt  = ( 0.8348 - (0.4091 * eta)) / temp_dphi;
-          spt = ( 0.25 ) * pt;
+          pt  = getPt( CSC01, eta , temp_dphi )[0];
+          spt = getPt( CSC01, eta , temp_dphi )[1];
         }  
         // ME2 is outer-most
         else if ( layer1 == 2  ) {
-          pt  = ( 0.7782 - 0.3524*eta + 0.0337*eta*eta) / temp_dphi;
-          spt = ( 1.7780 - 1.7289*eta + 0.4915*eta*eta) * pt;
+          pt  = getPt( CSC02, eta , temp_dphi )[0];
+          spt = getPt( CSC02, eta , temp_dphi )[1];
         }
         // ME3 is outer-most
         else if ( layer1 == 3 ) {
-          pt  = ( 1.0537 - 0.5768*eta + 0.08545*eta*eta) / temp_dphi; 
-          spt = (-0.1875 + 0.2202*eta + 0.02222*eta*eta) * pt;
+          pt  = getPt( CSC03, eta , temp_dphi )[0];
+          spt = getPt( CSC03, eta , temp_dphi )[1];
         }
         // ME4 is outer-most
         else {
-          pt  = ( 1.0419 - 0.5709*eta + 0.0876*eta*eta) / temp_dphi;
-          spt = ( 1.1362 - 1.0226*eta + 0.3227*eta*eta) * pt;
+          pt  = getPt( CSC14, eta , temp_dphi )[0];
+          spt = getPt( CSC14, eta , temp_dphi )[1];
         }
         ptEstimate.push_back( pt*sign );
         sptEstimate.push_back( spt );
@@ -374,18 +420,18 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       if ( layer0 == 1 ) {
         // ME2 is outer-most
         if ( layer1 == 2 ) {
-          pt  = ( -0.5474 + 0.8620*eta - 0.2794*eta*eta) / temp_dphi;
-          spt = (  3.4666 - 4.3546*eta + 1.4666*eta*eta) * pt;
+          pt  = getPt( CSC12, eta , temp_dphi )[0];
+          spt = getPt( CSC12, eta , temp_dphi )[1];
         }
         // ME3 is outer-most
         else if ( layer1 == 3 ) {
-          pt  = ( -0.6416 + 0.9726*eta - 0.2973*eta*eta) / temp_dphi; 
-          spt = (  2.0256 - 2.0803*eta + 0.6333*eta*eta) * pt;
+          pt  = getPt( CSC13, eta , temp_dphi )[0];
+          spt = getPt( CSC13, eta , temp_dphi )[1];
         }
         // ME4 is outer-most
         else {
-          pt  = ( 1.0419 - 0.5709*eta + 0.0876*eta*eta) / temp_dphi;
-          spt = ( 1.1362 - 1.0226*eta + 0.3227*eta*eta) * pt;
+          pt  = getPt( CSC14, eta , temp_dphi )[0];
+          spt = getPt( CSC14, eta , temp_dphi )[1];
         }
         ptEstimate.push_back( pt*sign );
         sptEstimate.push_back( spt );
@@ -395,13 +441,13 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
       if ( layer0 == 2 ) {
         // ME3 is outer-most
         if ( layer1 == 3 ) {
-          pt  = (-0.0795 + 0.1140*eta - 0.0288*eta*eta) / temp_dphi; 
-          spt = ( 6.4577 - 6.0346*eta + 1.5801*eta*eta) * pt;
+          pt  = getPt( CSC23, eta , temp_dphi )[0];
+          spt = getPt( CSC23, eta , temp_dphi )[1];
         }
         // ME4 is outer-most
         else {
-          pt  = ( 0.0157 + 0.0156*eta - 0.0015*eta*eta) / temp_dphi;
-          spt = ( 1.3456 - 0.056*eta*eta ) * pt;
+          pt  = getPt( CSC24, eta , temp_dphi )[0];
+          spt = getPt( CSC24, eta , temp_dphi )[1];
         }
         ptEstimate.push_back( pt );   
         sptEstimate.push_back( spt );
@@ -409,8 +455,8 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
 
       // ME3 is inner-most
       if ( layer0 == 3 ) {
-        pt  = ( 0.0519 - 0.0537*eta + 0.0156*eta*eta) / temp_dphi;
-        spt = ( 23.241 - 15.425*eta + 2.6788*eta*eta) * pt;        
+        pt  = getPt( CSC34, eta , temp_dphi )[0];
+        spt = getPt( CSC34, eta , temp_dphi )[1];
         ptEstimate.push_back( pt*sign );   
         sptEstimate.push_back( spt );
       }
@@ -454,7 +500,6 @@ void MuonSeedCreator::estimatePtCSC(SegmentContainer seg, std::vector<int> layer
         }
       }
       */
-
     } 
   }
 
@@ -524,22 +569,18 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       if (layer0 == -1) {
         // MB2 is outer-most
         if (layer1 == -2) {
- 	  pt  = ( 0.1998 + 0.0590*eta - 0.0963*eta*eta) / temp_dphi;
-	  spt = ( 0.1192 - 0.0655*eta + 0.0969*eta*eta) * pt;
- 	  //pt  = ( 0.1942 + 0.0580*eta - 0.0891*eta*eta) / temp_dphi;
-	  //spt = ( 0.1396 - 0.1181*eta + 0.1371*eta*eta) * pt;
+          pt  = getPt( DT12, eta , temp_dphi )[0];
+          spt = getPt( DT12, eta , temp_dphi )[1];
         }
         // MB3 is outer-most
         else if (layer1 == -3) {
-  	  pt  = ( 0.3391 + 0.0823*eta - 0.1500*eta*eta) / temp_dphi;
-	  spt = ( 0.1421 - 0.0630*eta + 0.0845*eta*eta) * pt;
-  	  //pt  = ( 0.3267 + 0.1095*eta - 0.1837*eta*eta) / temp_dphi;
-	  //spt = ( 0.1827 - 0.1804*eta + 0.2419*eta*eta) * pt;
+          pt  = getPt( DT13, eta , temp_dphi )[0];
+          spt = getPt( DT13, eta , temp_dphi )[1];
         }
         // MB4 is outer-most
         else {
-    	  pt  = ( 0.3892 + 0.0502*eta - 0.1180*eta*eta) / temp_dphi;
-	  spt = ( 0.1712 -  0.01 *eta - 0.0658*eta*eta) * pt;
+          pt  = getPt( DT14, eta , temp_dphi )[0];
+          spt = getPt( DT14, eta , temp_dphi )[1];
         }
         ptEstimate.push_back( pt*sign );
         sptEstimate.push_back( spt );
@@ -549,15 +590,13 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       if (layer0 == -2) {
         // MB3 is outer-most
         if ( layer1 == -3) {
-  	  pt  = ( 0.1398 + 0.0286*eta - 0.0680*eta*eta) / temp_dphi;
-	  spt = ( 0.1908 - 0.0914*eta + 0.1851*eta*eta) * pt;
-  	  //pt  = ( 0.1325 + 0.3478*eta - 0.0572*eta*eta) / temp_dphi;
-	  //spt = ( 0.2377 - 0.0878*eta + 0.0810*eta*eta) * pt;
+          pt  = getPt( DT23, eta , temp_dphi )[0];
+          spt = getPt( DT23, eta , temp_dphi )[1];
         }
         // MB4 is outer-most
         else {
-    	  pt  = ( 0.1864 + 0.0356*eta - 0.0801*eta*eta) / temp_dphi;
-	  spt = ( 0.2709 - 0.1385*eta + 0.2557*eta*eta) * pt;
+          pt  = getPt( DT24, eta , temp_dphi )[0];
+          spt = getPt( DT24, eta , temp_dphi )[1];
         }
         ptEstimate.push_back( pt*sign );
         sptEstimate.push_back( spt );
@@ -566,8 +605,8 @@ void MuonSeedCreator::estimatePtDT(SegmentContainer seg, std::vector<int> layers
       // MB3 is inner-most    -> only marginally useful to pick up the charge
       if (layer0 == -3) {
         // MB4 is outer-most
-        pt  = ( 0.0470 +  0.01*eta - 0.0242*eta*eta) / temp_dphi;
-        spt = ( 0.5455 - 0.1407*eta + 0.3828*eta*eta) * pt;
+        pt  = getPt( DT34, eta , temp_dphi )[0];
+        spt = getPt( DT34, eta , temp_dphi )[1];
         ptEstimate.push_back( pt*sign );   
         sptEstimate.push_back( spt );
       }
@@ -638,18 +677,18 @@ void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> l
     if ( layer0 == -1 ) {
       // ME1/3 is outer-most
      if ( layer1 == 1 ) {
-        thePt  = ( 1.0650 - 0.8274*eta) / temp_dphi;
-        theSpt = ( 0.3208 - 0.1192*eta) * thePt;
+        thePt  = getPt( OL1213, eta , temp_dphi )[0];
+        theSpt = getPt( OL1213, eta , temp_dphi )[1];
       }
       // ME2 is outer-most
      else if ( layer1 == 2) {
-       thePt  = ( 1.0250 - 0.7387*eta) / temp_dphi;
-       theSpt = ( 0.0393 + 0.1814*eta) * thePt;
+        thePt  = getPt( OL1222, eta , temp_dphi )[0];
+        theSpt = getPt( OL1222, eta , temp_dphi )[1];
       }
       // ME3 is outer-most
       else {
-        thePt  = ( 0.6929 - 0.4361*eta ) / temp_dphi;
-        theSpt = ( 0.1091 + 0.1757*eta ) * thePt;
+        thePt  = getPt( OL1232, eta , temp_dphi )[0];
+        theSpt = getPt( OL1232, eta , temp_dphi )[1];
       }
       ptEstimate.push_back(thePt*sign);
       sptEstimate.push_back(theSpt);
@@ -658,8 +697,8 @@ void MuonSeedCreator::estimatePtOverlap(SegmentContainer seg, std::vector<int> l
     if ( layer0 == -2 ) {
       // ME1/3 is outer-most
       if ( layer1 == 1 ) {
-        thePt  = ( 0.6283 - 0.5460*eta) / temp_dphi;
-        theSpt = ( 0.5499 - 0.2569*eta) * thePt;
+        thePt  = getPt( OL2213, eta , temp_dphi )[0];
+        theSpt = getPt( OL2213, eta , temp_dphi )[1];
         ptEstimate.push_back(thePt*sign);
         sptEstimate.push_back(theSpt);
       }
@@ -724,67 +763,67 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
   if ( layers[0] == -1 ) {
      // MB10
      if ( fabs(eta) < 0.3 ) {
-       thePt  =(1.457  + 0.008*fabs(eta) ) / dpsi;
-       theSpt =(0.1043 - 0.00188*fabs(eta) )*thePt;
+        thePt  = getPt( SMB10, eta , dpsi )[0];
+        theSpt = getPt( SMB10, eta , dpsi )[1];
      }
      // MB11
      if ( fabs(eta) >= 0.3 && fabs(eta) < 0.82 ) {
-       thePt  =(1.551  - 0.1719*fabs(eta) ) / dpsi;
-       theSpt =(0.105  - 0.0000*fabs(eta) )*thePt;
+        thePt  = getPt( SMB11, eta , dpsi )[0];
+        theSpt = getPt( SMB11, eta , dpsi )[1];
      }
      // MB12
      if ( fabs(eta) >= 0.82 && fabs(eta) < 1.2 ) {
-       thePt  =(2.232  - 1.005*fabs(eta) ) / dpsi;
-       theSpt =(0.120  - 0.000*fabs(eta) )*thePt;
+        thePt  = getPt( SMB12, eta , dpsi )[0];
+        theSpt = getPt( SMB12, eta , dpsi )[1];
      }
   }
   if ( layers[0] == 1 ) {
      // ME13
      if ( fabs(eta) > 0.92 && fabs(eta) < 1.16 ) {
-       thePt  =(-1.816  + 2.226*fabs(eta) ) / dpsi;
-       theSpt =( 4.522  - 3.753*fabs(eta) )*thePt;
+        thePt  = getPt( SME13, eta , dpsi )[0];
+        theSpt = getPt( SME13, eta , dpsi )[1];
      }
      // ME12
      if ( fabs(eta) >= 1.16 && fabs(eta) <= 1.6 ) {
-       thePt  =(0.2128  + 0.5369*fabs(eta) ) / dpsi;
-       theSpt =(0.2666  + 0.01795*fabs(eta) )*thePt;
+        thePt  = getPt( SME12, eta , dpsi )[0];
+        theSpt = getPt( SME12, eta , dpsi )[1];
      }
   }
   if ( layers[0] == 0  ) {
      // ME11
      if ( fabs(eta) > 1.6 && fabs(eta) < 2.45 ) {
-       thePt  =( 2.552  - 0.9044*fabs(eta) ) / dpsi;
-       theSpt =(-1.742  + 1.156*fabs(eta) )*thePt;
+        thePt  = getPt( SME11, eta , dpsi )[0];
+        theSpt = getPt( SME11, eta , dpsi )[1];
      }
   }
   // the 2nd layer
   if ( layers[0] == -2 ) {
      // MB20
      if ( fabs(eta) < 0.25 ) {
-       thePt  =(1.064  - 0.032*fabs(eta) ) / dpsi;
-       theSpt =(0.1364 - 0.0054*fabs(eta) )*thePt;
+        thePt  = getPt( SMB20, eta , dpsi )[0];
+        theSpt = getPt( SMB20, eta , dpsi )[1];
      }
      // MB21
      if ( fabs(eta) >= 0.25 && fabs(eta) < 0.72 ) {
-       thePt  =(1.131  - 0.2012*fabs(eta) ) / dpsi;
-       theSpt =(0.117  - 0.0654*fabs(eta) )*thePt;
+        thePt  = getPt( SMB21, eta , dpsi )[0];
+        theSpt = getPt( SMB21, eta , dpsi )[1];
      }
      // MB22
      if ( fabs(eta) >= 0.72 && fabs(eta) < 1.04 ) {
-       thePt  =(1.567  - 0.809*fabs(eta) ) / dpsi;
-       theSpt =(0.0579  + 0.1466*fabs(eta) )*thePt;
+        thePt  = getPt( SMB22, eta , dpsi )[0];
+        theSpt = getPt( SMB22, eta , dpsi )[1];
      }
   }
   if ( layers[0] == 2 ) {
      // ME22
      if ( fabs(eta) > 0.95 && fabs(eta) <= 1.6 ) {
-       thePt  =(-0.5333  + 0.6436*fabs(eta) ) / dpsi;
-       theSpt =( 3.522  - 3.333*fabs(eta) )*thePt;
+        thePt  = getPt( SME22, eta , dpsi )[0];
+        theSpt = getPt( SME22, eta , dpsi )[1];
      }
      // ME21
      if ( fabs(eta) > 1.6 && fabs(eta) < 2.45 ) {
-       thePt  =(0.8672  - 0.2218*fabs(eta) ) / dpsi;
-       theSpt =(-1.322  + 1.320*fabs(eta) )*thePt;
+        thePt  = getPt( SME21, eta , dpsi )[0];
+        theSpt = getPt( SME21, eta , dpsi )[1];
      }
   }
 
@@ -792,18 +831,18 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
   if ( layers[0] == -3 ) {
      // MB30
      if ( fabs(eta) <= 0.22 ) {
-       thePt  =(0.539  + 0.0466*fabs(eta) ) / dpsi;
-       theSpt =(0.325  - 0.000*fabs(eta) )*thePt;
+        thePt  = getPt( SMB30, eta , dpsi )[0];
+        theSpt = getPt( SMB30, eta , dpsi )[1];
      }
      // MB31
      if ( fabs(eta) > 0.22 && fabs(eta) <= 0.6 ) {
-       thePt  =(0.5917  - 0.1479*fabs(eta) ) / dpsi;
-       theSpt =(0.2872  + 0.0995*fabs(eta) )*thePt;
+        thePt  = getPt( SMB31, eta , dpsi )[0];
+        theSpt = getPt( SMB31, eta , dpsi )[1];
      }
      // MB32
      if ( fabs(eta) > 0.6 && fabs(eta) < 0.95 ) {
-       thePt  =(0.6712  - 0.285*fabs(eta) ) / dpsi;
-       theSpt =(0.232  + 0.273*fabs(eta) )*thePt;
+        thePt  = getPt( SMB32, eta , dpsi )[0];
+        theSpt = getPt( SMB32, eta , dpsi )[1];
      }
   }
   thePt = fabs(thePt)*sign;
@@ -821,6 +860,7 @@ void MuonSeedCreator::estimatePtSingle(SegmentContainer seg, std::vector<int> la
  * pt = (c_1 * eta + c_2) / dphi
  */
 void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<double> sptEstimate, double& thePt, double& theSpt) {
+
  
   int size = ptEstimate.size();
 
@@ -880,4 +920,14 @@ void MuonSeedCreator::weightedPt(std::vector<double> ptEstimate, std::vector<dou
   return;
 }
 
+std::vector<double> MuonSeedCreator::getPt(std::vector<double> vPara, double eta, double dPhi ) {
+
+       double h  = fabs(eta);
+       double estPt  = ( vPara[0] + vPara[1]*h + vPara[2]*h*h ) / dPhi;
+       double estSPt = ( vPara[3] + vPara[4]*h + vPara[5]*h*h ) * estPt;
+       std::vector<double> paraPt ;
+       paraPt.push_back( estPt );
+       paraPt.push_back( estSPt ) ;
+       return paraPt ;
+}
 
