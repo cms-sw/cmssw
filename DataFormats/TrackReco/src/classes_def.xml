@@ -98,8 +98,8 @@
 
 
 
-      <class name="reco::TrajectorySateOnDetInfo" />
-      <class name="reco::TrajectorySateOnDetInfoCollection" />
+      <class name="reco::TrajectoryStateOnDetInfo" />
+      <class name="reco::TrajectoryStateOnDetInfoCollection" />
 
   <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="false"/>
@@ -107,21 +107,21 @@
   </class>
 
 
-     <!-- <class name="reco::TrackTrajectorySateOnDetInfosCollection" />-->
-      <class name="reco::TrackTrajectorySateOnDetInfos" />
-      <class name="reco::TrackTrajectorySateOnDetInfosRef" />
-      <class name="reco::TrackTrajectorySateOnDetInfosRefProd" />
-      <class name="reco::TrackTrajectorySateOnDetInfosRefVector" />
-      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::TrajectorySateOnDetInfo> > >"/>  
-<!--      <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, std::vector<reco::TrajectorySateOnDetInfo> ,unsigned int> >" /> >
-      <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::TrajectorySateOnDetInfo> > > "/>
-      <class name="std::map<unsigned int,std::vector<reco::TrajectorySateOnDetInfo> >" />    />-->
+     <!-- <class name="reco::TrackTrajectoryStateOnDetInfosCollection" />-->
+      <class name="reco::TrackTrajectoryStateOnDetInfos" />
+      <class name="reco::TrackTrajectoryStateOnDetInfosRef" />
+      <class name="reco::TrackTrajectoryStateOnDetInfosRefProd" />
+      <class name="reco::TrackTrajectoryStateOnDetInfosRefVector" />
+      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::TrajectoryStateOnDetInfo> > >"/>  
+<!--      <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, std::vector<reco::TrajectoryStateOnDetInfo> ,unsigned int> >" /> >
+      <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,std::vector<reco::TrajectoryStateOnDetInfo> > > "/>
+      <class name="std::map<unsigned int,std::vector<reco::TrajectoryStateOnDetInfo> >" />    />-->
 
 
 
-      <class name="std::vector<std::vector<reco::TrajectorySateOnDetInfo> >"/>
+      <class name="std::vector<std::vector<reco::TrajectoryStateOnDetInfo> >"/>
 
-  <class name="edm::Wrapper<reco::TrackTrajectorySateOnDetInfosCollection>"/>
+  <class name="edm::Wrapper<reco::TrackTrajectoryStateOnDetInfosCollection>"/>
 
 
 
