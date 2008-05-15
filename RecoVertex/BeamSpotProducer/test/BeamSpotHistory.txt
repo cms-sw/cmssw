@@ -6,6 +6,25 @@ DB History of reconstructed beam spot
 ===================================================
 
 --
+Exercise: use a new alignment for S43+refit
+tag:EarlyCollision_5p3cm_s43_mc
+
+X 0.0319343
+Y -0.00644221
+Z 0.461127
+sigmaZ 5.16917
+dxdz 3.84682e-05
+dydz 2.18225e-05
+BeamWidth 0.00317
+Cov(0,j) 2.69198e-09 -1.44955e-10 0 0 0 0 0
+Cov(1,j) -1.44955e-10 2.74398e-09 0 0 0 0 0
+Cov(2,j) 0 0 0.322661 0 0 0 0
+Cov(3,j) 0 0 0 0.235329 0 0 0
+Cov(4,j) 0 0 0 0 1.02235e-10 -3.47995e-12 0
+Cov(5,j) 0 0 0 0 -3.47995e-12 1.03946e-10 0
+Cov(6,j) 0 0 0 0 0 0 4e-08
+
+--
 Exercise: use new alignment constants+refit tracks+beam spot
 tag: EarlyCollision_5p3cm_v3_mc
 
