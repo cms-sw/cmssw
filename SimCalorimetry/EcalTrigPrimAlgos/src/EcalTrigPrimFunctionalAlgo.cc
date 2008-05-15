@@ -20,7 +20,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
@@ -62,8 +62,8 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   if (!barrelOnly_) {
     edm::ESHandle<CaloGeometry> theGeometry;
     edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-    setup.get<IdealGeometryRecord>().get( theGeometry );
-    setup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
+    setup.get<CaloGeometryRecord>().get( theGeometry );
+    setup.get<EcalEndcapGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
     theEndcapGeometry = &(*theEndcapGeometry_handle);
     setup.get<IdealGeometryRecord>().get(eTTmap_);
   }
