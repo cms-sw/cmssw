@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/03/13 21:20:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/27 20:23:03 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -51,7 +51,6 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"

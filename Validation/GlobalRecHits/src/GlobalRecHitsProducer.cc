@@ -2,12 +2,13 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2007/09/04 21:06:09 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/11/15 23:25:23 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -498,7 +499,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 
   // get geometry
   edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);
+  iSetup.get<CaloGeometryRecord>().get(geometry);
   if (!geometry.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find CaloGeometry in event!";

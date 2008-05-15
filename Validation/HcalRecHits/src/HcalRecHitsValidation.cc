@@ -1,4 +1,5 @@
 #include "Validation/HcalRecHits/interface/HcalRecHitsValidation.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
@@ -950,7 +951,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   //   std::cout << "*** 2" << std::endl; 
 
-  c.get<IdealGeometryRecord>().get (geometry);
+  c.get<CaloGeometryRecord>().get (geometry);
 
 
   // Fill working vectors of HCAL RecHits quantities 

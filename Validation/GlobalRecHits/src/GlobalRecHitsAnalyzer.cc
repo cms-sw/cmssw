@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/27 20:23:03 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/11 20:10:09 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -11,6 +11,7 @@ using namespace std;
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -614,7 +615,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
   
   // get geometry
   edm::ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);
+  iSetup.get<CaloGeometryRecord>().get(geometry);
   if (!geometry.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find CaloGeometry in event!";

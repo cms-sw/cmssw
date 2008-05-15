@@ -8,7 +8,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -416,7 +416,7 @@ void
 HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  iSetup.get<IdealGeometryRecord>().get (geometry);
+  iSetup.get<CaloGeometryRecord>().get (geometry);
   iSetup.get<HcalDbRecord>().get(conditions);
 
   if (hcalselector_ == "HB" ) reco<HBHEDataFrame>(iEvent,iSetup);
