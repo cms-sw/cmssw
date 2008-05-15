@@ -17,7 +17,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -169,7 +169,7 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
   RecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*rechitsCollection_));
 
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   double ecalIsol=0.;
   
   EgammaRecHitIsolation phoIso(RCone,
@@ -195,7 +195,7 @@ double PhotonIDAlgo::calculateR9(const reco::Photon* photon,
   edm::Handle<EcalRecHitCollection> ecalhitsCollH;
   double peta = photon->p4().Eta();
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   //const CaloGeometry& geometry = *geoHandle;
   edm::ESHandle<CaloTopology> pTopology;
   iSetup.get<CaloTopologyRecord>().get(pTopology);
@@ -246,7 +246,7 @@ double PhotonIDAlgo::calculateHcalRecHitIso(const reco::Photon* photon,
   RecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new HBHERecHitMetaCollection(*rechitsCollection_));
 
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   double ecalIsol=0.;
   
   EgammaRecHitIsolation phoIso(RCone,
