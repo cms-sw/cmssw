@@ -95,10 +95,6 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
       while (!in.eof()){
 	//cout << "Read rocname:"<<rocname<<endl;
 	PixelROCName roc(rocname);
-	PixelModuleName module(rocname);
-	if (!containsModule(module)) {
-	  modules_.push_back(module);
-	}
 	std::string line;
 	getline(in,line);
 	//cout << "Read line:'"<<line<<"'"<<endl;
@@ -113,6 +109,12 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
 	  }
 	}
 	rocs_[roc]=rocstatus;
+	if (!rocstatus.get(PixelROCStatus::noInit)){
+	  PixelModuleName module(rocname);
+	  if (!containsModule(module)) {
+	    modules_.push_back(module);
+	  }
+	}
 	in >> rocname;
       }
       return;

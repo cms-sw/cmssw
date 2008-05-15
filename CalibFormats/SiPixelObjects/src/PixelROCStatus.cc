@@ -71,6 +71,7 @@ bool PixelROCStatus::get(ROCstatus stat) const{
 string PixelROCStatus::statusName(ROCstatus stat) const{
   if (stat==off) return "off";
   if (stat==noHits) return "noHits";
+  if (stat==noInit) return "noInit";
   assert(0);
   return "";
 }
