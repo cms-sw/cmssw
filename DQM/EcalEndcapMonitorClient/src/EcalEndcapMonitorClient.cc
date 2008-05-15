@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/05/02 10:53:19 $
- * $Revision: 1.182 $
+ * $Date: 2008/05/11 09:35:10 $
+ * $Revision: 1.183 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -73,12 +73,6 @@ using namespace edm;
 using namespace std;
 
 EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient"){
-
-  this->initialize(ps);
-
-}
-
-void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // verbose switch
 

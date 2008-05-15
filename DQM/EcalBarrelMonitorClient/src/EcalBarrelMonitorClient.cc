@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/05/02 10:53:19 $
- * $Revision: 1.423 $
+ * $Date: 2008/05/11 09:35:07 $
+ * $Revision: 1.424 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -72,12 +72,6 @@ using namespace edm;
 using namespace std;
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalBarrelMonitorClient"){
-
-  this->initialize(ps);
-
-}
-
-void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // verbose switch
 
