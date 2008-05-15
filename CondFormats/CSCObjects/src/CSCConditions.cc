@@ -84,8 +84,35 @@ void CSCConditions::fillBadStripWords(){
   badStripWords.assign( 2808, 0 );
   if ( readBadChannels() ) {
     // unpack what we've read from theBadStrips
+
+    // chambers is a vector<BadChamber>
+    // channels is a vector<BadChannel>
+    // Each BadChamber contains its index (1-468), the no. of bad channels, 
+    // and the index within vector<BadChannel> where this chamber's bad channels start.
+
+    CSCIndexer indexer;
+
+    for ( size_t i=0; i<theBadStrips->chambers.size(); ++i ) { // loop over bad chambers
+      int indexc = theBadStrips->chambers[i].chamber_index;
+      int start =  theBadStrips->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
+      int nbad  =  theBadStrips->chambers[i].bad_channels;
+
+      CSCDetId id = indexer.detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
+
+      for ( int j=start; j<start+nbad; ++j ) { // bad channels in this chamber
+        short lay  = theBadStrips->channels[j].layer;    // value 1-6
+        short chan = theBadStrips->channels[j].channel;  // value 1-80
+    //    short f1 = theBadStrips->channels[j].flag1;
+    //    short f2 = theBadStrips->channels[j].flag2;
+    //    short f3 = theBadStrips->channels[j].flag3;
+        int indexl = indexer.layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
+        badStripWords[indexl-1].set( chan, 1 ); // set bit in 80-bit bitset representing this layer
+      } // j
+    } // i
+
   } 
 }
+
 void CSCConditions::fillBadWireWords(){
   // reset existing values
   badWireWords.assign( 2808, 0 );
