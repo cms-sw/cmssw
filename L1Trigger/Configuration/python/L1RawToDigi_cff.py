@@ -2,26 +2,23 @@ import FWCore.ParameterSet.Config as cms
 
 # Setup
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
+from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
 from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
 from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
-import copy
-from EventFilter.CSCTFRawToDigi.csctfunpacker_cfi import *
+import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
 # CSC TF
-csctfDigis = copy.deepcopy(csctfunpacker)
-import copy
-from EventFilter.DTTFRawToDigi.dttfunpacker_cfi import *
+csctfDigis = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone()
+import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
 # DT TF
-dttfDigis = copy.deepcopy(dttfunpacker)
-import copy
-from EventFilter.GctRawToDigi.l1GctHwDigis_cfi import *
+dttfDigis = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone()
+import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 # GCT
-gctDigis = copy.deepcopy(l1GctHwDigis)
-import copy
-from EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi import *
+gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 # GT
-gtDigis = copy.deepcopy(l1GtUnpack)
+gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi import *
 gtRecords = cms.Sequence(gtDigis*l1GtRecord)
 L1RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtRecords)

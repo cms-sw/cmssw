@@ -21,6 +21,8 @@ from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
-# L1 GT configuration - not available yet
+# L1 GT configuration
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
+# temporary workaround for single-workflow problem
+l1GtParameters.TotalBxInEvent = 1
 
