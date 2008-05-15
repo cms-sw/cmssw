@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 3.43)
+//  SiPixelTemplateReco.cc (Version 4.00)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -42,8 +42,12 @@ namespace SiPixelTemplateReco
 	int PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
 				std::vector<bool> ydouble, std::vector<bool> xdouble, 
 				SiPixelTemplate& templ, 
-				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
+				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed, float& dlengthy, float& dlengthx);
 
+	int PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
+				std::vector<bool> ydouble, std::vector<bool> xdouble, 
+				SiPixelTemplate& templ, 
+				float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin, int speed);
 }
 				
 
