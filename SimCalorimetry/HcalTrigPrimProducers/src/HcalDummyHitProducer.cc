@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -84,7 +84,7 @@ void HcalDummyHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSe
   std::auto_ptr<edm::PCaloHitContainer> result(new edm::PCaloHitContainer);
   // get the correct geometry
   edm::ESHandle<CaloGeometry> geometry;
-  eventSetup.get<IdealGeometryRecord>().get(geometry);
+  eventSetup.get<CaloGeometryRecord>().get(geometry);
   vector<DetId> hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   vector<DetId> heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
   vector<DetId> hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
