@@ -121,6 +121,7 @@ namespace edm {
     // the full name of the type of product this is
     std::string fullClassName_;
 
+  public:
     // a readable name of the type of product this is
     std::string friendlyClassName_;
 
@@ -128,6 +129,7 @@ namespace edm {
     // that are produced by the same producer
     std::string productInstanceName_;
 
+  private:
     // The module description id of the producer.
     // This is only valid if produced_ is true.
     // This is just used as a cache, and is not logically
