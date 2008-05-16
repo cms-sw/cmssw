@@ -83,6 +83,9 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   // ----------access to event data
   edm::InputTag    inputTagHcalRecHitsHBHE_;
   edm::InputTag    inputTagCaloTowers_;
+  
+  /// threshold for HF
+  double           thresh_HF_;
 };
 
 #endif

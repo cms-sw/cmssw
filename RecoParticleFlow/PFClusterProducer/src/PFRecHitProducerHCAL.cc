@@ -49,6 +49,8 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
   inputTagCaloTowers_ = 
     iConfig.getParameter<InputTag>("caloTowers");
    
+  thresh_HF_ = 
+    iConfig.getParameter<double>("thresh_HF");
 }
 
 
@@ -163,6 +165,16 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 				     ct.id().rawId() );
  	  }
 	  break;
+	case HcalForward:
+	  {
+	    if(energy < thresh_HF_ ) continue;
+	    pfrh = createHcalRecHit( detid, 
+				     energy, 
+				     PFLayer::HCAL_HF, 
+				     hcalEndcapGeometry,
+				     ct.id().rawId() );
+ 	  }
+	  break;
 	default:
 	  LogError("PFRecHitProducerHCAL")
 	    <<"CaloTower constituent: unknown layer : "
@@ -178,6 +190,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
       }
 	
 	
+
       // do navigation 
       for(unsigned i=0; i<rechits.size(); i++ ) {
 	  
@@ -240,6 +253,15 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 				     energy, 
 				     PFLayer::HCAL_ENDCAP, 
 				     hcalEndcapGeometry );	  
+ 	  }
+	  break;
+	case HcalForward:
+	  {
+	    if(energy < thresh_HF_ ) continue;
+	    pfrh = createHcalRecHit( detid, 
+				     energy, 
+				     PFLayer::HCAL_HF, 
+				     hcalEndcapGeometry );
  	  }
 	  break;
 	default:
@@ -323,6 +345,10 @@ PFRecHitProducerHCAL::findRecHitNeighbours
   const CaloSubdetectorGeometry& barrelGeometry, 
   const CaloSubdetectorTopology& endcapTopology, 
   const CaloSubdetectorGeometry& endcapGeometry ) {
+  
+
+  if( rh.layer() == PFLayer::HCAL_HF )
+    return;
   
   DetId detid( rh.detId() );
 
@@ -438,8 +464,11 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   const map<unsigned, unsigned >& sortedHits, 
   const CaloSubdetectorTopology& topology ) {
 
+  if( rh.layer() == PFLayer::HCAL_HF )
+    return;
+
   CaloTowerDetId ctDetId( rh.detId() );
-  
+    
 
   vector<DetId> northids = topology.north(ctDetId);
   vector<DetId> westids = topology.west(ctDetId);
