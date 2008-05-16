@@ -1,7 +1,0 @@
-#ifndef DQM_SiStripCommissioningAnalysis_CalibrationAnalysis_H
-#define DQM_SiStripCommissioningAnalysis_CalibrationAnalysis_H
-
-#include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
-
-#endif // DQM_SiStripCommissioningAnalysis_CalibrationAnalysis_H
-

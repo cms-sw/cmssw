@@ -1,6 +1,0 @@
-#ifndef DQM_SiStripCommissioningAnalysis_OptoScanAnalysis_H
-#define DQM_SiStripCommissioningAnalysis_OptoScanAnalysis_H
-
-#include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
-
-#endif // DQM_SiStripCommissioningAnalysis_OptoScanAnalysis_H

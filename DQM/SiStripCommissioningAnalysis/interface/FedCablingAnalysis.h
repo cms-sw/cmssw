@@ -1,9 +1,0 @@
-#ifndef DQM_SiStripCommissioningAnalysis_FedCablingAnalysis_H
-#define DQM_SiStripCommissioningAnalysis_FedCablingAnalysis_H
-
-#include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
-
-#endif // DQM_SiStripCommissioningAnalysis_FedCablingAnalysis_H
-
-
-

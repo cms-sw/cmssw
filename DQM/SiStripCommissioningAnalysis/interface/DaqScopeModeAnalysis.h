@@ -1,9 +1,0 @@
-#ifndef DQM_SiStripCommissioningAnalysis_DaqScopeModeAnalysis_H
-#define DQM_SiStripCommissioningAnalysis_DaqScopeModeAnalysis_H
-
-#include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
-
-#endif // DQM_SiStripCommissioningAnalysis_DaqScopeModeAnalysis_H
-
-
-
