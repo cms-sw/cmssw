@@ -1,2 +1,2 @@
-#warning header as moved to $newClassLocation/interface/RefGetter.h
+#warning header as moved to DataFormats/Common/interface/RefGetter.h
 #include "DataFormats/Common/interface/RefGetter.h"
