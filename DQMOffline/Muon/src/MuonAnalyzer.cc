@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/24 15:24:35 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/05/12 16:02:44 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -38,12 +38,12 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   
-  // STA Cosmic Muon Collection Label
-  theSTACollectionLabel = parameters.getParameter<edm::InputTag>("CosmicsCollectionLabel");
-  // STA Cosmic Muon Collection Label
-  theTrackCollectionLabel = parameters.getParameter<edm::InputTag>("trackCollectionLabel");
+  // STA Muon Collection Label
+  theSTACollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
+  // STA Muon Collection Label
+  theTrackCollectionLabel = parameters.getParameter<edm::InputTag>("TrackCollection");
   // Seeds Collection Label
-  theSeedsCollectionLabel = parameters.getParameter<edm::InputTag>("seedsCollectionLabel");
+  theSeedsCollectionLabel = parameters.getParameter<edm::InputTag>("SeedCollection");
   
   theMuEnergyAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonEnergyAnalysis",true);
   theSeedsAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonSeedAnalysis",true);
