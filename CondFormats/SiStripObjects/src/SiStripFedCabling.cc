@@ -71,14 +71,22 @@ SiStripFedCabling::~SiStripFedCabling() {
 // -----------------------------------------------------------------------------
 //
 void SiStripFedCabling::buildFedCabling( const std::vector<FedChannelConnection>& input ) {
-
+  
   // Check input
   if ( input.empty() ) {
     edm::LogWarning(mlCabling_)
       << "[SiStripFedCabling::" << __func__ << "]"
       << " Input vector of FedChannelConnections is of zero size!"
       << " Unable to populate FED cabling object!"; 
+    return;
   }
+  
+  std::stringstream ss;
+  ss << "[SiStripFedCabling::" << __func__ << "]"
+     << " Building FED cabling from " 
+     << input.size()
+     << " connections...";
+  LogTrace(mlCabling_) << ss.str();
   
   // Clear containers
   connected_.clear(); 
@@ -389,9 +397,9 @@ void SiStripFedCabling::summary( std::stringstream& ss ) const {
      << " " << nfeds << " out of " << feds().size() << " FEDs with at least one connected channel " << std::endl 
      << " " << feds().size() - nfeds << " out of " << feds().size() << " FEDs with no connected channels." << std::endl 
      << " " << total << " connected channels in total" << std::endl
-     << " " << percent << "% of FED channels are connected"  << std::endl
      << " " << detected_.size()  << " APV pairs have been detected, but are not connected" << std::endl
-     << " " << undetected_.size() << " APV pairs are undetected (wrt DCU-DetId map)" << std::endl;
+     << " " << undetected_.size() << " APV pairs are undetected (wrt DCU-DetId map)" << std::endl
+     << " " << percent << "% of FED channels are connected"  << std::endl;
   
 }
 
