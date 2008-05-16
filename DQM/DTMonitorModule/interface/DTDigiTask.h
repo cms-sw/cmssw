@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/11/06 17:34:12 $
- * $Revision: 1.16 $
+ * $Date: 2008/03/01 00:39:53 $
+ * $Revision: 1.17 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -58,7 +58,8 @@ protected:
   /// Book the ME
   void bookHistos(const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
   void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag);
- 
+  void bookHistos(const int wheelId, std::string folder, std::string histoTag);
+
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
@@ -72,7 +73,7 @@ protected:
   std::string triggerSource();
 
 private:
-
+  
   bool debug;
   int nevents;
 
@@ -96,14 +97,38 @@ private:
 
   DQMStore* dbe;
 
-  edm::ParameterSet parameters;
-
   edm::ESHandle<DTGeometry> muonGeom;
 
   edm::ESHandle<DTTtrig> tTrigMap;
   edm::ESHandle<DTT0> t0Map;
 
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > wheelHistos;
+
+  // Parameters from config file
+
+  // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
+  bool readTTrigDB;
+  // Set to true to subtract t0 from test pulses
+  bool subtractT0;
+  // Tmax value (TDC counts)
+  int defaultTmax;
+  // Switch from static (all histo at the beginninig of the job) to
+  // dynamic (book when needed) histo booking
+  bool doStaticBooking;
+  // Switch for local/global runs
+  bool isLocalRun;
+  // Setting for the reset of the ME after n (= ResetCycle) luminosity sections
+  int resetCycle;
+  // Check the DB of noisy channels
+  bool checkNoisyChannels;
+  // Default TTrig to be used when not reading the TTrig DB
+  int defaultTTrig;
+
+  int inTimeHitsLowerBound;
+  int inTimeHitsUpperBound;
+  int timeBoxGranularity;
+  int tdcRescale;
 
 
 };
