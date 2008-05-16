@@ -160,12 +160,17 @@ namespace edm {
     DataViewImpl const&
     me() const {return *this;}
 
-  protected:
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
+  protected:
+
     Principal<T> & principal() {return principal_;}
     Principal<T> const& principal() const {return principal_;}
+
     ProductPtrVec & putProducts() {return putProducts_;}
     ProductPtrVec const& putProducts() const {return putProducts_;}
+
+    ProductPtrVec & putProductsWithoutParents() {return putProductsWithoutParents_;}
+    ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
     
     ConstBranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
@@ -242,10 +247,12 @@ namespace edm {
     // Data members
     //
 
-    // putProducts_ is the holding pen for EDProducts inserted into
-    // this DataViewImpl. Pointers in this collection own the products to
-    // which they point.
-    ProductPtrVec putProducts_;
+    // putProducts_ and putProductsWithoutParents_ are the holding
+    // pens for EDProducts inserted into this DataViewImpl. Pointers
+    // in these collections own the products to which they point.
+    // 
+    ProductPtrVec putProducts_;               // keep parentage info for these
+    ProductPtrVec putProductsWithoutParents_; // ... but not for these
 
     // Each DataViewImpl must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
@@ -275,13 +282,6 @@ namespace edm {
 
   namespace detail 
   {
-    //------------------------------------------------------------
-    // WHEN WE MOVE to a newer compiler version, the following code
-    // should be activated. This code causes compilation failures under
-    // GCC 3.2.3, because of a compiler error in dealing with our
-    // application of SFINAE. GCC 3.4.2 is known to deal with this code
-    // correctly.
-    //------------------------------------------------------------
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -299,13 +299,23 @@ namespace edm {
 	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
 	!boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
     };
+
+
+    // has_donotrecordparents<T>::value is true if we should not
+    // record parentage for type T, and false otherwise.
+
+    template <typename T>
+    struct has_donotrecordparents
+    {
+      static bool const value = 
+	boost::is_base_of<edm::DoNotRecordParents,T>::value;
+    };
+
   }
-
-
 
   //------------------------------------------------------------
 
-  // The following function objects are used by DataViewImpl::put, under the
+  // The following function objects are used by Event::put, under the
   // control of a metafunction if, to either call the given object's
   // post_insert function (if it has one), or to do nothing (if it
   // does not have a post_insert function).
@@ -320,7 +330,6 @@ namespace edm {
   {
     void operator()(T*) const { }
   };
-
 
   //------------------------------------------------------------
   //

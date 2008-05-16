@@ -5,7 +5,7 @@
  *
  *  Original Authors: Jim Kowalkowski 13-01-06
  *                    Martin Grunewald
- *  $Id: TriggerResults.h,v 1.8 2007/07/06 12:54:47 gruen Exp $
+ *  $Id: TriggerResults.h,v 1.9 2007/12/21 22:46:51 wmtan Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
@@ -26,14 +26,16 @@
  */
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
+#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+
 
 #include <string>
 #include <vector>
 
 namespace edm
 {
-  class TriggerResults : public HLTGlobalStatus {
+  class TriggerResults : public HLTGlobalStatus, public DoNotRecordParents  {
 
     typedef std::vector<std::string> Strings;
 

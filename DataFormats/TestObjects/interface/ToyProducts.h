@@ -123,8 +123,12 @@ namespace edmtest
     throw std::logic_error("operator< called for Unsortable");
   }
 
-
-    
+  struct Prodigal : public edm::DoNotRecordParents
+  {
+    int data;
+    Prodigal() : data(0) { }
+    explicit Prodigal(int i) : data(i) { }
+  };
 
   typedef edm::SortedCollection<Simple> SCSimpleProduct;
   typedef std::vector<Simple>           VSimpleProduct;

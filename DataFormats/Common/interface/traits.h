@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.17 2008/03/31 21:12:11 wmtan Exp $
+$Id: traits.h,v 1.18 2008/05/09 15:40:38 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -88,6 +88,20 @@ namespace edm
   //    class MyClass : public edm::DoNotSortUponInsertion { ... }
   //
   struct DoNotSortUponInsertion { };
+
+  //------------------------------------------------------------
+  //
+  // DoNotRecordParents is a base class. Derive your own (EDProduct)
+  // class X from DoNotRecordParents when your class already keeps all
+  // data that are relevant to parentage internally, and the
+  // information kept by the event model would thus be redundant.
+  //
+  // DoNotRecordParents has no behavior; it is used at compile time to
+  // influence the behavior of Event::put.
+  //
+  // Usasage:
+  //    class MyClass : public edm::DoNotRecordParents { ... }
+  struct DoNotRecordParents { };
 
   // Other is a base class. NEVER USE IT. It is for the
   // core of the event model only.

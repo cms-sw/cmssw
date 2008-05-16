@@ -69,13 +69,25 @@ namespace edm {
 
   void
   Event::commit_() {
+    commit_aux(putProducts(), true);
+    commit_aux(putProductsWithoutParents(), false);
+  }
+
+  void
+  Event::commit_aux(Base::ProductPtrVec& products, bool record_parents) {
     // fill in guts of provenance here
     EventPrincipal & ep = eventPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
+
+    ProductPtrVec::iterator pit(products.begin());
+    ProductPtrVec::iterator pie(products.end());
 
     std::vector<ProductID> gotProductIDVector;
-    if (!gotProductIDs_.empty()) {
+
+    // Note that gotProductIDVector will remain empty if
+    // record_parents is false (and may be empty if record_parents is
+    // true).
+
+    if (record_parents && !gotProductIDs_.empty()) {
       gotProductIDVector.reserve(gotProductIDs_.size());
       for (ProductIDSet::const_iterator it = gotProductIDs_.begin(), itEnd = gotProductIDs_.end();
 	  it != itEnd; ++it) {
@@ -91,16 +103,17 @@ namespace edm {
 	// set provenance
 	std::auto_ptr<EventEntryInfo> eventEntryInfoPtr(
 		new EventEntryInfo(pit->second->branchID(),
-				    productstatus::present(),
-				    pit->second->moduleDescriptionID(),
-				    pit->second->productIDtoAssign(),
-				    gotProductIDVector));
+				   productstatus::present(),
+				   pit->second->moduleDescriptionID(),
+				   pit->second->productIDtoAssign(),
+				   gotProductIDVector));
 	ep.put(pr, *pit->second, eventEntryInfoPtr);
 	++pit;
     }
 
     // the cleanup is all or none
-    putProducts().clear();
+    products.clear();
   }
+
 
 }

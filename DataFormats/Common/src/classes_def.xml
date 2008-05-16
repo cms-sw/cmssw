@@ -64,6 +64,7 @@
  <class name="edm::Wrapper<edm::TriggerResults>"/>
  <class name="edm::Other"/>
  <class name="edm::DoNotSortUponInsertion"/>
+ <class name="edm::DoNotRecordParents"/>
  <class name="edm::helpers::DoNoPostReadFixup"/>
  <class name="edm::helpers::PostReadFixup">
    <field name="fixed_" transient="true"/>

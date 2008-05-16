@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -31,11 +32,47 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+
 namespace edm {
+
+  class ConstBranchDescription;
+
+
+  // The following functions objects are used by Event::put, under the
+  // control of a metafunction if, to put the given pair into the
+  // right collection.
+  template <typename PROD>
+  struct RecordInParentless
+  {
+    typedef DataViewImpl<EventEntryInfo>::ProductPtrVec ptrvec_t;
+    void do_it(ptrvec_t& ignored,
+	       ptrvec_t& used,
+	       Wrapper<PROD>* wp, 
+	       ConstBranchDescription const* desc) const
+    {
+      used.push_back(std::make_pair(wp, desc));
+    }
+  };
+
+  template <typename PROD>
+  struct RecordInParentfull
+  {
+    typedef DataViewImpl<EventEntryInfo>::ProductPtrVec ptrvec_t;
+
+    void do_it(ptrvec_t& used,
+	       ptrvec_t& ignored,
+	       Wrapper<PROD>* wp, 
+	       ConstBranchDescription const* desc) const
+    {
+      used.push_back(std::make_pair(wp, desc));
+    }
+  };
+
 
   class Event : private DataViewImpl<EventEntryInfo>
   {
@@ -185,6 +222,7 @@ namespace edm {
     friend class EDProducer;
 
     void commit_();
+    void commit_aux(Base::ProductPtrVec& products, bool record_parents);
 
     BasicHandle 
     getByProductID_(ProductID const& oid) const;
@@ -259,9 +297,17 @@ namespace edm {
     ConstBranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);
 
-    Wrapper<PROD> *wp(new Wrapper<PROD>(product));
+    Wrapper<PROD>* wp(new Wrapper<PROD>(product));
 
-    putProducts().push_back(std::make_pair(wp, &desc));
+    typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
+      RecordInParentless<PROD>,
+      RecordInParentfull<PROD> >::type parentage_recorder;
+    parentage_recorder.do_it(putProducts(),
+			     putProductsWithoutParents(),
+			     wp,
+			     &desc);
+
+    //    putProducts().push_back(std::make_pair(wp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.
     // The old copy must be deleted, so we cannot release ownership.

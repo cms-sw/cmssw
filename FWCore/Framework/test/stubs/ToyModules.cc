@@ -736,6 +736,39 @@ namespace edmtest {
     e.put(prod);
   }
 
+  //--------------------------------------------------------------------
+  //
+  // Produces an Prodigal instance.
+  //
+  class ProdigalProducer : public edm::EDProducer {
+  public:
+    explicit ProdigalProducer(edm::ParameterSet const& p) : 
+      label_(p.getParameter<std::string>("label")) {
+      produces<Prodigal>();
+    }
+    virtual ~ProdigalProducer() { }
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+    static void fillDescription(edm::ParameterSetDescription& iDesc) {
+      //iDesc.add<std::string>("label");
+    }
+  private:
+    std::string label_;
+  };
+
+  void
+  ProdigalProducer::produce(edm::Event& e, edm::EventSetup const&) {
+    // EventSetup is not used.
+
+    // The purpose of Prodigal is testing of *not* keeping
+    // parentage. So we need to get a product...
+    edm::Handle<IntProduct> parent;
+    e.getByLabel(label_, parent);
+
+    std::auto_ptr<Prodigal> p(new Prodigal(parent->value));
+    e.put(p);
+  }
+
 
   //--------------------------------------------------------------------
   //
@@ -908,6 +941,7 @@ using edmtest::IntDequeProducer;
 using edmtest::IntSetProducer;
 using edmtest::IntVecRefVectorProducer;
 using edmtest::IntVecRefToBaseVectorProducer;
+using edmtest::ProdigalProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
@@ -929,4 +963,5 @@ DEFINE_FWK_MODULE(IntDequeProducer);
 DEFINE_FWK_MODULE(IntSetProducer);
 DEFINE_FWK_MODULE(IntVecRefVectorProducer);
 DEFINE_FWK_MODULE(IntVecRefToBaseVectorProducer);
+DEFINE_FWK_MODULE(ProdigalProducer);
 
