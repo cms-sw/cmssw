@@ -13,7 +13,6 @@
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/TransientTrack>
 <use name=RecoTracker/TkDetLayers>
-<use name=RecoTracker/GeometryESProducer>
 <use name=RecoTracker/TkNavigation>
 <use name=RecoTracker/TkTrackingRegions>
 <use name=RecoTracker/CkfPattern>
@@ -42,7 +41,6 @@
   <use name=TrackingTools/DetLayers>
   <use name=TrackingTools/TransientTrack>
   <use name=RecoTracker/TkDetLayers>
-  <use name=RecoTracker/GeometryESProducer>
   <use name=RecoTracker/TkNavigation>
   <use name=RecoTracker/TkTrackingRegions>
   <use name=RecoTracker/CkfPattern>
