@@ -1782,9 +1782,9 @@ DQMStore::getQReport(MonitorElement *me, const std::string &qtname)
 void
 DQMStore::runQTests(void)
 {
-  if (! reset_)
-    std::cout << "DQMStore: WARNING: runQTests() invoked without intervening"
-	      << " call to reset().  Maybe you forgot to call doMonitoring()?\n";
+
+  std::cout << "DQMStore: running runQTests() with reset = "
+            << ( reset_ ? "true" : "false" ) << std::endl;
 
   // Apply quality tests to each monitor element, skipping references.
   MEMap::iterator mi = data_.begin();
