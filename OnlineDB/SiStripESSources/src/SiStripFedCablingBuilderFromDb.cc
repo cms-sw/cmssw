@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.48 2008/04/30 13:33:25 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.49 2008/05/06 12:37:14 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -115,19 +115,10 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
 						      SiStripFecCabling& fec_cabling,
 						      const sistrip::CablingSource& source ) {
 
-  if ( source == sistrip::CABLING_FROM_CONNS ) {
-    
-    buildFecCablingFromFedConnections( db, fec_cabling ); 
-    
-  } else if ( source == sistrip::CABLING_FROM_DEVICES ) {
-    
-    buildFecCablingFromDevices( db, fec_cabling ); 
-    
-  } else if ( source == sistrip::CABLING_FROM_DETIDS ) {
-    
-    buildFecCablingFromDetIds( db, fec_cabling ); 
-    
-  } else if ( source == sistrip::UNDEFINED_CABLING_SOURCE ) {
+  if      ( source == sistrip::CABLING_FROM_CONNS )       { buildFecCablingFromFedConnections( db, fec_cabling ); }
+  else if ( source == sistrip::CABLING_FROM_DEVICES )     { buildFecCablingFromDevices( db, fec_cabling ); }
+  else if ( source == sistrip::CABLING_FROM_DETIDS )      { buildFecCablingFromDetIds( db, fec_cabling ); }
+  else if ( source == sistrip::UNDEFINED_CABLING_SOURCE ) {
     
     LogTrace(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -164,31 +155,13 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
 						      SiStripFecCabling& fec_cabling ) {
   LogTrace(mlCabling_)
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-    << " Checking contents of database (this may take some time)...";
+    << " Building cabling object...";
   
-  if ( !db->getFedConnections().empty() ) {
-
-    LogTrace(mlCabling_)
-      << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-      << " Building from FED connections...";
-    buildFecCablingFromFedConnections( db, fec_cabling ); 
-
-  } else if ( !db->getDeviceDescriptions().empty() ) {
-
-    LogTrace(mlCabling_)
-      << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-      << " Building from device descriptions...";
-    buildFecCablingFromDevices( db, fec_cabling ); 
-
-  } else if ( !db->getDcuDetIds().empty() ) {
-
-    LogTrace(mlCabling_)
-      << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-      << " Building from DCU-DetId table...";
-    buildFecCablingFromDetIds( db, fec_cabling ); 
-
-  } else { 
-
+  if      ( !db->getFedConnections().empty() )     { buildFecCablingFromFedConnections( db, fec_cabling ); }
+  else if ( !db->getDeviceDescriptions().empty() ) { buildFecCablingFromDevices( db, fec_cabling ); }
+  else if ( !db->getDcuDetIds().empty() )          { buildFecCablingFromDetIds( db, fec_cabling ); }
+  else { 
+    
     edm::LogError(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
       << " Cannot build SiStripFecCabling object!"

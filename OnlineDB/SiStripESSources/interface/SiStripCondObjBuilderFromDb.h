@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.2 2007/03/19 13:23:06 bainbrid Exp $
-// Latest tag:  $Name: V01-01-00 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.1 2008/05/14 11:02:36 giordano Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -7,6 +7,7 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
@@ -46,7 +47,7 @@ class SiStripCondObjBuilderFromDb {
   SiStripConfigDb* db_;
   
   /** Container for DB connection parameters. */
-  SiStripConfigDb::DbParams dbParams_;
+  SiStripDbParams dbParams_;
 
   SiStripFedCabling* fed_cabling_;
   SiStripPedestals* pedestals_;  
