@@ -45,8 +45,8 @@ ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet
   m_firstTimeProduce = true ;
 
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
-  SCEtCut_=iConfig.getParameter<double>("SCEtCut");
-  maxHOverE_=iConfig.getParameter<double>("maxHOverE");
+  SCEtCut_=pset.getParameter<double>("SCEtCut");
+  maxHOverE_=pset.getParameter<double>("maxHOverE");
   fromTrackerSeeds_=pset.getParameter<bool>("fromTrackerSeeds");
   initialSeeds_=pset.getParameter<edm::InputTag>("initialSeeds");
 
@@ -59,7 +59,7 @@ ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet
   clusters_[1]=iConfig.getParameter<edm::InputTag>("endcapSuperClusters");
   simTracks_=iConfig.getParameter<edm::InputTag>("simTracks");
   trackerHits_=iConfig.getParameter<edm::InputTag>("trackerHits");
-  hcalRecHits_= iConfig.getParameter<edm::InputTag>("hcalRecHits");
+  hcalRecHits_= pset.getParameter<edm::InputTag>("hcalRecHits");
 
   //register your products
   produces<reco::ElectronPixelSeedCollection>();
