@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.18 2008/05/09 15:40:38 paterno Exp $
+$Id: traits.h,v 1.19 2008/05/16 00:29:10 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -99,7 +99,7 @@ namespace edm
   // DoNotRecordParents has no behavior; it is used at compile time to
   // influence the behavior of Event::put.
   //
-  // Usasage:
+  // Usage:
   //    class MyClass : public edm::DoNotRecordParents { ... }
   struct DoNotRecordParents { };
 
