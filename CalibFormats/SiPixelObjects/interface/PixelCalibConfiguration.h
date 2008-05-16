@@ -39,8 +39,9 @@ namespace pos{
   class PixelROCInfo {    
   public:
     const PixelHdwAddress* hdwadd_;
-    const PixelROCTrimBits* trims_;
-    const PixelROCMaskBits* masks_;
+    //FIXME these should be const but it has ripple effects...
+    PixelROCTrimBits* trims_;
+    PixelROCMaskBits* masks_;
     std::vector<std::pair<unsigned int, unsigned int> > defaultDACs_;
   };
 
