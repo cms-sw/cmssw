@@ -463,6 +463,10 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
   case PFLayer::HCAL_ENDCAP:
     thresh = em_->clusterAlgoHCAL_.threshEndcap();
     break;           
+  case PFLayer::HCAL_HF: 
+    // how to handle a different threshold for HF?
+    thresh = em_->clusterAlgoHCAL_.threshEndcap();
+    break;           
   case PFLayer::PS1:
   case PFLayer::PS2:
     me = -1;
@@ -480,17 +484,17 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
   //loop on all views
   for(int viewType=0;viewType<4;++viewType) {
   
+    bool isHCAL = (layer == PFLayer::HCAL_BARREL1 || 
+		   layer == PFLayer::HCAL_BARREL2 || 
+		   layer == PFLayer::HCAL_ENDCAP || 
+		   layer == PFLayer::HCAL_HF);
+    
     if(  viewType == EPH && 
-         ! (layer == PFLayer::HCAL_BARREL1 || 
-            layer == PFLayer::HCAL_BARREL2 || 
-            layer == PFLayer::HCAL_ENDCAP ) ) {
+         ! isHCAL) {
       continue;
     }
     // on EPE view, draw only HCAL and preshower
-    if(  viewType == EPE && 
-         (layer == PFLayer::HCAL_BARREL1 || 
-          layer == PFLayer::HCAL_BARREL2 || 
-          layer == PFLayer::HCAL_ENDCAP ) ) {
+    if(  viewType == EPE && isHCAL ) {
       continue;
     }
     double rheta = rh.position().Eta();
@@ -549,7 +553,9 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
             viewType == EPH || 
             ( viewType == XY &&  
               ( layer == PFLayer::ECAL_ENDCAP || 
-                layer == PFLayer::HCAL_ENDCAP ) ) ) ) {
+                layer == PFLayer::HCAL_ENDCAP || 
+		layer == PFLayer::HCAL_HF
+		) ) ) ) {
       
       
         math::XYZPoint centreXYZrot = rh.position();
@@ -1072,6 +1078,7 @@ double DisplayManager::getMaxE(int layer) const
   case PFLayer::HCAL_ENDCAP:
   case PFLayer::HCAL_BARREL1:
   case PFLayer::HCAL_BARREL2:
+  case PFLayer::HCAL_HF:
     vec = &(em_->rechitsHCAL_);
     break;
   case PFLayer::PS1:
@@ -1106,9 +1113,11 @@ double DisplayManager::getMaxEEcal() {
 double DisplayManager::getMaxEHcal() {
 
   if(maxERecHitHcal_ < 0) {
+    double maxehf = getMaxE( PFLayer::HCAL_HF );
     double maxeec = getMaxE( PFLayer::HCAL_ENDCAP );
     double maxeb =  getMaxE( PFLayer::HCAL_BARREL1 );
     maxERecHitHcal_ =  maxeec>maxeb  ?  maxeec:maxeb;
+    maxERecHitHcal_ = maxERecHitHcal_>maxehf ? maxERecHitHcal_:maxehf;
   }
   return maxERecHitHcal_;
 } 
@@ -1160,11 +1169,24 @@ void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
     double pt = momentum1.pt();
     double e = momentum1.e();
     
-//mother ?    
-    const HepMC::GenParticle* mother = 
-      *(p->production_vertex()->particles_in_const_begin());
-      
-    GPFGenParticle *gp; 
+    //mother ?    
+
+    // Colin: the following line gives a segmentation fault when there is 
+    // no particles entering the production vertex.
+    
+    // const HepMC::GenParticle* mother = 
+    //  *(p->production_vertex()->particles_in_const_begin());
+    
+    // protecting against this in the following way:
+    const HepMC::GenParticle* mother = 0;
+    if( p->production_vertex()->particles_in_size() ) {
+      mother = 
+	*(p->production_vertex()->particles_in_const_begin()); 
+    }
+
+    // Colin: no need to declare this pointer in this context.
+    // the declaration can be more local.
+    // GPFGenParticle *gp; 
 
     if ( mother ) {
        int barcodeMother = mother->barcode();
@@ -1183,23 +1205,23 @@ void DisplayManager::createGGenParticle(HepMC::GenParticle* p)
        y[0]=phiMother;y[1]=phi;
        
        for (int view = 2; view< NViews; view++) {
-         gp   = new GPFGenParticle(this,             
-                                   view, genPartId,
-				   x, y,              //double *, double *
-				   e,pt,barcode,barcodeMother,
-				   genPartPattern_, 
-				   name,latexStringName);
+         GPFGenParticle* gp   = new GPFGenParticle(this,             
+						   view, genPartId,
+						   x, y,              //double *, double *
+						   e,pt,barcode,barcodeMother,
+						   genPartPattern_, 
+						   name,latexStringName);
 	 graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
        }
     }
     else {     //no Mother    
       for (int view = 2; view< NViews; view++) {
-        gp   = new GPFGenParticle(this,
-                                   view, genPartId,
-				   eta, phi,                  //double double
-			           e,pt,barcode,
-				   genPartPattern_,
-				   name, latexStringName);
+        GPFGenParticle* gp   = new GPFGenParticle(this,
+						  view, genPartId,
+						  eta, phi,                  //double double
+						  e,pt,barcode,
+						  genPartPattern_,
+						  name, latexStringName);
         graphicMap_.insert(pair<int,GPFBase *>	(genPartId, gp));
       }					      
     }
