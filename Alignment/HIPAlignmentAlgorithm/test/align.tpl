@@ -5,11 +5,11 @@ process Alignment =
   include "RecoTracker/TrackProducer/data/RefitterWithMaterial.cff"
   include "RecoVertex/BeamSpotProducer/data/BeamSpot.cff"
 
-  source = PoolSource { untracked vstring fileNames = {<FILE>} }
-
-#####################
-
-######################
+  source = PoolSource
+  {
+    untracked bool useCSA08Kludge = true
+    untracked vstring fileNames = {<FILE>}
+  }
 
 #  untracked PSet maxEvents = { untracked int32 input = -1 }
 #  untracked PSet maxEvents = { untracked int32 input = 30000 }
