@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: setup_sm.sh,v 1.7 2008/05/05 07:27:29 loizides Exp $
+# $Id: setup_sm.sh,v 1.8 2008/05/05 11:16:02 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -36,6 +36,7 @@ case $hname in
         ;;
     *)
         echo "Unknown host: $hname"
+        exit 1;
         ;;
 esac
 
