@@ -12,14 +12,15 @@ RPCCabling = cms.ESSource("PoolDBESSource",
         record = cms.string('RPCEMapRcd'),
         tag = cms.string('RPCEMap_v2')
     )),
-    connect = cms.string('frontier://(serverurl=http://frontier1.cms:8000/FrontierOn)(serverurl=http://frontier2.cms:8000/FrontierOn)(retrieve-ziplevel=0)/CMS_COND_ON_170_RPC'), ##(serverurl=http:
+    connect = cms.string('frontier://(serverurl=http://frontier1.cms:8000/FrontierOn)(serverurl=http://frontier2.cms:8000/FrontierOn)(retrieve-ziplevel=0)/CMS_COND_20X_RPC'), ##(serverurl=http:
 
     siteLocalConfig = cms.untracked.bool(False)
 )
 
 #    include "EventFilter/RPCRawToDigi/data/RPCFrontierCabling.cfi"
 rpcunpacker = cms.EDFilter("RPCUnpackingModule",
-    InputLabel = cms.untracked.InputTag("source")
+    #         untracked InputTag InputLabel = source
+    InputLabel = cms.untracked.InputTag("rawDataCollector")
 )
 
 l1trpctpgpath = cms.Path(rpcunpacker*l1trpctpg)

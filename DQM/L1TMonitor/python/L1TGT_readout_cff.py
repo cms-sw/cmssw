@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.L1TMonitor.L1TGT_unpack_cff import *
 from DQM.L1TMonitor.L1TGT_cff import *
 from DQM.L1TMonitor.L1TRPCTF_cff import *
 from DQM.L1TMonitor.L1TCSCTF_cff import *
