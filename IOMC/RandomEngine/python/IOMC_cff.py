@@ -9,7 +9,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
-    simECalUnsuppressedDigis = cms.PSet(
+    simEcalUnsuppressedDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
@@ -19,7 +19,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
-    simHCalUnsuppressedDigis = cms.PSet(
+    simHcalUnsuppressedDigis = cms.PSet(
         initialSeed = cms.untracked.uint32(11223344),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
