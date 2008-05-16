@@ -66,81 +66,100 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   //get the EDM references to the CaloTowers from the candidate list
   edm::Ref<CaloTowerCollection> towerRef = tower->get<CaloTowerRef>();
   */
+  
+  /*
   edm::Ref<CaloTowerCollection> towerRef = towers->begin()->get<CaloTowerRef>();
   //finally instantiate now, a list of pointers to the CaloTowers
   const CaloTowerCollection *towerCollection = towerRef.product();
-
   //iterate over all CaloTowers and record information
   CaloTowerCollection::const_iterator calotower = towerCollection->begin();
-  for( ; calotower != towerCollection->end(); calotower++ ) 
-    {
-      totalEt  += calotower->et();
-      totalEm  += calotower->emEt();
-      totalHad += calotower->hadEt();
+  */
 
-      bool hadIsDone = false;
-      bool emIsDone = false;
-      int cell = calotower->constituentsSize();
-      while ( --cell >= 0 && (!hadIsDone || !emIsDone) ) 
-	{
-	  DetId id = calotower->constituent( cell );
-	  if( !hadIsDone && id.det() == DetId::Hcal ) 
-	    {
-	      HcalSubdetector subdet = HcalDetId(id).subdet();
-	      if( subdet == HcalBarrel || subdet == HcalOuter )
-		{
-		  if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-		  specific.HadEtInHB   += calotower->hadEt();
-		  specific.HadEtInHO   += calotower->outerEt();
-		}
-	      else if( subdet == HcalEndcap )
-		{
-		  if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-		  specific.HadEtInHE   += calotower->hadEt();
-		}
-	      else if( subdet == HcalForward )
-		{
-		  if (!noHF)
-		    {
-		      if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
-		      if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
-		    }
+  //edm::Ref<CaloTowerCollection> towerRef = towers->begin();
+  //finally instantiate now, a list of pointers to the CaloTowers
+  //const CaloTowerCollection *towerCollection = towerRef.product();
+  //iterate over all CaloTowers and record information
+  //CaloTowerCollection::const_iterator calotower = towerCollection->begin();
 
-		  specific.HadEtInHF   += calotower->hadEt();
-		  specific.EmEtInHF    += calotower->emEt(); 
+  edm::View<Candidate>::const_iterator towerCand = towers->begin();
 
-		  if (calotower->eta()>=0)
-		    {
-		      sumEtInpHF            += calotower->et();
-		      MExInpHF -= (calotower->et() * cos(calotower->phi()));
-		      MEyInpHF -= (calotower->et() * sin(calotower->phi()));
-		    }
-		  else
-		    {
-		      sumEtInmHF            += calotower->et();
-		      MExInmHF -= (calotower->et() * cos(calotower->phi()));
-		      MEyInmHF -= (calotower->et() * sin(calotower->phi()));
-		    }
-		}
-	      hadIsDone = true;
-	    }
-	  else if( !emIsDone && id.det() == DetId::Ecal )
-	    {
-	      EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
-	      if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
-	      if( subdet == EcalBarrel )
-		{
-		  specific.EmEtInEB    += calotower->emEt(); 
-		}
-	      else if( subdet == EcalEndcap ) 
-		{
-		  specific.EmEtInEE    += calotower->emEt();
-		}
-	      emIsDone = true;
-	    }
-	}
-    }
 
+  for( ; towerCand != towers->end(); towerCand++ ) 
+       {
+	 const Candidate* candidate = &(*towerCand);
+	 if (candidate) {
+	   const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
+	   if (calotower)
+	     {
+	       totalEt  += calotower->et();
+	       totalEm  += calotower->emEt();
+	       totalHad += calotower->hadEt();
+	       
+	       bool hadIsDone = false;
+	       bool emIsDone = false;
+	       int cell = calotower->constituentsSize();
+	       while ( --cell >= 0 && (!hadIsDone || !emIsDone) ) 
+		 {
+		   DetId id = calotower->constituent( cell );
+		   if( !hadIsDone && id.det() == DetId::Hcal ) 
+		     {
+		       HcalSubdetector subdet = HcalDetId(id).subdet();
+		       if( subdet == HcalBarrel || subdet == HcalOuter )
+			 {
+			   if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
+			   specific.HadEtInHB   += calotower->hadEt();
+			   specific.HadEtInHO   += calotower->outerEt();
+			 }
+		       else if( subdet == HcalEndcap )
+			 {
+			   if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
+			   specific.HadEtInHE   += calotower->hadEt();
+			 }
+		       else if( subdet == HcalForward )
+			 {
+			   if (!noHF)
+			     {
+			       if( calotower->hadEt() > MaxTowerHad ) MaxTowerHad = calotower->hadEt();
+			       if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+			     }
+			   
+			   specific.HadEtInHF   += calotower->hadEt();
+			   specific.EmEtInHF    += calotower->emEt(); 
+			   
+			   if (calotower->eta()>=0)
+			     {
+			       sumEtInpHF            += calotower->et();
+			       MExInpHF -= (calotower->et() * cos(calotower->phi()));
+			       MEyInpHF -= (calotower->et() * sin(calotower->phi()));
+			     }
+			   else
+			     {
+			       sumEtInmHF            += calotower->et();
+			       MExInmHF -= (calotower->et() * cos(calotower->phi()));
+			       MEyInmHF -= (calotower->et() * sin(calotower->phi()));
+			     }
+			 }
+		       hadIsDone = true;
+		     }
+		   else if( !emIsDone && id.det() == DetId::Ecal )
+		     {
+		       EcalSubdetector subdet = EcalSubdetector( id.subdetId() );
+		       if( calotower->emEt()  > MaxTowerEm  ) MaxTowerEm  = calotower->emEt();
+		       if( subdet == EcalBarrel )
+			 {
+			   specific.EmEtInEB    += calotower->emEt(); 
+			 }
+		       else if( subdet == EcalEndcap ) 
+			 {
+			   specific.EmEtInEE    += calotower->emEt();
+			 }
+		       emIsDone = true;
+		     }
+		 }
+	     }
+	 }
+       }
+  
   // Form sub-det specific MET-vectors
   LorentzVector METpHF(MExInpHF, MEyInpHF, 0, sqrt(MExInpHF*MExInpHF + MEyInpHF*MEyInpHF));
   LorentzVector METmHF(MExInmHF, MEyInmHF, 0, sqrt(MExInmHF*MExInmHF + MEyInmHF*MEyInmHF));
