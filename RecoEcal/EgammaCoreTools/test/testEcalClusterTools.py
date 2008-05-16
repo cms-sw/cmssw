@@ -18,15 +18,8 @@ process.maxEvents = untracked.PSet( input = untracked.int32( 10 ) )
 
 
 process.testEcalClusterTools = EDAnalyzer("testEcalClusterTools",
-<<<<<<< testEcalClusterTools.py
-    #reducedBarrelRecHitCollection = InputTag("ecalRecHit:EcalRecHitsEB"),
-    #reducedEndcapRecHitCollection = InputTag("ecalRecHit:EcalRecHitsEE"),
     reducedBarrelRecHitCollection = InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = InputTag("reducedEcalRecHitsEE"),
-=======
-    reducedBarrelRecHitCollection = InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = InputTag("reducedEcalRecHitsEE"),
->>>>>>> 1.3
     barrelClusterCollection = InputTag("hybridSuperClusters"),
     endcapClusterCollection = InputTag("fixedMatrixBasicClusters:fixedMatrixEndcapBasicClusters")
 )
