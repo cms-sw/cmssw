@@ -5,7 +5,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 
 class SiStripRecHit2D : public  BaseSiTrackerRecHit2DLocalPos{
 public:
@@ -20,7 +20,7 @@ public:
 		   const DetId&, 
 		   ClusterRef const&  cluster); 
 
-  typedef edm::Ref< edm::SiStripLazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
+  typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
   SiStripRecHit2D( const LocalPoint&, const LocalError&,
 		   const DetId&, 
 		   ClusterRegionalRef const& cluster);

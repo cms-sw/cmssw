@@ -5,7 +5,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 class TSiStripRecHit2DLocalPos : public TransientTrackingRecHit{
@@ -13,7 +13,7 @@ public:
 
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
   
-  typedef edm::SiStripLazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
+  typedef edm::LazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
 
   virtual ~TSiStripRecHit2DLocalPos() {}
 

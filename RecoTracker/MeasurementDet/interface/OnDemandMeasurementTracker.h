@@ -3,7 +3,7 @@
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetSystem.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h" 
+#include "DataFormats/Common/interface/RefGetter.h" 
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 
  
@@ -28,11 +28,11 @@ public:
   void update( const edm::Event&) const;
   void updateStrips( const edm::Event& event) const;
 
-  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
-  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
+  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
+  typedef edm::RefGetter<SiStripCluster> RefGetter;
 
   /// OnDemandMeasurementTracker specific function to be called to define the region in the RefGetter according to MeasurementDet content
-  void define(const edm::Handle< edm::SiStripLazyGetter<SiStripCluster> > & ,
+  void define(const edm::Handle< edm::LazyGetter<SiStripCluster> > & ,
 	      std::auto_ptr< RefGetter > &  ) const;
 
   /// MeasurementDetSystem interface
@@ -53,8 +53,8 @@ public:
   const  SiStripRegionCabling * theStripRegionCabling;
   
   /// the handle is retrieved from the event to make reference to cluster in it
-  mutable edm::Handle< edm::SiStripRefGetter<SiStripCluster> > theRefGetterH;
-  mutable edm::Handle< edm::SiStripLazyGetter<SiStripCluster> > theLazyGetterH;
+  mutable edm::Handle< edm::RefGetter<SiStripCluster> > theRefGetterH;
+  mutable edm::Handle< edm::LazyGetter<SiStripCluster> > theLazyGetterH;
 
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {

@@ -25,14 +25,14 @@
 
  <class name="edm::RegionIndex<SiStripCluster>"><field name="getter_" transient="true"/> </class>
  <class name="std::vector< edm::RegionIndex<SiStripCluster> >"/>
- <class name="edm::SiStripLazyGetter<SiStripCluster>"><field name="unpacker_" transient="true"/> </class>
- <class name="edm::Ref<edm::SiStripLazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> >"/>
- <class name="std::vector<edm::Ref<edm::SiStripLazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > >"/>
- <class name="edm::SiStripRefGetter<SiStripCluster>"/>
+ <class name="edm::LazyGetter<SiStripCluster>"><field name="unpacker_" transient="true"/> </class>
+ <class name="edm::Ref<edm::LazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> >"/>
+ <class name="std::vector<edm::Ref<edm::LazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > >"/>
+ <class name="edm::RefGetter<SiStripCluster>"/>
 
- <class name="edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> >"/>
- <class name="edm::Wrapper< edm::SiStripRefGetter<SiStripCluster> >"/>
+ <class name="edm::Wrapper< edm::LazyGetter<SiStripCluster> >"/>
+ <class name="edm::Wrapper< edm::RefGetter<SiStripCluster> >"/>
  
- <class name="edm::Ref< edm::SiStripLazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >"/>
+ <class name="edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >"/>
 
 </lcgdict>

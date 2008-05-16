@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <memory>
 #include "boost/bind.hpp"
@@ -18,8 +18,8 @@ class SiStripClustersDSVBuilder : public edm::EDProducer {
 
   typedef edm::DetSet<SiStripCluster> DetSet;
   typedef edm::DetSetVector<SiStripCluster> DSV;
-  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
-  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
+  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
+  typedef edm::RefGetter<SiStripCluster> RefGetter;
 
   SiStripClustersDSVBuilder( const edm::ParameterSet& );
   ~SiStripClustersDSVBuilder();

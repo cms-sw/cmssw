@@ -32,17 +32,17 @@ namespace {
 }
 
 #include "boost/cstdint.hpp" 
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 namespace {
   namespace {
 
     edm::Wrapper< edm::RegionIndex<SiStripCluster> > dummy7;
     edm::Wrapper< std::vector< edm::RegionIndex<SiStripCluster> > > dummy8;
-    edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> > dummy9;
-    edm::Wrapper< edm::Ref<edm::SiStripLazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > > dummy10;
-    edm::Wrapper< std::vector<edm::Ref<edm::SiStripLazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > > > dummy12;
-    edm::Wrapper< edm::SiStripRefGetter<SiStripCluster> > dummy13;
-    edm::Wrapper< edm::Ref< edm::SiStripLazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> > > dummy14;
+    edm::Wrapper< edm::LazyGetter<SiStripCluster> > dummy9;
+    edm::Wrapper< edm::Ref<edm::LazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > > dummy10;
+    edm::Wrapper< std::vector<edm::Ref<edm::LazyGetter<SiStripCluster>,edm::RegionIndex<SiStripCluster>,edm::FindRegion<SiStripCluster> > > > dummy12;
+    edm::Wrapper< edm::RefGetter<SiStripCluster> > dummy13;
+    edm::Wrapper< edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> > > dummy14;
   }
 }
 

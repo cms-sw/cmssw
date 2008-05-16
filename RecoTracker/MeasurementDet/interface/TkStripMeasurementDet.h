@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 
@@ -26,7 +26,7 @@ public:
 
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-  typedef edm::SiStripLazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
+  typedef edm::LazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
 
   typedef edmNew::DetSet<SiStripCluster> detset;
   typedef detset::const_iterator new_const_iterator;
@@ -50,7 +50,7 @@ public:
   }
 
   void update( std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end, 
-	       const edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > h,
+	       const edm::Handle<edm::LazyGetter<SiStripCluster> > h,
 	       unsigned int id ) { 
     beginCluster = begin;
     endCluster   = end;
@@ -121,7 +121,7 @@ private:
 
   // --- regional unpacking
   bool isRegional;
-  edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > regionalHandle_;
+  edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
   std::vector<SiStripCluster>::const_iterator beginCluster;
   std::vector<SiStripCluster>::const_iterator endCluster;
   // regional unpacking ---

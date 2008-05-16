@@ -5,7 +5,7 @@
 #include <boost/cstdint.hpp>
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <vector>
 #include <map>
@@ -108,13 +108,13 @@ class SiStripRegionCabling {
       of interest  */
   
   template <class T>
-    void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
-				const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, 
+    void updateSiStripRefGetter(edm::RefGetter<T>& refgetter, 
+				const edm::Handle< edm::LazyGetter<T> >& lazygetter, 
 				const ElementIndex) const;
   
   template <class T>
-    void updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, 
-				const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter,
+    void updateSiStripRefGetter(edm::RefGetter<T>& refgetter, 
+				const edm::Handle< edm::LazyGetter<T> >& lazygetter,
 				const Position position, 
 				const double deltaeta, 
 				const double deltaphi, 
@@ -198,12 +198,12 @@ inline const uint32_t SiStripRegionCabling::region(const uint32_t index) {
 }
 
 template <class T>
-void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const uint32_t index) const {
+void SiStripRegionCabling::updateSiStripRefGetter(edm::RefGetter<T>& refgetter, const edm::Handle< edm::LazyGetter<T> >& lazygetter, const uint32_t index) const {
   if (!refgetter.find(index)) refgetter.push_back(lazygetter,index);
 }
 
 template <class T>
-void SiStripRegionCabling::updateSiStripRefGetter(edm::SiStripRefGetter<T>& refgetter, const edm::Handle< edm::SiStripLazyGetter<T> >& lazygetter, const SiStripRegionCabling::Position pos, const double deltaeta, const double deltaphi, const SubDet sub, const uint32_t layer) const {
+void SiStripRegionCabling::updateSiStripRefGetter(edm::RefGetter<T>& refgetter, const edm::Handle< edm::LazyGetter<T> >& lazygetter, const SiStripRegionCabling::Position pos, const double deltaeta, const double deltaphi, const SubDet sub, const uint32_t layer) const {
 
   PositionIndex index = positionIndex(pos);
   Position center = position(index);

@@ -273,16 +273,16 @@ void MeasurementTracker::updateStrips( const edm::Event& event) const
       }
             
       //then set the not-empty ones only
-      edm::Handle<edm::SiStripRefGetter<SiStripCluster> > refClusterHandle;
+      edm::Handle<edm::RefGetter<SiStripCluster> > refClusterHandle;
       event.getByLabel(stripClusterProducer, refClusterHandle);
       
       std::string lazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
-      edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > lazyClusterHandle;
+      edm::Handle<edm::LazyGetter<SiStripCluster> > lazyClusterHandle;
       event.getByLabel(lazyGetter,lazyClusterHandle);
 
       uint32_t tmpId=0;
       vector<SiStripCluster>::const_iterator beginIterator;
-      edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = refClusterHandle->begin();
+      edm::RefGetter<SiStripCluster>::const_iterator iregion = refClusterHandle->begin();
       for(;iregion!=refClusterHandle->end();++iregion) {
 	const edm::RegionIndex<SiStripCluster>& region = *iregion;
 	vector<SiStripCluster>::const_iterator icluster = region.begin();

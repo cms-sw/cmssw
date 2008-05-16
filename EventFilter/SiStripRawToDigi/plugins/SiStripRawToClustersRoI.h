@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -31,8 +31,8 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   
  public:
 
-  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
-  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
+  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
+  typedef edm::RefGetter<SiStripCluster> RefGetter;
   typedef SiStripRegionCabling::Position Position;
   typedef SiStripRegionCabling::SubDet SubDet;
 

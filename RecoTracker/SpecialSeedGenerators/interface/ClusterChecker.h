@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
@@ -43,13 +43,13 @@ class ClusterChecker {
       tooManyClusters = (totalClusters>maxNrOfCosmicClusters_);
     }
     else{
-      edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > lazyGH;
+      edm::Handle<edm::LazyGetter<SiStripCluster> > lazyGH;
       e.getByLabel(clusterCollectionInputTag_, lazyGH);
       if (!lazyGH.failedToGet()){
 	tooManyClusters = (lazyGH->size()>maxNrOfCosmicClusters_);
       }else{
 	//say something's wrong.
-	edm::LogError("ClusterChecker")<<"could not get any SiStrip cluster collections of type edm::DetSetVector<SiStripCluster> or edm::SiStripLazyGetter<SiStripCluster, with label: "<<clusterCollectionInputTag_;
+	edm::LogError("ClusterChecker")<<"could not get any SiStrip cluster collections of type edm::DetSetVector<SiStripCluster> or edm::LazyGetter<SiStripCluster, with label: "<<clusterCollectionInputTag_;
 	tooManyClusters = true;
       }
     }

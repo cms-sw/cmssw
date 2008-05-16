@@ -72,8 +72,8 @@ namespace cms
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
     bool regional = conf_.getParameter<bool>("Regional");
     edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-    edm::Handle<edm::SiStripRefGetter<SiStripCluster> > refclusters;
-    edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > lazygetter;
+    edm::Handle<edm::RefGetter<SiStripCluster> > refclusters;
+    edm::Handle<edm::LazyGetter<SiStripCluster> > lazygetter;
 
     if (regional){
       std::string lazyGetterProducer=conf_.getParameter<std::string>("LazyGetterProducer");

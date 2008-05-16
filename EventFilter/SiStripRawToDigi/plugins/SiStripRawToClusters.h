@@ -4,8 +4,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
-#include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
-#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
+#include "DataFormats/Common/interface/RefGetter.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
 #include <string>
 #include <memory>
@@ -22,8 +22,8 @@ class SiStripRawToClusters : public edm::EDProducer {
   
  public:
 
-  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
-  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
+  typedef edm::LazyGetter<SiStripCluster> LazyGetter;
+  typedef edm::RefGetter<SiStripCluster> RefGetter;
   typedef SiStripRawToClustersLazyUnpacker LazyUnpacker;
   typedef SiStripRegionCabling::SubDet SubDet;
 

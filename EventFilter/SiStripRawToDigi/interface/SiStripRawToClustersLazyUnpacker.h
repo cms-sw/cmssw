@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Data Formats
-#include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -27,7 +27,7 @@
 
 //#define USE_FED9U_EVENT_STREAMLINE
 
-class SiStripRawToClustersLazyUnpacker : public edm::SiStripLazyUnpacker<SiStripCluster> {
+class SiStripRawToClustersLazyUnpacker : public edm::LazyUnpacker<SiStripCluster> {
 
  public:
 
