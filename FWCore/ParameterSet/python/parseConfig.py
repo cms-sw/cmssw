@@ -569,8 +569,6 @@ class _IncludeFromNode(_IncludeNode):
     def dumpPythonAs(self, newLabel, options):
         result = "import "+self.pythonModuleName() +"\n"
         result += newLabel + " = "
-        if options.isCfg:
-            result += "process."
         result += self.pythonModuleName() + '.' + self._fromLabel+".clone()\n"
         return result
 
