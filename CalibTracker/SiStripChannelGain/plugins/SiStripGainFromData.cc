@@ -516,8 +516,8 @@ SiStripGainFromData::algoEndJob() {
 
          double* FitResults = new double[5];
          getPeakOfLandau(PointerToHisto,FitResults);
-         APV->MPV = FitResults[0];
          if(FitResults[0]!=-0.5 && FitResults[1]<MaxMPVError){
+            APV->MPV = FitResults[0];
             APV_MPV->Fill(APV->Index,APV->MPV);
             MPVs   ->Fill(APV->MPV);
             if(APV->Thickness<0.04)                 MPVs320->Fill(APV->MPV);
@@ -724,7 +724,7 @@ SiStripGainFromData::algoEndJob() {
       fclose(Gains);
    }
 
-   Output->SetCompressionLevel(5);
+   Output->SetCompressionLevel(9);
    Output->cd();
    Output->Write();
    Output->Close();
@@ -827,7 +827,7 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    LocalVector          trackDirection = trajState.localDirection();
    double                  cosine      = trackDirection.z()/trackDirection.mag();
    const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
-//   const vector<uint16_t>& Ampls       = Cluster->amplitudes();
+//   const vector<uint16_t>& Ampls       = Cluster->amplitudes();	CSA08_S43 is still in 204 so it need 16bits cluster Amplitudes
    const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
    uint32_t                DetId       = Cluster->geographicalId();
    int                     FirstStrip  = Cluster->firstStrip();
