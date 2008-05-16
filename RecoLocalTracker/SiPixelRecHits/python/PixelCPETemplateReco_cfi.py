@@ -5,7 +5,8 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
     TanLorentzAnglePerTesla = cms.double(0.106),
     speed = cms.int32(0),
     PixelErrorParametrization = cms.string('NOTcmsim'),
-    Alpha2Order = cms.bool(True)
+    Alpha2Order = cms.bool(True),
+    UseClusterSplitter = cms.bool(False)
 )
 
 
