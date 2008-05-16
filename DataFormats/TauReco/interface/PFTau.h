@@ -101,7 +101,17 @@ namespace reco {
     void setSegComp(const float&);
     void setMuonDecision(const bool&);
 //
-    
+
+    /// return the number of source Candidates
+    /// ( the candidates used to construct this Candidate)
+    /// in the case of taus, there is only one source candidate,
+    /// which is the corresponding PFJet
+    size_type numberOfSourceCandidateRefs() const {return 1;}
+
+    /// return a RefToBase to the source Candidates
+    /// ( the candidates used to construct this Candidate)
+    CandidateBaseRef sourceCandidateRef( size_type i ) const;
+
  private:
     // check overlap with another candidate
     virtual bool overlap(const Candidate&)const;

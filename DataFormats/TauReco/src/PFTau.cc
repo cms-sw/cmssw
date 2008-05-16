@@ -146,10 +146,22 @@ void PFTau::setSegComp (const float& x) {segComp_  = x;}
 void PFTau::setMuonDecision(const bool& x) {muonDecision_ = x;}
 //
 
+
+CandidateBaseRef PFTau::sourceCandidateRef( size_type i ) const {
+  if( i!=0 ) return CandidateBaseRef();
+  
+  const PFJetRef& pfJetRef = pfTauTagInfoRef()->pfjetRef();
+  return CandidateBaseRef( pfJetRef );
+}
+
+
 bool PFTau::overlap(const Candidate& theCand)const{
   const RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
   return (theRecoCand!=0 && (checkOverlap(track(),theRecoCand->track())));
 }
+
+
+
 namespace reco {
 std::ostream & operator<<(std::ostream& out, const PFTau& c)
 {
