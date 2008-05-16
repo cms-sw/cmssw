@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.18 2008/03/01 00:40:15 lat Exp $
+// $Id: MuonSegmentEff.cc,v 1.19 2008/05/09 17:50:09 carrillo Exp $
 //
 //
 
@@ -44,6 +44,12 @@
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
 #include <cmath>
+#include "TFile.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TCanvas.h"
+#include "TAxis.h"
+
 
 
 
@@ -113,6 +119,13 @@ private:
 };
 
 
+void MuonSegmentEff::beginJob(const edm::EventSetup&)
+{
+
+}
+
+
+
 
 MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
 {
@@ -141,6 +154,9 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
   rejected=iConfig.getUntrackedParameter<std::string>("rejected","rejected.txt");
   rollseff=iConfig.getUntrackedParameter<std::string>("rollseff","rollseff.txt");
+  GlobalRootLabel= iConfig.getUntrackedParameter<std::string>("GlobalRootFileName","GlobalEfficiencyFromTrack.root");
+  wh  = iConfig.getUntrackedParameter<int>("wheel",0);
+
 
   std::cout<<rejected<<std::endl;
   std::cout<<rollseff<<std::endl;
@@ -158,16 +174,52 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
 
-  //Giuseppe
+  //GLOBAL
+  fOutputFile  = new TFile(GlobalRootLabel.c_str(), "RECREATE" );
+
+  hGlobalRes = new TH1F("GlobalResiduals","GlobalRPCResiduals",500,-5.,5.);
+  
+  EffGlob1 = new TH1F("GlobEfficiencySec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2 = new TH1F("GlobEfficiencySec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlob3 = new TH1F("GlobEfficiencySec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlob4 = new TH1F("GlobEfficiencySec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlob5 = new TH1F("GlobEfficiencySec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlob6 = new TH1F("GlobEfficiencySec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlob7 = new TH1F("GlobEfficiencySec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlob8 = new TH1F("GlobEfficiencySec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlob9 = new TH1F("GlobEfficiencySec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlob10 = new TH1F("GlobEfficiencySec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlob11 = new TH1F("GlobEfficiencySec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlob12 = new TH1F("GlobEfficiencySec12","Eff. vs. roll",20,0.5,20.5);
 
 }
 
 
 MuonSegmentEff::~MuonSegmentEff()
 {
+  // effres->close();
+  //delete effres;
+  
+  fOutputFile->WriteTObject(hGlobalRes);
+  
+  fOutputFile->WriteTObject(EffGlob1);
+  fOutputFile->WriteTObject(EffGlob2);
+  fOutputFile->WriteTObject(EffGlob3);
+  fOutputFile->WriteTObject(EffGlob4);
+  fOutputFile->WriteTObject(EffGlob5);
+  fOutputFile->WriteTObject(EffGlob6);
+  fOutputFile->WriteTObject(EffGlob7);
+  fOutputFile->WriteTObject(EffGlob8);
+  fOutputFile->WriteTObject(EffGlob9);
+  fOutputFile->WriteTObject(EffGlob10);
+  fOutputFile->WriteTObject(EffGlob11);
+  fOutputFile->WriteTObject(EffGlob12);
+
   edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
-  dbe->showDirStructure();
+  if(EffSaveRootFile) dbe->showDirStructure();
 }
+
+
 
 void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -257,13 +309,12 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 }
 
-void 
-MuonSegmentEff::beginJob(const edm::EventSetup&)
-{
-}
 
 void 
 MuonSegmentEff::endJob() {
+  
+  int index1=0,index2=0,index3=0,index4=0,index5=0,index6=0,index7=0,index8=0,index9=0,index10=0,index11=0,index12=0;
+
   std::map<RPCDetId, int> pred = counter[0];
   std::map<RPCDetId, int> obse = counter[1];
   std::map<RPCDetId, int> reje = counter[2];
@@ -273,10 +324,243 @@ MuonSegmentEff::endJob() {
      
   for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     RPCDetId id=irpc->first;
+    
+    RPCGeomServ RPCname(id);
+    std::string nameRoll = RPCname.name();
+    std::string wheel;
+    std::string rpc;
+    std::string partition;
+    
     int p=pred[id]; 
     int o=obse[id]; 
     int r=reje[id]; 
     assert(p==o+r);
+    
+    //-----------------------Fillin Global Histogram----------------------------------------
+
+    
+    if(p!=0 && id.ring()==wh){
+      float ef = float(o)/float(p); 
+      float er = sqrt(ef*(1.-ef)/float(p));
+      if(ef>0.){
+	if(id.sector()==1  ){
+	  index1++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob1->SetBinContent(index1,ef*100.);
+	  EffGlob1->SetBinError(index1,er*100.);
+	  
+	  EffGlob1->GetXaxis()->SetBinLabel(index1,camera);
+	  EffGlob1->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==2  ){
+	  index2++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob2->SetBinContent(index2,ef*100.);
+	  EffGlob2->SetBinError(index2,er*100.);
+	  
+	  EffGlob2->GetXaxis()->SetBinLabel(index2,camera);
+	  EffGlob2->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==3  ){
+	  index3++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob3->SetBinContent(index3,ef*100.);
+	  EffGlob3->SetBinError(index3,er*100.);
+	  
+	  EffGlob3->GetXaxis()->SetBinLabel(index3,camera);
+	  EffGlob3->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==4  ){
+	  index4++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob4->SetBinContent(index4,ef*100.);
+	  EffGlob4->SetBinError(index4,er*100.);
+	  
+	  EffGlob4->GetXaxis()->SetBinLabel(index4,camera);
+	  EffGlob4->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==5  ){
+	  index5++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob5->SetBinContent(index5,ef*100.);
+	  EffGlob5->SetBinError(index5,er*100.);
+	  
+	  EffGlob5->GetXaxis()->SetBinLabel(index5,camera);
+	  EffGlob5->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==6  ){
+	  index6++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob6->SetBinContent(index6,ef*100.);
+	  EffGlob6->SetBinError(index6,er*100.);
+	  
+	  EffGlob6->GetXaxis()->SetBinLabel(index6,camera);
+	  EffGlob6->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==7  ){
+	  index7++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob7->SetBinContent(index7,ef*100.);
+	  EffGlob7->SetBinError(index7,er*100.);
+	  
+	  EffGlob7->GetXaxis()->SetBinLabel(index7,camera);
+	  EffGlob7->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==8  ){
+	  index8++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob8->SetBinContent(index8,ef*100.);
+	  EffGlob8->SetBinError(index8,er*100.);
+	  
+	  EffGlob8->GetXaxis()->SetBinLabel(index8,camera);
+	  EffGlob8->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==9  ){
+	  index9++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob9->SetBinContent(index9,ef*100.);
+	  EffGlob9->SetBinError(index9,er*100.);
+	  
+	  EffGlob9->GetXaxis()->SetBinLabel(index9,camera);
+	  EffGlob9->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==10  ){
+	  index10++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob10->SetBinContent(index10,ef*100.);
+	  EffGlob10->SetBinError(index10,er*100.);
+	  
+	  EffGlob10->GetXaxis()->SetBinLabel(index10,camera);
+	  EffGlob10->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==11  ){
+	  index11++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob11->SetBinContent(index11,ef*100.);
+	  EffGlob11->SetBinError(index11,er*100.);
+	  
+	  EffGlob11->GetXaxis()->SetBinLabel(index11,camera);
+	  EffGlob11->GetXaxis()->LabelsOption("v");
+	}
+	if(id.sector()==12  ){
+	  index12++;
+	  char cam[128];	
+	  sprintf(cam,"%s",nameRoll.c_str());
+	  TString camera = (TString)cam;
+	  
+	  EffGlob12->SetBinContent(index12,ef*100.);
+	  EffGlob12->SetBinError(index12,er*100.);
+	  
+	  EffGlob12->GetXaxis()->SetBinLabel(index12,camera);
+	  EffGlob12->GetXaxis()->LabelsOption("v");
+	}
+
+	//histoMean->Fill(ef*100.);
+      }
+    }
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //-----------------------Fillin Global Histogram----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     if(p!=0){
       float ef = float(o)/float(p); 

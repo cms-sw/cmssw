@@ -153,7 +153,7 @@ if(all4DSegments->size()>0){
 		    for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 		      stripDetected=digiIt->strip();
 		      double res = (double)(stripDetected) - (double)(stripPredicted);
-
+		      std::cout<<"\t \t \t \t \t Residual "<<res<<std::endl;
 		      //-------filling the histograms--------------------
 
 		      

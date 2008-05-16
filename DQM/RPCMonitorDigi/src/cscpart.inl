@@ -182,7 +182,7 @@ if(allCSCSegments->size()>0){
 		  int stripDetected=digiIt->strip();
 		  
 	  	  double res = (double)(stripDetected) - (double)(stripPredicted);
-		  std::cout<<"\t \t \t \t \t Diference "<<res<<std::endl;
+		  std::cout<<"\t \t \t \t \t Residual "<<res<<std::endl;
 
 
 		  //---------------Fillin the histograms ------------------	
