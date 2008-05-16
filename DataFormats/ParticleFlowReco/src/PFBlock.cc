@@ -248,7 +248,7 @@ ostream& reco::operator<<(  ostream& out,
         iHB++;
         ss << "HB" << iHB;
         break;
-      case PFLayer::VFCAL:
+      case PFLayer::HCAL_HF:
         iHF++;
         ss << "HF" << iHF;
         break;

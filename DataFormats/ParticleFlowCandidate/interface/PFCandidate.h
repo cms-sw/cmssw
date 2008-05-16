@@ -38,7 +38,9 @@ namespace reco {
       e,       // electron 
       mu,      // muon 
       gamma,   // photon
-      h0       // neutral hadron
+      h0,      // neutral hadron
+      h_HF,        // HF tower identified as a hadron
+      egamma_HF    // HF tower identified as an EM particle
     };
 
     /// default constructor

@@ -112,6 +112,8 @@ int PFCandidate::translateTypeToPdgId( ParticleType type ) const {
   case mu:    return thecharge*13;
   case gamma: return 22;
   case h0:    return 130; // K_L0
+  case h_HF:         return 999211; // dummy pdg code 
+  case egamma_HF:    return 99922;  // dummy pdg code
   case X: 
   default:    return 0;  
   }

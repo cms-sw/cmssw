@@ -16,7 +16,7 @@ CaloID  PFLayer::toCaloID( Layer layer) {
   case HCAL_BARREL1  : return  CaloID(CaloID::DET_HCAL_BARREL); 
   case HCAL_BARREL2  : return  CaloID(CaloID::DET_HO); 
   case HCAL_ENDCAP   : return  CaloID(CaloID::DET_HCAL_ENDCAP); 
-  case VFCAL         : return  CaloID(CaloID::DET_HF); 
+  case HCAL_HF       : return  CaloID(CaloID::DET_HF); 
   default            : return  CaloID();
   }
 }
@@ -36,7 +36,7 @@ PFLayer::Layer   PFLayer::fromCaloID( const CaloID& id) {
   case CaloID::DET_PS2	         : return  PS2;
   case CaloID::DET_HCAL_BARREL   : return  HCAL_BARREL1;
   case CaloID::DET_HCAL_ENDCAP   : return  HCAL_ENDCAP;
-  case CaloID::DET_HF 	         : return  VFCAL;
+  case CaloID::DET_HF 	         : return  HCAL_HF;
   case CaloID::DET_HO            : return  HCAL_BARREL2; 
   default                        : return  NONE;
   }

@@ -36,7 +36,7 @@ class PFLayer {
               HCAL_BARREL1 = 1,
               HCAL_BARREL2 = 2,
               HCAL_ENDCAP  = 3,
-              VFCAL        = 11 };
+              HCAL_HF      = 11 };
 
   static reco::CaloID  toCaloID( Layer layer);
   
