@@ -45,8 +45,8 @@ class L1RctInputScale {
 
  private:
 
-  static const unsigned short nBinRank = 0x3ff;
-  static const unsigned short nBinEta = 11;
+  static const unsigned short nBinRank = 0xff;
+  static const unsigned short nBinEta = 56;
 
   /// thresholds associated with rank scale in GeV
   double m_scale[nBinRank][nBinEta];
