@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("FlatRandomPtGunSource",
+source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
         PartID = cms.untracked.vint32(11),
         MaxEta = cms.untracked.double(2.5),
@@ -17,5 +17,6 @@ source = cms.Source("FlatRandomPtGunSource",
     AddAntiParticle = cms.untracked.bool(True),
     firstRun = cms.untracked.uint32(1)
 )
+
 
 
