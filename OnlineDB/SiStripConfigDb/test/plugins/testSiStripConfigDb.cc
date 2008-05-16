@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.12 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.13 2008/05/13 14:18:36 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -120,9 +120,9 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 	db_->runs( ii->second, types );
       
 	if ( types.empty() ) { 
-	  ss << " Found no runs for partition \"" << ii->first << "\"!";
+	  ss << " Found no runs for partition \"" << ii->first << "\"!" << std::endl;
 	} else {
-	
+	  
 	  SiStripConfigDb::RunsByType::const_iterator iii = types.begin();
 	  SiStripConfigDb::RunsByType::const_iterator jjj = types.end();
 	  for ( ; iii != jjj; ++iii ) {
@@ -132,7 +132,8 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 		 << ii->first
 		 << "\" and run type \""
 		 << iii->first
-		 << "\"!";
+		 << "\"!"
+		 << std::endl;
 	    } else {
 	    
 	      ss << " Found " << iii->second.size()
@@ -141,22 +142,19 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
 		 << "\" and run type \""
 		 << SiStripEnumsAndStrings::runType( iii->first )
 		 << "\": ";
-	    
 	      uint16_t cntr = 0;
 	      SiStripConfigDb::Runs::const_iterator iiii = iii->second.begin();
 	      SiStripConfigDb::Runs::const_iterator jjjj = iii->second.end();
 	      for ( ; iiii != jjjj; ++iiii ) {
 		if ( cntr < 10 ) { 
-		  iiii == iii->second.begin() ? 
-		    ss << iiii->number_ : 
-		    ss << ", " << iiii->number_; 
+		  iiii == iii->second.begin() ? ss << iiii->number_ : ss << ", " << iiii->number_; 
 		}
 		cntr++;
-	      }	      
-	    
+	      }
 	      ss << std::endl;
-
+	      
 	    }
+
 	  }
 	}
       }
