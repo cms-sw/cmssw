@@ -12,6 +12,7 @@
 //!
 //!  March 2007: Edge methods moved to RectangularPixelTopology class (V.Chiochia)
 //!  Feb 2008: Modify the Pixel class from float to shorts
+//!  May   2008: Offset based packing (D.Fehling / A. Rizzi)
 //---------------------------------------------------------------------------
 
 #include <vector>
@@ -79,14 +80,14 @@ class SiPixelCluster {
 		float qm = 0.0;
 		int isize = thePixelADC.size();
 		for (int i=0; i<isize; ++i)
-			qm += float(thePixelADC[i]) * ((thePixelOffset[i] >> 5) + theMinPixelRow + 0.5);
+			qm += float(thePixelADC[i]) * (thePixelOffset[i*2] + theMinPixelRow + 0.5);
 		return qm/charge();
 			}
   float y() const {
 		float qm = 0.0;
 		int isize = thePixelADC.size();
 		for (int i=0; i<isize; ++i)
-			qm += float(thePixelADC[i]) * ((thePixelOffset[i] & 31) + theMinPixelCol + 0.5);
+			qm += float(thePixelADC[i]) * (thePixelOffset[i*2+1]  + theMinPixelCol + 0.5);
 		return qm/charge();
 	}
 
@@ -119,7 +120,7 @@ class SiPixelCluster {
 		int maxRow = 0;
 		int isize  = thePixelADC.size();
 		for (int i=0; i<isize; ++i) {
-			int xsize  = thePixelOffset[i] >> 5;
+			int xsize  = thePixelOffset[i*2];
 			if (xsize > maxRow) maxRow = xsize;
 		}
 	return maxRow + theMinPixelRow; // The max x index.
@@ -129,7 +130,7 @@ class SiPixelCluster {
 		int maxCol = 0;
 		int isize = thePixelADC.size();
 		for (int i=0; i<isize; ++i) {
-			int ysize = thePixelOffset[i] & 31;
+			int ysize = thePixelOffset[i*2+1] ;
 			if (ysize > maxCol) maxCol = ysize;
 		}
 		return maxCol + theMinPixelCol; // The max y index.
@@ -142,8 +143,8 @@ class SiPixelCluster {
 		std::vector<Pixel> oldPixVector;
 		int isize = thePixelADC.size();
 		for(int i=0; i<isize; ++i) {
-			int x = theMinPixelRow + (thePixelOffset[i] >> 5 );
-			int y = theMinPixelCol + (thePixelOffset[i] & 31 );
+			int x = theMinPixelRow + (thePixelOffset[i*2]  );
+			int y = theMinPixelCol + (thePixelOffset[i*2+1] );
 			oldPixVector.push_back(Pixel(x,y,thePixelADC[i]));
 		}
 		return oldPixVector;

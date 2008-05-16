@@ -10,7 +10,7 @@
 //!  an inner class) and a container of channels. 
 //!
 //!  March 2007: Edge pixel methods moved to RectangularPixelTopology (V.Chiochia)
-//! 
+//!  May   2008: Offset based packing (D.Fehling / A. Rizzi)  
 //!  \author Petar Maksimovic, JHU
 //---------------------------------------------------------------------------
 
@@ -28,7 +28,8 @@ SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
 {
   // First pixel in this cluster.
   thePixelADC.push_back( adc );
-	thePixelOffset.push_back( ((pix.row() - theMinPixelRow) << 5) + pix.col() - theMinPixelCol );
+  thePixelOffset.push_back( pix.row() - theMinPixelRow );
+  thePixelOffset.push_back( pix.col() - theMinPixelCol );
 }
 
 void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
@@ -54,13 +55,15 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
 	if (recalculate) {
 		int isize = thePixelADC.size();
 		for (int i=0; i<isize; ++i) {
-			int xoffset = (thePixelOffset[i] >> 5) + minRow - theMinPixelRow;
-			int yoffset = (thePixelOffset[i] & 31) + minCol - theMinPixelCol;
-			thePixelOffset[i] = (xoffset << 5) + yoffset;
+			int xoffset = (thePixelOffset[i*2] ) + minRow - theMinPixelRow;
+			int yoffset = (thePixelOffset[i*2+1] ) + minCol - theMinPixelCol;
+			thePixelOffset[i*2] = xoffset;
+                        thePixelOffset[i*2+1] = yoffset;
 		}
 	}
 	
 	thePixelADC.push_back( adc );
-	thePixelOffset.push_back( ((pix.row() - theMinPixelRow) << 5) + pix.col() - theMinPixelCol );
+	thePixelOffset.push_back( (pix.row() - theMinPixelRow) );
+        thePixelOffset.push_back( (pix.col() - theMinPixelCol) );
 }
 
