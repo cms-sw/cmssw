@@ -112,6 +112,9 @@ namespace reco {
     /// ( the candidates used to construct this Candidate)
     CandidateBaseRef sourceCandidateRef( size_type i ) const;
 
+    /// prints information on this PFTau
+    void dump(std::ostream& out=std::cout) const;
+    
  private:
     // check overlap with another candidate
     virtual bool overlap(const Candidate&)const;
@@ -139,7 +142,7 @@ namespace reco {
     bool muonDecision_;
   };
 
-std::ostream & operator<<(std::ostream& out, const PFTau& c); 
+  std::ostream & operator<<(std::ostream& out, const PFTau& c); 
 
 }
 #endif

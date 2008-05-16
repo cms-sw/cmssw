@@ -1,6 +1,8 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 
 using namespace reco;
+using namespace std;
+
 
 PFTau::PFTau(){
   PFCandidateRef pfLead;
@@ -160,36 +162,59 @@ bool PFTau::overlap(const Candidate& theCand)const{
   return (theRecoCand!=0 && (checkOverlap(track(),theRecoCand->track())));
 }
 
+void PFTau::dump(std::ostream& out) const {
 
+  if(!out) return;
+
+  out << "Its constituents :"<<std::endl;
+  out<<"# Tracks "<<pfTauTagInfoRef()->Tracks().size()<<std::endl;
+  out<<"# PF charged hadr. cand's "<<pfTauTagInfoRef()->PFChargedHadrCands().size()<<std::endl;
+  out<<"# PF neutral hadr. cand's "<<pfTauTagInfoRef()->PFNeutrHadrCands().size()<<std::endl;
+  out<<"# PF gamma cand's "<<pfTauTagInfoRef()->PFGammaCands().size()<<std::endl;
+  out<<"in detail :"<<std::endl;
+  
+  out<<"Pt of the PFTau "<<pt()<<std::endl;
+  PFCandidateRef theLeadPFCand = leadPFChargedHadrCand();
+  if(!theLeadPFCand){
+    out<<"No Lead PFCand "<<std::endl;
+  }else{
+    out<<"Lead PFCand Pt "<<(*theLeadPFCand).pt()<<std::endl;
+    out<<"Inner point position (x,y,z) of the PFTau ("<<vx()<<","<<vy()<<","<<vz()<<")"<<std::endl;
+    out<<"Charge of the PFTau "<<charge()<<std::endl;
+    out<<"Et of the highest Et HCAL PFCluster "<<maximumHCALPFClusterEt()<<std::endl;
+    out<<"Number of SignalPFChargedHadrCands = "<<signalPFChargedHadrCands().size()<<std::endl;
+    out<<"Number of SignalPFGammaCands = "<<signalPFGammaCands().size()<<std::endl;
+    out<<"Number of IsolationPFChargedHadrCands = "<<isolationPFChargedHadrCands().size()<<std::endl;
+    out<<"Number of IsolationPFGammaCands = "<<isolationPFGammaCands().size()<<std::endl;
+    out<<"Sum of Pt of charged hadr. PFCandidates in isolation annulus around Lead PF = "<<isolationPFChargedHadrCandsPtSum()<<std::endl;
+    out<<"Sum of Et of gamma PFCandidates in other isolation annulus around Lead PF = "<<isolationPFGammaCandsEtSum()<<std::endl;
+    
+  }
+  // return out;
+  
+} 
 
 namespace reco {
-std::ostream & operator<<(std::ostream& out, const PFTau& c)
-{
-    out << "Its constituents :"<<std::endl;
-    out<<"# Tracks "<<(c).pfTauTagInfoRef()->Tracks().size()<<std::endl;
-    out<<"# PF charged hadr. cand's "<<(c).pfTauTagInfoRef()->PFChargedHadrCands().size()<<std::endl;
-    out<<"# PF neutral hadr. cand's "<<(c).pfTauTagInfoRef()->PFNeutrHadrCands().size()<<std::endl;
-    out<<"# PF gamma cand's "<<(c).pfTauTagInfoRef()->PFGammaCands().size()<<std::endl;
-    out<<"in detail :"<<std::endl;
 
-    out<<"Pt of the PFTau "<<(c).pt()<<std::endl;
-    PFCandidateRef theLeadPFCand = (c).leadPFChargedHadrCand();
-    if(!theLeadPFCand){
-      out<<"No Lead PFCand "<<std::endl;
-    }else{
-      out<<"Lead PFCand Pt "<<(*theLeadPFCand).pt()<<std::endl;
-      out<<"Inner point position (x,y,z) of the PFTau ("<<(c).vx()<<","<<(c).vy()<<","<<(c).vz()<<")"<<std::endl;
-      out<<"Charge of the PFTau "<<(c).charge()<<std::endl;
-      out<<"Et of the highest Et HCAL PFCluster "<<(c).maximumHCALPFClusterEt()<<std::endl;
-      out<<"Number of SignalPFChargedHadrCands = "<<(c).signalPFChargedHadrCands().size()<<std::endl;
-      out<<"Number of SignalPFGammaCands = "<<(c).signalPFGammaCands().size()<<std::endl;
-      out<<"Number of IsolationPFChargedHadrCands = "<<(c).isolationPFChargedHadrCands().size()<<std::endl;
-      out<<"Number of IsolationPFGammaCands = "<<(c).isolationPFGammaCands().size()<<std::endl;
-      out<<"Sum of Pt of charged hadr. PFCandidates in isolation annulus around Lead PF = "<<(c).isolationPFChargedHadrCandsPtSum()<<std::endl;
-      out<<"Sum of Et of gamma PFCandidates in other isolation annulus around Lead PF = "<<(c).isolationPFGammaCandsEtSum()<<std::endl;
 
-    }
-    return out;
+std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau) {
 
-  } 
+  if(!out) return out;
+
+  out<<"pf tau "
+     <<tau.pt()<<","
+     <<tau.eta()<<","
+     <<tau.phi()<<"  "    
+     <<tau.signalPFCands().size()<<","
+     <<tau.signalPFChargedHadrCands().size()<<","
+     <<tau.signalPFGammaCands().size()<<","
+     <<tau.signalPFNeutrHadrCands().size()<<"  "
+     <<tau.isolationPFCands().size()<<","
+     <<tau.isolationPFChargedHadrCands().size()<<","
+     <<tau.isolationPFGammaCands().size()<<","
+     <<tau.isolationPFNeutrHadrCands().size();
+    
+  return out;
+}
+
 }
