@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <!DOCTYPE PoolDatabase SYSTEM "InMemory">
  <PoolDatabase >
-  <PoolContainer name="SiStripBadStripRcd" >
+  <PoolContainer name="SiStripBadStrip" >
    <Class table="SISTRIPBADSTRIP" id_columns="IOV_VALUE_ID" name="SiStripBadStrip" mapping_version="SiStripBadStrip_basic" >
     <Blob column="DETREGISTRYINDEX_BADSTRIP" name="indexes"/>
     <Blob column="BADSTRIPDATA" name="v_badstrips"/>
