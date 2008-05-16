@@ -263,69 +263,72 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
    static const int maxphi ( EBDetId::MAX_IPHI ) ;
    static const int maxeta ( EBDetId::MAX_IETA ) ;
    CaloSubdetectorGeometry::DetIdSet dis;  // this is the return object
-   dR = fabs( dR ) ; // just in case
-   if( dR > M_PI/2. ) // this version needs "small" dR
-   {
-      dis = CaloSubdetectorGeometry::getCells( r, dR ) ; // base class version
-   }
-   else
-   {
-      const double dR2     ( dR*dR ) ;
-      const double reta    ( r.eta() ) ;
-      const double rz      ( r.z()   ) ;
-      const double rphi    ( r.phi() ) ;
-      const double lowEta  ( reta - dR ) ;
-      const double highEta ( reta + dR ) ;
 
-      if( highEta > -1.5 &&
-	  lowEta  <  1.5    ) // in barrel
+   if( 0.000001 < dR )
+   {
+      if( dR > M_PI/2. ) // this version needs "small" dR
       {
-	 const double scale       ( maxphi/(2*M_PI) ) ; // angle to index
-	 const int    ieta_center ( int( reta*scale + ((rz<0)?(-1):(1))) ) ;
-	 const double phi         ( rphi<0 ? rphi + 2*M_PI : rphi ) ;
-	 const int    iphi_center ( int( phi*scale + 11. ) ) ; // phi=-9.4deg is iphi=1
-
-	 const double fr    ( dR*scale    ) ; // # crystal widths in dR
-	 const double frp   ( 1.05*fr + 1. ) ; // conservatively above fr 
-	 const double frm   ( 0.95*fr - 1. ) ; // conservatively below fr
-	 const int    idr   ( frp         ) ; // integerize
-	 const int    idr2p ( frp*frp     ) ;
-	 const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
-
-	 for( int de ( -idr ) ; de <= idr ; ++de ) // over eta limits
+	 dis = CaloSubdetectorGeometry::getCells( r, dR ) ; // base class version
+      }
+      else
+      {
+	 const double dR2     ( dR*dR ) ;
+	 const double reta    ( r.eta() ) ;
+	 const double rz      ( r.z()   ) ;
+	 const double rphi    ( r.phi() ) ;
+	 const double lowEta  ( reta - dR ) ;
+	 const double highEta ( reta + dR ) ;
+	 
+	 if( highEta > -1.5 &&
+	     lowEta  <  1.5    ) // in barrel
 	 {
-	    int ieta ( de + ieta_center ) ;
-	
-	    if( abs(ieta) <= maxeta &&
-		ieta      != 0         ) // eta is in EB
+	    const double scale       ( maxphi/(2*M_PI) ) ; // angle to index
+	    const int    ieta_center ( int( reta*scale + ((rz<0)?(-1):(1))) ) ;
+	    const double phi         ( rphi<0 ? rphi + 2*M_PI : rphi ) ;
+	    const int    iphi_center ( int( phi*scale + 11. ) ) ; // phi=-9.4deg is iphi=1
+
+	    const double fr    ( dR*scale    ) ; // # crystal widths in dR
+	    const double frp   ( 1.05*fr + 1. ) ; // conservatively above fr 
+	    const double frm   ( 0.95*fr - 1. ) ; // conservatively below fr
+	    const int    idr   ( frp         ) ; // integerize
+	    const int    idr2p ( frp*frp     ) ;
+	    const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
+
+	    for( int de ( -idr ) ; de <= idr ; ++de ) // over eta limits
 	    {
-	       const int de2 ( de*de ) ;
-	       for( int dp ( -idr ) ; dp <= idr ; ++dp )  // over phi limits
+	       int ieta ( de + ieta_center ) ;
+	       
+	       if( abs(ieta) <= maxeta &&
+		   ieta      != 0         ) // eta is in EB
 	       {
-		  const int irange2 ( dp*dp + de2 ) ;
-
-		  if( irange2 <= idr2p ) // cut off corners that must be too far away
+		  const int de2 ( de*de ) ;
+		  for( int dp ( -idr ) ; dp <= idr ; ++dp )  // over phi limits
 		  {
-		     const int iphi ( ( iphi_center + dp + maxphi - 1 )%maxphi + 1 ) ;
-
-		     if( iphi != 0 )
+		     const int irange2 ( dp*dp + de2 ) ;
+		     
+		     if( irange2 <= idr2p ) // cut off corners that must be too far away
 		     {
-			const EBDetId id ( ieta, iphi ) ;
+			const int iphi ( ( iphi_center + dp + maxphi - 1 )%maxphi + 1 ) ;
 			
-			bool ok ( irange2 <= idr2m ) ;  // no more calculation necessary if inside this radius
-
-			if( !ok ) // if not ok, then we have to test this cell for being inside cone
+			if( iphi != 0 )
 			{
-			   const CaloCellGeometry* cell ( getGeometry( id ) );
-			   if( 0 != cell )
+			   const EBDetId id ( ieta, iphi ) ;
+			   
+			   bool ok ( irange2 < idr2m ) ;  // no more calculation necessary if inside this radius
+			   
+			   if( !ok ) // if not ok, then we have to test this cell for being inside cone
 			   {
-			      const GlobalPoint& p   ( cell->getPosition() ) ;
-			      const double       eta ( p.eta() ) ;
-			      const double       phi ( p.phi() ) ;
-			      ok = ( reco::deltaR2( eta, phi, reta, rphi ) <= dR2 ) ;
+			      const CaloCellGeometry* cell ( getGeometry( id ) );
+			      if( 0 != cell )
+			      {
+				 const GlobalPoint& p   ( cell->getPosition() ) ;
+				 const double       eta ( p.eta() ) ;
+				 const double       phi ( p.phi() ) ;
+				 ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
+			      }
 			   }
+			   if( ok ) dis.insert( id ) ;
 			}
-			if( ok ) dis.insert( id ) ;
 		     }
 		  }
 	       }

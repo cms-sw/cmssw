@@ -82,24 +82,27 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
    const double phi ( r.phi() ) ;
 
    DetIdSet dss;
-
-   for( CellCont::const_iterator i ( m_cellG.begin() ); 
-	i != m_cellG.end() ; ++i ) 
+   
+   if( 0.000001 < dR )
    {
-      const GlobalPoint& p ( i->second->getPosition() ) ;
-      const double eta0 ( p.eta() ) ;
-      if( fabs( eta - eta0 ) <= dR )
+      for( CellCont::const_iterator i ( m_cellG.begin() ); 
+	   i != m_cellG.end() ; ++i ) 
       {
-	 const double phi0 ( p.phi() ) ;
-	 double delp ( fabs( phi - phi0 ) ) ;
-	 if( delp > M_PI ) delp = 2*M_PI - delp ;
-	 if( delp <= dR )
+	 const GlobalPoint& p ( i->second->getPosition() ) ;
+	 const double eta0 ( p.eta() ) ;
+	 if( fabs( eta - eta0 ) < dR )
 	 {
-	    const double dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
-	    if( dist2 <= dR2 ) dss.insert( i->first ) ;
+	    const double phi0 ( p.phi() ) ;
+	    double delp ( fabs( phi - phi0 ) ) ;
+	    if( delp > M_PI ) delp = 2*M_PI - delp ;
+	    if( delp < dR )
+	    {
+	       const double dist2 ( reco::deltaR2( eta0, phi0, eta, phi ) ) ;
+	       if( dist2 < dR2 ) dss.insert( i->first ) ;
+	    }
 	 }
-      }
-   }   
+      }   
+   }
    return dss;
 }
 

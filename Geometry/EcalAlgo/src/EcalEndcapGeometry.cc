@@ -243,66 +243,68 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 			      double             dR ) const 
 {
    CaloSubdetectorGeometry::DetIdSet dis ; // return object
-   dR = fabs( dR ) ; // just in case
-   if( dR > M_PI/2. ) // this code assumes small dR
+   if( 0.000001 < dR )
    {
-      dis = CaloSubdetectorGeometry::getCells( r, dR ) ; // base class version
-   }
-   else
-   {
-      const double dR2  ( dR*dR ) ;
-      const double reta ( r.eta() ) ;
-      const double rphi ( r.phi() ) ;
-      const double rx   ( r.x() ) ;
-      const double ry   ( r.y() ) ;
-      const double rz   ( r.z() ) ;
-      const double fac  ( fabs( zeP/rz ) ) ;
-      const double xx   ( rx*fac ) ; // xyz at endcap z
-      const double yy   ( ry*fac ) ; 
-      const double zz   ( rz*fac ) ; 
-
-      const double xang  ( atan( xx/zz ) ) ;
-      const double lowX  ( zz>0 ? zz*tan( xang - dR ) : zz*tan( xang + dR ) ) ;
-      const double highX ( zz>0 ? zz*tan( xang + dR ) : zz*tan( xang - dR ) ) ;
-      const double yang  ( atan( yy/zz ) ) ;
-      const double lowY  ( zz>0 ? zz*tan( yang - dR ) : zz*tan( yang + dR ) ) ;
-      const double highY ( zz>0 ? zz*tan( yang + dR ) : zz*tan( yang - dR ) ) ;
-
-      if( lowX  <  m_href &&   // proceed if any possible overlap with the endcap
-	  lowY  <  m_href &&
-	  highX > -m_href &&
-	  highY > -m_href    )
+      if( dR > M_PI/2. ) // this code assumes small dR
       {
-	 const int ix_ctr ( 1 + (int)floor( ( xx + m_href )/m_wref ) ) ;
-	 const int iy_ctr ( 1 + (int)floor( ( yy + m_href )/m_wref ) ) ;
-	 const int iz     ( rz>0 ? 1 : -1 ) ;
+	 dis = CaloSubdetectorGeometry::getCells( r, dR ) ; // base class version
+      }
+      else
+      {
+	 const double dR2  ( dR*dR ) ;
+	 const double reta ( r.eta() ) ;
+	 const double rphi ( r.phi() ) ;
+	 const double rx   ( r.x() ) ;
+	 const double ry   ( r.y() ) ;
+	 const double rz   ( r.z() ) ;
+	 const double fac  ( fabs( zeP/rz ) ) ;
+	 const double xx   ( rx*fac ) ; // xyz at endcap z
+	 const double yy   ( ry*fac ) ; 
+	 const double zz   ( rz*fac ) ; 
 
-	 const int ix_hi  ( ix_ctr + int( ( highX - xx )/m_wref ) + 2 ) ;
-	 const int ix_lo  ( ix_ctr - int( ( xx - lowX  )/m_wref ) - 2 ) ;
+	 const double xang  ( atan( xx/zz ) ) ;
+	 const double lowX  ( zz>0 ? zz*tan( xang - dR ) : zz*tan( xang + dR ) ) ;
+	 const double highX ( zz>0 ? zz*tan( xang + dR ) : zz*tan( xang - dR ) ) ;
+	 const double yang  ( atan( yy/zz ) ) ;
+	 const double lowY  ( zz>0 ? zz*tan( yang - dR ) : zz*tan( yang + dR ) ) ;
+	 const double highY ( zz>0 ? zz*tan( yang + dR ) : zz*tan( yang - dR ) ) ;
 
-	 const int iy_hi  ( iy_ctr + int( ( highY - yy )/m_wref ) + 2 ) ;
-	 const int iy_lo  ( iy_ctr - int( ( yy - lowY  )/m_wref ) - 2 ) ;
-
-	 for( int kx ( ix_lo ) ; kx <= ix_hi ; ++kx ) 
+	 if( lowX  <  m_href &&   // proceed if any possible overlap with the endcap
+	     lowY  <  m_href &&
+	     highX > -m_href &&
+	     highY > -m_href    )
 	 {
-	    if( kx >  0      && 
-		kx <= m_nref    )
+	    const int ix_ctr ( 1 + (int)floor( ( xx + m_href )/m_wref ) ) ;
+	    const int iy_ctr ( 1 + (int)floor( ( yy + m_href )/m_wref ) ) ;
+	    const int iz     ( rz>0 ? 1 : -1 ) ;
+	    
+	    const int ix_hi  ( ix_ctr + int( ( highX - xx )/m_wref ) + 2 ) ;
+	    const int ix_lo  ( ix_ctr - int( ( xx - lowX  )/m_wref ) - 2 ) ;
+	    
+	    const int iy_hi  ( iy_ctr + int( ( highY - yy )/m_wref ) + 2 ) ;
+	    const int iy_lo  ( iy_ctr - int( ( yy - lowY  )/m_wref ) - 2 ) ;
+	    
+	    for( int kx ( ix_lo ) ; kx <= ix_hi ; ++kx ) 
 	    {
-	       for( int ky ( iy_lo ) ; ky <= iy_hi ; ++ky ) 
+	       if( kx >  0      && 
+		   kx <= m_nref    )
 	       {
-		  if( ky >  0      && 
-		      ky <= m_nref    )
+		  for( int ky ( iy_lo ) ; ky <= iy_hi ; ++ky ) 
 		  {
-		     if( EEDetId::validDetId( kx, ky, iz ) ) // reject invalid ids
+		     if( ky >  0      && 
+			 ky <= m_nref    )
 		     {
-			const EEDetId id ( kx, ky, iz ) ;
-			const CaloCellGeometry* cell ( getGeometry( id ) );
-			if( 0 != cell )
+			if( EEDetId::validDetId( kx, ky, iz ) ) // reject invalid ids
 			{
-			   const GlobalPoint& p    ( cell->getPosition() ) ;
-			   const double       eta  ( p.eta() ) ;
-			   const double       phi  ( p.phi() ) ;
-			   if( reco::deltaR2( eta, phi, reta, rphi ) <= dR2 ) dis.insert( id ) ;
+			   const EEDetId id ( kx, ky, iz ) ;
+			   const CaloCellGeometry* cell ( getGeometry( id ) );
+			   if( 0 != cell )
+			   {
+			      const GlobalPoint& p    ( cell->getPosition() ) ;
+			      const double       eta  ( p.eta() ) ;
+			      const double       phi  ( p.phi() ) ;
+			      if( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) dis.insert( id ) ;
+			   }
 			}
 		     }
 		  }
