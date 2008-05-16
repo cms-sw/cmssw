@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Oct 24 15:26:45 EDT 2007
-// $Id: PtrVectorBase.h,v 1.6 2008/02/16 17:25:48 wmtan Exp $
+// $Id: PtrVectorBase.h,v 1.7 2008/05/09 08:33:20 gpetrucc Exp $
 //
 
 // system include files
 #include <vector>
+#include <typeinfo>
 
 // user include files
 #include "DataFormats/Common/interface/RefCore.h"
