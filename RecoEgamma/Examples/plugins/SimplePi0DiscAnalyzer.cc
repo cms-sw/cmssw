@@ -8,7 +8,7 @@
 //                    D Maletic, "Vinca" Belgrade
 //
 //         Created:  Wed Sep 12 13:36:27 CEST 2007
-// $Id: SimplePi0DiscAnalyzer.cc,v 1.3 2007/12/07 09:37:45 akyriaki Exp $
+// $Id: SimplePi0DiscAnalyzer.cc,v 1.4 2007/12/08 10:59:22 nancy Exp $
 //
 //
 
@@ -30,7 +30,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
 
@@ -131,6 +132,8 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
 
   int PhoInd = 0;
+
+  /*
       
   for( reco::PhotonCollection::const_iterator  iPho = photons.begin(); iPho != photons.end(); iPho++) { // Loop over Photons
           
@@ -188,6 +191,10 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     PhoInd++;
   } // End Loop over Photons
+
+
+
+  */
 
 }
 

@@ -24,7 +24,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 //
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -243,12 +244,12 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
     for( reco::ConversionCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
       REJECTED=false;
       
-      std::cout  << " ConvertedPhotonAnalyzer Reco SC energy " << (*iPho).superCluster()->energy() <<  "\n";
+      std::cout  << " ConvertedPhotonAnalyzer Reco SC energy " << (*iPho).caloCluster()[0]->energy() <<  "\n";
 
 
       
-      float phiClu=(*iPho).superCluster()->phi();
-      float etaClu=(*iPho).superCluster()->eta();
+      float phiClu=(*iPho).caloCluster()[0]->phi();
+      float etaClu=(*iPho).caloCluster()[0]->eta();
       float deltaPhi = phiClu-mcPhi;
       float deltaEta = etaClu-mcEta;
       
@@ -273,13 +274,13 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
       std::cout << " ConvertedPhotonAnalyzer Photons isAconversion " << (*mcPho).isAConversion() << " mcMatchingPhoton energy " <<  (*mcPho).fourMomentum().e()  << " ConvertedPhotonAnalyzer conversion vertex R " <<  (*mcPho).vertex().perp() << " Z " <<  (*mcPho).vertex().z() <<  std::endl;
       
   
-      h_ErecoEMC_->Fill(   (*iPho).superCluster()->energy()/(*mcPho).fourMomentum().e());
-      h_deltaPhi_-> Fill ( (*iPho).superCluster()->position().phi()- mcPhi);
-      h_deltaEta_-> Fill ( (*iPho).superCluster()->position().eta()- mcEta);
+      h_ErecoEMC_->Fill(   (*iPho).caloCluster()[0]->energy()/(*mcPho).fourMomentum().e());
+      h_deltaPhi_-> Fill ( (*iPho).caloCluster()[0]->position().phi()- mcPhi);
+      h_deltaEta_-> Fill ( (*iPho).caloCluster()[0]->position().eta()- mcEta);
       
-      h_scE_->Fill( (*iPho).superCluster()->energy() );
-      h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
-      h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
+      h_scE_->Fill( (*iPho).caloCluster()[0]->energy() );
+      h_scEta_->Fill( (*iPho).caloCluster()[0]->position().eta() );
+      h_scPhi_->Fill( (*iPho).caloCluster()[0]->position().phi() );
       
       
       for (unsigned int i=0; i<(*iPho).tracks().size(); i++) {
