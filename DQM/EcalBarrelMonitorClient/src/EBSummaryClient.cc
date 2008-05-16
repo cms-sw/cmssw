@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/05/11 10:48:19 $
- * $Revision: 1.144 $
+ * $Date: 2008/05/11 11:05:29 $
+ * $Revision: 1.145 $
  * \author G. Della Ricca
  *
 */
@@ -864,7 +864,7 @@ void EBSummaryClient::analyze(void){
 
             if ( me ) {
 
-              float xval = me->getBinContent( ie, ip );
+              float xval = me->getBinContent( ie, ip ) - 0.5;
 
               TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>(me);
               if(obj && obj->GetBinEntries(obj->GetBin( ie, ip ))!=0) hasRealDigi = true;
