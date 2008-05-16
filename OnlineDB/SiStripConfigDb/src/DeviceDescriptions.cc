@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.28 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.29 2008/05/13 14:18:27 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -126,37 +126,74 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 
 // -----------------------------------------------------------------------------
 // 
-//SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( DeviceType device_type, 
 SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( DeviceType device_type, 
 										 std::string partition ) {
   
   typedDevices_.clear();
+  apvDevices_.clear();
+  muxDevices_.clear();
+  dcuDevices_.clear();
+  lldDevices_.clear();
+  pllDevices_.clear();
+  dohDevices_.clear();
+  
+  DeviceDescriptionsRange tmp( typedDevices_.end(), typedDevices_.end() );
   
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
        (  dbParams_.usingDbCache() && !databaseCache(__func__) ) ) { 
-    return DeviceDescriptionsRange( typedDevices_.end(), typedDevices_.end() );
-    //return std::make_pair( typedDevices_.end(), typedDevices_.end() );
+    return tmp;
   }
   
   try { 
-    
     DeviceDescriptionsRange devs = SiStripConfigDb::getDeviceDescriptions( partition );
-    
     if ( !devs.empty() ) {
       DeviceDescriptionsV tmp( devs.begin(), devs.end() );
       typedDevices_ = FecFactory::getDeviceFromDeviceVector( tmp, device_type );
     }
-    
   } catch (...) { handleException( __func__ ); }
   
+  if ( device_type == APV25 ) { 
+    apvDevices_.swap( typedDevices_ ); 
+    tmp = DeviceDescriptionsRange( apvDevices_.begin(), apvDevices_.end() );
+  } else if ( device_type == APVMUX ) { 
+    muxDevices_.swap( typedDevices_ );  
+    tmp = DeviceDescriptionsRange( muxDevices_.begin(), muxDevices_.end() );
+  } else if ( device_type == DCU ) { 
+    dcuDevices_.swap( typedDevices_ ); 
+    tmp = DeviceDescriptionsRange( dcuDevices_.begin(), dcuDevices_.end() );
+  } else if ( device_type == LASERDRIVER ) { 
+    lldDevices_.swap( typedDevices_ ); 
+    tmp = DeviceDescriptionsRange( lldDevices_.begin(), lldDevices_.end() );
+  } else if ( device_type == PLL ) { 
+    pllDevices_.swap( typedDevices_ ); 
+    tmp = DeviceDescriptionsRange( pllDevices_.begin(), pllDevices_.end() );
+  } else if ( device_type == DOH ) { 
+    dohDevices_.swap( typedDevices_ ); 
+    tmp = DeviceDescriptionsRange( dohDevices_.begin(), dohDevices_.end() );
+  } else {
+    tmp = DeviceDescriptionsRange( typedDevices_.begin(), typedDevices_.end() );
+  }
+
+//   stringstream sss; 
+//   sss << " Number of devices:" 
+//       << " TYP: " << typedDevices_.size()
+//       << " APV: " << apvDevices_.size()
+//       << " MUX: " << muxDevices_.size()
+//       << " DCU: " << dcuDevices_.size()
+//       << " LLD: " << lldDevices_.size()
+//       << " PLL: " << pllDevices_.size()
+//       << " DOH: " << dohDevices_.size()
+//       << " tmp: " << tmp.size();
+//   LogTrace(mlConfigDb_) << sss.str();
+
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
-     << " Extracted " << typedDevices_.size() 
+     << " Extracted " << tmp.size() 
      << " device descriptions (for devices of type " 
      << deviceType( device_type ) << ")";
+  LogTrace(mlConfigDb_) << ss.str();
   
-  return DeviceDescriptionsRange( typedDevices_.begin(), typedDevices_.end() );
-  //return std::make_pair( typedDevices_.begin(), typedDevices_.end() );
+  return tmp;
   
 }
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.67 2008/05/08 10:07:58 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.68 2008/05/13 14:17:57 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -87,7 +87,7 @@ class SiStripConfigDb {
   friend class SiStripFedCablingBuilderFromDb;
   friend class SiStripPedestalsBuilderFromDb;
   friend class SiStripNoiseBuilderFromDb;
-  friend class cms::SiStripO2O;
+  friend class SiStripCondObjBuilderFromDb;
   
   // Commissioning clients
   friend class SiStripCommissioningDbClient;
@@ -264,8 +264,7 @@ class SiStripConfigDb {
   DeviceDescriptionsRange getDeviceDescriptions( std::string partition = "" ); 
 
   /** Returns (pair of iterators to) descriptions of given type. */
-  /** (APV25, APVMUX, DCU, LASERDRIVER, PLL). */
-  //DeviceDescriptionsRange getDeviceDescriptions( DeviceType, std::string partition = "" );
+  /** (APV25, APVMUX, DCU, LASERDRIVER, PLL, DOH). */
   DeviceDescriptionsRange getDeviceDescriptions( DeviceType, std::string partition = "" );
   
   /** Adds to local cache (just for given partition if specified). */
@@ -439,6 +438,24 @@ class SiStripConfigDb {
   AnalysisDescriptions analyses_;
 
 #endif
+
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV apvDevices_;
+
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV muxDevices_;
+
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV dcuDevices_;
+
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV lldDevices_;
+
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV pllDevices_;
+
+  /** Cache for devices of given type. */
+  DeviceDescriptionsV dohDevices_;
 
   /** Cache for devices of given type. */
   DeviceDescriptionsV typedDevices_;

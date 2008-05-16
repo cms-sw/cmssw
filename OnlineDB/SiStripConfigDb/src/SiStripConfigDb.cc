@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.66 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.67 2008/05/13 14:18:36 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -32,6 +32,12 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 #ifdef USING_NEW_DATABASE_MODEL
   analyses_(),
 #endif
+  apvDevices_(),
+  muxDevices_(),
+  dcuDevices_(),
+  lldDevices_(),
+  pllDevices_(),
+  dohDevices_(),
   typedDevices_(), 
   fedIds_(),
   // Misc
