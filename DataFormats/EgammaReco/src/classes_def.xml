@@ -6,6 +6,7 @@
   <class name="edm::RefProd<std::vector<reco::BasicCluster> >"/>
   <class name="edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
 
   <class name="reco::SuperCluster">
     <field name="rawEnergy_" transient="true"/>

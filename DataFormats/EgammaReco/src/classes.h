@@ -27,6 +27,7 @@ namespace {
     edm::Ref<reco::BasicClusterCollection> r1;
     edm::RefProd<reco::BasicClusterCollection> rp1;
     edm::Wrapper<edm::RefVector<reco::BasicClusterCollection> > wrv1;
+    std::vector<reco::BasicClusterRef> vr1;
 
     std::vector<reco::SuperCluster> sv3;
     reco::SuperClusterCollection v3;
