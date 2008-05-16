@@ -16,7 +16,7 @@ class Comment:
 
 
 def pythonNameFromCfgName(cfgName):
-    return cfgName.replace("data","python").replace(".","_") + ".py"
+    return cfgName.replace("/data/","/python/").replace("/test/","/python/").replace(".","_") + ".py"
 
 
 
