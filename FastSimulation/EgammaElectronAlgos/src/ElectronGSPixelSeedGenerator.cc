@@ -64,6 +64,7 @@ ElectronGSPixelSeedGenerator::ElectronGSPixelSeedGenerator(
   deltaPhi2_(pset.getParameter<double>("DeltaPhi2")),
   pTMin2(pTMin*pTMin),
   myGSPixelMatcher(0),
+  fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
   theUpdator(0), thePropagator(0), 
   //   theMeasurementTracker(0), 
   //   theNavigationSchool(0)
