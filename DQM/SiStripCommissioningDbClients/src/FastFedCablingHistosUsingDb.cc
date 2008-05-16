@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.17 2008/03/06 13:30:52 delaer Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.18 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -192,7 +192,9 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnectionsV& conn
     conn->setI2c( fec_key.ccuChan() );
     conn->setApv( SiStripFecKey::i2cAddr(anal->lldCh(),true) );
     conn->setDcuHardId( anal->dcuHardId() );
-    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.find( anal->dcuHardId() );
+
+    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.end();
+    idet = SiStripConfigDb::findDcuDetId( detids.begin(), detids.end(), anal->dcuHardId() );
     if ( idet != detids.end() ) { 
       conn->setDetId( idet->second->getDetId() );
       conn->setApvPairs( idet->second->getApvNumber()/2 );
