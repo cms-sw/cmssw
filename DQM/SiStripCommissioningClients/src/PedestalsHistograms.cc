@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/PedestalsSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -84,7 +85,8 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     PedestalsAnalysis* anal = new PedestalsAnalysis( iter->first );
-    anal->analysis( profs );
+    PedestalsAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 

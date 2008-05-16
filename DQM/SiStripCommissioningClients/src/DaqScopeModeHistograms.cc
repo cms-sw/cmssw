@@ -1,7 +1,9 @@
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/DaqScopeModeAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAlgorithm.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
@@ -58,7 +60,8 @@ void DaqScopeModeHistograms::histoAnalysis( bool debug ) {
     
 //     // Perform histo analysis
 //     DaqScopeModeAnalysis anal( iter->first );
-//     anal.analysis( histos );
+//     DaqScopeModeAlgorithm algo( &anal );
+//     algo.analysis( histos );
 //     data_[iter->first] = anal; 
 //     if ( debug ) {
 //       std::stringstream ss;

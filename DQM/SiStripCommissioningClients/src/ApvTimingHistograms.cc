@@ -1,13 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "TProfile.h"
  
 using namespace std;
 using namespace sistrip;
@@ -87,7 +88,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     ApvTimingAnalysis* anal = new ApvTimingAnalysis( iter->first );
-    anal->analysis( profs );
+    ApvTimingAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
 
     // Check time of rising edge

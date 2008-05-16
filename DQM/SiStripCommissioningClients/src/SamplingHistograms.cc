@@ -1,7 +1,9 @@
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
-#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
+#include "CondFormats/SiStripObjects/interface/SamplingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/SamplingAlgorithm.h"
+#include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -71,15 +73,16 @@ void SamplingHistograms::histoAnalysis( bool debug ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( (*ihis)->me_ );
       if ( prof ) { profs.push_back(prof); }
     } 
-
+    
     // Perform histo analysis
     SamplingAnalysis* anal = new SamplingAnalysis( iter->first );
     anal->setSoNcut(sOnCut_);
-    anal->analysis( profs );
+    SamplingAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     
- }
- 
+  }
+  
 }
 
 void SamplingHistograms::configure( const edm::ParameterSet& pset, const edm::EventSetup& )

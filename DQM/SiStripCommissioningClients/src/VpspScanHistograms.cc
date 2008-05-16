@@ -1,13 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/VpspScanSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "TProfile.h"
 
 using namespace std;
 using namespace sistrip;
@@ -81,7 +82,8 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
 
     // Perform histo analysis
     VpspScanAnalysis* anal = new VpspScanAnalysis( iter->first );
-    anal->analysis( profs );
+    VpspScanAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 

@@ -1,13 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/OptoScanSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "TProfile.h"
 
 using namespace std;
 using namespace sistrip;
@@ -81,7 +82,8 @@ void OptoScanHistograms::histoAnalysis( bool debug ) {
 
     // Perform histo analysis
     OptoScanAnalysis* anal = new OptoScanAnalysis( iter->first );
-    anal->analysis( profs );
+    OptoScanAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 

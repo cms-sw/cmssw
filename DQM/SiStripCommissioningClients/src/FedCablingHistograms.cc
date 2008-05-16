@@ -1,4 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
+#include "CondFormats/SiStripObjects/interface/FedCablingAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -80,7 +82,8 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     FedCablingAnalysis* anal = new FedCablingAnalysis( iter->first );
-    anal->analysis( profs );
+    FedCablingAlgorithm algo( anal );
+    algo.analysis( profs );
     data_[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     

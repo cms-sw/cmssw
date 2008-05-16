@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/NoiseHistograms.h"
 #include "CondFormats/SiStripObjects/interface/NoiseAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/NoiseAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/NoiseSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -84,7 +85,8 @@ void NoiseHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     NoiseAnalysis* anal = new NoiseAnalysis( iter->first );
-    anal->analysis( profs );
+    NoiseAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 

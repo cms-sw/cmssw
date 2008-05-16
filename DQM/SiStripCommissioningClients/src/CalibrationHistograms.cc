@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
 #include "CondFormats/SiStripObjects/interface/CalibrationAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/CalibrationAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/CalibrationSummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -123,7 +124,8 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
     } 
     // Perform histo analysis 
     CalibrationAnalysis* anal = new CalibrationAnalysis( iter->first, (task()==sistrip::CALIBRATION_DECO), calchan_ );
-    anal->analysis( profs );
+    CalibrationAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     
  }

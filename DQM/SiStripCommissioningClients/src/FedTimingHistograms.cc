@@ -1,5 +1,7 @@
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
+#include "CondFormats/SiStripObjects/interface/FedTimingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include <iostream>
 #include <sstream>
@@ -62,7 +64,8 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
     
 //     // Perform histo analysis
 //     FedTimingAnalysis anal( iter->first );
-//     anal.analysis( profs );
+//     FedTimingAlgorithm algo( &anal );
+//     algo.analysis( profs );
 //     data_[iter->first] = anal; 
     
 //     // Check tick height is valid

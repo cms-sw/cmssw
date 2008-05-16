@@ -1,14 +1,14 @@
 #include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/FastFedCablingAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/FastFedCablingSummaryFactory.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TProfile.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include "TProfile.h"
-
 
 using namespace std;
 using namespace sistrip;
@@ -82,15 +82,16 @@ void FastFedCablingHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     FastFedCablingAnalysis* anal = new FastFedCablingAnalysis( iter->first );
+    FastFedCablingAlgorithm algo( anal );
     FedToFecMap::const_iterator ifed = mapping().find( iter->first );
     if ( ifed != mapping().end() ) { anal->fecKey( ifed->second ); }
-    anal->analysis( profs );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 
       errors[anal->getErrorCodes()[0]]++;
     }
-
+    
   }
   
   if ( !histos().empty() ) {

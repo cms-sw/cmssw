@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/PedsOnlyHistograms.h"
 #include "CondFormats/SiStripObjects/interface/PedsOnlyAnalysis.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/PedsOnlyAlgorithm.h"
 #include "DQM/SiStripCommissioningSummary/interface/PedsOnlySummaryFactory.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -84,7 +85,8 @@ void PedsOnlyHistograms::histoAnalysis( bool debug ) {
     
     // Perform histo analysis
     PedsOnlyAnalysis* anal = new PedsOnlyAnalysis( iter->first );
-    anal->analysis( profs );
+    PedsOnlyAlgorithm algo( anal );
+    algo.analysis( profs );
     data()[iter->first] = anal; 
     if ( anal->isValid() ) { valid++; }
     if ( !anal->getErrorCodes().empty() ) { 
