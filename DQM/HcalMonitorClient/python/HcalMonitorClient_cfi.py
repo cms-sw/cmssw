@@ -8,7 +8,7 @@ hcalClient = cms.EDFilter("HcalMonitorClient",
     MonitorDaemon = cms.untracked.bool(True),
     #Flags for TPG monitor
     TrigPrimClient = cms.untracked.bool(True),
-    plotPedRAW = cms.untracked.bool(False),
+    plotPedRAW = cms.untracked.bool(True),
     resetFreqEvents = cms.untracked.int32(-1),
     DeadCellClient = cms.untracked.bool(True),
     # Do you want this program to exit at the end of a run?
