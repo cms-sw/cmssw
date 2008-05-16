@@ -2,8 +2,6 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TProfile.h"
-#include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -24,8 +22,6 @@ PedsOnlyAnalysis::PedsOnlyAnalysis( const uint32_t& key )
     pedsMin_(2,sistrip::invalid_), 
     rawMax_(2,sistrip::invalid_), 
     rawMin_(2,sistrip::invalid_),
-    hPeds_(0,""),
-    hNoise_(0,""),
     legacy_(false)
 {}
 
@@ -43,8 +39,6 @@ PedsOnlyAnalysis::PedsOnlyAnalysis()
     pedsMin_(2,sistrip::invalid_), 
     rawMax_(2,sistrip::invalid_), 
     rawMin_(2,sistrip::invalid_),
-    hPeds_(0,""),
-    hNoise_(0,""),
     legacy_(false)
 {}
 
@@ -61,169 +55,30 @@ void PedsOnlyAnalysis::reset() {
   pedsMin_     = VFloat(2,sistrip::invalid_); 
   rawMax_      = VFloat(2,sistrip::invalid_);
   rawMin_      = VFloat(2,sistrip::invalid_);
-  hPeds_ = Histo(0,"");
-  hNoise_ = Histo(0,"");
-  legacy_ = false;
+  legacy_      = false;
 }
 
 // ----------------------------------------------------------------------------
 // 
-void PedsOnlyAnalysis::extract( const std::vector<TH1*>& histos ) { 
-
-  // Check number of histograms
-  if ( histos.size() != 2 ) {
-    addErrorCode(sistrip::numberOfHistos_);
-  }
-  
-  // Extract FED key from histo title
-  if ( !histos.empty() ) { extractFedKey( histos.front() ); }
-  
-  // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
-  for ( ; ihis != histos.end(); ihis++ ) {
-    
-    // Check for NULL pointer
-    if ( !(*ihis) ) { continue; }
-
-    // Check run type
-    SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::PEDS_ONLY ) {
-      addErrorCode(sistrip::unexpectedTask_);
-      continue;
-    }
-    
-    // Extract peds and raw noise histos (check for legacy names first!)
-    if ( title.extraInfo().find(sistrip::extrainfo::pedsAndRawNoise_) != std::string::npos ) {
-      hPeds_.first = *ihis;
-      hPeds_.second = (*ihis)->GetName();
-      hNoise_.first = *ihis;
-      hNoise_.second = (*ihis)->GetName();
-      legacy_ = true;
-    } else if ( title.extraInfo().find(sistrip::extrainfo::pedestals_) != std::string::npos ) {
-      hPeds_.first = *ihis;
-      hPeds_.second = (*ihis)->GetName();
-    } else if ( title.extraInfo().find(sistrip::extrainfo::rawNoise_) != std::string::npos ) {
-      hNoise_.first = *ihis;
-      hNoise_.second = (*ihis)->GetName();
-    } else { 
-      addErrorCode(sistrip::unexpectedExtraInfo_);
-    }
-    
-  }
-
-}
-
-// -----------------------------------------------------------------------------
-// 
-void PedsOnlyAnalysis::analyse() {
-
-  if ( !hPeds_.first ) {
-    addErrorCode(sistrip::nullPtr_);
-    return;
-  }
-  
-  if ( !hNoise_.first ) {
-    addErrorCode(sistrip::nullPtr_);
-    return;
-  }
-  
-  TProfile* peds_histo = dynamic_cast<TProfile*>(hPeds_.first);
-  TProfile* raw_histo = dynamic_cast<TProfile*>(hNoise_.first);
-  
-  if ( !peds_histo ) {
-    addErrorCode(sistrip::nullPtr_);
-    return;
-  }
-
-  if ( !raw_histo ) {
-    addErrorCode(sistrip::nullPtr_);
-    return;
-  }
-
-  if ( peds_histo->GetNbinsX() != 256 ) {
-    addErrorCode(sistrip::numberOfBins_);
-    return;
-  }
-
-  if ( raw_histo->GetNbinsX() != 256 ) {
-    addErrorCode(sistrip::numberOfBins_);
-    return;
-  }
-  
-  // Iterate through APVs 
-  for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
-
-    // Used to calc mean and rms for peds and noise
-    float p_sum = 0., p_sum2 = 0., p_max = -1.*sistrip::invalid_, p_min = sistrip::invalid_;
-    float r_sum = 0., r_sum2 = 0., r_max = -1.*sistrip::invalid_, r_min = sistrip::invalid_;
-
-    // Iterate through strips of APV
-    for ( uint16_t istr = 0; istr < 128; istr++ ) {
-
-      static uint16_t strip;
-      strip = iapv*128 + istr;
-
-      // Pedestals 
-      if ( peds_histo ) {
-	if ( peds_histo->GetBinEntries(strip+1) ) {
-	  peds_[iapv][istr] = peds_histo->GetBinContent(strip+1);
-	  p_sum += peds_[iapv][istr];
-	  p_sum2 += (peds_[iapv][istr] * peds_[iapv][istr]);
-	  if ( peds_[iapv][istr] > p_max ) { p_max = peds_[iapv][istr]; }
-	  if ( peds_[iapv][istr] < p_min ) { p_min = peds_[iapv][istr]; }
-	}
-      } 
-      
-      // Raw noise
-      if ( !legacy_ ) {
-	if ( raw_histo ) {
-	  if ( raw_histo->GetBinEntries(strip+1) ) {
-	    raw_[iapv][istr] = raw_histo->GetBinContent(strip+1);
-	    r_sum += raw_[iapv][istr];
-	    r_sum2 += (raw_[iapv][istr] * raw_[iapv][istr]);
-	    if ( raw_[iapv][istr] > r_max ) { r_max = raw_[iapv][istr]; }
-	    if ( raw_[iapv][istr] < r_min ) { r_min = raw_[iapv][istr]; }
-	  }
-	}
-      } else {
-	if ( peds_histo ) {
-	  if ( peds_histo->GetBinEntries(strip+1) ) {
-	    raw_[iapv][istr] = raw_histo->GetBinError(strip+1);
-	    r_sum += raw_[iapv][istr];
-	    r_sum2 += (raw_[iapv][istr] * raw_[iapv][istr]);
-	    if ( raw_[iapv][istr] > r_max ) { r_max = raw_[iapv][istr]; }
-	    if ( raw_[iapv][istr] < r_min ) { r_min = raw_[iapv][istr]; }
-	  }
-	}
-      }
-      
-    } // strip loop
-    
-    // Calc mean and rms for peds
-    if ( !peds_[iapv].empty() ) { 
-      p_sum /= static_cast<float>( peds_[iapv].size() );
-      p_sum2 /= static_cast<float>( peds_[iapv].size() );
-      pedsMean_[iapv] = p_sum;
-      pedsSpread_[iapv] = sqrt( fabs(p_sum2 - p_sum*p_sum) );
-    }
-    
-    // Calc mean and rms for raw noise
-    if ( !raw_[iapv].empty() ) { 
-      r_sum /= static_cast<float>( raw_[iapv].size() );
-      r_sum2 /= static_cast<float>( raw_[iapv].size() );
-      rawMean_[iapv] = r_sum;
-      rawSpread_[iapv] = sqrt( fabs(r_sum2 - r_sum*r_sum) );
-    }
-    
-    // Set max and min values for peds and raw noise
-    if ( p_max > -1.*sistrip::maximum_ ) { pedsMax_[iapv] = p_max; }
-    if ( p_min < 1.*sistrip::maximum_ )  { pedsMin_[iapv] = p_min; }
-    if ( r_max > -1.*sistrip::maximum_ ) { rawMax_[iapv] = r_max; }
-    if ( r_min < 1.*sistrip::maximum_ )  { rawMin_[iapv] = r_min; }
-    
-  } // apv loop
-
-}
+bool PedsOnlyAnalysis::isValid() const {
+  return ( pedsMean_[0] < sistrip::maximum_ &&
+	   pedsMean_[1] < sistrip::maximum_ &&
+	   pedsSpread_[0] < sistrip::maximum_ &&
+	   pedsSpread_[1] < sistrip::maximum_ &&
+	   rawMean_[0] < sistrip::maximum_ &&
+	   rawMean_[1] < sistrip::maximum_ &&
+	   rawSpread_[0] < sistrip::maximum_ &&
+	   rawSpread_[1] < sistrip::maximum_ &&
+	   pedsMax_[0] < sistrip::maximum_ &&
+	   pedsMax_[1] < sistrip::maximum_ &&
+	   pedsMin_[0] < sistrip::maximum_ &&
+	   pedsMin_[1] < sistrip::maximum_ &&
+	   rawMax_[0] < sistrip::maximum_ &&
+	   rawMax_[1] < sistrip::maximum_ &&
+	   rawMin_[0] < sistrip::maximum_ &&
+	   rawMin_[1] < sistrip::maximum_ &&
+	   getErrorCodes().empty() );
+} 
 
 // ----------------------------------------------------------------------------
 // 
@@ -298,28 +153,6 @@ void PedsOnlyAnalysis::summary( std::stringstream& ss ) const {
      << std::endl;
   
 }
-
-// ----------------------------------------------------------------------------
-// 
-bool PedsOnlyAnalysis::isValid() const {
-  return ( pedsMean_[0] < sistrip::maximum_ &&
-	   pedsMean_[1] < sistrip::maximum_ &&
-	   pedsSpread_[0] < sistrip::maximum_ &&
-	   pedsSpread_[1] < sistrip::maximum_ &&
-	   rawMean_[0] < sistrip::maximum_ &&
-	   rawMean_[1] < sistrip::maximum_ &&
-	   rawSpread_[0] < sistrip::maximum_ &&
-	   rawSpread_[1] < sistrip::maximum_ &&
-	   pedsMax_[0] < sistrip::maximum_ &&
-	   pedsMax_[1] < sistrip::maximum_ &&
-	   pedsMin_[0] < sistrip::maximum_ &&
-	   pedsMin_[1] < sistrip::maximum_ &&
-	   rawMax_[0] < sistrip::maximum_ &&
-	   rawMax_[1] < sistrip::maximum_ &&
-	   rawMin_[0] < sistrip::maximum_ &&
-	   rawMin_[1] < sistrip::maximum_ &&
-	   getErrorCodes().empty() );
-} 
 
 // ----------------------------------------------------------------------------
 // 

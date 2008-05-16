@@ -7,9 +7,6 @@
 #include <sstream>
 #include <vector>
 
-class TProfile;
-class TH1;
-
 /** 
    @class VpspScanAnalysis
    @author M. Wingham, R.Bainbridge
@@ -26,6 +23,8 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   VpspScanAnalysis();
 
   virtual ~VpspScanAnalysis() {;}
+
+  friend class VpspScanAlgorithm;
 
   // ---------- public interface ----------
   
@@ -53,29 +52,16 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   /** Signal level [ADC] for "digital zero". */
   inline const VInt& bottomLevel() const;
 
-  /** Histogram pointer and title. */
-  const Histo& histo( const uint16_t& apv ) const;
-
-  // ---------- public print methods ----------
+  // ---------- misc ----------
 
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
   
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
-
-  // ---------- private methods ----------
-  
- private:
   
   /** Resets analysis member data. */
   void reset();
-
-  /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
-
-  /** Performs histogram anaysis. */
-  void analyse();
 
   // ---------- private member data ----------
   
@@ -95,18 +81,6 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   VInt topLevel_;
 
   VInt bottomLevel_;
-  
-  /** Pointers and titles for histograms. */
-  std::vector<Histo> histos_;
-
- private:
-
-  // ---------- Private deprecated or wrapper methods ----------
-
-  void deprecated();
-
-  void anal(const std::vector<const TProfile*>& histos, 
-	    std::vector<unsigned short>& monitorables);
   
 };
 

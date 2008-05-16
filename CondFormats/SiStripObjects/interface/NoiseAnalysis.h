@@ -7,8 +7,6 @@
 #include <sstream>
 #include <vector>
 
-class TH1;
-
 /** 
     @class NoiseAnalysis
     @author M. Wingham, R.Bainbridge
@@ -25,6 +23,8 @@ class NoiseAnalysis : public CommissioningAnalysis {
   NoiseAnalysis();
 
   virtual ~NoiseAnalysis() {;}
+
+  friend class NoiseAlgorithm;
 
   // ---------- public interface ----------
 
@@ -56,29 +56,16 @@ class NoiseAnalysis : public CommissioningAnalysis {
   inline const VFloat& rawMax() const;
   inline const VFloat& rawMin() const;
 
-  inline const Histo& hPeds() const;
-  inline const Histo& hNoise() const;
-
-  // ---------- public print methods ----------
+  // ---------- misc ----------
   
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t apv_number = 0 );
   
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
-
-  // ---------- private methods ----------
-
- private:
   
   /** Resets analysis member data. */
   void reset();
-
-  /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
-
-  /** Performs histogram anaysis. */
-  void analyse();
   
   // ---------- private member data ----------
 
@@ -141,12 +128,6 @@ class NoiseAnalysis : public CommissioningAnalysis {
   /** Min raw noise value. */
   VFloat rawMin_;
   
-  /** Pedestals and raw noise */
-  Histo hPeds_;
-
-  /** Residuals and noise */
-  Histo hNoise_;
-
   // true if legacy histogram naming is used
   bool legacy_;
   
@@ -174,8 +155,5 @@ const NoiseAnalysis::VFloat& NoiseAnalysis::noiseMax() const { return noiseMax_;
 const NoiseAnalysis::VFloat& NoiseAnalysis::noiseMin() const { return noiseMin_; }
 const NoiseAnalysis::VFloat& NoiseAnalysis::rawMax() const { return rawMax_; }
 const NoiseAnalysis::VFloat& NoiseAnalysis::rawMin() const { return rawMin_; }
-
-const NoiseAnalysis::Histo& NoiseAnalysis::hPeds() const { return hPeds_; }
-const NoiseAnalysis::Histo& NoiseAnalysis::hNoise() const { return hNoise_; }
 
 #endif // CondFormats_SiStripObjects_NoiseAnalysis_H

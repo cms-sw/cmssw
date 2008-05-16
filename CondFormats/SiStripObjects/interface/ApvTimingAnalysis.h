@@ -7,14 +7,11 @@
 #include <sstream>
 #include <vector>
 
-class TH1;
-
 /**
    @class ApvTimingAnalysis
    @author M. Wingham, R.Bainbridge
    @brief Analysis for timing run using APV tick marks.
 */
-
 class ApvTimingAnalysis : public CommissioningAnalysis {
   
  public:
@@ -22,19 +19,18 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   // ---------- con(de)structors ----------
   
   ApvTimingAnalysis( const uint32_t& key );
-
+  
   ApvTimingAnalysis();
-
+  
   virtual ~ApvTimingAnalysis() {;}
+  
+  friend class ApvTimingAlgorithm;
   
   // ---------- public interface ----------
   
   /** Identifies if analysis is valid or not. */
   bool isValid() const;
   
-  /** Container of histogram pointer and title. */
-  inline const Histo& histo() const;
-
   /** Time of tick mark rising edge [ns]. */
   inline const float& time() const; 
 
@@ -65,32 +61,18 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   /** FED frame-finding threshold [ADC] (returns 65535 if invalid). */
   uint32_t frameFindingThreshold() const; 
   
-  // ---------- public print methods ----------
+  // ---------- misc ----------
 
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
-
-  // ---------- misc ----------
   
   /** Adds error codes for analysis (overrides private base). */ 
   inline void addErrorCode( const std::string& error );
-
-  // ---------- private methods ----------
-  
- private:
   
   /** Resets analysis member data. */
   void reset();
-
-  /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
-
-  /** Performs histogram anaysis. */
-  void analyse();
-
-  // ---------- public static data ----------
   
- public:
+  // ---------- public static data ----------
   
   /** Optimum sampling point, defined w.r.t. rising edge [ns]. */
   static const float optimumSamplingPoint_;
@@ -100,7 +82,7 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
   
   /** Threshold for FED frame finding (fraction of tick height). */
   static const float frameFindingThreshold_;
-
+  
   // ---------- private member data ----------
   
  private:
@@ -125,12 +107,9 @@ class ApvTimingAnalysis : public CommissioningAnalysis {
 
   /** Level of tick mark top [ADC]. */
   float peak_;
-
+  
   /** Checks synchronization to ref time is done only once. */
   bool synchronized_;
-
-  /** Container of histogram pointer and title. */
-  Histo histo_;
   
 };
 
@@ -144,7 +123,6 @@ const float& ApvTimingAnalysis::delay() const { return delay_; }
 const float& ApvTimingAnalysis::height() const { return height_; }
 const float& ApvTimingAnalysis::base() const { return base_; }
 const float& ApvTimingAnalysis::peak() const { return peak_; }
-const ApvTimingAnalysis::Histo& ApvTimingAnalysis::histo() const { return histo_; }
 void ApvTimingAnalysis::addErrorCode( const std::string& error ) { CommissioningAnalysis::addErrorCode(error) ;}
 
 #endif // CondFormats_SiStripObjects_ApvTimingAnalysis_H

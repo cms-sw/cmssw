@@ -7,8 +7,6 @@
 #include <sstream>
 #include <vector>
 
-class TH1;
-
 /** 
     @class PedestalsAnalysis
     @author M. Wingham, R.Bainbridge
@@ -25,6 +23,8 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   PedestalsAnalysis();
 
   virtual ~PedestalsAnalysis() {;}
+
+  friend class PedestalsAlgorithm;
 
   // ---------- public interface ----------
 
@@ -56,29 +56,16 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   inline const VFloat& rawMax() const;
   inline const VFloat& rawMin() const;
 
-  inline const Histo& hPeds() const;
-  inline const Histo& hNoise() const;
-
-  // ---------- public print methods ----------
+  // ---------- misc ----------
   
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t apv_number = 0 );
   
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
-
-  // ---------- private methods ----------
-
- private:
   
   /** Resets analysis member data. */
   void reset();
-
-  /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
-
-  /** Performs histogram anaysis. */
-  void analyse();
   
   // ---------- private member data ----------
 
@@ -141,12 +128,6 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   /** Min raw noise value. */
   VFloat rawMin_;
   
-  /** Pedestals and raw noise */
-  Histo hPeds_;
-
-  /** Residuals and noise */
-  Histo hNoise_;
-
   // true if legacy histogram naming is used
   bool legacy_;
   
@@ -174,8 +155,5 @@ const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseMax() const { return no
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseMin() const { return noiseMin_; }
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMax() const { return rawMax_; }
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMin() const { return rawMin_; }
-
-const PedestalsAnalysis::Histo& PedestalsAnalysis::hPeds() const { return hPeds_; }
-const PedestalsAnalysis::Histo& PedestalsAnalysis::hNoise() const { return hNoise_; }
 
 #endif // CondFormats_SiStripObjects_PedestalsAnalysis_H

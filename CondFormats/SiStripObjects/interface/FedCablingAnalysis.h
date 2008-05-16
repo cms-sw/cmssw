@@ -8,9 +8,6 @@
 #include <vector>
 #include <map>
 
-class TH1;
-class TProfile;
-
 /** 
    @class FedCablingAnalysis
    @author R.Bainbridge
@@ -20,15 +17,22 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   
  public:
 
-  // ---------- Con(de)structors and typedefs ----------
+  // ---------- con(de)structors and typedefs ----------
 
   FedCablingAnalysis( const uint32_t& key );
+
   FedCablingAnalysis();
+
   virtual ~FedCablingAnalysis() {;}
   
   typedef std::map<uint32_t,uint16_t> Candidates;
 
-  // ---------- Analysis results and histos ----------
+  friend class FedCablingAlgorithm;
+
+  // ---------- public interface ----------
+
+  /** Identifies if analysis is valid or not. */
+  bool isValid() const;
 
   /** FED id. */
   inline const uint16_t& fedId() const;
@@ -42,40 +46,24 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   /** Container for candidate connections. */
   inline const Candidates& candidates() const;
 
-  /** Pointer to FED id histogram. */
-  inline const Histo& hFedId() const;
-
-  /** Pointer to FED channel histogram. */
-  inline const Histo& hFedCh() const;
-
-  // ---------- Utility methods ----------
+  // ---------- misc ----------
   
-  /** Identifies if analysis is valid or not. */
-  bool isValid() const;
-
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
   
- private:
-  
-  // ---------- Private methods ----------
-  
   /** Resets analysis member data. */
   void reset();
+  
+  // ---------- public static data ----------
 
-  /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+ public:
+  
+  /** Threshold to identify candidate connections. */
+  static const float threshold_;
 
-  /** Performs histogram anaysis. */
-  void analyse();
-
-  void algo1( TProfile*, TProfile* );
-  void algo2( TProfile*, TProfile* );
-  void algo3( TProfile*, TProfile* );
+  // ---------- private member data ----------
   
  private:
-
-  // ---------- Private member data ----------
 
   /** FED id */
   uint16_t fedId_;
@@ -88,15 +76,6 @@ class FedCablingAnalysis : public CommissioningAnalysis {
 
   /** Container for candidate connections. */
   Candidates candidates_;
-  
-  /** Threshold to identify candidate connections. */
-  static const float threshold_;
-
-  /** Histo containing FED id */
-  Histo hFedId_;
-
-  /** Histo containing FED channel */
-  Histo hFedCh_;
 
 };
 
@@ -106,9 +85,6 @@ const uint16_t& FedCablingAnalysis::fedId() const { return fedId_; }
 const uint16_t& FedCablingAnalysis::fedCh() const { return fedCh_; } 
 const float& FedCablingAnalysis::adcLevel() const { return adcLevel_; }
 const FedCablingAnalysis::Candidates& FedCablingAnalysis::candidates() const { return candidates_; } 
-
-const FedCablingAnalysis::Histo& FedCablingAnalysis::hFedId() const { return hFedId_; }
-const FedCablingAnalysis::Histo& FedCablingAnalysis::hFedCh() const { return hFedCh_; }
 
 #endif // CondFormats_SiStripObjects_FedCablingAnalysis_H
 

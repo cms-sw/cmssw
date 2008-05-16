@@ -7,8 +7,6 @@
 #include <sstream>
 #include <vector>
 
-class TH1;
-
 /**
    @class FedTimingAnalysis
    @author M. Wingham, R.Bainbridge
@@ -20,48 +18,55 @@ class FedTimingAnalysis : public CommissioningAnalysis {
  public:
   
   FedTimingAnalysis( const uint32_t& key );
+
   FedTimingAnalysis();
+
   virtual ~FedTimingAnalysis() {;}
+
+  friend class FedTimingAlgorithm;
   
   inline const float& time() const; 
+
   inline const float& max() const; 
+
   inline const float& delay() const; 
+
   inline const float& error() const; 
+
   inline const float& base() const; 
+
   inline const float& peak() const; 
+
   inline const float& height() const;
-  
-  inline const Histo& histo() const;
   
   void max( const float& ); 
   
   void print( std::stringstream&, uint32_t not_used = 0 );
   
- private:
-  
   void reset();
-  void extract( const std::vector<TH1*>& );
-  void analyse();
   
  private:
   
   /** Time of tick mark rising edge [ns] */
   float time_;
+
   /** Maximum time set [ns] */
   float max_;
+
   /** Delay required, relative to maximum time [ns] */
   float delay_;
+
   /** Error on time delay [ns] */
   float error_;
+
   /** Level of tick mark "base" [adc] */
   float base_;
+
   /** Level of tick mark "peak" [adc] */
   float peak_;
+
   /** Tick mark height [adc] */
   float height_;
-  
-  /** APV tick mark */
-  Histo histo_;
   
   /** */
   float optimumSamplingPoint_;
@@ -75,7 +80,6 @@ const float& FedTimingAnalysis::error() const { return error_; }
 const float& FedTimingAnalysis::base() const { return base_; }
 const float& FedTimingAnalysis::peak() const { return peak_; }
 const float& FedTimingAnalysis::height() const { return height_; }
-const FedTimingAnalysis::Histo& FedTimingAnalysis::histo() const { return histo_; }
 
 #endif // CondFormats_SiStripObjects_FedTimingAnalysis_H
 

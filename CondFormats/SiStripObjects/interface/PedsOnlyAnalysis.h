@@ -7,8 +7,6 @@
 #include <sstream>
 #include <vector>
 
-class TH1;
-
 /** 
     @class PedsOnlyAnalysis
     @author M. Wingham, R.Bainbridge
@@ -25,6 +23,8 @@ class PedsOnlyAnalysis : public CommissioningAnalysis {
   PedsOnlyAnalysis();
 
   virtual ~PedsOnlyAnalysis() {;}
+
+  friend class PedsOnlyAlgorithm;
 
   // ---------- public interface ----------
 
@@ -47,29 +47,16 @@ class PedsOnlyAnalysis : public CommissioningAnalysis {
   inline const VFloat& rawMax() const;
   inline const VFloat& rawMin() const;
 
-  inline const Histo& hPeds() const;
-  inline const Histo& hNoise() const;
-
-  // ---------- public print methods ----------
+  // ---------- misc ----------
   
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t apv_number = 0 );
   
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
-
-  // ---------- private methods ----------
-
- private:
   
   /** Resets analysis member data. */
   void reset();
-
-  /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
-
-  /** Performs histogram anaysis. */
-  void analyse();
   
   // ---------- private member data ----------
 
@@ -109,12 +96,6 @@ class PedsOnlyAnalysis : public CommissioningAnalysis {
   /** Min raw noise value. */
   VFloat rawMin_;
   
-  /** Pedestals and raw noise */
-  Histo hPeds_;
-
-  /** Residuals and noise */
-  Histo hNoise_;
-
   // true if legacy histogram naming is used
   bool legacy_;
   
@@ -134,8 +115,5 @@ const PedsOnlyAnalysis::VFloat& PedsOnlyAnalysis::pedsMax() const { return pedsM
 const PedsOnlyAnalysis::VFloat& PedsOnlyAnalysis::pedsMin() const { return pedsMin_; } 
 const PedsOnlyAnalysis::VFloat& PedsOnlyAnalysis::rawMax() const { return rawMax_; }
 const PedsOnlyAnalysis::VFloat& PedsOnlyAnalysis::rawMin() const { return rawMin_; }
-
-const PedsOnlyAnalysis::Histo& PedsOnlyAnalysis::hPeds() const { return hPeds_; }
-const PedsOnlyAnalysis::Histo& PedsOnlyAnalysis::hNoise() const { return hNoise_; }
 
 #endif // CondFormats_SiStripObjects_PedsOnlyAnalysis_H

@@ -134,7 +134,7 @@ uint16_t FedChannelConnection::apvPairNumber() const {
 //       << "[FedChannelConnection::" << __func__ << "]"
 //       << " Unexpected number of APV pairs: " << nApvPairs_;
   }
-  return 0;
+  return 0; //@@ sistrip::invalid_;
 }
 
 // -----------------------------------------------------------------------------
@@ -189,7 +189,7 @@ void FedChannelConnection::terse( std::stringstream& ss ) const {
      << " FEC:cr/sl/ring/ccu/mod="
      << fecCrate() << "/"
      << fecSlot() << "/" 
-     << fecRing() << ","
+     << fecRing() << "/"
      << ccuAddr() << "/" 
      << ccuChan() << ","
      << " apvs=" 

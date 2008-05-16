@@ -7,9 +7,6 @@
 #include <sstream>
 #include <vector>
 
-class TProfile;
-class TH1;
-
 /** 
    @class ApvLatencyAnalysis
    @author M. Wingham, R.Bainbridge
@@ -20,39 +17,27 @@ class ApvLatencyAnalysis : public CommissioningAnalysis {
  public:
 
   ApvLatencyAnalysis(  const uint32_t& key );
+
   ApvLatencyAnalysis();
+
   virtual ~ApvLatencyAnalysis() {;}
 
+  friend class ApvLatencyAlgorithm;
+
   inline const uint16_t& latency() const;
-  
-  inline const Histo& histo() const;
 
   void print( std::stringstream&, uint32_t not_used = 0 );
-
- private:
   
   void reset();
-  void extract( const std::vector<TH1*>& );
-  void analyse();
   
  private:
 
   /** APV latency setting */
   uint16_t latency_; 
   
-  /** APV latency histo */
-  Histo histo_;
-
- private:
-  
-  void deprecated();
-  void analysis( const std::vector<const TProfile*>& histos, 
-		 std::vector<unsigned short>& monitorables );
-  
 };
 
 const uint16_t& ApvLatencyAnalysis::latency() const { return latency_; }
-const ApvLatencyAnalysis::Histo& ApvLatencyAnalysis::histo() const { return histo_; }
 
 #endif // CondFormats_SiStripObjects_ApvLatencyAnalysis_H
 

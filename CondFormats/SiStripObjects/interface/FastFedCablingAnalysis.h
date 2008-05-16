@@ -8,9 +8,6 @@
 #include <vector>
 #include <map>
 
-class TH1;
-class TProfile;
-
 /** 
    @class FastFedCablingAnalysis
    @author R.Bainbridge
@@ -22,13 +19,15 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
 
   // ---------- con(de)structors and typedefs ----------
 
-  FastFedCablingAnalysis( const uint32_t& key);
+  FastFedCablingAnalysis( const uint32_t& key );
 
   FastFedCablingAnalysis();
 
   virtual ~FastFedCablingAnalysis() {;}
   
   typedef std::map<uint32_t,uint16_t> Candidates;
+
+  friend class FastFedCablingAlgorithm;
 
   // ---------- public interface ----------
 
@@ -65,10 +64,7 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** Minimum light level in data [ADC]. */
   inline const float& min() const;
 
-  /** Pointer to histogram. */
-  inline const Histo& histo() const;
-
-  // ---------- public print methods ----------
+  // ---------- misc ----------
 
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
@@ -79,18 +75,8 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** Overrides base method. */
   void summary( std::stringstream& ) const;
   
-  // ---------- private methods ----------
-  
- private:
-  
   /** Resets analysis member data. */
   void reset();
-
-  /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
-
-  /** Performs histogram anaysis. */
-  void analyse();
 
   // ---------- public static data ----------
 
@@ -104,6 +90,12 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
 
   /** Level [ADC] below which TrimDAC setting is defined as "bad". */
   static const float trimDacThreshold_;
+
+  /** */
+  static const uint16_t nBitsForDcuId_;
+
+  /** */
+  static const uint16_t nBitsForLldCh_;
 
   // ---------- private member data ----------
 
@@ -145,15 +137,6 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   /** */
   float min_;
 
-  /** */
-  static const uint16_t nBitsForDcuId_;
-
-  /** */
-  static const uint16_t nBitsForLldCh_;
-  
-  /** Histo */
-  Histo histo_;
-
 };
 
 // ---------- Inline methods ----------
@@ -166,7 +149,6 @@ const float& FastFedCablingAnalysis::lowLevel() const { return lowMean_; }
 const float& FastFedCablingAnalysis::lowRms() const { return lowRms_; }
 const float& FastFedCablingAnalysis::max() const { return max_; }
 const float& FastFedCablingAnalysis::min() const { return min_; }
-const FastFedCablingAnalysis::Histo& FastFedCablingAnalysis::histo() const { return histo_; }
 
 #endif // CondFormats_SiStripObjects_FastFedCablingAnalysis_H
 
