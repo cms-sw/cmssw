@@ -109,6 +109,7 @@ thCkfTrajectoryBuilder.trajectoryFilterName = 'thCkfTrajectoryFilter'
 thTrackCandidates.SeedProducer = 'thPLSeeds'
 thTrackCandidates.TrajectoryBuilder = 'thCkfTrajectoryBuilder'
 thTrackCandidates.doSeedingRegionRebuilding = True
+thTrackCandidates.useHitsSplitting = True
 thWithMaterialTracks.src = 'thTrackCandidates'
 thWithMaterialTracks.clusterRemovalInfo = 'thClusters'
 

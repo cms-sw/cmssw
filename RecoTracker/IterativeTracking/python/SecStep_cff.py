@@ -98,6 +98,7 @@ secTrackCandidates.SeedProducer = 'secCombSeeds'
 #replace secTrackCandidates.SeedProducer= "secPlTriplets"
 secTrackCandidates.TrajectoryBuilder = 'secCkfTrajectoryBuilder'
 secTrackCandidates.doSeedingRegionRebuilding = True
+secTrackCandidates.useHitsSplitting = True
 secWithMaterialTracks.src = 'secTrackCandidates'
 secWithMaterialTracks.clusterRemovalInfo = 'secClusters'
 
