@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.33 2008/02/16 14:32:02 oehler Exp $
+/// $Id: JetMaker.cc,v 1.34 2008/04/30 22:05:17 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -163,11 +163,13 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fPFCandidates,
 	  break;
 	  
 	case PFCandidate::gamma:   // photon
+	case PFCandidate::egamma_HF :    // electromagnetic in HF
 	  neutralEmEnergy += pfCand->energy();
 	  neutralMultiplicity++;
 	  break;
 	  
-	case  PFCandidate::h0 :    // neutral hadron
+	case PFCandidate::h0 :    // neutral hadron
+	case PFCandidate::h_HF :    // hadron in HF
 	  neutralHadronEnergy += pfCand->energy();
 	  neutralMultiplicity++;
 	  break;
