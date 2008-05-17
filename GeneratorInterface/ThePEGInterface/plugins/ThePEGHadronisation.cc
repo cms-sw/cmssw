@@ -27,7 +27,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEProxy.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
@@ -48,7 +48,7 @@ class ThePEGHadronisation : public ThePEGInterface, public Hadronisation {
     private:
 	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
-	void newCommon(const boost::shared_ptr<LHECommon> &common);
+	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
 
 	void initLHE();
 
@@ -122,9 +122,10 @@ std::auto_ptr<HepMC::GenEvent> ThePEGHadronisation::doHadronisation()
 	return event;
 }
 
-void ThePEGHadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
+void ThePEGHadronisation::newRunInfo(
+				const boost::shared_ptr<LHERunInfo> &runInfo)
 {
-	proxy_->loadCommon(common);
+	proxy_->loadRunInfo(runInfo);
 
 	initGenerator();
 

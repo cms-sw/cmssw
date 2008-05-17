@@ -15,7 +15,7 @@
 #include <ThePEG/LesHouches/LesHouchesReader.h>
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEProxy.h"
 
@@ -85,8 +85,8 @@ long LesHouchesInterface::scan()
 
 void LesHouchesInterface::open()
 {
-	const LHECommon *common = LHEProxy::find(proxyID)->getCommon().get();
-	const lhef::HEPRUP &orig = *common->getHEPRUP();
+	const LHERunInfo *runInfo = LHEProxy::find(proxyID)->getRunInfo().get();
+	const lhef::HEPRUP &orig = *runInfo->getHEPRUP();
 
 	heprup.IDBMUP	= orig.IDBMUP;
 	heprup.EBMUP	= orig.EBMUP;
