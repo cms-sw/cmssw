@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/04/08 18:09:43 $
- * $Revision: 1.55 $
+ * $Date: 2008/05/11 09:50:52 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -88,16 +88,6 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     LogInfo("EcalEndcapMonitorModule") << " debug switch is OFF";
   }
 
-  dqmStore_ = Service<DQMStore>().operator->();
-
-  if ( dqmStore_ ) {
-    if ( debug_ ) {
-      dqmStore_->setVerbose(1);
-    } else {
-      dqmStore_->setVerbose(0);
-    }
-  }
-
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
@@ -142,7 +132,11 @@ EcalEndcapMonitorModule::~EcalEndcapMonitorModule(){
 
 void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
 
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginJob" << endl;
+
   ievt_ = 0;
+
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
@@ -157,11 +151,15 @@ void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
 
 void EcalEndcapMonitorModule::beginRun(const Run& r, const EventSetup& c) {
 
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginRun" << endl;
+
   if ( ! mergeRuns_ ) this->reset();
   
 }
   
 void EcalEndcapMonitorModule::endRun(const Run& r, const EventSetup& c) {
+
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: endRun" << endl;
 
 }
 
@@ -342,7 +340,7 @@ void EcalEndcapMonitorModule::cleanup(void){
 
 void EcalEndcapMonitorModule::endJob(void) {
 
-  LogInfo("EcalEndcapMonitorModule") << "analyzed " << ievt_ << " events";
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: endJob, ievt = " << ievt_ << endl;
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
