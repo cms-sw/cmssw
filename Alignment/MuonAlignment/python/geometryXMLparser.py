@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# XML must come from MuonGeometryDBConverter; it must not be hand-made
+# XML must come from MuonGeometryDBConverter; not hand-made
 # Example configuration that will work
 # 
 # PSet outputXML = {
@@ -9,6 +9,7 @@
 #     bool survey = false               # important: survey must be false
 #     bool rawIds = false               # important: rawIds must be false
 #     bool eulerAngles = false
+#     int32 precision = 8
 # }
 
 def dtorder(a, b):
@@ -19,14 +20,18 @@ def dtorder(a, b):
     exec("b%s = %d" % (name, bi))
 
   if awheel == bwheel and astation == bstation:
-    if astation == 4:
-      sectororder = [0, 1, 2, 3, 4, 13, 5, 6, 7, 8, 9, 10, 14, 11, 12]
+
+    if asector != bsector:
+      if astation == 4: sectororder = [0, 1, 2, 3, 4, 13, 5, 6, 7, 8, 9, 10, 14, 11, 12]
+      elif awheel == 0: sectororder = [0, 1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12]
+      else: sectororder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       return cmp(sectororder.index(asector), sectororder.index(bsector))
-    elif awheel == 0:
-      sectororder = [0, 1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12]
-      return cmp(sectororder.index(asector), sectororder.index(bsector))
-    else: return cmp(a, b)
-  else: return cmp(a, b)
+
+    elif asuperlayer != bsuperlayer:
+      superlayerorder = [0, 1, 3, 2]
+      return cmp(superlayerorder.index(asuperlayer), superlayerorder.index(bsuperlayer))
+
+  return cmp(a, b)
 
 def cscorder(a, b):
   for ai, bi, name in zip(list(a) + [0]*(5 - len(a)), \
@@ -36,11 +41,14 @@ def cscorder(a, b):
     exec("b%s = %d" % (name, bi))
 
   if astation == 1 and aring == 3: return cmp(a, b)
-  elif aendcap == bendcap and astation == bstation and aring == bring:
+
+  elif aendcap == bendcap and astation == bstation and aring == bring and achamber != bchamber:
+    if achamber == 0: return -1 # upper hierarchy comes first
+    if bchamber == 0: return  1 # upper hierarchy comes first
     if achamber % 2 == 1 and bchamber % 2 == 0: return -1  # odds come first
     elif achamber % 2 == 0 and bchamber % 2 == 1: return 1 # evens come after
-    else: return cmp(achamber, bchamber)
-  else: return cmp(a, b)
+
+  return cmp(a, b)
 
 # External libraries (standard in Python >= 2.4, at least)
 import xml.sax
@@ -89,42 +97,15 @@ class Operation:
 
 # This class is a subclass of something which knows how to parse XML
 class MuonGeometry(xml.sax.handler.ContentHandler):
-    def __init__(self, stream):
+    def __init__(self, stream=None):
         self.dt = {}
         self.csc = {}
         self._operation = None
 
-        parser = xml.sax.make_parser()
-        parser.setContentHandler(self)
-        parser.parse(stream)
-
-        self.dtWheels, self.dtStations, self.dtChambers, self.dtSuperLayers, self.dtLayers = [], [], [], [], []
-        for index, alignable in self.dt.iteritems():
-            if len(index) == 1: self.dtWheels.append(alignable)
-            elif len(index) == 2: self.dtStations.append(alignable)
-            elif len(index) == 3: self.dtChambers.append(alignable)
-            elif len(index) == 4: self.dtSuperLayers.append(alignable)
-            elif len(index) == 5: self.dtLayers.append(alignable)
-
-#         if len(self.dtWheels) == 0: del self.dtWheels
-#         if len(self.dtStations) == 0: del self.dtStations
-#         if len(self.dtChambers) == 0: del self.dtChambers
-#         if len(self.dtSuperLayers) == 0: del self.dtSuperLayers
-#         if len(self.dtLayers) == 0: del self.dtLayers
-            
-        self.cscEndcaps, self.cscStations, self.cscRings, self.cscChambers, self.cscLayers = [], [], [], [], []
-        for index, alignable in self.csc.iteritems():
-            if len(index) == 1: self.cscEndcaps.append(alignable)
-            elif len(index) == 2: self.cscStations.append(alignable)
-            elif len(index) == 3: self.cscRings.append(alignable)
-            elif len(index) == 4: self.cscChambers.append(alignable)
-            elif len(index) == 5: self.cscLayers.append(alignable)
-
-#         if len(self.cscEndcaps) == 0: del self.cscEndcaps
-#         if len(self.cscStations) == 0: del self.cscStations
-#         if len(self.cscRings) == 0: del self.cscRings
-#         if len(self.cscChambers) == 0: del self.cscChambers
-#         if len(self.cscLayers) == 0: del self.cscLayers
+        if stream is not None:
+          parser = xml.sax.make_parser()
+          parser.setContentHandler(self)
+          parser.parse(stream)
 
     # what to do when you get to a <startelement>
     def startElement(self, tag, attrib):
@@ -181,3 +162,68 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
                 c.__dict__.update(self._operation.setape)
                 if isinstance(c, DTAlignable): self.dt[c.index()] = c
                 elif isinstance(c, CSCAlignable): self.csc[c.index()] = c
+
+    # writing back to xml
+    def xml(self, stream=None, precision=8):
+      if precision == None: format = "%g"
+      else: format = "%." + str(precision) + "f"
+
+      if stream == None:
+        output = []
+        writeline = lambda x: output.append(x)
+      else:
+        writeline = lambda x: stream.write(x)
+
+      writeline("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+      writeline("<?xml-stylesheet type=\"text/xml\" href=\"MuonAlignment.xsl\"?>\n")
+      writeline("<MuonAlignment>\n\n")
+
+      dtkeys = self.dt.keys()
+      dtkeys.sort(dtorder)
+      csckeys = self.csc.keys()
+      csckeys.sort(cscorder)
+
+      def f(number): return format % number
+
+      def position_ape(ali, attributes):
+        writeline("  <%s%s />\n" % (level, attributes))
+        writeline("  <setposition relativeto=\"%s\" x=\"%s\" y=\"%s\" z=\"%s\" phix=\"%s\" phiy=\"%s\" phiz=\"%s\" />\n" % \
+                  (ali.relativeto, f(ali.x), f(ali.y), f(ali.z), f(ali.phix), f(ali.phiy), f(ali.phiz)))
+
+        if "xx" in ali.__dict__:
+          writeline("  <setape xx=\"%s\" xy=\"%s\" xz=\"%s\" yy=\"%s\" yz=\"%s\" zz=\"%s\" />\n" % \
+                    (f(ali.xx), f(ali.xy), f(ali.xz), f(ali.yy), f(ali.yz), f(ali.zz)))
+
+      for key in dtkeys:
+        writeline("<operation>\n")
+
+        if len(key) == 0: level = "DTBarrel"
+        elif len(key) == 1: level = "DTWheel "
+        elif len(key) == 2: level = "DTStation "
+        elif len(key) == 3: level = "DTChamber "
+        elif len(key) == 4: level = "DTSuperLayer "
+        elif len(key) == 5: level = "DTLayer "
+
+        ali = self.dt[key]
+        attributes = " ".join(["%s=\"%d\"" % (name, value) for name, value in zip(("wheel", "station", "sector", "superlayer", "layer"), key)])
+        position_ape(ali, attributes)
+
+        writeline("</operation>\n\n")
+
+      for key in csckeys:
+        writeline("<operation>\n")
+
+        if len(key) == 1: level = "CSCEndcap "
+        elif len(key) == 2: level = "CSCStation "
+        elif len(key) == 3: level = "CSCRing "
+        elif len(key) == 4: level = "CSCChamber "
+        elif len(key) == 5: level = "CSCLayer "
+
+        ali = self.csc[key]
+        attributes = " ".join(["%s=\"%d\"" % (name, value) for name, value in zip(("endcap", "station", "ring", "chamber", "layer"), key)])
+        position_ape(ali, attributes)
+
+        writeline("</operation>\n\n")
+
+      writeline("</MuonAlignment>\n")
+      if stream == None: return "".join(output)
