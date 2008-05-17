@@ -11,6 +11,37 @@
 #     bool eulerAngles = false
 # }
 
+def dtorder(a, b):
+  for ai, bi, name in zip(list(a) + [0]*(5 - len(a)), \
+                          list(b) + [0]*(5 - len(b)), \
+                          ("wheel", "station", "sector", "superlayer", "layer")):
+    exec("a%s = %d" % (name, ai))
+    exec("b%s = %d" % (name, bi))
+
+  if awheel == bwheel and astation == bstation:
+    if astation == 4:
+      sectororder = [0, 1, 2, 3, 4, 13, 5, 6, 7, 8, 9, 10, 14, 11, 12]
+      return cmp(sectororder.index(asector), sectororder.index(bsector))
+    elif awheel == 0:
+      sectororder = [0, 1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12]
+      return cmp(sectororder.index(asector), sectororder.index(bsector))
+    else: return cmp(a, b)
+  else: return cmp(a, b)
+
+def cscorder(a, b):
+  for ai, bi, name in zip(list(a) + [0]*(5 - len(a)), \
+                          list(b) + [0]*(5 - len(b)), \
+                          ("endcap", "station", "ring", "chamber", "layer")):
+    exec("a%s = %d" % (name, ai))
+    exec("b%s = %d" % (name, bi))
+
+  if astation == 1 and aring == 3: return cmp(a, b)
+  elif aendcap == bendcap and astation == bstation and aring == bring:
+    if achamber % 2 == 1 and bchamber % 2 == 0: return -1  # odds come first
+    elif achamber % 2 == 0 and bchamber % 2 == 1: return 1 # evens come after
+    else: return cmp(achamber, bchamber)
+  else: return cmp(a, b)
+
 # External libraries (standard in Python >= 2.4, at least)
 import xml.sax
 
