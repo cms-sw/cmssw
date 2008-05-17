@@ -21,14 +21,15 @@ if "-h" in opts or "--help" in opts:
   print usage
   sys.exit(0)
 
-epsilon = 1e-4
+epsilon = 1e-6
 if "-e" in opts: epsilon = float(opts["-e"])
 if "--epsilon" in opts: epsilon = float(opts["--epsilon"])
 
 geom1 = MuonGeometry(file(args[0]))
 geom2 = MuonGeometry(file(args[1]))
 
-from math import sin, cos
+from math import sin, cos, sqrt
+sqrtepsilon = sqrt(epsilon)
 
 def matrixmult(a, b):
   return [[sum([i*j for i, j in zip(row, col)]) for col in zip(*b)] for row in a]
@@ -101,8 +102,8 @@ def loopover(which):
       g2rot = rotFromEuler(g2)
     
     diff = matrixmult(g1rot, transpose(g2rot))
-    if abs(diff[0][0] - 1.) > epsilon or abs(diff[1][1] - 1.) > epsilon or abs(diff[2][2] - 1.) > epsilon or \
-       abs(diff[0][1]) > epsilon**2 or abs(diff[0][2]) > epsilon**2 or abs(diff[1][2]) > epsilon**2:
+    if abs(diff[0][0] - 1.) > sqrtepsilon or abs(diff[1][1] - 1.) > sqrtepsilon or abs(diff[2][2] - 1.) > sqrtepsilon or \
+       abs(diff[0][1]) > epsilon or abs(diff[0][2]) > epsilon or abs(diff[1][2]) > epsilon:
       print "%s %s rotation difference: %s(%g, %g, %g) - %s(%g, %g, %g) = %s" % \
             (which, str(key), g1type, g1a, g1b, g1c, g2type, g2a, g2b, g2c, str(diff))
 

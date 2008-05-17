@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.3 2008/03/26 22:00:02 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.4 2008/04/10 22:18:34 pivarski Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@ MuonAlignmentOutputXML::MuonAlignmentOutputXML(const edm::ParameterSet &iConfig)
    , m_survey(iConfig.getParameter<bool>("survey"))
    , m_rawIds(iConfig.getParameter<bool>("rawIds"))
    , m_eulerAngles(iConfig.getParameter<bool>("eulerAngles"))
+   , m_precision(iConfig.getParameter<double>("precision"))
    , m_suppressDTBarrel(iConfig.getUntrackedParameter<bool>("suppressDTBarrel", false))
    , m_suppressDTWheels(iConfig.getUntrackedParameter<bool>("suppressDTWheels", false))
    , m_suppressDTStations(iConfig.getUntrackedParameter<bool>("suppressDTStations", false))
@@ -100,6 +101,10 @@ MuonAlignmentOutputXML::~MuonAlignmentOutputXML()
 
 void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::EventSetup &iSetup) const {
    std::ofstream outputFile(m_fileName.c_str());
+   outputFile << std::setprecision(m_precision) << std::fixed;
+
+   outputFile << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
+   outputFile << "<?xml-stylesheet type=\"text/xml\" href=\"MuonAlignment.xsl\"?>" << std::endl;
    outputFile << "<MuonAlignment>" << std::endl << std::endl;
    
    std::map<align::ID, CLHEP::HepSymMatrix> errors;

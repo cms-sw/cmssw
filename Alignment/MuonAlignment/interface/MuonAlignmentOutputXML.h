@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 14 18:02:28 CDT 2008
-// $Id$
+// $Id: MuonAlignmentOutputXML.h,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -57,6 +57,7 @@ class MuonAlignmentOutputXML {
       std::string m_fileName;
       int m_relativeto;
       bool m_survey, m_rawIds, m_eulerAngles;
+      double m_precision;
       bool m_suppressDTBarrel, m_suppressDTWheels, m_suppressDTStations, m_suppressDTChambers, m_suppressDTSuperLayers, m_suppressDTLayers;
       bool m_suppressCSCEndcaps, m_suppressCSCStations, m_suppressCSCRings, m_suppressCSCChambers, m_suppressCSCLayers;
 };
