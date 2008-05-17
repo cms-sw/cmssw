@@ -182,6 +182,9 @@ int main( int argc, char** argv ){
   cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();
   conHandler.registerConnection("mysourcedb",sourceConnect,-1);
   conHandler.registerConnection("mydestdb",destConnect,-1);
+  if (!logConnect.empty()) 
+    conHandler.registerConnection("logdb",logConnect,-1);
+
 
   try{
     session.open();
@@ -260,7 +263,6 @@ int main( int argc, char** argv ){
     // setup logDB
     std::auto_ptr<cond::Logger> logdb;
     if (!logConnect.empty()) {
-      conHandler.registerConnection("logdb",logConnect,-1);
       logdb.reset(new cond::Logger(conHandler.getConnection("logdb")));
       logdb->getWriteLock();
       logdb->createLogDBIfNonExist();
