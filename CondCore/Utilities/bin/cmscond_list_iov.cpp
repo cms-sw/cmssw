@@ -1,3 +1,8 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
 #include "CondCore/DBCommon/interface/ConnectionHandler.h"
@@ -15,6 +20,9 @@
 #include <iterator>
 #include <iostream>
 int main( int argc, char** argv ){
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+
+
   boost::program_options::options_description desc("options");
   boost::program_options::options_description visible("Usage: cmscond_list_iov [options] \n");
   visible.add_options()
@@ -70,6 +78,18 @@ int main( int argc, char** argv ){
   if(vm.count("debug")){
     debug=true;
   }
+
+
+  std::vector<edm::ParameterSet> psets;
+
+  edm::ParameterSet pSet;
+  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+  psets.push_back(pSet);
+
+  edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+  edm::ServiceRegistry::Operate operate(services);
+
+
   cond::DBSession* session=new cond::DBSession;
   if( !authPath.empty() ){
     session->configuration().setAuthenticationMethod( cond::XML );
