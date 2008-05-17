@@ -98,7 +98,7 @@ int main( int argc, char** argv ){
   }
   // cond::Connection myconnection(connect,-1);  
   session->open();
-  cond::ConnectionHandler::Instance().registerConnection(connect,session,-1);
+  cond::ConnectionHandler::Instance().registerConnection(connect,*session,-1);
   cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
 
   if( listAll ){
