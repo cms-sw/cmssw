@@ -319,6 +319,8 @@ void PixelDACSettings::writeASCII(std::string dir) const {
 void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 					     PixelNameTranslation* trans) const{
 
+  bool bufferData=true; 
+
   std::vector<unsigned int> dacs;
 
   for(unsigned int i=0;i<dacsettings_.size();i++){
@@ -326,45 +328,6 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     dacsettings_[i].getDACs(dacs);
 
     PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
-
-    /*     Now moved to PixelDACSettings
-
-	   if (i==0) {
-
-	   //For now, set the TBM initialization here --FIXME--
-	   //As implemented below these methods will be called
-	   //more than once per FEC
-
-	   int mfec=theROC.mfec();
-	   int mfecchannel=theROC.mfecchannel();
-	   int tbmchannel=14; //??
-	   int hubaddress=theROC.hubaddress();
-
-	   pixelFEC->injectrsttbm(mfec, 1);
-	   pixelFEC->injectrstroc(mfec,1);
-	   pixelFEC->clockphaseselect(mfec,0);
-	   pixelFEC->enablecallatency(mfec,0);
-	   pixelFEC->disableexttrigger(mfec,0);
-	   pixelFEC->injecttrigger(mfec,0);
-	   pixelFEC->callatencycount(mfec,79);
-	   //pixelFEC->synccontrolregister(mfec);
-
-	   //setting speed to 40MHz
-	   pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 0, 1, 0);
-	   //set mode (sync/clear evt counter/pre-cal) to pre-calibrate
-	   pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 1, 0xc0, 0);
-	   //Reset TBM and reset ROC
-	   pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 2, 0x14, 0);
-	   //TBM Analog input amplifier bias
-	   pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 5, 0x7f, 0);
-	   //TBM Analog output driver bias
-	   pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 6, 0x7f, 0);
-	   //TBM output DAC gain
-	   pixelFEC->tbmcmd(mfec, mfecchannel, tbmchannel, hubaddress, 4, 7, 150, 0);
-
-	   }
-
-    */
 
     //Need to set readout speed (40MHz) and Vcal range (0-1800 mV) and enable the chip
 
@@ -377,12 +340,18 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 		      theROC.portaddress(),
 		      theROC.rocid(),
 		      0xfd,
-		      controlreg);
+		      controlreg,
+		      bufferData);
 
-    pixelFEC->setAllDAC(theROC,dacs);
+    pixelFEC->setAllDAC(theROC,dacs,bufferData);
 
     // start with no pixels on for calibration
-    pixelFEC->clrcal(theROC.mfec(), theROC.mfecchannel(), theROC.hubaddress(), theROC.portaddress(), theROC.rocid());
+    pixelFEC->clrcal(theROC.mfec(), 
+		     theROC.mfecchannel(), 
+		     theROC.hubaddress(), 
+		     theROC.portaddress(),  
+		     theROC.rocid(),
+		     bufferData);
 
     // enable all the double columns
     for(int dcol=0;dcol<26;dcol++){
@@ -392,10 +361,14 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 			   theROC.portaddress(),
 			   theROC.rocid(),
 			   dcol,
-			   1);
+			   1,
+			   bufferData);
     }
 
+  }
 
+  if (bufferData) {
+    pixelFEC->qbufsend();
   }
 
 } 
