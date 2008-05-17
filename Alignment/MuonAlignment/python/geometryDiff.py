@@ -1,13 +1,32 @@
 #!/usr/bin/python
 
 from Alignment.MuonAlignment.geometryXMLparser import MuonGeometry, dtorder, cscorder
-import sys
+import sys, getopt
 
-geom1 = MuonGeometry(file(sys.argv[1]))
-geom2 = MuonGeometry(file(sys.argv[2]))
+usage = "Usage: geometryDiff.py [-h|--help] [-e|--epsilon epsilon] geometry1.xml geometry2.xml"
+
+try:
+  opts, args = getopt.getopt(sys.argv[1:], "he:", ["help", "epsilon="])
+except getopt.GetoptError, msg:
+  print >>sys.stderr, usage
+  sys.exit(2)
+
+if len(args) != 2:
+  print >>sys.stderr, usage
+  sys.exit(2)
+
+opts = dict(opts)
+
+if "-h" in opts or "--help" in opts:
+  print usage
+  sys.exit(0)
 
 epsilon = 1e-4
-if len(sys.argv) > 3: epsilon = float(sys.argv[3])
+if "-e" in opts: epsilon = float(opts["-e"])
+if "--epsilon" in opts: epsilon = float(opts["--epsilon"])
+
+geom1 = MuonGeometry(file(args[0]))
+geom2 = MuonGeometry(file(args[1]))
 
 from math import sin, cos
 
