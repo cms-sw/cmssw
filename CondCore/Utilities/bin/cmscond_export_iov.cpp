@@ -12,7 +12,8 @@
 
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
-#include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/IOVService/interface/IOVIterator.h"
+
 
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
@@ -21,6 +22,7 @@
 #include "CondCore/DBOutputService/interface/Logger.h"
 #include "CondCore/DBOutputService/interface/LogDBEntry.h"
 #include "CondCore/DBOutputService/interface/UserLogInfo.h"
+#include "CondCore/DBOutputService/interface/TagInfo.h"
 
 
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
