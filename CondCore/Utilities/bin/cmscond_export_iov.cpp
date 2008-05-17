@@ -300,7 +300,7 @@ int main( int argc, char** argv ){
     cond::IOVIterator* iit=iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter);
     std::string timetypestr = iovmanager2.timeType()==cond::runnumber ? std::string("runnumber") : std::string("timestamp") ;
     iit->next(); // just to initialize
-    cond::TagInfo& result;
+    cond::TagInfo result;
     result.name=destTag;
     result.token=destiovtoken;
     result.lastInterval=iit->validity();
