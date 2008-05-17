@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.5 2008/04/17 23:33:07 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.6 2008/05/17 13:56:35 pivarski Exp $
 //
 
 // system include files
@@ -104,10 +104,6 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_none = XMLString::transcode("none");
    str_ideal = XMLString::transcode("ideal");
    str_container = XMLString::transcode("container");
-   str_minus = XMLString::transcode("-");
-   str_decimalpoint = XMLString::transcode(".");
-   str_exponent = XMLString::transcode("e");
-   str_EXPONENT = XMLString::transcode("E");
 }
 
 // MuonAlignmentInputXML::MuonAlignmentInputXML(const MuonAlignmentInputXML& rhs)
@@ -176,10 +172,6 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_none);
    XMLString::release(&str_ideal);
    XMLString::release(&str_container);
-   XMLString::release(&str_minus);
-   XMLString::release(&str_decimalpoint);
-   XMLString::release(&str_exponent);
-   XMLString::release(&str_EXPONENT);
 }
 
 //
@@ -291,8 +283,8 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 	    throw cms::Exception("XMLException") << "<collection> requires a name attribute" << std::endl;
 	 }
 	 char *ascii_name = XMLString::transcode(node_name->getValue());
-
 	 std::string name(ascii_name);
+	 XMLString::release(&ascii_name);
 
 	 std::map<Alignable*, bool> aliset;
 	 for (unsigned int j = 0;  j < children->getLength();  j++) {
@@ -339,6 +331,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 	       }
 	       char *ascii_name = XMLString::transcode(node_name->getValue());
 	       std::string name(ascii_name);
+	       XMLString::release(&ascii_name);
 
 	       std::map<std::string, std::map<Alignable*, bool> >::const_iterator alicollections_iter = alicollections.find(name);
 	       if (alicollections_iter == alicollections.end()) {
@@ -587,106 +580,79 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
 
 double MuonAlignmentInputXML::parseDouble(const XMLCh *str, const char *attribute) const {
    unsigned int len = XMLString::stringLen(str);
+   char *cstr = XMLString::transcode(str);
+   std::stringstream errmessage;
+   errmessage << "Value of \"" << attribute << "\" must be a double, not \"" << cstr << "\"" << std::endl;
 
-   bool minus = XMLString::startsWith(str, str_minus);
+   unsigned int i = 0;
 
-   int decimal_place = XMLString::indexOf(str, *str_decimalpoint);
-   int exponent_index = XMLString::indexOf(str, *str_exponent);
-   if (exponent_index == -1) exponent_index = XMLString::indexOf(str, *str_EXPONENT);
-   
-   int before_decimal = 0;
-   int after_decimal = 0;
-   unsigned int digits = 0;
-   int after_exponent = 0;
+   bool minus = false;
+   if (cstr[i] == '-') {
+      minus = true;
+      i++;
+   }
+   else if (cstr[i] == '+') i++;
 
-   if (decimal_place == -1  &&  exponent_index == -1) { // it's just an integer
-      try {
-	 before_decimal = XMLString::parseInt(str);
+   double output = 0.;
+
+   while (cstr[i] != '.'  &&  cstr[i] != 'e'  &&  cstr[i] != 'E'  &&  i < len) {
+      if (cstr[i] < '0'  ||  cstr[i] > '9') {
+	 XMLString::release(&cstr);
+	 throw cms::Exception("XMLException") << errmessage.str();	 
       }
-      catch (const XMLException &toCatch) {
-	 throw cms::Exception("XMLException") << "Value of \"" << attribute << "\" must be a double" << std::endl;
+
+      output *= 10;
+      output += cstr[i] - '0';
+      i++;
+   }
+
+   if (cstr[i] == '.') {
+      double place = 0.1;
+      i++;
+
+      while (cstr[i] != 'e'  &&  cstr[i] != 'E'  &&  i < len) {
+	 if (cstr[i] < '0'  ||  cstr[i] > '9') {
+	    XMLString::release(&cstr);
+	    throw cms::Exception("XMLException") << errmessage.str();	 
+	 }
+	 
+	 output += (cstr[i] - '0') * place;
+	 place /= 10.;
+	 i++;
       }
    }
-   else if (decimal_place != -1  &&  exponent_index == -1) { // only a decimal place
-      XMLCh *before, *after;
-      before = new XMLCh[len];
-      after = new XMLCh[len];
 
-      XMLString::subString(before, str, 0, decimal_place);
-      XMLString::subString(after, str, decimal_place+1, len);
-      unsigned int beforeLen = XMLString::stringLen(before);
-      unsigned int afterLen = XMLString::stringLen(after);
-      digits = afterLen;
+   if (cstr[i] == 'e'  ||  cstr[i] == 'E') {
+      i++;
 
-      try {
-	 if (beforeLen > 0  &&  !(beforeLen == 1 && minus)) before_decimal = XMLString::parseInt(before);
-	 if (afterLen > 0)  after_decimal = XMLString::parseInt(after);
+      int exponent = 0;
+      bool expminus = false;
+      if (cstr[i] == '-') {
+	 expminus = true;
+	 i++;
       }
-      catch (const XMLException &toCatch) {
-	 throw cms::Exception("XMLException") << "Value of \"" << attribute << "\" must be a double" << std::endl;
-      }
-      if (after_decimal < 0.  ||  (beforeLen == 0  &&  afterLen == 0)) {
-	 throw cms::Exception("XMLException") << "Value of \"" << attribute << "\" must be a double" << std::endl;
-      }
+      else if (cstr[i] == '+') i++;
 
-      delete [] before;
-      delete [] after;
-   }
-   else if (decimal_place == -1  &&  exponent_index != -1) { // a number like 1e-6
-      XMLCh *before, *after;
-      before = new XMLCh[len];
-      after = new XMLCh[len];
-
-      XMLString::subString(before, str, 0, exponent_index);
-      XMLString::subString(after, str, exponent_index+1, len);
-
-      try {
-	 before_decimal = XMLString::parseInt(before);
-	 after_exponent = XMLString::parseInt(after);
-      }
-      catch (const XMLException &toCatch) {
-	 throw cms::Exception("XMLException") << "Value of \"" << attribute << "\" must be a double" << std::endl;
-      }
-
-      delete [] before;
-      delete [] after;
-   }
-   else { // the full shebang
-      XMLCh *before, *middle, *after;
-      before = new XMLCh[len];
-      middle = new XMLCh[len];
-      after = new XMLCh[len];
+      while (i < len) {
+	 if (cstr[i] < '0'  ||  cstr[i] > '9') {
+	    XMLString::release(&cstr);
+	    throw cms::Exception("XMLException") << errmessage.str();	 
+	 }
       
-      XMLString::subString(before, str, 0, decimal_place);
-      XMLString::subString(middle, str, decimal_place+1, exponent_index);
-      XMLString::subString(after, str, exponent_index+1, len);
-      unsigned int beforeLen = XMLString::stringLen(before);
-      unsigned int middleLen = XMLString::stringLen(middle);
-      digits = middleLen;
-
-      try {
-	 if (beforeLen > 0  &&  !(beforeLen == 1 && minus)) before_decimal = XMLString::parseInt(before);
-	 if (middleLen > 0) after_decimal = XMLString::parseInt(middle);
-	 after_exponent = XMLString::parseInt(after);
-      }
-      catch (const XMLException &toCatch) {
-	 throw cms::Exception("XMLException") << "Value of \"" << attribute << "\" must be a double" << std::endl;
+	 exponent *= 10;
+	 exponent += cstr[i] - '0';
+	 i++;
       }
 
-      if (after_decimal < 0.  ||  (beforeLen == 0.  &&  middleLen == 0.)) {
-	 throw cms::Exception("XMLException") << "Value of \"" << attribute << "\" must be a double" << std::endl;
-      }
+      if (expminus) exponent *= -1;
 
-      delete [] before;
-      delete [] middle;
-      delete [] after;
+      output *= pow(10., exponent);
    }
-   before_decimal = abs(before_decimal);
 
-   double fractional_part = after_decimal / pow(10., digits);
-   assert(fractional_part < 1.);
+   if (minus) output *= -1.;
 
-   return (minus ? -1. : 1.) * (before_decimal + fractional_part) * pow(10., after_exponent);
+   XMLString::release(&cstr);
+   return output;
 }
 
 void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {

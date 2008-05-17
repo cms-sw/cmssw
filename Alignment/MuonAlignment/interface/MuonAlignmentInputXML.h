@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:55 CDT 2008
-// $Id: MuonAlignmentInputXML.h,v 1.1 2008/03/15 20:26:46 pivarski Exp $
+// $Id: MuonAlignmentInputXML.h,v 1.2 2008/05/17 13:56:34 pivarski Exp $
 //
 
 // system include files
@@ -125,10 +125,6 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       XMLCh *str_none;
       XMLCh *str_ideal;
       XMLCh *str_container;
-      XMLCh *str_minus;
-      XMLCh *str_decimalpoint;
-      XMLCh *str_exponent;
-      XMLCh *str_EXPONENT;
 };
 
 
