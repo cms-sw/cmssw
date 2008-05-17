@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.4 2008/04/10 22:18:34 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.5 2008/05/17 17:17:30 pivarski Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ MuonAlignmentOutputXML::MuonAlignmentOutputXML(const edm::ParameterSet &iConfig)
    , m_survey(iConfig.getParameter<bool>("survey"))
    , m_rawIds(iConfig.getParameter<bool>("rawIds"))
    , m_eulerAngles(iConfig.getParameter<bool>("eulerAngles"))
-   , m_precision(iConfig.getParameter<double>("precision"))
+   , m_precision(iConfig.getParameter<int>("precision"))
    , m_suppressDTBarrel(iConfig.getUntrackedParameter<bool>("suppressDTBarrel", false))
    , m_suppressDTWheels(iConfig.getUntrackedParameter<bool>("suppressDTWheels", false))
    , m_suppressDTStations(iConfig.getUntrackedParameter<bool>("suppressDTStations", false))
