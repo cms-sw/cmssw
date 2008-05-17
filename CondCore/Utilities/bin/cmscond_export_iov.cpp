@@ -9,8 +9,11 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
+
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/IOVService/interface/IOVEditor.h"
+
 #include "SealBase/SharedLibrary.h"
 #include "SealBase/SharedLibraryError.h"
 
@@ -257,9 +260,9 @@ int main( int argc, char** argv ){
     if (!logConnect.empty()) {
       conHandler.registerConnection("logdb",logConnect,-1);
       logdb.reset(new cond::Logger(conHandler.getConnection("logdb")));
-      m_logdb->getWriteLock();
-      m_logdb->createLogDBIfNonExist();
-      m_logdb->releaseWriteLock();
+      logdb->getWriteLock();
+      logdb->createLogDBIfNonExist();
+      logdb->releaseWriteLock();
     }
     cond::service::UserLogInfo a;
     a.provenance=sourceConnect+"/"+inputTag;
@@ -306,9 +309,9 @@ int main( int argc, char** argv ){
 
 
     if (!logConnect.empty()){
-      m_logdb->getWriteLock();
-      m_logdb->logOperationNow(a,destConnect,result.lastPayloadToken,destTag,timetypestr,result.size-1);
-      m_logdb->releaseWriteLock();
+      logdb->getWriteLock();
+      logdb->logOperationNow(a,destConnect,result.lastPayloadToken,destTag,timetypestr,result.size-1);
+      logdb->releaseWriteLock();
     }
 
   }catch(const cond::Exception& er){
