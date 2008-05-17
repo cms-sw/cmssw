@@ -15,6 +15,11 @@
 #include "SealBase/SharedLibraryError.h"
 
 
+#include "CondCore/DBOutputService/interface/Logger.h"
+#include "CondCore/DBOutputService/interface/LogDBEntry.h"
+#include "CondCore/DBOutputService/interface/UserLogInfo.h"
+
+
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 
@@ -43,6 +48,7 @@ int main( int argc, char** argv ){
     ("authPath,P",boost::program_options::value<std::string>(),"path to authentication xml(default .)")
     ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
     ("blobStreamer,B",boost::program_options::value<std::string>(),"BlobStreamerName(default to COND/Services/TBufferBlobStreamingService)")
+    ("logDB,l",boost::program_options::value<std::string>(),"logDB(optional")
     ("debug","switch on debug mode")
     ("help,h", "help message")
     ;
@@ -51,6 +57,8 @@ int main( int argc, char** argv ){
   std::string dictionary;
   std::string destTag;
   std::string inputTag;
+  std::string logConnect;
+
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
   cond::Time_t till = std::numeric_limits<cond::Time_t>::max();
 
@@ -111,6 +119,10 @@ int main( int argc, char** argv ){
     if(vm.count("endTime"))
       till = vm["endTime"].as<cond::Time_t>();
     
+   if(vm.count("logDB"))
+      logConnect = vm["logDB"].as<std::string>();
+
+
 
     if( vm.count("authPath") ){
       authPath=vm["authPath"].as<std::string>();
@@ -130,6 +142,7 @@ int main( int argc, char** argv ){
   if(debug){
     std::cout<<"sourceConnect:\t"<<sourceConnect<<'\n';
     std::cout<<"destConnect:\t"<<destConnect<<'\n';
+    std::cout<<"logDb:\t"<<logConnect<<'\n';
     std::cout<<"dictionary:\t"<<dictlibrary<<'\n';
     std::cout<<"inputTag:\t"<<inputTag<<'\n';
     std::cout<<"destTag:\t"<<destTag<<'\n';
@@ -239,14 +252,27 @@ int main( int argc, char** argv ){
     till = std::min(till,iovmanager.globalTill());
 
 
+    // setup logDB
+    std::auto_ptr<cond::Logger> logdb;
+    if (!logConnect.empty()) {
+      conHandler.registerConnection("logdb",logConnect,-1);
+      logdb.reset(new cond::Logger(conHandler.getConnection("logdb")));
+      m_logdb->getWriteLock();
+      m_logdb->createLogDBIfNonExist();
+      m_logdb->releaseWriteLock();
+    }
+    cond::service::UserLogInfo a;
+    a.provenance=sourceConnect+"/"+inputTag;
+    a.usertext="exportIOV V1.0";
+ 
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(true);
     destdb.start(false);
     bool newIOV = destiovtoken.empty();
     destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
-						  sourceiovtoken,
-						  destiovtoken,
-						  since, till );
+						       sourceiovtoken,
+						       destiovtoken,
+						       since, till );
     sourcedb.commit();
     destdb.commit();
     if (newIOV) {
@@ -261,6 +287,30 @@ int main( int argc, char** argv ){
       destCoralDB.commit();
     }
     delete editor;
+
+
+    // grab info
+    destdb.start(true);
+    cond::IOVService iovmanager2(destdb);
+    cond::IOVIterator* iit=iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter);
+    std::string timetypestr = iovmanager2.timeType()==cond::runnumber ? std::string("runnumber") : std::string("timestamp") ;
+    iit->next(); // just to initialize
+    cond::TagInfo& result;
+    result.name=destTag;
+    result.token=destiovtoken;
+    result.lastInterval=iit->validity();
+    result.lastPayloadToken=iit->payloadToken();
+    result.size=iit->size();
+    delete iit;
+    destdb.commit();
+
+
+    if (!logConnect.empty()){
+      m_logdb->getWriteLock();
+      m_logdb->logOperationNow(a,destConnect,result.lastPayloadToken,destTag,timetypestr,result.size-1);
+      m_logdb->releaseWriteLock();
+    }
+
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
   }catch(const std::exception& er){
