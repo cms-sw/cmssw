@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.4 2008/03/26 22:14:14 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.5 2008/04/17 23:33:07 pivarski Exp $
 //
 
 // system include files
@@ -104,6 +104,7 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_none = XMLString::transcode("none");
    str_ideal = XMLString::transcode("ideal");
    str_container = XMLString::transcode("container");
+   str_minus = XMLString::transcode("-");
    str_decimalpoint = XMLString::transcode(".");
    str_exponent = XMLString::transcode("e");
    str_EXPONENT = XMLString::transcode("E");
@@ -175,6 +176,7 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_none);
    XMLString::release(&str_ideal);
    XMLString::release(&str_container);
+   XMLString::release(&str_minus);
    XMLString::release(&str_decimalpoint);
    XMLString::release(&str_exponent);
    XMLString::release(&str_EXPONENT);
@@ -584,7 +586,9 @@ Alignable *MuonAlignmentInputXML::getCSCnode(align::StructureType structureType,
 }
 
 double MuonAlignmentInputXML::parseDouble(const XMLCh *str, const char *attribute) const {
-   const unsigned int len = XMLString::stringLen(str);
+   unsigned int len = XMLString::stringLen(str);
+
+   bool minus = XMLString::startsWith(str, str_minus);
 
    int decimal_place = XMLString::indexOf(str, *str_decimalpoint);
    int exponent_index = XMLString::indexOf(str, *str_exponent);
@@ -615,7 +619,7 @@ double MuonAlignmentInputXML::parseDouble(const XMLCh *str, const char *attribut
       digits = afterLen;
 
       try {
-	 if (beforeLen > 0) before_decimal = XMLString::parseInt(before);
+	 if (beforeLen > 0  &&  !(beforeLen == 1 && minus)) before_decimal = XMLString::parseInt(before);
 	 if (afterLen > 0)  after_decimal = XMLString::parseInt(after);
       }
       catch (const XMLException &toCatch) {
@@ -661,7 +665,7 @@ double MuonAlignmentInputXML::parseDouble(const XMLCh *str, const char *attribut
       digits = middleLen;
 
       try {
-	 if (beforeLen > 0) before_decimal = XMLString::parseInt(before);
+	 if (beforeLen > 0  &&  !(beforeLen == 1 && minus)) before_decimal = XMLString::parseInt(before);
 	 if (middleLen > 0) after_decimal = XMLString::parseInt(middle);
 	 after_exponent = XMLString::parseInt(after);
       }
@@ -677,10 +681,12 @@ double MuonAlignmentInputXML::parseDouble(const XMLCh *str, const char *attribut
       delete [] middle;
       delete [] after;
    }
+   before_decimal = abs(before_decimal);
 
    double fractional_part = after_decimal / pow(10., digits);
    assert(fractional_part < 1.);
-   return (before_decimal + fractional_part) * pow(10., after_exponent);
+
+   return (minus ? -1. : 1.) * (before_decimal + fractional_part) * pow(10., after_exponent);
 }
 
 void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
@@ -695,7 +701,7 @@ void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, 
    double y = parseDouble(node_y->getValue(), "y");
    double z = parseDouble(node_z->getValue(), "z");
    align::PositionType pos(x, y, z);
-   
+
    DOMAttr *node_phix = node->getAttributeNode(str_phix);
    DOMAttr *node_phiy = node->getAttributeNode(str_phiy);
    DOMAttr *node_phiz = node->getAttributeNode(str_phiz);
@@ -797,13 +803,34 @@ void MuonAlignmentInputXML::do_setposition(const xercesc_2_7::DOMElement *node, 
 }
 
 void MuonAlignmentInputXML::set_one_position(Alignable *ali, const align::PositionType &pos, const align::RotationType &rot) const {
-   // put the alignable in the right position by resetting to zero, then moving
-   align::PositionType oldpos = ali->globalPosition();
-   align::RotationType oldrot = ali->globalRotation();
-   ali->move(GlobalVector(-oldpos.x(), -oldpos.y(), -oldpos.z()));
-   ali->rotateInGlobalFrame(oldrot.transposed());
-   ali->rotateInGlobalFrame(rot);
-   ali->move(GlobalVector(pos.x(), pos.y(), pos.z()));
+   const align::PositionType& oldpos = ali->globalPosition();
+   const align::RotationType& oldrot = ali->globalRotation();
+                                 
+   // shift needed to move from current to new position
+   align::GlobalVector posDiff = pos - oldpos;
+   align::RotationType rotDiff = oldrot.multiplyInverse(rot);
+   align::rectify(rotDiff); // correct for rounding errors 
+   ali->move(posDiff);
+   ali->rotateInGlobalFrame(rotDiff);
+
+//    // check for consistency
+//    const align::PositionType& newpos = ali->globalPosition();
+//    const align::RotationType& newrot = ali->globalRotation();
+//    align::GlobalVector posDiff2 = pos - newpos;
+//    align::RotationType rotDiff2 = newrot.multiplyInverse(rot);
+//    align::rectify(rotDiff2); // correct for rounding errors 
+   
+//    if (fabs(posDiff2.x()) > 1e-6  ||  fabs(posDiff2.y()) > 1e-6  ||  fabs(posDiff2.z()) > 1e-6) {
+//       std::cout << "zeropos " << posDiff2 << std::endl;
+//    }
+//    if (fabs(rotDiff2.xx() - 1.) > 1e-4  ||
+//        fabs(rotDiff2.yy() - 1.) > 1e-4  ||
+//        fabs(rotDiff2.zz() - 1.) > 1e-4  ||
+//        fabs(rotDiff2.xy()) > 1e-8  ||
+//        fabs(rotDiff2.xz()) > 1e-8  ||
+//        fabs(rotDiff2.yz()) > 1e-8) {
+//       std::cout << "zerorot " << rotDiff2 << std::endl;
+//    }
 
    align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
    matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
