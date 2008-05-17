@@ -17,8 +17,8 @@ namespace edm {
     std::partial_sum(indices.begin(),indices.end(),indices.begin());
     std::sort(indices.begin(), indices.end(),
 	      boost::bind(std::less<id_type>(),
-			  boost::bind<id_type const &>(&IdContainer::operator[],boost::ref(m_ids),_1),
-			  boost::bind<id_type const &>(&IdContainer::operator[],boost::ref(m_ids),_2)
+			  boost::bind(&IdContainer::operator[],boost::ref(m_ids),_1),
+			  boost::bind(&IdContainer::operator[],boost::ref(m_ids),_2)
 			  )
 	      );
     
