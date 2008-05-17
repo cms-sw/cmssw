@@ -9,8 +9,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/01/22 22:21:45 $
-  * $Revision: 1.4 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.5 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -37,8 +37,14 @@ struct DeadCellHists{
   TH2F* above_pedestal_temp;
   //MonitorElement* above_pedestal_temp;
 
-  std::vector<MonitorElement*> deadcapADC_map;
 
+  std::vector<MonitorElement*> deadcapADC_map;
+  // individual depth plots
+  std::vector<MonitorElement*> deadADC_map_depth;
+  std::vector<MonitorElement*> NADA_cool_cell_map_depth;
+  std::vector<MonitorElement*> coolcell_below_pedestal_depth;
+  std::vector<MonitorElement*> digiCheck_depth;
+  std::vector<MonitorElement*> cellCheck_depth;
 };
 
 
