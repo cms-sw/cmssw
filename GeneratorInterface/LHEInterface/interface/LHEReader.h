@@ -12,7 +12,7 @@
 namespace lhef {
 
 class XMLDocument;
-class LHECommon;
+class LHERunInfo;
 class LHEEvent;
 
 class LHEReader {
@@ -36,7 +36,7 @@ class LHEReader {
 
 	std::auto_ptr<Source>		curSource;
 	std::auto_ptr<XMLDocument>	curDoc;
-	boost::shared_ptr<LHECommon>	curCommon;
+	boost::shared_ptr<LHERunInfo>	curRunInfo;
 	std::auto_ptr<XMLHandler>	handler;
 };
 

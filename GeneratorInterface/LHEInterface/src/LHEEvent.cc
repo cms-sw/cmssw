@@ -14,7 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
@@ -31,9 +31,9 @@ static int skipWhitespace(std::istream &in)
 
 namespace lhef {
 
-LHEEvent::LHEEvent(const boost::shared_ptr<LHECommon> &common,
+LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
-	common(common)
+	runInfo(runInfo)
 {
 	hepeup.NUP = 0;
 	hepeup.XPDWUP.first = hepeup.XPDWUP.second = 0.0;
@@ -89,9 +89,9 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHECommon> &common,
 			   " content after event data." << std::endl;
 }
 
-LHEEvent::LHEEvent(const boost::shared_ptr<LHECommon> &common,
+LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
-	common(common), hepeup(hepeup)
+	runInfo(runInfo), hepeup(hepeup)
 {
 }
 
@@ -99,9 +99,9 @@ LHEEvent::~LHEEvent()
 {
 }
 
-void LHEEvent::count(LHECommon::CountMode mode, double matchWeight)
+void LHEEvent::count(LHERunInfo::CountMode mode, double matchWeight)
 {
-	common->count(hepeup.IDPRUP, mode, hepeup.XWGTUP, matchWeight);
+	runInfo->count(hepeup.IDPRUP, mode, hepeup.XWGTUP, matchWeight);
 }
 
 void LHEEvent::fillPdfInfo(HepMC::PdfInfo *info) const

@@ -15,10 +15,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommonProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfoProduct.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
 
 #include "LHESource.h"
@@ -32,7 +32,7 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
 	produces<LHEEventProduct>();
-	produces<LHECommonProduct, edm::InRun>();
+	produces<LHERunInfoProduct, edm::InRun>();
 }
 
 LHESource::LHESource(const edm::ParameterSet &params,
@@ -43,7 +43,7 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0))
 {
 	produces<LHEEventProduct>();
-	produces<LHECommonProduct, edm::InRun>();
+	produces<LHERunInfoProduct, edm::InRun>();
 }
 
 LHESource::~LHESource()
@@ -71,23 +71,23 @@ void LHESource::nextEvent()
 	if (!partonLevel)
 			return;
 
-	if (!common)
-		common = partonLevel->getCommon();
+	if (!runInfo)
+		runInfo = partonLevel->getRunInfo();
 }
 
 void LHESource::beginRun(edm::Run &run)
 {
 	nextEvent();
-	if (common) {
-		std::auto_ptr<LHECommonProduct> product(
-				new LHECommonProduct(*common->getHEPRUP()));
-		std::for_each(common->getHeaders().begin(),
-		              common->getHeaders().end(),
+	if (runInfo) {
+		std::auto_ptr<LHERunInfoProduct> product(
+				new LHERunInfoProduct(*runInfo->getHEPRUP()));
+		std::for_each(runInfo->getHeaders().begin(),
+		              runInfo->getHeaders().end(),
 		              boost::bind(
-		              	&LHECommonProduct::addHeader,
+		              	&LHERunInfoProduct::addHeader,
 		              	product.get(), _1));
 		run.put(product);
-		common.reset();
+		runInfo.reset();
 	}
 }
 

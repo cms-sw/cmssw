@@ -7,7 +7,7 @@ namespace lhef {
 
 // forward declarations
 class LHEEvent;
-class LHECommon;
+class LHERunInfo;
 
 class LHEProxy {
     public:
@@ -15,15 +15,15 @@ class LHEProxy {
 
 	~LHEProxy();
 
-	const boost::shared_ptr<LHECommon> &getCommon() const
-	{ return common; }
+	const boost::shared_ptr<LHERunInfo> &getRunInfo() const
+	{ return runInfo; }
 	const boost::shared_ptr<LHEEvent> &getEvent() const
 	{ return event; }
 
-	boost::shared_ptr<LHECommon> releaseCommon()
+	boost::shared_ptr<LHERunInfo> releaseRunInfo()
 	{
-		boost::shared_ptr<LHECommon> result(common);
-		common.reset();
+		boost::shared_ptr<LHERunInfo> result(runInfo);
+		runInfo.reset();
 		return result;
 	}
 	boost::shared_ptr<LHEEvent> releaseEvent()
@@ -33,11 +33,11 @@ class LHEProxy {
 		return result;
 	}
 
-	void clearCommon() { common.reset(); }
+	void clearRunInfo() { runInfo.reset(); }
 	void clearEvent() { event.reset(); }
 
-	void loadCommon(const boost::shared_ptr<LHECommon> &common)
-	{ this->common = common; }
+	void loadRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo)
+	{ this->runInfo = runInfo; }
 	void loadEvent(const boost::shared_ptr<LHEEvent> &event)
 	{ this->event = event; }
 
@@ -55,7 +55,7 @@ class LHEProxy {
 
 	const ProxyID			id;
 
-	boost::shared_ptr<LHECommon>	common;
+	boost::shared_ptr<LHERunInfo>	runInfo;
 	boost::shared_ptr<LHEEvent>	event;
 };
 

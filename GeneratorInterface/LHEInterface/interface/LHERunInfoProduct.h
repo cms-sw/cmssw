@@ -1,5 +1,5 @@
-#ifndef GeneratorInterface_LHEInterface_LHECommonProduct_h
-#define GeneratorInterface_LHEInterface_LHECommonProduct_h
+#ifndef GeneratorInterface_LHEInterface_LHERunInfoProduct_h
+#define GeneratorInterface_LHEInterface_LHERunInfoProduct_h
 
 #include <memory>
 #include <vector>
@@ -9,7 +9,7 @@
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 
-class LHECommonProduct {
+class LHERunInfoProduct {
     public:
 	class Header {
 	    public:
@@ -36,9 +36,9 @@ class LHECommonProduct {
 	typedef std::vector<Header>::const_iterator const_iterator;
 	typedef std::vector<Header>::size_type size_type;
 
-	LHECommonProduct() {}
-	LHECommonProduct(const lhef::HEPRUP &heprup) : heprup_(heprup) {}
-	~LHECommonProduct() {}
+	LHERunInfoProduct() {}
+	LHERunInfoProduct(const lhef::HEPRUP &heprup) : heprup_(heprup) {}
+	~LHERunInfoProduct() {}
 
 	void addHeader(const Header &header) { headers_.push_back(header); }
 
@@ -53,4 +53,4 @@ class LHECommonProduct {
 	std::vector<Header>	headers_;
 };
 
-#endif // GeneratorCommon_LHEInterface_LHECommonProduct_h
+#endif // GeneratorRunInfo_LHEInterface_LHERunInfoProduct_h

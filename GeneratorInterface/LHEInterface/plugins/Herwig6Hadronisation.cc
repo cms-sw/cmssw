@@ -53,7 +53,7 @@ class Herwig6Hadronisation : public Hadronisation {
 
 	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
-	void newCommon(const boost::shared_ptr<LHECommon> &common);
+	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
 
 	int				herwigVerbosity;
 	int				maxEventsToPrint;
@@ -400,7 +400,8 @@ std::auto_ptr<HepMC::GenEvent> Herwig6Hadronisation::doHadronisation()
 	return event;
 }
 
-void Herwig6Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
+void Herwig6Hadronisation::newRunInfo(
+				const boost::shared_ptr<LHERunInfo> &runInfo)
 {
 	clear();
 	try {

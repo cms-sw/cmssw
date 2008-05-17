@@ -12,7 +12,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 #include "Utilities/StorageFactory/interface/IOTypes.h"
@@ -88,7 +88,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	Object				gotObject;
 	Object				mode;
 	bool				headerOk;
-	std::vector<LHECommon::Header>	headers;
+	std::vector<LHERunInfo::Header>	headers;
 };
 
 void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
@@ -166,7 +166,7 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 	buffer.append(data);
 }
 
-static void fillHeader(LHECommon::Header &header, const char *data)
+static void fillHeader(LHERunInfo::Header &header, const char *data)
 {
 	while(*data) {
 		std::size_t len = std::strcspn(data, "\r\n");
@@ -188,7 +188,7 @@ void LHEReader::XMLHandler::comment(const XMLCh *const data_,
 
 	XMLSimpleStr data(data_ + offset);
 
-	LHECommon::Header header;
+	LHERunInfo::Header header;
 	fillHeader(header, data);
 	headers.push_back(header);
 }
@@ -218,7 +218,7 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 		if (!curDoc.get()) {
 			curSource.reset(new FileSource(fileURLs[curIndex++]));
 			curDoc.reset(curSource->createReader(*handler));
-			curCommon.reset();
+			curRunInfo.reset();
 		}
 
 		XMLHandler::Object event = handler->gotObject;
@@ -240,11 +240,11 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 			break;
 
 		    case XMLHandler::kInit:
-			curCommon.reset(new LHECommon(data));
+			curRunInfo.reset(new LHERunInfo(data));
 			std::for_each(handler->headers.begin(),
 			              handler->headers.end(),
-			              boost::bind(&LHECommon::addHeader,
-			                          curCommon.get(), _1));
+			              boost::bind(&LHERunInfo::addHeader,
+			                          curRunInfo.get(), _1));
 			handler->headers.clear();
 			break;
 
@@ -252,7 +252,7 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 			break;
 
 		    case XMLHandler::kEvent:
-			if (!curCommon.get())
+			if (!curRunInfo.get())
 				throw cms::Exception("InvalidState")
 					<< "Got LHE event without"
 					   " initialization." << std::endl;
@@ -268,7 +268,7 @@ boost::shared_ptr<LHEEvent> LHEReader::next()
 				maxEvents--;
 
 			return boost::shared_ptr<LHEEvent>(
-					new LHEEvent(curCommon, data));
+					new LHEEvent(curRunInfo, data));
 		}
 	}
 

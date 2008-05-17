@@ -17,9 +17,9 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LHECommonProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfoProduct.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 #include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
@@ -51,7 +51,7 @@ class LHEProducer : public edm::EDProducer {
 	double				extFilterEff;
 
 	boost::shared_ptr<LHEEvent>	partonLevel;
-	boost::shared_ptr<LHECommon>	common;
+	boost::shared_ptr<LHERunInfo>	runInfo;
 	unsigned int			index;
 	bool				matchingDone;
 	double				weight;
@@ -103,18 +103,18 @@ void LHEProducer::endJob()
 
 void LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 {
-	edm::Handle<LHECommonProduct> product;
+	edm::Handle<LHERunInfoProduct> product;
 	run.getByLabel("source", product);
 
-	common.reset(new LHECommon(product->heprup()));
+	runInfo.reset(new LHERunInfo(product->heprup()));
 	index = 0;
 }
 
 void LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 {
-	LHECommon::XSec crossSection;
-	if (common)
-		crossSection = common->xsec();
+	LHERunInfo::XSec crossSection;
+	if (runInfo)
+		crossSection = runInfo->xsec();
 
 	std::auto_ptr<edm::GenInfoProduct> genInfoProd(new edm::GenInfoProduct);
 
@@ -124,7 +124,7 @@ void LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 
 	run.put(genInfoProd);
 
-	common.reset();
+	runInfo.reset();
 }
 
 void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
@@ -134,7 +134,7 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	edm::Handle<LHEEventProduct> product;
 	event.getByLabel("source", product);
 
-	partonLevel.reset(new LHEEvent(common, product->hepeup()));
+	partonLevel.reset(new LHEEvent(runInfo, product->hepeup()));
 	if (product->pdf())
 		partonLevel->setPDF(
 			std::auto_ptr<LHEEvent::PDF>(
@@ -149,11 +149,11 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	if (!hadronLevel.get()) {
 		if (matchingDone) {
 			if (weight == 0.0)
-				partonLevel->count(LHECommon::kSelected);
+				partonLevel->count(LHERunInfo::kSelected);
 			else
-				partonLevel->count(LHECommon::kKilled, weight);
+				partonLevel->count(LHERunInfo::kKilled, weight);
 		} else
-			partonLevel->count(LHECommon::kTried);
+			partonLevel->count(LHERunInfo::kTried);
 	}
 
 	if (!matchingDone && jetMatching.get() && hadronLevel.get())
@@ -165,7 +165,7 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 			   "jet matching." << std::endl;
 
 		if (hadronLevel.get()) {
-			partonLevel->count(LHECommon::kSelected);
+			partonLevel->count(LHERunInfo::kSelected);
 			hadronLevel.reset();
 		}
 	}
@@ -175,7 +175,7 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 		return;
 	}
 
-	partonLevel->count(LHECommon::kAccepted, weight);
+	partonLevel->count(LHERunInfo::kAccepted, weight);
 
 	hadronLevel->set_event_number(++index);
 

@@ -14,7 +14,7 @@
 namespace lhef {
 
 class LHEEvent;
-class LHECommon;
+class LHERunInfo;
 
 class Hadronisation {
     public:
@@ -45,7 +45,7 @@ class Hadronisation {
 
 	virtual void doInit() = 0;
 	virtual std::auto_ptr<HepMC::GenEvent> doHadronisation() = 0;
-	virtual void newCommon(const boost::shared_ptr<LHECommon> &common);
+	virtual void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
 
     private:
 	sigc::signal<bool, const boost::shared_ptr<HepMC::GenEvent>&>	sigShower;
@@ -57,4 +57,4 @@ class Hadronisation {
 #define DEFINE_LHE_HADRONISATION_PLUGIN(T) \
 	DEFINE_EDM_PLUGIN(lhef::Hadronisation::Factory, T, #T)
 
-#endif // GeneratorCommon_LHEInterface_Hadronisation_h
+#endif // GeneratorRunInfo_LHEInterface_Hadronisation_h

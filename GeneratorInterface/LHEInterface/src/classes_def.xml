@@ -4,12 +4,12 @@
 	<class name="std::vector<lhef::HEPEUP::FiveVector>"/>
 	<class name="lhef::HEPRUP"/>
 	<class name="lhef::HEPEUP"/>
-	<class name="LHECommonProduct::Header"/>
-	<class name="std::vector<LHECommonProduct::Header>"/>
-	<class name="LHECommonProduct"/>
+	<class name="LHERunInfoProduct::Header"/>
+	<class name="std::vector<LHERunInfoProduct::Header>"/>
+	<class name="LHERunInfoProduct"/>
 	<class name="LHEEventProduct::PDF"/>
 	<class name="std::auto_ptr<LHEEventProduct::PDF>"/>
 	<class name="LHEEventProduct"/>
-	<class name="edm::Wrapper<LHECommonProduct>"/>
+	<class name="edm::Wrapper<LHERunInfoProduct>"/>
 	<class name="edm::Wrapper<LHEEventProduct>"/>
 </lcgdict>

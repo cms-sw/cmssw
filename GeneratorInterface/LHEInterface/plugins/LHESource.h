@@ -13,7 +13,7 @@
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 
 namespace lhef {
-	class LHECommon;
+	class LHERunInfo;
 	class LHEEvent;
 	class LHEReader;
 }
@@ -37,7 +37,7 @@ class LHESource : public edm::GeneratedInputSource {
 
 	std::auto_ptr<lhef::LHEReader>		reader;
 
-	boost::shared_ptr<lhef::LHECommon>	common;
+	boost::shared_ptr<lhef::LHERunInfo>	runInfo;
 	boost::shared_ptr<lhef::LHEEvent>	partonLevel;
 
 	unsigned int				skipEvents;

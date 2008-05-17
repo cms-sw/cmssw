@@ -21,7 +21,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
@@ -38,7 +38,7 @@ class Pythia8Hadronisation : public Hadronisation {
 	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	double getCrossSection() const;
-	void newCommon(const boost::shared_ptr<LHECommon> &common);
+	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);
 
 	const int				pythiaPylistVerbosity;
 	int					maxEventsToPrint;
@@ -53,8 +53,8 @@ class Pythia8Hadronisation : public Hadronisation {
 
 class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
     public:
-	void loadCommon(const boost::shared_ptr<LHECommon> &common)
-	{ this->common = common; }
+	void loadRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo)
+	{ this->runInfo = runInfo; }
 
 	void loadEvent(const boost::shared_ptr<LHEEvent> &event)
 	{ this->event = event; }
@@ -63,15 +63,15 @@ class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
 	bool setInit();
 	bool setEvent(int idProcIn);
 
-	boost::shared_ptr<LHECommon>	common;
+	boost::shared_ptr<LHERunInfo>	runInfo;
 	boost::shared_ptr<LHEEvent>	event;
 };
 
 bool Pythia8Hadronisation::LHAupLesHouches::setInit()
 {
-	if (!common)
+	if (!runInfo)
 		return false;
-	const HEPRUP &heprup = *common->getHEPRUP();
+	const HEPRUP &heprup = *runInfo->getHEPRUP();
 
 	setBeamA(heprup.IDBMUP.first, heprup.EBMUP.first,
 	         heprup.PDFGUP.first, heprup.PDFSUP.first);
@@ -83,7 +83,7 @@ bool Pythia8Hadronisation::LHAupLesHouches::setInit()
 		addProcess(heprup.LPRUP[i], heprup.XSECUP[i],
 		           heprup.XERRUP[i], heprup.XMAXUP[i]);
 
-	common.reset();
+	runInfo.reset();
 	return true;
 }
 
@@ -213,9 +213,10 @@ double Pythia8Hadronisation::getCrossSection() const
 	return pythia->info.sigmaGen();
 }
 
-void Pythia8Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
+void Pythia8Hadronisation::newRunInfo(
+				const boost::shared_ptr<LHERunInfo> &runInfo)
 {
-	lhaUP->loadCommon(common);
+	lhaUP->loadRunInfo(runInfo);
 	pythia->init(lhaUP.get());
 }
 

@@ -11,7 +11,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
 
 EDM_REGISTER_PLUGINFACTORY(lhef::Hadronisation::Factory,
@@ -49,12 +49,12 @@ void Hadronisation::init()
 
 bool Hadronisation::setEvent(const boost::shared_ptr<LHEEvent> &event)
 {
-	bool newCommon = !rawEvent ||
-	                 (rawEvent->getCommon() != event->getCommon() &&
-	                  *rawEvent->getCommon() != *event->getCommon());
+	bool newRunInfo = !rawEvent ||
+	                  (rawEvent->getRunInfo() != event->getRunInfo() &&
+	                   *rawEvent->getRunInfo() != *event->getRunInfo());
 	rawEvent = event;
-	if (newCommon) {
-		this->newCommon(event->getCommon());
+	if (newRunInfo) {
+		this->newRunInfo(event->getRunInfo());
 		return true;
 	} else
 		return false;
@@ -104,7 +104,7 @@ std::auto_ptr<HepMC::GenEvent> Hadronisation::hadronize()
 	return event;
 }
 
-void Hadronisation::newCommon(const boost::shared_ptr<LHECommon> &common)
+void Hadronisation::newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo)
 {
 }
 

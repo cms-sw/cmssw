@@ -1,5 +1,5 @@
-#ifndef GeneratorInterface_LHEInterface_LHECommon_h
-#define GeneratorInterface_LHEInterface_LHECommon_h
+#ifndef GeneratorInterface_LHEInterface_LHERunInfo_h
+#define GeneratorInterface_LHEInterface_LHERunInfo_h
 
 #include <iostream>
 #include <memory>
@@ -8,22 +8,22 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommonProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfoProduct.h"
 
 namespace lhef {
 
-class LHECommon {
+class LHERunInfo {
     public:
-	LHECommon(std::istream &in);
-	LHECommon(const HEPRUP &heprup);
-	~LHECommon();
+	LHERunInfo(std::istream &in);
+	LHERunInfo(const HEPRUP &heprup);
+	~LHERunInfo();
 
-	typedef LHECommonProduct::Header Header;
+	typedef LHERunInfoProduct::Header Header;
 
 	const HEPRUP *getHEPRUP() const { return &heprup; } 
 
-	bool operator == (const LHECommon &other) const;
-	inline bool operator != (const LHECommon &other) const
+	bool operator == (const LHERunInfo &other) const;
+	inline bool operator != (const LHERunInfo &other) const
 	{ return !(*this == other); }
 
 	const std::vector<Header> &getHeaders() const { return headers; }
@@ -89,4 +89,4 @@ class LHECommon {
 
 } // namespace lhef
 
-#endif // GeneratorCommon_LHEInterface_LHECommon_h
+#endif // GeneratorRunInfo_LHEInterface_LHERunInfo_h

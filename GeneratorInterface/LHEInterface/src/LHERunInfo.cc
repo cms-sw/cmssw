@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommon.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 static int skipWhitespace(std::istream &in)
 {
@@ -24,7 +24,7 @@ static int skipWhitespace(std::istream &in)
 
 namespace lhef {
 
-LHECommon::LHECommon(std::istream &in)
+LHERunInfo::LHERunInfo(std::istream &in)
 {
 	in >> heprup.IDBMUP.first >> heprup.IDBMUP.second
 	   >> heprup.EBMUP.first >> heprup.EBMUP.second
@@ -57,17 +57,17 @@ LHECommon::LHECommon(std::istream &in)
 	init();
 }
 
-LHECommon::LHECommon(const HEPRUP &heprup) :
+LHERunInfo::LHERunInfo(const HEPRUP &heprup) :
 	heprup(heprup)
 {
 	init();
 }
 
-LHECommon::~LHECommon()
+LHERunInfo::~LHERunInfo()
 {
 }
 
-void LHECommon::init()
+void LHERunInfo::init()
 {
 	for(int i = 0; i < heprup.NPRUP; i++) {
 		Process proc;
@@ -81,12 +81,12 @@ void LHECommon::init()
 	std::sort(processes.begin(), processes.end());
 }
 
-bool LHECommon::operator == (const LHECommon &other) const
+bool LHERunInfo::operator == (const LHERunInfo &other) const
 {
 	return heprup == other.heprup;
 }
 
-void LHECommon::count(int process, CountMode mode, double eventWeight,
+void LHERunInfo::count(int process, CountMode mode, double eventWeight,
                       double matchWeight)
 {
 	std::vector<Process>::iterator proc =
@@ -106,7 +106,7 @@ void LHECommon::count(int process, CountMode mode, double eventWeight,
 	}
 }
 
-LHECommon::XSec LHECommon::xsec() const
+LHERunInfo::XSec LHERunInfo::xsec() const
 {
 	double sigSelSum = 0.0;
 	double sigSum = 0.0;
