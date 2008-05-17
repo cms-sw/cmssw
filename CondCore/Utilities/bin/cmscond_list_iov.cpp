@@ -1,6 +1,6 @@
 #include "CondCore/DBCommon/interface/CoralTransaction.h"
 #include "CondCore/DBCommon/interface/PoolTransaction.h"
-//#include "CondCore/DBCommon/interface/ConnectionHandler.h"
+#include "CondCore/DBCommon/interface/ConnectionHandler.h"
 #include "CondCore/DBCommon/interface/Connection.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
@@ -96,8 +96,12 @@ int main( int argc, char** argv ){
     cond::FipProtocolParser p;
     connect=p.getRealConnect(connect);
   }
-  cond::Connection myconnection(connect,-1);  
+  // cond::Connection myconnection(connect,-1);  
   session->open();
+  cond::ConnectionHandler::Instance().registerConnection("db",connect,-1);
+  cond::ConnectionHandler::Instance().connect(session);
+  cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection("db");
+
   if( listAll ){
     try{
       myconnection.connect(session);
