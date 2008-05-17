@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/05/11 09:35:10 $
- * $Revision: 1.183 $
+ * $Date: 2008/05/15 15:32:29 $
+ * $Revision: 1.184 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -755,12 +755,6 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
     mui_ = 0;
     dqmStore_ = Service<DQMStore>().operator->();
 
-  }
-
-  if ( debug_ ) {
-    dqmStore_->setVerbose(1);
-  } else {
-    dqmStore_->setVerbose(0);
   }
 
   if ( ! enableMonitorDaemon_ ) {
