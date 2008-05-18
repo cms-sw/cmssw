@@ -139,8 +139,8 @@ GctBlockHeaderBase::BlockLengthPair initArray3[] = {
 //  GctBlockHeaderBase::BlockLengthPair(0x303,), // Unknown AT 22/4/08 
 //  GctBlockHeaderBase::BlockLengthPair(0x380,),
 //  GctBlockHeaderBase::BlockLengthPair(0x383,), // Unknown AT 22/4/08 
-//  GctBlockHeaderBase::BlockLengthPair(0x700,),
-//  GctBlockHeaderBase::BlockLengthPair(0x703,), // Unknown AT 22/4/08 
+  GctBlockHeaderBase::BlockLengthPair(0x700,27),
+  GctBlockHeaderBase::BlockLengthPair(0x703,6),
 //  GctBlockHeaderBase::BlockLengthPair(0x780,),
 //  GctBlockHeaderBase::BlockLengthPair(0x783,), // Unknown AT 22/4/08     // -- END OF WHEEL FPGAS
   GctBlockHeaderBase::BlockLengthPair(0x306,32),
@@ -289,8 +289,8 @@ GctBlockHeaderBase::BlockNamePair initArray4[] = {
 //  GctBlockHeaderBase::BlockNamePair(0x303,"WheelPosEtaJet: Output"),
 //  GctBlockHeaderBase::BlockNamePair(0x380,"WheelPosEtaEnergy: Input"),
 //  GctBlockHeaderBase::BlockNamePair(0x383,"WheelPosEtaEnergy: Output"),
-//  GctBlockHeaderBase::BlockNamePair(0x700,"WheelNegEtaJet: Input"),
-//  GctBlockHeaderBase::BlockNamePair(0x703,"WheelNegEtaJet: Output"),
+  GctBlockHeaderBase::BlockNamePair(0x700,"WheelNegEtaJet: Input"),
+  GctBlockHeaderBase::BlockNamePair(0x703,"WheelNegEtaJet: Output"),
 //  GctBlockHeaderBase::BlockNamePair(0x780,"WheelNegEtaEnergy: Input"),
 //  GctBlockHeaderBase::BlockNamePair(0x783,"WheelNegEtaEnergy: Output")
   GctBlockHeaderBase::BlockNamePair(0x306,"Test"),

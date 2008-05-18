@@ -173,6 +173,8 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0x307] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x386] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x387] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x700] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x703] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x706] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x707] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x586] = &GctBlockUnpackerV2::blockDoNothing;
