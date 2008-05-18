@@ -52,7 +52,6 @@ int testocci( void );
 int testDB( string _tag, string _filename );
 int lmaptest( string _param );
 int hardware( void );
-int qie_adc( void );
 int test_db_access( void );
 std::vector <std::string> splitString (const std::string& fLine);
 int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF );
@@ -69,14 +68,23 @@ int main( int argc, char **argv )
   po::options_description general("General options");
   general.add_options()
     ("help", "produce help message")
-    ("test", po::value<string>(), "print test string")
+    ("test-string", po::value<string>(), "print test string")
     ("test-lmap", po::value<string>(), "test logical map functionality")
+    ("test-emap", po::value<string>(), "test electronic map functionality")
+    ("test-qie", po::value<string>(), "test QIE procedure elements")
     ("test-lut-manager", po::value<string>(), "test LUT functionality")
     ("tag-name", po::value<string>(), "tag name")
     ("crate", po::value<int>(&crate)->default_value( -1 ), "crate number")
+    ("lut-type", po::value<int>(&crate)->default_value( 1 ), "LUT type: 1 - linearization, 2 - compression")
     ("create-lut-xml", "create XML file(s) with LUTs, arg=crate number, default arg=-1 stands for all crates")
-    ("lut-master-file", po::value<string>(), "LUT ASCII master file name")
+    ("lin-lut-master-file", po::value<string>(), "Linearizer LUT ASCII master file name")
+    ("comp-lut-master-file", po::value<string>(), "Compression LUT ASCII master file name")
     ("do-not-split-by-crate", "output LUTs as a single XML instead of making a separate file for each crate")
+    ("input-file", po::value<string>(), "Input file name")
+    ("output-file", po::value<string>(), "Outputput file name")
+    ("old-qie-file", po::value<string>(), "Old QIE table ASCII file")
+    ("qie", "Generate new QIE table file")
+    ("qie-hf", "Retrieve HF QIE ADC caps offsets and slopes")
     ;
 
   try{
@@ -90,9 +98,13 @@ int main( int argc, char **argv )
       return 1;
     }
     
-    if (vm.count("test")) {
+    if (vm.count("test-string")) {
       cout << "Test: "
-	   << vm["test"].as<string>() << ".\n";
+	   << vm["test-string"].as<string>() << ".\n";
+      XMLDOMBlock a("HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template");
+      a+=a;
+      a.write("stdout");
+      return 0;
     }
 
     if (vm.count("test-lmap")) {
@@ -113,6 +125,24 @@ int main( int argc, char **argv )
       return 0;
     }
     
+    if (vm.count("test-emap")) {
+      cout << "Testing emap stuff..." << "\n";
+      string _accessor = vm["test-emap"].as<string>();
+      cout << "Electronic map accessor string: " << _accessor << "\n";
+      EMap_test test;
+      test . test_read_map( _accessor );
+      return 0;
+    }
+    
+    if (vm.count("test-qie")) {
+      cout << "Testing QIE stuff..." << "\n";
+      string _accessor = vm["test-qie"].as<string>();
+      cout << "File with the query: " << _accessor << "\n";
+      HcalQIEManager manager;
+      manager . getTableFromDb( _accessor, "asdf" );
+      return 0;
+    }
+    
     if (vm.count("test-lut-manager")) {
       cout << "Testing LUT manager stuff..." << "\n";
       string _accessor = vm["test-lut-manager"].as<string>();
@@ -121,26 +151,79 @@ int main( int argc, char **argv )
       return 0;
     }
     
+    if (vm.count("qie")) {
+      cout << "Generating new QIE table..." << "\n";
+      cout << "Input file (from DB)... ";
+      string _in = vm["input-file"].as<string>();
+      cout << _in << endl;
+      cout << "Output file... ";
+      string _out = vm["output-file"].as<string>();
+      cout << _out << endl;
+      cout << "Old QIE table file (to fill missing channels)... ";
+      string _old = vm["old-qie-file"].as<string>();
+      cout << _old << endl;
+      HcalQIEManager manager;
+      manager . generateQieTable( _in, _old, _out );
+      return 0;
+    }
+    
+    if (vm.count("qie-hf")) {
+      cout << "Retrieving HCAL HF QIE ADC data..." << "\n";
+      cout << "Input file (from DB)... ";
+      string _in = vm["input-file"].as<string>();
+      cout << _in << endl;
+      cout << "Output file... ";
+      string _out = vm["output-file"].as<string>();
+      cout << _out << endl;
+      HcalQIEManager manager;
+      manager . getHfQieTable( _in, _out );
+      return 0;
+    }
+    
     if (vm.count("create-lut-xml")) {
       while(1){
 	cout << "Creating XML with LUTs for all channels..." << "\n";
 	int _cr = vm["crate"].as<int>();
-	if (!vm.count("lut-master-file")){
-	  cout << "LUT master file name is not specified...exiting" << endl;
-	  break;
+	string lin_master_file, comp_master_file;
+	if (!vm.count("lin-lut-master-file")){
+	  cout << "Linearizer LUT master file name is not specified..." << endl;
+	  lin_master_file = "";
 	}
-	string _master_file = vm["lut-master-file"].as<string>();
+	else{
+	  lin_master_file = vm["lin-lut-master-file"].as<string>();
+	}
+	if (!vm.count("comp-lut-master-file")){
+	  cout << "Compression LUT master file name is not specified..." << endl;
+	  comp_master_file = "";
+	}
+	else{
+	  comp_master_file = vm["comp-lut-master-file"].as<string>();
+	}
 	if (!vm.count("tag-name")){
 	  cout << "tag name is not specified...exiting" << endl;
 	  break;
 	}
 	string _tag = vm["tag-name"].as<string>();
 	HcalLutManager manager;
-	manager . getLutXmlFromAsciiMaster( _master_file, _tag, _cr, !vm.count("do-not-split-by-crate") );
+	manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file );
+	/*
+	int _lut_type = vm["lut-type"].as<int>();
+	if (_lut_type==1){
+	  manager . getLutXmlFromAsciiMaster( _master_file, _tag, _cr, !vm.count("do-not-split-by-crate") );
+	}
+	else if (_lut_type==2){
+	  cout << "Creating compression LUT XML..." << endl;
+	  manager . getCompressionLutXmlFromAsciiMaster( _master_file, _tag, _cr, !vm.count("do-not-split-by-crate") );
+	}
+	else{
+	  cout << "Invalid LUT type...exiting" << endl;
+	}
+	*/
 	break;
       }
       return 0;
     }
+    
     
   } catch(boost::program_options::unknown_option) {
     cout << "No command line options known to boost... continuing to getopt parser..." << endl;
@@ -160,7 +243,6 @@ int main( int argc, char **argv )
   bool testdb_b = false;
   bool lmaptest_b = false;
   bool hardware_b = false;
-  bool qie_b = false;
   bool test_db_access_b = false;
   bool zs2_b = false;
   bool zs2HB_b = false;
@@ -203,7 +285,6 @@ int main( int argc, char **argv )
       {"testdb", 1, 0, 1010},
       {"lmaptest", 1, 0, 2000},
       {"hardware", 0, 0, 1050},
-      {"qie", 0, 0, 1060},
       {"test-db-access", 0, 0, 1070},
       {"zs2", 0, 0, 1080},
       {"zs2HB", 1, 0, 1090},
@@ -388,10 +469,6 @@ int main( int argc, char **argv )
       hardware_b=true;
       break;
       
-    case 1060: // qie
-      qie_b=true;
-      break;
-      
     case 1070: // oracle access example to lmap and stuff for Dmitry
       test_db_access_b=true;
       break;
@@ -507,10 +584,6 @@ int main( int argc, char **argv )
   else if ( hardware_b )
     {
       hardware();      
-    }
-  else if ( qie_b )
-    {
-      qie_adc();      
     }
   else if ( test_db_access_b )
     {
@@ -1296,46 +1369,6 @@ int hardware( void )
   return 0;
 }
 
-int qie_adc( void )
-{
-  HcalQIEManager _manager;
-
-  map<HcalChannelId,HcalQIECaps> & _old = _manager . getQIETableFromFile( "qie_normalmode_v3.txt" );
-  map<HcalChannelId,HcalQIECaps> & _new = _manager . getQIETableFromFile( "qie_adc_table_after.txt" );
-
-  int goodChannels = 0;
-  int badChannels = 0;
-  cout << "old size: " << _old.size() << endl;
-  cout << "new size: " << _new.size() << endl;
-  for (map<HcalChannelId,HcalQIECaps>::const_iterator line=_old.begin(); line!=_old.end(); line++ ){
-    HcalQIECaps * the_caps;
-    HcalChannelId theId = line -> first;
-    if (_new.find(theId)==_new.end()){
-      badChannels++;
-      the_caps = &_old[theId];
-    }
-    else{
-      goodChannels++;
-      the_caps = &_new[theId];
-    }
-    char buffer[1024];
-    int eta = theId.eta;
-    int phi = theId.phi;
-    int depth = theId.depth;
-    sprintf(buffer, "%15d %15d %15d %15s", eta, phi, depth, theId.subdetector.c_str());
-    cout << buffer;
-
-    for (int j = 0; j != 32; j++){
-      double _x = the_caps->caps[j];
-      sprintf(buffer, " %8.5f", _x);
-      cout << buffer;      
-    }
-    cout << endl;
-  }
-
-  cout<< goodChannels<< "   " << badChannels << "   " << goodChannels+badChannels << endl;
-  return 0;
-}
 
 // courtesy of Fedor Ratnikov
 std::vector <std::string> splitString (const std::string& fLine) {
