@@ -99,19 +99,18 @@ namespace cond {
   }
 
   CondDB::~CondDB() {
-    me.disconnect();
+    me->disconnect();
   }
   
   const char * CondDB::allTags() const {
     std::ostringstream ss;
 
-    cond::CoralTransaction& coraldb=me.coralTransaction();
+    cond::CoralTransaction& coraldb=me->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     std::vector<std::string> alltags;
     coraldb.start(true);
     metadata_svc.listAllTags(alltags);
     coraldb.commit();
-    myconnection.disconnect();
     
     std::copy (alltags.begin(),
 	       alltags.end(),
@@ -138,9 +137,9 @@ namespace cond {
   
   CondDB RDBMS::getDB(std::string const & db) {
     cond::ConnectionHandler::Instance().registerConnection(db,*session,-1);
-    cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(db);
-    myconnection.connect(session);
-    return CondDB(&myconnection);
+    cond::Connection & conn = *cond::ConnectionHandler::Instance().getConnection(db);
+    conn.connect(session.get();
+    return CondDB(&conn);
   }
 
 
