@@ -1,5 +1,5 @@
-<library file="CondPyWrappers.cc" name=pluginCondDBPyInterface>
-<use name=CondCoreUtilities>
+<library file="CondPyWrappers.cc" name=CondDBPyInterface>
+<use name=CondCore/Utilities>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
