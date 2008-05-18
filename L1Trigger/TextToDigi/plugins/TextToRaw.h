@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: TextToRaw.h,v 1.2 2007/06/13 17:10:01 jbrooke Exp $
+// $Id: TextToRaw.h,v 1.3 2007/08/07 00:12:43 nuno Exp $
 //
 //
 
@@ -58,7 +58,7 @@ class TextToRaw : public edm::EDProducer {
   std::ifstream file_;
 
   // array to store the data
-  static const int EVT_MAX_SIZE=1024;
+  static const int EVT_MAX_SIZE=4096;
   char data_[EVT_MAX_SIZE];
 
   int fileEventOffset_;

@@ -76,7 +76,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       int iline=0;
       while (getline(file_, line) && !line.empty()) {
 	iline++;
-	if(iline>=EVT_MAX_SIZE)       
+	if(iline*4>=EVT_MAX_SIZE)       
 	  throw cms::Exception("TextToRawEventSizeOverflow")
 	    << "TextToRaw::produce() : "
 	    << " read too many lines (" << iline << ": " << line << ")" 
@@ -94,6 +94,12 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // while not encountering dumb errors
    while (getline(file_, line) && !line.empty() ) {
+
+     // bail if we reached the EVT_MAX_SIZE
+     if (i*4>=EVT_MAX_SIZE) {
+       throw cms::Exception("TextToRaw")
+         << "Read too many lines from file. Maximum event size is " << EVT_MAX_SIZE << " lines" << std::endl;
+     }
 
      // convert string to int
      std::istringstream iss(line);
