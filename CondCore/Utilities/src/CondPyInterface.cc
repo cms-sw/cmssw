@@ -102,11 +102,11 @@ namespace cond {
   }
 
   // move ownership....
-  CondDB(const CondDB & other) : me(other.me) {
+  CondDB::CondDB(const CondDB & other) : me(other.me) {
     other.me=0;
   }
 
-  CondDB & operator=(const CondDB & other) {
+  CondDB & CondDB::operator=(const CondDB & other) {
     me = other.me;
     other.me=0;
     return *this;
