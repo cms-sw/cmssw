@@ -234,8 +234,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
         int j4=(int)get_adc(eta,phi,2)[ADCdigi_+1];
         float tmp22 = (TrigMonAdc2fc[j4]+0.5);
            if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
-	      if(get_tp(eta,phi,1)[TPdigi_]>TPThresh_){ 
-		//     TPvsDigi_->Fill(get_adc(eta,phi,1)[i]+get_adc(eta,phi,1)[i-1],get_tp(eta,phi,1)[i]);
+	      if(get_tp(eta,phi)[TPdigi_]>TPThresh_){ 
             TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
 
 		float Energy=0; for(int j=0;j<10;j++) Energy+=get_adc(eta,phi,1)[j]; 
