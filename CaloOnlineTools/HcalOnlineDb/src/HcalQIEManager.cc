@@ -368,7 +368,7 @@ int HcalQIEManager::getHfQieTable( string input_file, string output_file )
 	query2 . append("where substr(vadcs.name_label,14,6)='%d'\n");
 	query2 . append("and substr(vadcs.name_label,21,1)='%d'\n");
 	query2 . append("order by version desc,record_id desc, condition_data_set_id desc\n");
-	char query2_fixed[500];
+	char query2_fixed[5000];
 	sprintf(query2_fixed,query2.c_str(),qie_barcode,adc);
     	//cout << "Preparing the query... done" << endl;
 	//cout << query2_fixed << endl;
@@ -384,7 +384,7 @@ int HcalQIEManager::getHfQieTable( string input_file, string output_file )
 	if (rs2->next()) {
 	  HcalQIECaps _caps;
 	  for (int j=0; j!=32; j++){
-	    _caps.caps[j] = rs2 -> getDouble(j);
+	    _caps.caps[j] = rs2 -> getDouble(j+1);
 	  }	  
 	  //==> output QIE table line
 	  char buffer[1024];
