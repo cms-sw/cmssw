@@ -29,12 +29,14 @@ namespace cond {
  class CondDB {
   public:
    CondDB();
+   CondDB(const CondDB & other);
+   CondDB & operator=(const CondDB & other);
    CondDB(Connection * conn);
    ~CondDB();
    const char * allTags() const;
    
  private:
-   Connection * me;
+   mutable Connection * me;
  };
 
   // initializ cond, coral etc

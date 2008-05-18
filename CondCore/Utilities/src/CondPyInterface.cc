@@ -101,10 +101,23 @@ namespace cond {
     me(conn) {
   }
 
+  // move ownership....
+  CondDB(const CondDB & other) : me(other.me) {
+    other.me=0;
+  }
+
+  CondDB & operator=(const CondDB & other) {
+    me = other.me;
+    other.me=0;
+    return *this;
+  }
+
   CondDB::~CondDB() {
-    me->disconnect();
+    if (me)
+      me->disconnect();
   }
   
+
   const char * CondDB::allTags() const {
     std::ostringstream ss;
 
