@@ -47,9 +47,12 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     blockUnpackFn_[0x000] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x583] = &GctBlockUnpackerV2::blockToGctJetCandsAndCounts;
     blockUnpackFn_[0x580] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x581] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x587] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x683] = &GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums;
     blockUnpackFn_[0x680] = &GctBlockUnpackerV2::blockToGctInternEmCand;
+    blockUnpackFn_[0x681] = &GctBlockUnpackerV2::blockDoNothing;
+    blockUnpackFn_[0x682] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x686] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x687] = &GctBlockUnpackerV2::blockDoNothing;
     blockUnpackFn_[0x800] = &GctBlockUnpackerV2::blockToGctInternEmCand;
