@@ -8,6 +8,7 @@
 namespace cond {
 
   class DBSession;
+  class Connection;
 
   namespace impl {
     struct FWMagic;
@@ -26,12 +27,12 @@ namespace cond {
  class CondDB {
   public:
    CondDB();
-   CondDB(cond::Connection * conn);
+   CondDB(Connection * conn);
    ~CondDB();
    const char * allTags() const;
    
  private:
-   Connection  * me;
+   Connection * me;
  };
 
   // initializ cond, coral etc

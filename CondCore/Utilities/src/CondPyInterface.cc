@@ -38,7 +38,7 @@ namespace cond {
   namespace impl {
     struct FWMagic {
       // A.  Instantiate a plug-in manager first.
-      edm::AssertHandler ah
+      edm::AssertHandler ah;
     };
   }
 
@@ -138,7 +138,7 @@ namespace cond {
   
   CondDB RDBMS::getDB(std::string const & db) {
     cond::ConnectionHandler::Instance().registerConnection(db,*session,-1);
-    cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(connect);
+    cond::Connection & myconnection = *cond::ConnectionHandler::Instance().getConnection(db);
     myconnection.connect(session);
     return CondDB(&myconnection);
   }
