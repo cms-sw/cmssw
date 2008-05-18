@@ -129,6 +129,8 @@ namespace cond {
   RDBMS::RDBMS(std::string const & authPath) : session(new DBSession) {
     std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
     ::putenv(const_cast<char*>(authenv.c_str()));
+    session->configuration().setAuthenticationMethod( cond::XML );
+    session->configuration().setMessageLevel( cond::Error );
   }
   
   RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
@@ -136,6 +138,8 @@ namespace cond {
     std::string passenv(std::string("CORAL_AUTH_PASSWORD=")+pass);
     ::putenv(const_cast<char*>(userenv.c_str()));
     ::putenv(const_cast<char*>(passenv.c_str()));
+    session->configuration().setAuthenticationMethod( cond::Env );
+    session->configuration().setMessageLevel( cond::Error );
   }
   
   CondDB RDBMS::getDB(std::string const & db) {
