@@ -862,8 +862,8 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    LocalVector          trackDirection = trajState.localDirection();
    double                  cosine      = trackDirection.z()/trackDirection.mag();
    const SiStripCluster*   Cluster     = (sistripsimplehit->cluster()).get();
-   const vector<uint16_t>& Ampls       = Cluster->amplitudes();
-//   const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
+//   const vector<uint16_t>& Ampls       = Cluster->amplitudes();
+   const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
    uint32_t                DetId       = Cluster->geographicalId();
    int                     FirstStrip  = Cluster->firstStrip();
    int                     APVPairId   = FirstStrip/256;
