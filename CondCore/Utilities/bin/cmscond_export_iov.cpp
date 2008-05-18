@@ -334,7 +334,7 @@ int main( int argc, char** argv ){
 
     {
       std::ostringstream ss; 
-      ss << "copied="<< result.size-oldsize <<";";
+      ss << "copied="<< result.size-oldSize <<";";
       a.usertext +=ss.str();
     }
 
