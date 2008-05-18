@@ -250,10 +250,10 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
 {
   float phi = gpos.barePhi();
-  const TECPetal& petal = dynamic_cast<const TECPetal&>(gsdet);
+  const BoundDiskSector&  diskSector = static_cast<const BoundDiskSector&>(gsdet.surface());
   pair<float,float> phiRange(phi-phiWin,phi+phiWin);
-  pair<float,float> petalPhiRange(petal.surface().phi() - 0.5*petal.specificSurface().phiExtension(),
-				  petal.surface().phi() + 0.5*petal.specificSurface().phiExtension());
+  pair<float,float> petalPhiRange(diskSector.phi() - 0.5*diskSector.phiExtension(),
+				  diskSector.phi() + 0.5*diskSector.phiExtension());
 
 
   return rangesIntersect(phiRange, petalPhiRange, PhiLess());
@@ -267,10 +267,10 @@ TECLayer::computeDisk( vector<const GeometricSearchDet*>& petals) const
   // Attention: it is assumed that the petals do belong to one layer, and are all
   // of the same rmin/rmax extension !!  
   
-  const TECPetal* frontPetal = dynamic_cast<const TECPetal*>(petals.front());
+  const BoundDiskSector&  diskSector = static_cast<const BoundDiskSector&>(petals.front()->surface());
 
-  float rmin = frontPetal->specificSurface().innerRadius();
-  float rmax = frontPetal->specificSurface().outerRadius();
+  float rmin = diskSector.innerRadius();
+  float rmax = diskSector.outerRadius();
   
   float theZmax(petals.front()->position().z());
   float theZmin(theZmax);

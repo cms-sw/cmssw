@@ -251,10 +251,10 @@ bool PixelBarrelLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDe
   phiWin += phiOffset;
 
   // detector phi range
-  const PixelRod& rod = dynamic_cast<const PixelRod&>(gsdet);
+  
   pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
-  return rangesIntersect(phiRange, rod.specificSurface().phiSpan(), PhiLess());
+  return rangesIntersect(phiRange, gsdet.surface().phiSpan(), PhiLess());
 
 } 
 

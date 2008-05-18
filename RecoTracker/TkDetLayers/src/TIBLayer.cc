@@ -104,11 +104,11 @@ TIBLayer::cylinder( const vector<const GeometricSearchDet*>& rings)
   float leftPos = rings.front()->surface().position().z();
   float rightPos = rings.back()->surface().position().z();
 
-  const TIBRing* frontRing = dynamic_cast<const TIBRing*>(rings.front());
-  const TIBRing* backRing  = dynamic_cast<const TIBRing*>(rings.back());
-  float r = frontRing->specificSurface().radius(); 
-  const Bounds& leftBounds  = frontRing->specificSurface().bounds();
-  const Bounds& rightBounds = backRing->specificSurface().bounds();
+  const BoundCylinder & frontRing = static_cast<const BoundCylinder &>(rings.front()->surface());
+  const BoundCylinder & backRing  = static_cast<const BoundCylinder &>(rings.back()->surface());
+  float r = frontRing.radius(); 
+  const Bounds& leftBounds  = frontRing.bounds();
+  const Bounds& rightBounds = backRing.bounds();
 
   //float r = rings.front()->specificSurface().radius();
   //const Bounds& leftBounds = rings.front()->specificSurface().bounds();
@@ -268,13 +268,10 @@ float TIBLayer::computeWindowSize( const GeomDet* det,
 {
   // we assume the outer and inner rings have about same thickness...
 
-  // improve interface to avoid dynamic_cast?
-  const BoundPlane& plane( dynamic_cast<const BoundPlane&>(tsos.surface()));
-
 //   edm::LogInfo(TkDetLayers) << "TIBLayer::computeWindowSize: Y axis of tangent plane is"
 //        << plane.toGlobal( LocalVector(0,1,0)) ;
 
-  MeasurementEstimator::Local2DVector localError( est.maximalLocalDisplacement(tsos, plane));
+  MeasurementEstimator::Local2DVector localError( est.maximalLocalDisplacement(tsos, det->surface()));
   float yError = localError.y();
 
   float tanTheta = tan( tsos.globalMomentum().theta());

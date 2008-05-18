@@ -167,13 +167,16 @@ ForwardDiskSectorBuilderFromDet::computeTrapezoidalCorners( const GeomDet* det) 
 
   const BoundPlane& plane( det->specificSurface());
   
-  const TrapezoidalPlaneBounds* myBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const TrapezoidalPlaneBounds* myBounds( static_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
   
+  /*
   if (myBounds == 0) {
     string errmsg="ForwardDiskSectorBuilderFromDet: problems with dynamic cast to trapezoidal bounds for DetUnits";
     throw DetLayerException(errmsg);
     edm::LogError("TkDetLayers") << errmsg ;
   }
+  */
+
   vector<float> parameters = (*myBounds).parameters();
 
   if ( parameters[0] == 0 ) {

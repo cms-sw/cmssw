@@ -261,7 +261,6 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
   phiWin += phiOffset;
 
   // detector phi range
-  const TOBRod& theRod = dynamic_cast<const TOBRod&>(gsdet);
   std::pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
 
   //   // debug
@@ -272,7 +271,7 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
   //   edm::LogInfo(TkDetLayers) << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin ;
   //   edm::LogInfo(TkDetLayers) << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin ;
 
-  return rangesIntersect(phiRange, theRod.specificSurface().phiSpan(), PhiLess());
+  return rangesIntersect(phiRange, gsdet.surface().phiSpan(), PhiLess());
 } 
 
 

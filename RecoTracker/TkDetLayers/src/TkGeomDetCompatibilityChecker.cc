@@ -1,7 +1,8 @@
 #include "RecoTracker/TkDetLayers/interface/TkGeomDetCompatibilityChecker.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-
+#include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
+ 
 using namespace std;
 
 pair<bool, TrajectoryStateOnSurface>  
@@ -11,9 +12,10 @@ TkGeomDetCompatibilityChecker::isCompatible(const GeomDet* det,
 					    const MeasurementEstimator& est) const
 {
   GeomDetCompatibilityChecker checker;
-  const GluedGeomDet* glued = dynamic_cast<const GluedGeomDet*>( det);
-  if (glued == 0) return checker.isCompatible( det, tsos, prop, est);
+  SiStripDetId siStripDetId(det->geographicalId());
+  if(!siStripDetId.glued()) return checker.isCompatible( det, tsos, prop, est);
   else {
+    const GluedGeomDet* glued = static_cast<const GluedGeomDet*>( det);
     pair<bool, TrajectoryStateOnSurface> mono = 
       checker.isCompatible(glued->monoDet(), tsos, prop, est);
     pair<bool, TrajectoryStateOnSurface> stereo = 

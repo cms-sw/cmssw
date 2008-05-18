@@ -176,8 +176,8 @@ TIDLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startin
   // vector<GlobalVector>  ringXDirections;
 
   for (int i = 0; i < 3 ; i++ ) {
-    const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
-    pair<bool,double> pathlen = myXing.pathLength( theRing->specificSurface());
+    const BoundDisk & theRing  = static_cast<const BoundDisk &>(theComps[i]->surface());
+    pair<bool,double> pathlen = myXing.pathLength( theRing);
     if ( pathlen.first ) { 
       ringCrossings[i] = GlobalPoint( myXing.position(pathlen.second ));
       // ringXDirections.push_back( GlobalVector( myXing.direction(pathlen.second )));
@@ -289,16 +289,14 @@ int
 TIDLayer::findClosest(const GlobalPoint ringCrossing[3] ) const
 {
   int theBin = 0;
-  const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[0]);
-  //float initialR = ( theComps.front()->specificSurface().innerRadius() +
-  //	     theComps.front()->specificSurface().outerRadius())/2.;
-  float initialR = 0.5*( theFrontRing->specificSurface().innerRadius() +
-			 theFrontRing->specificSurface().outerRadius());
+  const BoundDisk & theFrontRing  = static_cast<const BoundDisk &>(theComps[0]->surface());
+  float initialR = 0.5*( theFrontRing.innerRadius() +
+			 theFrontRing.outerRadius());
   float rDiff = fabs( ringCrossing[0].perp() - initialR);
   for (int i = 1; i < 3 ; i++){
-    const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
-    float ringR = 0.5*( theRing->specificSurface().innerRadius() + 
-			theRing->specificSurface().outerRadius());
+    const BoundDisk & theRing  = static_cast<const BoundDisk &>(theComps[i]->surface());
+    float ringR = 0.5*( theRing.innerRadius() + 
+			theRing.outerRadius());
     float testDiff = fabs( ringCrossing[i].perp() - ringR);
     if ( theBin<0 || testDiff<rDiff ) {
       rDiff = testDiff;
@@ -313,17 +311,17 @@ TIDLayer::findNextIndex(const GlobalPoint ringCrossing[3], int closest ) const
 {
 
   int firstIndexToCheck = (closest != 0)? 0 : 1; 
-  const TIDRing* theFrontRing = dynamic_cast<const TIDRing*>(theComps[firstIndexToCheck]);
-  float initialR = ( theFrontRing->specificSurface().innerRadius() +
-		     theFrontRing->specificSurface().outerRadius())/2.;	     
+  const BoundDisk & theFrontRing  = static_cast<const BoundDisk &>(theComps[firstIndexToCheck]->surface());
+  float initialR = ( theFrontRing.innerRadius() +
+		     theFrontRing.outerRadius())/2.;	     
 
   float rDiff = fabs( ringCrossing[0].perp() - initialR);
   int theBin = firstIndexToCheck;
   for (int i = firstIndexToCheck+1; i < 3 ; i++){
     if ( i != closest) {
-      const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[i]);
-      float ringR = ( theRing->specificSurface().innerRadius() + 
-		      theRing->specificSurface().outerRadius())/2.;
+      const BoundDisk & theRing  = static_cast<const BoundDisk &>(theComps[i]->surface());
+      float ringR = ( theRing.innerRadius() + 
+		      theRing.outerRadius())/2.;
       float testDiff = fabs( ringCrossing[i].perp() - ringR);
       if ( testDiff<rDiff ) {
 	rDiff = testDiff;
@@ -343,9 +341,8 @@ TIDLayer::overlapInR( const TrajectoryStateOnSurface& tsos, int index, double ym
   float tsRadius = tsos.globalPosition().perp();
   float thetamin = ( max(0.,tsRadius-ymax))/(fabs(tsos.globalPosition().z())+10.); // add 10 cm contingency 
   float thetamax = ( tsRadius + ymax)/(fabs(tsos.globalPosition().z())-10.);
-
-  const TIDRing* theRing = dynamic_cast<const TIDRing*>(theComps[index]);
-  const BoundDisk& ringDisk = theRing->specificSurface();
+  
+  const BoundDisk& ringDisk = static_cast<const BoundDisk&>(theComps[index]->surface());
   float ringMinZ = fabs( ringDisk.position().z()) - ringDisk.bounds().thickness()/2.;
   float ringMaxZ = fabs( ringDisk.position().z()) + ringDisk.bounds().thickness()/2.; 
   float thetaRingMin =  ringDisk.innerRadius()/ ringMaxZ;

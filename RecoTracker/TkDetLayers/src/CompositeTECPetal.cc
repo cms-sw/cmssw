@@ -303,9 +303,7 @@ CompositeTECPetal::overlap( const GlobalPoint& gpos, const GeometricSearchDet& g
   float thetamin = ( max((float)0.,tsRadius-ymax))/(fabs(gpos.z())+10.); // add 10 cm contingency 
   float thetamax = ( tsRadius + ymax)/(fabs(gpos.z())-10.);
 
-  const TECWedge& wedge = dynamic_cast<const TECWedge&>(gsdet);
-
-  const BoundDiskSector& wedgeSector = wedge.specificSurface();                                           
+  const BoundDiskSector& wedgeSector = static_cast<const BoundDiskSector&>( gsdet.surface());                   
   float wedgeMinZ = fabs( wedgeSector.position().z()) - 0.5*wedgeSector.bounds().thickness();
   float wedgeMaxZ = fabs( wedgeSector.position().z()) + 0.5*wedgeSector.bounds().thickness(); 
   float thetaWedgeMin =  wedgeSector.innerRadius()/ wedgeMaxZ;
