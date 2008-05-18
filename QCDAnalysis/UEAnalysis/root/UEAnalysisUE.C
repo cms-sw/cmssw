@@ -94,6 +94,8 @@ void UEAnalysisUE::Begin(TFile * f)
 void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float ptThreshold, TClonesArray* MonteCarlo, TClonesArray* ChargedJet)
 {
 
+  //cout << "UEAnalysisUE::ueAnalysisMC(...)" << endl;
+
   TLorentzVector* leadingJet;
   Float_t PTLeadingCJ = -10;
   for(int j=0;j<ChargedJet->GetSize();++j){
@@ -104,6 +106,17 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
       break;
     }
   }
+
+
+  //cout << "PTLeadingCJ " << PTLeadingCJ << endl;
+
+  if ( PTLeadingCJ == -10. )
+    {
+      //cout << "return" << endl;
+      return;
+    }
+
+  //cout << "for(int i=0;i<MonteCarlo->GetSize();i++){" << endl;
 
   for(int i=0;i<MonteCarlo->GetSize();i++){
     TLorentzVector *v = (TLorentzVector*)MonteCarlo->At(i);    
@@ -124,6 +137,8 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
     }
   }
   
+  //cout << "for(int i=0;i<100;i++){" << endl;
+
   for(int i=0;i<100;i++){
     pdN_vs_etaMC->Fill((i*0.05)+0.025,temp3MC->GetBinContent(i+1)/0.1,weight);
   }
@@ -173,6 +188,8 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
     
   }
   
+  //cout << "bool orderedN = false;" << endl;
+
   bool orderedN = false;
   //  bool orderedP = false;
   
@@ -236,6 +253,8 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
   */
   temp1MC->Reset();
   temp2MC->Reset();
+
+  //cout << "done" << endl;
 
 }
 

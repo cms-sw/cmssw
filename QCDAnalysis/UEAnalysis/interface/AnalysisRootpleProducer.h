@@ -72,6 +72,7 @@ private:
   InputTag recoCaloJetCollName;
   InputTag tracksCollName;
   InputTag triggerResultsTag;
+  InputTag triggerEventTag;
 
   Handle< HepMCProduct        > EvtHandle ;
   Handle< vector<GenParticle> > CandHandleMC ;
@@ -81,6 +82,7 @@ private:
   Handle< BasicJetCollection  > TracksJetsHandle ;
   Handle< CaloJetCollection   > RecoCaloJetsHandle ;
   Handle<TriggerResults> triggerResults;
+  Handle<TriggerEvent>   triggerEvent;
   //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
   TriggerNames triggerNames;
 
