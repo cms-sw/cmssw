@@ -36,6 +36,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstdlib>
+#include<sstream>
+
 
 int main( int argc, char** argv ){
 
@@ -188,7 +190,7 @@ int main( int argc, char** argv ){
 
   try{
     session.open();
-
+    
     conHandler.connect(&session);
     std::string sourceiovtoken;
     std::string destiovtoken;
@@ -197,8 +199,8 @@ int main( int argc, char** argv ){
       cond::FipProtocolParser p;
       sourceConnect=p.getRealConnect(sourceConnect);
     }
-
-
+    
+    
     // find tag in source
     {
       cond::CoralTransaction& sourceCoralDB=conHandler.getConnection("mysourcedb")->coralTransaction();
@@ -219,21 +221,21 @@ int main( int argc, char** argv ){
 	std::cout<<"source iov type "<<sourceiovtype<<std::endl;
       }
     }
-
+    
     // find tag in destination
     {
       try {
 	cond::CoralTransaction& coralDB=conHandler.getConnection("mydestdb")->coralTransaction();
 	coralDB.start(false);
-
+	
 	
 	// we need to clean this
 	cond::ObjectRelationalMappingUtility mappingUtil(&(coralDB.coralSessionProxy()) );
 	if( !mappingUtil.existsMapping(cond::IOVNames::iovMappingVersion()) ){
 	  mappingUtil.buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
 	}
-
-
+	
+	
 	cond::MetaData  metadata(coralDB);
 	if( metadata.hasTag(destTag) ){
 	  cond::MetaDataEntry entry;
@@ -245,12 +247,14 @@ int main( int argc, char** argv ){
         }
         coralDB.commit();
       } catch(...){ }// throw if no db available...
-	if(debug){
-	  std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
+      if(debug){
+	std::cout<<"destintion iov token "<< destiovtoken<<std::endl;
       }
     }
-
-
+    
+    
+    bool newIOV = destiovtoken.empty();
+    
     cond::PoolTransaction& sourcedb=conHandler.getConnection("mysourcedb")->poolTransaction();
     cond::PoolTransaction& destdb=conHandler.getConnection("mydestdb")->poolTransaction();
     cond::IOVService iovmanager(sourcedb);
@@ -259,6 +263,17 @@ int main( int argc, char** argv ){
     since = std::max(since,iovmanager.globalSince());
     till = std::min(till,iovmanager.globalTill());
 
+
+    int oldSize=0;
+    if (!newIOV) {
+      // grab info
+      destdb.start(true);
+      cond::IOVService iovmanager2(destdb);
+      std::auto_ptr<cond::IOVIterator> iit(iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter));
+      iit->next(); // just to initialize
+      oldSize=iit->size();
+      destdb.commit();
+    }
 
     // setup logDB
     std::auto_ptr<cond::Logger> logdb;
@@ -270,12 +285,18 @@ int main( int argc, char** argv ){
     }
     cond::service::UserLogInfo a;
     a.provenance=sourceConnect+"/"+inputTag;
-    a.usertext="exportIOV V1.0";
- 
+    a.usertext="exportIOV V1.0;";
+    {
+      std::ostringstream ss; 
+      ss << "since="<< since
+	 <<", till="<< till <<";";
+      a.usertext +=ss.str();
+    }
+
+     
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(true);
     destdb.start(false);
-    bool newIOV = destiovtoken.empty();
     destiovtoken=iovmanager.exportIOVRangeWithPayload( destdb,
 						       sourceiovtoken,
 						       destiovtoken,
@@ -311,6 +332,11 @@ int main( int argc, char** argv ){
     delete iit;
     destdb.commit();
 
+    {
+      std::ostringstream ss; 
+      ss << "copied="<< result.size-oldsize <<";";
+      a.usertext +=ss.str();
+    }
 
     if (!logConnect.empty()){
       logdb->getWriteLock();
