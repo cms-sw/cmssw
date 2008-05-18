@@ -8,11 +8,11 @@
 using namespace boost::python;
 
 namespace {
-  exceptionTranslator(const edm::Exception & e)
-  {
-    PyErr_SetString(PyExc_RuntimeError, e.what());
-  }
-  exceptionTranslator(const std::exception & e)
+//  exceptionTranslator(const edm::Exception & e)
+//  {
+//    PyErr_SetString(PyExc_RuntimeError, e.what());
+//  }
+  void exceptionTranslator(const std::exception & e)
   {
     PyErr_SetString(PyExc_RuntimeError, e.what());
   }
@@ -30,7 +30,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def(init<std::string, std::string>())
     .def("getDB", &cond::RDBMS::getDB);
 
-  register_exception_translator<edm::Exception>(exceptionTranslator);
+//  register_exception_translator<edm::Exception>(exceptionTranslator);
   register_exception_translator<std::exception>(exceptionTranslator);
 
 

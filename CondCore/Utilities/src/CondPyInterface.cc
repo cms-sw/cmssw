@@ -113,8 +113,8 @@ namespace cond {
   }
 
   CondDB::~CondDB() {
-    if (me)
-      me->disconnect();
+//    if (me)
+//      me->disconnect();
   }
   
 
@@ -143,7 +143,7 @@ namespace cond {
     std::string authenv(std::string("CORAL_AUTH_PATH=")+authPath);
     ::putenv(const_cast<char*>(authenv.c_str()));
     session->configuration().setAuthenticationMethod( cond::XML );
-    session->configuration().setMessageLevel( cond::Error );
+    session->configuration().setMessageLevel( cond::Debug );
   }
   
   RDBMS::RDBMS(std::string const & user,std::string const & pass) : session(new DBSession) {
