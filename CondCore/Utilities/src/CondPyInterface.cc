@@ -116,7 +116,7 @@ namespace cond {
 	       alltags.end(),
 	       std::ostream_iterator<std::string>(ss," ")
 	       );
-    return ss.c_str();
+    return ss.str().c_str();
   }
 
 
