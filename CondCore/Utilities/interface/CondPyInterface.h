@@ -25,12 +25,13 @@ namespace cond {
   // a readonly CondDB and its transaction
  class CondDB {
   public:
-    CondDB(DBSession * isession=0);
+   CondDB();
+   CondDB(cond::Connection * conn);
    ~CondDB();
    const char * allTags() const;
    
  private:
-   DBSession * session;
+   Connection  * me;
  };
 
   // initializ cond, coral etc
