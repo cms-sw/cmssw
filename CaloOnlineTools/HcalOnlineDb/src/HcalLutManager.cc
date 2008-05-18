@@ -4,6 +4,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
+//#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 
 using namespace std;
 
@@ -104,7 +105,7 @@ int HcalLutManager_test::getLutSetFromFile_test( string _filename )
 }
 
 
-HcalLutSet HcalLutManager::getLutSetFromFile( string _filename )
+HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
 {
   HcalLutSet _lutset;
 
@@ -118,9 +119,11 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename )
     // get label
     getline( infile, _lutset . label );
 
-    //get subdetectors
-    getline( infile, buf );
-    _lutset . subdet = HcalQIEManager::splitString( buf );
+    if ( _type == 1 ){ // for linearization LUTs get subdetectors (default)
+      //get subdetectors
+      getline( infile, buf );
+      _lutset . subdet = HcalQIEManager::splitString( buf );
+    }
 
     //get min etas
     vector<string> buf_vec;
@@ -151,18 +154,20 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename )
       _lutset.phi_max.push_back(HcalLutManager::getInt(*iter));
     }
 
-    //get min depths
-    getline( infile, buf );
-    buf_vec = HcalQIEManager::splitString( buf );
-    for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
-      _lutset.depth_min.push_back(HcalLutManager::getInt(*iter));
-    }
-
-    //get max depths
-    getline( infile, buf );
-    buf_vec = HcalQIEManager::splitString( buf );
-    for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
-      _lutset.depth_max.push_back(HcalLutManager::getInt(*iter));
+    if ( _type == 1 ){ // for linearization LUTs get depth range (default)
+      //get min depths
+      getline( infile, buf );
+      buf_vec = HcalQIEManager::splitString( buf );
+      for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+	_lutset.depth_min.push_back(HcalLutManager::getInt(*iter));
+      }
+      
+      //get max depths
+      getline( infile, buf );
+      buf_vec = HcalQIEManager::splitString( buf );
+      for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+	_lutset.depth_max.push_back(HcalLutManager::getInt(*iter));
+      }
     }
 
     bool first_lut_entry = true;
@@ -184,8 +189,9 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename )
   return _lutset;
 }
 
-std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
 {
+  cout << "Generating linearization (input) LUTs from ascii master file..." << endl;
   //shared_ptr<LutXml> _xml( new LutXml() );
   map<int, shared_ptr<LutXml> > _xml; // index - crate number
 
@@ -253,19 +259,14 @@ std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _
       }
     }
   }
+  cout << "Generating linearization (input) LUTs from ascii master file...DONE" << endl;
+  return _xml;
+}
 
-  /*
-  string result = _xml->getString();
-  stringstream output_file_name;
-  if (_crate<0) output_file_name << _tag << "_all" << ".xml";
-  else output_file_name << _tag << "_" << _crate << ".xml";
-  //_xml -> write("LUT_GR0T_v1.0.xml");
-  _xml -> write( output_file_name.str().c_str() );
-  */
 
-  string result;
+int HcalLutManager::writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml, string _tag, bool split_by_crate )
+{
   for (map<int,shared_ptr<LutXml> >::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++){
-    result = cr->second->getString();
     stringstream output_file_name;
     if ( split_by_crate ){
       output_file_name << _tag << "_" << cr->first << ".xml";
@@ -275,8 +276,112 @@ std::string HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _
     }
     cr->second->write( output_file_name.str().c_str() );
   }
+  return 0;
+}
 
-  return result;
+int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate )
+{
+  std::map<int, shared_ptr<LutXml> > xml;
+  if ( _lin_file.size() != 0 ){
+    addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag ) );
+  }
+  if ( _comp_file.size() != 0 ){
+    cout << "DEBUG1!!!!" << endl;
+    addLutMap( xml, getCompressionLutXmlFromAsciiMaster( _comp_file, _tag ) );
+    cout << "DEBUG2!!!!" << endl;
+  }
+  writeLutXmlFiles( xml, _tag, split_by_crate );
+  return 0;
+}
+
+
+
+void HcalLutManager::addLutMap(std::map<int, shared_ptr<LutXml> > & result, const std::map<int, shared_ptr<LutXml> > & other)
+{
+  for ( std::map<int, shared_ptr<LutXml> >::const_iterator lut=other.begin(); lut!=other.end(); lut++ ){
+    if ( result.count(lut->first)==0 ){
+      result . insert( *lut );
+    }
+    else{
+      //LutXml a;
+      //(*(result[lut->first])) . write("stdout");
+      //LutXml b;
+      //(*(lut->second)) . write("stdout");
+      //a.write("stdout");
+      //a+=b;
+      *(result[lut->first]) += *(lut->second);
+    }
+  }
+}
+
+
+std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
+{
+  cout << "Generating compression (output) LUTs from ascii master file..." << endl;
+  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+
+  EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  cout << "EMap contains " << _map . size() << " channels" << endl;
+
+  // read LUTs and their eta/phi/depth/subdet ranges
+  HcalLutSet _set = getLutSetFromFile( _filename, 2 );
+  int lut_set_size = _set.lut.size(); // number of different luts
+
+  //loop over all EMap channels
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    LutXml::Config _cfg;
+
+    // search for the correct LUT for a given channel,
+    // higher LUT numbers have priority in case of overlapping
+    int lut_index=-1;
+    for ( int i=0; i<lut_set_size; i++ ){
+      if ( row->subdet . find("HT") != string::npos &&
+	   (row->crate == _crate || _crate == -1) && // -1 stands for all crates
+	   _set.eta_min[i] <= row->ieta &&
+	   _set.eta_max[i] >= row->ieta &&
+	   _set.phi_min[i] <= row->iphi &&
+	   _set.phi_max[i] >= row->iphi ){
+	lut_index=i;
+      }
+    }
+    if ( lut_index >= 0 ){
+      if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+      }
+      else if ( _xml.count(0) == 0 ){
+	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+      }
+      _cfg.ieta = row->ieta;
+      _cfg.iphi = row->iphi;
+      _cfg.depth = row->idepth;
+      _cfg.crate = row->crate;
+      _cfg.slot = row->slot;
+      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
+      else cout << "Warning! fpga out of range..." << endl;
+      _cfg.fiber = row->fiber;
+      _cfg.fiberchan = row->fiberchan;
+      if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
+      else _cfg.lut_type = 2;
+      _cfg.creationtag = _tag;
+      _cfg.creationstamp = get_time_stamp( time(0) );
+      _cfg.targetfirmware = "1.0.0";
+      _cfg.formatrevision = "1"; //???
+      _cfg.generalizedindex =
+	_cfg.iphi*10000+
+	(row->ieta>0)*100+abs(row->ieta);
+      _cfg.lut = _set.lut[lut_index];
+      if (split_by_crate ){
+	_xml[row->crate]->addLut( _cfg );  
+      }
+      else{
+	_xml[0]->addLut( _cfg );  
+      }
+    }
+  }
+  cout << "Generating compression (output) LUTs from ascii master file...DONE" << endl;
+  return _xml;
 }
 
 

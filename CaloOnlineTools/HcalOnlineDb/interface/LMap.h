@@ -19,7 +19,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: LMap.h,v 1.2 2008/02/20 17:15:29 kukartse Exp $
+// $Id: LMap.h,v 1.3 2008/04/16 13:31:25 kukartse Exp $
 //
 
 // system include files
@@ -61,6 +61,8 @@ class LMapRow
 
 };
 
+
+
 class LMapDetId
 {
  public:
@@ -91,6 +93,49 @@ class LMap
 };
 
 
+
+class EMap
+{
+ public:
+  EMap(){}
+  EMap( std::string filename ){ read_map(filename); }
+  ~EMap(){}
+
+  class EMapRow
+  {
+  public:
+    int rawId,crate,slot,dcc,spigot,fiber,fiberchan,ieta,iphi,idepth;
+    string topbottom,subdet;
+    
+    EMapRow(){
+      rawId=0;
+      crate=0;
+      slot=0;
+      dcc=0;
+      spigot=0;
+      fiber=0;
+      fiberchan=0;
+      ieta=0;
+      iphi=0;
+      idepth=0;
+      topbottom="";
+      subdet="";
+    }
+    ~EMapRow(){};  
+
+    bool operator<( const EMapRow & other) const;
+    
+  }; // end of class EMapRow
+
+  int read_map( std::string filename );
+
+  std::vector<EMap::EMapRow> & get_map( void );
+
+ protected:
+  std::vector<EMapRow> map;
+}; // end of class EMap
+
+
 class LMap_test {
 public:
   LMap_test();
@@ -101,5 +146,14 @@ public:
 private:
   shared_ptr<LMap> _lmap;
 };
+
+
+class EMap_test {
+public:
+  EMap_test(){}
+  ~EMap_test(){}
+
+  int test_read_map( string filename );
+}; // end of class EMap_test
 
 #endif

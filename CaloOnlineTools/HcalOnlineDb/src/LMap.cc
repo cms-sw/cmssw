@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMap.cc,v 1.2 2008/02/20 17:15:31 kukartse Exp $
+// $Id: LMap.cc,v 1.3 2008/04/16 13:31:25 kukartse Exp $
 //
 
 // system include files
@@ -160,6 +160,70 @@ int LMap::impl::read( string map_file, string type )
   return 0;
 }
 
+
+int EMap::read_map( std::string filename )
+{
+  RooGKCounter lines;
+
+  string _row;
+  ifstream inFile( filename . c_str(), ios::in );
+  if (!inFile){
+    cout << "Unable to open file with the electronic map: " << filename << endl;
+  }
+  else{
+    cout << "File with the electronic map opened successfully: " << filename << endl;
+  }
+  while ( getline( inFile, _row ) > 0 ){
+    EMapRow aRow;
+    char fpga[32];
+    char subdet[32];
+    
+    int _read;
+    const char * _format = "%d %d %d %s %d %d %d %d %s %d %d %d";
+    _read = sscanf( _row . c_str(), _format,
+		    &(aRow.rawId),
+		    &(aRow.crate), &(aRow.slot),
+		      fpga,
+		    &(aRow.dcc),
+		    &(aRow.spigot),&(aRow.fiber),&(aRow.fiberchan),
+		    subdet,
+		    &(aRow.ieta), &(aRow.iphi), &(aRow.idepth) );
+    if ( _read >= 12 ){
+      lines . count();
+      
+      aRow . subdet .append( subdet );
+      aRow . topbottom .append( fpga );
+      
+      map . push_back( aRow );
+    }  
+  }
+  inFile.close();
+  cout << "EMap: " << lines . getCount() << " lines read" << endl;
+
+  return 0;
+}
+  
+
+
+std::vector<EMap::EMapRow> & EMap::get_map( void )
+{
+  return map;
+}
+
+
+bool EMap::EMapRow::operator<( const EMap::EMapRow & other) const{
+  return rawId < other.rawId;
+}
+
+
+
+
+// ===> test procedures for the EMap class
+int EMap_test::test_read_map( std::string filename )
+{
+  EMap map( filename );
+  return 0;
+}
 
 // ===> test procedures for the LMap class
 LMap_test::LMap_test() :_lmap(new LMap){ }

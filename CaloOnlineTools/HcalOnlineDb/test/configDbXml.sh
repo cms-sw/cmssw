@@ -43,10 +43,12 @@ echo -n 'In order to upload to a database, copy '
 echo -n $2
 echo    ' to'
 echo    'dbvalhcal@pcuscms34.cern.ch:conditions/ (validation - first!)'
-echo    'dbprdhcal@pcuscms34.cern.ch:conditions/ (Master - for now)'
-echo    'dbpp5hcal@pcuscms34.cern.ch:conditions/ (OMDS)'
+echo    'dbprdhcal@pcuscms34.cern.ch:conditions/ (old master DB)'
+echo    'dbpp5hcal@pcuscms34.cern.ch:conditions/ (old OMDS)'
+echo    'your_user_name@srv-C2C02-06:/var/spool/xmlloader/hcal/prod/conditions/ (OMDS)'
+echo    '(OMDS is on private .CMS network)'
 echo    ''
-echo -n 'You need to do all three in this order! If there is a problem '
+echo -n 'You need to do all four in this order! If there is a problem '
 echo -n 'reported from the validation DB, fix it first before '
 echo -n 'proceeeding to Master and OMDS '
 echo -n 'or, even better, follow the most recent instructions at '
@@ -215,6 +217,79 @@ credits()
     echo 'https://twiki.cern.ch/twiki/bin/view/CMS/CMSHCALConfigDBDesign'
 }
 
+# $1 type, 
+genLutXml()
+{
+    echo ''
+    echo -n 'Please enter the desired tag name:'
+    read tag_name
+    echo ''
+    echo -n 'Please enter the comment:'
+    read comment
+    echo ''
+    if [ $1 -eq 1 -o $1 -eq 3 ]
+    then
+	echo -n 'Linearization LUT master file:'
+	read lin_master
+	echo ''
+    fi
+    if [ $1 -eq 2 -o $1 -eq 3 ]
+    then
+	echo -n 'Compression LUT master file:'
+	read comp_master
+	echo ''
+    fi
+    echo -n 'Split XML files by crate? (y/n)'
+    read split_by_crate
+    echo ''
+    
+    ./xmlToolsRun --create-lut-xml --tag-name=$tag --lin-lut-master-file=$lin_master --comp-lut-master-file=$comp_master      
+}
+
+lutXml()
+{
+  echo ''
+  echo '  -- LUT menu'
+  echo ' 1. Generate linearization (input) LUT XML'
+  echo ' 2. Generate compression (output) LUT XML'
+  echo ' 3. Generate full set of LUT XML'
+  echo ' 4. Prepare LUTs for uploading to the database'
+  echo ' 0. Main menu'
+  
+  echo ''
+  echo -n 'Please choose the action: '
+  read line
+  echo ''
+
+  case $line in
+      1)
+        echo 'Generating linearization LUT XML...'
+	echo ''
+	_type=1
+	;;
+      2)
+        echo 'Generating compression LUT XML...'
+	echo ''
+        _type=2
+	;;
+      3)
+        echo 'Generating full set of LUT XML...'
+	echo ''
+        _type=3        
+	;;
+      4)
+        lutMenu
+	;;
+      0)
+      mainMenu
+      ;;
+      *)
+        echo 'Invalid choice - nothing to do...'
+        credits
+      ;;
+  esac
+}
+
 mainMenu()
 {
   echo ''
@@ -232,7 +307,7 @@ mainMenu()
 
   case $line in
       1)
-        lutMenu
+        lutXml
 	;;
       2)
         zsMenu

@@ -53,6 +53,10 @@ class HcalQIEManager{
   ~HcalQIEManager( );
   
   std::map<HcalChannelId,HcalQIECaps> & getQIETableFromFile( std::string _filename );
+  void getTableFromDb( string query_file, string output_file );
+  int generateQieTable( string db_file, string old_file, string output_file );
+  int getHfQieTable( string input_file, string output_file );
+
   static std::vector <std::string> splitString (const std::string& fLine);
 
  protected:

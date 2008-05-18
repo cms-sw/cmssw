@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.1 2008/02/12 17:02:00 kukartse Exp $
+// $Id: LutXml.h,v 1.1 2008/04/10 21:12:09 kukartse Exp $
 //
 
 #include <vector>
@@ -48,6 +48,8 @@ class LutXml : public XMLDOMBlock
   void init( void );
   void addLut( Config & _config );
   std::string & getCurrentBrick( void );
+
+  //LutXml & operator+=( const LutXml & other);
 
  protected:  
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.1 2008/04/10 21:12:09 kukartse Exp $
+// $Id: LutXml.cc,v 1.2 2008/04/16 13:31:25 kukartse Exp $
 //
 
 // system include files
@@ -21,6 +21,23 @@
 #include <sstream>
 
 using namespace std;
+
+/*
+LutXml & LutXml::operator+=( const LutXml & other)
+{
+  DOMNodeList * _children = other.getDocumentConst()->getChildNodes();
+  int _length = _children->getLength();
+  cout << "Children nodes:" << _length << endl;
+  DOMNode * _node;
+  for(int i=0;i!=_length;i++){
+    _node = _children->item(i)->cloneNode(true);
+    this->getDocument()->getDocumentElement()->appendChild(_node);
+  }
+  return *this;
+}
+*/
+
+
 
 LutXml::Config::_Config()
 {
@@ -74,19 +91,30 @@ void LutXml::addLut( LutXml::Config & _config )
 
   addParameter( "IETA", "int", _config.ieta );
   addParameter( "IPHI", "int", _config.iphi );
-  addParameter( "DEPTH", "int", _config.depth );
   addParameter( "CRATE", "int", _config.crate );
   addParameter( "SLOT", "int", _config.slot );
   addParameter( "TOPBOTTOM", "int", _config.topbottom );
-  addParameter( "FIBER", "int", _config.fiber );
-  addParameter( "FIBERCHAN", "int", _config.fiberchan );
   addParameter( "LUT_TYPE", "int", _config.lut_type );
   addParameter( "CREATIONTAG", "string", _config.creationtag );
   addParameter( "CREATIONSTAMP", "string", _config.creationstamp );
   addParameter( "FORMATREVISION", "string", _config.formatrevision );
   addParameter( "TARGETFIRMWARE", "string", _config.targetfirmware );
   addParameter( "GENERALIZEDINDEX", "int", _config.generalizedindex );
-  addData( "128", "hex", _config.lut );
+
+  if(_config.lut_type==1){ // linearizer LUT
+    addParameter( "FIBER", "int", _config.fiber );
+    addParameter( "FIBERCHAN", "int", _config.fiberchan );
+    addParameter( "DEPTH", "int", _config.depth );
+    addData( "128", "hex", _config.lut );
+  }
+  else if(_config.lut_type==2){ // compression LUT
+  addParameter( "SLB", "int", _config.fiber );
+  addParameter( "SLBCHAN", "int", _config.fiberchan );
+    addData( "1024", "hex", _config.lut );
+  }
+  else{
+    cout << "Unknown LUT type...produced XML will be incorrect" << endl;
+  }
 }
 
 DOMElement * LutXml::addData( string _elements, string _encoding, std::vector<unsigned int> _lut )

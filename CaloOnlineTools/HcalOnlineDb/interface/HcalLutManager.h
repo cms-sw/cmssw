@@ -13,8 +13,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <boost/shared_ptr.hpp>
 #include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+
+using namespace boost;
 
 class XMLDOMBlock;
 
@@ -36,8 +39,14 @@ class HcalLutManager{
 
   void init( void );
   std::string & getLutXml( std::vector<unsigned int> & _lut );
-  std::string getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate = true );
-  HcalLutSet getLutSetFromFile( string _filename );
+  std::map<int, shared_ptr<LutXml> > getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
+  std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
+  void addLutMap(std::map<int, shared_ptr<LutXml> > & result, const std::map<int, shared_ptr<LutXml> > & other);
+  HcalLutSet getLutSetFromFile( string _filename, int _type = 1 ); // _type = 1 - linearization, 2 - compression
+
+  int writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml, string _tag = "default_tag", bool split_by_crate = true );
+
+  int createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate = true );
 
   static int getInt( string number );
   static HcalSubdetector get_subdetector( string _subdet );
@@ -53,7 +62,7 @@ class HcalLutManager{
 class HcalLutManager_test{
  public:
   
-  static int getLutXml_test( std::vector<unsigned int> & _lut ){}
+  static int getLutXml_test( std::vector<unsigned int> & _lut ){return 0;}
   static int getLutSetFromFile_test( string _filename );
 
   static int getInt_test( string number );

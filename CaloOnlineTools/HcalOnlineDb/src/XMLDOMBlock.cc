@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.3 2008/04/10 21:12:09 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.4 2008/04/16 18:51:05 kukartse Exp $
 //
 
 // system include files
@@ -32,17 +32,26 @@ using namespace std;
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 
 
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
+XMLDOMBlock & XMLDOMBlock::operator+=( const XMLDOMBlock & other)
+{
+  DOMNodeList * _children = other.getDocumentConst()->getDocumentElement()->getChildNodes();
+  int _length = _children->getLength();
+  cout << "Children nodes:" << _length << endl;
+  DOMNode * _node;
+  int i = 0;
+  for(int i=0;i!=_length;i++){
+    _node = _children->item(i);
+    //cout << "+++=== " << XMLString::transcode(_node->getNodeName()) << endl;
+    DOMNode * i_node = this->getDocument()->importNode(_node,true);
+    this->getDocument()->getDocumentElement()->appendChild(i_node);
+    //cout << "+++=== result node" << endl << XMLString::transcode(nn->getNodeName()) << endl;
+    //this->write("stdout");
+  }
+  return *this;
+}
 
-//
-// constructors and destructor
-//
+
 XMLDOMBlock::XMLDOMBlock()
 {
   //cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
@@ -223,6 +232,11 @@ DOMDocument * XMLDOMBlock::getNewDocument( string xmlFileName )
 }
 
 DOMDocument * XMLDOMBlock::getDocument( void )
+{
+  return document;
+}
+
+DOMDocument * XMLDOMBlock::getDocumentConst( void ) const
 {
   return document;
 }
