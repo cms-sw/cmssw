@@ -36,24 +36,41 @@ void TrackingTruthOutputTest::analyze(const edm::Event& event, const edm::EventS
   edm::Handle<TrackingParticleCollection> mergedPH;
   edm::Handle<TrackingVertexCollection>   mergedVH;
 
-  event.getByLabel("mergedtruth","MergedTrackTruth",    mergedPH);
-  event.getByLabel("mergedtruth","MergedTrackTruth",    mergedVH);
+  std::string trackingTruthModule = conf_.getUntrackedParameter<std::string>("trackingTruthModule");
+  std::string trackingTruthProduct = conf_.getUntrackedParameter<std::string>("trackingTruthProduct"); 
 
-  cout << endl << "Dump of merged vertices: " << endl;
-  for (TrackingVertexCollection::const_iterator iVertex = mergedVH->begin(); iVertex != mergedVH->end(); ++iVertex) {
-    cout << endl << *iVertex;
-    cout << "Daughters of this vertex:" << endl;
-    for (tp_iterator iTrack = iVertex->daughterTracks_begin(); iTrack != iVertex->daughterTracks_end(); ++iTrack) {
-      cout << **iTrack;
+  event.getByLabel(trackingTruthModule, trackingTruthProduct, mergedPH);
+  event.getByLabel(trackingTruthModule, trackingTruthProduct, mergedVH);
+
+  if ( conf_.getUntrackedParameter<bool>("dumpVertexes") )
+  {
+    cout << endl << "Dumping merged vertices: " << endl;
+    for (TrackingVertexCollection::const_iterator iVertex = mergedVH->begin(); iVertex != mergedVH->end(); ++iVertex) 
+    {
+      cout << endl << *iVertex;
+      cout << "Daughters of this vertex:" << endl;
+      for (tp_iterator iTrack = iVertex->daughterTracks_begin(); iTrack != iVertex->daughterTracks_end(); ++iTrack) 
+        cout << **iTrack;
     }
+    cout << endl;
   }
 
-  cout << endl << "Dump of merged tracks: " << endl;
-  for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack) {
-    cout << *iTrack;
+  if ( conf_.getUntrackedParameter<bool>("dumpOnlyBremsstrahlung") )
+  {
+     cout << endl << "Dumping only merged tracks: " << endl;
+     for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
+        if (iTrack->g4Tracks().size() > 1)
+          cout << *iTrack << endl;
   }
-
+  else
+  {
+    cout << endl << "Dump of merged tracks: " << endl;
+    for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
+      cout << *iTrack << endl;
+  }
 }
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(TrackingTruthOutputTest);
+
+
