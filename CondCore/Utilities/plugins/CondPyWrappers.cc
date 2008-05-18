@@ -18,28 +18,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   class_<cond::RDBMS>("RDBMS", init<>())
     .def(init<std::string>())
     .def(init<std::string, std::string>())
-    .def("getDB", &cond::CondDB::getDB);
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    .def("getDB", &cond::RDBMS::getDB);
 
 
 }
