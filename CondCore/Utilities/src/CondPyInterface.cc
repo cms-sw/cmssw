@@ -138,10 +138,8 @@ namespace cond {
   CondDB RDBMS::getDB(std::string const & db) {
     cond::ConnectionHandler::Instance().registerConnection(db,*session,-1);
     cond::Connection & conn = *cond::ConnectionHandler::Instance().getConnection(db);
-    conn.connect(session.get();
+    conn.connect(session.get());
     return CondDB(&conn);
   }
-
-
 
 }
