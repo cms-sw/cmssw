@@ -42,6 +42,9 @@ namespace cond {
     };
   }
 
+  FWIncantation::~FWIncantation(){}
+  
+
   FWIncantation::FWIncantation() : magic(new impl::FWMagic) {
 
     // B.  Load the message service plug-in.  Forget this and bad things happen!

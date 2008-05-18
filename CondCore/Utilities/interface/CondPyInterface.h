@@ -2,7 +2,7 @@
  *
  */
 
-#include<memory>
+#include<boost/shared_ptr>
 #include<string>
 
 namespace cond {
@@ -18,9 +18,11 @@ namespace cond {
   class FWIncantation {
   public:
     FWIncantation();
+    // FWIncantation(FWIncantation const & other );
+    ~FWIncantation();
     
   private:
-    std::auto_ptr<impl::FWMagic> magic;
+    boost::shared_ptr<impl::FWMagic> magic;
   };
 
   // a readonly CondDB and its transaction
@@ -41,12 +43,12 @@ namespace cond {
     RDBMS();
     ~RDBMS();
     explicit RDBMS(std::string const & authPath);
-    explicit RDBMS(std::string const & user,std::string const & pass);
+    RDBMS(std::string const & user,std::string const & pass);
 
     CondDB getDB(std::string const & db);
 
   private:
-    std::auto_ptr<DBSession> session;
+    boost::shared_ptr<DBSession> session;
   };
 
 
