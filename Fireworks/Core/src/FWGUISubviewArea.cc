@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.1 2008/02/15 20:33:03 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.2 2008/03/16 15:23:50 chrjones Exp $
 //
 
 // system include files
 #include "TSystem.h"
 #include "TGButton.h"
 #include "TGSplitFrame.h"
+#include <assert.h>
 #include <stdexcept>
 
 // user include files

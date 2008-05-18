@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:57 CDT 2008
-// $Id$
+// $Id: FWListViewObjectEditor.cc,v 1.1 2008/03/11 02:45:43 chrjones Exp $
 //
 
 // system include files
+#include <assert.h>
 #include <boost/checked_delete.hpp>
 
 // user include files

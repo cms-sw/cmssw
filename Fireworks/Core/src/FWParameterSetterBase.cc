@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id$
+// $Id: FWParameterSetterBase.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include "Reflex/Object.h"
 #include "TGedFrame.h"
 
+#include <assert.h>
 #include <iostream>
 
 // user include files

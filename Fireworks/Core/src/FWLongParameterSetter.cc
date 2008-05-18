@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWLongParameterSetter.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWLongParameterSetter.cc,v 1.1 2008/03/11 14:04:27 chrjones Exp $
 //
 
 // system include files
 #include "TGLabel.h"
 #include "TGNumberEntry.h"
 
+#include <assert.h>
 #include <iostream>
 
 // user include files
