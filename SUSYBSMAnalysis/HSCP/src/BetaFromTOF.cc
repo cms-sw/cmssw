@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.14 2008/03/17 17:13:20 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.15 2008/04/07 14:02:59 ptraczyk Exp $
 //
 //
 
@@ -64,7 +64,6 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
                    
@@ -117,8 +116,6 @@ class BetaFromTOF : public edm::EDProducer {
       double fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr );
       void rawFit(double &a, double &da, double &b, double &db, const vector<double> hitsx, const vector<double> hitsy);
       void textplot(vector<double> x, vector <double> y, vector <double> side);
-      void processSegment( const DTRecSegment2D *si, vector<double> &dstnc, vector<double> &dsegm, 
-                           vector<double> &dtraj, vector<double> &hitWeight, vector<double> &left );
 
       edm::InputTag TKtrackTags_; 
       edm::InputTag STAtrackTags_; 
@@ -126,6 +123,7 @@ class BetaFromTOF : public edm::EDProducer {
       edm::InputTag DTSegmentTags_; 
 
   unsigned int theHitsMin;
+  double thePruneCut;
   bool debug;
 
   Handle<reco::TrackCollection> TKTrackCollection;
@@ -152,13 +150,13 @@ BetaFromTOF::BetaFromTOF(const edm::ParameterSet& iConfig)
   MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
   DTSegmentTags_(iConfig.getUntrackedParameter<edm::InputTag>("DTsegments")),
   theHitsMin(iConfig.getParameter<int>("HitsMin")),
+  thePruneCut(iConfig.getParameter<double>("PruneCut")),
   debug(iConfig.getParameter<bool>("debug")) 
 {
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   // the services
   theService = new MuonServiceProxy(serviceParameters);
-//  produces<std::vector<float> >();
   produces<susybsm::MuonTOFCollection>();
 }
 
@@ -186,7 +184,11 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (debug) 
     cout << " *** Beta from TOF Start ***" << endl;
 
+  theService->update(iSetup);
+
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  
+  Propagator *propag = &*theService->propagator("SteppingHelixPropagatorAny")->clone();
 
   ESHandle<DTGeometry> theDTGeometry;
   iSetup.get<MuonGeometryRecord>().get(theDTGeometry);
@@ -217,18 +219,32 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(reco::MuonCollection::const_iterator mi = muons.begin(); mi != muons.end() ; mi++,muId++) {
     TrackRef staMuon = mi->standAloneMuon();
 
+    //the associated muon track
+    TrackRef muonTrack;
+    if ((*mi).combinedMuon().isNonnull()) muonTrack = (*mi).combinedMuon();
+      else
+        if ((*mi).standAloneMuon().isNonnull()) muonTrack = (*mi).standAloneMuon();
+          else continue;
+
     double stationHits[4]={0,0,0,0};
     double invbeta=0;
     DriftTubeTOF tof;
     
     tof.nHits=0;
     tof.nStations=0;
+    
+    math::XYZPoint  pos=muonTrack->innerPosition();
+    math::XYZVector mom=muonTrack->innerMomentum();
+
+    GlobalPoint  posp(pos.x(), pos.y(), pos.z());
+    GlobalVector momv(mom.x(), mom.y(), mom.z());
+
+    FreeTrajectoryState muonFTS(posp, momv, (TrackCharge)muonTrack->charge(), theService->magneticField().product());
 
     for (reco::TrackCollection::const_iterator candTrack = staMuons.begin(); candTrack != staMuons.end(); ++candTrack) {
 
       // find the standalone muon matching the global muon
       if ((staMuon->momentum().unit()-candTrack->momentum().unit()).Mag2()>0.01) continue;
-//      const Track* candTrack = staMuon.get();
 
       vector <double> dstnc, dsegm, dtraj, hitWeight, left;
       int totalWeight=0;
@@ -266,79 +282,153 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           // match with the current recHit
           if ((rechit->localPosition()-(*hi)->localPosition()).mag()>0.01) continue;
 
-          double t0, dist, ibphi=0, ibtheta=0;
+          // loop over (theta, phi) segments
+          for (int phi=0; phi<2; phi++) {
 
-	  const DTRecSegment2D* sphi = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment());
-          const GeomDet* geomDetPhi = theTrackingGeometry->idToDet(sphi->geographicalId());
-	  const DTRecSegment2D* szed = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
-          const GeomDet* geomDetZed = theTrackingGeometry->idToDet(szed->geographicalId());
-          const vector<DTRecHit1D> hits1dphi = sphi->specificRecHits();
-          const vector<DTRecHit1D> hits1dzed = szed->specificRecHits();
+            const DTRecSegment2D* segm;
+  	    if (phi) segm = dynamic_cast<const DTRecSegment2D*>(rechit->phiSegment()); 
+  	      else segm = dynamic_cast<const DTRecSegment2D*>(rechit->zSegment());
+  	      
+  	    if (!segm->specificRecHits().size()) continue;
 
-          dist = geomDetPhi->toGlobal(sphi->localPosition()).mag();
-          t0 = sphi->t0();
+            const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
+            const vector<DTRecHit1D> hits1d = segm->specificRecHits();
+            vector <TimeMeasurement> seg;
 
-  	  for (vector<DTRecHit1D>::const_iterator hiti=hits1dphi.begin(); hiti!=hits1dphi.end(); hiti++) {
-  	    const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
-            TimeMeasurement thisHit;
+            // store all the hits from the segment
+    	    for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
+
+  	      const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
+              TimeMeasurement thisHit;
+
+              thisHit.driftCell = hiti->geographicalId();
+              if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
+              thisHit.isPhi = phi;
+              thisHit.posInLayer = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
+              thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
+              thisHit.station = station;
                   
-            thisHit.driftCell = hiti->geographicalId();
-            if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
-            thisHit.isPhi = true;
-            thisHit.posInLayer = geomDetPhi->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
-            thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
-            thisHit.station = station;
-                  
-            tof.timeMeasurements.push_back(thisHit);
-          }
+              tof.timeMeasurements.push_back(thisHit);
+              seg.push_back(thisHit);
+            }
 
-          // Check if both phi and theta segments exist in the 4D Segment
-          if ((!rechit->hasPhi()) || (!rechit->hasZed())) continue;
+            // Check if both phi and theta segments exist in the 4D Segment
+            if ((!rechit->hasPhi()) || (!rechit->hasZed())) continue;
 
-          nStations++;
+            nStations++;
+                                  
+            unsigned int segsize = seg.size();
+          
+            if (segsize<theHitsMin) continue;
 
-          if (hits1dphi.size()>=theHitsMin) {
-            ibphi=1.+t0/dist*30.;
-            ibtheta=ibphi;
-            if (debug) 
-              cout << " Station " << station << "   Phi 1/beta = " << ibphi << " t0 = " << t0 << endl;
-	          
-	    processSegment(sphi, dstnc, dsegm, dtraj, hitWeight, left);
-	          
-            totalWeight+=hits1dphi.size()-2;
+            double a=0, b=0, celly, chi2, chi2max, t0=0.;
+            vector <double> hitxl,hitxr,hityl,hityr;
+            vector<TimeMeasurement>::iterator tmmax;
 
-  	  }
+            // Rebuild the segment cutting away outliers
+            do {
+              hitxl.clear();
+              hityl.clear();
+              hitxr.clear();
+              hityr.clear();
+              tmmax=seg.begin();
+              chi2max=-1.;
+              segsize=seg.size();
 
-          dist = geomDetZed->toGlobal(szed->localPosition()).mag();
-  	  t0 = szed->t0();
+              for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+                DetId id = tm->driftCell;
+                const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
+                DTChamberId chamberId(id.rawId());
+                const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
 
-  	  for (vector<DTRecHit1D>::const_iterator hiti=hits1dzed.begin(); hiti!=hits1dzed.end(); hiti++) {
-            const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
-            TimeMeasurement thisHit;
-                  
-            thisHit.driftCell = hiti->geographicalId();
-            if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
-            thisHit.isPhi = false;
-            thisHit.posInLayer = geomDetZed->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
-            thisHit.distIP = dtcell->toGlobal(hiti->localPosition()).mag();
-            thisHit.station = station;
-                  
-            tof.timeMeasurements.push_back(thisHit);
-          }
+                celly=dtcham->toLocal(dtcell->position()).z();
+            
+                if (tm->isLeft) {
+                  hitxl.push_back(celly);
+                  hityl.push_back(tm->posInLayer);
+                } else {
+                  hitxr.push_back(celly);
+                  hityr.push_back(tm->posInLayer);
+                }
+              }
 
-          if (hits1dzed.size()>=theHitsMin) {
-            ibtheta=1.+t0/dist*30.;
-            if (!ibphi) ibphi=ibtheta;
-            if (debug) 
-              cout << " Station " << station << " Theta 1/beta = " << ibtheta << " t0 = " << t0 << endl;
+              t0 = fitT0(a,b,hitxl,hityl,hitxr,hityr);
 
-            processSegment(szed, dstnc, dsegm, dtraj, hitWeight, left);
+              for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+ 
+                DetId id = tm->driftCell;
+                const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
+                DTChamberId chamberId(id.rawId());
+                const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
 
-            totalWeight+=hits1dzed.size()-2;
-          }
-              	        
+                celly=dtcham->toLocal(dtcell->position()).z();
+                chi2 = (a * celly + b - tm->posInLayer)/0.02;
+                chi2*= chi2;
+            
+                // calculate chi2 if this is not the 1-st pass
+                if ((chi2>chi2max) && (a!=0)) {
+                  chi2max=chi2;
+                  tmmax=tm;
+                }
+            
+                if (debug) 
+                  cout << " Hit x= " << tm->posInLayer << "  z= " << celly << "  chi2= " << chi2 << endl;
+              }
+            
+              if (chi2max>thePruneCut) seg.erase(tmmax); 
+
+              if (debug)     	        
+                cout << "     Segment size: " << seg.size() << "  t0 from fit: " << t0 << endl;  
+            } while ((segsize!=seg.size()) && (seg.size()>2) && (a!=0));
+
+            if (t0==0) {
+              if (debug)
+                cout << "     t0 = zero, Left hits: " << hitxl.size() << " Right hits: " << hitxr.size() << endl;
+              continue;
+            }
+
+            if (seg.size()<theHitsMin) continue;
+
+            for (vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+ 
+              DetId id = tm->driftCell;
+              const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
+              DTChamberId chamberId(id.rawId());
+              const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
+              celly=dtcham->toLocal(dtcell->position()).z();
+
+              double dist = tm->distIP;
+              double layerZ  = dtcham->toLocal(dtcell->position()).z();
+              double segmLocalPos = b+layerZ*a;
+              double hitLocalPos = tm->posInLayer;
+              int hitSide = -tm->isLeft*2+1;
+              double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
+            
+              std::pair< TrajectoryStateOnSurface, double> tsos;
+              tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
+            
+              if (tsos.first.isValid()) dist = tsos.second+posp.mag();
+            
+              if ((debug) || (fabs(dist)>100.)) {
+                cout << " Dist: " << dist << "   segm: " << segmLocalPos << "   hit: " << hitLocalPos;
+                if (tsos.first.isValid()) cout << " traj: " << dtcham->toLocal(tsos.first.globalPosition()) << " path: " << tsos.second+posp.mag();
+                cout << " Start: " << posp;
+                cout << endl;
+              }
+
+              dstnc.push_back(dist);
+              dsegm.push_back(t0_segm);
+              left.push_back(hitSide);
+              hitWeight.push_back(((double)seg.size()-2.)/(double)seg.size());
+            }
+          
+            totalWeight+=seg.size()-2;
+
+          } // phi = (0,1) 	        
         } // rechit
       } // hi
+
+      nStations/=2;
 
       invbeta=0;
       // calculate the value and error of 1/beta from the complete set of 1D hits
@@ -377,7 +467,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         x.push_back(dstnc.at(i)/30.);
         y.push_back(dsegm.at(i)+dstnc.at(i)/30.);
         vertexTime+=dsegm.at(i)*hitWeight.at(i)/totalWeight;
-//        cout << "    x: " << x.at(i) << "   y: " << y.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
       }
 
       if ((invbetaerr>0.07) || (stationHits[0]>1)) {
@@ -425,61 +514,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     cout << " *** Beta from TOF End ***" << endl;
 
 }
-
-
-void BetaFromTOF::processSegment( const DTRecSegment2D* si, vector<double> &dstnc, vector<double> &dsegm, 
-                                  vector<double> &dtraj, vector<double> &hitWeight, vector<double> &left ) {
-
-  const GeomDet* geomDet = theTrackingGeometry->idToDet(si->geographicalId());
-//  double  dist = geomDet->toGlobal(si->localPosition()).mag();
-//  double  t0 = si->t0();
-
-  const vector<DTRecHit1D> hits1d = si->specificRecHits();
-  if (debug) cout << "             Hits: " << hits1d.size() << endl;
-  	        
-  double a=0, b=0;
-  vector <double> hitxl,hitxr,hityl,hityr;
-
-  for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
-        const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
-        if (hiti->lrSide()==DTEnums::Left) {
-             hitxl.push_back(geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).z());
-             hityl.push_back(geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x());
-        } else {
-             hitxr.push_back(geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).z());
-             hityr.push_back(geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x());
-        }    
-  }
-  
-  double t0 = fitT0(a,b,hitxl,hityl,hitxr,hityr);
-    	        
-  if (debug)
-    cout << "             t0 from fit: " << t0 << endl;  
-  	        
-  for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
-    const GeomDet* dtcell = theTrackingGeometry->idToDet(hiti->geographicalId());
-
-    double dist = dtcell->toGlobal(hiti->localPosition()).mag();
-    double layerZ  = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).z();
-    double segmLocalPos = b+layerZ*a;
-    double hitLocalPos = geomDet->toLocal(dtcell->toGlobal(hiti->localPosition())).x();
-    int hitSide;
-    if (hiti->lrSide()==DTEnums::Left) hitSide=-1; else hitSide=1;
-    double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
-                  
-    dstnc.push_back(dist);
-    dsegm.push_back(t0_segm);
-    left.push_back(hitSide);
-    hitWeight.push_back(((double)hits1d.size()-2.)/(double)hits1d.size());
-
-    if (debug) cout << "             dist: " << dist << " pos: " << hitLocalPos 
-                    << " Z: " << layerZ << " Segm: " << segmLocalPos
-                    << " t0: " << t0_segm << " 1/beta: " << 1.+t0_segm/dist*30. <<
-                      endl;
-  }
-
-}
-
 
 double
 BetaFromTOF::fitT0(double &a, double &b, vector<double> xl, vector<double> yl, vector<double> xr, vector<double> yr ) {
