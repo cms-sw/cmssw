@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/05/12 19:06:28 $
-// $Revision: 1.10 $
+// $Date: 2008/05/13 14:10:32 $
+// $Revision: 1.11 $
 //
 
 #include <memory>
@@ -73,8 +73,7 @@ namespace cms
     bool promoteQuality = conf_.getParameter<bool>("promoteTrackQuality");
 //
 
-    // New track quality should be read from the file, but
-    // for now we will override the value from the cfi file
+    // New track quality should be read from the file
     std::string qualityStr = conf_.getParameter<std::string>("newQuality");
     reco::TrackBase::TrackQuality qualityToSet;
     if (qualityStr != "") {
@@ -82,8 +81,6 @@ namespace cms
     }
     else 
       qualityToSet = reco::TrackBase::undefQuality;
-    // override for now
-    qualityToSet = reco::TrackBase::looseWithConfirm;
 
     // extract tracker geometry
     //
@@ -389,7 +386,7 @@ namespace cms
       const reco::Track & theTrack = * track;
       //fill the TrackCollection
       outputTrks->push_back( reco::Track( theTrack ) );
-      if (selected1[i]==2 && promoteQuality) 
+      if (selected1[i]==2 && promoteQuality)
 	outputTrks->back().setQuality(qualityToSet);
 
       // Fill TrackExtra collection
@@ -448,7 +445,7 @@ namespace cms
       const reco::Track & theTrack = * track;
       //fill the TrackCollection
       outputTrks->push_back( reco::Track( theTrack ) );
-      if (selected2[i]==2 && promoteQuality) 
+      if (selected2[i]==2 && promoteQuality)
 	outputTrks->back().setQuality(qualityToSet);
 
       // Fill TrackExtra collection
