@@ -433,9 +433,9 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   if ( primaryVertex->point3d().mag() < 1E-10 ) {
     theVertexGenerator->generate();
     smearedVertex = XYZTLorentzVector(
-      theVertexGenerator->x()-theVertexGenerator->beamSpot().x()+theBeamSpot.x(),
-      theVertexGenerator->y()-theVertexGenerator->beamSpot().y()+theBeamSpot.y(),
-      theVertexGenerator->z()-theVertexGenerator->beamSpot().z()+theBeamSpot.z(),
+      theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.Z(),
+      theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+theBeamSpot.Y(),
+      theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+theBeamSpot.Z(),
       0.);
   }
 
@@ -596,9 +596,9 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   if ( primaryVertex.mag() < 1E-10 ) {
     theVertexGenerator->generate();
     smearedVertex = XYZTLorentzVector(
-      theVertexGenerator->x()-theVertexGenerator->beamSpot().x()+theBeamSpot.x(),
-      theVertexGenerator->y()-theVertexGenerator->beamSpot().y()+theBeamSpot.y(),
-      theVertexGenerator->z()-theVertexGenerator->beamSpot().z()+theBeamSpot.z(),
+      theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
+      theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+theBeamSpot.Y(),
+      theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+theBeamSpot.Z(),
       0.);
   }
 
