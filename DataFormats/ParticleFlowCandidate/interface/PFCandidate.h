@@ -323,7 +323,7 @@ namespace reco {
 
   /// get int component
   /// as: pfcand->get<int, PFParticleIdTag>();
-  GET_CANDIDATE_COMPONENT( PFCandidate, int, particleId, PFParticleIdTag );
+  GET_CANDIDATE_COMPONENT( PFCandidate, PFCandidate::ParticleType, particleId, PFParticleIdTag );
 
 }
 
