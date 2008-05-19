@@ -22,6 +22,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "TH1F.h"
+#include "TTree.h"
 
 // user include files
 
@@ -127,6 +128,11 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
 	 *m_yerronmean_mem21, *m_yerronmean_mem22, *m_yerronmean_mem31, *m_yerronmean_mem32, *m_yerronmean_mem41,
 	 *m_yerronmean_me11, *m_yerronmean_me12, *m_yerronmean_me13,
 	 *m_yerronmean_me21, *m_yerronmean_me22, *m_yerronmean_me31, *m_yerronmean_me32, *m_yerronmean_me41;
+
+      TTree *m_chambers;
+      Int_t m_chambers_rawid, m_chambers_endcap, m_chambers_wheel, m_chambers_station, m_chambers_sector, m_chambers_ring, m_chambers_chamber;
+      Float_t m_chambers_nx, m_chambers_x1, m_chambers_x2;
+      Float_t m_chambers_ny, m_chambers_y1, m_chambers_y2;
 
       unsigned int xresid_bins, xmean_bins, xstdev_bins, xerronmean_bins, yresid_bins, ymean_bins, ystdev_bins, yerronmean_bins;
       double xresid_low, xresid_high, xmean_low, xmean_high, xstdev_low, xstdev_high, xerronmean_low, xerronmean_high, yresid_low, yresid_high, ymean_low, ymean_high, ystdev_low, ystdev_high, yerronmean_low, yerronmean_high;
@@ -509,6 +515,22 @@ void AlignmentMonitorMuonResiduals::book() {
 
    m_tracker_biasredchi2 = book1D("/iterN/", "trackerBiasRedChi2", "Forward-biased reduced chi2 in tracker", 100, 0., 5.);
    m_tracker_dof = book1D("/iterN/", "trackerDOF", "DOF in tracker", 61, -0.5, 60.5);
+
+   m_chambers = directory("/iterN/")->make<TTree>("chambers", "residual statistics for each chamber");
+   m_chambers->Branch("rawid", &m_chambers_rawid, "rawid/I");
+   m_chambers->Branch("endcap", &m_chambers_endcap, "endcap/I");
+   m_chambers->Branch("wheel", &m_chambers_wheel, "wheel/I");
+   m_chambers->Branch("station", &m_chambers_station, "station/I");
+   m_chambers->Branch("sector", &m_chambers_sector, "sector/I");
+   m_chambers->Branch("ring", &m_chambers_ring, "ring/I");
+   m_chambers->Branch("chamber", &m_chambers_chamber, "chamber/I");
+   m_chambers->Branch("nx", &m_chambers_nx, "nx/F");
+   m_chambers->Branch("x1", &m_chambers_x1, "x1/F");
+   m_chambers->Branch("x2", &m_chambers_x2, "x2/F");
+   m_chambers->Branch("ny", &m_chambers_ny, "ny/F");
+   m_chambers->Branch("y1", &m_chambers_y1, "y1/F");
+   m_chambers->Branch("y2", &m_chambers_y2, "y2/F");
+
 }
 
 void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
@@ -787,6 +809,14 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
    int index = 0;
    for (std::vector<Alignable*>::const_iterator chamber = chambers.begin();  chamber != chambers.end();  ++chamber) {
       int id = (*chamber)->geomDetId().rawId();
+      
+      m_chambers_rawid = id;
+      m_chambers_nx = m_nx[id];
+      m_chambers_x1 = m_x1[id];
+      m_chambers_x2 = m_x2[id];
+      m_chambers_ny = m_ny[id];
+      m_chambers_y1 = m_y1[id];
+      m_chambers_y2 = m_y2[id];
 
       index++;
       m_sumnx->SetBinContent(index, m_nx[id]);
@@ -800,10 +830,22 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
       if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
 	 DTChamberId dtId((*chamber)->geomDetId());
 	 name << "MB" << dtId.wheel() << "/" << dtId.station() << " (" << dtId.sector() << ")";
+	 m_chambers_endcap = 0;
+	 m_chambers_wheel = dtId.wheel();
+	 m_chambers_station = dtId.station();
+	 m_chambers_sector = dtId.sector();
+	 m_chambers_ring = 0;
+	 m_chambers_chamber = 0;
       }
       else {
 	 CSCDetId cscId((*chamber)->geomDetId());
 	 name << "ME" << (cscId.endcap() == 1? "+": "-") << cscId.station() << "/" << cscId.ring() << " (" << cscId.chamber() << ")";
+	 m_chambers_endcap = cscId.endcap();
+	 m_chambers_wheel = 0;
+	 m_chambers_station = cscId.station();
+	 m_chambers_sector = 0;
+	 m_chambers_ring = cscId.ring();
+	 m_chambers_chamber = cscId.chamber();
       }
       m_sumnx->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumx1->GetXaxis()->SetBinLabel(index, name.str().c_str());
