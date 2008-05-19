@@ -105,7 +105,8 @@ namespace HcalDigiMap{
       if(!digi.sample(i).dv()) err=true;
       pval = digi.sample(i).adc()-calibs.pedestal(thisCapid);
       vals[i] = pval;
-      if(pval>occThr) occ=true;
+      //      if(pval>occThr) occ=true;
+      if(digi.sample(i).adc()) occ=true;
     }
     if(bitUp) err=true;
     
@@ -119,7 +120,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   HcalBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"DigiMonitor";
 
-  occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", 10);
+  occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", -9999);
   cout << "Digi occupancy threshold set to " << occThresh_ << endl;
 
   if ( ps.getUntrackedParameter<bool>("DigisPerChannel", false) ) doPerChannel_ = true;  
