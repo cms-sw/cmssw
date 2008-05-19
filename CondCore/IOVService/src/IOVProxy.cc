@@ -39,7 +39,7 @@ namespace cond {
 
   IOVProxy::IOVProxy(cond::PoolTransaction& db,
 		     const std::string & token) :
-    m_iov(new impl::IOVImpl(db,token){}
+    m_iov(new impl::IOVImpl(db,token)){}
 
 
   int IOVProxy::size() const {
@@ -50,7 +50,7 @@ namespace cond {
     return *(*m_iov).iov;
   }
 
-  TimeType timetype() const {
+  TimeType IOVProxy::timetype() const {
     return (TimeType)(iov().timetype);     
   }
 

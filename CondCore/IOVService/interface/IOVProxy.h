@@ -8,10 +8,10 @@
 #include <boost/iterator/counting_iterator.hpp>
 
 namespace cond {
-
+  
   class IOV;
   class PoolTransaction;
-
+  
   struct IOVElement {
     IOVElement() : since(0),till(0){}
     IOVElement(cond::Time_t is,
@@ -68,6 +68,7 @@ namespace cond {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
 					     IterHelp(iov()));
     }
+    
     const_iterator end() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
 					     IterHelp(iov()));
@@ -82,7 +83,6 @@ namespace cond {
     boost::shared_ptr<impl::IOVImpl> m_iov;
     
   };
-  
 }
 
 #endif // CondCore_IOVService_IOVProxy_h
