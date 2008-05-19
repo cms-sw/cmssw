@@ -310,7 +310,7 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D *siStripRe
   double charge = 0.;
 
   SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D->cluster());
-  const std::vector<uint16_t> &amplitudes = cluster->amplitudes();
+  const std::vector<uint8_t> &amplitudes = cluster->amplitudes();
 
   for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
     charge += amplitudes[ia];
