@@ -12,24 +12,30 @@ namespace cond {
   class IOV;
   class PoolTransaction;
   
-  struct IOVElement {
+  class IOVElement {
+  public:
     IOVElement() : since(0),till(0){}
     IOVElement(cond::Time_t is,
 	       cond::Time_t it,
 	       std::string const& itoken ) :
-      since(is), till(it), token(itoken){}
+      m_since(is), m_till(it), m_token(itoken){}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
 	     std::string const& itoken ) {
-      since=is; till=it; token=itoken;
+      m_since=is; m_till=it; m_token=itoken;
     }
     
     void set(IOV const & v, int i);
     
-    cond::Time_t since;
-    cond::Time_t till;
-    std::string token;
+    cond::Time_t since() const {return m_since;}
+    cond::Time_t till() const {return m_till;}
+    std::string payloadToken() const {return m_token;}
+
+  private:
+    cond::Time_t m_since;
+    cond::Time_t m_till;
+    std::string const & m_token;
   };
   
   

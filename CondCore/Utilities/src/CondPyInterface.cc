@@ -135,6 +135,18 @@ namespace cond {
     return ss.str().c_str();
   }
 
+  IOVProxy iov(std::string & tag) const {
+    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    cond::MetaData metadata_svc(coraldb);
+    std::string token;
+    coraldb.start(true);
+    token=metadata_svc.getToken(tag);
+    coraldb.commit();
+    return IOVProxy(me.poolTransaction(),token);
+  }
+
+
+
 
   RDBMS::RDBMS() : session(new DBSession) {
     session->configuration().setAuthenticationMethod( cond::XML );

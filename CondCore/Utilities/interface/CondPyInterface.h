@@ -1,6 +1,12 @@
+#ifndef CondCore_Utilities_CondPyInterface_h
+#define CondCore_Utilities_CondPyInterface_h
+
 /*  common utilities of the CondCore Python buiding
  *
  */
+
+#include "CondCore/IOVService/interface/IOVProxy.h"
+
 
 #include<boost/shared_ptr.hpp>
 #include<string>
@@ -34,6 +40,9 @@ namespace cond {
    CondDB(Connection * conn);
    ~CondDB();
    const char * allTags() const;
+
+   IOVProxy iov(std::string & tag) const;
+
    
  private:
    mutable Connection * me;
@@ -55,3 +64,6 @@ namespace cond {
 
 
 }
+
+
+#endif //  CondCore_Utilities_CondPyInterface_h
