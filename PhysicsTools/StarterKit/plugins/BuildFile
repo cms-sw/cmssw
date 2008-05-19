@@ -1,0 +1,8 @@
+<export></export>
+<library name=PhysicsToolsStarterKit_plugins file=StarterKit.cc,LepJetMetKit.cc,CompositeKit.cc,ZGammaJetBalance.cc>
+  <flags CXXFLAGS="-Os">
+  <use name=PhysicsTools/StarterKit>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/PatCandidates>
+  <use name=root>
+</library>
