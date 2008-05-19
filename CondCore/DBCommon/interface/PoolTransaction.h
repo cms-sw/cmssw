@@ -21,7 +21,7 @@ namespace cond{
     explicit PoolTransaction(cond::PoolConnectionProxy* parentConnection);
     ~PoolTransaction();
     /// start transaction
-    void start(bool isReadOnly);
+    void start(bool readOnly);
     /// commit transaction. Will disconnect from database if connection timeout==0 or connectted time close to the threshold  
     void commit();
     // rollback transaction
@@ -35,10 +35,17 @@ namespace cond{
     void resetPoolDataSvc(pool::IDataSvc* datasvc) const;
     /// get pool dataSvc handle
     pool::IDataSvc& poolDataSvc();
+
+  private:
+    void upgrade();
+    voif forceCommit();
   private:
     cond::PoolConnectionProxy* m_parentConnection;
     mutable pool::IDataSvc* m_datasvc;
     //mutable bool m_isReadOnly;
+    
+    int m_count;
+
   };
 }
 #endif
