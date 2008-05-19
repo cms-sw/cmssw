@@ -40,7 +40,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -128,17 +128,15 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
     if (geomPropFw_) delete geomPropFw_;
     geomPropFw_ = new GsfPropagatorAdapter(AnalyticalPropagator(theMagField.product(), alongMomentum));
   }
-
-// comment out cacheid checking as nothing else happens when a new value is obtained like above
-//  if (cacheIDTDGeom_!=es.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
-//    cacheIDTDGeom_=es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
+  if (cacheIDTDGeom_!=es.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
+    cacheIDTDGeom_=es.get<TrackerDigiGeometryRecord>().cacheIdentifier();
     es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
-//  }
+  }
 
-//  if (cacheIDGeom_!=es.get<CaloGeometryRecord>().cacheIdentifier()){
-//    cacheIDGeom_=es.get<CaloGeometryRecord>().cacheIdentifier();
-    es.get<CaloGeometryRecord>().get(theCaloGeom);
-//  }
+  if (cacheIDGeom_!=es.get<IdealGeometryRecord>().cacheIdentifier()){
+    cacheIDGeom_=es.get<IdealGeometryRecord>().cacheIdentifier();
+    es.get<IdealGeometryRecord>().get(theCaloGeom);
+  }
   
 
 }
