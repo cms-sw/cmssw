@@ -8,6 +8,7 @@
 namespace cond {
 
   class IOV;
+  clas PoolTransaction;
 
   struct IOVElement {
     IOVElement() : since(0),till(0){}
@@ -43,6 +44,9 @@ namespace cond {
     IOVProxy();
     ~IOVProxy();
 
+    IOVProxy(cond::PoolTransaction& db,
+	     const std::string & token);
+
     struct IterHelp {
       typedef IOVElement result_type;
       IterHelp(IOV const & iv) : v(iv){}
@@ -70,6 +74,7 @@ namespace cond {
     
     int size() const;
     IOV const & iov() const;
+    TimeType timetype() const;
 
   private:
     boost::shared_ptr<impl::IOV> m_iov;

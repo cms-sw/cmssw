@@ -5,7 +5,18 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVIterator.h"
+#include "CondCore/IOVService/interface/IOVProxy.h"
 #include <iostream>
+#include <algorithm>
+#include <boost/bind.hpp>
+
+void print(IOVElement const & e) {
+  std::cout<<"payloadToken "<< e.token
+	   <<", since "<< e.since
+	   <<", till "<< e.till
+	   << std::endl;
+}
+
 int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
@@ -47,8 +58,13 @@ int main(){
 
     std::cout<<"is 30 valid? "<<iovmanager.isValid(iovtok,30)<<std::endl;
     pooldb.commit();
-    myconnection.disconnect();
     delete editor;
+    // use Proxy
+    {
+      cond::IOVProxy iov(pooldb,iovtok);
+      std::for_each(iov.begin(),iov.end(),boost::bind(&print,_1));
+    }
+    myconnection.disconnect();
     delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
