@@ -136,13 +136,12 @@ namespace cond {
   }
 
   IOVProxy iov(std::string & tag) const {
-    cond::CoralTransaction& coraldb=myconnection.coralTransaction();
+    cond::CoralTransaction& coraldb=me->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
-    std::string token;
     coraldb.start(true);
-    token=metadata_svc.getToken(tag);
+    std::string token=metadata_svc.getToken(tag);
     coraldb.commit();
-    return IOVProxy(me.poolTransaction(),token);
+    return IOVProxy(me->poolTransaction(),token);
   }
 
 

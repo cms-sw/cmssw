@@ -35,7 +35,7 @@ namespace cond {
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
-    std::string const m_token;
+    std::string  m_token;
   };
   
   

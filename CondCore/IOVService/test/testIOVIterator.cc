@@ -12,9 +12,9 @@
 
 namespace {
   void print(cond::IOVElement const & e) {
-    std::cout<<"payloadToken "<< e.token
-	     <<", since "<< e.since
-	     <<", till "<< e.till
+    std::cout<<"payloadToken "<< e.payloadToken()
+	     <<", since "<< e.since()
+	     <<", till "<< e.till()
 	     << std::endl;
   }
 }
