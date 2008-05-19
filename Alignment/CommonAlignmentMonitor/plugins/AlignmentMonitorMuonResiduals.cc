@@ -40,97 +40,100 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
       void afterAlignment(const edm::EventSetup &iSetup);
 
    private:
+      std::map<int, int> m_numx;
       std::map<int, double> m_nx;
       std::map<int, double> m_x1;
       std::map<int, double> m_x2;
+      std::map<int, int> m_numy;
       std::map<int, double> m_ny;
       std::map<int, double> m_y1;
       std::map<int, double> m_y2;
 
-      TH1F *m_sumnx, *m_sumx1, *m_sumx2, *m_sumny, *m_sumy1, *m_sumy2, *m_xsummary, *m_ysummary;
+      TH1F *m_sumnumx, *m_sumnx, *m_sumx1, *m_sumx2, *m_sumnumy, *m_sumny, *m_sumy1, *m_sumy2, *m_xsummary, *m_ysummary;
 
       TH1F *m_xresid, *m_xresid_mb, *m_xresid_me,
 	 *m_xresid_mb1, *m_xresid_mb2, *m_xresid_mb3, *m_xresid_mb4,
 	 *m_xresid_minus2, *m_xresid_minus1, *m_xresid_zero, *m_xresid_plus1, *m_xresid_plus2,
-	 *m_xresid_mep11, *m_xresid_mep12, *m_xresid_mep13,
+	 *m_xresid_mep11, *m_xresid_mep12, *m_xresid_mep13, *m_xresid_mep14,
 	 *m_xresid_mep21, *m_xresid_mep22, *m_xresid_mep31, *m_xresid_mep32, *m_xresid_mep41,
-	 *m_xresid_mem11, *m_xresid_mem12, *m_xresid_mem13,
+	 *m_xresid_mem11, *m_xresid_mem12, *m_xresid_mem13, *m_xresid_mem14,
 	 *m_xresid_mem21, *m_xresid_mem22, *m_xresid_mem31, *m_xresid_mem32, *m_xresid_mem41,
-	 *m_xresid_me11, *m_xresid_me12, *m_xresid_me13,
+	 *m_xresid_me11, *m_xresid_me12, *m_xresid_me13, *m_xresid_me14,
 	 *m_xresid_me21, *m_xresid_me22, *m_xresid_me31, *m_xresid_me32, *m_xresid_me41;
 
       TH1F *m_xmean, *m_xmean_mb, *m_xmean_me,
 	 *m_xmean_mb1, *m_xmean_mb2, *m_xmean_mb3, *m_xmean_mb4,
 	 *m_xmean_minus2, *m_xmean_minus1, *m_xmean_zero, *m_xmean_plus1, *m_xmean_plus2,
-	 *m_xmean_mep11, *m_xmean_mep12, *m_xmean_mep13,
+	 *m_xmean_mep11, *m_xmean_mep12, *m_xmean_mep13, *m_xmean_mep14,
 	 *m_xmean_mep21, *m_xmean_mep22, *m_xmean_mep31, *m_xmean_mep32, *m_xmean_mep41,
-	 *m_xmean_mem11, *m_xmean_mem12, *m_xmean_mem13,
+	 *m_xmean_mem11, *m_xmean_mem12, *m_xmean_mem13, *m_xmean_mem14,
 	 *m_xmean_mem21, *m_xmean_mem22, *m_xmean_mem31, *m_xmean_mem32, *m_xmean_mem41,
-	 *m_xmean_me11, *m_xmean_me12, *m_xmean_me13,
+	 *m_xmean_me11, *m_xmean_me12, *m_xmean_me13, *m_xmean_me14,
 	 *m_xmean_me21, *m_xmean_me22, *m_xmean_me31, *m_xmean_me32, *m_xmean_me41;
 
       TH1F *m_xstdev, *m_xstdev_mb, *m_xstdev_me,
 	 *m_xstdev_mb1, *m_xstdev_mb2, *m_xstdev_mb3, *m_xstdev_mb4,
 	 *m_xstdev_minus2, *m_xstdev_minus1, *m_xstdev_zero, *m_xstdev_plus1, *m_xstdev_plus2,
-	 *m_xstdev_mep11, *m_xstdev_mep12, *m_xstdev_mep13,
+	 *m_xstdev_mep11, *m_xstdev_mep12, *m_xstdev_mep13, *m_xstdev_mep14,
 	 *m_xstdev_mep21, *m_xstdev_mep22, *m_xstdev_mep31, *m_xstdev_mep32, *m_xstdev_mep41,
-	 *m_xstdev_mem11, *m_xstdev_mem12, *m_xstdev_mem13,
+	 *m_xstdev_mem11, *m_xstdev_mem12, *m_xstdev_mem13, *m_xstdev_mem14,
 	 *m_xstdev_mem21, *m_xstdev_mem22, *m_xstdev_mem31, *m_xstdev_mem32, *m_xstdev_mem41,
-	 *m_xstdev_me11, *m_xstdev_me12, *m_xstdev_me13,
+	 *m_xstdev_me11, *m_xstdev_me12, *m_xstdev_me13, *m_xstdev_me14,
 	 *m_xstdev_me21, *m_xstdev_me22, *m_xstdev_me31, *m_xstdev_me32, *m_xstdev_me41;
 
       TH1F *m_xerronmean, *m_xerronmean_mb, *m_xerronmean_me,
 	 *m_xerronmean_mb1, *m_xerronmean_mb2, *m_xerronmean_mb3, *m_xerronmean_mb4,
 	 *m_xerronmean_minus2, *m_xerronmean_minus1, *m_xerronmean_zero, *m_xerronmean_plus1, *m_xerronmean_plus2,
-	 *m_xerronmean_mep11, *m_xerronmean_mep12, *m_xerronmean_mep13,
+	 *m_xerronmean_mep11, *m_xerronmean_mep12, *m_xerronmean_mep13, *m_xerronmean_mep14,
 	 *m_xerronmean_mep21, *m_xerronmean_mep22, *m_xerronmean_mep31, *m_xerronmean_mep32, *m_xerronmean_mep41,
-	 *m_xerronmean_mem11, *m_xerronmean_mem12, *m_xerronmean_mem13,
+	 *m_xerronmean_mem11, *m_xerronmean_mem12, *m_xerronmean_mem13, *m_xerronmean_mem14,
 	 *m_xerronmean_mem21, *m_xerronmean_mem22, *m_xerronmean_mem31, *m_xerronmean_mem32, *m_xerronmean_mem41,
-	 *m_xerronmean_me11, *m_xerronmean_me12, *m_xerronmean_me13,
+	 *m_xerronmean_me11, *m_xerronmean_me12, *m_xerronmean_me13, *m_xerronmean_me14,
 	 *m_xerronmean_me21, *m_xerronmean_me22, *m_xerronmean_me31, *m_xerronmean_me32, *m_xerronmean_me41;
 
       TH1F *m_yresid, *m_yresid_mb, *m_yresid_me,
 	 *m_yresid_mb1, *m_yresid_mb2, *m_yresid_mb3, *m_yresid_mb4,
 	 *m_yresid_minus2, *m_yresid_minus1, *m_yresid_zero, *m_yresid_plus1, *m_yresid_plus2,
-	 *m_yresid_mep11, *m_yresid_mep12, *m_yresid_mep13,
+	 *m_yresid_mep11, *m_yresid_mep12, *m_yresid_mep13, *m_yresid_mep14,
 	 *m_yresid_mep21, *m_yresid_mep22, *m_yresid_mep31, *m_yresid_mep32, *m_yresid_mep41,
-	 *m_yresid_mem11, *m_yresid_mem12, *m_yresid_mem13,
+	 *m_yresid_mem11, *m_yresid_mem12, *m_yresid_mem13, *m_yresid_mem14,
 	 *m_yresid_mem21, *m_yresid_mem22, *m_yresid_mem31, *m_yresid_mem32, *m_yresid_mem41,
-	 *m_yresid_me11, *m_yresid_me12, *m_yresid_me13,
+	 *m_yresid_me11, *m_yresid_me12, *m_yresid_me13, *m_yresid_me14,
 	 *m_yresid_me21, *m_yresid_me22, *m_yresid_me31, *m_yresid_me32, *m_yresid_me41;
 
       TH1F *m_ymean, *m_ymean_mb, *m_ymean_me,
 	 *m_ymean_mb1, *m_ymean_mb2, *m_ymean_mb3, *m_ymean_mb4,
 	 *m_ymean_minus2, *m_ymean_minus1, *m_ymean_zero, *m_ymean_plus1, *m_ymean_plus2,
-	 *m_ymean_mep11, *m_ymean_mep12, *m_ymean_mep13,
+	 *m_ymean_mep11, *m_ymean_mep12, *m_ymean_mep13, *m_ymean_mep14,
 	 *m_ymean_mep21, *m_ymean_mep22, *m_ymean_mep31, *m_ymean_mep32, *m_ymean_mep41,
-	 *m_ymean_mem11, *m_ymean_mem12, *m_ymean_mem13,
+	 *m_ymean_mem11, *m_ymean_mem12, *m_ymean_mem13, *m_ymean_mem14,
 	 *m_ymean_mem21, *m_ymean_mem22, *m_ymean_mem31, *m_ymean_mem32, *m_ymean_mem41,
-	 *m_ymean_me11, *m_ymean_me12, *m_ymean_me13,
+	 *m_ymean_me11, *m_ymean_me12, *m_ymean_me13, *m_ymean_me14,
 	 *m_ymean_me21, *m_ymean_me22, *m_ymean_me31, *m_ymean_me32, *m_ymean_me41;
 
       TH1F *m_ystdev, *m_ystdev_mb, *m_ystdev_me,
 	 *m_ystdev_mb1, *m_ystdev_mb2, *m_ystdev_mb3, *m_ystdev_mb4,
 	 *m_ystdev_minus2, *m_ystdev_minus1, *m_ystdev_zero, *m_ystdev_plus1, *m_ystdev_plus2,
-	 *m_ystdev_mep11, *m_ystdev_mep12, *m_ystdev_mep13,
+	 *m_ystdev_mep11, *m_ystdev_mep12, *m_ystdev_mep13, *m_ystdev_mep14,
 	 *m_ystdev_mep21, *m_ystdev_mep22, *m_ystdev_mep31, *m_ystdev_mep32, *m_ystdev_mep41,
-	 *m_ystdev_mem11, *m_ystdev_mem12, *m_ystdev_mem13,
+	 *m_ystdev_mem11, *m_ystdev_mem12, *m_ystdev_mem13, *m_ystdev_mem14,
 	 *m_ystdev_mem21, *m_ystdev_mem22, *m_ystdev_mem31, *m_ystdev_mem32, *m_ystdev_mem41,
-	 *m_ystdev_me11, *m_ystdev_me12, *m_ystdev_me13,
+	 *m_ystdev_me11, *m_ystdev_me12, *m_ystdev_me13, *m_ystdev_me14,
 	 *m_ystdev_me21, *m_ystdev_me22, *m_ystdev_me31, *m_ystdev_me32, *m_ystdev_me41;
 
       TH1F *m_yerronmean, *m_yerronmean_mb, *m_yerronmean_me,
 	 *m_yerronmean_mb1, *m_yerronmean_mb2, *m_yerronmean_mb3, *m_yerronmean_mb4,
 	 *m_yerronmean_minus2, *m_yerronmean_minus1, *m_yerronmean_zero, *m_yerronmean_plus1, *m_yerronmean_plus2,
-	 *m_yerronmean_mep11, *m_yerronmean_mep12, *m_yerronmean_mep13,
+	 *m_yerronmean_mep11, *m_yerronmean_mep12, *m_yerronmean_mep13, *m_yerronmean_mep14,
 	 *m_yerronmean_mep21, *m_yerronmean_mep22, *m_yerronmean_mep31, *m_yerronmean_mep32, *m_yerronmean_mep41,
-	 *m_yerronmean_mem11, *m_yerronmean_mem12, *m_yerronmean_mem13,
+	 *m_yerronmean_mem11, *m_yerronmean_mem12, *m_yerronmean_mem13, *m_yerronmean_mem14,
 	 *m_yerronmean_mem21, *m_yerronmean_mem22, *m_yerronmean_mem31, *m_yerronmean_mem32, *m_yerronmean_mem41,
-	 *m_yerronmean_me11, *m_yerronmean_me12, *m_yerronmean_me13,
+	 *m_yerronmean_me11, *m_yerronmean_me12, *m_yerronmean_me13, *m_yerronmean_me14,
 	 *m_yerronmean_me21, *m_yerronmean_me22, *m_yerronmean_me31, *m_yerronmean_me32, *m_yerronmean_me41;
 
       TTree *m_chambers;
       Int_t m_chambers_rawid, m_chambers_endcap, m_chambers_wheel, m_chambers_station, m_chambers_sector, m_chambers_ring, m_chambers_chamber;
+      Int_t m_chambers_numx, m_chambers_numy;
       Float_t m_chambers_nx, m_chambers_x1, m_chambers_x2;
       Float_t m_chambers_ny, m_chambers_y1, m_chambers_y2;
 
@@ -185,9 +188,11 @@ AlignmentMonitorMuonResiduals::AlignmentMonitorMuonResiduals(const edm::Paramete
 }
 
 void AlignmentMonitorMuonResiduals::book() {
+   m_numx.clear();
    m_nx.clear();
    m_x1.clear();
    m_x2.clear();
+   m_numy.clear();
    m_ny.clear();
    m_y1.clear();
    m_y2.clear();
@@ -200,17 +205,21 @@ void AlignmentMonitorMuonResiduals::book() {
 
    for (std::vector<Alignable*>::const_iterator chamber = chambers.begin();  chamber != chambers.end();  ++chamber) {
       int id = (*chamber)->geomDetId().rawId();
+      m_numx[id] = 0;
       m_nx[id] = 0;
       m_x1[id] = 0;
       m_x2[id] = 0;
+      m_numy[id] = 0;
       m_ny[id] = 0;
       m_y1[id] = 0;
       m_y2[id] = 0;
    }
 
+   m_sumnumx = book1D("/iterN/", "numx", "number of x hits", chambers.size(), 0.5, chambers.size() + 0.5);
    m_sumnx = book1D("/iterN/", "nx", "sum of x hit weights (1/mm^{2})", chambers.size(), 0.5, chambers.size() + 0.5);
    m_sumx1 = book1D("/iterN/", "x1", "weighted sum of x residuals (1/mm)", chambers.size(), 0.5, chambers.size() + 0.5);
    m_sumx2 = book1D("/iterN/", "x2", "weighted sum of x residuals-squared (unitless)", chambers.size(), 0.5, chambers.size() + 0.5);
+   m_sumnumy = book1D("/iterN/", "numy", "number of y hits", chambers.size(), 0.5, chambers.size() + 0.5);
    m_sumny = book1D("/iterN/", "ny", "sum of y hit weights (1/mm^{2})", chambers.size(), 0.5, chambers.size() + 0.5);
    m_sumy1 = book1D("/iterN/", "y1", "weighted sum of y residuals (1/mm)", chambers.size(), 0.5, chambers.size() + 0.5);
    m_sumy2 = book1D("/iterN/", "y2", "weighted sum of y residuals-squared (unitless)", chambers.size(), 0.5, chambers.size() + 0.5);
@@ -232,6 +241,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xresid_mep11 = book1D("/iterN/mep11/", "xresid_mep11", "ME+1/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mep12 = book1D("/iterN/mep12/", "xresid_mep12", "ME+1/2 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mep13 = book1D("/iterN/mep13/", "xresid_mep13", "ME+1/3 x residual (mm)", xresid_bins, xresid_low, xresid_high);
+   m_xresid_mep14 = book1D("/iterN/mep14/", "xresid_mep14", "ME+1/4 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mep21 = book1D("/iterN/mep21/", "xresid_mep21", "ME+2/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mep22 = book1D("/iterN/mep22/", "xresid_mep22", "ME+2/2 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mep31 = book1D("/iterN/mep31/", "xresid_mep31", "ME+3/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
@@ -240,6 +250,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xresid_mem11 = book1D("/iterN/mem11/", "xresid_mem11", "ME-1/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mem12 = book1D("/iterN/mem12/", "xresid_mem12", "ME-1/2 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mem13 = book1D("/iterN/mem13/", "xresid_mem13", "ME-1/3 x residual (mm)", xresid_bins, xresid_low, xresid_high);
+   m_xresid_mem14 = book1D("/iterN/mem14/", "xresid_mem14", "ME-1/4 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mem21 = book1D("/iterN/mem21/", "xresid_mem21", "ME-2/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mem22 = book1D("/iterN/mem22/", "xresid_mem22", "ME-2/2 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_mem31 = book1D("/iterN/mem31/", "xresid_mem31", "ME-3/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
@@ -248,6 +259,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xresid_me11 = book1D("/iterN/me11/", "xresid_me11", "ME1/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_me12 = book1D("/iterN/me12/", "xresid_me12", "ME1/2 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_me13 = book1D("/iterN/me13/", "xresid_me13", "ME1/3 x residual (mm)", xresid_bins, xresid_low, xresid_high);
+   m_xresid_me14 = book1D("/iterN/me14/", "xresid_me14", "ME1/4 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_me21 = book1D("/iterN/me21/", "xresid_me21", "ME2/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_me22 = book1D("/iterN/me22/", "xresid_me22", "ME2/2 x residual (mm)", xresid_bins, xresid_low, xresid_high);
    m_xresid_me31 = book1D("/iterN/me31/", "xresid_me31", "ME3/1 x residual (mm)", xresid_bins, xresid_low, xresid_high);
@@ -269,6 +281,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xmean_mep11 = book1D("/iterN/mep11/", "xmean_mep11", "ME+1/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mep12 = book1D("/iterN/mep12/", "xmean_mep12", "ME+1/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mep13 = book1D("/iterN/mep13/", "xmean_mep13", "ME+1/3 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mep14 = book1D("/iterN/mep14/", "xmean_mep14", "ME+1/4 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mep21 = book1D("/iterN/mep21/", "xmean_mep21", "ME+2/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mep22 = book1D("/iterN/mep22/", "xmean_mep22", "ME+2/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mep31 = book1D("/iterN/mep31/", "xmean_mep31", "ME+3/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
@@ -277,6 +290,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xmean_mem11 = book1D("/iterN/mem11/", "xmean_mem11", "ME-1/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mem12 = book1D("/iterN/mem12/", "xmean_mem12", "ME-1/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mem13 = book1D("/iterN/mem13/", "xmean_mem13", "ME-1/3 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_mem14 = book1D("/iterN/mem14/", "xmean_mem14", "ME-1/4 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mem21 = book1D("/iterN/mem21/", "xmean_mem21", "ME-2/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mem22 = book1D("/iterN/mem22/", "xmean_mem22", "ME-2/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_mem31 = book1D("/iterN/mem31/", "xmean_mem31", "ME-3/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
@@ -285,6 +299,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xmean_me11 = book1D("/iterN/me11/", "xmean_me11", "ME1/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_me12 = book1D("/iterN/me12/", "xmean_me12", "ME1/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_me13 = book1D("/iterN/me13/", "xmean_me13", "ME1/3 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
+   m_xmean_me14 = book1D("/iterN/me14/", "xmean_me14", "ME1/4 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_me21 = book1D("/iterN/me21/", "xmean_me21", "ME2/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_me22 = book1D("/iterN/me22/", "xmean_me22", "ME2/2 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
    m_xmean_me31 = book1D("/iterN/me31/", "xmean_me31", "ME3/1 weighted mean x residual per chamber (mm)", xmean_bins, xmean_low, xmean_high);
@@ -306,6 +321,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xstdev_mep11 = book1D("/iterN/mep11/", "xstdev_mep11", "ME+1/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mep12 = book1D("/iterN/mep12/", "xstdev_mep12", "ME+1/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mep13 = book1D("/iterN/mep13/", "xstdev_mep13", "ME+1/3 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mep14 = book1D("/iterN/mep14/", "xstdev_mep14", "ME+1/4 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mep21 = book1D("/iterN/mep21/", "xstdev_mep21", "ME+2/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mep22 = book1D("/iterN/mep22/", "xstdev_mep22", "ME+2/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mep31 = book1D("/iterN/mep31/", "xstdev_mep31", "ME+3/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
@@ -314,6 +330,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xstdev_mem11 = book1D("/iterN/mem11/", "xstdev_mem11", "ME-1/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mem12 = book1D("/iterN/mem12/", "xstdev_mem12", "ME-1/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mem13 = book1D("/iterN/mem13/", "xstdev_mem13", "ME-1/3 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_mem14 = book1D("/iterN/mem14/", "xstdev_mem14", "ME-1/4 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mem21 = book1D("/iterN/mem21/", "xstdev_mem21", "ME-2/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mem22 = book1D("/iterN/mem22/", "xstdev_mem22", "ME-2/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_mem31 = book1D("/iterN/mem31/", "xstdev_mem31", "ME-3/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
@@ -322,6 +339,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xstdev_me11 = book1D("/iterN/me11/", "xstdev_me11", "ME1/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_me12 = book1D("/iterN/me12/", "xstdev_me12", "ME1/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_me13 = book1D("/iterN/me13/", "xstdev_me13", "ME1/3 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
+   m_xstdev_me14 = book1D("/iterN/me14/", "xstdev_me14", "ME1/4 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_me21 = book1D("/iterN/me21/", "xstdev_me21", "ME2/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_me22 = book1D("/iterN/me22/", "xstdev_me22", "ME2/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_me31 = book1D("/iterN/me31/", "xstdev_me31", "ME3/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
@@ -343,6 +361,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xerronmean_mep11 = book1D("/iterN/mep11/", "xerronmean_mep11", "ME+1/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mep12 = book1D("/iterN/mep12/", "xerronmean_mep12", "ME+1/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mep13 = book1D("/iterN/mep13/", "xerronmean_mep13", "ME+1/3 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep14 = book1D("/iterN/mep14/", "xerronmean_mep14", "ME+1/4 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mep21 = book1D("/iterN/mep21/", "xerronmean_mep21", "ME+2/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mep22 = book1D("/iterN/mep22/", "xerronmean_mep22", "ME+2/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mep31 = book1D("/iterN/mep31/", "xerronmean_mep31", "ME+3/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
@@ -351,6 +370,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xerronmean_mem11 = book1D("/iterN/mem11/", "xerronmean_mem11", "ME-1/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mem12 = book1D("/iterN/mem12/", "xerronmean_mem12", "ME-1/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mem13 = book1D("/iterN/mem13/", "xerronmean_mem13", "ME-1/3 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem14 = book1D("/iterN/mem14/", "xerronmean_mem14", "ME-1/4 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mem21 = book1D("/iterN/mem21/", "xerronmean_mem21", "ME-2/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mem22 = book1D("/iterN/mem22/", "xerronmean_mem22", "ME-2/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_mem31 = book1D("/iterN/mem31/", "xerronmean_mem31", "ME-3/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
@@ -359,6 +379,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xerronmean_me11 = book1D("/iterN/me11/", "xerronmean_me11", "ME1/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_me12 = book1D("/iterN/me12/", "xerronmean_me12", "ME1/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_me13 = book1D("/iterN/me13/", "xerronmean_me13", "ME1/3 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me14 = book1D("/iterN/me14/", "xerronmean_me14", "ME1/4 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_me21 = book1D("/iterN/me21/", "xerronmean_me21", "ME2/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_me22 = book1D("/iterN/me22/", "xerronmean_me22", "ME2/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
    m_xerronmean_me31 = book1D("/iterN/me31/", "xerronmean_me31", "ME3/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
@@ -380,6 +401,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yresid_mep11 = book1D("/iterN/mep11/", "yresid_mep11", "ME+1/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mep12 = book1D("/iterN/mep12/", "yresid_mep12", "ME+1/2 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mep13 = book1D("/iterN/mep13/", "yresid_mep13", "ME+1/3 y residual (mm)", yresid_bins, yresid_low, yresid_high);
+   m_yresid_mep14 = book1D("/iterN/mep14/", "yresid_mep14", "ME+1/4 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mep21 = book1D("/iterN/mep21/", "yresid_mep21", "ME+2/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mep22 = book1D("/iterN/mep22/", "yresid_mep22", "ME+2/2 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mep31 = book1D("/iterN/mep31/", "yresid_mep31", "ME+3/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
@@ -388,6 +410,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yresid_mem11 = book1D("/iterN/mem11/", "yresid_mem11", "ME-1/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mem12 = book1D("/iterN/mem12/", "yresid_mem12", "ME-1/2 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mem13 = book1D("/iterN/mem13/", "yresid_mem13", "ME-1/3 y residual (mm)", yresid_bins, yresid_low, yresid_high);
+   m_yresid_mem14 = book1D("/iterN/mem14/", "yresid_mem14", "ME-1/4 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mem21 = book1D("/iterN/mem21/", "yresid_mem21", "ME-2/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mem22 = book1D("/iterN/mem22/", "yresid_mem22", "ME-2/2 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mem31 = book1D("/iterN/mem31/", "yresid_mem31", "ME-3/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
@@ -396,6 +419,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yresid_me11 = book1D("/iterN/me11/", "yresid_me11", "ME1/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_me12 = book1D("/iterN/me12/", "yresid_me12", "ME1/2 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_me13 = book1D("/iterN/me13/", "yresid_me13", "ME1/3 y residual (mm)", yresid_bins, yresid_low, yresid_high);
+   m_yresid_me14 = book1D("/iterN/me14/", "yresid_me14", "ME1/4 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_me21 = book1D("/iterN/me21/", "yresid_me21", "ME2/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_me22 = book1D("/iterN/me22/", "yresid_me22", "ME2/2 y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_me31 = book1D("/iterN/me31/", "yresid_me31", "ME3/1 y residual (mm)", yresid_bins, yresid_low, yresid_high);
@@ -417,6 +441,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_ymean_mep11 = book1D("/iterN/mep11/", "ymean_mep11", "ME+1/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mep12 = book1D("/iterN/mep12/", "ymean_mep12", "ME+1/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mep13 = book1D("/iterN/mep13/", "ymean_mep13", "ME+1/3 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mep14 = book1D("/iterN/mep14/", "ymean_mep14", "ME+1/4 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mep21 = book1D("/iterN/mep21/", "ymean_mep21", "ME+2/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mep22 = book1D("/iterN/mep22/", "ymean_mep22", "ME+2/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mep31 = book1D("/iterN/mep31/", "ymean_mep31", "ME+3/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
@@ -425,6 +450,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_ymean_mem11 = book1D("/iterN/mem11/", "ymean_mem11", "ME-1/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mem12 = book1D("/iterN/mem12/", "ymean_mem12", "ME-1/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mem13 = book1D("/iterN/mem13/", "ymean_mem13", "ME-1/3 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_mem14 = book1D("/iterN/mem14/", "ymean_mem14", "ME-1/4 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mem21 = book1D("/iterN/mem21/", "ymean_mem21", "ME-2/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mem22 = book1D("/iterN/mem22/", "ymean_mem22", "ME-2/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_mem31 = book1D("/iterN/mem31/", "ymean_mem31", "ME-3/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
@@ -433,6 +459,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_ymean_me11 = book1D("/iterN/me11/", "ymean_me11", "ME1/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_me12 = book1D("/iterN/me12/", "ymean_me12", "ME1/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_me13 = book1D("/iterN/me13/", "ymean_me13", "ME1/3 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
+   m_ymean_me14 = book1D("/iterN/me14/", "ymean_me14", "ME1/4 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_me21 = book1D("/iterN/me21/", "ymean_me21", "ME2/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_me22 = book1D("/iterN/me22/", "ymean_me22", "ME2/2 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
    m_ymean_me31 = book1D("/iterN/me31/", "ymean_me31", "ME3/1 weighted mean y residual per chamber (mm)", ymean_bins, ymean_low, ymean_high);
@@ -454,6 +481,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_ystdev_mep11 = book1D("/iterN/mep11/", "ystdev_mep11", "ME+1/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mep12 = book1D("/iterN/mep12/", "ystdev_mep12", "ME+1/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mep13 = book1D("/iterN/mep13/", "ystdev_mep13", "ME+1/3 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mep14 = book1D("/iterN/mep14/", "ystdev_mep14", "ME+1/4 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mep21 = book1D("/iterN/mep21/", "ystdev_mep21", "ME+2/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mep22 = book1D("/iterN/mep22/", "ystdev_mep22", "ME+2/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mep31 = book1D("/iterN/mep31/", "ystdev_mep31", "ME+3/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
@@ -462,6 +490,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_ystdev_mem11 = book1D("/iterN/mem11/", "ystdev_mem11", "ME-1/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mem12 = book1D("/iterN/mem12/", "ystdev_mem12", "ME-1/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mem13 = book1D("/iterN/mem13/", "ystdev_mem13", "ME-1/3 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_mem14 = book1D("/iterN/mem14/", "ystdev_mem14", "ME-1/4 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mem21 = book1D("/iterN/mem21/", "ystdev_mem21", "ME-2/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mem22 = book1D("/iterN/mem22/", "ystdev_mem22", "ME-2/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_mem31 = book1D("/iterN/mem31/", "ystdev_mem31", "ME-3/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
@@ -470,6 +499,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_ystdev_me11 = book1D("/iterN/me11/", "ystdev_me11", "ME1/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_me12 = book1D("/iterN/me12/", "ystdev_me12", "ME1/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_me13 = book1D("/iterN/me13/", "ystdev_me13", "ME1/3 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
+   m_ystdev_me14 = book1D("/iterN/me14/", "ystdev_me14", "ME1/4 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_me21 = book1D("/iterN/me21/", "ystdev_me21", "ME2/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_me22 = book1D("/iterN/me22/", "ystdev_me22", "ME2/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_me31 = book1D("/iterN/me31/", "ystdev_me31", "ME3/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
@@ -491,6 +521,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yerronmean_mep11 = book1D("/iterN/mep11/", "yerronmean_mep11", "ME+1/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mep12 = book1D("/iterN/mep12/", "yerronmean_mep12", "ME+1/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mep13 = book1D("/iterN/mep13/", "yerronmean_mep13", "ME+1/3 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep14 = book1D("/iterN/mep14/", "yerronmean_mep14", "ME+1/4 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mep21 = book1D("/iterN/mep21/", "yerronmean_mep21", "ME+2/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mep22 = book1D("/iterN/mep22/", "yerronmean_mep22", "ME+2/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mep31 = book1D("/iterN/mep31/", "yerronmean_mep31", "ME+3/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
@@ -499,6 +530,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yerronmean_mem11 = book1D("/iterN/mem11/", "yerronmean_mem11", "ME-1/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mem12 = book1D("/iterN/mem12/", "yerronmean_mem12", "ME-1/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mem13 = book1D("/iterN/mem13/", "yerronmean_mem13", "ME-1/3 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem14 = book1D("/iterN/mem14/", "yerronmean_mem14", "ME-1/4 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mem21 = book1D("/iterN/mem21/", "yerronmean_mem21", "ME-2/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mem22 = book1D("/iterN/mem22/", "yerronmean_mem22", "ME-2/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_mem31 = book1D("/iterN/mem31/", "yerronmean_mem31", "ME-3/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
@@ -507,6 +539,7 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yerronmean_me11 = book1D("/iterN/me11/", "yerronmean_me11", "ME1/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_me12 = book1D("/iterN/me12/", "yerronmean_me12", "ME1/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_me13 = book1D("/iterN/me13/", "yerronmean_me13", "ME1/3 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me14 = book1D("/iterN/me14/", "yerronmean_me14", "ME1/4 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_me21 = book1D("/iterN/me21/", "yerronmean_me21", "ME2/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_me22 = book1D("/iterN/me22/", "yerronmean_me22", "ME2/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_me31 = book1D("/iterN/me31/", "yerronmean_me31", "ME3/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
@@ -524,9 +557,11 @@ void AlignmentMonitorMuonResiduals::book() {
    m_chambers->Branch("sector", &m_chambers_sector, "sector/I");
    m_chambers->Branch("ring", &m_chambers_ring, "ring/I");
    m_chambers->Branch("chamber", &m_chambers_chamber, "chamber/I");
+   m_chambers->Branch("numx", &m_chambers_numx, "numx/I");
    m_chambers->Branch("nx", &m_chambers_nx, "nx/F");
    m_chambers->Branch("x1", &m_chambers_x1, "x1/F");
    m_chambers->Branch("x2", &m_chambers_x2, "x2/F");
+   m_chambers->Branch("numy", &m_chambers_numy, "numy/I");
    m_chambers->Branch("ny", &m_chambers_ny, "ny/F");
    m_chambers->Branch("y1", &m_chambers_y1, "y1/F");
    m_chambers->Branch("y2", &m_chambers_y2, "y2/F");
@@ -622,11 +657,13 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	       DTChamberId dtId(id.rawId());
 	       int rawId = dtId.rawId();
 	       if (x_reserr2 > 0.) {
+		  m_numx[rawId]++;
 		  m_nx[rawId] += 1./x_reserr2;
 		  m_x1[rawId] += x_residual / x_reserr2;
 		  m_x2[rawId] += x_residual * x_residual / x_reserr2 / x_reserr2;
 	       }
 	       if (y_reserr2 > 0.) {
+		  m_numy[rawId]++;
 		  m_ny[rawId] += 1./y_reserr2;
 		  m_y1[rawId] += y_residual / y_reserr2;
 		  m_y2[rawId] += y_residual * y_residual / y_reserr2 / y_reserr2;
@@ -708,6 +745,7 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	    } // end if DT
 
 	    else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
+
 	       m_xresid->Fill(x_residual, 1./x_reserr2);
 	       m_yresid->Fill(y_residual, 1./y_reserr2);
 
@@ -717,21 +755,23 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	       CSCDetId cscId(id.rawId());
 	       int rawId = cscId.chamberId().rawId();
 	       if (x_reserr2 > 0.) {
+		  m_numx[rawId]++;
 		  m_nx[rawId] += 1./x_reserr2;
 		  m_x1[rawId] += x_residual / x_reserr2;
 		  m_x2[rawId] += x_residual * x_residual / x_reserr2 / x_reserr2;
 	       }
 	       if (y_reserr2 > 0.) {
+		  m_numy[rawId]++;
 		  m_ny[rawId] += 1./y_reserr2;
 		  m_y1[rawId] += y_residual / y_reserr2;
 		  m_y2[rawId] += y_residual * y_residual / y_reserr2 / y_reserr2;
 	       }
 
-	       if ((cscId.endcap() == 1? 1: -1)*cscId.station() == 1  &&  (cscId.ring() == 1  ||  cscId.ring() == 4)) {
+	       if ((cscId.endcap() == 1? 1: -1)*cscId.station() == 1  &&  cscId.ring() == 1) {
 		  m_xresid_mep11->Fill(x_residual, 1./x_reserr2);  m_yresid_mep11->Fill(y_residual, 1./y_reserr2);
 		  m_xresid_me11->Fill(x_residual, 1./x_reserr2);  m_yresid_me11->Fill(y_residual, 1./y_reserr2);
 	       }
-	       else if ((cscId.endcap() == 1? 1: -1)*cscId.station() == -1  &&  (cscId.ring() == 1  ||  cscId.ring() == 4)) {
+	       else if ((cscId.endcap() == 1? 1: -1)*cscId.station() == -1  &&  cscId.ring() == 1) {
 		  m_xresid_mem11->Fill(x_residual, 1./x_reserr2);  m_yresid_mem11->Fill(y_residual, 1./y_reserr2);
 		  m_xresid_me11->Fill(x_residual, 1./x_reserr2);  m_yresid_me11->Fill(y_residual, 1./y_reserr2);
 	       }
@@ -750,6 +790,14 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	       else if ((cscId.endcap() == 1? 1: -1)*cscId.station() == -1  &&  cscId.ring() == 3) {
 		  m_xresid_mem13->Fill(x_residual, 1./x_reserr2);  m_yresid_mem13->Fill(y_residual, 1./y_reserr2);
 		  m_xresid_me13->Fill(x_residual, 1./x_reserr2);  m_yresid_me13->Fill(y_residual, 1./y_reserr2);
+	       }
+	       else if ((cscId.endcap() == 1? 1: -1)*cscId.station() == 1  &&  cscId.ring() == 4) {
+		  m_xresid_mep14->Fill(x_residual, 1./x_reserr2);  m_yresid_mep14->Fill(y_residual, 1./y_reserr2);
+		  m_xresid_me14->Fill(x_residual, 1./x_reserr2);  m_yresid_me14->Fill(y_residual, 1./y_reserr2);
+	       }
+	       else if ((cscId.endcap() == 1? 1: -1)*cscId.station() == -1  &&  cscId.ring() == 4) {
+		  m_xresid_mem14->Fill(x_residual, 1./x_reserr2);  m_yresid_mem14->Fill(y_residual, 1./y_reserr2);
+		  m_xresid_me14->Fill(x_residual, 1./x_reserr2);  m_yresid_me14->Fill(y_residual, 1./y_reserr2);
 	       }
 	       else if ((cscId.endcap() == 1? 1: -1)*cscId.station() == 2  &&  cscId.ring() == 1) {
 		  m_xresid_mep21->Fill(x_residual, 1./x_reserr2);  m_yresid_mep21->Fill(y_residual, 1./y_reserr2);
@@ -811,17 +859,21 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
       int id = (*chamber)->geomDetId().rawId();
       
       m_chambers_rawid = id;
+      m_chambers_numx = m_numx[id];
       m_chambers_nx = m_nx[id];
       m_chambers_x1 = m_x1[id];
       m_chambers_x2 = m_x2[id];
+      m_chambers_numy = m_numy[id];
       m_chambers_ny = m_ny[id];
       m_chambers_y1 = m_y1[id];
       m_chambers_y2 = m_y2[id];
 
       index++;
+      m_sumnumx->SetBinContent(index, m_numx[id]);
       m_sumnx->SetBinContent(index, m_nx[id]);
       m_sumx1->SetBinContent(index, m_x1[id]);
       m_sumx2->SetBinContent(index, m_x2[id]);
+      m_sumnumy->SetBinContent(index, m_numy[id]);
       m_sumny->SetBinContent(index, m_ny[id]);
       m_sumy1->SetBinContent(index, m_y1[id]);
       m_sumy2->SetBinContent(index, m_y2[id]);
@@ -847,9 +899,13 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	 m_chambers_ring = cscId.ring();
 	 m_chambers_chamber = cscId.chamber();
       }
+      m_chambers->Fill();
+
+      m_sumnumx->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumnx->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumx1->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumx2->GetXaxis()->SetBinLabel(index, name.str().c_str());
+      m_sumnumy->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumny->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumy1->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumy2->GetXaxis()->SetBinLabel(index, name.str().c_str());
@@ -902,11 +958,11 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 
 	    CSCDetId id((*chamber)->geomDetId().rawId());
 
-	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
+	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 1) {
 	       m_xmean_mep11->Fill(xmean);  m_xstdev_mep11->Fill(xstdev);  m_xerronmean_mep11->Fill(xerronmean);
 	       m_xmean_me11->Fill(xmean);  m_xstdev_me11->Fill(xstdev);  m_xerronmean_me11->Fill(xerronmean);
 	    }
-	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
+	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 1) {
 	       m_xmean_mem11->Fill(xmean);  m_xstdev_mem11->Fill(xstdev);  m_xerronmean_mem11->Fill(xerronmean);
 	       m_xmean_me11->Fill(xmean);  m_xstdev_me11->Fill(xstdev);  m_xerronmean_me11->Fill(xerronmean);
 	    }
@@ -925,6 +981,14 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 3) {
 	       m_xmean_mem13->Fill(xmean);  m_xstdev_mem13->Fill(xstdev);  m_xerronmean_mem13->Fill(xerronmean);
 	       m_xmean_me13->Fill(xmean);  m_xstdev_me13->Fill(xstdev);  m_xerronmean_me13->Fill(xerronmean);
+	    }
+	    else if((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 4) {
+	       m_xmean_mep14->Fill(xmean);  m_xstdev_mep14->Fill(xstdev);  m_xerronmean_mep14->Fill(xerronmean);
+	       m_xmean_me14->Fill(xmean);  m_xstdev_me14->Fill(xstdev);  m_xerronmean_me14->Fill(xerronmean);
+	    }
+	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 4) {
+	       m_xmean_mem14->Fill(xmean);  m_xstdev_mem14->Fill(xstdev);  m_xerronmean_mem14->Fill(xerronmean);
+	       m_xmean_me14->Fill(xmean);  m_xstdev_me14->Fill(xstdev);  m_xerronmean_me14->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 2  &&  id.ring() == 1) {
 	       m_xmean_mep21->Fill(xmean);  m_xstdev_mep21->Fill(xstdev);  m_xerronmean_mep21->Fill(xerronmean);
@@ -1015,11 +1079,11 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 
 	    CSCDetId id((*chamber)->geomDetId().rawId());
 
-	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
+	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 1) {
 	       m_ymean_mep11->Fill(ymean);  m_ystdev_mep11->Fill(ystdev);  m_yerronmean_mep11->Fill(yerronmean);
 	       m_ymean_me11->Fill(ymean);  m_ystdev_me11->Fill(ystdev);  m_yerronmean_me11->Fill(yerronmean);
 	    }
-	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
+	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 1) {
 	       m_ymean_mem11->Fill(ymean);  m_ystdev_mem11->Fill(ystdev);  m_yerronmean_mem11->Fill(yerronmean);
 	       m_ymean_me11->Fill(ymean);  m_ystdev_me11->Fill(ystdev);  m_yerronmean_me11->Fill(yerronmean);
 	    }
@@ -1038,6 +1102,14 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 3) {
 	       m_ymean_mem13->Fill(ymean);  m_ystdev_mem13->Fill(ystdev);  m_yerronmean_mem13->Fill(yerronmean);
 	       m_ymean_me13->Fill(ymean);  m_ystdev_me13->Fill(ystdev);  m_yerronmean_me13->Fill(yerronmean);
+	    }
+	    else if((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 4) {
+	       m_ymean_mep14->Fill(ymean);  m_ystdev_mep14->Fill(ystdev);  m_yerronmean_mep14->Fill(yerronmean);
+	       m_ymean_me14->Fill(ymean);  m_ystdev_me14->Fill(ystdev);  m_yerronmean_me14->Fill(yerronmean);
+	    }
+	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 4) {
+	       m_ymean_mem14->Fill(ymean);  m_ystdev_mem14->Fill(ystdev);  m_yerronmean_mem14->Fill(yerronmean);
+	       m_ymean_me14->Fill(ymean);  m_ystdev_me14->Fill(ystdev);  m_yerronmean_me14->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 2  &&  id.ring() == 1) {
 	       m_ymean_mep21->Fill(ymean);  m_ystdev_mep21->Fill(ystdev);  m_yerronmean_mep21->Fill(yerronmean);
