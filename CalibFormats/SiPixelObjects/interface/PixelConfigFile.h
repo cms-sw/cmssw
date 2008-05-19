@@ -257,7 +257,7 @@ namespace pos{
       
       static PixelConfigList configList=getConfig();
 
-      if (theKey>configList.size()){
+      if (theKey>=configList.size()){
 	configList=getConfig();
       }
 
