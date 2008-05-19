@@ -118,7 +118,7 @@ namespace cond {
   }
   
 
-  const char * CondDB::allTags() const {
+  std::string CondDB::allTags() const {
     std::ostringstream ss;
 
     cond::CoralTransaction& coraldb=me->coralTransaction();
@@ -132,10 +132,10 @@ namespace cond {
 	       alltags.end(),
 	       std::ostream_iterator<std::string>(ss," ")
 	       );
-    return ss.str().c_str();
+    return ss.str();
   }
 
-  IOVProxy CondDB::iov(std::string & tag) const {
+  IOVProxy CondDB::iov(std::string const & tag) const {
     cond::CoralTransaction& coraldb=me->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     coraldb.start(true);

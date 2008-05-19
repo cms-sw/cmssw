@@ -41,7 +41,7 @@ namespace cond {
    ~CondDB();
    const char * allTags() const;
 
-   IOVProxy iov(std::string & tag) const;
+   IOVProxy iov(std::string const & tag) const;
 
    
  private:
