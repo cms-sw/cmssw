@@ -510,12 +510,26 @@ void AlignmentMonitorMuonHIP::book() {
 void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, const unsigned int index) {
    bool dt = (DetId(rawid).subdetId() == MuonSubdetId::DT);
 
-   char dir[256], name[256], title[256];
+   char dir[256], name[256], title[256], chambername[256];
+
+   if (m_book_mode == std::string("chamber")) {
+      if (dt) {
+	 DTChamberId dtId(rawid);
+	 sprintf(chambername, "MB%d/%d (%d)", dtId.wheel(), dtId.station(), dtId.sector());
+      }
+      else {
+	 CSCDetId cscId(rawid);
+	 sprintf(chambername, "ME%d/%d (%d)", (cscId.endcap() == 1 ? 1 : -1) * cscId.station(), cscId.ring(), cscId.chamber());
+      }
+   }
+   else {
+      sprintf(chambername, "%d", rawid);
+   }
 
    if (m_book_nhits_vsiter) {
       sprintf(dir, "/nhits_vsiter_%s/", level);
       sprintf(name, "nhits_vsiter_%s_%d", level, rawid);
-      sprintf(title, "Number of hits on %s %d vs iteration", level, rawid);
+      sprintf(title, "Number of hits on %s %s vs iteration", level, chambername);
       m_nhits_vsiter[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
@@ -525,7 +539,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_conv_x) {
       sprintf(dir, "/conv_x_%s/", level);
       sprintf(name, "conv_x_%s_%d", level, rawid);
-      sprintf(title, "Convergence in x of %s %d vs iteration", level, rawid);
+      sprintf(title, "Convergence in x of %s %s vs iteration", level, chambername);
       m_conv_x[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
@@ -535,7 +549,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_conv_y) {
       sprintf(dir, "/conv_y_%s/", level);
       sprintf(name, "conv_y_%s_%d", level, rawid);
-      sprintf(title, "Convergence in y of %s %d vs iteration", level, rawid);
+      sprintf(title, "Convergence in y of %s %s vs iteration", level, chambername);
       m_conv_y[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
@@ -545,7 +559,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_conv_z) {
       sprintf(dir, "/conv_z_%s/", level);
       sprintf(name, "conv_z_%s_%d", level, rawid);
-      sprintf(title, "Convergence in z of %s %d vs iteration", level, rawid);
+      sprintf(title, "Convergence in z of %s %s vs iteration", level, chambername);
       m_conv_z[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
@@ -555,7 +569,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_conv_phix) {
       sprintf(dir, "/conv_phix_%s/", level);
       sprintf(name, "conv_phix_%s_%d", level, rawid);
-      sprintf(title, "Convergence in phix of %s %d vs iteration", level, rawid);
+      sprintf(title, "Convergence in phix of %s %s vs iteration", level, chambername);
       m_conv_phix[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
@@ -565,7 +579,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_conv_phiy) {
       sprintf(dir, "/conv_phiy_%s/", level);
       sprintf(name, "conv_phiy_%s_%d", level, rawid);
-      sprintf(title, "Convergence in phiy of %s %d vs iteration", level, rawid);
+      sprintf(title, "Convergence in phiy of %s %s vs iteration", level, chambername);
       m_conv_phiy[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
@@ -575,7 +589,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_conv_phiz) {
       sprintf(dir, "/conv_phiz_%s/", level);
       sprintf(name, "conv_phiz_%s_%d", level, rawid);
-      sprintf(title, "Convergence in phiz of %s %d vs iteration", level, rawid);
+      sprintf(title, "Convergence in phiz of %s %s vs iteration", level, chambername);
       m_conv_phiz[index] = book1D(dir, name, title, m_params_iterations, m_params_iterations_low, m_params_iterations_high);
    }
    else {
@@ -585,7 +599,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_xresid) {
       sprintf(dir, "/iterN/xresid_%s/", level);
       sprintf(name, "xresid_%s_%d", level, rawid);
-      sprintf(title, "x residual on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "x residual on %s %s for iteration %d", level, chambername, iteration());
       m_xresid[index] = book1D(dir, name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high);
    }
    else {
@@ -595,7 +609,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_xresidwide) {
       sprintf(dir, "/iterN/xresidwide_%s/", level);
       sprintf(name, "xresidwide_%s_%d", level, rawid);
-      sprintf(title, "x residual on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "x residual on %s %s for iteration %d", level, chambername, iteration());
       m_xresidwide[index] = book1D(dir, name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
@@ -605,7 +619,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_yresid  &&  !dt) {
       sprintf(dir, "/iterN/yresid_%s/", level);
       sprintf(name, "yresid_%s_%d", level, rawid);
-      sprintf(title, "y residual on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "y residual on %s %s for iteration %d", level, chambername, iteration());
       m_yresid[index] = book1D(dir, name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high);
    }
    else {
@@ -615,7 +629,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_wxresid) {
       sprintf(dir, "/iterN/wxresid_%s/", level);
       sprintf(name, "wxresid_%s_%d", level, rawid);
-      sprintf(title, "Weighted x residual on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "Weighted x residual on %s %s for iteration %d", level, chambername, iteration());
       m_wxresid[index] = book1D(dir, name, title, m_params_bins, m_params_xresid_low, m_params_xresid_high);
    }
    else {
@@ -625,7 +639,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_wxresidwide) {
       sprintf(dir, "/iterN/wxresidwide_%s/", level);
       sprintf(name, "wxresidwide_%s_%d", level, rawid);
-      sprintf(title, "Weighted x residual on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "Weighted x residual on %s %s for iteration %d", level, chambername, iteration());
       m_wxresidwide[index] = book1D(dir, name, title, m_params_bins, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
@@ -635,7 +649,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_wyresid  &&  !dt) {
       sprintf(dir, "/iterN/wyresid_%s/", level);
       sprintf(name, "wyresid_%s_%d", level, rawid);
-      sprintf(title, "Weighted y residual on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "Weighted y residual on %s %s for iteration %d", level, chambername, iteration());
       m_wyresid[index] = book1D(dir, name, title, m_params_bins, m_params_yresid_low, m_params_yresid_high);
    }
    else {
@@ -645,7 +659,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_wxresid_vsx) {
       sprintf(dir, "/iterN/wxresid_vsx_%s/", level);
       sprintf(name, "wxresid_vsx_%s_%d", level, rawid);
-      sprintf(title, "Weighted x residual vs track's x on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "Weighted x residual vs track's x on %s %s for iteration %d", level, chambername, iteration());
       m_wxresid_vsx[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_xDT_low: m_params_xCSC_low), (dt? m_params_xDT_high: m_params_xCSC_high), 1, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
@@ -655,7 +669,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_wxresid_vsy) {
       sprintf(dir, "/iterN/wxresid_vsy_%s/", level);
       sprintf(name, "wxresid_vsy_%s_%d", level, rawid);
-      sprintf(title, "Weighted x residual vs track's y on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "Weighted x residual vs track's y on %s %s for iteration %d", level, chambername, iteration());
       m_wxresid_vsy[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_yDT_low: m_params_yCSC_low), (dt? m_params_yDT_high: m_params_yCSC_high), 1, m_params_xresidwide_low, m_params_xresidwide_high);
    }
    else {
@@ -665,7 +679,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_wyresid_vsx  &&  !dt) {
       sprintf(dir, "/iterN/wyresid_vsx_%s/", level);
       sprintf(name, "wyresid_vsx_%s_%d", level, rawid);
-      sprintf(title, "Weighted y residual vs track's x on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "Weighted y residual vs track's x on %s %s for iteration %d", level, chambername, iteration());
       m_wyresid_vsx[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_xDT_low: m_params_xCSC_low), (dt? m_params_xDT_high: m_params_xCSC_high), 1, m_params_yresid_low, m_params_yresid_high);
    }
    else {
@@ -675,7 +689,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_wyresid_vsy  &&  !dt) {
       sprintf(dir, "/iterN/wyresid_vsy_%s/", level);
       sprintf(name, "wyresid_vsy_%s_%d", level, rawid);
-      sprintf(title, "Weighted y residual vs track's y on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "Weighted y residual vs track's y on %s %s for iteration %d", level, chambername, iteration());
       m_wyresid_vsy[index] = bookProfile(dir, name, title, m_params_bins, (dt? m_params_yDT_low: m_params_yCSC_low), (dt? m_params_yDT_high: m_params_yCSC_high), 1, m_params_yresid_low, m_params_yresid_high);
    }
    else {
@@ -685,7 +699,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_xpull) {
       sprintf(dir, "/iterN/xpull_%s/", level);
       sprintf(name, "xpull_%s_%d", level, rawid);
-      sprintf(title, "x pull distribution on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "x pull distribution on %s %s for iteration %d", level, chambername, iteration());
       m_xpull[index] = book1D(dir, name, title, m_params_bins, m_params_xpull_low, m_params_xpull_high);
    }
    else {
@@ -695,7 +709,7 @@ void AlignmentMonitorMuonHIP::bookByAli(const char *level, const int rawid, cons
    if (m_book_ypull  &&  !dt) {
       sprintf(dir, "/iterN/ypull_%s/", level);
       sprintf(name, "ypull_%s_%d", level, rawid);
-      sprintf(title, "y pull distribution on %s %d for iteration %d", level, rawid, iteration());
+      sprintf(title, "y pull distribution on %s %s for iteration %d", level, chambername, iteration());
       m_ypull[index] = book1D(dir, name, title, m_params_bins, m_params_ypull_low, m_params_ypull_high);
    }
    else {
