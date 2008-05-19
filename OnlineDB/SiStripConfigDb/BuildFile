@@ -1,12 +1,12 @@
-<use name=FWCore/Utilities>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ServiceRegistry>
-<use name=FWCore/PluginManager>
+<use name=CalibFormats/SiStripObjects>
+<use name=CondFormats/SiStripObjects>
 <use name=DataFormats/Common>
 <use name=DataFormats/SiStripCommon>
-<use name=CondFormats/SiStripObjects>
-<use name=CalibFormats/SiStripObjects>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
 <use name=TkOnlineSw>
 <use name=xerces-c>
 <use name=oracle>
@@ -14,13 +14,13 @@
 
 <export>
   <lib name=OnlineDBSiStripConfigDb>
-  <use name=FWCore/Utilities>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/ServiceRegistry>
+  <use name=CalibFormats/SiStripObjects>
+  <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/Common>
   <use name=DataFormats/SiStripCommon>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CalibFormats/SiStripObjects>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/Utilities>
   <use name=TkOnlineSw>
   <use name=xerces-c>
   <use name=oracle>

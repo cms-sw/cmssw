@@ -1,12 +1,10 @@
-<use name=DataFormats/SiStripCommon>
 <use name=CondFormats/SiStripObjects>
+<use name=DataFormats/SiStripCommon>
 <use name=DQM/SiStripCommissioningAnalysis>
 <use name=DQM/SiStripCommissioningSummary>
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
-<use name=DQMServices/XdaqCollector>
 <use name=DQMServices/ClientConfig>
-<use name=DQMServices/WebComponents>
 <use name=EventFilter/Message2log4cplus>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -14,19 +12,15 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=boost>
-<use name=root> 
-<use name=xdaq>
+<use name=rootcore> 
 
 <export>
   <lib name=DQMSiStripCommissioningClients>
-  <use name=DataFormats/SiStripCommon>
   <use name=CondFormats/SiStripObjects>
+  <use name=DataFormats/SiStripCommon>
   <use name=DQM/SiStripCommissioningSummary>
   <use name=DQM/SiStripCommon>
-  <use name=DQMServices/Core>
-  <use name=DQMServices/XdaqCollector>
   <use name=DQMServices/ClientConfig>
-  <use name=DQMServices/WebComponents>
   <use name=EventFilter/Message2log4cplus>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
@@ -34,6 +28,6 @@
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
   <use name=boost>
-  <use name=root> 
-  <use name=xdaq>
+  <use name=rootcore> 
 </export>
+

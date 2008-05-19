@@ -3,6 +3,7 @@
 <use name=CalibFormats/SiStripObjects>
 <use name=CondFormats/SiStripObjects>
 <use name=DataFormats/SiStripCommon>
+<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=OnlineDB/SiStripConfigDb>
@@ -12,12 +13,9 @@
 <export>
   <lib name=OnlineDBSiStripESSources>
   <use name=CalibTracker/SiStripESProducers>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=CondFormats/SiStripObjects>
   <use name=DataFormats/SiStripCommon>
-  <use name=FWCore/MessageLogger>
   <use name=OnlineDB/SiStripConfigDb>
-  <use name=TkOnlineSw>
+  <use name=FWCore/Framework>
   <use name=boost>
 </export>
 
