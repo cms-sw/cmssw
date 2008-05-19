@@ -18,6 +18,7 @@
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include <string>
+#include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 template <class T> 
@@ -26,8 +27,27 @@ class PixelPopConSourceHandler : public popcon::PopConSourceHandler<T> {
  public:
   //PixelPopConSourceHandler(edm::ParameterSet const &) {;}
 
-  virtual void getNewObjects() {;}
+  virtual void getNewObjects() {
+    // look at _connectString to see which method to call
+    if (_connectString.find("oracle") == 0)
+      getNewObjects_coral();
+    else if (_connectString.find("file") == 0)
+      getNewObjects_file();
+    else
+      std::cout << "  PixelPopConSourceHandler::getNewObjects() - unknown connect string:" << _connectString << std::endl;
+  } // virtual void getNewObjects()
+
+  virtual void getNewObjects_coral() {;}
+  virtual void getNewObjects_file() {;}
   virtual std::string id() const {return std::string("PixelPopConSourceHandler");}
+
+ protected:
+  std::string _connectString;
+  std::string _schemaName;
+  std::string _viewName;
+  std::string _configKeyName;
+  int _runNumber;
+  unsigned int _sinceIOV;
 
 };
 
