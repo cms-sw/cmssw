@@ -7,6 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "TMath.h"
+#include "TVector3.h"
 
 using namespace reco;
 using namespace edm;
@@ -245,8 +246,8 @@ pair<TSOS, TransientTrack> RecoMuonValidator::matchTrack(const SimTrack& simTrac
     TSOS tsos = track.impactPointState();
 
     GlobalVector tsosVect = tsos.globalMomentum();
-    Hep3Vector trackVect = Hep3Vector(tsosVect.x(), tsosVect.y(), tsosVect.z());
-    double deltaRVal = deltaR<double>(trackVect.eta(),trackVect.phi(),
+    TVector3 trackVect = TVector3(tsosVect.x(), tsosVect.y(), tsosVect.z());
+    double deltaRVal = deltaR<double>(trackVect.Eta(),trackVect.Phi(),
 				      simTrack.momentum().eta(),simTrack.momentum().phi());
 
     if ( candDeltaR < 0 || deltaRVal < candDeltaR  ) {
@@ -274,8 +275,8 @@ pair<TSOS, TrajectorySeed> RecoMuonValidator::matchTrack(const SimTrack& simTrac
     TSOS tsos = getSeedTSOS(*iSeed);
 
     GlobalVector tsosVect = tsos.globalMomentum();
-    Hep3Vector seedVect(tsosVect.x(), tsosVect.y(), tsosVect.z());
-    double deltaRVal = deltaR<double>(seedVect.eta(),seedVect.phi(),
+    TVector3 seedVect(tsosVect.x(), tsosVect.y(), tsosVect.z());
+    double deltaRVal = deltaR<double>(seedVect.Eta(),seedVect.Phi(),
 				      simTrack.momentum().eta(),simTrack.momentum().phi());
 
     if ( candDeltaR < 0 || deltaRVal < candDeltaR ) {
