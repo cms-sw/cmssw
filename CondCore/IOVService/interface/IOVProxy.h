@@ -14,7 +14,7 @@ namespace cond {
   
   class IOVElement {
   public:
-    IOVElement() : since(0),till(0){}
+    IOVElement() : m_since(0), m_till(0){}
     IOVElement(cond::Time_t is,
 	       cond::Time_t it,
 	       std::string const& itoken ) :
@@ -30,12 +30,12 @@ namespace cond {
     
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
-    std::string payloadToken() const {return m_token;}
+    std::string const & payloadToken() const {return m_token;}
 
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
-    std::string const & m_token;
+    std::string const m_token;
   };
   
   
