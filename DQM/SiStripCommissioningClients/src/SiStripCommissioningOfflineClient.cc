@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.35 2008/03/08 17:23:42 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.36 2008/03/17 17:39:28 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -453,15 +453,17 @@ void SiStripCommissioningOfflineClient::setInputFiles( std::vector<std::string>&
 						       const std::string path,
 						       uint32_t run_number, 
 						       bool collate_histos ) {
-  
-  // Stuff
+
   std::string runStr;
-  char buffer[256];
-  sprintf( buffer, "%d", run_number );
-  runStr = buffer;
+  std::stringstream ss;
+  ss << std::setfill('0') << std::setw(8) << run_number;
+  runStr = ss.str();
+  
   std::string nameStr = "";
   if ( !collate_histos ) { nameStr = "SiStripCommissioningClient_"; }
   else { nameStr = "SiStripCommissioningSource_"; }
+
+  LogTrace("TEST") << " runStr " << runStr;
 
   // Open directory
   DIR* dp;
