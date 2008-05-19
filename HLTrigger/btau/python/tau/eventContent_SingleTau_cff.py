@@ -1,7 +1,11 @@
+# The following comments couldn't be translated into the new config version:
+
+# L2 isolation producer and selector     
 import FWCore.ParameterSet.Config as cms
 
+# keep essential info used to construct Tau HLT.
 SingleTauHLT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hltL2SingleTauJets_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_hltL2SingleTauJets*_*_*', 
         'keep *_hltL2SingleTauIsolation*_*_*', 
         'keep *_hltMet*_*_*', 
         'keep *_hltCtfWithMaterialTracksL25SingleTau_*_*', 
