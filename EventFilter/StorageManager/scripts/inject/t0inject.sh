@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.6 2008/05/14 10:43:20 loizides Exp $
+#$Id: t0inject.sh,v 1.7 2008/05/14 12:53:14 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -17,7 +17,7 @@ fi
 
 SMT0_MONDIR=/store/global/log
 if test -n "$SM_STORE"; then
-    SMT0_MONDIR=$SM_STORE/global/mbox
+    SMT0_MONDIR=$SM_STORE/global/log
 fi
 if [ ! -d $SMT0_MONDIR ]; then
     echo "SMT0_MONDIR does not exist or is no directory"
