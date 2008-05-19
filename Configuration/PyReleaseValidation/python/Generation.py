@@ -118,9 +118,9 @@ def _generate_PGUN(evt_type, energy, evtnumber):
              )
     
     if pt_flag:        
-        source.type_ = "FlatRandomPtGunSource"
+        source.__type = "FlatRandomPtGunSource"
     else:
-        source.type_ = "FlatRandomEGunSource"
+        source.__type = "FlatRandomEGunSource"
 
     return source 
    

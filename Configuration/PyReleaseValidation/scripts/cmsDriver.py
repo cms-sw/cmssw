@@ -403,23 +403,32 @@ secondfilestr=''
 if options.secondfilein!='':
     secondfilestr=options.dirin+options.secondfilein
 
-#######################
-# pure python version #
-#######################
+
+# pure python version - begin
 if options.pure_python:
 
   from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
+
+  # do some options adjustments
+  # (for now placed here, needs a better place)
   options.name = trimmedStep.replace(',','')
   options.outfile_name = options.dirout+options.fileout
+
+  if options.step == "ALL":
+      options.step = "GEN,SIM,DIGI,L1,DIGI2RAW,RECO,DQM,POSTRECO"
+
+  # create the config
   configBuilder = ConfigBuilder(options)
   configBuilder.prepare()
+
+  # fetch it and write it to file
   python_config_filename = "test.py"
   config = file(python_config_filename,"w")
   config.write(configBuilder.pythonCfgCode)
   config.close()
   
   sys.exit(0)
-
+# pure python version - end
     
 cfgfile="""
 #############################################################

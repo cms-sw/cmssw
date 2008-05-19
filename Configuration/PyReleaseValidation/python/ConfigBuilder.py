@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.1 $"
+__version__ = "$Revision: 1.2 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -198,7 +198,7 @@ class ConfigBuilder(object):
         return
 
     def prepare_DIGI2RAW(self):
-        self.loadAndRemember("Configuration/StandardSequences/DigiToRaw_cff.py")
+        self.loadAndRemember("Configuration/StandardSequences/DigiToRaw_cff")
         self.process.digi2raw_step = cms.Path( self.process.DigiToRaw )
         self.process.schedule.append(self.process.digi2raw_step)
         return
@@ -215,8 +215,8 @@ class ConfigBuilder(object):
         # now we have to loop every single path in the process and check if that's an HLT path.
         # TODO
 
-    def prepare_RAW2DIGI(self);
-        self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff.py")
+    def prepare_RAW2DIGI(self):
+        self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
         self.process.raw2digi_step = cms.Path( self.process.RawToDigi )
         self.process.schedule.append(self.process.raw2digi_step)
         return
@@ -239,11 +239,14 @@ class ConfigBuilder(object):
     def prepare_PATLayer0(self):
         """ In case people would like to have this"""
         pass
+
+    def prepare_DQM(self):
+        pass
     
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.1 $"),
+              (version=cms.untracked.string("$Revision: 1.2 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
