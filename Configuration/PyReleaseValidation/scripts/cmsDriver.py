@@ -245,6 +245,12 @@ parser.add_option("--dump_python",
                   default=False,                  
                   dest="dump_python")
                                                     
+parser.add_option("--pure_python",
+                  help="Create pure python config file",
+                  action="store_true",
+                  default = False,
+                  dest="pure_python") 
+
 parser.add_option("--dump_pickle",
                   help="Dump a pickle object of the process.",
                   default='',
@@ -396,6 +402,24 @@ if options.dump_dsetname_flag:
 secondfilestr=''
 if options.secondfilein!='':
     secondfilestr=options.dirin+options.secondfilein
+
+#######################
+# pure python version #
+#######################
+if options.pure_python:
+
+  from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
+  options.name = trimmedStep.replace(',','')
+  options.outfile_name = options.dirout+options.fileout
+  configBuilder = ConfigBuilder(options)
+  configBuilder.prepare()
+  python_config_filename = "test.py"
+  config = file(python_config_filename,"w")
+  config.write(configBuilder.pythonCfgCode)
+  config.close()
+  
+  sys.exit(0)
+
     
 cfgfile="""
 #############################################################
