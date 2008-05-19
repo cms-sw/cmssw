@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.43 2008/04/30 18:17:44 dmytro Exp $
+ * \version $Id: Muon.h,v 1.44 2008/04/30 22:58:14 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -106,6 +106,9 @@ namespace reco {
     /// object
     enum SelectionType {
          All,                      // dummy options - always true
+         AllGlobalMuons,           // checks isGlobalMuon flag
+         AllStandAloneMuons,       // checks isStandAloneMuon flag
+         AllTrackerMuons,          // checks isTrackerMuon flag
 	 TrackerMuonArbitrated,    // resolve ambiguity of sharing segments
          AllArbitrated,            // all muons with the tracker muon arbitrated
          GlobalMuonPromptTight,    // global muons with tighter fit requirements

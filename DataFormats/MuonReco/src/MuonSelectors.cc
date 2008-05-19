@@ -331,6 +331,15 @@ bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
       case reco::Muon::All:
 	return true;
 	break;
+      case reco::Muon::AllGlobalMuons:
+	return muon.isGlobalMuon();
+	break;
+      case reco::Muon::AllTrackerMuons:
+	return muon.isTrackerMuon();
+	break;
+      case reco::Muon::AllStandAloneMuons:
+	return muon.isStandAloneMuon();
+	break;
       case reco::Muon::TrackerMuonArbitrated:
 	return muon.isTrackerMuon() && muon.numberOfMatches(reco::Muon::SegmentAndTrackArbitration)>0;
 	break;
