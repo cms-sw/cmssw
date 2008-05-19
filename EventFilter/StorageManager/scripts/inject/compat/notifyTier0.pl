@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: notifyTier0.pl,v 1.2 2008/04/25 12:24:42 loizides Exp $
+# $Id: notifyTier0.pl,v 1.3 2008/04/25 13:56:04 loizides Exp $
 ################################################################################
 
 use strict;
@@ -77,9 +77,15 @@ if(length $cmsver <= 0) {
     $cmsver = "CMSSW_1_7_1";
 }
 
-my $outdir = $pathname . "/../../../global/mbox/";
+# get directory for log file
+my $storedir=ENV{'SM_STORE'};
+if (!defined $storedir) {
+    $storedir="/store";
+}
+
+my $outdir = $storedir . "/global/mbox/";
 if($pathname =~ m/emulator/) {
-    $outdir = $pathname . "/../../../emulator/mbox/";
+    $outdir = $storedir . "/emulator/mbox/";
 }
 if (!-d "$outdir") {
     $outdir = $pathname . "/../mbox/";

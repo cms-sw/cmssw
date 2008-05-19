@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: insertFile.pl,v 1.1 2008/04/24 16:30:09 loizides Exp $
+# $Id: insertFile.pl,v 1.2 2008/04/25 12:24:42 loizides Exp $
 ################################################################################
 
 use strict;
@@ -89,9 +89,15 @@ if(length $cmsver <= 0) {
     $cmsver = "CMSSW_1_7_1";
 }
 
-my $outdir = $pathname . "/../../../global/log/";
+# get directory for log file
+my $storedir=ENV{'SM_STORE'};
+if (!defined $storedir) {
+    $storedir="/store";
+}
+
+my $outdir = $storedir . "/global/log/";
 if($pathname =~ m/emulator/) {
-    $outdir = $pathname . "/../../../emulator/log/";
+    $outdir = $storedir . "/emulator/log/";
 }
 if (!-d "$outdir") {
     $outdir = $pathname . "/../log/";
