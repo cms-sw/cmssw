@@ -14,7 +14,6 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     Regional = cms.bool(False),
     DebugStripAPVFiberQualityDB = cms.untracked.bool(False), ## dump out info om module status
 
-    #string StripCPE             = "SimpleStripCPE"
     # -- use simpleCPE untile the TkGluedMeasurementDet is 
     #    not corrected to handle properly the track direction
     HitMatcher = cms.string('StandardMatcher'),
@@ -26,7 +25,7 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     # bool   UseStripCablingDB    = false     # NOT LONGER SUPPORTED, see below
     # bool   UseStripNoiseDB      = false     # NOT LONGER SUPPORTED, see below
     UseStripModuleQualityDB = cms.bool(False),
-    PixelCPE = cms.string('PixelCPEfromTrackAngle')
+    PixelCPE = cms.string('PixelCPEGeneric')
 )
 
 

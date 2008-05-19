@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 OnDemandMeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
-    #string StripCPE             = "StripCPEfromTrackAngle"
-    StripCPE = cms.string('SimpleStripCPE'),
+    StripCPE = cms.string('StripCPEfromTrackAngle'),
     #stripLazyGetterProducer label only matters if Regional=true
     stripLazyGetterProducer = cms.string('SiStripRawToClustersFacility'),
     UseStripNoiseDB = cms.bool(False),
@@ -15,7 +14,7 @@ OnDemandMeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     # -- use simpleCPE untile the TkGluedMeasurementDet is 
     #    not corrected to handle properly the track direction
     HitMatcher = cms.string('StandardMatcher'),
-    PixelCPE = cms.string('PixelCPEfromTrackAngle')
+    PixelCPE = cms.string('PixelCPEGeneric')
 )
 
 
