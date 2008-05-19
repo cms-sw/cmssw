@@ -11,9 +11,9 @@ namespace cond {
     struct IOVImpl {
       IOVImpl(cond::PoolTransaction& db,
 	      const std::string & token) :
-	pooldb(db),
-	iov(db,token){
-	pooldb.start(true);
+	pooldb(db){
+	db.start(true);
+	iov = cond::TypedRef<cond::IOV>(db,token);
       }
       ~IOVImpl(){
 	pooldb.commit();
