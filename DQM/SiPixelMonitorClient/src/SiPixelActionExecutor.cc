@@ -212,7 +212,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
 	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
-	   (*iv)=="pixelAliveSummary")
+	   (*iv)=="pixelAliveSummary"  || (*iv) == "SiPixelErrorsCalibDigis") 
 	  prefix="SUMCAL"; 
       }
       if((*iv).find("residual")!=string::npos ||        // track residuals
@@ -221,9 +221,11 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
-        if((*iv)!="pixelAliveSummary"){
+        if((*iv)!="pixelAliveSummary" && (*iv) != "SiPixelErrorsCalibDigis"){
 	  tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
+	}else if((*iv) == "SiPixelErrorsCalibDigis"){
+	  tag = prefix + "_" + (*iv) + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
 	}else{
 	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
                                 + currDir.substr(currDir.find(dir_name));
@@ -271,7 +273,10 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
-              }else{
+              }else if (sname.find("_NCalibErrors_")!=string::npos){
+		float nall = me->getEntries();
+		(*isum)->Fill(ndet, nall);
+	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
               (*isum)->setAxisTitle("modules",1);
@@ -280,6 +285,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else if(sname.find("_NCalibErrors_")!=string::npos){
+		title = "Number of CalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
@@ -351,7 +358,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
 	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
-	   (*iv)=="pixelAliveSummary")
+	   (*iv)=="pixelAliveSummary" || (*iv)=="SiPixelErrorsCalibDigis")
 	  prefix="SUMCAL"; 
       }
       if((*iv).find("residual")!=string::npos ||            // track residuals
@@ -360,9 +367,11 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
-        if((*iv)!="pixelAliveSummary"){
+        if((*iv)!="pixelAliveSummary" && (*iv)!="SiPixelErrorsCalibDigis"){
 	  tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
+	}else if((*iv) == "SiPixelErrorsCalibDigis"){
+	  tag = prefix + "_" + (*iv) + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
 	}else{
 	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
                                 + currDir.substr(currDir.find(dir_name));
@@ -409,7 +418,10 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
-              }else{
+              }else if (sname.find("_NCalibErrors_")!=string::npos){
+		float nall = me->getEntries();
+		(*isum)->Fill(ndet, nall);
+	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
               (*isum)->setAxisTitle("modules",1);
@@ -418,7 +430,9 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
-              }else{
+              }else if (sname.find("_NCalibErrors_")!=string::npos){
+		title = "NCalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
               (*isum)->setAxisTitle(title,2);
@@ -596,7 +610,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
 	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
+	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix" ||
+	     (*iv)=="SiPixelErrorsCalibDigis_NCalibErrors" )
 	    prefix="SUMCAL";
         }
 	string var = "_" + (*iv) + "_";
@@ -720,7 +735,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
 	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
+	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix"
+		  || (*iv) == "SiPixelErrorsCalibDigis_NCalibErrors")
 	    prefix="SUMCAL"; 
         }
 	string var = "_" + (*iv) + "_";
