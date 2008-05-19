@@ -61,9 +61,9 @@ void HistoMuon::fill( const Muon *muon, uint iMu )
 
 // For CMSSW 1_6_x
 
-  h_calCompat_->fill( recoMuon->getCaloCompatibility(), iMu );
-  h_type_->fill( recoMuon->getType(), iMu );
-  reco::MuonEnergy muEnergy = recoMuon->getCalEnergy();
+  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
+  h_type_->fill( recoMuon->type(), iMu );
+  reco::MuonEnergy muEnergy = recoMuon->calEnergy();
 
 // For CMSSW 2_0_x
 
@@ -105,9 +105,9 @@ void HistoMuon::fill( const reco::ShallowCloneCandidate *pshallow, uint iMu )
 
 // For CMSSW 1_6_x
 
-  h_calCompat_->fill( recoMuon->getCaloCompatibility(), iMu );
-  h_type_->fill( recoMuon->getType(), iMu );
-  reco::MuonEnergy muEnergy = recoMuon->getCalEnergy();
+  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
+  h_type_->fill( recoMuon->type(), iMu );
+  reco::MuonEnergy muEnergy = recoMuon->calEnergy();
 
 // For CMSSW 2_0_x
 
