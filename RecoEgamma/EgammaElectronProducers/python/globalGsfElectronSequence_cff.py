@@ -1,52 +1,42 @@
+# The following comments couldn't be translated into the new config version:
+
+#include "RecoEgamma/EgammaElectronProducers/data/fwdGsfElectronPropagator.cff"
+# Gsf track fit, version not using Seed Association
+#module pixelMatchGsfFitForGlobalGsfElectrons = GsfGlobalElectronTest from "TrackingTools/GsfTracking/data/GsfElectronFit.cfi"
+
 import FWCore.ParameterSet.Config as cms
 
-# $Id: globalGsfElectronSequence_cff.py,v 1.2 2008/04/21 03:24:53 rpw Exp $
+# $Id: globalGsfElectronSequence.cff,v 1.7 2008/04/21 09:50:46 uberthon Exp $
 # create a sequence with all required modules and sources needed to make
 # modules to make seeds, tracks and electrons
-from RecoEgamma.EgammaElectronProducers.electronPixelSeeds_cff import *
-import copy
-from RecoEgamma.EgammaElectronProducers.electronPixelSeeds_cfi import *
-electronPixelSeedsForGlobalGsfElectrons = copy.deepcopy(electronPixelSeeds)
+from RecoEgamma.EgammaElectronProducers.globalSeeds_cfi import *
 # TrajectoryBuilder
 #include "RecoEgamma/EgammaElectronProducers/data/gsfElectronChi2.cfi"
 # "backward" propagator for electrons
 from RecoEgamma.EgammaElectronProducers.bwdGsfElectronPropagator_cff import *
-import copy
-from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi import *
-TrajectoryBuilderForGlobalGsfElectrons = copy.deepcopy(CkfTrajectoryBuilder)
-import copy
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+# "forward" propagator for electrons
+from RecoEgamma.EgammaElectronProducers.fwdGsfElectronPropagator_cff import *
+import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
+TrajectoryBuilderForGlobalGsfElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 # Electron propagators and estimators
 # Looser chi2 estimator for electron trajectory building
-gsfElectronChi2ForGlobalGsfElectrons = copy.deepcopy(Chi2MeasurementEstimator)
+gsfElectronChi2ForGlobalGsfElectrons = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
 # CKFTrackCandidateMaker
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-egammaCkfTrackCandidatesForGlobalGsfElectrons = copy.deepcopy(ckfTrackCandidates)
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+egammaCkfTrackCandidatesForGlobalGsfElectrons = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 # TrajectoryFilter
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
-TrajectoryFilterForGlobalGsfElectrons = copy.deepcopy(trajectoryFilterESProducer)
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+TrajectoryFilterForGlobalGsfElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 # sources needed for GSF fit
-#include "TrackingTools/GsfTracking/data/GsfElectronFit.cff"
-from RecoEgamma.EgammaElectronProducers.fwdGsfElectronPropagator_cff import *
-import copy
-from TrackingTools.GsfTracking.GsfElectronFit_cfi import *
-# Gsf track fit, version not using Seed Association
-pixelMatchGsfFitForGlobalGsfElectrons = copy.deepcopy(GsfGlobalElectronTest)
+from TrackingTools.GsfTracking.GsfElectronFit_cff import *
+import TrackingTools.GsfTracking.GsfElectronFit_cfi
+pixelMatchGsfFitForGlobalGsfElectrons = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
 # module to make electrons
 from RecoEgamma.EgammaElectronProducers.globalGsfElectrons_cff import *
 globalGsfElectronSequence = cms.Sequence(electronPixelSeedsForGlobalGsfElectrons*egammaCkfTrackCandidatesForGlobalGsfElectrons*pixelMatchGsfFitForGlobalGsfElectrons*globalGsfElectrons)
-electronPixelSeedsForGlobalGsfElectrons.SeedAlgo = 'FilteredSeed'
-electronPixelSeedsForGlobalGsfElectrons.SeedConfiguration = cms.PSet(
-    seedDPhi = cms.double(0.1),
-    seedDEta = cms.double(0.025),
-    seedPt = cms.double(0.0),
-    initialSeeds = cms.InputTag("globalMixedSeeds"),
-    seedDr = cms.double(0.3)
-)
 TrajectoryBuilderForGlobalGsfElectrons.ComponentName = 'TrajectoryBuilderForGlobalGsfElectrons'
 TrajectoryBuilderForGlobalGsfElectrons.maxCand = 3
 TrajectoryBuilderForGlobalGsfElectrons.intermediateCleaning = False

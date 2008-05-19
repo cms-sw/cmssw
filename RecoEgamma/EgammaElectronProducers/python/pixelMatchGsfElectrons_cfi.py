@@ -3,14 +3,15 @@ import FWCore.ParameterSet.Config as cms
 # produce electrons based on matched pixel hits with gsf fit
 #
 pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
-    endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","electronPixelSeeds"),
+    #  InputTag endcapSuperClusters = correctedEndcapSuperClustersWithPreshower:electronPixelSeeds
+    endcapSuperClusters = cms.InputTag("correctedFixedMatrixSuperClustersWithPreshower","electronPixelSeeds"),
     maxDeltaPhi = cms.double(0.1),
     minEOverPEndcaps = cms.double(0.0),
     maxEOverPEndcaps = cms.double(10000.0),
     minEOverPBarrel = cms.double(0.0),
     barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronPixelSeeds"),
     applyEtaCorrection = cms.bool(False),
-    applyAmbResolution = cms.bool(False),
+    applyAmbResolution = cms.bool(True),
     tracks = cms.InputTag("pixelMatchGsfFit"),
     maxDeltaEta = cms.double(0.02),
     ElectronType = cms.string(''),

@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 # "backward" propagator for electrons
-bwdGsfElectronPropagator = copy.deepcopy(OppositeMaterialPropagator)
+bwdGsfElectronPropagator = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
 bwdGsfElectronPropagator.Mass = 0.000511
 bwdGsfElectronPropagator.ComponentName = 'bwdGsfElectronPropagator'
 

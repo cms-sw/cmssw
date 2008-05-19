@@ -2,32 +2,28 @@ import FWCore.ParameterSet.Config as cms
 
 # CKFTrackCandidateMaker
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-egammaCkfTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi import *
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+egammaCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
 #replace egammaCkfTrackCandidates.TransientInitialStateEstimatorParameters =
 #      {
 #         string propagatorAlongTISE    = "PropagatorWithMaterial"
 #         string propagatorOppositeTISE = "PropagatorWithMaterialOpposite"
 #      }	
 # TrajectoryBuilder
-TrajectoryBuilderForPixelMatchGsfElectrons = copy.deepcopy(CkfTrajectoryBuilder)
-import copy
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+TrajectoryBuilderForPixelMatchGsfElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 # Electron propagators and estimators
 # Looser chi2 estimator for electron trajectory building
-gsfElectronChi2 = copy.deepcopy(Chi2MeasurementEstimator)
+gsfElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
 # "backward" propagator for electrons
 from RecoEgamma.EgammaElectronProducers.bwdGsfElectronPropagator_cff import *
 # "forward" propagator for electrons
 from RecoEgamma.EgammaElectronProducers.fwdGsfElectronPropagator_cff import *
 # TrajectoryFilter
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
-TrajectoryFilterForPixelMatchGsfElectrons = copy.deepcopy(trajectoryFilterESProducer)
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+TrajectoryFilterForPixelMatchGsfElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 egammaCkfTrackCandidates.SeedProducer = 'electronPixelSeeds'
 egammaCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForPixelMatchGsfElectrons'
 egammaCkfTrackCandidates.SeedLabel = ''

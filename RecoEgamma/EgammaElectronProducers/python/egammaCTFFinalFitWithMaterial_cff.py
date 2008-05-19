@@ -16,9 +16,8 @@ from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-egammaCTFFinalFitWithMaterial = copy.deepcopy(ctfWithMaterialTracks)
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+egammaCTFFinalFitWithMaterial = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 egammaCTFFinalFitWithMaterial.src = 'siStripElectrons'
 egammaCTFFinalFitWithMaterial.Fitter = 'KFFittingSmoother'
 egammaCTFFinalFitWithMaterial.Propagator = 'PropagatorWithMaterial'
