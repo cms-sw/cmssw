@@ -20,17 +20,17 @@ namespace {
 }
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
-
-  class_<cond::IOVElement>("IOVElement", init<>)
+  
+  class_<cond::IOVElement>("IOVElement", init<>())
     .def("since", &cond::IOVElement::since)
     .def("till", &cond::IOVElement::till)
     .def("payloadToken", &cond::IOVElement::payloadToken, return_value_policy<copy_const_reference>());
   
-  class_<cond::IOVProxy>("IOV", init<>)
+  class_<cond::IOVProxy>("IOV", init<>())
     .def("size", &cond::IOVProxy::size)
     .property("elements", range( &cond::IOVProxy::begin,  &cond::IOVProxy::end));
-
-
+  
+  
   class_<cond::FWIncantation>("FWIncantation", init<>());
   
   class_<cond::CondDB>("CondDB", init<>())
