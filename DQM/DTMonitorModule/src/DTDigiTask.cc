@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/05/06 23:22:51 $
- * $Revision: 1.38 $
+ * $Date: 2008/05/16 17:59:26 $
+ * $Revision: 1.39 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -513,11 +513,8 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	if (subtractT0) {
 	  if(debug) cout << "   performPerWireT0Calibration" << endl;
 	  const DTWireId dtWireId(((*dtLayerId_It).first), (*digiIt).wire());
-	  cout << "     Wire id: " << dtWireId << endl;
 	  t0Map->cellT0(dtWireId, t0, t0RMS) ;
-	  cout << "     t0: " << t0 << " t0RMS: " << t0RMS << endl;
 	  tdcTime += int(round(t0));
-	  cout << "     TDC time: " << tdcTime << endl;
 	}
 
 	
