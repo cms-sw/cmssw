@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.64 2008/03/11 00:39:19 gpetrucc Exp $
+ * \version $Id: TrackBase.h,v 1.65 2008/05/13 12:49:35 burkett Exp $
  *
  */
 
@@ -81,7 +81,7 @@ namespace reco {
     enum TrackAlgorithm { undefAlgorithm=0, ctf=1, rs=2, cosmics=3, beamhalo=4, iter1=5, iter2=6, iter3=7 };
     /// track quality
       enum TrackQuality { undefQuality=-1, loose=0, tight=1, highPurity=2 ,
-			  looseWithConfirm=3, goodIterative=4};
+			  confirmed=3, goodIterative=4};
     
     /// default constructor
     TrackBase();
@@ -276,7 +276,7 @@ namespace reco {
     case undefQuality: return (quality_==0);
     case goodIterative: 
       {
-        return ( ((quality_ & (1<<TrackBase::looseWithConfirm))>>TrackBase::looseWithConfirm) ||
+        return ( ((quality_ & (1<<TrackBase::confirmed))>>TrackBase::confirmed) ||
                  ((quality_ & (1<<TrackBase::highPurity))>>TrackBase::highPurity));
       }
      default:
@@ -307,7 +307,7 @@ namespace reco {
       case loose:             return "loose";
       case tight:             return "tight";
       case highPurity:        return "highPurity";
-      case looseWithConfirm:  return "looseWithConfirm";
+      case confirmed:         return "confirmed";
       case goodIterative:     return "goodIterative";
       }
     return "undefQuality";

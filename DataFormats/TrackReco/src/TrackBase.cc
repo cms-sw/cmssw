@@ -34,7 +34,7 @@ TrackBase::TrackQuality TrackBase::qualityByName(const std::string &name){
   if (name ==  "loose")    return loose;
   else if (name ==  "tight")    return tight;
   else if (name ==  "highPurity")    return highPurity;
-  else if (name ==  "looseWithConfirm")    return looseWithConfirm;
+  else if (name ==  "confirmed")    return confirmed;
   else if (name ==  "goodIterative")    return goodIterative;
   else if (name ==  "undefQuality")  return undefQuality;
   else return undefQuality; // better this or throw() ?
