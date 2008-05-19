@@ -36,7 +36,8 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig):thirdTrackMass_(iCo
                                                              maxNormalisedChi2_(iConfig.getParameter<double>("MaxNormalisedChi2")),
                                                              minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
                                                              minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),                                                             
-                                                             fastAccept_(iConfig.getParameter<bool>("FastAccept")){
+                                                             fastAccept_(iConfig.getParameter<bool>("FastAccept")),
+															saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)){
 
   muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");
   trkCandLabel_  = iConfig.getParameter<edm::InputTag>("TrackCand");
