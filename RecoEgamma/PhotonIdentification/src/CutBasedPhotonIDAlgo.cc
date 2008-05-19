@@ -146,7 +146,7 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
 						photonEcalRecHitConeOuterRadius_,
 						photonEcalRecHitConeInnerRadius_,
 						photonEcalRecHitThresh_);
-  double rawSCEt = (pho->superCluster()->rawEnergy())/(cosh(pho->superCluster()->position().eta()));
+  double rawSCEt = (pho->superCluster()->rawEnergy())/(cosh(pho->p4().Eta()));
   double tempiso = EcalRecHitIso - rawSCEt;
   EcalRecHitIso= tempiso;
 

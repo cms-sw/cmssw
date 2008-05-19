@@ -54,8 +54,8 @@ void PhotonIDAlgo::classify(const reco::Photon* photon,
 			    bool &isEBEEGap){
 
   //Set fiducial flags for this photon.
-  double eta = photon->p4().Eta();
-  double phi = photon->p4().Phi();
+  double eta = photon->superCluster()->position().eta();
+  double phi = photon->superCluster()->position().phi();
   double feta = fabs(eta);
 
   //Are you in the EE?
@@ -156,7 +156,7 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 
   edm::Handle<EcalRecHitCollection> ecalhitsCollH;
 
-  double peta = photon->p4().Eta();
+  double peta = photon->superCluster()->position().eta();
   if (fabs(peta) > 1.479){
     iEvent.getByLabel(endcapecalProducer_,endcapecalCollection_, ecalhitsCollH);
   }
@@ -193,7 +193,7 @@ double PhotonIDAlgo::calculateR9(const reco::Photon* photon,
 
 
   edm::Handle<EcalRecHitCollection> ecalhitsCollH;
-  double peta = photon->p4().Eta();
+  double peta = photon->superCluster()->position().eta();
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   //const CaloGeometry& geometry = *geoHandle;
