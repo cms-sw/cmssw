@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.7 2008/05/14 10:43:20 loizides Exp $
+# $Id: InjectWorker.pl,v 1.8 2008/05/14 12:53:14 loizides Exp $
 
 use strict;
 use DBI;
@@ -230,6 +230,25 @@ open(STDOUT, ">>$errfile") or
 open(STDERR, ">>&STDOUT");
 if ($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";}
 
+# if input file does not exist - we'll wait for it
+while (!(-e "$infile") && !$endflag) {
+    if ($debug) {print "Input file \"$infile\" does not already exist, sleeping\n";} 
+    sleep(10);
+    # if day changes we can immediately spawn a new process for a new file for the new day 
+    # (since old file never showed up dont wait)
+    if (!(-e "$infile") && ($thedate ne getdatestr())) {
+        if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $sminstance\n";}
+	system("$mycall $inpath $outpath $errpath $sminstance &"); 
+    	$endflag=1;
+    }
+}
+
+# if told to exit while waiting for input, we exit here
+if($endflag) {
+    system("rm -f $lockfile");
+    exit 0;
+}
+
 # if the output file exists (has been worked on before) then find what the last thing done was
 my $line;
 my $lastline;
@@ -243,11 +262,6 @@ if (-e $outfile) {
     }
 }
 
-# touch input file if it does not exist yet
-if (!(-e "$infile")) {
-    print "Input file \"$infile\" does not already exist, creating it\n"; 
-    system("touch $infile");
-}
 open(INDATA, $infile) or 
     die("Error: Cannot open input file \"$infile\"\n");
 
@@ -354,7 +368,7 @@ while( !$endflag ) {
     # when the date changes (next day), we want to spawn a new copy of this process 
     # that goes to work on the new log. But need to check also that we got everything 
     # from the old file!
-    if ($waiting<0 && $thedate!=getdatestr()) {
+    if ($waiting<0 && $thedate ne getdatestr()) {
         sleep(5);
         if ($debug) {print "Spawning new process: $mycall $inpath $outpath $errpath $sminstance\n";}
 	system("$mycall $inpath $outpath $errpath $sminstance &"); 
