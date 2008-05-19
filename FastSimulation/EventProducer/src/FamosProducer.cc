@@ -11,6 +11,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FastSimulation/EventProducer/interface/FamosProducer.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
@@ -47,6 +48,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     // The generator input label
     theSourceLabel = p.getParameter<edm::InputTag>("SourceLabel");
     theGenParticleLabel = p.getParameter<edm::InputTag>("GenParticleLabel");
+    theBeamSpotLabel = p.getParameter<edm::InputTag>("BeamSpotLabel");
 
     famosManager_ = new FamosManager(p);
 
@@ -76,6 +78,12 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
       m_firstTimeProduce = false ;
    }
 
+
+   // The beam spot position
+   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+   iEvent.getByLabel(theBeamSpotLabel,recoBeamSpotHandle); 
+   math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
+
    // Get the generated event(s) from the edm::Event
    // 1. Check if a HepMCProduct exists
    //    a. Take the VtxSmeared if it exists
@@ -85,6 +93,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
    const HepMC::GenEvent* myGenEvent = 0;
    FSimEvent* fevt = famosManager_->simEvent();
+   fevt->setBeamSpot(BSPosition_);
    PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
 
    // Get the generated signal event
@@ -128,9 +137,10 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    // Set the vertex back to the HepMCProduct (except if it was smeared already)
    if ( myGenEvent ) { 
      if ( theVertexGenerator ) { 
-       HepMC::FourVector theVertex(theVertexGenerator->X()*10.,
-				   theVertexGenerator->Y()*10.,
-				   theVertexGenerator->Z()*10.,
+       HepMC::FourVector theVertex(
+	(theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+BSPosition_.X())*10.,
+	(theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+BSPosition_.Y())*10.,
+	(theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+BSPosition_.Z())*10.,
 				   0.);
        if ( fabs(theVertexGenerator->Z()) > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
      }

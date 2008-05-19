@@ -31,6 +31,7 @@ class FamosProducer : public edm::EDProducer
   bool simulateMuons;
   edm::InputTag theSourceLabel;
   edm::InputTag theGenParticleLabel;
+  edm::InputTag theBeamSpotLabel;
 
   bool m_firstTimeProduce ;
 };
