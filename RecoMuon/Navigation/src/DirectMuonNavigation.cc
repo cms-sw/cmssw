@@ -2,31 +2,29 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2007/03/08 18:39:46 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/05/01 20:21:15 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "Utilities/General/interface/CMSexception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 #include <algorithm>
 
 using namespace std;
 
-DirectMuonNavigation::DirectMuonNavigation(edm::ESHandle<MuonDetLayerGeometry> muonLayout) : theMuonDetLayerGeometry(muonLayout) {
-   epsilon_ = 100.; 
+DirectMuonNavigation::DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>& muonLayout) : theMuonDetLayerGeometry(muonLayout), epsilon_(100.), theEndcapFlag(true), theBarrelFlag(true) {
+}
+
+DirectMuonNavigation::DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>& muonLayout, const edm::ParameterSet& par) : theMuonDetLayerGeometry(muonLayout), epsilon_(100.), theEndcapFlag(par.getParameter<bool>("Endcap")), theBarrelFlag(par.getParameter<bool>("Barrel")) {
 
 }
+
 
 /* return compatible layers for given trajectory state  */ 
 vector<const DetLayer*> 
@@ -44,23 +42,31 @@ DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
 
   if (inOut) { 
      if ((zm * z0) >= 0) {
-        inOutBarrel(fts,output);
-        if ( z0 >= 0 ) inOutForward(fts,output);
-        else inOutBackward(fts,output);
+        if (theBarrelFlag) inOutBarrel(fts,output);
+        if (theEndcapFlag) {
+           if ( z0 >= 0 ) inOutForward(fts,output);
+           else inOutBackward(fts,output);
+        } 
       } else {
+        if (theEndcapFlag) {
         if ( z0 >= 0 ) outInForward(fts,output);
-        else outInBackward(fts,output);
-        inOutBarrel(fts,output);
+           else outInBackward(fts,output);
+        }
+        if (theBarrelFlag) inOutBarrel(fts,output);
       } 
    } else {
      if ((zm * z0) >= 0) {
-        outInBarrel(fts,output);
-        if ( z0 >= 0 ) inOutForward(fts,output);
-        else inOutBackward(fts,output);
+        if (theBarrelFlag) outInBarrel(fts,output);
+        if (theEndcapFlag) {
+          if ( z0 >= 0 ) inOutForward(fts,output);
+          else inOutBackward(fts,output);
+        }
       } else {
-        if ( z0 >= 0 ) outInForward(fts,output);
-        else outInBackward(fts,output);
-        outInBarrel(fts,output);
+        if (theEndcapFlag) {
+          if ( z0 >= 0 ) outInForward(fts,output);
+          else outInBackward(fts,output);
+        }
+        if (theBarrelFlag) outInBarrel(fts,output);
       } 
    }
 
