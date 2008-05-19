@@ -78,6 +78,16 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
 	 *m_xstdev_me11, *m_xstdev_me12, *m_xstdev_me13,
 	 *m_xstdev_me21, *m_xstdev_me22, *m_xstdev_me31, *m_xstdev_me32, *m_xstdev_me41;
 
+      TH1F *m_xerronmean, *m_xerronmean_mb, *m_xerronmean_me,
+	 *m_xerronmean_mb1, *m_xerronmean_mb2, *m_xerronmean_mb3, *m_xerronmean_mb4,
+	 *m_xerronmean_minus2, *m_xerronmean_minus1, *m_xerronmean_zero, *m_xerronmean_plus1, *m_xerronmean_plus2,
+	 *m_xerronmean_mep11, *m_xerronmean_mep12, *m_xerronmean_mep13,
+	 *m_xerronmean_mep21, *m_xerronmean_mep22, *m_xerronmean_mep31, *m_xerronmean_mep32, *m_xerronmean_mep41,
+	 *m_xerronmean_mem11, *m_xerronmean_mem12, *m_xerronmean_mem13,
+	 *m_xerronmean_mem21, *m_xerronmean_mem22, *m_xerronmean_mem31, *m_xerronmean_mem32, *m_xerronmean_mem41,
+	 *m_xerronmean_me11, *m_xerronmean_me12, *m_xerronmean_me13,
+	 *m_xerronmean_me21, *m_xerronmean_me22, *m_xerronmean_me31, *m_xerronmean_me32, *m_xerronmean_me41;
+
       TH1F *m_yresid, *m_yresid_mb, *m_yresid_me,
 	 *m_yresid_mb1, *m_yresid_mb2, *m_yresid_mb3, *m_yresid_mb4,
 	 *m_yresid_minus2, *m_yresid_minus1, *m_yresid_zero, *m_yresid_plus1, *m_yresid_plus2,
@@ -108,8 +118,22 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
 	 *m_ystdev_me11, *m_ystdev_me12, *m_ystdev_me13,
 	 *m_ystdev_me21, *m_ystdev_me22, *m_ystdev_me31, *m_ystdev_me32, *m_ystdev_me41;
 
-      unsigned int xresid_bins, xmean_bins, xstdev_bins, yresid_bins, ymean_bins, ystdev_bins;
-      double xresid_low, xresid_high, xmean_low, xmean_high, xstdev_low, xstdev_high, yresid_low, yresid_high, ymean_low, ymean_high, ystdev_low, ystdev_high;
+      TH1F *m_yerronmean, *m_yerronmean_mb, *m_yerronmean_me,
+	 *m_yerronmean_mb1, *m_yerronmean_mb2, *m_yerronmean_mb3, *m_yerronmean_mb4,
+	 *m_yerronmean_minus2, *m_yerronmean_minus1, *m_yerronmean_zero, *m_yerronmean_plus1, *m_yerronmean_plus2,
+	 *m_yerronmean_mep11, *m_yerronmean_mep12, *m_yerronmean_mep13,
+	 *m_yerronmean_mep21, *m_yerronmean_mep22, *m_yerronmean_mep31, *m_yerronmean_mep32, *m_yerronmean_mep41,
+	 *m_yerronmean_mem11, *m_yerronmean_mem12, *m_yerronmean_mem13,
+	 *m_yerronmean_mem21, *m_yerronmean_mem22, *m_yerronmean_mem31, *m_yerronmean_mem32, *m_yerronmean_mem41,
+	 *m_yerronmean_me11, *m_yerronmean_me12, *m_yerronmean_me13,
+	 *m_yerronmean_me21, *m_yerronmean_me22, *m_yerronmean_me31, *m_yerronmean_me32, *m_yerronmean_me41;
+
+      unsigned int xresid_bins, xmean_bins, xstdev_bins, xerronmean_bins, yresid_bins, ymean_bins, ystdev_bins, yerronmean_bins;
+      double xresid_low, xresid_high, xmean_low, xmean_high, xstdev_low, xstdev_high, xerronmean_low, xerronmean_high, yresid_low, yresid_high, ymean_low, ymean_high, ystdev_low, ystdev_high, yerronmean_low, yerronmean_high;
+
+      bool m_tracker_hists;
+      TH1F *m_tracker_biasredchi2;
+      TH1F *m_tracker_dof;
 };
 
 //
@@ -127,24 +151,31 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
 AlignmentMonitorMuonResiduals::AlignmentMonitorMuonResiduals(const edm::ParameterSet& cfg)
    : AlignmentMonitorBase(cfg, "AlignmentMonitorMuonResiduals")
 {
+   m_tracker_hists = cfg.getParameter<bool>("tracker_hists");
    xresid_bins = cfg.getParameter<unsigned int>("xresid_bins");
    xmean_bins = cfg.getParameter<unsigned int>("xmean_bins");
    xstdev_bins = cfg.getParameter<unsigned int>("xstdev_bins");
+   xerronmean_bins = cfg.getParameter<unsigned int>("xerronmean_bins");
    yresid_bins = cfg.getParameter<unsigned int>("yresid_bins");
    ymean_bins = cfg.getParameter<unsigned int>("ymean_bins");
    ystdev_bins = cfg.getParameter<unsigned int>("ystdev_bins");
+   yerronmean_bins = cfg.getParameter<unsigned int>("yerronmean_bins");
    xresid_low = cfg.getParameter<double>("xresid_low");
    xresid_high = cfg.getParameter<double>("xresid_high");
    xmean_low = cfg.getParameter<double>("xmean_low");
    xmean_high = cfg.getParameter<double>("xmean_high");
    xstdev_low = cfg.getParameter<double>("xstdev_low");
    xstdev_high = cfg.getParameter<double>("xstdev_high");
+   xerronmean_low = cfg.getParameter<double>("xerronmean_low");
+   xerronmean_high = cfg.getParameter<double>("xerronmean_high");
    yresid_low = cfg.getParameter<double>("yresid_low");
    yresid_high = cfg.getParameter<double>("yresid_high");
    ymean_low = cfg.getParameter<double>("ymean_low");
    ymean_high = cfg.getParameter<double>("ymean_high");
    ystdev_low = cfg.getParameter<double>("ystdev_low");
    ystdev_high = cfg.getParameter<double>("ystdev_high");
+   yerronmean_low = cfg.getParameter<double>("yerronmean_low");
+   yerronmean_high = cfg.getParameter<double>("yerronmean_high");
 }
 
 void AlignmentMonitorMuonResiduals::book() {
@@ -291,6 +322,43 @@ void AlignmentMonitorMuonResiduals::book() {
    m_xstdev_me32 = book1D("/iterN/me32/", "xstdev_me32", "ME3/2 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
    m_xstdev_me41 = book1D("/iterN/me41/", "xstdev_me41", "ME4/1 weighted stdev x residual per chamber (mm)", xstdev_bins, xstdev_low, xstdev_high);
 
+   m_xerronmean = book1D("/iterN/", "xerronmean", "error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mb = book1D("/iterN/mb/", "xerronmean_mb", "barrel error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me = book1D("/iterN/me/", "xerronmean_me", "endcap error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mb1 = book1D("/iterN/mb1/", "xerronmean_mb1", "MB station 1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mb2 = book1D("/iterN/mb2/", "xerronmean_mb2", "MB station 2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mb3 = book1D("/iterN/mb3/", "xerronmean_mb3", "MB station 3 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mb4 = book1D("/iterN/mb4/", "xerronmean_mb4", "MB station 4 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_minus2 = book1D("/iterN/minus2/", "xerronmean_minus2", "MB wheel -2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_minus1 = book1D("/iterN/minus1/", "xerronmean_minus1", "MB wheel -1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_zero = book1D("/iterN/zero/", "xerronmean_zero", "MB wheel 0 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_plus1 = book1D("/iterN/plus1/", "xerronmean_plus1", "MB wheel +1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_plus2 = book1D("/iterN/plus2/", "xerronmean_plus2", "MB wheel +2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep11 = book1D("/iterN/mep11/", "xerronmean_mep11", "ME+1/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep12 = book1D("/iterN/mep12/", "xerronmean_mep12", "ME+1/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep13 = book1D("/iterN/mep13/", "xerronmean_mep13", "ME+1/3 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep21 = book1D("/iterN/mep21/", "xerronmean_mep21", "ME+2/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep22 = book1D("/iterN/mep22/", "xerronmean_mep22", "ME+2/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep31 = book1D("/iterN/mep31/", "xerronmean_mep31", "ME+3/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep32 = book1D("/iterN/mep32/", "xerronmean_mep32", "ME+3/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mep41 = book1D("/iterN/mep41/", "xerronmean_mep41", "ME+4/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem11 = book1D("/iterN/mem11/", "xerronmean_mem11", "ME-1/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem12 = book1D("/iterN/mem12/", "xerronmean_mem12", "ME-1/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem13 = book1D("/iterN/mem13/", "xerronmean_mem13", "ME-1/3 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem21 = book1D("/iterN/mem21/", "xerronmean_mem21", "ME-2/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem22 = book1D("/iterN/mem22/", "xerronmean_mem22", "ME-2/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem31 = book1D("/iterN/mem31/", "xerronmean_mem31", "ME-3/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem32 = book1D("/iterN/mem32/", "xerronmean_mem32", "ME-3/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_mem41 = book1D("/iterN/mem41/", "xerronmean_mem41", "ME-4/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me11 = book1D("/iterN/me11/", "xerronmean_me11", "ME1/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me12 = book1D("/iterN/me12/", "xerronmean_me12", "ME1/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me13 = book1D("/iterN/me13/", "xerronmean_me13", "ME1/3 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me21 = book1D("/iterN/me21/", "xerronmean_me21", "ME2/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me22 = book1D("/iterN/me22/", "xerronmean_me22", "ME2/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me31 = book1D("/iterN/me31/", "xerronmean_me31", "ME3/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me32 = book1D("/iterN/me32/", "xerronmean_me32", "ME3/2 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+   m_xerronmean_me41 = book1D("/iterN/me41/", "xerronmean_me41", "ME4/1 error on x weighted mean residual per chamber (mm)", xerronmean_bins, xerronmean_low, xerronmean_high);
+
    m_yresid = book1D("/iterN/", "yresid", "y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_mb = book1D("/iterN/mb/", "yresid_mb", "barrel y residual (mm)", yresid_bins, yresid_low, yresid_high);
    m_yresid_me = book1D("/iterN/me/", "yresid_me", "endcap y residual (mm)", yresid_bins, yresid_low, yresid_high);
@@ -402,6 +470,45 @@ void AlignmentMonitorMuonResiduals::book() {
    m_ystdev_me32 = book1D("/iterN/me32/", "ystdev_me32", "ME3/2 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
    m_ystdev_me41 = book1D("/iterN/me41/", "ystdev_me41", "ME4/1 weighted stdev y residual per chamber (mm)", ystdev_bins, ystdev_low, ystdev_high);
 
+   m_yerronmean = book1D("/iterN/", "yerronmean", "error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mb = book1D("/iterN/mb/", "yerronmean_mb", "barrel error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me = book1D("/iterN/me/", "yerronmean_me", "endcap error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mb1 = book1D("/iterN/mb1/", "yerronmean_mb1", "MB station 1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mb2 = book1D("/iterN/mb2/", "yerronmean_mb2", "MB station 2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mb3 = book1D("/iterN/mb3/", "yerronmean_mb3", "MB station 3 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mb4 = book1D("/iterN/mb4/", "yerronmean_mb4", "MB station 4 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_minus2 = book1D("/iterN/minus2/", "yerronmean_minus2", "MB wheel -2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_minus1 = book1D("/iterN/minus1/", "yerronmean_minus1", "MB wheel -1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_zero = book1D("/iterN/zero/", "yerronmean_zero", "MB wheel 0 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_plus1 = book1D("/iterN/plus1/", "yerronmean_plus1", "MB wheel +1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_plus2 = book1D("/iterN/plus2/", "yerronmean_plus2", "MB wheel +2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep11 = book1D("/iterN/mep11/", "yerronmean_mep11", "ME+1/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep12 = book1D("/iterN/mep12/", "yerronmean_mep12", "ME+1/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep13 = book1D("/iterN/mep13/", "yerronmean_mep13", "ME+1/3 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep21 = book1D("/iterN/mep21/", "yerronmean_mep21", "ME+2/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep22 = book1D("/iterN/mep22/", "yerronmean_mep22", "ME+2/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep31 = book1D("/iterN/mep31/", "yerronmean_mep31", "ME+3/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep32 = book1D("/iterN/mep32/", "yerronmean_mep32", "ME+3/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mep41 = book1D("/iterN/mep41/", "yerronmean_mep41", "ME+4/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem11 = book1D("/iterN/mem11/", "yerronmean_mem11", "ME-1/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem12 = book1D("/iterN/mem12/", "yerronmean_mem12", "ME-1/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem13 = book1D("/iterN/mem13/", "yerronmean_mem13", "ME-1/3 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem21 = book1D("/iterN/mem21/", "yerronmean_mem21", "ME-2/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem22 = book1D("/iterN/mem22/", "yerronmean_mem22", "ME-2/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem31 = book1D("/iterN/mem31/", "yerronmean_mem31", "ME-3/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem32 = book1D("/iterN/mem32/", "yerronmean_mem32", "ME-3/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_mem41 = book1D("/iterN/mem41/", "yerronmean_mem41", "ME-4/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me11 = book1D("/iterN/me11/", "yerronmean_me11", "ME1/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me12 = book1D("/iterN/me12/", "yerronmean_me12", "ME1/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me13 = book1D("/iterN/me13/", "yerronmean_me13", "ME1/3 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me21 = book1D("/iterN/me21/", "yerronmean_me21", "ME2/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me22 = book1D("/iterN/me22/", "yerronmean_me22", "ME2/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me31 = book1D("/iterN/me31/", "yerronmean_me31", "ME3/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me32 = book1D("/iterN/me32/", "yerronmean_me32", "ME3/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+   m_yerronmean_me41 = book1D("/iterN/me41/", "yerronmean_me41", "ME4/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
+
+   m_tracker_biasredchi2 = book1D("/iterN/", "trackerBiasRedChi2", "Forward-biased reduced chi2 in tracker", 100, 0., 5.);
+   m_tracker_dof = book1D("/iterN/", "trackerDOF", "DOF in tracker", 61, -0.5, 60.5);
 }
 
 void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
@@ -412,6 +519,42 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 //      const reco::Track *track = it->second;
 
       std::vector<TrajectoryMeasurement> measurements = traj->measurements();
+
+      if (m_tracker_hists) {
+	 double tracker_biaschi2 = 0.;
+	 double tracker_dof = 0.;
+	 for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin();  im != measurements.end();  ++im) {
+	    const TrajectoryMeasurement meas = *im;
+	    const TransientTrackingRecHit* hit = &(*meas.recHit());
+	    const DetId id = hit->geographicalId();
+
+	    if (hit->isValid()  &&  id.det() == DetId::Tracker) {
+	       if (hit->dimension() == 1) {
+		  double residual = meas.forwardPredictedState().localPosition().x() - hit->localPosition().x();
+		  double error2 = meas.forwardPredictedState().localError().positionError().xx() + hit->localPositionError().xx();
+
+		  tracker_biaschi2 += residual * residual / error2;
+		  tracker_dof += 1.;
+	       }
+	       else if (hit->dimension() == 2) {
+		  double residualx = meas.forwardPredictedState().localPosition().x() - hit->localPosition().x();
+		  double residualy = meas.forwardPredictedState().localPosition().y() - hit->localPosition().y();
+		  double errorxx2 = meas.forwardPredictedState().localError().positionError().xx() + hit->localPositionError().xx();
+		  double errorxy2 = meas.forwardPredictedState().localError().positionError().xy() + hit->localPositionError().xy();
+		  double erroryy2 = meas.forwardPredictedState().localError().positionError().yy() + hit->localPositionError().yy();
+
+		  tracker_biaschi2 += (residualx * residualx + residualy * residualy) / (errorxx2 + 2.*errorxy2 + erroryy2);
+		  tracker_dof += 2.;
+	       }
+	    }
+	 }
+	 tracker_dof -= 5.;
+	 double tracker_biasredchi2 = tracker_biaschi2 / tracker_dof;
+
+	 m_tracker_biasredchi2->Fill(tracker_biasredchi2);
+	 m_tracker_dof->Fill(tracker_dof);
+      } // end if fill tracker hists
+
       for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin();  im != measurements.end();  ++im) {
 	 const TrajectoryMeasurement meas = *im;
 	 const TransientTrackingRecHit* hit = &(*meas.recHit());
@@ -424,10 +567,10 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	    LocalPoint hitPos = hit->localPosition();
 	    LocalError hitErr = hit->localPositionError();
 
-	    double x_residual = trackPos.x() - hitPos.x();
-	    double y_residual = trackPos.y() - hitPos.y();
-	    double x_reserr2 = trackErr.xx() + hitErr.xx();
-	    double y_reserr2 = trackErr.yy() + hitErr.yy();
+	    double x_residual = 10. * (trackPos.x() - hitPos.x());
+	    double y_residual = 10. * (trackPos.y() - hitPos.y());
+	    double x_reserr2 = 100. * (trackErr.xx() + hitErr.xx());
+	    double y_reserr2 = 100. * (trackErr.yy() + hitErr.yy());
 // 	    double xpos = trackPos.x();
 // 	    double ypos = trackPos.y();
 
@@ -630,6 +773,7 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 
 	 } // end if good hit
       } // end loop over measurements
+
    } // end loop over track-trajectories
 }
 
@@ -673,112 +817,112 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
       if (m_nx[id] > 0.) {
 	 double xmean = m_x1[id] / m_nx[id];
 	 double xstdev = sqrt(m_x2[id] / m_nx[id] - (m_x1[id] / m_nx[id]) * (m_x1[id] / m_nx[id]));
-	 double xmeanerr = xstdev / sqrt(m_nx[id]);
+	 double xerronmean = xstdev / sqrt(m_nx[id]);
 
 	 m_xsummary->SetBinContent(index, xmean);
-	 m_xsummary->SetBinError(index, xmeanerr);
+	 m_xsummary->SetBinError(index, xerronmean);
 
-	 m_xmean->Fill(xmean);  m_xstdev->Fill(xstdev);
+	 m_xmean->Fill(xmean);  m_xstdev->Fill(xstdev);  m_xerronmean->Fill(xerronmean);
 	 if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
-	    m_xmean_mb->Fill(xmean);  m_xstdev_mb->Fill(xstdev);
+	    m_xmean_mb->Fill(xmean);  m_xstdev_mb->Fill(xstdev);  m_xerronmean_mb->Fill(xerronmean);
 	    DTChamberId id((*chamber)->geomDetId().rawId());
 	    if (id.station() == 1) {
-	       m_xmean_mb1->Fill(xmean);  m_xstdev_mb1->Fill(xstdev);
+	       m_xmean_mb1->Fill(xmean);  m_xstdev_mb1->Fill(xstdev);  m_xerronmean_mb1->Fill(xerronmean);
 	    }
 	    else if (id.station() == 2) {
-	       m_xmean_mb2->Fill(xmean);  m_xstdev_mb2->Fill(xstdev);
+	       m_xmean_mb2->Fill(xmean);  m_xstdev_mb2->Fill(xstdev);  m_xerronmean_mb2->Fill(xerronmean);
 	    }
 	    else if (id.station() == 3) {
-	       m_xmean_mb3->Fill(xmean);  m_xstdev_mb3->Fill(xstdev);
+	       m_xmean_mb3->Fill(xmean);  m_xstdev_mb3->Fill(xstdev);  m_xerronmean_mb3->Fill(xerronmean);
 	    }
 	    else if (id.station() == 4) {
-	       m_xmean_mb4->Fill(xmean);  m_xstdev_mb4->Fill(xstdev);
+	       m_xmean_mb4->Fill(xmean);  m_xstdev_mb4->Fill(xstdev);  m_xerronmean_mb4->Fill(xerronmean);
 	    }
 
 	    if (id.wheel() == -2) {
-	       m_xmean_minus2->Fill(xmean);  m_xstdev_minus2->Fill(xstdev);
+	       m_xmean_minus2->Fill(xmean);  m_xstdev_minus2->Fill(xstdev);  m_xerronmean_minus2->Fill(xerronmean);
 	    }
 	    else if (id.wheel() == -1) {
-	       m_xmean_minus1->Fill(xmean);  m_xstdev_minus1->Fill(xstdev);
+	       m_xmean_minus1->Fill(xmean);  m_xstdev_minus1->Fill(xstdev);  m_xerronmean_minus1->Fill(xerronmean);
 	    }
 	    else if (id.wheel() == 0) {
-	       m_xmean_zero->Fill(xmean);  m_xstdev_zero->Fill(xstdev);
+	       m_xmean_zero->Fill(xmean);  m_xstdev_zero->Fill(xstdev);  m_xerronmean_zero->Fill(xerronmean);
 	    }
 	    else if (id.wheel() == 1) {
-	       m_xmean_plus1->Fill(xmean);  m_xstdev_plus1->Fill(xstdev);
+	       m_xmean_plus1->Fill(xmean);  m_xstdev_plus1->Fill(xstdev);  m_xerronmean_plus1->Fill(xerronmean);
 	    }
 	    else if (id.wheel() == 2) {
-	       m_xmean_plus2->Fill(xmean);  m_xstdev_plus2->Fill(xstdev);
+	       m_xmean_plus2->Fill(xmean);  m_xstdev_plus2->Fill(xstdev);  m_xerronmean_plus2->Fill(xerronmean);
 	    }
 	 } // end if DT
 	 else {
-	    m_xmean_me->Fill(xmean);  m_xstdev_me->Fill(xstdev);
+	    m_xmean_me->Fill(xmean);  m_xstdev_me->Fill(xstdev);  m_xerronmean_me->Fill(xerronmean);
 
 	    CSCDetId id((*chamber)->geomDetId().rawId());
 
 	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
-	       m_xmean_mep11->Fill(xmean);  m_xstdev_mep11->Fill(xstdev);
-	       m_xmean_me11->Fill(xmean);  m_xstdev_me11->Fill(xstdev);
+	       m_xmean_mep11->Fill(xmean);  m_xstdev_mep11->Fill(xstdev);  m_xerronmean_mep11->Fill(xerronmean);
+	       m_xmean_me11->Fill(xmean);  m_xstdev_me11->Fill(xstdev);  m_xerronmean_me11->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
-	       m_xmean_mem11->Fill(xmean);  m_xstdev_mem11->Fill(xstdev);
-	       m_xmean_me11->Fill(xmean);  m_xstdev_me11->Fill(xstdev);
+	       m_xmean_mem11->Fill(xmean);  m_xstdev_mem11->Fill(xstdev);  m_xerronmean_mem11->Fill(xerronmean);
+	       m_xmean_me11->Fill(xmean);  m_xstdev_me11->Fill(xstdev);  m_xerronmean_me11->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 2) {
-	       m_xmean_mep12->Fill(xmean);  m_xstdev_mep12->Fill(xstdev);
-	       m_xmean_me12->Fill(xmean);  m_xstdev_me12->Fill(xstdev);
+	       m_xmean_mep12->Fill(xmean);  m_xstdev_mep12->Fill(xstdev);  m_xerronmean_mep12->Fill(xerronmean);
+	       m_xmean_me12->Fill(xmean);  m_xstdev_me12->Fill(xstdev);  m_xerronmean_me12->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 2) {
-	       m_xmean_mem12->Fill(xmean);  m_xstdev_mem12->Fill(xstdev);
-	       m_xmean_me12->Fill(xmean);  m_xstdev_me12->Fill(xstdev);
+	       m_xmean_mem12->Fill(xmean);  m_xstdev_mem12->Fill(xstdev);  m_xerronmean_mem12->Fill(xerronmean);
+	       m_xmean_me12->Fill(xmean);  m_xstdev_me12->Fill(xstdev);  m_xerronmean_me12->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 3) {
-	       m_xmean_mep13->Fill(xmean);  m_xstdev_mep13->Fill(xstdev);
-	       m_xmean_me13->Fill(xmean);  m_xstdev_me13->Fill(xstdev);
+	       m_xmean_mep13->Fill(xmean);  m_xstdev_mep13->Fill(xstdev);  m_xerronmean_mep13->Fill(xerronmean);
+	       m_xmean_me13->Fill(xmean);  m_xstdev_me13->Fill(xstdev);  m_xerronmean_me13->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 3) {
-	       m_xmean_mem13->Fill(xmean);  m_xstdev_mem13->Fill(xstdev);
-	       m_xmean_me13->Fill(xmean);  m_xstdev_me13->Fill(xstdev);
+	       m_xmean_mem13->Fill(xmean);  m_xstdev_mem13->Fill(xstdev);  m_xerronmean_mem13->Fill(xerronmean);
+	       m_xmean_me13->Fill(xmean);  m_xstdev_me13->Fill(xstdev);  m_xerronmean_me13->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 2  &&  id.ring() == 1) {
-	       m_xmean_mep21->Fill(xmean);  m_xstdev_mep21->Fill(xstdev);
-	       m_xmean_me21->Fill(xmean);  m_xstdev_me21->Fill(xstdev);
+	       m_xmean_mep21->Fill(xmean);  m_xstdev_mep21->Fill(xstdev);  m_xerronmean_mep21->Fill(xerronmean);
+	       m_xmean_me21->Fill(xmean);  m_xstdev_me21->Fill(xstdev);  m_xerronmean_me21->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -2  &&  id.ring() == 1) {
-	       m_xmean_mem21->Fill(xmean);  m_xstdev_mem21->Fill(xstdev);
-	       m_xmean_me21->Fill(xmean);  m_xstdev_me21->Fill(xstdev);
+	       m_xmean_mem21->Fill(xmean);  m_xstdev_mem21->Fill(xstdev);  m_xerronmean_mem21->Fill(xerronmean);
+	       m_xmean_me21->Fill(xmean);  m_xstdev_me21->Fill(xstdev);  m_xerronmean_me21->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 2  &&  id.ring() == 2) {
-	       m_xmean_mep22->Fill(xmean);  m_xstdev_mep22->Fill(xstdev);
-	       m_xmean_me22->Fill(xmean);  m_xstdev_me22->Fill(xstdev);
+	       m_xmean_mep22->Fill(xmean);  m_xstdev_mep22->Fill(xstdev);  m_xerronmean_mep22->Fill(xerronmean);
+	       m_xmean_me22->Fill(xmean);  m_xstdev_me22->Fill(xstdev);  m_xerronmean_me22->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -2  &&  id.ring() == 2) {
-	       m_xmean_mem22->Fill(xmean);  m_xstdev_mem22->Fill(xstdev);
-	       m_xmean_me22->Fill(xmean);  m_xstdev_me22->Fill(xstdev);
+	       m_xmean_mem22->Fill(xmean);  m_xstdev_mem22->Fill(xstdev);  m_xerronmean_mem22->Fill(xerronmean);
+	       m_xmean_me22->Fill(xmean);  m_xstdev_me22->Fill(xstdev);  m_xerronmean_me22->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 3  &&  id.ring() == 1) {
-	       m_xmean_mep31->Fill(xmean);  m_xstdev_mep31->Fill(xstdev);
-	       m_xmean_me31->Fill(xmean);  m_xstdev_me31->Fill(xstdev);
+	       m_xmean_mep31->Fill(xmean);  m_xstdev_mep31->Fill(xstdev);  m_xerronmean_mep31->Fill(xerronmean);
+	       m_xmean_me31->Fill(xmean);  m_xstdev_me31->Fill(xstdev);  m_xerronmean_me31->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -3  &&  id.ring() == 1) {
-	       m_xmean_mem31->Fill(xmean);  m_xstdev_mem31->Fill(xstdev);
-	       m_xmean_me31->Fill(xmean);  m_xstdev_me31->Fill(xstdev);
+	       m_xmean_mem31->Fill(xmean);  m_xstdev_mem31->Fill(xstdev);  m_xerronmean_mem31->Fill(xerronmean);
+	       m_xmean_me31->Fill(xmean);  m_xstdev_me31->Fill(xstdev);  m_xerronmean_me31->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 3  &&  id.ring() == 2) {
-	       m_xmean_mep32->Fill(xmean);  m_xstdev_mep32->Fill(xstdev);
-	       m_xmean_me32->Fill(xmean);  m_xstdev_me32->Fill(xstdev);
+	       m_xmean_mep32->Fill(xmean);  m_xstdev_mep32->Fill(xstdev);  m_xerronmean_mep32->Fill(xerronmean);
+	       m_xmean_me32->Fill(xmean);  m_xstdev_me32->Fill(xstdev);  m_xerronmean_me32->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -3  &&  id.ring() == 2) {
-	       m_xmean_mem32->Fill(xmean);  m_xstdev_mem32->Fill(xstdev);
-	       m_xmean_me32->Fill(xmean);  m_xstdev_me32->Fill(xstdev);
+	       m_xmean_mem32->Fill(xmean);  m_xstdev_mem32->Fill(xstdev);  m_xerronmean_mem32->Fill(xerronmean);
+	       m_xmean_me32->Fill(xmean);  m_xstdev_me32->Fill(xstdev);  m_xerronmean_me32->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 4  &&  id.ring() == 1) {
-	       m_xmean_mep41->Fill(xmean);  m_xstdev_mep41->Fill(xstdev);
-	       m_xmean_me41->Fill(xmean);  m_xstdev_me41->Fill(xstdev);
+	       m_xmean_mep41->Fill(xmean);  m_xstdev_mep41->Fill(xstdev);  m_xerronmean_mep41->Fill(xerronmean);
+	       m_xmean_me41->Fill(xmean);  m_xstdev_me41->Fill(xstdev);  m_xerronmean_me41->Fill(xerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -4  &&  id.ring() == 1) {
-	       m_xmean_mem41->Fill(xmean);  m_xstdev_mem41->Fill(xstdev);
-	       m_xmean_me41->Fill(xmean);  m_xstdev_me41->Fill(xstdev);
+	       m_xmean_mem41->Fill(xmean);  m_xstdev_mem41->Fill(xstdev);  m_xerronmean_mem41->Fill(xerronmean);
+	       m_xmean_me41->Fill(xmean);  m_xstdev_me41->Fill(xstdev);  m_xerronmean_me41->Fill(xerronmean);
 	    }
 	 } // else itis CSC
       } // end if xmean, xstdev exist
@@ -786,112 +930,112 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
       if (m_ny[id] > 0.) {
 	 double ymean = m_y1[id] / m_ny[id];
 	 double ystdev = sqrt(m_y2[id] / m_ny[id] - (m_y1[id] / m_ny[id]) * (m_y1[id] / m_ny[id]));
-	 double ymeanerr = ystdev / sqrt(m_ny[id]);
+	 double yerronmean = ystdev / sqrt(m_ny[id]);
 
 	 m_ysummary->SetBinContent(index, ymean);
-	 m_ysummary->SetBinError(index, ymeanerr);
+	 m_ysummary->SetBinError(index, yerronmean);
 
-	 m_ymean->Fill(ymean);  m_ystdev->Fill(ystdev);
+	 m_ymean->Fill(ymean);  m_ystdev->Fill(ystdev);  m_yerronmean->Fill(yerronmean);
 	 if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
-	    m_ymean_mb->Fill(ymean);  m_ystdev_mb->Fill(ystdev);
+	    m_ymean_mb->Fill(ymean);  m_ystdev_mb->Fill(ystdev);  m_yerronmean_mb->Fill(yerronmean);
 	    DTChamberId id((*chamber)->geomDetId().rawId());
 	    if (id.station() == 1) {
-	       m_ymean_mb1->Fill(ymean);  m_ystdev_mb1->Fill(ystdev);
+	       m_ymean_mb1->Fill(ymean);  m_ystdev_mb1->Fill(ystdev);  m_yerronmean_mb1->Fill(yerronmean);
 	    }
 	    else if (id.station() == 2) {
-	       m_ymean_mb2->Fill(ymean);  m_ystdev_mb2->Fill(ystdev);
+	       m_ymean_mb2->Fill(ymean);  m_ystdev_mb2->Fill(ystdev);  m_yerronmean_mb2->Fill(yerronmean);
 	    }
 	    else if (id.station() == 3) {
-	       m_ymean_mb3->Fill(ymean);  m_ystdev_mb3->Fill(ystdev);
+	       m_ymean_mb3->Fill(ymean);  m_ystdev_mb3->Fill(ystdev);  m_yerronmean_mb3->Fill(yerronmean);
 	    }
 	    else if (id.station() == 4) {
-	       m_ymean_mb4->Fill(ymean);  m_ystdev_mb4->Fill(ystdev);
+	       m_ymean_mb4->Fill(ymean);  m_ystdev_mb4->Fill(ystdev);  m_yerronmean_mb4->Fill(yerronmean);
 	    }
 
 	    if (id.wheel() == -2) {
-	       m_ymean_minus2->Fill(ymean);  m_ystdev_minus2->Fill(ystdev);
+	       m_ymean_minus2->Fill(ymean);  m_ystdev_minus2->Fill(ystdev);  m_yerronmean_minus2->Fill(yerronmean);
 	    }
 	    else if (id.wheel() == -1) {
-	       m_ymean_minus1->Fill(ymean);  m_ystdev_minus1->Fill(ystdev);
+	       m_ymean_minus1->Fill(ymean);  m_ystdev_minus1->Fill(ystdev);  m_yerronmean_minus1->Fill(yerronmean);
 	    }
 	    else if (id.wheel() == 0) {
-	       m_ymean_zero->Fill(ymean);  m_ystdev_zero->Fill(ystdev);
+	       m_ymean_zero->Fill(ymean);  m_ystdev_zero->Fill(ystdev);  m_yerronmean_zero->Fill(yerronmean);
 	    }
 	    else if (id.wheel() == 1) {
-	       m_ymean_plus1->Fill(ymean);  m_ystdev_plus1->Fill(ystdev);
+	       m_ymean_plus1->Fill(ymean);  m_ystdev_plus1->Fill(ystdev);  m_yerronmean_plus1->Fill(yerronmean);
 	    }
 	    else if (id.wheel() == 2) {
-	       m_ymean_plus2->Fill(ymean);  m_ystdev_plus2->Fill(ystdev);
+	       m_ymean_plus2->Fill(ymean);  m_ystdev_plus2->Fill(ystdev);  m_yerronmean_plus2->Fill(yerronmean);
 	    }
 	 } // end if DT
 	 else {
-	    m_ymean_me->Fill(ymean);  m_ystdev_me->Fill(ystdev);
+	    m_ymean_me->Fill(ymean);  m_ystdev_me->Fill(ystdev);  m_yerronmean_me->Fill(yerronmean);
 
 	    CSCDetId id((*chamber)->geomDetId().rawId());
 
 	    if ((id.endcap() == 1? 1: -1)*id.station() == 1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
-	       m_ymean_mep11->Fill(ymean);  m_ystdev_mep11->Fill(ystdev);
-	       m_ymean_me11->Fill(ymean);  m_ystdev_me11->Fill(ystdev);
+	       m_ymean_mep11->Fill(ymean);  m_ystdev_mep11->Fill(ystdev);  m_yerronmean_mep11->Fill(yerronmean);
+	       m_ymean_me11->Fill(ymean);  m_ystdev_me11->Fill(ystdev);  m_yerronmean_me11->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  (id.ring() == 1  ||  id.ring() == 4)) {
-	       m_ymean_mem11->Fill(ymean);  m_ystdev_mem11->Fill(ystdev);
-	       m_ymean_me11->Fill(ymean);  m_ystdev_me11->Fill(ystdev);
+	       m_ymean_mem11->Fill(ymean);  m_ystdev_mem11->Fill(ystdev);  m_yerronmean_mem11->Fill(yerronmean);
+	       m_ymean_me11->Fill(ymean);  m_ystdev_me11->Fill(ystdev);  m_yerronmean_me11->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 2) {
-	       m_ymean_mep12->Fill(ymean);  m_ystdev_mep12->Fill(ystdev);
-	       m_ymean_me12->Fill(ymean);  m_ystdev_me12->Fill(ystdev);
+	       m_ymean_mep12->Fill(ymean);  m_ystdev_mep12->Fill(ystdev);  m_yerronmean_mep12->Fill(yerronmean);
+	       m_ymean_me12->Fill(ymean);  m_ystdev_me12->Fill(ystdev);  m_yerronmean_me12->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 2) {
-	       m_ymean_mem12->Fill(ymean);  m_ystdev_mem12->Fill(ystdev);
-	       m_ymean_me12->Fill(ymean);  m_ystdev_me12->Fill(ystdev);
+	       m_ymean_mem12->Fill(ymean);  m_ystdev_mem12->Fill(ystdev);  m_yerronmean_mem12->Fill(yerronmean);
+	       m_ymean_me12->Fill(ymean);  m_ystdev_me12->Fill(ystdev);  m_yerronmean_me12->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 1  &&  id.ring() == 3) {
-	       m_ymean_mep13->Fill(ymean);  m_ystdev_mep13->Fill(ystdev);
-	       m_ymean_me13->Fill(ymean);  m_ystdev_me13->Fill(ystdev);
+	       m_ymean_mep13->Fill(ymean);  m_ystdev_mep13->Fill(ystdev);  m_yerronmean_mep13->Fill(yerronmean);
+	       m_ymean_me13->Fill(ymean);  m_ystdev_me13->Fill(ystdev);  m_yerronmean_me13->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -1  &&  id.ring() == 3) {
-	       m_ymean_mem13->Fill(ymean);  m_ystdev_mem13->Fill(ystdev);
-	       m_ymean_me13->Fill(ymean);  m_ystdev_me13->Fill(ystdev);
+	       m_ymean_mem13->Fill(ymean);  m_ystdev_mem13->Fill(ystdev);  m_yerronmean_mem13->Fill(yerronmean);
+	       m_ymean_me13->Fill(ymean);  m_ystdev_me13->Fill(ystdev);  m_yerronmean_me13->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 2  &&  id.ring() == 1) {
-	       m_ymean_mep21->Fill(ymean);  m_ystdev_mep21->Fill(ystdev);
-	       m_ymean_me21->Fill(ymean);  m_ystdev_me21->Fill(ystdev);
+	       m_ymean_mep21->Fill(ymean);  m_ystdev_mep21->Fill(ystdev);  m_yerronmean_mep21->Fill(yerronmean);
+	       m_ymean_me21->Fill(ymean);  m_ystdev_me21->Fill(ystdev);  m_yerronmean_me21->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -2  &&  id.ring() == 1) {
-	       m_ymean_mem21->Fill(ymean);  m_ystdev_mem21->Fill(ystdev);
-	       m_ymean_me21->Fill(ymean);  m_ystdev_me21->Fill(ystdev);
+	       m_ymean_mem21->Fill(ymean);  m_ystdev_mem21->Fill(ystdev);  m_yerronmean_mem21->Fill(yerronmean);
+	       m_ymean_me21->Fill(ymean);  m_ystdev_me21->Fill(ystdev);  m_yerronmean_me21->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 2  &&  id.ring() == 2) {
-	       m_ymean_mep22->Fill(ymean);  m_ystdev_mep22->Fill(ystdev);
-	       m_ymean_me22->Fill(ymean);  m_ystdev_me22->Fill(ystdev);
+	       m_ymean_mep22->Fill(ymean);  m_ystdev_mep22->Fill(ystdev);  m_yerronmean_mep22->Fill(yerronmean);
+	       m_ymean_me22->Fill(ymean);  m_ystdev_me22->Fill(ystdev);  m_yerronmean_me22->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -2  &&  id.ring() == 2) {
-	       m_ymean_mem22->Fill(ymean);  m_ystdev_mem22->Fill(ystdev);
-	       m_ymean_me22->Fill(ymean);  m_ystdev_me22->Fill(ystdev);
+	       m_ymean_mem22->Fill(ymean);  m_ystdev_mem22->Fill(ystdev);  m_yerronmean_mem22->Fill(yerronmean);
+	       m_ymean_me22->Fill(ymean);  m_ystdev_me22->Fill(ystdev);  m_yerronmean_me22->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 3  &&  id.ring() == 1) {
-	       m_ymean_mep31->Fill(ymean);  m_ystdev_mep31->Fill(ystdev);
-	       m_ymean_me31->Fill(ymean);  m_ystdev_me31->Fill(ystdev);
+	       m_ymean_mep31->Fill(ymean);  m_ystdev_mep31->Fill(ystdev);  m_yerronmean_mep31->Fill(yerronmean);
+	       m_ymean_me31->Fill(ymean);  m_ystdev_me31->Fill(ystdev);  m_yerronmean_me31->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -3  &&  id.ring() == 1) {
-	       m_ymean_mem31->Fill(ymean);  m_ystdev_mem31->Fill(ystdev);
-	       m_ymean_me31->Fill(ymean);  m_ystdev_me31->Fill(ystdev);
+	       m_ymean_mem31->Fill(ymean);  m_ystdev_mem31->Fill(ystdev);  m_yerronmean_mem31->Fill(yerronmean);
+	       m_ymean_me31->Fill(ymean);  m_ystdev_me31->Fill(ystdev);  m_yerronmean_me31->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 3  &&  id.ring() == 2) {
-	       m_ymean_mep32->Fill(ymean);  m_ystdev_mep32->Fill(ystdev);
-	       m_ymean_me32->Fill(ymean);  m_ystdev_me32->Fill(ystdev);
+	       m_ymean_mep32->Fill(ymean);  m_ystdev_mep32->Fill(ystdev);  m_yerronmean_mep32->Fill(yerronmean);
+	       m_ymean_me32->Fill(ymean);  m_ystdev_me32->Fill(ystdev);  m_yerronmean_me32->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -3  &&  id.ring() == 2) {
-	       m_ymean_mem32->Fill(ymean);  m_ystdev_mem32->Fill(ystdev);
-	       m_ymean_me32->Fill(ymean);  m_ystdev_me32->Fill(ystdev);
+	       m_ymean_mem32->Fill(ymean);  m_ystdev_mem32->Fill(ystdev);  m_yerronmean_mem32->Fill(yerronmean);
+	       m_ymean_me32->Fill(ymean);  m_ystdev_me32->Fill(ystdev);  m_yerronmean_me32->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == 4  &&  id.ring() == 1) {
-	       m_ymean_mep41->Fill(ymean);  m_ystdev_mep41->Fill(ystdev);
-	       m_ymean_me41->Fill(ymean);  m_ystdev_me41->Fill(ystdev);
+	       m_ymean_mep41->Fill(ymean);  m_ystdev_mep41->Fill(ystdev);  m_yerronmean_mep41->Fill(yerronmean);
+	       m_ymean_me41->Fill(ymean);  m_ystdev_me41->Fill(ystdev);  m_yerronmean_me41->Fill(yerronmean);
 	    }
 	    else if((id.endcap() == 1? 1: -1)*id.station() == -4  &&  id.ring() == 1) {
-	       m_ymean_mem41->Fill(ymean);  m_ystdev_mem41->Fill(ystdev);
-	       m_ymean_me41->Fill(ymean);  m_ystdev_me41->Fill(ystdev);
+	       m_ymean_mem41->Fill(ymean);  m_ystdev_mem41->Fill(ystdev);  m_yerronmean_mem41->Fill(yerronmean);
+	       m_ymean_me41->Fill(ymean);  m_ystdev_me41->Fill(ystdev);  m_yerronmean_me41->Fill(yerronmean);
 	    }
 	 } // else itis CSC
       } // end if ymean, ystdev exist
