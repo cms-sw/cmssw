@@ -135,7 +135,7 @@ namespace cond {
     return ss.str().c_str();
   }
 
-  IOVProxy iov(std::string & tag) const {
+  IOVProxy CondDB::iov(std::string & tag) const {
     cond::CoralTransaction& coraldb=me->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     coraldb.start(true);
