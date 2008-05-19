@@ -43,7 +43,7 @@ namespace cond {
 
 
   int IOVProxy::size() const {
-    iov().iov.size();
+    return iov().iov.size();
   }
 
   IOV const & IOVProxy::iov() const {
