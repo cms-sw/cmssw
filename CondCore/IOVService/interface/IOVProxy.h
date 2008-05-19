@@ -4,6 +4,8 @@
 #include <string>
 #include "CondCore/DBCommon/interface/Time.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/iterator/counting_iterator.hpp>
 
 namespace cond {
 
@@ -16,7 +18,7 @@ namespace cond {
 	       cond::Time_t it,
 	       std::string const& itoken ) :
       since(is), till(it), token(itoken){}
-
+    
     void set(cond::Time_t is,
 	     cond::Time_t it,
 	     std::string const& itoken ) {
@@ -24,44 +26,45 @@ namespace cond {
     }
     
     void set(IOV const & v, int i);
-
+    
     cond::Time_t since;
     cond::Time_t till;
     std::string token;
   };
-
-
+  
+  
   namespace impl {
     struct IOVImpl;
-
+    
   }
-
+  
   /* IOV as the user wants it
    */
   class IOVProxy {
   public:
-
+    
     IOVProxy();
     ~IOVProxy();
-
+    
     IOVProxy(cond::PoolTransaction& db,
 	     const std::string & token);
-
+    
     struct IterHelp {
       typedef IOVElement result_type;
-      IterHelp(IOV const & iv) : v(iv){}
+      IterHelp(IOV const & iv) : iov(iv){}
       
       result_type const & operator()(int i) const {
-	elem.set(v,i);
+	elem.set(iov,i);
 	return elem;
       } 
+      
     private:
       IOV const & iov;
-      mutable  IOVElement elem;
+      mutable IOVElement elem;
     };
     
     typedef boost::transform_iterator<IterHelp,boost::counting_iterator<int> > const_iterator;
-
+    
     const_iterator begin() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
 					     IterHelp(iov()));
@@ -75,12 +78,12 @@ namespace cond {
     int size() const;
     IOV const & iov() const;
     TimeType timetype() const;
-
+    
   private:
     boost::shared_ptr<impl::IOV> m_iov;
     
   };
   
-
-
+}
+  
 #endif // CondCore_IOVService_IOVProxy_h
