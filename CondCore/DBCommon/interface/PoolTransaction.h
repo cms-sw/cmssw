@@ -38,7 +38,7 @@ namespace cond{
 
   private:
     void upgrade();
-    voif forceCommit();
+    void forceCommit();
   private:
     cond::PoolConnectionProxy* m_parentConnection;
     mutable pool::IDataSvc* m_datasvc;

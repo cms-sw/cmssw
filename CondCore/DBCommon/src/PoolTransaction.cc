@@ -35,12 +35,14 @@ cond::PoolTransaction::commit(){
   if (0==m_count) forceCommit();
 }
 
-void cond::PoolTransaction::upgrade() {
+void 
+cond::PoolTransaction::upgrade() {
   forceCommit();
   m_datasvc->transaction().start( pool::ITransaction::UPDATE );
 }
 
-void forceCommit() {
+void  
+cond::PoolTransaction::forceCommit() {
   if(!m_datasvc) throw cond::Exception("PoolTransaction::commit: database not connected");
   if(!m_datasvc->transaction().commit()){
     m_datasvc->transaction().rollback();
