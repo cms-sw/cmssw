@@ -18,7 +18,8 @@ public:
 
   void setup(const edm::ParameterSet& conf);
   reco::PhotonID calculate(const reco::Photon*, const edm::Event&, const edm::EventSetup& es);
-  void decide(reco::PhotonID &phID, const reco::Photon* pho);
+  void decideEB(reco::PhotonID &phID, const reco::Photon* pho);
+  void decideEE(reco::PhotonID &phID, const reco::Photon* pho);
  private:
   
   //Which cuts to do?
@@ -36,35 +37,65 @@ public:
   bool dophotonR9Cut_;
 
   //Actual cut values
-  double looseEMEcalRecHitIsolationCut_;
-  double looseEMHcalRecHitIsolationCut_;
-  double looseEMHollowConeTrkIsolationCut_;
-  double looseEMSolidConeTrkIsolationCut_;
-  int looseEMSolidConeNTrkCut_;
-  int looseEMHollowConeNTrkCut_;
-  double looseEMEtaWidthCut_;
-  double looseEMHadOverEMCut_;
-  double looseEMR9Cut_;
+  double looseEMEcalRecHitIsolationCutEB_;
+  double looseEMHcalRecHitIsolationCutEB_;
+  double looseEMHollowConeTrkIsolationCutEB_;
+  double looseEMSolidConeTrkIsolationCutEB_;
+  int looseEMSolidConeNTrkCutEB_;
+  int looseEMHollowConeNTrkCutEB_;
+  double looseEMEtaWidthCutEB_;
+  double looseEMHadOverEMCutEB_;
+  double looseEMR9CutEB_;
 
-  double loosephotonEcalRecHitIsolationCut_;
-  double loosephotonHcalRecHitIsolationCut_;
-  double loosephotonHollowConeTrkIsolationCut_;
-  double loosephotonSolidConeTrkIsolationCut_;
-  int loosephotonSolidConeNTrkCut_;
-  int loosephotonHollowConeNTrkCut_;
-  double loosephotonEtaWidthCut_;
-  double loosephotonHadOverEMCut_;
-  double loosephotonR9Cut_;
+  double loosephotonEcalRecHitIsolationCutEB_;
+  double loosephotonHcalRecHitIsolationCutEB_;
+  double loosephotonHollowConeTrkIsolationCutEB_;
+  double loosephotonSolidConeTrkIsolationCutEB_;
+  int loosephotonSolidConeNTrkCutEB_;
+  int loosephotonHollowConeNTrkCutEB_;
+  double loosephotonEtaWidthCutEB_;
+  double loosephotonHadOverEMCutEB_;
+  double loosephotonR9CutEB_;
 
-  double tightphotonEcalRecHitIsolationCut_;
-  double tightphotonHcalRecHitIsolationCut_;
-  double tightphotonHollowConeTrkIsolationCut_;
-  double tightphotonSolidConeTrkIsolationCut_;
-  int tightphotonSolidConeNTrkCut_;
-  int tightphotonHollowConeNTrkCut_;
-  double tightphotonEtaWidthCut_;
-  double tightphotonHadOverEMCut_;
-  double tightphotonR9Cut_;
+  double tightphotonEcalRecHitIsolationCutEB_;
+  double tightphotonHcalRecHitIsolationCutEB_;
+  double tightphotonHollowConeTrkIsolationCutEB_;
+  double tightphotonSolidConeTrkIsolationCutEB_;
+  int tightphotonSolidConeNTrkCutEB_;
+  int tightphotonHollowConeNTrkCutEB_;
+  double tightphotonEtaWidthCutEB_;
+  double tightphotonHadOverEMCutEB_;
+  double tightphotonR9CutEB_;
+
+  double looseEMEcalRecHitIsolationCutEE_;
+  double looseEMHcalRecHitIsolationCutEE_;
+  double looseEMHollowConeTrkIsolationCutEE_;
+  double looseEMSolidConeTrkIsolationCutEE_;
+  int looseEMSolidConeNTrkCutEE_;
+  int looseEMHollowConeNTrkCutEE_;
+  double looseEMEtaWidthCutEE_;
+  double looseEMHadOverEMCutEE_;
+  double looseEMR9CutEE_;
+
+  double loosephotonEcalRecHitIsolationCutEE_;
+  double loosephotonHcalRecHitIsolationCutEE_;
+  double loosephotonHollowConeTrkIsolationCutEE_;
+  double loosephotonSolidConeTrkIsolationCutEE_;
+  int loosephotonSolidConeNTrkCutEE_;
+  int loosephotonHollowConeNTrkCutEE_;
+  double loosephotonEtaWidthCutEE_;
+  double loosephotonHadOverEMCutEE_;
+  double loosephotonR9CutEE_;
+
+  double tightphotonEcalRecHitIsolationCutEE_;
+  double tightphotonHcalRecHitIsolationCutEE_;
+  double tightphotonHollowConeTrkIsolationCutEE_;
+  double tightphotonSolidConeTrkIsolationCutEE_;
+  int tightphotonSolidConeNTrkCutEE_;
+  int tightphotonHollowConeNTrkCutEE_;
+  double tightphotonEtaWidthCutEE_;
+  double tightphotonHadOverEMCutEE_;
+  double tightphotonR9CutEE_;
 
   //Isolation parameters
   double photonEcalRecHitConeInnerRadius_;
