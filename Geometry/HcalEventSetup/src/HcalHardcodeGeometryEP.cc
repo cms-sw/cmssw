@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalHardcodeGeometryEP.cc,v 1.6 2007/05/11 14:16:12 mansj Exp $
+// $Id: HcalHardcodeGeometryEP.cc,v 1.7 2008/04/21 22:18:19 heltsley Exp $
 //
 //
 
@@ -43,9 +43,10 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) :
 		    dependsOn( &HcalHardcodeGeometryEP::idealRecordCallBack ),
 		    "HCAL");
 
-   setWhatProduced( this,
-		    &HcalHardcodeGeometryEP::produceIdeal,
-		    edm::es::Label( "HCAL" ) );
+// disable
+//   setWhatProduced( this,
+//		    &HcalHardcodeGeometryEP::produceIdeal,
+//		    edm::es::Label( "HCAL" ) );
 }
 
 

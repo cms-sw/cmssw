@@ -13,7 +13,7 @@
 //
 // Original Author:  Edmundo Garcia
 //         Created:  Mon Aug  6 12:33:33 CDT 2007
-// $Id: ZdcHardcodeGeometryEP.cc,v 1.1 2007/08/28 18:10:10 sunanda Exp $
+// $Id: ZdcHardcodeGeometryEP.cc,v 1.2 2008/04/21 22:20:17 heltsley Exp $
 //
 #include "Geometry/ForwardGeometry/plugins/ZdcHardcodeGeometryEP.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,9 +31,10 @@ ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP( const edm::ParameterSet& ps ) :
 		    dependsOn( &ZdcHardcodeGeometryEP::idealRecordCallBack ),
 		    "ZDC");
 
-   setWhatProduced( this,
-		    &ZdcHardcodeGeometryEP::produceIdeal,
-		    edm::es::Label( "ZDC" ) );
+// disable
+//   setWhatProduced( this,
+//		    &ZdcHardcodeGeometryEP::produceIdeal,
+//		    edm::es::Label( "ZDC" ) );
 }
 
 

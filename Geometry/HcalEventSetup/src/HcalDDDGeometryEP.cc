@@ -13,7 +13,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu Oct 20 11:35:27 CDT 2006
-// $Id: HcalDDDGeometryEP.cc,v 1.2 2008/01/22 21:35:42 muzaffar Exp $
+// $Id: HcalDDDGeometryEP.cc,v 1.3 2008/04/21 22:18:19 heltsley Exp $
 //
 //
 
@@ -43,9 +43,10 @@ HcalDDDGeometryEP::HcalDDDGeometryEP(const edm::ParameterSet& ps ) :
 		    dependsOn( &HcalDDDGeometryEP::idealRecordCallBack ),
 		    "HCAL");
 
-   setWhatProduced( this,
-		    &HcalDDDGeometryEP::produceIdeal,
-		    edm::es::Label( "HCAL" ) );
+// diable
+//   setWhatProduced( this,
+//		    &HcalDDDGeometryEP::produceIdeal,
+//		    edm::es::Label( "HCAL" ) );
 }
 
 

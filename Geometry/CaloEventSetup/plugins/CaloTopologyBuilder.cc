@@ -11,7 +11,9 @@ CaloTopologyBuilder::CaloTopologyBuilder( const edm::ParameterSet& iConfig )
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced( this, &CaloTopologyBuilder::produceIdeal );
+
+// disable
+//   setWhatProduced( this, &CaloTopologyBuilder::produceIdeal );
    setWhatProduced( this, &CaloTopologyBuilder::produceCalo  );
 }
 

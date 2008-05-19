@@ -40,9 +40,10 @@ class CaloGeometryEP : public edm::ESProducer
 			  dependsOn( &CaloGeometryEP<T>::idealRecordCallBack ),
 			  edm::es::Label( T::producerName() ) ) ;
 
-	 setWhatProduced( this, 
-			  &CaloGeometryEP<T>::produceIdeal,
-			  edm::es::Label( T::producerName() ) ) ;
+// disable
+//	 setWhatProduced( this, 
+//			  &CaloGeometryEP<T>::produceIdeal,
+//			  edm::es::Label( T::producerName() ) ) ;
       }
 
       virtual ~CaloGeometryEP<T>() {}

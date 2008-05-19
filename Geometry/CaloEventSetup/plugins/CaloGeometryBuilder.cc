@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.6 2008/01/22 21:25:55 muzaffar Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.7 2008/04/21 22:14:19 heltsley Exp $
 //
 //
 
@@ -33,8 +33,10 @@ CaloGeometryBuilder::CaloGeometryBuilder( const edm::ParameterSet& iConfig )
    // data is being produced
    setWhatProduced( this, 
 		    &CaloGeometryBuilder::produceAligned );
-   setWhatProduced( this, 
-		    &CaloGeometryBuilder::produceIdeal ) ;
+
+// disable
+//   setWhatProduced( this, 
+//		    &CaloGeometryBuilder::produceIdeal ) ;
 
    //now do what ever other initialization is needed
    
