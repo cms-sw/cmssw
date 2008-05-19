@@ -227,7 +227,7 @@ namespace reco {
 
 
     /// particle identification code
-    virtual int particleId() const { return particleId_;}
+    virtual  ParticleType particleId() const { return particleId_;}
 
 
 
