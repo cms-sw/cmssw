@@ -1,11 +1,11 @@
-// Last commit: $Id: SiStripPedestalsBuilderFromDb.h,v 1.2 2007/03/19 13:23:06 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripPedestalsBuilderFromDb.h,v 1.3 2008/04/08 09:33:49 bainbrid Exp $
+// Latest tag:  $Name: V02-00-00 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripPedestalsBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripPedestalsBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripPedestalsBuilderFromDb_H
 
-#include "CalibTracker/SiStripPedestals/interface/SiStripPedestalsESSource.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripPedestalsESSource.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"

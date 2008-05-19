@@ -1,11 +1,11 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.h,v 1.2 2007/03/19 13:23:06 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.h,v 1.3 2008/04/08 09:33:49 bainbrid Exp $
+// Latest tag:  $Name: V02-00-00 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripNoiseBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripNoiseBuilderFromDb_H
 
-#include "CalibTracker/SiStripPedestals/interface/SiStripNoiseESSource.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripNoiseESSource.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
