@@ -12,6 +12,8 @@
 #include <TObjString.h>
 //
 
+vector<string> nameList; 
+
 UEAnalysisOnRootple::UEAnalysisOnRootple()
 {
   cout << "UEAnalysisOnRootple constructor " <<endl;
@@ -19,6 +21,8 @@ UEAnalysisOnRootple::UEAnalysisOnRootple()
   jets = new UEAnalysisJets();
   mpi = new UEAnalysisMPI();
   cout << "UEAnalysisOnRootple constructor finished initialization" <<endl;
+
+  nameList.reserve(20);
 }
 
 void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> weight,Float_t eta,
@@ -82,16 +86,38 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
 
-//     int nAcceptedTriggers( acceptedTriggers->GetSize() );
-//     if (nAcceptedTriggers) cout << endl << "Event has been accepted by " << acceptedTriggers->GetSize() << endl;
-//     for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
-//       {
-// 	cout << "\t(" << iAcceptedTrigger << ") trigger path ";
-// 	cout << (acceptedTriggers->At(iAcceptedTrigger))->GetName() << endl;
-//       } 
+    int nAcceptedTriggers( 0 );
+    nAcceptedTriggers = acceptedTriggers->GetSize();
+    for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
+      {
+	std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
 
+	if      ( filterName=="hlt1jet30"  ) h_acceptedTriggers->Fill( 0 );
+	else if ( filterName=="hlt1jet60"  ) h_acceptedTriggers->Fill( 1 );
+	else if ( filterName=="hlt1jet110" ) h_acceptedTriggers->Fill( 2 );
+	else if ( filterName=="hlt1jet150" ) h_acceptedTriggers->Fill( 3 );
+	else if ( filterName=="hlt1jet180" ) h_acceptedTriggers->Fill( 4 );
+	else if ( filterName=="hlt1jet200" ) h_acceptedTriggers->Fill( 5 );
+	else                                 h_acceptedTriggers->Fill( 6 );
+
+	// print out filter name unless we have seen it before
+	bool printFilterName( true );
+
+	vector<string>::iterator itname   ( nameList.begin() );
+	vector<string>::iterator itnameEnd( nameList.end()   );
+	for ( ; itname!=itnameEnd; ++itname )
+	  {
+	    if ( (*itname).compare( filterName )==0 ) printFilterName = false;
+	  }
+	if ( printFilterName ) 
+	  {
+	    cout << "found " << filterName << " filter" << endl;
+	    nameList.push_back( filterName );
+	  }
+      } 
+    
     if(type=="Jet"){
-      jets->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,TracksJet,CalorimeterJet);
+      jets->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,TracksJet,CalorimeterJet, acceptedTriggers);
     }
 
     if(type=="MPI"){
@@ -119,6 +145,11 @@ void UEAnalysisOnRootple::BeginJob(char* outname,string type)
     jets->Begin(hFile);
   if(type=="MPI")
     mpi->Begin(hFile);
+
+  //
+  hFile->cd();
+  h_acceptedTriggers = new TH1D("h_acceptedTriggers","h_acceptedTriggers",7,-0.5,6.5);
+  //
 }
 
 void UEAnalysisOnRootple::EndJob(string type)

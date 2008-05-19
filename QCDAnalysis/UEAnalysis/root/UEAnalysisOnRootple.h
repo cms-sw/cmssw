@@ -73,6 +73,11 @@ public :
   UEAnalysisJets* jets;
   UEAnalysisMPI* mpi;
 
+
+  //
+  TH1D* h_acceptedTriggers;
+  //
+
 };
 
 #endif

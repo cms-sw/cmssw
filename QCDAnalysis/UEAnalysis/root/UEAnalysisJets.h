@@ -21,7 +21,7 @@ class UEAnalysisJets {
 
   UEAnalysisJets();
   ~UEAnalysisJets(){}
-  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *);
+  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *, TClonesArray* );
   void writeToFile(TFile *);
 
   void Begin(TFile *);
@@ -65,6 +65,36 @@ class UEAnalysisJets {
   TProfile* calib_chginc_phi;
   TProfile* calib_chgmcreco_phi;
   TProfile* calib_caloinc_phi;
+
+  //
+  TH1F* pT_cal_hlt1jet30 ;
+  TH1F* pT_cal_hlt1jet60 ;
+  TH1F* pT_cal_hlt1jet110;
+  TH1F* pT_cal_hlt1jet150;
+  TH1F* pT_cal_hlt1jet180;
+  TH1F* pT_cal_hlt1jet200;
+
+  TH1F* pT_chgreco_hlt1jet30 ;
+  TH1F* pT_chgreco_hlt1jet60 ;
+  TH1F* pT_chgreco_hlt1jet110;
+  TH1F* pT_chgreco_hlt1jet150;
+  TH1F* pT_chgreco_hlt1jet180;
+  TH1F* pT_chgreco_hlt1jet200;
+
+  TH1F* pT_chgmc_hlt1jet30 ;
+  TH1F* pT_chgmc_hlt1jet60 ;
+  TH1F* pT_chgmc_hlt1jet110;
+  TH1F* pT_chgmc_hlt1jet150;
+  TH1F* pT_chgmc_hlt1jet180;
+  TH1F* pT_chgmc_hlt1jet200;
+
+  TH1F* pT_inc_hlt1jet30 ;
+  TH1F* pT_inc_hlt1jet60 ;
+  TH1F* pT_inc_hlt1jet110;
+  TH1F* pT_inc_hlt1jet150;
+  TH1F* pT_inc_hlt1jet180;
+  TH1F* pT_inc_hlt1jet200;
+  //
 
   float piG;
 };
