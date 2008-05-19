@@ -10,7 +10,7 @@
 namespace cond {
 
   class IOV;
-  clas PoolTransaction;
+  class PoolTransaction;
 
   struct IOVElement {
     IOVElement() : since(0),till(0){}
@@ -35,7 +35,6 @@ namespace cond {
   
   namespace impl {
     struct IOVImpl;
-    
   }
   
   /* IOV as the user wants it
@@ -80,10 +79,10 @@ namespace cond {
     TimeType timetype() const;
     
   private:
-    boost::shared_ptr<impl::IOV> m_iov;
+    boost::shared_ptr<impl::IOVImpl> m_iov;
     
   };
   
 }
-  
+
 #endif // CondCore_IOVService_IOVProxy_h

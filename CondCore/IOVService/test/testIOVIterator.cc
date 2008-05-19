@@ -10,11 +10,13 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 
-void print(IOVElement const & e) {
-  std::cout<<"payloadToken "<< e.token
-	   <<", since "<< e.since
-	   <<", till "<< e.till
-	   << std::endl;
+namespace {
+  void print(cond::IOVElement const & e) {
+    std::cout<<"payloadToken "<< e.token
+	     <<", since "<< e.since
+	     <<", till "<< e.till
+	     << std::endl;
+  }
 }
 
 int main(){
