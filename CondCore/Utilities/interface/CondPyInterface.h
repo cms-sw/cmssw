@@ -39,7 +39,7 @@ namespace cond {
    CondDB & operator=(const CondDB & other);
    CondDB(Connection * conn);
    ~CondDB();
-   const char * allTags() const;
+   std::string allTags() const;
 
    IOVProxy iov(std::string const & tag) const;
 
