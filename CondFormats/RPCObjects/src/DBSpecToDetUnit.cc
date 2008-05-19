@@ -123,7 +123,8 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     int sector_id = ch.sector;
     // patch to fix phi rotation
     sector_id--;
-    if (sector_id==0) sector_id=1;
+    if (sector_id==0) sector_id=36;
+    //
     int copy_id = 1;
     int roll_id = iroll;
     trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+ roll_id;
