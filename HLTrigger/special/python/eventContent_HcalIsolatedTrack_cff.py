@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 # Full Event content
 HLTHcalIsolatedTrackFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hltPixelTracks_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_hltSubdetFED_*_*', 
+        'keep *_hltEcalRegFED_*_*', 
+        'keep *_hltSiStripRegFED_*_*', 
+        'keep *_hltPixelTracks_*_*', 
         'keep *_hltIsolPixelTrackProd_*_*', 
         'keep *_hltL1sIsoTrack_*_*', 
         'keep *_hltGtDigis_*_*', 
@@ -10,7 +13,10 @@ HLTHcalIsolatedTrackFEVT = cms.PSet(
 )
 # RECO content
 HLTHcalIsolatedTrackRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hltPixelTracks_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_hltSubdetFED_*_*', 
+        'keep *_hltEcalRegFED_*_*', 
+        'keep *_hltSiStripRegFED_*_*', 
+        'keep *_hltPixelTracks_*_*', 
         'keep *_hltIsolPixelTrackProd_*_*', 
         'keep *_hltL1sIsoTrack_*_*', 
         'keep *_hltGtDigis_*_*', 
