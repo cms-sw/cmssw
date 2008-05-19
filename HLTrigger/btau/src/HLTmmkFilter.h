@@ -53,6 +53,7 @@ class HLTmmkFilter : public HLTFilter {
   const double minLxySignificance_;
   const double minCosinePointingAngle_;
   const bool fastAccept_;
+	bool saveTag_;
 
 };
 #endif

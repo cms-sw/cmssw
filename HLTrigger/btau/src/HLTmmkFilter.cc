@@ -96,7 +96,11 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get track candidates around displaced muons
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByLabel (trkCandLabel_,trkcands);
-    
+  
+  	if(saveTag_){
+  		filterobject->addCollectionTag(muCandLabel_);
+	  	filterobject->addCollectionTag(trkCandLabel_);
+	}
   double e1,e2,e3;
   Particle::LorentzVector p,p1,p2,p3;
   
