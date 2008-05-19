@@ -332,23 +332,3 @@ void  PFTopProjector::printAncestors( const reco::CandidateBaseRefVector& ancest
 
 
 
-std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau) {
-
-  if(!out) return out;
-
-  out<<"pf tau "
-     <<tau.pt()<<","
-     <<tau.eta()<<","
-     <<tau.phi()<<"  "    
-     <<tau.signalPFCands().size()<<","
-     <<tau.signalPFChargedHadrCands().size()<<","
-     <<tau.signalPFGammaCands().size()<<","
-     <<tau.signalPFNeutrHadrCands().size()<<"  "
-     <<tau.isolationPFCands().size()<<","
-     <<tau.isolationPFChargedHadrCands().size()<<","
-     <<tau.isolationPFGammaCands().size()<<","
-     <<tau.isolationPFNeutrHadrCands().size();
-    
-  return out;
-}
-

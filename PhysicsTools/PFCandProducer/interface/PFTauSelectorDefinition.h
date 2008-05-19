@@ -48,7 +48,7 @@ struct PFTauSelectorDefinition {
     for( collection::const_iterator pftau = hc->begin(); 
          pftau != hc->end(); ++pftau, ++key) {
 
-      PFTauRef pfTauRef(hc, key);
+      reco::PFTauRef pfTauRef(hc, key);
       if( (*hdiscri)[pfTauRef] )
 	selected_.push_back( new reco::PFTau(*pftau) );
     }
@@ -58,7 +58,7 @@ struct PFTauSelectorDefinition {
 
 private:
   container selected_;
-  InputTag  discriminatorTag_;
+  edm::InputTag  discriminatorTag_;
 };
 
 #endif

@@ -82,7 +82,7 @@ class PFTopProjector : public edm::EDProducer {
 
 };
 
-std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau);
+/* std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau); */
 
 
 #endif
