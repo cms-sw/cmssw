@@ -28,7 +28,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
   class_<cond::IOVProxy>("IOV", init<>())
     .def("size", &cond::IOVProxy::size)
-    .property("elements", range( &cond::IOVProxy::begin,  &cond::IOVProxy::end));
+    .add_property("elements", range( &cond::IOVProxy::begin,  &cond::IOVProxy::end));
   
   
   class_<cond::FWIncantation>("FWIncantation", init<>());
