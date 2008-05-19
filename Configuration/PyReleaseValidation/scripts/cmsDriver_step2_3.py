@@ -16,6 +16,13 @@ parser.add_option("--globaltag",
                    default="STARTUP_V2",
                    dest="gt")
 
+parser.add_option("--rereco",
+                   help="if rereco only RECO+DQM",
+                   default=False,
+                   dest="rereco",
+                   action="store_true")
+
+
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
 
@@ -155,6 +162,10 @@ if ( len(args)>1):
     for i in args[1:]:
         extracom=extracom+' '+i
 
+if options.rereco:
+    steps2 = "RAW2DIGI,RECO"+recoseqCustomiseDict[typeOfEv]+",POSTRECO,DQM"
+    
+
 command2=baseCommand+' step2_'+typeOfEv+' -s ' + steps2 + ' -n 1000 --filein file:raw.root --eventcontent ' + eventcontent + ' --conditions '+conditions+extracom+' --dump_cfg'
 command3=baseCommand+' step3_'+typeOfEv+' -s ' + steps3 + ' -n 1000 --filein file:reco.root ' + ' --conditions '+conditions+extracom+' --dump_cfg'
 
@@ -172,6 +183,6 @@ else:
     command3=command3+' --eventcontent none'
 
 os.system(command2)
-if ( not ( alca3=='')):
+if ( not ( alca3=='') and not options.rereco):
     print command3
     os.system(command3)
