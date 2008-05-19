@@ -26,7 +26,7 @@ namespace cond {
 
 
   void IOVElement::set(IOV const & v, int i) {
-    since = (i==0) ? v.firstsince : v.iov[i-1].first;
+    since = (i==0) ? v.firstsince : v.iov[i-1].first+1;
     till  = v.iov[i].first;
     token = v.iov[i].second;
   }
