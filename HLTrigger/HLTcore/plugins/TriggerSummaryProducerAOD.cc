@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/02 12:13:28 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/05/02 13:29:56 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -60,11 +60,11 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   filterTagsEvent_(),
   filterTagsGlobal_(),
   toc_(),
+  tags_(),
   offset_(),
   fobs_(),
   keys_(),
   ids_(),
-  maskCollections_(),
   maskFilters_()
 {
   if (pn_=="@") {
@@ -171,6 +171,8 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    ///
    /// create trigger objects, fill triggerobjectcollection and offset map
    toc_.clear();
+   tags_.clear();
+   keys_.clear();
    offset_.clear();
    fillTriggerObjects<          RecoEcalCandidateCollection>(iEvent);
    fillTriggerObjects<                   ElectronCollection>(iEvent);
@@ -186,14 +188,17 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    fillTriggerObjects<              L1JetParticleCollection>(iEvent);
    fillTriggerObjects<           L1EtMissParticleCollection>(iEvent);
    ///
+   const size_type nk(tags_.size());
+   LogDebug("") << "Number of collections found: " << nk;
    const size_type no(toc_.size());
    LogDebug("") << "Number of physics objects found: " << no;
 
    ///
    /// construct single AOD product, reserving capacity
-   auto_ptr<TriggerEvent> product(new TriggerEvent(pn_,no,nf));
+   auto_ptr<TriggerEvent> product(new TriggerEvent(pn_,nk,no,nf));
 
    /// fill trigger object collection
+   product->addCollections(tags_,keys_);
    product->addObjects(toc_);
 
    /// fill the L3 filter objects
@@ -231,9 +236,7 @@ template <typename C>
 void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 
   /// this routine accesses the original (L3) collections (with C++
-  /// typename C), extracts 4-momentum and id, and packs this up in a
-  /// TriggerObjectCollection, i.e., a linearised vector of
-  /// TriggerObjects
+  /// typename C), extracts 4-momentum and id, and packs this up
 
   using namespace std;
   using namespace edm;
@@ -241,22 +244,38 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 
   vector<Handle<C> > collections;
   iEvent.getMany(selector_,collections);
+
   const size_type nc(collections.size());
-
-  fillMaskCollections(collections,collectionTagsEvent_);
-
   for (size_type ic=0; ic!=nc; ++ic) {
-    if (maskCollections_[ic]) {
-      const ProductID pid(collections[ic].provenance()->productID());
-      assert(offset_.find(pid)==offset_.end()); // else duplicate pid
-      offset_[pid]=toc_.size();
-      const size_type n(collections[ic]->size());
-      for (size_type i=0; i!=n; ++i) {
-	toc_.push_back(TriggerObject( (*collections[ic])[i] ));
-      }
-    }
-  }
+    const string& label    (collections[ic].provenance()->moduleLabel());
+    const string& instance (collections[ic].provenance()->productInstanceName());
+    const string& process  (collections[ic].provenance()->processName());
+    const InputTag collectionTag(InputTag(label,instance,process));
 
+    const InputTagSet::const_iterator tb(collectionTagsEvent_.begin());
+    const InputTagSet::const_iterator te(collectionTagsEvent_.end());
+    for (InputTagSet::const_iterator ti=tb; ti!=te; ++ti) {
+      const string& tagLabel    (ti->label());
+      const string& tagInstance (ti->instance());
+      const string& tagProcess  (ti->process());
+      if (
+          (label   ==tagLabel   ) &&
+          (instance==tagInstance) &&
+          ((process ==tagProcess )||(tagProcess=="")||(pn_=="*"))
+          ) {
+	const ProductID pid(collections[ic].provenance()->productID());
+	assert(offset_.find(pid)==offset_.end()); // else duplicate pid
+	offset_[pid]=toc_.size();
+	const size_type n(collections[ic]->size());
+	for (size_type i=0; i!=n; ++i) {
+	  toc_.push_back(TriggerObject( (*collections[ic])[i] ));
+	}
+	tags_.push_back(collectionTag);
+	keys_.push_back(toc_.size());
+	break;
+      }
+    } /// end loop over tags
+  } /// end loop over handles
 }
 
 template <typename C>
@@ -286,62 +305,6 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::InputTag& tag, cons
     keys_.push_back(offset_[pid]+refs[i].key());
     ids_.push_back(ids[i]);
   }
-
-}
-
-template <typename C>
-trigger::size_type TriggerSummaryProducerAOD::fillMaskCollections(
-						       const std::vector<edm::Handle<C> >& products, 
-						       const InputTagSet& wanted ) {
-
-  /// this routine filles the mask of Boolean values for the list of
-  /// products found in the Event, based on a list of wanted products
-  /// specified by the InputTagSet
-
-  using namespace std;
-  using namespace edm;
-  using namespace trigger;
-
-  const size_type np(products.size());
-  // const size_type nw(wanted.size());
-  // LogTrace("") << np <<  " " << nw;
-
-  maskCollections_.clear();
-  maskCollections_.resize(np,false);
-  
-  const InputTagSet::const_iterator wb(wanted.begin());
-  const InputTagSet::const_iterator we(wanted.end());
-
-  size_type n(0);
-  for (size_type ip=0; ip!=np; ++ip) {
-    maskCollections_[ip]=false;
-
-    const string& label    (products[ip].provenance()->moduleLabel());
-    const string& instance (products[ip].provenance()->productInstanceName());
-    const string& process  (products[ip].provenance()->processName());
-
-    // LogTrace("") << "MASK P: " << ip << " "+label+" "+instance+" "+process;
-
-    for (InputTagSet::const_iterator wi=wb; wi!=we; ++wi) {
-      const string& tagLabel    (wi->label());
-      const string& tagInstance (wi->instance());
-      const string& tagProcess  (wi->process());
-      // LogTrace("") << "MASK W: " << distance(wb,wi) << wi->encode();
-      if (
-	  (label   ==tagLabel   ) &&
-	  (instance==tagInstance) &&
-	  ((process ==tagProcess )||(tagProcess=="")||(pn_=="*"))
-	  ) {
-	maskCollections_[ip]=true;
-        // LogTrace("") << "MASK match found!";
-	++n;
-	break;
-      }
-    }
-    
-  }
-
-  return n;
 
 }
 

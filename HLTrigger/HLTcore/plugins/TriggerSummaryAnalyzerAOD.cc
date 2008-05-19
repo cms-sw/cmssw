@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/11 18:54:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/02 12:13:28 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -44,6 +44,14 @@ TriggerSummaryAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSet
    iEvent.getByLabel(inputTag_,handle);
    if (handle.isValid()) {
      cout << "Used Processname: " << handle->usedProcessName() << endl;
+     const size_type nC(handle->sizeCollections());
+     cout << "Number of packed Collections: " << nC << endl;
+     cout << "The Collections: #, tag, 1-past-end index" << endl;
+     for (size_type iC=0; iC!=nC; ++iC) {
+       cout << iC << " "
+	    << handle->collectionTag(iC).encode() << " "
+	    << handle->collectionKey(iC) << endl;
+     }
      const size_type nO(handle->sizeObjects());
      cout << "Number of TriggerObjects: " << nO << endl;
      cout << "The TriggerObjects: #, id, pt, eta, phi, mass" << endl;

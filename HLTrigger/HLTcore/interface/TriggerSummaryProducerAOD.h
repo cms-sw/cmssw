@@ -6,8 +6,8 @@
  *  
  *  This class is an EDProducer making the HLT summary object for AOD
  *
- *  $Date: 2008/01/12 16:53:56 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/02 12:13:28 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -59,9 +59,6 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   template <typename C>
   void fillFilterObjects(const edm::InputTag& tag, const trigger::Vids &, const std::vector<edm::Ref<C> >&);
 
-  template <typename C>
-  trigger::size_type fillMaskCollections(const std::vector<edm::Handle<C> >& ,  const InputTagSet& );
-
  private:
   /// process name
   std::string pn_;
@@ -83,6 +80,7 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
 
   /// trigger object collection
   trigger::TriggerObjectCollection toc_;
+  std::vector<edm::InputTag> tags_;
   /// global map for indices into toc_: offset per input L3 collection
   std::map<edm::ProductID,int> offset_;
 
@@ -94,7 +92,6 @@ class TriggerSummaryProducerAOD : public edm::EDProducer {
   trigger::Vids ids_;
 
   /// packing decision
-  std::vector<bool> maskCollections_;
   std::vector<bool> maskFilters_;
 
 };

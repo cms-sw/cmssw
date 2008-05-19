@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2008/05/02 12:08:41 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/05/02 13:35:27 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -48,6 +48,10 @@ namespace trigger
   private:
     /// processName used to select products packed up
     std::string usedProcessName_;
+    /// Input tags of packed up collections
+    std::vector<std::string> collectionTags_;
+    /// 1-past-end indices into linearised vector
+    Keys collectionKeys_;
     /// collection of all unique physics objects (linearised vector)
     TriggerObjectCollection triggerObjects_;
     /// collection of all TriggerFilterObjects
@@ -56,27 +60,53 @@ namespace trigger
   ///methods
   public:
     /// constructors
-    TriggerEvent(): usedProcessName_(), triggerObjects_(), triggerFilters_() { }
-    TriggerEvent(const std::string& usedProcessName, size_type no, size_type nf):
+    TriggerEvent(): usedProcessName_(), collectionTags_(), collectionKeys_(), triggerObjects_(), triggerFilters_() { }
+    TriggerEvent(const std::string& usedProcessName, size_type nc, size_type no, size_type nf):
       usedProcessName_(usedProcessName), 
+      collectionTags_(),
+      collectionKeys_(),
       triggerObjects_(), 
       triggerFilters_() 
     {
+      collectionTags_.reserve(nc); collectionKeys_.reserve(nc);
       triggerObjects_.reserve(no); triggerFilters_.reserve(nf); 
     }
 
     /// setters
     void addObjects(const TriggerObjectCollection& triggerObjects) {triggerObjects_.insert(triggerObjects_.end(), triggerObjects.begin(), triggerObjects.end());}
+    void addCollections(const std::vector<edm::InputTag>& collectionTags, const Keys& collectionKeys) {
+      assert(collectionTags.size()==collectionKeys.size());
+      const size_type n(collectionTags.size());
+      for (size_type i=0; i!=n; ++i) {
+	collectionTags_.push_back(collectionTags[i].encode());
+      }
+      collectionKeys_.insert(collectionKeys_.end(), collectionKeys.begin(), collectionKeys.end());
+    }
+
     void addFilter(const edm::InputTag& filterTag, const Vids& filterIds, const Keys& filterKeys) {triggerFilters_.push_back(TriggerFilterObject(filterTag, filterIds, filterKeys));}
 
     /// getters
     const std::string& usedProcessName() const {return usedProcessName_;}
+    const std::vector<std::string>& collectionTags() const {return collectionTags_;}
+    const Keys& collectionKeys() const {return collectionKeys_;}
     const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
+
+    const edm::InputTag collectionTag(size_type index) const {return edm::InputTag(collectionTags_.at(index));}
+    size_type collectionKey(size_type index) const {return collectionKeys_.at(index);}
     const edm::InputTag filterTag(size_type index) const {return edm::InputTag(triggerFilters_.at(index).filterTag_);}
     const Vids& filterIds(size_type index) const {return triggerFilters_.at(index).filterIds_;}
     const Keys& filterKeys(size_type index) const {return triggerFilters_.at(index).filterKeys_;}
 
-    /// find index of filter in data-member vector from filter label
+    /// find index of collection from collection tag
+    size_type collectionIndex(const edm::InputTag& collectionTag) const {
+      const std::string encodedCollectionTag(collectionTag.encode());
+      const size_type n(collectionTags_.size());
+      for (size_type i=0; i!=n; ++i) {
+	if (encodedCollectionTag==collectionTags_[i]) {return i;}
+      }
+      return n;
+    }
+    /// find index of filter in data-member vector from filter tag
     size_type filterIndex(const edm::InputTag& filterTag) const {
       const std::string encodedFilterTag(filterTag.encode());
       const size_type n(triggerFilters_.size());
@@ -87,6 +117,7 @@ namespace trigger
     }
 
     /// other
+    size_type sizeCollections() const {return collectionTags_.size();}
     size_type sizeObjects() const {return triggerObjects_.size();}
     size_type sizeFilters() const {return triggerFilters_.size();}
 
