@@ -1,11 +1,23 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="AnyError">
+<!--QTEST name="AnyError">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0</PARAM>
-	<PARAM name="ymax">0</PARAM>
-	<PARAM name="error">0.0</PARAM>
+	<PARAM name="ymin">1</PARAM>
+	<PARAM name="ymax">1</PARAM>
+	<PARAM name="error">1.0</PARAM>
 	<PARAM name="warning">0.0</PARAM>
+</QTEST-->
+
+<QTEST name="AnyError">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">2.00</PARAM>
+        <PARAM name="warning">1.00</PARAM>
+        <PARAM name="minMean">1.0</PARAM>
+        <PARAM name="maxMean">2.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0</PARAM>
+        <PARAM name="minEntries">2</PARAM>
 </QTEST>
 
 <!--QTEST name="ResidualsDistributionGaussianTest">

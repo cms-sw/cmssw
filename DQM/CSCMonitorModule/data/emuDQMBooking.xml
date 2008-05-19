@@ -6,6 +6,22 @@
 ============================================================================================= -->
 
           <Histogram>
+		<Type>h1</Type>
+		<Prefix>EMU</Prefix>
+		<Name>Summary_ME1</Name>
+		<SetOption>*H</SetOption>
+		<XMin>1</XMin>
+		<XMax>21600</XMax>
+		<XBins>21600</XBins>
+		<XTitle>Atomic Element</XTitle>
+		<YTitle>Value</YTitle>
+		<Title>EMU status: ME1</Title>
+		<SetStats>0</SetStats>
+		<SetNdivisionsX>21600</SetNdivisionsX>
+		<SetLabelSizeX>0.03</SetLabelSizeX>
+          </Histogram>
+
+          <Histogram>
 		<Type>h2</Type>
 		<Prefix>EMU</Prefix>
 		<Name>DMB_Unpacked</Name>

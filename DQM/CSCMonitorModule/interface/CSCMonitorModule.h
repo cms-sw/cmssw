@@ -52,6 +52,7 @@
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DQM/CSCMonitorModule/interface/CSCSummary.h"
 
 /**
  * Macro Section
@@ -158,6 +159,8 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     const bool MEEMU(const std::string name, MonitorElement*& me);
     const bool MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me);
 
+    /** CSC summary map */
+    CSCSummary summary;
 };
 
 #endif

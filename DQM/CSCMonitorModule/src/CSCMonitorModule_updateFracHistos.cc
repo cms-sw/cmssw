@@ -88,7 +88,6 @@ void CSCMonitorModule::updateFracHistos() {
   if (MEEMU("DMB_input_timeout_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_input_timeout", me3)) 
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
-
   if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Format_Warnings", me2) && MEEMU("DMB_Unpacked", me3)) {
     TH1* tmp=dynamic_cast<TH1*>(me3->getTH1()->Clone());
     tmp->Add(me2->getTH1());
@@ -103,6 +102,17 @@ void CSCMonitorModule::updateFracHistos() {
     if (MEEMU("CSC_Unpacked_with_warnings", me3)) tmp->Add(me3->getTH1(), -1);
     me1->getTH1()->Divide(me2->getTH1(), tmp);
     delete tmp;
+  }
+
+  if (MEEMU("CSC_Reporting", me1)){
+    TH2* tmp=dynamic_cast<TH2*>(me1->getTH1()->Clone());
+    summary.ReadChambers(tmp);
+    delete tmp;
+  }
+
+  if (MEEMU("Summary_ME1", me1)){
+    TH1* tmp = me1->getTH1();
+    summary.Write(tmp);
   }
 
 }
