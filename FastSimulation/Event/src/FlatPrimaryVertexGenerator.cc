@@ -15,7 +15,9 @@ FlatPrimaryVertexGenerator::FlatPrimaryVertexGenerator(
   maxX(vtx.getParameter<double>("MaxX")),
   maxY(vtx.getParameter<double>("MaxY")),
   maxZ(vtx.getParameter<double>("MaxZ"))
-{}
+{
+  beamSpot_ = math::XYZPoint((minX+maxX)/2.,(minY+maxY)/2.,(minZ+maxZ)/2.);
+}
   
 void
 FlatPrimaryVertexGenerator::generate() {

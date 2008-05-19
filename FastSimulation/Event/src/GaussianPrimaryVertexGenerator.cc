@@ -15,7 +15,9 @@ GaussianPrimaryVertexGenerator::GaussianPrimaryVertexGenerator(
   sigmaX(vtx.getParameter<double>("SigmaX")),
   sigmaY(vtx.getParameter<double>("SigmaY")),
   sigmaZ(vtx.getParameter<double>("SigmaZ"))
-{}
+{
+  beamSpot_ = math::XYZPoint(meanX,meanY,meanZ);
+}
   
 void
 GaussianPrimaryVertexGenerator::generate() {

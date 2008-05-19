@@ -3,6 +3,7 @@
 
 // Data Formats
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 // HepPDT Headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -137,6 +138,10 @@ public:
 
   PrimaryVertexGenerator* thePrimaryVertexGenerator() const { return theVertexGenerator; }
 
+  /// Set the beam spot position
+  inline void setBeamSpot(const math::XYZPoint& aBeamSpot) { 
+    theBeamSpot = aBeamSpot;
+  }
 
  protected:
 
@@ -186,6 +191,7 @@ public:
   const ParticleDataTable * pdt;
 
   PrimaryVertexGenerator* theVertexGenerator;
+  math::XYZPoint theBeamSpot;
 
   const RandomEngine* random;
 

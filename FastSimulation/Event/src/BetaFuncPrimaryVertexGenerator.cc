@@ -19,6 +19,7 @@ BetaFuncPrimaryVertexGenerator::BetaFuncPrimaryVertexGenerator(
 {
 
   this->setBoost(inverseLorentzBoost());
+  beamSpot_ = math::XYZPoint(fX0,fY0,fZ0);
 
 } 
   

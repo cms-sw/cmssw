@@ -41,6 +41,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
 {
 
   theVertexGenerator = new NoPrimaryVertexGenerator();
+  theBeamSpot = math::XYZPoint(0.0,0.0,0.0);
 
   // Initialize the vectors of particles and vertices
   theGenParticles = new std::vector<HepMC::GenParticle*>(); 
@@ -88,6 +89,8 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
     theVertexGenerator = new BetaFuncPrimaryVertexGenerator(vtx,random);
   else
     theVertexGenerator = new NoPrimaryVertexGenerator();
+  // Initialize the beam spot, if not read from the DataBase
+  theBeamSpot = math::XYZPoint(0.0,0.0,0.0);
 
   // Initialize the vectors of particles and vertices
   theGenParticles = new std::vector<HepMC::GenParticle*>(); 
@@ -425,13 +428,15 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 					  primaryVertex->position().t()/10.);
 
   // Smear the main vertex if needed
+  // Now takes the origin from the database
   XYZTLorentzVector smearedVertex; 
   if ( primaryVertex->point3d().mag() < 1E-10 ) {
     theVertexGenerator->generate();
-    smearedVertex = XYZTLorentzVector(theVertexGenerator->x(),
-				      theVertexGenerator->y(),
-				      theVertexGenerator->z(), 
-				      0.);
+    smearedVertex = XYZTLorentzVector(
+      theVertexGenerator->x()-theVertexGenerator->beamSpot().x()+theBeamSpot.x(),
+      theVertexGenerator->y()-theVertexGenerator->beamSpot().y()+theBeamSpot.y(),
+      theVertexGenerator->z()-theVertexGenerator->beamSpot().z()+theBeamSpot.z(),
+      0.);
   }
 
   // Set the main vertex
@@ -590,11 +595,12 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   XYZTLorentzVector smearedVertex;
   if ( primaryVertex.mag() < 1E-10 ) {
     theVertexGenerator->generate();
-    smearedVertex = XYZTLorentzVector(theVertexGenerator->x(),
-				      theVertexGenerator->y(),
-				      theVertexGenerator->z(),
-				      0.);
-  } 
+    smearedVertex = XYZTLorentzVector(
+      theVertexGenerator->x()-theVertexGenerator->beamSpot().x()+theBeamSpot.x(),
+      theVertexGenerator->y()-theVertexGenerator->beamSpot().y()+theBeamSpot.y(),
+      theVertexGenerator->z()-theVertexGenerator->beamSpot().z()+theBeamSpot.z(),
+      0.);
+  }
 
   // Set the main vertex
   myFilter->setMainVertex(primaryVertex+smearedVertex);

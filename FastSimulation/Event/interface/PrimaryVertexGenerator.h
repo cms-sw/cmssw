@@ -3,6 +3,7 @@
 
 // Data Format Headers
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include "TMatrixD.h"
 
 class RandomEngine;
@@ -24,12 +25,16 @@ public:
 
   TMatrixD* boost() const;
 
+  /// Return x0, y0, z0
+  inline const math::XYZPoint& beamSpot() const { return beamSpot_; }
+
  protected:
 
   void setBoost(TMatrixD*);
 
   const RandomEngine* random;
   TMatrixD* boost_;
+  math::XYZPoint beamSpot_;
 
 };
 
