@@ -5,8 +5,8 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision$"
-__source__ = "$Source$"
+__version__ = "$Revision: 1.1 $"
+__source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 import new
@@ -168,18 +168,6 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def prepare_RECO(self):
-        ''' Enrich the schedule with reconstruction '''
-        self.loadAndRemember("Configuration/StandardSequences/Reconstruction_cff")  
-        self.process.reconstruction_step = cms.Path( self.process.reconstruction )
-        self.process.schedule.append(self.process.reconstruction_step)
-        return
-    
-    def prepare_POSTRECO(self):
-        """ Enrich the schedule with the postreco step """
-
-        pass
-    
     def prepare_GEN(self):
         """ Enrich the schedule with the generation step """    
         
@@ -209,22 +197,44 @@ class ConfigBuilder(object):
         self.process.schedule.append(self.process.digitisation_step)
         return
 
+    def prepare_DIGI2RAW(self):
+        self.loadAndRemember("Configuration/StandardSequences/DigiToRaw_cff.py")
+        self.process.digi2raw_step = cms.Path( self.process.DigiToRaw )
+        self.process.schedule.append(self.process.digi2raw_step)
+        return
+
     def prepare_L1(self):
         """ Enrich the schedule with the L1 simulation step"""
         self.loadAndRemember('Configuration/StandardSequences/SimL1Emulator_cff') 
         self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
         self.process.schedule.append(self.process.L1simulation_step)
 
-    def prepare_DIGI2RAW(self):
-        self.loadAndRemember("Configuration/StandardSequences/DigiToRaw_cff.py")  
-        self.process.digi2raw_step = cms.Path( self.process.digi2raw )
-        return         
-
     def prepare_HLT(self):
         """ Enrich the schedule with the HLT simulation step"""
         self.loadAndRemember("OHJE")
         # now we have to loop every single path in the process and check if that's an HLT path.
         # TODO
+
+    def prepare_RAW2DIGI(self);
+        self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff.py")
+        self.process.raw2digi_step = cms.Path( self.process.RawToDigi )
+        self.process.schedule.append(self.process.raw2digi_step)
+        return
+
+    def prepare_RECO(self):
+        ''' Enrich the schedule with reconstruction '''
+        self.loadAndRemember("Configuration/StandardSequences/Reconstruction_cff")
+        self.process.reconstruction_step = cms.Path( self.process.reconstruction )
+        self.process.schedule.append(self.process.reconstruction_step)
+        return
+
+    def prepare_POSTRECO(self):
+        """ Enrich the schedule with the postreco step """
+        self.loadAndRemember("Configuration/StandardSequences/PostRecoGenerator_cff")
+        self.process.postreco_step = cms.Path( self.process.postreco_generator )
+        self.process.schedule.append(self.process.postreco_step)
+        return                         
+
 
     def prepare_PATLayer0(self):
         """ In case people would like to have this"""
@@ -233,7 +243,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision$"),
+              (version=cms.untracked.string("$Revision: 1.1 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
