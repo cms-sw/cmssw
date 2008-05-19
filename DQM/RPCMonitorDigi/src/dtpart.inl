@@ -82,9 +82,14 @@ if(all4DSegments->size()>0){
 	
 	  const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
 	  LocalPoint xmin = top_->localPosition(0.);
+	  std::cout<<"\t \t \t xmin of this  Roll "<<ximn<<"cm"<<std::endl;
 	  LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
+	  std::cout<<"\t \t \t xmax of this  Roll "<<xmax<<"cm"<<std::endl;
 	  float rsize = fabs( xmax.x()-xmin.x() )*0.5;
+	  std::cout<<"\t \t \t Roll Size "<<rsize<<"cm"<<std::endl;
 	  float stripl = top_->stripLength();
+	  std::cout<<"\t \t \t Strip Lenght "<<stripl<<"cm"<<std::endl;
+	  
 	  
 	  std::cout<<"\t \t \t X Predicted in DTLocal= "<<X<<"cm"<<std::endl;
 	  std::cout<<"\t \t \t Y Predicted in DTLocal= "<<Y<<"cm"<<std::endl;
@@ -176,25 +181,25 @@ if(all4DSegments->size()>0){
 		}
 	      }
 	      
-	      LocalPoint minstripDetectedLocalPoint = top_->localPosition((float)minstripDetected);
-	      float minrescms = minstripDetectedLocalPoint.x()-PointExtrapolatedRPCFrame.x();
-	      std::cout<<"\t \t \t \t \t MinRes = "<<minres<<" res(cm)"<<minrescms<<std::endl;
+	      LocalPoint minstripDetectedLocalPoint = top_->localPosition((float)(minstripDetected));
 	      
+	      float minrescms = PointExtrapolatedRPCFrame.x()-minstripDetectedLocalPoint.x();
+	      float minrescmsY = PointExtrapolatedRPCFrame.y()-minstripDetectedLocalPoint.y();
+	    	      
 	      if(fabs(minres) < widestrip){
 		
+		std::cout<<"\t \t \t \t \t MinRes = "<<minres<<"  res(cm)="<<minrescms<<std::endl;
+
 		hGlobalRes->Fill(minrescms);
+		hGlobalResY->Fill(minrescmsY);
 		
 		sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(minres);
-
 		
-		  
 		sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(minres,Y);
 		
-		
-
-		std::cout <<"\t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<" (int) Predicted+0.5 "<<(int)(stripPredicted+0.5)<<" Detect "<<minstripDetected<<std::endl;
+		std::cout <<"\t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<"  (int)Predicted="<<(int)(stripPredicted)<<"  Detect="<<minstripDetected<<std::endl;
 		anycoincidence=true;
 		std::cout <<"\t \t \t \t \t Increassing counter"<<std::endl;
 		totalcounter[1]++;

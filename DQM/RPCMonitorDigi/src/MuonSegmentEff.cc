@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.19 2008/05/09 17:50:09 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.20 2008/05/16 12:26:43 carrillo Exp $
 //
 //
 
@@ -177,7 +177,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   //GLOBAL
   fOutputFile  = new TFile(GlobalRootLabel.c_str(), "RECREATE" );
 
-  hGlobalRes = new TH1F("GlobalResiduals","GlobalRPCResiduals",500,-5.,5.);
+  hGlobalRes = new TH1F("GlobalResiduals","Global RPC Residuals",500,-5.,5.);
+  hGlobalResY = new TH1F("GlobalResidualsY","Global RPC Residuals Y",500,-100.,100);
   
   EffGlob1 = new TH1F("GlobEfficiencySec1","Eff. vs. roll",20,0.5,20.5);
   EffGlob2 = new TH1F("GlobEfficiencySec2","Eff. vs. roll",20,0.5,20.5);
@@ -201,6 +202,7 @@ MuonSegmentEff::~MuonSegmentEff()
   //delete effres;
   
   fOutputFile->WriteTObject(hGlobalRes);
+  fOutputFile->WriteTObject(hGlobalResY);
   
   fOutputFile->WriteTObject(EffGlob1);
   fOutputFile->WriteTObject(EffGlob2);
@@ -215,6 +217,7 @@ MuonSegmentEff::~MuonSegmentEff()
   fOutputFile->WriteTObject(EffGlob11);
   fOutputFile->WriteTObject(EffGlob12);
 
+  fOutputFile->Close();
   edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
   if(EffSaveRootFile) dbe->showDirStructure();
 }
@@ -687,8 +690,10 @@ MuonSegmentEff::endJob() {
   }
 
   //Giuseppe
-  std::cout<<"Saving RootFile"<<std::endl;
-  if(EffSaveRootFile) dbe->save(EffRootFileName);
+  if(EffSaveRootFile){
+    dbe->save(EffRootFileName);
+    std::cout<<"Saving RootFile"<<std::endl;
+  }  
   ofeff.close();
   oftwiki.close();
   ofrej.close();

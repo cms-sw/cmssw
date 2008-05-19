@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSCS egments.
  *
- *  $Date: 2008/05/09 17:50:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/16 12:27:22 $
+ *  $Revision: 1.10 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -76,6 +76,7 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       std::string GlobalRootLabel;
       TFile* fOutputFile;
       TH1F* hGlobalRes;
+      TH1F* hGlobalResY;
       TH1F* EffGlob1;  TH1F* EffGlob2;  TH1F* EffGlob3;  TH1F* EffGlob4;  TH1F* EffGlob5;  TH1F* EffGlob6; 
       TH1F* EffGlob7;  TH1F* EffGlob8;  TH1F* EffGlob9;  TH1F* EffGlob10;  TH1F* EffGlob11;  TH1F* EffGlob12; 
       int wh;
