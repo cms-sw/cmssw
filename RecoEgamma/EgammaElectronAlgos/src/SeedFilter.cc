@@ -119,7 +119,8 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
                                                     originradius_,
                                                     deltaZVertex,
                                                     deltaEta_,
-                                                    deltaPhi_);
+                                                    deltaPhi_,
+						    -1); //temporary fix!!
   
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionMinus, e, setup);
   
@@ -137,7 +138,8 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
                                                    originradius_,
                                                    deltaZVertex,
                                                    deltaEta_,
-                                                   deltaPhi_);
+                                                   deltaPhi_,
+						   -1);//temporary fix!!
   
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionPlus, e, setup);
   
