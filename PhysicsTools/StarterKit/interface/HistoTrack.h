@@ -58,16 +58,16 @@ namespace pat {
 
 
     // fill a plain ol' track:
-    virtual void fill( const reco::RecoChargedCandidate *track, uint iPart = 1 );
-    virtual void fill( const reco::RecoChargedCandidate &track, uint iPart = 1 ) { fill(&track, iPart); }
+    virtual void fill( const reco::RecoChargedCandidate *track, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::RecoChargedCandidate &track, uint iPart = 1, double weight = 1.0 ) { fill(&track, iPart, weight); }
 
     // fill a track that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the track itself
-    virtual void fill( const reco::ShallowCloneCandidate *track, uint iPart = 1 );
-    virtual void fill( const reco::ShallowCloneCandidate &track, uint iPart = 1 )
-    { fill(&track, iPart); }
+    virtual void fill( const reco::ShallowCloneCandidate *track, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowCloneCandidate &track, uint iPart = 1, double weight = 1.0 )
+    { fill(&track, iPart, weight); }
 
-    virtual void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll );
+    virtual void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

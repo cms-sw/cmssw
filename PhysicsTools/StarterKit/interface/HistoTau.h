@@ -59,16 +59,16 @@ namespace pat {
 
 
     // fill a plain ol' tau:
-    virtual void fill( const Tau *tau, uint iPart = 1 );
-    virtual void fill( const Tau &tau, uint iPart = 1 ) { fill(&tau, iPart); }
+    virtual void fill( const Tau *tau, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const Tau &tau, uint iPart = 1, double weight = 1.0 ) { fill(&tau, iPart, weight); }
 
     // fill a tau that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the tau itself
-    virtual void fill( const reco::ShallowCloneCandidate *tau, uint iPart = 1 );
-    virtual void fill( const reco::ShallowCloneCandidate &tau, uint iPart = 1 )
-    { fill(&tau, iPart); }
+    virtual void fill( const reco::ShallowCloneCandidate *tau, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowCloneCandidate &tau, uint iPart = 1, double weight = 1.0 )
+    { fill(&tau, iPart, weight); }
 
-    virtual void fillCollection( const std::vector<Tau> & coll );
+    virtual void fillCollection( const std::vector<Tau> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

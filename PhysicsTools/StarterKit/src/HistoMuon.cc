@@ -44,41 +44,42 @@ HistoMuon::HistoMuon(std::string dir, std::string group,std::string pre,
 
 
 // fill a plain ol' muon
-void HistoMuon::fill( const Muon *muon, uint iMu )
+void HistoMuon::fill( const Muon *muon, uint iMu, double weight )
 {
 
   // First fill common 4-vector histograms
 
-  HistoGroup<Muon>::fill( muon, iMu);
+  HistoGroup<Muon>::fill( muon, iMu, weight);
 
   // fill relevant muon histograms
-  h_trackIso_->fill( muon->trackIso(), iMu );
-  h_caloIso_ ->fill( muon->caloIso() , iMu );
-  h_leptonID_->fill( muon->leptonID(), iMu );
+  h_trackIso_->fill( muon->trackIso(), iMu , weight);
+  h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
+  h_leptonID_->fill( muon->leptonID(), iMu , weight);
 
   const reco::Muon* recoMuon = muon->originalObject();
-  h_nChambers_->fill( recoMuon->numberOfChambers(), iMu );
+  h_nChambers_->fill( recoMuon->numberOfChambers(), iMu , weight);
 
 // For CMSSW 1_6_x
 
-  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
-  h_type_->fill( recoMuon->type(), iMu );
+  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu, weight );
+  h_type_->fill( recoMuon->type(), iMu, weight );
   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
+
 
 // For CMSSW 2_0_x
 
-//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
-//   h_type_->fill( recoMuon->type(), iMu );
+//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu , weight);
+//   h_type_->fill( recoMuon->type(), iMu , weight);
 //   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
 
-  h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu );
+  h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu , weight);
 
 }
 
 
 // fill a muon that is a shallow clone, and take kinematics from 
 // shallow clone but detector plots from the muon itself
-void HistoMuon::fill( const reco::ShallowCloneCandidate *pshallow, uint iMu )
+void HistoMuon::fill( const reco::ShallowCloneCandidate *pshallow, uint iMu, double weight )
 {
 
   // Get the underlying object that the shallow clone represents
@@ -93,36 +94,36 @@ void HistoMuon::fill( const reco::ShallowCloneCandidate *pshallow, uint iMu )
 
   // First fill common 4-vector histograms from shallow clone
 
-  HistoGroup<Muon>::fill( pshallow, iMu);
+  HistoGroup<Muon>::fill( pshallow, iMu, weight);
 
   // fill relevant muon histograms from muon
-  h_trackIso_->fill( muon->trackIso(), iMu );
-  h_caloIso_ ->fill( muon->caloIso() , iMu );
-  h_leptonID_->fill( muon->leptonID(), iMu );
+  h_trackIso_->fill( muon->trackIso(), iMu , weight);
+  h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
+  h_leptonID_->fill( muon->leptonID(), iMu , weight);
 
   const reco::Muon* recoMuon = muon->originalObject();
-  h_nChambers_->fill( recoMuon->numberOfChambers(), iMu );
+  h_nChambers_->fill( recoMuon->numberOfChambers(), iMu , weight);
 
 // For CMSSW 1_6_x
 
-  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
-  h_type_->fill( recoMuon->type(), iMu );
+  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu, weight );
+  h_type_->fill( recoMuon->type(), iMu, weight );
   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
 
 // For CMSSW 2_0_x
 
-//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu );
-//   h_type_->fill( recoMuon->type(), iMu );
+//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu , weight);
+//   h_type_->fill( recoMuon->type(), iMu , weight);
 //   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
 
-  h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu );
+  h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu , weight);
 
 }
 
-void HistoMuon::fillCollection( const std::vector<Muon> & coll )
+void HistoMuon::fillCollection( const std::vector<Muon> & coll, double weight )
 {
 
-  h_size_->fill( coll.size() );     //! Save the size of the collection.
+  h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
   std::vector<Muon>::const_iterator
     iobj = coll.begin(),
@@ -130,7 +131,7 @@ void HistoMuon::fillCollection( const std::vector<Muon> & coll )
 
   uint i = 1;              //! Fortran-style indexing
   for ( ; iobj != iend; ++iobj, ++i ) {
-    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+    fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
   }
 }
 

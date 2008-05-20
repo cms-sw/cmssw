@@ -58,16 +58,16 @@ namespace pat {
     virtual ~HistoMuon() { } ;
 
     // fill a plain ol' muon:
-    virtual void fill( const Muon *muon, uint iPart = 1 );
-    virtual void fill( const Muon &muon, uint iPart = 1 ) { fill(&muon, iPart); }
+    virtual void fill( const Muon *muon, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const Muon &muon, uint iPart = 1, double weight = 1.0 ) { fill(&muon, iPart,weight); }
 
     // fill a muon that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the muon itself
-    virtual void fill( const reco::ShallowCloneCandidate *muon, uint iPart = 1 );
-    virtual void fill( const reco::ShallowCloneCandidate &muon, uint iPart = 1 )
-    { fill(&muon, iPart); }
+    virtual void fill( const reco::ShallowCloneCandidate *muon, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowCloneCandidate &muon, uint iPart = 1, double weight = 1.0 )
+    { fill(&muon, iPart,weight); }
 
-    virtual void fillCollection( const std::vector<Muon> & coll );
+    virtual void fillCollection( const std::vector<Muon> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

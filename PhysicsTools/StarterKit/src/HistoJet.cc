@@ -32,21 +32,21 @@ HistoJet::~HistoJet()
 }
 
 
-void HistoJet::fill( const Jet * jet, uint iJet )
+void HistoJet::fill( const Jet * jet, uint iJet, double weight )
 {
 
   // First fill common 4-vector histograms
-  HistoGroup<Jet>::fill( jet, iJet );
+  HistoGroup<Jet>::fill( jet, iJet, weight );
 
   // fill relevant jet histograms
-  h_jetFlavour_     ->fill( jet->partonFlavour(), iJet );
-  h_BDiscriminant_  ->fill( jet->bDiscriminator("trackCountingHighPurJetTags"), iJet );
-  h_jetCharge_      ->fill( jet->jetCharge(), iJet );
-  h_nTrk_           ->fill( jet->associatedTracks().size(), iJet );
+  h_jetFlavour_     ->fill( jet->partonFlavour(), iJet, weight );
+  h_BDiscriminant_  ->fill( jet->bDiscriminator("trackCountingHighPurJetTags"), iJet, weight );
+  h_jetCharge_      ->fill( jet->jetCharge(), iJet, weight );
+  h_nTrk_           ->fill( jet->associatedTracks().size(), iJet, weight );
 
 }
 
-void HistoJet::fill( const reco::ShallowCloneCandidate * pshallow, uint iJet )
+void HistoJet::fill( const reco::ShallowCloneCandidate * pshallow, uint iJet, double weight )
 {
 
   // Get the underlying object that the shallow clone represents
@@ -58,21 +58,21 @@ void HistoJet::fill( const reco::ShallowCloneCandidate * pshallow, uint iJet )
   }
 
   // First fill common 4-vector histograms from shallow clone
-  HistoGroup<Jet>::fill( pshallow, iJet);
+  HistoGroup<Jet>::fill( pshallow, iJet, weight);
 
   // fill relevant jet histograms
-  h_jetFlavour_     ->fill( jet->partonFlavour(), iJet );
-  h_BDiscriminant_  ->fill( jet->bDiscriminator("trackCountingHighPurJetTags"), iJet );
-  h_jetCharge_      ->fill( jet->jetCharge(), iJet );
-  h_nTrk_           ->fill( jet->associatedTracks().size(), iJet );
+  h_jetFlavour_     ->fill( jet->partonFlavour(), iJet, weight );
+  h_BDiscriminant_  ->fill( jet->bDiscriminator("trackCountingHighPurJetTags"), iJet, weight );
+  h_jetCharge_      ->fill( jet->jetCharge(), iJet, weight );
+  h_nTrk_           ->fill( jet->associatedTracks().size(), iJet, weight );
 
 }
 
 
-void HistoJet::fillCollection( const std::vector<Jet> & coll ) 
+void HistoJet::fillCollection( const std::vector<Jet> & coll, double weight ) 
 {
  
-  h_size_->fill( coll.size() );     //! Save the size of the collection.
+  h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
   std::vector<Jet>::const_iterator
     iobj = coll.begin(),
@@ -80,7 +80,7 @@ void HistoJet::fillCollection( const std::vector<Jet> & coll )
 
   uint i = 1;              //! Fortran-style indexing
   for ( ; iobj != iend; ++iobj, ++i ) {
-    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+    fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
   } 
 }
 

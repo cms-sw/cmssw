@@ -77,7 +77,7 @@ namespace pat {
     { fill( &obj, imulti, weight ); } // call the one above
 
     //!  Fill all histograms for *all* Phys Objects sitting in a collection!
-    virtual void fillCollection( const std::vector<PHYS_OBJECT> & coll );
+    virtual void fillCollection( const std::vector<PHYS_OBJECT> & coll, double weight = 1.0 );
 
     //!  Register newly created HistGram objects
     virtual void addHisto( PhysVarHisto * hg );
@@ -286,14 +286,14 @@ namespace pat {
   inline
   void
   HistoGroup<PHYS_OBJECT>::
-  fillCollection( const std::vector<PHYS_OBJECT> & coll )
+  fillCollection( const std::vector<PHYS_OBJECT> & coll, double weight )
   {
 
     if ( verboseLevel_ > 10) {
       std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::fillCollection"
 		<< std::endl;
     }
-    h_size_->fill( coll.size() );     //! Save the size of the collection.
+    h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
     typename std::vector<PHYS_OBJECT>::const_iterator
       iobj = coll.begin(),
@@ -301,7 +301,7 @@ namespace pat {
 
     uint i = 1;              //! Fortran-style indexing
     for ( ; iobj != iend; ++iobj, ++i ) {
-      fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+      fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
     }
   }
 

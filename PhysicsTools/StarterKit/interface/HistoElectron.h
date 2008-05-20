@@ -56,16 +56,16 @@ namespace pat {
     virtual ~HistoElectron();
 
     // fill a plain ol' electron:
-    virtual void fill( const Electron *electron, uint iPart = 1 );
-    virtual void fill( const Electron &electron, uint iPart = 1 ) { fill(&electron, iPart); }
+    virtual void fill( const Electron *electron, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const Electron &electron, uint iPart = 1, double weight = 1.0 ) { fill(&electron, iPart,weight); }
 
     // fill a electron that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the electron itself
-    virtual void fill( const reco::ShallowCloneCandidate *electron, uint iPart = 1 );
-    virtual void fill( const reco::ShallowCloneCandidate &electron, uint iPart = 1 )
-    { fill(&electron, iPart); }
+    virtual void fill( const reco::ShallowCloneCandidate *electron, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowCloneCandidate &electron, uint iPart = 1, double weight = 1.0 )
+    { fill(&electron, iPart,weight); }
 
-    virtual void fillCollection( const std::vector<Electron> & coll );
+    virtual void fillCollection( const std::vector<Electron> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

@@ -81,38 +81,38 @@ public:
 
   //--- Process a whole collection of Muons...
   //
-  inline void fillCollection( const std::vector<pat::Muon> & coll )
-    { muonHistograms_->fillCollection(coll); }
+  inline void fillCollection( const std::vector<pat::Muon> & coll, double w = 1.0 )
+    { muonHistograms_->fillCollection(coll,w); }
 
   //--- ... or Electrons...
   //
-  inline void fillCollection( const std::vector<pat::Electron> & coll )
-    { electronHistograms_->fillCollection(coll); }
+  inline void fillCollection( const std::vector<pat::Electron> & coll, double w = 1.0 )
+    { electronHistograms_->fillCollection(coll,w); }
 
   //--- ... or Taus...
   //
-  inline void fillCollection( const std::vector<pat::Tau> & coll )
-    { tauHistograms_->fillCollection(coll); }
+  inline void fillCollection( const std::vector<pat::Tau> & coll, double w = 1.0 )
+    { tauHistograms_->fillCollection(coll,w); }
 
   //--- ... or Jets...
   //
-  inline void fillCollection( const std::vector<pat::Jet> & coll )
-    { jetHistograms_->fillCollection(coll); }
+  inline void fillCollection( const std::vector<pat::Jet> & coll, double w = 1.0 )
+    { jetHistograms_->fillCollection(coll,w); }
 
   //--- ... or MET.
   //
-  inline void fillCollection( const std::vector<pat::MET> & coll )
-    { metHistograms_->fillCollection(coll); }
+  inline void fillCollection( const std::vector<pat::MET> & coll, double w = 1.0 )
+    { metHistograms_->fillCollection(coll,w); }
 
   //--- ... or Photon.
   //
-  inline void fillCollection( const std::vector<pat::Photon> & coll )
-    { photonHistograms_->fillCollection(coll); }
+  inline void fillCollection( const std::vector<pat::Photon> & coll, double w = 1.0 )
+    { photonHistograms_->fillCollection(coll,w); }
 
   //--- ... or Track.
   //
-  inline void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll )
-    { trackHistograms_->fillCollection(coll); }
+  inline void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll, double w = 1.0 )
+    { trackHistograms_->fillCollection(coll,w); }
 
 
 

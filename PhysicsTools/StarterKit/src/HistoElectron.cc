@@ -28,21 +28,21 @@ HistoElectron::~HistoElectron()
 }
 
 
-void HistoElectron::fill( const Electron * electron, uint iE )
+void HistoElectron::fill( const Electron * electron, uint iE, double weight )
 {
 
   // First fill common 4-vector histograms
-  HistoGroup<Electron>::fill( electron, iE );
+  HistoGroup<Electron>::fill( electron, iE , weight);
 
   // fill relevant electron histograms
-  h_trackIso_       ->fill( electron->trackIso(), iE );
-  h_caloIso_        ->fill( electron->caloIso(), iE );
-  h_leptonID_       ->fill( electron->leptonID(), iE );
+  h_trackIso_       ->fill( electron->trackIso(), iE, weight );
+  h_caloIso_        ->fill( electron->caloIso(), iE, weight );
+  h_leptonID_       ->fill( electron->leptonID(), iE, weight );
 
 }
 
 
-void HistoElectron::fill( const reco::ShallowCloneCandidate * pshallow, uint iE )
+void HistoElectron::fill( const reco::ShallowCloneCandidate * pshallow, uint iE, double weight )
 {
 
   // Get the underlying object that the shallow clone represents
@@ -55,20 +55,20 @@ void HistoElectron::fill( const reco::ShallowCloneCandidate * pshallow, uint iE 
 
 
   // First fill common 4-vector histograms
-  HistoGroup<Electron>::fill( pshallow, iE );
+  HistoGroup<Electron>::fill( pshallow, iE, weight );
 
   // fill relevant electron histograms
-  h_trackIso_       ->fill( electron->trackIso(), iE );
-  h_caloIso_        ->fill( electron->caloIso(), iE );
-  h_leptonID_       ->fill( electron->leptonID(), iE );
+  h_trackIso_       ->fill( electron->trackIso(), iE, weight );
+  h_caloIso_        ->fill( electron->caloIso(), iE, weight );
+  h_leptonID_       ->fill( electron->leptonID(), iE, weight );
 
 }
 
 
-void HistoElectron::fillCollection( const std::vector<Electron> & coll ) 
+void HistoElectron::fillCollection( const std::vector<Electron> & coll,double weight ) 
 {
  
-  h_size_->fill( coll.size() );     //! Save the size of the collection.
+  h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
   std::vector<Electron>::const_iterator
     iobj = coll.begin(),
@@ -76,7 +76,7 @@ void HistoElectron::fillCollection( const std::vector<Electron> & coll )
 
   uint i = 1;              //! Fortran-style indexing
   for ( ; iobj != iend; ++iobj, ++i ) {
-    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+    fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
   } 
 }
 

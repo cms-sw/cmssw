@@ -57,16 +57,16 @@ namespace pat {
 
 
     // fill a plain ol' jet:
-    virtual void fill( const Jet *jet, uint iPart = 1 );
-    virtual void fill( const Jet &jet, uint iPart = 1 ) { fill(&jet, iPart); }
+    virtual void fill( const Jet *jet, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const Jet &jet, uint iPart = 1, double weight = 1.0 ) { fill(&jet, iPart,weight); }
 
     // fill a jet that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the jet itself
-    virtual void fill( const reco::ShallowCloneCandidate *jet, uint iPart = 1 );
-    virtual void fill( const reco::ShallowCloneCandidate &jet, uint iPart = 1 )
-    { fill(&jet, iPart); }
+    virtual void fill( const reco::ShallowCloneCandidate *jet, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowCloneCandidate &jet, uint iPart = 1, double weight = 1.0 )
+    { fill(&jet, iPart, weight); }
 
-    virtual void fillCollection( const std::vector<Jet> & coll );
+    virtual void fillCollection( const std::vector<Jet> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

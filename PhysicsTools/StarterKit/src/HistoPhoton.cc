@@ -28,22 +28,22 @@ HistoPhoton::~HistoPhoton()
 }
 
 
-void HistoPhoton::fill( const Photon * photon, uint iE )
+void HistoPhoton::fill( const Photon * photon, uint iE, double weight )
 {
 
   // First fill common 4-vector histograms
-  HistoGroup<Photon>::fill( photon, iE );
+  HistoGroup<Photon>::fill( photon, iE, weight );
 
   // fill relevant photon histograms
-  h_trackIso_       ->fill( photon->trackIso(), iE );
-  h_caloIso_        ->fill( photon->caloIso(), iE );
-  h_photonID_       ->fill( photon->photonID(), iE );
+  h_trackIso_       ->fill( photon->trackIso(), iE, weight );
+  h_caloIso_        ->fill( photon->caloIso(), iE, weight );
+  h_photonID_       ->fill( photon->photonID(), iE, weight );
 
 }
 
 
 
-void HistoPhoton::fill( const reco::ShallowCloneCandidate * pshallow, uint iE )
+void HistoPhoton::fill( const reco::ShallowCloneCandidate * pshallow, uint iE, double weight )
 {
 
 
@@ -56,20 +56,20 @@ void HistoPhoton::fill( const reco::ShallowCloneCandidate * pshallow, uint iE )
   }
 
   // First fill common 4-vector histograms
-  HistoGroup<Photon>::fill( pshallow, iE );
+  HistoGroup<Photon>::fill( pshallow, iE, weight );
 
   // fill relevant photon histograms
-  h_trackIso_       ->fill( photon->trackIso(), iE );
-  h_caloIso_        ->fill( photon->caloIso(), iE );
-  h_photonID_       ->fill( photon->photonID(), iE );
+  h_trackIso_       ->fill( photon->trackIso(), iE, weight );
+  h_caloIso_        ->fill( photon->caloIso(), iE, weight );
+  h_photonID_       ->fill( photon->photonID(), iE, weight );
 
 }
 
 
-void HistoPhoton::fillCollection( const std::vector<Photon> & coll ) 
+void HistoPhoton::fillCollection( const std::vector<Photon> & coll, double weight ) 
 {
 
-   h_size_->fill( coll.size() );     //! Save the size of the collection.
+  h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
   std::vector<Photon>::const_iterator
     iobj = coll.begin(),
@@ -77,7 +77,7 @@ void HistoPhoton::fillCollection( const std::vector<Photon> & coll )
 
   uint i = 1;              //! Fortran-style indexing
   for ( ; iobj != iend; ++iobj, ++i ) {
-    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+    fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
   } 
 }
 
