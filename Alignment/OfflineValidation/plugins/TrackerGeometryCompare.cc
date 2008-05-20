@@ -161,8 +161,8 @@ void TrackerGeometryCompare::beginJob(const edm::EventSetup& iSetup){
 		if( !poolDbService.isAvailable() ) // Die if not available
 			throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 		
-		poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->currentTime(), "TrackerAlignmentRcd");
-		poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->currentTime(), "TrackerAlignmentErrorRcd");
+		poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), "TrackerAlignmentRcd");
+		poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd");
 		
 	}		
 	
