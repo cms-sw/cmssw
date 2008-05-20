@@ -40,7 +40,7 @@ void CSCSummary::ReadChambers(TH2*& h2) {
 
     unsigned int side, station, ring, chamber;
     for(unsigned int x = 1; x <= 36; x++) {
-      for(unsigned int y = 0; y < 18; y++) {
+      for(unsigned int y = 1; y <= 18; y++) {
         double z = h2->GetBinContent(x, y);
         if(ChamberCoords(x, y, side, station, ring, chamber)) {
           if(z > 0) {
@@ -232,80 +232,80 @@ bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
   if ( y < 10 ) side = 0;
   else side = 1;
 
-  chamber = x;
+  chamber = x - 1;
 
   switch(y) {
     case 1:
-      station = 4;
-      ring    = 2;
+      station = 3;
+      ring    = 1;
       break;
     case 2:
-      station = 4;
-      ring    = 1;
+      station = 3;
+      ring    = 0;
       break;
     case 3:
       station = 3;
-      ring    = 2;
+      ring    = 1;
       break;
     case 4:
-      station = 3;
-      ring    = 1;
+      station = 2;
+      ring    = 0;
       break;
     case 5:
-      station = 2;
-      ring    = 2;
+      station = 1;
+      ring    = 1;
       break;
     case 6:
-      station = 2;
-      ring    = 1;
+      station = 1;
+      ring    = 0;
       break;
     case 7:
-      station = 1;
-      ring    = 3;
+      station = 0;
+      ring    = 2;
       break;
     case 8:
-      station = 1;
-      ring    = 2;
+      station = 0;
+      ring    = 1;
       break;
     case 9:
-      station = 1;
-      ring    = 1;
+      station = 0;
+      ring    = 0;
       break;
     case 10:
-      station = 1;
-      ring    = 1;
+      station = 0;
+      ring    = 0;
       break;
     case 11:
-      station = 1;
-      ring    = 2;
+      station = 0;
+      ring    = 1;
       break;
     case 12:
-      station = 1;
-      ring    = 3;
+      station = 0;
+      ring    = 2;
       break;
     case 13:
-      station = 2;
-      ring    = 1;
+      station = 1;
+      ring    = 0;
       break;
     case 14:
-      station = 2;
-      ring    = 2;
+      station = 1;
+      ring    = 1;
       break;
     case 15:
-      station = 3;
-      ring    = 1;
+      station = 2;
+      ring    = 0;
       break;
     case 16:
-      station = 3;
-      ring    = 2;
-      break;
-    case 17:
-      station = 4;
+      station = 2;
       ring    = 1;
       break;
+    case 17:
+      station = 3;
+      ring    = 0;
+      break;
     case 18:
-      station = 4;
-      ring    = 2;
+      station = 3;
+      ring    = 1;
       break;
   }
 
