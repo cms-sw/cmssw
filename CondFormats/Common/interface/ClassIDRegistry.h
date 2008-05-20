@@ -36,16 +36,16 @@ namespace cond {
 
   template<typename T>
   struct ClassID : public  ClassIDRegistry::Elem {
-    ClassID() : ClassIDRegistry::Elem(typeid(T) {}
+    ClassID() : ClassIDRegistry::Elem(typeid(T)) {}
     ClassID(int i) : ClassIDRegistry::Elem(typeid(T),i) {}
   };
+  
     
-    
-  }
-    
-  // magic: works only if a file local registry exists in the file
+}
+
+// magic: works only if a file local registry exists in the file
 #define ELEM_CONSTR(xx_)						\
-    cond::ClassIDRegistry::Elem::Elem(const std::type_info& t,int) : tinfo(t) {registry = &xx_;registerMe(t);} 
+  cond::ClassIDRegistry::Elem::Elem(const std::type_info& t,int) : tinfo(t) {registry = &xx_;registerMe(t);} 
 
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
