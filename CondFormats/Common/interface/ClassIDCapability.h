@@ -7,7 +7,7 @@
 #include "CondFormats/Common/interface/ClassIDRegistry.h"
 
 namespace {
-  cond::ClassIDRegistry packageClassIDRegistry(idCategories::dictIDCategory);
+  cond::ClassIDRegistry packageClassIDRegistry(cond::idCategories::dictIDCategory);
 }
 
 ELEM_CONSTR(packageClassIDRegistry)

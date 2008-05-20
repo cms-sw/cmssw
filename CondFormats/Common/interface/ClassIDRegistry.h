@@ -15,7 +15,7 @@ namespace cond {
   public:
     std::vector<std::string> sids;
     std::vector<const char*> csids;
-    ClassIDRegistry((std::string const & pfix);
+    ClassIDRegistry(std::string const & pfix);
     struct Elem {
       ClassIDRegistry * registry;
       inline Elem(){}
