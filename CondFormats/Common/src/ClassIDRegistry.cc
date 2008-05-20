@@ -1,4 +1,4 @@
-#include "CondFormat/Common/interface/ClassIDRegistry.h"
+#include "CondFormats/Common/interface/ClassIDRegistry.h"
 #include "StorageSvc/DbReflex.h"
 #include <typeinfo>
 #include "cxxabi.h"

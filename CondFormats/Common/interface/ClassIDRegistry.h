@@ -5,22 +5,21 @@
 #include<string>
 
 namespace cond {
+
   class ClassIDRegistry {
   public:
-    vector<std::string> sids;
-    vector<const char*> csids;
+    std::vector<std::string> sids;
+    std::vector<const char*> csids;
     ClassIDRegistry(char const* pfix);
     struct Elem {
       ClassIDRegistry * registry;
-      Elem() {
+      inline Elem() {
 	// magic: works only if a file local registry exists in the file
 	registry = &packageClassIDRegistry;
-      }
-      virtual std::string id()=0; 
+      } 
       void registerMe(const std::type_info& t);
     }
-      static std::string id(const std::type_info& t);
-
+   
   private:
     std::string prefix;
 
@@ -31,6 +30,6 @@ namespace cond {
     ClassID() { registerMe(typeid(T));}
   };
 
-
+}
 
 #endif
