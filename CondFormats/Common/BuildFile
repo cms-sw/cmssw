@@ -1,5 +1,5 @@
 <use name=StorageSvc>
 <export>
   <use name=StorageSvc>
-  <lib name=CondFormatCommon>
+  <lib name=CondFormatsCommon>
 </export>

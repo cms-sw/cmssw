@@ -37,8 +37,8 @@ namespace cond {
   ClassIDRegistry::ClassIDRegistry(char const* pfix) : prefix(pfix){}
 
   void ClassIDRegistry::registerMe(const std::type_info& t) {
-    sids.push_back(prefix+id(t)+'/0');
-    csids.push_back(sids.data());
+    sids.push_back(prefix+id(t)+"/0");
+    csids.push_back(sids.back().data());
   }
   
   void ClassIDRegistry::Elem::registerMe(const std::type_info& t) {
