@@ -1,7 +1,7 @@
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollection.h"
 
@@ -44,7 +44,7 @@ double HoECalculator::operator() ( const reco::BasicCluster* clus,
 double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Event& e , const edm::EventSetup& c )
 {
   if ( !theCaloGeom_.isValid() )
-    c.get<IdealGeometryRecord>().get(theCaloGeom_) ;
+    c.get<CaloGeometryRecord>().get(theCaloGeom_) ;
 
   //product the geometry
   theCaloGeom_.product() ;
