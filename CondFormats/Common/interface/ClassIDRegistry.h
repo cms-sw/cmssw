@@ -15,7 +15,7 @@ namespace cond {
       ClassIDRegistry * registry;
       inline Elem();
       void registerMe(const std::type_info& t);
-    }
+    };
    
   private:
     std::string prefix;
@@ -30,6 +30,6 @@ namespace cond {
 }
 
 // magic: works only if a file local registry exists in the file
-#define ElemConstr(xx)  Elem() { registry = &xx;} 
+#define ElemConstr(xx)  Elem(){registry = &xx;} 
 
 #endif

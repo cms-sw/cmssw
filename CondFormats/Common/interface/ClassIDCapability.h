@@ -4,13 +4,6 @@
  *
  */
 
-namespace cond {
-  class ClassIDRegistry;
-}
-namespace {
-  cond::ClassIDRegistry * =0;
-}
-
 #include "CondFormats/Common/interface/ClassIDRegistry.h"
 
 namespace {
