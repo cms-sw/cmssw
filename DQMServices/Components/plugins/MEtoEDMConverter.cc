@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/13 21:15:07 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/27 18:10:23 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -23,6 +23,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
+  path = iPSet.getUntrackedParameter<std::string>("Path");  
   
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -36,6 +37,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
       << "    Name          = " << fName << "\n"
       << "    Verbosity     = " << verbosity << "\n"
       << "    Frequency     = " << frequency << "\n"
+      << "    Path          = " << path << "\n"
       << "===============================\n";
   }
 
@@ -212,7 +214,7 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
   // clear contents of monitor elements
   std::vector<MonitorElement *>::iterator mmi, mme;
-  std::vector<MonitorElement *> items(dbe->getAllContents(""));
+  std::vector<MonitorElement *> items(dbe->getAllContents(path));
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
     MonitorElement *me = *mmi;
 
@@ -281,7 +283,7 @@ MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 
   // extract ME information into vectors
   std::vector<MonitorElement *>::iterator mmi, mme;
-  std::vector<MonitorElement *> items(dbe->getAllContents(""));
+  std::vector<MonitorElement *> items(dbe->getAllContents(path));
   for (mmi = items.begin (), mme = items.end (); mmi != mme; ++mmi) {
     MonitorElement *me = *mmi;
 
