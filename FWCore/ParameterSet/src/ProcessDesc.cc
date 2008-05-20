@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.25 2007/08/11 18:00:34 wmtan Exp $
+   \version $Id: ProcessDesc.cc,v 1.26 2007/11/11 00:24:43 wmtan Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.25 2007/08/11 18:00:34 wmtan Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.26 2007/11/11 00:24:43 wmtan Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -142,7 +142,9 @@ namespace edm
 
   void ProcessDesc::writeBookkeeping(const std::string & name)
   {
-    pset_->addParameter(name, bookkeeping_[name]);
+    std::vector<std::string> sortedString = bookkeeping_[name];
+    std::sort(sortedString.begin(), sortedString.end());
+    pset_->addParameter(name, sortedString);
   }
  
 
