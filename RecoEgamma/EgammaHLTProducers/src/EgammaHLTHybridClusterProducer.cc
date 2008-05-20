@@ -19,7 +19,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -115,7 +115,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<IdealGeometryRecord>().get(geoHandle);
+  es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometry_p;
   std::auto_ptr<const CaloSubdetectorTopology> topology;

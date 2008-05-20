@@ -29,7 +29,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet& config) : conf_(config)
 {
@@ -75,7 +75,7 @@ EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::
   const HFRecHitCollection* hcalhitEndcapCollection = hhitEndcapHandle.product();
   //Get Calo Geometry
   edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
+  iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* caloGeom = pG.product();
   
   reco::RecoEcalCandidateIsolationMap isoMap;
