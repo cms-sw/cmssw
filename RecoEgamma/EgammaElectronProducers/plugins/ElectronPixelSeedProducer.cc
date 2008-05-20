@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.22 2008/04/21 09:50:47 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.23 2008/04/21 11:26:52 uberthon Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h"
@@ -80,9 +80,9 @@ void ElectronPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& iS
   LogDebug("ElectronPixelSeedProducer");
   LogDebug("ElectronPixelSeedProducer")  <<"[ElectronPixelSeedProducer::produce] entering " ;
   // get calo geometry 
-  if (cacheID_!=iSetup.get<IdealGeometryRecord>().cacheIdentifier()) {
-              iSetup.get<IdealGeometryRecord>().get(theCaloGeom);
-	      cacheID_=iSetup.get<IdealGeometryRecord>().cacheIdentifier();
+  if (cacheID_!=iSetup.get<CaloGeometryRecord>().cacheIdentifier()) {
+              iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+	      cacheID_=iSetup.get<CaloGeometryRecord>().cacheIdentifier();
   }
 
   matcher_->setupES(iSetup);  
