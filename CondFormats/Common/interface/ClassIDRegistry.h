@@ -16,7 +16,7 @@ namespace cond {
       inline Elem();
       void registerMe(const std::type_info& t);
     };
-   
+    void registerMe(const std::type_info& t);
   private:
     std::string prefix;
 

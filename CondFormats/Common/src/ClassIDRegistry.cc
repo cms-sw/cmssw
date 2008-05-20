@@ -3,6 +3,7 @@
 #include <typeinfo>
 #include "cxxabi.h"
 
+namespace pool {  void genMD5(const std::string& s, void* code);  }
 
 namespace cond {
 
@@ -33,7 +34,7 @@ namespace cond {
     }
   }
 
-  ClassIDRegistry(char const* pfix) : prefix(pfix){}
+  ClassIDRegistry::ClassIDRegistry(char const* pfix) : prefix(pfix){}
 
   ClassIDRegistry::registerMe(const std::type_info& t) {
     sids.push_back(prefix+id(t)+'/0');
