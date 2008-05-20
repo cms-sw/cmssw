@@ -1,5 +1,6 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationAlgs.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 
 
@@ -140,7 +141,7 @@ L2TauIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,
 
   //Init Geometry
   ESHandle<CaloGeometry> geometry;
-  iSetup.get<IdealGeometryRecord>().get(geometry);
+  iSetup.get<CaloGeometryRecord>().get(geometry);
 
   //Create ECAL Geometry
   const CaloSubdetectorGeometry* EB = geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
