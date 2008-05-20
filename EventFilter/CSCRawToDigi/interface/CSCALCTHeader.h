@@ -80,6 +80,16 @@ struct CSCALCT {
     bzero(this, 2); ///size of ALCT = 2bytes
   }
 
+  CSCALCT(const CSCALCTDigi & alctDigi):
+    valid(alctDigi.isValid()),
+    quality(alctDigi.getQuality()),
+    accel(alctDigi.getAccelerator()),
+    pattern(alctDigi.getCollisionB()),
+    keyWire(alctDigi.getKeyWG()),
+    reserved(0)
+  {
+  }
+
   short unsigned int sizeInWords() const { ///size of ALCT
     return 1;
   }
