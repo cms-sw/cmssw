@@ -59,10 +59,6 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
 std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
   std::vector<CSCCLCTDigi> result;
 
-  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
-  bool zplus = (CSCDetId::endcap(idlayer) == 1); 
-  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
-  
   switch (firmwareVersion) {
   case 2006: {
     ///fill digis here
@@ -79,9 +75,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
     }
     int strip = header2006.clct0_key;
     int cfeb = (header2006.clct0_cfeb_low)|(header2006.clct0_cfeb_high<<1);
-    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+    correctCLCTNumbering(idlayer, strip, cfeb);
 
     CSCCLCTDigi digi0(header2006.clct0_valid, header2006.clct0_quality, shape, type, header2006.clct0_bend, 
 		      strip, cfeb, header2006.clct0_bxn, 1);
@@ -99,9 +93,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
 
     strip = header2006.clct1_key;
     cfeb = (header2006.clct1_cfeb_low)|(header2006.clct1_cfeb_high<<1);
-    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+    correctCLCTNumbering(idlayer, strip, cfeb);
 
     CSCCLCTDigi digi1(header2006.clct1_valid, header2006.clct1_quality, shape, type, header2006.clct1_bend,
 		      strip, cfeb, header2006.clct1_bxn, 2);
@@ -112,18 +104,16 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
   case 2007: {
     int strip = header2007.clct0_key;
     int cfeb = (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1);
-    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+    correctCLCTNumbering(idlayer, strip, cfeb);
+
     CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality, header2007.clct0_shape, 1, 
 		      header2007.clct0_bend, strip, cfeb, header2007.clct0_bxn, 1);
     digi0.setFullBX(header2007.bxnPreTrigger);
     result.push_back(digi0);
     strip = header2007.clct1_key;
     cfeb = (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1);
-    if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+    correctCLCTNumbering(idlayer, strip, cfeb);
+
     CSCCLCTDigi digi1(header2007.clct1_valid, header2007.clct1_quality, header2007.clct1_shape, 1,
                       header2007.clct1_bend, strip, cfeb, header2007.clct1_bxn, 2);
     digi1.setFullBX(header2007.bxnPreTrigger);
@@ -138,6 +128,30 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
   return result;
 }
 
+
+void CSCTMBHeader::correctCLCTNumbering(uint32_t idlayer, int & strip, int & cfeb) const
+{
+  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  bool zplus = (CSCDetId::endcap(idlayer) == 1);
+  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
+
+  if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
+  if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+  if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+}
+
+void CSCTMBHeader::correctCorrLCTNumbering(uint32_t idlayer, int & strip) const
+{
+  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
+  bool zplus = (CSCDetId::endcap(idlayer) == 1);
+  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
+
+  if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
+  if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+  if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
+}
+
+
 std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idlayer) const {
   std::vector<CSCCorrelatedLCTDigi> result;  
   bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
@@ -148,9 +162,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
   case 2006: {
     /// for the zeroth MPC word:
     int strip = header2006.MPC_Muon0_halfstrip_clct_pattern;//this goes from 0-159
-    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31 
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
+    correctCorrLCTNumbering(idlayer, strip);
     CSCCorrelatedLCTDigi digi(1, header2006.MPC_Muon0_vpf_, header2006.MPC_Muon0_quality_, 
 			      header2006.MPC_Muon0_wire_, strip, header2006.MPC_Muon0_clct_pattern_,
 			      header2006.MPC_Muon0_bend_, header2006.MPC_Muon0_bx_, 0, 
@@ -159,9 +171,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
     result.push_back(digi);  
     /// for the first MPC word:
     strip = header2006.MPC_Muon1_halfstrip_clct_pattern;//this goes from 0-159
-    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
+    correctCorrLCTNumbering(idlayer, strip);
     digi = CSCCorrelatedLCTDigi(2, header2006.MPC_Muon1_vpf_, header2006.MPC_Muon1_quality_, 
 				header2006.MPC_Muon1_wire_, strip, header2006.MPC_Muon1_clct_pattern_,
 				header2006.MPC_Muon1_bend_, header2006.MPC_Muon1_bx_, 0, 
@@ -173,9 +183,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
   case 2007: {
     /// for the zeroth MPC word:
     int strip = header2007.MPC_Muon0_halfstrip_clct_pattern;//this goes from 0-159
-    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
+    correctCorrLCTNumbering(idlayer, strip);
     CSCCorrelatedLCTDigi digi(1, header2007.MPC_Muon0_vpf_, header2007.MPC_Muon0_quality_,
                               header2007.MPC_Muon0_wire_, strip, header2007.MPC_Muon0_clct_pattern_, 
 			      header2007.MPC_Muon0_bend_, header2007.MPC_Muon0_bx_, 0, 
@@ -184,9 +192,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
     result.push_back(digi);
     /// for the first MPC word:
     strip = header2007.MPC_Muon1_halfstrip_clct_pattern;//this goes from 0-159
-    if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
-    if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-    if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
+    correctCorrLCTNumbering(idlayer, strip);
     digi = CSCCorrelatedLCTDigi(2, header2007.MPC_Muon1_vpf_, header2007.MPC_Muon1_quality_,
                                 header2007.MPC_Muon1_wire_, strip, header2007.MPC_Muon1_clct_pattern_, 
 				header2007.MPC_Muon1_bend_, header2007.MPC_Muon1_bx_, 0, 

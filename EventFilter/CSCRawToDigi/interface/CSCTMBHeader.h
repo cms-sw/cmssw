@@ -382,6 +382,10 @@ class CSCTMBHeader {
   friend std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr);
 
 private:
+  // helper method to reverse the strip numbers inthe ME1 readout
+  void correctCLCTNumbering(uint32_t idlayer, int & strip, int & cfeb) const;
+  void correctCorrLCTNumbering(uint32_t idlayer, int & strip) const;
+
   CSCTMBHeader2006 header2006;
   CSCTMBHeader2007 header2007;
 
