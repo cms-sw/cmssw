@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/04/14 21:17:52 $
-// $Revision: 1.53 $
+// $Date: 2008/04/15 09:30:57 $
+// $Revision: 1.54 $
 //
 
 #include <vector>
@@ -1519,7 +1519,12 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	}
 	std::vector<Trajectory> freshStartUpperTrajectory = theSmoother->trajectories(*upperTrajectory);
 	std::vector<Trajectory> freshStartLowerTrajectory = theSmoother->trajectories(*lowerTrajectory);
-	
+	//--JR
+	if (freshStartUpperTrajectory.empty() || freshStartLowerTrajectory .empty()){
+	  std::cout << " the smoother has failed."<<std::endl;
+	  continue;
+	}
+	//--JR
 	TrajectoryStateOnSurface NewFirstTsos = freshStartLowerTrajectory.begin()->lastMeasurement().updatedState();
 	TrajectoryStateOnSurface forwardTsos  = freshStartLowerTrajectory.begin()->firstMeasurement().forwardPredictedState();
 	TrajectoryStateOnSurface backwardTsos = freshStartLowerTrajectory.begin()->lastMeasurement().backwardPredictedState();
