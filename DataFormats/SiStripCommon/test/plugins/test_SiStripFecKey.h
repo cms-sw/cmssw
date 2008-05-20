@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripFecKey.h,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_SiStripFecKey.h,v 1.3 2008/01/14 09:18:17 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_testSiStripFecKey_H
 #define DataFormats_SiStripCommon_testSiStripFecKey_H
@@ -20,7 +20,17 @@ class testSiStripFecKey : public edm::EDAnalyzer {
   void beginJob( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& );
   void endJob() {;}
-  
+
+ private:
+
+  uint32_t crate_;
+  uint32_t slot_;
+  uint32_t ring_;
+  uint32_t ccu_;
+  uint32_t module_;
+  uint32_t lld_;
+  uint32_t i2c_;
+
 };
 
 #endif // DataFormats_SiStripCommon_testSiStripFecKey_H

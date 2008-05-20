@@ -4,6 +4,12 @@ DEFINE_SEAL_MODULE();
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
 DEFINE_ANOTHER_FWK_MODULE(testSiStripFecKey);
 
+#include "DataFormats/SiStripCommon/test/plugins/examples_SiStripFecKey.h"
+DEFINE_ANOTHER_FWK_MODULE(examplesSiStripFecKey);
+
+#include "DataFormats/SiStripCommon/test/plugins/perf_SiStripFecKey.h"
+DEFINE_ANOTHER_FWK_MODULE(perfSiStripFecKey);
+
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripFedKey.h"
 DEFINE_ANOTHER_FWK_MODULE(testSiStripFedKey);
 
