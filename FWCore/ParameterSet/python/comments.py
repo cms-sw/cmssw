@@ -11,13 +11,11 @@
 # should hold the comment ID
 # which is Comment.value and Comment.type = "trailing" or "inline"
 # 
+
+from FWCore.ParameterSet import cfgName2py
+
 class Comment:
     pass
-
-
-def pythonNameFromCfgName(cfgName):
-    return cfgName.replace("/data/","/python/").replace("/test/","/python/").replace(".","_") + ".py"
-
 
 
 def prepareReplaceDict(line, comment, replaceDict):
@@ -37,7 +35,7 @@ def prepareReplaceDict(line, comment, replaceDict):
            tokenInPython = words[2] + " = cms.untracked"
            replaceDict[tokenInPython] = comment
         elif firstWord.startswith('include'): # handling of include statements
-           pythonModule = pythonNameFromCfgName(line.split('"')[1])
+           pythonModule = cfgName2py.cfgName2py(line.split('"')[1])
            pythonModule = pythonModule.replace("/",".").replace("python.","").replace(".py","")
            tokenInPython = "from "+pythonModule
            tokenInPython = tokenInPython.replace("/",".").replace("python.","").replace(".py","")
@@ -163,7 +161,7 @@ def loopfile(cfgFileName):
    cfgFile = file(cfgFileName)
    cfgString = cfgFile.read()
    
-   pyFileName = pythonNameFromCfgName(cfgFileName)
+   pyFileName = cfgName2py.cfgName2py(cfgFileName)
 
    try: 
      pyFile = file(pyFileName)

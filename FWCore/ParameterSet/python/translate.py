@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.parseConfig as cmsParse
+from FWCore.ParameterSet import cfgName2py
 import glob
 import py_compile
 from sys import argv
@@ -34,20 +35,16 @@ else:
     # single file
     files.append(argv[1])
     overwrite = True
+if argv[len(argv)-1] == 'no_overwrite':
+    overwrite = False
+
 
 for fileName in files:
     if fileName.endswith('cfg'):
-        print fileName
-        newName = fileName.split('.')[0]+'_cfg.py'
-        # if it's in a data or test subdirectory, make a python directory
-        toks = newName.split('/')
-        ntoks = len(toks)
-        if ntoks > 1 and (toks[ntoks-2] == 'data' or toks[ntoks-2] == 'test'):
-            toks[ntoks-2] = 'python'
-            newPath = '/'.join(toks[0:3])
-            newName = '/'.join(toks)
+        newName = cfgName2py.cfgName2py(fileName)
         if os.path.exists(newName) and not overwrite:
             continue
+        newPath = os.path.dirname(newName)
         if not os.path.exists(newPath):
             os.makedirs(newPath)
         f = open(newName, 'w')
