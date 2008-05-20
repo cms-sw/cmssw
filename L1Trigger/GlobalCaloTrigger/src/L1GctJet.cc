@@ -5,24 +5,13 @@
 
 
 
-<<<<<<< L1GctJet.cc
 L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool overFlow, bool forwardJet, bool tauVeto) :
   m_rawsum(rawsum & kRawsumMaxValue),
-=======
-L1GctJet::L1GctJet(const uint16_t rawsum, const unsigned eta, const unsigned phi,
-                   const bool forwardJet, const bool tauVeto, const int16_t bx) :
-  m_rawsum(rawsum),
->>>>>>> 1.23
   m_id(eta, phi),
   m_overFlow(overFlow || (rawsum>kRawsumMaxValue)),
   m_forwardJet(forwardJet),
-  m_tauVeto(tauVeto || forwardJet),
-  m_bx(bx)
+  m_tauVeto(tauVeto || forwardJet)
 {
-<<<<<<< L1GctJet.cc
-=======
-  if (m_rawsum>kRawsumMaxValue) { m_rawsum = ((m_rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
->>>>>>> 1.23
 }
 
 L1GctJet::~L1GctJet()
@@ -72,12 +61,7 @@ bool L1GctJet::operator!= (const L1GctJet& cand) const
   return result;
 }
   
-<<<<<<< L1GctJet.cc
 void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool overFlow, bool forwardJet, bool tauVeto)
-=======
-void L1GctJet::setupJet(const uint16_t rawsum, const unsigned eta, const unsigned phi,
-                        const bool forwardJet, const bool tauVeto, const int16_t bx)
->>>>>>> 1.23
 {
   L1CaloRegionDetId temp(eta, phi);
   m_rawsum = (rawsum & kRawsumMaxValue);
@@ -85,12 +69,6 @@ void L1GctJet::setupJet(const uint16_t rawsum, const unsigned eta, const unsigne
   m_overFlow = (overFlow || rawsum>kRawsumMaxValue);
   m_forwardJet = forwardJet;
   m_tauVeto = tauVeto || forwardJet;
-<<<<<<< L1GctJet.cc
-=======
-  m_bx = bx;
-
-  if (m_rawsum>kRawsumMaxValue) { m_rawsum = ((m_rawsum & kRawsumMaxValue) | kRawsumOFlowBit); }
->>>>>>> 1.23
 }
 
 /// eta value as encoded in hardware at the GCT output
@@ -111,7 +89,7 @@ unsigned L1GctJet::hwPhi() const
 /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
 L1GctJetCand L1GctJet::jetCand(const L1GctJetEtCalibrationLut* lut) const
 {
-  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet(), (uint16_t) 0, (uint16_t) 0, m_bx);
+  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet());
 }
 
 /// The two separate Lut outputs
