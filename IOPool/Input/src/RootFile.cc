@@ -199,6 +199,7 @@ namespace edm {
       }
       sort_all(sortedNewBranchNames_);
       // freeze the product registry
+      newReg->setNextID(tempReg.nextID());
       newReg->setFrozen();
       productRegistry_ = boost::shared_ptr<ProductRegistry const>(newReg);
     }
