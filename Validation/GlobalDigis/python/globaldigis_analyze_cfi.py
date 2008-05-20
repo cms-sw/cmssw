@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
+    hitsProducer = cms.string('g4SimHits'),
     MuCSCStripSrc = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
     MuDTSrc = cms.InputTag("simMuonDTDigis"),
     Name = cms.untracked.string('GlobalDigisAnalyzer'),
-    MuCSCWireSrc = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    SiPxlSrc = cms.InputTag("simSiPixelDigis"),
     Verbosity = cms.untracked.int32(0), ## 0 provides no output
 
+    MuCSCWireSrc = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
     ECalEESrc = cms.InputTag("simEcalDigis","eeDigis"),
     SiStripSrc = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
     # 1 assumes cm in SimVertex
@@ -15,7 +17,6 @@ globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
         GetAllProvenances = cms.untracked.bool(False)
     ),
     HCalSrc = cms.InputTag("g4SimHits","HcalHits"),
-    SiPxlSrc = cms.InputTag("simSiPixelDigis"),
     # 1 provides basic output
     # 2 provides output of the fill step + 1
     # 3 provides output of the store step + 2
@@ -25,8 +26,9 @@ globaldigisanalyze = cms.EDAnalyzer("GlobalDigisAnalyzer",
     ECalESSrc = cms.InputTag("simEcalPreshowerDigis"),
     # as of 110p2, needs to be 1. Anything ealier should be 0.
     VtxUnit = cms.untracked.int32(1),
-    #InputTag HCalDigi  = hcalUnsuppressedDigis
+    #InputTag HCalDigi  = simHcalUnsuppressedDigis
     HCalDigi = cms.InputTag("simHcalDigis")
 )
+
 
 

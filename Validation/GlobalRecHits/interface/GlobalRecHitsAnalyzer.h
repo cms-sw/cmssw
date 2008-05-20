@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/03/27 20:23:03 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/15 17:50:46 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -182,6 +182,7 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
+  std::string hitsProducer;
 
   DQMStore *dbe;
 

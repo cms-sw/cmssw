@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/27 20:21:30 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/04/11 20:09:43 $
+ *  $Revision: 1.12 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -12,7 +12,7 @@
 
 GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), theCSCStripPedestalSum(0),
+  printProvenanceInfo(false), hitsProducer(""), theCSCStripPedestalSum(0),
   theCSCStripPedestalCount(0), count(0)
 {
   std::string MsgLoggerCat = "GlobalDigisAnalyzer_GlobalDigisAnalyzer";
@@ -27,6 +27,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
     m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
   printProvenanceInfo = 
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  hitsProducer = iPSet.getParameter<std::string>("hitsProducer");
   
   //get Labels to use to extract information
   ECalEBSrc_ = iPSet.getParameter<edm::InputTag>("ECalEBSrc");
@@ -615,7 +616,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   if (isBarrel) {
     
     // loop over simhits
-    const std::string barrelHitsName("EcalHitsEB");
+    const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
     iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
     if (!crossingFrame.isValid()) {
       edm::LogWarning(MsgLoggerCat)
@@ -731,7 +732,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   if (isEndCap) {
     
     // loop over simhits
-    const std::string endcapHitsName("EcalHitsEE");
+    const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
     iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
     if (!crossingFrame.isValid()) {
       edm::LogWarning(MsgLoggerCat)
@@ -850,7 +851,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   if (isPreshower) {
     
     // loop over simhits
-    const std::string preshowerHitsName("EcalHitsES");
+    const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
     iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
     if (!crossingFrame.isValid()) {
       edm::LogWarning(MsgLoggerCat)

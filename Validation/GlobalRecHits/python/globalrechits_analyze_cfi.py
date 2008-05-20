@@ -26,6 +26,7 @@ globalrechitsanalyze = cms.EDAnalyzer("GlobalRecHitsAnalyzer",
     SiStripSrc = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     HCalSrc = cms.InputTag("g4SimHits","HcalHits"),
     ECalESSrc = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+    hitsProducer = cms.string('g4SimHits'),
     ECalUncalEESrc = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEE"),
     Name = cms.untracked.string('GlobalRecHitsAnalyzer'),
     Verbosity = cms.untracked.int32(0), ## 0 provides no output
@@ -45,5 +46,6 @@ globalrechitsanalyze = cms.EDAnalyzer("GlobalRecHitsAnalyzer",
     Frequency = cms.untracked.int32(50),
     ECalEBSrc = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
+
 
 

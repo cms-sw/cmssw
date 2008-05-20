@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/04/11 20:10:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/15 17:50:46 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -29,6 +29,7 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
     m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
   printProvenanceInfo = 
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  hitsProducer = iPSet.getParameter<std::string>("hitsProducer");
 
   //get Labels to use to extract information
   ECalEBSrc_ = iPSet.getParameter<edm::InputTag>("ECalEBSrc");
@@ -424,7 +425,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
 
   // loop over simhits
-  const std::string barrelHitsName("EcalHitsEB");
+  const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
   iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
   if (!crossingFrame.isValid()) {
     edm::LogWarning(MsgLoggerCat)
@@ -494,7 +495,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
   
   // loop over simhits
-  const std::string endcapHitsName("EcalHitsEE");
+  const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
   iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
   if (!crossingFrame.isValid()) {
     edm::LogWarning(MsgLoggerCat)
@@ -556,7 +557,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
   
   // loop over simhits
-  const std::string preshowerHitsName("EcalHitsES");
+  const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
   iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
   if (!crossingFrame.isValid()) {
     edm::LogWarning(MsgLoggerCat)
@@ -1321,7 +1322,7 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   theMap.clear();
   edm::Handle<CrossingFrame<PSimHit> > cf;
 
-  iEvent.getByLabel("mix","MuonCSCHits",cf);
+  iEvent.getByLabel("mix",hitsProducer+"MuonCSCHits",cf);
   if (!cf.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find muo CSC  crossingFrame in event!";

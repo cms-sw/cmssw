@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2008/03/24 21:54:11 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/03/27 20:21:30 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -150,6 +150,7 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
+  std::string hitsProducer;
 
   DQMStore *dbe;
 
