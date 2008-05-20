@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.4 2008/05/11 10:47:33 vasquez Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.5 2008/05/13 12:54:59 vasquez Exp $
 //
 //
 
@@ -112,7 +112,7 @@ SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm::Eve
 	
 	for(ipix=digiIter->begin(); ipix!=digiIter->end(); ++ipix)
 	  {
-	    temp_->Fill(ipix->getRow(), ipix->getCol());
+	    temp_->Fill(ipix->getCol(), ipix->getRow());
 //	    std::cout << "detId: " << detId << " " << ipix->getRow() << " " << ipix->getCol() << std::endl;	  
 	  }
 	
