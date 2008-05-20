@@ -92,6 +92,7 @@
 
 <library file=AlignmentMuonHIPTrajectorySelector.cc>
  <use name=DataFormats/DetId>
+ <use name=DataFormats/MuonDetId>
  <use name=DataFormats/TrackingRecHit>
  <use name=DataFormats/TrackReco>
  <use name=FWCore/Framework>
@@ -100,6 +101,7 @@
  <use name=TrackingTools/TransientTrackingRecHit>
  <use name=FWCore/ServiceRegistry>
  <use name=PhysicsTools/UtilAlgos>
+ <use name=TrackingTools/TrackFitters>
  <use name=root>
  <flags EDM_PLUGIN=1>
 </library>

@@ -34,6 +34,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -42,6 +43,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "TH1F.h"
@@ -65,9 +67,11 @@ class AlignmentMuonHIPTrajectorySelector : public edm::EDProducer {
       double m_minPt;
       double m_maxTrackerForwardRedChi2;
       int m_minTrackerDOF;
+      double m_maxMuonResidual;
 
       bool m_hists;
       TH1F *m_pt, *m_tracker_forwardredchi2, *m_tracker_dof;
+      TH1F *m_resid_before, *m_resid_after;
 };
 
 //
@@ -87,6 +91,7 @@ AlignmentMuonHIPTrajectorySelector::AlignmentMuonHIPTrajectorySelector(const edm
    , m_minPt(iConfig.getParameter<double>("minPt"))
    , m_maxTrackerForwardRedChi2(iConfig.getParameter<double>("maxTrackerForwardRedChi2"))
    , m_minTrackerDOF(iConfig.getParameter<int>("minTrackerDOF"))
+   , m_maxMuonResidual(iConfig.getParameter<double>("maxMuonResidual"))
    , m_hists(iConfig.getParameter<bool>("hists"))
    , m_pt(NULL), m_tracker_forwardredchi2(NULL), m_tracker_dof(NULL)
 {
@@ -97,6 +102,8 @@ AlignmentMuonHIPTrajectorySelector::AlignmentMuonHIPTrajectorySelector(const edm
       m_pt = fs->make<TH1F>("pt", "Transverse momentum (GeV)", 100, 0., 100.);
       m_tracker_forwardredchi2 = fs->make<TH1F>("trackerForwardRedChi2", "forward-biased reduced chi2 in tracker", 100, 0., 5.);
       m_tracker_dof = fs->make<TH1F>("trackerDOF", "DOF in tracker", 61, -0.5, 60.5);
+      m_resid_before = fs->make<TH1F>("residBefore", "muon residuals before cut (cm)", 100, -20, 20);
+      m_resid_after = fs->make<TH1F>("residAfter", "muon residuals after cut (cm)", 100, -20, 20);
    }
 }
 
@@ -119,6 +126,8 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
    // output
    std::auto_ptr<TrajTrackAssociationCollection> newTrajTrackMap(new TrajTrackAssociationCollection());
 
+   TrajectoryStateCombiner tsoscomb;
+
    for (TrajTrackAssociationCollection::const_iterator iPair = originalTrajTrackMap->begin();  iPair != originalTrajTrackMap->end();  ++iPair) {
       if (m_hists) {
 	 m_pt->Fill((*(*iPair).val).pt());
@@ -127,6 +136,8 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
       if ((*(*iPair).val).pt() > m_minPt) {
 
 	 std::vector<TrajectoryMeasurement> measurements = (*(*iPair).key).measurements();
+
+	 bool has_bad_residual = false;
 
 	 double tracker_forwardchi2 = 0.;
 	 double tracker_dof = 0.;
@@ -153,7 +164,17 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
 		  tracker_forwardchi2 += (residualx * residualx + residualy * residualy) / (errorxx2 + 2.*errorxy2 + erroryy2);
 		  tracker_dof += 2.;
 	       }
-	    }
+	    } // end if a tracker hit
+
+	    if (hit->isValid()  &&  id.det() == DetId::Muon  &&  (id.subdetId() == MuonSubdetId::DT  ||  id.subdetId() == MuonSubdetId::CSC)) {
+	       TrajectoryStateOnSurface tsosc = tsoscomb.combine(meas.forwardPredictedState(), meas.backwardPredictedState());
+	       double residual = tsosc.localPosition().x() - hit->localPosition().x();
+	       m_resid_before->Fill(residual);
+	       if (fabs(residual) > m_maxMuonResidual) {
+		  has_bad_residual = true;
+	       }
+	    } // end if a muon hit
+
 	 }
 	 tracker_dof -= 5.;
 	 double tracker_forwardredchi2 = tracker_forwardchi2 / tracker_dof;
@@ -161,9 +182,23 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
 	 if (m_hists) {
 	    m_tracker_forwardredchi2->Fill(tracker_forwardredchi2);
 	    m_tracker_dof->Fill(tracker_dof);
-	 }
 
-	 if (tracker_forwardredchi2 < m_maxTrackerForwardRedChi2  &&  tracker_dof >= m_minTrackerDOF) {
+	    for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin();  im != measurements.end();  ++im) {
+	       const TrajectoryMeasurement meas = *im;
+	       const TransientTrackingRecHit* hit = &(*meas.recHit());
+	       const DetId id = hit->geographicalId();
+
+	       if (!has_bad_residual) {
+		  if (hit->isValid()  &&  id.det() == DetId::Muon  &&  (id.subdetId() == MuonSubdetId::DT  ||  id.subdetId() == MuonSubdetId::CSC)) {
+		     TrajectoryStateOnSurface tsosc = tsoscomb.combine(meas.forwardPredictedState(), meas.backwardPredictedState());
+		     double residual = tsosc.localPosition().x() - hit->localPosition().x();
+		     m_resid_after->Fill(residual);
+		  }
+	       } // end if residuals pass cut
+	    } // end second loop over hits
+	 } // end if filling histograms
+
+	 if (tracker_forwardredchi2 < m_maxTrackerForwardRedChi2  &&  tracker_dof >= m_minTrackerDOF  &&  !has_bad_residual) {
 	    newTrajTrackMap->insert((*iPair).key, (*iPair).val);
 	 } // end if passes tracker cuts
       } // end if passes pT cut
