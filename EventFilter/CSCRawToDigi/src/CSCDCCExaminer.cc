@@ -40,7 +40,7 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES){
+CSCDCCExaminer::CSCDCCExaminer(unsigned long mask):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES),examinerMask(mask){
   cout.redirect(std::cout); cerr.redirect(std::cerr);
 
   sERROR[0] = " Any errors                                       ";
@@ -706,9 +706,9 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
       nDMBs++;
 
-      dmbBuffers[sourceID][currentChamber] = buf0;
-      dmbOffsets[sourceID][currentChamber] = buf0-buffer_start;
-      dmbSize   [sourceID][currentChamber] = 0;
+      dmbBuffers[sourceID][currentChamber] = buf0-4;
+      dmbOffsets[sourceID][currentChamber] = buf0-4-buffer_start;
+      dmbSize   [sourceID][currentChamber] = 4;
 
       // Print DMB_ID from DMB Header
       cout<<"DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";
@@ -1008,10 +1008,14 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 
     // == CFEB Sample Trailer found
-	if( (buf0[1]&0xF000)==0x7000 && (buf0[2]&0xF000)==0x7000 && (
-		(buf0[3]&0xFFFF)==0x7FFF ||   // old format
-		( (buf0[3]&buf0[0])==0x0000 && (buf0[3]|buf0[0])==0x7FFF ) // 2007 format
-		) ){
+
+	if( ((buf0[1]&0xF000)==0x7000) &&
+                ((buf0[2]&0xF000)==0x7000) &&
+                ((buf0[1]!=0x7FFF) || (buf0[2]!=0x7FFF)) &&
+                ( ((buf0[3]&0xFFFF)==0x7FFF) ||   // old format
+              ( (buf0[3]&buf0[0])==0x0000 && (buf0[3]+buf0[0])==0x7FFF ) // 2007 format
+              ) ){
+
       if((CFEB_SampleCount%8)  == 0   ){ cout<<" <"; }
       if( CFEB_SampleWordCount == 100 ){ cout<<"+";  }
       if( CFEB_SampleWordCount != 100 ){ cout<<"-";

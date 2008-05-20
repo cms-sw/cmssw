@@ -113,6 +113,7 @@ private:
 
 	bool  modeDDUonly;
 	short sourceID;
+	unsigned long examinerMask;
 
 	//int headerDAV_Active; // Obsolete since 16.09.05
 
@@ -130,6 +131,9 @@ public:
 	OStream& output2(void){ return cerr; }
 
 	long check(const unsigned short* &buffer, long length);
+
+	void setMask(unsigned long mask) {examinerMask=mask;}
+        unsigned long getMask() const {return examinerMask;}
 
 	long errors  (void) const { return bERROR;   }
 	long warnings(void) const { return bWARNING; }
@@ -206,7 +210,7 @@ public:
 	std::map<short,unsigned long>                  DDU_size(void) const { return dduSize; }
 	std::map<short,std::map<short,unsigned long> > DMB_size(void) const { return dmbSize; }
 
-	CSCDCCExaminer(void);
+	CSCDCCExaminer(unsigned long mask=0x1); 
 	~CSCDCCExaminer(void){}
 };
 
