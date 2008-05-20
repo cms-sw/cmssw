@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.6 $
-#     $Date: 2008/05/05 13:01:34 $
+#     $Revision: 1.8 $
+#     $Date: 2008/05/20 17:10:29 $
 #
 #  produce cfg file for merging run
 #
@@ -155,7 +155,7 @@ for ($i=1; $i<=$nJobs; ++$i) {
 }
 
 # replace list of binary files
-$nn = ($body =~ s/mergeBinaryFiles = \{\}/mergeBinaryFiles = \{ $binaryList \}/);
+$nn = ($body =~ s/mergeBinaryFiles = \{(.|\n)*?\}/mergeBinaryFiles = \{ $binaryList \}/);
 
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\n   replace MillePedeAlignmentAlgorithm.mergeBinaryFiles = \{ $binaryList \}";
@@ -187,7 +187,7 @@ for ($i=1; $i<=$nJobs; ++$i) {
 }
 
 # replace list of tree files
-$nn = ($body =~ s/mergeTreeFiles += \{\}/mergeTreeFiles = \{ $treeList \}/);
+$nn = ($body =~ s/mergeTreeFiles += \{(.|\n)*?\}/mergeTreeFiles = \{ $treeList \}/);
 if ($nn != 1) {
   $replaceBlock = "$replaceBlock\n   replace MillePedeAlignmentAlgorithm.mergeTreeFiles = { $treeList }";
     print "No MillePedeAlignmentAlgorithm.mergeTreeFiles directive found, adding one to replace block\n";
