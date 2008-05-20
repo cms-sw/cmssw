@@ -40,7 +40,7 @@ void CSCSummary::ReadChambers(TH2*& h2) {
 
     unsigned int side, station, ring, chamber;
     for(unsigned int x = 1; x <= 36; x++) {
-      for(unsigned int y = 1; y <= 18; y++) {
+      for(unsigned int y = 0; y < 18; y++) {
         double z = h2->GetBinContent(x, y);
         if(ChamberCoords(x, y, side, station, ring, chamber)) {
           if(z > 0) {
