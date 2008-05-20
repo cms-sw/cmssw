@@ -33,6 +33,6 @@ namespace cond {
  * have to learn how to use macros...
 // magic: works only if a file local registry exists in the file
 #define ElemConstr(xx)  Elem(){registry = &xx;} 
-*
+*/
 
 #endif

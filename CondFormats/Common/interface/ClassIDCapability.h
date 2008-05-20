@@ -11,7 +11,7 @@ namespace {
 }
 
 // ELEM_CONSTR(packageClassIDRegistry)
- Elem(){registry = &packageClassIDRegistry;}
+cond::ClassIDRegistry::Elem::Elem(){registry = &packageClassIDRegistry;}
 
  
 extern "C" void SEAL_CAPABILITIES (const char**& names, int& n )
