@@ -216,10 +216,13 @@ if ($nn != 1) {
 
 
 # First remove any existing maxEvents directive...
-$body =~ s/ +untracked +PSet +maxEvents .+?\n//;
+if ($body =~ m/source \= PoolSource.+?\}.+?\}/) {
+  $body =~ s/ +untracked +PSet +maxEvents .+?\n//;
+}
 # ... then replace source directive... this is nasty.
 $newSource = "source = EmptySource {}\n"
     ."    untracked PSet maxEvents = {untracked int32 input = 0}";
+
 $nn = ($body =~ s/source \= PoolSource.+?\}.+?\}/$newSource/s);
 
 if ($nn != 1) {
