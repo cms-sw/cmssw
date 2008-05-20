@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 31, 2007
-// $Id: Simple3DMCJetCorrector.h,v 1.1 2007/11/01 21:50:30 fedor Exp $
+// $Id: Simple3DMCJetCorrector.h,v 1.2 2007/11/13 23:52:38 fedor Exp $
 //
 // Standalone 3D MC Jet Corrector
 //
@@ -22,6 +22,8 @@ class Simple3DMCJetCorrector {
   virtual double correctionEtEtaPhiPEmfraction (double fEt, double fEta, double fPhi, double fP, double fEmFraction) const;
 
  private:
+  Simple3DMCJetCorrector (const Simple3DMCJetCorrector&);
+  Simple3DMCJetCorrector& operator= (const Simple3DMCJetCorrector&);
   SimpleJetCorrectorParameters* mParameters;
 };
 

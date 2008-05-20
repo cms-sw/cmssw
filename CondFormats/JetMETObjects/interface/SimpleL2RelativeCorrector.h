@@ -16,6 +16,8 @@ class SimpleL2RelativeCorrector {
   virtual double correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
 
  private:
+  SimpleL2RelativeCorrector (const SimpleL2RelativeCorrector&);
+  SimpleL2RelativeCorrector& operator= (const SimpleL2RelativeCorrector&);
   double correctionBandPtEta (unsigned fBand, double fPt, double fEta) const;
   double quadraticInterpolation (double fEta, const double fEtaMiddle[3], const double fEtaValue[3]) const; 
   SimpleJetCorrectorParameters* mParameters;

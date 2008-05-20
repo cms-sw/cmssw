@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 31, 2007
-// $Id: SimpleL4EMFCorrector.h,v 1.1 2007/11/01 21:50:30 fedor Exp $
+// $Id: SimpleL4EMFCorrector.h,v 1.1 2007/11/13 23:52:38 fedor Exp $
 //
 // Standalone 3D MC Jet Corrector
 //
@@ -22,6 +22,8 @@ class SimpleL4EMFCorrector {
   virtual double correctionEtEtaPhiPEmfraction (double fEt, double fEta, double fPhi, double fP, double fEmFraction) const;
 
  private:
+  SimpleL4EMFCorrector (const SimpleL4EMFCorrector&);
+  SimpleL4EMFCorrector& operator= (const SimpleL4EMFCorrector&);
   double correctionBandPtEtaEmfraction (unsigned fBand, double fPt, double dEta, double fEmFraction) const;
   SimpleJetCorrectorParameters* mParameters;
 };

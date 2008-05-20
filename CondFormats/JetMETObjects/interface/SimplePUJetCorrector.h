@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimplePUJetCorrector.h,v 1.4 2007/12/08 01:55:40 fedor Exp $
+// $Id: SimplePUJetCorrector.h,v 1.1 2008/02/11 11:59:52 kodolova Exp $
 //
 // MC Jet Corrector
 //
@@ -29,6 +29,8 @@ class SimplePUJetCorrector {
   virtual double correctionEtEta (double fEt, double fEta) const;
 
  private:
+  SimplePUJetCorrector (const SimplePUJetCorrector&);
+  SimplePUJetCorrector& operator= (const SimplePUJetCorrector&);
   ParametersMap* mParametrization;
 };
 

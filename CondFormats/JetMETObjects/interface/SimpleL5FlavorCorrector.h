@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 31, 2007
-// $Id: SimpleL5FlavorCorrector.h,v 1.1 2007/11/16 00:09:55 fedor Exp $
+// $Id: SimpleL5FlavorCorrector.h,v 1.2 2008/02/29 20:28:26 fedor Exp $
 //
 // Jet flavor dependent corrections
 //
@@ -22,6 +22,8 @@ class SimpleL5FlavorCorrector {
   virtual double correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
 
  private:
+  SimpleL5FlavorCorrector (const SimpleL5FlavorCorrector&);
+  SimpleL5FlavorCorrector& operator= (const SimpleL5FlavorCorrector&);
   double correctionBandPtEta (unsigned fBand, double fPt, double fEta) const;
   SimpleJetCorrectorParameters* mParameters;
 };

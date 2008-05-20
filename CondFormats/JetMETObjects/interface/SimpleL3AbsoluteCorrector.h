@@ -16,6 +16,8 @@ class SimpleL3AbsoluteCorrector {
   virtual double correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
 
  private:
+  SimpleL3AbsoluteCorrector (const SimpleL3AbsoluteCorrector&);
+  SimpleL3AbsoluteCorrector& operator= (const SimpleL3AbsoluteCorrector&);
   double correctionBandPtEta (unsigned fBand, double fPt, double fEta) const;
   SimpleJetCorrectorParameters* mParameters;
 };

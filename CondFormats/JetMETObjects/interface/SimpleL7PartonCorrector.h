@@ -21,6 +21,8 @@ class SimpleL7PartonCorrector {
   virtual double correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
 
  private:
+  SimpleL7PartonCorrector (const SimpleL7PartonCorrector&);
+  SimpleL7PartonCorrector& operator= (const SimpleL7PartonCorrector&);
   SimpleJetCorrectorParameters* mParameters;
 };
 

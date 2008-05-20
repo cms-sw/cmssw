@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleZSPJetCorrector.h,v 1.3 2007/03/31 18:24:16 fedor Exp $
+// $Id: SimpleZSPJetCorrector.h,v 1.1 2007/10/01 10:37:08 kodolova Exp $
 //
 // MC Jet Corrector
 //
@@ -31,6 +31,8 @@ class SimpleZSPJetCorrector : public StandaloneJetCorrector {
   virtual double correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
 
  private:
+  SimpleZSPJetCorrector (const SimpleZSPJetCorrector&);
+  SimpleZSPJetCorrector& operator= (const SimpleZSPJetCorrector&);
   ZSPParametersMap* mParametrization;
 };
 
