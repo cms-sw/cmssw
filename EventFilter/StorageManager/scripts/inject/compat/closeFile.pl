@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: closeFile.pl,v 1.2 2008/04/25 12:24:42 loizides Exp $
+# $Id: closeFile.pl,v 1.3 2008/05/19 11:11:55 loizides Exp $
 ################################################################################
 
 use strict;
@@ -90,7 +90,7 @@ if(length $cmsver <= 0) {
 }
 
 # get directory for log file
-my $storedir=ENV{'SM_STORE'};
+my $storedir=$ENV{'SM_STORE'};
 if (!defined $storedir) {
     $storedir="/store";
 }
