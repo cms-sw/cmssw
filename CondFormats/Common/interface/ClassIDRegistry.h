@@ -37,7 +37,7 @@ namespace cond {
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 namespace cond{
-  typedef edmplugin::PluginFactory<ClassIDRegistry::Elem> > ClassIdFactory;
+  typedef edmplugin::PluginFactory<ClassIDRegistry::Elem*() > ClassIdFactory;
 }
 
 #endif

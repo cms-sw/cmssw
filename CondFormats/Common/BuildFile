@@ -1,5 +1,7 @@
+<use name=FWCore/PluginManager>
 <use name=StorageSvc>
 <export>
+  <use name=FWCore/PluginManager>
   <use name=StorageSvc>
   <lib name=CondFormatsCommon>
 </export>
