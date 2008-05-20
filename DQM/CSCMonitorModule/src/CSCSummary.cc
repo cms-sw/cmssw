@@ -209,6 +209,18 @@ void CSCSummary::SetValue(
 
 }
 
+const int CSCSummary::GetValue(
+    const unsigned int side, 
+    const unsigned int station, 
+    const unsigned int ring, 
+    const unsigned int chamber, 
+    const unsigned int cfeb, 
+    const unsigned int hv) {
+
+    return map[side][station][ring][chamber][cfeb][hv];
+
+}
+
 bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
                               unsigned int& side,
                               unsigned int& station,

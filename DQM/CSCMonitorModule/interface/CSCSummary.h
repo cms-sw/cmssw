@@ -49,6 +49,8 @@ class CSCSummary {
     void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const int value);
     void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv, const int value);
 
+    const int GetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv);
+
   private:
 
     bool ChamberCoords(const unsigned int x, const unsigned int y, unsigned int& side, unsigned int& station, unsigned int& ring, unsigned int& chamber);
