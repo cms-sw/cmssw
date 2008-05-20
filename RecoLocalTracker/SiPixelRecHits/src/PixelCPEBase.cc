@@ -254,6 +254,10 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
+
+  //cout << "locx = " << locx << endl;
+  //cout << "locy = " << locy << endl;
+  //cout << "locz = " << locz << endl;
   
   alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
   if ( isFlipped() )                    // &&& check for FPIX !!!
@@ -266,6 +270,10 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
   cotalpha_ = localDir.x()/localDir.z();
   cotbeta_  = localDir.y()/localDir.z();
 
+  LocalPoint trk_lp = ltp.position();
+  trk_lp_x = trk_lp.x();
+  trk_lp_y = trk_lp.y();
+    
 }
 
 //-----------------------------------------------------------------------------
