@@ -36,15 +36,18 @@ namespace cond {
 
   ClassIDRegistry::ClassIDRegistry(char const* pfix) : prefix(pfix){}
 
-  void ClassIDRegistry::registerMe(const std::type_info& t) {
+  const char * ClassIDRegistry::registerMe(const std::type_info& t) {
     sids.push_back(prefix+id(t)+"\0");
     csids.push_back(sids.back().data());
+    return sids.back().c_str()
   }
   
-  void ClassIDRegistry::Elem::registerMe(const std::type_info& t) {
-    registry->registerMe(t);
+  const char * ClassIDRegistry::Elem::registerMe(const std::type_info& t) {
+    return registry->registerMe(t);
   }
 
   
 
 }
+
+EDM_REGISTER_PLUGINFACTORY(cond::ClassIDRegistry::Elem, "LCGClassID");
