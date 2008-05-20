@@ -3,8 +3,8 @@
  *
  * \author Andrea Gozzelino - Università e INFN Torino
  *         
- * $Date: 2008/04/28  $
- * $Revision: 1.1 $
+ * $Date: 2008/04/28 22:06:10 $
+ * $Revision: 1.2 $
  *
  *
  * Description: Creating and filling monitoring elements using in Phi Symmetry  
@@ -33,7 +33,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
@@ -155,7 +155,7 @@ void DQMSourcePhiSym::analyze(const Event& iEvent,
    // ******* include new libraries in Build file ********************
   
    edm::ESHandle<CaloGeometry> cGeom;
-   iSetup.get<IdealGeometryRecord>().get(cGeom);
+   iSetup.get<CaloGeometryRecord>().get(cGeom);
    geo = cGeom.product();
   
    // ------------- weight uncalib rechit ----------------
