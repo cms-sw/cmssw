@@ -44,6 +44,40 @@ import RecoMuon.CosmicMuonProducer.cosmicMuons_cfi
 cosmicMuonsEndCapsOnly = RecoMuon.CosmicMuonProducer.cosmicMuons_cfi.cosmicMuons.clone()
 import RecoMuon.MuonIdentification.muons_cfi
 STAMuonsEndCapsOnly = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+import RecoMuon.CosmicMuonProducer.cosmicMuons_cfi
+# Only barrel 1 leg mode
+cosmicMuons1LegBarrelOnly = RecoMuon.CosmicMuonProducer.cosmicMuons_cfi.cosmicMuons.clone()
+import RecoMuon.CosmicMuonProducer.globalCosmicMuons_cfi
+globalCosmicMuons1LegBarrelOnly = RecoMuon.CosmicMuonProducer.globalCosmicMuons_cfi.globalCosmicMuons.clone()
+import RecoMuon.MuonIdentification.muons_cfi
+STAMuons1LegBarrelOnly = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+import RecoMuon.MuonIdentification.muons_cfi
+GLBMuons1LegBarrelOnly = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+import RecoMuon.MuonIdentification.muons_cfi
+muons1LegBarrelOnly = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+# Standard reco
+from RecoMuon.Configuration.RecoMuon_cff import *
+import RecoMuon.MuonSeedGenerator.standAloneMuonSeedProducer_cfi
+lhcMuonSeedBarrelOnly = RecoMuon.MuonSeedGenerator.standAloneMuonSeedProducer_cfi.MuonSeed.clone()
+import RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi
+lhcStandAloneMuonsBarrelOnly = RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi.standAloneMuons.clone()
+import RecoMuon.MuonSeedGenerator.standAloneMuonSeedProducer_cfi
+lhcMuonSeedEndCapsOnly = RecoMuon.MuonSeedGenerator.standAloneMuonSeedProducer_cfi.MuonSeed.clone()
+import RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi
+lhcStandAloneMuonsEndCapsOnly = RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi.standAloneMuons.clone()
+import RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi
+# Only barrel No drift
+CosmicMuonSeedNoDriftBarrelOnly = RecoMuon.MuonSeedGenerator.CosmicMuonSeedProducer_cfi.CosmicMuonSeed.clone()
+import RecoMuon.CosmicMuonProducer.cosmicMuons_cfi
+cosmicMuonsNoDriftBarrelOnly = RecoMuon.CosmicMuonProducer.cosmicMuons_cfi.cosmicMuons.clone()
+import RecoMuon.CosmicMuonProducer.globalCosmicMuons_cfi
+globalCosmicMuonsNoDriftBarrelOnly = RecoMuon.CosmicMuonProducer.globalCosmicMuons_cfi.globalCosmicMuons.clone()
+import RecoMuon.MuonIdentification.muons_cfi
+STAMuonsNoDriftBarrelOnly = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+import RecoMuon.MuonIdentification.muons_cfi
+GLBMuonsNoDriftBarrelOnly = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
+import RecoMuon.MuonIdentification.muons_cfi
+muonsNoDriftBarrelOnly = RecoMuon.MuonIdentification.muons_cfi.muons.clone()
 STAmuontrackingforcosmics = cms.Sequence(CosmicMuonSeed*cosmicMuons)
 muontrackingforcosmics = cms.Sequence(STAmuontrackingforcosmics*globalCosmicMuons)
 allmuons = cms.Sequence(muons*STAMuons*TKMuons*GLBMuons)
@@ -59,6 +93,23 @@ muontrackingforcosmicsEndCapsOnly = cms.Sequence(STAmuontrackingforcosmicsEnsCap
 allmuonsEndCapsOnly = cms.Sequence(STAMuonsEndCapsOnly)
 muonrecoforcosmicsEndCapsOnly = cms.Sequence(muontrackingforcosmicsEndCapsOnly*allmuonsEndCapsOnly)
 STAmuonrecoforcosmicsEndCapsOnly = cms.Sequence(STAmuontrackingforcosmicsEnsCapsOnly*STAMuonsEndCapsOnly)
+STAmuontrackingforcosmics1LegBarrelOnly = cms.Sequence(CosmicMuonSeedBarrelOnly*cosmicMuons1LegBarrelOnly)
+muontrackingforcosmics1LegBarrelOnly = cms.Sequence(STAmuontrackingforcosmics1LegBarrelOnly*globalCosmicMuons1LegBarrelOnly)
+allmuons1LegBarrelOnly = cms.Sequence(muons1LegBarrelOnly*STAMuons1LegBarrelOnly*GLBMuons1LegBarrelOnly)
+muonrecoforcosmics1LegBarrelOnly = cms.Sequence(muontrackingforcosmics1LegBarrelOnly*allmuons1LegBarrelOnly)
+STAmuonrecoforcosmics1LegBarrelOnly = cms.Sequence(STAmuontrackingforcosmics1LegBarrelOnly*STAMuons1LegBarrelOnly)
+lhcMuonBarrelOnly = cms.Sequence(lhcMuonSeedBarrelOnly*lhcStandAloneMuonsBarrelOnly)
+lhcMuonEndCapsOnly = cms.Sequence(lhcMuonSeedEndCapsOnly*lhcStandAloneMuonsEndCapsOnly)
+STAmuontrackingforcosmicsNoDriftBarrelOnly = cms.Sequence(CosmicMuonSeedNoDriftBarrelOnly*cosmicMuonsNoDriftBarrelOnly)
+muontrackingforcosmicsNoDriftBarrelOnly = cms.Sequence(STAmuontrackingforcosmicsNoDriftBarrelOnly*globalCosmicMuonsNoDriftBarrelOnly)
+allmuonsNoDriftBarrelOnly = cms.Sequence(muonsNoDriftBarrelOnly*STAMuonsNoDriftBarrelOnly*GLBMuonsNoDriftBarrelOnly)
+muonrecoforcosmicsNoDriftBarrelOnly = cms.Sequence(muontrackingforcosmicsNoDriftBarrelOnly*allmuonsNoDriftBarrelOnly)
+STAmuonrecoforcosmicsNoDriftBarrelOnly = cms.Sequence(STAmuontrackingforcosmicsNoDriftBarrelOnly*STAMuonsNoDriftBarrelOnly)
+muonRecoAllGR = cms.Sequence(muonrecoforcosmics)
+muonRecoBarrelGR = cms.Sequence(muonrecoforcosmicsBarrelOnly+muonrecoforcosmics1LegBarrelOnly+muonrecoforcosmicsNoDriftBarrelOnly)
+muonRecoEndCapsGR = cms.Sequence(muonrecoforcosmicsEndCapsOnly)
+muonRecoLHC = cms.Sequence(lhcMuonBarrelOnly*lhcMuonEndCapsOnly)
+muonRecoGR = cms.Sequence(muonRecoAllGR*muonRecoBarrelGR*muonRecoEndCapsGR*muonRecoLHC)
 globalCosmicMuons.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
 muons.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuons', 'cosmicMuons']
 muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
@@ -74,6 +125,7 @@ GLBMuons.inputCollectionTypes = ['links']
 GLBMuons.fillIsolation = False
 CosmicMuonSeedBarrelOnly.EnableCSCMeasurement = False
 cosmicMuonsBarrelOnly.TrajectoryBuilderParameters.EnableCSCMeasurement = False
+cosmicMuonsBarrelOnly.MuonSeedCollectionLabel = 'CosmicMuonSeedBarrelOnly'
 globalCosmicMuonsBarrelOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
 globalCosmicMuonsBarrelOnly.MuonCollectionLabel = 'cosmicMuonsBarrelOnly'
 STAMuonsBarrelOnly.inputCollectionLabels = ['cosmicMuonsBarrelOnly']
@@ -87,7 +139,48 @@ muonsBarrelOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muonsBarrelOnly.fillIsolation = False
 CosmicMuonSeedEndCapsOnly.EnableDTMeasurement = False
 cosmicMuonsEndCapsOnly.TrajectoryBuilderParameters.EnableDTMeasurement = False
+cosmicMuonsEndCapsOnly.MuonSeedCollectionLabel = 'CosmicMuonSeedEndCapsOnly'
 STAMuonsEndCapsOnly.inputCollectionLabels = ['cosmicMuonsEndCapsOnly']
 STAMuonsEndCapsOnly.inputCollectionTypes = ['outer tracks']
 STAMuonsEndCapsOnly.fillIsolation = False
+cosmicMuons1LegBarrelOnly.TrajectoryBuilderParameters.EnableCSCMeasurement = False
+cosmicMuons1LegBarrelOnly.TrajectoryBuilderParameters.BuildTraversingMuon = True
+cosmicMuons1LegBarrelOnly.MuonSeedCollectionLabel = 'CosmicMuonSeedBarrelOnly'
+globalCosmicMuons1LegBarrelOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
+globalCosmicMuons1LegBarrelOnly.MuonCollectionLabel = 'cosmicMuons1LegBarrelOnly'
+STAMuons1LegBarrelOnly.inputCollectionLabels = ['cosmicMuons1LegBarrelOnly']
+STAMuons1LegBarrelOnly.inputCollectionTypes = ['outer tracks']
+STAMuons1LegBarrelOnly.fillIsolation = False
+GLBMuons1LegBarrelOnly.inputCollectionLabels = ['globalCosmicMuons1LegBarrelOnly']
+GLBMuons1LegBarrelOnly.inputCollectionTypes = ['links']
+GLBMuons1LegBarrelOnly.fillIsolation = False
+muons1LegBarrelOnly.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuons1LegBarrelOnly', 'cosmicMuons1LegBarrelOnly']
+muons1LegBarrelOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muons1LegBarrelOnly.fillIsolation = False
+lhcMuonSeedBarrelOnly.EnableCSCMeasurement = False
+lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.RefitterParameters.EnableCSCMeasurement = False
+lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.BWFilterParameters.EnableCSCMeasurement = False
+lhcStandAloneMuonsBarrelOnly.InputObjects = 'lhcMuonSeedBarrelOnly'
+lhcMuonSeedEndCapsOnly.EnableDTMeasurement = False
+lhcStandAloneMuonsEndCapsOnly.STATrajBuilderParameters.RefitterParameters.EnableDTMeasurement = False
+lhcStandAloneMuonsEndCapsOnly.STATrajBuilderParameters.BWFilterParameters.EnableDTMeasurement = False
+lhcStandAloneMuonsEndCapsOnly.InputObjects = 'lhcMuonSeedEndCapsOnly'
+CosmicMuonSeedNoDriftBarrelOnly.EnableCSCMeasurement = False
+CosmicMuonSeedNoDriftBarrelOnly.DTRecSegmentLabel = 'dt4DSegmentsNoDrift'
+cosmicMuonsNoDriftBarrelOnly.TrajectoryBuilderParameters.EnableCSCMeasurement = False
+cosmicMuonsNoDriftBarrelOnly.TrajectoryBuilderParameters.BuildTraversingMuon = True
+cosmicMuonsNoDriftBarrelOnly.MuonSeedCollectionLabel = 'CosmicMuonSeedNoDriftBarrelOnly'
+cosmicMuonsNoDriftBarrelOnly.TrajectoryBuilderParameters.DTRecSegmentLabel = 'dt4DSegmentsNoDrift'
+globalCosmicMuonsNoDriftBarrelOnly.TrajectoryBuilderParameters.TkTrackCollectionLabel = 'ctfWithMaterialTracksP5'
+globalCosmicMuonsNoDriftBarrelOnly.MuonCollectionLabel = 'cosmicMuonsNoDriftBarrelOnly'
+STAMuonsNoDriftBarrelOnly.inputCollectionLabels = ['cosmicMuonsNoDriftBarrelOnly']
+STAMuonsNoDriftBarrelOnly.inputCollectionTypes = ['outer tracks']
+STAMuonsNoDriftBarrelOnly.fillIsolation = False
+GLBMuonsNoDriftBarrelOnly.inputCollectionLabels = ['globalCosmicMuonsNoDriftBarrelOnly']
+GLBMuonsNoDriftBarrelOnly.inputCollectionTypes = ['links']
+GLBMuonsNoDriftBarrelOnly.fillIsolation = False
+muonsNoDriftBarrelOnly.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuonsNoDriftBarrelOnly', 'cosmicMuonsNoDriftBarrelOnly']
+muonsNoDriftBarrelOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
+muonsNoDriftBarrelOnly.fillIsolation = False
+
 

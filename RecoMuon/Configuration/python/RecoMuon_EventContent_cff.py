@@ -22,6 +22,7 @@ RecoMuonAOD = cms.PSet(
         'keep recoTracks_globalMuons_*_*', 
         'keep recoTrackExtras_globalMuons_*_*', 
         'keep TrackingRecHitsOwned_globalMuons_*_*', 
+        'keep *_tevMuons_*_*', 
         'keep recoTracks_generalTracks_*_*', 
         'keep recoMuons_trackerMuons_*_*', 
         'keep recoMuons_muons_*_*', 
@@ -40,4 +41,5 @@ RecoMuonFEVT.outputCommands.extend(RecoMuonRECO.outputCommands)
 RecoMuonFEVT.outputCommands.extend(RecoMuonIsolationFEVT.outputCommands)
 RecoMuonRECO.outputCommands.extend(RecoMuonIsolationRECO.outputCommands)
 RecoMuonAOD.outputCommands.extend(RecoMuonIsolationAOD.outputCommands)
+
 
