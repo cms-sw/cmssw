@@ -130,5 +130,10 @@ void CSCMonitorModule::updateFracHistos() {
     summary.Write(tmp, 3);
   }
 
+  if (MEEMU("Summary_EMU", me1)){
+    TH1* tmp = me1->getTH1();
+    summary.Write(tmp);
+  }
+
 }
 
