@@ -24,7 +24,7 @@ namespace cond {
       }
       else {
 	// only for test
-	inst status=0;
+	int status=0;
 	std::string name = __cxxabiv1::__cxa_demangle(t.name(), 0, 0, &status);
 	char buff[20];
 	pool::genMD5(name,buff);
@@ -36,12 +36,12 @@ namespace cond {
 
   ClassIDRegistry::ClassIDRegistry(char const* pfix) : prefix(pfix){}
 
-  ClassIDRegistry::registerMe(const std::type_info& t) {
+  void ClassIDRegistry::registerMe(const std::type_info& t) {
     sids.push_back(prefix+id(t)+'/0');
     csids.push_back(sids.data());
   }
   
-  ClassIDRegistry::Elem::registerMe(const std::type_info& t) {
+  void ClassIDRegistry::Elem::registerMe(const std::type_info& t) {
     registry->registerMe(t);
   }
 
