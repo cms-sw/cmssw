@@ -38,6 +38,7 @@ cond::PoolTransaction::commit(){
 void 
 cond::PoolTransaction::upgrade() {
   forceCommit();
+  this->NotifyStartOfTransaction();
   m_datasvc->transaction().start( pool::ITransaction::UPDATE );
 }
 

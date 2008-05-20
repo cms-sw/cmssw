@@ -13,7 +13,8 @@ namespace cond {
     ClassIDRegistry(char const* pfix);
     struct Elem {
       ClassIDRegistry * registry;
-      inline Elem();
+      inline Elem(){}
+      inline Elem(const std::type_info& t);
       const char * registerMe(const std::type_info& t);
     };
     const char * registerMe(const std::type_info& t);
@@ -24,16 +25,16 @@ namespace cond {
 
   template<typename T>
   struct ClassID : public  ClassIDRegistry::Elem {
-    ClassID() { registerMe(typeid(T));}
+    ClassID() {}
+    ClassID(int) : Elem(typeid(T)) {}
   };
 
 }
 
-/*
- * have to learn how to use macros...
 // magic: works only if a file local registry exists in the file
-#define ElemConstr(xx)  Elem(){registry = &xx;} 
-*/
+#define ELEM_CONSTR(xx_)  \
+cond::ClassIDRegistry::Elem::Elem(const std::type_info& t){registry = &xx_;registerMe(t);} 
+
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 namespace cond{
