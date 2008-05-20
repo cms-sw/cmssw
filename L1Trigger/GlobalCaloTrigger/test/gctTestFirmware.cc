@@ -141,9 +141,7 @@ L1GctJet gctTestFirmware::nextJetFromFile (const unsigned jf)
   unsigned globalEta = (eta==NE+1) ? 0 : ((jf<NP) ? (NE-eta) : (NE+eta-1));
   unsigned globalPhi = (eta==NE+1) ? 0 : ((2*(NP+1-(jf%NP))+3*phi)%(2*NP));
 
-  if (of) { et |= L1GctJet::kRawsumOFlowBit; }
-
-  L1GctJet temp(et, globalEta, globalPhi, (eta>7), tv);
+  L1GctJet temp(et, globalEta, globalPhi, of, (eta>7), tv);
   return temp;
 }
 
