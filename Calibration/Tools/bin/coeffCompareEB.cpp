@@ -105,28 +105,45 @@ int main (int argc, char* argv[])
   TH1F EBCompareCoeffDistr_M2 ("EBCompareCoeff_M2","EBCompareCoeff_M2",1000,0,2) ;
   TH1F EBCompareCoeffDistr_M3 ("EBCompareCoeff_M3","EBCompareCoeff_M3",1000,0,2) ;
   TH1F EBCompareCoeffDistr_M4 ("EBCompareCoeff_M4","EBCompareCoeff_M4",1000,0,2) ;
-       
+  
   // ECAL barrel
+  
+  //PG loop over eta
   for (int ieta = EBetaStart ; ieta < EBetaEnd ; ++ieta)
-   for (int iphi = EBphiStart ; iphi <= EBphiEnd ; ++iphi)
     {
-      if (!EBDetId::validDetId (ieta,iphi)) continue ;
-      EBDetId det = EBDetId (ieta,iphi,EBDetId::ETAPHIMODE) ;
-      double factor = *(iEBcalibMap.find (det.rawId ())) * 
-                      *(iEBscalibMap.find (det.rawId ())) ;
-      if (power != 1 && factor != 0) 
-        factor = *(iEBcalibMap.find (det.rawId ())) / 
-                 *(iEBscalibMap.find (det.rawId ()));
-      EBCompareCoeffDistr.Fill (factor) ;
-      EBCompareCoeffMap.Fill (ieta,iphi,factor) ;
-      EBCompareCoeffEtaTrend.Fill (ieta,factor) ;
-      EBCompareCoeffEtaProfile.Fill (ieta,factor) ;
-      if (abs(ieta) < 26) EBCompareCoeffDistr_M1.Fill (factor) ;
-      else if (abs(ieta) < 46) EBCompareCoeffDistr_M2.Fill (factor) ;
-      else if (abs(ieta) < 66) EBCompareCoeffDistr_M3.Fill (factor) ;
-      else EBCompareCoeffDistr_M4.Fill (factor) ;
-    } // ECAL barrel
-    
+      double phiSum = 0. ; 
+      double phiSumSq = 0. ; 
+      double N = 0. ;
+      for (int iphi = EBphiStart ; iphi <= EBphiEnd ; ++iphi)
+        {
+          if (!EBDetId::validDetId (ieta,iphi)) continue ;
+          EBDetId det = EBDetId (ieta,iphi,EBDetId::ETAPHIMODE) ;
+          double factor = *(iEBcalibMap.find (det.rawId ())) * 
+                          *(iEBscalibMap.find (det.rawId ())) ;
+          if (power != 1 && factor != 0) 
+            factor = *(iEBcalibMap.find (det.rawId ())) / 
+                     *(iEBscalibMap.find (det.rawId ()));
+          phiSum += factor ;
+          phiSumSq += factor * factor ;
+          N += 1. ;
+          EBCompareCoeffDistr.Fill (factor) ;
+          EBCompareCoeffMap.Fill (ieta,iphi,factor) ;
+          EBCompareCoeffEtaTrend.Fill (ieta,factor) ;
+          EBCompareCoeffEtaProfile.Fill (ieta,factor) ;
+          if (abs(ieta) < 26) EBCompareCoeffDistr_M1.Fill (factor) ;
+          else if (abs(ieta) < 46) EBCompareCoeffDistr_M2.Fill (factor) ;
+          else if (abs(ieta) < 66) EBCompareCoeffDistr_M3.Fill (factor) ;
+          else EBCompareCoeffDistr_M4.Fill (factor) ;
+        } //PG loop over phi
+       double phiMean = phiSum / N ;
+       double phiRMS = sqrt (phiSumSq / N - phiMean * phiMean) ;        
+    } //PG loop over eta
+
+  // trend vs eta FIXME to be renormalized
+  TH1D * EBEtaTrend = EBCompareCoeffMap.ProjectionX () ;
+  // trend vs phi FIXME to be renormalized
+  TH1D * EBPhiTrend = EBCompareCoeffMap.ProjectionY () ;
+
   TFile out (filename.c_str (),"recreate") ;
   EBCompareCoeffMap.Write () ;
   EBCompareCoeffDistr.Write () ;  
@@ -136,6 +153,8 @@ int main (int argc, char* argv[])
   EBCompareCoeffDistr_M2.Write () ;
   EBCompareCoeffDistr_M3.Write () ;
   EBCompareCoeffDistr_M4.Write () ;
+  EBEtaTrend->Write () ;
+  EBPhiTrend->Write () ;
   out.Close () ;
   
 }
