@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/05/08 15:00:08 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/11 00:55:09 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -18,8 +18,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonErrorMatrix.h"
 
-#include <TH1F.h>
-
 class LayerMeasurements;
 class Chi2MeasurementEstimator;
 class Propagator;
@@ -27,7 +25,6 @@ class MeasurementTracker;
 class GeometricSearchTracker;
 class DirectTrackerNavigation;
 class TrajectoryStateTransform;
-
 
 class TSGFromPropagation : public TrackerSeedGenerator {
 
@@ -84,16 +81,29 @@ private:
   /// 
   void findSecondMeasurements(std::vector<TrajectoryMeasurement>&, const std::vector<const DetLayer*>& ) const;
 
+  /// check some quantity and beam-spot compatibility and decide to continue
+  bool passSelection(const TrajectoryStateOnSurface&) const;
+
   /// adjust the error matrix of the FTS
   void adjust(FreeTrajectoryState &) const;
 
   /// adjust the error matrix of the TSOS
   void adjust(TrajectoryStateOnSurface &) const;
 
-  struct IncreasingEstimate{
+  double dxyDis(const TrajectoryStateOnSurface& tsos) const;
+
+  double zDis(const TrajectoryStateOnSurface& tsos) const;
+
+  struct increasingEstimate{
     bool operator()(const TrajectoryMeasurement& lhs,
                     const TrajectoryMeasurement& rhs) const{ 
-    return lhs.estimate() < rhs.estimate();
+      return lhs.estimate() < rhs.estimate();
+    }
+  };
+
+  struct isInvalid {
+    bool operator()(const TrajectoryMeasurement& measurement) {
+      return ( ((measurement).recHit() == 0) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
     }
   };
 
@@ -134,15 +144,6 @@ private:
   MuonErrorMatrix * theErrorMatrixAdjuster;
 
   bool theAdjustAtIp;
-
-  bool debug_;
-
-  TH1F* h_chi2;
-  TH1F* h_NupdatedSeeds;
-  TH1F* h_Eta_updatingFail;
-  TH1F* h_Pt_updatingFail;
-  TH1F* h_NrawMeas;
-  TH1F* h_NseedLayer;
 
 };
 
