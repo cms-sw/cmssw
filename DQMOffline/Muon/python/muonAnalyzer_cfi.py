@@ -4,21 +4,23 @@ import FWCore.ParameterSet.Config as cms
 muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     MuonServiceProxy,
     OutputMEsInRootFile = cms.bool(False),
-    trackCollectionLabel = cms.InputTag("globalMuons"),
-    CosmicsCollectionLabel = cms.InputTag("muons"),
     trackSegmentsAnalysis = cms.PSet(
         phiMin = cms.double(-3.2),
+        ptBin = cms.int32(200),
         SegmentsTrackAssociatorParameters = cms.PSet(
             segmentsDt = cms.untracked.InputTag("dt4DSegments"),
             SelectedSegments = cms.untracked.InputTag("SelectedSegments"),
             segmentsCSC = cms.untracked.InputTag("cscSegments")
         ),
-        etaMin = cms.double(-3.0),
         etaBin = cms.int32(100),
+        etaMin = cms.double(-3.0),
+        ptMin = cms.double(0.0),
         phiBin = cms.int32(100),
+        ptMax = cms.double(200.0),
         etaMax = cms.double(3.0),
         phiMax = cms.double(3.2)
     ),
+    SeedCollection = cms.InputTag("MuonSeed"),
     muonRecoAnalysis = cms.PSet(
         thetaMin = cms.double(0.0),
         phiMin = cms.double(-3.2),
@@ -91,8 +93,9 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     ),
     OutputFileName = cms.string('MuonMonitoring.root'),
     DoMuonEnergyAnalysis = cms.untracked.bool(True),
+    TrackCollection = cms.InputTag("globalMuons"),
     DoMuonRecoAnalysis = cms.untracked.bool(True),
-    seedsCollectionLabel = cms.InputTag("CosmicMuonSeed"),
+    MuonCollection = cms.InputTag("muons"),
     muonEnergyAnalysis = cms.PSet(
         AlgoName = cms.string('muons'),
         hadS9SizeMin = cms.double(0.0),
@@ -116,5 +119,6 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
         hadSizeBin = cms.int32(100)
     )
 )
+
 
 

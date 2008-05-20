@@ -14,3 +14,4 @@ muonClientsQualityTests = cms.EDFilter("QualityTester",
 
 muonQualityTests = cms.Sequence(muonSourcesQualityTests*muTrackResidualsTest*muonClientsQualityTests)
 
+
