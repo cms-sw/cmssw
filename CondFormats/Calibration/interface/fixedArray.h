@@ -8,6 +8,9 @@ class fixedArray {
         operator T*() { return content; }
         operator const T*() const { return content; }
 	T& operator [](const unsigned int i) { return content[i]; }
+        const T& operator [](const unsigned int i) const { return
+content[i]; }
+
     private:
         T content[S];
 };
