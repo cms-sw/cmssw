@@ -13,10 +13,7 @@ namespace cond {
     ClassIDRegistry(char const* pfix);
     struct Elem {
       ClassIDRegistry * registry;
-      inline Elem() {
-	// magic: works only if a file local registry exists in the file
-	registry = &packageClassIDRegistry;
-      } 
+      inline Elem();
       void registerMe(const std::type_info& t);
     }
    
@@ -31,5 +28,8 @@ namespace cond {
   };
 
 }
+
+// magic: works only if a file local registry exists in the file
+#define ElemConstr(xx)  Elem() { registry = &xx;} 
 
 #endif
