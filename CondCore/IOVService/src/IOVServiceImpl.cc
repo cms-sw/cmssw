@@ -16,8 +16,8 @@ cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb ,
     m_endOftime=(cond::Time_t)edm::IOVSyncValue::endOfTime().eventID().run();
     break;
   case cond::timestamp:
-    m_beginOftime=(cond::Time_t)edm::IOVSyncValue::beginOfTime().eventID().run();
-    m_endOftime=(cond::Time_t)edm::IOVSyncValue::endOfTime().eventID().run();
+    m_beginOftime=(cond::Time_t)edm::IOVSyncValue::beginOfTime().time().value();
+    m_endOftime=(cond::Time_t)edm::IOVSyncValue::endOfTime().time().value();
     break;
   default:
     m_beginOftime=(cond::Time_t)edm::IOVSyncValue::beginOfTime().eventID().run();
