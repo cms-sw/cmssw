@@ -11,23 +11,26 @@ namespace cond {
     std::string const pythonIDCategory("CondPythonID");
   }
 
-  class ClassIDRegistry {
-  public:
-    std::vector<std::string> sids;
-    std::vector<const char*> csids;
-    ClassIDRegistry(std::string const & pfix);
- 
-    class Elem {
+    class ClassInfo {
     public:
-      inline Elem(const std::type_info& t) : tinfo(t) {}
-      inline Elem(const std::type_info& t, int);
+      inline ClassInfo(const std::type_info& t) : tinfo(t) {}
+      inline ClassInfo(const std::type_info& t, int);
       inline const std::type_info& type() const { return tinfo;}
     private:
       ClassIDRegistry * registry;
       const char * registerMe(const std::type_info& t);
       const std::type_info& tinfo;
     };
-    const char * registerMe(const std::type_info& t);
+ 
+
+  class ClassIDRegistry {
+  public:
+    typedef ClassInfo Elem;
+    std::vector<std::string> sids;
+    std::vector<const char*> csids;
+    ClassIDRegistry(std::string const & pfix);
+    
+   const char * registerMe(const std::type_info& t);
     
   private:
     std::string prefix;
@@ -35,7 +38,7 @@ namespace cond {
   };
 
   template<typename T>
-  struct ClassID : public  ClassIDRegistry::Elem {
+  struct ClassID : public  ClassInfo {
     ClassID() : ClassIDRegistry::Elem(typeid(T)) {}
     ClassID(int i) : ClassIDRegistry::Elem(typeid(T),i) {}
   };
@@ -45,13 +48,12 @@ namespace cond {
 
 // magic: works only if a file local registry exists in the file
 #define ELEM_CONSTR(xx_)						\
-  cond::ClassIDRegistry::Elem::Elem(const std::type_info& t,int) : tinfo(t) {registry = &xx_;registerMe(t);} 
+  cond::ClassInfo::ClassInfo(const std::type_info& t,int) : tinfo(t) {registry = &xx_;registerMe(t);} 
 
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 namespace cond{
-  typedef edmplugin::PluginFactory<ClassIDRegistry::Elem*() > ClassIdFactory;
-  typedef ClassIDRegistry::Elem ClassInfo;
+  typedef edmplugin::PluginFactory<ClassInfo*() > ClassIdFactory;
 }
 
 #endif
