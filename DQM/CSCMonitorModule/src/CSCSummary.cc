@@ -85,9 +85,10 @@ void CSCSummary::Write(TH1*& h1) {
  * @return 
  */
 void CSCSummary::Write(TH1*& h1, const unsigned int station) {
+  const int len = N_RINGS * N_CHAMBERS * N_CFEBS * N_HVS;
   if(station < 0 || station > (N_STATIONS - 1)) return; 
-  unsigned int bin = 1;
   for (unsigned int side = 0; side < N_SIDES; side++) { 
+    unsigned int bin = side * N_STATIONS * len + station * len + 1;
     for (unsigned int ring = 0; ring < N_RINGS; ring++) { 
       for (unsigned int chamber = 0; chamber < N_CHAMBERS; chamber++) {
         for (unsigned int cfeb = 0; cfeb < N_CFEBS; cfeb++) {
