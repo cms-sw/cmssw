@@ -2,11 +2,15 @@
 
 # DT 
 
+# no Drift algo
+
 # CSC
 
 # RPC
 
 # DT
+
+# no Drift algo
 
 # CSC
 
@@ -18,6 +22,8 @@ import FWCore.ParameterSet.Config as cms
 RecoLocalMuonFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_dt1DRecHits_*_*', 
         'keep *_dt4DSegments_*_*', 
+        'keep *_dt1DRecHitsNoDrift_*_*', 
+        'keep *_dt4DSegmentsNoDrift_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
         'keep *_rpcRecHits_*_*')
@@ -26,6 +32,8 @@ RecoLocalMuonFEVT = cms.PSet(
 RecoLocalMuonRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_dt1DRecHits_*_*', 
         'keep *_dt4DSegments_*_*', 
+        'keep *_dt1DRecHitsNoDrift_*_*', 
+        'keep *_dt4DSegmentsNoDrift_*_*', 
         'keep *_csc2DRecHits_*_*', 
         'keep *_cscSegments_*_*', 
         'keep *_rpcRecHits_*_*')
