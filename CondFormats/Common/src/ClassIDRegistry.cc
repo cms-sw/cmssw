@@ -42,7 +42,7 @@ namespace cond {
     return sids.back().c_str();
   }
   
-  const char * ClassIDRegistry::Elem::registerMe(const std::type_info& t) {
+  const char * ClassInfo::registerMe(const std::type_info& t) {
     return registry->registerMe(t);
   }
 
@@ -50,4 +50,4 @@ namespace cond {
 
 }
 
-EDM_REGISTER_PLUGINFACTORY(cond::ClassIdFactory, "CondFormatsID");
+EDM_REGISTER_PLUGINFACTORY(cond::ClassInfoFactory, "CondFormatsID");

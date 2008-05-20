@@ -11,6 +11,8 @@ namespace cond {
     std::string const pythonIDCategory("CondPythonID");
   }
 
+  class ClassIDRegistry;
+
     class ClassInfo {
     public:
       inline ClassInfo(const std::type_info& t) : tinfo(t) {}
@@ -53,7 +55,7 @@ namespace cond {
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 namespace cond{
-  typedef edmplugin::PluginFactory<ClassInfo*() > ClassIdFactory;
+  typedef edmplugin::PluginFactory<ClassInfo*() > ClassInfoFactory;
 }
 
 #endif
