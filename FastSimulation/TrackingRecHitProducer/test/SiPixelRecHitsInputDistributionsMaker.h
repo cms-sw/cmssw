@@ -84,13 +84,13 @@ class SiPixelRecHitsInputDistributionsMaker : public edm::EDAnalyzer {
         MonitorElement* simHitBetaForwardBigPixel;
 
         // alpha and beta according to multiplicities
-        MonitorElement* simHitAlphaMultiBarrel[4];
+        MonitorElement* simHitAlphaMultiBarrel[5];
         MonitorElement* simHitAlphaMultiForward[4];
-        MonitorElement* simHitBetaMultiBarrel[4];
+        MonitorElement* simHitBetaMultiBarrel[8];
         MonitorElement* simHitBetaMultiForward[4];
-        MonitorElement* simHitAlphaMultiBarrelBigPixel[4];
+        MonitorElement* simHitAlphaMultiBarrelBigPixel[5];
         MonitorElement* simHitAlphaMultiForwardBigPixel[4];
-        MonitorElement* simHitBetaMultiBarrelBigPixel[4];
+        MonitorElement* simHitBetaMultiBarrelBigPixel[8];
         MonitorElement* simHitBetaMultiForwardBigPixel[4];
 
         // RecHit resolutions in barrel according to beta multiplicity

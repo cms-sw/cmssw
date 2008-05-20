@@ -210,13 +210,15 @@ SiPixelRecHitsInputDistributionsMaker::SiPixelRecHitsInputDistributionsMaker(con
   simHitAlphaMultiBarrelBigPixel[0] = dbe_->book1D("hist_alpha_barrel_big_0", "#alpha probability bigpix (barrel)", 14, -0.28, 0.28);
   simHitBetaMultiBarrel[0] = dbe_->book1D("hist_beta_barrel_0", "#beta probability (barrel)", 55, 0., 1.595);
   simHitBetaMultiBarrelBigPixel[0] = dbe_->book1D("hist_beta_barrel_big_0", "#beta probability bigpix (barrel)", 55, 0., 1.595);
-  for(int i=1; i<6; i++) {
+  for(int i=1; i<4; i++) {
     sprintf(histo, "hist_alpha_barrel_%d", i);
     sprintf(title, "#alpha probability multiplicity=%d (barrel)",i);
     simHitAlphaMultiBarrel[i] = dbe_->book1D(histo, title, 14, -0.28, 0.28);
     sprintf(histo, "hist_alpha_barrel_big_%d", i);
     sprintf(title, "#alpha probability multiplicity=%d bigpixel (barrel)",i);
     simHitAlphaMultiBarrelBigPixel[i] = dbe_->book1D(histo, title, 14, -0.28, 0.28);
+  }
+  for(int i=1; i<7; i++) {
     sprintf(histo, "hist_beta_barrel_%d", i);
     sprintf(title, "#beta probability multiplicity=%d (barrel)",i);
     simHitBetaMultiBarrel[i] = dbe_->book1D(histo, title, 55, 0., 1.595);
@@ -224,10 +226,10 @@ SiPixelRecHitsInputDistributionsMaker::SiPixelRecHitsInputDistributionsMaker(con
     sprintf(title, "#beta probability multiplicity=%d bigpixel (barrel)",i);
     simHitBetaMultiBarrelBigPixel[i] = dbe_->book1D(histo, title, 55, 0., 1.595);
   }
-  simHitAlphaMultiBarrel[6] = dbe_->book1D("hist_alpha_barrel_6", "#alpha probability multiplicity>5 (barrel)", 14, -0.28, 0.28);
-  simHitAlphaMultiBarrelBigPixel[6] = dbe_->book1D("hist_alpha_barrel_big_6", "#alpha probability multiplicity>5 bigpixel (barrel)", 14, -0.28, 0.28);
-  simHitBetaMultiBarrel[6] = dbe_->book1D("hist_beta_barrel_6", "#beta probability multiplicity>5 (barrel)", 55, 0., 1.595);
-  simHitBetaMultiBarrelBigPixel[6] = dbe_->book1D("hist_beta_barrel_big_6", "#beta probability multiplicity>5 bigpixel (barrel)", 55, 0., 1.595);
+  simHitAlphaMultiBarrel[4] = dbe_->book1D("hist_alpha_barrel_4", "#alpha probability multiplicity>3 (barrel)", 14, -0.28, 0.28);
+  simHitAlphaMultiBarrelBigPixel[4] = dbe_->book1D("hist_alpha_barrel_big_4", "#alpha probability multiplicity>3 bigpixel (barrel)", 14, -0.28, 0.28);
+  simHitBetaMultiBarrel[7] = dbe_->book1D("hist_beta_barrel_7", "#beta probability multiplicity>6 (barrel)", 55, 0., 1.595);
+  simHitBetaMultiBarrelBigPixel[7] = dbe_->book1D("hist_beta_barrel_big_7", "#beta probability multiplicity>6 bigpixel (barrel)", 55, 0., 1.595);
 
   dbe_->setCurrentFolder("simHitFPIX");
   //SimHit alpha in forward
@@ -492,9 +494,9 @@ void SiPixelRecHitsInputDistributionsMaker::fillBarrel(const SiPixelRecHit& recH
 #ifdef MUONSONLY
   }
 #endif
-  // Limit for sizeY is 6 when computing beta probability in barrel
-  if(sizeY>6)
-    sizeY = 6;
+//  // Limit for sizeY is 6 when computing beta probability in barrel
+//  if(sizeY>6)
+//    sizeY = 6;
 #ifdef MUONSONLY
   if(abs(simHit.particleType()) == 13)
   {
@@ -506,9 +508,9 @@ void SiPixelRecHitsInputDistributionsMaker::fillBarrel(const SiPixelRecHit& recH
 #ifdef MUONSONLY
   }
 #endif
-  // Limit for sizeX is 6 when computing alpha probability in barrel
-  if(sizeX>6)
-    sizeX = 6;
+  // Limit for sizeX is 4 when computing alpha probability in barrel
+  if(sizeX>4)
+    sizeX = 4;
 #ifdef MUONSONLY
   if(abs(simHit.particleType()) == 13) 
   {
@@ -520,9 +522,9 @@ void SiPixelRecHitsInputDistributionsMaker::fillBarrel(const SiPixelRecHit& recH
 #ifdef MUONSONLY
   }
 #endif
-  // Protection against overflow if size
-  if(sizeX>4)
-    sizeX = 4;
+//  // Protection against overflow if size
+//  if(sizeX>4)
+//    sizeX = 4;
 #ifdef MUONSONLY
   if(abs(simHit.particleType()) == 13)
   {
