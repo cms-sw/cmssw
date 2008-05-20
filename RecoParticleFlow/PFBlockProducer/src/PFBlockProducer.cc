@@ -69,13 +69,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   bool debug_ = 
     iConfig.getUntrackedParameter<bool>("debug",false);
 
-  useNuclear_ = false;
-  iConfig.getParameter<bool>("useNuclear");
+  useNuclear_ = iConfig.getParameter<bool>("useNuclear");
 
-
-  useConversions_ = false;
-  iConfig.getParameter<bool>("useConversions");
-
+  useConversions_ = iConfig.getParameter<bool>("useConversions");
 
   produces<reco::PFBlockCollection>();
   
@@ -176,7 +172,6 @@ void PFBlockProducer::produce(Event& iEvent,
 			     <<" in run "<<iEvent.id().run()<<endl;
   
   
-  
   // get rectracks
   
   Handle< reco::PFRecTrackCollection > recTracks;
@@ -215,10 +210,12 @@ void PFBlockProducer::produce(Event& iEvent,
   if( useNuclear_ ) {
     found = iEvent.getByLabel(inputTagPFNuclear_, pfNuclears);
 
+
     if(!found )
       LogError("PFBlockProducer")<<" cannot get PFNuclearInteractions : "
                                <<inputTagPFNuclear_<<endl;
   }
+
 
 
  
