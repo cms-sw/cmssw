@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2007/05/01 20:21:15 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/05/19 15:23:25 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -21,7 +21,7 @@ using namespace std;
 DirectMuonNavigation::DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>& muonLayout) : theMuonDetLayerGeometry(muonLayout), epsilon_(100.), theEndcapFlag(true), theBarrelFlag(true) {
 }
 
-DirectMuonNavigation::DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>& muonLayout, const edm::ParameterSet& par) : theMuonDetLayerGeometry(muonLayout), epsilon_(100.), theEndcapFlag(par.getParameter<bool>("Endcap")), theBarrelFlag(par.getParameter<bool>("Barrel")) {
+DirectMuonNavigation::DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>& muonLayout, const edm::ParameterSet& par) : theMuonDetLayerGeometry(muonLayout), epsilon_(100.), theEndcapFlag(par.getUntrackedParameter<bool>("Endcap", true)), theBarrelFlag(par.getUntrackedParameter<bool>("Barrel",true)) {
 
 }
 
