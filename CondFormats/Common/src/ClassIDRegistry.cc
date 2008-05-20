@@ -39,7 +39,7 @@ namespace cond {
   const char * ClassIDRegistry::registerMe(const std::type_info& t) {
     sids.push_back(prefix+id(t)+"\0");
     csids.push_back(sids.back().data());
-    return sids.back().c_str()
+    return sids.back().c_str();
   }
   
   const char * ClassIDRegistry::Elem::registerMe(const std::type_info& t) {
@@ -50,4 +50,4 @@ namespace cond {
 
 }
 
-EDM_REGISTER_PLUGINFACTORY(cond::ClassIDRegistry::Elem, "LCGClassID");
+EDM_REGISTER_PLUGINFACTORY(cond::ClassIdFactory, "LCGClassID");
