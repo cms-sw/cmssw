@@ -34,6 +34,7 @@ using namespace reco::isodeposit;
 
 EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) : 
    etMin_(par.getParameter<double>("etMin")),
+   energyMin_(par.getParameter<double>("energyMin")),
    extRadius_(par.getParameter<double>("extRadius")),
    intRadius_(par.getParameter<double>("intRadius")),
    barrelRecHitsTag_(par.getParameter<edm::InputTag>("barrelRecHits")), 
@@ -142,7 +143,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
       double eta = position.eta();
       double energy = i->energy();
       double et = energy*sin(2*atan(exp(-eta)));
-      if ( et > etMin_){
+      if ( et > etMin_ && energy > energyMin_){
          deposit.addDeposit( Direction(eta, position.phi()), (useEt_ ? et : energy) );
       }
    }
