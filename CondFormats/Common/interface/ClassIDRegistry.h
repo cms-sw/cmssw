@@ -7,7 +7,7 @@
 namespace cond {
 
   namespace idCategories {
-    std::string const dictIDCategory("LCGClassID");
+    std::string const dictIDCategory("LCGDictID");
     std::string const pythonIDCategory("CondPythonID");
   }
 

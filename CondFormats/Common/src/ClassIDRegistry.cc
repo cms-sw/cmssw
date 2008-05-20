@@ -50,4 +50,4 @@ namespace cond {
 
 }
 
-EDM_REGISTER_PLUGINFACTORY(cond::ClassIdFactory, "LCGClassID");
+EDM_REGISTER_PLUGINFACTORY(cond::ClassIdFactory, "CondFormatsID");
