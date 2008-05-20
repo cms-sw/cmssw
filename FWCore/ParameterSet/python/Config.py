@@ -469,6 +469,8 @@ class Process(object):
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
           value.insertInto(parameterSet, name)
+        # alphabetical order is easier to compare with old language
+        l.sort()
         parameterSet.addVString(True, label, l)
     def _insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
