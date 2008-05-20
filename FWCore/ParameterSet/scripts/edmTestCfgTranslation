@@ -1,0 +1,31 @@
+#!/bin/tcsh -vx
+eval `scramv1 ru -csh`
+
+if($#argv != 1) then
+  echo "Please give a target file"
+  exit 1
+endif
+
+if(! -e $1) then
+  echo "Cannot find " $1
+  exit 1
+endif
+
+set psetDir=$CMSSW_RELEASE_BASE/src/FWCore/ParameterSet/python
+#set psetDir=FWCore/ParameterSet/python
+set pyFile=`python $psetDir/cfgName2py.py $1`
+
+if(! -e $pyFile) then
+  python $psetDir/translate.py $1 
+  python $psetDir/comments.py $1
+
+  if(! -e $pyFile) then
+    echo "Something went wrong.  Did not create " $pyFile
+  endif
+endif
+
+edmParameterSetDump $1 >! cfg.dump
+edmParameterSetDump $pyFile >! py.dump
+
+diff cfg.dump py.dump
+
