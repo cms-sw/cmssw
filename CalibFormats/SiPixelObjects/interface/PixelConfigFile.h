@@ -96,6 +96,17 @@ namespace pos{
       return getAlias().getVersion(path,alias);
     }
 
+    // Added by Dario, May 20th, 2008 =====================================================================
+    static pos::pathVersionAliasMmap getVersionData(){  
+      return getAlias().getVersionData();
+    }
+    
+    static std::vector<pathAliasPair> getConfigAliases(std::string path) {
+     return getAlias().getConfigAliases(path) ;
+    }
+    static pathAliasMmap getAllConfigAliases() {return getAlias().getAllConfigAliases() ;}
+    // End of Dario's addition ============================================================================
+
     static void addAlias(std::string alias, unsigned int key){
       PixelConfigAlias anAlias(alias,key);
       getAlias().insertAlias(anAlias);

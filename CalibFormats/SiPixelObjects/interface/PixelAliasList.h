@@ -15,6 +15,12 @@ namespace pos{
 *
 *   A longer explanation will be placed here later
 */
+  // Added by Dario, May 20th, 2008 =====================================================================
+  typedef std::pair<unsigned int, std::string >         versionAliasPair ;
+  typedef std::multimap<std::string, versionAliasPair > pathVersionAliasMmap ;
+  typedef std::pair<std::string, std::string>           pathAliasPair ;
+  typedef std::multimap<std::string, pathAliasPair>     pathAliasMmap ;            
+  // End of Dario's addition ============================================================================
   class PixelAliasList {
 
   public:
@@ -31,7 +37,7 @@ namespace pos{
       for(unsigned int i=0;i<pixelConfigAliases_.size();i++){
 	PixelConfigAlias& theAlias=pixelConfigAliases_[i];
 	out << theAlias.name() << "     " 
-	    << theAlias.key() << "   ";
+	    << theAlias.key()  << "   ";
       
 	unsigned int n=theAlias.nVersionAliases();
 	for (unsigned int j=0;j<n;j++){
@@ -81,11 +87,12 @@ namespace pos{
 	unsigned int key;
 	in >> key;
 
-	//std::cout << "Alias, key:"<<alias<<" "<<key<<std::endl;
+	//std::cout << "[PixelAliasList::readfile()] Alias, key:"<<alias<<" "<<key<<std::endl;
 
 	PixelConfigAlias anAlias(alias,key);
       
 	in >> tag;
+	std::string theAlias = alias ;
       
 	while(tag  != ";") {
 	  std::string path;
@@ -93,9 +100,15 @@ namespace pos{
 
 	  path=tag;
 	  in >> alias;
-	  //std::cout << "path, alias:"<<path<<" "<<alias<<std::endl;
+//	  std::cout << "[PixelAliasList::readfile()] path, alias:"<<path<<" "<<alias<<std::endl;
 	
 	  anAlias.addVersionAlias(path,alias);
+          // Added by Dario, May 20th, 2008 =====================================================================
+          pathAliasPair tmpPair ;
+	  tmpPair.first  = path ;
+	  tmpPair.second = alias ;
+	  aliasMmap.insert(pair<string, pathAliasPair >(theAlias,tmpPair))    ;
+          // End of Dario's addition ============================================================================
 	  in >> tag;
 
 	}
@@ -210,6 +223,30 @@ namespace pos{
       assert(0);
       return 0;
     }
+    
+    // Added by Dario, May 20th, 2008 =====================================================================
+    pathVersionAliasMmap getVersionData(){
+      pathVersionAliasMmap PVAMmap ;
+      for(unsigned int i=0;i<pixelVersionAliases_.size();i++){
+        versionAliasPair thePair ;
+	thePair.first  = pixelVersionAliases_[i].version();
+	thePair.second = pixelVersionAliases_[i].alias()  ;
+        PVAMmap.insert(pair<string, versionAliasPair >(pixelVersionAliases_[i].path(),thePair))    ;
+      }
+      return PVAMmap ;
+    }
+    
+    std::vector<pathAliasPair> getConfigAliases(std::string path) {
+     std::vector<pathAliasPair> configAliasVector ;
+     for(pathAliasMmap::iterator it=aliasMmap.begin(); it!=aliasMmap.end(); it++){
+      if( (*it).first == path ){
+       configAliasVector.push_back((*it).second) ;
+      }
+     }
+     return configAliasVector ;
+    } 
+    pathAliasMmap getAllConfigAliases() {return aliasMmap ;}
+    // End of Dario's addition ============================================================================
 
     unsigned int nAliases() { return pixelConfigAliases_.size(); }
     std::string name(unsigned int i) { return pixelConfigAliases_[i].name();}  
@@ -219,6 +256,9 @@ namespace pos{
 
     std::vector<PixelConfigAlias> pixelConfigAliases_;
     std::vector<PixelVersionAlias> pixelVersionAliases_;
+    // Added by Dario, May 20th, 2008 =====================================================================
+    pathAliasMmap aliasMmap ;
+    // End of Dario's addition ============================================================================
 
   };
 }
