@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.55 2008/04/22 10:21:55 dellaric Exp $
+// $Id: Numbers.cc,v 1.56 2008/05/20 14:40:37 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.55 $
-  \date $Date: 2008/04/22 10:21:55 $
+  \version $Revision: 1.56 $
+  \date $Date: 2008/05/20 14:40:37 $
 */
 
 #include <sstream>
@@ -53,7 +53,7 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
     if ( verbose ) std::cout << "done." << std::endl;
 
-  } catch ( edm::eventsetup::NoRecordException< EcalMappingRcd > &e ) {
+  } catch ( edm::eventsetup::NoRecordException< EcalMappingRcd >& e ) {
 
     if ( verbose ) std::cout << "NOT done." << std::endl;
 
