@@ -230,8 +230,8 @@ bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
 
   if( x < 1 || x > 36 || y < 1 || y > 18) return false;
 
-  if ( y < 10 ) side = 0;
-  else side = 1;
+  if ( y < 10 ) side = 1;
+  else side = 0;
 
   chamber = x - 1;
 
