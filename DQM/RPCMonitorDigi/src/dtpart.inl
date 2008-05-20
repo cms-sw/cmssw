@@ -82,7 +82,7 @@ if(all4DSegments->size()>0){
 	
 	  const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
 	  LocalPoint xmin = top_->localPosition(0.);
-	  std::cout<<"\t \t \t xmin of this  Roll "<<ximn<<"cm"<<std::endl;
+	  std::cout<<"\t \t \t xmin of this  Roll "<<xmin<<"cm"<<std::endl;
 	  LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
 	  std::cout<<"\t \t \t xmax of this  Roll "<<xmax<<"cm"<<std::endl;
 	  float rsize = fabs( xmax.x()-xmin.x() )*0.5;
