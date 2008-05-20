@@ -10,8 +10,10 @@ namespace {
   cond::ClassIDRegistry packageClassIDRegistry("LCGClassID/");
 }
 
-ELEM_CONSTR(packageClassIDRegistry)
+// ELEM_CONSTR(packageClassIDRegistry)
+ Elem(){registry = &packageClassIDRegistry;}
 
+ 
 extern "C" void SEAL_CAPABILITIES (const char**& names, int& n )
 { 
   names = &packageClassIDRegistry.csids.front();
