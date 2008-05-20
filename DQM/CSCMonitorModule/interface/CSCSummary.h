@@ -49,6 +49,14 @@ class CSCSummary {
     void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const int value);
     void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv, const int value);
 
+    const double GetEfficiency();
+    const double GetEfficiency(const unsigned int side); 
+    const double GetEfficiency(const unsigned int side, const unsigned int station);
+    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring);
+    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber);
+    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb);
+    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv);
+
     const int GetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv);
 
   private:

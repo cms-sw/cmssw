@@ -210,6 +210,81 @@ void CSCSummary::SetValue(
 
 }
 
+const double CSCSummary::GetEfficiency() {
+  double sum = 0.0;
+  for (unsigned int side = 0; side < N_SIDES; side++) {
+    sum += GetEfficiency(side);
+  }
+  return sum / N_SIDES;
+}
+
+const double CSCSummary::GetEfficiency(
+    const unsigned int side) { 
+  double sum = 0.0;
+  for (unsigned int station = 0; station < N_STATIONS; station++) {
+    sum += GetEfficiency(side, station);
+  }
+  return sum / N_STATIONS;
+}
+
+const double CSCSummary::GetEfficiency(
+    const unsigned int side, 
+    const unsigned int station) {
+  double sum = 0.0;
+  for (unsigned int ring = 0; ring < N_RINGS; ring++) {
+    sum += GetEfficiency(side, station, ring);
+  }
+  return sum / N_RINGS;
+}
+
+const double CSCSummary::GetEfficiency(
+    const unsigned int side, 
+    const unsigned int station, 
+    const unsigned int ring) {
+  double sum = 0.0;
+  for (unsigned int chamber = 0; chamber < N_CHAMBERS; chamber++) {
+    sum += GetEfficiency(side, station, ring, chamber);
+  }
+  return sum / N_CHAMBERS;
+}
+
+const double CSCSummary::GetEfficiency(
+    const unsigned int side, 
+    const unsigned int station, 
+    const unsigned int ring, 
+    const unsigned int chamber) {
+  double sum = 0.0;
+  for (unsigned int cfeb = 0; cfeb < N_CFEBS; cfeb++) {
+    sum += GetEfficiency(side, station, ring, chamber, cfeb);
+  }
+  return sum / N_CFEBS;
+}
+
+const double CSCSummary::GetEfficiency(
+    const unsigned int side, 
+    const unsigned int station, 
+    const unsigned int ring, 
+    const unsigned int chamber, 
+    const unsigned int cfeb) {
+  double sum = 0.0;
+  for (unsigned int hv = 0; hv < N_HVS; hv++) {
+    sum += GetEfficiency(side, station, ring, chamber, cfeb, hv);
+  }
+  return sum / N_HVS;
+}
+
+const double CSCSummary::GetEfficiency(
+    const unsigned int side, 
+    const unsigned int station, 
+    const unsigned int ring, 
+    const unsigned int chamber, 
+    const unsigned int cfeb, 
+    const unsigned int hv) {
+  int i = GetValue(side, station, ring, chamber, cfeb, hv);
+  if (i > 0) return 1.0;
+  return 0.0;
+}
+
 const int CSCSummary::GetValue(
     const unsigned int side, 
     const unsigned int station, 
@@ -217,9 +292,10 @@ const int CSCSummary::GetValue(
     const unsigned int chamber, 
     const unsigned int cfeb, 
     const unsigned int hv) {
-
+  if(side < N_SIDES && station < N_STATIONS && ring < N_RINGS && chamber < N_CHAMBERS && cfeb < N_CFEBS && hv < N_HVS) {
     return map[side][station][ring][chamber][cfeb][hv];
-
+  }
+  return V_NULL;
 }
 
 bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
