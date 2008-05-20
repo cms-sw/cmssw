@@ -4,11 +4,17 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AndSelector.h,v 1.5 2007/06/18 18:33:53 llista Exp $
+ * $Id: AndSelector.h,v 1.6 2007/11/12 11:37:01 llista Exp $
  */
 
 namespace helpers {
-  struct NullAndOperand { };
+  struct NullAndOperand;
+}
+
+namespace reco {
+  namespace modules {
+    template<typename T1, typename T2, typename T3, typename T4, typename T5> struct CombinedEventSetupInit;
+  }
 }
 
 template<typename S1, typename S2, 
@@ -23,6 +29,7 @@ struct AndSelector {
   }
 
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, S5>;
   S1 s1_;
   S2 s2_;
   S3 s3_;
@@ -44,6 +51,7 @@ struct AndSelector<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, hel
     return s1_( t1 ) && s2_( t2 );
   }
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, helpers::NullAndOperand, helpers::NullAndOperand, helpers::NullAndOperand>;
   S1 s1_;
   S2 s2_;
 };
@@ -61,6 +69,7 @@ struct AndSelector<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>
     return s1_( t1 ) && s2_( t2 ) && s3_( t3 );
   }
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, helpers::NullAndOperand, helpers::NullAndOperand>;
   S1 s1_;
   S2 s2_;
   S3 s3_;
@@ -79,6 +88,7 @@ struct AndSelector<S1, S2, S3, S4, helpers::NullAndOperand> {
     return s1_( t1 ) && s2_( t2 ) && s3_( t3 ) && s4_( t4 );
   }
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, helpers::NullAndOperand>;
   S1 s1_;
   S2 s2_;
   S3 s3_;
