@@ -6,11 +6,16 @@
 
 namespace cond {
 
+  namespace idCategories {
+    std::string const dictIDCategory("LCGClassID");
+    std::string const pythonIDCategory("CondPythonID");
+  }
+
   class ClassIDRegistry {
   public:
     std::vector<std::string> sids;
     std::vector<const char*> csids;
-    ClassIDRegistry(char const* pfix);
+    ClassIDRegistry((std::string const & pfix);
     struct Elem {
       ClassIDRegistry * registry;
       inline Elem(){}
