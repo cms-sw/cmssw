@@ -55,6 +55,9 @@ namespace edm {
   void
   ProductRegistry::setProductIDs(unsigned int startingID) {
     throwIfNotFrozen();
+    if (startingID < nextID_) {
+      startingID = nextID_;
+    }
     --startingID;
     for (ProductList::iterator it = productList_.begin(), itEnd = productList_.end();
         it != itEnd; ++it) {
@@ -62,6 +65,7 @@ namespace edm {
         it->second.setProductIDtoAssign(ProductID(++startingID));
       }
     }
+    setNextID(startingID + 1);
     initializeTransients();
   }
 
