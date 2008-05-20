@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # to Uncomment for using the new seed generator
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 MuonSeed = cms.EDProducer("MuonSeedProducer",
+    ptSeedParameterization,
     MuonServiceProxy,
     # Parameters for seed creation in overlap region
     maxDeltaEtaOverlap = cms.double(0.08),
@@ -39,5 +40,6 @@ MuonSeed = cms.EDProducer("MuonSeedProducer",
     # enable the CSC chamber
     EnableCSCMeasurement = cms.bool(True)
 )
+
 
 

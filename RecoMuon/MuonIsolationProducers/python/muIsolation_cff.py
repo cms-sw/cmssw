@@ -10,3 +10,4 @@ muIsolation_ParamGlobalMuonsOld = cms.Sequence(muIsoDeposits_ParamGlobalMuonsOld
 #standard sequence
 muIsolation = cms.Sequence(muIsolation_muons)
 
+

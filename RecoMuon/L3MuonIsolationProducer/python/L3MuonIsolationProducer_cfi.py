@@ -5,8 +5,10 @@ L3MuonIsolations = cms.EDProducer("L3MuonIsolationProducer",
     CutsPSet = cms.PSet(
         ConeSizes = cms.vdouble(0.24),
         ComponentName = cms.string('SimpleCuts'),
+        Thresholds = cms.vdouble(2.0),
+        maxNTracks = cms.int32(-1),
         EtaBounds = cms.vdouble(999.9),
-        Thresholds = cms.vdouble(2.0)
+        applyCutsORmaxNTracks = cms.bool(False)
     ),
     #make it tighter if desired (if(tk.pt>Pt_Min) sumPt += tk.pt;)
     #applied after MuIsoDeposits are extracted
@@ -35,5 +37,6 @@ L3MuonIsolations = cms.EDProducer("L3MuonIsolationProducer",
         BeamlineOption = cms.string('BeamSpotFromEvent')
     )
 )
+
 
 

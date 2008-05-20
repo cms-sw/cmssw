@@ -4,3 +4,4 @@ import FWCore.ParameterSet.Config as cms
 # Please use this one instead
 from RecoMuon.GlobalMuonProducer.globalMuons_cfi import *
 
+

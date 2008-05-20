@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
-pixelTracksForL3Isolation = copy.deepcopy(pixelTracks)
+import RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi
+pixelTracksForL3Isolation = RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi.pixelTracks.clone()
 pixelTracksForL3Isolation.RegionFactoryPSet.ComponentName = 'IsolationRegionAroundL3Muon'
 pixelTracksForL3Isolation.RegionFactoryPSet.RegionPSet = cms.PSet(
     deltaPhiRegion = cms.double(0.24),
@@ -15,4 +14,5 @@ pixelTracksForL3Isolation.RegionFactoryPSet.RegionPSet = cms.PSet(
     vertexZConstrained = cms.bool(False),
     ptMin = cms.double(1.0)
 )
+
 

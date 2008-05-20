@@ -1,14 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cfi import *
-regionalSeedsForL3Isolation = copy.deepcopy(globalPixelSeeds)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-regionalCandidatesForL3Isolation = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-regionalTracksForL3Isolation = copy.deepcopy(ctfWithMaterialTracks)
+import RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cfi
+regionalSeedsForL3Isolation = RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cfi.globalPixelSeeds.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+regionalCandidatesForL3Isolation = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+regionalTracksForL3Isolation = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 regionalCKFTracksForL3Isolation = cms.Sequence(regionalSeedsForL3Isolation*regionalCandidatesForL3Isolation*regionalTracksForL3Isolation)
 regionalSeedsForL3Isolation.RegionFactoryPSet.ComponentName = 'IsolationRegionAroundL3Muon'
 regionalSeedsForL3Isolation.RegionFactoryPSet.RegionPSet = cms.PSet(
@@ -24,4 +21,5 @@ regionalSeedsForL3Isolation.RegionFactoryPSet.RegionPSet = cms.PSet(
 )
 regionalCandidatesForL3Isolation.SeedProducer = 'regionalSeedsForL3Isolation'
 regionalTracksForL3Isolation.src = 'regionalCandidatesForL3Isolation'
+
 

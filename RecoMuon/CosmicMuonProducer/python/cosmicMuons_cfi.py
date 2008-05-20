@@ -29,13 +29,14 @@ cosmicMuons = cms.EDProducer("CosmicMuonProducer",
             PropagatorOpposite = cms.string('SteppingHelixPropagatorOpposite')
         ),
         Propagator = cms.string('SteppingHelixPropagatorAny'),
+        EnableCSCMeasurement = cms.untracked.bool(True),
         MuonNavigationParameters = cms.PSet(
-            Endcap = cms.bool(True),
-            Barrel = cms.bool(True)
-        ),
-        EnableCSCMeasurement = cms.untracked.bool(True)
+            Barrel = cms.bool(True),
+            Endcap = cms.bool(True)
+        )
     ),
     MuonSeedCollectionLabel = cms.untracked.string('CosmicMuonSeed')
 )
+
 
 

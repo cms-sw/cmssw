@@ -22,3 +22,4 @@ from RecoMuon.MuonIdentification.muons_cfi import *
 from RecoMuon.MuonIdentification.calomuons_cfi import *
 muonIdProducerSequence = cms.Sequence(muons*calomuons)
 
+

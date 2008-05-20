@@ -13,4 +13,6 @@ from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 #include "RecoMuon/MuonSeedGenerator/data/standAloneMuonSeeds.cfi"
 # New standalone muon producer to be used in 2-X-X
 from RecoMuon.MuonSeedGenerator.standAloneMuonSeedProducer_cfi import *
+from RecoMuon.MuonSeedGenerator.ptSeedParameterization_cfi import *
+
 

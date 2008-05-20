@@ -55,3 +55,4 @@ RecoMuonIsolationParamGlobal = cms.PSet(
         'keep *_muParamGlobalIsoDepositJets_*_*')
 )
 
+

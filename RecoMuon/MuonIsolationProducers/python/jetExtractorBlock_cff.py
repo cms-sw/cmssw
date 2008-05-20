@@ -18,3 +18,4 @@ MIsoJetExtractorBlock = cms.PSet(
     JetCollectionLabel = cms.InputTag("sisCone5CaloJets")
 )
 
+
