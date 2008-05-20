@@ -12,8 +12,6 @@
 
 # Timing / Performance
 
-# L1
-
 # DT
 
 # CSC
@@ -87,6 +85,7 @@ HLTDefault = cms.PSet(
     outputCommands = cms.untracked.vstring('keep edmTriggerResults_*_*_*', 
         'keep triggerTriggerEvent_*_*_*', 
         'keep *_hltGtDigis_*_*', 
+        'keep *_hltGctDigis_*_*', 
         'keep *_hltL1GtObjectMap_*_*', 
         'keep *_hltL1extraParticles_*_*', 
         'keep *_hltOfflineBeamSpot_*_*')
@@ -113,7 +112,6 @@ HLTDebug = cms.PSet(
     outputCommands = cms.untracked.vstring('keep triggerTriggerEventWithRefs_*_*_*', 
         'keep edmEventTime_*_*_*', 
         'keep HLTPerformanceInfo_*_*_*', 
-        'keep *_hltGctDigis_*_*', 
         'keep *_hltDt1DRecHits_*_*', 
         'keep *_hltDt4DSegments_*_*', 
         'keep *_hltCsc2DRecHits_*_*', 
