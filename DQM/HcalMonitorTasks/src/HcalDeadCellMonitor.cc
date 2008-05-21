@@ -40,10 +40,11 @@ namespace HcalDeadCellCheck
   template<class Digi>
   void CheckForDeadDigis(const Digi& digi, DeadCellHists& hist, 
 			 DeadCellHists& all,
-			 float Nsigma, float mincount, // specify Nsigma for pedestal check, mincount for ADC check
-			 HcalCalibrations calibs, 
-			 HcalCalibrationWidths widths, 
-			 DQMStore* dbe, string baseFolder)
+			 float Nsigma, 
+			 float mincount, // specify Nsigma for pedestal check, mincount for ADC check
+			 const HcalDbService& cond,
+			 DQMStore* dbe, string baseFolder,
+			 bool pedsInFC=false)
   {
 
     if (hist.check==0) return;
@@ -71,36 +72,107 @@ namespace HcalDeadCellCheck
 
     // Fill (eta,phi) map if digi is found for that cell
     hist.digiCheck->Fill(digi_eta,digi_phi);
+
     all.digiCheck->Fill(digi_eta,digi_phi);
     hist.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
     all.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 
 
+    /* Update on 21 May 2008 -- code modified to compare digi values to 
+       pedestals regardless of whether ped hits are in ADCs or fC.
+       (hcalMonitor.PedestalsInFC user-input boolean is used to determine
+        which to use.  It's assumed false (pedestals in ADC, not fC)
+    */
 
-    // Loop over the 10 time slices of the digi
-    for (int i=0;i<digi.size();++i)
+    HcalCalibrationWidths widths;
+    cond.makeHcalCalibrationWidth(digi.id(),&widths);
+    HcalCalibrations calibs;
+    calibs= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
+
+    const HcalQIEShape* shape = cond.getHcalShape();
+    const HcalQIECoder* coder = cond.getHcalCoder(digi.id());  
+
+
+
+    // Loop over the 10 time slices of the digi to find the time slice with maximum charge deposition
+    // We'll assume steeply-peaked distribution, so that charge deposit occurs
+    // in slices (i-1) -> (i+2) around maximum deposit time i
+
+    float maxa=0;
+    int maxi=0;
+    float digival;
+    float total_digival=0;
+    float total_pedestal=0;
+    float total_pedwidth=0;
+
+    for(int i=0; i<10; ++i)
+      {
+	int thisCapid = digi.sample(i).capid();
+	
+	// Calculate charge deposited (minus pedestal) in either fC or ADC
+	if (pedsInFC)
+	  digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid())-calibs.pedestal(thisCapid);
+	else
+	  {
+	    digival=digi.sample(i).adc()-calibs.pedestal(thisCapid);
+	    //cout <<"HEY"<<endl;
+	  }
+	// Check to see if value is new max
+	if(digival >maxa)
+	  {
+	    maxa=digival ;
+	    maxi=i;
+	  }
+      } // for (int i=0;i<10;++i)	
+
+
+    // Now loop over 4 time slices around maximum value
+    
+    //for (int i=0;i<digi.size();++i) // old code ran over all 10 slices
+
+    
+    for (int i=max(0,maxi-1);i<=min(9,maxi+2);++i)
       {
 	ADCsum+=digi.sample(i).adc();
 	//if (ADCsum!=0) break;
 	int thisCapid = digi.sample(i).capid();
+	
+	total_pedestal+=calibs.pedestal(thisCapid);
+	// Add widths in quadrature; need to account for correlations between capids at some point
+	total_pedwidth+=pow(widths.pedestal(thisCapid),2);
 
-	/* If ADC value above (pedestal+Nsgima_), fill hist.above_pedestal_temp
+	/* If ADC value above (pedestal+Nsigma_), fill hist.above_pedestal_temp
 	   (Cool cells will later be found by looking for empty spots in the
 	   above_pedestal_temp histogram)
 	*/
-	if (digi.sample(i).adc()>calibs.pedestal(thisCapid)+Nsigma*widths.pedestal(thisCapid))
-	  {
-	    hist.above_pedestal_temp->Fill(digi_eta,digi_phi);
-	    all.above_pedestal_temp->Fill(digi_eta,digi_phi);
-	  }
-	capADC[thisCapid]+=digi.sample(i).adc();
 
+	if (pedsInFC)
+	  digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid());
+	else
+	  digival = (float)digi.sample(i).adc();
+
+	total_digival+=digival;
+
+	/*
+	  cout <<type<< "  ("<<digi_eta<<", "<<digi_phi<<","<<digi_depth<<")  "  <<i<< "  CAPID = "<<thisCapid<<"  ADC = "<<digi.sample(i).adc()<<"  PED = "<<calibs.pedestal(thisCapid)<<" +/- "<<widths.pedestal(thisCapid)<<endl;
+	cout <<"\t digival = "<<digival<<endl<<endl;
+	*/
+
+	capADC[thisCapid]+=digi.sample(i).adc();
 
 	// Not yet sure if this histogram is useful, but it gives an idea of the ADC distributions
 	hist.ADCdist->Fill(digi.sample(i).adc());
 	all.ADCdist->Fill(digi.sample(i).adc());
-      }
+      } // for (int i = max(0,maxi-1)...)
 
+    // Compare sum around max digi value to sum of pedestals
+    total_pedwidth=pow(total_pedwidth,0.5);
+    if (total_digival>total_pedestal+Nsigma*total_pedwidth)
+      {
+	hist.above_pedestal_temp->Fill(digi_eta,digi_phi);
+	all.above_pedestal_temp->Fill(digi_eta,digi_phi);
+      }
+    
     // If ADCsum <= mincount, cell is considered dead
     if (ADCsum<=mincount)
       {
@@ -295,6 +367,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
   if (fVerbosity) 
     cout << "DeadCell phi min/max set to " << phiMin_ << "/" << phiMax_ << endl;
+  doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", false);
 
   // if cell energy is less than this fraction of its neighbors, cell is marked as cool:
   coolcellfrac_ = ps.getUntrackedParameter<double>("coolcellfrac",0.25); 
@@ -547,24 +620,22 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi     Starting process"<<endl;
 
-  HcalCalibrationWidths widths;
-
   // Loop over HBHE
   try
     {
       for (HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j)
 	{
 	  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
-	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 
 	  // HB goes out to ieta=16; ieta=16 is shared with HE
 	  if (abs(digi.id().ieta())<16 || (abs(digi.id().ieta())==16 && ((HcalSubdetector)(digi.id().subdet()) == HcalBarrel)))
 	    HcalDeadCellCheck::CheckForDeadDigis(digi,hbHists,hcalHists,
-						 Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+						 Nsigma_,minADCcount_,
+						 cond,m_dbe,baseFolder_,doFCpeds_);
 	  else 
 	    HcalDeadCellCheck::CheckForDeadDigis(digi,heHists,hcalHists,
-						 Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+						 Nsigma_,minADCcount_,
+						 cond,m_dbe,baseFolder_,doFCpeds_);
 	}
     }
   catch(...)
@@ -578,10 +649,9 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       for (HODigiCollection::const_iterator j=hodigi.begin(); j!=hodigi.end(); ++j)
 	{
 	  const HODataFrame digi = (const HODataFrame)(*j);
-	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
-	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 	  HcalDeadCellCheck::CheckForDeadDigis(digi,hoHists,hcalHists,
-					       Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+					       Nsigma_,minADCcount_,
+					       cond,m_dbe,baseFolder_,doFCpeds_);
 	}
     }
   catch(...)
@@ -595,10 +665,9 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       for (HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); ++j)
 	{
 	  const HFDataFrame digi = (const HFDataFrame)(*j);
-	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
-	  cond.makeHcalCalibrationWidth(digi.id(),&widths);
 	  HcalDeadCellCheck::CheckForDeadDigis(digi,hfHists,hcalHists,
-					       Nsigma_,minADCcount_,calibs_,widths,m_dbe,baseFolder_);
+					       Nsigma_,minADCcount_,
+					       cond,m_dbe,baseFolder_,doFCpeds_);
 	}
     }
   catch(...)
@@ -628,8 +697,6 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
       return;
     }
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;
-
-
 
   /*
     // Implement this code later, if we find that repeated looping over recHits is too slow.
