@@ -35,6 +35,8 @@ class CSCSummary {
 
     CSCSummary();
 
+    void Reset();
+
     void Read(TH1*& h1);
     void ReadChambers(TH2*& h2);
 

@@ -25,7 +25,27 @@
  * @return 
  */
 CSCSummary::CSCSummary() {
-  SetValue(V_NULL);
+  Reset();
+}
+
+/**
+ * @brief  Resets all detector map
+ * @return 
+ */
+void CSCSummary::Reset() {
+  for (unsigned int side = 1; side <= N_SIDES; side++) { 
+    for (unsigned int station = 1; station <= N_STATIONS; station++) {
+       for (unsigned int ring = 1; ring <= N_RINGS; ring++) { 
+          for (unsigned int chamber = 1; chamber <= N_CHAMBERS; chamber++) {
+            for (unsigned int cfeb = 1; cfeb <= N_CFEBS; cfeb++) {
+              for (unsigned int hv = 1; hv <= N_HVS; hv++) {
+                SetValue(side, station, ring, chamber, cfeb, hv, 0);
+              }
+            }
+          }
+       }
+    }
+  }
 }
 
 /**
@@ -44,9 +64,9 @@ void CSCSummary::ReadChambers(TH2*& h2) {
         double z = h2->GetBinContent(x, y);
         if(ChamberCoords(x, y, side, station, ring, chamber)) {
           if(z > 0) {
-            SetValue(side, station, ring, chamber, V_TRUE);
+            SetValue(side, station, ring, chamber, 1);
           } else {
-            SetValue(side, station, ring, chamber, V_FALSE);
+            SetValue(side, station, ring, chamber, 0);
           }
         }
       }
@@ -67,7 +87,8 @@ void CSCSummary::Write(TH1*& h1) {
           for (unsigned int chamber = 1; chamber <= N_CHAMBERS; chamber++) {
             for (unsigned int cfeb = 1; cfeb <= N_CFEBS; cfeb++) {
               for (unsigned int hv = 1; hv <= N_HVS; hv++) {
-                double d = static_cast<double>(GetValue(side, station, ring, chamber, cfeb, hv));
+                int i = GetValue(side, station, ring, chamber, cfeb, hv);
+                double d = static_cast<double>(i);
                 h1->SetBinContent(bin, d);
                 bin++;
               }
@@ -117,7 +138,8 @@ void CSCSummary::Read(TH1*& h1) {
             for (unsigned int cfeb = 1; cfeb <= N_CFEBS; cfeb++) {
               for (unsigned int hv = 1; hv <= N_HVS; hv++) {
                 double d = h1->GetBinContent(bin);
-                SetValue(side, station, ring, chamber, cfeb, hv, static_cast<int>(d));
+                int i = static_cast<int>(d);
+                SetValue(side, station, ring, chamber, cfeb, hv, i);
                 bin++;
               }
             }
@@ -128,32 +150,26 @@ void CSCSummary::Read(TH1*& h1) {
 }
 
 void CSCSummary::SetValue(const int value) {
-
   for (unsigned int side = 1; side <= N_SIDES; side++) {
     SetValue(side, value);
   }
-
 }
 
 void CSCSummary::SetValue(
     const unsigned int side, 
     const int value) {
-
   for (unsigned int station = 1; station <= N_STATIONS; station++) {
     SetValue(side, station, value);
   }
-
 }
 
 void CSCSummary::SetValue(
     const unsigned int side, 
     const unsigned int station, 
     const int value) {
-
   for (unsigned int ring = 1; ring <= NumberOfRings(station); ring++) {
     SetValue(side, station, ring, value);
   }
-
 }
 
 void CSCSummary::SetValue(
@@ -161,11 +177,9 @@ void CSCSummary::SetValue(
     const unsigned int station, 
     const unsigned int ring, 
     const int value) {
-
   for (unsigned int chamber = 1; chamber <= NumberOfChambers(station, ring); chamber++) {
     SetValue(side, station, ring, chamber, value);
   }
-
 }
 
 void CSCSummary::SetValue(
@@ -174,11 +188,9 @@ void CSCSummary::SetValue(
     const unsigned int ring, 
     const unsigned int chamber, 
     const int value) {
-
   for (unsigned int cfeb = 1; cfeb <= NumberOfChamberCFEBs(station, ring); cfeb++) {
     SetValue(side, station, ring, chamber, cfeb, value);
   }
-
 }
 
 void CSCSummary::SetValue(
@@ -188,11 +200,9 @@ void CSCSummary::SetValue(
     const unsigned int chamber, 
     const unsigned int cfeb, 
     const int value) {
-
   for (unsigned int hv = 1; hv <= NumberOfChamberHVs(station, ring); hv++) {
     SetValue(side, station, ring, chamber, cfeb, hv, value);
   }
-
 }
 
 void CSCSummary::SetValue(
@@ -303,7 +313,7 @@ const int CSCSummary::GetValue(
       hv > 0 && hv <= N_HVS) {
     return map[side - 1][station - 1][ring - 1][chamber - 1][cfeb - 1][hv - 1];
   }
-  return V_NULL;
+  return -1;
 }
 
 const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
