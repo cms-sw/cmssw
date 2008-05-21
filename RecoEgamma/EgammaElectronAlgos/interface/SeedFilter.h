@@ -30,7 +30,6 @@ class SeedFilter {
   SeedFilter(const edm::ParameterSet& conf);
   ~SeedFilter();
 
-  //void setupES(const edm::EventSetup& setup);
   void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef &, TrajectorySeedCollection *);
   
  private:
@@ -38,15 +37,13 @@ class SeedFilter {
   
   // remove them FIXME
   double dr_, deta_, dphi_, pt_;
-  //FIXME std::string initialSeedProducer_;
-  //FIXME std::string initialSeedLabel_;
 
   double ptmin_, vertexz_, originradius_,  halflength_, deltaEta_, deltaPhi_;
   bool useZvertex_;
-  edm::InputTag BSProducer_;  //FIXME?
-  edm::InputTag vertexSrc_;//FIXME?
+  //  edm::InputTag BSProducer_;  //FIXME?
+  edm::InputTag vertexSrc_;
   
-  edm::ESHandle<MagneticField> theMagField;//FIXME?
+  edm::ESHandle<MagneticField> theMagField;
   FTSFromVertexToPointFactory myFTS; 
 };
 

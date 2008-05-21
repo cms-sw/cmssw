@@ -25,14 +25,16 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 
-#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"//needed?
-#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"//needed?
+#include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -74,7 +76,7 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   std::auto_ptr<TrajectorySeedCollection> seedColl(new TrajectorySeedCollection());    
  
   GlobalPoint vtxPos;
-  double zvertex, deltaZVertex;
+  double deltaZVertex;
   
   //edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   //e.getByType(recoBeamSpotHandle);
@@ -91,16 +93,21 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   edm::Handle<reco::VertexCollection> h_vertices;
   e.getByLabel(vertexSrc_, h_vertices);
   
-  //GlobalPoint vertexPos;
   const reco::VertexCollection & vertices = * h_vertices;
   
   if (!vertices.empty() && useZvertex_) {
     vtxPos = GlobalPoint(vertices.front().x(), vertices.front().y(), vertices.front().z());
     deltaZVertex = halflength_;
   } else {
-    vtxPos = GlobalPoint(0, 0, 0);
-    zvertex = 0.;
-    deltaZVertex = 15.;
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    e.getByType(recoBeamSpotHandle);
+    // gets its position
+    const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position();
+    double sigmaZ = recoBeamSpotHandle->sigmaZ();
+    double sigmaZ0Error = recoBeamSpotHandle->sigmaZ0Error();
+    double sq=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+    vtxPos = GlobalPoint(BSPosition.x(), BSPosition.y(), BSPosition.z());
+    deltaZVertex = 3*sq;
   }
  
   //seeds selection
