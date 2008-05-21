@@ -608,15 +608,15 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 /// ordering of the electron sorters to give the correct
 /// priority to the candidates in the final sort 
 /// The priority ordering is:
-///    crates 13 -17 : priority 0 (highest)
-///    crates  9 -12 : priority 1
-///    crates  4 - 8 : priority 2
-///    crates  0 - 3 : priority 3 (lowest)
+///    crates  4 - 8 : priority 0 (highest)
+///    crates  0 - 3 : priority 1
+///    crates 13 -17 : priority 2
+///    crates  9 -12 : priority 3 (lowest)
 unsigned L1GlobalCaloTrigger::sorterNo(const L1CaloEmCand& em) const {
   unsigned crate = em.rctCrate();
   assert (crate<18);
   unsigned result = ( ((crate%9) < 4) ? 1 : 0 );
-  if (crate<9) result += 2;
+  if (crate>=9) result += 2;
   return result;
 }
 
