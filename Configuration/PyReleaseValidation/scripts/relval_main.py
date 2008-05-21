@@ -36,7 +36,7 @@ sys.path.append(".") # necessary to find the relval_parameters_module created by
 # done now in cmsDriver.py
 #if step=='ALL':
 #    step='GEN,SIM,DIGI,L1,DIGI2RAW,RECO,DQM,POSTRECO'
-#step_list=step.split(',') # we split when we find a ','
+step_list=step.split(',') # we split when we find a ','
 
 
 # a dict whose keys are the steps and the values are functions that modify the process
@@ -68,7 +68,7 @@ dataTier_dict={'GEN':'GEN',
                'DQM':'RECO',
                'FASTSIM':'RECO',
                'HLT':'GEN-SIM-RAW',
-               'POSTRECO':'RECO'}
+               'POSTRECO':'GEN-SIM-RECO'}
 
 pathName_dict={'GEN':'pgen',
                'SIM':'psim',
