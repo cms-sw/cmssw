@@ -436,6 +436,11 @@ const unsigned int CSCSummary::NumberOfChamberHVs(const unsigned int station, co
   return 0;
 }
 
+/**
+ * @brief  Prints address for debugging
+ * @param  adr Address to print
+ * @return 
+ */
 void CSCSummary::PrintAddress(const CSCAddress& adr) {
 
   std::cout << "Side (" << std::boolalpha << adr.mask.side << ")"; 
@@ -457,5 +462,53 @@ void CSCSummary::PrintAddress(const CSCAddress& adr) {
   if (adr.mask.hv) std::cout << " = " << adr.hv;
 
   std::cout << std::endl;
+}
+
+const bool CSCSummary::Iterator(unsigned int& i, CSCAddress& adr, const CSCAddressMask& mask) {
+  
+  return 0.0;
+}
+
+const unsigned int CSCSummary::NumberOfElements() {
+  CSCAddress adr;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
+  return NumberOfElements(adr);
+}
+
+const unsigned int CSCSummary::NumberOfElements(const CSCAddress adr) {
+  unsigned int n = 0;
+
+  if (!adr.mask.side) {
+    adr.mask.side = true;
+    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) n += NumberOfElements(adr);
+    return n;
+  }
+
+  if (!adr.mask.station) {
+    adr.mask.station = true;
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) n += NumberOfElements(adr);
+    return n;
+  }
+
+  if (!adr.mask.ring) {
+    adr.mask.ring = true;
+    for (adr.ring = 1; adr.ring <= NumberOfRings(adr.station); adr.ring++) n += NumberOfElements(adr);
+    return n;
+  }
+
+  if (!adr.mask.chamber) {
+    return NumberOfChambers(adr.station, adr.ring) * NumberOfChamberCFEBs(adr.station, adr.ring) * NumberOfChamberHVs(adr.station, adr.ring);
+  }
+
+  if (!adr.mask.cfeb) {
+    return NumberOfChamberCFEBs(adr.station, adr.ring) * NumberOfChamberHVs(adr.station, adr.ring);
+  }
+
+  if (!adr.mask.hv) {
+    return NumberOfChamberHVs(adr.station, adr.ring);
+  }
+
+  return 1;
+
 }
 
