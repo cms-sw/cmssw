@@ -48,9 +48,10 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	extendedCollection->push_back(*(i)); //to  be used later
 	//	delete pippo;
       }else{
-	const TrackRef leadTk = i->leadingSignalTrack(mc_cone, pt_min_leadTrack);
+	const TrackRef leadTk = i->leadingSignalTrack();
 	if( !leadTk ) 
-	  {}else{	   
+	  {}else{
+	if(leadTk->pt() >  pt_min_leadTrack) {	   
 	  float discriminator = i->discriminator();	  
 	  const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	  if(useIsolationDiscriminator && (discriminator > 0) ) {
@@ -60,7 +61,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	  }else if(!useIsolationDiscriminator){
 	    jetCollectionTmp->push_back(*pippo);
 	    extendedCollection->push_back(*(i)); //to  be used later
-	    
+	    }
 	  }
 	}
       }
