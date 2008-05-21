@@ -19,7 +19,7 @@ namespace cond {
   boost::shared_ptr<ClassInfo> classInfo(std::string const & token);
 
   // load plugin (delete classInfo)
-  void loadByToken(std::string const & token);
+  bool loadClassByToken'(std::string const & token);
 
 }
 
