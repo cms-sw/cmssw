@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.1 $
-#     $Date: 2008/04/10 16:10:12 $
+#     $Revision: 1.2 $
+#     $Date: 2008/04/21 20:53:47 $
 #
 #  Prepare the run script for this job.
 #  The main action is to embed the output directory
@@ -10,7 +10,8 @@
 #
 #  Usage:
 #
-#  mps_script.pl inScript outScript runDir cfgName fileSplit isn mssDir
+#  mps_script.pl inScript outScript runDir cfgName fileSplit isn mssDir \
+#  [CastorPool]
 #
 
 use POSIX;
@@ -22,6 +23,8 @@ $cfgName = "undefined";
 $fileSplit = "undefined";
 $isn = "undefined";
 $mssDir = "undefined";
+$castorPool = "undefined";
+
 
 # parse the arguments
 while (@ARGV) {
@@ -61,6 +64,9 @@ while (@ARGV) {
     elsif ($i eq 7) {
       $mssDir = $arg;
     }
+    elsif ($i eq 8) {
+      $castorPool = $arg;
+    }
   }
 }
 
@@ -90,6 +96,14 @@ if ($nn != 1) {
   print "mps_script.pl: no (unambiguous) MSSDIR directive found in runscript\n";
 }
 $nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDir/m);
+
+if ($castorPool ne "undefined") {
+# replace MSSDIRPOOL setting...
+  $nn = ($body =~ s/MSSDIRPOOL=(.*)$/MSSDIRPOOL=$castorPool/m);
+} else {
+#... or empty the field.
+  $nn = ($body =~ s/MSSDIRPOOL=(.*)$/MSSDIRPOOL=/m);
+}
 
 # replace the cfg name
 $nn = ($body =~ m/cmsRun +([A-Z,a-z,0-9\-\.])/g);
