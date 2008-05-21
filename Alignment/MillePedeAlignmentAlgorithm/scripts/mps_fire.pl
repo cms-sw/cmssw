@@ -121,29 +121,44 @@ else {
     } elsif ($mergeOK!=1 && $forceMerge!=1) {
       print "Merge job not submitted since Mille jobs error/unfinished (Use -mf to force).\n";
     } else {
-        if ($mergeOk!=1) { # some mille jobs are not OK
-	  # Make first a backup copy of the script
-	  if (!(-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak")) {
-	    system "cp -p $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i]/theScript.sh.bak";
-	  }
 
-	  # Get then the name of merge cfg file (-> $mergeCfg)
-          $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh.bak | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
-	  $mergeCfg = `basename $mergeCfg`;
-          $mergeCfg =~ s/\n//;
+      if ($forceMerge==1) { # force option invoked
+	# Make first a backup copy of the script
+	if (!(-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak")) {
+	  system "cp -p $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i]/theScript.sh.bak";
+	}
 
-	  # And make a backup copy of the cfg
-	  if (!(-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak")) {
-	    system "cp -p $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i]/$mergeCfg.bak";
-	  }
+	# Get then the name of merge cfg file (-> $mergeCfg)
+	$mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh.bak | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+	$mergeCfg = `basename $mergeCfg`;
+	$mergeCfg =~ s/\n//;
 
-          # Rewrite the mergeCfg, using only "OK" jobs
+	# And make a backup copy of the cfg
+	if (!(-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak")) {
+	  system "cp -p $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i]/$mergeCfg.bak";
+	}
+
+	# Rewrite the mergeCfg, using only "OK" jobs
           system "mps_merge.pl -c $theJobData/@JOBDIR[$i]/$mergeCfg.bak $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i] $nJobs";
 
           # Rewrite theScript.sh, using only "OK" jobs
 	  system "mps_scriptm.pl -c $mergeScript $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i] $mergeCfg $nJobs $mssDir";
-	  exit;
-        }
+        } else {
+	  # Restore the backup copy of the script
+	  if (-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak") {
+	    system "cp -pf $theJobData/@JOBDIR[$i]/theScript.sh.bak $theJobData/@JOBDIR[$i]/theScript.sh";
+	  }
+
+	  # Then get the name of merge cfg file (-> $mergeCfg)
+          $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+	  $mergeCfg = `basename $mergeCfg`;
+          $mergeCfg =~ s/\n//;
+
+	  # And finally restore the backup copy of the cfg
+	  if (-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak") {
+	    system "cp -pf $theJobData/@JOBDIR[$i]/$mergeCfg.bak $theJobData/@JOBDIR[$i]/$mergeCfg";
+	  }
+	}
 
 	print "bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
 	$result = `bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
