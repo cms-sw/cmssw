@@ -17,7 +17,7 @@ namespace cond {
 
   // find and return
   boost::shared_ptr<ClassInfo> classInfo(std::string const & token) {
-    static std::string const prefix = cond::idCategories::dictIDCategory;
+    static std::string const prefix = cond::idCategories::dictIDCategory + "/";
     std::string pluginName = prefix + classID(token);
     return boost::shared_ptr<ClassInfo>(ClassInfoFactory::get()->create(pluginName));
   }
