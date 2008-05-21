@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 #   module trackerHitsValid = TrackerHitProducer
 trackerHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
-    SiTIDLowSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTIDLowTof"),
-    PxlBrlLowSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsPixelBarrelLowTof"),
+    SiTIDLowSrc = cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"),
+    PxlBrlLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
     #      untracked string Name = "TrackerHitProducer"
     Name = cms.untracked.string('TrackerHitAnalyzer'),
     Verbosity = cms.untracked.int32(3), ## verbosity inclusive. 0 provides no output
@@ -17,15 +17,15 @@ trackerHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
         PrintProvenanceInfo = cms.untracked.bool(False),
         GetAllProvenances = cms.untracked.bool(False)
     ),
-    SiTOBLowSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTOBLowTof"),
-    SiTIBHighSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTIBHighTof"),
-    SiTIBLowSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTIBLowTof"),
-    SiTOBHighSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTOBHighTof"),
-    PxlFwdHighSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsPixelEndcapHighTof"),
-    SiTECHighSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTECHighTof"),
-    PxlBrlHighSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsPixelBarrelHighTof"),
-    SiTECLowSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTECLowTof"),
-    SiTIDHighSrc = cms.InputTag("g4SimHits","g4SimHitsTrackerHitsTIDHighTof")
+    SiTOBLowSrc = cms.InputTag("g4SimHits","TrackerHitsTOBLowTof"),
+    SiTIBHighSrc = cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"),
+    SiTIBLowSrc = cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"),
+    SiTOBHighSrc = cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"),
+    PxlFwdHighSrc = cms.InputTag("g4SimHits","TrackerHitsPixelEndcapHighTof"),
+    SiTECHighSrc = cms.InputTag("g4SimHits","TrackerHitsTECHighTof"),
+    PxlBrlHighSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelHighTof"),
+    SiTECLowSrc = cms.InputTag("g4SimHits","TrackerHitsTECLowTof"),
+    SiTIDHighSrc = cms.InputTag("g4SimHits","TrackerHitsTIDHighTof")
 )
 
 
