@@ -355,7 +355,39 @@ void SiStripInformationExtractor::getTrackerMapHistos(DQMStore* dqm_store, const
     }
   }   
 }
+//
+// -- Select Histograms for a given module
+//
+void SiStripInformationExtractor::getCondDBHistos(DQMStore * dqm_store, const std::multimap<std::string, std::string>& req_map, xgi::Output * out){
 
+  string sname = getItemValue(req_map,"StructureName");
+  int width  = atoi(getItemValue(req_map, "width").c_str());
+  int height = atoi(getItemValue(req_map, "height").c_str());
+
+  string path;
+  uint32_t detId;
+  if (hasItem(req_map,string("ModId"))) {
+    detId = atoi(getItemValue(req_map,"ModId").c_str());
+    SiStripFolderOrganizer folder_organizer;
+    folder_organizer.getFolderName(detId,path);
+  } else {
+    path = "SiStrip/" + sname;
+  }
+  string opt = getItemValue(req_map,"option");
+  vector<string> htypes;
+  SiStripUtility::split(opt, htypes, ",");
+
+  histoPlotter_->setNewCondDBPlot(path, opt, width, height);
+  setHTMLHeader(out);
+  *out << path << " ";
+
+  for (vector<string>::const_iterator ih = htypes.begin();
+       ih != htypes.end(); ih++) {
+    if ((*ih).size() > 0) {
+      *out << (*ih)  << " " ;
+    }
+  }
+}
 //
 // -- Get a tagged image 
 //
@@ -538,9 +570,9 @@ void SiStripInformationExtractor::getItemList(const multimap<string, string>& re
 //
 //  check a specific item in the map
 //
-bool SiStripInformationExtractor::hasItem(multimap<string,string>& req_map,
+bool SiStripInformationExtractor::hasItem(const multimap<string,string>& req_map,
 					  string item_name){
-  multimap<string,string>::iterator pos = req_map.find(item_name);
+  multimap<string,string>::const_iterator pos = req_map.find(item_name);
   if (pos != req_map.end()) return true;
   return false;  
 }
@@ -749,9 +781,9 @@ void SiStripInformationExtractor::readQTestSummary(DQMStore* dqm_store, string t
 // -- Create Images 
 //
 void SiStripInformationExtractor::createImages(DQMStore* dqm_store){
-  histoPlotter_->createPlots(dqm_store);
+  if (histoPlotter_->plotsToMake())       histoPlotter_->createPlots(dqm_store);
+  if (histoPlotter_->condDBPlotsToMake()) histoPlotter_->createCondDBPlots(dqm_store);
 }
-
 //
 // -- Set HTML Header in xgi output
 //

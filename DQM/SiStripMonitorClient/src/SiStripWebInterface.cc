@@ -7,7 +7,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 
-#include <SealBase/Callback.h>
 #include <map>
 #include <iostream>
 #include <sstream>
@@ -122,7 +121,33 @@ void SiStripWebInterface::handleAnalyserRequest(xgi::Input* in,xgi::Output* out,
     theActionFlag = NoAction;
     std::string fname = get_from_multimap(requestMap_, "FolderName");
     infoExtractor_->readNonGeomHistoTree(dqmStore_, fname, out);
-  }     
+  }
+  else if (requestID == "PlotModuleCondDBHistos") {    
+    theActionFlag = NoAction;
+    CondDBPlotParameter local_par;
+    uint32_t detId = atoi(get_from_multimap(requestMap_,"ModId").c_str());
+    local_par.detId   = detId;
+    local_par.type    = "";
+    local_par.side    = 999;
+    local_par.layer   = 999;
+    condDBRequestList_.push_back(local_par);
+    infoExtractor_->getCondDBHistos(dqmStore_, requestMap_, out);      
+  }
+  else if (requestID == "PlotLayerCondDBHistos") {
+
+    theActionFlag = NoAction;
+    CondDBPlotParameter local_par;
+    std::string sname = get_from_multimap(requestMap_,"StructureName");
+    local_par.detId   = 999;
+    local_par.type    = sname.substr(sname.find_first_of("/")+1,3);
+    if (sname.find("side_")!=std::string::npos) 
+            local_par.side = atoi((sname.substr(sname.find("side_")+5,1)).c_str());
+    else local_par.side = 999;
+    local_par.layer   = atoi((sname.substr(sname.find_last_of("_")+1)).c_str());
+    condDBRequestList_.push_back(local_par);
+
+    infoExtractor_->getCondDBHistos(dqmStore_, requestMap_, out);      
+  }
   performAction();
 }
 //
@@ -192,4 +217,22 @@ std::string SiStripWebInterface::get_from_multimap(std::multimap<std::string, st
       return (it->second);
     }
   return "";
+}
+//
+// -- Get CondDB Parameters
+//
+void SiStripWebInterface::getConDBPlotParameters(unsigned int ival, uint32_t &det_id, 
+		   std::string& subdet_type, uint32_t& subdet_side, uint32_t& layer_number) {
+  if (condDBRequestList_.size() > ival) {
+    det_id       = condDBRequestList_[ival].detId;
+    subdet_type  = condDBRequestList_[ival].type;
+    subdet_side  = condDBRequestList_[ival].side;
+    layer_number = condDBRequestList_[ival].layer;
+  } else {
+    det_id       = 999;
+    subdet_type  = "";
+    subdet_side  = 999;
+    layer_number = 999;
+  }
+
 }

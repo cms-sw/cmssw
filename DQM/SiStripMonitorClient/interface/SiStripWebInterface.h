@@ -34,6 +34,10 @@ class SiStripWebInterface
   SiStripActionType getActionFlag() {return theActionFlag;}
   void setActionFlag(SiStripActionType flag) {theActionFlag = flag;}
   void performAction();
+  unsigned int getNumberOfConDBPlotRequest(){ return condDBRequestList_.size();}
+  void getConDBPlotParameters(unsigned int ival, uint32_t &det_id, std::string& subdet_type, 
+                              uint32_t&   subdet_side, uint32_t& layer_number);    
+  void clearConDBPlotRequests() { condDBRequestList_.clear(); }
 
       
   private:
@@ -49,10 +53,21 @@ class SiStripWebInterface
   std::multimap<std::string, std::string> requestMap_;
 
   DQMStore* dqmStore_;
-  //  edm::ESHandle< SiStripDetCabling > detCabling_;
+
+  bool condDBFlag_;
 
 
- protected:
+  struct CondDBPlotParameter { 
+    uint32_t    detId;
+    std::string type;
+    uint32_t    side;
+    uint32_t    layer;    
+     
+  };
+
+  std::vector<CondDBPlotParameter> condDBRequestList_;
+ 
+  protected:
 
 
 };

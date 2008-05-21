@@ -262,13 +262,6 @@ RequestHistos.SetHistosAndPlotOption = function() {
     if ($('logy').checked) {
       qstring += '&logy=true';
     }
-//    obj = $('x-low');
-//    value = parseFloat(obj.value);
-//    if (!isNaN(value)) qstring += '&xmin=' + value;
-//
-//    obj = $('x-high');
-//    value = parseFloat(obj.value);
-//    if (!isNaN(value)) qstring += '&xmax=' + value;
   } 
   // Drawing option
   var obj1 = $('drawing_options');
@@ -480,4 +473,51 @@ RequestHistos.FillNonGeomHistoList = function(transport)
     catch (err) {
     // alert ("[RequestHistos.FillNonGeometricHistoList] Error detail: " + err.message); 
     }
+}
+//
+// -- Draw CondDB Histos for Module
+//
+RequestHistos.DrawModuleCondDBHisto = function()
+{
+  if ($('global_histos').checked) {
+    alert("Global Plot option is selected!! Select Modules");
+    return;
+  }
+  var queryString;
+  var url = WebLib.getApplicationURLWithLID();
+  queryString = "RequestID=PlotModuleCondDBHistos";
+  // Get Module Number
+  var obj      = $('module_number_edit');
+  var value    = obj.value;
+  queryString += '&ModId='+value;
+  var option = 'PedestalFromCondDB,NoiseFromCondDB,GainFromCondDB';
+  queryString += '&option='+option;  
+  url += queryString;
+  var getMEURLS = new Ajax.Request(url,                    
+ 	 		         {			  
+ 	 		          method: 'get',	  
+ 			          parameters: '', 
+ 			          onComplete: IMGC.processImageURLs // <-- call-back function
+ 			         });
+}
+//
+// -- Draw CondDB Histos for Module
+//
+RequestHistos.DrawLayerCondDBHisto = function()
+{
+  var queryString;
+  var url = WebLib.getApplicationURLWithLID();
+  queryString = "RequestID=PlotLayerCondDBHistos";
+  var obj      = $('summ_struc_name');
+  var sname    = obj.options[obj.selectedIndex].value;
+  queryString += '&StructureName='+sname;
+  var option = 'PedestalFromCondDB,NoiseFromCondDB,GainFromCondDB';
+  queryString += '&option='+option;  
+  url += queryString;
+  var getMEURLS = new Ajax.Request(url,                    
+ 	 		         {			  
+ 	 		          method: 'get',	  
+ 			          parameters: '', 
+ 			          onComplete: IMGC.processImageURLs // <-- call-back function
+ 			         });
 }

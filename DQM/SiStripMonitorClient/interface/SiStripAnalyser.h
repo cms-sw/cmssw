@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/04/28 22:39:00 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/05/07 19:22:09 $
+ *  $Revision: 1.22 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include <iostream>

@@ -37,7 +37,8 @@ class SiStripInformationExtractor {
        const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
   void getTrackerMapHistos(DQMStore* dqm_store, 
        const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
-
+  void getCondDBHistos(DQMStore* dqm_store, 
+       const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
 
   void readModuleAndHistoList(DQMStore* dqm_store,std::string& sname, const edm::ESHandle<SiStripDetCabling>& detcabling,xgi::Output * out);
   void plotHistosFromLayout(DQMStore * dqm_store);
@@ -56,8 +57,6 @@ class SiStripInformationExtractor {
   
   void createImages(DQMStore* dqm_store);
   void getIMGCImage(const std::multimap<std::string, std::string>& req_map, xgi::Output * out);
-  
-
 
  private:
 
@@ -67,7 +66,7 @@ class SiStripInformationExtractor {
  
   void getItemList(const std::multimap<std::string, std::string>& req_map,
                    std::string item_name, std::vector<std::string>& items);
-  bool hasItem(std::multimap<std::string, std::string>& req_map,
+  bool hasItem(const std::multimap<std::string, std::string>& req_map,
 	      std::string item_name);
   std::string getItemValue(const std::multimap<std::string, std::string>& req_map,
 	      std::string item_name);
@@ -91,6 +90,7 @@ class SiStripInformationExtractor {
   std::map<std::string, std::vector< std::string > > layoutMap;
   bool  readReference_;
  
+
   SiStripHistoPlotter* histoPlotter_;
 };
 #endif

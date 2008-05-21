@@ -228,6 +228,8 @@
                        style="width:35%;height:5%;text-align;margin-right:0%">
                        <option value="MechanicalView/TIB" SELECTED> TIB </option>
                   </select>
+                  <br/>
+                  <br/>
                   <input name="listsummary" 
                         id="list_summary"
                         value="Get Tree" 
@@ -235,6 +237,13 @@
                         onClick="RequestHistos.RequestSummaryHistoList()" 
                         type="submit">
                    </input>
+                  <input name="ConddbSummaryHisto" 
+                        id="conddb_sumamry_histos"
+                        value="Draw ConDB Histo(s)" 
+                        style="width:45%;margin-left:15%;margin-top:2%"
+                        onClick="RequestHistos.DrawLayerCondDBHisto()" 
+                        type="submit">
+                  </input>
 	        </fieldset>
       	      </div>
 	      </br>
@@ -359,40 +368,32 @@
                          name="logy">
                          Toggle logy
                   </input>
-                  <label id="zoom"
-                        style="margin-left:15%">
-                    Zoom on X-Axis:
-                  </label> 
-                 <input type="text"
-                        style="width:13%;border:1px solid #000;" 
-                        value=""
-                        id="x-low" 
-                        name="xLow">
-                 </input>
-                 <input type="text"
-                        style="width:13%;border:1px solid #000;" 
-                        value=""
-                        id="x-high" 
-                        name="xHigh">
-                 </input>
-                 <br/>
                   <label id="drawing_option_label"
-                     style="margin-left:5%;margin-top:2%">
+                     style="margin-left:30%;margin-top:1%">
                      DrawOption:
 	          </label>
                   <select name="draw_opt" 
                         id="drawing_options"
-                        style="width:30%;margin-top:2%"
+                        style="width:20%;margin-top:1%"
                        <option value=" " SELECTED>Normal</option>
                        <option value="BOX">Box</option>
                        <option value="LEGO1">Lego1</option>
                        <option value="LEGO2">Lego2</option>
                        <option value="projection">Y-Projection</option>
-                  </select>
+                  </select
+                  <br/>
+                  <br/>
+                  <input name="CondDBModuleHisto" 
+                        id="conddb_Module_histos"
+                        value="Draw ConDB Histo(s)" 
+                        style="width:45%;margin-left:2%;"
+                        onClick="RequestHistos.DrawModuleCondDBHisto()" 
+                        type="submit">
+                  </input>
                   <input name="drawhisto" 
                         id="draw_histos"
-                        value="Draw Histogram(s)" 
-                        style="width:35%;margin-left:60%;"
+                        value="Draw Histo(s)" 
+                        style="width:35%;margin-left:15%;"
                         onClick="RequestHistos.DrawSelectedHistos();" 
                         type="submit">
                    </input>

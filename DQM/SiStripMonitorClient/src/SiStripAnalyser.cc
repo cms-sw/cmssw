@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/05/07 19:22:10 $
- * $Revision: 1.33 $
+ * $Date: 2008/05/14 21:20:53 $
+ * $Revision: 1.34 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -13,7 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -36,8 +36,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-
-#include <SealBase/Callback.h>
 
 #include "xgi/Method.h"
 #include "xgi/Utils.h"
@@ -160,9 +158,21 @@ void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 //
 void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
+  unsigned int nval = sistripWebInterface_->getNumberOfConDBPlotRequest();
+  if (nval > 0) {
+    for (unsigned int ival = 0; ival < nval; ival++) {
+      uint32_t det_id;
+      string   subdet_type;
+      uint32_t subdet_side;
+      uint32_t layer_number;
+      sistripWebInterface_->getConDBPlotParameters(ival, det_id, subdet_type, subdet_side, layer_number);
+      cout << " DetId " << det_id << " type " << subdet_type  
+	   << " side "  << subdet_side << " layer " << layer_number << endl;
+    }
+    sistripWebInterface_->clearConDBPlotRequests();
+   }
   sistripWebInterface_->setActionFlag(SiStripWebInterface::CreatePlots);
   sistripWebInterface_->performAction();
-
 }
 //
 // -- End Luminosity Block

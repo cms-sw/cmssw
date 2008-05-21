@@ -36,10 +36,11 @@ SiStripHistoPlotter::~SiStripHistoPlotter() {
   edm::LogInfo("SiStripHistoPlotter") << 
     " Deleting SiStripHistoPlotter " << "\n" ;
   plotList_.clear();
+  condDBPlotList_.clear();
 
 }
 //
-// -- Set New
+// -- Set New Plot
 //
 void SiStripHistoPlotter::setNewPlot(std::string& path, std::string& option, int width, int height) {
   PlotParameter local_par;
@@ -53,6 +54,7 @@ void SiStripHistoPlotter::setNewPlot(std::string& path, std::string& option, int
 // -- Create Plots 
 //
 void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
+  if (plotList_.size() == 0) return;
   string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
   for (vector<PlotParameter>::iterator it = plotList_.begin(); 
@@ -99,8 +101,6 @@ void SiStripHistoPlotter::makePlot(DQMStore* dqm_store, const PlotParameter& par
     }
     fillNamedImageBuffer(canvas, par.Path);
     canvas->Clear();
-  } else {
-    createDummyImage(par.Path);
   }
   delete canvas;
 }
@@ -113,10 +113,10 @@ void SiStripHistoPlotter::getNamedImageBuffer(const string& path, string& image)
     image = cPos->second;
     if (namedPictureBuffer_.size() > 99 ) namedPictureBuffer_.erase(cPos);
   } else {
-    cout << " Sending Dummy Image for :"
+    cout << " Sending Dummy Image for : "
 	 <<  path << endl;
-     cPos = namedPictureBuffer_.find("Dummy");
-     image = cPos->second;
+    cPos = namedPictureBuffer_.find("Dummy");
+    image = cPos->second;
   }
 }
 /*! \brief (Documentation under construction).
@@ -179,6 +179,14 @@ bool SiStripHistoPlotter::hasNamedImage(const string& name) {
 // -- Create Dummy Image 
 //
 void SiStripHistoPlotter::createDummyImage(const string & name) {
+  string image;
+  getDummyImage(image);
+  namedPictureBuffer_.insert(pair<string, string>(name, image));
+}
+//
+// -- Get Image reading a disk resident image
+//
+void SiStripHistoPlotter::getDummyImage(string & image) {
   string          line;
   ostringstream   local_str;
   // Read back the file line by line and temporarily store it in a stringstream
@@ -188,9 +196,8 @@ void SiStripHistoPlotter::createDummyImage(const string & name) {
       local_str << line << endl ;
     }
   }  
-  namedPictureBuffer_.insert(pair<string, string>(name, local_str.str()));
-
-  imagefile->close() ;
+  imagefile->close();
+  image = local_str.str();
 }
 // -- Set Drawing Option
 //
@@ -276,4 +283,61 @@ void SiStripHistoPlotter::createStaticPlot(MonitorElement* me, const string& fil
   canvas->Print(file_name.c_str(),"png");
   canvas->Clear();
   delete canvas;	
+}
+//
+// -- Set New CondDB Plot
+//
+void SiStripHistoPlotter::setNewCondDBPlot(std::string& path, std::string& option, int width, int height) {
+  PlotParameter local_par;
+  local_par.Path    = path;
+  local_par.Option  = option;
+  local_par.CWidth  = width;
+  local_par.CHeight = height;
+  condDBPlotList_.push_back(local_par);  
+}
+//
+// -- Create CondDB Plots 
+//
+void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
+  if (condDBPlotList_.size() == 0) return;
+  string name = "Dummy";
+  if (!hasNamedImage(name)) createDummyImage(name);
+  for (vector<PlotParameter>::iterator it = condDBPlotList_.begin(); 
+       it != condDBPlotList_.end(); it++) {
+    makeCondDBPlots(dqm_store, (*it));
+  }
+  condDBPlotList_.clear();
+}
+//
+// -- Draw CondDB Histograms 
+//
+void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParameter& par) {
+  TCanvas * canvas = new TCanvas("TKCanvas", "TKCanvas", par.CWidth, par.CHeight);
+
+  vector<string> htypes;
+  string option = par.Option;
+  SiStripUtility::split(option, htypes, ",");
+
+  string tag;
+  vector<MonitorElement*> all_mes = dqm_store->getContents(par.Path);
+
+  for (vector<string>::const_iterator ih = htypes.begin();
+       ih!= htypes.end(); ih++) {
+    string type = (*ih);
+    if (type.size() == 0) continue;
+    string tag = par.Path + type;;
+    for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+	 it!= all_mes.end(); it++) {  
+      MonitorElement * me = (*it);
+      if (!me) continue;
+      string hname = me->getName();
+      if (hname.find(type) != string::npos) {
+	TH1* histo = me->getTH1();
+	histo->Draw();
+	canvas->Clear();
+	fillNamedImageBuffer(canvas, tag);
+      } 
+    }
+  }
+  delete canvas;
 }
