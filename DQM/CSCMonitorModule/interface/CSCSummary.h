@@ -25,9 +25,24 @@
 #define N_CFEBS    5
 #define N_HVS      5
 
-#define V_NULL     -1
-#define V_TRUE     1
-#define V_FALSE    0
+struct CSCAddressMask {
+  bool side;
+  bool station;
+  bool ring;
+  bool chamber;
+  bool cfeb;
+  bool hv;
+};
+
+struct CSCAddress {
+  unsigned int side;
+  unsigned int station;
+  unsigned int ring;
+  unsigned int chamber;
+  unsigned int cfeb;
+  unsigned int hv;
+  CSCAddressMask mask;
+};
 
 class CSCSummary {
 
@@ -44,28 +59,19 @@ class CSCSummary {
     void Write(TH1*& h1, const unsigned int station);
 
     void SetValue(const int value);
-    void SetValue(const unsigned int side, const int value);
-    void SetValue(const unsigned int side, const unsigned int station, const int value);
-    void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const int value);
-    void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const int value);
-    void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const int value);
-    void SetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv, const int value);
+    void SetValue(CSCAddress adr, const int value);
+    const int GetValue(CSCAddress adr);
 
     const double GetEfficiency();
-    const double GetEfficiency(const unsigned int side); 
-    const double GetEfficiency(const unsigned int side, const unsigned int station);
-    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring);
-    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber);
-    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb);
-    const double GetEfficiency(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv);
+    const double GetEfficiency(CSCAddress adr); 
 
-    const int GetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv);
+    void PrintAddress(const CSCAddress& adr);
 
     const unsigned int NumberOfRings(const unsigned int station);
     const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring);
     const unsigned int NumberOfChamberCFEBs(const unsigned int station, const unsigned int ring);
     const unsigned int NumberOfChamberHVs(const unsigned int station, const unsigned int ring);
-    const bool ChamberCoords(const unsigned int x, const unsigned int y, unsigned int& side, unsigned int& station, unsigned int& ring, unsigned int& chamber);
+    const bool ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr);
 
   private:
 

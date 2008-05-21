@@ -33,15 +33,14 @@ CSCSummary::CSCSummary() {
  * @return 
  */
 void CSCSummary::Reset() {
-  for (unsigned int side = 1; side <= N_SIDES; side++) { 
-    for (unsigned int station = 1; station <= N_STATIONS; station++) {
-       for (unsigned int ring = 1; ring <= N_RINGS; ring++) { 
-          for (unsigned int chamber = 1; chamber <= N_CHAMBERS; chamber++) {
-            for (unsigned int cfeb = 1; cfeb <= N_CFEBS; cfeb++) {
-              for (unsigned int hv = 1; hv <= N_HVS; hv++) {
-                SetValue(side, station, ring, chamber, cfeb, hv, 0);
-              }
-            }
+  CSCAddress adr;
+  adr.mask.side = adr.mask.station = false;
+  adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
+  for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
+    for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
+       for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
+          for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
+            SetValue(adr, 0);
           }
        }
     }
@@ -58,16 +57,13 @@ void CSCSummary::ReadChambers(TH2*& h2) {
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
 
-    unsigned int side, station, ring, chamber;
+    CSCAddress adr;
+
     for(unsigned int x = 1; x <= 36; x++) {
       for(unsigned int y = 1; y <= 18; y++) {
         double z = h2->GetBinContent(x, y);
-        if(ChamberCoords(x, y, side, station, ring, chamber)) {
-          if(z > 0) {
-            SetValue(side, station, ring, chamber, 1);
-          } else {
-            SetValue(side, station, ring, chamber, 0);
-          }
+        if(ChamberCoords(x, y, adr)) {
+          SetValue(adr, (z > 0 ? 1 : 0));
         }
       }
     }
@@ -80,15 +76,18 @@ void CSCSummary::ReadChambers(TH2*& h2) {
  * @return 
  */
 void CSCSummary::Write(TH1*& h1) {
+  CSCAddress adr;
   unsigned int bin = 1;
-  for (unsigned int side = 1; side <= N_SIDES; side++) { 
-    for (unsigned int station = 1; station <= N_STATIONS; station++) {
-       for (unsigned int ring = 1; ring <= N_RINGS; ring++) { 
-          for (unsigned int chamber = 1; chamber <= N_CHAMBERS; chamber++) {
-            for (unsigned int cfeb = 1; cfeb <= N_CFEBS; cfeb++) {
-              for (unsigned int hv = 1; hv <= N_HVS; hv++) {
-                int i = GetValue(side, station, ring, chamber, cfeb, hv);
-                double d = static_cast<double>(i);
+
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
+
+  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
+       for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
+          for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
+            for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
+              for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
+                double d = static_cast<double>(GetValue(adr));
                 h1->SetBinContent(bin, d);
                 bin++;
               }
@@ -100,21 +99,28 @@ void CSCSummary::Write(TH1*& h1) {
 }
 
 /**
- * @brief  Write detector map to H1 histogram (linear data) for the selected station
+ * @brief  Write detector map to H1 histogram (linear data) for the selected adr.station
  * @param  h1 Histogram to write data to
- * @param  station Station number (0-3) to write data for
+ * @param  adr.station adr.station number (0-3) to write data for
  * @return 
  */
 void CSCSummary::Write(TH1*& h1, const unsigned int station) {
-  const int len = N_RINGS * N_CHAMBERS * N_CFEBS * N_HVS;
+  CSCAddress adr;
+  const int station_len = N_RINGS * N_CHAMBERS * N_CFEBS * N_HVS;
+
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
+
   if(station < 1 || station > N_STATIONS) return; 
-  for (unsigned int side = 1; side <= N_SIDES; side++) { 
-    unsigned int bin = (side - 1) * N_STATIONS * len + (station - 1) * len + 1;
-    for (unsigned int ring = 1; ring <= N_RINGS; ring++) { 
-      for (unsigned int chamber = 1; chamber <= N_CHAMBERS; chamber++) {
-        for (unsigned int cfeb = 1; cfeb <= N_CFEBS; cfeb++) {
-          for (unsigned int hv = 1; hv <= N_HVS; hv++) {
-            double d = static_cast<double>(GetValue(side, station, ring, chamber, cfeb, hv));
+
+  adr.station = station;
+
+  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
+    unsigned int bin = (adr.side - 1) * N_STATIONS * station_len + (adr.station - 1) * station_len + 1;
+    for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
+      for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
+        for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
+          for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
+            double d = static_cast<double>(GetValue(adr));
             h1->SetBinContent(bin, d);
             bin++;
           }
@@ -130,16 +136,20 @@ void CSCSummary::Write(TH1*& h1, const unsigned int station) {
  * @return 
  */
 void CSCSummary::Read(TH1*& h1) {
+  CSCAddress adr;
   unsigned int bin = 1;
-  for (unsigned int side = 1; side <= N_SIDES; side++) { 
-    for (unsigned int station = 1; station <= N_STATIONS; station++) {
-       for (unsigned int ring = 1; ring <= N_RINGS; ring++) { 
-          for (unsigned int chamber = 1; chamber <= N_CHAMBERS; chamber++) {
-            for (unsigned int cfeb = 1; cfeb <= N_CFEBS; cfeb++) {
-              for (unsigned int hv = 1; hv <= N_HVS; hv++) {
+
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
+
+  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
+       for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
+          for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
+            for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
+              for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
                 double d = h1->GetBinContent(bin);
                 int i = static_cast<int>(d);
-                SetValue(side, station, ring, chamber, cfeb, hv, i);
+                SetValue(adr, i);
                 bin++;
               }
             }
@@ -149,221 +159,204 @@ void CSCSummary::Read(TH1*& h1) {
   }
 }
 
+/**
+ * @brief  SetValue for the whole of detector
+ * @param  value Value to set
+ * @return 
+ */
 void CSCSummary::SetValue(const int value) {
-  for (unsigned int side = 1; side <= N_SIDES; side++) {
-    SetValue(side, value);
-  }
+  CSCAddress adr;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
+  SetValue(adr, value);
 }
 
-void CSCSummary::SetValue(
-    const unsigned int side, 
-    const int value) {
-  for (unsigned int station = 1; station <= N_STATIONS; station++) {
-    SetValue(side, station, value);
+/**
+ * @brief  Set value recursivelly by following the supplied address
+ * @param  adr CSCAddress to be updated
+ * @param  value Value to be set
+ * @return 
+ */
+void CSCSummary::SetValue(CSCAddress adr, const int value) {
+
+  if (!adr.mask.side) {
+    adr.mask.side = true;
+    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) SetValue(adr, value);
+    return;
   }
+
+  if (!adr.mask.station) {
+    adr.mask.station = true;
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) SetValue(adr, value);
+    return;
+  }
+
+  if (!adr.mask.ring) {
+    adr.mask.ring = true;
+    for (adr.ring = 1; adr.ring <= NumberOfRings(adr.station); adr.ring++) SetValue(adr, value);
+    return;
+  }
+
+  if (!adr.mask.chamber) {
+    adr.mask.chamber = true;
+    for (adr.chamber = 1; adr.chamber <= NumberOfChambers(adr.station, adr.ring); adr.chamber++) SetValue(adr, value);
+    return;
+  }
+
+  if (!adr.mask.cfeb) {
+    adr.mask.cfeb = true;
+    for (adr.cfeb = 1; adr.cfeb <= NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) SetValue(adr, value);
+    return;
+  }
+
+  if (!adr.mask.hv) {
+    adr.mask.hv = true;
+    for (adr.hv = 1; adr.hv <= NumberOfChamberHVs(adr.station, adr.ring); adr.hv++) SetValue(adr, value);
+    return;
+  }
+
+  if( adr.side > 0 && adr.side <= N_SIDES && adr.station > 0 && adr.station <= N_STATIONS && 
+      adr.ring > 0 && adr.ring <= N_RINGS && adr.chamber > 0 && adr.chamber <= N_CHAMBERS && 
+      adr.cfeb > 0 && adr.cfeb <= N_CFEBS && adr.hv > 0 && adr.hv <= N_HVS) {
+
+    map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.cfeb - 1][adr.hv - 1] = value;
+
+  }
+
 }
 
-void CSCSummary::SetValue(
-    const unsigned int side, 
-    const unsigned int station, 
-    const int value) {
-  for (unsigned int ring = 1; ring <= NumberOfRings(station); ring++) {
-    SetValue(side, station, ring, value);
-  }
-}
-
-void CSCSummary::SetValue(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const int value) {
-  for (unsigned int chamber = 1; chamber <= NumberOfChambers(station, ring); chamber++) {
-    SetValue(side, station, ring, chamber, value);
-  }
-}
-
-void CSCSummary::SetValue(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const unsigned int chamber, 
-    const int value) {
-  for (unsigned int cfeb = 1; cfeb <= NumberOfChamberCFEBs(station, ring); cfeb++) {
-    SetValue(side, station, ring, chamber, cfeb, value);
-  }
-}
-
-void CSCSummary::SetValue(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const unsigned int chamber, 
-    const unsigned int cfeb, 
-    const int value) {
-  for (unsigned int hv = 1; hv <= NumberOfChamberHVs(station, ring); hv++) {
-    SetValue(side, station, ring, chamber, cfeb, hv, value);
-  }
-}
-
-void CSCSummary::SetValue(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const unsigned int chamber, 
-    const unsigned int cfeb, 
-    const unsigned int hv, 
-    const int value) {
-  if( side > 0 && side <= N_SIDES && 
-      station > 0 && station <= N_STATIONS && 
-      ring > 0 && ring <= N_RINGS && 
-      chamber > 0 && chamber <= N_CHAMBERS && 
-      cfeb > 0 && cfeb <= N_CFEBS && 
-      hv > 0 && hv <= N_HVS) {
-    map[side - 1][station - 1][ring - 1][chamber - 1][cfeb - 1][hv - 1] = value;
-  }
-}
-
+/**
+ * @brief  Get efficiency of the whole detector
+ * @param  
+ * @return Detector efficiency rate (0..1)
+ */
 const double CSCSummary::GetEfficiency() {
-  double sum = 0.0;
-  for (unsigned int side = 1; side <= N_SIDES; side++) {
-    sum += GetEfficiency(side);
-  }
-  return sum / N_SIDES;
+  CSCAddress adr;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
+  return GetEfficiency(adr);
 }
 
-const double CSCSummary::GetEfficiency(
-    const unsigned int side) { 
+/**
+ * @brief  Get efficiency of the detector part supplied by the address
+ * @param  adr Address to watch efficiency for
+ * @return Subdetector efficiency rate (0..1)
+ */
+const double CSCSummary::GetEfficiency(CSCAddress adr) { 
   double sum = 0.0;
-  for (unsigned int station = 1; station <= N_STATIONS; station++) {
-    sum += GetEfficiency(side, station);
-  }
-  return sum / N_STATIONS;
-}
 
-const double CSCSummary::GetEfficiency(
-    const unsigned int side, 
-    const unsigned int station) {
-  double sum = 0.0;
-  for (unsigned int ring = 1; ring <= NumberOfRings(station); ring++) {
-    sum += GetEfficiency(side, station, ring);
+  if (!adr.mask.side) {
+    adr.mask.side = true;
+    for (adr.side = 1; adr.side <= N_SIDES; adr.side++) sum += GetEfficiency(adr);
+    return sum / N_SIDES;
   }
-  return sum / NumberOfRings(station);
-}
 
-const double CSCSummary::GetEfficiency(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring) {
-  double sum = 0.0;
-  for (unsigned int chamber = 1; chamber <= NumberOfChambers(station, ring); chamber++) {
-    sum += GetEfficiency(side, station, ring, chamber);
+  if (!adr.mask.station) {
+    adr.mask.station = true;
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) sum += GetEfficiency(adr);
+    return sum / N_STATIONS;
   }
-  return sum / NumberOfChambers(station, ring);
-}
 
-const double CSCSummary::GetEfficiency(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const unsigned int chamber) {
-  double sum = 0.0;
-  for (unsigned int cfeb = 1; cfeb <= NumberOfChamberCFEBs(station, ring); cfeb++) {
-    sum += GetEfficiency(side, station, ring, chamber, cfeb);
+  if (!adr.mask.ring) {
+    adr.mask.ring = true;
+    for (adr.ring = 1; adr.ring <= NumberOfRings(adr.station); adr.ring++) sum += GetEfficiency(adr);
+    return sum / NumberOfRings(adr.station);
   }
-  return sum / NumberOfChamberCFEBs(station, ring);
-}
 
-const double CSCSummary::GetEfficiency(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const unsigned int chamber, 
-    const unsigned int cfeb) {
-  double sum = 0.0;
-  for (unsigned int hv = 1; hv <= NumberOfChamberHVs(station, ring); hv++) {
-    sum += GetEfficiency(side, station, ring, chamber, cfeb, hv);
+  if (!adr.mask.chamber) {
+    adr.mask.chamber = true;
+    for (adr.chamber = 1; adr.chamber <= NumberOfChambers(adr.station, adr.ring); adr.chamber++) sum += GetEfficiency(adr);
+    return sum / NumberOfChambers(adr.station, adr.ring);
   }
-  return sum / NumberOfChamberHVs(station, ring);
-}
 
-const double CSCSummary::GetEfficiency(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const unsigned int chamber, 
-    const unsigned int cfeb, 
-    const unsigned int hv) {
-  int i = GetValue(side, station, ring, chamber, cfeb, hv);
-  if (i > 0) return 1.0;
+  if (!adr.mask.cfeb) {
+    adr.mask.cfeb = true;
+    for (adr.cfeb = 1; adr.cfeb <= NumberOfChamberCFEBs(adr.station, adr.ring); adr.cfeb++) sum += GetEfficiency(adr);
+    return sum / NumberOfChamberCFEBs(adr.station, adr.ring);
+  }
+
+  if (!adr.mask.hv) {
+    adr.mask.hv = true;
+    for (adr.hv = 1; adr.hv <= NumberOfChamberHVs(adr.station, adr.ring); adr.hv++) sum += GetEfficiency(adr);
+    return sum / NumberOfChamberHVs(adr.station, adr.ring);
+  }
+
+  if (GetValue(adr) > 0) return 1.0;
+
   return 0.0;
 }
 
-const int CSCSummary::GetValue(
-    const unsigned int side, 
-    const unsigned int station, 
-    const unsigned int ring, 
-    const unsigned int chamber, 
-    const unsigned int cfeb, 
-    const unsigned int hv) {
-  if( side > 0 && side <= N_SIDES && 
-      station > 0 && station <= N_STATIONS && 
-      ring > 0 && ring <= N_RINGS && 
-      chamber > 0 && chamber <= N_CHAMBERS && 
-      cfeb > 0 && cfeb <= N_CFEBS && 
-      hv > 0 && hv <= N_HVS) {
-    return map[side - 1][station - 1][ring - 1][chamber - 1][cfeb - 1][hv - 1];
+/**
+ * @brief  Get value of some address (address must be fully filled! otherwise function returns -1)
+ * @param  adr Address of atomic element to return value from
+ * @return Value of the requested element
+ */
+const int CSCSummary::GetValue(CSCAddress adr) {
+  if( adr.mask.side && adr.mask.station && adr.mask.ring && 
+      adr.mask.chamber && adr.mask.cfeb && adr.mask.hv &&
+      adr.side > 0 && adr.side <= N_SIDES && 
+      adr.station > 0 && adr.station <= N_STATIONS && 
+      adr.ring > 0 && adr.ring <= N_RINGS && 
+      adr.chamber > 0 && adr.chamber <= N_CHAMBERS && 
+      adr.cfeb > 0 && adr.cfeb <= N_CFEBS && 
+      adr.hv > 0 && adr.hv <= N_HVS) {
+    return map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.cfeb - 1][adr.hv - 1];
   }
   return -1;
 }
 
-const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
-                              unsigned int& side,
-                              unsigned int& station,
-                              unsigned int& ring,
-                              unsigned int& chamber) {
+/**
+ * @brief  Calculate CSCAddress from CSCChamberMap histogram coordinates 
+ * @param  x X coordinate of histogram
+ * @param  y Y coordinate of histogram
+ * @param  adr CSCAddress to be filled in and returned
+ * @return true if address was found and filled, false - otherwise
+ */
+const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr) {
 
   if( x < 1 || x > 36 || y < 1 || y > 18) return false;
 
-  if ( y < 10 ) side = 2;
-  else side = 1;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
+  adr.mask.cfeb = adr.mask.hv = false;
 
-  chamber = x;
+  if ( y < 10 ) adr.side = 2;
+  else adr.side = 1;
+
+  adr.chamber = x;
 
   if (y == 1 || y == 18) {
-    station = 4;
-    ring    = 2;
+    adr.station = 4;
+    adr.ring    = 2;
   } else
   if (y == 2 || y == 17) {
-    station = 4;
-    ring    = 1;
+    adr.station = 4;
+    adr.ring    = 1;
   } else
   if (y == 3 || y == 16) {
-    station = 3;
-    ring    = 2;
+    adr.station = 3;
+    adr.ring    = 2;
   } else
   if (y == 4 || y == 15) {
-    station = 3;
-    ring    = 1;
+    adr.station = 3;
+    adr.ring    = 1;
   } else
   if (y == 5 || y == 14) {
-    station = 2;
-    ring    = 2;
+    adr.station = 2;
+    adr.ring    = 2;
   } else
   if (y == 6 || y == 13) {
-    station = 2;
-    ring    = 1;
+    adr.station = 2;
+    adr.ring    = 1;
   } else
   if (y == 7 || y == 12) {
-    station = 1;
-    ring    = 3;
+    adr.station = 1;
+    adr.ring    = 3;
   } else
   if (y == 8 || y == 11) {
-    station = 1;
-    ring    = 2;
+    adr.station = 1;
+    adr.ring    = 2;
   } else
   if (y == 9 || y == 10) {
-    station = 1;
-    ring    = 1;
+    adr.station = 1;
+    adr.ring    = 1;
   }
 
   return true;
@@ -441,5 +434,28 @@ const unsigned int CSCSummary::NumberOfChamberHVs(const unsigned int station, co
   if(station == 3 && ring == 2) return 5;
   if(station == 4 && ring == 1) return 3;
   return 0;
+}
+
+void CSCSummary::PrintAddress(const CSCAddress& adr) {
+
+  std::cout << "Side (" << std::boolalpha << adr.mask.side << ")"; 
+  if (adr.mask.side) std::cout << adr.side;
+
+  std::cout << ", Station (" << std::boolalpha << adr.mask.station << ")"; 
+  if (adr.mask.station) std::cout << " = " << adr.station;
+
+  std::cout << ", Ring (" << std::boolalpha << adr.mask.ring << ")"; 
+  if (adr.mask.ring) std::cout << " = " << adr.ring;
+
+  std::cout << ", Chamber (" << std::boolalpha << adr.mask.chamber << ")"; 
+  if (adr.mask.chamber) std::cout << " = " << adr.chamber;
+
+  std::cout << ", CFEB (" << std::boolalpha << adr.mask.cfeb << ")"; 
+  if (adr.mask.cfeb) std::cout << " = " << adr.cfeb;
+
+  std::cout << ", HV (" << std::boolalpha << adr.mask.hv << ")"; 
+  if (adr.mask.hv) std::cout << " = " << adr.hv;
+
+  std::cout << std::endl;
 }
 
