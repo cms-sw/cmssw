@@ -51,8 +51,14 @@ enum globalFieds{
   NUMB_SM_EB_PLU_MIN  = 28,
   NUMB_SM_EB_PLU_MAX  = 45,
   NUMB_SM_EE_PLU_MIN  = 46,
-  NUMB_SM_EE_PLU_MAX  = 54
+  NUMB_SM_EE_PLU_MAX  = 54,
 
+  // two DCC have a missing interval in the CCU_id's
+  SECTOR_EEM_CCU_JUMP = 8,
+  SECTOR_EEP_CCU_JUMP = 53,
+  MIN_CCUID_JUMP      = 18,
+  MAX_CCUID_JUMP      = 24
+  
 };
 
 
