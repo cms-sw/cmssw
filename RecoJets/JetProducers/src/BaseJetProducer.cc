@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.30 2007/10/17 21:38:01 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.31 2008/05/12 19:04:27 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -24,7 +24,7 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "BaseJetProducer.h"
 
@@ -142,7 +142,7 @@ namespace cms
     sortByPt (&output);
     if (makeCaloJet (mJetType)) {
       edm::ESHandle<CaloGeometry> geometry;
-      fSetup.get<IdealGeometryRecord>().get(geometry);
+      fSetup.get<CaloGeometryRecord>().get(geometry);
       const CaloSubdetectorGeometry* towerGeometry = 
 	geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
       auto_ptr<CaloJetCollection> jets (new CaloJetCollection);

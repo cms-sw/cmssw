@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.17 2007/09/21 19:43:30 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.18 2008/05/12 19:04:27 fedor Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -23,7 +23,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -118,7 +118,7 @@ namespace cms
     if(geo == 0)
       {
 	edm::ESHandle<CaloGeometry> pG;
-	fSetup.get<IdealGeometryRecord>().get(pG);
+	fSetup.get<CaloGeometryRecord>().get(pG);
 	geo = pG.product();
 	std::vector<DetId> alldid =  geo->getValidDetIds();
 	
@@ -392,7 +392,7 @@ namespace cms
     sortByPt (&output);
     // produce output collection Only CaloJets at the moment
     edm::ESHandle<CaloGeometry> geometry;
-    fSetup.get<IdealGeometryRecord>().get(geometry);
+    fSetup.get<CaloGeometryRecord>().get(geometry);
     const CaloSubdetectorGeometry* towerGeometry = 
       geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
     auto_ptr<CaloJetCollection> jets (new CaloJetCollection);
