@@ -10,7 +10,8 @@
 #
 #  Usage:
 #
-#  mps_scriptm.pl [-c] inScript outScript runDir cfgName njobs mssDir
+#  mps_scriptm.pl [-c] inScript outScript runDir cfgName njobs mssDir \
+#  [CastorPool]
 #
 
 BEGIN {
@@ -26,6 +27,8 @@ $runDir = "undefined";
 $cfgName = "undefined";
 $nJobs = "undefined";
 $mssDir = "undefined";
+$castorPool = "undefined";
+
 
 # parse the arguments
 while (@ARGV) {
@@ -66,6 +69,9 @@ while (@ARGV) {
     elsif ($i eq 6) {
       $mssDir = $arg;
     }
+    elsif ($i eq 7) {
+      $castorPool = $arg;
+    }
   }
 }
 
@@ -99,6 +105,14 @@ if ($nn != 1) {
   print "mps_script.pl: no (unambiguous) MSSDIR directive found in runscript\n";
 }
 $nn = ($body =~ s/MSSDIR=(.+)$/MSSDIR=$mssDir/m);
+
+if ($castorPool ne "undefined") {
+# replace MSSDIRPOOL setting...
+  $nn = ($body =~ s/MSSDIRPOOL=(.*)$/MSSDIRPOOL=$castorPool/m);
+} else {
+#... or empty the field.
+  $nn = ($body =~ s/MSSDIRPOOL=(.*)$/MSSDIRPOOL=/m);
+}
 
 # replace the cfg name
 $nn = ($body =~ m/cmsRun +([A-Z,a-z,0-9\-\.])/g);
