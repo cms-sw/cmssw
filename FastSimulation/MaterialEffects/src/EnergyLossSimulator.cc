@@ -4,8 +4,9 @@
 
 #include <cmath>
 
-EnergyLossSimulator::EnergyLossSimulator(const RandomEngine* engine) :
-    MaterialEffectsSimulator(engine) 
+EnergyLossSimulator::EnergyLossSimulator(const RandomEngine* engine,
+					 double A, double Z, double density, double radLen) :
+    MaterialEffectsSimulator(engine,A,Z,density,radLen) 
 {
 
   theGenerator = new LandauFluctuationGenerator(engine);

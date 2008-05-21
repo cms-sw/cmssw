@@ -28,7 +28,8 @@ class MultipleScatteringSimulator : public MaterialEffectsSimulator
  public:
 
   /// Default Constructor
-  MultipleScatteringSimulator(const RandomEngine* engine);
+  MultipleScatteringSimulator(const RandomEngine* engine, 
+			      double A, double Z, double density, double radLen);
 
   /// Default Destructor
   ~MultipleScatteringSimulator() {} ;

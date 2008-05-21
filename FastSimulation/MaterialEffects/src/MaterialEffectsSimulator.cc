@@ -7,7 +7,10 @@
 using std::list;
 using std::pair;
 
-MaterialEffectsSimulator:: MaterialEffectsSimulator(const RandomEngine* engine)
+MaterialEffectsSimulator:: MaterialEffectsSimulator(const RandomEngine* engine,
+						    double A, double Z, 
+						    double density, double radLen) :
+  A(A), Z(Z), density(density), radLen(radLen)
 { 
   random = engine;
   _theUpdatedState.clear(); 

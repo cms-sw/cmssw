@@ -33,6 +33,11 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   bool doEnergyLoss         = matEff.getParameter<bool>("EnergyLoss");
   bool doMultipleScattering = matEff.getParameter<bool>("MultipleScattering");
   bool doNuclearInteraction = matEff.getParameter<bool>("NuclearInteraction");
+
+  double A = matEff.getParameter<double>("A");
+  double Z = matEff.getParameter<double>("Z");
+  double density = matEff.getParameter<double>("Density");
+  double radLen = matEff.getParameter<double>("RadiationLength");
   
   // Set the minimal pT before giving up the dE/dx treatment
 
@@ -57,13 +62,13 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   if ( doEnergyLoss ) { 
 
     pTmin = matEff.getParameter<double>("pTmin");
-    EnergyLoss = new EnergyLossSimulator(random);
+    EnergyLoss = new EnergyLossSimulator(random,A,Z,density,radLen);
 
   }
 
   if ( doMultipleScattering ) { 
-
-    MultipleScattering = new MultipleScatteringSimulator(random);
+    
+    MultipleScattering = new MultipleScatteringSimulator(random,A,Z,density,radLen);
 
   }
 

@@ -29,7 +29,8 @@ class EnergyLossSimulator : public MaterialEffectsSimulator
  public:
 
   /// Constructor
-  EnergyLossSimulator(const RandomEngine* engine);
+  EnergyLossSimulator(const RandomEngine* engine,
+		      double A, double Z, double density, double radLen);
 
   /// Default Destructor
   ~EnergyLossSimulator();

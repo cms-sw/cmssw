@@ -4,8 +4,8 @@
 #include <cmath>
 
 MultipleScatteringSimulator::MultipleScatteringSimulator(
-  const RandomEngine* engine) :
-    MaterialEffectsSimulator(engine)
+  const RandomEngine* engine, double A, double Z, double density, double radLen) :
+    MaterialEffectsSimulator(engine,A,Z,density,radLen)
 {
   sqr12 = std::sqrt(12.);
 }

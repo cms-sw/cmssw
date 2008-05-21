@@ -73,6 +73,16 @@ class MaterialEffects
   /// Return the energy loss by ionization in the current layer
   inline double energyLoss() const { return theEnergyLoss; }
 
+  /// Return the Multiple Scattering engine
+  inline MultipleScatteringSimulator* multipleScatteringSimulator() const { 
+    return MultipleScattering;
+  }
+
+  /// Return the Energy Loss engine
+  inline EnergyLossSimulator* energyLossSimulator() const { 
+    return EnergyLoss;
+  }
+
 
  private:
 

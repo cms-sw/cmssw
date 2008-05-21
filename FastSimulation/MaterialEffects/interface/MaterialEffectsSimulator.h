@@ -26,7 +26,12 @@ class MaterialEffectsSimulator
 
   typedef std::vector<RawParticle>::const_iterator RHEP_const_iter;
 
-  MaterialEffectsSimulator(const RandomEngine* engine);
+  // Constructor : default values are for Silicon
+  MaterialEffectsSimulator(const RandomEngine* engine,
+			   double A = 28.0855,
+			   double Z = 14.0000,
+			   double density = 2.329,
+			   double radLen = 9.360);
 
   virtual ~MaterialEffectsSimulator();
 
@@ -34,13 +39,13 @@ class MaterialEffectsSimulator
   /// Here the tracker material is assumed to be 100% Silicon
 
   /// A
-  inline double theA() const { return 28.0855; }
+  inline double theA() const { return A; }
   /// Z
-  inline double theZ() const { return 14.0000; }
+  inline double theZ() const { return Z; }
   ///Density in g/cm3
-  inline double rho() const { return 2.329; }
+  inline double rho() const { return density; }
   ///One radiation length in cm
-  inline double radLenIncm() const { return 9.360; }
+  inline double radLenIncm() const { return radLen; }
   ///Mean excitation energy (in GeV)
   inline double excitE() const { return 12.5E-9*theZ(); }
   ///Electron mass in GeV/c2
@@ -82,6 +87,12 @@ class MaterialEffectsSimulator
   std::vector<RawParticle> _theUpdatedState;
 
   double radLengths;
+
+  // Material properties
+  double A;
+  double Z;
+  double density;
+  double radLen;
 
   GlobalVector theNormalVector;
 
