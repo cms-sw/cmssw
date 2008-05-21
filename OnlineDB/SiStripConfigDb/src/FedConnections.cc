@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.26 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.27 2008/05/13 14:18:27 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,6 +29,8 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	  
 	  FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	  if ( range == connections_.emptyRange() ) {
+
+	    FedConnectionsV tmp2;
 	    
 #ifdef USING_NEW_DATABASE_MODEL
 	    
@@ -41,39 +43,26 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 								false ); //@@ do not get DISABLED connections
 	    
 	    // Make local copy 
-	    FedConnectionsV tmp2;
 	    ConnectionFactory::vectorCopyI( tmp2, tmp1, true );
+	    
+#else // USING_NEW_DATABASE_MODEL
+	    
+	    static bool once = true;
+	    if ( once ) { deviceFactory(__func__)->createInputDBAccess(); once = false; }
+	    
+	    deviceFactory(__func__)->setInputDBVersion( iter->second.partitionName(),
+							iter->second.cabVersion().first,
+							iter->second.cabVersion().second );
+	    
+	    for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
+	      tmp2.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
+	    }
+	    
+#endif // USING_NEW_DATABASE_MODEL
 	    
 	    // Add to cache
 	    connections_.loadNext( iter->second.partitionName(), tmp2 );
 	    
-#else // USING_NEW_DATABASE_MODEL
-	    
-	    try { 
-	      static bool once = true;
-	      if ( once ) { deviceFactory(__func__)->createInputDBAccess(); once = false; }
-	    } catch (...) { 
-	      handleException( __func__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
-	    }
-	    
-	    try {
-	      deviceFactory(__func__)->setInputDBVersion( iter->second.partitionName(),
-							  iter->second.cabVersion().first,
-							  iter->second.cabVersion().second );
-	    } catch (...) { 
-	      std::stringstream ss;
-	      ss << "Attempted to 'setInputDBVersion' for partition: " << iter->second.partitionName();
-	      handleException( __func__, ss.str() ); 
-	    }
-	    
-	    FedConnectionsV tmp;
-	    for ( uint16_t iconn = 0; iconn < deviceFactory(__func__)->getNumberOfFedChannel(); iconn++ ) {
-	      tmp.push_back( deviceFactory(__func__)->getFedChannelConnection( iconn ) ); 
-	    }
-	    connections_.loadNext( "", tmp );
-	    
-#endif // USING_NEW_DATABASE_MODEL
-
 	    // Some debug
 	    FedConnectionsRange conns = connections_.find( iter->second.partitionName() );
 	    std::stringstream ss;
