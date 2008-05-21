@@ -2,7 +2,7 @@
 
 set odir = `cd $1; pwd` # get full output path
 
-cp test/common.cff test/*.tpl $odir/
+cp test/common.cff test/*.tpl test/*TrackSelection.cff $odir/
 
 ## Set up config file for each alignment job
 
