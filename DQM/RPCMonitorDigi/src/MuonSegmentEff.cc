@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.21 2008/05/19 17:42:07 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.22 2008/05/21 09:42:51 carrillo Exp $
 //
 //
 
@@ -177,7 +177,12 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   //GLOBAL
   fOutputFile  = new TFile(GlobalRootLabel.c_str(), "RECREATE" );
 
-  hGlobalRes = new TH1F("GlobalResiduals","Global RPC Residuals",1000,-10.,10.);
+  hGlobalRes = new TH1F("GlobalResiduals","Global RPC Residuals",250,-10.,10.);
+  hGlobalResClu1 = new TH1F("GlobalResidualsClu1","Global RPC Residuals 1",250,-10.,10.);
+  hGlobalResClu2 = new TH1F("GlobalResidualsClu2","Global RPC Residuals 2",250,-10.,10.);
+  hGlobalResClu3 = new TH1F("GlobalResidualsClu3","Global RPC Residuals 3",250,-10.,10.);
+  hGlobalResClu4 = new TH1F("GlobalResidualsClu4","Global RPC Residuals 4",250,-10.,10.);
+
   hGlobalResY = new TH1F("GlobalResidualsY","Global RPC Residuals Y",500,-100.,100);
   
   EffGlob1 = new TH1F("GlobEfficiencySec1","Eff. vs. roll",20,0.5,20.5);
@@ -202,6 +207,11 @@ MuonSegmentEff::~MuonSegmentEff()
   //delete effres;
   
   fOutputFile->WriteTObject(hGlobalRes);
+  fOutputFile->WriteTObject(hGlobalResClu1);
+  fOutputFile->WriteTObject(hGlobalResClu2);
+  fOutputFile->WriteTObject(hGlobalResClu3);
+  fOutputFile->WriteTObject(hGlobalResClu4);
+  
   fOutputFile->WriteTObject(hGlobalResY);
   
   fOutputFile->WriteTObject(EffGlob1);

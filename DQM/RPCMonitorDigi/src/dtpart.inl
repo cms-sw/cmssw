@@ -167,7 +167,7 @@ if(all4DSegments->size()>0){
 
 	      for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 	      	stripCounter++;
-		stripDetected=digiIt->strip();	  
+		stripDetected=digiIt->strip(); 
 		sumStripDetected=sumStripDetected+stripDetected;
 		std::cout<<"\t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<"\t SumStrip= "<<sumStripDetected<<std::endl;
 	      }
@@ -180,7 +180,7 @@ if(all4DSegments->size()>0){
 	      
 	      LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected));
 	      
-	      float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          ;
+	      float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
 	      float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
 	      
 	      std::cout<<"\t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()
@@ -193,7 +193,15 @@ if(all4DSegments->size()>0){
 		if(fabs(meanrescms)>4.)std::cout<<"\t \t \t \t \t MeanRescms Extrange!!! = "<<meanrescms<<std::endl;
 
 		std::cout<<"\t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
-		hGlobalRes->Fill(meanrescms);
+		//if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
+		hGlobalRes->Fill(meanrescms+0.5*stripw);
+		if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==2) hGlobalResClu1->Fill(meanrescms+0.5*stripw);
+		if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==4) hGlobalResClu2->Fill(meanrescms+0.5*stripw);
+		if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==6) hGlobalResClu3->Fill(meanrescms+0.5*stripw);
+		if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==8) hGlobalResClu4->Fill(meanrescms+0.5*stripw);
+
+
+
 		hGlobalResY->Fill(meanrescmsY);
 		
 		sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
