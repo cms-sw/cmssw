@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.21 2008/05/19 16:45:50 uberthon Exp $
+// $Id: GsfElectronAlgo.cc,v 1.22 2008/05/20 16:44:57 uberthon Exp $
 //
 //
 
@@ -346,7 +346,7 @@ void GsfElectronAlgo::createElectron(const SuperClusterRef & scRef, const GsfTra
       //and set various properties
       ECALPositionCalculator ecpc;
       float trackEta=ecpc.ecalEta(trackRef->innerMomentum(),trackRef->innerPosition());
-      float trackPhi=ecpc.ecalPhi(trackRef->innerMomentum(),trackRef->innerPosition(),trackRef->charge());
+      float trackPhi=ecpc.ecalPhi(theMagField.product(),trackRef->innerMomentum(),trackRef->innerPosition(),trackRef->charge());
 
       ele.setDeltaEtaSuperClusterAtVtx((*scRef).position().eta() - trackEta);
       float dphi = (*scRef).position().phi() - trackPhi;

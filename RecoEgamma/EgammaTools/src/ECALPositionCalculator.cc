@@ -4,12 +4,14 @@
 // Framework includes
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 static const float R_ECAL           = 136.5;
 static const float Z_Endcap         = 328.0;
 static const float etaBarrelEndcap  = 1.479;
 
-double ECALPositionCalculator::ecalPhi(const math::XYZVector &momentum, const math::XYZPoint &vertex, int charge)
+double ECALPositionCalculator::ecalPhi(const MagneticField *magField,const math::XYZVector &momentum, const math::XYZPoint &vertex, int charge)
 {
 
    // Get kinematic variables
@@ -25,7 +27,7 @@ double ECALPositionCalculator::ecalPhi(const math::XYZVector &momentum, const ma
    const float ZENDM = 3.186 ;  	// was 3.15 , updated on 16122003
 
    float rbend = RBARM-(vRho/100.0); 	//Assumed vRho in cm
-   float bend  = 0.3 * 4.0 * rbend / 2.0;
+   float bend  = 0.3 * magField->inTesla(GlobalPoint(0.,0.,0.)).z() * rbend / 2.0; 
    float phi = 0.0;
 
    if( fabs(etaParticle) <=  etaBarrelEndcap)
