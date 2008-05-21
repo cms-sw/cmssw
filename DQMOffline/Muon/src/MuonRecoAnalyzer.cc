@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/18 10:23:37 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/14 13:02:48 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -130,27 +130,27 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   pResBin = parameters.getParameter<int>("pResBin");
   pResMin = parameters.getParameter<double>("pResMin");
   pResMax = parameters.getParameter<double>("pResMax");
-  qOverpResolution.push_back(dbe->book1D("Res_TkGlb_qOverp", "Res_TkGlb_qOverp", pResBin*binFactor, pResMin/2, pResMax/2));
-  qOverpResolution.push_back(dbe->book1D("Res_StaGlb_qOverp", "Res_StaGlb_qOverp", pResBin*binFactor, pResMin/2, pResMax/2));
-  qOverpResolution.push_back(dbe->book1D("Res_TkSta_qOverp", "Res_TkSta_qOverp", pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "Res_TkGlb_oneOverp", pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverpResolution.push_back(dbe->book1D("Res_StaGlb_oneOverp", "Res_StaGlb_oneOverp", pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverpResolution.push_back(dbe->book1D("Res_TkSta_oneOverp", "Res_TkSta_oneOverp", pResBin*binFactor, pResMin/2, pResMax/2));
-  qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "Res_TkGlb_qOverpt", pResBin*binFactor, pResMin/2, pResMax/2));
-  qOverptResolution.push_back(dbe->book1D("Res_StaGlb_qOverpt", "Res_StaGlb_qOverpt", pResBin*binFactor, pResMin/2, pResMax/2));
-  qOverptResolution.push_back(dbe->book1D("Res_TkSta_qOverpt", "Res_TkSta_qOverpt", pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "Res_TkGlb_oneOverpt", pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book1D("Res_StaGlb_oneOverpt", "Res_StaGlb_oneOverpt", pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book1D("Res_TkSta_oneOverpt", "Res_TkSta_oneOverpt", pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkGlb_oneOverpt", "ResVsEta_TkGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsEta_StaGlb_oneOverpt", "ResVsEta_StaGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkSta_oneOverpt", "ResVsEta_TkSta_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_oneOverpt", "ResVsPhi_TkGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_StaGlb_oneOverpt", "ResVsPhi_StaGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkSta_oneOverpt", "ResVsPhi_TkSta_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_StaGlb_oneOverpt", "ResVsPt_StaGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin/2, pResMax/2));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "ResVsPt_TkSta_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin/2, pResMax/2));
+  qOverpResolution.push_back(dbe->book1D("Res_TkGlb_qOverp", "Res_TkGlb_qOverp", pResBin*binFactor, pResMin, pResMax));
+  qOverpResolution.push_back(dbe->book1D("Res_StaGlb_qOverp", "Res_StaGlb_qOverp", pResBin*binFactor, pResMin, pResMax));
+  qOverpResolution.push_back(dbe->book1D("Res_TkSta_qOverp", "Res_TkSta_qOverp", pResBin*binFactor, pResMin, pResMax));
+  oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "Res_TkGlb_oneOverp", pResBin*binFactor, pResMin, pResMax));
+  oneOverpResolution.push_back(dbe->book1D("Res_StaGlb_oneOverp", "Res_StaGlb_oneOverp", pResBin*binFactor, pResMin, pResMax));
+  oneOverpResolution.push_back(dbe->book1D("Res_TkSta_oneOverp", "Res_TkSta_oneOverp", pResBin*binFactor, pResMin, pResMax));
+  qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "Res_TkGlb_qOverpt", pResBin*binFactor, pResMin, pResMax));
+  qOverptResolution.push_back(dbe->book1D("Res_StaGlb_qOverpt", "Res_StaGlb_qOverpt", pResBin*binFactor, pResMin, pResMax));
+  qOverptResolution.push_back(dbe->book1D("Res_TkSta_qOverpt", "Res_TkSta_qOverpt", pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "Res_TkGlb_oneOverpt", pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book1D("Res_StaGlb_oneOverpt", "Res_StaGlb_oneOverpt", pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book1D("Res_TkSta_oneOverpt", "Res_TkSta_oneOverpt", pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkGlb_oneOverpt", "ResVsEta_TkGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsEta_StaGlb_oneOverpt", "ResVsEta_StaGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkSta_oneOverpt", "ResVsEta_TkSta_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_oneOverpt", "ResVsPhi_TkGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_StaGlb_oneOverpt", "ResVsPhi_StaGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkSta_oneOverpt", "ResVsPhi_TkSta_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_StaGlb_oneOverpt", "ResVsPt_StaGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "ResVsPt_TkSta_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
 }
 
 
@@ -262,9 +262,9 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     etaStaTrack->Fill(recoStaTrack->eta());
     thetaStaTrack->Fill(recoStaTrack->theta());
     phiStaTrack->Fill(recoStaTrack->phi());
-    pTrack->Fill(recoStaTrack->p());
-    ptTrack->Fill(recoStaTrack->pt());
-    qTrack->Fill(recoStaTrack->charge());
+    pStaTrack->Fill(recoStaTrack->p());
+    ptStaTrack->Fill(recoStaTrack->pt());
+    qStaTrack->Fill(recoStaTrack->charge());
 
   }
     

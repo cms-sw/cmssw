@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/14 10:24:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/14 16:48:47 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -50,7 +50,7 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   
   // histograms initalization
   hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking", "HitsNotUsedForGlobalTracking", 50, -0.5, 49.5);
-  hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed", "HitsNotUsedForGlobalTrackingDvHitUsed", 50, 0, 0.5);
+  hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed", "HitsNotUsedForGlobalTrackingDvHitUsed", 100, 0, 1.);
 
   TrackSegm = dbe->book2D("trackSegments", "trackSegments", 3, 0.5, 3.5, 50, -0.5, 49.5);
   TrackSegm->setBinLabel(1,"DT+CSC",1);
@@ -95,9 +95,9 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   LogTrace(metname)<<"[SegmentTrackAnalyzer] Filling the histos";
   
-  MuonTransientTrackingRecHit::MuonRecHitContainer TheSegments = theSegmentsAssociator->associate(iEvent, iSetup, recoTrack );
+  MuonTransientTrackingRecHit::MuonRecHitContainer segments = theSegmentsAssociator->associate(iEvent, iSetup, recoTrack );
  
-  LogTrace(metname)<<"[SegmentTrackAnalyzer] # of segments associated to the track: "<<(TheSegments).size();
+  LogTrace(metname)<<"[SegmentTrackAnalyzer] # of segments associated to the track: "<<(segments).size();
 
   // hit counters
   int hitsFromDt=0;
@@ -111,22 +111,20 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   int segmFromDt=0;
   int segmFromCsc=0;
 
-  for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator segment=TheSegments.begin();
-       segment!=TheSegments.end(); segment++) {
+  for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator segment=segments.begin();
+       segment!=segments.end(); segment++) {
    
     DetId id = (*segment)->geographicalId();
     
     // hits from DT segments
     if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT ) {
+      ++segmFromDt;
       const DTRecSegment4D *seg4D = dynamic_cast<const DTRecSegment4D*>((*segment)->hit());
-      if((*seg4D).hasPhi()){
+      if((*seg4D).hasPhi())
 	hitsFromSegmDt+=(*seg4D).phiSegment()->specificRecHits().size();
-	segmFromDt++;
-      }
-      if((*seg4D).hasZed()) {
+      if((*seg4D).hasZed())
 	hitsFromSegmDt+=(*seg4D).zSegment()->specificRecHits().size();
-	segmFromDt++;
-      }
+      
     }
     
     // hits from CSC segments
