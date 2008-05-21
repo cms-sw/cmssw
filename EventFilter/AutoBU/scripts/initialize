@@ -205,7 +205,7 @@ if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
 		    "runNumber",        "unsignedInt","10",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
-		    "setupLabel",       "string",     "test")
+		    "setupLabel",       "string",     "test");
 
 
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
