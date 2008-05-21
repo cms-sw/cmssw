@@ -173,10 +173,12 @@ int main( int argc, char** argv ){
 
       coraldb.commit();
     }
-    cond::IOVService iovmanager(pooldb);
+
+    // FIXME need to get timetype from input!!!!
+    cond::IOVService iovmanager(pooldb,cond::runnumber);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
-    editor->create(parser.firstSince);
+    editor->create(parser.firstSince,cond::runnumber);
     editor->bulkInsert(parser.values);
     iovtoken=editor->token();
     pooldb.commit();

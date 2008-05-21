@@ -151,7 +151,7 @@ int main( int argc, char** argv ){
        token=metadata_svc.getToken(tag);
        coraldb.commit();
        cond::PoolTransaction& pooldb = myconnection.poolTransaction();
-       cond::IOVService iovservice(pooldb);
+       cond::IOVService iovservice(pooldb,cond::timestamp);
        cond::IOVIterator* ioviterator=iovservice.newIOVIterator(token);
        pooldb.start(true);
        unsigned int counter=0;

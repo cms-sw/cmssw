@@ -129,7 +129,8 @@ int main( int argc, char** argv ){
   if( deleteAll ){
     try{
       cond::PoolTransaction& pooldb=con.poolTransaction();
-      cond::IOVService iovservice(pooldb);
+      // irrelevant which tymestamp
+      cond::IOVService iovservice(pooldb,cond::timestamp);
       pooldb.start(false);
       iovservice.deleteAll(withPayload);
       pooldb.commit();
@@ -156,7 +157,7 @@ int main( int argc, char** argv ){
       }
       coraldb.commit();      
       cond::PoolTransaction& pooldb=con.poolTransaction();
-      cond::IOVService iovservice(pooldb);
+      cond::IOVService iovservice(pooldb,cond::timestamp);
       cond::IOVEditor* ioveditor=iovservice.newIOVEditor(token);
       pooldb.start(false);
       ioveditor->deleteEntries(withPayload);

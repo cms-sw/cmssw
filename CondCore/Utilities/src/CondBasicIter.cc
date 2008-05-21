@@ -91,7 +91,8 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
 	test = 1;
     }
     
-    cond::IOVService iovservice(*pooldb);
+    // timetype irrelevant
+    cond::IOVService iovservice(*pooldb,cond::runnumber);
     //-----------------------------------------
     if (ioviterator) {
       delete ioviterator;

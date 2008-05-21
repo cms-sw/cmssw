@@ -257,7 +257,7 @@ int main( int argc, char** argv ){
     
     cond::PoolTransaction& sourcedb=conHandler.getConnection("mysourcedb")->poolTransaction();
     cond::PoolTransaction& destdb=conHandler.getConnection("mydestdb")->poolTransaction();
-    cond::IOVService iovmanager(sourcedb);
+    cond::IOVService iovmanager(sourcedb,sourceiovtype);
     
 
     since = std::max(since,iovmanager.globalSince());
@@ -268,7 +268,7 @@ int main( int argc, char** argv ){
     if (!newIOV) {
       // grab info
       destdb.start(true);
-      cond::IOVService iovmanager2(destdb);
+      cond::IOVService iovmanager2(destdb,sourceiovtype);
       std::auto_ptr<cond::IOVIterator> iit(iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter));
       iit->next(); // just to initialize
       oldSize=iit->size();
@@ -319,7 +319,7 @@ int main( int argc, char** argv ){
 
     // grab info
     destdb.start(true);
-    cond::IOVService iovmanager2(destdb);
+    cond::IOVService iovmanager2(destdb,sourceiovtype);
     cond::IOVIterator* iit=iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter);
     std::string timetypestr = iovmanager2.timeType()==cond::runnumber ? std::string("runnumber") : std::string("timestamp") ;
     iit->next(); // just to initialize
