@@ -19,7 +19,7 @@ def convertnodedata(mynodevalue):
     mynodedata['nodelabel']=mynodevalue[0:startbrack]
     metadatalist=metagdatastr.split(',')
     for pair in metadatalist:
-        mydata=pair.split('=')
+        mydata=pair.split('=',1)
         mynodedata[mydata[0]]=mydata[1]
     #print 'mynodedata'
     return mynodedata
