@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.2 2007/11/10 20:11:06 mulders Exp $
+// $Id: MuonSimHitProducer.h,v 1.3 2007/11/15 17:24:24 pjanot Exp $
 //
 
 
@@ -34,6 +34,8 @@ class DTGeometry;
 class CSCGeometry;
 class RPCGeometry;
 class MuonServiceProxy;
+class MaterialEffects;
+class TrajectoryStateOnSurface;
 
 /*
 namespace reco { 
@@ -68,10 +70,18 @@ class MuonSimHitProducer : public edm::EDProducer {
       const CSCGeometry*    cscGeom;
       const RPCGeometry*    rpcGeom;
 
+      MaterialEffects* theMaterialEffects;
+  
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      void readParameters(const edm::ParameterSet&, const edm::ParameterSet& );
+      void readParameters(const edm::ParameterSet&, 
+			  const edm::ParameterSet&,
+			  const edm::ParameterSet& );
+
+      void applyScattering(TrajectoryStateOnSurface& tsos,
+			   double pathLength);
+
           
   // ----------- parameters ---------------------------- 
       bool debug_;

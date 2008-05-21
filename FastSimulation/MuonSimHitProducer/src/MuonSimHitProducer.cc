@@ -15,23 +15,21 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.9.2.1 2008/04/24 10:27:49 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.10 2008/04/24 13:58:09 pjanot Exp $
 //
 //
 
 // CMSSW headers 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 // Fast Simulation headers
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/MuonSimHitProducer/interface/MuonSimHitProducer.h"
+#include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
+#include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
+#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 
 // SimTrack
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -46,18 +44,17 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 // Tracking Tools
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
 // Data Formats
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
-#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Geometry, Magnetic Field
@@ -77,26 +74,9 @@
 //
 MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
 
-  readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
-		 iConfig.getParameter<edm::ParameterSet>("TRACKS"));
-
-//
-//  register your products ... need to declare at least one possible product...
-//
-  produces<edm::PSimHitContainer>("MuonCSCHits");
-  produces<edm::PSimHitContainer>("MuonDTHits");
-  produces<edm::PSimHitContainer>("MuonRPCHits");
-
-  edm::ParameterSet serviceParameters =
-     iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters);
-  edm::ParameterSet updatorParameters = 
-     iConfig.getParameter<edm::ParameterSet>("MuonTrajectoryUpdatorParameters");
-  theUpdator = new MuonTrajectoryUpdator(updatorParameters,insideOut);
-//
-//  Initialize the random number generator service
-//
-
+  //
+  //  Initialize the random number generator service
+  //
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
@@ -108,6 +88,24 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
 
   random = new RandomEngine(&(*rng));
 
+  // Read relevant parameters
+  readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
+		 iConfig.getParameter<edm::ParameterSet>("TRACKS"),
+		 iConfig.getParameter<edm::ParameterSet>("MaterialEffectsForMuons"));
+
+  //
+  //  register your products ... need to declare at least one possible product...
+  //
+  produces<edm::PSimHitContainer>("MuonCSCHits");
+  produces<edm::PSimHitContainer>("MuonDTHits");
+  produces<edm::PSimHitContainer>("MuonRPCHits");
+
+  edm::ParameterSet serviceParameters =
+     iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
+  theService = new MuonServiceProxy(serviceParameters);
+  edm::ParameterSet updatorParameters = 
+     iConfig.getParameter<edm::ParameterSet>("MuonTrajectoryUpdatorParameters");
+  theUpdator = new MuonTrajectoryUpdator(updatorParameters,insideOut);
 }
 
 // ---- method called once each job just before starting event loop ----
@@ -143,6 +141,8 @@ MuonSimHitProducer::~MuonSimHitProducer()
   if ( random ) { 
     delete random;
   }
+
+  if ( theMaterialEffects ) delete theMaterialEffects;
 }
 
 
@@ -152,18 +152,18 @@ MuonSimHitProducer::~MuonSimHitProducer()
 
 // ------------ method called to produce the data  ------------
 
-void MuonSimHitProducer::produce(edm::Event& iEvent,
-                                 const edm::EventSetup& iSetup) {
-  using namespace edm;
-  using namespace std;
+void 
+MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
+  // using namespace edm;
+  // using namespace std;
 
   MuonPatternRecoDumper dumper;
 
-  Handle<vector<SimTrack> > simMuons;
-  Handle<vector<SimVertex> > simVertices;
-  vector<PSimHit> theCSCHits;
-  vector<PSimHit> theDTHits;
-  vector<PSimHit> theRPCHits;
+  edm::Handle<std::vector<SimTrack> > simMuons;
+  edm::Handle<std::vector<SimVertex> > simVertices;
+  std::vector<PSimHit> theCSCHits;
+  std::vector<PSimHit> theDTHits;
+  std::vector<PSimHit> theRPCHits;
 
   DirectMuonNavigation navigation(theService->detLayerGeometry());
   iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
@@ -199,11 +199,11 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
     double tof = t0/29.98;
 
     if ( debug_ ) {
-      cout << " ===> MuonSimHitProducer::reconstruct() found SIMTRACK - pid = "
-           << pid ;
-      cout << " : pT = " << mySimP4.Pt()
-           << ", eta = " << mySimP4.Eta()
-           << ", phi = " << mySimP4.Phi() << endl;
+      std::cout << " ===> MuonSimHitProducer::reconstruct() found SIMTRACK - pid = "
+		<< pid ;
+      std::cout << " : pT = " << mySimP4.Pt()
+		<< ", eta = " << mySimP4.Eta()
+		<< ", phi = " << mySimP4.Phi() << std::endl;
     }
 
 //
@@ -225,8 +225,8 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
     tof += dtracker.mag()/29.98;
 
     if ( debug_ ) {
-      cout << " the Muon START position " << startingPosition << endl;
-      cout << " the Muon START momentum " << startingMomentum << endl;
+      std::cout << " the Muon START position " << startingPosition << std::endl;
+      std::cout << " the Muon START momentum " << startingMomentum << std::endl;
     }
 
 // 
@@ -244,7 +244,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
                                    magfield);
     TrajectoryStateOnSurface startingState(gtp,*startingPlane);
 
-    vector<const DetLayer *> navLayers;
+    std::vector<const DetLayer *> navLayers;
     if ( fabs(startingState.globalMomentum().eta()) > 4.5 ) {
       navLayers = navigation.compatibleEndcapLayers(*(startingState.freeState()),
                                                     alongMomentum);
@@ -253,29 +253,34 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
       navLayers = navigation.compatibleLayers(*(startingState.freeState()),
                                                alongMomentum);
     }
-    ESHandle<Propagator> propagator =
+    edm::ESHandle<Propagator> propagator =
       theService->propagator("SteppingHelixPropagatorAny");
 
     if ( navLayers.empty() ) continue;
 
     if ( debug_ ) {
-      cout << "Found " << navLayers.size()
-           << " compatible DetLayers..." << endl;
+      std::cout << "Found " << navLayers.size()
+		<< " compatible DetLayers..." << std::endl;
     }
     TrajectoryStateOnSurface propagatedState = startingState;
     for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
       if ( debug_ ) {
-        cout << "Propagating to layer " << ilayer << " " << dumper.dumpLayer(navLayers[ilayer]) << endl;
+        std::cout << "Propagating to layer " << ilayer << " " << dumper.dumpLayer(navLayers[ilayer]) << std::endl;
       }
-      vector<DetWithState> comps = navLayers[ilayer]->compatibleDets(propagatedState,*propagator,*(theUpdator->estimator()));
+      std::vector<DetWithState> comps = navLayers[ilayer]->compatibleDets(propagatedState,*propagator,*(theUpdator->estimator()));
       if ( comps.empty() ) continue;
       if ( debug_ ) {
-        cout << "Propagating " << propagatedState << endl;
+        std::cout << "Propagating " << propagatedState << std::endl;
       }
-      pair<TrajectoryStateOnSurface,double> next = propagator->propagateWithPath(propagatedState,navLayers[ilayer]->surface());
+      std::pair<TrajectoryStateOnSurface,double> 
+	next = propagator->propagateWithPath(propagatedState,navLayers[ilayer]->surface());
       double pi = propagatedState.globalMomentum().mag();
-      if ( next.first.isValid() ) {
-        propagatedState = next.first;
+
+      // Insert multiple scattering
+      if ( propagatedState.isValid() ) { 
+	propagatedState = next.first;
+	double pathLength = next.second;
+	if ( theMaterialEffects ) applyScattering(propagatedState,pathLength);
       }
 //
 //  Consider this... 1 GeV muon has a velocity that is only 0.5% slower than c...
@@ -288,24 +293,25 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
       double rbeta = sqrt(1+m*m/(pavg*pavg))/29.98;
       double dtof = next.second*rbeta;
       if ( debug_ ) {
-        cout << "Propagated to next surface... path length = " << next.second << " cm, dTOF = " << dtof << " ns" << endl;
+        std::cout << "Propagated to next surface... path length = " << next.second << " cm, dTOF = " << dtof << " ns" << std::endl;
       }
       tof += dtof;
       const GeomDet *gd = comps[0].first;
       if ( gd->subDetector() == GeomDetEnumerators::DT ) {
         DTChamberId id(gd->geographicalId());
         const DTChamber *chamber = dtGeom->chamber(id);
-        vector<const DTSuperLayer *> superlayer = chamber->superLayers();
+        std::vector<const DTSuperLayer *> superlayer = chamber->superLayers();
         for ( unsigned int isl=0; isl<superlayer.size(); isl++ ) {
-          vector<const DTLayer *> layer = superlayer[isl]->layers();
+          std::vector<const DTLayer *> layer = superlayer[isl]->layers();
           for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
             DTLayerId lid = layer[ilayer]->id();
             if ( debug_ ) {
-              cout << "    Extrapolated to DT (" << lid.wheel() << "," 
-                                                 << lid.station() << "," 
-                                                 << lid.sector() << "," 
-                                                 << lid.superlayer() << "," 
-                                                 << lid.layer() << ")" << endl;
+              std::cout << "    Extrapolated to DT (" 
+			<< lid.wheel() << "," 
+			<< lid.station() << "," 
+			<< lid.sector() << "," 
+			<< lid.superlayer() << "," 
+			<< lid.layer() << ")" << std::endl;
             }
             const GeomDetUnit *det = dtGeom->idToDetUnit(lid);
 
@@ -313,7 +319,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
                                                  propagatedState.globalMomentum().basicVector(),
                                                  propagatedState.transverseCurvature(),
                                                  anyDirection);
-            pair<bool,double> path = crossing.pathLength(det->surface());
+            std::pair<bool,double> path = crossing.pathLength(det->surface());
             if ( ! path.first ) continue;
             LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
             if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
@@ -324,11 +330,11 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
             const DTTopology& dtTopo = layer[ilayer]->specificTopology();
             int wire = dtTopo.channel(lpos);
 	    if (wire < dtTopo.firstChannel()) {
-	      cout << "DT wire number too low; check DTTopology.channel() method !!" << endl;
+	      std::cout << "DT wire number too low; check DTTopology.channel() method !!" << std::endl;
 	      wire = dtTopo.firstChannel();
 	    }
 	    if (wire > dtTopo.lastChannel()) {
-	      cout << "DT wire number too high; check DTTopology.channel() method !!" << endl;
+	      std::cout << "DT wire number too high; check DTTopology.channel() method !!" << std::endl;
 	      wire = dtTopo.lastChannel();	      
 	    }
 //
@@ -359,21 +365,22 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
       else if ( gd->subDetector() == GeomDetEnumerators::CSC ) {
         CSCDetId id(gd->geographicalId());
         const CSCChamber *chamber = cscGeom->chamber(id);
-        vector<const CSCLayer *> layer = chamber->layers();
+        std::vector<const CSCLayer *> layer = chamber->layers();
         for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
           CSCDetId lid = layer[ilayer]->id();
           if ( debug_ ) {
-            cout << "    Extrapolated to CSC (" << lid.endcap() << "," 
-                                                << lid.ring() << "," 
-                                                << lid.station() << "," 
-                                                << lid.layer() << ")" << endl;
+            std::cout << "    Extrapolated to CSC (" 
+		      << lid.endcap() << "," 
+		      << lid.ring() << "," 
+		      << lid.station() << "," 
+		      << lid.layer() << ")" << std::endl;
           }
           const GeomDetUnit *det = cscGeom->idToDetUnit(lid);
           HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                propagatedState.globalMomentum().basicVector(),
                                                propagatedState.transverseCurvature(),
                                                anyDirection);
-          pair<bool,double> path = crossing.pathLength(det->surface());
+          std::pair<bool,double> path = crossing.pathLength(det->surface());
           if ( ! path.first ) continue;
           LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
           if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
@@ -398,23 +405,24 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
                 gd->subDetector() == GeomDetEnumerators::RPCEndcap ) {
         RPCDetId id(gd->geographicalId());
         const RPCChamber *chamber = rpcGeom->chamber(id);
-        vector<const RPCRoll *> roll = chamber->rolls();
+        std::vector<const RPCRoll *> roll = chamber->rolls();
         for ( unsigned int iroll=0; iroll<roll.size(); iroll++ ) {
           RPCDetId rid = roll[iroll]->id();
           if ( debug_ ) {
-            cout << "    Extrapolated to RPC (" << rid.ring() << "," 
-                                                << rid.station() << ","
-                                                << rid.sector() << ","
-                                                << rid.subsector() << ","
-                                                << rid.layer() << ","
-                                                << rid.roll() << ")" << endl;
+            std::cout << "    Extrapolated to RPC (" 
+		      << rid.ring() << "," 
+		      << rid.station() << ","
+		      << rid.sector() << ","
+		      << rid.subsector() << ","
+		      << rid.layer() << ","
+		      << rid.roll() << ")" << std::endl;
           }
           const GeomDetUnit *det = rpcGeom->idToDetUnit(rid);
           HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                propagatedState.globalMomentum().basicVector(),
                                                propagatedState.transverseCurvature(),
                                                anyDirection);
-          pair<bool,double> path = crossing.pathLength(det->surface());
+          std::pair<bool,double> path = crossing.pathLength(det->surface());
           if ( ! path.first ) continue;
           LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
           if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
@@ -436,14 +444,14 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
         }
       }
       else {
-        cout << "Extrapolated to unknown subdetector '" << gd->subDetector() << "'..." << endl;
+        std::cout << "Extrapolated to unknown subdetector '" << gd->subDetector() << "'..." << std::endl;
       }
     }
   }
 
   std::auto_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
   int n = 0;
-  for ( vector<PSimHit>::const_iterator i = theCSCHits.begin();
+  for ( std::vector<PSimHit>::const_iterator i = theCSCHits.begin();
         i != theCSCHits.end(); i++ ) {
     pcsc->push_back(*i);
     n += 1;
@@ -452,7 +460,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
 
   std::auto_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
   n = 0;
-  for ( vector<PSimHit>::const_iterator i = theDTHits.begin();
+  for ( std::vector<PSimHit>::const_iterator i = theDTHits.begin();
         i != theDTHits.end(); i++ ) {
     pdt->push_back(*i);
     n += 1;
@@ -461,7 +469,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
 
   std::auto_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
   n = 0;
-  for ( vector<PSimHit>::const_iterator i = theRPCHits.begin();
+  for ( std::vector<PSimHit>::const_iterator i = theRPCHits.begin();
         i != theRPCHits.end(); i++ ) {
     prpc->push_back(*i);
     n += 1;
@@ -472,13 +480,16 @@ void MuonSimHitProducer::produce(edm::Event& iEvent,
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-void MuonSimHitProducer::endJob() 
+void 
+MuonSimHitProducer::endJob() 
 {
 }
 
 
-void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons, 
-                                        const edm::ParameterSet& fastTracks) {
+void 
+MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons, 
+				   const edm::ParameterSet& fastTracks,
+				   const edm::ParameterSet& matEff) {
   // Muons
   debug_ = fastMuons.getUntrackedParameter<bool>("Debug");
   theSimModuleLabel_ = fastMuons.getParameter<std::string>("simModuleLabel");
@@ -503,6 +514,50 @@ void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
     std::cout << " The FULL pattern recognition option is turned ON" << std::endl;
   else
     std::cout << " The FAST tracking option is turned ON" << std::endl;
+
+  // Material Effects
+  theMaterialEffects = 0;
+  if ( matEff.getParameter<bool>("PairProduction") || 
+       matEff.getParameter<bool>("Bremsstrahlung") ||
+       matEff.getParameter<bool>("EnergyLoss") || 
+       matEff.getParameter<bool>("MultipleScattering") )
+    theMaterialEffects = new MaterialEffects(matEff,random);
+
+}
+
+void	
+MuonSimHitProducer::applyScattering(TrajectoryStateOnSurface& tsos,
+				    double pathLength) { 
+
+  // Initialiaze the Particle needed as input for Multiple Scattering
+  const Surface& nextSurface = tsos.surface();
+  GlobalPoint gPos = tsos.globalPosition();
+  GlobalVector gMom = tsos.globalMomentum();
+  double mu = 0.1056583692;
+  double en = std::sqrt(gMom.mag2()+mu*mu);
+  XYZTLorentzVector position(gPos.x(),gPos.y(),gPos.z(),0.);
+  XYZTLorentzVector momentum(gMom.x(),gMom.y(),gMom.z(),en);
+  float charge = (float)(tsos.charge());
+  ParticlePropagator theMuon(momentum,position,charge,0);
+  theMuon.setID(-(int)charge*13);
+  // The multiple scattering simulator
+  MultipleScatteringSimulator* multipleScattering = theMaterialEffects->multipleScatteringSimulator();
+  // Does the actual mutliple scattering
+  if ( multipleScattering ) {
+    // Pass the vector normal to the "next" surface 
+    GlobalVector normal = nextSurface.tangentPlane(tsos.globalPosition())->normalVector();
+    multipleScattering->setNormalVector(normal);
+    // Compute the amount of multiple scattering after a given path length
+    double radLen = multipleScattering->radLenIncm();
+    multipleScattering->updateState(theMuon,pathLength/radLen);
+  }
+  
+  // Fill the propagated state
+  GlobalPoint propagatedPosition(theMuon.X(),theMuon.Y(),theMuon.Z());
+  GlobalVector propagatedMomentum(theMuon.Px(),theMuon.Py(),theMuon.Pz());
+  GlobalTrajectoryParameters propagatedGtp(propagatedPosition,propagatedMomentum,(int)charge,magfield);
+  tsos = TrajectoryStateOnSurface(propagatedGtp,nextSurface);
+
 }
 
 
