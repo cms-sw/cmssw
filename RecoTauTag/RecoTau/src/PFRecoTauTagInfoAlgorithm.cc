@@ -27,7 +27,7 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
   resultExtended.setpfjetRef(thePFJet);
   
   PFCandidateRefVector thePFCands;
-  CandidateBaseRefVector theCandidateBaseRefVector=(*thePFJet).getJetConstituents();
+  vector<CandidatePtr> theCandidateBaseRefVector=(*thePFJet).getJetConstituents();
   for(unsigned int i_Constit=0;i_Constit!=theCandidateBaseRefVector.size();i_Constit++) { 
     const PFCandidate* thePFCand=dynamic_cast<const PFCandidate*>(&*(theCandidateBaseRefVector[i_Constit]));
     for (PFCandidateRefVector::const_iterator iPFCand=thePFCandsInEvent.begin();iPFCand!=thePFCandsInEvent.end();iPFCand++){
