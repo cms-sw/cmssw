@@ -63,7 +63,7 @@ FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) :
 #endif
   //--- PSimHit Containers
   trackerContainers.clear();
-  trackerContainers = pset.getParameter<std::vector<edm::InputTag> >("SimHitList");
+  trackerContainers = pset.getParameter<std::vector<edm::InputTag> >("ROUList");
   //
   if(useCMSSWPixelParameterization)
   {
