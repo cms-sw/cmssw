@@ -52,7 +52,12 @@ while ($i <= $iter)
     end
 
     if (`bjobs -d -J $name/collect$i | tail -n1 | grep DONE` != "") then
-      rm $odir/job*/*.root
+      rm $odir/job*/HIPAlignmentAlignables.root
+      rm $odir/job*/HIPAlignmentEvents.root
+      rm $odir/job*/IOAlignedPositions.root
+      rm $odir/job*/IOAlignmentParameters.root
+      rm $odir/job*/IOIteration.root
+      rm $odir/job*/IOUserVariables.root
       gzip $odir/job*/*.out
     endif
 
