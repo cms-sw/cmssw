@@ -112,28 +112,30 @@ void CSCMonitorModule::updateFracHistos() {
 
   if (MEEMU("Summary_ME1", me1)){
     TH1* tmp = me1->getTH1();
-    summary.Write(tmp, 0);
+    summary.Write(tmp, 1);
   }
 
   if (MEEMU("Summary_ME2", me1)){
     TH1* tmp = me1->getTH1();
-    summary.Write(tmp, 1);
+    summary.Write(tmp, 2);
   }
 
   if (MEEMU("Summary_ME3", me1)){
     TH1* tmp = me1->getTH1();
-    summary.Write(tmp, 2);
+    summary.Write(tmp, 3);
   }
 
   if (MEEMU("Summary_ME4", me1)){
     TH1* tmp = me1->getTH1();
-    summary.Write(tmp, 3);
+    summary.Write(tmp, 4);
   }
 
   if (MEEMU("Summary_EMU", me1)){
     TH1* tmp = me1->getTH1();
     summary.Write(tmp);
   }
+
+  std::cout << "Detector Efficiency: " << summary.GetEfficiency() << "%" << std::endl;
 
 }
 

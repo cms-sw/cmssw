@@ -59,9 +59,13 @@ class CSCSummary {
 
     const int GetValue(const unsigned int side, const unsigned int station, const unsigned int ring, const unsigned int chamber, const unsigned int cfeb, const unsigned int hv);
 
-  private:
+    const unsigned int NumberOfRings(const unsigned int station);
+    const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring);
+    const unsigned int NumberOfChamberCFEBs(const unsigned int station, const unsigned int ring);
+    const unsigned int NumberOfChamberHVs(const unsigned int station, const unsigned int ring);
+    const bool ChamberCoords(const unsigned int x, const unsigned int y, unsigned int& side, unsigned int& station, unsigned int& ring, unsigned int& chamber);
 
-    bool ChamberCoords(const unsigned int x, const unsigned int y, unsigned int& side, unsigned int& station, unsigned int& ring, unsigned int& chamber);
+  private:
 
     int map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_CFEBS][N_HVS];
 
