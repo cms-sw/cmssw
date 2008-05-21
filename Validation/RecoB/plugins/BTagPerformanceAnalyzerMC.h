@@ -1,5 +1,5 @@
-#ifndef BTagPerformanceAnalyzer_H
-#define BTagPerformanceAnalyzer_H
+#ifndef BTagPerformanceAnalyzerMC_H
+#define BTagPerformanceAnalyzerMC_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -29,17 +29,17 @@
 
 //class CaloJetRef;
 
-/** \class BTagPerformanceAnalyzer
+/** \class BTagPerformanceAnalyzerMC
  *
  *  Top level steering routine for b tag performance analysis.
  *
  */
 
-class BTagPerformanceAnalyzer : public edm::EDAnalyzer {
+class BTagPerformanceAnalyzerMC : public edm::EDAnalyzer {
    public:
-      explicit BTagPerformanceAnalyzer(const edm::ParameterSet& pSet);
+      explicit BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet);
 
-      ~BTagPerformanceAnalyzer();
+      ~BTagPerformanceAnalyzerMC();
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 

@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/CodedException.h"
-#include "Validation/RecoB/plugins/BTagPerformanceAnalyzer.h"
+#include "Validation/RecoB/plugins/BTagPerformanceAnalyzerMC.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"
 #include "DataFormats/Common/interface/View.h"
@@ -13,13 +13,13 @@ using namespace reco;
 using namespace edm;
 //using namespace BTagMCTools;
 
-BTagPerformanceAnalyzer::BTagPerformanceAnalyzer(const edm::ParameterSet& pSet)
+BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pSet)
 {
   init(pSet);
   bookHistos(pSet);
 }
 
-void BTagPerformanceAnalyzer::bookHistos(const edm::ParameterSet& pSet)
+void BTagPerformanceAnalyzerMC::bookHistos(const edm::ParameterSet& pSet)
 {
   //
   // Book all histograms.
@@ -160,7 +160,7 @@ void BTagPerformanceAnalyzer::bookHistos(const edm::ParameterSet& pSet)
   
 }
 
-EtaPtBin BTagPerformanceAnalyzer::getEtaPtBin(int iEta, int iPt)
+EtaPtBin BTagPerformanceAnalyzerMC::getEtaPtBin(int iEta, int iPt)
 {
   // DEFINE BTagBin:
   bool    etaActive_ , ptActive_;
@@ -191,7 +191,7 @@ EtaPtBin BTagPerformanceAnalyzer::getEtaPtBin(int iEta, int iPt)
 			ptActive_  , ptMin_  , ptMax_ );
 }
 
-void BTagPerformanceAnalyzer::init(const edm::ParameterSet& iConfig)
+void BTagPerformanceAnalyzerMC::init(const edm::ParameterSet& iConfig)
 {
   // Get histogram plotting options from configuration.
 
@@ -240,7 +240,7 @@ void BTagPerformanceAnalyzer::init(const edm::ParameterSet& iConfig)
 
 
 
-BTagPerformanceAnalyzer::~BTagPerformanceAnalyzer()
+BTagPerformanceAnalyzerMC::~BTagPerformanceAnalyzerMC()
 {
   for (unsigned int iJetLabel = 0; iJetLabel != binJetTagPlotters.size(); ++iJetLabel) {
     int plotterSize =  binJetTagPlotters[iJetLabel].size();
@@ -262,7 +262,7 @@ BTagPerformanceAnalyzer::~BTagPerformanceAnalyzer()
   }
 }
 
-void BTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if (finalizeOnly == true) return;
   if (!fastMC)
@@ -385,7 +385,7 @@ void BTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   }
 }
 
-BTagMCTools::JetFlavour BTagPerformanceAnalyzer::getJetFlavour(
+BTagMCTools::JetFlavour BTagPerformanceAnalyzerMC::getJetFlavour(
 	edm::RefToBase<Jet> jetRef, bool fastMC, FlavourMap flavours)
 {
   BTagMCTools::JetFlavour jetFlavour;
@@ -402,7 +402,7 @@ BTagMCTools::JetFlavour BTagPerformanceAnalyzer::getJetFlavour(
   return jetFlavour;
 }
 
-void BTagPerformanceAnalyzer::endJob()
+void BTagPerformanceAnalyzerMC::endJob()
 {
    if (finalize == false) return;
  setTDRStyle();
@@ -438,4 +438,4 @@ void BTagPerformanceAnalyzer::endJob()
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(BTagPerformanceAnalyzer);
+DEFINE_FWK_MODULE(BTagPerformanceAnalyzerMC);
