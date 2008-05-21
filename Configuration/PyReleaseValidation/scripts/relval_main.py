@@ -32,9 +32,12 @@ import Configuration.PyReleaseValidation.relval_steps_module as steps
 sys.path.append(".") # necessary to find the relval_parameters_module created by CMSdriver
 
 # parse the string containing the steps and make a list out of it
-if step=='ALL':
-    step='GEN,SIM,DIGI,L1,DIGI2RAW,RECO,DQM,POSTRECO'
-step_list=step.split(',') # we split when we find a ','
+# changed by BH.
+# done now in cmsDriver.py
+#if step=='ALL':
+#    step='GEN,SIM,DIGI,L1,DIGI2RAW,RECO,DQM,POSTRECO'
+#step_list=step.split(',') # we split when we find a ','
+
 
 # a dict whose keys are the steps and the values are functions that modify the process
 # in order to add the actual step..

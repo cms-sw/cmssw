@@ -404,6 +404,14 @@ if options.secondfilein!='':
     secondfilestr=options.dirin+options.secondfilein
 
 
+# replace step aliases by right list
+if options.step=='ALL':
+        options.step='GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO,POSTRECO,DQM'
+elif options.step=='SIM_CHAIN':
+        options.step='GEN,SIM,DIGI,L1,DIGI2RAW'
+elif options.step=='DATA_CHAIN':
+        options.step='RAW2DIGI,RECO,POSTRECO,DQM'
+
 # pure python version - begin
 if options.pure_python:
 
@@ -413,9 +421,6 @@ if options.pure_python:
   # (for now placed here, needs a better place)
   options.name = trimmedStep.replace(',','')
   options.outfile_name = options.dirout+options.fileout
-
-  if options.step == "ALL":
-      options.step = "GEN,SIM,DIGI,L1,DIGI2RAW,RECO,DQM,POSTRECO"
 
   # create the config
   configBuilder = ConfigBuilder(options)
