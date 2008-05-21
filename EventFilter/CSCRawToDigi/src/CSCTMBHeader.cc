@@ -154,9 +154,6 @@ void CSCTMBHeader::correctCorrLCTNumbering(uint32_t idlayer, int & strip) const
 
 std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idlayer) const {
   std::vector<CSCCorrelatedLCTDigi> result;  
-  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
-  bool zplus = (CSCDetId::endcap(idlayer) == 1);
-  bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
 
   switch (firmwareVersion) {
   case 2006: {
@@ -209,6 +206,81 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
   return result;
 }
 
+
+void CSCTMBHeader2007::addCLCT0(const CSCCLCTDigi & digi)
+{
+  //TODO correct strip and cfeb #
+  clct0_valid = digi.isValid();
+  clct0_quality = digi.getQuality();
+  clct0_shape = digi.getPattern();
+  clct0_bend = digi.getBend();
+  clct0_key = digi.getStrip();
+  clct0_cfeb_low = digi.getCFEB();
+  flag25 = 0;
+}
+
+void CSCTMBHeader2007::addCLCT1(const CSCCLCTDigi & digi)
+{
+  //TODO correct strip and cfeb #
+  clct1_valid = digi.isValid();
+  clct1_quality = digi.getQuality();
+  clct1_shape = digi.getPattern();
+  clct1_bend = digi.getBend();
+  clct1_key = digi.getStrip();
+  clct1_cfeb_low = digi.getCFEB();
+  flag26 = 0;
+}
+
+
+void CSCTMBHeader2007::addALCT0(const CSCALCTDigi & digi)
+{
+  alct0Valid = digi.isValid();
+  alct0Quality = digi.getQuality();
+  alct0Amu = digi.getAccelerator();
+  alct0Key = digi.getKeyWG();
+  reserved2 = 0;
+  flag28 = 0;
+}
+
+void CSCTMBHeader2007::addALCT1(const CSCALCTDigi & digi)
+{
+  alct1Valid = digi.isValid();
+  alct1Quality = digi.getQuality();
+  alct1Amu = digi.getAccelerator();
+  alct1Key = digi.getKeyWG();
+  reserved3 = 0;
+  flag29 = 0;
+}
+
+void CSCTMBHeader2007::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi)
+{
+  //TODO correct strips
+  // Plus check where strip goes
+  MPC_Muon0_wire_ = digi.getKeyWG();
+  MPC_Muon0_clct_pattern_ = digi.getPattern();
+  MPC_Muon0_quality_ = digi.getQuality();
+  MPC_Muon0_halfstrip_clct_pattern = digi.getCLCTPattern();
+  MPC_Muon0_bend_ = digi.getBend();
+  MPC_Muon0_SyncErr_ = digi.getSyncErr();
+  MPC_Muon0_bx_ = digi.getBX();
+  MPC_Muon0_bc0_ = digi.getBX0();
+  MPC_Muon0_cscid_low = digi.getCSCID();
+}
+
+void CSCTMBHeader2007::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi)
+{
+  //TODO correct strips
+  // Plus check where strip goes
+  MPC_Muon1_wire_ = digi.getKeyWG();
+  MPC_Muon1_clct_pattern_ = digi.getPattern();
+  MPC_Muon1_quality_ = digi.getQuality();
+  MPC_Muon1_halfstrip_clct_pattern = digi.getCLCTPattern();
+  MPC_Muon1_bend_ = digi.getBend();
+  MPC_Muon1_SyncErr_ = digi.getSyncErr();
+  MPC_Muon1_bx_ = digi.getBX();
+  MPC_Muon1_bc0_ = digi.getBX0();
+  MPC_Muon1_cscid_low = digi.getCSCID();
+}
 
 std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) {
   os << "...............TMB Header.................." << std::endl;

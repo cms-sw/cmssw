@@ -7,6 +7,8 @@
 #include <iosfwd>
 #include <vector>
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 class CSCCLCTDigi;
 class CSCDMBHeader;
@@ -16,6 +18,7 @@ struct CSCTMBHeader2006 {///this struct is for 2006 and earlier versions of data
   CSCTMBHeader2006() {
     bzero(this, sizeInWords()*2);
   }
+  
   short unsigned int sizeInWords() const {//size of TMBHeader
     return 27;
   }
@@ -125,6 +128,13 @@ struct CSCTMBHeader2007 {///this struct is for 2007 version of dataformat
   short unsigned int sizeInWords() const {//size of TMBHeader
     return 43;
   }
+  void addCLCT0(const CSCCLCTDigi & digi);
+  void addCLCT1(const CSCCLCTDigi & digi);
+  void addALCT0(const CSCALCTDigi & digi);
+  void addALCT1(const CSCALCTDigi & digi);
+  void addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi);
+  void addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi);
+
   unsigned b0cline:16;
   unsigned bxnCount:12, dduCode1:3, flag1:1;
   unsigned l1aNumber:12, dduCode2:3, flag2:1;
