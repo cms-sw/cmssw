@@ -20,7 +20,7 @@ namespace cond{
     virtual ~IOVEditor(){}
 
     virtual  void create(cond::Time_t firstSince,
-			 cond::TimeType timetype=cond::runnumber) = 0;
+			 cond::TimeType timetype) = 0;
 
 
 
