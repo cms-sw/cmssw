@@ -13,6 +13,12 @@
 #include "G4VProcess.hh"
 #include "G4Poisson.hh"
 
+// Histogramming
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include <TTree.h>
+
+
 //________________________________________________________________________________________
 DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
@@ -38,6 +44,22 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
                            << doCherenkov_;
 
   initMap(name,cpv);
+
+  // Init histogramming
+  edm::Service<TFileService> tfile;
+
+  if ( !tfile.isAvailable() )
+    throw cms::Exception("BadConfig") << "TFileService unavailable: "
+                                      << "please add it to config file";
+
+  ntuple_ = tfile->make<TTree>("tree","Cherenkov photons");
+  ntuple_->Branch("nphotons",&nphotons_,"nphotons/I");
+  ntuple_->Branch("px",px_,"px[nphotons]/F");
+  ntuple_->Branch("py",py_,"py[nphotons]/F");
+  ntuple_->Branch("pz",pz_,"pz[nphotons]/F");
+  ntuple_->Branch("x",x_,"px[nphotons]/F");
+  ntuple_->Branch("y",y_,"py[nphotons]/F");
+  ntuple_->Branch("z",z_,"pz[nphotons]/F");
 
 }
 
@@ -207,7 +229,6 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   // beta is averaged over step
   double beta = 0.5*( pPreStepPoint->GetBeta() + pPostStepPoint->GetBeta() );
   double BetaInverse = 1.0/beta;
-  
 
   LogDebug("EcalSim") << "Particle properties: " << "\n"
                       << "  charge = " << charge
@@ -226,7 +247,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 
   // Now get a poisson distribution
   int numPhotons = static_cast<int>( G4Poisson(meanNumberOfPhotons) );
-  edm::LogVerbatim("EcalSim") << "Number of photons = " << numPhotons;
+  //edm::LogVerbatim("EcalSim") << "Number of photons = " << numPhotons;
   if ( numPhotons <= 0 ) {
     LogDebug("EcalSim") << "Poission number of photons is zero: " << numPhotons
                       << ", stopping here";
@@ -288,8 +309,19 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
     // Collect energy on APD
     cherenkovEnergy += getPhotonEnergyDeposit_( photonMomentum, photonPosition, aStep );
 
+    // Ntuple variables
+    nphotons_ = numPhotons;
+    px_[iPhoton] = photonMomentum.x();
+    py_[iPhoton] = photonMomentum.y();
+    pz_[iPhoton] = photonMomentum.z();
+    x_[iPhoton] = photonPosition.x();
+    y_[iPhoton] = photonPosition.y();
+    z_[iPhoton] = photonPosition.z();
   }
   
+  // Fill ntuple
+  ntuple_->Fill();
+
 
   return cherenkovEnergy;
 
@@ -443,7 +475,7 @@ const double DreamSD::getPhotonEnergyDeposit_( const G4ParticleMomentum& p,
 
   // Crystal dimensions
   
-  edm::LogVerbatim("EcalSim") << p << x;
+  //edm::LogVerbatim("EcalSim") << p << x;
 
   // 1. Check if this photon goes straight to the APD
   

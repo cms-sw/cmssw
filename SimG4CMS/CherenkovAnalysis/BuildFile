@@ -1,3 +1,5 @@
+ <use name=FWCore/ServiceRegistry>
+ <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/PluginManager>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification>

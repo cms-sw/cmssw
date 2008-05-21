@@ -10,7 +10,11 @@
 
 #include <map>
 
+const int MAXPHOTONS = 500; // Maximum number of photons we can store
+
 class G4LogicalVolume;
+
+class TTree;
 
 class DreamSD : public CaloSD {
 
@@ -47,6 +51,12 @@ private:
 
   /// Table of Cherenkov angle integrals vs photon momentum
   std::auto_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
+
+  // Histogramming
+  TTree* ntuple_;
+  int nphotons_;
+  float px_[MAXPHOTONS],py_[MAXPHOTONS],pz_[MAXPHOTONS];
+  float x_[MAXPHOTONS],y_[MAXPHOTONS],z_[MAXPHOTONS];
 
 };
 
