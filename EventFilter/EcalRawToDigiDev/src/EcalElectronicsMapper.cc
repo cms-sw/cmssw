@@ -423,26 +423,35 @@ void EcalElectronicsMapper::fillMaps(){
 	for(it= pTCCIds->begin(); it!= pTCCIds->end(); it++){
 			
           uint tccId = *it;
-			
-	  for(uint feChannel =1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
-
-		 // Builds Ecal Trigger Tower Det Id 
-	       EcalTrigTowerDetId ttDetId = mappingBuilder_->getTrigTowerDetId(tccId, feChannel);
-	       ttDetIds_[tccId-1][feChannel-1] = new EcalTrigTowerDetId(ttDetId.rawId());
-               EcalTriggerPrimitiveDigi * tp   = new EcalTriggerPrimitiveDigi(ttDetId);
-               tp->setSize(numbTriggerTSamples_);
-               for(uint i=0;i<numbTriggerTSamples_;i++){
-                 tp->setSample( i, EcalTriggerPrimitiveSample(0) );
-               }
-	       
-               ttTPIds_[tccId-1][feChannel-1]  = tp;
-
+          
+          // creating arrays of pointers for trigger objects
+	  for(uint towerInTCC =1; towerInTCC <= numChannelsInDcc_[smId-1]; towerInTCC++){
+              
+              // Builds Ecal Trigger Tower Det Id 
+              EcalTrigTowerDetId ttDetId = mappingBuilder_->getTrigTowerDetId(tccId, towerInTCC);
+              
+              ttDetIds_[tccId-1][towerInTCC-1] = new EcalTrigTowerDetId(ttDetId.rawId());
+              EcalTriggerPrimitiveDigi * tp   = new EcalTriggerPrimitiveDigi(ttDetId);
+              tp->setSize(numbTriggerTSamples_);
+              for(uint i=0;i<numbTriggerTSamples_;i++){
+                  tp->setSample( i, EcalTriggerPrimitiveSample(0) );
+              }
+              
+              ttTPIds_[tccId-1][towerInTCC-1]  = tp;
+              
 	  }
         }
+        
 
+        
+        // creating arrays of pointers for digi objects
 	for(uint feChannel = 1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
-		
-	  //EcalSCDetIds
+
+            // to avoid gap in CCU_id's
+            if((smId==SECTOR_EEM_CCU_JUMP   || smId== SECTOR_EEP_CCU_JUMP) &&
+               (MIN_CCUID_JUMP <= feChannel && feChannel <=MAX_CCUID_JUMP )
+               ) continue;
+            
           EcalScDetId scDetId = mappingBuilder_->getEcalScDetId(smId,feChannel);
           scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());
 	  scEleIds_[smId-1][feChannel-1] = new EcalElectronicsId(smId,feChannel,1,1);
@@ -474,9 +483,9 @@ void EcalElectronicsMapper::fillMaps(){
 }
 
 // number of readout channels (TT in EB, SC in EE) in a DCC
-const uint  EcalElectronicsMapper::numChannelsInDcc_[NUMB_SM] = {34,32,33,33,32,34,33,34,33,    // EE -
-								68,68,68,68,68,68,68,68,68,68, // EB-
-								68,68,68,68,68,68,68,68,
-								68,68,68,68,68,68,68,68,68,68, // EB+
-								68,68,68,68,68,68,68,68,
-								34,32,33,33,32,34,33,34,33};   // EE+
+const uint  EcalElectronicsMapper::numChannelsInDcc_[NUMB_SM] = {34,32,33,33,32,34,33,41,33,    // EE -
+                                                                 68,68,68,68,68,68,68,68,68,68, // EB-
+                                                                 68,68,68,68,68,68,68,68,
+                                                                 68,68,68,68,68,68,68,68,68,68, // EB+
+                                                                 68,68,68,68,68,68,68,68,
+                                                                 34,32,33,33,32,34,33,41,33};   // EE+
