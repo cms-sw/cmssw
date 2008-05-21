@@ -27,6 +27,11 @@ class DBSRun:
         self.finishedDQM=0 # set to true once DQM finished (DQM directory for run exists)
         self.previouslyFinishedDQM=0 # This is no longer being used -- we can probably remove it completely
         self.maxEvents=1000 # number of events to run over with DQM
+
+        # The following variables are used for searching only over certain lumi blocks
+        self.numLumiBlocks=0
+        self.lumiBlockIncrement=0
+        self.currentLumiBlock=1
         return
 
 
@@ -100,6 +105,11 @@ class DBSRun:
         if screenoutput:
             print "%10s%20s%30s%25s%20s%20s%s"%("Run","Start","End","Ignore","# files"," ","Dataset")
             print temp
+            print "\tLumi block variables: "
+            print "\t\t# lumi blocks in file: %s"%self.numLumiBlocks
+            print "\t\tlumi block increment: %s"%self.lumiBlockIncrement 
+            print "\t\tcurrent lumi block: %s"%self.currentLumiBlock
+
         return temp
     
 def dbsSort(x,y):
