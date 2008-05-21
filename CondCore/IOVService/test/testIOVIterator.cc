@@ -27,9 +27,9 @@ int main(){
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
     pooldb.start(false);
-    cond::IOVService iovmanager(pooldb);
+    cond::IOVService iovmanager(pooldb,cond::timestamp);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(1);
+    editor->create(1,cond::timestamp);
     editor->insert(20,"pay1tok");
     editor->insert(40,"pay2tok");
     editor->insert(60,"pay3tok");

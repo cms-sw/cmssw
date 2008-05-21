@@ -14,11 +14,11 @@ int main(){
     cond::Connection myconnection("sqlite_file:test.db",0);  
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
-    cond::IOVService iovmanager(pooldb);  
+    cond::IOVService iovmanager(pooldb,cond::timestamp);  
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     pooldb.start(false);
     unsigned int pos=0;
-    editor->create(10);
+    editor->create(10,cond::timestamp);
     pos=editor->insert(20,"pay1tok");
     std::cout<<"inserted 20 payload at position "<<pos<<std::endl;
     pos=editor->insert(40, "pay2tok");
