@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.8 2008/05/14 12:53:14 loizides Exp $
+# $Id: InjectWorker.pl,v 1.9 2008/05/19 13:37:18 loizides Exp $
 
 use strict;
 use DBI;
@@ -67,8 +67,23 @@ sub gettimestr()
     return $timestr;
 }
 
+# execute instead of die
+sub mydie($$) 
+{
+    my $msg = $_[0];
+    my $lf = $_[1];
+
+    if (length($lf)>0) {
+        system("rm -f $lf");
+    }
+    my $timestr = gettimestr();
+    print "$timestr: $msg"; 
+    die "Aborted\n";
+}
+
 # execute on terminate
-sub TERMINATE {
+sub TERMINATE 
+{
     my $timestr = gettimestr();
     if ($endflag!=1) {
         print "$timestr: Terminating on request\n"; 
@@ -142,15 +157,24 @@ sub inject($$)
         return 0;
     }
 
-    my $rows = $dbh->do($SQL) or die $dbh->errstr;
-    if ($doNotify) {
-        if ($rows==1) {
-            system($TIERZERO);
-        } else {
-            print "Error in DB access: Did not execute $TIERZERO\n";
-        }
+    my $errflag=0;
+    my $rows = $dbh->do($SQL) or $errflag=1;
+    if ($errflag>0) {
+        print "Error in DB access when executing $SQL, DB returned $dbh->errstr\n";
+        return -1;
     }
-    return $rows-1;
+    if ($rows!=1) {
+        print "Strange error related to DB access when executing $SQL, DB returned rows=$rows\n";
+        if ($doNotify) {
+            print "Error related to DB: Since rows!=1, did not execute $TIERZERO\n";
+        }
+        return -1; 
+    }
+
+    if ($doNotify) {
+        system($TIERZERO);
+    }
+    return 0;
 }
 
 
@@ -187,16 +211,16 @@ if (-d $ARGV[0]) {
     $infile="$ARGV[0]";
     $fileflag=1;
 } else {
-    die("Error: Specified input \"$ARGV[0]\" does not exist");
+    mydie("Error: Specified input \"$ARGV[0]\" does not exist","");
 }
 
 my $outpath="$ARGV[1]";
 if (!-d $outpath) {
-    die("Error: Specified output path \"$outpath\" does not exist");
+    mydie("Error: Specified output path \"$outpath\" does not exist","");
 }
 my $errpath="$ARGV[2]";
 if (!-d $errpath) {
-    die("Error: Specified output path \"$errpath\" does not exist");
+    mydie("Error: Specified output path \"$errpath\" does not exist","");
 }
 
 my $errfile;
@@ -219,14 +243,14 @@ if ($fileflag==0) {
 # lockfile
 my $lockfile = "/tmp/." . basename($outfile) . ".lock";
 if (-e $lockfile) {
-    die("Error: Lock \"$lockfile\" exists.");
+    mydie("Error: Lock \"$lockfile\" exists.","");
 } else {
     system("touch $lockfile");
 }
 
 # redirecting output
 open(STDOUT, ">>$errfile") or
-    die("Error: Cannot open log file \"$errfile\"\n");
+    mydie("Error: Cannot open log file \"$errfile\"\n",$lockfile);
 open(STDERR, ">>&STDOUT");
 if ($debug) {print "Infile = $infile\nOutfile = $outfile\nLogfile = $errfile\n";}
 
@@ -253,7 +277,7 @@ if($endflag) {
 my $line;
 my $lastline;
 if (-e $outfile) {
-    open QUICKSEARCH, "<$outfile" or die("Error: Cannot open output file \"$outfile\"\n");
+    open QUICKSEARCH, "<$outfile" or mydie("Error: Cannot open output file \"$outfile\"\n",$lockfile);
     if ($debug) {print "Found old output file \"$outfile\": Searching for last line.\n";}
     while($line=<QUICKSEARCH>) {$lastline=$line;}
     close QUICKSEARCH;
@@ -263,13 +287,13 @@ if (-e $outfile) {
 }
 
 open(INDATA, $infile) or 
-    die("Error: Cannot open input file \"$infile\"\n");
+    mydie("Error: Cannot open input file \"$infile\"\n",$lockfile);
 
 # find the last thing done in a previously opened outfile - then read till that point
 if (defined($lastline)) {
     if ($debug) {print "Last line done was:\n $lastline\n"; print "Skipping previously done work\n";}
     while($line = <INDATA>) {
-        if ($line eq $lastline) { 
+        if ($line =~ /$lastline/) {
             if ($debug) {print "Found last line previously done\n";} 
             last;
         }
@@ -278,7 +302,7 @@ if (defined($lastline)) {
 
 # open output file
 open(OUTDATA, ">>$outfile") or 
-    die("Error: Cannot open output file \"$outfile\"\n");
+    mydie("Error: Cannot open output file \"$outfile\"\n",$lockfile);
     
 # make the output file hot so that buffer is flushed on every printed line
 my $ofh = select OUTDATA;
@@ -295,7 +319,7 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
     my $reader = "CMS_STOMGR_W";
     if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
     $dbh = DBI->connect($dbi,$reader,"qwerty") or 
-        die "Error: Connection to Oracle failed: $DBI::errstr\n";
+        mydie("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
 
     my $timestr = gettimestr();
     print "$timestr: Setup DB connection\n";
@@ -307,6 +331,12 @@ if (!defined $ENV{'SM_DONTACCESSDB'}) {
 #loop over input files: sleep and try to reread file once end is reached
 my $lnum=0;
 my $livecounter=0;
+
+if (1) {
+    my $timestr = gettimestr();
+    print "$timestr: Entering main while loop now\n";
+}
+
 while( !$endflag ) {
 
     while($line=<INDATA>) {
@@ -354,6 +384,10 @@ while( !$endflag ) {
             if (defined $cmd) {
                 system($cmd);
             }
+        } else {
+            my $timestr = gettimestr();
+            print "$timestr: Inject returned error ($ret) for $line\n"; 
+            print OUTDATA "Error for $line\n";
         }
 
 	$lnum++;
