@@ -46,8 +46,10 @@ namespace reco {
     virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
   
     // default discriminator: returns the value of the discriminator of the jet tag, i.e. the one computed with the parameters taken from the cfg file
-    float discriminator() const { return -1.; }
-     
+    float discriminator() const { return m_discriminator; }
+    //set discriminator value
+     void setDiscriminator(double discriminator) { m_discriminator = discriminator; }
+
     // methods to be used to recomputed the isolation with a new set of parameters
     float discriminator( float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing = 0) const;
     float discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const;
@@ -66,6 +68,7 @@ namespace reco {
     const TrackRef & leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
      
   private:
+    double m_discriminator;
     TrackRefVector selectedTracks_;
     TrackRef leadTrack_;
   };
