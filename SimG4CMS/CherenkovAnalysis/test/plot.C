@@ -1,18 +1,17 @@
 //________________________________________________________________________________________
-int plot( TString fileName = "Cherenkov.root" )
+int plot( TString fileName = "px-00.txt", bool redraw = true )
 {
-   TCanvas* myCanvas = new TCanvas("myCanvas","Canvas",10,10,600,900);
-   myCanvas->Divide(1,2);
-
-   TFile* f = new TFile(fileName);
-   f->cd("analyzer");
-
+  if ( redraw ) {
+   TCanvas* myCanvas = new TCanvas("myCanvas","Canvas",10,10,800,600);
    myCanvas->cd(1);
-   hEnergy->Draw();
-   myCanvas->cd(2);
-   hTimeStructure->Draw();
+  }
 
-   return 0;
+  TTree* tree = new TTree("tree","Cherenkov photons");
+  std::cout << tree->ReadFile(fileName,"px/D:py:pz:x:y:z") 
+            << " lines read from " << fileName << std::endl;
+  tree->Draw("x");
+  
+  return 0;
 }
 
 
@@ -61,73 +60,47 @@ int getAngleParams( double angle )
 
 //________________________________________________________________________________________
 int plotAll() {
+                                                                        
+  gStyle->SetOptStat(0);
+  gStyle->SetOptTitle(0);
+  TCanvas* myCanvas = new TCanvas("myCanvas","Canvas",10,10,800,800);
+  myCanvas->Divide(2,5);
+  myCanvas->SetLogy(1);
+  TH2F* range = new TH2F("range","Cherenkov photons",2,-40,40,2,-12,12);
 
-   TCanvas* myCanvas = new TCanvas("myCanvas","Canvas",10,10,600,900);
-   myCanvas->Divide(1,2);
+  const int nfiles = 9;
+  TString fileRoot("output");
+  char fileName[50];
 
-   const int nfiles = 5;
-   TString fileNames[] = {
-     "files/Cherenkov-e10-a0.root",
-     "files/Cherenkov-e30-a0.root",
-     "files/Cherenkov-e50-a0.root",
-     "files/Cherenkov-e70-a0.root",
-     "files/Cherenkov-e100-a0.root"
-   }
+  // Draw angle = 0 twice
+  TTree* tree0 = new TTree("tree0","Cherenkov photons");
+  std::cout << tree0->ReadFile("output-1.txt","px/D:py:pz:x:y:z") 
+            << " lines read from output-1.txt" << std::endl;
+  for ( int i=1; i<=2; ++i ) {
+    myCanvas->cd(i);
+    range->Draw();
+    tree0->Draw("y:x","","same");
+  }
+  
+  // Draw other angles
+  for ( int ifile = 1; ifile<nfiles; ++ifile ) {
 
-   int colors[] = { kRed-1, kBlue-1, kGreen-1, kMagenta-1, kYellow-3 };
-   TFile* files[nfiles];
-   
-   // Draw energy deposit
-   TPad* pad1 = myCanvas->cd(1);
-//    pad1->Divide(2,1);
-//    pad1->cd(1);
-   TLegend* legend1 = new TLegend(0.6,0.5,0.89,0.85,"","brNDC");
-   TGraph* maxGraph = new TGraph(nfiles+1);
-   maxGraph->SetPoint(0,0,0);
-   legend1->SetBorderSize(1);
-   for ( int i=0; i<nfiles; ++i ) {
-     files[i] = new TFile(fileNames[i]);
-     TH1F* hist = files[i]->Get("analyzer/hEnergy");
-     hist->SetLineColor(colors[i]);
-     if ( !i ) {
-       hist->GetXaxis()->SetTitle("Total energy [GeV]");
-       hist->Draw();
-     } else 
-       hist->Draw("same");
-     TObjArray *subStrL = TPRegexp("e(\\d+)").MatchS(fileNames[i]);
-     const TString subStr = ((TObjString *)subStrL->At(1))->GetString();
-     legend1->AddEntry(hist,subStr+" GeV e^{#pm}","l");
-     maxGraph->SetPoint(i+1,
-                        atof(subStr.Data()),
-                        hist->GetBinCenter(hist->GetMaximumBin()));
-   }
-   legend1->Draw();
-   
-//    maxGraph->SetMarkerStyle(20);
-//    maxGraph->SetMarkerColor(kRed);
-//    maxGraph->SetLineColor(kRed);
-//    maxGraph->SetTitle("Most probable value vs. energy ; Energy [GeV] ; MPV [GeV] ");
-//    pad1->cd(2); maxGraph->Draw("AP");
+    int ican = 2*ifile+1-(ifile/5)*7; // Sorry for that...
+    std::cout << ican << std::endl;
+    myCanvas->cd( ican );
+    sprintf(fileName,"%s-%1d.txt",fileRoot.Data(),ifile+1);
+    TTree* tree = new TTree("tree","Cherenkov photons");
+    std::cout << tree->ReadFile(fileName,"px/D:py:pz:x:y:z") 
+              << " lines read from " << fileName << std::endl;
 
-   // Draw "time structure"
-   myCanvas->cd(2);
-   TLegend* legend2 = new TLegend(0.6,0.5,0.89,0.85,"","brNDC");
-   legend2->SetBorderSize(1);
-   for ( int i=nfiles-1; i>=0; --i ) {
-     TH1F* hist = (TH1F*)files[i]->Get("analyzer/hTimeStructure");
-     hist->SetLineColor(colors[i]);
-     if ( i == nfiles-1 ) {
-       hist->GetXaxis()->SetTitle("Time [ns]");
-       hist->GetYaxis()->SetTitle("Summed energy [GeV]");
-       hist->Draw();
-     } else 
-       hist->Draw("same");
-     TObjArray *subStrL = TPRegexp("e(\\d+)").MatchS(fileNames[i]);
-     const TString subStr = ((TObjString *)subStrL->At(1))->GetString();
-     legend2->AddEntry(hist,subStr+" GeV e^{#pm}","l");
-   }
-   legend2->Draw();
+    range->Draw();
+    tree->Draw("y:x","","same");
 
-   return 0;
+  }
+
+  //   int colors[] = { kRed-1, kBlue-1, kGreen-1, kMagenta-1, kYellow-3 };
+
+
+  return 0;
 
 }
