@@ -14,7 +14,7 @@ namespace cond{
 
 
     IOVService( cond::PoolTransaction& pooldb,
-		cond::TimeType timetype=cond::runnumber );
+		cond::TimeType timetype );
 
     virtual ~IOVService();
 

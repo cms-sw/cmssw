@@ -333,7 +333,7 @@ cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
     throw cond::Exception(std::string("PoolDBOutputService::appendIOV: cannot append to non-existing tag ")+record.m_tag );  
   }
 
-  cond::IOVService iovmanager(pooldb);  
+  cond::IOVService iovmanager(pooldb,m_timetype);
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->append(sinceTime,payloadToken);
   delete editor;
@@ -381,7 +381,7 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordN
   //use ioviterator to find out.
   cond::PoolTransaction& pooldb=m_connection->poolTransaction();
   pooldb.start(true);
-  cond::IOVService iovmanager( pooldb );
+  cond::IOVService iovmanager(pooldb,m_timetype);
   cond::IOVIterator* iit=iovmanager.newIOVIterator(result.token,cond::IOVService::backwardIter);
   iit->next(); // just to initialize
   result.lastInterval=iit->validity();
