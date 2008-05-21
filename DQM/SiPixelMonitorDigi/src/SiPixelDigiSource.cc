@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.19 2008/04/16 17:08:25 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.20 2008/05/02 16:33:32 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -94,12 +94,12 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(modon, *input);
+    (*struct_iter).second->fill(*input);
     
   }
 
   // slow down...
-  //usleep(100000);
+  usleep(100000);
   
 }
 
