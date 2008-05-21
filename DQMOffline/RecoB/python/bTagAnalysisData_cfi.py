@@ -7,6 +7,7 @@ from DQMOffline.RecoB.bTagTrackIPAnalysis_cff import *
 from DQMOffline.RecoB.bTagCombinedSVAnalysis_cff import *
 from DQMOffline.RecoB.bTagTrackCountingAnalysis_cff import *
 from DQMOffline.RecoB.bTagTrackProbabilityAnalysis_cff import *
+from DQMOffline.RecoB.bTagTrackBProbabilityAnalysis_cff import *
 from DQMOffline.RecoB.bTagGenericAnalysis_cff import *
 from DQMOffline.RecoB.bTagSimpleSVAnalysis_cff import *
 from DQMOffline.RecoB.bTagSoftLeptonAnalysis_cff import *
@@ -40,7 +41,7 @@ bTagAnalysis = cms.EDFilter("BTagPerformanceAnalyzerOnData",
             label = cms.InputTag("jetProbabilityBJetTags")
         ), 
         cms.PSet(
-            bTagProbabilityAnalysisBlock,
+            bTagBProbabilityAnalysisBlock,
             label = cms.InputTag("jetBProbabilityBJetTags")
         ), 
         cms.PSet(
