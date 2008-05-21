@@ -23,9 +23,9 @@ int main(){
     myref.markWrite("mypayloadcontainer");
     std::string token=myref.token();
     std::cout<<"payload token "<<token<<std::endl;
-    cond::IOVService iovmanager(pooldb);
+    cond::IOVService iovmanager(pooldb,cond::timestamp);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(1);
+    editor->create(1,cond::timestamp);
     editor->insert(20,token);
     std::string iovtok=editor->token();
     std::string cname=iovmanager.payloadContainerName(iovtok);

@@ -16,10 +16,10 @@ int main(){
     cond::Connection myconnection("sqlite_file:mytest.db",-1); 
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
-    cond::IOVService iovmanager(pooldb);
+    cond::IOVService iovmanager(pooldb,cond::timestamp);
     pooldb.start(false);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(1);
+    editor->create(1,cond::timestamp);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;
@@ -39,7 +39,7 @@ int main(){
     pooldb.start(false);
     //same data, delete by tag this time
     cond::IOVEditor* editorNew=iovmanager.newIOVEditor();
-    editorNew->create(1);
+    editorNew->create(1,cond::timestamp);
     for(int i=0; i<9; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* cid=new testPayloadObj;
@@ -59,7 +59,7 @@ int main(){
     delete editorNew;
     pooldb.start(false);
     cond::IOVEditor* editorNewNew=iovmanager.newIOVEditor();
-    editorNewNew->create(1);
+    editorNewNew->create(1,cond::timestamp);
     for(int i=0; i<10; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* abc=new testPayloadObj;
