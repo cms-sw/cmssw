@@ -16,7 +16,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  May 2008
-// $Id$
+// $Id: FourVectorHLT.h,v 1.1 2008/05/20 10:18:39 wittich Exp $
 //
 //
 
@@ -57,13 +57,11 @@ class FourVectorHLT : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      template <class T> void fillHistos(edm::Handle<trigger::TriggerEvent> &,
-					 const edm::Event&  ,unsigned int);
 
       // ----------member data --------------------------- 
       int nev_;
       DQMStore * dbe_;
-      std::vector<edm::InputTag> hltlabels_;  
+      //std::vector<edm::InputTag> hltlabels_;  
       MonitorElement* total_;
 
       unsigned int reqNum;

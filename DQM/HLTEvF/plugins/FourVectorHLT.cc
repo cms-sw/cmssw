@@ -100,29 +100,29 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   // total event number
-  total_->Fill(hltlabels_.size()+0.5);
+  //total_->Fill(hltlabels_.size()+0.5);
 
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
   for(PathInfoCollection::iterator v = hltPaths_.begin();
       v!= hltPaths_.end(); ++v ) {
     const int index = triggerObj->filterIndex(v->getName());
+    if ( index >= triggerObj->sizeFilters() ) {
+      //std::cout << "index is " << index << std::endl;
+      continue;
+    }
     const trigger::Keys & k = triggerObj->filterKeys(index);
+    //std::cout << "keys size: " << k.size() << std::endl;
     for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-      v->getEtHisto()->Fill(toc[*ki].pt());
-      v->getEtaHisto()->Fill(toc[*ki].eta());
-      v->getPhiHisto()->Fill(toc[*ki].phi());
-      v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+//       std::cout << "*ki = " << *ki << std::endl;
+//       std::cout << v->getEtHisto() << std::endl;
+        v->getEtHisto()->Fill(toc[*ki].pt());
+        v->getEtaHisto()->Fill(toc[*ki].eta());
+        v->getPhiHisto()->Fill(toc[*ki].phi());
+//        v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
     }  
   }
 }
 
-// not sure why this is templated
-template <class T> 
-void FourVectorHLT::fillHistos(edm::Handle<trigger::TriggerEvent>& 
-			    triggerObj, const edm::Event& iEvent, 
-			    unsigned int n)
-{
-}
 
 // -- method called once each job just before starting event loop  --------
 void 
@@ -144,36 +144,36 @@ FourVectorHLT::beginJob(const edm::EventSetup&)
     std::string histoname="total eff";
 
      
-    total_ = dbe->book1D(histoname.c_str(),histoname.c_str(),
-			hltlabels_.size()+1,0,
-			hltlabels_.size()+1);
-    total_->setBinLabel(hltlabels_.size()+1,"Total",1);
-    for (unsigned int u=0; u<hltlabels_.size(); u++){
-      total_->setBinLabel(u+1,hltlabels_[u].label().c_str());
-    }
+//     total_ = dbe->book1D(histoname.c_str(),histoname.c_str(),
+// 			hltlabels_.size()+1,0,
+// 			hltlabels_.size()+1);
+//    total_->setBinLabel(hltlabels_.size()+1,"Total",1);
+//     for (unsigned int u=0; u<hltlabels_.size(); u++){
+//       total_->setBinLabel(u+1,hltlabels_[u].label().c_str());
+//     }
     
     
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) {
-      MonitorElement *et, *eta, *phi, *etavsphi;
-      histoname = v->getName()+"et";
+      MonitorElement *et, *eta, *phi, *etavsphi=0;
+      histoname = v->getName()+"_et";
       et =  dbe->book1D(histoname.c_str(),
 			histoname.c_str(),nBins_,ptMin_,ptMax_);
       
-      histoname = v->getName()+"eta";
+      histoname = v->getName()+"_eta";
       eta =  dbe->book1D(histoname.c_str(),
 			 histoname.c_str(),nBins_,-2.7,2.7);
 
-      histoname = v->getName()+"phi";
+      histoname = v->getName()+"_phi";
       phi =  dbe->book1D(histoname.c_str(),
 			 histoname.c_str(),nBins_,-3.14,3.14);
  
 
-      etavsphi =  dbe->book2D(histoname.c_str(),
-			      histoname.c_str(),
-			      nBins_,-2.7,2.7,
-			      nBins_,-3.14, 3.14);
-
+//       etavsphi =  dbe->book2D(histoname.c_str(),
+//   			      histoname.c_str(),
+//   			      nBins_,-2.7,2.7,
+//   			      nBins_,-3.14, 3.14);
+      
       v->setHistos( et, eta, phi, etavsphi);
     } 
   }
@@ -181,13 +181,9 @@ FourVectorHLT::beginJob(const edm::EventSetup&)
 
 // - method called once each job just after ending the event loop  ------------
 void 
-FourVectorHLT::endJob() {
-
-//     std::cout << "FourVectorHLT: end job...." << std::endl;
+FourVectorHLT::endJob() 
+{
    LogInfo("FourVectorHLT") << "analyzed " << nev_ << " events";
- 
- 
    return;
 }
 
-//DEFINE_FWK_MODULE(FourVectorHLT);
