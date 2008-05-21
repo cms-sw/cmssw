@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/27 18:10:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/05/20 22:06:11 $
+ *  $Revision: 1.9 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -23,7 +23,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   fName = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
-  path = iPSet.getUntrackedParameter<std::string>("Path");  
+  path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");  
   
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output

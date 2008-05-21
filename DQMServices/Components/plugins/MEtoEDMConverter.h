@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/03/13 21:15:07 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/20 22:06:11 $
+ *  $Revision: 1.7 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interfTestRelVal_CMSSW_3_0_X_2008-05-20-0200.rootace/EventSetup.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
