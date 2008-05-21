@@ -195,7 +195,7 @@ if(allCSCSegments->size()>0){
 		  //-------------------------------------------------------
 
 		  
-		  if(fabs(res) < widestrip){
+		  if(fabs(res) < MinimalResidual){
 		    anycoincidence=true;
 		    std::cout <<"\t \t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
 		    totalcounter[1]++;
