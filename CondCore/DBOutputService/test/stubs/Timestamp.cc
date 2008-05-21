@@ -34,15 +34,16 @@ void Timestamp::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
   if( mydbservice->isNewTagRequest(m_record) ){
     //create 
     cond::Time_t firstSinceTime=mydbservice->beginOfTime();
-    cond::Time_t firstTillTime=mydbservice->endOfTime();
+    cond::Time_t firstTillTime=mydbservice->endOfTime()-100;
     std::cout<<"firstSinceTime "<<firstSinceTime<<std::endl;
     std::cout<<"firstTillTime "<<firstTillTime<<std::endl;
     std::cout<<myped->m_pedestals[1].m_mean<<std::endl;
-    mydbservice->createNewIOV<Pedestals>(myped,firstSinceTime,firstTillTime,m_record,false);
+    mydbservice->createNewIOV<Pedestals>(myped,firstSinceTime,4294967295UL,m_record,false);
     //    std::cout<<"about to throw"<<std::endl;
     //throw cond::Exception("throwme");
     //std::cout<<"thrown"<<std::endl;
   }else{
+    //std::cout<<"do nothing"<<std::endl;
     //append 
     std::cout<<"currentTime "<<mydbservice->currentTime()<<std::endl;
     if(mydbservice->currentTime()%5==0){
