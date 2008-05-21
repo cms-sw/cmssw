@@ -350,7 +350,7 @@ cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
     throw cond::Exception(std::string("PoolDBOutputService::insertIOV: cannot append to non-existing tag ")+record.m_tag );  
   }
   
-  cond::IOVService iovmanager(pooldb);
+  cond::IOVService iovmanager(pooldb,m_timetype);
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
   delete editor;    
