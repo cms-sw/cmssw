@@ -3,14 +3,13 @@
 <use name=root>
 <use name=rootcore>
 <use name=rootinteractive>
-<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=DataFormats/METReco>
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/ParticleFlowReco>
-<use name=DataFormats/ParticleFlowCandidates>
+<use name=DataFormats/ParticleFlowCandidate>
 <use name=RecoParticleFlow/Benchmark>
 <flags EDM_PLUGIN=1>
 <export>
@@ -22,6 +21,6 @@
   <use name=DataFormats/METReco>
   <use name=DataFormats/RecoCandidate>
   <use name=DataFormats/ParticleFlowReco>
-  <use name=DataFormats/ParticleFlowCandidates>
+  <use name=DataFormats/ParticleFlowCandidate>
   <use name=RecoParticleFlow/Benchmark>
 </export>
