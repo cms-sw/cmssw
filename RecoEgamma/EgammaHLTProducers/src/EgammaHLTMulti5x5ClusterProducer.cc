@@ -19,7 +19,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -288,7 +288,7 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
 
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<IdealGeometryRecord>().get(geoHandle);
+  es.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
