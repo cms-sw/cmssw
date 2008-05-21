@@ -38,10 +38,3 @@ bool reco::JetFloatAssociation::hasJet (const Container& fContainer,
 					const reco::Jet& fJet) {
   return JetAssociationTemplate::hasJet (fContainer, fJet);
 }
-
-const reco::JetFloatAssociation::Container* reco::JetFloatAssociation::getByLabel (const fwlite::Event& fEvent, 
-										   const char* fModuleLabel,
-										   const char* fProductInstanceLabel,
-										   const char* fProcessLabel) {
-  return JetAssociationTemplate::getByLabel<Container> (fEvent, fModuleLabel, fProductInstanceLabel, fProcessLabel);
-}

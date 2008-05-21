@@ -68,10 +68,3 @@ bool reco::JetTracksAssociation::hasJet (const Container& fContainer,
 					 const reco::Jet& fJet) {
   return JetAssociationTemplate::hasJet (fContainer, fJet);
 }
-
-const reco::JetTracksAssociation::Container* reco::JetTracksAssociation::getByLabel (const fwlite::Event& fEvent, 
-										     const char* fModuleLabel,
-										     const char* fProductInstanceLabel,
-										     const char* fProcessLabel) {
-  return JetAssociationTemplate::getByLabel<Container> (fEvent, fModuleLabel, fProductInstanceLabel, fProcessLabel);
-}

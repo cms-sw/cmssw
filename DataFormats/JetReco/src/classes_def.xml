@@ -73,7 +73,6 @@
   <function name="reco::JetFloatAssociation::getValue"/>
   <function name="reco::JetFloatAssociation::allJets"/>
   <function name="reco::JetFloatAssociation::hasJet"/>
-  <function name="reco::JetFloatAssociation::getByLabel"/>
 
   <class name="edm::Wrapper<reco::JetTracksAssociation::Container>" />
   <class name="reco::JetTracksAssociation::Values"/>
@@ -88,7 +87,6 @@
   <function name="reco::JetTracksAssociation::getValue"/>
   <function name="reco::JetTracksAssociation::allJets"/>
   <function name="reco::JetTracksAssociation::hasJet"/>
-  <function name="reco::JetTracksAssociation::getByLabel"/>
 
   <class name="edm::Wrapper<reco::JetExtendedAssociation::Container>" />
   <class name="reco::JetExtendedAssociation::JetExtendedData"/>
@@ -106,7 +104,6 @@
   <function name="reco::JetExtendedAssociation::getValue"/>
   <function name="reco::JetExtendedAssociation::allJets"/>
   <function name="reco::JetExtendedAssociation::hasJet"/>
-  <function name="reco::JetExtendedAssociation::getByLabel"/>
   
   <class name="edm::RefToBaseProd<reco::Jet>" >
      <field name="view_" transient="true" />

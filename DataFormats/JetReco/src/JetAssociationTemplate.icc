@@ -4,7 +4,6 @@
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 
 namespace JetAssociationTemplate {
@@ -73,15 +72,5 @@ namespace JetAssociationTemplate {
       if (&*(fContainer[i].first) == &fJet) return true;
     }
     return false;
-  }
-  
-  template <typename Container> 
-  inline const Container* getByLabel (const fwlite::Event& fEvent, 
-				      const char* fModuleLabel,
-				      const char* fProductInstanceLabel,
-				      const char* fProcessLabel) {
-    fwlite::Handle<Container> handle;
-    handle.getByLabel (fEvent, fModuleLabel, fProductInstanceLabel, fProcessLabel);
-    return &*handle;
   }
 }

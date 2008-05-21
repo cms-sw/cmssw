@@ -7,7 +7,7 @@
  *
  * \author Giovanni Petrucciani, Fedor Ratnikov, June 12, 2007
  *
- * \version   $Id: JetFloatAssociation.h,v 1.2 2007/06/13 17:58:03 fedor Exp $
+ * \version   $Id: JetFloatAssociation.h,v 1.1 2007/10/05 23:23:08 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -45,10 +45,6 @@ namespace reco {
     bool hasJet (const Container&, const reco::JetBaseRef&);
     /// check if jet is associated
     bool hasJet (const Container&, const reco::Jet&);
-    /// Hide underlaying container from CINT in FWLite
-    const Container* getByLabel (const fwlite::Event& fEvent, const char* fModuleLabel,
-				 const char* fProductInstanceLabel = 0,
-				 const char* fProcessLabel=0);
   }
 }
 

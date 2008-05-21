@@ -7,7 +7,7 @@
  *
  * \author Fedor Ratnikov, Sept. 9, 2007
  *
- * \version   $Id: JetExtendedAssociation.h,v 1.3 2007/10/01 19:24:44 fedor Exp $
+ * \version   $Id: JetExtendedAssociation.h,v 1.4 2007/10/05 23:23:08 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -65,12 +65,6 @@ namespace reco {
     bool hasJet (const Container&, const reco::JetBaseRef&);
     /// check if jet is associated
     bool hasJet (const Container&, const reco::Jet&);
-
-    /// Hide underlaying container from CINT in FWLite
-    const Container* getByLabel (const fwlite::Event& fEvent, const char* fModuleLabel,
-				 const char* fProductInstanceLabel = 0,
-				 const char* fProcessLabel=0);
-  
 
     class JetExtendedData {
     public:

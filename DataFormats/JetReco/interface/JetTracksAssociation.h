@@ -7,7 +7,7 @@
  *
  * \author Fedor Ratnikov, July 27, 2007
  *
- * \version   $Id: JetTracksAssociation.h,v 1.1 2007/09/19 17:58:41 fedor Exp $
+ * \version   $Id: JetTracksAssociation.h,v 1.2 2007/10/05 23:23:09 fedor Exp $
  ************************************************************/
 
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -56,10 +56,6 @@ namespace reco {
     bool hasJet (const Container&, const reco::JetBaseRef&);
     /// check if jet is associated
     bool hasJet (const Container&, const reco::Jet&);
-    /// Hide underlaying container from CINT in FWLite
-    const Container* getByLabel (const fwlite::Event& fEvent, const char* fModuleLabel,
-				 const char* fProductInstanceLabel = 0,
-				 const char* fProcessLabel=0);
   }
   /// typedefs for backward compatibility
   typedef JetTracksAssociation::Container JetTracksAssociationCollection;

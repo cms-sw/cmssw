@@ -73,14 +73,6 @@ bool reco::JetExtendedAssociation::hasJet (const Container& fContainer,
   return JetAssociationTemplate::hasJet (fContainer, fJet);
 }
 
-const reco::JetExtendedAssociation::Container* reco::JetExtendedAssociation::getByLabel (const fwlite::Event& fEvent, 
-											 const char* fModuleLabel,
-											 const char* fProductInstanceLabel,
-											 const char* fProcessLabel) {
-  return JetAssociationTemplate::getByLabel<Container> (fEvent, fModuleLabel, fProductInstanceLabel, fProcessLabel);
-}
-
-
 reco::JetExtendedAssociation::JetExtendedData::JetExtendedData () 
   : mTracksAtVertexNumber (0),
     mTracksAtVertexP4 (0, 0, 0, 0),
