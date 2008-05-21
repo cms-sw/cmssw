@@ -38,7 +38,8 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
   }
   
   
-  dirname_="HLT/FourVectorHLT"+iConfig.getParameter<std::string>("@module_label");
+  dirname_="HLT/FourVectorHLT" + 
+    iConfig.getParameter<std::string>("@module_label");
   
   if (dbe_ != NULL) {
     dbe_->setCurrentFolder(dirname_);
@@ -46,8 +47,8 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
   
   
   // plotting paramters
-  ptMin_ = iConfig.getUntrackedParameter<double>("PtMin",0.);
-  ptMax_ = iConfig.getUntrackedParameter<double>("PtMax",1000.);
+  ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
+  ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",40);
 
   // this is the list of paths to look at.
@@ -58,7 +59,9 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
       filterconf++) {
     std::string me  = filterconf->getParameter<std::string>("name");
     int objectType = filterconf->getParameter<unsigned int>("type");
-    hltPaths_.push_back(PathInfo(me, objectType));
+    float ptMin = filterconf->getUntrackedParameter<double>("ptMin");
+    float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
+    hltPaths_.push_back(PathInfo(me, objectType, ptMin, ptMax));
   }
   
   triggerSummaryLabel_ = 
@@ -99,8 +102,6 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
   }
 
-  // total event number
-  //total_->Fill(hltlabels_.size()+0.5);
 
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
   for(PathInfoCollection::iterator v = hltPaths_.begin();
@@ -108,17 +109,15 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     const int index = triggerObj->filterIndex(v->getName());
     if ( index >= triggerObj->sizeFilters() ) {
       //std::cout << "index is " << index << std::endl;
-      continue;
+      continue; // not in this event
     }
     const trigger::Keys & k = triggerObj->filterKeys(index);
     //std::cout << "keys size: " << k.size() << std::endl;
     for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-//       std::cout << "*ki = " << *ki << std::endl;
-//       std::cout << v->getEtHisto() << std::endl;
         v->getEtHisto()->Fill(toc[*ki].pt());
         v->getEtaHisto()->Fill(toc[*ki].eta());
         v->getPhiHisto()->Fill(toc[*ki].phi());
-//        v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+        v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
     }  
   }
 }
@@ -140,39 +139,34 @@ FourVectorHLT::beginJob(const edm::EventSetup&)
   
   if (dbe) {
     dbe->setCurrentFolder(dirname_);
-
-    std::string histoname="total eff";
-
-     
-//     total_ = dbe->book1D(histoname.c_str(),histoname.c_str(),
-// 			hltlabels_.size()+1,0,
-// 			hltlabels_.size()+1);
-//    total_->setBinLabel(hltlabels_.size()+1,"Total",1);
-//     for (unsigned int u=0; u<hltlabels_.size(); u++){
-//       total_->setBinLabel(u+1,hltlabels_[u].label().c_str());
-//     }
-    
     
     for(PathInfoCollection::iterator v = hltPaths_.begin();
 	v!= hltPaths_.end(); ++v ) {
       MonitorElement *et, *eta, *phi, *etavsphi=0;
-      histoname = v->getName()+"_et";
+      std::string histoname(v->getName()+"_et");
+      std::string title(v->getName()+" E_t");
       et =  dbe->book1D(histoname.c_str(),
-			histoname.c_str(),nBins_,ptMin_,ptMax_);
+			title.c_str(),nBins_,
+			v->getPtMin(),
+			v->getPtMax());
       
       histoname = v->getName()+"_eta";
+      title = v->getName()+" #eta";
       eta =  dbe->book1D(histoname.c_str(),
-			 histoname.c_str(),nBins_,-2.7,2.7);
+			 title.c_str(),nBins_,-2.7,2.7);
 
       histoname = v->getName()+"_phi";
+      title = v->getName()+" #phi";
       phi =  dbe->book1D(histoname.c_str(),
 			 histoname.c_str(),nBins_,-3.14,3.14);
  
 
-//       etavsphi =  dbe->book2D(histoname.c_str(),
-//   			      histoname.c_str(),
-//   			      nBins_,-2.7,2.7,
-//   			      nBins_,-3.14, 3.14);
+      histoname = v->getName()+"_etaphi";
+      title = v->getName()+" #eta vs #phi";
+      etavsphi =  dbe->book2D(histoname.c_str(),
+			      title.c_str(),
+			      nBins_,-2.7,2.7,
+			      nBins_,-3.14, 3.14);
       
       v->setHistos( et, eta, phi, etavsphi);
     } 

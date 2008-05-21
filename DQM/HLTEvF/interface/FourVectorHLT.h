@@ -16,7 +16,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  May 2008
-// $Id: FourVectorHLT.h,v 1.1 2008/05/20 10:18:39 wittich Exp $
+// $Id: FourVectorHLT.h,v 1.2 2008/05/21 12:35:31 wittich Exp $
 //
 //
 
@@ -105,9 +105,11 @@ class FourVectorHLT : public edm::EDAnalyzer {
 	  return pathName_;
 	}
 	~PathInfo() {};
-	PathInfo(std::string pathName, size_t type):
+	PathInfo(std::string pathName, size_t type, float ptmin, 
+		 float ptmax):
 	  pathName_(pathName), objectType_(type),
-	  et_(0), eta_(0), phi_(0), etavsphi_(0)
+	  et_(0), eta_(0), phi_(0), etavsphi_(0),
+	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
 	  PathInfo(std::string pathName, size_t type,
@@ -134,6 +136,10 @@ class FourVectorHLT : public edm::EDAnalyzer {
 	    return objectType_;
 	  }
 	  MonitorElement *et_, *eta_, *phi_, *etavsphi_;
+	  float ptmin_, ptmax_;
+      public:
+	  float getPtMin() const { return ptmin_; }
+	  float getPtMax() const { return ptmax_; }
       };
       
       class PathInfoCollection: public std::vector<PathInfo> {
