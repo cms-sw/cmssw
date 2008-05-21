@@ -32,6 +32,8 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
   conf_(config), 
   theNavigationSchool_(0), 
@@ -204,7 +206,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
 
   // get the geometry from the event setup:
-  theEventSetup.get<IdealGeometryRecord>().get(theCaloGeom_);
+  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
   // Get HoverE
   Handle<HBHERecHitCollection> hbhe;
   std::auto_ptr<HBHERecHitMetaCollection> mhbhe;
