@@ -14,7 +14,7 @@
 //	6) prints out the finals statistics of errors and warnings for the whole file
 //	7) produces a few histograms (ad hoc feature)
 //==============================================================================================
-// To compile: g++ -o dduBinExaminerTest dduBinExaminerTest.cpp -I/nfshome0/cscdqm/CMSSW/src/EventFilter/CSCRawToDigi/src/ -I/nfshome0/cscdqm/CMSSW/src/
+// To compile: g++ -o dduBinExaminerTest dduBinExaminerTest.cpp -I../src -I../interface/ -I../../../
 
 #include <iostream>
 #include <fstream>
