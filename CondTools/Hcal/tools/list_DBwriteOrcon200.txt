@@ -9,24 +9,30 @@
 #
 # to refill the whole account, remove all #s from below
 
+
+# CSA08 S43 constants
+orcon  RespCorrs  CondTools/Hcal/tools/hcal_respcorrs_s43_mc.txt hcal_respcorrs_s43_mc since 1
+
+
+
 ## stuff that is for CSA08, put in orcoff, to make it appear in orcoff_prod:
-orcon  Pedestals CondFormats/HcalObjects/data/hcal_pedestals_fC_v4.txt   hcal_pedestals_fC_v4_mc   since  1
-orcon  PedestalWidths CondFormats/HcalObjects/data/hcal_widths_fC_v4.txt   hcal_widths_fC_v4_mc   since  1
+# orcon  Pedestals CondFormats/HcalObjects/data/hcal_pedestals_fC_v4.txt   hcal_pedestals_fC_v4_mc   since  1
+# orcon  PedestalWidths CondFormats/HcalObjects/data/hcal_widths_fC_v4.txt   hcal_widths_fC_v4_mc   since  1
 
 
 # for HPD noise study 11.Apr.2008, peds: HB from r40516, HE from GREN v2 run 30625, HF from r40521 and HO from r40520.
-orcon  Pedestals CondFormats/HcalObjects/data/2008-april/fCpeds080411.txt          hcal_pedestals_fC_v2_080411   since  1
-orcon  PedestalWidths CondFormats/HcalObjects/data/2008-april/fCwidths080411.txt   hcal_widths_fC_v2_080411      since  1
-orcon  Pedestals CondFormats/HcalObjects/data/2008-april/ADCpeds080411.txt         hcal_pedestals_ADC_v2_080411  since  1
-orcon  PedestalWidths CondFormats/HcalObjects/data/2008-april/ADCwidths080411.txt  hcal_widths_ADC_v2_080411     since  1
+# orcon  Pedestals CondFormats/HcalObjects/data/2008-april/fCpeds080411.txt          hcal_pedestals_fC_v2_080411   since  1
+# orcon  PedestalWidths CondFormats/HcalObjects/data/2008-april/fCwidths080411.txt   hcal_widths_fC_v2_080411      since  1
+# orcon  Pedestals CondFormats/HcalObjects/data/2008-april/ADCpeds080411.txt         hcal_pedestals_ADC_v2_080411  since  1
+# orcon  PedestalWidths CondFormats/HcalObjects/data/2008-april/ADCwidths080411.txt  hcal_widths_ADC_v2_080411     since  1
 
 # for GRuMM rel3 (the current final word for offline reco)
-orcon  Pedestals CondFormats/HcalObjects/data/grmm-r3/peds_fC_with38148.txt  hcal_pedestals_fC_v2_grmm_r3  since  1
-orcon  Pedestals CondFormats/HcalObjects/data/grmm-r3/peds_fC_with38426.txt  hcal_pedestals_fC_v2_grmm_r3  since  38175
-orcon  Pedestals CondFormats/HcalObjects/data/grmm-r3/peds_fC_with38148.txt  hcal_pedestals_fC_v2_grmm_r3  since  38427
-orcon  PedestalWidths CondFormats/HcalObjects/data/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3  since  1
-orcon  PedestalWidths CondFormats/HcalObjects/data/grmm-r3/widths_fC_with38426.txt  hcal_widths_fC_v2_grmm_r3  since  38175
-orcon  PedestalWidths CondFormats/HcalObjects/data/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3  since  38427
+# orcon  Pedestals CondFormats/HcalObjects/data/grmm-r3/peds_fC_with38148.txt  hcal_pedestals_fC_v2_grmm_r3  since  1
+# orcon  Pedestals CondFormats/HcalObjects/data/grmm-r3/peds_fC_with38426.txt  hcal_pedestals_fC_v2_grmm_r3  since  38175
+# orcon  Pedestals CondFormats/HcalObjects/data/grmm-r3/peds_fC_with38148.txt  hcal_pedestals_fC_v2_grmm_r3  since  38427
+# orcon  PedestalWidths CondFormats/HcalObjects/data/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3  since  1
+# orcon  PedestalWidths CondFormats/HcalObjects/data/grmm-r3/widths_fC_with38426.txt  hcal_widths_fC_v2_grmm_r3  since  38175
+# orcon  PedestalWidths CondFormats/HcalObjects/data/grmm-r3/widths_fC_with38148.txt  hcal_widths_fC_v2_grmm_r3  since  38427
 
 # # for GRuMM rel2 (superseded by rel3)
 # orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with37893.txt  hcal_pedestals_fC_v2_grmm_r2  since 1
@@ -36,33 +42,33 @@ orcon  PedestalWidths CondFormats/HcalObjects/data/grmm-r3/widths_fC_with38148.t
 
 
 ## pedestals for GRuMM rel1 (called hlt because this is what was used during datataking)
-orcon  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_ADC_v2.txt      hcal_pedestals_ADC_v2_grmm_hlt         since  1
-orcon  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v2.txt      hcal_pedestals_fC_v2_grmm_hlt         since  1
-orcon  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_ADC_v2.txt         hcal_widths_ADC_v2_grmm_hlt            since  1
-orcon  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v2.txt         hcal_widths_fC_v2_grmm_hlt            since  1
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with35380.txt  hcal_pedestals_fC_v2_grmm_hlt  since  35380
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with35385.txt  hcal_pedestals_fC_v2_grmm_hlt  since  35385
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with35813.txt  hcal_pedestals_fC_v2_grmm_hlt  since  35813
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with37353.txt  hcal_pedestals_fC_v2_grmm_hlt  since  37353
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with37436.txt  hcal_pedestals_fC_v2_grmm_hlt  since  37436
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with35380.txt  hcal_widths_fC_v2_grmm_hlt  since  35380
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with35385.txt  hcal_widths_fC_v2_grmm_hlt  since  35385
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with35813.txt  hcal_widths_fC_v2_grmm_hlt  since  35813
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with37353.txt  hcal_widths_fC_v2_grmm_hlt  since  37353
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with37436.txt  hcal_widths_fC_v2_grmm_hlt  since  37436
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with35380.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  35380
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with35385.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  35385
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with35813.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  35813
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with37353.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  37353
-orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with37436.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  37436
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with35380.txt  hcal_widths_ADC_v2_grmm_hlt  since  35380
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with35385.txt  hcal_widths_ADC_v2_grmm_hlt  since  35385
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with35813.txt  hcal_widths_ADC_v2_grmm_hlt  since  35813
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with37353.txt  hcal_widths_ADC_v2_grmm_hlt  since  37353
-orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with37436.txt  hcal_widths_ADC_v2_grmm_hlt  since  37436
+#orcon  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_ADC_v2.txt      hcal_pedestals_ADC_v2_grmm_hlt         since  1
+#orcon  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v2.txt      hcal_pedestals_fC_v2_grmm_hlt         since  1
+#orcon  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_ADC_v2.txt         hcal_widths_ADC_v2_grmm_hlt            since  1
+#orcon  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v2.txt         hcal_widths_fC_v2_grmm_hlt            since  1
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with35380.txt  hcal_pedestals_fC_v2_grmm_hlt  since  35380
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with35385.txt  hcal_pedestals_fC_v2_grmm_hlt  since  35385
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with35813.txt  hcal_pedestals_fC_v2_grmm_hlt  since  35813
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with37353.txt  hcal_pedestals_fC_v2_grmm_hlt  since  37353
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_fC_with37436.txt  hcal_pedestals_fC_v2_grmm_hlt  since  37436
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with35380.txt  hcal_widths_fC_v2_grmm_hlt  since  35380
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with35385.txt  hcal_widths_fC_v2_grmm_hlt  since  35385
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with35813.txt  hcal_widths_fC_v2_grmm_hlt  since  35813
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with37353.txt  hcal_widths_fC_v2_grmm_hlt  since  37353
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_fC_with37436.txt  hcal_widths_fC_v2_grmm_hlt  since  37436
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with35380.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  35380
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with35385.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  35385
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with35813.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  35813
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with37353.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  37353
+#orcon  Pedestals     CondFormats/HcalObjects/data/GRuMM-pedestals/peds_ADC_with37436.txt  hcal_pedestals_ADC_v2_grmm_hlt  since  37436
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with35380.txt  hcal_widths_ADC_v2_grmm_hlt  since  35380
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with35385.txt  hcal_widths_ADC_v2_grmm_hlt  since  35385
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with35813.txt  hcal_widths_ADC_v2_grmm_hlt  since  35813
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with37353.txt  hcal_widths_ADC_v2_grmm_hlt  since  37353
+#orcon  PedestalWidths     CondFormats/HcalObjects/data/GRuMM-pedestals/widths_ADC_with37436.txt  hcal_widths_ADC_v2_grmm_hlt  since  37436
 
 ## current best gains that we have
-orcon Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff_hb12percUp.txt      hcal_gains_v2_gren_reprocessing         since  1
+#orcon Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff_hb12percUp.txt      hcal_gains_v2_gren_reprocessing         since  1
 
 
 
