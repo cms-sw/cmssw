@@ -116,17 +116,33 @@ else {
     }
 
     $i = $nJobs;
-    if ((@JOBSTATUS[$i] eq "SETUP") && ($mergeOK==1 || $forceMerge==1)) {
+    if (@JOBSTATUS[$i] ne "SETUP") {
+      print "Merge job $i status @JOBSTATUS[$i] not submitted.\n";
+    } elsif ($mergeOK!=1 && $forceMerge!=1) {
+      print "Merge job not submitted since Mille jobs error/unfinished (Use -mf to force).\n";
+    } else {
         if ($mergeOk!=1) { # some mille jobs are not OK
-	  # Get the name of merge cfg file -> $mergeCfg
-          $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
+	  # Make first a backup copy of the script
+	  if (!(-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak")) {
+	    system "cp -p $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i]/theScript.sh.bak";
+	  }
+
+	  # Get then the name of merge cfg file (-> $mergeCfg)
+          $mergeCfg = `cat $theJobData/@JOBDIR[$i]/theScript.sh.bak | grep cmsRun | grep "\.cfg" | head -1 | awk '{gsub("^.*cmsRun ","");print \$1}'`;
 	  $mergeCfg = `basename $mergeCfg`;
           $mergeCfg =~ s/\n//;
 
-          # rewrite the mergeCfg, using only "OK" jobs
-          system "mps_merge.pl -c $cfgTemplate $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i] $nJobs";
-          # rewrite theScript.sh, using only "OK" jobs
-	  print "mps_scriptm.pl -c $mergeScript $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i]/$mergeCfg $nJobs $mssDir";
+	  # And make a backup copy of the cfg
+	  if (!(-e "$theJobData/@JOBDIR[$i]/$mergeCfg.bak")) {
+	    system "cp -p $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i]/$mergeCfg.bak";
+	  }
+
+          # Rewrite the mergeCfg, using only "OK" jobs
+          system "mps_merge.pl -c $theJobData/@JOBDIR[$i]/$mergeCfg.bak $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i] $nJobs";
+
+          # Rewrite theScript.sh, using only "OK" jobs
+	  system "mps_scriptm.pl -c $mergeScript $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i] $mergeCfg $nJobs $mssDir";
+	  exit;
         }
 
 	print "bsub -J almerge $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
@@ -145,8 +161,6 @@ else {
 	    print "Submission of merge job seems to have failed: $result\n";
 	}
     }
-    else {
-      print "Merge job $i status @JOBSTATUS[$i] not submitted (Try -f to force).\n";
-    }
+
 }
 write_db();
