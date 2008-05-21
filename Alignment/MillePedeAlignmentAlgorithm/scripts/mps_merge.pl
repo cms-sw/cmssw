@@ -141,13 +141,13 @@ if ($nn != 1) {
 $binaryList = "";
 for ($i=1; $i<=$nJobs; ++$i) {
   $sep = ",\n                ";
-  if ($i == $nJobs) { $sep = "" ;}
+  if ($i == 1) { $sep = "\n                " ;}
 
   if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
 
   $newName = sprintf "milleBinary%03d.dat",$i;
   print "Adding $newName to list of binary files\n";
-  $newLine = "\"$newName\"$sep";
+  $newLine = "$sep\"$newName\"";
   $binaryList = "$binaryList $newLine";
   # create symbolic link
   $jobDirName = sprintf "job%03d",$i;
@@ -173,13 +173,13 @@ if ($nn != 1) {
 $treeList = "";
 for ($i=1; $i<=$nJobs; ++$i) {
   $sep = ",\n                ";
-  if ($i == $nJobs) { $sep = "" ;}
+  if ($i == 1) { $sep = "\n                " ;}
 
   if ($checkok==1 && @JOBSTATUS[$i-1] ne "OK") {next;}
 
 #GF  $newName = sprintf "treeFile%03d.dat",$i;
   $newName = sprintf "treeFile%03d.root",$i;
-  $newLine = "\"$newName\"$sep";
+  $newLine = "$sep\"$newName\"";
   $treeList = "$treeList $newLine";
   # create symbolic link
   $jobDirName = sprintf "job%03d",$i;
