@@ -5,11 +5,13 @@
 <use name=Collection>
 <use name=ObjectRelationalAccess>
 <use name=FWCore/Framework>
+<use name=CondFormats/Common>
 <export>
   <use name=FWCore/Framework>
   <use name=Framework/SealKernel>
   <use name=RelationalAccess>
   <use name=ObjectRelationalAccess>
   <use name=DataSvc>
+  <use name=CondFormats/Common>
   <lib name=CondCoreDBCommon>
 </export>
