@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/12 16:02:44 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/05/16 14:15:08 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -60,9 +60,15 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   if(theMuonRecoAnalyzerFlag)
     theMuonRecoAnalyzer = new MuonRecoAnalyzer(parameters.getParameter<ParameterSet>("muonRecoAnalysis"), theService);
   // do the analysis on muon track segments
-  if(theMuonSegmentsAnalyzerFlag)
-    theMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(parameters.getParameter<ParameterSet>("trackSegmentsAnalysis"), theService);
-
+  if(theMuonSegmentsAnalyzerFlag){
+    ParameterSet  trackSegmentsAnalysisPar = parameters.getParameter<ParameterSet>("trackSegmentsAnalysis");
+    trackSegmentsAnalysisPar.addParameter<InputTag>("GlobalTrackLabel",
+						    theTrackCollectionLabel);
+    trackSegmentsAnalysisPar.addParameter<InputTag>("StandAloneMuonTrackLabel",
+						    theSTACollectionLabel);
+    
+    theMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackSegmentsAnalysisPar, theService);
+  }
 }
 
 MuonAnalyzer::~MuonAnalyzer() { 
