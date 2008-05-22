@@ -1,5 +1,6 @@
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondFormats/Common/interface/ClassIDRegistry.h"
+#include "CondFormats/Common/interface/Exception.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
@@ -25,7 +26,35 @@ namespace cond {
   // load plugin (delete classInfo)
   bool loadClassByToken(std::string const & token) {
      boost::shared_ptr<ClassInfo> ci = classInfo(token);
+     // will never return false as pluginMgr throw!
      return ci.get()!=0;
+  }
+
+
+  namespace {
+    std::string const errmsg("Unable to load class for token ");
+    std::string const orimsg(". Original error msg was ");
+
+  }
+
+  ROOT::Reflex::Type const & reflexTypeByToken(std::string const & token) {
+    const pool::Guid guid(cond::classID(token));
+    {
+      // look if already loaded
+      ROOT::Reflex::Type const & type = pool::DbReflex::forGuid(guid);
+      if (type) return type;
+    }
+    try {
+      // plugin mgr will throw fist: still
+      if (!cond::loadClassByToken(token)) 
+	throw cond::Exception(errmsg+token);
+    }
+    catch (cms::Exception const & e) {
+      throw cond::Exception(errmsg+token+orimsg+e.what(););
+    }
+    ROOT::Reflex::Type const & type = pool::DbReflex::forGuid(guid);
+    if (!type) throw cond::Exception(errmsg+token +". Problem with DbReflex");
+    return type;
   }
 
 }
