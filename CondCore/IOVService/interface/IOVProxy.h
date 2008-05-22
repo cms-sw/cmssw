@@ -33,7 +33,7 @@ namespace cond {
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
     std::string const & payloadToken() const {return m_token;}
-    PoolTransaction * db() const { return m_db)
+    PoolTransaction * db() const { return m_db;}
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
