@@ -1,9 +1,9 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.3 2008/03/12 13:24:57 ferriff Exp $
- *  $Date: 2008/03/12 13:24:57 $
- *  $Revision: 1.3 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.4 2008/05/22 15:57:35 ferriff Exp $
+ *  $Date: 2008/05/22 15:57:35 $
+ *  $Revision: 1.4 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -73,7 +73,7 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                 if ( pEBRecHits.isValid() ) {
                         EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                        LogDebug("EcalRecHitDebug") << "total # EB rechits to be re-calibrated: " << EBuncalibRecHits->size();
+                        LogDebug("EcalRecHitDebug") << "total # EB rechits to be re-calibrated: " << EBRecHits->size();
 #endif
                 } else {
                         edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBRecHitCollection_.label() ;
@@ -85,7 +85,7 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                 if ( pEERecHits.isValid() ) {
                         EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                        LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits to be re-calibrated: " << EEuncalibRecHits->size();
+                        LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits to be re-calibrated: " << EERecHits->size();
 #endif
                 } else {
                         edm::LogError("EcalRecHitError") << "Error! can't get the product " << EERecHitCollection_.label() ;
@@ -180,8 +180,8 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                 }
         }
         // put the collection of recunstructed hits in the event   
-        if ( EBRecHits ) LogInfo("EcalRecalibRecHitInfo") << "total # EB re-calibrated rechits: " << EBRecHits->size();
-        if ( EBRecHits ) LogInfo("EcalRecalibRecHitInfo") << "total # EE re-calibrated rechits: " << EERecHits->size();
+        LogInfo("EcalRecalibRecHitInfo") << "total # EB re-calibrated rechits: " << EBRecalibRecHits->size();
+        LogInfo("EcalRecalibRecHitInfo") << "total # EE re-calibrated rechits: " << EERecalibRecHits->size();
 
         evt.put( EBRecalibRecHits, EBRecalibRecHitCollection_ );
         evt.put( EERecalibRecHits, EERecalibRecHitCollection_ );
