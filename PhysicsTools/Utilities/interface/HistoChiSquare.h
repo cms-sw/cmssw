@@ -8,7 +8,7 @@ namespace fit {
   class HistoChiSquare {
    public:
     HistoChiSquare() { }
-    HistoChiSquare(T & t, TH1D *histo, double rangeMin, double rangeMax): 
+    HistoChiSquare(T & t, TH1 *histo, double rangeMin, double rangeMax): 
       t_(&t), rangeMin_(rangeMin), rangeMax_(rangeMax) { 
       nBins_ = histo->GetNbinsX();
       xMin_ = histo->GetXaxis()->GetXmin();
@@ -30,7 +30,7 @@ namespace fit {
       }
       return chi;
     }
-    void setHistos(TH1D *histo) { 
+    void setHistos(TH1 *histo) { 
       nBins_ = histo->GetNbinsX();
       xMin_ = histo->GetXaxis()->GetXmin();
       xMax_ = histo->GetXaxis()->GetXmax();
