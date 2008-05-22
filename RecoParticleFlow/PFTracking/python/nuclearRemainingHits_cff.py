@@ -5,17 +5,14 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoParticleFlow.PFTracking.nuclear_cff import *
-import copy
-from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
+import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 #TRACKER HITS
-nuclearPixelRecHits = copy.deepcopy(siPixelRecHits)
-import copy
-from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi import *
-nuclearStripRecHits = copy.deepcopy(siStripMatchedRecHits)
-import copy
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
+nuclearPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
+import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+nuclearStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 #TRAJECTORY MEASUREMENT
-nuclearMeasurementTracker = copy.deepcopy(MeasurementTracker)
+nuclearMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
 #HIT REMOVAL
 nuclearClusters = cms.EDProducer("RemainingClusterProducer",
     matchedRecHits = cms.InputTag("fourthStripRecHits","matchedRecHit"),

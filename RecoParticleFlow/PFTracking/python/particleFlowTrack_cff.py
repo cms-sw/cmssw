@@ -4,12 +4,10 @@ from RecoParticleFlow.PFTracking.elecPreId_cff import *
 from TrackingTools.GsfTracking.CkfElectronCandidates_cff import *
 from TrackingTools.GsfTracking.GsfElectrons_cff import *
 from RecoParticleFlow.PFTracking.pfNuclear_cfi import *
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-gsfElCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from TrackingTools.GsfTracking.GsfElectronFit_cfi import *
-gsfPFtracks = copy.deepcopy(GsfGlobalElectronTest)
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+gsfElCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import TrackingTools.GsfTracking.GsfElectronFit_cfi
+gsfPFtracks = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 particleFlowTrack = cms.Sequence(elecPreId*gsfElCandidates*gsfPFtracks*pfTrackElec)
 particleFlowTrackWithNuclear = cms.Sequence(elecPreId*gsfElCandidates*gsfPFtracks*pfTrackElec*pfNuclear)

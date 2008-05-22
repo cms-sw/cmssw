@@ -6,22 +6,18 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 #TRAJECTORY FILTER
-firstCkfTrajectoryFilter = copy.deepcopy(trajectoryFilterESProducer)
-import copy
-from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
+firstCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 #TRAJECTORY BUILDER
-firstCkfTrajectoryBuilder = copy.deepcopy(GroupedCkfTrajectoryBuilder)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
+firstCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 #TRACK CANDIDATES
-firstTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+firstTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 #TRACKS
-firstWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
+firstWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 firstTriplets = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),

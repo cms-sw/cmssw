@@ -1,35 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
+import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 #TRACKER HITS
-thirdPixelRecHits = copy.deepcopy(siPixelRecHits)
-import copy
-from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi import *
-thirdStripRecHits = copy.deepcopy(siStripMatchedRecHits)
-import copy
-from RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi import *
-thirdMixedSeeds = copy.deepcopy(globalMixedSeeds)
-import copy
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
+thirdPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
+import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+thirdStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
+import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi
+thirdMixedSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cfi.globalMixedSeeds.clone()
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 #TRAJECTORY MEASUREMENT
-thirdMeasurementTracker = copy.deepcopy(MeasurementTracker)
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
+thirdMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 #TRAJECTORY FILTER
-thirdCkfTrajectoryFilter = copy.deepcopy(trajectoryFilterESProducer)
-import copy
-from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
+thirdCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 #TRAJECTORY BUILDER
-thirdCkfTrajectoryBuilder = copy.deepcopy(GroupedCkfTrajectoryBuilder)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
+thirdCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 #TRACK CANDIDATES
-thirdTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+thirdTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 #TRACKS
-thirdWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
+thirdWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 #HIT REMOVAL
 thirdClusters = cms.EDProducer("RemainingClusterProducer",
     matchedRecHits = cms.InputTag("secondStripRecHits","matchedRecHit"),

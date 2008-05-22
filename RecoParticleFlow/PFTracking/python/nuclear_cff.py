@@ -1,58 +1,42 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cff import *
-import copy
-from RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi import *
+import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
 # FIRST NUCLEAR
-firstnuclearSeed = copy.deepcopy(nuclearSeed)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-firstnuclearTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-firstnuclearWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
-import copy
-from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi import *
-firstnuclearInteractionMaker = copy.deepcopy(nuclearInteractionMaker)
-import copy
-from RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi import *
+firstnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+firstnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+firstnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
+firstnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
+import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
 # SECOND NUCLEAR
-secondnuclearSeed = copy.deepcopy(nuclearSeed)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-secondnuclearTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-secondnuclearWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
-import copy
-from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi import *
-secondnuclearInteractionMaker = copy.deepcopy(nuclearInteractionMaker)
-import copy
-from RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi import *
+secondnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+secondnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+secondnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
+secondnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
+import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
 # THIRD NUCLEAR
-thirdnuclearSeed = copy.deepcopy(nuclearSeed)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-thirdnuclearTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-thirdnuclearWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
-import copy
-from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi import *
-thirdnuclearInteractionMaker = copy.deepcopy(nuclearInteractionMaker)
-import copy
-from RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi import *
+thirdnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+thirdnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+thirdnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
+thirdnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
+import RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi
 # second fourth
-fourthnuclearSeed = copy.deepcopy(nuclearSeed)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-fourthnuclearTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-fourthnuclearWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
-import copy
-from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi import *
-fourthnuclearInteractionMaker = copy.deepcopy(nuclearInteractionMaker)
+fourthnuclearSeed = RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi.nuclearSeed.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+fourthnuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+fourthnuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi
+fourthnuclearInteractionMaker = RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi.nuclearInteractionMaker.clone()
 firstnuclear = cms.Sequence(firstnuclearSeed*firstnuclearTrackCandidates*firstnuclearWithMaterialTracks*firstnuclearInteractionMaker)
 secondnuclear = cms.Sequence(secondnuclearSeed*secondnuclearTrackCandidates*secondnuclearWithMaterialTracks*secondnuclearInteractionMaker)
 thirdnuclear = cms.Sequence(thirdnuclearSeed*thirdnuclearTrackCandidates*thirdnuclearWithMaterialTracks*thirdnuclearInteractionMaker)

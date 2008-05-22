@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from TrackingTools.GsfTracking.GsfElectronMaterialEffects_cfi import *
-ElectronMaterialEffects_forPreId = copy.deepcopy(ElectronMaterialEffects)
+import TrackingTools.GsfTracking.GsfElectronMaterialEffects_cfi
+ElectronMaterialEffects_forPreId = TrackingTools.GsfTracking.GsfElectronMaterialEffects_cfi.ElectronMaterialEffects.clone()
 from RecoParticleFlow.PFTracking.elecPreId_cfi import *
 CloseComponentsMerger_forPreId = cms.ESProducer("CloseComponentsMergerESProducer5D",
     ComponentName = cms.string('CloseComponentsMerger_forPreId'),
