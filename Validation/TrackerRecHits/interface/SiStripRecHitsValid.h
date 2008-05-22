@@ -186,7 +186,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   edm::ParameterSet conf_;
   //const StripTopology* topol;
 
-  static const int MAXHIT = 100;
+  static const int MAXHIT = 1000;
   float rechitrphix[MAXHIT];
   float rechitrphierrx[MAXHIT];
   float rechitrphiy[MAXHIT];
