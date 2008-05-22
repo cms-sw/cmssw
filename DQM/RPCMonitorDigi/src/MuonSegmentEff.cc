@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Carrillo (Uniandes)
 //         Created:  Tue Oct  2 16:57:49 CEST 2007
-// $Id: MuonSegmentEff.cc,v 1.22 2008/05/21 09:42:51 carrillo Exp $
+// $Id: MuonSegmentEff.cc,v 1.23 2008/05/21 14:41:28 carrillo Exp $
 //
 //
 
@@ -325,6 +325,11 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 void 
 MuonSegmentEff::endJob() {
+
+  int index[13];
+  for(int j=0;j<13;j++){
+    index[j]=0;
+  }
   
   int index1=0,index2=0,index3=0,index4=0,index5=0,index6=0,index7=0,index8=0,index9=0,index10=0,index11=0,index12=0;
 
@@ -356,6 +361,8 @@ MuonSegmentEff::endJob() {
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
       if(ef>0.){
+	
+	
 	if(id.sector()==1  ){
 	  index1++;
 	  char cam[128];	
@@ -546,7 +553,7 @@ MuonSegmentEff::endJob() {
   if(EffSaveRootFile==true){
     for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
       k++;
-
+      
       char detUnitLabel[128];
 
       char meIdRPC [128];
@@ -567,7 +574,6 @@ MuonSegmentEff::endJob() {
 
       sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
       sprintf(meIdDT_2D,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-
       sprintf(effIdRPC_DT,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
       sprintf(effIdRPC_DT_2D,"EfficienyFromDT2DExtrapolation_%s",detUnitLabel);
 
