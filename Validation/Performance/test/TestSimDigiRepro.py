@@ -42,19 +42,21 @@ def usage():
     print __doc__
 
 def GetFile(myFile,myFileLocation):
-    if myFile not in os.listdir("."):
-        print "Copying over %s" % myFile
-        if os.access(cmssw_release_base+myFileLocation+CfgFile,os.F_OK):
+    print "Copying over %s" % myFile
+    #First try the CMSSW_BASE version if there
+    if os.access(cmssw_base+myFileLocation+myFile,os.F_OK):
+        CpFile="cp -pR "+cmssw_base+myFileLocation+myFile+" ."
+        os.system(CpFile)
+    #If not there try the CMSSW_RELEASE_BASE version
+    else:
+        print "File %s not found in %s" % (myFile,cmssw_base+myFileLocation)
+        print "Trying in %s" % cmssw_release_base+myFileLocation
+        if os.access(cmssw_release_base+myFileLocation+myFile,os.F_OK):
             CpFile="cp -pR "+cmssw_release_base+myFileLocation+myFile+" ."
             os.system(CpFile)
         else:
-            print "File %s not found in %s" % (myFile,cmssw_release_base+myFileLocation)
-            print "Trying in %s" % cmssw_base+myFileLocation
-            CpFile="cp -pR "+cmssw_base+myFileLocation+myFile+" ."
-            os.system(CpFile)
-    else:
-        print "File %s is already present in current directory, not copying it" % myFile
-
+            print "**COULD NOT FIND THE NECESSARY %s FILE!**" % myFile
+    
 def RestoreSkipEventSetting(myRestoreFragment,mySkipEvents):
     NewSkipEvents="skipEvents=cms.untracked.uint32("+str(mySkipEvents)+")"
     NewFragmentFilename=myRestoreFragment.split(".")[0]+"Skip"+str(mySkipEvents)+"Evts.py"
@@ -165,10 +167,10 @@ def main(argv):
     GENFile=candle.split('.')[0]+"_GEN"
     GENCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s GEN --customise=Configuration/PyReleaseValidation/Simulation.py --fileout="+GENFile+".root>& "+GENFile+".log"
     print "Executing %s" % GENCommand
-    ExitCode=os.system(GENCommand)
-    if ExitCode != 0:
-        print "Exit code for %s was %s" % (GENCommand, ExitCode)
-        ExitCode=0
+    #ExitCode=os.system(GENCommand)
+    #if ExitCode != 0:
+    #    print "Exit code for %s was %s" % (GENCommand, ExitCode)
+    #    ExitCode=0
         
     #For SaveRandomSeeds.py it's OK to use the version in the release
     #but for RestoreRandomSeeds.py we want to access the number of events to skip
@@ -177,15 +179,15 @@ def main(argv):
     SIMDIGISavedSeedsFile=candle.split('.')[0]+"_SIM_DIGI_SavedSeeds"
     SIMDIGISaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s SIM --customise=Configuration/PyReleaseValidation/SaveRandomSeeds.py --filein file:"+GENFile+".root --fileout="+SIMDIGISavedSeedsFile+".root >& "+SIMDIGISavedSeedsFile+".log"
     print "Executing %s" % SIMDIGISaveSeedsCommand
-    ExitCode=os.system(SIMDIGISaveSeedsCommand)
-    if ExitCode != 0:
-        print "Exit code for %s was %s" % (SIMDIGISaveSeedsCommand, ExitCode)
-        ExitCode=0
+    #ExitCode=os.system(SIMDIGISaveSeedsCommand)
+    #if ExitCode != 0:
+    #    print "Exit code for %s was %s" % (SIMDIGISaveSeedsCommand, ExitCode)
+    #    ExitCode=0
         
     #Second round SIM+DIGI restoring seeds:
     #Get the RestoreRandomSeeds.py locally (it could be done without copying the file locally, just use the link...)
     RestorePy="RestoreRandomSeeds.py"
-    GetFile(RestorePy,"Configuration/PyReleaseValidation/python/")
+    GetFile(RestorePy,"/src/Configuration/PyReleaseValidation/python/")
 
     #Edit the fragment to start from the wanted event:
     NewRestorePy=RestoreSkipEventSetting(RestorePy,skipEvents)
