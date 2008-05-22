@@ -31,20 +31,6 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   edm::FileInPath fp;
 
-  /*
-   * Histogram prebooking stuff (removed meanwhile so please always put
-   * hitBookDDU to true)
-   *
-  std::vector<unsigned> ddus = parameters.getUntrackedParameter< std::vector<unsigned> >("preBookDDU");
-  if (ddus.size() > 1) {
-    loadDDU = ddus[1];
-    loadDDU <<= 18;
-    BitsetDDU minusDDU(ddus[0]);
-    loadDDU |= minusDDU;
-  }
-  *
-  */
-  
   hitBookDDU     = parameters.getUntrackedParameter<bool>("hitBookDDU", true);
   examinerMask   = parameters.getUntrackedParameter<unsigned int>("ExaminerMask", 0x7FB7BF6);
   examinerForce  = parameters.getUntrackedParameter<bool>("ExaminerForce", false);
@@ -103,6 +89,8 @@ void CSCMonitorModule::setup() {
   book("EMU");
 
   // Prebook DDU histograms
+  /* Removed because we do not know the exact numbers of ddu's
+
   for (int d = 1; d <= 36; d++) {
     if(!loadDDU.test(d - 1)) continue;
     std::string buffer;
@@ -110,6 +98,16 @@ void CSCMonitorModule::setup() {
     book("DDU");
   }
   LOGINFO("DDU histograms") << " # of DDU to be prebooked for monitoring = " << loadDDU.count() << " following bitset = " << loadDDU << " (hitBookDDU = " << std::boolalpha << hitBookDDU << ")";
+
+  */
+
+  // Book detector summary histograms
+  MonitorElement* me;
+  me = dbe->book1D("Summary_ME1", "EMU status: ME1", 21600, 1, 21600);
+  me = dbe->book1D("Summary_ME2", "EMU status: ME2", 21600, 1, 21600);
+  me = dbe->book1D("Summary_ME3", "EMU status: ME3", 21600, 1, 21600);
+  me = dbe->book1D("Summary_ME4", "EMU status: ME4", 21600, 1, 21600);
+  me = dbe->book1D("Summary_EMU", "EMU status", 21600, 1, 21600);
 
   LOGINFO("Fraction histograms") << " updateKey = " << fractUpdateKey << ", update on events (freq) = " << fractUpdateEvF;
 

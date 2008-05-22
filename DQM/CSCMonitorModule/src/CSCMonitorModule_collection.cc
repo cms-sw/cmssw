@@ -64,21 +64,6 @@ const bool CSCMonitorModule::MEDDU(const unsigned int dduId, const std::string n
 
   std::string buffer;
 
-  /*
-   * Removed prebooking stuff, using plain book on demand technique :)
-  if(loadDDU.test(dduId - 1)) {
-    return isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
-  } else {
-    if (hitBookDDU) {
-      dbe->setCurrentFolder(rootDir + getDDUTag(dduId, buffer));
-      book("DDU");
-      loadDDU[dduId - 1] = 1;
-      return isMEValid(rootDir + getDDUTag(dduId, buffer) + "/" + name, me);
-    }
-    return false;
-  }
-  */
-
   bool result = isMEValid(rootDir + DDU_FOLDER + getDDUTag(dduId, buffer) + "/" + name, me);
   if (!result && hitBookDDU) {
     LOGINFO("DDU ME booking on demand") << "DDU id = " << dduId << " is being booked on demand (hitBookDDU = " << std::boolalpha << hitBookDDU << ")";

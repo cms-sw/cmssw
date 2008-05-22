@@ -128,7 +128,6 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     bool init;
 
     /** List of loaded (preloaded) DDU's */
-    BitsetDDU       loadDDU;
     bool            hitBookDDU;
 
     /** Fractional histograms update stuff */
