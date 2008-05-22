@@ -43,6 +43,7 @@ namespace cond {
 
   template<typename T>
   struct ClassID : public  ClassInfo {
+    ClassID() : ClassInfo(typeid(T)) {}
     ClassID(std::string const & res ) : ClassInfo(typeid(T)), m_res(res) {}
     ClassID(int i) : ClassInfo(typeid(T),i) {}
     virtual std::string resource() const { return m_res;}
