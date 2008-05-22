@@ -26,7 +26,7 @@ cond::GenericRef::GenericRef( cond::PoolTransaction& transaction ):
 cond::GenericRef::GenericRef( cond::PoolTransaction& pooldb, 
 			      const std::string& tokenStr) :
   m_datasvc(&(pooldb.poolDataSvc())),m_place(0) {
-  pool::RefBase myobj(m_datasvc, tokenStr, cond::reflexTypeByToken(token).TypeInfo());
+  pool::RefBase myobj(m_datasvc, tokenStr, cond::reflexTypeByToken(tokenStr).TypeInfo());
   m_data=myobj;
 }
 

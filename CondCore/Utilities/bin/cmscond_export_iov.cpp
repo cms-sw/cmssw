@@ -46,7 +46,7 @@ int main( int argc, char** argv ){
   visible.add_options()
     ("sourceConnect,s",boost::program_options::value<std::string>(),"source connection string(required)")
     ("destConnect,d",boost::program_options::value<std::string>(),"destionation connection string(required)")
-    ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required)")
+    ("dictionary,D",boost::program_options::value<std::string>(),"data dictionary(required if no plugin available)")
     ("inputTag,i",boost::program_options::value<std::string>(),"tag to export( default = destination tag)")
     ("destTag,t",boost::program_options::value<std::string>(),"destination tag (required)")
     ("beginTime,b",boost::program_options::value<cond::Time_t>(),"begin time (first since) (optional)")
@@ -103,11 +103,7 @@ int main( int argc, char** argv ){
     }else{
       destConnect=vm["destConnect"].as<std::string>();
     }
-    if(!vm.count("dictionary")){
-      std::cerr <<"[Error] no dictionary[D] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }else{
+    if(vm.count("dictionary")){
       dictionary=vm["dictionary"].as<std::string>();
     }
     if(!vm.count("destTag")){
@@ -145,7 +141,7 @@ int main( int argc, char** argv ){
     std::cerr << er.what()<<std::endl;
     return 1;
   }
-  std::string dictlibrary=seal::SharedLibrary::libname( dictionary );
+  std::string dictlibrary =  dictionary.empty() ? "" : seal::SharedLibrary::libname( dictionary );
   if(debug){
     std::cout<<"sourceConnect:\t"<<sourceConnect<<'\n';
     std::cout<<"destConnect:\t"<<destConnect<<'\n';
@@ -160,6 +156,7 @@ int main( int argc, char** argv ){
     std::cout<<"configFile:\t"<<configuration_filename<<std::endl;
   }
   //
+  if (!dictlibrary.empty())
   try {
     seal::SharedLibrary::load( dictlibrary );
   }catch ( seal::SharedLibraryError *error) {
