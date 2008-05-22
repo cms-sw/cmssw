@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/05/16 17:59:26 $
- * $Revision: 1.39 $
+ * $Date: 2008/05/19 10:42:41 $
+ * $Revision: 1.40 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -51,6 +51,8 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   debug = ps.getUntrackedParameter<bool>("debug", "false");
   if(debug) cout<<"[DTDigiTask]: Constructor"<<endl;
 
+  // The label to retrieve the digis 
+  dtDigiLabel = config.getParameter<InputTag>("dtDigiLabel");
   // Read the configuration parameters
   maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHitsPerChamber",30000);
   // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
@@ -69,7 +71,8 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   checkNoisyChannels = ps.getUntrackedParameter<bool>("checkNoisyChannels","false");
   // Default TTrig to be used when not reading the TTrig DB
   defaultTTrig = ps.getParameter<int>("defaultTtrig");
-  
+  redundant with what is in DTDigiTask.
+Let me know if you have som
   inTimeHitsLowerBound = ps.getParameter<int>("inTimeHitsLowerBound");
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
@@ -383,7 +386,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   
   // Digi collection
   edm::Handle<DTDigiCollection> dtdigis;
-  event.getByLabel("dtunpacker", dtdigis);
+  event.getByLabel(dtDigiLabel, dtdigis);
 
   // LTC digis
   if (!isLocalRun) event.getByType(ltcdigis);
@@ -405,7 +408,7 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
   // Check if the digi container is empty
   if(dtdigis->begin() == dtdigis->end()) {
     doSync = false;
-    cout << "Event " << nevents << " empty." << endl;
+    if(debug) cout << "Event " << nevents << " empty." << endl;
   }
 
   if (doSync) { // dosync
@@ -511,7 +514,6 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 	int tdcTime = (*digiIt).countsTDC();
 	
 	if (subtractT0) {
-	  if(debug) cout << "   performPerWireT0Calibration" << endl;
 	  const DTWireId dtWireId(((*dtLayerId_It).first), (*digiIt).wire());
 	  t0Map->cellT0(dtWireId, t0, t0RMS) ;
 	  tdcTime += int(round(t0));

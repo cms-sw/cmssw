@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2008/03/01 00:39:53 $
- * $Revision: 1.17 $
+ * $Date: 2008/05/16 17:59:26 $
+ * $Revision: 1.18 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -24,6 +24,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <memory>
 #include <iostream>
@@ -107,6 +108,8 @@ private:
 
   // Parameters from config file
 
+  // The label to retrieve the digis 
+  edm::InputTag dtDigiLabel;
   // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
   bool readTTrigDB;
   // Set to true to subtract t0 from test pulses
