@@ -50,11 +50,6 @@ public:
   std::map< int, std::vector<double> > _clsMap;
 
 private:
-  std::ifstream *_infile1;
-  std::ifstream *_infile2;
-  std::ifstream *_infile3;
-  std::ifstream *_infile4;
-
 };
 
 #endif

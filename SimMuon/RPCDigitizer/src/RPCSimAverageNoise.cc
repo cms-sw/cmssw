@@ -186,7 +186,7 @@ RPCSimAverageNoise::simulate(const RPCRoll* roll,
 	  // insert the last strip according to the 
 	  // simhit position in the central strip 
 	  double deltaw=roll->centreOfStrip(centralStrip).x()-entr.x();
-	  if (deltaw>0.) {
+	  if (deltaw<0.) {
 	    if (lstrip < roll->nstrips() ){
 	      lstrip++;
 	      cls.push_back(lstrip);
