@@ -21,9 +21,7 @@ extern "C" void NOT_SEAL_CAPABILITIES (const char**& names, int& n )
 }
 
 
-#define CLASS_ID(type_, name_)  \
-typedef cond::ClassID<type_> name_; \
-namespace{ name_ EDM_PLUGIN_SYM(instance_cld, __LINE__)(0); }	\
-int bha##name_; \
-DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, name_ , packageClassIDRegistry.csids.back())
+#define CLASS_ID(type_)  \
+namespace{ cond::ClassID<type_>  EDM_PLUGIN_SYM(instance_cld, __LINE__)(0); }	\
+DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, cond::ClassID<type_>  , packageClassIDRegistry.csids.back())
   
