@@ -13,16 +13,16 @@ process.source = cms.Source("PoolSource",
 )
 
 process.prod = cms.EDFilter("SimDigiDumper",
-    MuCSCStripSrc = cms.InputTag("muonCSCDigis","MuonCSCStripDigi"),
-    MuDTSrc = cms.InputTag("muonDTDigis"),
-    HCalDigi = cms.InputTag("hcalDigis"),
-    MuCSCWireSrc = cms.InputTag("muonCSCDigis","MuonCSCWireDigi"),
-    ECalEESrc = cms.InputTag("ecalDigis","eeDigis"),
-    SiStripSrc = cms.InputTag("siStripDigis","ZeroSuppressed"),
-    SiPxlSrc = cms.InputTag("siPixelDigis"),
-    ECalEBSrc = cms.InputTag("ecalDigis","ebDigis"),
-    ECalESSrc = cms.InputTag("ecalPreshowerDigis"),
-    MuRPCSrc = cms.InputTag("muonRPCDigis")
+    MuCSCStripSrc = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+    MuDTSrc = cms.InputTag("simMuonDTDigis"),
+    HCalDigi = cms.InputTag("simHcalDigis"),
+    MuCSCWireSrc = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    ECalEESrc = cms.InputTag("simEcalDigis","eeDigis"),
+    SiStripSrc = cms.InputTag("simSiStripDigis","ZeroSuppressed"),
+    SiPxlSrc = cms.InputTag("simSiPixelDigis"),
+    ECalEBSrc = cms.InputTag("simEcalDigis","ebDigis"),
+    ECalESSrc = cms.InputTag("simEcalPreshowerDigis"),
+    MuRPCSrc = cms.InputTag("simMuonRPCDigis")
 )
 
 process.p1 = cms.Path(process.prod)
