@@ -152,7 +152,7 @@ for ($i=0; $i<@JOBID; ++$i) {
 	    }
 	    close INFILE;
 	} else {
-	    print "mps_check.pl cannot find $eazeLog to test";
+	    print "mps_check.pl cannot find $eazeLog to test\n";
 	}
 	if ($logZipped eq "true") {
 	    system "gzip $eazeLog";
