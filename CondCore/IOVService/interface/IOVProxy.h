@@ -59,7 +59,7 @@ namespace cond {
     
     struct IterHelp {
       typedef IOVElement result_type;
-      IterHelp(IOVImpl & in);
+      IterHelp(impl::IOVImpl & in);
       
       result_type const & operator()(int i) const {
 	elem.set(iov,i);
@@ -75,12 +75,12 @@ namespace cond {
     
     const_iterator begin() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
-					     IterHelp(m_iov));
+					     IterHelp(*m_iov));
     }
     
     const_iterator end() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
-					     IterHelp(m_iov));
+					     IterHelp(*m_iov));
     }
     
     

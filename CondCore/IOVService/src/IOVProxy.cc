@@ -34,8 +34,8 @@ namespace cond {
   }
 
 
-  IOVProxy::IterHelp::IterHelp(impl::IOVImpl & in) :
-    iov(*inpl.iov), elem(*inpl.pooldb){}
+  IOVProxy::IterHelp::IterHelp(impl::IOVImpl & impl) :
+    iov(*impl.iov), elem(&impl.pooldb){}
   
 
   void IOVElement::set(IOV const & v, int i) {
