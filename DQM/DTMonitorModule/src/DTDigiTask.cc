@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/05/19 10:42:41 $
- * $Revision: 1.40 $
+ * $Date: 2008/05/22 07:00:39 $
+ * $Revision: 1.41 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -52,7 +52,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   if(debug) cout<<"[DTDigiTask]: Constructor"<<endl;
 
   // The label to retrieve the digis 
-  dtDigiLabel = config.getParameter<InputTag>("dtDigiLabel");
+  dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
   // Read the configuration parameters
   maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHitsPerChamber",30000);
   // Set to true to read the ttrig from DB (useful to determine in-time and out-of-time hits)
@@ -71,8 +71,6 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
   checkNoisyChannels = ps.getUntrackedParameter<bool>("checkNoisyChannels","false");
   // Default TTrig to be used when not reading the TTrig DB
   defaultTTrig = ps.getParameter<int>("defaultTtrig");
-  redundant with what is in DTDigiTask.
-Let me know if you have som
   inTimeHitsLowerBound = ps.getParameter<int>("inTimeHitsLowerBound");
   inTimeHitsUpperBound = ps.getParameter<int>("inTimeHitsUpperBound");
   timeBoxGranularity = ps.getUntrackedParameter<int>("timeBoxGranularity",4);
