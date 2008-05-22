@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/14 16:48:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/21 15:48:16 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -164,12 +164,12 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   TrackSegm->Fill(2,segmFromDt);
   TrackSegm->Fill(3,segmFromCsc);
 
-  if(hitsFromDt!=0) hitStaProvenance->Fill(1);
-  if(hitsFromCsc!=0) hitStaProvenance->Fill(2);
-  if(hitsFromRpc!=0) hitStaProvenance->Fill(3);
-  if(hitsFromDt!=0 && hitsFromCsc!=0) hitStaProvenance->Fill(4);
-  if(hitsFromDt!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(5);
-  if(hitsFromCsc!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(6);
+  if(hitsFromDt!=0 && hitsFromCsc==0 && hitsFromRpc==0) hitStaProvenance->Fill(1);
+  if(hitsFromCsc!=0 && hitsFromDt==0 && hitsFromRpc==0) hitStaProvenance->Fill(2);
+  if(hitsFromRpc!=0 && hitsFromDt==0 && hitsFromCsc==0) hitStaProvenance->Fill(3);
+  if(hitsFromDt!=0 && hitsFromCsc!=0 && hitsFromRpc==0) hitStaProvenance->Fill(4);
+  if(hitsFromDt!=0 && hitsFromRpc!=0 && hitsFromCsc==0) hitStaProvenance->Fill(5);
+  if(hitsFromCsc!=0 && hitsFromRpc!=0 && hitsFromDt==0) hitStaProvenance->Fill(6);
   if(hitsFromDt!=0 && hitsFromCsc!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(7);
 
   if(hitsFromSegmDt+hitsFromSegmCsc !=0){
