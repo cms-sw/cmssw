@@ -20,6 +20,6 @@ def customise(process):
 
     #Overwriting the fileNames to be used by the MixingModule
     #when invoking cmsDriver.py with the --PU option
-    process.mix.input.fileNames = cms.untracked.vstring('file:../MinBias_TimeSize/MINBIAS__SIM.root')
+    process.mix.input.fileNames = cms.untracked.vstring('file:../MinBias_TimeSize/MINBIAS__GEN,SIM.root')
 
     return(process)
