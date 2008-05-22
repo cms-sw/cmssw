@@ -33,3 +33,6 @@ DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerTest);
 
 #include "DQM/DTMonitorClient/src/DTCreateSummaryHistos.h"
 DEFINE_ANOTHER_FWK_MODULE(DTCreateSummaryHistos);
+
+#include "DQM/DTMonitorClient/src/DTOccupancyTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTOccupancyTest);
