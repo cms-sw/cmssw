@@ -11,7 +11,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.cc,v 1.2 2008/04/21 14:48:19 tapper Exp $
+// $Id: GctTimingAnalyzer.cc,v 1.3 2008/05/13 20:13:41 tapper Exp $
 //
 //
 
@@ -160,16 +160,6 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   for (L1CaloRegionCollection::const_iterator rn=rctRn->begin(); rn!=rctRn->end(); rn++){
     if (rn->et()>0) {
       m_outputFile << "BX = " << m_evtNum << " " << (*rn) << std::endl; 
-    }
-  }
-
-  // Fibre data in GCT output
-  Handle<L1GctFibreCollection> fibre;
-  iEvent.getByLabel(m_fibreSource,fibre);
-
-  for (L1GctFibreCollection::const_iterator f=fibre->begin(); f!=fibre->end(); f++){
-    if (f->data()&0x7FFF7FFF) {
-      m_outputFile << "BX = " << m_evtNum << " " << (*f) << std::endl; 
     }
   }
 

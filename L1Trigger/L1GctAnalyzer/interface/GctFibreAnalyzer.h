@@ -14,7 +14,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.h,v 1.3 2008/04/25 15:30:16 tapper Exp $
+// $Id: GctFibreAnalyzer.h,v 1.4 2008/05/13 17:51:32 jad Exp $
 //
 //
 
@@ -45,12 +45,10 @@ class GctFibreAnalyzer : public edm::EDAnalyzer {
   bool CheckForBC0(const L1GctFibreWord fibre);
   void CheckLogicalID(const L1GctFibreWord fibre);
   void CheckCounter(const L1GctFibreWord fibre);
-  void CheckJetLogicalID(const L1GctFibreWord fibre);
 
   edm::InputTag m_fibreSource;
   bool m_doLogicalID;
   bool m_doCounter;
-  bool m_doJetLogicalID;
   unsigned int m_numZeroEvents;
   unsigned int m_numInconsistentPayloadEvents;
   unsigned int m_numConsistentEvents;
