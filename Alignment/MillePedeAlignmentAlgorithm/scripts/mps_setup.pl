@@ -141,12 +141,14 @@ if ($mssDir ne "") {
     print "Bad MSS directory name $mssDir\n";
   }
 
-  $testCastorPool = `nsls -d $castorPool`;
-  chomp $testCastorPool;
-  if ($testCastorPool eq "") {
-    print "Bad MSSPOOL directory name $castorPool\n";
-    $castorPool=""; # Reset variable
-  }
+# AP: castorPool should also be checked...
+#
+#  $testCastorPool = `nsls -d $castorPool`;
+#  chomp $testCastorPool;
+#  if ($testCastorPool eq "") {
+#    print "Bad MSSPOOL directory name $castorPool\n";
+#    $castorPool=""; # Reset variable
+#  }
 }
 
 # Create the job directories
