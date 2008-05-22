@@ -1,6 +1,8 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/TypedRef.h"
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
+
 #include "IOV.h"
 
 
@@ -14,6 +16,13 @@ namespace cond {
 	pooldb(db){
 	db.start(true);
 	iov = cond::TypedRef<cond::IOV>(db,token);
+	if (iov->iov.empty()) return;
+	// load dict
+	std::string ptok = iov->iov.front().second;
+	db.commit();   
+	cond::reflexTypeByToken(ptok);
+	db.start(true);
+	iov = cond::TypedRef<cond::IOV>(db,token);
       }
       ~IOVImpl(){
 	pooldb.commit();
@@ -24,6 +33,10 @@ namespace cond {
 
   }
 
+
+  IOVProxy::IterHelp::IterHelp(impl::IOVImpl & in) :
+    iov(*inpl.iov), elem(*inpl.pooldb){}
+  
 
   void IOVElement::set(IOV const & v, int i) {
     m_since = (i==0) ? v.firstsince : v.iov[i-1].first+1;

@@ -14,11 +14,13 @@ namespace cond {
   
   class IOVElement {
   public:
-    IOVElement() : m_since(0), m_till(0){}
+    IOVElement() : m_since(0), m_till(0), db(0){}
+    IOVElement(PoolTransaction * idb) : m_since(0), m_till(0), db(idb){}
     IOVElement(cond::Time_t is,
 	       cond::Time_t it,
-	       std::string const& itoken ) :
-      m_since(is), m_till(it), m_token(itoken){}
+	       std::string const& itoken,
+	       PoolTransaction * idb) :
+      m_since(is), m_till(it), m_token(itoken), db(idb){}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
@@ -36,6 +38,7 @@ namespace cond {
     cond::Time_t m_since;
     cond::Time_t m_till;
     std::string  m_token;
+    PoolTransaction * db;
   };
   
   
@@ -56,7 +59,7 @@ namespace cond {
     
     struct IterHelp {
       typedef IOVElement result_type;
-      IterHelp(IOV const & iv) : iov(iv){}
+      IterHelp(IOVImpl & in);
       
       result_type const & operator()(int i) const {
 	elem.set(iov,i);
@@ -72,12 +75,12 @@ namespace cond {
     
     const_iterator begin() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(0),
-					     IterHelp(iov()));
+					     IterHelp(m_iov));
     }
     
     const_iterator end() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
-					     IterHelp(iov()));
+					     IterHelp(m_iov));
     }
     
     
