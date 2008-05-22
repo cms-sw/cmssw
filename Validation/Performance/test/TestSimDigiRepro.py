@@ -167,10 +167,10 @@ def main(argv):
     GENFile=candle.split('.')[0]+"_GEN"
     GENCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s GEN --customise=Configuration/PyReleaseValidation/Simulation.py --fileout="+GENFile+".root>& "+GENFile+".log"
     print "Executing %s" % GENCommand
-    #ExitCode=os.system(GENCommand)
-    #if ExitCode != 0:
-    #    print "Exit code for %s was %s" % (GENCommand, ExitCode)
-    #    ExitCode=0
+    ExitCode=os.system(GENCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (GENCommand, ExitCode)
+        ExitCode=0
         
     #For SaveRandomSeeds.py it's OK to use the version in the release
     #but for RestoreRandomSeeds.py we want to access the number of events to skip
@@ -179,10 +179,10 @@ def main(argv):
     SIMDIGISavedSeedsFile=candle.split('.')[0]+"_SIM_DIGI_SavedSeeds"
     SIMDIGISaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s SIM --customise=Configuration/PyReleaseValidation/SaveRandomSeeds.py --filein file:"+GENFile+".root --fileout="+SIMDIGISavedSeedsFile+".root >& "+SIMDIGISavedSeedsFile+".log"
     print "Executing %s" % SIMDIGISaveSeedsCommand
-    #ExitCode=os.system(SIMDIGISaveSeedsCommand)
-    #if ExitCode != 0:
-    #    print "Exit code for %s was %s" % (SIMDIGISaveSeedsCommand, ExitCode)
-    #    ExitCode=0
+    ExitCode=os.system(SIMDIGISaveSeedsCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (SIMDIGISaveSeedsCommand, ExitCode)
+        ExitCode=0
         
     #Second round SIM+DIGI restoring seeds:
     #Get the RestoreRandomSeeds.py locally (it could be done without copying the file locally, just use the link...)
