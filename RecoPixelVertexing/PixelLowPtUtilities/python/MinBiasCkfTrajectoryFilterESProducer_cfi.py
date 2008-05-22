@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # Base
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
-ckfBaseTrajectoryFilterForMinBias = copy.deepcopy(trajectoryFilterESProducer)
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+ckfBaseTrajectoryFilterForMinBias = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 # ClusterShape
 clusterShapeTrajectoryFilterESProducer = cms.ESProducer("ClusterShapeTrajectoryFilterESProducer",
     filterPset = cms.PSet(
