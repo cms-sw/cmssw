@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/21 15:48:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/22 13:10:09 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -45,19 +45,20 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
 
 
   metname = "segmTrackAnalyzer";
+  string trackCollection = parameters.getParameter<edm::InputTag>("MuTrackCollection").label() + parameters.getParameter<edm::InputTag>("MuTrackCollection").instance();
   LogTrace(metname)<<"[SegmentTrackAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/SegmentTrackAnalyzer");
   
   // histograms initalization
-  hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking", "HitsNotUsedForGlobalTracking", 50, -0.5, 49.5);
-  hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed", "HitsNotUsedForGlobalTrackingDvHitUsed", 100, 0, 1.);
+  hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking_"+trackCollection, "HitsNotUsedForGlobalTracking_"+trackCollection, 50, -0.5, 49.5);
+  hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, "HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, 100, 0, 1.);
 
-  TrackSegm = dbe->book2D("trackSegments", "trackSegments", 3, 0.5, 3.5, 50, -0.5, 49.5);
+  TrackSegm = dbe->book2D("trackSegments_"+trackCollection, "trackSegments_"+trackCollection, 3, 0.5, 3.5, 50, -0.5, 49.5);
   TrackSegm->setBinLabel(1,"DT+CSC",1);
   TrackSegm->setBinLabel(2,"DT",1);
   TrackSegm->setBinLabel(3,"CSC",1);
   
-  hitStaProvenance = dbe->book1D("trackHitProvenance", "trackHitProvenance", 7, 0.5, 7.5);
+  hitStaProvenance = dbe->book1D("trackHitProvenance_"+trackCollection, "trackHitProvenance_"+trackCollection, 7, 0.5, 7.5);
   hitStaProvenance->setBinLabel(1,"DT");
   hitStaProvenance->setBinLabel(2,"CSC");
   hitStaProvenance->setBinLabel(3,"RPC");
@@ -69,23 +70,23 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   int etaBin = parameters.getParameter<int>("etaBin");
   double etaMin = parameters.getParameter<double>("etaMin");
   double etaMax = parameters.getParameter<double>("etaMax");
-  trackHitPercentualVsEta = dbe->book2D("trackHitDivtrackSegmHitVsEta", "trackHitDivtrackSegmHitVsEta", etaBin, etaMin, etaMax, 50, 0, 5);
-  dtTrackHitPercentualVsEta = dbe->book2D("dtTrackHitDivtrackSegmHitVsEta", "dtTrackHitDivtrackSegmHitVsEta", etaBin, etaMin, etaMax, 20, 0, 2);
-  cscTrackHitPercentualVsEta = dbe->book2D("cscTrackHitDivtrackSegmHitVsEta", "cscTrackHitDivtrackSegmHitVsEta", etaBin, etaMin, etaMax, 20, 0, 2);
+  trackHitPercentualVsEta = dbe->book2D("trackHitDivtrackSegmHitVsEta_"+trackCollection, "trackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 50, 0, 5);
+  dtTrackHitPercentualVsEta = dbe->book2D("dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, "dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 20, 0, 2);
+  cscTrackHitPercentualVsEta = dbe->book2D("cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, "cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 20, 0, 2);
 
   int phiBin = parameters.getParameter<int>("phiBin");
   double phiMin = parameters.getParameter<double>("phiMin");
   double phiMax = parameters.getParameter<double>("phiMax");
-  trackHitPercentualVsPhi = dbe->book2D("trackHitDivtrackSegmHitVsPhi", "trackHitDivtrackSegmHitVsPhi", phiBin, phiMin, phiMax, 50, 0, 5);
-  dtTrackHitPercentualVsPhi = dbe->book2D("dtTrackHitDivtrackSegmHitVsPhi", "dtTrackHitDivtrackSegmHitVsPhi", phiBin, phiMin, phiMax, 20, 0, 2);
-  cscTrackHitPercentualVsPhi = dbe->book2D("cscTrackHitDivtrackSegmHitVsPhi", "cscTrackHitDivtrackSegmHitVsPhi", phiBin, phiMin, phiMax, 20, 0, 2);
+  trackHitPercentualVsPhi = dbe->book2D("trackHitDivtrackSegmHitVsPhi_"+trackCollection, "trackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 50, 0, 5);
+  dtTrackHitPercentualVsPhi = dbe->book2D("dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 20, 0, 2);
+  cscTrackHitPercentualVsPhi = dbe->book2D("cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 20, 0, 2);
 
   int ptBin = parameters.getParameter<int>("ptBin");
   double ptMin = parameters.getParameter<double>("ptMin");
   double ptMax = parameters.getParameter<double>("ptMax");
-  trackHitPercentualVsPt = dbe->book2D("trackHitDivtrackSegmHitVsPt", "trackHitDivtrackSegmHitVsPt", ptBin, ptMin, ptMax, 50, 0, 5);
-  dtTrackHitPercentualVsPt = dbe->book2D("dtTrackHitDivtrackSegmHitVsPt", "dtTrackHitDivtrackSegmHitVsPt", ptBin, ptMin, ptMax, 20, 0, 2);
-  cscTrackHitPercentualVsPt = dbe->book2D("cscTrackHitDivtrackSegmHitVsPt", "cscTrackHitDivtrackSegmHitVsPt", ptBin, ptMin, ptMax, 20, 0, 2);
+  trackHitPercentualVsPt = dbe->book2D("trackHitDivtrackSegmHitVsPt_"+trackCollection, "trackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 50, 0, 5);
+  dtTrackHitPercentualVsPt = dbe->book2D("dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, "dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 20, 0, 2);
+  cscTrackHitPercentualVsPt = dbe->book2D("cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, "cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 20, 0, 2);
 
 
 }

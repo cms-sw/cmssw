@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/04/24 13:12:15 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/05/12 16:02:57 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,10 +55,12 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   // Switch for verbosity
   std::string metname;
 
-  // STA Label
-  edm::InputTag theSTACollectionLabel;
-  // Track label
-   edm::InputTag theTrackCollectionLabel;
+  // Muon Label
+  edm::InputTag theMuonCollectionLabel;
+  // Glb Muon Track label
+  edm::InputTag theGlbMuTrackCollectionLabel;
+  // Sta Muon Track label
+  edm::InputTag theStaMuTrackCollectionLabel;
   // Seed Label
   edm::InputTag theSeedsCollectionLabel;
   
@@ -73,8 +75,10 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   MuonSeedsAnalyzer * theSeedsAnalyzer;
   // the muon reco analyzer
   MuonRecoAnalyzer * theMuonRecoAnalyzer;
-  // the track segments analyzer
-  SegmentTrackAnalyzer * theMuonSegmentsAnalyzer;
+  // the track segments analyzer for glb muons
+  SegmentTrackAnalyzer * theGlbMuonSegmentsAnalyzer;
+  // the track segments analyzer for sta muons
+  SegmentTrackAnalyzer * theStaMuonSegmentsAnalyzer;
 
 };
 #endif  
