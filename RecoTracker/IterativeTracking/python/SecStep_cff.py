@@ -1,50 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
+import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
 #TRACKER HITS
-secPixelRecHits = copy.deepcopy(siPixelRecHits)
-import copy
-from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi import *
-secStripRecHits = copy.deepcopy(siStripMatchedRecHits)
-import copy
-from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
+secPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone()
+import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+secStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone()
+import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 #SEEDING LAYERS
 #PIXEL
-seclayertriplets = copy.deepcopy(pixellayertriplets)
-import copy
-from RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi import *
+seclayertriplets = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone()
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi
 #SEEDS
 #TRIPLETS
-secTriplets = copy.deepcopy(globalSeedsFromTripletsWithVertices)
-import copy
-from RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi import *
+secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi
 #TRIPLETS
-secPlTriplets = copy.deepcopy(globalSeedsFromTripletsWithVertices)
-import copy
-from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi import *
+secPlTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 #COMBINED 
-secCombSeeds = copy.deepcopy(globalCombinedSeeds)
-import copy
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
+secCombSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 #TRAJECTORY MEASUREMENT
-secMeasurementTracker = copy.deepcopy(MeasurementTracker)
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
+secMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 #TRAJECTORY FILTER
-secCkfTrajectoryFilter = copy.deepcopy(trajectoryFilterESProducer)
-import copy
-from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
+secCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 #TRAJECTORY BUILDER
-secCkfTrajectoryBuilder = copy.deepcopy(GroupedCkfTrajectoryBuilder)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
+secCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 #TRACK CANDIDATES
-secTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+secTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 #TRACKS
-secWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
+secWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 #FINAL TRACKS
 from RecoTracker.IterativeTracking.SecVxFilter_cff import *
 #HIT REMOVAL
