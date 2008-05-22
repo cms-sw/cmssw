@@ -30,37 +30,30 @@ from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import *
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff import *
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cff import *
-import copy
-from RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cfi import *
-newSeedFromPairs = copy.deepcopy(globalSeedsFromPairsWithVertices)
-import copy
-from RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi import *
-newSeedFromTriplets = copy.deepcopy(globalSeedsFromTripletsWithVertices)
-import copy
-from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi import *
-newCombinedSeeds = copy.deepcopy(globalCombinedSeeds)
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cfi
+newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cfi.globalSeedsFromPairsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi
+newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTripletsWithVertices_cfi.globalSeedsFromTripletsWithVertices.clone()
+import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
+newCombinedSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 # Building
-newTrajectoryFilter = copy.deepcopy(trajectoryFilterESProducer)
-import copy
-from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
-newTrajectoryBuilder = copy.deepcopy(GroupedCkfTrajectoryBuilder)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
-newTrackCandidateMaker = copy.deepcopy(ckfTrackCandidates)
-import copy
-from TrackingTools.TrackFitters.RungeKuttaKFFittingSmootherESProducer_cfi import *
+newTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+newTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+newTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import TrackingTools.TrackFitters.RungeKuttaKFFittingSmootherESProducer_cfi
 # Final Fitting
-FittingSmootherWithOutlierRejection = copy.deepcopy(RKFittingSmoother)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-preFilterFirstStepTracks = copy.deepcopy(ctfWithMaterialTracks)
+FittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.RungeKuttaKFFittingSmootherESProducer_cfi.RKFittingSmoother.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+preFilterFirstStepTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 # Collection cleaning and quality
 from RecoTracker.FinalTrackSelectors.TracksWithQuality_cff import *
+# defines sequence tracksWithQuality, input is preFilterFirstStepTracks, output is firstStepTracksWithQuality
+#
 # include track colleciton merging sequence
-from RecoTracker.FinalTrackSelectors.data.MergeTrackCollections_cff import *
-# defines sequence tracksWithQuality, input is preFilterFirstStepTracks, output is generalTracks
+from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 #
 #sequence ckftracks = {globalMixedSeeds,globalPixelSeeds, ckfTrackCandidates,ctfWithMaterialTracks} #only old ctf sequence
 newTracking = cms.Sequence(newSeedFromPairs*newSeedFromTriplets*newCombinedSeeds*newTrackCandidateMaker*preFilterFirstStepTracks*tracksWithQuality)
