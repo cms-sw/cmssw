@@ -9,7 +9,7 @@
 #include "boost/cstdint.hpp"
 #include <memory>
 
-class RPCSimSetUp;
+class RPCCalibSetUp;
 
 /** 
     @class RPCFakeCalibration
@@ -34,7 +34,7 @@ private:
 private:
 
   //  bool printdebug_;
-  RPCSimSetUp* theRPCSimSetUp;
+  RPCCalibSetUp* theRPCCalibSetUp;
 
 };
 

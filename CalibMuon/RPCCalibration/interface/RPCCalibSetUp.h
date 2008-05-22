@@ -1,5 +1,5 @@
-#ifndef RPCSimSetUp_h
-#define RPCSimSetUp_h
+#ifndef RPCCalibSetUp_h
+#define RPCCalibSetUp_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,12 +20,12 @@ class RPCDigitizer;
 class RPCGeometry;
 class RPCDetId;
 
-class RPCSimSetUp
+class RPCCalibSetUp
 {
 public:
 
-  explicit RPCSimSetUp(const edm::ParameterSet& ps);
-  virtual ~RPCSimSetUp();
+  explicit RPCCalibSetUp(const edm::ParameterSet& ps);
+  virtual ~RPCCalibSetUp();
 
   std::vector<float> getNoise(uint32_t id);
   std::vector<float> getEff(uint32_t id);
