@@ -22,7 +22,7 @@ DQMStore = cms.Service("DQMStore",
 # Quality Tester ####
 qTester = cms.EDFilter("QualityTester",
     qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config.xml'),
-    QualityTestPrescaler = cms.untracked.int32(200),
+    prescaleFactor = cms.untracked.int32(1),
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
