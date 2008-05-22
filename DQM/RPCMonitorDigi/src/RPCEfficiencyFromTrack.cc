@@ -192,6 +192,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
   thePropagator = prop->clone();
   thePropagator->setPropagationDirection(anyDirection);
+  
 
   std::vector<RPCDetId> rollRec;
   rollRec.clear();
@@ -221,7 +222,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	}
 
 	//Barrel
-	if(track.innermostMeasurementState().isValid() && MeasureBarrel==true && reg==0 && whe==wh && (sec==10 || sec==11)){
+	if(track.innermostMeasurementState().isValid() && MeasureBarrel==true && reg==0){
  	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
 	  for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
 	    RPCDetId rollId=(*itRoll)->id();
@@ -276,7 +277,6 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  }
 	}
 
-	
 	//EndCap
 	if(track.innermostMeasurementState().isValid() && reg!=0 && MeasureEndCap==true){
 	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
@@ -353,12 +353,12 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
       func->SetParNames("angCoef","interc");
       
       histoXYFit->Fit("linearFX","r");
-      double angXY = func->GetParameter(0);
-      double interXY = func->GetParameter(1);
       chi2=func->GetChisquare();
     }
 
-    if(fabs(chi2)<0.8 && globalX.size()>2){
+    std::cout<<"Normalized Chi2 track --> "<<track.normalizedChi2()<<std::endl;
+
+    if((chi2<1. && chi2>0.) || (cosmic==false)){
       //Efficiency      
       for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
 	const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
@@ -405,44 +405,19 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
 	  Run=iEvent.id().run();
 	  aTime=iEvent.time().value();
-	  totalcounter[0]++;
-	  buff=counter[0];
-	  buff[rollId]++;
-	  counter[0]=buff;
 	  
 	  const float stripPredicted =rollasociated->strip(LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
 	  double xextrap = tsosAtRoll.localPosition().x();
-	  
-	  sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
-	  meMap[meIdTrack]->Fill(stripPredicted);
-	  
-	  sprintf(meIdRPC,"PredictedImpactPoint_%s",detUnitLabel);
-	  meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
 	
 	  RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollasociated->id());
-	  RPCRecHitCollection::const_iterator recIt;
-	  
-
-	  std::vector<double> ResVec;
-	  ResVec.clear();
-	  std::vector<double> RecErr;
-	  RecErr.clear();
-	  std::vector<double> extrVec;
-	  extrVec.clear();
-	  std::vector<double> posVec;
-	  posVec.clear();
-	  std::vector<double> stripD;
-	  stripD.clear();
-	  std::vector<double> stripPr;
-	  stripPr.clear();
+	  RPCRecHitCollection::const_iterator recIt;	  
 	  
 	  float res=0.;
-	  
-	  
+	  	  
 	  for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
 	    LocalPoint rhitlocal = (*recIt).localPosition();
 	    double rhitpos = rhitlocal.x();  
-	    int stripDetected = (int)(rollasociated->strip(rhitlocal));
+
 	    LocalError RecError = (*recIt).localPositionError();
 	    double sigmaRec = RecError.xx();
 	    res = (double)(xextrap - rhitpos);
@@ -453,45 +428,27 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    sprintf(meIdRPC,"BunchX_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill((*recIt).BunchX());
 
-	    sprintf(meIdRPC,"Residuals_VS_CLsize_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill((*recIt).clusterSize(),res);
+	    if(fabs(tsosAtRoll.localError().positionError().xx())<1. && fabs(tsosAtRoll.localError().positionError().yy())<1.){
+	      double rpcPull = res/sigmaRec;
+	      
+	      sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
+	      meMap[meIdRPC]->Fill(res);
+	      
+	      sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
+	      meMap[meIdRPC]->Fill(tsosAtRoll.globalMomentum().perp(),res);
+	      
+	      sprintf(meIdRPC,"Residuals_VS_CLsize_%s",detUnitLabel);
+	      meMap[meIdRPC]->Fill((*recIt).clusterSize(),res);
 
-	    ResVec.push_back(res);		
-	    RecErr.push_back(sigmaRec);
-	    extrVec.push_back(xextrap);	
-	    posVec.push_back(rhitpos);	
-	    stripD.push_back(stripDetected);	
-	    stripPr.push_back(stripPredicted);
-	  }
-	  
-	  int rpos=0;
-	  if(ResVec.size()==1){
-	    res = ResVec[0];
-	    for(unsigned int rs=0;rs<ResVec.size();rs++){
-	      if(fabs(ResVec[rs]) < fabs(res)){
-		res = ResVec[rs];
-		rpos=rs;
-	      }
+	      sprintf(meIdRPC,"LocalPull_%s",detUnitLabel);
+	      meMap[meIdRPC]->Fill(rpcPull);
+
+	      hGlobalRes->Fill(res);
+	      hGlobalPull->Fill(res/sigmaRec);
+	      hRecPt->Fill(tsosAtRoll.globalMomentum().perp());	     
 	    }
-
-	    ExtrapError->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
-
-	    double rpcPull = res/RecErr[rpos];
-	    
-	    sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(res);
-	    sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(tsosAtRoll.globalMomentum().perp(),res);
-	    
-	    hGlobalRes->Fill(res);
-	    hGlobalPull->Fill(res/RecErr[rpos]);
-	    hRecPt->Fill(tsosAtRoll.globalMomentum().perp());
-	    
-	    sprintf(meIdRPC,"LocalPull_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(rpcPull);
 	  }
-	  
-	  
+	  	  
 	  int stripDetected=0;
 	  bool anycoincidence=false;
 
@@ -505,12 +462,25 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  }
 	  	  
 	  if(anycoincidence==true){
+	    totalcounter[0]++;
+	    buff=counter[0];
+	    buff[rollId]++;
+	    counter[0]=buff;
+
+	    std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
+
 	    totalcounter[1]++;
 	    buff=counter[1];
 	    buff[rollId]++;
 	    counter[1]=buff;
 
-	    std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
+	    ExtrapError->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
+
+	    sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
+	    meMap[meIdTrack]->Fill(stripPredicted);
+
+	    sprintf(meIdRPC,"PredictedImpactPoint_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
 
 	    sprintf(meIdRPC,"2DExtrapolation_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
@@ -521,8 +491,19 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill(stripPredicted);
 	    
-	  }else{
+	  }else if(anycoincidence==false && fabs(tsosAtRoll.localError().positionError().xx())<1. && fabs(tsosAtRoll.localError().positionError().yy())<1.){
+	    totalcounter[0]++;
+	    buff=counter[0];
+	    buff[rollId]++;
+	    counter[0]=buff;
+
 	    std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
+
+	    sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
+	    meMap[meIdTrack]->Fill(stripPredicted);
+
+	    sprintf(meIdRPC,"PredictedImpactPoint_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
 
 	    totalcounter[2]++;
 	    buff=counter[2];
