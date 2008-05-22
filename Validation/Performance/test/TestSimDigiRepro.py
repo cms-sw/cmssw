@@ -165,10 +165,10 @@ def main(argv):
     GENFile=candle.split('.')[0]+"_GEN"
     GENCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s GEN --customise=Configuration/PyReleaseValidation/Simulation.py --fileout="+GENFile+".root>& "+GENFile+".log"
     print "Executing %s" % GENCommand
-    #ExitCode=os.system(GENCommand)
-    #if ExitCode != 0:
-    #    print "Exit code for %s was %s" % (GENCommand, ExitCode)
-    #    ExitCode=0
+    ExitCode=os.system(GENCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (GENCommand, ExitCode)
+        ExitCode=0
         
     #For SaveRandomSeeds.py it's OK to use the version in the release
     #but for RestoreRandomSeeds.py we want to access the number of events to skip
@@ -177,10 +177,10 @@ def main(argv):
     SIMDIGISavedSeedsFile=candle.split('.')[0]+"_SIM_DIGI_SavedSeeds"
     SIMDIGISaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s SIM --customise=Configuration/PyReleaseValidation/SaveRandomSeeds.py --filein file:"+GENFile+".root --fileout="+SIMDIGISavedSeedsFile+".root >& "+SIMDIGISavedSeedsFile+".log"
     print "Executing %s" % SIMDIGISaveSeedsCommand
-    #ExitCode=os.system(SIMDIGISaveSeedsCommand)
-    #if ExitCode != 0:
-    #    print "Exit code for %s was %s" % (SIMDIGISaveSeedsCommand, ExitCode)
-    #    ExitCode=0
+    ExitCode=os.system(SIMDIGISaveSeedsCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (SIMDIGISaveSeedsCommand, ExitCode)
+        ExitCode=0
         
     #Second round SIM+DIGI restoring seeds:
     #Get the RestoreRandomSeeds.py locally (it could be done without copying the file locally, just use the link...)
@@ -194,10 +194,10 @@ def main(argv):
     SIMDIGIRestoredSeedsFile=candle.split('.')[0]+"_SIM_DIGI_RestoredSeeds_Skip"+str(skipEvents)+"Evts"
     SIMDIGIRestoreSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s SIM --customise="+NewRestorePy+" --filein file:"+SIMDIGISavedSeedsFile+".root --fileout="+SIMDIGIRestoredSeedsFile+".root >& "+SIMDIGIRestoredSeedsFile+".log"
     print "Executing %s" % SIMDIGIRestoreSeedsCommand
-    #ExitCode=os.system(SIMDIGIRestoreSeedsCommand)
-    #if ExitCode != 0:
-    #    print "Exit code for %s was %s" % (SIMDIGIRestoreSeedsCommand, ExitCode)
-    #    ExitCode=0
+    ExitCode=os.system(SIMDIGIRestoreSeedsCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (SIMDIGIRestoreSeedsCommand, ExitCode)
+        ExitCode=0
     
     #Get the cfg files necessary to run the dumpers(use python version of them!):
     CfgFilesLocation={"runSimHitCaloHitDumper_cfg.py":"/src/SimG4Core/Application/test/","runSimTrackSimVertexDumper_cfg.py":"/src/SimG4Core/Application/test/","runSimDigiDumper_cfg.py":"/src/Validation/Performance/test/"}
