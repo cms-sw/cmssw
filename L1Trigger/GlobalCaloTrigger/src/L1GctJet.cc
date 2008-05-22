@@ -5,12 +5,14 @@
 
 
 
-L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool overFlow, bool forwardJet, bool tauVeto) :
+L1GctJet::L1GctJet(const uint16_t rawsum, const unsigned eta, const unsigned phi, const bool overFlow,
+                   const bool forwardJet, const bool tauVeto, const int16_t bx) :
   m_rawsum(rawsum & kRawsumMaxValue),
   m_id(eta, phi),
   m_overFlow(overFlow || (rawsum>kRawsumMaxValue)),
   m_forwardJet(forwardJet),
-  m_tauVeto(tauVeto || forwardJet)
+  m_tauVeto(tauVeto || forwardJet),
+  m_bx(bx)
 {
 }
 
@@ -61,14 +63,16 @@ bool L1GctJet::operator!= (const L1GctJet& cand) const
   return result;
 }
   
-void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool overFlow, bool forwardJet, bool tauVeto)
+void L1GctJet::setupJet(const uint16_t rawsum, const unsigned eta, const unsigned phi, const bool overFlow,
+                        const bool forwardJet, const bool tauVeto, const int16_t bx)
 {
   L1CaloRegionDetId temp(eta, phi);
-  m_rawsum = (rawsum & kRawsumMaxValue);
+  m_rawsum = rawsum & kRawsumMaxValue;
   m_id = temp;
   m_overFlow = (overFlow || rawsum>kRawsumMaxValue);
   m_forwardJet = forwardJet;
   m_tauVeto = tauVeto || forwardJet;
+  m_bx = bx;
 }
 
 /// eta value as encoded in hardware at the GCT output
@@ -89,7 +93,7 @@ unsigned L1GctJet::hwPhi() const
 /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
 L1GctJetCand L1GctJet::jetCand(const L1GctJetEtCalibrationLut* lut) const
 {
-  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet());
+  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet(), (uint16_t) 0, (uint16_t) 0, m_bx);
 }
 
 /// The two separate Lut outputs
@@ -106,11 +110,11 @@ unsigned L1GctJet::calibratedEt(const L1GctJetEtCalibrationLut* lut) const
 // internal function to find the lut contents for a jet
 uint16_t L1GctJet::lutValue(const L1GctJetEtCalibrationLut* lut) const
 {
-  uint16_t result;
-  if (m_overFlow) {
-    // Set output values to maximum
-    result = 0xffff;
-  } else {
+  uint16_t result; 
+  if (m_overFlow) { 
+    // Set output values to maximum 
+    result = 0xffff; 
+  } else { 
     unsigned addrBits = m_rawsum | (rctEta() << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH);
     // Set the MSB for tau jets
     if (!m_tauVeto && !m_forwardJet) {

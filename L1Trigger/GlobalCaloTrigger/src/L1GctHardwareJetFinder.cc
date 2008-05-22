@@ -195,8 +195,9 @@ void L1GctHardwareJetFinder::findProtoClusters()
     }
     unsigned eta = m_localMaxima.at(j).gctEta();
     unsigned phi = m_localMaxima.at(j).gctPhi();
+    int16_t  bx  = m_localMaxima.at(j).bx();
 
-    L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi);
+    L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx);
     if (localPhi==0) {
     // Store "top edge" jets
       topJets.at(numberOfTopJets) = temp;
@@ -292,8 +293,9 @@ void L1GctHardwareJetFinder::findFinalClusters()
 			// Store the new jet
 			unsigned eta = m_rcvdProtoJets.at(j).gctEta();
 			unsigned phi = m_rcvdProtoJets.at(j).gctPhi();
+			int16_t  bx  = m_rcvdProtoJets.at(j).bx();
 
-			L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi);
+			L1GctRegion temp(etCluster, ovrFlowOr, tauVetoOr, eta, phi, bx);
 			m_clusters.at(j) = temp;
 
 		}
@@ -336,7 +338,7 @@ void L1GctHardwareJetFinder::convertClustersToOutputJets()
     unsigned JET_THRESHOLD = ( isForward ? m_FwdJetSeed : m_CenJetSeed);
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
       L1GctJet temp(m_clusters.at(j).et(), m_clusters.at(j).gctEta(), m_clusters.at(j).gctPhi(), 
-                    m_clusters.at(j).overFlow(), isForward, m_clusters.at(j).tauVeto());
+                    m_clusters.at(j).overFlow(), isForward, m_clusters.at(j).tauVeto(), m_clusters.at(j).bx());
       m_outputJets.at(j) = temp;
     }
   }
