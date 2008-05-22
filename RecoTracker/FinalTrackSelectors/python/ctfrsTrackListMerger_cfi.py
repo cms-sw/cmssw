@@ -41,9 +41,9 @@ ctfrsTrackListMerger = cms.EDFilter("SimpleTrackListMerger",
     TrackProducer2 = cms.string('rsWithMaterialTracks'),
     # module laber of CTF Tracks from KF with material propagator
     #string TrackProducer1 = "ctfWithMaterialTracks"
-    TrackProducer1 = cms.string('generalTracks')
+    TrackProducer1 = cms.string('generalTracks'),
     # set new quality for confirmed tracks
-    promoteTrackQuality = cms.bool(False)
+    promoteTrackQuality = cms.bool(False),
     newQuality = cms.string('confirmed')
 )
 
