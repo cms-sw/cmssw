@@ -216,7 +216,7 @@ int main( int argc, char **argv )
 	}
 	string _tag = vm["tag-name"].as<string>();
 	HcalLutManager manager;
-	manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file );
+	manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file, !vm.count("do-not-split-by-crate") );
 	/*
 	int _lut_type = vm["lut-type"].as<int>();
 	if (_lut_type==1){

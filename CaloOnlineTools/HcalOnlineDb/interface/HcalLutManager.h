@@ -16,8 +16,13 @@
 #include <boost/shared_ptr.hpp>
 #include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+//#include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
+#include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
 using namespace boost;
+//using namespace hcal;
+
 
 class XMLDOMBlock;
 
@@ -39,6 +44,8 @@ class HcalLutManager{
 
   void init( void );
   std::string & getLutXml( std::vector<unsigned int> & _lut );
+
+  // crate=-1 stands for all crates
   std::map<int, shared_ptr<LutXml> > getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
 
@@ -54,6 +61,16 @@ class HcalLutManager{
 
   // tests reading LUTs from a local XML
   int test_xml_access( string _tag, string _filename );
+  
+  // connect to local XML file with LUTs and local ASCII file with LMAP
+  // connection interface through protected members db and lmap
+  int read_lmap( string lmap_hbef_file, string lmap_ho_file );
+  int read_luts( string lut_xml_file );
+  int local_connect( string lut_xml_file, string lmap_hbef_file, string lmap_ho_file );
+
+  // hcal::ConfigurationDatabase::LinearizerLUT
+  // hcal::ConfigurationDatabase::CompressionLUT
+  std::vector<unsigned int> getLutFromXml( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
 
   static int getInt( string number );
   static HcalSubdetector get_subdetector( string _subdet );
@@ -62,6 +79,8 @@ class HcalLutManager{
  protected:
   
   LutXml * lut_xml;
+  HCALConfigDB * db;
+  LMap * lmap;
 
 };
 

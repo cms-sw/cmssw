@@ -6,6 +6,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 //#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 using namespace std;
 
@@ -26,14 +27,18 @@ HcalLutManager::HcalLutManager( void )
 
 void HcalLutManager::init( void )
 {    
-  lut_xml = NULL;
+  lut_xml = 0;
+  db = 0;
+  lmap = 0;
 }
 
 
 
 HcalLutManager::~HcalLutManager( void )
 {    
-  if (lut_xml) delete lut_xml;
+  delete lut_xml;
+  delete db;
+  delete lmap;
 }
 
 
@@ -240,7 +245,9 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
       if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 1;
       else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 0;
       else cout << "Warning! fpga out of range..." << endl;
-      _cfg.fiber = row->second.rm_fi;
+      // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
+      //_cfg.fiber = row->second.rm_fi;
+      _cfg.fiber = row->second.htr_fi;
       _cfg.fiberchan = row->second.fi_ch;
       if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
       else _cfg.lut_type = 2;
@@ -282,14 +289,15 @@ int HcalLutManager::writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml,
 
 int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate )
 {
+  cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
   std::map<int, shared_ptr<LutXml> > xml;
   if ( _lin_file.size() != 0 ){
-    addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag ) );
+    addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
   }
   if ( _comp_file.size() != 0 ){
-    cout << "DEBUG1!!!!" << endl;
-    addLutMap( xml, getCompressionLutXmlFromAsciiMaster( _comp_file, _tag ) );
-    cout << "DEBUG2!!!!" << endl;
+    //cout << "DEBUG1!!!!" << endl;
+    addLutMap( xml, getCompressionLutXmlFromAsciiMaster( _comp_file, _tag, -1, split_by_crate ) );
+    //cout << "DEBUG2!!!!" << endl;
   }
   writeLutXmlFiles( xml, _tag, split_by_crate );
   return 0;
@@ -402,57 +410,35 @@ string HcalLutManager::get_time_stamp( time_t _time )
 
 int HcalLutManager::test_xml_access( string _tag, string _filename )
 {
-
-  HCALConfigDB * db = new HCALConfigDB();
-  db -> connect( _filename, "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
-
-  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "emap_hcal_emulator_test_luts", 17, 2, 1, 1, 0, 1 );
-  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "GREN_170_realped", 17, 2, 1, 1, 0, 1 );
+  local_connect( _filename, "HCALmapHBEF.txt", "HCALmapHO.txt" );
 
   struct timeval _t;
   gettimeofday( &_t, NULL );
   cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  vector<unsigned int> _lut = getLutFromXml( _tag, 1107312779, hcal::ConfigurationDatabase::LinearizerLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 15, 2, 1, 1, 0, 1 );
+  _lut = getLutFromXml( _tag, 1140869389, hcal::ConfigurationDatabase::LinearizerLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  _lut = getLutFromXml( _tag, 1207997189, hcal::ConfigurationDatabase::LinearizerLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 9, 2, 1, 1, 0, 1 );
+  _lut = getLutFromXml( _tag, 1174471427, hcal::ConfigurationDatabase::LinearizerLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 0, 2, 1, 1, 0, 1 );
+  _lut = getLutFromXml( _tag, 1140878737, hcal::ConfigurationDatabase::CompressionLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
 
   /*
-  HcalDetId _hcaldetid( HcalBarrel, -11, 12, 1 );
-
-  struct timeval _t;
-  gettimeofday( &_t, NULL );
-  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  vector<unsigned int> _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
-
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  HcalDetId _hcaldetid2( HcalBarrel, -11, 13, 1 );
-  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid2 . rawId() );
-
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
-
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
+  for (map<int,LMapRow>::const_iterator l=lmap->get_map().begin(); l!=lmap->get_map().end(); l++){
+    _lut = getLutFromXml( _tag, l->first, hcal::ConfigurationDatabase::LinearizerLUT );
+    gettimeofday( &_t, NULL );
+    //cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;    
+  }
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;    
   */
-
 
   cout << "LUT length = " << _lut . size() << endl;
   for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
@@ -463,7 +449,90 @@ int HcalLutManager::test_xml_access( string _tag, string _filename )
 
 
   db -> disconnect();
-  
+
+  delete db;
+  db = 0;
 
   return 0;
+}
+
+
+
+int HcalLutManager::read_lmap( string lmap_hbef_file, string lmap_ho_file )
+{
+  delete lmap;
+  lmap = new LMap();
+  lmap -> read( lmap_hbef_file, "HBEF" );
+  lmap -> read( lmap_ho_file, "HO" );
+  cout << "LMap contains " << lmap -> get_map() . size() << " channels (compare to 9072 of all HCAL channels)" << endl;
+  return 0;
+}
+
+
+
+int HcalLutManager::read_luts( string lut_xml_file )
+{
+  delete db;
+  db = new HCALConfigDB();
+  db -> connect( lut_xml_file );
+  return 0;
+}
+
+
+
+
+
+int HcalLutManager::local_connect( string lut_xml_file, string lmap_hbef_file, string lmap_ho_file )
+{
+  read_lmap( lmap_hbef_file, lmap_ho_file );
+  read_luts( lut_xml_file );
+  return 0;
+}
+
+
+
+
+std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
+{
+  if ( !lmap ){
+    cout << "HcalLutManager: cannot find LUT without LMAP, exiting..." << endl;
+    exit(-1);
+  }
+  if ( !db ){
+    cout << "HcalLutManager: cannot find LUT, no source (local XML file), exiting..." << endl;
+    exit(-1);
+  }
+
+  std::vector<unsigned int> result;
+
+  map<int,LMapRow> & _map = lmap -> get_map();
+  //cout << "HcalLutManager: LMap contains " << _map . size() << " channels (out of 9072 total)" << endl;
+
+  HcalDetId _id( _rawid );
+    
+  unsigned int _crate, _slot, _fiber, _channel;
+  string _fpga;
+  int topbottom, luttype;
+
+  // FIXME: check validity of _rawid
+  if ( _map . find(_rawid) != _map.end() ){
+    _crate   = _map[_rawid] . crate;
+    _slot    = _map[_rawid] . htr;
+    _fiber   = _map[_rawid] . htr_fi;
+    _channel = _map[_rawid] . fi_ch;
+    _fpga    = _map[_rawid] . fpga;
+    
+    if ( _fpga . find("top") != string::npos ) topbottom = 1;
+    else if ( _fpga . find("bot") != string::npos ) topbottom = 0;
+    else{
+      cout << "HcalLutManager: irregular LMAP fpga value... do not know what to do - exiting" << endl;
+      exit(-1);
+    }
+    if ( _lt == hcal::ConfigurationDatabase::LinearizerLUT ) luttype = 1;
+    else luttype = 2;
+    
+    result = db -> getOnlineLUT( tag, _crate, _slot, topbottom, _fiber, _channel, luttype );
+  }
+  
+  return result;
 }
