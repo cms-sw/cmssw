@@ -46,8 +46,8 @@ namespace cond {
     return registry->registerMe(t);
   }
 
-  std::string ClassInfo::pluginName(std::string & const prefix) const {
-    return prefix + "\" +id(tinfo);
+  std::string ClassInfo::pluginName(std::string const & prefix) const {
+    return prefix + "/" +id(tinfo);
   }
 
   

@@ -18,7 +18,7 @@ namespace cond {
       inline ClassInfo(const std::type_info& t) : tinfo(t) {}
       inline ClassInfo(const std::type_info& t, int);
       inline const std::type_info& type() const { return tinfo;}
-      std::string pluginName(std::string & const prefix) const;
+      std::string pluginName(std::string const & prefix) const;
       virtual std::string resource() const=0;
     private:
       ClassIDRegistry * registry;
