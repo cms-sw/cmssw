@@ -18,6 +18,8 @@ namespace cond {
       inline ClassInfo(const std::type_info& t) : tinfo(t) {}
       inline ClassInfo(const std::type_info& t, int);
       inline const std::type_info& type() const { return tinfo;}
+      std::string pluginName(std::string & const prefix) const;
+      virtual std::string resource() const=0;
     private:
       ClassIDRegistry * registry;
       const char * registerMe(const std::type_info& t);
@@ -41,8 +43,11 @@ namespace cond {
 
   template<typename T>
   struct ClassID : public  ClassInfo {
-    ClassID() : ClassIDRegistry::Elem(typeid(T)) {}
-    ClassID(int i) : ClassIDRegistry::Elem(typeid(T),i) {}
+    ClassID(std::string const & res ) : ClassInfo(typeid(T)), m_res(res) {}
+    ClassID(int i) : ClassInfo(typeid(T),i) {}
+    virtual std::string resource() const { return m_res;}
+  private:
+    std::string m_res;
   };
   
     
