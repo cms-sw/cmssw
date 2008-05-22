@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <vector>
+#include <string>
 
 namespace edm { 
   class ParameterSet;
@@ -37,8 +38,10 @@ class FastTrackMerger : public edm::EDProducer
   std::vector<edm::InputTag> trackProducers;
   std::vector<edm::InputTag> removeTrackProducers;
   bool tracksOnly;
+  bool promoteQuality;
   double pTMin2;
   unsigned minHits;
+  std::string qualityStr;
 
 };
 

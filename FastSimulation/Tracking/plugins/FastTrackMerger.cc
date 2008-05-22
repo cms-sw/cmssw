@@ -52,6 +52,10 @@ FastTrackMerger::FastTrackMerger(const edm::ParameterSet& conf)
   // optional nHit cut
   minHits = conf.getUntrackedParameter<unsigned>("minHits",0);
 
+  // optional track quality saving
+  promoteQuality = conf.getUntrackedParameter<bool>("promoteTrackQuality",false);
+  qualityStr = conf.getUntrackedParameter<std::string>("newQuality","");
+
   if ( !tracksOnly ) { 
     produces<reco::TrackExtraCollection>();
     produces<TrackingRecHitCollection>();
@@ -88,6 +92,13 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
     }
     return;
   }
+
+  // The quality to be set
+  reco::TrackBase::TrackQuality qualityToSet;
+  if (qualityStr != "")
+    qualityToSet = reco::TrackBase::qualityByName(qualityStr);
+  else 
+    qualityToSet = reco::TrackBase::undefQuality;
 
   // The input track collection handle
   edm::Handle<reco::TrackCollection> theTrackCollection;
@@ -176,6 +187,8 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	// const reco::TrackExtraRef theTrackExtraRef(*theTrackExtraCollection,index);
 	// if ( isTrackExtraCollection ) aRecoTrack.setExtra(theTrackExtraRef);
 	recoTracks->push_back(aRecoTrack);
+	// Save the quality if requested
+	if (promoteQuality) recoTracks->back().setQuality(qualityToSet);	
 	
       }
       
@@ -237,7 +250,8 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 	// A copy of the track
 	reco::Track aRecoTrack(*aTrackRef);
 	recoTracks->push_back(aRecoTrack);      
-	
+	// Save the quality if requested
+	if (promoteQuality) recoTracks->back().setQuality(qualityToSet);	
 	// A copy of the hits
 	unsigned nh = aRecoTrack.recHitsSize();
 	for ( unsigned ih=0; ih<nh; ++ih ) {
