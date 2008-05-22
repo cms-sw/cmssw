@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon track seeds
  *
- *  $Date$
- *  $Revision$
+ *  $Date: 2008/03/28 15:21:03 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -78,37 +78,17 @@ class MuonSeedsAnalyzer : public MuonAnalyzerBase {
   double seedPtMin;
   double seedPtMax;
   
-  int seedPxBin;
-  double seedPxMin;
-  double seedPxMax;
-  
-  int seedPyBin;
-  double seedPyMin;
-  double seedPyMax;
-  
-  int seedPzBin;
-  double seedPzMin;
-  double seedPzMax;
-
-  int ptErrBin;
-  double ptErrMin;
-  double ptErrMax;
-
-  int pxErrBin;
-  double pxErrMin;
-  double pxErrMax;
-
-  int pyErrBin;
-  double pyErrMin;
-  double pyErrMax;
-
-  int pzErrBin;
-  double pzErrMin;
-  double pzErrMax;
-
+  int seedPxyzBin;
+  double seedPxyzMin;
+  double seedPxyzMax;
+ 
   int pErrBin;
   double pErrMin;
   double pErrMax;
+
+  int pxyzErrBin;
+  double pxyzErrMin;
+  double pxyzErrMax;
 
   int phiErrBin;
   double phiErrMin;
@@ -129,10 +109,16 @@ class MuonSeedsAnalyzer : public MuonAnalyzerBase {
   MonitorElement* seedPy;
   MonitorElement* seedPz;
   MonitorElement* seedPtErr;
+  MonitorElement* seedPtErrVsPhi;
+  MonitorElement* seedPtErrVsEta;
+  MonitorElement* seedPtErrVsPt;
   MonitorElement* seedPxErr;
   MonitorElement* seedPyErr;
   MonitorElement* seedPzErr;
   MonitorElement* seedPErr;
+  MonitorElement* seedPErrVsPhi;
+  MonitorElement* seedPErrVsEta;
+  MonitorElement* seedPErrVsPt;
   MonitorElement* seedPhiErr;
   MonitorElement* seedEtaErr;
 
