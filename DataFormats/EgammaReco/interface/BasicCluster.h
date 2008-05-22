@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: BasicCluster.h,v 1.13 2008/04/28 19:46:15 meridian Exp $
+ * \version $Id: BasicCluster.h,v 1.14 2008/05/14 13:55:42 ferriff Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -33,6 +33,9 @@ namespace reco {
 
     /// DetIds of component RecHits
     std::vector<DetId> getHitsByDetId() const { return usedHits_; }
+
+    /// Size (in number of crystals)
+    size_t size() const { return usedHits_.size(); }
 
     /// chi-squared
     double chi2() const { return chi2_; }
