@@ -10,4 +10,5 @@ from CalibTracker.Configuration.SiStripLorentzAngle.SiStripLorentzAngle_Fake_cff
 from CalibTracker.Configuration.SiStripNoise.SiStripNoise_Fake_APVModePeak_cff import *
 from CalibTracker.Configuration.SiStripPedestals.SiStripPedestals_Fake_cff import *
 from CalibTracker.Configuration.SiStripQuality.SiStripQuality_Fake_cff import *
+from CalibTracker.Configuration.SiStripThreshold.SiStripThreshold_Fake_cff import *
 
