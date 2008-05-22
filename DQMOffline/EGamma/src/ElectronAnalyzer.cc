@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.2 2008/05/14 13:09:43 charlot Exp $
+// $Id: ElectronAnalyzer.cc,v 1.1 2008/05/16 11:39:02 uberthon Exp $
 //
 //
 
@@ -120,7 +120,7 @@ void ElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   }
   
   if (dbe_) {
-    dbe_->setCurrentFolder("DQMOffline/Egamma/ElectronAnalyzer");
+    dbe_->setCurrentFolder("Egamma/ElectronAnalyzer");
   
     std::string htitle, hlabel;
     // matching object distributions 

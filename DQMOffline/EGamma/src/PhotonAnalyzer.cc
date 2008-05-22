@@ -143,7 +143,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     //// All MC photons
     // SC from reco photons
 
-    dbe_->setCurrentFolder("DQMOffline/Egamma/PhotonAnalyzer");
+    dbe_->setCurrentFolder("Egamma/PhotonAnalyzer");
 
     //// Reconstructed photons
     std::string histname = "nPho";
