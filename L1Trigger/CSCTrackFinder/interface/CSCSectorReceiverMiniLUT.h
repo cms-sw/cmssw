@@ -30,14 +30,6 @@ private:
   static const float gbl_phi_me_params[2][6][4][2][9][2]; // [endcap][sector][station][subsector][cscID][param 0 or 1]
   
   static const float gbl_phi_mb_params[2][6][2][9][2]; // [endcap][sector][subsector][cscID][param 0 or 1]
-  /*
-  static const float gbl_eta_params[3]; // [endcap][sector][station][subsector][localPhi][cscID][param 0, 1, or 2]
-  static const unsigned short int gbl_eta_bounds[2]; // [endcap][sector][station][subsector][localPhi][cscID][0=min, 1=max]
-  
-  static const float gbl_phi_me_params[2]; // [endcap][sector][station][subsector][cscID][param 0 or 1]
-  
-  static const float gbl_phi_mb_params[2]; // [endcap][sector][subsector][cscID][param 0 or 1]
-  */
 };
 
 #endif

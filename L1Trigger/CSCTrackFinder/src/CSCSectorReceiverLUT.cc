@@ -1,5 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h> // BJ
+#include <L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverMiniLUT.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeomManager.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h>
@@ -37,7 +37,7 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
-    me_lcl_phi    = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
+	me_lcl_phi    = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
 
 	edm::ESHandle<L1MuCSCLocalPhiLut>  localLUT;
 	c.get<L1MuCSCLocalPhiLutRcd>().get(localLUT);
@@ -65,13 +65,13 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
 									   _station(station),isTMB07(TMB07)
 {
   LUTsFromFile = pset.getUntrackedParameter<bool>("ReadLUTs",false);
-  useMiniLUTs = pset.getUntrackedParameter<bool>("UseMiniLUTs", false); // BJ
+  useMiniLUTs = pset.getUntrackedParameter<bool>("UseMiniLUTs", true);
   isBinary = pset.getUntrackedParameter<bool>("Binary",false);
 
   me_global_eta = NULL;
   me_global_phi = NULL;
   mb_global_phi = NULL;
-  if(LUTsFromFile && !useMiniLUTs) // BJ
+  if(LUTsFromFile && !useMiniLUTs)
     {
       me_lcl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("LocalPhiLUT", edm::FileInPath(std::string("L1Trigger/CSCTrackFinder/LUTs/LocalPhiLUT"
 													       + (isBinary ? std::string(".bin") : std::string(".dat")))));
@@ -257,8 +257,11 @@ lclphidat CSCSectorReceiverLUT::localPhi(unsigned address) const
 {
   lclphidat result;
   lclphiadd theadd(address);
-
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address);
+  
+  if(useMiniLUTs && isTMB07)
+    {
+      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address);
+    }
   else if(LUTsFromFile) result = me_lcl_phi[address];
   else result = calcLocalPhi(theadd);
 
@@ -269,7 +272,10 @@ lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address) const
 {
   lclphidat result;
 
-  if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint()); 
+  if(useMiniLUTs && isTMB07)
+    {
+      result = CSCSectorReceiverMiniLUT::calcLocalPhiMini(address.toint()); 
+    }
   else if(LUTsFromFile) result = me_lcl_phi[address.toint()];
   else result = calcLocalPhi(address);
 
