@@ -1,9 +1,9 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.2 2008/03/03 23:44:45 ferriff Exp $
- *  $Date: 2008/03/03 23:44:45 $
- *  $Revision: 1.2 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.3 2008/03/12 13:24:57 ferriff Exp $
+ *  $Date: 2008/03/12 13:24:57 $
+ *  $Revision: 1.3 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -68,24 +68,28 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
         const EBRecHitCollection*  EBRecHits = 0;
         const EERecHitCollection*  EERecHits = 0; 
 
-        try {
+        if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) {
                 evt.getByLabel( EBRecHitCollection_, pEBRecHits);
-                EBRecHits = pEBRecHits.product(); // get a ptr to the product
+                if ( pEBRecHits.isValid() ) {
+                        EBRecHits = pEBRecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                LogDebug("EcalRecHitDebug") << "total # EB rechits to be re-calibrated: " << EBuncalibRecHits->size();
+                        LogDebug("EcalRecHitDebug") << "total # EB rechits to be re-calibrated: " << EBuncalibRecHits->size();
 #endif
-        } catch (...) {
-                //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBuncalibRecHitCollection_.c_str() ;
+                } else {
+                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << EBRecHitCollection_.label() ;
+                }
         }
 
-        try {
+        if ( EERecHitCollection_.label() != "" && EERecHitCollection_.instance() != "" ) {
                 evt.getByLabel( EERecHitCollection_, pEERecHits);
-                EERecHits = pEERecHits.product(); // get a ptr to the product
+                if ( pEERecHits.isValid() ) {
+                        EERecHits = pEERecHits.product(); // get a ptr to the product
 #ifdef DEBUG
-                LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits to be re-calibrated: " << EEuncalibRecHits->size();
+                        LogDebug("EcalRecHitDebug") << "total # EE uncalibrated rechits to be re-calibrated: " << EEuncalibRecHits->size();
 #endif
-        } catch (...) {
-                //edm::LogError("EcalRecHitError") << "Error! can't get the product " << EEuncalibRecHitCollection_.c_str() ;
+                } else {
+                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << EERecHitCollection_.label() ;
+                }
         }
 
         // collection of rechits to put in the event
@@ -176,8 +180,8 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                 }
         }
         // put the collection of recunstructed hits in the event   
-        LogInfo("EcalRecalibRecHitInfo") << "total # EB re-calibrated rechits: " << EBRecHits->size();
-        LogInfo("EcalRecalibRecHitInfo") << "total # EE re-calibrated rechits: " << EERecHits->size();
+        if ( EBRecHits ) LogInfo("EcalRecalibRecHitInfo") << "total # EB re-calibrated rechits: " << EBRecHits->size();
+        if ( EBRecHits ) LogInfo("EcalRecalibRecHitInfo") << "total # EE re-calibrated rechits: " << EERecHits->size();
 
         evt.put( EBRecalibRecHits, EBRecalibRecHitCollection_ );
         evt.put( EERecalibRecHits, EERecalibRecHitCollection_ );
