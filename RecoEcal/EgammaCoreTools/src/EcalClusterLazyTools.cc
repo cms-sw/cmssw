@@ -160,6 +160,30 @@ float EcalClusterLazyTools::e2x5Bottom( const reco::BasicCluster &cluster )
 }
 
 
+float EcalClusterLazyTools::eLeft( const reco::BasicCluster &cluster )
+{
+        return EcalClusterTools::eLeft( cluster, getEcalRecHitCollection(cluster), topology_ );
+}
+
+
+float EcalClusterLazyTools::eRight( const reco::BasicCluster &cluster )
+{
+        return EcalClusterTools::eRight( cluster, getEcalRecHitCollection(cluster), topology_ );
+}
+
+
+float EcalClusterLazyTools::eTop( const reco::BasicCluster &cluster )
+{
+        return EcalClusterTools::eTop( cluster, getEcalRecHitCollection(cluster), topology_ );
+}
+
+
+float EcalClusterLazyTools::eBottom( const reco::BasicCluster &cluster )
+{
+        return EcalClusterTools::eBottom( cluster, getEcalRecHitCollection(cluster), topology_ );
+}
+
+
 float EcalClusterLazyTools::eMax( const reco::BasicCluster &cluster )
 {
         return EcalClusterTools::eMax( cluster, getEcalRecHitCollection(cluster) );
@@ -211,4 +235,14 @@ double EcalClusterLazyTools::zernike20( const reco::BasicCluster &cluster, doubl
 double EcalClusterLazyTools::zernike42( const reco::BasicCluster &cluster, double R0, bool logW, float w0 )
 {
         return EcalClusterTools::zernike42( cluster, getEcalRecHitCollection(cluster), geometry_, R0, logW, w0 );
+}
+
+std::vector<DetId> EcalClusterLazyTools::matrixDetId( DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
+{
+        return EcalClusterTools::matrixDetId( topology_, id, ixMin, ixMax, iyMin, iyMax );
+}
+
+float EcalClusterLazyTools::matrixEnergy( const reco::BasicCluster &cluster, DetId id, int ixMin, int ixMax, int iyMin, int iyMax )
+{
+        return EcalClusterTools::matrixEnergy( cluster, getEcalRecHitCollection(cluster), topology_, id, ixMin, ixMax, iyMin, iyMax );
 }

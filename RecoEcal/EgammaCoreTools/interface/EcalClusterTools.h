@@ -26,6 +26,7 @@ class EcalClusterTools {
                 EcalClusterTools() {};
                 ~EcalClusterTools() {};
 
+                // various energies in the matrix nxn surrounding the maximum energy crystal of the input cluster
                 static float e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
@@ -39,8 +40,13 @@ class EcalClusterTools {
                 static float e2x5Left( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                static float eLeft( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                static float eRight( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                static float eTop( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                static float eBottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float eMax( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
                 static float e2nd( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
+                // get the DetId and the energy of the maximum energy crystal of the input cluster
                 static std::pair<DetId, float> getMaximum( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits);
 
                 static std::vector<float> energyBasketFractionEta( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
@@ -53,7 +59,18 @@ class EcalClusterTools {
                 
                 static double zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
                 static double zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
+
+                // get the detId's of a matrix centered in the maximum energy crystal = (0,0)
+                // the size is specified by ixMin, ixMax, iyMin, iyMax in unit of crystals
                 static std::vector<DetId> matrixDetId( const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
+                // get the energy deposited in a matrix centered in the maximum energy crystal = (0,0)
+                // the size is specified by ixMin, ixMax, iyMin, iyMax in unit of crystals
+                static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
+                // get the DetId and the energy of the maximum energy crystal in a vector of DetId
+                static std::pair<DetId, float> getMaximum( const std::vector<DetId> &v_id, const EcalRecHitCollection *recHits);
+                // get the energy of a DetId, return 0 if the DetId is not in the collection
+                static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
+
         private:
                 struct EcalClusterEnergyDeposition
                 { 
@@ -61,11 +78,6 @@ class EcalClusterTools {
                         double r;
                         double phi;
                 };
-
-
-                static std::pair<DetId, float> getMaximum( const std::vector<DetId> &v_id, const EcalRecHitCollection *recHits);
-                static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
-                static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
 
                 static std::vector<EcalClusterEnergyDeposition> getEnergyDepTopology( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, bool logW, float w0 );
                 static math::XYZVector meanClusterPosition( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology *topology, const CaloGeometry *geometry );
