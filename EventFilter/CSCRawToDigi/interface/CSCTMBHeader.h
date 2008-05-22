@@ -11,6 +11,8 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+
 class CSCDMBHeader;
 
 struct CSCTMBHeader2006 {///this struct is for 2006 and earlier versions of dataformat
@@ -384,6 +386,9 @@ class CSCTMBHeader {
     }
   }
 
+  /// Needed before data packing
+  void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
+
   /// for data packing
   void addCLCT0(const CSCCLCTDigi & digi);
   void addCLCT1(const CSCCLCTDigi & digi);
@@ -405,8 +410,10 @@ class CSCTMBHeader {
 
 private:
   // helper method to reverse the strip numbers inthe ME1 readout
-  void correctCLCTNumbering(uint32_t idlayer, int & strip, int & cfeb) const;
-  void correctCorrLCTNumbering(uint32_t idlayer, int & strip) const;
+  void offlineStripNumbering(int & strip, int & cfeb) const;
+  void hardwareStripNumbering(int & strip, int & cfeb) const;
+  void offlineHalfStripNumbering(int & strip) const;
+  void hardwareHalfStripNumbering(int & strip) const;
 
   CSCTMBHeader2006 header2006;
   CSCTMBHeader2007 header2007;
@@ -414,42 +421,55 @@ private:
   unsigned short int theOriginalBuffer[43];
   static bool debug;
   static unsigned short int firmwareVersion;
+
+  // only used in data packing, and noti set during unpacking
+  // but set during LCT retrieval
+  mutable CSCDetId theChamberId;
 };
 
 
 template<typename T> void
 CSCTMBHeader::addCLCT0(const CSCCLCTDigi & digi, T & t) 
 {
-  //TODO correct strip and cfeb #
+  int strip = digi.getStrip();
+  int cfeb = digi.getCFEB();
+std::cout << "ADD LCT " << strip ;
+  hardwareStripNumbering(strip, cfeb);
+
+std::cout << " " << strip << std::endl;
   t.clct0_valid = digi.isValid();
   t.clct0_quality = digi.getQuality();
   t.clct0_shape = digi.getPattern();
   t.clct0_bend = digi.getBend();
-  t.clct0_key = digi.getStrip();
-  t.clct0_cfeb_low = digi.getCFEB();
+  t.clct0_key = strip;
+  t.clct0_cfeb_low = cfeb;
 }
 
 template<typename T> void
 CSCTMBHeader::addCLCT1(const CSCCLCTDigi & digi, T & t)
 {
-  //TODO correct strip and cfeb #
+  int strip = digi.getStrip();
+  int cfeb = digi.getCFEB();
+  hardwareStripNumbering(strip, cfeb);
+
   t.clct1_valid = digi.isValid();
   t.clct1_quality = digi.getQuality();
   t.clct1_shape = digi.getPattern();
   t.clct1_bend = digi.getBend();
-  t.clct1_key = digi.getStrip();
-  t.clct1_cfeb_low = digi.getCFEB();
+  t.clct1_key = strip;
+  t.clct1_cfeb_low = cfeb;
 }
 
 template<typename T> void
-CSCTMBHeader::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi,  T & t)
+CSCTMBHeader::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi, T & t)
 {
-  //TODO correct strips
-  // Plus check where strip goes
+  int halfStrip = digi.getStrip();
+  hardwareHalfStripNumbering(halfStrip);
+
   t.MPC_Muon0_wire_ = digi.getKeyWG();
-  t.MPC_Muon0_clct_pattern_ = digi.getPattern();
+  t.MPC_Muon0_clct_pattern_ = digi.getCLCTPattern();
   t.MPC_Muon0_quality_ = digi.getQuality();
-  t.MPC_Muon0_halfstrip_clct_pattern = digi.getCLCTPattern();
+  t.MPC_Muon0_halfstrip_clct_pattern = halfStrip;
   t.MPC_Muon0_bend_ = digi.getBend();
   t.MPC_Muon0_SyncErr_ = digi.getSyncErr();
   t.MPC_Muon0_bx_ = digi.getBX();
@@ -460,12 +480,13 @@ CSCTMBHeader::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi,  T & t)
 template<typename T> void
 CSCTMBHeader::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi, T & t)
 {
-  //TODO correct strips
-  // Plus check where strip goes
+  int halfStrip = digi.getStrip();
+  hardwareHalfStripNumbering(halfStrip);
+
   t.MPC_Muon1_wire_ = digi.getKeyWG();
-  t.MPC_Muon1_clct_pattern_ = digi.getPattern();
+  t.MPC_Muon1_clct_pattern_ = digi.getCLCTPattern();
   t.MPC_Muon1_quality_ = digi.getQuality();
-  t.MPC_Muon1_halfstrip_clct_pattern = digi.getCLCTPattern();
+  t.MPC_Muon1_halfstrip_clct_pattern = halfStrip;
   t.MPC_Muon1_bend_ = digi.getBend();
   t.MPC_Muon1_SyncErr_ = digi.getSyncErr();
   t.MPC_Muon1_bx_ = digi.getBX();
