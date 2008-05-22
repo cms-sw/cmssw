@@ -223,6 +223,12 @@ int HcalQIEManager::generateQieTable( string db_file, string old_file, string ou
   out_file . open( output_file.c_str() );
   cout << " done" << endl;
 
+  string badchan_file = output_file + ".badchannels";
+  cout << "Creating the output file for bad channels: " << badchan_file << "... ";
+  ofstream bad_file;
+  bad_file . open( badchan_file.c_str() );
+  cout << " done" << endl;
+
   map<HcalChannelId,HcalQIECaps> & _old = getQIETableFromFile( old_file . c_str() );
   map<HcalChannelId,HcalQIECaps> & _new = getQIETableFromFile( db_file . c_str() );
   //map<HcalChannelId,HcalQIECaps> & _old = _manager . getQIETableFromFile( "qie_normalmode_v3.txt" );
@@ -235,7 +241,9 @@ int HcalQIEManager::generateQieTable( string db_file, string old_file, string ou
   for (map<HcalChannelId,HcalQIECaps>::const_iterator line=_old.begin(); line!=_old.end(); line++ ){
     HcalQIECaps * the_caps;
     HcalChannelId theId = line -> first;
+    bool badchannel = false;
     if (_new.find(theId)==_new.end()){
+      badchannel=true;
       badChannels++;
       the_caps = &_old[theId];
     }
@@ -249,18 +257,22 @@ int HcalQIEManager::generateQieTable( string db_file, string old_file, string ou
     int depth = theId.depth;
     sprintf(buffer, "%15d %15d %15d %15s", eta, phi, depth, theId.subdetector.c_str());
     out_file << buffer;
+    if (badchannel) bad_file << buffer;
 
     for (int j = 0; j != 32; j++){
       double _x = the_caps->caps[j];
       sprintf(buffer, " %8.5f", _x);
       out_file << buffer;      
+      if (badchannel) bad_file << buffer;
     }
     out_file << endl;
+    if (badchannel) bad_file << endl;
   }
 
   cout<< goodChannels<< "   " << badChannels << "   " << goodChannels+badChannels << endl;
 
   out_file . close();
+  bad_file . close();
 
   return 0;
 }

@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <sys/time.h>
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
@@ -394,4 +395,75 @@ string HcalLutManager::get_time_stamp( time_t _time )
   string creationstamp = timebuf;
 
   return creationstamp;
+}
+
+
+
+
+int HcalLutManager::test_xml_access( string _tag, string _filename )
+{
+
+  HCALConfigDB * db = new HCALConfigDB();
+  db -> connect( _filename, "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
+
+  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "emap_hcal_emulator_test_luts", 17, 2, 1, 1, 0, 1 );
+  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "GREN_170_realped", 17, 2, 1, 1, 0, 1 );
+
+  struct timeval _t;
+  gettimeofday( &_t, NULL );
+  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 15, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 9, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  _lut = db -> getOnlineLUT( _tag, 0, 2, 1, 1, 0, 1 );
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  /*
+  HcalDetId _hcaldetid( HcalBarrel, -11, 12, 1 );
+
+  struct timeval _t;
+  gettimeofday( &_t, NULL );
+  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  vector<unsigned int> _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
+
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  HcalDetId _hcaldetid2( HcalBarrel, -11, 13, 1 );
+  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid2 . rawId() );
+
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
+
+  gettimeofday( &_t, NULL );
+  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+
+  */
+
+
+  cout << "LUT length = " << _lut . size() << endl;
+  for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
+    {
+      cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
+      break;
+    }
+
+
+  db -> disconnect();
+  
+
+  return 0;
 }

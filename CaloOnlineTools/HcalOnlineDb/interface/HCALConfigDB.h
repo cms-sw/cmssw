@@ -33,6 +33,9 @@ class HCALConfigDB{
   std::vector<unsigned int> getOnlineLUT( string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype );
   std::vector<unsigned int> getOnlineLUT( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
   std::vector<unsigned int> getOnlineLUTFromXML( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
+
+  std::vector<unsigned int> getLutFromXml( string tag, string lut_file, string lmap_file, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
+
   //hcal::ConfigurationDatabase::LUTId getLUTId( uint32_t _rawid );
 
   oracle::occi::Connection * getConnection( void );

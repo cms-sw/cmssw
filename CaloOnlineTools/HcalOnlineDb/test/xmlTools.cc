@@ -4,7 +4,6 @@
 #include <string.h>
 #include <fstream>
 #include <boost/program_options.hpp>
-#include <sys/time.h>
 
 //#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -73,6 +72,7 @@ int main( int argc, char **argv )
     ("test-emap", po::value<string>(), "test electronic map functionality")
     ("test-qie", po::value<string>(), "test QIE procedure elements")
     ("test-lut-manager", po::value<string>(), "test LUT functionality")
+    ("test-lut-xml-access", "test and benchmark LUT reading from local XML file")
     ("tag-name", po::value<string>(), "tag name")
     ("crate", po::value<int>(&crate)->default_value( -1 ), "crate number")
     ("lut-type", po::value<int>(&crate)->default_value( 1 ), "LUT type: 1 - linearization, 2 - compression")
@@ -84,7 +84,7 @@ int main( int argc, char **argv )
     ("output-file", po::value<string>(), "Outputput file name")
     ("old-qie-file", po::value<string>(), "Old QIE table ASCII file")
     ("qie", "Generate new QIE table file")
-    ("qie-hf", "Retrieve HF QIE ADC caps offsets and slopes")
+    ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
     ;
 
   try{
@@ -148,6 +148,17 @@ int main( int argc, char **argv )
       string _accessor = vm["test-lut-manager"].as<string>();
       cout << "LUT ascii file: " << _accessor << "\n";
       HcalLutManager_test::getLutSetFromFile_test( _accessor );
+      return 0;
+    }
+    
+    if (vm.count("test-lut-xml-access")) {
+      cout << "Testing reading LUTs from local XML file..." << "\n";
+      string in_ = vm["input-file"].as<string>();
+      cout << "LUT XML file: " << in_ << "\n";
+      string tag_ = vm["tag-name"].as<string>();
+      cout << "Tag: " << tag_ << "\n";
+      HcalLutManager manager;
+      manager . test_xml_access( tag_, in_ );
       return 0;
     }
     
@@ -282,7 +293,7 @@ int main( int argc, char **argv )
       {"rbx", 1, 0, 60},
       {"luts2", 0, 0, 70},
       {"testocci", 0, 0, 1000},
-      {"testdb", 1, 0, 1010},
+      //{"testdb", 1, 0, 1010},
       {"lmaptest", 1, 0, 2000},
       {"hardware", 0, 0, 1050},
       {"test-db-access", 0, 0, 1070},
@@ -436,20 +447,20 @@ int main( int argc, char **argv )
       testocci();
       break;
       
-    case 1010: // testdb
-      if ( optarg )
-	{
-	  char _buf[1024];
-	  sprintf( _buf, "%s", optarg );
-	  //cout << "filename: " << _buf << endl;
-	  filename .append( _buf );
-	  testdb_b = true;
-	}
-      else
-	{
-	  cout << "No XML file name specified! " << endl;
-	}
-      break;
+      //case 1010: // testdb
+      //if ( optarg )
+      //{
+      //  char _buf[1024];
+      //  sprintf( _buf, "%s", optarg );
+      //  //cout << "filename: " << _buf << endl;
+      //  filename .append( _buf );
+      //  testdb_b = true;
+      //}
+      //else
+      //{
+      //  cout << "No XML file name specified! " << endl;
+      //}
+      //break;
 
     case 2000: // lmaptest
       if ( optarg )
@@ -572,10 +583,10 @@ int main( int argc, char **argv )
 	cout << "Tag name not specified... exiting" << endl;
       }
     }
-  else if ( testdb_b && tag_b )
-    {
-      testDB( tag, filename );      
-    }
+  //else if ( testdb_b && tag_b )
+  //{
+  //  testDB( tag, filename );      
+  //}
 
   else if ( lmaptest_b )
     {
@@ -1253,73 +1264,8 @@ int test_db_access( void )
   return 0;
 }
 
-int testDB( string _tag, string _filename )
-{
-
-  HCALConfigDB * db = new HCALConfigDB();
-  db -> connect( _filename, "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
-
-  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "emap_hcal_emulator_test_luts", 17, 2, 1, 1, 0, 1 );
-  //vector<unsigned int> _lut = db -> getOnlineLUTFromXML( "GREN_170_realped", 17, 2, 1, 1, 0, 1 );
-
-  struct timeval _t;
-  gettimeofday( &_t, NULL );
-  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  vector<unsigned int> _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 15, 2, 1, 1, 0, 1 );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 17, 2, 1, 1, 0, 1 );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 9, 2, 1, 1, 0, 1 );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-  _lut = db -> getOnlineLUT( _tag, 0, 2, 1, 1, 0, 1 );
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  /*
-  HcalDetId _hcaldetid( HcalBarrel, -11, 12, 1 );
-
-  struct timeval _t;
-  gettimeofday( &_t, NULL );
-  cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  vector<unsigned int> _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
-
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  HcalDetId _hcaldetid2( HcalBarrel, -11, 13, 1 );
-  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid2 . rawId() );
-
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  _lut = db -> getOnlineLUTFromXML( _tag, _hcaldetid . rawId() );
-
-  gettimeofday( &_t, NULL );
-  cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
-
-  */
 
 
-  cout << "LUT length = " << _lut . size() << endl;
-  for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
-    {
-      cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
-      break;
-    }
-
-
-  db -> disconnect();
-  
-
-  return 0;
-}
 
 int lmaptest( string _param ){
   cout << "lmaptest() is running, param = " << _param << endl;
@@ -1338,6 +1284,9 @@ int lmaptest( string _param ){
   dbr->PrintEMAPfromLMAP(EMAPfile, curLMAP);
   return 0;
 }
+
+
+
 int hardware( void )
 {
   HcalHardwareXml _hw;

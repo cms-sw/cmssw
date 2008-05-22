@@ -295,3 +295,45 @@ oracle::occi::Environment * HCALConfigDB::getEnvironment( void ){
 
 
 
+
+
+std::vector<unsigned int> HCALConfigDB::getLutFromXml( string tag, string lut_file, string lmap_file, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt ){
+
+  std::vector<unsigned int> result;
+
+    HcalDetId _id( _rawid );
+    
+    double _condition_data_set_id;
+    unsigned int _crate, _slot, _fiber, _channel;
+    hcal::ConfigurationDatabase::FPGASelection _fpga;
+    
+    int side   = _id . zside();
+    int etaAbs = _id . ietaAbs();
+    int phi    = _id . iphi();
+    int depth  = _id . depth();
+    string subdetector;
+    if ( _id . subdet() == HcalBarrel) subdetector = "HB";
+    else if ( _id . subdet() == HcalEndcap) subdetector = "HE";
+    else if ( _id . subdet() == HcalOuter) subdetector = "HO";
+    else if ( _id . subdet() == HcalForward) subdetector = "HF";
+    
+    /*===> FIXME: local LUT
+	    _crate    = rs -> getInt(2);
+	    _slot     = rs -> getInt(3);
+	    std::string fpga_ = rs -> getString(4);
+	    if ( fpga_ == "top" ) _fpga = hcal::ConfigurationDatabase::Top;
+	    else _fpga  = hcal::ConfigurationDatabase::Bottom;
+	    _fiber    = rs -> getInt(5);
+	    _channel  = rs -> getInt(6);
+    */
+    
+    int topbottom, luttype;
+    if ( _fpga == hcal::ConfigurationDatabase::Top ) topbottom = 1;
+    else topbottom = 0;
+    if ( _lt == hcal::ConfigurationDatabase::LinearizerLUT ) luttype = 1;
+    else luttype = 2;
+    
+    result = getOnlineLUT( tag, _crate, _slot, topbottom, _fiber, _channel, luttype );
+    
+  return result;
+}

@@ -41,12 +41,19 @@ class HcalLutManager{
   std::string & getLutXml( std::vector<unsigned int> & _lut );
   std::map<int, shared_ptr<LutXml> > getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
   std::map<int, shared_ptr<LutXml> > getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate = -1, bool split_by_crate = true );
+
+  // add two std::maps with LUTs. Designed mainly for joining compression LUTs to linearization ones.
   void addLutMap(std::map<int, shared_ptr<LutXml> > & result, const std::map<int, shared_ptr<LutXml> > & other);
+  
+  // read LUTs from ASCII master file. 
   HcalLutSet getLutSetFromFile( string _filename, int _type = 1 ); // _type = 1 - linearization, 2 - compression
 
   int writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml, string _tag = "default_tag", bool split_by_crate = true );
 
   int createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate = true );
+
+  // tests reading LUTs from a local XML
+  int test_xml_access( string _tag, string _filename );
 
   static int getInt( string number );
   static HcalSubdetector get_subdetector( string _subdet );
