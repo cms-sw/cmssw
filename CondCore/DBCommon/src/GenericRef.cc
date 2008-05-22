@@ -7,6 +7,7 @@
 #include "StorageSvc/DbType.h"
 #include "PersistencySvc/Placement.h"
 #include "DataSvc/AnyPtr.h"
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "StorageSvc/DbReflex.h"
 
 cond::GenericRef::GenericRef():m_datasvc(0),m_place(0){
@@ -25,9 +26,7 @@ cond::GenericRef::GenericRef( cond::PoolTransaction& transaction ):
 cond::GenericRef::GenericRef( cond::PoolTransaction& pooldb, 
 			      const std::string& tokenStr) :
   m_datasvc(&(pooldb.poolDataSvc())),m_place(0) {
-  pool::Token token;
-  const pool::Guid& classID=token.fromString(tokenStr).classID();
-  pool::RefBase myobj(m_datasvc, tokenStr, pool::DbReflex::forGuid(classID).TypeInfo());
+  pool::RefBase myobj(m_datasvc, tokenStr, cond::reflexTypeByToken(token).TypeInfo());
   m_data=myobj;
 }
 
