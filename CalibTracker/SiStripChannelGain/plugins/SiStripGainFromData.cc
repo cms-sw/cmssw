@@ -73,7 +73,7 @@ using namespace reco;
 using namespace std;
 using namespace __gnu_cxx;
 
-struct stAPVPairGain{unsigned int Index; int DetId; int APVPairId; int SubDet; float Eta; float R; float Thickness; double MPV; double Gain; double PreviousGain;};
+struct stAPVPairGain{unsigned int Index; int DetId; int APVId; int SubDet; float Eta; float R; float Thickness; double MPV; double Gain; double PreviousGain;};
 
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
    public:
@@ -156,7 +156,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 //      TH2F*        PD_Vs_R;
 
       TH1F*        APV_DetId;
-      TH1F*        APV_PairId;
+      TH1F*        APV_Id;
       TH1F*        APV_Eta;
       TH1F*        APV_R;
       TH1F*        APV_SubDet;
@@ -166,6 +166,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       TH1F*        APV_PathLengthM;
       TH1F*        APV_MPV;
       TH1F*        APV_Gain;
+      TH1F*        APV_CumulGain;
       TH1F*        APV_Thickness;
 
       TH1F*        MPVs;
@@ -228,6 +229,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 
       TH1F*        JobInfo;
 
+      TH1F*        HFirstStrip;
 
       TFile*       Output;
       unsigned int NEvent;    
@@ -292,100 +294,103 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
    JobInfo                    = new TH1F ("JobInfo" , "JobInfo", 20,0,20);
 
-   APV_DetId                  = new TH1F ("APV_DetId"      , "APV_DetId"      , 36393,0,36392);
-   APV_PairId                 = new TH1F ("APV_PairId"     , "APV_PairId"     , 36393,0,36392);
-   APV_Eta                    = new TH1F ("APV_Eta"        , "APV_Eta"        , 36393,0,36392);
-   APV_R                      = new TH1F ("APV_R"          , "APV_R"          , 36393,0,36392);
-   APV_SubDet                 = new TH1F ("APV_SubDet"     , "APV_SubDet"     , 36393,0,36392);
-   APV_Momentum               = new TH2F ("APV_Momentum"   , "APV_Momentum"   , 36393,0,36392, 200,0,100);
-   APV_Charge                 = new TH2F ("APV_Charge"     , "APV_Charge"     , 36393,0,36392, 1000,0,2000);
-   APV_PathLength             = new TH2F ("APV_PathLength" , "APV_PathLength" , 36393,0,36392, 200,0.2,1.4);
-   APV_PathLengthM            = new TH1F ("APV_PathLengthM", "APV_PathLengthM", 36393,0,36392);
-   APV_MPV                    = new TH1F ("APV_MPV"        , "APV_MPV"        , 36393,0,36392);
-   APV_Gain                   = new TH1F ("APV_Gain"       , "APV_Gain"       , 36393,0,36392);
-   APV_Thickness              = new TH1F ("APV_Thickness"  , "APV_Thicknes"   , 36393,0,36392);
+   APV_DetId                  = new TH1F ("APV_DetId"      , "APV_DetId"      , 72785,0,72784);
+   APV_Id                     = new TH1F ("APV_Id"         , "APV_Id"         , 72785,0,72784);
+   APV_Eta                    = new TH1F ("APV_Eta"        , "APV_Eta"        , 72785,0,72784);
+   APV_R                      = new TH1F ("APV_R"          , "APV_R"          , 72785,0,72784);
+   APV_SubDet                 = new TH1F ("APV_SubDet"     , "APV_SubDet"     , 72785,0,72784);
+   APV_Momentum               = new TH2F ("APV_Momentum"   , "APV_Momentum"   , 72785,0,72784, 100,0,100);
+   APV_Charge                 = new TH2F ("APV_Charge"     , "APV_Charge"     , 72785,0,72784, 1000,0,2000);
+   APV_PathLength             = new TH2F ("APV_PathLength" , "APV_PathLength" , 72785,0,72784, 100,0.2,1.4);
+   APV_PathLengthM            = new TH1F ("APV_PathLengthM", "APV_PathLengthM", 72785,0,72784);
+   APV_MPV                    = new TH1F ("APV_MPV"        , "APV_MPV"        , 72785,0,72784);
+   APV_Gain                   = new TH1F ("APV_Gain"       , "APV_Gain"       , 72785,0,72784);
+   APV_CumulGain              = new TH1F ("APV_CumulGain"  , "APV_CumulGain"  , 72785,0,72784);
+   APV_Thickness              = new TH1F ("APV_Thickness"  , "APV_Thicknes"   , 72785,0,72784);
 
 
-   Tracks_P_Vs_Eta            = new TH2F ("Tracks_P_Vs_Eta"   , "Tracks_P_Vs_Eta" , 60, 0,3,500,0,100);
-   Tracks_Pt_Vs_Eta           = new TH2F ("Tracks_Pt_Vs_Eta"  , "Tracks_Pt_Vs_Eta", 60, 0,3,500,0,100);
+   Tracks_P_Vs_Eta            = new TH2F ("Tracks_P_Vs_Eta"   , "Tracks_P_Vs_Eta" , 30, 0,3,100,0,100);
+   Tracks_Pt_Vs_Eta           = new TH2F ("Tracks_Pt_Vs_Eta"  , "Tracks_Pt_Vs_Eta", 30, 0,3,100,0,100);
 
-   Charge_Vs_PathTIB          = new TH2F ("Charge_Vs_PathTIB" , "Charge_Vs_PathTIB" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTID          = new TH2F ("Charge_Vs_PathTID" , "Charge_Vs_PathTID" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTOB          = new TH2F ("Charge_Vs_PathTOB" , "Charge_Vs_PathTOB" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTEC          = new TH2F ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTEC1         = new TH2F ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",1000,0.2,1.4, 1000,0,2000);
-   Charge_Vs_PathTEC2         = new TH2F ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",1000,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathTIB          = new TH2F ("Charge_Vs_PathTIB" , "Charge_Vs_PathTIB" ,250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathTID          = new TH2F ("Charge_Vs_PathTID" , "Charge_Vs_PathTID" ,250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathTOB          = new TH2F ("Charge_Vs_PathTOB" , "Charge_Vs_PathTOB" ,250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathTEC          = new TH2F ("Charge_Vs_PathTEC" , "Charge_Vs_PathTEC" ,250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathTEC1         = new TH2F ("Charge_Vs_PathTEC1", "Charge_Vs_PathTEC1",250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathTEC2         = new TH2F ("Charge_Vs_PathTEC2", "Charge_Vs_PathTEC2",250,0.2,1.4, 500,0,2000);
 
-   Charge_Vs_PathLength_CS1   = new TH2F ("Charge_Vs_PathLength_CS1", "Charge_Vs_PathLength_CS1"  , 500,0.2,1.4, 2000,0,2000);
-   Charge_Vs_PathLength_CS2   = new TH2F ("Charge_Vs_PathLength_CS2", "Charge_Vs_PathLength_CS2"  , 500,0.2,1.4, 2000,0,2000);
-   Charge_Vs_PathLength_CS3   = new TH2F ("Charge_Vs_PathLength_CS3", "Charge_Vs_PathLength_CS3"  , 500,0.2,1.4, 2000,0,2000);
-   Charge_Vs_PathLength_CS4   = new TH2F ("Charge_Vs_PathLength_CS4", "Charge_Vs_PathLength_CS4"  , 500,0.2,1.4, 2000,0,2000);
-   Charge_Vs_PathLength_CS5   = new TH2F ("Charge_Vs_PathLength_CS5", "Charge_Vs_PathLength_CS5"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength_CS1   = new TH2F ("Charge_Vs_PathLength_CS1", "Charge_Vs_PathLength_CS1"  , 250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathLength_CS2   = new TH2F ("Charge_Vs_PathLength_CS2", "Charge_Vs_PathLength_CS2"  , 250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathLength_CS3   = new TH2F ("Charge_Vs_PathLength_CS3", "Charge_Vs_PathLength_CS3"  , 250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathLength_CS4   = new TH2F ("Charge_Vs_PathLength_CS4", "Charge_Vs_PathLength_CS4"  , 250,0.2,1.4, 500,0,2000);
+   Charge_Vs_PathLength_CS5   = new TH2F ("Charge_Vs_PathLength_CS5", "Charge_Vs_PathLength_CS5"  , 250,0.2,1.4, 500,0,2000);
 
-   Charge_Vs_PathLength       = new TH2F ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"  , 500,0.2,1.4, 2000,0,2000);
-   Charge_Vs_PathLength320    = new TH2F ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"  , 500,0.2,1.4, 2000,0,2000);
-   Charge_Vs_PathLength500    = new TH2F ("Charge_Vs_PathLength500" , "Charge_Vs_PathLength"  , 500,0.2,1.4, 2000,0,2000);
+   Charge_Vs_PathLength       = new TH2F ("Charge_Vs_PathLength"    , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathLength320    = new TH2F ("Charge_Vs_PathLength320" , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000);
+   Charge_Vs_PathLength500    = new TH2F ("Charge_Vs_PathLength500" , "Charge_Vs_PathLength"      , 250,0.2,1.4, 1000,0,2000);
 
-   Charge_Vs_TransversAngle   = new TH2F ("Charge_Vs_TransversAngle" , "Charge_Vs_TransversAngle" ,220,-20,200, 1000,0,2000);
-   Charge_Vs_Alpha            = new TH2F ("Charge_Vs_Alpha"  , "Charge_Vs_Alpha"   ,220 ,-20,200, 1000,0,2000);
-   Charge_Vs_Beta             = new TH2F ("Charge_Vs_Beta"   , "Charge_Vs_Beta"    ,220,-20,200, 1000,0,2000);
+   Charge_Vs_TransversAngle   = new TH2F ("Charge_Vs_TransversAngle" , "Charge_Vs_TransversAngle" , 220,-20,200, 500,0,2000);
+   Charge_Vs_Alpha            = new TH2F ("Charge_Vs_Alpha"          , "Charge_Vs_Alpha"          , 220,-20,200, 500,0,2000);
+   Charge_Vs_Beta             = new TH2F ("Charge_Vs_Beta"           , "Charge_Vs_Beta"           , 220,-20,200, 500,0,2000);
 
-   NStrips_Vs_TransversAngle  = new TH2F ("NStrips_Vs_TransversAngle", "NStrips_Vs_TransversAngle",220,-20,200, 50,0,10);
-   NStrips_Vs_Alpha           = new TH2F ("NStrips_Vs_Alpha" , "NStrips_Vs_Alpha"  ,220 ,-20,200, 50,0,10);
-   NStrips_Vs_Beta            = new TH2F ("NStrips_Vs_Beta"  , "NStrips_Vs_Beta"   ,220,-20,200, 50,0,10);
-   NHighStripInCluster        = new TH1F ("NHighStripInCluster"     , "NHighStripInCluster"       ,15,0,14);
+   NStrips_Vs_TransversAngle  = new TH2F ("NStrips_Vs_TransversAngle", "NStrips_Vs_TransversAngle", 220,-20,200, 10,0,10);
+   NStrips_Vs_Alpha           = new TH2F ("NStrips_Vs_Alpha"         , "NStrips_Vs_Alpha"         , 220,-20,200, 10,0,10);
+   NStrips_Vs_Beta            = new TH2F ("NStrips_Vs_Beta"          , "NStrips_Vs_Beta"          , 220,-20,200, 10,0,10);
+   NHighStripInCluster        = new TH1F ("NHighStripInCluster"      , "NHighStripInCluster"      , 15,0,14);
 
-   HTrackChi2OverNDF          = new TH1F ("TrackChi2OverNDF","TrackChi2OverNDF", 5000, 0,10);
+   HTrackChi2OverNDF          = new TH1F ("TrackChi2OverNDF","TrackChi2OverNDF", 500, 0,10);
    HTrackHits                 = new TH1F ("TrackHits","TrackHits", 40, 0,40);
+
+   HFirstStrip                 = new TH1F ("FirstStrip","FirstStrip", 800, 0,800);
 
    if( strcmp(AlgoMode.c_str(),"MultiJob")!=0 ){
 
-      MPV_Vs_EtaTIB              = new TH2F ("MPV_Vs_EtaTIB"     , "MPV_Vs_EtaTIB" , 50, -3.0, 3.0, 1350, 0, 1350);
-      MPV_Vs_EtaTID              = new TH2F ("MPV_Vs_EtaTID"     , "MPV_Vs_EtaTID" , 50, -3.0, 3.0, 1350, 0, 1350);
-      MPV_Vs_EtaTOB              = new TH2F ("MPV_Vs_EtaTOB"     , "MPV_Vs_EtaTOB" , 50, -3.0, 3.0, 1350, 0, 1350);
-      MPV_Vs_EtaTEC              = new TH2F ("MPV_Vs_EtaTEC"     , "MPV_Vs_EtaTEC" , 50, -3.0, 3.0, 1350, 0, 1350);
-      MPV_Vs_EtaTEC1             = new TH2F ("MPV_Vs_EtaTEC1"    , "MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 1350, 0, 1350);
-      MPV_Vs_EtaTEC2             = new TH2F ("MPV_Vs_EtaTEC2"    , "MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 1350, 0, 1350);
+      MPV_Vs_EtaTIB              = new TH2F ("MPV_Vs_EtaTIB"     , "MPV_Vs_EtaTIB" , 50, -3.0, 3.0, 600, 0, 600);
+      MPV_Vs_EtaTID              = new TH2F ("MPV_Vs_EtaTID"     , "MPV_Vs_EtaTID" , 50, -3.0, 3.0, 600, 0, 600);
+      MPV_Vs_EtaTOB              = new TH2F ("MPV_Vs_EtaTOB"     , "MPV_Vs_EtaTOB" , 50, -3.0, 3.0, 600, 0, 600);
+      MPV_Vs_EtaTEC              = new TH2F ("MPV_Vs_EtaTEC"     , "MPV_Vs_EtaTEC" , 50, -3.0, 3.0, 600, 0, 600);
+      MPV_Vs_EtaTEC1             = new TH2F ("MPV_Vs_EtaTEC1"    , "MPV_Vs_EtaTEC1", 50, -3.0, 3.0, 600, 0, 600);
+      MPV_Vs_EtaTEC2             = new TH2F ("MPV_Vs_EtaTEC2"    , "MPV_Vs_EtaTEC2", 50, -3.0, 3.0, 600, 0, 600);
 
-      MPV_Vs_PathTIB             = new TH1F ("MPV_Vs_PathTIB"    , "MPV_Vs_PathTIB"    ,1000,0.2,1.4);
-      MPV_Vs_PathTID             = new TH1F ("MPV_Vs_PathTID"    , "MPV_Vs_PathTID"    ,1000,0.2,1.4);
-      MPV_Vs_PathTOB             = new TH1F ("MPV_Vs_PathTOB"    , "MPV_Vs_PathTOB"    ,1000,0.2,1.4);
-      MPV_Vs_PathTEC             = new TH1F ("MPV_Vs_PathTEC"    , "MPV_Vs_PathTEC"    ,1000,0.2,1.4);
-      MPV_Vs_PathTEC1            = new TH1F ("MPV_Vs_PathTEC1"   , "MPV_Vs_PathTEC1"   ,1000,0.2,1.4);
-      MPV_Vs_PathTEC2            = new TH1F ("MPV_Vs_PathTEC2"   , "MPV_Vs_PathTEC2"   ,1000,0.2,1.4);
+      MPV_Vs_PathTIB             = new TH1F ("MPV_Vs_PathTIB"    , "MPV_Vs_PathTIB"    ,250,0.2,1.4);
+      MPV_Vs_PathTID             = new TH1F ("MPV_Vs_PathTID"    , "MPV_Vs_PathTID"    ,250,0.2,1.4);
+      MPV_Vs_PathTOB             = new TH1F ("MPV_Vs_PathTOB"    , "MPV_Vs_PathTOB"    ,250,0.2,1.4);
+      MPV_Vs_PathTEC             = new TH1F ("MPV_Vs_PathTEC"    , "MPV_Vs_PathTEC"    ,250,0.2,1.4);
+      MPV_Vs_PathTEC1            = new TH1F ("MPV_Vs_PathTEC1"   , "MPV_Vs_PathTEC1"   ,250,0.2,1.4);
+      MPV_Vs_PathTEC2            = new TH1F ("MPV_Vs_PathTEC2"   , "MPV_Vs_PathTEC2"   ,250,0.2,1.4);
 
-      MPV_Vs_Eta                 = new TH2F ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0, 1350, 0, 1350);
-      MPV_Vs_R                   = new TH2F ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 1350, 0, 1350);
+      MPV_Vs_Eta                 = new TH2F ("MPV_Vs_Eta", "MPV_Vs_Eta", 50, -3.0, 3.0  , 600, 0, 600);
+      MPV_Vs_R                   = new TH2F ("MPV_Vs_R"  , "MPV_Vs_R"  , 150, 0.0, 150.0, 600, 0, 600);
    
-      MPV_Vs_PathLength_CS1      = new TH1F ("MPV_Vs_PathLength_CS1"   , "MPV_Vs_PathLength_CS1", 500, 0.2, 1.4);
-      MPV_Vs_PathLength_CS2      = new TH1F ("MPV_Vs_PathLength_CS2"   , "MPV_Vs_PathLength_CS2", 500, 0.2, 1.4);
-      MPV_Vs_PathLength_CS3      = new TH1F ("MPV_Vs_PathLength_CS3"   , "MPV_Vs_PathLength_CS3", 500, 0.2, 1.4);
-      MPV_Vs_PathLength_CS4      = new TH1F ("MPV_Vs_PathLength_CS4"   , "MPV_Vs_PathLength_CS4", 500, 0.2, 1.4);
-      MPV_Vs_PathLength_CS5      = new TH1F ("MPV_Vs_PathLength_CS5"   , "MPV_Vs_PathLength_CS5", 500, 0.2, 1.4);
+      MPV_Vs_PathLength_CS1      = new TH1F ("MPV_Vs_PathLength_CS1"   , "MPV_Vs_PathLength_CS1" , 250, 0.2, 1.4);
+      MPV_Vs_PathLength_CS2      = new TH1F ("MPV_Vs_PathLength_CS2"   , "MPV_Vs_PathLength_CS2" , 250, 0.2, 1.4);
+      MPV_Vs_PathLength_CS3      = new TH1F ("MPV_Vs_PathLength_CS3"   , "MPV_Vs_PathLength_CS3" , 250, 0.2, 1.4);
+      MPV_Vs_PathLength_CS4      = new TH1F ("MPV_Vs_PathLength_CS4"   , "MPV_Vs_PathLength_CS4" , 250, 0.2, 1.4);
+      MPV_Vs_PathLength_CS5      = new TH1F ("MPV_Vs_PathLength_CS5"   , "MPV_Vs_PathLength_CS5" , 250, 0.2, 1.4);
 
-      FWHM_Vs_PathLength_CS1     = new TH1F ("FWHM_Vs_PathLength_CS1"  , "FWHM_Vs_PathLength_CS1", 500, 0.2, 1.4);
-      FWHM_Vs_PathLength_CS2     = new TH1F ("FWHM_Vs_PathLength_CS2"  , "FWHM_Vs_PathLength_CS2", 500, 0.2, 1.4);
-      FWHM_Vs_PathLength_CS3     = new TH1F ("FWHM_Vs_PathLength_CS3"  , "FWHM_Vs_PathLength_CS3", 500, 0.2, 1.4);
-      FWHM_Vs_PathLength_CS4     = new TH1F ("FWHM_Vs_PathLength_CS4"  , "FWHM_Vs_PathLength_CS4", 500, 0.2, 1.4);
-      FWHM_Vs_PathLength_CS5     = new TH1F ("FWHM_Vs_PathLength_CS5"  , "FWHM_Vs_PathLength_CS5", 500, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS1     = new TH1F ("FWHM_Vs_PathLength_CS1"  , "FWHM_Vs_PathLength_CS1", 250, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS2     = new TH1F ("FWHM_Vs_PathLength_CS2"  , "FWHM_Vs_PathLength_CS2", 250, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS3     = new TH1F ("FWHM_Vs_PathLength_CS3"  , "FWHM_Vs_PathLength_CS3", 250, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS4     = new TH1F ("FWHM_Vs_PathLength_CS4"  , "FWHM_Vs_PathLength_CS4", 250, 0.2, 1.4);
+      FWHM_Vs_PathLength_CS5     = new TH1F ("FWHM_Vs_PathLength_CS5"  , "FWHM_Vs_PathLength_CS5", 250, 0.2, 1.4);
 
-      MPV_Vs_PathLength          = new TH1F ("MPV_Vs_PathLength"       , "MPV_Vs_PathLength"  ,500,0.2,1.4);
-      MPV_Vs_PathLength320       = new TH1F ("MPV_Vs_PathLength320"    , "MPV_Vs_PathLength"  ,500,0.2,1.4);
-      MPV_Vs_PathLength500       = new TH1F ("MPV_Vs_PathLength500"    , "MPV_Vs_PathLength"  ,500,0.2,1.4);
+      MPV_Vs_PathLength          = new TH1F ("MPV_Vs_PathLength"       , "MPV_Vs_PathLength"     , 250, 0.2, 1.4);
+      MPV_Vs_PathLength320       = new TH1F ("MPV_Vs_PathLength320"    , "MPV_Vs_PathLength"     , 250, 0.2, 1.4);
+      MPV_Vs_PathLength500       = new TH1F ("MPV_Vs_PathLength500"    , "MPV_Vs_PathLength"     , 250, 0.2, 1.4);
 
-      FWHM_Vs_PathLength         = new TH1F ("FWHM_Vs_PathLength"      , "FWHM_Vs_PathLength"  ,500,0.2,1.4);
-      FWHM_Vs_PathLength320      = new TH1F ("FWHM_Vs_PathLength320"   , "FWHM_Vs_PathLength"  ,500,0.2,1.4);
-      FWHM_Vs_PathLength500      = new TH1F ("FWHM_Vs_PathLength500"   , "FWHM_Vs_PathLength"  ,500,0.2,1.4);
+      FWHM_Vs_PathLength         = new TH1F ("FWHM_Vs_PathLength"      , "FWHM_Vs_PathLength"    , 250, 0.2, 1.4);
+      FWHM_Vs_PathLength320      = new TH1F ("FWHM_Vs_PathLength320"   , "FWHM_Vs_PathLength"    , 250, 0.2, 1.4);
+      FWHM_Vs_PathLength500      = new TH1F ("FWHM_Vs_PathLength500"   , "FWHM_Vs_PathLength"    , 250, 0.2, 1.4);
 
-      MPV_Vs_TransversAngle      = new TH1F ("MPV_Vs_TransversAngle"    , "MPV_Vs_TransversAngle"    ,220,-20,200);
-      MPV_Vs_Alpha               = new TH1F ("MPV_Vs_Alpha"     , "MPV_Vs_Alpha"      ,220 ,-20,200);
-      MPV_Vs_Beta                = new TH1F ("MPV_Vs_Beta"      , "MPV_Vs_Beta"       ,220,-20,200);
+      MPV_Vs_TransversAngle      = new TH1F ("MPV_Vs_TransversAngle"   , "MPV_Vs_TransversAngle" , 220, -20, 200);
+      MPV_Vs_Alpha               = new TH1F ("MPV_Vs_Alpha"            , "MPV_Vs_Alpha"          , 220, -20, 200);
+      MPV_Vs_Beta                = new TH1F ("MPV_Vs_Beta"             , "MPV_Vs_Beta"           , 220, -20, 200);
 
-      MPV_Vs_Error               = new TH2F ("MPV_Vs_Error"   , "MPV_Vs_Error"  ,1350, 0, 1350, 1000,0,100);
-      Entries_Vs_Error           = new TH2F ("Entries_Vs_Error","Entries_Vs_Error",2000,0,10000,1000,0,100); 
+      MPV_Vs_Error               = new TH2F ("MPV_Vs_Error"   , "MPV_Vs_Error"    ,600,0,600     ,500 ,0   ,50);
+      Entries_Vs_Error           = new TH2F ("Entries_Vs_Error","Entries_Vs_Error",1000,0,10000  ,500 ,0   ,50); 
 
-      NumberOfEntriesByAPVPair   = new TH1F ("NumberOfEntriesByAPVPair", "NumberOfEntriesByAPVPair", 2500, 0,10000);
-      HChi2OverNDF               = new TH1F ("Chi2OverNDF","Chi2OverNDF", 5000, 0,10);
+      NumberOfEntriesByAPVPair   = new TH1F ("NumberOfEntriesByAPVPair", "NumberOfEntriesByAPVPair", 1000, 0,10000);
+      HChi2OverNDF               = new TH1F ("Chi2OverNDF","Chi2OverNDF", 500, 0,25);
 
       MPVs                       = new TH1F ("MPVs", "MPVs", 600,0,600);
       MPVs320                    = new TH1F ("MPVs320", "MPVs320", 600,0,600);
@@ -419,17 +424,17 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 	  if(!DetUnit)continue;
 
           const StripTopology& Topo     = DetUnit->specificTopology();	
-          unsigned int         NAPVPair = Topo.nstrips()/256;
+          unsigned int         NAPV     = Topo.nstrips()/128;
 	
           double Eta   = DetUnit->position().basicVector().eta();
           double R     = DetUnit->position().basicVector().transverse();
           double Thick = DetUnit->surface().bounds().thickness();
 
-          for(unsigned int j=0;j<NAPVPair;j++){
+          for(unsigned int j=0;j<NAPV;j++){
                 stAPVPairGain* APV = new stAPVPairGain;
                 APV->Index         = Id;
                 APV->DetId         = Detid.rawId();
-                APV->APVPairId     = j;
+                APV->APVId         = j;
                 APV->SubDet        = SubDet;
                 APV->MPV           = -1;
                 APV->Gain          = -1;
@@ -440,15 +445,15 @@ SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup)
 
                 if(!FirstSetOfConstants && gainHandle.isValid()){
                    SiStripApvGain::Range detGainRange = gainHandle->getRange(APV->DetId);
-                   APV->PreviousGain = *(detGainRange.first + (2*APV->APVPairId));
+                   APV->PreviousGain = *(detGainRange.first + APV->APVId);
                 }
 
                 APVsCollOrdered.push_back(APV);
-		APVsColl[(APV->DetId<<2) | APV->APVPairId] = APV;
+		APVsColl[(APV->DetId<<3) | APV->APVId] = APV;
                 Id++;
 
                 APV_DetId    ->Fill(Id,APV->DetId);
-                APV_PairId   ->Fill(Id,APV->APVPairId);
+                APV_Id       ->Fill(Id,APV->APVId);
                 APV_Eta      ->Fill(Id,APV->Eta);
                 APV_R        ->Fill(Id,APV->R);
                 APV_SubDet   ->Fill(Id,APV->SubDet);
@@ -500,6 +505,7 @@ SiStripGainFromData::algoEndJob() {
          NStrips_Vs_TransversAngle->Add( (TH1*) file->FindObjectAny("NStrips_Vs_TransversAngle"), 1);
          Charge_Vs_Alpha          ->Add( (TH1*) file->FindObjectAny("Charge_Vs_Alpha")          , 1);
          NStrips_Vs_Alpha         ->Add( (TH1*) file->FindObjectAny("NStrips_Vs_Alpha")         , 1);
+         HFirstStrip              ->Add( (TH1*) file->FindObjectAny("FirstStrip")               , 1);
 
 	 TH1F* JobInfo_tmp = (TH1F*) file->FindObjectAny("JobInfo");
          NEvent                 += (unsigned int) JobInfo_tmp->GetBinContent(JobInfo_tmp->GetXaxis()->FindBin(1));
@@ -532,7 +538,7 @@ SiStripGainFromData::algoEndJob() {
       double* FitResults = new double[5];
       I=0;
       for(hash_map<unsigned int, stAPVPairGain*,  hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++){
-      if( I%1825==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
+      if( I%3650==0 ) printf("Fitting Histograms \t %6.2f%%\n",(100.0*I)/APVsColl.size());I++;
          stAPVPairGain* APV = it->second;
 
          int bin = APV_Charge->GetXaxis()->FindBin(APV->Index);
@@ -541,7 +547,7 @@ SiStripGainFromData::algoEndJob() {
 
          getPeakOfLandau(Proj,FitResults);
          APV->MPV = FitResults[0];
-         printf("MPV = %f - %f\n",FitResults[0], FitResults[1]);
+//         printf("MPV = %f - %f\n",FitResults[0], FitResults[1]);
          if(FitResults[0]!=-0.5 && FitResults[1]<MaxMPVError){
             APV_MPV->Fill(APV->Index,APV->MPV);
             MPVs   ->Fill(APV->MPV);
@@ -586,9 +592,10 @@ SiStripGainFromData::algoEndJob() {
          if(APV->MPV>0)   APV->Gain = APV->MPV / MPVmean; // APV->MPV;
          else             APV->Gain = 1;    
          if(APV->Gain<=0) APV->Gain = 1;
-         APV->Gain *= APV->PreviousGain;
+         APV_Gain->Fill(APV->Index,APV->Gain);
 
-         APV_Gain->Fill(APV->Index,APV->Gain); 
+         APV->Gain *= APV->PreviousGain;
+         APV_CumulGain->Fill(APV->Index,APV->Gain); 
       }
 
       for(int j=0;j<Charge_Vs_PathLength->GetXaxis()->GetNbins();j++){
@@ -751,7 +758,7 @@ SiStripGainFromData::algoEndJob() {
       fprintf(Gains,"Number of APVs = %i\n",APVsColl.size());
       for(std::vector<stAPVPairGain*>::iterator it = APVsCollOrdered.begin();it!=APVsCollOrdered.end();it++){
          stAPVPairGain* APV = *it;
-         fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVPairId,APV->PreviousGain,APV->Gain);
+         fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
       }
       fclose(Gains);
 
@@ -759,7 +766,7 @@ SiStripGainFromData::algoEndJob() {
       delete Proj;
    }
 
-   Output->SetCompressionLevel(5);
+   Output->SetCompressionLevel(9);
    Output->cd();
    Output->Write();
    Output->Close();
@@ -866,8 +873,8 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
    uint32_t                DetId       = Cluster->geographicalId();
    int                     FirstStrip  = Cluster->firstStrip();
-   int                     APVPairId   = FirstStrip/256;
-   stAPVPairGain*          APV         = APVsColl[(DetId<<2) | APVPairId];
+   int                     APVId       = FirstStrip/128;
+   stAPVPairGain*          APV         = APVsColl[(DetId<<3) | APVId];
    bool                    Saturation  = false;
    bool                    Overlaping  = false;
    int                     Charge      = 0;
@@ -875,12 +882,37 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
 
    if(!IsFarFromBorder(trajState,DetId, iSetup))return -1;
 
+
+   if(FirstStrip==0                                  )Overlaping=true;
+   if(FirstStrip==128                                )Overlaping=true;
+   if(FirstStrip==256                                )Overlaping=true;
+   if(FirstStrip==384                                )Overlaping=true;
+   if(FirstStrip==512                                )Overlaping=true;
+   if(FirstStrip==640                                )Overlaping=true;
+
+   if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlaping=true;
+   if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlaping=true;
+   if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlaping=true;
+   if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlaping=true;
+   if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlaping=true;
+
+   if(FirstStrip+Ampls.size()==127                   )Overlaping=true;
+   if(FirstStrip+Ampls.size()==255                   )Overlaping=true;
+   if(FirstStrip+Ampls.size()==383                   )Overlaping=true;
+   if(FirstStrip+Ampls.size()==511                   )Overlaping=true;
+   if(FirstStrip+Ampls.size()==639                   )Overlaping=true;
+   if(FirstStrip+Ampls.size()==767                   )Overlaping=true;
+   if(Overlaping)return -1;
+
+
+/*
    if(FirstStrip==0                                 )Overlaping=true;
    if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlaping=true;
    if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlaping=true;
    if(FirstStrip+Ampls.size()==511                  )Overlaping=true;
    if(FirstStrip+Ampls.size()==767                  )Overlaping=true;
    if(Overlaping)return -1;
+*/
 
    for(unsigned int a=0;a<Ampls.size();a++){Charge+=Ampls[a];if(Ampls[a]>=254)Saturation=true;if(Ampls[a]>=20)NHighStrip++;}
    double path                    = (10.0*APV->Thickness)/fabs(cosine);
@@ -919,6 +951,7 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripRecHit2D* sistripsimpleh
    if(NHighStrip==4)   Charge_Vs_PathLength_CS4->Fill(path, Charge );
    if(NHighStrip==5)   Charge_Vs_PathLength_CS5->Fill(path, Charge );
 
+   HFirstStrip    ->Fill(FirstStrip);
  
    APV_Charge    ->Fill(APV->Index,ClusterChargeOverPath);
    APV_Momentum  ->Fill(APV->Index,trajState.globalMomentum().mag());
@@ -959,8 +992,8 @@ bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState, co
      HalfLength     = it->surface().bounds().length() /2.0;
   }else{return false;}
 
-  if (fabs(HitLocalPos.x())+HitLocalError.xx() >= (HalfWidth  - DistFromBorder) ) return false;//Don't think is really necessary
-  if (fabs(HitLocalPos.y())+HitLocalError.xy() >= (HalfLength - DistFromBorder) ) return false;
+//  if (fabs(HitLocalPos.x())+HitLocalError.xx() >= (HalfWidth  - DistFromBorder) ) return false;//Don't think is really necessary
+  if (fabs(HitLocalPos.y())+HitLocalError.yy() >= (HalfLength - DistFromBorder) ) return false;
 
   return true;
 }
@@ -1035,10 +1068,10 @@ SiStripApvGain* SiStripGainFromData::getNewObject()
  	 theSiStripVector = new std::vector<float>;
          PreviousDetId = APV->DetId;
       }
-//      printf("%i | %i | %f\n", APV->DetId,APV->APVPairId,APV->Gain);
-      printf("%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVPairId,APV->PreviousGain,APV->Gain);
+//      printf("%i | %i | %f\n", APV->DetId,APV->APVId,APV->Gain);
+      printf("%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
       theSiStripVector->push_back(APV->Gain);
-      theSiStripVector->push_back(APV->Gain);
+//      theSiStripVector->push_back(APV->Gain);
    }
 
    if(theSiStripVector!=NULL){
