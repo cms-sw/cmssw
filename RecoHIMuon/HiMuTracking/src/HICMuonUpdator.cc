@@ -17,7 +17,7 @@
 //#define LINEFIT_DEBUG
 
 using namespace std;
-//namespace cms {
+
 TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
                                                 const TrajectoryStateOnSurface& nTsos,
 		                                const TrajectoryMeasurement& ntm, 
@@ -25,7 +25,10 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
 					        double& chirz, double& chirf) const {
 
   TrajectoryStateOnSurface badtsos; 
-
+  if(!nTsos.isValid()) {
+   std::cout<<" HICMuonUpdator::update:: can not start::initial tsos is not valid " <<std::endl;
+   return badtsos;
+  }
 // trajectory type
   
   vector<TrajectoryMeasurement> MTM=mt.measurements();
@@ -55,7 +58,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
      
     double phierror=sqrt((*ihit).recHit()->globalPositionError().phierr(realhit));
     
-    if(abs(phierror)<0.0000001) {
+    if(fabs(phierror)<0.0000001) {
         phierror=0.00008;
     }       
     ehitphi.push_back(phierror);
@@ -95,7 +98,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   ehitstrip.push_back(ezvert);    
    
   for(vector<double>::const_iterator iphi=phihit.begin();iphi!=phihit.end()-1;iphi++){
-  double dpnew=abs(*iphi-*(iphi+1));
+  double dpnew=fabs(*iphi-*(iphi+1));
   if(dpnew>pi) dpnew=twopi-dpnew;
   
 #ifdef UPDATOR_BARREL_DEBUG
@@ -106,7 +109,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   }
   
   for(vector<double>::const_iterator ir=rhit.begin();ir!=rhit.end()-2;ir++){
-  double dpnew=abs(*ir-*(ir+1));
+  double dpnew=fabs(*ir-*(ir+1));
   
 #ifdef UPDATOR_BARREL_DEBUG
   cout<<" dr=dpnew="<<dpnew<<" "<<*ir<<" "<<*(ir+1)<<endl;
@@ -121,7 +124,7 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
   cout<<" dZ=dpnew="<<dpnew<<" "<<*iz<<" "<<*(iz+1)<<endl;
 #endif
   
-  dzhit.push_back(abs(dpnew));
+  dzhit.push_back(fabs(dpnew));
   dzhitl.push_back(dpnew);  
   }
   
@@ -200,7 +203,7 @@ double det=a00*a11-a01*a01;
 cout<<" linefit2::det="<<det<<endl;
 #endif
 
-if(abs(det)<0.00000001) return fit;
+if(fabs(det)<0.00000001) return fit;
 co1=(b0*a11-b1*a01)/det;
 co2=(b1*a00-b0*a10)/det;
 
@@ -215,13 +218,13 @@ if(y[x.size()-2]<14.) {
 cout<<" check 90 degree track "<<endl;
 #endif
 
-if(abs(x[x.size()-2]-x[x.size()-1])<0.1){
+if(fabs(x[x.size()-2]-x[x.size()-1])<0.1){
 
 #ifdef LINEFIT_DEBUG
 cout<<" Redetermine line - 90 degree "<<endl;
 #endif
 
-if(abs(x[x.size()-2]-x[x.size()-1])>0.0001){
+if(fabs(x[x.size()-2]-x[x.size()-1])>0.0001){
 co1=(y[x.size()-2]-y[x.size()-1])/(x[x.size()-2]-x[x.size()-1]);
 co2=y[x.size()-2]-co1*x[x.size()-2];
 }
@@ -311,7 +314,7 @@ double
    } else {
      double zclus=fts.parameters().position().z();
      double pl=fts.parameters().momentum().z(); 
-     psi=phiclus+acharge*0.006*abs(zclus)/abs(pl);     
+     psi=phiclus+acharge*0.006*fabs(zclus)/fabs(pl);     
    }  
      double phic = psi-acharge*pi/2.;
 #ifdef CORRECT_DEBUG	
@@ -368,8 +371,8 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
   }else{
 
   chirf = 0.;
-  dphi=abs(dphihit.back());
-  dr=abs(drhit.back());
+  dphi=fabs(dphihit.back());
+  dr=fabs(drhit.back());
   if(dphi > pi) dphi = twopi-dphi;
   ch1=dphi/dr;
   
@@ -392,7 +395,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
   double psi=phiclus-aCharge*asin(xdouble);
   double pznew=ptnew/co1;
   double znew=(xrclus-co2)/co1;
-  double delphinew=abs(0.006*drhit.back()/ptnew);
+  double delphinew=fabs(0.006*drhit.back()/ptnew);
   double phinew=pRecHit->globalPosition().phi()+aCharge*delphinew;
   GlobalVector pnew(ptnew*cos(psi),ptnew*sin(psi),pznew);
   GlobalPoint xnew(xrclus*cos(phinew),xrclus*sin(phinew),znew);
@@ -455,8 +458,8 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 #endif
   if(!fitrf) return badtsos;
   }else{
-  dphi=abs(dphihit.back());
-  dr=abs(drhit.back());
+  dphi=fabs(dphihit.back());
+  dr=fabs(drhit.back());
   if(dphi > pi) dphi = twopi-dphi;
   ch1=dphi/dr;
   if(zhit.front()<0.) ch1=-1.*ch1;  
@@ -477,13 +480,13 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 //  cout<<" point 4 "<<endl;
   double xzclus=xrhit.z();
 //  cout<<" point 5 "<<endl;
-  double psi=phiclus-aCharge*0.006*abs(xzclus-zvert)/abs(pznew);
+  double psi=phiclus-aCharge*0.006*fabs(xzclus-zvert)/fabs(pznew);
 //  cout<<" point 6 "<<endl;
   double ptnew=pznew*co1;
 //  cout<<" point 7 "<<endl;
   double xrclus=co1*xzclus+co2;
 //  cout<<" point 8 "<<endl;
-  double delphinew=abs(0.006*drhit.back()/pznew);
+  double delphinew=fabs(0.006*drhit.back()/pznew);
 //  cout<<" point 9 "<<endl;
   double phinew=pRecHit->globalPosition().phi()+aCharge*delphinew;
 //  cout<<" point 10 "<<endl;
@@ -509,7 +512,7 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 //  cout<< "Update endcap end "<<endl;			   
   return tsos;						
 }
-//}
+
 
 
 

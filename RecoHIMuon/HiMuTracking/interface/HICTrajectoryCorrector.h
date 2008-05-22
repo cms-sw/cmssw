@@ -22,10 +22,10 @@
 #include <string>
 #include <iostream>
 #include <vector>
-//namespace cms {
+
 class HICTrajectoryCorrector{
 public:
-  HICTrajectoryCorrector(const MagneticField * mf,const cms::HICConst* hh){field = mf;theHICConst = hh;}
+  HICTrajectoryCorrector(const MagneticField * mf,const HICConst* hh){field = mf;theHICConst = hh;}
   virtual  ~HICTrajectoryCorrector(){}
   TrajectoryStateOnSurface correct(FreeTrajectoryState& rh,
                                    FreeTrajectoryState& ftsnew,
@@ -36,9 +36,9 @@ public:
                           const GeomDet* det ) const;  
 private:
   const MagneticField * field; 
-  const cms::HICConst *      theHICConst;
+  const HICConst *      theHICConst;
 };
-//}
+
 #endif
 
 

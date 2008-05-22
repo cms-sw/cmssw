@@ -25,9 +25,10 @@
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "RecoHIMuon/HiMuSeed/interface/DiMuonTrajectorySeed.h"
 #include "RecoHIMuon/HiMuTracking/interface/HICMuonUpdator.h"
-using namespace cms;
+
 using namespace std;
-//namespace cms {
+//#define DEBUG
+
 HICTrajectoryBuilder::
   HICTrajectoryBuilder(const edm::ParameterSet&              conf,
 		       const TrajectoryStateUpdator*         updator,
@@ -62,8 +63,9 @@ HICTrajectoryBuilder::
   theIntermediateCleaning = false;
   theMinimumNumberOfHits  = 6;
   theAlwaysUseInvalidHits = false;
-  
-//  cout<<" HICTrajectoryBuilder::contructor "<<endl; 
+#ifdef DEBUG  
+  cout<<" HICTrajectoryBuilder::contructor "<<endl;
+#endif 
 }
 
 HICTrajectoryBuilder::~HICTrajectoryBuilder()
@@ -82,28 +84,29 @@ HICTrajectoryBuilder::TrajectoryContainer
 HICTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
 { 
    theHICConst = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->getHICConst(); 
- //  cout<<" HICTrajectoryBuilder::trajectories start with seed"<<endl;
-   
+#ifdef DEBUG
+   cout<<" HICTrajectoryBuilder::trajectories start with seed"<<endl;
+#endif   
   TrajectoryContainer result;
 
-  // analyseSeed( seed);
-
   TempTrajectory startingTraj = createStartingTrajectory( seed );
-  
- // cout<<" HICTrajectoryBuilder::trajectories starting trajectories created "<<startingTraj.empty()<<endl;
-  
+#ifdef DEBUG  
+  cout<<" HICTrajectoryBuilder::trajectories starting trajectories created "<<startingTraj.empty()<<endl;
+#endif  
   if(startingTraj.empty()) {
-  //      cout<<" Problem with starting trajectory "<<endl; 
-  return result;}
+#ifdef DEBUG
+        cout<<" Problem with starting trajectory "<<endl; 
+#endif
+  return result;
+  }
 
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
 
   limitedCandidates( startingTraj, result);
-  
- //  cout<<" HICTrajectoryBuilder::trajectories candidates found "<<result.size()<<endl;
-
-  // analyseResult(result);
+#ifdef DEBUG  
+   cout<<" HICTrajectoryBuilder::trajectories candidates found "<<result.size()<<endl;
+#endif
 
   return result;
 }
@@ -111,43 +114,30 @@ HICTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
 TempTrajectory HICTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
-
-  //cout<<" HICTrajectoryBuilder::createStartingTrajectory "<<seed.direction()<<endl;
-  
-//  TempTrajectory result( seed, seed.direction());
+#ifdef DEBUG
+  cout<<" HICTrajectoryBuilder::createStartingTrajectory "<<seed.direction()<<endl;
+#endif  
   TempTrajectory result( seed, oppositeToMomentum );
-
-//  if (  seed.direction() == alongMomentum) {
-//    theForwardPropagator = &(*thePropagatorAlong);
-//    theBackwardPropagator = &(*thePropagatorOpposite);
-//  }
-//  else {
-    theForwardPropagator = &(*thePropagatorOpposite);
-    theBackwardPropagator = &(*thePropagatorAlong);
-//  }
-
-
+  theForwardPropagator = &(*thePropagatorOpposite);
+  theBackwardPropagator = &(*thePropagatorAlong);
 
   std::vector<TM> seedMeas = seedMeasurements(seed);
 
-//  std::vector<TM> seedMeas = dynamic_cast<const DiMuonTrajectorySeed*>(&seed)->measurements();
-  
-//  std::cout<<" Size of seed "<<seedMeas.size()<<endl;
-  
+#ifdef DEBUG  
+  std::cout<<" Size of seed "<<seedMeas.size()<<endl;
+#endif  
   if ( !seedMeas.empty()) {
-//  std::cout<<" TempTrajectory "<<std::endl;
+#ifdef DEBUG
+  std::cout<<" TempTrajectory "<<std::endl;
+#endif
     for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-//  std::cout<<" TempTrajectory::before add "<<std::endl;
     
-   result.push(*i); 
+       result.push(*i); 
       
-//  std::cout<<" TempTrajectory::after add "<<std::endl;
                  
     }
   }
    
-//  std::cout<<" TempTrajectory::return result "<<std::endl; 
-    
   return result;
   
 }
@@ -160,37 +150,43 @@ limitedCandidates( TempTrajectory& startingTraj,
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
   candidates.push_back( startingTraj);
 // Add the additional stuff
-//  cout<<" HICTrajectoryBuilder::limitedCandidates "<<candidates.size()<<endl;
-   
-//  int theIniSign = (int)startingTraj.lastMeasurement().updatedState().freeTrajectoryState()->charge();
+#ifdef DEBUG
+  cout<<" HICTrajectoryBuilder::limitedCandidates "<<candidates.size()<<endl;
+#endif   
 
   int theIniSign = 1;
   dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->setSign(theIniSign);
-
-  //cout<<" Number of measurements "<<startingTraj.measurements().size()<<endl;
-
+#ifdef DEBUG
+  cout<<" Number of measurements "<<startingTraj.measurements().size()<<endl;
+#endif
  // return;
 
   while ( !candidates.empty()) {
-
- // cout<<" HICTrajectoryBuilder::limitedCandidates::cycle "<<candidates.size()<<endl;
-
+#ifdef DEBUG
+  cout<<" HICTrajectoryBuilder::limitedCandidates::cycle "<<candidates.size()<<endl;
+#endif
     newCand.clear();
 
     for (TempTrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
-	 
-//	 cout<< " Before findCompatibleMeasurements "<<endl;
+#ifdef DEBUG	 
+	 cout<< " Before findCompatibleMeasurements "<<endl;
+#endif
       std::vector<TM> meas = findCompatibleMeasurements(*traj);
-//	 cout<< " After findCompatibleMeasurements "<<meas.size()<<endl;
-
+#ifdef DEBUG
+	 cout<< " After findCompatibleMeasurements "<<meas.size()<<endl;
+#endif
 
       if ( meas.empty()) {
-//        cout<<": Measurements empty : "<<endl;
+#ifdef DEBUG
+        cout<<": Measurements empty : "<<endl;
+#endif
 	if ( qualityFilter( *traj)) addToResult( *traj, result);
       }
       else {
-//        cout<<" : Update trajectoris :   "<<endl;
+#ifdef DEBUG
+        cout<<" : Update trajectoris :   "<<endl;
+#endif
 	for( std::vector<TM>::const_iterator itm = meas.begin(); 
                                        	     itm != meas.end(); itm++) {
 	  TempTrajectory newTraj = *traj;
@@ -198,18 +194,24 @@ limitedCandidates( TempTrajectory& startingTraj,
           if(good)
           {
 	    if ( toBeContinued(newTraj)) {
-//               cout<<": toBeContinued :"<<endl;
+#ifdef DEBUG
+               cout<<": toBeContinued :"<<endl;
+#endif
 	       newCand.push_back(newTraj);
 	     }
 	     else {
-//               cout<<": good TM : to be stored :"<<endl;
+#ifdef DEBUG
+               cout<<": good TM : to be stored :"<<endl;
+#endif
 	       if ( qualityFilter(newTraj)) addToResult( newTraj, result);
 	    //// don't know yet
 	          }
           } // good
             else
             {
-//                  cout<<": bad TM : to be stored :"<<endl;
+#ifdef DEBUG
+                  cout<<": bad TM : to be stored :"<<endl;
+#endif
                if ( qualityFilter( *traj)) addToResult( *traj, result);
             }
 	 } //meas 
@@ -236,33 +238,29 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   std::vector<TrajectoryMeasurement> result;
   TrajectoryStateTransform tsTransform;
 
-  //TrajectorySeed::range hitRange = seed.recHits();
-  
-//  cout<<" HICTrajectoryBuilder::seedMeasurements number of TM "<<dynamic_cast<DiMuonTrajectorySeed*>(const_cast<TrajectorySeed*>(&seed))->measurements().size()<<endl;
-  
+#ifdef DEBUG 
+  cout<<" HICTrajectoryBuilder::seedMeasurements number of TM "<<dynamic_cast<DiMuonTrajectorySeed*>(const_cast<TrajectorySeed*>(&seed))->measurements().size()<<endl;
+#endif  
 
    std::vector<TrajectoryMeasurement> start = dynamic_cast<DiMuonTrajectorySeed*>(const_cast<TrajectorySeed*>(&seed))->measurements();
    for(std::vector<TrajectoryMeasurement>::iterator imh = start.begin(); imh != start.end(); imh++)
    { 
-       
-   //  cout<<" HICTrajectoryBuilder::seedMeasurements::RecHit "<<endl;
-       
+#ifdef DEBUG       
+     cout<<" HICTrajectoryBuilder::seedMeasurements::RecHit "<<endl;
+#endif       
      result.push_back(*imh);
    }
-
-  // method for debugging
-  fillSeedHistoDebugger(result.begin(),result.end());
 
   return result;
 }
 
  bool HICTrajectoryBuilder::qualityFilter( const TempTrajectory& traj) const
 {
-
-  //  cout << "qualityFilter called for trajectory with " 
-    //     << traj.foundHits() << " found hits and Chi2 = "
-      //   << traj.chiSquared() << endl;
-
+#ifdef DEBUG
+    cout << "qualityFilter called for trajectory with " 
+         << traj.foundHits() << " found hits and Chi2 = "
+         << traj.chiSquared() << endl;
+#endif
   if ( traj.foundHits() < theMinimumNumberOfHits) {
     return false;
   }
@@ -270,12 +268,13 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   Trajectory traj0 = traj.toTrajectory();
 // Check the number of pixels
   const Trajectory::DataContainer tms = traj0.measurements();
-  //for( TempTrajectory::DataContainer::const_iterator itm=tms.end()-1; itm>=tms.begin(); itm--) {
   int ipix = 0; 
   for( Trajectory::DataContainer::const_iterator itm = tms.begin(); itm != tms.end(); itm++) {
      if((*itm).layer()->subDetector() == GeomDetEnumerators::PixelEndcap || (*itm).layer()->subDetector() == GeomDetEnumerators::PixelBarrel) ipix++;
   }
+#ifdef DEBUG
 // cout<<" Number of pixels "<<ipix<<endl;
+#endif
  if(ipix < 2) return false;
 //
 // Refit the trajectory
@@ -301,34 +300,16 @@ void HICTrajectoryBuilder::addToResult( TempTrajectory& tmptraj,
 					TrajectoryContainer& result) const
 {
   Trajectory traj = tmptraj.toTrajectory();
-// Refit the trajectory before putting into the last result
-
-//  ConstRecHitContainer myrechits = traj0.recHits();
-
-//  PTrajectoryStateOnDet garbage1;
-//  edm::OwnVector<TrackingRecHit> garbage2;
-//  PropagationDirection propDir = alongMomentum;
-//  TrajectoryStateOnSurface firstTSOS = *(traj0.lastMeasurement().freeTrajectoryState());
-//  TrajectorySeed seed(garbage1,garbage2,propDir);
-
-//  vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
-//  if(trajectories.empty()) return false;
-//  Trajectory trajectoryBW = trajectories.front();
-//  vector<Trajectory> trajectoriesSM = theSmoother->trajectories(trajectoryBW);
-
-//  if( trajectoriesSM.empty())
-//  {
-//   Trajectory traj = trajectoriesSM.front();
-  // discard latest dummy measurements
-  while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   result.push_back( traj);
-//  } // trajectories SM
 }
 
 bool HICTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
 					     const TM& tm) const
 {
   bool good=false; 
+#ifdef DEBUG
+  std::cout<<"HICTrajectoryBuilder::updateTrajectory::start"<<std::endl;
+#endif
   TSOS predictedState = tm.predictedState();
   TM::ConstRecHitPointer hit = tm.recHit();
   Trajectory traj0 = traj.toTrajectory();
@@ -345,12 +326,13 @@ bool HICTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
 // Update trajectory
 //
   TrajectoryStateOnSurface newUpdateState=hicup.update(traj0, predictedState, tm, tm.layer(), chi2rz, chi2rf);
-  double accept=
+  bool accept=
               (dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->estimate(newUpdateState,*hit)).first;
   if(accept)
   {
-  //std::cout<<" updateTrajectory::UpdateState::New momentum "<<newUpdateState.freeTrajectoryState()->momentum().perp()<<" "<<newUpdateState.freeTrajectoryState()->momentum().z()<<std::endl;
-
+#ifdef DEBUG
+  std::cout<<" updateTrajectory::UpdateState::New momentum "<<newUpdateState.freeTrajectoryState()->momentum().perp()<<" "<<newUpdateState.freeTrajectoryState()->momentum().z()<<std::endl;
+#endif
   TM tmp = TM(predictedState, newUpdateState, hit, tm.estimate(), tm.layer());
 
   traj.push(tmp );
@@ -359,7 +341,9 @@ bool HICTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
   }
     else
     {
-    //   std::cout<<" updateTrajectory::failed after update "<<accept<<std::endl;
+#ifdef DEBUG
+       std::cout<<" updateTrajectory::failed after update "<<accept<<std::endl;
+#endif
        return good;
     }
   }
@@ -411,27 +395,31 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
 
   vector<const DetLayer*> nl = 
                                traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
-
-  //std::cout<<" Number of layers "<<nl.size()<<std::endl;
+#ifdef DEBUG
+  std::cout<<" Number of layers "<<nl.size()<<std::endl;
+#endif
   
   if (nl.empty()) return result;
 
   int seedLayerCode = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->
                                                               getDetectorCode(traj.measurements().front().layer());
-
-  //std::cout<<"findCompatibleMeasurements Point 0 "<<seedLayerCode<<std::endl;
+#ifdef DEBUG
+  std::cout<<"findCompatibleMeasurements Point 0 "<<seedLayerCode<<std::endl;
+#endif
 							      
   int currentLayerCode = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->
                                                                getDetectorCode(traj.lastLayer()); 
- // std::cout<<"findCompatibleMeasurements Point 1 "<<currentLayerCode<<std::endl;
-
+#ifdef DEBUG
+  std::cout<<"findCompatibleMeasurements Point 1 "<<currentLayerCode<<std::endl;
+#endif
   for (vector<const DetLayer*>::iterator il = nl.begin(); 
                                          il != nl.end(); il++) {
 
    int nextLayerCode = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->
                                                                getDetectorCode((*il)); 
-
- // std::cout<<"findCompatibleMeasurements Point 2 "<<nextLayerCode<<std::endl;
+#ifdef DEBUG
+  std::cout<<"findCompatibleMeasurements Point 2 "<<nextLayerCode<<std::endl;
+#endif
 
    if( traj.lastLayer()->location() == GeomDetEnumerators::endcap && (**il).location() == GeomDetEnumerators::barrel )
    {
@@ -452,9 +440,9 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
    if( currentLayerCode == 101 && nextLayerCode < 100 ) {
      continue; 
    }  // currentLayer-nextLayer
-   
- // std::cout<<" findCompatibleMeasurements Point 3 "<<nextLayerCode<<std::endl;
-   
+#ifdef DEBUG   
+  std::cout<<" findCompatibleMeasurements Point 3 "<<nextLayerCode<<std::endl;
+#endif   
      								       
   Trajectory traj0 = traj.toTrajectory();
   
@@ -463,22 +451,22 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
   // Choose Win
   int icut = 1;
   dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->chooseCuts(icut);
-
- // std::cout<<" findCompatibleMeasurements::current state : "<<
-   //          " charge "<< currentState.freeTrajectoryState()->parameters().charge()<<
-     //        " pt "<<currentState.freeTrajectoryState()->parameters().momentum().perp()<<
-       //      " pz "<<currentState.freeTrajectoryState()->parameters().momentum().z()<<
-         //    " r  "<<currentState.freeTrajectoryState()->parameters().position().perp()<<
-         //    " phi  "<<currentState.freeTrajectoryState()->parameters().position().phi()<<
-         //    " z  "<<currentState.freeTrajectoryState()->parameters().position().z()<<
-         //    endl; 
-
+#ifdef DEBUG
+  std::cout<<" findCompatibleMeasurements::current state : "<<
+             " charge "<< currentState.freeTrajectoryState()->parameters().charge()<<
+             " pt "<<currentState.freeTrajectoryState()->parameters().momentum().perp()<<
+             " pz "<<currentState.freeTrajectoryState()->parameters().momentum().z()<<
+             " r  "<<currentState.freeTrajectoryState()->parameters().position().perp()<<
+             " phi  "<<currentState.freeTrajectoryState()->parameters().position().phi()<<
+             " z  "<<currentState.freeTrajectoryState()->parameters().position().z()<<
+             endl; 
+#endif
   vector<TM> tmp0 = 
                         theLayerMeasurements->measurements((**il), currentState, *theForwardPropagator, *theEstimator);
-      
-//  std::cout<<" findCompatibleMeasurements Point 6 "<<theCut[0]<<" "<<theCut[1]<<std::endl;
-//  std::cout<<" findCompatibleMeasurements Point 7 "<<traj0.measurements().size()<<std::endl;
-
+#ifdef DEBUG 
+  std::cout<<" findCompatibleMeasurements Point 6 "<<theCut[0]<<" "<<theCut[1]<<std::endl;
+  std::cout<<" findCompatibleMeasurements Point 7 "<<traj0.measurements().size()<<std::endl;
+#endif
 //   
 // ========================= Choose Cut and filter =================================
 //
@@ -486,46 +474,74 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
      icut = 2;
      dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->chooseCuts(icut);
      const MagneticField * mf = dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->getField();
-
-  //   std::cout<<" findCompatibleMeasurements Point 8 "<<theCut[0]<<" "<<theCut[1]<<" Size of candidates "<<tmp0.size()<<std::endl;
-   
+#ifdef DEBUG
+     std::cout<<" findCompatibleMeasurements Point 8 "<<theCut[0]<<" "<<theCut[1]<<" Size of candidates "<<tmp0.size()<<std::endl;
+#endif  
+    int numtmp = 0; 
      for( vector<TM>::iterator itm = tmp0.begin(); itm != tmp0.end(); itm++ )
      {
         TM tm = (*itm);
         TSOS predictedState = tm.predictedState();
 	TM::ConstRecHitPointer  hit = tm.recHit();
 	TSOS updateState = traj0.lastMeasurement().updatedState();
-	
+#ifdef DEBUG
+	std::cout<<" findCompatibleMeasurements::Size of trajectory "<<traj0.measurements().size()<<" Number of TM "<< numtmp<<
+        " valid updated state"<< updateState.isValid()<<" Prediceted state is valid "<<predictedState.isValid()<< std::endl;
+#endif
+
   if( traj0.measurements().size() == 1 )
   {
-//        HICTrajectoryCorrector* theCorrector = new HICTrajectoryCorrector(mf,theHICConst);	
+#ifdef DEBUG
+       std::cout<<" findCompatibleMeasurements::start corrector "<<std::endl;
+#endif
         HICTrajectoryCorrector theCorrector(mf,theHICConst);
         TSOS predictedState0 = theCorrector.correct( (*traj0.lastMeasurement().updatedState().freeTrajectoryState()), 
                                                       (*(predictedState.freeTrajectoryState())), 
 			                              hit->det() );
-						      
-						      
-        if(predictedState0.isValid()) {
-         //     std::cout<<" Accept the corrected state "<<std::endl; 
-         predictedState = predictedState0;}
+#ifdef DEBUG						      
+     std::cout<<" findCompatibleMeasurements::end corrector "<<std::endl; 
+#endif
+      if(predictedState0.isValid()) 
+      {
+#ifdef DEBUG
+              std::cout<<" Accept the corrected state "<<numtmp<<std::endl; 
+#endif
+              predictedState = predictedState0;
 	if((*hit).isValid())
 	{
   
-              double accept=
-              (dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->estimate(predictedState,*hit)).first; 
+              bool accept= true;
+              accept = (dynamic_cast<HICMeasurementEstimator*>(const_cast<Chi2MeasurementEstimatorBase*>(theEstimator))->estimate(predictedState,*hit)).first; 
 	      
               if(!accept) {
-	   //       std::cout<<" findCompatibleMeasurements::failed after the first step "<<accept<<std::endl;
-	      continue;
+#ifdef DEBUG
+	          std::cout<<" findCompatibleMeasurements::failed after the first step "<<numtmp<<std::endl;
+#endif
+                  numtmp++;
+	          continue;
 	      } // accept
+#ifdef DEBUG
+             std::cout<<" findCompatibleMeasurements::estimate at the first step is ok "<<numtmp<<std::endl;
+#endif
+// Add trajectory measurements
+             tmp.push_back(TM(predictedState, updateState, hit, tm.estimate(), tm.layer())); 
+#ifdef DEBUG
+             std::cout<<" findCompatibleMeasurements::fill estimate "<<numtmp<<std::endl;
+#endif
         } // Hit Valid
-//        delete theCorrector;
+       } // predicted state is valid
    } // first step
+      else
+      { 
+//          tmp.push_back(TM(predictedState, updateState, hit, tm.estimate(), tm.layer()));
+            if( predictedState.isValid() && (*hit).isValid() ) tmp.push_back(*itm);
+      } 
+          numtmp++;
 
-          tmp.push_back(TM(predictedState, updateState, hit, tm.estimate(), tm.layer()));
   }		// tm 			   
-
-
+#ifdef DEBUG
+        std::cout<<" findCompatibleMeasurements::point 9 "<<std::endl;
+#endif
     if ( !tmp.empty()) {
       if ( result.empty() ) result = tmp;
       else {
@@ -540,8 +556,9 @@ HICTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) co
   if ( result.size() > 1) {
     sort( result.begin(), result.end(), TrajMeasLessEstim());
   }
-  //analyseMeasurements( result, traj);
-
+#ifdef DEBUG
+       std::cout<<" findCompatibleMeasurements::point 10 "<<std::endl;
+#endif
   return result;
 }
-//}
+

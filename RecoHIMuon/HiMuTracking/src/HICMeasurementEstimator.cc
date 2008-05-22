@@ -4,11 +4,18 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 using namespace edm;
 using namespace std;
-using namespace cms;
-//namespace cms {
+//#define DEBUG
 std::pair<bool,double> 
 HICMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 				   const TransientTrackingRecHit& aRecHit) const {
+    std::pair<bool,double> flag(false,0.);
+    if(!tsos.isValid()) {
+#ifdef DEBUG
+          std::cout<<" HICMeasurementEstimator::estimate::trajectory is not valid "<<std::endl;
+#endif
+    return flag;
+    }
+
     switch (aRecHit.dimension()) {
         case 1: return estimate<1>(tsos,aRecHit);
         case 2: return estimate<2>(tsos,aRecHit);
@@ -26,31 +33,42 @@ HICMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
   typedef typename AlgebraicROOTObject<D>::SymMatrix Mat;
   double est = 0.;
 // If RecHit is not valid   
-  if(!(aRecHit.isValid())) {std::cout<<" Measurement estimator::RecHit is invalid "<<std::endl; return HitReturnType(false,est); }
+  if(!(aRecHit.isValid())) {
+#ifdef DEBUG
+         std::cout<<" Measurement estimator::RecHit is invalid "<<std::endl; 
+#endif
+   return HitReturnType(false,est); 
+   }
 // Check windows
 
-  double dphi = abs(tsos.freeTrajectoryState()->parameters().position().phi() - aRecHit.globalPosition().phi() - thePhiBoundMean);
-  double dz = abs( tsos.freeTrajectoryState()->parameters().position().z() - aRecHit.globalPosition().z() - theZBoundMean );
-  double dr = abs( tsos.freeTrajectoryState()->parameters().position().perp() - aRecHit.globalPosition().perp() - theZBoundMean );
-
-//  std::cout<<" Momentum "<<tsos.freeTrajectoryState()->parameters().momentum().perp()<<" "<<tsos.freeTrajectoryState()->parameters().momentum().z()<<std::endl;
-//  std::cout<<" RecHit position r "<<aRecHit.globalPosition().perp()<<" phi "<<aRecHit.globalPosition().phi()<<" "<<aRecHit.globalPosition().z()<<std::endl;
-//  std::cout<<" Predicted position "<<tsos.freeTrajectoryState()->parameters().position().perp()<<" "<<tsos.freeTrajectoryState()->parameters().position().phi()<<
-//  " "<<tsos.freeTrajectoryState()->parameters().position().z()<<std::endl;
-//  std::cout<<" HICMeasurementEstimator::phi "<<dphi<<" "<<thePhiBound<<std::endl;
-//  std::cout<<" HICMeasurementEstimator::z "<<dz<<" "<<theZBound<<std::endl;
-//  std::cout<<" HICMeasurementEstimator::z "<<dr<<" "<<theZBound<<std::endl;
-
+  double dphi = fabs(tsos.freeTrajectoryState()->parameters().position().phi() - aRecHit.globalPosition().phi() - thePhiBoundMean);
+  double dz = fabs( tsos.freeTrajectoryState()->parameters().position().z() - aRecHit.globalPosition().z() - theZBoundMean );
+  double dr = fabs( tsos.freeTrajectoryState()->parameters().position().perp() - aRecHit.globalPosition().perp() - theZBoundMean );
+#ifdef DEBUG
+  std::cout<<" Momentum "<<tsos.freeTrajectoryState()->parameters().momentum().perp()<<" "<<tsos.freeTrajectoryState()->parameters().momentum().z()<<std::endl;
+  std::cout<<" RecHit position r "<<aRecHit.globalPosition().perp()<<" phi "<<aRecHit.globalPosition().phi()<<" "<<aRecHit.globalPosition().z()<<std::endl;
+  std::cout<<" Predicted position "<<tsos.freeTrajectoryState()->parameters().position().perp()<<" "<<tsos.freeTrajectoryState()->parameters().position().phi()<<
+  " "<<tsos.freeTrajectoryState()->parameters().position().z()<<std::endl;
+  std::cout<<" HICMeasurementEstimator::phi "<<dphi<<" "<<thePhiBound<<std::endl;
+  std::cout<<" HICMeasurementEstimator::z "<<dz<<" "<<theZBound<<std::endl;
+  std::cout<<" HICMeasurementEstimator::z "<<dr<<" "<<theZBound<<std::endl;
+#endif
   if( dphi > thePhiBound ) {
-//    std::cout<<" HICMeasurementEstimator::phi::failed "<<std::endl;
+#ifdef DEBUG
+    std::cout<<" HICMeasurementEstimator::phi::failed "<<std::endl;
+#endif
     return HitReturnType(false,est);
   }
   if( dz > theZBound ) {
-//    std::cout<<" HICMeasurementEstimator::z::failed "<<std::endl;
+#ifdef DEBUG
+    std::cout<<" HICMeasurementEstimator::z::failed "<<std::endl;
+#endif
     return HitReturnType(false,est);
   }
   if( dr > theZBound ) {
-//    std::cout<<" HICMeasurementEstimator::r::failed "<<std::endl;
+#ifdef DEBUG
+    std::cout<<" HICMeasurementEstimator::r::failed "<<std::endl;
+#endif
     return HitReturnType(false,est);
   }
 
@@ -80,35 +98,28 @@ bool HICMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
   float theZError = plane.bounds().length() + 4.;
   float thePhiError = 2.*plane.bounds().width()/plane.position().perp();
 
-#ifdef HICMEASUREMENTESTIMATOR_DEBUG  
-//  if( theTrue == 1 )
-//  {				      
-
-//  cout<<" ======================================================================================== ";
-//  cout<<" Estimate detector::   tsos      :     detector   :   Error "<<endl;
-//  cout<<" R                 "<<ts.globalPosition().perp()<<" "<<plane.position().perp()<<" "<<theZError<<endl;
-//  cout<<" Phi               "<<ts.globalPosition().phi()<<" "<<plane.position().phi()<<" "<<thePhiError<<endl;
-//  cout<<" Z                 "<<ts.globalPosition().z()<<" "<<plane.position().z()<<" "<<theZError<<endl;
-//  }
+#ifdef DEBUG  
+  cout<<" ======================================================================================== ";
+  cout<<" Estimate detector::   tsos      :     detector   :   Error "<<endl;
+  cout<<" R                 "<<ts.globalPosition().perp()<<" "<<plane.position().perp()<<" "<<theZError<<endl;
+  cout<<" Phi               "<<ts.globalPosition().phi()<<" "<<plane.position().phi()<<" "<<thePhiError<<endl;
+  cout<<" Z                 "<<ts.globalPosition().z()<<" "<<plane.position().z()<<" "<<theZError<<endl;
 #endif
 
   bool flag = false;
-  if(abs(ts.globalPosition().perp()-plane.position().perp())<theZError){
-   if(abs(ts.globalPosition().z()-plane.position().z())<theZError){
+  if(fabs(ts.globalPosition().perp()-plane.position().perp())<theZError){
+   if(fabs(ts.globalPosition().z()-plane.position().z())<theZError){
    float phi1 = ts.globalPosition().phi();
    float phi2 = plane.position().phi();
    if(phi1<0.) phi1 = twopi+phi1;
    if(phi2<0.) phi2 = twopi+phi2;
-   float dfi = abs(phi1-phi2);
+   float dfi = fabs(phi1-phi2);
    if(dfi>pi) dfi = twopi-dfi;
       if(dfi<thePhiError) flag = true;
    }
   }
-#ifdef HICMEASUREMENTESTIMATOR_DEBUG
-//  if( theTrue == 1 )
-//  {				      
-//    cout<<" Estimate = "<<flag<<endl;
-//  }
+#ifdef DEBUG
+    cout<<" Estimate = "<<flag<<endl;
 #endif
 
   return flag;
@@ -334,4 +345,3 @@ void HICMeasurementEstimator::setHICDetMap()
    }
 
 }
-//}

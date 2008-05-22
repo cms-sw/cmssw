@@ -18,7 +18,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-//namespace cms {
+
 class HICMeasurementEstimator : public  Chi2MeasurementEstimatorBase{
 public:
 
@@ -52,9 +52,9 @@ public:
   
   virtual void setHICDetMap();
 
-  cms::HICConst* getHICConst(){return theHICConst;}
+  HICConst* getHICConst(){return theHICConst;}
 
-  void setHICConst(cms::HICConst* hh) {theHICConst = hh;}
+  void setHICConst(HICConst* hh) {theHICConst = hh;}
   
   virtual void setLastLayer( DetLayer*&  ll){theLastLayer = ll;}; 
 
@@ -73,7 +73,7 @@ public:
   }
 
 private:
-  cms::HICConst*                                          theHICConst;
+  HICConst*                                          theHICConst;
   double                                             theMaxChi2;
   int                                                theNSigma;
   std::map<const DetLayer*,int>                      theBarrel;
@@ -115,5 +115,5 @@ private:
   int                                                theSign;
   const MagneticField * field;
 };
-//}
+
 #endif

@@ -1,16 +1,20 @@
 #include "RecoHIMuon/HiMuTracking/interface/HICTrajectoryCorrector.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-//#define MUPROPAGATOR_DEBUG
-//namespace cms {
+
+//#define CORRECT_DEBUG
+using namespace std;
+
 TrajectoryStateOnSurface
              HICTrajectoryCorrector::correct(FreeTrajectoryState& fts, FreeTrajectoryState& ftsnew,
   			                const GeomDet* det) const
   {
-        //std::cout<<" HICTrajectoryCorrector::correct::start "<<std::endl;
-// Temporarily!!!!!!!!!!!!!!!!!!!!
+#ifdef CORRECT_DEBUG
+        std::cout<<" HICTrajectoryCorrector::correct::start "<<std::endl;
+#endif
         double zvert=theHICConst->zvert;
-        //std::cout<<"HICTrajectoryCorrector::zvert "<<zvert<<std::endl;
-//!!!!!!!!!!!!!!!!!!!!!!!!!!	  
+#ifdef CORRECT_DEBUG
+        std::cout<<"HICTrajectoryCorrector::zvert "<<zvert<<std::endl;
+#endif
   	LocalVector lp(1,0,0); double adet,bdet;
 	GlobalVector gp=det->toGlobal(lp);
 	GlobalPoint gdet=det->position();
@@ -22,7 +26,7 @@ TrajectoryStateOnSurface
 	
 // Parameters of line for trajectory correction from trajectory on previous layer
 
-	if(abs(fts.parameters().momentum().z())>0.0000001) 
+	if(fabs(fts.parameters().momentum().z())>0.0000001) 
 	{ 
             a = fts.parameters().momentum().perp()/fts.parameters().momentum().z();
             b = -a*zvert;
@@ -35,7 +39,7 @@ TrajectoryStateOnSurface
 	       zpoint=det->position().z();
 	       double phinew=fts.parameters().position().phi();
 	       if(phinew<0.) phinew=twopi+phinew;
-	       double dfcalc=0.006*fts.parameters().charge()*abs(zpoint-fts.parameters().position().z())/abs(fts.parameters().momentum().z());
+	       double dfcalc=0.006*fts.parameters().charge()*fabs(zpoint-fts.parameters().position().z())/fabs(fts.parameters().momentum().z());
 	 
 //	 cout <<" MuUpdator::correct::forward phi "<< phinew<<" "<<dfcalc<<" "<<phinew+dfcalc<<endl; 
 
@@ -68,9 +72,9 @@ TrajectoryStateOnSurface
 #endif
 	
 // detector parameters	
-        if(abs(gdet.x())>0.00001) 
+        if(fabs(gdet.x())>0.00001) 
 	{
-	  if(abs(gdet.y())>0.00001)
+	  if(fabs(gdet.y())>0.00001)
 	  {
 	     adet=gp.y()/gp.x();
 	     bdet=rdet*sin(phidet)-adet*rdet*cos(phidet);
@@ -118,7 +122,7 @@ TrajectoryStateOnSurface
         cout<<"MuUpdator::correct::xc,yc="<<xc<<" "<<yc<<endl;
 #endif
 
-    if(abs(adet)>99999.) 
+    if(fabs(adet)>99999.) 
     {
        if(yc<0.)
        {
@@ -147,7 +151,7 @@ TrajectoryStateOnSurface
                     
     }
 
-   if(abs(adet)<0.00001) 
+   if(fabs(adet)<0.00001) 
    {
        if(xc<0.) 
        {
@@ -184,7 +188,7 @@ TrajectoryStateOnSurface
     if(determinant<0.) 
     { // problems with decision
 #ifdef CORRECT_DEBUG    
-          cout<<"Determinant="<<determinant<<endl;
+          cout<<"HICTrajectoryCorrector::problem with decision::badtsos is returned::Determinant="<<determinant<<endl;
 #endif
           return badtsos;
     }  
@@ -204,8 +208,8 @@ TrajectoryStateOnSurface
 	  
         if(ph1<0.) ph1 = ph1+twopi;
         if(ph2<0.) ph2 = ph2+twopi;
-	double dfi1=abs(ph1-phidet);
-	double dfi2=abs(ph2-phidet);
+	double dfi1=fabs(ph1-phidet);
+	double dfi2=fabs(ph2-phidet);
 	if(dfi1>pi) dfi1=twopi-dfi1;
 	if(dfi2>pi) dfi2=twopi-dfi1;
 	
@@ -246,7 +250,7 @@ TrajectoryStateOnSurface
         }
 	}
 #ifdef CORRECT_DEBUG	
-       cout<<"False detector"<<endl;
+       cout<<"HICTrajectoryCorrector::False detector::badtsos is returned"<<endl;
 #endif	
         return badtsos;
 
@@ -263,7 +267,7 @@ double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, c
    } else {
      double zclus=fts.parameters().position().z();
      double pl=fts.parameters().momentum().z(); 
-     psi=phiclus+acharge*0.006*abs(zclus)/abs(pl);     
+     psi=phiclus+acharge*0.006*fabs(zclus)/fabs(pl);     
    }  
      double phic = psi-acharge*pi/2.;
 #ifdef CORRECT_DEBUG	
@@ -279,4 +283,4 @@ double HICTrajectoryCorrector::findPhiInVertex(const FreeTrajectoryState& fts, c
      
      return phic;
 }
-//}
+

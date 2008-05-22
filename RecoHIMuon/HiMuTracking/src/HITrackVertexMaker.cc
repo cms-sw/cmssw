@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.1 2008/05/09 13:20:48 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.2 2008/05/09 15:22:40 kodolova Exp $
 //
 //
  
@@ -84,6 +84,7 @@
 
 using namespace reco;
 using namespace std;
+//#define DEBUG
 
 namespace cms{
 HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::EventSetup& es1)
@@ -91,8 +92,9 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
 
    candTag_          = ps1.getParameter< edm::InputTag > ("CandTag");
    rphirecHitsTag    = ps1.getParameter<edm::InputTag>("rphiRecHits");
-
+#ifdef DEBUG
    std::cout<<" Start HI TrackVertexMaker constructor "<<std::endl;
+#endif
    pset_ = ps1;
 
 //
@@ -120,8 +122,9 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
                                                      recHitBuilderHandle.product(),
                                                      measurementTrackerHandle.product(),
                                                      theMinPtFilter);
+#ifdef DEBUG
     std::cout<<" HICTrajectoryBuilder constructed "<<std::endl;
-
+#endif
 }
 
 
@@ -130,11 +133,11 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
 
 HITrackVertexMaker::~HITrackVertexMaker()
 {
-   std::cout<<" Destructor starts "<<std::endl;
+//   std::cout<<" Destructor starts "<<std::endl;
 //   delete theTrajectoryBuilder;
 //   delete theMinPtFilter;
 //   delete theEstimator;
-   std::cout<<" Destructor ends "<<std::endl; 
+//   std::cout<<" Destructor ends "<<std::endl; 
 } 
 
 bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSetup& es1, HICConst* theHICConst)
@@ -152,10 +155,14 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
   
 //
 // Get measurement tracker
-//  
-
+//
+#ifdef DEBUG  
+  std::cout<<" Before first tracker update "<<std::endl;
+#endif
   measurementTrackerHandle->update(e1);
-  
+#ifdef DEBUG
+  std::cout<<" After first tracker update "<<std::endl;
+#endif  
 //
 // Get L1 muon info
 //
@@ -212,19 +219,20 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
    
       
    cout<<" Number of muon candidates "<<mucands->size()<<endl;
+
    if(mucands->size()==0 && excall.size()==0) return dimuon;
    
     FastMuPropagator* theFmp = new FastMuPropagator(&(*magfield)); 
     StateOnTrackerBound state(theFmp); 
     TrajectoryStateOnSurface tsos;
-   
+#ifdef DEBUG   
    for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
-//      TrackRef tk1 = cand1->get<TrackRef>();
+      TrackRef tk1 = cand1->get<TrackRef>();
 
-//      std::cout<<" Inner position "<<(*cand1).innerPosition().x()<<" "<<(*cand1).innerPosition().y()<<" "<<(*cand1).innerPosition().z()<<std::endl;
+      std::cout<<" Inner position "<<(*cand1).innerPosition().x()<<" "<<(*cand1).innerPosition().y()<<" "<<(*cand1).innerPosition().z()<<std::endl;
 
    } 
-   
+#endif   
     HICFTSfromL1orL2 vFts(&(*magfield));
     
     
@@ -235,35 +243,47 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
     DiMuonSeedGeneratorHIC Seed(rphirecHitsTag,&(*magfield),&(*tracker), theHICConst, mult);
 
     vector<FreeTrajectoryState> theFts = vFts.createFTSfromStandAlone((*mucands));
- //    cout<<" Size of the freeTS "<<theFts.size()<<endl;
-     
+#ifdef DEBUG
+    cout<<" Size of the freeTS "<<theFts.size()<<endl;
+#endif     
    DiMuonSeedGeneratorHIC::SeedContainer myseeds;  
 	  
      for(vector<FreeTrajectoryState>::iterator ifts=theFts.begin(); ifts!=theFts.end(); ifts++)
    {
-   //  cout<<" cycle on Muon Trajectory State " <<(*ifts).parameters().position().perp()<<
-//                                          " " <<(*ifts).parameters().position().z()   <<endl;
+#ifdef DEBUG
+     cout<<" cycle on Muon Trajectory State " <<(*ifts).parameters().position().perp()<<
+                                          " " <<(*ifts).parameters().position().z()   <<endl;
+#endif
      tsos=state((*ifts));
-   //  cout<<" State on the Tracker surface "<<tsos.isValid()<<endl;
+#ifdef DEBUG
+     cout<<" State on the Tracker surface "<<tsos.isValid()<<endl;
+#endif
      if(tsos.isValid())
      {
-     //   cout<<" Position "<<tsos.globalPosition().perp()<<" "<<tsos.globalPosition().phi()<<
-//	" "<<tsos.globalPosition().z()<<" "<<tsos.globalMomentum().perp()<<endl;
+#ifdef DEBUG
+        cout<<" Position "<<tsos.globalPosition().perp()<<" "<<tsos.globalPosition().phi()<<
+	" "<<tsos.globalPosition().z()<<" "<<tsos.globalMomentum().perp()<<endl;
+#endif
 // Start to find starting layers
 	FreeTrajectoryState* ftsnew=tsos.freeTrajectoryState();
 	
 	vector<DetLayer*> seedlayers = TkOSLF.startingLayers((*ftsnew));
-//	std::cout<<" the size of the starting layers "<<seedlayers.size()<<std::endl;
+#ifdef DEBUG
+	std::cout<<" the size of the starting layers "<<seedlayers.size()<<std::endl;
+#endif
 	if( seedlayers.size() == 0 ) continue;
 	
 	DiMuonSeedGeneratorHIC::SeedContainer seeds = Seed.produce(e1 ,es1, (*ftsnew), tsos, (*ifts), 
 	recHitBuilderHandle.product(), measurementTrackerHandle.product(), &seedlayers);
 	
 	if(seeds.size()>0) myseeds.insert(myseeds.end(),seeds.begin(),seeds.end());
-	
-	//std::cout<<" Size of seed container "<<myseeds.size()<<std::endl;
+#ifdef DEBUG	
+	std::cout<<" Size of seed container "<<myseeds.size()<<std::endl;
+#endif
      }
    }
+
+        std::cout<<" Size of seed container "<<myseeds.size()<<std::endl;
 
    int  theLowMult = 1;
    theEstimator->setHICConst(theHICConst);
@@ -282,25 +302,38 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
   //  std::cout<<" NavigationSchool constructed "<<std::endl;
     
     // Step A: set Event for the TrajectoryBuilder
-     theTrajectoryBuilder->setEvent(e1);
+#ifdef DEBUG
+     std::cout<<" Before theTrajectoryBuilder->setEvent(e1) "<<std::endl;
+#endif
+//     theTrajectoryBuilder->setEvent(e1);
 
-    // std::cout<<" theTrajectoryBuilder->setEvent(e1) "<<std::endl;
+        theTrajectoryBuilder->settracker(measurementTrackerHandle.product());
 
+#ifdef DEBUG
+     std::cout<<" After theTrajectoryBuilder->setEvent(e1) "<<std::endl;
+#endif
 
     vector<Trajectory> allTraj;    
     if( myseeds.size()>0)
     {
     
     //   std::cout<<" Cycle on seed "<<std::endl;
-       
+      int iseedn = 0; 
        for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=myseeds.begin();iseed!=myseeds.end();iseed++)
        {
          std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
-      //   std::cout<<" Seed position r "<<theV[0].recHit()->globalPosition().perp()<<" phi "<<theV[0].recHit()->globalPosition().phi()<<" z "<<
-        // theV[0].recHit()->globalPosition().z()<<std::endl;
+#ifdef DEBUG
+         std::cout<< " Seed number "<<iseedn<<"position r "<<theV[0].recHit()->globalPosition().perp()<<" phi "<<theV[0].recHit()->globalPosition().phi()<<" z "<<
+         theV[0].recHit()->globalPosition().z()<<" momentum "<<theV[0].updatedState().freeTrajectoryState()->parameters().momentum().perp()<<" "<<
+      theV[0].updatedState().freeTrajectoryState()->parameters().momentum().z()<<std::endl;
+#endif
+         //if( iseedn != 41 ) { iseedn++; continue; }
        vector<Trajectory> theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
-       // cout<<" Number of found trajectories "<<theTmpTrajectories.size()<<endl;	 
+#ifdef DEBUG
+        cout<<" Number of found trajectories "<<theTmpTrajectories.size()<<endl;	 
+#endif
         if(theTmpTrajectories.size()>0) allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
+        iseedn++;
        }    
     } 
 //
