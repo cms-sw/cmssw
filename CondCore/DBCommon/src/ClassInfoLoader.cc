@@ -1,6 +1,8 @@
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
 #include "CondFormats/Common/interface/ClassIDRegistry.h"
-#include "CondFormats/Common/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+
+#include "StorageSvc/DbReflex.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
@@ -37,7 +39,7 @@ namespace cond {
 
   }
 
-  ROOT::Reflex::Type const & reflexTypeByToken(std::string const & token) {
+  ROOT::Reflex::Type reflexTypeByToken(std::string const & token) {
     const pool::Guid guid(cond::classID(token));
     {
       // look if already loaded
