@@ -1,6 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
-
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <iomanip>
 
 bool CSCALCTHeader::debug=false;
@@ -164,6 +164,59 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 
 }
 
+
+void CSCALCTHeader::addALCT0(const CSCALCTDigi & digi)
+{
+  if(firmwareVersion != 2006) {
+    throw cms::Exception("CSCDigi2Raw") 
+      << "The ALCTDigis do not live in the ALCT header past the 2006 firmware version";
+  }
+  alcts2006.alct0_valid = digi.isValid();
+  alcts2006.alct0_quality = digi.getQuality();
+  alcts2006.alct0_accel = digi.getAccelerator();
+  alcts2006.alct0_pattern = digi.getCollisionB();
+  alcts2006.alct0_key_wire = digi.getKeyWG();
+  // probably not right
+  alcts2006.alct0_bxn_low = digi.getBX();
+}
+
+
+void CSCALCTHeader::addALCT1(const CSCALCTDigi & digi)
+{
+  if(firmwareVersion != 2006) {
+    throw cms::Exception("CSCDigi2Raw")
+      << "The ALCTDigis do not live in the ALCT header past the 2006 firmware version";
+  }
+  alcts2006.alct1_valid = digi.isValid();
+  alcts2006.alct1_quality = digi.getQuality();
+  alcts2006.alct1_accel = digi.getAccelerator();
+  alcts2006.alct1_pattern = digi.getCollisionB();
+  alcts2006.alct1_key_wire = digi.getKeyWG();
+  // probably not right
+  alcts2006.alct1_bxn_low = digi.getBX();
+}
+
+
+void CSCALCTHeader::selfTest()
+{
+  // tests packing and unpacking
+  for(int station = 1; station <= 4; ++station)
+  {
+    CSCDetId detId(1, station, 1, 1, 0);
+    CSCALCTDigi alct0(true, 1, 1, 1, 10, 6, 1);
+    CSCALCTDigi alct1(true, 1, 1, 0, 11, 6, 2);
+
+    CSCALCTHeader alctHeader(detId.iChamberType());
+
+    alctHeader.addALCT0(alct0);
+    alctHeader.addALCT1(alct1);
+
+    std::vector<CSCALCTDigi> alcts = alctHeader.ALCTDigis();
+    assert(alcts[0] == alct0);
+    assert(alcts[1] == alct1);
+  }
+
+}
 
 std::ostream & operator<<(std::ostream & os, const CSCALCTHeader & header) 
 {

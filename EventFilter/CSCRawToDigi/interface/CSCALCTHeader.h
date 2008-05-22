@@ -367,6 +367,12 @@ class CSCALCTHeader {
       }
   }
  
+  void addALCT0(const CSCALCTDigi & digi);
+  void addALCT1(const CSCALCTDigi & digi);
+
+  /// tests that we unpack what we packed
+  static void selfTest();  
+
  private:
 
   CSCALCTHeader2007 header2007;
