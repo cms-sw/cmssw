@@ -12,22 +12,18 @@ from RecoTracker.TkNavigation.NavigationSchoolESProducer_cff import *
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 #FILTER
-nuclearCkfTrajectoryFilter = copy.deepcopy(trajectoryFilterESProducer)
-import copy
-from RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi import *
+nuclearCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
 #TRAJECTORY BUILDER
-nuclearCkfTrajectoryBuilder = copy.deepcopy(CkfTrajectoryBuilder)
-import copy
-from RecoTracker.CkfPattern.CkfTrackCandidates_cfi import *
+nuclearCkfTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 #TRACK CANDIDATES
-nuclearTrackCandidates = copy.deepcopy(ckfTrackCandidates)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
+nuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 #TRACKS
-nuclearWithMaterialTracks = copy.deepcopy(ctfWithMaterialTracks)
+nuclearWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 from RecoTracker.NuclearSeedGenerator.NuclearSeed_cfi import *
 from RecoVertex.NuclearInteractionProducer.NuclearInteraction_cfi import *
 from RecoTracker.NuclearSeedGenerator.NuclearTrackCorrector_cfi import *
