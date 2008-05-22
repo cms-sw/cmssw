@@ -9,8 +9,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/03/01 00:39:58 $
-  * $Revision: 1.5 $
+  * $Date: 2008/05/17 16:42:42 $
+  * $Revision: 1.6 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -79,11 +79,12 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
  private:  ///Methods
   
    bool debug_;
+   bool doFCpeds_; // true if ped values are in FC; otherwise, assume peds in ADC counts
+
    int ievt_;
    double etaMax_, etaMin_, phiMax_, phiMin_;
    int etaBins_, phiBins_;
    int checkNevents_;
-   HcalCalibrations calibs_;
 
    double coolcellfrac_;
    double Nsigma_;
@@ -93,6 +94,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 
    DeadCellHists hbHists, heHists, hoHists, hfHists, hcalHists;
    MonitorElement* meEVT_;
+   HcalCalibrations calibs_; // shouldn't be necessary any more
 
 
    // MonitorElement* HBDeadCell, HEDeadCell, HODeadCell, HFDeadCell;
