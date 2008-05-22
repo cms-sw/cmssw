@@ -6,17 +6,16 @@ correctedIslandEndcapSuperClusters = cms.EDFilter("EgammaSCCorrectionMaker",
     sigmaElectronicNoise = cms.double(0.15),
     superClusterAlgo = cms.string('Island'),
     etThresh = cms.double(0.0),
-    rawSuperClusterProducer = cms.InputTag("islandSuperClusters","islandEndcapSuperClusters"),
+    rawSuperClusterProducer = cms.InputTag("islandSuperClusters","islandBarrelSuperClusters"),
     applyEnergyCorrection = cms.bool(True),
     isl_fCorrPset = cms.PSet(
         brLinearLowThr = cms.double(0.0),
         fBremVec = cms.vdouble(0.0),
         brLinearHighThr = cms.double(0.0),
-        fEtEtaVec = cms.vdouble(0.0),
-        corrF = cms.vint32(0)
+        fEtEtaVec = cms.vdouble(0.0)
     ),
     VerbosityLevel = cms.string('ERROR'),
-    recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
 
 

@@ -16,8 +16,7 @@ correctedDynamicHybridSuperClusters = cms.EDFilter("EgammaSCCorrectionMaker",
         brLinearHighThr = cms.double(12.0),
         fEtEtaVec = cms.vdouble(0.9929, -0.01751, 0.0, -4.636, 5.945, 
             737.9, 4.057, 8.0, 1.023, 0.0, 
-            0.0),
-        corrF = cms.vint32(1, 0, 0)
+            0.0, 1.0, 0.0)
     ),
     recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
