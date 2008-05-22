@@ -14,13 +14,13 @@ namespace cond {
   
   class IOVElement {
   public:
-    IOVElement() : m_since(0), m_till(0), db(0){}
-    IOVElement(PoolTransaction * idb) : m_since(0), m_till(0), db(idb){}
+    IOVElement() : m_since(0), m_till(0), m_db(0){}
+    IOVElement(PoolTransaction * idb) : m_since(0), m_till(0), m_db(idb){}
     IOVElement(cond::Time_t is,
 	       cond::Time_t it,
 	       std::string const& itoken,
 	       PoolTransaction * idb) :
-      m_since(is), m_till(it), m_token(itoken), db(idb){}
+      m_since(is), m_till(it), m_token(itoken), m_db(idb){}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
@@ -33,12 +33,12 @@ namespace cond {
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
     std::string const & payloadToken() const {return m_token;}
-
+    PoolTransaction * db() const { return m_db)
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
     std::string  m_token;
-    PoolTransaction * db;
+    PoolTransaction * m_db;
   };
   
   
