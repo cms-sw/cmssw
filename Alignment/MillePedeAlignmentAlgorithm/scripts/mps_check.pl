@@ -115,11 +115,10 @@ for ($i=0; $i<@JOBID; ++$i) {
       system "gzip $eazeLog";
     }
 
-    $milleOut = sprintf("$mssDir/milleBinary%03d.dat",$i+1);
-    $mOutSize = `nsls -l $milleOut | awk '{print \$5}'`;
-
     # for mille jobs checks that milleBinary file is not empty
     if ( @JOBDIR[$i] ne "jobm" && !($mOutSize>0) ) {
+      $milleOut = sprintf("$mssDir/milleBinary%03d.dat",$i+1);
+      $mOutSize = `nsls -l $milleOut | awk '{print \$5}'`;
       $emptyDatErr = 1;
     }
 
