@@ -37,4 +37,6 @@
   <class name="FWLongParameterSetter"/>
   <class name="FWLongParameter"/>
   <class name="FWConfiguration::KeyValues"/>
+  <class name="GenParticleProxy3DBuilder"/>
+  <class name="GenParticleDetailView"/>
 </lcgdict>

@@ -37,6 +37,8 @@
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/src/FWLongParameterSetter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
+#include "Fireworks/Core/interface/GenParticleProxy3DBuilder.h"
+#include "Fireworks/Core/interface/GenParticleDetailView.h"
 
 
 namespace {
