@@ -77,6 +77,10 @@ void PixelVertexProducerMedian::produce
             << tracks.size() << " (out of " << tracks_.size()
             << ")" << std::endl; 
 
+  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+
+  if(tracks.size() > 10)
+  {
   // Sort along vertex z position
   std::sort(tracks.begin(), tracks.end(), ComparePairs());
   
@@ -122,8 +126,8 @@ void PixelVertexProducerMedian::produce
   reco::Vertex ver(reco::Vertex::Point(0,0,med + f1.GetParameter(1)),
                                        err, 0, 1, 1);
   
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
   vertices->push_back(ver);
+  }
   ev.put(vertices);
 }
 
