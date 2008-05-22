@@ -104,9 +104,9 @@ void CSCMonitorModule::updateFracHistos() {
     delete tmp;
   }
 
-  if (MEEMU("CSC_Reporting", me1)){
+  if (MEEMU("CSC_Unpacked_Fract", me1)){
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1()->Clone());
-    summary.ReadChambers(tmp);
+    summary.ReadChambers(tmp, 0.75);
     delete tmp;
   }
 

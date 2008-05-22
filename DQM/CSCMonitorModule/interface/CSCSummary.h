@@ -53,7 +53,7 @@ class CSCSummary {
     void Reset();
 
     void Read(TH1*& h1);
-    void ReadChambers(TH2*& h2);
+    void ReadChambers(TH2*& h2, const double threshold = 1);
 
     void Write(TH1*& h1);
     void Write(TH1*& h1, const unsigned int station);

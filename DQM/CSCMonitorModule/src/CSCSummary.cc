@@ -52,7 +52,7 @@ void CSCSummary::Reset() {
  * @param  h2 Histogram to read
  * @return 
  */
-void CSCSummary::ReadChambers(TH2*& h2) {
+void CSCSummary::ReadChambers(TH2*& h2, const double threshold) {
 
   if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
      h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18) {
@@ -63,7 +63,7 @@ void CSCSummary::ReadChambers(TH2*& h2) {
       for(unsigned int y = 1; y <= 18; y++) {
         double z = h2->GetBinContent(x, y);
         if(ChamberCoords(x, y, adr)) {
-          SetValue(adr, (z > 0 ? 1 : 0));
+          SetValue(adr, (z >= threshold ? 1 : 0));
         }
       }
     }
@@ -464,9 +464,20 @@ void CSCSummary::PrintAddress(const CSCAddress& adr) {
   std::cout << std::endl;
 }
 
-const bool CSCSummary::Iterator(unsigned int& i, CSCAddress& adr, const CSCAddressMask& mask) {
+/*
+const bool CSCSummary::NextAddress(CSCAddress& adr, const CSCAddressMask mask) {
+
+  if (adr.mask.side && (adr.side < 1 || adr.side > N_SIDES)) return false;
+  if (adr.mask.station && (adr.station < 1 || adr.station > N_STATIONS)) return false;
+  if (!adr.mask.station && adr.mask.ring) return false; 
+  if (adr.mask.ring  && (adr.ring < 1 || adr.ring > NumberOfRings(adr.station))) return false;
+  if (!adr.mask.ring && adr.mask.chamber) return false;
+  if (adr.mask.chamber && (adr.chamber < 1 || adr.chamber > NumberOfChambers(adr.station, adr.ring))) return false;
+  if (!adr.mask.ring && adr.mask.cfeb) return false;
+  if (adr.mask.cfeb && (adr.cfeb < 1 || adr.cfeb > NumberOfChamberCFEBs(adr.station, adr.ring))) return false;
+  if (!adr.mask.ring && adr.mask.hv) return false;
+  if (adr.mask.hv && (adr.hv < 1 || adr.hv > NumberOfChamberHVs(adr.station, adr.ring))) return false;
   
-  return 0.0;
 }
 
 const unsigned int CSCSummary::NumberOfElements() {
@@ -511,4 +522,4 @@ const unsigned int CSCSummary::NumberOfElements(const CSCAddress adr) {
   return 1;
 
 }
-
+*/
