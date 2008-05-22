@@ -8,11 +8,10 @@
 #include <vector>
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-class CSCCLCTDigi;
 class CSCDMBHeader;
-class CSCCorrelatedLCTDigi;
 
 struct CSCTMBHeader2006 {///this struct is for 2006 and earlier versions of dataformat
   CSCTMBHeader2006() {
@@ -128,12 +127,8 @@ struct CSCTMBHeader2007 {///this struct is for 2007 version of dataformat
   short unsigned int sizeInWords() const {//size of TMBHeader
     return 43;
   }
-  void addCLCT0(const CSCCLCTDigi & digi);
-  void addCLCT1(const CSCCLCTDigi & digi);
   void addALCT0(const CSCALCTDigi & digi);
   void addALCT1(const CSCALCTDigi & digi);
-  void addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi);
-  void addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi);
 
   unsigned b0cline:16;
   unsigned bxnCount:12, dduCode1:3, flag1:1;
@@ -388,6 +383,23 @@ class CSCTMBHeader {
       return false;
     }
   }
+
+  /// for data packing
+  void addCLCT0(const CSCCLCTDigi & digi);
+  void addCLCT1(const CSCCLCTDigi & digi);
+  void addALCT0(const CSCALCTDigi & digi);
+  void addALCT1(const CSCALCTDigi & digi);
+  void addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi);
+  void addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi);
+
+  // templated on the header struct
+  template<typename T> void addCLCT0(const CSCCLCTDigi & digi, T & t);
+  template<typename T> void addCLCT1(const CSCCLCTDigi & digi, T & t);
+  template<typename T> void addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi, T & t);
+  template<typename T> void addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi, T & t);
+
+  /// tests that packing and unpacking give same results
+  static void selfTest();
   
   friend std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr);
 
@@ -403,5 +415,63 @@ private:
   static bool debug;
   static unsigned short int firmwareVersion;
 };
+
+
+template<typename T> void
+CSCTMBHeader::addCLCT0(const CSCCLCTDigi & digi, T & t) 
+{
+  //TODO correct strip and cfeb #
+  t.clct0_valid = digi.isValid();
+  t.clct0_quality = digi.getQuality();
+  t.clct0_shape = digi.getPattern();
+  t.clct0_bend = digi.getBend();
+  t.clct0_key = digi.getStrip();
+  t.clct0_cfeb_low = digi.getCFEB();
+}
+
+template<typename T> void
+CSCTMBHeader::addCLCT1(const CSCCLCTDigi & digi, T & t)
+{
+  //TODO correct strip and cfeb #
+  t.clct1_valid = digi.isValid();
+  t.clct1_quality = digi.getQuality();
+  t.clct1_shape = digi.getPattern();
+  t.clct1_bend = digi.getBend();
+  t.clct1_key = digi.getStrip();
+  t.clct1_cfeb_low = digi.getCFEB();
+}
+
+template<typename T> void
+CSCTMBHeader::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi,  T & t)
+{
+  //TODO correct strips
+  // Plus check where strip goes
+  t.MPC_Muon0_wire_ = digi.getKeyWG();
+  t.MPC_Muon0_clct_pattern_ = digi.getPattern();
+  t.MPC_Muon0_quality_ = digi.getQuality();
+  t.MPC_Muon0_halfstrip_clct_pattern = digi.getCLCTPattern();
+  t.MPC_Muon0_bend_ = digi.getBend();
+  t.MPC_Muon0_SyncErr_ = digi.getSyncErr();
+  t.MPC_Muon0_bx_ = digi.getBX();
+  t.MPC_Muon0_bc0_ = digi.getBX0();
+  t.MPC_Muon0_cscid_low = digi.getCSCID();
+}
+
+template<typename T> void
+CSCTMBHeader::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi, T & t)
+{
+  //TODO correct strips
+  // Plus check where strip goes
+  t.MPC_Muon1_wire_ = digi.getKeyWG();
+  t.MPC_Muon1_clct_pattern_ = digi.getPattern();
+  t.MPC_Muon1_quality_ = digi.getQuality();
+  t.MPC_Muon1_halfstrip_clct_pattern = digi.getCLCTPattern();
+  t.MPC_Muon1_bend_ = digi.getBend();
+  t.MPC_Muon1_SyncErr_ = digi.getSyncErr();
+  t.MPC_Muon1_bx_ = digi.getBX();
+  t.MPC_Muon1_bc0_ = digi.getBX0();
+  t.MPC_Muon1_cscid_low = digi.getCSCID();
+}
+
 
 #endif

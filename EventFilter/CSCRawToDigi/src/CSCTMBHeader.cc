@@ -207,30 +207,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
 }
 
 
-void CSCTMBHeader2007::addCLCT0(const CSCCLCTDigi & digi)
-{
-  //TODO correct strip and cfeb #
-  clct0_valid = digi.isValid();
-  clct0_quality = digi.getQuality();
-  clct0_shape = digi.getPattern();
-  clct0_bend = digi.getBend();
-  clct0_key = digi.getStrip();
-  clct0_cfeb_low = digi.getCFEB();
-  flag25 = 0;
-}
-
-void CSCTMBHeader2007::addCLCT1(const CSCCLCTDigi & digi)
-{
-  //TODO correct strip and cfeb #
-  clct1_valid = digi.isValid();
-  clct1_quality = digi.getQuality();
-  clct1_shape = digi.getPattern();
-  clct1_bend = digi.getBend();
-  clct1_key = digi.getStrip();
-  clct1_cfeb_low = digi.getCFEB();
-  flag26 = 0;
-}
-
 
 void CSCTMBHeader2007::addALCT0(const CSCALCTDigi & digi)
 {
@@ -252,35 +228,89 @@ void CSCTMBHeader2007::addALCT1(const CSCALCTDigi & digi)
   flag29 = 0;
 }
 
-void CSCTMBHeader2007::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi)
+
+void CSCTMBHeader::addCLCT0(const CSCCLCTDigi & digi)
 {
-  //TODO correct strips
-  // Plus check where strip goes
-  MPC_Muon0_wire_ = digi.getKeyWG();
-  MPC_Muon0_clct_pattern_ = digi.getPattern();
-  MPC_Muon0_quality_ = digi.getQuality();
-  MPC_Muon0_halfstrip_clct_pattern = digi.getCLCTPattern();
-  MPC_Muon0_bend_ = digi.getBend();
-  MPC_Muon0_SyncErr_ = digi.getSyncErr();
-  MPC_Muon0_bx_ = digi.getBX();
-  MPC_Muon0_bc0_ = digi.getBX0();
-  MPC_Muon0_cscid_low = digi.getCSCID();
+  if(firmwareVersion == 2006)
+    addCLCT0(digi, header2006);
+  else
+    addCLCT0(digi, header2007);
 }
 
-void CSCTMBHeader2007::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi)
+void CSCTMBHeader::addCLCT1(const CSCCLCTDigi & digi)
 {
-  //TODO correct strips
-  // Plus check where strip goes
-  MPC_Muon1_wire_ = digi.getKeyWG();
-  MPC_Muon1_clct_pattern_ = digi.getPattern();
-  MPC_Muon1_quality_ = digi.getQuality();
-  MPC_Muon1_halfstrip_clct_pattern = digi.getCLCTPattern();
-  MPC_Muon1_bend_ = digi.getBend();
-  MPC_Muon1_SyncErr_ = digi.getSyncErr();
-  MPC_Muon1_bx_ = digi.getBX();
-  MPC_Muon1_bc0_ = digi.getBX0();
-  MPC_Muon1_cscid_low = digi.getCSCID();
+  if(firmwareVersion == 2006)
+    addCLCT1(digi, header2006);
+  else
+    addCLCT1(digi, header2007);
 }
+
+void CSCTMBHeader::addALCT0(const CSCALCTDigi & digi)
+{
+  if(firmwareVersion == 2006) {
+    //addALCT0(digi, header2006);
+  }
+  else
+    header2007.addALCT0(digi);
+}
+
+void CSCTMBHeader::addALCT1(const CSCALCTDigi & digi)
+{
+  if(firmwareVersion == 2006) {
+    //addALCT0(digi, header2006);
+  }
+  else
+    header2007.addALCT1(digi);
+}
+
+void CSCTMBHeader::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi)
+{
+  if(firmwareVersion == 2006)
+    addCorrelatedLCT0(digi, header2006);
+  else
+    addCorrelatedLCT0(digi, header2007);
+}
+
+void CSCTMBHeader::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi)
+{
+  if(firmwareVersion == 2006)
+    addCorrelatedLCT1(digi, header2006);
+  else
+    addCorrelatedLCT1(digi, header2007);
+}
+
+
+void CSCTMBHeader::selfTest()
+{
+  // tests packing and unpacking
+  for(int station = 1; station <= 4; ++station)
+  {
+    CSCDetId detId(1, station, 1, 1, 0);
+    CSCCLCTDigi clct0(true, 1, 2, 1, 2, 30, 3, 6, 1);
+    CSCCLCTDigi clct1(true, 1, 2, 3, 4, 31, 2, 6, 1);
+
+    CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 8, 5, 1, 6, 0, 0, 0, 0);
+    CSCCorrelatedLCTDigi lct1(1, 1, 2, 20, 15, 5, 1, 6, 0, 0, 0, 0);
+
+    CSCTMBHeader tmbHeader;
+
+    tmbHeader.addCLCT0(clct0);
+    tmbHeader.addCLCT1(clct1);
+    tmbHeader.addCorrelatedLCT0(lct0);
+    tmbHeader.addCorrelatedLCT1(lct1);
+
+    std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
+    assert(clcts[0] == clct0);
+    assert(clcts[0] == clct1);
+
+    std::vector<CSCCorrelatedLCTDigi> lcts = tmbHeader.CorrelatedLCTDigis(detId.rawId());
+    assert(lcts[0] == lct0);
+    assert(lcts[0] == lct1);
+
+  }
+
+}
+
 
 std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr) {
   os << "...............TMB Header.................." << std::endl;
