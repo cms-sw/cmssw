@@ -107,7 +107,7 @@ namespace pos{
           pathAliasPair tmpPair ;
 	  tmpPair.first  = path ;
 	  tmpPair.second = alias ;
-	  aliasMmap.insert(pair<string, pathAliasPair >(theAlias,tmpPair))    ;
+	  aliasMmap.insert(std::pair<std::string, pathAliasPair >(theAlias,tmpPair))    ;
           // End of Dario's addition ============================================================================
 	  in >> tag;
 
@@ -231,7 +231,7 @@ namespace pos{
         versionAliasPair thePair ;
 	thePair.first  = pixelVersionAliases_[i].version();
 	thePair.second = pixelVersionAliases_[i].alias()  ;
-        PVAMmap.insert(pair<string, versionAliasPair >(pixelVersionAliases_[i].path(),thePair))    ;
+        PVAMmap.insert(std::pair<std::string, versionAliasPair >(pixelVersionAliases_[i].path(),thePair))    ;
       }
       return PVAMmap ;
     }
