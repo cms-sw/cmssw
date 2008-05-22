@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/14 13:02:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/21 15:48:16 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -48,7 +48,7 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   muReco->setBinLabel(2,"tracker",1);
   muReco->setBinLabel(3,"sta",1);
   
-  int binFactor = 5;
+  int binFactor = 4;
 
   // monitoring of eta parameter
   etaBin = parameters.getParameter<int>("etaBin");
@@ -58,12 +58,12 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", histname+"Glb_eta", etaBin, etaMin, etaMax));
   etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", histname+"Tk_eta", etaBin, etaMin, etaMax));
   etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", histname+"Sta_eta", etaBin, etaMin, etaMax));
-  etaResolution.push_back(dbe->book1D("Res_TkGlb_eta", "Res_TkGlb_eta", etaBin*binFactor, etaMin/10, etaMax/10));
-  etaResolution.push_back(dbe->book1D("Res_StaGlb_eta", "Res_StaGlb_eta", etaBin*binFactor, etaMin/10, etaMax/10));
-  etaResolution.push_back(dbe->book1D("Res_TkSta_eta", "Res_StaGlb_eta", etaBin*binFactor, etaMin/10, etaMax/10));
-  etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta", "ResVsEta_TkGlb_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/10, etaMax/10));
-  etaResolution.push_back(dbe->book2D("ResVsEta_StaGlb_eta", "ResVsEta_StaGlb_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/10, etaMax/10));
-  etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta", "ResVsTkEta_TkSta_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/10, etaMax/10));
+  etaResolution.push_back(dbe->book1D("Res_TkGlb_eta", "Res_TkGlb_eta", etaBin*binFactor, etaMin/3000, etaMax/3000));
+  etaResolution.push_back(dbe->book1D("Res_StaGlb_eta", "Res_StaGlb_eta", etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book1D("Res_TkSta_eta", "Res_StaGlb_eta", etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta", "ResVsEta_TkGlb_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/3000, etaMax/3000));
+  etaResolution.push_back(dbe->book2D("ResVsEta_StaGlb_eta", "ResVsEta_StaGlb_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
+  etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta", "ResVsTkEta_TkSta_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
  etaTrack = dbe->book1D("TkMuon_eta", "TkMuon_eta", etaBin, etaMin, etaMax);
   etaStaTrack = dbe->book1D("StaMuon_eta", "StaMuon_eta", etaBin, etaMin, etaMax);
 
@@ -74,12 +74,9 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   thetaGlbTrack.push_back(dbe->book1D(histname+"Glb_theta", histname+"Glb_theta", thetaBin, thetaMin, thetaMax));
   thetaGlbTrack.push_back(dbe->book1D(histname+"Tk_theta", histname+"Tk_theta", thetaBin, thetaMin, thetaMax));
   thetaGlbTrack.push_back(dbe->book1D(histname+"Sta_theta", histname+"Sta_theta", thetaBin, thetaMin, thetaMax));
-  thetaResolution.push_back(dbe->book1D("Res_TkGlb_theta", "Res_TkGlb_theta", thetaBin*binFactor, -(thetaMax/10), thetaMax/10));
-  thetaResolution.push_back(dbe->book1D("Res_StaGlb_theta", "Res_StaGlb_theta", thetaBin*binFactor,-(thetaMax/10), thetaMax/10));
-  thetaResolution.push_back(dbe->book1D("Res_TkSta_theta", "Res_TkGlb_theta", thetaBin*binFactor, -(thetaMax/10), thetaMax/10));
-  thetaResolution.push_back(dbe->book2D("ResVsTheta_TkGlb_theta", "ResVsTheta_TkGlb_theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, thetaMin/10, thetaMax/10));
-  thetaResolution.push_back(dbe->book2D("ResVsTheta_StaGlb_theta", "ResVsTheta_StaGlb_theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, thetaMin/10, thetaMax/10));
-  thetaResolution.push_back(dbe->book2D("ResVsTheta_TkSta_theta", "ResVsTkTheta_TkSta_theta", thetaBin, thetaMin, thetaMax, thetaBin*binFactor, thetaMin/10, thetaMax/10));
+  thetaResolution.push_back(dbe->book1D("Res_TkGlb_theta", "Res_TkGlb_theta", thetaBin*binFactor, -(thetaMax/3000), thetaMax/3000));
+  thetaResolution.push_back(dbe->book1D("Res_StaGlb_theta", "Res_StaGlb_theta", thetaBin*binFactor,-(thetaMax/100), thetaMax/100));
+  thetaResolution.push_back(dbe->book1D("Res_TkSta_theta", "Res_TkGlb_theta", thetaBin*binFactor, -(thetaMax/100), thetaMax/100));
   thetaTrack = dbe->book1D("TkMuon_theta", "TkMuon_theta", thetaBin, thetaMin, thetaMax);
   thetaStaTrack = dbe->book1D("StaMuon_theta", "StaMuon_theta", thetaBin, thetaMin, thetaMax);
 
@@ -90,12 +87,12 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   phiGlbTrack.push_back(dbe->book1D(histname+"Glb_phi", histname+"Glb_phi", phiBin, phiMin, phiMax));
   phiGlbTrack.push_back(dbe->book1D(histname+"Tk_phi", histname+"Tk_phi", phiBin, phiMin, phiMax));
   phiGlbTrack.push_back(dbe->book1D(histname+"Sta_phi", histname+"Sta_phi", phiBin, phiMin, phiMax));
-  phiResolution.push_back(dbe->book1D("Res_TkGlb_phi", "Res_TkGlb_phi", phiBin*binFactor, phiMin/10, phiMax/10));
-  phiResolution.push_back(dbe->book1D("Res_StaGlb_phi", "Res_StaGlb_phi", phiBin*binFactor, phiMin/10, phiMax/10));
-  phiResolution.push_back(dbe->book1D("Res_TkSta_phi", "Res_TkGlb_phi", phiBin*binFactor, phiMin/10, phiMax/10));
-  phiResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_phi", "ResVsPhi_TkGlb_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/10, phiMax/10));
-  phiResolution.push_back(dbe->book2D("ResVsPhi_StaGlb_phi", "ResVsPhi_StaGlb_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/10, phiMax/10));
-  phiResolution.push_back(dbe->book2D("ResVsPhi_TkSta_phi", "ResVsTkPhi_TkSta_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/10, phiMax/10));
+  phiResolution.push_back(dbe->book1D("Res_TkGlb_phi", "Res_TkGlb_phi", phiBin*binFactor, phiMin/3000, phiMax/3000));
+  phiResolution.push_back(dbe->book1D("Res_StaGlb_phi", "Res_StaGlb_phi", phiBin*binFactor, phiMin/100, phiMax/100));
+  phiResolution.push_back(dbe->book1D("Res_TkSta_phi", "Res_TkSta_phi", phiBin*binFactor, phiMin/100, phiMax/100));
+  phiResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_phi", "ResVsPhi_TkGlb_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/3000, phiMax/3000));
+  phiResolution.push_back(dbe->book2D("ResVsPhi_StaGlb_phi", "ResVsPhi_StaGlb_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
+  phiResolution.push_back(dbe->book2D("ResVsPhi_TkSta_phi", "ResVsTkPhi_TkSta_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
   phiTrack = dbe->book1D("TkMuon_phi", "TkMuon_phi", phiBin, phiMin, phiMax);
   phiStaTrack = dbe->book1D("StaMuon_phi", "StaMuon_phi", phiBin, phiMin, phiMax);
 
@@ -130,25 +127,25 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   pResBin = parameters.getParameter<int>("pResBin");
   pResMin = parameters.getParameter<double>("pResMin");
   pResMax = parameters.getParameter<double>("pResMax");
-  qOverpResolution.push_back(dbe->book1D("Res_TkGlb_qOverp", "Res_TkGlb_qOverp", pResBin*binFactor, pResMin, pResMax));
+  qOverpResolution.push_back(dbe->book1D("Res_TkGlb_qOverp", "Res_TkGlb_qOverp", pResBin*binFactor*2, pResMin/10, pResMax/10));
   qOverpResolution.push_back(dbe->book1D("Res_StaGlb_qOverp", "Res_StaGlb_qOverp", pResBin*binFactor, pResMin, pResMax));
   qOverpResolution.push_back(dbe->book1D("Res_TkSta_qOverp", "Res_TkSta_qOverp", pResBin*binFactor, pResMin, pResMax));
-  oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "Res_TkGlb_oneOverp", pResBin*binFactor, pResMin, pResMax));
+  oneOverpResolution.push_back(dbe->book1D("Res_TkGlb_oneOverp", "Res_TkGlb_oneOverp", pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverpResolution.push_back(dbe->book1D("Res_StaGlb_oneOverp", "Res_StaGlb_oneOverp", pResBin*binFactor, pResMin, pResMax));
   oneOverpResolution.push_back(dbe->book1D("Res_TkSta_oneOverp", "Res_TkSta_oneOverp", pResBin*binFactor, pResMin, pResMax));
-  qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "Res_TkGlb_qOverpt", pResBin*binFactor, pResMin, pResMax));
+  qOverptResolution.push_back(dbe->book1D("Res_TkGlb_qOverpt", "Res_TkGlb_qOverpt", pResBin*binFactor*2, pResMin/10, pResMax/10));
   qOverptResolution.push_back(dbe->book1D("Res_StaGlb_qOverpt", "Res_StaGlb_qOverpt", pResBin*binFactor, pResMin, pResMax));
   qOverptResolution.push_back(dbe->book1D("Res_TkSta_qOverpt", "Res_TkSta_qOverpt", pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "Res_TkGlb_oneOverpt", pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book1D("Res_TkGlb_oneOverpt", "Res_TkGlb_oneOverpt", pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverptResolution.push_back(dbe->book1D("Res_StaGlb_oneOverpt", "Res_StaGlb_oneOverpt", pResBin*binFactor, pResMin, pResMax));
   oneOverptResolution.push_back(dbe->book1D("Res_TkSta_oneOverpt", "Res_TkSta_oneOverpt", pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkGlb_oneOverpt", "ResVsEta_TkGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkGlb_oneOverpt", "ResVsEta_TkGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverptResolution.push_back(dbe->book2D("ResVsEta_StaGlb_oneOverpt", "ResVsEta_StaGlb_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
   oneOverptResolution.push_back(dbe->book2D("ResVsEta_TkSta_oneOverpt", "ResVsEta_TkSta_oneOverpt", etaBin, etaMin, etaMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_oneOverpt", "ResVsPhi_TkGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkGlb_oneOverpt", "ResVsPhi_TkGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverptResolution.push_back(dbe->book2D("ResVsPhi_StaGlb_oneOverpt", "ResVsPhi_StaGlb_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
   oneOverptResolution.push_back(dbe->book2D("ResVsPhi_TkSta_oneOverpt", "ResVsPhi_TkSta_oneOverpt", phiBin, phiMin, phiMax, pResBin*binFactor, pResMin, pResMax));
-  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
+  oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverptResolution.push_back(dbe->book2D("ResVsPt_StaGlb_oneOverpt", "ResVsPt_StaGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
   oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "ResVsPt_TkSta_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
 }
@@ -186,9 +183,6 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     thetaResolution[0]->Fill(recoGlbTrack->theta()-recoCombinedGlbTrack->theta());
     thetaResolution[1]->Fill(recoStaGlbTrack->theta()-recoCombinedGlbTrack->theta());
     thetaResolution[2]->Fill(recoGlbTrack->theta()-recoStaGlbTrack->theta());
-    thetaResolution[3]->Fill(recoCombinedGlbTrack->theta(), recoGlbTrack->theta()-recoCombinedGlbTrack->theta());
-    thetaResolution[4]->Fill(recoCombinedGlbTrack->theta(), recoStaGlbTrack->theta()-recoCombinedGlbTrack->theta());
-    thetaResolution[5]->Fill(recoCombinedGlbTrack->theta(), recoGlbTrack->theta()-recoStaGlbTrack->theta());
      
     phiGlbTrack[0]->Fill(recoCombinedGlbTrack->phi());
     phiGlbTrack[1]->Fill(recoGlbTrack->phi());
@@ -236,7 +230,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   }
 
-  if(recoMu.isTrackerMuon()) {
+  if(recoMu.isTrackerMuon() && !(recoMu.isGlobalMuon())) {
     LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is tracker only - filling the histos";
     muReco->Fill(2);
 
@@ -252,7 +246,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
   }
 
-  if(recoMu.isStandAloneMuon()) {
+  if(recoMu.isStandAloneMuon() && !(recoMu.isGlobalMuon())) {
     LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is STA only - filling the histos";
     muReco->Fill(3);
     
