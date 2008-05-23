@@ -1,4 +1,4 @@
-<library file="PyWrapper.cc" name=CalibrationPyInterface>
+<library file="PedestalPyWrapper.cc" name=PedestalPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/Calibration>
 <use name=boost>

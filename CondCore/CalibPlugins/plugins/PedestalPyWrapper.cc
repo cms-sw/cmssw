@@ -25,6 +25,7 @@ namespace {
       std::stringstream ss;
     };
 
+    PythonWrapper() : {}
     PythonWrapper(const cond::IOVElement & elem) : 
       object(*elem.db(),elem.payloadToken()){}
 
@@ -35,10 +36,24 @@ namespace {
       return p.ss.str();
     }
 
-    std::string summary() const;
+    std::string summary() const {
+      std::stringstream ss;
+      ss << "size="<<object->m_pedestals.size() <<";";
+      p.ss << std::endl;
+      return ss.str();
+    }
 
     cond::TypedRef<Class> object;    
 
   };
+
+}
+
+BOOST_PYTHON_MODULE(pluginPedestalPyInterface) {
+  
+  class_<PythonWrapper>("Object",init<>()).
+    .def(init<cond::IOVElement>()),
+    .def("print",&PythonWrapper::print)    
+    .def("summary",&PythonWrapper::print);
 
 }
