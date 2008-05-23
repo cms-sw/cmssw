@@ -35,7 +35,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-typedef edm::ValueMap<double> TkIsoMap;
+typedef edm::ValueMap<float> TkIsoMap;
 
 IsolationProducerForTracks::IsolationProducerForTracks(const ParameterSet & pset) : 
   tracks_( pset.getParameter<InputTag>( "tracks" ) ),
