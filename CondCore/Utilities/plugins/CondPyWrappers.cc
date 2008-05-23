@@ -3,12 +3,35 @@
 #include "CondCore/Utilities/interface/CondPyInterface.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
+#include "CondCore/DBCommon/interface/ClassInfoLoader.h"
+#include "CondFormats/Common/interface/ClassIDRegistry.h"
+#include "CondCore/DBCommon/interface/Exception.h"
+
+#include "StorageSvc/DbReflex.h"
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+
 
 #include <boost/python.hpp>
 
 using namespace boost::python;
 
 namespace {
+
+  // find and return
+  boost::shared_ptr<ClassInfo> pyInfo(std::string const & token) {
+    static std::string const prefix = cond::idCategories::pythonIDCategory + "/";
+    std::string pluginName = prefix + cond::classID(token);
+    return boost::shared_ptr<ClassInfo>(ClassInfoFactory::get()->create(pluginName));
+  }
+  
+  std::string moduleName(cond::CondDB & db, std::string const & tag) {
+    cond::IOVProxy iov = db.iov(tag);
+    if (0==iov.size()) return sd::string;
+    return pyInfo(iov.begin()->payloadToken())->resource();
+  }
+  
+
 //  exceptionTranslator(const edm::Exception & e)
 //  {
 //    PyErr_SetString(PyExc_RuntimeError, e.what());
@@ -36,8 +59,10 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   class_<cond::CondDB>("CondDB", init<>())
     .def("allTags", &cond::CondDB::allTags)
     .def("iov", &cond::CondDB::iov)
-    .def("iovWithLib", &cond::CondDB::iovWithLib);
+    .def("iovWithLib", &cond::CondDB::iovWithLib)
+    .def("moduleName",moduleName)
   
+
   class_<cond::RDBMS>("RDBMS", init<>())
     .def(init<std::string>())
     .def(init<std::string, std::string>())

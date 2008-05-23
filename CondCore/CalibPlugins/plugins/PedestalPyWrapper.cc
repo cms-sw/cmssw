@@ -61,3 +61,7 @@ BOOST_PYTHON_MODULE(pluginPedestalPyInterface) {
     .def("summary",&PythonWrapper::summary);
 
 }
+
+
+#include "CondFormats/Common/interface/ClassIDRegistry.h"
+PYTHON_ID(PythonWrapper::Class,"pluginPedestalPyInterface");
