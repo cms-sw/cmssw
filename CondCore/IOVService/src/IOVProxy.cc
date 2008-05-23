@@ -52,8 +52,8 @@ namespace cond {
   IOVProxy::~IOVProxy() {}
 
   IOVProxy::IOVProxy(cond::PoolTransaction& db,
-		     const std::string & token) :
-    m_iov(new impl::IOVImpl(db,token)){}
+		     const std::string & token, bool nolib) :
+    m_iov(new impl::IOVImpl(db,token,nolib)){}
 
 
   int IOVProxy::size() const {
