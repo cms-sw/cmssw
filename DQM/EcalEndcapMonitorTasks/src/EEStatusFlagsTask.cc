@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/04/17 04:53:16 $
- * $Revision: 1.13 $
+ * $Date: 2008/05/11 09:35:13 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -230,7 +230,7 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
       for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 
-        if ( itt > 34 ) continue;
+        if ( itt > 41 ) continue;
 
         vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcch.id(), itt, 1, 1) );
 
