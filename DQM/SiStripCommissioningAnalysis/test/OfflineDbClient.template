@@ -7,7 +7,7 @@ process SiStripCommissioningOfflineDbClient = {
     include "OnlineDB/SiStripConfigDb/data/SiStripConfigDb.cfi"
     replace SiStripConfigDb.UsingDb = true
     replace SiStripConfigDb.ConfDb = "cms_tracker_tif3/stabletif3@cmsr"
-    replace SiStripConfigDb.Partition = "CRACK_TKCC66"
+    replace SiStripConfigDb.Partition = "PARTITION"
     replace SiStripConfigDb.RunNumber = RUNNUMBER
 
     include "IORawData/SiStripInputSources/data/EmptySource.cff"
