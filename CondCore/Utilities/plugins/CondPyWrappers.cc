@@ -19,15 +19,15 @@ using namespace boost::python;
 namespace {
 
   // find and return
-  boost::shared_ptr<ClassInfo> pyInfo(std::string const & token) {
+  boost::shared_ptr<cond::ClassInfo> pyInfo(std::string const & token) {
     static std::string const prefix = cond::idCategories::pythonIDCategory + "/";
     std::string pluginName = prefix + cond::classID(token);
-    return boost::shared_ptr<ClassInfo>(ClassInfoFactory::get()->create(pluginName));
+    return boost::shared_ptr<cond::ClassInfo>(cond::ClassInfoFactory::get()->create(pluginName));
   }
   
   std::string moduleName(cond::CondDB & db, std::string const & tag) {
     cond::IOVProxy iov = db.iov(tag);
-    if (0==iov.size()) return sd::string;
+    if (0==iov.size()) return std::string();
     return pyInfo(iov.begin()->payloadToken())->resource();
   }
   
@@ -60,7 +60,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("allTags", &cond::CondDB::allTags)
     .def("iov", &cond::CondDB::iov)
     .def("iovWithLib", &cond::CondDB::iovWithLib)
-    .def("moduleName",moduleName)
+    .def("moduleName",moduleName);
   
 
   class_<cond::RDBMS>("RDBMS", init<>())
