@@ -12,6 +12,11 @@
 #include <boost/bind.hpp>
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
+#include <boost/python.hpp>
+
+using namespace boost::python;
+
+
 namespace {
 
 
@@ -25,7 +30,7 @@ namespace {
       std::stringstream ss;
     };
 
-    PythonWrapper() : {}
+    PythonWrapper() {}
     PythonWrapper(const cond::IOVElement & elem) : 
       object(*elem.db(),elem.payloadToken()){}
 
@@ -39,7 +44,7 @@ namespace {
     std::string summary() const {
       std::stringstream ss;
       ss << "size="<<object->m_pedestals.size() <<";";
-      p.ss << std::endl;
+      ss << std::endl;
       return ss.str();
     }
 
@@ -51,7 +56,7 @@ namespace {
 
 BOOST_PYTHON_MODULE(pluginPedestalPyInterface) {
   
-  class_<PythonWrapper>("Object",init<>()).
+  class_<PythonWrapper>("Object",init<>())
     .def(init<cond::IOVElement>()),
     .def("print",&PythonWrapper::print)    
     .def("summary",&PythonWrapper::print);

@@ -1,4 +1,4 @@
-import DLFCN
+import DLFCN, sys, os
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
