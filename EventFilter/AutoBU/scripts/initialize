@@ -204,6 +204,7 @@ if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
 		    "runNumber",        "unsignedInt","10",
+		    "filePath",         "string",     "$SMout",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
 		    "setupLabel",       "string",     "test");
 
@@ -510,8 +511,8 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
 
     $result = $result . "  service = PrescaleService {\n";
-    $result = $result . "    uint32 prescaleFactor = 1\n";
-    $result = $result . "    vstring InitialConfig = { \"1\", \"1\", \"1\" }\n";
+    $result = $result . "    vstring lvl1Labels = {\"DEFAULT\"}\n";
+    $result = $result . "    VPSet prescaleTable = {}\n";
     $result = $result . "  }\n\n";
 
     $result = $result . "  service = FUShmDQMOutputService {\n";

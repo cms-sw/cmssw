@@ -1,3 +1,10 @@
+2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-14
+	* add StorageManager parameter 'filePath' (/tmp/<user>)
+	* repair configuration of PrescaleService according to
+	FWCore/PrescaleService V00-04-00 and higher (21X and higher).
+
 2008-05-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-13
