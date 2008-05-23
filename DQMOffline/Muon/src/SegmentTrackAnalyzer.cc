@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 13:10:09 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/22 15:40:07 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -18,6 +18,8 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -58,7 +60,7 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   TrackSegm->setBinLabel(2,"DT",1);
   TrackSegm->setBinLabel(3,"CSC",1);
   
-  hitStaProvenance = dbe->book1D("trackHitProvenance_"+trackCollection, "trackHitProvenance_"+trackCollection, 7, 0.5, 7.5);
+  hitStaProvenance = dbe->book1D("trackHitStaProvenance_"+trackCollection, "trackHitStaProvenance_"+trackCollection, 7, 0.5, 7.5);
   hitStaProvenance->setBinLabel(1,"DT");
   hitStaProvenance->setBinLabel(2,"CSC");
   hitStaProvenance->setBinLabel(3,"RPC");
@@ -67,26 +69,36 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   hitStaProvenance->setBinLabel(6,"CSC+RPC");
   hitStaProvenance->setBinLabel(7,"DT+CSC+RPC");
 
+
+  hitTkrProvenance = dbe->book1D("trackHitTkrProvenance_"+trackCollection, "trackHitTkrProvenance_"+trackCollection, 6, 0.5, 6.5);
+  hitTkrProvenance->setBinLabel(1,"PixBarrel");
+  hitTkrProvenance->setBinLabel(2,"PixEndCap");
+  hitTkrProvenance->setBinLabel(3,"TIB");
+  hitTkrProvenance->setBinLabel(4,"TID");
+  hitTkrProvenance->setBinLabel(5,"TOB");
+  hitTkrProvenance->setBinLabel(6,"TEC");
+
+
   int etaBin = parameters.getParameter<int>("etaBin");
   double etaMin = parameters.getParameter<double>("etaMin");
   double etaMax = parameters.getParameter<double>("etaMax");
-  trackHitPercentualVsEta = dbe->book2D("trackHitDivtrackSegmHitVsEta_"+trackCollection, "trackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 50, 0, 5);
-  dtTrackHitPercentualVsEta = dbe->book2D("dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, "dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 20, 0, 2);
-  cscTrackHitPercentualVsEta = dbe->book2D("cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, "cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 20, 0, 2);
+  trackHitPercentualVsEta = dbe->book2D("trackHitDivtrackSegmHitVsEta_"+trackCollection, "trackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 20, 0, 1);
+  dtTrackHitPercentualVsEta = dbe->book2D("dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, "dtTrackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 20, 0, 1);
+  cscTrackHitPercentualVsEta = dbe->book2D("cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, "cscTrackHitDivtrackSegmHitVsEta_"+trackCollection, etaBin, etaMin, etaMax, 20, 0, 1);
 
   int phiBin = parameters.getParameter<int>("phiBin");
   double phiMin = parameters.getParameter<double>("phiMin");
   double phiMax = parameters.getParameter<double>("phiMax");
-  trackHitPercentualVsPhi = dbe->book2D("trackHitDivtrackSegmHitVsPhi_"+trackCollection, "trackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 50, 0, 5);
-  dtTrackHitPercentualVsPhi = dbe->book2D("dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 20, 0, 2);
-  cscTrackHitPercentualVsPhi = dbe->book2D("cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 20, 0, 2);
+  trackHitPercentualVsPhi = dbe->book2D("trackHitDivtrackSegmHitVsPhi_"+trackCollection, "trackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 20, 0, 1);
+  dtTrackHitPercentualVsPhi = dbe->book2D("dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "dtTrackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 20, 0, 1);
+  cscTrackHitPercentualVsPhi = dbe->book2D("cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, "cscTrackHitDivtrackSegmHitVsPhi_"+trackCollection, phiBin, phiMin, phiMax, 20, 0, 1);
 
   int ptBin = parameters.getParameter<int>("ptBin");
   double ptMin = parameters.getParameter<double>("ptMin");
   double ptMax = parameters.getParameter<double>("ptMax");
-  trackHitPercentualVsPt = dbe->book2D("trackHitDivtrackSegmHitVsPt_"+trackCollection, "trackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 50, 0, 5);
-  dtTrackHitPercentualVsPt = dbe->book2D("dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, "dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 20, 0, 2);
-  cscTrackHitPercentualVsPt = dbe->book2D("cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, "cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 20, 0, 2);
+  trackHitPercentualVsPt = dbe->book2D("trackHitDivtrackSegmHitVsPt_"+trackCollection, "trackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 20, 0, 1);
+  dtTrackHitPercentualVsPt = dbe->book2D("dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, "dtTrackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 20, 0, 1);
+  cscTrackHitPercentualVsPt = dbe->book2D("cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, "cscTrackHitDivtrackSegmHitVsPt_"+trackCollection, ptBin, ptMin, ptMax, 20, 0, 1);
 
 
 }
@@ -152,8 +164,21 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
      if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::RPC ) 
        hitsFromRpc++;
      // hits from Tracker
-     if (id.det() == DetId::Tracker)
+     if (id.det() == DetId::Tracker){
        hitsFromTk++;
+       if(id.subdetId() == PixelSubdetector::PixelBarrel )
+	 hitTkrProvenance->Fill(1);
+       if(id.subdetId() == PixelSubdetector::PixelEndcap )
+	 hitTkrProvenance->Fill(2);
+       if(id.subdetId() == SiStripDetId::TIB )
+	 hitTkrProvenance->Fill(3);
+       if(id.subdetId() == SiStripDetId::TID )
+	 hitTkrProvenance->Fill(4);
+       if(id.subdetId() == SiStripDetId::TOB )
+	 hitTkrProvenance->Fill(5);
+       if(id.subdetId() == SiStripDetId::TEC )
+	 hitTkrProvenance->Fill(6);
+     }
 
   }
 
@@ -174,9 +199,9 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   if(hitsFromDt!=0 && hitsFromCsc!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(7);
 
   if(hitsFromSegmDt+hitsFromSegmCsc !=0){
-    trackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
-    trackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
-    trackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromTrack)/(hitsFromSegmDt+hitsFromSegmCsc));
+    trackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
+    trackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
+    trackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
   }
 
   if(hitsFromSegmDt!=0){
