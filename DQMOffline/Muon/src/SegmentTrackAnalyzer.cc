@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 15:40:07 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/05/23 12:29:34 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -70,14 +70,15 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   hitStaProvenance->setBinLabel(7,"DT+CSC+RPC");
 
 
-  hitTkrProvenance = dbe->book1D("trackHitTkrProvenance_"+trackCollection, "trackHitTkrProvenance_"+trackCollection, 6, 0.5, 6.5);
-  hitTkrProvenance->setBinLabel(1,"PixBarrel");
-  hitTkrProvenance->setBinLabel(2,"PixEndCap");
-  hitTkrProvenance->setBinLabel(3,"TIB");
-  hitTkrProvenance->setBinLabel(4,"TID");
-  hitTkrProvenance->setBinLabel(5,"TOB");
-  hitTkrProvenance->setBinLabel(6,"TEC");
-
+  if(trackCollection!="standAloneMuons"){
+    hitTkrProvenance = dbe->book1D("trackHitTkrProvenance_"+trackCollection, "trackHitTkrProvenance_"+trackCollection, 6, 0.5, 6.5);
+    hitTkrProvenance->setBinLabel(1,"PixBarrel");
+    hitTkrProvenance->setBinLabel(2,"PixEndCap");
+    hitTkrProvenance->setBinLabel(3,"TIB");
+    hitTkrProvenance->setBinLabel(4,"TID");
+    hitTkrProvenance->setBinLabel(5,"TOB");
+    hitTkrProvenance->setBinLabel(6,"TEC");
+  }
 
   int etaBin = parameters.getParameter<int>("etaBin");
   double etaMin = parameters.getParameter<double>("etaMin");

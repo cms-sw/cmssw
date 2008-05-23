@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 12:57:45 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/23 10:15:29 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -128,11 +128,15 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   qGlbTrack.push_back(dbe->book1D(histname+"Glb_q", histname+"Glb_q", 5, -2.5, 2.5));
   qGlbTrack.push_back(dbe->book1D(histname+"Tk_q", histname+"Tk_q", 5, -2.5, 2.5));
   qGlbTrack.push_back(dbe->book1D(histname+"Sta_q", histname+"Sta_q", 5, -2.5, 2.5));
-  qGlbTrack.push_back(dbe->book1D(histname+"qComparison", histname+"qComparison", 4, 0.5, 4.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"qComparison", histname+"qComparison", 8, 0.5, 8.5));
   qGlbTrack[3]->setBinLabel(1,"qGlb=qSta");
   qGlbTrack[3]->setBinLabel(2,"qGlb!=qSta");
   qGlbTrack[3]->setBinLabel(3,"qGlb=qTk");
   qGlbTrack[3]->setBinLabel(4,"qGlb!=qTk");
+  qGlbTrack[3]->setBinLabel(5,"qSta=qTk");
+  qGlbTrack[3]->setBinLabel(6,"qSta!=qTk");
+  qGlbTrack[3]->setBinLabel(7,"qGlb!=qSta,qGlb!=Tk");
+  qGlbTrack[3]->setBinLabel(8,"qGlb=qSta,qGlb=Tk");
   qTrack = dbe->book1D("TkMuon_q", "TkMuon_q", 5, -2.5, 2.5);
   qStaTrack = dbe->book1D("StaMuon_q", "StaMuon_q", 5, -2.5, 2.5);
 
@@ -231,6 +235,10 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     else qGlbTrack[3]->Fill(2);
     if(recoCombinedGlbTrack->charge()==recoGlbTrack->charge()) qGlbTrack[3]->Fill(3);
     else qGlbTrack[3]->Fill(4);
+    if(recoStaGlbTrack->charge()==recoGlbTrack->charge()) qGlbTrack[3]->Fill(5);
+    else qGlbTrack[3]->Fill(6);
+    if(recoCombinedGlbTrack->charge()!=recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()!=recoGlbTrack->charge()) qGlbTrack[3]->Fill(7);
+    if(recoCombinedGlbTrack->charge()==recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()==recoGlbTrack->charge()) qGlbTrack[3]->Fill(8);
     
     qOverpResolution[0]->Fill((recoGlbTrack->charge()/recoGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
     qOverpResolution[1]->Fill((recoStaGlbTrack->charge()/recoStaGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
