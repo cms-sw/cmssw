@@ -13,13 +13,9 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpGeom.cc,v 1.6 2008/02/09 01:44:48 case Exp $
+// $Id: DumpGeom.cc,v 1.7 2008/02/13 00:07:02 case Exp $
 //
 //
-
-//MECase:  Uncomment this to use the modified Ecal and CaloGeometry Packages from 
-//   /afs/cern.ch/user/c/case/public/forDmytro/Geometry
-//#define ECAL169
 
 // system include files
 #include <memory>
@@ -54,6 +50,7 @@
 #include "TGeoCompositeShape.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
+#include "TGeoMatrix.h"
 #include "TFile.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -118,7 +115,8 @@ class DumpGeom : public edm::EDAnalyzer {
 			 const MuonDDDConstants& muonConstants);
       void mapTrackerGeometry(const DDCompactView& cview,
 			      const GeometricDet& gd);
-#ifdef ECAL169
+  //mec: this is set by the file CMSSW Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h
+#ifdef ECALDDDINFODUMP
       void mapEcalGeometry(const DDCompactView& cview,
 			      const CaloGeometry& cg);
 #endif
@@ -642,7 +640,7 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
 
 /**
  ** By Michael Case
- ** method mapTrackerGeometry(...)
+ ** method mapEcalGeometry(...)
  ** date: 02-07-2008
  ** Description:
  **   Map Ecal DetId to DD path 
@@ -650,14 +648,14 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
  **   The 169 series.  The correction WILL be different for 18X.  The files should
  **   be located on /afs/cern.ch/user/c/case/public/fwevtstuff/.
  **/
-#ifdef ECAL169
+#ifdef ECALDDDINFODUMP
 void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
 			       const CaloGeometry& cg) {
-
+  std::cout << "in mapEcalGeometry" << std::endl;
   //  build(*pG,DetId::Ecal,EcalBarrel,*pDD);
   {
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-
+  //  std::cout << "just got the EcalBarrel Geometry as a CaloSubdetectorGeometry*" << std::endl;
 //   int n=0;
   std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal, EcalBarrel);
 
@@ -705,7 +703,7 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
 //       std::cout << " fvgeohist: " << epv.geoHistory() << std::endl;
 //     }
 
-    //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
+//    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
     // build map here
     std::stringstream s;
     s << "/cms:World_1";
@@ -756,6 +754,7 @@ void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
 void
 DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  std::cout << "In the DumpGeom::analyze method..." << std::endl;
    using namespace edm;
 
    ESHandle<DDCompactView> viewH;
@@ -766,10 +765,17 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::ESHandle<GeometricDet> rDD;
    iSetup.get<IdealGeometryRecord>().get( rDD );
-   
+
+#ifdef ECALDDDINFODUMP   
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<IdealGeometryRecord>().get(pG);     
+#endif
 
+//    if ( pG.isValid() ) {
+//      std::cout << "pG is valid" << std::endl;
+//    } else {
+//      std::cout << "pG is NOT valid" << std::endl;
+//    }
    std::auto_ptr<TGeoManager> geom(new TGeoManager("cmsGeo","CMS Detector"));
    //NOTE: the default constructor does not create the identity matrix
    if(0==gGeoIdentity) {
@@ -892,11 +898,17 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    } while( ev.next() );
 */
    geom->CloseGeometry();
+  std::cout << "In the DumpGeom::analyze method...done with main geometry" << std::endl;
    mapDTGeometry(*viewH, *mdc);
+  std::cout << "In the DumpGeom::analyze method...done with DT" << std::endl;
    mapCSCGeometry(*viewH, *mdc);
+  std::cout << "In the DumpGeom::analyze method...done with CSC" << std::endl;
    mapTrackerGeometry(*viewH, *rDD);
+  std::cout << "In the DumpGeom::analyze method...done with Tracker" << std::endl;
+#ifdef ECALDDDINFODUMP
    mapEcalGeometry(*viewH, *pG);
-
+  std::cout << "In the DumpGeom::analyze method...done with Ecal" << std::endl;
+#endif
    TCanvas * canvas = new TCanvas( );
    top->Draw("ogle");
 
