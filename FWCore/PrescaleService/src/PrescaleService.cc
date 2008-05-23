@@ -8,6 +8,7 @@
 
 
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,36 +32,35 @@ namespace edm {
       : nLvl1Index_(0)
       , iLvl1IndexDefault_(0)
     {
+      ParameterSet prcPS = getProcessParameterSet();
+      
       // find all HLTPrescaler modules
-      /*
-	set<string> prescalerModules;
-	vector<string> allModules=iPS.getParameter< vector<string> >("@all_modules");
-	for(unsigned int i=0;i<allModules.size();i++) {
-	ParameterSet pset  = iPS.getParameter<ParameterSet>(allModules[i]);
+      set<string> prescalerModules;
+      vector<string> allModules=prcPS.getParameter<vector<string> >("@all_modules");
+      for(unsigned int i=0;i<allModules.size();i++) {
+	ParameterSet pset  = prcPS.getParameter<ParameterSet>(allModules[i]);
 	string moduleLabel = pset.getParameter<std::string>("@module_label");
 	string moduleType  = pset.getParameter<std::string>("@module_type");
 	if (moduleType=="HLTPrescaler") prescalerModules.insert(moduleLabel);
       }
-      */
       
       // find all paths with an HLTPrescaler and check for <=1
-      /*
-	std::set<string> prescaledPathSet;
-	vector<string> allPaths = iPS.getParameter< vector<string> >("@all_paths");
-	for (unsigned int iP=0;iP<allPaths.size();iP++) {
+      std::set<string> prescaledPathSet;
+      vector<string> allPaths = prcPS.getParameter< vector<string> >("@paths");
+      for (unsigned int iP=0;iP<allPaths.size();iP++) {
 	string pathName = allPaths[iP];
-	vector<string> modules = iPS.getParameter< vector<string> >(pathName);
+	vector<string> modules = prcPS.getParameter< vector<string> >(pathName);
 	for (unsigned int iM=0;iM<modules.size();iM++) {
-	string moduleLabel = modules[iM];
-	if (prescalerModules.erase(moduleLabel)>0) {
-	set<string>::const_iterator itPath=prescaledPathSet.find(pathName);
-	if (itPath==prescaledPathSet.end()) prescaledPathSet.insert(pathName);
-	else throw cms::Exception("DuplicatePrescaler")
-	<<"path '"<<pathName<<"' has more than one HLTPrescaler!";
+	  string moduleLabel = modules[iM];
+	  if (prescalerModules.erase(moduleLabel)>0) {
+	    set<string>::const_iterator itPath=prescaledPathSet.find(pathName);
+	    if (itPath==prescaledPathSet.end())
+	      prescaledPathSet.insert(pathName);
+	    else throw cms::Exception("DuplicatePrescaler")
+	      <<"path '"<<pathName<<"' has more than one HLTPrescaler!";
+	  }
 	}
-	}
-	}
-      */
+      }
       
       // get prescale table and check consistency with above information
       lvl1Labels_ = iPS.getParameter< vector<string> >("lvl1Labels");
@@ -78,34 +78,37 @@ namespace edm {
       for (unsigned int iVPSet=0;iVPSet<vpsetPrescales.size();iVPSet++) {
 	ParameterSet psetPrescales = vpsetPrescales[iVPSet];
 	string pathName = psetPrescales.getParameter<string>("pathName");
-	//if (prescaledPathSet.erase(pathName)>0) {
-	vector<unsigned int> prescales =
-	  psetPrescales.getParameter<vector<unsigned int> >("prescales");
-	if (prescales.size()!=nLvl1Index_)
-	  throw cms::Exception("PrescaleTableMismatch")
-	    <<"path '"<<pathName<<"' has unexpected number of prescales";
-	prescaleTable_[pathName] = prescales;
-	//}
-	//else throw cms::Exception("PrescaleTableUnknownPath")
-	//<<"path '"<<pathName<<"' is invalid or does not "
-	//<<"contain any HLTPrescaler");
-      }
+	if (prescaledPathSet.erase(pathName)>0) {
+	  vector<unsigned int> prescales =
+	    psetPrescales.getParameter<vector<unsigned int> >("prescales");
+	  if (prescales.size()!=nLvl1Index_) {
+	    throw cms::Exception("PrescaleTableMismatch")
+	      <<"path '"<<pathName<<"' has unexpected number of prescales";
+	  }
+	  prescaleTable_[pathName] = prescales;
+	}
+	else {
+	  throw cms::Exception("PrescaleTableUnknownPath")
+	    <<"path '"<<pathName<<"' is invalid or does not "
+	    <<"contain any HLTPrescaler";
+	}
+      }      
       
-
       iReg.watchPostBeginJob(this,&PrescaleService::postBeginJob);
       iReg.watchPostEndJob(this,&PrescaleService::postEndJob);
       
       iReg.watchPreProcessEvent(this,&PrescaleService::preEventProcessing);
       iReg.watchPostProcessEvent(this,&PrescaleService::postEventProcessing);
-
+      
       iReg.watchPreModule(this,&PrescaleService::preModule);
       iReg.watchPostModule(this,&PrescaleService::postModule);
-
     }
 
+      
     //______________________________________________________________________________
     PrescaleService::~PrescaleService()
     {
+    
     }
 
 

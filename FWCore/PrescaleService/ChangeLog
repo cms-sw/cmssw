@@ -1,3 +1,11 @@
+2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-01
+	* use getProcessParameterSet() kindly provided by Marc P. in
+	FWCore/ParameterSet/interface/Registry.h to validate that each
+	path referenced int the prescale table has exactly one
+	HLTPrescaler.
+
 2008-04-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-00
