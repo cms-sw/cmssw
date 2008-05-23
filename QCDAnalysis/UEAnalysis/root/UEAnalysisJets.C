@@ -53,33 +53,40 @@ void UEAnalysisJets::Begin(TFile * f){
   calib_caloinc_phi  = new TProfile("calib_caloinc_phi","#frac{P_{T}^{Calo}}{P_{T}^{Inc}} vs #phi^{Inc}",100,-3,3,-4,4);
 
   //
+  // hlt1jet30
+  // hlt1jet50
+  // hlt1jet80
+  // hlt1jet110
+  // hlt1jet180
+  // hlt1jet250
+
   pT_cal_hlt1jet30  = new TH1F("pT_cal_hlt1jet30","P_{T} calo (hlt1jet30)",100,0.,200.);
-  pT_cal_hlt1jet60  = new TH1F("pT_cal_hlt1jet60","P_{T} calo (hlt1jet60)",100,0.,200.);
+  pT_cal_hlt1jet50  = new TH1F("pT_cal_hlt1jet50","P_{T} calo (hlt1jet50)",100,0.,200.);
+  pT_cal_hlt1jet80  = new TH1F("pT_cal_hlt1jet80","P_{T} calo (hlt1jet80)",100,0.,200.);
   pT_cal_hlt1jet110 = new TH1F("pT_cal_hlt1jet110","P_{T} calo (hlt1jet110)",100,0.,200.);
-  pT_cal_hlt1jet150 = new TH1F("pT_cal_hlt1jet150","P_{T} calo (hlt1jet150)",100,0.,200.);
   pT_cal_hlt1jet180 = new TH1F("pT_cal_hlt1jet180","P_{T} calo (hlt1jet180)",100,0.,200.);
-  pT_cal_hlt1jet200 = new TH1F("pT_cal_hlt1jet200","P_{T} calo (hlt1jet200)",100,0.,200.);
+  pT_cal_hlt1jet250 = new TH1F("pT_cal_hlt1jet250","P_{T} calo (hlt1jet250)",100,0.,200.);
 
   pT_chgreco_hlt1jet30  = new TH1F("pT_chgreco_hlt1jet30","P_{T} Charged RECO (hlt1jet30)",100,0.,200.);
-  pT_chgreco_hlt1jet60  = new TH1F("pT_chgreco_hlt1jet60","P_{T} Charged RECO (hlt1jet60)",100,0.,200.);
+  pT_chgreco_hlt1jet50  = new TH1F("pT_chgreco_hlt1jet50","P_{T} Charged RECO (hlt1jet50)",100,0.,200.);
+  pT_chgreco_hlt1jet80  = new TH1F("pT_chgreco_hlt1jet80","P_{T} Charged RECO (hlt1jet80)",100,0.,200.);
   pT_chgreco_hlt1jet110 = new TH1F("pT_chgreco_hlt1jet110","P_{T} Charged RECO (hlt1jet110)",100,0.,200.);
-  pT_chgreco_hlt1jet150 = new TH1F("pT_chgreco_hlt1jet150","P_{T} Charged RECO (hlt1jet150)",100,0.,200.);
   pT_chgreco_hlt1jet180 = new TH1F("pT_chgreco_hlt1jet180","P_{T} Charged RECO (hlt1jet180)",100,0.,200.);
-  pT_chgreco_hlt1jet200 = new TH1F("pT_chgreco_hlt1jet200","P_{T} Charged RECO (hlt1jet200)",100,0.,200.);
+  pT_chgreco_hlt1jet250 = new TH1F("pT_chgreco_hlt1jet250","P_{T} Charged RECO (hlt1jet250)",100,0.,200.);
 
   pT_chgmc_hlt1jet30  = new TH1F("pT_chgmc_hlt1jet30","P_{T} Charged MC (hlt1jet30)",100,0.,200.);
-  pT_chgmc_hlt1jet60  = new TH1F("pT_chgmc_hlt1jet60","P_{T} Charged MC (hlt1jet60)",100,0.,200.);
+  pT_chgmc_hlt1jet50  = new TH1F("pT_chgmc_hlt1jet50","P_{T} Charged MC (hlt1jet50)",100,0.,200.);
+  pT_chgmc_hlt1jet80  = new TH1F("pT_chgmc_hlt1jet80","P_{T} Charged MC (hlt1jet80)",100,0.,200.);
   pT_chgmc_hlt1jet110 = new TH1F("pT_chgmc_hlt1jet110","P_{T} Charged MC (hlt1jet110)",100,0.,200.);
-  pT_chgmc_hlt1jet150 = new TH1F("pT_chgmc_hlt1jet150","P_{T} Charged MC (hlt1jet150)",100,0.,200.);
   pT_chgmc_hlt1jet180 = new TH1F("pT_chgmc_hlt1jet180","P_{T} Charged MC (hlt1jet180)",100,0.,200.);
-  pT_chgmc_hlt1jet200 = new TH1F("pT_chgmc_hlt1jet200","P_{T} Charged MC (hlt1jet200)",100,0.,200.);
+  pT_chgmc_hlt1jet250 = new TH1F("pT_chgmc_hlt1jet250","P_{T} Charged MC (hlt1jet250)",100,0.,200.);
 
   pT_inc_hlt1jet30  = new TH1F("pT_inc_hlt1jet30","P_{T} Inclusive (hlt1jet30)",100,0.,200.);
-  pT_inc_hlt1jet60  = new TH1F("pT_inc_hlt1jet60","P_{T} Inclusive (hlt1jet60)",100,0.,200.);
+  pT_inc_hlt1jet50  = new TH1F("pT_inc_hlt1jet50","P_{T} Inclusive (hlt1jet50)",100,0.,200.);
+  pT_inc_hlt1jet80  = new TH1F("pT_inc_hlt1jet80","P_{T} Inclusive (hlt1jet80)",100,0.,200.);
   pT_inc_hlt1jet110 = new TH1F("pT_inc_hlt1jet110","P_{T} Inclusive (hlt1jet110)",100,0.,200.);
-  pT_inc_hlt1jet150 = new TH1F("pT_inc_hlt1jet150","P_{T} Inclusive (hlt1jet150)",100,0.,200.);
   pT_inc_hlt1jet180 = new TH1F("pT_inc_hlt1jet180","P_{T} Inclusive (hlt1jet180)",100,0.,200.);
-  pT_inc_hlt1jet200 = new TH1F("pT_inc_hlt1jet200","P_{T} Inclusive (hlt1jet200)",100,0.,200.);
+  pT_inc_hlt1jet250 = new TH1F("pT_inc_hlt1jet250","P_{T} Inclusive (hlt1jet250)",100,0.,200.);
   //
 
 }
@@ -276,13 +283,20 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
       nAcceptedTriggers = acceptedTriggers->GetSize();
       for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
 	{
+	  // HLT1jet30
+	  // HLT1jet50
+	  // HLT1jet80
+	  // HLT1jet110
+	  // HLT1jet180
+	  // HLT1jet250
+
 	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="hlt1jet30"  ) pT_cal_hlt1jet30->Fill(ptEHJ,weight);
-	  else if ( filterName=="hlt1jet60"  ) pT_cal_hlt1jet60->Fill(ptEHJ,weight);
-	  else if ( filterName=="hlt1jet110" ) pT_cal_hlt1jet110->Fill(ptEHJ,weight);
-	  else if ( filterName=="hlt1jet150" ) pT_cal_hlt1jet150->Fill(ptEHJ,weight);
-	  else if ( filterName=="hlt1jet180" ) pT_cal_hlt1jet180->Fill(ptEHJ,weight);
-	  else if ( filterName=="hlt1jet200" ) pT_cal_hlt1jet200->Fill(ptEHJ,weight);
+	  if      ( filterName=="HLT1jet30"  ) pT_cal_hlt1jet30->Fill(ptEHJ,weight);
+	  else if ( filterName=="HLT1jet50"  ) pT_cal_hlt1jet50->Fill(ptEHJ,weight);
+	  else if ( filterName=="HLT1jet80"  ) pT_cal_hlt1jet80->Fill(ptEHJ,weight);
+	  else if ( filterName=="HLT1jet110" ) pT_cal_hlt1jet110->Fill(ptEHJ,weight);
+	  else if ( filterName=="HLT1jet180" ) pT_cal_hlt1jet180->Fill(ptEHJ,weight);
+	  else if ( filterName=="HLT1jet250" ) pT_cal_hlt1jet250->Fill(ptEHJ,weight);
 	}
       //
     }
@@ -297,13 +311,20 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
       nAcceptedTriggers = acceptedTriggers->GetSize();
       for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
         {
+          // HLT1jet30
+          // HLT1jet50
+          // HLT1jet80
+          // HLT1jet110
+          // HLT1jet180
+          // HLT1jet250
+
 	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="hlt1jet30"  ) pT_chgreco_hlt1jet30->Fill(ptTJ,weight);
-	  else if ( filterName=="hlt1jet60"  ) pT_chgreco_hlt1jet60->Fill(ptTJ,weight);
-	  else if ( filterName=="hlt1jet110" ) pT_chgreco_hlt1jet110->Fill(ptTJ,weight);
-	  else if ( filterName=="hlt1jet150" ) pT_chgreco_hlt1jet150->Fill(ptTJ,weight);
-	  else if ( filterName=="hlt1jet180" ) pT_chgreco_hlt1jet180->Fill(ptTJ,weight);
-	  else if ( filterName=="hlt1jet200" ) pT_chgreco_hlt1jet200->Fill(ptTJ,weight);
+	  if      ( filterName=="HLT1jet30"  ) pT_chgreco_hlt1jet30->Fill(ptTJ,weight);
+	  else if ( filterName=="HLT1jet50"  ) pT_chgreco_hlt1jet50->Fill(ptTJ,weight);
+	  else if ( filterName=="HLT1jet80"  ) pT_chgreco_hlt1jet80->Fill(ptTJ,weight);
+	  else if ( filterName=="HLT1jet110" ) pT_chgreco_hlt1jet110->Fill(ptTJ,weight);
+	  else if ( filterName=="HLT1jet180" ) pT_chgreco_hlt1jet180->Fill(ptTJ,weight);
+	  else if ( filterName=="HLT1jet250" ) pT_chgreco_hlt1jet250->Fill(ptTJ,weight);
 	}
       //
     }
@@ -318,13 +339,20 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
       nAcceptedTriggers = acceptedTriggers->GetSize();
       for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
         {
+          // HLT1jet30
+          // HLT1jet50
+          // HLT1jet80
+          // HLT1jet110
+          // HLT1jet180
+          // HLT1jet250
+
 	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="hlt1jet30"  ) pT_chgmc_hlt1jet30->Fill(ptCJ,weight);
-	  else if ( filterName=="hlt1jet60"  ) pT_chgmc_hlt1jet60->Fill(ptCJ,weight);
-	  else if ( filterName=="hlt1jet110" ) pT_chgmc_hlt1jet110->Fill(ptCJ,weight);
-	  else if ( filterName=="hlt1jet150" ) pT_chgmc_hlt1jet150->Fill(ptCJ,weight);
-	  else if ( filterName=="hlt1jet180" ) pT_chgmc_hlt1jet180->Fill(ptCJ,weight);
-	  else if ( filterName=="hlt1jet200" ) pT_chgmc_hlt1jet200->Fill(ptCJ,weight);
+	  if      ( filterName=="HLT1jet30"  ) pT_chgmc_hlt1jet30->Fill(ptCJ,weight);
+	  else if ( filterName=="HLT1jet50"  ) pT_chgmc_hlt1jet50->Fill(ptCJ,weight);
+	  else if ( filterName=="HLT1jet80"  ) pT_chgmc_hlt1jet80->Fill(ptCJ,weight);
+	  else if ( filterName=="HLT1jet110" ) pT_chgmc_hlt1jet110->Fill(ptCJ,weight);
+	  else if ( filterName=="HLT1jet180" ) pT_chgmc_hlt1jet180->Fill(ptCJ,weight);
+	  else if ( filterName=="HLT1jet250" ) pT_chgmc_hlt1jet250->Fill(ptCJ,weight);
 	}
       //
     }
@@ -339,13 +367,20 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
       nAcceptedTriggers = acceptedTriggers->GetSize();
       for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
         {
+          // HLT1jet30
+          // HLT1jet50
+          // HLT1jet80
+          // HLT1jet110
+          // HLT1jet180
+          // HLT1jet250
+
 	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="hlt1jet30"  ) pT_inc_hlt1jet30->Fill(ptIJ,weight);
-	  else if ( filterName=="hlt1jet60"  ) pT_inc_hlt1jet60->Fill(ptIJ,weight);
-	  else if ( filterName=="hlt1jet110" ) pT_inc_hlt1jet110->Fill(ptIJ,weight);
-	  else if ( filterName=="hlt1jet150" ) pT_inc_hlt1jet150->Fill(ptIJ,weight);
-	  else if ( filterName=="hlt1jet180" ) pT_inc_hlt1jet180->Fill(ptIJ,weight);
-	  else if ( filterName=="hlt1jet200" ) pT_inc_hlt1jet200->Fill(ptIJ,weight);
+	  if      ( filterName=="HLT1jet30"  ) pT_inc_hlt1jet30->Fill(ptIJ,weight);
+	  else if ( filterName=="HLT1jet50"  ) pT_inc_hlt1jet50->Fill(ptIJ,weight);
+	  else if ( filterName=="HLT1jet80"  ) pT_inc_hlt1jet80->Fill(ptIJ,weight);
+	  else if ( filterName=="HLT1jet110" ) pT_inc_hlt1jet110->Fill(ptIJ,weight);
+	  else if ( filterName=="HLT1jet180" ) pT_inc_hlt1jet180->Fill(ptIJ,weight);
+	  else if ( filterName=="HLT1jet250" ) pT_inc_hlt1jet250->Fill(ptIJ,weight);
 	}
       //
     }

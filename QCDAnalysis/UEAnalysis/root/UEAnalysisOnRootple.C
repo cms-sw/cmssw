@@ -47,7 +47,22 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
 
       // TFileService puts UEAnalysisTree in a directory named after the module
       // which called the EDAnalyzer
-      f->cd("UEAnalysisRootple");
+
+      if ( TMath::Abs(ptThreshold - 0.9) < 0.001 ) 
+	{ 
+	  cout << "changing to directory UEAnalysisRootple" << endl;
+	  f->cd("UEAnalysisRootple");
+	}
+      else if ( TMath::Abs(ptThreshold - 0.5) < 0.001 )
+	{
+	  cout << "changing to directory UEAnalysisRootple500" << endl;
+	  f->cd("UEAnalysisRootple500");
+	}
+      else
+	{
+	  cout << "please choose 500 or 900 as pT threshold" << endl;
+	  break;
+	}
 
       TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
       Init(tree);
@@ -92,13 +107,31 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
       {
 	std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
 
-	if      ( filterName=="hlt1jet30"  ) h_acceptedTriggers->Fill( 0 );
-	else if ( filterName=="hlt1jet60"  ) h_acceptedTriggers->Fill( 1 );
-	else if ( filterName=="hlt1jet110" ) h_acceptedTriggers->Fill( 2 );
-	else if ( filterName=="hlt1jet150" ) h_acceptedTriggers->Fill( 3 );
-	else if ( filterName=="hlt1jet180" ) h_acceptedTriggers->Fill( 4 );
-	else if ( filterName=="hlt1jet200" ) h_acceptedTriggers->Fill( 5 );
-	else                                 h_acceptedTriggers->Fill( 6 );
+	// HLTMinBiasPixel
+	// HLTMinBiasHcal
+	// HLTMinBiasEcal
+	// HLTMinBias
+	// HLTZeroBias
+
+	// HLT1jet30
+	// HLT1jet50
+	// HLT1jet80
+	// HLT1jet110
+	// HLT1jet180
+	// HLT1jet250
+
+	if      ( filterName=="HLTMinBiasPixel" ) h_acceptedTriggers->Fill( 0 );
+	else if ( filterName=="HLTMinBiasHcal"  ) h_acceptedTriggers->Fill( 1 );
+	else if ( filterName=="HLTMinBiasEcal"  ) h_acceptedTriggers->Fill( 2 );
+	else if ( filterName=="HLTMinBias"      ) h_acceptedTriggers->Fill( 3 );
+	else if ( filterName=="HLTZeroBias"     ) h_acceptedTriggers->Fill( 4 );
+	else if ( filterName=="HLT1jet30"       ) h_acceptedTriggers->Fill( 5 );
+	else if ( filterName=="HLT1jet50"       ) h_acceptedTriggers->Fill( 6 );
+	else if ( filterName=="HLT1jet80"       ) h_acceptedTriggers->Fill( 7 );
+	else if ( filterName=="HLT1jet110"      ) h_acceptedTriggers->Fill( 8 );
+	else if ( filterName=="HLT1jet180"      ) h_acceptedTriggers->Fill( 9 );
+	else if ( filterName=="HLT1jet250"      ) h_acceptedTriggers->Fill( 10 );
+	else                                      h_acceptedTriggers->Fill( 11 );
 
 	// print out filter name unless we have seen it before
 	bool printFilterName( true );
@@ -148,7 +181,7 @@ void UEAnalysisOnRootple::BeginJob(char* outname,string type)
 
   //
   hFile->cd();
-  h_acceptedTriggers = new TH1D("h_acceptedTriggers","h_acceptedTriggers",7,-0.5,6.5);
+  h_acceptedTriggers = new TH1D("h_acceptedTriggers","h_acceptedTriggers",12,-0.5,11.5);
   //
 }
 

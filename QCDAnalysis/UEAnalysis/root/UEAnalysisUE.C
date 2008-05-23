@@ -91,6 +91,7 @@ void UEAnalysisUE::Begin(TFile * f)
 
 }
 
+//       ue->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet);
 void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float ptThreshold, TClonesArray* MonteCarlo, TClonesArray* ChargedJet)
 {
 
@@ -271,6 +272,9 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
       break;
     }
   }
+
+  // catch events where no charged jet is found in the central region
+  if ( PTLeadingTJ == -10 ) return;
 
   Float_t  PTLeadingCJ = cc->calibrationPt(PTLeadingTJ,tkpt)*PTLeadingTJ;
 

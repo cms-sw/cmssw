@@ -40,6 +40,9 @@ int main(int argc, char* argv[]) {
   //  std::vector<float> weight = ueW.calculate(TracksPt,Trigger,lumi);
   UEAnalysisOnRootple tt;
 
+  // void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> weight,Float_t eta,
+  //                                         string type,string trigger,string tkpt,Float_t ptCut)
+  //
   tt.MultiAnalysis(filelist,outname,ueW.calculate(),eta,AnalysisType,Trigger,TracksPt,ptCut);
   
   cout << "end events loop" << endl;

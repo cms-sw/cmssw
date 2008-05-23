@@ -67,33 +67,44 @@ class UEAnalysisJets {
   TProfile* calib_caloinc_phi;
 
   //
+  // hltMinBiasPixelFilter
+  // hltpreMin (prescaled minbias trigger)
+  // hltpreZero (prescaled zerobias trigger)
+
+  // hlt1jet30
+  // hlt1jet50
+  // hlt1jet80
+  // hlt1jet110
+  // hlt1jet180
+  // hlt1jet250
+
   TH1F* pT_cal_hlt1jet30 ;
-  TH1F* pT_cal_hlt1jet60 ;
+  TH1F* pT_cal_hlt1jet50 ;
+  TH1F* pT_cal_hlt1jet80;
   TH1F* pT_cal_hlt1jet110;
-  TH1F* pT_cal_hlt1jet150;
   TH1F* pT_cal_hlt1jet180;
-  TH1F* pT_cal_hlt1jet200;
+  TH1F* pT_cal_hlt1jet250;
 
   TH1F* pT_chgreco_hlt1jet30 ;
-  TH1F* pT_chgreco_hlt1jet60 ;
+  TH1F* pT_chgreco_hlt1jet50 ;
+  TH1F* pT_chgreco_hlt1jet80;
   TH1F* pT_chgreco_hlt1jet110;
-  TH1F* pT_chgreco_hlt1jet150;
   TH1F* pT_chgreco_hlt1jet180;
-  TH1F* pT_chgreco_hlt1jet200;
+  TH1F* pT_chgreco_hlt1jet250;
 
   TH1F* pT_chgmc_hlt1jet30 ;
-  TH1F* pT_chgmc_hlt1jet60 ;
+  TH1F* pT_chgmc_hlt1jet50 ;
+  TH1F* pT_chgmc_hlt1jet80;
   TH1F* pT_chgmc_hlt1jet110;
-  TH1F* pT_chgmc_hlt1jet150;
   TH1F* pT_chgmc_hlt1jet180;
-  TH1F* pT_chgmc_hlt1jet200;
+  TH1F* pT_chgmc_hlt1jet250;
 
   TH1F* pT_inc_hlt1jet30 ;
-  TH1F* pT_inc_hlt1jet60 ;
+  TH1F* pT_inc_hlt1jet50 ;
+  TH1F* pT_inc_hlt1jet80 ;
   TH1F* pT_inc_hlt1jet110;
-  TH1F* pT_inc_hlt1jet150;
   TH1F* pT_inc_hlt1jet180;
-  TH1F* pT_inc_hlt1jet200;
+  TH1F* pT_inc_hlt1jet250;
   //
 
   float piG;

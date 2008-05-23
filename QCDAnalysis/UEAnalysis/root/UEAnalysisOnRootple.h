@@ -66,8 +66,8 @@ public :
 
   TFile* hFile;
 
-  float etaRegion;
-  float ptThreshold;
+  Float_t etaRegion;
+  Float_t ptThreshold;
 
   UEAnalysisUE * ue;
   UEAnalysisJets* jets;

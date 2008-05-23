@@ -105,66 +105,64 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
   
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
-  
-  acceptedTriggers->Clear();
-  unsigned int iAcceptedTriggers( 0 );
-  if (e.getByLabel( triggerEventTag, triggerEvent ) )
-    {
-       // look at TriggerEvent 
-
-      LogDebug("UEAnalysis") << "triggerEvent has " << triggerEvent.product()->sizeFilters() << " filters and "
-			     << "triggerEvent has " << triggerEvent.product()->sizeObjects() << " objects";
-
-      LogDebug("UEAnalysis") << "size of object collection is " << triggerEvent.product()->getObjects().size() 
-			     << "usedProcessName() " << triggerEvent.product()->usedProcessName();
-
-      for ( size_type index( 0 ) ; index < triggerEvent.product()->sizeFilters() ; ++index )
-	{
-	  LogDebug("UEAnalysis") << "filterLabel(size_type index) " << triggerEvent.product()->filterLabel(index);
-
-	  // save name of accepted trigger
-	  new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( triggerEvent.product()->filterLabel(index).c_str() );
-	  ++iAcceptedTriggers;  
-	}
-    }
-
-  //
-  // old method to access trigger bits (i.e. accepted paths)
-  // use for CMSSW versions < 2.x
-  //
-
-  //   if (e.getByLabel( triggerResultsTag, triggerResults ) )
+  // access trigger bits by TriggerEvent
+  //   acceptedTriggers->Clear();
+  //   unsigned int iAcceptedTriggers( 0 );
+  //   if (e.getByLabel( triggerEventTag, triggerEvent ) )
   //     {
-  //       triggerNames.init( *(triggerResults.product()) );
+  //        // look at TriggerEvent 
   
-  //       acceptedTriggers->Clear();
-  //       unsigned int iAcceptedTriggers( 0 ); 
-  //       if ( triggerResults.product()->wasrun() )
+  //       LogDebug("UEAnalysis") << "triggerEvent has " << triggerEvent.product()->sizeFilters() << " filters and "
+  // 			     << "triggerEvent has " << triggerEvent.product()->sizeObjects() << " objects";
+  
+  //       LogDebug("UEAnalysis") << "size of object collection is " << triggerEvent.product()->getObjects().size() 
+  // 			     << "usedProcessName() " << triggerEvent.product()->usedProcessName();
+  
+  //       for ( size_type index( 0 ) ; index < triggerEvent.product()->sizeFilters() ; ++index )
   // 	{
-  // 	  LogDebug("UEAnalysis") << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun();
+  // 	  LogDebug("UEAnalysis") << "filterLabel(size_type index) " << triggerEvent.product()->filterLabel(index);
   
-  // 	  if ( triggerResults.product()->accept() ) 
-  // 	    {
-  // 	      LogDebug("UEAnalysis") << "at least one path accepted? " << triggerResults.product()->accept() ;
-  
-  // 	      const unsigned int n_TriggerResults( triggerResults.product()->size() );
-  // 	      for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
-  // 		{
-  // 		  LogDebug("UEAnalysis") << "path " << triggerNames.triggerName( itrig ) 
-  // 					 << ", module index " << triggerResults.product()->index( itrig )
-  // 					 << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig )
-  // 					 << ", accept " << triggerResults.product()->accept( itrig );
-  
-  // 		  if ( triggerResults.product()->accept( itrig ) )
-  // 		    {
-  // 		      // save name of accepted trigger path
-  // 		      new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
-  // 		      ++iAcceptedTriggers;
-  // 		    }
-  // 		}
-  // 	    }
+  // 	  // save name of accepted trigger
+  // 	  new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( triggerEvent.product()->filterLabel(index).c_str() );
+  // 	  ++iAcceptedTriggers;  
   // 	}
   //     }
+
+
+  // access trigger bits by TriggerResults
+  if (e.getByLabel( triggerResultsTag, triggerResults ) )
+    {
+      triggerNames.init( *(triggerResults.product()) );
+      
+      acceptedTriggers->Clear();
+      unsigned int iAcceptedTriggers( 0 ); 
+      if ( triggerResults.product()->wasrun() )
+   	{
+   	  LogDebug("UEAnalysis") << "at least one path out of " << triggerResults.product()->size() 
+				 << " ran? " << triggerResults.product()->wasrun();
+  
+   	  if ( triggerResults.product()->accept() ) 
+   	    {
+   	      LogDebug("UEAnalysis") << "at least one path accepted? " << triggerResults.product()->accept() ;
+  
+   	      const unsigned int n_TriggerResults( triggerResults.product()->size() );
+   	      for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
+   		{
+   		  LogDebug("UEAnalysis") << "path " << triggerNames.triggerName( itrig ) 
+   					 << ", module index " << triggerResults.product()->index( itrig )
+   					 << ", state (Ready = 0, Pass = 1, Fail = 2, Exception = 3) " << triggerResults.product()->state( itrig )
+   					 << ", accept " << triggerResults.product()->accept( itrig );
+  
+     		  if ( triggerResults.product()->accept( itrig ) )
+   		    {
+   		      // save name of accepted trigger path
+   		      new((*acceptedTriggers)[iAcceptedTriggers]) TObjString( (triggerNames.triggerName( itrig )).c_str() );
+   		      ++iAcceptedTriggers;
+   		    }
+   		}
+   	    }
+   	}
+    }
 
   // gen level analysis
   // skipped, if onlyRECO flag set to true
