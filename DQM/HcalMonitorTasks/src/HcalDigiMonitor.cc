@@ -14,10 +14,6 @@ HcalDigiMonitor::~HcalDigiMonitor() {}
 namespace HcalDigiPerChan
 {
   
-
-  // ignore perChanHists for CRUZET? -- Jeff
-  // or just never call these?
-
   template<class Digi>
   inline void perChanHists(int id, const Digi& digi, float* ampl,std::map<HcalDetId, MonitorElement*> &tool, DQMStore* dbe, string baseFolder) {
     
@@ -665,8 +661,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  hbHists.QIE_DV->Fill(dver);
 	}    
 	
-	// ignore perchanhists for CRUZET -- Jeff
-
 	if(doPerChannel_)	  
 	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
 
@@ -744,8 +738,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  heHists.QIE_DV->Fill(dver);
 	}    
 	
-	// ignore perchannel hists for CRUZET -- Jeff
-
 	if(doPerChannel_)
 	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
 
@@ -842,8 +834,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	hoHists.QIE_DV->Fill(dver);
       }    
       
-      // ignore perchannel hists for CRUZET -- Jeff
-
       if(doPerChannel_)	  
 	HcalDigiPerChan::perChanHists<HODataFrame>(2,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
 

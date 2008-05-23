@@ -9,8 +9,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/05/17 16:42:42 $
-  * $Revision: 1.6 $
+  * $Date: 2008/05/22 14:04:19 $
+  * $Revision: 1.7 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -22,27 +22,35 @@ struct DeadCellHists{
   int type; // store subdetector type (1=hb, 2=he, 3=ho, 4=hf, 10=hcal)
   std::string subdet; // store subdetector name (HB, HE,...)
 
-  double floor, mindiff;
+  // Global histogram to keep track of all bad histograms in a given subdetector
+  MonitorElement* problemDeadCells;
+
+  // Dead cell routine #1:  low ADC counts for cell
   MonitorElement* deadADC_map;
-  MonitorElement* noADC_ID_map;
+  std::vector<MonitorElement*> deadADC_map_depth; // individual depth plots
+  std::vector<TH2F*> deadADC_temp_depth;
+  //MonitorElement* noADC_ID_map;
   MonitorElement* deadADC_eta;
-  MonitorElement* noADC_ID_eta;
+  //MonitorElement* noADC_ID_eta;
   MonitorElement* ADCdist;
+  std::vector<MonitorElement*> deadcapADC_map; // plots for individual CAPIDs
+
+  // Dead cell routine #2:  cell cool compared to neighbors
+  double floor, mindiff;
   MonitorElement* NADA_cool_cell_map;
+  std::vector<MonitorElement*> NADA_cool_cell_map_depth; // individual depth plots
+
+  // Dead cell routine #3:  cell consistently less than pedestal + N sigma
+  MonitorElement* coolcell_below_pedestal;
+  MonitorElement* above_pedestal;
+  std::vector<MonitorElement*> coolcell_below_pedestal_depth;
+  std::vector<MonitorElement*> above_pedestal_depth;
+  std::vector<TH2F*> above_pedestal_temp_depth;
+  
+  // extra diagnostic plots - could be removed?  
+  // Should already have these in DigiMonitor, RecHitMonitor
   MonitorElement* digiCheck;
   MonitorElement* cellCheck;
-
-  MonitorElement* above_pedestal;
-  MonitorElement* coolcell_below_pedestal;
-  TH2F* above_pedestal_temp;
-  //MonitorElement* above_pedestal_temp;
-
-
-  std::vector<MonitorElement*> deadcapADC_map;
-  // individual depth plots
-  std::vector<MonitorElement*> deadADC_map_depth;
-  std::vector<MonitorElement*> NADA_cool_cell_map_depth;
-  std::vector<MonitorElement*> coolcell_below_pedestal_depth;
   std::vector<MonitorElement*> digiCheck_depth;
   std::vector<MonitorElement*> cellCheck_depth;
 };
@@ -54,6 +62,8 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
   ~HcalDeadCellMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void done(); // overrides base class function 
+  void clearME(); // overrides base class function
 
   void processEvent(const HBHERecHitCollection& hbHits, 
 		    const HORecHitCollection& hoHits, 
@@ -94,11 +104,11 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 
    DeadCellHists hbHists, heHists, hoHists, hfHists, hcalHists;
    MonitorElement* meEVT_;
+   MonitorElement* meCheckN_; // copy of checkNevents saved to MonitorElement
    HcalCalibrations calibs_; // shouldn't be necessary any more
 
 
-   // MonitorElement* HBDeadCell, HEDeadCell, HODeadCell, HFDeadCell;
-   
+   //MonitorElement* problemDeadCells_;
 }; 
 
 #endif

@@ -57,7 +57,8 @@ namespace HcalDeadCellCheck
     else if(hist.type==4) type = "HF"; 
     else return;
 
-    if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
+    // Unnecessary?
+    //if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
 
     int ADCsum=0;
     int capADC[4];
@@ -108,14 +109,13 @@ namespace HcalDeadCellCheck
     for(int i=0; i<10; ++i)
       {
 	int thisCapid = digi.sample(i).capid();
-	
+
 	// Calculate charge deposited (minus pedestal) in either fC or ADC
 	if (pedsInFC)
 	  digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid())-calibs.pedestal(thisCapid);
 	else
 	  {
 	    digival=digi.sample(i).adc()-calibs.pedestal(thisCapid);
-	    //cout <<"HEY"<<endl;
 	  }
 	// Check to see if value is new max
 	if(digival >maxa)
@@ -134,14 +134,17 @@ namespace HcalDeadCellCheck
     for (int i=max(0,maxi-1);i<=min(9,maxi+2);++i)
       {
 	ADCsum+=digi.sample(i).adc();
+
 	//if (ADCsum!=0) break;
 	int thisCapid = digi.sample(i).capid();
-	
+	capADC[thisCapid]+=digi.sample(i).adc();
+
 	total_pedestal+=calibs.pedestal(thisCapid);
 	// Add widths in quadrature; need to account for correlations between capids at some point
 	total_pedwidth+=pow(widths.pedestal(thisCapid),2);
 
 	/* If ADC value above (pedestal+Nsigma_), fill hist.above_pedestal_temp
+	   for that particular depth
 	   (Cool cells will later be found by looking for empty spots in the
 	   above_pedestal_temp histogram)
 	*/
@@ -158,7 +161,6 @@ namespace HcalDeadCellCheck
 	cout <<"\t digival = "<<digival<<endl<<endl;
 	*/
 
-	capADC[thisCapid]+=digi.sample(i).adc();
 
 	// Not yet sure if this histogram is useful, but it gives an idea of the ADC distributions
 	hist.ADCdist->Fill(digi.sample(i).adc());
@@ -169,8 +171,12 @@ namespace HcalDeadCellCheck
     total_pedwidth=pow(total_pedwidth,0.5);
     if (total_digival>total_pedestal+Nsigma*total_pedwidth)
       {
-	hist.above_pedestal_temp->Fill(digi_eta,digi_phi);
-	all.above_pedestal_temp->Fill(digi_eta,digi_phi);
+	hist.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	hist.above_pedestal->Fill(digi_eta,digi_phi);
+	all.above_pedestal->Fill(digi_eta,digi_phi);
+	hist.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
       }
     
     // If ADCsum <= mincount, cell is considered dead
@@ -178,10 +184,14 @@ namespace HcalDeadCellCheck
       {
 	hist.deadADC_map->Fill(digi_eta,digi_phi);
 	hist.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	hist.deadADC_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	hist.deadADC_eta->Fill(digi_eta);
 	all.deadADC_map->Fill(digi_eta,digi_phi);
 	all.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	all.deadADC_eta->Fill(digi_eta);
+	// Dead cell is potentially problematic -- add it to combined "problem cell" histogram
+	hist.problemDeadCells->Fill(digi_eta,digi_phi);
+	all.problemDeadCells->Fill(digi_eta,digi_phi);
       }
 
     // look for individual dead caps
@@ -271,15 +281,16 @@ namespace HcalDeadCellCheck
 	       Do we also need to deal with special case where cell_eta=21, NeighborEta=20?
 	    */
 
+
 	    // boundary between phi=10 and phi=20 segmentation
 	    else if (abs(cell_eta)==39 && abs(NeighborEta)==40)
 	      {
-		temp_cell_phi-=(temp_cell_phi%4==1);
+		temp_cell_phi+=(temp_cell_phi%4==3);
 	      }
 
 	    // Check just against nearest neighbors (+/-1 in eta, phi, same depth)
 
-	    if ( (abs(neighbor->id().iphi()-temp_cell_phi))<(1+etaFactor) && 
+	    if ( (abs(neighbor->id().iphi()-temp_cell_phi)%72)<(1+etaFactor) && 
 		 (abs(neighbor->id().ieta()-cell_eta))<2)
 	      {
 		// Skip neighbors with negative energy?
@@ -381,6 +392,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   // Cells with total ADC counts <= this value will be marked dead in an event:
   minADCcount_ = ps.getUntrackedParameter<double>("minADCcount",0.);
 
+
   if (fVerbosity)
     {
       cout <<"DeadCell NADA coolcells must have energy fraction of <"<<coolcellfrac_<<"* (neighbors' average energy)"<<endl;
@@ -402,6 +414,8 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
       meEVT_ = m_dbe->bookInt("DeadCell Task Event Number");    
       meEVT_->Fill(ievt_);
 
+      meCheckN_ = m_dbe->bookInt("CheckNevents");
+      meCheckN_ -> Fill(checkNevents_);
 
       // Set up subdetector histograms
       hbHists.check=ps.getUntrackedParameter<bool>("checkHB", 1);
@@ -458,15 +472,53 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
   hist.floor=floor_;
   hist.mindiff=mindiff_;
 
+  // Convert Nsigma, consecutive events to string values
+  string Nsig;
+  stringstream out;
+  out <<Nsigma_;
+  Nsig=out.str();
+  string consec;
+  stringstream out2;
+  out2<<checkNevents_;
+  consec=out2.str();
+
+
+  // Show summary plot in main DeadCellMonitor folder
+  m_dbe->setCurrentFolder(baseFolder_);
+				    
+
+  // Set main directory showing occupancy plots
   m_dbe->setCurrentFolder(baseFolder_+"/"+hist.subdet.c_str());
-  hist.deadADC_map = m_dbe->book2D(hist.subdet+"_deadADCOccupancyMap",hist.subdet+" No ADC Count Occupancy Map",
-				   etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-  hist.deadADC_eta = m_dbe->book1D(hist.subdet+"_deadADCEta",hist.subdet+" No ADC Count Eta ",
+
+  hist.problemDeadCells = m_dbe->book2D(hist.subdet+"ProblemDeadCells",
+					hist.subdet+" Dead Cell rate for potentially bad cells",
+					etaBins_, etaMin_, etaMax_,
+					 phiBins_, phiMin_, phiMax_);
+
+  hist.deadADC_map = m_dbe->book2D(hist.subdet+"_OccupancyMap_deadADC",
+				   hist.subdet+" No ADC Count Occupancy Map",
+				   etaBins_,etaMin_,etaMax_,
+				   phiBins_,phiMin_,phiMax_);
+  hist.NADA_cool_cell_map = m_dbe->book2D(hist.subdet+"_OccupancyMap_NADA_CoolCell",
+					  hist.subdet+" Cool Cells",
+					  etaBins_,etaMin_,etaMax_,
+					  phiBins_,phiMin_,phiMax_);
+  
+  hist.coolcell_below_pedestal = m_dbe->book2D(hist.subdet+"_OccupancyMap_belowPedestal",
+					       hist.subdet+" cells below (pedestal+"+Nsig+"sigma) for "+consec+" consecutive events",
+					       etaBins_,etaMin_,etaMax_,
+					       phiBins_,phiMin_,phiMax_);
+
+  // Put additional plots in expertPlots subfolder
+  m_dbe->setCurrentFolder(baseFolder_+"/"+hist.subdet.c_str()+"/expertPlots");
+  hist.deadADC_eta = m_dbe->book1D(hist.subdet+"_deadADCEta",
+				   hist.subdet+" No ADC Count Eta ",
 				   etaBins_,etaMin_,etaMax_);
-  hist.ADCdist = m_dbe->book1D(hist.subdet+"_ADCdist",hist.subdet+" ADC count distribution",
+  
+  hist.ADCdist = m_dbe->book1D(hist.subdet+"_ADCdist",
+			       hist.subdet+" ADC count distribution",
 			       128,0,128);
-  hist.NADA_cool_cell_map = m_dbe->book2D(hist.subdet+"_NADA_CoolCellMap",hist.subdet+" Cool Cells",
-					  etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  
   hist.digiCheck = m_dbe->book2D(hist.subdet+"_digiCheck",hist.subdet+" Check that digi was found",
 				 etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
   hist.cellCheck = m_dbe->book2D(hist.subdet+"_cellCheck",hist.subdet+" Check that cell hit was found",
@@ -479,37 +531,49 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
 					      etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
   hist.deadcapADC_map.push_back(m_dbe->book2D(hist.subdet+"_DeadCap3","Map of "+hist.subdet+" Events with no ADC hits for capid=3",
 					      etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-  string Nsig;
-  stringstream out;
-  out <<Nsigma_;
-  Nsig=out.str();
-  string consec;
-  stringstream out2;
-  out2<<checkNevents_;
-  consec=out2.str();
+
   hist.above_pedestal = m_dbe->book2D(hist.subdet+"_abovePed",hist.subdet+" cells above pedestal+"+Nsig+"sigma",
 				      etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-  hist.coolcell_below_pedestal = m_dbe->book2D(hist.subdet+"_CoolCell_belowPed",
-					       hist.subdet+" cells below (pedestal+"+Nsig+"sigma) for "+consec+" consecutive events",
-					       etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-  char PedTemp[256];
-  sprintf(PedTemp,"%sAbovePedTemp",hist.subdet.c_str());
-  hist.above_pedestal_temp = new TH2F(PedTemp,"Don't look at this!",
-				      etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
 
   // Create histograms for each depth
   char DepthName[256];
+  char DepthTitle[256];
   for (unsigned int d=0;d<4;++d)
     {
       // ADC count <= min value
+      sprintf(DepthName,"%s/%s/depth%i",baseFolder_.c_str(),hist.subdet.c_str(),d+1);
+      m_dbe->setCurrentFolder(DepthName);
+
       sprintf(DepthName,"%s_DeadADCmap_Depth%i",hist.subdet.c_str(),d+1);
       hist.deadADC_map_depth.push_back( m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+      
+      sprintf(DepthName,"%s_DeadADCmap_Depth%i_temp",hist.subdet.c_str(),d+1);
+      hist.deadADC_temp_depth.push_back(new TH2F(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
       // Cell is cool compared to neighbors
       sprintf(DepthName,"%s_NADACoolCell_Depth%i",hist.subdet.c_str(),d+1);
       hist.NADA_cool_cell_map_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
       // Cell is below pedestal+Nsigma
       sprintf(DepthName,"%s_coolcell_below_pedestal_Depth%i",hist.subdet.c_str(),d+1);
       hist.coolcell_below_pedestal_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+      // Cell above pedestal+Nsigma
+      sprintf(DepthName,"%s_cell_above_pedestal_Depth%i",hist.subdet.c_str(),
+	      d+1);
+      sprintf(DepthTitle,"%s Depth%i Cell Above Pedestal + %.2f sigma",hist.subdet.c_str(),
+	      d+1,Nsigma_);
+      hist.above_pedestal_depth.push_back( m_dbe->book2D(DepthName,
+							 DepthTitle,
+							 etaBins_,etaMin_,etaMax_,
+							 phiBins_,phiMin_,phiMax_));
+      sprintf(DepthName,"%s_cell_above_pedestal_Depth%i_temp",hist.subdet.c_str(),
+	      d+1);
+      sprintf(DepthTitle,"(Temp) %s Depth%i Cell Above Pedestal + %.2f sigma",hist.subdet.c_str(),
+	      d+1,Nsigma_);
+      hist.above_pedestal_temp_depth.push_back(new TH2F(DepthName,
+							DepthTitle,
+							etaBins_,etaMin_,etaMax_,
+							phiBins_,phiMin_,phiMax_));
+
       // Digi occupancy plot (redundant?)
       sprintf(DepthName,"%s_digiCheck_Depth%i",hist.subdet.c_str(),d+1);
       hist.digiCheck_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
@@ -548,6 +612,10 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
       hist.digiCheck_depth[depth]->setAxisTitle("i#phi",2);
       hist.cellCheck_depth[depth]->setAxisTitle("i#eta", 1);
       hist.cellCheck_depth[depth]->setAxisTitle("i#phi",2);
+      hist.above_pedestal_depth[depth]->setAxisTitle("i#eta", 1);
+      hist.above_pedestal_depth[depth]->setAxisTitle("i#phi",2);
+      hist.coolcell_below_pedestal_depth[depth]->setAxisTitle("i#eta", 1);
+      hist.coolcell_below_pedestal_depth[depth]->setAxisTitle("i#phi",2);
       
     }
   hist.above_pedestal->setAxisTitle("i#eta", 1);
@@ -593,6 +661,7 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
 
 
   // Look for cells that have been "cool" for (checkNevents_) consecutive events
+
   if ((ievt_%checkNevents_)==0)
     {
       reset_Nevents(hbHists);
@@ -698,29 +767,6 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     }
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;
 
-  /*
-    // Implement this code later, if we find that repeated looping over recHits is too slow.
-    // I don't think using HcalDetIds as the map key is the best solution, though -- we'll still
-    // have to loop over all keys and evaluate each key to see if it is within a "neighboring" 
-    // range of the cell in question.
-    // Better to use an int key (something like 1000*ieta+10*iphi+depth)?
-    // Then we can just loop over neighbors (eta=celleta-1; eta<=celleta+1; ++eta),
-    // and look to see if a key is present for the neighboring cell?
-    // This might make things faster when there is high occupancy, but the speed increase may be
-    // negligible.  -- Jeff , 17 May 2008
-
-  // Make map of all hits found -- used in searching for neighbors
-  std::map<HcalDetId, double> rechitmap;
-  for (HBHERecHitCollection::const_iterator j=hbHits.begin(); j!=hbHits.end(); ++j)
-    {
-      //int id = 1000*j->id().ieta()+10*((j->id().iphi())%72)+j->id().depth();
-      rechitmap[(HcalDetId)j->id()]=j->energy();
-    }
-  for (HORecHitCollection::const_iterator j=hoHits.begin(); j!=hoHits.end(); ++j)
-    rechitmap[(HcalDetId)j->id()]=j->energy();
-  for (HFRecHitCollection::const_iterator j=hfHits.begin(); j!=hfHits.end(); ++j)
-    rechitmap[(HcalDetId)j->id()]=j->energy();
-  */  
 
   // Loop over HB digis
   try
@@ -777,9 +823,7 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 
 {
   /*
-    Every N events, look for cells that have been persistently below pedestal + Nsigma, and
-    plot them in our ped histogram.  Reset the transient histograms that are checking that
-    cells are persistently below pedestal.
+    Every N events, look for cells that have been persistently below pedestal + Nsigma, and plot them in our ped histogram.  Reset the transient histograms that are checking that cells are persistently below pedestal.
   */
 
   if (h.check==0) return;
@@ -790,13 +834,14 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
       // convert ieta  from histograms to eta (HCAL coordinates)
       eta=ieta+int(etaMin_)-1;
       if (eta==0) continue; // skip eta=0 bin -- unphysical
+      if (abs(eta)>41) continue; // skip unphysical "boundary" bins in histogram
       
       // Check eta range for each subdetector
       if (h.type==1 && abs(eta)>16) continue; // skip events outside range of HB 
       else if (h.type==2 && (abs(eta)<16 || abs(eta)>29)) // skip events outside range of HE
 	continue;
       else if (h.type==3 && abs(eta)>15) continue; // ho should extend to eta=15?
-      else if (h.type==4 && abs(eta)<30) continue; // FIXME:  is this the correct condition for HF?
+      else if (h.type==4 && abs(eta)<30) continue; //
 
       for (int iphi=1;iphi<=phiBins_;++iphi)
 	{
@@ -808,33 +853,110 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 
 	  // At larger eta, phi segmentation is more coarse
 	  if (h.type==2) 
-	    if ((abs(eta)>20) && (phi%2)!=1) continue; // skip HE even-phi counters where they don't exist
-
+	    {
+	      if ((abs(eta)>20) && (phi%2)!=1) continue; // skip HE even-phi counters where they don't exist
+	    }
 	  else if (h.type==4)
 	    {
 	      // skip HF counters where they don't exist
 	      if ((abs(eta)<40) && (phi%2)!=1) continue; 
-	      if ((abs(eta)>39) && (phi%4)!=1) continue;
+	      if ((abs(eta)>39) && (phi%4)!=3) continue; // starting at eta=39, values are 3, 7, 11, ...
 	    }
 
-	  double temp=h.above_pedestal_temp->GetBinContent(ieta,iphi);
+	  double temp;
 
-	  if (temp==0)
+	  for (int d=0;d<4;++d)
 	    {
-	      h.coolcell_below_pedestal->Fill(eta,phi);
-	      hcalHists.coolcell_below_pedestal->Fill(eta,phi);
-	    }
-	  else
-	    {
-	      h.above_pedestal->Fill(eta,phi,temp);
-	      hcalHists.above_pedestal->Fill(eta,phi,temp);
-	    }
+	      // Check last N events to see which cells were above pedestal
+	      temp=h.above_pedestal_temp_depth[d]->GetBinContent(ieta,iphi);
+	      if (temp==0)
+		{
+		  if (h.cellCheck_depth[d]->getBinContent(ieta,iphi)!=0)
+		    // only fill cool cell histogram if rechit exists for that cell
+		    {
+		      h.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
+		      hcalHists.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
+		      h.coolcell_below_pedestal_depth[d]->Fill(eta,phi,checkNevents_);
+		      hcalHists.coolcell_below_pedestal_depth[d]->Fill(eta,phi,checkNevents_);
+		      // Cells consistently below pedestal go to combined "problem cell" histogram
+		      hcalHists.problemDeadCells->Fill(eta,phi,checkNevents_);
+		      h.problemDeadCells->Fill(eta,phi,checkNevents_);
+		    }
+		}
+	    } // for (int d=0;d<4;++d)
+
 	} // for (int iphi=1; iphi<phiBins_+1;++iphi)
     } // for (int ieta=1;ieta<etaBins_+1;++ieta)
 
 
-  h.above_pedestal_temp->Reset();
-  hcalHists.above_pedestal_temp->Reset();
+  for (int d=0;d<4;++d)
+    {
+      h.above_pedestal_temp_depth[d]->Reset();
+    }
 
   return;
 }
+
+
+void HcalDeadCellMonitor::clearME()
+{
+  // override base class function to clear DeadCellMonitor-specific directories
+  if(m_dbe)
+    {
+      m_dbe->setCurrentFolder(baseFolder_);
+      m_dbe->removeContents();    
+
+      std::vector< string > subdets;
+      subdets.push_back("HCAL");
+      subdets.push_back("HB");
+      subdets.push_back("HE");
+      subdets.push_back("HO");
+      subdets.push_back("HF");
+
+      char depthName[256];
+
+      for (unsigned int i=0;i<subdets.size();++i)
+	{
+	  m_dbe->setCurrentFolder(baseFolder_+"/"+subdets[i].c_str());
+	  m_dbe->removeContents();
+	  m_dbe->setCurrentFolder(baseFolder_+"/expertPlots");
+	  m_dbe->removeContents();
+
+	  for (int d=1;d<5;++d)
+	    {
+	      sprintf(depthName,"%s/%s/depth%i",baseFolder_.c_str(),subdets[i].c_str(), d);
+	      m_dbe->setCurrentFolder(depthName);
+	      m_dbe->removeContents();
+	    }
+	} // for (int i=0;i<subdets.size();++i)
+
+    } // if (m_dbe)
+  return;
+} // void HcalDeadCellMonitor::clearME()
+
+
+void HcalDeadCellMonitor::done()
+{
+  int eta,phi;
+  float binval;
+
+  if (fVerbosity)
+    cout <<"<HcalDeadCellMonitor>  Summary of Dead Cells in Run: "<<endl;
+
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {
+      for (int iphi=1;iphi<=phiBins_;++iphi)
+	{
+	  eta=ieta+int(etaMin_)-1;
+	  phi=iphi+int(phiMin_)-1;
+	  
+
+	  binval=hcalHists.problemDeadCells->getBinContent(ieta,iphi);
+	  
+	  if (fVerbosity) cout <<"Dead Cell ("<<eta<<", "<<phi<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
+		
+	} // for (int iphi=1...)
+    } // for (int ieta = 1...)
+
+
+} // void HcalDeadCellMonitor::done()
