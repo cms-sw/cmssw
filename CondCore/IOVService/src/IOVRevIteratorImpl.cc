@@ -68,8 +68,8 @@ cond::IOVRevIteratorImpl::payloadToken() const{
 
 cond::ValidityInterval
 cond::IOVRevIteratorImpl::validity() const{
-  cond::Time_t since=m_globalSince;
-  cond::Time_t till=m_globalTill;
+  cond::Time_t since=0;
+  cond::Time_t till=0;
   if (m_isInit && !atEnd()) {
     till = m_pos->first;
     since = (m_next!=iov().rend()) ?  m_next->first + 1 : m_iov->firstsince;
