@@ -95,6 +95,8 @@ private:
     TrackingVertexRefProd &
   );
 
+
+
    //! Verify is a given vertex is a Bremsstrahlung vertex
   bool isBremsstrahlungVertex(
     TrackingVertex const &,
