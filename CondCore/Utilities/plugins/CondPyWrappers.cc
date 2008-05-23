@@ -16,6 +16,8 @@
 
 using namespace boost::python;
 
+#include<iostream>
+
 namespace {
 
   // find and return
