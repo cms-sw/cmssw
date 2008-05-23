@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # Module to create simulated RPC digis.
 simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
+    digiModel = cms.string('RPCSimAverageNoiseEff'),
+    Signal = cms.bool(True),
     Noise = cms.bool(True),
     digiModelConfig = cms.PSet(
         signalPropagationSpeed = cms.double(0.66),
@@ -19,13 +21,7 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
         Nbxing = cms.int32(9),
         timeJitter = cms.double(1.0)
     ),
-#    effmapfile = cms.FileInPath('SimMuon/RPCDigitizer/data/RPCDetId_Eff.dat'),
-    Signal = cms.bool(True),
-#    clsmapfile = cms.FileInPath('SimMuon/RPCDigitizer/data/ClSizeTot.dat'),
-#    noisemapfile = cms.FileInPath('SimMuon/RPCDigitizer/data/RPCDetId_Noise.dat'),
-#    timingMap = cms.FileInPath('SimMuon/RPCDigitizer/data/RPCTiming.dat'),
-    InputCollection = cms.string('g4SimHitsMuonRPCHits'),
-    digiModel = cms.string('RPCSimAverageNoiseEff')
+    InputCollection = cms.string('g4SimHitsMuonRPCHits')
 )
 
 
