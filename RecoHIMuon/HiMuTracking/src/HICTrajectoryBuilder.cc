@@ -27,6 +27,7 @@
 #include "RecoHIMuon/HiMuTracking/interface/HICMuonUpdator.h"
 
 using namespace std;
+using namespace cms;
 //#define DEBUG
 
 HICTrajectoryBuilder::

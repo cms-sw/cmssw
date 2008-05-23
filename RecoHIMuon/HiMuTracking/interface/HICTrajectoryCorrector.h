@@ -25,7 +25,7 @@
 
 class HICTrajectoryCorrector{
 public:
-  HICTrajectoryCorrector(const MagneticField * mf,const HICConst* hh){field = mf;theHICConst = hh;}
+  HICTrajectoryCorrector(const MagneticField * mf,const cms::HICConst* hh){field = mf;theHICConst = hh;}
   virtual  ~HICTrajectoryCorrector(){}
   TrajectoryStateOnSurface correct(FreeTrajectoryState& rh,
                                    FreeTrajectoryState& ftsnew,
@@ -36,7 +36,7 @@ public:
                           const GeomDet* det ) const;  
 private:
   const MagneticField * field; 
-  const HICConst *      theHICConst;
+  const cms::HICConst *      theHICConst;
 };
 
 #endif

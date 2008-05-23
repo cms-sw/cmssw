@@ -4,6 +4,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 using namespace edm;
 using namespace std;
+using namespace cms;
+
 //#define DEBUG
 std::pair<bool,double> 
 HICMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,

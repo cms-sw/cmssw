@@ -72,7 +72,7 @@ public:
   const Propagator*                     thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
 //  const HICMeasurementEstimator*        theEstimator;
-  mutable HICConst*                     theHICConst;   
+  mutable cms::HICConst*                theHICConst;   
   
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTracker*             theMeasurementTracker;
