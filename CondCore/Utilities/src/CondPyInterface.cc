@@ -149,7 +149,7 @@ namespace cond {
   }
   
   IOVProxy CondDB::iovWithLib(std::string const & tag) const {
-    return IOVProxy(me->poolTransaction(),,iovToken(tag),false);
+    return IOVProxy(me->poolTransaction(),iovToken(tag),false);
   }
 
 
