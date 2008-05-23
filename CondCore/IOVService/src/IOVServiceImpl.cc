@@ -7,7 +7,7 @@
 #include "IOVEditorImpl.h"
 #include "POOLCore/Token.h"
 
-cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb) 
+cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb) :
   m_pooldb(&pooldb) {
   switch (m_timetype) {
 }

@@ -149,7 +149,7 @@ namespace cond {
 
     cond::Time_t lastIOV=m_iov->iov.back().first;
     // does it make sense? (in case of mixed till and since insertions...)
-    if (lastIOV<sinceTime) lastIOV=m_globalTill;
+    if (lastIOV<sinceTime) lastIOV=timeTypeSpecs[timetype()].endValue;
     m_iov.markUpdate();
     m_iov->iov.back().first = sinceTime-1;
     return m_iov->add(lastIOV,payloadToken);

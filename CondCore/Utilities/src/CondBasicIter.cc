@@ -92,7 +92,7 @@ void CondBasicIter::create(const std::string & NameDB,const std::string & File,c
     }
     
     // timetype irrelevant
-    cond::IOVService iovservice(*pooldb,cond::runnumber);
+    cond::IOVService iovservice(*pooldb);
     //-----------------------------------------
     if (ioviterator) {
       delete ioviterator;
