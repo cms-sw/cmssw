@@ -16,7 +16,6 @@
 
 using namespace boost::python;
 
-
 namespace {
 
 
@@ -59,6 +58,6 @@ BOOST_PYTHON_MODULE(pluginPedestalPyInterface) {
   class_<PythonWrapper>("Object",init<>())
     .def(init<cond::IOVElement>()),
     .def("print",&PythonWrapper::print)    
-    .def("summary",&PythonWrapper::print);
+    .def("summary",&PythonWrapper::summary);
 
 }
