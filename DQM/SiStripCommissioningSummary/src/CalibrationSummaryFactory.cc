@@ -58,21 +58,21 @@ void CalibrationSummaryFactory::extract( Iterator iter ) {
     all_strips = true;
     uint16_t bins = amplitude[amplitude[0].size() < amplitude[1].size() ? 1 : 0].size();
     for ( uint16_t i = 0; i < bins; i++ ) {
-      value[0][i] = amplitude[0][i];
-      value[1][i] = amplitude[1][i];
+      value[0][i] = amplitude[0][i]/10.;
+      value[1][i] = amplitude[1][i]/10.;
     }
   } else if ( mon_ == sistrip::CALIBRATION_AMPLITUDE) {
     with_error = true;
-    value[0][0] = anal->amplitudeMean()[0];
-    value[1][0] = anal->amplitudeMean()[1];
-    error[0][0] = anal->amplitudeSpread()[0];
-    error[1][0] = anal->amplitudeSpread()[1];
+    value[0][0] = anal->amplitudeMean()[0]/10.;
+    value[1][0] = anal->amplitudeMean()[1]/10.;
+    error[0][0] = anal->amplitudeSpread()[0]/10.;
+    error[1][0] = anal->amplitudeSpread()[1]/10.;
   } else if ( mon_ == sistrip::CALIBRATION_AMPLITUDE_MIN) {
-    value[0][0] = anal->amplitudeMin()[0];
-    value[1][0] = anal->amplitudeMin()[1];
+    value[0][0] = anal->amplitudeMin()[0]/10.;
+    value[1][0] = anal->amplitudeMin()[1]/10.;
   } else if ( mon_ == sistrip::CALIBRATION_AMPLITUDE_MAX) {
-    value[0][0] = anal->amplitudeMax()[0];
-    value[1][0] = anal->amplitudeMax()[1];
+    value[0][0] = anal->amplitudeMax()[0]/10.;
+    value[1][0] = anal->amplitudeMax()[1]/10.;
   } else if ( mon_ == sistrip::CALIBRATION_TAIL_ALLSTRIPS) {
     all_strips = true;
     uint16_t bins = tail[tail[0].size() < tail[1].size() ? 1 : 0].size();
@@ -158,16 +158,16 @@ void CalibrationSummaryFactory::extract( Iterator iter ) {
     }
   } else if ( mon_ == sistrip::CALIBRATION_CHI2) {
     with_error = true;
-    value[0][0] = anal->chi2Mean()[0];
-    value[1][0] = anal->chi2Mean()[1];
-    error[0][0] = anal->chi2Spread()[0];
-    error[1][0] = anal->chi2Spread()[1];
+    value[0][0] = anal->chi2Mean()[0]/100.;
+    value[1][0] = anal->chi2Mean()[1]/100.;
+    error[0][0] = anal->chi2Spread()[0]/100.;
+    error[1][0] = anal->chi2Spread()[1]/100.;
   } else if ( mon_ == sistrip::CALIBRATION_CHI2_MIN) {
-    value[0][0] = anal->chi2Min()[0];
-    value[1][0] = anal->chi2Min()[1];
+    value[0][0] = anal->chi2Min()[0]/100.;
+    value[1][0] = anal->chi2Min()[1]/100.;
   } else if ( mon_ == sistrip::CALIBRATION_CHI2_MAX) {
-    value[0][0] = anal->chi2Max()[0];
-    value[1][0] = anal->chi2Max()[1];
+    value[0][0] = anal->chi2Max()[0]/100.;
+    value[1][0] = anal->chi2Max()[1]/100.;
   } else { 
     edm::LogWarning(mlSummaryPlots_)
         << "[SummaryPlotFactory::" << __func__ << "]"
@@ -224,7 +224,7 @@ void CalibrationSummaryFactory::format() {
 
   // Histogram formatting
   if ( mon_ == sistrip::CALIBRATION_AMPLITUDE ) {
-    generator_->axisLabel( "Amplitude (ADC)" );
+    generator_->axisLabel( "Amplitude (ADC*Nevt/10.)" );
   } else if ( mon_ == sistrip::CALIBRATION_TAIL ) { 
     generator_->axisLabel( "Tail (%)" );
   } else if ( mon_ == sistrip::CALIBRATION_RISETIME ) { 
@@ -234,7 +234,7 @@ void CalibrationSummaryFactory::format() {
   } else if ( mon_ == sistrip::CALIBRATION_SMEARING ) { 
     generator_->axisLabel( "Smearing (ns)" );
   } else if ( mon_ == sistrip::CALIBRATION_CHI2 ) { 
-    generator_->axisLabel( "Chi2" );
+    generator_->axisLabel( "Chi2/100." );
   } else { 
     edm::LogWarning(mlSummaryPlots_) 
          << "[SummaryPlotFactory::" << __func__ << "]"
