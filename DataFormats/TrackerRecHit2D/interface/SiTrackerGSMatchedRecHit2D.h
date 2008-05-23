@@ -53,6 +53,7 @@ public:
   const SiTrackerGSRecHit2D *monoHit() const { return &componentMono_;}
   const SiTrackerGSRecHit2D *stereoHit() const { return &componentStereo_;}
 
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {return false;}
  
 private:
   int const simhitId_;

@@ -31,6 +31,8 @@ public:
   const uint32_t& eeId()    const { return eeId_;}
   const int& simMultX()    const { return pixelMultiplicityAlpha_;}
   const int& simMultY()    const { return pixelMultiplicityBeta_;}
+
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {return false;}
   
 private:
   int const simhitId_;

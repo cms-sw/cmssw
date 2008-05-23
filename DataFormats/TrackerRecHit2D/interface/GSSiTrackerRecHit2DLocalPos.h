@@ -22,6 +22,8 @@ public:
   virtual LocalError localPositionError() const{ return err_;}
   
   virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
+
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {return false;}
  private:
   
   LocalPoint pos_;
