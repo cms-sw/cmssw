@@ -1,3 +1,9 @@
+# The following comments couldn't be translated into the new config version:
+
+# Equivalent to be swapped in:
+# hcal_pedestals_ADC_v2_cruzet_hlt
+# hcal_widths_ADC_v2_cruzet_hlt
+
 import FWCore.ParameterSet.Config as cms
 
 #include "CondCore/DBCommon/data/CondDBCommon.cfi"
@@ -10,80 +16,42 @@ hcal_db_producer = cms.ESProducer("HcalDbProducer",
     file = cms.untracked.string('')
 )
 
-#es_source es_pool = PoolDBESSource { 
-#      using CondDBSetup
-#      string connect = "frontier://FrontierDev/CMS_COND_HCAL"
-#      string timetype = "runnumber"    
-#      untracked uint32 authenticationMethod = 0
-#           VPSet toGet = {
-#                    {string record = "HcalPedestalsRcd"
-#                     string tag    = "hcal_pedestals_fC_v1_zdc"
-#                    },
-#                    {string record = "HcalPedestalWidthsRcd"
-#                     string tag =    "hcal_widths_fC_v1_zdc"
-#                    },
-#                    {string record = "HcalGainsRcd"
-#                     string tag =    "hcal_gains_v1_zdc"
-#                    },
-#                    {string record = "HcalQIEDataRcd"
-#                     string tag =    "qie_normalmode_v3_zdc"
-#                    },
-#                    {string record = "HcalElectronicsMapRcd"
-#                     string tag =    "official_emap_16x_v1"
-#                    }
-# this is w/o zdc:
-#                    {string record = "HcalPedestalsRcd"
-#                     string tag    = "hcal_pedestals_fC_v1"
-#                    },
-#                    {string record = "HcalPedestalWidthsRcd"
-#                     string tag =    "hcal_widths_fC_v1"
-#                    },
-#                    {string record = "HcalGainsRcd"
-#                     string tag =    "hcal_gains_v1"
-#                    },
-#                    {string record = "HcalQIEDataRcd"
-#                     string tag =    "qie_normalmode_v3"
-#                    },
-# this was for 15x series
-#                    {string record = "HcalElectronicsMapRcd"
-#                     string tag =    "emapTest15"
-#                    }
-#                  }
-#             }
 hcalConditions = cms.ESSource("PoolDBESSource",
+    #     string connect = "frontier://Frontier/CMS_COND_20X_HCAL"
     DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0),
-        authenticationPath = cms.untracked.string('/nfshome0/hltpro/cmssw/cfg/')
+        messageLevel = cms.untracked.int32(0)
     ),
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('HcalPedestalsRcd'),
-        tag = cms.string('hcal_pedestals_fC_gren')
+        tag = cms.string('hcal_pedestals_fC_v2_cruzet_hlt')
     ), 
         cms.PSet(
+            record = cms.string('HcalPedestalWidthsRcd'),
+            tag = cms.string('hcal_widths_fC_v2_cruzet_hlt')
+        ), 
+        cms.PSet(
             record = cms.string('HcalElectronicsMapRcd'),
-            tag = cms.string('official_emap_16x_v2')
+            tag = cms.string('official_emap_v5_080208')
         ), 
         cms.PSet(
             record = cms.string('HcalGainsRcd'),
-            tag = cms.string('hcal_gains_v1')
+            tag = cms.string('hcal_gains_v2_gren_reprocessing')
         ), 
         cms.PSet(
             record = cms.string('HcalQIEDataRcd'),
-            tag = cms.string('qie_normalmode_v3')
-        ), 
-        cms.PSet(
-            record = cms.string('HcalPedestalWidthsRcd'),
-            tag = cms.string('hcal_widths_fC_gren')
+            tag = cms.string('qie_normalmode_v5')
         )),
-    connect = cms.string('frontier://(serverurl=http://frontier1.cms:8000/FrontierOn)(serverurl=http://frontier2.cms:8000/FrontierOn)(retrieve-ziplevel=0)/CMS_COND_ON_170_HCAL'), ##(serverurl=http:
+    connect = cms.string('frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_20X_HCAL'), ##(proxyurl=http:
 
     siteLocalConfig = cms.untracked.bool(False)
 )
 
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     toGet = cms.untracked.vstring('GainWidths', 
-        'channelQuality')
+        'channelQuality', 
+        'ZSThresholds', 
+        'RespCorrs')
 )
 
 

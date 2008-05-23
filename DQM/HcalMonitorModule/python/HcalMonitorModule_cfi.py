@@ -64,7 +64,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
     checkHO = cms.untracked.bool(True),
     MaxPhi = cms.untracked.double(73.5),
     checkHB = cms.untracked.bool(True),
-    DigisPerChannel = cms.untracked.bool(True),
+    DigisPerChannel = cms.untracked.bool(False), ## set DigisPerChannel off by default -- JT, 08 May 2008
+
     LED_ADC_Thresh = cms.untracked.double(-1000.0),
     # Operate every N lumi sections
     diagnosticPrescaleLS = cms.untracked.int32(-1),

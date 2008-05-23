@@ -6,8 +6,10 @@ IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     TrackAssociatorParameterBlock,
     hbheInput = cms.InputTag("hbhereco"),
     hoInput = cms.InputTag("horeco"),
+    pCut = cms.untracked.double(2.0),
     ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
     histoFlag = cms.untracked.int32(0),
+    ptCut = cms.untracked.double(1.5),
     inputTrackLabel = cms.untracked.string('generalTracks')
 )
 
