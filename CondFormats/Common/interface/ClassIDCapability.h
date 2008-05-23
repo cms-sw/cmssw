@@ -19,9 +19,4 @@ extern "C" void NOT_SEAL_CAPABILITIES (const char**& names, int& n )
   names = &packageClassIDRegistry.csids.front();
   n =  packageClassIDRegistry.csids.size();
 }
-
-
-#define CLASS_ID(type_)  \
-namespace{ cond::ClassID<type_>  EDM_PLUGIN_SYM(instance_cld, __LINE__)(0); }	\
- DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, cond::ClassID<type_>  , cond::ClassID<type_>().pluginName(cond::idCategories::dictIDCategory).c_str() )
   

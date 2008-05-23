@@ -44,7 +44,7 @@ namespace cond {
   template<typename T>
   struct ClassID : public  ClassInfo {
     ClassID() : ClassInfo(typeid(T)) {}
-    ClassID(std::string const & res ) : ClassInfo(typeid(T)), m_res(res) {}
+    ClassID(char const * res ) : ClassInfo(typeid(T)), m_res(res) {}
     ClassID(int i) : ClassInfo(typeid(T),i) {}
     virtual std::string resource() const { return m_res;}
   private:
@@ -63,5 +63,13 @@ namespace cond {
 namespace cond{
   typedef edmplugin::PluginFactory<ClassInfo*() > ClassInfoFactory;
 }
+
+#define CLASS_ID(type_)  \
+namespace{ cond::ClassID<type_>  EDM_PLUGIN_SYM(instance_cld, __LINE__)(0); }	\
+ DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, cond::ClassID<type_>  , cond::ClassID<type_>().pluginName(cond::idCategories::dictIDCategory).c_str() )
+
+#define PYTHON_ID(type_, plugName_) \
+ DEFINE_EDM_PLUGIN(cond::ClassInfoFactory, cond::ClassID<type_>  , cond::ClassID<type_>(plugName_).pluginName(cond::idCategories::pythonIDCategory).c_str() )
+
 
 #endif
