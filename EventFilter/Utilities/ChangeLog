@@ -1,3 +1,9 @@
+2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-09
+	* add 'outModID' to I2O_SM_PREAMBLE_MESSAGE_FRAME as requested by
+	Harry.
+
 2008-05-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-14-08
