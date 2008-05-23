@@ -85,6 +85,30 @@ namespace funct {
   double integral(const F& f, double min, double max) {
     return integral(f)(min, max);
   }
+
+  template<typename F, typename MIN, typename MAX, typename X = no_var>
+  struct DefIntegral {
+    DefIntegral(const F & f, const MIN & min, const MAX & max) : f_(f), min_(min), max_(max) { } 
+    double operator()() const {
+      return integral<X>(f_, min_(). max_());
+    }
+  private:
+    F f_;
+    MIN min_;
+    MAX max_;
+  };
+
+  template<typename F, typename MIN, typename MAX>
+  struct DefIntegral<F, MIN, MAX, no_var> {
+    DefIntegral(const F & f, const MIN & min, const MAX & max) : f_(f), min_(min), max_(max) { } 
+    double operator()(double x) const {
+      return integral(f_, min_(x), max_(x));
+    }
+  private:
+    F f_;
+    MIN min_;
+    MAX max_;
+  };
 }
 
 #define NUMERICAL_INTEGRAL(X, F, SAMPLES) \

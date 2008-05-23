@@ -60,6 +60,9 @@ namespace funct {
     double operator()(double x) const {
       return *c0_;
     }
+    double operator()() const {
+      return *c0_;
+    }
   private:
     boost::shared_ptr<double> c0_;
   };
