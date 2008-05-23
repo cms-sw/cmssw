@@ -16,7 +16,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  May 2008
-// $Id: FourVectorHLT.h,v 1.2 2008/05/21 12:35:31 wittich Exp $
+// $Id: FourVectorHLT.h,v 1.3 2008/05/21 19:42:24 wittich Exp $
 //
 //
 
@@ -58,13 +58,22 @@ class FourVectorHLT : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
+      // BeginRun
+      void beginRun(const edm::Run& run, const edm::EventSetup& c);
+
+      // EndRun
+      void endRun(const edm::Run& run, const edm::EventSetup& c);
+
+
       // ----------member data --------------------------- 
       int nev_;
       DQMStore * dbe_;
-      //std::vector<edm::InputTag> hltlabels_;  
+
       MonitorElement* total_;
 
-      unsigned int reqNum;
+      bool plotAll_;
+      bool resetMe_;
+      int currentRun_;
  
       unsigned int nBins_; 
       double ptMin_ ;
@@ -74,6 +83,7 @@ class FourVectorHLT : public edm::EDAnalyzer {
       bool monitorDaemon_;
       int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
+      edm::InputTag triggerResultLabel_;
 
       // helper class to store the data
       class PathInfo {
@@ -116,10 +126,12 @@ class FourVectorHLT : public edm::EDAnalyzer {
 		   MonitorElement *et,
 		   MonitorElement *eta,
 		   MonitorElement *phi,
-		   MonitorElement *etavsphi
+		   MonitorElement *etavsphi,
+		   float ptmin, float ptmax
 		   ):
 	    pathName_(pathName), objectType_(type),
-	    et_(et), eta_(eta), phi_(phi), etavsphi_(etavsphi)
+	    et_(et), eta_(eta), phi_(phi), etavsphi_(etavsphi),
+	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
 	    {
@@ -129,23 +141,29 @@ class FourVectorHLT : public edm::EDAnalyzer {
 	  int pathIndex_;
 	  std::string pathName_;
 	  int objectType_;
+
+	  // we don't own this data
+	  MonitorElement *et_, *eta_, *phi_, *etavsphi_;
+
+	  float ptmin_, ptmax_;
+
 	  const int index() { 
 	    return pathIndex_;
 	  }
 	  const int type() { 
 	    return objectType_;
 	  }
-	  MonitorElement *et_, *eta_, *phi_, *etavsphi_;
-	  float ptmin_, ptmax_;
       public:
 	  float getPtMin() const { return ptmin_; }
 	  float getPtMax() const { return ptmax_; }
       };
-      
+
+      // simple collection - just 
       class PathInfoCollection: public std::vector<PathInfo> {
       public:
 	PathInfoCollection(): std::vector<PathInfo>() {};
-	std::vector<PathInfo>::const_iterator find(std::string pathName) {
+	  
+	  std::vector<PathInfo>::const_iterator find(std::string pathName) {
 	  return std::find(begin(), end(), pathName);
 	}
       };
