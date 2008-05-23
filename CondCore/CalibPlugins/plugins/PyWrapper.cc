@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iterator>
 #include <boost/ref.hpp>
+#include <boost/bind.hpp>
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
 namespace {
@@ -18,20 +19,20 @@ namespace {
   public:
     typedef Pedestals Class;
     struct Printer {
-      void operator(Class::Item const & item) {
-	ss << m_mean << "," << m_variance <<"; ";
+      void doit(Class::Item const & item) {
+	ss << item.m_mean << "," << item.m_variance <<"; ";
       }
       std::stringstream ss;
     };
 
     PythonWrapper(const cond::IOVElement & elem) : 
-      object(*elem.db(),elem.token()){}
+      object(*elem.db(),elem.payloadToken()){}
 
     std::string print() const {
       Printer p;
-      std::for_each(object->m_pedestals.begin(),object->m_pedestals.end(),boost::ref(p));
-      p.ss << std:endl;
-      return ss.str();
+      std::for_each(object->m_pedestals.begin(),object->m_pedestals.end(),boost::bind(&Printer::doit,boost::ref(p),_1));
+      p.ss << std::endl;
+      return p.ss.str();
     }
 
     std::string summary() const;
