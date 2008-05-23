@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/11 11:05:29 $
- * $Revision: 1.122 $
+ * $Date: 2008/05/16 16:34:40 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  *
 */
@@ -1707,7 +1707,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
-    labelGrid1.Draw("text,same");
+    labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
