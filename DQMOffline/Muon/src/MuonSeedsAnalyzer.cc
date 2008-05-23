@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/03/25
  18:37:05 $
- *  $Revision: 1.7 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -114,11 +114,11 @@ void MuonSeedsAnalyzer::beginJob(edm::EventSetup const& iSetup, DQMStore * dbe) 
   histname = "seedPErrOverP_";
   seedPErr = dbe->book1D(histname, histname, pErrBin, pErrMin, pErrMax);
   seedPErr->setAxisTitle("pErr/p");
-  histname = "seedPErrOverPtVsPhi_";
+  histname = "seedPErrOverPVsPhi_";
   seedPErrVsPhi = dbe->book2D(histname, histname, PhiBin, PhiMin, PhiMax, pErrBin, pErrMin, pErrMax);
-  histname = "seedPErrOverPtVsEta_";
+  histname = "seedPErrOverPVsEta_";
   seedPErrVsEta = dbe->book2D(histname, histname, EtaBin, EtaMin, EtaMax, pErrBin, pErrMin, pErrMax);
-  histname = "seedPErrOverPtVsPt_";
+  histname = "seedPErrOverPVsPt_";
   seedPErrVsPt = dbe->book2D(histname, histname, seedPtBin, seedPtMin, seedPtMax, pErrBin, pErrMin, pErrMax);
   
   pxyzErrBin = parameters.getParameter<int>("pxyzErrBin");
@@ -222,15 +222,15 @@ void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   LogTrace(metname)<<"seed p error: "<<sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().mag();
   seedPErr->Fill(sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().mag());
 
-  // pErr/pt Vs phi
+  // pErr/p Vs phi
   seedPErrVsPhi->Fill(seedTSOS.globalMomentum().phi(),
-		      sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().perp());
-   // pErr/pt Vs eta
+		      sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().mag());
+   // pErr/p Vs eta
   seedPErrVsEta->Fill(seedTSOS.globalMomentum().eta(),
-		      sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().perp());
-  // pErr/pt Vs pt
+		      sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().mag());
+  // pErr/p Vs pt
   seedPErrVsPt->Fill(seedTSOS.globalMomentum().perp(),
-		     sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().perp());
+		     sqrt(partialPterror+errors(5,5)*pow(seedTSOS.globalMomentum().z(),2))/seedTSOS.globalMomentum().mag());
 
   // phi err
   LogTrace(metname)<<"seed phi error: "<<sqrt(seedTSOS.curvilinearError().matrix()(2,2));
