@@ -12,11 +12,12 @@ namespace cond {
   namespace impl {
     struct IOVImpl {
       IOVImpl(cond::PoolTransaction& db,
-	      const std::string & token) :
+	      const std::string & token,
+	      bool nolib) :
 	pooldb(db){
 	db.start(true);
 	iov = cond::TypedRef<cond::IOV>(db,token);
-	if (iov->iov.empty()) return;
+	if (iov->iov.empty() || nolib) return;
 	// load dict
 	std::string ptok = iov->iov.front().second;
 	db.commit();   

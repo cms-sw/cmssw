@@ -135,15 +135,22 @@ namespace cond {
     return ss.str();
   }
 
-  IOVProxy CondDB::iov(std::string const & tag) const {
+  std::string CondDB::iovToken(std::string const & tag) const {
     cond::CoralTransaction& coraldb=me->coralTransaction();
     cond::MetaData metadata_svc(coraldb);
     coraldb.start(true);
     std::string token=metadata_svc.getToken(tag);
     coraldb.commit();
-    return IOVProxy(me->poolTransaction(),token);
+    return token;
   }
-
+  
+  IOVProxy CondDB::iov(std::string const & tag) const {
+    return IOVProxy(me->poolTransaction(),iovToken(tag),true);
+  }
+  
+  IOVProxy CondDB::iovWithLib(std::string const & tag) const {
+    return IOVProxy(me->poolTransaction(),,iovToken(tag),false);
+  }
 
 
 

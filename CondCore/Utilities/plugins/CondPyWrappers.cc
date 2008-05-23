@@ -36,6 +36,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   class_<cond::CondDB>("CondDB", init<>())
     .def("allTags", &cond::CondDB::allTags)
     .def("iov", &cond::CondDB::iov);
+    .def("iovWithLib", &cond::CondDB::iovWithLib);
   
   class_<cond::RDBMS>("RDBMS", init<>())
     .def(init<std::string>())

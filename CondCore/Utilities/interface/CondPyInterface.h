@@ -42,7 +42,9 @@ namespace cond {
    std::string allTags() const;
 
    IOVProxy iov(std::string const & tag) const;
+   IOVProxy iovWithLib(std::string const & tag) const;
 
+   std::string iovToken(std::string const & tag) const;
    
  private:
    mutable Connection * me;
