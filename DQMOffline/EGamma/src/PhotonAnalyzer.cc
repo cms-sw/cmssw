@@ -139,60 +139,203 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
   double r9Max = parameters_.getParameter<double>("r9Max"); 
   int r9Bin = parameters_.getParameter<int>("r9Bin");
 
+  double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin"); 
+  double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax"); 
+  int dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin"); 
+  
+
   if (dbe_) {  
     //// All MC photons
     // SC from reco photons
 
-    dbe_->setCurrentFolder("Egamma/PhotonAnalyzer");
+    dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/IsolationVariables");
+
+    std::string histname = "nIsoTracks";    
+    p_nTrackIsol_ = dbe_->bookProfile(histname,"Avg Numbef Of Tracks in the Iso Cone",etaBin,etaMin, etaMax,10,-0.5, 9.5);
+    histname = "isoPtSum";    
+    p_trackPtSum_ = dbe_->bookProfile(histname,"Avg Tracks Pt Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.);
+    histname = "ecalSum";    
+    p_ecalSum_ = dbe_->bookProfile(histname,"Avg Ecal Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.);
+    histname = "hcalSum";    
+    p_hcalSum_ = dbe_->bookProfile(histname,"Avg Hcal Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.);
+
+
+
+
+    dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/IsolatedPhotons");
 
     //// Reconstructed photons
-    std::string histname = "nPho";
-    h_nPho_.push_back(dbe_->book1D(histname+"all","Numbef Of Isolated Photon candidates per events: all Ecal  ",10,-0.5, 9.5));
-    h_nPho_.push_back(dbe_->book1D(histname+"barrel","Numbef Of Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5));
-    h_nPho_.push_back(dbe_->book1D(histname+"endcap","Numbef Of Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5));
+    //    std::string histname = "nPho";
+    histname = "nPho";
+    h_nPho_[0][0] = dbe_->book1D(histname+"All","Numbef Of Isolated Photon candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nPho_[0][1] = dbe_->book1D(histname+"Barrel","Numbef Of Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nPho_[0][2] = dbe_->book1D(histname+"Endcap","Numbef Of Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5);
     histname = "scE";
-    h_scE_.push_back(dbe_->book1D(histname+"all","SC Energy: all Ecal  ",eBin,eMin, eMax));
-    h_scE_.push_back(dbe_->book1D(histname+"barrel","SC Energy: Barrel ",eBin,eMin, eMax));
-    h_scE_.push_back(dbe_->book1D(histname+"endcap","SC Energy: Endcap ",eBin,eMin, eMax));
+    h_scE_[0][0] = dbe_->book1D(histname+"All","Isolated SC Energy: All Ecal  ",eBin,eMin, eMax);
+    h_scE_[0][1] = dbe_->book1D(histname+"Barrel","Isolated SC Energy: Barrel ",eBin,eMin, eMax);
+    h_scE_[0][2] = dbe_->book1D(histname+"Endcap","Isolated SC Energy: Endcap ",eBin,eMin, eMax);
 
     histname = "scEt";
-    h_scEt_.push_back( dbe_->book1D(histname+"all","SC Et: all Ecal ",etBin,etMin, etMax) );
-    h_scEt_.push_back( dbe_->book1D(histname+"barrel","SC Et: Barrel",etBin,etMin, etMax) );
-    h_scEt_.push_back( dbe_->book1D(histname+"endcap","SC Et: Endcap",etBin,etMin, etMax) );
+    h_scEt_[0][0] = dbe_->book1D(histname+"All","Isolated SC Et: All Ecal ",etBin,etMin, etMax) ;
+    h_scEt_[0][1] = dbe_->book1D(histname+"Barrel","Isolated SC Et: Barrel",etBin,etMin, etMax) ;
+    h_scEt_[0][2] = dbe_->book1D(histname+"Endcap","Isolated SC Et: Endcap",etBin,etMin, etMax) ;
 
     histname = "r9";
-    h_r9_.push_back( dbe_->book1D(histname+"all",   "r9: all Ecal",r9Bin,r9Min, r9Max) );
-    h_r9_.push_back( dbe_->book1D(histname+"barrel","r9: all Ecal",r9Bin,r9Min, r9Max) );
-    h_r9_.push_back( dbe_->book1D(histname+"endcap","r9: all Ecal",r9Bin,r9Min, r9Max) );
+    h_r9_[0][0] = dbe_->book1D(histname+"All",   "Isolated r9: All Ecal",r9Bin,r9Min, r9Max) ;
+    h_r9_[0][1] = dbe_->book1D(histname+"Barrel","Isolated r9: Barrel ",r9Bin,r9Min, r9Max) ;
+    h_r9_[0][2] = dbe_->book1D(histname+"Endcap","Isolated r9: Endcap ",r9Bin,r9Min, r9Max) ;
 
-    h_scEta_ = dbe_->book1D("scEta","SC Eta ",etaBin,etaMin, etaMax);
-    h_scPhi_ = dbe_->book1D("scPhi","SC Phi ",phiBin,phiMin,phiMax);
-    h_scEtaPhi_ = dbe_->book2D("scEtaPhi","SC Phi vs Eta ",etaBin, etaMin, etaMax,phiBin,phiMin,phiMax);
+    h_scEta_[0] =   dbe_->book1D("scEta","Isolated SC Eta ",etaBin,etaMin, etaMax);
+    h_scPhi_[0] =   dbe_->book1D("scPhi","Isolated SC Phi ",phiBin,phiMin,phiMax);
+    h_scEtaPhi_[0]= dbe_->book2D("scEtaPhi","Isolated SC Phi vs Eta ",etaBin, etaMin, etaMax,phiBin,phiMin,phiMax);
     //
     histname = "phoE";
-    h_phoE_.push_back(dbe_->book1D(histname+"all","Photon Energy: all ecal ", eBin,eMin, eMax));
-    h_phoE_.push_back(dbe_->book1D(histname+"barrel","Photon Energy: barrel ",eBin,eMin, eMax));
-    h_phoE_.push_back(dbe_->book1D(histname+"endcap","Photon Energy: endcap ",eBin,eMin, eMax));
-    histname = "phoEt";
-    h_phoEt_.push_back(dbe_->book1D(histname+"all","Photon Transverse Energy: all ecal ", etBin,etMin, etMax));
-    h_phoEt_.push_back(dbe_->book1D(histname+"barrel","Photon Transverse Energy: barrel ",etBin,etMin, etMax));
-    h_phoEt_.push_back(dbe_->book1D(histname+"endcap","Photon Transverse Energy: endcap ",etBin,etMin, etMax));
+    h_phoE_[0][0]=dbe_->book1D(histname+"All","Isolated Photon Energy: All ecal ", eBin,eMin, eMax);
+    h_phoE_[0][1]=dbe_->book1D(histname+"Barrel","Isolated Photon Energy: barrel ",eBin,eMin, eMax);
+    h_phoE_[0][2]=dbe_->book1D(histname+"Endcap","Isolated Photon Energy: Endcap ",eBin,eMin, eMax);
 
-    h_phoEta_ = dbe_->book1D("phoEta","Photon Eta ",etaBin,etaMin, etaMax);
-    h_phoPhi_ = dbe_->book1D("phoPhi","Photon  Phi ",phiBin,phiMin,phiMax);
-    
-     // SC from reco photons
-    /*
-    dbe_->tag( h_scE_->getFullname(),10);
-    dbe_->tag( h_scEt_->getFullname(),11);
-    dbe_->tag( h_scEta_->getFullname(),12);
-    dbe_->tag( h_scPhi_->getFullname(),13);
-    
-    dbe_->tag( h_phoE_->getFullname(),14);
-    dbe_->tag( h_phoEta_->getFullname(),15);
-    dbe_->tag( h_phoPhi_->getFullname(),16);
-    
-    */
+    histname = "phoEt";
+    h_phoEt_[0][0] = dbe_->book1D(histname+"All","Isolated Photon Transverse Energy: All ecal ", etBin,etMin, etMax);
+    h_phoEt_[0][1] = dbe_->book1D(histname+"Barrel","Isolated Photon Transverse Energy: Barrel ",etBin,etMin, etMax);
+    h_phoEt_[0][2] = dbe_->book1D(histname+"Endcap","Isolated Photon Transverse Energy: Endcap ",etBin,etMin, etMax);
+
+    h_phoEta_[0] = dbe_->book1D("phoEta","Isolated Photon Eta ",etaBin,etaMin, etaMax) ;
+    h_phoPhi_[0] = dbe_->book1D("phoPhi","Isolated Photon  Phi ",phiBin,phiMin,phiMax) ;
+
+    histname="nConv";
+    h_nConv_[0][0] = dbe_->book1D(histname+"All","Numbef Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nConv_[0][1] = dbe_->book1D(histname+"Barrel","Numbef Of Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nConv_[0][2] = dbe_->book1D(histname+"Endcap","Numbef Of Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+
+    h_convEta_[0] = dbe_->book1D("convEta","Isolated converted Photon Eta ",etaBin,etaMin, etaMax) ;
+    h_convPhi_[0] = dbe_->book1D("convPhi","Isolated converted Photon  Phi ",phiBin,phiMin,phiMax) ;
+
+    histname="r9VsTracks";
+    h_r9VsNofTracks_[0][0] = dbe_->book2D(histname+"All","Isolated photons r9 vs nTracks from conversions: All Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
+    h_r9VsNofTracks_[0][1] = dbe_->book2D(histname+"Barrel","Isolated photons r9 vs nTracks from conversions: Barrel Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
+    h_r9VsNofTracks_[0][2] = dbe_->book2D(histname+"Endcap","Isolated photons r9 vs nTracks from conversions: Endcap Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
+
+    histname="EoverPtracks";
+    h_EoverPTracks_[0][0] = dbe_->book1D(histname+"All","Isolated photons converion E/p: all Ecal ",100, 0., 5.);
+    h_EoverPTracks_[0][1] = dbe_->book1D(histname+"Barrel","Isolated photons converion E/p: Barrel Ecal",100, 0., 5.);
+    h_EoverPTracks_[0][2] = dbe_->book1D(histname+"All","Isolated photons converion E/p: Endcap Ecal ",100, 0., 5.);
+
+    histname="pTknHitsVsEta";
+    // p_tk_nHitsVsEta_[0] =  dbe_->bookProfile(histname,"Isolated Photons:Tracks from conversions: mean numb of  Hits vs Eta",etaBin,etaMin, etaMax);
+    p_tk_nHitsVsEta_[0] =  dbe_->bookProfile(histname,histname,etaBin,etaMin, etaMax,etaBin,0, 16);
+    h_tkChi2_[0] = dbe_->book1D("tkChi2","Isolated Photons:Tracks from conversions: #chi^{2} of tracks", 100, 0., 20.0); 
+
+    histname="hDPhiTracksAtVtx";
+    h_DPhiTracksAtVtx_[0][0] =dbe_->book1D(histname+"All", "Isolated Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    h_DPhiTracksAtVtx_[0][1] =dbe_->book1D(histname+"Barrel", "Isolated Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    h_DPhiTracksAtVtx_[0][2] =dbe_->book1D(histname+"Endcap", "Isolated Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    histname="hDCotTracks";
+    h_DCotTracks_[0][0]= dbe_->book1D(histname+"All","Isolated Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",100, -0.2, 0.2);
+    h_DCotTracks_[0][1]= dbe_->book1D(histname+"Barrel","Isolated Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",100, -0.2, 0.2);
+    h_DCotTracks_[0][2]= dbe_->book1D(histname+"Encap","Isolated Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",100, -0.2, 0.2);
+    histname="hInvMass";
+    h_invMass_[0][0]= dbe_->book1D(histname+"All","Isolated Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
+    h_invMass_[0][1]= dbe_->book1D(histname+"Barrel","Isolated Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
+    h_invMass_[0][2]= dbe_->book1D(histname+"Endcap","Isolated Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
+    histname="hDPhiBCTrackAtEcal";
+    h_DPhiBCTrackAtEcal_[0][0]= dbe_->book1D(histname+"All","Isolated Photons:Tracks from conversions: #phi_{tr} -#phi_{BC} at Ecal : all Ecal ",100, -0.2, 0.2);
+    h_DPhiBCTrackAtEcal_[0][1]= dbe_->book1D(histname+"Barrel","Isolated Photons:Tracks from conversions: #phi_{tr} - #phi_{BC} at Ecal : Barrel Ecal ",100, -0.2, 0.2);
+    h_DPhiBCTrackAtEcal_[0][2]= dbe_->book1D(histname+"Endcap","Isolated Photons:Tracks from conversions: #phi_{tr} - #phi_{BC} at Ecal : Endcap Ecal ",100, -0.2, 0.2);
+    histname="hDEtaBCTrackAtEcal";
+    h_DEtaBCTrackAtEcal_[0][0]= dbe_->book1D(histname+"All","Isolated Photons:Tracks from conversions: #eta_{tr} -#eta_{BC} at Ecal : all Ecal ",100, -0.2, 0.2);
+    h_DEtaBCTrackAtEcal_[0][1]= dbe_->book1D(histname+"Barrel","Isolated Photons:Tracks from conversions: #eta_{tr} - #eta_{BC} at Ecal : Barrel Ecal ",100, -0.2, 0.2);
+    h_DEtaBCTrackAtEcal_[0][2]= dbe_->book1D(histname+"Endcap","Isolated Photons:Tracks from conversions: #eta_{tr} - #eta_{BC} at Ecal : Endcap Ecal ",100, -0.2, 0.2);
+   
+    h_convVtxRvsZ_[0] =   dbe_->book2D("convVtxRvsZ","Isolated Photon Reco conversion vtx position",100, 0., 280.,200,0., 120.);
+    h_zPVFromTracks_[0] =  dbe_->book1D("zPVFromTracks","Isolated Photons: PV z from conversion tracks",100, -25., 25.);
+
+
+    dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/NonIsolatedPhotons");
+
+
+    histname = "nPhoNoIs"; 
+    h_nPho_[1][0] = dbe_->book1D(histname+"All","Numbef Of Non Isolated Photon candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nPho_[1][1] = dbe_->book1D(histname+"Barrel","Numbef Of Non Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nPho_[1][2] = dbe_->book1D(histname+"Endcap","Numbef Of Non Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+
+
+    histname = "scENoIs";
+    h_scE_[1][0] = dbe_->book1D(histname+"All","Non Isolated SC Energy: All Ecal  ",eBin,eMin, eMax);
+    h_scE_[1][1] = dbe_->book1D(histname+"Barrel","Non Isolated SC Energy: Barrel ",eBin,eMin, eMax);
+    h_scE_[1][2] = dbe_->book1D(histname+"Endcap","Non Isolated SC Energy: Endcap ",eBin,eMin, eMax);
+
+
+    histname = "scEtNoIs";
+    h_scEt_[1][0] = dbe_->book1D(histname+"All","Non Isolated SC Et: All Ecal ",etBin,etMin, etMax) ;
+    h_scEt_[1][1] = dbe_->book1D(histname+"Barrel","Non Isolated SC Et: Barrel",etBin,etMin, etMax) ;
+    h_scEt_[1][2] = dbe_->book1D(histname+"Endcap","Non Isolated SC Et: Endcap",etBin,etMin, etMax) ;
+
+    histname = "r9NoIs";
+    h_r9_[1][0] = dbe_->book1D(histname+"All",   "Non Isolated r9: All Ecal",r9Bin,r9Min, r9Max) ;
+    h_r9_[1][1] = dbe_->book1D(histname+"Barrel","Non Isolated r9: Barrel ",r9Bin,r9Min, r9Max) ;
+    h_r9_[1][2] = dbe_->book1D(histname+"Endcap","Non Isolated r9: Endcap ",r9Bin,r9Min, r9Max) ;
+
+    h_scEta_[1] =   dbe_->book1D("scEtaNoIs","Non Isolated SC Eta ",etaBin,etaMin, etaMax);
+    h_scPhi_[1] =   dbe_->book1D("scPhiNois","Non Isolated SC Phi ",phiBin,phiMin,phiMax);
+    h_scEtaPhi_[1]= dbe_->book2D("scEtaPhiNoIs","Non Isolated SC Phi vs Eta ",etaBin, etaMin, etaMax,phiBin,phiMin,phiMax);
+
+    //
+    histname = "phoENoIs";
+    h_phoE_[1][0]=dbe_->book1D(histname+"All","Non Isolated Photon Energy: All ecal ", eBin,eMin, eMax);
+    h_phoE_[1][1]=dbe_->book1D(histname+"Barrel","Non Isolated Photon Energy: Barrel ",eBin,eMin, eMax);
+    h_phoE_[1][2]=dbe_->book1D(histname+"Endcap","Non Isolated Photon Energy: Endcap ",eBin,eMin, eMax);
+
+    histname = "phoEtNoIs";
+    h_phoEt_[1][0] = dbe_->book1D(histname+"All","Non Isolated Photon Transverse Energy: All ecal ", etBin,etMin, etMax);
+    h_phoEt_[1][1] = dbe_->book1D(histname+"Barrel","Non Isolated Photon Transverse Energy: Barrel ",etBin,etMin, etMax);
+    h_phoEt_[1][2] = dbe_->book1D(histname+"Endcap","Non Isolated Photon Transverse Energy: Endcap ",etBin,etMin, etMax);
+
+    h_phoEta_[1] = dbe_->book1D("phoEtaNoIs","Non Isolated Photon Eta ",etaBin,etaMin, etaMax) ;
+    h_phoPhi_[1] = dbe_->book1D("phoPhiNoIs","Non Isolated Photon  Phi ",phiBin,phiMin,phiMax) ;
+
+    histname="nConvNoIs";
+    h_nConv_[1][0] = dbe_->book1D(histname+"All","Numbef Of Conversions per non isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nConv_[1][1] = dbe_->book1D(histname+"Barrel","Numbef Of Conversions per non isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nConv_[1][2] = dbe_->book1D(histname+"Endcap","Numbef Of Conversions per non isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+
+    h_convEta_[1] = dbe_->book1D("convEtaNoIs","Non Isolated converted Photon Eta ",etaBin,etaMin, etaMax) ;
+    h_convPhi_[1] = dbe_->book1D("convPhiNoIs","Non Isolated converted Photon  Phi ",phiBin,phiMin,phiMax) ;
+
+    histname="r9VsTracksNoIs";
+    h_r9VsNofTracks_[1][0] = dbe_->book2D(histname+"All","Non Isolated photons r9 vs nTracks from conversions: All Ecal",r9Bin,r9Min, r9Max,3, -0.5, 2.5) ;
+    h_r9VsNofTracks_[1][1] = dbe_->book2D(histname+"Barrel","Non Isolated photons r9 vs nTracks from conversions: Barrel Ecal",r9Bin,r9Min, r9Max,3, -0.5, 2.5) ;
+    h_r9VsNofTracks_[1][2] = dbe_->book2D(histname+"Endcap","Non Isolated photons r9 vs nTracks from conversions: Endcap Ecal",r9Bin,r9Min, r9Max,3, -0.5, 2.5) ;
+    histname="EoverPtracksNoIs";
+    h_EoverPTracks_[1][0] = dbe_->book1D(histname+"All","Non Isolated photons converion E/p: all Ecal ",100, 0., 5.);
+    h_EoverPTracks_[1][1] = dbe_->book1D(histname+"Barrel","Non Isolated photons converion E/p: Barrel Ecal",100, 0., 5.);
+    h_EoverPTracks_[1][2] = dbe_->book1D(histname+"All","Non Isolated photons converion E/p: Endcap Ecal ",100, 0., 5.);
+
+    p_tk_nHitsVsEta_[1] =  dbe_->bookProfile("pTknHitsVsEtaNoIs","Non Isolated Photons:Tracks from conversions: mean numb of  Hits vs Eta",etaBin,etaMin, etaMax,etaBin,0, 16);
+    h_tkChi2_[1] = dbe_->book1D("tkChi2NoIs","NonIsolated Photons:Tracks from conversions: #chi^{2} of tracks", 100, 0., 20.0); 
+    histname="hDPhiTracksAtVtxNoIs";
+    h_DPhiTracksAtVtx_[1][0] =dbe_->book1D(histname+"All", "Isolated Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    h_DPhiTracksAtVtx_[1][1] =dbe_->book1D(histname+"Barrel", "Isolated Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    h_DPhiTracksAtVtx_[1][2] =dbe_->book1D(histname+"Endcap", "Isolated Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax); 
+    histname="hDCotTracksNoIs";
+    h_DCotTracks_[1][0]= dbe_->book1D(histname+"All","Non Isolated Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Eca ",100, -0.2, 0.2);
+    h_DCotTracks_[1][1]= dbe_->book1D(histname+"Barrel","Non Isolated Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",100, -0.2, 0.2);
+    h_DCotTracks_[1][2]= dbe_->book1D(histname+"Encap","Non Isolated Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Eca ",100, -0.2, 0.2);
+    histname="hInvMassNoIs";
+    h_invMass_[1][0]= dbe_->book1D(histname+"All","Non Isolated Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
+    h_invMass_[1][1]= dbe_->book1D(histname+"Barrel","Non Isolated Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
+    h_invMass_[1][2]= dbe_->book1D(histname+"Endcap","Non Isolated Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
+    histname="hDPhiBCTrackAtEcalNoIs";
+    h_DPhiBCTrackAtEcal_[1][0]= dbe_->book1D(histname+"All","Non Isolated Photons:Tracks from conversions: #phi_{tr} -#phi_{BC} at Ecal : all Ecal ",100, -0.2, 0.2);
+    h_DPhiBCTrackAtEcal_[1][1]= dbe_->book1D(histname+"Barrel","Non Isolated Photons:Tracks from conversions: #phi_{tr} - #phi_{BC} at Ecal : Barrel Ecal ",100, -0.2, 0.2);
+    h_DPhiBCTrackAtEcal_[1][2]= dbe_->book1D(histname+"Endcap","Non Isolated Photons:Tracks from conversions: #phi_{tr} - #phi_{BC} at Ecal : Endcap Ecal ",100, -0.2, 0.2);
+    histname="hDEtaBCTrackAtEcalNoIs";
+    h_DEtaBCTrackAtEcal_[1][0]= dbe_->book1D(histname+"All","Non Isolated Photons:Tracks from conversions: #eta_{tr} -#eta_{BC} at Ecal : all Ecal ",100, -0.2, 0.2);
+    h_DEtaBCTrackAtEcal_[1][1]= dbe_->book1D(histname+"Barrel","Non Isolated Photons:Tracks from conversions: #eta_{tr} - #eta_{BC} at Ecal : Barrel Ecal ",100, -0.2, 0.2);
+    h_DEtaBCTrackAtEcal_[1][2]= dbe_->book1D(histname+"Endcap","Non Isolated Photons:Tracks from conversions: #eta_{tr} - #eta_{BC} at Ecal : Endcap Ecal ",100, -0.2, 0.2);
+ 
+
+    h_convVtxRvsZ_[1] =  dbe_->book2D("convVtxRvsZNoIs","Non Isolated Photon Reco conversion vtx position",100, 0., 280.,200,0., 120.);
+    h_zPVFromTracks_[1] =  dbe_->book1D("zPVFromTracks","Non Isolated Photons: PV z from conversion tracks",100, -25., 25.);
 
   }
 
@@ -267,24 +410,30 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   edm::Handle<reco::TrackCollection> tracksHandle;
   e.getByLabel(tracksInputTag_,tracksHandle);
   const reco::TrackCollection* trackCollection = tracksHandle.product();
-  
 
-  int nPho=0;
-  int nPhoBarrel=0;
-  int nPhoEndcap=0;  
+  std::vector<int> nPho(2);
+  std::vector<int> nPhoBarrel(2);
+  std::vector<int> nPhoEndcap(2);
+  for ( int i=0; i<nPho.size(); i++ ) nPho[i]=0;
+  for ( int i=0; i<nPhoBarrel.size(); i++ ) nPhoBarrel[i]=0;
+  for ( int i=0; i<nPhoEndcap.size(); i++ ) nPhoEndcap[i]=0;
+
+
   for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
 
     if ( (*iPho).energy()/ cosh( (*iPho).eta()) < minPhoEtCut_) continue; 
 
+    int detector=0;
     bool  phoIsInBarrel=false;
     bool  phoIsInEndcap=false;
     float etaPho=(*iPho).phi();
     float phiPho=(*iPho).eta();
-    if ( fabs(etaPho) <  1.479 ) 
+    if ( fabs(etaPho) <  1.479 ) {
       phoIsInBarrel=true;
-    else
+    } else {
       phoIsInEndcap=true;
+    }
 
     float phiClu=(*iPho).superCluster()->phi();
     float etaClu=(*iPho).superCluster()->eta();
@@ -305,6 +454,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     PhotonTkIsolation trackerIsol(trkIsolExtRadius_, trkIsolInnRadius_, trkPtLow_, lip_, trackCollection);     
     nTracks = trackerIsol.getNumberTracks(&(*iPho));
     ptSum = trackerIsol.getPtTracks(&(*iPho));
+
 
     /// isolation in Ecal
     edm::Handle<reco::BasicClusterCollection> bcHandle;
@@ -353,68 +503,186 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     hcalSum = hcalIsol.getHcalEtSum(&(*iPho));
 
     bool isIsolated=false;
+
     if ( (nTracks < numOfTracksInCone_) && 
 	 ( ptSum < trkPtSumCut_) &&
 	 ( ecalSum < ecalEtSumCut_ ) &&
 	 ( hcalSum < hcalEtSumCut_ ) ) isIsolated = true;
 
+    p_nTrackIsol_->Fill( (*iPho).superCluster()->eta(), float(nTracks));
+    p_trackPtSum_->Fill((*iPho).superCluster()->eta(), ptSum);
+    p_ecalSum_->Fill((*iPho).superCluster()->eta(), ecalSum);
+    p_hcalSum_->Fill((*iPho).superCluster()->eta(), hcalSum);
+
+
+
+
+    int type=0;
+    if ( !isIsolated ) type=1;
+
 
     nEntry_++;
 
-    if ( isIsolated ) {
-      nPho++;
-      if (phoIsInBarrel)  nPhoBarrel++;
-      if (phoIsInEndcap)  nPhoEndcap++;
-      
-      
-      
-      h_scEta_->Fill( (*iPho).superCluster()->position().eta() );
-      h_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
-      h_scEtaPhi_->Fill( (*iPho).superCluster()->position().eta(),(*iPho).superCluster()->position().phi() );
-      
-      
-      h_scE_[0]->Fill( (*iPho).superCluster()->energy() );
-      h_scEt_[0]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-      h_r9_[0]->Fill( (*iPho).r9() );
-      
-      if ( scIsInBarrel ) {
-	h_scE_[1]->Fill( (*iPho).superCluster()->energy() );
-	h_scEt_[1]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-      }
-      if ( scIsInEndcap ) {
-	h_scE_[2]->Fill( (*iPho).superCluster()->energy() );
-	h_scEt_[2]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->position().eta()) );
-      }
-      
-      
-      h_phoEta_->Fill( (*iPho).eta() );
-      h_phoPhi_->Fill( (*iPho).phi() );
-      
-      h_phoE_[0]->Fill( (*iPho).energy() );
-      h_phoEt_[0]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-      h_r9_[0]->Fill( (*iPho).r9());
-      
-      if ( phoIsInBarrel ) {
-	h_phoE_[1]->Fill( (*iPho).energy() );
-	h_phoEt_[1]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-	h_r9_[1]->Fill( (*iPho).r9());
-      }
-      
-      if ( phoIsInEndcap ) {
-	h_phoE_[2]->Fill( (*iPho).energy() );
-	h_phoEt_[2]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
-	h_r9_[2]->Fill( (*iPho).r9());
-      }
-      
+    nPho[type]++; 
+    if (phoIsInBarrel) nPhoBarrel[type]++;
+    if (phoIsInEndcap) nPhoEndcap[type]++;
+    
+    
+    h_scEta_[type]->Fill( (*iPho).superCluster()->eta() );
+    h_scPhi_[type]->Fill( (*iPho).superCluster()->phi() );
+    h_scEtaPhi_[type]->Fill( (*iPho).superCluster()->eta(),(*iPho).superCluster()->phi() );
+
+    h_scE_[type][0]->Fill( (*iPho).superCluster()->energy() );
+    h_scEt_[type][0]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->eta()) );
+    h_r9_[type][0]->Fill( (*iPho).r9() );
+
+    h_phoEta_[type]->Fill( (*iPho).eta() );
+    h_phoPhi_[type]->Fill( (*iPho).phi() );
+    
+    h_phoE_[type][0]->Fill( (*iPho).energy() );
+    h_phoEt_[type][0]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+
+    h_nConv_[type][0]->Fill(float( (*iPho).conversions().size()));
+
+
+    if ( scIsInBarrel ) {
+      h_scE_[type][1]->Fill( (*iPho).superCluster()->energy() );
+      h_scEt_[type][1]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->eta()) );
+      h_r9_[type][1]->Fill( (*iPho).r9() );
     }
+    if ( scIsInEndcap ) {
+      h_scE_[type][2]->Fill( (*iPho).superCluster()->energy() );
+      h_scEt_[type][2]->Fill( (*iPho).superCluster()->energy()/cosh( (*iPho).superCluster()->eta()) );
+      h_r9_[type][2]->Fill( (*iPho).r9() );
+    }
+
+
+
+    if ( phoIsInBarrel ) {
+      h_phoE_[type][1]->Fill( (*iPho).energy() );
+      h_phoEt_[type][1]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+      h_nConv_[type][1]->Fill(float( (*iPho).conversions().size()));
+    }
+    
+    if ( phoIsInEndcap ) {
+      h_phoE_[type][2]->Fill( (*iPho).energy() );
+      h_phoEt_[type][2]->Fill( (*iPho).energy()/ cosh( (*iPho).eta()) );
+      h_nConv_[type][2]->Fill(float( (*iPho).conversions().size()));
+    }
+    
+    ////////////////// plot quantitied related to conversions
+    std::vector<reco::ConversionRef> conversions = (*iPho).conversions();
+    for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
+
+      h_r9VsNofTracks_[type][0]->Fill( (*iPho).r9(), conversions[iConv]->nTracks() ) ; 
+      if ( phoIsInBarrel ) h_r9VsNofTracks_[type][1]->Fill( (*iPho).r9(), conversions[iConv]->nTracks() ) ; 
+      if ( phoIsInEndcap ) h_r9VsNofTracks_[type][2]->Fill( (*iPho).r9(), conversions[iConv]->nTracks() ) ; 
+
+      if ( conversions[iConv]->nTracks() <2 ) continue; 
+
+
+      h_convEta_[type]->Fill( conversions[iConv]->superCluster()->eta() );
+      h_convPhi_[type]->Fill( conversions[iConv]->superCluster()->phi() );
+      h_EoverPTracks_[type][0] ->Fill( conversions[iConv]->EoverP() ) ;
+      if ( phoIsInBarrel ) h_EoverPTracks_[type][1] ->Fill( conversions[iConv]->EoverP() ) ;
+      if ( phoIsInEndcap ) h_EoverPTracks_[type][2] ->Fill( conversions[iConv]->EoverP() ) ;
+
       
+      if ( conversions[iConv]->conversionVertex().isValid() ) 
+	h_convVtxRvsZ_[type] ->Fill ( fabs (conversions[iConv]->conversionVertex().position().z() ),  sqrt(conversions[iConv]->conversionVertex().position().perp2())  ) ;
+	
+
+      h_zPVFromTracks_[type]->Fill ( conversions[iConv]->zOfPrimaryVertexFromTracks() );
+
+
+      std::vector<reco::TrackRef> tracks = conversions[iConv]->tracks();
+      float px=0;
+      float py=0;
+      float pz=0;
+      float e=0;
+      for (unsigned int i=0; i<tracks.size(); i++) {
+	p_tk_nHitsVsEta_[type]->Fill(  conversions[iConv]->superCluster()->eta(),   float(tracks[i]->recHitsSize() ) );
+	h_tkChi2_[type] ->Fill (tracks[i]->normalizedChi2() ); 
+        px+= tracks[i]->innerMomentum().x();
+        py+= tracks[i]->innerMomentum().y();
+        pz+= tracks[i]->innerMomentum().z();
+        e +=  sqrt (tracks[i]->innerMomentum().Mag2() +  mElec*mElec ) ;
+      }
+
+      float invM=  e*e - px*px -py*py - pz*pz;
+      if ( invM> 0.) {
+	invM= sqrt( e*e - px*px -py*py - pz*pz);
+      } else {
+	invM=-1;
+      }
+      
+      h_invMass_[type][0] ->Fill(invM);
+      if ( phoIsInBarrel ) h_invMass_[type][1] ->Fill(invM);
+      if ( phoIsInEndcap ) h_invMass_[type][2] ->Fill(invM);
+      
+      float  dPhiTracksAtVtx = -99;
+      
+      float phiTk1= tracks[0]->innerMomentum().phi();
+      float phiTk2= tracks[1]->innerMomentum().phi();
+      dPhiTracksAtVtx = phiTk1-phiTk2;
+      dPhiTracksAtVtx = phiNormalization( dPhiTracksAtVtx );
+      h_DPhiTracksAtVtx_[type][0]->Fill( dPhiTracksAtVtx);
+      if ( phoIsInBarrel ) h_DPhiTracksAtVtx_[type][1]->Fill( dPhiTracksAtVtx);
+      if ( phoIsInEndcap ) h_DPhiTracksAtVtx_[type][2]->Fill( dPhiTracksAtVtx);
+      h_DCotTracks_[type][0] ->Fill ( conversions[iConv]->pairCotThetaSeparation() );
+      if ( phoIsInBarrel ) h_DCotTracks_[type][1] ->Fill ( conversions[iConv]->pairCotThetaSeparation() );
+      if ( phoIsInEndcap ) h_DCotTracks_[type][2] ->Fill ( conversions[iConv]->pairCotThetaSeparation() );
+      
+      
+      float  dPhiTracksAtEcal=-99;
+      float  dEtaTracksAtEcal=-99;
+      if (conversions[iConv]-> bcMatchingWithTracks()[0].isNonnull() && conversions[iConv]->bcMatchingWithTracks()[1].isNonnull() ) {
+	
+	
+	float recoPhi1 = conversions[iConv]->ecalImpactPosition()[0].phi();
+	float recoPhi2 = conversions[iConv]->ecalImpactPosition()[1].phi();
+	float recoEta1 = conversions[iConv]->ecalImpactPosition()[0].eta();
+	float recoEta2 = conversions[iConv]->ecalImpactPosition()[1].eta();
+	float bcPhi1 = conversions[iConv]->bcMatchingWithTracks()[0]->phi();
+	float bcPhi2 = conversions[iConv]->bcMatchingWithTracks()[1]->phi();
+	float bcEta1 = conversions[iConv]->bcMatchingWithTracks()[0]->eta();
+	float bcEta2 = conversions[iConv]->bcMatchingWithTracks()[1]->eta();
+	recoPhi1 = phiNormalization(recoPhi1);
+	recoPhi2 = phiNormalization(recoPhi2);
+	bcPhi1 = phiNormalization(bcPhi1);
+	bcPhi2 = phiNormalization(bcPhi2);
+	dPhiTracksAtEcal = recoPhi1 -recoPhi2;
+	dPhiTracksAtEcal = phiNormalization( dPhiTracksAtEcal );
+	dEtaTracksAtEcal = recoEta1 -recoEta2;
+	
+	h_DPhiBCTrackAtEcal_[type][0]->Fill( dPhiTracksAtEcal);
+	h_DEtaBCTrackAtEcal_[type][0]->Fill( dEtaTracksAtEcal);
+	if ( phoIsInBarrel ) {
+	  h_DPhiBCTrackAtEcal_[type][1]->Fill( dPhiTracksAtEcal);
+	  h_DEtaBCTrackAtEcal_[type][1]->Fill( dEtaTracksAtEcal);
+	}
+	if ( phoIsInEndcap ) {
+	  h_DPhiBCTrackAtEcal_[type][2]->Fill( dPhiTracksAtEcal);
+	  h_DEtaBCTrackAtEcal_[type][2]->Fill( dEtaTracksAtEcal);
+	}
+	
+      }
+      
+			      
+    } // loop over conversions
+    
+    
+    
   }/// End loop over Reco  particles
     
 
 
-  h_nPho_[0]-> Fill (float(nPho));
-  h_nPho_[1]-> Fill (float(nPhoBarrel));
-  h_nPho_[2]-> Fill (float(nPhoEndcap));
+  h_nPho_[0][0]-> Fill (float(nPho[0]));
+  h_nPho_[0][1]-> Fill (float(nPhoBarrel[0]));
+  h_nPho_[0][2]-> Fill (float(nPhoEndcap[0]));
+  h_nPho_[1][0]-> Fill (float(nPho[1]));
+  h_nPho_[1][1]-> Fill (float(nPhoBarrel[1]));
+  h_nPho_[1][2]-> Fill (float(nPhoEndcap[1]));
 
 
   
@@ -444,5 +712,20 @@ void PhotonAnalyzer::endJob()
   return ;
 }
  
+float PhotonAnalyzer::phiNormalization(float & phi)
+{
+//---Definitions
+ const float PI    = 3.1415927;
+ const float TWOPI = 2.0*PI;
+
+
+ if(phi >  PI) {phi = phi - TWOPI;}
+ if(phi < -PI) {phi = phi + TWOPI;}
+
+ //  cout << " Float_t PHInormalization out " << PHI << endl;
+ return phi;
+
+}
+
 
 

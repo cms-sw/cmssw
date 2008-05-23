@@ -17,6 +17,15 @@
 //
 #include <map>
 #include <vector>
+/** \class PhotonAnalyzer
+ **  
+ **
+ **  $Id: PhotonAnalyzer
+ **  $Date: $ 
+ **  $Revision: $
+ **  \author Nancy Marinelli, U. of Notre Dame, US
+ **
+ ***/
 
 
 // forward declarations
@@ -45,6 +54,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
 
  private:
   //
+
+  float  phiNormalization( float& a);
       
   std::string fName_;
   DQMStore *dbe_;
@@ -90,27 +101,44 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   double ecalEtSumCut_;
   double hcalEtSumCut_;
 
-
-
-
-
-  // SC from reco photons
-  std::vector<MonitorElement*> h_nPho_;
-  MonitorElement* h_scEta_;
-  MonitorElement* h_scPhi_;
-  MonitorElement* h_scEtaPhi_;
- 
-  std::vector<MonitorElement*> h_scE_;
-  std::vector<MonitorElement*> h_scEt_;
-
-  std::vector<MonitorElement*> h_r9_;  
-  std::vector<MonitorElement*> h_phoE_;
-  std::vector<MonitorElement*> h_phoEt_;
+  MonitorElement* p_nTrackIsol_;
+  MonitorElement* p_trackPtSum_;
+  MonitorElement* p_ecalSum_;
+  MonitorElement* p_hcalSum_;
   
 
+  MonitorElement* h_nPho_[2][3];
+  MonitorElement* h_scEta_[2];
+  MonitorElement* h_scPhi_[2];
+  MonitorElement* h_scEtaPhi_[2];
+ 
+  MonitorElement* h_scE_[2][3];
+  MonitorElement* h_scEt_[2][3];
+
+  MonitorElement* h_r9_[2][3];  
+  MonitorElement* h_phoE_[2][3];
+  MonitorElement* h_phoEt_[2][3];
+  MonitorElement* h_phoEta_[2];
+  MonitorElement* h_phoPhi_[2];
+
+  /// conversion infos
+  MonitorElement* h_nConv_[2][3];
+  MonitorElement* h_convEta_[2];
+  MonitorElement* h_convPhi_[2];
+  MonitorElement* h_r9VsNofTracks_[2][3];
+  MonitorElement* h_EoverPTracks_[2][3];
+  MonitorElement* p_tk_nHitsVsEta_[2]; 
+  MonitorElement* h_tkChi2_[2];
+  MonitorElement* h_DPhiTracksAtVtx_[2][3];
+  MonitorElement* h_DCotTracks_[2][3];
+  MonitorElement* h_invMass_[2][3];
+  MonitorElement* h_DPhiBCTrackAtEcal_[2][3];
+  MonitorElement* h_DEtaBCTrackAtEcal_[2][3];
+
+  MonitorElement* h_convVtxRvsZ_[2]; 
+  MonitorElement* h_zPVFromTracks_[2]; 
+
   //
-  MonitorElement* h_phoEta_;
-  MonitorElement* h_phoPhi_;
   //
   
 
