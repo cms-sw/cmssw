@@ -175,7 +175,7 @@ int main( int argc, char** argv ){
     }
 
     // FIXME need to get timetype from input!!!!
-    cond::IOVService iovmanager(pooldb,cond::runnumber);
+    cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
     pooldb.start(false);
     editor->create(parser.firstSince,cond::runnumber);
