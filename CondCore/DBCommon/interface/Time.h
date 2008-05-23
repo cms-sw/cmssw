@@ -13,9 +13,14 @@ namespace cond{
   typedef std::pair<Time_t, Time_t> ValidityInterval;
   typedef enum { runnumber=0,timestamp,lumiid, userid } TimeType;
   const unsigned int TIMETYPE_LIST_MAX=4;
+
   const cond::TimeType timeTypeList[TIMETYPE_LIST_MAX]=
     {runnumber,timestamp,lumiid,userid};
-  const std::string timeTypeNames[TIMETYPE_LIST_MAX]=
+
+  const cond::TimeType timeTypeValues[]=
+    {runnumber,timestamp,lumiid,userid};
+
+  const std::string timeTypeNames[]=
     {"runnumber","timestamp","lumiid","userid"};
 
 
@@ -71,7 +76,7 @@ namespace cond{
     }
   };
 
-  const TimeTypeSpecs timeTypeSpec[] = {
+  const TimeTypeSpecs timeTypeSpecs[] = {
     TimeTypeTraits<runnumber>::specs(),
     TimeTypeTraits<timestamp>::specs(),
     TimeTypeTraits<lumiid>::specs(),
@@ -82,9 +87,9 @@ namespace cond{
   inline const TimeTypeSpecs & findSpecs(std::string const & name) {
     size_t i=0;
     for (; i<TIMETYPE_LIST_MAX; i++)
-      if (name==timeTypeSpec[i].name) return timeTypeSpec[i];
+      if (name==timeTypeSpecs[i].name) return timeTypeSpecs[i];
     throw cond::Exception("invalid timetype: "+name);
-    return timeTypeSpec[0]; // compiler happy
+    return timeTypeSpecs[0]; // compiler happy
   }
 
 }
