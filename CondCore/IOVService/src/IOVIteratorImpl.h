@@ -12,9 +12,7 @@ namespace cond{
   public:
     typedef IOV::const_iterator const_iterator;
     IOVIteratorImpl( cond::PoolTransaction& pooldb,
-		     const std::string & token , 
-		     cond::Time_t globalSince, 
-		     cond::Time_t globalTill);
+		     const std::string & token);
     virtual ~IOVIteratorImpl();
     virtual bool next();
     virtual bool rewind();
@@ -34,8 +32,6 @@ namespace cond{
     void init();
     cond::PoolTransaction& m_pooldb;
     std::string m_token;
-    cond::Time_t m_globalSince;
-    cond::Time_t m_globalTill;
     cond::TypedRef<cond::IOV> m_iov;
     const_iterator m_pos;
     cond::Time_t  m_since;

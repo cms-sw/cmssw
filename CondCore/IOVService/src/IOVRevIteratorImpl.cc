@@ -1,10 +1,8 @@
 #include "IOVRevIteratorImpl.h"
 #include<utility>
 cond::IOVRevIteratorImpl::IOVRevIteratorImpl( cond::PoolTransaction& pooldb,
-					const std::string & token,
-					cond::Time_t globalSince, 
-					cond::Time_t globalTill)
-  : m_pooldb(pooldb),m_token(token), m_globalSince(globalSince),m_globalTill(globalTill),  m_count(0),  m_isInit(false), m_isOpen(false){
+					const std::string & token)
+  : m_pooldb(pooldb),m_token(token), m_count(0),  m_isInit(false), m_isOpen(false){
 } 
 cond::IOVRevIteratorImpl::~IOVRevIteratorImpl(){
 }

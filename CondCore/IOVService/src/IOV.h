@@ -45,6 +45,9 @@ namespace cond {
 			      );
     }
 
+
+    cond::TimeType timeType() const { return cond::timeTypeSpecs[timetype].type;}
+
     //std::map<unsigned long long,std::string> iov;
     Container iov;
     int timetype;

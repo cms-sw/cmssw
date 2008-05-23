@@ -40,13 +40,10 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   if( iConfig.exists("logconnect") ){
     logconnect=iConfig.getUntrackedParameter<std::string>("logconnect");
   }  
+
   m_timetypestr=iConfig.getUntrackedParameter< std::string >("timetype","runnumber");
-  if((m_timetypestr!=std::string("runnumber"))&&(m_timetypestr!=std::string("timestamp"))){
-    throw cond::Exception(std::string("Unrecognised time type ")+m_timetypestr);
-  }else{
-    if(m_timetypestr==std::string("runnumber")) m_timetype=cond::runnumber;
-    if(m_timetypestr==std::string("timestamp")) m_timetype=cond::timestamp;
-  }
+  m_timetype=cond::findSpecs( m_timetypestr).type;
+
   m_session=new cond::DBSession;  
   std::string blobstreamerName("");
   if( iConfig.exists("BlobStreamerName") ){
@@ -155,6 +152,7 @@ cond::service::PoolDBOutputService::preEventProcessing(const edm::EventID& iEvti
     m_currentTime=iTime.value();
   }
 }
+
 void
 cond::service::PoolDBOutputService::preModule(const edm::ModuleDescription& desc){
 }
@@ -174,26 +172,13 @@ cond::service::PoolDBOutputService::callbackToken(const std::string& EventSetupR
 
 cond::Time_t 
 cond::service::PoolDBOutputService::endOfTime() const{
-  switch(m_timetype){
-  case cond::runnumber:
-    return (cond::Time_t)edm::RunID::maxRunNumber();
-  case cond::timestamp:  
-    return (cond::Time_t)edm::Timestamp::endOfTime().value();
-  default:
-    return (cond::Time_t)edm::Timestamp::endOfTime().value();
-  }
+  return timeTypeSpecs[m_timetype].endValue;
 }
 cond::Time_t 
 cond::service::PoolDBOutputService::beginOfTime() const{
-  switch(m_timetype){ 
-  case cond::runnumber:
-    return (cond::Time_t)edm::RunID::firstValidRun().run();
-  case cond::timestamp:
-    return (cond::Time_t)edm::Timestamp::beginOfTime().value();
-  default:
-    return (cond::Time_t)edm::Timestamp::beginOfTime().value();
-  }
+  return timeTypeSpecs[m_timetype].beginValue;
 }
+
 cond::Time_t 
 cond::service::PoolDBOutputService::currentTime() const{
   return m_currentTime;
@@ -215,9 +200,9 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
   try{
     pooldb.start(false);
 
-    cond::IOVService iovmanager(pooldb,m_timetype);
+    cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor("");
-    editor->create(firstSinceTime,iovmanager.timeType());
+    editor->create(firstSinceTime,m_timetype);
     objToken = payloadToken(pooldb);
     unsigned int payloadIdx=editor->insert(firstTillTime, objToken);
     iovToken=editor->token();
@@ -333,7 +318,7 @@ cond::service::PoolDBOutputService::appendIOV(cond::PoolTransaction& pooldb,
     throw cond::Exception(std::string("PoolDBOutputService::appendIOV: cannot append to non-existing tag ")+record.m_tag );  
   }
 
-  cond::IOVService iovmanager(pooldb,m_timetype);
+  cond::IOVService iovmanager(pooldb);
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->append(sinceTime,payloadToken);
   delete editor;
@@ -350,7 +335,7 @@ cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
     throw cond::Exception(std::string("PoolDBOutputService::insertIOV: cannot append to non-existing tag ")+record.m_tag );  
   }
   
-  cond::IOVService iovmanager(pooldb,m_timetype);
+  cond::IOVService iovmanager(pooldb);
   cond::IOVEditor* editor=iovmanager.newIOVEditor(record.m_iovtoken);
   unsigned int payloadIdx=editor->insert(tillTime,payloadToken);
   delete editor;    
@@ -381,7 +366,7 @@ cond::service::PoolDBOutputService::tagInfo(const std::string& EventSetupRecordN
   //use ioviterator to find out.
   cond::PoolTransaction& pooldb=m_connection->poolTransaction();
   pooldb.start(true);
-  cond::IOVService iovmanager(pooldb,m_timetype);
+  cond::IOVService iovmanager(pooldb);
   cond::IOVIterator* iit=iovmanager.newIOVIterator(result.token,cond::IOVService::backwardIter);
   iit->next(); // just to initialize
   result.lastInterval=iit->validity();

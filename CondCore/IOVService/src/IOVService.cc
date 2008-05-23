@@ -3,10 +3,9 @@
 #include "IOVIteratorImpl.h"
 #include "IOVRevIteratorImpl.h"
 #include "IOVEditorImpl.h"
-cond::IOVService::IOVService( cond::PoolTransaction& pooldb,
-			      cond::TimeType timetype ):
+cond::IOVService::IOVService( cond::PoolTransaction& pooldb):
   m_pooldb(&pooldb),
-  m_impl(new cond::IOVServiceImpl(pooldb,timetype)){
+  m_impl(new cond::IOVServiceImpl(pooldb){
 }
 cond::IOVService::~IOVService(){
   delete m_impl;
@@ -36,27 +35,16 @@ cond::IOVService::deleteAll( bool withPayload ){
 cond::IOVIterator* 
 cond::IOVService::newIOVIterator( const std::string& token, bool forward ){
   return forward ?
-    (cond::IOVIterator*)new cond::IOVIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill()) :
-    (cond::IOVIterator*)new cond::IOVRevIteratorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
+    (cond::IOVIterator*)new cond::IOVIteratorImpl( *m_pooldb,token) :
+    (cond::IOVIterator*)new cond::IOVRevIteratorImpl( *m_pooldb,token);
 }
 
 cond::IOVEditor* 
 cond::IOVService::newIOVEditor( const std::string& token ){
-  return new cond::IOVEditorImpl( *m_pooldb,token,m_impl->globalSince(),m_impl->globalTill());
+  return new cond::IOVEditorImpl( *m_pooldb,token);
 }
 
-cond::TimeType 
-cond::IOVService::timeType() const{
-  return m_impl->timeType();
-}
-cond::Time_t 
-cond::IOVService::globalSince() const{
-  return m_impl->globalSince();
-}
-cond::Time_t 
-cond::IOVService::globalTill() const{
-  return m_impl->globalTill();
-}
+
 std::string 
 cond::IOVService::exportIOVWithPayload( cond::PoolTransaction& destDB,
 					const std::string& iovToken ){

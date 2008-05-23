@@ -7,24 +7,11 @@
 #include "IOVEditorImpl.h"
 #include "POOLCore/Token.h"
 
-cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb ,
-				      cond::TimeType timetype ): 
-  m_pooldb(&pooldb), m_timetype(timetype){
+cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb) 
+  m_pooldb(&pooldb) {
   switch (m_timetype) {
-  case cond::runnumber:
-    m_beginOftime=(cond::Time_t)edm::IOVSyncValue::beginOfTime().eventID().run();
-    m_endOftime=(cond::Time_t)edm::IOVSyncValue::endOfTime().eventID().run();
-    break;
-  case cond::timestamp:
-    m_beginOftime=(cond::Time_t)edm::IOVSyncValue::beginOfTime().time().value();
-    m_endOftime=(cond::Time_t)edm::IOVSyncValue::endOfTime().time().value();
-    break;
-  default:
-    m_beginOftime=(cond::Time_t)edm::IOVSyncValue::beginOfTime().eventID().run();
-    m_endOftime=(cond::Time_t)edm::IOVSyncValue::endOfTime().eventID().run();
-    break;
-  }
 }
+
 cond::IOVServiceImpl::~IOVServiceImpl(){
 }
 
@@ -70,12 +57,12 @@ cond::IOVServiceImpl::validity( const std::string& iovToken, cond::Time_t curren
   cond::TypedRef<cond::IOV> iov=m_iovcache[iovToken];
 
   cond::Time_t since=iov->firstsince;
-  cond::Time_t till=m_endOftime;
+  cond::Time_t till=iov->iov.back().first;
   IOV::const_iterator iter=iov->find(currenttime);
   if (iter!=iov->iov.end()) till=iter->first;
   if( iter!=iov->iov.begin() ){
     --iter; 
-    since=iter->first+m_beginOftime;
+    since=iter->first+1;
   }
   return std::make_pair<cond::Time_t, cond::Time_t>(since,till);
 }
@@ -114,21 +101,6 @@ cond::IOVServiceImpl::deleteAll(bool withPayload){
     }
     it.dataRef().markDelete();
   }
-}
-
-cond::TimeType 
-cond::IOVServiceImpl::timeType() const{
-  return m_timetype;
-}
-
-cond::Time_t 
-cond::IOVServiceImpl::globalSince() const{
-  return m_beginOftime;
-}
-
-cond::Time_t 
-cond::IOVServiceImpl::globalTill() const{
-  return m_endOftime;
 }
 
 std::string

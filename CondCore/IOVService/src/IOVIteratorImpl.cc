@@ -1,10 +1,8 @@
 #include "IOVIteratorImpl.h"
 
 cond::IOVIteratorImpl::IOVIteratorImpl( cond::PoolTransaction& pooldb,
-					const std::string & token,
-					cond::Time_t globalSince, 
-					cond::Time_t globalTill)
-  : m_pooldb(pooldb),m_token(token), m_globalSince(globalSince),m_globalTill(globalTill),  m_count(0), m_isInit(false), m_isOpen(false){
+					const std::string & token)
+  : m_pooldb(pooldb),m_token(token), m_count(0), m_isInit(false), m_isOpen(false){
 } 
 cond::IOVIteratorImpl::~IOVIteratorImpl(){
 }
@@ -70,8 +68,8 @@ cond::IOVIteratorImpl::payloadToken() const{
 
 cond::ValidityInterval
 cond::IOVIteratorImpl::validity() const{
-  cond::Time_t since=m_globalSince;
-  cond::Time_t till=m_globalTill;
+  cond::Time_t since=0;
+  cond::Time_t till=0;
   if (m_isInit && !atEnd()) {
     since = m_since;
     till =  m_pos->first;

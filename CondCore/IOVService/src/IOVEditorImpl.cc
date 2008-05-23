@@ -8,11 +8,8 @@
 namespace cond {
 
   IOVEditorImpl::IOVEditorImpl( cond::PoolTransaction& pooldb,
-				const std::string& token,
-				cond::Time_t globalSince, 
-				cond::Time_t globalTill
+				const std::string& token
 				):m_pooldb(&pooldb),m_token(token),
-				  m_globalSince(globalSince), m_globalTill(globalTill),
 				  m_isActive(false){
   }
   
@@ -63,12 +60,12 @@ namespace cond {
   }
   
   TimeType IOVEditorImpl::timetype() const {
-    return (TimeType)(m_iov->timetype);
+    return m_iov->timeType();
   }
   
 
   bool IOVEditorImpl::validTime(cond::Time_t time) const {
-    return time>=m_globalSince && time<=m_globalTill;   
+    return time>=timeTypeSpecs[timetype()].beginValue && time<=timeTypeSpecs[timetype()].endValue;   
   }
 
   
