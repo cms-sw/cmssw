@@ -52,10 +52,10 @@ EndcapPiZeroDiscriminatorAlgo::EndcapPiZeroDiscriminatorAlgo(double stripEnergyC
        for(int i=0;i<Outdim*Hidden;i++)  H_O_Weight_all.push_back(H_O_Weight[i]);
        for(int i=0;i<Outdim;i++)  O_Thresh_all.push_back(O_Thresh[i]);
      }
-   delete I_H_Weight;
-   delete H_Thresh;
-   delete H_O_Weight;
-   delete O_Thresh;
+   delete [] I_H_Weight;
+   delete [] H_Thresh;
+   delete [] H_O_Weight;
+   delete [] O_Thresh;
 }
 
 
