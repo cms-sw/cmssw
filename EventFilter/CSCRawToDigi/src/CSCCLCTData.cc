@@ -44,7 +44,7 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
   bool zplus = (CSCDetId::endcap(idlayer) == 1); 
   bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
   unsigned layer = CSCDetId::layer(idlayer);
-  
+
   //looking for comp output on layer
   std::vector<CSCComparatorDigi> result;
   assert(layer>0 && layer<= 6);
@@ -105,15 +105,20 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
       //we do not have to check over the last couple of time bins if there are no hits since
       //comparators take 3 time bins
 
-      if ( me1a ){ cfeb=0; } // reset 4 to 0
-      if ( me1a && zplus ) { distrip = 7-distrip; } // 0-7 -> 7-0
-      if ( me1b && !zplus) { cfeb=3-cfeb; distrip = 7-distrip;} // 0-31 -> 31-0 ...
-
       ///Store digis each of possible four halfstrips for given distrip:
-      if (tbinbitsS0HS0) result.push_back(CSCComparatorDigi(16*cfeb+1+distrip*2, 0 , tbinbitsS0HS0));
-      if (tbinbitsS0HS1) result.push_back(CSCComparatorDigi(16*cfeb+1+distrip*2, 1 , tbinbitsS0HS1));
-      if (tbinbitsS1HS0) result.push_back(CSCComparatorDigi(16*cfeb+1+distrip*2+1, 0 , tbinbitsS1HS0));
-      if (tbinbitsS1HS1) result.push_back(CSCComparatorDigi(16*cfeb+1+distrip*2+1, 1 , tbinbitsS1HS1));
+      unsigned int cfeb_corr    = cfeb;
+      unsigned int distrip_corr = distrip;
+      if ( me1a )           { cfeb_corr = 0; } // reset 4 to 0
+      if ( me1a &&  zplus ) { distrip_corr = 7-distrip; } // 0-7 -> 7-0
+      if ( me1b && !zplus ) {
+	cfeb_corr    = 3-cfeb;
+	distrip_corr = 7-distrip;
+      }
+      int strip = 16*cfeb_corr + 2*distrip_corr + 1;
+      if (tbinbitsS0HS0) result.push_back(CSCComparatorDigi(strip, 0, tbinbitsS0HS0));
+      if (tbinbitsS0HS1) result.push_back(CSCComparatorDigi(strip, 1, tbinbitsS0HS1));
+      if (tbinbitsS1HS0) result.push_back(CSCComparatorDigi(strip+1, 0, tbinbitsS1HS0));
+      if (tbinbitsS1HS1) result.push_back(CSCComparatorDigi(strip+1, 1, tbinbitsS1HS1));
       //uh oh ugly ugly ugly!
       
     }//end of loop over distrips
