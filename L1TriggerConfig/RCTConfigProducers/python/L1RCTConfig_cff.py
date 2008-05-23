@@ -4,8 +4,6 @@ from CalibCalorimetry.EcalTPGTools.ecalTPGScale_cff import *
 
 from L1TriggerConfig.RCTConfigProducers.L1RCTConfig_cfi import *
 
-from L1TriggerConfig.RCTConfigProducers.L1RctInputScalesProducer_cfi import *
-
 l1RctMaskRcds = cms.ESSource("EmptyESSource",
                              recordname = cms.string('L1RCTChannelMaskRcd'),
                              iovIsRunNotTime = cms.bool(True),
