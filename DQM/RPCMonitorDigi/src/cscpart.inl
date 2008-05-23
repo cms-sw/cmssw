@@ -11,9 +11,12 @@ if(allCSCSegments->size()>0){
     
   std::map<CSCDetId,int> CSCSegmentsCounter;
   CSCSegmentCollection::const_iterator segment;
-     
+
+  int segmentsInThisEventInTheEndcap=0;
+
   for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
     CSCSegmentsCounter[segment->cscDetId()]++;
+    segmentsInThisEventInTheEndcap++;
   }    
     
   std::cout<<"\t loop over all the CSCSegments "<<std::endl;    
@@ -49,7 +52,7 @@ if(allCSCSegments->size()>0){
       LocalVector segmentDirection=segment->localDirection();
 	
       
-      if(segment->dimension()==4){
+      if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4)){ //Add 3 segmentes in the endcaps???
 	std::cout<<"\t \t yes"<<std::endl;
 	std::cout<<"\t \t CSC Segment Dimension "<<segment->dimension()<<std::endl; 
       
@@ -72,8 +75,11 @@ if(allCSCSegments->size()>0){
 	
 	
 	if(rpcRing!=1&&rpcStation!=4){
-	  std::cout<<"Fail for CSCId="<<TheId<<" rpcRegion="<<rpcRegion<<" rpcStation="<<rpcStation<<" rpcRing="<<rpcRing<<" rpcSegment="<<rpcSegment<<std::endl;
-	  assert(rollsForThisCSC.size()>=1);
+	  
+	  if(rollsForThisCSC.size()==0){
+	    std::cout<<"Fail for CSCId="<<TheId<<" rpcRegion="<<rpcRegion<<" rpcStation="<<rpcStation<<" rpcRing="<<rpcRing<<" rpcSegment="<<rpcSegment<<std::endl;
+	    assert(rollsForThisCSC.size()>=1);
+	  }
 	
 	  //Loop over all the rolls
 	  for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
@@ -197,25 +203,27 @@ if(allCSCSegments->size()>0){
 
 		std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
 
-		double meanStripDetected=sumStripDetected/((double)stripCounter);
+		double meanStripDetected=0;
+		if(stripCounter!=0) meanStripDetected=sumStripDetected/((double)stripCounter);
 
 		std::cout<<"\t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected"<<meanStripDetected<<std::endl;
 
-		LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected));
+		LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
 	      
 		float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
 		float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
 
 		std::cout<<"\t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
 
-		if(fabs(meanrescms) < MinimalResidual){
+		if(fabs(meanrescms) < MinimalResidual && stripCounter!=0){
 
 		  std::cout<<"\t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
 
 		  //----GLOBAL HISTOGRAM----
 		  std::cout<<"\t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
 		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
-		  hGlobalRes->Fill(meanrescms+0.5*stripw);
+		  hGlobalRes->Fill(meanrescms);
+		  //hGlobalRes->Fill(meanrescms);
 		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==2) hGlobalResClu1->Fill(meanrescms+0.5*stripw);
 		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==4) hGlobalResClu2->Fill(meanrescms+0.5*stripw);
 		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==6) hGlobalResClu3->Fill(meanrescms+0.5*stripw);

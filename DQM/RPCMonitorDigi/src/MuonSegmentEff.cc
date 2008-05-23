@@ -49,10 +49,7 @@
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TAxis.h"
-
-
-
-
+#include "TString.h"
 
 class DTStationIndex{
 public: 
@@ -146,9 +143,10 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
   MinimalResidual= iConfig.getUntrackedParameter<double>("MinimalResidual",2.);
-  widestripRB4=iConfig.getUntrackedParameter<double>("widestripRB4",4.);
+  MinimalResidualRB4=iConfig.getUntrackedParameter<double>("MinimalResidualRB4",4.);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",20.);
+  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",30.);
   muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
   cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
   dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
@@ -175,29 +173,97 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   _idList.clear(); 
 
   //GLOBAL
+  std::cout<<"Booking the Global Histograms"<<std::endl;
+  
   fOutputFile  = new TFile(GlobalRootLabel.c_str(), "RECREATE" );
 
-  hGlobalRes = new TH1F("GlobalResiduals","Global RPC Residuals",250,-10.,10.);
-  hGlobalResClu1 = new TH1F("GlobalResidualsClu1","Global RPC Residuals 1",250,-10.,10.);
-  hGlobalResClu2 = new TH1F("GlobalResidualsClu2","Global RPC Residuals 2",250,-10.,10.);
-  hGlobalResClu3 = new TH1F("GlobalResidualsClu3","Global RPC Residuals 3",250,-10.,10.);
-  hGlobalResClu4 = new TH1F("GlobalResidualsClu4","Global RPC Residuals 4",250,-10.,10.);
+  hGlobalRes = new TH1F("GlobalResiduals","All RPC Residuals",250,-10.,10.);
+  hGlobalResLa1 = new TH1F("GlobalResidualsLa1","RPC Residuals Layer 1",250,-10.,10.);
+  hGlobalResLa2 = new TH1F("GlobalResidualsLa2","RPC Residuals Layer 2",250,-10.,10.);
+  hGlobalResLa3 = new TH1F("GlobalResidualsLa3","RPC Residuals Layer 3",250,-10.,10.);
+  hGlobalResLa4 = new TH1F("GlobalResidualsLa4","RPC Residuals Layer 4",250,-10.,10.);
+  hGlobalResLa5 = new TH1F("GlobalResidualsLa5","RPC Residuals Layer 5",250,-10.,10.);
+  hGlobalResLa6 = new TH1F("GlobalResidualsLa6","RPC Residuals Layer 6",250,-10.,10.);
+
+  
+  hGlobalResClu1 = new TH1F("GlobalResidualsClu1RB1in","Global RPC Residuals 1 RB1in",250,-10.,10.);
+  hGlobalResClu2 = new TH1F("GlobalResidualsClu2RB1in","Global RPC Residuals 2 RB1in",250,-10.,10.);
+  hGlobalResClu3 = new TH1F("GlobalResidualsClu3RB1in","Global RPC Residuals 3 RB1in",250,-10.,10.);
+  hGlobalResClu4 = new TH1F("GlobalResidualsClu4RB1in","Global RPC Residuals 4 RB1in",250,-10.,10.);
 
   hGlobalResY = new TH1F("GlobalResidualsY","Global RPC Residuals Y",500,-100.,100);
   
-  EffGlob1 = new TH1F("GlobEfficiencySec1","Eff. vs. roll",20,0.5,20.5);
-  EffGlob2 = new TH1F("GlobEfficiencySec2","Eff. vs. roll",20,0.5,20.5);
-  EffGlob3 = new TH1F("GlobEfficiencySec3","Eff. vs. roll",20,0.5,20.5);
-  EffGlob4 = new TH1F("GlobEfficiencySec4","Eff. vs. roll",20,0.5,20.5);
-  EffGlob5 = new TH1F("GlobEfficiencySec5","Eff. vs. roll",20,0.5,20.5);
-  EffGlob6 = new TH1F("GlobEfficiencySec6","Eff. vs. roll",20,0.5,20.5);
-  EffGlob7 = new TH1F("GlobEfficiencySec7","Eff. vs. roll",20,0.5,20.5);
-  EffGlob8 = new TH1F("GlobEfficiencySec8","Eff. vs. roll",20,0.5,20.5);
-  EffGlob9 = new TH1F("GlobEfficiencySec9","Eff. vs. roll",20,0.5,20.5);
-  EffGlob10 = new TH1F("GlobEfficiencySec10","Eff. vs. roll",20,0.5,20.5);
-  EffGlob11 = new TH1F("GlobEfficiencySec11","Eff. vs. roll",20,0.5,20.5);
-  EffGlob12 = new TH1F("GlobEfficiencySec12","Eff. vs. roll",20,0.5,20.5);
+  //wheel-2
+  
+  EffGlobm2s1 = new TH1F("GlobEfficiencyWheel_m2_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s2 = new TH1F("GlobEfficiencyWheel_m2_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s3 = new TH1F("GlobEfficiencyWheel_m2_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s4 = new TH1F("GlobEfficiencyWheel_m2_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s5 = new TH1F("GlobEfficiencyWheel_m2_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s6 = new TH1F("GlobEfficiencyWheel_m2_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s7 = new TH1F("GlobEfficiencyWheel_m2_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s8 = new TH1F("GlobEfficiencyWheel_m2_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s9 = new TH1F("GlobEfficiencyWheel_m2_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s10 = new TH1F("GlobEfficiencyWheel_m2_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s11 = new TH1F("GlobEfficiencyWheel_m2_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm2s12 = new TH1F("GlobEfficiencyWheel_m2_Sec12","Eff. vs. roll",20,0.5,20.5);
 
+  //wheel-1
+  EffGlobm1s1 = new TH1F("GlobEfficiencyWheel_m1_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s2 = new TH1F("GlobEfficiencyWheel_m1_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s3 = new TH1F("GlobEfficiencyWheel_m1_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s4 = new TH1F("GlobEfficiencyWheel_m1_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s5 = new TH1F("GlobEfficiencyWheel_m1_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s6 = new TH1F("GlobEfficiencyWheel_m1_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s7 = new TH1F("GlobEfficiencyWheel_m1_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s8 = new TH1F("GlobEfficiencyWheel_m1_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s9 = new TH1F("GlobEfficiencyWheel_m1_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s10 = new TH1F("GlobEfficiencyWheel_m1_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s11 = new TH1F("GlobEfficiencyWheel_m1_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlobm1s12 = new TH1F("GlobEfficiencyWheel_m1_Sec12","Eff. vs. roll",20,0.5,20.5);
+  
+  //wheel0
+  EffGlob1 = new TH1F("GlobEfficiencyWheel_0_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2 = new TH1F("GlobEfficiencyWheel_0_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlob3 = new TH1F("GlobEfficiencyWheel_0_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlob4 = new TH1F("GlobEfficiencyWheel_0_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlob5 = new TH1F("GlobEfficiencyWheel_0_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlob6 = new TH1F("GlobEfficiencyWheel_0_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlob7 = new TH1F("GlobEfficiencyWheel_0_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlob8 = new TH1F("GlobEfficiencyWheel_0_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlob9 = new TH1F("GlobEfficiencyWheel_0_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlob10 = new TH1F("GlobEfficiencyWheel_0_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlob11 = new TH1F("GlobEfficiencyWheel_0_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlob12 = new TH1F("GlobEfficiencyWheel_0_Sec12","Eff. vs. roll",20,0.5,20.5);
+
+  //wheel1
+  EffGlob1s1 = new TH1F("GlobEfficiencyWheel_1_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s2 = new TH1F("GlobEfficiencyWheel_1_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s3 = new TH1F("GlobEfficiencyWheel_1_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s4 = new TH1F("GlobEfficiencyWheel_1_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s5 = new TH1F("GlobEfficiencyWheel_1_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s6 = new TH1F("GlobEfficiencyWheel_1_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s7 = new TH1F("GlobEfficiencyWheel_1_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s8 = new TH1F("GlobEfficiencyWheel_1_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s9 = new TH1F("GlobEfficiencyWheel_1_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s10 = new TH1F("GlobEfficiencyWheel_1_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s11 = new TH1F("GlobEfficiencyWheel_1_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlob1s12 = new TH1F("GlobEfficiencyWheel_1_Sec12","Eff. vs. roll",20,0.5,20.5);
+  
+  //wheel2
+  EffGlob2s1 = new TH1F("GlobEfficiencyWheel_2_Sec1","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s2 = new TH1F("GlobEfficiencyWheel_2_Sec2","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s3 = new TH1F("GlobEfficiencyWheel_2_Sec3","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s4 = new TH1F("GlobEfficiencyWheel_2_Sec4","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s5 = new TH1F("GlobEfficiencyWheel_2_Sec5","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s6 = new TH1F("GlobEfficiencyWheel_2_Sec6","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s7 = new TH1F("GlobEfficiencyWheel_2_Sec7","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s8 = new TH1F("GlobEfficiencyWheel_2_Sec8","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s9 = new TH1F("GlobEfficiencyWheel_2_Sec9","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s10 = new TH1F("GlobEfficiencyWheel_2_Sec10","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s11 = new TH1F("GlobEfficiencyWheel_2_Sec11","Eff. vs. roll",20,0.5,20.5);
+  EffGlob2s12 = new TH1F("GlobEfficiencyWheel_2_Sec12","Eff. vs. roll",20,0.5,20.5);
+  
 }
 
 
@@ -207,6 +273,14 @@ MuonSegmentEff::~MuonSegmentEff()
   //delete effres;
   
   fOutputFile->WriteTObject(hGlobalRes);
+
+  fOutputFile->WriteTObject(hGlobalResLa1);
+  fOutputFile->WriteTObject(hGlobalResLa2);
+  fOutputFile->WriteTObject(hGlobalResLa3);
+  fOutputFile->WriteTObject(hGlobalResLa4);
+  fOutputFile->WriteTObject(hGlobalResLa5);
+  fOutputFile->WriteTObject(hGlobalResLa6);
+  
   fOutputFile->WriteTObject(hGlobalResClu1);
   fOutputFile->WriteTObject(hGlobalResClu2);
   fOutputFile->WriteTObject(hGlobalResClu3);
@@ -214,6 +288,35 @@ MuonSegmentEff::~MuonSegmentEff()
   
   fOutputFile->WriteTObject(hGlobalResY);
   
+  //wheel-2
+  fOutputFile->WriteTObject(EffGlobm2s1);
+  fOutputFile->WriteTObject(EffGlobm2s2);
+  fOutputFile->WriteTObject(EffGlobm2s3);
+  fOutputFile->WriteTObject(EffGlobm2s4);
+  fOutputFile->WriteTObject(EffGlobm2s5);
+  fOutputFile->WriteTObject(EffGlobm2s6);
+  fOutputFile->WriteTObject(EffGlobm2s7);
+  fOutputFile->WriteTObject(EffGlobm2s8);
+  fOutputFile->WriteTObject(EffGlobm2s9);
+  fOutputFile->WriteTObject(EffGlobm2s10);
+  fOutputFile->WriteTObject(EffGlobm2s11);
+  fOutputFile->WriteTObject(EffGlobm2s12);
+
+  //wheel-1
+  fOutputFile->WriteTObject(EffGlobm1s1);
+  fOutputFile->WriteTObject(EffGlobm1s2);
+  fOutputFile->WriteTObject(EffGlobm1s3);
+  fOutputFile->WriteTObject(EffGlobm1s4);
+  fOutputFile->WriteTObject(EffGlobm1s5);
+  fOutputFile->WriteTObject(EffGlobm1s6);
+  fOutputFile->WriteTObject(EffGlobm1s7);
+  fOutputFile->WriteTObject(EffGlobm1s8);
+  fOutputFile->WriteTObject(EffGlobm1s9);
+  fOutputFile->WriteTObject(EffGlobm1s10);
+  fOutputFile->WriteTObject(EffGlobm1s11);
+  fOutputFile->WriteTObject(EffGlobm1s12);
+  
+  //wheel0
   fOutputFile->WriteTObject(EffGlob1);
   fOutputFile->WriteTObject(EffGlob2);
   fOutputFile->WriteTObject(EffGlob3);
@@ -226,6 +329,36 @@ MuonSegmentEff::~MuonSegmentEff()
   fOutputFile->WriteTObject(EffGlob10);
   fOutputFile->WriteTObject(EffGlob11);
   fOutputFile->WriteTObject(EffGlob12);
+
+  //wheel1
+  fOutputFile->WriteTObject(EffGlob1s1);
+  fOutputFile->WriteTObject(EffGlob1s2);
+  fOutputFile->WriteTObject(EffGlob1s3);
+  fOutputFile->WriteTObject(EffGlob1s4);
+  fOutputFile->WriteTObject(EffGlob1s5);
+  fOutputFile->WriteTObject(EffGlob1s6);
+  fOutputFile->WriteTObject(EffGlob1s7);
+  fOutputFile->WriteTObject(EffGlob1s8);
+  fOutputFile->WriteTObject(EffGlob1s9);
+  fOutputFile->WriteTObject(EffGlob1s10);
+  fOutputFile->WriteTObject(EffGlob1s11);
+  fOutputFile->WriteTObject(EffGlob1s12);
+  
+  //wheel2
+  fOutputFile->WriteTObject(EffGlob2s1);
+  fOutputFile->WriteTObject(EffGlob2s2);
+  fOutputFile->WriteTObject(EffGlob2s3);
+  fOutputFile->WriteTObject(EffGlob2s4);
+  fOutputFile->WriteTObject(EffGlob2s5);
+  fOutputFile->WriteTObject(EffGlob2s6);
+  fOutputFile->WriteTObject(EffGlob2s7);
+  fOutputFile->WriteTObject(EffGlob2s8);
+  fOutputFile->WriteTObject(EffGlob2s9);
+  fOutputFile->WriteTObject(EffGlob2s10);
+  fOutputFile->WriteTObject(EffGlob2s11);
+  fOutputFile->WriteTObject(EffGlob2s12);
+  
+
 
   fOutputFile->Close();
   edm::LogInfo (nameInLog) <<"Beginning DQMMonitorDigi " ;
@@ -326,13 +459,19 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 void 
 MuonSegmentEff::endJob() {
 
-  int index[13];
+  int indexm2[13];
+  int indexm1[13];
+  int index0[13];
+  int index1[13];
+  int index2[13];
   for(int j=0;j<13;j++){
-    index[j]=0;
+    indexm2[j]=0;
+    indexm1[j]=0;
+    index0[j]=0;
+    index1[j]=0;
+    index2[j]=0;
   }
   
-  int index1=0,index2=0,index3=0,index4=0,index5=0,index6=0,index7=0,index8=0,index9=0,index10=0,index11=0,index12=0;
-
   std::map<RPCDetId, int> pred = counter[0];
   std::map<RPCDetId, int> obse = counter[1];
   std::map<RPCDetId, int> reje = counter[2];
@@ -354,165 +493,101 @@ MuonSegmentEff::endJob() {
     int r=reje[id]; 
     assert(p==o+r);
     
-    //-----------------------Fillin Global Histogram----------------------------------------
-
+    //-----------------------Fillin Global Histograms----------------------------------------
     
-    if(p!=0 && id.ring()==wh){
+    if(p!=0&&id.region()==0){
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
+      ef=ef*100;
+      er=er*100;
       if(ef>0.){
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	int Ring=id.ring();
+	int Sector=id.sector();
 	
-	
-	if(id.sector()==1  ){
-	  index1++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob1->SetBinContent(index1,ef*100.);
-	  EffGlob1->SetBinError(index1,er*100.);
-	  
-	  EffGlob1->GetXaxis()->SetBinLabel(index1,camera);
-	  EffGlob1->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==2  ){
-	  index2++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob2->SetBinContent(index2,ef*100.);
-	  EffGlob2->SetBinError(index2,er*100.);
-	  
-	  EffGlob2->GetXaxis()->SetBinLabel(index2,camera);
-	  EffGlob2->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==3  ){
-	  index3++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob3->SetBinContent(index3,ef*100.);
-	  EffGlob3->SetBinError(index3,er*100.);
-	  
-	  EffGlob3->GetXaxis()->SetBinLabel(index3,camera);
-	  EffGlob3->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==4  ){
-	  index4++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob4->SetBinContent(index4,ef*100.);
-	  EffGlob4->SetBinError(index4,er*100.);
-	  
-	  EffGlob4->GetXaxis()->SetBinLabel(index4,camera);
-	  EffGlob4->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==5  ){
-	  index5++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob5->SetBinContent(index5,ef*100.);
-	  EffGlob5->SetBinError(index5,er*100.);
-	  
-	  EffGlob5->GetXaxis()->SetBinLabel(index5,camera);
-	  EffGlob5->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==6  ){
-	  index6++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob6->SetBinContent(index6,ef*100.);
-	  EffGlob6->SetBinError(index6,er*100.);
-	  
-	  EffGlob6->GetXaxis()->SetBinLabel(index6,camera);
-	  EffGlob6->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==7  ){
-	  index7++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob7->SetBinContent(index7,ef*100.);
-	  EffGlob7->SetBinError(index7,er*100.);
-	  
-	  EffGlob7->GetXaxis()->SetBinLabel(index7,camera);
-	  EffGlob7->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==8  ){
-	  index8++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob8->SetBinContent(index8,ef*100.);
-	  EffGlob8->SetBinError(index8,er*100.);
-	  
-	  EffGlob8->GetXaxis()->SetBinLabel(index8,camera);
-	  EffGlob8->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==9  ){
-	  index9++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob9->SetBinContent(index9,ef*100.);
-	  EffGlob9->SetBinError(index9,er*100.);
-	  
-	  EffGlob9->GetXaxis()->SetBinLabel(index9,camera);
-	  EffGlob9->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==10  ){
-	  index10++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob10->SetBinContent(index10,ef*100.);
-	  EffGlob10->SetBinError(index10,er*100.);
-	  
-	  EffGlob10->GetXaxis()->SetBinLabel(index10,camera);
-	  EffGlob10->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==11  ){
-	  index11++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob11->SetBinContent(index11,ef*100.);
-	  EffGlob11->SetBinError(index11,er*100.);
-	  
-	  EffGlob11->GetXaxis()->SetBinLabel(index11,camera);
-	  EffGlob11->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==12  ){
-	  index12++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob12->SetBinContent(index12,ef*100.);
-	  EffGlob12->SetBinError(index12,er*100.);
-	  
-	  EffGlob12->GetXaxis()->SetBinLabel(index12,camera);
-	  EffGlob12->GetXaxis()->LabelsOption("v");
+	if(Ring==-2){
+	  if(Sector==1)indexm2[1]++;  EffGlobm2s1->SetBinContent(indexm2[1],ef);  EffGlobm2s1->SetBinError(indexm2[1],er);  EffGlobm2s1->GetXaxis()->SetBinLabel(indexm2[1],camera);  EffGlobm2s1->GetXaxis()->LabelsOption("v");
+	  if(Sector==2)indexm2[2]++;  EffGlobm2s2->SetBinContent(indexm2[2],ef);  EffGlobm2s2->SetBinError(indexm2[2],er);  EffGlobm2s2->GetXaxis()->SetBinLabel(indexm2[2],camera);  EffGlobm2s2->GetXaxis()->LabelsOption("v");
+	  if(Sector==3)indexm2[3]++;  EffGlobm2s3->SetBinContent(indexm2[3],ef);  EffGlobm2s3->SetBinError(indexm2[3],er);  EffGlobm2s3->GetXaxis()->SetBinLabel(indexm2[3],camera);  EffGlobm2s3->GetXaxis()->LabelsOption("v");
+	  if(Sector==4)indexm2[4]++;  EffGlobm2s4->SetBinContent(indexm2[4],ef);  EffGlobm2s4->SetBinError(indexm2[4],er);  EffGlobm2s4->GetXaxis()->SetBinLabel(indexm2[4],camera);  EffGlobm2s4->GetXaxis()->LabelsOption("v");
+	  if(Sector==5)indexm2[5]++;  EffGlobm2s5->SetBinContent(indexm2[5],ef);  EffGlobm2s5->SetBinError(indexm2[5],er);  EffGlobm2s5->GetXaxis()->SetBinLabel(indexm2[5],camera);  EffGlobm2s5->GetXaxis()->LabelsOption("v");
+	  if(Sector==6)indexm2[6]++;  EffGlobm2s6->SetBinContent(indexm2[6],ef);  EffGlobm2s6->SetBinError(indexm2[6],er);  EffGlobm2s6->GetXaxis()->SetBinLabel(indexm2[6],camera);  EffGlobm2s6->GetXaxis()->LabelsOption("v");
+	  if(Sector==7)indexm2[7]++;  EffGlobm2s7->SetBinContent(indexm2[7],ef);  EffGlobm2s7->SetBinError(indexm2[7],er);  EffGlobm2s7->GetXaxis()->SetBinLabel(indexm2[7],camera);  EffGlobm2s7->GetXaxis()->LabelsOption("v");
+	  if(Sector==8)indexm2[8]++;  EffGlobm2s8->SetBinContent(indexm2[8],ef);  EffGlobm2s8->SetBinError(indexm2[8],er);  EffGlobm2s8->GetXaxis()->SetBinLabel(indexm2[8],camera);  EffGlobm2s8->GetXaxis()->LabelsOption("v");
+	  if(Sector==9)indexm2[9]++;  EffGlobm2s9->SetBinContent(indexm2[9],ef);  EffGlobm2s9->SetBinError(indexm2[9],er);  EffGlobm2s9->GetXaxis()->SetBinLabel(indexm2[9],camera);  EffGlobm2s9->GetXaxis()->LabelsOption("v");
+	  if(Sector==10)indexm2[10]++;  EffGlobm2s10->SetBinContent(indexm2[10],ef);  EffGlobm2s10->SetBinError(indexm2[10],er);  EffGlobm2s10->GetXaxis()->SetBinLabel(indexm2[10],camera);  EffGlobm2s10->GetXaxis()->LabelsOption("v");
+	  if(Sector==11)indexm2[11]++;  EffGlobm2s11->SetBinContent(indexm2[11],ef);  EffGlobm2s11->SetBinError(indexm2[11],er);  EffGlobm2s11->GetXaxis()->SetBinLabel(indexm2[11],camera);  EffGlobm2s11->GetXaxis()->LabelsOption("v");
+	  if(Sector==12)indexm2[12]++;  EffGlobm2s12->SetBinContent(indexm2[12],ef);  EffGlobm2s12->SetBinError(indexm2[12],er);  EffGlobm2s12->GetXaxis()->SetBinLabel(indexm2[12],camera);  EffGlobm2s12->GetXaxis()->LabelsOption("v");
 	}
 
-	//histoMean->Fill(ef*100.);
+	if(Ring==-1){
+	  if(Sector==1)indexm1[1]++;  EffGlobm1s1->SetBinContent(indexm1[1],ef);  EffGlobm1s1->SetBinError(indexm1[1],er);  EffGlobm1s1->GetXaxis()->SetBinLabel(indexm1[1],camera);  EffGlobm1s1->GetXaxis()->LabelsOption("v");
+	  if(Sector==2)indexm1[2]++;  EffGlobm1s2->SetBinContent(indexm1[2],ef);  EffGlobm1s2->SetBinError(indexm1[2],er);  EffGlobm1s2->GetXaxis()->SetBinLabel(indexm1[2],camera);  EffGlobm1s2->GetXaxis()->LabelsOption("v");
+	  if(Sector==3)indexm1[3]++;  EffGlobm1s3->SetBinContent(indexm1[3],ef);  EffGlobm1s3->SetBinError(indexm1[3],er);  EffGlobm1s3->GetXaxis()->SetBinLabel(indexm1[3],camera);  EffGlobm1s3->GetXaxis()->LabelsOption("v");
+	  if(Sector==4)indexm1[4]++;  EffGlobm1s4->SetBinContent(indexm1[4],ef);  EffGlobm1s4->SetBinError(indexm1[4],er);  EffGlobm1s4->GetXaxis()->SetBinLabel(indexm1[4],camera);  EffGlobm1s4->GetXaxis()->LabelsOption("v");
+	  if(Sector==5)indexm1[5]++;  EffGlobm1s5->SetBinContent(indexm1[5],ef);  EffGlobm1s5->SetBinError(indexm1[5],er);  EffGlobm1s5->GetXaxis()->SetBinLabel(indexm1[5],camera);  EffGlobm1s5->GetXaxis()->LabelsOption("v");
+	  if(Sector==6)indexm1[6]++;  EffGlobm1s6->SetBinContent(indexm1[6],ef);  EffGlobm1s6->SetBinError(indexm1[6],er);  EffGlobm1s6->GetXaxis()->SetBinLabel(indexm1[6],camera);  EffGlobm1s6->GetXaxis()->LabelsOption("v");
+	  if(Sector==7)indexm1[7]++;  EffGlobm1s7->SetBinContent(indexm1[7],ef);  EffGlobm1s7->SetBinError(indexm1[7],er);  EffGlobm1s7->GetXaxis()->SetBinLabel(indexm1[7],camera);  EffGlobm1s7->GetXaxis()->LabelsOption("v");
+	  if(Sector==8)indexm1[8]++;  EffGlobm1s8->SetBinContent(indexm1[8],ef);  EffGlobm1s8->SetBinError(indexm1[8],er);  EffGlobm1s8->GetXaxis()->SetBinLabel(indexm1[8],camera);  EffGlobm1s8->GetXaxis()->LabelsOption("v");
+	  if(Sector==9)indexm1[9]++;  EffGlobm1s9->SetBinContent(indexm1[9],ef);  EffGlobm1s9->SetBinError(indexm1[9],er);  EffGlobm1s9->GetXaxis()->SetBinLabel(indexm1[9],camera);  EffGlobm1s9->GetXaxis()->LabelsOption("v");
+	  if(Sector==10)indexm1[10]++;  EffGlobm1s10->SetBinContent(indexm1[10],ef);  EffGlobm1s10->SetBinError(indexm1[10],er);  EffGlobm1s10->GetXaxis()->SetBinLabel(indexm1[10],camera);  EffGlobm1s10->GetXaxis()->LabelsOption("v");
+	  if(Sector==11)indexm1[11]++;  EffGlobm1s11->SetBinContent(indexm1[11],ef);  EffGlobm1s11->SetBinError(indexm1[11],er);  EffGlobm1s11->GetXaxis()->SetBinLabel(indexm1[11],camera);  EffGlobm1s11->GetXaxis()->LabelsOption("v");
+	  if(Sector==12)indexm1[12]++;  EffGlobm1s12->SetBinContent(indexm1[12],ef);  EffGlobm1s12->SetBinError(indexm1[12],er);  EffGlobm1s12->GetXaxis()->SetBinLabel(indexm1[12],camera);  EffGlobm1s12->GetXaxis()->LabelsOption("v");
+	}
+
+	if(Ring==0){
+	  if(Sector==1)index0[1]++;  EffGlob1->SetBinContent(index0[1],ef);  EffGlob1->SetBinError(index0[1],er);  EffGlob1->GetXaxis()->SetBinLabel(index0[1],camera);  EffGlob1->GetXaxis()->LabelsOption("v");
+	  if(Sector==2)index0[2]++;  EffGlob2->SetBinContent(index0[2],ef);  EffGlob2->SetBinError(index0[2],er);  EffGlob2->GetXaxis()->SetBinLabel(index0[2],camera);  EffGlob2->GetXaxis()->LabelsOption("v");
+	  if(Sector==3)index0[3]++;  EffGlob3->SetBinContent(index0[3],ef);  EffGlob3->SetBinError(index0[3],er);  EffGlob3->GetXaxis()->SetBinLabel(index0[3],camera);  EffGlob3->GetXaxis()->LabelsOption("v");
+	  if(Sector==4)index0[4]++;  EffGlob4->SetBinContent(index0[4],ef);  EffGlob4->SetBinError(index0[4],er);  EffGlob4->GetXaxis()->SetBinLabel(index0[4],camera);  EffGlob4->GetXaxis()->LabelsOption("v");
+	  if(Sector==5)index0[5]++;  EffGlob5->SetBinContent(index0[5],ef);  EffGlob5->SetBinError(index0[5],er);  EffGlob5->GetXaxis()->SetBinLabel(index0[5],camera);  EffGlob5->GetXaxis()->LabelsOption("v");
+	  if(Sector==6)index0[6]++;  EffGlob6->SetBinContent(index0[6],ef);  EffGlob6->SetBinError(index0[6],er);  EffGlob6->GetXaxis()->SetBinLabel(index0[6],camera);  EffGlob6->GetXaxis()->LabelsOption("v");
+	  if(Sector==7)index0[7]++;  EffGlob7->SetBinContent(index0[7],ef);  EffGlob7->SetBinError(index0[7],er);  EffGlob7->GetXaxis()->SetBinLabel(index0[7],camera);  EffGlob7->GetXaxis()->LabelsOption("v");
+	  if(Sector==8)index0[8]++;  EffGlob8->SetBinContent(index0[8],ef);  EffGlob8->SetBinError(index0[8],er);  EffGlob8->GetXaxis()->SetBinLabel(index0[8],camera);  EffGlob8->GetXaxis()->LabelsOption("v");
+	  if(Sector==9)index0[9]++;  EffGlob9->SetBinContent(index0[9],ef);  EffGlob9->SetBinError(index0[9],er);  EffGlob9->GetXaxis()->SetBinLabel(index0[9],camera);  EffGlob9->GetXaxis()->LabelsOption("v");
+	  if(Sector==10)index0[10]++;  EffGlob10->SetBinContent(index0[10],ef);  EffGlob10->SetBinError(index0[10],er);  EffGlob10->GetXaxis()->SetBinLabel(index0[10],camera);  EffGlob10->GetXaxis()->LabelsOption("v");
+	  if(Sector==11)index0[11]++;  EffGlob11->SetBinContent(index0[11],ef);  EffGlob11->SetBinError(index0[11],er);  EffGlob11->GetXaxis()->SetBinLabel(index0[11],camera);  EffGlob11->GetXaxis()->LabelsOption("v");
+	  if(Sector==12)index0[12]++;  EffGlob12->SetBinContent(index0[12],ef);  EffGlob12->SetBinError(index0[12],er);  EffGlob12->GetXaxis()->SetBinLabel(index0[12],camera);  EffGlob12->GetXaxis()->LabelsOption("v");
+	}
+	
+	if(Ring==1){
+	  if(Sector==1)index1[1]++;  EffGlob1s1->SetBinContent(index1[1],ef);  EffGlob1s1->SetBinError(index1[1],er);  EffGlob1s1->GetXaxis()->SetBinLabel(index1[1],camera);  EffGlob1s1->GetXaxis()->LabelsOption("v");
+	  if(Sector==2)index1[2]++;  EffGlob1s2->SetBinContent(index1[2],ef);  EffGlob1s2->SetBinError(index1[2],er);  EffGlob1s2->GetXaxis()->SetBinLabel(index1[2],camera);  EffGlob1s2->GetXaxis()->LabelsOption("v");
+	  if(Sector==3)index1[3]++;  EffGlob1s3->SetBinContent(index1[3],ef);  EffGlob1s3->SetBinError(index1[3],er);  EffGlob1s3->GetXaxis()->SetBinLabel(index1[3],camera);  EffGlob1s3->GetXaxis()->LabelsOption("v");
+	  if(Sector==4)index1[4]++;  EffGlob1s4->SetBinContent(index1[4],ef);  EffGlob1s4->SetBinError(index1[4],er);  EffGlob1s4->GetXaxis()->SetBinLabel(index1[4],camera);  EffGlob1s4->GetXaxis()->LabelsOption("v");
+	  if(Sector==5)index1[5]++;  EffGlob1s5->SetBinContent(index1[5],ef);  EffGlob1s5->SetBinError(index1[5],er);  EffGlob1s5->GetXaxis()->SetBinLabel(index1[5],camera);  EffGlob1s5->GetXaxis()->LabelsOption("v");
+	  if(Sector==6)index1[6]++;  EffGlob1s6->SetBinContent(index1[6],ef);  EffGlob1s6->SetBinError(index1[6],er);  EffGlob1s6->GetXaxis()->SetBinLabel(index1[6],camera);  EffGlob1s6->GetXaxis()->LabelsOption("v");
+	  if(Sector==7)index1[7]++;  EffGlob1s7->SetBinContent(index1[7],ef);  EffGlob1s7->SetBinError(index1[7],er);  EffGlob1s7->GetXaxis()->SetBinLabel(index1[7],camera);  EffGlob1s7->GetXaxis()->LabelsOption("v");
+	  if(Sector==8)index1[8]++;  EffGlob1s8->SetBinContent(index1[8],ef);  EffGlob1s8->SetBinError(index1[8],er);  EffGlob1s8->GetXaxis()->SetBinLabel(index1[8],camera);  EffGlob1s8->GetXaxis()->LabelsOption("v");
+	  if(Sector==9)index1[9]++;  EffGlob1s9->SetBinContent(index1[9],ef);  EffGlob1s9->SetBinError(index1[9],er);  EffGlob1s9->GetXaxis()->SetBinLabel(index1[9],camera);  EffGlob1s9->GetXaxis()->LabelsOption("v");
+	  if(Sector==10)index1[10]++;  EffGlob1s10->SetBinContent(index1[10],ef);  EffGlob1s10->SetBinError(index1[10],er);  EffGlob1s10->GetXaxis()->SetBinLabel(index1[10],camera);  EffGlob1s10->GetXaxis()->LabelsOption("v");
+	  if(Sector==11)index1[11]++;  EffGlob1s11->SetBinContent(index1[11],ef);  EffGlob1s11->SetBinError(index1[11],er);  EffGlob1s11->GetXaxis()->SetBinLabel(index1[11],camera);  EffGlob1s11->GetXaxis()->LabelsOption("v");
+	  if(Sector==12)index1[12]++;  EffGlob1s12->SetBinContent(index1[12],ef);  EffGlob1s12->SetBinError(index1[12],er);  EffGlob1s12->GetXaxis()->SetBinLabel(index1[12],camera);  EffGlob1s12->GetXaxis()->LabelsOption("v");
+	}
+
+	
+	if(Ring==2){
+	  if(Sector==1)index2[1]++;  EffGlob2s1->SetBinContent(index2[1],ef);  EffGlob2s1->SetBinError(index2[1],er);  EffGlob2s1->GetXaxis()->SetBinLabel(index2[1],camera);  EffGlob2s1->GetXaxis()->LabelsOption("v");
+	  if(Sector==2)index2[2]++;  EffGlob2s2->SetBinContent(index2[2],ef);  EffGlob2s2->SetBinError(index2[2],er);  EffGlob2s2->GetXaxis()->SetBinLabel(index2[2],camera);  EffGlob2s2->GetXaxis()->LabelsOption("v");
+	  if(Sector==3)index2[3]++;  EffGlob2s3->SetBinContent(index2[3],ef);  EffGlob2s3->SetBinError(index2[3],er);  EffGlob2s3->GetXaxis()->SetBinLabel(index2[3],camera);  EffGlob2s3->GetXaxis()->LabelsOption("v");
+	  if(Sector==4)index2[4]++;  EffGlob2s4->SetBinContent(index2[4],ef);  EffGlob2s4->SetBinError(index2[4],er);  EffGlob2s4->GetXaxis()->SetBinLabel(index2[4],camera);  EffGlob2s4->GetXaxis()->LabelsOption("v");
+	  if(Sector==5)index2[5]++;  EffGlob2s5->SetBinContent(index2[5],ef);  EffGlob2s5->SetBinError(index2[5],er);  EffGlob2s5->GetXaxis()->SetBinLabel(index2[5],camera);  EffGlob2s5->GetXaxis()->LabelsOption("v");
+	  if(Sector==6)index2[6]++;  EffGlob2s6->SetBinContent(index2[6],ef);  EffGlob2s6->SetBinError(index2[6],er);  EffGlob2s6->GetXaxis()->SetBinLabel(index2[6],camera);  EffGlob2s6->GetXaxis()->LabelsOption("v");
+	  if(Sector==7)index2[7]++;  EffGlob2s7->SetBinContent(index2[7],ef);  EffGlob2s7->SetBinError(index2[7],er);  EffGlob2s7->GetXaxis()->SetBinLabel(index2[7],camera);  EffGlob2s7->GetXaxis()->LabelsOption("v");
+	  if(Sector==8)index2[8]++;  EffGlob2s8->SetBinContent(index2[8],ef);  EffGlob2s8->SetBinError(index2[8],er);  EffGlob2s8->GetXaxis()->SetBinLabel(index2[8],camera);  EffGlob2s8->GetXaxis()->LabelsOption("v");
+	  if(Sector==9)index2[9]++;  EffGlob2s9->SetBinContent(index2[9],ef);  EffGlob2s9->SetBinError(index2[9],er);  EffGlob2s9->GetXaxis()->SetBinLabel(index2[9],camera);  EffGlob2s9->GetXaxis()->LabelsOption("v");
+	  if(Sector==10)index2[10]++;  EffGlob2s10->SetBinContent(index2[10],ef);  EffGlob2s10->SetBinError(index2[10],er);  EffGlob2s10->GetXaxis()->SetBinLabel(index2[10],camera);  EffGlob2s10->GetXaxis()->LabelsOption("v");
+	  if(Sector==11)index2[11]++;  EffGlob2s11->SetBinContent(index2[11],ef);  EffGlob2s11->SetBinError(index2[11],er);  EffGlob2s11->GetXaxis()->SetBinLabel(index2[11],camera);  EffGlob2s11->GetXaxis()->LabelsOption("v");
+	  if(Sector==12)index2[12]++;  EffGlob2s12->SetBinContent(index2[12],ef);  EffGlob2s12->SetBinError(index2[12],er);  EffGlob2s12->GetXaxis()->SetBinLabel(index2[12],camera);  EffGlob2s12->GetXaxis()->LabelsOption("v");
+	}
+
+	
       }
     }
    
-    //-----------------------Fillin Global Histogram----------------------------------------
+    //-----------------------Done Global Histogram----------------------------------------
 
     if(p!=0){
       float ef = float(o)/float(p); 

@@ -194,25 +194,27 @@ if(all4DSegments->size()>0){
 		      
 		      std::cout<<"MB4 \t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
 
-		      double meanStripDetected=sumStripDetected/((double)stripCounter);
+		      double meanStripDetected = 0;
+		      if(stripCounter!=0)meanStripDetected=sumStripDetected/((double)stripCounter);
 
 		      std::cout<<"MB4 \t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected"<<meanStripDetected<<std::endl;
 		      
-		      LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected));
+		      LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
 	      
 		      float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
 		      float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
 		      
 		      std::cout<<"MB4 \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
 		      
-		      if(fabs(meanrescms) < MinimalResidual){
+		      if(fabs(meanrescms) < MinimalResidualRB4 && stripCounter!=0){
 			
 			std::cout<<"MB4 \t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
 			
 		      	//-----GLOBAL HISTOGRAM----------
 			std::cout<<"MB4 \t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
 			//if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
-			hGlobalRes->Fill(meanrescms+0.5*stripw);
+			hGlobalRes->Fill(meanrescms);
+			if(rollId.station()==4) hGlobalResLa6->Fill(meanrescms); 
 			if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==2) hGlobalResClu1->Fill(meanrescms+0.5*stripw);
 			if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==4) hGlobalResClu2->Fill(meanrescms+0.5*stripw);
 			if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==6) hGlobalResClu3->Fill(meanrescms+0.5*stripw);
@@ -229,7 +231,7 @@ if(all4DSegments->size()>0){
 			
 			std::cout <<"MB4 \t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<"  (int)Predicted="<<(int)(stripPredicted)<<"  MeanDetected="<<meanStripDetected<<std::endl;
 			anycoincidence=true;
-			std::cout <<"MB4 \t \t \t \t \t Increassing DT counter"<<std::endl;
+			std::cout <<"MB4 \t \t \t \t \t Increassing DT4 counter"<<std::endl;
 			totalcounter[1]++;
 			buff=counter[1];
 			buff[rollId]++;
@@ -246,7 +248,8 @@ if(all4DSegments->size()>0){
 		      
 		      }
 		      if(anycoincidence==false){
-			std::cout <<"\t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH THE DATA"<<std::endl;
+			std::cout <<"MB4 \t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH THE DATA"<<std::endl;
+			std::cout <<"MB4 \t \t \t \t \t Increassing DT4 bad counter"<<std::endl;	
 			totalcounter[2]++;
 			buff=counter[2];
 			buff[rollId]++;
