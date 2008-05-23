@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.9 2008/04/10 15:01:50 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.10 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -215,6 +215,7 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
     int delay = delays_[fec_key];
     int delayCoarse = delay/25;
     int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
+    if(delayFine==24) { delayFine=0; ++delayCoarse; }
     //  maximum coarse setting
     if ( delayCoarse > 15 ) { invalid.push_back(fec_key); delayCoarse = sistrip::invalid_; }
 		    

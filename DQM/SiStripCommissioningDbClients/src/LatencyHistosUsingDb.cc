@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.11 2008/04/14 11:13:03 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.12 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -183,6 +183,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
     float delay = desc->getDelayCoarse()*25+desc->getDelayFine()*25./24. + shift;
     int delayCoarse = int(delay/25);
     int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
+    if(delayFine==24) { delayFine=0; ++delayCoarse; }
     delayCoarse -= minCoarseDelay;
     //  maximum coarse setting
     if ( delayCoarse > 15 ) { invalid.push_back(fec_key); delayCoarse = sistrip::invalid_; }
