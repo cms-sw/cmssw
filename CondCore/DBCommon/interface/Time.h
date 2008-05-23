@@ -79,7 +79,7 @@ namespace cond{
   };
 
   // find spec by name
-  const TimeTypeSpecs & findSpecs(std::string const & name) {
+  inline const TimeTypeSpecs & findSpecs(std::string const & name) {
     size_t i=0;
     for (; i<TIMETYPE_LIST_MAX; i++)
       if (name==timeTypeSpec[i].name) return timeTypeSpec[i];
