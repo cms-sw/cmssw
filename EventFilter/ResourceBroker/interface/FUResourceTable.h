@@ -141,6 +141,7 @@ namespace evf {
     void   sendDiscard(UInt_t buResourceId);
     
     void   sendInitMessage(UInt_t  fuResourceId,
+			   UInt_t  outModId,
 			   UChar_t*data,
 			   UInt_t  dataSize);
 

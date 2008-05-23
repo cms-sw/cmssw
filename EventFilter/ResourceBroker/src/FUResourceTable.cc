@@ -149,11 +149,12 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
     try {
       if (cell->type()==0) {
 	UInt_t   cellIndex       = cell->index();
+	UInt_t   cellOutModId    = cell->outModId();
 	UChar_t* cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);
 	
-	sendInitMessage(cellIndex,cellPayloadAddr,cellEventSize);
+	sendInitMessage(cellIndex,cellOutModId,cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==1) {
 	lock();
@@ -700,6 +701,7 @@ void FUResourceTable::sendDiscard(UInt_t buResourceId)
 
 //______________________________________________________________________________
 void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
+				      UInt_t   outModId,
 				      UChar_t *data,
 				      UInt_t   dataSize)
 {
@@ -707,7 +709,7 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
     LOG4CPLUS_ERROR(log_,"No StorageManager, DROP INIT MESSAGE!");
   }
   else {
-    UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,data,dataSize);
+    UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,outModId,data,dataSize);
     outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
     outputSumOfSizes_  +=nbBytes;
   }

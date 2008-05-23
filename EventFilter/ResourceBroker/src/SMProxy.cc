@@ -69,6 +69,7 @@ SMProxy::~SMProxy()
 
 //______________________________________________________________________________
 UInt_t SMProxy::sendInitMessage(UInt_t  fuResourceId,
+				UInt_t  outModId,
 				UChar_t*data,
 				UInt_t  dataSize)
   throw (evf::Exception)
@@ -84,7 +85,8 @@ UInt_t SMProxy::sendInitMessage(UInt_t  fuResourceId,
   MemRef_t* next=bufRef;
   do {
     msg=(I2O_SM_PREAMBLE_MESSAGE_FRAME*)next->getDataLocation();
-    msg->fuID   =fuResourceId;
+    msg->fuID    =fuResourceId;
+    msg->outModID=outModId;
   }
   while ((next=next->getNextReference()));
 

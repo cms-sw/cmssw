@@ -1,3 +1,9 @@
+2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-09-07
+	* SMProxy::sendInitMessage() puts the outModId into message header
+	* needs EventFilter/Utilities V00-14-09
+
 2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-09-06
