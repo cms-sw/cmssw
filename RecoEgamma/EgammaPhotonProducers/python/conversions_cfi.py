@@ -5,21 +5,24 @@ import FWCore.ParameterSet.Config as cms
 #  
 #
 conversions = cms.EDProducer("ConvertedPhotonProducer",
+    #    string  bcProducer  =   "islandBasicClusters"
+    #    string  bcBarrelCollection = "islandBarrelBasicClusters"
+    #    string  bcEndcapCollection = "islandEndcapBasicClusters"
     scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
     scHybridBarrelCollection = cms.string(''),
+    #    string scIslandEndcapProducer   =     "correctedEndcapSuperClustersWithPreshower"
+    #    string scIslandEndcapCollection =     ""
     convertedPhotonCollection = cms.string(''),
-    scIslandEndcapProducer = cms.string('multi5x5SuperClustersWithPreshower'),
     inOutTrackSCAssociation = cms.string('inOutTrackSCAssociationCollection'),
     outInTrackCollection = cms.string(''),
-    barrelClusterShapeMapCollection = cms.string('hybridShapeAssoc'),
-    bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
     conversionIOTrackProducer = cms.string('ckfInOutTracksFromConversions'),
-    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
     inOutTrackCollection = cms.string(''),
+    bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
+    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
+    scIslandEndcapProducer = cms.string('multi5x5SuperClustersWithPreshower'),
     bcProducer = cms.string('multi5x5BasicClusters'),
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
     scIslandEndcapCollection = cms.string(''),
-    barrelClusterShapeMapProducer = cms.string('hybridSuperClusters'),
     conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions')
 )
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.4 2008/05/07 03:47:09 nancy Exp $
+#  $Id: conversionTrackCandidates.cfi,v 1.23 2008/05/16 18:00:50 nancy Exp $
 #
 # Tracker geometry #####################
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
@@ -24,12 +24,18 @@ from RecoEgamma.EgammaPhotonProducers.trajectoryFilterForConversions_cfi import 
 #TrajectoryBuilder
 from RecoEgamma.EgammaPhotonProducers.trajectoryBuilderForConversions_cfi import *
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
+    #    string  bcProducer  =        "islandBasicClusters"
+    #    string  bcBarrelCollection = "islandBarrelBasicClusters"
+    #    string  bcEndcapCollection = "islandEndcapBasicClusters"
     scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
     inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
     maxHOverE = cms.double(0.2),
     scHybridBarrelCollection = cms.string(''),
     hbheModule = cms.string('hbhereco'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),
+    # old endcap clustering
+    #    string scIslandEndcapProducer   =     "correctedEndcapSuperClustersWithPreshower"
+    #    string scIslandEndcapCollection =     ""
     outInTrackCandidateCollection = cms.string('outInTracksFromConversions'),
     minSCEt = cms.double(5.0),
     MeasurementTrackerName = cms.string(''),

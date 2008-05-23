@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
-TrajectoryFilterForConversions = copy.deepcopy(trajectoryFilterESProducer)
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+TrajectoryFilterForConversions = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 TrajectoryFilterForConversions.ComponentName = 'TrajectoryFilterForConversions'
 TrajectoryFilterForConversions.filterPset = cms.PSet(
     chargeSignificance = cms.double(-1.0),
