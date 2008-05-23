@@ -9,7 +9,6 @@
 
 cond::IOVServiceImpl::IOVServiceImpl( cond::PoolTransaction& pooldb) :
   m_pooldb(&pooldb) {
-  switch (m_timetype) {
 }
 
 cond::IOVServiceImpl::~IOVServiceImpl(){
