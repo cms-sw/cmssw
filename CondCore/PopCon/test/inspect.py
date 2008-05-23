@@ -2,6 +2,7 @@ import DLFCN
 sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 
 from pluginCondDBPyInterface import *
+import pluginPedestalPyInterface as Pedestal
 a = FWIncantation()
 os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 rdbms = RDBMS()
@@ -12,7 +13,8 @@ for tag in tags.split() :
         iov = db.iov(tag)
         print tag, iov.size()
         for elem in iov.elements :
-            print elem.since(), elem.till(), elem.payloadToken()
+            p = Pedestal.Object(elem)
+            print elem.since(), elem.till(),p.summary()
     except RuntimeError :
         print " no iov?"
         

@@ -56,7 +56,7 @@ namespace {
 BOOST_PYTHON_MODULE(pluginPedestalPyInterface) {
   
   class_<PythonWrapper>("Object",init<>())
-    .def(init<cond::IOVElement>()),
+    .def(init<cond::IOVElement>())
     .def("print",&PythonWrapper::print)    
     .def("summary",&PythonWrapper::summary);
 
