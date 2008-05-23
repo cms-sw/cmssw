@@ -16,7 +16,7 @@ int main() {
   try {
   for (size_t i=0; i<TIMETYPE_LIST_MAX; i++) 
     if (cond::findSpecs(timeTypeSpec[i].name).type!=timeTypeSpec[i].type)
-      std::cout << "error in find for " << timeTypeSpec[i].name std::endl;
+      std::cout << "error in find for " << timeTypeSpec[i].name << std::endl;
   
   cond::findSpecs("fake");
   }
