@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/21 15:48:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/22 12:57:45 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -43,11 +43,19 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   LogTrace(metname)<<"[MuonRecoAnalyzer] Parameters initialization";
   dbe->setCurrentFolder("Muons/MuonRecoAnalyzer");
 
-  muReco = dbe->book1D("muReco", "muReco", 3, 1, 4);
-  muReco->setBinLabel(1,"global",1);
-  muReco->setBinLabel(2,"tracker",1);
-  muReco->setBinLabel(3,"sta",1);
-  
+  muReco = dbe->book1D("muReco", "muReco", 11, 1, 12);
+  muReco->setBinLabel(1,"glb+tk+sta+calo");
+  muReco->setBinLabel(2,"glb+tk+sta");
+  muReco->setBinLabel(3,"glb+sta+calo");
+  muReco->setBinLabel(4,"glb+sta");
+  muReco->setBinLabel(5,"tk+sta+calo");
+  muReco->setBinLabel(6,"tk+sta");
+  muReco->setBinLabel(7,"tk+calo");
+  muReco->setBinLabel(8,"tk");
+  muReco->setBinLabel(9,"sta+calo");
+  muReco->setBinLabel(10,"sta");
+  muReco->setBinLabel(11,"calo");
+
   int binFactor = 4;
 
   // monitoring of eta parameter
@@ -120,6 +128,11 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   qGlbTrack.push_back(dbe->book1D(histname+"Glb_q", histname+"Glb_q", 5, -2.5, 2.5));
   qGlbTrack.push_back(dbe->book1D(histname+"Tk_q", histname+"Tk_q", 5, -2.5, 2.5));
   qGlbTrack.push_back(dbe->book1D(histname+"Sta_q", histname+"Sta_q", 5, -2.5, 2.5));
+  qGlbTrack.push_back(dbe->book1D(histname+"qComparison", histname+"qComparison", 4, 0.5, 4.5));
+  qGlbTrack[3]->setBinLabel(1,"qGlb=qSta");
+  qGlbTrack[3]->setBinLabel(2,"qGlb!=qSta");
+  qGlbTrack[3]->setBinLabel(3,"qGlb=qTk");
+  qGlbTrack[3]->setBinLabel(4,"qGlb!=qTk");
   qTrack = dbe->book1D("TkMuon_q", "TkMuon_q", 5, -2.5, 2.5);
   qStaTrack = dbe->book1D("StaMuon_q", "StaMuon_q", 5, -2.5, 2.5);
 
@@ -158,7 +171,16 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(recoMu.isGlobalMuon()) {
 
     LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is global - filling the histos";
-    muReco->Fill(1);
+    if(recoMu.isTrackerMuon() && recoMu.isStandAloneMuon() && recoMu.isCaloMuon())
+      muReco->Fill(1);
+    if(recoMu.isTrackerMuon() && recoMu.isStandAloneMuon() && !(recoMu.isCaloMuon()))
+      muReco->Fill(2);
+    if(!(recoMu.isTrackerMuon()) && recoMu.isStandAloneMuon() && recoMu.isCaloMuon())
+      muReco->Fill(3);
+    if(!(recoMu.isTrackerMuon()) && recoMu.isStandAloneMuon() && !(recoMu.isCaloMuon()))
+      muReco->Fill(4);
+    if(!recoMu.isStandAloneMuon())
+      LogTrace(metname)<<"[MuonRecoAnalyzer] ERROR: the mu is global but not standalone!";
 
     // get the track combinig the information from both the Tracker and the Spectrometer
     reco::TrackRef recoCombinedGlbTrack = recoMu.combinedMuon();
@@ -205,6 +227,10 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     qGlbTrack[0]->Fill(recoCombinedGlbTrack->charge());
     qGlbTrack[1]->Fill(recoGlbTrack->charge());
     qGlbTrack[2]->Fill(recoStaGlbTrack->charge());
+    if(recoCombinedGlbTrack->charge()==recoStaGlbTrack->charge()) qGlbTrack[3]->Fill(1);
+    else qGlbTrack[3]->Fill(2);
+    if(recoCombinedGlbTrack->charge()==recoGlbTrack->charge()) qGlbTrack[3]->Fill(3);
+    else qGlbTrack[3]->Fill(4);
     
     qOverpResolution[0]->Fill((recoGlbTrack->charge()/recoGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
     qOverpResolution[1]->Fill((recoStaGlbTrack->charge()/recoStaGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
@@ -232,7 +258,14 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if(recoMu.isTrackerMuon() && !(recoMu.isGlobalMuon())) {
     LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is tracker only - filling the histos";
-    muReco->Fill(2);
+    if(recoMu.isStandAloneMuon() && recoMu.isCaloMuon())
+      muReco->Fill(5);
+    if(recoMu.isStandAloneMuon() && !(recoMu.isCaloMuon()))
+      muReco->Fill(6);
+    if(!(recoMu.isStandAloneMuon()) && recoMu.isCaloMuon())
+      muReco->Fill(7);
+    if(!(recoMu.isStandAloneMuon()) && !(recoMu.isCaloMuon()))
+      muReco->Fill(8);
 
     // get the track using only the tracker data
     reco::TrackRef recoTrack = recoMu.track();
@@ -248,7 +281,10 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if(recoMu.isStandAloneMuon() && !(recoMu.isGlobalMuon())) {
     LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is STA only - filling the histos";
-    muReco->Fill(3);
+    if(!(recoMu.isTrackerMuon()) && recoMu.isCaloMuon())
+      muReco->Fill(9);
+    if(!(recoMu.isTrackerMuon()) && !(recoMu.isCaloMuon()))
+      muReco->Fill(10);
     
     // get the track using only the mu spectrometer data
     reco::TrackRef recoStaTrack = recoMu.standAloneMuon();
@@ -262,5 +298,9 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   }
     
+  if(recoMu.isCaloMuon() && !(recoMu.isGlobalMuon()) && !(recoMu.isTrackerMuon()) && !(recoMu.isStandAloneMuon()))
+    muReco->Fill(11);
+  
+
 
 }
