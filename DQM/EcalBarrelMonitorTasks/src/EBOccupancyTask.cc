@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2008/04/16 21:39:37 $
- * $Revision: 1.63 $
+ * $Date: 2008/05/11 09:35:09 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -508,6 +508,11 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
       int ebeta = idt.ieta();
       int ebphi = idt.iphi();
 
+      // phi_tower: change the range from global to SM-local
+      // phi==0 is in the middle of a SM
+      ebphi = ebphi + 2;
+      if ( ebphi > 72 ) ebphi = ebphi - 72;
+
       float xebeta = ebeta-0.5*idt.zside();
       float xebphi = ebphi-0.5;
 
@@ -530,7 +535,6 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EBOccupancyTask") << EcalTrigPrimDigiCollection_ << " not available";
 
   }
-
 
 }
 
