@@ -20,6 +20,8 @@
 using namespace edm;
 using namespace reco;
 using namespace std;
+using namespace trigger;
+using namespace l1extra;
 
 
 TurnOnMaker::TurnOnMaker(edm::ParameterSet turnOn_params)
@@ -46,23 +48,23 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
   this->handleObjects(iEvent);
 
   
-
   // Distributions of Trigger Objects for the path HLT1MuonIso
   for(unsigned int i=0; i<theHLT1MuonIsoObjectVector.size(); i++) {
     hHLT1MuonIsoMult[i]      ->Fill(theHLT1MuonIsoObjectVector[i].size());
     for(unsigned int j=0; j<theHLT1MuonIsoObjectVector[i].size(); j++) {
-      edm::RefToBase<reco::Candidate> ref1 = theHLT1MuonIsoObjectVector[i][j];
+      RecoChargedCandidateRef ref1 = RecoChargedCandidateRef(theHLT1MuonIsoObjectVector[i][j]);
       hHLT1MuonIsoPt[i]        ->Fill(ref1->pt() );	   	 	 
       hHLT1MuonIsoEta[i]       ->Fill(ref1->eta());	   	 	 
       hHLT1MuonIsoPhi[i]       ->Fill(ref1->phi());	   	  
     }
   }
 
+  
   // Distributions of Trigger Objects for the path HLT1MuonNonIso
   for(unsigned int i=0; i<theHLT1MuonNonIsoObjectVector.size(); i++) {
     hHLT1MuonNonIsoMult[i]      ->Fill(theHLT1MuonNonIsoObjectVector[i].size());
     for(unsigned int j=0; j<theHLT1MuonNonIsoObjectVector[i].size(); j++) {
-      edm::RefToBase<reco::Candidate> ref1 = theHLT1MuonNonIsoObjectVector[i][j];
+      RecoChargedCandidateRef ref1 = RecoChargedCandidateRef(theHLT1MuonNonIsoObjectVector[i][j]);
       hHLT1MuonNonIsoPt[i]        ->Fill(ref1->pt() );	   	 	 
       hHLT1MuonNonIsoEta[i]       ->Fill(ref1->eta());	   	 	 
       hHLT1MuonNonIsoPhi[i]       ->Fill(ref1->phi());	   	  
@@ -157,6 +159,7 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 	hRecoMuonEtaAssMuonTrackIsoDr2Pt20->Fill(theMuonCollection[i].eta());
     }
 
+
     if(recoToTracksMatched(&theMuonCollection[i],theMuonTrackCollection,0.2,s_Iso)) {
       hRecoMuonPtAssMuonTrackIsoDr02->Fill(theMuonCollection[i].pt());
       if(fabs(theMuonCollection[i].eta())<1.2) 
@@ -182,6 +185,7 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
       if(theMuonCollection[i].pt()>20) 
 	hRecoMuonEtaAssMuonTrackIsoDr002Pt20->Fill(theMuonCollection[i].eta());
     }
+
 
 
     // NonIso pt cut
@@ -270,7 +274,6 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 // 	  cout <<"meson chain isFromB = " << (int) isFromB << endl;
 	}
 
-
 	bool condMuDecay;
 	if(m_genMother == "W")         condMuDecay = isFromW;
 	else if(m_genMother == "b")    condMuDecay = isFromB;
@@ -282,7 +285,6 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 	  condMuDecay = true;
 	}
 	
-
 	if(condMuDecay) {
 
 	  nGenMuon++;
@@ -439,6 +441,8 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 	      hGenMuonEtaAssMuonTrackNonIsoDr002Pt20->Fill(genParticle->eta());
 	  }
 
+
+
 	
 	}
 
@@ -501,9 +505,217 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 
 
 
-
 }
 
+
+void
+TurnOnMaker::writeHistos() {
+  gDirectory->cd("/TurnOnCurves/Muon");
+  for(unsigned int i=0; i<hHLT1MuonIsoMult.size(); i++) {
+    hHLT1MuonIsoMult[i]->Write();
+    hHLT1MuonIsoPt[i]->Write();
+    hHLT1MuonIsoEta[i]->Write();
+    hHLT1MuonIsoPhi[i]->Write();
+  }
+
+  for(unsigned int i=0; i<hHLT1MuonNonIsoMult.size(); i++) {
+    hHLT1MuonNonIsoMult[i]->Write();
+    hHLT1MuonNonIsoPt[i]->Write();
+    hHLT1MuonNonIsoEta[i]->Write();
+    hHLT1MuonNonIsoPhi[i]->Write();
+  }  
+
+
+  hMuonTrackPt->Write();
+  hMuonTrackEta->Write();
+  hMuonTrackPhi->Write();
+  hMuonTrackMult->Write();
+
+  hRecoMuonPt->Write();            
+  hRecoMuonEta->Write();           
+  hRecoMuonPhi->Write();           
+  hRecoMuonMult->Write();          
+
+  hRecoMuonPtBarrel->Write();       
+  hRecoMuonPtEndcap->Write();       
+
+  hRecoMuonEtaPt10->Write();       
+  hRecoMuonEtaPt20->Write();       
+
+
+  for(unsigned int i=0; i<hRecoMuonPtAssHLT1MuonIso.size(); i++) {
+    hRecoMuonPtAssHLT1MuonIso[i]->Write();
+    hRecoMuonPtAssHLT1MuonIsoBarrel[i]->Write();
+    hRecoMuonPtAssHLT1MuonIsoEndcap[i]->Write();
+    hRecoMuonEtaAssHLT1MuonIso[i]->Write();
+    hRecoMuonEtaAssHLT1MuonIsoPt10[i]->Write();
+    hRecoMuonEtaAssHLT1MuonIsoPt20[i]->Write();
+  }    
+
+  for(unsigned int i=0; i<hRecoMuonPtAssHLT1MuonNonIso.size(); i++) {
+    hRecoMuonPtAssHLT1MuonNonIso[i]->Write();
+    hRecoMuonPtAssHLT1MuonNonIsoBarrel[i]->Write();
+    hRecoMuonPtAssHLT1MuonNonIsoEndcap[i]->Write();
+    hRecoMuonEtaAssHLT1MuonNonIso[i]->Write();
+    hRecoMuonEtaAssHLT1MuonNonIsoPt10[i]->Write();
+    hRecoMuonEtaAssHLT1MuonNonIsoPt20[i]->Write();
+  }  
+
+  // Pt dirtibutions of Reco Muons associated
+  // to Muon tracks used to build the trigger
+  hRecoMuonPtAssMuonTrackIso->Write();
+  hRecoMuonPtAssMuonTrackIsoBarrel->Write();
+  hRecoMuonPtAssMuonTrackIsoEndcap->Write();
+  hRecoMuonPtAssMuonTrackIsoDr2->Write();
+  hRecoMuonPtAssMuonTrackIsoDr2Barrel->Write();
+  hRecoMuonPtAssMuonTrackIsoDr2Endcap->Write();
+  hRecoMuonPtAssMuonTrackIsoDr02->Write();
+  hRecoMuonPtAssMuonTrackIsoDr02Barrel->Write();
+  hRecoMuonPtAssMuonTrackIsoDr02Endcap->Write();
+  hRecoMuonPtAssMuonTrackIsoDr002->Write();
+  hRecoMuonPtAssMuonTrackIsoDr002Barrel->Write();
+  hRecoMuonPtAssMuonTrackIsoDr002Endcap->Write();
+
+  hRecoMuonPtAssMuonTrackNonIso->Write();
+  hRecoMuonPtAssMuonTrackNonIsoBarrel->Write();
+  hRecoMuonPtAssMuonTrackNonIsoEndcap->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr2->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr2Barrel->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr2Endcap->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr02->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr02Barrel->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr02Endcap->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr002->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr002Barrel->Write();
+  hRecoMuonPtAssMuonTrackNonIsoDr002Endcap->Write();
+
+  // Eta dirtibutions of Reco Muons associated
+  // to Muon tracks used to build the trigger
+  hRecoMuonEtaAssMuonTrackIso->Write();
+  hRecoMuonEtaAssMuonTrackIsoPt10->Write();
+  hRecoMuonEtaAssMuonTrackIsoPt20->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr2->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr2Pt10->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr2Pt20->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr02->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr02Pt10->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr02Pt20->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr002->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr002Pt10->Write();
+  hRecoMuonEtaAssMuonTrackIsoDr002Pt20->Write();
+
+  hRecoMuonEtaAssMuonTrackNonIso->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoPt10->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoPt20->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr2->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr2Pt10->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr2Pt20->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr02->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr02Pt10->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr02Pt20->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr002->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr002Pt10->Write();
+  hRecoMuonEtaAssMuonTrackNonIsoDr002Pt20->Write();
+
+
+
+  //Distributions of the Gen Muons
+  hGenMuonPt->Write();             
+  hGenMuonEta->Write();            
+  hGenMuonPhi->Write();            
+  hGenMuonMult->Write();           
+
+
+  hGenMuonPtBarrel->Write();        
+  hGenMuonPtEndcap->Write();        
+
+  hGenMuonEtaPt10->Write();        
+  hGenMuonEtaPt20->Write();        
+
+
+  for(unsigned int i=0; i<hGenMuonPtAssHLT1MuonIso.size(); i++) {
+    hGenMuonPtAssHLT1MuonIso[i]->Write();
+    hGenMuonPtAssHLT1MuonIsoBarrel[i]->Write();
+    hGenMuonPtAssHLT1MuonIsoEndcap[i]->Write();
+    hGenMuonEtaAssHLT1MuonIso[i]->Write();
+    hGenMuonEtaAssHLT1MuonIsoPt10[i]->Write();
+    hGenMuonEtaAssHLT1MuonIsoPt20[i]->Write();
+  }
+
+
+  
+  for(unsigned int i=0; i<hGenMuonPtAssHLT1MuonNonIso.size(); i++) {
+    hGenMuonPtAssHLT1MuonNonIso[i]->Write();
+    hGenMuonPtAssHLT1MuonNonIsoBarrel[i]->Write();
+    hGenMuonPtAssHLT1MuonNonIsoEndcap[i]->Write();
+    hGenMuonEtaAssHLT1MuonNonIso[i]->Write();
+    hGenMuonEtaAssHLT1MuonNonIsoPt10[i]->Write();
+    hGenMuonEtaAssHLT1MuonNonIsoPt20[i]->Write();
+  }
+
+
+  
+  // Pt dirtibutions of Gen Muons associated
+  // to Muon tracks used to build the trigger
+  hGenMuonPtAssMuonTrackIso->Write();
+  hGenMuonPtAssMuonTrackIsoBarrel->Write();
+  hGenMuonPtAssMuonTrackIsoEndcap->Write();
+  hGenMuonPtAssMuonTrackIsoDr2->Write();
+  hGenMuonPtAssMuonTrackIsoDr2Barrel->Write();
+  hGenMuonPtAssMuonTrackIsoDr2Endcap->Write();
+  hGenMuonPtAssMuonTrackIsoDr02->Write();
+  hGenMuonPtAssMuonTrackIsoDr02Barrel->Write();
+  hGenMuonPtAssMuonTrackIsoDr02Endcap->Write();
+  hGenMuonPtAssMuonTrackIsoDr002->Write();
+  hGenMuonPtAssMuonTrackIsoDr002Barrel->Write();
+  hGenMuonPtAssMuonTrackIsoDr002Endcap->Write();
+
+  hGenMuonPtAssMuonTrackNonIso->Write();
+  hGenMuonPtAssMuonTrackNonIsoBarrel->Write();
+  hGenMuonPtAssMuonTrackNonIsoEndcap->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr2->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr2Barrel->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr2Endcap->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr02->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr02Barrel->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr02Endcap->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr002->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr002Barrel->Write();
+  hGenMuonPtAssMuonTrackNonIsoDr002Endcap->Write();
+
+  // Eta dirtibutions of Gen Muons associated
+  // to Muon tracks used to build the trigger
+  hGenMuonEtaAssMuonTrackIso->Write();
+  hGenMuonEtaAssMuonTrackIsoPt10->Write();
+  hGenMuonEtaAssMuonTrackIsoPt20->Write();
+  hGenMuonEtaAssMuonTrackIsoDr2->Write();
+  hGenMuonEtaAssMuonTrackIsoDr2Pt10->Write();
+  hGenMuonEtaAssMuonTrackIsoDr2Pt20->Write();
+  hGenMuonEtaAssMuonTrackIsoDr02->Write();
+  hGenMuonEtaAssMuonTrackIsoDr02Pt10->Write();
+  hGenMuonEtaAssMuonTrackIsoDr02Pt20->Write();
+  hGenMuonEtaAssMuonTrackIsoDr002->Write();
+  hGenMuonEtaAssMuonTrackIsoDr002Pt10->Write();
+  hGenMuonEtaAssMuonTrackIsoDr002Pt20->Write();
+
+  hGenMuonEtaAssMuonTrackNonIso->Write();
+  hGenMuonEtaAssMuonTrackNonIsoPt10->Write();
+  hGenMuonEtaAssMuonTrackNonIsoPt20->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr2->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr2Pt10->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr2Pt20->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr02->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr02Pt10->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr02Pt20->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr002->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr002Pt10->Write();
+  hGenMuonEtaAssMuonTrackNonIsoDr002Pt20->Write();
+
+
+
+
+
+}
 
 // void TurnOnMaker::finalOperations() {
 
@@ -842,37 +1054,50 @@ void TurnOnMaker::bookHistos() {
 
 void TurnOnMaker::handleObjects(const edm::Event& iEvent)
 {
+
+
+
   //*******************************************************
-  // Get the HLT Objects through the HLTFilterObjectWithRefs
+  // Get the HLT Objects through the TriggerEventWithRefs
   //*******************************************************
+
+
+  // Get the Trigger collection
+  edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
+  iEvent.getByLabel("triggerSummaryRAW",triggerObj); 
+  if(!triggerObj.isValid()) { 
+    edm::LogWarning("HLTSusyBSMVal") << "RAW-type HLT results not found, skipping event";
+    return;
+  }
+
+
+  //clear the vectors 
+  for(unsigned int i=0; i<theHLT1MuonIsoObjectVector.size(); i++) {theHLT1MuonIsoObjectVector[i].clear();}
+  for(unsigned int i=0; i<theHLT1MuonNonIsoObjectVector.size(); i++) {theHLT1MuonNonIsoObjectVector[i].clear();}
+
+
+
+
 
   //HLT1MuonIso
   for(unsigned int i=0; i<theHLT1MuonIsoObjectVector.size(); i++) {
-    theHLT1MuonIsoObjectVector[i].clear();
-    Handle<HLTFilterObjectWithRefs> theHltHandle;
-    try {
-      iEvent.getByLabel(m_hlt1MuonIsoSrc[i], theHltHandle);
-      for(unsigned j=0; j<theHltHandle->size(); j++) {
-	theHLT1MuonIsoObjectVector[i].push_back(theHltHandle->getParticleRef(j));
-      }
-    } catch (...) {
+    if ( triggerObj->filterIndex(m_hlt1MuonIsoSrc[i])>=triggerObj->size() ) {
       cout <<"No HLT Collection with label "<< m_hlt1MuonIsoSrc[i] << endl;
+      //      LogDebug("HLTSusyBSMVal")<<"No HLT Collection with label "<< m_hlt1MuonIsoSrc[i];
+      break ;
     }
+    triggerObj->getObjects(triggerObj->filterIndex(m_hlt1MuonIsoSrc[i]),TriggerMuon, theHLT1MuonIsoObjectVector[i]);
   }
-      
-    
+
+
   //HLT1MuonNonIso
   for(unsigned int i=0; i<theHLT1MuonNonIsoObjectVector.size(); i++) {
-    theHLT1MuonNonIsoObjectVector[i].clear();
-    Handle<HLTFilterObjectWithRefs> theHltHandle;
-    try {
-      iEvent.getByLabel(m_hlt1MuonNonIsoSrc[i], theHltHandle);
-      for(unsigned j=0; j<theHltHandle->size(); j++) {
-	theHLT1MuonNonIsoObjectVector[i].push_back(theHltHandle->getParticleRef(j));
-      }
-    } catch (...) {
-      cout <<"No HLT Collection with label "<< m_hlt1MuonNonIsoSrc[i] << endl;
+    if ( triggerObj->filterIndex(m_hlt1MuonNonIsoSrc[i])>=triggerObj->size() ) {
+      cout <<"No HLT Collection with label "<<m_hlt1MuonNonIsoSrc[i] << endl;
+      //      LogDebug("HLTSusyBSMVal")<<"No HLT Collection with label "<<m_hlt1MuonNonIsoSrc[i] ;
+      break ;
     }
+    triggerObj->getObjects(triggerObj->filterIndex(m_hlt1MuonNonIsoSrc[i]),TriggerMuon, theHLT1MuonNonIsoObjectVector[i]);
   }
 
   //***********************************************
@@ -952,7 +1177,7 @@ void TurnOnMaker::handleObjects(const edm::Event& iEvent)
 
 
 //function for the association of Reco objects with HLT objects
-bool TurnOnMaker::recoToTriggerMatched(reco::Candidate* theRecoObject, std::vector< std::vector< edm::RefToBase< reco::Candidate > > > theTriggerLevelObjectVector, int iHltLevel) {
+bool TurnOnMaker::recoToTriggerMatched(reco::Candidate* theRecoObject, std::vector< std::vector<RecoChargedCandidateRef> > theTriggerLevelObjectVector, int iHltLevel) {
   bool decision = false;
   if(iHltLevel==0) {
     for(unsigned int i=0; i<theTriggerLevelObjectVector[0].size(); i++) {
@@ -982,7 +1207,7 @@ bool TurnOnMaker::recoToTriggerMatched(reco::Candidate* theRecoObject, std::vect
 }
 
 //function for the association of Gen objects with HLT objects
-bool TurnOnMaker::recoToTriggerMatched(const reco::Candidate* theRecoObject, std::vector< std::vector< edm::RefToBase< reco::Candidate > > > theTriggerLevelObjectVector, int iHltLevel) {
+bool TurnOnMaker::recoToTriggerMatched(const reco::Candidate* theRecoObject, std::vector< std::vector<RecoChargedCandidateRef> > theTriggerLevelObjectVector, int iHltLevel) {
   bool decision = false;
   if(iHltLevel==0) {
     for(unsigned int i=0; i<theTriggerLevelObjectVector[0].size(); i++) {
@@ -1089,7 +1314,7 @@ bool TurnOnMaker::recoToTracksMatched(const reco::Candidate* theRecoObject, reco
 
 
 //function for the association of HLT objects with HLT objects
-bool TurnOnMaker::triggerToTriggerMatched(edm::RefToBase< reco::Candidate > theTriggerObject, std::vector< std::vector< edm::RefToBase< reco::Candidate > > > theTriggerLevelObjectVector, int iHltLevel) {
+bool TurnOnMaker::triggerToTriggerMatched(RecoChargedCandidateRef theTriggerObject, std::vector< std::vector<RecoChargedCandidateRef> > theTriggerLevelObjectVector, int iHltLevel) {
   bool decision = false;
   if(iHltLevel==0) {
     for(unsigned int i=0; i<theTriggerLevelObjectVector[0].size(); i++) {

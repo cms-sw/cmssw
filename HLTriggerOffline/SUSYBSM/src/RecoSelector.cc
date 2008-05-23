@@ -126,7 +126,7 @@ void RecoSelector::handleObjects(const edm::Event& iEvent)
 
   //Get the Photons
   Handle<PhotonCollection> thePhotonCollectionHandle; 
-  iEvent.getByLabel(m_photonSrc, thePhotonCollectionHandle);
+  iEvent.getByLabel(m_photonSrc, m_photonSrc, thePhotonCollectionHandle);
   thePhotonCollection = thePhotonCollectionHandle.product();
 
   //Get the CaloJets

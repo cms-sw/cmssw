@@ -338,12 +338,32 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   // Fill the MET Histos
   //**********************
   
-  hL1MET->Fill(theL1METCollection.etMiss());
+  hL1MET->Fill(theL1METCollection[0].etMiss());
+  hL1METx->Fill(theL1METCollection[0].px());
+  hL1METy->Fill(theL1METCollection[0].py());
+  hL1METphi->Fill(theL1METCollection[0].phi());
+  hL1SumEt->Fill(theL1METCollection[0].etTotal());
+  double L1MetSig = theL1METCollection[0].etMiss() / sqrt(theL1METCollection[0].etTotal());
+  hL1METSignificance->Fill(L1MetSig);
   for(unsigned int i=0; i<l1bits_->size(); i++) {
-    if(l1bits_->at(i)) hL1METAfterL1[i]->Fill(theL1METCollection.etMiss());
+    if(l1bits_->at(i)) {
+      hL1METAfterL1[i]->Fill(theL1METCollection[0].etMiss());
+      hL1METxAfterL1[i]->Fill(theL1METCollection[0].px());
+      hL1METyAfterL1[i]->Fill(theL1METCollection[0].py());
+      hL1METphiAfterL1[i]->Fill(theL1METCollection[0].phi());
+      hL1SumEtAfterL1[i]->Fill(theL1METCollection[0].etTotal());
+      hL1METSignificanceAfterL1[i]->Fill(L1MetSig);
+    }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
-    if(hltbits_->at(i)) hL1METAfterHLT[i]->Fill(theL1METCollection.etMiss());
+    if(hltbits_->at(i)) {
+      hL1METAfterHLT[i]->Fill(theL1METCollection[0].etMiss());
+      hL1METxAfterHLT[i]->Fill(theL1METCollection[0].px());
+      hL1METyAfterHLT[i]->Fill(theL1METCollection[0].py());
+      hL1METphiAfterHLT[i]->Fill(theL1METCollection[0].phi());
+      hL1SumEtAfterHLT[i]->Fill(theL1METCollection[0].etTotal());
+      hL1METSignificanceAfterHLT[i]->Fill(L1MetSig);
+    }
   }
 
   //**********************
@@ -611,20 +631,30 @@ void PlotMaker::fillPlots(const edm::Event& iEvent)
   //**********************
   
   hMET->Fill((theCaloMETCollection.front()).pt());
+  hMETx->Fill((theCaloMETCollection.front()).px());
+  hMETy->Fill((theCaloMETCollection.front()).py());
   hMETphi->Fill((theCaloMETCollection.front()).phi());
   hSumEt->Fill((theCaloMETCollection.front()).sumEt());
+  double RecoMetSig = (theCaloMETCollection.front()).pt() / sqrt( (theCaloMETCollection.front()).sumEt() );
+  hMETSignificance->Fill(RecoMetSig);
   for(unsigned int i=0; i<l1bits_->size(); i++) {
     if(l1bits_->at(i)) {
       hMETAfterL1[i]->Fill((theCaloMETCollection.front()).pt());
+      hMETxAfterL1[i]->Fill((theCaloMETCollection.front()).px());
+      hMETyAfterL1[i]->Fill((theCaloMETCollection.front()).py());
       hMETphiAfterL1[i]->Fill((theCaloMETCollection.front()).phi());
       hSumEtAfterL1[i]->Fill((theCaloMETCollection.front()).sumEt());
+      hMETSignificanceAfterL1[i]->Fill(RecoMetSig);
     }
   }
   for(unsigned int i=0; i<hltbits_->size(); i++) {
     if(hltbits_->at(i)) {
       hMETAfterHLT[i]->Fill((theCaloMETCollection.front()).pt());
+      hMETxAfterHLT[i]->Fill((theCaloMETCollection.front()).px());
+      hMETyAfterHLT[i]->Fill((theCaloMETCollection.front()).py());
       hMETphiAfterHLT[i]->Fill((theCaloMETCollection.front()).phi());
       hSumEtAfterHLT[i]->Fill((theCaloMETCollection.front()).sumEt());
+      hMETSignificanceAfterHLT[i]->Fill(RecoMetSig);
     }
   }
 
@@ -1022,19 +1052,33 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   
   gDirectory->cd("/L1MET/General");
   hL1MET = new TH1D("MET", "MET", 35, 0, 1050);
+  hL1METx   = new TH1D("METx", "METx", 35, 0, 1050);
+  hL1METy   = new TH1D("METy", "METy", 35, 0, 1050);
   hL1METphi = new TH1D("METphi", "METphi", 100, -3.2, 3.2);
   hL1SumEt  = new TH1D("SumEt", "SumEt", 35, 0, 1050);
+  hL1METSignificance = new TH1D("METSignificance", "METSignificance", 100, 0, 100);
+
+
   gDirectory->cd("/L1MET/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
     myHistoName = "MET_" + (*l1Names_)[i];
     myHistoTitle = "MET for L1 path " + (*l1Names_)[i];
     hL1METAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METx_" + (*l1Names_)[i];
+    myHistoTitle = "METx for L1 path " + (*l1Names_)[i];
+    hL1METxAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METy_" + (*l1Names_)[i];
+    myHistoTitle = "METy for L1 path " + (*l1Names_)[i];
+    hL1METyAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
     myHistoName = "METphi_" + (*l1Names_)[i];
     myHistoTitle = "METphi for L1 path " + (*l1Names_)[i];
     hL1METphiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
     myHistoName = "SumEt_" + (*l1Names_)[i];
     myHistoTitle = "SumEt for L1 path " + (*l1Names_)[i];
     hL1SumEtAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METSignificance_" + (*l1Names_)[i];
+    myHistoTitle = "METSignificance for L1 path " + (*l1Names_)[i];
+    hL1METSignificanceAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, 0, 100));
   }
 
   gDirectory->cd("/L1MET/HLT");
@@ -1042,12 +1086,21 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "MET_" + (*hlNames_)[i];
     myHistoTitle = "MET for HLT path " + (*hlNames_)[i];    
     hL1METAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METx_" + (*hlNames_)[i];
+    myHistoTitle = "METx for HLT path " + (*hlNames_)[i];    
+    hL1METxAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METy_" + (*hlNames_)[i];
+    myHistoTitle = "METy for HLT path " + (*hlNames_)[i];    
+    hL1METyAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
     myHistoName = "METphi_" + (*hlNames_)[i];
     myHistoTitle = "METphi for HLT path " + (*hlNames_)[i];    
     hL1METphiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
     myHistoName = "SumEt_" + (*hlNames_)[i];
     myHistoTitle = "SumEt for HLT path " + (*hlNames_)[i];    
     hL1SumEtAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METSignificance_" + (*hlNames_)[i];
+    myHistoTitle = "METSignificance for HLT path " + (*hlNames_)[i];    
+    hL1METSignificanceAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, 0, 100));
   }
   gDirectory->cd();
 
@@ -1379,19 +1432,31 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
   
   gDirectory->cd("/RecoMET/General");
   hMET = new TH1D("MET", "MET", 35, 0, 1050);
+  hMETx   = new TH1D("METx", "METx", 35, 0, 1050);
+  hMETy   = new TH1D("METy", "METy", 35, 0, 1050);
   hMETphi = new TH1D("METphi", "METphi", 100, -3.2, 3.2);
   hSumEt  = new TH1D("SumEt" , "SumEt",  35, 0, 1050);
+  hMETSignificance = new TH1D("METSignificance", "METSignificance", 100, 0, 100);
   gDirectory->cd("/RecoMET/L1");
   for(unsigned int i=0; i<l1bits_->size(); i++){
     myHistoName = "MET_" + (*l1Names_)[i];
     myHistoTitle = "MET for L1 path " + (*l1Names_)[i];
     hMETAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METx_" + (*l1Names_)[i];
+    myHistoTitle = "METx for L1 path " + (*l1Names_)[i];
+    hMETxAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METy_" + (*l1Names_)[i];
+    myHistoTitle = "METy for L1 path " + (*l1Names_)[i];
+    hMETyAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
     myHistoName = "METPhi_" + (*l1Names_)[i];
     myHistoTitle = "METPhi for L1 path " + (*l1Names_)[i];
     hMETphiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
     myHistoName = "SumEt_" + (*l1Names_)[i];
     myHistoTitle = "SumEt for L1 path " + (*l1Names_)[i];
     hSumEtAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METSignificance_" + (*l1Names_)[i];
+    myHistoTitle = "METSignificance for L1 path " + (*l1Names_)[i];
+    hMETSignificanceAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, 0, 100));
   }
 
   gDirectory->cd("/RecoMET/HLT");
@@ -1399,12 +1464,21 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     myHistoName = "MET_" + (*hlNames_)[i];
     myHistoTitle = "MET for HLT path " + (*hlNames_)[i];    
     hMETAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METx_" + (*hlNames_)[i];
+    myHistoTitle = "METx for HLT path " + (*hlNames_)[i];    
+    hMETxAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METy_" + (*hlNames_)[i];
+    myHistoTitle = "METy for HLT path " + (*hlNames_)[i];    
+    hMETyAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
     myHistoName = "METPhi_" + (*hlNames_)[i];
     myHistoTitle = "METPhi for HLT path " + (*hlNames_)[i];    
     hMETphiAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2 ));
     myHistoName = "SumEt_" + (*hlNames_)[i];
     myHistoTitle = "SumEt for HLT path " + (*hlNames_)[i];    
     hSumEtAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 35, 0, 1050));
+    myHistoName = "METSignificance_" + (*hlNames_)[i];
+    myHistoTitle = "METSignificance for HLT path " + (*hlNames_)[i];    
+    hMETSignificanceAfterHLT.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, 0, 100));
   }
   gDirectory->cd();
 
@@ -1412,6 +1486,486 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
 
 
 }
+
+
+void PlotMaker::writeHistos() {
+  
+  //******************
+  //Write histos for L1 Objects
+  //******************
+  
+  
+  //******************
+  //Write Jets
+  //******************
+
+  gDirectory->cd("/L1Jets/Central/General");
+  hL1CentralJetMult ->Write();
+  hL1CentralJet1Pt  ->Write();
+  hL1CentralJet2Pt  ->Write(); 
+  hL1CentralJet1Eta ->Write();
+  hL1CentralJet2Eta ->Write();
+  hL1CentralJet1Phi ->Write();
+  hL1CentralJet2Phi ->Write();
+  
+  gDirectory->cd("/L1Jets/Central/L1");
+  for(unsigned int i=0; i<hL1CentralJetMultAfterL1.size(); i++){
+    hL1CentralJetMultAfterL1[i]->Write();
+    hL1CentralJet1PtAfterL1[i] ->Write();
+    hL1CentralJet2PtAfterL1[i] ->Write();
+    hL1CentralJet1EtaAfterL1[i]->Write();
+    hL1CentralJet2EtaAfterL1[i]->Write();
+    hL1CentralJet1PhiAfterL1[i]->Write();
+    hL1CentralJet2PhiAfterL1[i]->Write();
+  }
+
+  gDirectory->cd("/L1Jets/Central/HLT");
+  for(unsigned int i=0; i<hL1CentralJetMultAfterHLT.size(); i++){
+    hL1CentralJetMultAfterHLT[i]->Write();
+    hL1CentralJet1PtAfterHLT[i]->Write();
+    hL1CentralJet2PtAfterHLT[i]->Write();
+    hL1CentralJet1EtaAfterHLT[i]->Write();
+    hL1CentralJet2EtaAfterHLT[i]->Write();
+    hL1CentralJet1PhiAfterHLT[i]->Write();
+    hL1CentralJet2PhiAfterHLT[i]->Write();
+  }
+
+  gDirectory->cd("/L1Jets/Forward/General");
+  hL1ForwardJetMult ->Write();
+  hL1ForwardJet1Pt  ->Write();
+  hL1ForwardJet2Pt  ->Write();
+  hL1ForwardJet1Eta ->Write();
+  hL1ForwardJet2Eta ->Write();
+  hL1ForwardJet1Phi ->Write();
+  hL1ForwardJet2Phi ->Write();
+
+  gDirectory->cd("/L1Jets/Forward/L1");
+  for(unsigned int i=0; i<hL1ForwardJetMultAfterL1.size(); i++){
+    hL1ForwardJetMultAfterL1[i]->Write();
+    hL1ForwardJet1PtAfterL1[i]->Write();
+    hL1ForwardJet2PtAfterL1[i]->Write();
+    hL1ForwardJet1EtaAfterL1[i]->Write();
+    hL1ForwardJet2EtaAfterL1[i]->Write();
+    hL1ForwardJet1PhiAfterL1[i]->Write();
+    hL1ForwardJet2PhiAfterL1[i]->Write();
+  }
+
+  gDirectory->cd("/L1Jets/Forward/HLT");
+  for(unsigned int i=0; i<hL1ForwardJetMultAfterHLT.size(); i++){
+    hL1ForwardJetMultAfterHLT[i]->Write();
+    hL1ForwardJet1PtAfterHLT[i]->Write();
+    hL1ForwardJet2PtAfterHLT[i]->Write();
+    hL1ForwardJet1EtaAfterHLT[i]->Write();
+    hL1ForwardJet2EtaAfterHLT[i]->Write();
+    hL1ForwardJet1PhiAfterHLT[i]->Write();
+    hL1ForwardJet2PhiAfterHLT[i]->Write();
+  }
+
+  gDirectory->cd("/L1Jets/Tau/General");
+  hL1TauJetMult  ->Write();
+  hL1TauJet1Pt   ->Write();
+  hL1TauJet2Pt   ->Write();
+  hL1TauJet1Eta  ->Write();
+  hL1TauJet2Eta  ->Write();
+  hL1TauJet1Phi  ->Write();
+  hL1TauJet2Phi  ->Write();
+
+  gDirectory->cd("/L1Jets/Tau/L1");
+  for(unsigned int i=0; i<hL1TauJetMultAfterL1.size(); i++){
+    hL1TauJetMultAfterL1[i]->Write();
+    hL1TauJet1PtAfterL1[i]->Write();
+    hL1TauJet2PtAfterL1[i]->Write();
+    hL1TauJet1EtaAfterL1[i]->Write();
+    hL1TauJet2EtaAfterL1[i]->Write();
+    hL1TauJet1PhiAfterL1[i]->Write();
+    hL1TauJet2PhiAfterL1[i]->Write();
+  }
+
+  gDirectory->cd("/L1Jets/Tau/HLT");
+  for(unsigned int i=0; i<hL1TauJetMultAfterHLT.size(); i++){
+    hL1TauJetMultAfterHLT[i]->Write();
+    hL1TauJet1PtAfterHLT[i]->Write();
+    hL1TauJet2PtAfterHLT[i]->Write();
+    hL1TauJet1EtaAfterHLT[i]->Write();
+    hL1TauJet2EtaAfterHLT[i]->Write();
+    hL1TauJet1PhiAfterHLT[i]->Write();
+    hL1TauJet2PhiAfterHLT[i]->Write();
+  }
+
+
+
+  gDirectory->cd("/L1Em/Isolated/General");
+  hL1EmIsoMult  ->Write();
+  hL1EmIso1Pt   ->Write();
+  hL1EmIso2Pt   ->Write();
+  hL1EmIso1Eta  ->Write();
+  hL1EmIso2Eta  ->Write();
+  hL1EmIso1Phi  ->Write();
+  hL1EmIso2Phi  ->Write();
+  
+  gDirectory->cd("/L1Em/Isolated/L1");
+  for(unsigned int i=0; i<hL1EmIsoMultAfterL1.size(); i++){
+    hL1EmIsoMultAfterL1[i]->Write();
+    hL1EmIso1PtAfterL1[i]->Write();
+    hL1EmIso2PtAfterL1[i]->Write();
+    hL1EmIso1EtaAfterL1[i]->Write();
+    hL1EmIso2EtaAfterL1[i]->Write();
+    hL1EmIso1PhiAfterL1[i]->Write();
+    hL1EmIso2PhiAfterL1[i]->Write();
+  }
+
+  gDirectory->cd("/L1Em/Isolated/HLT");
+  for(unsigned int i=0; i<hL1EmIsoMultAfterHLT.size(); i++){
+    hL1EmIsoMultAfterHLT[i]->Write();
+    hL1EmIso1PtAfterHLT[i]->Write();
+    hL1EmIso2PtAfterHLT[i]->Write();
+    hL1EmIso1EtaAfterHLT[i]->Write();
+    hL1EmIso2EtaAfterHLT[i]->Write();
+    hL1EmIso1PhiAfterHLT[i]->Write();
+    hL1EmIso2PhiAfterHLT[i]->Write();
+  }
+  gDirectory->cd();
+
+
+
+  gDirectory->cd("/L1Em/NotIsolated/General");
+  hL1EmNotIsoMult ->Write(); 
+  hL1EmNotIso1Pt  ->Write(); 
+  hL1EmNotIso2Pt  ->Write(); 
+  hL1EmNotIso1Eta ->Write(); 
+  hL1EmNotIso2Eta ->Write(); 
+  hL1EmNotIso1Phi ->Write(); 
+  hL1EmNotIso2Phi ->Write(); 
+  
+  gDirectory->cd("/L1Em/NotIsolated/L1");
+  for(unsigned int i=0; i<hL1EmNotIsoMultAfterL1.size(); i++){
+    hL1EmNotIsoMultAfterL1[i]->Write();
+    hL1EmNotIso1PtAfterL1[i]->Write();
+    hL1EmNotIso2PtAfterL1[i]->Write();
+    hL1EmNotIso1EtaAfterL1[i]->Write();
+    hL1EmNotIso2EtaAfterL1[i]->Write();
+    hL1EmNotIso1PhiAfterL1[i]->Write();
+    hL1EmNotIso2PhiAfterL1[i]->Write();
+   }
+
+  gDirectory->cd("/L1Em/NotIsolated/HLT");
+  for(unsigned int i=0; i<hL1EmNotIsoMultAfterHLT.size(); i++){
+    hL1EmNotIsoMultAfterHLT[i]->Write();
+    hL1EmNotIso1PtAfterHLT[i]->Write();
+    hL1EmNotIso2PtAfterHLT[i]->Write();
+    hL1EmNotIso1EtaAfterHLT[i]->Write();
+    hL1EmNotIso2EtaAfterHLT[i]->Write();
+    hL1EmNotIso1PhiAfterHLT[i]->Write();
+    hL1EmNotIso2PhiAfterHLT[i]->Write();
+  }
+  gDirectory->cd();
+
+  //******************
+  //Book Muons
+  //******************
+  
+  gDirectory->cd("/L1Muons/General");
+  hL1MuonMult  ->Write();
+  hL1Muon1Pt   ->Write();
+  hL1Muon2Pt   ->Write();
+  hL1Muon1Eta  ->Write();
+  hL1Muon2Eta  ->Write();
+  hL1Muon1Phi  ->Write();
+  hL1Muon2Phi  ->Write();
+  
+  gDirectory->cd("/L1Muons/L1");
+  for(unsigned int i=0; i<hL1MuonMultAfterL1.size(); i++){
+    hL1MuonMultAfterL1[i]->Write();
+    hL1Muon1PtAfterL1[i]->Write();
+    hL1Muon2PtAfterL1[i]->Write();
+    hL1Muon1EtaAfterL1[i]->Write();
+    hL1Muon2EtaAfterL1[i]->Write();
+    hL1Muon1PhiAfterL1[i]->Write();
+    hL1Muon2PhiAfterL1[i]->Write();
+  }
+
+  gDirectory->cd("/L1Muons/HLT");
+  for(unsigned int i=0; i<hL1MuonMultAfterHLT.size(); i++){
+    hL1MuonMultAfterHLT[i]->Write();
+    hL1Muon1PtAfterHLT[i]->Write();
+    hL1Muon2PtAfterHLT[i]->Write();
+    hL1Muon1EtaAfterHLT[i]->Write();
+    hL1Muon2EtaAfterHLT[i]->Write();
+    hL1Muon1PhiAfterHLT[i]->Write();
+    hL1Muon2PhiAfterHLT[i]->Write();
+  }
+  gDirectory->cd();
+
+
+
+  //******************
+  //Book MET
+  //******************
+  
+  gDirectory->cd("/L1MET/General");
+  hL1MET    	     ->Write();
+  hL1METx   	     ->Write();
+  hL1METy   	     ->Write();
+  hL1METphi 	     ->Write();
+  hL1SumEt  	     ->Write();
+  hL1METSignificance ->Write();
+
+
+  gDirectory->cd("/L1MET/L1");
+  for(unsigned int i=0; i<hL1METAfterL1.size(); i++){
+    hL1METAfterL1[i]->Write();
+    hL1METxAfterL1[i]->Write();
+    hL1METyAfterL1[i]->Write();
+    hL1METphiAfterL1[i]->Write();
+    hL1SumEtAfterL1[i]->Write();
+    hL1METSignificanceAfterL1[i]->Write();
+  }
+
+  gDirectory->cd("/L1MET/HLT");
+  for(unsigned int i=0; i<hL1METAfterHLT.size(); i++){
+    hL1METAfterHLT[i]->Write();
+    hL1METxAfterHLT[i]->Write();
+    hL1METyAfterHLT[i]->Write();
+    hL1METphiAfterHLT[i]->Write();
+    hL1SumEtAfterHLT[i]->Write();
+    hL1METSignificanceAfterHLT[i]->Write();
+  }
+  gDirectory->cd();
+
+
+
+  //******************
+  //Write histos Reco Objects
+  //******************
+
+  //******************
+  //Write Jets
+  //******************
+  
+  gDirectory->cd("/RecoJets/General");
+  hJetMult  ->Write();
+  hJet1Pt   ->Write();
+  hJet2Pt   ->Write();
+  hJet1Eta  ->Write();
+  hJet2Eta  ->Write();
+  hJet1Phi  ->Write();
+  hJet2Phi  ->Write();
+  
+  hDiJetInvMass ->Write();
+  
+
+  gDirectory->cd("/RecoJets/L1");
+  for(unsigned int i=0; i<hJetMultAfterL1.size(); i++){
+    hJetMultAfterL1[i]->Write();
+    hJet1PtAfterL1[i]->Write();
+    hJet2PtAfterL1[i]->Write();
+    hJet1EtaAfterL1[i]->Write();
+    hJet2EtaAfterL1[i]->Write();
+    hJet1PhiAfterL1[i]->Write();
+    hJet2PhiAfterL1[i]->Write();
+    
+    hDiJetInvMassAfterL1[i]->Write();
+
+  }
+
+  gDirectory->cd("/RecoJets/HLT");
+  for(unsigned int i=0; i<hJetMultAfterHLT.size(); i++){
+    hJetMultAfterHLT[i]->Write();
+    hJet1PtAfterHLT[i]->Write();
+    hJet2PtAfterHLT[i]->Write();
+    hJet1EtaAfterHLT[i]->Write();
+    hJet2EtaAfterHLT[i]->Write();
+    hJet1PhiAfterHLT[i]->Write();
+    hJet2PhiAfterHLT[i]->Write();
+
+    hDiJetInvMassAfterHLT[i]->Write();
+
+  }
+  gDirectory->cd();
+
+
+
+
+  //******************
+  //Book Electrons
+  //******************
+  
+  gDirectory->cd("/RecoElectrons/General");
+  hElecMult  ->Write();
+  hElec1Pt   ->Write();
+  hElec2Pt   ->Write();
+  hElec1Eta  ->Write();
+  hElec2Eta  ->Write();
+  hElec1Phi  ->Write();
+  hElec2Phi  ->Write();
+
+  hDiElecInvMass ->Write();
+  
+  gDirectory->cd("/RecoElectrons/L1");
+  for(unsigned int i=0; i<hElecMultAfterL1.size(); i++){
+    hElecMultAfterL1[i]->Write();
+    hElec1PtAfterL1[i]->Write();
+    hElec2PtAfterL1[i]->Write();
+    hElec1EtaAfterL1[i]->Write();
+    hElec2EtaAfterL1[i]->Write();
+    hElec1PhiAfterL1[i]->Write();
+    hElec2PhiAfterL1[i]->Write();
+
+    hDiElecInvMassAfterL1[i]->Write();
+
+  }
+
+  gDirectory->cd("/RecoElectrons/HLT");
+  for(unsigned int i=0; i<hElecMultAfterHLT.size(); i++){
+    hElecMultAfterHLT[i]->Write();
+    hElec1PtAfterHLT[i]->Write();
+    hElec2PtAfterHLT[i]->Write();
+    hElec1EtaAfterHLT[i]->Write();
+    hElec2EtaAfterHLT[i]->Write();
+    hElec1PhiAfterHLT[i]->Write();
+    hElec2PhiAfterHLT[i]->Write();
+
+    hDiElecInvMassAfterHLT[i]->Write();
+
+  }
+  gDirectory->cd();
+
+
+  //******************
+  //Book Muons
+  //******************
+  
+  gDirectory->cd("/RecoMuons/General");
+  hMuonMult  ->Write();
+  hMuon1Pt   ->Write();
+  hMuon2Pt   ->Write();
+  hMuon1Eta  ->Write();
+  hMuon2Eta  ->Write();
+  hMuon1Phi  ->Write();
+  hMuon2Phi  ->Write();
+  
+  hDiMuonInvMass ->Write();
+
+  gDirectory->cd("/RecoMuons/L1");
+  for(unsigned int i=0; i<hMuonMultAfterL1.size(); i++){
+    hMuonMultAfterL1[i]->Write();
+    hMuon1PtAfterL1[i]->Write();
+    hMuon2PtAfterL1[i]->Write();
+    hMuon1EtaAfterL1[i]->Write();
+    hMuon2EtaAfterL1[i]->Write();
+    hMuon1PhiAfterL1[i]->Write();
+    hMuon2PhiAfterL1[i]->Write();
+
+    hDiMuonInvMassAfterL1[i]->Write();
+
+  }
+
+  gDirectory->cd("/RecoMuons/HLT");
+  for(unsigned int i=0; i<hMuonMultAfterHLT.size(); i++){
+    hMuonMultAfterHLT[i]->Write();
+    hMuon1PtAfterHLT[i]->Write();
+    hMuon2PtAfterHLT[i]->Write();
+    hMuon1EtaAfterHLT[i]->Write();
+    hMuon2EtaAfterHLT[i]->Write();
+    hMuon1PhiAfterHLT[i]->Write();
+    hMuon2PhiAfterHLT[i]->Write();
+
+    hDiMuonInvMassAfterHLT[i]->Write();
+
+  }
+  gDirectory->cd();
+
+
+
+  //******************
+  //Book Photons
+  //******************
+  
+  gDirectory->cd("/RecoPhotons/General");
+  hPhotonMult  ->Write();
+  hPhoton1Pt   ->Write();
+  hPhoton2Pt   ->Write();
+  hPhoton1Eta  ->Write();
+  hPhoton2Eta  ->Write();
+  hPhoton1Phi  ->Write();
+  hPhoton2Phi  ->Write();
+  
+  hDiPhotonInvMass ->Write();
+
+  gDirectory->cd("/RecoPhotons/L1");
+  for(unsigned int i=0; i<hPhotonMultAfterL1.size(); i++){
+    hPhotonMultAfterL1[i]->Write();
+    hPhoton1PtAfterL1[i]->Write();
+    hPhoton2PtAfterL1[i]->Write();
+    hPhoton1EtaAfterL1[i]->Write();
+    hPhoton2EtaAfterL1[i]->Write();
+    hPhoton1PhiAfterL1[i]->Write();
+    hPhoton2PhiAfterL1[i]->Write();
+
+    hDiPhotonInvMassAfterL1[i]->Write();
+
+  }
+
+  gDirectory->cd("/RecoPhotons/HLT");
+  for(unsigned int i=0; i<hPhotonMultAfterHLT.size(); i++){
+    hPhotonMultAfterHLT[i]->Write();
+    hPhoton1PtAfterHLT[i]->Write();
+    hPhoton2PtAfterHLT[i]->Write();
+    hPhoton1EtaAfterHLT[i]->Write();
+    hPhoton2EtaAfterHLT[i]->Write();
+    hPhoton1PhiAfterHLT[i]->Write();
+    hPhoton2PhiAfterHLT[i]->Write();
+
+    hDiPhotonInvMassAfterHLT[i]->Write();
+
+  }
+  gDirectory->cd();
+
+
+
+  //******************
+  //Book MET
+  //******************
+  
+  gDirectory->cd("/RecoMET/General");
+  hMET    	   ->Write();
+  hMETx   	   ->Write();
+  hMETy   	   ->Write();
+  hMETphi 	   ->Write();
+  hSumEt  	   ->Write();
+  hMETSignificance ->Write();
+
+  gDirectory->cd("/RecoMET/L1");
+  for(unsigned int i=0; i<hMETAfterL1.size(); i++){
+    hMETAfterL1[i]->Write();
+    hMETxAfterL1[i]->Write();
+    hMETyAfterL1[i]->Write();
+    hMETphiAfterL1[i]->Write();
+    hSumEtAfterL1[i]->Write();
+    hMETSignificanceAfterL1[i]->Write();
+  }
+
+  gDirectory->cd("/RecoMET/HLT");
+  for(unsigned int i=0; i<hMETAfterHLT.size(); i++){
+    hMETAfterHLT[i]->Write();
+    hMETxAfterHLT[i]->Write();
+    hMETyAfterHLT[i]->Write();
+    hMETphiAfterHLT[i]->Write();
+    hSumEtAfterHLT[i]->Write();
+    hMETSignificanceAfterHLT[i]->Write();
+  }
+  gDirectory->cd();
+
+
+
+
+
+
+}
+
+
+
+
 
 
 void PlotMaker::handleObjects(const edm::Event& iEvent)
@@ -1452,9 +2006,10 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
 
 
   //Get the MET
-  Handle<l1extra::L1EtMissParticle> theL1METHandle;
+  Handle<l1extra::L1EtMissParticleCollection> theL1METHandle;
   iEvent.getByLabel(m_l1extra,theL1METHandle);
   theL1METCollection = *theL1METHandle;
+  std::sort(theL1METCollection.begin(), theL1METCollection.end(),PtSorter());
 
   //***********************************************
   // Get the RECO Objects
@@ -1475,7 +2030,7 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
 
   //Get the Photons
   Handle<PhotonCollection> thePhotonCollectionHandle; 
-  iEvent.getByLabel(m_photonSrc, thePhotonCollectionHandle);
+  iEvent.getByLabel(m_photonSrc, m_photonSrc, thePhotonCollectionHandle);
   thePhotonCollection = *thePhotonCollectionHandle;
   std::sort(thePhotonCollection.begin(), thePhotonCollection.end(), PtSorter());
 

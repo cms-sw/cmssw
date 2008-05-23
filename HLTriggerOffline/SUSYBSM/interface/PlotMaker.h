@@ -57,7 +57,7 @@ class PlotMaker {
   void handleObjects(const edm::Event&);
   void fillPlots(const edm::Event&);
   void bookHistos(std::vector<int>*, std::vector<int>*,std::vector<std::string>*,std::vector<std::string>*);
-
+  void writeHistos();
 
 
  private:
@@ -94,7 +94,7 @@ class PlotMaker {
   l1extra::L1EmParticleCollection theL1EmIsoCollection, theL1EmNotIsoCollection;
   l1extra::L1MuonParticleCollection theL1MuonCollection;
   l1extra::L1JetParticleCollection theL1CentralJetCollection, theL1ForwardJetCollection, theL1TauJetCollection;
-  l1extra::L1EtMissParticle theL1METCollection;
+  l1extra::L1EtMissParticleCollection theL1METCollection;
 
   //histos
 
@@ -343,8 +343,15 @@ class PlotMaker {
   TH1D* hMET;
   TH1D* hL1METphi;
   TH1D* hMETphi;
+  TH1D* hL1METx;
+  TH1D* hMETx;
+  TH1D* hL1METy;
+  TH1D* hMETy;
   TH1D* hL1SumEt;
   TH1D* hSumEt;
+  TH1D* hL1METSignificance;
+  TH1D* hMETSignificance;
+
   std::vector<TH1D*> hL1METAfterL1;
   std::vector<TH1D*> hL1METAfterHLT;
   std::vector<TH1D*> hMETAfterL1;
@@ -353,11 +360,22 @@ class PlotMaker {
   std::vector<TH1D*> hL1METphiAfterHLT;
   std::vector<TH1D*> hMETphiAfterL1;
   std::vector<TH1D*> hMETphiAfterHLT;
+  std::vector<TH1D*> hL1METxAfterL1;
+  std::vector<TH1D*> hL1METxAfterHLT;
+  std::vector<TH1D*> hMETxAfterL1;
+  std::vector<TH1D*> hMETxAfterHLT;
+  std::vector<TH1D*> hL1METyAfterL1;
+  std::vector<TH1D*> hL1METyAfterHLT;
+  std::vector<TH1D*> hMETyAfterL1;
+  std::vector<TH1D*> hMETyAfterHLT;
   std::vector<TH1D*> hL1SumEtAfterL1;
   std::vector<TH1D*> hL1SumEtAfterHLT;
   std::vector<TH1D*> hSumEtAfterL1;
   std::vector<TH1D*> hSumEtAfterHLT;
-
+  std::vector<TH1D*> hL1METSignificanceAfterL1;
+  std::vector<TH1D*> hL1METSignificanceAfterHLT;
+  std::vector<TH1D*> hMETSignificanceAfterL1;
+  std::vector<TH1D*> hMETSignificanceAfterHLT;
 
 
 

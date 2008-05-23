@@ -15,7 +15,7 @@ Implementation:
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.cc,v 1.4 2008/01/21 15:31:35 chiorbo Exp $
+// $Id: TriggerValidator.cc,v 1.2 2007/09/28 11:10:19 chiorbo Exp $
 //
 //
 
@@ -40,7 +40,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //Added by Max for the Trigger
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 //#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -79,6 +79,8 @@ using namespace std;
 TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   HistoFileName(iConfig.getUntrackedParameter("histoFileName",
 					      std::string("SusyBsmTriggerValidation.root"))),
+  StatFileName(iConfig.getUntrackedParameter("statFileName",
+					      std::string("SusyBsmTriggerValidation.stat"))),
   hltLabel(iConfig.getParameter<edm::InputTag>("HltLabel")),
   mcFlag(iConfig.getUntrackedParameter<bool>("mc_flag",false)),
   userCut_params(iConfig.getParameter<ParameterSet>("UserCutParams")),
@@ -88,6 +90,8 @@ TriggerValidator::TriggerValidator(const edm::ParameterSet& iConfig):
   //now do what ever initialization is needed
   theHistoFile = 0;
   nEvTot = 0;
+  nEvRecoSelected = 0;
+  nEvMcSelected = 0;
 
 }
 
@@ -116,6 +120,10 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool eventRecoSelected = myRecoSelector->isSelected(iEvent);
   bool eventMcSelected   = mcFlag ? myMcSelector->isSelected(iEvent) : false;
    
+   if(eventRecoSelected) nEvRecoSelected++;
+   if(eventMcSelected) nEvMcSelected++;
+
+
   // ******************************************************** 
   // Get the L1 Info
   // ********************************************************    
@@ -148,7 +156,9 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     hL1OverlapNormToLargestPath->SetBins(L1GTRR->decisionWord().size(),0,L1GTRR->decisionWord().size(),L1GTRR->decisionWord().size(),0,L1GTRR->decisionWord().size());
 
     //resize the eff and overlap vectors ccording to the number of L1 paths
-    effL1.resize(L1GTRR->decisionWord().size()+1);
+    effL1BeforeCuts.resize(L1GTRR->decisionWord().size()+1);
+    effL1AfterRecoCuts.resize(L1GTRR->decisionWord().size()+1);
+    effL1AfterMcCuts.resize(L1GTRR->decisionWord().size()+1);
     vCorrL1.resize(L1GTRR->decisionWord().size());
     for(unsigned int i=0; i<L1GTRR->decisionWord().size(); i++) {vCorrL1[i].resize(L1GTRR->decisionWord().size());}
     vCorrNormL1.resize(L1GTRR->decisionWord().size());
@@ -161,7 +171,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //for the moment the names are not included in L1GlobalTriggerReadoutRecord
     //we need to use L1GlobalTriggerObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel("gtDigis", gtObjectMapRecord);
+    iEvent.getByLabel("l1GtEmulDigis", gtObjectMapRecord);
     const std::vector<L1GlobalTriggerObjectMap>& objMapVec =
       gtObjectMapRecord->gtObjectMap();
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
@@ -219,8 +229,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
 
-
-
   // ******************************************************** 
   // Get the HLT Info
   // ******************************************************** 
@@ -254,7 +262,9 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     //resize the eff and overlap vectors ccording to the number of L1 paths
-    effHlt.resize(trhv->size()+1);
+    effHltBeforeCuts.resize(trhv->size()+1);
+    effHltAfterRecoCuts.resize(trhv->size()+1);
+    effHltAfterMcCuts.resize(trhv->size()+1);
     vCorrHlt.resize(trhv->size());
     for(unsigned int i=0; i<trhv->size(); i++) {vCorrHlt[i].resize(trhv->size());}
     vCorrNormHlt.resize(trhv->size());
@@ -266,7 +276,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     hlNames_=triggerNames_.triggerNames();
     hlNames_.push_back("Total");
   }
-
 
   //fill the eff vectors and histos for HLT
   for(unsigned int i=0; i< trhv->size(); i++) {
@@ -295,7 +304,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //The overlap histos are filled in the endJob() method
 
-
   //fill the last bin with the total of events
   numTotHltBitsBeforeCuts[trhv->size()]++;
   hHltBitsBeforeCuts->Fill(trhv->size());
@@ -321,14 +329,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 
-
-
-
-
-
-
-
-
   if(!alreadyBooked) {
     myPlotMaker->bookHistos(&l1bits,&hltbits,&l1Names_,&hlNames_);
     myTurnOnMaker->bookHistos();
@@ -336,7 +336,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   myPlotMaker->fillPlots(iEvent);
   myTurnOnMaker->fillPlots(iEvent);
-
 
 
 }
@@ -411,7 +410,6 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   dirRecoMET->mkdir("L1");
   dirRecoMET->mkdir("HLT");
   
-
   theHistoFile->cd("/TriggerBits");   
   //book all the histograms with only 1 bin
   //the number of bins will be changed in the analyze() method according to the number of L1 and HLT paths
@@ -432,32 +430,106 @@ TriggerValidator::beginJob(const edm::EventSetup&)
   hHltBitsAfterMcCuts = new TH1D("HltBits","HL Trigger Bits",1, 0, 1);
   theHistoFile->cd();   
 
-  //    lL1Names = new TList();
-  //    lHLTNames = new TList();
+}
+
+
+
+// ------------ write the histograms into the root file  ------------
+void 
+TriggerValidator::writeHistos() {
+
+  gDirectory->cd("/TriggerBits");
+  hL1BitsBeforeCuts->Write();
+  hHltBitsBeforeCuts->Write();
+  hL1PathsBeforeCuts->Write();
+  hHltPathsBeforeCuts->Write();
+  hL1HltMapNorm->Write();
+  hL1HltMapNorm->Write();
+  hL1OverlapNormToTotal->Write();
+  hHltOverlapNormToTotal->Write();
+  hL1OverlapNormToLargestPath->Write();
+  hHltOverlapNormToLargestPath->Write();
+  
+
+
+  gDirectory->cd("/RecoSelection");
+  hL1BitsAfterRecoCuts->Write();
+  hHltBitsAfterRecoCuts->Write();
+  hL1PathsAfterRecoCuts->Write();
+  hHltPathsAfterRecoCuts->Write();
+
+  gDirectory->cd("/McSelection");
+  hL1BitsAfterMcCuts->Write();
+  hHltBitsAfterMcCuts->Write();
+  hL1PathsAfterMcCuts->Write();
+  hHltPathsAfterMcCuts->Write();
 
 }
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 TriggerValidator::endJob() {
 
-  
+
   //  myTurnOnMaker->finalOperations();
 
   //calculate the final efficiencies and the normalizations
   for(unsigned int i=0; i<numTotL1BitsBeforeCuts.size()-1; i++) {
-    effL1[i] = (double)numTotL1BitsBeforeCuts[i]/(double)nEvTot;
+    effL1BeforeCuts[i] = (double)numTotL1BitsBeforeCuts[i]/(double)nEvTot;
     for(unsigned int j=0; j<numTotL1BitsBeforeCuts.size()-1; j++) {
       vCorrNormL1[i][j] = (double)vCorrL1[i][j]/(double)nEvTot;
     }
   }
 
   for(unsigned int i=0; i<numTotHltBitsBeforeCuts.size()-1; i++) {
-    effHlt[i] = (double)numTotHltBitsBeforeCuts[i]/(double)nEvTot;
+    effHltBeforeCuts[i] = (double)numTotHltBitsBeforeCuts[i]/(double)nEvTot;
     for(unsigned int j=0; j<numTotHltBitsBeforeCuts.size()-1; j++) {
       vCorrNormHlt[i][j] = (double)vCorrHlt[i][j]/(double)nEvTot;
     }
   }
+
+  //after the reco cuts
+
+  if(nEvRecoSelected) {
+    for(unsigned int i=0; i<numTotL1BitsAfterRecoCuts.size()-1; i++) {
+      effL1AfterRecoCuts[i] = (double)numTotL1BitsAfterRecoCuts[i]/(double)nEvRecoSelected;
+    }
+    
+    for(unsigned int i=0; i<numTotHltBitsAfterRecoCuts.size()-1; i++) {
+      effHltAfterRecoCuts[i] = (double)numTotHltBitsAfterRecoCuts[i]/(double)nEvRecoSelected;
+    }
+  } else {
+    
+    for(unsigned int i=0; i<numTotL1BitsAfterRecoCuts.size()-1; i++) {
+      effL1AfterRecoCuts[i] = -1;
+    }
+    
+    for(unsigned int i=0; i<numTotHltBitsAfterRecoCuts.size()-1; i++) {
+      effHltAfterRecoCuts[i] = -1;
+    }
+  }
+
+
+  //after the mc cuts
+  if(nEvMcSelected) {
+    for(unsigned int i=0; i<numTotL1BitsAfterMcCuts.size()-1; i++) {
+      effL1AfterMcCuts[i] = (double)numTotL1BitsAfterMcCuts[i]/(double)nEvMcSelected;
+    }
+    
+    for(unsigned int i=0; i<numTotHltBitsAfterMcCuts.size()-1; i++) {
+      effHltAfterMcCuts[i] = (double)numTotHltBitsAfterMcCuts[i]/(double)nEvMcSelected;
+    }
+  } else {
+    for(unsigned int i=0; i<numTotL1BitsAfterMcCuts.size()-1; i++) {
+      effL1AfterMcCuts[i] = -1;
+    }
+    
+    for(unsigned int i=0; i<numTotHltBitsAfterMcCuts.size()-1; i++) {
+      effHltAfterMcCuts[i] = -1;
+    }
+  }    
+
 
 
   //create the histos with paths
@@ -508,9 +580,9 @@ TriggerValidator::endJob() {
   for(unsigned int i=0; i<numTotL1BitsBeforeCuts.size()-1; i++) {
     for(unsigned int j=0; j<numTotL1BitsBeforeCuts.size()-1; j++) {
       int iNorm = 0;
-      if(effL1[i] > effL1[j]) {iNorm  = i;}
+      if(effL1BeforeCuts[i] > effL1BeforeCuts[j]) {iNorm  = i;}
       else {iNorm = j;}
-      double effNorm  =  effL1[iNorm]>0 ?  vCorrNormL1[i][j] / effL1[iNorm]  : 0;
+      double effNorm  =  effL1BeforeCuts[iNorm]>0 ?  vCorrNormL1[i][j] / effL1BeforeCuts[iNorm]  : 0;
       hL1OverlapNormToTotal->SetBinContent(i+1,j+1, vCorrNormL1[i][j]);
       hL1OverlapNormToLargestPath->SetBinContent(i+1,j+1,effNorm);
     }
@@ -520,9 +592,9 @@ TriggerValidator::endJob() {
   for(unsigned int i=0; i<numTotHltBitsBeforeCuts.size()-1; i++) {
     for(unsigned int j=0; j<numTotHltBitsBeforeCuts.size()-1; j++) {
       int iNorm = 0;
-      if(effHlt[i] > effHlt[j]) {iNorm  = i;}
+      if(effHltBeforeCuts[i] > effHltBeforeCuts[j]) {iNorm  = i;}
       else {iNorm = j;}
-      double effNorm  = (effHlt[iNorm]>0) ? vCorrNormHlt[i][j]/effHlt[iNorm] : 0;
+      double effNorm  = (effHltBeforeCuts[iNorm]>0) ? vCorrNormHlt[i][j]/effHltBeforeCuts[iNorm] : 0;
       hHltOverlapNormToTotal->SetBinContent(i+1,j+1, vCorrNormHlt[i][j]);
       hHltOverlapNormToLargestPath->SetBinContent(i+1,j+1,effNorm);
     }
@@ -530,14 +602,16 @@ TriggerValidator::endJob() {
 
 
 
-  theHistoFile->cd();
-  
-  
-  theHistoFile->Write();
-  theHistoFile->Close() ;
 
-  //   delete lL1Names;
-  //   delete lHLTNames;
+
+
+  this->writeHistos();
+  myPlotMaker->writeHistos();
+  myTurnOnMaker->writeHistos();
+
+
+  theHistoFile->Write();
+  theHistoFile->Close();
 
   //  using namespace std;
 
@@ -573,48 +647,27 @@ TriggerValidator::endJob() {
   //Print in a stat file the efficiencies and the overlaps
  
  
-  ofstream statFile("statTrigger.txt",ios::out);
-  cout << "AAAAAAAAAAA" << endl;
-
-  //   FILE * ofFile;
-  //   ofFile = fopen ("myfile.txt","w");
-
-  //   fprintf(ofFile, "***************************************** \n ");
-  //   fprintf(ofFile, "             L1 Efficiencies              \n ");
-  //   fprintf(ofFile, "***************************************** \n ");
-  //   fprintf(ofFile,"\n");
-  //   fprintf(ofFile,"\n");
-  //   fprintf(ofFile, "----------------------------------------- \n ");
-  //   fprintf(ofFile, "|         L1 Path           |    eff    | \n ");
-  //   fprintf(ofFile, "----------------------------------------- \n ");
-  //   for(unsigned int i=0; i<numTotL1BitsBeforeCuts.size()-1; i++) {
-  //     fprintf(ofFile, "| %-30s | %5.2f |  \n", l1Names_[i], effL1[i]); 
-  //     //    statFile << left << setw(25) << l1Names_[i] << right << setw(8) << effL1[i] << endl;
-  //   }
-  //   fprintf(ofFile,"\n");
-  //   fprintf(ofFile,"\n");
-
-  //   fclose (ofFile);
+  ofstream statFile(StatFileName.c_str(),ios::out);
 
 
-
-
-  statFile << "************************************************" << endl;
-  statFile << "************************************************" << endl;
-  statFile << "                 L1 Efficiencies                " << endl;
-  statFile << "************************************************" << endl;
-  statFile << "************************************************" << endl;
+  statFile << "*********************************************************************************" << endl;
+  statFile << "*********************************************************************************" << endl;
+  statFile << "                                   L1 Efficiencies                               " << endl;
+  statFile << "*********************************************************************************" << endl;
+  statFile << "*********************************************************************************" << endl;
   statFile << endl;
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "|           L1 Path             |       eff     |" << endl;
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "-------------------------------------------------" << endl;
+  statFile << "---------------------------------------------------------------------------------" << endl;
+  statFile << "---------------------------------------------------------------------------------" << endl;
+  statFile << "|           L1 Path             |   eff (Tot)    | eff (Reco Sel)|  eff (Mc Sel) |" << endl;
+  statFile << "---------------------------------------------------------------------------------" << endl;
+  statFile << "---------------------------------------------------------------------------------" << endl;
   for(unsigned int i=0; i<numTotL1BitsBeforeCuts.size()-1; i++) {
-    statFile << "|  " << left << setw(29) << l1Names_[i] << "|" << setprecision(2) << showpoint << right << setw(13) << effL1[i] << "  |" << endl;
+    statFile << "|  " << left << setw(29) << l1Names_[i] << "|" << setprecision(3) << showpoint << right << setw(13) << effL1BeforeCuts[i]    << "  |" <<
+                                                                                                            setw(13) << effL1AfterRecoCuts[i] << "  |" <<
+                                                                                                            setw(13) << effL1AfterMcCuts[i]   << "  |" << endl;
   }
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "-------------------------------------------------" << endl;
+  statFile << "---------------------------------------------------------------------------------" << endl;
+  statFile << "---------------------------------------------------------------------------------" << endl;
   statFile << endl;
   statFile << endl;
   statFile << endl;
@@ -624,22 +677,24 @@ TriggerValidator::endJob() {
 
 
 
-  statFile << "************************************************" << endl;
-  statFile << "************************************************" << endl;
-  statFile << "                 Hlt Efficiencies                " << endl;
-  statFile << "************************************************" << endl;
-  statFile << "************************************************" << endl;
+  statFile << "**********************************************************************************" << endl;
+  statFile << "**********************************************************************************" << endl;
+  statFile << "                                  Hlt Efficiencies                                " << endl;
+  statFile << "**********************************************************************************" << endl;
+  statFile << "**********************************************************************************" << endl;
   statFile << endl;
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "|           Hlt Path             |       eff     |" << endl;
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "-------------------------------------------------" << endl;
+  statFile << "----------------------------------------------------------------------------------" << endl;
+  statFile << "----------------------------------------------------------------------------------" << endl;
+  statFile << "|           Hlt Path             |   eff (Tot)    | eff (Reco Sel)|  eff (Mc Sel) |" << endl;
+  statFile << "----------------------------------------------------------------------------------" << endl;
+  statFile << "----------------------------------------------------------------------------------" << endl;
   for(unsigned int i=0; i<numTotHltBitsBeforeCuts.size()-1; i++) {
-    statFile << "|  " << left << setw(29) << hlNames_[i] << "|" << setprecision(2) << showpoint << right << setw(13) << effHlt[i] << "  |" << endl;
+    statFile << "|  " << left << setw(29) << hlNames_[i] << "|" << setprecision(3) << showpoint << right << setw(13) << effHltBeforeCuts[i]    << "  |" << 
+                                                                                                            setw(13) << effHltAfterRecoCuts[i] << "  |" << 
+                                                                                                            setw(13) << effHltAfterMcCuts[i]   << "  |" <<endl;
   }
-  statFile << "-------------------------------------------------" << endl;
-  statFile << "-------------------------------------------------" << endl;
+  statFile << "----------------------------------------------------------------------------------" << endl;
+  statFile << "----------------------------------------------------------------------------------" << endl;
   statFile << endl;
   statFile << endl;
   statFile << endl;
@@ -653,7 +708,7 @@ TriggerValidator::endJob() {
 
   statFile << "****************************************************************************************************************************************************" << endl; 
   statFile << "****************************************************************************************************************************************************" << endl; 
-  statFile << "                                                      L1 Correlations   (only overlaps >5% are shown)                                               " << endl;
+  statFile << "                                                      L1 Correlations   (only overlaps >5% are shown, and only without any selection)                                               " << endl;
   statFile << "****************************************************************************************************************************************************" << endl; 
   statFile << "****************************************************************************************************************************************************" << endl;
   statFile << endl;
@@ -667,16 +722,16 @@ TriggerValidator::endJob() {
     for(unsigned int j=0; j<numTotL1BitsBeforeCuts.size()-1; j++) {
       if(vCorrNormL1[i][j]>0.05) {
 	int iNorm = 0;
-	if(effL1[i] > effL1[j]) {iNorm  = i;}
+	if(effL1BeforeCuts[i] > effL1BeforeCuts[j]) {iNorm  = i;}
 	else {iNorm = j;}
-	double effNorm  =  vCorrNormL1[i][j] / effL1[iNorm];
+	double effNorm  =  vCorrNormL1[i][j] / effL1BeforeCuts[iNorm];
 	statFile << "|  " << left << setw(29) << l1Names_[i] << "|  " << setw(29) <<  left << l1Names_[j] << "|"
-		 << setprecision(2) << showpoint << right  << setw(22) << vCorrNormL1[i][j] << "   |"
-		 << setprecision(2) << showpoint << right  << setw(21) << effNorm           << "   |  "
+		 << setprecision(3) << showpoint << right  << setw(22) << vCorrNormL1[i][j] << "   |"
+		 << setprecision(3) << showpoint << right  << setw(21) << effNorm           << "   |  "
 		 << left << setw(29) << l1Names_[iNorm] << "|" << endl;
       }
     }
-    statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
+  statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
   }
   statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
   statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
@@ -690,7 +745,7 @@ TriggerValidator::endJob() {
 
   statFile << "****************************************************************************************************************************************************" << endl; 
   statFile << "****************************************************************************************************************************************************" << endl; 
-  statFile << "                                                     Hlt Correlations   (only overlaps >5% are shown)                                               " << endl;
+  statFile << "                                                     Hlt Correlations   (only overlaps >5% are shown, and only without any selection)                                               " << endl;
   statFile << "****************************************************************************************************************************************************" << endl; 
   statFile << "****************************************************************************************************************************************************" << endl;
   statFile << endl;
@@ -704,16 +759,16 @@ TriggerValidator::endJob() {
     for(unsigned int j=0; j<numTotHltBitsBeforeCuts.size()-1; j++) {
       if(vCorrNormHlt[i][j]>0.05) {
 	int iNorm = 0;
-	if(effHlt[i] > effHlt[j]) {iNorm  = i;}
+	if(effHltBeforeCuts[i] > effHltBeforeCuts[j]) {iNorm  = i;}
 	else {iNorm = j;}
-	double effNorm  = vCorrNormHlt[i][j]/effHlt[iNorm];
+	double effNorm  = vCorrNormHlt[i][j]/effHltBeforeCuts[iNorm];
 	statFile << "|  " << left << setw(29) << hlNames_[i] << "|  " << setw(29) <<  left << hlNames_[j] << "|"
-		 << setprecision(2) << showpoint << right  << setw(22) << vCorrNormHlt[i][j] << "   |"
-		 << setprecision(2) << showpoint << right  << setw(21) << effNorm            << "   |  "
+		 << setprecision(3) << showpoint << right  << setw(22) << vCorrNormHlt[i][j] << "   |"
+		 << setprecision(3) << showpoint << right  << setw(21) << effNorm            << "   |  "
 		 << left << setw(29) << hlNames_[iNorm] << "|" << endl;
       }
     }
-    statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
+  statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
   }
   statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
   statFile << "----------------------------------------------------------------------------------------------------------------------------------------------------" << endl;
@@ -723,39 +778,6 @@ TriggerValidator::endJob() {
   statFile << endl;
   statFile << endl;
   statFile << endl;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  //   statFile << "************************************" << endl;
-  //   statFile << "     HLT Correlations               " << endl;
-  //   statFile << "************************************" << endl;
-  //   statFile << endl;
-  //   for(unsigned int i=0; i<numTotHltBitsBeforeCuts.size()-1; i++) {
-  //     for(unsigned int j=0; j<numTotHltBitsBeforeCuts.size()-1; j++) {
-  //       if(vCorrNormHlt[i][j]>0.05) {
-  // 	double iNorm = 0;
-  // 	if(effHlt[i] > effHlt[j]) {iNorm  = i;}
-  // 	else {iNorm = j;}
-  // 	double effNorm  = vCorrNormHlt[i][j]/effHlt[iNorm];
-  // 	statFile << left << setw(25) << hlNames_[i] << setw(6) 
-  // 	     << " and " << left << setw(25) << hlNames_[j] 
-  // 	     << right << setw(8) << vCorrNormHlt[i][j]
-  // 	     << " (norm. on " << hlNames_[iNorm] << " = " << effNorm << " )" << endl;
-  //       }
-  //     }
-  //   }
 
 
 

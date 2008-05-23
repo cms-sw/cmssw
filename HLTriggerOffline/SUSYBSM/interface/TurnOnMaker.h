@@ -22,7 +22,7 @@
 
 //For L1 and Hlt objects
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -38,12 +38,22 @@
 
 //For Muon tracks used by the trigger
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 #include "TH1.h"
 
+using namespace edm;
+using namespace reco;
+using namespace std;
+using namespace trigger;
+using namespace l1extra;
 
 class TurnOnMaker {
 
@@ -54,6 +64,7 @@ class TurnOnMaker {
   void handleObjects(const edm::Event&);
   void fillPlots(const edm::Event&);
   void bookHistos();
+  void writeHistos();
   //  void finalOperations();
 
 
@@ -71,13 +82,13 @@ class TurnOnMaker {
 
 /*   bool recoToTriggerMatched(reco::Candidate*, std::vector< edm::RefToBase< reco::Candidate > >); */
 /*   bool recoToTriggerMatched(const reco::Candidate*, std::vector< edm::RefToBase< reco::Candidate > >); */
-  bool recoToTriggerMatched(reco::Candidate*, std::vector< std::vector< edm::RefToBase< reco::Candidate > > >, int);
-  bool recoToTriggerMatched(const reco::Candidate*, std::vector< std::vector< edm::RefToBase< reco::Candidate > > >, int);
+  bool recoToTriggerMatched(reco::Candidate*, std::vector< std::vector<RecoChargedCandidateRef> >, int);
+  bool recoToTriggerMatched(const reco::Candidate*, std::vector< std::vector<RecoChargedCandidateRef> >, int);
 
   bool recoToTracksMatched(reco::Candidate*, reco::RecoChargedCandidateCollection, double, std::string);
   bool recoToTracksMatched(const reco::Candidate*, reco::RecoChargedCandidateCollection, double, std::string);
 
-  bool triggerToTriggerMatched(edm::RefToBase< reco::Candidate >, std::vector< std::vector< edm::RefToBase< reco::Candidate > > >, int);
+  bool triggerToTriggerMatched(RecoChargedCandidateRef, std::vector< std::vector<RecoChargedCandidateRef> >, int);
 
 
 
@@ -86,9 +97,8 @@ class TurnOnMaker {
   // these objects are vectors of vectors since they contain the different level of HLT
   // and the different objects for every level
   // so: theHLT1MuonIsoObjectVector[i][j] means the j-th HltMuonIso in the i-th level of trigger
-  std::vector< std::vector< edm::RefToBase< reco::Candidate > > > theHLT1MuonIsoObjectVector;
-  std::vector< std::vector< edm::RefToBase< reco::Candidate > > > theHLT1MuonNonIsoObjectVector;
-  
+  std::vector< std::vector<RecoChargedCandidateRef> > theHLT1MuonIsoObjectVector;
+  std::vector< std::vector<RecoChargedCandidateRef> > theHLT1MuonNonIsoObjectVector;
 
   //the Reco Muon Collection
   reco::MuonCollection                  theMuonCollection;

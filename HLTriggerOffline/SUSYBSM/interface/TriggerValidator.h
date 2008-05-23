@@ -54,6 +54,7 @@ class TriggerValidator : public edm::EDAnalyzer {
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      void writeHistos();
       virtual void endJob() ;
 
       std::map<int,std::string> l1NameMap;
@@ -69,6 +70,7 @@ class TriggerValidator : public edm::EDAnalyzer {
 
       //Histo
       std::string HistoFileName;
+      std::string StatFileName;
       edm::InputTag hltLabel;
 
       //McFlag
@@ -94,8 +96,12 @@ class TriggerValidator : public edm::EDAnalyzer {
       std::vector<int> numTotL1BitsAfterMcCuts;
       std::vector<int> numTotHltBitsAfterMcCuts;
 
-      std::vector<double> effL1;
-      std::vector<double> effHlt;
+      std::vector<double> effL1BeforeCuts;
+      std::vector<double> effHltBeforeCuts;
+      std::vector<double> effL1AfterRecoCuts;
+      std::vector<double> effHltAfterRecoCuts;
+      std::vector<double> effL1AfterMcCuts;
+      std::vector<double> effHltAfterMcCuts;
       
       
 
@@ -105,6 +111,8 @@ class TriggerValidator : public edm::EDAnalyzer {
       std::vector< std::vector<double> > vCorrNormHlt;
 
       int nEvTot;
+      int nEvRecoSelected;
+      int nEvMcSelected;
 
 
 
