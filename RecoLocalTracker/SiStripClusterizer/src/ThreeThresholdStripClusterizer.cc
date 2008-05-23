@@ -151,12 +151,49 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit_(const InputDetSet& input
       if (!IsBadChannel && itest->adc() >= static_cast<int>( channelThresholdInNoiseSigma()*channelNoise)) {
 
 	float gainFactor  = gainHandle_->getStripGain(itest->strip(), detGainRange);
-        float stripCharge=(static_cast<float>(itest->adc()))/gainFactor;
+
+	// Begin of Change done by Loic Quertenmont
+	// Protection if the Charge/Gain brings the charge to be bigger 
+	// than 255 (largest integer containable in uint8)
+        // Also, Gain is applied only if the strip is not saturating.
+	// Same convention as in SimTracker/SiStripDigitizer/src/SiTrivialDigitalConverter.cc
+
+        float stripCharge=(static_cast<float>(itest->adc()));
+
+// 	//dummy DEBUGG
+// 	float stripCharge;
+// 	for (uint16_t myadc=0; myadc<=255; myadc++){
+
+// 	  stripCharge=(static_cast<float>(myadc));
+
+// 	  gainFactor=0.73;
+// 	//ENDDEBUGG
+
+
+	  if(stripCharge<254){
+	    stripCharge /= gainFactor;	  
+	    
+	    if(stripCharge>511.5){stripCharge=255;}
+	    else if(stripCharge>253.5){stripCharge=254;}
+	  }  
+
+
+//  	//dummy DEBUGG
+// 	  std::vector<SiStripDigi> b; b.push_back(SiStripDigi(itest->strip(), static_cast<uint8_t>(stripCharge+0.5)));; 
+// 	  SiStripCluster c( detID, SiStripCluster::SiStripDigiRange( b.begin(),b.end()));
+// 	  edm::LogInfo("MYTEST") << "myadc="<<myadc<<" stripCharge="<<stripCharge<<" stored charge="<< (unsigned int)(c.amplitudes()[0])<< std::endl;
+
+// 	} 
+// 	  //ENDDEBUGG
+
+// End of Change done by Loic Quertenmont
+
+
 
         charge += stripCharge;
         sigmaNoise2 += channelNoise*channelNoise/(gainFactor*gainFactor);
       
-	cluster_digis_.push_back(SiStripDigi(itest->strip(), static_cast<uint8_t>(stripCharge+0.499)));
+	cluster_digis_.push_back(SiStripDigi(itest->strip(), static_cast<uint8_t>(stripCharge+0.5)));
       } else {
 	cluster_digis_.push_back(SiStripDigi(itest->strip(),0)); //if strip bad or under threshold set SiStripDigi.adc_=0
 	
