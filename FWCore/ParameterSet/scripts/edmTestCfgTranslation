@@ -24,8 +24,9 @@ if(! -e $pyFile) then
   endif
 endif
 
-edmParameterSetDump $1 >! cfg.dump
-edmParameterSetDump $pyFile >! py.dump
+edmParameterSetDump $1 >! dumpcfgpset.txt
+edmParameterSetDump $pyFile >! dumppypset.txt
 
-diff cfg.dump py.dump
+diff dumpcfgpset.txt dumppypset.txt
+
 
