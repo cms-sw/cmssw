@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#include "SimMuon/CSCDigitizer/data/muonCSCConditions.cfi"
 simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
     strips = cms.PSet(
         peakTimeSigma = cms.double(3.0),
