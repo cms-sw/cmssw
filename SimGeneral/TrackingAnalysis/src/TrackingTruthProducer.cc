@@ -485,55 +485,82 @@ void TrackingTruthProducer::mergeBremsstrahlung(
   	// Check Bremsstrahlung vertex
   	if ( isBremsstrahlungVertex(*iVC, tPC) )
   	{
-  	  // Get a non const reference to the source track (by using using "key" the reference is not const)	
-  	  TrackingParticle & track = tPC->at(iVC->sourceTracks_begin()->key());
+  	  // Get a pointer to the source track (A Ref<> cannot be use with a product!)	
+  	  TrackingParticle * track = &tPC->at(iVC->sourceTracks_begin()->key());
+  	  // Get a Ref<> to the source track
   	  TrackingParticleRef trackRef = *iVC->sourceTracks_begin();
-  		      
-      // Select electron daughter
-      TrackingVertex::tp_iterator idaughter;
 
+      // Pointer to electron daughter
       TrackingParticle * daughter = 0;
+      // Ref<> to electron daughter
+      TrackingParticleRef daughterRef;
 
-      for (idaughter = iVC->daughterTracks_begin(); idaughter != iVC->daughterTracks_end(); ++idaughter)
+      // Select the electron daughter and veto the photon
+      for (TrackingVertex::tp_iterator idaughter = iVC->daughterTracks_begin(); idaughter != iVC->daughterTracks_end(); ++idaughter)
       {
-      	daughter = &tPC->at(idaughter->key());
-        if ( abs( daughter->pdgId() ) == 11 ) break;
+      	TrackingParticle * pointer = &tPC->at(idaughter->key());
+        if ( abs( pointer->pdgId() ) == 11 )
+        {
+          // Set pointer to the electron daughter
+      	  daughter = pointer;
+      	  // Set Ref<> to the electron daughter
+      	  daughterRef = *idaughter;
+        }
+        else if ( pointer->pdgId() == 22 )
+        {
+          // Remove reference to the voted photon	
+          for ( TrackingParticle::tv_iterator idecay = pointer->decayVertices_begin(); idecay != pointer->decayVertices_end(); ++idecay )
+          {
+            // Get a reference to decay vertex
+            TrackingVertex * vertex = &tVC->at( idecay->key() );
+            // Copy all the source tracks from of the decay vertex 
+            TrackingParticleRefVector sources( vertex->sourceTracks() );    
+            // Clear the source track references
+            vertex->clearParentTracks();
+            // Add the new source tracks by excluding the one with the segment merged 
+            for(TrackingVertex::tp_iterator isource = sources.begin(); isource != sources.end(); ++isource)
+              if (*isource != *idaughter)
+                vertex->addParentTrack(*isource);
+          }
+          excludedTP.insert( idaughter->key() );          
+        }
       }
 
-      // Add the electron segment
-      track.addG4Track( *daughter->g4Track_begin() );
+      // Add the electron segments from the electron daughter
+      for (TrackingParticle::g4t_iterator isegment = daughter->g4Track_begin(); isegment != daughter->g4Track_end(); ++isegment)
+        track->addG4Track(*isegment);
       
       // Copy all the simhits to the new track  
       for (std::vector<PSimHit>::const_iterator ihit = daughter->pSimHit_begin(); ihit != daughter->pSimHit_end(); ++ihit)
-        track.addPSimHit(*ihit);
+        track->addPSimHit(*ihit);
 
       // Clear the decay vertex list 	  
-      track.clearDecayVertices();
+      track->clearDecayVertices();
 
-      // Redirect all the decay source vertexes to those in the electron daughter (new electron segment)  
+      // Redirect all the decay source vertexes to those in the electron daughter  
       for (TrackingParticle::tv_iterator idecay = daughter->decayVertices_begin(); idecay != daughter->decayVertices_end(); ++idecay)
       { 
       	// Add the vertexes to the decay list of the source particles
-        track.addDecayVertex(*idecay);
+        track->addDecayVertex(*idecay);
         // Get a reference to decay vertex
-        TrackingVertex & vertex = tVC->at(idecay->key());
+        TrackingVertex * vertex = &tVC->at( idecay->key() );
         // Copy all the source tracks from of the decay vertex 
-        TrackingParticleRefVector sources(vertex.sourceTracks());
+        TrackingParticleRefVector sources( vertex->sourceTracks() );
         // Clear the source track references
-        vertex.clearParentTracks();
-        // Add the new source tracks by excluding 
+        vertex->clearParentTracks();
+        // Add the new source tracks by excluding the one with the segment merged 
         for(TrackingVertex::tp_iterator isource = sources.begin(); isource != sources.end(); ++isource)
-          if (*isource != *idaughter) 
-            vertex.addParentTrack(*isource);
+          if (*isource != daughterRef) 
+            vertex->addParentTrack(*isource);
         // Add the track reference to the list of sources 
-        vertex.addParentTrack(trackRef);
+        vertex->addParentTrack(trackRef);
       } 
               
       // Adding the vertex to the exlusion list
       excludedTV.insert(index);
             
       // Adding the electron segment tp into the exlusion list
-      excludedTP.insert( idaughter->key() );
+      excludedTP.insert( daughterRef.key() );
   	}
   }   	
 
@@ -598,7 +625,7 @@ void TrackingTruthProducer::mergeBremsstrahlung(
     mergedTPC->push_back(newTrack);
   }
 }
-
+ 
 
 bool TrackingTruthProducer::isBremsstrahlungVertex(
   TrackingVertex const & vertex,
