@@ -23,12 +23,13 @@ using namespace l1extra;
 
 PlotMaker::PlotMaker(edm::ParameterSet objectList)
 {
-  m_l1extra      = objectList.getParameter<string>("l1extramc");
-  m_electronSrc  = objectList.getParameter<string>("electrons");
-  m_muonSrc    	 = objectList.getParameter<string>("muons");
-  m_jetsSrc    	 = objectList.getParameter<string>("jets");
-  m_photonSrc  	 = objectList.getParameter<string>("photons");
-  m_calometSrc 	 = objectList.getParameter<string>("calomet");
+  m_l1extra      	 = objectList.getParameter<string>("l1extramc");
+  m_electronSrc  	 = objectList.getParameter<string>("electrons");
+  m_muonSrc    	 	 = objectList.getParameter<string>("muons");
+  m_jetsSrc    	 	 = objectList.getParameter<string>("jets");
+  m_photonProducerSrc  	 = objectList.getParameter<string>("photonProducer");
+  m_photonSrc  	 	 = objectList.getParameter<string>("photons");
+  m_calometSrc 	 	 = objectList.getParameter<string>("calomet");
 
   def_electronPtMin = objectList.getParameter<double>("def_electronPtMin");
   def_muonPtMin     = objectList.getParameter<double>("def_muonPtMin");
@@ -707,7 +708,7 @@ void PlotMaker::bookHistos(std::vector<int>* l1bits, std::vector<int>* hltbits,
     hL1CentralJet2EtaAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3, 3));
     myHistoName = "Jet1Phi_" + (*l1Names_)[i];
     myHistoTitle = "Jet 1 Phi for L1 path " + (*l1Names_)[i];
-    hL1CentralJet1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
+   hL1CentralJet1PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
     myHistoName = "Jet2Phi_" + (*l1Names_)[i];
     myHistoTitle = "Jet 2 Phi for L1 path " + (*l1Names_)[i];
     hL1CentralJet2PhiAfterL1.push_back(new TH1D(myHistoName.c_str(), myHistoTitle.c_str() , 100, -3.2, 3.2));
@@ -2030,7 +2031,7 @@ void PlotMaker::handleObjects(const edm::Event& iEvent)
 
   //Get the Photons
   Handle<PhotonCollection> thePhotonCollectionHandle; 
-  iEvent.getByLabel(m_photonSrc, m_photonSrc, thePhotonCollectionHandle);
+  iEvent.getByLabel(m_photonProducerSrc, m_photonSrc, thePhotonCollectionHandle);
   thePhotonCollection = *thePhotonCollectionHandle;
   std::sort(thePhotonCollection.begin(), thePhotonCollection.end(), PtSorter());
 

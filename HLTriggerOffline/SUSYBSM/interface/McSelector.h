@@ -20,6 +20,7 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -59,7 +60,7 @@ class McSelector {
 
 
 
-  const reco::CandidateCollection* theGenParticleCollection;
+  const reco::GenParticleCollection* theGenParticleCollection;
   const reco::GenJetCollection*    theGenJetCollection;
   const reco::GenMETCollection*    theGenMETCollection;
 

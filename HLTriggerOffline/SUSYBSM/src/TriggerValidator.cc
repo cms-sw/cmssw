@@ -171,7 +171,8 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //for the moment the names are not included in L1GlobalTriggerReadoutRecord
     //we need to use L1GlobalTriggerObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel("l1GtEmulDigis", gtObjectMapRecord);
+    //    iEvent.getByLabel("l1GtEmulDigis", gtObjectMapRecord);
+    iEvent.getByLabel("gtDigis", gtObjectMapRecord);
     const std::vector<L1GlobalTriggerObjectMap>& objMapVec =
       gtObjectMapRecord->gtObjectMap();
     for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
@@ -337,7 +338,6 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   myPlotMaker->fillPlots(iEvent);
   myTurnOnMaker->fillPlots(iEvent);
 
-
 }
 
 
@@ -345,6 +345,7 @@ TriggerValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void 
 TriggerValidator::beginJob(const edm::EventSetup&)
 {
+
 
   myRecoSelector = new RecoSelector(userCut_params);
   if(mcFlag) myMcSelector   = new McSelector(userCut_params);

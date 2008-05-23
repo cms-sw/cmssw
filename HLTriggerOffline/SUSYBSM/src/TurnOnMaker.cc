@@ -46,16 +46,20 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 {
 
   this->handleObjects(iEvent);
-
   
   // Distributions of Trigger Objects for the path HLT1MuonIso
   for(unsigned int i=0; i<theHLT1MuonIsoObjectVector.size(); i++) {
     hHLT1MuonIsoMult[i]      ->Fill(theHLT1MuonIsoObjectVector[i].size());
+    //    cout << "hHLT1MuonIsoMult["<<i<<"] = " << theHLT1MuonIsoObjectVector[i].size() << endl;
     for(unsigned int j=0; j<theHLT1MuonIsoObjectVector[i].size(); j++) {
       RecoChargedCandidateRef ref1 = RecoChargedCandidateRef(theHLT1MuonIsoObjectVector[i][j]);
       hHLT1MuonIsoPt[i]        ->Fill(ref1->pt() );	   	 	 
       hHLT1MuonIsoEta[i]       ->Fill(ref1->eta());	   	 	 
-      hHLT1MuonIsoPhi[i]       ->Fill(ref1->phi());	   	  
+      hHLT1MuonIsoPhi[i]       ->Fill(ref1->phi());
+      
+      //      cout << "hHLT1MuonIsoPt[" <<i<<"] = " << ref1->pt()  << endl;
+      //      cout << "hHLT1MuonIsoEta["<<i<<"] = " << ref1->eta() << endl;
+      //      cout << "hHLT1MuonIsoPhi["<<i<<"] = " << ref1->phi() << endl;
     }
   }
 
@@ -63,11 +67,15 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
   // Distributions of Trigger Objects for the path HLT1MuonNonIso
   for(unsigned int i=0; i<theHLT1MuonNonIsoObjectVector.size(); i++) {
     hHLT1MuonNonIsoMult[i]      ->Fill(theHLT1MuonNonIsoObjectVector[i].size());
+    //    cout << "hHLT1MuonNonIsoMult["<<i<<"] = " <<  theHLT1MuonNonIsoObjectVector[i].size() << endl;
     for(unsigned int j=0; j<theHLT1MuonNonIsoObjectVector[i].size(); j++) {
       RecoChargedCandidateRef ref1 = RecoChargedCandidateRef(theHLT1MuonNonIsoObjectVector[i][j]);
       hHLT1MuonNonIsoPt[i]        ->Fill(ref1->pt() );	   	 	 
       hHLT1MuonNonIsoEta[i]       ->Fill(ref1->eta());	   	 	 
       hHLT1MuonNonIsoPhi[i]       ->Fill(ref1->phi());	   	  
+      //      cout << "hHLT1MuonNonIsoPt[" <<i<<"] = " << ref1->pt() << endl;
+      //      cout << "hHLT1MuonNonIsoEta["<<i<<"] = " << ref1->eta()<< endl;
+      //      cout << "hHLT1MuonNonIsoPhi["<<i<<"] = " << ref1->phi()<< endl;
     }
   }
 
@@ -248,15 +256,15 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 
   int nGenMuon = 0;
   for(unsigned int i=0; i<theGenParticleCollection->size(); i++) {
-    const GenParticleCandidate* genParticle = dynamic_cast<const GenParticleCandidate*> (&(*theGenParticleCollection)[i]);
+    const GenParticle* genParticle = (&(*theGenParticleCollection)[i]);
     if(genParticle->status() == 1) {
       if(fabs(genParticle->pdgId()) == 13) {
 	bool isFromW    = false;
 	bool isFromWtoJ = false;
 	bool isFromB    = false;
-	const GenParticleCandidate* genParticleMother = dynamic_cast<const GenParticleCandidate*> (genParticle->mother());
+	const GenParticle* genParticleMother = dynamic_cast<const reco::GenParticle*> (genParticle->mother());
 	while(abs(genParticleMother->pdgId()) == 13) {
-	  genParticleMother = dynamic_cast<const GenParticleCandidate*> (genParticleMother->mother());
+	  genParticleMother = dynamic_cast<const reco::GenParticle*> (genParticleMother->mother());
 	}
 	if(abs(genParticleMother->pdgId()) == 24) isFromW = true;
 // 	cout <<"genParticleMother->pdgId()  = " << genParticleMother->pdgId() << endl;
@@ -264,7 +272,7 @@ void TurnOnMaker::fillPlots(const edm::Event& iEvent)
 // 	cout <<"isFromW = " << (int) isFromW << endl;
 
 	while(genParticleMother->numberOfMothers()>0) {
-	  genParticleMother = dynamic_cast<const GenParticleCandidate*> (genParticleMother->mother());
+	  genParticleMother =  dynamic_cast<const reco::GenParticle*> (genParticleMother->mother());
 	  if(abs(genParticleMother->pdgId()) == 24) isFromWtoJ = true;
 	  if(abs(genParticleMother->pdgId()) == 5)  isFromB    = true;
 // 	  cout <<"meson chain genParticleMother->numberOfMothers() = " << genParticleMother->numberOfMothers() << endl;
@@ -1055,8 +1063,6 @@ void TurnOnMaker::bookHistos() {
 void TurnOnMaker::handleObjects(const edm::Event& iEvent)
 {
 
-
-
   //*******************************************************
   // Get the HLT Objects through the TriggerEventWithRefs
   //*******************************************************
@@ -1064,17 +1070,28 @@ void TurnOnMaker::handleObjects(const edm::Event& iEvent)
 
   // Get the Trigger collection
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  iEvent.getByLabel("triggerSummaryRAW",triggerObj); 
+  iEvent.getByLabel("hltTriggerSummaryRAW",triggerObj);
+//   if(triggerObj.isValid()) { 
+//      cout << "Used Processname: " << triggerObj->usedProcessName() << endl;
+//      const size_type nFO(triggerObj->size());
+//      cout << "Number of TriggerFilterObjects: " << nFO << endl;
+//      cout << "The TriggerFilterObjects: #, label" << endl;
+//      for (size_type iFO=0; iFO!=nFO; ++iFO) {
+//        cout << iFO << " " << triggerObj->filterLabel(iFO) << " " << endl;
+//      }
+//    } else {
+//      cout << "Handle invalid! Check InputTag provided." << endl;
+//    }
+//    cout << endl;
+  
   if(!triggerObj.isValid()) { 
     edm::LogWarning("HLTSusyBSMVal") << "RAW-type HLT results not found, skipping event";
     return;
   }
 
-
   //clear the vectors 
   for(unsigned int i=0; i<theHLT1MuonIsoObjectVector.size(); i++) {theHLT1MuonIsoObjectVector[i].clear();}
   for(unsigned int i=0; i<theHLT1MuonNonIsoObjectVector.size(); i++) {theHLT1MuonNonIsoObjectVector[i].clear();}
-
 
 
 
@@ -1122,8 +1139,6 @@ void TurnOnMaker::handleObjects(const edm::Event& iEvent)
 
 
 
-
-
   //***********************************************
   // Get the RECO Objects
   //***********************************************
@@ -1137,10 +1152,9 @@ void TurnOnMaker::handleObjects(const edm::Event& iEvent)
   //***********************************************
   // Get the MC truth Objects
   //***********************************************
-  Handle<reco::CandidateCollection> theCandidateCollectionHandle;
+  Handle< reco::GenParticleCollection > theCandidateCollectionHandle;
   iEvent.getByLabel(m_genSrc, theCandidateCollectionHandle);
   theGenParticleCollection = theCandidateCollectionHandle.product();
-
 }
 
 

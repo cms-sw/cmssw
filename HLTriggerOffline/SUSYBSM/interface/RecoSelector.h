@@ -50,6 +50,7 @@ class RecoSelector {
   std::string m_muonSrc;
   std::string m_jetsSrc;
   std::string m_photonSrc;
+  std::string m_photonProducerSrc;
   std::string m_calometSrc;
   double reco_metMin;
   double reco_ptJet1Min;

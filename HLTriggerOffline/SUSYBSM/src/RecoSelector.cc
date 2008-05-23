@@ -19,11 +19,12 @@ using namespace std;
 RecoSelector::RecoSelector(edm::ParameterSet userCut_params)
 {
 
-  m_electronSrc  = userCut_params.getParameter<string>("electrons");
-  m_muonSrc    	 = userCut_params.getParameter<string>("muons");
-  m_jetsSrc    	 = userCut_params.getParameter<string>("jets");
-  m_photonSrc  	 = userCut_params.getParameter<string>("photons");
-  m_calometSrc 	 = userCut_params.getParameter<string>("calomet");
+  m_electronSrc  	 = userCut_params.getParameter<string>("electrons");
+  m_muonSrc    	 	 = userCut_params.getParameter<string>("muons");
+  m_jetsSrc    	 	 = userCut_params.getParameter<string>("jets");
+  m_photonProducerSrc  	 = userCut_params.getParameter<string>("photonProducer");
+  m_photonSrc  	 	 = userCut_params.getParameter<string>("photons");
+  m_calometSrc 	         = userCut_params.getParameter<string>("calomet");
 
   reco_metMin    = userCut_params.getParameter<double>("reco_metMin") ;
   reco_ptJet1Min = userCut_params.getParameter<double>("reco_ptJet1Min");
@@ -126,7 +127,7 @@ void RecoSelector::handleObjects(const edm::Event& iEvent)
 
   //Get the Photons
   Handle<PhotonCollection> thePhotonCollectionHandle; 
-  iEvent.getByLabel(m_photonSrc, m_photonSrc, thePhotonCollectionHandle);
+  iEvent.getByLabel(m_photonProducerSrc, m_photonSrc, thePhotonCollectionHandle);
   thePhotonCollection = thePhotonCollectionHandle.product();
 
   //Get the CaloJets

@@ -34,7 +34,7 @@
 //For Gen Objects
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 //For Muon tracks used by the trigger
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -48,6 +48,7 @@
 
 
 #include "TH1.h"
+#include "TDirectory.h"
 
 using namespace edm;
 using namespace reco;
@@ -106,7 +107,7 @@ class TurnOnMaker {
   reco::RecoChargedCandidateCollection theMuonTrackCollection;
 
   //the Gen Particles
-  const reco::CandidateCollection* theGenParticleCollection;
+  const reco::GenParticleCollection* theGenParticleCollection;
 
 
   //histos

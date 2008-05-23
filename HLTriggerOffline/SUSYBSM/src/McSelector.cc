@@ -56,9 +56,7 @@ bool McSelector::isSelected(const edm::Event& iEvent)
 {
 
 
-
   this->handleObjects(iEvent);
-
 
 
   bool TotalCutPassed = false;
@@ -75,7 +73,8 @@ bool McSelector::isSelected(const edm::Event& iEvent)
   int nMcPhotons   = 0;
   int nMcJets      = 0;
   for(unsigned int i=0; i<theGenParticleCollection->size(); i++) {
-    const GenParticleCandidate* genParticle = dynamic_cast<const GenParticleCandidate*> (&(*theGenParticleCollection)[i]);    
+    //    const GenParticleCandidate* genParticle = dynamic_cast<const GenParticleCandidate*> (&(*theGenParticleCollection)[i]);    
+    const GenParticle* genParticle = (&(*theGenParticleCollection)[i]);    
     if(genParticle->status() == 1) {
       //electrons
       if(fabs(genParticle->pdgId()) == 11) {
@@ -144,7 +143,7 @@ void McSelector::handleObjects(const edm::Event& iEvent)
 {
 
   //Get the GenParticleCandidates
-  Handle<reco::CandidateCollection> theCandidateCollectionHandle;
+  Handle< reco::GenParticleCollection > theCandidateCollectionHandle;
   iEvent.getByLabel(m_genSrc, theCandidateCollectionHandle);
   theGenParticleCollection = theCandidateCollectionHandle.product();
 
