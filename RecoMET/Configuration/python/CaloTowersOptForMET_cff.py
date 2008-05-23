@@ -22,5 +22,6 @@ caloTowersOpt = cms.EDFilter("CaloTowerCandidateCreator",
     minimumE = cms.double(-1.0)
 )
 
-caloTowersMETOptRec = cms.Sequence(calotoweroptmaker*caloTowersOpt*caloTowersForMET)
+# sequence caloTowersMETOptRec = { calotoweroptmaker, caloTowersOpt, caloTowersForMET }
+caloTowersMETOptRec = cms.Sequence(calotoweroptmaker)
 

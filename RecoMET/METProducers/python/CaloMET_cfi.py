@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 # Form uncorrected Missing ET from Calorimeter Towers and store into event as a CaloMET
 # product
 met = cms.EDProducer("METProducer",
-    src = cms.InputTag("caloTowersForMET"),
+    src = cms.InputTag("towerMaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMET'),
     noHF = cms.bool(False),
@@ -16,7 +16,7 @@ met = cms.EDProducer("METProducer",
 )
 
 metOpt = cms.EDProducer("METProducer",
-    src = cms.InputTag("caloTowersOpt"),
+    src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMETOpt'),
     noHF = cms.bool(False),
@@ -25,7 +25,7 @@ metOpt = cms.EDProducer("METProducer",
 )
 
 metNoHF = cms.EDProducer("METProducer",
-    src = cms.InputTag("caloTowersForMET"),
+    src = cms.InputTag("towerMaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMETNoHF'),
     noHF = cms.bool(True),
@@ -34,7 +34,7 @@ metNoHF = cms.EDProducer("METProducer",
 )
 
 metOptNoHF = cms.EDProducer("METProducer",
-    src = cms.InputTag("caloTowersOpt"),
+    src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
     alias = cms.string('RawCaloMETOptNoHF'),
     noHF = cms.bool(True),
