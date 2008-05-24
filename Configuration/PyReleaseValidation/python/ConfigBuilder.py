@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.3 $"
+__version__ = "$Revision: 1.4 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -74,14 +74,15 @@ class ConfigBuilder(object):
     def addSource(self):
         """Here the source is built. Priority: pythia, file"""
         # prepared by D. Piparo 
-        if hasattr(self._options,'evt_type'):
+
+        if hasattr(self._options,'filein'):
+            self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
+
+        elif hasattr(self._options,'evt_type'):
             import Configuration.PyReleaseValidation.Generation as newGenerator
             self.process.source=newGenerator.generate(self._options.evt_type,
                                                       self._options.energy,
                                                       self._options.number)
-
-        if hasattr(self._options,'infile'):
-            self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.infile))
         return
 
     def addOutput(self):
@@ -264,7 +265,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.3 $"),
+              (version=cms.untracked.string("$Revision: 1.4 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
