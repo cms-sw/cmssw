@@ -5,7 +5,7 @@ from CondTools.L1Trigger.L1TriggerKeyRcdSource_cfi import *
 from CondTools.L1Trigger.L1TriggerKeyListRcdSource_cfi import *
 # L1 Calo configuration
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
-from L1TriggerConfig.RCTConfigProducers.L1RCTORCAConfig_cff import *
+from L1TriggerConfig.RCTConfigProducers.L1RCTConfig_cff import *
 from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1CaloScalesConfig_cff import *
 from L1TriggerConfig.L1GeometryProducers.l1CaloGeomConfig_cff import *
