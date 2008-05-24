@@ -163,10 +163,26 @@ namespace pos{
 
     static PixelConfigList& getConfig(){
 
+      static PixelConfigList configs;
+
+      //FIXME 
+
+      static int counter=0;
+
+      if (counter!=0){
+	while(counter!=0){
+	  std::cout <<"[PixelConfigFile::getConfig()] waiting for other thread to complete reading"<<std::endl;
+	  ::sleep(1);
+	}
+	return configs;
+      }
+      
+
+      counter++;
+
       static std::string directory;
       static int first=1;
     
-      static PixelConfigList configs;
     
       directory=getenv("PIXELCONFIGURATIONBASE");
       std::string filename=directory+"/configurations.txt";
@@ -183,6 +199,8 @@ namespace pos{
 	  configs.readfile(filename);
 //	  std::cout << "[pos::PixelConfigFile::getConfig()] Size read: " << configs.size() << std::endl ;
 	}
+
+      counter--;
 
       return configs;
 
