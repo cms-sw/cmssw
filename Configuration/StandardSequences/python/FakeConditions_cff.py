@@ -1,10 +1,45 @@
-Traceback (most recent call last):
-  File "/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/fri/2.1-fri-02/CMSSW_2_1_X_2008-05-23-0200/src/FWCore/ParameterSet/python/cfg2py.py", line 10, in ?
-    print cmsParse.dumpCff(fileInPath)
-  File "/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/fri/2.1-fri-02/CMSSW_2_1_X_2008-05-23-0200/python/FWCore/ParameterSet/parseConfig.py", line 1621, in dumpCff
-    compressedValues = _getCompressedNodes(fileName, 0, values)
-  File "/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/fri/2.1-fri-02/CMSSW_2_1_X_2008-05-23-0200/python/FWCore/ParameterSet/parseConfig.py", line 1380, in _getCompressedNodes
-    raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
-FWCore.ParameterSet.parsecf.pyparsing.ParseFatalException: the process contains the error 
-Unable to find file 'CalibMuon/RPCCalibration/data/rpcFakeCalib.cfi' using the search path ${'CMSSW_SEARCH_PATH'} 
-/build/filippo/CMSSW_2_1_X_2008-05-23-0200/src:/build/filippo/CMSSW_2_1_X_2008-05-23-0200/share:/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/fri/2.1-fri-02/CMSSW_2_1_X_2008-05-23-0200/src:/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/fri/2.1-fri-02/CMSSW_2_1_X_2008-05-23-0200/share:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-CondCore-SQLiteData/24:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-FastSimulation-MaterialEffects/20:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-FastSimulation-PileUpProducer/21:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Geometry-CaloTopology/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-MagneticField-Interpolation/22:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoMuon-MuonIdentification/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoParticleFlow-PFBlockProducer/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoParticleFlow-PFTracking/22:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoTracker-RingESSource/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoTracker-RoadMapESSource/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-SimG4CMS-Calo/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-EcalDigis/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-EcalHits/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-EcalRecHits/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-Geometry/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-HcalHits/19-cms (at char 0), (line:1, col:1)
+import FWCore.ParameterSet.Config as cms
+
+# Tracker alignment and calib
+# from a single entry point
+from CalibTracker.Configuration.Tracker_FakeConditions_cff import *
+#
+# Muon alignment
+#
+from CalibMuon.Configuration.Muon_FakeAlignment_cff import *
+#
+#
+# DT calib
+from CalibMuon.Configuration.DT_FakeConditions_cff import *
+#
+# RPC noise
+from CalibMuon.Configuration.RPC_FakeConditions_cff import *
+#
+# CSC Calib
+#
+# DBCOnditions use the new DB objects (linearized vectors)
+from CalibMuon.Configuration.CSC_FakeDBConditions_cff import *
+#
+# HCAL Fake Conditions 
+#
+from CalibCalorimetry.Configuration.Hcal_FakeConditions_cff import *
+#
+# ECAL Fake Conditions
+#
+from CalibCalorimetry.Configuration.Ecal_FakeConditions_cff import *
+#
+# Btag conditions
+#
+from RecoBTag.Configuration.RecoBTag_FakeConditions_cff import *
+# Btau
+#
+from RecoBTau.Configuration.RecoBTau_FakeConditions_cff import *
+# BeamSpot Conditions
+from RecoVertex.BeamSpotProducer.BeamSpotFakeConditionsEarlyCollision_cff import *
+# Cabling maps
+from EventFilter.DTRawToDigi.DTSQLiteCabling_cfi import *
+from EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi import *
+from EventFilter.CSCRawToDigi.cscSQLiteCablingPack_cff import *
+from EventFilter.CSCRawToDigi.cscSQLiteCablingUnpck_cff import *
+
+
