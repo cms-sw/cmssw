@@ -257,8 +257,8 @@ int main( int argc, char** argv ){
     cond::IOVService iovmanager(sourcedb);
     
 
-    since = std::max(since,iovmanager.globalSince());
-    till = std::min(till,iovmanager.globalTill());
+    since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
+    till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
 
 
     int oldSize=0;
@@ -316,9 +316,9 @@ int main( int argc, char** argv ){
 
     // grab info
     destdb.start(true);
-    cond::IOVService iovmanager2(destdb,sourceiovtype);
+    cond::IOVService iovmanager2(destdb);
     cond::IOVIterator* iit=iovmanager2.newIOVIterator(destiovtoken,cond::IOVService::backwardIter);
-    std::string timetypestr = iovmanager2.timeType()==cond::runnumber ? std::string("runnumber") : std::string("timestamp") ;
+    std::string const & timetypestr = cond::timeTypeSpecs[sourceiovtype].name;
     iit->next(); // just to initialize
     cond::TagInfo result;
     result.name=destTag;

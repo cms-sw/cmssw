@@ -16,7 +16,7 @@ int main(){
     cond::Connection myconnection("sqlite_file:mytest.db",-1); 
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
-    cond::IOVService iovmanager(pooldb,cond::timestamp);
+    cond::IOVService iovmanager(pooldb);
     pooldb.start(false);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     editor->create(1,cond::timestamp);

@@ -24,10 +24,10 @@ int main(){
     cond::PoolTransaction& sourcedb=conHandler.getConnection("mysource")->poolTransaction();
     cond::PoolTransaction& destdb=conHandler.getConnection("mydest")->poolTransaction();
     
-    cond::IOVService iovmanager(sourcedb,cond::timestamp);
+    cond::IOVService iovmanager(sourcedb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
     sourcedb.start(false);
-    editor->create(iovmanager.globalSince(),cond::timestamp);
+    editor->create(1,cond::timestamp);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
       testPayloadObj* myobj=new testPayloadObj;

@@ -13,6 +13,10 @@
 #include "CondFormats/Calibration/interface/Pedestals.h"
 int main(){
   try{
+    // for runnumber
+    cond::TimeType timetype = cond::runnumber;
+    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue;
+
     cond::DBSession* session=new cond::DBSession;
     session->configuration().setMessageLevel(cond::Error);
     //cond::Connection myconnection("oracle://cms_orcoff_prep/CMS_COND_PRESH",0);
@@ -23,8 +27,8 @@ int main(){
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* ioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
-    std::cout<<"globalsince value "<<iovmanager.globalSince()<<std::endl;
-    ioveditor->create(iovmanager.globalSince());
+    std::cout<<"globalsince value "<<globalSince<<std::endl;
+    ioveditor->create(globalSince,timetype);
     for(unsigned int i=0; i<3; ++i){ //inserting 3 payloads
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=5; ++ichannel){
@@ -57,7 +61,7 @@ int main(){
     //delete ioveditor;
     pooldb.start(false);
     ioveditor=iovmanager.newIOVEditor();
-    ioveditor->create(iovmanager.globalSince());
+    ioveditor->create(globalSince,timetype);
     Pedestals* p=new Pedestals;
     for(int ichannel=1; ichannel<=2; ++ichannel){
       Pedestals::Item item;
@@ -78,7 +82,7 @@ int main(){
     //
     cond::IOVEditor* anotherioveditor=iovmanager.newIOVEditor();
     pooldb.start(false);
-    anotherioveditor->create(iovmanager.globalSince());
+    anotherioveditor->create(globalSince,timetype);
     for(unsigned int i=0; i<2; ++i){ //inserting 2 payloads to another Rcd
       Pedestals* myped=new Pedestals;
       for(int ichannel=1; ichannel<=3; ++ichannel){
