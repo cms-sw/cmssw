@@ -64,7 +64,7 @@ namespace cond {
   }
   
 
-  bool validTime(cond::Time_t time, cond::TimeType timetype) const {
+  bool IOVEditorImpl::validTime(cond::Time_t time, cond::TimeType timetype) const {
     return time>=timeTypeSpecs[timetype].beginValue && time<=timeTypeSpecs[timetype].endValue;   
 
   }
