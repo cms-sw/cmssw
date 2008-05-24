@@ -28,7 +28,7 @@ sistripconn = cms.ESProducer("SiStripConnectivity")
 # end fake calibrations
 GlobalTag = cms.ESSource("PoolDBESSource",
     CondDBSetup,
-    connect = cms.string('frontier://FrontierProd/CMS_COND_21X_GLOBALTAG'), ##FrontierProd/CMS_COND_21X_GLOBALTAG"
+    connect = cms.string('frontier://FrontierDev/CMS_COND_GLOBALTAG'), ##FrontierDev/CMS_COND_GLOBALTAG"
 
     globaltag = cms.untracked.string('IDEAL::All'),
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
@@ -37,4 +37,5 @@ GlobalTag = cms.ESSource("PoolDBESSource",
 TrackerDigiGeometryESModule.applyAlignment = True
 DTGeometryESModule.applyAlignment = True
 CSCGeometryESModule.applyAlignment = True
+
 
