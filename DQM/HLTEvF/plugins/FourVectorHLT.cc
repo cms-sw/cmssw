@@ -1,4 +1,4 @@
-// $Id$
+// $Id: FourVectorHLT.cc,v 1.4 2008/05/23 16:46:16 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -20,13 +20,13 @@ using namespace edm;
 FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   resetMe_(true),  currentRun_(-99)
 {
-  
   LogDebug("FourVectorHLT") << "constructor...." ;
-  
-  
-  dbe_ = NULL;
+
+  dbe_ = Service < DQMStore > ().operator->();
+  if ( ! dbe_ ) {
+    LogWarning("FourVectorHLT") << "unabel to get DQMStore service?";
+  }
   if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
-    dbe_ = Service < DQMStore > ().operator->();
     dbe_->setVerbose(0);
   }
   
@@ -34,7 +34,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   dirname_="HLT/FourVectorHLT" + 
     iConfig.getParameter<std::string>("@module_label");
   
-  if (dbe_ != NULL) {
+  if (dbe_ != 0 ) {
     dbe_->setCurrentFolder(dirname_);
   }
   
@@ -45,7 +45,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",40);
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
-  
+
   // this is the list of paths to look at.
   std::vector<edm::ParameterSet> filters = 
     iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
@@ -58,11 +58,11 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
     float ptMax = filterconf->getUntrackedParameter<double>("ptMax");
     hltPaths_.push_back(PathInfo(me, objectType, ptMin, ptMax));
   }
-  
   if ( hltPaths_.size() && plotAll_) {
     // these two ought to be mutually exclusive....
     LogWarning("FourVectorHLT") << "Using both plotAll and a list. "
       "list will be ignored." ;
+    hltPaths_.clear();
   }
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
@@ -105,84 +105,73 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
   }
   
-  if ( plotAll_ && resetMe_ ) {
-    LogDebug("FourVectorHLT") << "resetting ... " ;
-    hltPaths_.clear(); // do I need to get rid of the old histos?
-    DQMStore *dbe(Service<DQMStore>().operator->());
-    
-    edm::Handle<TriggerResults> hltResults;
-    bool b = iEvent.getByLabel(triggerResultLabel_, hltResults);
-    if ( !b ) {
-      edm::LogWarning("FourVectorHLT") << " getByLabel"
-				       << " for TriggerResults failed"
-				       << " with label "
-				       << triggerResultLabel_;
-      return;
-    }
-    std::cout << "pw --------------------------------" << std::endl;
-    std::cout << *hltResults << std::endl;
-    std::cout << "pw --------------------------------" << std::endl;
-    // save path names in DQM-accessible format
-    TriggerNames names(*hltResults);
-    std::cout << "number of names: " << names.triggerNames().size()
-	      << std::endl;
-    int oo(0);
-    for ( TriggerNames::Strings::const_iterator 
-	    j = names.triggerNames().begin();
-	  j !=names.triggerNames().end(); ++j ) {
-      //--------------
-      std::cout << "resetMe: path " << oo++ << ": " << *j << std::endl;
-      //--------------
-      MonitorElement *et(0), *eta(0), *phi(0), *etavsphi(0);
-      std::string histoname((*j)+"_et");
-      std::string title((*j)+" E_t");
-      et =  dbe->book1D(histoname.c_str(),
-			title.c_str(),nBins_, 0, 100);
-      
-      histoname = (*j)+"_eta";
-      title = (*j)+" #eta";
-      eta =  dbe->book1D(histoname.c_str(),
-			 title.c_str(),nBins_,-2.7,2.7);
-      
-      histoname = (*j)+"_phi";
-      title = (*j)+" #phi";
-      phi =  dbe->book1D(histoname.c_str(),
-			 histoname.c_str(),nBins_,-3.14,3.14);
-      
-      
-      histoname = (*j)+"_etaphi";
-      title = (*j)+" #eta vs #phi";
-      etavsphi =  dbe->book2D(histoname.c_str(),
-			      title.c_str(),
-			      nBins_,-2.7,2.7,
-			      nBins_,-3.14, 3.14);
-      
-      // no idea how to get the bin boundries in this mode
-      PathInfo e(*j,0, et, eta, phi, etavsphi, 0,100);
-      hltPaths_.push_back(e);  // I don't ever use these....
-    } // resetme
-    
-    
-    std::cout << "hltPaths_ is now " << hltPaths_.size() << std::endl;
-    resetMe_ = false;
-  }
+
   
 
   const trigger::TriggerObjectCollection & toc(triggerObj->getObjects());
-  for(PathInfoCollection::iterator v = hltPaths_.begin();
-      v!= hltPaths_.end(); ++v ) {
-    const int index = triggerObj->filterIndex(v->getName());
-    if ( index >= triggerObj->sizeFilters() ) {
-      continue; // not in this event
+
+  if ( plotAll_ ) {
+    for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
+      std::string name = triggerObj->filterLabel(ia);
+      PathInfoCollection::iterator pic =  hltPaths_.find(name);
+      if ( pic == hltPaths_.end() ) {
+	// doesn't exist - add it
+	MonitorElement *et(0), *eta(0), *phi(0), *etavsphi(0);
+	std::string histoname(name+"_et");
+	std::string title(name+" E_t");
+	et =  dbe_->book1D(histoname.c_str(),
+			  title.c_str(),nBins_, 0, 100);
+      
+	histoname = name+"_eta";
+	title = name+" #eta";
+	eta =  dbe_->book1D(histoname.c_str(),
+			   title.c_str(),nBins_,-2.7,2.7);
+      
+	histoname = name+"_phi";
+	title = name+" #phi";
+	phi =  dbe_->book1D(histoname.c_str(),
+			   histoname.c_str(),nBins_,-3.14,3.14);
+      
+      
+	histoname = name+"_etaphi";
+	title = name+" #eta vs #phi";
+	etavsphi =  dbe_->book2D(histoname.c_str(),
+				title.c_str(),
+				nBins_,-2.7,2.7,
+				nBins_,-3.14, 3.14);
+      
+	// no idea how to get the bin boundries in this mode
+	PathInfo e(name,0, et, eta, phi, etavsphi, 0,100);
+	hltPaths_.push_back(e);  
+	pic = hltPaths_.begin() + hltPaths_.size()-1;
+      }
+      const trigger::Keys & k = triggerObj->filterKeys(ia);
+      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	pic->getEtHisto()->Fill(toc[*ki].pt());
+	pic->getEtaHisto()->Fill(toc[*ki].eta());
+	pic->getPhiHisto()->Fill(toc[*ki].phi());
+	pic->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+      }  
+
     }
-    LogDebug("FourVectorHLT") << "filling ... " ;
-    const trigger::Keys & k = triggerObj->filterKeys(index);
-    for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-      v->getEtHisto()->Fill(toc[*ki].pt());
-      v->getEtaHisto()->Fill(toc[*ki].eta());
-      v->getPhiHisto()->Fill(toc[*ki].phi());
-      v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
-    }  
+
+  }
+  else { // not plotAll_
+    for(PathInfoCollection::iterator v = hltPaths_.begin();
+	v!= hltPaths_.end(); ++v ) {
+      const int index = triggerObj->filterIndex(v->getName());
+      if ( index >= triggerObj->sizeFilters() ) {
+	continue; // not in this event
+      }
+      LogDebug("FourVectorHLT") << "filling ... " ;
+      const trigger::Keys & k = triggerObj->filterKeys(index);
+      for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	v->getEtHisto()->Fill(toc[*ki].pt());
+	v->getEtaHisto()->Fill(toc[*ki].eta());
+	v->getPhiHisto()->Fill(toc[*ki].phi());
+	v->getEtaVsPhiHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
+      }  
+    }
   }
 }
 
@@ -235,7 +224,7 @@ FourVectorHLT::beginJob(const edm::EventSetup&)
       
 	v->setHistos( et, eta, phi, etavsphi);
       } 
-    } // ! plotAll_
+    } // ! plotAll_ - for plotAll we discover it during the event
   }
 }
 
@@ -251,21 +240,11 @@ FourVectorHLT::endJob()
 // BeginRun
 void FourVectorHLT::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-
   LogDebug("FourVectorHLT") << "beginRun, run " << run.id();
-
-  if ( currentRun_ != int(run.id().run()) ) {
-    resetMe_ = true;
-    currentRun_ = run.id().run();
-  }
 }
 
 /// EndRun
 void FourVectorHLT::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
   LogDebug("FourVectorHLT") << "endRun, run " << run.id();
-  if ( currentRun_ != int(run.id().run()) ) {
-    resetMe_ = true;
-    currentRun_ = run.id().run();
-  }
 }

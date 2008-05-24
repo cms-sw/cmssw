@@ -16,7 +16,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  May 2008
-// $Id: FourVectorHLT.h,v 1.3 2008/05/21 19:42:24 wittich Exp $
+// $Id: FourVectorHLT.h,v 1.4 2008/05/23 16:46:17 wittich Exp $
 //
 //
 
@@ -161,11 +161,11 @@ class FourVectorHLT : public edm::EDAnalyzer {
       // simple collection - just 
       class PathInfoCollection: public std::vector<PathInfo> {
       public:
-	PathInfoCollection(): std::vector<PathInfo>() {};
-	  
-	  std::vector<PathInfo>::const_iterator find(std::string pathName) {
-	  return std::find(begin(), end(), pathName);
-	}
+	PathInfoCollection(): std::vector<PathInfo>() 
+	  {};
+	  std::vector<PathInfo>::iterator find(std::string pathName) {
+	    return std::find(begin(), end(), pathName);
+	  }
       };
       PathInfoCollection hltPaths_;
 
