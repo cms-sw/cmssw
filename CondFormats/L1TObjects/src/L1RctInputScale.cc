@@ -22,6 +22,7 @@ L1RctInputScale::L1RctInputScale(double lsb)
   for (unsigned i=0; i<nBinRank; i++) {
     for (unsigned eta=0; eta<nBinEta; eta++) {
       m_scale[i][eta] = lsb * i;
+      m_scale[i][eta+nBinEta] = lsb * i;
     }
   }
 }
@@ -32,8 +33,13 @@ L1RctInputScale::~L1RctInputScale() {
 }
 
 /// set scale bin
-void L1RctInputScale::setBin(unsigned short rank, unsigned short eta, double et) {
+void L1RctInputScale::setBin(unsigned short rank,
+			     unsigned short eta,
+			     short etaSign,
+			     double et) {
+  --eta ; // input eta index starts at 1
   if (rank < nBinRank && eta < nBinEta) {
+    if( etaSign < 0 ) eta += nBinEta ;
     m_scale[rank][eta] = et;
   }
   else {
@@ -42,9 +48,13 @@ void L1RctInputScale::setBin(unsigned short rank, unsigned short eta, double et)
 }
 
 /// convert from Et in GeV to rank
-unsigned short L1RctInputScale::rank(const double et, const unsigned short eta) const {
+unsigned short L1RctInputScale::rank(double et,
+				     unsigned short eta,
+				     short etaSign) const {
+  --eta ; // input eta index starts at 1
   if (eta < nBinEta) {
     unsigned short out = 0;
+    if( etaSign < 0 ) eta += nBinEta ;
     for (unsigned i=0; i<nBinRank; i++) {
       if ( et >= m_scale[i][eta] ) { out = i; }
     }
@@ -57,9 +67,13 @@ unsigned short L1RctInputScale::rank(const double et, const unsigned short eta) 
 }
 
 // convert from rank to Et/GeV
-double L1RctInputScale::et(const unsigned short rank, const unsigned short eta) const {
-    if (rank < nBinRank && eta < nBinEta) {
-      return m_scale[rank][eta];
+double L1RctInputScale::et(unsigned short rank,
+			   unsigned short eta,
+			   short etaSign) const {
+  --eta ; // input eta index starts at 1
+  if (rank < nBinRank && eta < nBinEta) {
+    if( etaSign < 0 ) eta += nBinEta ;
+    return m_scale[rank][eta];
   }
   else return -1.;
 }
@@ -69,8 +83,8 @@ void L1RctInputScale::print(ostream& s) const {
   s << "L1RctInputScale" << endl;
   for (unsigned rank=0; rank<nBinRank; rank++) {
     s << rank << " ";
-    for (unsigned eta=0; eta<nBinEta; eta++) {
-      s << m_scale[rank][eta] << " ";
+    for (unsigned eta=0; eta<2*nBinEta; eta++) {
+      s << m_scale[rank][eta] << " " ;
     }
     s << endl;
   }
