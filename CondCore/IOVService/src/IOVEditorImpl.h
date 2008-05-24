@@ -47,6 +47,7 @@ namespace cond{
 
   private:
     void init();
+    bool validTime(cond::Time_t time, cond::TimeType timetype) const;
     bool validTime(cond::Time_t time) const;
 
     cond::PoolTransaction* m_pooldb;

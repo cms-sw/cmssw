@@ -21,7 +21,7 @@ namespace cond {
       throw cond::Exception("cond::IOVEditorImpl::create cannot create a IOV using an initialized Editor");
     }
 
-    if(!validTime(firstSince))
+    if(!validTime(firstSince, timetype))
       throw cond::Exception("cond::IOVEditorImpl::create time not in global range");
       
 
@@ -64,9 +64,14 @@ namespace cond {
   }
   
 
-  bool IOVEditorImpl::validTime(cond::Time_t time) const {
-    return time>=timeTypeSpecs[timetype()].beginValue && time<=timeTypeSpecs[timetype()].endValue;   
+  bool validTime(cond::Time_t time, cond::TimeType timetype) const {
+    return time>=timeTypeSpecs[timetype].beginValue && time<=timeTypeSpecs[timetype].endValue;   
+
   }
+  bool IOVEditorImpl::validTime(cond::Time_t time) const {
+    return validTime(time,timetype());
+  }
+
 
   
   unsigned int
