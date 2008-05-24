@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Fri May 16 16:09:43 CEST 2008
-// $Id$
+// $Id: L1RctInputScalesProducer.cc,v 1.1 2008/05/16 14:22:31 jbrooke Exp $
 //
 //
 
@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-
 
 #include "CondFormats/L1TObjects/interface/L1RctInputScale.h"
 #include "CondFormats/DataRecord/interface/L1RctEcalScaleRcd.h"
@@ -48,6 +47,9 @@ class L1RctInputScalesProducer : public edm::ESProducer {
       ReturnType produceHcalScale(const L1RctHcalScaleRcd&);
    private:
       // ----------member data ---------------------------
+  std::vector<double> m_ecalEtThresholdsPosEta;
+  std::vector<double> m_ecalEtThresholdsNegEta;
+  std::vector<double> m_hcalEtThresholds;
 };
 
 //
@@ -69,6 +71,14 @@ L1RctInputScalesProducer::L1RctInputScalesProducer(const edm::ParameterSet& iCon
    setWhatProduced(this, &L1RctInputScalesProducer::produceHcalScale);
 
    //now do what ever other initialization is needed
+
+   // { Et for each rank, eta bin 0 }, { Et for each rank, eta bin 1 }, ...
+   m_ecalEtThresholdsPosEta =
+     iConfig.getParameter< std::vector<double> >("L1EcalEtThresholdsPositiveEta");
+   m_ecalEtThresholdsNegEta =
+     iConfig.getParameter< std::vector<double> >("L1EcalEtThresholdsNegativeEta");
+   m_hcalEtThresholds =
+     iConfig.getParameter< std::vector<double> >("L1HcalEtThresholds");
 }
 
 
@@ -90,8 +100,29 @@ L1RctInputScalesProducer::ReturnType
 L1RctInputScalesProducer::produceEcalScale(const L1RctEcalScaleRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1RctInputScale> pL1RctInputScale ;
+   boost::shared_ptr<L1RctInputScale> pL1RctInputScale =
+     boost::shared_ptr<L1RctInputScale>( new L1RctInputScale ) ;
 
+   std::vector< double >::const_iterator posItr =
+     m_ecalEtThresholdsPosEta.begin() ;
+   std::vector< double >::const_iterator negItr =
+     m_ecalEtThresholdsNegEta.begin() ;
+
+   for( unsigned short ieta = 1 ;
+	ieta <= L1RctInputScale::nBinEta ;
+	++ieta )
+     {
+       for( unsigned short irank = 0 ;
+	    irank < L1RctInputScale::nBinRank;
+	    ++irank )
+	 {
+	   pL1RctInputScale->setBin( irank, ieta, 1, *posItr ) ;
+	   pL1RctInputScale->setBin( irank, ieta, -1, *negItr ) ;
+
+	   ++posItr ;
+	   ++negItr ;
+	 }
+     }
 
    return pL1RctInputScale ;
 }
@@ -101,8 +132,26 @@ L1RctInputScalesProducer::ReturnType
 L1RctInputScalesProducer::produceHcalScale(const L1RctHcalScaleRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1RctInputScale> pL1RctInputScale ;
+   boost::shared_ptr<L1RctInputScale> pL1RctInputScale =
+     boost::shared_ptr<L1RctInputScale>( new L1RctInputScale ) ;
 
+   std::vector< double >::const_iterator itr =
+     m_hcalEtThresholds.begin() ;
+
+   for( unsigned short ieta = 1 ;
+	ieta <= L1RctInputScale::nBinEta ;
+	++ieta )
+     {
+       for( unsigned short irank = 0 ;
+	    irank < L1RctInputScale::nBinRank;
+	    ++irank )
+	 {
+	   pL1RctInputScale->setBin( irank, ieta, 1, *itr ) ;
+	   pL1RctInputScale->setBin( irank, ieta, -1, *itr ) ;
+
+	   ++itr ;
+	 }
+     }
 
    return pL1RctInputScale ;
 }
