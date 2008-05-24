@@ -13,7 +13,7 @@ private:
 
 public:
 	unsigned short pt(unsigned long addr) const throw() {
-		if( addr<(1<<21) ) return pt_lut[addr];
+	  if( addr<(1<<21) ) return pt_lut[(unsigned int)addr];
 		else return 0;
 	}
 
