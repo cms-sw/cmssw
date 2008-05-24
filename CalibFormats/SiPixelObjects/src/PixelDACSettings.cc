@@ -323,6 +323,8 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
   std::vector<unsigned int> dacs;
 
+  pixelFEC->fecDebug(1);  //FIXME someday maybe don't want to take the time
+
   for(unsigned int i=0;i<dacsettings_.size();i++){
 
     dacsettings_[i].getDACs(dacs);
@@ -364,7 +366,6 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 			   1,
 			   bufferData);
     }
-
   }
 
   if (bufferData) {
