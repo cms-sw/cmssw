@@ -30,6 +30,7 @@
 #include "CondFormats/L1TObjects/interface/DTConfigManager.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/L1TObjects/interface/L1RctInputScale.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 
@@ -48,6 +49,7 @@
 namespace {
   namespace {
     std::map< std::string, std::map< std::string, std::string > > dummy0 ;
+    std::map< std::string, std::string > dummy0a ;
     std::map<DTBtiId,DTConfigBti> dummy1 ;
     std::map<DTChamberId,std::map<DTBtiId,DTConfigBti> > dummy1a ;
     std::map<DTTracoId,DTConfigTraco> dummy2 ;
