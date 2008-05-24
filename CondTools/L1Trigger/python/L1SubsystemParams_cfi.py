@@ -88,6 +88,18 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1RctEcalScaleRcd'),
+            tag = cms.string('L1RctEcalScale_CRUZET_hlt'),
+            type = cms.string('L1RctInputScale'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
+            record = cms.string('L1RctHcalScaleRcd'),
+            tag = cms.string('L1RctHcalScale_CRUZET_hlt'),
+            type = cms.string('L1RctInputScale'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1GctJetFinderParamsRcd'),
             tag = cms.string('L1GctJetFinderParams_CRUZET_hlt'),
             type = cms.string('L1GctJetFinderParams'),

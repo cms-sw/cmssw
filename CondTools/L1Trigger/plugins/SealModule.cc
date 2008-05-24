@@ -162,6 +162,16 @@ REGISTER_L1_WRITER(L1RCTParametersRcd, L1RCTParameters);
 REGISTER_PLUGIN(L1RCTChannelMaskRcd, L1RCTChannelMask);
 REGISTER_L1_WRITER(L1RCTChannelMaskRcd, L1RCTChannelMask);
 
+#include "CondFormats/L1TObjects/interface/L1RctInputScale.h"
+#include "CondFormats/DataRecord/interface/L1RctEcalScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1RctHcalScaleRcd.h"
+
+REGISTER_PLUGIN(L1RctEcalScaleRcd, L1RctInputScale);
+REGISTER_L1_WRITER(L1RctEcalScaleRcd, L1RctInputScale);
+
+REGISTER_PLUGIN(L1RctHcalScaleRcd, L1RctInputScale);
+REGISTER_L1_WRITER(L1RctHcalScaleRcd, L1RctInputScale);
+
 // GCT records
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
