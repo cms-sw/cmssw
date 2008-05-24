@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.2 $"
+__version__ = "$Revision: 1.3 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -50,6 +50,7 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
         self.pythonCfgCode += "process = cms.Process('"+self._options.name+"')\n\n"       
         self.imports = []  #could we use a set instead?
+        self.commands = []
         # TODO: maybe a list of to be dumped objects would help as well        
         
     def loadAndRemember(self, includeFile):
@@ -59,6 +60,10 @@ class ConfigBuilder(object):
         self.imports.append(includeFile)
         self.process.load(includeFile)
 
+    def executeAndRemember(self, command):
+        """helper routine to remember replace statements"""
+        pass        
+        
     def addCommon(self):
         pass
 
@@ -88,7 +93,7 @@ class ConfigBuilder(object):
         output = cms.OutputModule("PoolOutputModule",
                                   theEventContent,
                                   fileName = cms.untracked.string(self._options.outfile_name),
-                                  dataset = cms.untracked.PSet(dataTier =cms.untracked.string(self._options.step))#, #TODO
+                                  dataset = cms.untracked.PSet(dataTier =cms.untracked.string(self._options.datatier))
                                  ) 
 
         # if there is a generation step in the process, that one should be used as filter decision
@@ -102,6 +107,9 @@ class ConfigBuilder(object):
         # and finally add the output to the process
         self.process.output = output
         self.process.out_step = cms.EndPath(self.process.output)
+        self.process.schedule.append(self.process.out_step)
+        self.commands.append("process.out_step = cms.EndPath(process.output)")
+         
 
         # ATTENTION: major tweaking to avoid inlining of event content
         # should we do that?
@@ -117,14 +125,15 @@ class ConfigBuilder(object):
         """
         Add selected standard sequences to the process
         """
+        conditionsSP=self._options.conditions.split(',')
     
         # here the default includes
         self.imports=['Configuration/StandardSequences/Services_cff',
                             'Configuration/StandardSequences/Geometry_cff',
                             'Configuration/StandardSequences/MagneticField_cff',
                             'FWCore/MessageService/MessageLogger_cfi',
-                            'Configuration/StandardSequences/Generator_cff']#,         # rm    
-#                            'Configuration/StandardSequences/'+conditionsSP[0]+'_cff']        # should get it's own block I would say     
+                            'Configuration/StandardSequences/Generator_cff',         # rm    
+                            'Configuration/StandardSequences/'+conditionsSP[0]+'_cff']        # should get it's own block I would say     
 
         if self._options.PU_flag:
             self.imports.append('Configuration/StandardSequences/MixingLowLumiPileUp_cff')
@@ -139,6 +148,15 @@ class ConfigBuilder(object):
                 raise ValueError("Step "+step+" unknown")
             getattr(self,"prepare_"+step)()            
 
+
+        if ( len(conditionsSP)>1 ):
+            self.commands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
+                                   
+
+    def addConditions(self):
+        """Add conditions to the process"""
+        # conditions stuff has to move here
+        pass 
       
     def addCustomise(self):
         """Include the customise code """
@@ -246,7 +264,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.2 $"),
+              (version=cms.untracked.string("$Revision: 1.3 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -277,16 +295,21 @@ class ConfigBuilder(object):
         for module in self.imports:
             self.pythonCfgCode += ("process.load('"+module+"')\n")
         
-        
         # dump max events block
         self.pythonCfgCode += "\nprocess.maxEvents = "+self.process.maxEvents.dumpPython()
 
         # dump the input definition
-        self.pythonCfgCode += "\nprocess.source = "+self.process.source.dumpPython() #TODO - that needs still definition
+        self.pythonCfgCode += "\n# Input source\n"
+        self.pythonCfgCode += "process.source = "+self.process.source.dumpPython() #TODO - that needs still definition
         
         # dump the output definition
-        self.pythonCfgCode += "\nprocess.out_step = "+self.process.output.dumpPython()
+        self.pythonCfgCode += "\n# Output definition\n"
+        self.pythonCfgCode += "process.output = "+self.process.output.dumpPython()
 
+        # dump all additional commands
+        self.pythonCfgCode += "\n# Other statements\n"
+        for command in self.commands:
+            self.pythonCfgCode += command + "\n"
           
         # add all paths
         # todo: except for the bad trigger ones
