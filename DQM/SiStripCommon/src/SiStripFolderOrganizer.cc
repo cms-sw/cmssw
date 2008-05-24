@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.17 2008/03/03 11:54:03 maborgia Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.18 2008/04/13 14:42:01 dutta Exp $
 //
 
 #include <iostream>
@@ -219,22 +219,39 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer){
   }
 
   std::ostringstream rest;
+  SiStripDetId stripdet = SiStripDetId(rawdetid);
   int subdetid = ((rawdetid>>25)&0x7);
-  if(       subdetid==3 ){
+  if(stripdet.subDetector() == SiStripDetId::TIB ){
   // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(rawdetid);
-    rest<<sep<<"TIB"<<sep<<"layer_"<<layer;
-  }else if( subdetid==4){
+    if (abs(layer)  != tib1.layer()) {
+      LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tib1.layer() <<endl;
+      return;
+    }
+    rest<<sep<<"TIB"<<sep<<"layer_"<<tib1.layer();
+  }else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(rawdetid);
-    rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<layer;
-  }else if( subdetid==5){
+    if (abs(layer)  != tid1.wheel()) {
+      LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.wheel() <<endl;
+      return;
+    }
+    rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<tid1.wheel();
+  }else if(stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
     TOBDetId tob1 = TOBDetId(rawdetid);
-    rest<<sep<<"TOB"<<sep<<"layer_"<<layer;
-  }else if( subdetid==6){
+    if (abs(layer)  != tob1.layer()) {
+      LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tob1.layer() <<endl;
+      return;
+    }
+    rest<<sep<<"TOB"<<sep<<"layer_"<<tob1.layer();
+  }else if( stripdet.subDetector() == SiStripDetId::TEC){
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(rawdetid);
+    if (abs(layer)  != tec1.wheel()) {
+      LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.wheel() <<endl;
+      return;
+    }
     rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel();
   }else{
   // ---------------------------  ???  --------------------------- //
