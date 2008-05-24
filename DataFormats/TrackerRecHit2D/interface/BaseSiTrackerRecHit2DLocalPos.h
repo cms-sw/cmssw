@@ -17,9 +17,9 @@ public:
 
   //  virtual BaseSiTrackerRecHit2DLocalPos * clone() const {return new BaseSiTrackerRecHit2DLocalPos( * this); }
 
-  virtual LocalPoint localPosition() const {return pos_;}
+  virtual LocalPoint localPosition() const ;
 
-  virtual LocalError localPositionError() const{ return err_;}
+  virtual LocalError localPositionError() const ;
 
   bool hasPositionAndError() const ; 
  

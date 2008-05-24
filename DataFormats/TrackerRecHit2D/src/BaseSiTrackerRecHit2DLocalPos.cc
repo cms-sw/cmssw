@@ -1,13 +1,29 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 bool BaseSiTrackerRecHit2DLocalPos::hasPositionAndError() const {
     return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
            (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
 }
 
+LocalPoint BaseSiTrackerRecHit2DLocalPos::localPosition() const {
+    if (!hasPositionAndError()) throw cms::Exception("BaseSiTrackerRecHit2DLocalPos") << 
+        "Trying to access the localPosition of a RecHit that was read from disk, but since CMSSW_2_1_X localPosition is transient.\n";
+    return pos_;
+}
+
+LocalError BaseSiTrackerRecHit2DLocalPos::localPositionError() const{ 
+    if (!hasPositionAndError()) throw cms::Exception("BaseSiTrackerRecHit2DLocalPos") << 
+        "Trying to access the localPositionError of a RecHit that was read from disk, but since CMSSW_2_1_X localPositionError is transient.\n";
+    return err_;
+}
+
+
 void 
 BaseSiTrackerRecHit2DLocalPos::getKfComponents( KfComponentsHolder & holder ) const 
 {
+   if (!hasPositionAndError()) throw cms::Exception("BaseSiTrackerRecHit2DLocalPos") << 
+        "Trying to access the KfComponents of a RecHit that was read from disk, but since CMSSW_2_1_X local positions are transient.\n";
    //std::cout << "Call to KfComponentsHolder::genericFill should be optimized here " << std::endl;
    AlgebraicVector2 & pars = holder.params<2>();
    pars[0] = pos_.x(); 
