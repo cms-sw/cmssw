@@ -120,7 +120,7 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
   //  At this point we know the number of seeds on this DetUnit, and thus
   //  also the maximal number of possible clusters, so resize theClusters
   //  in order to make vector<>::push_back() efficient.
-   output.reserve ( theSeeds.size() );
+  // output.reserve ( theSeeds.size() ); //GPetruc: It is better *not* to reserve, with the new DetSetVector!
     
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
   for (unsigned int i = 0; i < theSeeds.size(); i++) {
