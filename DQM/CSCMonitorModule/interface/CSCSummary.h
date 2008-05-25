@@ -17,32 +17,8 @@
  */
 
 #include <TH2.h>
-
-#define N_SIDES    2
-#define N_STATIONS 4
-#define N_RINGS    3
-#define N_CHAMBERS 36
-#define N_CFEBS    5
-#define N_HVS      5
-
-struct CSCAddressMask {
-  bool side;
-  bool station;
-  bool ring;
-  bool chamber;
-  bool cfeb;
-  bool hv;
-};
-
-struct CSCAddress {
-  unsigned int side;
-  unsigned int station;
-  unsigned int ring;
-  unsigned int chamber;
-  unsigned int cfeb;
-  unsigned int hv;
-  CSCAddressMask mask;
-};
+#include <math.h>
+#include "DQM/CSCMonitorModule/interface/CSCDetector.h"
 
 class CSCSummary {
 
@@ -52,6 +28,8 @@ class CSCSummary {
 
     void Reset();
 
+    const CSCDetector Detector() const { return detector; }
+
     void Read(TH1*& h1);
     void ReadChambers(TH2*& h2, const double threshold = 1);
 
@@ -60,21 +38,19 @@ class CSCSummary {
 
     void SetValue(const int value);
     void SetValue(CSCAddress adr, const int value);
-    const int GetValue(CSCAddress adr);
+    const int GetValue(CSCAddress adr) const;
 
-    const double GetEfficiency();
-    const double GetEfficiency(CSCAddress adr); 
-
-    void PrintAddress(const CSCAddress& adr);
-
-    const unsigned int NumberOfRings(const unsigned int station);
-    const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring);
-    const unsigned int NumberOfChamberCFEBs(const unsigned int station, const unsigned int ring);
-    const unsigned int NumberOfChamberHVs(const unsigned int station, const unsigned int ring);
-    const bool ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr);
+    const double GetEfficiencyHW() const;
+    const double GetEfficiencyHW(CSCAddress adr) const; 
+    const double GetEfficiencyArea() const;
+    const double GetEfficiencyArea(CSCAddress adr) const; 
 
   private:
 
+    const bool ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr) const;
+    const double GetReportingArea(CSCAddress adr) const; 
+
     int map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_CFEBS][N_HVS];
+    CSCDetector detector;
 
 };

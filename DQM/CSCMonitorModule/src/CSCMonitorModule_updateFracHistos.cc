@@ -135,7 +135,5 @@ void CSCMonitorModule::updateFracHistos() {
     summary.Write(tmp);
   }
 
-  std::cout << "Detector Efficiency: " << summary.GetEfficiency() << "%" << std::endl;
-
 }
 
