@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.14.2.1 2008/04/24 10:37:55 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.15 2008/04/24 13:58:10 pjanot Exp $
 //
 //
 
@@ -72,6 +72,9 @@ typedef std::vector<L1MuGMTCand> L1MuonCollection;
 //
 // static data member definitions
 //
+
+//for debug only 
+//#define FAMOS_DEBUG
 
 double ParamL3MuonProducer::muonMassGeV_ = 0.105658369 ; // PDG06
 
@@ -207,11 +210,11 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }   // end if clause
 
 
-  if (debug_) {
-    std::cout << " *** ParamMuonProducer::reconstruct() -> entering " << std::endl;
-    std::cout << " *** Event with " << nmuons << " simulated muons and " 
-	      << ntrks << " tracker tracks" << std::endl;
-  }
+#ifdef FAMOS_DEBUG
+  std::cout << " *** ParamMuonProducer::reconstruct() -> entering " << std::endl;
+  std::cout << " *** Event with " << nmuons << " simulated muons and " 
+	    << ntrks << " tracker tracks" << std::endl;
+#endif
 
 //
 // Loop over generated muons and reconstruct L1, L3 and Global muons
@@ -246,13 +249,13 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 							       mySimTrack.momentum().z(),
 							       mySimTrack.momentum().t());
 
-    if (debug_) {
-      std::cout << " ===> ParamMuonProducer::reconstruct() - pid = "
-		<< mySimTrack.type() ;
-      std::cout << " : pT = " << mySimP4.Pt()
-		<< ", eta = " << mySimP4.Eta()
-		<< ", phi = " << mySimP4.Phi() << std::endl;
-    }      
+#ifdef FAMOS_DEBUG
+    std::cout << " ===> ParamMuonProducer::reconstruct() - pid = "
+	      << mySimTrack.type() ;
+    std::cout << " : pT = " << mySimP4.Pt()
+	      << ", eta = " << mySimP4.Eta()
+	      << ", phi = " << mySimP4.Phi() << std::endl;
+#endif
 
 // *** Reconstruct parameterized muons starting from undecayed simulated muons
  
@@ -321,7 +324,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	    // math::PtEtaPhiMLorentzVector( myL3PtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
 	    math::XYZPoint myL3Vertex = myTrackerTrack->referencePoint();
 	    reco::Muon * thisL3MuonCand = new reco::Muon(myL3Charge,myL3P4,myL3Vertex);
-	    thisL3MuonCand->setTrack(myTrackerTrack);
+	    thisL3MuonCand->setInnerTrack(myTrackerTrack);
 	    mySimpleL3MuonCandsTemp.push_back((*thisL3MuonCand));
 	    mySimpleL3MuonSeeds.push_back(thisL1MuonCand);
 	  }
@@ -347,7 +350,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  //  math::PtEtaPhiMLorentzVector ( myGLPtSmearer->smear(mySimP4,myTrackerTrack->momentum()) );
 	  math::XYZPoint myGLVertex = myTrackerTrack->referencePoint();
 	  reco::Muon * thisGLMuonCand = new reco::Muon(myGLCharge,myGLP4,myGLVertex);
-	  thisGLMuonCand->setTrack(myTrackerTrack);
+	  thisGLMuonCand->setInnerTrack(myTrackerTrack);
 	  mySimpleGLMuonCands.push_back((*thisGLMuonCand));
 	}
       }
@@ -355,14 +358,14 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 //
 // Summary debug for this generated muon:
 //
-      if (debug_) {
-	std::cout << " Muon " << nMu << " reconstructed with: " ;
-	if (hasL1) std::cout << " L1 ; " ;
-	if (hasTK) std::cout << " Tk ; " ;
-	if (hasL3) std::cout << " L3 ; " ;
-	if (hasGL) std::cout << " GL . " ;
-	std::cout << std::endl;
-      }
+#ifdef FAMOS_DEBUG
+      std::cout << " Muon " << nMu << " reconstructed with: " ;
+      if (hasL1) std::cout << " L1 ; " ;
+      if (hasTK) std::cout << " Tk ; " ;
+      if (hasL3) std::cout << " L3 ; " ;
+      if (hasGL) std::cout << " GL . " ;
+      std::cout << std::endl;
+#endif
       
     }
 
@@ -377,8 +380,11 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   for (l3mu=mySimpleL3MuonCandsTemp.begin(); l3mu!=mySimpleL3MuonCandsTemp.end(); ++l3mu) {
     unsigned int rank = (*l1mu)->rank();
     if (rank+4>rankmax) mySimpleL3MuonCands.push_back(*l3mu);
-    else if (debug_) std::cout << " Killed L3 muon candidate of rank " << rank
-			       << " when rankmax is " << rankmax << std::endl;
+#ifdef FAMOS_DEBUG
+    else 
+      std::cout << " Killed L3 muon candidate of rank " << rank
+		<< " when rankmax is " << rankmax << std::endl;
+#endif
     ++l1mu;
   }
   for (l1mu=mySimpleL1MuonCandsTemp.begin(); l1mu!=mySimpleL1MuonCandsTemp.end(); ++l1mu) {
@@ -394,8 +400,11 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       // math::PtEtaPhiMLorentzVector myL1P4(pt,eta,phi,muonMassGeV_);
       mySimpleL1MuonExtraCands.push_back( l1extra::L1MuonParticle( (*l1mu)->charge(), myL1P4, *(*l1mu)) );
    }
-    else if (debug_) std::cout << " Killed L1 muon candidate of rank " << rank
-			       << " when rankmax is " << rankmax << std::endl;
+#ifdef FAMOS_DEBUG
+    else 
+      std::cout << " Killed L1 muon candidate of rank " << rank
+		<< " when rankmax is " << rankmax << std::endl;
+#endif
   }
 // end killing of low ranked L1 and L3 muons -->
 
@@ -408,77 +417,77 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   nL3MuonTot += nL3;
   nGLMuonTot += nGL;
 
+#ifdef FAMOS_DEBUG
 // start debug -->
-  if (debug_) {
-    unsigned int i = 0;
-    //    FML1Muons::const_iterator l1mu;
-    for (l1mu=mySimpleL1MuonCands.begin(); l1mu!=mySimpleL1MuonCands.end(); l1mu++) {
-      ++i;
-      std::cout << "FastMuon L1 Cand " << i 
-		<< " : pT = " << (*l1mu)->ptValue()
-		<< ", eta = " << (*l1mu)->etaValue()
-		<< ", phi = " << (*l1mu)->phiValue()
-	        << ", rank = " << (*l1mu)->rank()
-                << std::endl;
-    }
-    i=0;
-    L1ExtraCollection::const_iterator l1ex;
-    for (l1ex=mySimpleL1MuonExtraCands.begin(); l1ex!=mySimpleL1MuonExtraCands.end(); l1ex++) {
-      ++i;
-      std::cout << "FastMuon L1 Extra Cand " << i 
-		<< " : pT = " << (*l1ex).pt()
-		<< ", eta = " << (*l1ex).eta()
-		<< ", phi = " << (*l1ex).phi()
-                << std::endl;
-    }
-    i=0;
-    //    reco::MuonCollection::const_iterator l3mu;
-    for (l3mu=mySimpleL3MuonCands.begin(); l3mu!=mySimpleL3MuonCands.end(); l3mu++) {
-      ++i;
-      std::cout << "FastMuon L3 Cand " << i 
-		<< " : pT = " << (*l3mu).pt()
-		<< ", eta = " << (*l3mu).eta()
-		<< ", phi = " << (*l3mu).phi()
-	//                << ", vertex = ( " << (*l3mu).vx()
-	//                                   << " , " << (*l3mu).vy()
-	//		                     << " , " << (*l3mu).vz() << " )"
-		<< std::endl;
-      std::cout << "-    tracker Track" 
-		<< " : pT = " << (*l3mu).track()->pt()
-		<< ", eta = " << (*l3mu).track()->eta()
-		<< ", phi = " << (*l3mu).track()->phi()
-	//                << ", vertex = ( " << (*l3mu).track()->vx()
-	//                                   << " , " << (*l3mu).track()->vy()
-	//		                     << " , " << (*l3mu).track()->vz() << " )"
-		<< std::endl;
-    }
-    i=0;
-    reco::MuonCollection::const_iterator glmu;
-    for (glmu=mySimpleGLMuonCands.begin(); glmu!=mySimpleGLMuonCands.end(); glmu++) {
-      ++i;
-      std::cout << "FastGlobalMuon Cand " << i 
-		<< " : pT = " << (*glmu).pt()
-		<< ", eta = " << (*glmu).eta()
-		<< ", phi = " << (*glmu).phi() 
-	//                << ", vertex = ( " << (*l3mu).vx()
-	//                                   << " , " << (*l3mu).vy()
-	//		                     << " , " << (*l3mu).vz() << " )"
-		<< std::endl;
-      std::cout << "-    tracker Track" 
-		<< " : pT = " << (*glmu).track()->pt()
-		<< ", eta = " << (*glmu).track()->eta()
-		<< ", phi = " << (*glmu).track()->phi()
-	//                << ", vertex = ( " << (*l3mu).track()->vx()
-	//                                   << " , " << (*l3mu).track()->vy()
-	//		                     << " , " << (*l3mu).track()->vz() << " )"
-		<< std::endl;
-    }
-    
-    std::cout << " ===> Number of generator -> L1 / L3 / Global muons in the event : "
-              << nMu << " -> " << nL1 <<  " / " << nL3 <<  " / " << nGL << std::endl;
-
+  unsigned int i = 0;
+  //    FML1Muons::const_iterator l1mu;
+  for (l1mu=mySimpleL1MuonCands.begin(); l1mu!=mySimpleL1MuonCands.end(); l1mu++) {
+    ++i;
+    std::cout << "FastMuon L1 Cand " << i 
+	      << " : pT = " << (*l1mu)->ptValue()
+	      << ", eta = " << (*l1mu)->etaValue()
+	      << ", phi = " << (*l1mu)->phiValue()
+	      << ", rank = " << (*l1mu)->rank()
+	      << std::endl;
   }
+  i=0;
+  L1ExtraCollection::const_iterator l1ex;
+  for (l1ex=mySimpleL1MuonExtraCands.begin(); l1ex!=mySimpleL1MuonExtraCands.end(); l1ex++) {
+    ++i;
+    std::cout << "FastMuon L1 Extra Cand " << i 
+	      << " : pT = " << (*l1ex).pt()
+	      << ", eta = " << (*l1ex).eta()
+	      << ", phi = " << (*l1ex).phi()
+	      << std::endl;
+  }
+  i=0;
+  //    reco::MuonCollection::const_iterator l3mu;
+  for (l3mu=mySimpleL3MuonCands.begin(); l3mu!=mySimpleL3MuonCands.end(); l3mu++) {
+    ++i;
+    std::cout << "FastMuon L3 Cand " << i 
+	      << " : pT = " << (*l3mu).pt()
+	      << ", eta = " << (*l3mu).eta()
+	      << ", phi = " << (*l3mu).phi()
+      //                << ", vertex = ( " << (*l3mu).vx()
+      //                                   << " , " << (*l3mu).vy()
+      //		                     << " , " << (*l3mu).vz() << " )"
+	      << std::endl;
+    std::cout << "-    tracker Track" 
+	      << " : pT = " << (*l3mu).track()->pt()
+	      << ", eta = " << (*l3mu).track()->eta()
+	      << ", phi = " << (*l3mu).track()->phi()
+      //                << ", vertex = ( " << (*l3mu).track()->vx()
+      //                                   << " , " << (*l3mu).track()->vy()
+      //		                     << " , " << (*l3mu).track()->vz() << " )"
+	      << std::endl;
+  }
+  i=0;
+  reco::MuonCollection::const_iterator glmu;
+  for (glmu=mySimpleGLMuonCands.begin(); glmu!=mySimpleGLMuonCands.end(); glmu++) {
+    ++i;
+    std::cout << "FastGlobalMuon Cand " << i 
+	      << " : pT = " << (*glmu).pt()
+	      << ", eta = " << (*glmu).eta()
+	      << ", phi = " << (*glmu).phi() 
+      //                << ", vertex = ( " << (*l3mu).vx()
+      //                                   << " , " << (*l3mu).vy()
+      //		                     << " , " << (*l3mu).vz() << " )"
+	      << std::endl;
+    std::cout << "-    tracker Track" 
+	      << " : pT = " << (*glmu).track()->pt()
+	      << ", eta = " << (*glmu).track()->eta()
+	      << ", phi = " << (*glmu).track()->phi()
+      //                << ", vertex = ( " << (*l3mu).track()->vx()
+      //                                   << " , " << (*l3mu).track()->vy()
+      //		                     << " , " << (*l3mu).track()->vz() << " )"
+	      << std::endl;
+  }
+  
+  std::cout << " ===> Number of generator -> L1 / L3 / Global muons in the event : "
+	    << nMu << " -> " << nL1 <<  " / " << nL3 <<  " / " << nGL << std::endl;
+  
 // end debug -->
+#endif
 
   if (doL1_) {
     std::auto_ptr<L1MuonCollection> l1Out(new L1MuonCollection);
@@ -577,7 +586,6 @@ void ParamL3MuonProducer::endJob() {
 void ParamL3MuonProducer::readParameters(const edm::ParameterSet& fastMuons, 
 					 const edm::ParameterSet& fastTracks) {
   // Muons
-  debug_ = fastMuons.getUntrackedParameter<bool>("Debug");
   doL1_ = fastMuons.getUntrackedParameter<bool>("ProduceL1Muons");
   doL3_ = fastMuons.getUntrackedParameter<bool>("ProduceL3Muons");
   doGL_ = fastMuons.getUntrackedParameter<bool>("ProduceGlobalMuons");

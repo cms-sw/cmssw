@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.6 2007/12/28 21:01:41 pjanot Exp $
+// $Id: ParamL3MuonProducer.h,v 1.7 2008/01/08 17:42:18 pjanot Exp $
 //
 
 
@@ -103,7 +103,6 @@ class ParamL3MuonProducer : public edm::EDProducer {
       FML3PtSmearer * myGLPtSmearer;
       
   // ----------- parameters ---------------------------- 
-      bool debug_;
       bool fullPattern_;
       bool doL1_ , doL3_ , doGL_;
       std::string theSimModuleLabel_ , theSimModuleProcess_, theTrkModuleLabel_ ;
