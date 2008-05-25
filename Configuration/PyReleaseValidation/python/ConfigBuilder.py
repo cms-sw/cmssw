@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -109,7 +109,7 @@ class ConfigBuilder(object):
         self.process.output = output
         self.process.out_step = cms.EndPath(self.process.output)
         self.process.schedule.append(self.process.out_step)
-        self.commands.append("process.out_step = cms.EndPath(process.output)")
+
          
 
         # ATTENTION: major tweaking to avoid inlining of event content
@@ -265,7 +265,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.5 $"),
+              (version=cms.untracked.string("$Revision: 1.6 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -311,13 +311,17 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "\n# Other statements\n"
         for command in self.commands:
             self.pythonCfgCode += command + "\n"
+        
+
           
         # add all paths
         # todo: except for the bad trigger ones
-        self.pythonCfgCode += "\n# Path definitions\n"
+        self.pythonCfgCode += "\n# Path and EndPath definitions\n"
         for path in self.process.paths:
-            self.pythonCfgCode += "process."+path+" = " + getattr(self.process,path).dumpPython("process")
-
+            if 'HLT' not in path:
+                self.pythonCfgCode += "process."+path+" = " + getattr(self.process,path).dumpPython("process")
+        for endpath in self.process.endpaths:
+            self.pythonCfgCode += "process."+endpath+" = " + getattr(self.process,endpath).dumpPython("process")
 
         # dump the schedule
         self.pythonCfgCode += "\n# Schedule definition\n"
