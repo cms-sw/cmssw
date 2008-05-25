@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # for ECAL+HCAL
 #
 # Ideal geometry, needed for simulation
-from Geometry.CMSCommonData.ecalhcalOnlyGeometryXML_cfi import *
+from Geometry.CMSCommonData.ecalhcalGeometryXML_cfi import *
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloGeometry_cff import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
