@@ -35,8 +35,8 @@ gStyle->SetHistFillColor(0);
 gStyle->SetHistLineStyle(1);
 gStyle->SetHistLineWidth(2);
 gStyle->SetHistLineColor(2);
-gStyle->SetTitleXOffset(1.15);
-gStyle->SetTitleYOffset(1.15);
+gStyle->SetTitleXOffset(1.25);
+gStyle->SetTitleYOffset(1.3);
 gStyle->SetOptStat(1110);
 gStyle->SetOptStat(kFALSE);
 gStyle->SetOptFit(0111);
@@ -52,8 +52,8 @@ TFile *f[5];
 TTree *MyTree[5];
 
 
-f[0]= new TFile("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");
-MyTree[0]=Tracks;
+f[0]= new TFile("ValidationMisalignedTracker_singlemu100_merged.root");
+MyTree[0]=EffTracks;
 
 f[1]=new TFile("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
 MyTree[1]=Tracks;
@@ -73,6 +73,12 @@ MyTree[4]=Tracks;
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 /// EFFICIENCIES VS ETA ALIGNED
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+hframe = new TH2F("hframe","#Delta(d_{0})",100,-0.03,0.03,32,0.,0.32);
+hframe->SetXTitle("#Delta(d_{0}) [#mum]");
+hframe->SetYTitle("N. ev. /0.0006");
+hframe->Draw();
+
+
 char histoname[128];
 char name[128];
 TH1F *Resd0[5];
@@ -92,7 +98,7 @@ for(int i=0; i<5; i++){
   Resd0[i]->SetLineColor(i+2);
   Resd0[i]->SetLineStyle(i+1);
   Resd0[i]->SetLineWidth(i+2);
-  if (i==0) Resd0[i]->Draw();
+  if (i==0) Resd0[i]->Draw("same");
   else Resd0[i]->Draw("same");
   //  c1->WaitPrimitive();
   c1->Update();
@@ -112,10 +118,11 @@ delete c1;
 void Plots::Legend(TString histoname1,TString histoname2,TString histoname3, TString histoname4, TString histoname5, TH1F *histo1, TH1F *histo2, TH1F *histo3, TH1F *histo4,  TH1F *histo5)
 {
 
-TLegend *leg = new TLegend(0.47,0.87.,1.,1.); 
+TLegend *leg = new TLegend(0.31,0.74.,0.995,0.995);
 leg->SetTextAlign(32);
 leg->SetTextColor(1);
-leg->SetTextSize(0.020);
+leg->SetTextSize(0.033);
+leg->SetFillColor(0);
 
 char  label[128];
 // sprintf(label,"perfect alignment;      mean = %1.3f, RMS = %1.3f",convert(histo1->GetMean()),convert(histo1->GetRMS()));
@@ -130,15 +137,15 @@ char  label[128];
 // leg->AddEntry(histoname5, label, "l");
 
 
-sprintf(label,"perfect alignment;      mean = %1.4f, RMS = %1.4f",(histo1->GetMean()),histo1->GetRMS());
+sprintf(label,"perfect; mean=%1.4f, RMS=%1.4f",(histo1->GetMean()),histo1->GetRMS());
 leg->AddEntry(histoname1, label, "l");
-sprintf(label,"SurveyLAS alignment; mean = %1.4f, RMS = %1.4f",(histo2->GetMean()),histo2->GetRMS());
+sprintf(label,"SurveyLAS; mean=%1.4f, RMS=%1.4f",(histo2->GetMean()),histo2->GetRMS());
 leg->AddEntry(histoname2, label, "l");
-sprintf(label,"SurveyLASCosmics alignment; mean = %1.4f, RMS = %1.4f",(histo3->GetMean()),histo3->GetRMS());
+sprintf(label,"SurveyLASCosmics; mean=%1.4f, RMS=%1.4f",(histo3->GetMean()),histo3->GetRMS());
 leg->AddEntry(histoname3, label, "l");
-sprintf(label,"10 pb-1 alignment;  mean = %1.4f, RMS = %1.4f",(histo4->GetMean()),histo4->GetRMS());
+sprintf(label,"10 pb^{-1};  mean=%1.4f, RMS=%1.4f",(histo4->GetMean()),histo4->GetRMS());
 leg->AddEntry(histoname4, label, "l");
-sprintf(label,"100 pb-1 alignment;  mean = %1.4f, RMS = %1.4f",(histo5->GetMean()),histo5->GetRMS());
+sprintf(label,"100 pb^{-1};  mean=%1.4f, RMS=%1.4f",(histo5->GetMean()),histo5->GetRMS());
 leg->AddEntry(histoname5, label, "l");
 
 leg->Draw();

@@ -36,40 +36,24 @@ c1->SetGrid(1);
 
 c1->cd(); 
 
-//TFile f0("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");  
-//TTree *MyTree=EffTracks;
+//TFile f0("../../singlemu_310607/MisalignmentIdeal131.root");  
+//TFile f0("../../Misalignment_scenarioIdeal_singlemu131.root");
+//TTree *MyTree=Tracks;
 
-<<<<<<< Effeta_nota.C
-TFile f2("ValidationMisalignedTracker.root");
-TTree *MyTree2=EffTracks;
-=======
+TFile f0("ValidationMisalignedTracker_singlemu100_merged.root");
+TTree *MyTree=EffTracks;
+
 TFile f1("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
 TTree *MyTree2=Tracks;
->>>>>>> 1.2
 
-<<<<<<< Effeta_nota.C
-//TFile f3("../../singlemu_310607/Misalignment10.root");
-//TTree *MyTree3=EffTracks;
-=======
 TFile f2("Misalignment_SurveyLASOnlyScenario_refitter_zmumu_singlemuSurveyLASCosmics.root");
 TTree *MyTree3=Tracks;
->>>>>>> 1.2
 
-<<<<<<< Effeta_nota.C
-//TFile f4("../../singlemu_310607/Misalignment100.root");
-//TTree *MyTree4=EffTracks;
-=======
 TFile f3("../../singlemu_310607/Misalignment10.root");
 TTree *MyTree4=Tracks;
->>>>>>> 1.2
 
-<<<<<<< Effeta_nota.C
-//TFile f5("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu_NOAPE.root");
-//TTree *MyTree5=EffTracks;
-=======
 TFile f4("../../singlemu_310607/Misalignment100.root");
 TTree *MyTree5=Tracks;
->>>>>>> 1.2
 
 TFile f5("../../singlemu_310607/Misalignment_scenario10_refitter_singlemu_noape.root");
 TTree *MyTree6=Tracks;
@@ -80,45 +64,45 @@ TTree *MyTree6=Tracks;
 /// EFFICIENCIES VS ETA ALIGNED
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-// TH1F *etazero = new TH1F("etazero","eta zero",60,0.,2.5); 
-// TH1F *etauno = new TH1F("etauno","eta uno",60,0.,2.5); 
+TH1F *etazero = new TH1F("etazero","eta zero",80,0.,2.5); 
+TH1F *etauno = new TH1F("etauno","eta uno",80,0.,2.5); 
 
-// MyTree->Project("etazero","abs(eta)");
-// MyTree->Project("etauno","abs(eta)","eff==1");
-// TH1F *Effeta = etazero->Clone("Efficiency vs #eta");
+MyTree->Project("etazero","abs(eta)");
+MyTree->Project("etauno","abs(eta)","eff==1");
+TH1F *Effeta = etazero->Clone("Efficiency vs #eta");
 
-// Effeta->Reset();
-// Effeta->Divide(etauno,etazero,1,1); 
-// Effeta->Sumw2();
+Effeta->Reset();
+Effeta->Divide(etauno,etazero,1,1); 
+Effeta->Sumw2();
 
-// float MC_bin=0.,Eff_bin=0.,err=0.;
-// for (int k=1; k<61; k++){
-//   MC_bin = etazero->GetBinContent(k);
-//   Eff_bin = Effeta->GetBinContent(k);
-//   if (MC_bin != 0.) {
-//     err=Eff_bin*(1.-Eff_bin)/MC_bin;
-//     if (err >0) {
-//       err=sqrt(err);
-//     }      
-//     else {
-//       err=0.0001;  
-//     }
-//     }
-//   Effeta->SetBinError(k,err);
-//   MC_bin=0.;
-//   Eff_bin=0.;
-//   err=0.;
-// }
+float MC_bin=0.,Eff_bin=0.,err=0.;
+for (int k=1; k<81; k++){
+  MC_bin = etazero->GetBinContent(k);
+  Eff_bin = Effeta->GetBinContent(k);
+  if (MC_bin != 0.) {
+    err=Eff_bin*(1.-Eff_bin)/MC_bin;
+    if (err >0) {
+      err=sqrt(err);
+    }      
+    else {
+      err=0.0001;  
+    }
+    }
+  Effeta->SetBinError(k,err);
+  MC_bin=0.;
+  Eff_bin=0.;
+  err=0.;
+}
 
-// Effeta->SetMarkerStyle(20);
-// Effeta->SetMarkerColor(2);
-// Effeta->SetMarkerSize(0.9);
-// Effeta->SetLineColor(1);
-// Effeta->SetLineWidth(1);
-// Effeta->Draw("P"); 
+Effeta->SetMarkerStyle(20);
+Effeta->SetMarkerColor(2);
+Effeta->SetMarkerSize(0.9);
+Effeta->SetLineColor(1);
+Effeta->SetLineWidth(1);
+Effeta->Draw("P"); 
 
-// c1->Update();
-// c1->WaitPrimitive();
+c1->Update();
+c1->WaitPrimitive();
 
 ////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
@@ -173,124 +157,78 @@ c1->WaitPrimitive();
 // // /// EFFICIENCIES VS ETA SCEN 2
 // // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-// TH1F *etazero_scen2 = new TH1F("etazero_scen2","eta zero",80,0.,2.5); 
-// TH1F *etauno_scen2 = new TH1F("etauno_scen2","eta uno",80,0.,2.5); 
+TH1F *etazero_scen2 = new TH1F("etazero_scen2","eta zero",80,0.,2.5); 
+TH1F *etauno_scen2 = new TH1F("etauno_scen2","eta uno",80,0.,2.5); 
 
-// MyTree3->Project("etazero_scen2","abs(eta)");
-// MyTree3->Project("etauno_scen2","abs(eta)","eff==1");
-// TH1F *Effeta_scen2 = etazero_scen2->Clone("Efficiency vs #eta");
+MyTree3->Project("etazero_scen2","abs(eta)");
+MyTree3->Project("etauno_scen2","abs(eta)","eff==1");
+TH1F *Effeta_scen2 = etazero_scen2->Clone("Efficiency vs #eta");
 
-// Effeta_scen2->Reset();
-// Effeta_scen2->Divide(etauno_scen2,etazero_scen2,1,1); 
-// Effeta_scen2->Sumw2();
+Effeta_scen2->Reset();
+Effeta_scen2->Divide(etauno_scen2,etazero_scen2,1,1); 
+Effeta_scen2->Sumw2();
 
-// float MC_bin=0.,Eff_bin=0.,err=0.;
-// for (int k=1; k<81; k++){
-//   MC_bin = etazero_scen2->GetBinContent(k);
-//   Eff_bin = Effeta_scen2->GetBinContent(k);
-//   if (MC_bin != 0.) {
-//     err=Eff_bin*(1.-Eff_bin)/MC_bin;
-//     if (err >0) {
-//       err=sqrt(err);
-//     }      
-//     else {
-//       err=0.0001;  
-//     }
-//   }
-//   Effeta_scen2->SetBinError(k,err);
+float MC_bin=0.,Eff_bin=0.,err=0.;
+for (int k=1; k<81; k++){
+  MC_bin = etazero_scen2->GetBinContent(k);
+  Eff_bin = Effeta_scen2->GetBinContent(k);
+  if (MC_bin != 0.) {
+    err=Eff_bin*(1.-Eff_bin)/MC_bin;
+    if (err >0) {
+      err=sqrt(err);
+    }      
+    else {
+      err=0.0001;  
+    }
+  }
+  Effeta_scen2->SetBinError(k,err);
   
-//   MC_bin=0.;
-//   Eff_bin=0.;
-//   err=0.;
-// }
+  MC_bin=0.;
+  Eff_bin=0.;
+  err=0.;
+}
 
-// Effeta_scen2->SetMarkerStyle(22);
-// Effeta_scen2->SetMarkerColor(4);
-// Effeta_scen2->SetMarkerSize(0.9);
-// Effeta_scen2->SetLineColor(1);
-// Effeta_scen2->SetLineWidth(1);
-// Effeta_scen2->Draw("P"); 
-// c1->Update();
-// //c1->WaitPrimitive();
+Effeta_scen2->SetMarkerStyle(22);
+Effeta_scen2->SetMarkerColor(4);
+Effeta_scen2->SetMarkerSize(0.9);
+Effeta_scen2->SetLineColor(1);
+Effeta_scen2->SetLineWidth(1);
+Effeta_scen2->Draw("P"); 
+c1->Update();
+//c1->WaitPrimitive();
 
-// // // ////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// // ////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-// // // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// // // /// EFFICIENCIES VS ETA SCEN 2
-// // // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// // /// EFFICIENCIES VS ETA SCEN 2
+// // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-// TH1F *etazero_scen3 = new TH1F("etazero_scen3","eta zero",80,0.,2.5); 
-// TH1F *etauno_scen3 = new TH1F("etauno_scen3","eta uno",80,0.,2.5); 
+TH1F *etazero_scen3 = new TH1F("etazero_scen3","eta zero",80,0.,2.5); 
+TH1F *etauno_scen3 = new TH1F("etauno_scen3","eta uno",80,0.,2.5); 
 
-// MyTree3->Project("etazero_scen3","abs(eta)");
-// MyTree3->Project("etauno_scen3","abs(eta)","eff==1");
-// TH1F *Effeta_scen3 = etazero_scen3->Clone("Efficiency vs #eta");
+MyTree4->Project("etazero_scen3","abs(eta)");
+MyTree4->Project("etauno_scen3","abs(eta)","eff==1");
+TH1F *Effeta_scen3 = etazero_scen3->Clone("Efficiency vs #eta");
 
-// Effeta_scen3->Reset();
-// Effeta_scen3->Divide(etauno_scen3,etazero_scen3,1,1); 
-// Effeta_scen3->Sumw2();
+Effeta_scen3->Reset();
+Effeta_scen3->Divide(etauno_scen3,etazero_scen3,1,1); 
+Effeta_scen3->Sumw2();
 
-// float MC_bin=0.,Eff_bin=0.,err=0.;
-// for (int k=1; k<81; k++){
-//   MC_bin = etazero_scen3->GetBinContent(k);
-//   Eff_bin = Effeta_scen3->GetBinContent(k);
-//   if (MC_bin != 0.) {
-//     err=Eff_bin*(1.-Eff_bin)/MC_bin;
-//     if (err >0) {
-//       err=sqrt(err);
-//     }      
-//     else {
-//       err=0.0001;  
-//     }
-//   }
-//   Effeta_scen3->SetBinError(k,err);
+float MC_bin=0.,Eff_bin=0.,err=0.;
+for (int k=1; k<81; k++){
+  MC_bin = etazero_scen3->GetBinContent(k);
+  Eff_bin = Effeta_scen3->GetBinContent(k);
+  if (MC_bin != 0.) {
+    err=Eff_bin*(1.-Eff_bin)/MC_bin;
+    if (err >0) {
+      err=sqrt(err);
+    }      
+    else {
+      err=0.0001;  
+    }
+  }
+  Effeta_scen3->SetBinError(k,err);
   
-<<<<<<< Effeta_nota.C
-//   MC_bin=0.;
-//   Eff_bin=0.;
-//   err=0.;
-// }
-
-// Effeta_scen3->SetMarkerStyle(22);
-// Effeta_scen3->SetMarkerColor(5);
-// Effeta_scen3->SetMarkerSize(0.9);
-// Effeta_scen3->SetLineColor(1);
-// Effeta_scen3->SetLineWidth(1);
-// Effeta_scen3->Draw("P"); 
-// c1->Update();
-// //c1->WaitPrimitive();
-
-// // /////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-// // /// EFFICIENCIES VS ETA SCEN 1 APE = 0
-// // //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-//  TH1F *etazero_scen1_noErr = new TH1F("etazero_scen1_noErr","eta zero",80,0.,2.5); 
-//  TH1F *etauno_scen1_noErr = new TH1F("etauno_scen1_noErr","eta uno",80,0.,2.5); 
-
-//  MyTree5->Project("etazero_scen1_noErr","abs(eta)");
-//  MyTree5->Project("etauno_scen1_noErr","abs(eta)","eff==1");
-//  TH1F *Effeta_scen1_noErr = etazero_scen1_noErr->Clone("Efficiency vs #eta");
-
-//  Effeta_scen1_noErr->Reset();
-//  Effeta_scen1_noErr->Divide(etauno_scen1_noErr,etazero_scen1_noErr,1,1); 
-//  Effeta_scen1_noErr->Sumw2();
-
-//  float MC_bin=0.,Eff_bin=0.,err=0.;
-//  for (int k=1; k<81; k++){
-//    MC_bin = etazero_scen1_noErr->GetBinContent(k);
-//    Eff_bin = Effeta_scen1_noErr->GetBinContent(k);
-//    if (MC_bin != 0.) {
-//      err=Eff_bin*(1.-Eff_bin)/MC_bin;
-//      if (err >0) {
-//        err=sqrt(err);
-//      }      
-//      else {
-//        err=0.0001;  
-//      }
-//    }
-//    Effeta_scen1_noErr->SetBinError(k,err);
-=======
   MC_bin=0.;
   Eff_bin=0.;
   err=0.;
@@ -313,8 +251,8 @@ c1->Update();
 TH1F *etazero_scen4 = new TH1F("etazero_scen4","eta zero",80,0.,2.5); 
 TH1F *etauno_scen4 = new TH1F("etauno_scen4","eta uno",80,0.,2.5); 
 
-MyTree4->Project("etazero_scen4","abs(eta)");
-MyTree4->Project("etauno_scen4","abs(eta)","eff==1");
+MyTree5->Project("etazero_scen4","abs(eta)");
+MyTree5->Project("etauno_scen4","abs(eta)","eff==1");
 TH1F *Effeta_scen4 = etazero_scen4->Clone("Efficiency vs #eta");
 
 Effeta_scen4->Reset();
@@ -380,22 +318,7 @@ c1->Update();
      }
    }
    Effeta_scen1_noErr->SetBinError(k,err);
->>>>>>> 1.2
   
-<<<<<<< Effeta_nota.C
-//    MC_bin=0.;
-//    Eff_bin=0.;
-//    err=0.;
-//  }
-
-//  Effeta_scen1_noErr->SetMarkerStyle(23);
-//  Effeta_scen1_noErr->SetMarkerColor(6);
-//  Effeta_scen1_noErr->SetMarkerSize(0.9);
-//  Effeta_scen1_noErr->SetLineColor(1);
-//  Effeta_scen1_noErr->SetLineWidth(1);
-//  Effeta_scen1_noErr->Draw("P"); 
-//  c1->Update();
-=======
    MC_bin=0.;
    Eff_bin=0.;
    err=0.;
@@ -408,7 +331,6 @@ c1->Update();
  Effeta_scen1_noErr->SetLineWidth(1);
  Effeta_scen1_noErr->Draw("P"); 
  c1->Update();
->>>>>>> 1.2
 
 // /////&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // c1->SetGrid(1,1);
@@ -416,19 +338,11 @@ c1->Update();
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 /// EFFICIENCIES VS ETA STACKED
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-<<<<<<< Effeta_nota.C
-Effeta_scen1->Draw();
-// Effeta->Draw("same");
-// Effeta_scen1_noErr->SetTitle("Global Efficiency vs #eta");
-// Effeta_scen1_noErr->SetXTitle("#eta");
-// Effeta_scen1_noErr->SetYTitle("Global Efficiency");
-// Effeta_scen1->Draw("same");
-// Effeta_scen2->Draw("same");
-// Effeta_scen3->Draw("same");
-// Effeta_scen1_noErr->Draw("same");
-=======
-Effeta_scen1_noErr->Draw();
+hframe = new TH2F("hframe","Global Efficiency vs #eta",80,0.,2.5,00,0,1.05);
+hframe->SetXTitle("#eta");
+hframe->SetYTitle("Global Efficiency");
+hframe->Draw();
+Effeta_scen1_noErr->Draw("same");
 Effeta->Draw("same");
 Effeta_scen1_noErr->SetTitle("Global Efficiency vs #eta");
 Effeta_scen1_noErr->SetXTitle("#eta");
@@ -438,27 +352,29 @@ Effeta_scen2->Draw("same");
 Effeta_scen3->Draw("same");
 Effeta_scen4->Draw("same");
 
->>>>>>> 1.2
+//Effeta_scen1_noErr->Draw();
+//Effeta->Draw("same");
+//Effeta_scen1_noErr->SetTitle("Global Efficiency vs #eta");
+//Effeta_scen1_noErr->SetXTitle("#eta");
+//Effeta_scen1_noErr->SetYTitle("Global Efficiency");
+//Effeta_scen1->Draw("same");
+//Effeta_scen2->Draw("same");
+//Effeta_scen3->Draw("same");
+//Effeta_scen4->Draw("same");
 
-TLegend *leg1 = new TLegend(0.55,0.11,0.88,0.22); 
+
+TLegend *leg1 = new TLegend(0.52,0.11,0.87,0.36); 
 leg1->SetTextAlign(32);
 leg1->SetTextColor(1);
-leg1->SetTextSize(0.02);
+leg1->SetTextSize(0.033);
+leg1->SetFillColor(0);
 
-<<<<<<< Effeta_nota.C
-//leg1->AddEntry(Effeta,"perfect alignment", "P");
-leg1->AddEntry(Effeta_scen1,"SurveyLASCosmics alignment;  APE used", "P");
-// leg1->AddEntry(Effeta_scen2,"10 pb-1 alignment;   APE used", "P");
-// leg1->AddEntry(Effeta_scen3,"100 pb-1 alignment;   APE used", "P");
-// leg1->AddEntry(Effeta_scen1_noErr,"SurveyLAS alignment; APE not used", "P");
-=======
-leg1->AddEntry(Effeta,"perfect alignment", "P");
-leg1->AddEntry(Effeta_scen1,"SurveyLAS alignment", "P");
-leg1->AddEntry(Effeta_scen2,"SurveyLASCosmics alignment", "P");
-leg1->AddEntry(Effeta_scen3,"10 pb-1 alignment", "P");
-leg1->AddEntry(Effeta_scen4,"100 pb-1 alignment", "P");
-leg1->AddEntry(Effeta_scen1_noErr,"10 pb-1 alignment; APE not used", "P");
->>>>>>> 1.2
+leg1->AddEntry(Effeta,"perfect ", "P");
+leg1->AddEntry(Effeta_scen1,"SurveyLAS ", "P");
+leg1->AddEntry(Effeta_scen2,"SurveyLASCosmics ", "P");
+leg1->AddEntry(Effeta_scen3,"10 pb^{-1} ", "P");
+leg1->AddEntry(Effeta_scen4,"100 pb^{-1} ", "P");
+leg1->AddEntry(Effeta_scen1_noErr,"10 pb^{-1}; APE not used", "P");
 
 leg1->Draw();
 

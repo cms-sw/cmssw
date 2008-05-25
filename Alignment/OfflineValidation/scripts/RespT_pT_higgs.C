@@ -16,8 +16,8 @@ gStyle->SetHistFillColor(0);
 gStyle->SetHistLineStyle(1);
 gStyle->SetHistLineWidth(1);
 gStyle->SetHistLineColor(1);
-gStyle->SetTitleXOffset(1.1);
-gStyle->SetTitleYOffset(1.15);
+gStyle->SetTitleXOffset(1.);
+gStyle->SetTitleYOffset(0.95);
 gStyle->SetOptStat(1110);
 gStyle->SetOptStat(kFALSE);
 gStyle->SetOptFit(0111);
@@ -299,23 +299,28 @@ Canv->Update();
  //Canv->SaveAs("SigmapT_pT_gaus_scen3.eps");
  //Canv->WaitPrimitive();
 
+hframe = new TH2F("hframe","#sigma(p_{T})/p_{T} vs p_{T} for #mu from Z->#mu#mu",25,0.,100.,100,0.007,0.5);
+hframe->SetYTitle("#sigma(p_{T})/p_{T}");
+hframe->SetXTitle("p_{T} [GeV/c]");
+hframe->Draw();
 
-gr->Draw("P");
+gr->Draw("Psame");
 gr_scen1->Draw("Psame");
 gr_scen2->Draw("Psame");
 gr_scen3->Draw("Psame");
 gr_scen4->Draw("Psame");
 
-TLegend *leg1 = new TLegend(0.1,0.76,0.47,0.9);
+TLegend *leg1 = new TLegend(0.105,0.68,0.455,0.895);                            
 leg1->SetTextAlign(32);
 leg1->SetTextColor(1);
-leg1->SetTextSize(0.025);
+leg1->SetTextSize(0.033);
+leg1->SetFillColor(0);
 
-leg1->AddEntry(gr,"perfect alignment", "P");
-leg1->AddEntry(gr_scen1,"SurveyLAS alignment", "P");
-leg1->AddEntry(gr_scen2,"SurveyLASCosmics alignment", "P");
-leg1->AddEntry(gr_scen3,"10 pb-1  alignment", "P");
-leg1->AddEntry(gr_scen4,"100 pb-1  alignment", "P");
+leg1->AddEntry(gr,"perfect", "P");
+leg1->AddEntry(gr_scen1,"SurveyLAS", "P");
+leg1->AddEntry(gr_scen2,"SurveyLASCosmics", "P");
+leg1->AddEntry(gr_scen3,"10 pb^{-1}", "P");
+leg1->AddEntry(gr_scen4,"100 pb^{-1}", "P");
 
 leg1->Draw();
 

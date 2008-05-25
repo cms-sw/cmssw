@@ -20,7 +20,7 @@ gStyle->SetHistLineStyle(1);
 gStyle->SetHistLineWidth(1);
 gStyle->SetHistLineColor(1);
 gStyle->SetTitleXOffset(1.1);
-gStyle->SetTitleYOffset(1.15);
+gStyle->SetTitleYOffset(1.25);
 //gStyle->SetOptStat(1110);
 gStyle->SetOptStat(kFALSE);
 gStyle->SetOptFit(0111);
@@ -35,19 +35,19 @@ c1->SetGrid(1,1);
 TFile f0("/gpfs/defilippis/ValidationMisalignedTracker_ttbar.root");  
 TTree *MyTree=FakeTracks;
 
-TFile f1("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_SurveyLAS.root");  
+TFile f1("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_SurveyLAS_merged.root");  
 TTree *MyTree1=FakeTracks;
 
-TFile f2("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_SurveyLASCosmics.root");  
+TFile f2("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_SurveyLASCosmics_merged.root");  
 TTree *MyTree2=FakeTracks;
 
-TFile f3("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_10pb.root");  
+TFile f3("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_10pb_merged.root");  
 TTree *MyTree3=FakeTracks;
 
-TFile f4("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_100pb.root");  
+TFile f4("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_100pb_merged.root");  
 TTree *MyTree4=FakeTracks;
 
-TFile f5("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_10pb_NOAPE.root");  
+TFile f5("/gpfs/defilippis/ValidationMisalignedTracker_ttbar_10pb_NOAPE_merged.root");  
 TTree *MyTree5=FakeTracks;
 
 
@@ -353,18 +353,19 @@ etadue_scen2->Draw("same");
 etadue_scen3->Draw("same");
 etadue_scen4->Draw("same");
 
-TLegend *leg1 = new TLegend(0.1,0.75,0.45,0.9);
+TLegend *leg1 = new TLegend(0.105,0.65,0.45,0.895);
 leg1->SetTextAlign(32);
 leg1->SetTextColor(1);
-leg1->SetTextSize(0.02);
+leg1->SetTextSize(0.033);
+leg1->SetFillColor(0);
 
 
-leg1->AddEntry(etadue,"perfect alignment", "P");
-leg1->AddEntry(etadue_scen1,"SurveyLAS alignment", "P");
-leg1->AddEntry(etadue_scen2,"SurveyLASCosmics alignment", "P");
-leg1->AddEntry(etadue_scen3,"10 pb-1 alignment", "P");
-leg1->AddEntry(etadue_scen4,"100 pb-1 alignment", "P");
-leg1->AddEntry(etadue_noErr,"10 pb-1 alignment; APE not used", "P");
+leg1->AddEntry(etadue,"perfect ", "P");
+leg1->AddEntry(etadue_scen1,"SurveyLAS ", "P");
+leg1->AddEntry(etadue_scen2,"SurveyLASCosmics ", "P");
+leg1->AddEntry(etadue_scen3,"10 pb^{-1} ", "P");
+leg1->AddEntry(etadue_scen4,"100 pb^{-1} ", "P");
+leg1->AddEntry(etadue_noErr,"10 pb^{-1}; APE not used", "P");
 
 
 leg1->Draw();
