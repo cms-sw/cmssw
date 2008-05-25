@@ -325,7 +325,7 @@ for s in step_list:
         trimmedStep=trimmedStep+','+step
         
 first_step=trimmedStep.split(',')[0]             
-if options.filein=="" and not first_step in ("ALL","GEN"):
+if options.filein=="" and not first_step in ("ALL","GEN","SIM_CHAIN"):
     if options.dirin=="":
         options.dirin="file:"
     options.filein=trimmedEvtType+"_"+options.energy+\
