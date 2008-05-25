@@ -1,6 +1,6 @@
 /** \class HLTElectronDetaDphiFilter
  *
- * $Id: HLTElectronDetaDphiFilter.cc,v 1.3 2008/04/23 15:30:44 ghezzi Exp $ 
+ * $Id: HLTElectronDetaDphiFilter.cc,v 1.4 2008/04/25 15:00:47 ghezzi Exp $ 
  *
  *  \author Alessio Ghezzi (Milano-Bicocca & CERN)
  *
@@ -9,6 +9,7 @@
 #include "HLTrigger/Egamma/interface/HLTElectronDetaDphiFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
@@ -29,6 +30,9 @@
 
 #include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 //
 // constructors and destructor
 //
@@ -79,6 +83,9 @@ HLTElectronDetaDphiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   const reco::BeamSpot::Point& BSPosition = recoBeamSpotHandle->position(); 
   // look at all electrons,  check cuts and add to filter object
   int n = 0;
+
+  edm::ESHandle<MagneticField>                theMagField;
+  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
   
   for (unsigned int i=0; i<elecands.size(); i++) {
 
@@ -92,8 +99,8 @@ HLTElectronDetaDphiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     ECALPositionCalculator posCalc;
     const math::XYZPoint vertex(BSPosition.x(),BSPosition.y(),eleref->track()->vz());
 
-    float phi1= posCalc.ecalPhi(trackMom,vertex,1);
-    float phi2= posCalc.ecalPhi(trackMom,vertex,-1);
+    float phi1= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,1);
+    float phi2= posCalc.ecalPhi(theMagField.product(),trackMom,vertex,-1);
 
     float deltaphi1=fabs( phi1 - theClus->position().phi() );
     if(deltaphi1>6.283185308) deltaphi1 -= 6.283185308;

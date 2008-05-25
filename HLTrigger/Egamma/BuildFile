@@ -14,4 +14,6 @@
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=RecoEgamma/EgammaTools>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
 <flags EDM_PLUGIN=1>
