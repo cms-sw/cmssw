@@ -449,6 +449,13 @@ namespace edm {
   void RootOutputFile::writeProductDescriptionRegistry() { 
     Service<ConstProductRegistry> reg;
     ProductRegistry pReg = reg->productRegistry();
+    ProductRegistry::ProductList & pList  = const_cast<ProductRegistry::ProductList &>(pReg.productList());
+    for (ProductRegistry::ProductList::iterator it = pList.begin(), itEnd = pList.end(); it != itEnd; ++it) {
+      if (it->second.transient()) {
+	// avoid invalidating iterator on deletion
+	pList.erase(it--);
+      }
+    }
     ProductRegistry * ppReg = &pReg;
     TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
     assert(b);
