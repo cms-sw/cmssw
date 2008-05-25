@@ -91,7 +91,8 @@ class CSCDetector {
 
     CSCDetector();
 
-    const bool NextAddress(unsigned int& i, CSCAddress& adr, const CSCAddress mask) const;
+    const bool NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const;
+    const bool NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const;
 
     const float Area(const unsigned int station) const;
     const float Area(const CSCAddress& adr) const;

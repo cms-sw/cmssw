@@ -216,13 +216,13 @@ void CSCDetector::PrintAddress(const CSCAddress& adr) const {
   std::cout << std::endl;
 }
 
-const bool CSCDetector::NextAddress(unsigned int& i, CSCAddress& adr, const CSCAddress mask) const {
+const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const {
   unsigned int c = 0;
   for(unsigned int i = 0; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
       if (c == i) {
         i++;
-        adr = boxes[i].adr;
+        adr = &boxes[i].adr;
         return true; 
       }
       c++;
@@ -231,6 +231,20 @@ const bool CSCDetector::NextAddress(unsigned int& i, CSCAddress& adr, const CSCA
   return false;
 }
 
+const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const {
+  unsigned int c = 0;
+  for(unsigned int i = 0; i < N_ELEMENTS; i++ ) {
+    if (boxes[i].adr == mask) {
+      if (c == i) {
+        i++;
+        box = &boxes[i];
+        return true; 
+      }
+      c++;
+    }
+  }
+  return false;
+}
 
 const float CSCDetector::Eta(const float r, const float z) const {
   if(r > 0.0 || z > 0.0) {
