@@ -207,6 +207,7 @@ const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, con
   for(; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
         adr = &boxes[i].adr;
+        i++;
         return true; 
     }
   }
@@ -217,6 +218,7 @@ const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& bo
   for(; i < N_ELEMENTS; i++ ) {
     if (boxes[i].adr == mask) {
         box = &boxes[i];
+        i++;
         return true; 
       }
   }
