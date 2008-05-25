@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
 # the following is needed for non PoolDBESSources (fake calibrations)
 #
 from CalibTracker.SiStripESProducers.SiStripPedestalsFakeSource_cfi import *
@@ -26,16 +25,9 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
 # end fake calibrations
-GlobalTag = cms.ESSource("PoolDBESSource",
-    CondDBSetup,
-    connect = cms.string('frontier://FrontierDev/CMS_COND_GLOBALTAG'), ##FrontierDev/CMS_COND_GLOBALTAG"
 
-    globaltag = cms.untracked.string('IDEAL::All'),
-    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
-)
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
 
 TrackerDigiGeometryESModule.applyAlignment = True
 DTGeometryESModule.applyAlignment = True
 CSCGeometryESModule.applyAlignment = True
-
-
