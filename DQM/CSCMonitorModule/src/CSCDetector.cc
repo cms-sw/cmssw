@@ -28,8 +28,6 @@ CSCDetector::CSCDetector() {
   unsigned int i = 0; 
   CSCAddress adr;
 
-  float x_min_chamber = 0, x_max_chamber = 0, y_min_chamber = 0, y_max_chamber = 0;
-
   adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
 
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
@@ -59,14 +57,6 @@ CSCDetector::CSCDetector() {
                 }
                 float y_min = PhiToY(phi_min);
                 float y_max = PhiToY(phi_max);
-                if(adr.cfeb == 1 && adr.hv == 1) {
-                  x_min_chamber = x_min;
-                  y_min_chamber = y_min;
-                }
-                if(adr.cfeb == NumberOfChamberCFEBs(adr.station, adr.ring) && adr.hv == NumberOfChamberHVs(adr.station, adr.ring)) {
-                  x_max_chamber = x_max;
-                  y_max_chamber = y_max;
-                }
                 
                 boxes[i].adr = adr;
                 boxes[i].xmin = x_min;
@@ -214,31 +204,21 @@ void CSCDetector::PrintAddress(const CSCAddress& adr) const {
 }
 
 const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const {
-  unsigned int c = 0;
-  for(unsigned int p = 0; p < N_ELEMENTS; p++ ) {
-    if (boxes[p].adr == mask) {
-      if (c == i) {
-        i++;
-        adr = &boxes[p].adr;
+  for(; i < N_ELEMENTS; i++ ) {
+    if (boxes[i].adr == mask) {
+        adr = &boxes[i].adr;
         return true; 
-      }
-      c++;
     }
   }
   return false;
 }
 
 const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const {
-  unsigned int c = 0;
-  for(unsigned int p = 0; p < N_ELEMENTS; p++ ) {
-    if (boxes[p].adr == mask) {
-      if (c == i) {
-        i++;
-        box = &boxes[p];
+  for(; i < N_ELEMENTS; i++ ) {
+    if (boxes[i].adr == mask) {
+        box = &boxes[i];
         return true; 
       }
-      c++;
-    }
   }
   return false;
 }
