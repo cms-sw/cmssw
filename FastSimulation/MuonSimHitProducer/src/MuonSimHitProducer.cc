@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.10 2008/04/24 13:58:09 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.11 2008/05/21 14:33:00 pjanot Exp $
 //
 //
 
@@ -281,7 +281,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	propagatedState = next.first;
 	double pathLength = next.second;
 	if ( theMaterialEffects ) applyScattering(propagatedState,pathLength);
-      }
+      } else continue;
 //
 //  Consider this... 1 GeV muon has a velocity that is only 0.5% slower than c...
 //  We probably can safely ignore the mass for anything that makes it out to the
@@ -324,25 +324,12 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
             LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
             if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
                  fabs(lpos.y()) > 0.5*det->surface().bounds().length() ) continue;
-//
-//  The use of the channel() method claims to be deprecated in DTTopology...
-//
             const DTTopology& dtTopo = layer[ilayer]->specificTopology();
             int wire = dtTopo.channel(lpos);
-	    if (wire < dtTopo.firstChannel()) {
-	      std::cout << "DT wire number too low; check DTTopology.channel() method !!" << std::endl;
-	      wire = dtTopo.firstChannel();
-	    }
-	    if (wire > dtTopo.lastChannel()) {
-	      std::cout << "DT wire number too high; check DTTopology.channel() method !!" << std::endl;
-	      wire = dtTopo.lastChannel();	      
-	    }
-//
-//  The wire number calculation is somewhat imperical at this point...  The
-//  drift cell width is 4.22 cm, but the absolute offset needs to be checked.
-//
-//          int wire = round((lpos.x()+0.5*det->surface().bounds().width())/4.22);
-//
+	    if (wire < dtTopo.firstChannel() || wire > dtTopo.lastChannel()) continue;
+	    // no drift cell here (on the chamber edge or just outside)
+            // this hit would otherwise be discarded downstream in the digitizer
+
             DTWireId wid(lid,wire);
             double thickness = det->surface().bounds().thickness();
             LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
