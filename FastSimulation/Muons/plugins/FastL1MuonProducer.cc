@@ -295,65 +295,69 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
     unsigned DTCSCRegionalEtaIndex=0;
     float etaRPCValue=-10.;
     float etaDTCSCValue=-10.;
+    // Forward muons
     if ( aMuon.isFwd() ) { 
-      rc.setGMTBrlCand(nrf,aMuon);
-      typeRPC = 3;
+
+      rc.setGMTFwdCand(nrf,aMuon);
+
+      // CSC
       typeDTCSC = 2;
-      RPCIndex = 12+nrf;
       DTCSCIndex = 8+nrf;
-      RPCRegionalEtaIndex = theMuScales->getRegionalEtaScale(3)->getPacked(etaPilePoil); 
       DTCSCRegionalEtaIndex = theMuScales->getRegionalEtaScale(2)->getPacked(etaPilePoil); 
-      etaRPCValue = theMuScales->getRegionalEtaScale(3)->getLowEdge(RPCRegionalEtaIndex);
       etaDTCSCValue = theMuScales->getRegionalEtaScale(2)->getLowEdge(DTCSCRegionalEtaIndex);
-      float etaRPCValue2 = theMuScales->getRegionalEtaScale(3)->getLowEdge(RPCRegionalEtaIndex+1);
       float etaDTCSCValue2 = theMuScales->getRegionalEtaScale(2)->getLowEdge(DTCSCRegionalEtaIndex+1);
-      if ( fabs(etaRPCValue2-etaPilePoil) < fabs(etaRPCValue-etaPilePoil) ) { 
-	etaRPCValue = etaRPCValue2;
-	++RPCRegionalEtaIndex;
-      }
       if ( fabs(etaDTCSCValue2-etaPilePoil) < fabs(etaDTCSCValue-etaPilePoil) ) { 
 	etaDTCSCValue = etaDTCSCValue2;
 	++DTCSCRegionalEtaIndex;
       }
+      // RPC (limited to the RPC acceptance)
+      if ( fabs(etaPilePoil) < 2.1 ) { 
+	RPCIndex = 12+nrf;
+	typeRPC = 3;
+	RPCRegionalEtaIndex = theMuScales->getRegionalEtaScale(3)->getPacked(etaPilePoil); 
+	etaRPCValue = theMuScales->getRegionalEtaScale(3)->getLowEdge(RPCRegionalEtaIndex);
+	float etaRPCValue2 = theMuScales->getRegionalEtaScale(3)->getLowEdge(RPCRegionalEtaIndex+1);
+	if ( fabs(etaRPCValue2-etaPilePoil) < fabs(etaRPCValue-etaPilePoil) ) { 
+	  etaRPCValue = etaRPCValue2;
+	  ++RPCRegionalEtaIndex;
+	}
+      }
+      // Next muon
       nrf++;
+
+    // Barrel muons
     } else { 
-      rc.setGMTFwdCand(nrb,aMuon);
-      typeRPC = 1;
+
+      rc.setGMTBrlCand(nrb,aMuon);
+
+      // DT
       typeDTCSC = 0;
-      RPCIndex = 4+nrb;
       DTCSCIndex = 0+nrb;
-      RPCRegionalEtaIndex = theMuScales->getRegionalEtaScale(1)->getPacked(etaPilePoil); 
       DTCSCRegionalEtaIndex = theMuScales->getRegionalEtaScale(0)->getPacked(etaPilePoil); 
-      etaRPCValue = theMuScales->getRegionalEtaScale(1)->getLowEdge(RPCRegionalEtaIndex);
       etaDTCSCValue = theMuScales->getRegionalEtaScale(0)->getLowEdge(DTCSCRegionalEtaIndex);
-      float etaRPCValue2 = theMuScales->getRegionalEtaScale(1)->getLowEdge(RPCRegionalEtaIndex+1);
       float etaDTCSCValue2 = theMuScales->getRegionalEtaScale(0)->getLowEdge(DTCSCRegionalEtaIndex+1);
-      if ( fabs(etaRPCValue2-etaPilePoil) < fabs(etaRPCValue-etaPilePoil) ) { 
-	etaRPCValue = etaRPCValue2;
-	++RPCRegionalEtaIndex;
-      }
       if ( fabs(etaDTCSCValue2-etaPilePoil) < fabs(etaDTCSCValue-etaPilePoil) ) { 
 	etaDTCSCValue = etaDTCSCValue2;
 	++DTCSCRegionalEtaIndex;
       }
+
+      // RPC
+      typeRPC = 1;
+      RPCIndex = 4+nrb;
+      RPCRegionalEtaIndex = theMuScales->getRegionalEtaScale(1)->getPacked(etaPilePoil); 
+      etaRPCValue = theMuScales->getRegionalEtaScale(1)->getLowEdge(RPCRegionalEtaIndex);
+      float etaRPCValue2 = theMuScales->getRegionalEtaScale(1)->getLowEdge(RPCRegionalEtaIndex+1);
+      if ( fabs(etaRPCValue2-etaPilePoil) < fabs(etaRPCValue-etaPilePoil) ) { 
+	etaRPCValue = etaRPCValue2;
+	++RPCRegionalEtaIndex;
+      }
+
+      // Next muon
       nrb++;
+
     }
 
-    
-    L1MuRegionalCand regionalMuonRPC = 
-      L1MuRegionalCand(typeRPC,
-		       aMuon.phiIndex(),
-		       RPCRegionalEtaIndex,
-		       aMuon.ptIndex(),
-		       (1-aMuon.charge())/2,
-		       aMuon.charge_valid(),
-		       0,   // FineHalo
-		       aMuon.quality(),
-		       aMuon.bx());
-    regionalMuonRPC.setPhiValue(aMuon.phiValue());
-    regionalMuonRPC.setEtaValue(etaRPCValue);
-    regionalMuonRPC.setPtValue(aMuon.ptValue());
-
+    // Add a muon regional candidate - first DT/CSC
     L1MuRegionalCand regionalMuonDTCSC = 
       L1MuRegionalCand(typeDTCSC,
 		       aMuon.phiIndex(),
@@ -368,10 +372,29 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
     regionalMuonDTCSC.setEtaValue(etaDTCSCValue);
     regionalMuonDTCSC.setPtValue(aMuon.ptValue());    
     
-    rc.setInputCand(RPCIndex,regionalMuonRPC);
     rc.setInputCand(DTCSCIndex,regionalMuonDTCSC);
+  
+    // Then RPC (if in RPC acceptance)
+    if ( fabs(etaPilePoil) < 2.1 ) { 
+      L1MuRegionalCand regionalMuonRPC = 
+	L1MuRegionalCand(typeRPC,
+			 aMuon.phiIndex(),
+			 RPCRegionalEtaIndex,
+			 aMuon.ptIndex(),
+			 (1-aMuon.charge())/2,
+			 aMuon.charge_valid(),
+			 0,   // FineHalo
+			 aMuon.quality(),
+			 aMuon.bx());
+      regionalMuonRPC.setPhiValue(aMuon.phiValue());
+      regionalMuonRPC.setEtaValue(etaRPCValue);
+      regionalMuonRPC.setPtValue(aMuon.ptValue());
+      rc.setInputCand(RPCIndex,regionalMuonRPC);
+    }
+
   }
 
+  // Update the event
   e.addRecord(rc);
 
 }
