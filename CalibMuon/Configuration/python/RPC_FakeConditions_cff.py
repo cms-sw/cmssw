@@ -4,4 +4,4 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #RPC fake calibrations
-from CalibMuon.RPCCalibration.RPC_FakeCondition_cff import *
+from CalibMuon.RPCCalibration.RPCFakeESProducer_cfi import *
