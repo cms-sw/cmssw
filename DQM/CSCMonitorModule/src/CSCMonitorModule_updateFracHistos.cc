@@ -135,6 +135,7 @@ void CSCMonitorModule::updateFracHistos() {
     summary.Write(tmp);
   }
 
+  /*
   CSCAddress adrm;
   const CSCAddressBox *box;
   adrm.mask.side = adrm.mask.ring = adrm.mask.chamber = adrm.mask.cfeb = adrm.mask.hv = false;
@@ -147,6 +148,7 @@ void CSCMonitorModule::updateFracHistos() {
     std::cout << box->xmin << ", " << box->ymin << ", " << box->xmax << ", " << box->ymax;
     //if (i > 10) break;
   }
+  */
 
 }
 
