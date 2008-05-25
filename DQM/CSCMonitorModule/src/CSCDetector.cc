@@ -68,14 +68,11 @@ CSCDetector::CSCDetector() {
                   y_max_chamber = y_max;
                 }
                 
-                CSCAddressBox box;
-                box.adr = adr;
-                box.xmin = x_min;
-                box.xmax = x_max;
-                box.ymin = y_min;
-                box.ymax = y_max;
-                boxes[i] = box;
-
+                boxes[i].adr = adr;
+                boxes[i].xmin = x_min;
+                boxes[i].xmax = x_max;
+                boxes[i].ymin = y_min;
+                boxes[i].ymax = y_max;
                 i++;
 
               }
@@ -196,7 +193,7 @@ const unsigned int CSCDetector::NumberOfChamberHVs(const unsigned int station, c
 void CSCDetector::PrintAddress(const CSCAddress& adr) const {
 
   std::cout << "Side (" << std::boolalpha << adr.mask.side << ")"; 
-  if (adr.mask.side) std::cout << adr.side;
+  if (adr.mask.side) std::cout <<  " = " << adr.side;
 
   std::cout << ", Station (" << std::boolalpha << adr.mask.station << ")"; 
   if (adr.mask.station) std::cout << " = " << adr.station;
@@ -218,11 +215,11 @@ void CSCDetector::PrintAddress(const CSCAddress& adr) const {
 
 const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, const CSCAddress& mask) const {
   unsigned int c = 0;
-  for(unsigned int i = 0; i < N_ELEMENTS; i++ ) {
-    if (boxes[i].adr == mask) {
+  for(unsigned int p = 0; p < N_ELEMENTS; p++ ) {
+    if (boxes[p].adr == mask) {
       if (c == i) {
         i++;
-        adr = &boxes[i].adr;
+        adr = &boxes[p].adr;
         return true; 
       }
       c++;
@@ -233,11 +230,11 @@ const bool CSCDetector::NextAddress(unsigned int& i, const CSCAddress*& adr, con
 
 const bool CSCDetector::NextAddressBox(unsigned int& i, const CSCAddressBox*& box, const CSCAddress& mask) const {
   unsigned int c = 0;
-  for(unsigned int i = 0; i < N_ELEMENTS; i++ ) {
-    if (boxes[i].adr == mask) {
+  for(unsigned int p = 0; p < N_ELEMENTS; p++ ) {
+    if (boxes[p].adr == mask) {
       if (c == i) {
         i++;
-        box = &boxes[i];
+        box = &boxes[p];
         return true; 
       }
       c++;

@@ -50,12 +50,12 @@ struct CSCAddress {
   CSCAddressMask mask;
 
   const bool operator== (const CSCAddress& a) const {
-    if (mask.side    == a.mask.side    == true && side    != a.side)    return false;
-    if (mask.station == a.mask.station == true && station != a.station) return false;
-    if (mask.ring    == a.mask.ring    == true && ring    != a.ring)    return false;
-    if (mask.chamber == a.mask.chamber == true && chamber != a.chamber) return false;
-    if (mask.cfeb    == a.mask.cfeb    == true && cfeb    != a.cfeb)    return false;
-    if (mask.hv      == a.mask.hv      == true && hv      != a.hv)      return false;
+    if (mask.side    == a.mask.side    && mask.side    == true && side    != a.side)    return false;
+    if (mask.station == a.mask.station && mask.station == true && station != a.station) return false;
+    if (mask.ring    == a.mask.ring    && mask.ring    == true && ring    != a.ring)    return false;
+    if (mask.chamber == a.mask.chamber && mask.chamber == true && chamber != a.chamber) return false;
+    if (mask.cfeb    == a.mask.cfeb    && mask.cfeb    == true && cfeb    != a.cfeb)    return false;
+    if (mask.hv      == a.mask.hv      && mask.hv      == true && hv      != a.hv)      return false;
     return true;
   };
 

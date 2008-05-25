@@ -135,5 +135,21 @@ void CSCMonitorModule::updateFracHistos() {
     summary.Write(tmp);
   }
 
+  /*
+  CSCAddress adrm;
+  const CSCAddressBox *box;
+  adrm.mask.side = adrm.mask.ring = adrm.mask.chamber = adrm.mask.cfeb = adrm.mask.hv = false;
+  adrm.mask.station = true;
+  adrm.station = 1;
+  unsigned int i = 0;
+  while(summary.Detector().NextAddressBox(i, box, adrm) == true) {
+    //std::cout << i << std::endl;
+    summary.Detector().PrintAddress(box->adr);
+    std::cout << box->xmin << ", " << box->ymin << ", " << box->xmax << ", " << box->ymax;
+    //if (i > 10) break;
+  }
+  */
+
+
 }
 
