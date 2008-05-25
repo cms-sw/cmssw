@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.3 2007/11/15 17:24:24 pjanot Exp $
+// $Id: MuonSimHitProducer.h,v 1.4 2008/05/21 14:33:00 pjanot Exp $
 //
 
 
@@ -84,7 +84,6 @@ class MuonSimHitProducer : public edm::EDProducer {
 
           
   // ----------- parameters ---------------------------- 
-      bool debug_;
       bool fullPattern_;
       bool doL1_ , doL3_ , doGL_;
       std::string theSimModuleLabel_ , theSimModuleProcess_, theTrkModuleLabel_ ;

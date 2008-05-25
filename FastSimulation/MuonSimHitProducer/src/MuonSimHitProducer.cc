@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.11 2008/05/21 14:33:00 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.12 2008/05/25 10:49:00 mulders Exp $
 //
 //
 
@@ -68,6 +68,8 @@
 
 // #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
+//for debug only 
+//#define FAMOS_DEBUG
 
 //
 // constructors and destructor
@@ -198,13 +200,13 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 //
     double tof = t0/29.98;
 
-    if ( debug_ ) {
-      std::cout << " ===> MuonSimHitProducer::reconstruct() found SIMTRACK - pid = "
-		<< pid ;
-      std::cout << " : pT = " << mySimP4.Pt()
-		<< ", eta = " << mySimP4.Eta()
-		<< ", phi = " << mySimP4.Phi() << std::endl;
-    }
+#ifdef FAMOS_DEBUG
+    std::cout << " ===> MuonSimHitProducer::reconstruct() found SIMTRACK - pid = "
+	      << pid ;
+    std::cout << " : pT = " << mySimP4.Pt()
+	      << ", eta = " << mySimP4.Eta()
+	      << ", phi = " << mySimP4.Phi() << std::endl;
+#endif
 
 //
 //  Produce muons sim hits starting from undecayed simulated muons
@@ -224,10 +226,10 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
     GlobalVector dtracker = startingPosition-initialPosition;
     tof += dtracker.mag()/29.98;
 
-    if ( debug_ ) {
-      std::cout << " the Muon START position " << startingPosition << std::endl;
-      std::cout << " the Muon START momentum " << startingMomentum << std::endl;
-    }
+#ifdef FAMOS_DEBUG
+    std::cout << " the Muon START position " << startingPosition << std::endl;
+    std::cout << " the Muon START momentum " << startingMomentum << std::endl;
+#endif
 
 // 
 //  Some magic to define a TrajectoryStateOnSurface
@@ -258,30 +260,36 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
     if ( navLayers.empty() ) continue;
 
-    if ( debug_ ) {
+#ifdef FAMOS_DEBUG
       std::cout << "Found " << navLayers.size()
 		<< " compatible DetLayers..." << std::endl;
-    }
+#endif
+
     TrajectoryStateOnSurface propagatedState = startingState;
     for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
-      if ( debug_ ) {
-        std::cout << "Propagating to layer " << ilayer << " " << dumper.dumpLayer(navLayers[ilayer]) << std::endl;
-      }
+
+#ifdef FAMOS_DEBUG
+      std::cout << "Propagating to layer " << ilayer << " " 
+		<< dumper.dumpLayer(navLayers[ilayer]) 
+		<< std::endl;
+#endif
+      
       std::vector<DetWithState> comps = navLayers[ilayer]->compatibleDets(propagatedState,*propagator,*(theUpdator->estimator()));
       if ( comps.empty() ) continue;
-      if ( debug_ ) {
-        std::cout << "Propagating " << propagatedState << std::endl;
-      }
+
+#ifdef FAMOS_DEBUG
+      std::cout << "Propagating " << propagatedState << std::endl;
+#endif
+
       std::pair<TrajectoryStateOnSurface,double> 
 	next = propagator->propagateWithPath(propagatedState,navLayers[ilayer]->surface());
       double pi = propagatedState.globalMomentum().mag();
 
-      // Insert multiple scattering
-      if ( propagatedState.isValid() ) { 
-	propagatedState = next.first;
-	double pathLength = next.second;
-	if ( theMaterialEffects ) applyScattering(propagatedState,pathLength);
-      } else continue;
+      // Insert multiple scattering if propagated state is valid.
+      propagatedState = next.first;
+      double pathLength = next.second;
+      if ( !propagatedState.isValid() ) continue; 
+      if ( theMaterialEffects ) applyScattering(propagatedState,pathLength);
 //
 //  Consider this... 1 GeV muon has a velocity that is only 0.5% slower than c...
 //  We probably can safely ignore the mass for anything that makes it out to the
@@ -291,10 +299,13 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       double pavg = 0.5*(pi+pf);
       double m = mySimP4.M();
       double rbeta = sqrt(1+m*m/(pavg*pavg))/29.98;
-      double dtof = next.second*rbeta;
-      if ( debug_ ) {
-        std::cout << "Propagated to next surface... path length = " << next.second << " cm, dTOF = " << dtof << " ns" << std::endl;
-      }
+      double dtof = pathLength*rbeta;
+
+#ifdef FAMOS_DEBUG
+      std::cout << "Propagated to next surface... path length = " << pathLength 
+		<< " cm, dTOF = " << dtof << " ns" << std::endl;
+#endif
+
       tof += dtof;
       const GeomDet *gd = comps[0].first;
       if ( gd->subDetector() == GeomDetEnumerators::DT ) {
@@ -305,14 +316,15 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           std::vector<const DTLayer *> layer = superlayer[isl]->layers();
           for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
             DTLayerId lid = layer[ilayer]->id();
-            if ( debug_ ) {
-              std::cout << "    Extrapolated to DT (" 
-			<< lid.wheel() << "," 
-			<< lid.station() << "," 
-			<< lid.sector() << "," 
-			<< lid.superlayer() << "," 
-			<< lid.layer() << ")" << std::endl;
-            }
+#ifdef FAMOS_DEBUG
+	    std::cout << "    Extrapolated to DT (" 
+		      << lid.wheel() << "," 
+		      << lid.station() << "," 
+		      << lid.sector() << "," 
+		      << lid.superlayer() << "," 
+		      << lid.layer() << ")" << std::endl;
+#endif
+
             const GeomDetUnit *det = dtGeom->idToDetUnit(lid);
 
             HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
@@ -355,13 +367,15 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
         std::vector<const CSCLayer *> layer = chamber->layers();
         for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
           CSCDetId lid = layer[ilayer]->id();
-          if ( debug_ ) {
+
+#ifdef FAMOS_DEBUG
             std::cout << "    Extrapolated to CSC (" 
 		      << lid.endcap() << "," 
 		      << lid.ring() << "," 
 		      << lid.station() << "," 
 		      << lid.layer() << ")" << std::endl;
-          }
+#endif
+
           const GeomDetUnit *det = cscGeom->idToDetUnit(lid);
           HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                propagatedState.globalMomentum().basicVector(),
@@ -395,15 +409,17 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
         std::vector<const RPCRoll *> roll = chamber->rolls();
         for ( unsigned int iroll=0; iroll<roll.size(); iroll++ ) {
           RPCDetId rid = roll[iroll]->id();
-          if ( debug_ ) {
-            std::cout << "    Extrapolated to RPC (" 
-		      << rid.ring() << "," 
-		      << rid.station() << ","
-		      << rid.sector() << ","
-		      << rid.subsector() << ","
-		      << rid.layer() << ","
-		      << rid.roll() << ")" << std::endl;
-          }
+
+#ifdef FAMOS_DEBUG
+	  std::cout << "    Extrapolated to RPC (" 
+		    << rid.ring() << "," 
+		    << rid.station() << ","
+		    << rid.sector() << ","
+		    << rid.subsector() << ","
+		    << rid.layer() << ","
+		    << rid.roll() << ")" << std::endl;
+#endif
+
           const GeomDetUnit *det = rpcGeom->idToDetUnit(rid);
           HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                propagatedState.globalMomentum().basicVector(),
@@ -478,7 +494,6 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
 				   const edm::ParameterSet& fastTracks,
 				   const edm::ParameterSet& matEff) {
   // Muons
-  debug_ = fastMuons.getUntrackedParameter<bool>("Debug");
   theSimModuleLabel_ = fastMuons.getParameter<std::string>("simModuleLabel");
   theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
   theTrkModuleLabel_ = fastMuons.getParameter<std::string>("trackModuleLabel");
