@@ -16,3 +16,6 @@ DataFormats/Candidate
 DataFormats/FWLite
 DataFormats/ParticleFlowCandidate
 DataFormats/TauReco
+DataFormats/CSCRecHit
+DataFormats/DTRecHit
+DataFormats/RPCRecHit
