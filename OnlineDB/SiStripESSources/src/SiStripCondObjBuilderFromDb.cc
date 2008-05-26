@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.3 2008/05/16 15:30:07 bainbrid Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.4 2008/05/26 13:37:26 giordano Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
@@ -54,7 +54,7 @@ SiStripCondObjBuilderFromDb::~SiStripCondObjBuilderFromDb() {
 /** */
 void SiStripCondObjBuilderFromDb::checkUpdate() {
   if (!(dbParams_==dbParams())){
-    dbParams_=dbParams_;
+    dbParams_=dbParams();
     buildCondObj();
   }  
 }
