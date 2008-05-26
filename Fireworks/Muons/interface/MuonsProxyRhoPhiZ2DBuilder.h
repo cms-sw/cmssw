@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/05/12 15:43:29 dmytro Exp $
+// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.3 2008/05/13 05:23:43 dmytro Exp $
 //
 
 // system include files
@@ -30,11 +30,13 @@
 namespace reco
 {
    class Muon;
+   class TrackExtra;
 }
 
 class TEveTrack;
 class TEveElementList;
 class TEveGeoShapeExtract;
+class DetIdToMatrix;
 
 class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 {
@@ -46,7 +48,21 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
+      static void build(const FWEventItem* iItem, 
+			TEveElementList** product, 
+			bool showEndcap,
+			bool onlyTracks = false);
+      
+      static void addMatchInformation( const reco::Muon* muon,
+				       const FWEventItem* iItem,
+				       TEveTrack* track,
+				       TEveElementList* parentList,
+				       bool showEndcap,
+				       bool onlyTracks = false);
 
+      //static void addHitsAsPathMarks( const reco::TrackExtra* recoTrack,
+      //				      const DetIdToMatrix* geom,
+      //			      TEveTrack* eveTrack );
       // ---------- member functions ---------------------------
    
    private:
@@ -56,15 +72,6 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual void buildRhoZ(const FWEventItem* iItem, 
                                TEveElementList** product);
 
-      virtual void build(const FWEventItem* iItem, 
-			 TEveElementList** product, 
-			 bool showEndcap);
-      
-      void addMatchInformation( const reco::Muon* muon,
-				const FWEventItem* iItem,
-				TEveTrack* track,
-				TEveElementList* parentList,
-				bool showEndcap);
    
       MuonsProxyRhoPhiZ2DBuilder(const MuonsProxyRhoPhiZ2DBuilder&); // stop default
 

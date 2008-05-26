@@ -15,6 +15,8 @@
 #include "TEvePolygonSetProjected.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "Fireworks/Core/interface/FWDisplayEvent.h"
 
 MuonsProxyRhoPhiZ2DBuilder::MuonsProxyRhoPhiZ2DBuilder()
 {
@@ -34,7 +36,10 @@ void MuonsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem, TEveElement
    build(iItem, product, true);
 }
 
-void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, TEveElementList** product, bool showEndcap)
+void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, 
+				       TEveElementList** product, 
+				       bool showEndcap,
+				       bool tracksOnly)
 {
    TEveElementList* tList = *product;
 
@@ -52,11 +57,16 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, TEveElementList
    //       So here they are recreated for each event.
    TEveTrackPropagator* innerPropagator = new TEveTrackPropagator();
    TEveTrackPropagator* outerPropagator = new TEveTrackPropagator();
+   outerPropagator->SetRnrDaughters(true);
+   outerPropagator->RefPMAtt().SetMarkerStyle(3);
+   outerPropagator->RefPMAtt().SetMarkerColor(Color_t(kBlue));
    //units are Telsa
-   innerPropagator->SetMagField( -4.0);
+   double gMagneticField = FWDisplayEvent::getMagneticField();
+   // double gMagneticField = 0;
+   innerPropagator->SetMagField( -gMagneticField);
    double maxR = 350;
    double maxZ = 650;
-   outerPropagator->SetMagField( 2.5);
+   outerPropagator->SetMagField( gMagneticField * 2.5/4);
    outerPropagator->SetMaxR( 750 );
    outerPropagator->SetMaxZ( 1100 );
 
@@ -171,23 +181,53 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem, TEveElementList
 	if ( useStandAloneFit )
 	  {
 	     if ( ! useLastPoint ) {
-		outerRecTrack.fP = TEveVector( muon->standAloneMuon()->innerMomentum().x(),
-					       muon->standAloneMuon()->innerMomentum().y(),
-					       muon->standAloneMuon()->innerMomentum().z() );
-		outerRecTrack.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(), 
-					       muon->standAloneMuon()->innerPosition().y(), 
-					       muon->standAloneMuon()->innerPosition().z() );
-		outerRecTrack.fSign = muon->charge();
+		// order points with increasing radius
+		if (  muon->standAloneMuon()->innerPosition().R() <  muon->standAloneMuon()->outerPosition().R() ) {
+		   outerRecTrack.fP = TEveVector( muon->standAloneMuon()->innerMomentum().x(),
+						  muon->standAloneMuon()->innerMomentum().y(),
+						  muon->standAloneMuon()->innerMomentum().z() );
+		   outerRecTrack.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(), 
+						  muon->standAloneMuon()->innerPosition().y(), 
+						  muon->standAloneMuon()->innerPosition().z() );
+		   outerRecTrack.fSign = muon->charge();
+		} else { 
+		   // special case (cosmics)
+		   // track points inside, so we assume it points down and flip momentum sign
+		   outerRecTrack.fP = TEveVector( -muon->standAloneMuon()->outerMomentum().x(),
+						  -muon->standAloneMuon()->outerMomentum().y(),
+						  -muon->standAloneMuon()->outerMomentum().z() );
+		   outerRecTrack.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(), 
+						  muon->standAloneMuon()->outerPosition().y(), 
+						  muon->standAloneMuon()->outerPosition().z() );
+		   outerRecTrack.fSign = muon->charge();
+		}
 	     }
-	     
+	     // printf("Initial momentum: %0.1f, %0.1f, %0.1f\n", 
+	     //	    outerRecTrack.fP.fX, outerRecTrack.fP.fY, outerRecTrack.fP.fZ);
+	     // printf("Initial vertex: %0.1f, %0.1f, %0.1f\n",
+	     //	    outerRecTrack.fV.fX, outerRecTrack.fV.fY, outerRecTrack.fV.fZ);
+		      
 	     TEveTrack* outerTrack = new TEveTrack( &outerRecTrack, outerPropagator );
+	     outerTrack->SetRnrPoints( true );
+	     outerTrack->SetMarkerSize( 5 );
 	     outerTrack->SetMainColor( iItem->defaultDisplayProperties().color() );
 	     
 	     TEvePathMark mark( TEvePathMark::kDaughter );
-	     mark.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
-				   muon->standAloneMuon()->outerPosition().y(),
-				   muon->standAloneMuon()->outerPosition().z() );
+	     if (  muon->standAloneMuon()->innerPosition().R() <  muon->standAloneMuon()->outerPosition().R() ) {
+		mark.fV = TEveVector( muon->standAloneMuon()->outerPosition().x(),
+				      muon->standAloneMuon()->outerPosition().y(),
+				      muon->standAloneMuon()->outerPosition().z() );
+		mark.fTime = muon->standAloneMuon()->outerPosition().R();
+	     } else {
+		mark.fV = TEveVector( muon->standAloneMuon()->innerPosition().x(),
+				      muon->standAloneMuon()->innerPosition().y(),
+				      muon->standAloneMuon()->innerPosition().z() );
+		mark.fTime = muon->standAloneMuon()->innerPosition().R();
+	     }
 	     outerTrack->AddPathMark( mark );
+	     
+	     // addHitsAsPathMarks( muon->standAloneMuon()->extra().get(), iItem->getGeom(), outerTrack);
+	     
 	     outerTrack->MakeTrack();
 	     muonList->AddElement( outerTrack );
 	  }
@@ -214,7 +254,8 @@ void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
 						      const FWEventItem* iItem,
 						      TEveTrack* track,
 						      TEveElementList* parentList,
-						      bool showEndcap)
+						      bool showEndcap,
+						      bool tracksOnly)
 {
    const DetIdToMatrix* geom = iItem->getGeom();
    const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
@@ -240,7 +281,7 @@ void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
 	      shape->IncDenyDestroy();
 	      shape->SetMainTransparency(50);
 	      shape->SetMainColor(iItem->defaultDisplayProperties().color());
-	      parentList->AddElement(shape);
+	      if (! tracksOnly) parentList->AddElement(shape);
 	   }
 	}
 	const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId() );
@@ -285,4 +326,50 @@ void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
      }
    if ( ! matches.empty() ) parentList->AddElement( segmentSet.release() );
 }
+/*
+void MuonsProxyRhoPhiZ2DBuilder::addHitsAsPathMarks( const reco::TrackExtra* recoTrack,
+						     const DetIdToMatrix* geom,
+						     TEveTrack* eveTrack )
+{
+   for ( unsigned int i = 0; i < recoTrack->recHitsSize(); ++i )
+     {
+	if ( recoTrack->recHit(i)->geographicalId().subdetId() != MuonSubdetId::DT ) continue;
+	DTChamberId id( recoTrack->recHit(i)->geographicalId() );
+	const TGeoHMatrix* matrix = geom->getMatrix( id.rawId() );
+	if ( matrix ) {
+	   TEvePathMark mark( TEvePathMark::kCluster2D );
+	   
+	   Double_t local[3];
+	   local[0] = recoTrack->recHit(i)->parameters()[0];
+	   local[1] = 0;
+	   local[2] = 0;
+	   Double_t global[3];
+	   Double_t global2[3];
+	   
+	   matrix->LocalToMaster( local, global );
+	   mark.fV = TEveVector( global[0], global[1], global[2] );
+
+	   // printf("hit id: %d, global (x,y,z): (%0.1f, %0.1f, %0.1f), local x: %0.1f\n",
+	   //	  id.rawId(), global[0], global[1], global[2], local[0] );
+	   
+	   local[1] = 1;
+	   local[2] = 0;
+	   matrix->LocalToMaster( local, global2 );
+	   mark.fE = TEveVector( global2[0]-global[0], global2[1]-global[1], global2[2]-global[2] );
+
+	   // printf("  strip (x,y,z): (%0.1f, %0.1f, %0.1f)\n",
+	   //	  global2[0]-global[0], global2[1]-global[1], global2[2]-global[2] );
+
+	   local[1] = 0;
+	   local[2] = 1;
+	   matrix->LocalToMaster( local, global2 );
+	   mark.fP = TEveVector( global2[0]-global[0], global2[1]-global[1], global2[2]-global[2] );
+	   
+	   //printf("  normal (x,y,z): (%0.1f, %0.1f, %0.1f)\n",
+	   // global2[0]-global[0], global2[1]-global[1], global2[2]-global[2] );
+	   eveTrack->AddPathMark( mark );
+	}
+     }
+}
+*/
 
