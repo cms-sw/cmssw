@@ -1,0 +1,10 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoEgamma.EgammaIsolationAlgos.egammaTrackExtractorBlocks_cff import *
+from RecoEgamma.EgammaIsolationAlgos.egammaCalExtractorBlocks_cff import *
+from RecoEgamma.EgammaIsolationAlgos.egammaBasicClusterMerger_cfi import *
+from RecoEgamma.EgammaIsolationAlgos.egammaSuperClusterMerger_cfi import *
+from RecoEgamma.EgammaIsolationAlgos.gamIsoModules_cff import *
+gamIsoDeposits = cms.Sequence(egammaSuperClusterMerger*egammaBasicClusterMerger*gamIsoDepositTk*gamIsoDepositEcalFromHits*gamIsoDepositHcalFromHits)
+gamIsoDeposits_all = cms.Sequence(egammaSuperClusterMerger*egammaBasicClusterMerger*gamIsoDepositTk*gamIsoDepositEcalSCVetoFromClusts*gamIsoDepositEcalFromClusts*gamIsoDepositEcalFromHits*gamIsoDepositHcalFromHits*gamIsoDepositHcalFromTowers)
+
