@@ -57,8 +57,8 @@ process.get = cms.EDFilter("EventSetupRecordDataGetter",
     verbose = cms.untracked.bool(True)
 )
 
-process.print = cms.OutputModule("AsciiOutputModule")
+process.printer = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.get)
-process.ep = cms.EndPath(process.print)
+process.ep = cms.EndPath(process.printer)
 
