@@ -1,6 +1,7 @@
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialInduceChargeOnStrips.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include <Math/ProbFuncMathCore.h>
 #include<iostream>
 
@@ -8,11 +9,31 @@ SiTrivialInduceChargeOnStrips::SiTrivialInduceChargeOnStrips(const edm::Paramete
 {
   peak = conf_.getParameter<bool>("APVpeakmode");
   // Coupling Constant
-  signalCoupling.clear();
+  //  signalCoupling.clear();
+  signalCoupling_TIB.clear();
+  signalCoupling_TID.clear();
+  signalCoupling_TOB.clear();
+  signalCoupling_TEC.clear();
   if(peak){
-    signalCoupling = conf_.getParameter<std::vector<double> >("CouplingCostantPeak");
+    // TIB
+    signalCoupling_TIB = conf_.getParameter<std::vector<double> >("CouplingCostantPeakTIB");
+    // TID
+    signalCoupling_TID = conf_.getParameter<std::vector<double> >("CouplingCostantPeakTID");
+    // TOB
+    signalCoupling_TOB = conf_.getParameter<std::vector<double> >("CouplingCostantPeakTOB");
+    // TEC
+    signalCoupling_TEC = conf_.getParameter<std::vector<double> >("CouplingCostantPeakTEC");
+    //
   }else{
-    signalCoupling = conf_.getParameter<std::vector<double> >("CouplingCostantDeco");
+    // TIB
+    signalCoupling_TIB = conf_.getParameter<std::vector<double> >("CouplingCostantDecTIB");
+    // TID
+    signalCoupling_TID = conf_.getParameter<std::vector<double> >("CouplingCostantDecTID");
+    // TOB
+    signalCoupling_TOB = conf_.getParameter<std::vector<double> >("CouplingCostantDecTOB");
+    // TEC
+    signalCoupling_TEC = conf_.getParameter<std::vector<double> >("CouplingCostantDecTEC");
+    //
   }
   clusterWidth = 3.; 
   geVperElectron = g;
@@ -31,9 +52,9 @@ void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection
   //  std::fill(locAmpl.begin(),locAmpl.end(),0.);
   //
   
-    minCha=locAmpl.size();
-    maxCha=0;
-    for (SiChargeCollectionDrifter::collection_type::const_iterator sp=_collection_points.begin();  sp != _collection_points.end(); sp++ ){
+  minCha=locAmpl.size();
+  maxCha=0;
+  for (SiChargeCollectionDrifter::collection_type::const_iterator sp=_collection_points.begin();  sp != _collection_points.end(); sp++ ){
     float chargePosition = t.strip((*sp).position()); // charge in strip coord
     float localPitch = t.localPitch((*sp).position()); // local strip pitch 
     float chargeSpread = (*sp).sigma()/localPitch ;  // sigma in strip coord
@@ -61,8 +82,44 @@ void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection
       
       //calculate signal on strips including capacitive coupling
       
-      int nSignalCoupling = signalCoupling.size();
+      // Choice of the subdtector charge coupling
+      std::vector<double>* signalCoupling = 0;
+      int subDet_enum=det.specificType().subDetector();
+      switch (subDet_enum) {
+      case GeomDetEnumerators::TIB:
+	{
+	  signalCoupling = &(signalCoupling_TIB);
+	  break;
+	}
+      case GeomDetEnumerators::TOB:
+	{
+	  signalCoupling = &(signalCoupling_TOB);
+	  break;
+	}
+      case GeomDetEnumerators::TID:
+	{
+	  signalCoupling = &(signalCoupling_TID);
+	  break;
+	}
+      case GeomDetEnumerators::TEC:
+	{
+	  signalCoupling = &(signalCoupling_TEC);
+	  break;
+	}
+      default: 
+	{
+	  std::cout << "SiTrivialInduceChargeOnStrips ERROR - Not a Tracker Subdetector " << subDet_enum << std::endl;
+	  break;
+	}
+      } // switch
       
+      int nSignalCoupling = (*signalCoupling).size();
+      
+      // debug
+      std::cout << "SiTrivialInduceChargeOnStrips ChargeCoupling for subdetector " << subDet_enum << std::endl;
+      for(unsigned int iCC=0; iCC!=nSignalCoupling ; iCC++)
+	std::cout << "\t Strip " << iCC << " value " << (*signalCoupling)[iCC] << std::endl;
+      //
 
       int low = std::max(0,i-nSignalCoupling+1);
       int high = std::min(numStrips-1,i+nSignalCoupling-1);
@@ -71,7 +128,7 @@ void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection
       double fact = (totalIntegrationRange/geVperElectron)*
 	(*sp).amplitude();
       for (int j = low ; j<=high ; j++) 
-	locAmpl[j] += signalCoupling[abs(j-i)]*fact; 
+	locAmpl[j] += (*signalCoupling)[abs(j-i)]*fact; 
       
       /*
 	for (int j = -nSignalCoupling+1 ; j<=nSignalCoupling-1 ; j++) {

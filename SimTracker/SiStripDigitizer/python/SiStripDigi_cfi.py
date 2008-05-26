@@ -13,7 +13,25 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     VerbosityLevel = cms.untracked.int32(0),
     #---------------------------------------
     #SiTrivialInduceChargeOnStrips
-    CouplingCostantDeco = cms.vdouble(0.76, 0.12),
+    # DECOnvolution Mode
+    # TIB
+    CouplingCostantDecoTIB = cms.vdouble(0.76, 0.12),
+    # TID
+    CouplingCostantDecoTID = cms.vdouble(0.76, 0.12),
+    # TOB
+    CouplingCostantDecoTOB = cms.vdouble(0.76, 0.12),
+    # TEC
+    CouplingCostantDecoTEC = cms.vdouble(0.76, 0.12),
+    # PEAK Mode
+    # TIB
+    CouplingCostantPeakTIB = cms.vdouble(0.94, 0.03),
+    # TID
+    CouplingCostantPeakTID = cms.vdouble(0.94, 0.03),
+    # TOB
+    CouplingCostantPeakTOB = cms.vdouble(0.94, 0.03),
+    # TEC
+    CouplingCostantPeakTEC = cms.vdouble(0.94, 0.03),
+    #
     AppliedVoltage = cms.double(150.0),
     ZeroSuppression = cms.bool(True),
     Noise = cms.bool(True), ## NOTE : turning Noise ON/OFF will make a big change
@@ -46,7 +64,6 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     SigmaShapeDeco = cms.double(12.06),
     NoiseSigmaThreshold = cms.double(2.0),
     ChargeDistributionRMS = cms.double(6.5e-10),
-    CouplingCostantPeak = cms.vdouble(0.94, 0.03),
     CosmicDelayShift = cms.untracked.double(0.0),
     ChargeMobility = cms.double(480.0)
 )

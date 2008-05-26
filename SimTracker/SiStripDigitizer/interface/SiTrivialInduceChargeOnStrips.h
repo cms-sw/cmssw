@@ -19,7 +19,10 @@ private:
   edm::ParameterSet conf_;
   bool peak;
   double clusterWidth;
-  std::vector<double> signalCoupling; 
+  std::vector<double> signalCoupling_TIB; 
+  std::vector<double> signalCoupling_TID; 
+  std::vector<double> signalCoupling_TOB; 
+  std::vector<double> signalCoupling_TEC; 
   double geVperElectron;
 };
 
