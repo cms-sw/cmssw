@@ -224,6 +224,38 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
 
 }
 
+const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
+
+  if (xmin > -1 && xmax < 1) return false; 
+
+  unsigned int i = 0, sum = 0;
+  CSCAddress adr;
+  const CSCAddressBox *box;
+
+  adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
+  adr.mask.side = adr.mask.station = true;
+  adr.side = (xmin < 0 ? 1 : 2);
+
+  for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
+    while(detector.NextAddressBox(i, box, adr)) {
+      if ((xmin > box->xmin && xmin < box->xmax) ||
+          (xmax > box->xmin && xmax < box->xmax))
+      if ((ymin > box->ymin && ymin < box->ymax) ||
+          (ymax > box->ymin && ymax < box->ymax)) {
+
+        if (GetValue(adr) > 0) {
+          sum++;
+          if (sum > 1) return true;
+        }
+
+      }
+    }
+  }
+
+  return false;
+
+}
+
 /**
  * @brief  Get efficiency of the whole detector
  * @param  
@@ -285,14 +317,14 @@ const double CSCSummary::GetEfficiencyHW(CSCAddress adr) const {
 
 }
 
-const double CSCSummary::GetEfficiencyArea() const {
-  CSCAddress adr;
-  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
-  return GetEfficiencyArea(adr);
-}
-
 const double CSCSummary::GetEfficiencyArea(CSCAddress adr) const {
-  double all_area = detector.Area(adr);
+  double all_area = 1;
+
+  if(adr.side == adr.ring == adr.chamber == adr.cfeb == adr.hv == false)
+    all_area = detector.Area(adr.station);
+  else
+    all_area = detector.Area(adr);
+
   double rep_area = GetReportingArea(adr);
   return rep_area / all_area;
 }
@@ -346,7 +378,7 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
  * @param  adr Address of atomic element to return value from
  * @return Value of the requested element
  */
-const int CSCSummary::GetValue(CSCAddress adr) const {
+const int CSCSummary::GetValue(const CSCAddress& adr) const {
   if( adr.mask.side && adr.mask.station && adr.mask.ring && 
       adr.mask.chamber && adr.mask.cfeb && adr.mask.hv &&
       adr.side > 0 && adr.side <= N_SIDES && 

@@ -41,12 +41,14 @@ struct CSCAddressMask {
 };
 
 struct CSCAddress {
+
   unsigned int side;
   unsigned int station;
   unsigned int ring;
   unsigned int chamber;
   unsigned int cfeb;
   unsigned int hv;
+
   CSCAddressMask mask;
 
   const bool operator== (const CSCAddress& a) const {

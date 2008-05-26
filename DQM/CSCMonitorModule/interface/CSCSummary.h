@@ -38,11 +38,12 @@ class CSCSummary {
 
     void SetValue(const int value);
     void SetValue(CSCAddress adr, const int value);
-    const int GetValue(CSCAddress adr) const;
+
+    const int GetValue(const CSCAddress& adr) const;
+    const bool IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 
     const double GetEfficiencyHW() const;
     const double GetEfficiencyHW(CSCAddress adr) const; 
-    const double GetEfficiencyArea() const;
     const double GetEfficiencyArea(CSCAddress adr) const; 
 
   private:

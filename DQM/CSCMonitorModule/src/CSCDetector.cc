@@ -48,6 +48,7 @@ CSCDetector::CSCDetector() {
                 float x_max = EtaToX(eta_max);
                 float phi_min = 0;
                 float phi_max = 0;
+
                 if(adr.station == 1 && adr.ring == 1 && adr.hv == 1) {
                   phi_min = PhiMinCFEB(adr.station, adr.ring, adr.chamber, 1);
                   phi_max = PhiMaxCFEB(adr.station, adr.ring, adr.chamber, NumberOfChamberCFEBs(adr.station, adr.ring));
