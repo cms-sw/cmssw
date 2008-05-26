@@ -14,13 +14,13 @@ namespace cond {
     virtual void setRunAndEventInfo();
   private:
     std::string m_timeType;
-    unsigned int m_firstValid;
+    unsigned long long m_firstValid;
     unsigned long long m_lastValid;
-    unsigned long long m_currentValid;
+    //unsigned long long m_currentValid;
     unsigned long long m_interval;
     std::set<cond::Time_t> m_iovs;
     std::set<cond::Time_t>::iterator m_iovit;
-    std::set<cond::Time_t>::iterator m_iovstop;
+    std::set<cond::Time_t>::iterator m_current;
   };
 }
 #endif
