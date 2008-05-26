@@ -116,7 +116,10 @@ class Multi5x5ClusterAlgo
   
   // take the crystals in the current_v and build 
   // them into a BasicCluster
-  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p);
+  void makeCluster(const EcalRecHitCollection* hits,
+                   const CaloSubdetectorGeometry *geometry_p,
+                   const CaloSubdetectorGeometry *geometryES_p, 
+	           double &seedEnergy);
 
  };
 

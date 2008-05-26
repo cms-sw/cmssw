@@ -145,9 +145,12 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       // clear the vector of hits in current cluster
       current_v.clear();
 
-      // Create a navigator at the seed
+      // Create a navigator at the seed and get seed
+      // energy
       CaloNavigator<DetId> navigator(it->id(), topology_p);
       DetId seedId = navigator.pos();
+      EcalRecHitCollection::const_iterator seedIt = hits->find(seedId);
+      double seedEnergy = seedIt->energy();
       navigator.setHome(seedId);
 
       // Is the seed a local maximum?
@@ -164,7 +167,7 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       // make them into a cluster 
       if (current_v.size() > 0) 
       {
-         makeCluster(hits, geometry_p, geometryES_p);
+         makeCluster(hits, geometry_p, geometryES_p, seedEnergy);
       }
 
    }  // End loop on seed crystals
@@ -173,7 +176,8 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 
 void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 				    const CaloSubdetectorGeometry *geometry,
-				    const CaloSubdetectorGeometry *geometryES)
+				    const CaloSubdetectorGeometry *geometryES,
+				    double &seedEnergy)
 {
 
    double energy = 0;
@@ -201,7 +205,13 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       std::cout << "*****************************" << std::endl;
     }
 
-   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
+   // to be a valid cluster the cluster energy
+   // must be at least the seed energy
+   if (energy >= seedEnergy)
+   {
+      clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
+   }
+
 }
 
 bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
