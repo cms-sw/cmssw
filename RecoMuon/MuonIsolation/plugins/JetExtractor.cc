@@ -98,10 +98,10 @@ IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSe
     if (jetCI->et() < theThreshold ) continue;
 
     //should I make a separate config option for this?
-    std::vector<CaloTowerRef> jetConstituents = jetCI->getConstituents();
+    std::vector<CaloTowerPtr> jetConstituents = jetCI->getCaloConstituents();
 
     std::vector<DetId>::const_iterator crossedCI =  mInfo.crossedTowerIds.begin();
-    std::vector<CaloTowerRef>::const_iterator jetTowCI = jetConstituents.begin();
+    std::vector<CaloTowerPtr>::const_iterator jetTowCI = jetConstituents.begin();
     
     double sumEtExcluded = 0;
     for (;jetTowCI != jetConstituents.end(); ++ jetTowCI){

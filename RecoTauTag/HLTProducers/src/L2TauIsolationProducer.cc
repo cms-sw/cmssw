@@ -168,10 +168,10 @@ L2TauIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,
   int count=0; //counter
 
   //Code Copied from JetCrystalsAssociator    
-      const std::vector<CaloTowerRef>  myTowers=jet.getConstituents();
+      const std::vector<CaloTowerPtr>  myTowers=jet.getCaloConstituents();
         for (unsigned int iTower = 0; iTower < myTowers.size(); iTower++)
 	{
-	  CaloTowerRef theTower = myTowers[iTower];
+	  CaloTowerPtr theTower = myTowers[iTower];
 	  size_t numRecHits = theTower->constituentsSize();
 	  // access CaloRecHits
 	  for (size_t j = 0; j < numRecHits; j++) {

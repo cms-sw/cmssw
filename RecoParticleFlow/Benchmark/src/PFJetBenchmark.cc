@@ -234,7 +234,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 
 void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHadEnergy, 
 							  double& true_NeutralHadEnergy, double& true_NeutralEmEnergy){
-	std::vector <const GenParticle*> mcparts = truth->getConstituents ();
+	std::vector <const GenParticle*> mcparts = truth->getGenConstituents ();
 	true_NeutralEmEnergy = 0.;
 	true_ChargedHadEnergy = 0.;
 	true_NeutralHadEnergy = 0.;
@@ -273,7 +273,7 @@ void PFJetBenchmark::printPFJet(const reco::PFJet* pfj){
 	
 	//const reco::Jet* jet = pfj;
 	// cout << jet->print();
-  	std::vector <const PFCandidate*> pfCandidates = pfj->getConstituents ();
+  	std::vector <const PFCandidate*> pfCandidates = pfj->getPFConstituents ();
    	cout << "PFJet  p/px/py/pz/pt: " << pfj->p() << '/' << pfj->px () 
    		<< '/' << pfj->py() << '/' << pfj->pz() << '/' << pfj->pt() << endl
    		<< "    eta/phi: " << pfj->eta () << '/' << pfj->phi () << endl   		
@@ -294,7 +294,7 @@ void PFJetBenchmark::printPFJet(const reco::PFJet* pfj){
 	cout<<resetiosflags(ios::right|ios::fixed);
 }
 void PFJetBenchmark::printGenJet (const reco::GenJet* truth){
-	std::vector <const GenParticle*> mcparts = truth->getConstituents ();
+	std::vector <const GenParticle*> mcparts = truth->getGenConstituents ();
 	cout << "GenJet p/px/py/pz/pt: " << truth->p() << '/' << truth->px () 
 		<< '/' << truth->py() << '/' << truth->pz() << '/' << truth->pt() << endl
 		<< "    eta/phi: " << truth->eta () << '/' << truth->phi () << endl

@@ -108,7 +108,7 @@ void JetToDigiDump::analyze( const Event& evt, const EventSetup& es ) {
     float sumTowerE = 0.0;
 
     if(Dump>=2)for (int i = 0; i <jet->nConstituents(); i++) {
-       const CaloTower& tower = *(jet->getConstituent (i));
+       const CaloTower& tower = *(jet->getCaloConstituent (i));
        int ietaTower = tower.id().ieta();
        int iphiTower = tower.id().iphi();
        sumTowerE += tower.energy();

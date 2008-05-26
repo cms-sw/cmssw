@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.16 2008/04/24 16:08:16 gpetrucc Exp $
+// $Id: Jet.h,v 1.17 2008/04/29 12:22:37 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.16 2008/04/24 16:08:16 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.17 2008/04/29 12:22:37 gpetrucc Exp $
 */
 
 
@@ -131,7 +131,7 @@ namespace pat {
       const reco::TrackRefVector & associatedTracks() const;
 
       /// method to store the CaloJet constituents internally
-      void setCaloTowers(const std::vector<CaloTowerRef> & caloTowers);
+      void setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers);
       /// method to set the matched parton
       void setGenParton(const reco::Particle & gp);
       /// method to set the matched generated jet
@@ -206,13 +206,13 @@ namespace pat {
       int n60() const {return nCarrying (0.6);}
 
       /// convert generic constituent to specific type
-      static CaloTowerRef caloTower (const reco::Candidate* fConstituent);
+      //      static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
       /// Get specific constituent of the CaloJet. 
       /// If the caloTowers were embedded, this reference is transient only and must not be persisted
-      CaloTowerRef getCaloConstituent (unsigned fIndex) const;
+      CaloTowerPtr getCaloConstituent (unsigned fIndex) const;
       /// Get the constituents of the CaloJet. 
       /// If the caloTowers were embedded, these reference are transient only and must not be persisted
-      std::vector <CaloTowerRef> getCaloConstituents () const;
+      std::vector<CaloTowerPtr> getCaloConstituents () const;
 
     //================== PF Jet specific information ====================
       /// chargedHadronEnergy

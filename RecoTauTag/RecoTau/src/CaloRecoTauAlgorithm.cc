@@ -36,7 +36,7 @@ void CaloRecoTauAlgorithm::setMagneticField(const MagneticField* x){MagneticFiel
 
 CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetup,const CaloTauTagInfoRef& myCaloTauTagInfoRef,const Vertex& myPV){
   CaloJetRef myCaloJet=(*myCaloTauTagInfoRef).calojetRef(); // catch a ref to the initial CaloJet  
-  const vector<CaloTowerRef> myCaloTowers=(*myCaloJet).getConstituents();
+  const vector<CaloTowerPtr> myCaloTowers=(*myCaloJet).getCaloConstituents();
   CaloTau myCaloTau(numeric_limits<int>::quiet_NaN(),myCaloJet->p4()); // create the CaloTau with the initial CaloJet Lorentz-vector
   
   myCaloTau.setcaloTauTagInfoRef(myCaloTauTagInfoRef);
@@ -78,7 +78,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 														    mypropagleadTrackECALSurfContactPoint.y(),
 														    mypropagleadTrackECALSurfContactPoint.z())));
 	vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry,mypropagleadTrack_closestCaloTowerId);
-	for(vector<CaloTowerRef>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
+	for(vector<CaloTowerPtr>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
 	  CaloTowerDetId iCaloTowerId((**iCaloTower).id());
 	  bool CaloTower_inside3x3matrix=false;
 	  if (iCaloTowerId==mypropagleadTrack_closestCaloTowerId) CaloTower_inside3x3matrix=true;

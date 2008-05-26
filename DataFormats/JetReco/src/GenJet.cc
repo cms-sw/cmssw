@@ -1,6 +1,6 @@
 // GenJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenJet.cc,v 1.9 2007/09/20 21:04:59 fedor Exp $
+// $Id: GenJet.cc,v 1.11 2008/02/16 14:31:09 oehler Exp $
 
 #include <sstream>
 
@@ -44,7 +44,7 @@ const GenParticle* GenJet::genParticle (const Candidate* fConstituent) {
   return result;
 }
 
-const GenParticle* GenJet::getConstituent (unsigned fIndex) const {
+const GenParticle* GenJet::getGenConstituent (unsigned fIndex) const {
   // no direct access, have to iterate for now
   int index (fIndex);
   Candidate::const_iterator daugh = begin ();
@@ -56,9 +56,9 @@ const GenParticle* GenJet::getConstituent (unsigned fIndex) const {
   return 0;
 }
 
-std::vector <const GenParticle*> GenJet::getConstituents () const {
+std::vector <const GenParticle*> GenJet::getGenConstituents () const {
   std::vector <const GenParticle*> result;
-  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
+  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getGenConstituent (i));
   return result;
 }
 
@@ -77,7 +77,7 @@ std::string GenJet::print () const {
       << "      em/had/invisible/aux  energies: " 
       << emEnergy() << '/' << hadEnergy()  << '/' << invisibleEnergy() << '/' << auxiliaryEnergy() << std::endl;
   out << "      MC particles:" << std::endl;
-  std::vector <const GenParticle*> mcparts = getConstituents ();
+  std::vector <const GenParticle*> mcparts = getGenConstituents ();
   for (unsigned i = 0; i < mcparts.size (); i++) {
     const GenParticle* mcpart = mcparts[i];
     if (mcpart) {

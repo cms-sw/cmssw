@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.13 2008/04/24 16:36:40 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.14 2008/04/29 12:38:15 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -179,7 +179,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // ensure the internal storage of the jet constituents
     if (ajet.isCaloJet() && embedCaloTowers_) {
         const reco::CaloJet *cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());
-        ajet.setCaloTowers( cj->getConstituents() );
+        ajet.setCaloTowers( cj->getCaloConstituents() );
     }
 
     if (addJetCorrFactors_) {

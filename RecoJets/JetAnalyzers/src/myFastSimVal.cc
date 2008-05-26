@@ -2627,7 +2627,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       emEneLeadJet13.Fill(emEne);
     }
 
-    const std::vector<CaloTowerRef> jetCaloRefs = ijet->getConstituents();
+    const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
     int nConstituents = jetCaloRefs.size();
 
     if (jjet == 1) {
@@ -2695,7 +2695,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
   double sumTowerAllEx(0);
   double sumTowerAllEy(0);
 
-  std::vector<CaloTowerRef>   UsedTowerList;
+  std::vector<CaloTowerPtr>   UsedTowerList;
   std::vector<CaloTower>      TowerUsedInJets;
   std::vector<CaloTower>      TowerNotUsedInJets;
 
@@ -2800,7 +2800,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       sumJetPx +=jetPx;
       sumJetPy +=jetPy;
 
-      const std::vector<CaloTowerRef> jetCaloRefs = ijet->getConstituents();
+      const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
       int nConstituents = jetCaloRefs.size();
       for (int i = 0; i <nConstituents ; i++){
 	UsedTowerList.push_back(jetCaloRefs[i]);
@@ -2891,7 +2891,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       sumJetPx +=jetPx;
       sumJetPy +=jetPy;
 
-      const std::vector<CaloTowerRef> jetCaloRefs = ijet->getConstituents();
+      const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
       int nConstituents = jetCaloRefs.size();
       for (int i = 0; i <nConstituents ; i++){
 	UsedTowerList.push_back(jetCaloRefs[i]);
@@ -2985,7 +2985,7 @@ void myFastSimVal::analyze( const Event& evt, const EventSetup& es ) {
       sumJetPx +=jetPx;
       sumJetPy +=jetPy;
 
-      const std::vector<CaloTowerRef> jetCaloRefs = ijet->getConstituents();
+      const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
       int nConstituents = jetCaloRefs.size();
       for (int i = 0; i <nConstituents ; i++){
 	UsedTowerList.push_back(jetCaloRefs[i]);

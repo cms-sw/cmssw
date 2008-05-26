@@ -45,13 +45,13 @@ CaloJetSelector::filter( //const unsigned int&        index,
       n90>config_.N90max    ) result = BAD;
 
   ///Tower Number
-  std::vector <CaloTowerRef> jetTowers = Jet.getConstituents();
+  std::vector<CaloTowerPtr> jetTowers = Jet.getCaloConstituents();
   if (jetTowers.size()<config_.NCaloTowersmin ||
       jetTowers.size()>config_.NCaloTowersmax  ) result = BAD;
 
   //calculate tower related variables:
   double MaxEnergyTower = 0., SumTowPt=0., SumTowPtR=0.;
-  for(std::vector<CaloTowerRef>::const_iterator tow = jetTowers.begin(),
+  for(std::vector<CaloTowerPtr>::const_iterator tow = jetTowers.begin(),
       towend = jetTowers.end(); tow != towend; ++tow){
 
     SumTowPt  += (*tow)->et();

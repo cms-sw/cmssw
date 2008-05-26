@@ -722,7 +722,7 @@ template <typename T> void JetAnalyzer::fillJetHists(const T& jets, const TStrin
     //    const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
     //   int nConstituents= barcodes.size();
 
-    //  std::vector <CaloTowerRef> constituents = ijet->getConstituents ();
+    //  std::vector<CaloTowerPtr> constituents = ijet->getCaloConstituents ();
     // int nConstituents= constituents.size();
 
     //  if(prefix=="Calo") Double_t emEnergyFraction  = ijet->emEnergyFraction();
@@ -784,7 +784,7 @@ void JetAnalyzer::fillJetHists(const CaloJetCollection& jets,const TString& pref
     //    const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
     //  int nConstituents= barcodes.size();
 
-    std::vector <CaloTowerRef> constituents = ijet->getConstituents ();
+    std::vector<CaloTowerPtr> constituents = ijet->getCaloConstituents ();
     int nConstituents= constituents.size();
 
 
@@ -1491,7 +1491,7 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
   	    HepLorentzVector P4Jet(0,0,0,0);
 
 
-	    std::vector <const GenParticle*> jetconst = ijet->getConstituents() ;
+	    std::vector <const GenParticle*> jetconst = ijet->getGenConstituents() ;
 	    int nConstituents= jetconst.size();
 
 	    for (int i = 0; i <nConstituents ; i++){
@@ -1998,7 +1998,7 @@ void JetAnalyzer::GetIntegratedEnergy(GenJetCollection::const_iterator ijet,int 
 //   double etaJet =ijet->eta();
 //   double phiJet =ijet->phi();
 
-    std::vector <const GenParticle*> jetconst =  ijet->getConstituents() ;
+    std::vector <const GenParticle*> jetconst =  ijet->getGenConstituents() ;
     int nConstituents= jetconst.size();
     for (int i = 0; i <nConstituents ; i++){
 
@@ -2673,7 +2673,7 @@ void JetAnalyzer::bookPtSpectrumInAJet(){
 }
 void JetAnalyzer::PtSpectrumInAJet(GenJetCollection::const_iterator ijet,const HepMC::GenEvent genEvent,const double response){
 
-  std::vector <const GenParticle*> jetconst =  ijet->getConstituents() ;
+  std::vector <const GenParticle*> jetconst =  ijet->getGenConstituents() ;
   int nConstituents= jetconst.size();
   for (int i = 0; i <nConstituents ; i++){
 
@@ -2710,7 +2710,7 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
     Double_t jetPt = ijet->pt();
     if(jetPt>10.){
 
-      std::vector <const GenParticle*> jetconstituents =  ijet->getConstituents() ;
+      std::vector <const GenParticle*> jetconstituents =  ijet->getGenConstituents() ;
       int nConstituents= jetconstituents.size();
       genPartUsedInJets=jetconstituents;
       

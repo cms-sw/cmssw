@@ -39,7 +39,7 @@ CaloTauTagInfo CaloRecoTauTagInfoAlgorithm::buildCaloTauTagInfo(Event& theEvent,
 
 vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndEnergyEcalRecHits(Event& theEvent,const EventSetup& theEventSetup,const CaloJetRef& theCaloJet){
   vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
-  vector<CaloTowerRef> theCaloTowers=theCaloJet->getConstituents();
+  vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
   ESHandle<CaloGeometry> theCaloGeometry;
   theEventSetup.get<IdealGeometryRecord>().get(theCaloGeometry);
   const CaloSubdetectorGeometry* theCaloSubdetectorGeometry;  
@@ -49,7 +49,7 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   theEvent.getByLabel(EBRecHitsLabel_,EBRecHits);
   theEvent.getByLabel(EERecHitsLabel_,EERecHits);
   theEvent.getByLabel(ESRecHitsLabel_,ESRecHits);
-  for(vector<CaloTowerRef>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
+  for(vector<CaloTowerPtr>::const_iterator i_Tower=theCaloTowers.begin();i_Tower!=theCaloTowers.end();i_Tower++){
     size_t numRecHits = (**i_Tower).constituentsSize();
     for(size_t j=0;j<numRecHits;j++) {
       DetId RecHitDetID=(**i_Tower).constituent(j);

@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.16 2007/09/20 21:04:43 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.18 2008/02/16 14:31:07 oehler Exp $
  ************************************************************/
 
 
@@ -69,9 +69,9 @@ public:
   /// convert generic constituent to specific type
   static const GenParticle* genParticle (const reco::Candidate* fConstituent);
   /// get specific constituent
-  const GenParticle* getConstituent (unsigned fIndex) const;
+  virtual const GenParticle* getGenConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <const GenParticle*> getConstituents () const;
+  virtual std::vector <const GenParticle*> getGenConstituents () const;
   
   // block accessors
 

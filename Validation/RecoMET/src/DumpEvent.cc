@@ -147,7 +147,7 @@ void DumpEvent::WriteJets(const edm::Event& iEvent, const edm::EventSetup& iSetu
      int nConstituents= jet->nConstituents();
      for (int i = 0; i <nConstituents ; i++)
        {
-         const CaloTower& tower = *(jet->getConstituent (i));
+         const CaloTower& tower = *(jet->getCaloConstituent (i));
          int ietaTower = tower.id().ieta();
          int iphiTower = tower.id().iphi();
          hCaloTowerToJetMap_ieta_iphi->Fill(ietaTower, iphiTower, njet);

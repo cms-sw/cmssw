@@ -15,6 +15,7 @@ namespace {
   namespace {
     std::vector<CaloTower> v1;
     CaloTowerCollection c1;
+    CaloTowerPtr p1;
     CaloTowerRef r1;
     CaloTowersRef rr1;
     CaloTowerRefs rrr1;

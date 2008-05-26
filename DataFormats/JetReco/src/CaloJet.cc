@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.18 2008/04/30 22:05:16 fedor Exp $
+// $Id: CaloJet.cc,v 1.19 2008/05/10 09:29:16 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -58,15 +58,24 @@ CaloJet::LorentzVector CaloJet::physicsP4 (float fZVertex) const {
 }
 
 
-CaloTowerRef CaloJet::getConstituent (unsigned fIndex) const {
-  Constituent dau = daughterPtr (fIndex);
-  return CaloTowerRef (dau.id(), dau.key(), dau.productGetter());
+CaloTowerPtr CaloJet::getCaloConstituent (unsigned fIndex) const {
+   Constituent dau = daughterPtr (fIndex);
+   const CaloTower* towerCandidate = dynamic_cast <const CaloTower*> (dau.get());
+
+    if (towerCandidate) {
+//      return towerCandidate;
+// 086     Ptr(ProductID const& productID, T const* item, key_type item_key) :
+      return edm::Ptr<CaloTower> (dau.id(), towerCandidate, dau.key() );
+    }
+    else {
+      throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTowere type";
+    }
 }
 
 
-std::vector <CaloTowerRef> CaloJet::getConstituents () const {
-  std::vector <CaloTowerRef> result;
-  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
+std::vector <CaloTowerPtr > CaloJet::getCaloConstituents () const {
+  std::vector <CaloTowerPtr> result;
+  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getCaloConstituent (i));
   return result;
 }
 
@@ -88,7 +97,7 @@ std::string CaloJet::print () const {
       << "      had energy in HB/HO/HE/HF: " << hadEnergyInHB() << '/' << hadEnergyInHO() << '/' << hadEnergyInHE() << '/' << hadEnergyInHF() << std::endl
       << "      constituent towers area: " << towersArea() << std::endl;
   out << "      Towers:" << std::endl;
-  std::vector <CaloTowerRef> towers = getConstituents ();
+  std::vector <CaloTowerPtr > towers = getCaloConstituents ();
   for (unsigned i = 0; i < towers.size (); i++) {
     if (towers[i].get ()) {
       out << "      #" << i << " " << *(towers[i]) << std::endl;
@@ -106,7 +115,7 @@ std::string CaloJet::print () const {
 
 std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
   std::vector<CaloTowerDetId> result;
-  std::vector <CaloTowerRef> towers = getConstituents ();
+  std::vector <CaloTowerPtr> towers = getCaloConstituents ();
   for (unsigned i = 0; i < towers.size(); ++i) {
     result.push_back (towers[i]->id());
   }

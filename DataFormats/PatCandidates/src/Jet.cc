@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.14 2008/04/24 16:08:17 gpetrucc Exp $
+// $Id: Jet.cc,v 1.15 2008/04/29 12:22:38 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -53,36 +53,27 @@ Jet::~Jet() {
 
 
 /// ============= CaloJet methods ============
-CaloTowerRef Jet::caloTower (const reco::Candidate* fConstituent) {
-  if (fConstituent) {
-    const reco::RecoCaloTowerCandidate* towerCandidate = dynamic_cast <const reco::RecoCaloTowerCandidate*> (fConstituent);
-    if (towerCandidate) {
-      return towerCandidate->caloTower ();
-    }
-    else {
-      throw cms::Exception("Invalid Constituent") << "Jet constituent is not of RecoCaloTowerCandidate type";
-    }
-  }
-  return CaloTowerRef ();
-}
 
-CaloTowerRef Jet::getCaloConstituent (unsigned fIndex) const {
+CaloTowerPtr Jet::getCaloConstituent (unsigned fIndex) const {
     if (embeddedCaloTowers_) {
-        return (fIndex < caloTowers_.size() ? CaloTowerRef(&caloTowers_, fIndex) : CaloTowerRef());
+        return (fIndex < caloTowers_.size() ? CaloTowerPtr(&caloTowers_, fIndex) : CaloTowerPtr());
     } else {
-        reco::Candidate::const_iterator daugh = begin ();
-        std::advance(daugh, fIndex);
-        if (daugh < end()) {
-            const reco::Candidate* constituent = &*daugh; // deref
-            return caloTower(constituent);
-        } else {
-            return CaloTowerRef ();
-        } 
-    }
+            Constituent dau = daughterPtr (fIndex);
+	    const CaloTower* towerCandidate = dynamic_cast <const CaloTower*> (dau.get());
+  	    if (towerCandidate) {
+              return edm::Ptr<CaloTower> (dau.id(), towerCandidate, dau.key() );
+            } 
+   	    else {
+      		throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTowere type";
+	    }
+
+    } 
+   
+   return CaloTowerPtr ();
 }
 
-std::vector <CaloTowerRef> Jet::getCaloConstituents () const {
-  std::vector <CaloTowerRef> result;
+std::vector<CaloTowerPtr> Jet::getCaloConstituents () const {
+  std::vector<CaloTowerPtr> result;
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getCaloConstituent (i));
   return result;
 }
@@ -340,7 +331,7 @@ void Jet::setAssociatedTracks(const reco::TrackRefVector &tracks) {
 }
 
 /// method to store the CaloJet constituents internally
-void Jet::setCaloTowers(const std::vector<CaloTowerRef> & caloTowers) {
+void Jet::setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers) {
   for(unsigned int i = 0; i < caloTowers.size(); ++i) {
     caloTowers_.push_back(*caloTowers.at(i));
   }

@@ -146,7 +146,7 @@ const reco::CandidateCollection* JetMatchingTools::getGenParticlesCollection () 
   /// get towers contributing to CaloJet
 std::vector <const CaloTower*> JetMatchingTools::getConstituents (const reco::CaloJet& fJet ) {
   std::vector <const CaloTower*> result;
-  std::vector <CaloTowerRef> constituents = fJet.getConstituents ();
+  std::vector<CaloTowerPtr> constituents = fJet.getCaloConstituents ();
   for (unsigned i = 0; i < constituents.size(); ++i) result.push_back (&*(constituents[i]));
   return result;
 }
@@ -282,7 +282,7 @@ std::vector <const reco::GenParticle*> JetMatchingTools::getGenParticles (const 
 
 /// GenParticles for GenJet
 std::vector <const reco::GenParticle*> JetMatchingTools::getGenParticles (const reco::GenJet& fJet) {
-  return fJet.getConstituents ();
+  return fJet.getGenConstituents ();
 }
 
   /// energy in broken links

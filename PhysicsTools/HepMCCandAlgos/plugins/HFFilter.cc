@@ -47,7 +47,7 @@ HFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( ijet->pt() < ptMin_ || fabs(ijet->eta()) > etaMax_ ) continue;
 
      // Get the constituent particles
-     vector<const GenParticle*> particles = ijet->getConstituents ();
+     vector<const GenParticle*> particles = ijet->getGenConstituents ();
     
      // Loop over the constituent particles
      vector<const GenParticle*>::const_iterator genit = particles.begin();

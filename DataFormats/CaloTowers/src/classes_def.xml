@@ -1,6 +1,7 @@
 <lcgdict>
   <class name="CaloTowerDetId"/>
   <class name="CaloTower"/>
+  <class name="CaloTowerPtr"/>
   <class name="std::vector<CaloTower>"/>
   <class name="edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >"/>
   <class name="edm::Ref<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > >"/>

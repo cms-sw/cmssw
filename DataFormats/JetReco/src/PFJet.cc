@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.9 2008/01/25 05:06:06 fedor Exp $
+// $Id: PFJet.cc,v 1.10 2008/02/17 20:26:00 dlange Exp $
 #include <sstream>
 #include <typeinfo>
 
@@ -46,13 +46,13 @@ const reco::PFCandidate* PFJet::getPFCandidate (const reco::Candidate* fConstitu
   return candidate;
 }
 
-const reco::PFCandidate* PFJet::getConstituent (unsigned fIndex) const {
+const reco::PFCandidate* PFJet::getPFConstituent (unsigned fIndex) const {
   return getPFCandidate (daughter (fIndex));
 }
 
-std::vector <const reco::PFCandidate*> PFJet::getConstituents () const {
+std::vector <const reco::PFCandidate*> PFJet::getPFConstituents () const {
   std::vector <const reco::PFCandidate*> result;
-  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getConstituent (i));
+  for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getPFConstituent (i));
   return result;
 }
 
@@ -73,7 +73,7 @@ std::string PFJet::print () const {
       << "      charged muon energy: " << chargedMuEnergy () << '/' << std::endl
       << "      charged/neutral multiplicity: " << chargedMultiplicity () << '/' << neutralMultiplicity () << std::endl;
   out << "      PFCandidate constituents:" << std::endl;
-  std::vector <const PFCandidate*> constituents = getConstituents ();
+  std::vector <const PFCandidate*> constituents = getPFConstituents ();
   for (unsigned i = 0; i < constituents.size (); ++i) {
     if (constituents[i]) {
       out << "      #" << i << " " << *(constituents[i]) << std::endl;

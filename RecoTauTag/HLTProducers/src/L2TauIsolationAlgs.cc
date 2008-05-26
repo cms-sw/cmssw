@@ -402,7 +402,7 @@ double
 L2TauTowerIsolation::seedTowerEt(const CaloJet& jet) const
 {
   //get the sorted calotower collection
-  std::vector<CaloTowerRef> towers = jet.getConstituents();
+  std::vector<CaloTowerPtr> towers = jet.getCaloConstituents();
  
   if(towers.size()>0)
     return (**(towers.begin())).et();
@@ -417,12 +417,12 @@ double
 L2TauTowerIsolation::isolatedEt(const CaloJet& jet) const
 {
   //get the CaloTowers from the jet
-  std::vector<CaloTowerRef> towers = jet.getConstituents();
+  std::vector<CaloTowerPtr> towers = jet.getCaloConstituents();
   
   double eRMin= 0.;
   double eRMax =0.;
   
-  for(std::vector<CaloTowerRef>::iterator u = towers.begin();u!=towers.end();++u)
+  for(std::vector<CaloTowerPtr>::iterator u = towers.begin();u!=towers.end();++u)
        if((**u).et()>m_towerEtThreshold)
 	{
 	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(), (**u).momentum());
