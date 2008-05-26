@@ -7,7 +7,7 @@
 #include <HepMC/GenEvent.h>
 #include <HepMC/SimpleVector.h>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -26,7 +26,7 @@
 
 using namespace lhef;
 
-class LHEProducer : public edm::EDProducer {
+class LHEProducer : public edm::EDFilter {
     public:
 	explicit LHEProducer(const edm::ParameterSet &params);
 	virtual ~LHEProducer();
@@ -34,9 +34,9 @@ class LHEProducer : public edm::EDProducer {
     protected:
 	virtual void beginJob(const edm::EventSetup &es);
 	virtual void endJob();
-	virtual void beginRun(edm::Run &run, const edm::EventSetup &es);
-	virtual void endRun(edm::Run &run, const edm::EventSetup &es);
-	virtual void produce(edm::Event &event, const edm::EventSetup &es);
+	virtual bool beginRun(edm::Run &run, const edm::EventSetup &es);
+	virtual bool endRun(edm::Run &run, const edm::EventSetup &es);
+	virtual bool filter(edm::Event &event, const edm::EventSetup &es);
 
     private:
 	double matching(const HepMC::GenEvent *event, bool shower) const;
@@ -107,16 +107,18 @@ void LHEProducer::endJob()
 	hadronisation.reset();
 }
 
-void LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
+bool LHEProducer::beginRun(edm::Run &run, const edm::EventSetup &es)
 {
 	edm::Handle<LHERunInfoProduct> product;
 	run.getByLabel("source", product);
 
 	runInfo.reset(new LHERunInfo(product->heprup()));
 	index = 0;
+
+	return true;
 }
 
-void LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
+bool LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 {
 	LHERunInfo::XSec crossSection;
 	if (runInfo)
@@ -131,9 +133,11 @@ void LHEProducer::endRun(edm::Run &run, const edm::EventSetup &es)
 	run.put(genInfoProd);
 
 	runInfo.reset();
+
+	return true;
 }
 
-void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
+bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 {
 	std::auto_ptr<edm::HepMCProduct> result(new edm::HepMCProduct);
 
@@ -181,7 +185,7 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 
 	if (!hadronLevel.get()) {
 		event.put(result);
-		return;
+		return false;
 	}
 
 	partonLevel->count(LHERunInfo::kAccepted, weight);
@@ -218,6 +222,8 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 		event.put(matchDeltaR, "matchDeltaR");
 		event.put(matchDeltaPRel, "matchDeltaPRel");
 	}
+
+	return true;
 }
 
 double LHEProducer::matching(const HepMC::GenEvent *event, bool shower) const
