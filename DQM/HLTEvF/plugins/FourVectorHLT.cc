@@ -1,4 +1,4 @@
-// $Id: FourVectorHLT.cc,v 1.4 2008/05/23 16:46:16 wittich Exp $
+// $Id: FourVectorHLT.cc,v 1.5 2008/05/24 13:23:14 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -9,7 +9,6 @@
 #include "DQM/HLTEvF/interface/FourVectorHLT.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
@@ -66,11 +65,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
   }
   triggerSummaryLabel_ = 
     iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
-
-  // for use when we plot all.
-  triggerResultLabel_ = 
-    iConfig.getParameter<edm::InputTag>("triggerResultLabel");
-  
+ 
   
 }
 
