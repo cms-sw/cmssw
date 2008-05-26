@@ -17,8 +17,8 @@ HtrXmlPatternTool::HtrXmlPatternTool(HtrXmlPatternToolParameters* params) {
 
   //turn off all slots
   for (int i=0; i<ChannelPattern::NUM_SLOTS; i++) slotsOn[i]=0;
-  //turn on slots 2,3,4,5,6,7
-  for (int i=2; i<8; i++)   slotsOn[i]=1;
+  //turn on slots 2,3,4,5,6,7,8
+  for (int i=2; i<9; i++)   slotsOn[i]=1;
   //turn on slots 13,14,15,16,17,18
   for (int i=13; i<19; i++) slotsOn[i]=1;
 
@@ -118,11 +118,9 @@ void HtrXmlPatternTool::prepareDirs() {
 
 void HtrXmlPatternTool::writeXML() {
   std::cout << "Writing XML..." << std::endl;
-  bool singleMode=false;
   std::ofstream* of=0;
 
-  if (m_params->m_single_XML_file) {
-    singleMode=true;
+  if (m_params->m_XML_file_mode==1) {
     std::string name=m_params->m_output_directory+(m_params->m_file_tag)+"_all.xml";
     of=new std::ofstream(name.c_str(),std::ios_base::out|std::ios_base::trunc);
     if (!of->good()) {
@@ -132,11 +130,12 @@ void HtrXmlPatternTool::writeXML() {
     (*of) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
     (*of) << "<CFGBrickSet name='" << m_params->m_file_tag << "'>" << std::endl;
   }
+
   for (int crate=0; crate<ChannelPattern::NUM_CRATES; crate++) {
     CrateData* cd=m_patternSet->getCrate(crate);
     if (cd==0) continue;
 
-    if (!singleMode) {
+    if (m_params->m_XML_file_mode==2) {
       std::string name=m_params->m_output_directory+(m_params->m_file_tag);
       char cr_name[256];
       snprintf(cr_name,256,"_crate_%d.xml",crate);
@@ -155,12 +154,31 @@ void HtrXmlPatternTool::writeXML() {
 	HalfHtrData* hd=cd->getHalfHtrData(slot,tb);
 	if (hd==0) continue;
 	for (int fiber=1; fiber<=8; fiber++) {
+
+	  if (m_params->m_XML_file_mode==3) {
+	    std::string name=m_params->m_output_directory+(m_params->m_file_tag);
+	    char cr_name[256];
+	    snprintf(cr_name,256,"_crate_%d_slot_%d_tb_%d_fiber_%d.xml",crate,slot,tb,fiber);
+	    name += cr_name;
+	    of=new std::ofstream(name.c_str(),std::ios_base::out|std::ios_base::trunc);
+	    if (!of->good()) {
+	      std::cerr << "XML output file " << name << " is bad." << std::endl;
+	      return;
+	    }
+	    (*of) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
+	  }
 	  m_xmlWriter.writePattern(hd,fiber,*of,1);
-	}
-      }
+	  if (m_params->m_XML_file_mode==3) {
+	    of->close();
+	    delete of;
+	    of=0;
+	  }
+
+	} //end fiber loop
+      } // end tb loop
     } //end slot loop
     
-    if (!singleMode) {
+    if (m_params->m_XML_file_mode==2) {
       (*of) << "</CFGBrickSet>" << std::endl;
       of->close();
       delete of;
@@ -169,7 +187,7 @@ void HtrXmlPatternTool::writeXML() {
     
   } //end crate loop
   
-  if (singleMode) {
+  if (m_params->m_XML_file_mode==1) {
     (*of) << "</CFGBrickSet>" << std::endl;
     of->close();
     delete of;
