@@ -249,8 +249,8 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
       float yboxmin = (box->ymin < box->ymax ? box->ymin : box->ymax);
       float yboxmax = (box->ymax > box->ymin ? box->ymax : box->ymin);
 
-      if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
-      if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
+      if ((xpmin < xboxmin && xpmax <= xboxmin) || (xpmin >= xboxmax && xpmax > xboxmax)) continue;
+      if ((ypmin < yboxmin && ypmax <= yboxmin) || (ypmin >= yboxmax && ypmax > yboxmax)) continue;
 
       //std::cout << "Request: " << xmin << ", " << xmax << ", " << ymin << ", " << ymax << std::endl;
       //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
