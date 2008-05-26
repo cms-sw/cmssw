@@ -18,7 +18,7 @@ BremRecoveryPhiRoadAlgo::BremRecoveryPhiRoadAlgo(const edm::ParameterSet& pset)
 
    // set endcap parameters
    a_ = endcapPset.getParameter<double>("a");
-   a_ = endcapPset.getParameter<double>("b");
+   b_ = endcapPset.getParameter<double>("b");
    c_ = endcapPset.getParameter<double>("c");
 
 }
