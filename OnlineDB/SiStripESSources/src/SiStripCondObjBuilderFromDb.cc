@@ -1,11 +1,10 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.1.2.2 2008/05/14 11:34:16 giordano Exp $
-// Latest tag:  $Name: V01-01-00_BRANCH $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/Attic/SiStripCondObjBuilderFromDb.cc,v $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.3 2008/05/16 15:30:07 bainbrid Exp $
+// Latest tag:  $Name: V02-00-02 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
@@ -15,7 +14,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -27,8 +25,17 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
+SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet&,
+							 const edm::ActivityRegistry&) 
+{
+  LogTrace(mlESSources_) 
+    << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+    << " Constructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
 SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb() 
-  : db_(0)
 {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
@@ -45,27 +52,37 @@ SiStripCondObjBuilderFromDb::~SiStripCondObjBuilderFromDb() {
 
 // -----------------------------------------------------------------------------
 /** */
+void SiStripCondObjBuilderFromDb::checkUpdate() {
+  if (!(dbParams_==dbParams())){
+    dbParams_=dbParams_;
+    buildCondObj();
+  }  
+}
+
+// -----------------------------------------------------------------------------
+/** */
 void SiStripCondObjBuilderFromDb::buildCondObj() {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]";
-  
-  // Build and retrieve SiStripConfigDb object using service
-  db_ = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
 
+  /*
   LogTrace(mlConfigDb_) 
     << "TEST db: " << db_;
-  
+  */
+
   // Check if DB connection is made 
   if ( db_ ) { 
-    
+
+    /*    
     LogTrace(mlConfigDb_) 
       << "TEST dv: " << db_->deviceFactory();
-    
+    */
+
     if ( db_->deviceFactory() ) { 
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;
-      SiStripFedCablingBuilderFromDb::buildFecCabling( db_, 
+      SiStripFedCablingBuilderFromDb::buildFecCabling( &*db_, 
 						       fec_cabling, 
 						       sistrip::CABLING_FROM_CONNS );
       
@@ -74,11 +91,13 @@ void SiStripCondObjBuilderFromDb::buildCondObj() {
       SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *fed_cabling_ );
       SiStripDetCabling det_cabling( *fed_cabling_ );
       
+      /* 
       // Populate Pedestals object
       LogTrace(mlConfigDb_) 
 	<< "TEST db1: " << db_;
+      */
 
-      buildStripRelatedObjects( db_, det_cabling );
+      buildStripRelatedObjects( &*db_, det_cabling );
       
       // Call virtual method that writes FED cabling object to conditions DB
       //writePedestalsToCondDb( *pedestals );
@@ -139,33 +158,71 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
     if ( !(*det_id) ) { continue; }
     if ( *det_id == sistrip::invalid32_ ) { continue; }
     
+    //if(*det_id==369158216)
+    //edm::LogWarning(mlESSources_) << "TEST this is my detid " << *det_id << std::endl;
+  
+    const vector<FedChannelConnection>& conns = det_cabling.getConnections(*det_id);
+    if (conns.size()==0){
+      edm::LogWarning(mlESSources_)
+	<< "SiStripCondObjBuilderFromDb::" << __func__ << "]"
+	<< " Unable to build Pedestals object!"
+	<< " No FED channel connections found for detid "<< *det_id;
+      continue;
+    }
+
+    vector<FedChannelConnection>::const_iterator ipair = conns.begin();
+    vector< vector<FedChannelConnection>::const_iterator > listConns(ipair->nApvPairs(),conns.end());
+    for ( ; ipair != conns.end(); ipair++ ){ 
+      // Check if the ApvPair is connected
+      if (ipair->fedId() && ipair->apvPairNumber()<3){
+	//	if(*det_id==369158216 || 369124437==*det_id)
+	//  edm::LogWarning(mlESSources_) << "TEST this is the position of the listConns for detid " << *det_id << "  " << ipair-conns.begin() << " " << ipair->apvPairNumber();
+	listConns[ipair-conns.begin()]=ipair;
+      } else {
+	edm::LogWarning(mlESSources_)
+	  << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
+	  << " DetId " << ipair->detId() 
+	  << " is missing \n a) APV pair number " << ipair->apvPairNumber() 
+	  << " out of " << ipair->nApvPairs() << " APV pairs\n or \n b) fedId " << ipair->fedId();
+      } 
+    }
+
+    //if(*det_id==369158216)
+    //  edm::LogWarning(mlESSources_) << "TEST this is my  vector<FedChannelConnection> size " << conns.size() << " listConn.size() " << listConns.size()<< std::endl;
+    
+
     // Iterate through connections for given DetId and fill peds container
     SiStripPedestals::InputVector inputPedestals;
     SiStripNoises::InputVector inputNoises;
     SiStripThreshold::InputVector inputThreshold;
     SiStripQuality::InputVector inputQuality;
 
+    uint16_t apvPair;
+    vector< vector<FedChannelConnection>::const_iterator >::const_iterator ilistConns=listConns.begin();
+    for ( ; ilistConns != listConns.end(); ++ilistConns ) {
+      ipair=*ilistConns;
+      apvPair=(ilistConns-listConns.begin());
 
-    const vector<FedChannelConnection>& conns = det_cabling.getConnections(*det_id);
-    vector<FedChannelConnection>::const_iterator ipair = conns.begin();
-    for ( ; ipair != conns.end(); ipair++ ) {
-      
-      // Check if the ApvPair is connected
-      if ( !(ipair->fedId()) ) {
+      if ( ipair == conns.end() ) {
+	// Fill object with default values
 	edm::LogWarning(mlESSources_)
 	  << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	  << " DetId " << ipair->detId() 
-	  << " is missing APV pair number " << ipair->apvPairNumber() 
-	  << " out of " << ipair->nApvPairs() << " APV pairs";
-	// Fill object with default values
-	for ( uint16_t istrip = ipair->apvPairNumber()*sistrip::STRIPS_PER_FEDCH;istrip < (ipair->apvPairNumber()+1)*sistrip::STRIPS_PER_FEDCH; istrip++ ){
+	  << " Unable to find FED connection for detid : " << *det_id << " APV pair number " << apvPair
+	  << " Writing default values";
+	uint16_t istrip = apvPair*sistrip::STRIPS_PER_FEDCH;  
+	inputQuality.push_back(quality_->encode(istrip,sistrip::STRIPS_PER_FEDCH));
+	threshold_->setData( istrip, 0., 0., inputThreshold );
+	for ( ;istrip < (apvPair+1)*sistrip::STRIPS_PER_FEDCH; ++istrip ){
 	  pedestals_->setData( 0.,inputPedestals );
 	  noises_->setData( 0., inputNoises );
-	  threshold_->setData( istrip, 0., 0., inputThreshold );
-	  inputQuality.push_back(istrip);
+	  //edm::LogWarning(mlESSources_) << "TEST default values for " << *det_id << " strip " << istrip << std::endl;
 	}
 	continue;
       }
+      
+      //if(*det_id==369158216)
+      //edm::LogWarning(mlESSources_) << "TEST this is my  vector<FedChannelConnection> entry " 
+      //<< ipair-conns.begin() << " ilistConn " << ilistConns - listConns.begin()<< std::endl;
       
       // Check if description exists for given FED id 
       SiStripConfigDb::FedDescriptionsV::const_iterator description = descriptions.begin();
@@ -176,7 +233,16 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
       if ( description == descriptions.end() ) { 
 	edm::LogWarning(mlESSources_)
 	  << "SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	  << " Unable to find FED description for FED id: " << ipair->fedId();
+	  << " Unable to find FED description for FED id: " << ipair->fedId() << " detid : " << *det_id << " APV pair number " << apvPair
+	  << " Writing default values";
+	uint16_t istrip = apvPair*sistrip::STRIPS_PER_FEDCH;  
+	inputQuality.push_back(quality_->encode(istrip,sistrip::STRIPS_PER_FEDCH));
+	threshold_->setData( istrip, 0., 0., inputThreshold );
+	for ( ;istrip < (apvPair+1)*sistrip::STRIPS_PER_FEDCH; ++istrip ){
+	  pedestals_->setData( 0.,inputPedestals );
+	  noises_->setData( 0., inputNoises );
+	  //edm::LogWarning(mlESSources_) << "TEST default values for " << *det_id << " strip " << istrip << std::endl;
+	}
 	continue; 
       }
       
@@ -190,16 +256,22 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	Fed9U::Fed9UAddress addr;
 	addr.setFedApv(iapv);
 	vector<Fed9U::Fed9UStripDescription> strip = strips.getApvStrips(addr);
-	    
+	
+	//if(*det_id==369158216)
+	//edm::LogWarning(mlESSources_) << "TEST this is my apvPairNumber " <<    ipair->apvPairNumber()<< " out of " << ipair->nApvPairs() << std::endl;
+
 	vector<Fed9U::Fed9UStripDescription>::const_iterator istrip = strip.begin();
 	uint16_t jstrip = ipair->apvPairNumber()*sistrip::STRIPS_PER_FEDCH;
 	for ( ; istrip != strip.end(); istrip++ ) {
+	  //if(*det_id==369158216 || 369124437==*det_id)
+	  //edm::LogWarning(mlESSources_) << "TEST this is ped " << *det_id << " strip " << jstrip << " value " << istrip->getPedestal() << std::endl;
+
 	  pedestals_->setData( istrip->getPedestal() , inputPedestals);
 	  noises_   ->setData( istrip->getNoise()    , inputNoises );
 	  threshold_->setData( jstrip, istrip->getLowThresholdFactor(),
 			       istrip->getHighThresholdFactor(), inputThreshold );
 	  if(istrip->getDisable())
-	    inputQuality.push_back(jstrip);
+	    inputQuality.push_back(quality_->encode(jstrip,1.));
 	  jstrip++;
 	} // strip loop
       } // apv loop
@@ -231,12 +303,14 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 
     // Insert quality values into Quality object
     uint32_t detid=*det_id;
-    quality_->compact(detid,inputQuality);
-    if ( !quality_->put( *det_id, inputQuality ) ) {
-      edm::LogWarning(mlESSources_)
-	<< "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
-	<< " Unable to insert values into SiStripThreshold object!"
-	<< " DetId already exists!";
+    if (inputQuality.size()){
+      quality_->compact(detid,inputQuality);
+      if ( !quality_->put( *det_id, inputQuality ) ) {
+	edm::LogWarning(mlESSources_)
+	  << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
+	  << " Unable to insert values into SiStripThreshold object!"
+	  << " DetId already exists!";
+      }
     }
 
     

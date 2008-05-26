@@ -1,5 +1,5 @@
-// Last commit: $Id: test_NoiseBuilder.cc,v 1.1 2006/12/22 12:30:40 bainbrid Exp $
-// Latest tag:  $Name: V01-00-01 $
+// Last commit: $Id: test_NoiseBuilder.cc,v 1.2 2008/03/04 16:42:42 giordano Exp $
+// Latest tag:  $Name: V02-00-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.cc,v $
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_NoiseBuilder.h"

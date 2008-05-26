@@ -1,5 +1,5 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.8 2008/05/16 15:30:07 bainbrid Exp $
+// Latest tag:  $Name: V02-00-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h"

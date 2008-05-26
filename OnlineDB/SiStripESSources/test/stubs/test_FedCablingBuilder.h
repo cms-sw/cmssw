@@ -1,5 +1,5 @@
-// Last commit: $Id: test_FedCablingBuilder.h,v 1.4 2007/03/19 10:45:30 bainbrid Exp $
-// Latest tag:  $Name: TIF_210307 $
+// Last commit: $Id: test_FedCablingBuilder.h,v 1.5 2007/03/28 10:30:14 bainbrid Exp $
+// Latest tag:  $Name: V02-00-02 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilder.h,v $
 
 #ifndef OnlineDB_SiStripESSources_test_FedCablingBuilder_H

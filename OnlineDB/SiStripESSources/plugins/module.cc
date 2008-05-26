@@ -10,3 +10,7 @@ DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripPedestalsBuilderFromDb);
 
 #include "OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripNoiseBuilderFromDb);
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
+DEFINE_ANOTHER_FWK_SERVICE(SiStripCondObjBuilderFromDb);
