@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/05/16 15:35:30 $
- * $Revision: 1.146 $
+ * $Date: 2008/05/26 13:40:29 $
+ * $Revision: 1.147 $
  * \author G. Della Ricca
  *
 */
@@ -882,66 +882,66 @@ void EBSummaryClient::analyze(void){
               }
 
               meTriggerTowerEt_->setBinContent( ipx, iex, xval );
-	      
+
             }
-	    
-	    float xval = -1;
-	    if(!hasRealDigi) xval = 2;
-	    else {
-	      
-	      h2 = ebtttc->l01_[ism-1];
-	      
-	      if ( h2 ) {
-		
-		float emulErrorVal = h2->GetBinContent( ie, ip );
-		if( emulErrorVal!=0 ) xval = 0;
-		
-	      }
-	      
-	      // do not propagate the flag bits to the summary for now
-// 	      for ( int iflag=0; iflag<6; iflag++ ) {
 
-// 		me_f[iflag] = ebtttc->me_m01_[ism-1][iflag];
-		
-// 		if ( me_f[iflag] ) {
-		  
-// 		  float emulFlagErrorVal = me_f[iflag]->getBinContent( ie, ip );
-// 		  if ( emulFlagErrorVal!=0 ) xval = 0;
-		  
-// 		}
-		
-// 	      }
+            float xval = -1;
+            if(!hasRealDigi) xval = 2;
+            else {
 
-// 	      for ( int ifg=0; ifg<2; ifg++) {
-		
-// 		me_fg[ifg] = ebtttc->me_n01_[ism-1][ifg];
-// 		if ( me_fg[ifg] ) {
+              h2 = ebtttc->l01_[ism-1];
 
-// 		  float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ie, ip );
-// 		  if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
+              if ( h2 ) {
 
-// 		}
+                float emulErrorVal = h2->GetBinContent( ie, ip );
+                if( emulErrorVal!=0 ) xval = 0;
 
-// 	      }
+              }
 
-	      if ( xval!=0 ) xval = 1;
+              // do not propagate the flag bits to the summary for now
+//               for ( int iflag=0; iflag<6; iflag++ ) {
 
-	    }
-	    
-	    int iex;
-	    int ipx;
-	    
-	    if ( ism <= 18 ) {
-	      iex = 1+(17-ie);
-	      ipx = ip+4*(ism-1);
-	    } else {
-	      iex = 17+ie;
-	      ipx = 1+(4-ip)+4*(ism-19);
-	    }
-	    
-	    meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
-	    
-	  }
+//                 me_f[iflag] = ebtttc->me_m01_[ism-1][iflag];
+
+//                 if ( me_f[iflag] ) {
+
+//                   float emulFlagErrorVal = me_f[iflag]->getBinContent( ie, ip );
+//                   if ( emulFlagErrorVal!=0 ) xval = 0;
+
+//                 }
+
+//               }
+
+//               for ( int ifg=0; ifg<2; ifg++) {
+
+//                 me_fg[ifg] = ebtttc->me_n01_[ism-1][ifg];
+//                 if ( me_fg[ifg] ) {
+
+//                   float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ie, ip );
+//                   if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
+
+//                 }
+
+//               }
+
+              if ( xval!=0 ) xval = 1;
+
+            }
+
+            int iex;
+            int ipx;
+
+            if ( ism <= 18 ) {
+              iex = 1+(17-ie);
+              ipx = ip+4*(ism-1);
+            } else {
+              iex = 17+ie;
+              ipx = 1+(4-ip)+4*(ism-19);
+            }
+
+            meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+
+          }
 
         }
       }

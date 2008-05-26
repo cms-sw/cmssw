@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/23 09:54:39 $
- * $Revision: 1.124 $
+ * $Date: 2008/05/26 13:40:29 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  *
 */
@@ -1110,57 +1110,57 @@ void EESummaryClient::analyze(void){
 
             }
 
-	    float xval = -1;
-	    if(!hasRealDigi) xval = 2;
-	    else {
-	      
-	      h2 = eetttc->l01_[ism-1];
-	      
-	      if ( h2 ) {
-		
-		float emulErrorVal = h2->GetBinContent( ix, iy );
-		if( emulErrorVal!=0 ) xval = 0;
-		
-	      }
-	      
-	      // do not propagate the flag bits to the summary for now
-// 	      for ( int iflag=0; iflag<6; iflag++ ) {
+            float xval = -1;
+            if(!hasRealDigi) xval = 2;
+            else {
 
-// 		me_f[iflag] = eetttc->me_m01_[ism-1][iflag];
-		
-// 		if ( me_f[iflag] ) {
-		  
-// 		  float emulFlagErrorVal = me_f[iflag]->getBinContent( ix, iy );
-// 		  if ( emulFlagErrorVal!=0 ) xval = 0;
-		  
-// 		}
-		
-// 	      }
+              h2 = eetttc->l01_[ism-1];
 
-// 	      for ( int ifg=0; ifg<2; ifg++) {
-		
-// 		me_fg[ifg] = eetttc->me_n01_[ism-1][ifg];
-// 		if ( me_fg[ifg] ) {
+              if ( h2 ) {
 
-// 		  float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ix, iy );
-// 		  if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
+                float emulErrorVal = h2->GetBinContent( ix, iy );
+                if( emulErrorVal!=0 ) xval = 0;
 
-// 		}
+              }
 
-// 	      }
+              // do not propagate the flag bits to the summary for now
+//               for ( int iflag=0; iflag<6; iflag++ ) {
 
-	      if ( xval!=0 ) xval = 1;
+//                 me_f[iflag] = eetttc->me_m01_[ism-1][iflag];
 
-	    }
+//                 if ( me_f[iflag] ) {
 
-	    // see fix below
-	    if ( xval == 2 ) continue;
-	    
-	    if ( ism >= 1 && ism <= 9 ) {
-	      meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
-	    } else {
-	      meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
-	    }
+//                   float emulFlagErrorVal = me_f[iflag]->getBinContent( ix, iy );
+//                   if ( emulFlagErrorVal!=0 ) xval = 0;
+
+//                 }
+
+//               }
+
+//               for ( int ifg=0; ifg<2; ifg++) {
+
+//                 me_fg[ifg] = eetttc->me_n01_[ism-1][ifg];
+//                 if ( me_fg[ifg] ) {
+
+//                   float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ix, iy );
+//                   if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
+
+//                 }
+
+//               }
+
+              if ( xval!=0 ) xval = 1;
+
+            }
+
+            // see fix below
+            if ( xval == 2 ) continue;
+
+            if ( ism >= 1 && ism <= 9 ) {
+              meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
+            } else {
+              meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
+            }
 
           }
 
