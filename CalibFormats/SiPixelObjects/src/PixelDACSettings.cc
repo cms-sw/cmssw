@@ -319,7 +319,7 @@ void PixelDACSettings::writeASCII(std::string dir) const {
 void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 					     PixelNameTranslation* trans) const{
 
-  bool bufferData=false; 
+  bool bufferData=true; 
 
   std::vector<unsigned int> dacs;
 
