@@ -43,10 +43,17 @@ namespace edmtest
   void
   PedestalsAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& context){
     std::cout<<"###PedestalsAnalyzer::beginRun"<<std::endl;
+    edm::ESHandle<Pedestals> pPeds;
+    std::cout<<"got eshandle"<<std::endl;
+    context.get<PedestalsRcd>().get(pPeds);
   }
   void
   PedestalsAnalyzer::beginJob(const edm::EventSetup& context){
     std::cout<<"###PedestalsAnalyzer::beginJob"<<std::endl;
+    /*edm::ESHandle<Pedestals> pPeds;
+    std::cout<<"got eshandle"<<std::endl;
+    context.get<PedestalsRcd>().get(pPeds);
+    */
   }
   void
    PedestalsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context){
