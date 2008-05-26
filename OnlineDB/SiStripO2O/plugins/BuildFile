@@ -3,6 +3,8 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=CondCore/PopCon>
+<use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
