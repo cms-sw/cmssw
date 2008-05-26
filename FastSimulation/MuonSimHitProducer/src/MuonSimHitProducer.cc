@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.12 2008/05/25 10:49:00 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.13 2008/05/25 16:37:04 pjanot Exp $
 //
 //
 
@@ -286,9 +286,9 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       double pi = propagatedState.globalMomentum().mag();
 
       // Insert multiple scattering if propagated state is valid.
+      if ( !next.first.isValid() ) continue; 
       propagatedState = next.first;
       double pathLength = next.second;
-      if ( !propagatedState.isValid() ) continue; 
       if ( theMaterialEffects ) applyScattering(propagatedState,pathLength);
 //
 //  Consider this... 1 GeV muon has a velocity that is only 0.5% slower than c...
