@@ -45,11 +45,16 @@ private:
   bool theAddOutOfConeTracks;
   
   SingleParticleJetResponse * theSingle;
-  int netabin,nptbin;
-  std::vector<double> etabin;
-  std::vector<double> ptbin;
+  int netabin1,nptbin1;
+  std::vector<double> etabin1;
+  std::vector<double> ptbin1;
   std::vector<double> trkeff;
+
+  int netabin2,nptbin2;
+  std::vector<double> etabin2;
+  std::vector<double> ptbin2;
   std::vector<double> trkeff_resp;
+
   std::string theNonEfficiencyFile;
   std::string theNonEfficiencyFileResp;
 
