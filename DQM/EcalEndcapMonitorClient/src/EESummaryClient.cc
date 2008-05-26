@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/16 16:34:40 $
- * $Revision: 1.123 $
+ * $Date: 2008/05/23 09:54:39 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  *
 */
@@ -791,6 +791,7 @@ void EESummaryClient::analyze(void){
 
     MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
+    //    MonitorElement *me_f[6], *me_fg[2];
 //    MonitorElement *me_04, *me_05;
 
     TH2F* h2;
@@ -1109,27 +1110,57 @@ void EESummaryClient::analyze(void){
 
             }
 
-            h2 = eetttc->l01_[ism-1];
+	    float xval = -1;
+	    if(!hasRealDigi) xval = 2;
+	    else {
+	      
+	      h2 = eetttc->l01_[ism-1];
+	      
+	      if ( h2 ) {
+		
+		float emulErrorVal = h2->GetBinContent( ix, iy );
+		if( emulErrorVal!=0 ) xval = 0;
+		
+	      }
+	      
+	      // do not propagate the flag bits to the summary for now
+// 	      for ( int iflag=0; iflag<6; iflag++ ) {
 
-            if ( h2 ) {
+// 		me_f[iflag] = eetttc->me_m01_[ism-1][iflag];
+		
+// 		if ( me_f[iflag] ) {
+		  
+// 		  float emulFlagErrorVal = me_f[iflag]->getBinContent( ix, iy );
+// 		  if ( emulFlagErrorVal!=0 ) xval = 0;
+		  
+// 		}
+		
+// 	      }
 
-              float xval = -1;
-              float emulErrorVal = h2->GetBinContent( ix, iy );
+// 	      for ( int ifg=0; ifg<2; ifg++) {
+		
+// 		me_fg[ifg] = eetttc->me_n01_[ism-1][ifg];
+// 		if ( me_fg[ifg] ) {
 
-              if(!hasRealDigi) xval = 2;
-              else if(hasRealDigi && emulErrorVal!=0) xval = 0;
-              else xval = 1;
+// 		  float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ix, iy );
+// 		  if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
 
-              // see fix below
-              if ( xval == 2 ) continue;
+// 		}
 
-              if ( ism >= 1 && ism <= 9 ) {
-                meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
-              } else {
-                meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
-              }
+// 	      }
 
-            }
+	      if ( xval!=0 ) xval = 1;
+
+	    }
+
+	    // see fix below
+	    if ( xval == 2 ) continue;
+	    
+	    if ( ism >= 1 && ism <= 9 ) {
+	      meTriggerTowerEmulError_[0]->setBinContent( jx, jy, xval );
+	    } else {
+	      meTriggerTowerEmulError_[1]->setBinContent( jx, jy, xval );
+	    }
 
           }
 

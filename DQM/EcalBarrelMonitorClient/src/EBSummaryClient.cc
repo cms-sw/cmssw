@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/05/11 11:05:29 $
- * $Revision: 1.145 $
+ * $Date: 2008/05/16 15:35:30 $
+ * $Revision: 1.146 $
  * \author G. Della Ricca
  *
 */
@@ -537,6 +537,7 @@ void EBSummaryClient::analyze(void){
     MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
+    //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
     TProfile2D* h2d;
 
@@ -881,36 +882,67 @@ void EBSummaryClient::analyze(void){
               }
 
               meTriggerTowerEt_->setBinContent( ipx, iex, xval );
-
+	      
             }
+	    
+	    float xval = -1;
+	    if(!hasRealDigi) xval = 2;
+	    else {
+	      
+	      h2 = ebtttc->l01_[ism-1];
+	      
+	      if ( h2 ) {
+		
+		float emulErrorVal = h2->GetBinContent( ie, ip );
+		if( emulErrorVal!=0 ) xval = 0;
+		
+	      }
+	      
+	      // do not propagate the flag bits to the summary for now
+// 	      for ( int iflag=0; iflag<6; iflag++ ) {
 
-            h2 = ebtttc->l01_[ism-1];
+// 		me_f[iflag] = ebtttc->me_m01_[ism-1][iflag];
+		
+// 		if ( me_f[iflag] ) {
+		  
+// 		  float emulFlagErrorVal = me_f[iflag]->getBinContent( ie, ip );
+// 		  if ( emulFlagErrorVal!=0 ) xval = 0;
+		  
+// 		}
+		
+// 	      }
 
-            if ( h2 ) {
+// 	      for ( int ifg=0; ifg<2; ifg++) {
+		
+// 		me_fg[ifg] = ebtttc->me_n01_[ism-1][ifg];
+// 		if ( me_fg[ifg] ) {
 
-              float xval = -1;
-              float emulErrorVal = h2->GetBinContent( ie, ip );
+// 		  float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ie, ip );
+// 		  if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
 
-              if(!hasRealDigi) xval = 2;
-              else if(hasRealDigi && emulErrorVal!=0) xval = 0;
-              else xval = 1;
+// 		}
 
-              int iex;
-              int ipx;
+// 	      }
 
-              if ( ism <= 18 ) {
-                iex = 1+(17-ie);
-                ipx = ip+4*(ism-1);
-              } else {
-                iex = 17+ie;
-                ipx = 1+(4-ip)+4*(ism-19);
-              }
+	      if ( xval!=0 ) xval = 1;
 
-              meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+	    }
+	    
+	    int iex;
+	    int ipx;
+	    
+	    if ( ism <= 18 ) {
+	      iex = 1+(17-ie);
+	      ipx = ip+4*(ism-1);
+	    } else {
+	      iex = 17+ie;
+	      ipx = 1+(4-ip)+4*(ism-19);
+	    }
+	    
+	    meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+	    
+	  }
 
-            }
-
-          }
         }
       }
 
