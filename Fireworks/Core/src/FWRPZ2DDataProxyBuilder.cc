@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.5 2008/02/29 21:18:05 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.6 2008/03/12 02:58:17 chrjones Exp $
 //
 
 // system include files
@@ -159,6 +159,12 @@ modelChanges(const FWEventItem* iItem,
              TEveElement* iElements )
 {
    //std::cout <<"modelChanged "<<iItem->size()<<" "<<iElements->GetNChildren()<<std::endl;
+   assert(iItem && "item is not set");
+   if ( static_cast<int>(iItem->size()) != iElements->GetNChildren() ) {
+      std::cout << "Inconsistent number of entries in the primary data collection and the proxy builder.\n" <<
+	"Item name: " << iItem->name() << "\nN(data): " << iItem->size() <<
+	"\nN(proxy): " << iElements->GetNChildren() << std::endl;
+   }
    assert(iItem && static_cast<int>(iItem->size()) == iElements->GetNChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;
