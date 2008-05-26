@@ -94,6 +94,8 @@ class SiPixelInformationExtractor {
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
 
+  void bookGlobalQualityFlag    (DQMStore                               * bei);
+
   void computeGlobalQualityFlag (DQMStore                               * bei,
                                  bool                                     init);
   
@@ -180,6 +182,19 @@ class SiPixelInformationExtractor {
   TH2F * goodmodsEtaPhi;
   int count;
   int errcount;
+  
+  MonitorElement * SummaryReport;
+  MonitorElement * SummaryReportMap;
+  MonitorElement * SummaryBarrel;
+  MonitorElement * SummaryShellmI;
+  MonitorElement * SummaryShellmO;
+  MonitorElement * SummaryShellpI;
+  MonitorElement * SummaryShellpO;
+  MonitorElement * SummaryEndcap;
+  MonitorElement * SummaryHCmI;
+  MonitorElement * SummaryHCmO;
+  MonitorElement * SummaryHCpI;
+  MonitorElement * SummaryHCpO;
   
   SiPixelHistoPlotter* histoPlotter_;
 };

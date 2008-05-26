@@ -138,6 +138,8 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     //cout << " Creating Summary Histos" << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     sipixelWebInterface_->performAction();
+    //cout << " Booking summary report ME's" << endl;
+    sipixelInformationExtractor_->bookGlobalQualityFlag(bei_);
   }
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
   sipixelWebInterface_->performAction();
@@ -160,32 +162,20 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 
 
   // -- Create summary monitor elements according to the frequency
-//  if (summaryFrequency_ != -1 && nLumiBlock%summaryFrequency_ == 1) {
-    //cout << " Creating Summary " << endl;
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-    sipixelWebInterface_->performAction();
-    //sipixelActionExecutor_->createSummary(bei_);
-//  }
-/*  if (nLumiSecs_==1) {
-    cout << " Setting up QTests " << endl;
-    sipixelWebInterface_->setActionFlag(SiPixelWebInterface::setupQTest);
-    sipixelWebInterface_->performAction();
-    //sipixelActionExecutor_->setupQTests(bei_);
-  }*/
+  //cout << " Updating Summary " << endl;
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
+  sipixelWebInterface_->performAction();
   //cout << " Checking QTest results " << endl;
-/*  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
-  
-  //cout  << " Checking global Pixel quality flag " << endl;;
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-  sipixelWebInterface_->setSubDetector(SiPixelWebInterface::Pixel);
-  sipixelWebInterface_->performAction();
-  float GQF = sipixelWebInterface_->returnQFlag();
+
+  //cout  << " Checking Pixel quality flags " << endl;;
   bei_->cd();
-  MonitorElement* errorSummaryME = bei_->get("Pixel/EventInfo/errorSummary");
-  if(errorSummaryME) errorSummaryME->Fill(GQF); 
-*/    
-    
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+  sipixelWebInterface_->performAction();
+  bool init=true;
+  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+   
          
   // -- Create TrackerMap  according to the frequency
 //  if (tkMapFrequency_ != -1 && nLumiBlock%tkMapFrequency_ == 1) {
@@ -224,13 +214,13 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 
 
   //cout  << " Checking Pixel quality flags " << endl;;
-  bei_->cd();
-  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-  sipixelWebInterface_->performAction();
+//  bei_->cd();
+//  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+//  sipixelWebInterface_->performAction();
   //bool init=true;
   //sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init);
-  bool init=true;
-  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+//  bool init=true;
+//  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 

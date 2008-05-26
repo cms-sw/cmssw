@@ -677,14 +677,14 @@ std::string SiPixelInformationExtractor::getItemValue(const std::multimap<std::s
 }
 std::string SiPixelInformationExtractor::getItemValue(std::multimap<std::string,std::string>& req_map,
 						 std::string item_name){
-cout<<"entering SiPixelInformationExtractor::getItemValue for item: "<<item_name<<endl;
+//cout<<"entering SiPixelInformationExtractor::getItemValue for item: "<<item_name<<endl;
   std::multimap<std::string,std::string>::iterator pos = req_map.find(item_name);
   std::string value = " ";
   if (pos != req_map.end()) {
-  cout<<"item found!"<<endl;
+//  cout<<"item found!"<<endl;
     value = pos->second;
   }
-  cout<<"value = "<<value<<endl;
+//  cout<<"value = "<<value<<endl;
   return value;
 //cout<<"leaving SiPixelInformationExtractor::getItemValue"<<endl;
 }
@@ -741,13 +741,13 @@ void SiPixelInformationExtractor::selectImage(string& name, vector<QReport*>& re
 //
 void SiPixelInformationExtractor::getIMGCImage(const multimap<string, string>& req_map, 
                                                xgi::Output * out){
-cout<<"Entering SiPixelInformationExtractor::getIMGCImage: "<<endl;
+//cout<<"Entering SiPixelInformationExtractor::getIMGCImage: "<<endl;
   string path = getItemValue(req_map,"Path");
   //string plot = getItemValue(req_map,"Plot");
   //string folder = getItemValue(req_map,"Folder");
   //string path = folder + "/" + plot;
   string image;
-  cout<<"... trying to getNamedImageBuffer for path "<<path<<endl;
+//  cout<<"... trying to getNamedImageBuffer for path "<<path<<endl;
   histoPlotter_->getNamedImageBuffer(path, image);
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -755,7 +755,7 @@ cout<<"Entering SiPixelInformationExtractor::getIMGCImage: "<<endl;
   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
   *out << image;
-cout<<"... leaving SiPixelInformationExtractor::getIMGCImage!"<<endl;
+//cout<<"... leaving SiPixelInformationExtractor::getIMGCImage!"<<endl;
 }
 
 void SiPixelInformationExtractor::getIMGCImage(multimap<string, string>& req_map, 
@@ -766,7 +766,7 @@ void SiPixelInformationExtractor::getIMGCImage(multimap<string, string>& req_map
   //string folder = getItemValue(req_map,"Folder");
   //string path = folder + "/" + plot;
   string image;
-  cout<<"I am in getIMGCImage now and trying to getNamedImageBuffer for path "<<path<<endl;
+//  cout<<"I am in getIMGCImage now and trying to getNamedImageBuffer for path "<<path<<endl;
   histoPlotter_->getNamedImageBuffer(path, image);
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -1259,9 +1259,9 @@ void SiPixelInformationExtractor::getMEList(DQMStore    * bei,
 void SiPixelInformationExtractor::getHistosFromPath(DQMStore * bei, 
                                                     const std::multimap<std::string, std::string>& req_map, 
 						    xgi::Output * out){
-cout<<"Entering SiPixelInformationExtractor::getHistosFromPath: "<<endl;
+//cout<<"Entering SiPixelInformationExtractor::getHistosFromPath: "<<endl;
   string path = getItemValue(req_map,"Path");
-cout<<"Path is: "<<path<<endl;
+//cout<<"Path is: "<<path<<endl;
   if (path.size() == 0) return;
 
   int width  = atoi(getItemValue(req_map, "width").c_str());
@@ -1274,15 +1274,36 @@ cout<<"Path is: "<<path<<endl;
   *out << path << " " ;
   for(vector<MonitorElement*>::iterator it=all_mes.begin(); it!=all_mes.end(); it++){
     MonitorElement* me = (*it);
-    cout<<"I'm in the loop now..."<<endl;
+    //cout<<"I'm in the loop now..."<<endl;
     if (!me) continue;
     string name = me->getName();
     string full_path = path + "/" + name;
-cout<<"Calling HP::setNewPlot now for "<<full_path<<endl;
+//cout<<"Calling HP::setNewPlot now for "<<full_path<<endl;
     histoPlotter_->setNewPlot(full_path, opt, width, height);
     *out << name << " ";
   }
-  cout<<"... leaving SiPixelInformationExtractor::getHistosFromPath!"<<endl;
+//  cout<<"... leaving SiPixelInformationExtractor::getHistosFromPath!"<<endl;
+}
+
+void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei) {
+//std::cout<<"BOOK GLOBAL QUALITY FLAG MEs!"<<std::endl;
+  bei->cd();
+  bei->setCurrentFolder("Pixel/EventInfo");
+  SummaryReport = bei->bookFloat("reportSummary");
+  SummaryReportMap = bei->book2D("reportSummaryMap","Pixel EtaPhi Summary Map",60,-3.,3.,64,-3.2,3.2);
+  SummaryReportMap->setAxisTitle("Eta",1);
+  SummaryReportMap->setAxisTitle("Phi",2);
+  bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
+  SummaryBarrel = bei->bookFloat("SummaryBarrel");
+  SummaryShellmI = bei->bookFloat("SummaryShellmI");
+  SummaryShellmO = bei->bookFloat("SummaryShellmO");
+  SummaryShellpI = bei->bookFloat("SummaryShellpI");
+  SummaryShellpO = bei->bookFloat("SummaryShellpO");
+  SummaryEndcap = bei->bookFloat("SummaryEndcap");
+  SummaryHCmI = bei->bookFloat("SummaryHCmI");
+  SummaryHCmO = bei->bookFloat("SummaryHCmO");
+  SummaryHCpI = bei->bookFloat("SummaryHCpI");
+  SummaryHCpO = bei->bookFloat("SummaryHCpO");
 }
 
 void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei, 
@@ -1374,30 +1395,32 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     computeGlobalQualityFlag(bei,init);
     bei->goUp();
   }
-  
-  MonitorElement* errorSummaryME = bei->get("Pixel/EventInfo/errorSummary");
-  if(errorSummaryME) errorSummaryME->Fill(qflag_); 
-  MonitorElement* errorSummaryME_00 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment00");
-  if(errorSummaryME_00) errorSummaryME_00->Fill(bpix_flag_); 
-  MonitorElement* errorSummaryME_01 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment01"); 
-  if(errorSummaryME_01) errorSummaryME_01->Fill(shellmI_flag_); 
-  MonitorElement* errorSummaryME_02 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment02");
-  if(errorSummaryME_02) errorSummaryME_02->Fill(shellmO_flag_); 
-  MonitorElement* errorSummaryME_03 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment03");
-  if(errorSummaryME_03) errorSummaryME_03->Fill(shellpI_flag_); 
-  MonitorElement* errorSummaryME_04 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment04");
-  if(errorSummaryME_04) errorSummaryME_04->Fill(shellpO_flag_); 
-  MonitorElement* errorSummaryME_05 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment05");
-  if(errorSummaryME_05) errorSummaryME_05->Fill(fpix_flag_); 
-  MonitorElement* errorSummaryME_06 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment06");
-  if(errorSummaryME_06) errorSummaryME_06->Fill(hcylmI_flag_); 
-  MonitorElement* errorSummaryME_07 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment07");
-  if(errorSummaryME_07) errorSummaryME_07->Fill(hcylmO_flag_); 
-  MonitorElement* errorSummaryME_08 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment08");
-  if(errorSummaryME_08) errorSummaryME_08->Fill(hcylpI_flag_); 
-  MonitorElement* errorSummaryME_09 = bei->get("Pixel/EventInfo/errorSummarySegments/Segment09");
-  if(errorSummaryME_09) errorSummaryME_09->Fill(hcylpO_flag_); 
-    
+  bei->cd();
+  bei->setCurrentFolder("Pixel/EventInfo");
+  SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
+  if(SummaryReport) SummaryReport->Fill(qflag_);
+  bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents"); 
+  SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryBarrel");
+  if(SummaryBarrel) SummaryBarrel->Fill(bpix_flag_);
+  SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellmI");
+  if(SummaryShellmI) SummaryShellmI->Fill(shellmI_flag_);
+  SummaryShellmO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellmO");
+  if(SummaryShellmO)   SummaryShellmO->Fill(shellmO_flag_);
+  SummaryShellpI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellpI");
+  if(SummaryShellpI)   SummaryShellpI->Fill(shellpI_flag_);
+  SummaryShellpO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellpO");
+  if(SummaryShellpO)   SummaryShellpO->Fill(shellpO_flag_);
+  SummaryEndcap = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryEndcap");
+  if(SummaryEndcap)   SummaryEndcap->Fill(fpix_flag_);
+  SummaryHCmI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCmI");
+  if(SummaryHCmI)   SummaryHCmI->Fill(hcylmI_flag_);
+  SummaryHCmO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCmO");
+  if(SummaryHCmO)   SummaryHCmO->Fill(hcylmO_flag_);
+  SummaryHCpI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCpI");
+  if(SummaryHCpI)   SummaryHCpI->Fill(hcylpI_flag_);
+  SummaryHCpO = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryHCpO");
+  if(SummaryHCpO)   SummaryHCpO->Fill(hcylpO_flag_);
+
 }
 
 void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup)
@@ -1444,7 +1467,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	  float detZ = pixDet->surface().position().z();
 	  detPhi = pixDet->surface().position().phi();
 	  detEta = -1.*log(tan(atan2(detR,detZ)/2.));
-	  //cout<<"Module: "<<currDir<<" , Eta= "<<detEta<<" , Phi= "<<detPhi<<endl;
+	  cout<<"Module: "<<currDir<<" , Eta= "<<detEta<<" , Phi= "<<detPhi<<endl;
 	  once=false;
 	}
       }
@@ -1476,11 +1499,12 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     bei->goUp();
   }
   
-  MonitorElement* errorSummaryEtaPhi = bei->get("Pixel/EventInfo/errorSummaryEtaPhi");
-  if(errorSummaryEtaPhi){ 
+  SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
+  if(SummaryReportMap){ 
     float contents=0.;
     for(int i=1; i!=61; i++)for(int j=1; j!=65; j++){
       contents = (allmodsEtaPhi->GetBinContent(i,j))-(errmodsEtaPhi->GetBinContent(i,j));
+      //cout<<"all: "<<allmodsEtaPhi->GetBinContent(i,j)<<" , error: "<<errmodsEtaPhi->GetBinContent(i,j)<<" , contents: "<<contents<<endl;
       goodmodsEtaPhi->SetBinContent(i,j,contents);
       if(allmodsEtaPhi->GetBinContent(i,j)>0){
         //contents = allmodsEtaPhi->GetBinContent(i,j);
@@ -1488,10 +1512,8 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       }else{
         contents = -1.;
       }
-      errorSummaryEtaPhi->setBinContent(i,j,contents);
+      SummaryReportMap->setBinContent(i,j,contents);
     }
-    errorSummaryEtaPhi->setAxisTitle("Eta",1);
-    errorSummaryEtaPhi->setAxisTitle("Phi",2);
   }
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
