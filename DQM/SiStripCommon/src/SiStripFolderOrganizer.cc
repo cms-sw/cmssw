@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.18 2008/04/13 14:42:01 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.19 2008/05/24 13:04:32 dutta Exp $
 //
 
 #include <iostream>
@@ -220,7 +220,6 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer){
 
   std::ostringstream rest;
   SiStripDetId stripdet = SiStripDetId(rawdetid);
-  int subdetid = ((rawdetid>>25)&0x7);
   if(stripdet.subDetector() == SiStripDetId::TIB ){
   // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(rawdetid);
@@ -255,7 +254,7 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer){
     rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel();
   }else{
   // ---------------------------  ???  --------------------------- //
-    LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdetid<<" no folder set!"<<endl;
+    LogWarning("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<stripdet.subDetector()<<" no folder set!"<<endl;
     return;
   }
 
