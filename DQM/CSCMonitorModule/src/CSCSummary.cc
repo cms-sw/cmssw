@@ -231,7 +231,7 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
   float ypmin = (ymin < ymax ? ymin : ymax);
   float ypmax = (ymax > ymin ? ymax : ymin);
 
-  if (xmin > -1.0 && xmax < 1.0) return false; 
+  if (xmin >= -1.0 && xmax <= 1.0) return false; 
 
   unsigned int i = 0, sum = 0;
   CSCAddress adr;
@@ -242,6 +242,7 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
   adr.side = (xmin > 0 ? 1 : 2);
 
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
+
     while(detector.NextAddressBox(i, box, adr)) {
       
       float xboxmin = (box->xmin < box->xmax ? box->xmin : box->xmax);
@@ -258,10 +259,13 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
 
       if (GetValue(box->adr) > 0) {
         sum++;
-        if (sum > 1) return true;
+        break;
       }
 
     }
+
+    if (sum > 2) return true;
+
   }
 
   return false;
