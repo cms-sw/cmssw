@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.h,v 1.4 2008/04/29 11:57:04 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.h,v 1.5 2008/05/06 12:36:54 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripPartition_h
 #define OnlineDB_SiStripConfigDb_SiStripPartition_h
@@ -103,6 +103,8 @@ class SiStripPartition {
   inline void forceVersions( bool );
 
   inline void forceCurrentState( bool );
+
+  bool operator == ( const SiStripPartition& );
 
  private:
   

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.6 2008/04/30 08:12:36 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.7 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -755,4 +755,10 @@ SiStripPartition::Versions SiStripPartition::versions( std::vector<uint32_t> inp
     input.resize(2,0);
   }
   return std::make_pair( input[0], input[1] );
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripPartition::operator == ( const SiStripPartition& ){
+  return false;
 }
