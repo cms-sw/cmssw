@@ -13,6 +13,8 @@
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 class CSCDMBHeader;
 
 ///ALCT Header consists of several modular units that are defined as structs below
