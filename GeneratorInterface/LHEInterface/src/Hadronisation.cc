@@ -83,7 +83,7 @@ std::auto_ptr<Hadronisation> Hadronisation::create(
 			<< std::endl;
 
 	edm::LogInfo("Generator|LHEInterface")
-		<< "Using name to hadronize LHE input." << std::endl;
+		<< "Using " << name << " to hadronize LHE input." << std::endl;
 
 	return plugin;
 }

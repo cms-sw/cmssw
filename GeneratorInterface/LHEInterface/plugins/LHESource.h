@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
 namespace lhef {
 	class LHERunInfo;

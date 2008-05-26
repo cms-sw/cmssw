@@ -7,11 +7,13 @@
 <use name="hepmc"/>
 <library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc">
 	<use name="FWCore/Framework"/>
+	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="SimDataFormats/HepMCProduct"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfaceLHESource" file="LHESource.cc MCDBSource.cc">
+<library name="GeneratorInterfaceLHEIO" file="LHESource.cc MCDBSource.cc LHEWriter.cc">
 	<use name="FWCore/Framework"/>
+	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="mcdb"/>
 	<flags EDM_PLUGIN="1"/>
 </library>

@@ -4,11 +4,21 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+
+#ifndef XERCES_CPP_NAMESPACE_QUALIFIER
+#	define UNDEF_XERCES_CPP_NAMESPACE_QUALIFIER
+#	define XERCES_CPP_NAMESPACE_QUALIFIER
+namespace {
+	class DOMNode;
+	class DOMDocument;
+}
+#endif
 
 namespace lhef {
 
@@ -18,7 +28,22 @@ class LHERunInfo {
 	LHERunInfo(const HEPRUP &heprup);
 	~LHERunInfo();
 
-	typedef LHERunInfoProduct::Header Header;
+	class Header : public LHERunInfoProduct::Header {
+	    public:
+		Header();
+		Header(const std::string &tag);
+		Header(const Header &orig);
+		Header(const LHERunInfoProduct::Header &orig);
+		~Header();
+
+#ifndef UNDEF_XERCES_CPP_NAMESPACE_QUALIFIER
+		const XERCES_CPP_NAMESPACE_QUALIFIER DOMNode
+							*getXMLNode() const;
+#endif
+
+	    private:
+		mutable XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *xmlDoc;
+	};
 
 	const HEPRUP *getHEPRUP() const { return &heprup; } 
 
@@ -27,8 +52,10 @@ class LHERunInfo {
 	{ return !(*this == other); }
 
 	const std::vector<Header> &getHeaders() const { return headers; }
+	const std::vector<std::string> &getComments() const { return comments; }
 
 	void addHeader(const Header &header) { headers.push_back(header); }
+	void addComment(const std::string &line) { comments.push_back(line); }
 
 	enum CountMode {
 		kTried = 0,
@@ -82,11 +109,16 @@ class LHERunInfo {
 
 	void init();
 
-	HEPRUP			heprup;
-	std::vector<Process>	processes;
-	std::vector<Header>	headers;
+	HEPRUP				heprup;
+	std::vector<Process>		processes;
+	std::vector<Header>		headers;
+	std::vector<std::string>	comments;
 };
 
 } // namespace lhef
+
+#ifdef UNDEF_XERCES_CPP_NAMESPACE_QUALIFIER
+#	undef XERCES_CPP_NAMESPACE_QUALIFIER
+#endif
 
 #endif // GeneratorRunInfo_LHEInterface_LHERunInfo_h

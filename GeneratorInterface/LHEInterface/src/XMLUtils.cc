@@ -109,6 +109,53 @@ bool XMLDocument::parse()
 	return !done;
 }
 
+CBInputStream::Reader::~Reader()
+{
+}
+
+CBInputStream::CBInputStream(Reader &reader) :
+	reader(reader)
+{
+}
+
+CBInputStream::~CBInputStream()
+{
+}
+
+unsigned int CBInputStream::readBytes(XMLByte* const buf,
+                                      const unsigned int size)
+{
+	char *rawBuf = reinterpret_cast<char*>(buf);
+	unsigned int bytes = size * sizeof(XMLByte);
+	unsigned int read = 0;
+
+	while(read < bytes) {
+		if (buffer.empty()) {
+			buffer = reader.data();
+			if (buffer.empty())
+				break;
+		}
+
+		unsigned int len = buffer.length();
+		unsigned int rem = bytes - read;
+		if (rem < len) {
+			std::memcpy(rawBuf + read, buffer.c_str(), rem);
+			buffer.erase(0, rem);
+			read += rem;
+			break;
+		}
+
+		std::memcpy(rawBuf + read, buffer.c_str(), len);
+		buffer.clear();
+		read += rem;
+	}
+
+	read /= sizeof(XMLByte);
+	pos += read;
+
+	return read;
+}
+
 STLInputStream::STLInputStream(std::istream &in) :
 	in(in)
 {

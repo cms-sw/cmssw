@@ -1,6 +1,8 @@
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <memory>
@@ -13,9 +15,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 static int skipWhitespace(std::istream &in)
@@ -79,8 +81,11 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 					   " unparseable PDF information."
 					<< std::endl;
 				pdf.reset();
-			}
+			} else
+				continue;
 		}
+
+		comments.push_back(line + "\n");
 	}
 
 	if (!in.eof())
@@ -97,6 +102,64 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 
 LHEEvent::~LHEEvent()
 {
+}
+
+template<typename T>
+static inline void pop(std::vector<T> &vec, unsigned int index)
+{
+	unsigned int size = vec.size() - 1;
+	std::memmove(&vec[index], &vec[index + 1], (size - index) * sizeof(T));
+}
+
+void LHEEvent::removeParticle(HEPEUP &hepeup, int index)
+{
+	index--;
+	if (index < 0 || index >= hepeup.NUP) {
+		edm::LogError("Generator|LHEInterface")
+			<< "removeParticle: Index " << (index + 1)
+			<< " out of bounds." << std::endl;
+		return;
+	}
+
+	std::pair<int, int> mo = hepeup.MOTHUP[index];
+
+	pop(hepeup.IDUP, index);
+	pop(hepeup.ISTUP, index);
+	pop(hepeup.MOTHUP, index);
+	pop(hepeup.ICOLUP, index);
+	pop(hepeup.PUP, index);
+	pop(hepeup.VTIMUP, index);
+	pop(hepeup.SPINUP, index);
+	hepeup.NUP--;
+	hepeup.resize();
+
+	index++;
+	for(int i = 0; i < hepeup.NUP; i++) {
+		if (hepeup.MOTHUP[i].first == index) {
+			if (hepeup.MOTHUP[i].second > 0)
+				edm::LogError("Generator|LHEInterface")
+					<< "removeParticle: Particle "
+					<< (i + 2) << " has two mothers."
+					<< std::endl;
+			hepeup.MOTHUP[i] = mo;
+		}
+
+		if (hepeup.MOTHUP[i].first > index)
+			hepeup.MOTHUP[i].first--;
+		if (hepeup.MOTHUP[i].second > index)
+			hepeup.MOTHUP[i].second--;
+	}
+}
+
+void LHEEvent::removeResonances(const std::vector<int> &ids)
+{
+	for(int i = 1; i <= hepeup.NUP; i++) {
+		int id = std::abs(hepeup.IDUP[i - 1]);
+		if (hepeup.MOTHUP[i - 1].first > 0 &&
+		    hepeup.MOTHUP[i - 1].second > 0 &&
+		    std::find(ids.begin(), ids.end(), id) != ids.end())
+			removeParticle(hepeup, i--);
+	}
 }
 
 void LHEEvent::count(LHERunInfo::CountMode mode, double matchWeight)

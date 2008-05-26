@@ -17,8 +17,8 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfoProduct.h"
-#include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
@@ -44,6 +44,7 @@ class LHEProducer : public edm::EDProducer {
 	bool showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event);
 
 	unsigned int			eventsToPrint;
+	std::vector<int>		removeResonances;
 	std::auto_ptr<Hadronisation>	hadronisation;
 	std::auto_ptr<JetMatching>	jetMatching;
 
@@ -64,6 +65,11 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 {
 	hadronisation = Hadronisation::create(
 		params.getParameter<edm::ParameterSet>("hadronisation"));
+
+	if (params.exists("removeResonances"))
+		removeResonances =
+			params.getParameter<std::vector<int> >(
+							"removeResonances");
 
 	if (params.exists("jetMatching")) {
 		edm::ParameterSet jetParams =
@@ -135,6 +141,9 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 	event.getByLabel("source", product);
 
 	partonLevel.reset(new LHEEvent(runInfo, product->hepeup()));
+	if (!removeResonances.empty())
+		partonLevel->removeResonances(removeResonances);
+
 	if (product->pdf())
 		partonLevel->setPDF(
 			std::auto_ptr<LHEEvent::PDF>(
@@ -161,7 +170,7 @@ void LHEProducer::produce(edm::Event &event, const edm::EventSetup &es)
 
 	if (weight == 0.0) {
 		edm::LogInfo("Generator|LHEInterface")
-			<< "Event got rejected by the"
+			<< "Event got rejected by the "
 			   "jet matching." << std::endl;
 
 		if (hadronLevel.get()) {

@@ -14,12 +14,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfoProduct.h"
-#include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "LHESource.h"
 
@@ -86,8 +86,13 @@ void LHESource::beginRun(edm::Run &run)
 		              boost::bind(
 		              	&LHERunInfoProduct::addHeader,
 		              	product.get(), _1));
+		std::for_each(runInfo->getComments().begin(),
+		              runInfo->getComments().end(),
+		              boost::bind(&LHERunInfoProduct::addComment,
+		              	product.get(), _1));
 		run.put(product);
 		runInfo.reset();
+
 	}
 }
 
@@ -101,6 +106,10 @@ bool LHESource::produce(edm::Event &event)
 			new LHEEventProduct(*partonLevel->getHEPEUP()));
 	if (partonLevel->getPDF())
 		product->setPDF(*partonLevel->getPDF());
+	std::for_each(partonLevel->getComments().begin(),
+	              partonLevel->getComments().end(),
+	              boost::bind(&LHEEventProduct::addComment,
+	                          product.get(), _1));
 	event.put(product);
 
 	partonLevel.reset();

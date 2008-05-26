@@ -2,8 +2,10 @@
 #define GeneratorInterface_LHEInterface_LHEEvent_h
 
 #include <iostream>
-#include <memory>
 #include <utility>
+#include <memory>
+#include <vector>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -13,9 +15,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
-#include "GeneratorInterface/LHEInterface/interface/LHEEventProduct.h"
 
 namespace lhef {
 
@@ -33,8 +36,14 @@ class LHEEvent {
 	const HEPEUP *getHEPEUP() const { return &hepeup; }
 	const HEPRUP *getHEPRUP() const { return runInfo->getHEPRUP(); }
 	const PDF *getPDF() const { return pdf.get(); }
+	const std::vector<std::string> &getComments() const { return comments; }
 
 	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
+
+	void addComment(const std::string &line) { comments.push_back(line); }
+
+	static void removeParticle(lhef::HEPEUP &hepeup, int index);
+	void removeResonances(const std::vector<int> &ids);
 
 	void count(LHERunInfo::CountMode count, double matchWeight = 1.0);
 
@@ -56,6 +65,7 @@ class LHEEvent {
 
 	HEPEUP					hepeup;
 	std::auto_ptr<PDF>			pdf;
+	std::vector<std::string>		comments;
 };
 
 } // namespace lhef

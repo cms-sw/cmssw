@@ -3,13 +3,23 @@
 #include <string>
 #include <cctype>
 #include <vector>
+#include <memory>
 #include <cmath>
+
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+
+#include "XMLUtils.h"
+
+XERCES_CPP_NAMESPACE_USE
 
 static int skipWhitespace(std::istream &in)
 {
@@ -48,7 +58,12 @@ LHERunInfo::LHERunInfo(std::istream &in)
 				<< "." << std::endl;
 	}
 
-	skipWhitespace(in);
+	while(skipWhitespace(in) == '#') {
+		std::string line;
+		std::getline(in, line);
+		comments.push_back(line + "\n");
+	}
+
 	if (!in.eof())
 		edm::LogWarning("Generator|LHEInterface")
 			<< "Les Houches file contained spurious"
@@ -160,6 +175,114 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 	result.error = 1.0e-9 * std::sqrt(err2Sum);
 
 	return result;
+}
+
+LHERunInfo::Header::Header() :
+	xmlDoc(0)
+{
+}
+
+LHERunInfo::Header::Header(const std::string &tag) :
+	LHERunInfoProduct::Header(tag), xmlDoc(0)
+{
+}
+
+LHERunInfo::Header::Header(const Header &orig) :
+	LHERunInfoProduct::Header(orig), xmlDoc(0)
+{
+}
+
+LHERunInfo::Header::Header(const LHERunInfoProduct::Header &orig) :
+	LHERunInfoProduct::Header(orig), xmlDoc(0)
+{
+}
+
+LHERunInfo::Header::~Header()
+{
+	if (xmlDoc)
+		xmlDoc->release();
+}
+
+namespace {
+	class HeaderReader : public CBInputStream::Reader {
+	    public:
+		HeaderReader(const LHERunInfo::Header *header) :
+			header(header), mode(kHeader),
+			iter(header->begin())
+		{
+		}
+
+		const std::string &data()
+		{
+			switch(mode) {
+			    case kHeader:
+				tmp = "<" + header->tag() + ">";
+				mode = kBody;
+				break;
+			    case kBody:
+				if (iter != header->end())
+					return *iter++;
+				tmp = "</" + header->tag() + ">";
+				mode = kFooter;
+				break;
+			    case kFooter:
+				tmp.clear();
+			}
+
+			return tmp;
+		}
+
+	    private:
+		enum Mode {
+			kHeader,
+			kBody,
+			kFooter
+		};
+
+		const LHERunInfo::Header		*header;
+		Mode					mode;
+		LHERunInfo::Header::const_iterator	iter;
+		std::string				tmp;
+	};
+} // anonymous namespace
+
+const DOMNode *LHERunInfo::Header::getXMLNode() const
+{
+	if (tag().empty())
+		return 0;
+
+	if (!xmlDoc) {
+		XercesDOMParser parser;
+		parser.setValidationScheme(XercesDOMParser::Val_Auto);
+		parser.setDoNamespaces(false);
+		parser.setDoSchema(false);
+		parser.setValidationSchemaFullChecking(false);
+
+		HandlerBase errHandler;
+		parser.setErrorHandler(&errHandler);
+		parser.setCreateEntityReferenceNodes(false);
+
+		try {
+			std::auto_ptr<CBInputStream::Reader> reader(
+						new HeaderReader(this));
+			CBInputSource source(reader);
+			parser.parse(source);
+			xmlDoc = parser.adoptDocument();
+		} catch(const XMLException &e) {
+			throw cms::Exception("Generator|LHEInterface")
+				<< "XML parser reported DOM error no. "
+				<< (unsigned long)e.getCode()
+				<< ": " << XMLSimpleStr(e.getMessage()) << "."
+				<< std::endl;
+		} catch(const SAXException &e) {
+			throw cms::Exception("Generator|LHEInterface")
+				<< "XML parser reported: "
+				<< XMLSimpleStr(e.getMessage()) << "."
+				<< std::endl;
+		}
+	}
+
+	return xmlDoc->getDocumentElement();
 }
 
 } // namespace lhef

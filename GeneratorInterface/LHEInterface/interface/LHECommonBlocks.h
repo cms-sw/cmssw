@@ -1,7 +1,7 @@
 #ifndef GeneratorInterface_LHEInterface_LHECommonBlocks_h
 #define GeneratorInterface_LHEInterface_LHECommonBlocks_h
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
 extern "C" {
 	extern struct HEPRUP_ {

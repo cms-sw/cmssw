@@ -78,6 +78,22 @@ class XMLSimpleStr {
 	char	*string;
 };
 
+class XMLUniStr {
+    public:
+	XMLUniStr(const char *str) :
+		unicode(XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(str))
+	{}
+
+	~XMLUniStr()
+	{ XERCES_CPP_NAMESPACE_QUALIFIER XMLString::release(&unicode); }
+
+	operator const XMLCh *() const
+	{ return unicode; }
+
+    private:
+	XMLCh	*unicode;
+};
+
 template<typename T>
 class XMLInputSourceWrapper :
 			public XERCES_CPP_NAMESPACE_QUALIFIER InputSource {
@@ -92,6 +108,30 @@ class XMLInputSourceWrapper :
 
     private:
 	std::auto_ptr<Stream_t>	obj;
+};
+
+class CBInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
+    public:
+	class Reader {
+	    public:
+		virtual ~Reader();
+		virtual const std::string &data()= 0;
+	};
+
+	typedef Reader Stream_t;
+
+	CBInputStream(Reader &in);
+	virtual ~CBInputStream();
+
+	virtual unsigned int curPos() const { return pos; }
+
+	virtual unsigned int readBytes(XMLByte *const buf,
+	                               const unsigned int size);
+
+    private:
+	Reader		&reader;
+	std::string	buffer;
+	unsigned int	pos;
 };
 
 class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
@@ -129,6 +169,7 @@ class StorageInputStream :
 	unsigned int	pos;
 };
 
+typedef XMLInputSourceWrapper<CBInputStream> CBInputSource;
 typedef XMLInputSourceWrapper<STLInputStream> STLInputSource;
 typedef XMLInputSourceWrapper<StorageInputStream> StorageInputSource;
 
