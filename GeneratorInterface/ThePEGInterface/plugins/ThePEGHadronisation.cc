@@ -1,4 +1,3 @@
-
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -24,9 +23,9 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEProxy.h"

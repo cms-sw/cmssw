@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
+#include <set>
 
 #include <boost/shared_ptr.hpp>
 
@@ -14,7 +15,8 @@
 #include <ThePEG/LesHouches/LesHouches.h>
 #include <ThePEG/LesHouches/LesHouchesReader.h>
 
-#include "GeneratorInterface/LHEInterface/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEProxy.h"

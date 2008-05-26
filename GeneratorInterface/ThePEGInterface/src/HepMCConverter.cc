@@ -237,12 +237,12 @@ HepMCConverter<HepMCEventT,Traits>::createVertex(Vertex *v)
 	// be useful information for very small distances.
 	LorentzPoint p;
 	for ( tcParticleSet::iterator it = v->in.begin();
-	it != v->in.end(); ++it ) {
+	      it != v->in.end(); ++it ) {
 		p += (**it).labDecayVertex();
 		Traits::addIncoming(*gv, pmap[*it]);
 	}
-	for ( tcParticleSet::iterator it = v->out.begin();
-	it != v->out.end(); ++it ) {
+	for (tcParticleSet::iterator it = v->out.begin();
+	     it != v->out.end(); ++it ) {
 		p += (**it).labVertex();
 		Traits::addOutgoing(*gv, pmap[*it]);
 	}
