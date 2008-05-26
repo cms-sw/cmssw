@@ -64,6 +64,7 @@
 #define LOGDEBUG(cat)      LogDebug (cat)
 
 #define SUMMARY_FOLDER     "Summary/"
+#define EVENTINFO_FOLDER   "EventInfo/"
 #define DDU_FOLDER         "DDUs/"
 
 /**
@@ -157,6 +158,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     /** Find histograms (aka previous macros) **/ 
     const bool MEEMU(const std::string name, MonitorElement*& me);
     const bool MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me);
+    const bool MEEventInfo(const std::string name, MonitorElement*& me);
 
     /** CSC summary map */
     CSCSummary summary;

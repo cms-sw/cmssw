@@ -129,10 +129,10 @@ void CSCMonitorModule::updateFracHistos() {
     summary.Write(tmp, 4);
   }
 
-  if (MEEMU("Summary_EMU", me1)){
+  if (MEEventInfo("reportSummaryMap", me1)){
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
     float rs = summary.WriteMap(tmp);
-    if(isMEValid(rootDir + "EventInfo/reportSummary", me1)){
+    if(MEEventInfo("reportSummary", me1)){
       me1->Fill(rs);
     }
   }
