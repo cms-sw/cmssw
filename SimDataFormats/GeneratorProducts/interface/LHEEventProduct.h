@@ -70,8 +70,7 @@ class LHEEventProduct {
 		static const unsigned int npos = 99999;
 	};
 
-	inline const_iterator begin() const
-	{ const_iterator iter; iter.event = this; iter.line = 0; return iter; }
+	const_iterator begin() const;
 	inline const_iterator end() const { return const_iterator(); }
 
     private:

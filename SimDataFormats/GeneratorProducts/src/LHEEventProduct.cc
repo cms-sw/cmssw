@@ -12,12 +12,6 @@ void LHEEventProduct::const_iterator::next()
 	int line = this->line++;
 
 	if (!line) {
-		tmp = "<event>\n";
-		return;
-	}
-	line--;
-
-	if (!line) {
 		std::ostringstream ss;
 		ss << std::setprecision(7)
 		   << std::scientific
@@ -92,4 +86,13 @@ void LHEEventProduct::const_iterator::next()
 
 	tmp.clear();
 	this->line = npos;
+}
+
+LHEEventProduct::const_iterator LHEEventProduct::begin() const
+{
+	const_iterator result;
+	result.event = this;
+	result.line = 0;
+	result.tmp = "<event>\n";
+	return result;
 }

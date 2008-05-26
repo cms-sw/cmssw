@@ -13,15 +13,14 @@ bool LHERunInfoProduct::const_iterator::operator ==
 		return false;
 
 	switch(mode) {
-	    case kHead:
 	    case kFooter:
 	    case kDone:
 		return true;
 
-	    case kHeaderHead:
+	    case kHeader:
 		return header == other.header;
 
-	    case kHeaderBody:
+	    case kBody:
 		return header == other.header && iter == other.iter;
 
 	    case kInit:
@@ -37,28 +36,23 @@ void LHERunInfoProduct::const_iterator::next()
 
 	do {
 		switch(mode) {
-		    case kHead:
-			mode = kHeaderHead;
-			tmp = "<LesHouchesEvents version=\"1.0\">\n";
-			break;
-
-		    case kHeaderHead:
+		    case kHeader:
 			if (header == runInfo->headers_end()) {
 				mode = kInit;
 				tmp = "<init>\n";
 				line = 0;
 				break;
 			} else {
-				mode = kHeaderBody;
+				mode = kBody;
 				const std::string &tag = header->tag();
 				tmp = tag.empty() ? "<!--" : ("<" + tag + ">");
 				iter = header->begin();
 				continue;
 			}
 
-		    case kHeaderBody:
+		    case kBody:
 			if (iter == header->end()) {
-				mode = kHeaderHead;
+				mode = kHeader;
 				const std::string &tag = header->tag();
 				tmp += tag.empty() ? "-->" : ("</" + tag + ">");
 				tmp += "\n";
@@ -130,8 +124,21 @@ LHERunInfoProduct::const_iterator LHERunInfoProduct::begin() const
 
 	result.runInfo = this;
 	result.header = headers_begin();
-	result.mode = const_iterator::kHead;
+	result.mode = const_iterator::kHeader;
 	result.line = 0;
+	result.tmp = "<LesHouchesEvents version=\"1.0\">\n";
+
+	return result;
+}
+
+LHERunInfoProduct::const_iterator LHERunInfoProduct::init() const
+{
+	const_iterator result;
+
+	result.runInfo = this;
+	result.mode = const_iterator::kInit;
+	result.line = 0;
+	result.tmp = "<init>\n";
 
 	return result;
 }

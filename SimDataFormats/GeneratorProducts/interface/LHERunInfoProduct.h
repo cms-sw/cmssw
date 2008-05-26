@@ -85,9 +85,8 @@ class LHERunInfoProduct {
 		void next();
 
 		enum Mode {
-			kHead,
-			kHeaderHead,
-			kHeaderBody,
+			kHeader,
+			kBody,
 			kInit,
 			kDone,
 			kFooter
@@ -102,6 +101,7 @@ class LHERunInfoProduct {
 	};
 
 	const_iterator begin() const;
+	const_iterator init() const;
 	inline const_iterator end() const { return const_iterator(); }
 
 	static const std::string &endOfFile();
