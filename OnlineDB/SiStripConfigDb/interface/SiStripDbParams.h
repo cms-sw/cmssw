@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.7 2008/05/06 12:36:54 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.8 2008/05/26 13:35:51 giordano Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -127,7 +127,7 @@ class SiStripDbParams {
 
   void print( std::stringstream& ) const; 
 
-  bool operator == ( const SiStripDbParams& ){return false;}
+  bool operator == ( const SiStripDbParams& other );
 
   // ---------- private member data ---------- 
   

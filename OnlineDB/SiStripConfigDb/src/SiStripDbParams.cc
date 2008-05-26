@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.5 2008/04/29 11:57:05 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.6 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -322,4 +322,13 @@ std::vector<std::string> SiStripDbParams::inputFedXmlFiles() const {
   SiStripPartitions::const_iterator jj = partitions_.end();
   for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFedXml().begin(), ii->second.inputFedXml().end() ); }
   return files;
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripDbParams::operator == ( const SiStripDbParams& other ){
+  std::stringstream a,b; 
+  this->print(a); 
+  other.print(b); 
+  return !strcmp(a.str().c_str(),b.str().c_str());
 }
