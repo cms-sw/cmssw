@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.3 2008/04/18 16:56:03 ebutz Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.4 2008/05/26 16:06:55 ebutz Exp $
 //
 //
 
@@ -638,7 +638,8 @@ TrackerOfflineValidation::bookSummaryHists(TFileDirectory &tfd, const Alignable&
   align::StructureType subtype = ali.components()[0]->alignableObjectId();
   TH1 *h_thissummary = 0;
   
-  if( subtype  != align::AlignableDet && subtype  != align::AlignableDetUnit ) {
+  if( subtype  != align::AlignableDet || (subtype  == align::AlignableDet && ali.components()[0]->components().size() == 1)
+      ) {
     h_thissummary = tfd.make<TH1F>(Form("h_summary%s_%d",aliobjid.typeToName(alitype).c_str(),i), 
 				Form("Summary for substructures in %s %d;%s;#LT #Delta x #GT",
 				     aliobjid.typeToName(alitype).c_str(),i,aliobjid.typeToName(subtype).c_str()),
