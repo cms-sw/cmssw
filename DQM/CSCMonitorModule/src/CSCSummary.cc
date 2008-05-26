@@ -226,6 +226,11 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
 
 const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
 
+  float xpmin = (xmin < xmax ? xmin : xmax);
+  float xpmax = (xmax > xmin ? xmax : xmin);
+  float ypmin = (ymin < ymax ? ymin : ymax);
+  float ypmax = (ymax > ymin ? ymax : ymin);
+
   if (xmin > -1.0 && xmax < 1.0) return false; 
 
   unsigned int i = 0, sum = 0;
@@ -238,19 +243,22 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
 
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
     while(detector.NextAddressBox(i, box, adr)) {
+      
+      float xboxmin = (box->xmin < box->xmax ? box->xmin : box->xmax);
+      float xboxmax = (box->xmax > box->xmin ? box->xmax : box->xmin);
+      float yboxmin = (box->ymin < box->ymax ? box->ymin : box->ymax);
+      float yboxmax = (box->ymax > box->ymin ? box->ymax : box->ymin);
 
-      if ((xmin > box->xmin && xmin < box->xmax) || (xmax > box->xmin && xmax < box->xmax) || (xmin > box->xmax && xmin < box->xmin) || (xmax > box->xmax && xmax < box->xmin))
-      if ((ymin > box->ymin && ymin < box->ymax) || (ymax > box->ymin && ymax < box->ymax) || (ymin > box->ymax && ymin < box->ymin) || (ymax > box->ymax && ymax < box->ymin)) {
+      if ((xpmin < xboxmin && xpmax < xboxmin) || (xpmin > xboxmax && xpmax > xboxmax)) continue;
+      if ((ypmin < yboxmin && ypmax < yboxmin) || (ypmin > yboxmax && ypmax > yboxmax)) continue;
 
-        //std::cout << "Request: " << xmin << ", " << xmax << ", " << ymin << ", " << ymax << std::endl;
-        //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
-        //detector.PrintAddress(box->adr);
+      //std::cout << "Request: " << xmin << ", " << xmax << ", " << ymin << ", " << ymax << std::endl;
+      //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
+      //detector.PrintAddress(box->adr);
 
-        if (GetValue(box->adr) > 0) {
-          sum++;
-          if (sum > 1) return true;
-        }
-
+      if (GetValue(box->adr) > 0) {
+        sum++;
+        if (sum > 1) return true;
       }
 
     }
