@@ -194,10 +194,10 @@ void ReadPixClusters::analyze(const edm::Event& e,
   const TrackerGeometry& theTracker(*geom);
 
   // Get Cluster Collection from InputTag
-  edm::Handle< edm::DetSetVector<SiPixelCluster> > clusters;
+  edm::Handle< edmNew::DetSetVector<SiPixelCluster> > clusters;
   e.getByLabel( src_ , clusters);
 
-  const edm::DetSetVector<SiPixelCluster>& input = *clusters;     
+  const edmNew::DetSetVector<SiPixelCluster>& input = *clusters;     
 
   if(PRINT) cout<<"Clusters : "<<endl;
   
@@ -215,10 +215,11 @@ void ReadPixClusters::analyze(const edm::Event& e,
   
   // get vector of detunit ids
   //--- Loop over detunits.
-  edm::DetSetVector<SiPixelCluster>::const_iterator DSViter;  
-  for (DSViter=input.begin(); DSViter != input.end() ; DSViter++) {
+  edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin();
 
-    unsigned int detid = DSViter->id;
+  for ( ; DSViter != input.end() ; DSViter++) {
+
+    unsigned int detid = DSViter->detId();
     // Det id
     DetId detId = DetId(detid);       // Get the Detid object
     unsigned int detType=detId.det(); // det type, pixel=1
@@ -318,9 +319,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
     }
     numberOfClusters = 0;
 
-    edm::DetSet<SiPixelCluster>::const_iterator clustIt;
-    for (clustIt = DSViter->data.begin(); clustIt != DSViter->data.end(); 
-	 clustIt++) {
+    edmNew::DetSet<SiPixelCluster>::const_iterator clustIt;
+    for (clustIt = DSViter->begin(); clustIt != DSViter->end(); clustIt++) {
 
       numberOfClusters++;
       float ch = (clustIt->charge())/1000.; // convert ke to electrons
