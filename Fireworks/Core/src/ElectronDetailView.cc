@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronDetailView.cc,v 1.7 2008/03/24 19:56:04 jmuelmen Exp $
+// $Id: ElectronDetailView.cc,v 1.8 2008/05/12 15:43:29 dmytro Exp $
 //
 
 // system include files
@@ -397,8 +397,11 @@ void ElectronDetailView::build_projected (TEveElementList **product,
 		  if (hit != hits->end()) 
 		     size = hit->energy();
 	       }
-	       const TGeoHMatrix *matrix = m_item->getGeom()->
-		    getMatrix(k->rawId());
+	       const TGeoHMatrix *matrix = m_item->getGeom()->getMatrix(k->rawId());
+	       if ( matrix == 0 ) {
+		  printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->rawId());
+		  continue;
+	       }
 	       const TVector3 v(matrix->GetTranslation()[0], 
 				matrix->GetTranslation()[1],
 				matrix->GetTranslation()[2]);
