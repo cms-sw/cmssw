@@ -226,7 +226,7 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
 
 const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const {
 
-  if (xmin > -1 && xmax < 1) return false; 
+  if (xmin > -1.0 && xmax < 1.0) return false; 
 
   unsigned int i = 0, sum = 0;
   CSCAddress adr;
@@ -234,21 +234,25 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
 
   adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
   adr.mask.side = adr.mask.station = true;
-  adr.side = (xmin < 0 ? 1 : 2);
+  adr.side = (xmin > 0 ? 1 : 2);
 
   for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
     while(detector.NextAddressBox(i, box, adr)) {
-      if ((xmin > box->xmin && xmin < box->xmax) ||
-          (xmax > box->xmin && xmax < box->xmax))
-      if ((ymin > box->ymin && ymin < box->ymax) ||
-          (ymax > box->ymin && ymax < box->ymax)) {
 
-        if (GetValue(adr) > 0) {
+      if ((xmin > box->xmin && xmin < box->xmax) || (xmax > box->xmin && xmax < box->xmax) || (xmin > box->xmax && xmin < box->xmin) || (xmax > box->xmax && xmax < box->xmin))
+      if ((ymin > box->ymin && ymin < box->ymax) || (ymax > box->ymin && ymax < box->ymax) || (ymin > box->ymax && ymin < box->ymin) || (ymax > box->ymax && ymax < box->ymin)) {
+
+        //std::cout << "Request: " << xmin << ", " << xmax << ", " << ymin << ", " << ymax << std::endl;
+        //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
+        //detector.PrintAddress(box->adr);
+
+        if (GetValue(box->adr) > 0) {
           sum++;
           if (sum > 1) return true;
         }
 
       }
+
     }
   }
 
