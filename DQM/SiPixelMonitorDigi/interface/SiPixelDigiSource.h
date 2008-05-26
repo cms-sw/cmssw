@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.6 2008/03/01 20:19:48 lat Exp $
+// $Id: SiPixelDigiSource.h,v 1.7 2008/04/16 17:08:09 merkelp Exp $
 //
 
 #include <memory>
@@ -64,6 +64,8 @@
        edm::ParameterSet conf_;
        edm::InputTag src_;
        bool saveFile;
+       bool isPIB;
+       bool slowDown;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
