@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # TP Emulator Producer:
-from Geometry.EcalMapping.EcalMapping_cfi import *
-from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 from CalibCalorimetry.Configuration.Ecal_FakeConditions_cff import *
 # Sources of record

@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # Trigger Primitive Producer
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
-# ecal mapping
-from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # esmodule creating  all the records
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
     DatabaseFile = cms.untracked.string('TPG.txt')
