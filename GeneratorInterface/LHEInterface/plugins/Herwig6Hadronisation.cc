@@ -27,11 +27,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "GeneratorInterface/Herwig6Interface/src/herwig.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
-#include "GeneratorInterface/LHEInterface/interface/LHECommonBlocks.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
+
+#include "GeneratorInterface/Herwig6Interface/src/herwig.h"
 
 namespace lhef {
 

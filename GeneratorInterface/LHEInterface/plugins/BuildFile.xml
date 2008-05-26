@@ -25,6 +25,7 @@
 	<flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc">
+	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="pythia6"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
@@ -33,6 +34,7 @@
 	<flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfaceHerwig6Hadronisation" file="Herwig6Hadronisation.cc hwudat.F hwmsct_dummy.F pathhelper.F cms_hwwarn.F">
+	<use name="SimDataFormats/GeneratorProducts"/>
 	<use name="f77compiler"/>
 	<flags LDFLAGS="-lherwig -lherwig_dummy -llhapdf -llhapdf_dummy -ljimmy"/>
 	<flags EDM_PLUGIN="1"/>
