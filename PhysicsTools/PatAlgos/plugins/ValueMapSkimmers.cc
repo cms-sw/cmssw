@@ -32,6 +32,9 @@ typedef ManyValueMapsSkimmer<edm::Ptr<reco::BaseTagInfo> > CandManyValueMapsSkim
 //typedef ManyValueMapsSkimmer<reco::SoftLeptonTagInfo> CandManyValueMapsSkimmerSoftLeptonTagInfo;
 //typedef ManyValueMapsSkimmer<reco::SecondaryVertexTagInfo> CandManyValueMapsSkimmerSecondaryVertexTagInfo;
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+typedef ValueMapSkimmer<reco::TrackRefVector> CandValueMapSkimmerTrackRefs;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 //DEFINE_FWK_MODULE(CandValueMapSkimmerDouble);
@@ -42,6 +45,8 @@ DEFINE_FWK_MODULE(CandManyValueMapsSkimmerIsoDeposits);
 //DEFINE_FWK_MODULE(CandValueMapSkimmerDouble2Float);
 //DEFINE_FWK_MODULE(CandValueMapSkimmerInt2Float);
 //DEFINE_FWK_MODULE(CandRefValueMapSkimmer);
+
+DEFINE_FWK_MODULE(CandValueMapSkimmerTrackRefs);
 
 DEFINE_FWK_MODULE(JetCorrFactorsValueMapSkimmer);
 DEFINE_FWK_MODULE(CandManyValueMapsSkimmerTagInfo);
