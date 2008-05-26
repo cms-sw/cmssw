@@ -34,7 +34,7 @@ std::auto_ptr<SiStripThreshold> SiStripThresholdFakeESSource::produce( const SiS
     float hTh = hTh_;
 
     obj->setData(strip,lTh,hTh,theSiStripVector);
-    edm::LogInfo("SiStripThresholdFakeESSource::produce") <<"detid: "  << it->first << " \t"
+    LogDebug("SiStripThresholdFakeESSource::produce") <<"detid: "  << it->first << " \t"
 							  << "firstStrip: " << strip << " \t" << theSiStripVector.back().getFirstStrip() << " \t"
 							  << "lTh: " << lTh       << " \t" << theSiStripVector.back().getLth() << " \t"
 							  << "hTh: " << hTh       << " \t" << theSiStripVector.back().getHth() << " \t"
