@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.2 2008/03/07 09:00:48 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.3 2008/03/13 03:02:01 chrjones Exp $
 //
 
 // system include files
@@ -77,7 +77,6 @@ class ECalCaloTowerProxyRhoPhiZ2DBuilder : public BaseCaloTowerProxyRhoPhiZ2DBui
       const ECalCaloTowerProxyRhoPhiZ2DBuilder& operator=(const ECalCaloTowerProxyRhoPhiZ2DBuilder&); // stop default
 
       // ---------- member data --------------------------------
-      TEveParamList m_parameters;
 };
 
 

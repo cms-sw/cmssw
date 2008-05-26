@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.20 2008/03/27 11:03:26 dmytro Exp $
+// $Id: FWDisplayEvent.h,v 1.21 2008/03/27 16:43:07 chrjones Exp $
 //
 
 // system include files
@@ -64,6 +64,10 @@ class FWDisplayEvent
    
       void writeConfigurationFile(const std::string& iFileName) const;
       // ---------- static member functions --------------------
+      static double getMagneticField() { return m_magneticField; }
+      static void   setMagneticField(double var) { m_magneticField = var; }
+      static double getCaloScale() { return m_caloScale; }
+      static void   setCaloScale(double var) { m_caloScale = var; }
 
       // ---------- member functions ---------------------------
       int draw(const fwlite::Event& );
@@ -87,6 +91,8 @@ class FWDisplayEvent
 
       DetIdToMatrix    m_detIdToGeo;
       std::string m_configFileName;
+      static double m_magneticField;
+      static double m_caloScale;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.41 2008/03/29 19:14:27 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.42 2008/04/01 15:45:01 dmytro Exp $
 //
 
 // system include files
@@ -58,6 +58,8 @@
 //
 // static data member definitions
 //
+double FWDisplayEvent::m_magneticField = 4;
+double FWDisplayEvent::m_caloScale = 2;
 
 //
 // constructors and destructor
@@ -114,6 +116,7 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
    
   if(iConfigFileName.empty() ) {
      std::cout << "WARNING: no configuration is loaded." << std::endl;
+     m_configFileName = "newconfig.fwc";
     m_guiManager->createView("Rho Phi");
     m_guiManager->createView("Rho Z");
     if ( iNewLego )
@@ -127,20 +130,22 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
       configFileName = "default.fwc";
     } 
     
-    if(not m_configFileName.empty() ) {
-      //when the program quits we will want to save the configuration automatically
+    delete [] whereConfig;
+    m_configurationManager->readFromFile(configFileName);
+  }
+   
+   if(not m_configFileName.empty() ) {
+     /* //when the program quits we will want to save the configuration automatically
       m_guiManager->goingToQuit_.connect(
                                          boost::bind(&FWConfigurationManager::writeToFile,
                                                      m_configurationManager.get(),
                                                      m_configFileName));
+      */
       m_guiManager->writeToPresentConfigurationFile_.connect(
                                                              boost::bind(&FWConfigurationManager::writeToFile,
                                                                          m_configurationManager.get(),
                                                                          m_configFileName));
     }
-    delete [] whereConfig;
-    m_configurationManager->readFromFile(configFileName);
-  }
   TEveTrackProjected::SetBreakTracks(kFALSE);
   m_guiManager->processGUIEvents();
 }

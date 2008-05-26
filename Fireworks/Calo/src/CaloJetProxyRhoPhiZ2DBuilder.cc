@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/02/29 21:14:11 chrjones Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/05/12 15:38:00 dmytro Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "Fireworks/Core/interface/FWDisplayEvent.h"
 
 //
 // constants, enums and typedefs
@@ -84,7 +85,8 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    }
    
    double r_ecal = 126;
-   double scale = 2;
+   double scale = FWDisplayEvent::getCaloScale();
+   if ( scale < 0 ) scale = 2;
    //double minJetEt = 15;
    double minJetEt = 0;
    
@@ -145,7 +147,8 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    static const std::vector<std::pair<double,double> > thetaBins = ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins();
 
    
-   double scale = 2;
+   double scale = FWDisplayEvent::getCaloScale();
+   if ( scale < 0 ) scale = 2;
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
    double transition_angle = atan(r_ecal/z_ecal);

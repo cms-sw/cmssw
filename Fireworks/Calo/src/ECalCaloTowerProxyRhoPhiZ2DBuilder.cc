@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/03/07 09:00:39 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/03/13 03:02:01 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,9 @@
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FWDisplayEvent.h"
+
+#include "Fireworks/Core/interface/FWRhoPhiZView.h"
 
 //
 // constants, enums and typedefs
@@ -39,12 +42,7 @@
 // constructors and destructor
 //
 ECalCaloTowerProxyRhoPhiZ2DBuilder::ECalCaloTowerProxyRhoPhiZ2DBuilder()
-  :m_parameters("Calo Parameters")
 {
-   m_parameters.IncDenyDestroy();
-   m_parameters.AddParameter( TEveParamList::FloatConfig_t("Scale", 2, 0, 1000) );
-   m_parameters.AddParameter( TEveParamList::BoolConfig_t("ShowEndCaps", kFALSE) );
-   gEve->AddToListTree(&m_parameters, kTRUE);
 }
 
 // ECalCaloTowerProxyRhoPhiZ2DBuilder::ECalCaloTowerProxyRhoPhiZ2DBuilder(const ECalCaloTowerProxyRhoPhiZ2DBuilder& rhs)
@@ -80,13 +78,14 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       std::cout <<"Failed to get CaloTowers"<<std::endl;
       return;
    }
-   double eta_limit = 1.5;
-   if ( m_parameters.GetBoolParameter("ShowEndCaps") ) eta_limit = 1000;
-   tList->AddElement( TEveGeoShape::ImportShapeExtract( getRhoPhiElements("towers", 
+   // double eta_limit = 1.5;
+   // if ( m_parameters.GetBoolParameter("ShowEndCaps") ) eta_limit = 1000;
+   tList->AddElement( TEveGeoShape::ImportShapeExtract( getRhoPhiElements("towers",
 									  towers, 
 									  iItem->defaultDisplayProperties().color(), 
 									  false,
-									  eta_limit)
+									  1.5,
+									  FWDisplayEvent::getCaloScale())
 							, 0 ) );
 }
 
@@ -112,9 +111,11 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       return;
    }
    tList->AddElement( TEveGeoShape::ImportShapeExtract( getRhoZElements("towers", 
-									towers, 
+									towers,
 									iItem->defaultDisplayProperties().color(), 
-									false), 0 ) );
+									false,
+									FWDisplayEvent::getCaloScale()),
+							0 ) );
 }
 
 
@@ -186,6 +187,15 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoPhiElements(const char* name,
 	   h_hcal[iphi+3] += tower->hadEt()/4;
 	}
      }
+   if (scale < 0 ) {
+      // auto scale mode
+      double maxValue = 1;
+      for ( unsigned int i=0; i<72; ++i ) {
+	 if ( maxValue < h_ecal[i]+h_hcal[i] ) maxValue = h_ecal[i]+h_hcal[i];
+      }
+      scale = 200 / maxValue;
+      printf("Final scale value for rho-phi: %f\n", scale);
+   }
    
    // Make objects representing towers
    TEveGeoShapeExtract* container = new TEveGeoShapeExtract( name );
@@ -317,6 +327,16 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoZElements(const char* name,
 	}
      }
 
+   if (scale < 0 ) {
+      // auto scale mode
+      double maxValue = 1;
+      for ( unsigned int i=0; i<72; ++i ) {
+	 if ( maxValue < h_ecal_top[i]+h_hcal_top[i] ) maxValue = h_ecal_top[i]+h_hcal_top[i];
+	 if ( maxValue < h_ecal_bottom[i]+h_hcal_bottom[i] ) maxValue = h_ecal_bottom[i]+h_hcal_bottom[i];
+      }
+      scale = 200 / maxValue;
+      printf("Final scale value for rho-z: %f\n", scale);
+   }
    
    // Make objects representing towers
    TEveGeoShapeExtract* container = new TEveGeoShapeExtract( name );
