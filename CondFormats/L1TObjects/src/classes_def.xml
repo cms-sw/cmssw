@@ -35,11 +35,9 @@
   <class name="L1MuDTTFParameters"/>
   <class name="L1CSCTPParameters"/>
   <class name="L1MuCSCTFConfiguration"/>
+  <class name="L1MuCSCTFAlignment"/>
   <class name="fixedArray<unsigned short,2097152>"/>
   <class name="L1MuCSCPtLut"/>
-  <class name="L1MuCSCDTLut"/>
-  <class name="L1MuCSCLocalPhiLut"/>
-  <class name="L1MuCSCGlobalLuts"/>
   <class name="EcalTPParameters"/>
   <class name="DTConfigBti"/>
   <class name="DTConfigTraco"/>
