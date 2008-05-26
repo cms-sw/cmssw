@@ -265,7 +265,7 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
 
     }
 
-    if (sum > 2) return true;
+    if (sum > 1) return true;
 
   }
 
