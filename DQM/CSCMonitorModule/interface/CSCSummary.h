@@ -33,8 +33,9 @@ class CSCSummary {
     void Read(TH1*& h1);
     void ReadChambers(TH2*& h2, const double threshold = 1);
 
-    void Write(TH1*& h1);
-    void Write(TH1*& h1, const unsigned int station);
+    void Write(TH1*& h1) const;
+    void Write(TH1*& h1, const unsigned int station) const;
+    const float WriteMap(TH2*& h2) const;
 
     void SetValue(const int value);
     void SetValue(CSCAddress adr, const int value);

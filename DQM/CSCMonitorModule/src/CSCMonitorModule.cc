@@ -101,13 +101,18 @@ void CSCMonitorModule::setup() {
 
   */
 
-  // Book detector summary histograms
+  // Book detector summary histograms and stuff
   MonitorElement* me;
   me = dbe->book1D("Summary_ME1", "EMU status: ME1", 21600, 1, 21600);
   me = dbe->book1D("Summary_ME2", "EMU status: ME2", 21600, 1, 21600);
   me = dbe->book1D("Summary_ME3", "EMU status: ME3", 21600, 1, 21600);
   me = dbe->book1D("Summary_ME4", "EMU status: ME4", 21600, 1, 21600);
-  me = dbe->book1D("Summary_EMU", "EMU status", 21600, 1, 21600);
+  me = dbe->book2D("Summary_EMU", "EMU status", 100, 1, 100, 100, 1, 100);
+  me->getTH1()->SetOption("colz");
+
+  // Summary float stuff
+  dbe->setCurrentFolder(rootDir + "EventInfo");
+  me = dbe->bookFloat("reportSummary");
 
   LOGINFO("Fraction histograms") << " updateKey = " << fractUpdateKey << ", update on events (freq) = " << fractUpdateEvF;
 

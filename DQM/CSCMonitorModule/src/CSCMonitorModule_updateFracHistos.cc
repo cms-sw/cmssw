@@ -105,9 +105,8 @@ void CSCMonitorModule::updateFracHistos() {
   }
 
   if (MEEMU("CSC_Unpacked_Fract", me1)){
-    TH2* tmp=dynamic_cast<TH2*>(me1->getTH1()->Clone());
+    TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
     summary.ReadChambers(tmp, 0.75);
-    delete tmp;
   }
 
   if (MEEMU("Summary_ME1", me1)){
@@ -131,8 +130,11 @@ void CSCMonitorModule::updateFracHistos() {
   }
 
   if (MEEMU("Summary_EMU", me1)){
-    TH1* tmp = me1->getTH1();
-    summary.Write(tmp);
+    TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
+    float rs = summary.WriteMap(tmp);
+    if(isMEValid(rootDir + "EventInfo/reportSummary", me1)){
+      me1->Fill(rs);
+    }
   }
 
 }

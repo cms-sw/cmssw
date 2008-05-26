@@ -75,7 +75,7 @@ void CSCSummary::ReadChambers(TH2*& h2, const double threshold) {
  * @param  h1 Histogram to write data to
  * @return 
  */
-void CSCSummary::Write(TH1*& h1) {
+void CSCSummary::Write(TH1*& h1) const {
   CSCAddress adr;
   unsigned int bin = 1;
 
@@ -104,7 +104,7 @@ void CSCSummary::Write(TH1*& h1) {
  * @param  adr.station adr.station number (0-3) to write data for
  * @return 
  */
-void CSCSummary::Write(TH1*& h1, const unsigned int station) {
+void CSCSummary::Write(TH1*& h1, const unsigned int station) const {
   CSCAddress adr;
   const int station_len = N_RINGS * N_CHAMBERS * N_CFEBS * N_HVS;
 
@@ -128,6 +128,49 @@ void CSCSummary::Write(TH1*& h1, const unsigned int station) {
       }
     }
   }
+}
+
+const float CSCSummary::WriteMap(TH2*& h2) const {
+
+  const unsigned int NTICS = 100;
+  unsigned int rep_el = 0, csc_el = 0;
+
+  if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= NTICS &&
+     h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= NTICS) {
+
+    float xd = 5.0 / NTICS, yd = 1.0 * (2.0 * 3.14159) / NTICS;
+
+    float xmin, xmax, ymin, ymax;
+
+    for(unsigned int x = 0; x < NTICS; x++) {
+
+      xmin = -2.5 + xd * x;
+      xmax = xmin + xd;
+
+      for(unsigned int y = 0; y < NTICS; y++) {
+
+        h2->SetBinContent(x + 1, y + 1, 0);
+
+        if (xmin == -2.5 || xmax == 2.5) continue;
+        if (xmin >= -1 && xmax <= 1)     continue;
+
+        ymin = yd * y;
+        ymax = ymin + yd;
+
+        if(IsPhysicsReady(xmin, xmax, ymin, ymax)) {
+          h2->SetBinContent(x + 1, y + 1, 1);
+          rep_el++;
+        }
+
+        csc_el++;
+
+      }
+    }
+
+  }
+
+  return (csc_el == 0 ? 0.0 : (1.0 * rep_el) / csc_el);
+
 }
 
 /**
