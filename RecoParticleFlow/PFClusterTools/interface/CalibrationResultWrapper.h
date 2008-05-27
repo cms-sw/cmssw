@@ -46,7 +46,7 @@ public:
 	/*
 	 * What energy was this particle optimised to?
 	 */
-	double truthEnergy_ = 0;
+	double truthEnergy_;
 	
 	/*
 	 * Calibrated ecal deposition
