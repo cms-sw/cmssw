@@ -97,7 +97,7 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
       el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
-    if ((el_location.find("TDecompChol::Solve") != std::string::npos) {
+    if (el_location.find("TDecompChol::Solve") != std::string::npos) {
       el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
