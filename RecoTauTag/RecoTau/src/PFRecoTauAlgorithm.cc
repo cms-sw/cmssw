@@ -216,7 +216,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }
   }
 
-
+  /*
   // for elecron rejection
   double myECALenergy=0.;
   double myHCALenergy=0.;
@@ -229,12 +229,12 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   
   float myMaximumHCALPFClusterEt=0.;
 
-  /* Corrected Cluster energies
-  for(int i=0;i<(int)myPFCands.size();i++){
-    myHCALenergy += myPFCands[i]->hcalEnergy();
-    myECALenergy += myPFCands[i]->ecalEnergy();
-  }
-  */
+  // Corrected Cluster energies
+//  for(int i=0;i<(int)myPFCands.size();i++){
+//    myHCALenergy += myPFCands[i]->hcalEnergy();
+//    myECALenergy += myPFCands[i]->ecalEnergy();
+//  }
+  
 
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks;
@@ -331,7 +331,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   }
   // end electron rejection
-  
+*/  
   
   return myPFTau;  
 }
