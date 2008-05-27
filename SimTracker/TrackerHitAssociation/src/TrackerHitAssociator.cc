@@ -131,7 +131,8 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   //initialize vectors!
   simtrackid.clear();
   simhitCFPos.clear();
-
+  StripHits = false;
+  
   //get the Detector type of the rechit
   DetId detid=  thit.geographicalId();
   uint32_t detID = detid.rawId();
@@ -163,6 +164,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	  detid = rechit->originalHit().geographicalId();
 	  detID = detid.rawId();
 	}
+
     }
   //check we are in the pixel tracker
   if( (unsigned int)(detid.subdetId()) == PixelSubdetector::PixelBarrel || 
@@ -174,7 +176,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	}
     }
   //check if these are GSRecHits (from FastSim)
-
+  
   if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
     {
       simtrackid = associateGSRecHit(rechit);
@@ -192,13 +194,72 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   //
   //Save the SimHits in a vector. for the macthed hits both the rphi and stereo simhits are saved. 
   //
-  //  std::cout << "NEW SIZE =  " << simhitCFPos.size() << std::endl;
-  for(int i=0; i<simhitCFPos.size(); i++){
-    //std::cout << "NEW CFPOS " << simhitCFPos[i] << endl;
-    //std::cout << "NEW LOCALPOS " <<  TrackerHits.getObject(simhitCFPos[i]).localPosition()  << endl;
-    result.push_back( TrackerHits.getObject(simhitCFPos[i]));
-  }
   
+  if(StripHits){
+    //USE THIS FOR STRIPS
+    //  std::cout << "NEW SIZE =  " << simhitCFPos.size() << std::endl;
+    
+    for(int i=0; i<simhitCFPos.size(); i++){
+      //std::cout << "NEW CFPOS " << simhitCFPos[i] << endl;
+      //std::cout << "NEW LOCALPOS " <<  TrackerHits.getObject(simhitCFPos[i]).localPosition()  << endl;
+      result.push_back( TrackerHits.getObject(simhitCFPos[i]));
+    }
+  }else {
+    
+    //now get the SimHit from the trackid
+    vector<PSimHit> simHit; 
+    std::map<unsigned int, std::vector<PSimHit> >::const_iterator it = SimHitMap.find(detID);
+    simHit.clear();
+    if (it!= SimHitMap.end()){
+      simHit = it->second;
+      vector<PSimHit>::const_iterator simHitIter = simHit.begin();
+      vector<PSimHit>::const_iterator simHitIterEnd = simHit.end();
+      for (;simHitIter != simHitIterEnd; ++simHitIter) {
+	const PSimHit ihit = *simHitIter;
+	unsigned int simHitid = ihit.trackId();
+	EncodedEventId simHiteid = ihit.eventId();
+	
+	for(size_t i=0; i<simtrackid.size();i++){
+	  if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second){ 
+	    //	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
+	    //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
+	    result.push_back(ihit);
+	  }
+	}
+      }
+    }else{
+      /// Check if it's the gluedDet   
+      std::map<unsigned int, std::vector<PSimHit> >::const_iterator itrphi = 
+	SimHitMap.find(detID+2);//iterator to the simhit in the rphi module
+      std::map<unsigned int, std::vector<PSimHit> >::const_iterator itster = 
+	SimHitMap.find(detID+1);//iterator to the simhit in the stereo module
+      if (itrphi!= SimHitMap.end()&&itster!=SimHitMap.end()){
+	simHit = itrphi->second;
+	simHit.insert(simHit.end(),(itster->second).begin(),(itster->second).end());
+	vector<PSimHit>::const_iterator simHitIter = simHit.begin();
+	vector<PSimHit>::const_iterator simHitIterEnd = simHit.end();
+	for (;simHitIter != simHitIterEnd; ++simHitIter) {
+	  const PSimHit ihit = *simHitIter;
+	  unsigned int simHitid = ihit.trackId();
+	  EncodedEventId simHiteid = ihit.eventId();
+	  
+	  //===>>>>>change here!!!!
+	  //	for(size_t i=0; i<simtrackid.size();i++){
+	  //  cout << " GluedDet Associator -->  check sihit id's = " << simHitid <<"; compared id's = "<< simtrackid[i] <<endl;
+	  // if(simHitid == simtrackid[i]){ //exclude the geant particles. they all have the same id
+	  for(size_t i=0; i<simtrackid.size();i++){
+	    if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second){ 
+	      //	  cout << "GluedDet Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
+	      //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
+	      result.push_back(ihit);
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+
   return result;  
 }
 
@@ -277,6 +338,7 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2D * simplerechit)
 {
   //  std::cout <<"ASSOCIATE SIMPLE RECHIT" << std::endl;	    
+  StripHits ==true;	  
 
   DetId detid=  simplerechit->geographicalId();
   uint32_t detID = detid.rawId();
@@ -372,6 +434,9 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit)
 {
 
+  StripHits = true;
+
+
   vector<SimHitIdpr> matched_mono;
   vector<SimHitIdpr> matched_st;
   matched_mono.clear();
@@ -407,6 +472,9 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit)
 {
+  StripHits = true;
+
+
   //projectedRecHit is a "matched" rechit with only one component
 
   vector<SimHitIdpr> matched_mono;
@@ -420,6 +488,8 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const Pr
 //std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
 std::vector<SimHitIdpr>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
 {
+  StripHits = false;
+
   //
   // Pixel associator
   //
@@ -467,6 +537,7 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associatePixelRecHit(const SiPixe
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit)
 {
+  StripHits = false;
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
 
   vector<SimHitIdpr> simtrackid;
@@ -489,6 +560,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateMultiRecHit(const SiTrackerM
 }
 
 std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit){
+
         std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
         std::vector<SimHitIdpr> assimhits;
         std::vector<const TrackingRecHit*>::const_iterator iter;
@@ -502,6 +574,7 @@ std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTra
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit)
 {
+  StripHits = false;
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
   
   vector<SimHitIdpr> simtrackid;

@@ -103,6 +103,7 @@ class TrackerHitAssociator {
   //vector with the simhits
   std::vector<int> simhitCFPos;
   std::vector<PSimHit> simhitassoc;
+  bool StripHits;
   
   bool doPixel_, doStrip_, doTrackAssoc_;
   
