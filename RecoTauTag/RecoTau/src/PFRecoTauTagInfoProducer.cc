@@ -21,9 +21,9 @@ void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
   Handle<PFCandidateCollection> thePFCandidateCollection;
   iEvent.getByLabel(PFCandidateProducer_,thePFCandidateCollection);
-  PFCandidateRefVector thePFCands;
+  PFCandidateRefVector thePFCandsInTheEvent;
   for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
-    thePFCands.push_back(PFCandidateRef(thePFCandidateCollection,i_PFCand));
+    thePFCandsInTheEvent.push_back(PFCandidateRef(thePFCandidateCollection,i_PFCand));
   }
   // ***
   
@@ -37,7 +37,7 @@ void PFRecoTauTagInfoProducer::produce(Event& iEvent, const EventSetup& iSetup){
   PFTauTagInfoCollection* extCollection=new PFTauTagInfoCollection();
 
   for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
-    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCands,(*iAssoc).second,thePV);
+    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCandsInTheEvent,(*iAssoc).second,thePV);
     extCollection->push_back(myPFTauTagInfo);
   }
   

@@ -2,6 +2,7 @@
 
 PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const ParameterSet& parameters){
   // parameters of the considered charged hadr. PFCandidates, based on their rec. tk properties :
+  ChargedHadronsAssociationCone_      = parameters.getParameter<double>("ChargedHadrCand_AssociationCone");
   ChargedHadrCand_tkminPt_            = parameters.getParameter<double>("ChargedHadrCand_tkminPt");
   ChargedHadrCand_tkminPixelHitsn_    = parameters.getParameter<int>("ChargedHadrCand_tkminPixelHitsn");
   ChargedHadrCand_tkminTrackerHitsn_  = parameters.getParameter<int>("ChargedHadrCand_tkminTrackerHitsn");
@@ -22,21 +23,16 @@ PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const ParameterSet& paramet
   ChargedHadrCand_tkPVmaxDZ_          = parameters.getParameter<double>("ChargedHadrCand_tkPVmaxDZ");
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
 }
-PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const PFCandidateRefVector& thePFCandsInEvent,const TrackRefVector& theTracks,const Vertex& thePV){
+PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const PFCandidateRefVector& thePFCandsInEvent, const TrackRefVector& theTracks,const Vertex& thePV){
   PFTauTagInfo resultExtended;
   resultExtended.setpfjetRef(thePFJet);
   
   PFCandidateRefVector thePFCands;
-  vector<CandidatePtr> theCandidateBaseRefVector=(*thePFJet).getJetConstituents();
-  for(unsigned int i_Constit=0;i_Constit!=theCandidateBaseRefVector.size();i_Constit++) { 
-    const PFCandidate* thePFCand=dynamic_cast<const PFCandidate*>(&*(theCandidateBaseRefVector[i_Constit]));
-    for (PFCandidateRefVector::const_iterator iPFCand=thePFCandsInEvent.begin();iPFCand!=thePFCandsInEvent.end();iPFCand++){
-      if ((*thePFCand).p4()==(**iPFCand).p4() && (*thePFCand).vertex()==(**iPFCand).vertex() && (*thePFCand).charge()==(**iPFCand).charge()){
-	thePFCands.push_back(*iPFCand);
-	break;
-      } 
-    }
+  for (PFCandidateRefVector::const_iterator iPFCand=thePFCandsInEvent.begin();iPFCand!=thePFCandsInEvent.end();iPFCand++){
+    double delta = ROOT::Math::VectorUtil::DeltaR((*thePFJet).p4().Vect(), (*iPFCand).momentum());
+    if (delta < ChargedHadronsAssociationCone_)  thePFCands.push_back(*iPFCand);   
   }
+  
   
   PFCandidateRefVector theFilteredPFChargedHadrCands;
   if (UsePVconstraint_) theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_,ChargedHadrCand_tkPVmaxDZ_, thePV, thePV.z());

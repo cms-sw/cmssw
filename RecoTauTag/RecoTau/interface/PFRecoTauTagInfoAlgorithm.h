@@ -33,6 +33,7 @@ class  PFRecoTauTagInfoAlgorithm  {
   double NeutrHadrCand_HcalclusminE_;
   // 
   double GammaCand_EcalclusminE_;
+  double ChargedHadronsAssociationCone_;
   // 
   double tkminPt_;
   int tkminPixelHitsn_;
