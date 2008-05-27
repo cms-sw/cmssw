@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.52 2008/04/21 09:47:35 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.53 2008/04/30 08:00:24 uberthon Exp $
 //
 //
 
@@ -70,7 +70,7 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(const edm::ParameterSet &
       myMatchEle(0), myMatchPos(0),
       thePropagator(0), theMeasurementTracker(0), 
       theSetup(0), pts_(0),
-      cacheIDMagField_(0),cacheIDGeom_(0),cacheIDNavSchool_(0),cacheIDCkfComp_(0)
+      cacheIDMagField_(0),cacheIDGeom_(0),cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
 { 
      // Instantiate the pixel hit matchers
 
