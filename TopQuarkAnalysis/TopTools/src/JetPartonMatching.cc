@@ -39,30 +39,35 @@ JetPartonMatching::calculate()
   
   // switch algorithm, default is to match
   // on the minimal sum of the distance 
-  switch(algorithm_){
-    
-  case totalMinDist: 
-    matchingTotalMinDist(); 
-    break;
-    
-  case minSumDist: 
-    matchingMinSumDist();
-    break;
-    
-  case ptOrderedMinDist: 
-    matchingPtOrderedMinDist();
-    break;
-
-  case unambiguousOnly:
-    matchingUnambiguousOnly();
-    break;
-    
-  default:
-    matchingMinSumDist();
+  // if jets is empty fill match with blanks
+  if( jets.empty() )
+    for(unsigned int ip=0; ip<partons.size(); ++ip)
+      matching.push_back(std::make_pair(ip, -1));
+  else{
+    switch(algorithm_){
+      
+    case totalMinDist: 
+      matchingTotalMinDist();    
+      break;
+      
+    case minSumDist: 
+      matchingMinSumDist();
+      break;
+      
+    case ptOrderedMinDist: 
+      matchingPtOrderedMinDist();
+      break;
+      
+    case unambiguousOnly:
+      matchingUnambiguousOnly();
+      break;
+      
+    default:
+      matchingMinSumDist();
+    }
   }
-
   std::sort(matching.begin(), matching.end());
-
+  
   numberOfUnmatchedPartons = partons.size();
   for(unsigned int ip=0; ip<partons.size(); ++ip)
     if(getMatchForParton(ip)>=0) --numberOfUnmatchedPartons;
@@ -104,13 +109,13 @@ JetPartonMatching::matchingTotalMinDist()
   // all partons to all jets in the input vectors
   std::vector< std::pair<double, unsigned int> > distances;
   for(unsigned int ip=0; ip<partons.size(); ++ip){
-    for(unsigned int ij=0; ij<jets.size(); ++ij){
+    for(unsigned int ij=0; ij<jets.size(); ++ij){ 
       double dist = distance(jets[ij]->p4(), partons[ip]->p4());
       distances.push_back(std::pair<double, unsigned int>(dist, ip*jets.size()+ij));
     }
   }
   std::sort(distances.begin(), distances.end());
-  
+
   while(matching.size() < partons.size()){
     unsigned int partonIndex = distances[0].second/jets.size();
     int jetIndex = distances[0].second-jets.size()*partonIndex;

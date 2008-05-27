@@ -15,17 +15,17 @@ class TtSemiEvtPartons {
   // defined order for semileptonic ttbar decays
  public:
 
-  enum { LightQ, LightQBar, B, BBar};
+  enum { LightQ, LightQBar, HadB, LepB};
 
   TtSemiEvtPartons(){};
   ~TtSemiEvtPartons(){};
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt)
   {
     std::vector<const reco::Candidate*> vec;
-    vec.push_back(genEvt.hadronicDecayQuark());
-    vec.push_back(genEvt.hadronicDecayQuarkBar());
-    vec.push_back(genEvt.hadronicDecayB());
-    vec.push_back(genEvt.leptonicDecayB());
+    vec.push_back( genEvt.hadronicDecayQuark()    ? genEvt.hadronicDecayQuark()    : new reco::GenParticle() );
+    vec.push_back( genEvt.hadronicDecayQuarkBar() ? genEvt.hadronicDecayQuarkBar() : new reco::GenParticle() );
+    vec.push_back( genEvt.hadronicDecayB()        ? genEvt.hadronicDecayB()        : new reco::GenParticle() );
+    vec.push_back( genEvt.leptonicDecayB()        ? genEvt.leptonicDecayB()        : new reco::GenParticle() );
     return vec;
   }
 };
@@ -42,12 +42,12 @@ class TtHadEvtPartons {
   std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt)
   {
     std::vector<const reco::Candidate*> vec;
-    vec.push_back(genEvt.quarkFromTop());
-    vec.push_back(genEvt.quarkFromTopBar());
-    vec.push_back(genEvt.b());
-    vec.push_back(genEvt.quarkFromAntiTop());
-    vec.push_back(genEvt.quarkFromAntiTopBar());
-    vec.push_back(genEvt.bBar());
+    vec.push_back( genEvt.quarkFromTop()        ? genEvt.quarkFromTop()        : new reco::GenParticle() );
+    vec.push_back( genEvt.quarkFromTopBar()     ? genEvt.quarkFromTopBar()     : new reco::GenParticle() );
+    vec.push_back( genEvt.b()                   ? genEvt.b()                   : new reco::GenParticle() );
+    vec.push_back( genEvt.quarkFromAntiTop()    ? genEvt.quarkFromAntiTop()    : new reco::GenParticle() );
+    vec.push_back( genEvt.quarkFromAntiTopBar() ? genEvt.quarkFromAntiTopBar() : new reco::GenParticle() );
+    vec.push_back( genEvt.bBar()                ? genEvt.bBar()                : new reco::GenParticle() );
     return vec;
   }
 };

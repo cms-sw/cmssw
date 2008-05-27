@@ -10,8 +10,8 @@ TtSemiJetComb::TtSemiJetComb(const std::vector<pat::Jet> &topJets, const std::ve
   // from jet parton matching
   hadQJet = topJets[cmb[TtSemiEvtPartons::LightQ]].p4();
   hadQBarJet = topJets[cmb[TtSemiEvtPartons::LightQBar]].p4();
-  hadBJet = topJets[cmb[TtSemiEvtPartons::B]].p4();
-  lepBJet = topJets[cmb[TtSemiEvtPartons::BBar]].p4();
+  hadBJet = topJets[cmb[TtSemiEvtPartons::HadB]].p4();
+  lepBJet = topJets[cmb[TtSemiEvtPartons::LepB]].p4();
   lepton = lep;
   deduceMothers();
 }
