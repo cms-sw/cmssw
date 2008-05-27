@@ -43,7 +43,12 @@ namespace funct {
   private:
     const Master<F> & master_;
   };
- 
+
+  template<typename F>
+  Master<F> master(const F& f) { return Master<F>(f); }
+
+  template<typename F>
+  Slave<F> slave(const Master<F>& m) { return Slave<F>(m); }
 }
 
 #endif
