@@ -85,7 +85,7 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   }
 
   me = dbe_->bookFloat(histoName);
-  me->Fill(-1);
+  me->Fill(1);
 
   if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryMap") ) {
      dbe_->removeElement(me->getName());
@@ -97,7 +97,7 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
   //fill the histo with "-1" --- just for the moment
   for(int i=0; i<100; i++){
     for (int j=0; j<100; j++ ){
-      me->setBinContent(i,j,-1);
+      me->setBinContent(i,j,1);
     }
   }
 
@@ -115,7 +115,7 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
       dbe_->removeElement(me->getName());
     }
     me = dbe_->bookFloat(segmentNames[i]);
-    me->Fill(-1);
+    me->Fill(1);
   }
 }
   
