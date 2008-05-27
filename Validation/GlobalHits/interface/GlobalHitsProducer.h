@@ -7,8 +7,8 @@
  *  containing information about various sub-systems in global coordinates 
  *  with full geometry
  *
- *  $Date: 2007/10/04 19:32:53 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/11/20 23:53:44 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -42,7 +42,6 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 // calorimeter info
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
