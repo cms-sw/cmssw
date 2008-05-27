@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/04 08:03:21 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/29 21:49:07 $
+ *  $Revision: 1.14 $
  *  \author M. Zanetti
  */
 
@@ -44,8 +44,12 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
   } else {
     cout << "DTDDUFileReader: DaqSource file '" << filename << "' was succesfully opened" << endl;
   }
-  
-  inputFile.ignore(4*numberOfHeaderWords);
+
+  uint32_t runNumber_tmp;
+  inputFile.read(dataPointer<uint32_t>( &runNumber_tmp ), 4);
+  runNumber = runNumber_tmp;
+
+  inputFile.ignore(4*(numberOfHeaderWords-1));
   
   if (skipEvents) { 
     cout<<""<<endl;
@@ -72,7 +76,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
 
   bool haederTag = false;
   bool dataTag = true;
-  
+  bool headerAlreadyFound = false;
   
   int wordCount = 0;
   
@@ -102,7 +106,11 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
     }
     
     // get the DDU header
-    if (isHeader(word,dataTag)) haederTag=true;
+    if (!headerAlreadyFound) 
+      if ( isHeader(word,dataTag)) {
+	headerAlreadyFound=true; 
+	haederTag=true;
+      }
     
     // from now on fill the eventData with the ROS data
     if (haederTag) {
@@ -138,8 +146,13 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
     // eventDataSize = (Number Of Words)* (Word Size)
     int eventDataSize = eventData.size()*dduWordLength;
     
-    // The FED ID is always the first in the DT range
-    FEDRawData& fedRawData = data->FEDData( FEDNumbering::getDTFEDIds().first );
+
+    if ( dduID<770 || dduID > 775 ) {
+      cout<<"[DTDDUFileReader]: ERROR. DDU ID out of range. DDU id="<<dduID<<endl;
+      // The FED ID is always the first in the DT range
+      dduID = FEDNumbering::getDTFEDIds().first;
+    } 
+    FEDRawData& fedRawData = data->FEDData( dduID );
     fedRawData.resize(eventDataSize);
     
     copy(reinterpret_cast<unsigned char*>(&eventData[0]),
@@ -195,7 +208,8 @@ bool DTDDUFileReader::isHeader(uint64_t word, bool dataTag) {
   if ( candidate.check() ) {
     // if ( candidate.check() && !dataTag) {
     it_is = true;
-   eventNumber++;
+    dduID = candidate.sourceID();
+    eventNumber++;
   }
  
   return it_is;

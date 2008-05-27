@@ -4,8 +4,8 @@
 /** \class DTDDUFileReader
  *  Read DT ROS8 raw data files
  *
- *  $Date: 2007/03/12 01:01:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/09/04 08:03:21 $
+ *  $Revision: 1.9 $
  *  \author M. Zanetti - INFN Padova
  */
 
@@ -54,6 +54,8 @@ class DTDDUFileReader : public DaqBaseReader {
 
   edm::RunNumber_t runNumber;
   edm::EventNumber_t eventNumber;
+
+  int dduID;
 
   bool readFromDMA;
   int skipEvents;
