@@ -1,5 +1,15 @@
 #ifndef CondCore_Modules_EmptyIOVSource_h
 #define CondCore_Modules_EmptyIOVSource_h
+//
+// Package:     CondCore/Modules
+// Class  :     EmptyIOVSource
+//
+/**\class  EmptyIOVSource EmptyIOVSource.h CondCore/Modules/src/EmptyIOVSource.h
+   Description: Fake event source to produce user designed run or time conditions.
+*/
+//
+// Author:      Zhen Xie
+//
 
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
 #include "CondCore/DBCommon/interface/Time.h"
