@@ -1,6 +1,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
@@ -29,6 +30,7 @@ namespace {
     std::pair<unsigned int, double> p_uint_dbl;
     std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
     std::pair<std::string, reco::JetTagRef> p_str_jtr;
+    std::map<TtSemiEvent::HypoKey, reco::NamedCompositeCandidate> m_key_hyp;
 
     TtGenEvent ttgen;
     StGenEvent stgen;
@@ -40,15 +42,18 @@ namespace {
     edm::RefProd<StGenEvent> rp_stgen;
     edm::RefProd<TopGenEvent> rp_topgen;
 
+    TtSemiEvent ttsemievt;
     TtDilepEvtSolution ttdilep;
     TtSemiEvtSolution ttsemi;
     TtSemiMassSolution ttsemimass;
     TtHadEvtSolution tthad;
     StEvtSolution st;
+    std::vector<TtSemiEvent> v_ttsemievt;
     std::vector<TtDilepEvtSolution> v_ttdilep;
     std::vector<TtSemiEvtSolution> v_ttsemi;
     std::vector<TtHadEvtSolution> v_tthad;
     std::vector<StEvtSolution> v_st;
+    edm::Wrapper<std::vector<TtSemiEvent> > w_v_ttsemievt;
     edm::Wrapper<std::vector<TtDilepEvtSolution> > w_v_ttdilep;
     edm::Wrapper<std::vector<TtSemiEvtSolution> > w_v_ttsemi;
     edm::Wrapper<std::vector<TtHadEvtSolution> > w_v_tthad;

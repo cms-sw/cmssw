@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEventBuilder.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtHadEvtSolutionMaker.h"
@@ -13,6 +14,7 @@ DEFINE_FWK_MODULE(TopInitSubset);
 DEFINE_FWK_MODULE(TopDecaySubset);
 DEFINE_FWK_MODULE(TtGenEventReco);
 DEFINE_FWK_MODULE(StGenEventReco);
+DEFINE_FWK_MODULE(TtSemiEventBuilder);
 DEFINE_FWK_MODULE(TtSemiEvtSolutionMaker);
 DEFINE_FWK_MODULE(TtDilepEvtSolutionMaker);
 DEFINE_FWK_MODULE(TtHadEvtSolutionMaker);

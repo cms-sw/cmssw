@@ -20,6 +20,11 @@
 #include "DataFormats/Candidate/interface/CandidateWithRef.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 
+namespace TtSemiDaughter{
+  // semileptonic daughter names
+  static const std::string Nu  ="Nu",   Lep ="Lep",  LepW="LepW", LepB="LepB", LepTop="LepTop";
+  static const std::string HadQ="HadQ", HadP="HadP", HadW="HadW", HadB="HadB", HadTop="HadTop"; 
+}
 
 class TtSemiEvent {
   
@@ -82,7 +87,7 @@ class TtSemiEvent {
   double mvaDisc() const { return mvaDisc_.second; }
   double fitChi2() const { return fitChi2_; }
 
- private:
+ public:
 
   // set decay
   void setDecay(const Decay& dec) { decay_=dec; };
@@ -90,11 +95,13 @@ class TtSemiEvent {
   // set the generated event
   void setGenEvent(const edm::Handle<TtGenEvent>& evt) { genEvt_=edm::RefProd<TtGenEvent>(evt); };
 
-  // set EventHypotheses
-  void setEventHypo(const HypoKey& key, reco::NamedCompositeCandidate hyp) { evtHyp_[key]=hyp; };
+  // add EventHypotheses
+  void addEventHypo(const HypoKey& key, reco::NamedCompositeCandidate hyp) { evtHyp_[key]=hyp; };
   
   // set meta information
   void setGenMatch(const std::vector<int>& match) {genMatch_=match;};
+  void setGenMatchSumPt(const double& val) {genMatchSumPt_=val;};
+  void setGenMatchSumDR(const double& val) {genMatchSumDR_=val;};
   void setMvaDiscAndMethod(std::string& name, double& val) {mvaDisc_=std::pair<std::string, double>(name, val);};
   void setFitChi2(double& val) { fitChi2_=val; };
 
