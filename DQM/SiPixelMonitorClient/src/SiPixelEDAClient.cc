@@ -206,21 +206,18 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   //cout << " Updating Summary " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
   sipixelWebInterface_->performAction();
-  //sipixelActionExecutor_->createSummary(bei_);
   //cout << " Checking QTest results " << endl;
   sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
   sipixelWebInterface_->performAction();
-  //sipixelActionExecutor_->checkQTestResults(bei_);
 
 
   //cout  << " Checking Pixel quality flags " << endl;;
-//  bei_->cd();
-//  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
-//  sipixelWebInterface_->performAction();
-  //bool init=true;
-  //sipixelInformationExtractor_->computeGlobalQualityFlag(bei_,init);
-//  bool init=true;
-//  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+  bei_->cd();
+  sipixelWebInterface_->setActionFlag(SiPixelWebInterface::ComputeGlobalQualityFlag);
+  sipixelWebInterface_->performAction();
+  bool init=true;
+  sipixelInformationExtractor_->fillGlobalQualityPlot(bei_,init,eSetup);
+
   //cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
 }
 

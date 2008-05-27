@@ -1348,6 +1348,7 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     if(currDir.find("HalfCylinder_pO")!=string::npos) hcylpO_mods_++;
       
     vector<string> meVec = bei->getMEs();
+    bool gotcha = false;
     for (vector<string>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
@@ -1359,18 +1360,20 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
         string image_name;
         selectImage(image_name,my_map);
         if(image_name!="images/LI_green.gif") {
-          errorMods_++;
-          if(currDir.find("Pixel")!=string::npos) errorMods_++;
-          if(currDir.find("Barrel")!=string::npos) err_bpix_mods_++;
-          if(currDir.find("Shell_mI")!=string::npos) err_shellmI_mods_++;
-          if(currDir.find("Shell_mO")!=string::npos) err_shellmO_mods_++;
-          if(currDir.find("Shell_pI")!=string::npos) err_shellpI_mods_++;
-          if(currDir.find("Shell_pO")!=string::npos) err_shellpO_mods_++;
-          if(currDir.find("Endcap")!=string::npos) err_fpix_mods_++;
-          if(currDir.find("HalfCylinder_mI")!=string::npos) err_hcylmI_mods_++;
-          if(currDir.find("HalfCylinder_mO")!=string::npos) err_hcylmO_mods_++;
-          if(currDir.find("HalfCylinder_pI")!=string::npos) err_hcylpI_mods_++;
-          if(currDir.find("HalfCylinder_pO")!=string::npos) err_hcylpO_mods_++;
+          if(!gotcha){
+            if(currDir.find("Pixel")!=string::npos) errorMods_++;
+            if(currDir.find("Barrel")!=string::npos) err_bpix_mods_++;
+            if(currDir.find("Shell_mI")!=string::npos) err_shellmI_mods_++;
+            if(currDir.find("Shell_mO")!=string::npos) err_shellmO_mods_++;
+            if(currDir.find("Shell_pI")!=string::npos) err_shellpI_mods_++;
+            if(currDir.find("Shell_pO")!=string::npos) err_shellpO_mods_++;
+            if(currDir.find("Endcap")!=string::npos) err_fpix_mods_++;
+            if(currDir.find("HalfCylinder_mI")!=string::npos) err_hcylmI_mods_++;
+            if(currDir.find("HalfCylinder_mO")!=string::npos) err_hcylmO_mods_++;
+            if(currDir.find("HalfCylinder_pI")!=string::npos) err_hcylpI_mods_++;
+            if(currDir.find("HalfCylinder_pO")!=string::npos) err_hcylpO_mods_++;
+	  }
+	  gotcha = true;
         }	
       }
     }
@@ -1395,11 +1398,8 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     computeGlobalQualityFlag(bei,init);
     bei->goUp();
   }
-  bei->cd();
-  bei->setCurrentFolder("Pixel/EventInfo");
   SummaryReport = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryReport) SummaryReport->Fill(qflag_);
-  bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents"); 
   SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryBarrel");
   if(SummaryBarrel) SummaryBarrel->Fill(bpix_flag_);
   SummaryShellmI = bei->get("Pixel/EventInfo/reportSummaryContents/SummaryShellmI");
@@ -1467,7 +1467,7 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	  float detZ = pixDet->surface().position().z();
 	  detPhi = pixDet->surface().position().phi();
 	  detEta = -1.*log(tan(atan2(detR,detZ)/2.));
-	  cout<<"Module: "<<currDir<<" , Eta= "<<detEta<<" , Phi= "<<detPhi<<endl;
+	  //cout<<"Module: "<<currDir<<" , Eta= "<<detEta<<" , Phi= "<<detPhi<<endl;
 	  once=false;
 	}
       }
