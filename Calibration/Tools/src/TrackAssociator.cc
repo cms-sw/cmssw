@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.3 2007/03/10 23:50:58 michals Exp $
+// $Id: TrackAssociator.cc,v 1.4 2008/01/22 20:42:39 muzaffar Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 // calorimeter info
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 
 
@@ -116,7 +116,7 @@ void HTrackAssociator::useDefaultPropagator()
 void HTrackAssociator::init( const edm::EventSetup& iSetup )
 {
    // access the calorimeter geometry
-   iSetup.get<IdealGeometryRecord>().get(theCaloGeometry_);
+   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry_);
    if (!theCaloGeometry_.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find IdealGeometryRecord in event!\n";
    

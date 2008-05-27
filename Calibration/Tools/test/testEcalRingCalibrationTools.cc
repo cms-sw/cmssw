@@ -27,7 +27,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -189,7 +189,7 @@ testEcalRingCalibrationTools::analyze( const edm::Event& iEvent, const edm::Even
    //
    if (pass_==1) {
      edm::ESHandle<CaloGeometry> pG;
-     iSetup.get<IdealGeometryRecord>().get(pG);     
+     iSetup.get<CaloGeometryRecord>().get(pG);     
      EcalRingCalibrationTools::setCaloGeometry(&(*pG));
      build(*pG,DetId::Ecal,EcalBarrel,"eb.ringDump");
      build(*pG,DetId::Ecal,EcalEndcap,"ee.ringDump");
