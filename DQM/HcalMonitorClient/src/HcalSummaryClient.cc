@@ -91,7 +91,8 @@ void HcalSummaryClient::beginRun(void)
 void HcalSummaryClient::endJob(void)
 {
   if ( debug_ ) cout << "HcalSummaryClient: endJob, ievt = " << ievt_ << endl;
-
+  // When the job ends, we want to make a summary before exiting
+  analyze();
   this->cleanup();
 } // void HcalSummaryClient::endJob(void)
 
@@ -99,6 +100,8 @@ void HcalSummaryClient::endJob(void)
 void HcalSummaryClient::endRun(void) 
 {
   if ( debug_ ) cout << "HcalSummaryClient: endRun, jevt = " << jevt_ << endl;
+  // When the run ends, we want to make a summary before exiting
+  analyze();
 
   this->cleanup();
 } // void HcalSummaryClient::endRun(void) 
@@ -183,9 +186,6 @@ void HcalSummaryClient::setup(void)
   me->setAxisTitle("ieta", 1);
   me->setAxisTitle("iphi", 2);
  
-
- 
-
 } // void HcalSummaryClient::setup(void)
 
 
@@ -223,7 +223,7 @@ void HcalSummaryClient::cleanup(void)
 
 void HcalSummaryClient::analyze(void)
 {
-  
+
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) 

@@ -265,6 +265,7 @@ void HcalMonitorClient::endJob(void) {
 
   if( debug_ ) cout << "HcalMonitorClient: endJob, ievt = " << ievt_ << endl;
 
+  if (summary_client_)         summary_client_->endJob();
   if( dataformat_client_ )     dataformat_client_->endJob();
   if( digi_client_ )           digi_client_->endJob();
   if( rechit_client_ )         rechit_client_->endJob();
@@ -351,6 +352,7 @@ void HcalMonitorClient::endRun(const Run& r, const EventSetup& c) {
     else report(false);
   }
 
+  if( summary_client_)      summary_client_->endRun();
   if( hot_client_ )         hot_client_->endRun();
   if( dead_client_ )        dead_client_->endRun(); 
   if( dataformat_client_ )  dataformat_client_->endRun();
