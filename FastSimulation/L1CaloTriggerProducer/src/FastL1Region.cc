@@ -13,13 +13,14 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.19 2008/01/09 21:43:49 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.20 2008/04/24 20:10:35 chinhan Exp $
 //
 
 // No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 FastL1Region::FastL1Region() 
 {
@@ -630,7 +631,7 @@ std::pair<double, double>
 FastL1Region::getRegionCenterEtaPhi(const edm::EventSetup& c)
 {
   edm::ESHandle<CaloGeometry> cGeom; 
-  c.get<IdealGeometryRecord>().get(cGeom);    
+  c.get<CaloGeometryRecord>().get(cGeom);    
 
   const GlobalPoint gP1 = cGeom->getPosition(Towers[5].id());
   //const GlobalPoint gP2 = cGeom->getPosition(Towers[6].id());
