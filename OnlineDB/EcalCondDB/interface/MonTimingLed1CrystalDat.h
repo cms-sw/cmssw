@@ -1,5 +1,5 @@
 #ifndef MONTIMINGLED1XTALDAT_H
-#define MONTIMINGLED2XTALDAT_H
+#define MONTIMINGLED1XTALDAT_H
 
 #include "OnlineDB/EcalCondDB/interface/ITimingDat.h"
 
