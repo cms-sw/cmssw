@@ -9,14 +9,18 @@
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/CommonDetUnit>
+<use name=DataFormats/L1GlobalMuonTrigger>
 <export>
 <lib name=DQMRPCMonitorClient> 
 <use name=boost>
 <use name=root> 
 <use name=xdaq>
+<use name=DQMServices/Core>
+<use name=DQMServices/ClientConfig>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/RPCGeometry>
 <use name=Geometry/CommonDetUnit>
+<use name=DataFormats/L1GlobalMuonTrigger>
 </export>

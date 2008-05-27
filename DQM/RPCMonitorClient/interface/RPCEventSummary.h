@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/03/16 18:52:20 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/04/25 14:24:56 $
+ *  $Revision: 1.1 $
  *  \author Anna Cimmino
  *   
  */
@@ -85,6 +85,9 @@ public:
   
   edm::ESHandle<RPCGeometry> muonGeom;
   //edm::ESHandle<DTTtrig> tTrigMap;
+
+
+  std::vector<std::string> segmentNames; 
 
   std::map<RPCDetId,std::string>  meCollection;
 };

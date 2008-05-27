@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/16 18:52:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/25 14:24:57 $
+ *  $Revision: 1.1 $
  *  \author Anna Cimmino
  */
 
@@ -58,7 +58,7 @@ RPCEventSummary::~RPCEventSummary(){
 //called only once
 void RPCEventSummary::beginJob(const EventSetup& iSetup){
 
- LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin job";
+ LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin job ---------------------------------------------";
   
  // get hold of back-end interface
  dbe_ = Service<DQMStore>().operator->();
@@ -72,9 +72,51 @@ void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
 
 //set to -1 the event summary info (-1 = no info yet ... but it's coming....)
- MonitorElement * me = dbe_->get(eventInfoPath_+"/errorSummary");
- if(me) me->Fill(-1);
 
+ MonitorElement* me;
+ dbe_->setCurrentFolder(eventInfoPath_);
+
+ string histoName="reportSummary";
+
+ //a global summary float [0,1] providing a global summary of the status 
+ //and showing the goodness of the data taken by the the sub-system 
+ if ( me = dbe_->get(eventInfoPath_ +"/"+ histoName) ) {
+    dbe_->removeElement(me->getName());
+  }
+
+  me = dbe_->bookFloat(histoName);
+  me->Fill(-1);
+
+  if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryMap") ) {
+     dbe_->removeElement(me->getName());
+  }
+  me = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 100, 0, 100, 100, 0, 100);
+  me->setAxisTitle("jphi", 1);
+  me->setAxisTitle("jeta", 2);
+
+  //fill the histo with "-1" --- just for the moment
+  for(int i=0; i<100; i++){
+    for (int j=0; j<100; j++ ){
+      me->setBinContent(i,j,-1);
+    }
+  }
+
+
+ dbe_->setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
+
+ //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
+ // which describe the behavior of the respective subsystem sub-component.
+  segmentNames.push_back("RPCEndcap-");
+  segmentNames.push_back("RPCBarrel");
+  segmentNames.push_back("RPCEndcap+");
+
+  for(int i=0; i<segmentNames.size(); i++){
+    if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]) ) {
+      dbe_->removeElement(me->getName());
+    }
+    me = dbe_->bookFloat(segmentNames[i]);
+    me->Fill(-1);
+  }
 }
   
 
@@ -166,25 +208,21 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   if(totalChannels!=0) fraction = ((int)(((totalChannels-totalBadChannels)/totalChannels)*100))/100.0;
   LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Total Alive Detector Fraction:"<<fraction;
 
-  MonitorElement * meEventSummary = dbe_->get(eventInfoPath_+"/errorSummary");
+  MonitorElement * meEventSummary = dbe_->get(eventInfoPath_+"/reportSummary");
   if(meEventSummary) meEventSummary->Fill(fraction);
   
   if (enableDetectorSegmentation_){
-    LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: hhhhhhhhhhhhhhh============1"; 
     stringstream meSegmentName;
+    
     //loop on detector segments
-    LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: hhhhhhhhhhhhhhh============2////"<<channelsInSegment.size(); 
-    for (int i = 0 ; i<channelsInSegment.size(); i++){
+        for (int i = 0 ; i<channelsInSegment.size(); i++){
       float fraction1=-1;
       if (channelsInSegment[i]!=0) fraction1 = ((int)(((channelsInSegment[i]-badChannelsInSegment[i])/channelsInSegment[i])*100))/100.0;
 
       meSegmentName.str("");
-      meSegmentName<<eventInfoPath_<<"/errorSummarySegments/Segment0"<<i;
-      LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: hhhhhhhhhhhhhhh============"<< meSegmentName.str();
+      meSegmentName<<eventInfoPath_<<"/reportSummaryContents/"<<segmentNames[i];
       MonitorElement * meSegment = dbe_->get(meSegmentName.str());
       if(meSegment){ meSegment->Fill(fraction1);
-      
-      LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: hhhhhhhhhhhhhhhhhhhhhh"<<fraction1;
       }
     }//end loop on detector segments
   }
