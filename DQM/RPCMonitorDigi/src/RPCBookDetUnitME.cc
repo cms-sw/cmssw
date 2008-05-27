@@ -61,6 +61,9 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
   RPCGeomServ RPCname(detId);
   std::string nameRoll = RPCname.name();
 
+  RPCGeomServ RPCindex(detId);
+  int index = RPCindex.chambernr();
+
   detUnitLabel = nameRoll;
   layerUnitLabel = nameRoll;
   
@@ -249,7 +252,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
   Yaxis.erase(0,3);
   Yaxis.replace(Yaxis.find("S"),4,"");
   Yaxis.erase(Yaxis.find("_")+2,8);
-  meMap[meId]->setBinLabel(nrnr, Yaxis, 2);
+  meMap[meId]->setBinLabel(index, Yaxis, 2);
   */
   // int nrnr=2;
 
@@ -292,13 +295,22 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region
   os.str("");
   os<<"Wheel_Occupancy_XY_Coordinates_for_"<<ringType<<"_"<<region<<"_"<<ring;
   meTitle = os.str();
-  meMap[meId] = dbe->book2D(meId, meTitle, 1000, -800, 800, 1000, -800, 800);
+  meMap[meId] = dbe->book2D(meId, meTitle, 63, -800, 800, 63, -800, 800);
 
   os.str("");
   os<<"WheelClusterSize_"<<ringType<<"_"<<region<<"_"<<ring;
   meId = os.str();
   meTitle = os.str();
   meMap[meId] = dbe->book1D(meId, meTitle, 20, 0.5, 20.5);
+
+
+  os.str("");
+  os<<"Wheel1DOccupancy_"<<ringType<<"_"<<region<<"_"<<ring;
+  meId = os.str();
+  meTitle = os.str();
+  meMap[meId] = dbe->book1D(meId, meTitle, 12, 0.5, 12.5);
+  
+
   
   std::cout<<"end of Global folder"<<std::endl;;
   

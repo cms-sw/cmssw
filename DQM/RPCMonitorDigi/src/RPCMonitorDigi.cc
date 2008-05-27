@@ -109,6 +109,8 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
 
   SameBxDigisMe_ = dbe->book1D("SameBXDigis", "Digis with same bx", 20, 0, 20);
+  
+  BarrelOccupancy = dbe -> book2D("BarrelOccupancy", "Barrel Occupancy Wheel vs Sector", 12, 0.5, 12.5, 5, -2.5, 2.5);
 
 }
 
@@ -292,13 +294,42 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	meId = os.str();
 	meMap[meId]->Fill(strip, nr);
 
-	 
+	
 	Yaxis.erase(0,3);
 	Yaxis.replace(Yaxis.find("S"),4,"");
 	Yaxis.erase(Yaxis.find("_")+2,8);
-	
 	meMap[meId]->setBinLabel(nr, Yaxis, 2);
 	
+	
+	os.str("");
+	os<<"Wheel1DOccupancy_"<<ringType<<"_"<<region<<"_"<<ring;
+	meId = os.str();
+	int sect = detId.sector();
+	
+	//cout<<sect<<" "<<detId.ring()<<endl;
+	meRingMap[meId]->Fill(sect);
+	
+     
+	//int wheel = ringType;
+	BarrelOccupancy -> Fill(detId.sector(), detId.ring());
+	os.str("");
+	os<<"Sect"<<detId.sector();
+	string sector1 = os.str();
+
+	os.str("");
+	os<<"Wheel"<<detId.ring();
+	string Wheel1=os.str();
+
+	BarrelOccupancy -> setBinLabel(detId.sector(), sector1, 1);
+	BarrelOccupancy -> setBinLabel(detId.ring()+3, Wheel1, 2);
+	cout<<Wheel1<<" "<<detId.ring()<<endl;
+
+	os.str("");
+	os<<"Sec"<<detId.sector();
+	Yaxis= os.str();
+	meRingMap[meId]->setBinLabel(sect, Yaxis, 1);
+	
+
 	os.str("");
 	os<<"BXN_"<<detUnitLabel;
 	meId=os.str();
@@ -407,6 +438,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 meId = os.str();
 	 meRingMap[meId]->Fill(globalHitPoint.x(),globalHitPoint.y());
 	 
+
+	 
 	 
 	 //	 GlobalZXHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.x());			
 	 // GlobalZYHitCoordinates->Fill(globalHitPoint.z(),globalHitPoint.y());
@@ -426,6 +459,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 	 if(detId.region() ==  0) {
 	   
 	   ClusterSize_for_Barrel -> Fill(mult);
+	   
 	   
 	 } else if (detId.region() ==  -1) {
 	   
