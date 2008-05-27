@@ -65,35 +65,48 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
 
   int nevent;
 
-  // transverse energy sum arrays
-  double etsum_barl_[85][360][2];
-  double etsum_endc_[100][100][2];
-  double etsumMean_barl_[85];
-  double etsumMean_endc_[39];
-  double etsum_barl_miscal_[21][85];
-  double etsum_endc_miscal_[21][39];
+
+  static const int  kBarlRings  = 85;
+  static const int  kBarlWedges = 360;
+  static const int  kSides      = 2;
+
+  static const int  kEndcWedgesX = 100;
+  static const int  kEndcWedgesY = 100;
+
+  static const int  kEndcEtaRings = 39;
+
+  // Transverse energy sum arrays
+  double etsum_barl_[kBarlRings]  [kBarlWedges] [kSides];
+  double etsum_endc_[kEndcWedgesX][kEndcWedgesX][kSides];
+
+  double etsumMean_barl_[kBarlRings];
+  double etsumMean_endc_[kEndcEtaRings];
+
+  double etsum_barl_miscal_[21][kBarlRings];
+  double etsum_endc_miscal_[21][kEndcEtaRings];
 
   // crystal geometry information
-  double cellEta_[85];
-  GlobalPoint cellPos_[100][100];
-  double cellPhi_[100][100];
-  double cellArea_[100][100];
-  double meanCellArea_[39];
-  double etaBoundary_[40];
-  int endcapRing_[100][100];
-  int nRing_[39];
+  double cellEta_[kBarlRings];
+
+  GlobalPoint cellPos_[kEndcWedgesX][kEndcWedgesY];
+  double cellPhi_     [kEndcWedgesX][kEndcWedgesY];
+  double cellArea_    [kEndcWedgesX][kEndcWedgesY];
+  double meanCellArea_[kEndcEtaRings];
+  double etaBoundary_ [kEndcEtaRings+1];
+  int endcapRing_     [kEndcWedgesX][kEndcWedgesY];
+  int nRing_          [kEndcEtaRings];
 
   // factors to convert from ET sum deviation to miscalibration
-  double k_barl_[85];
-  double k_endc_[39];
+  double k_barl_[kBarlRings];
+  double k_endc_[kEndcEtaRings];
   double miscal_[21];
  
   std::vector<DetId> barrelCells;
   std::vector<DetId> endcapCells;
 
   // input calibration constants
-  double oldCalibs_barl[85][360][2];
-  double oldCalibs_endc[100][360][2];
+  double oldCalibs_barl[kBarlRings  ][kBarlWedges][kSides];
+  double oldCalibs_endc[kEndcWedgesX][kEndcWedgesY][kSides];
 
   // steering parameters
 
@@ -107,21 +120,17 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   double eCut_endc_;  
   int eventSet_;
 
-   TH1F* etsum_barl_histos_[85]; 
-   TH1F* etsum_endc_histos_[39]; 
-   TH1F* etsumVsPhi_histos1[39][2]; 
-   TH1F* etsumVsPhi_histos[39][2]; 
-   TH1F* areaVsPhi_histos[39]; 
-   TH1F* etaVsPhi_histos[39]; 
+
+  // TH1F* etsumVsPhi_histos1[39][2]; 
+  // TH1F* etsumVsPhi_histos[39][2]; 
+   
    float phi_endc[300][39]; 
     
-   
+   std::vector<TH1F*> areaVsPhi_histos;
+   std::vector<TH1F*> etaVsPhi_histos;  
 
 
-  TGraph* k_barl_graph_[85];
-  TGraph* k_endc_graph_[39];
-  TCanvas* k_barl_plot_[85];
-  TCanvas* k_endc_plot_[39];
+
 };
 
 #endif

@@ -34,12 +34,13 @@ PhiSymmetryCalibration::PhiSymmetryCalibration(const edm::ParameterSet& iConfig)
   endcapHits_( iConfig.getParameter< std::string > ("endcapHitCollection") ),
   eCut_barl_( iConfig.getParameter< double > ("eCut_barrel") ),
   eCut_endc_( iConfig.getParameter< double > ("eCut_endcap") ),
-  eventSet_( iConfig.getParameter< int > ("eventSet") )
+  eventSet_( iConfig.getParameter< int > ("eventSet") )   
 {
 
   edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] Constructor called ...";
 
-  theParameterSet=iConfig;
+  areaVsPhi_histos.resize(kEndcEtaRings);
+  etaVsPhi_histos.resize(kEndcEtaRings);
 
 }
 
@@ -62,24 +63,24 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
   // initialize arrays
 
-  for (int sign=0; sign<2; sign++) {
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
+  for (int sign=0; sign<kSides; sign++) {
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
+      for (int iphi=0; iphi<kBarlWedges; iphi++) {
 	etsum_barl_[ieta][iphi][sign]=0.;
       }
     }
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	etsum_endc_[ix][iy][sign]=0.;
       }
     }
   }
 
 
-  for (int ieta=0; ieta<85; ieta++) cellEta_[ieta]=0.;
+  for (int ieta=0; ieta<kBarlRings; ieta++) cellEta_[ieta]=0.;
 
-  for (int ix=0; ix<100; ix++) {
-    for (int iy=0; iy<100; iy++) {
+  for (int ix=0; ix<kEndcWedgesX; ix++) {
+    for (int iy=0; iy<kEndcWedgesY; iy++) {
       cellPos_[ix][iy] = GlobalPoint(0.,0.,0.);
       cellPhi_[ix][iy]=0.;
       cellArea_[ix][iy]=0.;
@@ -89,8 +90,8 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
   for (int imiscal=0; imiscal<21; imiscal++) {
     miscal_[imiscal]=.95+float(imiscal)/200.;
-    for (int ieta=0; ieta<85; ieta++) etsum_barl_miscal_[imiscal][ieta]=0.;
-    for (int ring=0; ring<39; ring++) etsum_endc_miscal_[imiscal][ring]=0.;
+    for (int ieta=0; ieta<kBarlRings; ieta++) etsum_barl_miscal_[imiscal][ieta]=0.;
+    for (int ring=0; ring<kEndcEtaRings; ring++) etsum_endc_miscal_[imiscal][ring]=0.;
   }
 
   // get initial constants out of DB
@@ -160,7 +161,7 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
       EcalIntercalibConstant calib = (*itcalib);
       int sign = ee.zside()>0 ? 1 : 0;
       oldCalibs_endc[ix][iy][sign] = calib;
-      if (ix==49) std::cout << "Read old constant for crystal "
+      if (ix==49) std::cout << "Read old constant for xcrystal "
 			    << " (" << ix << "," << iy
 			    << ") : " << calib << std::endl;
     }
@@ -186,26 +187,26 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
 
   // get eta for each endcap ring
-  float eta_ring[39];
-  for (int ring=0; ring<39; ring++) {
+  float eta_ring[kEndcEtaRings];
+  for (int ring=0; ring<kEndcEtaRings; ring++) {
     eta_ring[ring]=cellPos_[ring][50].eta();
   }
 
   // get eta boundaries for each endcap ring
   etaBoundary_[0]=1.479;
   etaBoundary_[39]=4.;
-  for (int ring=1; ring<39; ring++) {
+  for (int ring=1; ring<kEndcEtaRings; ring++) {
     etaBoundary_[ring]=(eta_ring[ring]+eta_ring[ring-1])/2.;
   }
 
   // determine to which ring each endcap crystal belongs,
   // the number of crystals in each ring,
   // and the mean eta-phi area of the crystals in each ring
-  for (int ring=0; ring<39; ring++) {
+  for (int ring=0; ring<kEndcEtaRings; ring++) {
     nRing_[ring]=0;
     meanCellArea_[ring]=0.;
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	if (fabs(cellPos_[ix][iy].eta())>etaBoundary_[ring] &&
 	    fabs(cellPos_[ix][iy].eta())<etaBoundary_[ring+1]) {
 	  meanCellArea_[ring]+=cellArea_[ix][iy];
@@ -223,8 +224,8 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
 
     // book and fill and output histograms of ET sum vs phi
 
-  
-    for (int ring=0; ring<39; ring++) {
+  /*  
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
       char ch[3];
       sprintf(ch, "etsumVsPhi_neg1_%i", ring+1);
       
@@ -237,22 +238,30 @@ void PhiSymmetryCalibration::beginJob( const edm::EventSetup& iSetup )
       etsumVsPhi_histos1[ring][1]=new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
     }
 
+  */
+    
 
-   for (int ring=0; ring<39; ring++) {
-      char ch[3];
-      sprintf(ch, "etsumVsPhi_neg_%i", ring+1);
-      etsumVsPhi_histos[ring][0] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-      sprintf(ch, "etsumVsPhi_pos_%i", ring+1);
-      etsumVsPhi_histos[ring][1] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-      sprintf(ch, "areaVsPhi_%i", ring+1);
-      areaVsPhi_histos[ring] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
-      sprintf(ch, "etaVsPhi_%i", ring+1);
-      etaVsPhi_histos[ring] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
+   
+
+   for (int ring=0; ring<kEndcEtaRings; ring++) {
+     //char ch[3];
+      //sprintf(ch, "etsumVsPhi_neg_%i", ring+1);
+      //etsumVsPhi_histos[ring][0] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
+      //sprintf(ch, "etsumVsPhi_pos_%i", ring+1);
+      //etsumVsPhi_histos[ring][1] = new TH1F(ch,"",nRing_[ring],.5,nRing_[ring]+.5);
+      ostringstream t1;
+      t1<<  "areaVsPhi_" << ring+1;
+      areaVsPhi_histos[ring] = new TH1F(t1.str().c_str(),"",nRing_[ring],.5,nRing_[ring]+.5);
+      ostringstream t2;
+      t2<<  "etaVsPhi_"<<ring+1;
+      etaVsPhi_histos[ring]  = new TH1F(t2.str().c_str(),"",nRing_[ring],.5,nRing_[ring]+.5);
     }
 
 
-for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+     
+
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	int ring = endcapRing_[ix][iy];
 	if (ring!=-1) {
 	  int iphi_endc=0;
@@ -261,9 +270,9 @@ for (int ix=0; ix<100; ix++) {
 	  }
 	  areaVsPhi_histos[ring]->Fill(iphi_endc,cellArea_[ix][iy]);
 	  etaVsPhi_histos[ring]->Fill(iphi_endc,cellPos_[ix][iy].eta());
-	  for (int sign=0; sign<2; sign++) {
-	    etsumVsPhi_histos[ring][sign]->Fill(iphi_endc,etsum_endc_[ix][iy][sign]);
-	  }
+// 	  for (int sign=0; sign<kSides; sign++) {
+// 	    etsumVsPhi_histos[ring][sign]->Fill(iphi_endc,etsum_endc_[ix][iy][sign]);
+// 	  }
 	}
       }
     }
@@ -271,13 +280,13 @@ for (int ix=0; ix<100; ix++) {
 
 
  //
-    for (int ring=0; ring<39; ring++) {
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
       for (int i=0; i<300; i++) phi_endc[i][ring]=0.;
       float philast=-999.;
       for (int ip=0; ip<nRing_[ring]; ip++) {
 	float phimin=999.;
-	for (int ix=0; ix<100; ix++) {
-	  for (int iy=0; iy<100; iy++) {
+	for (int ix=0; ix<kEndcWedgesX; ix++) {
+	  for (int iy=0; iy<kEndcWedgesY; iy++) {
 	    if (endcapRing_[ix][iy]==ring) {
 	      if (cellPhi_[ix][iy]<phimin && cellPhi_[ix][iy]>philast) {
 		phimin=cellPhi_[ix][iy];
@@ -299,6 +308,7 @@ void PhiSymmetryCalibration::endJob()
 {
 
   edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] At end of job";
+  return;
 
   if (eventSet_==1) {
     // calculate factors to convert from fractional deviation of ET sum from 
@@ -307,12 +317,12 @@ void PhiSymmetryCalibration::endJob()
 
 
     std::ofstream k_barl_out("k_barl.dat", ios::out);
-    for (int ieta=0; ieta<85; ieta++)
+    for (int ieta=0; ieta<kBarlRings; ieta++)
       k_barl_out << ieta << " " << k_barl_[ieta] << endl;
     k_barl_out.close();
 
     std::ofstream k_endc_out("k_endc.dat", ios::out);
-    for (int ring=0; ring<39; ring++)
+    for (int ring=0; ring<kEndcEtaRings; ring++)
       k_endc_out << ring << " " << k_endc_[ring] << endl;
     k_endc_out.close();
   }
@@ -320,23 +330,29 @@ void PhiSymmetryCalibration::endJob()
   if (eventSet_!=0) {
 
     //output ET sums
+    stringstream etsum_file_barl;
+    etsum_file_barl << "etsum_barl_"<<eventSet_<<".dat";
 
-    std::ofstream etsum_barl_out("etsum_barl.dat",ios::app);
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	for (int sign=0; sign<2; sign++) {
+    std::ofstream etsum_barl_out(etsum_file_barl.str().c_str(),ios::out);
+
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
+      for (int iphi=0; iphi<kBarlWedges; iphi++) {
+	for (int sign=0; sign<kSides; sign++) {
 	  etsum_barl_out << eventSet_ << " " << ieta << " " << iphi << " " << sign << "  "<< etsum_barl_[ieta][iphi][sign] << endl;
 	}
       }
     }
     etsum_barl_out.close();
 
-    std::ofstream etsum_endc_out("etsum_endc.dat",ios::app);
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    stringstream etsum_file_endc;
+    etsum_file_endc << "etsum_endc_"<<eventSet_<<".dat";
+
+    std::ofstream etsum_endc_out(etsum_file_endc.str().c_str(),ios::out);
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	int ring = endcapRing_[ix][iy];
 	if (ring!=-1) {
-	  for (int sign=0; sign<2; sign++) {
+	  for (int sign=0; sign<kSides; sign++) {
 	    etsum_endc_out << eventSet_ << " " << ix << " " << iy << " " << sign << " " << etsum_endc_[ix][iy][sign] << endl;
 	  }
 	}
@@ -344,19 +360,19 @@ void PhiSymmetryCalibration::endJob()
     }
     etsum_endc_out.close();
 
-  } else {
+  } else {   // eventset =0
 
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	for (int sign=0; sign<2; sign++) {
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
+      for (int iphi=0; iphi<kBarlWedges; iphi++) {
+	for (int sign=0; sign<kSides; sign++) {
 	  etsum_barl_[ieta][iphi][sign]=0.;
 	}
       }
     }
 
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
-	for (int sign=0; sign<2; sign++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
+	for (int sign=0; sign<kSides; sign++) {
 	  etsum_endc_[ix][iy][sign]=0.;
 	}
       }
@@ -379,13 +395,13 @@ void PhiSymmetryCalibration::endJob()
     etsum_endc_in.close();
 
     std::ifstream k_barl_in("k_barl.dat", ios::in);
-    for (int ieta=0; ieta<85; ieta++) {
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
       k_barl_in >> dummy >> k_barl_[ieta];
     }
     k_barl_in.close();
 
     std::ifstream k_endc_in("k_endc.dat", ios::in);
-    for (int ring=0; ring<39; ring++) {
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
       k_endc_in >> dummy >> k_endc_[ring];
     }
     k_endc_in.close();
@@ -395,8 +411,8 @@ void PhiSymmetryCalibration::endJob()
 
    
 
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 
 	int ring = endcapRing_[ix][iy];
 	if (ring!=-1) {
@@ -404,22 +420,22 @@ void PhiSymmetryCalibration::endJob()
 	  for (int ip=0; ip<nRing_[ring]; ip++) {
 	    if (cellPhi_[ix][iy]==phi_endc[ip][ring]) iphi_endc=ip;
 	  }
-	  for (int sign=0; sign<2; sign++) {
+// 	  for (int sign=0; sign<kSides; sign++) {
 
-	    etsumVsPhi_histos1[ring][sign]->Fill(iphi_endc,etsum_endc_[ix][iy][sign]);
+// 	    etsumVsPhi_histos1[ring][sign]->Fill(iphi_endc,etsum_endc_[ix][iy][sign]);
 	 
-	  }
+// 	  }
 	}
       }
     }
 
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 
 	int ring = endcapRing_[ix][iy];
 
 	if (ring!=-1) {
-	  for (int sign=0; sign<2; sign++) {
+	  for (int sign=0; sign<kSides; sign++) {
 
 	    etsum_endc_[ix][iy][sign]*=meanCellArea_[ring]/cellArea_[ix][iy];
 	  }
@@ -429,13 +445,17 @@ void PhiSymmetryCalibration::endJob()
  
 
     TFile f1("etsumVsPhi.root","recreate");
-    for (int ring=0; ring<39; ring++) {
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
       areaVsPhi_histos[ring]->Write();
       etaVsPhi_histos[ring]->Write();
-      for (int sign=0; sign<2; sign++) {
-	etsumVsPhi_histos1[ring][sign]->Write();
-	etsumVsPhi_histos[ring][sign]->Write();
-      }
+
+      delete areaVsPhi_histos[ring];
+      delete  etaVsPhi_histos[ring];
+
+//       for (int sign=0; sign<kSides; sign++) {
+// 	etsumVsPhi_histos1[ring][sign]->Write();
+// 	etsumVsPhi_histos[ring][sign]->Write();
+//       }
     }
     f1.Close();
 
@@ -443,28 +463,28 @@ void PhiSymmetryCalibration::endJob()
     fillHistos();
 
     std::ofstream etsumMean_barl_out("etsumMean_barl.dat",ios::out);
-    for (int ieta=0; ieta<85; ieta++) {
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
       etsumMean_barl_out << cellEta_[ieta] << " " << etsumMean_barl_[ieta] << endl;
     }
     etsumMean_barl_out.close();
 
     std::ofstream etsumMean_endc_out("etsumMean_endc.dat",ios::out);
-    for (int ring=0; ring<39; ring++) {
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
       etsumMean_endc_out << cellPos_[ring][50].eta() << " " << etsumMean_endc_[ring] << endl;
     }
     etsumMean_endc_out.close();
 
     std::ofstream area_out("area.dat",ios::out);
-    for (int ring=0; ring<39; ring++) {
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
       area_out << meanCellArea_[ring] << endl;
     }
     area_out.close();
 
     // Determine barrel calibration constants
-    float epsilon_M_barl[85][360][2];
-    for (int ieta=0; ieta<85; ieta++) {
-      for (int iphi=0; iphi<360; iphi++) {
-	for (int sign=0; sign<2; sign++) {
+    float epsilon_M_barl[kBarlRings][kBarlWedges][kSides];
+    for (int ieta=0; ieta<kBarlRings; ieta++) {
+      for (int iphi=0; iphi<kBarlWedges; iphi++) {
+	for (int sign=0; sign<kSides; sign++) {
 	  float etsum = etsum_barl_[ieta][iphi][sign];
 	  float epsilon_T = (etsum/etsumMean_barl_[ieta])-1;
 	  epsilon_M_barl[ieta][iphi][sign] = epsilon_T/k_barl_[ieta];
@@ -473,12 +493,12 @@ void PhiSymmetryCalibration::endJob()
     }
 
     // Determine endcap calibration constants
-    float epsilon_M_endc[100][100][2];
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    float epsilon_M_endc[kEndcWedgesX][kEndcWedgesY][2];
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	int ring = endcapRing_[ix][iy];
 	if (ring!=-1) {
-	  for (int sign=0; sign<2; sign++) {
+	  for (int sign=0; sign<kSides; sign++) {
 	    float etsum = etsum_endc_[ix][iy][sign];
 	    float epsilon_T = (etsum/etsumMean_endc_[ring])-1;
 	  epsilon_M_endc[ix][iy][sign] = epsilon_T/k_endc_[ring];
@@ -495,30 +515,37 @@ void PhiSymmetryCalibration::endJob()
     calibXMLwriter barrelWriter(EcalBarrel);
     calibXMLwriter endcapWriter(EcalEndcap);
 
-    double newCalibs_barl[100][100][2];
-    double newCalibs_endc[100][100][2];
+    double newCalibs_barl[kEndcWedgesX][kEndcWedgesX][kSides];
+    double newCalibs_endc[kEndcWedgesX][kEndcWedgesX][kSides];
 
-    TH1F* miscal_resid_barl_histos[85];
-    TH2F* correl_barl_histos[85];
-    for (int ieta=0; ieta<85; ieta++) {
-      char ch[3];
-      sprintf(ch, "mr_barl_%i", ieta+1);
-      miscal_resid_barl_histos[ieta] = new TH1F(ch,"",50,.8,1.2);
-      sprintf(ch, "co_barl_%i", ieta+1);
-      correl_barl_histos[ieta] = new TH2F(ch,"",50,.8,1.2,50,.8,1.2);
-    }
+    std::vector<TH1F*> miscal_resid_barl_histos(kBarlRings);
+    std::vector<TH2F*> correl_barl_histos(kBarlRings);  
+ 
+     for (int ieta=0; ieta<kBarlRings; ieta++) {
+ 
+       ostringstream t1; 
+       t1<<"mr_barl_"<<ieta+1;
+       miscal_resid_barl_histos[ieta] = new TH1F(t1.str().c_str(),"",50,.8,1.2);
+       ostringstream t2;
+       t2<<"co_barl_"<<ieta+1;
+       correl_barl_histos[ieta] = new TH2F(t1.str().c_str(),"",50,.8,1.2,50,.8,1.2);
+     }
 
-    TH1F* miscal_resid_endc_histos[39];
-    TH2F* correl_endc_histos[39];
-    for (int ring=0; ring<39; ring++) {
-      char ch[3];
-      sprintf(ch, "mr_endc_%i", ring+1);
-      miscal_resid_endc_histos[ring] = new TH1F(ch,"",50,.8,1.2);
-      sprintf(ch, "co_endc_%i", ring+1);
-      correl_endc_histos[ring] = new TH2F(ch,"",50,.8,1.2,50,.8,1.2);
+    std::vector<TH1F*> miscal_resid_endc_histos(kEndcEtaRings);
+    std::vector<TH2F*> correl_endc_histos(kEndcEtaRings);
+
+    for (int ring=0; ring<kEndcEtaRings; ring++) {
+      ostringstream t1;
+      t1<<"mr_endc_"<< ring+1;
+      miscal_resid_endc_histos[ring] = new TH1F(t1.str().c_str(),"",50,.8,1.2);
+      ostringstream t2;
+      t2<<"co_endc_"<<ring+1;
+      correl_endc_histos[ring] = new TH2F(t2.str().c_str(),"",50,.8,1.2,50,.8,1.2);
     }
 
     std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
+    TFile eehistof("eehisto.root","recreate");  
+    TH1D ebhisto("eb","eb",100, -2,2);
     for (; barrelIt!=barrelCells.end(); barrelIt++) {
       EBDetId eb(*barrelIt);
       int ieta = abs(eb.ieta())-1;
@@ -527,6 +554,7 @@ void PhiSymmetryCalibration::endJob()
       newCalibs_barl[ieta][iphi][sign] = 
                                     oldCalibs_barl[ieta][iphi][sign]/
                                  (1+epsilon_M_barl[ieta][iphi][sign]);
+      ebhisto.Fill(newCalibs_barl[ieta][iphi][sign]);
       barrelWriter.writeLine(eb,newCalibs_barl[ieta][iphi][sign]);
       miscal_resid_barl_histos[ieta]->Fill(newCalibs_barl[ieta][iphi][sign]);
       correl_barl_histos[ieta]->Fill(oldCalibs_barl[ieta][iphi][sign],1+epsilon_M_barl[ieta][iphi][sign]);
@@ -538,6 +566,8 @@ void PhiSymmetryCalibration::endJob()
       }
     }
 
+  
+    TH1D eehisto("ee","ee",100, -2,2);
     std::vector<DetId>::const_iterator endcapIt=endcapCells.begin();
     for (; endcapIt!=endcapCells.end(); endcapIt++) {
       EEDetId ee(*endcapIt);
@@ -546,7 +576,8 @@ void PhiSymmetryCalibration::endJob()
       int sign = ee.zside()>0 ? 1 : 0;
       newCalibs_endc[ix][iy][sign] = 
                                     oldCalibs_endc[ix][iy][sign]/
-                                 (1+epsilon_M_endc[ix][iy][sign]);
+                                 (1+epsilon_M_endc[ix][iy][sign])/1.03;
+      eehisto.Fill(newCalibs_endc[ix][iy][sign]);
       endcapWriter.writeLine(ee,newCalibs_endc[ix][iy][sign]);
       miscal_resid_endc_histos[endcapRing_[ix][iy]]->Fill(newCalibs_endc[ix][iy][sign]);
       correl_endc_histos[endcapRing_[ix][iy]]->Fill(oldCalibs_endc[ix][iy][sign],1+epsilon_M_endc[ix][iy][sign]);
@@ -558,6 +589,9 @@ void PhiSymmetryCalibration::endJob()
       }
     }
 
+    eehisto.Write();
+    ebhisto.Write();
+    eehistof.Close();
     //double prec_barl[85],prec_endc[39];
 
     // Output histograms of residual miscalibrations
@@ -567,12 +601,19 @@ void PhiSymmetryCalibration::endJob()
       miscal_resid_barl_histos[ieta]->Write();
       //prec_barl[ieta] = miscal_resid_barl_histos[ieta]->GetFunction("gaus")->GetParameter(2);
       correl_barl_histos[ieta]->Write();
+
+      delete miscal_resid_barl_histos[ieta];
+      delete correl_barl_histos[ieta];
     }
     for (int ring=0; ring<39; ring++) {
       miscal_resid_endc_histos[ring]->Fit("gaus");
       miscal_resid_endc_histos[ring]->Write();
       //prec_endc[ring] = miscal_resid_endc_histos[ring]->GetFunction("gaus")->GetParameter(2);
       correl_endc_histos[ring]->Write();
+
+      delete  miscal_resid_endc_histos[ring];
+      delete  correl_endc_histos[ring];
+
     }
     f.Close();
 
@@ -610,6 +651,7 @@ void PhiSymmetryCalibration::analyze( const edm::Event& event,
       ||(nevent<100000 && nevent%1000==0) 
       ||(nevent<10000000 && nevent%1000==0))
     edm::LogWarning("Calibration") << "[PhiSymmetryCalibration] Events processed: "<<nevent;
+
 
   Handle<EBRecHitCollection> barrelRecHitsHandle;
   Handle<EERecHitCollection> endcapRecHitsHandle;
@@ -685,110 +727,135 @@ void PhiSymmetryCalibration::getKfactors()
   float epsilon_T[21];
   float epsilon_M[21];
 
+  std::vector<TGraph*>  k_barl_graph(kBarlRings);
+  std::vector<TCanvas*> k_barl_plot(kBarlRings);
+
   for (int ieta=0; ieta<85; ieta++) {
     for (int imiscal=0; imiscal<21; imiscal++) {
       epsilon_T[imiscal] = etsum_barl_miscal_[imiscal][ieta]/etsum_barl_miscal_[10][ieta] - 1.;
       epsilon_M[imiscal]=miscal_[imiscal]-1.;
     }
-    k_barl_graph_[ieta] = new TGraph (21,epsilon_M,epsilon_T);
-    k_barl_graph_[ieta]->Fit("pol1");
+    k_barl_graph[ieta] = new TGraph (21,epsilon_M,epsilon_T);
+    k_barl_graph[ieta]->Fit("pol1");
 
-    char ch[3];
-    sprintf(ch, "k_barl_%i", ieta+1);
-    k_barl_plot_[ieta] = new TCanvas(ch,"");
-    k_barl_plot_[ieta]->SetFillColor(10);
-    k_barl_plot_[ieta]->SetGrid();
-    k_barl_graph_[ieta]->SetMarkerSize(1.);
-    k_barl_graph_[ieta]->SetMarkerColor(4);
-    k_barl_graph_[ieta]->SetMarkerStyle(20);
-    k_barl_graph_[ieta]->GetXaxis()->SetLimits(-.06,.06);
-    k_barl_graph_[ieta]->GetXaxis()->SetTitleSize(.05);
-    k_barl_graph_[ieta]->GetYaxis()->SetTitleSize(.05);
-    k_barl_graph_[ieta]->GetXaxis()->SetTitle("#epsilon_{M}");
-    k_barl_graph_[ieta]->GetYaxis()->SetTitle("#epsilon_{T}");
-    k_barl_graph_[ieta]->Draw("AP");
 
-    k_barl_[ieta] = k_barl_graph_[ieta]->GetFunction("pol1")->GetParameter(1);
+    ostringstream t;
+    t<< "k_barl_" << ieta+1; 
+    k_barl_plot[ieta] = new TCanvas(t.str().c_str(),"");
+    k_barl_plot[ieta]->SetFillColor(10);
+    k_barl_plot[ieta]->SetGrid();
+    k_barl_graph[ieta]->SetMarkerSize(1.);
+    k_barl_graph[ieta]->SetMarkerColor(4);
+    k_barl_graph[ieta]->SetMarkerStyle(20);
+    k_barl_graph[ieta]->GetXaxis()->SetLimits(-.06,.06);
+    k_barl_graph[ieta]->GetXaxis()->SetTitleSize(.05);
+    k_barl_graph[ieta]->GetYaxis()->SetTitleSize(.05);
+    k_barl_graph[ieta]->GetXaxis()->SetTitle("#epsilon_{M}");
+    k_barl_graph[ieta]->GetYaxis()->SetTitle("#epsilon_{T}");
+    k_barl_graph[ieta]->Draw("AP");
+
+    k_barl_[ieta] = k_barl_graph[ieta]->GetFunction("pol1")->GetParameter(1);
     std::cout << "k_barl_[" << ieta << "]=" << k_barl_[ieta] << std::endl;
   }
+
+
+  std::vector<TGraph*>  k_endc_graph(kBarlRings);
+  std::vector<TCanvas*> k_endc_plot(kBarlRings);
 
   for (int ring=0; ring<39; ring++) {
     for (int imiscal=0; imiscal<21; imiscal++) {
       epsilon_T[imiscal] = etsum_endc_miscal_[imiscal][ring]/etsum_endc_miscal_[10][ring] - 1.;
       epsilon_M[imiscal]=miscal_[imiscal]-1.;
     }
-    k_endc_graph_[ring] = new TGraph (21,epsilon_M,epsilon_T);
-    k_endc_graph_[ring]->Fit("pol1");
+    k_endc_graph[ring] = new TGraph (21,epsilon_M,epsilon_T);
+    k_endc_graph[ring]->Fit("pol1");
 
-    char ch[3];
-    sprintf(ch, "k_endc_%i", ring+1);
-    k_endc_plot_[ring] = new TCanvas(ch,"");
-    k_endc_plot_[ring]->SetFillColor(10);
-    k_endc_plot_[ring]->SetGrid();
-    k_endc_graph_[ring]->SetMarkerSize(1.);
-    k_endc_graph_[ring]->SetMarkerColor(4);
-    k_endc_graph_[ring]->SetMarkerStyle(20);
-    k_endc_graph_[ring]->GetXaxis()->SetLimits(-.06,.06);
-    k_endc_graph_[ring]->GetXaxis()->SetTitleSize(.05);
-    k_endc_graph_[ring]->GetYaxis()->SetTitleSize(.05);
-    k_endc_graph_[ring]->GetXaxis()->SetTitle("#epsilon_{M}");
-    k_endc_graph_[ring]->GetYaxis()->SetTitle("#epsilon_{T}");
-    k_endc_graph_[ring]->Draw("AP");
+    ostringstream t;
+    t<< "k_endc_"<< ring+1;
+    k_endc_plot[ring] = new TCanvas(t.str().c_str(),"");
+    k_endc_plot[ring]->SetFillColor(10);
+    k_endc_plot[ring]->SetGrid();
+    k_endc_graph[ring]->SetMarkerSize(1.);
+    k_endc_graph[ring]->SetMarkerColor(4);
+    k_endc_graph[ring]->SetMarkerStyle(20);
+    k_endc_graph[ring]->GetXaxis()->SetLimits(-.06,.06);
+    k_endc_graph[ring]->GetXaxis()->SetTitleSize(.05);
+    k_endc_graph[ring]->GetYaxis()->SetTitleSize(.05);
+    k_endc_graph[ring]->GetXaxis()->SetTitle("#epsilon_{M}");
+    k_endc_graph[ring]->GetYaxis()->SetTitle("#epsilon_{T}");
+    k_endc_graph[ring]->Draw("AP");
 
-    k_endc_[ring] = k_endc_graph_[ring]->GetFunction("pol1")->GetParameter(1);
+    k_endc_[ring] = k_endc_graph[ring]->GetFunction("pol1")->GetParameter(1);
     std::cout << "k_endc_[" << ring << "]=" << k_endc_[ring] << std::endl;
   }
  
   TFile f("PhiSymmetryCalibration_kFactors.root","recreate");
-  for (int ieta=0; ieta<85; ieta++) k_barl_plot_[ieta]->Write();
-  for (int ring=0; ring<39; ring++) k_endc_plot_[ring]->Write();
+  for (int ieta=0; ieta<85; ieta++) { 
+    k_barl_plot[ieta]->Write();
+    delete k_barl_plot[ieta]; 
+    delete k_barl_graph[ieta];
+  }
+  for (int ring=0; ring<39; ring++) { 
+    k_endc_plot[ring]->Write();
+    delete k_endc_plot[ring];
+    delete k_endc_graph[ring];
+  }
   f.Close();
 
 }
 
 void PhiSymmetryCalibration::fillHistos()
 {
+
+
   TFile f("PhiSymmetryCalibration.root","recreate");
 
-  for (int ieta=0; ieta<85; ieta++) {
+  std::vector<TH1F*> etsum_barl_histos(kBarlRings);
+  
+  for (int ieta=0; ieta<kBarlRings; ieta++) {
 
     // Determine ranges of ET sums to get histo bounds and book histos (barrel)
     float low=999999.;
     float high=0.;
-    for (int iphi=0; iphi<360; iphi++) {
-      for (int sign=0; sign<2; sign++) {
+    for (int iphi=0; iphi<kBarlWedges; iphi++) {
+      for (int sign=0; sign<kSides; sign++) {
 	float etsum = etsum_barl_[ieta][iphi][sign];
 	if (etsum<low) low=etsum;
 	if (etsum>high) high=etsum;
       }
     }
-    char ch[3];
-    sprintf(ch, "etsum_barl_%i", ieta+1);
-    etsum_barl_histos_[ieta]=new TH1F(ch,"",50,low-.2*low,high+.1*high);
+    
+    ostringstream t;
+    t<< "etsum_barl_" << ieta+1;
+
+    etsum_barl_histos[ieta]=new TH1F(t.str().c_str(),"",50,low-.2*low,high+.1*high);
 
     // Fill barrel ET sum histos
     etsumMean_barl_[ieta]=0.;
-    for (int iphi=0; iphi<360; iphi++) {
-      for (int sign=0; sign<2; sign++) {
+    for (int iphi=0; iphi<kBarlWedges; iphi++) {
+      for (int sign=0; sign<kSides; sign++) {
 	float etsum = etsum_barl_[ieta][iphi][sign];
-	etsum_barl_histos_[ieta]->Fill(etsum);
+	etsum_barl_histos[ieta]->Fill(etsum);
 	etsumMean_barl_[ieta]+=etsum;
       }
     }
-    etsum_barl_histos_[ieta]->Fit("gaus");
-    etsum_barl_histos_[ieta]->Write();
+    etsum_barl_histos[ieta]->Fit("gaus");
+    etsum_barl_histos[ieta]->Write();
     etsumMean_barl_[ieta]/=720.;
+    delete etsum_barl_histos[ieta];
   }
+  
+  std::vector<TH1F*> etsum_endc_histos(kEndcEtaRings);
 
-  for (int ring=0; ring<39; ring++) {
+  for (int ring=0; ring<kEndcEtaRings; ring++) {
 
     // Determine ranges of ET sums to get histo bounds and book histos (endcap)
     float low=999999.;
     float high=0.;
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	if (endcapRing_[ix][iy]==ring) {
-	  for (int sign=0; sign<2; sign++) {
+	  for (int sign=0; sign<kSides; sign++) {
 	    float etsum = etsum_endc_[ix][iy][sign];
 	    if (etsum<low) low=etsum;
 	    if (etsum>high) high=etsum;
@@ -796,30 +863,30 @@ void PhiSymmetryCalibration::fillHistos()
 	}
       }
     }
-    char ch[3];
-    sprintf(ch, "etsum_endc_%i", ring+1);
-    etsum_endc_histos_[ring]= new TH1F(ch,"",50,low-.2*low,high+.1*high);
+    ostringstream t;
+    t<<"etsum_endc_" << ring+1;
+    etsum_endc_histos[ring]= new TH1F(t.str().c_str(),"",50,low-.2*low,high+.1*high);
 
-    // Fill endcap ET sum histos
+    // Fill endcap ET sum histos*
     etsumMean_endc_[ring]=0.;
-    for (int ix=0; ix<100; ix++) {
-      for (int iy=0; iy<100; iy++) {
+    for (int ix=0; ix<kEndcWedgesX; ix++) {
+      for (int iy=0; iy<kEndcWedgesY; iy++) {
 	if (endcapRing_[ix][iy]==ring) {
-	  for (int sign=0; sign<2; sign++) {
+	  for (int sign=0; sign<kSides; sign++) {
 	    float etsum = etsum_endc_[ix][iy][sign];
-	    etsum_endc_histos_[ring]->Fill(etsum);
+	    etsum_endc_histos[ring]->Fill(etsum);
 	    etsumMean_endc_[ring]+=etsum;
 	  }
 	}
       }
     }
-    etsum_endc_histos_[ring]->Fit("gaus");
-    etsum_endc_histos_[ring]->Write();
+    etsum_endc_histos[ring]->Fit("gaus");
+    etsum_endc_histos[ring]->Write();
     etsumMean_endc_[ring]/=(float(nRing_[ring]*2));
+    delete etsum_endc_histos[ring];
   }
 
   f.Close();
-
 
 
 }
