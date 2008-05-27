@@ -9,9 +9,10 @@ namespace fit {
   namespace helper {
     struct MultiHistoChiSquareNoArg { };
   }
-
+  
   template<typename T1, typename T2 = helper::MultiHistoChiSquareNoArg, 
-    typename T3 = helper::MultiHistoChiSquareNoArg, typename T4 = helper::MultiHistoChiSquareNoArg>
+	   typename T3 = helper::MultiHistoChiSquareNoArg, 
+	   typename T4 = helper::MultiHistoChiSquareNoArg>
   class MultiHistoChiSquare { 
    public:
     MultiHistoChiSquare() { }
@@ -55,7 +56,7 @@ namespace fit {
    HistoChiSquare<T3> chi3_;
    HistoChiSquare<T4> chi4_;
 };
-
+  
   template<typename T1, typename T2,typename T3>
   class MultiHistoChiSquare<T1, T2, T3, helper::MultiHistoChiSquareNoArg> { 
    public:
@@ -95,7 +96,9 @@ namespace fit {
 };
 
   template<typename T1, typename T2>
-  class MultiHistoChiSquare<T1, T2, helper::MultiHistoChiSquareNoArg> {
+  class MultiHistoChiSquare<T1, T2, 
+			    helper::MultiHistoChiSquareNoArg, 
+			    helper::MultiHistoChiSquareNoArg> {
    public:
     MultiHistoChiSquare() { }
     MultiHistoChiSquare(T1 & t1, TH1 *histo1,
@@ -122,7 +125,9 @@ namespace fit {
   };
   
   template<typename T1>
-  class MultiHistoChiSquare<T1, helper::MultiHistoChiSquareNoArg, helper::MultiHistoChiSquareNoArg> {
+  class MultiHistoChiSquare<T1, helper::MultiHistoChiSquareNoArg, 
+			    helper::MultiHistoChiSquareNoArg, 
+			    helper::MultiHistoChiSquareNoArg> {
    public:
     MultiHistoChiSquare() { }
     MultiHistoChiSquare(T1 & t1, TH1 *histo1, double rangeMin, double rangeMax) 
