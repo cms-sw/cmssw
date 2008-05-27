@@ -12,4 +12,9 @@
 	<class name="LHEEventProduct"/>
 	<class name="edm::Wrapper<LHERunInfoProduct>"/>
 	<class name="edm::Wrapper<LHEEventProduct>"/>
+
+	<class name="edm::AlpgenInfoProduct"/>
+	<class name="edm::AlpWgtFileInfoProduct"/>
+	<class name="edm::Wrapper<edm::AlpgenInfoProduct>"/>
+	<class name="edm::Wrapper<edm::AlpWgtFileInfoProduct>"/>
 </lcgdict>
