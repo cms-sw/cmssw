@@ -1,5 +1,6 @@
 #define MELaserPrim_cxx
 #include "MELaserPrim.hh"
+#include <cassert>
 
 TString MELaserPrim::apdpn_arrayName[MELaserPrim::iSizeArray_apdpn] = {"APD", "APDoPN", "APDoPNA", "APDoPNB" };
 TString MELaserPrim::apdpn_varName[MELaserPrim::iSize_apdpn] = { "Mean", "RMS", "Min", "Max", "Nevt" };

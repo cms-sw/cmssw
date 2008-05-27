@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <string>
+#include <cassert>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
