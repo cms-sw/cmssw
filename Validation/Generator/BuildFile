@@ -1,0 +1,50 @@
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/MessageLogger>
+<use name=MagneticField/Records>
+<use name=Geometry/CaloEventSetup>
+<use name=SimDataFormats/ValidationFormats>
+<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/DetId>
+<use name=DataFormats/Common>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=DataFormats/MuonDetId>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/RPCGeometry>
+<use name=DQMServices/Core>
+<use name=root>
+<use name=clhep>
+<use name=rootmath>
+<use name=DataFormats/Math>
+<use name=DataFormats/JetReco>
+<use name=RecoJets/JetAlgorithms>
+<flags EDM_PLUGIN=1>
+
+<export>
+ <lib name=GeneratorValdiation>
+ <use name=FWCore/Framework>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/MessageLogger>
+ <use name=Geometry/CaloEventSetup>
+ <use name=SimDataFormats/ValidationFormats>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=DataFormats/DetId>
+ <use name=DataFormats/Common>
+ <use name=Geometry/CommonDetUnit>
+ <use name=Geometry/TrackerGeometryBuilder>
+ <use name=DataFormats/MuonDetId>
+ <use name=Geometry/CSCGeometry>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/RPCGeometry>
+ <use name=DQMServices/Core>
+ <use name=DataFormats/JetReco>	
+ <use name=root>
+ <use name=clhep>
+ <use name=rootmath>
+ <use name=DataFormats/Math>
+</export>
+
+
+

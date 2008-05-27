@@ -1,0 +1,12 @@
+
+module myanalysis = TauAnalyzer {
+
+	untracked string OutputFilename="extpkg_pol_off_histo.root"
+
+# names of modules, producing object collections
+
+
+}
+
+
+
