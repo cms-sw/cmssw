@@ -71,7 +71,7 @@ TkNavigableSimElectronAssembler::searchInwards (TrackList& electronTracks,
 {
 
   TrackPtr currentSegment(startSegment);
-  TrackPtr debug = findParent(*currentSegment);
+//  TrackPtr debug = findParent(*currentSegment);
 //  std::cout << "searchInwards: parent " << debug << std::endl;
   while ( TrackPtr nextSegment = findParent(*currentSegment) ) {
     trackSegments.push_front(nextSegment);
