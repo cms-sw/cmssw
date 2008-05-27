@@ -117,8 +117,8 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     // in fact, there is only one object
     int iCondition = 0;
 
-    // condition result condResult set to true if the energy sum
-    // passes all requirements
+    // condition result condResult set to true if the jet counts
+    // passes the requirement
     bool condResult = false;
 
     // store the index of the JetCount object
@@ -130,6 +130,11 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
 
     // get the jet counts (event / condition)
     const L1GctJetCounts* jetCounts = m_gtPSB->getCandL1JetCounts();
+    
+    // protection against missing jet counts collection
+    if (jetCounts == 0) {
+        return false;
+    }
 
     const L1GtJetCountsTemplate::ObjectParameter objPar = 
         ( *(m_gtJetCountsTemplate->objectParameter()) )[iCondition];
