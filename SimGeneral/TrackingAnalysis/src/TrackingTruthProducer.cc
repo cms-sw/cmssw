@@ -52,14 +52,15 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet &conf)
   }
   else
   {
-  	produces<TrackingVertexCollection>();
+    produces<TrackingVertexCollection>();
     produces<TrackingParticleCollection>();
     produces<TrackingVertexCollection>("MergedTrackTruth");
     produces<TrackingParticleCollection>("MergedTrackTruth");  
   }
 }
 
-void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
+void TrackingTruthProducer::produce(Event &event, const EventSetup &)
+{
 //  TimerStack timers;  // Don't need the timers now, left for example
 //  timers.push("TrackingTruth:Producer");
 //  timers.push("TrackingTruth:Setup");
@@ -67,9 +68,11 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   // Get HepMC out of event record
   edm::Handle<edm::HepMCProduct> hepMC;
   bool foundHepMC = false;
-  for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source) {
+  for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source) 
+  {
     foundHepMC = event.getByLabel(*source,hepMC);
-    if (foundHepMC) {
+    if (foundHepMC) 
+    {
       edm::LogInfo (MessageCategory_) << "Using HepMC source " << *source;
       break;
     }
@@ -102,12 +105,12 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
   // Get all the simtracks from the crossing frame 
   edm::Handle<CrossingFrame<SimTrack> > cf_simtrack;
-  event.getByLabel("mix","g4SimHits",cf_simtrack);
+  event.getByLabel("mix", simHitLabel_, cf_simtrack);
   std::auto_ptr<MixCollection<SimTrack> > trackCollection(new MixCollection<SimTrack>(cf_simtrack.product()));
 
   // Get all the simvertex from the crossing frame 
   edm::Handle<CrossingFrame<SimVertex> > cf_simvertex;
-  event.getByLabel("mix","g4SimHits",cf_simvertex);
+  event.getByLabel("mix", simHitLabel_, cf_simvertex);
   std::auto_ptr<MixCollection<SimVertex> > vertexCollection(new MixCollection<SimVertex>(cf_simvertex.product()));
 
   // Create collections of things we will put in event

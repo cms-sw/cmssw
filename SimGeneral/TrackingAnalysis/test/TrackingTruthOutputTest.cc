@@ -36,11 +36,10 @@ void TrackingTruthOutputTest::analyze(const edm::Event& event, const edm::EventS
   edm::Handle<TrackingParticleCollection> mergedPH;
   edm::Handle<TrackingVertexCollection>   mergedVH;
 
-  std::string trackingTruthModule = conf_.getUntrackedParameter<std::string>("trackingTruthModule");
-  std::string trackingTruthProduct = conf_.getUntrackedParameter<std::string>("trackingTruthProduct"); 
+  edm::InputTag trackingTruth = conf_.getUntrackedParameter<edm::InputTag>("trackingTruth");
 
-  event.getByLabel(trackingTruthModule, trackingTruthProduct, mergedPH);
-  event.getByLabel(trackingTruthModule, trackingTruthProduct, mergedVH);
+  event.getByLabel(trackingTruth, mergedPH);
+  event.getByLabel(trackingTruth, mergedVH);
 
   if ( conf_.getUntrackedParameter<bool>("dumpVertexes") )
   {
