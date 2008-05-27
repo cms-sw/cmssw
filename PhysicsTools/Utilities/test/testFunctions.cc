@@ -10,6 +10,7 @@
 #include "PhysicsTools/Utilities/interface/Numerical.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
 #include "PhysicsTools/Utilities/interface/Expression.h"
+#include "PhysicsTools/Utilities/interface/FunctClone.h"
 #include <iostream>
 
 class testFunctions : public CppUnit::TestFixture {
@@ -83,5 +84,11 @@ void testFunctions::checkAll() {
     Expression f = sin(x) * cos(x);
     const double epsilon = 1.e-6;
     CPPUNIT_ASSERT(fabs(f() == sin(x) * cos(x)) < epsilon);
+  }
+  {
+    Master<Gaussian> g(Gaussian(0, 1));
+    Slave<Gaussian> g1(g);
+    CPPUNIT_ASSERT(g(0.5) == g1(0.5));
+    CPPUNIT_ASSERT(g1(0.7) == g1(0.7));
   }
 }
