@@ -1,0 +1,22 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=hepmc> 
+<use name=sherpa>
+<use name=clhep>	
+
+<flags EDM_PLUGIN=1>
+<export>
+ <lib name=GeneratorInterfaceSherpaInterface>
+ <use name=boost>
+ <use name=FWCore/Framework>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=Hepmc>  
+ <use name=Sherpa>
+ <use name=clhep>
+</export>
+
+ <lib name=g2c></lib>
+ <lib name=m></lib>
+
+
