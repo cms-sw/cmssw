@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 14:02:08 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/05/22 07:10:05 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -138,7 +138,7 @@ void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoT
   string histoName = histoTag + "_W" + wheel.str(); 
   
   
-  LogVerbatim ("DTOccupancyTest") <<"[DTDigiTask]: booking wheel histo:"<< endl
+  LogVerbatim ("DTOccupancyTest") <<"[DTOccupancyTest]: booking wheel histo:"<< endl
 				  <<"              folder "<< "DT/DTDigiTask/Wheel"
     + wheel.str() + "/" + folder << endl
 				  <<"              histoTag "<<histoTag << endl
