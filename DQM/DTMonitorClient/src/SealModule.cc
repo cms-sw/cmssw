@@ -42,3 +42,6 @@ DEFINE_ANOTHER_FWK_MODULE(DTCreateSummaryHistos);
 
 #include "DQM/DTMonitorClient/src/DTOccupancyTest.h"
 DEFINE_ANOTHER_FWK_MODULE(DTOccupancyTest);
+
+#include "DQM/DTMonitorClient/src/DTSummaryClients.h"
+DEFINE_ANOTHER_FWK_MODULE(DTSummaryClients);
