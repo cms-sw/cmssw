@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/Deposition.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/Deposition.h"
 using namespace pftools;
 Deposition::Deposition(DetectorElementPtr element, double eta, double phi,
 		double energy, double depth) :

@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/SpaceManager.h"
 #include <cassert>
 #include <algorithm>
 

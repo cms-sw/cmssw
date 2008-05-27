@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.h"
 
 
 using namespace pftools;

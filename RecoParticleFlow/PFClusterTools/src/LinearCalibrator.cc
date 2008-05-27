@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/LinearCalibrator.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/LinearCalibrator.h"
 #include <cassert>
 #include <cmath>
 #include "TVector.h"

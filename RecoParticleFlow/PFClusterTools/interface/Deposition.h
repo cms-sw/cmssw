@@ -4,7 +4,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 
 namespace pftools {
 

@@ -1,7 +1,7 @@
 #ifndef LINEARCALIBRATOR_HH_
 #define LINEARCALIBRATOR_HH_
 
-#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
 
 
 #include "TMatrixD.h"
@@ -30,7 +30,7 @@ public:
 	/*
 	 * Note: covariant return type w.r.t. Calibrator class: the overloading has changed 
 	 * the return type but this IS allowed with modern compilers.
-	 * See documentation in Calibrator.hh
+	 * See documentation in Calibrator.h
 	 */
 	LinearCalibrator* clone() const;
 	LinearCalibrator* create() const;

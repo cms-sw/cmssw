@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.h"
 #include <cassert>
 #include <iostream>
 #include <cmath>
@@ -35,7 +35,7 @@ double ParticleDeposit::getRecEnergy(const DetectorElementPtr de) const {
 	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
 			!= myRecDepositions.end(); ++cit) {
 		Deposition d = *cit;
-		if (d.getDetectorElement() == de) {
+		if (d.getDetectorElement()->getType() == de->getType()) {
 			energy += de->getCalib(d.getEta(), d.getPhi()) * d.getEnergy();
 		}
 	}

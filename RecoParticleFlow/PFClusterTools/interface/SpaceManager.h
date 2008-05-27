@@ -1,7 +1,7 @@
 #ifndef SPACEMANAGER_HH_
 #define SPACEMANAGER_HH_
-#include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
 #include <map>
 #include <vector>
 #include <boost/shared_ptr.hpp>

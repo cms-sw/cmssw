@@ -1,9 +1,9 @@
 #ifndef CALIBRATOR_HH_
 #define CALIBRATOR_HH_
 
-#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
+#include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.h"
 
 #include <map>
 #include <vector>

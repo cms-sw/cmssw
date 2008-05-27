@@ -1,10 +1,10 @@
 #ifndef TREEUTILITY_HH_
 #define TREEUTILITY_HH_
-#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
+#include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.h"
 
 #include <boost/shared_ptr.hpp>
-#include "TFile.h"
+#include <TFile.h>
 #include <vector>
 
 namespace pftools {
@@ -28,6 +28,8 @@ public:
 			std::vector<ParticleDepositPtr >& toBeFilled);
 	
 	void recreateFromRootFile(TFile& file);
+	
+	std::vector<ParticleDepositPtr> extractParticles(TFile& f);
 };
 }
 #endif /*TREEUTILITY_HH_*/

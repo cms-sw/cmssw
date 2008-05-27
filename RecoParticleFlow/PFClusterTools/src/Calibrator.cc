@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
 using namespace pftools;
 
 //DetectorElement* Calibrator::offsetElement = new DetectorElement(OFFSET);

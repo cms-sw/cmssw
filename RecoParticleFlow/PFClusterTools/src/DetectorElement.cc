@@ -1,5 +1,5 @@
-#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.h"
 #include <iostream>
 using namespace pftools;
 //A comment
@@ -30,7 +30,6 @@ double DetectorElement::getCalibCore(double eta, double phi) const {
 
 DetectorElement::~DetectorElement() {
 }
-
 
 
 std::ostream& pftools::operator<<(std::ostream& s, const DetectorElement& de) {

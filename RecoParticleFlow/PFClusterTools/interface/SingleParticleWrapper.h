@@ -3,6 +3,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <vector>
+
+#include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
+
 namespace pftools {
 /**
  \class SingleParticleWrapper 
@@ -23,6 +27,11 @@ public:
 		reset();
 	}
 	virtual ~SingleParticleWrapper() {};
+	
+	double getCaloE() const {
+		return eEcal + eHcal;
+	}
+
 	
 	virtual void reset() {
 		eEcal = 0;
@@ -48,6 +57,7 @@ public:
 		nRecHitsEcal = 0;
 		nRecHitsHcal = 0;
 		
+		calibrations_.clear();
 	};
 	
 	//True, Ecal and Hcal energy and angle depositions
@@ -81,6 +91,9 @@ public:
 	
 	double eRecHitsEcal;
 	double eRecHitsHcal;
+	
+	std::vector<CalibrationResultWrapper> calibrations_;
+
 };
 }
 #endif /*SINGLEPARTICLEWRAPPER_HH_*/

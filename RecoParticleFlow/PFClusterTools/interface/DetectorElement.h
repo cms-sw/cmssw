@@ -14,8 +14,8 @@
 //#pragma link C++ class std::vector<minimiser::DetectorElement*>
 //#endif
 
-#include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/DetectorElementType.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFToolsException.h"
 
 #include "TH2F.h"
 #include "TH1F.h"
@@ -68,6 +68,7 @@ public:
 	//friend std::ostream& operator<<(std::ostream& s, const DetectorElement& de);
 
 	friend std::ostream& operator<<(std::ostream& s, const DetectorElement& de);
+
 
 private:
 	virtual double getCalibCore() const;

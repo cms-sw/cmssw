@@ -7,8 +7,8 @@
 #pragma link C++ class vector<minmiser::ParticleDeposit>
 #endif
 
-#include "RecoParticleFlow/PFClusterTools/interface/Deposition.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/Deposition.h"
+#include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 
 
 #include <iostream>

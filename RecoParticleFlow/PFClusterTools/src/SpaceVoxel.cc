@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.h"
 #include <iostream>
 #include "RecoParticleFlow/PFClusterTools/interface/ToString.h"
 using namespace pftools;

@@ -4,10 +4,12 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <map>
+#include <vector>
 
-#include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.hh"
-#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/SpaceVoxel.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"
 
+#include "RecoParticleFlow/PFClusterTools/interface/ParticleDeposit.h"
 
 namespace pftools {
 /**
@@ -43,17 +45,12 @@ public:
 	 */
 	void evaluatePerformance(
 			const std::map<SpaceVoxelPtr, CalibratorPtr>* const detectorMap,
-			std::map<SpaceVoxelPtr, TH1F>& before,
-			std::map<SpaceVoxelPtr, TH1F>& after) const;
-	
+			TFile& treeFile) const;
+
 	void writeOutHistos(std::map<SpaceVoxelPtr, TH1F>& input) const;
 	
-	/*
-	 * This beast calibrates the particles as test calibration from tree does
-	 * and then writes a new SingleParticleTree to disk - CaloDataCalib
-	 */
-	void calibrateAndRewriteParticles(TFile& f) const;
-	
+	void calibrateParticlesAndWriteOut(TFile& f) const;
+
 };
 }
 

@@ -1,7 +1,7 @@
-#include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/TreeUtility.h"
 #include "TBranch.h"
 #include "TTree.h"
-#include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.hh"
+#include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.h"
 
 using namespace pftools;
 TreeUtility::TreeUtility() {
@@ -63,7 +63,7 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 
 		tree->GetEntry(entries);
 
-		ParticleDepositPtr pd(new ParticleDeposit(spw_ptr->trueEnergy, spw_ptr->etaMC, spw_ptr->phiMC));
+		ParticleDepositPtr pd(new ParticleDeposit(spw_ptr->trueEnergy, spw_ptr->etaEcal, spw_ptr->phiEcal));
 
 		if (offset != 0) {
 			Deposition dOffset(offset, spw_ptr->etaEcal, spw_ptr->phiEcal, 1.0);
@@ -86,7 +86,7 @@ void TreeUtility::recreateFromRootFile(TFile& file,
 		pd->addTruthDeposition(dE);
 		pd->addTruthDeposition(dH);
 
-		std::cout << *pd << std::endl;
+		//std::cout << *pd << std::endl;
 		toBeFilled.push_back(pd);
 
 	}
@@ -104,5 +104,18 @@ void TreeUtility::recreateFromRootFile(TFile& f) {
 	std::vector<ParticleDepositPtr> particles;
 	recreateFromRootFile(f, elements, particles);
 	std::cout << "Finished.\n";
+}
+
+std::vector<ParticleDepositPtr> TreeUtility::extractParticles(TFile& f) {
+	DetectorElementPtr ecal(new DetectorElement(ECAL, 1.0));
+	DetectorElementPtr hcal(new DetectorElement(HCAL, 1.0));
+	std::vector<DetectorElementPtr> elements;
+	elements.push_back(ecal);
+	elements.push_back(hcal);
+	std::cout << "Made detector elements...\n";
+	std::cout << "Recreating from root file...\n";
+	std::vector<ParticleDepositPtr> particles;
+	recreateFromRootFile(f, elements, particles);
+	return particles;
 }
 
