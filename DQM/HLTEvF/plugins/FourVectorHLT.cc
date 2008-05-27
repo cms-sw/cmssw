@@ -1,4 +1,4 @@
-// $Id: FourVectorHLT.cc,v 1.5 2008/05/24 13:23:14 wittich Exp $
+// $Id: FourVectorHLT.cc,v 1.6 2008/05/26 09:31:14 wittich Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -107,7 +107,7 @@ FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if ( plotAll_ ) {
     for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
-      std::string name = triggerObj->filterLabel(ia);
+      std::string name = triggerObj->filterTag(ia).encode();
       PathInfoCollection::iterator pic =  hltPaths_.find(name);
       if ( pic == hltPaths_.end() ) {
 	// doesn't exist - add it
