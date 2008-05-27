@@ -151,7 +151,7 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/IsolationVariables");
 
     std::string histname = "nIsoTracks";    
-    p_nTrackIsol_ = dbe_->bookProfile(histname,"Avg Numbef Of Tracks in the Iso Cone",etaBin,etaMin, etaMax,10,-0.5, 9.5);
+    p_nTrackIsol_ = dbe_->bookProfile(histname,"Avg Number Of Tracks in the Iso Cone",etaBin,etaMin, etaMax,10,-0.5, 9.5);
     histname = "isoPtSum";    
     p_trackPtSum_ = dbe_->bookProfile(histname,"Avg Tracks Pt Sum in the Iso Cone",etaBin,etaMin, etaMax,100,0., 20.);
     histname = "ecalSum";    
@@ -167,9 +167,9 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     //// Reconstructed photons
     //    std::string histname = "nPho";
     histname = "nPho";
-    h_nPho_[0][0] = dbe_->book1D(histname+"All","Numbef Of Isolated Photon candidates per events: All Ecal  ",10,-0.5, 9.5);
-    h_nPho_[0][1] = dbe_->book1D(histname+"Barrel","Numbef Of Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
-    h_nPho_[0][2] = dbe_->book1D(histname+"Endcap","Numbef Of Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+    h_nPho_[0][0] = dbe_->book1D(histname+"All","Number Of Isolated Photon candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nPho_[0][1] = dbe_->book1D(histname+"Barrel","Number Of Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nPho_[0][2] = dbe_->book1D(histname+"Endcap","Number Of Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5);
     histname = "scE";
     h_scE_[0][0] = dbe_->book1D(histname+"All","Isolated SC Energy: All Ecal  ",eBin,eMin, eMax);
     h_scE_[0][1] = dbe_->book1D(histname+"Barrel","Isolated SC Energy: Barrel ",eBin,eMin, eMax);
@@ -203,9 +203,9 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     h_phoPhi_[0] = dbe_->book1D("phoPhi","Isolated Photon  Phi ",phiBin,phiMin,phiMax) ;
 
     histname="nConv";
-    h_nConv_[0][0] = dbe_->book1D(histname+"All","Numbef Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
-    h_nConv_[0][1] = dbe_->book1D(histname+"Barrel","Numbef Of Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
-    h_nConv_[0][2] = dbe_->book1D(histname+"Endcap","Numbef Of Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+    h_nConv_[0][0] = dbe_->book1D(histname+"All","Number Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nConv_[0][1] = dbe_->book1D(histname+"Barrel","Number Of Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nConv_[0][2] = dbe_->book1D(histname+"Endcap","Number Of Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
 
     h_convEta_[0] = dbe_->book1D("convEta","Isolated converted Photon Eta ",etaBin,etaMin, etaMax) ;
     h_convPhi_[0] = dbe_->book1D("convPhi","Isolated converted Photon  Phi ",phiBin,phiMin,phiMax) ;
@@ -216,9 +216,9 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     h_r9VsNofTracks_[0][2] = dbe_->book2D(histname+"Endcap","Isolated photons r9 vs nTracks from conversions: Endcap Ecal",r9Bin,r9Min, r9Max, 3, -0.5, 2.5) ;
 
     histname="EoverPtracks";
-    h_EoverPTracks_[0][0] = dbe_->book1D(histname+"All","Isolated photons converion E/p: all Ecal ",100, 0., 5.);
-    h_EoverPTracks_[0][1] = dbe_->book1D(histname+"Barrel","Isolated photons converion E/p: Barrel Ecal",100, 0., 5.);
-    h_EoverPTracks_[0][2] = dbe_->book1D(histname+"All","Isolated photons converion E/p: Endcap Ecal ",100, 0., 5.);
+    h_EoverPTracks_[0][0] = dbe_->book1D(histname+"All","Isolated photons conversion E/p: all Ecal ",100, 0., 5.);
+    h_EoverPTracks_[0][1] = dbe_->book1D(histname+"Barrel","Isolated photons conversion E/p: Barrel Ecal",100, 0., 5.);
+    h_EoverPTracks_[0][2] = dbe_->book1D(histname+"All","Isolated photons conversion E/p: Endcap Ecal ",100, 0., 5.);
 
     histname="pTknHitsVsEta";
     // p_tk_nHitsVsEta_[0] =  dbe_->bookProfile(histname,"Isolated Photons:Tracks from conversions: mean numb of  Hits vs Eta",etaBin,etaMin, etaMax);
@@ -254,9 +254,9 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
 
 
     histname = "nPhoNoIs"; 
-    h_nPho_[1][0] = dbe_->book1D(histname+"All","Numbef Of Non Isolated Photon candidates per events: All Ecal  ",10,-0.5, 9.5);
-    h_nPho_[1][1] = dbe_->book1D(histname+"Barrel","Numbef Of Non Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
-    h_nPho_[1][2] = dbe_->book1D(histname+"Endcap","Numbef Of Non Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+    h_nPho_[1][0] = dbe_->book1D(histname+"All","Number Of Non Isolated Photon candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nPho_[1][1] = dbe_->book1D(histname+"Barrel","Number Of Non Isolated Photon candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nPho_[1][2] = dbe_->book1D(histname+"Endcap","Number Of Non Isolated Photon candidates per events: Ecal Endcap ",10,-0.5, 9.5);
 
 
     histname = "scENoIs";
@@ -294,9 +294,9 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     h_phoPhi_[1] = dbe_->book1D("phoPhiNoIs","Non Isolated Photon  Phi ",phiBin,phiMin,phiMax) ;
 
     histname="nConvNoIs";
-    h_nConv_[1][0] = dbe_->book1D(histname+"All","Numbef Of Conversions per non isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
-    h_nConv_[1][1] = dbe_->book1D(histname+"Barrel","Numbef Of Conversions per non isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
-    h_nConv_[1][2] = dbe_->book1D(histname+"Endcap","Numbef Of Conversions per non isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+    h_nConv_[1][0] = dbe_->book1D(histname+"All","Number Of Conversions per non isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nConv_[1][1] = dbe_->book1D(histname+"Barrel","Number Of Conversions per non isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nConv_[1][2] = dbe_->book1D(histname+"Endcap","Number Of Conversions per non isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
 
     h_convEta_[1] = dbe_->book1D("convEtaNoIs","Non Isolated converted Photon Eta ",etaBin,etaMin, etaMax) ;
     h_convPhi_[1] = dbe_->book1D("convPhiNoIs","Non Isolated converted Photon  Phi ",phiBin,phiMin,phiMax) ;
@@ -306,9 +306,9 @@ void PhotonAnalyzer::beginJob( const edm::EventSetup& setup)
     h_r9VsNofTracks_[1][1] = dbe_->book2D(histname+"Barrel","Non Isolated photons r9 vs nTracks from conversions: Barrel Ecal",r9Bin,r9Min, r9Max,3, -0.5, 2.5) ;
     h_r9VsNofTracks_[1][2] = dbe_->book2D(histname+"Endcap","Non Isolated photons r9 vs nTracks from conversions: Endcap Ecal",r9Bin,r9Min, r9Max,3, -0.5, 2.5) ;
     histname="EoverPtracksNoIs";
-    h_EoverPTracks_[1][0] = dbe_->book1D(histname+"All","Non Isolated photons converion E/p: all Ecal ",100, 0., 5.);
-    h_EoverPTracks_[1][1] = dbe_->book1D(histname+"Barrel","Non Isolated photons converion E/p: Barrel Ecal",100, 0., 5.);
-    h_EoverPTracks_[1][2] = dbe_->book1D(histname+"All","Non Isolated photons converion E/p: Endcap Ecal ",100, 0., 5.);
+    h_EoverPTracks_[1][0] = dbe_->book1D(histname+"All","Non Isolated photons conversion E/p: all Ecal ",100, 0., 5.);
+    h_EoverPTracks_[1][1] = dbe_->book1D(histname+"Barrel","Non Isolated photons conversion E/p: Barrel Ecal",100, 0., 5.);
+    h_EoverPTracks_[1][2] = dbe_->book1D(histname+"All","Non Isolated photons conversion E/p: Endcap Ecal ",100, 0., 5.);
 
     p_tk_nHitsVsEta_[1] =  dbe_->bookProfile("pTknHitsVsEtaNoIs","Non Isolated Photons:Tracks from conversions: mean numb of  Hits vs Eta",etaBin,etaMin, etaMax,etaBin,0, 16);
     h_tkChi2_[1] = dbe_->book1D("tkChi2NoIs","NonIsolated Photons:Tracks from conversions: #chi^{2} of tracks", 100, 0., 20.0); 
@@ -463,7 +463,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
       // Get the basic cluster collection in the Barrel 
       e.getByLabel(bcProducer_, bcBarrelCollection_, bcHandle);
       if (!bcHandle.isValid()) {
-	edm::LogError("ConverionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
+	edm::LogError("ConversionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
 	return;
       }
 
