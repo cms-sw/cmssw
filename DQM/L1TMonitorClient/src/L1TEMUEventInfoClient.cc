@@ -97,9 +97,9 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   }
 
 
-  dbe_->setCurrentFolder("L1T/EventInfo");
+  dbe_->setCurrentFolder("L1TEMU/EventInfo");
 
-  if ( reportSummaryMap_ = dbe_->get("L1T/EventInfo/reportSummaryMap") ) {
+  if ( reportSummaryMap_ = dbe_->get("L1TEMU/EventInfo/reportSummaryMap") ) {
   dbe_->removeElement(reportSummaryMap_->getName());
   }
 
