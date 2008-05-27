@@ -10,6 +10,7 @@
 #include<TLorentzVector.h>
 
 #include <TH1F.h>
+#include <TH2D.h>
 #include <TProfile.h>
 
 #include <TClonesArray.h>
@@ -65,6 +66,11 @@ class UEAnalysisJets {
   TProfile* calib_chginc_phi;
   TProfile* calib_chgmcreco_phi;
   TProfile* calib_caloinc_phi;
+
+  //
+  TH2D* h2d_weightVSratioPtTracksJetPtCaloJet;
+  TH2D* h2d_calib_chgcalo;
+  //
 
   //
   // hltMinBiasPixelFilter

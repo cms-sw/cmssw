@@ -52,6 +52,15 @@ void UEAnalysisJets::Begin(TFile * f){
   calib_chgmcreco_phi  = new TProfile("calib_chgmcreco_phi","#frac{P_{T}^{Chg MC}}{P_{T}^{Chg RECO}} vs #phi^{Chg RECO}",100,-3,3,-4,4);
   calib_caloinc_phi  = new TProfile("calib_caloinc_phi","#frac{P_{T}^{Calo}}{P_{T}^{Inc}} vs #phi^{Inc}",100,-3,3,-4,4);
 
+  h2d_weightVSratioPtTracksJetPtCaloJet 
+    = new TH2D("h2d_weightVSratioPtTracksJetPtCaloJet",
+	       "h2d_weightVSratioPtTracksJetPtCaloJet;p_{T}(jet from tracks)/p_{T}(calo jet);event weight",
+	       100, 0., 4., 100, 0., 10.);
+
+  h2d_calib_chgcalo
+    = new TH2D("h2d_calib_chgcalo",
+	       "h2d_calib_chgcalo;p_{T}(calo jet) (GeV/c);p_{T}(jet from tracks)/p_{T}(calo jet)",
+	       100, 0., 200., 100, 0., 4.);
   //
   // hlt1jet30
   // hlt1jet50
@@ -174,7 +183,8 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
 	    break;
 	  }
       }
-    
+
+    //TLorentzVector* JetFromTracks;
     for(int i=0;i<TracksJet->GetSize();++i)
       {
 	TLorentzVector *v = (TLorentzVector*)TracksJet->At(i);
@@ -183,6 +193,9 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
 	    etaTJ = v->Eta();
 	    ptTJ  = v->Pt();
 	    phiTJ = v->Phi();
+
+	    //JetFromTracks = new TLorentzVector(v->Px(), v->Py(), v->Pz(), v->E() );
+
 	    break;
 	  }
     }
@@ -199,6 +212,7 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
 	  }
     }
     
+    //TLorentzVector* CaloJet;
     for(int i=0;i<CalorimeterJet->GetSize();i++)
       {
 	TLorentzVector *v = (TLorentzVector*)CalorimeterJet->At(i);
@@ -207,6 +221,9 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
 	    etaEHJ = v->Eta();
 	    ptEHJ  = v->Pt();
 	    phiEHJ = v->Phi();
+	    
+	    //CaloJet = new TLorentzVector(v->Px(), v->Py(), v->Pz(), v->E() );
+
 	    break;
 	  }
       }
@@ -216,10 +233,15 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
       float dPhiEHJTJ = fabs(phiEHJ-phiTJ);
       if(dPhiEHJTJ>piG)
 	dPhiEHJTJ=2*piG-dPhiEHJTJ;
+
+
       float delR_chgcalo=sqrt((etaEHJ-etaTJ)*(etaEHJ-etaTJ)+dPhiEHJTJ*dPhiEHJTJ);
       dr_chgcalo->Fill(delR_chgcalo,weight);
       if(ptEHJ>0)
 	{
+	  h2d_weightVSratioPtTracksJetPtCaloJet->Fill( ptTJ/ptEHJ, weight );
+	  h2d_calib_chgcalo->Fill( ptEHJ, ptTJ/ptEHJ, weight);
+
 	  calib_chgcalo->Fill(ptEHJ,ptTJ/ptEHJ,weight);
 	  calib_chgcalo_eta->Fill(etaEHJ,ptTJ/ptEHJ,weight);
 	  calib_chgcalo_phi->Fill(phiEHJ,ptTJ/ptEHJ,weight);

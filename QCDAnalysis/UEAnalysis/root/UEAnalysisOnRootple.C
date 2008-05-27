@@ -144,7 +144,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 	  }
 	if ( printFilterName ) 
 	  {
-	    cout << "found " << filterName << " filter" << endl;
+	    //cout << "found " << filterName << " filter" << endl;
 	    nameList.push_back( filterName );
 	  }
       } 

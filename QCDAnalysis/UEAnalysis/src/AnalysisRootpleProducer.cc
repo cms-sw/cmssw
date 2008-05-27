@@ -100,11 +100,14 @@ void AnalysisRootpleProducer::beginJob( const EventSetup& )
   acceptedTriggers = new TClonesArray("TObjString", 10000);
   AnalysisTree->Branch("acceptedTriggers", "TClonesArray", &acceptedTriggers, 128000, 0);
 
+  AnalysisTree->Branch("genEventScale", &genEventScale, "genEventScale/D");
 }
 
   
 void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 {
+  if ( e.getByLabel( "genEventScale", genEventScaleHandle ) ) genEventScale = *genEventScaleHandle;
+
   // access trigger bits by TriggerEvent
   //   acceptedTriggers->Clear();
   //   unsigned int iAcceptedTriggers( 0 );

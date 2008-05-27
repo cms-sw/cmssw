@@ -74,6 +74,7 @@ private:
   InputTag triggerResultsTag;
   InputTag triggerEventTag;
 
+  Handle< double              > genEventScaleHandle;
   Handle< HepMCProduct        > EvtHandle ;
   Handle< vector<GenParticle> > CandHandleMC ;
   Handle< GenJetCollection    > GenJetsHandle ;
@@ -81,8 +82,8 @@ private:
   Handle< CandidateCollection > CandHandleRECO ;
   Handle< BasicJetCollection  > TracksJetsHandle ;
   Handle< CaloJetCollection   > RecoCaloJetsHandle ;
-  Handle<TriggerResults> triggerResults;
-  Handle<TriggerEvent>   triggerEvent;
+  Handle< TriggerResults      > triggerResults;
+  Handle< TriggerEvent        > triggerEvent;
   //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
   TriggerNames triggerNames;
 
@@ -101,6 +102,8 @@ private:
   TClonesArray* TracksJet;
   TClonesArray* CalorimeterJet;
   TClonesArray* acceptedTriggers;
+
+  double genEventScale;
 };
 
 #endif
