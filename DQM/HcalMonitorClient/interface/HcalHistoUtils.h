@@ -14,7 +14,7 @@
  *
  * Methods:
  *
- * myHist* getAnyHisto(myHist* hist, string name, string process, 
+ * myHist* getAnyHisto(myHist* hist, std::string name, std::string process, 
                          DQMStore* dbe_, bool verb, bool clone)  
  *			   
  * std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
@@ -28,10 +28,11 @@
  *****************************************************************************
  */
 
+#include "DQMServices/Core/interface/DQMStore.h"
 
 template <class myHist>
 myHist* getAnyHisto(myHist* hist,
-		    string name, string process, DQMStore* dbe_,
+		    std::string name, std::string process, DQMStore* dbe_,
 		    bool verb, bool clone)
 {
   /* 
@@ -52,7 +53,11 @@ myHist* getAnyHisto(myHist* hist,
 
   MonitorElement* me = dbe_->get(title); // get Monitor Element named 'title'
 
-  if (!me) return NULL; // ME not found
+  if (!me) 
+    {
+      if (verb) cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED "<< title<<endl;
+      return NULL; // ME not found
+    } // if (!me)
 
   if (verb) 
     cout << "Found '" << title << "'" << endl;
@@ -66,7 +71,7 @@ myHist* getAnyHisto(myHist* hist,
      Provide a separate getter for each type.  Add others if necessary.
   */
 
-  string histtype = hist->ClassName();
+  std::string histtype = hist->ClassName();
 
   // return TH1F from ME
   if (histtype=="TH1F")
@@ -212,7 +217,7 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
   TCanvas* can = new TCanvas(dest,dest, xwid, ywid);
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
-  string histtype=hist->ClassName();
+  std::string histtype=hist->ClassName();
  
   // Set grids to on for all TH2F histograms (maybe add for others later?)
   if (histtype=="TH2F")
@@ -223,8 +228,8 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 
 
   // Don't draw stat box for color plots
-  if (((string)hist->GetOption())=="col" || 
-      ((string)hist->GetOption())=="colz")
+  if (((std::string)hist->GetOption())=="col" || 
+      ((std::string)hist->GetOption())=="colz")
     hist->SetStats(false);
 
   // Draw with whatever options are set for the particluar histogram
@@ -257,10 +262,10 @@ void htmlAnyHisto(int runNo, myHist *hist,
 
   if(hist!=NULL)
     {    
-      string histtype=hist->ClassName();
+      std::string histtype=hist->ClassName();
 
       // Set 2D histogram default option to "colz"
-      if (histtype=="TH2F" && ((string)hist->GetOption())=="")
+      if (histtype=="TH2F" && ((std::string)hist->GetOption())=="")
 	{
 	  hist->SetOption("colz");
 	}

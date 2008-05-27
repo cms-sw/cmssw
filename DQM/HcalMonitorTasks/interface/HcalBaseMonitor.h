@@ -21,11 +21,14 @@
 
 #include <iostream>
 
+// Temporary fix:  Add this into base class until I figure why multiple inclusions are a problem -- Jeff, 23 May 2008
+#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2007/12/01 09:55:42 $
-  * $Revision: 1.8 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {

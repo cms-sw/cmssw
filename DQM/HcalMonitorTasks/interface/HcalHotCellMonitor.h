@@ -5,12 +5,14 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+//#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+
 #include <map>
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/01/22 22:21:45 $
-  * $Revision: 1.12 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.13 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -47,6 +49,10 @@ struct HotCellHists{
   std::vector<MonitorElement*> nadaNegOccMapDepth;
   std::vector<MonitorElement*> nadaNegEnergyMapDepth;
 
+  // Digi Plots
+  std::vector<MonitorElement*> digiPedestalPlots;
+  std::vector <std::vector<MonitorElement*> > digiPedestalPlots_Depth;
+
   // diagnostic histograms (remove eventually?)
   std::vector<MonitorElement*> diagnostic;
 
@@ -80,7 +86,18 @@ public:
   ~HcalHotCellMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
+  void processEvent(const HBHERecHitCollection& hbHits,
+		    const HORecHitCollection& hoHits, 
+		    const HFRecHitCollection& hfHits,
+		    const HBHEDigiCollection& hbhedigi,
+		    const HODigiCollection& hodigi,
+		    const HFDigiCollection& hfdigi,
+		    const HcalDbService& cond);
+  void processEvent_digi(const HBHEDigiCollection& hbhedigi,
+			 const HODigiCollection& hodigi,
+			 const HFDigiCollection& hfdigi,
+			 const HcalDbService& cond);
+
   void reset();
   void setupVals(HotCellHists& h, int type, HotCellHists& base, const edm::ParameterSet& ps);
   void setupHists(HotCellHists& h, DQMStore* dbe);
@@ -98,6 +115,7 @@ private:  ///Monitoring elements
  
   MonitorElement* meEVT_;
 
+  bool doFCpeds_; // determins if pedestals are in fC or ADC counts
 };
 
 #endif

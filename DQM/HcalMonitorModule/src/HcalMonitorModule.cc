@@ -1,10 +1,9 @@
 #include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
-
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/05/08 17:10:32 $
- * $Revision: 1.60 $
+ * $Date: 2008/05/13 17:19:49 $
+ * $Revision: 1.61 $
  * \author W Fisher
  *
 */
@@ -224,8 +223,7 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 //--------------------------------------------------------
 void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context){
   cout <<"HcalMonitorModule::endRun"<<endl;
-
-}
+  }
 
 
 //--------------------------------------------------------
@@ -397,7 +395,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
-    hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
+    hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
+			  *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
 
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 

@@ -2,15 +2,15 @@
 #define DQM_HCALMONITORTASKS_HCALDEADCELLMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+//#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/05/22 14:04:19 $
-  * $Revision: 1.7 $
+  * $Date: 2008/05/23 20:40:32 $
+  * $Revision: 1.8 $
   * \author J. Temple - Univ. of Maryland
   */
 

@@ -43,7 +43,7 @@ namespace HcalDeadCellCheck
 			 float Nsigma, 
 			 float mincount, // specify Nsigma for pedestal check, mincount for ADC check
 			 const HcalDbService& cond,
-			 DQMStore* dbe, string baseFolder,
+			 DQMStore* dbe, 
 			 bool pedsInFC=false)
   {
 
@@ -57,7 +57,7 @@ namespace HcalDeadCellCheck
     else if(hist.type==4) type = "HF"; 
     else return;
 
-    // Unnecessary?
+    // Unnecessary -- histogram already declared
     //if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
 
     int ADCsum=0;
@@ -216,15 +216,13 @@ namespace HcalDeadCellCheck
   template<class Hits>
   void CheckHits(double coolcellfrac, const Hits& hits, 
 		 DeadCellHists& hist, DeadCellHists& all, 
-		 DQMStore* dbe, string baseFolder)
+		 DQMStore* dbe)
   { 
     if (hist.check==false) 
       return;
     
     string type;
     type=hist.subdet;
-
-    if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
 
     typename Hits::const_iterator _cell;
     for (_cell=hits.begin();
@@ -700,11 +698,11 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	  if (abs(digi.id().ieta())<16 || (abs(digi.id().ieta())==16 && ((HcalSubdetector)(digi.id().subdet()) == HcalBarrel)))
 	    HcalDeadCellCheck::CheckForDeadDigis(digi,hbHists,hcalHists,
 						 Nsigma_,minADCcount_,
-						 cond,m_dbe,baseFolder_,doFCpeds_);
+						 cond,m_dbe,doFCpeds_);
 	  else 
 	    HcalDeadCellCheck::CheckForDeadDigis(digi,heHists,hcalHists,
 						 Nsigma_,minADCcount_,
-						 cond,m_dbe,baseFolder_,doFCpeds_);
+						 cond,m_dbe,doFCpeds_);
 	}
     }
   catch(...)
@@ -720,7 +718,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	  const HODataFrame digi = (const HODataFrame)(*j);
 	  HcalDeadCellCheck::CheckForDeadDigis(digi,hoHists,hcalHists,
 					       Nsigma_,minADCcount_,
-					       cond,m_dbe,baseFolder_,doFCpeds_);
+					       cond,m_dbe,doFCpeds_);
 	}
     }
   catch(...)
@@ -736,7 +734,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	  const HFDataFrame digi = (const HFDataFrame)(*j);
 	  HcalDeadCellCheck::CheckForDeadDigis(digi,hfHists,hcalHists,
 					       Nsigma_,minADCcount_,
-					       cond,m_dbe,baseFolder_,doFCpeds_);
+					       cond,m_dbe,doFCpeds_);
 	}
     }
   catch(...)
@@ -771,8 +769,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
   // Loop over HB digis
   try
     {
-      HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,hbHists,hcalHists,
-				   m_dbe, baseFolder_);
+      HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,hbHists,
+				   hcalHists,m_dbe);
     }
   catch(...)
 	{
@@ -782,8 +780,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
   // Loop over HE digis
   try
     {
-      HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,heHists,hcalHists,
-				   m_dbe, baseFolder_);
+      HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,heHists,
+				   hcalHists,m_dbe);
     }
   catch(...)
     {
@@ -793,8 +791,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
   // Loop over HO digis
   try
     {
-      HcalDeadCellCheck::CheckHits(coolcellfrac_,hoHits,hoHists,hcalHists,
-				   m_dbe, baseFolder_);
+      HcalDeadCellCheck::CheckHits(coolcellfrac_,hoHits,hoHists,
+				   hcalHists,m_dbe);
     }
   catch(...)
     {
@@ -804,8 +802,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
   // Loop over HF digis
   try
     {
-      HcalDeadCellCheck::CheckHits(coolcellfrac_,hfHits,hfHists,hcalHists,
-				   m_dbe, baseFolder_);
+      HcalDeadCellCheck::CheckHits(coolcellfrac_,hfHits,
+				   hfHists,hcalHists,m_dbe);
     }
   catch(...)
     {
