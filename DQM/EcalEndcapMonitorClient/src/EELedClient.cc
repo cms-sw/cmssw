@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/05/09 08:07:53 $
- * $Revision: 1.80 $
+ * $Date: 2008/05/09 08:53:02 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -25,6 +25,10 @@
 #include "OnlineDB/EcalCondDB/interface/MonLed2Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNLed1Dat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNLed2Dat.h"
+/*
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed1CrystalDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingLed2CrystalDat.h"
+*/
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
@@ -1059,6 +1063,202 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
       cerr << e.what() << endl;
     }
   }
+
+/*
+  if ( verbose_ ) cout << endl;
+
+  MonTimingLed1CrystalDat t_l1;
+  map<EcalLogicID, MonTimingLed1CrystalDat> dataset3_l1;
+  MonTimingLed2CrystalDat t_l2;
+  map<EcalLogicID, MonTimingLed2CrystalDat> dataset3_l2;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+    }
+
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
+
+        int jx = ix + Numbers::ix0EE(ism);
+        int jy = iy + Numbers::iy0EE(ism);
+
+        if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
+        if ( ! Numbers::validEE(ism, jx, jy) ) continue;
+
+        bool update01;
+        bool update02;
+
+        bool update05;
+        bool update06;
+
+        float num01, num02, num05, num06;
+        float mean01, mean02, mean05, mean06;
+        float rms01, rms02, rms05, rms06;
+
+        update01 = UtilsClient::getBinStats(h09_[ism-1], ix, iy, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h10_[ism-1], ix, iy, num02, mean02, rms02);
+
+        update05 = UtilsClient::getBinStats(h21_[ism-1], ix, iy, num05, mean05, rms05);
+        update06 = UtilsClient::getBinStats(h22_[ism-1], ix, iy, num06, mean06, rms06);
+
+        if ( update01 ) {
+
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << endl;
+            }
+
+          }
+
+          t_l1.setTimingMean(mean01);
+          t_l1.setTimingRMS(rms01);
+
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+            t_l1.setTaskStatus(true);
+          } else {
+            t_l1.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset3_l1[ecid] = t_l1;
+          }
+
+        }
+
+        if ( update05 ) {
+
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L1B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num05  << " " << mean05 << " " << rms05  << endl;
+              cout << endl;
+            }
+
+          }
+
+          t_l1.setTimingMean(mean05);
+          t_l1.setTimingRMS(rms05);
+
+          if ( meg01_[ism-1] && int(meg01_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+            t_l1.setTaskStatus(true);
+          } else {
+            t_l1.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg01_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset3_l1[ecid] = t_l1;
+          }
+
+        }
+
+        if ( update02 ) {
+
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2A (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << endl;
+            }
+
+          }
+
+          t_l2.setTimingMean(mean02);
+          t_l2.setTimingRMS(rms02);
+
+          if ( meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+            t_l2.setTaskStatus(true);
+          } else {
+            t_l2.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset3_l2[ecid] = t_l2;
+          }
+
+        }
+
+        if ( update06 ) {
+
+          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "L2B (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num06  << " " << mean06 << " " << rms06  << endl;
+              cout << endl;
+            }
+
+          }
+
+          t_l2.setTimingMean(mean06);
+          t_l2.setTimingRMS(rms06);
+
+          if ( meg02_[ism-1] && int(meg02_[ism-1]->getBinContent( ix, iy )) % 3 == 1 ) {
+            t_l2.setTaskStatus(true);
+          } else {
+            t_l2.setTaskStatus(false);
+          }
+
+          status = status && UtilsClient::getBinQual(meg02_[ism-1], ix, iy);
+
+          int ic = Numbers::indexEE(ism, ix, iy);
+
+          if ( ic == -1 ) continue;
+
+          if ( econn ) {
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", Numbers::iSM(ism, EcalEndcap), ic);
+            dataset3_l2[ecid] = t_l2;
+          }
+
+        }
+
+      }
+    }
+
+  }
+
+  if ( econn ) {
+    try {
+      if ( verbose_ ) cout << "Inserting MonTimingLaserCrystalDat ..." << endl;
+      if ( dataset3_l1.size() != 0 ) econn->insertDataArraySet(&dataset3_l1, moniov);
+      if ( dataset3_l2.size() != 0 ) econn->insertDataArraySet(&dataset3_l2, moniov);
+      if ( verbose_ ) cout << "done." << endl;
+    } catch (runtime_error &e) {
+      cerr << e.what() << endl;
+    }
+  }
+*/
 
   return status;
 
