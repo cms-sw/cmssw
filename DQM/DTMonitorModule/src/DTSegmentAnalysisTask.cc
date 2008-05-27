@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 13:26:47 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/27 15:23:57 $
+ *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -46,7 +46,7 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("DT/DTSegments");
+  theDbe->setCurrentFolder("DT/Segments");
 
   parameters = pset;
 
