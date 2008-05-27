@@ -153,6 +153,8 @@ void RPCEventSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& c
 
 
 void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {  
+
+
   edm::LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing the DQM client operation";
   
   // counts number of lumiSegs 
@@ -204,7 +206,7 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   
 
   //calulate total alive fraction of strips to give an event summary status label (number from 0 -> 1)
-  float fraction = -1;
+  float fraction = 1;
   if(totalChannels!=0) fraction = ((int)(((totalChannels-totalBadChannels)/totalChannels)*100))/100.0;
   LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Total Alive Detector Fraction:"<<fraction;
 
@@ -216,7 +218,7 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
     
     //loop on detector segments
         for (int i = 0 ; i<channelsInSegment.size(); i++){
-      float fraction1=-1;
+      float fraction1=1;
       if (channelsInSegment[i]!=0) fraction1 = ((int)(((channelsInSegment[i]-badChannelsInSegment[i])/channelsInSegment[i])*100))/100.0;
 
       meSegmentName.str("");
