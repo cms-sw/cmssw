@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "TMath.h"
 
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
@@ -5,6 +7,7 @@
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVATrainer.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiJetCombEval.h"
+#include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
 TtSemiJetCombMVATrainer::TtSemiJetCombMVATrainer(const edm::ParameterSet& cfg):
   muons_   (cfg.getParameter<edm::InputTag>("muons")),
@@ -23,7 +26,9 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
 {
   mvaComputer.update<TtSemiJetCombMVARcd>("trainer", setup, "ttSemiJetCombMVA");
 
-  if(!mvaComputer) return;   // can occur in the last iteration when the MVATrainer is about to save the result
+  // can occur in the last iteration when the 
+  // MVATrainer is about to save the result
+  if(!mvaComputer) return;
 
   edm::Handle<TopMuonCollection> muons; 
   evt.getByLabel(muons_, muons);
@@ -34,9 +39,13 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
   edm::Handle< std::vector<int> > matching;
   evt.getByLabel(matching_, matching);
 
-  for(unsigned int i = 0; i < matching->size(); ++i) {
-    if( (*(matching))[i] < 0) return;  // skip events that were affected by the outlier rejection in the jet-parton matching
-  }
+  // skip events that were affected by the outlier 
+  // rejection in the jet-parton matching
+  if( std::count(matching->begin(), matching->end(), -1)>0 )
+    return;
+
+  // skip events with no appropriate muon candidate in
+  if( muons->empty() ) return;
 
   math::XYZTLorentzVector muon = (*(muons->begin())).p4();
 
@@ -53,9 +62,10 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
   do{
     for(int cnt=0; cnt<TMath::Factorial( matching->size() ); ++cnt){
-      if(combi[0] < combi[1]) {  // take into account indistinguishability 
-	                         // of the two jets from the hadr. W decay,
-	                         // reduces combinatorics by a factor of 2
+      if(combi[TtSemiEvtPartons::LightQ] < combi[TtSemiEvtPartons::LightQBar]) {  
+	// take into account indistinguishability 
+	// of the two jets from the hadr. W decay,
+	// reduces combinatorics by a factor of 2
 	TtSemiJetComb jetComb(*topJets, combi, muon);
 
 	bool trueCombi = true;
