@@ -14,6 +14,8 @@
 class VertexDistance3D : public VertexDistance {
 
 public:
+  using VertexDistance::compatibility;
+
   VertexDistance3D() : theNullMatrix(3, 0) {}
 
   /**
