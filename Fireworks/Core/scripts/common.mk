@@ -50,3 +50,13 @@ tmp/%.out:  %
 	echo "int main(){}" > tmp/$<.cpp; \
 	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(ROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -o $@ $< tmp/$<.cpp
 
+# this recipe for dependency generation is the one recommended by the
+# gmake manual, with slight tweaks for the location of the output
+tmp/%.d:   %.cc
+	$(QUIET) echo "dependencies for $<"; \
+	$(CC) -M $(CFLAGS) $< \
+                       | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.o tmp\/\1.d : \1\2/g' > $@; \
+                     [ -s $@ ] || rm -f $@
+# CCSOURCES = $(wildcard tmp/src/*/*/src/*.o)
+# -include $(CCSOURCES:.o=.d)
+-include $(ProjectObjects:.o=.d)
