@@ -26,6 +26,19 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testFunctions);
 
+struct TestFun {
+  TestFun() : gauss_(0, 1) { }
+  double operator()(double x) {
+    ++ counter_; return gauss_(x);
+  }
+  void reset() { counter_ = 0; } 
+  static size_t counter_;
+private:
+  funct::Gaussian gauss_;
+};
+
+size_t TestFun::counter_ = 0;
+
 void testFunctions::checkAll() {
   using namespace funct;
   {
@@ -86,9 +99,43 @@ void testFunctions::checkAll() {
     CPPUNIT_ASSERT(fabs(f() == sin(x) * cos(x)) < epsilon);
   }
   {
-    Master<Gaussian> g(Gaussian(0, 1));
-    Slave<Gaussian> g1(g);
-    CPPUNIT_ASSERT(g(0.5) == g1(0.5));
-    CPPUNIT_ASSERT(g1(0.7) == g1(0.7));
+    TestFun f;
+    Master<TestFun> g(f);
+    Slave<TestFun> g1(g), g2(g);
+    const double epsilon = 1.e-5; 
+    double y, y1, y2, x;
+    CPPUNIT_ASSERT(f.counter_ == 0);
+    x = 0.5; y = g(x), y1 = g1(x), y2 = g2(x);
+    CPPUNIT_ASSERT(y == y1 && y1 == y2);
+    CPPUNIT_ASSERT(f.counter_ == 1);
+    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
+    f.reset();
+    x = 1.5; y1 = g1(x), y = g(x), y2 = g2(x);
+    CPPUNIT_ASSERT(y == y1 && y1 == y2);
+    CPPUNIT_ASSERT(f.counter_ == 1);
+    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
+    f.reset();
+    x = 0.765; y2 = g2(x), y1 = g1(x), y = g(x);
+    CPPUNIT_ASSERT(y == y1 && y1 == y2);
+    CPPUNIT_ASSERT(f.counter_ == 1); 
+    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
+    f.reset();
+    g(0.5); 
+    CPPUNIT_ASSERT(f.counter_ == 1);
+    g(0.5); 
+    CPPUNIT_ASSERT(f.counter_ == 2);
+    g1(0.5);
+    CPPUNIT_ASSERT(f.counter_ == 2);
+    g1(0.5);
+    CPPUNIT_ASSERT(f.counter_ == 3);
+    g(0.5);
+    CPPUNIT_ASSERT(f.counter_ == 3);
+    f.reset();
+    // odd case: slaves don't catch a change in values
+    x = 0.123; y = g(x), y1 = g1(0.5), y2 = g2(0.7);
+    CPPUNIT_ASSERT(y == y1 && y1 == y2);
+    CPPUNIT_ASSERT(f.counter_ == 1);
+    f.reset();
+    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
   }
 }

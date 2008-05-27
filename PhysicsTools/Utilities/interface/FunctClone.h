@@ -1,47 +1,67 @@
 #ifndef PhysicsTools_Utilities_FunctClone_h
 #define PhysicsTools_Utilities_FunctClone_h
 #include <boost/shared_ptr.hpp>
+#include <vector>
+#include <algorithm>
 
 namespace funct {
 
   template<typename F>
   struct Master {
-    Master(const F& f) : f_(f), cached_(false) { }
+    Master(const F& f) : f_(new F(f)), toBeUpdated_(1, true) { 
+    }
     double operator()() const {
-      return cache();
+      return get(0);
     }
     double operator()(double x) const {
-      return cache(x);
+      return get(0, x);
     }
-    double cacheValue() const {
-      if(cached_) return value_;
-      else return (*this)();
+    void add() const {
+      toBeUpdated_.resize(size() + 1, true);
     }
-    double cacheValue(double x) const {
-      if(cached_) return value_;
-      else return (*this)(x);
+    size_t size() const { return toBeUpdated_.size(); }
+    double get(size_t i) const {
+      if(toBeUpdated_[i]) update();
+      toBeUpdated_[i] = true;
+      return value_;
+    }
+    double get(size_t i, double x) const {
+      if(toBeUpdated_[i]) update(x);
+      toBeUpdated_[i] = true;
+      return value_;
     }
   private:
-    double cache() const {
-      cached_ = true;
-      return value_ = f_();
+    void reset() const {
+      std::fill(toBeUpdated_.begin(), toBeUpdated_.end(), true);
     }
-    double cache(double x) const {
-      cached_ = true;
-      return value_ = f_(x);
+    void clear() const {
+      std::fill(toBeUpdated_.begin(), toBeUpdated_.end(), false);
     }
-    const F & f_;
+    void update() const {
+      clear();
+      value_ = (*f_)();
+    }
+    void update(double x) const {
+      clear();
+      value_ = (*f_)(x);
+    }
+    const boost::shared_ptr<F> f_;
     mutable double value_;
-    mutable bool cached_;
+    mutable std::vector<bool> toBeUpdated_;
   };
 
   template<typename F>
   struct Slave {
-    Slave(const Master<F>& master) : master_(master) { }
-    double operator()() const { return master_.cacheValue(); }
-    double operator()(double x) const { return master_.cacheValue(x); }
+    Slave(const Master<F>& master) : master_(master), id_(master.size()) { 
+      assert(id_ > 0);
+      master_.add();
+    }
+    double operator()() const { return master_.get(id_); }
+    double operator()(double x) const { return master_.get(id_, x); }
+    void setId(size_t i) { id_ = i; }
   private:
     const Master<F> & master_;
+    size_t id_;
   };
 
   template<typename F>
