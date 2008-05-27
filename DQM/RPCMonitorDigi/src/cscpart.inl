@@ -52,7 +52,7 @@ if(allCSCSegments->size()>0){
       LocalVector segmentDirection=segment->localDirection();
 	
       
-      if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4)){ //Add 3 segmentes in the endcaps???
+      if(segment->dimension()==4 && (segment->nRecHits()<=10 && segment->nRecHits()>=4) /*&& segment->chi2()< ??*/){ //Add 3 segmentes in the endcaps???
 	std::cout<<"\t \t yes"<<std::endl;
 	std::cout<<"\t \t CSC Segment Dimension "<<segment->dimension()<<std::endl; 
       
@@ -195,68 +195,67 @@ if(allCSCSegments->size()>0){
 		std::cout<<"\t \t \t \t \t Loop over the digis in this roll looki ng for the Average"<<std::endl;
 	      
 		for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-		  stripCounter++;
 		  stripDetected=digiIt->strip(); 
-		  sumStripDetected=sumStripDetected+stripDetected;
+		  if(fabs((float)stripDetected-stripPredicted)<MaxStripToCountInAverage){
+		    sumStripDetected=sumStripDetected+stripDetected;
+		    stripCounter++;
+		  }
 		  std::cout<<"\t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<"\t SumStrip= "<<sumStripDetected<<std::endl;
 		}
 
 		std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
 
-		double meanStripDetected=0;
-		if(stripCounter!=0) meanStripDetected=sumStripDetected/((double)stripCounter);
+		if(stripCounter!=0){
+		  double meanStripDetected= meanStripDetected=sumStripDetected/((double)stripCounter);
 
-		std::cout<<"\t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected"<<meanStripDetected<<std::endl;
-
-		LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
-	      
-		float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
-		float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
-
-		std::cout<<"\t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
-
-		if(fabs(meanrescms) < MinimalResidual && stripCounter!=0){
-
-		  std::cout<<"\t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
-
-		  //----GLOBAL HISTOGRAM----
-		  std::cout<<"\t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
-		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
-		  hGlobalRes->Fill(meanrescms);
-		  //hGlobalRes->Fill(meanrescms);
-		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==2) hGlobalResClu1->Fill(meanrescms+0.5*stripw);
-		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==4) hGlobalResClu2->Fill(meanrescms+0.5*stripw);
-		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==6) hGlobalResClu3->Fill(meanrescms+0.5*stripw);
-		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==8) hGlobalResClu4->Fill(meanrescms+0.5*stripw);
-		  hGlobalResY->Fill(meanrescmsY);
-		  //------------------------
-
-
-		  sprintf(meIdRPC,"RPCResidualsFromCSC_%s",detUnitLabel);
-		  meMap[meIdRPC]->Fill(meanrescms);
-		
-		  sprintf(meIdRPC,"RPCResiduals2DFromCSC_%s",detUnitLabel);
-		  meMap[meIdRPC]->Fill(meanrescms,Y);
-		
+		  std::cout<<"\t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected"<<meanStripDetected<<std::endl;
 		  
-		  std::cout <<"\t \t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
-		  anycoincidence=true;
-		  std::cout <<"\t \t \t \t \t Increassing CSC counter"<<std::endl;
-		  totalcounter[1]++;
-		  buff=counter[1];
-		  buff[rollId]++;
-		  counter[1]=buff;
-		
-		  sprintf(meRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
-		  meMap[meRPC]->Fill(meanStripDetected);
-		
-		  sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
-		  meMap[meRPC]->Fill(stripPredicted);
-		
-		  sprintf(meRPC,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
-		  meMap[meRPC]->Fill(stripPredicted,Y);
+		  LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
+		  
+		  float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
+		  float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
+		  
+		  std::cout<<"\t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
+		  
+		  if(fabs(meanrescms) < MinimalResidual ){
+		    
+		    std::cout<<"\t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
+		    
+		    //----GLOBAL HISTOGRAM----
+		    std::cout<<"\t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
+		    //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
+		    hGlobalRes->Fill(meanrescms);
+		    hGlobalResY->Fill(meanrescmsY);
+		    //------------------------
+		    
+		    
+		    sprintf(meIdRPC,"RPCResidualsFromCSC_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(meanrescms);
+		    
+		    sprintf(meIdRPC,"RPCResiduals2DFromCSC_%s",detUnitLabel);
+		    meMap[meIdRPC]->Fill(meanrescms,Y);
+		    
+		    
+		    std::cout <<"\t \t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
+		    anycoincidence=true;
+		    std::cout <<"\t \t \t \t \t Increassing CSC counter"<<std::endl;
+		    totalcounter[1]++;
+		    buff=counter[1];
+		    buff[rollId]++;
+		    counter[1]=buff;
+		    
+		    sprintf(meRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
+		    meMap[meRPC]->Fill(meanStripDetected);
+		    
+		    sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
+		    meMap[meRPC]->Fill(stripPredicted);
+		    
+		    sprintf(meRPC,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
+		    meMap[meRPC]->Fill(stripPredicted,Y);
+		  }
+		}else{
+		  std::cout <<"\t \t \t \t \t THIS ROLL DOESN'T HAVE ANY DIGI"<<std::endl;
 		}
-	      
 		if(anycoincidence==false) {
 		  std::cout <<"\t \t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH RPC DATA"<<std::endl;
 		  totalcounter[2]++;
@@ -265,15 +264,17 @@ if(allCSCSegments->size()>0){
 		  counter[2]=buff;
 		  std::cout << "\t \t \t \t \t One for counterFAIL"<<std::endl;
 		
-		  ofrej<<"CSCS EndCap "<<rpcRegion
+		  ofrej<<"CSC \t EndCap "<<rpcRegion
 		       <<"\t cscStation "<<cscStation
 		       <<"\t cscRing "<<cscRing			   
 		       <<"\t cscChamber "<<cscChamber
 		       <<"\t Roll "<<rollasociated->id()
 		       <<"\t Event "<<iEvent.id().event()
 		       <<"\t CSCId "<<CSCId
-		       <<"\t CSCId.ring  "<<CSCId.ring()
-		       <<" \t cscRing "<<cscRing
+		       <<"\t Event "	
+		       <<iEvent.id().event()
+		       <<"\t Run "
+		       <<iEvent.id().run()
 		       <<std::endl;
 		}
 	      }else {

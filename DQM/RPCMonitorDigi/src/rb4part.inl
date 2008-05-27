@@ -47,9 +47,10 @@ if(all4DSegments->size()>0){
 	DTRecSegment4DCollection::const_iterator segMB3;  
 	
 	for(segMB3=all4DSegments->begin();segMB3!=all4DSegments->end();++segMB3){
-	  DTChamberId dtid3 = segMB3->chamberId();
-	  
+
+	  DTChamberId dtid3 = segMB3->chamberId();  
 	  if(dtid3.station()==3&&dtid3.wheel()==DTId.wheel()&&scounter[dtid3] == 1&&segMB3->dimension()==4){
+
 	    const GeomDet* gdet3=dtGeo->idToDet(segMB3->geographicalId());
 	    const BoundPlane & DTSurface3 = gdet3->surface();
 	      
@@ -71,11 +72,10 @@ if(all4DSegments->size()>0){
 		dtSector=10;
 	      }
 	    
-	      std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
+	      std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,4)]; //It should be always 4
 	      
 	      assert(rollsForThisDT.size()>=1);
-	      
-	      
+     	      
 	      for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
 		const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4
 		const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); //surface MB4
@@ -85,6 +85,7 @@ if(all4DSegments->size()>0){
 		GlobalPoint CenterPointRollGlobal=RPCSurfaceRB4.toGlobal(LocalPoint(0,0,0));
 		
 		LocalPoint CenterRollinMB3Frame = DTSurfaceMB3.toLocal(CenterPointRollGlobal);
+
 		float D=CenterRollinMB3Frame.z();
 		
 		float Xo3=segMB3->localPosition().x();
@@ -109,13 +110,13 @@ if(all4DSegments->size()>0){
 		std::cout<<"MB4 \t \t \t Strip Lenght "<<stripl<<"cm"<<std::endl;
 		std::cout<<"MB4 \t \t \t Strip Width "<<stripw<<"cm"<<std::endl;
 
-		std::cout<<"MB4 \t \t \t X Predicted in DTLocal= "<<X<<"cm"<<std::endl;
-		std::cout<<"MB4 \t \t \t Y Predicted in DTLocal= "<<Y<<"cm"<<std::endl;
-		std::cout<<"MB4 \t \t \t Z Predicted in DTLocal= "<<Z<<"cm"<<std::endl;
+		std::cout<<"MB4 \t \t \t X Predicted in MB3Local= "<<X<<"cm"<<std::endl;
+		std::cout<<"MB4 \t \t \t Y Predicted in MB3DTLocal= "<<Y<<"cm"<<std::endl;
+		std::cout<<"MB4 \t \t \t Z Predicted in MB3DTLocal= "<<Z<<"cm"<<std::endl;
 		
 
 		float extrapolatedDistance = sqrt((X-Xo3)*(X-Xo3)+(Y-Yo3)*(Y-Yo3)+(Z-Zo3)*(Z-Zo3));
-		std::cout<<"\t \t \t Is the distance of extrapolation less than MaxD? ="<<extrapolatedDistance<<"cm"<<"MaxDrb4="<<MaxDrb4<<"cm"<<std::endl;
+		std::cout<<"MB4 \t \t \t Is the distance of extrapolation less than MaxD? ="<<extrapolatedDistance<<"cm"<<"MaxDrb4="<<MaxDrb4<<"cm"<<std::endl;
 
 		if(extrapolatedDistance<=MaxDrb4){ 
 		  std::cout<<"MB4 \t \t \t yes"<<std::endl;
@@ -132,7 +133,7 @@ if(all4DSegments->size()>0){
 		   fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 &&
 		   fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){ 
 		    
-		    std::cout<<"\t \t \t \t yes"<<std::endl;	
+		    std::cout<<"MB4 \t \t \t \t yes"<<std::endl;	
 		    RPCDetId  rollId = rollasociated->id();
 		    
 		    const float stripPredicted=
@@ -186,66 +187,69 @@ if(all4DSegments->size()>0){
 		     std::cout<<"MB4 \t \t \t \t \t Loop over the digis in this roll looking for the Average"<<std::endl;
 
 		     for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-			stripCounter++;
 			stripDetected=digiIt->strip(); 
-			sumStripDetected=sumStripDetected+stripDetected;
-			std::cout<<"MB4 \t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<"\t SumStrip= "<<sumStripDetected<<std::endl;
+			if(fabs((float)stripDetected-stripPredicted)<MaxStripToCountInAverageRB4){
+			  sumStripDetected=sumStripDetected+stripDetected;
+			  stripCounter++;
+			}
+			std::cout<<"MB4 \t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
 		      }
 		      
 		      std::cout<<"MB4 \t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
 
-		      double meanStripDetected = 0;
-		      if(stripCounter!=0)meanStripDetected=sumStripDetected/((double)stripCounter);
+		      if(stripCounter!=0){
+			double meanStripDetected = meanStripDetected=sumStripDetected/((double)stripCounter);
 
-		      std::cout<<"MB4 \t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected"<<meanStripDetected<<std::endl;
+			std::cout<<"MB4 \t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected="<<meanStripDetected<<std::endl;
 		      
-		      LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
+			LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
 	      
-		      float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
-		      float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
+			float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
+			float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
 		      
-		      std::cout<<"MB4 \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
+			std::cout<<"MB4 \t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
 		      
-		      if(fabs(meanrescms) < MinimalResidualRB4 && stripCounter!=0){
+			if(fabs(meanrescms) < MinimalResidualRB4 ){
 			
-			std::cout<<"MB4 \t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
+			  std::cout<<"MB4 \t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
 			
-		      	//-----GLOBAL HISTOGRAM----------
-			std::cout<<"MB4 \t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
-			//if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
-			hGlobalRes->Fill(meanrescms);
-			if(rollId.station()==4) hGlobalResLa6->Fill(meanrescms); 
-			if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==2) hGlobalResClu1->Fill(meanrescms+0.5*stripw);
-			if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==4) hGlobalResClu2->Fill(meanrescms+0.5*stripw);
-			if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==6) hGlobalResClu3->Fill(meanrescms+0.5*stripw);
-			if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==8) hGlobalResClu4->Fill(meanrescms+0.5*stripw);
-			hGlobalResY->Fill(meanrescmsY);
-			//--------------------------------
-			
-			
-			sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(meanrescms);
-			
-			sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(meanrescms,Y);
-			
-			std::cout <<"MB4 \t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<"  (int)Predicted="<<(int)(stripPredicted)<<"  MeanDetected="<<meanStripDetected<<std::endl;
-			anycoincidence=true;
-			std::cout <<"MB4 \t \t \t \t \t Increassing DT4 counter"<<std::endl;
-			totalcounter[1]++;
-			buff=counter[1];
-			buff[rollId]++;
-			counter[1]=buff;		
-			 
-			sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(stripDetected);
-			
-			sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(stripPredicted);
-			
-			sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
-			meMap[meIdRPC]->Fill(stripPredicted,Y);
-		      
+			  //-----GLOBAL HISTOGRAM----------
+			  std::cout<<"MB4 \t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
+			  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
+			  hGlobalRes->Fill(meanrescms);
+			  if(rollId.station()==4) hGlobalResLa6->Fill(meanrescms); 
+			  if(stripCounter==2) hGlobalResClu1La6->Fill(meanrescms);
+			  if(stripCounter==6) hGlobalResClu3La6->Fill(meanrescms);
+			  hGlobalResY->Fill(meanrescmsY);
+			  //--------------------------------
+			  
+			  
+			  sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(meanrescms);
+			  
+			  sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(meanrescms,Y);
+			  
+			  std::cout <<"MB4 \t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<"  (int)Predicted="<<(int)(stripPredicted)<<"  MeanDetected="<<meanStripDetected<<std::endl;
+			  anycoincidence=true;
+			  std::cout <<"MB4 \t \t \t \t \t Increassing DT4 counter"<<std::endl;
+			  totalcounter[1]++;
+			  buff=counter[1];
+			  buff[rollId]++;
+			  counter[1]=buff;		
+			  
+			  sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripDetected);
+			  
+			  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripPredicted);
+			  
+			  sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+			  meMap[meIdRPC]->Fill(stripPredicted,Y);
+			  
+			}
+		      }else{
+			std::cout <<"MB4 \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY DIGI"<<std::endl;
 		      }
 		      if(anycoincidence==false){
 			std::cout <<"MB4 \t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH THE DATA"<<std::endl;
@@ -254,12 +258,14 @@ if(all4DSegments->size()>0){
 			buff=counter[2];
 			buff[rollId]++;
 			counter[2]=buff;		
-			ofrej<<"MB4 Wh "<<dtWheel
+			ofrej<<"MB4 \t Wh "<<dtWheel
 			     <<"\t St "<<dtStation
 			     <<"\t Se "<<dtSector
 			     <<"\t Roll "<<rollasociated->id()
 			     <<"\t Event "
 			     <<iEvent.id().event()
+			     <<"\t Run "
+			     <<iEvent.id().run()
 			     <<std::endl;
 		      }
 		  }else{
