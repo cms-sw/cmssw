@@ -70,7 +70,8 @@ HcalSummaryClient::~HcalSummaryClient()
 void HcalSummaryClient::beginJob(DQMStore* dqmStore)
 {
   dqmStore_=dqmStore;
-  if (debug_) cout <<"HcalSummaryClient: beginJob"<<endl;
+  //  if (debug_) 
+  cout <<"HcalSummaryClient: beginJob"<<endl;
   ievt_ = 0; // keepts track of all events in job
   jevt_ = 0; // keeps track of all events in run
 
@@ -227,7 +228,8 @@ void HcalSummaryClient::analyze(void)
   jevt_++;
   if ( ievt_ % 10 == 0 ) 
     {
-      if ( debug_ ) cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+      //if ( debug_ )
+      cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
   for (int ieta=1;ieta<=etaBins_;++ieta)
     {

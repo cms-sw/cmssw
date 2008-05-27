@@ -12,7 +12,7 @@ HcalMonitorClient::HcalMonitorClient(){}
 HcalMonitorClient::~HcalMonitorClient(){
 
   cout << "HcalMonitorClient: Exit ..." << endl;
-
+  if( summary_client_ )    delete summary_client_;
   if( dataformat_client_ ) delete dataformat_client_;
   if( digi_client_ )       delete digi_client_;
   if( rechit_client_ )     delete rechit_client_;
@@ -35,6 +35,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
   actonLS_=false;
 
+  summary_client_ = 0;
   dataformat_client_ = 0; digi_client_ = 0;
   rechit_client_ = 0; pedestal_client_ = 0;
   led_client_ = 0; hot_client_ = 0; dead_client_=0;
@@ -103,6 +104,13 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPalette(1);
 
   // clients' constructors
+  if( ps.getUntrackedParameter<bool>("SummaryClient", true) ){
+    if(debug_) {;}
+    cout << "===>DQM Summary Client is ON" << endl;
+    summary_client_   = new HcalSummaryClient(ps);
+    ///> No init() exists, and we may not need one....
+    //summary_client_->init(ps, dbe_,"DataFormatClient");
+  }
   if( ps.getUntrackedParameter<bool>("DataFormatClient", false) ){
     if(debug_)   cout << "===>DQM DataFormat Client is ON" << endl;
     dataformat_client_   = new HcalDataFormatClient();
@@ -220,7 +228,7 @@ void HcalMonitorClient::beginJob(const EventSetup& c){
   if( debug_ ) cout << "HcalMonitorClient: beginJob" << endl;
   
   ievt_ = 0;
-
+  if( summary_client_ )    summary_client_->beginJob(dbe_);
   if( dataformat_client_ ) dataformat_client_->beginJob();
   if( digi_client_ )       digi_client_->beginJob();
   if( rechit_client_ )     rechit_client_->beginJob();
@@ -239,6 +247,7 @@ void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c) {
   cout << endl;
   cout << "HcalMonitorClient: Standard beginRun() for run " << r.id().run() << endl;
   cout << endl;
+  if( summary_client_ )    summary_client_->beginRun();
   if( dataformat_client_ ) dataformat_client_->beginRun();
   if( digi_client_ )       digi_client_->beginRun();
   if( rechit_client_ )     rechit_client_->beginRun();
@@ -422,6 +431,7 @@ void HcalMonitorClient::analyze(){
   mui_->doMonitoring();
   dbe_->runQTests();
 
+  if( summary_client_ )    summary_client_->analyze(); 	
   if( dataformat_client_ ) dataformat_client_->analyze(); 	
   if( digi_client_ )       digi_client_->analyze(); 
   if( rechit_client_ )     rechit_client_->analyze(); 
