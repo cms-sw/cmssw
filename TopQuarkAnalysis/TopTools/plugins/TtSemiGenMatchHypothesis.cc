@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
 #include "TopQuarkAnalysis/TopTools/plugins/TtSemiGenMatchHypothesis.h"

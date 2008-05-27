@@ -3,26 +3,28 @@
 
 TtSemiJetComb::TtSemiJetComb(){}
 
-TtSemiJetComb::TtSemiJetComb(const std::vector<pat::Jet> &topJets, const std::vector<int> cmb,
-			     const math::XYZTLorentzVector &lep)
+TtSemiJetComb::TtSemiJetComb(const std::vector<pat::Jet>& topJets, const std::vector<int> cmb,
+			     const math::XYZTLorentzVector& lep)
 { 
   // receive right jet assiciation
   // from jet parton matching
-  hadQJet = topJets[cmb[TtSemiEvtPartons::LightQ]].p4();
+  hadQJet    = topJets[cmb[TtSemiEvtPartons::LightQ   ]].p4();
   hadQBarJet = topJets[cmb[TtSemiEvtPartons::LightQBar]].p4();
-  hadBJet = topJets[cmb[TtSemiEvtPartons::HadB]].p4();
-  lepBJet = topJets[cmb[TtSemiEvtPartons::LepB]].p4();
-  lepton = lep;
+  hadBJet    = topJets[cmb[TtSemiEvtPartons::HadB     ]].p4();
+  lepBJet    = topJets[cmb[TtSemiEvtPartons::LepB     ]].p4();
+  lepton     = lep;
   deduceMothers();
 }
 
-TtSemiJetComb::~TtSemiJetComb() {}
+TtSemiJetComb::~TtSemiJetComb() 
+{
+}
 
 void 
 TtSemiJetComb::deduceMothers()
 {
-  hadW = hadQJet + hadQBarJet;
-  lepW = lepton;  // +MET...
+  hadW   = hadQJet + hadQBarJet;
+  lepW   = lepton;  // +MET...
   hadTop = hadW + hadBJet;
   lepTop = lepW + lepBJet;
 }

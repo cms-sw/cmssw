@@ -122,8 +122,12 @@ JetPartonMatching::matchingTotalMinDist()
     
     // use primitive outlier rejection if desired
     if(useMaxDist_&& distances[0].first>maxDist_) jetIndex = -1;
-    
-    matching.push_back(std::make_pair(partonIndex, jetIndex));
+
+    // prevent underflow in case of too few jets
+    if( distances.empty() )
+      matching.push_back(std::make_pair(partonIndex, -1));
+    else
+      matching.push_back(std::make_pair(partonIndex, jetIndex));
     
     // remove all values for the matched parton 
     // and the matched jet
