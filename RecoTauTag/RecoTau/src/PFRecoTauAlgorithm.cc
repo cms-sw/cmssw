@@ -216,7 +216,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }
   }
 
-  /*
+  
   // for elecron rejection
   double myECALenergy=0.;
   double myHCALenergy=0.;
@@ -239,15 +239,15 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks;
 
-  math::XYZPoint myleadTkEcalPos;
+  
+  if(myleadTk.isNonnull()) {
+    math::XYZPoint myleadTkEcalPos;
    if(MagneticField_!=0){ 
      myleadTkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField_,myleadTk);
    } else {
      // temporary: outer position is not correct!
      myleadTkEcalPos = myleadTk->outerPosition();
   }
-   
-  if(myleadTk.isNonnull()) {
 
     // Against double counting of clusters
     std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
@@ -294,7 +294,6 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 		&& deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
 	      myStripClusterE += en;
 	    }
-
 	  }	  
 	}
 	
@@ -331,7 +330,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   }
   // end electron rejection
-*/  
+  
   
   return myPFTau;  
 }
