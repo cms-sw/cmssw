@@ -80,7 +80,7 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
 
   dbe_->setCurrentFolder("L1T/EventInfo/reportSummaryContents");
 
-  int nSubsystems = 10;
+  int nSubsystems = 20;
   
   char histo[100];
   
@@ -103,7 +103,7 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   dbe_->removeElement(reportSummaryMap_->getName());
   }
 
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 4, 0., 4., 3, 0., 3);
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 5, 0., 5., 4, 0., 4);
 			    reportSummaryMap_->setAxisTitle("XXXX", 1);
 			      reportSummaryMap_->setAxisTitle("YYYY", 2);
 
@@ -132,9 +132,11 @@ void L1TEventInfoClient::analyze(const Event& e, const EventSetup& context){
    if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
 
    if(verbose_) cout << "L1TEventInfoClient::analyze" << endl;
-
 /*
+// check GCT
   MonitorElement *NonIsoEmDeadEtaChannels = dbe_->get("L1T/L1TGCT/NonIsoEmOccEta");
+  if(!NonIsoEmDeadEtaChannels) gctFloat = 0.;
+  
   int nXChannels = NonIsoEmDeadEtaChannels->getNbinsX();
   int nYChannels = NonIsoEmDeadEtaChannels->getNbinsY();
   if(nYChannels) nChannels = nXChannels*nYChannels;
@@ -146,19 +148,19 @@ void L1TEventInfoClient::analyze(const Event& e, const EventSetup& context){
       reportSummary = nBadChannels/nChannels;
     } 
   }   
-*/ 
+*/
   reportSummary = 1.;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
 
 
-  int nSubsystems = 10;
+  int nSubsystems = 20;
   for (int i = 0; i < nSubsystems; i++) {    
 
      reportSummaryContent_[i]->Fill(1.);
   }
 
-  for (int i = 0; i < 4; i++) {    
-    for (int j = 0; j < 3; j++) {    
+  for (int i = 0; i < 5; i++) {    
+    for (int j = 0; j < 4; j++) {    
 
      reportSummaryMap_->setBinContent( i, j, 1. );
     }
