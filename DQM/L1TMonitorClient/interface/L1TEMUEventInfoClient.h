@@ -75,7 +75,7 @@ private:
   // -------- member data --------
 
   MonitorElement * reportSummary_;
-  MonitorElement * reportSummaryContent_[10];
+  MonitorElement * reportSummaryContent_[20];
   MonitorElement * reportSummaryMap_;
 
 
