@@ -7,7 +7,7 @@ RPCCalibPerf = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('RPCStripNoisesRcd'),
-        tag = cms.string('Example_tag2')
+        tag = cms.string('RPCStripNoises_mc')
     )),
     connect = cms.string('frontier://FrontierProd/CMS_COND_20X_RPC'), ##FrontierProd/CMS_COND_20X_RPC"
 
