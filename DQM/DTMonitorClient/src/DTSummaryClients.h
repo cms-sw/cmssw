@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2008/03/01 00:39:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/27 12:56:11 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -61,8 +61,6 @@ private:
 
   int nevents;
   DQMStore* dbe;
-
-  edm::ParameterSet parameters;
 
   MonitorElement*  SummaryReport;
   MonitorElement*  SummaryReportMap;

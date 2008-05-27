@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 14:02:08 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/27 12:56:03 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -34,7 +34,7 @@ using namespace std;
 DTSummaryClients::DTSummaryClients(const edm::ParameterSet& ps){
 
   edm::LogVerbatim ("summary") << "[DTSummaryClients]: Constructor";
-  parameters = ps;
+  
   
   dbe = edm::Service<DQMStore>().operator->();
 
@@ -51,7 +51,6 @@ void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
   edm::LogVerbatim ("summary") <<"[DTSummaryClients]: BeginRun"; 
 
   // book the summary histos
-
   dbe->setCurrentFolder("DT/EventInfo"); 
   SummaryReport = dbe->bookFloat("reportSummary");
 
