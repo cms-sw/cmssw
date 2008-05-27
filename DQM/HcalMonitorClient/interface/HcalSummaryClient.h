@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.35 $
+ * $Date: 2008/05/27 03:12:26 $
+ * $Revision: 1.1 $
  * \author Jeff Temple
  *
 */
@@ -56,6 +56,8 @@ class HcalSummaryClient : public HcalBaseClient {
 
   // Analyze
   void analyze(void);
+  float analyze_deadcell(std::string name, float& subdet); 
+  void incrementCounters(void);
 
   // HtmlOutput
   void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
@@ -69,7 +71,8 @@ class HcalSummaryClient : public HcalBaseClient {
 
   int ievt_;
   int jevt_;
-  
+  int lastupdate_;
+
   bool cloneME_;
   
   bool verbose_;
@@ -82,12 +85,23 @@ class HcalSummaryClient : public HcalBaseClient {
   DQMStore* dqmStore_;
 
   MonitorElement* meGlobalSummary_;
-  MonitorElement* meHotCellMap_;
-  MonitorElement* meDeadCellMap_;
+
+  bool checkHB_;
+  bool checkHE_;
+  bool checkHO_;
+  bool checkHF_;
+
+  std::map<std::string, int> subdetCells_;
+  float status_HB_;
+  float status_HE_;
+  float status_HO_;
+  float status_HF_;
+  float status_global_;
 
   double etaMin_, etaMax_, phiMin_, phiMax_;
   int phiBins_, etaBins_;
     
+
 }; // end of class declaration
 
 #endif

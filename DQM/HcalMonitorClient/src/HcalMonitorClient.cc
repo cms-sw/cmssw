@@ -416,6 +416,8 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   if (debug_) cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   ievt_++; //I think we want our web pages, etc. to display this counter (the number of events used in the task) rather than nevt_ (the number of times the MonitorClient analyze function below is called) -- Jeff, 1/22/08
+
+  if( summary_client_ )    summary_client_->incrementCounters(); 	// all this does is increment a counter
   if ( runningStandalone_ || prescale()) return;
 
   else analyze();

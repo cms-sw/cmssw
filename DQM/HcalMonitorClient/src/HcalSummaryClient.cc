@@ -45,21 +45,38 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // eta, phi boundaries -- need to put them in client as well as monitor?
-  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 41.5);
-  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -41.5);
+  etaMax_ = ps.getUntrackedParameter<double>("MaxEta", 42.5);
+  etaMin_ = ps.getUntrackedParameter<double>("MinEta", -42.5);
 
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73.5);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", -0.5);
 
+  checkHB_= ps.getUntrackedParameter<bool>("checkHB",true);
+  checkHE_= ps.getUntrackedParameter<bool>("checkHE",true);
+  checkHO_= ps.getUntrackedParameter<bool>("checkHO",true);
+  checkHF_= ps.getUntrackedParameter<bool>("checkHF",true);
+
+
   phiBins_=(int)(abs(phiMax_-phiMin_));
   etaBins_=(int)(abs(etaMax_-etaMin_));
 
-
   // Summary maps
   meGlobalSummary_=0;
-  meHotCellMap_=0;
-  meDeadCellMap_=0;
 
+  // All initial status floats set to -1 (uncertain)
+  // For the moment, these are just local variables; if we want to keep
+  // them in the root file, we need to book them as MonitorElements
+  status_HB_=-1;
+  status_HE_=-1;
+  status_HO_=-1;
+  status_HF_=-1;
+  status_global_=-1;
+  
+  subdetCells_.insert(make_pair("HB",2592));
+  subdetCells_.insert(make_pair("HE",2592));
+  subdetCells_.insert(make_pair("HO",2160));
+  subdetCells_.insert(make_pair("HF",1728));
+  
 } // HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
 
 
@@ -74,7 +91,7 @@ void HcalSummaryClient::beginJob(DQMStore* dqmStore)
   cout <<"HcalSummaryClient: beginJob"<<endl;
   ievt_ = 0; // keepts track of all events in job
   jevt_ = 0; // keeps track of all events in run
-
+  lastupdate_=0; // keeps analyze from being called by both endRun and endJob
 } // void HcalSummaryClient::beginJob(DQMStore* dqmStore)
 
 
@@ -83,7 +100,6 @@ void HcalSummaryClient::beginRun(void)
   if ( debug_ ) cout << "HcalSummaryClient: beginRun" << endl;
 
   jevt_ = 0;
-
   this->setup();
 } //void HcalSummaryClient::beginRun(void)
 
@@ -92,7 +108,8 @@ void HcalSummaryClient::endJob(void)
 {
   if ( debug_ ) cout << "HcalSummaryClient: endJob, ievt = " << ievt_ << endl;
   // When the job ends, we want to make a summary before exiting
-  analyze();
+  if (ievt_>lastupdate_)
+    analyze();
   this->cleanup();
 } // void HcalSummaryClient::endJob(void)
 
@@ -102,7 +119,7 @@ void HcalSummaryClient::endRun(void)
   if ( debug_ ) cout << "HcalSummaryClient: endRun, jevt = " << jevt_ << endl;
   // When the run ends, we want to make a summary before exiting
   analyze();
-
+  lastupdate_=ievt_;
   this->cleanup();
 } // void HcalSummaryClient::endRun(void) 
 
@@ -115,29 +132,13 @@ void HcalSummaryClient::setup(void)
   // Is this the correct folder?
   dqmStore_->setCurrentFolder( prefixME_ + "/HcalSummaryClient" );
 
-  // remove old versions of summary plots
-  if (meHotCellMap_) dqmStore_->removeElement( meHotCellMap_->getName());
-  if (meDeadCellMap_) dqmStore_->removeElement( meDeadCellMap_->getName());
-
-
-  sprintf(histo, "Hcal Hot Cells");
-  meHotCellMap_ = dqmStore_->book2D(histo, histo, etaBins_,etaMin_,etaMax_,
-				phiBins_,phiMin_,phiMax_);
-  meHotCellMap_->setAxisTitle("ieta", 1);
-  meHotCellMap_->setAxisTitle("iphi", 2);
-    
-  sprintf(histo, "Hcal Dead Cells");
-  meDeadCellMap_ = dqmStore_->book2D(histo, histo, etaBins_,etaMin_,etaMax_,
-				 phiBins_,phiMin_,phiMax_);
-  meDeadCellMap_->setAxisTitle("ieta", 1);
-  meDeadCellMap_->setAxisTitle("iphi", 2);
 
   // This histogram may be redundant?
   sprintf(histo,"Global Summary");
   meGlobalSummary_ = dqmStore_->book2D(histo, histo, etaBins_,etaMin_,etaMax_,
 					 phiBins_,phiMin_,phiMax_);
-  meGlobalSummary_->setAxisTitle("ieta", 1);
-  meGlobalSummary_->setAxisTitle("iphi", 2);
+  meGlobalSummary_->setAxisTitle("i#eta", 1);
+  meGlobalSummary_->setAxisTitle("i#phi", 2);
 
 
   
@@ -157,20 +158,34 @@ void HcalSummaryClient::setup(void)
 
   // Create floats showing subtasks status
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-  sprintf(histo,"hot cell status");
+
+  sprintf(histo,"HBstatus");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
     {
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
 
-  sprintf(histo,"dead cell status");
+  sprintf(histo,"HEstatus");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
     {
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
 
+  sprintf(histo,"HOstatus");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
+    {
+      dqmStore_->removeElement(me->getName());
+    }
+  me = dqmStore_->bookFloat(histo);
+
+  sprintf(histo,"HFstatus");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
+    {
+      dqmStore_->removeElement(me->getName());
+    }
+  me = dqmStore_->bookFloat(histo);
 
 
   // Create global summary map
@@ -181,10 +196,11 @@ void HcalSummaryClient::setup(void)
     {
       dqmStore_->removeElement(me->getName());
     }
-  me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
-
-  me->setAxisTitle("ieta", 1);
-  me->setAxisTitle("iphi", 2);
+  me = dqmStore_->book2D(histo, histo, etaBins_,etaMin_,etaMax_,
+			 phiBins_,phiMin_,phiMax_);
+  
+  me->setAxisTitle("i#eta", 1);
+  me->setAxisTitle("i#phi", 2);
  
 } // void HcalSummaryClient::setup(void)
 
@@ -201,86 +217,150 @@ void HcalSummaryClient::cleanup(void)
   }
   
 
+  /*
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
     dqmStore_->removeElement(me->getName());
   }
-  
+  */  
+
   // redundant?  Handled above?
   if (meGlobalSummary_) dqmStore_->removeElement(meGlobalSummary_->getName());
   meGlobalSummary_=0;
   
 
-  // Get rid of hot/dead cell maps
-  if (meHotCellMap_) dqmStore_->removeElement(meHotCellMap_->getName());
-  meHotCellMap_=0;
-  
-  if (meDeadCellMap_) dqmStore_->removeElement(meDeadCellMap_->getName());
-  meDeadCellMap_=0;
-
 } // void HcalSummaryClient::cleanup(void) 
 
 
 
+void HcalSummaryClient::incrementCounters(void)
+{
+  ievt_++;
+  jevt_++;
+  return;
+}
+
 void HcalSummaryClient::analyze(void)
 {
 
-  ievt_++;
-  jevt_++;
   if ( ievt_ % 10 == 0 ) 
     {
       //if ( debug_ )
       cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
-  for (int ieta=1;ieta<=etaBins_;++ieta)
-    {
-      for (int iphi=1; iphi<=phiBins_;++iphi)
-	{
-	  // Set all hot/dead cell values to -1 to start
-	  // In the future, we'll need to get the Maps from ... task? client? and read their entry values here
-	  meHotCellMap_->setBinContent(ieta,iphi,-1);
-	  meDeadCellMap_->setBinContent(ieta,iphi,-1);
-	} // loop over iphi
-    } // loop over ieta
+
+  if (checkHB_) analyze_deadcell("HB",status_HB_);
+  if (checkHE_) analyze_deadcell("HE",status_HE_);
+  if (checkHO_) analyze_deadcell("HO",status_HO_);
+  if (checkHF_) analyze_deadcell("HF",status_HF_);
 
 
-  // Set report summary stuff -- everything set to "unknown" (-1) for the moment
 
   MonitorElement* me;
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  float reportSummary = -1.0;
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-  if (me) me->Fill(reportSummary);
-
-  char histo[200];
-
+  if (me) me->Fill(status_global_);
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-  sprintf(histo,"hot cell status");
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
-    me->Fill(-1);
-  sprintf(histo,"dead cell status");
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
-    me->Fill(-1);
-
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HBstatus") )
+    me->Fill(status_HB_);
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HEstatus") )
+    me->Fill(status_HE_);
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HOstatus") )
+    me->Fill(status_HO_);
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HFstatus") )
+    me->Fill(status_HF_);
   
-  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
-  if (me)
-    {
-      for (int ieta=1;ieta<=etaBins_;++ieta)
-	{
-	  for (int iphi=1; iphi<=phiBins_;++iphi)
-	    {
-	      // Doesn't do anything real yet
-	      me->setBinContent(ieta,iphi,-1);
-	    } // loop over iphi
-	} // loop over ieta
-    } // if (me)
+  dqmStore_->setCurrentFolder( prefixME_);
 
-
+  return;
 } //void HcalSummaryClient::analyze(void)
 
 
 
+float HcalSummaryClient::analyze_deadcell(std::string subdetname, float& subdet)
+{
+  float status = -1;
+  //dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+  MonitorElement* me;
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  if (!me)
+    return status;
+
+  char name[150];
+  sprintf(name,"%s/DeadCellMonitor/%s/%sProblemDeadCells",prefixME_.c_str(),
+	  subdetname.c_str(),subdetname.c_str());
+   MonitorElement* me_temp = dqmStore_->get(name); // get Monitor Element named 'name'
+  if (!me_temp) return status;
+
+  //TH2F* temp = (TH2F*)me_temp->getTH2F();
+  //float maxval=temp->GetMaximum(); // scale factor for histogram
+
+  double origbincontent=0; // stores value from report
+  double newbincontent=0;
+  float badcells=0.; 
+  float eta, phi;
+
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {   
+      eta=ieta+int(etaMin_)-1;
+      if (eta==0) continue; // skip eta=0 bin -- unphysical
+      if (abs(eta)>41) continue; // skip unphysical "boundary" bins in histogram
+
+      for (int iphi=1; iphi<=phiBins_;++iphi)
+	{
+	  origbincontent=me->getBinContent(ieta,iphi);
+	  //newbincontent=temp->GetBinContent(ieta,iphi)/maxval;
+	  newbincontent=me_temp->getBinContent(ieta,iphi)/ievt_; // normalize to number of events
+
+	  phi=iphi+int(phiMin_)-1;
+	  
+	  //newbincontent=me_temp->getBinContent(ieta,iphi)/maxval;
+	  if (origbincontent==-1)
+	    me->setBinContent(ieta,iphi,newbincontent);
+	  else
+	    //me->setBinContent(ieta,iphi,min(1., newbincontent));
+	    if (newbincontent>0)
+	      {
+		//me->Fill(eta,phi,newbincontent);
+		me->setBinContent(ieta,iphi,min(1.,newbincontent));
+	      }
+
+	  if (newbincontent>0)
+	    {
+	      badcells+=newbincontent;
+	    }
+	} // loop over iphi
+    } // loop over ieta
+  
+  // Normalize badcells to give avg # of bad cells per event
+  badcells=1.*badcells/ievt_;
+  
+  std::map<std::string, int>::const_iterator it;
+  it =subdetCells_.find(subdetname);
+  // didn't find subdet in map
+  if (it==subdetCells_.end())
+    return -1;
+  if (it->second == 0 || (it->second)<badcells)
+    return -1;
+
+  // Status is 1 if no bad cells found
+  // Otherwise, status = 1 - (avg fraction of bad cells/event)
+  status=1.-(1.*badcells)/it->second;
+ 
+ // The only way to change the overall subdet, global status words is 
+  // if the deadcell status word is reasonable (i.e., not = -1)
+  if (subdet==-1)
+    subdet=status;
+  else
+    subdet*=status;
+  if (status_global_==-1)
+    status_global_=status;
+  else
+    status_global_*=status;
+
+  return status;
+} // void HcalSummaryClient::analyze_deadcell(std::string subdetname)
 
 
 void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
