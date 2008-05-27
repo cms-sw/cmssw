@@ -131,11 +131,9 @@ void prepareWrite()
   const EcalLogicID* channel;
   const DATT* dataitem;
   int count=0;
-  //  typedef map< EcalLogicID, DATT >::const_iterator CI;
-
-  std::map< EcalLogicID, ITimingDat >::const_iterator  p;
-  
-  for ( p=data->begin();  p != data->end() ; ++p ) {
+  //  typedef std::map< EcalLogicID, DATT >::const_iterator CI;
+  typedef typename std::map< EcalLogicID, DATT >::const_iterator CI;
+  for (CI p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
 	int logicID = channel->getLogicID();
 	if (!logicID) { throw(runtime_error("ITimingDat::writeArrayDB:  Bad EcalLogicID")); }
