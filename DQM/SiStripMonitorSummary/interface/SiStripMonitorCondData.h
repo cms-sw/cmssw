@@ -33,6 +33,7 @@ class SiStripPedestalsDQM;
 class SiStripNoisesDQM;
 class SiStripQualityDQM;
 class SiStripApvGainsDQM;
+class SiStripLorentzAngleDQM;
 
 class SiStripMonitorCondData : public edm::EDAnalyzer {
  
@@ -58,13 +59,15 @@ class SiStripMonitorCondData : public edm::EDAnalyzer {
    bool monitorNoises_      ;
    bool monitorQuality_     ;
    bool monitorApvGains_    ;
+   bool monitorLorentzAngle_;
      
    std::string outPutFileName;
 
    SiStripPedestalsDQM*           pedestalsDQM_;
    SiStripNoisesDQM*                 noisesDQM_; 
    SiStripQualityDQM*               qualityDQM_; 
-   SiStripApvGainsDQM*             apvgainsDQM_; 
+   SiStripApvGainsDQM*             apvgainsDQM_;  
+   SiStripLorentzAngleDQM*     lorentzangleDQM_; 
   
 };
 

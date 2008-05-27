@@ -6,7 +6,11 @@
 // -----
 SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
                                    edm::ParameterSet const& hPSet,
-                                   edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){}
+                                   edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){  
+				   
+  eSetup_.get<SiStripNoisesRcd>().get(noiseHandle_);
+  
+}
 // -----
 
 // -----
@@ -17,13 +21,9 @@ SiStripNoisesDQM::~SiStripNoisesDQM(){}
 // -----
 void SiStripNoisesDQM::fillModMEs(){
 
-  edm::ESHandle<SiStripNoises> noiseHandle_;
-  eSetup_.get<SiStripNoisesRcd>().get(noiseHandle_);
-  
   std::vector<uint32_t> DetIds;
   noiseHandle_->getDetIds(DetIds);
 
-  std::vector<uint32_t> selectedDetIds;
   selectedDetIds = selectModules(DetIds);
 
   ModMEs CondObj_ME;
@@ -38,9 +38,6 @@ void SiStripNoisesDQM::fillModMEs(){
 
 // -----
 void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
-  
-  edm::ESHandle<SiStripNoises> noiseHandle_;
-  eSetup_.get<SiStripNoisesRcd>().get(noiseHandle_);
   
   std::vector<uint32_t> DetIds;
   noiseHandle_->getDetIds(DetIds);
@@ -75,13 +72,9 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 // -----
 void SiStripNoisesDQM::fillSummaryMEs(){
 
-  edm::ESHandle<SiStripNoises> noiseHandle_;
-  eSetup_.get<SiStripNoisesRcd>().get(noiseHandle_);
-  
   std::vector<uint32_t> DetIds;
   noiseHandle_->getDetIds(DetIds);
   
-  std::vector<uint32_t> selectedDetIds;
   selectedDetIds = selectModules(DetIds);
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
@@ -95,10 +88,6 @@ void SiStripNoisesDQM::fillSummaryMEs(){
 
 // -----
 void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){
-
-   
-  edm::ESHandle<SiStripNoises> noiseHandle_;
-  eSetup_.get<SiStripNoisesRcd>().get(noiseHandle_);
     
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);

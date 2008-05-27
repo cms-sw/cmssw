@@ -29,6 +29,7 @@ class SiStripQualityDQM : public SiStripBaseCondObjDQM{
 
   private:
     std::string qualityLabel_ ;
+    edm::ESHandle<SiStripQuality> qualityHandle_;
 };
 
 #endif

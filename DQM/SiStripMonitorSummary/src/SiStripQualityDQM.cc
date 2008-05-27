@@ -8,6 +8,7 @@ SiStripQualityDQM::SiStripQualityDQM(const edm::EventSetup & eSetup,
                                                edm::ParameterSet const& hPSet,
                                                edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
   qualityLabel_ = fPSet.getParameter<std::string>("StripQualityLabel");
+  eSetup_.get<SiStripQualityRcd>().get(qualityLabel_, qualityHandle_);
   }
 
 // -----
@@ -19,15 +20,10 @@ SiStripQualityDQM::~SiStripQualityDQM(){}
 
 // -----
 void SiStripQualityDQM::fillModMEs(){
- 				       
-  edm::ESHandle<SiStripQuality> qualityHandle_;
-  eSetup_.get<SiStripQualityRcd>().get(qualityLabel_, qualityHandle_);
-  
+ 				         
   std::vector<uint32_t> DetIds;
   qualityHandle_->getDetIds(DetIds);
   
-  
-  std::vector<uint32_t> selectedDetIds;
   selectedDetIds = selectModules(DetIds);
   
  
@@ -43,10 +39,6 @@ void SiStripQualityDQM::fillModMEs(){
 // -----
 void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 				       
-  edm::ESHandle<SiStripQuality> qualityHandle_;
-  eSetup_.get<SiStripQualityRcd>().get(qualityLabel_, qualityHandle_);
-  
-					    
   SiStripBadStrip::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
   SiStripBadStrip::RegistryIterator rend   = qualityHandle_->getRegistryVectorEnd();
   
@@ -58,7 +50,7 @@ void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
   
     detid = rp->detid;
     
-    if (detid != selDetId_) { return;}
+    if (detid != selDetId_) { continue;}
     
     getModMEs(selModME_,selDetId_);
 

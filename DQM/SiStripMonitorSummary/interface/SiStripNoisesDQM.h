@@ -29,7 +29,7 @@ class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
   unsigned long long getCache(const edm::EventSetup & eSetup_){ return eSetup_.get<SiStripNoisesRcd>().cacheIdentifier();}
 
   private:
-
+    edm::ESHandle<SiStripNoises> noiseHandle_;
 };
 
 #endif

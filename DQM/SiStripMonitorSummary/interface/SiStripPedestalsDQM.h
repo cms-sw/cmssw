@@ -29,6 +29,7 @@ class SiStripPedestalsDQM : public SiStripBaseCondObjDQM{
   unsigned long long getCache(const edm::EventSetup & eSetup_){ return eSetup_.get<SiStripPedestalsRcd>().cacheIdentifier();}
 
   private:
+    edm::ESHandle<SiStripPedestals> pedestalHandle_;
 
 };
 

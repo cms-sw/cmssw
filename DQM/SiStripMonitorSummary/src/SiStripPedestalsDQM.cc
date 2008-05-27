@@ -4,7 +4,10 @@
 // -----
 SiStripPedestalsDQM::SiStripPedestalsDQM(const edm::EventSetup & eSetup,
                                          edm::ParameterSet const& hPSet,
-                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){}
+                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+  
+  eSetup_.get<SiStripPedestalsRcd>().get(pedestalHandle_);				 
+}
 // -----
 
 
@@ -17,14 +20,11 @@ SiStripPedestalsDQM::~SiStripPedestalsDQM(){}
 
 // -----
 void SiStripPedestalsDQM::fillModMEs(){
- 
-  edm::ESHandle<SiStripPedestals> pedestalHandle_;
-  eSetup_.get<SiStripPedestalsRcd>().get(pedestalHandle_);
+  
   
   std::vector<uint32_t> DetIds;
   pedestalHandle_->getDetIds(DetIds);
   
-  std::vector<uint32_t> selectedDetIds;
   selectedDetIds = selectModules(DetIds);
   
   ModMEs CondObj_ME;
@@ -45,8 +45,6 @@ void SiStripPedestalsDQM::fillModMEs(){
 // -----
 void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
   
-  edm::ESHandle<SiStripPedestals> pedestalHandle_;
-  eSetup_.get<SiStripPedestalsRcd>().get(pedestalHandle_);
   
   
   getModMEs(selModME_,selDetId_);
@@ -78,14 +76,10 @@ void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 
 // -----
 void SiStripPedestalsDQM::fillSummaryMEs(){
- 
-  edm::ESHandle<SiStripPedestals> pedestalHandle_;
-  eSetup_.get<SiStripPedestalsRcd>().get(pedestalHandle_);
-  
+   
   std::vector<uint32_t> DetIds;
   pedestalHandle_->getDetIds(DetIds);
   
-  std::vector<uint32_t> selectedDetIds;
   selectedDetIds = selectModules(DetIds);
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
@@ -99,12 +93,7 @@ void SiStripPedestalsDQM::fillSummaryMEs(){
 
 
 // -----
-void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){
-
-   
-  edm::ESHandle<SiStripPedestals> pedestalHandle_;
-  eSetup_.get<SiStripPedestalsRcd>().get(pedestalHandle_);
-  
+void SiStripPedestalsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){  
   
   SiStripHistoId hidmanager;
       

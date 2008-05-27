@@ -24,11 +24,12 @@ class SiStripApvGainsDQM : public SiStripBaseCondObjDQM{
   void fillSummaryMEs();
   
   void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_);
+  void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_);
 
   unsigned long long getCache(const edm::EventSetup & eSetup_){ return eSetup_.get<SiStripApvGainRcd>().cacheIdentifier();}
 
   private:
- 
+    edm::ESHandle<SiStripApvGain> gainHandle_;
  };
 
 #endif

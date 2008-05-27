@@ -1,6 +1,7 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
 
 
+
 // -----
 SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
                                              edm::ParameterSet const& hPSet,
@@ -35,6 +36,22 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
 
   if(Mod_On_ )  { fillModMEs(); }
   if(SummaryOnLayerLevel_On_ ){ fillSummaryMEs();}
+
+}
+// -----
+
+
+
+// -----
+std::vector<uint32_t> SiStripBaseCondObjDQM::getCabledModules() {     
+ 
+  std::vector<uint32_t> cabledDetIds_;  
+  
+  eSetup_.get<SiStripDetCablingRcd>().get(detCablingHandle_);
+    
+  detCablingHandle_->addActiveDetectorsRawIds(cabledDetIds_);
+
+  return cabledDetIds_;  
 
 }
 // -----
@@ -86,18 +103,12 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t>
 
     for( std::vector<uint32_t>::const_iterator modIter_  = ModulesToBeExcluded_.begin(); 
                                                modIter_ != ModulesToBeExcluded_.end(); modIter_++){
-           			       
-      for(std::vector<uint32_t>::iterator detIter_ = selDetIds_.begin();
-                                          detIter_!= selDetIds_.end();detIter_++){
-					  
-        if( *detIter_==*modIter_){  
-	  selDetIds_.erase(detIter_);
-	  detIter_--;
-	  break;
-        }
- 
-      }
-  
+      
+      std::sort(selDetIds_.begin(),selDetIds_.end());
+      std::vector<uint32_t>::iterator detIter_=std::lower_bound(selDetIds_.begin(),selDetIds_.end(),*modIter_);
+      selDetIds_.erase(detIter_);
+      detIter_--;
+     
     }
   
   }
@@ -216,9 +227,9 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
 
 // -----
 void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_){
-  
-  std::map< uint32_t, ModMEs >::const_iterator SummaryMEsMap_iter = SummaryMEsMap_.find(detId_);
 
+  std::map<uint32_t, ModMEs>::const_iterator SummaryMEsMap_iter = SummaryMEsMap_.find(getLayerNameAndId(detId_).second);
+   
   if (SummaryMEsMap_iter != SummaryMEsMap_.end()){ 
     
     CondObj_ME=SummaryMEsMap_iter->second;
@@ -234,21 +245,24 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
     return; 
 
   }
-  
-  // --> currently only profile summary defined for pedestal and noise
+
+  // --> currently only profile summary defined for pedestal, noise and LA
   if( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile" ) 
-      && (CondObj_name_ == "pedestal" || CondObj_name_ == "noise")   ) {
-    bookSummaryProfileMEs(CondObj_ME,detId_);
+    && (CondObj_name_ == "pedestal" || CondObj_name_ == "noise" || CondObj_name_ == "apvgain" || CondObj_name_ == "lorentzangle")   ) {
+    
+    if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);}
+  
   }
     
-  // --> currently only cumul summary for noise 
+  // --> currently only cumul summary for noise and LA
   if( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul") 
-      &&( CondObj_name_ == "noise" )                                 ) { 
-    bookSummaryCumulMEs(CondObj_ME,detId_); 
+      &&( CondObj_name_ == "noise"|| CondObj_name_ == "apvgain" || CondObj_name_ == "lorentzangle")  ) {
+              
+      if (CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
+      
   }                         
 
-  SummaryMEsMap_.insert( std::make_pair(detId_,CondObj_ME) );
-  
+  SummaryMEsMap_.insert( std::make_pair(getLayerNameAndId(detId_).second,CondObj_ME) );
 }
 // ---- 
 
@@ -344,7 +358,9 @@ void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_
 
 // -----
 void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
-   
+  
+  std::vector<uint32_t> sameLayerDetIds_;
+
   int    hSummaryOfProfile_NchX    = 0;
   double hSummaryOfProfile_LowX    = 0;
   double hSummaryOfProfile_HighX   = 0;
@@ -357,30 +373,64 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   hSummaryOfProfile_yTitle        = hPSet_.getParameter<std::string>("SummaryOfProfile_yTitle");
   
   int nStrip, nApv;    
-  int layerId_= getLayerNameAndId(detId_).second;    
-  if( CondObj_name_ != "apvgain"){
+  int layerId_= getLayerNameAndId(detId_).second;
+     
+  if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise" || CondObj_name_ == "quality"){ // plot in strip number
     
     if( (layerId_ > 610 && layerId_ < 620) || // TID & TEC have 768 strips at maximum
         (layerId_ > 620 && layerId_ < 630) ||
         (layerId_ > 410 && layerId_ < 414) ||
         (layerId_ > 420 && layerId_ < 424) ){ nStrip =768;} 
     else { nStrip      = reader->getNumberOfApvsAndStripLength(detId_).first*128;}
-	
+    
     hSummaryOfProfile_NchX           = nStrip;
     hSummaryOfProfile_LowX           = 0.5;
     hSummaryOfProfile_HighX          = nStrip+0.5;
-  }
-  else {
   
+  }  
+  else if( CondObj_name_ == "lorentzangle"){ // plot in detId-number
+
+    // -----
+    // get detIds belonging to same layer to fill X-axis with detId-number
+  					   
+    uint32_t subDetId_ =  ((detId_>>25)&0x7);
+    SiStripSubStructure substructure_;
+  
+    if(subDetId_==3){  //  TIB
+      substructure_.getTIBDetectors(selectedDetIds, sameLayerDetIds_, TIBDetId(detId_).layerNumber(),0,0,0);  
+    }
+    else if(subDetId_==4){  // TID
+      substructure_.getTIDDetectors(selectedDetIds, sameLayerDetIds_, 0,0,0,0);
+    }
+    else if(subDetId_==5){  // TOB
+      substructure_.getTOBDetectors(selectedDetIds, sameLayerDetIds_, TOBDetId(detId_).layerNumber(),0,0);
+    }
+    else if(subDetId_==6){  // TEC
+      substructure_.getTECDetectors(selectedDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
+    }
+
+    hSummaryOfProfile_NchX           = sameLayerDetIds_.size(); 
+    hSummaryOfProfile_LowX           = 0.5;
+    hSummaryOfProfile_HighX          = sameLayerDetIds_.size()+0.5;
+ 
+  } 
+  else if( CondObj_name_ == "apvgain"){
+ 
     if( (layerId_ > 610 && layerId_ < 620) || // TID & TEC have 6 apvs at maximum
         (layerId_ > 620 && layerId_ < 630) ||
         (layerId_ > 410 && layerId_ < 414) ||
         (layerId_ > 420 && layerId_ < 424) ){ nApv =6;} 
     else { nApv     = reader->getNumberOfApvsAndStripLength(detId_).first;}
-	
+    
     hSummaryOfProfile_NchX           = nApv;
     hSummaryOfProfile_LowX           = 0.5;
     hSummaryOfProfile_HighX          = nApv+0.5;
+ 
+  }
+  else {
+    edm::LogWarning("SiStripBaseCondObjDQM") 
+       << "[SiStripBaseCondObjDQM::bookSummaryProfileMEs] PLEASE CHECK : x-axis label in your cfg"
+       << std::endl; 
   }
   
   uint32_t layer_=0;
@@ -394,6 +444,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   // ---
   int subdetectorId_ = ((detId_>>25)&0x7);
   
+ 
   if( subdetectorId_<3 ||subdetectorId_>6 ){ 
     edm::LogError("SiStripBaseCondObjDQM")
        << "[SiStripBaseCondObjDQM::bookSummaryProfileMEs] WRONG INPUT : no such subdetector type : "
@@ -418,6 +469,24 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 						       hSummaryOfProfile_HighX);
   CondObj_ME.SummaryOfProfileDistr->setAxisTitle(hSummaryOfProfile_xTitle,1);
   CondObj_ME.SummaryOfProfileDistr->setAxisTitle(hSummaryOfProfile_yTitle,2);
+ 
+  // -----
+  // in order to get the right detId-number labelled in right bin of x-axis
+  
+  if( CondObj_name_ == "lorentzangle"){
+    
+    unsigned int iBin=0;
+    
+    for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
+    
+      iBin++;
+      char sameLayerDetIds_Name[1024];
+      sprintf(sameLayerDetIds_Name,"%u",sameLayerDetIds_[i]);
+      CondObj_ME.SummaryOfProfileDistr->setBinLabel(iBin, sameLayerDetIds_Name);
+    
+    }
+  } 
+  // -----
       
   dqmStore_->tag(CondObj_ME.SummaryOfProfileDistr, layer_);
       
@@ -490,78 +559,112 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
 
 
 
-
+// -----
 std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const uint32_t& detId_){
-
-
 
   int subdetectorId_ = ((detId_>>25)&0x7);
   int layerId_=0;
   std::string layerName_;
-      
+  
+  char tempLayerName_;
+  char tempLayerNumber_[20];
+  
   if(      subdetectorId_==3 ){ //TIB
     
-    //"TIB__layer__%d",TIBDetId(detId_).layer());
-    
-    if(TIBDetId(detId_).layer()==1){ layerName_= "TIB__layer__1"; layerId_ = 301;}
-    if(TIBDetId(detId_).layer()==2){ layerName_= "TIB__layer__2"; layerId_ = 302;}
-    if(TIBDetId(detId_).layer()==3){ layerName_= "TIB__layer__3"; layerId_ = 303;}
-    if(TIBDetId(detId_).layer()==4){ layerName_= "TIB__layer__4"; layerId_ = 304;}
+    for( unsigned int i=1; i < 5 ;i++){
+      
+      sprintf(tempLayerNumber_,"%u",i);
+      
+      if(TIBDetId(detId_).layer()==i){ 
+        sprintf( &tempLayerName_, "%s%s","TIB__layer__", tempLayerNumber_); 
+	layerId_ = 300 + i;
+      }
+      layerName_ = &tempLayerName_;
+      
+    }
     
   }
   else if( subdetectorId_==4 ){ //TIDD
     
-    //layerId_ = subdetectorId_*100 + TIDDetId(detId_).side()*10 + TIDDetId(detId_).wheel();
-
     if(TIDDetId(detId_).side()==1){ // TIDD side 1
-      if(TIDDetId(detId_).wheel()==1){ layerName_= "TID__side__1__wheel__1"; layerId_ = 411;}
-      if(TIDDetId(detId_).wheel()==2){ layerName_= "TID__side__1__wheel__2"; layerId_ = 412;}
-      if(TIDDetId(detId_).wheel()==3){ layerName_= "TID__side__1__wheel__3"; layerId_ = 413;}
+      
+      for( unsigned int i=1; i < 4 ;i++){
+	
+	sprintf(tempLayerNumber_,"%u",i);
+	
+	if(TIDDetId(detId_).wheel()==i){ 
+	  sprintf( &tempLayerName_, "%s%s","TID__side__1__wheel__", tempLayerNumber_); 
+	  layerId_ = 410 + i;
+	}
+	layerName_ = &tempLayerName_;
+	
+      }
+      
+      
     }
     else if(TIDDetId(detId_).side()==2){// TIDD side 2
-      if(TIDDetId(detId_).wheel()==1){ layerName_= "TID__side__2__wheel__1"; layerId_ = 421;}
-      if(TIDDetId(detId_).wheel()==2){ layerName_= "TID__side__2__wheel__2"; layerId_ = 422;}
-      if(TIDDetId(detId_).wheel()==3){ layerName_= "TID__side__2__wheel__3"; layerId_ = 423;}
+      
+      for( unsigned int i=1; i < 4 ;i++){
+	
+	sprintf(tempLayerNumber_,"%u",i);
+	
+	if(TIDDetId(detId_).wheel()==i){ 
+	  sprintf( &tempLayerName_, "%s%s","TID__side__2__wheel__", tempLayerNumber_); 
+	  layerId_ = 420 + i;
+	}
+	layerName_ = &tempLayerName_;
+	
+      }
+      
     }
   }
-  
-  
   else if( subdetectorId_==5 ){ // TOB
-    // layerId_ = subdetectorId_*100 + TOBDetId(detId_).layer();
     
-    if(TOBDetId(detId_).layer()==1){ layerName_= "TOB__layer__1"; layerId_ = 501;}
-    if(TOBDetId(detId_).layer()==2){ layerName_= "TOB__layer__2"; layerId_ = 502;}
-    if(TOBDetId(detId_).layer()==3){ layerName_= "TOB__layer__3"; layerId_ = 503;}
-    if(TOBDetId(detId_).layer()==4){ layerName_= "TOB__layer__4"; layerId_ = 504;}
-    if(TOBDetId(detId_).layer()==5){ layerName_= "TOB__layer__5"; layerId_ = 505;}
-    if(TOBDetId(detId_).layer()==6){ layerName_= "TOB__layer__6"; layerId_ = 506;}
-
+    for( unsigned int i=1; i < 7 ;i++){
+      
+      sprintf(tempLayerNumber_,"%u",i);
+      
+      if(TOBDetId(detId_).layer()==i){ 
+        sprintf( &tempLayerName_, "%s%s","TOB__layer__", tempLayerNumber_); 
+	layerId_ = 500 + i;
+      }
+      layerName_ = &tempLayerName_;
+      
+    }
+    
+    
   }
   else if( subdetectorId_==6 ){ // TEC
-   // layerId_ = subdetectorId_*100 + TECDetId(detId_).side()*10 + TECDetId(detId_).wheel();
-   
-     if(TECDetId(detId_).side()==1){ // TEC side 1
-      if(TECDetId(detId_).wheel()==1){ layerName_= "TEC__side__1__wheel__1"; layerId_ = 611;}
-      if(TECDetId(detId_).wheel()==2){ layerName_= "TEC__side__1__wheel__2"; layerId_ = 612;}
-      if(TECDetId(detId_).wheel()==3){ layerName_= "TEC__side__1__wheel__3"; layerId_ = 613;}
-      if(TECDetId(detId_).wheel()==4){ layerName_= "TEC__side__1__wheel__4"; layerId_ = 614;}
-      if(TECDetId(detId_).wheel()==5){ layerName_= "TEC__side__1__wheel__5"; layerId_ = 615;}
-      if(TECDetId(detId_).wheel()==6){ layerName_= "TEC__side__1__wheel__6"; layerId_ = 616;}
-      if(TECDetId(detId_).wheel()==7){ layerName_= "TEC__side__1__wheel__7"; layerId_ = 617;}
-      if(TECDetId(detId_).wheel()==8){ layerName_= "TEC__side__1__wheel__8"; layerId_ = 618;}
-      if(TECDetId(detId_).wheel()==9){ layerName_= "TEC__side__1__wheel__9"; layerId_ = 619;}
+    
+    
+    if(TECDetId(detId_).side()==1){ // TEC side 1
+      
+      for( unsigned int i=1; i < 10 ;i++){
+	
+	sprintf(tempLayerNumber_,"%u",i);
+	
+	if(TECDetId(detId_).wheel()==i){ 
+	  sprintf( &tempLayerName_, "%s%s","TEC__side__1__wheel__", tempLayerNumber_); 
+	  layerId_ = 610 + i;
+	}
+	layerName_ = &tempLayerName_;
+	
+      }
     }
     else if(TECDetId(detId_).side()==2){ // TEC side 2
-      if(TECDetId(detId_).wheel()==1){ layerName_= "TEC__side__2__wheel__1"; layerId_ = 621;}
-      if(TECDetId(detId_).wheel()==2){ layerName_= "TEC__side__2__wheel__2"; layerId_ = 622;}
-      if(TECDetId(detId_).wheel()==3){ layerName_= "TEC__side__2__wheel__3"; layerId_ = 623;}
-      if(TECDetId(detId_).wheel()==4){ layerName_= "TEC__side__2__wheel__4"; layerId_ = 624;}
-      if(TECDetId(detId_).wheel()==5){ layerName_= "TEC__side__2__wheel__5"; layerId_ = 625;}
-      if(TECDetId(detId_).wheel()==6){ layerName_= "TEC__side__2__wheel__6"; layerId_ = 626;}
-      if(TECDetId(detId_).wheel()==7){ layerName_= "TEC__side__2__wheel__7"; layerId_ = 627;}
-      if(TECDetId(detId_).wheel()==8){ layerName_= "TEC__side__2__wheel__8"; layerId_ = 628;}
-      if(TECDetId(detId_).wheel()==9){ layerName_= "TEC__side__2__wheel__9"; layerId_ = 629;}
-    }
+      
+      for( unsigned int i=1; i < 10 ;i++){
+	
+	sprintf(tempLayerNumber_,"%u",i);
+	
+	if(TECDetId(detId_).wheel()==i){ 
+	  sprintf( &tempLayerName_, "%s%s","TEC__side__2__wheel__", tempLayerNumber_); 
+	  layerId_ = 620 + i;
+	}
+	layerName_ = &tempLayerName_;
+	
+      }
+     }
   }
   
   return std::make_pair(layerName_,layerId_);
