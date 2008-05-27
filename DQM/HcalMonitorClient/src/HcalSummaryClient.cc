@@ -323,7 +323,7 @@ float HcalSummaryClient::analyze_deadcell(std::string subdetname, float& subdet)
 	    if (newbincontent>0)
 	      {
 		//me->Fill(eta,phi,newbincontent);
-		me->setBinContent(ieta,iphi,min(1.,newbincontent));
+		me->setBinContent(ieta,iphi,min(1.,newbincontent+origbincontent));
 	      }
 
 	  if (newbincontent>0)
