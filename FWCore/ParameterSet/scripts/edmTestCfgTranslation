@@ -1,4 +1,4 @@
-#!/bin/tcsh -vx
+#!/bin/tcsh 
 eval `scramv1 ru -csh`
 
 if($#argv != 1) then
