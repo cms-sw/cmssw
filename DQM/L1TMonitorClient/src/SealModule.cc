@@ -17,3 +17,7 @@ DEFINE_ANOTHER_FWK_MODULE(L1TCSCTFClient);
 DEFINE_ANOTHER_FWK_MODULE(L1TGMTClient);
 #include <DQM/L1TMonitorClient/interface/L1TGCTClient.h>
 DEFINE_ANOTHER_FWK_MODULE(L1TGCTClient);
+#include <DQM/L1TMonitorClient/interface/L1TEventInfoClient.h>
+DEFINE_ANOTHER_FWK_MODULE(L1TEventInfoClient);
+#include <DQM/L1TMonitorClient/interface/L1TEMUEventInfoClient.h>
+DEFINE_ANOTHER_FWK_MODULE(L1TEMUEventInfoClient);
