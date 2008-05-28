@@ -4,7 +4,7 @@
 #include "PhysicsTools/Utilities/interface/Variables.h"
 #include "PhysicsTools/Utilities/interface/Expression.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
-#include <iostream>
+
 class testIntegral : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testIntegral);
   CPPUNIT_TEST(checkAll);
@@ -21,7 +21,7 @@ NUMERICAL_INTEGRAL(X, Expression, TrapezoidIntegrator);
 struct gauss {
   static const double c;
   double operator()(double x) const {
-    return c * exp(- x * x);
+    return c * exp(- x*x);
   }
 };
 
@@ -45,7 +45,6 @@ DECLARE_FUNCT_PRIMITIVE(gauss2, gaussPrimitive);
 NUMERICAL_FUNCT_INTEGRAL(gauss3, GaussLegendreIntegrator);
 
 NUMERICAL_FUNCT_INTEGRAL(gauss4, GaussIntegrator);
-
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testIntegral);
 

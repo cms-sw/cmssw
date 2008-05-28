@@ -105,11 +105,26 @@ namespace funct {
     return integral(f, integrator)(min, max);
   }
 
-  template<typename F, typename MIN, typename MAX, typename X = no_var>
+  template<typename F, typename MIN, typename MAX, typename Integrator = no_var, typename X = no_var>
   struct DefIntegral {
-    DefIntegral(const F & f, const MIN & min, const MAX & max) : f_(f), min_(min), max_(max) { } 
+    DefIntegral(const F & f, const MIN & min, const MAX & max, const Integrator & integrator) : 
+      f_(f), min_(min), max_(max), integrator_(integrator) { } 
     double operator()() const {
-      return integral<X>(f_, min_(). max_());
+      return integral<X>(f_, min_(). max_(), integrator_);
+    }
+  private:
+    F f_;
+    MIN min_;
+    MAX max_;
+    Integrator integrator_;
+  };
+
+ template<typename F, typename MIN, typename MAX, typename X>
+  struct DefIntegral<F, MIN, MAX, no_var, X> {
+    DefIntegral(const F & f, const MIN & min, const MAX & max) : 
+      f_(f), min_(min), max_(max) { } 
+    double operator()(double x) const {
+      return integral<X>(f_, min_(x), max_(x));
     }
   private:
     F f_;
@@ -117,8 +132,22 @@ namespace funct {
     MAX max_;
   };
 
+ template<typename F, typename MIN, typename MAX, typename Integrator>
+  struct DefIntegral<F, MIN, MAX, Integrator, no_var> {
+    DefIntegral(const F & f, const MIN & min, const MAX & max, const Integrator & integrator) : 
+      f_(f), min_(min), max_(max), integrator_(integrator) { } 
+    double operator()(double x) const {
+      return integral(f_, min_(x), max_(x), integrator_);
+    }
+  private:
+    F f_;
+    MIN min_;
+    MAX max_;
+    Integrator integrator_;
+  };
+
   template<typename F, typename MIN, typename MAX>
-  struct DefIntegral<F, MIN, MAX, no_var> {
+  struct DefIntegral<F, MIN, MAX, no_var, no_var> {
     DefIntegral(const F & f, const MIN & min, const MAX & max) : f_(f), min_(min), max_(max) { } 
     double operator()(double x) const {
       return integral(f_, min_(x), max_(x));
@@ -128,7 +157,8 @@ namespace funct {
     MIN min_;
     MAX max_;
   };
-}
+
+ }
 
 #define NUMERICAL_INTEGRAL(X, F, INTEGRATOR) \
 namespace funct { \
