@@ -2,7 +2,7 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/05/27 23:07:22 $
+ *  $Date: 2008/05/27 14:12:35 $
  *  $Revision: 1.1 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
@@ -109,6 +109,8 @@ void PostProcessor::computeEfficiency(const string& efficMEName, const string& e
     return;
   }
 
+  hReco->Sumw2();
+  hSim->Sumw2();
   efficME->getTH1F()->Divide(hReco, hSim, 1., 1., "B");
 /*
   const int nBin = efficME->getNbinsX();
