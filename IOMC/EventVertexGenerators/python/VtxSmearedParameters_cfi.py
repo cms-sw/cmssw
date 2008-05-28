@@ -7,6 +7,10 @@ import FWCore.ParameterSet.Config as cms
 #
 # TimeOffset in nanoseconds
 # spacial displacement in cm
+# common parameters
+VtxSmearedCommon = cms.PSet(
+    src = cms.InputTag("source")
+)
 # Gaussian smearing
 GaussVtxSmearingParameters = cms.PSet(
     MeanX = cms.double(0.0),

@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 #
 # this module takes inpuut in the units of *cm* and *radian*!!!
 #
 VtxSmeared = cms.EDFilter("BeamProfileVtxGenerator",
     common_beam_direction_parameters,
+    VtxSmearedCommon,
     BeamSigmaX = cms.untracked.double(0.0001),
     BeamSigmaY = cms.untracked.double(0.0001),
     BeamMeanY = cms.untracked.double(0.0),
