@@ -16,6 +16,14 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
 {
  public:
@@ -28,13 +36,20 @@ class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle>
   void algoBeginJob(const edm::EventSetup&);
 
  private:
-
+ 
+  edm::ESHandle<TrackerGeometry> estracker;
+  edm::ESHandle<MagneticField> magfield_;
+  typedef std::map <unsigned int, MonitorElement*> histomap;
+  histomap histos;
+  double gphi, geta;
+  const GlobalPoint gposition;
+  
   std::map< uint32_t, float> detid_la;
   edm::ParameterSet conf_;
-  //  double appliedVoltage_;
-  //  double chargeMobility_;
-  //  double temperature_;
-  // double temperatureerror_;
+  //double appliedVoltage_;
+  //double chargeMobility_;
+  //double temperature_;
+  //double temperatureerror_;
   //double rhall_;
   //double holeBeta_;
   //double holeSaturationVelocity_;
