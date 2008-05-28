@@ -116,7 +116,7 @@ int main() {
     if(yMin > yg[i]) yMin = yg[i];
     if(yMax < yg[i]) yMax = yg[i];
   }
-  TH2F frame("frame", "Red: T; Blue: G-L; Green: G", 1, xMin, xMax, 1, yMin, yMax);
+  TH2F frame("frame", "Red: T, Blue: G-L, Green: G", 1, xMin, xMax, 1, yMin, yMax);
   frame.GetXaxis()->SetTitle("CPU time");
   frame.GetYaxis()->SetTitle("Accuracy");
   frame.Draw();
