@@ -16,7 +16,7 @@ public:
   void checkAll(); 
 };
 
-NUMERICAL_INTEGRAL(X, Expression, 10000);
+NUMERICAL_INTEGRAL(X, Expression, TrapezoidIntegrator);
 
 struct gauss {
   static const double c;
@@ -33,7 +33,7 @@ struct gaussPrimitive {
 
 const double gauss::c = 2./sqrt(M_PI);
 
-NUMERICAL_FUNCT_INTEGRAL(gauss, 10000);
+NUMERICAL_FUNCT_INTEGRAL(gauss, TrapezoidIntegrator);
 
 DECLARE_FUNCT_PRIMITIVE(gauss2, gaussPrimitive);
 
@@ -46,20 +46,23 @@ void testIntegral::checkAll() {
   // symbolic primitive exists
   CPPUNIT_ASSERT(fabs(integral<X>(x, 0, 1) - 0.5) < epsilon);
   CPPUNIT_ASSERT(fabs(integral<X>(x^num<2>(), 0, 1) - 1./3.) < epsilon);
+
+  TrapezoidIntegrator integrator(10000);
+
   // numerical integration
   Expression f_x = x;
-  CPPUNIT_ASSERT(fabs(integral<X>(f_x, 0, 1) - 0.5) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral<X>(f_x, 0, 1, integrator) - 0.5) < epsilon);
 
   Expression f_x2 = (x ^ num<2>());
-  CPPUNIT_ASSERT(fabs(integral<X>(f_x2, 0, 1) - 1./3.) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral<X>(f_x2, 0, 1, integrator) - 1./3.) < epsilon);
 
   Parameter c("c", gauss::c);
   Expression f = c * exp(-(x^num<2>()));
-  CPPUNIT_ASSERT(fabs(integral<X>(f, 0, 1) - erf(1)) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral<X>(f, 0, 1, integrator) - erf(1)) < epsilon);
 
   // numerical integration
   gauss g;
-  CPPUNIT_ASSERT(fabs(integral(g, 0, 1) - erf(1)) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral(g, 0, 1, integrator) - erf(1)) < epsilon);
   // user-defined integration
   gauss2 g2;
   CPPUNIT_ASSERT(fabs(integral(g2, 0, 1) - erf(1)) < epsilon);

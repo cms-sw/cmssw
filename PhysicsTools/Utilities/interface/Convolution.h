@@ -4,20 +4,20 @@
 #include "PhysicsTools/Utilities/interface/NumericalIntegration.h"
 
 namespace funct {
-  template<typename A, typename B>
+  template<typename A, typename B, typename Integrator>
   class ConvolutionStruct {
-   public:
+  public:
     // min and max are defined in the domain of b
     ConvolutionStruct(const A& a, const B& b, 
-		      double min, double max, size_t samples) : 
-      f_(a, b), min_(min), max_(max), delta_((max-min)/(samples-1)), samples_(samples) { 
+		      double min, double max, const Integrator & integrator) : 
+      f_(a, b), min_(min), max_(max), integrator_(integrator) { 
       if(max < min)
 	throw edm::Exception(edm::errors::Configuration)
 	  << "Convolution: min must be smaller than max\n"; 
     }
     double operator()(double x) const {
       f_.setX(x);
-      return trapezoid_integral(f_, min_, max_, samples_);
+      return integrator_(f_, min_, max_);
     }
    private:
     struct function {
@@ -33,34 +33,20 @@ namespace funct {
     };
     function f_;
     double min_, max_, delta_;
-    size_t samples_;
+    Integrator integrator_;
   };
 
-  /*
-  template<typename A, typename B>
-  double ConvolutionStruct<A, B>::operator()(double x) const {
-    double f = 0; 
-    // x - max < y < x - min
-    double y0 = x - max_;
-    for(size_t n = 0; n < samples_; ++n) {
-      double y = y0 + n*delta_;
-      f += _1(y) * _2(x - y);
-    }   
-    return f * delta_;
-  }
-  */
-
-  template<typename A, typename B>
+  template<typename A, typename B, typename Integrator>
   struct Convolution {
-    typedef ConvolutionStruct<A, B> type;
-    static type compose(const A& a, const B& b, double min, double max, size_t samples) {
-      return type(a, b, min, max, samples);
+    typedef ConvolutionStruct<A, B, Integrator> type;
+    static type compose(const A& a, const B& b, double min, double max, const Integrator& i) {
+      return type(a, b, min, max, i);
     }
   };
 
-  template<typename A, typename B>
-  inline typename funct::Convolution<A, B>::type conv(const A& a, const B& b, double min, double max, size_t samples) {
-    return funct::Convolution<A, B>::compose(a, b, min, max, samples);
+  template<typename A, typename B, typename Integrator>
+  inline typename funct::Convolution<A, B, Integrator>::type conv(const A& a, const B& b, double min, double max, const Integrator& i) {
+    return funct::Convolution<A, B, Integrator>::compose(a, b, min, max, i);
   }
 
 }

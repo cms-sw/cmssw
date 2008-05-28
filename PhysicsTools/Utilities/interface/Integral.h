@@ -29,11 +29,12 @@ namespace funct {
     typename Primitive<F>::type p;
   };
 
-  template<unsigned samples, typename F, typename X = no_var> 
+  template<typename Integrator, typename F, typename X = no_var> 
   struct NumericalIntegral {
-    NumericalIntegral(const F& f) : f_(f) { }
+    NumericalIntegral(const F& f, const Integrator & integrator) : 
+      f_(f), integrator_(integrator) { }
     inline double operator()(double min, double max) const { 
-      return trapezoid_integral(f_, min, max, samples);
+      return integrator_(f_, min, max);
     }
   private:
     struct function {
@@ -45,23 +46,19 @@ namespace funct {
       F f_;
     };
     function f_;
+    Integrator integrator_;
   };
 
-  template<unsigned samples, typename F>
-  struct NumericalIntegral<samples, F, no_var> {
-    NumericalIntegral(const F& f) : _f (f) { }
+  template<typename Integrator, typename F>
+  struct NumericalIntegral<Integrator, F, no_var> {
+    NumericalIntegral(const F& f, const Integrator & integrator) : 
+      f_(f), integrator_(integrator) { }
     double operator()(double min, double max) const { 
-      double l = max - min;
-      double delta = l / samples;
-      double sum = 0;
-      for(unsigned int i = 0; i < samples; i++) {
-	double x = min + (i + 0.5) * delta;
-	sum += _f(x);
-      }
-      return sum * l / samples;
+      return integrator_(f_, min, max);
     }
   private:
-    F _f;
+    F f_;
+    Integrator integrator_;
   };
 
   template<typename F, typename X = no_var> struct Integral {
@@ -73,9 +70,24 @@ namespace funct {
     return typename Integral<F, X>::type(f);
   }
 
-  template<typename X, typename F> 
+  template<typename X, typename F, typename Integrator> 
+  typename Integral<F, X>::type integral(const F& f, const Integrator & integrator) {
+    return typename Integral<F, X>::type(f, integrator);
+  }
+
+   template<typename F, typename Integrator> 
+  typename Integral<F>::type integral(const F& f, const Integrator & integrator) {
+    return typename Integral<F>::type(f, integrator);
+  }
+
+ template<typename X, typename F> 
   double integral(const F& f, double min, double max) {
     return integral<X>(f)(min, max);
+  }
+
+  template<typename X, typename F, typename Integrator> 
+  double integral(const F& f, double min, double max, const Integrator & integrator) {
+    return integral<X>(f, integrator)(min, max);
   }
 
   template<typename F> 
@@ -83,9 +95,14 @@ namespace funct {
     return typename Integral<F>::type(f);
   }
 
-  template<typename F>
+ template<typename F>
   double integral(const F& f, double min, double max) {
     return integral(f)(min, max);
+  }
+
+  template<typename F, typename Integrator>
+  double integral(const F& f, double min, double max, const Integrator & integrator) {
+    return integral(f, integrator)(min, max);
   }
 
   template<typename F, typename MIN, typename MAX, typename X = no_var>
@@ -113,18 +130,18 @@ namespace funct {
   };
 }
 
-#define NUMERICAL_INTEGRAL(X, F, SAMPLES) \
+#define NUMERICAL_INTEGRAL(X, F, INTEGRATOR) \
 namespace funct { \
   template<typename X> struct Integral<F, X> { \
-    typedef NumericalIntegral<SAMPLES, F, X> type; \
+    typedef NumericalIntegral<INTEGRATOR, F, X> type; \
   }; \
 } \
 struct __useless_ignoreme
 
-#define NUMERICAL_FUNCT_INTEGRAL(F, SAMPLES) \
+#define NUMERICAL_FUNCT_INTEGRAL(F, INTEGRATOR) \
 namespace funct { \
   template<> struct Integral<F, no_var> { \
-    typedef NumericalIntegral<SAMPLES, F> type; \
+    typedef NumericalIntegral<INTEGRATOR, F> type; \
   }; \
 } \
 struct __useless_ignoreme

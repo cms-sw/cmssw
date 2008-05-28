@@ -58,8 +58,10 @@ void testFunctions::checkAll() {
     CPPUNIT_ASSERT(fabs(g1minus2(x) - (g1(x) - g2(x))) < epsilon);
     CPPUNIT_ASSERT(fabs(g1over2(x) - (g1(x) / g2(x))) < epsilon);
     CPPUNIT_ASSERT(fabs(gm1(x) - (-g1(x)) < epsilon));
-    Convolution<Gaussian, Gaussian>::type gg(g1, g1, -5, 5, 1000);
-    CPPUNIT_ASSERT(fabs(gg(0) - g1(0)/sqrt(2.0))<epsilon);
+    Convolution<Gaussian, Gaussian, TrapezoidIntegrator>::type ggt(g1, g1, -5, 5, TrapezoidIntegrator(1000));
+    CPPUNIT_ASSERT(fabs(ggt(0) - g1(0)/sqrt(2.0))<epsilon);
+    Convolution<Gaussian, Gaussian, GaussLegendreIntegrator>::type gggl(g1, g1, -5, 5, GaussLegendreIntegrator(1000, epsilon));
+    CPPUNIT_ASSERT(fabs(gggl(0) - g1(0)/sqrt(2.0))<epsilon);
     CPPUNIT_ASSERT(gg1(0) == g1(0));
   }
   {
