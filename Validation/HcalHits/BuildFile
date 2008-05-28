@@ -12,6 +12,7 @@
  <use name=DataFormats/HcalDetId> 
  <use name=SimDataFormats/CaloHit>
  <use name=SimDataFormats/ValidationFormats>
+ <use name=DQMServices/Core>
 </export>
 
 <use name=FWCore/Framework>
@@ -29,5 +30,6 @@
 <use name=hepmc>
 <use name=DataFormats/Math> 
 <use name=rootmath>         
+<use name=DQMServices/Core>
 
 <Flags EDM_PLUGIN=1>
