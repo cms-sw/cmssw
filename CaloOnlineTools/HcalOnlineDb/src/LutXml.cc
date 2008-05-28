@@ -8,17 +8,17 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.2 2008/04/16 13:31:25 kukartse Exp $
+// $Id: LutXml.cc,v 1.3 2008/05/18 12:29:56 kukartse Exp $
 //
-
-// system include files
-#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
+
+#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
+#include "FWCore/Utilities/interface/md5.h"
 
 using namespace std;
 
@@ -82,7 +82,10 @@ void LutXml::init( void )
 }
 
 
-void LutXml::addLut( LutXml::Config & _config )
+
+
+// checksums_xml is 0 by default
+void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
 {
   DOMElement * rootElem = document -> getDocumentElement();
 
@@ -100,6 +103,7 @@ void LutXml::addLut( LutXml::Config & _config )
   addParameter( "FORMATREVISION", "string", _config.formatrevision );
   addParameter( "TARGETFIRMWARE", "string", _config.targetfirmware );
   addParameter( "GENERALIZEDINDEX", "int", _config.generalizedindex );
+  addParameter( "CHECKSUM", "string", get_checksum( _config.lut ) );
 
   if(_config.lut_type==1){ // linearizer LUT
     addParameter( "FIBER", "int", _config.fiber );
@@ -114,6 +118,13 @@ void LutXml::addLut( LutXml::Config & _config )
   }
   else{
     cout << "Unknown LUT type...produced XML will be incorrect" << endl;
+  }
+
+  // if the pointer to the checksums XML was given,
+  // add the checksum to it
+  // checksums_xml is 0 unless explicitely given
+  if ( checksums_xml ){
+    add_checksum( checksums_xml->getDocument(), _config );
   }
 }
 
@@ -138,6 +149,30 @@ DOMElement * LutXml::addData( string _elements, string _encoding, std::vector<un
   child -> appendChild( data_value );
 
   brickElem -> appendChild( child );
+
+  return child;
+}
+
+
+
+DOMElement * LutXml::add_checksum( DOMDocument * parent, Config & config )
+{
+  //template
+  //   <Data crate='0' slot='2' fpga='1' fiber='1' fiberchan='0' luttype='1' elements='1' encoding='hex'>c6cf91b39e3bff21623fb7366efda1fd</Data>
+  //
+  DOMElement * child    = parent -> createElement( XMLProcessor::_toXMLCh( "Data" ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("crate"),     XMLProcessor::_toXMLCh( config.crate ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("slot"),      XMLProcessor::_toXMLCh( config.slot ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("fpga"),      XMLProcessor::_toXMLCh( config.topbottom ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("fiber"),     XMLProcessor::_toXMLCh( config.fiber ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("fiberchan"), XMLProcessor::_toXMLCh( config.fiberchan ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("luttype"),   XMLProcessor::_toXMLCh( config.lut_type ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("elements"),  XMLProcessor::_toXMLCh( "1" ) );
+  child -> setAttribute( XMLProcessor::_toXMLCh("encoding"),  XMLProcessor::_toXMLCh( "hex" ) );
+  DOMText * checksum_value = parent -> createTextNode( XMLProcessor::_toXMLCh( get_checksum(config.lut) ));
+  child -> appendChild( checksum_value );
+
+  parent -> getDocumentElement() -> appendChild( child );
 
   return child;
 }
@@ -173,4 +208,44 @@ DOMElement * LutXml::addParameter( string _name, string _type, int _value )
 std::string & LutXml::getCurrentBrick( void )
 {
   return getString( brickElem );
+}
+
+
+
+// do MD5 checksum
+std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
+{
+  stringstream result;
+  md5_state_t md5er;
+  md5_byte_t digest[16];
+  md5_init(&md5er);
+  // linearizer LUT:
+  if ( lut . size() == 128 ){
+    unsigned char tool[2];
+    for (int i=0; i<128; i++) {
+      tool[0]=lut[i]&0xFF;
+      tool[1]=(lut[i]>>8)&0xFF;
+      md5_append(&md5er,tool,2);
+    }
+  }
+  // compression LUT:
+  else if ( lut . size() == 1024 ){
+    unsigned char tool;
+    for (int i=0; i<1024; i++) {
+      tool=lut[i]&0xFF;
+      md5_append(&md5er,&tool,1);
+    }
+  }
+  else{
+    cout << "ERROR: irregular LUT size, do not know how to compute checksum, exiting..." << endl;
+    exit(-1);
+  }
+  md5_finish(&md5er,digest);
+  for (int i=0; i<16; i++) result << std::hex << (((int)(digest[i]))&0xFF);
+
+  //cout << "CHECKSUM: ";
+  //cout << result . str();
+  //cout << endl;
+
+  return result . str();
 }

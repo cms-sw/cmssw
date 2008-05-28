@@ -73,10 +73,12 @@ int main( int argc, char **argv )
     ("test-qie", po::value<string>(), "test QIE procedure elements")
     ("test-lut-manager", po::value<string>(), "test LUT functionality")
     ("test-lut-xml-access", "test and benchmark LUT reading from local XML file")
+    ("test-lut-checksum", "test LUT MD5 checksum calculation")
     ("tag-name", po::value<string>(), "tag name")
     ("crate", po::value<int>(&crate)->default_value( -1 ), "crate number")
     ("lut-type", po::value<int>(&crate)->default_value( 1 ), "LUT type: 1 - linearization, 2 - compression")
     ("create-lut-xml", "create XML file(s) with LUTs, arg=crate number, default arg=-1 stands for all crates")
+    ("get-lut-xml-from-oracle", "Get LUTs from Oracle database")
     ("lin-lut-master-file", po::value<string>(), "Linearizer LUT ASCII master file name")
     ("comp-lut-master-file", po::value<string>(), "Compression LUT ASCII master file name")
     ("do-not-split-by-crate", "output LUTs as a single XML instead of making a separate file for each crate")
@@ -162,6 +164,17 @@ int main( int argc, char **argv )
       return 0;
     }
     
+    if (vm.count("test-lut-checksum")) {
+      cout << "Testing evaluation of LUT MD5 checksums..." << "\n";
+      string in_ = vm["input-file"].as<string>();
+      cout << "LUT XML file: " << in_ << "\n";
+      string tag_ = vm["tag-name"].as<string>();
+      cout << "Tag: " << tag_ << "\n";
+      HcalLutManager manager;
+      manager . test_xml_access( tag_, in_ );
+      return 0;
+    }
+    
     if (vm.count("qie")) {
       cout << "Generating new QIE table..." << "\n";
       cout << "Input file (from DB)... ";
@@ -232,6 +245,14 @@ int main( int argc, char **argv )
 	*/
 	break;
       }
+      return 0;
+    }
+    
+    
+    if (vm.count("get-lut-xml-from-oracle")) {
+      cout << "Getting LUTs from Oracle database..." << "\n";
+      HcalLutManager manager;
+      manager . get_brickSet_from_oracle();
       return 0;
     }
     
@@ -854,8 +875,8 @@ int createLUTLoader( string _prefix, string tag_name )
   XMLLUTLoader::checksumsDBConfig CSconf;
 
   baseConf . tag_name = tag_name;
-  //baseConf . comment_description = _prefix + ": LUTs for GREN 26Nov2007";
-  baseConf . comment_description = tag_name;
+  //baseConf . comment_description = tag_name;
+  baseConf . comment_description = "LUTs for CRUZET part 2. Fake checksums. HF and HB/HE look the same. Master file for linearizer LUTs is inputLUTcoder_CRUZET_v2.1.dat. Master file for compression LUTs is outputLUTtranscoder_CRUZET.dat.";
   baseConf . iov_begin = "1";
   baseConf . iov_end = "-1";
 

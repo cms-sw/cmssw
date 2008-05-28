@@ -2,6 +2,7 @@
 #include <sstream>
 #include <sys/time.h>
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
@@ -28,6 +29,7 @@ HcalLutManager::HcalLutManager( void )
 void HcalLutManager::init( void )
 {    
   lut_xml = 0;
+  lut_checksums_xml = 0;
   db = 0;
   lmap = 0;
 }
@@ -37,6 +39,7 @@ void HcalLutManager::init( void )
 HcalLutManager::~HcalLutManager( void )
 {    
   delete lut_xml;
+  delete lut_checksums_xml;
   delete db;
   delete lmap;
 }
@@ -255,15 +258,19 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
       _cfg.creationstamp = get_time_stamp( time(0) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
+      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+      //    int generalizedIndex=id.ietaAbs()+1000*id.depth()+10000*id.iphi()+
+      //        ((id.ieta()<0)?(0):(100))+((id.subdet()==HcalForward && id.ietaAbs()==29)?(4*10000):(0));
       _cfg.generalizedindex =
-	_cfg.iphi*10000+_cfg.depth*1000+
-	(row->second.side>0)*100+row->second.eta;
+	_cfg.iphi*10000 + _cfg.depth*1000 +
+	(row->second.side>0)*100 + row->second.eta +
+	((row->second.det==HcalForward && row->second.eta==29)?(4*10000):(0));
       _cfg.lut = _set.lut[lut_index];
       if (split_by_crate ){
-	_xml[row->second.crate]->addLut( _cfg );  
+	_xml[row->second.crate]->addLut( _cfg, lut_checksums_xml );  
       }
       else{
-	_xml[0]->addLut( _cfg );  
+	_xml[0]->addLut( _cfg, lut_checksums_xml );  
       }
     }
   }
@@ -289,8 +296,12 @@ int HcalLutManager::writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml,
 
 int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate )
 {
-  cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
+  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
   std::map<int, shared_ptr<LutXml> > xml;
+  if ( !lut_checksums_xml ){
+    lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
+  }
+  
   if ( _lin_file.size() != 0 ){
     addLutMap( xml, getLutXmlFromAsciiMaster( _lin_file, _tag, -1, split_by_crate ) );
   }
@@ -300,6 +311,10 @@ int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string 
     //cout << "DEBUG2!!!!" << endl;
   }
   writeLutXmlFiles( xml, _tag, split_by_crate );
+
+  string checksums_file = _tag + "_checksums.xml";
+  lut_checksums_xml -> write( checksums_file . c_str() );
+
   return 0;
 }
 
@@ -377,15 +392,18 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAscii
       _cfg.creationstamp = get_time_stamp( time(0) );
       _cfg.targetfirmware = "1.0.0";
       _cfg.formatrevision = "1"; //???
+      // "original" definition of GENERALIZEDINDEX from Mike Weinberger
+      //   int generalizedIndex=id.ietaAbs()+10000*id.iphi()+
+      //       ((id.ieta()<0)?(0):(100));
       _cfg.generalizedindex =
 	_cfg.iphi*10000+
 	(row->ieta>0)*100+abs(row->ieta);
       _cfg.lut = _set.lut[lut_index];
       if (split_by_crate ){
-	_xml[row->crate]->addLut( _cfg );  
+	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );  
       }
       else{
-	_xml[0]->addLut( _cfg );  
+	_xml[0]->addLut( _cfg, lut_checksums_xml );  
       }
     }
   }
@@ -418,6 +436,7 @@ int HcalLutManager::test_xml_access( string _tag, string _filename )
   vector<unsigned int> _lut = getLutFromXml( _tag, 1107312779, hcal::ConfigurationDatabase::LinearizerLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  LutXml::get_checksum( _lut );
   _lut = getLutFromXml( _tag, 1140869389, hcal::ConfigurationDatabase::LinearizerLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
@@ -430,6 +449,7 @@ int HcalLutManager::test_xml_access( string _tag, string _filename )
   _lut = getLutFromXml( _tag, 1140878737, hcal::ConfigurationDatabase::CompressionLUT );
   gettimeofday( &_t, NULL );
   cout << "after getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+  LutXml::get_checksum( _lut );
 
   /*
   for (map<int,LMapRow>::const_iterator l=lmap->get_map().begin(); l!=lmap->get_map().end(); l++){
@@ -536,3 +556,22 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _r
   
   return result;
 }
+
+
+
+int HcalLutManager::get_brickSet_from_oracle( void )
+{
+  string * brick_set = new string();
+  brick_set -> append("<BrickSet><Brick>huj</Brick></BrickSet>");
+  const char * bs = brick_set->c_str();
+  const XMLByte * _template2 = (const XMLByte *)bs;
+  MemBufInputSource * _data_gol = new MemBufInputSource( _template2, strlen( (const char *)_template2 ), "_data_gol", false );
+  XMLDOMBlock * _xml = new XMLDOMBlock( *_data_gol );
+  _xml -> write("stdout");
+  //delete _xml;
+  return 0;
+}
+
+
+
+
