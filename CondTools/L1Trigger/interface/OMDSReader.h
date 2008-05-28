@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sun Mar  2 01:36:06 CET 2008
-// $Id$
+// $Id: OMDSReader.h,v 1.1 2008/03/03 21:52:10 wsun Exp $
 //
 
 // system include files
@@ -45,7 +45,9 @@ namespace l1t
       // ---------- const member functions ---------------------
       boost::shared_ptr< coral::IQuery >
 	newQuery( const std::string& tableString,
-		  const std::vector< std::string >& queryStrings ) const ;
+		  const std::vector< std::string >& queryStrings,
+		  const std::string& conditionString,
+		  const coral::AttributeList& conditionAttributes ) const ;
 
       // ---------- static member functions --------------------
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id$
+// $Id: OMDSReader.cc,v 1.1 2008/03/03 21:52:19 wsun Exp $
 //
 
 // system include files
@@ -67,7 +67,9 @@ OMDSReader::~OMDSReader()
 
   boost::shared_ptr< coral::IQuery >
   OMDSReader::newQuery( const std::string& tableString,
-			const std::vector< std::string >& queryStrings ) const
+			const std::vector< std::string >& queryStrings,
+			const std::string& conditionString,
+			const coral::AttributeList& conditionAttributes ) const
   {
     // need CoralSessionProxy?
     coral::ITable& table =
@@ -83,6 +85,8 @@ OMDSReader::~OMDSReader()
       {
 	query->addToOutputList( *it ) ;
       }
+
+    query->setCondition( conditionString, conditionAttributes ) ;
 
     return query ;
   }
