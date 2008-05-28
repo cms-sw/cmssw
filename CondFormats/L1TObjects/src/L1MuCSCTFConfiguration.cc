@@ -1,12 +1,14 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 
-edm::ParameterSet L1MuCSCTFConfiguration::parse(void) const {
+edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   edm::ParameterSet pset;
+  if(sp>=12) return pset;
+
   pset.addParameter<int>("CoreLatency",8);
   std::vector<int> etamin(8), etamax(8), etawin(6);
 
   int eta_cnt=0;
-  std::stringstream conf(parametersAsText);
+  std::stringstream conf(registers[sp]);
   while( !conf.eof() ){
     char buff[1024];
     conf.getline(buff,1024);
@@ -46,7 +48,8 @@ edm::ParameterSet L1MuCSCTFConfiguration::parse(void) const {
         pset.addParameter<int> ("BXAdepth",      value&0x3     );
         pset.addParameter<bool>("AllowALCTonly",(value&0x10)>>4);
         pset.addParameter<bool>("AllowCLCTonly",(value&0x20)>>5);
-        pset.addParameter<int> ("PreTrigger",   (value&0x3000)>>12);
+        pset.addParameter<bool>("useDT",        (value&0x80)>>8);
+        pset.addParameter<int> ("PreTrigger",   (value&0x300)>>8);
     }
     if( register_=="DAT_ETA" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
@@ -54,10 +57,10 @@ edm::ParameterSet L1MuCSCTFConfiguration::parse(void) const {
         if( eta_cnt>=8  && eta_cnt<16 ) etamax[eta_cnt-8 ] = value;
         if( eta_cnt>=16 && eta_cnt<22 ) etawin[eta_cnt-16] = value;
 		// 4 line below is just an exaple (need to verify a sequence):
-//        if( eta_cnt==22               ) m_mindphip           = value;
-//        if( eta_cnt==23               ) m_mindeta_accp       = value;
-//        if( eta_cnt==24               ) m_maxdeta_accp       = value;
-//        if( eta_cnt==25               ) m_maxdphi_accp       = value;
+        if( eta_cnt==22 ) pset.addParameter<int>("mindphip",    value);
+        if( eta_cnt==23 ) pset.addParameter<int>("mindeta_accp",value);
+        if( eta_cnt==24 ) pset.addParameter<int>("maxdeta_accp",value);
+        if( eta_cnt==25 ) pset.addParameter<int>("maxdphi_accp",value);
         eta_cnt++;
     }
     if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M1" )
@@ -90,6 +93,9 @@ edm::ParameterSet L1MuCSCTFConfiguration::parse(void) const {
         pset.addParameter<int>("QualityEnableME4b",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M3" )
         pset.addParameter<int>("QualityEnableME4c",strtol(writeValue_.c_str(),'\0',16));
+
+    if( register_=="CSR_KFL" )//&& chip_=="SP" && muon_=="MA" )
+        pset.addParameter<int>("kill_fiber",strtol(writeValue_.c_str(),'\0',16));
   }
 
   if( eta_cnt     ) pset.addParameter< std::vector<int> >("EtaMin",etamin);
