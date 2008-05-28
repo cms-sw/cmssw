@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 05:02:13 CET 2008
-// $Id: L1TriggerConfigOnlineProd.cc,v 1.1 2008/03/03 21:52:18 wsun Exp $
+// $Id: L1TriggerConfigOnlineProd.cc,v 1.2 2008/04/16 23:49:30 wsun Exp $
 //
 //
 
@@ -61,7 +61,8 @@ L1TriggerConfigOnlineProd::L1TriggerConfigOnlineProd(const edm::ParameterSet& iC
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced( this, &L1TriggerConfigOnlineProd::produceL1JetEtScaleRcd ) ;
+  setWhatProduced( this, &L1TriggerConfigOnlineProd::produceL1RCTParameters ) ;
+   setWhatProduced( this, &L1TriggerConfigOnlineProd::produceL1JetEtScale ) ;
 
    //now do what ever other initialization is needed
 }
@@ -142,8 +143,79 @@ bool L1TriggerConfigOnlineProd::getSubsystemKey( const TRcd& record,
 }
 
 // ------------ method called to produce the data  ------------
+boost::shared_ptr<L1RCTParameters>
+L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRecord )
+{
+   using namespace edm::es;
+   boost::shared_ptr<L1RCTParameters> pL1RCTParameters ;
+
+   // Get subsystem key and check if already in ORCON
+   std::string key ;
+   if( getSubsystemKey( iRecord, pL1RCTParameters, key ) ||
+       m_forceGeneration )
+   {
+     // Key not in ORCON -- get data from OMDS and make C++ object
+
+     // First, get rct_parameter from rct_key
+     std::string tableString = "rct_conf" ;
+
+     std::vector< std::string > queryStrings ;
+     queryStrings.push_back( "rct_parameter" ) ;
+
+     std::string conditionString = "rct_conf.rct_key = :key" ;
+
+     coral::AttributeList attributes ;
+     attributes.extend( "key", typeid( std::string ) ) ;
+     attributes[ "key" ].data< std::string >() = key ;
+
+     boost::shared_ptr< coral::IQuery > query
+       ( m_omdsReader.newQuery( tableString, queryStrings,
+				conditionString, attributes ) ) ;
+     coral::ICursor& cursor = query->execute() ;
+     std::string rct_parameter ;
+     while( cursor.next() )
+       {
+	 const coral::AttributeList& row = cursor.currentRow() ;
+	 rct_parameter = row[ "rct_parameter" ].data< std::string >() ;
+	 std::cout << "rct_parameter = " << rct_parameter << std::endl ;
+       }
+
+     // Now, use rct_parameter to get data.
+
+     tableString = "parem_conf" ;
+     queryStrings.clear() ;
+     queryStrings.push_back( "egamma_lsb" ) ;
+     conditionString = "parem_conf.parem_key = :rct_parameter" ;
+
+     coral::AttributeList attributes2 ;
+     attributes2.extend( "rct_parameter", typeid( std::string ) ) ;
+     attributes2[ "rct_parameter" ].data< std::string >() = rct_parameter ;
+
+     boost::shared_ptr< coral::IQuery > query2
+       ( m_omdsReader.newQuery( tableString, queryStrings,
+				conditionString, attributes2 ) ) ;
+     coral::ICursor& cursor2 = query2->execute() ;
+     while( cursor2.next() )
+       {
+	 const coral::AttributeList& row = cursor2.currentRow() ;
+	 double egamma_lsb = row[ "egamma_lsb" ].data< double >() ;
+	 std::cout << "egamma_lsb = " << egamma_lsb << std::endl ;
+       }
+
+      pL1RCTParameters = boost::shared_ptr< L1RCTParameters >(
+	 new L1RCTParameters() ) ;
+   }
+   else
+   {
+     throw l1t::DataAlreadyPresentException(
+        "L1RCTParameters for key " + key + " already in CondDB." ) ;
+   }
+
+   return pL1RCTParameters ;
+}
+
 boost::shared_ptr<L1CaloEtScale>
-L1TriggerConfigOnlineProd::produceL1JetEtScaleRcd( const L1JetEtScaleRcd& iRecord )
+L1TriggerConfigOnlineProd::produceL1JetEtScale( const L1JetEtScaleRcd& iRecord )
 {
    using namespace edm::es;
    boost::shared_ptr<L1CaloEtScale> pL1CaloEtScale ;
@@ -159,8 +231,12 @@ L1TriggerConfigOnlineProd::produceL1JetEtScaleRcd( const L1JetEtScaleRcd& iRecor
      std::vector< std::string > queryStrings ;
      queryStrings.push_back( "RUN" ) ;
 
+     std::string conditionString = "" ;
+     coral::AttributeList attributes ;
+
      boost::shared_ptr< coral::IQuery > query
-       ( m_omdsReader.newQuery( tableString, queryStrings ) ) ;
+       ( m_omdsReader.newQuery( tableString, queryStrings,
+				conditionString, attributes ) ) ;
      coral::ICursor& cursor = query->execute() ;
      while( cursor.next() )
        {

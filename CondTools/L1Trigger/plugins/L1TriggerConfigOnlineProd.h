@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Mar  1 05:06:43 CET 2008
-// $Id$
+// $Id: L1TriggerConfigOnlineProd.h,v 1.1 2008/03/03 21:52:18 wsun Exp $
 //
 
 // system include files
@@ -30,6 +30,8 @@
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 
 // forward declarations
+#include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
@@ -38,7 +40,9 @@ class L1TriggerConfigOnlineProd : public edm::ESProducer {
       L1TriggerConfigOnlineProd(const edm::ParameterSet&);
       ~L1TriggerConfigOnlineProd();
 
-      boost::shared_ptr<L1CaloEtScale> produceL1JetEtScaleRcd(
+      boost::shared_ptr<L1RCTParameters> produceL1RCTParameters(
+	 const L1RCTParametersRcd&);
+      boost::shared_ptr<L1CaloEtScale> produceL1JetEtScale(
 	 const L1JetEtScaleRcd&);
    private:
       // ----------member data ---------------------------

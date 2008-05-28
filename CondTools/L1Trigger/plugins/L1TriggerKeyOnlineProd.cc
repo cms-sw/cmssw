@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 03:03:32 CET 2008
-// $Id: L1TriggerKeyOnlineProd.cc,v 1.1 2008/03/03 21:52:19 wsun Exp $
+// $Id: L1TriggerKeyOnlineProd.cc,v 1.2 2008/04/16 23:49:30 wsun Exp $
 //
 //
 
@@ -107,8 +107,12 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
       std::vector< std::string > queryStrings ;
       queryStrings.push_back( "CONFIG_KEY" ) ;
 
+      std::string conditionString = "" ;
+      coral::AttributeList attributes ;
+
       boost::shared_ptr< coral::IQuery > query
-	( m_omdsReader.newQuery( tableString, queryStrings ) ) ;
+	( m_omdsReader.newQuery( tableString, queryStrings,
+				 conditionString, attributes ) ) ;
       coral::ICursor& cursor = query->execute() ;
       while( cursor.next() )
 	{
