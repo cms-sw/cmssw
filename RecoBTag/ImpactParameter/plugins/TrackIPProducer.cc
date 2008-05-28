@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.13 2008/02/12 15:23:34 tboccali Exp $
+// $Id: TrackIPProducer.cc,v 1.15 2008/02/12 15:37:28 tboccali Exp $
 //
 //
 
@@ -70,8 +70,9 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_cutMaxChiSquared =  m_config.getParameter<double>("maximumChiSquared"); //used
   m_cutMaxLIP        =  m_config.getParameter<double>("maximumLongitudinalImpactParameter"); //used
   m_cutMaxDistToAxis =  m_config.getParameter<double>("maximumDistanceToJetAxis"); //used
-  m_directionWithTracks =  m_config.getParameter<bool>("jetDirectionUsingTracks"); //used
-
+  m_directionWithTracks  =  m_config.getParameter<bool>("jetDirectionUsingTracks"); //used
+  m_useTrackQuality      =  m_config.getParameter<bool>("useTrackQuality"); //used
+  
 
    produces<reco::TrackIPTagInfoCollection>();
 
@@ -104,10 +105,9 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
   //  m_algo.setTransientTrackBuilder(builder.product());
 
-  
-
+ 
    //output collections 
-  reco::TrackIPTagInfoCollection * outCollection = new reco::TrackIPTagInfoCollection();
+   reco::TrackIPTagInfoCollection * outCollection = new reco::TrackIPTagInfoCollection();
 
    //use first pv of the collection
    //FIXME: use BeamSpot when pv is missing
@@ -132,6 +132,9 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    double pvZ=pv->z();
  
+
+
+
 
    int i=0;
    JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
@@ -202,11 +205,11 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         
          if(m_computeProbabilities) {
               //probability with 3D ip
-              pair<bool,double> probability =  m_probabilityEstimator->probability(0,ipData.back().ip3d.significance(),track,*(it->first),*pv);
+              pair<bool,double> probability =  m_probabilityEstimator->probability(m_useTrackQuality , 0,ipData.back().ip3d.significance(),track,*(it->first),*pv);
               if(probability.first)  prob3D.push_back(probability.second); else  prob3D.push_back(-1.); 
               
               //probability with 2D ip
-              probability =  m_probabilityEstimator->probability(1,ipData.back().ip2d.significance(),track,*(it->first),*pv);
+              probability =  m_probabilityEstimator->probability(m_useTrackQuality ,1,ipData.back().ip2d.significance(),track,*(it->first),*pv);
               if(probability.first)  prob2D.push_back(probability.second); else  prob2D.push_back(-1.); 
 
           } 

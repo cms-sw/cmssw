@@ -39,7 +39,7 @@ class HistogramProbabilityEstimator {
 //  if(m_calibration3D!=0) delete m_calibration3D;
 //  if(m_calibration2D!=0) delete m_calibration2D;
  }
-  std::pair<bool,double> probability(int ipType, float significance, const reco::Track&, const reco::Jet &, const reco::Vertex &) const;
+  std::pair<bool,double> probability(bool quality, int ipType, float significance, const reco::Track&, const reco::Jet &, const reco::Vertex &) const;
 
  private:
   const TrackProbabilityCalibration * m_calibration3D;

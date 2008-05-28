@@ -8,10 +8,10 @@
 using namespace reco;
 using namespace std;
 
-pair<bool,double> HistogramProbabilityEstimator::probability(int ipType,float significance, const Track& track, const Jet & jet, const Vertex & vertex) const 
+pair<bool,double> HistogramProbabilityEstimator::probability(bool quality, int ipType,float significance, const Track& track, const Jet & jet, const Vertex & vertex) const 
 {
  
-  TrackClassFilter::Input input(track,jet,vertex);
+  TrackClassFilter::Input input(quality, track, jet, vertex);
  
   double trackProbability=0;
  
