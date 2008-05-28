@@ -13,7 +13,7 @@ if ( ! -e $NEWREFDIR/RecHits ) mkdir $NEWREFDIR/RecHits
 if ( ! -e $NEWREFDIR/LiteGeometry ) mkdir $NEWREFDIR/LiteGeometry
 if ( ! -e $NEWREFDIR/TrackingRecHits ) mkdir $NEWREFDIR/TrackingRecHits
 if ( ! -e $NEWREFDIR/Tracks ) mkdir $NEWREFDIR/Tracks
-
+if ( ! -e $NEWREFDIR/TrackingParticles) mkdir $NEWREFDIR/TrackingParticles
 
 cd ${DATADIR}
 
