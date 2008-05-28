@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/17 15:59:46 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/06 11:02:25 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -73,7 +73,7 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
     MeanHistoName =  "MeanTest_" + type[c]; 
     SigmaHistoName =  "SigmaTest_" + type[c];
  
-    histName = "Res_StaGlb_"+type[c];
+    histName = "Res_GlbSta_"+type[c];
     histoNames[type[c]].push_back(histName);
     histName = "Res_TkGlb_"+type[c];
     histoNames[type[c]].push_back(histName);
