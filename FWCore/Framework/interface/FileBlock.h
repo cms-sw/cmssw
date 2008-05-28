@@ -5,7 +5,7 @@
 
 FileBlock: Properties of an input file.
 
-$Id: FileBlock.h,v 1.5 2008/01/21 03:10:49 wmtan Exp $
+$Id: FileBlock.h,v 1.6 2008/03/19 19:39:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -23,12 +23,14 @@ namespace edm {
 	tree_(0), metaTree_(0),
 	lumiTree_(0), lumiMetaTree_(0),
 	runTree_(0), runMetaTree_(0),
-	fastCopyable_(false), sortedNewBranchNames_(), oldBranchNames_() {}
+        fastCopyable_(false), fileName_(),
+        sortedNewBranchNames_(), oldBranchNames_() {}
     FileBlock(FileFormatVersion const& version,
 	TTree const* ev, TTree const* meta,
 	TTree const* lumi, TTree const* lumiMeta,
 	TTree const* run, TTree const* runMeta,
 	bool fastCopy,
+	std::string const& fileName,
 	std::vector<std::string> const& newNames,
 	std::vector<std::string> const& oldNames) :
 	  fileFormatVersion_(version),
@@ -39,6 +41,7 @@ namespace edm {
 	  runTree_(const_cast<TTree *>(run)), 
 	  runMetaTree_(const_cast<TTree *>(runMeta)), 
 	  fastCopyable_(fastCopy), 
+          fileName_(fileName), 
 	  sortedNewBranchNames_(newNames),
 	  oldBranchNames_(oldNames) {}
     ~FileBlock() {}
@@ -51,6 +54,7 @@ namespace edm {
     TTree * const runTree() const {return runTree_;}
     TTree * const runMetaTree() const {return runMetaTree_;}
     bool fastClonable() const {return fastCopyable_;}
+    std::string const& fileName() const {return fileName_;}
     std::vector<std::string> const& sortedNewBranchNames() const {return sortedNewBranchNames_;}
     std::vector<std::string> const& oldBranchNames() const {return oldBranchNames_;}
 
@@ -66,6 +70,7 @@ namespace edm {
     TTree * runTree_;
     TTree * runMetaTree_;
     bool fastCopyable_;
+    std::string fileName_;
     std::vector<std::string> sortedNewBranchNames_;
     std::vector<std::string> oldBranchNames_;
   };

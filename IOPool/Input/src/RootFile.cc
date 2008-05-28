@@ -317,6 +317,7 @@ namespace edm {
 						     runTree_.tree(),
 						     runTree_.metaTree(),
 						     fastClonable(),
+						     file_,
 						     sortedNewBranchNames_,
 						     oldBranchNames_));
   }
