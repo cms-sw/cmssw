@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2008/04/29 13:49:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/13 03:03:27 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -132,25 +132,26 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack, con
   // check and select muon measurements and
   // measure occupancy in muon stations
   checkMuonHits(globalTrack, allRecHits, fmsRecHits, stationHits);
- 
-  // full track with all muon hits
-  vector <Trajectory> globalTraj = transform(globalTrack, track, allRecHits);
 
-//  LogTrace(theCategory) << " Initial pt: " << globalTraj.front().firstMeasurement().updatedState().globalParameters().momentum().perp();
+  // full track with all muon hits
+  vector <Trajectory>  globalTraj = transform(globalTrack, track, allRecHits);
+
+  if (!globalTraj.size()) {
+    LogTrace(theCategory) << "No trajectory from the TrackTransformer!" << endl;
+    return vector<Trajectory>();
+  }
+
   LogTrace(theCategory) << " Initial trajectory state: " << globalTraj.front().lastMeasurement().updatedState().freeState()->parameters() << endl;
     
 //    printHits(allRecHits);
 
   vector <Trajectory> outputTraj;
   
-  if (theMuonHitsOption == 1 ) {
+  if (theMuonHitsOption == 1 ) 
     outputTraj.push_back(globalTraj.front());
-    // for testing only - the result should be the same as before the refit
-  }     
 
-  if (theMuonHitsOption == 2 ) {
+  if (theMuonHitsOption == 2 ) 
     outputTraj = transform(globalTrack, track, fmsRecHits);
-  }     
 
   if (theMuonHitsOption == 3 ) {
     selectedRecHits = selectMuonHits(globalTraj.front(),stationHits);
