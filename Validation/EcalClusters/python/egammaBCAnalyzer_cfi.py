@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 #  Author: Michael A. Balazs, University of Virginia
 #  $Id: egammaBCAnalyzer.cfi,v 1.5 2006/12/13 15:03:22 mabalazs Exp $
 #
+from Validation.EcalClusters.VerificationCommonParameters_cfi import *
 egammaBasicClusterAnalyzer = cms.EDFilter("EgammaBasicClusters",
     VerificationCommonParameters,
     hist_max_Size = cms.double(20.0),
@@ -25,5 +26,6 @@ egammaBasicClusterAnalyzer = cms.EDFilter("EgammaBasicClusters",
     hist_max_Phi = cms.double(3.14159),
     hist_bins_ET = cms.int32(200)
 )
+
 
 
