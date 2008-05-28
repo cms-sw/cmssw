@@ -14,6 +14,7 @@ from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloGeometry_cff import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
+from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # The muon geometry
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 # The muon digi calibration
@@ -27,4 +28,6 @@ from RecoBTau.Configuration.RecoBTau_FakeConditions_cff import *
 from CalibCalorimetry.Configuration.Hcal_FakeConditions_cff import *
 from CalibCalorimetry.Configuration.Ecal_FakeConditions_cff import *
 from CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff import *
+from CalibMuon.Configuration.RPC_FakeConditions_cff import *
+
 

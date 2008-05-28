@@ -14,15 +14,11 @@ from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloGeometry_cff import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
+from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # The muon geometry
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
-# The condDB setup
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
-#Services from the CondDB
-#from FastSimulation.Configuration.GlobalTag_IntDB_cfi import *
-from FastSimulation.Configuration.GlobalTag_cfi import *
-
+# The condDB setup (the global tag refers to DevDB, IntDB or ProDB whenever needed)
+from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
 hcal_db_producer = cms.ESProducer("HcalDbProducer",
     dump = cms.untracked.vstring(''),
     file = cms.untracked.string('')
@@ -33,5 +29,6 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'channelQuality', 
         'ZSThresholds')
 )
+
 
 
