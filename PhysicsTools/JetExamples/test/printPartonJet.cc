@@ -37,7 +37,7 @@ class printPartonJet : public edm::EDAnalyzer {
 
     edm::InputTag source_;
     string   fOutputFileName_;   
-    Handle< View <Jet> > partonJets;
+    Handle< View <Candidate> > partonJets;
 };
 
 printPartonJet::printPartonJet(const edm::ParameterSet& iConfig)
