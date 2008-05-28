@@ -3,11 +3,11 @@
 /** \class SoftConversionProducer
  **  
  **
- **  $Id: SoftConversionProducer.h,v 1.9 2007/07/12 14:50:14 nancy Exp $ 
- **  $Date: 2007/07/12 14:50:14 $ 
- **  $Revision: 1.9 $
- **  \author Nancy Marinelli, U. of Notre Dame, US
- **
+ **  $Id: SoftConversionProducer.h,v 1.1 2008/05/28 03:45:36 dwjang Exp $ 
+ **  $Date: 2008/05/28 03:45:36 $ 
+ **  $Revision: 1.1 $
+ **  \author Dongwook Jang, Carnegie Mellon University
+ **  Modified version of ConvertedPhotonProducer
  ***/
 
 #include "FWCore/Framework/interface/EDProducer.h"
