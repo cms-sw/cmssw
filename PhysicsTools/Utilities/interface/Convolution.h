@@ -17,7 +17,7 @@ namespace funct {
     }
     double operator()(double x) const {
       f_.setX(x);
-      return integrator_(f_, min_, max_);
+      return integrator_(f_, x - max_, x - min_);
     }
    private:
     struct function {
