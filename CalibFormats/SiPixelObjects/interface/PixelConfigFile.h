@@ -182,7 +182,6 @@ namespace pos{
 
       static std::string directory;
       static int first=1;
-      static PixelConfigList configs;
     
       directory=getenv("PIXELCONFIGURATIONBASE");
       std::string filename=directory+"/configurations.txt";
