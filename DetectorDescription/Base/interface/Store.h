@@ -21,14 +21,14 @@ namespace DDI {
 
    K is the key_type which is used as an index in the storage.
    It must fulfill all requirements for a key in a sorted associative container.
-   N is the user-fristd::endly name_type, which must be std::mapped uniquely
+   N is the user-friendly name_type, which must be mapped uniquely
    to the key_type and vice versa. N itself must also fulfill all requirements
    of a key in a sorted associative container.
    The reason to provide K is that one might save some memory by compacting
    common parts of information contained in different instances of N, e.g.
-   if N is a pair<std::string,std::string>, the first std::string being a 'namespace' the 
-   second a 'name' then K could be a pair<int,std::string> thus compacting the
-   namespace-std::string to a simple int.
+   if N is a pair<string,string>, the first string being a 'namespace' the 
+   second a 'name' then K could be a pair<int,string> thus compacting the
+   namespace-string to a simple int.
    K and N must support following unique conversions:
    - from N to K, thus N(const K &)
    - from K to N, thus K(const N &)
