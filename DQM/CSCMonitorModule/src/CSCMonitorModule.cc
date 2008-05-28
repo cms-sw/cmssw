@@ -47,6 +47,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
 
   rootDir = monitorName + "/";
   nEvents = 0;
+  L1ANumber = 0;
 
   // Loading histogram collection from XML file
   if(loadCollection()) {

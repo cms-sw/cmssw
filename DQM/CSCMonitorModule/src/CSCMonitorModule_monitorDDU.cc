@@ -75,6 +75,8 @@ void CSCMonitorModule::monitorDDU(const CSCDDUEventData& dduEvent){
     }
   }
 
+  L1ANumber = L1ANumbers[dduID];
+
   int dmb_dav_header      = dduHeader.dmb_dav();
   int ddu_connected_inputs= dduHeader.live_cscs();
   int csc_error_state     = dduTrailer.dmb_full()&0x7FFF; // Only 15 inputs for DDU

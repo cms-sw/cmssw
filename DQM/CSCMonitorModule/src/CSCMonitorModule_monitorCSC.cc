@@ -39,6 +39,8 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   // int ChamberID	= (((crateID) << 4) + dmbID) & 0xFFF;
   if (crateID == 0 || dmbID == 0) return;
 
+  bool L1A_out_of_sync = false;
+
   // To be switched on on CSC enter :) 
   // int iendcap  = -1;
   // int istation = -1;
@@ -52,6 +54,10 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   int CSCtype = 0;
   int CSCposition = 0;
   getCSCFromMap(crateID, dmbID, CSCtype, CSCposition );
+
+  // Top level L1A synchronization
+  int dmbHeaderL1A = dmbHeader->l1a()%64;
+  if ((int)(dmbHeaderL1A - (int)(L1ANumber%64)) != 0) L1A_out_of_sync = true;
 
   if (CSCtype && CSCposition && MEEMU("CSC_Unpacked", me)) me->Fill(CSCposition, CSCtype);
 
@@ -92,6 +98,11 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   if (!cscEvent.nalct()) {
     if (CSCtype && CSCposition && MEEMU("CSC_wo_ALCT", me)) me->Fill(CSCposition, CSCtype);
     if (MEEMU("DMB_wo_ALCT", me)) me->Fill(crateID, dmbID);
+  } else {
+    if (cscEvent.alctHeader()) {
+      const CSCALCTHeader* alctHeader = cscEvent.alctHeader();
+      if ((int)(alctHeader->L1Acc()%64 - dmbHeaderL1A) != 0) L1A_out_of_sync = true;
+    }
   }
 
   //
@@ -109,13 +120,34 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   //
  
   int NumberOfUnpackedCFEBs = 0;
-  const int N_CFEBs = 5;
-  CSCCFEBData * cfebData[5];
+  const int N_CFEBs  = 5;
+  const int N_Layers = 6;
+
+  CSCCFEBData* cfebData[5];
+  CSCCFEBTimeSlice* timeSlice[5][16];
+
   for(int nCFEB = 0; nCFEB < N_CFEBs; ++nCFEB) {
+
     cfebData[nCFEB] = cscEvent.cfebData(nCFEB);
+
     if (cfebData[nCFEB] !=0) {
+
       if (!cfebData[nCFEB]->check()) continue;
+
       NumberOfUnpackedCFEBs++;
+      int NmbTimeSamples= (cfebData[nCFEB])->nTimeSamples();
+
+      for(int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
+        for(int nSample = 0; nSample < NmbTimeSamples; ++nSample) {
+
+          timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));
+          if ((int)((timeSlice[nCFEB][nSample]->get_L1A_number()) - dmbHeaderL1A) != 0) {
+            L1A_out_of_sync = true;
+          }
+
+        }
+      }
+
     }
   }
 
@@ -124,5 +156,21 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
     if (MEEMU("DMB_wo_CFEB", me)) me->Fill(crateID,dmbID);
   }
 
+  // Checking L1A out of sync occurancies
+  if (cscEvent.nclct() && cscEvent.nalct()) {
+    if (cscEvent.alctHeader()) {
+      if (cscEvent.tmbData()) {
+        CSCTMBData* tmbData = cscEvent.tmbData();
+        if (tmbData->tmbHeader()) {
+          CSCTMBHeader* tmbHeader = tmbData->tmbHeader();
+          if (((int)(tmbHeader->L1ANumber()%64) - dmbHeaderL1A) != 0) L1A_out_of_sync = true;
+        }
+      }
+    }
+  }
+
+  if (CSCtype && CSCposition && L1A_out_of_sync && MEEMU("CSC_L1A_out_of_sync", me)) {
+    me->Fill(CSCposition, CSCtype);
+  }
 
 }

@@ -48,6 +48,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCCFEBTimeSlice.h"
 
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
 #include "CondFormats/DataRecord/interface/CSCCrateMapRcd.h"
@@ -154,6 +155,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     /** Histogram mapping, increments, etc. */
     uint32_t                     nEvents;
     std::map<std::string, int>   tmap;
+    uint32_t                     L1ANumber;
     std::map<uint32_t,uint32_t>  L1ANumbers;
 
     /** Find histograms (aka previous macros) **/ 
