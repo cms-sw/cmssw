@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.12 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.13 2008/05/23 12:37:00 delaer Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -260,6 +260,7 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
       int fedDelay = int(fedDelayCoarse*25. - fedDelayFine*24./25. - round(shift) + offset);
       fedDelayCoarse = (fedDelay/25)+1;
       fedDelayFine = fedDelayCoarse*25-fedDelay;
+      if(fedDelayFine==25) { fedDelayFine = 0; --fedDelayCoarse; }
       // update the FED delay
       std::stringstream ss;
       ss << "[LatencyHistosUsingDb::" << __func__ << "]"

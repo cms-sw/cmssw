@@ -1,4 +1,4 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.10 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.11 2008/05/23 12:37:00 delaer Exp $
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -319,6 +319,7 @@ void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
       fedDelay -= delay;
       fedDelayCoarse = (fedDelay/25)+1;
       fedDelayFine = fedDelayCoarse*25-fedDelay;
+      if(fedDelayFine==25) { fedDelayFine = 0; --fedDelayCoarse; }
       // update the FED delay
       std::stringstream ss;
       ss << "[FineDelayHistosUsingDb::" << __func__ << "]"
