@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/11/29 13:34:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/01 00:39:52 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -57,7 +57,7 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// book the summary histograms
-  void bookHistos(int wh);
+  void bookHistos();
 
   /// Get the ME name
   std::string getMEName(const DTChamberId & chID, std::string histoTag);
@@ -72,9 +72,10 @@ private:
 
   int nevents;
   unsigned int nLumiSegs;
-  int prescaleFactor;
   int run;
   int badChpercentual;
+  // switch on for detailed analysis
+  bool detailedAnalysis;
 
   DQMStore* dbe;
 
@@ -83,6 +84,7 @@ private:
 
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelHistos;
+  std::map< int, MonitorElement* > summaryHistos;
 
 };
 
