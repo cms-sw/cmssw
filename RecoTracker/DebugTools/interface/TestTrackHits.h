@@ -15,7 +15,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Tue Feb 13 17:29:10 CET 2007
-// $Id: TestTrackHits.h,v 1.2 2007/09/13 16:46:37 cerati Exp $
+// $Id: TestTrackHits.h,v 1.5 2008/02/11 12:08:49 cerati Exp $
 //
 //
 
@@ -49,7 +49,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
-#include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
+//#include "PhysicsTools/RecoAlgos/interface/RecoTrackSelector.h"
 #include <sstream>
 
 class TestTrackHits : public edm::EDAnalyzer {
@@ -85,6 +85,7 @@ private:
   std::string srcName;
   std::string tpName;
   std::string updatorName;
+  std::string out;
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<Propagator> thePropagator;
@@ -95,7 +96,7 @@ private:
   edm::Handle<edm::View<reco::Track> > trackCollectionHandle;
   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationCollectionHandle;
   edm::Handle<TrackingParticleCollection> trackingParticleCollectionHandle;
-  RecoTrackSelector selectRecoTracks;
+  //RecoTrackSelector selectRecoTracks;
 
   TFile* file;
   std::stringstream title;
@@ -117,13 +118,17 @@ private:
   std::map<std::string,TH2F*> hChi2IncrementVsEta;  
   std::map<std::string,TH1F*> hChi2GoodHit;  
   std::map<std::string,TH1F*> hChi2BadHit;
-  std::map<std::string,TH1F*> hChi2MergedHit;
-  TH1F *hTotChi2Increment, *hTotChi2GoodHit, *hTotChi2BadHit, *hTotChi2MergedHit;
+  std::map<std::string,TH1F*> hChi2DeltaHit;
+  std::map<std::string,TH1F*> hChi2NSharedHit;
+  std::map<std::string,TH1F*> hChi2SharedHit;
+  TH1F *hTotChi2Increment, *hTotChi2GoodHit, *hTotChi2BadHit, *hTotChi2DeltaHit, *hTotChi2NSharedHit, *hTotChi2SharedHit;
   TH2F *hProcess_vs_Chi2, *hClsize_vs_Chi2, *hGoodHit_vs_Chi2;
   TH2F *hPixClsize_vs_Chi2, *hPrjClsize_vs_Chi2, *hSt1Clsize_vs_Chi2, *hSt2Clsize_vs_Chi2;
   TH1F *hClusterSize, *hPixClusterSize, *hPrjClusterSize, *hSt1ClusterSize, *hSt2ClusterSize;
   TH1F *hSimHitVecSize, *hPixSimHitVecSize, *hPrjSimHitVecSize, *hSt1SimHitVecSize, *hSt2SimHitVecSize;
   TH1F *goodbadmerged,*energyLossRatio, *mergedPull;
+  TH1F *probXgood,*probXbad,*probXdelta,*probXshared,*probXnoshare;
+  TH1F *probYgood,*probYbad,*probYdelta,*probYshared,*probYnoshare;
 
   std::map<std::string,TH1F*> hPullGP_X_ts_mono;
   std::map<std::string,TH1F*> hPullGP_Y_ts_mono;
