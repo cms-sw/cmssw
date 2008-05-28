@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/24 14:57:28 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/06 12:11:37 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -14,7 +14,7 @@
 using namespace std;
 using namespace magfieldparam;
 
-OAEParametrizedMagneticField::OAEParametrizedMagneticField(string & T) : 
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : 
   theParam(new TkBfield(T))
 {}
 

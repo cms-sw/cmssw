@@ -13,13 +13,14 @@
  *
  *    Valid for r<1.15m and |z|<2.80m
  *
- *  $Date: 2008/04/23 14:42:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/06 12:07:11 $
+ *  $Revision: 1.5 $
  *  \author V.Karimaki 080228, 080407
  */
 
 
 #include <vector>
+#include <string>
 
 namespace magfieldparam {
   class TkBfield 
