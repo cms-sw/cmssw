@@ -67,12 +67,20 @@ int main() {
 
   cout << ">>> Trapezoidal integration" << endl;
   vector<pair<double, double> > t;
+  for(size_t i = 2; i < 20; i += 1) {
+    TrapezoidIntegrator i1(i);
+    t.push_back(check(g1, i1));
+  }
   for(size_t i = 20; i < 1000; i += 20) {
     TrapezoidIntegrator i1(i);
     t.push_back(check(g1, i1));
   }
   cout << ">>> Gauss Legendre integration" << endl;
   vector<pair<double, double> > l;
+  for(size_t i = 1; i < 20; i += 1) {
+    GaussLegendreIntegrator i2(i, 1.e-5);
+    l.push_back(check(g2, i2));
+  }
   for(size_t i = 20; i < 1000; i += 20) {
     GaussLegendreIntegrator i2(i, 1.e-5);
     l.push_back(check(g2, i2));
@@ -91,8 +99,11 @@ int main() {
   double xMin = 1e6, xMax = 0, yMin = 1e6, yMax = 0;
   size_t nt = t.size();
   double * xt = new double[nt], * yt = new double[nt];
+  const double xAbsMin = 1e-10, yAbsMin = 1e-10;
   for(size_t i = 0; i < nt; ++i) {
     xt[i] = t[i].first; yt[i] = t[i].second;
+    if(xt[i] < xAbsMin) xt[i] = xAbsMin;
+    if(yt[i] < yAbsMin) yt[i] = yAbsMin;
     if(xMin > xt[i]) xMin = xt[i];
     if(xMax < xt[i]) xMax = xt[i];
     if(yMin > yt[i]) yMin = yt[i];
@@ -102,6 +113,8 @@ int main() {
   double * xl = new double[nl], * yl = new double[nl];
   for(size_t i = 0; i < nl; ++i) {
     xl[i] = l[i].first; yl[i] = l[i].second;
+    if(xl[i] < xAbsMin) xl[i] = xAbsMin;
+    if(yl[i] < yAbsMin) yl[i] = yAbsMin;
     if(xMin > xl[i]) xMin = xl[i];
     if(xMax < xl[i]) xMax = xl[i];
     if(yMin > yl[i]) yMin = yl[i];
@@ -111,13 +124,13 @@ int main() {
   double * xg = new double[ng], * yg = new double[ng];
   for(size_t i = 0; i < ng; ++i) {
     xg[i] = g[i].first; yg[i] = g[i].second;
+    if(xg[i] < xAbsMin) xg[i] = xAbsMin;
+    if(yg[i] < yAbsMin) yg[i] = yAbsMin;
     if(xMin > xg[i]) xMin = xg[i];
     if(xMax < xg[i]) xMax = xg[i];
     if(yMin > yg[i]) yMin = yg[i];
     if(yMax < yg[i]) yMax = yg[i];
   }
-  if(xMin<1e-10) xMin = 1e-10;
-  if(yMin<1e-10) yMin = 1e-10;
   TH2F frame("frame", "Red: T, Blue: G-L, Green: G", 1, xMin, xMax, 1, yMin, yMax);
   frame.GetXaxis()->SetTitle("CPU time (sec)");
   frame.GetYaxis()->SetTitle("Accuracy");
