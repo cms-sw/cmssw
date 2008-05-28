@@ -1,11 +1,12 @@
 #ifndef IOMC_BaseEvtVtxGenerator_H
 #define IOMC_BaseEvtVtxGenerator_H
 /*
-*   $Date: 2007/04/27 14:25:34 $
-*   $Revision: 1.5 $
+*   $Date: 2008/04/04 21:38:24 $
+*   $Revision: 1.6 $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "TMatrixD.h"
 
@@ -61,7 +62,7 @@ class BaseEvtVtxGenerator : public edm::EDProducer
    private :
 
    CLHEP::HepRandomEngine*  fEngine;
-   
+   edm::InputTag            sourceLabel;
    
 };
 

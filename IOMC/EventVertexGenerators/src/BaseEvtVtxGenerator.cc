@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2008/04/04 21:38:25 $
-*  $Revision: 1.10 $
+*  $Date: 2008/05/13 08:28:48 $
+*  $Revision: 1.11 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -29,7 +29,8 @@ using namespace CLHEP;
 //using namespace HepMC;
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
-	: fVertex(0), boost_(0), fTimeOffset(0), fEngine(0)
+	: fVertex(0), boost_(0), fTimeOffset(0), fEngine(0),
+	  sourceLabel(pset.getParameter<edm::InputTag>("src"))
 {
    
 /* No longer needed...
@@ -74,54 +75,8 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    
    Handle<HepMCProduct> HepMCEvt ;
    
-   /// evt.getByLabel( "source", HepMCEvt ) ;
+   evt.getByLabel( sourceLabel, HepMCEvt ) ;
    
-   // WARNING !!!
-   // this is temporary hack, to deal with incorporating 
-   // EvtGenInterface, in its current implementation, into
-   // cycles 18x & 20x ONLY !
-   // 
-   std::vector<edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
-   evt.getManyByType(AllHepMCEvt);   
-   bool EvtGenFound = false;         
-   
-   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) 
-   {
-       HepMCEvt = AllHepMCEvt[i];
-       if ( (HepMCEvt.provenance()->product()).moduleLabel() == "evtgenproducer")
-       {
-          EvtGenFound = true ;
-	  break;
-       }
-   }
-
-   // attempt once more, this time look for basic "source"-made one
-   //
-   // if (!HepMCEvt.isValid()) 
-   if ( !EvtGenFound )
-   {
-      for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) 
-      {
-         HepMCEvt = AllHepMCEvt[i];
-         if ( (HepMCEvt.provenance()->product()).moduleLabel() == "source" )
-         {
-            break ;
-         }
-      }
-   }
-  
-  
-   // OK, this time throw
-   //
-   if (!HepMCEvt.isValid())   
-   {
-      throw edm::Exception(edm::errors::ProductNotFound) 
-      << "BaseEvtVtxGenerators can NOT find HepMCProduct" ;
-   }
-
-
-   // We gt here if everything is OK
-
    // generate new vertex & apply the shift 
    //
    HepMCEvt->applyVtxGen( newVertex() ) ;
