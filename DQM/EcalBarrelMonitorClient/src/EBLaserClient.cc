@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/05/09 06:54:37 $
- * $Revision: 1.233 $
+ * $Date: 2008/05/27 18:59:23 $
+ * $Revision: 1.234 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1694,7 +1694,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1A (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "L1A crystal (" << ie << "," << ip << ") " << num01  << " " << mean01 << " " << rms01  << endl;
               cout << endl;
             }
 
@@ -1726,7 +1726,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L1B (" << ie << "," << ip << ") " << num05  << " " << mean05 << " " << rms05  << endl;
+              cout << "L1B crystal (" << ie << "," << ip << ") " << num05  << " " << mean05 << " " << rms05  << endl;
               cout << endl;
             }
 
@@ -1758,7 +1758,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2A (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << "L2A crystal (" << ie << "," << ip << ") " << num02  << " " << mean02 << " " << rms02  << endl;
               cout << endl;
             }
 
@@ -1790,7 +1790,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L2B (" << ie << "," << ip << ") " << num06  << " " << mean06 << " " << rms06  << endl;
+              cout << "L2B crystal (" << ie << "," << ip << ") " << num06  << " " << mean06 << " " << rms06  << endl;
               cout << endl;
             }
 
@@ -1822,7 +1822,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3A (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+              cout << "L3A crystal (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
               cout << endl;
             }
 
@@ -1854,7 +1854,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L3B (" << ie << "," << ip << ") " << num07  << " " << mean07 << " " << rms07  << endl;
+              cout << "L3B crystal (" << ie << "," << ip << ") " << num07  << " " << mean07 << " " << rms07  << endl;
               cout << endl;
             }
 
@@ -1886,7 +1886,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4A (" << ie << "," << ip << ") " << num04  << " " << mean04 << " " << rms04  << endl;
+              cout << "L4A crystal (" << ie << "," << ip << ") " << num04  << " " << mean04 << " " << rms04  << endl;
               cout << endl;
             }
 
@@ -1918,7 +1918,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
             if ( verbose_ ) {
               cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-              cout << "L4B (" << ie << "," << ip << ") " << num08  << " " << mean08 << " " << rms08  << endl;
+              cout << "L4B crystal (" << ie << "," << ip << ") " << num08  << " " << mean08 << " " << rms08  << endl;
               cout << endl;
             }
 
