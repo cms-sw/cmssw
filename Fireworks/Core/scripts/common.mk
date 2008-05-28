@@ -19,7 +19,7 @@ tmp/%.co:   %.c
 tmp/%.cpp:  %.h %_def.xml
 	$(QUIET) echo "generating dictionaries based on $*_def.xml"; \
 	mkdir -p $(dir $@); \
-	$(ROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin
+	$(ROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-compiler $(CC)"
 
 # dictionary creation
 # NOTE: for some reason I needed to add the original
