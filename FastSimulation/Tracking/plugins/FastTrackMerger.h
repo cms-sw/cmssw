@@ -25,8 +25,6 @@ class FastTrackMerger : public edm::EDProducer
   
   virtual ~FastTrackMerger() {}
   
-  virtual void beginJob (edm::EventSetup const & es) {}
-  
   virtual void produce(edm::Event& e, const edm::EventSetup& es);
   
  private:

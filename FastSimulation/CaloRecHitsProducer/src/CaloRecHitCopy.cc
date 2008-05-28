@@ -101,9 +101,6 @@ CaloRecHitCopy::CaloRecHitCopy(edm::ParameterSet const & p)
 CaloRecHitCopy::~CaloRecHitCopy() { }
 
 void 
-CaloRecHitCopy::beginJob(const edm::EventSetup & es) { }
-
-void 
 CaloRecHitCopy::endJob() { }
 
 void 

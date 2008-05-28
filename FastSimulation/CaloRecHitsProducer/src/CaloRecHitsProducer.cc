@@ -22,7 +22,6 @@
 CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
   : HcalRecHitsMaker_(NULL)
 {    
-  m_firstTimeProduce = true ;
 
   // Initialize the random number generator service
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -83,9 +82,9 @@ CaloRecHitsProducer::~CaloRecHitsProducer()
   std::cout << " Done " << std::endl;
 }
 
-void CaloRecHitsProducer::beginJobProduce(const edm::EventSetup & es)
-{
-  std::cout << " (Fast)RecHitsProducer initializing " << std::endl;
+void 
+CaloRecHitsProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
+  // std::cout << " (Fast)RecHitsProducer initializing " << std::endl;
   EcalBarrelRecHitsMaker_->init(es,doDigis_,doMiscalib_);
   EcalEndcapRecHitsMaker_->init(es,doDigis_,doMiscalib_);
   EcalPreshowerRecHitsMaker_->init(es); 
@@ -94,20 +93,15 @@ void CaloRecHitsProducer::beginJobProduce(const edm::EventSetup & es)
 
 void CaloRecHitsProducer::endJob()
 { 
-    std::cout << " (Fast)RecHitsProducer terminating " << std::endl; 
-    if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
-    if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
-    if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
-    if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
+  //std::cout << " (Fast)RecHitsProducer terminating " << std::endl; 
+  if (EcalBarrelRecHitsMaker_) delete EcalBarrelRecHitsMaker_;
+  if (EcalEndcapRecHitsMaker_) delete EcalEndcapRecHitsMaker_;
+  if (EcalPreshowerRecHitsMaker_) delete EcalPreshowerRecHitsMaker_;
+  if (HcalRecHitsMaker_) delete HcalRecHitsMaker_; 
 }
 
 void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
-   if( m_firstTimeProduce )
-   {
-      beginJobProduce( es ) ;
-      m_firstTimeProduce = false ;
-   }
 
   // create empty outputs for HCAL 
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc

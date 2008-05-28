@@ -21,7 +21,7 @@ class CaloRecHitCopy : public edm::EDProducer
 
   explicit CaloRecHitCopy(edm::ParameterSet const & p);
   virtual ~CaloRecHitCopy();
-  virtual void beginJob(const edm::EventSetup & c);
+  virtual void beginJob(const edm::EventSetup & c) {;}
   virtual void endJob();
   virtual void produce(edm::Event & e, const edm::EventSetup & c);
 

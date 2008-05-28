@@ -523,7 +523,9 @@ SiTrackerGaussianSmearingRecHitConverter::~SiTrackerGaussianSmearingRecHitConver
 
 }  
 
-void SiTrackerGaussianSmearingRecHitConverter::beginJob(const edm::EventSetup& es) {
+void 
+SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::EventSetup & es) 
+{
 
   // Initialize the Tracker Geometry
   edm::ESHandle<TrackerGeometry> theGeometry;

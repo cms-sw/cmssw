@@ -35,7 +35,7 @@ class TrackingRecHitTranslator : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
   // Begin Job
-  virtual void beginJob(const edm::EventSetup& c);
+  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
   
  private:
 

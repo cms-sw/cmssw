@@ -1,11 +1,11 @@
 // CMSSW Header
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include "DataFormats/Provenance/interface/EventID.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -104,7 +104,8 @@ FamosManager::~FamosManager()
   delete random;
 }
 
-void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
+void 
+FamosManager::setupGeometryAndField(edm::Run & run, const edm::EventSetup & es)
 {
   std::cout << "FamosManager : setup geometry and field" << std::endl;
 
@@ -161,6 +162,8 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
     myCalorimetry->getCalorimeter()->setupTopology(*theCaloTopology);
     myCalorimetry->getCalorimeter()->initialize(bField000);
   }
+
+  m_pRunNumber = run.run();
 
 }
 

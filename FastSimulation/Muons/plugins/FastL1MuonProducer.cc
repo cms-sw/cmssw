@@ -103,7 +103,8 @@ FastL1MuonProducer::~FastL1MuonProducer()
 
 // ------------ method called to produce the data  ------------
 
-void FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void 
+FastL1MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
   using namespace edm;
 
@@ -400,17 +401,9 @@ void FastL1MuonProducer::loadL1Muons(L1MuonCollection & c ,
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void FastL1MuonProducer::beginJob(const edm::EventSetup& es)
+void 
+FastL1MuonProducer::beginJob(const edm::EventSetup& es)
 {
-
-  // Read trigger scales
-  edm::ESHandle< L1MuTriggerScales > muScales ;
-  es.get< L1MuTriggerScalesRcd >().get( muScales ) ;
-  theMuScales = &(*muScales);
-
-  edm::ESHandle< L1MuTriggerPtScale > muPtScale ;
-  es.get< L1MuTriggerPtScaleRcd >().get( muPtScale ) ;
-  theMuPtScale = &(*muPtScale);
 
   // Initialize
   nMuonTot = 0;
@@ -423,9 +416,24 @@ void FastL1MuonProducer::beginJob(const edm::EventSetup& es)
 
 }
 
+void 
+FastL1MuonProducer::beginRun(edm::Run & run, 
+			     const edm::EventSetup & es) {
+
+  // Read trigger scales
+  edm::ESHandle< L1MuTriggerScales > muScales ;
+  es.get< L1MuTriggerScalesRcd >().get( muScales ) ;
+  theMuScales = &(*muScales);
+
+  edm::ESHandle< L1MuTriggerPtScale > muPtScale ;
+  es.get< L1MuTriggerPtScaleRcd >().get( muPtScale ) ;
+  theMuPtScale = &(*muPtScale);
+
+}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void FastL1MuonProducer::endJob() {
+void 
+FastL1MuonProducer::endJob() {
 
   std::cout << " ===> FastL1MuonProducer , final report." << std::endl;
   std::cout << " ===> Number of total -> L1 in the whole run : "

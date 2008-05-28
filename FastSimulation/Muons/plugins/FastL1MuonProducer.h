@@ -54,6 +54,7 @@ class FastL1MuonProducer : public edm::EDProducer {
   typedef std::vector<l1extra::L1MuonParticle> L1ExtraCollection;
   
   virtual void beginJob(const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   void readParameters(const edm::ParameterSet&);

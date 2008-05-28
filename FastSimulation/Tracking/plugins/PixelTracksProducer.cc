@@ -67,8 +67,6 @@ PixelTracksProducer::~PixelTracksProducer() {
 } 
  
 
-void PixelTracksProducer::beginJob(const edm::EventSetup& es) {}
-
 // Functions that gets called by framework every event
 void 
 PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {        

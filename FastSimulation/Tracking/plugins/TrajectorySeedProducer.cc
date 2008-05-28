@@ -211,7 +211,7 @@ TrajectorySeedProducer::~TrajectorySeedProducer() {
 } 
  
 void 
-TrajectorySeedProducer::beginJob (edm::EventSetup const & es) {
+TrajectorySeedProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
 
   //services
   //  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);

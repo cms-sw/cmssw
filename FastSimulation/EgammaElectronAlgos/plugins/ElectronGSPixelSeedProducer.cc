@@ -42,8 +42,6 @@
 ElectronGSPixelSeedProducer::ElectronGSPixelSeedProducer(const edm::ParameterSet& iConfig)
 {
 
-  m_firstTimeProduce = true ;
-
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   SCEtCut_=pset.getParameter<double>("SCEtCut");
   maxHOverE_=pset.getParameter<double>("maxHOverE");
@@ -74,16 +72,16 @@ ElectronGSPixelSeedProducer::~ElectronGSPixelSeedProducer()
       delete matcher_;
 }
 
-void ElectronGSPixelSeedProducer::beginJobProduce(edm::EventSetup const&iSetup) 
-{
+void 
+ElectronGSPixelSeedProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
   // Get the calo geometry
   edm::ESHandle<CaloGeometry> theCaloGeom;
-  iSetup.get<CaloGeometryRecord>().get(theCaloGeom);
+  es.get<CaloGeometryRecord>().get(theCaloGeom);
 
   // The H/E calculator
   calc_=HoECalculator(theCaloGeom);
 
-  matcher_->setupES(iSetup);  
+  matcher_->setupES(es);  
 
 }
 
@@ -91,12 +89,6 @@ void ElectronGSPixelSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
 {
   LogDebug("entering");
   LogDebug("")  <<"[ElectronGSPixelSeedProducer::produce] entering " ;
-
-  if( m_firstTimeProduce )
-  {
-     beginJobProduce( iSetup ) ;
-     m_firstTimeProduce = false ;
-  }
 
   // get initial TrajectorySeeds if necessary
   if (fromTrackerSeeds_) {

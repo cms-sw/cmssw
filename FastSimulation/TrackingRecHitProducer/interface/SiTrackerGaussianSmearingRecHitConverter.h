@@ -52,8 +52,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //--- The top-level event method.
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
-  // Begin Job
-  virtual void beginJob(const edm::EventSetup& c);
+  // Begin Run
+  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
   
   void smearHits(MixCollection<PSimHit>& input,
 		 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);

@@ -27,8 +27,7 @@ class CaloRecHitsProducer : public edm::EDProducer
 
   explicit CaloRecHitsProducer(edm::ParameterSet const & p);
   virtual ~CaloRecHitsProducer();
-  virtual void beginJob(const edm::EventSetup & c) {};
-  void beginJobProduce(const edm::EventSetup & c);
+  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
   virtual void endJob();
   virtual void produce(edm::Event & e, const edm::EventSetup & c);
 
@@ -49,7 +48,6 @@ class CaloRecHitsProducer : public edm::EDProducer
   
   CaloGeometryHelper* myCaloGeometryHelper_ ;
 
-  bool m_firstTimeProduce ;
 };
 
 #endif

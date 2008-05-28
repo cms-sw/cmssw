@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.13 2008/05/25 16:37:04 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.14 2008/05/26 10:49:47 mulders Exp $
 //
 //
 
@@ -112,10 +112,9 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig) {
 
 // ---- method called once each job just before starting event loop ----
 void 
-MuonSimHitProducer::beginJob (edm::EventSetup const & es) {
+MuonSimHitProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
 
   //services
-
   edm::ESHandle<MagneticField>          magField;
   edm::ESHandle<DTGeometry>             dtGeometry;
   edm::ESHandle<CSCGeometry>            cscGeometry;

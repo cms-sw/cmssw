@@ -2,8 +2,7 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -52,15 +51,14 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
 
     famosManager_ = new FamosManager(p);
 
-    m_firstTimeProduce = true ;
 }
 
 FamosProducer::~FamosProducer() 
 { if ( famosManager_ ) delete famosManager_; }
 
-void FamosProducer::beginJobProduce(const edm::EventSetup & es)
-{
-    famosManager_->setupGeometryAndField(es);
+void
+FamosProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
+  famosManager_->setupGeometryAndField(run,es);
 }
  
 void FamosProducer::endJob()
@@ -71,13 +69,6 @@ void FamosProducer::endJob()
 void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
    using namespace edm;
-
-   if( m_firstTimeProduce )
-   {
-      beginJobProduce( es ) ;
-      m_firstTimeProduce = false ;
-   }
-
 
    // The beam spot position
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;

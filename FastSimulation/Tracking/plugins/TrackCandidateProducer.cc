@@ -93,7 +93,7 @@ TrackCandidateProducer::~TrackCandidateProducer() {
 } 
  
 void 
-TrackCandidateProducer::beginJob (edm::EventSetup const & es) {
+TrackCandidateProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
 
   //services
   //  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);

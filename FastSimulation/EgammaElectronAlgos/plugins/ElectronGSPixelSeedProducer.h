@@ -34,8 +34,7 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
   
   virtual ~ElectronGSPixelSeedProducer();
   
-  virtual void beginJob(edm::EventSetup const& iSetup) {};
-  void beginJobProduce(edm::EventSetup const& iSetup);
+  virtual void beginRun(edm::Run & run, const edm::EventSetup & es);
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
  private:
@@ -73,7 +72,6 @@ class ElectronGSPixelSeedProducer : public edm::EDProducer
 
   bool fromTrackerSeeds_;
 
-  bool m_firstTimeProduce ; 
 };
   
 #endif
