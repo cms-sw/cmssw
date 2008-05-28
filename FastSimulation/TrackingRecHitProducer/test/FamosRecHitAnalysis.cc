@@ -1404,7 +1404,10 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     can_comparison.Range(0,0,25,25);
     can_comparison.SetFillColor(kWhite);
     can_comparison.SetGridy(1);
-    can_comparison.SetLogy(yLogScale);
+    if(histos_value[iHist]->Integral() != 0)
+      can_comparison.SetLogy(yLogScale);
+    else
+      can_comparison.SetLogy(0);
     // settings
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
@@ -1427,11 +1430,14 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     //
     // Draw
     if(yMax != -1) histos_nominal[iHist]->SetMaximum(yMax);
+    histos_nominal[iHist]->Sumw2();
     histos_nominal[iHist]->Draw("HIST");
     histos_value[iHist]->Draw("HIST P E1 SAME");
     //
     // perform chi2 test between obtained and nominal histograms
-    double compatibilityFactor = histos_value[iHist]->KolmogorovTest(histos_nominal[iHist],"");
+    double compatibilityFactor = 0;
+    if(histos_value[iHist]->Integral() != 0)
+      compatibilityFactor = histos_value[iHist]->KolmogorovTest(histos_nominal[iHist],"");
     std::cout << " Compatibility of " << histos_value[iHist]->GetName()
 	      << " with nominal distribution " << histos_nominal[iHist]->GetName() << " is " << compatibilityFactor << std::endl;
     // Legenda
