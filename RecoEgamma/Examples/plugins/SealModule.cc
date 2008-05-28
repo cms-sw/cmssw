@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
 #include "ElectronIDAnalyzer.h"
-#include "ElectronAnalyzer.h"
 #include "ElectronPixelSeedAnalyzer.h"
 #include "MCElectronAnalyzer.h"
 #include "MCPhotonAnalyzer.h"
@@ -25,7 +24,6 @@ DEFINE_SEAL_MODULE();
 typedef Merger<reco::SuperClusterCollection> SuperClusterMerger;
 DEFINE_FWK_MODULE( SuperClusterMerger );
 DEFINE_FWK_MODULE(ElectronIDAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ElectronPixelSeedAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(MCElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(MCPhotonAnalyzer);
