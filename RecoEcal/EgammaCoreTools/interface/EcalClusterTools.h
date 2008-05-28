@@ -40,11 +40,14 @@ class EcalClusterTools {
                 static float e2x5Left( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e2x5Top( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e2x5Bottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                // energies in the crystal left, right, top, bottom w.r.t. to the most energetic crystal
                 static float eLeft( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float eRight( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float eTop( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float eBottom( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+                // the energy of the most energetic crystal in the cluster
                 static float eMax( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
+                // the energy of the second most energetic crystal in the cluster
                 static float e2nd( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits );
                 // get the DetId and the energy of the maximum energy crystal of the input cluster
                 static std::pair<DetId, float> getMaximum( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits);
