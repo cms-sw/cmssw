@@ -3,6 +3,7 @@
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
@@ -64,6 +65,8 @@ class JetPartonMatching {
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::GenJet>&,
 		    const int, const bool, const bool, const double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<reco::CaloJet>&,
+		    const int, const bool, const bool, const double);
+  JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<pat::JetType>&,
 		    const int, const bool, const bool, const double);
   JetPartonMatching(const std::vector<const reco::Candidate*>&, const std::vector<const reco::Candidate*>&,
 		    const int, const bool, const bool, const double);

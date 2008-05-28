@@ -77,11 +77,11 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   std::vector<const reco::Candidate*> partons = parts.vec(*genEvt);
 
   // prepare vector of jets
-  std::vector<reco::CaloJet> jets;
+  std::vector<pat::JetType> jets;
   for(unsigned int ij=0; ij<topJets->size(); ++ij) {
     if(nJets_>=partons.size()){ if(ij==nJets_) break; }
     else{ if(ij==partons.size()) break; }
-    const reco::CaloJet jet = (*topJets)[ij].recJet();
+    pat::JetType jet = (*topJets)[ij].recJet();
     jets.push_back( jet );
   }
 
