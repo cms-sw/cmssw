@@ -27,6 +27,11 @@ struct gauss {
 
 struct gauss2 : public gauss { };
 
+struct gauss3 : public gauss { };
+
+struct gauss4 : public gauss { };
+
+
 struct gaussPrimitive {
   double operator()(double x) const { return erf(x); }
 };
@@ -36,6 +41,11 @@ const double gauss::c = 2./sqrt(M_PI);
 NUMERICAL_FUNCT_INTEGRAL(gauss, TrapezoidIntegrator);
 
 DECLARE_FUNCT_PRIMITIVE(gauss2, gaussPrimitive);
+
+NUMERICAL_FUNCT_INTEGRAL(gauss3, GaussLegendreIntegrator);
+
+NUMERICAL_FUNCT_INTEGRAL(gauss4, GaussIntegrator);
+
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testIntegral);
 
@@ -60,12 +70,24 @@ void testIntegral::checkAll() {
   Expression f = c * exp(-(x^num<2>()));
   CPPUNIT_ASSERT(fabs(integral<X>(f, 0, 1, integrator) - erf(1)) < epsilon);
 
-  // numerical integration
+  // trapezoid integration
   gauss g;
   CPPUNIT_ASSERT(fabs(integral(g, 0, 1, integrator) - erf(1)) < epsilon);
+
   // user-defined integration
   gauss2 g2;
   CPPUNIT_ASSERT(fabs(integral(g2, 0, 1) - erf(1)) < epsilon);
+
+  // Gauss-Legendre integration
+  gauss3 g3;
+  GaussLegendreIntegrator integrator2(10000, 1.e-4);
+  CPPUNIT_ASSERT(fabs(integral(g3, 0, 1, integrator2) - erf(1)) < epsilon);
+
+  // Gauss-Legendre integration
+  gauss4 g4;
+  GaussIntegrator integrator3(1.e-6);
+  CPPUNIT_ASSERT(fabs(integral(g4, 0, 1, integrator3) - erf(1)) < epsilon);
+
   // automatic (trivial) integration
   Parameter pi("pi", M_PI);
   CPPUNIT_ASSERT(fabs(integral(pi, 0, 2) - 2*pi()) < epsilon);
