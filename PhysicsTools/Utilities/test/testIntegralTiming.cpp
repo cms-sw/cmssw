@@ -48,7 +48,7 @@ NUMERICAL_FUNCT_INTEGRAL(gauss3, GaussIntegrator);
 template<typename G, typename I>
 pair<double, double> check(const G& g, const I& i) {
   gaussPrimitive pr;
-  double xMax = 3;
+  double xMax = 1;
   double i0 = pr(xMax);
   double t0, t1;
   t0 = getTime();
@@ -116,8 +116,10 @@ int main() {
     if(yMin > yg[i]) yMin = yg[i];
     if(yMax < yg[i]) yMax = yg[i];
   }
+  if(xMin<1e-10) xMin = 1e-10;
+  if(yMin<1e-10) yMin = 1e-10;
   TH2F frame("frame", "Red: T, Blue: G-L, Green: G", 1, xMin, xMax, 1, yMin, yMax);
-  frame.GetXaxis()->SetTitle("CPU time");
+  frame.GetXaxis()->SetTitle("CPU time (sec)");
   frame.GetYaxis()->SetTitle("Accuracy");
   frame.Draw();
   TGraph gt(nt, xt, yt), gl(nl, xl, yl), gg(ng, xg, yg);
