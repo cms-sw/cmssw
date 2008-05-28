@@ -356,8 +356,8 @@ float ContentsXRange::runTest(const MonitorElement*me)
 
  if (!me) return -1;
 
- if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
- std::cout<< "ContentsXRange ERROR: ME does not contain TH1F" << std::endl; 
+ if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+ std::cout<< "ContentsXRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
  return -1;} 
 
  TH1F *h = me->getTH1F(); //access Test histo
@@ -407,8 +407,8 @@ float ContentsXRange::runTest(const MonitorElement*me)
 // 
 //  if (!me) return -1;
 // 
-//  if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-//  std::cout<< "ContentsXRangeAS ERROR: ME does not contain TH1F" << std::endl; 
+//  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+//  std::cout<< "ContentsXRangeAS ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
 //  return -1;} 
 // 
 //  TH1F *h = me->getTH1F(); //access Test histo
@@ -455,10 +455,10 @@ float ContentsYRange::runTest(const MonitorElement*me)
 
  if (!me) return -1;
 
- if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
- std::cout<< "ContentsYRange ERROR: ME does not contain TH1F" << std::endl; 
+ if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+ std::cout<< "ContentsYRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
  return -1;} 
-
+ 
  TH1F *h = me->getTH1F(); //access Test histo
  if (!h) return -1;
 
@@ -538,7 +538,7 @@ float ContentsYRange::runTest(const MonitorElement*me)
 // 
 //  if (!me) return -1;
 // 
-//  if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
+//  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
 //  std::cout<< "ContentsYRangeAS ERROR: ME does not contain TH1F" << std::endl; 
 //  return -1;} 
 // 
@@ -580,8 +580,8 @@ float NoisyChannel::runTest(const MonitorElement *me)
 
  if (!me) return -1;
 
- if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
- std::cout<< "NoisyChannel ERROR: ME does not contain TH1F" << std::endl; 
+ if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+ std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
  return -1;} 
 
   h = me->getTH1F(); //access Test histo
@@ -867,8 +867,8 @@ float MeanWithinExpected::runTest(const MonitorElement *me )
 {
   if (!me) return -1;
 
-  if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-  std::cout<< " MeanWithinExpected ERROR: ME does not contain TH1F" << std::endl; 
+  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+  std::cout<< " MeanWithinExpected ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
   return -1;} 
 
    h = me->getTH1F(); //access Test histo
@@ -990,7 +990,7 @@ bool MeanWithinExpected::isInvalid(void)
 //  {
 //   float dResult = -1;
 // 
-//   if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
+//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
 //   std::cout<< " MostProbableBase ERROR: ME does not contain TH1F" << std::endl; 
 //   return -1;} 
 // 
@@ -1096,8 +1096,8 @@ bool MeanWithinExpected::isInvalid(void)
 // {
 //   if (!me) return -1;
 // 
-//   if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " AllContentWithinFixedRange ERROR: ME does not contain TH1F" << std::endl; 
+//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+//   std::cout<< " AllContentWithinFixedRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
 //   return -1;} 
 // 
 //    histogram = me->getTH1F(); //access Test histo
@@ -1219,8 +1219,8 @@ bool MeanWithinExpected::isInvalid(void)
 // {
 //   if (!me) return -1;
 // 
-//   if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " AllContentWithinFloatingRange ERROR: ME does not contain TH1F" << std::endl; 
+//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+//   std::cout<< " AllContentWithinFloatingRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
 //   return -1;} 
 // 
 //    histogram = me->getTH1F(); //access Test histo
@@ -1337,8 +1337,8 @@ bool MeanWithinExpected::isInvalid(void)
 // 
 //   if (!me) return -1;
 // 
-//   if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " FlatOccupancy1d ERROR: ME does not contain TH1F" << std::endl; 
+//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+//   std::cout<< " FlatOccupancy1d ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
 //   return -1;} 
 // 
 //    histogram = me->getTH1F(); //access Test histo
@@ -1465,8 +1465,8 @@ bool MeanWithinExpected::isInvalid(void)
 // {
 //   if (!me) return -1;
 // 
-//   if (!me->kind()==MonitorElement::DQM_KIND_TH1F) { 
-//   std::cout<< " FixedFlatOccupancy1d  ERROR: ME does not contain TH1F" << std::endl; 
+//   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+//   std::cout<< " FixedFlatOccupancy1d  ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
 //   return -1;} 
 // 
 //   histogram = me->getTH1F(); //access Test histo
@@ -1588,8 +1588,8 @@ bool MeanWithinExpected::isInvalid(void)
 // 
 //   if (!me) return -1;
 // 
-//   if (!me->kind()==MonitorElement::DQM_KIND_TH2F) { 
-//   std::cout<< " AllContentAlongDiagonal ERROR: ME does not contain TH2F" << std::endl; 
+//   if (me->kind()!=MonitorElement::DQM_KIND_TH2F) { 
+//   std::cout<< " AllContentAlongDiagonal ERROR: ME " << me->getFullname() << " does not contain TH2F" << std::endl; 
 //   return -1;} 
 // 
 //   histogram = me->getTH2F(); //access Test histo
