@@ -14,6 +14,8 @@ CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& par
   EBRecHitsLabel_                     = parameters.getParameter<InputTag>("EBRecHitsSource"); 
   EERecHitsLabel_                     = parameters.getParameter<InputTag>("EERecHitsSource"); 
   ESRecHitsLabel_                     = parameters.getParameter<InputTag>("ESRecHitsSource"); 
+  BarrelBasicClusters_                = parameters.getParameter<InputTag>("BarrelBasicClustersSource"); 
+  EndcapBasicClusters_                = parameters.getParameter<InputTag>("EndcapBasicClustersSource"); 
   // parameters of the considered neutral ECAL BasicClusters
   ECALBasicClustersAroundCaloJet_DRConeSize_      = parameters.getParameter<double>("ECALBasicClustersAroundCaloJet_DRConeSize");
   ECALBasicClusterminE_                           = parameters.getParameter<double>("ECALBasicClusterminE");
@@ -101,14 +103,16 @@ vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClusters
   vector<BasicClusterRef> theBasicClusters; 
   
   Handle<BasicClusterCollection> theBarrelBCCollection;
-  theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
+  //  theEvent.getByLabel("islandBasicClusters","islandBarrelBasicClusters",theBarrelBCCollection);
+  theEvent.getByLabel(BarrelBasicClusters_,theBarrelBCCollection);
   for(unsigned int i_BC=0;i_BC!=theBarrelBCCollection->size();i_BC++) { 
     BasicClusterRef theBasicClusterRef(theBarrelBCCollection,i_BC);    
     if (theBasicClusterRef.isNull()) continue;  
     if (ROOT::Math::VectorUtil::DeltaR(aCaloJetFakePosition,(*theBasicClusterRef).position())<=theECALBasicClustersAroundCaloJet_DRConeSize && (*theBasicClusterRef).energy()>=theECALBasicClusterminE) theBasicClusters.push_back(theBasicClusterRef);
   }
   Handle<BasicClusterCollection> theEndcapBCCollection;
-  theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
+  //  theEvent.getByLabel("islandBasicClusters","islandEndcapBasicClusters",theEndcapBCCollection);
+  theEvent.getByLabel(EndcapBasicClusters_,theEndcapBCCollection);
   for(unsigned int j_BC=0;j_BC!=theEndcapBCCollection->size();j_BC++) { 
     BasicClusterRef theBasicClusterRef(theEndcapBCCollection,j_BC); 
     if (theBasicClusterRef.isNull()) continue;  
