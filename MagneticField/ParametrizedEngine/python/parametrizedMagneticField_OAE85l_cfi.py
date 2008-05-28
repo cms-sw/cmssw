@@ -9,9 +9,9 @@ idealMagneticFieldRecordSource = cms.ESSource("EmptyESSource",
 ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldProducer",
     version = cms.string('OAE_85l_030919'),
     parameters = cms.PSet(
-        b0 = cms.double(40.681)
+        a = cms.double(4.643),
+        b0 = cms.double(40.681),
         l = cms.double(15.284)
-        a = cms.double(4.6430)
     ),
     label = cms.untracked.string('')
 )
