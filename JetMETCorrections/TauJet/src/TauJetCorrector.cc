@@ -218,3 +218,6 @@ double TauJetCorrector::correction( const LorentzVector& fJet) const
      return mScale;
 }
 
+double TauJetCorrector::correction(const reco::Jet& fJet) const {
+	return correction(fJet.p4());
+}
