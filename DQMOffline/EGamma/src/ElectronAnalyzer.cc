@@ -13,7 +13,7 @@
 //
 // Original Author:  Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.1 2008/05/16 11:39:02 uberthon Exp $
+// $Id: ElectronAnalyzer.cc,v 1.2 2008/05/22 12:53:44 nancy Exp $
 //
 //
 
@@ -228,7 +228,7 @@ ElectronAnalyzer::endJob(){
     }
   }
   dbe_->removeElement("h_ele_matchingObjectPt_matched");
-  dbe_->removeElement("h_SC_pt");
+  dbe_->removeElement("h_SC_Pt");
 
   nbins=h_ele_matchingObjectPhi->getNbinsX();
   for (int nb=0;nb<nbins;++nb) {
@@ -251,7 +251,6 @@ ElectronAnalyzer::endJob(){
   dbe_->removeElement("h_SC_z");
 
   dbe_->save(outputFile_);
-  
 }
 
 void
