@@ -321,9 +321,17 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
  * @param  
  * @return Detector efficiency rate (0..1)
  */
-const double CSCSummary::GetEfficiencyHW() const {
+const double CSCSummary::GetEfficiencyHW(const unsigned int station) const {
   CSCAddress adr;
   adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
+  if (station > 0) {
+    if (station <= N_STATIONS) {
+      adr.mask.station = true;
+      adr.station = station;
+    } else {
+      return 0.0;
+    }
+  }
   return GetEfficiencyHW(adr);
 }
 
@@ -375,6 +383,17 @@ const double CSCSummary::GetEfficiencyHW(CSCAddress adr) const {
 
   return 0.0;
 
+}
+
+const double CSCSummary::GetEfficiencyArea(const unsigned int station) const {
+  if (station <= 0 || station > N_STATIONS) return 0.0;
+
+  CSCAddress adr;
+  adr.mask.side = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
+  adr.station   = true;
+  adr.station   = station;
+
+  return GetEfficiencyArea(adr);
 }
 
 const double CSCSummary::GetEfficiencyArea(CSCAddress adr) const {

@@ -52,6 +52,16 @@ const bool CSCMonitorModule::MEEventInfo(const std::string name, MonitorElement*
 }
 
 /**
+ * @brief  Checks if MonitorElement of EventInfo/reportSummaryContents level is available and returns it
+ * @param  name Object name
+ * @param  me Pointer to the Object to be returned
+ * @return true if object was found and false otherwise
+ */
+const bool CSCMonitorModule::MEReportSummaryContents(const std::string name, MonitorElement*& me) {
+  return isMEValid(rootDir + SUMCONTENTS_FOLDER + name, me);
+}
+
+/**
  * @brief  Checks if MonitorElement of EMU level is available and returns it
  * @param  name Histogram name
  * @param  me Pointer to the histogram to be returned

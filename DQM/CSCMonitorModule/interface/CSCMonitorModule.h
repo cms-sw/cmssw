@@ -64,8 +64,9 @@
 #define LOGDEBUG(cat)      LogDebug (cat)
 
 #define SUMMARY_FOLDER     "Summary/"
-#define EVENTINFO_FOLDER   "EventInfo/"
 #define DDU_FOLDER         "DDUs/"
+#define EVENTINFO_FOLDER   "EventInfo/"
+#define SUMCONTENTS_FOLDER "EventInfo/reportSummaryContents/"
 
 /**
  * Type Definition Section
@@ -159,6 +160,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
     const bool MEEMU(const std::string name, MonitorElement*& me);
     const bool MEDDU(const unsigned int dduId, const std::string name, MonitorElement*& me);
     const bool MEEventInfo(const std::string name, MonitorElement*& me);
+    const bool MEReportSummaryContents(const std::string name, MonitorElement*& me);
 
     /** CSC summary map */
     CSCSummary summary;

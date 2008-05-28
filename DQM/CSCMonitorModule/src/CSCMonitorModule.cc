@@ -108,11 +108,24 @@ void CSCMonitorModule::setup() {
   me = dbe->book1D("Summary_ME3", "EMU status: ME3", 21600, 1, 21600);
   me = dbe->book1D("Summary_ME4", "EMU status: ME4", 21600, 1, 21600);
 
-  // Summary float stuff
+  // reportSummary stuff booking
   dbe->setCurrentFolder(rootDir + EVENTINFO_FOLDER);
   me = dbe->bookFloat("reportSummary");
   me = dbe->book2D("reportSummaryMap", "CSC Report Summary Map", 100, 1, 100, 100, 1, 100);
   me->getTH1()->SetOption("colz");
+
+  // reportSummaryContents booking
+  dbe->setCurrentFolder(rootDir + SUMCONTENTS_FOLDER);
+  me = dbe->bookFloat("EMUPhysicsEfficiency");
+  me = dbe->bookFloat("ME1PhysicsEfficiency");
+  me = dbe->bookFloat("ME2PhysicsEfficiency");
+  me = dbe->bookFloat("ME3PhysicsEfficiency");
+  me = dbe->bookFloat("ME4PhysicsEfficiency");
+  me = dbe->bookFloat("EMUHWEfficiency");
+  me = dbe->bookFloat("ME1HWEfficiency");
+  me = dbe->bookFloat("ME2HWEfficiency");
+  me = dbe->bookFloat("ME3HWEfficiency");
+  me = dbe->bookFloat("ME4HWEfficiency");
 
   LOGINFO("Fraction histograms") << " updateKey = " << fractUpdateKey << ", update on events (freq) = " << fractUpdateEvF;
 

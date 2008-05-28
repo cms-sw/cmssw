@@ -104,10 +104,18 @@ void CSCMonitorModule::updateFracHistos() {
     delete tmp;
   }
 
+  //
+  // Set detector information
+  //
+
   if (MEEMU("CSC_Unpacked_Fract", me1)){
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
     summary.ReadChambers(tmp, 0.75);
   }
+
+  //
+  // Write summary information
+  //
 
   if (MEEMU("Summary_ME1", me1)){
     TH1* tmp = me1->getTH1();
@@ -130,11 +138,25 @@ void CSCMonitorModule::updateFracHistos() {
   }
 
   if (MEEventInfo("reportSummaryMap", me1)){
+
     TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
     float rs = summary.WriteMap(tmp);
-    if(MEEventInfo("reportSummary", me1)){
-      me1->Fill(rs);
-    }
+    float he = summary.GetEfficiencyHW();
+    TString title = Form("EMU Status: Physics Efficiency %.2f (HW Efficiency %.2f)", rs, he);
+    tmp->SetTitle(title);
+
+    if(MEEventInfo("reportSummary", me1))  me1->Fill(rs);
+    if(MEReportSummaryContents("EMUPhysicsEfficiency", me1)) me1->Fill(rs);
+    if(MEReportSummaryContents("EMUHWEfficiency", me1))      me1->Fill(he);
+    if(MEReportSummaryContents("ME1PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(1));
+    if(MEReportSummaryContents("ME2PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(2));
+    if(MEReportSummaryContents("ME3PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(3));
+    if(MEReportSummaryContents("ME4PhysicsEfficiency", me1)) me1->Fill(summary.GetEfficiencyArea(4)); 
+    if(MEReportSummaryContents("ME1HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(1));
+    if(MEReportSummaryContents("ME2HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(2));
+    if(MEReportSummaryContents("ME3HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(3));
+    if(MEReportSummaryContents("ME4HWEfficiency", me1))      me1->Fill(summary.GetEfficiencyHW(4));
+
   }
 
 }

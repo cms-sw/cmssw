@@ -43,8 +43,9 @@ class CSCSummary {
     const int GetValue(const CSCAddress& adr) const;
     const bool IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 
-    const double GetEfficiencyHW() const;
+    const double GetEfficiencyHW(const unsigned int station = 0) const;
     const double GetEfficiencyHW(CSCAddress adr) const; 
+    const double GetEfficiencyArea(const unsigned int station) const; 
     const double GetEfficiencyArea(CSCAddress adr) const; 
 
   private:
