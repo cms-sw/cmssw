@@ -2024,6 +2024,18 @@ bool CSCEfficiency::GoodRegion(double Y, double Yborder, int Station, int Ring, 
       Ycenter = 338.0/2+360.99-3.49+y_center;
     }
     else if(1==Ring){ 
+      if(2==Station){
+	y_center = -0.955;
+	Ycenter = 204.60/2 + 143.89 - 3.49 + y_center;
+      } 
+      else if(3==Station){
+	y_center = -0.97;
+	Ycenter = 184.61/2 + 163.89 - 3.49 + y_center;
+      }
+      else if(4==Station){
+	y_center = -0.94;
+	Ycenter = 164.67/2 + 183.79 - 3.49 + y_center;
+      }
     }   
   }
   else{
@@ -2036,6 +2048,7 @@ bool CSCEfficiency::GoodRegion(double Y, double Yborder, int Station, int Ring, 
        Ycenter = 189.41/2+278.49-3.49+y_center;
     }
     else if(1==Ring){
+      Ycenter = 0.;
     }
   }
   Ycenter = -Ycenter;
@@ -2052,10 +2065,32 @@ bool CSCEfficiency::GoodLocalRegion(double X, double Y, int Station, int Ring, i
   float y_center = 99999.;
   //---- hardcoded... not good
   if(Station>1 && Station<5){
-   ChamberBoundsCouple[0] = 66.46/2; // (+-)x1 shorter
-   ChamberBoundsCouple[1] = 127.15/2; // (+-)x2 longer 
-   ChamberBoundsCouple[2] = 323.06/2;
-   y_center = -0.95;
+    if(2==Ring){
+      ChamberBoundsCouple[0] = 66.46/2; // (+-)x1 shorter
+      ChamberBoundsCouple[1] = 127.15/2; // (+-)x2 longer 
+      ChamberBoundsCouple[2] = 323.06/2;
+      y_center = -0.95;
+    }
+    else{
+      if(2==Station){
+	ChamberBoundsCouple[0] = 54.00/2; // (+-)x1 shorter
+	ChamberBoundsCouple[1] = 125.71/2; // (+-)x2 longer 
+	ChamberBoundsCouple[2] = 189.66/2;
+	y_center = -0.955;
+      }
+      else if(3==Station){
+	ChamberBoundsCouple[0] = 61.40/2; // (+-)x1 shorter
+	ChamberBoundsCouple[1] = 125.71/2; // (+-)x2 longer 
+	ChamberBoundsCouple[2] = 169.70/2;
+	y_center = -0.97;
+      }
+      else if(4==Station){
+	ChamberBoundsCouple[0] = 69.01/2; // (+-)x1 shorter
+	ChamberBoundsCouple[1] = 125.65/2; // (+-)x2 longer 
+	ChamberBoundsCouple[2] = 149.42/2;
+	y_center = -0.94;
+      }
+    }
   }
   else if(1==Station){
     if(3==Ring){
@@ -2069,6 +2104,12 @@ bool CSCEfficiency::GoodLocalRegion(double X, double Y, int Station, int Ring, i
       ChamberBoundsCouple[1] = 83.74/2; // (+-)x2 longer 
       ChamberBoundsCouple[2] = 174.49/2;
       y_center = -0.96;
+    }
+    else{
+      ChamberBoundsCouple[0] = 40./2; // (+-)x1 shorter
+      ChamberBoundsCouple[1] = 100./2; // (+-)x2 longer 
+      ChamberBoundsCouple[2] = 142./2;
+      y_center = 0.;
     }
   }
   double Yup = ChamberBoundsCouple[2] + y_center;
@@ -2110,6 +2151,30 @@ bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring, 
 	}
       }
       else if(1==Ring){
+	if(2==Station){
+	  DeadZoneCenter[0]= -95.80 ;
+	  DeadZoneCenter[1] = -27.47;
+	  DeadZoneCenter[2] = 33.67;
+	  DeadZoneCenter[3] = 90.85;
+	}
+	else if(3==Station){
+	  DeadZoneCenter[0]= -89.305 ;
+	  DeadZoneCenter[1] = -39.705;
+	  DeadZoneCenter[2] = 20.195;
+	  DeadZoneCenter[3] = 77.395;
+	}
+	else if(4==Station){
+	  DeadZoneCenter[0]= -75.645;
+	  DeadZoneCenter[1] = -26.055;
+	  DeadZoneCenter[2] = 23.855;
+	  DeadZoneCenter[3] = 70.575;
+	}
+	if(Y >Yborder &&
+	   ((Y> DeadZoneCenter[0] + CutZone && Y< DeadZoneCenter[1] - CutZone) ||
+	    (Y> DeadZoneCenter[1] + CutZone && Y< DeadZoneCenter[2] - CutZone) ||
+	    (Y> DeadZoneCenter[2] + CutZone && Y< DeadZoneCenter[3] - CutZone))){
+	  pass = true;
+	}
 	//pass = true;
       }
     }
@@ -2139,6 +2204,12 @@ bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring, 
 	}
       }
       else{
+	DeadZoneCenter[0]= -81.0;
+	DeadZoneCenter[1] = 81.0;
+	if(Y > (Yborder) &&
+	   ((Y> DeadZoneCenter[0] + CutZone && Y< DeadZoneCenter[1] - CutZone) )){
+	  pass = true;
+	}
       }
     }
   }
@@ -2165,6 +2236,9 @@ bool CSCEfficiency::CheckLocal(double Y, double Yborder, int Station, int Ring, 
 	}
       }
       else{
+	if(Y > (Yborder) && fabs(Y)<71.){
+	  pass = true;
+	}
       }
     }
   }
