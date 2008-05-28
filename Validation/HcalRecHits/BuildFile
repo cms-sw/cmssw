@@ -1,8 +1,6 @@
 <flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=boost>
 <use name=root>
@@ -16,8 +14,6 @@
 
 <export>
   <lib name=ValidationHcalRecHits>
-  <use name=FWCore/Framework>	
-  <use name=FWCore/ParameterSet>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=DQMServices/Core>

@@ -191,10 +191,6 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* occupancy_seqHF1;
   MonitorElement* occupancy_seqHF2;
 
-  MonitorElement* profile_z1;
-  MonitorElement* profile_z2;
-  MonitorElement* profile_z3;
-  MonitorElement* profile_z4;
 
   // also - energy in the cone around MC particle
   MonitorElement* map_econe_depth1;

@@ -162,21 +162,21 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       emap_HF2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
       
       sprintf  (histo, "emean_vs_ieta_HB1" );
-      emean_vs_ieta_HB1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., " ");
+      emean_vs_ieta_HB1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
       sprintf  (histo, "emean_vs_ieta_HB2" );
-      emean_vs_ieta_HB2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., " ");
+      emean_vs_ieta_HB2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
       sprintf  (histo, "emean_vs_ieta_HE1" );
-      emean_vs_ieta_HE1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000., " " );
+      emean_vs_ieta_HE1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10. ,2000., "s" );
       sprintf  (histo, "emean_vs_ieta_HE2" );
-      emean_vs_ieta_HE2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000. );
+      emean_vs_ieta_HE2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s");
       sprintf  (histo, "emean_vs_ieta_HE3" );
-      emean_vs_ieta_HE3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., " " );
+      emean_vs_ieta_HE3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
       sprintf  (histo, "emean_vs_ieta_HO" );
-      emean_vs_ieta_HO = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., " " );
+      emean_vs_ieta_HO = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
       sprintf  (histo, "emean_vs_ieta_HF1" );
-      emean_vs_ieta_HF1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., " " );
+      emean_vs_ieta_HF1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
       sprintf  (histo, "emean_vs_ieta_HF2" );
-      emean_vs_ieta_HF2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., " " );
+      emean_vs_ieta_HF2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2010, -10., 2000., "s" );
 
 
       sprintf  (histo, "RMS_vs_ieta_HB1" );
@@ -198,21 +198,21 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
 
       // Sequential emean and RMS
       sprintf  (histo, "emean_seq_HB1" );
-      emean_seqHB1 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., " " );
+      emean_seqHB1 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
       sprintf  (histo, "emean_seq_HB2" );
-      emean_seqHB2 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., " " );
+      emean_seqHB2 = dbe_->bookProfile(histo, histo, 2400, -1200., 1200.,  2010, -10., 2000., "s" );
       sprintf  (histo, "emean_seq_HE1" );
-      emean_seqHE1 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., " " );
+      emean_seqHE1 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
       sprintf  (histo, "emean_seq_HE2" );
-      emean_seqHE2 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., " " );
+      emean_seqHE2 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
       sprintf  (histo, "emean_seq_HE3" );
-      emean_seqHE3 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., " " );
+      emean_seqHE3 = dbe_->bookProfile(histo, histo, 4400, -2200., 2200.,  2010, -10., 2000., "s" );
       sprintf  (histo, "emean_seq_HO" );
-      emean_seqHO = dbe_->bookProfile(histo, histo,  2400, -1200., 1200.,  2010, -10., 2000., " " );
+      emean_seqHO = dbe_->bookProfile(histo, histo,  2400, -1200., 1200.,  2010, -10., 2000., "s" );
       sprintf  (histo, "emean_seq_HF1" );
-      emean_seqHF1 = dbe_->bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000., " " );
+      emean_seqHF1 = dbe_->bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000., "s" );
       sprintf  (histo, "emean_seq_HF2" );
-      emean_seqHF2 = dbe_->bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000., " " );
+      emean_seqHF2 = dbe_->bookProfile(histo, histo, 6000, -3000., 3000.,  2010, -10., 2000., "s" );
 
       sprintf  (histo, "RMS_seq_HB1" );
       RMS_seq_HB1 = dbe_->book1D(histo, histo, 2400, -1200., 1200.);
@@ -284,17 +284,6 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "occ_sequential1D_HF2" );
       occupancy_seqHF2 = dbe_->book1D(histo, histo,6000, -3000., 3000.);
  
-      /*      
-      sprintf  (histo, "profile_z1" );
-      profile_z1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
-      sprintf  (histo, "profile_z2" );
-      profile_z2 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
-      sprintf  (histo, "profile_z3" );
-      profile_z3 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
-      sprintf  (histo, "profile_z4" );
-      profile_z4 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2000, -2000., 2000.);
-      */
-
       if(imc !=0) { 
 	sprintf  (histo, "map_econe_depth1" );
 	map_econe_depth1 =
@@ -950,7 +939,7 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   }
 
   //   std::cout << "*** 2" << std::endl; 
-
+  //   previously was:  c.get<IdealGeometryRecord>().get (geometry);
   c.get<CaloGeometryRecord>().get (geometry);
 
 
@@ -1102,13 +1091,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
     if( subdet_ != 6) {  
 
-      /*
-      if (depth == 1 ) profile_z1->Fill(double(ieta), z); 
-      if (depth == 2 ) profile_z2->Fill(double(ieta), z); 
-      if (depth == 3 ) profile_z3->Fill(double(ieta), z); 
-      if (depth == 4 ) profile_z4->Fill(double(ieta), z); 
-      */
-
       //      std::cout << "*** 4-1" << std::endl; 
             
       if (depth == 1 && sub == 1 ) {
@@ -1161,35 +1143,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
       }
     }
     
-    // maps with "Scheme B" cuts 
-    /*
-    double cut = cutHB;  
-    if (sub == 2) cut = cutHE;
-    if (sub == 3) cut = cutHO;
-    if (sub == 4){
-      if(depth == 1) cut = cutHFL;
-      else  cut = cutHFS;
-    }
-    
-    if(en > cut ) {
-      if (depth == 1) {
-	emap_depth1_cuts->Fill(double(ieta), double(iphi), en);
-	emean_vs_ieta_depth1_cuts->Fill(double(ieta), en);
-      }
-      if (depth == 2) {
-	emap_depth2_cuts->Fill(double(ieta), double(iphi), en);
-	emean_vs_ieta_depth2_cuts->Fill(double(ieta), en);
-      }
-      if (depth == 3) {
-	emap_depth3_cuts->Fill(double(ieta), double(iphi), en);
-	emean_vs_ieta_depth3_cuts->Fill(double(ieta), en);
-      }
-      if (depth == 4) {
-	emap_depth4_cuts->Fill(double(ieta), double(iphi), en);
-	emean_vs_ieta_depth4_cuts->Fill(double(ieta), en);
-      }
-    }
-    */    
 
     if( r < partR ) {
       if (depth == 1) ehcal_coneMC_1 += en; 
