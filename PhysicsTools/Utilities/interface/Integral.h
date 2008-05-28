@@ -1,6 +1,7 @@
 #ifndef PhysicsTools_Utilities_Integral_h
 #define PhysicsTools_Utilities_Integral_h
 #include "PhysicsTools/Utilities/interface/Primitive.h"
+#include "PhysicsTools/Utilities/interface/NumericalIntegration.h"
 
 namespace funct {
 
@@ -30,19 +31,20 @@ namespace funct {
 
   template<unsigned samples, typename F, typename X = no_var> 
   struct NumericalIntegral {
-    NumericalIntegral(const F& f) : _f (f) { }
-    double operator()(double min, double max) const { 
-      double l = max - min;
-      double delta = l / samples;
-      double sum = 0;
-      for(unsigned int i = 0; i < samples; i++) {
-	X::set(min + (i + 0.5) * delta);
-	sum += _f();
-      }
-      return sum * l / samples;
+    NumericalIntegral(const F& f) : f_(f) { }
+    inline double operator()(double min, double max) const { 
+      return trapezoid_integral(f_, min, max, samples);
     }
   private:
-    F _f;
+    struct function {
+      function(const F & f) : f_(f) { }
+      inline double operator()(double x) const {
+	X::set(x); return f_();
+      }
+    private:
+      F f_;
+    };
+    function f_;
   };
 
   template<unsigned samples, typename F>
