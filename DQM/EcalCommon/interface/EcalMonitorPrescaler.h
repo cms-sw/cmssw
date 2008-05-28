@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.h,v 1.1 2007/04/27 16:53:27 dellaric Exp $
+// $Id: EcalMonitorPrescaler.h,v 1.2 2008/05/17 14:23:13 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.h
   \brief Ecal specific Prescaler 
   \author G. Della Ricca
-  \version $Revision: 1.1 $
-  \date $Date: 2007/04/27 16:53:27 $
+  \version $Revision: 1.2 $
+  \date $Date: 2008/05/17 14:23:13 $
 */
 
 #ifndef EcalMonitorPrescaler_H
@@ -24,7 +24,7 @@ explicit EcalMonitorPrescaler(edm::ParameterSet const&);
 virtual ~EcalMonitorPrescaler();
 
 virtual bool filter(edm::Event& e, edm::EventSetup const& c);
-void endJob();
+void endJob(void);
 
 private:
 
