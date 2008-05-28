@@ -39,11 +39,10 @@ namespace funct {
     GaussLegendreIntegrator(unsigned int samples, double epsilon);
     template<typename F>
     double operator()(const F& f, double min, double max) const {
-      const double a0 = 0.5*(max + min);
-      const double b0 = 0.5*(max - min);
-      
-      double result = 0.0;
-      for (unsigned int i = 0; i < samples_; ++i) {
+      a0 = 0.5*(max + min);
+      b0 = 0.5*(max - min);
+      result = 0.0;
+      for (i = 0; i < samples_; ++i) {
 	result += w[i] * f(a0 + b0*x[i]);
       }
       
@@ -52,8 +51,9 @@ namespace funct {
   private:
     unsigned int samples_;
     std::vector<double> x, w;
+    mutable double a0, b0, result;
+    mutable unsigned int i;
   };
-  
 
   class GaussIntegrator {
   public:
@@ -61,24 +61,6 @@ namespace funct {
     GaussIntegrator(double epsilon) : epsilon_(epsilon) { }
    template<typename F>
     double operator()(const F& f, double a, double b) const {
-     const double kHF = 0.5;
-     const double kCST = 5./1000;
-     double x[12] = { 0.96028985649753623, 0.79666647741362674,
-                      0.52553240991632899, 0.18343464249564980,
-                      0.98940093499164993, 0.94457502307323258,
-                      0.86563120238783174, 0.75540440835500303,
-                      0.61787624440264375, 0.45801677765722739,
-                      0.28160355077925891, 0.09501250983763744 };
-     
-     double w[12] = { 0.10122853629037626, 0.22238103445337447,
-                      0.31370664587788729, 0.36268378337836198,
-                      0.02715245941175409, 0.06225352393864789,
-                      0.09515851168249278, 0.12462897125553387,
-                      0.14959598881657673, 0.16915651939500254,
-                      0.18260341504492359, 0.18945061045506850 };
-
-     double h, aconst, bb, aa, c1, c2, u, s8, s16, f1, f2, xx;
-     int i;
      h = 0;
      if (b == a) return h;
      aconst = kCST/std::abs(b - a);
@@ -124,6 +106,11 @@ namespace funct {
   private:
    mutable double error_;
    double epsilon_;
+   static const double x[12], w[12];
+   static const double kHF;
+   static const double kCST;
+   mutable double h, aconst, bb, aa, c1, c2, u, s8, s16, f1, f2, xx;
+   mutable unsigned int i;
   };
 }
 

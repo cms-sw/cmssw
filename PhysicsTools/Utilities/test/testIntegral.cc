@@ -57,7 +57,7 @@ void testIntegral::checkAll() {
   CPPUNIT_ASSERT(fabs(integral<X>(x, 0, 1) - 0.5) < epsilon);
   CPPUNIT_ASSERT(fabs(integral<X>(x^num<2>(), 0, 1) - 1./3.) < epsilon);
 
-  TrapezoidIntegrator integrator(10000);
+  TrapezoidIntegrator integrator(1000);
 
   // numerical integration
   Expression f_x = x;
@@ -80,7 +80,7 @@ void testIntegral::checkAll() {
 
   // Gauss-Legendre integration
   gauss3 g3;
-  GaussLegendreIntegrator integrator2(10000, 1.e-4);
+  GaussLegendreIntegrator integrator2(10000, 1.e-5);
   CPPUNIT_ASSERT(fabs(integral(g3, 0, 1, integrator2) - erf(1)) < epsilon);
 
   // Gauss-Legendre integration
