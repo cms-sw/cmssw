@@ -86,7 +86,11 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintpT,minpT,maxpT) );
       h_assoc2pT.push_back( dbe_->book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintpT,minpT,maxpT) );
       h_simulpT.push_back( dbe_->book1D("num_simul_pT","N of simulated tracks vs pT",nintpT,minpT,maxpT) );
-      
+      h_recohit.push_back( dbe_->book1D("num_reco_hit","N of reco track vs hit",nintHit,minHit,maxHit) );
+      h_assochit.push_back( dbe_->book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
+      h_assoc2hit.push_back( dbe_->book1D("num_assoc(recoToSim)_hit","N of associated (recoToSim) tracks vs hit",nintHit,minHit,maxHit) );
+      h_simulhit.push_back( dbe_->book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
+
       h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
       h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of #theta parameter",250,-25,25) );
@@ -296,8 +300,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	  }
 	} // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-	totSIM_hit[w][std::min(tp->matchedHit(),nintHit-1)]++;
-	if (rt.size()!=0) totASS_hit[w][std::min(tp->matchedHit(),nintHit-1)]++;
+	int tmp = std::min((int)(tp->pSimHit_end()-tp->pSimHit_begin()),int(maxHit-1));
+	totSIM_hit[w][tmp]++;
+	if (rt.size()!=0) totASS_hit[w][tmp]++;
       }
       if (st!=0) h_tracksSIM[w]->Fill(st);
       
@@ -573,6 +578,11 @@ void MultiTrackValidator::endJob() {
       fillPlotFromVector(h_simulpT[w],totSIMpT[w]);
       fillPlotFromVector(h_assocpT[w],totASSpT[w]);
       fillPlotFromVector(h_assoc2pT[w],totASS2pT[w]);
+
+      fillPlotFromVector(h_recohit[w],totREC_hit[w]);
+      fillPlotFromVector(h_simulhit[w],totSIM_hit[w]);
+      fillPlotFromVector(h_assochit[w],totASS_hit[w]);
+      fillPlotFromVector(h_assoc2hit[w],totASS2_hit[w]);
       w++;
     }
   }
