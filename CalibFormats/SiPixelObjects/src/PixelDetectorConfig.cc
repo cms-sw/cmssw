@@ -68,15 +68,15 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tCould not open:"<<filename<<std::endl;
+      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    Could not open: "<<filename<<std::endl;
       assert(0);
     }
     else {
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tOpened:"<<filename<<std::endl;
+      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    Opened: "<<filename<<std::endl;
     }
 	
     if (in.eof()){
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\teof before reading anything!"<<std::endl;
+      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    EOF before reading anything!"<<std::endl;
       ::abort();
     }
 
@@ -88,7 +88,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     in >> module;
 
     if (module=="Rocs:") {
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tNew format of detconfig"<<std::endl;
+      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    New format of detconfig"<<std::endl;
       //new format with list of ROCs.
       std::string rocname;
       in >> rocname;
@@ -123,10 +123,10 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
 
     //std::cout << "Read module:"<<module<<std::endl;
 
-    if (in.eof()) std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\teof after reading first module name"
+    if (in.eof()) std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    EOF after reading first module name"
 			    << std::endl;
 
-    std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tOld format of detconfig"<<std::endl;
+    std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\t    Old format of detconfig"<<std::endl;
     while (!in.eof()){
 
       //std::cout << "Read module:"<<module<<std::endl;
@@ -297,7 +297,7 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
 
   std::ofstream out(filename.c_str(), std::ios_base::out) ;
   if(!out) {
-    std::cout << "[PixelDetectorConfig::writeASCII()] Could not open file " << filename << " for write" << std::endl ;
+    std::cout << "[PixelDetectorConfig::writeASCII()]\t\t    Could not open file " << filename << " for write" << std::endl ;
     exit(1);
   }
 

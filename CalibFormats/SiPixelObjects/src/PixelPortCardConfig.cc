@@ -45,11 +45,11 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   std::ifstream in(filename.c_str());
   
   if(!in.good()){
-    std::cout<<"[PixelPortCardConfig::PixelPortCardConfig()]\t\tCould not open: "<< filename << std::endl;
+    std::cout<<"[PixelPortCardConfig::PixelPortCardConfig()]\t\t    Could not open: "<< filename << std::endl;
     assert(0);
   }
   else {
-    std::cout<<"[PixelPortCardConfig::PixelPortCardConfig()]\t\tOpened: "        << filename << std::endl;
+    std::cout<<"[PixelPortCardConfig::PixelPortCardConfig()]\t\t    Opened: "        << filename << std::endl;
   }
   
   string dummy;

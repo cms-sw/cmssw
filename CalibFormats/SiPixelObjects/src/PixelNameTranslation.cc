@@ -116,11 +116,11 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
   std::ifstream in(filename.c_str());
   
   if (!in.good()){
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\tCould not open: " << filename <<std::endl;
+    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Could not open: " << filename <<std::endl;
     assert(0);
   }
   else {
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\tReading from: "   << filename <<std::endl;
+    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Reading from: "   << filename <<std::endl;
   }
   
   std::string dummy;
@@ -159,8 +159,8 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
     if (!in.eof() ){
       PixelROCName aROC(rocname);
       if (aROC.rocname()!=rocname){
-	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tRocname:"<<rocname<<std::endl;
-	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tParsed to:"<<aROC.rocname()<<std::endl;
+	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Rocname  : "<<rocname<<std::endl;
+	std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\t    Parsed to: "<<aROC.rocname()<<std::endl;
 	assert(0);
       }
 

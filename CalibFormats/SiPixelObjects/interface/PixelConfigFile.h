@@ -182,7 +182,7 @@ namespace pos{
 
       static std::string directory;
       static int first=1;
-    
+      static PixelConfigList configs;
     
       directory=getenv("PIXELCONFIGURATIONBASE");
       std::string filename=directory+"/configurations.txt";
@@ -220,7 +220,6 @@ namespace pos{
 	std::string filename=directory+"/aliases.txt";
 
 	aliases.readfile(filename);
-                      
       }
 
       return aliases;
@@ -281,7 +280,6 @@ namespace pos{
     //Returns a pointer to the data found in the path with configuration key.
     template <class T>
       static void get(T* &data, std::string path, PixelConfigKey key){
-
       unsigned int theKey=key.key();
       
       static PixelConfigList configList=getConfig();
@@ -798,7 +796,6 @@ namespace pos{
     }
 
   private:
-
 
   };
 
