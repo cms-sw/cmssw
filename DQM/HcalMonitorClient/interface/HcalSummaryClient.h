@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/05/27 03:12:26 $
- * $Revision: 1.1 $
+ * $Date: 2008/05/27 20:11:13 $
+ * $Revision: 1.2 $
  * \author Jeff Temple
  *
 */
@@ -85,6 +85,9 @@ class HcalSummaryClient : public HcalBaseClient {
   DQMStore* dqmStore_;
 
   MonitorElement* meGlobalSummary_;
+
+  bool dataFormatClient_, digiClient_, recHitClient_, pedestalClient_;
+  bool ledClient_, hotCellClient_, deadCellClient_, trigPrimClient_, caloTowerClient_;
 
   bool checkHB_;
   bool checkHE_;

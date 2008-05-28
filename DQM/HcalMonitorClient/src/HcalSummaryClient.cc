@@ -56,6 +56,17 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   checkHO_= ps.getUntrackedParameter<bool>("checkHO",true);
   checkHF_= ps.getUntrackedParameter<bool>("checkHF",true);
 
+  // Check subtasks
+  dataFormatClient_ = ps.getUntrackedParameter<bool>("DataFormatClient",false);
+  digiClient_ = ps.getUntrackedParameter<bool>("DigiFormatClient",false);
+  recHitClient_ = ps.getUntrackedParameter<bool>("RecHitFormatClient",false);
+  pedestalClient_ = ps.getUntrackedParameter<bool>("PedestalClient",false);
+  ledClient_ = ps.getUntrackedParameter<bool>("LEDClient",false);
+  hotCellClient_ = ps.getUntrackedParameter<bool>("HotCellClient",false);
+  deadCellClient_ = ps.getUntrackedParameter<bool>("DeadCellClient",false);
+  trigPrimClient_ = ps.getUntrackedParameter<bool>("TrigPrimClient",false);
+  caloTowerClient_ = ps.getUntrackedParameter<bool>("CaloTowerClient",false);
+  
 
   phiBins_=(int)(abs(phiMax_-phiMin_));
   etaBins_=(int)(abs(etaMax_-etaMin_));
@@ -248,11 +259,13 @@ void HcalSummaryClient::analyze(void)
       cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
 
-  if (checkHB_) analyze_deadcell("HB",status_HB_);
-  if (checkHE_) analyze_deadcell("HE",status_HE_);
-  if (checkHO_) analyze_deadcell("HO",status_HO_);
-  if (checkHF_) analyze_deadcell("HF",status_HF_);
-
+  if (deadCellClient_)
+    {
+      if (checkHB_) analyze_deadcell("HB",status_HB_);
+      if (checkHE_) analyze_deadcell("HE",status_HE_);
+      if (checkHO_) analyze_deadcell("HO",status_HO_);
+      if (checkHF_) analyze_deadcell("HF",status_HF_);
+    }
 
 
   MonitorElement* me;
