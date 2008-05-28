@@ -27,6 +27,9 @@ endif
 edmParameterSetDump $1 >! dumpcfgpset.txt
 edmParameterSetDump $pyFile >! dumppypset.txt
 
-diff dumpcfgpset.txt dumppypset.txt
+# check if it's zero length
+if(-s dumppypset.txt) then
+  diff dumpcfgpset.txt dumppypset.txt
+endif
 
 
