@@ -1,4 +1,4 @@
-// $Id: TtHadKinFitter.cc,v 1.5 2008/02/17 11:38:30 rwolf Exp $ 
+// $Id: TtHadKinFitter.cc,v 1.6 2008/03/16 17:14:33 delaer Exp $ 
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtHadKinFitter.h"
 
@@ -172,12 +172,12 @@ TtHadEvtSolution TtHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
   // add fitted information to the solution
   if (theFitter_->getStatus() == 0) {
     // read back the jet kinematics and resolutions
-    pat::Particle aFitHadp(reco::Particle(0, math::XYZTLorentzVector(fitHadp_->getCurr4Vec()->X(), fitHadp_->getCurr4Vec()->Y(), fitHadp_->getCurr4Vec()->Z(), fitHadp_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitHadq(reco::Particle(0, math::XYZTLorentzVector(fitHadq_->getCurr4Vec()->X(), fitHadq_->getCurr4Vec()->Y(), fitHadq_->getCurr4Vec()->Z(), fitHadq_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitHadb(reco::Particle(0, math::XYZTLorentzVector(fitHadb_->getCurr4Vec()->X(), fitHadb_->getCurr4Vec()->Y(), fitHadb_->getCurr4Vec()->Z(), fitHadb_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitHadj(reco::Particle(0, math::XYZTLorentzVector(fitHadj_->getCurr4Vec()->X(), fitHadj_->getCurr4Vec()->Y(), fitHadj_->getCurr4Vec()->Z(), fitHadj_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitHadk(reco::Particle(0, math::XYZTLorentzVector(fitHadk_->getCurr4Vec()->X(), fitHadk_->getCurr4Vec()->Y(), fitHadk_->getCurr4Vec()->Z(), fitHadk_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitHadbbar(reco::Particle(0, math::XYZTLorentzVector(fitHadbbar_->getCurr4Vec()->X(), fitHadbbar_->getCurr4Vec()->Y(), fitHadbbar_->getCurr4Vec()->Z(), fitHadbbar_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadp(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadp_->getCurr4Vec()->X(), fitHadp_->getCurr4Vec()->Y(), fitHadp_->getCurr4Vec()->Z(), fitHadp_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadq(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadq_->getCurr4Vec()->X(), fitHadq_->getCurr4Vec()->Y(), fitHadq_->getCurr4Vec()->Z(), fitHadq_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadb(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadb_->getCurr4Vec()->X(), fitHadb_->getCurr4Vec()->Y(), fitHadb_->getCurr4Vec()->Z(), fitHadb_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadj(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadj_->getCurr4Vec()->X(), fitHadj_->getCurr4Vec()->Y(), fitHadj_->getCurr4Vec()->Z(), fitHadj_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadk(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadk_->getCurr4Vec()->X(), fitHadk_->getCurr4Vec()->Y(), fitHadk_->getCurr4Vec()->Z(), fitHadk_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadbbar(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadbbar_->getCurr4Vec()->X(), fitHadbbar_->getCurr4Vec()->Y(), fitHadbbar_->getCurr4Vec()->Z(), fitHadbbar_->getCurr4Vec()->E()), math::XYZPoint()));
     
     if (jetParam_ == EMom) {
       TMatrixD Vp(4,4);  Vp  = (*fitHadp_->getCovMatrixFit()); 

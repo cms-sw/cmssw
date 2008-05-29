@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.cc,v 1.2 2008/02/17 11:38:30 rwolf Exp $
+// $Id: StKinFitter.cc,v 1.3 2008/03/16 17:14:33 delaer Exp $
 //
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
@@ -182,8 +182,8 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
   // add fitted information to the solution
   if (theFitter_->getStatus() == 0) {
     // read back the jet kinematics and resolutions
-    pat::Particle aFitBottom(reco::Particle(0, math::XYZTLorentzVector(fitBottom_->getCurr4Vec()->X(), fitBottom_->getCurr4Vec()->Y(), fitBottom_->getCurr4Vec()->Z(), fitBottom_->getCurr4Vec()->E()),math::XYZPoint()));
-    pat::Particle aFitLight(reco::Particle(0, math::XYZTLorentzVector(fitLight_->getCurr4Vec()->X(), fitLight_->getCurr4Vec()->Y(), fitLight_->getCurr4Vec()->Z(), fitLight_->getCurr4Vec()->E()),math::XYZPoint()));
+    pat::Particle aFitBottom(reco::LeafCandidate(0, math::XYZTLorentzVector(fitBottom_->getCurr4Vec()->X(), fitBottom_->getCurr4Vec()->Y(), fitBottom_->getCurr4Vec()->Z(), fitBottom_->getCurr4Vec()->E()),math::XYZPoint()));
+    pat::Particle aFitLight(reco::LeafCandidate(0, math::XYZTLorentzVector(fitLight_->getCurr4Vec()->X(), fitLight_->getCurr4Vec()->Y(), fitLight_->getCurr4Vec()->Z(), fitLight_->getCurr4Vec()->E()),math::XYZPoint()));
     if (jetParam_ == EMom) {
       TMatrixD Vb(4,4); Vb = (*fitBottom_->getCovMatrixFit());
       aFitBottom.setCovMatrix(this->translateCovM(Vb));
@@ -221,7 +221,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
       aFitLight.setResolutionPhi(Vq(2,2));
     }
     // read back the lepton kinematics and resolutions
-    pat::Particle aFitLepton(reco::Particle(0, math::XYZTLorentzVector(fitLepton_->getCurr4Vec()->X(), fitLepton_->getCurr4Vec()->Y(), fitLepton_->getCurr4Vec()->Z(), fitLepton_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitLepton(reco::LeafCandidate(0, math::XYZTLorentzVector(fitLepton_->getCurr4Vec()->X(), fitLepton_->getCurr4Vec()->Y(), fitLepton_->getCurr4Vec()->Z(), fitLepton_->getCurr4Vec()->E()), math::XYZPoint()));
     TMatrixD Vl(3,3); Vl = (*fitLepton_->getCovMatrixFit()); 
     aFitLepton.setCovMatrix(this->translateCovM(Vl));
     if (lepParam_ == EMom) {
@@ -238,7 +238,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
       aFitLepton.setResolutionPhi(Vl(2,2));
     }
     // read back the MET kinematics and resolutions
-    pat::Particle aFitNeutrino(reco::Particle(0, math::XYZTLorentzVector(fitNeutrino_->getCurr4Vec()->X(), fitNeutrino_->getCurr4Vec()->Y(), fitNeutrino_->getCurr4Vec()->Z(), fitNeutrino_->getCurr4Vec()->E()), math::XYZPoint()));   
+    pat::Particle aFitNeutrino(reco::LeafCandidate(0, math::XYZTLorentzVector(fitNeutrino_->getCurr4Vec()->X(), fitNeutrino_->getCurr4Vec()->Y(), fitNeutrino_->getCurr4Vec()->Z(), fitNeutrino_->getCurr4Vec()->E()), math::XYZPoint()));   
     TMatrixD Vn(3,3); Vn = (*fitNeutrino_->getCovMatrixFit()); 
     aFitNeutrino.setCovMatrix(this->translateCovM(Vn));
     if (metParam_ == EMom) {

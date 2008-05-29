@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiKinFitter.cc,v 1.6 2008/02/17 11:38:30 rwolf Exp $
+// $Id: TtSemiKinFitter.cc,v 1.7 2008/03/16 17:14:33 delaer Exp $
 //
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitter.h"
@@ -212,10 +212,10 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
   // add fitted information to the solution
   if (theFitter_->getStatus() == 0) {
     // read back the jet kinematics and resolutions
-    pat::Particle aFitHadp(reco::Particle(0, math::XYZTLorentzVector(fitHadp_->getCurr4Vec()->X(), fitHadp_->getCurr4Vec()->Y(), fitHadp_->getCurr4Vec()->Z(), fitHadp_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitHadq(reco::Particle(0, math::XYZTLorentzVector(fitHadq_->getCurr4Vec()->X(), fitHadq_->getCurr4Vec()->Y(), fitHadq_->getCurr4Vec()->Z(), fitHadq_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitHadb(reco::Particle(0, math::XYZTLorentzVector(fitHadb_->getCurr4Vec()->X(), fitHadb_->getCurr4Vec()->Y(), fitHadb_->getCurr4Vec()->Z(), fitHadb_->getCurr4Vec()->E()), math::XYZPoint()));
-    pat::Particle aFitLepb(reco::Particle(0, math::XYZTLorentzVector(fitLepb_->getCurr4Vec()->X(), fitLepb_->getCurr4Vec()->Y(), fitLepb_->getCurr4Vec()->Z(), fitLepb_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadp(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadp_->getCurr4Vec()->X(), fitHadp_->getCurr4Vec()->Y(), fitHadp_->getCurr4Vec()->Z(), fitHadp_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadq(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadq_->getCurr4Vec()->X(), fitHadq_->getCurr4Vec()->Y(), fitHadq_->getCurr4Vec()->Z(), fitHadq_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitHadb(reco::LeafCandidate(0, math::XYZTLorentzVector(fitHadb_->getCurr4Vec()->X(), fitHadb_->getCurr4Vec()->Y(), fitHadb_->getCurr4Vec()->Z(), fitHadb_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitLepb(reco::LeafCandidate(0, math::XYZTLorentzVector(fitLepb_->getCurr4Vec()->X(), fitLepb_->getCurr4Vec()->Y(), fitLepb_->getCurr4Vec()->Z(), fitLepb_->getCurr4Vec()->E()), math::XYZPoint()));
     if (jetParam_ == EMom) {
       TMatrixD Vp(4,4);  Vp  = (*fitHadp_->getCovMatrixFit()); 
       TMatrixD Vq(4,4);  Vq  = (*fitHadq_->getCovMatrixFit()); 
@@ -285,7 +285,7 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
       aFitLepb.setResolutionPhi(sqrt(Vbl(2,2)));
     }
     // read back the lepton kinematics and resolutions
-    pat::Particle aFitLepl(reco::Particle(0, math::XYZTLorentzVector(fitLepl_->getCurr4Vec()->X(), fitLepl_->getCurr4Vec()->Y(), fitLepl_->getCurr4Vec()->Z(), fitLepl_->getCurr4Vec()->E()), math::XYZPoint()));
+    pat::Particle aFitLepl(reco::LeafCandidate(0, math::XYZTLorentzVector(fitLepl_->getCurr4Vec()->X(), fitLepl_->getCurr4Vec()->Y(), fitLepl_->getCurr4Vec()->Z(), fitLepl_->getCurr4Vec()->E()), math::XYZPoint()));
     TMatrixD Vl(3,3); Vl = (*fitLepl_->getCovMatrixFit()); 
     aFitLepl.setCovMatrix(this->translateCovM(Vl));
     if (lepParam_ == EMom) {
@@ -302,7 +302,7 @@ TtSemiEvtSolution TtSemiKinFitter::addKinFitInfo(TtSemiEvtSolution * asol)
       aFitLepl.setResolutionPhi(sqrt(Vl(2,2)));
     }
     // read back the MEt kinematics and resolutions
-    pat::Particle aFitLepn(reco::Particle(0, math::XYZTLorentzVector(fitLepn_->getCurr4Vec()->X(), fitLepn_->getCurr4Vec()->Y(), fitLepn_->getCurr4Vec()->Z(), fitLepn_->getCurr4Vec()->E()), math::XYZPoint()));   
+    pat::Particle aFitLepn(reco::LeafCandidate(0, math::XYZTLorentzVector(fitLepn_->getCurr4Vec()->X(), fitLepn_->getCurr4Vec()->Y(), fitLepn_->getCurr4Vec()->Z(), fitLepn_->getCurr4Vec()->E()), math::XYZPoint()));   
     TMatrixD Vn(3,3); Vn = (*fitLepn_->getCovMatrixFit()); 
     aFitLepn.setCovMatrix(this->translateCovM(Vn));
     if (metParam_ == EMom) {
