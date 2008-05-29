@@ -107,7 +107,7 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   edm::ESHandle<L1MuCSCTFConfiguration> config;
   c.get<L1MuCSCTFConfigurationRcd>().get(config);
   // And initialize only those parameters, which left uninitialized during construction
-std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*2+(m_sector-1))<<std::endl;;
+//std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*2+(m_sector-1))<<std::endl;;
   readParameters(config.product()->parameters((m_endcap-1)*2+(m_sector-1)));
 
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
@@ -480,11 +480,10 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
     // Add-on for singles:
     CSCTriggerContainer<csctf::TrackStub> myStubContainer[7]; //[BX]
     // Loop over CSC LCTs if triggering on them:
-    if( trigger_on_ME1a || trigger_on_ME1b || trigger_on_ME2 || trigger_on_ME3 || trigger_on_ME4 )
+    if( trigger_on_ME1a || trigger_on_ME1b || trigger_on_ME2 || trigger_on_ME3 || trigger_on_ME4 || trigger_on_MB1a || trigger_on_MB1d )
         for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++){
               int station = itr->station()-1;
               int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
-///std::cout<<"Found LCT in station="<<station<<" subSector="<<subSector<<std::endl;
               int mpc = ( subSector ? subSector-1 : station+1 );
               if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
                   (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
@@ -493,10 +492,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                   int bx = itr->getBX() - m_minBX;
                   if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<itr->getBX();
                   else
-                     if( itr->isValid() ){
-                         myStubContainer[bx].push_back(*itr);
-                         break; //we break out of the loop because we put whole range if we encounter VP
-                     }
+                     if( itr->isValid() ) myStubContainer[bx].push_back(*itr);
               }
         }
 
@@ -526,6 +522,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
                  track.setPtPacked(singlesTrackPt);
                  track.setQualityPacked((singlesTrackPt&0x60)>>5);
                  track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
+                 track.setPtLUTAddress(15<<16);
                  //CSCCorrelatedLCTDigiCollection singles;
                  //std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
                  //for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin();
