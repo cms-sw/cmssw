@@ -31,6 +31,10 @@ void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster &pass
   for(std::vector<DetId>::iterator hit = detId.begin();
       hit != detId.end(); ++hit) {
     EcalRecHitCollection::const_iterator rHit = recHits_->find(*hit);
+ //FIXME: THIS IS JUST A WORKAROUND A FIX SHOULD BE APPLIED  
+ if(rHit == recHits_->end()) {
+    continue; 
+   }
     const CaloCellGeometry *this_cell = geometry_->getGeometry(rHit->id());
     if ( this_cell == 0 ) {
       //edm::LogInfo("SuperClusterShapeAlgo") << "pointer to the cell in Calculate_Covariances is NULL!";
