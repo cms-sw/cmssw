@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Mar  1 05:06:43 CET 2008
-// $Id: L1TriggerConfigOnlineProd.h,v 1.1 2008/03/03 21:52:18 wsun Exp $
+// $Id: L1TriggerConfigOnlineProd.h,v 1.2 2008/05/28 17:54:06 wsun Exp $
 //
 
 // system include files
@@ -29,11 +29,19 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 
-// forward declarations
+#include "CondTools/L1Trigger/interface/Exception.h"
+
+#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
+#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
+
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+
+// forward declarations
 
 class L1TriggerConfigOnlineProd : public edm::ESProducer {
    public:
@@ -42,8 +50,6 @@ class L1TriggerConfigOnlineProd : public edm::ESProducer {
 
       boost::shared_ptr<L1RCTParameters> produceL1RCTParameters(
 	 const L1RCTParametersRcd&);
-      boost::shared_ptr<L1CaloEtScale> produceL1JetEtScale(
-	 const L1JetEtScaleRcd&);
    private:
       // ----------member data ---------------------------
       l1t::OMDSReader m_omdsReader ;
@@ -57,5 +63,60 @@ class L1TriggerConfigOnlineProd : public edm::ESProducer {
 			    boost::shared_ptr< TData > data,
 			    std::string& subsystemKey ) ;
 };
+
+// Called from produce methods.
+// bool is true if the subsystem data should be made.
+// If bool is false, produce method should throw DataAlreadyPresentException.
+template< class TRcd, class TData >
+bool L1TriggerConfigOnlineProd::getSubsystemKey( const TRcd& record,
+					boost::shared_ptr< TData > data,
+					std::string& subsystemKey )
+{
+   // Get L1TriggerKey
+   const L1TriggerKeyRcd& keyRcd =
+      record.template getRecord< L1TriggerKeyRcd >() ;
+
+   // Explanation of funny syntax: since record is dependent, we are not
+   // expecting getRecord to be a template so the compiler parses it
+   // as a non-template. http://gcc.gnu.org/ml/gcc-bugs/2005-11/msg03685.html
+
+   // If L1TriggerKey is invalid, then all configuration objects are
+   // already in ORCON.
+   edm::ESHandle< L1TriggerKey > key ;
+   try
+   {
+      keyRcd.get( key ) ;
+   }
+   catch( l1t::DataAlreadyPresentException& ex )
+   {
+      subsystemKey = std::string() ;
+      return false ;      
+   }
+
+   // Get subsystem key from L1TriggerKey
+   std::string recordName =
+      edm::eventsetup::heterocontainer::HCTypeTagTemplate< TRcd,
+      edm::eventsetup::EventSetupRecordKey >::className() ;
+   std::string dataType =
+      edm::eventsetup::heterocontainer::HCTypeTagTemplate< TData,
+      edm::eventsetup::DataKey >::className() ;
+
+   subsystemKey = key->get( recordName, dataType ) ;
+
+   std::cout << "L1TriggerConfigOnlineProd record " << recordName
+	     << " type " << dataType
+	     << " sub key " << subsystemKey
+	     << std::endl ;
+
+   // Get L1TriggerKeyList
+   const L1TriggerKeyListRcd& keyListRcd =
+      record.template getRecord< L1TriggerKeyListRcd >() ;
+   edm::ESHandle< L1TriggerKeyList > keyList ;
+   keyListRcd.get( keyList ) ;
+
+   // If L1TriggerKeyList does not contain subsystem key, token is empty
+   return
+      keyList->token( recordName, dataType, subsystemKey ) == std::string() ;
+}
 
 #endif

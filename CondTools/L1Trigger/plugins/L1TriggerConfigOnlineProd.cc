@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 05:02:13 CET 2008
-// $Id: L1TriggerConfigOnlineProd.cc,v 1.2 2008/04/16 23:49:30 wsun Exp $
+// $Id: L1TriggerConfigOnlineProd.cc,v 1.3 2008/05/28 17:54:06 wsun Exp $
 //
 //
 
@@ -23,20 +23,8 @@
 // user include files
 #include "CondTools/L1Trigger/plugins/L1TriggerConfigOnlineProd.h"
 
-#include "CondTools/L1Trigger/interface/Exception.h"
-
-#include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
-#include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
-#include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
-#include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
-
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "RelationalAccess/ICursor.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
-#include "CoralBase/Attribute.h"
+// #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+// #include "FWCore/Framework/interface/EventSetup.h"
 
 //
 // class declaration
@@ -62,7 +50,6 @@ L1TriggerConfigOnlineProd::L1TriggerConfigOnlineProd(const edm::ParameterSet& iC
    //the following line is needed to tell the framework what
    // data is being produced
   setWhatProduced( this, &L1TriggerConfigOnlineProd::produceL1RCTParameters ) ;
-   setWhatProduced( this, &L1TriggerConfigOnlineProd::produceL1JetEtScale ) ;
 
    //now do what ever other initialization is needed
 }
@@ -81,180 +68,30 @@ L1TriggerConfigOnlineProd::~L1TriggerConfigOnlineProd()
 // member functions
 //
 
-// Called from produce methods.
-// bool is true if the subsystem data should be made.
-// If bool is false, produce method should throw DataAlreadyPresentException.
-template< class TRcd, class TData >
-bool L1TriggerConfigOnlineProd::getSubsystemKey( const TRcd& record,
-					boost::shared_ptr< TData > data,
-					std::string& subsystemKey )
-{
-   // Get L1TriggerKey
-   const L1TriggerKeyRcd& keyRcd =
-      record.template getRecord< L1TriggerKeyRcd >() ;
+// ------------ method called to produce the data  ------------
 
-   // Explanation of funny syntax: since record is dependent, we are not
-   // expecting getRecord to be a template so the compiler parses it
-   // as a non-template. http://gcc.gnu.org/ml/gcc-bugs/2005-11/msg03685.html
+// // Skeleton for produce functions
+// boost::shared_ptr< TData >
+// L1TriggerConfigOnlineProd::produce( const TRcd& iRecord )
+// {
+//    using namespace edm::es;
+//    boost::shared_ptr< TData > pData ;
 
-   // If L1TriggerKey is invalid, then all configuration objects are
-   // already in ORCON.
-   edm::ESHandle< L1TriggerKey > key ;
-   try
-   {
-      keyRcd.get( key ) ;
-   }
-   catch( l1t::DataAlreadyPresentException& ex )
-   {
-      subsystemKey = std::string() ;
-      return false ;      
-   }
-
-//    if( !key.isValid() )
+//    // Get subsystem key and check if already in ORCON
+//    std::string key ;
+//    if( getSubsystemKey( iRecord, pData, key ) ||
+//        m_forceGeneration )
 //    {
-//       subsystemKey = std::string() ;
-//       return false ;
+//      // Key not in ORCON -- get data from OMDS and make C++ object
+//    }
+//    else
+//    {
+//      throw l1t::DataAlreadyPresentException(
+//         "TData for key " + key + " already in CondDB." ) ;
 //    }
 
-   // Get subsystem key from L1TriggerKey
-   std::string recordName =
-      edm::eventsetup::heterocontainer::HCTypeTagTemplate< TRcd,
-      edm::eventsetup::EventSetupRecordKey >::className() ;
-   std::string dataType =
-      edm::eventsetup::heterocontainer::HCTypeTagTemplate< TData,
-      edm::eventsetup::DataKey >::className() ;
-
-   subsystemKey = key->get( recordName, dataType ) ;
-
-   std::cout << "L1TriggerConfigOnlineProd record " << recordName
-	     << " type " << dataType
-	     << " sub key " << subsystemKey
-	     << std::endl ;
-
-   // Get L1TriggerKeyList
-   const L1TriggerKeyListRcd& keyListRcd =
-      record.template getRecord< L1TriggerKeyListRcd >() ;
-   edm::ESHandle< L1TriggerKeyList > keyList ;
-   keyListRcd.get( keyList ) ;
-
-   // If L1TriggerKeyList does not contain subsystem key, token is empty
-   return
-      keyList->token( recordName, dataType, subsystemKey ) == std::string() ;
-}
-
-// ------------ method called to produce the data  ------------
-boost::shared_ptr<L1RCTParameters>
-L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRecord )
-{
-   using namespace edm::es;
-   boost::shared_ptr<L1RCTParameters> pL1RCTParameters ;
-
-   // Get subsystem key and check if already in ORCON
-   std::string key ;
-   if( getSubsystemKey( iRecord, pL1RCTParameters, key ) ||
-       m_forceGeneration )
-   {
-     // Key not in ORCON -- get data from OMDS and make C++ object
-
-     // First, get rct_parameter from rct_key
-     std::string tableString = "rct_conf" ;
-
-     std::vector< std::string > queryStrings ;
-     queryStrings.push_back( "rct_parameter" ) ;
-
-     std::string conditionString = "rct_conf.rct_key = :key" ;
-
-     coral::AttributeList attributes ;
-     attributes.extend( "key", typeid( std::string ) ) ;
-     attributes[ "key" ].data< std::string >() = key ;
-
-     boost::shared_ptr< coral::IQuery > query
-       ( m_omdsReader.newQuery( tableString, queryStrings,
-				conditionString, attributes ) ) ;
-     coral::ICursor& cursor = query->execute() ;
-     std::string rct_parameter ;
-     while( cursor.next() )
-       {
-	 const coral::AttributeList& row = cursor.currentRow() ;
-	 rct_parameter = row[ "rct_parameter" ].data< std::string >() ;
-	 std::cout << "rct_parameter = " << rct_parameter << std::endl ;
-       }
-
-     // Now, use rct_parameter to get data.
-
-     tableString = "parem_conf" ;
-     queryStrings.clear() ;
-     queryStrings.push_back( "egamma_lsb" ) ;
-     conditionString = "parem_conf.parem_key = :rct_parameter" ;
-
-     coral::AttributeList attributes2 ;
-     attributes2.extend( "rct_parameter", typeid( std::string ) ) ;
-     attributes2[ "rct_parameter" ].data< std::string >() = rct_parameter ;
-
-     boost::shared_ptr< coral::IQuery > query2
-       ( m_omdsReader.newQuery( tableString, queryStrings,
-				conditionString, attributes2 ) ) ;
-     coral::ICursor& cursor2 = query2->execute() ;
-     while( cursor2.next() )
-       {
-	 const coral::AttributeList& row = cursor2.currentRow() ;
-	 double egamma_lsb = row[ "egamma_lsb" ].data< double >() ;
-	 std::cout << "egamma_lsb = " << egamma_lsb << std::endl ;
-       }
-
-      pL1RCTParameters = boost::shared_ptr< L1RCTParameters >(
-	 new L1RCTParameters() ) ;
-   }
-   else
-   {
-     throw l1t::DataAlreadyPresentException(
-        "L1RCTParameters for key " + key + " already in CondDB." ) ;
-   }
-
-   return pL1RCTParameters ;
-}
-
-boost::shared_ptr<L1CaloEtScale>
-L1TriggerConfigOnlineProd::produceL1JetEtScale( const L1JetEtScaleRcd& iRecord )
-{
-   using namespace edm::es;
-   boost::shared_ptr<L1CaloEtScale> pL1CaloEtScale ;
-
-   // Get subsystem key and check if already in ORCON
-   std::string key ;
-   if( getSubsystemKey( iRecord, pL1CaloEtScale, key ) ||
-       m_forceGeneration )
-   {
-      // Key not in ORCON -- get data from OMDS and make C++ object
-     std::string tableString = "GCT" ;
-
-     std::vector< std::string > queryStrings ;
-     queryStrings.push_back( "RUN" ) ;
-
-     std::string conditionString = "" ;
-     coral::AttributeList attributes ;
-
-     boost::shared_ptr< coral::IQuery > query
-       ( m_omdsReader.newQuery( tableString, queryStrings,
-				conditionString, attributes ) ) ;
-     coral::ICursor& cursor = query->execute() ;
-     while( cursor.next() )
-       {
-	 const coral::AttributeList& row = cursor.currentRow() ;
-	 int run = row[ "RUN" ].data< int >() ;
-       }
-
-      pL1CaloEtScale = boost::shared_ptr< L1CaloEtScale >(
-	 new L1CaloEtScale() ) ;
-   }
-   else
-   {
-     throw l1t::DataAlreadyPresentException(
-        "L1JetEtScale for key " + key + " already in CondDB." ) ;
-   }
-
-   return pL1CaloEtScale ;
-}
+//    return pData ;
+// }
 
 //define this as a plug-in
 //DEFINE_FWK_EVENTSETUP_MODULE(L1TriggerConfigOnlineProd);
