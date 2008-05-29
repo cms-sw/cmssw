@@ -14,7 +14,7 @@ caloRecoTauTagInfoProducer = cms.EDProducer("CaloRecoTauTagInfoProducer",
     # parameters of the considered EcalRecHits
     EBRecHitsSource = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     BarrelBasicClustersSource = cms.InputTag("hybridSuperClusters"),
-    EndcapBasicClustersSource = cms.InputTag("multi5x5BasicClusters"),
+    EndcapBasicClustersSource = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
 
     smearedPVsigmaY = cms.double(0.0015),
     smearedPVsigmaX = cms.double(0.0015),
