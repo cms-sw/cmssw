@@ -43,6 +43,8 @@ class CnBAnalyzer : public edm::EDAnalyzer {
 
   // Access the cabling database or not
   bool useCablingDb_;
+  const SiStripFedCabling* cabling_;
+  //  edm::ESHandle<SiStripFedCabling>* cabling_; 
 
   // A data structure to record
   // the found FEDs

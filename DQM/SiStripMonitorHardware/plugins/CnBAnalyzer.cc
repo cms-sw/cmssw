@@ -12,6 +12,9 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -43,7 +46,8 @@ CnBAnalyzer::CnBAnalyzer(const edm::ParameterSet& iConfig) {
   totalNumberOfFeds_ = fedIdBoundaries_.second - fedIdBoundaries_.first + 1;
 
   // Whether we should use the cabling database
-  useCablingDb_ = iConfig.getUntrackedParameter<bool>("useCablingDatabase",false);
+  useCablingDb_ = iConfig.getUntrackedParameter<bool>("useCablingDb",false);
+  cabling_ = NULL;
 }
 
 CnBAnalyzer::~CnBAnalyzer() {
@@ -122,7 +126,12 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       Fed9UErrorCondition thisFedEventErrs;
 
       // The actual checkout of the buffer:
-      thisFedEventErrs = myEventAnalyzer.Analyze();
+      if (cabling_) {
+	const std::vector<FedChannelConnection>& conns = cabling_->connections(*ifed);
+	thisFedEventErrs = myEventAnalyzer.Analyze(true, &conns);
+      } else {
+	thisFedEventErrs = myEventAnalyzer.Analyze(false, NULL);
+      }
 
       total_enabled_channels += thisFedEventErrs.totalChannels;
       total_faulty_channels  += thisFedEventErrs.problemsSeen;
@@ -207,6 +216,13 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
   // Summary histograms
   createRootFedHistograms();
+
+  // Create and populate the FED cabling object if needed
+  if (useCablingDb_) {
+    edm::ESHandle<SiStripFedCabling> myCabling;
+    iSetup.get<SiStripFedCablingRcd>().get(myCabling);
+    cabling_=&(*myCabling);
+  }
 
 }
 

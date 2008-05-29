@@ -5,7 +5,8 @@
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 #include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
 
-Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap) {
+Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries,
+				       bool doSwap, bool doPreSwap ) {
   // First of all we instantiate the Fed9U object of the event
   fedEvent_ = new Fed9U::Fed9UDebugEvent(); 
   fedIdBoundaries_ = newFedBoundaries;
@@ -17,7 +18,7 @@ Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool
 
 Fed9UEventAnalyzer::Fed9UEventAnalyzer(Fed9U::u32* data_u32, Fed9U::u32 size_u32,
 				       std::pair<int,int> newFedBoundaries,
-				       bool doSwap, bool doPreSwap) {
+				       bool doSwap, bool doPreSwap ) {
   Fed9UEventAnalyzer(newFedBoundaries,doSwap, doPreSwap);
 
   Initialize(data_u32, size_u32);
@@ -125,7 +126,7 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
 }
 
 
-Fed9UErrorCondition Fed9UEventAnalyzer::Analyze() {
+Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector<FedChannelConnection>* conns) {
   Fed9UErrorCondition result;
   
   // **********************************
@@ -217,49 +218,57 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze() {
 	  // Local index to access the result channel vector
 	  unsigned channelIndex=12*fpga+fi;
 
-
-	  bool APV1Error       = fedEvent_->getAPV1Error(fpga,fi);
-	  bool APV2Error       = fedEvent_->getAPV2Error(fpga,fi);
-	  bool APV1WrongHeader = fedEvent_->getAPV1WrongHeader(fpga,fi);
-	  bool APV2WrongHeader = fedEvent_->getAPV2WrongHeader(fpga,fi);
-	  bool outOfSync       = fedEvent_->getOutOfSync(fpga,fi);
-	  bool unlocked        = fedEvent_->getUnlocked(fpga,fi);
-
-	  bool anyError =
-	    APV1Error ||
-	    APV2Error ||
-	    APV1WrongHeader ||
-	    APV2WrongHeader ||
-	    outOfSync ||
-	    unlocked ;
-
-	  outOfSync     = outOfSync && (!unlocked);
-
-	  bool badAPV1  = (APV1Error || APV1WrongHeader) && (!outOfSync) && (!unlocked);
-	  bool badAPV2  = (APV2Error || APV2WrongHeader) && (!outOfSync) && (!unlocked);
-
-	  if (anyError) {
-	    result.problemsSeen++;
-
-	    if (unlocked) {
-	      result.channel[channelIndex]=FIBERUNLOCKED;
-	    }
-	    if (outOfSync) {
-	      result.channel[channelIndex]=FIBEROUTOFSYNCH;
-	    }
-	    if (badAPV1) {
-	      result.apv[channelIndex*2]=BADAPV;
-	    }
-	    if (badAPV2) {
-	      result.apv[channelIndex*2+1]=BADAPV;
+	  bool readChannel = true;
+	  if (useConns) {
+	    if (!((*conns)[channelIndex]).isConnected()) {
+	      readChannel = false;
 	    }
 	  }
-
+	  
+	  if (readChannel) {
+	    bool APV1Error       = fedEvent_->getAPV1Error(fpga,fi);
+	    bool APV2Error       = fedEvent_->getAPV2Error(fpga,fi);
+	    bool APV1WrongHeader = fedEvent_->getAPV1WrongHeader(fpga,fi);
+	    bool APV2WrongHeader = fedEvent_->getAPV2WrongHeader(fpga,fi);
+	    bool outOfSync       = fedEvent_->getOutOfSync(fpga,fi);
+	    bool unlocked        = fedEvent_->getUnlocked(fpga,fi);
+	    
+	    bool anyError =
+	      APV1Error ||
+	      APV2Error ||
+	      APV1WrongHeader ||
+	      APV2WrongHeader ||
+	      outOfSync ||
+	      unlocked ;
+	    
+	    outOfSync     = outOfSync && (!unlocked);
+	    
+	    bool badAPV1  = (APV1Error || APV1WrongHeader) && (!outOfSync) && (!unlocked);
+	    bool badAPV2  = (APV2Error || APV2WrongHeader) && (!outOfSync) && (!unlocked);
+	    
+	    if (anyError) {
+	      result.problemsSeen++;
+	      
+	      if (unlocked) {
+		result.channel[channelIndex]=FIBERUNLOCKED;
+	      }
+	      if (outOfSync) {
+		result.channel[channelIndex]=FIBEROUTOFSYNCH;
+	      }
+	      if (badAPV1) {
+		result.apv[channelIndex*2]=BADAPV;
+	      }
+	      if (badAPV2) {
+		result.apv[channelIndex*2+1]=BADAPV;
+	      }
+	    }
+	  }
+	  
 	} // Fiber loop end
-
-
+	
+	
       } // FE no overflow
-
+      
     } // if FE enabled
   } // for FE fpga loop 
   
