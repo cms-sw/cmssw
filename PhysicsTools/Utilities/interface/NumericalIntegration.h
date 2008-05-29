@@ -7,8 +7,12 @@
  * Gauss Legendre and Gauss algorithms based on ROOT implementation
  *
  */
+#include "Math/Functor.h"
+#include "Math/Integrator.h"
+#include "Math/AllIntegrationTypes.h"
 #include <vector>
 #include <cmath>
+#include <memory>
 
 namespace funct {
 
@@ -113,6 +117,37 @@ namespace funct {
     mutable double h, aconst, bb, aa, c1, c2, u, s8, s16, f1, f2, xx;
     mutable unsigned int i;
   };
+
+  struct RootIntegrator {
+    RootIntegrator(ROOT::Math::IntegrationOneDim::Type type = ROOT::Math::IntegrationOneDim::ADAPTIVE, 
+		   double absTol = 1e-9, double relTol = 1e-6, unsigned int size = 1000, unsigned int rule = 3) :
+      type_(type), absTol_(absTol), relTol_(relTol), size_(size), rule_(rule),
+      integrator_(new ROOT::Math::Integrator(type, absTol, relTol, size, rule)) { }
+    RootIntegrator(const RootIntegrator & o) { 
+      type_ = o.type_; 
+      absTol_ = o.absTol_; relTol_ = o.relTol_;
+      size_ = o.size_; rule_ = o.rule_;
+      integrator_.reset(new ROOT::Math::Integrator(type_, absTol_, relTol_, size_, rule_));
+    }
+    RootIntegrator & operator=(const RootIntegrator & o) {
+      type_ = o.type_; 
+      absTol_ = o.absTol_; relTol_ = o.relTol_;
+      size_ = o.size_; rule_ = o.rule_;
+      integrator_.reset(new ROOT::Math::Integrator(type_, absTol_, relTol_, size_, rule_));
+      return * this;
+    }
+    template<typename F>
+    double operator()(const F& f, double a, double b) const {
+      ROOT::Math::Functor1D wrapper(&f, &F::operator());
+      integrator_->SetFunction(wrapper);
+      return integrator_->Integral(a, b);
+    }
+  private:
+    ROOT::Math::IntegrationOneDim::Type type_;
+    double absTol_, relTol_;
+    unsigned int size_, rule_;
+    mutable std::auto_ptr<ROOT::Math::Integrator> integrator_;
+  };    
 }
 
 #endif

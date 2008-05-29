@@ -35,6 +35,9 @@ struct gauss2 : public gauss { };
 
 struct gauss3 : public gauss { };
 
+struct gauss4 : public gauss { };
+
+
 struct gaussPrimitive {
   double operator()(double x) const { return erf(x); }
 };
@@ -44,6 +47,8 @@ NUMERICAL_FUNCT_INTEGRAL(gauss1, TrapezoidIntegrator);
 NUMERICAL_FUNCT_INTEGRAL(gauss2, GaussLegendreIntegrator);
 
 NUMERICAL_FUNCT_INTEGRAL(gauss3, GaussIntegrator);
+
+NUMERICAL_FUNCT_INTEGRAL(gauss4, RootIntegrator);
 
 template<typename G, typename I>
 pair<double, double> check(const G& g, const I& i) {
@@ -64,6 +69,7 @@ int main() {
   gauss1 g1;
   gauss2 g2;
   gauss3 g3;
+  gauss4 g4;
 
   cout << ">>> Trapezoidal integration" << endl;
   vector<pair<double, double> > t;
@@ -91,7 +97,12 @@ int main() {
     GaussIntegrator i3(e);
     g.push_back(check(g3, i3));
   }
-
+  cout << ">>> ROOT GSL integration" << endl;
+  vector<pair<double, double> > r;
+  for(double e = 100; e > 1.e-5; e /= 2) {
+    RootIntegrator i4(ROOT::Math::IntegrationOneDim::ADAPTIVESINGULAR, e, e);
+    r.push_back(check(g4, i4));
+  }
   gROOT->SetStyle("Plain");
   TCanvas canvas;
   canvas.SetLogx();
@@ -131,11 +142,22 @@ int main() {
     if(yMin > yg[i]) yMin = yg[i];
     if(yMax < yg[i]) yMax = yg[i];
   }
-  TH2F frame("frame", "Red: T, Blue: G-L, Green: G", 1, xMin, xMax, 1, yMin, yMax);
+  size_t nr = r.size();
+  double * xr = new double[nr], * yr = new double[nr];
+  for(size_t i = 0; i < nr; ++i) {
+    xr[i] = r[i].first; yr[i] = r[i].second;
+    if(xr[i] < xAbsMin) xr[i] = xAbsMin;
+    if(yr[i] < yAbsMin) yr[i] = yAbsMin;
+    if(xMin > xr[i]) xMin = xr[i];
+    if(xMax < xr[i]) xMax = xr[i];
+    if(yMin > yr[i]) yMin = yr[i];
+    if(yMax < yr[i]) yMax = yr[i];
+  }
+  TH2F frame("frame", "Red: T, Blue: G-L, Green: G, Black: GSL", 1, xMin, xMax, 1, yMin, yMax);
   frame.GetXaxis()->SetTitle("CPU time (sec)");
   frame.GetYaxis()->SetTitle("Accuracy");
   frame.Draw();
-  TGraph gt(nt, xt, yt), gl(nl, xl, yl), gg(ng, xg, yg);
+  TGraph gt(nt, xt, yt), gl(nl, xl, yl), gg(ng, xg, yg), gr(nr, xr, yr);
   gt.SetMarkerStyle(21);
   gt.SetLineWidth(3);
   gt.SetLineColor(kRed);
@@ -145,13 +167,18 @@ int main() {
   gg.SetMarkerStyle(21);
   gg.SetLineWidth(3);
   gg.SetLineColor(kGreen);
+  gr.SetMarkerStyle(21);
+  gr.SetLineWidth(3);
+  gr.SetLineColor(kBlack);
   gt.Draw("PC");
   gl.Draw("PC");
   gg.Draw("PC");
+  gr.Draw("PC");
   canvas.SaveAs("integralTiming.eps");
   delete [] xt; delete [] yt;
   delete [] xl; delete [] yl;
   delete [] xg; delete [] yg;
+  delete [] xr; delete [] yr;
 
   return 0;
 }
