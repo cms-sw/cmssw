@@ -126,6 +126,8 @@
   <class name="edm::reftobase::Holder<pat::TauType, pat::TauRef>" />
   <class name="edm::reftobase::RefHolder<pat::TauRef>" />
   <class name="edm::reftobase::Holder<reco::Candidate, pat::TauRef>" />
+  <class name="edm::reftobase::RefHolder<reco::PFTauRef>" />
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::PFTauRef>" /> 
 
   <class name="edm::RefToBase<pat::PhotonType>" />
   <class name="edm::reftobase::BaseHolder<pat::PhotonType>" />
