@@ -24,7 +24,7 @@
 
 
 
-<LINK name="*Occupancy*">
+<LINK name="Occupancy*">
 	<TestName activate="true">DeadChannel_0</TestName>
 </LINK>
 

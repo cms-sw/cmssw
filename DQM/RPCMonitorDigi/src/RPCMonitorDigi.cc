@@ -48,40 +48,6 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   
   /// get hold of back-end interfacestd::cout<<"\n test"<<std::endl;
   dbe = edm::Service<DQMStore>().operator->();
-
-  /*
-
-  if (dqmexpert && dqmsuperexpert==false) {
-    
-    cout<<"\n \033[0;35m DQM will be run in RPC EXPERTS mode !!! "<<endl;
-    cout<<"\033[0;30m"<<endl;
-     sleep(10);
-
-    // sleep(10);
-
-    //    sleep(10);
-
-   
-  } else if (dqmexpert && dqmsuperexpert) {
-    
-    cout<<"\n \033[0;31m DQM will be run in RPC SUPER EXPERTS mode !!! "<<endl;
-    cout<<"\033[0;30m"<<endl;
-    sleep(10);
-    //    sleep(10);
-    
-  } else { 
-    
-    cout<<"\n \033[0;32m DQM will be run in RPC Shifter mode !!! "<<endl;
-    cout<<"\033[0;30m"<<endl;
-    sleep(10);
-
-    // sleep(10);
-
-    //    sleep(10);
-
-    
-  } 
-  */   
  
 }
 
@@ -105,7 +71,7 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
   ClusterSize_for_EndcapBackward = dbe->book1D("ClusterSize_for_EndcapBackward", "ClusterSize for BackwardEndcap", 20, 0.5, 20.5);
   ClusterSize_for_BarrelandEndcaps = dbe->book1D("ClusterSize_for_BarrelandEndcap", "ClusterSize for Barrel&Endcaps", 20, 0.5, 20.5);
 
-  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDidi_for_Barrel", "NumberOfDifis for Barrel", 20, 0.5, 20.5);
+  NumberOfDigis_for_Barrel = dbe -> book1D("NumberOfDigi_for_Barrel", "NumberOfDigis for Barrel", 20, 0.5, 20.5);
   NumberOfClusters_for_Barrel = dbe -> book1D("NumberOfClusters_for_Barrel", "NumberOfClusters for Barrel", 20, 0.5, 20.5);
 
   SameBxDigisMe_ = dbe->book1D("SameBXDigis", "Digis with same bx", 20, 0, 20);
@@ -116,7 +82,8 @@ void RPCMonitorDigi::beginJob(edm::EventSetup const&){
 
 
 void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
-  //if mergeRuns_==true skip reset
+  //if mergeRuns_ skip reset
+  //if merge remember to safe at job end and not at run end
   if (mergeRuns_) return;
 
   //Mes are reset at every new run. Thez are saved at the end of each run
@@ -146,15 +113,7 @@ void RPCMonitorDigi::beginRun(const Run& r, const EventSetup& c){
 void RPCMonitorDigi::endJob(void)
 {
   if(saveRootFile) dbe->save(RootFileName);
-  
-  //std::vector<std::string> contentVec;
-  //dbe->getContents(contentVec);
-  //std::vector<std::string>::iterator dirItr;
-  //for(dirItr=contentVec.begin();dirItr!=contentVec.end(); ++dirItr){
-  //	dbe->setCurrentFolder(*dirItr);
-  //	dbe->removeContents();
-  //}
-  
+ 
   dbe = 0;
 }
 
@@ -162,12 +121,10 @@ void RPCMonitorDigi::endJob(void)
 void RPCMonitorDigi::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup ){
 
-  //sleep(1);
-
-  counter++;
-  edm::LogInfo (nameInLog) <<"Beginning analyzing event " << counter;
+   counter++;
+  edm::LogInfo (nameInLog) <<"[RPCMonitorDigi]: Beginning analyzing event " << counter;
   
-  string layerLabel;
+  // string layerLabel;
   string meId;
   
   std::map<uint32_t, bool >::iterator mapItrReset;
@@ -182,6 +139,9 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   /// DIGI     
   edm::Handle<RPCDigiCollection> rpcdigis;
   iEvent.getByType(rpcdigis);
+
+//   int prova= rpcdigis.size();
+//   edm::LogInfo (nameInLog) <<"[RPCMonitorDigi]: ----------------------" << prova;
   
   /// RecHits
   edm::Handle<RPCRecHitCollection> rpcHits;
@@ -189,12 +149,19 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
   
   map<int, int> bxMap;
 
+
+  int totalNumberDigi[3][1];
+
+  for (int k=1; k<=5;k++){
+    totalNumberDigi[k][1]=0;
+  }
+
   
   RPCDigiCollection::DigiRangeIterator collectionItr;
   //Loop on digi collection
   for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
     
-    
+
     RPCDetId detId=(*collectionItr ).first; 
     uint32_t id=detId(); 
     
@@ -202,15 +169,14 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
     const BoundPlane & surface = gdet->surface();
   
     string detUnitLabel;
-    string LayerLabel;
+    //  string LayerLabel;
     
     RPCGeomServ RPCname(detId);
-    //    std::cout <<"==> RPC Digi found in "<<RPCname.name()<<std::endl;
     
     //get roll name
     std::string nameRoll = RPCname.name();
     detUnitLabel = nameRoll;
-    LayerLabel = nameRoll;
+    //   LayerLabel = nameRoll;
     std::stringstream os;
     
     RPCGeomServ RPCnumber(detId);
@@ -252,25 +218,34 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
     strips.clear(); 
     bxs.clear();
     RPCDigiCollection::const_iterator digiItr; 
-    for (digiItr = ((*collectionItr ).second).first;
-	 digiItr!=((*collectionItr).second).second; ++digiItr){
-      
+  
+    //loop o digis of given roll
+    for (digiItr = ((*collectionItr ).second).first;digiItr!=((*collectionItr).second).second; ++digiItr){
+
+      ++numberOfDigi;
+
       int strip= (*digiItr).strip();
       strips.push_back(strip);
       int bx=(*digiItr).bx();
 
-      bool bxExists = false;
-      //std::cout <<"==> strip = "<<strip<<" bx = "<<bx<<std::endl;
-      for(std::vector<int>::iterator existingBX= bxs.begin();
-	  existingBX != bxs.end(); ++existingBX){
-	if (bx==*existingBX) {
-	  bxExists=true;
-	  break;
-	}
-      }
-      if(!bxExists)bxs.push_back(bx);
-      
-      ++numberOfDigi;
+      // bool bxExists = false;
+
+      //get bx number for this digi
+      std::vector<int>::iterator existingBX = find( bxs.begin(),bxs.end(),bx);
+      if(existingBX!=bxs.end())bxs.push_back(bx);
+
+
+
+//       //std::cout <<"==> strip = "<<strip<<" bx = "<<bx<<std::endl;
+//       for(std::vector<int>::iterator existingBX= bxs.begin();
+// 	  existingBX != bxs.end(); ++existingBX){
+// 	if (bx==*existingBX) {
+// 	  bxExists=true;
+// 	  break;
+// 	}
+//       }
+//       if(!bxExists)bxs.push_back(bx);
+ 
       
 
       //adding new histo C.Carrillo & A. Cimmino
@@ -382,10 +357,13 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
       os<<"NumberOfDigi_"<<detUnitLabel;
       meId = os.str();
       meMap[meId]->Fill(numberOfDigi);
-      NumberOfDigis_for_Barrel ->Fill(numberOfDigi);
-      
+
+
+      totalNumberDigi[detId.region()+2][1]+= numberOfDigi;
+
+      //      NumberOfDigis_for_Barrel ->Fill(numberOfDigi);
     }
-    
+     
     typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
     rangeRecHits recHitCollection =  rpcHits->get(detId);
     
@@ -583,8 +561,10 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
    
   
 
-  }/// loop on RPC Det Unit
+  }/// loop on RPC Digi Collection
   
+  //fill global histo
+  NumberOfDigis_for_Barrel ->Fill(totalNumberDigi[2][1]);
 
   //adding new histo C.Carrillo & A. Cimmino
   for (map<int, int>::const_iterator myItr= bxMap.begin(); 
