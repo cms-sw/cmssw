@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.6 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.7 2008/05/26 14:56:47 giordano Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -11,6 +11,7 @@ using namespace sistrip;
 // 
 SiStripDbParams::SiStripDbParams() :
   usingDb_(false),
+  confdb_(null_),
   user_(null_),
   passwd_(null_),
   path_(null_),
@@ -22,14 +23,102 @@ SiStripDbParams::SiStripDbParams() :
   outputDcuInfoXml_("/tmp/dcuinfo.xml"),
   outputFecXml_("/tmp/fec.xml"),
   outputFedXml_("/tmp/fed.xml")
-{
-  reset();
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripDbParams::SiStripDbParams( const SiStripDbParams& input ) :
+  usingDb_( input.usingDb() ),
+  confdb_( input.confdb() ),
+  user_( input.user() ),
+  passwd_( input.passwd() ),
+  path_( input.path() ),
+  usingDbCache_( input.usingDbCache() ),
+  sharedMemory_( input.sharedMemory() ),
+  tnsAdmin_( input.tnsAdmin() ),
+  partitions_( input.partitions().begin(), input.partitions().end() ),
+  outputModuleXml_( input.outputModuleXml() ),
+  outputDcuInfoXml_( input.outputDcuInfoXml() ),
+  outputFecXml_( input.outputFecXml() ),
+  outputFedXml_( input.outputFedXml() )
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripDbParams& SiStripDbParams::operator= ( const SiStripDbParams& input ) {
+  usingDb_ = input.usingDb();
+  confdb_ = input.confdb();
+  user_ = input.user();
+  passwd_ = input.passwd();
+  path_ = input.path();
+  confdb( confdb_ );
+  usingDbCache_ = input.usingDbCache();
+  sharedMemory_ = input.sharedMemory();
+  tnsAdmin_ = input.tnsAdmin();
+  partitions_.clear();
+  partitions_ = SiStripPartitions( input.partitions().begin(), input.partitions().end() );
+  outputModuleXml_ = input.outputModuleXml();
+  outputDcuInfoXml_ = input.outputDcuInfoXml();
+  outputFecXml_ = input.outputFecXml(); 
+  outputFedXml_ = input.outputFedXml();
+  return *this;
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripDbParams::operator== ( const SiStripDbParams& input ) const {
+  if ( !( usingDb_ == input.usingDb() &&
+	  confdb_ == input.confdb() && 
+	  user_ == input.user() &&
+	  passwd_ == input.passwd() &&
+	  path_ == input.path() &&
+	  usingDbCache_ == input.usingDbCache() &&
+	  sharedMemory_ == input.sharedMemory() &&
+	  tnsAdmin_ == input.tnsAdmin() &&
+	  outputModuleXml_ == input.outputModuleXml() &&
+	  outputDcuInfoXml_ == input.outputDcuInfoXml() &&
+	  outputFecXml_ == input.outputFecXml() && 
+	  outputFedXml_ == input.outputFedXml() ) ) { return false; }
+  if ( partitions_.size() != input.partitions().size() ) { return false; }
+  SiStripPartitions::const_iterator ii = input.partitions().begin();
+  SiStripPartitions::const_iterator jj = input.partitions().end();
+  SiStripPartitions::const_iterator iter = partitions_.begin();
+  for ( ; ii != jj; ++ii ) {
+    if ( ii->first != iter->first || ii->second != iter->second ) { return false; }
+    iter++;
+  }
+  return true;
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripDbParams::operator!= ( const SiStripDbParams& input ) const {
+  return !( *this == input );
 }
 
 // -----------------------------------------------------------------------------
 // 
 SiStripDbParams::~SiStripDbParams() {
+  reset();
+}
+
+// -----------------------------------------------------------------------------
+// 
+void SiStripDbParams::reset() {
+  usingDb_      = false;
+  confdb_       = null_;
+  user_         = null_;
+  passwd_       = null_;
+  path_         = null_;
+  usingDbCache_ = false;
+  sharedMemory_ = "";
+  tnsAdmin_     = "";
   partitions_.clear();
+  confdb( confdb_ );
+  outputModuleXml_  = "/tmp/module.xml";
+  outputDcuInfoXml_ = "/tmp/dcuinfo.xml";
+  outputFecXml_     = "/tmp/fec.xml";
+  outputFedXml_     = "/tmp/fed.xml";
 }
 
 // -----------------------------------------------------------------------------
@@ -62,25 +151,6 @@ void SiStripDbParams::addPartition( const SiStripPartition& in ) {
        << " Not adding...";
     edm::LogWarning(mlConfigDb_) << ss.str();
   }
-}
-
-// -----------------------------------------------------------------------------
-// 
-void SiStripDbParams::reset() {
-  usingDb_      = false;
-  confdb_       = null_;
-  user_         = null_;
-  passwd_       = null_;
-  path_         = null_;
-  usingDbCache_ = false;
-  sharedMemory_ = "";
-  tnsAdmin_     = "";
-  partitions_.clear();
-  confdb( confdb_ );
-  outputModuleXml_  = "/tmp/module.xml";
-  outputDcuInfoXml_ = "/tmp/dcuinfo.xml";
-  outputFecXml_     = "/tmp/fec.xml";
-  outputFedXml_     = "/tmp/fed.xml";
 }
 
 // -----------------------------------------------------------------------------
@@ -136,7 +206,7 @@ void SiStripDbParams::confdb( const std::string& confdb ) {
   uint32_t ipass = confdb.find("/");
   uint32_t ipath = confdb.find("@");
   if ( ipass != std::string::npos && 
-        ipath != std::string::npos ) {
+       ipath != std::string::npos ) {
     user_   = confdb.substr(0,ipass); 
     passwd_ = confdb.substr(ipass+1,ipath-ipass-1); 
     path_   = confdb.substr(ipath+1,confdb.size());
@@ -322,13 +392,4 @@ std::vector<std::string> SiStripDbParams::inputFedXmlFiles() const {
   SiStripPartitions::const_iterator jj = partitions_.end();
   for ( ; ii != jj; ++ii ) { files.insert( files.end(), ii->second.inputFedXml().begin(), ii->second.inputFedXml().end() ); }
   return files;
-}
-
-// -----------------------------------------------------------------------------
-// 
-bool SiStripDbParams::operator == ( const SiStripDbParams& other ){
-  std::stringstream a,b; 
-  this->print(a); 
-  other.print(b); 
-  return !strcmp(a.str().c_str(),b.str().c_str());
 }

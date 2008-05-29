@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.h,v 1.5 2008/05/06 12:36:54 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.h,v 1.6 2008/05/26 13:35:51 giordano Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripPartition_h
 #define OnlineDB_SiStripConfigDb_SiStripPartition_h
@@ -25,11 +25,19 @@ std::ostream& operator<< ( std::ostream&, const SiStripPartition& );
 class SiStripPartition { 
   
  public:
+
+  SiStripPartition();
     
   SiStripPartition( std::string partition_name );
 
-  SiStripPartition();
+  SiStripPartition( const SiStripPartition& );
 
+  SiStripPartition& operator= ( const SiStripPartition& );
+  
+  bool operator== ( const SiStripPartition& ) const;
+  
+  bool operator!= ( const SiStripPartition& ) const;
+  
   ~SiStripPartition();
 
   typedef std::pair<uint32_t,uint32_t> Versions; 
@@ -44,67 +52,67 @@ class SiStripPartition {
   
   // partition, run and version information
   
-  inline std::string partitionName() const; 
+  std::string partitionName() const; 
   
-  inline uint32_t runNumber() const;
+  uint32_t runNumber() const;
   
-  inline sistrip::RunType runType() const;
+  sistrip::RunType runType() const;
   
-  inline bool forceVersions() const;
+  bool forceVersions() const;
 
-  inline bool forceCurrentState() const;
+  bool forceCurrentState() const;
 
   // description versions
   
-  inline Versions cabVersion() const;
+  Versions cabVersion() const;
 
-  inline Versions fedVersion() const;
+  Versions fedVersion() const;
 
-  inline Versions fecVersion() const;
+  Versions fecVersion() const;
 
-  inline Versions dcuVersion() const;
+  Versions dcuVersion() const;
 
-  inline Versions psuVersion() const;
+  Versions psuVersion() const;
 
-  inline uint32_t globalAnalysisVersion() const;
+  uint32_t globalAnalysisVersion() const;
 
-  inline Versions fastCablingVersion() const;
+  Versions runTableVersion() const;
 
-  inline Versions apvTimingVersion() const;
+  Versions fastCablingVersion() const;
 
-  inline Versions optoScanVersion() const;
+  Versions apvTimingVersion() const;
 
-  inline Versions vpspScanVersion() const;
+  Versions optoScanVersion() const;
 
-  inline Versions apvCalibVersion() const;
+  Versions vpspScanVersion() const;
 
-  inline Versions pedestalsVersion() const;
+  Versions apvCalibVersion() const;
 
-  inline Versions apvLatencyVersion() const;
+  Versions pedestalsVersion() const;
 
-  inline Versions fineDelayVersion() const;
+  Versions apvLatencyVersion() const;
+
+  Versions fineDelayVersion() const;
 
   // input xml files
 
-  inline std::string inputModuleXml() const;
+  std::string inputModuleXml() const;
 
-  inline std::string inputDcuInfoXml() const;
+  std::string inputDcuInfoXml() const;
 
-  inline std::vector<std::string> inputFecXml() const;
+  std::vector<std::string> inputFecXml() const;
 
-  inline std::vector<std::string> inputFedXml() const;
+  std::vector<std::string> inputFedXml() const;
 
   // setters
   
-  inline void partitionName( std::string ); 
+  void partitionName( std::string ); 
   
-  inline void runNumber( uint32_t );
+  void runNumber( uint32_t );
   
-  inline void forceVersions( bool );
+  void forceVersions( bool );
 
-  inline void forceCurrentState( bool );
-
-  bool operator == ( const SiStripPartition& );
+  void forceCurrentState( bool );
 
  private:
   
@@ -170,36 +178,37 @@ class SiStripPartition {
 
 // ---------- Inline methods ----------
 
-std::string SiStripPartition::partitionName() const { return partitionName_; } 
-uint32_t SiStripPartition::runNumber() const { return runNumber_; }
-sistrip::RunType SiStripPartition::runType() const { return runType_; }
-bool SiStripPartition::forceVersions() const { return forceVersions_; }
-bool SiStripPartition::forceCurrentState() const { return forceCurrentState_; }
+inline std::string SiStripPartition::partitionName() const { return partitionName_; } 
+inline uint32_t SiStripPartition::runNumber() const { return runNumber_; }
+inline sistrip::RunType SiStripPartition::runType() const { return runType_; }
+inline bool SiStripPartition::forceVersions() const { return forceVersions_; }
+inline bool SiStripPartition::forceCurrentState() const { return forceCurrentState_; }
 
-SiStripPartition::Versions SiStripPartition::cabVersion() const { return cabVersion_; }
-SiStripPartition::Versions SiStripPartition::fedVersion() const { return fedVersion_; }
-SiStripPartition::Versions SiStripPartition::fecVersion() const { return fecVersion_; }
-SiStripPartition::Versions SiStripPartition::dcuVersion() const { return dcuVersion_; }
-SiStripPartition::Versions SiStripPartition::psuVersion() const { return psuVersion_; }
+inline SiStripPartition::Versions SiStripPartition::cabVersion() const { return cabVersion_; }
+inline SiStripPartition::Versions SiStripPartition::fedVersion() const { return fedVersion_; }
+inline SiStripPartition::Versions SiStripPartition::fecVersion() const { return fecVersion_; }
+inline SiStripPartition::Versions SiStripPartition::dcuVersion() const { return dcuVersion_; }
+inline SiStripPartition::Versions SiStripPartition::psuVersion() const { return psuVersion_; }
 
-uint32_t SiStripPartition::globalAnalysisVersion() const { return globalAnalysisV_; } 
-SiStripPartition::Versions SiStripPartition::fastCablingVersion() const { return fastCablingV_; }
-SiStripPartition::Versions SiStripPartition::apvTimingVersion() const { return apvTimingV_; }
-SiStripPartition::Versions SiStripPartition::optoScanVersion() const { return optoScanV_; }
-SiStripPartition::Versions SiStripPartition::vpspScanVersion() const { return vpspScanV_; }
-SiStripPartition::Versions SiStripPartition::apvCalibVersion() const { return apvCalibV_; }
-SiStripPartition::Versions SiStripPartition::pedestalsVersion() const { return pedestalsV_; }
-SiStripPartition::Versions SiStripPartition::apvLatencyVersion() const { return apvLatencyV_; }
-SiStripPartition::Versions SiStripPartition::fineDelayVersion() const { return fineDelayV_; }
+inline uint32_t SiStripPartition::globalAnalysisVersion() const { return globalAnalysisV_; } 
+inline SiStripPartition::Versions SiStripPartition::runTableVersion() const { return runTableVersion_; }
+inline SiStripPartition::Versions SiStripPartition::fastCablingVersion() const { return fastCablingV_; }
+inline SiStripPartition::Versions SiStripPartition::apvTimingVersion() const { return apvTimingV_; }
+inline SiStripPartition::Versions SiStripPartition::optoScanVersion() const { return optoScanV_; }
+inline SiStripPartition::Versions SiStripPartition::vpspScanVersion() const { return vpspScanV_; }
+inline SiStripPartition::Versions SiStripPartition::apvCalibVersion() const { return apvCalibV_; }
+inline SiStripPartition::Versions SiStripPartition::pedestalsVersion() const { return pedestalsV_; }
+inline SiStripPartition::Versions SiStripPartition::apvLatencyVersion() const { return apvLatencyV_; }
+inline SiStripPartition::Versions SiStripPartition::fineDelayVersion() const { return fineDelayV_; }
 
-std::string SiStripPartition::inputModuleXml() const { return inputModuleXml_; }
-std::string SiStripPartition::inputDcuInfoXml() const { return inputDcuInfoXml_; }
-std::vector<std::string> SiStripPartition::inputFecXml() const { return inputFecXml_; }
-std::vector<std::string> SiStripPartition::inputFedXml() const { return inputFedXml_; }
+inline std::string SiStripPartition::inputModuleXml() const { return inputModuleXml_; }
+inline std::string SiStripPartition::inputDcuInfoXml() const { return inputDcuInfoXml_; }
+inline std::vector<std::string> SiStripPartition::inputFecXml() const { return inputFecXml_; }
+inline std::vector<std::string> SiStripPartition::inputFedXml() const { return inputFedXml_; }
 
-void SiStripPartition::partitionName( std::string name ) { partitionName_ = name ; } 
-void SiStripPartition::runNumber( uint32_t run ) { runNumber_ = run; }
-void SiStripPartition::forceVersions( bool force ) { forceVersions_ = force; }
-void SiStripPartition::forceCurrentState( bool force ) { forceCurrentState_ = force; }
+inline void SiStripPartition::partitionName( std::string name ) { partitionName_ = name ; } 
+inline void SiStripPartition::runNumber( uint32_t run ) { runNumber_ = run; }
+inline void SiStripPartition::forceVersions( bool force ) { forceVersions_ = force; }
+inline void SiStripPartition::forceCurrentState( bool force ) { forceCurrentState_ = force; }
 
 #endif // OnlineDB_SiStripConfigDb_SiStripPartition_h

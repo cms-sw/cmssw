@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.7 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.8 2008/05/26 13:35:51 giordano Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -8,37 +8,6 @@
 #include <cmath>
 
 using namespace sistrip;
-
-// -----------------------------------------------------------------------------
-// 
-SiStripPartition::SiStripPartition( std::string partition ) :
-  partitionName_(partition), 
-  runNumber_(0),
-  runType_(sistrip::UNDEFINED_RUN_TYPE),
-  forceVersions_(false),
-  forceCurrentState_(false),
-  cabVersion_(0,0),
-  fedVersion_(0,0),
-  fecVersion_(0,0),
-  dcuVersion_(0,0),
-  psuVersion_(0,0),
-  globalAnalysisV_(0),
-  runTableVersion_(0,0),
-  fastCablingV_(0,0),
-  apvTimingV_(0,0),
-  optoScanV_(0,0),
-  vpspScanV_(0,0),
-  apvCalibV_(0,0),
-  pedestalsV_(0,0),
-  apvLatencyV_(0,0),
-  fineDelayV_(0,0),
-  inputModuleXml_(""),
-  inputDcuInfoXml_(""),
-  inputFecXml_(),
-  inputFedXml_()
-{
-  reset();
-}
 
 // -----------------------------------------------------------------------------
 // 
@@ -67,8 +36,130 @@ SiStripPartition::SiStripPartition() :
   inputDcuInfoXml_(""),
   inputFecXml_(),
   inputFedXml_()
-{
-  reset();
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripPartition::SiStripPartition( std::string partition ) :
+  partitionName_(partition), 
+  runNumber_(0),
+  runType_(sistrip::UNDEFINED_RUN_TYPE),
+  forceVersions_(false),
+  forceCurrentState_(false),
+  cabVersion_(0,0),
+  fedVersion_(0,0),
+  fecVersion_(0,0),
+  dcuVersion_(0,0),
+  psuVersion_(0,0),
+  globalAnalysisV_(0),
+  runTableVersion_(0,0),
+  fastCablingV_(0,0),
+  apvTimingV_(0,0),
+  optoScanV_(0,0),
+  vpspScanV_(0,0),
+  apvCalibV_(0,0),
+  pedestalsV_(0,0),
+  apvLatencyV_(0,0),
+  fineDelayV_(0,0),
+  inputModuleXml_(""),
+  inputDcuInfoXml_(""),
+  inputFecXml_(),
+  inputFedXml_()
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripPartition::SiStripPartition( const SiStripPartition& input ) :
+  partitionName_( input.partitionName() ), 
+  runNumber_( input.runNumber() ),
+  runType_( input.runType() ),
+  forceVersions_( input.forceVersions() ),
+  forceCurrentState_( input.forceCurrentState() ),
+  cabVersion_( input.cabVersion() ),
+  fedVersion_( input.fedVersion() ),
+  fecVersion_( input.fecVersion() ),
+  dcuVersion_( input.dcuVersion() ),
+  psuVersion_( input.psuVersion() ),
+  globalAnalysisV_( input.globalAnalysisVersion() ),
+  runTableVersion_( input.runTableVersion() ),
+  fastCablingV_( input.fastCablingVersion() ),
+  apvTimingV_( input.apvTimingVersion() ),
+  optoScanV_( input.optoScanVersion() ),
+  vpspScanV_( input.vpspScanVersion() ),
+  apvCalibV_( input.apvCalibVersion() ),
+  pedestalsV_( input.pedestalsVersion() ),
+  apvLatencyV_( input.apvLatencyVersion() ),
+  fineDelayV_( input.fineDelayVersion() ),
+  inputModuleXml_( input.inputModuleXml() ),
+  inputDcuInfoXml_( input.inputDcuInfoXml() ),
+  inputFecXml_( input.inputFecXml() ),
+  inputFedXml_( input.inputFedXml() )
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripPartition& SiStripPartition::operator= ( const SiStripPartition& input ){
+  if ( this == &input ) { return *this; } // self-assignment
+  partitionName_ = input.partitionName(); 
+  runNumber_ = input.runNumber();
+  runType_ = input.runType();
+  forceVersions_ = input.forceVersions();
+  forceCurrentState_ = input.forceCurrentState();
+  cabVersion_ = input.cabVersion();
+  fedVersion_ = input.fedVersion();
+  fecVersion_ = input.fecVersion();
+  dcuVersion_ = input.dcuVersion();
+  psuVersion_ = input.psuVersion();
+  globalAnalysisV_ = input.globalAnalysisVersion();
+  runTableVersion_ = input.runTableVersion();
+  fastCablingV_ = input.fastCablingVersion();
+  apvTimingV_ = input.apvTimingVersion();
+  optoScanV_ = input.optoScanVersion();
+  vpspScanV_ = input.vpspScanVersion();
+  apvCalibV_ = input.apvCalibVersion();
+  pedestalsV_ = input.pedestalsVersion();
+  apvLatencyV_ = input.apvLatencyVersion();
+  fineDelayV_ = input.fineDelayVersion();
+  inputModuleXml_ = input.inputModuleXml();
+  inputDcuInfoXml_ = input.inputDcuInfoXml();
+  inputFecXml_ = input.inputFecXml();
+  inputFedXml_ = input.inputFedXml();
+  return *this;
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripPartition::operator== ( const SiStripPartition& input ) const {
+  return ( partitionName_ == input.partitionName() && 
+	   runNumber_ == input.runNumber() &&
+	   runType_ == input.runType() &&
+	   forceVersions_ == input.forceVersions() &&
+	   forceCurrentState_ == input.forceCurrentState() &&
+	   cabVersion_ == input.cabVersion() &&
+	   fedVersion_ == input.fedVersion() &&
+	   fecVersion_ == input.fecVersion() &&
+	   dcuVersion_ == input.dcuVersion() &&
+	   psuVersion_ == input.psuVersion() &&
+	   globalAnalysisV_ == input.globalAnalysisVersion() &&
+	   runTableVersion_ == input.runTableVersion() &&
+	   fastCablingV_ == input.fastCablingVersion() &&
+	   apvTimingV_ == input.apvTimingVersion() &&
+	   optoScanV_ == input.optoScanVersion() &&
+	   vpspScanV_ == input.vpspScanVersion() &&
+	   apvCalibV_ == input.apvCalibVersion() &&
+	   pedestalsV_ == input.pedestalsVersion() &&
+	   apvLatencyV_ == input.apvLatencyVersion() &&
+	   fineDelayV_ == input.fineDelayVersion() &&
+	   inputModuleXml_ == input.inputModuleXml() &&
+	   inputDcuInfoXml_ == input.inputDcuInfoXml() &&
+	   inputFecXml_ == input.inputFecXml() &&
+	   inputFedXml_ == input.inputFedXml() );
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripPartition::operator!= ( const SiStripPartition& input ) const {
+  return !( *this == input );
 }
 
 // -----------------------------------------------------------------------------
@@ -755,10 +846,4 @@ SiStripPartition::Versions SiStripPartition::versions( std::vector<uint32_t> inp
     input.resize(2,0);
   }
   return std::make_pair( input[0], input[1] );
-}
-
-// -----------------------------------------------------------------------------
-// 
-bool SiStripPartition::operator == ( const SiStripPartition& ){
-  return false;
 }

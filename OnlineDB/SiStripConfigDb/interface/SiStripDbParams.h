@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.8 2008/05/26 13:35:51 giordano Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.9 2008/05/26 14:56:47 giordano Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -29,11 +29,19 @@ class SiStripDbParams {
  public:
 
   // ---------- cons(de)structors ----------
-
+  
   SiStripDbParams();
-
+  
+  SiStripDbParams( const SiStripDbParams& );
+  
+  SiStripDbParams& operator= ( const SiStripDbParams& );
+  
+  bool operator== ( const SiStripDbParams& ) const;
+  
+  bool operator!= ( const SiStripDbParams& ) const;
+  
   ~SiStripDbParams();
-
+  
   void reset(); 
 
   // ---------- typedefs ----------
@@ -46,29 +54,29 @@ class SiStripDbParams {
 
   // ---------- database-related ----------
 
-  inline bool usingDb() const;
+  bool usingDb() const;
   
-  inline std::string confdb() const;
+  std::string confdb() const;
 
-  inline std::string user() const;
+  std::string user() const;
 
-  inline std::string passwd() const;
+  std::string passwd() const;
 
-  inline std::string path() const;
+  std::string path() const;
 
-  inline bool usingDbCache() const;
+  bool usingDbCache() const;
 
-  inline std::string sharedMemory() const;
+  std::string sharedMemory() const;
 
-  inline std::string tnsAdmin() const;
+  std::string tnsAdmin() const;
 
   // ---------- partition-related ----------
 
   /** Returns pair of const iterators to partitions objects. */
-  inline const_iterator_range partitions() const;
+  const_iterator_range partitions() const;
 
   /** Returns pair of iterators to partitions objects. */
-  inline iterator_range partitions();
+  iterator_range partitions();
 
   /** Returns const iterator to partition object. */
   SiStripPartitions::const_iterator partition( std::string partition_name ) const;
@@ -77,7 +85,7 @@ class SiStripDbParams {
   SiStripPartitions::iterator partition( std::string partition_name );
   
   /** */
-  inline void clearPartitions();
+  void clearPartitions();
 
   /** */
   void addPartition( const SiStripPartition& );
@@ -93,11 +101,11 @@ class SiStripDbParams {
 
   // ---------- setters ----------
 
-  inline void usingDb( bool );
+  void usingDb( bool );
   
-  inline void usingDbCache( bool );
+  void usingDbCache( bool );
 
-  inline void sharedMemory( std::string );
+  void sharedMemory( std::string );
 
   void pset( const edm::ParameterSet& );
   
@@ -117,17 +125,15 @@ class SiStripDbParams {
 
   std::vector<std::string> inputFedXmlFiles() const;
 
-  inline std::string outputModuleXml() const;
+  std::string outputModuleXml() const;
 
-  inline std::string outputDcuInfoXml() const;
+  std::string outputDcuInfoXml() const;
 
-  inline std::string outputFecXml() const;
+  std::string outputFecXml() const;
 
-  inline std::string outputFedXml() const;
+  std::string outputFedXml() const;
 
   void print( std::stringstream& ) const; 
-
-  bool operator == ( const SiStripDbParams& other );
 
   // ---------- private member data ---------- 
   
@@ -163,28 +169,28 @@ class SiStripDbParams {
 
 // ---------- inline methods ----------
 
-bool SiStripDbParams::usingDb() const { return usingDb_; }
-std::string SiStripDbParams::confdb() const { return confdb_; }
-std::string SiStripDbParams::user() const { return  user_; }
-std::string SiStripDbParams::passwd() const { return passwd_; }
-std::string SiStripDbParams::path() const { return path_; }
-bool SiStripDbParams::usingDbCache() const { return usingDbCache_; }
-std::string SiStripDbParams::sharedMemory() const { return sharedMemory_; }
-std::string SiStripDbParams::tnsAdmin() const { return tnsAdmin_; }
+inline bool SiStripDbParams::usingDb() const { return usingDb_; }
+inline std::string SiStripDbParams::confdb() const { return confdb_; }
+inline std::string SiStripDbParams::user() const { return  user_; }
+inline std::string SiStripDbParams::passwd() const { return passwd_; }
+inline std::string SiStripDbParams::path() const { return path_; }
+inline bool SiStripDbParams::usingDbCache() const { return usingDbCache_; }
+inline std::string SiStripDbParams::sharedMemory() const { return sharedMemory_; }
+inline std::string SiStripDbParams::tnsAdmin() const { return tnsAdmin_; }
 
-SiStripDbParams::const_iterator_range SiStripDbParams::partitions() const { return const_iterator_range( partitions_.begin(), 
-													 partitions_.end() ); }
-SiStripDbParams::iterator_range SiStripDbParams::partitions() { return iterator_range( partitions_.begin(), 
-										       partitions_.end() ); }
+inline SiStripDbParams::const_iterator_range SiStripDbParams::partitions() const { return const_iterator_range( partitions_.begin(), 
+														partitions_.end() ); }
+inline SiStripDbParams::iterator_range SiStripDbParams::partitions() { return iterator_range( partitions_.begin(), 
+											      partitions_.end() ); }
 
-std::string SiStripDbParams::outputModuleXml() const { return outputModuleXml_; }
-std::string SiStripDbParams::outputDcuInfoXml() const { return outputDcuInfoXml_; }
-std::string SiStripDbParams::outputFecXml() const { return outputFecXml_; }
-std::string SiStripDbParams::outputFedXml() const { return outputFedXml_; }
+inline std::string SiStripDbParams::outputModuleXml() const { return outputModuleXml_; }
+inline std::string SiStripDbParams::outputDcuInfoXml() const { return outputDcuInfoXml_; }
+inline std::string SiStripDbParams::outputFecXml() const { return outputFecXml_; }
+inline std::string SiStripDbParams::outputFedXml() const { return outputFedXml_; }
 
-void SiStripDbParams::clearPartitions() { partitions_.clear(); }
-void SiStripDbParams::usingDb( bool using_db ) { usingDb_ = using_db; }
-void SiStripDbParams::usingDbCache( bool using_cache ) { usingDbCache_ = using_cache; }
-void SiStripDbParams::sharedMemory( std::string name ) { sharedMemory_ = name; }
+inline void SiStripDbParams::clearPartitions() { partitions_.clear(); }
+inline void SiStripDbParams::usingDb( bool using_db ) { usingDb_ = using_db; }
+inline void SiStripDbParams::usingDbCache( bool using_cache ) { usingDbCache_ = using_cache; }
+inline void SiStripDbParams::sharedMemory( std::string name ) { sharedMemory_ = name; }
 
 #endif // OnlineDB_SiStripConfigDb_SiStripDbParams_h
