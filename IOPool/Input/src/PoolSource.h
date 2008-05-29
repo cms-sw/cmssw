@@ -48,6 +48,7 @@ namespace edm {
     virtual void readMany_(int number, EventPrincipalVector& result);
     virtual void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
+    virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
 
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
     boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;

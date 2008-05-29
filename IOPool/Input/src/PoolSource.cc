@@ -153,5 +153,12 @@ namespace edm {
     assert (!secondaryFileSequence_);
     primaryFileSequence_->readManyRandom_(number, result, fileSeqNumber);
   }
+
+  void
+  PoolSource::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
+    assert (!secondaryFileSequence_);
+    assert (!primary());
+    primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
+  }
 }
 

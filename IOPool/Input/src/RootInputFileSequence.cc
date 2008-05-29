@@ -49,7 +49,8 @@ namespace edm {
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     primarySequence_(primarySequence),
-    randomAccess_(false) {
+    randomAccess_(false),
+    wantedBranches_() {
 
     sort_all(eventsToProcess_);
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
@@ -141,7 +142,7 @@ namespace edm {
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
-	  remainingEvents(), treeCacheSize_, treeMaxVirtualSize_, forcedRunOffset_, eventsToProcess_, dropMetaData_));
+	  remainingEvents(), treeCacheSize_, treeMaxVirtualSize_, forcedRunOffset_, eventsToProcess_, dropMetaData_, wantedBranches_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {

@@ -52,7 +52,8 @@ namespace edm {
                      int treeMaxVirtualSize,
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
-		     bool dropMetaData) :
+		     bool dropMetaData,
+		     std::vector<std::string> const& wantedBranches) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -219,12 +220,31 @@ namespace edm {
     } 
 
     // Set up information from the product registry.
-    ProductRegistry::ProductList const& prodList = productRegistry()->productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-        it != itEnd; ++it) {
+    ProductRegistry::ProductList & prodList  = const_cast<ProductRegistry::ProductList &>(productRegistry()->productList());
+    for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
+        it != itEnd;) {
       BranchDescription const& prod = it->second;
-      treePointers_[prod.branchType()]->addBranch(it->first, prod,
-						 newBranchToOldBranch(prod.branchName()));
+      if(wantedBranches.empty()) {
+        treePointers_[prod.branchType()]->addBranch(it->first, prod,
+						    newBranchToOldBranch(prod.branchName()));
+        ++it;
+      } else {
+	std::string searchString = prod.friendlyClassName();
+	searchString += '_';
+	searchString += prod.moduleLabel();
+	searchString += '_';
+	searchString += prod.productInstanceName();
+        if(binary_search_all(wantedBranches, searchString)) {
+          treePointers_[prod.branchType()]->addBranch(it->first, prod,
+						    newBranchToOldBranch(prod.branchName()));
+          ++it;
+        } else {
+          treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+	  ProductRegistry::ProductList::iterator icopy = it;
+          ++it;
+          prodList.erase(icopy);
+        }
+      }
     }
 
     // Sort the EventID list the user supplied so that we can assume it is time ordered

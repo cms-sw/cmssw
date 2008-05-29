@@ -60,7 +60,8 @@ namespace edm {
              int treeMaxVirtualSize,
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
-             bool dropMetaData);
+             bool dropMetaData,
+	     std::vector<std::string> const& wantedBranches);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -183,7 +184,7 @@ namespace edm {
       rootTree.fillStatus();
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
           itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-        if (type == it->second.branchType()) {
+        if (type == it->second.branchType() && !it->second.transient()) {
 	  input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
 	  input::BranchInfo const& ib = ix->second;
 	  TBranch *br = ib.provenanceBranch_;
@@ -202,7 +203,7 @@ namespace edm {
     } else {
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
           itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-        if (type == it->second.branchType()) {
+        if (type == it->second.branchType() && !it->second.transient()) {
 	  TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
           std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
           BranchEntryDescription* ppb = pb.get();

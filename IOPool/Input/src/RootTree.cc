@@ -87,6 +87,13 @@ namespace edm {
       branches_->insert(std::make_pair(key, info));
   }
 
+  void
+  RootTree::dropBranch(std::string const& oldBranchName) {
+      //use the translated branch name 
+      TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
+      if (branch != 0) branch->DropBaskets("all");
+  }
+
   boost::shared_ptr<DelayedReader>
   RootTree::makeDelayedReader() const {
     boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_));
