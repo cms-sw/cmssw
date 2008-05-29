@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 #
 pixelMatchGsfElectrons = cms.EDProducer("GsfElectronProducer",
     #  InputTag endcapSuperClusters = correctedEndcapSuperClustersWithPreshower:electronPixelSeeds
-    endcapSuperClusters = cms.InputTag("multi5x5SuperClustersWithPreshower","electronPixelSeeds"),
+    endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower","electronPixelSeeds"),
     maxDeltaPhi = cms.double(0.1),
     minEOverPEndcaps = cms.double(0.0),
     maxEOverPEndcaps = cms.double(10000.0),

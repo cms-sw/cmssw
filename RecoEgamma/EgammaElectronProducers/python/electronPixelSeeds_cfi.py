@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # module to produce pixel seeds for electrons from super clusters
-# $Id: electronPixelSeeds_cfi.py,v 1.5 2008/05/19 23:54:04 rpw Exp $
+# $Id: electronPixelSeeds_cfi.py,v 1.6 2008/05/28 21:23:50 arizzi Exp $
 # Author:  Ursula Berthon, Claude Charlot
 #
 from RecoEgamma.EgammaElectronProducers.pixelSeedConfiguration_cfi import *
 electronPixelSeeds = cms.EDProducer("ElectronPixelSeedProducer",
     #  InputTag endcapSuperClusters = correctedEndcapSuperClustersWithPreshower
-    endcapSuperClusters = cms.InputTag("multi5x5SuperClustersWithPreshower"),
+    endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     SeedConfiguration = cms.PSet(
         electronPixelSeedConfiguration,
         OrderedHitsFactoryPSet = cms.PSet(
