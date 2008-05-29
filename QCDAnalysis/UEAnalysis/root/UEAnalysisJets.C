@@ -102,6 +102,7 @@ void UEAnalysisJets::Begin(TFile * f){
 
 void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray * InclusiveJet,TClonesArray * ChargedJet,TClonesArray * TracksJet,TClonesArray * CalorimeterJet, TClonesArray *acceptedTriggers)
 {
+
   if(InclusiveJet->GetEntries()!=0 && ChargedJet->GetEntries()!=0 && TracksJet->GetEntries()!=0 && CalorimeterJet->GetEntries()!=0){
     
     float phiEHJ = -666;
@@ -408,7 +409,6 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
     }
     
   }
-
 }
 
 void UEAnalysisJets::writeToFile(TFile * file){

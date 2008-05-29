@@ -59,6 +59,11 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
   chgGenPartCollName = pset.getUntrackedParameter<InputTag>("ChgGenPartCollectionName",std::string(""));
   tracksCollName = pset.getUntrackedParameter<InputTag>("TracksCollectionName",std::string(""));
 
+  //   cout << genJetCollName.label() << endl;
+  //   cout << chgJetCollName.label() << endl;
+  //   cout << tracksJetCollName.label() << endl;
+  //   cout << recoCaloJetCollName.label() << endl;
+
   // trigger results
   triggerResultsTag = pset.getParameter<InputTag>("triggerResults");
   triggerEventTag   = pset.getParameter<InputTag>("triggerEvent");
@@ -176,7 +181,7 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
     e.getByLabel( chgGenPartCollName, CandHandleMC     );
     e.getByLabel( chgJetCollName    , ChgGenJetsHandle );
     e.getByLabel( genJetCollName    , GenJetsHandle    );
-    
+
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
     
     EventKind = Evt->signal_process_id();

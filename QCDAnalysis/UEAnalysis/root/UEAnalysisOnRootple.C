@@ -42,6 +42,53 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
     if (RootTupleName[0] != '#') {
       cout<<"I'm analyzing file "<<RootTupleName<<endl;
 
+      string fileName( RootTupleName );
+
+      //
+      // set upper limit on pT of hard interaction to avoid 
+      // double-counting when merging datasets
+      //
+      if ( fileName.compare( 38, 7, "MinBias"  )==0 ) 
+	{
+	  cout << "choose pthat for minbias range" << endl;
+	  pThatMax = 30.;
+	}
+      else if ( fileName.compare( 38, 7, "JetET20"  )==0 ) 
+	{
+	  cout << "choose pthat for jetET20 range" << endl;
+	  pThatMax = 45.;
+	}
+      else if ( fileName.compare( 38, 7, "JetET30"  )==0 ) 
+	{
+	  cout << "choose pthat for jetET30 range" << endl;
+	  pThatMax = 75.;
+	}
+      else if ( fileName.compare( 38, 7, "JetET50"  )==0 ) 
+	{
+	  cout << "choose pthat for jetET50 range" << endl;
+	  pThatMax = 120.;
+	}
+      else if ( fileName.compare( 38, 7, "JetET80"  )==0 ) 
+	{
+	  cout << "choose pthat for jetET80 range" << endl;
+	  pThatMax = 160.;
+	}
+      else if ( fileName.compare( 38, 8, "JetET110" )==0 ) 
+	{
+	  cout << "choose pthat for jetET110 range" << endl;
+	  // uncomment if JetET150 is available:
+	  // pThatMax = 220.;
+	}
+      else if ( fileName.compare( 38, 8, "JetET150" )==0 ) 
+	{
+	  // highest pThat bin: no restriction
+	  cout << "choose pthat for jetET150 range" << endl;
+	}
+      else 
+	{
+	  cout << "!!! ERROR !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+	}
+
       //TFile *f =  new TFile(RootTupleName);
       f = TFile::Open(RootTupleName);
 
@@ -66,6 +113,7 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
 
       TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
       Init(tree);
+
       Loop(weight[filenumber],ptThreshold,type,trigger,tkpt);
     
       f->Close();
@@ -100,6 +148,7 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
+    if ( genEventScale >= pThatMax ) continue;
 
     int nAcceptedTriggers( 0 );
     nAcceptedTriggers = acceptedTriggers->GetSize();
@@ -148,7 +197,10 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 	    nameList.push_back( filterName );
 	  }
       } 
-    
+
+    h_eventScale->Fill( genEventScale );
+    //cout << "ptHat is " << genEventScale << endl;
+
     if(type=="Jet"){
       jets->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,TracksJet,CalorimeterJet, acceptedTriggers);
     }
@@ -182,6 +234,7 @@ void UEAnalysisOnRootple::BeginJob(char* outname,string type)
   //
   hFile->cd();
   h_acceptedTriggers = new TH1D("h_acceptedTriggers","h_acceptedTriggers",12,-0.5,11.5);
+  h_eventScale = new TH1D("h_eventScale", "h_eventScale", 100, 0., 200.);
   //
 }
 
@@ -250,6 +303,8 @@ void UEAnalysisOnRootple::Init(TTree *tree)
    TracksJet = 0;
    CalorimeterJet = 0;
    acceptedTriggers = 0;
+   genEventScale = 0;
+
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -264,6 +319,7 @@ void UEAnalysisOnRootple::Init(TTree *tree)
    fChain->SetBranchAddress("TracksJet", &TracksJet, &b_TracksJet);
    fChain->SetBranchAddress("CalorimeterJet", &CalorimeterJet, &b_CalorimeterJet);
    fChain->SetBranchAddress("acceptedTriggers", &acceptedTriggers, &b_acceptedTriggers);
+   fChain->SetBranchAddress("genEventScale", &genEventScale, &b_genEventScale );
    Notify();
 }
 

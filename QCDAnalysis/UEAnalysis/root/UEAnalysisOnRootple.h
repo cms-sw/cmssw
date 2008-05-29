@@ -40,6 +40,7 @@ public :
   TClonesArray    *TracksJet;
   TClonesArray    *CalorimeterJet;
   TClonesArray    *acceptedTriggers;
+  Double_t        genEventScale;
 
   // List of branches
   TBranch        *b_EventKind;   //!
@@ -50,6 +51,7 @@ public :
   TBranch        *b_TracksJet;   //!
   TBranch        *b_CalorimeterJet;   //!
   TBranch        *b_acceptedTriggers;   //!
+  TBranch        *b_genEventScale;
 
   UEAnalysisOnRootple();
   virtual ~UEAnalysisOnRootple();
@@ -76,6 +78,8 @@ public :
 
   //
   TH1D* h_acceptedTriggers;
+  TH1D* h_eventScale;
+  double pThatMax;
   //
 
 };
