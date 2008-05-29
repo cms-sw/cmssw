@@ -4406,15 +4406,15 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
       <DoubleMu3 condition="muon" particle="muon" type="2_s">
         <pt_h_threshold max="1f" min="00">
           <ge_eq mode="bit">1</ge_eq>
-          <value>05</value>
-          <value>05</value>
+          <value>01</value>
+          <value>01</value>
         </pt_h_threshold>
         <pt_l_threshold max="1f" min="00">
-          <value>05<en_mip mode="bit">0</en_mip>
+          <value>01<en_mip mode="bit">0</en_mip>
             <en_iso mode="bit">0</en_iso>
             <request_iso mode="bit">0</request_iso>
           </value>
-          <value>05<en_mip mode="bit">0</en_mip>
+          <value>01<en_mip mode="bit">0</en_mip>
             <en_iso mode="bit">0</en_iso>
             <request_iso mode="bit">0</request_iso>
           </value>
@@ -4861,19 +4861,6 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </phi>
         <location>A0</location>
       </SingleCenJet15_x5>
-      <SingleIsoEG10_17 condition="calo" particle="ieg" type="1_s">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>0a</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </SingleIsoEG10_17>
       <SingleIsoEGTop condition="calo" particle="ieg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -4887,6 +4874,19 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </phi>
         <location>A0</location>
       </SingleIsoEGTop>
+      <SingleIsoEG10_17 condition="calo" particle="ieg" type="1_s">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>0a</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </SingleIsoEG10_17>
       <SingleIsoEG10_14 condition="calo" particle="ieg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -4939,19 +4939,6 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </phi>
         <location>A0</location>
       </SingleIsoEG10_11>
-      <SingleCenJet150 condition="calo" particle="jet" type="1_s">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>20</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7ffe</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </SingleCenJet150>
       <SingleIsoEG10_10 condition="calo" particle="ieg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -4965,6 +4952,19 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </phi>
         <location>A0</location>
       </SingleIsoEG10_10>
+      <SingleCenJet150 condition="calo" particle="jet" type="1_s">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>20</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7ffe</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </SingleCenJet150>
       <SingleForJet15_4 condition="calo" particle="fwdjet" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -4978,26 +4978,6 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </phi>
         <location>A0</location>
       </SingleForJet15_4>
-      <SingleForJet10_pEta condition="calo" particle="fwdjet" type="1_s">
-        <et_threshold max="3f" min="00">
-          <ge_eq mode="bit">1</ge_eq>
-          <value>01</value>
-        </et_threshold>
-        <eta max="7ffe" min="0000">
-          <value>7e1e</value>
-        </eta>
-        <phi max="3ffff" min="00000">
-          <value>3ffff</value>
-        </phi>
-        <location>A0</location>
-      </SingleForJet10_pEta>
-      <JetCounts0 condition="jet_cnts" particle="jet_cnts" type="0">
-        <et_threshold max="1f" min="00">
-          <ge_eq mode="bit">0</ge_eq>
-          <value>02</value>
-        </et_threshold>
-        <location>A0</location>
-      </JetCounts0>
       <SingleForJet15_3 condition="calo" particle="fwdjet" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -5011,6 +4991,26 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </phi>
         <location>A0</location>
       </SingleForJet15_3>
+      <JetCounts0 condition="jet_cnts" particle="jet_cnts" type="0">
+        <et_threshold max="1f" min="00">
+          <ge_eq mode="bit">0</ge_eq>
+          <value>02</value>
+        </et_threshold>
+        <location>A0</location>
+      </JetCounts0>
+      <SingleForJet10_pEta condition="calo" particle="fwdjet" type="1_s">
+        <et_threshold max="3f" min="00">
+          <ge_eq mode="bit">1</ge_eq>
+          <value>01</value>
+        </et_threshold>
+        <eta max="7ffe" min="0000">
+          <value>7e1e</value>
+        </eta>
+        <phi max="3ffff" min="00000">
+          <value>3ffff</value>
+        </phi>
+        <location>A0</location>
+      </SingleForJet10_pEta>
       <SingleForJet15_2 condition="calo" particle="fwdjet" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -5279,6 +5279,17 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </phi>
         <location>A0</location>
       </SingleNoIsoEG12_6>
+      <ETM30 condition="esums" particle="etm" type="etm">
+        <et_threshold max="fff" min="000">
+          <ge_eq mode="bit">1</ge_eq>
+          <en_overflow mode="bit">0</en_overflow>
+          <value>03c</value>
+        </et_threshold>
+        <phi max="ffffffffffffffffff" min="000000000000000000">
+          <value>ffffffffffffffffff</value>
+        </phi>
+        <location>A0</location>
+      </ETM30>
       <SingleMuBottom condition="muon" particle="muon" type="1_s">
         <pt_h_threshold max="1f" min="00">
           <ge_eq mode="bit">1</ge_eq>
@@ -5305,17 +5316,6 @@ L1Menu2007NovGR.xml + vme.xml.ELEC14-20_THR1-2-3-5-10-25-50_JET21-28_THR1-6-11-1
         </quality>
         <location>A0</location>
       </SingleMuBottom>
-      <ETM30 condition="esums" particle="etm" type="etm">
-        <et_threshold max="fff" min="000">
-          <ge_eq mode="bit">1</ge_eq>
-          <en_overflow mode="bit">0</en_overflow>
-          <value>03c</value>
-        </et_threshold>
-        <phi max="ffffffffffffffffff" min="000000000000000000">
-          <value>ffffffffffffffffff</value>
-        </phi>
-        <location>A0</location>
-      </ETM30>
       <SingleNoIsoEG12_3 condition="calo" particle="eg" type="1_s">
         <et_threshold max="3f" min="00">
           <ge_eq mode="bit">1</ge_eq>
