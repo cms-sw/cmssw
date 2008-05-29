@@ -346,36 +346,36 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
         case 5: stub_vec_filtered.push_back(*itr); break; // DT stubs get filtered by the core controll register
         case 4:
           switch( itr->getMPCLink() ){
-            case 3: if( (kill_fiber&0x4000)==0 && QualityEnableME4c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 2: if( (kill_fiber&0x2000)==0 && QualityEnableME4b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 1: if( (kill_fiber&0x1000)==0 && QualityEnableME4a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 3: if( (kill_fiber&0x4000)==0 && QualityEnableME4c&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x2000)==0 && QualityEnableME4b&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x1000)==0 && QualityEnableME4a&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
             default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
           }
         break;
         case 3:
           switch( itr->getMPCLink() ){
-            case 3: if( (kill_fiber&0x0800)==0 && QualityEnableME3c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 2: if( (kill_fiber&0x0400)==0 && QualityEnableME3b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 1: if( (kill_fiber&0x0200)==0 && QualityEnableME3a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 3: if( (kill_fiber&0x0800)==0 && QualityEnableME3c&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x0400)==0 && QualityEnableME3b&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x0200)==0 && QualityEnableME3a&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
             default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
           }
         break;
         case 2:
           switch( itr->getMPCLink() ){
-            case 3: if( (kill_fiber&0x0100)==0 && QualityEnableME2c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 2: if( (kill_fiber&0x0080)==0 && QualityEnableME2b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 1: if( (kill_fiber&0x0040)==0 && QualityEnableME2a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 3: if( (kill_fiber&0x0100)==0 && QualityEnableME2c&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x0080)==0 && QualityEnableME2b&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x0040)==0 && QualityEnableME2a&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
             default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
           }
         break;
         case 1:
           switch( itr->getMPCLink() + (3*(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId())) - 1)) ){
-            case 6: if( (kill_fiber&0x0020)==0 && QualityEnableME1f&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 5: if( (kill_fiber&0x0010)==0 && QualityEnableME1e&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 4: if( (kill_fiber&0x0008)==0 && QualityEnableME1d&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 3: if( (kill_fiber&0x0004)==0 && QualityEnableME1c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 2: if( (kill_fiber&0x0002)==0 && QualityEnableME1b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
-            case 1: if( (kill_fiber&0x0001)==0 && QualityEnableME1a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 6: if( (kill_fiber&0x0020)==0 && QualityEnableME1f&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 5: if( (kill_fiber&0x0010)==0 && QualityEnableME1e&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 4: if( (kill_fiber&0x0008)==0 && QualityEnableME1d&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 3: if( (kill_fiber&0x0004)==0 && QualityEnableME1c&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x0002)==0 && QualityEnableME1b&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x0001)==0 && QualityEnableME1a&(1<<itr->getQuality()) ) stub_vec_filtered.push_back(*itr); break;
             default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
           }
         break;
