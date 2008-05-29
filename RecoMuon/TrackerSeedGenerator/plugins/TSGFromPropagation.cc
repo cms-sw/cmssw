@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2008/05/20 13:53:25 $
- *  $Revision: 1.27 $
+ *  $Date: 2008/05/21 19:01:01 $
+ *  $Revision: 1.28 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -153,6 +153,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theUseSecondMeasurementsFlag = theConfig.getParameter<bool>("UseSecondMeasurements");
 
+  theSelectStateFlag = theConfig.getParameter<bool>("SelectState");
+
   theUpdator = new KFUpdator();
 
   theTSTransformer = new TrajectoryStateTransform();
@@ -300,9 +302,11 @@ void TSGFromPropagation::findSecondMeasurements(std::vector<TrajectoryMeasuremen
 }
 
 bool TSGFromPropagation::passSelection(const TrajectoryStateOnSurface& tsos) const {
-
-  double theSigmaZ = 22;
-  return ( (zDis(tsos) < theSigmaZ) ); 
+  if ( !theSelectStateFlag ) return true;
+  else {
+     double theSigmaZ = 22;
+     return ( (zDis(tsos) < theSigmaZ) ); 
+  }
 //  double theDxyCut = 100;
 //  return ( (zDis(tsos) < theSigmaZ) && (dxyDis(tsos) < theDxyCut) );
 

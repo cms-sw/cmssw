@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/05/11 00:55:09 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/05/20 13:51:11 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -138,6 +138,8 @@ private:
   bool theUpdateStateFlag;
 
   bool theUseSecondMeasurementsFlag;
+
+  bool theSelectStateFlag;
 
   std::string thePropagatorName;
 
