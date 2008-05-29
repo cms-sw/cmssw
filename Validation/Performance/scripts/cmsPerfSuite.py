@@ -259,8 +259,14 @@ def main(argv):
         os.system(AuxiliaryScripts[2])
 
     #Create a tarball of the work directory
-    #To do!
-    
+    TarFile=cmssw_version+"_"+host+"_"+user+".tar"
+    tarcmd="tar -cvf "+TarFile+" *; gzip "+TarFile
+    print tarcmd
+    os.system(tarcmd)
+    #Archive it on CASTOR
+    castorcmd="rfcp "+TarFile+".gz "+castordir+TarFile+".gz"
+    print castorcmd
+    os.system(castorcmd)
     #End of script actions!
 
     #Print a time stamp at the end:
