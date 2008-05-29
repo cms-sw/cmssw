@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.17 2008/02/15 05:57:03 wmtan Exp $
+$Id: RefProd.h,v 1.18 2008/03/18 12:48:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,6 +38,7 @@ $Id: RefProd.h,v 1.17 2008/02/15 05:57:03 wmtan Exp $
 ----------------------------------------------------------------------*/ 
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -99,7 +100,7 @@ namespace edm {
     // but have a pointer to a product getter (such as the EventPrincipal).
     // prodGetter will ususally be a pointer to the event principal.
     RefProd(ProductID const& productID, EDProductGetter const* prodGetter) :
-      product_(productID, 0, prodGetter, false) {
+      product_(productID, 0, mustBeNonZero(prodGetter, "RefProd", productID), false) {
     }
 
     /// Destructor

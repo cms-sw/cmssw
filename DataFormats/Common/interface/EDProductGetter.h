@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.4 2007/03/04 04:59:58 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.5 2007/12/21 22:42:30 wmtan Exp $
 //
 
 // system include files
@@ -67,6 +67,9 @@ private:
       // ---------- member data --------------------------------
       
    };
+
+   EDProductGetter const*
+   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& peoductID);
 }
 
 #endif

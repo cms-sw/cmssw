@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.36 2008/03/18 12:48:31 wmtan Exp $
+$Id: Ref.h,v 1.37 2008/03/31 21:12:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -112,6 +112,7 @@ $Id: Ref.h,v 1.36 2008/03/18 12:48:31 wmtan Exp $
 #include "boost/utility/enable_if.hpp"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -200,7 +201,7 @@ namespace edm {
     /// but have a pointer to a product getter (such as the EventPrincipal).
     /// prodGetter will ususally be a pointer to the event principal.
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-      ref_(productID, 0, itemKey, 0, prodGetter, false) {
+      ref_(productID, 0, itemKey, 0, mustBeNonZero(prodGetter, "Ref", productID), false) {
     }
 
     /// Constructor for use in the various X::fillView(...) functions.
@@ -323,7 +324,7 @@ namespace edm {
     if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
   }
 
-  /// Constructor from RefVector and index int the collection
+  /// Constructor from RefVector and index into the collection
   template <typename C, typename T, typename F>
   inline
   Ref<C, T, F>::Ref(RefVector<C, T, F> const& refvector, key_type itemKey, bool setNow) :
