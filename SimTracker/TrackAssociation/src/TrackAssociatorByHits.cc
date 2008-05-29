@@ -39,7 +39,9 @@ TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :
   conf_(conf),
   AbsoluteNumberOfHits(conf_.getParameter<bool>("AbsoluteNumberOfHits")),
   SimToRecoDenominator(conf_.getParameter<string>("SimToRecoDenominator")),
-  theMinHitCut(conf_.getParameter<double>("MinHitCut")),
+  quality_SimToReco(conf_.getParameter<double>("Quality_SimToReco")),
+  purity_SimToReco(conf_.getParameter<double>("Purity_SimToReco")),
+  cut_RecoToSim(conf_.getParameter<double>("Cut_RecoToSim")),
   UsePixels(conf_.getParameter<bool>("UsePixels")),
   UseGrouped(conf_.getParameter<bool>("UseGrouped")),
   UseSplitting(conf_.getParameter<bool>("UseSplitting")),
@@ -105,8 +107,8 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
 	else if(ri!=0) quality = (static_cast<double>(nshared)/static_cast<double>(ri));
 	else quality = 0;
 	//cut on the fraction
-       	float purity = 1.0*nshared/ri;
-	if(quality > theMinHitCut && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) && purity>3./4.){
+       	//float purity = 1.0*nshared/ri;
+	if(quality > cut_RecoToSim && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) /*&& purity>3./4.*/){
 	  //if a track has just 3 hits we require that all 3 hits are shared
 	  outputCollection.insert(tC[tindex],
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),
@@ -245,7 +247,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	//<< " nshared = " << nshared << " nrechit = " << ri;
 	
 	float purity = 1.0*nshared/ri;
-	if (quality>theMinHitCut && !(ThreeHitTracksAreSpecial && totsimhit==3 && nshared<3) && purity>3./4.) {
+	if (quality>quality_SimToReco && !(ThreeHitTracksAreSpecial && totsimhit==3 && nshared<3) && (!AbsoluteNumberOfHits||(purity>purity_SimToReco))) {
 	  //if a track has just 3 hits we require that all 3 hits are shared
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 				  std::make_pair(tC[tindex],quality));
@@ -349,7 +351,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> 
 	else if(ri!=0) quality = (static_cast<double>(nshared)/static_cast<double>(ri));
 	else quality = 0;
 	//cut on the fraction
-	if(quality > theMinHitCut && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) ){
+	if(quality > cut_RecoToSim && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) ){
 	  //if a track has just 3 hits we require that all 3 hits are shared
 	  outputCollection.insert(edm::RefToBase<TrajectorySeed>(seedCollectionH,tindex), 
 				  std::make_pair(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex),quality));
@@ -412,7 +414,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
 	//LogTrace("TrackAssociator") << "Final count: nhit(TP) = " << nsimhit 
 	//<< " nshared = " << nshared 
 	//<< " nrechit = " << ri;
-	if(quality > theMinHitCut && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) ){
+	if(quality > quality_SimToReco && !(ThreeHitTracksAreSpecial && ri==3 && nshared<3) ){
 	  outputCollection.insert(edm::Ref<TrackingParticleCollection>(TPCollectionH, tpindex), 
 				  std::make_pair(edm::RefToBase<TrajectorySeed>(seedCollectionH,tindex), quality));
 	  LogTrace("TrackAssociator") << "TrackingParticle number " << tpindex << " with #hits=" << nsimhit
