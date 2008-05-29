@@ -5,7 +5,7 @@ from TrackingTools.TrackAssociator.default_cfi import *
 btagSoftElectrons = cms.EDProducer("SoftElectronProducer",
     TrackAssociatorParameterBlock,
     TrackTag = cms.InputTag("generalTracks"),
-    BasicClusterTag = cms.InputTag("hybridSuperClusters"),
+    BasicClusterTag = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
 #    BasicClusterShapeTag = cms.InputTag("hybridSuperClusters"),
     BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     EndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
