@@ -58,6 +58,7 @@ namespace edm {
       virtual void getEventStartInfo(edm::Event & e,const unsigned int source) {;} //to be set locally
 
   protected:
+      void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
       int bunchSpace_;
       static int vertexoffset;
       bool checktof_;
@@ -72,7 +73,6 @@ namespace edm {
       const static unsigned int maxNbSources_;
       bool doit_[5];//FIXME
       std::vector<EventPrincipalVector> pileup_[5];//FIXME
-      std::vector<std::string> wantedBranches_;
 
   private:
 

@@ -68,6 +68,7 @@ namespace edm
       Selector * sel_;
 
       std::vector<MixingWorkerBase *> workers_;
+      std::vector<std::string> wantedBranches_;
 
     };
 }//edm

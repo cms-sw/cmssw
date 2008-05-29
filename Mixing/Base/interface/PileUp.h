@@ -23,8 +23,9 @@ namespace edm {
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}
     bool doPileup() {return none_ ? false :  averageNumber_>0.;}
-    void setWantedBranches(std::vector<std::string> const * branches) {wantedBranches_=branches;}
-    const std::vector<std::string> * getWantedBranchNames() const {return wantedBranches_;}
+    void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
+      input_->dropUnwantedBranches(wantedBranches);
+    }
 
   private:
     std::string const type_;
@@ -37,7 +38,6 @@ namespace edm {
     bool const none_;
     VectorInputSource * const input_;
     CLHEP::RandPoissonQ *poissonDistribution_;
-    const std::vector<std::string> *wantedBranches_;
 
     //playback info
     bool playback_;

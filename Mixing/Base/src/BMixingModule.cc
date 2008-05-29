@@ -23,7 +23,7 @@ const unsigned int edm::BMixingModule::maxNbSources_ =5;
 namespace
 {
   boost::shared_ptr<edm::PileUp>
-  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback, std::vector<std::string> const * wantedBranches)
+  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback)
   {
     boost::shared_ptr<edm::PileUp> pileup; // value to be returned
     // Make sure we have a parameter named 'sourceName'
@@ -57,7 +57,6 @@ namespace
 	      pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
-	      pileup->setWantedBranches(wantedBranches);
 	    }
 	  }
 	}
@@ -95,11 +94,11 @@ namespace edm {
     } else
       playback_=false;
 
-    input_=     maybeMakePileUp(pset,"input",minBunch_,maxBunch_,playback_,&wantedBranches_);
-    cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_,&wantedBranches_);
-    beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_,&wantedBranches_);
-    beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_,&wantedBranches_);
-    fwdDet_=maybeMakePileUp(pset,"forwardDetectors",minBunch_,maxBunch_,playback_,&wantedBranches_);
+    input_=     maybeMakePileUp(pset,"input",minBunch_,maxBunch_,playback_);
+    cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_);
+    beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_);
+    beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_);
+    fwdDet_=maybeMakePileUp(pset,"forwardDetectors",minBunch_,maxBunch_,playback_);
 
     //prepare playback info structures
     fileSeqNrs_.resize(maxBunch_-minBunch_+1);
@@ -216,5 +215,13 @@ namespace edm {
       LogDebug("MixingModule") <<" merging Event:  id " << e.id();
       addPileups(bcr, &e, ++eventId_,worker);
     }// end main loop
+  }
+
+  void BMixingModule::dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
+      if (input_) input_->dropUnwantedBranches(wantedBranches);
+      if (cosmics_) cosmics_->dropUnwantedBranches(wantedBranches);
+      if (beamHalo_p_) beamHalo_p_->dropUnwantedBranches(wantedBranches);
+      if (beamHalo_m_) beamHalo_m_->dropUnwantedBranches(wantedBranches);
+      if (fwdDet_) fwdDet_->dropUnwantedBranches(wantedBranches);
   }
 } //edm

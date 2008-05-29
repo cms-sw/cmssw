@@ -6,6 +6,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -122,8 +123,10 @@ namespace edm
 	  }else LogWarning("MixingModule") <<"You have asked to mix an unknown type of object("<<object<<").\n If you want to include it in mixing, please contact the authors of the MixingModule!";
       }
 
+    sort_all(wantedBranches_);
     for (unsigned int branch=0;branch<wantedBranches_.size();++branch) LogDebug("MixingModule")<<"Will keep branch "<<wantedBranches_[branch];
   
+    dropUnwantedBranches(wantedBranches_);
     produces<CrossingFramePlaybackInfo>();
   }
  
@@ -146,7 +149,9 @@ namespace edm
       if (desc.className()==lookfor && desc.moduleLabel()==tag.label() && desc.productInstanceName()==tag.instance()) {
 	label=desc.moduleLabel()+desc.productInstanceName();
 	found=true;
-	wantedBranches_.push_back(desc.branchName());
+	wantedBranches_.push_back(desc.friendlyClassName() + '_' +
+				  desc.moduleLabel() + '_' +
+				  desc.productInstanceName());
 	break; 
 	}
     }
