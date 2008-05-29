@@ -328,7 +328,7 @@ template <typename Collection>
 bool GctBlockPacker::findBx0OffsetInCollection(unsigned& bx0Offset, const Collection* coll)
 {
   bool foundBx0 = false;
-  unsigned size = coll->size()
+  unsigned size = coll->size();
   for(bx0Offset = 0 ; bx0Offset < size ; ++bx0Offset)
   {
     if(coll->at(bx0Offset).bx() == 0) { foundBx0 = true; break; }
