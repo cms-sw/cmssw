@@ -89,8 +89,7 @@ void RPCReadOutMapBuilder::beginJob( const edm::EventSetup& iSetup )
         LinkConnSpec  lc(idlc); 
         for (int idlb=0; idlb <=2; idlb++) {
           bool master = (idlb==0);
-          std::string name="";
-          LinkBoardSpec lb(master, idlb, name);
+          LinkBoardSpec lb(master, idlb);
           for (int ifeb=0; ifeb <= 5; ifeb++) {
             FebLocationSpec febLocation = {"3",2,"Forward",2};
             ChamberLocationSpec chamber = {1,5,3,"+","ch","IN","+z","Barrel"};

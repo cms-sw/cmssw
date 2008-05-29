@@ -2,8 +2,8 @@
 #include "CondFormats/RPCObjects/interface/LinkBoardSpec.h"
 #include <sstream>
 
-LinkBoardSpec::LinkBoardSpec(bool m, int l, std::string n)
-    : theMaster(m), theLinkBoardNumInLink(l), theName(n) { }
+LinkBoardSpec::LinkBoardSpec(bool m, int l)
+    : theMaster(m), theLinkBoardNumInLink(l) { }
 
 void LinkBoardSpec::add(const FebConnectorSpec & feb)
 {
@@ -34,5 +34,4 @@ std::string LinkBoardSpec::print(int depth ) const
   }
   return str.str();
 }
-
 

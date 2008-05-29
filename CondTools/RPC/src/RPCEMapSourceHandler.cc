@@ -50,7 +50,6 @@ void popcon::RPCEMapSourceHandler::getNewObjects()
         if (difference==1) {
           cout<<"Will write new object to offline DB!!!"<<endl;
           m_to_transfer.push_back(std::make_pair((RPCEMap*)eMap,snc));
-//          delete eMap;
         }
 
 //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
@@ -76,7 +75,6 @@ void popcon::RPCEMapSourceHandler::DisconnectOnlineDB()
 void popcon::RPCEMapSourceHandler::readEMap()
 {
 
-//  string eMap_version = "test";
   time_t rawtime;
   time(&rawtime); //time since January 1, 1970
   tm * ptm = gmtime(&rawtime);//GMT time
@@ -178,7 +176,6 @@ void popcon::RPCEMapSourceHandler::readEMap()
         for(unsigned int iLB=0; iLB<theLB.size(); iLB++) {
           thisLB.theLinkBoardNumInLink=atoi(((theLB[iLB].second).substr((theLB[iLB].second).length()-1,1)).c_str());
           thisLB.theMaster = (theLB[iLB].first==boardId);
-          thisLB.theName = theLB[iLB].second;
           FEBStruct tmpFEB;
           std::vector<FEBStruct> theFEB;
 // get FEBs

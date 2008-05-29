@@ -159,8 +159,7 @@ void popcon::RPCReadOutMappingSourceHandler::readCablingMap()
         for(unsigned int iLB=0; iLB<theLB.size(); iLB++) {
           linkChannel=atoi(((theLB[iLB].second).substr((theLB[iLB].second).length()-1,1)).c_str());
           bool master = (theLB[iLB].first==theLink[iLink].first);
-          std::string name=theLB[iLB].second;
-          LinkBoardSpec lb(master,linkChannel,name);
+          LinkBoardSpec lb(master,linkChannel);
           FEBStruct tmpFEB;
           std::vector<FEBStruct> theFEB;
           sqlQuery = " SELECT FEBLocation.FEBLocationId,";

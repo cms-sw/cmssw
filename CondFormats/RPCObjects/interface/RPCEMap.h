@@ -34,7 +34,6 @@ public:
   struct lbItem {
     bool theMaster;
     int theLinkBoardNumInLink;
-    std::string theName;
     int nFebs;
   };
   struct febItem {
@@ -81,7 +80,7 @@ public:
         for (int ilink=lastLink; ilink<lastLink+theTBs[itb].nLinks; ilink++) {
           LinkConnSpec lc(theLinks[ilink].theTriggerBoardInputNumber);
           for (int ilb=lastLB; ilb<lastLB+theLinks[ilink].nLBs; ilb++) {
-            LinkBoardSpec lb(theLBs[ilb].theMaster,theLBs[ilb].theLinkBoardNumInLink,theLBs[ilb].theName);
+            LinkBoardSpec lb(theLBs[ilb].theMaster,theLBs[ilb].theLinkBoardNumInLink);
             for (int ifeb=lastFeb; ifeb<lastFeb+theLBs[ilb].nFebs; ifeb++) {
               ChamberLocationSpec chamber={theFebs[ifeb].diskOrWheel,theFebs[ifeb].layer,theFebs[ifeb].sector,theFebs[ifeb].subsector,theFebs[ifeb].chamberLocationName,theFebs[ifeb].febZOrnt,theFebs[ifeb].febZRadOrnt, theFebs[ifeb].barrelOrEndcap};
               FebLocationSpec afeb={theFebs[ifeb].cmsEtaPartition,theFebs[ifeb].positionInCmsEtaPartition,theFebs[ifeb].localEtaPartition,theFebs[ifeb].positionInLocalEtaPartition};
