@@ -22,7 +22,7 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
 
 #    bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
 #    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
-    scIslandEndcapProducer = cms.string('multi5x5SuperClustersWithPreshower'),
+    scIslandEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
 #    bcProducer = cms.string('multi5x5BasicClusters'),
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
     scIslandEndcapCollection = cms.string(''),
