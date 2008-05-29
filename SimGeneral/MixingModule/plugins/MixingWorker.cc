@@ -91,11 +91,25 @@ void MixingWorker<HepMCProduct>::addPileups(const int bcr, Event* e,unsigned int
   Handle<HepMCProduct>  result_mc;
   bool got = e->getByLabel(tag_,result_mc);
   if (got){
-    LogDebug("MixingModule") <<"  HepMCProduct added";
+    LogDebug("MixingModule") <<"  pileup HepMCProduct added";
     std::vector<HepMCProduct> vec;
     vec.push_back(*(result_mc.product()));
     crFrame_->addPileups(bcr,&vec,eventNr);
   }
-
-
 }
+
+template <>
+void MixingWorker<HepMCProduct>::addSignals(const edm::Event &e){
+  // version for HepMCProduct is specific since it doesnt come as a vector
+  // we have to read it differently, and to store it in a (fake) vector
+  edm::Handle<HepMCProduct>  result_t;
+  bool got = e.getByLabel(tag_,result_t);
+  if (got) {
+    LogDebug("MixingModule") <<" adding HepMCProduct from signal event  with "<<tag_;
+    std::vector<HepMCProduct> vec;
+    vec.push_back(*(result_t.product()));
+    crFrame_->addSignals(&vec,e.id());
+  }
+  else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for HepMCProduct with "<<tag_;
+}
+

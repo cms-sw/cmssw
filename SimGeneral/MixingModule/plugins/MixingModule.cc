@@ -15,7 +15,7 @@
 #include "MixingModule.h"
 #include "MixingWorker.h"
 
-
+#include "FWCore/Services/src/Memory.h"
 using namespace std;
 
 namespace edm
@@ -144,10 +144,10 @@ namespace edm
       // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;
       if (desc.className()==lookfor && desc.moduleLabel()==tag.label() && desc.productInstanceName()==tag.instance()) {
-	  	    label=desc.moduleLabel()+desc.productInstanceName();
-	  found=true;
-	  wantedBranches_.push_back(desc.branchName());
-	  break; 
+	label=desc.moduleLabel()+desc.productInstanceName();
+	found=true;
+	wantedBranches_.push_back(desc.branchName());
+	break; 
 	}
     }
     if (!found) {

@@ -65,7 +65,7 @@ namespace edm
 	  LogDebug("MixingModule") <<" adding " << result_t.product()->size()<<" signal objects for "<<typeid(T).name()<<" with "<<tag_;
 	  crFrame_->addSignals(result_t.product(),e.id());
 	}
-	//	else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tag_;
+	else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tag_;
       }
 
       virtual void addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int &vertexoffset)
