@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  9 13:48:06 CEST 2008
-// $Id: L1RPCHwConfig.h,v 1.1 2008/04/09 15:16:52 fruboes Exp $
+// $Id: L1RPCHwConfig.h,v 1.2 2008/04/10 13:39:12 fruboes Exp $
 //
 
 // system include files
@@ -25,8 +25,10 @@
 
 // forward declarations
 #include <set>
+#include <vector>
 
 #include <iostream>
+
 struct L1RPCDevCoords {
  public:
   L1RPCDevCoords(): m_tower(0), m_PAC(255) {};
@@ -36,18 +38,18 @@ struct L1RPCDevCoords {
   int getSector() {return m_PAC/12;};
   int getSegment() {return m_PAC%12;};
   bool operator() (const L1RPCDevCoords & l1, const L1RPCDevCoords & l2 ) const{
-
     if (l1.m_tower != l2.m_tower)
        return l1.m_tower < l2.m_tower;
     else
        return l1.m_PAC < l2.m_PAC;
-
   }; 
 
-
  private:
-   signed char m_tower;
-   unsigned char m_PAC;
+// Type "a" is not supported ( CORAL : "AttributeList" from "CoralBase" ) 
+//   signed char m_tower;
+//   unsigned char m_PAC;
+   char m_tower;
+   char m_PAC;
 
 };
 
@@ -98,7 +100,7 @@ class L1RPCHwConfig
       int m_firstBX;
       int m_lastBX;
       std::set<L1RPCDevCoords,L1RPCDevCoords > m_disabledDevices;
-      
+
       // ---------- member data --------------------------------
 
 };
