@@ -1,4 +1,4 @@
-// Last commit: $Id: testSiStripConfigDb.cc,v 1.13 2008/05/13 14:18:36 bainbrid Exp $
+// Last commit: $Id: testSiStripConfigDb.cc,v 1.14 2008/05/16 09:53:48 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -93,6 +93,62 @@ void testSiStripConfigDb::beginJob( const edm::EventSetup& setup ) {
       << " Aborting!";
     return;
   }
+
+  // -------------------- COPY CONSTRUCTORS AND OPERATORS  --------------------
+
+  if ( db_->dbParams().partitions().size() < 1 ) {
+    LogTrace(mlCabling_) 
+      << "[testSiStripConfigDb::" << __func__ << "]"
+      << " Cannot test copy constructors as less than 2 partitions!";
+  } else {
+
+    SiStripDbParams tmp1( db_->dbParams() );
+    SiStripDbParams tmp2; tmp2 = db_->dbParams();
+    std::stringstream ss;
+    ss << "[testSiStripConfigDb::" << __func__ << "]" 
+       << " Test of copy constructors: " << std::endl
+       << " ===> 'Original' DbParams: " << std::endl
+       << db_->dbParams()
+       << " ===> 'Copy constructed' DbParams: " << std::endl
+       << tmp1
+       << " ===> 'Assignment constructed' DbParams: " << std::endl
+       << tmp2;
+    
+    ss << "[testSiStripConfigDb::" << __func__ << "]" 
+       << " Test of equality: " << std::endl;
+    SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions().end();
+    SiStripDbParams::SiStripPartitions::const_iterator iii = db_->dbParams().partitions().begin();
+    SiStripDbParams::SiStripPartitions::const_iterator jjj = db_->dbParams().partitions().end();
+    for ( ; ii != jj; ++ii ) {
+      for ( ; iii != jjj; ++iii ) {
+	ss << "\"" 
+	   << ii->second.partitionName()
+	   << "\" is equal to \""
+	   << iii->second.partitionName()
+	   << "\"? " 
+	   << std::boolalpha
+	   << ( ii->second == iii->second )
+	   << std::noboolalpha
+	   << std::endl;
+	ss << "\"" 
+	   << ii->second.partitionName()
+	   << "\" is equal NOT to \""
+	   << iii->second.partitionName()
+	   << "\"? " 
+	   << std::boolalpha
+	   << ( ii->second != iii->second )
+	   << std::noboolalpha
+	   << std::endl;
+      }
+    }
+    LogTrace(mlCabling_) << ss.str();
+  }
+
+
+
+
+  // -------------------- RUNS AND PARTITONS --------------------
 
   // Retrieve run numbers for all partitions
   SiStripConfigDb::Runs runs;
