@@ -37,11 +37,12 @@ namespace edm
 	isRealData_(false), 
 	experimentType_(Any),
 	bunchCrossing_(invalidBunchXing),
+	orbitNumber_(invalidBunchXing),
         storeNumber_(invalidStoreNumber) {}
     EventAuxiliary(EventID const& theId, std::string const& theProcessGUID, Timestamp const& theTime,
-		   LuminosityBlockNumber_t lb,
-                   bool isReal, ExperimentType eType = Any,
-		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber) :
+		   LuminosityBlockNumber_t lb, bool isReal, ExperimentType eType = Any,
+		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
+                   int orbitNum = invalidBunchXing) :
 	processHistoryID_(),
 //	branchMapperID_(),
 	id_(theId),
@@ -51,6 +52,7 @@ namespace edm
 	isRealData_(isReal),
         experimentType_(eType),
 	bunchCrossing_(bunchXing),
+	orbitNumber_(orbitNum),
 	storeNumber_(storeNumber) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
@@ -65,6 +67,7 @@ namespace edm
     bool isRealData() const {return isRealData_;}
     ExperimentType experimentType() const {return experimentType_;}
     int bunchCrossing() const {return bunchCrossing_;}
+    int orbitNumber() const {return orbitNumber_;}
     int storeNumber() const {return storeNumber_;}
 
     // most recently process that processed this event
@@ -85,6 +88,8 @@ namespace edm
     ExperimentType experimentType_;
     //  The bunch crossing number
     int bunchCrossing_;
+    // The orbit number
+    int orbitNumber_;
     //  The LHC store number
     int storeNumber_;
   };
