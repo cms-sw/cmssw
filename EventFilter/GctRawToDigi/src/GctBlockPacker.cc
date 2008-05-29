@@ -72,9 +72,8 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   {
     const L1GctJetCandCollection * jetCands = jets.at(iCat);
     unsigned& offset = bx0JetCandOffsets.at(iCat);
-    unsigned collectionSize = jetCands->size();
     if(!findBx0OffsetInCollection(offset, jetCands)) { edm::LogError("GCT") << "No jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
-    if(collectionSize-offset < 4) { edm::LogError("GCT") << "Insufficient jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
+    if((jetCands->size()-offset) < 4) { edm::LogError("GCT") << "Insufficient jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
   }
   
   // Now find the offset for the jet counts with bx=0
@@ -139,9 +138,8 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   {
     const L1GctEmCandCollection * cands = emCands.at(iCat);
     unsigned& offset = bx0EmCandOffsets.at(iCat);
-    unsigned collectionSize = cands->size();
     if(!findBx0OffsetInCollection(offset, cands)) { edm::LogError("GCT") << "No EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
-    if(collectionSize-offset < 4) { edm::LogError("GCT") << "Insufficient EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
+    if((cands->size()-offset) < 4) { edm::LogError("GCT") << "Insufficient EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
   }
   
   unsigned bx0EtTotalOffset, bx0EtHadOffset, bx0EtMissOffset;
