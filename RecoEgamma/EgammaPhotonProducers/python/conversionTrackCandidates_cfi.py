@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates.cfi,v 1.23 2008/05/16 18:00:50 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.6 2008/05/23 13:24:49 hegner Exp $
 #
 # Tracker geometry #####################
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
@@ -44,11 +44,16 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
         propagatorOppositeTISE = cms.string('oppositeToMomElePropagator')
     ),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
-    bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
+    bcBarrelCollection = cms.InputTag("hybridSuperClusters"),
+    bcEndcapCollection  = cms.InputTag("multi5x5BasicClusters:multi5x5EndcapBasicClusters"),
+
+
+ #   bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
     outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),
-    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
+
+#    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
     scIslandEndcapProducer = cms.string('multi5x5SuperClustersWithPreshower'),
-    bcProducer = cms.string('multi5x5BasicClusters'),
+#    bcProducer = cms.string('multi5x5BasicClusters'),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     scIslandEndcapCollection = cms.string(''),
     hbheInstance = cms.string(''),

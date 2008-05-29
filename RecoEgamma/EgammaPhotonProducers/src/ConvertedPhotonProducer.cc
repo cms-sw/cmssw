@@ -59,9 +59,9 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   
   // use onfiguration file to setup input collection names
   
-  bcProducer_             = conf_.getParameter<std::string>("bcProducer");
-  bcBarrelCollection_     = conf_.getParameter<std::string>("bcBarrelCollection");
-  bcEndcapCollection_     = conf_.getParameter<std::string>("bcEndcapCollection");
+  //bcProducer_             = conf_.getParameter<std::string>("bcProducer");
+  bcBarrelCollection_     = conf_.getParameter<edm::InputTag>("bcBarrelCollection");
+  bcEndcapCollection_     = conf_.getParameter<edm::InputTag>("bcEndcapCollection");
   
   scHybridBarrelProducer_       = conf_.getParameter<std::string>("scHybridBarrelProducer");
   scIslandEndcapProducer_       = conf_.getParameter<std::string>("scIslandEndcapProducer");
@@ -199,18 +199,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 
   // Get the basic cluster collection in the Barrel 
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
-  theEvent.getByLabel(bcProducer_, bcBarrelCollection_, bcBarrelHandle);
+  theEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_.c_str();
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_;
     return;
   }
 
     
   // Get the basic cluster collection in the Endcap 
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
-  theEvent.getByLabel(bcProducer_, bcEndcapCollection_, bcEndcapHandle);
+  theEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_.c_str();
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_;
     return;
   }
  
