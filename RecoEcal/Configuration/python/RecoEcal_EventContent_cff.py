@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Full Event content 
 RecoEcalFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_ecalRecHit_*_*', 
-        'keep *_reducedEcalRecHits*_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_reducedEcalRecHits*_*_*', 
         'keep *_interestingEcalDetId*_*_*', 
         'keep *_ecalWeightUncalibRecHit_*_*', 
         'keep *_ecalPreshowerRecHit_*_*', 
