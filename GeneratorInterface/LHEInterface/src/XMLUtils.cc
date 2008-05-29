@@ -19,6 +19,16 @@ XERCES_CPP_NAMESPACE_USE
 
 namespace lhef {
 
+StorageWrap::StorageWrap(Storage *storage) :
+	storage(storage)
+{
+}
+
+StorageWrap::~StorageWrap()
+{
+	storage->close();
+}
+
 unsigned int XMLDocument::XercesPlatform::instances = 0;
 
 XMLDocument::XercesPlatform::XercesPlatform()
@@ -50,7 +60,7 @@ XMLDocument::XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler) :
 	init(handler);
 }
 
-XMLDocument::XMLDocument(std::auto_ptr<Storage> &in, Handler &handler) :
+XMLDocument::XMLDocument(std::auto_ptr<StorageWrap> &in, Handler &handler) :
 	platform(new XercesPlatform()),
 	source(new StorageInputSource(in)),
 	parser(XMLReaderFactory::createXMLReader()),
@@ -191,7 +201,7 @@ unsigned int STLInputStream::readBytes(XMLByte* const buf,
 	return read;
 }
 
-StorageInputStream::StorageInputStream(Storage &in) :
+StorageInputStream::StorageInputStream(StorageWrap &in) :
 	in(in)
 {
 }
@@ -205,12 +215,12 @@ unsigned int StorageInputStream::readBytes(XMLByte* const buf,
 {
 	void *rawBuf = reinterpret_cast<void*>(buf);
 	unsigned int bytes = size * sizeof(XMLByte);
-	unsigned int readBytes = in.read(rawBuf, bytes);
+	unsigned int readBytes = in->read(rawBuf, bytes);
 
 	unsigned int read = (unsigned int)(readBytes / sizeof(XMLByte));
 	unsigned int rest = (unsigned int)(readBytes % sizeof(XMLByte));
 	if (rest)
-		in.position(-(IOOffset)rest, Storage::CURRENT);
+		in->position(-(IOOffset)rest, Storage::CURRENT);
 
 	pos += read;
 	return read;

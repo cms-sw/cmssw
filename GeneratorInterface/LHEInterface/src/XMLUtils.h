@@ -14,16 +14,28 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 
-#include "Utilities/StorageFactory/interface/Storage.h"
+class Storage;
 
 namespace lhef {
+
+class StorageWrap {
+    public:
+	StorageWrap(Storage *storage);
+	~StorageWrap();
+
+	Storage *operator -> () { return storage.get(); }
+	const Storage *operator -> () const { return storage.get(); }
+
+    private:
+	std::auto_ptr<Storage>	storage;
+};
 
 class XMLDocument {
     public:
 	class Handler : public XERCES_CPP_NAMESPACE_QUALIFIER DefaultHandler {};
 
 	XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler);
-	XMLDocument(std::auto_ptr<Storage> &in, Handler &handler);
+	XMLDocument(std::auto_ptr<StorageWrap> &in, Handler &handler);
 	virtual ~XMLDocument();
 
 	bool parse();
@@ -154,9 +166,9 @@ class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 class StorageInputStream :
 		public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
     public:
-	typedef Storage Stream_t;
+	typedef StorageWrap Stream_t;
 
-	StorageInputStream(Storage &in);
+	StorageInputStream(StorageWrap &in);
 	virtual ~StorageInputStream();
 
 	virtual unsigned int curPos() const { return pos; }
@@ -165,7 +177,7 @@ class StorageInputStream :
 	                               const unsigned int size);
 
     private:
-	Storage		&in;
+	StorageWrap	&in;
 	unsigned int	pos;
 };
 

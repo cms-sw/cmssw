@@ -37,15 +37,19 @@ class LHEReader::Source {
 
 class LHEReader::FileSource : public LHEReader::Source {
     public:
-	FileSource(const std::string &fileURL) :
-		fileStream(StorageFactory::get()->open(fileURL,
-		                                       IOFlags::OpenRead))
+	FileSource(const std::string &fileURL)
 	{
-		if (!fileStream.get())
+		Storage *storage =
+			StorageFactory::get()->open(fileURL,
+			                            IOFlags::OpenRead);
+
+		if (!storage)
 			throw cms::Exception("FileOpenError")
 				<< "Could not open LHE file \""
 				<< fileURL << "\" for reading"
 				<< std::endl;
+
+		fileStream.reset(new StorageWrap(storage));
 	}
 
 	~FileSource() {}
@@ -54,7 +58,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
-	std::auto_ptr<Storage>		fileStream;
+	std::auto_ptr<StorageWrap>	fileStream;
 };
 
 class LHEReader::XMLHandler : public XMLDocument::Handler {
