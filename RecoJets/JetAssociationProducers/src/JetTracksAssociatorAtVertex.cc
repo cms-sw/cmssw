@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorAtVertex.cc,v 1.1 2007/09/20 22:32:41 fedor Exp $
+// $Id: JetTracksAssociatorAtVertex.cc,v 1.2 2007/10/05 23:23:11 fedor Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -21,6 +21,16 @@ JetTracksAssociatorAtVertex::JetTracksAssociatorAtVertex(const edm::ParameterSet
     mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
     mAssociator (fConfig.getParameter<double> ("coneSize"))
 {
+  reco::TrackBase::TrackQuality trackQuality = 
+    reco::TrackBase::qualityByName (fConfig.getParameter<std::string> ("trackQuality"));
+  if (trackQuality == reco::TrackBase::undefQuality) { // we have a problem
+    edm::LogError("JetTracksAssociatorAtVertex") << "Unknown trackQuality value '" 
+						 << fConfig.getParameter<std::string> ("trackQuality")
+						 << "'. See possible values in 'reco::TrackBase::qualityByName'";
+  }
+  mTrackQuality = int (trackQuality);
+  produces<reco::JetTracksAssociation::Container> ();
+}
   produces<reco::JetTracksAssociation::Container> ();
 }
 
@@ -40,8 +50,11 @@ void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSe
   for (unsigned i = 0; i < jets_h->size(); ++i) allJets.push_back (jets_h->refAt(i));
   std::vector <reco::TrackRef> allTracks;
   allTracks.reserve (tracks_h->size());
-  for (unsigned i = 0; i < tracks_h->size(); ++i) allTracks.push_back (reco::TrackRef (tracks_h, i));
+  reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::TrackQuality (mTrackQuality); // convert back
   // run algo
+  for (unsigned i = 0; i < tracks_h->size(); ++i) {
+    if ((*tracks_h)[i].quality (trackQuality)) allTracks.push_back (reco::TrackRef (tracks_h, i));
+  }
   mAssociator.produce (&*jetTracks, allJets, allTracks);
   // store output
   fEvent.put (jetTracks);
