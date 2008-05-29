@@ -170,9 +170,11 @@ HLTMuonL2PreFilter::triggeredByLevel1(TrackRef& tk,Handle<L2MuonTrajectorySeedCo
   bool ok=false;
   L1MuonParticleRef l1ref;
   RefToBase<TrajectorySeed> seed=tk->seedRef();   
-  L2MuonTrajectorySeedCollection::const_iterator l2seed;
-  for (l2seed=museeds->begin() ; l2seed != museeds->end();++l2seed){
-    if ( (l2seed->startingState()).detId() == (seed->startingState()).detId() ) {
+  uint iMuSeed=0;
+  uint iMuSeed_max=museeds->size();
+  for( ; iMuSeed!=iMuSeed_max; ++iMuSeed){
+    Ref<L2MuonTrajectorySeedCollection> l2seed(museeds,iMuSeed);
+    if (l2seed.id()==seed.id() && l2seed.key()==seed.key()){
       l1ref = l2seed->l1Particle();
       break;
     }
