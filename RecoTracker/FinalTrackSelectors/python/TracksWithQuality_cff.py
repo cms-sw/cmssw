@@ -1,18 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoTracker.FinalTrackSelectors.selectLoose_cfi import *
+import RecoTracker.FinalTrackSelectors.selectLoose_cfi
 # Track filtering and quality.
-#   input:    preFilterFirstStepTracks
-#   output:   firstStepTracksWithQuality
+#   input:    preFilterCmsTracks
+#   output:   generalTracks
 #   sequence: tracksWithQuality
-withLooseQuality = copy.deepcopy(selectLoose)
-import copy
-from RecoTracker.FinalTrackSelectors.selectTight_cfi import *
-withTightQuality = copy.deepcopy(selectTight)
-import copy
-from RecoTracker.FinalTrackSelectors.selectHighPurity_cfi import *
-firstStepTracksWithQuality = copy.deepcopy(selectHighPurity)
+withLooseQuality = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone()
+import RecoTracker.FinalTrackSelectors.selectTight_cfi
+withTightQuality = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone()
+import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
+firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
 tracksWithQuality = cms.Sequence(withLooseQuality*withTightQuality*firstStepTracksWithQuality)
 withLooseQuality.src = 'preFilterFirstStepTracks'
 withLooseQuality.keepAllTracks = False ## we only keep hthose who pass the filter
