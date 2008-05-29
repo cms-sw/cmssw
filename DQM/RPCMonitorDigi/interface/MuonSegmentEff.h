@@ -48,10 +48,10 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       std::vector<int> totalcounter;
       std::ofstream ofrej;
       std::ofstream ofeff;
-      std::ofstream oftwiki;
       bool incldt;
       bool incldtMB4;
       bool inclcsc;
+      bool prodImages;
       double MinimalResidual;
       double MinimalResidualRB4;
       double MinCosAng;
@@ -106,30 +106,41 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       TH1F* hGlobalResClu3La5;
       TH1F* hGlobalResClu3La6;
       
+      TCanvas * Ca2;
 
       TH1F* hGlobalResY;
       
       //wheel-2
+      TH1F* OGlobWm2;
+      TH1F* PGlobWm2;
       TH1F* EffGlobWm2;
       TH1F* EffGlobm2s1;  TH1F* EffGlobm2s2;  TH1F* EffGlobm2s3;  TH1F* EffGlobm2s4;  TH1F* EffGlobm2s5;  TH1F* EffGlobm2s6; 
       TH1F* EffGlobm2s7;  TH1F* EffGlobm2s8;  TH1F* EffGlobm2s9;  TH1F* EffGlobm2s10;  TH1F* EffGlobm2s11;  TH1F* EffGlobm2s12; 
       
       //wheel-1
+      TH1F* OGlobWm1;
+      TH1F* PGlobWm1;
       TH1F* EffGlobWm1;
       TH1F* EffGlobm1s1;  TH1F* EffGlobm1s2;  TH1F* EffGlobm1s3;  TH1F* EffGlobm1s4;  TH1F* EffGlobm1s5;  TH1F* EffGlobm1s6; 
       TH1F* EffGlobm1s7;  TH1F* EffGlobm1s8;  TH1F* EffGlobm1s9;  TH1F* EffGlobm1s10;  TH1F* EffGlobm1s11;  TH1F* EffGlobm1s12; 
       
       //wheel0
+      TH1F* OGlobW0;
+      TH1F* PGlobW0;
       TH1F* EffGlobW0;
       TH1F* EffGlob1;  TH1F* EffGlob2;  TH1F* EffGlob3;  TH1F* EffGlob4;  TH1F* EffGlob5;  TH1F* EffGlob6; 
       TH1F* EffGlob7;  TH1F* EffGlob8;  TH1F* EffGlob9;  TH1F* EffGlob10;  TH1F* EffGlob11;  TH1F* EffGlob12; 
 
       //wheel1
+      TH1F* OGlobW1;
+      TH1F* PGlobW1;
       TH1F* EffGlobW1;
       TH1F* EffGlob1s1;  TH1F* EffGlob1s2;  TH1F* EffGlob1s3;  TH1F* EffGlob1s4;  TH1F* EffGlob1s5;  TH1F* EffGlob1s6; 
       TH1F* EffGlob1s7;  TH1F* EffGlob1s8;  TH1F* EffGlob1s9;  TH1F* EffGlob1s10;  TH1F* EffGlob1s11;  TH1F* EffGlob1s12; 
 
       //wheel2
+      TH1F* OGlobW2;
+      TH1F* PGlobW2;
       TH1F* EffGlobW2;
       TH1F* EffGlob2s1;  TH1F* EffGlob2s2;  TH1F* EffGlob2s3;  TH1F* EffGlob2s4;  TH1F* EffGlob2s5;  TH1F* EffGlob2s6; 
       TH1F* EffGlob2s7;  TH1F* EffGlob2s8;  TH1F* EffGlob2s9;  TH1F* EffGlob2s10;  TH1F* EffGlob2s11;  TH1F* EffGlob2s12; 

@@ -172,7 +172,7 @@ if(all4DSegments->size()>0){
 		  sumStripDetected=sumStripDetected+stripDetected;
 		  stripCounter++;
 		}
-		std::cout<<"\t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
+		std::cout<<"\t \t \t \t \t \t digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
 	      }
 	      
 	      std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;

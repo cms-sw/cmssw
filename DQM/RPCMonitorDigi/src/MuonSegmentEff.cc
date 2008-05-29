@@ -142,6 +142,7 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
+  prodImages=iConfig.getUntrackedParameter<bool>("prodImages",false);
   MinimalResidual= iConfig.getUntrackedParameter<double>("MinimalResidual",2.);
   MinimalResidualRB4=iConfig.getUntrackedParameter<double>("MinimalResidualRB4",4.);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
@@ -161,7 +162,6 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   
   ofrej.open(rejected.c_str());
   ofeff.open(rollseff.c_str());
-  oftwiki.open("tabletotwiki.txt");
 
   // Giuseppe
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
@@ -208,6 +208,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   hGlobalResY = new TH1F("GlobalResidualsY","Global RPC Residuals Y",500,-100.,100);
   
   //wheel-2
+  OGlobWm2 = new TH1F("GlobOcupancyWheel_-2","Global Ocupancy Wheel -2",240,0.5,240.5);
+  PGlobWm2 = new TH1F("GlobExpectedWheel_-2","Global Expected Wheel -2",240,0.5,240.5);
   EffGlobWm2 = new TH1F("GlobEfficiencyWheel_-2","Global Efficiency Wheel -2",240,0.5,240.5);
   EffGlobm2s1 = new TH1F("GlobEfficiencyWheel_m2_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlobm2s2 = new TH1F("GlobEfficiencyWheel_m2_Sec2","Eff. vs. roll",20,0.5,20.5);
@@ -223,6 +225,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   EffGlobm2s12 = new TH1F("GlobEfficiencyWheel_m2_Sec12","Eff. vs. roll",20,0.5,20.5);
 
   //wheel-1
+  OGlobWm1 = new TH1F("GlobOcupancyWheel_-1","Global Ocupancy Wheel -1",240,0.5,240.5);
+  PGlobWm1 = new TH1F("GlobExpectedWheel_-1","Global Expected Wheel -1",240,0.5,240.5);
   EffGlobWm1 = new TH1F("GlobEfficiencyWheel_-1","Global Efficiency Wheel -1",240,0.5,240.5);
   EffGlobm1s1 = new TH1F("GlobEfficiencyWheel_m1_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlobm1s2 = new TH1F("GlobEfficiencyWheel_m1_Sec2","Eff. vs. roll",20,0.5,20.5);
@@ -238,6 +242,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   EffGlobm1s12 = new TH1F("GlobEfficiencyWheel_m1_Sec12","Eff. vs. roll",20,0.5,20.5);
   
   //wheel0
+  OGlobW0 = new TH1F("GlobOcupancyWheel_0","Global Ocupancy Wheel 0",240,0.5,240.5);
+  PGlobW0 = new TH1F("GlobExpectedWheel_0","Global Expected Wheel 0",240,0.5,240.5);
   EffGlobW0 = new TH1F("GlobEfficiencyWheel_0","Global Efficiency Wheel 0",240,0.5,240.5);
   EffGlob1 = new TH1F("GlobEfficiencyWheel_0_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlob2 = new TH1F("GlobEfficiencyWheel_0_Sec2","Eff. vs. roll",20,0.5,20.5);
@@ -253,6 +259,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   EffGlob12 = new TH1F("GlobEfficiencyWheel_0_Sec12","Eff. vs. roll",20,0.5,20.5);
 
   //wheel1
+  OGlobW1 = new TH1F("GlobOcupancyWheel_1","Global Ocupancy Wheel 1",240,0.5,240.5);
+  PGlobW1 = new TH1F("GlobExpectedWheel_1","Global Expected Wheel 1",240,0.5,240.5);
   EffGlobW1 = new TH1F("GlobEfficiencyWheel_1","Global Efficiency Wheel 1",240,0.5,240.5);
   EffGlob1s1 = new TH1F("GlobEfficiencyWheel_1_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlob1s2 = new TH1F("GlobEfficiencyWheel_1_Sec2","Eff. vs. roll",20,0.5,20.5);
@@ -268,6 +276,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   EffGlob1s12 = new TH1F("GlobEfficiencyWheel_1_Sec12","Eff. vs. roll",20,0.5,20.5);
   
   //wheel2
+  OGlobW2 = new TH1F("GlobOcupancyWheel_2","Global Ocupancy Wheel 2",240,0.5,240.5);
+  PGlobW2 = new TH1F("GlobExpectedWheel_2","Global Expected Wheel 2",240,0.5,240.5);
   EffGlobW2 = new TH1F("GlobEfficiencyWheel_2","Global Efficiency Wheel 2",240,0.5,240.5);
   EffGlob2s1 = new TH1F("GlobEfficiencyWheel_2_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlob2s2 = new TH1F("GlobEfficiencyWheel_2_Sec2","Eff. vs. roll",20,0.5,20.5);
@@ -281,7 +291,6 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig)
   EffGlob2s10 = new TH1F("GlobEfficiencyWheel_2_Sec10","Eff. vs. roll",20,0.5,20.5);
   EffGlob2s11 = new TH1F("GlobEfficiencyWheel_2_Sec11","Eff. vs. roll",20,0.5,20.5);
   EffGlob2s12 = new TH1F("GlobEfficiencyWheel_2_Sec12","Eff. vs. roll",20,0.5,20.5);
-  
 }
 
 
@@ -324,6 +333,8 @@ MuonSegmentEff::~MuonSegmentEff()
   
 
   //wheel-2
+  fOutputFile->WriteTObject(PGlobWm2);
+  fOutputFile->WriteTObject(OGlobWm2);
   fOutputFile->WriteTObject(EffGlobWm2);
   fOutputFile->WriteTObject(EffGlobm2s1);
   fOutputFile->WriteTObject(EffGlobm2s2);
@@ -339,6 +350,8 @@ MuonSegmentEff::~MuonSegmentEff()
   fOutputFile->WriteTObject(EffGlobm2s12);
 
   //wheel-1
+  fOutputFile->WriteTObject(PGlobWm1);
+  fOutputFile->WriteTObject(OGlobWm1);
   fOutputFile->WriteTObject(EffGlobWm1);
   fOutputFile->WriteTObject(EffGlobm1s1);
   fOutputFile->WriteTObject(EffGlobm1s2);
@@ -354,6 +367,8 @@ MuonSegmentEff::~MuonSegmentEff()
   fOutputFile->WriteTObject(EffGlobm1s12);
   
   //wheel0
+  fOutputFile->WriteTObject(PGlobW0);
+  fOutputFile->WriteTObject(OGlobW0);
   fOutputFile->WriteTObject(EffGlobW0);
   fOutputFile->WriteTObject(EffGlob1);
   fOutputFile->WriteTObject(EffGlob2);
@@ -369,6 +384,8 @@ MuonSegmentEff::~MuonSegmentEff()
   fOutputFile->WriteTObject(EffGlob12);
 
   //wheel1
+  fOutputFile->WriteTObject(PGlobW1);
+  fOutputFile->WriteTObject(OGlobW1);
   fOutputFile->WriteTObject(EffGlobW1);
   fOutputFile->WriteTObject(EffGlob1s1);
   fOutputFile->WriteTObject(EffGlob1s2);
@@ -384,6 +401,8 @@ MuonSegmentEff::~MuonSegmentEff()
   fOutputFile->WriteTObject(EffGlob1s12);
   
   //wheel2
+  fOutputFile->WriteTObject(PGlobW2);
+  fOutputFile->WriteTObject(OGlobW2);
   fOutputFile->WriteTObject(EffGlobW2);
   fOutputFile->WriteTObject(EffGlob2s1);
   fOutputFile->WriteTObject(EffGlob2s2);
@@ -516,6 +535,8 @@ void MuonSegmentEff::endJob() {
     indexWheel[j]=1;
   }
   
+  std::ofstream oftwiki;
+  oftwiki.open("tabletotwiki.txt");
   std::cout<<"Printing twiki header "<<std::endl;
   oftwiki <<"|  RPC Name  |  Observed  |  Predicted  |  Efficiency %  |  Error %  |";
   
@@ -562,7 +583,9 @@ void MuonSegmentEff::endJob() {
 	//std::cout<<"p!=0 now going into ifs... "<<std::endl;
 
 	if(Ring==-2){
-	  //indexWheel[0]++;  EffGlobWm2->SetBinContent(indexWheel[0],ef);  EffGlobWm2->SetBinError(indexWheel[0],er);  EffGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera);  EffGlobWm2->GetXaxis()->LabelsOption("v");
+	  indexWheel[0]++;  EffGlobWm2->SetBinContent(indexWheel[0],ef);  EffGlobWm2->SetBinError(indexWheel[0],er);  EffGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera);  EffGlobWm2->GetXaxis()->LabelsOption("v");
+	  OGlobWm2->SetBinContent(indexWheel[0],o); OGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera); OGlobWm2->GetXaxis()->LabelsOption("v"); 
+	  PGlobWm2->SetBinContent(indexWheel[0],p); PGlobWm2->GetXaxis()->SetBinLabel(indexWheel[0],camera); PGlobWm2->GetXaxis()->LabelsOption("v"); 
 	  if(Sector==1)indexm2[1]++;  EffGlobm2s1->SetBinContent(indexm2[1],ef);  EffGlobm2s1->SetBinError(indexm2[1],er);  EffGlobm2s1->GetXaxis()->SetBinLabel(indexm2[1],camera);  EffGlobm2s1->GetXaxis()->LabelsOption("v");
 	  if(Sector==2)indexm2[2]++;  EffGlobm2s2->SetBinContent(indexm2[2],ef);  EffGlobm2s2->SetBinError(indexm2[2],er);  EffGlobm2s2->GetXaxis()->SetBinLabel(indexm2[2],camera);  EffGlobm2s2->GetXaxis()->LabelsOption("v");
 	  if(Sector==3)indexm2[3]++;  EffGlobm2s3->SetBinContent(indexm2[3],ef);  EffGlobm2s3->SetBinError(indexm2[3],er);  EffGlobm2s3->GetXaxis()->SetBinLabel(indexm2[3],camera);  EffGlobm2s3->GetXaxis()->LabelsOption("v");
@@ -578,7 +601,9 @@ void MuonSegmentEff::endJob() {
 	}
 
 	if(Ring==-1){
-	  //indexWheel[1]++;  EffGlobWm1->SetBinContent(indexWheel[1],ef);  EffGlobWm1->SetBinError(indexWheel[1],er);  EffGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera);  EffGlobWm1->GetXaxis()->LabelsOption("v");
+	  indexWheel[1]++;  EffGlobWm1->SetBinContent(indexWheel[1],ef);  EffGlobWm1->SetBinError(indexWheel[1],er);  EffGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera);  EffGlobWm1->GetXaxis()->LabelsOption("v");
+	  OGlobWm1->SetBinContent(indexWheel[1],o);  OGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera); OGlobWm1->GetXaxis()->LabelsOption("v"); 
+	  PGlobWm1->SetBinContent(indexWheel[1],p);  PGlobWm1->GetXaxis()->SetBinLabel(indexWheel[1],camera); PGlobWm1->GetXaxis()->LabelsOption("v"); 
 	  if(Sector==1)indexm1[1]++;  EffGlobm1s1->SetBinContent(indexm1[1],ef);  EffGlobm1s1->SetBinError(indexm1[1],er);  EffGlobm1s1->GetXaxis()->SetBinLabel(indexm1[1],camera);  EffGlobm1s1->GetXaxis()->LabelsOption("v");
 	  if(Sector==2)indexm1[2]++;  EffGlobm1s2->SetBinContent(indexm1[2],ef);  EffGlobm1s2->SetBinError(indexm1[2],er);  EffGlobm1s2->GetXaxis()->SetBinLabel(indexm1[2],camera);  EffGlobm1s2->GetXaxis()->LabelsOption("v");
 	  if(Sector==3)indexm1[3]++;  EffGlobm1s3->SetBinContent(indexm1[3],ef);  EffGlobm1s3->SetBinError(indexm1[3],er);  EffGlobm1s3->GetXaxis()->SetBinLabel(indexm1[3],camera);  EffGlobm1s3->GetXaxis()->LabelsOption("v");
@@ -595,6 +620,8 @@ void MuonSegmentEff::endJob() {
 
 	if(Ring==0){
 	  indexWheel[2]++;  EffGlobW0->SetBinContent(indexWheel[2],ef);  EffGlobW0->SetBinError(indexWheel[2],er);  EffGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera);  EffGlobW0->GetXaxis()->LabelsOption("v");
+	  OGlobW0->SetBinContent(indexWheel[2],o);  OGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera); OGlobW0->GetXaxis()->LabelsOption("v"); 
+	  PGlobW0->SetBinContent(indexWheel[2],p);  PGlobW0->GetXaxis()->SetBinLabel(indexWheel[2],camera); PGlobW0->GetXaxis()->LabelsOption("v"); 
 	  if(Sector==1)index0[1]++;  EffGlob1->SetBinContent(index0[1],ef);  EffGlob1->SetBinError(index0[1],er);  EffGlob1->GetXaxis()->SetBinLabel(index0[1],camera);  EffGlob1->GetXaxis()->LabelsOption("v");
 	  if(Sector==2)index0[2]++;  EffGlob2->SetBinContent(index0[2],ef);  EffGlob2->SetBinError(index0[2],er);  EffGlob2->GetXaxis()->SetBinLabel(index0[2],camera);  EffGlob2->GetXaxis()->LabelsOption("v");
 	  if(Sector==3)index0[3]++;  EffGlob3->SetBinContent(index0[3],ef);  EffGlob3->SetBinError(index0[3],er);  EffGlob3->GetXaxis()->SetBinLabel(index0[3],camera);  EffGlob3->GetXaxis()->LabelsOption("v");
@@ -610,7 +637,9 @@ void MuonSegmentEff::endJob() {
 	}
 	
 	if(Ring==1){
-	  //indexWheel[3]++;  EffGlobW1->SetBinContent(indexWheel[3],ef);  EffGlobW1->SetBinError(indexWheel[3],er);  EffGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera);  EffGlobW1->GetXaxis()->LabelsOption("v");
+	  indexWheel[3]++;  EffGlobW1->SetBinContent(indexWheel[3],ef);  EffGlobW1->SetBinError(indexWheel[3],er);  EffGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera);  EffGlobW1->GetXaxis()->LabelsOption("v");
+	  OGlobW1->SetBinContent(indexWheel[3],o);  OGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera); OGlobW1->GetXaxis()->LabelsOption("v"); 
+	  PGlobW1->SetBinContent(indexWheel[3],p);  PGlobW1->GetXaxis()->SetBinLabel(indexWheel[3],camera); PGlobW1->GetXaxis()->LabelsOption("v"); 
 	  if(Sector==1)index1[1]++;  EffGlob1s1->SetBinContent(index1[1],ef);  EffGlob1s1->SetBinError(index1[1],er);  EffGlob1s1->GetXaxis()->SetBinLabel(index1[1],camera);  EffGlob1s1->GetXaxis()->LabelsOption("v");
 	  if(Sector==2)index1[2]++;  EffGlob1s2->SetBinContent(index1[2],ef);  EffGlob1s2->SetBinError(index1[2],er);  EffGlob1s2->GetXaxis()->SetBinLabel(index1[2],camera);  EffGlob1s2->GetXaxis()->LabelsOption("v");
 	  if(Sector==3)index1[3]++;  EffGlob1s3->SetBinContent(index1[3],ef);  EffGlob1s3->SetBinError(index1[3],er);  EffGlob1s3->GetXaxis()->SetBinLabel(index1[3],camera);  EffGlob1s3->GetXaxis()->LabelsOption("v");
@@ -627,7 +656,9 @@ void MuonSegmentEff::endJob() {
 
 	
 	if(Ring==2){
-	  //indexWheel[4]++;  EffGlobW2->SetBinContent(indexWheel[4],ef);  EffGlobW2->SetBinError(indexWheel[4],er);  EffGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera);  EffGlobW2->GetXaxis()->LabelsOption("v");
+	  indexWheel[4]++;  EffGlobW2->SetBinContent(indexWheel[4],ef);  EffGlobW2->SetBinError(indexWheel[4],er);  EffGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera);  EffGlobW2->GetXaxis()->LabelsOption("v");
+	  OGlobW2->SetBinContent(indexWheel[4],o);  OGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera); OGlobW2->GetXaxis()->LabelsOption("v"); 
+	  PGlobW2->SetBinContent(indexWheel[4],p);  PGlobW2->GetXaxis()->SetBinLabel(indexWheel[4],camera); PGlobW2->GetXaxis()->LabelsOption("v"); 
 	  if(Sector==1)index2[1]++;  EffGlob2s1->SetBinContent(index2[1],ef);  EffGlob2s1->SetBinError(index2[1],er);  EffGlob2s1->GetXaxis()->SetBinLabel(index2[1],camera);  EffGlob2s1->GetXaxis()->LabelsOption("v");
 	  if(Sector==2)index2[2]++;  EffGlob2s2->SetBinContent(index2[2],ef);  EffGlob2s2->SetBinError(index2[2],er);  EffGlob2s2->GetXaxis()->SetBinLabel(index2[2],camera);  EffGlob2s2->GetXaxis()->LabelsOption("v");
 	  if(Sector==3)index2[3]++;  EffGlob2s3->SetBinContent(index2[3],ef);  EffGlob2s3->SetBinError(index2[3],er);  EffGlob2s3->GetXaxis()->SetBinLabel(index2[3],camera);  EffGlob2s3->GetXaxis()->LabelsOption("v");
@@ -662,7 +693,6 @@ void MuonSegmentEff::endJob() {
       std::cout<<"No predictions in this file p=0"<<std::endl;
       ofeff<<"No predictions in this file p=0"<<std::endl;
     }
-    std::cout<<"Done Final Loop"<<std::endl;
   }
   if(totalcounter[0]!=0){
     float tote = float(totalcounter[1])/float(totalcounter[0]);
@@ -776,160 +806,153 @@ void MuonSegmentEff::endJob() {
     }
   
     //Giuseppe
-  
-    dbe->save(EffRootFileName);
-    std::cout<<"Saving RootFile"<<std::endl;
+    
+
+    if(EffSaveRootFile){
+      std::cout<<"Saving RootFile"<<std::endl;
+      dbe->save(EffRootFileName);
+    }
+    
   }  
-
-  TCanvas *Ca1 = new TCanvas("Ca1","GlobalPlotsForWheels",6000,1200);
   
-  std::cout<<"Creating Wheel 0  Image"<<std::endl;
-  EffGlobW0->Draw();
-  Ca1->SaveAs("Wheel0Efficiency.png");
-  Ca1->Clear();
+  if(prodImages){
+    
+    Ca2 = new TCanvas("Ca2","Residuals",800,600);
+    std::cout<<"Creating Residuals for Different Layers"<<std::endl;
+    hGlobalResLa1->Draw();
+    hGlobalResLa1->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer1.png");
+    Ca2->Clear();
+
+    hGlobalResLa2->Draw();
+    hGlobalResLa2->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer2.png");
+    Ca2->Clear();
+
+    hGlobalResLa3->Draw();
+    hGlobalResLa3->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer3.png");
+    Ca2->Clear();
+
+    hGlobalResLa4->Draw();
+    hGlobalResLa4->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer4.png");
+    Ca2->Clear();
   
-  TCanvas *Ca2 = new TCanvas("Ca2","Residuals",800,600);
-  std::cout<<"Creating Residuals for Different Layers"<<std::endl;
-  hGlobalResLa1->Draw();
-  hGlobalResLa1->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsLayer1.png");
-  Ca2->Clear();
+    hGlobalResLa5->Draw();
+    hGlobalResLa5->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer5.png");
+    Ca2->Clear();
 
-  hGlobalResLa2->Draw();
-  hGlobalResLa2->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsLayer2.png");
-  Ca2->Clear();
-
-  hGlobalResLa3->Draw();
-  hGlobalResLa3->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsLayer3.png");
-  Ca2->Clear();
-
-  hGlobalResLa4->Draw();
-  hGlobalResLa4->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsLayer4.png");
-  Ca2->Clear();
+    hGlobalResLa6->Draw();
+    hGlobalResLa6->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsLayer6.png");
+    Ca2->Clear();
   
-  hGlobalResLa5->Draw();
-  hGlobalResLa5->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsLayer5.png");
-  Ca2->Clear();
-
-  hGlobalResLa6->Draw();
-  hGlobalResLa6->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsLayer6.png");
-  Ca2->Clear();
+    hGlobalResClu1->Draw();
+    hGlobalResClu1->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsCluster1.png");
+    Ca2->Clear();
   
-  hGlobalResClu1->Draw();
-  hGlobalResClu1->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsCluster1.png");
-  Ca2->Clear();
+    hGlobalResClu2->Draw();
+    hGlobalResClu2->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsCluster2.png");
+    Ca2->Clear();
+
+    hGlobalResClu3->Draw();
+    hGlobalResClu3->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsCluster3.png");
+    Ca2->Clear();
+
+    hGlobalResClu4->Draw();
+    hGlobalResClu4->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsCluster4.png");
+    Ca2->Clear();
+
+    hGlobalResClu1La1->Draw();
+    hGlobalResClu1La1->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu1La1.png");
+    Ca2->Clear();
+
+    hGlobalResClu1La2->Draw();
+    hGlobalResClu1La2->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu1La2.png");
+    Ca2->Clear();
+
+    hGlobalResClu1La3->Draw();
+    hGlobalResClu1La3->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu1La3.png");
+    Ca2->Clear();
   
-  hGlobalResClu2->Draw();
-  hGlobalResClu2->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsCluster2.png");
-  Ca2->Clear();
+    hGlobalResClu1La4->Draw();
+    hGlobalResClu1La4->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu1La4.png");
+    Ca2->Clear();
 
-  hGlobalResClu3->Draw();
-  hGlobalResClu3->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsCluster3.png");
-  Ca2->Clear();
+    hGlobalResClu1La5->Draw();
+    hGlobalResClu1La5->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu1La5.png");
+    Ca2->Clear();
 
-  hGlobalResClu4->Draw();
-  hGlobalResClu4->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsCluster4.png");
-  Ca2->Clear();
-
-  hGlobalResClu1La1->Draw();
-  hGlobalResClu1La1->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu1La1.png");
-  Ca2->Clear();
-
-  hGlobalResClu1La2->Draw();
-  hGlobalResClu1La2->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu1La2.png");
-  Ca2->Clear();
-
-  hGlobalResClu1La3->Draw();
-  hGlobalResClu1La3->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu1La3.png");
-  Ca2->Clear();
+    hGlobalResClu1La6->Draw();
+    hGlobalResClu1La6->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu1La6.png");
+    Ca2->Clear();
   
-  hGlobalResClu1La4->Draw();
-  hGlobalResClu1La4->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu1La4.png");
-  Ca2->Clear();
-
-  hGlobalResClu1La5->Draw();
-  hGlobalResClu1La5->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu1La5.png");
-  Ca2->Clear();
-
-  hGlobalResClu1La6->Draw();
-  hGlobalResClu1La6->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu1La6.png");
-  Ca2->Clear();
+    std::ofstream layertableClu1;
+    layertableClu1.open("layertableClu1.txt");
+    layertableClu1<<"|  Layer  |  RMS for Cluster Size =1  |  Strip Width / sqrt(12)  |"<<std::endl;
+    layertableClu1<<"|  1  |  "<<hGlobalResClu1La1->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  2  |  "<<hGlobalResClu1La2->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  3  |  "<<hGlobalResClu1La3->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  4  |  "<<hGlobalResClu1La4->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  5  |  "<<hGlobalResClu1La5->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1<<"|  6  |  "<<hGlobalResClu1La6->GetRMS()<<"  |    | "<<std::endl; 
   
-  std::ofstream layertableClu1;
-  layertableClu1.open("layertableClu1.txt");
-  layertableClu1<<"|  Layer  |  RMS for Cluster Size =1  |  Strip Width / sqrt(12)  |"<<std::endl;
-  layertableClu1<<"|  1  |  "<<hGlobalResClu1La1->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu1<<"|  2  |  "<<hGlobalResClu1La2->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu1<<"|  3  |  "<<hGlobalResClu1La3->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu1<<"|  4  |  "<<hGlobalResClu1La4->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu1<<"|  5  |  "<<hGlobalResClu1La5->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu1<<"|  6  |  "<<hGlobalResClu1La6->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu1.close();
   
-  layertableClu1.close();
+    hGlobalResClu3La1->Draw();
+    hGlobalResClu3La1->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu3La1.png");
+    Ca2->Clear();
+
+    hGlobalResClu3La2->Draw();
+    hGlobalResClu3La2->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu3La2.png");
+    Ca2->Clear();
+
+    hGlobalResClu3La3->Draw();
+    hGlobalResClu3La3->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu3La3.png");
+    Ca2->Clear();
   
-  hGlobalResClu3La1->Draw();
-  hGlobalResClu3La1->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu3La1.png");
-  Ca2->Clear();
+    hGlobalResClu3La4->Draw();
+    hGlobalResClu3La4->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu3La4.png");
+    Ca2->Clear();
 
-  hGlobalResClu3La2->Draw();
-  hGlobalResClu3La2->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu3La2.png");
-  Ca2->Clear();
+    hGlobalResClu3La5->Draw();
+    hGlobalResClu3La5->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu3La5.png");
+    Ca2->Clear();
 
-  hGlobalResClu3La3->Draw();
-  hGlobalResClu3La3->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu3La3.png");
-  Ca2->Clear();
+    hGlobalResClu3La6->Draw();
+    hGlobalResClu3La6->GetXaxis()->SetTitle("Residuals (cm)");
+    Ca2->SaveAs("ResidualsClu3La6.png");
+    Ca2->Clear();
+
+    std::ofstream layertableClu3;
+    layertableClu3.open("layertableClu3.txt");
+    layertableClu3<<"|  Layer  |  RMS for Cluster Size =1  |  Strip Width / sqrt(12)  |"<<std::endl;
+    layertableClu3<<"|  1  |  "<<hGlobalResClu3La1->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  2  |  "<<hGlobalResClu3La2->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  3  |  "<<hGlobalResClu3La3->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  4  |  "<<hGlobalResClu3La4->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  5  |  "<<hGlobalResClu3La5->GetRMS()<<"  |    | "<<std::endl; 
+    layertableClu3<<"|  6  |  "<<hGlobalResClu3La6->GetRMS()<<"  |    | "<<std::endl; 
   
-  hGlobalResClu3La4->Draw();
-  hGlobalResClu3La4->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu3La4.png");
-  Ca2->Clear();
-
-  hGlobalResClu3La5->Draw();
-  hGlobalResClu3La5->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu3La5.png");
-  Ca2->Clear();
-
-  hGlobalResClu3La6->Draw();
-  hGlobalResClu3La6->GetXaxis()->SetTitle("Residuals (cm)");
-  Ca2->SaveAs("ResidualsClu3La6.png");
-  Ca2->Clear();
-
-  std::ofstream layertableClu3;
-  layertableClu3.open("layertableClu3.txt");
-  layertableClu3<<"|  Layer  |  RMS for Cluster Size =1  |  Strip Width / sqrt(12)  |"<<std::endl;
-  layertableClu3<<"|  1  |  "<<hGlobalResClu3La1->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu3<<"|  2  |  "<<hGlobalResClu3La2->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu3<<"|  3  |  "<<hGlobalResClu3La3->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu3<<"|  4  |  "<<hGlobalResClu3La4->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu3<<"|  5  |  "<<hGlobalResClu3La5->GetRMS()<<"  |    | "<<std::endl; 
-  layertableClu3<<"|  6  |  "<<hGlobalResClu3La6->GetRMS()<<"  |    | "<<std::endl; 
-  
-  layertableClu3.close();
-
-
-
-
-
-
-
+    layertableClu3.close();
+  }
 
   
   //fOutputFile->Close();//??? Parece que esto borra el contenido del archivo!!!
