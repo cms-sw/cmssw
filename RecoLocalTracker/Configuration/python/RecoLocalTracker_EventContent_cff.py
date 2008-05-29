@@ -2,10 +2,6 @@
 
 #Clusters
 
-#Si Pixel hits
-
-#Si Strip hits
-
 #Clusters
 
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +9,7 @@ import FWCore.ParameterSet.Config as cms
 #Full Event content 
 RecoLocalTrackerFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_siPixelClusters_*_*', 
-        'keep *_siStripClusters_*_*', 
-        'keep *_siPixelRecHits_*_*', 
-        'keep *_siStripRecHits_*_*', 
-        'keep *_siStripMatchedRecHits_*_*')
+        'keep *_siStripClusters_*_*')
 )
 #RECO content
 RecoLocalTrackerRECO = cms.PSet(
