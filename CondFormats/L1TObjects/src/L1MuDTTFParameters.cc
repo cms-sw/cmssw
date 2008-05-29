@@ -5,8 +5,8 @@
 //   Description: DTTF Parameters from OMDS
 //
 //
-//   $Date: 2008/02/25 15:26:57 $
-//   $Revision: 1.2 $
+//   $Date: 2008/05/14 14:58:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
@@ -38,7 +38,7 @@
 //--------------
 
 //
-// reset extrapolation look-up tables
+// reset parameters
 //
 void L1MuDTTFParameters::reset() {
 
