@@ -35,13 +35,6 @@ class CSCTFTrackBuilder
 		   L1CSCTrackCollection*, CSCTriggerContainer<csctf::TrackStub>*);
 
  private:
-  // make boolean parameters below integral to allow third, uninitialized state (=-1)  
-  int  run_core;
-  int  trigger_on_ME1a, trigger_on_ME1b, trigger_on_ME2, trigger_on_ME3, trigger_on_ME4;
-  int  trigger_on_MB1a, trigger_on_MB1d;
-  // 
-  int singlesTrackPt, singlesTrackOutput;
-  int m_minBX, m_maxBX;
 
   CSCTFDTReceiver* my_dtrc;
   CSCTFSectorProcessor* my_SPs[nEndcaps][nSectors];

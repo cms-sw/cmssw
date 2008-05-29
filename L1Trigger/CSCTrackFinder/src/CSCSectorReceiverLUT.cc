@@ -21,43 +21,6 @@
 lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
-///KK
-#include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
-					   const edm::EventSetup& c, bool TMB07):_endcap(endcap),_sector(sector),
-									   _subsector(subsector),
-									   _station(station),isTMB07(TMB07)
-{
-	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-	me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
-	me_lcl_phi    = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
-
-	edm::ESHandle<L1MuCSCLocalPhiLut>  localLUT;
-	c.get<L1MuCSCLocalPhiLutRcd>().get(localLUT);
-	const L1MuCSCLocalPhiLut *myConfigLocal_ = localLUT.product();
-	memcpy((void*)me_lcl_phi,(void*)myConfigLocal_->lut(),(1<<19)*sizeof(lclphidat));
-
-	edm::ESHandle<L1MuCSCGlobalLuts> globalLUTs;
-	c.get<L1MuCSCGlobalLutsRcd>().get(globalLUTs);
-	const L1MuCSCGlobalLuts *myConfigGlobal_ = globalLUTs.product();
-	int mpc = (station==1?subsector-1:station);
-	if( mpc<0 || mpc>4 ) throw cms::Exception("Configuration error")<<"CSCSectorReceiverLUT|ctor: station="<<station<<" subsector="<<subsector<<" doesn't exist. Initialization error in CSCTFTrackProducer|CSCTFTrackBuilder|CSCTFSectorProcessor.";
-	memcpy((void*)me_global_phi,(void*)myConfigGlobal_->phi_lut(mpc),(1<<19)*sizeof(gblphidat));
-	memcpy((void*)me_global_eta,(void*)myConfigGlobal_->eta_lut(mpc),(1<<19)*sizeof(gbletadat));
-
-	edm::ESHandle<L1MuCSCDTLut> dtLUTs;
-	c.get<L1MuCSCDTLutRcd>().get(dtLUTs);
-	const L1MuCSCDTLut *myConfigDT_ = dtLUTs.product();
-	memcpy((void*)mb_global_phi,(void*)myConfigDT_->lut(0),(1<<19)*sizeof(gblphidat));
-}
-///
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
 					   const edm::ParameterSet & pset, bool TMB07):_endcap(endcap),_sector(sector),

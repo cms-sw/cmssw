@@ -26,95 +26,53 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   m_latency = pset.getParameter<unsigned>("CoreLatency");
   m_minBX = pset.getParameter<int>("MinBX");
   m_maxBX = pset.getParameter<int>("MaxBX");
+  if( m_maxBX-m_minBX >= 7 ) edm::LogWarning("CSCTFTrackBuilder::ctor")<<" BX window width >= 7BX. Resetting m_maxBX="<<(m_maxBX=m_minBX+6);
 
+  // Uninitialize following parameters:
   m_bxa_depth = -1;
-  try {
-    m_bxa_depth = pset.getParameter<unsigned>("BXAdepth");
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for BXAdepth in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
   m_allowALCTonly = -1;
-  try {
-    m_allowALCTonly = ( pset.getParameter<bool>("AllowALCTonly") ? 1 : 0 );
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for AllowALCTonly in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
   m_allowCLCTonly = -1;
-  try {
-    m_allowCLCTonly = ( pset.getParameter<bool>("AllowCLCTonly") ? 1 : 0 );
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for AllowCLCTonly in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
   m_preTrigger = -1;
-  try {
-    m_preTrigger    = pset.getParameter<unsigned>("PreTrigger");
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for PreTrigger in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
 
-  std::vector<unsigned>::const_iterator iter;
-  int index=0;
-
-  for(index=0; index<6; index++) m_etawin[index] = -1;
-  try {
-    std::vector<unsigned> etawins = pset.getParameter<std::vector<unsigned> >("EtaWindows");
-    for(iter=etawins.begin(),index=0; iter!=etawins.end()&&index<6; iter++,index++) m_etawin[index] = *iter;
-    LogDebug("CSCTFSectorProcessor") << "Using EtaWindows parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for EtaWindows in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
-
-  for(index=0; index<8; index++) m_etamin[index] = -1;
-  try {
-    std::vector<unsigned> etamins = pset.getParameter<std::vector<unsigned> >("EtaMin");
-    for(iter=etamins.begin(),index=0; iter!=etamins.end()&&index<8; iter++,index++) m_etamin[index] = *iter;
-    LogDebug("CSCTFSectorProcessor") << "Using EtaMin parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for EtaMin in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
-
-  for(index=0; index<8; index++) m_etamax[index] = -1;
-  try {
-    std::vector<unsigned> etamaxs = pset.getParameter<std::vector<unsigned> >("EtaMax");
-    for(iter=etamaxs.begin(),index=0; iter!=etamaxs.end()&&index<8; iter++,index++) m_etamax[index] = *iter;
-    LogDebug("CSCTFSectorProcessor") << "Using EtaMax parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for EtaMax in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
+  for(int index=0; index<6; index++) m_etawin[index] = -1;
+  for(int index=0; index<8; index++) m_etamin[index] = -1;
+  for(int index=0; index<8; index++) m_etamax[index] = -1;
 
   m_mindphip=-1;
-  try {
-    m_mindphip = pset.getParameter<unsigned>("mindphip");
-    LogDebug("CSCTFSectorProcessor") << "Using mindphip parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for mindphip in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
-
   m_mindeta_accp=-1;
-  try {
-    m_mindeta_accp = pset.getParameter<unsigned>("mindeta_accp");
-    LogDebug("CSCTFSectorProcessor") << "Using mindeta_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for mindeta_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
-
   m_maxdeta_accp=-1;
-  try {
-    m_maxdeta_accp = pset.getParameter<unsigned>("maxdeta_accp");
-    LogDebug("CSCTFSectorProcessor") << "Using maxdeta_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for maxdeta_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
-
   m_maxdphi_accp=-1;
-  try {
-    m_maxdphi_accp = pset.getParameter<unsigned>("maxdphi_accp");
-    LogDebug("CSCTFSectorProcessor") << "Using maxdphi_accp parameters from .cfi file for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for maxdphi_accp in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
 
-  try {
+  kill_fiber = -1;
+  QualityEnableME1a = -1;
+  QualityEnableME1b = -1;
+  QualityEnableME1c = -1;
+  QualityEnableME1d = -1;
+  QualityEnableME1e = -1;
+  QualityEnableME1f = -1;
+  QualityEnableME2a = -1;
+  QualityEnableME2b = -1;
+  QualityEnableME2c = -1;
+  QualityEnableME3a = -1;
+  QualityEnableME3b = -1;
+  QualityEnableME3c = -1;
+  QualityEnableME4a = -1;
+  QualityEnableME4b = -1;
+  QualityEnableME4c = -1;
+
+  run_core = -1;
+  trigger_on_ME1a = -1;
+  trigger_on_ME1b = -1;
+  trigger_on_ME2  = -1;
+  trigger_on_ME3  = -1;
+  trigger_on_ME4  = -1;
+  trigger_on_MB1a = -1;
+  trigger_on_MB1d = -1;
+  singlesTrackPt  = -1;
+  singlesTrackOutput = -1;
+
+  readParameters(pset);
+
     edm::ParameterSet srLUTset = pset.getParameter<edm::ParameterSet>("SRLUT");
     for(int i = 1; i <= 4; ++i)
       {
@@ -126,10 +84,6 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
           else
             srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(endcap, sector, 0, i, srLUTset, TMB07);
       }
-      LogDebug("CSCTFSectorProcessor") << "Using stand-alone SR LUT for endcap="<<m_endcap<<", sector="<<m_sector;
-  } catch(...) {
-    LogDebug("CSCTFSectorProcessor") << "Looking for SR LUT in EventSetup for endcap="<<m_endcap<<", sector="<<m_sector;
-  }
 
   core_ = new CSCTFSPCoreLogic();
 
@@ -144,67 +98,18 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
 }
 
 void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
-  for(int i = 1; i <= 4; ++i)
-    {
-      if(i == 1)
-	for(int j = 0; j < 2; j++)
-	  {
-		  if(!srLUTs_[FPGAs[j]]){
-			  LogDebug("CSCTFSectorProcessor") << "Initializing SR LUT for endcap="<<m_endcap<<", station=1, sector="<<m_sector<<", sub_sector="<<j<<" from EventSetup";
-			  srLUTs_[FPGAs[j]] = new CSCSectorReceiverLUT(m_endcap, m_sector, j+1, i, c, TMB07);
-		  }
-	  }
-      else
-		  if(!srLUTs_[FPGAs[i]]){
-			  LogDebug("CSCTFSectorProcessor") << "Initializing SR LUT for endcap="<<m_endcap<<", station="<<i<<", sector="<<m_sector<<" from EventSetup";
-			  srLUTs_[FPGAs[i]] = new CSCSectorReceiverLUT(m_endcap, m_sector, 0, i, c, TMB07);
-		  }
-    }
-
+  // Only pT lut can be initialized from EventSetup, all front LUTs are initialized locally from their parametrizations
   if(!ptLUT_){
-	  LogDebug("CSCTFSectorProcessor") << "Initializing PT LUT from EventSetup";
+	  LogDebug("CSCTFSectorProcessor") << "Initializing pT LUT from EventSetup";
 	  ptLUT_ = new CSCTFPtLUT(c);
   }
-
+  // Extract from EventSetup alternative (to the one, used in constructor) ParameterSet
   edm::ESHandle<L1MuCSCTFConfiguration> config;
   c.get<L1MuCSCTFConfigurationRcd>().get(config);
-  std::stringstream conf(config.product()->parameters());
-  int eta_cnt=0;
-  while( !conf.eof() ){
-    char buff[1024];
-    conf.getline(buff,1024);
-    std::stringstream line(buff);
+  // And initialize only those parameters, which left uninitialized during construction
+std::cout<<"Initializing endcap: "<<m_endcap<<" sector:"<<m_sector<<std::endl<<config.product()->parameters((m_endcap-1)*2+(m_sector-1))<<std::endl;;
+  readParameters(config.product()->parameters((m_endcap-1)*2+(m_sector-1)));
 
-    std::string register_;     line>>register_;
-    std::string chip_ ;        line>>chip_;
-    std::string muon_;         line>>muon_;
-    std::string writeValue_;   line>>writeValue_;
-    std::string comments_;     std::getline(line,comments_);
-
-    if( register_=="CNT_ETA" && chip_=="SP" ){
-        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        eta_cnt = value;
-    }
-    if( register_=="DAT_ETA" && chip_=="SP" ){
-        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        if( eta_cnt< 8                ) m_etamin[eta_cnt   ] = value;
-        if( eta_cnt>=8  && eta_cnt<16 ) m_etamax[eta_cnt-8 ] = value;
-        if( eta_cnt>=16 && eta_cnt<22 ) m_etawin[eta_cnt-16] = value;
-        // 4 line below is just an exaple (need to verify a sequence): 
-        if( eta_cnt==22               ) m_mindphip           = value;
-        if( eta_cnt==23               ) m_mindeta_accp       = value;
-        if( eta_cnt==24               ) m_maxdeta_accp       = value;
-        if( eta_cnt==25               ) m_maxdphi_accp       = value;
-        eta_cnt++;
-    }
-    if( register_=="CSR_SCC" && chip_=="SP" ){
-        unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        if( m_bxa_depth<0     ) m_bxa_depth     = value&0x3;
-        if( m_allowALCTonly<0 ) m_allowALCTonly =(value&0x10)>>4;
-        if( m_allowCLCTonly<0 ) m_allowCLCTonly =(value&0x20)>>5;
-        if( m_preTrigger<0    ) m_preTrigger    =(value&0x3000)>>12;
-    }
-  }
   // Check if parameters were not initialized in both: constuctor (from .cf? file) and initialize method (from EventSetup)
   if(m_bxa_depth    <0) throw cms::Exception("CSCTFSectorProcessor")<<"BXAdepth parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   if(m_allowALCTonly<0) throw cms::Exception("CSCTFSectorProcessor")<<"AllowALCTonly parameter left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
@@ -217,6 +122,192 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
   for(int index=0; index<8; index++) if(m_etamax[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMax parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   for(int index=0; index<8; index++) if(m_etamin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(8-index)<<") of EtaMin parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
   for(int index=0; index<6; index++) if(m_etawin[index]<0) throw cms::Exception("CSCTFSectorProcessor")<<"Some ("<<(6-index)<<") of EtaWindows parameters left uninitialized for endcap="<<m_endcap<<", sector="<<m_sector;
+  if(kill_fiber     <0) throw cms::Exception("CSCTFTrackBuilder")<<"kill_fiber parameter left uninitialized";
+  if(run_core       <0) throw cms::Exception("CSCTFTrackBuilder")<<"run_core parameter left uninitialized";
+  if(trigger_on_ME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1a parameter left uninitialized";
+  if(trigger_on_ME1b<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME1b parameter left uninitialized";
+  if(trigger_on_ME2 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME2 parameter left uninitialized";
+  if(trigger_on_ME3 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME3 parameter left uninitialized";
+  if(trigger_on_ME4 <0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_ME4 parameter left uninitialized";
+  if(trigger_on_MB1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_MB1a parameter left uninitialized";
+  if(trigger_on_MB1d<0) throw cms::Exception("CSCTFTrackBuilder")<<"trigger_on_MB1d parameter left uninitialized";
+  if( trigger_on_ME1a>0 || trigger_on_ME1b>0 ||trigger_on_ME2>0  ||
+      trigger_on_ME3>0  || trigger_on_ME4>0  ||trigger_on_MB1a>0 ||trigger_on_MB1d>0 ){
+      if(singlesTrackPt<0) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackPt parameter left uninitialized";
+      if(singlesTrackOutput<0) throw cms::Exception("CSCTFTrackBuilder")<<"singlesTrackOutput parameter left uninitialized";
+  }
+  if(QualityEnableME1a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1a parameter left uninitialized";
+  if(QualityEnableME1b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1b parameter left uninitialized";
+  if(QualityEnableME1c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1c parameter left uninitialized";
+  if(QualityEnableME1d<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1d parameter left uninitialized";
+  if(QualityEnableME1e<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1e parameter left uninitialized";
+  if(QualityEnableME1f<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME1f parameter left uninitialized";
+  if(QualityEnableME2a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME2a parameter left uninitialized";
+  if(QualityEnableME2b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME2b parameter left uninitialized";
+  if(QualityEnableME2c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME2c parameter left uninitialized";
+  if(QualityEnableME3a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME3a parameter left uninitialized";
+  if(QualityEnableME3b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME3b parameter left uninitialized";
+  if(QualityEnableME3c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME3c parameter left uninitialized";
+  if(QualityEnableME4a<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4a parameter left uninitialized";
+  if(QualityEnableME4b<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4b parameter left uninitialized";
+  if(QualityEnableME4c<0) throw cms::Exception("CSCTFTrackBuilder")<<"QualityEnableME4c parameter left uninitialized";
+}
+
+void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
+  if(m_bxa_depth<0)
+    try {
+      m_bxa_depth = pset.getParameter<unsigned>("BXAdepth");
+    } catch(...) {}
+  if(m_allowALCTonly<0)
+    try {
+      m_allowALCTonly = ( pset.getParameter<bool>("AllowALCTonly") ? 1 : 0 );
+    } catch(...) {}
+  if(m_allowCLCTonly<0)
+    try {
+      m_allowCLCTonly = ( pset.getParameter<bool>("AllowCLCTonly") ? 1 : 0 );
+    } catch(...) {}
+  if(m_preTrigger<0)
+    try {
+      m_preTrigger = pset.getParameter<unsigned>("PreTrigger");
+    } catch(...) {}
+
+  std::vector<unsigned>::const_iterator iter;
+  int index=0;
+  if(m_etamax[0]<0)
+    try {
+      std::vector<unsigned> etawins = pset.getParameter<std::vector<unsigned> >("EtaWindows");
+      for(iter=etawins.begin(),index=0; iter!=etawins.end()&&index<6; iter++,index++) m_etawin[index] = *iter;
+    } catch(...) { }
+  if(m_etamin[0]<0)
+    try {
+      std::vector<unsigned> etamins = pset.getParameter<std::vector<unsigned> >("EtaMin");
+      for(iter=etamins.begin(),index=0; iter!=etamins.end()&&index<8; iter++,index++) m_etamin[index] = *iter;
+    } catch(...) { }
+  if(m_etamax[0]<0)
+    try {
+      std::vector<unsigned> etamaxs = pset.getParameter<std::vector<unsigned> >("EtaMax");
+      for(iter=etamaxs.begin(),index=0; iter!=etamaxs.end()&&index<8; iter++,index++) m_etamax[index] = *iter;
+    } catch(...) { }
+  if(m_mindphip<0)
+    try {
+      m_mindphip = pset.getParameter<unsigned>("mindphip");
+    } catch(...) { }
+  if(m_mindeta_accp<0)
+    try {
+      m_mindeta_accp = pset.getParameter<unsigned>("mindeta_accp");
+    } catch(...) { }
+  if(m_maxdeta_accp<0)
+    try {
+      m_maxdeta_accp = pset.getParameter<unsigned>("maxdeta_accp");
+    } catch(...) { }
+  if(m_maxdphi_accp<0)
+    try {
+      m_maxdphi_accp = pset.getParameter<unsigned>("maxdphi_accp");
+    } catch(...) { }
+  if(kill_fiber<0)
+    try {
+      kill_fiber = pset.getParameter<unsigned>("kill_fiber");
+    } catch(...) {}
+  if(run_core<0)
+    try {
+      run_core = pset.getParameter<bool>("run_core");
+    } catch(...) {}
+  if(trigger_on_ME1a<0)
+    try {
+      trigger_on_ME1a = pset.getParameter<bool>("trigger_on_ME1a");
+    } catch(...) {}
+  if(trigger_on_ME1b<0)
+    try {
+      trigger_on_ME1b = pset.getParameter<bool>("trigger_on_ME1b");
+    } catch(...) {}
+  if(trigger_on_ME2<0)
+    try {
+      trigger_on_ME2 = pset.getParameter<bool>("trigger_on_ME2");
+    } catch(...) {}
+  if(trigger_on_ME3<0)
+    try {
+      trigger_on_ME3 = pset.getParameter<bool>("trigger_on_ME3");
+    } catch(...) {}
+  if(trigger_on_ME4<0)
+    try {
+      trigger_on_ME4 = pset.getParameter<bool>("trigger_on_ME4");
+    } catch(...) {}
+  if(trigger_on_MB1a<0)
+    try {
+      trigger_on_MB1a = pset.getParameter<bool>("trigger_on_MB1a");
+    } catch(...) {}
+  if(trigger_on_MB1d<0)
+    try {
+      trigger_on_MB1d = pset.getParameter<bool>("trigger_on_MB1d");
+    } catch(...) {}
+  if(singlesTrackPt<0)
+    try {
+      singlesTrackPt = pset.getParameter<unsigned int>("singlesTrackPt");
+    } catch(...) {}
+  if(singlesTrackOutput<0)
+    try {
+      singlesTrackOutput = pset.getParameter<unsigned int>("singlesTrackOutput");
+    } catch(...) {}
+  if(QualityEnableME1a<0)
+    try {
+      QualityEnableME1a = pset.getParameter<unsigned int>("QualityEnableME1a");
+    } catch(...) {}
+  if(QualityEnableME1b<0)
+    try {
+      QualityEnableME1b = pset.getParameter<unsigned int>("QualityEnableME1b");
+    } catch(...) {}
+  if(QualityEnableME1c<0)
+    try {
+      QualityEnableME1c = pset.getParameter<unsigned int>("QualityEnableME1c");
+    } catch(...) {}
+  if(QualityEnableME1d<0)
+    try {
+      QualityEnableME1d = pset.getParameter<unsigned int>("QualityEnableME1d");
+    } catch(...) {}
+  if(QualityEnableME1e<0)
+    try {
+      QualityEnableME1e = pset.getParameter<unsigned int>("QualityEnableME1e");
+    } catch(...) {}
+  if(QualityEnableME1f<0)
+    try {
+      QualityEnableME1f = pset.getParameter<unsigned int>("QualityEnableME1f");
+    } catch(...) {}
+  if(QualityEnableME2a<0)
+    try {
+      QualityEnableME2a = pset.getParameter<unsigned int>("QualityEnableME2a");
+    } catch(...) {}
+  if(QualityEnableME2b<0)
+    try {
+      QualityEnableME2b = pset.getParameter<unsigned int>("QualityEnableME2b");
+    } catch(...) {}
+  if(QualityEnableME2c<0)
+    try {
+      QualityEnableME2c = pset.getParameter<unsigned int>("QualityEnableME2c");
+    } catch(...) {}
+  if(QualityEnableME3a<0)
+    try {
+      QualityEnableME3a = pset.getParameter<unsigned int>("QualityEnableME3a");
+    } catch(...) {}
+  if(QualityEnableME3b<0)
+    try {
+      QualityEnableME3b = pset.getParameter<unsigned int>("QualityEnableME3b");
+    } catch(...) {}
+  if(QualityEnableME3c<0)
+    try {
+      QualityEnableME3c = pset.getParameter<unsigned int>("QualityEnableME3c");
+    } catch(...) {}
+  if(QualityEnableME4a<0)
+    try {
+      QualityEnableME4a = pset.getParameter<unsigned int>("QualityEnableME4a");
+    } catch(...) {}
+  if(QualityEnableME4b<0)
+    try {
+      QualityEnableME4b = pset.getParameter<unsigned int>("QualityEnableME4b");
+    } catch(...) {}
+  if(QualityEnableME4c<0)
+    try {
+      QualityEnableME4c = pset.getParameter<unsigned int>("QualityEnableME4c");
+    } catch(...) {}
 }
 
 CSCTFSectorProcessor::~CSCTFSectorProcessor()
@@ -239,13 +330,57 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 
   if( !ptLUT_ )
     throw cms::Exception("Initialize CSC TF LUTs first (missed call to CSCTFTrackProducer::beginJob?)")<<"CSCTFSectorProcessor::run";
-  for(int i = 0; i < 5; ++i)
-    if(!srLUTs_[FPGAs[i]])
-		throw cms::Exception("Initialize CSC TF LUTs first (missed call to CSCTFTrackProducer::beginJob?)")<<"CSCTFSectorProcessor::run";
 
 
   l1_tracks.clear();
   dt_stubs.clear();
+  stub_vec_filtered.clear();
+
+  std::vector<csctf::TrackStub> stub_vec = stubs.get();
+
+  /** STEP ZERO
+   *  Remove stubs, which were masked out by kill_fiber or QualityEnable parameters
+   */
+  for(std::vector<csctf::TrackStub>::const_iterator itr=stub_vec.begin(); itr!=stub_vec.end(); itr++)
+      switch( itr->station() ){
+        case 5: stub_vec_filtered.push_back(*itr); break; // DT stubs get filtered by the core controll register
+        case 4:
+          switch( itr->getMPCLink() ){
+            case 3: if( (kill_fiber&0x4000)==0 && QualityEnableME4c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x2000)==0 && QualityEnableME4b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x1000)==0 && QualityEnableME4a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
+          }
+        break;
+        case 3:
+          switch( itr->getMPCLink() ){
+            case 3: if( (kill_fiber&0x0800)==0 && QualityEnableME3c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x0400)==0 && QualityEnableME3b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x0200)==0 && QualityEnableME3a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
+          }
+        break;
+        case 2:
+          switch( itr->getMPCLink() ){
+            case 3: if( (kill_fiber&0x0100)==0 && QualityEnableME2c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x0080)==0 && QualityEnableME2b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x0040)==0 && QualityEnableME2a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
+          }
+        break;
+        case 1:
+          switch( itr->getMPCLink() + (3*(CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId())) - 1)) ){
+            case 6: if( (kill_fiber&0x0020)==0 && QualityEnableME1f&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 5: if( (kill_fiber&0x0010)==0 && QualityEnableME1e&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 4: if( (kill_fiber&0x0008)==0 && QualityEnableME1d&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 3: if( (kill_fiber&0x0004)==0 && QualityEnableME1c&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 2: if( (kill_fiber&0x0002)==0 && QualityEnableME1b&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            case 1: if( (kill_fiber&0x0001)==0 && QualityEnableME1a&itr->getQuality() ) stub_vec_filtered.push_back(*itr); break;
+            default: edm::LogWarning("CSCTFSectorProcessor::run()") << "No MPC sorting for LCT: link="<<itr->getMPCLink()<<"\n";
+          }
+        break;
+        default: edm::LogWarning("CSCTFSectorProcessor::run()") << "Invalid station # encountered: "<<itr->station()<<"\n";
+      }
 
   /** STEP ONE
    *  We take stubs from the MPC and assign their eta and phi
@@ -255,11 +390,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
    *  After this we append the stubs gained from the DT system.
    */
 
-  std::vector<csctf::TrackStub> stub_vec = stubs.get();
-  std::vector<csctf::TrackStub>::iterator itr = stub_vec.begin();
-  std::vector<csctf::TrackStub>::const_iterator end = stub_vec.end();
-
-  for(; itr != end; itr++)
+  for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++)
     {
       if(itr->station() != 5)
 	{
@@ -289,7 +420,7 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 	}
     }
 
-  CSCTriggerContainer<csctf::TrackStub> processedStubs(stub_vec);
+  CSCTriggerContainer<csctf::TrackStub> processedStubs(stub_vec_filtered);
 
   /** STEP TWO
    *  We take the stubs filled by the SR LUTs and load them
@@ -299,49 +430,114 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
 
   std::vector<csc::L1Track> tftks;
 
-  core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX);
+  if(run_core){
+    core_->loadData(processedStubs, m_endcap, m_sector, m_minBX, m_maxBX);
 
-  if( core_->run(m_endcap, m_sector, m_latency, 
-                 m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
-                 m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
-                 m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
-                 m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
-                 m_etawin[0], m_etawin[1], m_etawin[2],
-                 m_etawin[3], m_etawin[4], m_etawin[5],
-                 m_mindphip,  m_mindeta_accp,  m_maxdeta_accp, m_maxdphi_accp,
-                 m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger,
-                 m_minBX, m_maxBX) )
-    {
-      l1_tracks = core_->tracks();
+    if( core_->run(m_endcap, m_sector, m_latency,
+                   m_etamin[0], m_etamin[1], m_etamin[2], m_etamin[3],
+                   m_etamin[4], m_etamin[5], m_etamin[6], m_etamin[7],
+                   m_etamax[0], m_etamax[1], m_etamax[2], m_etamax[3],
+                   m_etamax[4], m_etamax[5], m_etamax[6], m_etamax[7],
+                   m_etawin[0], m_etawin[1], m_etawin[2],
+                   m_etawin[3], m_etawin[4], m_etawin[5],
+                   m_mindphip,  m_mindeta_accp,  m_maxdeta_accp, m_maxdphi_accp,
+                   m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger,
+                   m_minBX, m_maxBX) )
+      {
+        l1_tracks = core_->tracks();
+      }
+
+    tftks = l1_tracks.get();
+
+    /** STEP THREE
+     *  Now that we have the found tracks from the core,
+     *  we must assign their Pt.
+     */
+
+    std::vector<csc::L1Track>::iterator titr = tftks.begin();
+
+    for(; titr != tftks.end(); titr++)
+      {
+        ptadd thePtAddress(titr->ptLUTAddress());
+        ptdat thePtData = ptLUT_->Pt(thePtAddress);
+
+        if(thePtAddress.track_fr)
+        {
+          titr->setRank(thePtData.front_rank);
+          titr->setChargeValidPacked(thePtData.charge_valid_front);
+	    }
+        else
+        {
+          titr->setRank(thePtData.rear_rank);
+          titr->setChargeValidPacked(thePtData.charge_valid_rear);
+        }
     }
-
-  tftks = l1_tracks.get();
-
-  /** STEP THREE
-   *  Now that we have the found tracks from the core,
-   *  we must assign their Pt.
-   */
-
-  std::vector<csc::L1Track>::iterator titr = tftks.begin();
-
-  for(; titr != tftks.end(); titr++)
-    {
-      ptadd thePtAddress(titr->ptLUTAddress());
-      ptdat thePtData = ptLUT_->Pt(thePtAddress);
-
-      if(thePtAddress.track_fr)
-	{
-	  titr->setRank(thePtData.front_rank);
-	  titr->setChargeValidPacked(thePtData.charge_valid_front);
-	}
-      else
-	{
-	  titr->setRank(thePtData.rear_rank);
-	  titr->setChargeValidPacked(thePtData.charge_valid_rear);
-	}
-    }
+  } //end of if(run_core)
 
   l1_tracks = tftks;
+
+
+    // Add-on for singles:
+    CSCTriggerContainer<csctf::TrackStub> myStubContainer[7]; //[BX]
+    // Loop over CSC LCTs if triggering on them:
+    if( trigger_on_ME1a || trigger_on_ME1b || trigger_on_ME2 || trigger_on_ME3 || trigger_on_ME4 )
+        for(std::vector<csctf::TrackStub>::iterator itr=stub_vec_filtered.begin(); itr!=stub_vec_filtered.end(); itr++){
+              int station = itr->station()-1;
+              int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
+///std::cout<<"Found LCT in station="<<station<<" subSector="<<subSector<<std::endl;
+              int mpc = ( subSector ? subSector-1 : station+1 );
+              if( (mpc==0&&trigger_on_ME1a) || (mpc==1&&trigger_on_ME1b) ||
+                  (mpc==2&&trigger_on_ME2)  || (mpc==3&&trigger_on_ME3)  ||
+                  (mpc==4&&trigger_on_ME4)  ||
+                  (mpc==5&& ( (trigger_on_MB1a&&subSector%2==1) || (trigger_on_MB1d&&subSector%2==0) ) ) ){
+                  int bx = itr->getBX() - m_minBX;
+                  if( bx<0 || bx>=7 ) edm::LogWarning("CSCTFTrackBuilder::buildTracks()") << " LCT BX is out of ["<<m_minBX<<","<<m_maxBX<<") range: "<<itr->getBX();
+                  else
+                     if( itr->isValid() ){
+                         myStubContainer[bx].push_back(*itr);
+                         break; //we break out of the loop because we put whole range if we encounter VP
+                     }
+              }
+        }
+
+    // Core's input was loaded in a relative time window BX=[0-7)
+    // To relate it to time window of tracks (centred at BX=0) we introduce a shift:
+    int shift = (m_maxBX + m_minBX)/2 - m_minBX;
+
+    // Now we put tracks from singles in a certain bx
+    //   if there were no tracks from the core in this endcap/sector/bx
+    CSCTriggerContainer<csc::L1Track> tracksFromSingles;
+    for(int bx=0; bx<7; bx++)
+       if( myStubContainer[bx].get().size() ){ // VP this bx
+          bool coreTrackExists = false;
+          // tracks are not ordered to be accessible by bx => loop them all
+          std::vector<csc::L1Track> tracks = l1_tracks.get();
+          for(std::vector<csc::L1Track>::iterator trk=tracks.begin(); trk<tracks.end(); trk++)
+             if( trk->BX()         == bx-shift &&
+                 trk->outputLink() == singlesTrackOutput ){
+                 coreTrackExists = true;
+                 break;
+             }
+             if( coreTrackExists == false ){
+                 csc::L1TrackId trackId(m_endcap,m_sector);
+                 csc::L1Track   track(trackId);
+                 track.setRank(singlesTrackPt&0x1F);
+                 track.setBx(bx-shift);
+                 track.setPtPacked(singlesTrackPt);
+                 track.setQualityPacked((singlesTrackPt&0x60)>>5);
+                 track.setChargeValidPacked((singlesTrackPt&0x80)>>7);
+                 //CSCCorrelatedLCTDigiCollection singles;
+                 //std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
+                 //for(std::vector<csctf::TrackStub>::const_iterator st_iter=stubs.begin();
+                 //    st_iter!=stubs.end(); st_iter++)
+                 //   singles.insertDigi(CSCDetId(st_iter->getDetId().rawId()),*st_iter);
+                 //tracksFromSingles.push_back(L1CSCTrack(track,singles));
+                 tracksFromSingles.push_back(track);
+             }
+       }
+	std::vector<csc::L1Track> single_tracks = tracksFromSingles.get();
+    if( single_tracks.size() ) l1_tracks.push_many(single_tracks);
+    // End of add-on for singles
 
   return (l1_tracks.get().size() > 0);
 }

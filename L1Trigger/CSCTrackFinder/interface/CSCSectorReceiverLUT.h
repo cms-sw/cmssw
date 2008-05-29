@@ -12,18 +12,12 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
-///KK
-#include <FWCore/Framework/interface/EventSetup.h>
-///
 
 class CSCLayer;
 
 class CSCSectorReceiverLUT
 {
  public:
-///KK
-  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::EventSetup& c, bool TMB07);
-///
 
   CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset, bool TMB07);
   CSCSectorReceiverLUT(const CSCSectorReceiverLUT&);

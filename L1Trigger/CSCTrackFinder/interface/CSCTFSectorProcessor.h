@@ -42,11 +42,14 @@ public:
   bool run(const CSCTriggerContainer<csctf::TrackStub>&);
 
   CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
+  std::vector<csctf::TrackStub> filteredStubs() const { return stub_vec_filtered; }
 
   CSCTriggerContainer<csctf::TrackStub> dtStubs() const { return dt_stubs; }
 
   int minBX() const { return m_minBX; }
   int maxBX() const { return m_maxBX; }
+
+  void readParameters(const edm::ParameterSet& pset);
 
  private:
   // disallow copy and assignment
@@ -56,15 +59,25 @@ public:
   unsigned m_endcap, m_sector, TMB07;
   unsigned m_latency;
 
+  // All parameters below are signed to allow for uninitialized (<0) state
   int m_bxa_depth, m_allowALCTonly, m_allowCLCTonly, m_preTrigger;
   int m_minBX, m_maxBX;
-  // parameters below are signed to allow for uninitialized (<0) state
   int m_etawin[6], m_etamin[8], m_etamax[8];
   int m_mindphip, m_mindeta_accp, m_maxdeta_accp, m_maxdphi_accp;
-
+  //  following parameters were moved here from the CSCTFTrackBuilder because they naturally belong here
+  int QualityEnableME1a, QualityEnableME1b, QualityEnableME1c, QualityEnableME1d, QualityEnableME1e, QualityEnableME1f;
+  int QualityEnableME2a, QualityEnableME2b, QualityEnableME2c;
+  int QualityEnableME3a, QualityEnableME3b, QualityEnableME3c;
+  int QualityEnableME4a, QualityEnableME4b, QualityEnableME4c;
+  int kill_fiber;
+  int run_core;
+  int trigger_on_ME1a, trigger_on_ME1b, trigger_on_ME2, trigger_on_ME3, trigger_on_ME4;
+  int trigger_on_MB1a, trigger_on_MB1d;
+  int singlesTrackPt,  singlesTrackOutput;
 
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
   CSCTriggerContainer<csctf::TrackStub> dt_stubs; // Track Stubs to be sent to the DTTF
+  std::vector<csctf::TrackStub> stub_vec_filtered; // Collectin of stubs after applying kill_fiber and QualityEnable masks
 
   static const std::string FPGAs[5];
 
