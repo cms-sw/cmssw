@@ -56,16 +56,33 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
                                          const L1GctJetCandCollection* tauJets, 
                                          const L1GctJetCountsCollection* jetCounts)
 {
-  if(cenJets->size()<4 || forJets->size()<4 || tauJets->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
+  // Set up a vector of the collections for easy iteration.
+  vector<const L1GctJetCandCollection*> jets(NUM_JET_CATEGORIES);
+  jets.at(CENTRAL_JETS)=cenJets;
+  jets.at(FORWARD_JETS)=forJets;
+  jets.at(TAU_JETS)=tauJets;
+
+  /* To hold the offsets within the three jet cand collections for the bx=0 jets.
+   * The capture index doesn't seem to get set properly by the emulator, so take the
+   * first bx=0 jet as the highest energy jet, and the fourth as the lowest. */
+  vector<unsigned> bx0JetCandOffsets(NUM_JET_CATEGORIES);
+
+  // Loop over the different catagories of jets to find the bx=0 offsets.
+  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
   {
-    edm::LogError("GCT") << "Block pack error: bad L1GctJetCandCollection size detected!\n"
-                         << "L1GctJetCandCollecion size is too small for at least one of the collections!\n"
-                         << "Aborting packing of GCT Jet Output to GT data!" << endl;
-    return;
+    const L1GctJetCandCollection * jetCands = jets.at(iCat);
+    unsigned& offset = bx0JetCandOffsets.at(iCat)
+    unsigned collectionSize = jetCands->size();
+    if(!findBx0OffsetInCollection(offset, jetCands)) { edm::LogError("GCT") << "No jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
+    if(collectionSize-offset < 4) { edm::LogError("GCT") << "Insufficient jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
   }
   
-  // write header
-  writeGctHeader(d, 0x583, 1);
+  // Now find the offset for the jet counts with bx=0
+  unsigned bx0JetCountsOffset;
+  if(!findBx0OffsetInCollection(bx0JetCountsOffset, jetCounts)) { edm::LogError("GCT") << "No jet counts with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
+
+  // Now write the header, as we should now have all requisite data.
+  writeGctHeader(d, 0x583, 1);  // ** NOTE can only currenly do 1 timesample! **
   
   d=d+4;  // move forward past the block header to the block payload.
 
@@ -73,25 +90,20 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   // re-interpret pointer to 16 bits - the space allocated for each Jet candidate.
   uint16_t * p16 = reinterpret_cast<uint16_t *>(d);
   
-  // Set up a vector of the collections for easy iteration.
-  vector<const L1GctJetCandCollection*> jets(NUM_JET_CATEGORIES);
-  jets.at(CENTRAL_JETS)=cenJets;
-  jets.at(FORWARD_JETS)=forJets;
-  jets.at(TAU_JETS)=tauJets;
-
-  const unsigned int categoryOffset = 4;  // Offset to jump from one jet category to the next.
-  const unsigned int nextCandPairOffset = 2;  // Offset to jump to next candidate pair.
+  const unsigned categoryOffset = 4;  // Offset to jump from one jet category to the next.
+  const unsigned nextCandPairOffset = 2;  // Offset to jump to next candidate pair.
 
   // Loop over the different catagories of jets
-  for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
+  for(unsigned iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
   {
-    // cand0Offset will give the offset on p16 to get the rank 0 Jet Cand of the correct category.
-    const unsigned int cand0Offset = iCat*categoryOffset;
+    const L1GctJetCandCollection * jetCands = jets.at(iCat); // The current category of jet cands.
+    const unsigned cand0Offset = iCat*categoryOffset;       // the offset on p16 to get the rank 0 Jet Cand of the correct category.
+    const unsigned bx0Offset = bx0JetCandOffsets.at(iCat);  // The offset in the jet cand collection to the bx=0 jets.
     
-    p16[cand0Offset] = jets.at(iCat)->at(0).raw();  // rank 0 jet
-    p16[cand0Offset + nextCandPairOffset] = jets.at(iCat)->at(1).raw(); // rank 1 jet
-    p16[cand0Offset + 1] = jets.at(iCat)->at(2).raw(); // rank 2 jet
-    p16[cand0Offset + nextCandPairOffset + 1] = jets.at(iCat)->at(3).raw(); // rank 3 jet.
+    p16[cand0Offset] = jetCands->at(bx0Offset).raw();  // rank 0 jet in bx=0
+    p16[cand0Offset + nextCandPairOffset] = jetCands->at(bx0Offset + 1).raw(); // rank 1 jet in bx=0
+    p16[cand0Offset + 1] = jetCands->at(bx0Offset + 2).raw(); // rank 2 jet in bx=0
+    p16[cand0Offset + nextCandPairOffset + 1] = jetCands->at(bx0Offset + 3).raw(); // rank 3 jet in bx=0.
   }
   
   // NOW DO JET COUNTS
@@ -100,8 +112,8 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   // re-interpret pointer to 32 bit.
   uint32_t * p32 = reinterpret_cast<uint32_t *>(d);
   
-  p32[0] = jetCounts->at(0).raw0();
-  p32[1] = jetCounts->at(0).raw1();  
+  p32[0] = jetCounts->at(bx0JetCountsOffset).raw0();
+  p32[1] = jetCounts->at(bx0JetCountsOffset).raw1();  
 }
 
 // Output EM Candidates and energy sums packing
@@ -112,18 +124,33 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
                                                  const L1GctEtHadCollection* etHad,
                                                  const L1GctEtMissCollection* etMiss)
 {
-  if(iso->size()<4 || nonIso->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
-  {
-    edm::LogError("GCT") << "Block pack error: bad L1GctEmCandCollection size detected!\n"
-                         << "L1GctEmCandCollection size is too small for at least one of the collections!\n"
-                         << "Aborting packing of GCT EM Cands + EnergySum Output to GT data!" << endl;
-    return;
-  }
-
-  unsigned nSamples = 1; // Note: can only currently do SINGLE TIME SAMPLE!
+  // Set up a vector of the collections for easy iteration.
+  vector<const L1GctEmCandCollection*> emCands(NUM_EM_CAND_CATEGORIES);
+  emCands.at(NON_ISO_EM_CANDS)=nonIso;
+  emCands.at(ISO_EM_CANDS)=iso;
   
-  // write header
-  writeGctHeader(d, 0x683, nSamples);  
+  /* To hold the offsets within the EM candidate collections for the bx=0 candidates.
+   * The capture index doesn't seem to get set properly by the emulator, so take the
+   * first bx=0 cand as the highest energy EM cand, and the fourth as the lowest. */
+  vector<unsigned> bx0EmCandOffsets(NUM_EM_CAND_CATEGORIES);
+
+  // Loop over the different catagories of EM cands to find the bx=0 offsets.
+  for(unsigned int iCat = 0 ; iCat < NUM_EM_CAND_CATEGORIES ; ++iCat)
+  {
+    const L1GctEmCandCollection * cands = emCands.at(iCat);
+    unsigned& offset = bx0EmCandOffsets.at(iCat);
+    unsigned collectionSize = cands->size();
+    if(!findBx0OffsetInCollection(offset, cands)) { edm::LogError("GCT") << "No EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
+    if(collectionSize-offset < 4) { edm::LogError("GCT") << "Insufficient EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
+  }
+  
+  unsigned bx0EtTotalOffset, bx0EtHadOffset, bx0EtMissOffset;
+  if(!findBx0OffsetInCollection(bx0EtTotalOffset, etTotal)) { edm::LogError("GCT") << "No Et Total value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
+  if(!findBx0OffsetInCollection(bx0EtHadOffset, etHad)) { edm::LogError("GCT") << "No Et Hadronic value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
+  if(!findBx0OffsetInCollection(bx0EtMissOffset, etMiss)) { edm::LogError("GCT") << "No Et Miss value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; } 
+  
+  // Now write the header, as we should now have all requisite data.
+  writeGctHeader(d, 0x683, 1);   // ** NOTE can only currenly do 1 timesample! **
   
   d=d+4;  // move to the block payload.
 
@@ -132,33 +159,31 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   // re-interpret payload pointer to 16 bit.
   uint16_t * p16 = reinterpret_cast<uint16_t *>(d);
 
-  for (int i=0; i<2; ++i)   // loop over non-iso/iso candidates
+  for (unsigned iCat=0; iCat < NUM_EM_CAND_CATEGORIES; ++iCat)   // loop over non-iso/iso candidates categories
   {
-    bool isolated = (i==1);
-    uint16_t * cand = p16 + (i*4);
-    const L1GctEmCandCollection* em;
+    const L1GctEmCandCollection * em = emCands.at(iCat);   // The current category of EM cands.
+    const unsigned bx0Offset = bx0EmCandOffsets.at(iCat);  // The offset in the EM cand collection to the bx=0 cands.
     
-    if (isolated) { em = iso; }
-    else { em = nonIso; }
+    uint16_t * cand = p16 + (i*4);
 
-    *cand = em->at(0).raw();
+    *cand = em->at(bx0Offset).raw();
     cand++;
-    *cand = em->at(2).raw();
+    *cand = em->at(bx0Offset + 2).raw();
     cand+=nSamples;
-    *cand = em->at(1).raw();
+    *cand = em->at(bx0Offset + 1).raw();
     cand++;
-    *cand = em->at(3).raw();
+    *cand = em->at(bx0Offset + 3).raw();
   }
   
   // NOW DO ENERGY SUMS
   // assumes these are all 1-object collections, ie. central BX only
   p16+=8;  // Move past EM cands
-  *p16 = etTotal->at(0).raw();  // Et Total - 16 bits.
+  *p16 = etTotal->at(bx0EtTotalOffset).raw();  // Et Total - 16 bits.
   p16++;
-  *p16 = etHad->at(0).raw();  // Et Hadronic - next 16 bits
+  *p16 = etHad->at(bx0EtHadOffset).raw();  // Et Hadronic - next 16 bits
   p16++;
   uint32_t * p32 = reinterpret_cast<uint32_t *>(p16);  // For writing Missing Et (32-bit raw data)
-  *p32 = etMiss->at(0).raw();  // Et Miss on final 32 bits of block payload.
+  *p32 = etMiss->at(bx0EtMissOffset).raw();  // Et Miss on final 32 bits of block payload.
 }
 
 void GctBlockPacker::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmCollection * rctEm)
@@ -293,4 +318,15 @@ void GctBlockPacker::writeRctCaloRegionBlock(unsigned char * d, const L1CaloRegi
     }
     p16[offset] = raw;  // Write raw data in correct place!
   }
+}
+
+template <typename Collection> 
+bool GctBlockPacker::findBx0OffsetInCollection(unsigned& bx0Offset, const Collection* coll)
+{
+  bool foundBx0 = false;
+  for(bx0Offset = 0, unsigned size = coll->size() ; bx0Offset < size ; ++bx0Offset)
+  {
+    if(coll->at(bx0Offset).bx() == 0) { foundBx0 = true; break; }
+  }
+  return foundBx0;
 }

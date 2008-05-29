@@ -56,6 +56,10 @@ class GctBlockPacker
   /// An enum for use with central, forward, and tau jet cand collections vector(s).
   /*! Note that the order here mimicks the order in the RAW data format. */
   enum JetCandCatagory { TAU_JETS, FORWARD_JETS, CENTRAL_JETS, NUM_JET_CATEGORIES };
+  
+  /// An enum of the EM candidate types.
+  /*! Note that the order here mimicks the order in the RAW data format. */
+  enum EmCandCatagory { NON_ISO_EM_CANDS, ISO_EM_CANDS, NUM_EM_CAND_CATEGORIES };
 
   /// Typedef for mapping block ID to the first RCT crate in that block
   typedef std::map<unsigned int, unsigned int> RctCrateMap;
@@ -85,6 +89,10 @@ class GctBlockPacker
     unsigned short sfp[2][4]; // [ cycle ] [ output number ]
   };
 
+  /// Template function that will find the offset to first item in a collection vector where bx=0.
+  /*! Returns false if fails to find any item in the collection with bx=0 */  
+  template <typename Collection> 
+  bool findBx0OffsetInCollection(unsigned& bx0Offset, const Collection* coll);
 };
 
 #endif
