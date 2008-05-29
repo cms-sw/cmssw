@@ -71,7 +71,7 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   for(unsigned int iCat = 0 ; iCat < NUM_JET_CATEGORIES ; ++iCat)
   {
     const L1GctJetCandCollection * jetCands = jets.at(iCat);
-    unsigned& offset = bx0JetCandOffsets.at(iCat)
+    unsigned& offset = bx0JetCandOffsets.at(iCat);
     unsigned collectionSize = jetCands->size();
     if(!findBx0OffsetInCollection(offset, jetCands)) { edm::LogError("GCT") << "No jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
     if(collectionSize-offset < 4) { edm::LogError("GCT") << "Insufficient jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
@@ -149,8 +149,12 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   if(!findBx0OffsetInCollection(bx0EtHadOffset, etHad)) { edm::LogError("GCT") << "No Et Hadronic value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
   if(!findBx0OffsetInCollection(bx0EtMissOffset, etMiss)) { edm::LogError("GCT") << "No Et Miss value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; } 
   
-  // Now write the header, as we should now have all requisite data.
-  writeGctHeader(d, 0x683, 1);   // ** NOTE can only currenly do 1 timesample! **
+  // We should now have all requisite data, so we can get on with packing
+
+  unsigned nSamples = 1; // ** NOTE can only currenly do 1 timesample! **
+  
+  // write header
+  writeGctHeader(d, 0x683, 1);   
   
   d=d+4;  // move to the block payload.
 
@@ -164,7 +168,7 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
     const L1GctEmCandCollection * em = emCands.at(iCat);   // The current category of EM cands.
     const unsigned bx0Offset = bx0EmCandOffsets.at(iCat);  // The offset in the EM cand collection to the bx=0 cands.
     
-    uint16_t * cand = p16 + (i*4);
+    uint16_t * cand = p16 + (iCat*4);
 
     *cand = em->at(bx0Offset).raw();
     cand++;
@@ -324,7 +328,8 @@ template <typename Collection>
 bool GctBlockPacker::findBx0OffsetInCollection(unsigned& bx0Offset, const Collection* coll)
 {
   bool foundBx0 = false;
-  for(bx0Offset = 0, unsigned size = coll->size() ; bx0Offset < size ; ++bx0Offset)
+  unsigned size = coll->size()
+  for(bx0Offset = 0 ; bx0Offset < size ; ++bx0Offset)
   {
     if(coll->at(bx0Offset).bx() == 0) { foundBx0 = true; break; }
   }
