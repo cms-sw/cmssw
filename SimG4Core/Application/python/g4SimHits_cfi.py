@@ -157,14 +157,14 @@ g4SimHits = cms.EDProducer("OscarProducer",
         UseBirkLaw = cms.bool(False),
         BirkC1 = cms.double(0.013),
         BirkC2 = cms.double(0.0568),
-        BirkC3 = cms.untracked.double(1.75)
+        BirkC3 = cms.double(1.75)
     ),
     Watchers = cms.VPSet(),
     EcalTBH4BeamSD = cms.PSet(
         UseBirkLaw = cms.bool(False),
         BirkC1 = cms.double(0.013),
         BirkC2 = cms.double(0.0568),
-        BirkC3 = cms.untracked.double(1.75)
+        BirkC3 = cms.double(1.75)
     ),
     RunAction = cms.PSet(
         StopFile = cms.string('StopRun')
