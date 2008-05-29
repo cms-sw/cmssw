@@ -621,7 +621,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		 << ")\n"       << std::flush;
       dumpEvent_=false;
     }
-    m_dumpFile << "\n  GT...\n";
+    if(prt)
+      m_dumpFile << "\n  GT...\n";
 
     if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {
       
@@ -652,7 +653,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if(DEmatchEvt[GLT]) sprintf(ok,"successful");
     else         sprintf(ok,"failed");
     sprintf(dumptofile,"  ...GT data and emulator comparison: %s\n", ok); 
-    m_dumpFile<<dumptofile;
+    if(prt)
+      m_dumpFile<<dumptofile;
   }
 
   if(verbose())
@@ -838,17 +840,18 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerReadoutRecord> emul) {
 
-  m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
-
   bool thematch = true;
   
   thematch &= (*data==*emul);
   
   bool match = thematch;
 
-  if(m_dumpMode==0 && match)
+  if(m_dumpMode==0 || (m_dumpMode==1 && match))
     return match;    
   
+  m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
+
+
   //expand to check mismatching  stage
 
   //need to create new objects due to lack of suitable accessors
@@ -1055,13 +1058,14 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerEvmReadoutRecord> emul) {
 
-  m_dumpFile << "\n  L1GlobalTriggerEvmReadoutRecord candidates...\n";
-  
   bool match = true;
   match &= (*data==*emul);
   
-  if(m_dumpMode==0 && match)
-    return match;
+  if(m_dumpMode==0 || (m_dumpMode==1 && match))
+    return match;    
+
+  m_dumpFile << "\n  L1GlobalTriggerEvmReadoutRecord candidates...\n";
+  
   
   // gt decision
   m_dumpFile << "\n\tGlobal decision: "
@@ -1201,7 +1205,6 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> data, 
 				 edm::Handle<L1GlobalTriggerObjectMapRecord> emul) {
 
-  m_dumpFile << "\n  L1GlobalTriggerObjectMapRecord candidates...\n";
 
   bool match = true;
   //match &= (*data==*emul);
@@ -1227,9 +1230,11 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
     }
   }
 
-  if(m_dumpMode==0 && match)
-    return match;
+  if(m_dumpMode==0 || (m_dumpMode==1 && match))
+    return match;    
   
+  m_dumpFile << "\n  L1GlobalTriggerObjectMapRecord candidates...\n";
+
   // dump
   int idx = 0;
   m_dumpFile << "\n\tL1GlobalTriggerObjectMap";
