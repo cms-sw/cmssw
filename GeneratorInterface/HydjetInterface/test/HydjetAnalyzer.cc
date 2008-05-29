@@ -32,7 +32,8 @@ using namespace std;
  
 HydjetAnalyzer::HydjetAnalyzer(const ParameterSet& pset)
   : phdNdEta(0), phdNdY(0), phdNdPt(0), phdNdPhi(0),
-   modLabel_(pset.getUntrackedParameter<string>("moduleLabel","source"))
+    modLabel_(pset.getUntrackedParameter<string>("moduleLabel","source")),
+    nevents_(0)
 {
   // constructor
 }
@@ -95,6 +96,9 @@ void HydjetAnalyzer::analyze( const Event& e, const EventSetup& )
   if ( hi ) {
      std::cout << "B = " << hi->impact_parameter() << std::endl;
   }
+
+  nevents_++;
+
    return ;   
 }
 
@@ -103,10 +107,10 @@ void HydjetAnalyzer::analyze( const Event& e, const EventSetup& )
 void HydjetAnalyzer::endJob()
 {
   // executed at the end of the job 
-  phdNdEta->Scale(phdNdEta->GetBinWidth(0));
-  phdNdY->Scale(phdNdY->GetBinWidth(0));
-  phdNdPt->Scale(phdNdPt->GetBinWidth(0));
-  phdNdPhi->Scale(phdNdPhi->GetBinWidth(0));  
+  phdNdEta->Scale(1/((phdNdEta->GetBinWidth(0))*nevents_));
+  phdNdY->Scale(1/((phdNdY->GetBinWidth(0))*nevents_));
+  phdNdPt->Scale(1/((phdNdPt->GetBinWidth(0))*nevents_));
+  phdNdPhi->Scale(1/((phdNdPhi->GetBinWidth(0))*nevents_));  
 
   return ;
 }
