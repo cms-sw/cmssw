@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ct2ct = cms.EDFilter("CaloTowersReCreator",
+    # Depth, fraction of the respective calorimeter [0,1]
+    MomEmDepth = cms.double(0.0),
     # Weighting factor for EB   
     EBWeight = cms.double(1.0),
     HBGrid = cms.untracked.vdouble(0.0, 2.0, 4.0, 5.0, 9.0, 
@@ -15,6 +17,8 @@ ct2ct = cms.EDFilter("CaloTowersReCreator",
         30.0, 50.0, 100.0, 300.0),
     # Weighting factor for HE 10-degree cells   
     HEDWeight = cms.double(1.0),
+    # Method for momentum reconstruction
+    MomConstrMethod = cms.int32(0),
     # Weighting factor for EE   
     EEWeight = cms.double(1.0),
     HBWeights = cms.untracked.vdouble(2.0, 1.86, 1.69, 1.55, 1.37, 
@@ -39,9 +43,11 @@ ct2ct = cms.EDFilter("CaloTowersReCreator",
     HESEScale = cms.untracked.double(50.0),
     HESGrid = cms.untracked.vdouble(0.0, 2.0, 4.0, 5.0, 9.0, 
         20.0, 30.0, 50.0, 100.0, 1000.0),
+    MomTotDepth = cms.double(0.0),
     HEDEScale = cms.untracked.double(50.0),
     HESWeights = cms.untracked.vdouble(1.7, 1.57, 1.54, 1.49, 1.41, 
         1.26, 1.19, 1.15, 1.12, 1.0),
+    MomHadDepth = cms.double(0.0),
     HEDGrid = cms.untracked.vdouble(0.0, 2.0, 4.0, 5.0, 9.0, 
         20.0, 30.0, 50.0, 100.0, 1000.0),
     EBEScale = cms.untracked.double(50.0),
@@ -51,12 +57,7 @@ ct2ct = cms.EDFilter("CaloTowersReCreator",
     HOGrid = cms.untracked.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy dependent weights and energy scale to be used
     EBGrid = cms.untracked.vdouble(2.0, 4.0, 5.0, 9.0, 20.0, 
-        30.0, 50.0, 100.0, 300.0),
-    # CaloTower 4-momentum reconstruction method and parameters
-    MomConstrMethod = cms.int32(0),
-    MomEmDepth = cms.double(0),
-    MomHadDepth = cms.double(0),
-    MomTotDepth = cms.double(0)
+        30.0, 50.0, 100.0, 300.0)
 )
 
 
