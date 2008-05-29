@@ -29,6 +29,7 @@
 
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include "ElectronIdMLP.h"
 #include "SoftElectronProducer.h"
@@ -47,9 +48,12 @@ SoftElectronProducer::SoftElectronProducer(const edm::ParameterSet &iConf) :
 
   theHBHERecHitTag        = theConf.getParameter<InputTag>("HBHERecHitTag");
   theBasicClusterTag      = theConf.getParameter<InputTag>("BasicClusterTag");
-  theBasicClusterShapeTag = theConf.getParameter<InputTag>("BasicClusterShapeTag");
+ // theBasicClusterShapeTag = theConf.getParameter<InputTag>("BasicClusterShapeTag");
 
   theHOverEConeSize = theConf.getParameter<double>("HOverEConeSize");
+
+  barrelRecHitCollection_ = theConf.getParameter<edm::InputTag>("BarrelRecHitCollection");
+  endcapRecHitCollection_ = theConf.getParameter<edm::InputTag>("EndcapRecHitCollection");
 
   // TrackAssociator and its parameters
   theTrackAssociator = new TrackDetectorAssociator();
@@ -95,14 +99,15 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   Handle<reco::BasicClusterCollection> handleCluster;
   reco::BasicClusterCollection::const_iterator itCluster;
 
-  Handle<reco::ClusterShapeCollection> handleShape;
-  reco::ClusterShapeCollection::const_iterator itShape;
+  //Handle<reco::ClusterShapeCollection> handleShape;
+  //reco::ClusterShapeCollection::const_iterator itShape;
 
   Handle<HBHERecHitCollection> handleRecHit;
   CaloRecHitMetaCollectionV::const_iterator itRecHit;
 
   ESHandle<CaloGeometry> handleCaloGeom;
   
+
   double hcalEnergy, clusEnergy, trkP;
   double x[2], y[2], z[2], eta[2], phi[2];
   double covEtaEta, covEtaPhi, covPhiPhi, emFraction, deltaE;
@@ -110,18 +115,23 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   double value, dist, distMin;
 
   const reco::BasicCluster *matchedCluster;
-  const reco::ClusterShape *matchedShape;
+  //const reco::ClusterShape *matchedShape;
   const reco::Track *track;
 
   // get basic clusters
   iEvent.getByLabel(theBasicClusterTag, handleCluster);
 
   // get basic cluster shapes
-  iEvent.getByLabel(theBasicClusterShapeTag, handleShape);
+  //iEvent.getByLabel(theBasicClusterShapeTag, handleShape);
 
   // get rec. hits
   iEvent.getByLabel(theHBHERecHitTag, handleRecHit);
   HBHERecHitMetaCollection metaRecHit(*handleRecHit);
+
+  //only barrel is used, giving twice the same inputag..
+
+
+  EcalClusterLazyTools ecalTool(iEvent, iSetup, barrelRecHitCollection_, endcapRecHitCollection_ );
 
   // get calorimeter geometry
   iSetup.get<CaloGeometryRecord>().get(handleCaloGeom);
@@ -163,12 +173,10 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
     {
       distMin = 1.0e6;
       matchedCluster = 0;
-      matchedShape = 0;
+//      matchedShape = 0;
 
       // loop over basic clusters
-      for(itCluster = handleCluster->begin(), itShape = handleShape->begin();
-          itCluster != handleCluster->end() && itShape != handleShape->end();
-          ++itCluster, ++itShape)
+      for(itCluster = handleCluster->begin(); itCluster != handleCluster->end();++itCluster)
       {
         x[1] = itCluster->x();
         y[1] = itCluster->y();
@@ -185,12 +193,11 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
         {
           distMin = dist;
           matchedCluster = &(*itCluster);
-          matchedShape = &(*itShape);
         }
       }
 
       // identify electrons based on cluster properties
-      if(matchedCluster && matchedShape && distMin < 5.0)
+      if(matchedCluster  && distMin < 5.0)
       {
 
         GlobalPoint position(matchedCluster->x(), matchedCluster->y(), matchedCluster->z());
@@ -207,19 +214,18 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
         deltaE = (clusEnergy - trkP)/(clusEnergy + trkP);
         emFraction =  clusEnergy/(clusEnergy + hcalEnergy);
 
-        eMax = matchedShape->eMax();
-        e2x2 = matchedShape->e2x2();
-        e3x3 = matchedShape->e3x3();
-        e5x5 = matchedShape->e5x5();
+        eMax = ecalTool.eMax(*matchedCluster);
+        e2x2 = ecalTool.e2x2(*matchedCluster);
+        e3x3 = ecalTool.e3x3(*matchedCluster);
+        e5x5 = ecalTool.e5x5(*matchedCluster);
         v1 = eMax/e3x3;
         v2 = eMax/e2x2;
         v3 = e2x2/e5x5;
         v4 = ((e5x5 - eMax) < 0.001) ? 1.0 : (e3x3 - eMax)/(e5x5 - eMax);
-
-        covEtaEta = matchedShape->covEtaEta();
-        covEtaPhi = matchedShape->covEtaPhi();
-        covPhiPhi = matchedShape->covPhiPhi();
-
+        std::vector<float> cov = ecalTool.covariances(*matchedCluster); 
+        covEtaEta = cov[0];
+        covEtaPhi = cov[1];
+        covPhiPhi = cov[2];
 
         value = theElecNN->value(0, covEtaEta, covEtaPhi, covPhiPhi,
                                  v1, v2, v3, v4, emFraction, deltaE);

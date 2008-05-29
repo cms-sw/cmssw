@@ -3,8 +3,8 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h,v 1.1 2007/08/17 23:10:10 fwyzard Exp $
- *  $Date: 2007/08/17 23:10:10 $
+ *  $Id: SoftElectronProducer.h,v 1.1 2007/08/17 23:17:34 fwyzard Exp $
+ *  $Date: 2007/08/17 23:17:34 $
  *  $Revision: 1.1 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
@@ -38,8 +38,10 @@ class SoftElectronProducer : public edm::EDProducer
 
   edm::InputTag theTrackTag;
   edm::InputTag theHBHERecHitTag;
-  edm::InputTag theBasicClusterTag, theBasicClusterShapeTag;
+  edm::InputTag theBasicClusterTag; //, theBasicClusterShapeTag;
   edm::InputTag thePrimaryVertexTag;
+  edm::InputTag barrelRecHitCollection_;
+  edm::InputTag endcapRecHitCollection_;
 
   double theHOverEConeSize;
   double theDiscriminatorCut;

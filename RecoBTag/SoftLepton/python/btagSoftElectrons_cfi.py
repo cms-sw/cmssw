@@ -5,8 +5,11 @@ from TrackingTools.TrackAssociator.default_cfi import *
 btagSoftElectrons = cms.EDProducer("SoftElectronProducer",
     TrackAssociatorParameterBlock,
     TrackTag = cms.InputTag("generalTracks"),
-    BasicClusterTag = cms.InputTag("islandBasicClusters","islandBarrelBasicClusters"),
-    BasicClusterShapeTag = cms.InputTag("islandBasicClusters","islandBarrelShape"),
+    BasicClusterTag = cms.InputTag("hybridSuperClusters"),
+#    BasicClusterShapeTag = cms.InputTag("hybridSuperClusters"),
+    BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    EndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+
     HBHERecHitTag = cms.InputTag("hbhereco"),
     DiscriminatorCut = cms.double(0.9),
     HOverEConeSize = cms.double(0.3)
