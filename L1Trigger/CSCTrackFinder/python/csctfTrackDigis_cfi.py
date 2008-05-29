@@ -9,7 +9,8 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
         SRLUT = cms.PSet(
             Binary = cms.untracked.bool(False),
             ReadLUTs = cms.untracked.bool(False),
-            LUTPath = cms.untracked.string('./')
+            LUTPath = cms.untracked.string('./'),
+            UseMiniLUTs = cms.untracked.bool(True)
         ),
         AllowALCTonly = cms.bool(False),
         PTLUT = cms.PSet(
