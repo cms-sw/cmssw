@@ -170,12 +170,17 @@ def main(argv):
              "TTbar":"TTBAR",
              "QCD_80_120":"QCD -e 80_120"
              }
+    AllCandles=Candles.keys()
+    #Sort the candles to make sure MinBias is executed before QCD_80_120, otherwise DIGI PILEUP would not find its MinBias root files
+    AllCandles.sort()
+    print AllCandles
     #TimeSize tests:
     if int(TimeSizeEvents)>0:
         print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
         if candleoption == "":
             cmds=[]
-            for candle in Candles.keys():
+            
+            for candle in AllCandles:
                 cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
