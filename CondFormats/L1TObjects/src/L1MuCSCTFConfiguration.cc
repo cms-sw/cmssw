@@ -5,7 +5,7 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   if(sp>=12) return pset;
 
   pset.addParameter<int>("CoreLatency",8);
-  std::vector<int> etamin(8), etamax(8), etawin(6);
+  std::vector<unsigned int> etamin(8), etamax(8), etawin(6);
 
   int eta_cnt=0;
   std::stringstream conf(registers[sp]);
@@ -33,11 +33,11 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
     }
     if( register_=="DAT_FTR" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        pset.addParameter<int>("singlesTrackPt",value); // 0x1F - rank, 0x60 - Q1,Q0, 0x80 - charge
+        pset.addParameter<unsigned int>("singlesTrackPt",value); // 0x1F - rank, 0x60 - Q1,Q0, 0x80 - charge
     }
     if( register_=="CSR_SFC" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        pset.addParameter<int>("singlesTrackOutput",(value&0x3000)>>12);
+        pset.addParameter<unsigned int>("singlesTrackOutput",(value&0x3000)>>12);
     }
     if( register_=="CNT_ETA" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
@@ -45,11 +45,11 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
     }
 	if( register_=="CSR_SCC" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
-        pset.addParameter<int> ("BXAdepth",      value&0x3     );
-        pset.addParameter<bool>("AllowALCTonly",(value&0x10)>>4);
-        pset.addParameter<bool>("AllowCLCTonly",(value&0x20)>>5);
-        pset.addParameter<bool>("useDT",        (value&0x80)>>8);
-        pset.addParameter<int> ("PreTrigger",   (value&0x300)>>8);
+        pset.addParameter<unsigned int>("BXAdepth",      value&0x3     );
+        pset.addParameter<bool>        ("AllowALCTonly",(value&0x10)>>4);
+        pset.addParameter<bool>        ("AllowCLCTonly",(value&0x20)>>5);
+        pset.addParameter<bool>        ("useDT",        (value&0x80)>>8);
+        pset.addParameter<unsigned int>("PreTrigger",   (value&0x300)>>8);
     }
     if( register_=="DAT_ETA" && chip_=="SP" ){
         unsigned int value = strtol(writeValue_.c_str(),'\0',16);
@@ -57,50 +57,50 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
         if( eta_cnt>=8  && eta_cnt<16 ) etamax[eta_cnt-8 ] = value;
         if( eta_cnt>=16 && eta_cnt<22 ) etawin[eta_cnt-16] = value;
 		// 4 line below is just an exaple (need to verify a sequence):
-        if( eta_cnt==22 ) pset.addParameter<int>("mindphip",    value);
-        if( eta_cnt==23 ) pset.addParameter<int>("mindeta_accp",value);
-        if( eta_cnt==24 ) pset.addParameter<int>("maxdeta_accp",value);
-        if( eta_cnt==25 ) pset.addParameter<int>("maxdphi_accp",value);
+        if( eta_cnt==22 ) pset.addParameter<unsigned int>("mindphip",    value);
+        if( eta_cnt==23 ) pset.addParameter<unsigned int>("mindeta_accp",value);
+        if( eta_cnt==24 ) pset.addParameter<unsigned int>("maxdeta_accp",value);
+        if( eta_cnt==25 ) pset.addParameter<unsigned int>("maxdphi_accp",value);
         eta_cnt++;
     }
     if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M1" )
-        pset.addParameter<int>("QualityEnableME1a",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME1a",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M2" )
-        pset.addParameter<int>("QualityEnableME1b",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME1b",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F1" && muon_=="M3" )
-        pset.addParameter<int>("QualityEnableME1c",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME1c",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M1" )
-        pset.addParameter<int>("QualityEnableME1d",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME1d",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M2" )
-        pset.addParameter<int>("QualityEnableME1e",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME1e",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F2" && muon_=="M3" )
-        pset.addParameter<int>("QualityEnableME1f",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME1f",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M1" )
-        pset.addParameter<int>("QualityEnableME2a",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME2a",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M2" )
-        pset.addParameter<int>("QualityEnableME2b",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME2b",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F3" && muon_=="M3" )
-        pset.addParameter<int>("QualityEnableME2c",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME2c",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M1" )
-        pset.addParameter<int>("QualityEnableME3a",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME3a",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M2" )
-        pset.addParameter<int>("QualityEnableME3b",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME3b",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F4" && muon_=="M3" )
-        pset.addParameter<int>("QualityEnableME3c",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME3c",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M1" )
-        pset.addParameter<int>("QualityEnableME4a",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME4a",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M2" )
-        pset.addParameter<int>("QualityEnableME4b",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME4b",strtol(writeValue_.c_str(),'\0',16));
     if( register_=="CSR_LQE" && chip_=="F5" && muon_=="M3" )
-        pset.addParameter<int>("QualityEnableME4c",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("QualityEnableME4c",strtol(writeValue_.c_str(),'\0',16));
 
     if( register_=="CSR_KFL" )//&& chip_=="SP" && muon_=="MA" )
-        pset.addParameter<int>("kill_fiber",strtol(writeValue_.c_str(),'\0',16));
+        pset.addParameter<unsigned int>("kill_fiber",strtol(writeValue_.c_str(),'\0',16));
   }
 
-  if( eta_cnt     ) pset.addParameter< std::vector<int> >("EtaMin",etamin);
-  if( eta_cnt>=8  ) pset.addParameter< std::vector<int> >("EtaMax",etamax);
-  if( eta_cnt>=16 ) pset.addParameter< std::vector<int> >("EtaWindows",etawin);
+  if( eta_cnt     ) pset.addParameter< std::vector<unsigned int> >("EtaMin",etamin);
+  if( eta_cnt>=8  ) pset.addParameter< std::vector<unsigned int> >("EtaMax",etamax);
+  if( eta_cnt>=16 ) pset.addParameter< std::vector<unsigned int> >("EtaWindows",etawin);
 
   return pset;
 }
