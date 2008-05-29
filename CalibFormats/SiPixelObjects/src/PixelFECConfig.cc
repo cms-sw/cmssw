@@ -103,11 +103,11 @@ PixelFECConfig::PixelFECConfig(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t   Could not open: "<<filename<<std::endl;
+	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t    Could not open: "<<filename<<std::endl;
 	assert(0);
     }
     else {
-	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t   Opened: "<<filename<<std::endl;
+	std::cout << "[PixelFECConfig::PixelFECConfig()]\t\t\t    Opened: "<<filename<<std::endl;
     }
 
     std::string dummy;
