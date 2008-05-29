@@ -7,6 +7,8 @@ Options:
   -t ..., --timesize=... specify the number of events for the TimeSize tests
   -i ..., --igprof=...   specify the number of events for the IgProf tests
   -v ..., --valgrind=... specify the number of events for the Valgrind tests
+  --cmsScimark=...       specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1
+  --cmsScimarkLarge=...  specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1
   --cmsdriver=...        specify special options to use with the cmsDriver.py commands (designed for integration build use)
   --candle=...           specify the candle(s) to run (instead of all 7 default candles)
   -h, --help           show this help
