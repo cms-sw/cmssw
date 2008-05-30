@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.4 2008/05/26 13:37:26 giordano Exp $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.5 2008/05/26 14:58:44 giordano Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
@@ -271,7 +271,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  threshold_->setData( jstrip, istrip->getLowThresholdFactor(),
 			       istrip->getHighThresholdFactor(), inputThreshold );
 	  if(istrip->getDisable())
-	    inputQuality.push_back(quality_->encode(jstrip,1.));
+	    inputQuality.push_back(quality_->encode(jstrip,1));
 	  jstrip++;
 	} // strip loop
       } // apv loop
