@@ -1,3 +1,4 @@
+
 #ifndef DTSegmentAnalysisTask_H
 #define DTSegmentAnalysisTask_H
 
@@ -11,8 +12,8 @@
  *  All histos are produce per Chamber
  *
  *
- *  $Date: 2008/03/01 00:39:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/27 15:24:00 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -55,9 +56,6 @@ private:
   // The BE interface
   DQMStore* theDbe;
 
-  // Switch for verbosity
-  bool debug;
-
   // Switch for detailed analysis
   bool detailedAnalysis;
 
@@ -67,12 +65,14 @@ private:
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
 
+  // Get the map of noisy channels
+  bool checkNoisyChannels;
+
   edm::ParameterSet parameters;
  
   // book the histos
   void bookHistos(DTChamberId chamberId);
   // Fill a set of histograms for a given chamber 
-  void fillHistos(DTChamberId chamberId, int nsegm);
   void fillHistos(DTChamberId chamberId,
 		  int nHits,
 		  float posX,
@@ -81,8 +81,9 @@ private:
 		  float theta,
 		  float chi2);
   
-  //   std::map<DTChamberId, MonitorElement*> numSegmentPerCh;
+  //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;
+  std::map< int, MonitorElement* > summaryHistos;
 
 };
 #endif

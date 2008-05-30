@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 14:02:08 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/28 09:14:32 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -98,12 +98,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
-  
-  for(map<int, MonitorElement*> ::const_iterator histo = summaryHistos.begin();
-      histo != summaryHistos.end();
-      histo++) {
-    (*histo).second->Reset();
-  }
+
 
   // for detailed anlysis
   for(map<int, MonitorElement*> ::const_iterator histo = wheelHistos.begin();
@@ -123,26 +118,45 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 
   edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: "<<nLumiSegs<<" updates";
 
+  summaryHistos[3]->Reset();
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
   
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chID = (*ch_it)->id();
     
-
     MonitorElement * segm_histo = dbe->get(getMEName(chID, "h4DSegmNHits"));
-      if (segm_histo) {
-	edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the histo of the recHits segment!!";
-	TH1F * segm_histo_root = segm_histo->getTH1F();
+    MonitorElement * summary_histo = dbe->get(getMEName(chID, "numberOfSegments"));
 
-	if(chID.station()!=4 && segm_histo_root->GetMaximum() != 12){
-	  summaryHistos[chID.wheel()]->Fill(chID.sector(), chID.station());
-	  summaryHistos[3]->Fill(chID.sector(), chID.wheel());
+    if (segm_histo && summary_histo){
+	edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTest]: I've got the recHits histo and the summary!!";
+
+	TH1F * segmHit_histo_root = segm_histo->getTH1F();
+	TH2F * segm_histo_root = summary_histo->getTH2F();
+	TH2F * summary_histo_root = summaryHistos[3]->getTH2F();
+
+	int sector = chID.sector();
+	if(sector == 13) sector=4;
+	if(sector == 14) sector=10;
+
+
+	if((chID.station()!=4 && segmHit_histo_root->GetMaximumBin() != 12)||
+	   (chID.station()==4 &&  segmHit_histo_root->GetMaximumBin() != 8)){
+	  summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),1);
+	  if(summary_histo_root->GetBinContent(sector, chID.wheel()+3)<1)
+	    summaryHistos[3]->setBinContent(sector, chID.wheel()+3,1);
 	}
-	if(chID.station()==4 &&  segm_histo_root->GetMaximum() != 8){
-	  summaryHistos[chID.wheel()]->Fill(chID.sector(), chID.station());
-	  summaryHistos[3]->Fill(chID.sector(), chID.wheel());
+	else
+	  summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),0);
+
+	TH2F * summary2_histo_root = summaryHistos[3]->getTH2F();
+
+	if(segm_histo_root->GetBinContent(sector,chID.station())==0){
+	  summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),2);
+	  if(summary2_histo_root->GetBinContent(sector, chID.wheel()+3)<2)
+	    summaryHistos[3]->setBinContent(sector, chID.wheel()+3,2);
 	}
+
       }
 
 
@@ -196,6 +210,7 @@ void DTSegmentAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
     
   } //loop over all the chambers
 
+
 }
 
 
@@ -217,6 +232,11 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
     + "_St" + station.str() 
     + "_Sec" + sector.str(); 
   
+  if(histoTag == "numberOfSegments")
+    histoname = 
+      folderRoot + "DT/Segments/Wheel" +  wheel.str() + "/" +
+      histoTag  + + "_W" + wheel.str();
+
   return histoname;
   
 }
@@ -224,49 +244,48 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
 
 void DTSegmentAnalysisTest::bookHistos() {
   
-  dbe->setCurrentFolder("DT/Segments/DTSummary");
+  dbe->setCurrentFolder("DT/Segments");
 
   for(int wh=-2; wh<=2; wh++){
       stringstream wheel; wheel << wh;
-      string histoName =  "recHitSegment_testFailed_W" + wheel.str();
-      summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0.5,14.5,4,0.5,4.5);
-      summaryHistos[wh]->setBinLabel(1,"Sector1",1);
-      summaryHistos[wh]->setBinLabel(2,"Sector2",1);
-      summaryHistos[wh]->setBinLabel(3,"Sector3",1);
-      summaryHistos[wh]->setBinLabel(4,"Sector4",1);
-      summaryHistos[wh]->setBinLabel(5,"Sector5",1);
-      summaryHistos[wh]->setBinLabel(6,"Sector6",1);
-      summaryHistos[wh]->setBinLabel(7,"Sector7",1);
-      summaryHistos[wh]->setBinLabel(8,"Sector8",1);
-      summaryHistos[wh]->setBinLabel(9,"Sector9",1);
-      summaryHistos[wh]->setBinLabel(10,"Sector10",1);
-      summaryHistos[wh]->setBinLabel(11,"Sector11",1);
-      summaryHistos[wh]->setBinLabel(12,"Sector12",1);
-      summaryHistos[wh]->setBinLabel(13,"Sector13",1);
-      summaryHistos[wh]->setBinLabel(14,"Sector14",1);
+      string histoName =  "segmentSummary_W" + wheel.str();
+      summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,0.5,12.5,4,0.5,4.5);
+      summaryHistos[wh]->setAxisTitle("Sector",1);
+      summaryHistos[wh]->setBinLabel(1,"1",1);
+      summaryHistos[wh]->setBinLabel(2,"2",1);
+      summaryHistos[wh]->setBinLabel(3,"3",1);
+      summaryHistos[wh]->setBinLabel(4,"4",1);
+      summaryHistos[wh]->setBinLabel(5,"5",1);
+      summaryHistos[wh]->setBinLabel(6,"6",1);
+      summaryHistos[wh]->setBinLabel(7,"7",1);
+      summaryHistos[wh]->setBinLabel(8,"8",1);
+      summaryHistos[wh]->setBinLabel(9,"9",1);
+      summaryHistos[wh]->setBinLabel(10,"10",1);
+      summaryHistos[wh]->setBinLabel(11,"11",1);
+      summaryHistos[wh]->setBinLabel(12,"12",1);
       summaryHistos[wh]->setBinLabel(1,"MB1",2);
       summaryHistos[wh]->setBinLabel(2,"MB2",2);
       summaryHistos[wh]->setBinLabel(3,"MB3",2);
       summaryHistos[wh]->setBinLabel(4,"MB4",2);  
   }
   
-  string histoName =  "recHitSegmentSummary_testFailed";
-    summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0.5,14.5,5,-2.5,2.5);
-    summaryHistos[3]->setBinLabel(1,"Sector1",1);
-    summaryHistos[3]->setBinLabel(1,"Sector1",1);
-    summaryHistos[3]->setBinLabel(2,"Sector2",1);
-    summaryHistos[3]->setBinLabel(3,"Sector3",1);
-    summaryHistos[3]->setBinLabel(4,"Sector4",1);
-    summaryHistos[3]->setBinLabel(5,"Sector5",1);
-    summaryHistos[3]->setBinLabel(6,"Sector6",1);
-    summaryHistos[3]->setBinLabel(7,"Sector7",1);
-    summaryHistos[3]->setBinLabel(8,"Sector8",1);
-    summaryHistos[3]->setBinLabel(9,"Sector9",1);
-    summaryHistos[3]->setBinLabel(10,"Sector10",1);
-    summaryHistos[3]->setBinLabel(11,"Sector11",1);
-    summaryHistos[3]->setBinLabel(12,"Sector12",1);
-    summaryHistos[3]->setBinLabel(13,"Sector13",1);
-    summaryHistos[3]->setBinLabel(14,"Sector14",1);
+
+  string histoName =  "segmentSummary";
+    summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,0.5,12.5,5,0.5,5.5);
+    summaryHistos[3]->setAxisTitle("Sector",1);
+    summaryHistos[3]->setBinLabel(1,"1",1);
+    summaryHistos[3]->setBinLabel(1,"1",1);
+    summaryHistos[3]->setBinLabel(2,"2",1);
+    summaryHistos[3]->setBinLabel(3,"3",1);
+    summaryHistos[3]->setBinLabel(4,"4",1);
+    summaryHistos[3]->setBinLabel(5,"5",1);
+    summaryHistos[3]->setBinLabel(6,"6",1);
+    summaryHistos[3]->setBinLabel(7,"7",1);
+    summaryHistos[3]->setBinLabel(8,"8",1);
+    summaryHistos[3]->setBinLabel(9,"9",1);
+    summaryHistos[3]->setBinLabel(10,"10",1);
+    summaryHistos[3]->setBinLabel(11,"11",1);
+    summaryHistos[3]->setBinLabel(12,"12",1);
     summaryHistos[3]->setBinLabel(1,"Wheel-2",2);
     summaryHistos[3]->setBinLabel(2,"Wheel-1",2);
     summaryHistos[3]->setBinLabel(3,"Wheel0",2);
