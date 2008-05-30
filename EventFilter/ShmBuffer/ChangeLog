@@ -1,3 +1,8 @@
+2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-04
+	* update to FUShmBuffer::writeErrorEventData()
+
 2008-03-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-03

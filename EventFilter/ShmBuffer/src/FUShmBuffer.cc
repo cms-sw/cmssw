@@ -14,6 +14,8 @@
 #include <string>
 #include <cassert>
 
+#include <sstream>
+#include <fstream>
 
 #define SHM_KEYPATH          "/dev/null" /* Path used on ftok for shmget key  */
 #define SHM_DESCRIPTOR_KEYID           1 /* Id used on ftok for 1. shmget key */
@@ -578,12 +580,45 @@ bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
 bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
 				      unsigned int iRawCell)
 {
-  FUShmRawCell* raw = rawCell(iRawCell);
-  unsigned int   dataSize=sizeof(unsigned int)*1024+raw->payloadSize();
+  FUShmRawCell *raw=rawCell(iRawCell);
+
+  unsigned int   dataSize=sizeof(uint32_t)*(2+1024)+raw->eventSize();
   unsigned char *data    =new unsigned char[dataSize];
-  unsigned int  *pFedSize=(unsigned int*)data;
-  for (unsigned int i=0;i<raw->nFed();i++) *pFedSize++ = raw->fedSize(i);
-  memcpy(data+sizeof(unsigned int)*1024,raw->payloadAddr(),raw->payloadSize());
+  uint32_t      *pos     =(uint32_t*)data;
+  *pos++=(uint32_t)runNumber;
+  *pos++=(uint32_t)raw->evtNumber();
+  for (unsigned int i=0;i<1024;i++) *pos++ = (uint32_t)raw->fedSize(i);
+  memcpy(pos,raw->payloadAddr(),raw->eventSize());
+  
+  // DEBUG
+  /*
+    if (1) {
+    stringstream ss;
+    ss<<"/tmp/run"<<runNumber<<"_evt"<<raw->evtNumber()<<".err";
+    ofstream fout;
+    fout.open(ss.str().c_str(),ios::out|ios::binary);
+    if (!fout.write((char*)data,dataSize))
+    cout<<"Failed to write error event to "<<ss.str()<<endl;
+    fout.close();
+    
+    stringstream ss2;
+    ss2<<"/tmp/run"<<runNumber<<"_evt"<<raw->evtNumber()<<".info";
+    ofstream fout2;
+    fout2.open(ss2.str().c_str());
+    fout2<<"dataSize = "<<dataSize<<endl;
+    fout2<<"runNumber = "<<runNumber<<endl;
+    fout2<<"evtNumber = "<<raw->evtNumber()<<endl;
+    fout2<<"eventSize = "<<raw->eventSize()<<endl;
+    unsigned int totalSize(0);
+    for (unsigned int i=0;i<1024;i++) {
+    unsigned int fedSize = raw->fedSize(i);
+    totalSize += fedSize;
+    if (fedSize>0) fout2<<i<<": "<<fedSize<<endl;
+    }
+    fout2<<"totalSize = "<<totalSize<<endl;
+    fout2.close();
+    }
+  */// END DEBUG
   
   waitRecoWrite();
   unsigned int   iRecoCell=nextRecoWriteIndex();
@@ -591,6 +626,7 @@ bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
   setEvtState(iRawCell,evt::RECOWRITING);
   setEvtDiscard(iRawCell,2);
   reco->writeErrorEvent(iRawCell,runNumber,raw->evtNumber(),data,dataSize);
+  delete [] data;
   setEvtState(iRawCell,evt::RECOWRITTEN);
   postRecoIndexToRead(iRecoCell);
   if (segmentationMode_) { shmdt(raw); shmdt(reco); }
