@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.7 2008/03/04 17:06:40 hcheung Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.8 2008/05/28 13:56:12 hcheung Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -346,7 +346,7 @@ void FUShmDQMOutputService::findMonitorElements(DQMEvent::TObjectTable &toTable,
   if (bei == NULL) {return;}
 
   // fetch the monitor elements in the specified directory
-  std::vector<MonitorElement *> localMEList = bei->getAllContents(folderPath);
+  std::vector<MonitorElement *> localMEList = bei->getContents(folderPath);
   //MonitorElementRootFolder* folderPtr = bei->getDirectory(folderPath);
 
   // add the MEs that should be updated to the table
@@ -372,7 +372,7 @@ void FUShmDQMOutputService::findMonitorElements(DQMEvent::TObjectTable &toTable,
     // loop over the subdirectories, find the MEs in each one
     std::vector<std::string>::const_iterator dirIter;
     for (dirIter = subDirList.begin(); dirIter != subDirList.end(); dirIter++) {
-      std::string subDirPath = folderPath + "/" + (*dirIter);
+      std::string subDirPath = (*dirIter);
       findMonitorElements(toTable, subDirPath);
     }
   }
