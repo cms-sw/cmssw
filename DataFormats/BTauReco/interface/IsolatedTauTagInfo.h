@@ -25,8 +25,6 @@ namespace reco {
 	selectedTracks_()
 	
     { 
-      TrackRef leadTk;
-      leadTrack_ = leadTk;
     }
 
     IsolatedTauTagInfo( const TrackRefVector & tracks, const JetTracksAssociationRef & jtaRef ) :
@@ -38,7 +36,7 @@ namespace reco {
     virtual ~IsolatedTauTagInfo() {}
     
     //get the tracks from the jetTag
-    const TrackRefVector & allTracks() const { return tracks(); }
+    const TrackRefVector allTracks() const { return tracks(); }
 
     //get the selected tracks used to computed the isolation
     const TrackRefVector & selectedTracks() const {return selectedTracks_;}
