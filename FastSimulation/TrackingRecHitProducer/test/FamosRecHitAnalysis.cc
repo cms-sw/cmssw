@@ -1412,11 +1412,11 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
     //
-    histos_value[iHist]->SetMarkerColor(104); // dark blue
+    histos_value[iHist]->SetMarkerColor(4); // blue
     histos_value[iHist]->SetLineColor(4); // blue
-    histos_value[iHist]->SetMarkerStyle(20); // cyrcles
+    histos_value[iHist]->SetMarkerStyle(20); // circles
     histos_value[iHist]->SetMarkerSize(1.0); // 
-    histos_nominal[iHist]->SetLineColor(102); // dark red
+    histos_nominal[iHist]->SetLineColor(2); // red
     histos_nominal[iHist]->SetFillColor(0); // white
     //
     if(binFactor!=-1) {
