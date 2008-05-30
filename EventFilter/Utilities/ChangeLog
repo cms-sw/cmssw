@@ -1,3 +1,9 @@
+2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-10
+	* add plugin 'ErrorStreamSource', a 'source' to read error
+	events.
+
 2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-14-09
