@@ -109,7 +109,7 @@ CosmicClusterProducer::~CosmicClusterProducer()
 
 void CosmicClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
+//  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
   clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, CosmicClusterAlgo::barrel);
   nEvt_++;
 }
