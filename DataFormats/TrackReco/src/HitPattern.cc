@@ -481,7 +481,7 @@ int HitPattern::numberOfLostHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) count++;
+      if (type_1_HitFilter(pattern)) count++;
     }
   }
   return count;
@@ -492,7 +492,7 @@ int HitPattern::numberOfLostTrackerHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (trackerHitFilter(pattern)) count++;
       }
     }
@@ -505,7 +505,7 @@ int HitPattern::numberOfLostMuonHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (muonHitFilter(pattern)) count++;
       }
     }
@@ -518,7 +518,7 @@ int HitPattern::numberOfLostPixelHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (pixelHitFilter(pattern)) count++;
       }
     }
@@ -531,7 +531,7 @@ int HitPattern::numberOfLostPixelBarrelHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (pixelBarrelHitFilter(pattern)) count++;
       }
     }
@@ -544,7 +544,7 @@ int HitPattern::numberOfLostPixelEndcapHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (pixelEndcapHitFilter(pattern)) count++;
       }
     }
@@ -557,7 +557,7 @@ int HitPattern::numberOfLostStripHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (stripHitFilter(pattern)) count++;
       }
     }
@@ -570,7 +570,7 @@ int HitPattern::numberOfLostStripTIBHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (stripTIBHitFilter(pattern)) count++;
       }
     }
@@ -583,7 +583,7 @@ int HitPattern::numberOfLostStripTIDHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (stripTIDHitFilter(pattern)) count++;
       }
     }
@@ -596,7 +596,7 @@ int HitPattern::numberOfLostStripTOBHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (stripTOBHitFilter(pattern)) count++;
       }
     }
@@ -609,7 +609,7 @@ int HitPattern::numberOfLostStripTECHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (stripTECHitFilter(pattern)) count++;
       }
     }
@@ -622,7 +622,7 @@ int HitPattern::numberOfLostMuonDTHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (muonDTHitFilter(pattern)) count++;
       }
     }
@@ -635,7 +635,7 @@ int HitPattern::numberOfLostMuonCSCHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (muonCSCHitFilter(pattern)) count++;
       }
     }
@@ -648,7 +648,7 @@ int HitPattern::numberOfLostMuonRPCHits() const {
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
     if (pattern != 0) {
-      if (!validHitFilter(pattern)) {
+      if (type_1_HitFilter(pattern)) {
         if (muonRPCHitFilter(pattern)) count++;
       }
     }
