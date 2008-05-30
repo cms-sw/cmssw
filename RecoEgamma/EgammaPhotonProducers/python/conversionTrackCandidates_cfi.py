@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.7 2008/05/29 14:59:06 arizzi Exp $
+#  $Id: conversionTrackCandidates.cfi,v 1.25 2008/05/29 15:29:33 arizzi Exp $
 #
 # Tracker geometry #####################
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
@@ -39,26 +39,23 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     outInTrackCandidateCollection = cms.string('outInTracksFromConversions'),
     minSCEt = cms.double(5.0),
     MeasurementTrackerName = cms.string(''),
-    TransientInitialStateEstimatorParameters = cms.PSet(
-        propagatorAlongTISE = cms.string('alongMomElePropagator'),
-        propagatorOppositeTISE = cms.string('oppositeToMomElePropagator')
-    ),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
-    bcBarrelCollection = cms.InputTag("hybridSuperClusters"),
-    bcEndcapCollection  = cms.InputTag("multi5x5BasicClusters:multi5x5EndcapBasicClusters"),
-
-
- #   bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
+    bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),
-
-#    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
+    #     string  bcProducer  =   "multi5x5BasicClusters"
+    #     string  bcBarrelCollection = "multi5x5BarrelBasicClusters"
+    #     string  bcEndcapCollection = "multi5x5EndcapBasicClusters"
+    bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     scIslandEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
-#    bcProducer = cms.string('multi5x5BasicClusters'),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
+    hOverEConeSize = cms.double(0.1),
     scIslandEndcapCollection = cms.string(''),
     hbheInstance = cms.string(''),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),
-    hOverEConeSize = cms.double(0.1)
+    TransientInitialStateEstimatorParameters = cms.PSet(
+        propagatorAlongTISE = cms.string('alongMomElePropagator'),
+        propagatorOppositeTISE = cms.string('oppositeToMomElePropagator')
+    )
 )
 
 
