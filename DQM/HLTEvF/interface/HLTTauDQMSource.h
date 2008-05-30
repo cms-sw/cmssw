@@ -97,7 +97,7 @@ private:
   int prescaleEvt_;     ///every n events 
   bool disable_;        ///disable
   bool verbose_;          
-  int nTriggeredTaus_;
+  unsigned int nTriggeredTaus_;
   double EtMin_;
   double EtMax_;
   int NEtBins_;

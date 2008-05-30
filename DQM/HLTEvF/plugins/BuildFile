@@ -2,6 +2,7 @@
   <use name="DQM/HLTEvF">
   <use name="DQMServices/Core">
   <use name="DataFormats/BTauReco">
+  <use name="DataFormats/TauReco">
   <use name="DataFormats/BeamSpot">
   <use name="DataFormats/Common">
   <use name="DataFormats/EgammaCandidates">

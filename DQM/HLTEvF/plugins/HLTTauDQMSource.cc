@@ -828,7 +828,7 @@ HLTTauDQMSource::doL25(const Event& iEvent, const EventSetup& iSetup)
 
 	      //Calculate Sum of Track pt
 	      double sumTrackPt = 0.;
-		for(int k=0;k<tauTag->allTracks().size();++k)
+		for(size_t k=0;k<tauTag->allTracks().size();++k)
 		  {
 		    sumTrackPt+=tauTag->allTracks()[k]->pt();
 		  }
