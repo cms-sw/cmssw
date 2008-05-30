@@ -142,7 +142,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 				edm::LogError("CSCTFPacker|analyze")<<" Track's sector="<<sector<<" is out of range";
 				continue;
 			}
-			spDataRecord[sector][tbin][nTrk[sector][tbin]].phi_       = trk->first.phi_packed();
+			spDataRecord[sector][tbin][nTrk[sector][tbin]].phi_       = trk->first.phiValue();
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].sign_      =(trk->first.ptLUTAddress()>>20)&0x1;
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].front_rear = 0; // not necessary
 			spDataRecord[sector][tbin][nTrk[sector][tbin]].charge_    = trk->first.chargeValue(); //
