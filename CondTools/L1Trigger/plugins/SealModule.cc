@@ -110,27 +110,32 @@ REGISTER_L1_WRITER(L1CSCTPParametersRcd, L1CSCTPParameters);
 
 // CSC TF records
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"
+// #include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
+// #include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
+// #include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCTFAlignmentRcd.h"
+// #include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
+// #include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
+// #include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
 
 REGISTER_PLUGIN(L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration);
 REGISTER_L1_WRITER(L1MuCSCTFConfigurationRcd, L1MuCSCTFConfiguration);
 
-REGISTER_PLUGIN(L1MuCSCDTLutRcd, L1MuCSCDTLut);
-REGISTER_L1_WRITER(L1MuCSCDTLutRcd, L1MuCSCDTLut);
+REGISTER_PLUGIN(L1MuCSCTFAlignmentRcd, L1MuCSCTFAlignment);
+REGISTER_L1_WRITER(L1MuCSCTFAlignmentRcd, L1MuCSCTFAlignment);
 
-REGISTER_PLUGIN(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
-REGISTER_L1_WRITER(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
+// REGISTER_PLUGIN(L1MuCSCDTLutRcd, L1MuCSCDTLut);
+// REGISTER_L1_WRITER(L1MuCSCDTLutRcd, L1MuCSCDTLut);
 
-REGISTER_PLUGIN(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
-REGISTER_L1_WRITER(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
+// REGISTER_PLUGIN(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
+// REGISTER_L1_WRITER(L1MuCSCGlobalLutsRcd, L1MuCSCGlobalLuts);
+
+// REGISTER_PLUGIN(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
+// REGISTER_L1_WRITER(L1MuCSCLocalPhiLutRcd, L1MuCSCLocalPhiLut);
 
 REGISTER_PLUGIN(L1MuCSCPtLutRcd, L1MuCSCPtLut);
 REGISTER_L1_WRITER(L1MuCSCPtLutRcd, L1MuCSCPtLut);
@@ -162,17 +167,25 @@ REGISTER_L1_WRITER(L1RCTParametersRcd, L1RCTParameters);
 REGISTER_PLUGIN(L1RCTChannelMaskRcd, L1RCTChannelMask);
 REGISTER_L1_WRITER(L1RCTChannelMaskRcd, L1RCTChannelMask);
 
-#include "CondFormats/L1TObjects/interface/L1RctInputScale.h"
-#include "CondFormats/DataRecord/interface/L1RctEcalScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1RctHcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 
-REGISTER_PLUGIN(L1RctEcalScaleRcd, L1RctInputScale);
-REGISTER_L1_WRITER(L1RctEcalScaleRcd, L1RctInputScale);
+REGISTER_PLUGIN(L1CaloEcalScaleRcd, L1CaloEcalScale);
+REGISTER_L1_WRITER(L1CaloEcalScaleRcd, L1CaloEcalScale);
 
-REGISTER_PLUGIN(L1RctHcalScaleRcd, L1RctInputScale);
-REGISTER_L1_WRITER(L1RctHcalScaleRcd, L1RctInputScale);
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+
+REGISTER_PLUGIN(L1CaloHcalScaleRcd, L1CaloHcalScale);
+REGISTER_L1_WRITER(L1CaloHcalScaleRcd, L1CaloHcalScale);
 
 // GCT records
+#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
+
+REGISTER_PLUGIN(L1GctChannelMaskRcd, L1GctChannelMask);
+REGISTER_L1_WRITER(L1GctChannelMaskRcd, L1GctChannelMask);
+
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
