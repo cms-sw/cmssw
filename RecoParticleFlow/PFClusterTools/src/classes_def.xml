@@ -12,6 +12,7 @@
   <class name="pftools::SingleParticleWrapper"/>
   <class name="pftools::Exercises"/>
   <class name="pftools::CalibrationResultWrapper"/>
+  <class name="pftools::Calibratable" />
   <class name="std::vector<pftools::CalibrationResultWrapper> "/>
   <class name="std::vector<pftools::DetectorElement*>"/>
   <class name="std::vector<pftools::ParticleDeposit*>"/>

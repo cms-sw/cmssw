@@ -16,9 +16,11 @@
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationResultWrapper.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
 namespace { 
   namespace {
 	pftools::SingleParticleWrapper spw;
 	pftools::CalibrationResultWrapper crw;
+	pftools::Calibratable c;
   }
 }
