@@ -9,7 +9,7 @@ MuonTrackingRegionCommon = cms.PSet(
         beamSpot = cms.InputTag("offlineBeamSpot"),
         Rescale_Dz = cms.double(3.0), ## Delta Z from tracker
 
-        Eta_min = cms.double(0.05), ## Lower limit to the region eta
+        Eta_min = cms.double(0.1), ## Lower limit to the region eta
 
         Rescale_phi = cms.double(3.0), ## Rescale Error in Phi
 
@@ -28,7 +28,7 @@ MuonTrackingRegionCommon = cms.PSet(
 
         PhiR_UpperLimit_Par1 = cms.double(0.6),
         EtaR_UpperLimit_Par2 = cms.double(0.15),
-        Phi_min = cms.double(0.05), ## Lower limit to the region phi
+        Phi_min = cms.double(0.1), ## Lower limit to the region phi
 
         UseVertex = cms.bool(False) ## use reconstructed vertex instead of beamspot
 
