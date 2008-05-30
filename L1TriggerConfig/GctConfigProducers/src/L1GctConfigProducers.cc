@@ -12,6 +12,9 @@
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 
 //
 // constants, enums and typedefs
@@ -36,6 +39,7 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
    setWhatProduced(this,&L1GctConfigProducers::produceJfParams);
    setWhatProduced(this,&L1GctConfigProducers::produceJCNegEta);
    setWhatProduced(this,&L1GctConfigProducers::produceJCPosEta);
+   setWhatProduced(this,&L1GctConfigProducers::produceChanMask);
 
    //now do what ever other initialization is needed
 
@@ -77,6 +81,11 @@ JCtSetupReturnType L1GctConfigProducers::produceJCPosEta(const L1GctJetCounterPo
 L1GctConfigProducers::
 JfParamsReturnType L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd&)
         { return m_JfParamsConf->produceJfParams(); }
+
+L1GctConfigProducers::
+ChanMaskReturnType L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {
+  return boost::shared_ptr<L1GctChannelMask>(new L1GctChannelMask);
+}
 
 
 
