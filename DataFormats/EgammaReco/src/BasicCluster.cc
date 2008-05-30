@@ -3,7 +3,7 @@
 using namespace reco;
 
 BasicCluster::BasicCluster( double energy, const Point& position, double chi2, const std::vector<DetId> usedHits, AlgoId algoID) :
-   EcalCluster(energy,position), chi2_(chi2)
+   CaloCluster(energy,position), chi2_(chi2)
 {
   usedHits_ = usedHits;
   algoId_ = algoID;
@@ -12,7 +12,7 @@ BasicCluster::BasicCluster( double energy, const Point& position, double chi2, c
 
 bool BasicCluster::operator<(const reco::BasicCluster &otherCluster) const
 {
-  return energy() < otherCluster.energy(); 
+  return energy() < otherCluster.energy();
 }
 
 bool BasicCluster::operator==(const BasicCluster& rhs) const  
