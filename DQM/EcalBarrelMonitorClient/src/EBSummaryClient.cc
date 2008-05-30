@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/05/26 14:21:19 $
- * $Revision: 1.148 $
+ * $Date: 2008/05/30 15:08:53 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  *
 */
@@ -1134,7 +1134,7 @@ void EBSummaryClient::analyze(void){
 
 	// if the SM is entirely not read, the masked channels reverted back in yellow
 	float ismEntries=0;
-	
+
 	int ism = (ipx-1)/20 + 1 ;
 	if ( iex>85 ) ism+=18;
 
@@ -1148,7 +1148,7 @@ void EBSummaryClient::analyze(void){
 	  }
 	}
 
-	if ( ismEntries==0 ) { 
+	if ( ismEntries==0 ) {
 	  xval=2;
 	}
 

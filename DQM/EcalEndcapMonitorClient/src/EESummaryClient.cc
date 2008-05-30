@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/26 14:21:19 $
- * $Revision: 1.126 $
+ * $Date: 2008/05/30 15:08:53 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  *
 */
@@ -1285,11 +1285,11 @@ void EESummaryClient::analyze(void){
 		  iEntries = h2->GetEntries();
 		}
 	      }
-	    } 
+	    }
 	  }
 	}
 
-	if ( validCry && iEntries==0 ) { 
+	if ( validCry && iEntries==0 ) {
 	  xval=2;
 	}
 
@@ -1357,11 +1357,11 @@ void EESummaryClient::analyze(void){
 		  iEntries = h2->GetEntries();
 		}
 	      }
-	    } 
+	    }
 	  }
 	}
 
-	if ( validCry && iEntries==0 ) { 
+	if ( validCry && iEntries==0 ) {
 	  xval=2;
 	}
 
