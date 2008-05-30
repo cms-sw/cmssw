@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 08:38:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/30 11:41:11 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -249,7 +249,7 @@ void DTSegmentAnalysisTest::bookHistos() {
   for(int wh=-2; wh<=2; wh++){
       stringstream wheel; wheel << wh;
       string histoName =  "segmentSummary_W" + wheel.str();
-      summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,0.5,12.5,4,0.5,4.5);
+      summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
       summaryHistos[wh]->setAxisTitle("Sector",1);
       summaryHistos[wh]->setBinLabel(1,"1",1);
       summaryHistos[wh]->setBinLabel(2,"2",1);
@@ -271,7 +271,7 @@ void DTSegmentAnalysisTest::bookHistos() {
   
 
   string histoName =  "segmentSummary";
-    summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,0.5,12.5,5,0.5,5.5);
+    summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,1,6);
     summaryHistos[3]->setAxisTitle("Sector",1);
     summaryHistos[3]->setBinLabel(1,"1",1);
     summaryHistos[3]->setBinLabel(1,"1",1);
