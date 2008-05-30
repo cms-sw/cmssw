@@ -84,9 +84,9 @@ protected:
 
 private:
 
-  void          storeHit(CaloG4Hit*);
-  bool          saveHit(CaloG4Hit*);
-  void          summarize();
+  void                 storeHit(CaloG4Hit*);
+  std::pair<bool,bool> saveHit(CaloG4Hit*);
+  void                 summarize();
 
 protected:
   
@@ -107,7 +107,7 @@ protected:
   G4StepPoint*           preStepPoint; 
   float                  edepositEM, edepositHAD;
 
-  double                 energyCut;
+  double                 energyCut, tmaxHit;
   int                    checkHits;
   bool                   useMap;
 

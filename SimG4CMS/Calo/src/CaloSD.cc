@@ -34,6 +34,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //   static SimpleConfigurable<bool>  pUseMap(false,"CaloSD:UseMap");
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
   energyCut    = m_CaloSD.getParameter<double>("EminTrack")*GeV;
+  tmaxHit      = m_CaloSD.getParameter<double>("TmaxHit")*ns;
   suppressHeavy= m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
   kmaxProton   = m_CaloSD.getParameter<double>("ProtonThreshold")*MeV;
@@ -87,7 +88,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 			  << "        Check last " << checkHits 
 			  << " before saving the hit\n" 
 			  << "        Correct TOF globally by " << correctT
-			  << " ns (Flag =" << corrTOFBeam << ")";
+			  << " ns (Flag =" << corrTOFBeam << ")\n"
+			  << "        Save hits recorded before " << tmaxHit
+			  << " ns";
 }
 
 CaloSD::~CaloSD() { 
@@ -508,15 +511,21 @@ void CaloSD::update(const ::EndOfEvent * ) {
   
   LogDebug("CaloSim") << "CaloSD::update: Start saving hits for " << GetName()
 		      << " with " << hitvec.size() << " hits";
-  int kount = 0, count = 0, wrong = 0;
+  int kount = 0, count = 0, wrong = 0, tcut = 0;
   std::vector<CaloG4Hit*>::iterator i;
+  std::pair<bool,bool> ok;
 
   if (useMap) {
     for (i=hitvec.begin(); i!=hitvec.end(); i++) {
-      if (!saveHit(*i)) wrong++;
+      ok = saveHit(*i);
+      if ((ok.second)) {
+	count++;
+	if (!(ok.first))  wrong++;
+      } else {
+	tcut++;
+      }
       kount++;
     }
-    count = kount;
   } else {
     sort(hitvec.begin(), hitvec.end(), CaloG4HitLess());
     LogDebug("CaloSim") << "CaloSD: EndofEvent sort the hits in buffer ";
@@ -536,18 +545,24 @@ void CaloSD::update(const ::EndOfEvent * ) {
       }
 
       kount++;
-      count++;
       LogDebug("CaloSim") << "CaloSD: Merge " << jump << " hits to hit " 
 			  << kount;
-      if (!saveHit(*i)) wrong++;
+      ok = saveHit(*i);
+      if ((ok.second)) {
+	count++;
+	if (!(ok.first))  wrong++;
+      } else {
+	tcut++;
+      }
       i+=jump;
       kount += jump;
     }
   }
   
-  edm::LogInfo("CaloSim") << "CaloSD: " << GetName() << " store " << count 
+  edm::LogInfo("CaloSim") << "CaloSD: " << GetName() << " store " << count
 			  << " hits out of " << kount << " recorded with " 
-			  << wrong << " track IDs not given properly";
+			  << wrong << " track IDs not given properly and "
+			  << tcut << " hits with time above cutoff";
   summarize();
 }
 
@@ -578,10 +593,11 @@ void CaloSD::storeHit(CaloG4Hit* hit) {
 
 }
 
-bool CaloSD::saveHit(CaloG4Hit* aHit) {
+std::pair<bool,bool> CaloSD::saveHit(CaloG4Hit* aHit) {
 
   int tkID;
-  bool ok = true;
+  bool ok   = true;
+  bool save = false;
   if (m_trackManager) {
     tkID = m_trackManager->idSavedTrack(aHit->getTrackID());
     if (tkID == 0) ok = false;
@@ -595,15 +611,18 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 
   double time = aHit->getTimeSlice();
   if (corrTOFBeam) time += correctT;
-  slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, aHit->getHadr()/GeV,
-		     time, tkID, aHit->getDepth());
-  LogDebug("CaloSim") << "CaloSD: Store Hit at " << std::hex 
-		      << aHit->getUnitID() << std::dec << " " 
-		      << aHit->getDepth() << " due to " << tkID 
-		      << " in time " << time << " of energy " 
-		      << aHit->getEM()/GeV << " GeV (EM) and " 
-		      << aHit->getHadr()/GeV << " GeV (Hadr)";
-  return ok;
+  if (time <= tmaxHit) {
+    save = true;
+    slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, 
+		       aHit->getHadr()/GeV, time, tkID, aHit->getDepth());
+    LogDebug("CaloSim") << "CaloSD: Store Hit at " << std::hex 
+			<< aHit->getUnitID() << std::dec << " " 
+			<< aHit->getDepth() << " due to " << tkID 
+			<< " in time " << time << " of energy " 
+			<< aHit->getEM()/GeV << " GeV (EM) and " 
+			<< aHit->getHadr()/GeV << " GeV (Hadr)";
+  }
+  return std::pair<bool,bool>(ok,save);
 }
 
 void CaloSD::summarize() {}
