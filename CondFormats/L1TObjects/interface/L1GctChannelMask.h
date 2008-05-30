@@ -6,7 +6,7 @@ class L1GctChannelMask {
   
   /// default constructor sets all masks to false
   L1GctChannelMask();
-  ~L1GctChannelMask();
+  ~L1GctChannelMask() {}
 
   /// mask EM candidates from an RCT crate
   void maskEmCrate(unsigned crate);
