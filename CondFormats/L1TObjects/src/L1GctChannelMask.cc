@@ -5,7 +5,7 @@ L1GctChannelMask::L1GctChannelMask() {
     emCrateMask_[i] = false;
   }
   for (unsigned ieta=0; ieta<22; ++ieta) {
-    for (unsigned iphi=0; ieta<18; ++iphi) {
+    for (unsigned iphi=0; iphi<18; ++iphi) {
       regionMask_[ieta][iphi] = false;
     }
   }
