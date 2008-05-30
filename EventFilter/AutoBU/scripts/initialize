@@ -17,6 +17,9 @@ print "\n============================================================";
 print "\ninitialize ...";
 print "\n============================================================\n";
 
+# run number
+my $runNumber = 10;
+
 # flags to indicate setup, defaults
 my $doPB  = 0;
 my $doEP  = 1;
@@ -172,7 +175,8 @@ my @apps = ($BUappname,$BUlocalid,0,
 
 if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); push (@apps,0); }
 
-my @BUproperties = ("replay","boolean","false",
+my @BUproperties = ("runNumber","unsignedInt",$runNumber,
+		    "replay","boolean","false",
 		    "queueSize","unsignedInt","32",
 		    "crc","boolean","true",
 		    "eventBufferSize","unsignedInt","0x400000");
@@ -183,9 +187,10 @@ my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 		    "hasPrescaleService","boolean","false",
 		    "collReconnSec","integer","-1");
 
-my @RBproperties = ("buClassName", "string",     $BUappname,
-		    "doCrcCheck", "unsignedInt","1",
-		    "processKillerEnabled", "boolean","false",
+my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
+		    "buClassName", "string",     $BUappname,
+		    "doCrcCheck",  "unsignedInt","1",
+		    "processKillerEnabled","boolean","true",
 		    "monSleepSec", "unsignedInt","30",
 		    "nbRawCells",  "unsignedInt","32",
 		    "nbRecoCells", "unsignedInt","8",
@@ -197,13 +202,13 @@ my @RBproperties = ("buClassName", "string",     $BUappname,
 if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
-		    "runNumber",     "unsignedInt", "10",
+		    "runNumber",     "unsignedInt", $runNumber,
 		    "collReconnSec", "integer",     "-1");
 
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
-		    "runNumber",        "unsignedInt","10",
+		    "runNumber",        "unsignedInt",$runNumber,
 		    "filePath",         "string",     "$SMout",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
 		    "setupLabel",       "string",     "test");

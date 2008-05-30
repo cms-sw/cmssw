@@ -1,3 +1,10 @@
+2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-15
+	* activate processKiller in initialize script
+	* add variable runNumber to initialize script and set it for each
+	relevant application
+
 2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-14
