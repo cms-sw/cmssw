@@ -145,11 +145,12 @@ namespace popcon{
       T *obj; 
       condObjBuilder->getValue(obj);
  
-      if (m_debugMode)
-	if(this->tagInfo().size)
+      if(!this->tagInfo().size)
+	m_since=1;
+      else
+	if (m_debugMode)
 	  m_since=this->tagInfo().lastInterval.first+1; 
-	else
-	  m_since=1;
+
 
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"setting since = "<< m_since <<std::endl;
       this->m_to_transfer.push_back(std::make_pair(obj,m_since));
