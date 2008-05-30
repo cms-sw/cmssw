@@ -2,10 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaPhotonProducers.KFTrajectoryFitterForInOut_cfi import *
 from RecoEgamma.EgammaPhotonProducers.KFTrajectorySmootherForInOut_cfi import *
-import copy
-from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
+import TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi
 # KFFittingSmootherESProducer
-KFFittingSmootherForInOut = copy.deepcopy(KFFittingSmoother)
+KFFittingSmootherForInOut = TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi.KFFittingSmoother.clone()
 KFFittingSmootherForInOut.ComponentName = 'KFFittingSmootherForInOut'
 KFFittingSmootherForInOut.Fitter = 'KFFitterForInOut'
 KFFittingSmootherForInOut.Smoother = 'KFSmootherForInOut'

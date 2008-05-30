@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 #PropagatorWithMaterialESProducer 
-oppositeToMomElePropagator = copy.deepcopy(OppositeMaterialPropagator)
+oppositeToMomElePropagator = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone()
 oppositeToMomElePropagator.Mass = 0.000511
 oppositeToMomElePropagator.ComponentName = 'oppositeToMomElePropagator'
 

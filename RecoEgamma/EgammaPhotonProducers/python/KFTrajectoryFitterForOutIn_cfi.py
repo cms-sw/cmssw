@@ -2,10 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_cfi import *
 from RecoEgamma.EgammaPhotonProducers.chi2EstimatorForOutInFit_cfi import *
-import copy
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
+import TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi
 #KFTrajectoryFitterESProducer
-KFTrajectoryFitterForOutIn = copy.deepcopy(KFTrajectoryFitter)
+KFTrajectoryFitterForOutIn = TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi.KFTrajectoryFitter.clone()
 KFTrajectoryFitterForOutIn.ComponentName = 'KFFitterForOutIn'
 KFTrajectoryFitterForOutIn.Propagator = 'alongMomElePropagator'
 KFTrajectoryFitterForOutIn.Estimator = 'Chi2ForOutIn'
