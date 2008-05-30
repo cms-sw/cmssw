@@ -1,14 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: multi5x5SuperClusters.cfi,v 1.2 2008/04/29 15:49:30 dlevans Exp $
+# $Id: multi5x5SuperClusters.cfi,v 1.3 2008/05/26 15:10:23 dlevans Exp $
 #
 # Multi5x5 SuperCluster producer
 multi5x5SuperClusters = cms.EDProducer("Multi5x5SuperClusterProducer",
     barrelSuperclusterCollection = cms.string('multi5x5BarrelSuperClusters'),
     endcapEtaSearchRoad = cms.double(0.14),
     barrelClusterCollection = cms.string('multi5x5BarrelBasicClusters'),
-    dynamicPhiRoad = cms.bool(True),
+    dynamicPhiRoad = cms.bool(False),
     endcapClusterProducer = cms.string('multi5x5BasicClusters'),
     barrelPhiSearchRoad = cms.double(0.8),
     endcapPhiSearchRoad = cms.double(0.6),
