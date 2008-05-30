@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/30 15:08:53 $
- * $Revision: 1.127 $
+ * $Date: 2008/05/30 15:18:59 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  *
 */
@@ -1272,7 +1272,8 @@ void EESummaryClient::analyze(void){
 
 	bool validCry = false;
 
-	// if the SM is entirely not read, the masked channels reverted back in yellow
+	// if the SM is entirely not read, the masked channels
+        // are reverted back to yellow
 	float iEntries=0;
 	for(int ism = 1; ism <= 9; ism++) {
 	  if ( Numbers::validEE(ism, jx, jy) ) {
@@ -1280,7 +1281,7 @@ void EESummaryClient::analyze(void){
 	    for ( unsigned int i=0; i<clients_.size(); i++ ) {
 	      EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
 	      if ( eeic ) {
-		TH2F *h2 = eeic->h_[ism-1];
+		TH2F* h2 = eeic->h_[ism-1];
 		if ( h2 ) {
 		  iEntries = h2->GetEntries();
 		}
