@@ -29,7 +29,7 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   //MONITOR SETUP
   
   monitorName_            = mainParams.getUntrackedParameter<string>("monitorName","DoubleTau");
-  nTriggeredTaus_         = mainParams.getUntrackedParameter < int > ("NTriggeredTaus", 2);
+  nTriggeredTaus_         = mainParams.getUntrackedParameter < unsigned > ("NTriggeredTaus", 2);
   triggerInfo_            = mainParams.getParameter<InputTag>("TriggerEventObject");
   l1Filter_               = mainParams.getUntrackedParameter<string>("L1SeedFilter","");
   l2Filter_               = mainParams.getUntrackedParameter<string>("L2EcalIsolFilter","");
@@ -146,10 +146,10 @@ void HLTTauDQMSource::beginJob(const EventSetup& context){
        
 
        //Book Reference Histos
-       printf("Preparing to book histos...\n");
+
        for(size_t i=0;i<refFilters_.size();++i)
 	 {
-	   printf("booking histo..\n");
+
 
 	   triggerBitInfoRef_.push_back(dbe_->book1D(("triggerBitInfoRef"+refFilterDesc_[i]).c_str(),("Trigger Bit (match to "+refFilterDesc_[i] + ") ").c_str(),8,0,8));
 
@@ -180,7 +180,7 @@ void HLTTauDQMSource::beginJob(const EventSetup& context){
 
 
 	 }
-       printf("HISTOS BOOKED\n");
+
 	   
      }
  
