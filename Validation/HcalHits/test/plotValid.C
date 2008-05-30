@@ -19,7 +19,7 @@
 void setTDRStyle();
 
 void plotValid(char name[10]="Hit34", int logy=0, int mode=0, 
-	       float xoff=0.55, float yoff=0.15, int save=0) {
+	       float xoff=0.55, float yoff=0.15, int save=0, int bin=1) {
 
   char title[80];
   if      (name == "Hit01") sprintf (title, "Number of Hits in HCal");
@@ -154,6 +154,7 @@ void plotValid(char name[10]="Hit34", int logy=0, int mode=0,
     TFile* File1 = new TFile(file1);
     TDirectory *d1 = (TDirectory*)File1->Get("DQMData/HcalHitValidation");
     TH1F* hist1 = (TH1F*) d1->Get(name);
+    hist1->Rebin(bin);
     hist1->SetLineStyle(1);
     hist1->SetLineWidth(3);
     hist1->SetLineColor(2);
@@ -161,6 +162,7 @@ void plotValid(char name[10]="Hit34", int logy=0, int mode=0,
     TFile* File2 = new TFile(file2);
     TDirectory *d2 = (TDirectory*)File2->Get("DQMData/HcalHitValidation");
     TH1F* hist2 = (TH1F*) d2->Get(name);
+    hist2->Rebin(bin);
     hist2->SetLineStyle(2);
     hist2->SetLineWidth(3);
     hist2->SetLineColor(4);
@@ -168,6 +170,7 @@ void plotValid(char name[10]="Hit34", int logy=0, int mode=0,
     TFile* File3 = new TFile(file3);
     TDirectory *d3 = (TDirectory*)File3->Get("DQMData/HcalHitValidation");
     TH1F* hist3 = (TH1F*) d3->Get(name);
+    hist3->Rebin(bin);
     hist3->SetLineStyle(3);
     hist3->SetLineWidth(3);
     hist3->SetLineColor(8);
@@ -175,6 +178,7 @@ void plotValid(char name[10]="Hit34", int logy=0, int mode=0,
     TFile* File4 = new TFile(file4);
     TDirectory *d4 = (TDirectory*)File4->Get("DQMData/HcalHitValidation");
     TH1F* hist4 = (TH1F*) d4->Get(name);
+    hist4->Rebin(bin);
     hist4->SetLineStyle(4);
     hist4->SetLineWidth(3);
     hist4->SetLineColor(1);
@@ -182,6 +186,7 @@ void plotValid(char name[10]="Hit34", int logy=0, int mode=0,
     TFile* File5 = new TFile(file5);
     TDirectory *d5 = (TDirectory*)File5->Get("DQMData/HcalHitValidation");
     TH1F* hist5 = (TH1F*) d5->Get(name);
+    hist5->Rebin(bin);
     hist5->SetLineStyle(5);
     hist5->SetLineWidth(3);
     hist5->SetLineColor(6);
@@ -189,6 +194,7 @@ void plotValid(char name[10]="Hit34", int logy=0, int mode=0,
     TFile* File6 = new TFile(file6);
     TDirectory *d6 = (TDirectory*)File6->Get("DQMData/HcalHitValidation");
     TH1F* hist6 = (TH1F*) d6->Get(name);
+    hist6->Rebin(bin);
     hist6->SetLineStyle(6);
     hist6->SetLineWidth(3);
     hist6->SetLineColor(3);

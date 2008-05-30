@@ -52,14 +52,14 @@ void HcalHitValidation::beginJob(const edm::EventSetup& ) {
     double my_pi = 3.1415926;
     //Histograms for Hits
     if (checkHit_) {
-      meAllNHit_  = dbe_->book1D("Hit01","Number of Hits in HCal",1000,0.,1000.);
+      meAllNHit_  = dbe_->book1D("Hit01","Number of Hits in HCal",1000,0.,5000.);
       meBadDetHit_= dbe_->book1D("Hit02","Hits with wrong Det",   100,0.,100.);
       meBadSubHit_= dbe_->book1D("Hit03","Hits with wrong Subdet",100,0.,100.);
       meBadIdHit_ = dbe_->book1D("Hit04","Hits with wrong ID",    100,0.,100.);
-      meHBNHit_   = dbe_->book1D("Hit05","Number of Hits in HB",1000,0.,1000.);
-      meHENHit_   = dbe_->book1D("Hit06","Number of Hits in HE",1000,0.,1000.);
-      meHONHit_   = dbe_->book1D("Hit07","Number of Hits in HO",1000,0.,1000.);
-      meHFNHit_   = dbe_->book1D("Hit08","Number of Hits in HF",1000,0.,1000.);
+      meHBNHit_   = dbe_->book1D("Hit05","Number of Hits in HB",1000,0.,5000.);
+      meHENHit_   = dbe_->book1D("Hit06","Number of Hits in HE",1000,0.,5000.);
+      meHONHit_   = dbe_->book1D("Hit07","Number of Hits in HO",1000,0.,5000.);
+      meHFNHit_   = dbe_->book1D("Hit08","Number of Hits in HF",1000,0.,5000.);
       meDetectHit_= dbe_->book1D("Hit09","Detector ID",           50,0.,50.);
       meSubdetHit_= dbe_->book1D("Hit10","Subdetectors in HCal",  50,0.,50.);
       meDepthHit_ = dbe_->book1D("Hit11","Depths in HCal",        20,0.,20.);
