@@ -48,19 +48,20 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
   // Init histogramming
   edm::Service<TFileService> tfile;
 
-  if ( !tfile.isAvailable() )
-    throw cms::Exception("BadConfig") << "TFileService unavailable: "
-                                      << "please add it to config file";
+  if (doCherenkov_) {
+    if ( !tfile.isAvailable() )
+      throw cms::Exception("BadConfig") << "TFileService unavailable: "
+					<< "please add it to config file";
 
-  ntuple_ = tfile->make<TTree>("tree","Cherenkov photons");
-  ntuple_->Branch("nphotons",&nphotons_,"nphotons/I");
-  ntuple_->Branch("px",px_,"px[nphotons]/F");
-  ntuple_->Branch("py",py_,"py[nphotons]/F");
-  ntuple_->Branch("pz",pz_,"pz[nphotons]/F");
-  ntuple_->Branch("x",x_,"px[nphotons]/F");
-  ntuple_->Branch("y",y_,"py[nphotons]/F");
-  ntuple_->Branch("z",z_,"pz[nphotons]/F");
-
+    ntuple_ = tfile->make<TTree>("tree","Cherenkov photons");
+    ntuple_->Branch("nphotons",&nphotons_,"nphotons/I");
+    ntuple_->Branch("px",px_,"px[nphotons]/F");
+    ntuple_->Branch("py",py_,"py[nphotons]/F");
+    ntuple_->Branch("pz",pz_,"pz[nphotons]/F");
+    ntuple_->Branch("x",x_,"px[nphotons]/F");
+    ntuple_->Branch("y",y_,"py[nphotons]/F");
+    ntuple_->Branch("z",z_,"pz[nphotons]/F");
+  }
 }
 
 //________________________________________________________________________________________
@@ -96,8 +97,10 @@ double DreamSD::getEnergyDeposit(G4Step * aStep) {
 //________________________________________________________________________________________
 uint32_t DreamSD::setDetUnitId(G4Step * aStep) { 
 
-  const G4VTouchable* touch = aStep->GetPostStepPoint()->GetTouchable();
-  return touch->GetReplicaNumber(0);
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  uint32_t id = (touch->GetReplicaNumber(1))*10 + (touch->GetReplicaNumber(0));
+  LogDebug("EcalSim") << "DreamSD:: ID " << id;
+  return id;
 }
 
 
@@ -130,7 +133,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
 			<< paras[0] << " Logical Volume " << lv;
     double dz = 0;
     if (sol.shape() == ddbox) {
-      dz = 2*paras[2];
+      dz = 2*paras[0];
     } else if (sol.shape() == ddtrap) {
       dz = 2*paras[0];
     }
@@ -160,7 +163,8 @@ double DreamSD::curve_LY(G4Step* aStep) {
   G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
 					 stepPoint->GetTouchable());
   double crlength = crystalLength(lv);
-  double dapd = 0.5 * crlength - localPoint.z(); // Distance from closest APD
+  double localz   = localPoint.x();
+  double dapd = 0.5 * crlength - localz; // Distance from closest APD
   if (dapd >= -0.1 || dapd <= crlength+0.1) {
     if (dapd <= 100.)
       weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
@@ -168,13 +172,13 @@ double DreamSD::curve_LY(G4Step* aStep) {
     edm::LogWarning("EcalSim") << "DreamSD: light coll curve : wrong distance "
 			       << "to APD " << dapd << " crlength = " 
 			       << crlength << " crystal name = " << nameVolume 
-			       << " z of localPoint = " << localPoint.z() 
+			       << " z of localPoint = " << localz 
 			       << " take weight = " << weight;
   }
   LogDebug("EcalSim") << "DreamSD, light coll curve : " << dapd 
 		      << " crlength = " << crlength
 		      << " crystal name = " << nameVolume 
-		      << " z of localPoint = " << localPoint.z() 
+		      << " z of localPoint = " << localz 
 		      << " take weight = " << weight;
   return weight;
 }
