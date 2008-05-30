@@ -4,6 +4,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
@@ -59,7 +61,6 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
-
    
    // get all the configuration information from the event, set it
    // in the lookuptable
@@ -67,6 +68,10 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<L1RCTParametersRcd>().get(rctParameters);
    //const L1RCTParameters* r = rctParameters.product();
    rctParameters_ = rctParameters.product();
+   // don't get channel mask, make dummy below
+   //edm::ESHandle<L1RCTChannelMask> channelMask;
+   //iSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
+   //const L1RCTChannelMask* m = channelMask.product();
    edm::ESHandle<CaloTPGTranscoder> transcoder;
    iSetup.get<CaloTPGRecord>().get(transcoder);
    const CaloTPGTranscoder* t = transcoder.product();
@@ -77,7 +82,27 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    EcalTPGScale* e = new EcalTPGScale();
    e->setEventSetup(iSetup);
 
+   // make dummy channel mask -- we don't want to mask
+   // any channels when writing LUTs, that comes afterwards
+   L1RCTChannelMask* m = new L1RCTChannelMask;
+   for (int i = 0; i < 18; i++)
+     {
+       for (int j = 0; j < 2; j++)
+	 {
+	   for (int k = 0; k < 28; k++)
+	     {
+	       m->ecalMask[i][j][k] = false;
+	       m->hcalMask[i][j][k] = false;
+	     }
+	   for (int k = 0; k < 4; k++)
+	     {
+	       m->hfMask[i][j][k] = false;
+	     }
+	 }
+     }
+   
    lookupTable_->setRCTParameters(rctParameters_);
+   lookupTable_->setChannelMask(m);
    lookupTable_->setTranscoder(t);
    lookupTable_->setL1CaloEtScale(s);
    lookupTable_->setEcalTPGScale(e);

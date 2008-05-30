@@ -16,7 +16,7 @@
 //
 // Original Author:  jleonard
 //         Created:  Fri Apr 11 16:27:07 CEST 2008
-// $Id$
+// $Id: L1RCTLutWriter.h,v 1.1 2008/05/06 10:08:14 jleonard Exp $
 //
 //
 
@@ -44,6 +44,7 @@ using std::ios;
 
 class L1RCTLookupTables;
 class L1RCTParameters;
+//class L1RCTChannelMask;
 
 //
 // class declaration
@@ -67,6 +68,7 @@ private:
   
   L1RCTLookupTables* lookupTable_;
   const L1RCTParameters* rctParameters_;
+  //const L1RCTChannelMask* channelMask_;
   std::ofstream lutFile_;
 
 };
