@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/26 13:40:29 $
- * $Revision: 1.125 $
+ * $Date: 2008/05/26 14:21:19 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  *
 */
@@ -1270,19 +1270,42 @@ void EESummaryClient::analyze(void){
         else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
+	bool validCry = false;
+
+	// if the SM is entirely not read, the masked channels reverted back in yellow
+	float iEntries=0;
+	for(int ism = 1; ism <= 9; ism++) {
+	  if ( Numbers::validEE(ism, jx, jy) ) {
+	    validCry = true;
+	    for ( unsigned int i=0; i<clients_.size(); i++ ) {
+	      EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+	      if ( eeic ) {
+		TH2F *h2 = eeic->h_[ism-1];
+		if ( h2 ) {
+		  iEntries = h2->GetEntries();
+		}
+	      }
+	    } 
+	  }
+	}
+
+	if ( validCry && iEntries==0 ) { 
+	  xval=2;
+	}
+
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
           if ( xval != 2 && xval != 5 ) ++nValidChannels;
           for (int i = 1; i <= 9; i++) {
             if ( xval != 2 && xval != 5 ) {
-              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+              if ( validCry ) ++nValidChannelsEE[i-1];
             }
           }
           if ( xval == 0 ) ++nGlobalErrors;
           for (int i = 1; i <= 9; i++) {
             if ( xval == 0 ) {
-              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+              if ( validCry ) ++nGlobalErrorsEE[i-1];
             }
           }
         }
@@ -1319,19 +1342,42 @@ void EESummaryClient::analyze(void){
         else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
+	bool validCry = false;
+
+	// if the SM is entirely not read, the masked channels reverted back in yellow
+	float iEntries=0;
+	for(int ism = 10; ism <= 18; ism++) {
+	  if ( Numbers::validEE(ism, jx, jy) ) {
+	    validCry = true;
+	    for ( unsigned int i=0; i<clients_.size(); i++ ) {
+	      EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+	      if ( eeic ) {
+		TH2F *h2 = eeic->h_[ism-1];
+		if ( h2 ) {
+		  iEntries = h2->GetEntries();
+		}
+	      }
+	    } 
+	  }
+	}
+
+	if ( validCry && iEntries==0 ) { 
+	  xval=2;
+	}
+
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
           if ( xval != 2 && xval != 5 ) ++nValidChannels;
           for (int i = 10; i <= 18; i++) {
             if ( xval != 2 && xval != 5 ) {
-              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+              if ( validCry ) ++nValidChannelsEE[i-1];
             }
           }
           if ( xval == 0 ) ++nGlobalErrors;
           for (int i = 10; i <= 18; i++) {
             if ( xval == 0 ) {
-              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+              if ( validCry ) ++nGlobalErrorsEE[i-1];
             }
           }
         }
