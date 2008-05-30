@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"  
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 #include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 
 Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries,
 				       bool doSwap, bool doPreSwap ) {
@@ -135,8 +136,22 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
   // *                                *
   // **********************************
 
+  // TODO: tidy up this piece of code!!!
   result.problemsSeen = 0;
-  result.totalChannels = fedEvent_->totalChannels();
+  if (!useConns) {
+    result.totalChannels = fedEvent_->totalChannels();
+  } else {
+    result.totalChannels = 0;
+    if (conns) {
+      //FedChannelConnection aFedConn;
+      for (int channelIndex=0; channelIndex<96; channelIndex++) {
+	if ((conns->at(channelIndex)).isConnected()) result.totalChannels++;
+      }
+    } else {
+      // TODO: add proper error handling here
+      std::cout << "ACHTUNG: for some reason I have useConns == true and conns==NULL)" << std::endl;
+    }
+  }
 
   // Clear the FED errors
   result.internalFreeze       = false;
@@ -179,6 +194,7 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
 
   result.apveAddress = fedEvent_->getSpecialApvEmulatorAddress();
 
+
   // **********************************
   // *                                *
   // * FE FPGA Main cycle and checks  *
@@ -220,8 +236,13 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
 
 	  bool readChannel = true;
 	  if (useConns) {
-	    if (!((*conns)[channelIndex]).isConnected()) {
-	      readChannel = false;
+	    if (conns) {
+	      if ((conns->at(channelIndex)).isConnected()) {
+		readChannel = false;
+	      }
+	    } else {
+	      // TODO: add proper error code here
+	      std::cout << "ACHTUNG: for some reason I have useConns == true and conns==NULL)" << std::endl;
 	    }
 	  }
 	  

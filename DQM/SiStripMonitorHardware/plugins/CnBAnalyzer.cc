@@ -127,7 +127,9 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       // The actual checkout of the buffer:
       if (cabling_) {
-	const std::vector<FedChannelConnection>& conns = cabling_->connections(*ifed);
+	const std::vector<FedChannelConnection> conns = cabling_->connections(static_cast<int>(*ifed));
+	// TODO: check here if the connections are actually there.
+	//       if not you should fill a corresponding error
 	thisFedEventErrs = myEventAnalyzer.Analyze(true, &conns);
       } else {
 	thisFedEventErrs = myEventAnalyzer.Analyze(false, NULL);
@@ -221,7 +223,8 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
   if (useCablingDb_) {
     edm::ESHandle<SiStripFedCabling> myCabling;
     iSetup.get<SiStripFedCablingRcd>().get(myCabling);
-    cabling_=&(*myCabling);
+    // TODO: understand why this can't be put in the class declaration !!!
+    cabling_ = new SiStripFedCabling (*myCabling);
   }
 
 }
@@ -270,6 +273,8 @@ void CnBAnalyzer::createRootFedHistograms() {
   for (int i=fedIdBoundaries_.first; i<=fedIdBoundaries_.second; i++) {
     binNameS.str(""); if (i%10==0) binNameS << i; fedBx_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
   }
+
+  // TODO: corrupt buffer
 
   // Trend plots:
   totalChannels_  = dqm()->book1D( "TotalChannelsVsEvent",

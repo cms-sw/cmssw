@@ -1,5 +1,6 @@
 <use name=DataFormats/FEDRawData>
 <use name=FWCore/MessageLogger>
+<use name=CondFormats/SiStripObjects>
 <use name=TkOnlineSw>
 
 <export>
