@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/03/08 11:34:20 $
- * $Revision: 1.21 $
+ * $Date: 2008/05/22 10:48:35 $
+ * $Revision: 1.23 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -258,14 +258,14 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 
   string histoType = histoTag.substr(4,histoTag.find("_",4)-4);
 
-  dbe->setCurrentFolder("DT/DTLocalTriggerTask/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/LocalTrigger/Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
 			"/Station" + station.str() + "/" + folder);
 
   string histoName = histoTag + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     
   if (debug){
-    cout << "[DTLocalTriggerTask]: booking " << "DT/DTLocalTriggerTask/Wheel" << wheel.str()
+    cout << "[DTLocalTriggerTask]: booking " << "DT/LocalTrigger/Wheel" << wheel.str()
 	 << "/Sector" << sector.str()
 	 << "/Station"<< station.str() << "/" << folder << "/" << histoName << endl;
   }
