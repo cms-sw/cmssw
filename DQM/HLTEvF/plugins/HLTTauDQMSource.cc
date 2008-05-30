@@ -469,7 +469,7 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 
   if (trigEv.isValid()) 
     {
-      printf("FOUND VALID TRIGGER ELEMENT\n");
+
 
       //make The reference Denominators
       //LOOP ON the Different Triggers
