@@ -279,17 +279,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hbHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 2 and 3", "HBP Timeslices 2 and 3", 40, 0, 0) );
+    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 2 and 3", "HBP Timeslices 2 and 3", 50, -5, 45) );
     hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 3 and 4", "HBP Timeslices 3 and 4", 40, 0, 0) );
+    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 3 and 4", "HBP Timeslices 3 and 4", 50, -5, 45) );
     hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 4 and 5", "HBP Timeslices 4 and 5", 40, 0, 0) );
+    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 4 and 5", "HBP Timeslices 4 and 5", 50, -5, 45) );
     hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 2 and 3", "HBM Timeslices 2 and 3", 40, 0, 0) );
+    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 2 and 3", "HBM Timeslices 2 and 3", 50, -5, 45) );
     hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 3 and 4", "HBM Timeslices 3 and 4", 40, 0, 0) );
+    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 3 and 4", "HBM Timeslices 3 and 4", 50, -5, 45) );
     hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 4 and 5", "HBM Timeslices 4 and 5", 40, 0, 0) );
+    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 4 and 5", "HBM Timeslices 4 and 5", 50, -5, 45) );
     hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
@@ -369,17 +369,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     heHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 2 and 3", "HEP Timeslices 2 and 3", 40, 0, 0) );
+    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 2 and 3", "HEP Timeslices 2 and 3", 50, -5, 45) );
     heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 3 and 4", "HEP Timeslices 3 and 4", 40, 0, 0) );
+    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 3 and 4", "HEP Timeslices 3 and 4", 50, -5, 45) );
     heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 4 and 5", "HEP Timeslices 4 and 5", 40, 0, 0) );
+    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 4 and 5", "HEP Timeslices 4 and 5", 50, -5, 45) );
     heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 2 and 3", "HEM Timeslices 2 and 3", 40, 0, 0) );
+    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 2 and 3", "HEM Timeslices 2 and 3", 50, -5, 45) );
     heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 3 and 4", "HEM Timeslices 3 and 4", 40, 0, 0) );
+    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 3 and 4", "HEM Timeslices 3 and 4", 50, -5, 45) );
     heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 4 and 5", "HEM Timeslices 4 and 5", 40, 0, 0) );
+    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 4 and 5", "HEM Timeslices 4 and 5", 50, -5, 45) );
     heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
@@ -461,17 +461,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hfHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 2 and 3", "HFP Timeslices 2 and 3", 40, 0, 0) );
+    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 2 and 3", "HFP Timeslices 2 and 3", 50, -5, 45) );
     hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 3 and 4", "HFP Timeslices 3 and 4", 40, 0, 0) );
+    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 3 and 4", "HFP Timeslices 3 and 4", 50, -5, 45) );
     hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 4 and 5", "HFP Timeslices 4 and 5", 40, 0, 0) );
+    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 4 and 5", "HFP Timeslices 4 and 5", 50, -5, 45) );
     hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 2 and 3", "HFM Timeslices 2 and 3", 40, 0, 0) );
+    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 2 and 3", "HFM Timeslices 2 and 3", 50, -5, 45) );
     hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 3 and 4", "HFM Timeslices 3 and 4", 40, 0, 0) );
+    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 3 and 4", "HFM Timeslices 3 and 4", 50, -5, 45) );
     hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 4 and 5", "HFM Timeslices 4 and 5", 40, 0, 0) );
+    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 4 and 5", "HFM Timeslices 4 and 5", 50, -5, 45) );
     hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
@@ -552,17 +552,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hoHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hoHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 2 and 3", "HOP Timeslices 2 and 3", 40, 0, 0) );
+    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 2 and 3", "HOP Timeslices 2 and 3", 50, -5, 45) );
     hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 3 and 4", "HOP Timeslices 3 and 4", 40, 0, 0) );
+    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 3 and 4", "HOP Timeslices 3 and 4", 50, -5, 45) );
     hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 4 and 5", "HOP Timeslices 4 and 5", 40, 0, 0) );
+    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 4 and 5", "HOP Timeslices 4 and 5", 50, -5, 45) );
     hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 2 and 3", "HOM Timeslices 2 and 3", 40, 0, 0) );
+    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 2 and 3", "HOM Timeslices 2 and 3", 50, -5, 45) );
     hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 3 and 4", "HOM Timeslices 3 and 4", 40, 0, 0) );
+    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 3 and 4", "HOM Timeslices 3 and 4", 50, -5, 45) );
     hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 4 and 5", "HOM Timeslices 4 and 5", 40, 0, 0) );
+    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 4 and 5", "HOM Timeslices 4 and 5", 50, -5, 45) );
     hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
 }
