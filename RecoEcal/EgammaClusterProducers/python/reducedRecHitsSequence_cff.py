@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 interestingEcalDetIdEB = cms.EDProducer("InterestingDetIdCollectionProducer",
-    basicClustersLabel = cms.InputTag("hybridSuperClusters"),
+    basicClustersLabel = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     etaSize = cms.int32(5),
     interestingDetIdCollection = cms.string(''),
