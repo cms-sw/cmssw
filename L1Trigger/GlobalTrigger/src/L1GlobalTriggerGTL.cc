@@ -112,24 +112,27 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
         iEvent.getByLabel(muGmtInputTag, muonData);
 
         if (!muonData.isValid()) {
-            throw cms::Exception("ProductNotFound")
+            //throw cms::Exception("ProductNotFound")
+            edm::LogError("L1GlobalTriggerPSB")
             << "\nError: std::vector<L1MuGMTCand> with input tag " << muGmtInputTag
             << "\nrequested in configuration, but not found in the event.\n"
-            << std::endl;            
+            << std::endl;
         }
+        else {
 
-        std::vector< L1MuGMTCand>::const_iterator itMuon;
-        for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
-            if ((*itMuon).bx() == iBxInEvent) {
+            std::vector< L1MuGMTCand>::const_iterator itMuon;
+            for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
+                if ((*itMuon).bx() == iBxInEvent) {
 
-                (*m_candL1Mu).push_back(&(*itMuon));
-                //LogTrace("L1GlobalTriggerGTL") << (*itMuon)
-                //        << std::endl;
+                    (*m_candL1Mu).push_back(&(*itMuon));
+                    //LogTrace("L1GlobalTriggerGTL") << (*itMuon)
+                    //        << std::endl;
+
+                }
 
             }
 
         }
-
     }
 
     if (edm::isDebugEnabled() ) {
