@@ -111,21 +111,26 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   hGlobalRes = new TH1F("GlobalResiduals","GlobalRPCResiduals",50,-15.,15.);
   hGlobalPull = new TH1F("GlobalPull","GlobalRPCPull",50,-15.,15.);
   histoMean = new TH1F("MeanEfficincy","MeanEfficiency_vs_Ch",60,20.5,120.5);
-  ExtrapError = new TH2F("ExtrapError","Extrapolation Error Distribution",201,0.,100.,201,0.,100.);
 
-  EffGlob1 = new TH1F("GlobEfficiencySec1","Eff. vs. roll",20,0.5,20.5);
-  EffGlob2 = new TH1F("GlobEfficiencySec2","Eff. vs. roll",20,0.5,20.5);
-  EffGlob3 = new TH1F("GlobEfficiencySec3","Eff. vs. roll",20,0.5,20.5);
-  EffGlob4 = new TH1F("GlobEfficiencySec4","Eff. vs. roll",20,0.5,20.5);
-  EffGlob5 = new TH1F("GlobEfficiencySec5","Eff. vs. roll",20,0.5,20.5);
-  EffGlob6 = new TH1F("GlobEfficiencySec6","Eff. vs. roll",20,0.5,20.5);
-  EffGlob7 = new TH1F("GlobEfficiencySec7","Eff. vs. roll",20,0.5,20.5);
-  EffGlob8 = new TH1F("GlobEfficiencySec8","Eff. vs. roll",20,0.5,20.5);
-  EffGlob9 = new TH1F("GlobEfficiencySec9","Eff. vs. roll",20,0.5,20.5);
-  EffGlob10 = new TH1F("GlobEfficiencySec10","Eff. vs. roll",20,0.5,20.5);
-  EffGlob11 = new TH1F("GlobEfficiencySec11","Eff. vs. roll",20,0.5,20.5);
-  EffGlob12 = new TH1F("GlobEfficiencySec12","Eff. vs. roll",20,0.5,20.5);
+  ExtrapErrorG = new TH2F("ExtrapErrorEffGood","Extrapolation Error Distribution for Efficiency cases",201,0.,100.,201,0.,100.);
+  ExtrapErrorN = new TH2F("ExtrapErrorNoEff","Extrapolation Error Distribution for No Efficiency cases",201,0.,100.,201,0.,100.);
 
+  chisquareEff= new TH1F("chi2_Eff","Chi2 Distribution for Efficiency cases",200,0.,50.);
+  chisquareNoEff= new TH1F("chi2_NoEff","Chi2 Distribution for No Efficiency cases",200,0.,50.);
+
+  EXPGlob1 = new TH1F("ExpW-2","Exp. vs. roll",210,0.5,210.5);
+  EXPGlob2 = new TH1F("ExpW-1","Exp. vs. roll",210,0.5,210.5);
+  EXPGlob3 = new TH1F("ExpW+0","Exp. vs. roll",210,0.5,210.5);
+  EXPGlob4 = new TH1F("ExpW+1","Exp. vs. roll",210,0.5,210.5);
+  EXPGlob5 = new TH1F("ExpW+2","Exp. vs. roll",210,0.5,210.5);
+
+  RPCGlob1 = new TH1F("RpcW-2","Real. vs. roll",210,0.5,210.5);
+  RPCGlob2 = new TH1F("RpcW-1","Real. vs. roll",210,0.5,210.5);
+  RPCGlob3 = new TH1F("RpcW+0","Real. vs. roll",210,0.5,210.5);
+  RPCGlob4 = new TH1F("RpcW+1","Real. vs. roll",210,0.5,210.5);
+  RPCGlob5 = new TH1F("RpcW+2","Real. vs. roll",210,0.5,210.5);
+
+  ChiEff = new TH1F("Eff_vs_Chi2","Eff. vs. Chi2",200,0.,50.);
   // get hold of back-end interface
   dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
@@ -137,37 +142,40 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
 RPCEfficiencyFromTrack::~RPCEfficiencyFromTrack(){
   effres->close();
   delete effres;
-  fOutputFile->WriteTObject(EffGlob1);
-  fOutputFile->WriteTObject(EffGlob2);
-  fOutputFile->WriteTObject(EffGlob3);
-  fOutputFile->WriteTObject(EffGlob4);
-  fOutputFile->WriteTObject(EffGlob5);
-  fOutputFile->WriteTObject(EffGlob6);
-  fOutputFile->WriteTObject(EffGlob7);
-  fOutputFile->WriteTObject(EffGlob8);
-  fOutputFile->WriteTObject(EffGlob9);
-  fOutputFile->WriteTObject(EffGlob10);
-  fOutputFile->WriteTObject(EffGlob11);
-  fOutputFile->WriteTObject(EffGlob12);
+
+  fOutputFile->WriteTObject(EXPGlob1);
+  fOutputFile->WriteTObject(EXPGlob2);
+  fOutputFile->WriteTObject(EXPGlob3);
+  fOutputFile->WriteTObject(EXPGlob4);
+  fOutputFile->WriteTObject(EXPGlob5);
+
+  fOutputFile->WriteTObject(RPCGlob1);
+  fOutputFile->WriteTObject(RPCGlob2);
+  fOutputFile->WriteTObject(RPCGlob3);
+  fOutputFile->WriteTObject(RPCGlob4);
+  fOutputFile->WriteTObject(RPCGlob5);
 
   fOutputFile->WriteTObject(hRecPt);
   fOutputFile->WriteTObject(hGlobalRes);
   fOutputFile->WriteTObject(hGlobalPull);
   fOutputFile->WriteTObject(histoMean);
-  fOutputFile->WriteTObject(ExtrapError);
+  fOutputFile->WriteTObject(ExtrapErrorG);
+  fOutputFile->WriteTObject(ExtrapErrorN);
+  fOutputFile->WriteTObject(chisquareEff);
+  fOutputFile->WriteTObject(chisquareNoEff);
+  fOutputFile->WriteTObject(ChiEff);
+
   fOutputFile->Close();
 }
 
 
 
 void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-
   char layerLabel[128];
   char meIdRPC [128];
   char meIdTrack [128];
   std::map<RPCDetId, int> buff;
 
- 
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
@@ -183,6 +191,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
+
+  edm::ESHandle<DTGeometry> dtGeo;
+  iSetup.get<MuonGeometryRecord>().get(dtGeo);
+    
+  edm::Handle<DTRecSegment4DCollection> all4DSegments;
+  iEvent.getByLabel("dt4DSegments", all4DSegments);
+
   Handle<reco::TrackCollection> staTracks;
   iEvent.getByLabel(TjInput, staTracks);
 
@@ -193,179 +208,158 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   thePropagator = prop->clone();
   thePropagator->setPropagationDirection(anyDirection);
   
-
   std::vector<RPCDetId> rollRec;
   rollRec.clear();
-  int lay=0;
-
+ 
   std::vector<float> globalX,globalY,globalZ;    
   globalX.clear(); globalY.clear(); globalZ.clear();
 
-  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
-    reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
-    rollRec.clear();
-    globalX.clear(); globalY.clear(); globalZ.clear();
-    lay=0;
-    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-      if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-	RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
-	int reg=0;
-	int sec=0;
-	int whe=0;
-	std::vector< const RPCRoll*> roles = (ch->rolls());
-	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	  RPCDetId rpcId = (*r)->id();
-	  reg=rpcId.region();
-	  whe=rpcId.ring();
-	  sec=rpcId.sector();
-	  break;
-	}
+  if(staTracks->size()<=2){
+    for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
+      reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
+      rollRec.clear();
+      globalX.clear(); globalY.clear(); globalZ.clear();
 
-	//Barrel
-	if(track.innermostMeasurementState().isValid() && MeasureBarrel==true && reg==0){
- 	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
+      for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+	if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+	  RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
+	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
+
 	  for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
 	    RPCDetId rollId=(*itRoll)->id();
+	    const BoundPlane *rpcPlane =  &((*itRoll)->surface());
 	    
-	    RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollId);
-	    RPCRecHitCollection::const_iterator recIt;
-
-	    const RPCRoll* rollasociated = dynamic_cast<const RPCRoll*>(rpcGeo->roll(rollId));
-	    const BoundSurface& bSurface = rollasociated->surface();
-	    
-	    int recFound=0;
-	    
-	    for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-	      LocalPoint rhitlocal = (*recIt).localPosition();
-	      const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);	      
-	      recFound++;
-	    }
-	    if(recFound==1){
-	      for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-		LocalPoint rhitlocal = (*recIt).localPosition();
-		const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);
-		if((*recIt).clusterSize()<3.){
-		  globalX.push_back(rhitglob.x());
-		  globalY.push_back(rhitglob.y());
-		  globalZ.push_back(rhitglob.z());
-		}
-	      }
-	      rollRec.push_back(rollId);	  
-	    }
-	  }
-	  
-	  if(rollRec.size()==0){
-	    for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
-	      RPCDetId rollId=(*itRoll)->id();
-	      const BoundPlane* rpcPlane1 = &((*itRoll)->surface());
-	      TrajectoryStateClosestToPoint tcp1=track.impactPointTSCP();
-	      const FreeTrajectoryState& fS1=tcp1.theState();
-	      const FreeTrajectoryState* fState1 = &fS1; 
-	      TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*fState1,*rpcPlane1);
+	    //Barrel
+	    if(MeasureBarrel==true && rollId.region()==0){
+	      
 	      const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*itRoll)->topology()));
 	      LocalPoint xmin = top_->localPosition(0.);
 	      LocalPoint xmax = top_->localPosition((float)(*itRoll)->nstrips());
 	      float rsize = fabs( xmax.x()-xmin.x() )*0.5;
 	      float stripl = top_->stripLength();
+
+	      TrajectoryStateClosestToPoint tcp = track.impactPointTSCP();
+	      const FreeTrajectoryState &fTS=tcp.theState();
+	      const FreeTrajectoryState *FreeState = &fTS;
+	      TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*FreeState,*rpcPlane);
+	      
 	      if(tsosAtRPC.isValid()
 		 && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		 && fabs(tsosAtRPC.localPosition().x()) < rsize 
-		 && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
+		 && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5 && tsosAtRPC.localError().positionError().xx()<1.){
+		
 		rollRec.push_back(rollId);
-	      }
-	    }
-	  }
-	}
-
-	//EndCap
-	if(track.innermostMeasurementState().isValid() && reg!=0 && MeasureEndCap==true){
-	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
-	  for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
-	    RPCDetId rollId=(*itRoll)->id();
-	    RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollId);
-	    RPCRecHitCollection::const_iterator recIt;
-
-	    const RPCRoll* rollasociated = dynamic_cast<const RPCRoll*>(rpcGeo->roll(rollId));
-	    const BoundSurface& bSurface = rollasociated->surface();
-	    
-	    int recFound=0;
-	    for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-	      LocalPoint rhitlocal = (*recIt).localPosition();
-	      const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);
-	      recFound++;
-	    }
-	    if(recFound==1){
-	      for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
-		LocalPoint rhitlocal = (*recIt).localPosition();
-		const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);
-		if((*recIt).clusterSize()<3.){
-		  globalX.push_back(rhitglob.x());
-		  globalY.push_back(rhitglob.y());
-		  globalZ.push_back(rhitglob.z());
+		RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollId);
+		RPCRecHitCollection::const_iterator recIt;
+		const RPCRoll* rollasociated = dynamic_cast<const RPCRoll*>(rpcGeo->roll(rollId));
+		const BoundSurface& bSurface = rollasociated->surface();
+		
+		int recFound=0;
+		
+		for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
+		  LocalPoint rhitlocal = (*recIt).localPosition();
+		  const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);	      
+		  recFound++;
 		}
-	      }
-	      rollRec.push_back(rollId);
-	    }
-	  }
 
-	  if(rollRec.size()==0){
-	    for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
-	      RPCDetId rollId=(*itRoll)->id();
-	      const BoundPlane* rpcPlane1 = &((*itRoll)->surface());
-	      TrajectoryStateClosestToPoint tcp1=track.impactPointTSCP();
-	      const FreeTrajectoryState& fS1=tcp1.theState();
-	      const FreeTrajectoryState* fState1 = &fS1; 
-	      TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*fState1,*rpcPlane1);
+		if(recFound==1){
+		  for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
+		    LocalPoint rhitlocal = (*recIt).localPosition();
+		    const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);
+		    if((*recIt).clusterSize()<3.){
+		      globalX.push_back(rhitglob.x());
+		      globalY.push_back(rhitglob.y());
+		      globalZ.push_back(rhitglob.z());
+		    }
+		  }
+		  break;
+		}		
+	      }	      
+	    }
+	    //EndCap
+	    if(MeasureEndCap==true && rollId.region()!=0){
+	      
 	      const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*itRoll)->topology()));
 	      LocalPoint xmin = top_->localPosition(0.);
 	      LocalPoint xmax = top_->localPosition((float)(*itRoll)->nstrips());
 	      float rsize = fabs( xmax.x()-xmin.x() )*0.5;
 	      float stripl = top_->stripLength();
+
+	      TrajectoryStateClosestToPoint tcp = track.impactPointTSCP();
+	      const FreeTrajectoryState &fTS=tcp.theState();
+	      const FreeTrajectoryState *FreeState = &fTS;
+	      TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*FreeState,*rpcPlane);
+	      
 	      if(tsosAtRPC.isValid()
 		 && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		 && fabs(tsosAtRPC.localPosition().x()) < rsize 
-		 && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){		  
+		 && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5 && tsosAtRPC.localError().positionError().xx()<1.){
+		
 		rollRec.push_back(rollId);
-	      }
+		RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollId);
+		RPCRecHitCollection::const_iterator recIt;
+		const RPCRoll* rollasociated = dynamic_cast<const RPCRoll*>(rpcGeo->roll(rollId));
+		const BoundSurface& bSurface = rollasociated->surface();
+		
+		int recFound=0;
+		
+		for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
+		  LocalPoint rhitlocal = (*recIt).localPosition();
+		  const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);	      
+		  recFound++;
+		}
+
+		if(recFound==1){
+		  for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
+		    LocalPoint rhitlocal = (*recIt).localPosition();
+		    const GlobalPoint rhitglob = bSurface.toGlobal(rhitlocal);
+		    if((*recIt).clusterSize()<3.){
+		      globalX.push_back(rhitglob.x());
+		      globalY.push_back(rhitglob.y());
+		      globalZ.push_back(rhitglob.z());
+		    }
+		  }
+		  break;
+		}		
+	      }	      
 	    }
 	  }
 	}
       }
-    }
-    double chi2=0.;
-    if(cosmic==true){
-      char folder[128];
-      sprintf(folder,"HistoXYFit_%d",static_cast<int>(iEvent.id().event()));
-      TH1F* histoXYFit = new TH1F(folder,folder,1401,-700,700);
       
-      sprintf(folder,"HistoYZFit_%d",static_cast<int>(iEvent.id().event()));
-      TH1F* histoYZFit = new TH1F(folder,folder,1401,-700,700);
+      std::cout<<"Size roll   "<<rollRec.size()<<std::endl;
       
-      for(unsigned int i = 0; i < globalX.size(); ++i){
-	histoXYFit->Fill(globalX[i],globalY[i]);
+      double chi2=0.;
+      if(cosmic==true){
+	char folder[128];
+	sprintf(folder,"HistoXYFit_%d",static_cast<int>(iEvent.id().event()));
+	TH1F* histoXYFit = new TH1F(folder,folder,1401,-700,700);
+	
+	sprintf(folder,"HistoYZFit_%d",static_cast<int>(iEvent.id().event()));
+	TH1F* histoYZFit = new TH1F(folder,folder,1401,-700,700);
+	
+	for(unsigned int i = 0; i < globalX.size(); ++i){
+	  histoXYFit->Fill(globalX[i],globalY[i]);
+	}
+	for(unsigned int z = 0; z < globalX.size(); ++z){
+	  histoYZFit->Fill(globalY[z],globalZ[z]);
+	}
+	
+	TF1 *func = new TF1("linearFX",linearFX,-700,700,2);
+	func->SetParameters(0.,0.);
+	func->SetParNames("angCoef","interc");
+	
+	histoXYFit->Fit("linearFX","r");
+	chi2=func->GetChisquare();
       }
-      for(unsigned int z = 0; z < globalX.size(); ++z){
-	histoYZFit->Fill(globalY[z],globalZ[z]);
-      }
       
-      TF1 *func = new TF1("linearFX",linearFX,-700,700,2);
-      func->SetParameters(0.,0.);
-      func->SetParNames("angCoef","interc");
-      
-      histoXYFit->Fit("linearFX","r");
-      chi2=func->GetChisquare();
-    }
 
-    std::cout<<"Normalized Chi2 track --> "<<track.normalizedChi2()<<std::endl;
-
-    if((chi2<1. && chi2>0.) || (cosmic==false)){
       //Efficiency      
       for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
 	const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
 	RPCDetId rollId = rollasociated->id();
 	float rsize=0.;
-	float stripl=0.;
-	
+	float stripl=0.;      
 	if(rollId.region()==0){
 	  const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
 	  LocalPoint xmin = top_->localPosition(0.);
@@ -380,20 +374,31 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	  rsize = fabs( xmax.x()-xmin.x() )*0.5;
 	  stripl = top_->stripLength();
 	}
-	
-	const BoundPlane& rpcPlane = rollasociated->surface();
-	FreeTrajectoryState fState1 =track.initialFreeState();
-	
-	TrajectoryStateOnSurface tsosAtRoll = thePropagator->propagate(fState1,rpcPlane);
-	
-	if(tsosAtRoll.isValid() 
+      
+	const BoundPlane *rpcPlane = &(rollasociated->surface());            
+	TrajectoryStateClosestToPoint tcp=track.impactPointTSCP();
+	const FreeTrajectoryState &fTS=tcp.theState();
+	const FreeTrajectoryState *FreeState = &fTS;
+	TrajectoryStateOnSurface tsosAtRoll = thePropagator->propagate(*FreeState,*rpcPlane);
+      
+      
+	if(tsosAtRoll.isValid()
 	   && fabs(tsosAtRoll.localPosition().z()) < 0.01 
-	   && fabs(tsosAtRoll.localPosition().x()) < rsize 
+	   && fabs(tsosAtRoll.localPosition().x()) < rsize
 	   && fabs(tsosAtRoll.localPosition().y()) < stripl*0.5){
-	  
+	
+	  const float stripPredicted =rollasociated->strip(LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
+	  const float xextrap = tsosAtRoll.localPosition().x();
+	
+	  totalcounter[0]++;
+	  buff=counter[0];
+	  buff[rollId]++;
+	  counter[0]=buff;
+
+
 	  RPCGeomServ RPCname(rollId);
 	  std::string nameRoll = RPCname.name();
-
+	
 	  _idList.push_back(nameRoll);
 	  char detUnitLabel[128];
 	  sprintf(detUnitLabel ,"%s",nameRoll.c_str());
@@ -403,112 +408,100 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    meCollection[nameRoll] = bookDetUnitTrackEff(rollId);
 	  }
 	  std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+	
+	  sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
+	  meMap[meIdTrack]->Fill(stripPredicted);
+	
+	  sprintf(meIdRPC,"PredictedImpactPoint_%s",detUnitLabel);
+	  meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
+	
 	  Run=iEvent.id().run();
-	  aTime=iEvent.time().value();
-	  
-	  const float stripPredicted =rollasociated->strip(LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
-	  double xextrap = tsosAtRoll.localPosition().x();
+	  aTime=iEvent.time().value();	 
 	
 	  RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rollasociated->id());
 	  RPCRecHitCollection::const_iterator recIt;	  
-	  
+	
 	  float res=0.;
-	  	  
+	
 	  for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
 	    LocalPoint rhitlocal = (*recIt).localPosition();
 	    double rhitpos = rhitlocal.x();  
-
+	  
 	    LocalError RecError = (*recIt).localPositionError();
 	    double sigmaRec = RecError.xx();
 	    res = (double)(xextrap - rhitpos);
-
+	  
 	    sprintf(meIdRPC,"ClusterSize_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill((*recIt).clusterSize());
-	    
+	  
 	    sprintf(meIdRPC,"BunchX_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill((*recIt).BunchX());
-
-	    if(fabs(tsosAtRoll.localError().positionError().xx())<1. && fabs(tsosAtRoll.localError().positionError().yy())<1.){
-	      double rpcPull = res/sigmaRec;
-	      
-	      sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
-	      meMap[meIdRPC]->Fill(res);
-	      
-	      sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
-	      meMap[meIdRPC]->Fill(tsosAtRoll.globalMomentum().perp(),res);
-	      
-	      sprintf(meIdRPC,"Residuals_VS_CLsize_%s",detUnitLabel);
-	      meMap[meIdRPC]->Fill((*recIt).clusterSize(),res);
-
-	      sprintf(meIdRPC,"LocalPull_%s",detUnitLabel);
-	      meMap[meIdRPC]->Fill(rpcPull);
-
-	      hGlobalRes->Fill(res);
-	      hGlobalPull->Fill(res/sigmaRec);
-	      hRecPt->Fill(tsosAtRoll.globalMomentum().perp());	     
-	    }
+	  
+	    double rpcPull = res/sigmaRec;
+	  
+	    sprintf(meIdRPC,"Residuals_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill(res);
+	  
+	    sprintf(meIdRPC,"Residuals_VS_RecPt_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill(tsosAtRoll.globalMomentum().perp(),res);
+	  
+	    sprintf(meIdRPC,"Residuals_VS_CLsize_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill((*recIt).clusterSize(),res);
+	  
+	    sprintf(meIdRPC,"LocalPull_%s",detUnitLabel);
+	    meMap[meIdRPC]->Fill(rpcPull);
+	  
+	    hGlobalRes->Fill(res);
+	    hGlobalPull->Fill(res/sigmaRec);
+	    hRecPt->Fill(tsosAtRoll.globalMomentum().perp());
 	  }
-	  	  
+	
 	  int stripDetected=0;
 	  bool anycoincidence=false;
-
+	
 	  RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());	
 	  for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
 	    stripDetected=digiIt->strip();
 	    res = (float)(stripDetected) - stripPredicted;
 	    if(fabs(res)<maxRes){
 	      anycoincidence=true;
+	      break;
 	    }
 	  }
-	  	  
+	
 	  if(anycoincidence==true){
-	    totalcounter[0]++;
-	    buff=counter[0];
-	    buff[rollId]++;
-	    counter[0]=buff;
-
+	  
 	    std::cout<<"Good Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
-
+	  
 	    totalcounter[1]++;
 	    buff=counter[1];
 	    buff[rollId]++;
 	    counter[1]=buff;
-
-	    ExtrapError->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
-
-	    sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
-	    meMap[meIdTrack]->Fill(stripPredicted);
-
-	    sprintf(meIdRPC,"PredictedImpactPoint_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
-
+	  
+	    chisquareEff->Fill(track.normalizedChi2());
+	    ExtrapErrorG->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
+	  
 	    sprintf(meIdRPC,"2DExtrapolation_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
-	    
+	  
 	    sprintf(meIdRPC,"RealDetectedOccupancy_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill(stripDetected);
-	    
+	  
 	    sprintf(meIdRPC,"RPCDataOccupancy_%s",detUnitLabel);
 	    meMap[meIdRPC]->Fill(stripPredicted);
-	    
-	  }else if(anycoincidence==false && fabs(tsosAtRoll.localError().positionError().xx())<1. && fabs(tsosAtRoll.localError().positionError().yy())<1.){
-	    totalcounter[0]++;
-	    buff=counter[0];
-	    buff[rollId]++;
-	    counter[0]=buff;
-
+	  
+	  }else if(anycoincidence==false){
+	  
 	    std::cout<<"No Match "<<"\t"<<"Residuals = "<<res<<"\t"<<nameRoll<<std::endl;
-
-	    sprintf(meIdTrack,"ExpectedOccupancyFromTrack_%s",detUnitLabel);
-	    meMap[meIdTrack]->Fill(stripPredicted);
-
-	    sprintf(meIdRPC,"PredictedImpactPoint_%s",detUnitLabel);
-	    meMap[meIdRPC]->Fill(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y());
-
+	  
 	    totalcounter[2]++;
 	    buff=counter[2];
 	    buff[rollId]++;
 	    counter[2]=buff;
+	  }
+	  if(anycoincidence==false && res!=0){
+	    chisquareNoEff->Fill(track.normalizedChi2());
+	    ExtrapErrorN->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
 	  }
 	}
       }
@@ -518,12 +511,23 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 
 
 
-void RPCEfficiencyFromTrack::beginJob(const edm::EventSetup&)
-{
+
+void RPCEfficiencyFromTrack::beginJob(const edm::EventSetup&){
+
 }
 
 void RPCEfficiencyFromTrack::endJob(){
-  int index1=0,index2=0,index3=0,index4=0,index5=0,index6=0,index7=0,index8=0,index9=0,index10=0,index11=0,index12=0;
+  for(int a=0;a<200;a++){
+    if(chisquareNoEff->GetBinContent(a)+chisquareEff->GetBinContent(a)!=0){
+      double valNoEff=chisquareNoEff->GetBinContent(a);
+      double valEff=chisquareEff->GetBinContent(a);
+      double eff=valEff/(valEff+valNoEff);
+      float erreff = sqrt(eff*(1-eff)/(valEff+valNoEff));
+      ChiEff->SetBinContent(a,eff*100.);
+      ChiEff->SetBinError(a,erreff*100.);
+    }
+  }
+  int index1=0,index2=0,index3=0,index4=0,index5=0;
 
   std::map<RPCDetId, int> pred = counter[0];
   std::map<RPCDetId, int> obse = counter[1];
@@ -546,152 +550,78 @@ void RPCEfficiencyFromTrack::endJob(){
     if(p!=0){
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
-      if(ef>0.){
-	if(id.sector()==1 && id.ring()==wh){
-	  index1++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob1->SetBinContent(index1,ef*100.);
-	  EffGlob1->SetBinError(index1,er*100.);
-	  
-	  EffGlob1->GetXaxis()->SetBinLabel(index1,camera);
-	  EffGlob1->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==2 && id.ring()==wh){
-	  index2++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob2->SetBinContent(index2,ef*100.);
-	  EffGlob2->SetBinError(index2,er*100.);
-	  
-	  EffGlob2->GetXaxis()->SetBinLabel(index2,camera);
-	  EffGlob2->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==3 && id.ring()==wh){
-	  index3++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob3->SetBinContent(index3,ef*100.);
-	  EffGlob3->SetBinError(index3,er*100.);
-	  
-	  EffGlob3->GetXaxis()->SetBinLabel(index3,camera);
-	  EffGlob3->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==4 && id.ring()==wh){
-	  index4++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob4->SetBinContent(index4,ef*100.);
-	  EffGlob4->SetBinError(index4,er*100.);
-	  
-	  EffGlob4->GetXaxis()->SetBinLabel(index4,camera);
-	  EffGlob4->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==5 && id.ring()==wh){
-	  index5++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob5->SetBinContent(index5,ef*100.);
-	  EffGlob5->SetBinError(index5,er*100.);
-	  
-	  EffGlob5->GetXaxis()->SetBinLabel(index5,camera);
-	  EffGlob5->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==6 && id.ring()==wh){
-	  index6++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob6->SetBinContent(index6,ef*100.);
-	  EffGlob6->SetBinError(index6,er*100.);
-	  
-	  EffGlob6->GetXaxis()->SetBinLabel(index6,camera);
-	  EffGlob6->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==7 && id.ring()==wh){
-	  index7++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob7->SetBinContent(index7,ef*100.);
-	  EffGlob7->SetBinError(index7,er*100.);
-	  
-	  EffGlob7->GetXaxis()->SetBinLabel(index7,camera);
-	  EffGlob7->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==8 && id.ring()==wh){
-	  index8++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob8->SetBinContent(index8,ef*100.);
-	  EffGlob8->SetBinError(index8,er*100.);
-	  
-	  EffGlob8->GetXaxis()->SetBinLabel(index8,camera);
-	  EffGlob8->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==9 && id.ring()==wh){
-	  index9++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob9->SetBinContent(index9,ef*100.);
-	  EffGlob9->SetBinError(index9,er*100.);
-	  
-	  EffGlob9->GetXaxis()->SetBinLabel(index9,camera);
-	  EffGlob9->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==10 && id.ring()==wh){
-	  index10++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob10->SetBinContent(index10,ef*100.);
-	  EffGlob10->SetBinError(index10,er*100.);
-	  
-	  EffGlob10->GetXaxis()->SetBinLabel(index10,camera);
-	  EffGlob10->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==11 && id.ring()==wh){
-	  index11++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob11->SetBinContent(index11,ef*100.);
-	  EffGlob11->SetBinError(index11,er*100.);
-	  
-	  EffGlob11->GetXaxis()->SetBinLabel(index11,camera);
-	  EffGlob11->GetXaxis()->LabelsOption("v");
-	}
-	if(id.sector()==12 && id.ring()==wh){
-	  index12++;
-	  char cam[128];	
-	  sprintf(cam,"%s",nameRoll.c_str());
-	  TString camera = (TString)cam;
-	  
-	  EffGlob12->SetBinContent(index12,ef*100.);
-	  EffGlob12->SetBinError(index12,er*100.);
-	  
-	  EffGlob12->GetXaxis()->SetBinLabel(index12,camera);
-	  EffGlob12->GetXaxis()->LabelsOption("v");
-	}
 
+      if(id.region()==0 && id.ring()==-2){
+	index1++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob1->SetBinContent(index1,float(o));	  
+	RPCGlob1->GetXaxis()->SetBinLabel(index1,camera);
+	RPCGlob1->GetXaxis()->LabelsOption("v");
+
+	EXPGlob1->SetBinContent(index1,float(p));	  
+	EXPGlob1->GetXaxis()->SetBinLabel(index1,camera);
+	EXPGlob1->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==-1){
+	index2++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob2->SetBinContent(index2,float(o));	  
+	RPCGlob2->GetXaxis()->SetBinLabel(index2,camera);
+	RPCGlob2->GetXaxis()->LabelsOption("v");
+
+	EXPGlob2->SetBinContent(index2,float(p));	  
+	EXPGlob2->GetXaxis()->SetBinLabel(index2,camera);
+	EXPGlob2->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==0){
+	index3++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob3->SetBinContent(index3,float(o));	  
+	RPCGlob3->GetXaxis()->SetBinLabel(index3,camera);
+	RPCGlob3->GetXaxis()->LabelsOption("v");
+
+	EXPGlob3->SetBinContent(index3,float(p));	  
+	EXPGlob3->GetXaxis()->SetBinLabel(index3,camera);
+	EXPGlob3->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==1){
+	index4++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob4->SetBinContent(index4,float(o));	  
+	RPCGlob4->GetXaxis()->SetBinLabel(index4,camera);
+	RPCGlob4->GetXaxis()->LabelsOption("v");
+
+	EXPGlob4->SetBinContent(index4,float(p));	  
+	EXPGlob4->GetXaxis()->SetBinLabel(index4,camera);
+	EXPGlob4->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==2){
+	index5++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob5->SetBinContent(index5,float(o));	  
+	RPCGlob5->GetXaxis()->SetBinLabel(index5,camera);
+	RPCGlob5->GetXaxis()->LabelsOption("v");
+
+	EXPGlob5->SetBinContent(index5,float(p));	  
+	EXPGlob5->GetXaxis()->SetBinLabel(index5,camera);
+	EXPGlob5->GetXaxis()->LabelsOption("v");
+      }
+      if(ef>0.){
 	*effres << nameRoll <<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %"<<"\t Run= "<<Run<<"\t"<<ctime(&aTime)<<" ";
 	histoMean->Fill(ef*100.);
       }

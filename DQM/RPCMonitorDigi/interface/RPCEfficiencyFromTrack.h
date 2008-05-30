@@ -63,9 +63,13 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       bool MeasureBarrel;
       bool EffSaveRootFile;
       int EffSaveRootFileEventsInterval;
-      TH2F* ExtrapError;
-      TH1F* EffGlob1;  TH1F* EffGlob2;  TH1F* EffGlob3;  TH1F* EffGlob4;  TH1F* EffGlob5;  TH1F* EffGlob6; 
-      TH1F* EffGlob7;  TH1F* EffGlob8;  TH1F* EffGlob9;  TH1F* EffGlob10;  TH1F* EffGlob11;  TH1F* EffGlob12; 
+      TH2F* ExtrapErrorG;TH2F* ExtrapErrorN; 
+      TH1F* chisquareEff;TH1F* chisquareNoEff;
+      TH1F* ChiEff;
+
+      TH1F* EXPGlob1;  TH1F* EXPGlob2;  TH1F* EXPGlob3;  TH1F* EXPGlob4;  TH1F* EXPGlob5; 
+      TH1F* RPCGlob1;  TH1F* RPCGlob2;  TH1F* RPCGlob3;  TH1F* RPCGlob4;  TH1F* RPCGlob5; 
+
       int wh;
       bool cosmic;
       int Run;
