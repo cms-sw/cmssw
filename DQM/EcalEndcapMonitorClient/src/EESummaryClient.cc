@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/30 15:18:59 $
- * $Revision: 1.128 $
+ * $Date: 2008/05/30 16:13:40 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  *
 */
@@ -1300,13 +1300,13 @@ void EESummaryClient::analyze(void){
           if ( xval != 2 && xval != 5 ) ++nValidChannels;
           for (int i = 1; i <= 9; i++) {
             if ( xval != 2 && xval != 5 ) {
-              if ( validCry ) ++nValidChannelsEE[i-1];
+              if ( Numbers::validEE(ism, jx, jy) ) ++nValidChannelsEE[i-1];
             }
           }
           if ( xval == 0 ) ++nGlobalErrors;
           for (int i = 1; i <= 9; i++) {
             if ( xval == 0 ) {
-              if ( validCry ) ++nGlobalErrorsEE[i-1];
+              if ( Numbers::validEE(ism, jx, jy) ) ++nGlobalErrorsEE[i-1];
             }
           }
         }
