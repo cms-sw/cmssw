@@ -8,6 +8,7 @@
   <class name="L1MuGMTParameters"/>
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
+  <class name="L1GctChannelMask"/>
   <class name="L1GctJetCounterSetup"/>
   <class name="L1GctJetCounterSetup::cutDescription"/>
   <class name="std::vector<L1GctJetCounterSetup::cutDescription>"/>
@@ -75,7 +76,8 @@
   <class name="std::map<std::string, std::map<std::string, std::string> >::value_type"/>
   <class name="L1RCTParameters"/>
   <class name="L1RCTChannelMask"/>
-  <class name="L1RctInputScale"/>
+  <class name="L1CaloEcalScale"/>
+  <class name="L1CaloHcalScale"/>
 
   <class name="L1GtStableParameters"/>
   <class name="L1GtParameters"/>
