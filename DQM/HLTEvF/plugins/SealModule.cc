@@ -1,10 +1,10 @@
-// $Id: SealModule.cc,v 1.5 2008/05/24 14:43:54 wittich Exp $
+// $Id: SealModule.cc,v 1.6 2008/05/30 09:01:23 bachtis Exp $
 
 #include "DQM/HLTEvF/interface/HltAnalyzer.h"
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"
 #include "DQM/HLTEvF/interface/HLTMuonDQMSource.h"
-#include "DQM/HLTEvF/interface/HLTauDQMSource.h"
+#include "DQM/HLTEvF/interface/HLTTauDQMSource.h"
 #include "DQM/HLTEvF/interface/HLTMonElectron.h"
 #include "DQM/HLTEvF/interface/FourVectorHLT.h"
 
