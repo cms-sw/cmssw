@@ -125,7 +125,7 @@ namespace popcon{
 					    << "[isTransferNeeded] the selected conditions are already uploaded in the last iov ("  
 					    << this->tagInfo().lastInterval.first << ") open for the object " 
 					    << this->logDBEntry().payloadName << " in the db " 
-					    << this->logDBEntry().destinationDB << "parameters: "  << ss.str() << "\n NO TRANSFER NEEDED";
+					    << this->logDBEntry().destinationDB << " parameters: "  << ss.str() << "\n NO TRANSFER NEEDED";
 	return false;
       }
       this->m_userTextLog = ss.str();
