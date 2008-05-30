@@ -128,6 +128,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     CaloSD = cms.PSet(
         common_heavy_suppression,
         SuppressHeavy = cms.bool(False),
+        TnaxHit       = cms.double(1000.0),
         DetailedTiming = cms.untracked.bool(False),
         Verbosity = cms.untracked.int32(0),
         CheckHits = cms.untracked.int32(25),
@@ -192,13 +193,13 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FlagHP      = cms.untracked.bool(False),
         EMPhysics = cms.untracked.bool(True),
         HadPhysics = cms.untracked.bool(True),
-        DummyEMPhysics = cms.bool(False)
-    ),
-    GFlash = cms.PSet(
-        GflashEMShowerModel = cms.bool(False),
-        GflashHadronShowerModel = cms.bool(False),
-        GflashHistogram = cms.bool(False),
-        GflashHadronPhysics = cms.string('QGSP')
+        DummyEMPhysics = cms.bool(False),
+        GFlash = cms.PSet(
+           GflashEMShowerModel = cms.bool(False),
+           GflashHadronShowerModel = cms.bool(False),
+           GflashHistogram = cms.bool(False),
+           GflashHadronPhysics = cms.string('QGSP')
+       )
     ),
     G4Commands = cms.vstring(),
     StackingAction = cms.PSet(
