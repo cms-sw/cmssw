@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 # Begin replace statements specific to the HLT
 from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
 hltTriggerSummaryAOD = cms.EDFilter("TriggerSummaryProducerAOD",
-    TriggerSummaryAOD,
     processName = cms.string('@')
 )
 
@@ -10249,4 +10248,5 @@ HLT1Tau1MET = cms.Path(hltSingleTauMETPrescaler+HLTBeginSequence+hltSingleTauMET
 HLT2TauPixel = cms.Path(hltDoubleTauPrescaler+HLTBeginSequence+hltDoubleTauL1SeedFilter+HLTCaloTausCreatorRegionalSequence+hltL2DoubleTauJets+hltL2DoubleTauIsolationProducer+hltL2DoubleTauIsolationSelector+hltFilterDoubleTauEcalIsolation+HLTDoLocalPixelSequence+HLTRecopixelvertexingSequence+hltAssociatorL25PixelTauIsolated+hltConeIsolationL25PixelTauIsolated+hltIsolatedL25PixelTau+hltFilterL25PixelTau+HLTEndSequence)
 HLT1Tau = cms.Path(hltSingleTauPrescaler+HLTBeginSequence+hltSingleTauL1SeedFilter+HLTCaloTausCreatorSequence+hltMet+hlt1METSingleTau+hltL2SingleTauJets+hltL2SingleTauIsolationProducer+hltL2SingleTauIsolationSelector+hltFilterSingleTauEcalIsolation+HLTDoLocalPixelSequence+HLTRecopixelvertexingSequence+hltAssociatorL25SingleTau+hltConeIsolationL25SingleTau+hltIsolatedL25SingleTau+hltFilterL25SingleTau+HLTDoLocalStripSequence+hltL3SingleTauPixelSeeds+hltCkfTrackCandidatesL3SingleTau+hltCtfWithMaterialTracksL3SingleTau+hltAssociatorL3SingleTau+hltConeIsolationL3SingleTau+hltIsolatedL3SingleTau+hltFilterL3SingleTau+HLTEndSequence)
 HLTriggerFinalPath = cms.Path(hltTriggerSummaryAOD+hltTriggerSummaryRAWprescaler+hltTriggerSummaryRAW+hltBoolFinal)
+
 

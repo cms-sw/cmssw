@@ -5,24 +5,18 @@ import FWCore.ParameterSet.Config as cms
 # Each PoolOutputModule defines a file and HLT filter paths to
 # select the event from.
 from Configuration.EventContent.EventContent_cff import *
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-pdTauFilter = copy.deepcopy(hltHighLevel)
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-pdPhotonFilter = copy.deepcopy(hltHighLevel)
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-pdMuonFilter = copy.deepcopy(hltHighLevel)
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-pdElectronFilter = copy.deepcopy(hltHighLevel)
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-pdBJetFilter = copy.deepcopy(hltHighLevel)
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-pdJetMETFilter = copy.deepcopy(hltHighLevel)
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+pdTauFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+pdPhotonFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+pdMuonFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+pdElectronFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+pdBJetFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+pdJetMETFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 HLTPrimaryDatasetsDefaults = cms.PSet(
     basketSize = cms.untracked.int32(4096),
     outputCommands = cms.untracked.vstring('drop *')
@@ -144,4 +138,5 @@ pdJetMETFilter.HLTPaths = ['HLT1jet30', 'HLT1jet50', 'HLT1jet80', 'HLT1jet110', 
     'HLT1jet1METAco', 'HLT1jet1MET', 'HLT2jet1MET', 'HLT3jet1MET', 'HLT4jet1MET', 
     'HLT1MET1HT', 'HLT2jetvbfMET', 'HLTS2jet1METNV', 'HLTS2jet1METAco', 'HLTSjet1MET1Aco', 
     'HLTSjet2MET1Aco', 'HLTS2jetMET1Aco', 'HLTJetMETRapidityGap']
+
 
