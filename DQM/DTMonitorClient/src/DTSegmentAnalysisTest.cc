@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/28 09:14:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/30 08:38:15 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -286,11 +286,12 @@ void DTSegmentAnalysisTest::bookHistos() {
     summaryHistos[3]->setBinLabel(10,"10",1);
     summaryHistos[3]->setBinLabel(11,"11",1);
     summaryHistos[3]->setBinLabel(12,"12",1);
-    summaryHistos[3]->setBinLabel(1,"Wheel-2",2);
-    summaryHistos[3]->setBinLabel(2,"Wheel-1",2);
-    summaryHistos[3]->setBinLabel(3,"Wheel0",2);
-    summaryHistos[3]->setBinLabel(4,"Wheel+1",2);
-    summaryHistos[3]->setBinLabel(5,"Wheel+2",2);
+    summaryHistos[3]->setAxisTitle("Wheel",2);
+    summaryHistos[3]->setBinLabel(1,"-2",2);
+    summaryHistos[3]->setBinLabel(2,"-1",2);
+    summaryHistos[3]->setBinLabel(3,"0",2);
+    summaryHistos[3]->setBinLabel(4,"+1",2);
+    summaryHistos[3]->setBinLabel(5,"+2",2);
 
 
 
