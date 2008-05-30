@@ -91,7 +91,23 @@ namespace edm {
   RootTree::dropBranch(std::string const& oldBranchName) {
       //use the translated branch name 
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
-      if (branch != 0) branch->DropBaskets("all");
+      if (branch != 0) {
+	TObjArray * leaves = tree_->GetListOfLeaves();
+	int entries = leaves->GetEntries();
+	for (int i = 0; i < entries; ++i) {
+	  TLeaf *leaf = (TLeaf *)(*leaves)[i];
+	  if (leaf == 0) continue;
+	  TBranch* br = leaf->GetBranch();
+	  if (br == 0) continue;
+	  if (br->GetMother() == branch) {
+	    leaves->Remove(leaf);
+	  }
+	}
+	leaves->Compress();
+	tree_->GetListOfBranches()->Remove(branch);
+	tree_->GetListOfBranches()->Compress();
+	delete branch;
+      }
   }
 
   boost::shared_ptr<DelayedReader>
