@@ -17,13 +17,10 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     outInTrackCollection = cms.string(''),
     conversionIOTrackProducer = cms.string('ckfInOutTracksFromConversions'),
     inOutTrackCollection = cms.string(''),
-    bcBarrelCollection = cms.InputTag("hybridSuperClusters"),
-    bcEndcapCollection  = cms.InputTag("multi5x5BasicClusters:multi5x5EndcapBasicClusters"),
-
-#    bcEndcapCollection = cms.string('multi5x5EndcapBasicClusters'),
-#    bcBarrelCollection = cms.string('multi5x5BarrelBasicClusters'),
+    bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
+    #   string  bcProducer  =   "multi5x5BasicClusters"
+    bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     scIslandEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
-#    bcProducer = cms.string('multi5x5BasicClusters'),
     outInTrackSCAssociation = cms.string('outInTrackSCAssociationCollection'),
     scIslandEndcapCollection = cms.string(''),
     conversionOITrackProducer = cms.string('ckfOutInTracksFromConversions')
