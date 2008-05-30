@@ -20,7 +20,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 // Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -109,7 +109,7 @@ CosmicClusterProducer::~CosmicClusterProducer()
 
 void CosmicClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-//  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
+  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
   clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, CosmicClusterAlgo::barrel);
   nEvt_++;
 }
@@ -150,7 +150,7 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
 
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<IdealGeometryRecord>().get(geoHandle);
+  es.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
