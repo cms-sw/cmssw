@@ -195,7 +195,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
 						track.first.setBx(iter->tbin()-central_sp_bx);
 
-						track.first.setPhiPacked(iter->phi());
+						track.first.setPhiValue(iter->phi());
 						track.first.setEtaPacked(iter->eta());
 						track.first.setChargePacked((~iter->charge())&0x1);
 
