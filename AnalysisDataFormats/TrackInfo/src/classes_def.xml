@@ -27,5 +27,11 @@
   <class name="std::vector<TPtoRecoTrack>"/>
   <class name="edm::Wrapper<std::vector<TPtoRecoTrack> >"/>
 
+  <class name="RecoTracktoTP"/>
+  <class name="edm::Wrapper<RecoTracktoTP>"/>
+  
+  <class name="std::vector<RecoTracktoTP>"/>
+  <class name="edm::Wrapper<std::vector<RecoTracktoTP> >"/>
+
 
 </lcgdict>

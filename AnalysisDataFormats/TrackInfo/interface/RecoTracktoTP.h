@@ -1,5 +1,5 @@
-#ifndef TRACKINFO_TPTORECOTRACK_H
-#define TRACKINFO_TPTORECOTRACK_H
+#ifndef TRACKINFO_RECOTRACKTOTP_H
+#define TRACKINFO_RECOTRACKTOTP_H
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -18,59 +18,38 @@
 //#include <vector>
 
 
-class TPtoRecoTrack 
+class RecoTracktoTP 
 {
     public:
   
-    TPtoRecoTrack();
-    ~TPtoRecoTrack();
+    RecoTracktoTP();
+    ~RecoTracktoTP();
   
-    void SetTrackingParticle(TrackingParticleRef tp)  {trackingParticle_ = tp;}
-  
-    void SetRecoTrack_AlgoA(reco::TrackBaseRef track)     {recoTrack_AlgoA_ = track;}
-    void SetRecoTrack_AlgoB(reco::TrackBaseRef track)     {recoTrack_AlgoB_ = track;}
-  
-    void SetRecoVertex_AlgoA(reco::VertexRef vertex)  {recoVertex_AlgoA_ = vertex;}
-    void SetRecoVertex_AlgoB(reco::VertexRef vertex)  {recoVertex_AlgoB_ = vertex;}
-
-    void SetBeamSpot(math::XYZPoint bs)           {beamSpot_ = bs;}
+    void SetTrackingParticle(TrackingParticleRef tp)    {trackingParticle_ = tp;}
+    void SetRecoTrack(reco::TrackBaseRef track)         {recoTrack = track;}
+    void SetRecoVertex(reco::VertexRef vertex)          {recoVertex = vertex;}
+    void SetBeamSpot(math::XYZPoint bs)                 {beamSpot_ = bs;}
   
     // Interogation Functions
-    reco::Track       RTA()         {return recoTrack_AlgoA_.isNonnull()  ? *recoTrack_AlgoA_  : reco::Track();}
-    reco::Track       RTB()         {return recoTrack_AlgoB_.isNonnull()  ? *recoTrack_AlgoB_  : reco::Track();}
+    reco::Track       RT()          {return recoTrack.isNonnull()  ? *recoTrack : reco::Track();}
     TrackingParticle  TP()          {return trackingParticle_.isNonnull() ? *trackingParticle_ : TrackingParticle();}
-    reco::Vertex      RVA()         {return recoVertex_AlgoA_.isNonnull() ? *recoVertex_AlgoA_ : reco::Vertex();} 
-    reco::Vertex      RVB()         {return recoVertex_AlgoB_.isNonnull() ? *recoVertex_AlgoB_ : reco::Vertex();}
+    reco::Vertex      RV()          {return recoVertex.isNonnull() ? *recoVertex : reco::Vertex();} 
     math::XYZPoint    BeamSpot()    {return beamSpot_;}
   
-    bool          matched()         {return matchedA() && matchedB();}
-    bool          matchedA()        {return trackingParticle_.isNonnull() && recoTrack_AlgoA_.isNonnull();} 
-    bool          matchedB()        {return trackingParticle_.isNonnull() && recoTrack_AlgoB_.isNonnull();}
-    bool          matchedAnotB()    {return matchedA() && !matchedB();}
-    bool          matchedBnotA()    {return matchedB() && !matchedA();}
-    bool          hasRVA()          {return recoVertex_AlgoA_.isNonnull() && fabs(recoVertex_AlgoA_->position().Mag2())>0.0;}   // position is ROOT::MATH::Cartesian3D<double> 
-    bool          hasRVB()          {return recoVertex_AlgoB_.isNonnull() && fabs(recoVertex_AlgoB_->position().Mag2())>0.0;}   // position is ROOT::MATH::Cartesian3D<double>
-    bool          hasRV()           {return hasRVA() && hasRVB();}
+    bool          matched()         {return trackingParticle_.isNonnull() && recoTrack.isNonnull();} 
+    bool          hasRV()           {return recoVertex.isNonnull() && fabs(recoVertex->position().Mag2())>0.0;}   // position is ROOT::MATH::Cartesian3D<double> 
     bool          hasPCA()          {return s_pca().mag()<9999.0;}
-    bool          allmatchedA()     {return matchedA() && hasRVA();} 
-    bool          allmatchedB()     {return matchedB() && hasRVA();} 
     bool          allmatched()      {return matched() && hasRV();} 
   
     // These members for reco d0 and dz are the TIP and LIP w.r.t the reconstructed BeamSpot (as opposed to (0,0,0) ).
-    double        rA_dxy()          {return RTA().dxy( BeamSpot() );}
-    double        rB_dxy()          {return RTB().dxy( BeamSpot() );}
-    double        rA_dsz()          {return RTA().dsz( BeamSpot() );}
-    double        rB_dsz()          {return RTB().dsz( BeamSpot() );}
-    double        rA_d0()           {return -1.0 * rA_dxy();}
-    double        rB_d0()           {return -1.0 * rB_dxy();}
-    double        rA_dz()           {return RTA().dz( BeamSpot() );}
-    double        rB_dz()           {return RTB().dz( BeamSpot() );}
+    double        r_dxy()           {return RT().dxy( BeamSpot() );}
+    double        r_dsz()           {return RT().dsz( BeamSpot() );}
+    double        r_d0()            {return -1.0 * r_dxy();}
+    double        r_dz()            {return RT().dz( BeamSpot() );}
     
     // These members for reco d0 and dz are the TIP and LIP w.r.t the reconstructed vertex (as opposed to (0,0,0) ).
-    double        rA_d02()          {return -1.0 * RTA().dxy( RVA().position() );}
-    double        rA_dz2()          {return RTA().dz( RVA().position() );}
-    double        rB_d02()          {return -1.0 * RTB().dxy( RVB().position() );}
-    double        rB_dz2()          {return RTB().dz( RVB().position());}
+    double        r_d02()           {return -1.0 * RT().dxy( RV().position() );}
+    double        r_dz2()           {return RT().dz( RV().position() );}
     
     // These members for sim d0 and dz are not included in the TrackingParticle class and must be included seperately.
     void SetTrackingParticleMomentumPCA(const GlobalVector &p)    {simMomPCA_ = p;} 
@@ -100,11 +79,8 @@ class TPtoRecoTrack
 
     protected:
   
-    reco::TrackBaseRef recoTrack_AlgoA_;
-    reco::VertexRef recoVertex_AlgoA_;
-  
-    reco::TrackBaseRef recoTrack_AlgoB_;
-    reco::VertexRef recoVertex_AlgoB_;
+    reco::TrackBaseRef recoTrack;
+    reco::VertexRef recoVertex;
   
     TrackingParticleRef trackingParticle_;
   
@@ -115,5 +91,5 @@ class TPtoRecoTrack
 };
 
 
-#endif // TRACKINFO_TPTORECOTRACK_H
+#endif // TRACKINFO_RECOTRACKTOTP_H
         

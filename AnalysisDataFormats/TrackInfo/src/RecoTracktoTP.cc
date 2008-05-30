@@ -1,8 +1,8 @@
-#include "AnalysisDataFormats/TrackInfo/interface/TPtoRecoTrack.h"
+#include "AnalysisDataFormats/TrackInfo/interface/RecoTracktoTP.h"
 
 
 // Constructors
-TPtoRecoTrack::TPtoRecoTrack() 
+RecoTracktoTP::RecoTracktoTP() 
 {
     SetBeamSpot(math::XYZPoint(-9999.0, -9999.0, -9999.0)); 
     SetTrackingParticlePCA(GlobalPoint(-9999.0, -9999.0, -9999.0));
@@ -10,12 +10,12 @@ TPtoRecoTrack::TPtoRecoTrack()
 }
 
 
-TPtoRecoTrack::~TPtoRecoTrack()
+RecoTracktoTP::~RecoTracktoTP()
 {
 }
 
 
-TrackingParticle TPtoRecoTrack::TPMother(unsigned short i)
+TrackingParticle RecoTracktoTP::TPMother(unsigned short i)
 {
     std::vector<TrackingParticle>  result;
 
@@ -52,7 +52,7 @@ TrackingParticle TPtoRecoTrack::TPMother(unsigned short i)
 }
 
 
-int TPtoRecoTrack::numTPMothers()
+int RecoTracktoTP::numTPMothers()
 {
     int count = 0;
     for(TrackingParticleRefVector::iterator si = TP().parentVertex()->sourceTracks_begin();

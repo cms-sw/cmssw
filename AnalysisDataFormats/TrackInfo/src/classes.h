@@ -4,6 +4,8 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TPtoRecoTrack.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TPtoRecoTrackCollection.h"
+#include "AnalysisDataFormats/TrackInfo/interface/RecoTracktoTP.h"
+#include "AnalysisDataFormats/TrackInfo/interface/RecoTracktoTPCollection.h"
 #include <vector>
 
 
@@ -36,6 +38,8 @@ namespace {
 
     edm::Wrapper<TPtoRecoTrack> TPtoRecoTrackWrapper ;
     edm::Wrapper<TPtoRecoTrackCollection> TPtoRecoTrackCollectionWrapper;
+    edm::Wrapper<RecoTracktoTP> RecoTracktoTPWrapper ;
+    edm::Wrapper<RecoTracktoTPCollection> RecoTracktoTPCollectionWrapper;
 
   }
 }
