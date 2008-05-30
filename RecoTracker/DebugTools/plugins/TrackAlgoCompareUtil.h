@@ -1,5 +1,5 @@
-// Original Author:		Ryan Kelley (UCSD)  
-// Created:  			Mon Feb 25 19:25:11 PST 2008
+// Original Author:     Ryan Kelley (UCSD)  
+// Created:             Mon Feb 25 19:25:11 PST 2008
 
 // system include files
 #include <memory>
@@ -38,12 +38,13 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
 // physics tools
-//#include "Math/ProbFuncMathMore.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-// Producer object
+// Producer objects
 #include "AnalysisDataFormats/TrackInfo/interface/TPtoRecoTrack.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TPtoRecoTrackCollection.h"
+#include "AnalysisDataFormats/TrackInfo/interface/RecoTracktoTP.h"
+#include "AnalysisDataFormats/TrackInfo/interface/RecoTracktoTPCollection.h"
 
 #include <string>
 #include <vector>
@@ -67,7 +68,8 @@ class TrackAlgoCompareUtil : public edm::EDProducer
   virtual void endJob() ;
   
   void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT);
-	  
+  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP);
+      
   // ----------member data ---------------------------
   edm::InputTag trackLabel_algoA;
   edm::InputTag trackLabel_algoB;
@@ -77,6 +79,9 @@ class TrackAlgoCompareUtil : public edm::EDProducer
   edm::InputTag vertexLabel_algoB;
   edm::InputTag trackingVertexLabel;
   edm::InputTag beamSpotLabel;
+  edm::InputTag associatormap_algoA;
+  edm::InputTag associatormap_algoB;
+  bool UseAssociators;
   std::string assocLabel;     
   
 };
