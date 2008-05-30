@@ -29,6 +29,19 @@
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 #include "CondFormats/RPCObjects/interface/DBSpecToDetUnit.h"
 
+#include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/CoralTransaction.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
+#include "CondCore/DBCommon/interface/Connection.h"
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/IQuery.h"
+#include "RelationalAccess/ICursor.h"
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/Attribute.h"
+#include "CoralBase/AttributeSpecification.h"
+
 using namespace std;
 using namespace oracle::occi;
 
@@ -42,17 +55,24 @@ namespace popcon
     ~RPCEMapSourceHandler();
     void getNewObjects();
     std::string id() const {return m_name;}
+    void ConnectOnlineDB(string connect, string authPath);
     void ConnectOnlineDB(string host, string sid, string user, string pass, int port);
     void DisconnectOnlineDB();
-    void readEMap();
+    void readEMap0();
+    void readEMap1();
     int Compare2EMaps(Ref map1, RPCEMap* map2);
 
 		private:
     RPCEMap * eMap;
     Environment* env;
     Connection* conn;
+    cond::DBSession * session;
+    cond::Connection * connection ;
+    cond::CoralTransaction * coralTr;
     std::string m_name;
     int m_validate;
+    std::string m_connect;
+    std::string m_authpath;
     std::string m_host;
     std::string m_sid;
     std::string m_user;
