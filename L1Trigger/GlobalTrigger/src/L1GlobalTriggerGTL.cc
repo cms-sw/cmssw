@@ -113,7 +113,7 @@ void L1GlobalTriggerGTL::receiveGmtObjectData(edm::Event& iEvent,
 
         if (!muonData.isValid()) {
             //throw cms::Exception("ProductNotFound")
-            edm::LogError("L1GlobalTriggerPSB")
+            edm::LogError("L1GlobalTriggerGTL")
             << "\nError: std::vector<L1MuGMTCand> with input tag " << muGmtInputTag
             << "\nrequested in configuration, but not found in the event.\n"
             << std::endl;
