@@ -433,7 +433,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   if ( primaryVertex->point3d().mag() < 1E-10 ) {
     theVertexGenerator->generate();
     smearedVertex = XYZTLorentzVector(
-      theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.Z(),
+      theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
       theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+theBeamSpot.Y(),
       theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+theBeamSpot.Z(),
       0.);
