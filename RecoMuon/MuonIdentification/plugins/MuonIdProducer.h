@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.9 2008/03/02 21:16:56 slava77 Exp $
+// $Id: MuonIdProducer.h,v 1.10 2008/03/31 14:21:19 dmytro Exp $
 //
 //
 
@@ -119,5 +119,6 @@ class MuonIdProducer : public edm::EDProducer {
    MuonCaloCompatibility muonCaloCompatibility_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorTrack_;
+   reco::isodeposit::IsoDepositExtractor* muIsoExtractorJet_;
 };
 #endif

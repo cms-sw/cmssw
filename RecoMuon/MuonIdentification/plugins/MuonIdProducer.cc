@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.21 2008/03/31 14:21:19 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.22 2008/04/01 14:45:08 dmytro Exp $
 //
 //
 
@@ -47,7 +47,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
-muIsoExtractorCalo_(0),muIsoExtractorTrack_(0)
+muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 {
    produces<reco::MuonCollection>();
    
@@ -84,6 +84,10 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0)
       edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
       std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
       muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet);
+
+      edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
+      std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
+      muIsoExtractorJet_ = IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet);
    }
    
    inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
@@ -106,6 +110,7 @@ MuonIdProducer::~MuonIdProducer()
 {
    if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
    if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
+   if (muIsoExtractorJet_) delete muIsoExtractorJet_;
    // TimingReport::current()->dump(std::cout);
 }
 
@@ -799,6 +804,7 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    // get deposits
    reco::IsoDeposit depTrk = muIsoExtractorTrack_->deposit(iEvent, iSetup, *track );
    std::vector<reco::IsoDeposit> caloDeps = muIsoExtractorCalo_->deposits(iEvent, iSetup, *track);
+   reco::IsoDeposit depJet = muIsoExtractorJet_->deposit(iEvent, iSetup, *track );
 
    if(caloDeps.size()!=3) {
       LogTrace("MuonIdentification") << "Failed to fill vector of calorimeter isolation deposits!";
@@ -814,14 +820,14 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    isoR03.hadEt     = depHcal.depositWithin(0.3);
    isoR03.hoEt      = depHo.depositWithin(0.3);
    isoR03.nTracks   = depTrk.depositAndCountWithin(0.3).second;
-   isoR03.nJets     = 0;
+   isoR03.nJets     = depJet.depositAndCountWithin(0.3).second;
 
    isoR05.sumPt     = depTrk.depositWithin(0.5);
    isoR05.emEt      = depEcal.depositWithin(0.5);
    isoR05.hadEt     = depHcal.depositWithin(0.5);
    isoR05.hoEt      = depHo.depositWithin(0.5);
    isoR05.nTracks   = depTrk.depositAndCountWithin(0.5).second;
-   isoR05.nJets     = 0;
+   isoR05.nJets     = depJet.depositAndCountWithin(0.5).second;
 
    aMuon.setIsolation(isoR03, isoR05);
 }
