@@ -10,13 +10,14 @@ hybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     clustershapecollection = cms.string(''),
     shapeAssociation = cms.string('hybridShapeAssoc'),
     # if e1x3 larger than ewing use 1x5
-    ewing = cms.double(1.0),
+    # e.g. always build 1x5
+    ewing = cms.double(0.0),
     # clustering parameters
     #
     # threshold on seed RecHits
     HybridBarrelSeedThr = cms.double(1.0),
     dynamicPhiRoad = cms.bool(False),
-    basicclusterCollection = cms.string(''),
+    basicclusterCollection = cms.string('hybridBarrelBasicClusters'),
     posCalc_w0 = cms.double(4.2),
     # phi road parameters
     step = cms.int32(17),
