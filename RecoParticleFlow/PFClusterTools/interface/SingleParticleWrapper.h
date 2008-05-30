@@ -41,6 +41,8 @@ public:
 		phiMC = 0;
 		etaEcal = 0;
 		phiEcal = 0;
+		etaHcal = 0;
+		phiHcal = 0;
 		nEcalCluster = 0;
 		nHcalCluster = 0;
 		eSqEcal = 0;
@@ -56,6 +58,7 @@ public:
 		eRecHitsHcal = 0;
 		nRecHitsEcal = 0;
 		nRecHitsHcal = 0;
+		nSimParticles = 0;
 		
 		calibrations_.clear();
 	};
@@ -68,9 +71,12 @@ public:
 	double trueEnergy;
 	double etaMC;
 	double phiMC;
+	int nSimParticles;
 	//Of the PFClusters
 	double etaEcal;
 	double phiEcal;
+	double etaHcal;
+	double phiHcal;
 	
 	//Number of clusters in each of the Ecal and Hcal
 	int nEcalCluster;
