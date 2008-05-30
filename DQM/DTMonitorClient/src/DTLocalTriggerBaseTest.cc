@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/05/22 10:49:59 $
+ *  $Revision: 1.1 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -61,7 +61,7 @@ void DTLocalTriggerBaseTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg
 void DTLocalTriggerBaseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: "<<nevents<<" events";
+//   edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: "<<nevents<<" events";
 
 }
 
@@ -111,7 +111,7 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   stringstream sector; sector << chambid.sector();
 
   string folderName = 
-    "DT/DTLocalTriggerTask/Wheel" +  wheel.str() +
+    "DT/LocalTrigger/Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
     "/Station" + station.str() + "/" +  subfolder + "/";  
 
@@ -154,11 +154,12 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
-  dbe->setCurrentFolder("DT/Tests/" + testName + "/Wheel"+ wh.str()+"/Sector"+ sc.str()+"/"+folder);
+  dbe->setCurrentFolder("DT/LocalTrigger/Wheel"+ wh.str()+"/Sector"+ sc.str()+"/"+folder);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
-
+  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/LocalTrigger/Wheel" << wheel 
+				    <<"/Sector" << sector << "/" << folder << "/" << hname;
   if (hTag.find("Phi") != string::npos || 
       hTag.find("TkvsTrig") != string::npos ){    
     MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,0.5,4.5);
@@ -174,24 +175,55 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   
 }
 
+void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
+  
+  dbe->setCurrentFolder("DT/LocalTrigger");
+
+  string hname = fullName(hTag);
+  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/LocalTrigger/" << hname;
+
+
+    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,0.5,12.5,5,-2.5,2.5);
+    me->setAxisTitle("Sector",1);
+    me->setAxisTitle("Wheel",2);
+    cmsME[hname] = me;
+
+}
+
 void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hTag) {
   
   stringstream wh; wh << wheel;
-  dbe->setCurrentFolder("DT/Tests/" + testName + "/Wheel"+ wh.str()+"/"+folder);
+  dbe->setCurrentFolder("DT/LocalTrigger/Wheel"+ wh.str()+"/"+folder);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag+ "_W" + wh.str();
 
+  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/LocalTrigger/Wheel" 
+				    << wheel << "/" << folder << "/" << hname;
+  
   if (hTag.find("Phi") != string::npos){    
     MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,0.5,12.5,4,0.5,4.5);
+
 //     setLabelPh(me);
+    me->setBinLabel(1,"MB1",2);
+    me->setBinLabel(2,"MB2",2);
+    me->setBinLabel(3,"MB3",2);
+    me->setBinLabel(4,"MB4",2);
+    me->setAxisTitle("Sector",1);
+    
     whME[wheel][fullTag] = me;
     return;
   }
   
   if (hTag.find("Theta") != string::npos){
     MonitorElement* me =dbe->book2D(hname.c_str(),hname.c_str(),12,0.5,12.5,3,0.5,3.5);
+
 //     setLabelTh(me);
+    me->setBinLabel(1,"MB1",2);
+    me->setBinLabel(2,"MB2",2);
+    me->setBinLabel(3,"MB3",2);
+    me->setAxisTitle("Sector",1);
+
     whME[wheel][fullTag] = me;
     return;
   }

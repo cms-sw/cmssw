@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/05/22 10:49:59 $
+ *  $Revision: 1.1 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -41,7 +41,57 @@ DTLocalTriggerEfficiencyTest::DTLocalTriggerEfficiencyTest(const edm::ParameterS
 
 
 DTLocalTriggerEfficiencyTest::~DTLocalTriggerEfficiencyTest(){
+  
+}
 
+
+void DTLocalTriggerEfficiencyTest::beginJob(const edm::EventSetup& c){
+  
+  DTLocalTriggerBaseTest::beginJob(c);
+
+
+  vector<string>::const_iterator iTr   = trigSources.begin();
+  vector<string>::const_iterator trEnd = trigSources.end();
+  vector<string>::const_iterator iHw   = hwSources.begin();
+  vector<string>::const_iterator hwEnd = hwSources.end();
+
+
+  //Booking
+  if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
+    for (; iTr != trEnd; ++iTr){
+      trigSource = (*iTr);
+      for (; iHw != hwEnd; ++iHw){
+	hwSource = (*iHw);
+	// Loop over the TriggerUnits
+	for (int wh=-2; wh<=2; ++wh){
+	  for (int sect=1; sect<=12; ++sect){
+	    for (int stat=1; stat<=4; ++stat){
+	      DTChamberId chId(wh,stat,sect);
+	      bookChambHistos(chId,"TrigEffPosvsAnglePhi");
+	      bookChambHistos(chId,"TrigEffPosvsAngleHHHLPhi");
+	      bookChambHistos(chId,"TrigEffPosPhi");
+	      bookChambHistos(chId,"TrigEffPosHHHLPhi");
+	      bookChambHistos(chId,"TrigEffAnglePhi");
+	      bookChambHistos(chId,"TrigEffAngleHHHLPhi");
+	      bookChambHistos(chId,"TrigEffPosvsAngleTheta");
+	      bookChambHistos(chId,"TrigEffPosvsAngleHTheta");
+	      bookChambHistos(chId,"TrigEffPosTheta");
+	      bookChambHistos(chId,"TrigEffPosHTheta");
+	      bookChambHistos(chId,"TrigEffAngleTheta");
+	      bookChambHistos(chId,"TrigEffAngleHTheta");
+	    }
+	    bookSectorHistos(wh,sect,"Segment","TrigEffPhi");  
+	    bookSectorHistos(wh,sect,"Segment","TrigEffTheta");  
+	  }
+	  bookWheelHistos(wh,"Segment","TrigEffPhi");  
+	  bookWheelHistos(wh,"Segment","TrigEffHHHLPhi");  
+	  bookWheelHistos(wh,"Segment","TrigEffTheta");  
+	  bookWheelHistos(wh,"Segment","TrigEffHTheta");  
+	}
+      }
+    }
+  }
+  
 }
 
 
@@ -76,7 +126,7 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
 	    TH2F * TrackPosvsAngleandTrig     = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngleandTrig","Segment", chId)));
 	    TH2F * TrackPosvsAngleandTrigHHHL = getHisto<TH2F>(dbe->get(getMEName("TrackPosvsAngleandTrigHHHL","Segment", chId)));
 	    
-	    if (TrackPosvsAngle && TrackPosvsAngleandTrig && TrackPosvsAngleandTrigHHHL) {
+	    if (TrackPosvsAngle && TrackPosvsAngleandTrig && TrackPosvsAngleandTrigHHHL && TrackPosvsAngle->GetEntries()>1) {
 	      
 	      if( chambME[indexCh].find(fullName("TrigEffAnglePhi")) == chambME[indexCh].end()){
 		bookChambHistos(chId,"TrigEffPosvsAnglePhi");
@@ -87,11 +137,11 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
 		bookChambHistos(chId,"TrigEffAngleHHHLPhi");
 	      }
 	      if( secME[sector_id].find(fullName("TrigEffPhi")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEffPhi");  
+		bookSectorHistos(wh,sect,"Segment","TrigEffPhi");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffPhi")) == whME[wh].end() ){
-		bookWheelHistos(wh,"TriggerAndSeg","TrigEffPhi");  
-		bookWheelHistos(wh,"TriggerAndSeg","TrigEffHHHLPhi");  
+		bookWheelHistos(wh,"Segment","TrigEffPhi");  
+		bookWheelHistos(wh,"Segment","TrigEffHHHLPhi");  
 	      }
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
@@ -134,7 +184,7 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
 	    TH2F * TrackThetaPosvsAngleandTrig     = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrig","Segment", chId)));
 	    TH2F * TrackThetaPosvsAngleandTrigH    = getHisto<TH2F>(dbe->get(getMEName("TrackThetaPosvsAngleandTrigH","Segment", chId)));
 	    
-	    if (TrackThetaPosvsAngle && TrackThetaPosvsAngleandTrig && TrackThetaPosvsAngleandTrigH) {
+	    if (TrackThetaPosvsAngle && TrackThetaPosvsAngleandTrig && TrackThetaPosvsAngleandTrigH && TrackThetaPosvsAngle->GetEntries()>1) {
 	      
 	      if( chambME[indexCh].find(fullName("TrigEffAngleTheta")) == chambME[indexCh].end()){
 		bookChambHistos(chId,"TrigEffPosvsAngleTheta");
@@ -145,11 +195,11 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
 		bookChambHistos(chId,"TrigEffAngleHTheta");
 	      }
 	      if( secME[sector_id].find(fullName("TrigEffTheta")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEffTheta");  
+		bookSectorHistos(wh,sect,"Segment","TrigEffTheta");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffTheta")) == whME[wh].end() ){
-		bookWheelHistos(wh,"TriggerAndSeg","TrigEffTheta");  
-		bookWheelHistos(wh,"TriggerAndSeg","TrigEffHTheta");  
+		bookWheelHistos(wh,"Segment","TrigEffTheta");  
+		bookWheelHistos(wh,"Segment","TrigEffHTheta");  
 	      }
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
@@ -190,44 +240,6 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
       }
     }
   }	
-  
-//   // Efficiency test (performed on chamber plots)
-//   for(map<uint32_t,map<string,MonitorElement*> >::const_iterator imapIt = chambME.begin();
-//       imapIt != chambME.end();
-//       ++imapIt){
-//     for (map<string,MonitorElement*>::const_iterator effME = (*imapIt).second.begin();
-// 	 effME!=(*imapIt).second.end();
-// 	 ++effME){
-//       if ((*effME).second->getName().find("TrigEffPosPhi") == 0) {
-// 	const QReport *effQReport = (*effME).second->getQReport("ChambTrigEffInRangePhi");
-// 	if (effQReport) {
-// 	  if (effQReport->getBadChannels().size())
-// 	    edm::LogError ("localTrigger") << (*effME).second->getName() <<" has " << effQReport->getBadChannels().size() << " channels out of expected efficiency range";
-// 	  // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-// 	  // edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
-// 	}
-//       }
-//     }
-//   }
-
-  // Efficiency test (performed on wheel plots)
-  for(map<int,map<string,MonitorElement*> >::const_iterator imapIt = secME.begin();
-      imapIt != secME.end();
-      ++imapIt){
-    for (map<string,MonitorElement*>::const_iterator effME = (*imapIt).second.begin();
-	 effME!=(*imapIt).second.end();
-	 ++effME){
-      if ((*effME).second->getName().find("TrigEffPhi") == 0) {
-	const QReport *effQReport = (*effME).second->getQReport("TrigPhiEfficiencyInRange");
-	if (effQReport) {
-	  if (effQReport->getBadChannels().size())
-	    edm::LogError ("localTrigger") << (*effME).second->getName() <<" has " << effQReport->getBadChannels().size() << " channels out of expected efficiency range";
-	  // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
-	  // edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
-	}
-      }
-    }
-  }
 
 }
 
@@ -292,9 +304,13 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string h
   string fullType  = fullName(htype);
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  dbe->setCurrentFolder("DT/Tests/" + testName + "/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/LocalTrigger/Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
-			"/Station" + station.str());
+			"/Station" + station.str() + "/Segment");
+
+  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/LocalTrigger/Wheel" << wheel.str() 
+				    <<"/Sector" << sector.str() << "/Station" << station.str() << "/Segment/" << HistoName;
+
   
   uint32_t indexChId = chambId.rawId();
   if (htype.find("TrigEffAnglePhi") == 0){

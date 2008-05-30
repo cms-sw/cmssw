@@ -6,8 +6,8 @@
  * *
  *  DQM Base for TriggerTests
  *
- *  $Date: 2008/03/01 00:39:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/22 10:49:59 $
+ *  $Revision: 1.1 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -58,10 +58,13 @@ protected:
   void endJob();
 
   /// Book the new MEs (for each sector)
-  void bookSectorHistos(int wheel, int sector, std::string folder, std::string htype );
+  void bookSectorHistos( int wheel, int sector, std::string folder, std::string hTag );
 
   /// Book the new MEs (for each wheel)
-  void bookWheelHistos(int wheel, std::string folder, std::string htype );
+  void bookWheelHistos( int wheel, std::string folder, std::string hTag );
+
+  /// Book the new MEs (CMS summary)
+  void bookCmsHistos( std::string hTag );
 
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);
@@ -103,6 +106,7 @@ protected:
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<int,std::map<std::string,MonitorElement*> > secME;
   std::map<int,std::map<std::string,MonitorElement*> > whME;
+  std::map<std::string,MonitorElement*> cmsME;
 
 
 };

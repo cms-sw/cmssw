@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/05/22 10:49:59 $
+ *  $Revision: 1.1 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -45,6 +45,47 @@ DTLocalTriggerLutTest::~DTLocalTriggerLutTest(){
 }
 
 
+void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
+  
+  DTLocalTriggerBaseTest::beginJob(c);
+
+
+  vector<string>::const_iterator iTr   = trigSources.begin();
+  vector<string>::const_iterator trEnd = trigSources.end();
+  vector<string>::const_iterator iHw   = hwSources.begin();
+  vector<string>::const_iterator hwEnd = hwSources.end();
+
+
+  //Booking
+  if(parameters.getUntrackedParameter<bool>("staticBooking", true)){
+    for (; iTr != trEnd; ++iTr){
+      trigSource = (*iTr);
+      for (; iHw != hwEnd; ++iHw){
+	hwSource = (*iHw);
+	// Loop over the TriggerUnits
+	for (int wh=-2; wh<=2; ++wh){
+	  for (int sect=1; sect<=12; ++sect){
+	    bookSectorHistos(wh,sect,"Segment","PhiTkvsTrigSlope");  
+	    bookSectorHistos(wh,sect,"Segment","PhiTkvsTrigIntercept");  
+	    bookSectorHistos(wh,sect,"Segment","PhiTkvsTrigCorr");  
+	    bookSectorHistos(wh,sect,"Segment","PhibTkvsTrigSlope");  
+	    bookSectorHistos(wh,sect,"Segment","PhibTkvsTrigIntercept");  
+	    bookSectorHistos(wh,sect,"Segment","PhibTkvsTrigCorr");  
+	  }
+	  bookWheelHistos(wh,"Segment","PhiTkvsTrigSlope");  
+	  bookWheelHistos(wh,"Segment","PhiTkvsTrigIntercept");  
+	  bookWheelHistos(wh,"Segment","PhiTkvsTrigCorr");  
+	  bookWheelHistos(wh,"Segment","PhibTkvsTrigSlope");  
+	  bookWheelHistos(wh,"Segment","PhibTkvsTrigIntercept");  
+	  bookWheelHistos(wh,"Segment","PhibTkvsTrigCorr");  
+	}
+      }
+    }
+  }
+
+}
+
+
 void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
   edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
@@ -73,18 +114,18 @@ void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	    // Perform Correlation Plots analysis (DCC + segment Phi)
 	    TH2F * TrackPhitkvsPhitrig   = getHisto<TH2F>(dbe->get(getMEName("PhitkvsPhitrig","Segment", chId)));
 	    
-	    if (TrackPhitkvsPhitrig) {
+	    if (TrackPhitkvsPhitrig && TrackPhitkvsPhitrig->GetEntries()>10) {
 	      
 	      // Fill client histos
 	      if( secME[sector_id].find(fullName("PhiTkvsTrigCorr")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"TriggerAndSeg","PhiTkvsTrigSlope");  
-		bookSectorHistos(wh,sect,"TriggerAndSeg","PhiTkvsTrigIntercept");  
-		bookSectorHistos(wh,sect,"TriggerAndSeg","PhiTkvsTrigCorr");  
+		bookSectorHistos(wh,sect,"Segment","PhiTkvsTrigSlope");  
+		bookSectorHistos(wh,sect,"Segment","PhiTkvsTrigIntercept");  
+		bookSectorHistos(wh,sect,"Segment","PhiTkvsTrigCorr");  
 	      }
 	      if( whME[wh].find(fullName("PhiTkvsTrigCorr")) == whME[wh].end() ){
-		bookWheelHistos(wh,"TriggerAndSeg","PhiTkvsTrigSlope");  
-		bookWheelHistos(wh,"TriggerAndSeg","PhiTkvsTrigIntercept");  
-		bookWheelHistos(wh,"TriggerAndSeg","PhiTkvsTrigCorr");  
+		bookWheelHistos(wh,"Segment","PhiTkvsTrigSlope");  
+		bookWheelHistos(wh,"Segment","PhiTkvsTrigIntercept");  
+		bookWheelHistos(wh,"Segment","PhiTkvsTrigCorr");  
 	      }
 
 	      TProfile* PhitkvsPhitrigProf = TrackPhitkvsPhitrig->ProfileX();
@@ -109,18 +150,18 @@ void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	    // Perform Correlation Plots analysis (DCC + segment Phib)
 	    TH2F * TrackPhibtkvsPhibtrig = getHisto<TH2F>(dbe->get(getMEName("PhibtkvsPhibtrig","Segment", chId)));
 	    
-	    if (stat != 3 && TrackPhibtkvsPhibtrig) {// station 3 has no meaningful MB3 phi bending information
+	    if (stat != 3 && TrackPhibtkvsPhibtrig && TrackPhibtkvsPhibtrig->GetEntries()>10) {// station 3 has no meaningful MB3 phi bending information
 	      
 	      // Fill client histos
 	      if( secME[sector_id].find(fullName("PhibTkvsTrigCorr")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"TriggerAndSeg","PhibTkvsTrigSlope");  
-		bookSectorHistos(wh,sect,"TriggerAndSeg","PhibTkvsTrigIntercept");  
-		bookSectorHistos(wh,sect,"TriggerAndSeg","PhibTkvsTrigCorr");  
+		bookSectorHistos(wh,sect,"Segment","PhibTkvsTrigSlope");  
+		bookSectorHistos(wh,sect,"Segment","PhibTkvsTrigIntercept");  
+		bookSectorHistos(wh,sect,"Segment","PhibTkvsTrigCorr");  
 	      }
 	      if( whME[wh].find(fullName("PhibTkvsTrigCorr")) == whME[wh].end() ){
-		bookWheelHistos(wh,"TriggerAndSeg","PhibTkvsTrigSlope");  
-		bookWheelHistos(wh,"TriggerAndSeg","PhibTkvsTrigIntercept");  
-		bookWheelHistos(wh,"TriggerAndSeg","PhibTkvsTrigCorr");  
+ 		bookWheelHistos(wh,"Segment","PhibTkvsTrigSlope");  
+		bookWheelHistos(wh,"Segment","PhibTkvsTrigIntercept");  
+		bookWheelHistos(wh,"Segment","PhibTkvsTrigCorr");  
 	      }
 
 	      TProfile* PhibtkvsPhibtrigProf = TrackPhibtkvsPhibtrig->ProfileX(); 
