@@ -3,9 +3,9 @@
 /** \class SoftConversionProducer
  **  
  **
- **  $Id: SoftConversionProducer.h,v 1.1 2008/05/28 03:45:36 dwjang Exp $ 
- **  $Date: 2008/05/28 03:45:36 $ 
- **  $Revision: 1.1 $
+ **  $Id: SoftConversionProducer.h,v 1.2 2008/05/28 04:18:11 dwjang Exp $ 
+ **  $Date: 2008/05/28 04:18:11 $ 
+ **  $Revision: 1.2 $
  **  \author Dongwook Jang, Carnegie Mellon University
  **  Modified version of ConvertedPhotonProducer
  ***/
@@ -19,6 +19,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -36,7 +37,7 @@ class SoftConversionProducer : public edm::EDProducer {
   virtual void beginJob (edm::EventSetup const & es);
   virtual void endJob ();
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
-
+  bool trackQualityCut(reco::TransientTrack& trk);
  private:
 
   std::string conversionOITrackProducer_;

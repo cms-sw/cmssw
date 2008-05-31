@@ -15,7 +15,6 @@
 //
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -30,10 +29,6 @@
 #include "RecoEgamma/EgammaPhotonProducers/interface/SoftConversionProducer.h"
 
 #include "Math/GenVector/VectorUtil.h"
-
-bool trackQualityCut(reco::TransientTrack& trk){
-  return (trk.numberOfValidHits() >= 3 && trk.normalizedChi2() >= 0.0);
-}
 
 
 SoftConversionProducer::SoftConversionProducer(const edm::ParameterSet& config) : conf_(config) {
@@ -117,14 +112,18 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   int nTracksOI = (int) outInTrkHandle->size();
   for(int itrk=0; itrk<nTracksOI; itrk++){
     reco::TrackRef tRef(outInTrkHandle,itrk);
+    if(tRef.isNull()) continue;
     reco::CaloClusterPtr cRef = (*outInTrkClusterAssocHandle)[tRef];
+    if(cRef.isNull()) continue;
     trackClusterMap.push_back(make_pair(tRef,cRef));
   }
 
   int nTracksIO = (int) inOutTrkHandle->size();
   for(int itrk=0; itrk<nTracksIO; itrk++){
     reco::TrackRef tRef(inOutTrkHandle,itrk);
+    if(tRef.isNull()) continue;
     reco::CaloClusterPtr cRef = (*inOutTrkClusterAssocHandle)[tRef];
+    if(cRef.isNull()) continue;
     trackClusterMap.push_back(make_pair(tRef,cRef));
   }
 
@@ -205,4 +204,9 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   // put the collection into the event
   theEvent.put( outputColl, softConversionCollection_);
   
+}
+
+
+bool SoftConversionProducer::trackQualityCut(reco::TransientTrack& trk){
+  return (trk.numberOfValidHits() >= 3 && trk.normalizedChi2() >= 0.0 && trk.normalizedChi2() < 100.0);
 }
