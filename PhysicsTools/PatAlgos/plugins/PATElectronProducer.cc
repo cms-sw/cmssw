@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATElectronProducer.cc,v 1.5 2008/05/15 17:22:25 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -114,16 +114,15 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if (embedGsfTrack_) anElectron.embedGsfTrack();
     if (embedSuperCluster_) anElectron.embedSuperCluster();
     if (embedTrack_) anElectron.embedTrack();
-    // match to generated final state electrons
+
+    // store the match to the generated final state electrons
     if (addGenMatch_) {
       reco::GenParticleRef genElectron = (*genMatch)[elecsRef];
       if (genElectron.isNonnull() && genElectron.isAvailable() ) {
         anElectron.setGenLepton(*genElectron);
-      } else {
-        // "MC ELE MATCH: Something wrong: null=" << !genElectron.isNonnull() <<", avail=" << genElectron.isAvailable() << std::endl;
-        anElectron.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
-      }
+      } // leave empty if no match found
     }
+
     // add resolution info
     if(addResolutions_){
       (*theResoCalc_)(anElectron);

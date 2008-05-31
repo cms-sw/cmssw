@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.14 2008/04/29 12:38:15 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.15 2008/05/26 11:22:14 arizzi Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -194,24 +194,19 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (getJetMCFlavour_) {
         ajet.setPartonFlavour( (*jetFlavMatch)[edm::RefToBase<reco::Jet>(jetRef)].getFlavour() );
     }
-    // do the parton matching
+    // store the match to the generated partons
     if (addGenPartonMatch_) {
       reco::GenParticleRef parton = (*partonMatch)[jetRef];
       if (parton.isNonnull() && parton.isAvailable()) {
           ajet.setGenParton(*parton);
-      } else {
-          reco::Particle bestParton(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0, true);
-          ajet.setGenParton(bestParton);
-      }
+      } // leave empty if no match found
     }
-    // do the GenJet matching
+    // store the match to the GenJets
     if (addGenJetMatch_) {
       reco::GenJetRef genjet = (*genJetMatch)[jetRef];
       if (genjet.isNonnull() && genjet.isAvailable()) {
           ajet.setGenJet(*genjet);
-      } else {
-          ajet.setGenJet(reco::GenJet());
-      }
+      } // leave empty if no match found
     }
 
     // TO BE IMPLEMENTED FOR >=1_5_X: do the PartonJet matching

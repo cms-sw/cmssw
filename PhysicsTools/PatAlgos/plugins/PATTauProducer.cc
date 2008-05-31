@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATTauProducer.cc,v 1.5 2008/05/15 17:22:25 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -37,9 +37,9 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
   embedLeadTrack_       = iConfig.getParameter<bool>         ( "embedLeadTrack" );
   embedSignalTracks_    = iConfig.getParameter<bool>         ( "embedSignalTracks" );
   addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
+  genMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ( "addResolutions" );
   useNNReso_      = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  genPartSrc_     = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   tauResoFile_    = iConfig.getParameter<std::string>  ( "tauResoFile" );
 
   // construct resolution calculator
@@ -70,7 +70,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
    
   edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
-  if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch); 
+  if (addGenMatch_) iEvent.getByLabel(genMatchSrc_, genMatch); 
 
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
     edm::RefToBase<TauType> tausRef = anyTaus->refAt(idx);
@@ -130,14 +130,12 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
     }
 
-    // add MC match if demanded
+    // store the match to the generated final state taus
     if (addGenMatch_) {
       reco::GenParticleRef genTau = (*genMatch)[tausRef];
       if (genTau.isNonnull() && genTau.isAvailable() ) {
         aTau.setGenLepton(*genTau);
-      } else {
-        aTau.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
-      }
+      } // leave empty if no match found
     }
 
     // add resolution info if demanded
