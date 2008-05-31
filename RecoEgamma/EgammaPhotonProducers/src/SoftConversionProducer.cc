@@ -179,13 +179,15 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 	  trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterEndcapHandle);
 	}
 
+	// @@@ need to check duplicated candidates
+
 	reco::Conversion newCandidate(scRefs, trkRefs, trkPositionAtEcal, theConversionVertex, clusterRefs);
 	outputColl->push_back(newCandidate);
 
-	printf("=====> run(%d), event(%d) <=====\n",theEvent.id().run(),theEvent.id().event());
-	printf("Found a softConverion with vtxR(%f), vtxEta(%f), pt(%f), pt1(%f), pt2(%f)\n",
-	       newCandidate.conversionVertex().position().rho(),newCandidate.conversionVertex().position().eta(),
-	       newCandidate.pairMomentum().perp(),trk1->momentum().rho(),trk2->momentum().rho());
+// 	printf("=====> run(%d), event(%d) <=====\n",theEvent.id().run(),theEvent.id().event());
+// 	printf("Found a softConverion with vtxR(%f), vtxEta(%f), pt(%f), pt1(%f), pt2(%f)\n",
+// 	       newCandidate.conversionVertex().position().rho(),newCandidate.conversionVertex().position().eta(),
+// 	       newCandidate.pairMomentum().perp(),trk1->momentum().rho(),trk2->momentum().rho());
 
 	clusterRefs.clear();
 	trkRefs.clear();
