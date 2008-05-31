@@ -112,18 +112,14 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   int nTracksOI = (int) outInTrkHandle->size();
   for(int itrk=0; itrk<nTracksOI; itrk++){
     reco::TrackRef tRef(outInTrkHandle,itrk);
-    if(tRef.isNull()) continue;
     reco::CaloClusterPtr cRef = (*outInTrkClusterAssocHandle)[tRef];
-    if(cRef.isNull()) continue;
     trackClusterMap.push_back(make_pair(tRef,cRef));
   }
 
   int nTracksIO = (int) inOutTrkHandle->size();
   for(int itrk=0; itrk<nTracksIO; itrk++){
     reco::TrackRef tRef(inOutTrkHandle,itrk);
-    if(tRef.isNull()) continue;
     reco::CaloClusterPtr cRef = (*inOutTrkClusterAssocHandle)[tRef];
-    if(cRef.isNull()) continue;
     trackClusterMap.push_back(make_pair(tRef,cRef));
   }
 
@@ -140,7 +136,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   TrackClusterMap::iterator iter_end = trackClusterMap.end();
 
   // double-loop to make pairs
-  for( ; iter1 != iter_end-1; iter1++) {
+  for( ; iter1 != iter_end; iter1++) {
     const reco::TrackRef trk1 = iter1->first;
     const reco::CaloClusterPtr cls1 = iter1->second;
     reco::TransientTrack tsk1 = theTransientTrackBuilder->build(*trk1);
