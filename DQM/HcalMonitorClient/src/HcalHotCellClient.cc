@@ -468,7 +468,6 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
   // Jan. 2008 DQM Challenge -- instead of Maximum Energy histogram
   // Check for Cells > final (highest?) threshold
   //sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOccMapMaxCell",process_.c_str(),type.c_str(), type.c_str());
-  cout <<"FUCK OFFF "<<hist.thresholds<<endl;
   sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%s_OccupancyMap_HotCell_Threshold%i",process_.c_str(),type.c_str(), type.c_str(),hist.thresholds);
   //sprintf(name,"%s Maximum Energy Cell",type.c_str()); 
   sprintf(name,"%s Threshold #%i Cell",type.c_str(),hist.thresholds);
