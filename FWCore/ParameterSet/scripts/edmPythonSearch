@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+from FWCore.ParameterSet.TreeCrawler import TreeCrawler
+import sys
+
+class TreeGrepper:
+    def __init__(self, pattern):
+        self.__pattern = pattern
+    def do(self, filePath, level):
+        self.__filePath = filePath
+    def doContent(self, contents):
+        content = contents.splitlines()
+        for line in content:
+            if line.find(self.__pattern) != -1:
+                print self.__filePath+':  '+line
+
+
+if __name__ == '__main__':
+  if len(sys.argv) != 3:
+     print "Usage: edmPythonSearch <target> <fileName>"
+  pattern = sys.argv[1]
+  filePath = sys.argv[2]
+
+  doer = TreeGrepper(pattern)
+  crawler = TreeCrawler(doer)
+  crawler.parseArgs(sys.argv)
+  crawler.crawlInto(filePath)
+
+
