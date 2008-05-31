@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/04/23 13:33:14 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/05/27 16:24:01 $
+ *  $Revision: 1.19 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -61,6 +61,8 @@ private:
 
   //If you want info VS time histos
   bool doTimeHisto;
+  // Plot quantities about SC
+  bool getSCInfo;
 
   // back-end interface
   DQMStore * dbe;
@@ -81,7 +83,7 @@ private:
   int neventsROS25;
   float trigger_counter;
   std::string outputFile;
-  double rob_max[25],frequency;
+  double rob_max[25];
 
   
   //Event counter for the graphs VS time
