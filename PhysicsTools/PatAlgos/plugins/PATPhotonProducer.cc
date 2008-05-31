@@ -1,10 +1,13 @@
 //
-// $Id$
+// $Id: PATPhotonProducer.cc,v 1.5 2008/05/15 17:22:47 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include <memory>
 
 using namespace pat;
@@ -15,6 +18,10 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // initialize the configurables
   photonSrc_         = iConfig.getParameter<edm::InputTag>("photonSource");
   embedSuperCluster_ = iConfig.getParameter<bool>         ("embedSuperCluster");
+
+   // MC matching configurables
+  addGenMatch_       = iConfig.getParameter<bool>         ( "addGenMatch" );
+  genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   
   // produces vector of photons
   produces<std::vector<Photon> >();
@@ -44,6 +51,12 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   edm::Handle<edm::View<PhotonType> > photons;
   iEvent.getByLabel(photonSrc_, photons);
 
+  // prepare the MC matching
+  edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
+  if (addGenMatch_) {
+    iEvent.getByLabel(genMatchSrc_, genMatch);
+  }
+
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
 
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
@@ -59,6 +72,14 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     edm::RefToBase<PhotonType> photonRef = photons->refAt(idx);
     Photon aPhoton(photonRef);
     if (embedSuperCluster_) aPhoton.embedSuperCluster();
+
+    // store the match to the generated final state photons
+    if (addGenMatch_) {
+      reco::GenParticleRef genPhoton = (*genMatch)[photonRef];
+      if (genPhoton.isNonnull() && genPhoton.isAvailable() ) {
+        aPhoton.setGenPhoton(*genPhoton);
+      } // leave empty if no match found
+    }
 
     // here comes the extra functionality
     if (isolator_.enabled()) {
