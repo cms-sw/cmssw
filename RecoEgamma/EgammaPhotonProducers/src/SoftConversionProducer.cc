@@ -14,7 +14,9 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 //
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -44,6 +46,10 @@ SoftConversionProducer::SoftConversionProducer(const edm::ParameterSet& config) 
   clusterBarrelCollection_                = conf_.getParameter<std::string>("clusterBarrelCollection");
   clusterEndcapCollection_                = conf_.getParameter<std::string>("clusterEndcapCollection");
   softConversionCollection_               = conf_.getParameter<std::string>("softConversionCollection");
+  trackMaxChi2_                           = conf_.getParameter<double>("trackMaxChi2");
+  trackMinHits_                           = conf_.getParameter<double>("trackMinHits");
+  clustersMaxDeltaEta_                    = conf_.getParameter<double>("clustersMaxDeltaEta");
+  clustersMaxDeltaPhi_                    = conf_.getParameter<double>("clustersMaxDeltaPhi");
   
   theTrackPairFinder_ = 0;
   theVertexFinder_ = 0;
@@ -112,6 +118,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   int nTracksOI = (int) outInTrkHandle->size();
   for(int itrk=0; itrk<nTracksOI; itrk++){
     reco::TrackRef tRef(outInTrkHandle,itrk);
+    if(!trackQualityCut(tRef)) continue;
     reco::CaloClusterPtr cRef = (*outInTrkClusterAssocHandle)[tRef];
     trackClusterMap.push_back(make_pair(tRef,cRef));
   }
@@ -119,6 +126,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   int nTracksIO = (int) inOutTrkHandle->size();
   for(int itrk=0; itrk<nTracksIO; itrk++){
     reco::TrackRef tRef(inOutTrkHandle,itrk);
+    if(!trackQualityCut(tRef)) continue;
     reco::CaloClusterPtr cRef = (*inOutTrkClusterAssocHandle)[tRef];
     trackClusterMap.push_back(make_pair(tRef,cRef));
   }
@@ -140,21 +148,18 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
     const reco::TrackRef trk1 = iter1->first;
     const reco::CaloClusterPtr cls1 = iter1->second;
     reco::TransientTrack tsk1 = theTransientTrackBuilder->build(*trk1);
-    if(!trackQualityCut(tsk1)) continue;
 
     for(iter2 = iter1+1; iter2 != iter_end; iter2++) {
       const reco::TrackRef trk2 = iter2->first;
-      const reco::CaloClusterPtr cls2 = iter2->second;
-
       if(trk1 == trk2) continue;
 
+      const reco::CaloClusterPtr cls2 = iter2->second;
       reco::TransientTrack tsk2 = theTransientTrackBuilder->build(*trk2);
-      if(!trackQualityCut(tsk2)) continue;
 
       double dEta = std::abs(cls1->position().Eta() - cls2->position().Eta());
-      if(dEta > 0.2) continue;
+      if(dEta > clustersMaxDeltaEta_) continue;
       double dPhi = std::abs(ROOT::Math::VectorUtil::DeltaPhi(cls1->position(),cls2->position()));
-      if(dPhi > 0.5) continue;
+      if(dPhi > clustersMaxDeltaPhi_) continue;
 
       std::vector<reco::TransientTrack> toBeFitted;
       toBeFitted.push_back(tsk1);
@@ -205,6 +210,6 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 }
 
 
-bool SoftConversionProducer::trackQualityCut(reco::TransientTrack& trk){
-  return (trk.numberOfValidHits() >= 3 && trk.normalizedChi2() >= 0.0 && trk.normalizedChi2() < 100.0);
+bool SoftConversionProducer::trackQualityCut(const reco::TrackRef& trk){
+  return (trk->numberOfValidHits() >= trackMinHits_ && trk->normalizedChi2() < trackMaxChi2_);
 }

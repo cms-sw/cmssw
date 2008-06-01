@@ -3,9 +3,9 @@
 /** \class SoftConversionProducer
  **  
  **
- **  $Id: SoftConversionProducer.h,v 1.2 2008/05/28 04:18:11 dwjang Exp $ 
- **  $Date: 2008/05/28 04:18:11 $ 
- **  $Revision: 1.2 $
+ **  $Id: SoftConversionProducer.h,v 1.3 2008/05/31 04:32:58 dwjang Exp $ 
+ **  $Date: 2008/05/31 04:32:58 $ 
+ **  $Revision: 1.3 $
  **  \author Dongwook Jang, Carnegie Mellon University
  **  Modified version of ConvertedPhotonProducer
  ***/
@@ -19,7 +19,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class ConversionTrackEcalImpactPoint;
 class ConversionTrackPairFinder;
@@ -37,7 +37,8 @@ class SoftConversionProducer : public edm::EDProducer {
   virtual void beginJob (edm::EventSetup const & es);
   virtual void endJob ();
   virtual void produce(edm::Event& evt, const edm::EventSetup& es);
-  bool trackQualityCut(reco::TransientTrack& trk);
+  bool trackQualityCut(const reco::TrackRef& trk);
+
  private:
 
   std::string conversionOITrackProducer_;
@@ -52,6 +53,10 @@ class SoftConversionProducer : public edm::EDProducer {
   std::string clusterEndcapCollection_;
 
   std::string softConversionCollection_;
+  double trackMaxChi2_;
+  double trackMinHits_;
+  double clustersMaxDeltaEta_;
+  double clustersMaxDeltaPhi_;
   
   edm::ParameterSet conf_;
   edm::ESHandle<MagneticField> theMF_;
