@@ -169,9 +169,8 @@ L2TauValidation::matchL1(const reco::Jet& jet,std::vector<l1extra::L1JetParticle
   bool match = false;
 
   if(tauCandRefVec.size()>0)
-    for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
+    for(unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
 	  {  
-	     
 	    double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),tauCandRefVec[iL1Tau]->p4().Vect());
 	    if(delta<matchDeltaRL1_)
 	      match=true;
