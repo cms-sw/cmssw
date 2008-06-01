@@ -41,15 +41,17 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
 
    private:
       std::map<int, int> m_numx;
-      std::map<int, double> m_nx;
-      std::map<int, double> m_x1;
-      std::map<int, double> m_x2;
+      std::map<int, double> m_x_w;
+      std::map<int, double> m_x_ww;
+      std::map<int, double> m_x_wx;
+      std::map<int, double> m_x_wxx;
       std::map<int, int> m_numy;
-      std::map<int, double> m_ny;
-      std::map<int, double> m_y1;
-      std::map<int, double> m_y2;
+      std::map<int, double> m_y_w;
+      std::map<int, double> m_y_ww;
+      std::map<int, double> m_y_wy;
+      std::map<int, double> m_y_wyy;
 
-      TH1F *m_sumnumx, *m_sumnx, *m_sumx1, *m_sumx2, *m_sumnumy, *m_sumny, *m_sumy1, *m_sumy2, *m_xsummary, *m_ysummary;
+      TH1F *m_sumnumx, *m_sumnumy, *m_xsummary, *m_ysummary;
 
       TH1F *m_xresid, *m_xresid_mb, *m_xresid_me,
 	 *m_xresid_mb1, *m_xresid_mb2, *m_xresid_mb3, *m_xresid_mb4,
@@ -134,15 +136,12 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
       TTree *m_chambers;
       Int_t m_chambers_rawid, m_chambers_endcap, m_chambers_wheel, m_chambers_station, m_chambers_sector, m_chambers_ring, m_chambers_chamber;
       Int_t m_chambers_numx, m_chambers_numy;
-      Float_t m_chambers_nx, m_chambers_x1, m_chambers_x2;
-      Float_t m_chambers_ny, m_chambers_y1, m_chambers_y2;
+      Float_t m_chambers_x_w, m_chambers_x_ww, m_chambers_x_wx, m_chambers_x_wxx;
+      Float_t m_chambers_y_w, m_chambers_y_ww, m_chambers_y_wy, m_chambers_y_wyy;
 
       unsigned int xresid_bins, xmean_bins, xstdev_bins, xerronmean_bins, yresid_bins, ymean_bins, ystdev_bins, yerronmean_bins;
       double xresid_low, xresid_high, xmean_low, xmean_high, xstdev_low, xstdev_high, xerronmean_low, xerronmean_high, yresid_low, yresid_high, ymean_low, ymean_high, ystdev_low, ystdev_high, yerronmean_low, yerronmean_high;
 
-      bool m_tracker_hists;
-      TH1F *m_tracker_biasredchi2;
-      TH1F *m_tracker_dof;
 };
 
 //
@@ -160,7 +159,6 @@ class AlignmentMonitorMuonResiduals: public AlignmentMonitorBase {
 AlignmentMonitorMuonResiduals::AlignmentMonitorMuonResiduals(const edm::ParameterSet& cfg)
    : AlignmentMonitorBase(cfg, "AlignmentMonitorMuonResiduals")
 {
-   m_tracker_hists = cfg.getParameter<bool>("tracker_hists");
    xresid_bins = cfg.getParameter<unsigned int>("xresid_bins");
    xmean_bins = cfg.getParameter<unsigned int>("xmean_bins");
    xstdev_bins = cfg.getParameter<unsigned int>("xstdev_bins");
@@ -189,13 +187,15 @@ AlignmentMonitorMuonResiduals::AlignmentMonitorMuonResiduals(const edm::Paramete
 
 void AlignmentMonitorMuonResiduals::book() {
    m_numx.clear();
-   m_nx.clear();
-   m_x1.clear();
-   m_x2.clear();
+   m_x_w.clear();
+   m_x_ww.clear();
+   m_x_wx.clear();
+   m_x_wxx.clear();
    m_numy.clear();
-   m_ny.clear();
-   m_y1.clear();
-   m_y2.clear();
+   m_y_w.clear();
+   m_y_ww.clear();
+   m_y_wy.clear();
+   m_y_wyy.clear();
 
    std::vector<Alignable*> chambers;
    std::vector<Alignable*> tmp1 = pMuon()->DTChambers();
@@ -206,23 +206,19 @@ void AlignmentMonitorMuonResiduals::book() {
    for (std::vector<Alignable*>::const_iterator chamber = chambers.begin();  chamber != chambers.end();  ++chamber) {
       int id = (*chamber)->geomDetId().rawId();
       m_numx[id] = 0;
-      m_nx[id] = 0;
-      m_x1[id] = 0;
-      m_x2[id] = 0;
+      m_x_w[id] = 0;
+      m_x_ww[id] = 0;
+      m_x_wx[id] = 0;
+      m_x_wxx[id] = 0;
       m_numy[id] = 0;
-      m_ny[id] = 0;
-      m_y1[id] = 0;
-      m_y2[id] = 0;
+      m_y_w[id] = 0;
+      m_y_ww[id] = 0;
+      m_y_wy[id] = 0;
+      m_y_wyy[id] = 0;
    }
 
    m_sumnumx = book1D("/iterN/", "numx", "number of x hits", chambers.size(), 0.5, chambers.size() + 0.5);
-   m_sumnx = book1D("/iterN/", "nx", "sum of x hit weights (1/mm^{2})", chambers.size(), 0.5, chambers.size() + 0.5);
-   m_sumx1 = book1D("/iterN/", "x1", "weighted sum of x residuals (1/mm)", chambers.size(), 0.5, chambers.size() + 0.5);
-   m_sumx2 = book1D("/iterN/", "x2", "weighted sum of x residuals-squared (unitless)", chambers.size(), 0.5, chambers.size() + 0.5);
    m_sumnumy = book1D("/iterN/", "numy", "number of y hits", chambers.size(), 0.5, chambers.size() + 0.5);
-   m_sumny = book1D("/iterN/", "ny", "sum of y hit weights (1/mm^{2})", chambers.size(), 0.5, chambers.size() + 0.5);
-   m_sumy1 = book1D("/iterN/", "y1", "weighted sum of y residuals (1/mm)", chambers.size(), 0.5, chambers.size() + 0.5);
-   m_sumy2 = book1D("/iterN/", "y2", "weighted sum of y residuals-squared (unitless)", chambers.size(), 0.5, chambers.size() + 0.5);
    m_xsummary = book1D("/iterN/", "xsummary", "summary of x means and errors (mm vertical axis)", chambers.size(), 0.5, chambers.size() + 0.5);
    m_ysummary = book1D("/iterN/", "ysummary", "summary of y means and errors (mm vertical axis)", chambers.size(), 0.5, chambers.size() + 0.5);
 
@@ -546,9 +542,6 @@ void AlignmentMonitorMuonResiduals::book() {
    m_yerronmean_me32 = book1D("/iterN/me32/", "yerronmean_me32", "ME3/2 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
    m_yerronmean_me41 = book1D("/iterN/me41/", "yerronmean_me41", "ME4/1 error on y weighted mean residual per chamber (mm)", yerronmean_bins, yerronmean_low, yerronmean_high);
 
-   m_tracker_biasredchi2 = book1D("/iterN/", "trackerBiasRedChi2", "Forward-biased reduced chi2 in tracker", 100, 0., 5.);
-   m_tracker_dof = book1D("/iterN/", "trackerDOF", "DOF in tracker", 61, -0.5, 60.5);
-
    m_chambers = directory("/iterN/")->make<TTree>("chambers", "residual statistics for each chamber");
    m_chambers->Branch("rawid", &m_chambers_rawid, "rawid/I");
    m_chambers->Branch("endcap", &m_chambers_endcap, "endcap/I");
@@ -558,13 +551,15 @@ void AlignmentMonitorMuonResiduals::book() {
    m_chambers->Branch("ring", &m_chambers_ring, "ring/I");
    m_chambers->Branch("chamber", &m_chambers_chamber, "chamber/I");
    m_chambers->Branch("numx", &m_chambers_numx, "numx/I");
-   m_chambers->Branch("nx", &m_chambers_nx, "nx/F");
-   m_chambers->Branch("x1", &m_chambers_x1, "x1/F");
-   m_chambers->Branch("x2", &m_chambers_x2, "x2/F");
+   m_chambers->Branch("x_w", &m_chambers_x_w, "x_w/F");
+   m_chambers->Branch("x_ww", &m_chambers_x_ww, "x_ww/F");
+   m_chambers->Branch("x_wx", &m_chambers_x_wx, "x_wx/F");
+   m_chambers->Branch("x_wxx", &m_chambers_x_wxx, "x_wxx/F");
    m_chambers->Branch("numy", &m_chambers_numy, "numy/I");
-   m_chambers->Branch("ny", &m_chambers_ny, "ny/F");
-   m_chambers->Branch("y1", &m_chambers_y1, "y1/F");
-   m_chambers->Branch("y2", &m_chambers_y2, "y2/F");
+   m_chambers->Branch("y_w", &m_chambers_y_w, "y_w/F");
+   m_chambers->Branch("y_ww", &m_chambers_y_ww, "y_ww/F");
+   m_chambers->Branch("y_wy", &m_chambers_y_wy, "y_wy/F");
+   m_chambers->Branch("y_wyy", &m_chambers_y_wyy, "y_wyy/F");
 
 }
 
@@ -576,41 +571,6 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 //      const reco::Track *track = it->second;
 
       std::vector<TrajectoryMeasurement> measurements = traj->measurements();
-
-      if (m_tracker_hists) {
-	 double tracker_biaschi2 = 0.;
-	 double tracker_dof = 0.;
-	 for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin();  im != measurements.end();  ++im) {
-	    const TrajectoryMeasurement meas = *im;
-	    const TransientTrackingRecHit* hit = &(*meas.recHit());
-	    const DetId id = hit->geographicalId();
-
-	    if (hit->isValid()  &&  id.det() == DetId::Tracker) {
-	       if (hit->dimension() == 1) {
-		  double residual = meas.forwardPredictedState().localPosition().x() - hit->localPosition().x();
-		  double error2 = meas.forwardPredictedState().localError().positionError().xx() + hit->localPositionError().xx();
-
-		  tracker_biaschi2 += residual * residual / error2;
-		  tracker_dof += 1.;
-	       }
-	       else if (hit->dimension() == 2) {
-		  double residualx = meas.forwardPredictedState().localPosition().x() - hit->localPosition().x();
-		  double residualy = meas.forwardPredictedState().localPosition().y() - hit->localPosition().y();
-		  double errorxx2 = meas.forwardPredictedState().localError().positionError().xx() + hit->localPositionError().xx();
-		  double errorxy2 = meas.forwardPredictedState().localError().positionError().xy() + hit->localPositionError().xy();
-		  double erroryy2 = meas.forwardPredictedState().localError().positionError().yy() + hit->localPositionError().yy();
-
-		  tracker_biaschi2 += (residualx * residualx + residualy * residualy) / (errorxx2 + 2.*errorxy2 + erroryy2);
-		  tracker_dof += 2.;
-	       }
-	    }
-	 }
-	 tracker_dof -= 5.;
-	 double tracker_biasredchi2 = tracker_biaschi2 / tracker_dof;
-
-	 m_tracker_biasredchi2->Fill(tracker_biasredchi2);
-	 m_tracker_dof->Fill(tracker_dof);
-      } // end if fill tracker hists
 
       for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin();  im != measurements.end();  ++im) {
 	 const TrajectoryMeasurement meas = *im;
@@ -658,15 +618,17 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	       int rawId = dtId.rawId();
 	       if (x_reserr2 > 0.) {
 		  m_numx[rawId]++;
-		  m_nx[rawId] += 1./x_reserr2;
-		  m_x1[rawId] += x_residual / x_reserr2;
-		  m_x2[rawId] += x_residual * x_residual / x_reserr2 / x_reserr2;
+		  m_x_w[rawId] += 1./x_reserr2;
+		  m_x_ww[rawId] += 1./x_reserr2/x_reserr2;
+		  m_x_wx[rawId] += x_residual/x_reserr2;
+		  m_x_wxx[rawId] += x_residual*x_residual/x_reserr2;
 	       }
 	       if (y_reserr2 > 0.) {
 		  m_numy[rawId]++;
-		  m_ny[rawId] += 1./y_reserr2;
-		  m_y1[rawId] += y_residual / y_reserr2;
-		  m_y2[rawId] += y_residual * y_residual / y_reserr2 / y_reserr2;
+		  m_y_w[rawId] += 1./y_reserr2;
+		  m_y_ww[rawId] += 1./y_reserr2/y_reserr2;
+		  m_y_wy[rawId] += y_residual/y_reserr2;
+		  m_y_wyy[rawId] += y_residual*y_residual/y_reserr2;
 	       }
 
 	       if (dtId.station() == 1) {
@@ -745,7 +707,6 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	    } // end if DT
 
 	    else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
-
 	       m_xresid->Fill(x_residual, 1./x_reserr2);
 	       m_yresid->Fill(y_residual, 1./y_reserr2);
 
@@ -756,15 +717,17 @@ void AlignmentMonitorMuonResiduals::event(const edm::EventSetup &iSetup, const C
 	       int rawId = cscId.chamberId().rawId();
 	       if (x_reserr2 > 0.) {
 		  m_numx[rawId]++;
-		  m_nx[rawId] += 1./x_reserr2;
-		  m_x1[rawId] += x_residual / x_reserr2;
-		  m_x2[rawId] += x_residual * x_residual / x_reserr2 / x_reserr2;
+		  m_x_w[rawId] += 1./x_reserr2;
+		  m_x_ww[rawId] += 1./x_reserr2/x_reserr2;
+		  m_x_wx[rawId] += x_residual/x_reserr2;
+		  m_x_wxx[rawId] += x_residual*x_residual/x_reserr2;
 	       }
 	       if (y_reserr2 > 0.) {
 		  m_numy[rawId]++;
-		  m_ny[rawId] += 1./y_reserr2;
-		  m_y1[rawId] += y_residual / y_reserr2;
-		  m_y2[rawId] += y_residual * y_residual / y_reserr2 / y_reserr2;
+		  m_y_w[rawId] += 1./y_reserr2;
+		  m_y_ww[rawId] += 1./y_reserr2/y_reserr2;
+		  m_y_wy[rawId] += y_residual/y_reserr2;
+		  m_y_wyy[rawId] += y_residual*y_residual/y_reserr2;
 	       }
 
 	       if ((cscId.endcap() == 1? 1: -1)*cscId.station() == 1  &&  cscId.ring() == 1) {
@@ -856,27 +819,23 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 
    int index = 0;
    for (std::vector<Alignable*>::const_iterator chamber = chambers.begin();  chamber != chambers.end();  ++chamber) {
-      int id = (*chamber)->geomDetId().rawId();
+      const int id = (*chamber)->geomDetId().rawId();
       
       m_chambers_rawid = id;
       m_chambers_numx = m_numx[id];
-      m_chambers_nx = m_nx[id];
-      m_chambers_x1 = m_x1[id];
-      m_chambers_x2 = m_x2[id];
+      m_chambers_x_w = m_x_w[id];
+      m_chambers_x_ww = m_x_ww[id];
+      m_chambers_x_wx = m_x_wx[id];
+      m_chambers_x_wxx = m_x_wxx[id];
       m_chambers_numy = m_numy[id];
-      m_chambers_ny = m_ny[id];
-      m_chambers_y1 = m_y1[id];
-      m_chambers_y2 = m_y2[id];
+      m_chambers_y_w = m_y_w[id];
+      m_chambers_y_ww = m_y_ww[id];
+      m_chambers_y_wy = m_y_wy[id];
+      m_chambers_y_wyy = m_y_wyy[id];
 
       index++;
       m_sumnumx->SetBinContent(index, m_numx[id]);
-      m_sumnx->SetBinContent(index, m_nx[id]);
-      m_sumx1->SetBinContent(index, m_x1[id]);
-      m_sumx2->SetBinContent(index, m_x2[id]);
       m_sumnumy->SetBinContent(index, m_numy[id]);
-      m_sumny->SetBinContent(index, m_ny[id]);
-      m_sumy1->SetBinContent(index, m_y1[id]);
-      m_sumy2->SetBinContent(index, m_y2[id]);
 
       std::ostringstream name;
       if ((*chamber)->geomDetId().subdetId() == MuonSubdetId::DT) {
@@ -902,20 +861,14 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
       m_chambers->Fill();
 
       m_sumnumx->GetXaxis()->SetBinLabel(index, name.str().c_str());
-      m_sumnx->GetXaxis()->SetBinLabel(index, name.str().c_str());
-      m_sumx1->GetXaxis()->SetBinLabel(index, name.str().c_str());
-      m_sumx2->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_sumnumy->GetXaxis()->SetBinLabel(index, name.str().c_str());
-      m_sumny->GetXaxis()->SetBinLabel(index, name.str().c_str());
-      m_sumy1->GetXaxis()->SetBinLabel(index, name.str().c_str());
-      m_sumy2->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_xsummary->GetXaxis()->SetBinLabel(index, name.str().c_str());
       m_ysummary->GetXaxis()->SetBinLabel(index, name.str().c_str());
 
-      if (m_nx[id] > 0.) {
-	 double xmean = m_x1[id] / m_nx[id];
-	 double xstdev = sqrt(m_x2[id] / m_nx[id] - (m_x1[id] / m_nx[id]) * (m_x1[id] / m_nx[id]));
-	 double xerronmean = xstdev / sqrt(m_nx[id]);
+      if (m_numx[id] > 0.) {
+	 double xmean = m_x_wx[id] / m_x_w[id];
+	 double xstdev = sqrt(((m_x_wxx[id] * m_x_w[id]) - (m_x_wx[id] * m_x_wx[id]))/((m_x_w[id] * m_x_w[id]) - m_x_ww[id]));
+	 double xerronmean = xstdev / sqrt(m_numx[id]);
 
 	 m_xsummary->SetBinContent(index, xmean);
 	 m_xsummary->SetBinError(index, xerronmean);
@@ -1033,10 +986,10 @@ void AlignmentMonitorMuonResiduals::afterAlignment(const edm::EventSetup &iSetup
 	 } // else itis CSC
       } // end if xmean, xstdev exist
       
-      if (m_ny[id] > 0.) {
-	 double ymean = m_y1[id] / m_ny[id];
-	 double ystdev = sqrt(m_y2[id] / m_ny[id] - (m_y1[id] / m_ny[id]) * (m_y1[id] / m_ny[id]));
-	 double yerronmean = ystdev / sqrt(m_ny[id]);
+      if (m_numy[id] > 0.) {
+	 double ymean = m_y_wy[id] / m_y_w[id];
+	 double ystdev = sqrt(((m_y_wyy[id] * m_y_w[id]) - (m_y_wy[id] * m_y_wy[id]))/((m_y_w[id] * m_y_w[id]) - m_y_ww[id]));
+	 double yerronmean = ystdev / sqrt(m_numy[id]);
 
 	 m_ysummary->SetBinContent(index, ymean);
 	 m_ysummary->SetBinError(index, yerronmean);
