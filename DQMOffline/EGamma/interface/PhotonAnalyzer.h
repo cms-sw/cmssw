@@ -2,6 +2,7 @@
 #define PhotonAnalyzer_H
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -67,12 +68,14 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   int nMatched_;
   edm::ParameterSet parameters_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;	    
+  edm::ESHandle<CaloTopology> theCaloTopo_;
+
            
   std::string photonCollectionProducer_;       
   std::string photonCollection_;
-  std::string  bcProducer_;
-  std::string  bcBarrelCollection_;
-  std::string  bcEndcapCollection_;
+  //  std::string  bcProducer_;
+  edm::InputTag  bcBarrelCollection_;
+  edm::InputTag  bcEndcapCollection_;
   std::string hbheLabel_;
   std::string hbheInstanceName_;
  
