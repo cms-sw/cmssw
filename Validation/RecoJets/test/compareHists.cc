@@ -105,63 +105,73 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
 int main (int argn, char* argv []) {
   int result = 0; // OK
 
+  if (argn < 5) {
+    std::cout << "Usage: " << argv[0] << " <file_name> <reference file_name> <module_name> <description" << std::endl;
+    return 1;
+  }
+
   std::string inputFileName (argv[1]);
   std::string refFileName (argv[2]);
-  std::string globalTitle = argn > 2 ? argv[3] : "";
+  std::string moduleName (argv[3]);
+  std::string globalTitle = argv[4];
   std::cout << "Processing file " << inputFileName << std::endl;
   TFile* inputFile = TFile::Open (inputFileName.c_str());
-  TFile* refFile = TFile::Open (refFileName.c_str());
-  if (inputFile) {
-    std::cout << "ls for the file:" << std::endl;
-    inputFile->ls ();
-
-    std::vector<std::string> dirName1 = getAllKeys (inputFile, "TDirectory");
-    for (unsigned idir = 0; idir < dirName1.size(); idir++) {
-      TDirectory* dir1 = 0;
-      inputFile->GetObject (dirName1[idir].c_str(), dir1);
-      if (dir1) {
-	std::vector<std::string> dirName2 = getAllKeys (dir1, "TDirectory");
-	for (unsigned idir2 = 0; idir2 < dirName1.size(); ++idir2) {
-	  TDirectory* dir2 = 0;
-	  dir1->GetObject (dirName2[idir2].c_str(), dir2);
-	  if (dir2) {
-	    std::vector<std::string> histKeys = getAllKeys (dir2, "TH1F");
-	    // output
-	    gStyle->SetOptStat (kFALSE);
-	    TCanvas canvas ("Jets","Jets",800,600);
-	    TPostScript ps ((dirName2[idir2]+std::string(".ps")).c_str(), -112);
-	    ps.Range(29.7 , 21.0);
-	    for (unsigned ihist = 0; ihist < histKeys.size (); ++ihist) {
-	      TH1* hist = 0;
-	      dir2->GetObject (histKeys[ihist].c_str(), hist);
-	      if (hist) {
-		std::vector<std::string> histPathName;
-		histPathName.push_back (dirName1[idir]);
-		histPathName.push_back (dirName2[idir2]);
-		histPathName.push_back (histKeys[ihist]);
-		TH1* refhist = (TH1*) getObject (refFile, histPathName);
-		if (refhist) {
-		  std::string title = globalTitle.empty () ? dirName2[idir2] : globalTitle;
-		  double pv = makeGifHists (hist, refhist, &canvas, title);
-		  std::cout << "pv for hist " << dirName1[idir] << '/' << dirName2[idir2] << '/' << histKeys[ihist] << " is " << pv << std::endl; 
-		  ps.NewPage();
-		}
-	      }
-	      else {
-		std::cerr << "Can not get histogram " << histKeys[ihist] << std::endl;
-	      }
-	    }
-	  }
-	}
-      }
-      else {
-	std::cerr << "Can not find dir1: " << dirName1[idir] << std::endl;
-      }
+  if (!inputFile) {
+    std::cerr << "Cannot open file " << inputFileName << std::endl;
+    return 1;
+  }
+  TDirectory* dirIn = 0;
+  std::string workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName; // new format
+  inputFile->GetObject (workDir.c_str(), dirIn);
+  if (!dirIn) {
+    std::cout << "Fall back to old format for file " << inputFileName << std::endl;
+    workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
+    inputFile->GetObject (workDir.c_str(), dirIn);
+    if (!dirIn) {
+      std::cerr << "Can't access workDir in file " << inputFileName << std::endl;
+      return 1;
     }
   }
-  else {
-    std::cerr << " Can not open input file " << inputFileName << std::endl;
-    result = 1;
+  TFile* refFile = TFile::Open (refFileName.c_str());
+  if (!refFile) {
+    std::cerr << "Cannot open file " << refFileName << std::endl;
+    return 1;
   }
-  return result;
+  TDirectory* dirRef = 0;
+  workDir = std::string ("DQMData/RecoJetsV/CaloJetTask_") + moduleName; // new format
+  refFile->GetObject (workDir.c_str(), dirRef);
+  if (!dirRef) {
+    std::cout << "Fall back to old format for file " << refFileName << std::endl;
+    workDir = std::string ("DQMData/CaloJetTask_") + moduleName; // old format
+    refFile->GetObject (workDir.c_str(), dirRef);
+    if (!dirRef) {
+      std::cerr << "Can't access workDir in file " << refFileName << std::endl;
+      return 1;
+    }
+  }
+  
+  std::vector<std::string> histKeys = getAllKeys (dirIn, "TH1F");
+  // output
+  gStyle->SetOptStat (kFALSE);
+  TCanvas canvas ("Jets","Jets",800,600);
+  for (unsigned ihist = 0; ihist < histKeys.size (); ++ihist) {
+    TH1* hist = 0;
+    dirIn->GetObject (histKeys[ihist].c_str(), hist);
+    if (hist) {
+      TH1* refhist = 0;
+      dirRef->GetObject (histKeys[ihist].c_str(), refhist);
+      if (refhist) {
+	std::string title = globalTitle;
+	double pv = makeGifHists (hist, refhist, &canvas, title);
+	std::cout << "pv for hist " << histKeys[ihist] << " is " << pv << std::endl; 
+      }
+      else {
+	std::cerr << "Can not get reference histogram " << histKeys[ihist] << std::endl;
+      }
+    }
+    else {
+      std::cerr << "Can not get histogram " << histKeys[ihist] << std::endl;
+    }
+  }
+  return 0;
 }
