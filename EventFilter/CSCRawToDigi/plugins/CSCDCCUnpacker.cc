@@ -391,7 +391,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    ///this loop stores wire, strip and comparator digis:
 	    for (int ilayer = 1; ilayer <= 6; ++ilayer) {
 	      /// set layer, dmb and vme are valid because already checked in line 240
-	      layer = pcrate->detId( vmecrate, dmb,icfeb,ilayer );
+	      // All ME1/1 wire digis must go to ring 1.
+	      layer = pcrate->detId( vmecrate, dmb, 0, ilayer );
 
 	      std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
 	      
@@ -425,6 +426,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		if (goodTMB){
 		  std::vector <CSCComparatorDigi>  comparatorDigis =
 		    cscData[iCSC].clctData()->comparatorDigis(layer.rawId(), icfeb);
+		  // Set cfeb=0, so that ME1/a and ME1/b comparators go to
+		  // ring 1.
+		  layer = pcrate->detId( vmecrate, dmb, 0, ilayer );
 		  comparatorProduct->put(std::make_pair(comparatorDigis.begin(), 
 							comparatorDigis.end()),layer);
 		}
