@@ -19,43 +19,45 @@
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TrackingParticleCollection TPColl;
-typedef TPColl::const_iterator TPCIter;
+typedef TrackingParticleRef TPRef;
 typedef reco::MuonCollection MuColl;
-typedef MuColl::const_iterator MuCIter;
+typedef reco::MuonRef MuRef;
 
 template<typename QTester>
 class SimRecoTable
 {
  public:
-  typedef std::map<double, std::pair<TPCIter, MuCIter> > QTable;
-  typedef std::list<std::pair<TPCIter, MuCIter> > Pairs;
-  typedef std::list<TPCIter> SimPtcls;
-  
+  typedef std::pair<TPRef, MuRef> Pair;
+  typedef std::map<double, Pair> QTable;
+  typedef std::list<Pair> Pairs;
+  typedef std::list<TPRef> SimPtcls;
+
   SimRecoTable(const edm::Handle<TPColl>& simPtcls,
                const edm::Handle<MuColl>& recoMuons,
                const QTester& test)
-    {
-      for(TPCIter iSimPtcl = simPtcls->begin();
-          iSimPtcl != simPtcls->end(); iSimPtcl++) {
-        int nSimToReco = 0;
+  {
+    for(TPColl::size_type i = 0; i < simPtcls->size(); i++) {
+      TPRef iSimPtcl(simPtcls, i);
+      int nSimToReco = 0;
 
-        if ( ! test(*iSimPtcl) ) continue; 
+      if ( ! test(*iSimPtcl) ) continue; 
 
-        for(MuCIter iRecoMuon = recoMuons->begin();
-            iRecoMuon != recoMuons->end(); iRecoMuon++) {
-          if ( ! test(*iRecoMuon) ) continue;
+      for(MuColl::size_type j = 0; j < recoMuons->size(); j++) {
+        MuRef jRecoMuon(recoMuons, j);
 
-          double quality;
-          if ( ! test(*iSimPtcl, *iRecoMuon, quality) ) continue;
-          qTable_[quality] = std::make_pair(iSimPtcl, iRecoMuon);
-          nSimToReco++;
-        }
+        if ( ! test(*jRecoMuon) ) continue;
 
-        if ( nSimToReco == 0 ) {
-          unmatchedSimPtcls_.push_back(iSimPtcl);
-        }
+        double quality;
+        if ( ! test(*iSimPtcl, *jRecoMuon, quality) ) continue;
+        qTable_[quality] = Pair(iSimPtcl, jRecoMuon);
+        nSimToReco++;
       }
-    };
+
+      if ( nSimToReco == 0 ) {
+        unmatchedSimPtcls_.push_back(iSimPtcl);
+      }
+    }
+  };
   
   // getBestMatched()
   // Fills up matched pairs sorted by quality without duplication
