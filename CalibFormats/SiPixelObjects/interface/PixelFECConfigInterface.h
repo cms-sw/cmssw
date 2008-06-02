@@ -125,7 +125,8 @@ namespace pos{
 			    int& success0, 
 			    int& success1,
 			    int& success2, 
-			    int& success3)=0;
+			    int& success3,
+			    int& success4)=0;
     
 
     virtual int rocreset(int mfec, int fecchannel, 
