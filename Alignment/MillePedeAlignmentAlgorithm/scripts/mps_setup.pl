@@ -9,12 +9,18 @@
 #
 #  Usage:
 #
-#  mps_setup.pl batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript] [[CastorPool=<pool>:]mssDir]
+#  mps_setup.pl batchScript cfgTemplate infiList nJobs class[:classMerge] jobname [mergeScript [pool:]mssDir]
 #
 # class can be - any of the normal LSF queues (8nm,1nh,8nh,1nd,2nd,1nw,2nw)
 #              - special CAF queues (cmscaf,cmscafspec - the latter for pede job!)
-# If class contains a ':', it will be split: The part before the ':' will be used for mille jobs,
-#                                            the part behind it for the merging pede job
+# If class contains a ':', it will be split:
+#              - the part before the ':' defines the class for Mille jobs,
+#              - the part behind the class for the Pede job.
+#              (eg cmscaf:cmscafspec)
+# If mssDir contains a ':', it will be split:
+#              - the part before ':' defines the pool,
+#              - the part behind it the directory.
+#              (eg cmscaf:/castor/cern.ch/cms/store/...)
 
 BEGIN {
 use File::Basename;
@@ -129,7 +135,6 @@ if ($driver eq "merge") {
 if ($mssDir ne "") {
   if ($mssDir =~ /:/) {
     $castorPool = $mssDir;
-    $castorPool =~ s/CastorPool=//; # Remove "CastorPool="
     $castorPool =~ s/:.+?$//; # Remove all that follows ":"
 
     $mssDir =~ s/^.+?://; # Remove all the precedes ":"
