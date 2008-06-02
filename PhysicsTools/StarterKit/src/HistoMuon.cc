@@ -56,21 +56,11 @@ void HistoMuon::fill( const Muon *muon, uint iMu, double weight )
   h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
   h_leptonID_->fill( muon->leptonID(), iMu , weight);
 
-  const reco::Muon* recoMuon = muon->originalObject();
-  h_nChambers_->fill( recoMuon->numberOfChambers(), iMu , weight);
+  h_nChambers_->fill( muon->numberOfChambers(), iMu , weight);
 
-// For CMSSW 1_6_x
-
-  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu, weight );
-  h_type_->fill( recoMuon->type(), iMu, weight );
-  reco::MuonEnergy muEnergy = recoMuon->calEnergy();
-
-
-// For CMSSW 2_0_x
-
-//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu , weight);
-//   h_type_->fill( recoMuon->type(), iMu , weight);
-//   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
+  h_calCompat_->fill( muon->caloCompatibility(), iMu, weight );
+  h_type_->fill( muon->type(), iMu, weight );
+  reco::MuonEnergy muEnergy = muon->calEnergy();
 
   h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu , weight);
 
@@ -101,20 +91,11 @@ void HistoMuon::fill( const reco::ShallowCloneCandidate *pshallow, uint iMu, dou
   h_caloIso_ ->fill( muon->caloIso() , iMu , weight);
   h_leptonID_->fill( muon->leptonID(), iMu , weight);
 
-  const reco::Muon* recoMuon = muon->originalObject();
-  h_nChambers_->fill( recoMuon->numberOfChambers(), iMu , weight);
+  h_nChambers_->fill( muon->numberOfChambers(), iMu , weight);
 
-// For CMSSW 1_6_x
-
-  h_calCompat_->fill( recoMuon->caloCompatibility(), iMu, weight );
-  h_type_->fill( recoMuon->type(), iMu, weight );
-  reco::MuonEnergy muEnergy = recoMuon->calEnergy();
-
-// For CMSSW 2_0_x
-
-//   h_calCompat_->fill( recoMuon->caloCompatibility(), iMu , weight);
-//   h_type_->fill( recoMuon->type(), iMu , weight);
-//   reco::MuonEnergy muEnergy = recoMuon->calEnergy();
+  h_calCompat_->fill( muon->caloCompatibility(), iMu, weight );
+  h_type_->fill( muon->type(), iMu, weight );
+  reco::MuonEnergy muEnergy = muon->calEnergy();
 
   h_caloE_->fill( muEnergy.em+muEnergy.had+muEnergy.ho, iMu , weight);
 
