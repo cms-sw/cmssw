@@ -56,5 +56,6 @@ class SiStripActionExecutor {
   MonitorElement * SummaryTECF;
   MonitorElement * SummaryTECB;
 
+  bool bookedGlobalStatus_;
 };
 #endif

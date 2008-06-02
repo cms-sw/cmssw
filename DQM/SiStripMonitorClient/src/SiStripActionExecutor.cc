@@ -29,6 +29,8 @@ SiStripActionExecutor::SiStripActionExecutor() {
     " Creating SiStripActionExecutor " << "\n" ;
   summaryCreator_= 0;
   tkMapCreator_ = 0; 
+
+  bookedGlobalStatus_ = false;
 }
 //
 // --  Destructor
@@ -96,35 +98,39 @@ void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset,
 //
 void SiStripActionExecutor::bookGlobalStatus(DQMStore* dqm_store) {
 
-  dqm_store->cd();
-
-  dqm_store->setCurrentFolder("SiStrip/EventInfo");    
-  SummaryReport = dqm_store->bookFloat("reportSummary");
- 
-  SummaryReportMap = dqm_store->book2D("reportSummaryMap","SiStrip Report Summary Map",6,0.5,6.5,10,0.5,10.5);
-  SummaryReportMap->setAxisTitle("Sub Detector Trype", 1);
-  SummaryReportMap->setAxisTitle("Layer/Disc Number", 2);
-  SummaryReportMap->setBinLabel(1, "TIB");
-  SummaryReportMap->setBinLabel(2, "TOB");
-  SummaryReportMap->setBinLabel(3, "TIDF");
-  SummaryReportMap->setBinLabel(4, "TIDB");
-  SummaryReportMap->setBinLabel(5, "TECF");
-  SummaryReportMap->setBinLabel(6, "TECB");
-  
-  dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");      
-  
-  SummaryTIB  = dqm_store->bookFloat("SummaryTIB");
-  SummaryTOB  = dqm_store->bookFloat("SummaryTOB");
-  SummaryTIDF = dqm_store->bookFloat("SummaryTIDF");
-  SummaryTIDB = dqm_store->bookFloat("SummaryTIDB");
-  SummaryTECF = dqm_store->bookFloat("SummaryTECF");
-  SummaryTECB = dqm_store->bookFloat("SummaryTECB");
-
+  if (!bookedGlobalStatus_) {
+    dqm_store->cd();
+    
+    dqm_store->setCurrentFolder("SiStrip/EventInfo");    
+    SummaryReport = dqm_store->bookFloat("reportSummary");
+    
+    SummaryReportMap = dqm_store->book2D("reportSummaryMap","SiStrip Report Summary Map",6,0.5,6.5,9,0.5,9.5);
+    SummaryReportMap->setAxisTitle("Sub Detector Trype", 1);
+    SummaryReportMap->setAxisTitle("Layer/Disc Number", 2);
+    SummaryReportMap->setBinLabel(1, "TIB");
+    SummaryReportMap->setBinLabel(2, "TOB");
+    SummaryReportMap->setBinLabel(3, "TIDF");
+    SummaryReportMap->setBinLabel(4, "TIDB");
+    SummaryReportMap->setBinLabel(5, "TECF");
+    SummaryReportMap->setBinLabel(6, "TECB");
+    
+    dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");      
+    
+    SummaryTIB  = dqm_store->bookFloat("SummaryTIB");
+    SummaryTOB  = dqm_store->bookFloat("SummaryTOB");
+    SummaryTIDF = dqm_store->bookFloat("SummaryTIDF");
+    SummaryTIDB = dqm_store->bookFloat("SummaryTIDB");
+    SummaryTECF = dqm_store->bookFloat("SummaryTECF");
+    SummaryTECB = dqm_store->bookFloat("SummaryTECB");
+    
+    bookedGlobalStatus_ = true;
+  }
 }
 // 
 // -- Fill Global Status
 //
 void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabling>& detcabling, DQMStore* dqm_store) {
+  if (!bookedGlobalStatus_) bookGlobalStatus(dqm_store);
   float gStatus = 0.0;
   // get connected detectors
   std::vector<uint32_t> SelectedDetIds;
@@ -273,21 +279,27 @@ void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,
       if (tot_me > 0.0) SummaryReportMap->Fill(xbin,ybin, (1-error_me/tot_me));
       else SummaryReportMap->Fill(xbin,ybin, -1.0);
     }
+    int ytot = SummaryReportMap->getNbinsY();
+    if (ybin < ytot) {
+      for (unsigned int ic = ybin+1; ic < ytot+1; ic++) SummaryReportMap->Fill(xbin,ic,-1);
+    }
   }  
 }
 //
 // -- create reportSummary MEs
 //
 void SiStripActionExecutor::resetGlobalStatus() {
-
-  SummaryReport->Reset();
- 
-  SummaryReportMap->Reset();
-
-  SummaryTIB->Reset();
-  SummaryTOB->Reset();
-  SummaryTIDF->Reset();
-  SummaryTIDB->Reset();
-  SummaryTECF->Reset();
-  SummaryTECB->Reset();
+  if (bookedGlobalStatus_) {
+    
+    SummaryReport->Reset();
+    
+    SummaryReportMap->Reset();
+    
+    SummaryTIB->Reset();
+    SummaryTOB->Reset();
+    SummaryTIDF->Reset();
+    SummaryTIDB->Reset();
+    SummaryTECF->Reset();
+    SummaryTECB->Reset();
+  }
 }

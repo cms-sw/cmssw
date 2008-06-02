@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/05/14 21:20:53 $
- * $Revision: 1.34 $
+ * $Date: 2008/05/21 21:35:27 $
+ * $Revision: 1.35 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -120,6 +120,7 @@ void SiStripAnalyser::beginJob(edm::EventSetup const& eSetup){
      edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! Summary will not be produced!!!";
      summaryFrequency_ = -1;
   }
+  if (globalStatusFilling_) actionExecutor_->bookGlobalStatus(dqmStore_);
   nLumiSecs_ = 0;
   nEvents_   = 0;
 }
@@ -142,10 +143,7 @@ void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     }
     eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
-    if (globalStatusFilling_) actionExecutor_->bookGlobalStatus(dqmStore_);
-  } else {
-    if (globalStatusFilling_) actionExecutor_->resetGlobalStatus();
-  }
+  } 
 }
 //
 // -- Begin Luminosity Block
@@ -205,7 +203,10 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
-  if (globalStatusFilling_) actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
+  if (globalStatusFilling_) {
+    actionExecutor_->resetGlobalStatus();
+    actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
+  }
 }
 
 //
